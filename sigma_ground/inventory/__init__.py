@@ -19,7 +19,7 @@ Quick start::
     result = quarksum.quark_chain(s)
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.2"
 
 from sigma_ground.inventory.builder import (
     build_quick_structure,

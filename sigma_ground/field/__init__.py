@@ -25,7 +25,7 @@ from .scale import scale_ratio, lambda_eff, sigma_from_potential, sigma_conversi
 from .nucleon import proton_mass_mev, neutron_mass_mev, nucleon_decomposition
 from .binding import binding_energy_mev, binding_decomposition
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 __all__ = [
     # SSBM parameters
     'XI', 'LAMBDA_QCD_MEV', 'GAMMA', 'ETA',
