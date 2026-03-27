@@ -34,9 +34,13 @@ from sigma_ground.field.constants import (
     NEUTRON_QCD_FRACTION,
     M_ELECTRON_MEV,
 
-    # Coulomb energy
+    # Electromagnetic
     E_CHARGE,
     EPS_0,
+    MU_0,
+    ALPHA,
+    M_ELECTRON_KG,
+    K_B,
     R0_FM,
     KE_E2_MEV_FM,
     A_C_MEV,
@@ -75,7 +79,8 @@ __all__ = [
     'NEUTRON_BARE_MEV', 'NEUTRON_TOTAL_MEV', 'NEUTRON_QCD_MEV',
     'PROTON_QCD_FRACTION', 'NEUTRON_QCD_FRACTION',
     'M_ELECTRON_MEV',
-    'E_CHARGE', 'EPS_0', 'R0_FM', 'KE_E2_MEV_FM', 'A_C_MEV',
+    'E_CHARGE', 'EPS_0', 'MU_0', 'ALPHA', 'M_ELECTRON_KG', 'K_B',
+    'R0_FM', 'KE_E2_MEV_FM', 'A_C_MEV',
     'ETA',
     'N0_FM3', 'E_SAT_MEV', 'K_SAT_MEV', 'J_SYM_MEV',
     'H0', 'M_HUBBLE_KG', 'M_PLANCK_KG', 'L_PLANCK',

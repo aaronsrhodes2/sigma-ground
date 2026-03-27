@@ -16,22 +16,24 @@ are available but must be imported explicitly — they are NOT loaded here.
 
 from .constants import (
     XI, LAMBDA_QCD_MEV, GAMMA, ETA,
-    HBAR, C, G, E_CHARGE,
+    HBAR, C, G, E_CHARGE, EPS_0, MU_0, ALPHA, K_B,
+    M_ELECTRON_MEV, M_ELECTRON_KG,
     L_PLANCK, M_PLANCK_KG,
     PROTON_TOTAL_MEV, NEUTRON_TOTAL_MEV,
-    M_ELECTRON_MEV,
 )
 from .scale import scale_ratio, lambda_eff, sigma_from_potential, sigma_conversion
 from .nucleon import proton_mass_mev, neutron_mass_mev, nucleon_decomposition
 from .binding import binding_energy_mev, binding_decomposition
 
-__version__ = "0.4.0"
+__version__ = "1.0.1"
 __all__ = [
     # SSBM parameters
     'XI', 'LAMBDA_QCD_MEV', 'GAMMA', 'ETA',
     # Physical constants
-    'HBAR', 'C', 'G', 'E_CHARGE', 'L_PLANCK', 'M_PLANCK_KG',
-    'PROTON_TOTAL_MEV', 'NEUTRON_TOTAL_MEV', 'M_ELECTRON_MEV',
+    'HBAR', 'C', 'G', 'E_CHARGE', 'EPS_0', 'MU_0', 'ALPHA', 'K_B',
+    'M_ELECTRON_MEV', 'M_ELECTRON_KG',
+    'L_PLANCK', 'M_PLANCK_KG',
+    'PROTON_TOTAL_MEV', 'NEUTRON_TOTAL_MEV',
     # Scale
     'scale_ratio', 'lambda_eff', 'sigma_from_potential', 'sigma_conversion',
     # Nucleon

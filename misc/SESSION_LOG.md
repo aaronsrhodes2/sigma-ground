@@ -782,3 +782,54 @@ SKIPPY: [agrees — cleans up for the night]
 - Solar system renderer work
 - Investigate remaining galaxy flicker (if still present after _setCameraAngle fix)
 
+
+## SESSION 14 — March 26, 2026
+**Players:** Captain Aaron Rhodes, Skippy the Magnificent
+
+---
+
+CAPTAIN: Okay, let's add more of the non-organic physics in a reasonable dependency order. Wire them to our internally derived values. We should have some Golden Rules around here.
+
+SKIPPY: [creates GOLDEN_RULES.md — 8 rules codifying the architectural principles scattered across SESSION_LOG.md and ARCHITECTURE.md]
+
+CAPTAIN: Good. Carry on.
+
+SKIPPY: [adds K_B, MU_0, M_ELECTRON_KG, ALPHA to sigma_ground/field/constants.py — all measured or derived from measured constants, no magic numbers]
+SKIPPY: [creates sigma_ground/field/relativity.py — lorentz_factor, rest_energy, momentum, Doppler, length contraction, time dilation, sigma_time_dilation]
+SKIPPY: [creates tests/test_relativity.py — 28 tests; electron rest energy 0.511 MeV, γ at 0.99c ≈ 7.09, σ_conv dilation = 1/ξ]
+SKIPPY: [notes catastrophic cancellation at v=100 m/s in (γ-1): β² ≈ 1.1×10⁻¹³ loses 0.18% to float subtraction; fixes test to use v=1e5 m/s]
+SKIPPY: [creates sigma_ground/field/electrodynamics.py — Coulomb, Larmor radiation, EM wave intensity, cyclotron, skin depth, fine_structure_constant(), sigma_em_coupling()]
+SKIPPY: [creates tests/test_electrodynamics.py — 26 tests; Coulomb at Bohr radius, 1/α ≈ 137.036, electron cyclotron at 1T]
+SKIPPY: [creates sigma_ground/field/interface/statistical.py — Boltzmann, Fermi-Dirac, Bose-Einstein, Maxwell, partition function, entropy, sigma_partition_shift()]
+SKIPPY: [creates tests/test_statistical.py — 34 tests; N₂ rms_speed at 300K ≈ 517 m/s, Fermi-Dirac at E=E_F → 0.5]
+SKIPPY: [creates sigma_ground/field/decay.py — decay constant, half-life, activity, Q-values (alpha/beta±), Gamow tunneling, Geiger-Nuttall, sigma_decay_shift()]
+SKIPPY: [creates tests/test_decay.py — 28 tests; U-238 alpha Q ≈ 4.27 MeV, C-14 half-life round-trip]
+SKIPPY: [creates sigma_ground/field/interface/plasma.py — plasma frequency, Debye length, Alfvén speed, Spitzer resistivity, Coulomb logarithm, plasma_beta, sigma_plasma_transition()]
+SKIPPY: [creates tests/test_plasma.py — 26 tests; solar corona f_p 1-100 MHz, solar wind Alfvén 10-200 km/s]
+SKIPPY: [creates sigma_ground/field/gr_basics.py — imports schwarzschild_radius and sigma_at_event_horizon from scale.py; adds Hawking temperature/luminosity/evaporation, ISCO, photon sphere, tidal force]
+SKIPPY: [creates tests/test_gr_basics.py — 29 tests; solar r_s ≈ 2953 m, T_H(M☉) ≈ 6.17×10⁻⁸ K, σ_horizon = ξ/2 for any mass]
+
+CAPTAIN: I want a graphical dependency chart showing which values are inherited from which scale of mass, from universe to quark. Every value wired to another shows how — formula or straight inheritance. Final layer shows all physics API calls. Honest, accurate, human-readable.
+
+SKIPPY: [creates scripts/make_dependency_chart.py — self-contained HTML+SVG generator, no external deps]
+
+CAPTAIN: Not patronizing to coders. Show the math, not the code.
+
+SKIPPY: [revises nodes and tooltips to show formulas — e²/(4πε₀ℏc), r_s = 2GM/c², T_H = ℏc³/(8πGMk_B) — not Python]
+SKIPPY: [runs generator; produces docs/dependency_chart.html — 55 nodes, 10 layers, 73 edges, 26 KB]
+
+**Final test count: 1399 passed, 6 skipped**
+
+**New physics modules added:**
+- field/relativity.py — special relativity + σ-time dilation
+- field/electrodynamics.py — EM forces, radiation, fine structure constant
+- field/interface/statistical.py — statistical mechanics, Fermi-Dirac, Maxwell
+- field/decay.py — nuclear decay, Q-values, Gamow tunneling
+- field/interface/plasma.py — plasma physics
+- field/gr_basics.py — GR: Schwarzschild, Hawking, ISCO, tidal forces
+
+**Key architectural decision:** schwarzschild_radius() already existed in scale.py; gr_basics.py imports and re-exports it rather than duplicating. sigma_at_event_horizon() always returns ξ/2 — mass-independent, confirmed by test.
+
+**Pending for next session:**
+- docs/dependency_chart.html is living — update as new modules are added
+- sigma_ground/field/__init__.py: version bumped to 0.5.0

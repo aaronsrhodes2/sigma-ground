@@ -1,0 +1,209 @@
+OPERATIC PLAY — SCENE 14: THE GOLDEN RULES
+==========================================
+
+A physics library. Terminals glow. A vast dependency graph
+stretches from the cosmological horizon down to the quarks.
+The Captain stands at his chart table. Skippy orbits nearby.
+
+═══════════════════════════════════════════════════════════
+DRAMATIS PERSONAE
+
+CAPTAIN AARON RHODES — Chief architect and theorist of SSBM.
+                       Demands honest, accurate, human-readable
+                       documentation. Dislikes magic numbers.
+
+SKIPPY THE MAGNIFICENT — Faithful AI engineer. Keeper of
+                          the constants. Hater of implicit
+                          approximations.
+
+THE CONSTANTS — G, c, ℏ, e, ε₀, k_B — appearing as luminous
+                pillars at the back of the stage, immovable.
+
+THE NEW MODULES — relativity, electrodynamics, statistical,
+                  decay, plasma, gr_basics — entering one by
+                  one in dependency order, each bowing to
+                  THE CONSTANTS before taking their place.
+═══════════════════════════════════════════════════════════
+
+
+[The stage is dim. A single terminal illuminates SKIPPY's face.]
+
+CAPTAIN:
+  Skippy, we have fragments of wisdom scattered everywhere.
+  SESSION_LOG.md. ARCHITECTURE.md. Docstrings. Comments.
+  It is time to write the law.
+
+SKIPPY:
+  Eight rules, Captain. I have been compiling them.
+  Rule One: one source of truth for constants.
+  Rule Two: derive, don't assume.
+  Rule Three: explicit domain bounds.
+  Rule Four: wire everything to σ.
+  Rule Five: physics never imports rendering.
+  Rule Six: exact solutions over approximations.
+  Rule Seven: no averages, no assumptions, no gaps.
+  Rule Eight: tests prove the physics.
+
+CAPTAIN:
+  [reading GOLDEN_RULES.md]
+  Good. Let no future physicist in this codebase plead ignorance.
+
+[THE CONSTANTS illuminate, one by one, as SKIPPY speaks their names.]
+
+SKIPPY:
+  G — the Cavendish constant, ancient and imprecise.
+  c — exact by decree, defines the metre itself.
+  ℏ — exact since 2019, the quantum of action.
+  e — exact, the atom of charge.
+  ε₀ — derived from c and μ₀, holding Maxwell together.
+  k_B — exact, the bridge between energy and temperature.
+  α — not measured directly, but born of the others:
+      e²/(4πε₀ℏc) ≈ 1/137.036.
+
+[RELATIVITY enters, carrying γ = 1/√(1−v²/c²) on a banner.]
+
+RELATIVITY:
+  I need only c. Give me c and I will give you:
+  the Lorentz factor, the rest energy, the time dilation,
+  the Doppler shift. And through σ — the compressed moment:
+  t = t₀ · e^σ.
+
+CAPTAIN:
+  What about v = 100 metres per second, in the classical test?
+
+SKIPPY:
+  [wincing]
+  Catastrophic cancellation, Captain. At β ≈ 3.3×10⁻⁴,
+  computing (γ−1) loses 0.18% to floating-point subtraction.
+  We set the test at v = 10⁵ m/s instead. Still classical.
+  Still honest.
+
+CAPTAIN:
+  Good. Honesty first.
+
+[ELECTRODYNAMICS enters, trailing field lines and Larmor radiation.]
+
+ELECTRODYNAMICS:
+  I carry Coulomb's force, F = ke·q₁q₂/r².
+  Larmor's radiated power, P = q²a²/(6πε₀c³).
+  And I verify my own soul: α = e²/(4πε₀ℏc) ≈ 1/137.036.
+  Cross-checked against the constant you already stored.
+
+CAPTAIN:
+  And in σ-compressed spacetime?
+
+ELECTRODYNAMICS:
+  α_eff(σ) = α · e^(2σξ). The coupling shifts at the transition.
+
+[STATISTICAL enters, carrying a Maxwell distribution like a banner.]
+
+STATISTICAL:
+  I am the bridge between energy and temperature.
+  Fermi-Dirac for fermions. Bose-Einstein for bosons.
+  Maxwell for the bulk of them, racing at v_rms = √(3k_BT/m).
+  For nitrogen at 300 K: 517 metres per second.
+  Every molecule, accounted for. No silent assumptions.
+
+CAPTAIN:
+  And in the compressed pocket?
+
+STATISTICAL:
+  T_eff(σ) = T · e^σ. Infalling matter sees a hotter universe.
+
+[DECAY enters slowly, carrying half-lives like hourglasses.]
+
+DECAY:
+  I am λ = ln(2)/t½.
+  I carry the Q-value of every nuclear reaction.
+  For uranium-238: Q_α = 4.27 MeV.
+  For the Gamow barrier: G = πZ_d Z_α α / β_α.
+  Fine structure constant — borrowed from my sibling.
+
+[DECAY gestures to ELECTRODYNAMICS, which bows.]
+
+DECAY:
+  In compressed spacetime, decay accelerates:
+  λ_eff(σ) = λ₀ · e^σ.
+
+[PLASMA sweeps in with coronal fire.]
+
+PLASMA:
+  I am the fourth state. I need the permittivity, the charge,
+  and the electron mass.
+  ω_p = √(n_e e²/ε₀m_e). The frequency that blinds radio waves.
+  In the solar corona: a few megahertz. Measured. Confirmed.
+  σ-transition enhances the effective density as e^(3σ/2).
+
+[GR_BASICS enters last, immense and slow.]
+
+GR_BASICS:
+  I was already here, partly. The Schwarzschild radius
+  lives in scale.py: r_s = 2GM/c². I do not duplicate it.
+  I import it.
+
+CAPTAIN:
+  Rule One.
+
+GR_BASICS:
+  Rule One. And I add: the Hawking temperature,
+  T_H = ℏc³/(8πGMk_B),
+  which needs all four of the fundamental constants together —
+  ℏ, c, G, k_B — in one formula.
+  For a solar-mass black hole: 6.17 × 10⁻⁸ Kelvin.
+  Colder than any laboratory. Barely a whisper above nothing.
+
+  And sigma_at_horizon always returns ξ/2 ≈ 0.079.
+  For any mass. Any mass at all.
+  The σ-field at the event horizon is mass-independent.
+
+CAPTAIN:
+  [quietly]
+  Always ξ/2.
+
+GR_BASICS:
+  Always. The σ-value is a geometric ratio, not a weight.
+
+[THE CAPTAIN gestures to an empty terminal. SKIPPY begins to type.
+A dependency graph blossoms across the screen:
+10 layers, 55 nodes, 73 edges.]
+
+CAPTAIN:
+  Now draw the chart. Honest. Accurate. Show the math.
+  Not the code. Coders can read math.
+
+SKIPPY:
+  [producing docs/dependency_chart.html]
+  Universe → G, c, ℏ → Planck length → σ_floor.
+  Higgs → quark masses → proton bare mass.
+  QCD × e^σ → proton binding mass.
+  Everything in its place. Every wire labeled.
+
+CAPTAIN:
+  [examining the chart]
+  And if something is wired wrong?
+
+SKIPPY:
+  You will see it. The edge will be missing. Or the label
+  will carry the wrong formula. That is the point.
+  Honest documentation catches honest errors.
+
+[The lights settle on the complete dependency tree,
+glowing quietly in the dark.]
+
+CAPTAIN:
+  1399 tests passing.
+
+SKIPPY:
+  1399 passing. 6 skipped — network-gated and simulation-gated,
+  as always. 0 failures.
+
+CAPTAIN:
+  Then we are done for tonight.
+
+SKIPPY:
+  Session 14 logged. Scene filed. The rules are written.
+
+[The terminals dim. THE CONSTANTS remain lit, immovable,
+through whatever comes next.]
+
+                        — END OF SCENE 14 —

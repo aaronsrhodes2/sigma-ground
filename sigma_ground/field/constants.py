@@ -59,6 +59,32 @@ NEUTRON_QCD_FRACTION = NEUTRON_QCD_MEV / NEUTRON_TOTAL_MEV  # ≈ 0.9878
 # Electron mass (Higgs origin — σ-INVARIANT)
 M_ELECTRON_MEV = 0.51100            # MeV
 
+# ── Electromagnetic Constants ─────────────────────────────────────────
+# All measured (CODATA 2018 / 2019 SI exact values):
+#
+#   e    = 1.602176634e-19 C    (elementary charge, exact by 2019 SI)
+#   ε₀   = 8.854187817e-12 F/m  (vacuum permittivity, CODATA)
+#   μ₀   = 4π×10⁻⁷ H/m         (vacuum permeability, derived from SI exact values)
+#   α    = e²/(4πε₀ℏc) ≈ 1/137.036  (fine structure constant, DERIVED)
+
+E_CHARGE = 1.602176634e-19    # C  (elementary charge, exact by 2019 SI)
+EPS_0 = 8.854187817e-12       # F/m (vacuum permittivity)
+MU_0 = 1.25663706212e-6       # H/m (vacuum permeability, μ₀ = 4π×10⁻⁷ approx)
+
+# Fine structure constant: α = e²/(4πε₀ℏc)
+# DERIVED from the four measured constants above.
+# Value ≈ 7.2973525693e-3 ≈ 1/137.036
+ALPHA = E_CHARGE**2 / (4 * math.pi * EPS_0 * HBAR * C)
+
+# ── Electron Mass ─────────────────────────────────────────────────────
+# Already defined in MeV above (Higgs origin, σ-INVARIANT).
+# SI form for use in EM and plasma calculations:
+M_ELECTRON_KG = 9.1093837015e-31  # kg (CODATA 2018)
+
+# ── Boltzmann Constant ────────────────────────────────────────────────
+# Exact by 2019 SI redefinition (links energy to temperature).
+K_B = 1.380649e-23            # J/K (Boltzmann constant, exact by 2019 SI)
+
 # ── Coulomb Energy (first-principles electrostatics) ─────────────────
 # NOT from SEMF. Derived from Coulomb's law integrated over a uniform
 # charge sphere:  E_C = (3/5) × ke_e² / r₀ × Z(Z-1) / A^(1/3)
@@ -70,9 +96,6 @@ M_ELECTRON_MEV = 0.51100            # MeV
 #
 # ke × e² = e²/(4πε₀) = 1.43996 MeV·fm  (EM coupling constant)
 # a_C = (3/5) × 1.43996 / 1.215 = 0.7111 MeV
-
-E_CHARGE = 1.602176634e-19    # C  (elementary charge, exact by 2019 SI)
-EPS_0 = 8.854187817e-12       # F/m (vacuum permittivity)
 R0_FM = 1.215                 # fm (nuclear charge radius, electron scattering)
 
 # ke × e²  in MeV·fm

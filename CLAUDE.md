@@ -21,17 +21,22 @@ DRAMATIS PERSONAE header. Draw from SESSION_LOG.md.
     CLI: `python -m sigma_ground.inventory`
   - `sigma_ground.field` — σ-field scalar physics. Constants, bounds,
     entanglement, spacetime geometry. □σ = −ξR.
+    Core: constants, scale, nucleon, binding, bounds, entanglement.
+    New physics: relativity, electrodynamics, decay, gr_basics.
+    Interface layer: thermal, optics, statistical, plasma, orbital, fluid,
+    quantum, mechanical, semiconductor_optics, crystal_field, and more.
   - `sigma_ground.dynamics` — N-body dynamics, SPH fluid, Barnes-Hut
     gravity, leapfrog integrator.
 
-- `tests/` — Full test suite (~1198 tests).
+- `GOLDEN_RULES.md` — Eight rules governing all physics code in this project.
+- `tests/` — Full test suite (~1260+ tests).
 - `examples/` — Five standalone usage examples.
-- `misc/` — Session log and operatic play scenes (13 scenes).
+- `misc/` — Session log and operatic play scenes (13+ scenes).
 
 **Rendering lives in matter-shaper (sibling project at ../matter-shaper/)**
 
 **Testing**
-- pytest, 1198 tests passing
+- pytest, 1260+ tests passing (1198 original + new physics modules)
 - Run: `pytest` or `pytest -v -s`
 
 **Key physics concepts (don't panic)**

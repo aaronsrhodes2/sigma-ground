@@ -36,14 +36,18 @@ Author: Aaron Rhodes
 from .constants import (
     G, C, HBAR, L_PLANCK,
     XI, SIGMA_CONV, ETA,
+    K_B, ALPHA, MU_0, M_ELECTRON_KG,
     M_SUN_KG, L_SUN_W, AU_M, YEAR_S,
 )
 from .dynamics.vec import Vec3
 
 __all__ = [
-    # Constants
+    # Fundamental constants
     'G', 'C', 'HBAR', 'L_PLANCK',
+    'K_B', 'ALPHA', 'MU_0', 'M_ELECTRON_KG',
+    # SSBM field parameters
     'XI', 'SIGMA_CONV', 'ETA',
+    # Astronomical
     'M_SUN_KG', 'L_SUN_W', 'AU_M', 'YEAR_S',
     # Math primitives
     'Vec3',
