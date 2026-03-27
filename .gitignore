@@ -1,0 +1,37 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+.venv/
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.DS_Store
+
+# Rendered outputs and media — keep local, never commit
+Images/
+renders/
+simulations/
+*.gif
+*.svg
+*.png
+*.ppm
+*.jpg
+*.jpeg
+
+# Large binary archives and documents
+*.zip
+*.tar.gz
+*.pdf
+*.pptx
+*.xlsx
+*.docx
+*.npz
+
+# IDE
+.vscode/
+.idea/

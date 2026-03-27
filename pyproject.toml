@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=69.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sigma-ground"
+version = "1.0.0"
+description = "Particle physics library: σ-field computation, particle inventory, and N-body dynamics"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = []
+authors = [
+    {name = "Aaron Rhodes"},
+]
+keywords = [
+    "physics",
+    "particles",
+    "quarks",
+    "mass",
+    "sigma",
+    "scalar-field",
+    "nuclear",
+    "atoms",
+    "molecules",
+    "matter",
+    "dynamics",
+    "science",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/aaronsrhodes2/sigma-ground"
+Repository = "https://github.com/aaronsrhodes2/sigma-ground"
+Issues = "https://github.com/aaronsrhodes2/sigma-ground/issues"
+
+[project.scripts]
+sigma-ground = "sigma_ground.inventory.__main__:main"
+
+[project.optional-dependencies]
+test = ["pytest>=8.0"]
+
+[tool.setuptools.packages.find]
+include = ["sigma_ground*"]
+
+[tool.setuptools.package-data]
+"sigma_ground.inventory" = ["data/*.json", "samples/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "renderer/tests", "sigma_ground/field/interface"]
+
+[tool.pip-compile]
+dependencies = ["pip-compile"]
