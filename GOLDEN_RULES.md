@@ -131,8 +131,37 @@ def test_electron_rest_energy():
 
 ---
 
+## Rule 9 — If One, Then All
+
+When adding a property for one material, element, or entity, add it for
+**every applicable entry** in that database. Incomplete databases are silent
+gaps — they compile, they run, and they give wrong answers when simulated.
+
+```python
+# Wrong — cherry-picked data
+SUPERCONDUCTORS = {
+    'aluminum': {'T_c_K': 1.175, 'kappa': 0.01, ...},
+    'niobium':  {'T_c_K': 9.25,  'kappa': 1.05, ...},
+    # 45 other superconductors silently missing — simulation sees only 2
+}
+
+# Correct — every known superconductor, every field populated
+SUPERCONDUCTORS = {
+    'aluminum': {'T_c_K': 1.175, 'kappa': 0.01, 'kappa_source': 'measured', ...},
+    'niobium':  {'T_c_K': 9.25,  'kappa': 1.05, 'kappa_source': 'measured', ...},
+    'titanium': {'T_c_K': 0.40,  'kappa': 0.09, 'kappa_source': 'derived',  ...},
+    # ... all 53 elements + compounds, no gaps
+}
+```
+
+If a value cannot be measured, derive it and flag the provenance. If it
+truly cannot be determined, flag it explicitly — never silently omit the entry.
+
+---
+
 *These rules exist because the σ-field framework lives or dies on the
 precision of its foundations. Every magic number is a crack in the theory.
-Every undocumented approximation is a place where the framework secretly fails.*
+Every undocumented approximation is a place where the framework secretly fails.
+Every missing database entry is a thing the simulation cannot see.*
 
 *"Nature already has the best answer — we just need to find it."*

@@ -1,0 +1,507 @@
+#!/usr/bin/env python3
+"""
+Generate the McMillan formula validation chart.
+
+Compares McMillan-predicted T_c against measured T_c for all elements
+with known electron-phonon coupling data. Includes non-superconducting
+metals (Cu, Ag, Au, Fe, Co, Ni) as negative controls.
+
+Output: docs/mcmillan_validation.html  (self-contained, no external deps)
+
+Usage:
+    cd /path/to/sigma-ground
+    python scripts/make_mcmillan_chart.py
+"""
+
+import json
+import sys
+from pathlib import Path
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from sigma_ground.field.interface.superconductivity import (
+    SUPERCONDUCTORS, mcmillan_Tc_for, debye_comparison,
+)
+
+
+def gather_data():
+    """Collect measured vs predicted T_c for all entries with McMillan data."""
+    sc_points = []      # Superconductors
+    weak_points = []    # Weak-coupling non-SC (Cu, Ag, Au, Pt)
+    ferro_points = []   # Ferromagnets (Fe, Co, Ni)
+    spin_points = []    # Spin fluctuations (Pd)
+
+    for key, data in SUPERCONDUCTORS.items():
+        predicted = mcmillan_Tc_for(key)
+        if predicted is None:
+            continue
+
+        measured = data['T_c_K']
+        is_sc = data.get('is_superconductor', True)
+        suppression = data.get('suppression')
+        name = data['name']
+        lam = data.get('lambda_ep', 0)
+
+        point = {
+            'key': key,
+            'name': name,
+            'measured': measured,
+            'predicted': predicted,
+            'lambda_ep': lam,
+            'label': key[:6],
+        }
+
+        if not is_sc:
+            if suppression == 'ferromagnet':
+                ferro_points.append(point)
+            elif suppression == 'spin_fluctuations':
+                spin_points.append(point)
+            else:
+                weak_points.append(point)
+        else:
+            sc_points.append(point)
+
+    return sc_points, weak_points, ferro_points, spin_points
+
+
+def gather_debye_data():
+    """Collect derived vs measured Debye temperatures."""
+    return debye_comparison()
+
+
+def build_html(sc, weak, ferro, spin, debye):
+    """Build self-contained HTML with three charts."""
+
+    # Compute axis max for scatter plot
+    all_measured = [p['measured'] for p in sc] + [p['predicted'] for p in sc]
+    all_predicted = [p['predicted'] for p in sc]
+    scatter_max = max(max(all_measured, default=1), max(all_predicted, default=1)) * 1.15
+
+    # Sort SC by measured T_c for bar chart
+    sc_sorted = sorted(sc, key=lambda p: p['measured'])
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>McMillan Formula Validation — sigma-ground</title>
+<style>
+  * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+  body {{
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0d1117; color: #c9d1d9;
+    padding: 20px;
+  }}
+  h1 {{ color: #58a6ff; text-align: center; margin-bottom: 8px; font-size: 1.6em; }}
+  h2 {{ color: #79c0ff; margin: 24px 0 12px; font-size: 1.2em; }}
+  .subtitle {{ text-align: center; color: #8b949e; margin-bottom: 24px; font-size: 0.9em; }}
+  .chart-container {{
+    background: #161b22; border: 1px solid #30363d; border-radius: 8px;
+    padding: 20px; margin-bottom: 24px; overflow-x: auto;
+  }}
+  canvas {{ display: block; margin: 0 auto; }}
+  .legend {{
+    display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;
+    margin: 12px 0; font-size: 0.85em;
+  }}
+  .legend-item {{ display: flex; align-items: center; gap: 6px; }}
+  .legend-dot {{
+    width: 12px; height: 12px; border-radius: 50%; display: inline-block;
+  }}
+  .stats {{
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px; margin: 16px 0;
+  }}
+  .stat-card {{
+    background: #0d1117; border: 1px solid #30363d; border-radius: 6px;
+    padding: 12px; text-align: center;
+  }}
+  .stat-value {{ color: #58a6ff; font-size: 1.4em; font-weight: bold; }}
+  .stat-label {{ color: #8b949e; font-size: 0.8em; margin-top: 4px; }}
+  .note {{ color: #8b949e; font-size: 0.8em; font-style: italic; margin-top: 8px; }}
+  table {{ border-collapse: collapse; width: 100%; margin-top: 12px; }}
+  th, td {{ padding: 6px 10px; text-align: right; border-bottom: 1px solid #21262d; font-size: 0.82em; }}
+  th {{ color: #58a6ff; text-align: right; }}
+  td:first-child, th:first-child {{ text-align: left; }}
+  tr:hover td {{ background: #1c2128; }}
+</style>
+</head>
+<body>
+
+<h1>McMillan Formula Validation</h1>
+<p class="subtitle">
+  T<sub>c</sub> = (&Theta;<sub>D</sub>/1.45) &times; exp(&minus;1.04(1+&lambda;) / (&lambda; &minus; &mu;*(1+0.62&lambda;)))
+  &nbsp;|&nbsp; McMillan, Phys. Rev. 167, 331 (1968)
+</p>
+
+{_scatter_section(sc, weak, ferro, spin, scatter_max)}
+
+{_bar_section(sc_sorted)}
+
+{_debye_section(debye)}
+
+{_table_section(sc, weak, ferro, spin)}
+
+<p class="note" style="text-align:center; margin-top:20px;">
+  Generated by sigma-ground &mdash; zero external dependencies
+</p>
+
+</body>
+</html>"""
+
+
+def _scatter_section(sc, weak, ferro, spin, axis_max):
+    """Chart 1: Measured vs Predicted T_c scatter plot."""
+    # Build data arrays as JSON for the inline script
+    sc_json = json.dumps([{'x': p['measured'], 'y': p['predicted'],
+                           'label': p['key']} for p in sc])
+    weak_json = json.dumps([{'x': p['measured'], 'y': p['predicted'],
+                             'label': p['key']} for p in weak])
+    ferro_json = json.dumps([{'x': p['measured'], 'y': p['predicted'],
+                              'label': p['key']} for p in ferro])
+    spin_json = json.dumps([{'x': p['measured'], 'y': p['predicted'],
+                             'label': p['key']} for p in spin])
+
+    # Compute stats
+    ratios = [p['predicted'] / p['measured'] for p in sc if p['measured'] > 0]
+    mean_ratio = sum(ratios) / len(ratios) if ratios else 0
+    max_ratio = max(ratios) if ratios else 0
+    min_ratio = min(ratios) if ratios else 0
+
+    return f"""
+<h2>Chart 1 &mdash; Measured T<sub>c</sub> vs McMillan T<sub>c</sub></h2>
+<div class="chart-container">
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#58a6ff"></span> Superconductors</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#8b949e"></span> Weak coupling (Cu, Ag, Au, Pt)</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#f85149"></span> Ferromagnets (Fe, Co, Ni)</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#d29922"></span> Spin fluctuations (Pd)</span>
+    <span class="legend-item"><span style="color:#3fb950">&#9473;</span> 1:1 line (perfect agreement)</span>
+  </div>
+  <canvas id="scatter" width="700" height="700"></canvas>
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-value">{mean_ratio:.2f}&times;</div>
+      <div class="stat-label">Mean predicted/measured ratio</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{min_ratio:.2f}&ndash;{max_ratio:.2f}&times;</div>
+      <div class="stat-label">Ratio range (SC only)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{len(sc)}</div>
+      <div class="stat-label">Superconductors with &lambda; data</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{len(weak) + len(ferro) + len(spin)}</div>
+      <div class="stat-label">Non-SC negative controls</div>
+    </div>
+  </div>
+  <p class="note">
+    McMillan (1968) systematically overestimates T<sub>c</sub>, especially for
+    strong-coupling materials (&lambda; &gt; 1). The Allen-Dynes (1975)
+    correction reduces this bias. Ferromagnets predict nonzero T<sub>c</sub>
+    because magnetic ordering (not captured by McMillan) destroys Cooper pairing.
+  </p>
+</div>
+<script>
+(function() {{
+  var sc = {sc_json};
+  var weak = {weak_json};
+  var ferro = {ferro_json};
+  var spin_data = {spin_json};
+  var axMax = {axis_max:.1f};
+
+  var canvas = document.getElementById('scatter');
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var pad = {{top: 40, right: 40, bottom: 60, left: 70}};
+  var pw = W - pad.left - pad.right;
+  var ph = H - pad.top - pad.bottom;
+
+  function tx(v) {{ return pad.left + (v / axMax) * pw; }}
+  function ty(v) {{ return pad.top + ph - (v / axMax) * ph; }}
+
+  // Grid
+  ctx.strokeStyle = '#21262d';
+  ctx.lineWidth = 0.5;
+  var step = axMax < 10 ? 1 : axMax < 30 ? 5 : 10;
+  for (var g = 0; g <= axMax; g += step) {{
+    ctx.beginPath(); ctx.moveTo(tx(g), ty(0)); ctx.lineTo(tx(g), ty(axMax)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(tx(0), ty(g)); ctx.lineTo(tx(axMax), ty(g)); ctx.stroke();
+  }}
+
+  // 1:1 line
+  ctx.strokeStyle = '#3fb950'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+  ctx.beginPath(); ctx.moveTo(tx(0), ty(0)); ctx.lineTo(tx(axMax), ty(axMax)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Axis labels
+  ctx.fillStyle = '#8b949e'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('Measured T_c (K)', W / 2, H - 10);
+  ctx.save(); ctx.translate(16, H / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('McMillan Predicted T_c (K)', 0, 0); ctx.restore();
+
+  // Tick labels
+  ctx.fillStyle = '#6e7681'; ctx.font = '11px sans-serif';
+  for (var g = 0; g <= axMax; g += step) {{
+    ctx.textAlign = 'center';
+    ctx.fillText(g.toFixed(0), tx(g), ty(0) + 18);
+    ctx.textAlign = 'right';
+    ctx.fillText(g.toFixed(0), tx(0) - 8, ty(g) + 4);
+  }}
+
+  function drawPoints(pts, color, radius) {{
+    ctx.fillStyle = color;
+    for (var i = 0; i < pts.length; i++) {{
+      var p = pts[i];
+      ctx.beginPath();
+      ctx.arc(tx(p.x), ty(p.y), radius, 0, Math.PI * 2);
+      ctx.fill();
+      // Label
+      ctx.fillStyle = color; ctx.font = '9px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText(p.label, tx(p.x) + radius + 2, ty(p.y) - 2);
+      ctx.fillStyle = color;
+    }}
+  }}
+
+  drawPoints(sc, '#58a6ff', 5);
+  drawPoints(weak, '#8b949e', 5);
+  drawPoints(ferro, '#f85149', 5);
+  drawPoints(spin_data, '#d29922', 5);
+}})();
+</script>"""
+
+
+def _bar_section(sc_sorted):
+    """Chart 2: Twin bars — measured (blue) vs predicted (orange) T_c."""
+    labels = json.dumps([p['key'] for p in sc_sorted])
+    measured = json.dumps([round(p['measured'], 3) for p in sc_sorted])
+    predicted = json.dumps([round(p['predicted'], 3) for p in sc_sorted])
+    bar_max = max(p['predicted'] for p in sc_sorted) * 1.15 if sc_sorted else 1
+
+    n = len(sc_sorted)
+    canvas_w = max(800, n * 40 + 120)
+
+    return f"""
+<h2>Chart 2 &mdash; T<sub>c</sub> by Element (measured vs predicted)</h2>
+<div class="chart-container">
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#58a6ff"></span> Measured T<sub>c</sub></span>
+    <span class="legend-item"><span class="legend-dot" style="background:#d29922"></span> McMillan predicted T<sub>c</sub></span>
+  </div>
+  <canvas id="bars" width="{canvas_w}" height="400"></canvas>
+</div>
+<script>
+(function() {{
+  var labels = {labels};
+  var measured = {measured};
+  var predicted = {predicted};
+  var barMax = {bar_max:.1f};
+  var n = labels.length;
+
+  var canvas = document.getElementById('bars');
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var pad = {{top: 30, right: 20, bottom: 80, left: 60}};
+  var pw = W - pad.left - pad.right;
+  var ph = H - pad.top - pad.bottom;
+  var groupW = pw / n;
+  var barW = groupW * 0.35;
+
+  function ty(v) {{ return pad.top + ph - (v / barMax) * ph; }}
+
+  // Horizontal grid
+  ctx.strokeStyle = '#21262d'; ctx.lineWidth = 0.5;
+  var step = barMax < 10 ? 1 : barMax < 30 ? 5 : 10;
+  for (var g = 0; g <= barMax; g += step) {{
+    ctx.beginPath(); ctx.moveTo(pad.left, ty(g)); ctx.lineTo(W - pad.right, ty(g)); ctx.stroke();
+    ctx.fillStyle = '#6e7681'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText(g.toFixed(0), pad.left - 6, ty(g) + 3);
+  }}
+
+  // Y-axis label
+  ctx.fillStyle = '#8b949e'; ctx.font = '12px sans-serif';
+  ctx.save(); ctx.translate(14, H / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.fillText('T_c (K)', 0, 0); ctx.restore();
+
+  for (var i = 0; i < n; i++) {{
+    var x0 = pad.left + i * groupW;
+
+    // Measured bar
+    ctx.fillStyle = '#58a6ff';
+    var h1 = (measured[i] / barMax) * ph;
+    ctx.fillRect(x0 + groupW * 0.1, ty(measured[i]), barW, h1);
+
+    // Predicted bar
+    ctx.fillStyle = '#d29922';
+    var h2 = (predicted[i] / barMax) * ph;
+    ctx.fillRect(x0 + groupW * 0.1 + barW + 1, ty(predicted[i]), barW, h2);
+
+    // Label
+    ctx.fillStyle = '#8b949e'; ctx.font = '9px sans-serif';
+    ctx.save();
+    ctx.translate(x0 + groupW / 2, H - pad.bottom + 8);
+    ctx.rotate(-Math.PI / 3);
+    ctx.textAlign = 'right';
+    ctx.fillText(labels[i], 0, 0);
+    ctx.restore();
+  }}
+}})();
+</script>"""
+
+
+def _debye_section(debye):
+    """Chart 3: Derived vs measured Debye temperature scatter."""
+    if not debye:
+        return "<h2>Chart 3 — Debye Temperature: no overlapping data</h2>"
+
+    points_json = json.dumps([{
+        'x': r['measured_theta_D'],
+        'y': r['derived_theta_D'],
+        'label': r['material'],
+        'pct': round(r['percent_error'], 1),
+    } for r in debye])
+
+    max_theta = max(
+        max(r['measured_theta_D'] for r in debye),
+        max(r['derived_theta_D'] for r in debye),
+    ) * 1.15
+
+    return f"""
+<h2>Chart 3 &mdash; Debye Temperature: Derived (thermal.py) vs Measured</h2>
+<div class="chart-container">
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#a371f7"></span> Materials</span>
+    <span class="legend-item"><span style="color:#3fb950">&#9473;</span> 1:1 line</span>
+  </div>
+  <canvas id="debye" width="500" height="500"></canvas>
+  <p class="note">
+    Derived &Theta;<sub>D</sub> uses bulk modulus and density from mechanical.py.
+    Agreement within factor of 2 validates the matter model&rsquo;s thermodynamic chain.
+  </p>
+</div>
+<script>
+(function() {{
+  var pts = {points_json};
+  var axMax = {max_theta:.0f};
+
+  var canvas = document.getElementById('debye');
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var pad = {{top: 30, right: 30, bottom: 60, left: 70}};
+  var pw = W - pad.left - pad.right;
+  var ph = H - pad.top - pad.bottom;
+
+  function tx(v) {{ return pad.left + (v / axMax) * pw; }}
+  function ty(v) {{ return pad.top + ph - (v / axMax) * ph; }}
+
+  // Grid
+  ctx.strokeStyle = '#21262d'; ctx.lineWidth = 0.5;
+  var step = axMax < 200 ? 50 : axMax < 500 ? 100 : 200;
+  for (var g = 0; g <= axMax; g += step) {{
+    ctx.beginPath(); ctx.moveTo(tx(g), ty(0)); ctx.lineTo(tx(g), ty(axMax)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(tx(0), ty(g)); ctx.lineTo(tx(axMax), ty(g)); ctx.stroke();
+    ctx.fillStyle = '#6e7681'; ctx.font = '10px sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText(g.toFixed(0), tx(g), ty(0) + 16);
+    ctx.textAlign = 'right'; ctx.fillText(g.toFixed(0), tx(0) - 6, ty(g) + 3);
+  }}
+
+  // 1:1 line
+  ctx.strokeStyle = '#3fb950'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+  ctx.beginPath(); ctx.moveTo(tx(0), ty(0)); ctx.lineTo(tx(axMax), ty(axMax)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Axis labels
+  ctx.fillStyle = '#8b949e'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('Measured Theta_D (K)', W / 2, H - 10);
+  ctx.save(); ctx.translate(14, H / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('Derived Theta_D (K)', 0, 0); ctx.restore();
+
+  // Points
+  ctx.fillStyle = '#a371f7';
+  for (var i = 0; i < pts.length; i++) {{
+    var p = pts[i];
+    ctx.beginPath(); ctx.arc(tx(p.x), ty(p.y), 6, 0, Math.PI * 2); ctx.fill();
+    ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(p.label + ' (' + p.pct + '%)', tx(p.x) + 9, ty(p.y) - 2);
+    ctx.fillStyle = '#a371f7';
+  }}
+}})();
+</script>"""
+
+
+def _table_section(sc, weak, ferro, spin):
+    """Data table with all McMillan comparisons."""
+    all_points = sc + weak + ferro + spin
+    all_points.sort(key=lambda p: p['key'])
+
+    rows = ""
+    for p in all_points:
+        measured = p['measured']
+        predicted = p['predicted']
+        lam = p['lambda_ep']
+        ratio = predicted / measured if measured > 0 else float('inf')
+        ratio_str = f"{ratio:.2f}" if measured > 0 else "N/A"
+
+        # Color code: green for good, yellow for OK, red for poor
+        if measured > 0:
+            if 0.5 < ratio < 2.0:
+                color = '#3fb950'
+            elif 0.33 < ratio < 3.0:
+                color = '#d29922'
+            else:
+                color = '#f85149'
+        else:
+            color = '#8b949e'
+
+        rows += f"""    <tr>
+      <td>{p['key']}</td>
+      <td>{lam:.2f}</td>
+      <td>{measured:.4f}</td>
+      <td>{predicted:.4f}</td>
+      <td style="color:{color}">{ratio_str}</td>
+    </tr>\n"""
+
+    return f"""
+<h2>Data Table &mdash; All McMillan Comparisons</h2>
+<div class="chart-container">
+  <table>
+    <tr>
+      <th style="text-align:left">Material</th>
+      <th>&lambda;</th>
+      <th>Measured T<sub>c</sub> (K)</th>
+      <th>McMillan T<sub>c</sub> (K)</th>
+      <th>Ratio</th>
+    </tr>
+{rows}  </table>
+  <p class="note" style="margin-top:12px;">
+    Ratio colors: <span style="color:#3fb950">green</span> = within factor 2,
+    <span style="color:#d29922">yellow</span> = within factor 3,
+    <span style="color:#f85149">red</span> = outside factor 3.
+    Non-SC metals (T<sub>c</sub>=0) show ratio as N/A.
+  </p>
+</div>"""
+
+
+def main():
+    sc, weak, ferro, spin = gather_data()
+    debye = gather_debye_data()
+
+    html = build_html(sc, weak, ferro, spin, debye)
+
+    out_dir = Path(__file__).resolve().parent.parent / 'docs'
+    out_dir.mkdir(exist_ok=True)
+    out_path = out_dir / 'mcmillan_validation.html'
+    out_path.write_text(html, encoding='utf-8')
+    print(f"Wrote {out_path}  ({len(html):,} bytes)")
+    print(f"  {len(sc)} superconductors with lambda data")
+    print(f"  {len(weak)} weak-coupling non-SC")
+    print(f"  {len(ferro)} ferromagnets")
+    print(f"  {len(spin)} spin-fluctuation metals")
+    print(f"  {len(debye)} Debye temperature comparisons")
+
+
+if __name__ == '__main__':
+    main()
