@@ -77,16 +77,16 @@ Origin tags:
 
 import math
 from ..scale import scale_ratio
-from ..constants import PROTON_QCD_FRACTION
+from ..constants import PROTON_QCD_FRACTION, K_B, HBAR, AMU_KG, R_GAS, N_AVOGADRO, C, E_CHARGE, SIGMA_HERE
 
 # ── Constants ─────────────────────────────────────────────────────
-_K_BOLTZMANN = 1.380649e-23       # J/K (exact, 2019 SI)
-_HBAR = 1.054571817e-34           # J·s
-_AMU_KG = 1.66053906660e-27       # atomic mass unit
-_R_GAS = 8.314462618              # J/(mol·K) (exact, 2019 SI)
-_AVOGADRO = 6.02214076e23         # /mol (exact, 2019 SI)
-_C_LIGHT = 2.99792458e8           # m/s (exact)
-_EV_TO_JOULE = 1.602176634e-19   # exact
+_K_BOLTZMANN = K_B                # J/K (exact, 2019 SI)
+_HBAR = HBAR                     # J·s
+_AMU_KG = AMU_KG                 # atomic mass unit
+_R_GAS = R_GAS                   # J/(mol·K) (exact, 2019 SI)
+_AVOGADRO = N_AVOGADRO           # /mol (exact, 2019 SI)
+_C_LIGHT = C                     # m/s (exact)
+_EV_TO_JOULE = E_CHARGE          # exact
 _GRAVITY = 9.80665                # m/s² (standard)
 
 # ── Molecular Database ───────────────────────────────────────────
@@ -232,7 +232,7 @@ BOND_ENERGIES_EV = {
 
 # ── Reduced Mass ─────────────────────────────────────────────────
 
-def reduced_mass(m_A_amu, m_B_amu, sigma=0.0):
+def reduced_mass(m_A_amu, m_B_amu, sigma=SIGMA_HERE):
     """Reduced mass μ of a two-body system (kg).
 
     μ = m_A × m_B / (m_A + m_B)
@@ -260,7 +260,7 @@ def reduced_mass(m_A_amu, m_B_amu, sigma=0.0):
     return m_A * m_B / (m_A + m_B)
 
 
-def molecular_mass_kg(mol_key, sigma=0.0):
+def molecular_mass_kg(mol_key, sigma=SIGMA_HERE):
     """Molecular mass in kg, with σ-correction.
 
     Args:
@@ -278,7 +278,7 @@ def molecular_mass_kg(mol_key, sigma=0.0):
 
 # ── Vibrational Frequencies ──────────────────────────────────────
 
-def vibrational_frequency_hz(force_constant_N_m, m_A_amu, m_B_amu, sigma=0.0):
+def vibrational_frequency_hz(force_constant_N_m, m_A_amu, m_B_amu, sigma=SIGMA_HERE):
     """Vibrational frequency of a bond (Hz).
 
     ω = √(k / μ)  →  f = ω / (2π)
@@ -308,7 +308,7 @@ def vibrational_frequency_hz(force_constant_N_m, m_A_amu, m_B_amu, sigma=0.0):
     return omega / (2.0 * math.pi)
 
 
-def vibrational_wavenumber(force_constant_N_m, m_A_amu, m_B_amu, sigma=0.0):
+def vibrational_wavenumber(force_constant_N_m, m_A_amu, m_B_amu, sigma=SIGMA_HERE):
     """Vibrational frequency in wavenumber (cm⁻¹).
 
     ν̃ = f / c  (in cm⁻¹, the standard IR spectroscopy unit)
@@ -328,7 +328,7 @@ def vibrational_wavenumber(force_constant_N_m, m_A_amu, m_B_amu, sigma=0.0):
     return f / (_C_LIGHT * 100.0)  # convert Hz to cm⁻¹
 
 
-def vibrational_wavelength_um(force_constant_N_m, m_A_amu, m_B_amu, sigma=0.0):
+def vibrational_wavelength_um(force_constant_N_m, m_A_amu, m_B_amu, sigma=SIGMA_HERE):
     """Vibrational wavelength in micrometers.
 
     λ = c / f
@@ -347,7 +347,7 @@ def vibrational_wavelength_um(force_constant_N_m, m_A_amu, m_B_amu, sigma=0.0):
     return _C_LIGHT / f * 1e6  # meters to μm
 
 
-def vibrational_temperature(force_constant_N_m, m_A_amu, m_B_amu, sigma=0.0):
+def vibrational_temperature(force_constant_N_m, m_A_amu, m_B_amu, sigma=SIGMA_HERE):
     """Characteristic vibrational temperature θ_v (Kelvin).
 
     θ_v = ℏω / k_B = hf / k_B
@@ -372,7 +372,7 @@ def vibrational_temperature(force_constant_N_m, m_A_amu, m_B_amu, sigma=0.0):
     return _HBAR * 2.0 * math.pi * f / _K_BOLTZMANN
 
 
-def molecule_vibrational_spectrum(mol_key, sigma=0.0):
+def molecule_vibrational_spectrum(mol_key, sigma=SIGMA_HERE):
     """Complete vibrational spectrum of a molecule.
 
     Returns list of dicts with frequency, wavenumber, wavelength,
@@ -414,7 +414,7 @@ def molecule_vibrational_spectrum(mol_key, sigma=0.0):
 
 # ── Ideal Gas Properties ─────────────────────────────────────────
 
-def ideal_gas_density(mol_key, T=300.0, P=101325.0, sigma=0.0):
+def ideal_gas_density(mol_key, T=300.0, P=101325.0, sigma=SIGMA_HERE):
     """Density of an ideal gas (kg/m³).
 
     ρ = P × M / (R × T)
@@ -477,11 +477,14 @@ def _einstein_cv_contribution(theta_v, T):
     x = theta_v / T
     if x > 500:  # prevent overflow
         return 0.0
-    exp_x = math.exp(x)
-    return _R_GAS * x**2 * exp_x / (exp_x - 1.0)**2
+    em1 = math.expm1(x)       # exp(x) - 1, precise near x=0
+    if em1 == 0.0:
+        return _R_GAS           # limit as x→0: C_v → R (classical)
+    exp_x = em1 + 1.0          # exp(x)
+    return _R_GAS * x**2 * exp_x / (em1 ** 2)
 
 
-def gas_cv_molar(mol_key, T=300.0, sigma=0.0):
+def gas_cv_molar(mol_key, T=300.0, sigma=SIGMA_HERE):
     """Molar heat capacity C_v (J/(mol·K)) of a gas.
 
     C_v = C_trans + C_rot + C_vib
@@ -530,7 +533,7 @@ def gas_cv_molar(mol_key, T=300.0, sigma=0.0):
     return cv
 
 
-def gas_cp_molar(mol_key, T=300.0, sigma=0.0):
+def gas_cp_molar(mol_key, T=300.0, sigma=SIGMA_HERE):
     """Molar heat capacity C_p (J/(mol·K)) of an ideal gas.
 
     C_p = C_v + R
@@ -549,7 +552,7 @@ def gas_cp_molar(mol_key, T=300.0, sigma=0.0):
     return gas_cv_molar(mol_key, T, sigma) + _R_GAS
 
 
-def heat_capacity_ratio(mol_key, T=300.0, sigma=0.0):
+def heat_capacity_ratio(mol_key, T=300.0, sigma=SIGMA_HERE):
     """Ratio of heat capacities γ = C_p / C_v.
 
     FIRST_PRINCIPLES: γ determines sound speed in gas.
@@ -574,7 +577,7 @@ def heat_capacity_ratio(mol_key, T=300.0, sigma=0.0):
 
 # ── Gas Transport Properties ────────────────────────────────────
 
-def gas_viscosity(mol_key, T=300.0, sigma=0.0):
+def gas_viscosity(mol_key, T=300.0, sigma=SIGMA_HERE):
     """Dynamic viscosity of a gas (Pa·s) from Chapman-Enskog theory.
 
     η = (5/16) × √(π m k_B T) / (π d² Ω)
@@ -619,7 +622,7 @@ def gas_viscosity(mol_key, T=300.0, sigma=0.0):
     return numerator / denominator
 
 
-def gas_thermal_conductivity(mol_key, T=300.0, sigma=0.0):
+def gas_thermal_conductivity(mol_key, T=300.0, sigma=SIGMA_HERE):
     """Thermal conductivity of a gas (W/(m·K)) from Eucken correction.
 
     κ = η × c_v × f_eucken / M
@@ -659,7 +662,7 @@ def gas_thermal_conductivity(mol_key, T=300.0, sigma=0.0):
     return eta * cv * f_eucken / M
 
 
-def gas_diffusivity(mol_A, mol_B, T=300.0, P=101325.0, sigma=0.0):
+def gas_diffusivity(mol_A, mol_B, T=300.0, P=101325.0, sigma=SIGMA_HERE):
     """Binary gas diffusion coefficient D_AB (m²/s).
 
     D = (3/16) × √(2πk_BT/μ) / (n × π × d_AB² × Ω)
@@ -741,7 +744,7 @@ def buoyancy_velocity(T_hot, T_ambient=300.0, L=0.01, g=_GRAVITY):
     return math.sqrt(g * L * delta_T / T_ambient)
 
 
-def grashof_number(T_hot, T_ambient=300.0, L=0.01, mol_key='N2', sigma=0.0):
+def grashof_number(T_hot, T_ambient=300.0, L=0.01, mol_key='N2', sigma=SIGMA_HERE):
     """Grashof number Gr — ratio of buoyancy to viscous forces.
 
     Gr = g × β × ΔT × L³ / ν²
@@ -831,7 +834,7 @@ def sigma_from_frequency_shift(f_observed, f_expected, m_A_amu, m_B_amu):
 
 # ── Nagatha Export ────────────────────────────────────────────────
 
-def molecule_gas_properties(mol_key, T=300.0, P=101325.0, sigma=0.0):
+def molecule_gas_properties(mol_key, T=300.0, P=101325.0, sigma=SIGMA_HERE):
     """Export gas properties in Nagatha-compatible format.
 
     Args:

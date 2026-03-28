@@ -86,10 +86,7 @@ Origin tags:
 """
 
 import math
-from ..constants import K_B
-
-# ── Conversion ────────────────────────────────────────────────────
-_AMU_KG = 1.66053906660e-27
+from ..constants import K_B, AMU_KG as _AMU_KG
 
 
 # ── Stokes Drag ──────────────────────────────────────────────────

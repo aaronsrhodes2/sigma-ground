@@ -695,13 +695,11 @@ class TestRule9(unittest.TestCase):
 
     def test_iron_curie_temp_known_value(self):
         """Iron T_C = 1043 K (MEASURED)."""
-        self.assertAlmostEqual(HYSTERESIS_DATA['iron']['T_Curie_K'],
-                               1043.0, places=0)
+        self.assertEqual(HYSTERESIS_DATA['iron']['T_Curie_K'], 1043.0)
 
     def test_nickel_curie_temp_known_value(self):
         """Nickel T_C = 627 K (MEASURED)."""
-        self.assertAlmostEqual(HYSTERESIS_DATA['nickel']['T_Curie_K'],
-                               627.0, places=0)
+        self.assertEqual(HYSTERESIS_DATA['nickel']['T_Curie_K'], 627.0)
 
     def test_iron_msat_known_value(self):
         """Iron M_sat ≈ 1.71×10⁶ A/m (MEASURED)."""

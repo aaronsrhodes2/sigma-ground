@@ -23,6 +23,7 @@ from sigma_ground.inventory.core.sigma import (
     XI,
     LAMBDA_QCD_MEV,
     A_C_MEV,
+    SIGMA_HERE,
     scale_ratio,
     lambda_eff_mev,
     proton_mass_kg,
@@ -75,9 +76,9 @@ class TestZeroRecovery:
         assert neutron_mass_mev(0.0) == pytest.approx(expected, rel=1e-12)
 
     def test_nuclear_binding_exact(self):
-        """BE at σ=0 returns input exactly."""
+        """BE at σ=SIGMA_HERE returns input exactly (fast-path)."""
         be = 492.2578  # Fe-56
-        assert nuclear_binding_mev(be, Z=26, A=56, sigma=0.0) == be
+        assert nuclear_binding_mev(be, Z=26, A=56, sigma=SIGMA_HERE) == be
 
     def test_nuclear_binding_zero_A(self):
         """A=0 returns input unchanged regardless of σ."""

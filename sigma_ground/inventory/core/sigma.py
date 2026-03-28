@@ -44,10 +44,10 @@ ETA: float = 0.4153
 """η = cosmic entanglement fraction.  DERIVED from the dark energy constraint:
 ρ_DE(observed) = η × ρ_released at σ_conv.  Falls out of ξ + Planck cosmology."""
 
-SIGMA_0: float = 0.0
-"""σ = 0 in the present epoch — our spacetime is the reference frame.
+SIGMA_0: float = 0.0  # Legacy value, see SIGMA_HERE below
+"""σ ≈ 0 in the present epoch — our spacetime is the reference frame.
 A convention, not a measurement. Nonzero inside black holes and at the Big Bang.
-Use SIGMA_FLOOR as the computational epsilon; never divide by SIGMA_0 directly."""
+→ Prefer SIGMA_HERE (= SIGMA_FLOOR) which is safe in denominators and logarithms."""
 
 # Planck length (re-derived here to keep this module self-contained)
 _HBAR = CONSTANTS.hbar       # 1.054571817e-34 J·s
@@ -60,6 +60,11 @@ SIGMA_FLOOR: float = _L_PLANCK * _H0 / _C
 """Planck-derived σ computational epsilon ≈ 1.18×10⁻⁶¹.
 = l_P / R_H (Planck length / Hubble radius).
 Use instead of 0.0 wherever σ appears in a denominator or logarithm."""
+
+SIGMA_HERE: float = SIGMA_FLOOR
+"""Observer frame σ — the σ-field value in OUR spacetime.
+Set to SIGMA_FLOOR (not exact 0.0) to prevent floating-point catastrophes.
+exp(SIGMA_FLOOR) = 1.0 exactly in double precision, so all physics is unchanged."""
 
 LAMBDA_QCD_MEV: float = 217.0
 """QCD confinement scale Λ_QCD (MeV).  PDG reference value."""
@@ -100,7 +105,13 @@ def scale_ratio(sigma: float) -> float:
     σ = 0 → 1.0 (standard physics, exact).
     σ > 0 → QCD scale increases (stronger confinement, heavier baryons).
     σ < 0 → QCD scale decreases (weaker confinement, lighter baryons).
+
+    Guards: exp(σ) overflows float64 at σ ≈ 709.8. We clamp gracefully.
     """
+    if sigma > 709.0:
+        return float('inf')
+    if sigma < -709.0:
+        return 0.0
     return math.exp(sigma)
 
 
@@ -120,7 +131,7 @@ def proton_mass_kg(sigma: float) -> float:
     bare_quarks = 2×m_u + m_d = 8.99 MeV  (Higgs, σ-invariant)
     QCD_binding = 938.27 − 8.99 = 929.28 MeV  (scales with e^σ)
     """
-    if sigma == 0.0:
+    if sigma == SIGMA_HERE:
         return CONSTANTS.m_p
     return (_PROTON_BARE_MEV + _PROTON_QCD_MEV * scale_ratio(sigma)) * _MEV_TO_KG
 
@@ -134,21 +145,21 @@ def neutron_mass_kg(sigma: float) -> float:
     bare_quarks = m_u + 2×m_d = 11.50 MeV  (Higgs, σ-invariant)
     QCD_binding = 939.57 − 11.50 = 928.07 MeV  (scales with e^σ)
     """
-    if sigma == 0.0:
+    if sigma == SIGMA_HERE:
         return CONSTANTS.m_n
     return (_NEUTRON_BARE_MEV + _NEUTRON_QCD_MEV * scale_ratio(sigma)) * _MEV_TO_KG
 
 
 def proton_mass_mev(sigma: float) -> float:
     """Proton mass at σ in MeV/c²."""
-    if sigma == 0.0:
+    if sigma == SIGMA_HERE:
         return _PROTON_TOTAL_MEV
     return _PROTON_BARE_MEV + _PROTON_QCD_MEV * scale_ratio(sigma)
 
 
 def neutron_mass_mev(sigma: float) -> float:
     """Neutron mass at σ in MeV/c²."""
-    if sigma == 0.0:
+    if sigma == SIGMA_HERE:
         return _NEUTRON_TOTAL_MEV
     return _NEUTRON_BARE_MEV + _NEUTRON_QCD_MEV * scale_ratio(sigma)
 
@@ -171,7 +182,7 @@ def nuclear_binding_mev(be_mev: float, Z: int, A: int, sigma: float) -> float:
     HONESTY: SEMF decomposition is approximate.  Shell effects,
     deformation, and pairing corrections are lumped into the strong part.
     """
-    if sigma == 0.0 or A <= 0:
+    if sigma == SIGMA_HERE or A <= 0:
         return be_mev
 
     coulomb = A_C_MEV * Z * (Z - 1) / (A ** (1.0 / 3.0))

@@ -20,7 +20,10 @@ from .radioactive_decay import (
     gamow_factor,
     alpha_decay_constant,
     alpha_half_life,
+    alpha_Q_decomposition,
+    alpha_Q_at_sigma,
     beta_Q_value_mev,
+    beta_Q_decomposition,
     beta_decay_constant,
     beta_half_life,
     decay_constant,
@@ -298,6 +301,159 @@ class TestGeneralInterface(unittest.TestCase):
         fracs = [remaining_fraction('Co60', t) for t in [0, 1e7, 1e8, 1e9]]
         for i in range(len(fracs) - 1):
             self.assertGreater(fracs[i], fracs[i + 1])
+
+
+class TestAlphaQDecomposition(unittest.TestCase):
+    """Coulomb/strong decomposition of alpha Q-values — DERIVED, not guessed."""
+
+    def test_components_sum_to_measured(self):
+        """Q_coulomb + Q_strong = Q_measured (exact by construction)."""
+        for key, iso in ISOTOPES.items():
+            if iso['decay_mode'] != 'alpha':
+                continue
+            Q_coulomb, Q_strong = alpha_Q_decomposition(key)
+            Q_sum = Q_coulomb + Q_strong
+            self.assertAlmostEqual(
+                Q_sum, iso['Q_value_MeV'], places=6,
+                msg=f"{key}: Q_coulomb + Q_strong != Q_measured")
+
+    def test_coulomb_positive(self):
+        """Q_coulomb > 0: Coulomb repulsion pushes alpha out.
+
+        The parent nucleus has more protons packed together than
+        the daughter + free alpha. Coulomb wants the alpha OUT.
+        """
+        for key, iso in ISOTOPES.items():
+            if iso['decay_mode'] != 'alpha':
+                continue
+            Q_coulomb, _ = alpha_Q_decomposition(key)
+            self.assertGreater(Q_coulomb, 0,
+                f"{key}: Coulomb should push alpha out (Q_C > 0)")
+
+    def test_strong_negative(self):
+        """Q_strong < 0: strong force holds alpha in.
+
+        The net strong binding is REDUCED when the alpha escapes
+        (4 nucleons lose their neighbors). Strong wants alpha IN.
+        """
+        for key, iso in ISOTOPES.items():
+            if iso['decay_mode'] != 'alpha':
+                continue
+            _, Q_strong = alpha_Q_decomposition(key)
+            self.assertLess(Q_strong, 0,
+                f"{key}: strong force should hold alpha in (Q_S < 0)")
+
+    def test_coulomb_dominates_strong(self):
+        """Q_coulomb > |Q_strong| for all alpha emitters (otherwise no decay).
+
+        Alpha decay happens ONLY because Coulomb repulsion
+        barely wins over strong attraction. The Q-value is a
+        small positive difference between two large terms.
+        """
+        for key, iso in ISOTOPES.items():
+            if iso['decay_mode'] != 'alpha':
+                continue
+            Q_coulomb, Q_strong = alpha_Q_decomposition(key)
+            self.assertGreater(Q_coulomb, abs(Q_strong),
+                f"{key}: Coulomb must beat strong for decay to occur")
+
+    def test_u238_magnitudes(self):
+        """U-238: Q_C ≈ +36 MeV, Q_S ≈ −31 MeV, net Q ≈ +4.3 MeV.
+
+        Two massive forces nearly cancel, leaving a tiny residual
+        that powers 4.5 billion years of radioactive heating.
+        """
+        Q_C, Q_S = alpha_Q_decomposition('U238')
+        self.assertGreater(Q_C, 20.0)   # tens of MeV Coulomb push
+        self.assertLess(Q_S, -15.0)     # tens of MeV strong pull
+        # Net is the measured Q ≈ 4.27 MeV
+        self.assertAlmostEqual(Q_C + Q_S, 4.270, delta=0.001)
+
+    def test_Q_at_sigma_zero_equals_measured(self):
+        """At σ=0, alpha_Q_at_sigma returns measured Q-value."""
+        for key, iso in ISOTOPES.items():
+            if iso['decay_mode'] != 'alpha':
+                continue
+            Q = alpha_Q_at_sigma(key, sigma=0.0)
+            self.assertAlmostEqual(Q, iso['Q_value_MeV'], places=6,
+                msg=f"{key}: Q(σ=0) should equal measured Q")
+
+    def test_Q_decreases_with_sigma(self):
+        """Higher σ → Q decreases (strong force gets stronger, holds alpha tighter).
+
+        This means alpha decay SLOWS DOWN at high σ — the opposite
+        of the naive guess f_Q_strong=0.2 which made Q increase!
+        """
+        for key, iso in ISOTOPES.items():
+            if iso['decay_mode'] != 'alpha':
+                continue
+            Q_0 = alpha_Q_at_sigma(key, sigma=0.0)
+            Q_1 = alpha_Q_at_sigma(key, sigma=1.0)
+            self.assertLess(Q_1, Q_0,
+                f"{key}: Q should decrease with σ (strong holds tighter)")
+
+    def test_critical_sigma_exists(self):
+        """At some critical σ, Q → 0 and alpha decay turns off.
+
+        Since Q_strong < 0 and grows as e^σ, eventually |Q_strong| > Q_coulomb.
+        """
+        Q_C, Q_S = alpha_Q_decomposition('U238')
+        # Critical σ: Q_S × e^σ + Q_C = 0 → e^σ = Q_C / |Q_S|
+        sigma_crit = math.log(Q_C / abs(Q_S))
+        self.assertGreater(sigma_crit, 0, "Critical σ should be positive")
+        # Verify Q is indeed ~0 at critical σ
+        Q_crit = alpha_Q_at_sigma('U238', sigma=sigma_crit)
+        self.assertAlmostEqual(Q_crit, 0.0, delta=0.01)
+
+
+class TestBetaQDecomposition(unittest.TestCase):
+    """Coulomb/strong decomposition of beta Q-values — DERIVED, not guessed."""
+
+    def test_components_sum_to_measured(self):
+        """Q_invariant + Q_sigma_coeff = Q_measured at σ=0."""
+        for key, iso in ISOTOPES.items():
+            if iso['decay_mode'] not in ('beta_minus', 'beta_plus'):
+                continue
+            Q_inv, Q_sig = beta_Q_decomposition(key)
+            Q_sum = Q_inv + Q_sig
+            self.assertAlmostEqual(
+                Q_sum, iso['Q_value_MeV'], places=5,
+                msg=f"{key}: Q_inv + Q_sig != Q_measured")
+
+    def test_free_neutron_decomposition(self):
+        """Free neutron: pure mass decomposition (no nuclear binding).
+
+        Q_inv = m_n_bare − m_p_bare − m_e (EM mass difference)
+        Q_sig = m_n_QCD − m_p_QCD (QCD mass difference)
+        """
+        Q_inv, Q_sig = beta_Q_decomposition('free_neutron')
+        # Q_sig should be small (QCD contribution to n-p mass diff)
+        self.assertLess(abs(Q_sig), 5.0)
+        # Total at σ=0 should be measured Q ≈ 0.782 MeV
+        self.assertAlmostEqual(Q_inv + Q_sig, 0.782, delta=0.01)
+
+    def test_Q_at_sigma_zero_equals_measured(self):
+        """beta_Q_value_mev at σ=0 returns measured Q-value."""
+        for key, iso in ISOTOPES.items():
+            if iso['decay_mode'] not in ('beta_minus', 'beta_plus'):
+                continue
+            Q = beta_Q_value_mev(key, sigma=0.0)
+            self.assertAlmostEqual(Q, iso['Q_value_MeV'], places=5,
+                msg=f"{key}: Q(σ=0) should equal measured Q")
+
+    def test_invariant_part_includes_coulomb_step(self):
+        """For nuclear beta decay, Q_invariant includes Coulomb step.
+
+        When Z → Z+1, the daughter has more Coulomb repulsion.
+        This is an EM effect that goes into Q_invariant.
+        """
+        for key, iso in ISOTOPES.items():
+            if iso['decay_mode'] != 'beta_minus' or key == 'free_neutron':
+                continue
+            Q_inv, _ = beta_Q_decomposition(key)
+            # Q_invariant can be positive or negative depending on Coulomb step
+            # but it should be finite and not NaN
+            self.assertTrue(math.isfinite(Q_inv), f"{key}: Q_inv not finite")
 
 
 class TestSigmaDependence(unittest.TestCase):

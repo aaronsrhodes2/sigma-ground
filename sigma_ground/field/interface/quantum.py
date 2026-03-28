@@ -57,7 +57,7 @@ interferometry demonstrating gravitational phase shifts.
 import math
 
 # ── Pull from our cascade, not from magic numbers ────────────────────────────
-from ..constants import HBAR, C, E_CHARGE
+from ..constants import HBAR, C, E_CHARGE, M_ELECTRON_MEV as _M_ELECTRON_MEV_CONST, SIGMA_HERE
 from ..nucleon import neutron_mass_mev, proton_mass_mev
 
 # ── Derived constants (all from cascade) ─────────────────────────────────────
@@ -75,7 +75,7 @@ MEV_TO_KG = E_CHARGE * 1e6 / (C * C)
 # Electron mass in kg (σ-INVARIANT — Higgs origin)
 #   0.51100 MeV from constants.py (M_ELECTRON_MEV)
 #   Imported here via MEV_TO_KG so the chain is explicit
-_M_ELECTRON_MEV = 0.51100             # MeV (from constants.py)
+_M_ELECTRON_MEV = _M_ELECTRON_MEV_CONST  # MeV (from constants.py)
 M_ELECTRON_KG = _M_ELECTRON_MEV * MEV_TO_KG   # ≈ 9.1094e-31 kg ✓
 
 
@@ -146,7 +146,7 @@ def de_broglie_electron(kinetic_energy_eV):
     return de_broglie_wavelength(M_ELECTRON_KG, ev_to_joules(kinetic_energy_eV))
 
 
-def de_broglie_neutron(kinetic_energy_eV, sigma=0.0):
+def de_broglie_neutron(kinetic_energy_eV, sigma=SIGMA_HERE):
     """de Broglie wavelength for a neutron at given kinetic energy and σ.
 
     Uses neutron_mass_mev(sigma) from nucleon.py (QCD origin, σ-DEPENDENT).
@@ -423,6 +423,8 @@ def fringe_compression_per_sigma(sigma_small=0.01):
     Returns:
         (ratio, f_QCD/2): ratio at sigma_small, and first-order coefficient
     """
+    if sigma_small <= 0:
+        raise ValueError("sigma_small must be positive for numerical derivative")
     ratio = neutron_fringe_spacing_ratio(sigma_small)
     # Numerical derivative
     first_order = (1.0 - ratio) / sigma_small

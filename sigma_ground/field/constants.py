@@ -56,6 +56,15 @@ NEUTRON_QCD_MEV = NEUTRON_TOTAL_MEV - NEUTRON_BARE_MEV  # = 928.065 MeV
 PROTON_QCD_FRACTION = PROTON_QCD_MEV / PROTON_TOTAL_MEV   # ≈ 0.9904
 NEUTRON_QCD_FRACTION = NEUTRON_QCD_MEV / NEUTRON_TOTAL_MEV  # ≈ 0.9878
 
+# Neutron-proton mass difference — MEASURED directly to higher precision
+# than computing 939.565 - 938.272 (which loses 3 significant digits).
+# PDG 2020: m_n - m_p = 1.29333236 ± 0.00000046 MeV
+DELTA_NP_TOTAL_MEV = 1.29333236     # MeV (MEASURED, PDG 2020)
+# Bare mass difference: (m_u + 2m_d) - (2m_u + m_d) = m_d - m_u
+DELTA_NP_BARE_MEV = M_DOWN_MEV - M_UP_MEV  # = 2.51 MeV (Higgs, σ-INVARIANT)
+# QCD contribution to n-p mass difference
+DELTA_NP_QCD_MEV = DELTA_NP_TOTAL_MEV - DELTA_NP_BARE_MEV  # ≈ -1.217 MeV
+
 # Electron mass (Higgs origin — σ-INVARIANT)
 M_ELECTRON_MEV = 0.51100            # MeV
 
@@ -85,6 +94,38 @@ M_ELECTRON_KG = 9.1093837015e-31  # kg (CODATA 2018)
 # Exact by 2019 SI redefinition (links energy to temperature).
 K_B = 1.380649e-23            # J/K (Boltzmann constant, exact by 2019 SI)
 
+# ── Atomic Mass Unit ─────────────────────────────────────────────────
+# MEASURED: 1/12 of ¹²C mass (CODATA 2018).
+AMU_KG = 1.66053906660e-27    # kg
+
+# ── Avogadro & Gas Constant ─────────────────────────────────────────
+# N_A is exact by 2019 SI.  R = k_B × N_A is DERIVED.
+N_AVOGADRO = 6.02214076e23    # 1/mol (exact by 2019 SI)
+R_GAS = K_B * N_AVOGADRO      # J/(mol·K) — DERIVED, not stored
+
+# ── Energy Conversion Factors ────────────────────────────────────────
+# ALL derived from E_CHARGE (elementary charge, exact by 2019 SI).
+# 1 eV ≡ 1 elementary charge × 1 volt ≡ E_CHARGE joules.
+EV_TO_J = E_CHARGE             # J/eV  (= 1.602176634e-19)
+MEV_TO_J = E_CHARGE * 1e6     # J/MeV (= 1.602176634e-13)
+KEV_TO_J = E_CHARGE * 1e3     # J/keV (= 1.602176634e-16)
+
+# ── Planck Constant (full) ──────────────────────────────────────────
+# DERIVED from HBAR: h = 2πℏ
+H_PLANCK = 2 * math.pi * HBAR  # J·s (= 6.62607015e-34)
+
+# ── Stefan-Boltzmann Constant ────────────────────────────────────────
+# DERIVED from k_B, ℏ, c:  σ_SB = π²k_B⁴ / (60ℏ³c²)
+# Not stored — computed from fundamentals every time this module loads.
+STEFAN_BOLTZMANN = (math.pi**2 * K_B**4) / (60 * HBAR**3 * C**2)
+
+# ── Bohr Radius & Magneton ──────────────────────────────────────────
+# Both DERIVED from measured constants.
+# a₀ = ℏ/(m_e c α) = 4πε₀ℏ²/(m_e e²)
+BOHR_RADIUS = HBAR / (M_ELECTRON_KG * C * ALPHA)  # ≈ 5.2918e-11 m
+# μ_B = eℏ/(2m_e)
+MU_BOHR = E_CHARGE * HBAR / (2 * M_ELECTRON_KG)   # ≈ 9.2740e-24 J/T
+
 # ── Coulomb Energy (first-principles electrostatics) ─────────────────
 # NOT from SEMF. Derived from Coulomb's law integrated over a uniform
 # charge sphere:  E_C = (3/5) × ke_e² / r₀ × Z(Z-1) / A^(1/3)
@@ -99,8 +140,7 @@ K_B = 1.380649e-23            # J/K (Boltzmann constant, exact by 2019 SI)
 R0_FM = 1.215                 # fm (nuclear charge radius, electron scattering)
 
 # ke × e²  in MeV·fm
-_MeV_per_J = 1 / 1.602176634e-13
-KE_E2_MEV_FM = E_CHARGE**2 / (4 * math.pi * EPS_0) * _MeV_per_J * 1e15
+KE_E2_MEV_FM = E_CHARGE**2 / (4 * math.pi * EPS_0) / MEV_TO_J * 1e15
 
 # Coulomb coefficient — pure electrostatics, no SEMF
 A_C_MEV = (3.0 / 5.0) * KE_E2_MEV_FM / R0_FM  # ≈ 0.7111 MeV (σ-INVARIANT)
@@ -129,12 +169,30 @@ A_C_MEV = (3.0 / 5.0) * KE_E2_MEV_FM / R0_FM  # ≈ 0.7111 MeV (σ-INVARIANT)
 #   - Any interaction that created entanglement and was never decohered
 ETA = 0.4153  # DERIVED — cosmic entanglement fraction (dark energy constraint)
 
-# ── Current Epoch & Computational Floor ───────────────────────────────
-# σ = 0 here, by definition: our spacetime is the reference frame.
-# It is a convention, not a measurement — we are the baseline.
-# The field is nonzero inside black hole accretion disks and at the Big Bang.
-SIGMA_0 = 0.0  # σ in the present epoch (reference frame convention)
-# → See SIGMA_FLOOR below (after cosmological constants) for the computational epsilon.
+# ── Observer Frame σ ─────────────────────────────────────────────────
+# The σ-field value in OUR spacetime — the observer's compression frame.
+#
+# Conceptually σ ≈ 0 here. We are the baseline against which all other
+# σ values are measured. This is not a measurement — it is the definition
+# of the reference frame.
+#
+# Inside a black hole accretion disk: σ > 0 (spacetime more compressed).
+# At the Big Bang / inside cavitation: σ → σ_conv ≈ 1.85.
+# In a hypothetical decompressed region: σ < 0.
+#
+# If you are doing wormhole physics or computing properties in a different
+# compression frame, change THIS constant — every module that uses it will
+# shift accordingly. That is the point of having it here instead of
+# writing 0.0 everywhere.
+#
+# WHY NOT EXACT ZERO:
+# Exact 0.0 is a computer landmine — division by σ, log(σ), and formulas
+# like 1/(1−e^{−σ}) all diverge. We use SIGMA_FLOOR (Planck/Hubble ratio
+# ≈ 1.18e-61) as the observer frame value. It is physically equivalent to
+# zero (exp(1e-61) = 1.0 exactly in double precision) but prevents any
+# floating-point catastrophe if σ ever reaches a denominator or logarithm.
+#
+# → SIGMA_HERE is defined after SIGMA_FLOOR below (needs L_PLANCK, H0, C).
 
 # ── Nuclear Matter (QCD observables) ─────────────────────────────────
 # Nuclear saturation density: where attraction and repulsion balance.
@@ -189,3 +247,7 @@ YEAR_S = 365.25 * 86400.0  # Julian year in seconds (exact by IAU definition)
 #   - Above double-precision underflow (~ 5×10⁻³²⁴)
 #   - Below any physically meaningful σ (Earth surface: ~7×10⁻¹⁰)
 SIGMA_FLOOR = L_PLANCK * H0 / C  # ≈ 1.18e-61 (Planck/Hubble ratio)
+
+# ── SIGMA_HERE: Observer frame σ (defined here, after SIGMA_FLOOR) ───
+SIGMA_HERE = SIGMA_FLOOR  # σ in OUR spacetime (observer's compression frame)
+SIGMA_0 = SIGMA_HERE      # backward compatibility alias

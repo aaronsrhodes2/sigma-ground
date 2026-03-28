@@ -82,11 +82,11 @@ from .thermal import (
     sound_velocity,
 )
 from ..scale import scale_ratio
-from ..constants import HBAR, C, K_B, PROTON_QCD_FRACTION
+from ..constants import HBAR, C, K_B, PROTON_QCD_FRACTION, EV_TO_J, AMU_KG, SIGMA_HERE
 
 # ── Conversion ────────────────────────────────────────────────────
-_EV_TO_JOULE = 1.602176634e-19   # exact (2019 SI)
-_AMU_KG = 1.66053906660e-27      # atomic mass unit in kg
+_EV_TO_JOULE = EV_TO_J
+_AMU_KG = AMU_KG
 _ANGSTROM_M = 1e-10
 
 # Planck constant (not reduced) for Debye frequency
@@ -153,7 +153,7 @@ DIFFUSION_DATA = {
 
 # ── Solid-State Self-Diffusion ───────────────────────────────────
 
-def activation_energy_ev(material_key, sigma=0.0):
+def activation_energy_ev(material_key, sigma=SIGMA_HERE):
     """Activation energy for self-diffusion (eV).
 
     At σ=0: uses MEASURED value from tracer diffusion.
@@ -173,7 +173,7 @@ def activation_energy_ev(material_key, sigma=0.0):
         Activation energy in eV
     """
     E_a_0 = DIFFUSION_DATA[material_key]['E_a_measured_ev']
-    if sigma == 0.0:
+    if sigma == SIGMA_HERE:
         return E_a_0
 
     # Scale with cohesive energy shift
@@ -188,7 +188,7 @@ def activation_energy_ev(material_key, sigma=0.0):
     return E_a_0 * (e_coh_sigma / e_coh_0)
 
 
-def solid_diffusivity(material_key, T=1000.0, sigma=0.0):
+def solid_diffusivity(material_key, T=1000.0, sigma=SIGMA_HERE):
     """Self-diffusion coefficient in solids (m²/s).
 
     D = D₀ × exp(−E_a / k_BT)
@@ -309,7 +309,7 @@ def time_to_penetrate(D, depth):
 
 # ── Thermal Diffusivity ─────────────────────────────────────────
 
-def thermal_diffusivity(material_key, T=300.0, sigma=0.0):
+def thermal_diffusivity(material_key, T=300.0, sigma=SIGMA_HERE):
     """Thermal diffusivity α = κ/(ρ c_p) (m²/s).
 
     FIRST_PRINCIPLES: the thermal analogue of mass diffusivity.
@@ -335,7 +335,7 @@ def thermal_diffusivity(material_key, T=300.0, sigma=0.0):
     cp = specific_heat_j_kg_K(material_key, T, sigma)
 
     # σ correction to density (QCD mass shift)
-    if sigma != 0.0:
+    if sigma != SIGMA_HERE:
         f_qcd = PROTON_QCD_FRACTION
         mass_factor = (1.0 - f_qcd) + f_qcd * scale_ratio(sigma)
         rho = rho * mass_factor
@@ -395,7 +395,7 @@ def darken_interdiffusion(D_A, D_B, x_A, x_B):
 
 # ── σ-Shifted Diffusion ─────────────────────────────────────────
 
-def sigma_diffusion_shift(material_key, T=1000.0, sigma=0.0):
+def sigma_diffusion_shift(material_key, T=1000.0, sigma=SIGMA_HERE):
     """Fractional change in self-diffusion at given σ.
 
     Returns D(σ)/D(0) — the ratio of shifted to unshifted diffusivity.
@@ -411,9 +411,9 @@ def sigma_diffusion_shift(material_key, T=1000.0, sigma=0.0):
     Returns:
         Ratio D(σ)/D(0) (dimensionless, ≤1 for σ>0)
     """
-    if sigma == 0.0:
+    if sigma == SIGMA_HERE:
         return 1.0
-    D_0 = solid_diffusivity(material_key, T, 0.0)
+    D_0 = solid_diffusivity(material_key, T, SIGMA_HERE)
     D_s = solid_diffusivity(material_key, T, sigma)
     if D_0 == 0.0:
         return 0.0
@@ -422,7 +422,7 @@ def sigma_diffusion_shift(material_key, T=1000.0, sigma=0.0):
 
 # ── Nagatha Integration ──────────────────────────────────────────
 
-def material_diffusion_properties(material_key, T=1000.0, sigma=0.0):
+def material_diffusion_properties(material_key, T=1000.0, sigma=SIGMA_HERE):
     """Export diffusion properties in Nagatha-compatible format.
 
     Returns a dict that can be merged into Nagatha's material database.

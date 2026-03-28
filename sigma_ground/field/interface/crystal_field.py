@@ -303,6 +303,8 @@ def _gaussian_absorb(lambda_nm, lambda_abs_nm, width_nm, max_absorb):
     A(λ) = max_absorb × exp(−½((λ − λ₀)/σ)²),  σ = FWHM / (2√(2 ln 2))
     """
     sigma = width_nm / (2.0 * math.sqrt(2.0 * math.log(2.0)))
+    if sigma <= 0:
+        return 0.0  # zero-width band absorbs nothing
     z = (lambda_nm - lambda_abs_nm) / sigma
     return max_absorb * math.exp(-0.5 * z * z)
 

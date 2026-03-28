@@ -110,7 +110,7 @@ def planck_spectral_radiance(lam_m: float, T: float) -> float:
         return 0.0
     try:
         prefactor = 2.0 * _HC * _C_LIGHT / (lam_m**5)
-        return prefactor / (math.exp(x) - 1.0)
+        return prefactor / math.expm1(x)  # expm1 avoids cancellation for long wavelengths
     except (OverflowError, ZeroDivisionError):
         return 0.0
 

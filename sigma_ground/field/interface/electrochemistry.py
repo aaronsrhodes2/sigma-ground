@@ -85,10 +85,10 @@ Origin tags:
 """
 
 import math
-from ..constants import K_B, E_CHARGE
+from ..constants import K_B, E_CHARGE, N_AVOGADRO, SIGMA_HERE
 
 # ── Fundamental electrochemical constants ─────────────────────────
-_N_AVOGADRO = 6.02214076e23     # /mol (exact, 2019 SI)
+_N_AVOGADRO = N_AVOGADRO
 _R_GAS = _N_AVOGADRO * K_B     # J/(mol·K) = 8.31446...
 FARADAY = _N_AVOGADRO * E_CHARGE  # C/mol = 96485.33...
 
@@ -423,7 +423,7 @@ def sigma_nernst_shift(E0, n, Q, T, sigma):
     from ..scale import scale_ratio
     from ..constants import PROTON_QCD_FRACTION
 
-    if sigma == 0.0:
+    if sigma == SIGMA_HERE:
         return nernst_potential(E0, n, Q, T)
 
     # σ shifts the effective temperature through Debye temperature
@@ -440,7 +440,7 @@ def sigma_nernst_shift(E0, n, Q, T, sigma):
 
 # ── Nagatha Integration ──────────────────────────────────────────
 
-def material_electrochemical_properties(element_key, T=298.15, sigma=0.0):
+def material_electrochemical_properties(element_key, T=298.15, sigma=SIGMA_HERE):
     """Export electrochemical properties in Nagatha-compatible format.
 
     Returns a dict for elements in the STANDARD_POTENTIALS table.

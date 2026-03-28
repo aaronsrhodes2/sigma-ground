@@ -58,11 +58,12 @@ from .surface import (
     surface_energy, surface_energy_at_sigma,
     surface_energy_decomposition, MATERIALS,
 )
+from ..constants import SIGMA_HERE
 
 
 # ── Interface Energy ──────────────────────────────────────────────
 
-def interface_energy(material_1, material_2, sigma=0.0):
+def interface_energy(material_1, material_2, sigma=SIGMA_HERE):
     """Interface energy γ₁₂ (J/m²) using Berthelot combining rule.
 
     γ₁₂ = γ₁ + γ₂ − 2√(γ₁ × γ₂)
@@ -90,7 +91,7 @@ def interface_energy(material_1, material_2, sigma=0.0):
 
 # ── Work of Adhesion ──────────────────────────────────────────────
 
-def work_of_adhesion(material_1, material_2, sigma=0.0):
+def work_of_adhesion(material_1, material_2, sigma=SIGMA_HERE):
     """Work of adhesion W₁₂ (J/m²) from Dupré equation.
 
     W₁₂ = γ₁ + γ₂ − γ₁₂
@@ -119,14 +120,14 @@ def work_of_adhesion(material_1, material_2, sigma=0.0):
     return 2.0 * math.sqrt(g1 * g2)
 
 
-def work_of_adhesion_at_sigma(material_1, material_2, sigma=0.0):
+def work_of_adhesion_at_sigma(material_1, material_2, sigma=SIGMA_HERE):
     """Work of adhesion at arbitrary σ. Explicit sigma signature."""
     return work_of_adhesion(material_1, material_2, sigma=sigma)
 
 
 # ── Decomposition ────────────────────────────────────────────────
 
-def adhesion_decomposition(material_1, material_2, sigma=0.0):
+def adhesion_decomposition(material_1, material_2, sigma=SIGMA_HERE):
     """Decompose work of adhesion into EM and QCD components.
 
     The decomposition inherits from surface energy decomposition:
@@ -163,7 +164,7 @@ def adhesion_decomposition(material_1, material_2, sigma=0.0):
 # ── Contact Angle ────────────────────────────────────────────────
 
 def contact_angle(solid_material, liquid_material, gamma_lv,
-                  sigma=0.0):
+                  sigma=SIGMA_HERE):
     """Contact angle θ (degrees) from Young-Dupré equation.
 
     cos θ = W_SL / γ_LV − 1
@@ -199,7 +200,7 @@ def contact_angle(solid_material, liquid_material, gamma_lv,
 
 # ── Nagatha Integration ──────────────────────────────────────────
 
-def material_adhesion_properties(material_1, material_2, sigma=0.0):
+def material_adhesion_properties(material_1, material_2, sigma=SIGMA_HERE):
     """Export adhesion properties in Nagatha-compatible format.
 
     Returns a dict that can be merged into Nagatha's color.json.

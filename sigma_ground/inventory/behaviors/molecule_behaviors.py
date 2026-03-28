@@ -17,6 +17,28 @@ if TYPE_CHECKING:
 _MOLECULE_VALID_KEYS = {"energy_ev", "temperature_k", "pressure_pa", "electric_field_vm"}
 
 
+def _bond_force_constant(bond, molecule):
+    """Bond stretching force constant (N/m).
+
+    Uses Badger's rule (DERIVED from bond length and atomic row) when the
+    bond atoms are in the molecular_bonds ATOMS dict (H, C, N, O, F, S, Cl).
+    Falls back to 500 × bond_order for atoms outside that set.
+    """
+    try:
+        from sigma_ground.field.interface.molecular_bonds import badger_force_constant
+        atom_by_id = {atom.id: atom for atom in molecule.atoms}
+        a1 = atom_by_id.get(bond.atom_id_1)
+        a2 = atom_by_id.get(bond.atom_id_2)
+        if a1 and a2 and getattr(a1, 'symbol', None) and getattr(a2, 'symbol', None):
+            order = bond.bond_order if bond.bond_order and bond.bond_order > 0 else 1
+            return badger_force_constant(a1.symbol, a2.symbol, order)
+    except (KeyError, ValueError, ImportError):
+        pass
+    # Fallback for atoms not covered by Badger's rule
+    order = bond.bond_order if bond.bond_order and bond.bond_order > 0 else 1
+    return 500.0 * order
+
+
 def _bond_summary(molecule: Molecule) -> dict:
     """Summarize bond properties from the molecule's own bond list."""
     if not molecule.bonds:
@@ -104,8 +126,8 @@ def resolve_molecule_env(molecule: Molecule, env: dict, mode: str = "delta") -> 
             D_e_J = bond.dissociation_energy * CONSTANTS.e
             r_e = bond.reference_length
             # Morse parameter: a = sqrt(k_eff / (2 * D_e))
-            # k_eff approximated from bond order: ~500 N/m per bond order
-            k_eff = 500.0 * bond.bond_order if bond.bond_order > 0 else 500.0
+            # k_eff from Badger's rule (DERIVED) or fallback
+            k_eff = _bond_force_constant(bond, molecule)
             a = math.sqrt(k_eff / (2.0 * D_e_J)) if D_e_J > 0 else 1.0
             # Thermal displacement: <x^2> ~ kT / k_eff => x_rms ~ sqrt(kT/k_eff)
             x_rms_m = math.sqrt(kT_J / k_eff) if k_eff > 0 else 0.0
@@ -122,7 +144,7 @@ def resolve_molecule_env(molecule: Molecule, env: dict, mode: str = "delta") -> 
     if "pressure_pa" in env:
         P = env["pressure_pa"]
         for bond in molecule.bonds:
-            k_eff = 500.0 * bond.bond_order if bond.bond_order > 0 else 500.0
+            k_eff = _bond_force_constant(bond, molecule)
             # Bulk modulus ~ k_eff / r_e (order-of-magnitude)
             r_e_m = bond.reference_length * 1e-10
             K = k_eff / r_e_m if r_e_m > 0 else 1e11

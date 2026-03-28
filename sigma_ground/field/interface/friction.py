@@ -59,11 +59,12 @@ from .mechanical import (
     theoretical_shear_strength,
     youngs_modulus,
 )
+from ..constants import SIGMA_HERE
 
 
 # ── Hardness ──────────────────────────────────────────────────────
 
-def _hardness(material_key, sigma=0.0):
+def _hardness(material_key, sigma=SIGMA_HERE):
     """Indentation hardness from theoretical shear strength (Pa).
 
     H ≈ τ_theoretical / 10
@@ -91,7 +92,7 @@ def _hardness(material_key, sigma=0.0):
 
 # ── Real contact fraction ────────────────────────────────────────
 
-def real_contact_fraction(material_key, pressure_pa=1e6, sigma=0.0):
+def real_contact_fraction(material_key, pressure_pa=1e6, sigma=SIGMA_HERE):
     """Fraction of apparent area in real contact (Bowden-Tabor).
 
     A_real / A_apparent = P / H
@@ -119,7 +120,7 @@ def real_contact_fraction(material_key, pressure_pa=1e6, sigma=0.0):
 
 # ── Interfacial shear strength ────────────────────────────────────
 
-def interfacial_shear_strength(mat1, mat2, sigma=0.0):
+def interfacial_shear_strength(mat1, mat2, sigma=SIGMA_HERE):
     """Shear strength of the interface between two materials (Pa).
 
     For clean metal-metal contact without lubrication:
@@ -147,7 +148,7 @@ def interfacial_shear_strength(mat1, mat2, sigma=0.0):
 
 # ── Friction coefficient (adhesive) ──────────────────────────────
 
-def friction_coefficient(mat1, mat2, sigma=0.0):
+def friction_coefficient(mat1, mat2, sigma=SIGMA_HERE):
     """Adhesive friction coefficient (Bowden-Tabor model).
 
     μ = τ_interface / H_softer
@@ -247,7 +248,7 @@ def friction_coefficient(mat1, mat2, sigma=0.0):
 
 # ── Ploughing friction ────────────────────────────────────────────
 
-def ploughing_friction(mat_hard, mat_soft, sigma=0.0):
+def ploughing_friction(mat_hard, mat_soft, sigma=SIGMA_HERE):
     """Ploughing contribution to friction coefficient.
 
     When a harder material slides on a softer one, asperities from
@@ -299,7 +300,7 @@ def ploughing_friction(mat_hard, mat_soft, sigma=0.0):
 
 # ── Friction force ────────────────────────────────────────────────
 
-def friction_force(mat1, mat2, normal_force_n=1.0, sigma=0.0):
+def friction_force(mat1, mat2, normal_force_n=1.0, sigma=SIGMA_HERE):
     """Total friction force including adhesive and ploughing (Newtons).
 
     F_friction = μ_total × F_normal
@@ -331,7 +332,7 @@ def friction_force(mat1, mat2, normal_force_n=1.0, sigma=0.0):
 
 # ── Nagatha export ────────────────────────────────────────────────
 
-def material_friction_properties(mat1, mat2, pressure_pa=1e7, sigma=0.0):
+def material_friction_properties(mat1, mat2, pressure_pa=1e7, sigma=SIGMA_HERE):
     """Export friction properties in Nagatha-compatible format.
 
     Args:

@@ -73,13 +73,16 @@ Origin tags:
 import math
 from .surface import MATERIALS
 from ..scale import scale_ratio
-from ..constants import PROTON_QCD_FRACTION, HBAR, C, E_CHARGE
+from ..constants import (
+    PROTON_QCD_FRACTION, HBAR, C, E_CHARGE, K_B, M_ELECTRON_KG,
+    BOHR_RADIUS, SIGMA_HERE,
+)
 
 # ── Fundamental Constants ─────────────────────────────────────────
-_K_BOLTZMANN = 1.380649e-23       # J/K (exact, 2019 SI)
-_ELECTRON_MASS = 9.1093837015e-31  # kg
+_K_BOLTZMANN = K_B
+_ELECTRON_MASS = M_ELECTRON_KG
 _MU_0 = 1.25663706212e-6          # N/A² (vacuum permeability)
-_BOHR_RADIUS = 5.29177210903e-11  # m (a₀ = ℏ/(m_e c α))
+_BOHR_RADIUS = BOHR_RADIUS
 
 # Bohr magneton: μ_B = eℏ/(2m_e)
 MU_BOHR = E_CHARGE * HBAR / (2.0 * _ELECTRON_MASS)  # ≈ 9.274e-24 J/T
@@ -432,7 +435,7 @@ def is_ferromagnetic(material_key, T=300.0):
 
 # ── Nuclear Magnetic Moments & σ-dependence ───────────────────────
 
-def nuclear_magnetic_moment(material_key, sigma=0.0):
+def nuclear_magnetic_moment(material_key, sigma=SIGMA_HERE):
     """Nuclear magnetic moment at arbitrary σ (in nuclear magnetons).
 
     The nuclear magnetic moment depends on the gyromagnetic ratio:
@@ -496,7 +499,7 @@ def nmr_frequency_shift(material_key, sigma):
 
 # ── Nagatha Export ────────────────────────────────────────────────
 
-def material_magnetic_properties(material_key, T=300.0, sigma=0.0):
+def material_magnetic_properties(material_key, T=300.0, sigma=SIGMA_HERE):
     """Export magnetic properties in Nagatha-compatible format.
 
     Returns a dict with all magnetic quantities and honest origin tags.

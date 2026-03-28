@@ -85,17 +85,18 @@ Origin tags:
 
 import math
 from ..constants import (
-    HBAR, C, E_CHARGE, EPS_0,
+    HBAR, C, E_CHARGE, EPS_0, K_B, MEV_TO_J, KEV_TO_J, AMU_KG,
     PROTON_TOTAL_MEV, PROTON_BARE_MEV, PROTON_QCD_MEV,
     PROTON_QCD_FRACTION,
+    SIGMA_HERE,
 )
 from ..scale import scale_ratio
 
 # ── Constants ─────────────────────────────────────────────────────
-_K_BOLTZMANN = 1.380649e-23       # J/K
-_MEV_TO_JOULE = 1.602176634e-13   # MeV → J
-_KEV_TO_JOULE = 1.602176634e-16   # keV → J
-_AMU_KG = 1.66053906660e-27       # atomic mass unit in kg
+_K_BOLTZMANN = K_B
+_MEV_TO_JOULE = MEV_TO_J
+_KEV_TO_JOULE = KEV_TO_J
+_AMU_KG = AMU_KG
 _YEAR_S = 365.25 * 86400.0        # Julian year in seconds
 
 # Proton mass in kg at σ=0
@@ -174,7 +175,7 @@ REACTIONS = {
 
 # ── Reduced Mass ──────────────────────────────────────────────────
 
-def reduced_mass_kg(A1, A2, sigma=0.0):
+def reduced_mass_kg(A1, A2, sigma=SIGMA_HERE):
     """Reduced mass of two nuclei in kg.
 
     μ = m₁ m₂ / (m₁ + m₂)
@@ -202,14 +203,14 @@ def reduced_mass_kg(A1, A2, sigma=0.0):
     return m1 * m2 / (m1 + m2)
 
 
-def reduced_mass_mev(A1, A2, sigma=0.0):
+def reduced_mass_mev(A1, A2, sigma=SIGMA_HERE):
     """Reduced mass in MeV/c²."""
     return reduced_mass_kg(A1, A2, sigma) * C**2 / _MEV_TO_JOULE
 
 
 # ── Gamow Peak ────────────────────────────────────────────────────
 
-def gamow_energy_keV(Z1, A1, Z2, A2, T_K, sigma=0.0):
+def gamow_energy_keV(Z1, A1, Z2, A2, T_K, sigma=SIGMA_HERE):
     """Gamow peak energy in keV.
 
     E_G = (b × k_B T / 2)^(2/3)
@@ -252,7 +253,7 @@ def gamow_energy_keV(Z1, A1, Z2, A2, T_K, sigma=0.0):
     return E_G / _KEV_TO_JOULE  # convert to keV
 
 
-def gamow_window_keV(Z1, A1, Z2, A2, T_K, sigma=0.0):
+def gamow_window_keV(Z1, A1, Z2, A2, T_K, sigma=SIGMA_HERE):
     """Width of the Gamow window in keV.
 
     Δ = 4 × √(E_G × k_BT / 3)
@@ -275,7 +276,7 @@ def gamow_window_keV(Z1, A1, Z2, A2, T_K, sigma=0.0):
 
 # ── Thermonuclear Reaction Rate ───────────────────────────────────
 
-def reaction_rate_sigma_v(reaction_key, T_K, sigma=0.0):
+def reaction_rate_sigma_v(reaction_key, T_K, sigma=SIGMA_HERE):
     """Thermally-averaged reaction rate ⟨σv⟩ in cm³/s.
 
     Uses the Gamow peak approximation:
@@ -394,7 +395,7 @@ def reaction_rate_sigma_v(reaction_key, T_K, sigma=0.0):
     return sigma_v
 
 
-def _triple_alpha_rate(T_K, sigma=0.0):
+def _triple_alpha_rate(T_K, sigma=SIGMA_HERE):
     """Triple-alpha reaction rate ⟨σv⟩_3α (cm⁶/s).
 
     The triple-alpha process is a sequential two-body reaction:
@@ -456,7 +457,7 @@ def _triple_alpha_rate(T_K, sigma=0.0):
 
 # ── Energy Generation Rate ────────────────────────────────────────
 
-def pp_chain_energy_rate(T_K, rho_kg_m3, X_H=0.70, sigma=0.0):
+def pp_chain_energy_rate(T_K, rho_kg_m3, X_H=0.70, sigma=SIGMA_HERE):
     """Energy generation rate from the pp-chain (W/kg).
 
     ε_pp = ρ X² × (N_A²/2) × ⟨σv⟩_pp × Q_pp_eff / m_H²
@@ -521,7 +522,7 @@ def pp_chain_energy_rate(T_K, rho_kg_m3, X_H=0.70, sigma=0.0):
     return eps_specific
 
 
-def cno_energy_rate(T_K, rho_kg_m3, X_H=0.70, X_CNO=0.01, sigma=0.0):
+def cno_energy_rate(T_K, rho_kg_m3, X_H=0.70, X_CNO=0.01, sigma=SIGMA_HERE):
     """Energy generation rate from the CNO cycle (W/kg).
 
     The CNO cycle is catalyzed by ¹²C, ¹³C, ¹⁴N, ¹⁵N, ¹⁵O, ¹³N.
@@ -573,7 +574,7 @@ def cno_energy_rate(T_K, rho_kg_m3, X_H=0.70, X_CNO=0.01, sigma=0.0):
 
 # ── Stellar Burning Temperatures ──────────────────────────────────
 
-def pp_cno_crossover_temperature(X_H=0.70, X_CNO=0.01, sigma=0.0):
+def pp_cno_crossover_temperature(X_H=0.70, X_CNO=0.01, sigma=SIGMA_HERE):
     """Temperature where CNO rate equals pp rate (in Kelvin).
 
     Above this temperature, CNO dominates. Below, pp dominates.
@@ -610,7 +611,7 @@ def pp_cno_crossover_temperature(X_H=0.70, X_CNO=0.01, sigma=0.0):
     return (T_lo + T_hi) / 2.0
 
 
-def pp_temperature_exponent(T_K, sigma=0.0):
+def pp_temperature_exponent(T_K, sigma=SIGMA_HERE):
     """Power-law exponent ν for pp-chain: ε ∝ T^ν.
 
     Computed numerically: ν = d(ln ε)/d(ln T).
@@ -639,7 +640,7 @@ def pp_temperature_exponent(T_K, sigma=0.0):
 
 # ── Nagatha Export ────────────────────────────────────────────────
 
-def reaction_properties(reaction_key, T_K=15.7e6, sigma=0.0):
+def reaction_properties(reaction_key, T_K=15.7e6, sigma=SIGMA_HERE):
     """Export reaction properties in Nagatha-compatible format.
 
     Args:
@@ -690,7 +691,7 @@ def reaction_properties(reaction_key, T_K=15.7e6, sigma=0.0):
     return result
 
 
-def stellar_burning_summary(T_K=15.7e6, rho_kg_m3=150e3, sigma=0.0):
+def stellar_burning_summary(T_K=15.7e6, rho_kg_m3=150e3, sigma=SIGMA_HERE):
     """Summary of stellar energy generation at given conditions.
 
     Default: solar core (T = 15.7 MK, ρ = 150 g/cm³).

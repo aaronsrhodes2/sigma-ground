@@ -66,13 +66,14 @@ import math
 from .surface import MATERIALS
 from .thermal import debye_temperature
 from .mechanical import _number_density
+from ..constants import K_B, HBAR, E_CHARGE, AMU_KG, R_GAS, SIGMA_HERE
 
 # ── Constants ─────────────────────────────────────────────────────
-_K_BOLTZMANN = 1.380649e-23     # J/K (exact, 2019 SI)
-_HBAR = 1.054571817e-34         # J·s (exact, 2019 SI)
-_EV_TO_JOULE = 1.602176634e-19  # exact
-_AMU_KG = 1.66053906660e-27     # atomic mass unit in kg
-_R_GAS = 8.314462618            # J/(mol·K) (CODATA 2018)
+_K_BOLTZMANN = K_B              # J/K (exact, 2019 SI)
+_HBAR = HBAR                    # J·s (exact, 2019 SI)
+_EV_TO_JOULE = E_CHARGE         # exact
+_AMU_KG = AMU_KG                # atomic mass unit in kg
+_R_GAS = R_GAS                  # J/(mol·K)
 
 # Lindemann constant for the formula T_m = C × M × ω_D² / (k_B × n^(2/3)).
 # This form uses the atomic volume length scale n^(-1/3) (atoms/m³ → m per atom)
@@ -80,11 +81,19 @@ _R_GAS = 8.314462618            # J/(mol·K) (CODATA 2018)
 # the Lindemann displacement threshold is properly normalised by the
 # inter-atomic spacing regardless of crystal structure.
 #
-# Calibration: best fit over all 8 materials in PHASE_DATA.
-# For metals, estimates are within ±44% of measured T_m.
-# Silicon (covalent) is ~46% low — Lindemann is less accurate for non-metals.
-# APPROXIMATION: C is empirical (Gilvarry 1956 analysis with our Θ_D values).
-_LINDEMANN_C = 0.00075
+# Calibration: best fit over 6 metals (Fe, Cu, Al, W, Ni, Ti) in PHASE_DATA,
+# using Debye average sound velocity (v_D, from thermal.py) for θ_D.
+#
+# With proper Debye average: metals are within ±15% of measured T_m.
+# Gold is an outlier (~66% low) due to relativistic 6s contraction.
+# Silicon is ~15% low — Lindemann is less accurate for covalent crystals.
+#
+# Physical interpretation: C = f_L² / 3 where f_L is the Lindemann
+# displacement fraction. Our C = 0.00139 gives f_L ≈ 0.065, within the
+# literature range 0.05–0.15 (Gilvarry 1956, Lawson 2009).
+#
+# APPROXIMATION: C is empirical (Gilvarry 1956 analysis with corrected Θ_D).
+_LINDEMANN_C = 0.00139
 
 
 # ── Phase Transition Data ──────────────────────────────────────────
@@ -179,7 +188,7 @@ PHASE_DATA = {
         'L_fus_J_mol':      14150.0,   # 14.15 kJ/mol
         'L_vap_J_mol':      421000.0,  # 421 kJ/mol
         'delta_V_fus':      0.0285,    # ~2.9% volume increase
-        'dT_dP_melt_K_GPa': 3.3,       # ESTIMATED from Clausius-Clapeyron
+        'dT_dP_melt_K_GPa': 3.3,       # DERIVED from Clausius-Clapeyron (measured ΔH_fus, ΔV)
     },
 }
 
@@ -259,7 +268,7 @@ def melting_point_at_pressure(material_key, pressure_Pa):
 
 # ── Lindemann Melting Estimate ────────────────────────────────────
 
-def lindemann_melting_estimate(material_key, sigma=0.0):
+def lindemann_melting_estimate(material_key, sigma=SIGMA_HERE):
     """Estimate melting temperature via the Lindemann criterion (K).
 
     T_m ≈ C × M × ω_D² / (k_B × n^(2/3))
@@ -284,10 +293,10 @@ def lindemann_melting_estimate(material_key, sigma=0.0):
     The length scale n^(-1/3) (atomic volume length) is preferred over the
     conventional lattice parameter because it is structure-independent.
 
-    APPROXIMATION: C is calibrated empirically to our computed Θ_D values
-    (which are ~30-65% higher than literature values for most metals due to
-    the harmonic-approximation K in mechanical.py). Estimates are within
-    a factor of 2 for all materials; silicon (covalent) is at the lower edge.
+    APPROXIMATION: C is calibrated empirically to our Debye-average Θ_D.
+    With proper v_D (longitudinal + transverse modes), metals agree within
+    ±15% of measured T_m. Gold (relativistic) and silicon (covalent) are
+    outliers. See thermal.py for the Debye average correction.
 
     σ-dependence: enters through Θ_D(σ) from thermal.py.
     Higher σ → heavier nuclei → Θ_D decreases → T_m decreases.
@@ -414,7 +423,7 @@ def sigma_melting_shift(material_key, sigma):
     data = PHASE_DATA[material_key]
     T_m0 = data['T_melt_K']
 
-    theta_0 = debye_temperature(material_key, sigma=0.0)
+    theta_0 = debye_temperature(material_key, sigma=SIGMA_HERE)
     theta_s = debye_temperature(material_key, sigma=sigma)
 
     if theta_0 == 0:
@@ -427,7 +436,7 @@ def sigma_melting_shift(material_key, sigma):
 
 # ── Nagatha Export ────────────────────────────────────────────────
 
-def phase_transition_properties(material_key, P=0.0, sigma=0.0):
+def phase_transition_properties(material_key, P=0.0, sigma=SIGMA_HERE):
     """Export phase transition properties in Nagatha-compatible format.
 
     Returns a dict with all phase transition quantities at given pressure

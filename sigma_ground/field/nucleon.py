@@ -11,12 +11,12 @@ Shifting Λ_QCD shifts that 99%.
 from .constants import (
     PROTON_BARE_MEV, PROTON_QCD_MEV,
     NEUTRON_BARE_MEV, NEUTRON_QCD_MEV,
-    M_ELECTRON_MEV,
+    M_ELECTRON_MEV, SIGMA_HERE,
 )
 from .scale import scale_ratio
 
 
-def proton_mass_mev(sigma=0.0):
+def proton_mass_mev(sigma=SIGMA_HERE):
     """Proton mass in MeV at given σ.
 
     Bare quark mass (Higgs): invariant.
@@ -25,7 +25,7 @@ def proton_mass_mev(sigma=0.0):
     return PROTON_BARE_MEV + PROTON_QCD_MEV * scale_ratio(sigma)
 
 
-def neutron_mass_mev(sigma=0.0):
+def neutron_mass_mev(sigma=SIGMA_HERE):
     """Neutron mass in MeV at given σ.
 
     Bare quark mass (Higgs): invariant.
@@ -34,7 +34,7 @@ def neutron_mass_mev(sigma=0.0):
     return NEUTRON_BARE_MEV + NEUTRON_QCD_MEV * scale_ratio(sigma)
 
 
-def nucleon_decomposition(sigma=0.0):
+def nucleon_decomposition(sigma=SIGMA_HERE):
     """Show the Higgs vs QCD decomposition at a given σ.
 
     Returns dict with proton and neutron breakdowns.

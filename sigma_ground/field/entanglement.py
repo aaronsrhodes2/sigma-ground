@@ -515,7 +515,7 @@ def disturbance_propagation(eta, delta_sigma, n_entangled_partners):
     # The σ perturbation decays as η^depth (each hop shares the constraint)
     # Stop when perturbation < σ_noise (thermal fluctuations)
     sigma_noise = 1e-15  # thermal σ fluctuations
-    if abs(delta_sigma) > 0 and abs(delta_sigma) > sigma_noise:
+    if abs(delta_sigma) > 0 and abs(delta_sigma) > sigma_noise and 0 < eta < 1:
         max_depth = int(math.log(sigma_noise / abs(delta_sigma)) / math.log(eta))
         max_depth = max(1, min(max_depth, 100))  # reasonable bounds
     else:

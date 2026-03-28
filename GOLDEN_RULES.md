@@ -165,3 +165,45 @@ Every undocumented approximation is a place where the framework secretly fails.
 Every missing database entry is a thing the simulation cannot see.*
 
 *"Nature already has the best answer — we just need to find it."*
+
+---
+
+## Vision — The Matter Information Cascade
+
+This library is built on a discovery: **you can derive all material properties
+from a small number of measured atomic inputs through physics equations.**
+
+For metals: ~15 measured numbers per element → hundreds of derived properties.
+For organics: ~42 measured atomic properties (7 atoms × 6 each) plus 7
+homonuclear bond energies → all covalent bonds → all molecular geometries →
+all intermolecular forces → all bulk properties.
+
+The equations *are* the compression. You never need to store what you can derive.
+
+This is the same principle that lets the inventory system load the entire
+observable universe and query any particle in it without a massive thinking
+machine. A lookup table of every molecule's properties would be infinite.
+The derivation chain that produces them from atoms fits in a few kilobytes.
+
+**The goal:** virtual matter that behaves exactly like real matter in every way,
+constructed from first principles plus a minimal set of measured seeds. No
+lookup tables of bulk properties. No fitting parameters disguised as physics.
+No magic numbers that haven't been traced to a measurement or a derivation.
+
+The cascade flows downward:
+```
+measured atomic properties (χ, r_cov, IE₁, mass, D(A-A))
+  → bond energies (Pauling)
+    → bond lengths (Schomaker-Stevenson)
+      → molecular geometry (VSEPR)
+        → intermolecular forces (H-bond, London, dipole-dipole)
+          → bulk properties (density, viscosity, surface tension, ...)
+```
+
+Each step is a physics equation, not a lookup. Each equation cites its source.
+Each measured input is labeled MEASURED. Each derivation is labeled
+FIRST_PRINCIPLES. The provenance is the proof.
+
+*"We proved we could load the entire universe and query any particle in it.
+The matter information cascade is the same insight applied to chemistry:
+the compression is the physics itself."*

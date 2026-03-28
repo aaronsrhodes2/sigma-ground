@@ -53,14 +53,15 @@ Origin tags:
 
 import math
 from .surface import MATERIALS
+from ..constants import E_CHARGE, M_ELECTRON_KG, EPS_0, HBAR, C, AMU_KG
 
 # ── Fundamental Constants ─────────────────────────────────────────────────
-_E_CHARGE   = 1.602176634e-19    # C (exact, 2019 SI)
-_M_ELECTRON = 9.1093837015e-31   # kg
-_EPSILON_0  = 8.8541878128e-12   # F/m
-_HBAR       = 1.054571817e-34    # J·s
-_C_LIGHT    = 2.99792458e8       # m/s (exact)
-_AMU_KG     = 1.66053906660e-27  # kg/amu
+_E_CHARGE   = E_CHARGE           # C (exact, 2019 SI)
+_M_ELECTRON = M_ELECTRON_KG      # kg
+_EPSILON_0  = EPS_0              # F/m
+_HBAR       = HBAR               # J·s
+_C_LIGHT    = C                  # m/s (exact)
+_AMU_KG     = AMU_KG             # kg/amu
 
 # ── Visible wavelengths for RGB sampling ─────────────────────────────────
 # CIE 1931 standard: cone peak sensitivities (L, M, S)
@@ -87,17 +88,18 @@ VALENCE_ELECTRONS = {
     'silicon':  0,   # semiconductor; no free carriers at 0K
 }
 
-# ── Electrical resistivities (MEASURED, 293K) ────────────────────────────
+# ── Electrical resistivities (MEASURED, ~300K) ───────────────────────────
 # Sources: CRC Handbook of Chemistry and Physics, 101st ed.
+# Harmonized with electronics.py METAL_TRANSPORT (CRC 300K values).
 # Units: Ω·m
 
 RESISTIVITY = {
     'aluminum': 2.65e-8,
-    'copper':   1.72e-8,
+    'copper':   1.68e-8,
     'gold':     2.24e-8,
-    'iron':     1.00e-7,
-    'nickel':   7.00e-8,
-    'tungsten': 5.30e-8,
+    'iron':     9.70e-8,
+    'nickel':   6.99e-8,
+    'tungsten': 5.28e-8,
     'titanium': 4.20e-7,
     'silicon':  None,
 }
@@ -442,6 +444,8 @@ def _gaussian_absorb(wavelength_m, lambda_abs_nm, width_nm, max_absorb):
     """
     lambda_nm = wavelength_m * 1e9
     sigma_nm = width_nm / (2.0 * math.sqrt(2.0 * math.log(2.0)))
+    if sigma_nm <= 0:
+        return 0.0  # zero-width band absorbs nothing
     z = (lambda_nm - lambda_abs_nm) / sigma_nm
     return max_absorb * math.exp(-0.5 * z * z)
 

@@ -17,7 +17,15 @@ def scale_ratio(sigma):
 
     At σ = 0: returns 1.0 (standard physics).
     At σ > 0: QCD gets stronger, nucleons get heavier.
+
+    Guards: exp(σ) overflows float64 at σ ≈ 709.8. Any σ past σ_conv (≈ 1.85)
+    has already destroyed nuclear matter — the physics doesn't extend to σ = 710.
+    We clamp to float('inf') rather than crashing.
     """
+    if sigma > 709.0:
+        return float('inf')
+    if sigma < -709.0:
+        return 0.0
     return math.exp(sigma)
 
 

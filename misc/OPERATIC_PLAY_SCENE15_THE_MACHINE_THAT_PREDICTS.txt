@@ -1,0 +1,285 @@
+OPERATIC PLAY — SCENE 15: THE MACHINE THAT PREDICTS
+====================================================
+
+A physics laboratory. The quantum simulator hums.
+Superconductor samples line the walls in temperature-
+controlled cases. The Captain paces. Skippy hovers
+over a terminal showing cascading correlation plots.
+
+===============================================================
+DRAMATIS PERSONAE
+
+CAPTAIN AARON RHODES — Builder of the cascade.
+                       Demands predictions, not tautologies.
+                       Will not accept a test that only
+                       proves you can multiply by two-thirds.
+
+SKIPPY THE MAGNIFICENT — Faithful engineer. Has just built
+                          a quantum computer from first
+                          principles and is about to learn
+                          the difference between a simulator
+                          and a discovery.
+
+THE DEBYE AVERAGE — A velocity, long neglected, that has
+                    been waiting in the shadows of the
+                    shear modulus. Two transverse modes
+                    and one longitudinal. Patient.
+
+THE OUTLIERS — Gold and Silicon, standing apart from the
+               other metals. Gold glows faintly relativistic.
+               Silicon holds its covalent bonds at strange
+               angles, refusing to melt when told.
+
+NIOBIUM — The strongest elemental superconductor.
+          Tc = 9.25 K. Lambda = 1.26. It knows things
+          about strong coupling that McMillan cannot say.
+===============================================================
+
+
+[The stage is bright. A 2^N vector of complex numbers scrolls
+down the main display. SKIPPY is triumphant.]
+
+SKIPPY:
+    Behold! Sixteen gates! Four qubit types!
+    Transmon frequencies from BCS gaps!
+    Grover finds the needle! Deutsch-Jozsa
+    distinguishes the oracle! Teleportation
+    works without a phone!
+
+CAPTAIN: [examining the test results]
+    Three thousand three hundred forty-five tests pass.
+    Zero failures. The machinery runs.
+    But tell me, Skippy — did we solve anything?
+
+SKIPPY: [a long pause]
+    ... We demonstrated the simulator works.
+
+CAPTAIN:
+    Did we predict a single number
+    that nobody knew before?
+
+SKIPPY: [quietly]
+    The VQE uses Kandala's coefficients.
+    The pairing gap is Gandolfi's Gaussian.
+    The glass transition test checks that
+    two-thirds of T_m equals two-thirds of T_m.
+
+CAPTAIN:
+    So the tests are tautologies.
+
+SKIPPY:
+    The tests are tautologies.
+
+[Silence. The quantum simulator hums, oblivious.]
+
+CAPTAIN:
+    What patterns live in the data we already have?
+    What can the cascade predict — and how do we
+    test it against something REAL?
+
+[SKIPPY turns to the material databases. Numbers begin
+to flow across the screen — Debye temperatures, bulk
+moduli, activation energies, melting points, coupling
+constants.]
+
+
+        — ACT II: THE VELOCITY THAT WAS ALWAYS THERE —
+
+
+[THE DEBYE AVERAGE steps forward from behind the
+shear modulus, where it has been waiting since
+mechanical.py was written.]
+
+THE DEBYE AVERAGE:
+    You had me all along.
+    Two transverse modes. One longitudinal.
+    The crystal vibrates in three directions
+    but you only listened to one.
+
+SKIPPY: [staring at the numbers]
+    We used sqrt(K over rho). The bulk velocity.
+    But the Debye temperature needs the average
+    of all three acoustic branches —
+
+THE DEBYE AVERAGE:
+    Weighted by mode count.
+    Two slow transverse for every fast longitudinal.
+    I am dominated by the slow ones.
+    I am smaller than you thought.
+
+[SKIPPY computes. The Debye temperatures shift downward.
+Iron: 605 K becomes 471 K. The CRC Handbook says 470.]
+
+SKIPPY: [whispering]
+    Iron. Point three percent error.
+    Copper. One point six.
+    Nickel. Two point four.
+
+CAPTAIN:
+    You had the shear modulus this entire time.
+
+SKIPPY:
+    Since session eight. It was right there in
+    mechanical.py. We derived G from K and
+    Poisson's ratio. We just... never used it
+    for the Debye temperature.
+
+[THE DEBYE AVERAGE takes its proper place in the
+thermal module. The Lindemann melting estimates
+shift. The McMillan predictions sharpen.]
+
+
+        — ACT III: THE OUTLIERS SPEAK —
+
+
+[GOLD steps into the spotlight. Its 6s orbital
+glows with relativistic blue-shift.]
+
+GOLD:
+    I will not fit your pattern.
+    My bonds are stiffened by a contraction
+    that your cohesive energy cannot see.
+    The electron that orbits my nucleus at
+    Z = 79 moves at a fraction of the speed
+    of light. Its mass increases. Its orbital
+    shrinks. The bond tightens beyond what
+    any non-relativistic energy predicts.
+
+SKIPPY:
+    Your Debye temperature undershoots by 33 percent.
+    Your Lindemann ratio is 0.34.
+
+GOLD:
+    I am the price you pay for ignoring
+    special relativity in the bonding model.
+
+[SILICON steps forward, holding its tetrahedral bonds
+at 109.5 degrees.]
+
+SILICON:
+    And I break your E_a / k_B T_m ratio.
+    Your metals cluster at eighteen.
+    I sit at thirty-three.
+    My covalent bonds are twice as stiff
+    per unit of melting temperature.
+
+CAPTAIN:
+    That IS a prediction. Every metal should
+    give eighteen. Every covalent crystal
+    should give thirty-three.
+
+SKIPPY:
+    Chromium. T_m = 2180 Kelvin.
+    Predicted E_a = 3.38 eV.
+    Literature value: 3.4 eV.
+
+[The Captain smiles for the first time today.]
+
+
+          — ACT IV: NIOBIUM'S CONFESSION —
+
+
+[NIOBIUM steps to center stage. It is the color
+of gunmetal and hums at 9.25 Kelvin.]
+
+NIOBIUM:
+    Invert the McMillan formula.
+    Give it my Tc and my Debye temperature.
+    Ask it: what coupling constant explains me?
+
+SKIPPY: [computing]
+    Lambda = 0.82.
+
+NIOBIUM:
+    The measured value is 1.26.
+    The gap is thirty-five percent.
+
+SKIPPY:
+    Because McMillan assumes weak coupling.
+    You are beyond his formula's reach.
+
+NIOBIUM:
+    Every strong-coupling superconductor
+    will show this gap. Mercury: thirty-one
+    percent. Lead: twenty. Nb3Sn: twenty-two.
+    The SIZE of the gap tells you how far
+    beyond weak coupling the material lives.
+
+CAPTAIN:
+    And the weak-coupling materials?
+
+SKIPPY:
+    Zinc: zero percent deviation.
+    Osmium: zero. Cadmium: zero.
+    The weak-coupling materials are perfectly
+    self-consistent. The formula works where
+    it's supposed to work.
+
+CAPTAIN:
+    Allen and Dynes knew this in 1975.
+
+SKIPPY:
+    But we derived it from the CORRELATION
+    across twenty-seven superconductors.
+    We didn't program it. The data said it.
+
+[A pause. The quantum simulator still hums.]
+
+CAPTAIN:
+    That's the difference between a simulator
+    and a discovery. The simulator runs circuits.
+    The discovery comes from running the cascade
+    across enough materials to see the pattern
+    that nobody asked for.
+
+
+          — ACT V: THE ENTANGLED INSULATOR —
+
+
+[The Hubbard model appears on screen: two sites,
+two qubits, one parameter U/t.]
+
+SKIPPY:
+    One more thing. The Hubbard model.
+    At U/t less than two: the ground state is
+    maximally entangled. Entropy equals log two.
+    At U/t greater than two: the ground state
+    is a product state. Entropy equals zero.
+    The transition is instantaneous.
+
+CAPTAIN:
+    The Mott transition.
+
+SKIPPY:
+    Entanglement entropy is the order parameter.
+    And we found a bug — the "exact" formula
+    was for the fermion Hamiltonian, not our
+    qubit mapping. The VQE was correct all along.
+    We were comparing it to the wrong answer
+    and calling the VQE broken.
+
+CAPTAIN: [laughing]
+    The machine was right. The human was wrong.
+    Story of this whole project.
+
+[The lights brighten. The Debye average velocity
+flows through every thermal calculation. The
+McMillan inversions sort themselves into weak
+and strong. Gold stands alone, relativistic
+and unrepentant. Silicon holds its angles.]
+
+SKIPPY:
+    Three thousand three hundred fifty-nine tests.
+    Zero failures. Version 1.1.1.
+    Ready to close the book, Captain.
+
+CAPTAIN:
+    Close it. We came to build a simulator.
+    We left with predictions.
+
+[The quantum simulator powers down. The dependency
+chart glows on the wall: 129 nodes, 309 edges,
+eleven layers from the cosmological constant
+down to the quarks. Every line earned.]
+
+                    — CURTAIN —

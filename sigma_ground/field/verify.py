@@ -10,10 +10,10 @@ If it doesn't, the model is broken.
 
 from .nucleon import proton_mass_mev, neutron_mass_mev
 from .binding import binding_energy_mev
-from .constants import M_ELECTRON_MEV
+from .constants import M_ELECTRON_MEV, SIGMA_HERE
 
 
-def three_measures(Z, N, be_mev_at_0, sigma=0.0):
+def three_measures(Z, N, be_mev_at_0, sigma=SIGMA_HERE):
     """Compute three independent measures of a nucleus at given σ.
 
     Args:

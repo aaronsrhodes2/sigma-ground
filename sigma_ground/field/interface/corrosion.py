@@ -78,7 +78,10 @@ Origin tags:
   - Pilling-Bedworth ratio: FIRST_PRINCIPLES (geometry, Pilling & Bedworth 1923)
   - Parabolic law: FIRST_PRINCIPLES (Wagner 1933, Fickian diffusion)
   - Galvanic potential: FIRST_PRINCIPLES (electrochemistry, Gibbs / Nernst)
-  - k_parabolic at 300 K: MEASURED (CRC Handbook, Birks, Meier & Pettit 2006)
+  - k_parabolic at 300 K: MEASURED (CRC Handbook, Birks, Meier & Pettit 2006).
+    NOTE: Values are representative for dry air. Actual oxidation rates depend
+    strongly on atmosphere (humid vs dry), surface condition, and oxide
+    microstructure. Literature values can vary by orders of magnitude.
   - Q_oxidation: MEASURED (Birks et al. 2006, Kofstad 1988)
   - Oxide densities / molar masses: MEASURED (CRC Handbook)
   - Standard electrode potentials: MEASURED (IUPAC, Bard et al. 1985)
@@ -87,10 +90,10 @@ Origin tags:
 
 import math
 from .surface import MATERIALS
-from ..constants import K_B, PROTON_QCD_FRACTION
+from ..constants import K_B, PROTON_QCD_FRACTION, EV_TO_J, SIGMA_HERE
 
 # ── Conversion ─────────────────────────────────────────────────────────────
-_EV_TO_JOULE = 1.602176634e-19  # exact (2019 SI definition)
+_EV_TO_JOULE = EV_TO_J
 
 # ── Corrosion Material Database ─────────────────────────────────────────────
 # All values are MEASURED.
@@ -527,7 +530,7 @@ def sigma_corrosion_shift(material_key, sigma):
     rho_ox = cd['oxide_density_kg_m3']
     k_ref = cd['k_parabolic_m2_s']
 
-    if sigma == 0.0:
+    if sigma == SIGMA_HERE:
         return corrosion_rate_estimate(material_key, temperature=_T_REF)
 
     from ..scale import scale_ratio
@@ -560,7 +563,7 @@ def sigma_corrosion_shift(material_key, sigma):
 
 # ── Nagatha Export ──────────────────────────────────────────────────────────
 
-def corrosion_properties(material_key, time_s=3.15e7, T=300.0, sigma=0.0):
+def corrosion_properties(material_key, time_s=3.15e7, T=300.0, sigma=SIGMA_HERE):
     """Corrosion properties in Nagatha-compatible export format.
 
     Collects all corrosion observables for a material into a single dict

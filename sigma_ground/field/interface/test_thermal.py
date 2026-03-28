@@ -358,18 +358,34 @@ class TestNagathaIntegration(unittest.TestCase):
 class TestCrossModuleConsistency(unittest.TestCase):
     """Verify thermal module is consistent with mechanical and texture."""
 
-    def test_sound_velocity_consistent_with_bulk_modulus(self):
-        """v_s = √(K/ρ) — check against mechanical module directly."""
-        from sigma_ground.field.interface.mechanical import bulk_modulus
+    def test_sound_velocity_debye_average(self):
+        """v_D = Debye average of v_L and v_T from elastic moduli.
+
+        v_L = sqrt((K + 4G/3)/rho), v_T = sqrt(G/rho)
+        v_D = [1/3 (1/v_L^3 + 2/v_T^3)]^(-1/3)
+
+        The Debye average is lower than sqrt(K/rho) because transverse
+        modes (2 of 3 polarizations) are slower.
+        """
+        from sigma_ground.field.interface.mechanical import (
+            bulk_modulus, shear_modulus,
+        )
         from sigma_ground.field.interface.surface import MATERIALS
 
         for mat in ['iron', 'copper', 'aluminum']:
             K = bulk_modulus(mat)
+            G = shear_modulus(mat)
             rho = MATERIALS[mat]['density_kg_m3']
-            v_expected = math.sqrt(K / rho)
+            v_L = math.sqrt((K + 4.0 * G / 3.0) / rho)
+            v_T = math.sqrt(G / rho)
+            v_D_expected = (1.0/3.0 * (1.0/v_L**3 + 2.0/v_T**3))**(-1.0/3.0)
             v_actual = sound_velocity(mat)
-            self.assertAlmostEqual(v_actual, v_expected, places=2,
-                                   msg=f"{mat} v_s inconsistent with K and ρ")
+            self.assertAlmostEqual(v_actual, v_D_expected, places=2,
+                                   msg=f"{mat} v_D inconsistent with K, G, rho")
+            # Debye average should be lower than bulk velocity
+            v_bulk = math.sqrt(K / rho)
+            self.assertLess(v_actual, v_bulk,
+                            f"{mat} v_D should be < v_bulk")
 
     def test_thermal_roughness_used_in_emissivity(self):
         """Thermal emission uses specular_fraction from texture module.

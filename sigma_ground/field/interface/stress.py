@@ -79,7 +79,7 @@ from .mechanical import youngs_modulus, MECHANICAL_DATA
 from .surface import MATERIALS, surface_energy, surface_energy_at_sigma
 from .elasticity import von_mises_stress
 from ..scale import scale_ratio
-from ..constants import PROTON_QCD_FRACTION, K_B
+from ..constants import PROTON_QCD_FRACTION, K_B, EV_TO_J, R_GAS, N_AVOGADRO, SIGMA_HERE
 
 
 # ── Material Fatigue & Fracture Data ─────────────────────────────
@@ -87,13 +87,13 @@ from ..constants import PROTON_QCD_FRACTION, K_B
 # gets fatigue and fracture data.
 #
 # σ_UTS: MEASURED ultimate tensile strength (Pa)
-# b_fatigue: MEASURED Basquin exponent (dimensionless, negative)
+# b_fatigue: GENERIC crystal-class Basquin exponent (dimensionless, negative)
 # C_paris: MEASURED Paris law coefficient (m/cycle per (MPa√m)^m)
 # m_paris: MEASURED Paris law exponent (dimensionless)
-# K_Ic_measured: MEASURED fracture toughness (Pa√m), or None → derived
+# K_Ic_measured: MEASURED fracture toughness (Pa√m)
 # Q_creep_eV: MEASURED creep activation energy (eV), ≈ self-diffusion
 # n_creep: MEASURED creep stress exponent (dimensionless)
-# A_creep: MEASURED creep pre-exponential (1/s per MPa^n)
+# A_creep: CALIBRATED creep pre-exponential (1/s per MPa^n), order-of-magnitude
 #
 # Sources: ASM Handbook, Hertzberg "Deformation & Fracture Mechanics" (2012),
 #          Callister "Materials Science" (2018), Frost & Ashby "Deformation
@@ -115,7 +115,7 @@ STRESS_DATA = {
         'b_fatigue': -0.10,             # Typical FCC
         'C_paris': 3.0e-12,            # FCC metal
         'm_paris': 3.5,
-        'K_Ic_measured': None,          # → derive from Griffith
+        'K_Ic_measured': 100e6,         # 100 MPa√m, annealed OFHC (ASM Handbook)
         'Q_creep_eV': 2.0,             # Self-diffusion in Cu
         'n_creep': 4.0,
         'A_creep': 1.0e7,
@@ -125,7 +125,7 @@ STRESS_DATA = {
         'b_fatigue': -0.11,             # Soft FCC
         'C_paris': 5.0e-11,            # Al alloys
         'm_paris': 3.0,
-        'K_Ic_measured': None,          # → derive from Griffith
+        'K_Ic_measured': 30e6,          # 30 MPa√m, pure Al (ASM Handbook)
         'Q_creep_eV': 1.4,             # Self-diffusion in Al
         'n_creep': 4.0,
         'A_creep': 5.0e8,
@@ -133,9 +133,9 @@ STRESS_DATA = {
     'gold': {
         'sigma_UTS_Pa': 120e6,          # Pure Au (MEASURED)
         'b_fatigue': -0.10,             # Soft FCC
-        'C_paris': 4.0e-11,            # Estimated, similar to Al
+        'C_paris': 4.0e-11,            # ESTIMATED — no direct measurement for pure Au; FCC analogy
         'm_paris': 3.2,
-        'K_Ic_measured': None,          # → derive from Griffith
+        'K_Ic_measured': 40e6,          # ~40 MPa√m, pure Au (ESTIMATED from ductility class)
         'Q_creep_eV': 1.8,             # Self-diffusion in Au
         'n_creep': 4.0,
         'A_creep': 3.0e7,
@@ -155,7 +155,7 @@ STRESS_DATA = {
         'b_fatigue': -0.07,             # Refractory BCC
         'C_paris': 2.0e-12,
         'm_paris': 3.0,
-        'K_Ic_measured': None,          # → derive from Griffith
+        'K_Ic_measured': 8e6,           # 8 MPa√m, brittle BCC refractory (ASM Handbook)
         'Q_creep_eV': 5.8,             # Very high melting point
         'n_creep': 5.0,
         'A_creep': 1.0e-3,
@@ -165,7 +165,7 @@ STRESS_DATA = {
         'b_fatigue': -0.09,             # FCC
         'C_paris': 4.0e-12,
         'm_paris': 3.3,
-        'K_Ic_measured': None,          # → derive from Griffith
+        'K_Ic_measured': 100e6,         # 100 MPa√m, annealed (ASM Handbook)
         'Q_creep_eV': 2.8,             # Self-diffusion in Ni
         'n_creep': 4.5,
         'A_creep': 5.0e5,
@@ -183,14 +183,14 @@ STRESS_DATA = {
 }
 
 
-_EV_TO_JOULE = 1.602176634e-19
-_R_GAS = 8.314462618  # J/(mol·K)
-_N_A = 6.02214076e23
+_EV_TO_JOULE = EV_TO_J
+_R_GAS = R_GAS
+_N_A = N_AVOGADRO
 
 
 # ── Griffith Fracture Toughness ──────────────────────────────────
 
-def griffith_toughness(material_key, sigma=0.0):
+def griffith_toughness(material_key, sigma=SIGMA_HERE):
     """Griffith fracture toughness K_Ic (Pa√m).
 
     K_Ic = √(2 E γ_s)   (plane stress)
@@ -216,7 +216,7 @@ def griffith_toughness(material_key, sigma=0.0):
     return math.sqrt(2.0 * E * gamma)
 
 
-def fracture_toughness(material_key, sigma=0.0):
+def fracture_toughness(material_key, sigma=SIGMA_HERE):
     """Effective fracture toughness K_Ic (Pa√m).
 
     Returns MEASURED K_Ic if available; otherwise Griffith estimate.
@@ -232,11 +232,11 @@ def fracture_toughness(material_key, sigma=0.0):
     """
     data = STRESS_DATA[material_key]
     measured = data.get('K_Ic_measured')
-    if measured is not None and sigma == 0.0:
+    if measured is not None and sigma == SIGMA_HERE:
         return measured
-    if measured is not None and sigma != 0.0:
+    if measured is not None and sigma != SIGMA_HERE:
         # Scale measured K_Ic with √(E(σ)/E(0)) — modulus shift
-        E_0 = youngs_modulus(material_key, 0.0)
+        E_0 = youngs_modulus(material_key, SIGMA_HERE)
         E_s = youngs_modulus(material_key, sigma)
         return measured * math.sqrt(E_s / E_0)
     return griffith_toughness(material_key, sigma)
@@ -263,7 +263,7 @@ def stress_intensity(applied_stress, crack_half_length):
     return applied_stress * math.sqrt(math.pi * crack_half_length)
 
 
-def critical_crack_length(material_key, applied_stress, sigma=0.0):
+def critical_crack_length(material_key, applied_stress, sigma=SIGMA_HERE):
     """Critical crack half-length for unstable fracture (m).
 
     a_c = (K_Ic / σ)² / π
@@ -419,7 +419,7 @@ def paris_remaining_life(material_key, a_initial, a_critical,
 
 # ── Power-Law Creep ──────────────────────────────────────────────
 
-def creep_strain_rate(material_key, stress, temperature, sigma=0.0):
+def creep_strain_rate(material_key, stress, temperature, sigma=SIGMA_HERE):
     """Steady-state creep strain rate ε̇ (1/s).
 
     ε̇ = A × σ^n × exp(−Q/(k_B T))
@@ -448,7 +448,7 @@ def creep_strain_rate(material_key, stress, temperature, sigma=0.0):
     Q_eV = data['Q_creep_eV']
 
     # σ-field shifts activation energy through cohesive energy
-    if sigma != 0.0:
+    if sigma != SIGMA_HERE:
         f_qcd = PROTON_QCD_FRACTION
         mass_ratio = (1.0 - f_qcd) + f_qcd * scale_ratio(sigma)
         Q_eV = Q_eV * mass_ratio
@@ -466,7 +466,7 @@ def creep_strain_rate(material_key, stress, temperature, sigma=0.0):
 
 
 def creep_rupture_time(material_key, stress, temperature,
-                       strain_limit=0.01, sigma=0.0):
+                       strain_limit=0.01, sigma=SIGMA_HERE):
     """Estimated time to creep rupture (seconds).
 
     t_r ≈ ε_limit / ε̇
@@ -550,7 +550,7 @@ def sigma_fatigue_shift(material_key, sigma):
         σ_UTS(σ) in Pa
     """
     data = STRESS_DATA[material_key]
-    E_0 = youngs_modulus(material_key, 0.0)
+    E_0 = youngs_modulus(material_key, SIGMA_HERE)
     E_s = youngs_modulus(material_key, sigma)
     return data['sigma_UTS_Pa'] * (E_s / E_0)
 
@@ -559,7 +559,7 @@ def sigma_fatigue_shift(material_key, sigma):
 
 def stress_properties(material_key, applied_stress=None,
                       crack_length=None, temperature=None,
-                      sigma=0.0):
+                      sigma=SIGMA_HERE):
     """Export stress/fatigue/fracture properties in Nagatha format.
 
     Args:

@@ -15,7 +15,7 @@ Inputs: e (elementary charge), ε₀ (vacuum permittivity), r₀ (nuclear
 charge radius from electron scattering). All measured.
 """
 
-from .constants import A_C_MEV
+from .constants import A_C_MEV, SIGMA_HERE
 from .scale import scale_ratio
 
 
@@ -36,7 +36,7 @@ def coulomb_energy_mev(Z, A):
     return A_C_MEV * Z * (Z - 1) / (A ** (1.0 / 3.0))
 
 
-def binding_energy_mev(be_total_mev, Z, A, sigma=0.0):
+def binding_energy_mev(be_total_mev, Z, A, sigma=SIGMA_HERE):
     """Binding energy at arbitrary σ.
 
     Decomposes: BE(σ) = BE_strong × e^σ − BE_Coulomb
@@ -56,7 +56,7 @@ def binding_energy_mev(be_total_mev, Z, A, sigma=0.0):
     return be_strong * scale_ratio(sigma) - e_coul
 
 
-def binding_decomposition(be_total_mev, Z, A, sigma=0.0):
+def binding_decomposition(be_total_mev, Z, A, sigma=SIGMA_HERE):
     """Show strong vs EM decomposition at given σ."""
     e_sig = scale_ratio(sigma)
     e_coul = coulomb_energy_mev(Z, A)

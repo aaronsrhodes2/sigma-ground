@@ -79,7 +79,7 @@ Origin tags:
 """
 
 import math
-from ..constants import EPS_0
+from ..constants import EPS_0, SIGMA_HERE
 
 
 # ── Piezoelectric Material Database ──────────────────────────────
@@ -393,7 +393,7 @@ def sigma_resonant_frequency_shift(material_key, thickness_m, sigma):
 
     f_0 = resonant_frequency_thickness(material_key, thickness_m)
 
-    if sigma == 0.0:
+    if sigma == SIGMA_HERE:
         return (f_0, f_0)
 
     f_qcd = PROTON_QCD_FRACTION
@@ -412,7 +412,7 @@ def sigma_resonant_frequency_shift(material_key, thickness_m, sigma):
 
 # ── Nagatha Integration ──────────────────────────────────────────
 
-def material_piezoelectric_properties(material_key, sigma=0.0):
+def material_piezoelectric_properties(material_key, sigma=SIGMA_HERE):
     """Export piezoelectric properties in Nagatha-compatible format."""
     data = PIEZO_MATERIALS[material_key]
     ref_stress = 1e6  # 1 MPa reference stress
@@ -437,7 +437,7 @@ def material_piezoelectric_properties(material_key, sigma=0.0):
         'sigma': sigma,
     }
 
-    if sigma != 0.0:
+    if sigma != SIGMA_HERE:
         f_0, f_s = sigma_resonant_frequency_shift(
             material_key, ref_thickness, sigma)
         result['resonant_freq_sigma_Hz'] = f_s

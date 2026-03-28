@@ -17,6 +17,7 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sigma_ground.field import Universe
+from .constants import SIGMA_HERE
 
 
 def banner(text):
@@ -37,7 +38,7 @@ def main():
     # ── 1. The 99% Fact ───────────────────────────────────────────────
     banner("1. THE 99% FACT")
     from sigma_ground.field.nucleon import nucleon_decomposition
-    d = nucleon_decomposition(sigma=0.0)
+    d = nucleon_decomposition(sigma=SIGMA_HERE)
     print(f"  Proton:  {d['proton']['bare_mev']:.2f} MeV (Higgs)"
           f" + {d['proton']['qcd_mev']:.2f} MeV (QCD)"
           f" = {d['proton']['total_mev']:.2f} MeV"

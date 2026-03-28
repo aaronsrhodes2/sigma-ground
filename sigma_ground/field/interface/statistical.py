@@ -177,7 +177,9 @@ def bose_einstein(E, mu, T):
     if E <= mu:
         raise ValueError(f"E={E} ≤ mu={mu}: Bose-Einstein requires E > μ")
     x = (E - mu) / (K_B * T)
-    return 1.0 / (math.exp(x) - 1.0)
+    if x > 700.0:
+        return 0.0  # exp(x) >> 1, occupation → 0
+    return 1.0 / math.expm1(x)  # expm1 avoids cancellation near E ≈ μ
 
 
 # ── Maxwell-Boltzmann Speed Distribution ──────────────────────────────

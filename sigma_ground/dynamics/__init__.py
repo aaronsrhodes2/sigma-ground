@@ -9,11 +9,14 @@ Subpackages:
   gravity/     — Barnes-Hut tree gravity
 """
 
-from .vec       import Vec3
-from .parcel    import PhysicsParcel
-from .scene     import PhysicsScene
-from .stepper   import step, step_to
-from .collision import resolve_sphere_sphere, resolve_sphere_plane
+from .vec        import Vec3
+from .parcel     import PhysicsParcel
+from .scene      import PhysicsScene
+from .stepper    import step, step_to
+from .collision  import resolve_sphere_sphere, resolve_sphere_plane
+from .continuum  import (ContinuumParcel, ContinuumScene,
+                         continuum_step, continuum_step_to,
+                         cfl_timestep, material_properties)
 
 __all__ = [
     'Vec3',
@@ -23,4 +26,10 @@ __all__ = [
     'step_to',
     'resolve_sphere_sphere',
     'resolve_sphere_plane',
+    'ContinuumParcel',
+    'ContinuumScene',
+    'continuum_step',
+    'continuum_step_to',
+    'cfl_timestep',
+    'material_properties',
 ]

@@ -53,11 +53,11 @@ Origin tags:
 import math
 from .surface import MATERIALS, surface_energy_at_sigma
 from ..scale import scale_ratio
-from ..constants import PROTON_QCD_FRACTION
+from ..constants import PROTON_QCD_FRACTION, EV_TO_J, AMU_KG, K_B, SIGMA_HERE
 
 # ── Conversion ─────────────────────────────────────────────────────
-_EV_TO_JOULE = 1.602176634e-19  # exact (2019 SI)
-_AMU_KG = 1.66053906660e-27     # atomic mass unit in kg
+_EV_TO_JOULE = EV_TO_J
+_AMU_KG = AMU_KG
 
 
 # ── Mechanical Data ───────────────────────────────────────────────
@@ -146,7 +146,7 @@ def _number_density(material_key):
 
 # ── Effective Cohesive Energy ────────────────────────────────────
 
-def _effective_cohesive_energy_j(material_key, sigma=0.0):
+def _effective_cohesive_energy_j(material_key, sigma=SIGMA_HERE):
     """Cohesive energy per atom at given σ, in Joules.
 
     Same σ-correction as surface.py: QCD mass shift → phonon
@@ -155,13 +155,16 @@ def _effective_cohesive_energy_j(material_key, sigma=0.0):
     mat = MATERIALS[material_key]
     e_coh_ev = mat['cohesive_energy_ev']
 
-    if sigma == 0.0:
+    if sigma == SIGMA_HERE:
         return e_coh_ev * _EV_TO_JOULE
 
     f_qcd_mass = PROTON_QCD_FRACTION
     mass_ratio = (1.0 - f_qcd_mass) + f_qcd_mass * scale_ratio(sigma)
 
-    f_zpe = 0.01
+    # f_ZPE = (9/8) k_B Θ_D / E_coh — DERIVED per material, not guessed
+    from .thermal import debye_temperature
+    theta_D = debye_temperature(material_key, sigma=SIGMA_HERE)
+    f_zpe = (9.0 / 8.0) * K_B * theta_D / (e_coh_ev * _EV_TO_JOULE)
     zpe_correction = f_zpe * e_coh_ev * (1.0 - 1.0 / math.sqrt(mass_ratio))
     e_coh_effective = e_coh_ev + zpe_correction
 
@@ -170,7 +173,7 @@ def _effective_cohesive_energy_j(material_key, sigma=0.0):
 
 # ── Bulk Modulus ─────────────────────────────────────────────────
 
-def bulk_modulus(material_key, sigma=0.0):
+def bulk_modulus(material_key, sigma=SIGMA_HERE):
     """Bulk modulus K (Pa) from cohesive energy and atomic volume.
 
     K = E_coh × n_atoms × f(structure)
@@ -195,14 +198,14 @@ def bulk_modulus(material_key, sigma=0.0):
     return E_coh_j * n * f
 
 
-def bulk_modulus_at_sigma(material_key, sigma=0.0):
+def bulk_modulus_at_sigma(material_key, sigma=SIGMA_HERE):
     """Bulk modulus at arbitrary σ. Explicit sigma signature."""
     return bulk_modulus(material_key, sigma=sigma)
 
 
 # ── Young's Modulus ──────────────────────────────────────────────
 
-def youngs_modulus(material_key, sigma=0.0):
+def youngs_modulus(material_key, sigma=SIGMA_HERE):
     """Young's modulus E (Pa) from bulk modulus and Poisson's ratio.
 
     E = 3K(1 − 2ν)
@@ -224,7 +227,7 @@ def youngs_modulus(material_key, sigma=0.0):
 
 # ── Shear Modulus ────────────────────────────────────────────────
 
-def shear_modulus(material_key, sigma=0.0):
+def shear_modulus(material_key, sigma=SIGMA_HERE):
     """Shear modulus G (Pa) from Young's modulus and Poisson's ratio.
 
     G = E / (2(1 + ν))
@@ -245,7 +248,7 @@ def shear_modulus(material_key, sigma=0.0):
 
 # ── Theoretical Shear Strength ───────────────────────────────────
 
-def theoretical_shear_strength(material_key, sigma=0.0):
+def theoretical_shear_strength(material_key, sigma=SIGMA_HERE):
     """Frenkel theoretical shear strength τ_th (Pa).
 
     τ_th = G / (2π)
@@ -270,7 +273,7 @@ def theoretical_shear_strength(material_key, sigma=0.0):
 
 # ── Nagatha Integration ──────────────────────────────────────────
 
-def material_mechanical_properties(material_key, sigma=0.0):
+def material_mechanical_properties(material_key, sigma=SIGMA_HERE):
     """Export mechanical properties in Nagatha-compatible format.
 
     Returns a dict that can be merged into Nagatha's color.json materials.

@@ -47,11 +47,12 @@ Physics used:
 """
 
 import math
+from ..constants import BOHR_RADIUS, AMU_KG, EV_TO_J, A_C_MEV
 
 # ── Fundamental Constants ─────────────────────────────────────────
-_A0 = 5.29177210903e-11         # Bohr radius (m)
-_AMU_KG = 1.66053906660e-27     # atomic mass unit (kg)
-_EV_TO_JOULE = 1.602176634e-19  # eV → J (exact, 2019 SI)
+_A0 = BOHR_RADIUS               # Bohr radius (m)
+_AMU_KG = AMU_KG                # atomic mass unit (kg)
+_EV_TO_JOULE = EV_TO_J          # eV → J (exact, 2019 SI)
 _MEV_TO_EV = 1e6                # MeV → eV
 
 # ── Aufbau Filling Order ─────────────────────────────────────────
@@ -110,7 +111,7 @@ _N_EFFECTIVE = {1: 1.0, 2: 2.0, 3: 3.0, 4: 3.7, 5: 4.0, 6: 4.2, 7: 4.4}
 # The formula structure is FIRST_PRINCIPLES (liquid drop model).
 _SEMF_AV = 15.56   # MeV — volume term (strong force, short-range)
 _SEMF_AS = 17.23   # MeV — surface term (missing neighbors at surface)
-_SEMF_AC = 0.7     # MeV — Coulomb term (proton repulsion)
+_SEMF_AC = A_C_MEV  # MeV — Coulomb term (DERIVED from Coulomb's law in constants.py, ≈ 0.7111)
 _SEMF_AA = 23.29   # MeV — asymmetry term (Pauli exclusion, N≠Z penalty)
 _SEMF_AP = 12.0    # MeV — pairing term (even-even bonus)
 

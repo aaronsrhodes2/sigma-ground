@@ -89,7 +89,7 @@ Origin tags:
 """
 
 import math
-from ..constants import EPS_0, C, HBAR
+from ..constants import EPS_0, C, HBAR, SIGMA_HERE
 
 
 # ── Waveguide Fundamentals ───────────────────────────────────────
@@ -548,7 +548,7 @@ def sigma_bragg_shift(n1, d1, n2, d2, sigma):
 
     lam_0 = bragg_wavelength(n1, d1, n2, d2)
 
-    if sigma == 0.0:
+    if sigma == SIGMA_HERE:
         return (lam_0, lam_0)
 
     # Lattice expansion from ZPE shift (same model as mechanical.py)

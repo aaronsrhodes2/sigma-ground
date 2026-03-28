@@ -80,11 +80,10 @@ import math
 
 from .surface import MATERIALS
 from ..scale import scale_ratio
-from ..constants import K_B, MU_0, PROTON_QCD_FRACTION
+from ..constants import K_B, MU_0, PROTON_QCD_FRACTION, MU_BOHR, SIGMA_HERE
 
 # Bohr magneton: μ_B = eℏ/(2m_e) ≈ 9.274e-24 J/T
-# Imported indirectly; define locally for self-containment and clarity.
-_MU_BOHR = 9.2740100783e-24  # J/T (CODATA 2018)
+_MU_BOHR = MU_BOHR
 
 
 # ── Hysteresis Material Database ──────────────────────────────────
@@ -107,7 +106,8 @@ HYSTERESIS_DATA = {
     'iron': {
         # Fe: prototypical soft ferromagnet
         # M_sat measured at ~293 K: 1.707×10⁶ A/m (Coey Table 1.1)
-        # H_c for annealed pure iron: ~80 A/m (very soft)
+        # H_c for annealed high-purity iron: ~80 A/m (very soft).
+        # Cold-worked or alloyed specimens can be 10-100× higher.
         # B_r for annealed pure iron: ~0.8 T
         # T_Curie: 1043 K (Kittel Table 15.1)
         'M_sat_A_m': 1.71e6,
@@ -120,8 +120,8 @@ HYSTERESIS_DATA = {
     'nickel': {
         # Ni: soft ferromagnet, lower moment than Fe
         # M_sat at ~293 K: ~4.85×10⁵ A/m (Coey)
-        # H_c for pure Ni: ~0.5 A/m (extremely soft; often quoted ~100 Oe
-        #   for polycrystal but annealed single-crystal ~ few A/m)
+        # H_c for pure Ni: ~0.5 A/m (extremely soft; annealed single-crystal).
+        #   Polycrystal or cold-worked: 10-100× higher.
         # B_r: ~0.3 T
         # T_Curie: 627 K (Kittel Table 15.1)
         'M_sat_A_m': 4.85e5,
@@ -624,7 +624,7 @@ def sigma_hysteresis_shift(material_key, sigma):
 
 # ── 9. Nagatha Export ─────────────────────────────────────────────
 
-def hysteresis_properties(material_key, H_field=0.0, T=300.0, sigma=0.0):
+def hysteresis_properties(material_key, H_field=0.0, T=300.0, sigma=SIGMA_HERE):
     """Export hysteresis properties in Nagatha-compatible format.
 
     Returns a complete dict of all hysteresis-related quantities with

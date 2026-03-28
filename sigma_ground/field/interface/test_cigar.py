@@ -54,8 +54,8 @@ class TestCombustion(unittest.TestCase):
         """Actual flame temperature should be 800-2000K for carbon in air."""
         result = combustion_temperature(T_ambient=300.0)
         T = result['T_actual_K']
-        self.assertGreater(T, 800)
-        self.assertLess(T, 2000)
+        self.assertGreater(T, 1000)
+        self.assertLess(T, 1800)
 
     def test_adiabatic_higher_than_actual(self):
         """Adiabatic T > actual T (radiation losses)."""

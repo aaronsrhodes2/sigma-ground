@@ -135,11 +135,11 @@ def _debye_integrand(x):
         return 0.0
     if x > 500.0:
         return 0.0
-    ex = math.exp(x)
-    denom = (ex - 1.0) ** 2
-    if denom == 0.0:
+    em1 = math.expm1(x)       # exp(x) - 1, precise near x=0
+    if em1 == 0.0:
         return 0.0
-    return (x ** 4) * ex / denom
+    ex = em1 + 1.0             # exp(x)
+    return (x ** 4) * ex / (em1 ** 2)
 
 
 def _debye_cv_molar(T, theta_D, n_steps=200):

@@ -78,7 +78,8 @@ from sigma_ground.inventory.core.constants import CONSTANTS
 from sigma_ground.inventory.core.sigma import ETA as _ETA, XI as _XI
 
 # Physical constants (CODATA 2018)
-_G    = 6.67430e-11             # m³/(kg·s²) gravitational constant
+from sigma_ground.field.constants import G as _G_CONST
+_G    = _G_CONST                # m³/(kg·s²) gravitational constant
 _C    = CONSTANTS.c             # 2.99792458e8 m/s
 _HBAR = CONSTANTS.hbar          # 1.054571817e-34 J·s
 _K_B  = CONSTANTS.k_B           # 1.380649e-23 J/K
@@ -89,8 +90,12 @@ _M_E  = CONSTANTS.m_e           # electron rest mass kg
 # SSBM constants — imported from sigma_ground.inventory.core.sigma (single source of truth)
 # _ETA = ETA = 0.4153  (cosmic entanglement fraction, dark energy constraint)
 # _XI  = XI  = 0.1582  (baryon fraction, Planck 2018)
-_PROTON_QCD_FRACTION  = 0.9904  # fraction of proton mass from QCD binding
-_NEUTRON_QCD_FRACTION = 0.9878  # fraction of neutron mass from QCD binding
+#
+# QCD fractions — DERIVED from quark/nucleon mass decomposition in field.constants.
+# Computed: (total - bare) / total, where bare = sum of quark Higgs masses.
+from sigma_ground.field.constants import PROTON_QCD_FRACTION, NEUTRON_QCD_FRACTION
+_PROTON_QCD_FRACTION  = PROTON_QCD_FRACTION   # ≈ 0.9904
+_NEUTRON_QCD_FRACTION = NEUTRON_QCD_FRACTION   # ≈ 0.9878
 
 
 def compute_tangle(

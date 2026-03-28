@@ -65,12 +65,12 @@ from .mechanical import (
 )
 from .surface import MATERIALS
 from ..scale import scale_ratio
-from ..constants import PROTON_QCD_FRACTION
+from ..constants import PROTON_QCD_FRACTION, SIGMA_HERE
 
 
 # ── Lamé Parameters ──────────────────────────────────────────────
 
-def lame_lambda(material_key, sigma=0.0):
+def lame_lambda(material_key, sigma=SIGMA_HERE):
     """First Lamé parameter λ (Pa).
 
     λ = E×ν / ((1+ν)(1−2ν))
@@ -90,7 +90,7 @@ def lame_lambda(material_key, sigma=0.0):
     return E * nu / ((1.0 + nu) * (1.0 - 2.0 * nu))
 
 
-def lame_mu(material_key, sigma=0.0):
+def lame_mu(material_key, sigma=SIGMA_HERE):
     """Second Lamé parameter μ = G (Pa).
 
     μ = E / (2(1+ν)) = G (shear modulus)
@@ -109,7 +109,7 @@ def lame_mu(material_key, sigma=0.0):
 
 # ── Stress-Strain Relations ─────────────────────────────────────
 
-def uniaxial_stress(material_key, strain, sigma=0.0):
+def uniaxial_stress(material_key, strain, sigma=SIGMA_HERE):
     """Axial stress from uniaxial strain (Hooke's law).
 
     σ = E × ε
@@ -129,7 +129,7 @@ def uniaxial_stress(material_key, strain, sigma=0.0):
     return E * strain
 
 
-def shear_stress(material_key, shear_strain, sigma=0.0):
+def shear_stress(material_key, shear_strain, sigma=SIGMA_HERE):
     """Shear stress from shear strain.
 
     τ = G × γ
@@ -148,7 +148,7 @@ def shear_stress(material_key, shear_strain, sigma=0.0):
     return G * shear_strain
 
 
-def hydrostatic_stress(material_key, volume_strain, sigma=0.0):
+def hydrostatic_stress(material_key, volume_strain, sigma=SIGMA_HERE):
     """Hydrostatic pressure from volumetric strain.
 
     P = −K × (ΔV/V)
@@ -210,7 +210,7 @@ def volume_change_uniaxial(material_key, axial_strain):
 
 # ── Elastic Strain Energy ──────────────────────────────────────
 
-def strain_energy_density_uniaxial(material_key, strain, sigma=0.0):
+def strain_energy_density_uniaxial(material_key, strain, sigma=SIGMA_HERE):
     """Elastic strain energy density under uniaxial stress (J/m³).
 
     u = ½ E ε²
@@ -229,7 +229,7 @@ def strain_energy_density_uniaxial(material_key, strain, sigma=0.0):
     return 0.5 * E * strain ** 2
 
 
-def strain_energy_density_shear(material_key, shear_strain, sigma=0.0):
+def strain_energy_density_shear(material_key, shear_strain, sigma=SIGMA_HERE):
     """Elastic strain energy density under pure shear (J/m³).
 
     u = ½ G γ²
@@ -248,7 +248,7 @@ def strain_energy_density_shear(material_key, shear_strain, sigma=0.0):
     return 0.5 * G * shear_strain ** 2
 
 
-def strain_energy_density_hydrostatic(material_key, volume_strain, sigma=0.0):
+def strain_energy_density_hydrostatic(material_key, volume_strain, sigma=SIGMA_HERE):
     """Elastic strain energy density under hydrostatic stress (J/m³).
 
     u = ½ K (ΔV/V)²
@@ -327,7 +327,7 @@ def moduli_from_lame(lam, mu):
     return {'K_pa': K, 'E_pa': E, 'G_pa': G, 'poisson_ratio': nu}
 
 
-def p_wave_modulus(material_key, sigma=0.0):
+def p_wave_modulus(material_key, sigma=SIGMA_HERE):
     """P-wave modulus M = K + 4G/3 = λ + 2μ (Pa).
 
     FIRST_PRINCIPLES: the modulus that governs longitudinal wave speed.
@@ -362,16 +362,16 @@ def sigma_elastic_shift(material_key, sigma):
     Returns:
         Ratio E(σ)/E(0) (dimensionless, ≥1 for σ>0)
     """
-    if sigma == 0.0:
+    if sigma == SIGMA_HERE:
         return 1.0
-    E_0 = youngs_modulus(material_key, 0.0)
+    E_0 = youngs_modulus(material_key, SIGMA_HERE)
     E_s = youngs_modulus(material_key, sigma)
     return E_s / E_0
 
 
 # ── Nagatha Integration ──────────────────────────────────────────
 
-def material_elastic_properties(material_key, sigma=0.0):
+def material_elastic_properties(material_key, sigma=SIGMA_HERE):
     """Export elastic properties in Nagatha-compatible format.
 
     Returns a dict that can be merged into Nagatha's material database.

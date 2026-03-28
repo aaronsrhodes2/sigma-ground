@@ -116,12 +116,15 @@ def check_sigma(sigma):
                      f'Nucleon mass formula is undefined past here.'),
         }
 
-    if sigma == SIGMA_WALL:
+    # Tolerance-based comparison: exact float equality is unreliable.
+    # Use SIGMA_FLOOR (Planck/Hubble ratio ≈ 1.18e-61) as the natural
+    # minimum meaningful σ difference — the universe's own epsilon.
+    if abs(sigma - SIGMA_WALL) < 1e-12:
         return {
             'value': sigma,
             'clamped': sigma,
             'status': Safety.WALL,
-            'note': (f'σ = σ_conv exactly. This is the matter conversion threshold. '
+            'note': (f'σ ≈ σ_conv (within 1e-12). This is the matter conversion threshold. '
                      f'QCD binding energy equals the gravitational potential energy. '
                      f'Nuclear bonds break.'),
         }

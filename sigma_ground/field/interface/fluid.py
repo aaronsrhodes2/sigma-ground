@@ -78,15 +78,18 @@ import math
 from .surface import MATERIALS
 from .mechanical import bulk_modulus, _number_density
 from ..scale import scale_ratio
-from ..constants import PROTON_QCD_FRACTION
+from ..constants import (
+    PROTON_QCD_FRACTION, H_PLANCK, K_B, R_GAS, N_AVOGADRO, AMU_KG, E_CHARGE,
+    SIGMA_HERE,
+)
 
 # ── Physical constants ──────────────────────────────────────────────────────
-_H_PLANCK   = 6.62607015e-34    # J·s (exact, 2019 SI)
-_K_B        = 1.380649e-23      # J/K (exact)
-_R_GAS      = 8.314462618       # J/(mol·K)
-_N_AVOGADRO = 6.02214076e23     # /mol (exact)
-_AMU_KG     = 1.66053906660e-27 # kg
-_EV_TO_J    = 1.602176634e-19   # exact
+_H_PLANCK   = H_PLANCK          # J·s (exact, 2019 SI)
+_K_B        = K_B               # J/K (exact)
+_R_GAS      = R_GAS             # J/(mol·K)
+_N_AVOGADRO = N_AVOGADRO        # /mol (exact)
+_AMU_KG     = AMU_KG            # kg
+_EV_TO_J    = E_CHARGE          # exact
 
 # ── Eyring activation fraction ──────────────────────────────────────────────
 # ΔG† ≈ _F_EYRING × E_coh
@@ -174,14 +177,14 @@ KNOWN_LIQUIDS = {
 
 # ── Eyring liquid viscosity (metallic melts, simple liquids) ────────────────
 
-def _cohesive_energy_j(material_key, sigma=0.0):
+def _cohesive_energy_j(material_key, sigma=SIGMA_HERE):
     """Cohesive energy per atom in Joules, with σ correction.
 
     Same as mechanical.py — centralised here to avoid re-import chain.
     """
     mat = MATERIALS[material_key]
     e_coh_ev = mat['cohesive_energy_ev']
-    if sigma == 0.0:
+    if sigma == SIGMA_HERE:
         return e_coh_ev * _EV_TO_J
     f_qcd = PROTON_QCD_FRACTION
     mass_ratio = (1.0 - f_qcd) + f_qcd * scale_ratio(sigma)
@@ -190,7 +193,7 @@ def _cohesive_energy_j(material_key, sigma=0.0):
     return (e_coh_ev + zpe_correction) * _EV_TO_J
 
 
-def eyring_viscosity(material_key, T=1000.0, sigma=0.0):
+def eyring_viscosity(material_key, T=1000.0, sigma=SIGMA_HERE):
     """Dynamic viscosity of a metallic melt via Eyring rate theory (Pa·s).
 
     η = (h × N_A / V_m) × exp(ΔG† / RT)
@@ -212,7 +215,7 @@ def eyring_viscosity(material_key, T=1000.0, sigma=0.0):
 
     # σ-corrected density (via scale_ratio on QCD fraction of mass)
     rho_0 = mat['density_kg_m3']
-    if sigma != 0.0:
+    if sigma != SIGMA_HERE:
         mass_ratio = ((1.0 - PROTON_QCD_FRACTION) +
                       PROTON_QCD_FRACTION * scale_ratio(sigma))
         rho = rho_0 * mass_ratio
@@ -235,7 +238,7 @@ def eyring_viscosity(material_key, T=1000.0, sigma=0.0):
 
 # ── Known liquid viscosity (Arrhenius extrapolation) ────────────────────────
 
-def liquid_viscosity(liquid_key, T=None, sigma=0.0):
+def liquid_viscosity(liquid_key, T=None, sigma=SIGMA_HERE):
     """Dynamic viscosity of a known liquid (Pa·s).
 
     Uses measured value at reference temperature with Arrhenius extrapolation:
@@ -262,14 +265,14 @@ def liquid_viscosity(liquid_key, T=None, sigma=0.0):
         T = T_ref
 
     # σ correction to activation energy — same QCD mass scaling
-    if sigma != 0.0:
+    if sigma != SIGMA_HERE:
         mass_ratio = ((1.0 - PROTON_QCD_FRACTION) +
                       PROTON_QCD_FRACTION * scale_ratio(sigma))
         # ZPE correction: heavier atoms have lower ZPE → deeper well → higher E_a
         f_zpe = 0.01
         E_a = E_a * (1.0 + f_zpe * (1.0 - 1.0 / math.sqrt(mass_ratio)))
 
-    if T == T_ref and sigma == 0.0:
+    if T == T_ref and sigma == SIGMA_HERE:
         return eta_ref
 
     # Arrhenius
@@ -278,7 +281,7 @@ def liquid_viscosity(liquid_key, T=None, sigma=0.0):
 
 # ── Kinematic viscosity ─────────────────────────────────────────────────────
 
-def kinematic_viscosity(liquid_key, T=None, sigma=0.0):
+def kinematic_viscosity(liquid_key, T=None, sigma=SIGMA_HERE):
     """Kinematic viscosity ν = η/ρ (m²/s).
 
     FIRST_PRINCIPLES: definition. No approximation beyond those in
@@ -287,7 +290,7 @@ def kinematic_viscosity(liquid_key, T=None, sigma=0.0):
     liq = KNOWN_LIQUIDS[liquid_key]
     eta = liquid_viscosity(liquid_key, T=T, sigma=sigma)
     rho = liq['density_kg_m3']
-    if sigma != 0.0:
+    if sigma != SIGMA_HERE:
         mass_ratio = ((1.0 - PROTON_QCD_FRACTION) +
                       PROTON_QCD_FRACTION * scale_ratio(sigma))
         rho *= mass_ratio
@@ -299,7 +302,7 @@ def kinematic_viscosity(liquid_key, T=None, sigma=0.0):
 _K_STEFAN = 0.17   # dimensionless, MEASURED (Stefan 1886)
 
 
-def surface_tension_metal(material_key, sigma=0.0):
+def surface_tension_metal(material_key, sigma=SIGMA_HERE):
     """Surface tension of a metallic melt (N/m) via Stefan correlation.
 
     γ = k_γ × E_coh × n^(2/3) / N_A
@@ -320,7 +323,7 @@ def surface_tension_metal(material_key, sigma=0.0):
     """
     e_coh_j = _cohesive_energy_j(material_key, sigma)
     n = _number_density(material_key)
-    if sigma != 0.0:
+    if sigma != SIGMA_HERE:
         mass_ratio = ((1.0 - PROTON_QCD_FRACTION) +
                       PROTON_QCD_FRACTION * scale_ratio(sigma))
         n *= mass_ratio   # denser → more atoms/m³ → higher γ
@@ -328,7 +331,7 @@ def surface_tension_metal(material_key, sigma=0.0):
     return _K_STEFAN * e_coh_j * (n ** (2.0 / 3.0)) / _N_AVOGADRO
 
 
-def surface_tension(liquid_key=None, material_key=None, sigma=0.0):
+def surface_tension(liquid_key=None, material_key=None, sigma=SIGMA_HERE):
     """Surface tension dispatcher.
 
     If liquid_key given: return measured value from KNOWN_LIQUIDS.
@@ -367,7 +370,7 @@ def reynolds_number(rho, v, L, eta):
 
 # ── Liquid property summary ─────────────────────────────────────────────────
 
-def liquid_properties(liquid_key, T=None, sigma=0.0):
+def liquid_properties(liquid_key, T=None, sigma=SIGMA_HERE):
     """Return a dict of all relevant liquid properties at (T, σ).
 
     Useful for diagnostics and physics_materials.py lookups.

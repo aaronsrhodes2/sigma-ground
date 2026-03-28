@@ -81,15 +81,15 @@ import math
 from .surface import MATERIALS
 from .mechanical import bulk_modulus, shear_modulus, _number_density
 from ..scale import scale_ratio
-from ..constants import PROTON_QCD_FRACTION
+from ..constants import PROTON_QCD_FRACTION, K_B, SIGMA_HERE
 
 # ── Constants ─────────────────────────────────────────────────────
-_K_BOLTZMANN = 1.380649e-23     # J/K
+_K_BOLTZMANN = K_B
 
 
 # ── Density at σ ──────────────────────────────────────────────────
 
-def density_at_sigma(material_key, sigma=0.0):
+def density_at_sigma(material_key, sigma=SIGMA_HERE):
     """Mass density at arbitrary σ.
 
     ρ(σ) = ρ₀ × mass_ratio
@@ -107,7 +107,7 @@ def density_at_sigma(material_key, sigma=0.0):
         Density in kg/m³.
     """
     rho_0 = MATERIALS[material_key]['density_kg_m3']
-    if sigma == 0.0:
+    if sigma == SIGMA_HERE:
         return rho_0
 
     f_qcd = PROTON_QCD_FRACTION
@@ -117,7 +117,7 @@ def density_at_sigma(material_key, sigma=0.0):
 
 # ── Wave Speeds ───────────────────────────────────────────────────
 
-def longitudinal_wave_speed(material_key, sigma=0.0):
+def longitudinal_wave_speed(material_key, sigma=SIGMA_HERE):
     """Longitudinal (P-wave) speed in m/s.
 
     v_L = √((K + 4G/3) / ρ)
@@ -144,7 +144,7 @@ def longitudinal_wave_speed(material_key, sigma=0.0):
     return math.sqrt(M / rho)
 
 
-def transverse_wave_speed(material_key, sigma=0.0):
+def transverse_wave_speed(material_key, sigma=SIGMA_HERE):
     """Transverse (S-wave) speed in m/s.
 
     v_T = √(G / ρ)
@@ -168,7 +168,7 @@ def transverse_wave_speed(material_key, sigma=0.0):
     return math.sqrt(G / rho)
 
 
-def debye_velocity(material_key, sigma=0.0):
+def debye_velocity(material_key, sigma=SIGMA_HERE):
     """Debye average sound velocity in m/s.
 
     v_D = [1/3 × (1/v_L³ + 2/v_T³)]^(−1/3)
@@ -216,7 +216,7 @@ def wave_speed_ratio(material_key):
 
 # ── Acoustic Impedance ────────────────────────────────────────────
 
-def acoustic_impedance(material_key, sigma=0.0, mode='longitudinal'):
+def acoustic_impedance(material_key, sigma=SIGMA_HERE, mode='longitudinal'):
     """Acoustic impedance Z = ρ × v (Pa·s/m = Rayl).
 
     FIRST_PRINCIPLES: the ratio of acoustic pressure to particle
@@ -243,7 +243,7 @@ def acoustic_impedance(material_key, sigma=0.0, mode='longitudinal'):
 
 # ── Reflection and Transmission ───────────────────────────────────
 
-def reflection_coefficient(mat_1, mat_2, sigma=0.0):
+def reflection_coefficient(mat_1, mat_2, sigma=SIGMA_HERE):
     """Energy reflection coefficient at normal incidence.
 
     R = (Z₂ − Z₁)² / (Z₂ + Z₁)²
@@ -266,7 +266,7 @@ def reflection_coefficient(mat_1, mat_2, sigma=0.0):
     return (Z2 - Z1)**2 / (Z2 + Z1)**2
 
 
-def transmission_coefficient(mat_1, mat_2, sigma=0.0):
+def transmission_coefficient(mat_1, mat_2, sigma=SIGMA_HERE):
     """Energy transmission coefficient at normal incidence.
 
     T = 1 − R = 4 Z₁ Z₂ / (Z₁ + Z₂)²
@@ -278,7 +278,7 @@ def transmission_coefficient(mat_1, mat_2, sigma=0.0):
 
 # ── Snell's Law ───────────────────────────────────────────────────
 
-def snell_refraction_angle(mat_1, mat_2, theta_1_deg, sigma=0.0):
+def snell_refraction_angle(mat_1, mat_2, theta_1_deg, sigma=SIGMA_HERE):
     """Refracted angle using Snell's law for sound.
 
     sin(θ₁)/v₁ = sin(θ₂)/v₂
@@ -308,7 +308,7 @@ def snell_refraction_angle(mat_1, mat_2, theta_1_deg, sigma=0.0):
     return math.degrees(math.asin(sin_theta_2))
 
 
-def critical_angle(mat_1, mat_2, sigma=0.0):
+def critical_angle(mat_1, mat_2, sigma=SIGMA_HERE):
     """Critical angle for total internal reflection (degrees).
 
     θ_c = arcsin(v₁ / v₂)   (only exists when v₁ < v₂)
@@ -333,7 +333,7 @@ def critical_angle(mat_1, mat_2, sigma=0.0):
 
 # ── Resonance ─────────────────────────────────────────────────────
 
-def resonant_frequency(material_key, length_m, mode_n=1, sigma=0.0):
+def resonant_frequency(material_key, length_m, mode_n=1, sigma=SIGMA_HERE):
     """Resonant frequency of a rod/bar (Hz).
 
     f_n = n × v_L / (2L)
@@ -361,7 +361,7 @@ def resonant_frequency(material_key, length_m, mode_n=1, sigma=0.0):
     return mode_n * v_L / (2.0 * length_m)
 
 
-def ring_frequency(material_key, diameter_m, sigma=0.0):
+def ring_frequency(material_key, diameter_m, sigma=SIGMA_HERE):
     """Ring frequency of a cylindrical shell (Hz).
 
     f_ring = v_L / (π × d)
@@ -389,7 +389,7 @@ def ring_frequency(material_key, diameter_m, sigma=0.0):
 
 # ── Wavelength and Period ─────────────────────────────────────────
 
-def wavelength(material_key, frequency_hz, sigma=0.0, mode='longitudinal'):
+def wavelength(material_key, frequency_hz, sigma=SIGMA_HERE, mode='longitudinal'):
     """Acoustic wavelength λ = v / f.
 
     Args:
@@ -413,7 +413,7 @@ def wavelength(material_key, frequency_hz, sigma=0.0, mode='longitudinal'):
 
 # ── Nagatha Export ────────────────────────────────────────────────
 
-def material_acoustic_properties(material_key, sigma=0.0):
+def material_acoustic_properties(material_key, sigma=SIGMA_HERE):
     """Export acoustic properties in Nagatha-compatible format.
 
     Returns a dict with all acoustic quantities and honest origin tags.

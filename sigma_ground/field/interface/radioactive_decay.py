@@ -96,19 +96,20 @@ Origin tags:
 
 import math
 from ..constants import (
-    HBAR, C, E_CHARGE, EPS_0, R0_FM,
+    HBAR, C, E_CHARGE, EPS_0, R0_FM, MEV_TO_J, AMU_KG as _AMU_KG,
     PROTON_TOTAL_MEV, NEUTRON_TOTAL_MEV,
     PROTON_BARE_MEV, PROTON_QCD_MEV,
     NEUTRON_BARE_MEV, NEUTRON_QCD_MEV,
+    DELTA_NP_TOTAL_MEV, DELTA_NP_BARE_MEV, DELTA_NP_QCD_MEV,
     M_ELECTRON_MEV, A_C_MEV,
     PROTON_QCD_FRACTION,
+    SIGMA_HERE,
 )
 from ..scale import scale_ratio
 from ..binding import coulomb_energy_mev
 
 # ── Constants ─────────────────────────────────────────────────────
-_MEV_TO_JOULE = 1.602176634e-13   # MeV → J (exact, 2019 SI)
-_AMU_KG = 1.66053906660e-27       # atomic mass unit in kg
+_MEV_TO_JOULE = MEV_TO_J
 
 # Alpha particle properties at σ = 0
 # ⁴He nucleus: 2p + 2n, binding energy 28.296 MeV
@@ -217,7 +218,7 @@ ISOTOPES = {
         'name': 'Free neutron',
         'Z': 0, 'A': 1,
         'decay_mode': 'beta_minus',
-        'Q_value_MeV': NEUTRON_TOTAL_MEV - PROTON_TOTAL_MEV - M_ELECTRON_MEV,
+        'Q_value_MeV': DELTA_NP_TOTAL_MEV - M_ELECTRON_MEV,  # avoid 939-938 cancellation
         'half_life_s': 611.0,        # ~10.2 minutes (MEASURED)
         'daughter_Z': 1, 'daughter_A': 1,
         'daughter_name': 'Proton',
@@ -228,7 +229,7 @@ ISOTOPES = {
 
 # ── Alpha Decay: Gamow Theory ────────────────────────────────────
 
-def alpha_mass_mev(sigma=0.0):
+def alpha_mass_mev(sigma=SIGMA_HERE):
     """Alpha particle mass in MeV at given σ.
 
     m_α(σ) = m_α_bare + m_α_QCD × e^σ
@@ -325,7 +326,70 @@ def gamow_factor(Z_daughter, Q_MeV, m_alpha_MeV, A_parent):
     return G
 
 
-def alpha_decay_constant(isotope_key, sigma=0.0):
+def alpha_Q_decomposition(isotope_key):
+    """Decompose alpha decay Q-value into Coulomb and strong components.
+
+    Q = BE_daughter + BE_alpha − BE_parent
+    Each BE = BE_strong − E_Coulomb (binding.py decomposition).
+
+    Therefore:
+      Q = (BE_strong_d + BE_strong_α − BE_strong_p)     [strong: scales with e^σ]
+        − (E_C_d + E_C_α − E_C_p)                       [Coulomb: σ-INVARIANT]
+
+    Define:
+      Q_coulomb = E_C_parent − E_C_daughter − E_C_alpha  [EM push on alpha]
+      Q_strong  = Q_measured − Q_coulomb                  [strong pull on alpha]
+
+    The Q-value is a knife-edge balance: Coulomb pushes the alpha out
+    (Q_coulomb >> 0) while the strong force holds it in (Q_strong << 0).
+    For U-238: Q_coulomb ≈ +36 MeV, Q_strong ≈ −31 MeV, net Q = +4.3 MeV.
+
+    At higher σ, Q_strong grows more negative → Q decreases → decay slows.
+    At critical σ, Q goes negative → alpha decay is FORBIDDEN.
+
+    DERIVED from coulomb_energy_mev() — no guesswork.
+
+    Returns:
+        (Q_coulomb_MeV, Q_strong_MeV)
+    """
+    iso = ISOTOPES[isotope_key]
+    Z_p, A_p = iso['Z'], iso['A']
+    Z_d, A_d = iso['daughter_Z'], iso['daughter_A']
+    Q_measured = iso['Q_value_MeV']
+
+    E_C_parent = coulomb_energy_mev(Z_p, A_p)
+    E_C_daughter = coulomb_energy_mev(Z_d, A_d)
+    E_C_alpha = coulomb_energy_mev(ALPHA_Z, ALPHA_A)
+
+    Q_coulomb = E_C_parent - E_C_daughter - E_C_alpha
+    Q_strong = Q_measured - Q_coulomb
+
+    return (Q_coulomb, Q_strong)
+
+
+def alpha_Q_at_sigma(isotope_key, sigma=SIGMA_HERE):
+    """Alpha decay Q-value at arbitrary σ.
+
+    Q(σ) = Q_strong × e^σ + Q_coulomb
+
+    Strong binding scales with σ (pulls alpha in tighter).
+    Coulomb repulsion is EM (σ-invariant, pushes alpha out).
+
+    DERIVED from binding decomposition — not estimated.
+
+    Args:
+        isotope_key: key into ISOTOPES dict
+        sigma: σ-field value
+
+    Returns:
+        Q-value in MeV at given σ.
+    """
+    Q_coulomb, Q_strong = alpha_Q_decomposition(isotope_key)
+    e_sig = scale_ratio(sigma)
+    return Q_strong * e_sig + Q_coulomb
+
+
+def alpha_decay_constant(isotope_key, sigma=SIGMA_HERE):
     """Alpha decay constant λ (s⁻¹) from Gamow theory.
 
     λ = f × exp(−2G)
@@ -342,6 +406,13 @@ def alpha_decay_constant(isotope_key, sigma=0.0):
     exponentially sensitive to √(m_α/Q), so even small σ changes
     can dramatically alter decay rates.
 
+    Q(σ) is DERIVED from the Coulomb/strong decomposition:
+      Q(σ) = Q_strong × e^σ + Q_coulomb
+    where Q_coulomb and Q_strong are computed from coulomb_energy_mev().
+
+    At high σ: Q_strong (negative) grows → Q decreases → decay slows.
+    At critical σ: Q → 0 → alpha decay turns off entirely.
+
     Args:
         isotope_key: key into ISOTOPES dict
         sigma: σ-field value
@@ -353,26 +424,11 @@ def alpha_decay_constant(isotope_key, sigma=0.0):
     if iso['decay_mode'] != 'alpha':
         return 0.0
 
-    Z_parent = iso['Z']
     A_parent = iso['A']
     Z_daughter = iso['daughter_Z']
-    Q_MeV = iso['Q_value_MeV']
 
-    # σ-correction to Q-value:
-    # Q depends on binding energies which have strong (σ-scaling) and
-    # Coulomb (invariant) components. For simplicity, we scale the
-    # Q-value's strong component:
-    # The Q-value is mostly Coulomb energy (alpha escaping Coulomb barrier)
-    # plus a small strong-force contribution from binding energy differences.
-    # Coulomb component: invariant. Strong component: scales with e^σ.
-    #
-    # For heavy nuclei, Q ≈ Q_Coulomb + Q_strong
-    # Q_Coulomb ∝ Z_d×Z_α/R is dominant and σ-invariant.
-    # We estimate: ~80% of Q is Coulomb, ~20% is from BE differences.
-    f_Q_strong = 0.2  # fraction of Q from strong force differences
-    f_Q_coulomb = 1.0 - f_Q_strong
-    e_sig = scale_ratio(sigma)
-    Q_sigma = Q_MeV * (f_Q_coulomb + f_Q_strong * e_sig)
+    # Q-value at this σ — DERIVED from Coulomb/strong decomposition
+    Q_sigma = alpha_Q_at_sigma(isotope_key, sigma)
 
     if Q_sigma <= 0:
         return 0.0
@@ -401,7 +457,7 @@ def alpha_decay_constant(isotope_key, sigma=0.0):
     return lam
 
 
-def alpha_half_life(isotope_key, sigma=0.0):
+def alpha_half_life(isotope_key, sigma=SIGMA_HERE):
     """Alpha decay half-life in seconds.
 
     t½ = ln(2) / λ
@@ -421,48 +477,92 @@ def alpha_half_life(isotope_key, sigma=0.0):
 
 # ── Beta Decay: Sargent's Rule ────────────────────────────────────
 
-def beta_Q_value_mev(isotope_key, sigma=0.0):
-    """Beta decay Q-value at arbitrary σ.
+def beta_Q_decomposition(isotope_key):
+    """Decompose beta decay Q-value into σ-invariant and σ-dependent parts.
 
-    For β⁻: Q = [m(Z,A) − m(Z+1,A)] × c²
-    For free neutron: Q = (m_n − m_p − m_e) × c²
+    For β⁻: parent (Z, A) → daughter (Z+1, A) + e⁻ + ν̄
 
-    σ-dependence: m_n and m_p shift through their QCD components.
-    Since m_n_bare ≠ m_p_bare, the Q-value shifts non-trivially.
+    Q = (m_n − m_p)c² + (BE_daughter − BE_parent)
+      = (m_n − m_p)c² + ΔBE
+
+    The nucleon mass difference decomposes:
+      (m_n − m_p) = (m_n_bare − m_p_bare) + (m_n_QCD − m_p_QCD) × e^σ
+                   = Δm_bare + Δm_QCD × e^σ
+
+    The binding energy difference decomposes via Coulomb:
+      ΔBE = ΔBE_strong × e^σ − ΔE_C
+      where ΔE_C = E_C(Z+1, A) − E_C(Z, A) (daughter has more Coulomb repulsion)
+
+    So: Q(σ) = [Δm_bare − m_e − ΔE_C]                    [σ-INVARIANT]
+             + [Δm_QCD + ΔBE_strong_at_sigma_0] × e^σ     [σ-DEPENDENT]
+
+    DERIVED from coulomb_energy_mev() and nucleon mass decomposition.
 
     Returns:
-        Q-value in MeV. Returns the σ=0 value for complex nuclei
-        (full σ-tracking only for free neutron).
+        (Q_invariant_MeV, Q_sigma_coefficient_MeV)
+        such that Q(σ) = Q_invariant + Q_sigma_coeff × e^σ
+    """
+    iso = ISOTOPES[isotope_key]
+
+    if isotope_key == 'free_neutron':
+        # No nuclear binding — pure nucleon mass decomposition
+        # Q = (m_n_bare - m_p_bare - m_e) + (m_n_QCD - m_p_QCD) × e^σ
+        # Uses DELTA_NP_* to avoid 939-938 cancellation (saves 3 sig digits)
+        Q_invariant = DELTA_NP_BARE_MEV - M_ELECTRON_MEV
+        Q_sigma_coeff = DELTA_NP_QCD_MEV
+        return (Q_invariant, Q_sigma_coeff)
+
+    Z_p, A_p = iso['Z'], iso['A']
+    Z_d, A_d = iso['daughter_Z'], iso['daughter_A']
+    Q_measured = iso['Q_value_MeV']
+
+    # Coulomb energy change: daughter has one more proton → more repulsion
+    E_C_parent = coulomb_energy_mev(Z_p, A_p)
+    E_C_daughter = coulomb_energy_mev(Z_d, A_d)
+    delta_E_C = E_C_daughter - E_C_parent  # positive (more repulsion)
+
+    # At σ=0: Q_measured = Q_invariant + Q_sigma_coeff × 1.0
+    # Q_invariant = (Δm_bare - m_e) - ΔE_C  (these are the EM parts)
+    # Q_sigma_coeff = Δm_QCD + ΔBE_strong_0
+    #
+    # Since Q_measured = Q_invariant + Q_sigma_coeff:
+    #   Q_sigma_coeff = Q_measured - Q_invariant
+    #
+    # Uses DELTA_NP_BARE_MEV to avoid 939-938 cancellation
+    Q_invariant = DELTA_NP_BARE_MEV - M_ELECTRON_MEV - delta_E_C
+    Q_sigma_coeff = Q_measured - Q_invariant
+
+    return (Q_invariant, Q_sigma_coeff)
+
+
+def beta_Q_value_mev(isotope_key, sigma=SIGMA_HERE):
+    """Beta decay Q-value at arbitrary σ.
+
+    Q(σ) = Q_invariant + Q_sigma_coeff × e^σ
+
+    Where Q_invariant and Q_sigma_coeff are DERIVED from:
+      - Coulomb energy difference (from coulomb_energy_mev)
+      - Nucleon bare/QCD mass decomposition (from constants)
+
+    For free neutron: exact tracking of m_n(σ) − m_p(σ) − m_e.
+    For complex nuclei: Coulomb/strong decomposition via binding.py.
+
+    σ-dependence: small for light nuclei where Coulomb change is small,
+    larger for heavy nuclei where the Coulomb step from Z→Z+1 is significant.
+
+    Returns:
+        Q-value in MeV at given σ.
     """
     iso = ISOTOPES[isotope_key]
     if iso['decay_mode'] not in ('beta_minus', 'beta_plus'):
         return 0.0
 
-    if isotope_key == 'free_neutron':
-        # Exact σ-dependent calculation
-        m_n = NEUTRON_BARE_MEV + NEUTRON_QCD_MEV * scale_ratio(sigma)
-        m_p = PROTON_BARE_MEV + PROTON_QCD_MEV * scale_ratio(sigma)
-        Q = m_n - m_p - M_ELECTRON_MEV
-        return Q
-
-    # For complex nuclei: Q has strong + Coulomb + pairing components.
-    # The strong component scales with e^σ but the decomposition is
-    # nucleus-specific. For now, use measured Q with a correction:
-    Q_0 = iso['Q_value_MeV']
-
-    # The β-decay Q-value for nuclear decays comes from mass differences.
-    # The nuclear masses are dominated by QCD binding, but the Q-value
-    # is a SMALL DIFFERENCE between large numbers. The σ-correction
-    # to Q is therefore a second-order effect for complex nuclei.
-    # We approximate: most of Q comes from Coulomb energy differences
-    # (which are σ-invariant) and pairing energy differences.
-    # Correction is small.
-    f_strong = 0.1  # conservative estimate of strong-force Q fraction
+    Q_invariant, Q_sigma_coeff = beta_Q_decomposition(isotope_key)
     e_sig = scale_ratio(sigma)
-    return Q_0 * ((1.0 - f_strong) + f_strong * e_sig)
+    return Q_invariant + Q_sigma_coeff * e_sig
 
 
-def beta_decay_constant(isotope_key, sigma=0.0):
+def beta_decay_constant(isotope_key, sigma=SIGMA_HERE):
     """Beta decay constant λ (s⁻¹) from Sargent's rule.
 
     λ ∝ G_F² × Q⁵
@@ -504,7 +604,7 @@ def beta_decay_constant(isotope_key, sigma=0.0):
     return lambda_0 * (Q_sigma / Q_0) ** 5
 
 
-def beta_half_life(isotope_key, sigma=0.0):
+def beta_half_life(isotope_key, sigma=SIGMA_HERE):
     """Beta decay half-life in seconds.
 
     t½ = ln(2) / λ
@@ -520,7 +620,7 @@ def beta_half_life(isotope_key, sigma=0.0):
 
 # ── General Interface ─────────────────────────────────────────────
 
-def decay_constant(isotope_key, sigma=0.0):
+def decay_constant(isotope_key, sigma=SIGMA_HERE):
     """Decay constant λ (s⁻¹) for any isotope, dispatching to the
     appropriate decay mode.
 
@@ -540,7 +640,7 @@ def decay_constant(isotope_key, sigma=0.0):
     return 0.0
 
 
-def half_life(isotope_key, sigma=0.0):
+def half_life(isotope_key, sigma=SIGMA_HERE):
     """Half-life in seconds for any isotope.
 
     t½ = ln(2) / λ
@@ -551,7 +651,7 @@ def half_life(isotope_key, sigma=0.0):
     return math.log(2) / lam
 
 
-def half_life_human(isotope_key, sigma=0.0):
+def half_life_human(isotope_key, sigma=SIGMA_HERE):
     """Half-life in human-readable units.
 
     Returns (value, unit) tuple.
@@ -581,7 +681,7 @@ def half_life_human(isotope_key, sigma=0.0):
         return (t * 1e9, 'ns')
 
 
-def activity_becquerel(isotope_key, n_atoms, sigma=0.0):
+def activity_becquerel(isotope_key, n_atoms, sigma=SIGMA_HERE):
     """Radioactive activity in Becquerel (disintegrations/second).
 
     A = λ × N
@@ -600,7 +700,7 @@ def activity_becquerel(isotope_key, n_atoms, sigma=0.0):
     return lam * n_atoms
 
 
-def remaining_fraction(isotope_key, time_s, sigma=0.0):
+def remaining_fraction(isotope_key, time_s, sigma=SIGMA_HERE):
     """Fraction of atoms remaining after time t.
 
     N(t)/N₀ = exp(−λt)
@@ -639,7 +739,7 @@ def geiger_nuttall_check():
     for key, iso in ISOTOPES.items():
         if iso['decay_mode'] != 'alpha':
             continue
-        lam_pred = alpha_decay_constant(key, sigma=0.0)
+        lam_pred = alpha_decay_constant(key, sigma=SIGMA_HERE)
         lam_meas = math.log(2) / iso['half_life_s']
         if lam_pred > 0 and lam_meas > 0:
             results.append({
@@ -654,7 +754,7 @@ def geiger_nuttall_check():
 
 # ── Nagatha Export ────────────────────────────────────────────────
 
-def isotope_decay_properties(isotope_key, sigma=0.0):
+def isotope_decay_properties(isotope_key, sigma=SIGMA_HERE):
     """Export decay properties in Nagatha-compatible format.
 
     Returns a dict with all decay quantities and honest origin tags.

@@ -95,7 +95,7 @@ Origin tags:
 """
 
 import math
-from ..constants import HBAR, C, K_B, E_CHARGE, MU_0, M_ELECTRON_KG, EPS_0
+from ..constants import HBAR, C, K_B, E_CHARGE, MU_0, M_ELECTRON_KG, EPS_0, N_AVOGADRO, SIGMA_HERE
 
 # ── Fundamental superconducting constants ─────────────────────────
 # Flux quantum: Φ₀ = h/(2e) = π×ℏ/e
@@ -110,7 +110,7 @@ _MU_BOHR = E_CHARGE * HBAR / (2.0 * M_ELECTRON_KG)  # ≈ 9.274×10⁻²⁴ J/T
 # Elements derive n_e and v_F from free-electron model when not measured.
 # Measured κ stored where available; otherwise derived from clean-limit BCS.
 
-_N_A = 6.02214076e23  # Avogadro (mol⁻¹) — local (not yet in constants.py)
+_N_A = N_AVOGADRO  # Avogadro (mol⁻¹)
 
 
 def _fe_n_e(rho, M_g, Z_val):
@@ -854,7 +854,7 @@ def sigma_Tc_shift(T_c_0, sigma):
     from ..scale import scale_ratio
     from ..constants import PROTON_QCD_FRACTION
 
-    if sigma == 0.0:
+    if sigma == SIGMA_HERE:
         return T_c_0
 
     f_qcd = PROTON_QCD_FRACTION
@@ -955,7 +955,7 @@ def sigma_mcmillan_Tc(theta_D, lambda_ep, mu_star, sigma):
     from ..scale import scale_ratio
     from ..constants import PROTON_QCD_FRACTION
 
-    if sigma == 0.0:
+    if sigma == SIGMA_HERE:
         return mcmillan_Tc(theta_D, lambda_ep, mu_star)
 
     f_qcd = PROTON_QCD_FRACTION
@@ -1008,7 +1008,7 @@ def debye_comparison():
 
 # ── Nagatha Integration ──────────────────────────────────────────
 
-def superconductor_properties(sc_key, T=0.0, sigma=0.0):
+def superconductor_properties(sc_key, T=0.0, sigma=SIGMA_HERE):
     """Export superconductor properties in Nagatha-compatible format.
 
     Args:
@@ -1089,7 +1089,7 @@ def superconductor_properties(sc_key, T=0.0, sigma=0.0):
 # ── Block Cooling Simulation ──────────────────────────────────────
 
 def block_cooling_profile(sc_key, T_start, T_end, steps,
-                          rho_normal=1.0e-7, sigma=0.0):
+                          rho_normal=1.0e-7, sigma=SIGMA_HERE):
     """Simulate cooling a block of superconductor from T_start to T_end.
 
     At each temperature step, computes:

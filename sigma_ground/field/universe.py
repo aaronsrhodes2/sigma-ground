@@ -21,6 +21,7 @@ from .constants import (
     M_HUBBLE_KG, M_PLANCK_KG,
     PROTON_TOTAL_MEV, NEUTRON_TOTAL_MEV,
     PROTON_QCD_FRACTION, NEUTRON_QCD_FRACTION,
+    SIGMA_HERE,
 )
 from .scale import (
     scale_ratio, lambda_eff, sigma_from_potential,
@@ -34,7 +35,7 @@ from .verify import three_measures, KNOWN_NUCLEI, verify_summary
 
 # ── Known environments ────────────────────────────────────────────────
 ENVIRONMENTS = {
-    'vacuum':              {'sigma': 0.0,    'desc': 'Flat spacetime (our lab)'},
+    'vacuum':              {'sigma': SIGMA_HERE, 'desc': 'Flat spacetime (our lab)'},
     'earth_surface':       {'sigma': 6.95e-10, 'desc': 'Earth surface (negligible)'},
     'sun_surface':         {'sigma': 2.12e-6, 'desc': 'Solar surface'},
     'white_dwarf':         {'sigma': 2.3e-4,  'desc': 'White dwarf surface'},
@@ -115,7 +116,7 @@ class Universe:
 
     # ── Query a specific atom ─────────────────────────────────────────
 
-    def atom(self, Z, A, be_mev=None, sigma=0.0):
+    def atom(self, Z, A, be_mev=None, sigma=SIGMA_HERE):
         """Get atomic properties at given σ.
 
         Args:

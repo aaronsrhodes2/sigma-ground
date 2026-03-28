@@ -22,11 +22,11 @@ Dependency: HBAR, C, E_CHARGE, ALPHA from constants; scale.py for σ
 
 import math
 
-from .constants import HBAR, C, E_CHARGE, ALPHA
+from .constants import HBAR, C, E_CHARGE, ALPHA, AMU_KG
 from .scale import scale_ratio
 
 # Conversion factor: 1 atomic mass unit in kg
-_AMU_KG = 1.66053906660e-27   # kg  (CODATA 2018)
+_AMU_KG = AMU_KG
 _AMU_MEV = 931.494102         # MeV/c² per u  (CODATA 2018)
 _LN2 = math.log(2.0)
 

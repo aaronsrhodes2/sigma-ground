@@ -267,7 +267,7 @@ class TestVersion:
         )
         version = (result.stdout + result.stderr).strip()
         report("CLI --version", [f"Output: {version}"])
-        assert "1.0.2" in result.stdout or "1.0.2" in result.stderr
+        assert "1.0.3" in result.stdout or "1.0.3" in result.stderr
 
 
 class TestHelp:

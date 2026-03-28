@@ -55,6 +55,7 @@ Origin tags:
 """
 
 import math
+from ..constants import SIGMA_HERE
 from .gas import (
     MOLECULES, BOND_ENERGIES_EV,
     ideal_gas_density, gas_viscosity, gas_thermal_conductivity,
@@ -358,7 +359,7 @@ def sphere_volume(radius_m):
 
 def gas_temperature_after_cooling(T_combustion, T_wall, length_m,
                                     velocity_m_s, diameter_m,
-                                    mol_key='CO2', sigma=0.0):
+                                    mol_key='CO2', sigma=SIGMA_HERE):
     """Temperature of gas after flowing through the cigar (K).
 
     Uses Newton's law of cooling along the flow path:
@@ -429,7 +430,7 @@ def simulate_carbon_cigar(
     burn_rate_m_s=1e-4,          # 0.1 mm/s burn rate (MEASURED for charcoal)
     T_ambient=300.0,             # room temperature
     complete_fraction=0.8,       # 80% complete combustion
-    sigma=0.0,
+    sigma=SIGMA_HERE,
 ):
     """Simulate the complete carbon cigar experiment.
 
@@ -535,7 +536,7 @@ def simulate_carbon_cigar(
     wn_sigma0 = vibrational_wavenumber(
         co2_asym_bond['force_constant_N_m'],
         co2_asym_bond['atom_A_amu'], co2_asym_bond['atom_B_amu'],
-        sigma=0.0)
+        sigma=SIGMA_HERE)
     wn_sigma = vibrational_wavenumber(
         co2_asym_bond['force_constant_N_m'],
         co2_asym_bond['atom_A_amu'], co2_asym_bond['atom_B_amu'],

@@ -32,7 +32,7 @@ from .constants import PROTON_TOTAL_MEV, PROTON_QCD_MEV, PROTON_BARE_MEV
 from .constants import NEUTRON_TOTAL_MEV, NEUTRON_QCD_MEV, NEUTRON_BARE_MEV
 from .scale import scale_ratio, sigma_from_potential
 from .nucleon import proton_mass_mev, neutron_mass_mev
-from .constants import N0_FM3, K_SAT_MEV, E_SAT_MEV, J_SYM_MEV
+from .constants import N0_FM3, K_SAT_MEV, E_SAT_MEV, J_SYM_MEV, MEV_TO_J
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -144,10 +144,10 @@ def milky_way_rotation():
 # the integration or it doesn't.
 # ═══════════════════════════════════════════════════════════════════════
 
-# Natural unit conversions
-_HBAR_C_MEV_FM = 197.3269804  # ℏc in MeV·fm
-_MEV_FM3_TO_PA = 1.6021766e32  # MeV/fm³ → Pa (for TOV in SI)
-_MEV_FM3_TO_KG_M3 = 1.7827e12  # MeV/fm³ → kg/m³ (energy density / c²)
+# Natural unit conversions — DERIVED from fundamental constants
+_HBAR_C_MEV_FM = HBAR * C / MEV_TO_J * 1e15  # ℏc in MeV·fm (≈ 197.327)
+_MEV_FM3_TO_PA = MEV_TO_J * 1e45             # MeV/fm³ → Pa (1 fm = 1e-15 m, cube → 1e-45 m³)
+_MEV_FM3_TO_KG_M3 = _MEV_FM3_TO_PA / C**2   # MeV/fm³ → kg/m³ (energy density / c²)
 
 
 def _fermi_momentum_mev(n_fm3):
@@ -375,7 +375,7 @@ def neutron_star_eos(n_points=20):
     m_n_0 = NEUTRON_TOTAL_MEV
 
     # Densities from 0.5 n₀ to 8 n₀ (n₀ = 0.16 fm⁻³)
-    n0 = 0.16  # nuclear saturation density, fm⁻³
+    n0 = N0_FM3  # nuclear saturation density, fm⁻³ (from constants.py)
     densities = [n0 * (0.5 + i * 7.5 / n_points) for i in range(n_points + 1)]
 
     for n in densities:
@@ -427,7 +427,7 @@ def _build_eos_table(n_entries=500):
         list of (eps_si, P_si, n_fm3) tuples, sorted by eps_si ascending.
         eps_si and P_si are in SI (J/m³ = Pa).
     """
-    n0 = 0.16  # fm⁻³
+    n0 = N0_FM3  # fm⁻³ (from constants.py)
     m_n_0 = NEUTRON_TOTAL_MEV
     table = []
 
@@ -597,7 +597,7 @@ def tov_mass_estimate():
 
     Observation: PSR J0740+6620 = 2.08 ± 0.07 M☉.
     """
-    n0 = 0.16  # nuclear saturation density, fm⁻³
+    n0 = N0_FM3  # nuclear saturation density, fm⁻³ (from constants.py)
 
     # Scan central densities
     best_M = 0.0

@@ -42,10 +42,28 @@ Origin tags:
 
 import math
 from ..scale import scale_ratio
-from ..constants import PROTON_QCD_FRACTION
+from ..constants import PROTON_QCD_FRACTION, EV_TO_J, K_B, SIGMA_HERE
 
 # ── Conversion ─────────────────────────────────────────────────────
-_EV_TO_JOULE = 1.602176634e-19  # exact (2019 SI definition)
+_EV_TO_JOULE = EV_TO_J
+
+
+def _zero_point_energy_fraction(material_key, sigma=SIGMA_HERE):
+    """Fraction of cohesive energy from zero-point phonon motion.
+
+    f_ZPE = (9/8) × k_B × Θ_D / E_coh
+
+    DERIVED per material from:
+      Θ_D  = Debye temperature (thermal.py, from sound velocity + number density)
+      E_coh = cohesive energy per atom (MEASURED)
+
+    Replaces the former global guess f_zpe = 0.01.
+    Typical values: Fe ≈ 0.85%, Al ≈ 1.07%, W ≈ 0.38%, Si ≈ 0.74%.
+    """
+    from .thermal import debye_temperature
+    theta_D = debye_temperature(material_key, sigma)
+    e_coh_j = MATERIALS[material_key]['cohesive_energy_ev'] * _EV_TO_JOULE
+    return (9.0 / 8.0) * K_B * theta_D / e_coh_j
 
 # ── Material Database ──────────────────────────────────────────────
 # All values are MEASURED from experiment.
@@ -241,10 +259,10 @@ def surface_energy(material_key):
     Returns:
         γ in J/m²
     """
-    return surface_energy_at_sigma(material_key, sigma=0.0)
+    return surface_energy_at_sigma(material_key, sigma=SIGMA_HERE)
 
 
-def surface_energy_at_sigma(material_key, sigma=0.0):
+def surface_energy_at_sigma(material_key, sigma=SIGMA_HERE):
     """Surface energy at arbitrary σ-field value.
 
     The σ-correction enters through nuclear mass:
@@ -306,8 +324,8 @@ def surface_energy_at_sigma(material_key, sigma=0.0):
     mass_ratio = (1.0 - f_qcd_mass) + f_qcd_mass * scale_ratio(sigma)
 
     # Zero-point phonon frequency ∝ 1/√m → E_ZPE ∝ 1/√m
-    # The ZPE fraction of cohesive energy (~1% for metals, conservative)
-    f_zpe = 0.01
+    # f_ZPE = (9/8) k_B Θ_D / E_coh — DERIVED per material, not guessed
+    f_zpe = _zero_point_energy_fraction(material_key, sigma=SIGMA_HERE)
 
     # Effective cohesive energy at σ:
     # E_coh(σ) = E_coh_bond (EM, invariant) + E_ZPE(σ)
@@ -329,7 +347,7 @@ def surface_energy_at_sigma(material_key, sigma=0.0):
     return gamma
 
 
-def surface_energy_decomposition(material_key, sigma=0.0):
+def surface_energy_decomposition(material_key, sigma=SIGMA_HERE):
     """Decompose surface energy into EM-invariant and QCD-scaling parts.
 
     Returns dict with:
@@ -348,8 +366,8 @@ def surface_energy_decomposition(material_key, sigma=0.0):
     n_s = surface_atom_density(struct, face, a)
     broken_fraction = (z_b - z_s) / (2.0 * z_b)
 
-    # Zero-point energy fraction
-    f_zpe = 0.01
+    # Zero-point energy fraction — DERIVED per material
+    f_zpe = _zero_point_energy_fraction(material_key, sigma=SIGMA_HERE)
     f_qcd_mass = PROTON_QCD_FRACTION
     mass_ratio = (1.0 - f_qcd_mass) + f_qcd_mass * scale_ratio(sigma)
 
@@ -396,7 +414,7 @@ def surface_energy_decomposition(material_key, sigma=0.0):
     }
 
 
-def material_surface_properties(material_key, sigma=0.0):
+def material_surface_properties(material_key, sigma=SIGMA_HERE):
     """Export surface properties in Nagatha-compatible format.
 
     Returns a dict that can be merged into Nagatha's color.json materials.

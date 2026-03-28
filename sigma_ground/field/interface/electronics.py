@@ -67,12 +67,12 @@ Origin tags:
 """
 
 import math
-from ..constants import HBAR, K_B, E_CHARGE, M_ELECTRON_KG, EPS_0
+from ..constants import HBAR, K_B, E_CHARGE, M_ELECTRON_KG, EPS_0, N_AVOGADRO, SIGMA_HERE
 
 
 # ── Physical Constants (local) ────────────────────────────────────
 _H_PLANCK = 2.0 * math.pi * HBAR
-_N_A = 6.02214076e23
+_N_A = N_AVOGADRO
 
 
 # ── Bloch-Grüneisen Integral ─────────────────────────────────────
@@ -83,11 +83,11 @@ def _bg_integrand(t):
         return 0.0
     if t > 300:
         return 0.0  # Exponentially suppressed — integrand ~ t⁵ × e⁻ᵗ
-    et = math.exp(t)
-    denom = (et - 1.0) ** 2
-    if denom == 0:
+    em1 = math.expm1(t)       # exp(t) - 1, precise near t=0
+    if em1 == 0.0:
         return 0.0
-    return t ** 5 * et / denom
+    et = em1 + 1.0             # exp(t)
+    return t ** 5 * et / (em1 ** 2)
 
 
 def _bg_integral(x_max, n_steps=200):
@@ -284,7 +284,7 @@ def resistivity_sigma(material_key, T, sigma):
     Returns:
         Resistivity in Ω·m
     """
-    if sigma == 0.0:
+    if sigma == SIGMA_HERE:
         return resistivity(material_key, T)
 
     from ..scale import scale_ratio
@@ -795,7 +795,7 @@ def diode_current(I_0, V, T=300.0):
         return I_0 * math.exp(500)  # Guard overflow
     if exponent < -500:
         return -I_0  # Reverse saturation
-    return I_0 * (math.exp(exponent) - 1.0)
+    return I_0 * math.expm1(exponent)  # expm1 avoids cancellation near V=0
 
 
 # ── Geometric Capacitance ────────────────────────────────────────
@@ -876,7 +876,7 @@ def energy_stored(capacitance, voltage):
 
 # ── Nagatha Integration ──────────────────────────────────────────
 
-def metal_transport_properties(material_key, T=300.0, sigma=0.0):
+def metal_transport_properties(material_key, T=300.0, sigma=SIGMA_HERE):
     """Export metal transport properties in Nagatha format.
 
     Args:
