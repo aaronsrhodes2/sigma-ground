@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Alloy T_c Predictions — sigma-ground</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0d1117; color: #c9d1d9;
+    padding: 20px;
+  }
+  h1 { color: #58a6ff; text-align: center; margin-bottom: 8px; font-size: 1.6em; }
+  h2 { color: #79c0ff; margin: 24px 0 12px; font-size: 1.2em; }
+  .subtitle { text-align: center; color: #8b949e; margin-bottom: 24px; font-size: 0.9em; }
+  .chart-container {
+    background: #161b22; border: 1px solid #30363d; border-radius: 8px;
+    padding: 20px; margin-bottom: 24px; overflow-x: auto;
+  }
+  canvas { display: block; margin: 0 auto; }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;
+    margin: 12px 0; font-size: 0.85em;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot {
+    width: 12px; height: 12px; border-radius: 50%; display: inline-block;
+  }
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px; margin: 16px 0;
+  }
+  .stat-card {
+    background: #0d1117; border: 1px solid #30363d; border-radius: 6px;
+    padding: 12px; text-align: center;
+  }
+  .stat-value { color: #58a6ff; font-size: 1.4em; font-weight: bold; }
+  .stat-label { color: #8b949e; font-size: 0.8em; margin-top: 4px; }
+  .note { color: #8b949e; font-size: 0.8em; font-style: italic; margin-top: 8px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+  th, td { padding: 6px 10px; text-align: right; border-bottom: 1px solid #21262d; font-size: 0.82em; }
+  th { color: #58a6ff; text-align: right; }
+  td:first-child, th:first-child { text-align: left; }
+  tr:hover td { background: #1c2128; }
+  .warning { color: #d29922; font-size: 0.75em; }
+</style>
+</head>
+<body>
+
+<h1>Alloy Superconductivity Predictions</h1>
+<p class="subtitle">
+  Blind T<sub>c</sub> predictions from atomic-fraction mixing rules + McMillan formula
+  &nbsp;|&nbsp; sigma-ground alloys module
+</p>
+
+<div class="stats">
+  <div class="stat-card">
+    <div class="stat-value">25</div>
+    <div class="stat-label">Total Predictions</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">12</div>
+    <div class="stat-label">Validated</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">13</div>
+    <div class="stat-label">Blind (No Data)</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">4.9 K</div>
+    <div class="stat-label">Mean Abs Error</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">5.8 K</div>
+    <div class="stat-label">RMSE</div>
+  </div>
+</div>
+
+<h2>1. Predicted vs Measured T<sub>c</sub></h2>
+<div class="chart-container">
+  <canvas id="scatter" width="600" height="500"></canvas>
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#58a6ff"></span> Validated alloy</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#f85149"></span> MoRe (&#963;-phase anomaly)</div>
+    <div class="legend-item" style="color:#8b949e">— ideal (predicted = measured)</div>
+  </div>
+</div>
+
+<h2>2. All Predictions (sorted by T<sub>c</sub>)</h2>
+<div class="chart-container">
+  <canvas id="bar" width="900" height="400"></canvas>
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#58a6ff"></span> Predicted (mean)</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#3fb950"></span> Measured</div>
+    <div class="legend-item" style="color:#30363d">| model spread</div>
+  </div>
+</div>
+
+<h2>3. Nb-Ti Composition Sweep</h2>
+<div class="chart-container">
+  <canvas id="sweep" width="700" height="350"></canvas>
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#58a6ff"></span> Linear model</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#d29922"></span> DOS-weighted</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#3fb950"></span> Measured (NbTi wire)</div>
+  </div>
+  <p class="note">Pure Nb (x=0) &rarr; Pure Ti (x=1). Measured NbTi wire at x&approx;0.47.</p>
+</div>
+
+<h2>4. Full Results Table</h2>
+<div class="chart-container">
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align:left">Alloy</th>
+        <th style="text-align:left">Composition</th>
+        <th>T<sub>c</sub> Linear</th>
+        <th>T<sub>c</sub> DOS</th>
+        <th>T<sub>c</sub> Mean</th>
+        <th>Measured</th>
+        <th>Error</th>
+        <th>Confidence</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+            <td style="text-align:left">NbMo_80_20</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">niobium:80%, molybdenum:20%</td>
+            <td>17.86</td>
+            <td>17.69</td>
+            <td><strong>17.77</strong></td>
+            <td>&mdash;</td>
+            <td></td>
+            <td>high</td>
+        </tr>
+<tr>
+            <td style="text-align:left">NbTi_80_20</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">niobium:80%, titanium:20%</td>
+            <td>17.36</td>
+            <td>16.45</td>
+            <td><strong>16.91</strong></td>
+            <td>9.8</td>
+            <td><span style="color:#f85149">+73%</span></td>
+            <td>high</td>
+        </tr>
+<tr>
+            <td style="text-align:left">NbRe_75_25</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">niobium:75%, rhenium:25%</td>
+            <td>17.34</td>
+            <td>16.06</td>
+            <td><strong>16.70</strong></td>
+            <td>&mdash;</td>
+            <td></td>
+            <td>moderate</td>
+        </tr>
+<tr>
+            <td style="text-align:left">NbV_50_50</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">niobium:50%, vanadium:50%</td>
+            <td>17.04</td>
+            <td>16.02</td>
+            <td><strong>16.53</strong></td>
+            <td>&mdash;</td>
+            <td></td>
+            <td>moderate</td>
+        </tr>
+<tr>
+            <td style="text-align:left">Nb3Sn_stoich</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">niobium:75%, tin:25%</td>
+            <td>15.87</td>
+            <td>15.13</td>
+            <td><strong>15.50</strong></td>
+            <td>18.3</td>
+            <td><span style="color:#3fb950">-15%</span></td>
+            <td>high</td>
+        </tr>
+<tr>
+            <td style="text-align:left">NbZr_75_25</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">niobium:75%, zirconium:25%</td>
+            <td>15.12</td>
+            <td>14.55</td>
+            <td><strong>14.84</strong></td>
+            <td>10.8</td>
+            <td><span style="color:#d29922">+37%</span></td>
+            <td>high</td>
+        </tr>
+<tr>
+            <td style="text-align:left">NbTi_60_40</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">niobium:60%, titanium:40%</td>
+            <td>14.10</td>
+            <td>12.53</td>
+            <td><strong>13.31</strong></td>
+            <td>&mdash;</td>
+            <td></td>
+            <td>moderate</td>
+        </tr>
+<tr>
+            <td style="text-align:left">NbTa_50_50</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">niobium:50%, tantalum:50%</td>
+            <td>12.96</td>
+            <td>12.18</td>
+            <td><strong>12.57</strong></td>
+            <td>6.0</td>
+            <td><span style="color:#f85149">+109%</span></td>
+            <td>high</td>
+        </tr>
+<tr>
+            <td style="text-align:left">NbTi_wire</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">niobium:53%, titanium:47%</td>
+            <td>12.63</td>
+            <td>10.95</td>
+            <td><strong>11.79</strong></td>
+            <td>9.5</td>
+            <td><span style="color:#3fb950">+24%</span></td>
+            <td>moderate</td>
+        </tr>
+<tr>
+            <td style="text-align:left">NbTiV_ternary</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">niobium:34%, titanium:33%, vanadium:33%</td>
+            <td>12.08</td>
+            <td>10.95</td>
+            <td><strong>11.52</strong></td>
+            <td>&mdash;</td>
+            <td></td>
+            <td>moderate</td>
+        </tr>
+<tr>
+            <td style="text-align:left">PbSn_eutectic</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">lead:63%, tin:37%</td>
+            <td>10.09</td>
+            <td>10.02</td>
+            <td><strong>10.05</strong></td>
+            <td>7.0</td>
+            <td><span style="color:#d29922">+43%</span></td>
+            <td>high</td>
+        </tr>
+<tr>
+            <td style="text-align:left">PbAg_80_20</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">lead:80%, silver:20%</td>
+            <td>9.30</td>
+            <td>9.82</td>
+            <td><strong>9.56</strong></td>
+            <td>&mdash;</td>
+            <td></td>
+            <td>high</td>
+        </tr>
+<tr>
+            <td style="text-align:left">PbTl_80_20</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">lead:80%, thallium:20%</td>
+            <td>8.12</td>
+            <td>8.17</td>
+            <td><strong>8.14</strong></td>
+            <td>5.8</td>
+            <td><span style="color:#d29922">+40%</span></td>
+            <td>high</td>
+        </tr>
+<tr>
+            <td style="text-align:left">PbIn_60_40</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">lead:60%, indium:40%</td>
+            <td>7.76</td>
+            <td>7.82</td>
+            <td><strong>7.79</strong></td>
+            <td>6.6</td>
+            <td><span style="color:#3fb950">+18%</span></td>
+            <td>high</td>
+        </tr>
+<tr>
+            <td style="text-align:left">NbCu_50_50</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">niobium:50%, copper:50%</td>
+            <td>7.68</td>
+            <td>6.51</td>
+            <td><strong>7.09</strong></td>
+            <td>&mdash;</td>
+            <td></td>
+            <td>moderate</td>
+        </tr>
+<tr>
+            <td style="text-align:left">NbTiZr_ternary</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">niobium:34%, titanium:33%, zirconium:33%</td>
+            <td>7.37</td>
+            <td>6.27</td>
+            <td><strong>6.82</strong></td>
+            <td>&mdash;</td>
+            <td></td>
+            <td>moderate</td>
+        </tr>
+<tr>
+            <td style="text-align:left">TaW_90_10</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">tantalum:90%, tungsten:10%</td>
+            <td>5.30</td>
+            <td>5.26</td>
+            <td><strong>5.28</strong></td>
+            <td>&mdash;</td>
+            <td></td>
+            <td>high</td>
+        </tr>
+<tr>
+            <td style="text-align:left">TaHf_90_10</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">tantalum:90%, hafnium:10%</td>
+            <td>4.96</td>
+            <td>5.03</td>
+            <td><strong>5.00</strong></td>
+            <td>&mdash;</td>
+            <td></td>
+            <td>high</td>
+        </tr>
+<tr>
+            <td style="text-align:left">AlIn_90_10</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">aluminum:90%, indium:10%</td>
+            <td>3.02</td>
+            <td>2.89</td>
+            <td><strong>2.95</strong></td>
+            <td>&mdash;</td>
+            <td></td>
+            <td>high</td>
+        </tr>
+<tr>
+            <td style="text-align:left">AlZn_95_5</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">aluminum:95%, zinc:5%</td>
+            <td>2.10</td>
+            <td>2.11</td>
+            <td><strong>2.11</strong></td>
+            <td>&mdash;</td>
+            <td></td>
+            <td>high</td>
+        </tr>
+<tr>
+            <td style="text-align:left">AlGa_50_50</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">aluminum:50%, gallium:50%</td>
+            <td>1.60</td>
+            <td>1.61</td>
+            <td><strong>1.61</strong></td>
+            <td>&mdash;</td>
+            <td></td>
+            <td>high</td>
+        </tr>
+<tr>
+            <td style="text-align:left">MoRe_50_50</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">molybdenum:50%, rhenium:50%</td>
+            <td>1.54</td>
+            <td>1.61</td>
+            <td><strong>1.58</strong></td>
+            <td>12.4</td>
+            <td><span style="color:#f85149">-87%</span></td>
+            <td>high</td>
+        </tr>
+<tr>
+            <td style="text-align:left">MoRe_60_40</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">molybdenum:60%, rhenium:40%</td>
+            <td>1.45</td>
+            <td>1.51</td>
+            <td><strong>1.48</strong></td>
+            <td>10.6</td>
+            <td><span style="color:#f85149">-86%</span></td>
+            <td>high</td>
+        </tr>
+<tr>
+            <td style="text-align:left">CuZn_brass</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">copper:70%, zinc:30%</td>
+            <td>0.00</td>
+            <td>0.00</td>
+            <td><strong>0.00</strong></td>
+            <td>0.0</td>
+            <td></td>
+            <td>high</td>
+        </tr>
+<tr>
+            <td style="text-align:left">CuSn_bronze</td>
+            <td style="text-align:left;font-size:0.75em;color:#8b949e">copper:88%, tin:12%</td>
+            <td>0.00</td>
+            <td>0.00</td>
+            <td><strong>0.00</strong></td>
+            <td>0.0</td>
+            <td></td>
+            <td>high</td>
+        </tr>
+
+    </tbody>
+  </table>
+  <p class="note">
+    All temperatures in Kelvin. Models assume disordered solid solution.
+    MoRe forms an ordered &#963;-phase that dramatically enhances &#955;<sub>ep</sub> &mdash;
+    this is the expected failure mode of the solid-solution approximation.
+  </p>
+</div>
+
+<p class="note" style="text-align:center; margin-top:24px;">
+  Generated by sigma-ground &mdash; zero external dependencies
+  &nbsp;|&nbsp; McMillan, Phys. Rev. 167, 331 (1968)
+</p>
+
+<script>
+const SCATTER = [{"x": 18.3, "y": 15.503, "label": "Nb3Sn_stoich", "pct": -15.3}, {"x": 6.6, "y": 7.791, "label": "PbIn_60_40", "pct": 18.0}, {"x": 9.5, "y": 11.793, "label": "NbTi_wire", "pct": 24.1}, {"x": 10.8, "y": 14.838, "label": "NbZr_75_25", "pct": 37.4}, {"x": 5.8, "y": 8.145, "label": "PbTl_80_20", "pct": 40.4}, {"x": 7.05, "y": 10.053, "label": "PbSn_eutectic", "pct": 42.6}, {"x": 9.8, "y": 16.907, "label": "NbTi_80_20", "pct": 72.5}, {"x": 10.6, "y": 1.479, "label": "MoRe_60_40", "pct": -86.0}, {"x": 12.4, "y": 1.578, "label": "MoRe_50_50", "pct": -87.3}, {"x": 6.0, "y": 12.569, "label": "NbTa_50_50", "pct": 109.5}];
+const BAR = [{"name": "NbMo_80_20", "T_c_mean": 17.771, "T_c_min": 17.688, "T_c_max": 17.855, "has_measured": false, "T_c_measured": null}, {"name": "NbTi_80_20", "T_c_mean": 16.907, "T_c_min": 16.453, "T_c_max": 17.36, "has_measured": true, "T_c_measured": 9.8}, {"name": "NbRe_75_25", "T_c_mean": 16.697, "T_c_min": 16.058, "T_c_max": 17.335, "has_measured": false, "T_c_measured": null}, {"name": "NbV_50_50", "T_c_mean": 16.532, "T_c_min": 16.021, "T_c_max": 17.044, "has_measured": false, "T_c_measured": null}, {"name": "Nb3Sn_stoich", "T_c_mean": 15.503, "T_c_min": 15.133, "T_c_max": 15.874, "has_measured": true, "T_c_measured": 18.3}, {"name": "NbZr_75_25", "T_c_mean": 14.838, "T_c_min": 14.555, "T_c_max": 15.122, "has_measured": true, "T_c_measured": 10.8}, {"name": "NbTi_60_40", "T_c_mean": 13.312, "T_c_min": 12.527, "T_c_max": 14.097, "has_measured": false, "T_c_measured": null}, {"name": "NbTa_50_50", "T_c_mean": 12.569, "T_c_min": 12.181, "T_c_max": 12.956, "has_measured": true, "T_c_measured": 6.0}, {"name": "NbTi_wire", "T_c_mean": 11.793, "T_c_min": 10.952, "T_c_max": 12.635, "has_measured": true, "T_c_measured": 9.5}, {"name": "NbTiV_ternary", "T_c_mean": 11.515, "T_c_min": 10.948, "T_c_max": 12.082, "has_measured": false, "T_c_measured": null}, {"name": "PbSn_eutectic", "T_c_mean": 10.053, "T_c_min": 10.015, "T_c_max": 10.091, "has_measured": true, "T_c_measured": 7.05}, {"name": "PbAg_80_20", "T_c_mean": 9.563, "T_c_min": 9.303, "T_c_max": 9.823, "has_measured": false, "T_c_measured": null}, {"name": "PbTl_80_20", "T_c_mean": 8.145, "T_c_min": 8.115, "T_c_max": 8.174, "has_measured": true, "T_c_measured": 5.8}, {"name": "PbIn_60_40", "T_c_mean": 7.791, "T_c_min": 7.76, "T_c_max": 7.822, "has_measured": true, "T_c_measured": 6.6}, {"name": "NbCu_50_50", "T_c_mean": 7.095, "T_c_min": 6.511, "T_c_max": 7.679, "has_measured": false, "T_c_measured": null}, {"name": "NbTiZr_ternary", "T_c_mean": 6.819, "T_c_min": 6.267, "T_c_max": 7.37, "has_measured": false, "T_c_measured": null}, {"name": "TaW_90_10", "T_c_mean": 5.279, "T_c_min": 5.258, "T_c_max": 5.299, "has_measured": false, "T_c_measured": null}, {"name": "TaHf_90_10", "T_c_mean": 4.995, "T_c_min": 4.963, "T_c_max": 5.026, "has_measured": false, "T_c_measured": null}, {"name": "AlIn_90_10", "T_c_mean": 2.954, "T_c_min": 2.886, "T_c_max": 3.022, "has_measured": false, "T_c_measured": null}, {"name": "AlZn_95_5", "T_c_mean": 2.106, "T_c_min": 2.103, "T_c_max": 2.109, "has_measured": false, "T_c_measured": null}, {"name": "AlGa_50_50", "T_c_mean": 1.607, "T_c_min": 1.603, "T_c_max": 1.612, "has_measured": false, "T_c_measured": null}, {"name": "MoRe_50_50", "T_c_mean": 1.578, "T_c_min": 1.545, "T_c_max": 1.611, "has_measured": true, "T_c_measured": 12.4}, {"name": "MoRe_60_40", "T_c_mean": 1.479, "T_c_min": 1.448, "T_c_max": 1.511, "has_measured": true, "T_c_measured": 10.6}, {"name": "CuZn_brass", "T_c_mean": 0.001, "T_c_min": 0.0, "T_c_max": 0.001, "has_measured": true, "T_c_measured": 0.0}, {"name": "CuSn_bronze", "T_c_mean": 0.001, "T_c_min": 0.0, "T_c_max": 0.001, "has_measured": true, "T_c_measured": 0.0}];
+const SWEEP = [{"x_B": 0.0, "f_A": 1.0, "f_B": 0.0, "T_c_linear_K": 19.294, "T_c_dos_K": 19.294, "T_c_mean_K": 19.294}, {"x_B": 0.025, "f_A": 0.975, "f_B": 0.025, "T_c_linear_K": 19.121, "T_c_dos_K": 19.003, "T_c_mean_K": 19.062}, {"x_B": 0.05, "f_A": 0.95, "f_B": 0.05, "T_c_linear_K": 18.928, "T_c_dos_K": 18.693, "T_c_mean_K": 18.811}, {"x_B": 0.075, "f_A": 0.925, "f_B": 0.075, "T_c_linear_K": 18.716, "T_c_dos_K": 18.365, "T_c_mean_K": 18.541}, {"x_B": 0.1, "f_A": 0.9, "f_B": 0.1, "T_c_linear_K": 18.485, "T_c_dos_K": 18.019, "T_c_mean_K": 18.252}, {"x_B": 0.125, "f_A": 0.875, "f_B": 0.125, "T_c_linear_K": 18.234, "T_c_dos_K": 17.654, "T_c_mean_K": 17.944}, {"x_B": 0.15, "f_A": 0.85, "f_B": 0.15, "T_c_linear_K": 17.964, "T_c_dos_K": 17.272, "T_c_mean_K": 17.618}, {"x_B": 0.175, "f_A": 0.825, "f_B": 0.175, "T_c_linear_K": 17.672, "T_c_dos_K": 16.871, "T_c_mean_K": 17.271}, {"x_B": 0.2, "f_A": 0.8, "f_B": 0.2, "T_c_linear_K": 17.36, "T_c_dos_K": 16.453, "T_c_mean_K": 16.907}, {"x_B": 0.225, "f_A": 0.775, "f_B": 0.225, "T_c_linear_K": 17.027, "T_c_dos_K": 16.017, "T_c_mean_K": 16.522}, {"x_B": 0.25, "f_A": 0.75, "f_B": 0.25, "T_c_linear_K": 16.673, "T_c_dos_K": 15.565, "T_c_mean_K": 16.119}, {"x_B": 0.275, "f_A": 0.725, "f_B": 0.275, "T_c_linear_K": 16.297, "T_c_dos_K": 15.096, "T_c_mean_K": 15.697}, {"x_B": 0.3, "f_A": 0.7, "f_B": 0.3, "T_c_linear_K": 15.9, "T_c_dos_K": 14.611, "T_c_mean_K": 15.256}, {"x_B": 0.325, "f_A": 0.675, "f_B": 0.325, "T_c_linear_K": 15.481, "T_c_dos_K": 14.111, "T_c_mean_K": 14.796}, {"x_B": 0.35, "f_A": 0.65, "f_B": 0.35, "T_c_linear_K": 15.041, "T_c_dos_K": 13.597, "T_c_mean_K": 14.319}, {"x_B": 0.375, "f_A": 0.625, "f_B": 0.375, "T_c_linear_K": 14.58, "T_c_dos_K": 13.068, "T_c_mean_K": 13.824}, {"x_B": 0.4, "f_A": 0.6, "f_B": 0.4, "T_c_linear_K": 14.097, "T_c_dos_K": 12.527, "T_c_mean_K": 13.312}, {"x_B": 0.425, "f_A": 0.575, "f_B": 0.425, "T_c_linear_K": 13.593, "T_c_dos_K": 11.974, "T_c_mean_K": 12.784}, {"x_B": 0.45, "f_A": 0.55, "f_B": 0.45, "T_c_linear_K": 13.069, "T_c_dos_K": 11.41, "T_c_mean_K": 12.239}, {"x_B": 0.475, "f_A": 0.525, "f_B": 0.475, "T_c_linear_K": 12.525, "T_c_dos_K": 10.837, "T_c_mean_K": 11.681}, {"x_B": 0.5, "f_A": 0.5, "f_B": 0.5, "T_c_linear_K": 11.961, "T_c_dos_K": 10.256, "T_c_mean_K": 11.108}, {"x_B": 0.525, "f_A": 0.475, "f_B": 0.525, "T_c_linear_K": 11.379, "T_c_dos_K": 9.668, "T_c_mean_K": 10.523}, {"x_B": 0.55, "f_A": 0.45, "f_B": 0.55, "T_c_linear_K": 10.781, "T_c_dos_K": 9.076, "T_c_mean_K": 9.928}, {"x_B": 0.575, "f_A": 0.425, "f_B": 0.575, "T_c_linear_K": 10.166, "T_c_dos_K": 8.482, "T_c_mean_K": 9.324}, {"x_B": 0.6, "f_A": 0.4, "f_B": 0.6, "T_c_linear_K": 9.538, "T_c_dos_K": 7.887, "T_c_mean_K": 8.713}, {"x_B": 0.625, "f_A": 0.375, "f_B": 0.625, "T_c_linear_K": 8.898, "T_c_dos_K": 7.294, "T_c_mean_K": 8.096}, {"x_B": 0.65, "f_A": 0.35, "f_B": 0.65, "T_c_linear_K": 8.248, "T_c_dos_K": 6.705, "T_c_mean_K": 7.476}, {"x_B": 0.675, "f_A": 0.325, "f_B": 0.675, "T_c_linear_K": 7.592, "T_c_dos_K": 6.123, "T_c_mean_K": 6.857}, {"x_B": 0.7, "f_A": 0.3, "f_B": 0.7, "T_c_linear_K": 6.932, "T_c_dos_K": 5.551, "T_c_mean_K": 6.242}, {"x_B": 0.725, "f_A": 0.275, "f_B": 0.725, "T_c_linear_K": 6.273, "T_c_dos_K": 4.992, "T_c_mean_K": 5.633}, {"x_B": 0.75, "f_A": 0.25, "f_B": 0.75, "T_c_linear_K": 5.618, "T_c_dos_K": 4.449, "T_c_mean_K": 5.034}, {"x_B": 0.775, "f_A": 0.225, "f_B": 0.775, "T_c_linear_K": 4.973, "T_c_dos_K": 3.925, "T_c_mean_K": 4.449}, {"x_B": 0.8, "f_A": 0.2, "f_B": 0.8, "T_c_linear_K": 4.342, "T_c_dos_K": 3.424, "T_c_mean_K": 3.883}, {"x_B": 0.825, "f_A": 0.175, "f_B": 0.825, "T_c_linear_K": 3.733, "T_c_dos_K": 2.948, "T_c_mean_K": 3.341}, {"x_B": 0.85, "f_A": 0.15, "f_B": 0.85, "T_c_linear_K": 3.15, "T_c_dos_K": 2.502, "T_c_mean_K": 2.826}, {"x_B": 0.875, "f_A": 0.125, "f_B": 0.875, "T_c_linear_K": 2.601, "T_c_dos_K": 2.089, "T_c_mean_K": 2.345}, {"x_B": 0.9, "f_A": 0.1, "f_B": 0.9, "T_c_linear_K": 2.093, "T_c_dos_K": 1.711, "T_c_mean_K": 1.902}, {"x_B": 0.925, "f_A": 0.075, "f_B": 0.925, "T_c_linear_K": 1.632, "T_c_dos_K": 1.37, "T_c_mean_K": 1.501}, {"x_B": 0.95, "f_A": 0.05, "f_B": 0.95, "T_c_linear_K": 1.225, "T_c_dos_K": 1.07, "T_c_mean_K": 1.147}, {"x_B": 0.975, "f_A": 0.025, "f_B": 0.975, "T_c_linear_K": 0.877, "T_c_dos_K": 0.81, "T_c_mean_K": 0.844}, {"x_B": 1.0, "f_A": 0.0, "f_B": 1.0, "T_c_linear_K": 0.592, "T_c_dos_K": 0.592, "T_c_mean_K": 0.592}];
+
+// ── Scatter Plot ──
+(function() {
+  const c = document.getElementById('scatter');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const pad = {l:60, r:20, t:20, b:50};
+  const pw = W-pad.l-pad.r, ph = H-pad.t-pad.b;
+  const maxV = 22.0;
+
+  function tx(v) { return pad.l + (v/maxV)*pw; }
+  function ty(v) { return pad.t + ph - (v/maxV)*ph; }
+
+  // Axes
+  ctx.strokeStyle = '#30363d'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, H-pad.b);
+  ctx.lineTo(W-pad.r, H-pad.b); ctx.stroke();
+
+  // Grid + labels
+  ctx.fillStyle = '#8b949e'; ctx.font = '11px sans-serif';
+  ctx.textAlign = 'center';
+  for (let v = 0; v <= maxV; v += 5) {
+    ctx.fillText(v.toFixed(0), tx(v), H-pad.b+16);
+    ctx.fillText(v.toFixed(0), pad.l-12, ty(v)+4);
+    ctx.strokeStyle = '#21262d';
+    ctx.beginPath(); ctx.moveTo(tx(v), pad.t); ctx.lineTo(tx(v), H-pad.b); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad.l, ty(v)); ctx.lineTo(W-pad.r, ty(v)); ctx.stroke();
+  }
+  ctx.fillText('Measured T_c (K)', W/2, H-4);
+  ctx.save(); ctx.translate(14, H/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Predicted T_c (K)', 0, 0); ctx.restore();
+
+  // Ideal line
+  ctx.strokeStyle = '#30363d'; ctx.lineWidth = 1; ctx.setLineDash([5,5]);
+  ctx.beginPath(); ctx.moveTo(tx(0), ty(0)); ctx.lineTo(tx(maxV), ty(maxV)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Points
+  SCATTER.forEach(p => {
+    const isMoRe = p.label.startsWith('MoRe');
+    ctx.fillStyle = isMoRe ? '#f85149' : '#58a6ff';
+    ctx.beginPath(); ctx.arc(tx(p.x), ty(p.y), 6, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#c9d1d9'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(p.label.replace(/_/g,' '), tx(p.x)+9, ty(p.y)+4);
+  });
+})();
+
+// ── Bar Chart ──
+(function() {
+  const c = document.getElementById('bar');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const pad = {l:50, r:20, t:20, b:100};
+  const pw = W-pad.l-pad.r, ph = H-pad.t-pad.b;
+  const n = BAR.length;
+  const bw = Math.min(30, pw/n - 4);
+  const maxTc = Math.max(...BAR.map(b => Math.max(b.T_c_max, b.T_c_measured||0))) * 1.15;
+
+  function ty(v) { return pad.t + ph - (v/maxTc)*ph; }
+
+  // Grid
+  ctx.strokeStyle = '#21262d'; ctx.fillStyle = '#8b949e'; ctx.font = '10px sans-serif';
+  ctx.textAlign = 'right';
+  for (let v = 0; v <= maxTc; v += 5) {
+    const y = ty(v);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W-pad.r, y); ctx.stroke();
+    ctx.fillText(v.toFixed(0)+' K', pad.l-6, y+4);
+  }
+
+  BAR.forEach((b, i) => {
+    const x = pad.l + (i+0.5)*(pw/n) - bw/2;
+    const ym = ty(b.T_c_mean);
+    const ymin = ty(b.T_c_min);
+    const ymax = ty(b.T_c_max);
+
+    // Spread bar
+    ctx.strokeStyle = '#30363d'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x+bw/2, ymin); ctx.lineTo(x+bw/2, ymax); ctx.stroke();
+
+    // Predicted bar
+    ctx.fillStyle = b.has_measured ? '#58a6ff' : '#1f6feb80';
+    ctx.fillRect(x, ym, bw, ty(0)-ym);
+
+    // Measured dot
+    if (b.T_c_measured !== null && b.T_c_measured > 0) {
+      ctx.fillStyle = '#3fb950';
+      ctx.beginPath(); ctx.arc(x+bw/2, ty(b.T_c_measured), 4, 0, Math.PI*2); ctx.fill();
+    }
+
+    // Label
+    ctx.fillStyle = '#8b949e'; ctx.font = '9px sans-serif';
+    ctx.save(); ctx.translate(x+bw/2, H-pad.b+6); ctx.rotate(Math.PI/4);
+    ctx.textAlign = 'left';
+    ctx.fillText(b.name.replace(/_/g,' '), 0, 0);
+    ctx.restore();
+  });
+})();
+
+// ── NbTi Sweep ──
+(function() {
+  const c = document.getElementById('sweep');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const pad = {l:60, r:20, t:20, b:50};
+  const pw = W-pad.l-pad.r, ph = H-pad.t-pad.b;
+  const maxTc = Math.max(...SWEEP.map(s => Math.max(s.T_c_linear_K, s.T_c_dos_K))) * 1.15;
+
+  function tx(x) { return pad.l + x*pw; }
+  function ty(v) { return pad.t + ph - (v/maxTc)*ph; }
+
+  // Grid
+  ctx.strokeStyle = '#21262d'; ctx.fillStyle = '#8b949e'; ctx.font = '11px sans-serif';
+  ctx.textAlign = 'center';
+  for (let x = 0; x <= 1; x += 0.2) {
+    ctx.fillText((x*100).toFixed(0)+'%', tx(x), H-pad.b+16);
+    ctx.strokeStyle = '#21262d';
+    ctx.beginPath(); ctx.moveTo(tx(x), pad.t); ctx.lineTo(tx(x), H-pad.b); ctx.stroke();
+  }
+  ctx.textAlign = 'right';
+  for (let v = 0; v <= maxTc; v += 5) {
+    ctx.fillText(v.toFixed(0)+' K', pad.l-8, ty(v)+4);
+    ctx.beginPath(); ctx.moveTo(pad.l, ty(v)); ctx.lineTo(W-pad.r, ty(v)); ctx.stroke();
+  }
+  ctx.textAlign = 'center';
+  ctx.fillText('Ti fraction (at%)', W/2, H-4);
+  ctx.save(); ctx.translate(14, H/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Predicted T_c (K)', 0, 0); ctx.restore();
+
+  // Linear curve
+  ctx.strokeStyle = '#58a6ff'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  SWEEP.forEach((s,i) => {
+    const fn = i === 0 ? 'moveTo' : 'lineTo';
+    ctx[fn](tx(s.x_B), ty(s.T_c_linear_K));
+  });
+  ctx.stroke();
+
+  // DOS curve
+  ctx.strokeStyle = '#d29922'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  SWEEP.forEach((s,i) => {
+    const fn = i === 0 ? 'moveTo' : 'lineTo';
+    ctx[fn](tx(s.x_B), ty(s.T_c_dos_K));
+  });
+  ctx.stroke();
+
+  // Measured point (NbTi wire at x=0.47, T_c=9.5K)
+  ctx.fillStyle = '#3fb950';
+  ctx.beginPath(); ctx.arc(tx(0.47), ty(9.5), 6, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#c9d1d9'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('Measured 9.5K', tx(0.47)+10, ty(9.5)+4);
+})();
+</script>
+
+</body>
+</html>

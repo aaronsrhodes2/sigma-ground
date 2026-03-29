@@ -1,0 +1,1674 @@
+{
+  "predictions": {
+    "NbMo_80_20": {
+      "composition": {
+        "niobium": 0.8,
+        "molybdenum": 0.2
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "niobium": 0.8,
+            "molybdenum": 0.2
+          },
+          "theta_D_K": 310.0,
+          "lambda_ep": 1.09,
+          "mu_star": 0.128,
+          "n_e_m3": 5.73088230468369e+28,
+          "v_F_m_s": 1382732.0,
+          "T_c_predicted_K": 17.855,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "niobium": 0.8,
+            "molybdenum": 0.2
+          },
+          "theta_D_K": 310.0,
+          "lambda_ep": 1.0834,
+          "mu_star": 0.128,
+          "n_e_m3": 5.73088230468369e+28,
+          "v_F_m_s": 1382732.0,
+          "T_c_predicted_K": 17.688,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 17.688,
+        "T_c_max_K": 17.855,
+        "T_c_mean_K": 17.771,
+        "spread_K": 0.167,
+        "confidence": "high"
+      },
+      "warnings": [],
+      "measured": null
+    },
+    "NbTi_80_20": {
+      "composition": {
+        "niobium": 0.8,
+        "titanium": 0.2
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "niobium": 0.8,
+            "titanium": 0.2
+          },
+          "theta_D_K": 304.0,
+          "lambda_ep": 1.084,
+          "mu_star": 0.128,
+          "n_e_m3": 6.716100228158857e+28,
+          "v_F_m_s": 1442711.0,
+          "T_c_predicted_K": 17.36,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "niobium": 0.8,
+            "titanium": 0.2
+          },
+          "theta_D_K": 304.0,
+          "lambda_ep": 1.0482,
+          "mu_star": 0.128,
+          "n_e_m3": 6.716100228158857e+28,
+          "v_F_m_s": 1442711.0,
+          "T_c_predicted_K": 16.453,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 16.453,
+        "T_c_max_K": 17.36,
+        "T_c_mean_K": 16.907,
+        "spread_K": 0.907,
+        "confidence": "high"
+      },
+      "warnings": [],
+      "measured": {
+        "T_c_measured_K": 9.8,
+        "source": "Roberts NBS 983 (1978)",
+        "notes": "Nb-20at%Ti. T_c peaks near Nb-rich compositions."
+      }
+    },
+    "NbRe_75_25": {
+      "composition": {
+        "niobium": 0.75,
+        "rhenium": 0.25
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "niobium": 0.75,
+            "rhenium": 0.25
+          },
+          "theta_D_K": 313.8,
+          "lambda_ep": 1.06,
+          "mu_star": 0.1275,
+          "n_e_m3": 7.569050486157878e+28,
+          "v_F_m_s": 1487905.0,
+          "T_c_predicted_K": 17.335,
+          "model": "linear",
+          "warnings": [
+            "Composition near A\u2083B stoichiometry. Ordered intermetallic compounds (A15 phases) can have dramatically different \u03bb_ep from solid-solution prediction. This model assumes disorder."
+          ]
+        },
+        "dos_weighted": {
+          "composition": {
+            "niobium": 0.75,
+            "rhenium": 0.25
+          },
+          "theta_D_K": 313.8,
+          "lambda_ep": 1.0121,
+          "mu_star": 0.1275,
+          "n_e_m3": 7.569050486157878e+28,
+          "v_F_m_s": 1487905.0,
+          "T_c_predicted_K": 16.058,
+          "model": "dos_weighted",
+          "warnings": [
+            "Composition near A\u2083B stoichiometry. Ordered intermetallic compounds (A15 phases) can have dramatically different \u03bb_ep from solid-solution prediction. This model assumes disorder."
+          ]
+        }
+      },
+      "summary": {
+        "T_c_min_K": 16.058,
+        "T_c_max_K": 17.335,
+        "T_c_mean_K": 16.697,
+        "spread_K": 1.277,
+        "confidence": "moderate"
+      },
+      "warnings": [
+        "Composition near A\u2083B stoichiometry. Ordered intermetallic compounds (A15 phases) can have dramatically different \u03bb_ep from solid-solution prediction. This model assumes disorder."
+      ],
+      "measured": null
+    },
+    "NbV_50_50": {
+      "composition": {
+        "niobium": 0.5,
+        "vanadium": 0.5
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "niobium": 0.5,
+            "vanadium": 0.5
+          },
+          "theta_D_K": 327.5,
+          "lambda_ep": 1.03,
+          "mu_star": 0.13,
+          "n_e_m3": 1.0002975156766518e+29,
+          "v_F_m_s": 1624607.0,
+          "T_c_predicted_K": 17.044,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "niobium": 0.5,
+            "vanadium": 0.5
+          },
+          "theta_D_K": 327.5,
+          "lambda_ep": 0.9937,
+          "mu_star": 0.13,
+          "n_e_m3": 1.0002975156766518e+29,
+          "v_F_m_s": 1624607.0,
+          "T_c_predicted_K": 16.021,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 16.021,
+        "T_c_max_K": 17.044,
+        "T_c_mean_K": 16.532,
+        "spread_K": 1.023,
+        "confidence": "moderate"
+      },
+      "warnings": [],
+      "measured": null
+    },
+    "Nb3Sn_stoich": {
+      "composition": {
+        "niobium": 0.75,
+        "tin": 0.25
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "niobium": 0.75,
+            "tin": 0.25
+          },
+          "theta_D_K": 256.2,
+          "lambda_ep": 1.125,
+          "mu_star": 0.1225,
+          "n_e_m3": 7.8699999999999995e+28,
+          "v_F_m_s": 1500000.0,
+          "T_c_predicted_K": 15.874,
+          "model": "linear",
+          "warnings": [
+            "Composition near A\u2083B stoichiometry. Ordered intermetallic compounds (A15 phases) can have dramatically different \u03bb_ep from solid-solution prediction. This model assumes disorder."
+          ]
+        },
+        "dos_weighted": {
+          "composition": {
+            "niobium": 0.75,
+            "tin": 0.25
+          },
+          "theta_D_K": 256.2,
+          "lambda_ep": 1.0894,
+          "mu_star": 0.1225,
+          "n_e_m3": 7.8699999999999995e+28,
+          "v_F_m_s": 1500000.0,
+          "T_c_predicted_K": 15.133,
+          "model": "dos_weighted",
+          "warnings": [
+            "Composition near A\u2083B stoichiometry. Ordered intermetallic compounds (A15 phases) can have dramatically different \u03bb_ep from solid-solution prediction. This model assumes disorder."
+          ]
+        }
+      },
+      "summary": {
+        "T_c_min_K": 15.133,
+        "T_c_max_K": 15.874,
+        "T_c_mean_K": 15.503,
+        "spread_K": 0.741,
+        "confidence": "high"
+      },
+      "warnings": [
+        "Composition near A\u2083B stoichiometry. Ordered intermetallic compounds (A15 phases) can have dramatically different \u03bb_ep from solid-solution prediction. This model assumes disorder."
+      ],
+      "measured": {
+        "T_c_measured_K": 18.3,
+        "source": "Matthias et al. (1954); NIST",
+        "notes": "A15 compound. Crystal structure enhances \u03bb beyond solid-solution prediction."
+      }
+    },
+    "NbZr_75_25": {
+      "composition": {
+        "niobium": 0.75,
+        "zirconium": 0.25
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "niobium": 0.75,
+            "zirconium": 0.25
+          },
+          "theta_D_K": 279.0,
+          "lambda_ep": 1.0475,
+          "mu_star": 0.1275,
+          "n_e_m3": 6.317463813500833e+28,
+          "v_F_m_s": 1422560.0,
+          "T_c_predicted_K": 15.122,
+          "model": "linear",
+          "warnings": [
+            "Composition near A\u2083B stoichiometry. Ordered intermetallic compounds (A15 phases) can have dramatically different \u03bb_ep from solid-solution prediction. This model assumes disorder."
+          ]
+        },
+        "dos_weighted": {
+          "composition": {
+            "niobium": 0.75,
+            "zirconium": 0.25
+          },
+          "theta_D_K": 279.0,
+          "lambda_ep": 1.0236,
+          "mu_star": 0.1275,
+          "n_e_m3": 6.317463813500833e+28,
+          "v_F_m_s": 1422560.0,
+          "T_c_predicted_K": 14.555,
+          "model": "dos_weighted",
+          "warnings": [
+            "Composition near A\u2083B stoichiometry. Ordered intermetallic compounds (A15 phases) can have dramatically different \u03bb_ep from solid-solution prediction. This model assumes disorder."
+          ]
+        }
+      },
+      "summary": {
+        "T_c_min_K": 14.555,
+        "T_c_max_K": 15.122,
+        "T_c_mean_K": 14.838,
+        "spread_K": 0.567,
+        "confidence": "high"
+      },
+      "warnings": [
+        "Composition near A\u2083B stoichiometry. Ordered intermetallic compounds (A15 phases) can have dramatically different \u03bb_ep from solid-solution prediction. This model assumes disorder."
+      ],
+      "measured": {
+        "T_c_measured_K": 10.8,
+        "source": "Roberts NBS 983 (1978)",
+        "notes": "Nb-25at%Zr. Early SC wire material before NbTi."
+      }
+    },
+    "NbTi_60_40": {
+      "composition": {
+        "niobium": 0.6,
+        "titanium": 0.4
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "niobium": 0.6,
+            "titanium": 0.4
+          },
+          "theta_D_K": 333.0,
+          "lambda_ep": 0.908,
+          "mu_star": 0.126,
+          "n_e_m3": 7.872200456317714e+28,
+          "v_F_m_s": 1515423.0,
+          "T_c_predicted_K": 14.097,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "niobium": 0.6,
+            "titanium": 0.4
+          },
+          "theta_D_K": 333.0,
+          "lambda_ep": 0.8568,
+          "mu_star": 0.126,
+          "n_e_m3": 7.872200456317714e+28,
+          "v_F_m_s": 1515423.0,
+          "T_c_predicted_K": 12.527,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 12.527,
+        "T_c_max_K": 14.097,
+        "T_c_mean_K": 13.312,
+        "spread_K": 1.57,
+        "confidence": "moderate"
+      },
+      "warnings": [],
+      "measured": null
+    },
+    "NbTa_50_50": {
+      "composition": {
+        "niobium": 0.5,
+        "tantalum": 0.5
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "niobium": 0.5,
+            "tantalum": 0.5
+          },
+          "theta_D_K": 266.5,
+          "lambda_ep": 0.975,
+          "mu_star": 0.125,
+          "n_e_m3": 8.321296043835798e+28,
+          "v_F_m_s": 1545157.0,
+          "T_c_predicted_K": 12.956,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "niobium": 0.5,
+            "tantalum": 0.5
+          },
+          "theta_D_K": 266.5,
+          "lambda_ep": 0.9424,
+          "mu_star": 0.125,
+          "n_e_m3": 8.321296043835798e+28,
+          "v_F_m_s": 1545157.0,
+          "T_c_predicted_K": 12.181,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 12.181,
+        "T_c_max_K": 12.956,
+        "T_c_mean_K": 12.569,
+        "spread_K": 0.775,
+        "confidence": "high"
+      },
+      "warnings": [],
+      "measured": {
+        "T_c_measured_K": 6.0,
+        "source": "Roberts NBS 983 (1978)",
+        "notes": "Nb-50at%Ta. T_c suppressed by Ta dilution."
+      }
+    },
+    "NbTi_wire": {
+      "composition": {
+        "niobium": 0.53,
+        "titanium": 0.47
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "niobium": 0.53,
+            "titanium": 0.47
+          },
+          "theta_D_K": 343.1,
+          "lambda_ep": 0.8464,
+          "mu_star": 0.1253,
+          "n_e_m3": 8.276835536173313e+28,
+          "v_F_m_s": 1540872.0,
+          "T_c_predicted_K": 12.635,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "niobium": 0.53,
+            "titanium": 0.47
+          },
+          "theta_D_K": 343.1,
+          "lambda_ep": 0.7942,
+          "mu_star": 0.1253,
+          "n_e_m3": 8.276835536173313e+28,
+          "v_F_m_s": 1540872.0,
+          "T_c_predicted_K": 10.952,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 10.952,
+        "T_c_max_K": 12.635,
+        "T_c_mean_K": 11.793,
+        "spread_K": 1.683,
+        "confidence": "moderate"
+      },
+      "warnings": [],
+      "measured": {
+        "T_c_measured_K": 9.5,
+        "source": "Roberts NBS 983 (1978); commercial wire spec",
+        "notes": "Nb-47at%Ti. Range 9.2-9.8K depending on processing."
+      }
+    },
+    "NbTiV_ternary": {
+      "composition": {
+        "niobium": 0.34,
+        "titanium": 0.33,
+        "vanadium": 0.33
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "niobium": 0.34,
+            "titanium": 0.33,
+            "vanadium": 0.33
+          },
+          "theta_D_K": 357.5,
+          "lambda_ep": 0.8178,
+          "mu_star": 0.1267,
+          "n_e_m3": 1.0399928979928017e+29,
+          "v_F_m_s": 1658015.0,
+          "T_c_predicted_K": 12.082,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "niobium": 0.34,
+            "titanium": 0.33,
+            "vanadium": 0.33
+          },
+          "theta_D_K": 357.5,
+          "lambda_ep": 0.784,
+          "mu_star": 0.1267,
+          "n_e_m3": 1.0399928979928017e+29,
+          "v_F_m_s": 1658015.0,
+          "T_c_predicted_K": 10.948,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 10.948,
+        "T_c_max_K": 12.082,
+        "T_c_mean_K": 11.515,
+        "spread_K": 1.134,
+        "confidence": "moderate"
+      },
+      "warnings": [],
+      "measured": null
+    },
+    "PbSn_eutectic": {
+      "composition": {
+        "lead": 0.63,
+        "tin": 0.37
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "lead": 0.63,
+            "tin": 0.37
+          },
+          "theta_D_K": 140.2,
+          "lambda_ep": 1.2429,
+          "mu_star": 0.1189,
+          "n_e_m3": 1.3792000000000001e+29,
+          "v_F_m_s": 1852200.0,
+          "T_c_predicted_K": 10.091,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "lead": 0.63,
+            "tin": 0.37
+          },
+          "theta_D_K": 140.2,
+          "lambda_ep": 1.2355,
+          "mu_star": 0.1189,
+          "n_e_m3": 1.3792000000000001e+29,
+          "v_F_m_s": 1852200.0,
+          "T_c_predicted_K": 10.015,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 10.015,
+        "T_c_max_K": 10.091,
+        "T_c_mean_K": 10.053,
+        "spread_K": 0.076,
+        "confidence": "high"
+      },
+      "warnings": [],
+      "measured": {
+        "T_c_measured_K": 7.05,
+        "source": "Roberts NBS 983 (1978)",
+        "notes": "Pb-37at%Sn eutectic solder."
+      }
+    },
+    "PbAg_80_20": {
+      "composition": {
+        "lead": 0.8,
+        "silver": 0.2
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "lead": 0.8,
+            "silver": 0.2
+          },
+          "theta_D_K": 129.0,
+          "lambda_ep": 1.264,
+          "mu_star": 0.124,
+          "n_e_m3": 1.1731288177631922e+29,
+          "v_F_m_s": 1742165.0,
+          "T_c_predicted_K": 9.303,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "lead": 0.8,
+            "silver": 0.2
+          },
+          "theta_D_K": 129.0,
+          "lambda_ep": 1.321,
+          "mu_star": 0.124,
+          "n_e_m3": 1.1731288177631922e+29,
+          "v_F_m_s": 1742165.0,
+          "T_c_predicted_K": 9.823,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 9.303,
+        "T_c_max_K": 9.823,
+        "T_c_mean_K": 9.563,
+        "spread_K": 0.52,
+        "confidence": "high"
+      },
+      "warnings": [],
+      "measured": null
+    },
+    "PbTl_80_20": {
+      "composition": {
+        "lead": 0.8,
+        "thallium": 0.2
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "lead": 0.8,
+            "thallium": 0.2
+          },
+          "theta_D_K": 99.8,
+          "lambda_ep": 1.398,
+          "mu_star": 0.124,
+          "n_e_m3": 1.2654990742910265e+29,
+          "v_F_m_s": 1801656.0,
+          "T_c_predicted_K": 8.115,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "lead": 0.8,
+            "thallium": 0.2
+          },
+          "theta_D_K": 99.8,
+          "lambda_ep": 1.4072,
+          "mu_star": 0.124,
+          "n_e_m3": 1.2654990742910265e+29,
+          "v_F_m_s": 1801656.0,
+          "T_c_predicted_K": 8.174,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 8.115,
+        "T_c_max_K": 8.174,
+        "T_c_mean_K": 8.145,
+        "spread_K": 0.059,
+        "confidence": "high"
+      },
+      "warnings": [],
+      "measured": {
+        "T_c_measured_K": 5.8,
+        "source": "Roberts NBS 983 (1978)",
+        "notes": "Pb-20at%Tl."
+      }
+    },
+    "PbIn_60_40": {
+      "composition": {
+        "lead": 0.6,
+        "indium": 0.4
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "lead": 0.6,
+            "indium": 0.4
+          },
+          "theta_D_K": 106.2,
+          "lambda_ep": 1.254,
+          "mu_star": 0.118,
+          "n_e_m3": 1.2520865608765175e+29,
+          "v_F_m_s": 1794702.0,
+          "T_c_predicted_K": 7.76,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "lead": 0.6,
+            "indium": 0.4
+          },
+          "theta_D_K": 106.2,
+          "lambda_ep": 1.2621,
+          "mu_star": 0.118,
+          "n_e_m3": 1.2520865608765175e+29,
+          "v_F_m_s": 1794702.0,
+          "T_c_predicted_K": 7.822,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 7.76,
+        "T_c_max_K": 7.822,
+        "T_c_mean_K": 7.791,
+        "spread_K": 0.062,
+        "confidence": "high"
+      },
+      "warnings": [],
+      "measured": {
+        "T_c_measured_K": 6.6,
+        "source": "Roberts NBS 983 (1978)",
+        "notes": "Pb-40at%In."
+      }
+    },
+    "NbCu_50_50": {
+      "composition": {
+        "niobium": 0.5,
+        "copper": 0.5
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "niobium": 0.5,
+            "copper": 0.5
+          },
+          "theta_D_K": 309.0,
+          "lambda_ep": 0.695,
+          "mu_star": 0.115,
+          "n_e_m3": 7.025615869574797e+28,
+          "v_F_m_s": 1472084.0,
+          "T_c_predicted_K": 7.679,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "niobium": 0.5,
+            "copper": 0.5
+          },
+          "theta_D_K": 309.0,
+          "lambda_ep": 0.6552,
+          "mu_star": 0.115,
+          "n_e_m3": 7.025615869574797e+28,
+          "v_F_m_s": 1472084.0,
+          "T_c_predicted_K": 6.511,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 6.511,
+        "T_c_max_K": 7.679,
+        "T_c_mean_K": 7.095,
+        "spread_K": 1.168,
+        "confidence": "moderate"
+      },
+      "warnings": [],
+      "measured": null
+    },
+    "NbTiZr_ternary": {
+      "composition": {
+        "niobium": 0.34,
+        "titanium": 0.33,
+        "zirconium": 0.33
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "niobium": 0.34,
+            "titanium": 0.33,
+            "zirconium": 0.33
+          },
+          "theta_D_K": 328.1,
+          "lambda_ep": 0.6891,
+          "mu_star": 0.1234,
+          "n_e_m3": 8.467417610283214e+28,
+          "v_F_m_s": 1559353.0,
+          "T_c_predicted_K": 7.37,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "niobium": 0.34,
+            "titanium": 0.33,
+            "zirconium": 0.33
+          },
+          "theta_D_K": 328.1,
+          "lambda_ep": 0.6525,
+          "mu_star": 0.1234,
+          "n_e_m3": 8.467417610283214e+28,
+          "v_F_m_s": 1559353.0,
+          "T_c_predicted_K": 6.267,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 6.267,
+        "T_c_max_K": 7.37,
+        "T_c_mean_K": 6.819,
+        "spread_K": 1.103,
+        "confidence": "moderate"
+      },
+      "warnings": [],
+      "measured": null
+    },
+    "TaW_90_10": {
+      "composition": {
+        "tantalum": 0.9,
+        "tungsten": 0.1
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "tantalum": 0.9,
+            "tungsten": 0.1
+          },
+          "theta_D_K": 272.2,
+          "lambda_ep": 0.649,
+          "mu_star": 0.12,
+          "n_e_m3": 1.1235497039370059e+29,
+          "v_F_m_s": 1727888.0,
+          "T_c_predicted_K": 5.299,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "tantalum": 0.9,
+            "tungsten": 0.1
+          },
+          "theta_D_K": 272.2,
+          "lambda_ep": 0.6474,
+          "mu_star": 0.12,
+          "n_e_m3": 1.1235497039370059e+29,
+          "v_F_m_s": 1727888.0,
+          "T_c_predicted_K": 5.258,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 5.258,
+        "T_c_max_K": 5.299,
+        "T_c_mean_K": 5.279,
+        "spread_K": 0.041,
+        "confidence": "high"
+      },
+      "warnings": [],
+      "measured": null
+    },
+    "TaHf_90_10": {
+      "composition": {
+        "tantalum": 0.9,
+        "hafnium": 0.1
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "tantalum": 0.9,
+            "hafnium": 0.1
+          },
+          "theta_D_K": 257.4,
+          "lambda_ep": 0.647,
+          "mu_star": 0.12,
+          "n_e_m3": 1.087247499908596e+29,
+          "v_F_m_s": 1708673.0,
+          "T_c_predicted_K": 4.963,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "tantalum": 0.9,
+            "hafnium": 0.1
+          },
+          "theta_D_K": 257.4,
+          "lambda_ep": 0.6496,
+          "mu_star": 0.12,
+          "n_e_m3": 1.087247499908596e+29,
+          "v_F_m_s": 1708673.0,
+          "T_c_predicted_K": 5.026,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 4.963,
+        "T_c_max_K": 5.026,
+        "T_c_mean_K": 4.995,
+        "spread_K": 0.063,
+        "confidence": "high"
+      },
+      "warnings": [],
+      "measured": null
+    },
+    "AlIn_90_10": {
+      "composition": {
+        "aluminum": 0.9,
+        "indium": 0.1
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "aluminum": 0.9,
+            "indium": 0.1
+          },
+          "theta_D_K": 396.0,
+          "lambda_ep": 0.468,
+          "mu_star": 0.1,
+          "n_e_m3": 1.7440216402191296e+29,
+          "v_F_m_s": 2001176.0,
+          "T_c_predicted_K": 3.022,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "aluminum": 0.9,
+            "indium": 0.1
+          },
+          "theta_D_K": 396.0,
+          "lambda_ep": 0.4631,
+          "mu_star": 0.1,
+          "n_e_m3": 1.7440216402191296e+29,
+          "v_F_m_s": 2001176.0,
+          "T_c_predicted_K": 2.886,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 2.886,
+        "T_c_max_K": 3.022,
+        "T_c_mean_K": 2.954,
+        "spread_K": 0.136,
+        "confidence": "high"
+      },
+      "warnings": [],
+      "measured": null
+    },
+    "AlZn_95_5": {
+      "composition": {
+        "aluminum": 0.95,
+        "zinc": 0.05
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "aluminum": 0.95,
+            "zinc": 0.05
+          },
+          "theta_D_K": 422.9,
+          "lambda_ep": 0.4275,
+          "mu_star": 0.1,
+          "n_e_m3": 1.7852664194346895e+29,
+          "v_F_m_s": 2019570.0,
+          "T_c_predicted_K": 2.103,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "aluminum": 0.95,
+            "zinc": 0.05
+          },
+          "theta_D_K": 422.9,
+          "lambda_ep": 0.4277,
+          "mu_star": 0.1,
+          "n_e_m3": 1.7852664194346895e+29,
+          "v_F_m_s": 2019570.0,
+          "T_c_predicted_K": 2.109,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 2.103,
+        "T_c_max_K": 2.109,
+        "T_c_mean_K": 2.106,
+        "spread_K": 0.006,
+        "confidence": "high"
+      },
+      "warnings": [],
+      "measured": null
+    },
+    "AlGa_50_50": {
+      "composition": {
+        "aluminum": 0.5,
+        "gallium": 0.5
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "aluminum": 0.5,
+            "gallium": 0.5
+          },
+          "theta_D_K": 376.5,
+          "lambda_ep": 0.415,
+          "mu_star": 0.1,
+          "n_e_m3": 1.6699137095443394e+29,
+          "v_F_m_s": 1972734.0,
+          "T_c_predicted_K": 1.603,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "aluminum": 0.5,
+            "gallium": 0.5
+          },
+          "theta_D_K": 376.5,
+          "lambda_ep": 0.4154,
+          "mu_star": 0.1,
+          "n_e_m3": 1.6699137095443394e+29,
+          "v_F_m_s": 1972734.0,
+          "T_c_predicted_K": 1.612,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 1.603,
+        "T_c_max_K": 1.612,
+        "T_c_mean_K": 1.607,
+        "spread_K": 0.009,
+        "confidence": "high"
+      },
+      "warnings": [],
+      "measured": null
+    },
+    "MoRe_50_50": {
+      "composition": {
+        "molybdenum": 0.5,
+        "rhenium": 0.5
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "molybdenum": 0.5,
+            "rhenium": 0.5
+          },
+          "theta_D_K": 440.0,
+          "lambda_ep": 0.435,
+          "mu_star": 0.12,
+          "n_e_m3": 1.000530673402498e+29,
+          "v_F_m_s": 1637640.0,
+          "T_c_predicted_K": 1.545,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "molybdenum": 0.5,
+            "rhenium": 0.5
+          },
+          "theta_D_K": 440.0,
+          "lambda_ep": 0.4381,
+          "mu_star": 0.12,
+          "n_e_m3": 1.000530673402498e+29,
+          "v_F_m_s": 1637640.0,
+          "T_c_predicted_K": 1.611,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 1.545,
+        "T_c_max_K": 1.611,
+        "T_c_mean_K": 1.578,
+        "spread_K": 0.066,
+        "confidence": "high"
+      },
+      "warnings": [],
+      "measured": {
+        "T_c_measured_K": 12.4,
+        "source": "Testardi et al. (1975); Geballe (1965)",
+        "notes": "Mo-50at%Re. Anomalously high \u2014 \u03c3-phase enhancement."
+      }
+    },
+    "MoRe_60_40": {
+      "composition": {
+        "molybdenum": 0.6,
+        "rhenium": 0.4
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "molybdenum": 0.6,
+            "rhenium": 0.4
+          },
+          "theta_D_K": 442.0,
+          "lambda_ep": 0.43,
+          "mu_star": 0.12,
+          "n_e_m3": 9.287127691903674e+28,
+          "v_F_m_s": 1596845.0,
+          "T_c_predicted_K": 1.448,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "molybdenum": 0.6,
+            "rhenium": 0.4
+          },
+          "theta_D_K": 442.0,
+          "lambda_ep": 0.4331,
+          "mu_star": 0.12,
+          "n_e_m3": 9.287127691903674e+28,
+          "v_F_m_s": 1596845.0,
+          "T_c_predicted_K": 1.511,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 1.448,
+        "T_c_max_K": 1.511,
+        "T_c_mean_K": 1.479,
+        "spread_K": 0.063,
+        "confidence": "high"
+      },
+      "warnings": [],
+      "measured": {
+        "T_c_measured_K": 10.6,
+        "source": "Geballe et al. (1965)",
+        "notes": "Mo-40at%Re."
+      }
+    },
+    "CuZn_brass": {
+      "composition": {
+        "copper": 0.7,
+        "zinc": 0.3
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "copper": 0.7,
+            "zinc": 0.3
+          },
+          "theta_D_K": 338.2,
+          "lambda_ep": 0.205,
+          "mu_star": 0.1,
+          "n_e_m3": 9.889847383486086e+28,
+          "v_F_m_s": 1648338.0,
+          "T_c_predicted_K": 0.0,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "copper": 0.7,
+            "zinc": 0.3
+          },
+          "theta_D_K": 338.2,
+          "lambda_ep": 0.2129,
+          "mu_star": 0.1,
+          "n_e_m3": 9.889847383486086e+28,
+          "v_F_m_s": 1648338.0,
+          "T_c_predicted_K": 0.001,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 0.0,
+        "T_c_max_K": 0.001,
+        "T_c_mean_K": 0.001,
+        "spread_K": 0.001,
+        "confidence": "high"
+      },
+      "warnings": [],
+      "measured": {
+        "T_c_measured_K": 0.0,
+        "source": "Well established \u2014 brass is non-superconducting",
+        "notes": "Cu-30at%Zn. Neither element is SC; alloy is not."
+      }
+    },
+    "CuSn_bronze": {
+      "composition": {
+        "copper": 0.88,
+        "tin": 0.12
+      },
+      "models": {
+        "linear": {
+          "composition": {
+            "copper": 0.88,
+            "tin": 0.12
+          },
+          "theta_D_K": 325.8,
+          "lambda_ep": 0.2008,
+          "mu_star": 0.1,
+          "n_e_m3": 9.248283930451641e+28,
+          "v_F_m_s": 1612068.0,
+          "T_c_predicted_K": 0.0,
+          "model": "linear",
+          "warnings": []
+        },
+        "dos_weighted": {
+          "composition": {
+            "copper": 0.88,
+            "tin": 0.12
+          },
+          "theta_D_K": 325.8,
+          "lambda_ep": 0.2132,
+          "mu_star": 0.1,
+          "n_e_m3": 9.248283930451641e+28,
+          "v_F_m_s": 1612068.0,
+          "T_c_predicted_K": 0.001,
+          "model": "dos_weighted",
+          "warnings": []
+        }
+      },
+      "summary": {
+        "T_c_min_K": 0.0,
+        "T_c_max_K": 0.001,
+        "T_c_mean_K": 0.001,
+        "spread_K": 0.001,
+        "confidence": "high"
+      },
+      "warnings": [],
+      "measured": {
+        "T_c_measured_K": 0.0,
+        "source": "Well established \u2014 bronze is non-superconducting",
+        "notes": "Cu-12at%Sn. Cu dominates; tin fraction too small."
+      }
+    }
+  },
+  "nbti_sweep": [
+    {
+      "x_B": 0.0,
+      "f_A": 1.0,
+      "f_B": 0.0,
+      "T_c_linear_K": 19.294,
+      "T_c_dos_K": 19.294,
+      "T_c_mean_K": 19.294
+    },
+    {
+      "x_B": 0.025,
+      "f_A": 0.975,
+      "f_B": 0.025,
+      "T_c_linear_K": 19.121,
+      "T_c_dos_K": 19.003,
+      "T_c_mean_K": 19.062
+    },
+    {
+      "x_B": 0.05,
+      "f_A": 0.95,
+      "f_B": 0.05,
+      "T_c_linear_K": 18.928,
+      "T_c_dos_K": 18.693,
+      "T_c_mean_K": 18.811
+    },
+    {
+      "x_B": 0.075,
+      "f_A": 0.925,
+      "f_B": 0.075,
+      "T_c_linear_K": 18.716,
+      "T_c_dos_K": 18.365,
+      "T_c_mean_K": 18.541
+    },
+    {
+      "x_B": 0.1,
+      "f_A": 0.9,
+      "f_B": 0.1,
+      "T_c_linear_K": 18.485,
+      "T_c_dos_K": 18.019,
+      "T_c_mean_K": 18.252
+    },
+    {
+      "x_B": 0.125,
+      "f_A": 0.875,
+      "f_B": 0.125,
+      "T_c_linear_K": 18.234,
+      "T_c_dos_K": 17.654,
+      "T_c_mean_K": 17.944
+    },
+    {
+      "x_B": 0.15,
+      "f_A": 0.85,
+      "f_B": 0.15,
+      "T_c_linear_K": 17.964,
+      "T_c_dos_K": 17.272,
+      "T_c_mean_K": 17.618
+    },
+    {
+      "x_B": 0.175,
+      "f_A": 0.825,
+      "f_B": 0.175,
+      "T_c_linear_K": 17.672,
+      "T_c_dos_K": 16.871,
+      "T_c_mean_K": 17.271
+    },
+    {
+      "x_B": 0.2,
+      "f_A": 0.8,
+      "f_B": 0.2,
+      "T_c_linear_K": 17.36,
+      "T_c_dos_K": 16.453,
+      "T_c_mean_K": 16.907
+    },
+    {
+      "x_B": 0.225,
+      "f_A": 0.775,
+      "f_B": 0.225,
+      "T_c_linear_K": 17.027,
+      "T_c_dos_K": 16.017,
+      "T_c_mean_K": 16.522
+    },
+    {
+      "x_B": 0.25,
+      "f_A": 0.75,
+      "f_B": 0.25,
+      "T_c_linear_K": 16.673,
+      "T_c_dos_K": 15.565,
+      "T_c_mean_K": 16.119
+    },
+    {
+      "x_B": 0.275,
+      "f_A": 0.725,
+      "f_B": 0.275,
+      "T_c_linear_K": 16.297,
+      "T_c_dos_K": 15.096,
+      "T_c_mean_K": 15.697
+    },
+    {
+      "x_B": 0.3,
+      "f_A": 0.7,
+      "f_B": 0.3,
+      "T_c_linear_K": 15.9,
+      "T_c_dos_K": 14.611,
+      "T_c_mean_K": 15.256
+    },
+    {
+      "x_B": 0.325,
+      "f_A": 0.675,
+      "f_B": 0.325,
+      "T_c_linear_K": 15.481,
+      "T_c_dos_K": 14.111,
+      "T_c_mean_K": 14.796
+    },
+    {
+      "x_B": 0.35,
+      "f_A": 0.65,
+      "f_B": 0.35,
+      "T_c_linear_K": 15.041,
+      "T_c_dos_K": 13.597,
+      "T_c_mean_K": 14.319
+    },
+    {
+      "x_B": 0.375,
+      "f_A": 0.625,
+      "f_B": 0.375,
+      "T_c_linear_K": 14.58,
+      "T_c_dos_K": 13.068,
+      "T_c_mean_K": 13.824
+    },
+    {
+      "x_B": 0.4,
+      "f_A": 0.6,
+      "f_B": 0.4,
+      "T_c_linear_K": 14.097,
+      "T_c_dos_K": 12.527,
+      "T_c_mean_K": 13.312
+    },
+    {
+      "x_B": 0.425,
+      "f_A": 0.575,
+      "f_B": 0.425,
+      "T_c_linear_K": 13.593,
+      "T_c_dos_K": 11.974,
+      "T_c_mean_K": 12.784
+    },
+    {
+      "x_B": 0.45,
+      "f_A": 0.55,
+      "f_B": 0.45,
+      "T_c_linear_K": 13.069,
+      "T_c_dos_K": 11.41,
+      "T_c_mean_K": 12.239
+    },
+    {
+      "x_B": 0.475,
+      "f_A": 0.525,
+      "f_B": 0.475,
+      "T_c_linear_K": 12.525,
+      "T_c_dos_K": 10.837,
+      "T_c_mean_K": 11.681
+    },
+    {
+      "x_B": 0.5,
+      "f_A": 0.5,
+      "f_B": 0.5,
+      "T_c_linear_K": 11.961,
+      "T_c_dos_K": 10.256,
+      "T_c_mean_K": 11.108
+    },
+    {
+      "x_B": 0.525,
+      "f_A": 0.475,
+      "f_B": 0.525,
+      "T_c_linear_K": 11.379,
+      "T_c_dos_K": 9.668,
+      "T_c_mean_K": 10.523
+    },
+    {
+      "x_B": 0.55,
+      "f_A": 0.45,
+      "f_B": 0.55,
+      "T_c_linear_K": 10.781,
+      "T_c_dos_K": 9.076,
+      "T_c_mean_K": 9.928
+    },
+    {
+      "x_B": 0.575,
+      "f_A": 0.425,
+      "f_B": 0.575,
+      "T_c_linear_K": 10.166,
+      "T_c_dos_K": 8.482,
+      "T_c_mean_K": 9.324
+    },
+    {
+      "x_B": 0.6,
+      "f_A": 0.4,
+      "f_B": 0.6,
+      "T_c_linear_K": 9.538,
+      "T_c_dos_K": 7.887,
+      "T_c_mean_K": 8.713
+    },
+    {
+      "x_B": 0.625,
+      "f_A": 0.375,
+      "f_B": 0.625,
+      "T_c_linear_K": 8.898,
+      "T_c_dos_K": 7.294,
+      "T_c_mean_K": 8.096
+    },
+    {
+      "x_B": 0.65,
+      "f_A": 0.35,
+      "f_B": 0.65,
+      "T_c_linear_K": 8.248,
+      "T_c_dos_K": 6.705,
+      "T_c_mean_K": 7.476
+    },
+    {
+      "x_B": 0.675,
+      "f_A": 0.325,
+      "f_B": 0.675,
+      "T_c_linear_K": 7.592,
+      "T_c_dos_K": 6.123,
+      "T_c_mean_K": 6.857
+    },
+    {
+      "x_B": 0.7,
+      "f_A": 0.3,
+      "f_B": 0.7,
+      "T_c_linear_K": 6.932,
+      "T_c_dos_K": 5.551,
+      "T_c_mean_K": 6.242
+    },
+    {
+      "x_B": 0.725,
+      "f_A": 0.275,
+      "f_B": 0.725,
+      "T_c_linear_K": 6.273,
+      "T_c_dos_K": 4.992,
+      "T_c_mean_K": 5.633
+    },
+    {
+      "x_B": 0.75,
+      "f_A": 0.25,
+      "f_B": 0.75,
+      "T_c_linear_K": 5.618,
+      "T_c_dos_K": 4.449,
+      "T_c_mean_K": 5.034
+    },
+    {
+      "x_B": 0.775,
+      "f_A": 0.225,
+      "f_B": 0.775,
+      "T_c_linear_K": 4.973,
+      "T_c_dos_K": 3.925,
+      "T_c_mean_K": 4.449
+    },
+    {
+      "x_B": 0.8,
+      "f_A": 0.2,
+      "f_B": 0.8,
+      "T_c_linear_K": 4.342,
+      "T_c_dos_K": 3.424,
+      "T_c_mean_K": 3.883
+    },
+    {
+      "x_B": 0.825,
+      "f_A": 0.175,
+      "f_B": 0.825,
+      "T_c_linear_K": 3.733,
+      "T_c_dos_K": 2.948,
+      "T_c_mean_K": 3.341
+    },
+    {
+      "x_B": 0.85,
+      "f_A": 0.15,
+      "f_B": 0.85,
+      "T_c_linear_K": 3.15,
+      "T_c_dos_K": 2.502,
+      "T_c_mean_K": 2.826
+    },
+    {
+      "x_B": 0.875,
+      "f_A": 0.125,
+      "f_B": 0.875,
+      "T_c_linear_K": 2.601,
+      "T_c_dos_K": 2.089,
+      "T_c_mean_K": 2.345
+    },
+    {
+      "x_B": 0.9,
+      "f_A": 0.1,
+      "f_B": 0.9,
+      "T_c_linear_K": 2.093,
+      "T_c_dos_K": 1.711,
+      "T_c_mean_K": 1.902
+    },
+    {
+      "x_B": 0.925,
+      "f_A": 0.075,
+      "f_B": 0.925,
+      "T_c_linear_K": 1.632,
+      "T_c_dos_K": 1.37,
+      "T_c_mean_K": 1.501
+    },
+    {
+      "x_B": 0.95,
+      "f_A": 0.05,
+      "f_B": 0.95,
+      "T_c_linear_K": 1.225,
+      "T_c_dos_K": 1.07,
+      "T_c_mean_K": 1.147
+    },
+    {
+      "x_B": 0.975,
+      "f_A": 0.025,
+      "f_B": 0.975,
+      "T_c_linear_K": 0.877,
+      "T_c_dos_K": 0.81,
+      "T_c_mean_K": 0.844
+    },
+    {
+      "x_B": 1.0,
+      "f_A": 0.0,
+      "f_B": 1.0,
+      "T_c_linear_K": 0.592,
+      "T_c_dos_K": 0.592,
+      "T_c_mean_K": 0.592
+    }
+  ],
+  "measured_data": {
+    "NbTi_wire": {
+      "T_c_measured_K": 9.5,
+      "source": "Roberts NBS 983 (1978); commercial wire spec",
+      "notes": "Nb-47at%Ti. Range 9.2-9.8K depending on processing."
+    },
+    "NbTi_80_20": {
+      "T_c_measured_K": 9.8,
+      "source": "Roberts NBS 983 (1978)",
+      "notes": "Nb-20at%Ti. T_c peaks near Nb-rich compositions."
+    },
+    "NbZr_75_25": {
+      "T_c_measured_K": 10.8,
+      "source": "Roberts NBS 983 (1978)",
+      "notes": "Nb-25at%Zr. Early SC wire material before NbTi."
+    },
+    "NbTa_50_50": {
+      "T_c_measured_K": 6.0,
+      "source": "Roberts NBS 983 (1978)",
+      "notes": "Nb-50at%Ta. T_c suppressed by Ta dilution."
+    },
+    "PbSn_eutectic": {
+      "T_c_measured_K": 7.05,
+      "source": "Roberts NBS 983 (1978)",
+      "notes": "Pb-37at%Sn eutectic solder."
+    },
+    "PbIn_60_40": {
+      "T_c_measured_K": 6.6,
+      "source": "Roberts NBS 983 (1978)",
+      "notes": "Pb-40at%In."
+    },
+    "PbTl_80_20": {
+      "T_c_measured_K": 5.8,
+      "source": "Roberts NBS 983 (1978)",
+      "notes": "Pb-20at%Tl."
+    },
+    "MoRe_50_50": {
+      "T_c_measured_K": 12.4,
+      "source": "Testardi et al. (1975); Geballe (1965)",
+      "notes": "Mo-50at%Re. Anomalously high \u2014 \u03c3-phase enhancement."
+    },
+    "MoRe_60_40": {
+      "T_c_measured_K": 10.6,
+      "source": "Geballe et al. (1965)",
+      "notes": "Mo-40at%Re."
+    },
+    "CuZn_brass": {
+      "T_c_measured_K": 0.0,
+      "source": "Well established \u2014 brass is non-superconducting",
+      "notes": "Cu-30at%Zn. Neither element is SC; alloy is not."
+    },
+    "CuSn_bronze": {
+      "T_c_measured_K": 0.0,
+      "source": "Well established \u2014 bronze is non-superconducting",
+      "notes": "Cu-12at%Sn. Cu dominates; tin fraction too small."
+    },
+    "Nb3Sn_stoich": {
+      "T_c_measured_K": 18.3,
+      "source": "Matthias et al. (1954); NIST",
+      "notes": "A15 compound. Crystal structure enhances \u03bb beyond solid-solution prediction."
+    }
+  },
+  "validation": {
+    "total_predictions": 25,
+    "validated_against_literature": 12,
+    "unvalidated_blind": 13,
+    "sc_validated": 10,
+    "non_sc_validated": 2,
+    "errors": [
+      {
+        "alloy": "Nb3Sn_stoich",
+        "measured": 18.3,
+        "predicted": 15.503,
+        "error_K": -2.8,
+        "pct_error": -15.3
+      },
+      {
+        "alloy": "PbIn_60_40",
+        "measured": 6.6,
+        "predicted": 7.791,
+        "error_K": 1.19,
+        "pct_error": 18.0
+      },
+      {
+        "alloy": "NbTi_wire",
+        "measured": 9.5,
+        "predicted": 11.793,
+        "error_K": 2.29,
+        "pct_error": 24.1
+      },
+      {
+        "alloy": "NbZr_75_25",
+        "measured": 10.8,
+        "predicted": 14.838,
+        "error_K": 4.04,
+        "pct_error": 37.4
+      },
+      {
+        "alloy": "PbTl_80_20",
+        "measured": 5.8,
+        "predicted": 8.145,
+        "error_K": 2.34,
+        "pct_error": 40.4
+      },
+      {
+        "alloy": "PbSn_eutectic",
+        "measured": 7.05,
+        "predicted": 10.053,
+        "error_K": 3.0,
+        "pct_error": 42.6
+      },
+      {
+        "alloy": "NbTi_80_20",
+        "measured": 9.8,
+        "predicted": 16.907,
+        "error_K": 7.11,
+        "pct_error": 72.5
+      },
+      {
+        "alloy": "MoRe_60_40",
+        "measured": 10.6,
+        "predicted": 1.479,
+        "error_K": -9.12,
+        "pct_error": -86.0
+      },
+      {
+        "alloy": "MoRe_50_50",
+        "measured": 12.4,
+        "predicted": 1.578,
+        "error_K": -10.82,
+        "pct_error": -87.3
+      },
+      {
+        "alloy": "NbTa_50_50",
+        "measured": 6.0,
+        "predicted": 12.569,
+        "error_K": 6.57,
+        "pct_error": 109.5
+      }
+    ],
+    "mae_K": 4.93,
+    "rmse_K": 5.82
+  }
+}
