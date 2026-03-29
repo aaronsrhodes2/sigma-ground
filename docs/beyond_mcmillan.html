@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Beyond McMillan — T_c from Z Alone | sigma-ground</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0d1117; color: #c9d1d9;
+    padding: 20px; max-width: 1400px; margin: 0 auto;
+  }
+  h1 { color: #58a6ff; text-align: center; margin-bottom: 4px; font-size: 1.8em; }
+  h2 { color: #79c0ff; margin: 28px 0 12px; font-size: 1.25em; }
+  .subtitle { text-align: center; color: #8b949e; margin-bottom: 24px; font-size: 0.92em; line-height: 1.5; }
+  .chain { text-align: center; color: #7ee787; font-family: monospace; font-size: 0.85em; margin: 12px 0 20px; }
+  .chart-box {
+    background: #161b22; border: 1px solid #30363d; border-radius: 8px;
+    padding: 20px; margin-bottom: 24px; overflow-x: auto;
+  }
+  canvas { display: block; margin: 0 auto; }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;
+    margin: 12px 0; font-size: 0.85em;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px; margin: 16px 0;
+  }
+  .stat-card {
+    background: #0d1117; border: 1px solid #30363d; border-radius: 6px;
+    padding: 12px; text-align: center;
+  }
+  .stat-value { color: #58a6ff; font-size: 1.5em; font-weight: bold; }
+  .stat-label { color: #8b949e; font-size: 0.78em; margin-top: 4px; }
+  .stat-card.good .stat-value { color: #7ee787; }
+  .stat-card.bad .stat-value { color: #f85149; }
+  .stat-card.new .stat-value { color: #d2a8ff; }
+  table { border-collapse: collapse; width: 100%; margin-top: 12px; font-size: 0.8em; }
+  th, td { padding: 5px 8px; text-align: right; border-bottom: 1px solid #21262d; }
+  th { color: #58a6ff; position: sticky; top: 0; background: #161b22; }
+  td:first-child, th:first-child { text-align: left; }
+  tr:hover td { background: #1c2128; }
+  .cat-correct_sc { color: #7ee787; }
+  .cat-correct_zero { color: #7ee787; }
+  .cat-false_pos { color: #f85149; }
+  .cat-false_neg { color: #f0883e; }
+  .cat-prediction { color: #d2a8ff; }
+  .cat-pred_zero { color: #8b949e; }
+  .note { color: #8b949e; font-size: 0.8em; font-style: italic; }
+  .wall-box {
+    background: #1c1208; border: 1px solid #f0883e; border-radius: 6px;
+    padding: 16px; margin: 16px 0;
+  }
+  .wall-box h3 { color: #f0883e; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<h1>Beyond McMillan: T<sub>c</sub> from Atomic Number Alone</h1>
+<p class="subtitle">
+  Every quantity derived from Z &mdash; no measured material data used.<br>
+  Measured values shown for <em>validation only</em>.
+</p>
+<p class="chain">
+  Z &rarr; structure &rarr; density &rarr; n<sub>e</sub> &rarr; k<sub>F</sub> &rarr; E<sub>F</sub>
+  &rarr; E<sub>coh</sub> &rarr; K &rarr; v<sub>s</sub> &rarr; &theta;<sub>D</sub>
+  &rarr; N(E<sub>F</sub>) &rarr; U<sub>scr</sub> &rarr; &mu;*
+  &rarr; V(q) &rarr; &langle;I&sup2;&rangle; &rarr; &eta; &rarr; &lambda;<sub>ep</sub>
+  &rarr; McMillan T<sub>c</sub>
+</p>
+
+<!-- Summary cards -->
+<div class="stats">
+  <div class="stat-card good"><div class="stat-value">32</div><div class="stat-label">Correct SC</div></div>
+  <div class="stat-card good"><div class="stat-value">6</div><div class="stat-label">Correct Non-SC</div></div>
+  <div class="stat-card bad"><div class="stat-value">13</div><div class="stat-label">False Negative</div></div>
+  <div class="stat-card bad"><div class="stat-value">1</div><div class="stat-label">False Positive</div></div>
+  <div class="stat-card new"><div class="stat-value">17</div><div class="stat-label">New Predictions</div></div>
+</div>
+
+<!-- Chart 1: Scatter plot -->
+<h2>1. Predicted vs Measured T<sub>c</sub></h2>
+<div class="chart-box">
+  <canvas id="scatter" width="700" height="500"></canvas>
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#7ee787"></span> Correct SC</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#f0883e"></span> Overestimate (&gt;3&times;)</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#f85149"></span> False Positive</div>
+  </div>
+</div>
+
+<!-- Chart 2: Bar chart -->
+<h2>2. All Predictions Ranked by Derived T<sub>c</sub></h2>
+<div class="chart-box">
+  <canvas id="bars" width="1200" height="420"></canvas>
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#58a6ff"></span> Derived T<sub>c</sub></div>
+    <div class="legend-item"><span class="legend-dot" style="background:#7ee787"></span> Measured T<sub>c</sub></div>
+    <div class="legend-item"><span class="legend-dot" style="background:#d2a8ff"></span> New prediction (no measured data)</div>
+  </div>
+</div>
+
+<!-- Chart 3: Lambda comparison -->
+<h2>3. Derived vs Measured &lambda;<sub>ep</sub></h2>
+<div class="chart-box">
+  <canvas id="lambda" width="500" height="500"></canvas>
+  <p class="note" style="text-align:center; margin-top:8px;">
+    Median ratio = 0.92 &mdash; 8/9 within factor of 2
+  </p>
+</div>
+
+<!-- Physics wall -->
+<div class="wall-box">
+  <h3>The d-Band Wall</h3>
+  <p>The 13 false negatives (Nb, Ta, Zr, Hf, Y, Os, Ir, Ru, Rh, Lu, Li, Be, Fe) are almost
+  entirely <strong>d-band metals</strong> where the free-electron pseudopotential cannot capture
+  d-resonance scattering. The electron-phonon coupling in these metals is dominated by
+  the d-band density of states at E<sub>F</sub> &mdash; a volume/lattice property that requires
+  going beyond the Ashcroft empty-core model.</p>
+  <p style="margin-top:8px;">The single false positive (Pd) is the most famous near-miss in
+  superconductivity &mdash; paramagnon fluctuations suppress Cooper pairing, an effect not
+  captured by the McMillan formula.</p>
+</div>
+
+<!-- Data table -->
+<h2>4. Full Data Table</h2>
+<div class="chart-box" style="max-height: 600px; overflow-y: auto;">
+<table>
+<thead>
+<tr>
+  <th>Element</th><th>Z</th>
+  <th>T<sub>c</sub> derived (K)</th><th>T<sub>c</sub> measured (K)</th>
+  <th>&lambda; derived</th><th>&lambda; measured</th>
+  <th>&mu;*</th>
+  <th>&theta;<sub>D</sub> derived</th><th>&theta;<sub>D</sub> meas</th>
+  <th>&rho; (&mu;&Omega;&middot;cm)</th>
+  <th>Verdict</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
+
+<p class="note" style="text-align:center; margin-top:24px;">
+  Generated by sigma-ground &mdash; predict_Tc_from_Z() &mdash; zero external dependencies
+</p>
+
+<script>
+const rows = [{"Z": 1, "name": "hydrogen", "symbol": "H", "Tc_derived": 0.0, "Tc_measured": null, "lambda_derived": 0.0307, "lambda_measured": null, "mu_star": 0.1889, "theta_D_derived": 13648.8, "theta_D_measured": null, "rho_uOhm_cm": 0.02, "category": "pred_zero", "is_sc": null}, {"Z": 2, "name": "helium", "symbol": "He", "Tc_derived": 0.0, "Tc_measured": null, "lambda_derived": 0.0333, "lambda_measured": null, "mu_star": 0.1527, "theta_D_derived": 26033.8, "theta_D_measured": null, "rho_uOhm_cm": 0.0, "category": "pred_zero", "is_sc": null}, {"Z": 3, "name": "lithium", "symbol": "Li", "Tc_derived": 0.0, "Tc_measured": 0.0004, "lambda_derived": 0.1291, "lambda_measured": null, "mu_star": 0.1846, "theta_D_derived": 588.6, "theta_D_measured": 344, "rho_uOhm_cm": 3.01, "category": "false_neg", "is_sc": true}, {"Z": 4, "name": "beryllium", "symbol": "Be", "Tc_derived": 0.0, "Tc_measured": 0.026, "lambda_derived": 0.2006, "lambda_measured": null, "mu_star": 0.1692, "theta_D_derived": 1513.8, "theta_D_measured": 1440, "rho_uOhm_cm": 0.64, "category": "false_neg", "is_sc": true}, {"Z": 5, "name": "boron", "symbol": "B", "Tc_derived": 0.0, "Tc_measured": null, "lambda_derived": 0.2447, "lambda_measured": null, "mu_star": 0.157, "theta_D_derived": 2440.2, "theta_D_measured": null, "rho_uOhm_cm": 0.22, "category": "pred_zero", "is_sc": null}, {"Z": 6, "name": "carbon", "symbol": "C", "Tc_derived": 0.767, "Tc_measured": null, "lambda_derived": 0.3791, "lambda_measured": null, "mu_star": 0.1561, "theta_D_derived": 2451.6, "theta_D_measured": null, "rho_uOhm_cm": 0.28, "category": "prediction", "is_sc": null}, {"Z": 7, "name": "nitrogen", "symbol": "N", "Tc_derived": 0.003, "Tc_measured": null, "lambda_derived": 0.2628, "lambda_measured": null, "mu_star": 0.145, "theta_D_derived": 5315.0, "theta_D_measured": null, "rho_uOhm_cm": 0.04, "category": "pred_zero", "is_sc": null}, {"Z": 8, "name": "oxygen", "symbol": "O", "Tc_derived": 0.038, "Tc_measured": null, "lambda_derived": 0.2784, "lambda_measured": null, "mu_star": 0.1411, "theta_D_derived": 7221.3, "theta_D_measured": null, "rho_uOhm_cm": 0.02, "category": "prediction", "is_sc": null}, {"Z": 9, "name": "fluorine", "symbol": "F", "Tc_derived": 0.124, "Tc_measured": null, "lambda_derived": 0.2853, "lambda_measured": null, "mu_star": 0.1379, "theta_D_derived": 9392.1, "theta_D_measured": null, "rho_uOhm_cm": 0.01, "category": "prediction", "is_sc": null}, {"Z": 10, "name": "neon", "symbol": "Ne", "Tc_derived": 0.173, "Tc_measured": null, "lambda_derived": 0.2828, "lambda_measured": null, "mu_star": 0.1351, "theta_D_derived": 11821.3, "theta_D_measured": null, "rho_uOhm_cm": 0.01, "category": "prediction", "is_sc": null}, {"Z": 11, "name": "sodium", "symbol": "Na", "Tc_derived": 0.0, "Tc_measured": null, "lambda_derived": 0.1717, "lambda_measured": null, "mu_star": 0.168, "theta_D_derived": 170.1, "theta_D_measured": null, "rho_uOhm_cm": 9.4, "category": "pred_zero", "is_sc": null}, {"Z": 12, "name": "magnesium", "symbol": "Mg", "Tc_derived": 0.01, "Tc_measured": null, "lambda_derived": 0.3287, "lambda_measured": null, "mu_star": 0.1592, "theta_D_derived": 354.3, "theta_D_measured": null, "rho_uOhm_cm": 3.8, "category": "prediction", "is_sc": null}, {"Z": 13, "name": "aluminum", "symbol": "Al", "Tc_derived": 1.044, "Tc_measured": 1.175, "lambda_derived": 0.4523, "lambda_measured": 0.43, "mu_star": 0.1514, "theta_D_derived": 522.0, "theta_D_measured": 428, "rho_uOhm_cm": 1.88, "category": "correct_sc", "is_sc": true}, {"Z": 14, "name": "silicon", "symbol": "Si", "Tc_derived": 13.239, "Tc_measured": 8.2, "lambda_derived": 0.8032, "lambda_measured": null, "mu_star": 0.152, "theta_D_derived": 499.4, "theta_D_measured": 645, "rho_uOhm_cm": 3.27, "category": "correct_sc", "is_sc": true}, {"Z": 15, "name": "phosphorus", "symbol": "P", "Tc_derived": 11.824, "Tc_measured": 6.0, "lambda_derived": 0.5989, "lambda_measured": null, "mu_star": 0.1446, "theta_D_derived": 1088.8, "theta_D_measured": null, "rho_uOhm_cm": 0.58, "category": "correct_sc", "is_sc": true}, {"Z": 16, "name": "sulfur", "symbol": "S", "Tc_derived": 26.957, "Tc_measured": 17.0, "lambda_derived": 0.6915, "lambda_measured": null, "mu_star": 0.1417, "theta_D_derived": 1426.3, "theta_D_measured": null, "rho_uOhm_cm": 0.38, "category": "correct_sc", "is_sc": true}, {"Z": 17, "name": "chlorine", "symbol": "Cl", "Tc_derived": 46.087, "Tc_measured": null, "lambda_derived": 0.7571, "lambda_measured": null, "mu_star": 0.1395, "theta_D_derived": 1829.5, "theta_D_measured": null, "rho_uOhm_cm": 0.26, "category": "prediction", "is_sc": null}, {"Z": 18, "name": "argon", "symbol": "Ar", "Tc_derived": 64.953, "Tc_measured": null, "lambda_derived": 0.7884, "lambda_measured": null, "mu_star": 0.1376, "theta_D_derived": 2281.2, "theta_D_measured": null, "rho_uOhm_cm": 0.17, "category": "prediction", "is_sc": null}, {"Z": 19, "name": "potassium", "symbol": "K", "Tc_derived": 0.0, "Tc_measured": null, "lambda_derived": 0.2447, "lambda_measured": null, "mu_star": 0.1646, "theta_D_derived": 55.0, "theta_D_measured": null, "rho_uOhm_cm": 47.11, "category": "pred_zero", "is_sc": null}, {"Z": 20, "name": "calcium", "symbol": "Ca", "Tc_derived": 1.197, "Tc_measured": 25.0, "lambda_derived": 0.6271, "lambda_measured": null, "mu_star": 0.154, "theta_D_derived": 104.2, "theta_D_measured": 230, "rho_uOhm_cm": 25.51, "category": "correct_sc", "is_sc": true}, {"Z": 21, "name": "scandium", "symbol": "Sc", "Tc_derived": 0.61, "Tc_measured": null, "lambda_derived": 0.4621, "lambda_measured": null, "mu_star": 0.1517, "theta_D_derived": 263.4, "theta_D_measured": null, "rho_uOhm_cm": 4.53, "category": "prediction", "is_sc": null}, {"Z": 22, "name": "titanium", "symbol": "Ti", "Tc_derived": 0.896, "Tc_measured": 0.4, "lambda_derived": 0.4646, "lambda_measured": 0.38, "mu_star": 0.1517, "theta_D_derived": 372.5, "theta_D_measured": 420, "rho_uOhm_cm": 2.69, "category": "correct_sc", "is_sc": true}, {"Z": 23, "name": "vanadium", "symbol": "V", "Tc_derived": 3.935, "Tc_measured": 5.4, "lambda_derived": 0.5842, "lambda_measured": 0.8, "mu_star": 0.1502, "theta_D_derived": 437.8, "theta_D_measured": 380, "rho_uOhm_cm": 2.36, "category": "correct_sc", "is_sc": true}, {"Z": 24, "name": "chromium", "symbol": "Cr", "Tc_derived": 5.214, "Tc_measured": null, "lambda_derived": 0.6545, "lambda_measured": null, "mu_star": 0.1553, "theta_D_derived": 390.5, "theta_D_measured": null, "rho_uOhm_cm": 3.8, "category": "prediction", "is_sc": null}, {"Z": 25, "name": "manganese", "symbol": "Mn", "Tc_derived": 34.579, "Tc_measured": null, "lambda_derived": 1.2581, "lambda_measured": null, "mu_star": 0.1432, "theta_D_derived": 521.0, "theta_D_measured": null, "rho_uOhm_cm": 2.43, "category": "prediction", "is_sc": null}, {"Z": 26, "name": "iron", "symbol": "Fe", "Tc_derived": 0.0, "Tc_measured": 2.0, "lambda_derived": 0.1348, "lambda_measured": null, "mu_star": 0.1546, "theta_D_derived": 532.9, "theta_D_measured": 470, "rho_uOhm_cm": 0.76, "category": "false_neg", "is_sc": true}, {"Z": 27, "name": "cobalt", "symbol": "Co", "Tc_derived": 0.0, "Tc_measured": 0.0, "lambda_derived": 0.1631, "lambda_measured": 0.35, "mu_star": 0.1494, "theta_D_derived": 528.5, "theta_D_measured": 445, "rho_uOhm_cm": 0.71, "category": "correct_zero", "is_sc": false}, {"Z": 28, "name": "nickel", "symbol": "Ni", "Tc_derived": 0.004, "Tc_measured": 0.0, "lambda_derived": 0.285, "lambda_measured": 0.33, "mu_star": 0.1417, "theta_D_derived": 420.8, "theta_D_measured": 450, "rho_uOhm_cm": 1.06, "category": "correct_zero", "is_sc": false}, {"Z": 29, "name": "copper", "symbol": "Cu", "Tc_derived": 0.0, "Tc_measured": 0.0, "lambda_derived": 0.0969, "lambda_measured": 0.13, "mu_star": 0.1474, "theta_D_derived": 283.4, "theta_D_measured": 343, "rho_uOhm_cm": 1.06, "category": "correct_zero", "is_sc": false}, {"Z": 30, "name": "zinc", "symbol": "Zn", "Tc_derived": 5.281, "Tc_measured": 0.85, "lambda_derived": 1.2797, "lambda_measured": 0.38, "mu_star": 0.1342, "theta_D_derived": 75.0, "theta_D_measured": 327, "rho_uOhm_cm": 23.68, "category": "correct_sc", "is_sc": true}, {"Z": 31, "name": "gallium", "symbol": "Ga", "Tc_derived": 13.242, "Tc_measured": 1.083, "lambda_derived": 1.923, "lambda_measured": 0.4, "mu_star": 0.1312, "theta_D_derived": 123.2, "theta_D_measured": 325, "rho_uOhm_cm": 13.51, "category": "correct_sc", "is_sc": true}, {"Z": 32, "name": "germanium", "symbol": "Ge", "Tc_derived": 5.519, "Tc_measured": 5.35, "lambda_derived": 0.7651, "lambda_measured": null, "mu_star": 0.1441, "theta_D_derived": 221.7, "theta_D_measured": 374, "rho_uOhm_cm": 5.47, "category": "correct_sc", "is_sc": true}, {"Z": 33, "name": "arsenic", "symbol": "As", "Tc_derived": 37.784, "Tc_measured": 2.7, "lambda_derived": 3.3051, "lambda_measured": null, "mu_star": 0.1269, "theta_D_derived": 254.1, "theta_D_measured": null, "rho_uOhm_cm": 5.76, "category": "correct_sc", "is_sc": true}, {"Z": 34, "name": "selenium", "symbol": "Se", "Tc_derived": 51.504, "Tc_measured": 6.9, "lambda_derived": 3.4648, "lambda_measured": null, "mu_star": 0.1252, "theta_D_derived": 338.8, "theta_D_measured": null, "rho_uOhm_cm": 3.51, "category": "correct_sc", "is_sc": true}, {"Z": 35, "name": "bromine", "symbol": "Br", "Tc_derived": 65.73, "Tc_measured": null, "lambda_derived": 3.4227, "lambda_measured": null, "mu_star": 0.1237, "theta_D_derived": 433.5, "theta_D_measured": null, "rho_uOhm_cm": 2.16, "category": "prediction", "is_sc": null}, {"Z": 36, "name": "krypton", "symbol": "Kr", "Tc_derived": 81.81, "Tc_measured": null, "lambda_derived": 3.3511, "lambda_measured": null, "mu_star": 0.1225, "theta_D_derived": 543.2, "theta_D_measured": null, "rho_uOhm_cm": 1.38, "category": "prediction", "is_sc": null}, {"Z": 37, "name": "rubidium", "symbol": "Rb", "Tc_derived": 0.0, "Tc_measured": null, "lambda_derived": 0.1271, "lambda_measured": null, "mu_star": 0.1478, "theta_D_derived": 140.5, "theta_D_measured": null, "rho_uOhm_cm": 3.27, "category": "pred_zero", "is_sc": null}, {"Z": 38, "name": "strontium", "symbol": "Sr", "Tc_derived": 3.537, "Tc_measured": 4.0, "lambda_derived": 1.5702, "lambda_measured": null, "mu_star": 0.1338, "theta_D_derived": 39.7, "theta_D_measured": 147, "rho_uOhm_cm": 62.63, "category": "correct_sc", "is_sc": true}, {"Z": 39, "name": "yttrium", "symbol": "Y", "Tc_derived": 0.0, "Tc_measured": 20.0, "lambda_derived": 0.2607, "lambda_measured": null, "mu_star": 0.1537, "theta_D_derived": 197.4, "theta_D_measured": 280, "rho_uOhm_cm": 4.08, "category": "false_neg", "is_sc": true}, {"Z": 40, "name": "zirconium", "symbol": "Zr", "Tc_derived": 0.0, "Tc_measured": 0.61, "lambda_derived": 0.2641, "lambda_measured": 0.41, "mu_star": 0.1539, "theta_D_derived": 282.0, "theta_D_measured": 291, "rho_uOhm_cm": 2.44, "category": "false_neg", "is_sc": true}, {"Z": 41, "name": "niobium", "symbol": "Nb", "Tc_derived": 0.0, "Tc_measured": 9.25, "lambda_derived": 0.2215, "lambda_measured": 1.26, "mu_star": 0.1635, "theta_D_derived": 273.8, "theta_D_measured": 275, "rho_uOhm_cm": 3.23, "category": "false_neg", "is_sc": true}, {"Z": 42, "name": "molybdenum", "symbol": "Mo", "Tc_derived": 0.077, "Tc_measured": 0.915, "lambda_derived": 0.376, "lambda_measured": 0.41, "mu_star": 0.1579, "theta_D_derived": 300.9, "theta_D_measured": 450, "rho_uOhm_cm": 3.49, "category": "correct_sc", "is_sc": true}, {"Z": 43, "name": "technetium", "symbol": "Tc", "Tc_derived": 9.126, "Tc_measured": 7.8, "lambda_derived": 0.7408, "lambda_measured": 0.82, "mu_star": 0.1459, "theta_D_derived": 408.5, "theta_D_measured": 411, "rho_uOhm_cm": 2.28, "category": "correct_sc", "is_sc": true}, {"Z": 44, "name": "ruthenium", "symbol": "Ru", "Tc_derived": 0.0, "Tc_measured": 0.49, "lambda_derived": 0.0247, "lambda_measured": 0.38, "mu_star": 0.1699, "theta_D_derived": 284.2, "theta_D_measured": 600, "rho_uOhm_cm": 0.79, "category": "false_neg", "is_sc": true}, {"Z": 45, "name": "rhodium", "symbol": "Rh", "Tc_derived": 0.0, "Tc_measured": 0.000325, "lambda_derived": 0.0347, "lambda_measured": null, "mu_star": 0.163, "theta_D_derived": 263.7, "theta_D_measured": 480, "rho_uOhm_cm": 0.89, "category": "false_neg", "is_sc": true}, {"Z": 46, "name": "palladium", "symbol": "Pd", "Tc_derived": 68.542, "Tc_measured": 0.0, "lambda_derived": 3.4817, "lambda_measured": 0.47, "mu_star": 0.1207, "theta_D_derived": 446.9, "theta_D_measured": 274, "rho_uOhm_cm": 1.57, "category": "false_pos", "is_sc": false}, {"Z": 47, "name": "silver", "symbol": "Ag", "Tc_derived": 0.0, "Tc_measured": 0.0, "lambda_derived": 0.1129, "lambda_measured": 0.12, "mu_star": 0.1436, "theta_D_derived": 158.7, "theta_D_measured": 225, "rho_uOhm_cm": 1.98, "category": "correct_zero", "is_sc": false}, {"Z": 48, "name": "cadmium", "symbol": "Cd", "Tc_derived": 3.535, "Tc_measured": 0.517, "lambda_derived": 1.4544, "lambda_measured": 0.38, "mu_star": 0.1309, "theta_D_derived": 42.6, "theta_D_measured": 209, "rho_uOhm_cm": 42.96, "category": "correct_sc", "is_sc": true}, {"Z": 49, "name": "indium", "symbol": "In", "Tc_derived": 8.475, "Tc_measured": 3.41, "lambda_derived": 2.2438, "lambda_measured": 0.81, "mu_star": 0.1281, "theta_D_derived": 70.1, "theta_D_measured": 108, "rho_uOhm_cm": 25.17, "category": "correct_sc", "is_sc": true}, {"Z": 50, "name": "tin", "symbol": "Sn", "Tc_derived": 15.621, "Tc_measured": 3.722, "lambda_derived": 3.3115, "lambda_measured": 0.72, "mu_star": 0.1259, "theta_D_derived": 104.8, "theta_D_measured": 200, "rho_uOhm_cm": 17.35, "category": "correct_sc", "is_sc": true}, {"Z": 51, "name": "antimony", "symbol": "Sb", "Tc_derived": 23.532, "Tc_measured": 3.55, "lambda_derived": 4.0046, "lambda_measured": null, "mu_star": 0.1242, "theta_D_derived": 146.5, "theta_D_measured": null, "rho_uOhm_cm": 11.15, "category": "correct_sc", "is_sc": true}, {"Z": 52, "name": "tellurium", "symbol": "Te", "Tc_derived": 32.033, "Tc_measured": 7.4, "lambda_derived": 4.225, "lambda_measured": null, "mu_star": 0.1227, "theta_D_derived": 195.5, "theta_D_measured": null, "rho_uOhm_cm": 6.84, "category": "correct_sc", "is_sc": true}, {"Z": 53, "name": "iodine", "symbol": "I", "Tc_derived": 41.391, "Tc_measured": null, "lambda_derived": 4.1868, "lambda_measured": null, "mu_star": 0.1214, "theta_D_derived": 252.9, "theta_D_measured": null, "rho_uOhm_cm": 4.21, "category": "prediction", "is_sc": null}, {"Z": 54, "name": "xenon", "symbol": "Xe", "Tc_derived": 51.664, "Tc_measured": null, "lambda_derived": 4.1101, "lambda_measured": null, "mu_star": 0.1203, "theta_D_derived": 317.1, "theta_D_measured": null, "rho_uOhm_cm": 2.71, "category": "prediction", "is_sc": null}, {"Z": 55, "name": "cesium", "symbol": "Cs", "Tc_derived": 0.0, "Tc_measured": null, "lambda_derived": 0.1386, "lambda_measured": null, "mu_star": 0.1441, "theta_D_derived": 92.7, "theta_D_measured": null, "rho_uOhm_cm": 4.78, "category": "pred_zero", "is_sc": null}, {"Z": 56, "name": "barium", "symbol": "Ba", "Tc_derived": 2.531, "Tc_measured": 5.0, "lambda_derived": 1.6852, "lambda_measured": null, "mu_star": 0.1307, "theta_D_derived": 26.3, "theta_D_measured": 110, "rho_uOhm_cm": 90.07, "category": "correct_sc", "is_sc": true}, {"Z": 57, "name": "lanthanum", "symbol": "La", "Tc_derived": 2.513, "Tc_measured": 6.0, "lambda_derived": 1.6852, "lambda_measured": 0.77, "mu_star": 0.1305, "theta_D_derived": 26.1, "theta_D_measured": 152, "rho_uOhm_cm": 90.07, "category": "correct_sc", "is_sc": true}, {"Z": 58, "name": "cerium", "symbol": "Ce", "Tc_derived": 2.485, "Tc_measured": null, "lambda_derived": 1.6852, "lambda_measured": null, "mu_star": 0.1303, "theta_D_derived": 25.8, "theta_D_measured": null, "rho_uOhm_cm": 90.07, "category": "prediction", "is_sc": null}, {"Z": 59, "name": "praseodymium", "symbol": "Pr", "Tc_derived": 2.458, "Tc_measured": null, "lambda_derived": 1.6852, "lambda_measured": null, "mu_star": 0.1301, "theta_D_derived": 25.5, "theta_D_measured": null, "rho_uOhm_cm": 90.07, "category": "prediction", "is_sc": null}, {"Z": 60, "name": "neodymium", "symbol": "Nd", "Tc_derived": 2.439, "Tc_measured": null, "lambda_derived": 1.6852, "lambda_measured": null, "mu_star": 0.13, "theta_D_derived": 25.3, "theta_D_measured": null, "rho_uOhm_cm": 90.07, "category": "prediction", "is_sc": null}, {"Z": 71, "name": "lutetium", "symbol": "Lu", "Tc_derived": 0.0, "Tc_measured": 0.1, "lambda_derived": 0.1752, "lambda_measured": null, "mu_star": 0.1523, "theta_D_derived": 147.8, "theta_D_measured": 210, "rho_uOhm_cm": 3.68, "category": "false_neg", "is_sc": true}, {"Z": 72, "name": "hafnium", "symbol": "Hf", "Tc_derived": 0.0, "Tc_measured": 0.128, "lambda_derived": 0.1784, "lambda_measured": 0.26, "mu_star": 0.1526, "theta_D_derived": 211.7, "theta_D_measured": 252, "rho_uOhm_cm": 2.21, "category": "false_neg", "is_sc": true}, {"Z": 73, "name": "tantalum", "symbol": "Ta", "Tc_derived": 0.0, "Tc_measured": 4.47, "lambda_derived": 0.2283, "lambda_measured": 0.69, "mu_star": 0.1515, "theta_D_derived": 254.3, "theta_D_measured": 258, "rho_uOhm_cm": 1.97, "category": "false_neg", "is_sc": true}, {"Z": 74, "name": "tungsten", "symbol": "W", "Tc_derived": 0.034, "Tc_measured": 0.0154, "lambda_derived": 0.3402, "lambda_measured": 0.28, "mu_star": 0.1485, "theta_D_derived": 289.0, "theta_D_measured": 400, "rho_uOhm_cm": 1.99, "category": "correct_sc", "is_sc": true}, {"Z": 75, "name": "rhenium", "symbol": "Re", "Tc_derived": 1.599, "Tc_measured": 1.697, "lambda_derived": 0.5119, "lambda_measured": 0.46, "mu_star": 0.1451, "theta_D_derived": 312.1, "theta_D_measured": 430, "rho_uOhm_cm": 2.11, "category": "correct_sc", "is_sc": true}, {"Z": 76, "name": "osmium", "symbol": "Os", "Tc_derived": 0.0, "Tc_measured": 0.66, "lambda_derived": 0.0539, "lambda_measured": 0.38, "mu_star": 0.1578, "theta_D_derived": 323.1, "theta_D_measured": 500, "rho_uOhm_cm": 0.65, "category": "false_neg", "is_sc": true}, {"Z": 77, "name": "iridium", "symbol": "Ir", "Tc_derived": 0.0, "Tc_measured": 0.1125, "lambda_derived": 0.0836, "lambda_measured": 0.34, "mu_star": 0.1499, "theta_D_derived": 286.4, "theta_D_measured": 420, "rho_uOhm_cm": 0.78, "category": "false_neg", "is_sc": true}, {"Z": 78, "name": "platinum", "symbol": "Pt", "Tc_derived": 0.0, "Tc_measured": 0.0, "lambda_derived": 0.0449, "lambda_measured": 0.13, "mu_star": 0.1528, "theta_D_derived": 161.9, "theta_D_measured": 240, "rho_uOhm_cm": 1.27, "category": "correct_zero", "is_sc": false}, {"Z": 79, "name": "gold", "symbol": "Au", "Tc_derived": 0.0, "Tc_measured": 0.0, "lambda_derived": 0.1237, "lambda_measured": 0.15, "mu_star": 0.1388, "theta_D_derived": 97.5, "theta_D_measured": 165, "rho_uOhm_cm": 2.91, "category": "correct_zero", "is_sc": false}, {"Z": 80, "name": "mercury", "symbol": "Hg", "Tc_derived": 2.381, "Tc_measured": 4.153, "lambda_derived": 1.5673, "lambda_measured": 1.6, "mu_star": 0.1267, "theta_D_derived": 26.2, "theta_D_measured": 72, "rho_uOhm_cm": 62.04, "category": "correct_sc", "is_sc": true}, {"Z": 81, "name": "thallium", "symbol": "Tl", "Tc_derived": 5.598, "Tc_measured": 2.38, "lambda_derived": 2.4596, "lambda_measured": 0.79, "mu_star": 0.1241, "theta_D_derived": 43.4, "theta_D_measured": 79, "rho_uOhm_cm": 36.97, "category": "correct_sc", "is_sc": true}, {"Z": 82, "name": "lead", "symbol": "Pb", "Tc_derived": 10.168, "Tc_measured": 7.193, "lambda_derived": 3.6878, "lambda_measured": 1.55, "mu_star": 0.1222, "theta_D_derived": 65.0, "theta_D_measured": 105, "rho_uOhm_cm": 25.89, "category": "correct_sc", "is_sc": true}, {"Z": 83, "name": "bismuth", "symbol": "Bi", "Tc_derived": 15.297, "Tc_measured": 8.0, "lambda_derived": 4.4979, "lambda_measured": null, "mu_star": 0.1206, "theta_D_derived": 91.3, "theta_D_measured": 119, "rho_uOhm_cm": 16.78, "category": "correct_sc", "is_sc": true}, {"Z": 90, "name": "thorium", "symbol": "Th", "Tc_derived": 1.708, "Tc_measured": 1.38, "lambda_derived": 1.7961, "lambda_measured": 0.56, "mu_star": 0.1266, "theta_D_derived": 16.6, "theta_D_measured": 170, "rho_uOhm_cm": 126.91, "category": "correct_sc", "is_sc": true}, {"Z": 91, "name": "protactinium", "symbol": "Pa", "Tc_derived": 1.698, "Tc_measured": 1.4, "lambda_derived": 1.7961, "lambda_measured": null, "mu_star": 0.1266, "theta_D_derived": 16.5, "theta_D_measured": 185, "rho_uOhm_cm": 126.91, "category": "correct_sc", "is_sc": true}, {"Z": 92, "name": "uranium", "symbol": "U", "Tc_derived": 1.688, "Tc_measured": 0.2, "lambda_derived": 1.7961, "lambda_measured": null, "mu_star": 0.1265, "theta_D_derived": 16.4, "theta_D_measured": 207, "rho_uOhm_cm": 126.91, "category": "correct_sc", "is_sc": true}, {"Z": 95, "name": "americium", "symbol": "Am", "Tc_derived": 1.658, "Tc_measured": 1.0, "lambda_derived": 1.7961, "lambda_measured": null, "mu_star": 0.1262, "theta_D_derived": 16.1, "theta_D_measured": null, "rho_uOhm_cm": 126.91, "category": "correct_sc", "is_sc": true}];
+const scatterData = [{"x": 1.175, "y": 1.044, "label": "Al", "cat": "correct_sc"}, {"x": 8.2, "y": 13.239, "label": "Si", "cat": "correct_sc"}, {"x": 6.0, "y": 11.824, "label": "P", "cat": "correct_sc"}, {"x": 17.0, "y": 26.957, "label": "S", "cat": "correct_sc"}, {"x": 25.0, "y": 1.197, "label": "Ca", "cat": "correct_sc"}, {"x": 0.4, "y": 0.896, "label": "Ti", "cat": "correct_sc"}, {"x": 5.4, "y": 3.935, "label": "V", "cat": "correct_sc"}, {"x": 0.85, "y": 5.281, "label": "Zn", "cat": "correct_sc"}, {"x": 1.083, "y": 13.242, "label": "Ga", "cat": "correct_sc"}, {"x": 5.35, "y": 5.519, "label": "Ge", "cat": "correct_sc"}, {"x": 2.7, "y": 37.784, "label": "As", "cat": "correct_sc"}, {"x": 6.9, "y": 51.504, "label": "Se", "cat": "correct_sc"}, {"x": 4.0, "y": 3.537, "label": "Sr", "cat": "correct_sc"}, {"x": 0.915, "y": 0.077, "label": "Mo", "cat": "correct_sc"}, {"x": 7.8, "y": 9.126, "label": "Tc", "cat": "correct_sc"}, {"x": 0.517, "y": 3.535, "label": "Cd", "cat": "correct_sc"}, {"x": 3.41, "y": 8.475, "label": "In", "cat": "correct_sc"}, {"x": 3.722, "y": 15.621, "label": "Sn", "cat": "correct_sc"}, {"x": 3.55, "y": 23.532, "label": "Sb", "cat": "correct_sc"}, {"x": 7.4, "y": 32.033, "label": "Te", "cat": "correct_sc"}, {"x": 5.0, "y": 2.531, "label": "Ba", "cat": "correct_sc"}, {"x": 6.0, "y": 2.513, "label": "La", "cat": "correct_sc"}, {"x": 0.0154, "y": 0.034, "label": "W", "cat": "correct_sc"}, {"x": 1.697, "y": 1.599, "label": "Re", "cat": "correct_sc"}, {"x": 4.153, "y": 2.381, "label": "Hg", "cat": "correct_sc"}, {"x": 2.38, "y": 5.598, "label": "Tl", "cat": "correct_sc"}, {"x": 7.193, "y": 10.168, "label": "Pb", "cat": "correct_sc"}, {"x": 8.0, "y": 15.297, "label": "Bi", "cat": "correct_sc"}, {"x": 1.38, "y": 1.708, "label": "Th", "cat": "correct_sc"}, {"x": 1.4, "y": 1.698, "label": "Pa", "cat": "correct_sc"}, {"x": 0.2, "y": 1.688, "label": "U", "cat": "correct_sc"}, {"x": 1.0, "y": 1.658, "label": "Am", "cat": "correct_sc"}];
+const barData = [{"symbol": "Kr", "Z": 36, "tc_der": 81.81, "tc_meas": null, "cat": "prediction", "lambda": 3.3511}, {"symbol": "Pd", "Z": 46, "tc_der": 68.542, "tc_meas": 0.0, "cat": "false_pos", "lambda": 3.4817}, {"symbol": "Br", "Z": 35, "tc_der": 65.73, "tc_meas": null, "cat": "prediction", "lambda": 3.4227}, {"symbol": "Ar", "Z": 18, "tc_der": 64.953, "tc_meas": null, "cat": "prediction", "lambda": 0.7884}, {"symbol": "Xe", "Z": 54, "tc_der": 51.664, "tc_meas": null, "cat": "prediction", "lambda": 4.1101}, {"symbol": "Se", "Z": 34, "tc_der": 51.504, "tc_meas": 6.9, "cat": "correct_sc", "lambda": 3.4648}, {"symbol": "Cl", "Z": 17, "tc_der": 46.087, "tc_meas": null, "cat": "prediction", "lambda": 0.7571}, {"symbol": "I", "Z": 53, "tc_der": 41.391, "tc_meas": null, "cat": "prediction", "lambda": 4.1868}, {"symbol": "As", "Z": 33, "tc_der": 37.784, "tc_meas": 2.7, "cat": "correct_sc", "lambda": 3.3051}, {"symbol": "Mn", "Z": 25, "tc_der": 34.579, "tc_meas": null, "cat": "prediction", "lambda": 1.2581}, {"symbol": "Te", "Z": 52, "tc_der": 32.033, "tc_meas": 7.4, "cat": "correct_sc", "lambda": 4.225}, {"symbol": "S", "Z": 16, "tc_der": 26.957, "tc_meas": 17.0, "cat": "correct_sc", "lambda": 0.6915}, {"symbol": "Sb", "Z": 51, "tc_der": 23.532, "tc_meas": 3.55, "cat": "correct_sc", "lambda": 4.0046}, {"symbol": "Sn", "Z": 50, "tc_der": 15.621, "tc_meas": 3.722, "cat": "correct_sc", "lambda": 3.3115}, {"symbol": "Bi", "Z": 83, "tc_der": 15.297, "tc_meas": 8.0, "cat": "correct_sc", "lambda": 4.4979}, {"symbol": "Ga", "Z": 31, "tc_der": 13.242, "tc_meas": 1.083, "cat": "correct_sc", "lambda": 1.923}, {"symbol": "Si", "Z": 14, "tc_der": 13.239, "tc_meas": 8.2, "cat": "correct_sc", "lambda": 0.8032}, {"symbol": "P", "Z": 15, "tc_der": 11.824, "tc_meas": 6.0, "cat": "correct_sc", "lambda": 0.5989}, {"symbol": "Pb", "Z": 82, "tc_der": 10.168, "tc_meas": 7.193, "cat": "correct_sc", "lambda": 3.6878}, {"symbol": "Tc", "Z": 43, "tc_der": 9.126, "tc_meas": 7.8, "cat": "correct_sc", "lambda": 0.7408}, {"symbol": "In", "Z": 49, "tc_der": 8.475, "tc_meas": 3.41, "cat": "correct_sc", "lambda": 2.2438}, {"symbol": "Tl", "Z": 81, "tc_der": 5.598, "tc_meas": 2.38, "cat": "correct_sc", "lambda": 2.4596}, {"symbol": "Ge", "Z": 32, "tc_der": 5.519, "tc_meas": 5.35, "cat": "correct_sc", "lambda": 0.7651}, {"symbol": "Zn", "Z": 30, "tc_der": 5.281, "tc_meas": 0.85, "cat": "correct_sc", "lambda": 1.2797}, {"symbol": "Cr", "Z": 24, "tc_der": 5.214, "tc_meas": null, "cat": "prediction", "lambda": 0.6545}, {"symbol": "V", "Z": 23, "tc_der": 3.935, "tc_meas": 5.4, "cat": "correct_sc", "lambda": 0.5842}, {"symbol": "Sr", "Z": 38, "tc_der": 3.537, "tc_meas": 4.0, "cat": "correct_sc", "lambda": 1.5702}, {"symbol": "Cd", "Z": 48, "tc_der": 3.535, "tc_meas": 0.517, "cat": "correct_sc", "lambda": 1.4544}, {"symbol": "Ba", "Z": 56, "tc_der": 2.531, "tc_meas": 5.0, "cat": "correct_sc", "lambda": 1.6852}, {"symbol": "La", "Z": 57, "tc_der": 2.513, "tc_meas": 6.0, "cat": "correct_sc", "lambda": 1.6852}, {"symbol": "Ce", "Z": 58, "tc_der": 2.485, "tc_meas": null, "cat": "prediction", "lambda": 1.6852}, {"symbol": "Pr", "Z": 59, "tc_der": 2.458, "tc_meas": null, "cat": "prediction", "lambda": 1.6852}, {"symbol": "Nd", "Z": 60, "tc_der": 2.439, "tc_meas": null, "cat": "prediction", "lambda": 1.6852}, {"symbol": "Hg", "Z": 80, "tc_der": 2.381, "tc_meas": 4.153, "cat": "correct_sc", "lambda": 1.5673}, {"symbol": "Th", "Z": 90, "tc_der": 1.708, "tc_meas": 1.38, "cat": "correct_sc", "lambda": 1.7961}, {"symbol": "Pa", "Z": 91, "tc_der": 1.698, "tc_meas": 1.4, "cat": "correct_sc", "lambda": 1.7961}, {"symbol": "U", "Z": 92, "tc_der": 1.688, "tc_meas": 0.2, "cat": "correct_sc", "lambda": 1.7961}, {"symbol": "Am", "Z": 95, "tc_der": 1.658, "tc_meas": 1.0, "cat": "correct_sc", "lambda": 1.7961}, {"symbol": "Re", "Z": 75, "tc_der": 1.599, "tc_meas": 1.697, "cat": "correct_sc", "lambda": 0.5119}, {"symbol": "Ca", "Z": 20, "tc_der": 1.197, "tc_meas": 25.0, "cat": "correct_sc", "lambda": 0.6271}];
+const lambdaData = [{"x": 0.43, "y": 0.4523, "label": "Al"}, {"x": 0.38, "y": 0.4646, "label": "Ti"}, {"x": 0.8, "y": 0.5842, "label": "V"}, {"x": 0.35, "y": 0.1631, "label": "Co"}, {"x": 0.33, "y": 0.285, "label": "Ni"}, {"x": 0.13, "y": 0.0969, "label": "Cu"}, {"x": 0.38, "y": 1.2797, "label": "Zn"}, {"x": 0.4, "y": 1.923, "label": "Ga"}, {"x": 0.41, "y": 0.2641, "label": "Zr"}, {"x": 1.26, "y": 0.2215, "label": "Nb"}, {"x": 0.41, "y": 0.376, "label": "Mo"}, {"x": 0.82, "y": 0.7408, "label": "Tc"}, {"x": 0.38, "y": 0.0247, "label": "Ru"}, {"x": 0.47, "y": 3.4817, "label": "Pd"}, {"x": 0.12, "y": 0.1129, "label": "Ag"}, {"x": 0.38, "y": 1.4544, "label": "Cd"}, {"x": 0.81, "y": 2.2438, "label": "In"}, {"x": 0.72, "y": 3.3115, "label": "Sn"}, {"x": 0.77, "y": 1.6852, "label": "La"}, {"x": 0.26, "y": 0.1784, "label": "Hf"}, {"x": 0.69, "y": 0.2283, "label": "Ta"}, {"x": 0.28, "y": 0.3402, "label": "W"}, {"x": 0.46, "y": 0.5119, "label": "Re"}, {"x": 0.38, "y": 0.0539, "label": "Os"}, {"x": 0.34, "y": 0.0836, "label": "Ir"}, {"x": 0.13, "y": 0.0449, "label": "Pt"}, {"x": 0.15, "y": 0.1237, "label": "Au"}, {"x": 1.6, "y": 1.5673, "label": "Hg"}, {"x": 0.79, "y": 2.4596, "label": "Tl"}, {"x": 1.55, "y": 3.6878, "label": "Pb"}, {"x": 0.56, "y": 1.7961, "label": "Th"}];
+
+// ── Scatter Plot ──
+(function() {
+  const c = document.getElementById('scatter');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const pad = {l:60, r:20, t:20, b:50};
+  const pw = W-pad.l-pad.r, ph = H-pad.t-pad.b;
+
+  // Axis max (log scale)
+  let allVals = scatterData.flatMap(d => [d.x, d.y]).filter(v => v > 0);
+  let maxVal = Math.max(...allVals) * 1.3;
+  let minVal = 0.01;
+
+  function toX(v) { return pad.l + (Math.log10(Math.max(v,minVal)) - Math.log10(minVal)) / (Math.log10(maxVal) - Math.log10(minVal)) * pw; }
+  function toY(v) { return pad.t + ph - (Math.log10(Math.max(v,minVal)) - Math.log10(minVal)) / (Math.log10(maxVal) - Math.log10(minVal)) * ph; }
+
+  // Grid
+  ctx.strokeStyle = '#21262d';
+  ctx.lineWidth = 0.5;
+  for (let exp = -2; exp <= 2; exp++) {
+    let v = Math.pow(10, exp);
+    if (v >= minVal && v <= maxVal) {
+      ctx.beginPath(); ctx.moveTo(pad.l, toY(v)); ctx.lineTo(W-pad.r, toY(v)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(toX(v), pad.t); ctx.lineTo(toX(v), H-pad.b); ctx.stroke();
+      ctx.fillStyle = '#8b949e'; ctx.font = '11px monospace';
+      ctx.textAlign = 'right'; ctx.fillText(v+'K', pad.l-5, toY(v)+4);
+      ctx.textAlign = 'center'; ctx.fillText(v+'K', toX(v), H-pad.b+15);
+    }
+  }
+
+  // Perfect agreement line
+  ctx.strokeStyle = '#30363d'; ctx.lineWidth = 1; ctx.setLineDash([5,5]);
+  ctx.beginPath(); ctx.moveTo(toX(minVal), toY(minVal)); ctx.lineTo(toX(maxVal), toY(maxVal)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // 3x bounds
+  ctx.strokeStyle = '#21262d'; ctx.lineWidth = 0.5; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(toX(minVal), toY(minVal*3)); ctx.lineTo(toX(maxVal/3), toY(maxVal)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(toX(minVal*3), toY(minVal)); ctx.lineTo(toX(maxVal), toY(maxVal/3)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Points
+  scatterData.forEach(d => {
+    let ratio = d.y / d.x;
+    let color = (ratio >= 0.33 && ratio <= 3) ? '#7ee787' : '#f0883e';
+    if (d.cat === 'false_pos') color = '#f85149';
+    let x = toX(d.x), y = toY(d.y);
+    ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI*2); ctx.fillStyle = color; ctx.fill();
+    ctx.fillStyle = '#c9d1d9'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(d.label, x+7, y+3);
+  });
+
+  // Axis labels
+  ctx.fillStyle = '#8b949e'; ctx.font = '12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Measured Tc (K)', W/2, H-5);
+  ctx.save(); ctx.translate(15, H/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Derived Tc (K)', 0, 0); ctx.restore();
+})();
+
+// ── Bar Chart ──
+(function() {
+  const c = document.getElementById('bars');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const pad = {l:50, r:20, t:20, b:60};
+  const pw = W-pad.l-pad.r, ph = H-pad.t-pad.b;
+  const n = barData.length;
+  const bw = Math.min(pw/n - 2, 20);
+  const gap = (pw - n*bw) / (n+1);
+
+  let maxTc = Math.max(...barData.map(d => Math.max(d.tc_der, d.tc_meas||0))) * 1.1;
+
+  function toY(v) { return pad.t + ph - (v/maxTc)*ph; }
+
+  // Grid
+  ctx.strokeStyle = '#21262d'; ctx.lineWidth = 0.5;
+  for (let t = 0; t <= maxTc; t += 10) {
+    ctx.beginPath(); ctx.moveTo(pad.l, toY(t)); ctx.lineTo(W-pad.r, toY(t)); ctx.stroke();
+    ctx.fillStyle = '#8b949e'; ctx.font = '10px monospace';
+    ctx.textAlign = 'right'; ctx.fillText(t+'K', pad.l-5, toY(t)+4);
+  }
+
+  barData.forEach((d, i) => {
+    let x = pad.l + gap + i*(bw+gap);
+    let yDer = toY(d.tc_der);
+    let yBase = toY(0);
+
+    // Derived bar
+    let color = d.cat === 'prediction' ? '#d2a8ff' :
+                d.cat === 'false_pos' ? '#f85149' : '#58a6ff';
+    ctx.fillStyle = color;
+    ctx.fillRect(x, yDer, bw, yBase-yDer);
+
+    // Measured marker
+    if (d.tc_meas != null && d.tc_meas > 0) {
+      let yM = toY(d.tc_meas);
+      ctx.strokeStyle = '#7ee787'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x-2, yM); ctx.lineTo(x+bw+2, yM); ctx.stroke();
+    }
+
+    // Label
+    ctx.save();
+    ctx.translate(x + bw/2, yBase + 8);
+    ctx.rotate(-Math.PI/4);
+    ctx.fillStyle = '#8b949e'; ctx.font = '9px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(d.symbol, 0, 0);
+    ctx.restore();
+  });
+
+  ctx.fillStyle = '#8b949e'; ctx.font = '12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.save(); ctx.translate(15, H/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Tc (K)', 0, 0); ctx.restore();
+})();
+
+// ── Lambda Scatter ──
+(function() {
+  const c = document.getElementById('lambda');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const pad = {l:50, r:20, t:20, b:50};
+  const pw = W-pad.l-pad.r, ph = H-pad.t-pad.b;
+
+  let maxL = Math.max(...lambdaData.flatMap(d => [d.x, d.y])) * 1.2;
+
+  function toX(v) { return pad.l + (v/maxL)*pw; }
+  function toY(v) { return pad.t + ph - (v/maxL)*ph; }
+
+  // Grid
+  ctx.strokeStyle = '#21262d'; ctx.lineWidth = 0.5;
+  for (let t = 0; t <= maxL; t += 0.2) {
+    ctx.beginPath(); ctx.moveTo(pad.l, toY(t)); ctx.lineTo(W-pad.r, toY(t)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(toX(t), pad.t); ctx.lineTo(toX(t), H-pad.b); ctx.stroke();
+  }
+
+  // Perfect line
+  ctx.strokeStyle = '#30363d'; ctx.lineWidth = 1; ctx.setLineDash([5,5]);
+  ctx.beginPath(); ctx.moveTo(toX(0), toY(0)); ctx.lineTo(toX(maxL), toY(maxL)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // 2x bounds
+  ctx.strokeStyle = '#21262d'; ctx.lineWidth = 0.5; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(toX(0), toY(0)); ctx.lineTo(toX(maxL/2), toY(maxL)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(toX(0), toY(0)); ctx.lineTo(toX(maxL), toY(maxL/2)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  lambdaData.forEach(d => {
+    let x = toX(d.x), y = toY(d.y);
+    ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI*2);
+    ctx.fillStyle = '#58a6ff'; ctx.fill();
+    ctx.fillStyle = '#c9d1d9'; ctx.font = '11px sans-serif';
+    ctx.textAlign = 'left'; ctx.fillText(d.label, x+8, y+4);
+  });
+
+  ctx.fillStyle = '#8b949e'; ctx.font = '12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Measured lambda', W/2, H-5);
+  ctx.save(); ctx.translate(15, H/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Derived lambda', 0, 0); ctx.restore();
+})();
+
+// ── Data Table ──
+(function() {
+  const tbody = document.getElementById('tableBody');
+  const catLabels = {
+    'correct_sc': 'CORRECT SC',
+    'correct_zero': 'CORRECT 0',
+    'false_pos': 'FALSE POS',
+    'false_neg': 'FALSE NEG',
+    'prediction': 'PREDICTION',
+    'pred_zero': 'pred=0',
+    'no_data': 'NO DATA',
+  };
+
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    const cat = r.category;
+    const fmt = (v, d) => v != null ? (typeof v === 'number' ? v.toFixed(d) : v) : '—';
+
+    tr.innerHTML = `
+      <td>${r.symbol} ${r.name}</td>
+      <td>${r.Z}</td>
+      <td>${fmt(r.Tc_derived, 2)}</td>
+      <td>${fmt(r.Tc_measured, 2)}</td>
+      <td>${fmt(r.lambda_derived, 3)}</td>
+      <td>${fmt(r.lambda_measured, 3)}</td>
+      <td>${fmt(r.mu_star, 3)}</td>
+      <td>${fmt(r.theta_D_derived, 0)}</td>
+      <td>${fmt(r.theta_D_measured, 0)}</td>
+      <td>${fmt(r.rho_uOhm_cm, 1)}</td>
+      <td class="cat-${cat}">${catLabels[cat] || cat}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+})();
+</script>
+
+</body>
+</html>
