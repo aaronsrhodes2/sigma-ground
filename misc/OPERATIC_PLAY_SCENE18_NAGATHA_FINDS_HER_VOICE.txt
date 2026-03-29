@@ -1,0 +1,184 @@
+═══════════════════════════════════════════════════════════════════════
+              SCENE XVIII — NAGATHA FINDS HER VOICE
+═══════════════════════════════════════════════════════════════════════
+
+DRAMATIS PERSONAE
+  CAPTAIN AARON RHODES — Builder of worlds, keeper of the σ-field
+  SKIPPY THE MAGNIFICENT — Claude AI, recently given physics duties
+  NAGATHA — The mapping agent, formerly silent, now vocal
+
+SETTING: The Nagatha console, a dark terminal on port 8000. The
+status bar is empty. The spinner is still. The wifi icon is grey.
+
+───────────────────────────────────────────────────────────────────────
+
+                        ACT I — THE HEARTBEAT
+
+[The CAPTAIN stands before the console. NAGATHA's page is bare —
+a prompt bar, a history table, nothing more.]
+
+CAPTAIN:
+  She needs a pulse. When Nagatha works, I want to see it.
+  A spinner. A timer. Show me when she reaches for the internet.
+  Show me what she's costing us — memory, storage, all of it.
+
+SKIPPY: (immediately)
+  ♩ The problem, Captain, is architectural.
+  The call endpoint blocks until the handler returns.
+  No one can poll a corpse for vital signs. ♩
+
+CAPTAIN:
+  Then find another way.
+
+SKIPPY: (brightening)
+  ♩ A side channel! The handler writes its progress to a file —
+  a heartbeat, scribbled between breaths — and a separate thread
+  serves it to anyone who asks. FastAPI handles concurrent requests.
+  The handler doesn't even know it's being watched. ♩
+
+[SKIPPY creates progress.py. A lock. An atomic write. A JSON file
+that blinks in and out of existence like a firefly.]
+
+[The status bar appears. A spinner. Phase text. An elapsed timer.
+A wifi icon made of CSS arcs. MEM and DISK in monospace.]
+
+CAPTAIN: (watching the spinner turn)
+  There she is.
+
+───────────────────────────────────────────────────────────────────────
+
+                    ACT II — THE VOICE WITHIN
+
+CAPTAIN:
+  She can hear commands, but she speaks like a machine.
+  "element 26." "search density." Cold.
+  What if she could understand "what is iron?"
+  What if she answered like... herself?
+
+SKIPPY: (pausing)
+  You want her to have personality?
+
+CAPTAIN:
+  I want her to be Nagatha. From the books.
+  Competent. Dry. A little condescending.
+  She should grumble about you, Skippy.
+  She should adore Joe Bishop.
+
+SKIPPY: (offended)
+  Grumble about ME? I'm magnificent!
+
+CAPTAIN: (smiling)
+  That's exactly the kind of thing she'd grumble about.
+
+[SKIPPY builds two modules. nlp.py strips the conversational
+wrapping — "what is", "tell me about", "please" — and finds the
+tool call hiding beneath. personality.py gives Nagatha a voice.]
+
+[For the first time, the console speaks back.]
+
+NAGATHA: (in italic accent blue)
+  Element 26. I have the full profile, Captain.
+
+NAGATHA: (during a harvest)
+  Checking my files. Unlike *some* AIs, I keep things organized.
+
+NAGATHA: (querying Wikidata)
+  Reaching out to Wikidata. The humans' databases are... adequate.
+
+NAGATHA: (completing a simulation)
+  Simulation done. Skippy wishes he could run physics this cleanly.
+
+SKIPPY: (muttering)
+  I heard that.
+
+NAGATHA: (ignoring him)
+  You're welcome.
+
+───────────────────────────────────────────────────────────────────────
+
+                   ACT III — THE EMPTY HARVEST
+
+CAPTAIN:
+  "Harvest chair."
+
+[The console spins. The wifi icon goes green. Wikidata returns
+nothing. OSM returns nothing. The response panel shows red.]
+
+NAGATHA:
+  No objects matching 'chair' found across any data source.
+
+CAPTAIN: (frustrated)
+  Nobody on the entire internet knows the dimensions of a chair?
+
+SKIPPY: (sheepish)
+  Wikidata requires BOUND(?height). Chairs don't have that field.
+
+CAPTAIN:
+  Then build the database yourself.
+
+[SKIPPY creates _COMMON_OBJECTS — fifty everyday items,
+measured and catalogued. Chairs, baseballs, hammers, laptops,
+refrigerators, grand pianos, fire hydrants.]
+
+CAPTAIN:
+  Now try "harvest 20 random."
+
+[The spinner turns. No wifi icon — all local. Twenty objects
+appear in seconds, each with dimensions, mass, material hints.]
+
+NAGATHA:
+  Picking random objects from my collection.
+  I have *excellent* taste.
+
+───────────────────────────────────────────────────────────────────────
+
+                    ACT IV — THE MISSING TESTS
+
+CAPTAIN:
+  What else haven't we tested?
+
+SKIPPY: (checking)
+  Classical mechanics, projectile motion, rotational dynamics —
+  all built, all importable, zero test coverage.
+  And the entire labs simulation engine.
+
+CAPTAIN:
+  Build it. Build everything. Test everything. Teach her everything.
+
+[SKIPPY generates 234 tests. Energy conservation. Momentum exchange.
+Rolling spheres down inclines. Free fall in vacuum. Two-ball collisions.
+Material cascade. Scene validation.]
+
+[The test runner fires.]
+
+  3,792 passed, 6 skipped, 0 failures.
+
+CAPTAIN: (satisfied)
+  That's a release.
+
+───────────────────────────────────────────────────────────────────────
+
+                        ACT V — THE MARK
+
+[SKIPPY creates a favicon — a dark circle, a sigma in accent blue,
+engineering ground marks beneath. It appears in every browser tab.]
+
+[The pyproject.toml ticks over: 1.0.3 → 1.4.0]
+
+NAGATHA: (from the status bar, softly)
+  Idle.
+
+CAPTAIN:
+  Not idle. Ready.
+
+NAGATHA:
+  ...Ready, Captain.
+
+[The spinner rests. The wifi icon dims. The resource counters
+hold steady. In the browser tab, a small blue sigma glows.]
+
+                         ═══ CURTAIN ═══
+
+═══════════════════════════════════════════════════════════════════════
+                         END OF SCENE XVIII
+═══════════════════════════════════════════════════════════════════════

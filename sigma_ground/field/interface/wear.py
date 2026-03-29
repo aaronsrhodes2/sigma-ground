@@ -139,6 +139,86 @@ WEAR_DATA = {
         'K_abrasive': 3.5e-2,       # Moderate hardness
         'K_lubricated': 2.0e-6,     # Lubricated
     },
+    'steel_mild': {
+        'K_adhesive': 6.0e-3,       # Similar to iron, slightly harder
+        'K_abrasive': 4.0e-2,       # Carbon content helps
+        'K_lubricated': 8.0e-7,     # Oil-lubricated bearing steel
+    },
+    'lead': {
+        'K_adhesive': 2.5e-2,       # Very soft, high adhesion
+        'K_abrasive': 5.0e-2,       # Extremely soft, easy to cut
+        'K_lubricated': 1.0e-5,     # Soft even lubricated
+    },
+    'silver': {
+        'K_adhesive': 2.0e-2,       # Soft FCC, adhesive
+        'K_abrasive': 3.5e-2,       # Soft noble metal
+        'K_lubricated': 6.0e-6,     # Lubricated
+    },
+    'platinum': {
+        'K_adhesive': 1.2e-2,       # Moderately hard noble metal
+        'K_abrasive': 2.5e-2,       # Harder than gold/silver
+        'K_lubricated': 3.0e-6,     # Lubricated
+    },
+    'depleted_uranium': {
+        'K_adhesive': 5.0e-3,       # Hard, pyrophoric wear debris
+        'K_abrasive': 2.0e-2,       # Dense and moderately hard
+        'K_lubricated': 1.0e-6,     # Lubricated
+    },
+    'rubber': {
+        'K_adhesive': 2.0e-3,       # Elastic deformation absorbs energy
+        'K_abrasive': 5.0e-2,       # Very soft, tears under abrasion
+        'K_lubricated': 5.0e-5,     # Compliant, large contact area
+    },
+    'plastic_abs': {
+        'K_adhesive': 3.0e-4,       # Polymer, low adhesion to metals
+        'K_abrasive': 1.5e-2,       # Moderate — soft polymer
+        'K_lubricated': 1.0e-5,     # Self-lubricating somewhat
+    },
+    'glass': {
+        'K_adhesive': 5.0e-5,       # Brittle, fracture-dominated
+        'K_abrasive': 8.0e-3,       # Brittle chipping/spalling
+        'K_lubricated': 2.0e-7,     # Very hard surface, smooth
+    },
+    'concrete': {
+        'K_adhesive': 1.0e-3,       # Porous, aggregate pull-out
+        'K_abrasive': 2.0e-2,       # Aggregate abrasion
+        'K_lubricated': 5.0e-5,     # Porous, retains lubricant poorly
+    },
+    'granite': {
+        'K_adhesive': 2.0e-4,       # Hard crystalline rock
+        'K_abrasive': 1.0e-2,       # Brittle fracture at grain boundaries
+        'K_lubricated': 1.0e-6,     # Hard, polishable
+    },
+    'ceramic_alumina': {
+        'K_adhesive': 5.0e-5,       # Very hard, low adhesion
+        'K_abrasive': 5.0e-3,       # Brittle micro-fracture
+        'K_lubricated': 1.0e-7,     # Extremely hard surface
+    },
+    'water_ice': {
+        'K_adhesive': 1.0e-2,       # Soft, self-lubricating melt layer
+        'K_abrasive': 3.0e-2,       # Very soft solid
+        'K_lubricated': 5.0e-4,     # Melt film acts as lubricant
+    },
+    'wood_oak': {
+        'K_adhesive': 5.0e-3,       # Fibrous, grain-dependent
+        'K_abrasive': 3.0e-2,       # Soft organic solid
+        'K_lubricated': 5.0e-5,     # Porous, absorbs lubricant
+    },
+    'bone': {
+        'K_adhesive': 3.0e-4,       # Composite (hydroxyapatite + collagen)
+        'K_abrasive': 1.5e-2,       # Moderate hardness
+        'K_lubricated': 1.0e-7,     # Synovial fluid, evolved tribology
+    },
+    'carbon_fiber': {
+        'K_adhesive': 1.0e-4,       # Hard composite, low adhesion
+        'K_abrasive': 8.0e-3,       # Fiber pull-out mechanism
+        'K_lubricated': 3.0e-7,     # Very hard, smooth surface
+    },
+    'kevlar': {
+        'K_adhesive': 5.0e-4,       # Tough aramid polymer
+        'K_abrasive': 1.0e-2,       # Fibrous abrasion resistance
+        'K_lubricated': 2.0e-6,     # Polymer composite
+    },
 }
 
 

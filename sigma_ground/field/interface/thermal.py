@@ -164,6 +164,14 @@ _RESISTIVITY_OHM_M = {
     'tungsten': 5.28e-8,   # 5.28 μΩ·cm
     'nickel':   6.99e-8,   # 6.99 μΩ·cm
     'titanium': 4.20e-7,   # 42.0 μΩ·cm (poor for a metal)
+    # Additional metals
+    'steel_mild':       1.43e-7,   # 14.3 μΩ·cm
+    'lead':             2.07e-7,   # 20.7 μΩ·cm
+    'silver':           1.59e-8,   # 1.59 μΩ·cm (best conductor)
+    'platinum':         1.06e-7,   # 10.6 μΩ·cm
+    'depleted_uranium': 2.80e-7,   # 28.0 μΩ·cm
+    # Non-metals: not listed → .get() returns None
+    # → electronic_thermal_conductivity returns 0.0 (correct: phonon-dominated)
 }
 
 # Lorenz number: L₀ = π²k_B²/(3e²)

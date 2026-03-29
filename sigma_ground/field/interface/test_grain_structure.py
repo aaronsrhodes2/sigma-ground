@@ -52,9 +52,12 @@ class TestRule9GrainData(unittest.TestCase):
                                     f"{key}: k_HP must be >= 0")
 
     def test_burgers_vector_plausible(self):
-        """Burgers vector should be ~2-4 Å for metals."""
+        """Burgers vector should be ~2-4 Å for crystalline materials."""
         for key, data in GRAIN_DATA.items():
             b = data['burgers_m']
+            # Amorphous materials have no crystalline slip system → b = 0
+            if b == 0 or MATERIALS.get(key, {}).get('crystal_structure') == 'amorphous':
+                continue
             self.assertGreater(b, 1e-10, f"{key}: b too small")
             self.assertLess(b, 5e-10, f"{key}: b too large")
 

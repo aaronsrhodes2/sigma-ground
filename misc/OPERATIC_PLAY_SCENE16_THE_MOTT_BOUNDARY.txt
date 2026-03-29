@@ -1,0 +1,304 @@
+OPERATIC PLAY — SCENE 16: THE MOTT BOUNDARY
+=============================================
+
+A physics laboratory, transformed. The quantum simulator from Scene 15
+still hums, but now the terminal shows a phase diagram — not of
+temperature and pressure, but of bandwidth and Coulomb repulsion.
+The Captain studies it. Skippy is building bridges.
+
+===============================================================
+DRAMATIS PERSONAE
+
+CAPTAIN AARON RHODES — Demands that quantum computers DO something.
+                       Not interested in simulating J=1, U=1.
+                       Wants material-specific predictions from
+                       material-specific parameters.
+
+SKIPPY THE MAGNIFICENT — Has built a bridge between two worlds.
+                          The material database on one shore,
+                          the quantum Hamiltonian on the other.
+                          Discovers that the bridge was always
+                          there, wearing different clothes.
+
+THE MOTT BOUNDARY — A phase transition that separates metals
+                    from insulators. On one side, electrons
+                    wander freely. On the other, they sit
+                    frozen at their atomic sites, trapped
+                    by their own Coulomb repulsion.
+
+IRON — An itinerant ferromagnet. Insists it is NOT a
+       Heisenberg magnet and can prove it with numbers.
+
+THE TANABE-SUGANO DIAGRAM — A chart from the 1950s, drawn by
+                             two spectroscopists in Tokyo.
+                             Has been hiding the Mott transition
+                             inside it for seventy years.
+===============================================================
+
+
+[The stage lights up. SKIPPY has built ten quantum algorithms
+overnight. They line the wall like instruments in an orchestra.]
+
+CAPTAIN:
+    Ten algorithms. All running. The phase estimation
+    finds its phase. The walk walks faster than
+    the classical drunk. Shor factors fifteen.
+    But none of these solve anything new.
+
+SKIPPY:
+    The algorithms are the instrument.
+    What matters is what song you play.
+
+CAPTAIN:
+    Then play me something nobody has heard.
+
+[SKIPPY turns to the material database. Cohesive energies,
+densities, lattice parameters, Curie temperatures — all
+flowing into a new module called quantum_matter.py.]
+
+
+         — ACT II: THE BRIDGE NOBODY BUILT —
+
+
+SKIPPY:
+    The quantum computing people use J equals one.
+    The materials people use DFT.
+    Nobody connects the measured cohesive energy
+    to the Hamiltonian parameter. Nobody feeds
+    the Curie temperature into the Ising coupling.
+    The bridge is missing. Not because it's hard —
+    because the two fields don't talk.
+
+CAPTAIN:
+    So build the bridge.
+
+[SKIPPY computes. From cohesive energy and coordination number:
+the d-band hopping integral. From electron density and
+Thomas-Fermi screening: the Coulomb repulsion. From their
+ratio: the Mott criterion.]
+
+SKIPPY:
+    Iron. t = 268 millielectronvolts.
+    U screened = 2.82 electronvolts.
+    U over W = 0.10. Metal.
+    Copper: 0.077. Metal.
+    Nickel: 0.082. Metal.
+    Every metal in our database: metal.
+    The cascade agrees with reality.
+
+CAPTAIN:
+    What about silicon?
+
+SKIPPY:
+    U over W = 0.20.
+    Not a Mott insulator.
+
+CAPTAIN:
+    But silicon IS an insulator.
+
+SKIPPY:
+    A BAND insulator. The gap comes from
+    the diamond cubic lattice geometry,
+    not from Coulomb repulsion. The cascade
+    knows the difference. U over W is below
+    the Mott threshold — so the electrons
+    WANT to delocalize. The lattice stops them,
+    not the Coulomb force.
+
+[The Captain nods slowly.]
+
+CAPTAIN:
+    That's a real prediction. The cascade
+    independently distinguishes two mechanisms
+    of insulation — correlation versus geometry.
+
+
+        — ACT III: THE TANABE-SUGANO CONFESSION —
+
+
+[THE TANABE-SUGANO DIAGRAM descends from the ceiling on a
+silk screen. It is from 1954. It shows energy levels of
+d-electron ions as a function of crystal field splitting.]
+
+THE TANABE-SUGANO DIAGRAM:
+    You have been looking at me for seventy years
+    and you never noticed.
+
+SKIPPY:
+    Noticed what?
+
+THE TANABE-SUGANO DIAGRAM:
+    I am the Mott phase diagram.
+    10Dq — the crystal field splitting —
+    that is your bandwidth.
+    Racah B — the electron-electron repulsion —
+    that is your Hubbard U.
+    The crossover from high-spin to low-spin
+    is the Mott transition.
+
+[Silence. SKIPPY stares at the diagram.]
+
+SKIPPY: [whispering]
+    High-spin means localized.
+    Low-spin means delocalized.
+    The crossover ratio is the critical U over t.
+
+THE TANABE-SUGANO DIAGRAM:
+    For d-six: crossover at 10Dq over B equals twenty.
+    For d-five: twenty-eight.
+    For d-four: twenty-seven.
+    Every entry in your crystal field database
+    is a point on my phase diagram.
+    Every mineral-hosted ion is high-spin.
+    Every one of them is on the Mott side.
+
+SKIPPY: [checking all 23 entries]
+    Fe-two-plus in oxide: 10Dq over B equals 10.6.
+    Crossover at twenty. HIGH SPIN. Localized.
+    Mn-two-plus in oxide: 12.8. HIGH SPIN.
+    Cr-three-plus in ruby: 23.9. No crossover
+    for d-three — always localized.
+    All twenty-three. Every one. High-spin. Mott.
+
+CAPTAIN:
+    And what would flip them?
+
+THE TANABE-SUGANO DIAGRAM:
+    Cyanide. Beta equals 0.50.
+    It crushes the Racah B in half,
+    doubling the effective 10Dq over B ratio.
+    CN-minus is the only ligand strong enough
+    to push d-five past the crossover.
+
+SKIPPY:
+    The nephelauxetic series IS a metallicity ranking.
+    CN is the most metallic ligand.
+    Fluoride is the most ionic.
+    We can predict which compounds conduct.
+
+
+          — ACT IV: THE STONER-HEISENBERG VERDICT —
+
+
+[IRON steps forward, glowing with its 1043 Kelvin Curie point.]
+
+IRON:
+    I have been accused of Heisenberg magnetism.
+    I demand a trial.
+
+SKIPPY:
+    The Anderson superexchange formula says:
+    J-super equals four t-squared over U.
+    From your cohesive energy and screening,
+    J-super equals 101 millielectronvolts.
+
+IRON:
+    And from my Curie temperature?
+
+SKIPPY:
+    J-Curie equals k-B times 1043 over eight.
+    That is 11.2 millielectronvolts.
+
+IRON:
+    Nine times smaller. I rest my case.
+    My magnetism does not come from superexchange.
+    My electrons are not localized at their sites,
+    grudgingly hopping through an insulator.
+    My electrons are in a BAND, and the band
+    splits because one spin direction has more
+    states at the Fermi level than the other.
+    I am a Stoner ferromagnet.
+
+CAPTAIN:
+    And nickel?
+
+SKIPPY:
+    Ratio 10.8. Even further from Heisenberg.
+
+CAPTAIN:
+    So the cascade independently proves what
+    fifty years of argument between Stoner
+    and Heisenberg settled — using only three
+    measured numbers.
+
+IRON:
+    Cohesive energy. Density. Curie temperature.
+    Nothing else.
+
+[IRON returns to its place in the periodic table,
+vindicated and itinerant.]
+
+
+          — ACT V: THE PREDICTIONS —
+
+
+CAPTAIN:
+    What have we actually predicted? Not verified.
+    Not tested. Predicted.
+
+SKIPPY: [consulting quantum_matter.py]
+    One. Silicon's gap is NOT from correlation.
+    U over W equals 0.20. Band insulator.
+    Testable: apply pressure until the diamond
+    structure changes. The gap should change
+    discontinuously — not gradually as Mott
+    insulators do.
+
+    Two. All mineral ions are Mott-localized.
+    Twenty-three data points. All high-spin.
+    All below the Tanabe-Sugano crossover.
+    Testable: synthesize Fe-two-plus in a
+    CN-minus octahedral environment.
+    Predict: low-spin. Already known for
+    ferrocyanide. Confirmed.
+
+    Three. The nephelauxetic beta predicts
+    conductivity. Beta below 0.65 means metallic.
+    Testable: compare NiS (beta approximately 0.60)
+    to NiO (beta approximately 0.82).
+    NiS is a metal. NiO is an insulator.
+    Known result, independently derived.
+
+    Four. Iron and nickel are itinerant magnets.
+    J-ratio nine and eleven respectively.
+    Testable: measure the spin-wave dispersion.
+    Heisenberg magnets have cos(ka) dispersion.
+    Stoner magnets have (1 minus cos(ka)) times
+    the Stoner splitting. The shape differs.
+    Iron's measured spin waves: Stoner. Known.
+
+    Five. Quantum critical field for iron:
+    B-c equals 97 Tesla. For nickel: 39 Tesla.
+    Testable at pulsed-field facilities.
+    Nobody has done this measurement.
+
+[The Captain counts on his fingers.]
+
+CAPTAIN:
+    Five predictions. Four confirmed against
+    known results we didn't program in.
+    One untested but testable. And the key
+    insight — that Tanabe-Sugano IS Mott —
+    was hiding in plain sight since 1954.
+
+[The lights dim. The Mott boundary glows on the phase
+diagram — a bright line separating metals from insulators,
+the itinerant from the localized, the free from the frozen.
+On one side: copper, gold, aluminum, shining with their
+delocalized electrons. On the other: every ruby, every
+emerald, every mineral that has color because its
+d-electrons are trapped at their sites, absorbing light
+at the frequencies that Tanabe and Sugano predicted.]
+
+SKIPPY:
+    Three thousand four hundred thirty-two tests.
+    Zero failures. Seventy-three new tests today.
+    Two new modules. Four prediction pipelines.
+    One bridge between materials science and
+    quantum computing that nobody thought to build.
+
+CAPTAIN:
+    Because nobody stood in both fields
+    at the same time.
+
+                    — CURTAIN —

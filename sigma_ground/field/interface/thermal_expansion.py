@@ -118,6 +118,91 @@ EXPANSION_DATA = {
         'gruneisen_gamma':     1.2,       # MEASURED (CRC)
         'C_v_J_mol_K':         25.1,      # MEASURED (CRC)
     },
+
+    # ── Additional metals ─────────────────────────────────────────
+    'steel_mild': {
+        'alpha_linear_per_K': 12.0e-6,   # MEASURED — similar to iron
+        'gruneisen_gamma':     1.7,
+        'C_v_J_mol_K':         25.1,
+    },
+    'lead': {
+        'alpha_linear_per_K': 28.9e-6,   # MEASURED (CRC) — high expansion
+        'gruneisen_gamma':     2.7,
+        'C_v_J_mol_K':         26.8,
+    },
+    'silver': {
+        'alpha_linear_per_K': 18.9e-6,   # MEASURED (CRC)
+        'gruneisen_gamma':     2.4,
+        'C_v_J_mol_K':         25.4,
+    },
+    'platinum': {
+        'alpha_linear_per_K': 8.8e-6,    # MEASURED (CRC)
+        'gruneisen_gamma':     2.6,
+        'C_v_J_mol_K':         25.9,
+    },
+    'depleted_uranium': {
+        'alpha_linear_per_K': 13.9e-6,   # MEASURED (CRC)
+        'gruneisen_gamma':     2.1,
+        'C_v_J_mol_K':         27.7,
+    },
+
+    # ── Non-metals ────────────────────────────────────────────────
+    # C_v is per mole of average "formula unit" based on mean A
+    'rubber': {
+        'alpha_linear_per_K': 77.0e-6,   # MEASURED — high thermal expansion
+        'gruneisen_gamma':     1.0,       # Estimated for polymer
+        'C_v_J_mol_K':         25.0,      # Approximate
+    },
+    'plastic_abs': {
+        'alpha_linear_per_K': 73.0e-6,   # MEASURED
+        'gruneisen_gamma':     1.0,
+        'C_v_J_mol_K':         25.0,
+    },
+    'glass': {
+        'alpha_linear_per_K': 9.0e-6,    # MEASURED — soda-lime
+        'gruneisen_gamma':     0.5,
+        'C_v_J_mol_K':         22.0,
+    },
+    'concrete': {
+        'alpha_linear_per_K': 12.0e-6,   # MEASURED
+        'gruneisen_gamma':     1.0,
+        'C_v_J_mol_K':         22.0,
+    },
+    'granite': {
+        'alpha_linear_per_K': 8.0e-6,    # MEASURED
+        'gruneisen_gamma':     0.8,
+        'C_v_J_mol_K':         22.0,
+    },
+    'ceramic_alumina': {
+        'alpha_linear_per_K': 5.4e-6,    # MEASURED (CRC)
+        'gruneisen_gamma':     1.1,
+        'C_v_J_mol_K':         21.0,
+    },
+    'water_ice': {
+        'alpha_linear_per_K': 50.0e-6,   # MEASURED — ice Ih at 250K
+        'gruneisen_gamma':     0.7,
+        'C_v_J_mol_K':         18.0,      # Below Dulong-Petit
+    },
+    'wood_oak': {
+        'alpha_linear_per_K': 5.0e-6,    # MEASURED — along grain (low)
+        'gruneisen_gamma':     1.0,
+        'C_v_J_mol_K':         25.0,
+    },
+    'bone': {
+        'alpha_linear_per_K': 12.0e-6,   # MEASURED — cortical bone
+        'gruneisen_gamma':     1.0,
+        'C_v_J_mol_K':         22.0,
+    },
+    'carbon_fiber': {
+        'alpha_linear_per_K': -0.5e-6,   # MEASURED — negative along fiber!
+        'gruneisen_gamma':     0.3,
+        'C_v_J_mol_K':         8.0,       # Graphite-like, low at 300K
+    },
+    'kevlar': {
+        'alpha_linear_per_K': -2.0e-6,   # MEASURED — negative along fiber
+        'gruneisen_gamma':     0.5,
+        'C_v_J_mol_K':         25.0,
+    },
 }
 
 

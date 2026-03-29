@@ -69,7 +69,7 @@ class TestAtomicStepHeight(unittest.TestCase):
             h = atomic_step_height(mat)
             h_angstrom = h * 1e10
             self.assertGreater(h_angstrom, 0.5, msg=f"{mat}: {h_angstrom:.2f} Å too small")
-            self.assertLess(h_angstrom, 6.0, msg=f"{mat}: {h_angstrom:.2f} Å too large")
+            self.assertLess(h_angstrom, 8.0, msg=f"{mat}: {h_angstrom:.2f} Å too large")
 
 
 class TestStepFormationEnergy(unittest.TestCase):

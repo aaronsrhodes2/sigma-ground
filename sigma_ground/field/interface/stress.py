@@ -180,6 +180,170 @@ STRESS_DATA = {
         'n_creep': 4.0,
         'A_creep': 1.0e6,
     },
+
+    # ── Additional metals ─────────────────────────────────────────
+    'steel_mild': {
+        'sigma_UTS_Pa': 450e6,          # AISI 1020 (MEASURED)
+        'b_fatigue': -0.087,
+        'C_paris': 6.9e-12,
+        'm_paris': 3.0,
+        'K_Ic_measured': 50e6,
+        'Q_creep_eV': 2.6,
+        'n_creep': 4.5,
+        'A_creep': 2.0e6,
+    },
+    'lead': {
+        'sigma_UTS_Pa': 18e6,           # Pure Pb (MEASURED) — very soft
+        'b_fatigue': -0.12,
+        'C_paris': 1.0e-10,
+        'm_paris': 3.5,
+        'K_Ic_measured': 15e6,          # Ductile, high toughness for softness
+        'Q_creep_eV': 1.1,             # Very low — creeps at room temp
+        'n_creep': 4.0,
+        'A_creep': 1.0e10,             # High pre-exponential, fast creep
+    },
+    'silver': {
+        'sigma_UTS_Pa': 170e6,          # Annealed Ag (MEASURED)
+        'b_fatigue': -0.10,
+        'C_paris': 3.0e-11,
+        'm_paris': 3.2,
+        'K_Ic_measured': 50e6,          # Ductile FCC
+        'Q_creep_eV': 1.9,
+        'n_creep': 4.0,
+        'A_creep': 5.0e7,
+    },
+    'platinum': {
+        'sigma_UTS_Pa': 140e6,          # Annealed Pt (MEASURED)
+        'b_fatigue': -0.09,
+        'C_paris': 3.0e-12,
+        'm_paris': 3.0,
+        'K_Ic_measured': 60e6,
+        'Q_creep_eV': 2.9,
+        'n_creep': 4.0,
+        'A_creep': 1.0e5,
+    },
+    'depleted_uranium': {
+        'sigma_UTS_Pa': 1200e6,         # U-0.75Ti alloy (MEASURED)
+        'b_fatigue': -0.08,
+        'C_paris': 5.0e-12,
+        'm_paris': 3.0,
+        'K_Ic_measured': 35e6,
+        'Q_creep_eV': 2.0,
+        'n_creep': 4.0,
+        'A_creep': 1.0e6,
+    },
+
+    # ── Non-metals ────────────────────────────────────────────────
+    'rubber': {
+        'sigma_UTS_Pa': 25e6,           # Tensile (MEASURED)
+        'b_fatigue': -0.15,             # Polymer fatigue
+        'C_paris': 1.0e-8,
+        'm_paris': 4.0,
+        'K_Ic_measured': 1.0e6,         # 1 MPa√m — tears easily
+        'Q_creep_eV': 0.8,
+        'n_creep': 2.0,
+        'A_creep': 1.0e12,
+    },
+    'plastic_abs': {
+        'sigma_UTS_Pa': 44e6,           # MEASURED
+        'b_fatigue': -0.12,
+        'C_paris': 5.0e-9,
+        'm_paris': 4.0,
+        'K_Ic_measured': 3.0e6,
+        'Q_creep_eV': 1.0,
+        'n_creep': 3.0,
+        'A_creep': 1.0e10,
+    },
+    'glass': {
+        'sigma_UTS_Pa': 33e6,           # Tensile fracture (MEASURED)
+        'b_fatigue': -0.05,
+        'C_paris': 1.0e-13,
+        'm_paris': 2.0,
+        'K_Ic_measured': 0.75e6,        # Very brittle
+        'Q_creep_eV': 4.0,
+        'n_creep': 3.0,
+        'A_creep': 1.0e-4,
+    },
+    'concrete': {
+        'sigma_UTS_Pa': 3e6,            # Tensile! (MEASURED) — 10x weaker than compressive
+        'b_fatigue': -0.06,
+        'C_paris': 5.0e-12,
+        'm_paris': 3.0,
+        'K_Ic_measured': 1.0e6,
+        'Q_creep_eV': 2.0,
+        'n_creep': 3.0,
+        'A_creep': 1.0e4,
+    },
+    'granite': {
+        'sigma_UTS_Pa': 15e6,           # Tensile (MEASURED) — strong in compression
+        'b_fatigue': -0.06,
+        'C_paris': 1.0e-12,
+        'm_paris': 2.5,
+        'K_Ic_measured': 1.5e6,
+        'Q_creep_eV': 3.0,
+        'n_creep': 3.0,
+        'A_creep': 1.0e-2,
+    },
+    'ceramic_alumina': {
+        'sigma_UTS_Pa': 300e6,          # Flexural (MEASURED)
+        'b_fatigue': -0.05,
+        'C_paris': 5.0e-14,
+        'm_paris': 2.5,
+        'K_Ic_measured': 4.0e6,         # 4 MPa√m
+        'Q_creep_eV': 4.5,
+        'n_creep': 3.0,
+        'A_creep': 1.0e-4,
+    },
+    'water_ice': {
+        'sigma_UTS_Pa': 1e6,            # Tensile (MEASURED) — very weak
+        'b_fatigue': -0.10,
+        'C_paris': 1.0e-9,
+        'm_paris': 4.0,
+        'K_Ic_measured': 0.1e6,         # 0.1 MPa√m
+        'Q_creep_eV': 0.6,             # Glen's flow law
+        'n_creep': 3.0,                # Glen's exponent
+        'A_creep': 1.0e14,             # Glacier flow
+    },
+    'wood_oak': {
+        'sigma_UTS_Pa': 100e6,          # Tensile along grain (MEASURED)
+        'b_fatigue': -0.08,
+        'C_paris': 1.0e-10,
+        'm_paris': 3.5,
+        'K_Ic_measured': 5.0e6,         # Along grain
+        'Q_creep_eV': 1.2,
+        'n_creep': 3.0,
+        'A_creep': 1.0e6,
+    },
+    'bone': {
+        'sigma_UTS_Pa': 150e6,          # Tensile, cortical (MEASURED)
+        'b_fatigue': -0.08,
+        'C_paris': 5.0e-11,
+        'm_paris': 3.5,
+        'K_Ic_measured': 5.0e6,         # 5 MPa√m — biocomposite
+        'Q_creep_eV': 1.5,
+        'n_creep': 3.0,
+        'A_creep': 1.0e6,
+    },
+    'carbon_fiber': {
+        'sigma_UTS_Pa': 3500e6,         # Tensile along fiber (MEASURED)
+        'b_fatigue': -0.05,
+        'C_paris': 1.0e-13,
+        'm_paris': 2.5,
+        'K_Ic_measured': 40e6,          # CFRP composite
+        'Q_creep_eV': 5.0,
+        'n_creep': 3.0,
+        'A_creep': 1.0e-4,
+    },
+    'kevlar': {
+        'sigma_UTS_Pa': 3600e6,         # Fiber tensile (MEASURED)
+        'b_fatigue': -0.06,
+        'C_paris': 1.0e-11,
+        'm_paris': 3.0,
+        'K_Ic_measured': 30e6,
+        'Q_creep_eV': 2.0,
+        'n_creep': 3.0,
+        'A_creep': 1.0e2,
+    },
 }
 
 

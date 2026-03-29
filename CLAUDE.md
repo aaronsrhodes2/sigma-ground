@@ -33,6 +33,26 @@ DRAMATIS PERSONAE header. Draw from SESSION_LOG.md.
 - `examples/` — Five standalone usage examples.
 - `misc/` — Session log and operatic play scenes (13+ scenes).
 
+**MCP Server — Nagatha (v5.0.0)**
+- Nagatha exposes the entire sigma-ground library as callable MCP tools.
+- When asked to produce a **simulation**, **test**, **experiment**, or **scene**,
+  use the MCP tools (`search`, `describe`, `list_functions`, `run`, `generate_test`)
+  instead of reasoning about the physics yourself. Nagatha runs the real code;
+  her results are authoritative.
+- Workflow: `search` → `describe` → `run`. Use `list_functions`/`list_categories`
+  for browsing. Use `generate_test` for automated test generation.
+- **Test modes:**
+  - `generate_test(mode="experiment")` — default. For end users running scenarios.
+    Lightweight, no internal test boilerplate.
+  - `generate_test(mode="development")` — for Aaron + Claude building modules.
+    Full-coverage tests matching `test_*.py` patterns. Save as
+    `sigma_ground/field/interface/test_<category>.py`.
+- **Diagnostics:** Nagatha flags suspected bugs (bad sigma defaults, earth-sigma
+  violations) but NEVER fixes them. Report findings to user for review.
+- **Scientifically honest:** Nagatha reports what the code actually does, not
+  what it should do. If a function produces a wrong value, the test captures
+  that wrong value and flags it.
+
 **Rendering lives in matter-shaper (sibling project at ../matter-shaper/)**
 
 **Testing**

@@ -68,11 +68,15 @@ class TestRealContactArea(unittest.TestCase):
     """Bowden-Tabor: real contact is tiny fraction of apparent area."""
 
     def test_contact_fraction_less_than_one(self):
-        """Real contact area must be < apparent area for reasonable loads."""
+        """Real contact area must be < apparent area for reasonable loads.
+
+        Soft materials (rubber, polymers) may reach full contact at 1 MPa.
+        This is physically correct — Tabor: A_real/A = P/H, and H is low.
+        """
         for mat in MATERIALS:
             f = real_contact_fraction(mat, pressure_pa=1e6)  # 1 MPa
             self.assertGreater(f, 0, msg=f"{mat}: contact fraction must be > 0")
-            self.assertLess(f, 1.0, msg=f"{mat}: contact fraction must be < 1")
+            self.assertLessEqual(f, 1.0, msg=f"{mat}: contact fraction must be <= 1")
 
     def test_contact_increases_with_pressure(self):
         """More load → more real contact (Bowden-Tabor)."""

@@ -64,7 +64,7 @@ Origin tags:
 """
 
 import math
-from .surface import MATERIALS, surface_energy_at_sigma
+from .surface import MATERIALS, surface_energy_at_sigma, bulk_coordination
 
 # ── Constants ─────────────────────────────────────────────────────
 _K_BOLTZMANN = 1.380649e-23   # J/K (exact, 2019 SI)
@@ -120,6 +120,11 @@ def atomic_step_height(material_key):
     face = mat['preferred_face']
     a_m = mat['lattice_param_angstrom'] * 1e-10  # Å → m
 
+    # Amorphous materials have no crystal planes — use lattice param
+    # (average nearest-neighbor spacing) directly as the step height.
+    if struct == 'amorphous':
+        return a_m
+
     msq = _miller_sum_sq(struct, face)
 
     if msq is None:
@@ -149,6 +154,19 @@ def step_formation_energy(material_key, sigma=0.0):
     Returns:
         Step formation energy in J/m (energy per meter of step edge).
     """
+    mat = MATERIALS[material_key]
+    struct = mat['crystal_structure']
+
+    if struct == 'amorphous':
+        # Amorphous materials have no well-defined step edges.
+        # Approximate the energy cost of displacing one atom from the surface
+        # as cohesive_energy / bulk_coordination, converted to J/m by dividing
+        # by the lattice spacing.
+        E_coh_J = mat['cohesive_energy_ev'] * _EV_TO_JOULE
+        z_bulk = bulk_coordination(struct)
+        a_m = mat['lattice_param_angstrom'] * 1e-10
+        return (E_coh_J / z_bulk) / a_m
+
     gamma = surface_energy_at_sigma(material_key, sigma)
     h = atomic_step_height(material_key)
     return gamma * h
@@ -186,12 +204,20 @@ def thermal_roughness(material_key, T=300.0, sigma=0.0):
     if T <= 0:
         return 0.0
 
+    mat = MATERIALS[material_key]
+    struct = mat['crystal_structure']
+    a_m = mat['lattice_param_angstrom'] * 1e-10
+
+    if struct == 'amorphous':
+        # Simplified model for amorphous materials: no ordered step lattice.
+        # Use Lindemann-like thermal displacement relative to the cohesive
+        # energy well depth.  RMS displacement ~ a * sqrt(kT / E_coh).
+        E_coh_J = mat['cohesive_energy_ev'] * _EV_TO_JOULE
+        ratio = _K_BOLTZMANN * T / E_coh_J
+        return a_m * math.sqrt(ratio)
+
     h = atomic_step_height(material_key)
     E_line = step_formation_energy(material_key, sigma)
-
-    # Step atom spacing: approximately the lattice parameter
-    mat = MATERIALS[material_key]
-    a_m = mat['lattice_param_angstrom'] * 1e-10
 
     # Energy to create one step atom: E_line × a
     # (one atom-width of step edge costs E_line × a)
@@ -283,10 +309,18 @@ def microfacet_roughness(material_key, T=300.0, sigma=0.0):
     Returns:
         Beckmann roughness parameter α (dimensionless, 0 < α < 1 for smooth).
     """
+    mat = MATERIALS[material_key]
+    struct = mat['crystal_structure']
+
+    if struct == 'amorphous':
+        # Amorphous surfaces lack long-range order, giving moderate
+        # roughness.  Return 0.4 — rougher than polished crystal but
+        # not fully diffuse.
+        return 0.4
+
     rms = thermal_roughness(material_key, T, sigma)
 
     # Correlation length: lattice parameter (atomic-scale)
-    mat = MATERIALS[material_key]
     l_corr = mat['lattice_param_angstrom'] * 1e-10
 
     alpha = rms / l_corr
@@ -324,6 +358,14 @@ def specular_fraction(material_key, T=300.0, wavelength_m=550e-9, sigma=0.0):
     Returns:
         Specular fraction (0 to 1).
     """
+    mat = MATERIALS[material_key]
+    struct = mat['crystal_structure']
+
+    if struct == 'amorphous':
+        # Amorphous surfaces are inherently rough at the atomic scale —
+        # return a low specular fraction (mostly diffuse scattering).
+        return 0.15
+
     rms = thermal_roughness(material_key, T, sigma)
 
     # Phase variance parameter

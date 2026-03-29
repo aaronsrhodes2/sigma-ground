@@ -311,7 +311,7 @@ def impact_sound_frequency(material_key, velocity=1.0, radius_m=0.01,
 
 # ── σ-field function ──────────────────────────────────────────────
 
-def sigma_cor_ratio(material_key, velocity=1.0, sigma=0.1):
+def sigma_cor_ratio(material_key, velocity=1.0, sigma=SIGMA_HERE):
     """Ratio of COR at σ to COR at σ=0.
 
     Heavier nuclei → stiffer lattice → higher yield stress → more

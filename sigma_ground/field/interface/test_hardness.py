@@ -49,6 +49,22 @@ MEASURED_HV = {
     'nickel':   (70, 180),    # Pure Ni annealed
     'titanium': (120, 250),   # CP-Ti Grade 2
     'silicon':  (50, 1400),   # Very wide — brittle, Tabor unreliable
+    'steel_mild':      (100, 220),    # Similar to iron, annealed mild steel
+    'lead':            (3, 20),       # Very soft metal
+    'silver':          (20, 100),     # Soft noble metal
+    'platinum':        (35, 100),     # Soft noble metal
+    'depleted_uranium': (200, 450),   # Hard dense metal
+    'rubber':          (0.1, 120),    # Elastomer — Tabor unreliable, model may overshoot
+    'plastic_abs':     (5, 50),       # Thermoplastic polymer
+    'glass':           (5, 750),      # Brittle amorphous — Tabor unreliable
+    'concrete':        (5, 110),      # Porous composite
+    'granite':         (20, 950),     # Hard mineral aggregate — Tabor unreliable
+    'ceramic_alumina': (400, 2600),   # Hard ceramic
+    'water_ice':       (0.3, 5),      # Ice near 0°C
+    'wood_oak':        (2, 20),       # Organic fibrous solid
+    'bone':            (20, 80),      # Biological composite
+    'carbon_fiber':    (150, 450),    # CFRP composite
+    'kevlar':          (15, 180),     # Aramid fiber composite
 }
 
 

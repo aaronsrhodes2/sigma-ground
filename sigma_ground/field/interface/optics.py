@@ -86,6 +86,12 @@ VALENCE_ELECTRONS = {
     'tungsten': 2,   # [Xe] 4f¹⁴5d⁴6s² → ~2 itinerant
     'titanium': 2,   # [Ar] 3d²4s² → ~2 itinerant
     'silicon':  0,   # semiconductor; no free carriers at 0K
+    # Additional metals
+    'steel_mild':       2,   # same as iron (Fe-dominated)
+    'lead':             4,   # [Xe]4f¹⁴5d¹⁰6s²6p² → 4
+    'silver':           1,   # [Kr]4d¹⁰5s¹ → 1
+    'platinum':         2,   # [Xe]4f¹⁴5d⁹6s¹ → ~2 effective
+    'depleted_uranium': 3,   # [Rn]5f³6d¹7s² → ~3 effective
 }
 
 # ── Electrical resistivities (MEASURED, ~300K) ───────────────────────────
@@ -102,6 +108,12 @@ RESISTIVITY = {
     'tungsten': 5.28e-8,
     'titanium': 4.20e-7,
     'silicon':  None,
+    # Additional metals
+    'steel_mild':       1.43e-7,
+    'lead':             2.07e-7,
+    'silver':           1.59e-8,
+    'platinum':         1.06e-7,
+    'depleted_uranium': 2.80e-7,
 }
 
 # ── Measured complex refractive index (MEASURED, Palik / Johnson-Christy) ─
@@ -172,6 +184,25 @@ MEASURED_NK = {
         650e-9: (2.16, 2.93),
         550e-9: (2.04, 3.04),
         450e-9: (1.68, 2.92),
+    },
+    # Silver — Johnson & Christy (1972)
+    # Nearly flat reflectance across visible — white/silver
+    'silver': {
+        650e-9: (0.14, 4.15),
+        550e-9: (0.06, 3.59),
+        450e-9: (0.04, 2.66),
+    },
+    # Lead — Palik (1985)
+    'lead': {
+        650e-9: (1.90, 3.48),
+        550e-9: (2.01, 3.70),
+        450e-9: (1.96, 3.63),
+    },
+    # Platinum — Palik (1985)
+    'platinum': {
+        650e-9: (2.63, 4.15),
+        550e-9: (2.32, 4.06),
+        450e-9: (1.89, 3.62),
     },
 }
 

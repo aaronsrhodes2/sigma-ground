@@ -190,6 +190,149 @@ PHASE_DATA = {
         'delta_V_fus':      0.0285,    # ~2.9% volume increase
         'dT_dP_melt_K_GPa': 3.3,       # DERIVED from Clausius-Clapeyron (measured ΔH_fus, ΔV)
     },
+
+    # ── Additional metals ──────────────────────────────────────────
+    'steel_mild': {
+        # Essentially iron with trace carbon; melting range ~1770-1800 K
+        'T_melt_K':         1783.0,
+        'T_boil_K':         3134.0,     # same as iron
+        'L_fus_J_mol':      13800.0,    # ~iron
+        'L_vap_J_mol':      340000.0,   # ~iron
+        'delta_V_fus':      0.0336,     # ~iron
+        'dT_dP_melt_K_GPa': 3.4,       # ~iron
+    },
+    'lead': {
+        'T_melt_K':         600.61,
+        'T_boil_K':         2022.0,
+        'L_fus_J_mol':      4774.0,     # 4.77 kJ/mol
+        'L_vap_J_mol':      179500.0,   # 179.5 kJ/mol
+        'delta_V_fus':      0.035,      # ~3.5% volume increase
+        'dT_dP_melt_K_GPa': 8.0,       # ESTIMATED
+    },
+    'silver': {
+        'T_melt_K':         1234.93,
+        'T_boil_K':         2435.0,
+        'L_fus_J_mol':      11300.0,    # 11.30 kJ/mol
+        'L_vap_J_mol':      250600.0,   # 250.6 kJ/mol
+        'delta_V_fus':      0.038,      # ~3.8% volume increase
+        'dT_dP_melt_K_GPa': 4.6,       # ESTIMATED
+    },
+    'platinum': {
+        'T_melt_K':         2041.4,
+        'T_boil_K':         4098.0,
+        'L_fus_J_mol':      22170.0,    # 22.17 kJ/mol
+        'L_vap_J_mol':      469000.0,   # 469 kJ/mol
+        'delta_V_fus':      0.042,      # ~4.2% volume increase
+        'dT_dP_melt_K_GPa': 4.0,       # ESTIMATED
+    },
+    'depleted_uranium': {
+        'T_melt_K':         1405.3,
+        'T_boil_K':         4404.0,
+        'L_fus_J_mol':      9140.0,     # 9.14 kJ/mol
+        'L_vap_J_mol':      417000.0,   # 417 kJ/mol
+        'delta_V_fus':      0.025,      # ~2.5% volume increase
+        'dT_dP_melt_K_GPa': 3.5,       # ESTIMATED
+    },
+
+    # ── Polymers ─────────────────────────────────────────────────────
+    # Polymers do not have sharp melting points; values here represent
+    # glass transition or softening temperatures and decomposition points.
+    'rubber': {
+        'T_melt_K':         200.0,      # glass transition ~200 K (-73 C)
+        'T_boil_K':         573.0,      # decomposes ~300 C
+        'L_fus_J_mol':      4000.0,     # approximate enthalpy of glass transition
+        'L_vap_J_mol':      50000.0,    # decomposition enthalpy
+        'delta_V_fus':      0.05,       # ~5% expansion at Tg
+        'dT_dP_melt_K_GPa': 20.0,      # ESTIMATED (polymers have large dT/dP)
+    },
+    'plastic_abs': {
+        'T_melt_K':         378.0,      # glass transition ~105 C
+        'T_boil_K':         673.0,      # decomposes ~400 C
+        'L_fus_J_mol':      5000.0,     # approximate
+        'L_vap_J_mol':      60000.0,    # decomposition enthalpy
+        'delta_V_fus':      0.04,       # ~4% expansion
+        'dT_dP_melt_K_GPa': 25.0,      # ESTIMATED
+    },
+    'kevlar': {
+        'T_melt_K':         773.0,      # decomposes ~500 C (no true melting)
+        'T_boil_K':         873.0,      # thermal degradation
+        'L_fus_J_mol':      8000.0,     # approximate decomposition enthalpy
+        'L_vap_J_mol':      80000.0,    # decomposition enthalpy
+        'delta_V_fus':      0.03,       # estimated
+        'dT_dP_melt_K_GPa': 15.0,      # ESTIMATED
+    },
+
+    # ── Ceramics and Minerals ──────────────────────────────────────
+    'glass': {
+        'T_melt_K':         1273.0,     # softening point ~1000 C (soda-lime)
+        'T_boil_K':         2773.0,     # vaporization ~2500 C
+        'L_fus_J_mol':      9000.0,     # approximate
+        'L_vap_J_mol':      300000.0,   # approximate
+        'delta_V_fus':      0.01,       # glass has very small ΔV
+        'dT_dP_melt_K_GPa': 5.0,       # ESTIMATED
+    },
+    'concrete': {
+        'T_melt_K':         1773.0,     # calcium silicates decompose ~1500 C
+        'T_boil_K':         3273.0,     # estimated from components
+        'L_fus_J_mol':      20000.0,    # approximate (multi-phase)
+        'L_vap_J_mol':      300000.0,   # approximate
+        'delta_V_fus':      0.02,       # estimated
+        'dT_dP_melt_K_GPa': 4.0,       # ESTIMATED
+    },
+    'granite': {
+        'T_melt_K':         1473.0,     # solidus ~1200 C for granite
+        'T_boil_K':         3273.0,     # estimated from SiO₂ components
+        'L_fus_J_mol':      15000.0,    # approximate (multi-mineral)
+        'L_vap_J_mol':      300000.0,   # approximate
+        'delta_V_fus':      0.02,       # estimated
+        'dT_dP_melt_K_GPa': 5.0,       # ESTIMATED
+    },
+    'ceramic_alumina': {
+        'T_melt_K':         2345.0,     # Al₂O₃ melting point
+        'T_boil_K':         3250.0,     # Al₂O₃ boiling point
+        'L_fus_J_mol':      44000.0,    # 44 kJ/mol (per mole of Al₂O₃ / 5 atoms → per effective atom)
+        'L_vap_J_mol':      500000.0,   # approximate
+        'delta_V_fus':      0.02,       # estimated
+        'dT_dP_melt_K_GPa': 3.0,       # ESTIMATED
+    },
+    'water_ice': {
+        # Water/ice is anomalous: contracts on melting (like silicon)
+        'T_melt_K':         273.15,
+        'T_boil_K':         373.15,
+        'L_fus_J_mol':      6010.0,     # 6.01 kJ/mol
+        'L_vap_J_mol':      40660.0,    # 40.66 kJ/mol
+        'delta_V_fus':      -0.083,     # ice contracts on melting (~-8.3%)
+        'dT_dP_melt_K_GPa': -74.0,     # MEASURED: anomalous negative slope
+    },
+
+    # ── Organic composites ─────────────────────────────────────────
+    'wood_oak': {
+        'T_melt_K':         473.0,      # chars/decomposes ~200 C (no true melting)
+        'T_boil_K':         773.0,      # pyrolysis gases ~500 C
+        'L_fus_J_mol':      5000.0,     # approximate decomposition enthalpy
+        'L_vap_J_mol':      60000.0,    # pyrolysis enthalpy
+        'delta_V_fus':      0.05,       # estimated (expansion on thermal degradation)
+        'dT_dP_melt_K_GPa': 30.0,      # ESTIMATED (soft material, large dT/dP)
+    },
+    'bone': {
+        'T_melt_K':         1673.0,     # hydroxyapatite decomposes ~1400 C
+        'T_boil_K':         3273.0,     # estimated
+        'L_fus_J_mol':      15000.0,    # approximate (hydroxyapatite contribution)
+        'L_vap_J_mol':      300000.0,   # approximate
+        'delta_V_fus':      0.02,       # estimated
+        'dT_dP_melt_K_GPa': 4.0,       # ESTIMATED
+    },
+
+    # ── Composites ─────────────────────────────────────────────────
+    'carbon_fiber': {
+        # Graphite sublimes; epoxy decomposes. Use graphite sublimation data.
+        'T_melt_K':         3550.0,     # graphite sublimation at 1 atm (no liquid at 1 atm)
+        'T_boil_K':         3915.0,     # sublimation point ~3915 K
+        'L_fus_J_mol':      45000.0,    # approximate sublimation enthalpy fraction
+        'L_vap_J_mol':      710000.0,   # graphite sublimation enthalpy ~710 kJ/mol
+        'delta_V_fus':      0.01,       # sublimation, not true melting
+        'dT_dP_melt_K_GPa': 2.0,       # ESTIMATED
+    },
 }
 
 

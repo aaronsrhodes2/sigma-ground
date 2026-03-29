@@ -40,6 +40,22 @@ from .constants import (
     M_SUN_KG, L_SUN_W, AU_M, YEAR_S,
 )
 from .dynamics.vec import Vec3
+from .shapes import (
+    Shape, Sphere, HollowSphere, Cylinder, Box, Ellipsoid, Cone,
+    Torus, Ring, Plane, Structure,
+    sphere, cylinder, box, ellipsoid, cone, torus, plane,
+    mass_from_shape, moment_of_inertia,
+)
+from .parts import (
+    list_parts, convert_to_primitives, sample_boundary,
+    shape_budget_from_source,
+    pipe_structure, bolt_structure, beam_structure,
+    PIPES, ISO_BOLTS, W_BEAMS,
+)
+from .csg import (
+    ComposedSDF,
+    sdf_union, sdf_subtract, sdf_intersect, sdf_smooth_union,
+)
 
 __all__ = [
     # Fundamental constants
@@ -51,4 +67,17 @@ __all__ = [
     'M_SUN_KG', 'L_SUN_W', 'AU_M', 'YEAR_S',
     # Math primitives
     'Vec3',
+    # Geometric shapes — structure = material + shape
+    'Shape', 'Sphere', 'HollowSphere', 'Cylinder', 'Box',
+    'Ellipsoid', 'Cone', 'Torus', 'Ring', 'Plane', 'Structure',
+    'sphere', 'cylinder', 'box', 'ellipsoid', 'cone', 'torus', 'plane',
+    'mass_from_shape', 'moment_of_inertia',
+    # Standard parts catalog
+    'list_parts', 'convert_to_primitives', 'sample_boundary',
+    'shape_budget_from_source',
+    'pipe_structure', 'bolt_structure', 'beam_structure',
+    'PIPES', 'ISO_BOLTS', 'W_BEAMS',
+    # CSG composition (A3DVS)
+    'ComposedSDF',
+    'sdf_union', 'sdf_subtract', 'sdf_intersect', 'sdf_smooth_union',
 ]

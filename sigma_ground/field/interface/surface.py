@@ -75,8 +75,10 @@ def _zero_point_energy_fraction(material_key, sigma=SIGMA_HERE):
 # preferred_face: lowest-energy cleave plane
 
 MATERIALS = {
+    # ── Metals (original 8) ──────────────────────────────────────────
     'iron': {
         'name': 'Iron',
+        'material_type': 'metal',
         'Z': 26, 'A': 56,
         'density_kg_m3': 7874,
         'cohesive_energy_ev': 4.28,
@@ -87,6 +89,7 @@ MATERIALS = {
     },
     'copper': {
         'name': 'Copper',
+        'material_type': 'metal',
         'Z': 29, 'A': 64,
         'density_kg_m3': 8960,
         'cohesive_energy_ev': 3.49,
@@ -97,6 +100,7 @@ MATERIALS = {
     },
     'aluminum': {
         'name': 'Aluminum',
+        'material_type': 'metal',
         'Z': 13, 'A': 27,
         'density_kg_m3': 2700,
         'cohesive_energy_ev': 3.39,
@@ -107,6 +111,7 @@ MATERIALS = {
     },
     'gold': {
         'name': 'Gold',
+        'material_type': 'metal',
         'Z': 79, 'A': 197,
         'density_kg_m3': 19300,
         'cohesive_energy_ev': 3.81,
@@ -117,6 +122,7 @@ MATERIALS = {
     },
     'silicon': {
         'name': 'Silicon',
+        'material_type': 'semiconductor',
         'Z': 14, 'A': 28,
         'density_kg_m3': 2330,
         'cohesive_energy_ev': 4.63,
@@ -127,6 +133,7 @@ MATERIALS = {
     },
     'tungsten': {
         'name': 'Tungsten',
+        'material_type': 'metal',
         'Z': 74, 'A': 184,
         'density_kg_m3': 19250,
         'cohesive_energy_ev': 8.90,
@@ -137,6 +144,7 @@ MATERIALS = {
     },
     'nickel': {
         'name': 'Nickel',
+        'material_type': 'metal',
         'Z': 28, 'A': 59,
         'density_kg_m3': 8908,
         'cohesive_energy_ev': 4.44,
@@ -147,6 +155,7 @@ MATERIALS = {
     },
     'titanium': {
         'name': 'Titanium',
+        'material_type': 'metal',
         'Z': 22, 'A': 48,
         'density_kg_m3': 4507,
         'cohesive_energy_ev': 4.85,
@@ -154,6 +163,192 @@ MATERIALS = {
         'lattice_param_angstrom': 2.951,
         'preferred_face': '0001',
         'composition': 'Ti (α, HCP)',
+    },
+
+    # ── Additional Metals (Priority 2) ───────────────────────────────
+    'steel_mild': {
+        'name': 'Mild Steel',
+        'material_type': 'metal',
+        'Z': 26, 'A': 56,          # essentially iron
+        'density_kg_m3': 7850,
+        'cohesive_energy_ev': 4.28,  # Fe-dominated
+        'crystal_structure': 'bcc',
+        'lattice_param_angstrom': 2.867,
+        'preferred_face': '110',
+        'composition': 'Fe-0.2C (low carbon steel)',
+    },
+    'lead': {
+        'name': 'Lead',
+        'material_type': 'metal',
+        'Z': 82, 'A': 207,
+        'density_kg_m3': 11340,
+        'cohesive_energy_ev': 2.03,
+        'crystal_structure': 'fcc',
+        'lattice_param_angstrom': 4.950,
+        'preferred_face': '111',
+        'composition': 'Pb',
+    },
+    'silver': {
+        'name': 'Silver',
+        'material_type': 'metal',
+        'Z': 47, 'A': 108,
+        'density_kg_m3': 10490,
+        'cohesive_energy_ev': 2.95,
+        'crystal_structure': 'fcc',
+        'lattice_param_angstrom': 4.085,
+        'preferred_face': '111',
+        'composition': 'Ag',
+    },
+    'platinum': {
+        'name': 'Platinum',
+        'material_type': 'metal',
+        'Z': 78, 'A': 195,
+        'density_kg_m3': 21450,
+        'cohesive_energy_ev': 5.84,
+        'crystal_structure': 'fcc',
+        'lattice_param_angstrom': 3.924,
+        'preferred_face': '111',
+        'composition': 'Pt',
+    },
+    'depleted_uranium': {
+        'name': 'Depleted Uranium',
+        'material_type': 'metal',
+        'Z': 92, 'A': 238,
+        'density_kg_m3': 19100,
+        'cohesive_energy_ev': 5.55,
+        'crystal_structure': 'bcc',    # α-U is orthorhombic; bcc approx
+        'lattice_param_angstrom': 3.47,
+        'preferred_face': '110',
+        'composition': 'U (depleted, 99.8% U-238)',
+    },
+
+    # ── Polymers ─────────────────────────────────────────────────────
+    'rubber': {
+        'name': 'Natural Rubber',
+        'material_type': 'polymer',
+        'Z': 2.9, 'A': 5.2,        # C₅H₈ isoprene average
+        'density_kg_m3': 920,
+        'cohesive_energy_ev': 0.30,  # van der Waals inter-chain
+        'crystal_structure': 'amorphous',
+        'lattice_param_angstrom': 4.6,  # chain-chain spacing
+        'preferred_face': 'amorphous',
+        'composition': '(C₅H₈)ₙ polyisoprene, vulcanized',
+    },
+    'plastic_abs': {
+        'name': 'ABS Plastic',
+        'material_type': 'polymer',
+        'Z': 3.5, 'A': 7.0,        # C/H/N average
+        'density_kg_m3': 1040,
+        'cohesive_energy_ev': 0.35,  # inter-chain vdW
+        'crystal_structure': 'amorphous',
+        'lattice_param_angstrom': 5.0,
+        'preferred_face': 'amorphous',
+        'composition': 'Acrylonitrile-Butadiene-Styrene copolymer',
+    },
+
+    # ── Ceramics and Minerals ────────────────────────────────────────
+    'glass': {
+        'name': 'Soda-Lime Glass',
+        'material_type': 'ceramic',
+        'Z': 10.0, 'A': 20.0,       # SiO₂-dominated average
+        'density_kg_m3': 2500,
+        'cohesive_energy_ev': 4.00,   # Si-O bonds
+        'crystal_structure': 'amorphous',
+        'lattice_param_angstrom': 5.0,  # SiO₄ tetrahedra spacing
+        'preferred_face': 'amorphous',
+        'composition': '72% SiO₂, 14% Na₂O, 10% CaO, 4% other',
+    },
+    'concrete': {
+        'name': 'Portland Concrete',
+        'material_type': 'ceramic',
+        'Z': 12.0, 'A': 24.0,       # Ca/Si/O/Al average
+        'density_kg_m3': 2300,
+        'cohesive_energy_ev': 2.00,   # ionic + covalent mix
+        'crystal_structure': 'amorphous',  # microcrystalline composite
+        'lattice_param_angstrom': 5.0,
+        'preferred_face': 'amorphous',
+        'composition': 'CaO·SiO₂ hydrates + aggregate',
+    },
+    'granite': {
+        'name': 'Granite',
+        'material_type': 'ceramic',
+        'Z': 11.0, 'A': 22.0,       # Si/O/Al/K average
+        'density_kg_m3': 2700,
+        'cohesive_energy_ev': 3.50,   # Si-O bonds in quartz/feldspar
+        'crystal_structure': 'amorphous',  # polycrystalline composite
+        'lattice_param_angstrom': 5.0,
+        'preferred_face': 'amorphous',
+        'composition': '~72% SiO₂ (quartz + feldspar + mica)',
+    },
+    'ceramic_alumina': {
+        'name': 'Alumina',
+        'material_type': 'ceramic',
+        'Z': 10.0, 'A': 20.4,       # Al₂O₃ average
+        'density_kg_m3': 3950,
+        'cohesive_energy_ev': 5.50,   # strong ionic-covalent
+        'crystal_structure': 'hcp',   # corundum (α-Al₂O₃)
+        'lattice_param_angstrom': 4.759,
+        'preferred_face': '0001',
+        'composition': 'Al₂O₃ (corundum)',
+    },
+    'water_ice': {
+        'name': 'Water Ice',
+        'material_type': 'ceramic',   # crystalline solid
+        'Z': 3.3, 'A': 6.0,          # H₂O average
+        'density_kg_m3': 917,
+        'cohesive_energy_ev': 0.52,   # hydrogen bond energy
+        'crystal_structure': 'hcp',   # ice Ih hexagonal
+        'lattice_param_angstrom': 4.52,
+        'preferred_face': '0001',
+        'composition': 'H₂O (ice Ih)',
+    },
+
+    # ── Organic Composites ───────────────────────────────────────────
+    'wood_oak': {
+        'name': 'Oak Wood',
+        'material_type': 'organic',
+        'Z': 3.5, 'A': 7.0,          # C/H/O average
+        'density_kg_m3': 700,
+        'cohesive_energy_ev': 0.50,   # H-bonds + vdW
+        'crystal_structure': 'amorphous',  # fibrous composite
+        'lattice_param_angstrom': 5.0,
+        'preferred_face': 'amorphous',
+        'composition': 'Cellulose + lignin + hemicellulose',
+    },
+    'bone': {
+        'name': 'Cortical Bone',
+        'material_type': 'organic',
+        'Z': 7.4, 'A': 14.7,         # hydroxyapatite + collagen average
+        'density_kg_m3': 1900,
+        'cohesive_energy_ev': 2.00,   # ionic (apatite) + H-bond (collagen)
+        'crystal_structure': 'hcp',   # hydroxyapatite phase
+        'lattice_param_angstrom': 9.42,  # apatite a-axis
+        'preferred_face': '0001',
+        'composition': '~65% Ca₁₀(PO₄)₆(OH)₂ + ~35% collagen',
+    },
+
+    # ── Composites ───────────────────────────────────────────────────
+    'carbon_fiber': {
+        'name': 'Carbon Fiber (CFRP)',
+        'material_type': 'composite',
+        'Z': 6.0, 'A': 12.0,         # carbon-dominated
+        'density_kg_m3': 1600,
+        'cohesive_energy_ev': 7.37,   # graphitic C-C bonds
+        'crystal_structure': 'hcp',   # graphite layers
+        'lattice_param_angstrom': 2.461,
+        'preferred_face': '0001',
+        'composition': '~60% carbon fiber + ~40% epoxy matrix',
+    },
+    'kevlar': {
+        'name': 'Kevlar',
+        'material_type': 'polymer',
+        'Z': 4.0, 'A': 8.0,          # C/H/N/O average
+        'density_kg_m3': 1440,
+        'cohesive_energy_ev': 0.80,   # strong H-bonds between chains
+        'crystal_structure': 'amorphous',  # oriented polymer
+        'lattice_param_angstrom': 5.0,
+        'preferred_face': 'amorphous',
+        'composition': 'Poly-paraphenylene terephthalamide',
     },
 }
 
@@ -174,6 +369,7 @@ def bulk_coordination(crystal_structure):
         'hcp': 12,
         'bcc': 8,
         'diamond_cubic': 4,
+        'amorphous': 6,    # average coordination in disordered solids
     }
     if crystal_structure not in table:
         raise ValueError(f"Unknown crystal structure: {crystal_structure}")
@@ -194,6 +390,7 @@ def surface_coordination(crystal_structure, face):
         ('diamond_cubic', '111'): 3,  # 1 broken out of 4
         ('diamond_cubic', '110'): 2,  # 2 broken out of 4
         ('hcp', '0001'): 9,    # same as FCC(111) for close-packed basal
+        ('amorphous', 'amorphous'): 3,  # ~half of bulk coordination lost
     }
     key = (crystal_structure, face)
     if key not in table:
@@ -235,6 +432,8 @@ def surface_atom_density(crystal_structure, face, lattice_param_angstrom):
         ('diamond_cubic', '110'): 2.0 * math.sqrt(2) / a**2,
         # HCP: use a as basal plane edge
         ('hcp', '0001'): 4.0 / (math.sqrt(3) * a**2),
+        # Amorphous: estimate from average nearest-neighbor distance
+        ('amorphous', 'amorphous'): 1.0 / a**2,
     }
 
     key = (crystal_structure, face)

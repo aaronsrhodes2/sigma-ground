@@ -183,6 +183,48 @@ METAL_TRANSPORT = {
         'rho_kg_m3': 2330,
         'M_g': 28.086,
     },
+
+    # ── Additional metals ─────────────────────────────────────────
+    'steel_mild': {
+        'rho_300': 1.43e-7,     # Similar to iron
+        'rho_0': 2.0e-9,
+        'theta_D': 470,
+        'Z_val': 2,
+        'rho_kg_m3': 7850,
+        'M_g': 55.845,
+    },
+    'lead': {
+        'rho_300': 2.07e-7,     # MEASURED (CRC)
+        'rho_0': 3.0e-10,
+        'theta_D': 105,         # Very low Debye — soft, heavy
+        'Z_val': 4,
+        'rho_kg_m3': 11340,
+        'M_g': 207.2,
+    },
+    'silver': {
+        'rho_300': 1.59e-8,     # MEASURED — lowest resistivity of any metal
+        'rho_0': 1.0e-10,
+        'theta_D': 225,
+        'Z_val': 1,
+        'rho_kg_m3': 10490,
+        'M_g': 107.868,
+    },
+    'platinum': {
+        'rho_300': 1.06e-7,     # MEASURED (CRC)
+        'rho_0': 5.0e-10,
+        'theta_D': 240,
+        'Z_val': 2,
+        'rho_kg_m3': 21450,
+        'M_g': 195.084,
+    },
+    'depleted_uranium': {
+        'rho_300': 2.80e-7,     # MEASURED — α-uranium
+        'rho_0': 5.0e-9,
+        'theta_D': 207,
+        'Z_val': 3,
+        'rho_kg_m3': 19100,
+        'M_g': 238.029,
+    },
 }
 
 # Pre-compute BG calibration coefficients for metals

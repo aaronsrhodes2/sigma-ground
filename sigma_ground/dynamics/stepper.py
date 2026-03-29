@@ -86,7 +86,7 @@ def _cfl_dt(scene, dt_max):
     return min(dt_max, dt_cfl)
 
 
-def step(scene, dt=None, dt_max=0.01, sub_steps=4):
+def step(scene, dt=None, dt_max=0.01, sub_steps=4, external_forces=None):
     """Advance the scene by one timestep.
 
     Uses leapfrog integration with CFL-limited substeps.
@@ -98,6 +98,9 @@ def step(scene, dt=None, dt_max=0.01, sub_steps=4):
         sub_steps: Number of internal substeps per call.
                    Finer resolution improves collision accuracy.
                    Default: 4 (so each substep dt = dt/4).
+        external_forces: Optional callback f(parcel) → Vec3 returning
+                   additional force on each parcel (drag, buoyancy, etc.).
+                   Applied as acceleration a = F/m during each substep.
 
     Returns:
         actual_dt (float): total elapsed time this call.
@@ -114,13 +117,14 @@ def step(scene, dt=None, dt_max=0.01, sub_steps=4):
     sub_dt = dt / sub_steps
 
     for _ in range(sub_steps):
-        _leapfrog_sub_step(scene, sub_dt)
+        _leapfrog_sub_step(scene, sub_dt, external_forces)
 
     scene.time += dt
     return dt
 
 
-def step_to(scene, t_end, dt_max=0.01, sub_steps=4, callback=None):
+def step_to(scene, t_end, dt_max=0.01, sub_steps=4, callback=None,
+            external_forces=None):
     """Advance the scene until scene.time >= t_end.
 
     Args:
@@ -130,6 +134,7 @@ def step_to(scene, t_end, dt_max=0.01, sub_steps=4, callback=None):
         sub_steps: Substeps per call.
         callback: Optional function(scene, frame_index) called after each step.
                   Useful for recording frame data.
+        external_forces: Optional callback f(parcel) → Vec3 for extra forces.
 
     Returns:
         history: list of (time, [(label, pos, vel), …]) per frame.
@@ -139,7 +144,8 @@ def step_to(scene, t_end, dt_max=0.01, sub_steps=4, callback=None):
     while scene.time < t_end:
         remaining = t_end - scene.time
         dt = min(dt_max, remaining)
-        step(scene, dt=dt, sub_steps=sub_steps)
+        step(scene, dt=dt, sub_steps=sub_steps,
+             external_forces=external_forces)
         snapshot = _snapshot(scene)
         history.append((scene.time, snapshot))
         if callback:
@@ -149,13 +155,13 @@ def step_to(scene, t_end, dt_max=0.01, sub_steps=4, callback=None):
     return history
 
 
-def _leapfrog_sub_step(scene, dt):
+def _leapfrog_sub_step(scene, dt, external_forces=None):
     """Single leapfrog substep.
 
-    1. Half-step velocity update (gravity only — no collision yet)
+    1. Half-step velocity update (gravity + external forces)
     2. Full-step position update
     3. Collision detection and impulse response
-    4. Second half-step velocity (already done implicitly for constant gravity)
+    4. Second half-step velocity
 
     For constant gravity the full leapfrog collapses to:
       v_half = v + a × dt/2
@@ -163,17 +169,27 @@ def _leapfrog_sub_step(scene, dt):
       [resolve collisions at x_new — this modifies v_half]
       v_new  = v_half + a × dt/2
 
+    External forces (drag, buoyancy, etc.) are applied as accelerations
+    a_ext = F_ext(parcel) / m during both half-steps, maintaining the
+    symplectic structure of the integrator.
+
     This is the "velocity Verlet" form of leapfrog, which is algebraically
     equivalent to the position-Verlet form.
     """
     g = scene.gravity
 
-    # ── Step 1: half-step velocity from gravity ──────────────────────────────
+    # ── Step 1: half-step velocity from gravity + external forces ─────────
     for p in scene.parcels:
         if p.is_static:
             continue
         half_dv = g * (dt * 0.5)
         p.velocity = p.velocity + half_dv
+
+        # External forces: a_ext = F/m, applied as half-step
+        if external_forces is not None and p.mass > 0 and p.mass != float('inf'):
+            F_ext = external_forces(p)
+            a_ext = F_ext * (1.0 / p.mass)
+            p.velocity = p.velocity + a_ext * (dt * 0.5)
 
     # ── Step 2: full-step position update ────────────────────────────────────
     for p in scene.parcels:
@@ -204,6 +220,11 @@ def _leapfrog_sub_step(scene, dt):
             continue
         half_dv = g * (dt * 0.5)
         p.velocity = p.velocity + half_dv
+
+        if external_forces is not None and p.mass > 0 and p.mass != float('inf'):
+            F_ext = external_forces(p)
+            a_ext = F_ext * (1.0 / p.mass)
+            p.velocity = p.velocity + a_ext * (dt * 0.5)
 
 
 def _snapshot(scene):

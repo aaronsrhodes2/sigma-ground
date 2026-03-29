@@ -463,6 +463,19 @@ NODES = [
      "5 algorithms: Bell, Deutsch-Jozsa, Grover,\n"
      "  teleportation, Bernstein-Vazirani\n"
      "Classical extraction chain → useable computation"),
+    ("api_qa",       "quantum_algorithms\n(10 algorithms)", 11, "api",
+     "field.interface.quantum_algorithms\n10 quantum algorithms:\n"
+     "QFT, QPE, Shor(15), Simon, QAOA MaxCut,\n"
+     "Ising VQE, Heisenberg VQE, HeH+ VQE,\n"
+     "QEC bit-flip, Quantum Walk\n"
+     "Cascade: J from T_C, B_c prediction"),
+    ("api_qm",       "quantum_matter\n(Mott,crystal_field)", 11, "api",
+     "field.interface.quantum_matter\nMaterial-specific quantum predictions:\n"
+     "Mott phase diagram from cascade (U/t)\n"
+     "Crystal field → spin Hamiltonian → VQE\n"
+     "Tanabe-Sugano crossover = Mott transition\n"
+     "Nephelauxetic β = metallicity ranking\n"
+     "Itinerant vs localized magnetism (J_super/J_Curie)"),
 ]
 
 # (source_id, target_id, edge_type, formula_label)
@@ -746,6 +759,22 @@ EDGES = [
     ("SIGMA_FIELD",     "api_qc",             "sigma", "qubit frequency"),
     # quantum_output (Layer 10 — uses quantum_computing)
     ("api_qc",          "api_qo",             "uses", "state vectors + gates"),
+
+    # quantum_algorithms (Layer 11 — uses qc + qo + magnetism)
+    ("api_qc",          "api_qa",             "uses", "gate engine"),
+    ("api_qo",          "api_qa",             "uses", "measurement + expectation"),
+    ("api_magnetism",   "api_qa",             "uses", "T_C → J coupling"),
+
+    # quantum_matter (Layer 11 — bridges material DB to quantum Hamiltonians)
+    ("api_qc",          "api_qm",             "uses", "gate engine"),
+    ("api_qo",          "api_qm",             "uses", "Pauli expectations"),
+    ("api_surface",     "api_qm",             "uses", "E_coh, ρ, a, Z"),
+    ("api_magnetism",   "api_qm",             "uses", "T_C, n_unpaired"),
+    ("api_crystal",     "api_qm",             "uses", "10Dq, B, β"),
+    ("api_supercon",    "api_qm",             "uses", "λ_ep, T_c"),
+    ("K_B",             "api_qm",             "uses", ""),
+    ("E_CHARGE",        "api_qm",             "uses", ""),
+    ("M_ELECTRON_KG",   "api_qm",             "uses", ""),
 
     # ── New interface modules (24) — edges ──────────────────────────
     # acid_base (Layer 9)

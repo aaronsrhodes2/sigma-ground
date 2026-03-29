@@ -54,8 +54,13 @@ from .vec import Vec3
 class PhysicsParcel:
     """A piece of matter with dynamics state.
 
+    A structure is a material with a shape. PhysicsParcel accepts either:
+      - A Shape object (Sphere, Cylinder, Box, Ellipsoid, Cone) → uses shape
+        volume for mass computation, shape geometry for inertia and collisions.
+      - A bare radius (float) → legacy sphere-only mode, same as Shape=Sphere(r).
+
     Args:
-        radius:     bounding sphere radius (m). Required.
+        radius:     bounding sphere radius (m), OR a Shape instance.
         material:   Material instance. density_kg_m3 used for mass.
         position:   Vec3 world-space center. Default: origin.
         velocity:   Vec3 initial velocity (m/s). Default: rest.
@@ -69,7 +74,15 @@ class PhysicsParcel:
                  position=None, velocity=None,
                  is_static=False, mass=None, sigma=0.0,
                  label=''):
-        self.radius    = float(radius)
+        # Accept either a Shape or a bare radius
+        from ..shapes import Shape, Sphere
+        if isinstance(radius, Shape):
+            self.shape = radius
+            self.radius = float(self.shape.bounding_radius())
+        else:
+            self.radius = float(radius)
+            self.shape = Sphere(self.radius)
+
         self.material  = material
         self.position  = position  if position  is not None else Vec3(0, 0, 0)
         self.velocity  = velocity  if velocity  is not None else Vec3(0, 0, 0)
@@ -77,8 +90,11 @@ class PhysicsParcel:
         self.sigma     = sigma
         self.label     = label
 
-        # Mass: m = (4/3)π r³ × ρ(σ)
-        # FIRST_PRINCIPLES: density × volume (sphere)
+        # Angular state (default: no rotation)
+        self.angular_velocity = Vec3(0, 0, 0)  # rad/s
+
+        # Mass: m = ρ(σ) × volume(shape)
+        # FIRST_PRINCIPLES: density × volume
         if mass is not None:
             self.mass = float(mass)
         elif is_static:
@@ -93,7 +109,12 @@ class PhysicsParcel:
             self.mass = float('inf')
         else:
             rho = material.density_at_sigma(sigma)
-            self.mass = (4.0 / 3.0) * math.pi * (radius ** 3) * rho
+            vol = self.shape.volume()
+            if vol > 0:
+                self.mass = rho * vol
+            else:
+                # Dimensionally compromised shapes need explicit mass
+                self.mass = 0.0
 
         # Restitution: from material if available, else 0.5
         self.restitution = getattr(material, 'restitution', 0.5)
@@ -145,8 +166,42 @@ class PhysicsParcel:
             return Vec3(0, 0, 0)
         return self.velocity * self.mass
 
+    def moment_of_inertia(self, axis='z'):
+        """Moment of inertia derived from shape geometry.
+
+        I = m × shape.inertia_factor(axis)
+
+        FIRST_PRINCIPLES: I = ∫ r² dm. Shape determines geometry,
+        mass determines scale. σ enters through mass only.
+
+        Args:
+            axis: rotation axis ('x', 'y', or 'z')
+
+        Returns:
+            Moment of inertia in kg·m². Returns 0 for static parcels.
+        """
+        if self.is_static:
+            return float('inf')
+        return self.mass * self.shape.inertia_factor(axis)
+
+    def rotational_ke(self):
+        """Rotational kinetic energy KE_rot = ½Iω² (Joules).
+
+        Uses the shape's moment of inertia about each axis.
+
+        Returns:
+            Rotational kinetic energy in Joules.
+        """
+        if self.is_static:
+            return 0.0
+        wx, wy, wz = self.angular_velocity.x, self.angular_velocity.y, self.angular_velocity.z
+        Ix = self.moment_of_inertia('x')
+        Iy = self.moment_of_inertia('y')
+        Iz = self.moment_of_inertia('z')
+        return 0.5 * (Ix * wx**2 + Iy * wy**2 + Iz * wz**2)
+
     def __repr__(self):
         lbl = f' "{self.label}"' if self.label else ''
-        return (f"PhysicsParcel{lbl}(r={self.radius:.3f}, "
+        return (f"PhysicsParcel{lbl}({self.shape}, "
                 f"m={self.mass:.3f} kg, "
                 f"pos={self.position}, vel={self.velocity})")

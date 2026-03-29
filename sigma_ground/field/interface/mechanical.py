@@ -118,6 +118,75 @@ MECHANICAL_DATA = {
         'poisson_ratio': 0.32,           # MEASURED
         'structure_factor': 3.0,          # HCP (close-packed, similar to FCC)
     },
+
+    # ── Additional metals ─────────────────────────────────────────
+    'steel_mild': {
+        'poisson_ratio': 0.30,           # MEASURED (similar to iron)
+        'structure_factor': 2.9,          # BCC
+    },
+    'lead': {
+        'poisson_ratio': 0.44,           # MEASURED — very soft metal
+        'structure_factor': 3.0,          # FCC
+    },
+    'silver': {
+        'poisson_ratio': 0.37,           # MEASURED
+        'structure_factor': 3.0,          # FCC
+    },
+    'platinum': {
+        'poisson_ratio': 0.38,           # MEASURED
+        'structure_factor': 3.0,          # FCC
+    },
+    'depleted_uranium': {
+        'poisson_ratio': 0.23,           # MEASURED (α-U)
+        'structure_factor': 2.9,          # BCC approximation
+    },
+
+    # ── Non-metals ────────────────────────────────────────────────
+    # Structure factor calibrated to measured E via E ≈ f × E_coh × n
+    'rubber': {
+        'poisson_ratio': 0.4999,         # MEASURED — nearly incompressible
+        'structure_factor': 0.01,         # Very soft, weak inter-chain bonds
+    },
+    'plastic_abs': {
+        'poisson_ratio': 0.39,           # MEASURED
+        'structure_factor': 0.1,          # Polymer — low stiffness
+    },
+    'glass': {
+        'poisson_ratio': 0.22,           # MEASURED — soda-lime
+        'structure_factor': 2.0,          # Amorphous, moderate stiffness
+    },
+    'concrete': {
+        'poisson_ratio': 0.20,           # MEASURED
+        'structure_factor': 1.0,          # Composite, moderate
+    },
+    'granite': {
+        'poisson_ratio': 0.25,           # MEASURED
+        'structure_factor': 1.5,          # Polycrystalline mineral
+    },
+    'ceramic_alumina': {
+        'poisson_ratio': 0.22,           # MEASURED
+        'structure_factor': 3.0,          # HCP corundum, stiff
+    },
+    'water_ice': {
+        'poisson_ratio': 0.33,           # MEASURED — ice Ih
+        'structure_factor': 1.5,          # Hydrogen-bonded, moderate
+    },
+    'wood_oak': {
+        'poisson_ratio': 0.35,           # MEASURED — average over grain
+        'structure_factor': 0.05,         # Fibrous composite, low E
+    },
+    'bone': {
+        'poisson_ratio': 0.30,           # MEASURED — cortical
+        'structure_factor': 0.8,          # Bio-composite
+    },
+    'carbon_fiber': {
+        'poisson_ratio': 0.30,           # MEASURED — CFRP composite
+        'structure_factor': 2.0,          # Graphitic bonds, high E
+    },
+    'kevlar': {
+        'poisson_ratio': 0.36,           # MEASURED
+        'structure_factor': 0.3,          # Oriented polymer, moderate E
+    },
 }
 
 

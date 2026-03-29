@@ -185,6 +185,154 @@ GRAIN_DATA = {
         'd_inverse_HP_m': 15e-9,       # ~15 nm
         'burgers_m': 2.95e-10,         # a for HCP (a=2.95Å)
     },
+    # ── Metals ───────────────────────────────────────────────────
+    'steel_mild': {
+        'sigma_0_Pa': 100e6,           # Ferrite + pearlite friction stress
+        'k_HP_Pa_sqrtm': 0.74e6,      # Similar to iron (BCC ferrite matrix)
+        'd_typical_m': 25e-6,          # 25 μm hot-rolled
+        'Q_gg_eV': 1.5,               # Slightly higher than pure Fe (C pinning)
+        'K0_gg_m2_s': 5.0e-5,         # Slower than pure Fe (solute drag)
+        'd_inverse_HP_m': 15e-9,       # ~15 nm (same as iron)
+        'burgers_m': 2.48e-10,         # BCC ferrite, same as iron
+    },
+    'lead': {
+        'sigma_0_Pa': 5e6,             # FCC, extremely soft
+        'k_HP_Pa_sqrtm': 0.03e6,      # 0.03 MPa√m (very weak HP)
+        'd_typical_m': 100e-6,         # 100 μm, coarsens easily
+        'Q_gg_eV': 0.5,               # Very low (low T_melt = 600 K)
+        'K0_gg_m2_s': 5.0e-3,         # Very fast grain growth
+        'd_inverse_HP_m': 8e-9,        # ~8 nm
+        'burgers_m': 3.50e-10,         # a/√2 for FCC (a=4.95Å)
+    },
+    'silver': {
+        'sigma_0_Pa': 15e6,            # FCC, soft noble metal
+        'k_HP_Pa_sqrtm': 0.08e6,      # 0.08 MPa√m (weak HP, like gold)
+        'd_typical_m': 40e-6,          # 40 μm annealed
+        'Q_gg_eV': 0.9,               # Similar to gold
+        'K0_gg_m2_s': 6.0e-4,
+        'd_inverse_HP_m': 10e-9,       # ~10 nm
+        'burgers_m': 2.89e-10,         # a/√2 for FCC (a=4.086Å)
+    },
+    'platinum': {
+        'sigma_0_Pa': 30e6,            # FCC, moderate friction stress
+        'k_HP_Pa_sqrtm': 0.12e6,      # 0.12 MPa√m
+        'd_typical_m': 30e-6,          # 30 μm annealed
+        'Q_gg_eV': 1.3,               # High T_melt = 2041 K
+        'K0_gg_m2_s': 2.0e-5,
+        'd_inverse_HP_m': 12e-9,       # ~12 nm
+        'burgers_m': 2.77e-10,         # a/√2 for FCC (a=3.924Å)
+    },
+    'depleted_uranium': {
+        'sigma_0_Pa': 120e6,           # Orthorhombic α-U, high Peierls
+        'k_HP_Pa_sqrtm': 0.60e6,      # 0.60 MPa√m (strong HP)
+        'd_typical_m': 30e-6,          # 30 μm wrought
+        'Q_gg_eV': 1.6,               # High activation energy
+        'K0_gg_m2_s': 2.0e-5,
+        'd_inverse_HP_m': 18e-9,       # ~18 nm
+        'burgers_m': 2.85e-10,         # Orthorhombic α-U dominant slip
+    },
+    # ── Non-crystalline / Amorphous ──────────────────────────────
+    'rubber': {
+        'sigma_0_Pa': 2e6,             # Yield (onset of permanent set)
+        'k_HP_Pa_sqrtm': 0.0,         # No grains, no Hall-Petch
+        'd_typical_m': 1.0e-3,         # ~1 mm (no microstructural grains)
+        'Q_gg_eV': 5.0,               # No grain growth (amorphous)
+        'K0_gg_m2_s': 1.0e-15,        # Negligible
+        'd_inverse_HP_m': 0.0,         # N/A
+        'burgers_m': 0.0,              # No crystalline slip
+    },
+    'plastic_abs': {
+        'sigma_0_Pa': 40e6,            # Yield stress of ABS
+        'k_HP_Pa_sqrtm': 0.0,         # Amorphous, no Hall-Petch
+        'd_typical_m': 1.0e-3,         # ~1 mm (no grains)
+        'Q_gg_eV': 5.0,               # No grain growth
+        'K0_gg_m2_s': 1.0e-15,        # Negligible
+        'd_inverse_HP_m': 0.0,         # N/A
+        'burgers_m': 0.0,              # No crystalline slip
+    },
+    'glass': {
+        'sigma_0_Pa': 35e6,            # Compressive strength proxy (brittle)
+        'k_HP_Pa_sqrtm': 0.0,         # Amorphous, no Hall-Petch
+        'd_typical_m': 1.0e-3,         # No grains
+        'Q_gg_eV': 5.0,               # No grain growth
+        'K0_gg_m2_s': 1.0e-15,        # Negligible
+        'd_inverse_HP_m': 0.0,         # N/A
+        'burgers_m': 0.0,              # Amorphous
+    },
+    'concrete': {
+        'sigma_0_Pa': 3e6,             # Tensile yield (~3 MPa)
+        'k_HP_Pa_sqrtm': 0.0,         # Heterogeneous composite, no HP
+        'd_typical_m': 1.0e-3,         # Aggregate scale ~mm
+        'Q_gg_eV': 5.0,               # No grain growth
+        'K0_gg_m2_s': 1.0e-15,        # Negligible
+        'd_inverse_HP_m': 0.0,         # N/A
+        'burgers_m': 0.0,              # No crystalline slip
+    },
+    'wood_oak': {
+        'sigma_0_Pa': 40e6,            # Along-grain tensile yield
+        'k_HP_Pa_sqrtm': 0.0,         # Biological, no Hall-Petch
+        'd_typical_m': 1.0e-3,         # Fiber bundle scale ~mm
+        'Q_gg_eV': 5.0,               # No grain growth
+        'K0_gg_m2_s': 1.0e-15,        # Negligible
+        'd_inverse_HP_m': 0.0,         # N/A
+        'burgers_m': 0.0,              # No crystalline slip
+    },
+    # ── Ceramics / Ice ───────────────────────────────────────────
+    'granite': {
+        'sigma_0_Pa': 15e6,            # Tensile strength of granite
+        'k_HP_Pa_sqrtm': 0.0,         # Brittle polycrystalline aggregate
+        'd_typical_m': 2.0e-3,         # 2 mm mineral grain size
+        'Q_gg_eV': 4.0,               # Very high (silicate bonds)
+        'K0_gg_m2_s': 1.0e-10,        # Extremely slow
+        'd_inverse_HP_m': 0.0,         # N/A for brittle
+        'burgers_m': 5.0e-10,          # Quartz lattice parameter
+    },
+    'ceramic_alumina': {
+        'sigma_0_Pa': 300e6,           # Flexural strength of Al2O3
+        'k_HP_Pa_sqrtm': 0.0,         # Brittle ceramic: no pile-up mechanism
+        'd_typical_m': 5.0e-6,         # 5 μm sintered alumina
+        'Q_gg_eV': 3.8,               # High (ionic/covalent bonds)
+        'K0_gg_m2_s': 1.0e-8,         # Slow grain growth
+        'd_inverse_HP_m': 0.0,         # N/A for brittle
+        'burgers_m': 4.76e-10,         # Corundum basal slip
+    },
+    'water_ice': {
+        'sigma_0_Pa': 1e6,             # Ice Ih yield (very soft)
+        'k_HP_Pa_sqrtm': 0.02e6,      # 0.02 MPa√m (weak HP observed)
+        'd_typical_m': 1.0e-3,         # 1 mm typical glacier ice
+        'Q_gg_eV': 0.4,               # Low (H-bond migration)
+        'K0_gg_m2_s': 1.0e-2,         # Fast grain growth near T_melt
+        'd_inverse_HP_m': 0.0,         # Not observed
+        'burgers_m': 4.52e-10,         # Ice Ih basal slip a-axis
+    },
+    # ── Composites / Biological ──────────────────────────────────
+    'bone': {
+        'sigma_0_Pa': 100e6,           # Cortical bone tensile yield
+        'k_HP_Pa_sqrtm': 0.0,         # No dislocation pile-up mechanism
+        'd_typical_m': 200e-6,         # Osteon diameter ~200 μm
+        'Q_gg_eV': 5.0,               # No grain growth (biological)
+        'K0_gg_m2_s': 1.0e-15,        # Negligible
+        'd_inverse_HP_m': 0.0,         # N/A
+        'burgers_m': 0.0,              # No crystalline slip system
+    },
+    'carbon_fiber': {
+        'sigma_0_Pa': 600e6,           # Composite matrix yield / transverse
+        'k_HP_Pa_sqrtm': 0.0,         # Fiber composite, no HP
+        'd_typical_m': 7.0e-6,         # Carbon fiber diameter ~7 μm
+        'Q_gg_eV': 5.0,               # No grain growth
+        'K0_gg_m2_s': 1.0e-15,        # Negligible
+        'd_inverse_HP_m': 0.0,         # N/A
+        'burgers_m': 3.35e-10,         # Graphite interlayer spacing
+    },
+    'kevlar': {
+        'sigma_0_Pa': 400e6,           # Aramid fiber yield
+        'k_HP_Pa_sqrtm': 0.0,         # Polymer fiber composite, no HP
+        'd_typical_m': 12.0e-6,        # Kevlar fiber diameter ~12 μm
+        'Q_gg_eV': 5.0,               # No grain growth
+        'K0_gg_m2_s': 1.0e-15,        # Negligible
+        'd_inverse_HP_m': 0.0,         # N/A
+        'burgers_m': 0.0,              # Polymer, no crystalline slip
+    },
 }
 
 

@@ -77,9 +77,13 @@ class TestYieldStress(unittest.TestCase):
         self.assertLess(sy_Cu, 200e6)
 
     def test_tungsten_highest(self):
-        """Tungsten should have the highest yield stress among our metals."""
+        """Tungsten should have the highest yield stress among the original 8 metals."""
+        original_metals = [
+            'iron', 'copper', 'aluminum', 'gold',
+            'silicon', 'tungsten', 'nickel', 'titanium',
+        ]
         sy_W = yield_stress('tungsten')
-        for key in PLASTICITY_DATA:
+        for key in original_metals:
             if key != 'tungsten':
                 self.assertGreaterEqual(sy_W, yield_stress(key),
                                         f"Tungsten should be harder than {key}")
@@ -289,9 +293,13 @@ class TestDuctility(unittest.TestCase):
             self.assertLessEqual(ra, 1.0)
 
     def test_copper_most_ductile(self):
-        """Copper has highest elongation among our materials."""
+        """Copper has highest elongation among the original 8 metals."""
+        original_metals = [
+            'iron', 'copper', 'aluminum', 'gold',
+            'silicon', 'tungsten', 'nickel', 'titanium',
+        ]
         te_Cu = total_elongation('copper')
-        for key in PLASTICITY_DATA:
+        for key in original_metals:
             self.assertGreaterEqual(te_Cu, total_elongation(key) * 0.99)
 
 

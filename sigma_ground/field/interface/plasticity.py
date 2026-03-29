@@ -221,6 +221,218 @@ PLASTICITY_DATA = {
         'jc_T_melt': 1941.0,
         'jc_edot_0': 1.0,
     },
+
+    # ── Additional metals ─────────────────────────────────────────
+    'steel_mild': {
+        'sigma_y_Pa': 250e6,           # AISI 1020 (MEASURED)
+        'n_hardening': 0.22,           # Moderate
+        'elongation_pct': 25.0,
+        'is_ductile': True,
+        'jc_A': 350e6,
+        'jc_B': 275e6,
+        'jc_n': 0.36,
+        'jc_C': 0.022,
+        'jc_m': 1.0,
+        'jc_T_melt': 1793.0,
+        'jc_edot_0': 1.0,
+    },
+    'lead': {
+        'sigma_y_Pa': 11e6,            # Pure Pb, annealed (MEASURED)
+        'n_hardening': 0.40,           # High hardening (FCC)
+        'elongation_pct': 50.0,        # Very ductile — soft metal
+        'is_ductile': True,
+        'jc_A': 24e6,
+        'jc_B': 300e6,
+        'jc_n': 1.0,
+        'jc_C': 0.01,
+        'jc_m': 1.0,
+        'jc_T_melt': 600.6,
+        'jc_edot_0': 1.0,
+    },
+    'silver': {
+        'sigma_y_Pa': 45e6,            # Pure Ag, annealed (MEASURED)
+        'n_hardening': 0.44,           # High (FCC)
+        'elongation_pct': 40.0,
+        'is_ductile': True,
+        'jc_A': 45e6,
+        'jc_B': 200e6,
+        'jc_n': 0.40,
+        'jc_C': 0.015,
+        'jc_m': 1.0,
+        'jc_T_melt': 1234.9,
+        'jc_edot_0': 1.0,
+    },
+    'platinum': {
+        'sigma_y_Pa': 50e6,            # Pure Pt, annealed (MEASURED)
+        'n_hardening': 0.38,
+        'elongation_pct': 35.0,
+        'is_ductile': True,
+        'jc_A': 50e6,
+        'jc_B': 250e6,
+        'jc_n': 0.38,
+        'jc_C': 0.015,
+        'jc_m': 1.0,
+        'jc_T_melt': 2041.0,
+        'jc_edot_0': 1.0,
+    },
+    'depleted_uranium': {
+        'sigma_y_Pa': 790e6,           # U-0.75Ti alloy (MEASURED)
+        'n_hardening': 0.10,           # Low hardening
+        'elongation_pct': 10.0,        # Moderate ductility
+        'is_ductile': True,
+        'jc_A': 1079e6,               # DU penetrator alloy
+        'jc_B': 1120e6,
+        'jc_n': 0.25,
+        'jc_C': 0.007,
+        'jc_m': 1.0,
+        'jc_T_melt': 1405.0,
+        'jc_edot_0': 1.0,
+    },
+
+    # ── Non-metals ────────────────────────────────────────────────
+    'rubber': {
+        'sigma_y_Pa': 15e6,            # Tensile strength (MEASURED)
+        'n_hardening': 0.80,           # High — entropic elasticity
+        'elongation_pct': 500.0,       # Hyper-elastic
+        'is_ductile': True,
+        'jc_A': 15e6,
+        'jc_B': 5e6,
+        'jc_n': 0.80,
+        'jc_C': 0.01,
+        'jc_m': 1.0,
+        'jc_T_melt': 473.0,           # Degrades, doesn't truly melt
+        'jc_edot_0': 1.0,
+    },
+    'plastic_abs': {
+        'sigma_y_Pa': 40e6,            # MEASURED
+        'n_hardening': 0.30,
+        'elongation_pct': 20.0,
+        'is_ductile': True,
+        'jc_A': 40e6,
+        'jc_B': 50e6,
+        'jc_n': 0.30,
+        'jc_C': 0.01,
+        'jc_m': 1.0,
+        'jc_T_melt': 473.0,           # Glass transition, not true melt
+        'jc_edot_0': 1.0,
+    },
+    'glass': {
+        'sigma_y_Pa': 33e6,            # Compressive fracture (MEASURED)
+        'n_hardening': 0.0,            # Brittle — no strain hardening
+        'elongation_pct': 0.0,
+        'is_ductile': False,
+        'jc_A': 33e6,
+        'jc_B': 0.0,
+        'jc_n': 1.0,
+        'jc_C': 0.0,
+        'jc_m': 1.0,
+        'jc_T_melt': 1273.0,          # Softening point
+        'jc_edot_0': 1.0,
+    },
+    'concrete': {
+        'sigma_y_Pa': 30e6,            # Compressive strength (MEASURED)
+        'n_hardening': 0.0,
+        'elongation_pct': 0.0,
+        'is_ductile': False,
+        'jc_A': 30e6,
+        'jc_B': 0.0,
+        'jc_n': 1.0,
+        'jc_C': 0.0,
+        'jc_m': 1.0,
+        'jc_T_melt': 1773.0,          # Calcium silicates decompose
+        'jc_edot_0': 1.0,
+    },
+    'granite': {
+        'sigma_y_Pa': 130e6,           # Compressive strength (MEASURED)
+        'n_hardening': 0.0,
+        'elongation_pct': 0.0,
+        'is_ductile': False,
+        'jc_A': 130e6,
+        'jc_B': 0.0,
+        'jc_n': 1.0,
+        'jc_C': 0.0,
+        'jc_m': 1.0,
+        'jc_T_melt': 1473.0,          # Melting onset
+        'jc_edot_0': 1.0,
+    },
+    'ceramic_alumina': {
+        'sigma_y_Pa': 2000e6,          # Compressive (MEASURED) — very hard
+        'n_hardening': 0.0,
+        'elongation_pct': 0.0,
+        'is_ductile': False,
+        'jc_A': 2000e6,
+        'jc_B': 0.0,
+        'jc_n': 1.0,
+        'jc_C': 0.0,
+        'jc_m': 1.0,
+        'jc_T_melt': 2345.0,
+        'jc_edot_0': 1.0,
+    },
+    'water_ice': {
+        'sigma_y_Pa': 5e6,             # Compressive (MEASURED)
+        'n_hardening': 0.0,
+        'elongation_pct': 0.0,
+        'is_ductile': False,
+        'jc_A': 5e6,
+        'jc_B': 0.0,
+        'jc_n': 1.0,
+        'jc_C': 0.0,
+        'jc_m': 1.0,
+        'jc_T_melt': 273.15,
+        'jc_edot_0': 1.0,
+    },
+    'wood_oak': {
+        'sigma_y_Pa': 40e6,            # Compressive parallel to grain (MEASURED)
+        'n_hardening': 0.05,
+        'elongation_pct': 2.0,
+        'is_ductile': False,
+        'jc_A': 40e6,
+        'jc_B': 10e6,
+        'jc_n': 0.05,
+        'jc_C': 0.0,
+        'jc_m': 1.0,
+        'jc_T_melt': 573.0,           # Ignition, not melting
+        'jc_edot_0': 1.0,
+    },
+    'bone': {
+        'sigma_y_Pa': 130e6,           # Compressive, cortical (MEASURED)
+        'n_hardening': 0.05,
+        'elongation_pct': 2.0,
+        'is_ductile': False,
+        'jc_A': 130e6,
+        'jc_B': 30e6,
+        'jc_n': 0.05,
+        'jc_C': 0.01,
+        'jc_m': 1.0,
+        'jc_T_melt': 1673.0,          # Hydroxyapatite decomposition
+        'jc_edot_0': 1.0,
+    },
+    'carbon_fiber': {
+        'sigma_y_Pa': 600e6,           # Tensile along fiber (MEASURED)
+        'n_hardening': 0.02,           # Nearly linear to fracture
+        'elongation_pct': 1.5,
+        'is_ductile': False,
+        'jc_A': 600e6,
+        'jc_B': 50e6,
+        'jc_n': 0.02,
+        'jc_C': 0.0,
+        'jc_m': 1.0,
+        'jc_T_melt': 3773.0,          # Carbon sublimation
+        'jc_edot_0': 1.0,
+    },
+    'kevlar': {
+        'sigma_y_Pa': 350e6,           # Tensile (MEASURED)
+        'n_hardening': 0.05,
+        'elongation_pct': 3.6,
+        'is_ductile': False,           # Fails by fiber breakage
+        'jc_A': 350e6,
+        'jc_B': 50e6,
+        'jc_n': 0.05,
+        'jc_C': 0.0,
+        'jc_m': 1.0,
+        'jc_T_melt': 773.0,           # Decomposes
+        'jc_edot_0': 1.0,
+    },
 }
 
 
