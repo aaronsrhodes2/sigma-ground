@@ -912,56 +912,99 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #1a1a2e; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; }
-#header { padding: 18px 28px 10px; }
-#header h1 { font-size: 1.35rem; font-weight: 600; color: #a8d8ea; letter-spacing: 0.04em; }
-#header p  { font-size: 0.78rem; color: #888; margin-top: 4px; }
-#legend { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 6px 28px 12px; }
-.leg { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: #bbb; }
-.leg-dot { width: 12px; height: 12px; border-radius: 3px; border: 1.5px solid; }
-.leg-line { width: 22px; height: 3px; border-radius: 2px; }
-#scroll { overflow-x: auto; padding: 0 16px 24px; }
-svg { display: block; }
-.node rect { rx: 7; ry: 7; cursor: pointer; transition: opacity 0.15s; }
-.node text { pointer-events: none; font-size: 10.5px; dominant-baseline: middle; }
-.node.dim rect { opacity: 0.18; }
-.node.dim text { opacity: 0.18; }
-.node.hi  rect { filter: drop-shadow(0 0 6px rgba(255,255,180,0.7)); }
-.edge { fill: none; transition: opacity 0.15s; }
-.edge.dim { opacity: 0.06; }
+#header { padding: 14px 24px 6px; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+#header h1 { font-size: 1.2rem; font-weight: 600; color: #a8d8ea; letter-spacing: 0.04em; white-space: nowrap; }
+#header p  { font-size: 0.72rem; color: #888; }
+#search-box {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 6px;
+}
+#search-box input {
+  background: #0d1b2a; border: 1px solid #334; border-radius: 5px;
+  color: #dde; padding: 5px 10px; font-size: 0.78rem; width: 200px;
+  outline: none;
+}
+#search-box input:focus { border-color: #a8d8ea; }
+#search-box input::placeholder { color: #556; }
+#breadcrumb {
+  padding: 0 24px 4px; font-size: 0.7rem; color: #667;
+  min-height: 1.2em; font-family: monospace;
+}
+#breadcrumb span { color: #a8d8ea; }
+#legend { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 4px 24px 8px; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 0.65rem; color: #999; }
+.leg-dot { width: 10px; height: 10px; border-radius: 2px; border: 1.5px solid; }
+.leg-line { width: 18px; height: 2px; border-radius: 1px; }
+#chart-container {
+  overflow: hidden; position: relative;
+  padding: 0 8px 16px; cursor: grab;
+}
+#chart-container.dragging { cursor: grabbing; }
+svg { display: block; transition: transform 0.35s ease; }
+.node rect { rx: 6; ry: 6; cursor: pointer; transition: opacity 0.18s; }
+.node text { pointer-events: none; font-size: 9.5px; dominant-baseline: middle; }
+.node.dim rect { opacity: 0.06; }
+.node.dim text { opacity: 0.06; }
+.node.hi  rect { filter: drop-shadow(0 0 8px rgba(255,255,180,0.8)); }
+.node.search-match rect { filter: drop-shadow(0 0 6px rgba(168,216,234,0.9)); }
+.node.search-dim rect { opacity: 0.12; }
+.node.search-dim text { opacity: 0.12; }
+.edge { fill: none; transition: opacity 0.18s; }
+.edge.dim { opacity: 0.04; }
 .edge.hi  { opacity: 1 !important; stroke-width: 2.5px !important; }
-.band { opacity: 0.07; }
-.band-label { font-size: 10px; fill: #aaa; font-weight: 500; letter-spacing: 0.05em; }
+.band { opacity: 0.06; }
+.band-label { font-size: 9px; fill: #888; font-weight: 500; letter-spacing: 0.04em; }
 #tooltip {
-  position: fixed; display: none; max-width: 280px;
+  position: fixed; display: none; max-width: 300px;
   background: #0d1b2a; border: 1px solid #445; border-radius: 8px;
-  padding: 10px 13px; font-size: 0.76rem; line-height: 1.55;
+  padding: 10px 13px; font-size: 0.73rem; line-height: 1.5;
   color: #dde; pointer-events: none; z-index: 100;
   box-shadow: 0 4px 18px rgba(0,0,0,0.6);
   white-space: pre-wrap;
 }
-#tooltip strong { color: #a8d8ea; display: block; margin-bottom: 4px; font-size: 0.82rem; }
+#tooltip strong { color: #a8d8ea; display: block; margin-bottom: 3px; font-size: 0.8rem; }
+#zoom-controls {
+  position: absolute; bottom: 20px; right: 20px;
+  display: flex; flex-direction: column; gap: 4px; z-index: 50;
+}
+#zoom-controls button {
+  width: 30px; height: 30px; background: #0d1b2a; border: 1px solid #334;
+  border-radius: 5px; color: #a8d8ea; font-size: 1rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+#zoom-controls button:hover { background: #1a2a4c; }
 </style>
 </head>
 <body>
 <div id="header">
-  <h1>sigma-ground — Physics Dependency Chart</h1>
-  <p>Hover a node to trace its ancestry. Hover an edge to see the formula. Click to pin.</p>
+  <h1>sigma-ground — Dependency Chart</h1>
+  <p>Click a node to trace its full ancestry. Search to filter.</p>
+  <div id="search-box">
+    <input type="text" id="search" placeholder="Search nodes..." autocomplete="off">
+  </div>
 </div>
+<div id="breadcrumb"></div>
 <div id="legend">
   <span class="leg"><span class="leg-dot" style="background:#D6EAF8;border-color:#2980B9"></span>Measured</span>
-  <span class="leg"><span class="leg-dot" style="background:#D5F5E3;border-color:#27AE60"></span>Derived by formula</span>
-  <span class="leg"><span class="leg-dot" style="background:#FDEBD0;border-color:#E67E22"></span>SSBM parameter</span>
-  <span class="leg"><span class="leg-dot" style="background:#E8DAEF;border-color:#8E44AD"></span>Higgs-origin (σ-invariant)</span>
-  <span class="leg"><span class="leg-dot" style="background:#FADBD8;border-color:#C0392B"></span>QCD-origin (σ-dependent)</span>
+  <span class="leg"><span class="leg-dot" style="background:#D5F5E3;border-color:#27AE60"></span>Derived</span>
+  <span class="leg"><span class="leg-dot" style="background:#FDEBD0;border-color:#E67E22"></span>SSBM</span>
+  <span class="leg"><span class="leg-dot" style="background:#E8DAEF;border-color:#8E44AD"></span>Higgs</span>
+  <span class="leg"><span class="leg-dot" style="background:#FADBD8;border-color:#C0392B"></span>QCD</span>
   <span class="leg"><span class="leg-dot" style="background:#FFFDE7;border-color:#F9A825"></span>σ-field</span>
-  <span class="leg"><span class="leg-dot" style="background:#F0F0F0;border-color:#607D8B"></span>API call</span>
-  <span class="leg"><span class="leg-line" style="background:#2980B9"></span>Formula derivation</span>
-  <span class="leg"><span class="leg-line" style="background:#E67E22;background:repeating-linear-gradient(90deg,#E67E22 0,#E67E22 5px,transparent 5px,transparent 8px)"></span>SSBM</span>
-  <span class="leg"><span class="leg-line" style="background:#C0392B"></span>QCD origin</span>
-  <span class="leg"><span class="leg-line" style="background:#F57F17;background:repeating-linear-gradient(90deg,#F57F17 0,#F57F17 4px,transparent 4px,transparent 6px)"></span>σ-coupling</span>
-  <span class="leg"><span class="leg-line" style="background:#90A4AE;background:repeating-linear-gradient(90deg,#90A4AE 0,#90A4AE 3px,transparent 3px,transparent 6px)"></span>API uses</span>
+  <span class="leg"><span class="leg-dot" style="background:#F0F0F0;border-color:#607D8B"></span>API</span>
+  <span class="leg"><span class="leg-line" style="background:#2980B9"></span>Formula</span>
+  <span class="leg"><span class="leg-line" style="background:#E67E22;background:repeating-linear-gradient(90deg,#E67E22 0,#E67E22 4px,transparent 4px,transparent 7px)"></span>SSBM</span>
+  <span class="leg"><span class="leg-line" style="background:#C0392B"></span>QCD</span>
+  <span class="leg"><span class="leg-line" style="background:#F57F17;background:repeating-linear-gradient(90deg,#F57F17 0,#F57F17 3px,transparent 3px,transparent 5px)"></span>σ</span>
+  <span class="leg"><span class="leg-line" style="background:#90A4AE;background:repeating-linear-gradient(90deg,#90A4AE 0,#90A4AE 2px,transparent 2px,transparent 5px)"></span>Uses</span>
 </div>
-<div id="scroll"><svg id="chart"></svg></div>
+<div id="chart-container"><svg id="chart"></svg>
+  <div id="zoom-controls">
+    <button onclick="zoomIn()" title="Zoom in">+</button>
+    <button onclick="zoomOut()" title="Zoom out">&minus;</button>
+    <button onclick="zoomReset()" title="Reset view">&#8634;</button>
+  </div>
+</div>
 <div id="tooltip"></div>
 
 <script>
@@ -982,16 +1025,50 @@ const EDGE_STYLE = {
   ssbm:    {color:"#E67E22", w:1.4, dash:"6,3"},
   qcd:     {color:"#C0392B", w:1.8, dash:"none"},
   sigma:   {color:"#F57F17", w:1.8, dash:"4,2"},
-  uses:    {color:"#78909C", w:1.0, dash:"3,3"},
+  uses:    {color:"#78909C", w:0.8, dash:"3,3"},
 };
 
 const BAND_COLORS = [
   "#1a3a5c","#1a2a4c","#1a2a3c","#162540","#162030",
-  "#1a1a30","#161a28","#161620","#2a1a30","#2a1828","#1a1828",
+  "#1a1a30","#161a28","#161620","#2a1a30","#2a1828","#1a1828","#181525",
 ];
 
-const W = 2200, ROW_H = 148, TOP_PAD = 52, SIDE_PAD = 60;
-const NW = 118, NH = 50;
+const W = 1800, ROW_H = 105, TOP_PAD = 40, SIDE_PAD = 50;
+const NW = 100, NH = 40;
+
+// Pan & zoom state
+let scale = 1, panX = 0, panY = 0;
+let isDragging = false, dragStartX = 0, dragStartY = 0, dragPanX = 0, dragPanY = 0;
+
+function applyTransform() {
+  const svg = document.getElementById("chart");
+  svg.style.transform = `translate(${panX}px,${panY}px) scale(${scale})`;
+  svg.style.transformOrigin = "0 0";
+}
+function zoomIn()  { scale = Math.min(scale * 1.25, 3); applyTransform(); }
+function zoomOut() { scale = Math.max(scale * 0.8, 0.3); applyTransform(); }
+function zoomReset() { scale = 1; panX = 0; panY = 0; applyTransform(); }
+
+function zoomToFit(nodeIds, nodes) {
+  if (!nodeIds.size) return;
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  nodes.forEach(n => {
+    if (!nodeIds.has(n.id)) return;
+    minX = Math.min(minX, n._x - NW/2);
+    maxX = Math.max(maxX, n._x + NW/2);
+    minY = Math.min(minY, n._y - NH/2);
+    maxY = Math.max(maxY, n._y + NH/2);
+  });
+  const pad = 80;
+  const container = document.getElementById("chart-container");
+  const cw = container.clientWidth, ch = container.clientHeight;
+  const bw = maxX - minX + pad*2, bh = maxY - minY + pad*2;
+  scale = Math.min(cw / bw, ch / bh, 1.5);
+  scale = Math.max(scale, 0.3);
+  panX = (cw - bw * scale) / 2 - (minX - pad) * scale;
+  panY = (ch - bh * scale) / 2 - (minY - pad) * scale + 10;
+  applyTransform();
+}
 
 function layout(nodes) {
   const byLayer = {};
@@ -1029,7 +1106,7 @@ function showTip(evt, html) {
 }
 function moveTip(evt) {
   const x = evt.clientX + 14, y = evt.clientY - 10;
-  tooltip.style.left = Math.min(x, window.innerWidth - 290) + "px";
+  tooltip.style.left = Math.min(x, window.innerWidth - 310) + "px";
   tooltip.style.top  = (y < 10 ? 10 : y) + "px";
 }
 function hideTip() { tooltip.style.display = "none"; }
@@ -1043,26 +1120,24 @@ function render() {
   layout(nodes);
 
   const totalLayers = Math.max(...nodes.map(n=>n.layer)) + 1;
-  const svgH = TOP_PAD + totalLayers * ROW_H + 40;
+  const svgH = TOP_PAD + totalLayers * ROW_H + 30;
   const svg = document.getElementById("chart");
   svg.setAttribute("width",  W);
   svg.setAttribute("height", svgH);
   svg.setAttribute("viewBox", `0 0 ${W} ${svgH}`);
 
-  // ── Arrowhead markers ──────────────────────────────────────────────
   const defs = svgEl("defs", {}, svg);
-  const markerTypes = Object.entries(EDGE_STYLE);
-  markerTypes.forEach(([type, st]) => {
+  Object.entries(EDGE_STYLE).forEach(([type, st]) => {
     const m = svgEl("marker", {
-      id:`arr-${type}`, markerWidth:8, markerHeight:6,
-      refX:7, refY:3, orient:"auto"
+      id:`arr-${type}`, markerWidth:7, markerHeight:5,
+      refX:6, refY:2.5, orient:"auto"
     }, defs);
     svgEl("polygon", {
-      points:"0 0, 8 3, 0 6", fill:st.color, opacity:0.85
+      points:"0 0, 7 2.5, 0 5", fill:st.color, opacity:0.85
     }, m);
   });
 
-  // ── Layer bands ────────────────────────────────────────────────────
+  // Layer bands
   const bandG = svgEl("g", {}, svg);
   for (let i = 0; i < totalLayers; i++) {
     const y = i * ROW_H;
@@ -1074,12 +1149,12 @@ function render() {
     }, bandG);
     const label = layers[i] || `Layer ${i}`;
     svgEl("text", {
-      x:6, y: TOP_PAD + y - ROW_H/2 + NH/2 + 13,
+      x:5, y: TOP_PAD + y - ROW_H/2 + NH/2 + 11,
       class:"band-label"
     }, bandG).textContent = label.toUpperCase();
   }
 
-  // ── Edges ──────────────────────────────────────────────────────────
+  // Edges
   const edgeG = svgEl("g", {}, svg);
   const edgeEls = [];
 
@@ -1090,14 +1165,13 @@ function render() {
 
     const x1 = src._x, y1 = src._y + NH/2 + 1;
     const x2 = tgt._x, y2 = tgt._y - NH/2 - 1;
-
     const pathD = bezier(x1,y1,x2,y2);
     const path = svgEl("path", {
       d:pathD, stroke:st.color,
       "stroke-width": st.w,
       "stroke-dasharray": st.dash === "none" ? "" : st.dash,
       "marker-end": `url(#arr-${e.type})`,
-      opacity: 0.65,
+      opacity: 0.55,
       class:"edge"
     }, edgeG);
 
@@ -1108,7 +1182,6 @@ function render() {
     path.dataset.idx   = i;
     edgeEls.push(path);
 
-    // Fat invisible hit area
     const hit = svgEl("path", {
       d:pathD, stroke:"transparent", "stroke-width":10, fill:"none", cursor:"pointer"
     }, edgeG);
@@ -1120,7 +1193,7 @@ function render() {
     hit.addEventListener("mouseleave", () => { if (!pinned) hideTip(); });
   });
 
-  // ── Nodes ──────────────────────────────────────────────────────────
+  // Nodes
   const nodeG = svgEl("g", {}, svg);
   const nodeEls = {};
 
@@ -1130,40 +1203,36 @@ function render() {
     g.dataset.id = n.id;
 
     svgEl("rect", {
-      width:NW, height:NH, rx:7, ry:7,
+      width:NW, height:NH, rx:6, ry:6,
       fill:st.fill, stroke:st.stroke, "stroke-width":1.5
     }, g);
 
-    // Multi-line label
     const lines = n.label.split("\n");
     if (lines.length === 1) {
-      const t = svgEl("text", {x:NW/2, y:NH/2, "text-anchor":"middle", fill:st.text}, g);
-      t.textContent = n.label;
+      svgEl("text", {x:NW/2, y:NH/2, "text-anchor":"middle", fill:st.text}, g).textContent = n.label;
     } else {
-      const t = svgEl("text", {x:NW/2, y:NH/2 - 7, "text-anchor":"middle", fill:st.text}, g);
-      t.textContent = lines[0];
-      const t2 = svgEl("text", {x:NW/2, y:NH/2 + 8, "text-anchor":"middle", fill:st.text, "font-size":"9.5px"}, g);
-      t2.textContent = lines[1] || "";
+      svgEl("text", {x:NW/2, y:NH/2 - 6, "text-anchor":"middle", fill:st.text}, g).textContent = lines[0];
+      svgEl("text", {x:NW/2, y:NH/2 + 7, "text-anchor":"middle", fill:st.text, "font-size":"8.5px"}, g).textContent = lines[1] || "";
     }
 
     nodeEls[n.id] = g;
 
-    // Hover / click
     g.addEventListener("mousemove", evt => {
       if (pinned && pinned !== n.id) return;
       highlightNode(n.id, nodes, edges, edgeEls, nodeEls);
-      const tipText = `<strong>${n.label.replace(/\n/g," ")}</strong>${n.tip}`;
-      showTip(evt, tipText);
+      showTip(evt, `<strong>${n.label.replace(/\n/g," ")}</strong>${n.tip}`);
       evt.stopPropagation();
     });
     g.addEventListener("mouseleave", () => {
-      if (!pinned) { clearHighlight(nodes, edgeEls, nodeEls); hideTip(); }
+      if (!pinned) { clearHighlight(edgeEls, nodeEls); hideTip(); clearBreadcrumb(); }
     });
     g.addEventListener("click", evt => {
       if (pinned === n.id) {
         pinned = null;
-        clearHighlight(nodes, edgeEls, nodeEls);
+        clearHighlight(edgeEls, nodeEls);
         hideTip();
+        clearBreadcrumb();
+        zoomReset();
       } else {
         pinned = n.id;
         highlightNode(n.id, nodes, edges, edgeEls, nodeEls);
@@ -1172,43 +1241,167 @@ function render() {
     });
   });
 
-  // Click elsewhere to unpin
   svg.addEventListener("click", () => {
-    if (pinned) { pinned = null; clearHighlight(nodes, edgeEls, nodeEls); hideTip(); }
+    if (pinned) { pinned = null; clearHighlight(edgeEls, nodeEls); hideTip(); clearBreadcrumb(); zoomReset(); }
   });
+
+  // Search
+  const searchInput = document.getElementById("search");
+  searchInput.addEventListener("input", () => {
+    const q = searchInput.value.trim().toLowerCase();
+    if (!q) {
+      nodes.forEach(n => {
+        const el = nodeEls[n.id];
+        if (el) { el.classList.remove("search-match","search-dim"); }
+      });
+      edgeEls.forEach(p => { p.classList.remove("dim"); p.style.opacity = ""; });
+      return;
+    }
+    nodes.forEach(n => {
+      const el = nodeEls[n.id];
+      if (!el) return;
+      const match = n.label.toLowerCase().includes(q) || n.id.toLowerCase().includes(q) || n.tip.toLowerCase().includes(q);
+      el.classList.toggle("search-match", match);
+      el.classList.toggle("search-dim", !match);
+    });
+    edgeEls.forEach(p => { p.classList.add("dim"); p.style.opacity = ""; });
+  });
+
+  // Pan with mouse drag
+  const container = document.getElementById("chart-container");
+  container.addEventListener("mousedown", e => {
+    if (e.button !== 0) return;
+    isDragging = true;
+    dragStartX = e.clientX; dragStartY = e.clientY;
+    dragPanX = panX; dragPanY = panY;
+    container.classList.add("dragging");
+  });
+  window.addEventListener("mousemove", e => {
+    if (!isDragging) return;
+    panX = dragPanX + (e.clientX - dragStartX);
+    panY = dragPanY + (e.clientY - dragStartY);
+    applyTransform();
+  });
+  window.addEventListener("mouseup", () => {
+    isDragging = false;
+    container.classList.remove("dragging");
+  });
+  container.addEventListener("wheel", e => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    scale = Math.max(0.2, Math.min(3, scale * delta));
+    applyTransform();
+  }, {passive: false});
+}
+
+function traceAncestry(id, edges) {
+  // BFS upward (ancestors) and downward (descendants)
+  const ancestors = new Set();
+  const descendants = new Set();
+  const ancestorEdges = new Set();
+  const descendantEdges = new Set();
+
+  // Trace up
+  const upQueue = [id];
+  while (upQueue.length) {
+    const cur = upQueue.shift();
+    edges.forEach((e, i) => {
+      if (e.tgt === cur && !ancestors.has(e.src)) {
+        ancestors.add(e.src);
+        ancestorEdges.add(i);
+        upQueue.push(e.src);
+      }
+    });
+  }
+  // Trace down
+  const downQueue = [id];
+  while (downQueue.length) {
+    const cur = downQueue.shift();
+    edges.forEach((e, i) => {
+      if (e.src === cur && !descendants.has(e.tgt)) {
+        descendants.add(e.tgt);
+        descendantEdges.add(i);
+        downQueue.push(e.tgt);
+      }
+    });
+  }
+
+  const allConnected = new Set([id, ...ancestors, ...descendants]);
+  const allEdges = new Set([...ancestorEdges, ...descendantEdges]);
+  return { connected: allConnected, edges: allEdges, ancestors, descendants };
+}
+
+function buildBreadcrumb(id, edges, nodeMap) {
+  // Find one path from a root to id (shortest via BFS)
+  const parent = {};
+  const visited = new Set([id]);
+  const queue = [id];
+  while (queue.length) {
+    const cur = queue.shift();
+    edges.forEach(e => {
+      if (e.tgt === cur && !visited.has(e.src)) {
+        visited.add(e.src);
+        parent[e.src] = cur;
+        queue.push(e.src);
+      }
+    });
+  }
+  // Find a root (no parents) among visited
+  let root = null;
+  for (const nid of visited) {
+    const hasParent = edges.some(e => e.tgt === nid && visited.has(e.src));
+    if (!hasParent && nid !== id) { root = nid; break; }
+  }
+  if (!root) return;
+
+  // Build path from root to id
+  const path = [];
+  let cur = root;
+  while (cur !== undefined) {
+    path.push(cur);
+    if (cur === id) break;
+    cur = parent[cur];
+  }
+
+  const bc = document.getElementById("breadcrumb");
+  bc.innerHTML = path.map(nid => {
+    const n = nodeMap[nid];
+    const label = n ? n.label.replace(/\n/g," ") : nid;
+    return `<span>${label}</span>`;
+  }).join(" → ");
+}
+
+function clearBreadcrumb() {
+  document.getElementById("breadcrumb").innerHTML = "";
 }
 
 function highlightNode(id, nodes, edges, edgeEls, nodeEls) {
-  // Find all connected node IDs (immediate parents + children)
-  const connected = new Set([id]);
-  edges.forEach(e => {
-    if (e.src === id) connected.add(e.tgt);
-    if (e.tgt === id) connected.add(e.src);
-  });
+  const trace = traceAncestry(id, edges);
 
-  // Dim/highlight nodes
   nodes.forEach(n => {
     const el = nodeEls[n.id];
     if (!el) return;
-    el.classList.toggle("dim", !connected.has(n.id));
+    el.classList.toggle("dim", !trace.connected.has(n.id));
     el.classList.toggle("hi",  n.id === id);
   });
 
-  // Dim/highlight edges
-  edgeEls.forEach(path => {
-    const s = path.dataset.src, t = path.dataset.tgt;
-    const relevant = s === id || t === id;
+  edgeEls.forEach((path, i) => {
+    const relevant = trace.edges.has(i);
     path.classList.toggle("dim", !relevant);
     path.classList.toggle("hi",   relevant);
     path.style.opacity = relevant ? "1" : "";
   });
+
+  const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]));
+  buildBreadcrumb(id, edges, nodeMap);
+
+  if (pinned) {
+    zoomToFit(trace.connected, nodes);
+  }
 }
 
-function clearHighlight(nodes, edgeEls, nodeEls) {
-  nodes.forEach(n => {
-    const el = nodeEls[n.id];
-    if (el) { el.classList.remove("dim","hi"); }
-  });
+function clearHighlight(edgeEls, nodeEls) {
+  Object.values(nodeEls).forEach(el => { el.classList.remove("dim","hi"); });
   edgeEls.forEach(p => {
     p.classList.remove("dim","hi");
     p.style.opacity = "";
@@ -1225,18 +1418,264 @@ document.addEventListener("mousemove", evt => {
 """
 
 
-def main():
-    out = Path(__file__).parent.parent / "docs" / "dependency_chart.html"
-    out.parent.mkdir(exist_ok=True)
+# ── Auto-discovery & chart management ────────────────────────────────
+
+# Map from chart node ID to the module name (for matching)
+_NODE_ID_TO_MODULE = {}
+for _n in NODES:
+    _nid = _n[0]
+    if _nid.startswith("api_"):
+        # Extract module name from tooltip (first line has "field.interface.XXX")
+        tip = _n[4]
+        for line in tip.split("\n"):
+            if "field.interface." in line:
+                mod = line.split("field.interface.")[-1].strip()
+                _NODE_ID_TO_MODULE[_nid] = mod
+                break
+            elif "field." in line:
+                mod = line.split("field.")[-1].strip()
+                _NODE_ID_TO_MODULE[_nid] = mod
+                break
+
+# Also handle core field modules
+_CORE_MODULES_IN_CHART = set()
+for _nid, _mod in _NODE_ID_TO_MODULE.items():
+    _CORE_MODULES_IN_CHART.add(_mod)
+
+
+def discover_modules():
+    """Scan sigma-ground for all physics modules (interface + core field).
+
+    Returns dict with 'interface' and 'core' lists of module names.
+    """
+    sg_root = Path(__file__).parent.parent / "sigma_ground" / "field"
+
+    interface_dir = sg_root / "interface"
+    interface_mods = []
+    if interface_dir.exists():
+        for f in sorted(interface_dir.glob("*.py")):
+            name = f.stem
+            if name.startswith("test_") or name.startswith("demo_") or name == "__init__":
+                continue
+            interface_mods.append(name)
+
+    core_mods = []
+    for f in sorted(sg_root.glob("*.py")):
+        name = f.stem
+        if name.startswith("test_") or name.startswith("demo_") or name.startswith("__"):
+            continue
+        # Skip non-physics utility modules
+        if name in ("audit", "proof", "render", "render_asteroid", "sandbox",
+                     "scorecard", "shape_budget", "tests_breaking", "verify",
+                     "demo", "unsolved", "nesting"):
+            continue
+        core_mods.append(name)
+
+    return {"interface": interface_mods, "core": core_mods}
+
+
+def chart_status():
+    """Compare discovered modules against chart nodes.
+
+    Returns dict with 'in_chart', 'missing', 'total_nodes', 'total_edges'.
+    """
+    discovered = discover_modules()
+    all_discovered = set(discovered["interface"]) | set(discovered["core"])
+
+    # Modules represented in chart
+    charted = set(_NODE_ID_TO_MODULE.values())
+
+    in_chart = sorted(all_discovered & charted)
+    missing = sorted(all_discovered - charted)
+
+    return {
+        "total_nodes": len(NODES),
+        "total_edges": len(EDGES),
+        "total_layers": len(LAYER_NAMES),
+        "modules_in_chart": len(in_chart),
+        "modules_missing": len(missing),
+        "in_chart": in_chart,
+        "missing": missing,
+        "interface_modules": len(discovered["interface"]),
+        "core_modules": len(discovered["core"]),
+    }
+
+
+def _scan_imports(module_path):
+    """Scan a Python file for sigma-ground constant/module imports.
+
+    Returns list of imported constant names and interface module names.
+    """
+    constants_found = set()
+    modules_found = set()
+    known_constants = {
+        "HBAR", "C", "E_CHARGE", "EPS_0", "MU_0", "K_B", "G",
+        "ALPHA", "XI", "ETA", "SIGMA_CONV", "LAMBDA_QCD_MEV",
+        "SIGMA_HERE", "SIGMA_FLOOR", "M_ELECTRON_KG", "AMU_KG",
+        "N_AVOGADRO", "H_PLANCK", "BOHR_RADIUS", "MU_BOHR",
+        "R_GAS", "STEFAN_BOLTZMANN",
+        "M_UP_MEV", "M_DOWN_MEV", "PROTON_TOTAL_MEV",
+        "NEUTRON_TOTAL_MEV", "PROTON_BARE_MEV", "PROTON_QCD_MEV",
+        "R0_FM", "A_C_MEV", "N0_FM3", "K_SAT_MEV", "J_SYM_MEV",
+        "E_SAT_MEV", "DELTA_NP",
+    }
+
+    try:
+        text = module_path.read_text(encoding="utf-8")
+    except Exception:
+        return [], []
+
+    import re
+    # Look for "from sigma_ground.field.constants import ..."
+    for m in re.finditer(r'from\s+sigma_ground\.field\.constants\s+import\s+(.+)', text):
+        for name in m.group(1).split(","):
+            name = name.strip().split(" as ")[0].strip()
+            if name in known_constants:
+                constants_found.add(name)
+
+    # Look for "from sigma_ground.field.interface.XXX import"
+    for m in re.finditer(r'from\s+sigma_ground\.field\.interface\.(\w+)\s+import', text):
+        modules_found.add(m.group(1))
+
+    # Look for sigma-field usage
+    if "sigma" in text.lower() and ("scale_ratio" in text or "e_sigma" in text):
+        constants_found.add("SIGMA_FIELD")
+
+    return sorted(constants_found), sorted(modules_found)
+
+
+def auto_discover_node(module_name, scan_imports=True):
+    """Generate a chart node definition for an undiscovered module.
+
+    Returns (node_tuple, edge_tuples) ready to add to NODES/EDGES.
+    """
+    sg_root = Path(__file__).parent.parent / "sigma_ground" / "field"
+
+    # Find module file
+    interface_path = sg_root / "interface" / f"{module_name}.py"
+    core_path = sg_root / f"{module_name}.py"
+    if interface_path.exists():
+        mod_path = interface_path
+        mod_prefix = "field.interface"
+        layer = 10  # default layer for interface modules
+    elif core_path.exists():
+        mod_path = core_path
+        mod_prefix = "field"
+        layer = 8  # default layer for core field modules
+    else:
+        return None, []
+
+    # Count public functions
+    try:
+        text = mod_path.read_text(encoding="utf-8")
+        import re
+        funcs = re.findall(r'^def\s+([a-z_]\w*)\s*\(', text, re.MULTILINE)
+        public_funcs = [f for f in funcs if not f.startswith("_")]
+        func_count = len(public_funcs)
+    except Exception:
+        func_count = 0
+        public_funcs = []
+
+    # Scan imports for edge generation
+    constants, dep_modules = [], []
+    if scan_imports:
+        constants, dep_modules = _scan_imports(mod_path)
+
+    # Build display label
+    display_name = module_name.replace("_", " ")
+    if func_count > 0:
+        top_funcs = ", ".join(public_funcs[:3])
+        label = f"{module_name}\n({top_funcs})"
+    else:
+        label = module_name
+
+    # Build tooltip
+    tip = f"{mod_prefix}.{module_name}\n{func_count} public functions"
+    if public_funcs:
+        tip += "\n" + ", ".join(public_funcs[:6])
+        if len(public_funcs) > 6:
+            tip += f", ... (+{len(public_funcs)-6} more)"
+
+    # Check for sigma dependence
+    sigma_dep = "SIGMA_FIELD" in constants
+    if sigma_dep:
+        tip += "\nσ-dependent"
+    else:
+        tip += "\nσ-invariant"
+
+    node_id = f"api_{module_name}"
+    node = (node_id, label, layer, "api", tip)
+
+    # Build edges from constants
+    edges = []
+
+    # Map constant names to chart node IDs
+    const_to_node = {
+        "HBAR": "HBAR", "C": "C", "E_CHARGE": "E_CHARGE",
+        "EPS_0": "EPS_0", "MU_0": "MU_0", "K_B": "K_B", "G": "G",
+        "ALPHA": "ALPHA", "XI": "XI", "ETA": "ETA",
+        "SIGMA_CONV": "SIGMA_CONV", "LAMBDA_QCD_MEV": "LAMBDA_QCD_MEV",
+        "M_ELECTRON_KG": "M_ELECTRON_KG", "AMU_KG": "AMU_KG",
+        "N_AVOGADRO": "N_AVOGADRO", "H_PLANCK": "H_PLANCK",
+        "BOHR_RADIUS": "BOHR_RADIUS", "MU_BOHR": "MU_BOHR",
+        "R_GAS": "R_GAS", "STEFAN_BOLTZMANN": "STEFAN_BOLTZMANN",
+        "M_UP_MEV": "M_UP_MEV", "M_DOWN_MEV": "M_DOWN_MEV",
+        "PROTON_TOTAL_MEV": "PROTON_TOTAL_MEV",
+        "NEUTRON_TOTAL_MEV": "NEUTRON_TOTAL_MEV",
+        "PROTON_BARE_MEV": "PROTON_BARE_MEV",
+        "PROTON_QCD_MEV": "PROTON_QCD_MEV",
+        "R0_FM": "R0_FM", "A_C_MEV": "A_C_MEV",
+        "N0_FM3": "N0_FM3", "K_SAT_MEV": "K_SAT_MEV",
+        "J_SYM_MEV": "J_SYM_MEV", "E_SAT_MEV": "E_SAT_MEV",
+        "SIGMA_FIELD": "SIGMA_FIELD",
+    }
+
+    for const in constants:
+        chart_id = const_to_node.get(const)
+        if chart_id:
+            edge_type = "sigma" if const == "SIGMA_FIELD" else "uses"
+            edges.append((chart_id, node_id, edge_type, ""))
+
+    # Edges from dependent interface modules
+    for dep_mod in dep_modules:
+        dep_id = f"api_{dep_mod}"
+        # Only add if the dep module is in chart
+        existing_ids = {n[0] for n in NODES}
+        if dep_id in existing_ids:
+            edges.append((dep_id, node_id, "uses", dep_mod))
+
+    return node, edges
+
+
+def regenerate(output_path=None):
+    """Regenerate the dependency chart HTML.
+
+    Returns dict with stats about the generated chart.
+    """
+    if output_path is None:
+        output_path = Path(__file__).parent.parent / "docs" / "dependency_chart.html"
+    else:
+        output_path = Path(output_path)
+
+    output_path.parent.mkdir(exist_ok=True)
     html = build_html(NODES, EDGES, LAYER_NAMES)
-    out.write_text(html, encoding="utf-8")
-    n_nodes = len(NODES)
-    n_edges = len(EDGES)
-    print(f"Written: {out}")
-    print(f"  {n_nodes} nodes across {len(LAYER_NAMES)} layers")
-    print(f"  {n_edges} edges")
-    print(f"  File size: {len(html)//1024} KB")
-    print(f"\nOpen in browser: file:///{out.resolve()}")
+    output_path.write_text(html, encoding="utf-8")
+
+    return {
+        "path": str(output_path),
+        "nodes": len(NODES),
+        "edges": len(EDGES),
+        "layers": len(LAYER_NAMES),
+        "size_kb": len(html) // 1024,
+    }
+
+
+def main():
+    result = regenerate()
+    print(f"Written: {result['path']}")
+    print(f"  {result['nodes']} nodes across {result['layers']} layers")
+    print(f"  {result['edges']} edges")
+    print(f"  File size: {result['size_kb']} KB")
 
 
 if __name__ == "__main__":
