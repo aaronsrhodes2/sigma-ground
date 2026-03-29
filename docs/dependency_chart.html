@@ -67,9 +67,26 @@ svg { display: block; transition: transform 0.35s ease; }
   display: flex; align-items: center; justify-content: center;
 }
 #zoom-controls button:hover { background: #1a2a4c; }
+.nav-bar {
+  display: flex; gap: 4px; justify-content: center; margin: 8px 0;
+  flex-wrap: wrap;
+}
+.nav-bar a {
+  color: #8b949e; text-decoration: none; padding: 6px 14px;
+  border: 1px solid #30363d; border-radius: 6px; font-size: 0.82em;
+  transition: all 0.15s;
+}
+.nav-bar a:hover { color: #c9d1d9; border-color: #58a6ff; background: #161b22; }
+.nav-bar a.active { color: #58a6ff; border-color: #58a6ff; background: #161b22; }
 </style>
 </head>
 <body>
+<nav class="nav-bar">
+  <a href="mcmillan_validation.html">McMillan Validation</a>
+  <a href="beyond_mcmillan.html">Beyond McMillan (Z&rarr;T<sub>c</sub>)</a>
+  <a href="alloy_Tc_predictions.html">Alloy Predictions</a>
+  <a href="dependency_chart.html" class="active">Dependency Chart</a>
+</nav>
 <div id="header">
   <h1>sigma-ground — Dependency Chart</h1>
   <p>Click a node to trace its full ancestry. Search to filter.</p>

@@ -125,9 +125,27 @@ def build_html(sc, weak, ferro, spin, debye):
   th {{ color: #58a6ff; text-align: right; }}
   td:first-child, th:first-child {{ text-align: left; }}
   tr:hover td {{ background: #1c2128; }}
+  .nav-bar {{
+    display: flex; gap: 4px; justify-content: center; margin-bottom: 16px;
+    flex-wrap: wrap;
+  }}
+  .nav-bar a {{
+    color: #8b949e; text-decoration: none; padding: 6px 14px;
+    border: 1px solid #30363d; border-radius: 6px; font-size: 0.82em;
+    transition: all 0.15s;
+  }}
+  .nav-bar a:hover {{ color: #c9d1d9; border-color: #58a6ff; background: #161b22; }}
+  .nav-bar a.active {{ color: #58a6ff; border-color: #58a6ff; background: #161b22; }}
 </style>
 </head>
 <body>
+
+<nav class="nav-bar">
+  <a href="mcmillan_validation.html" class="active">McMillan Validation</a>
+  <a href="beyond_mcmillan.html">Beyond McMillan (Z&rarr;T<sub>c</sub>)</a>
+  <a href="alloy_Tc_predictions.html">Alloy Predictions</a>
+  <a href="dependency_chart.html">Dependency Chart</a>
+</nav>
 
 <h1>McMillan Formula Validation</h1>
 <p class="subtitle">

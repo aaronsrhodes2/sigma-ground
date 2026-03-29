@@ -232,9 +232,27 @@ def build_html(rows):
     padding: 16px; margin: 16px 0;
   }}
   .wall-box h3 {{ color: #f0883e; margin-bottom: 8px; }}
+  .nav-bar {{
+    display: flex; gap: 4px; justify-content: center; margin-bottom: 16px;
+    flex-wrap: wrap;
+  }}
+  .nav-bar a {{
+    color: #8b949e; text-decoration: none; padding: 6px 14px;
+    border: 1px solid #30363d; border-radius: 6px; font-size: 0.82em;
+    transition: all 0.15s;
+  }}
+  .nav-bar a:hover {{ color: #c9d1d9; border-color: #58a6ff; background: #161b22; }}
+  .nav-bar a.active {{ color: #58a6ff; border-color: #58a6ff; background: #161b22; }}
 </style>
 </head>
 <body>
+
+<nav class="nav-bar">
+  <a href="mcmillan_validation.html">McMillan Validation</a>
+  <a href="beyond_mcmillan.html" class="active">Beyond McMillan (Z&rarr;T<sub>c</sub>)</a>
+  <a href="alloy_Tc_predictions.html">Alloy Predictions</a>
+  <a href="dependency_chart.html">Dependency Chart</a>
+</nav>
 
 <h1>Beyond McMillan: T<sub>c</sub> from Atomic Number Alone</h1>
 <p class="subtitle">

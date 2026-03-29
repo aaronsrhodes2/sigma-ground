@@ -42,9 +42,27 @@
   th { color: #58a6ff; text-align: right; }
   td:first-child, th:first-child { text-align: left; }
   tr:hover td { background: #1c2128; }
+  .nav-bar {
+    display: flex; gap: 4px; justify-content: center; margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .nav-bar a {
+    color: #8b949e; text-decoration: none; padding: 6px 14px;
+    border: 1px solid #30363d; border-radius: 6px; font-size: 0.82em;
+    transition: all 0.15s;
+  }
+  .nav-bar a:hover { color: #c9d1d9; border-color: #58a6ff; background: #161b22; }
+  .nav-bar a.active { color: #58a6ff; border-color: #58a6ff; background: #161b22; }
 </style>
 </head>
 <body>
+
+<nav class="nav-bar">
+  <a href="mcmillan_validation.html" class="active">McMillan Validation</a>
+  <a href="beyond_mcmillan.html">Beyond McMillan (Z&rarr;T<sub>c</sub>)</a>
+  <a href="alloy_Tc_predictions.html">Alloy Predictions</a>
+  <a href="dependency_chart.html">Dependency Chart</a>
+</nav>
 
 <h1>McMillan Formula Validation</h1>
 <p class="subtitle">
@@ -238,8 +256,8 @@
 </div>
 <script>
 (function() {
-  var pts = [{"x": 428, "y": 703.5086150194388, "label": "aluminum", "pct": 64.4}, {"x": 420, "y": 617.993362440214, "label": "titanium", "pct": 47.1}, {"x": 343, "y": 518.6609184665493, "label": "copper", "pct": 51.2}, {"x": 165, "y": 274.2276163982107, "label": "gold", "pct": 66.2}, {"x": 470, "y": 604.5796016838073, "label": "iron", "pct": 28.6}, {"x": 450, "y": 624.8268223845249, "label": "nickel", "pct": 38.9}, {"x": 400, "y": 435.82641957008804, "label": "tungsten", "pct": 9.0}, {"x": 645, "y": 536.966549001643, "label": "silicon", "pct": -16.7}];
-  var axMax = 809;
+  var pts = [{"x": 428, "y": 456.6634022725602, "label": "aluminum", "pct": 6.7}, {"x": 420, "y": 442.64359081078686, "label": "titanium", "pct": 5.4}, {"x": 343, "y": 348.54363215286713, "label": "copper", "pct": 1.6}, {"x": 165, "y": 110.34350560735258, "label": "gold", "pct": -33.1}, {"x": 470, "y": 471.3323869833911, "label": "iron", "pct": 0.3}, {"x": 450, "y": 460.9566607323552, "label": "nickel", "pct": 2.4}, {"x": 400, "y": 348.6911827305495, "label": "tungsten", "pct": -12.8}, {"x": 645, "y": 492.9668666206401, "label": "silicon", "pct": -23.6}];
+  var axMax = 742;
 
   var canvas = document.getElementById('debye');
   var ctx = canvas.getContext('2d');
