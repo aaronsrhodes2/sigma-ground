@@ -466,6 +466,171 @@ def hall_voltage(material_key, current, B_field, thickness):
     return R_H * current * B_field / thickness
 
 
+# ── Electron-Phonon Coupling from Z (McMillan-Hopfield) ─────────
+
+def derive_lambda_ep(Z, theta_D_K=None):
+    """Derive electron-phonon coupling constant λ from atomic number alone.
+
+    Uses the McMillan-Hopfield formula:
+
+        λ = η / (M × <ω²>)
+
+    where:
+        η = N(E_F) × <I²>  is the Hopfield parameter (SI: kg/s²)
+        M = atomic mass (kg)
+        <ω²> = (3/5) × ω_D²  (Debye spectrum average, s⁻²)
+
+    N(E_F) is the free-electron density of states PER ATOM (1/J):
+        N(E_F) = 3 n_free / (2 E_F)
+
+    <I²> is the Fermi-surface-averaged squared gradient coupling (J²/m²):
+        <I²> = (1/2k_F²) ∫₀^{2k_F} q² |V(q)|² q dq
+
+    where V(q) is the screened Ashcroft empty-core pseudopotential (J):
+        V(q) = -Z_val e² cos(q r_c) / [ε₀ Ω (q² + k_TF²)]
+
+    Dimensional chain:
+        η [kg/s²] = N(E_F) [1/J] × <I²> [J²/m²]
+        λ = η / (M [kg] × <ω²> [s⁻²])  →  dimensionless ✓
+
+    Also derives resistivity from λ via the Allen formula:
+        ρ(T) = 2π m_e λ k_B T / (n_e e² ℏ)    for T ≫ θ_D
+
+    FIRST_PRINCIPLES + APPROXIMATION: Free-electron N(E_F) is exact
+    for sp metals, approximate for d-metals. Empty-core pseudopotential
+    is good for simple metals, rough for transition metals where d-band
+    scattering dominates. Accuracy: factor of 2-3 typical.
+
+    Args:
+        Z: atomic number
+        theta_D_K: Debye temperature in K (derived from Z if None)
+
+    Returns:
+        dict with lambda_ep, eta_hopfield, rho_Ohm_m, and intermediates.
+        Returns None if derivation fails.
+    """
+    from .element import (free_electron_count, predict_density_kg_m3,
+                          atomic_mass_kg, slater_radius_m, d_electron_count)
+    from .thermal import debye_temperature_from_Z
+
+    _HBAR = HBAR
+    _ME = M_ELECTRON_KG
+    _KB = K_B
+    _E = E_CHARGE
+    _EPS0 = EPS_0
+    _A0 = 5.29177210903e-11  # Bohr radius
+
+    n_free = free_electron_count(Z)
+    if n_free <= 0:
+        return None
+
+    rho_kg = predict_density_kg_m3(Z)
+    m_atom = atomic_mass_kg(Z)
+    if rho_kg <= 0 or m_atom <= 0:
+        return None
+
+    n_atoms = rho_kg / m_atom
+    n_e = n_atoms * n_free
+
+    # Fermi wavevector and energy
+    k_F = (3.0 * math.pi**2 * n_e) ** (1.0 / 3.0)
+    E_F_J = _HBAR**2 * k_F**2 / (2.0 * _ME)
+
+    # Atomic volume
+    omega = m_atom / rho_kg  # m³ per atom
+
+    # Core radius — Slater radius for scattering
+    r_c = slater_radius_m(Z)
+    n_d = d_electron_count(Z)
+    if 0 < n_d < 10:
+        r_c *= 0.45  # d-orbital contraction for transition metals
+
+    # Thomas-Fermi screening wavevector: k_TF² = 4k_F/(π a₀)
+    k_TF = math.sqrt(4.0 * k_F / (math.pi * _A0))
+
+    # ── N(E_F) per atom [1/J] ──
+    # Free-electron: N(E_F) = 3n/(2E_F) per atom, both spins
+    N_EF_atom = 3.0 * n_free / (2.0 * E_F_J)
+
+    # ── Screened Ashcroft pseudopotential V(q) [Joules] ──
+    # V(q) = -Z_val e² cos(qr_c) / [ε₀ Ω (q² + k_TF²)]
+    #
+    # Prefactor C = Z_val e² / (ε₀ Ω), units [J·m²]
+    C_prefactor = n_free * _E**2 / (_EPS0 * omega)
+
+    # ── Fermi-surface-averaged <I²> [J²/m²] ──
+    # <I²> = (1/(2k_F²)) ∫₀^{2k_F} q² |V(q)|² × q dq
+    #       = (1/(2k_F²)) ∫₀^{2k_F} q³ |V(q)|² dq
+    #
+    # where q²|V(q)|² is the gradient coupling |I(q)|² = |qV(q)|²
+    # divided by q (to get the force per unit displacement in the
+    # rigid-ion model, the q from ∇ gives one power of q).
+    # Numerical integration (midpoint rule, 500 steps)
+    # ∫₀^{2k_F} q³ |V(q)|² dq  has units J²·m⁻⁴
+    # Dividing by k_F² [m⁻²] gives J²·m⁻² as required for ⟨I²⟩
+    n_steps = 500
+    q_max = 2.0 * k_F
+    dq = q_max / n_steps
+    integral = 0.0
+    for i in range(1, n_steps + 1):
+        q = (i - 0.5) * dq
+        qrc = q * r_c
+        cos_qrc = math.cos(qrc) if qrc < 50 else 0.0
+        V_q = C_prefactor * cos_qrc / (q**2 + k_TF**2)  # [J]
+        integral += q**3 * V_q**2 * dq
+
+    # Directional average: ion displacement ŝ couples to scattering
+    # vector q via the dot product q·ŝ. For isotropic scattering,
+    # ⟨|q̂·ŝ|²⟩ = 1/3. This reduces the coupling by factor 3.
+    I2_avg = integral / (6.0 * k_F**2)  # [J²/m²]
+
+    # ── Hopfield parameter η [kg/s²] ──
+    eta = N_EF_atom * I2_avg  # [1/J × J²/m²] = [J/m²] = [kg/s²] ✓
+
+    # ── Debye temperature ──
+    if theta_D_K is None:
+        theta_D_K = debye_temperature_from_Z(Z)
+    if theta_D_K is None or theta_D_K <= 0:
+        return None
+
+    # <ω²> for Debye spectrum = (3/5) × ω_D²
+    omega_D = _KB * theta_D_K / _HBAR
+    omega2_avg = (3.0 / 5.0) * omega_D**2  # [s⁻²]
+
+    # ── λ = η / (M × <ω²>) ──  [dimensionless]
+    lambda_ep = eta / (m_atom * omega2_avg) if omega2_avg > 0 else 0.0
+
+    # ── Plasma frequency ──
+    omega_p2 = n_e * _E**2 / (_EPS0 * _ME)  # [s⁻²]
+    omega_p = math.sqrt(omega_p2)
+
+    # ── Resistivity from Allen formula (T = 300 K) ──
+    # ρ = 2π m_e λ k_B T / (n_e e² ℏ)    for T >> θ_D
+    # Equivalently: ρ = 2π λ k_B T / (ε₀ ω_p² ℏ)
+    T_ref = 300.0
+    rho_ohm_m = (2.0 * math.pi * lambda_ep * _KB * T_ref) / (
+        _EPS0 * omega_p2 * _HBAR)
+
+    v_F = _HBAR * k_F / _ME
+
+    return {
+        'Z': Z,
+        'n_free': n_free,
+        'k_F_m': k_F,
+        'v_F_m_s': v_F,
+        'E_F_eV': E_F_J / _E,
+        'r_c_m': r_c,
+        'theta_D_K': round(theta_D_K, 1),
+        'N_EF_atom_per_J': N_EF_atom,
+        'I2_avg_J2_m2': I2_avg,
+        'eta_hopfield_kg_s2': eta,
+        'omega_p_rad_s': omega_p,
+        'lambda_ep': lambda_ep,
+        'rho_Ohm_m': rho_ohm_m,
+        'rho_uOhm_cm': rho_ohm_m * 1e8,
+    }
+
+
 # ── Semiconductor Data ───────────────────────────────────────────
 # Rule 9: every semiconductor gets every field.
 #

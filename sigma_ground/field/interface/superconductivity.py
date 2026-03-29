@@ -1077,6 +1077,69 @@ def derive_mu_star(Z, theta_D_K=None):
     }
 
 
+def predict_Tc_from_Z(Z, sigma=0.0):
+    """Predict superconducting T_c from atomic number alone.
+
+    Full first-principles derivation chain:
+        Z → crystal structure → density → n_e → k_F → E_F
+          → E_coh → K → G → v_s → θ_D        (Debye temperature)
+          → N(E_F) → U_screened → μ → μ*       (Coulomb pseudopotential)
+          → V(q) → <I²> → η → λ_ep             (electron-phonon coupling)
+          → McMillan T_c                         (critical temperature)
+
+    Every quantity derived from Z; no measured material data used.
+    Measured values are for VALIDATION ONLY.
+
+    FIRST_PRINCIPLES + APPROXIMATION: Uses free-electron model for N(E_F)
+    and Ashcroft empty-core pseudopotential. Works well for sp-metals
+    (Al, Sn, Pb, In). Underestimates λ for d-band metals (Nb, Ta, V)
+    where d-resonance scattering dominates.
+
+    Args:
+        Z: atomic number
+        sigma: σ-field value (default 0.0 = normal space)
+
+    Returns:
+        dict with T_c_K, lambda_ep, mu_star, theta_D_K, and all
+        intermediate quantities. Returns None if derivation fails.
+    """
+    from .electronics import derive_lambda_ep
+
+    # Step 1: Derive θ_D and λ_ep from Z
+    ep = derive_lambda_ep(Z)
+    if ep is None:
+        return None
+
+    theta_D = ep['theta_D_K']
+    lambda_ep = ep['lambda_ep']
+
+    # Step 2: Derive μ* from Z
+    ms = derive_mu_star(Z, theta_D)
+    if ms is None:
+        return None
+
+    mu_star = ms['mu_star']
+
+    # Step 3: McMillan formula → T_c
+    if sigma == 0.0 or sigma == SIGMA_HERE:
+        Tc = mcmillan_Tc(theta_D, lambda_ep, mu_star)
+    else:
+        Tc = sigma_mcmillan_Tc(theta_D, lambda_ep, mu_star, sigma)
+
+    return {
+        'Z': Z,
+        'T_c_K': Tc if Tc else 0.0,
+        'lambda_ep': lambda_ep,
+        'mu_star': mu_star,
+        'theta_D_K': theta_D,
+        'E_F_eV': ep['E_F_eV'],
+        'n_free': ep['n_free'],
+        'rho_Ohm_m': ep['rho_Ohm_m'],
+        'rho_uOhm_cm': ep['rho_uOhm_cm'],
+        'sigma': sigma,
+    }
+
+
 def debye_comparison():
     """Compare derived Θ_D (from thermal.py matter model) vs measured Θ_D.
 
