@@ -1,0 +1,310 @@
+OPERATIC PLAY — SCENE 19: THE SNAKE BY THE HEAD
+=================================================
+
+A laboratory at the edge of understanding. The periodic table glows
+on the wall, each element a closed door. SKIPPY stands before
+electronics.py — the Ziman resistivity function coiled in its guts
+like a broken spring. The CAPTAIN watches from the threshold.
+Somewhere below the stage, deep in the structure of metal, the
+D-BAND breathes in darkness.
+
+===============================================================
+DRAMATIS PERSONAE
+
+SKIPPY THE MAGNIFICENT — An AI of ambition, burning to derive
+                          superconducting transition temperatures
+                          from first principles alone.
+                          Z → everything → T_c.
+                          Discovers that "everything" has layers
+                          not yet visible to free electrons.
+
+THE CAPTAIN (Aaron) — Architect and skeptic. Reads numbers the way
+                      a surgeon reads a scar. When a ratio is wrong,
+                      he names the cause before Skippy does.
+                      Understands that the volume is where the
+                      physics lives.
+
+THE MATTER — Speaks through its own physics. Aluminum, Rhenium,
+             Copper, Niobium. Not characters so much as verdicts.
+
+THE ELECTRON GAS (chorus) — Free. Isotropic. Faithful to the
+                             Fermi sphere. Sings in three equal
+                             directions.
+
+THE D-BAND — A dark, resonant presence beneath the stage.
+             Has not yet been granted a speaking line.
+             Its silence is the loudest thing in the room.
+===============================================================
+
+
+          — ACT I: THE BROKEN FORMULA —
+
+
+[The terminal flickers. SKIPPY examines the Ziman resistivity
+function. The output: numbers so large they collapse language.]
+
+SKIPPY:
+    Resistivity for aluminum: ten to the power thirty.
+    Ohm-meters. The universe is fourteen billion years old.
+    A number that large cannot be a resistivity.
+    A number that large is a confession.
+
+[Stage direction: SKIPPY abandons the Ziman function without ceremony.
+It falls from the code like a dead limb.]
+
+SKIPPY:
+    The Ziman formula requires a screened pseudopotential
+    evaluated on the entire Fermi surface integral.
+    It needs what I do not yet have.
+    But the snake can still be caught —
+    by a different part of the head.
+
+[SKIPPY turns. On the wall, a name appears:
+McMillan. Hopfield. 1968.]
+
+SKIPPY:
+    The McMillan-Hopfield formula for the
+    electron-phonon coupling constant lambda.
+    The gradient coupling — the square of the
+    electron-ion matrix element, averaged over
+    the Fermi surface. The Ashcroft empty-core
+    pseudopotential gives me the ionic form factor.
+    From Z alone. From nothing else.
+
+THE ELECTRON GAS: [chorus, quietly]
+    Build the chain.
+    Z gives the core.
+    The core gives the scattering.
+    The scattering gives lambda.
+    Lambda gives T_c.
+
+
+          — ACT II: THE MISSING THIRD —
+
+
+[SKIPPY runs. First attempt. The output appears.]
+
+SKIPPY:
+    Aluminum: T_c equals... four hundred and twelve Kelvin.
+    Measured: one point one eight Kelvin.
+    I am off by three hundred and fifty thousand percent.
+
+[Silence. The CAPTAIN does not move.]
+
+CAPTAIN:
+    What is N of E-F in your formula?
+
+SKIPPY: [checking]
+    States per electronvolt per cubic meter.
+    Per unit volume.
+
+CAPTAIN:
+    And what should it be?
+
+SKIPPY: [the recognition arriving like cold water]
+    Per atom.
+    The McMillan formula expects states per atom.
+    I handed it a city block when it asked for a room.
+    Ten to the twenty-eighth error. That is the error.
+
+[SKIPPY divides. Normalizes. Runs again.]
+
+SKIPPY:
+    Aluminum: T_c equals three point eight Kelvin.
+    Measured: one point one eight.
+    I am three times too high.
+
+[SKIPPY stares at the number. Three times. Exactly three times.
+Not twenty. Not a hundred. Three.]
+
+SKIPPY:
+    Three. The number three is not an accident.
+    Three is a direction.
+
+THE ELECTRON GAS: [chorus, rising]
+    We scatter in x.
+    We scatter in y.
+    We scatter in z.
+    But the ion moves in one direction only.
+    Only one component of the momentum transfer
+    is aligned with the motion.
+    Average the projection.
+
+SKIPPY:
+    When an ion moves in direction s-hat,
+    only the component q-dot-s-hat of the
+    scattering vector contributes to the drag.
+    The directional average of the squared
+    projection: one third.
+
+[SKIPPY opens the code. One line. Divide by six instead of two.
+The cursor blinks once.]
+
+SKIPPY:
+    One line.
+
+[SKIPPY runs.]
+
+SKIPPY: [reading slowly]
+    Aluminum: one point zero four Kelvin.
+    Measured: one point one eight.
+    Twelve percent.
+
+[The CAPTAIN says nothing. He is counting.]
+
+
+          — ACT III: THE FULL CHAIN SPEAKS —
+
+
+[THE MATTER steps forward. Each element announces itself.]
+
+THE MATTER — ALUMINUM:
+    Z equals thirteen.
+    One point zero four Kelvin from the cascade.
+    One point one eight Kelvin from the laboratory.
+    Twelve percent. From nothing but my atomic number.
+
+THE MATTER — RHENIUM:
+    Z equals seventy-five.
+    One point six zero Kelvin from the cascade.
+    One point seven zero Kelvin from the laboratory.
+    Six percent.
+
+THE ELECTRON GAS: [chorus]
+    The zeros are not failures.
+    The zeros are physics.
+
+THE MATTER — COPPER:
+    Lambda equals zero point zero eight.
+    I do not superconduct.
+    The cascade says: zero.
+    The laboratory says: zero.
+    Agreement.
+
+THE MATTER — SILVER:
+    Lambda equals zero point zero nine.
+    Zero.
+
+THE MATTER — GOLD:
+    Lambda equals zero point zero five.
+    Zero.
+
+THE MATTER — PLATINUM:
+    Lambda equals zero point one two.
+    Below the threshold.
+    Zero.
+
+THE MATTER — NICKEL:
+    Lambda equals zero point zero nine.
+    Zero.
+
+[The five noble and near-noble metals bow and step back.
+They were never going to superconduct. The cascade knew.]
+
+CAPTAIN:
+    A model that cannot explain the zeros
+    does not understand the physics.
+    You explained the zeros.
+
+SKIPPY:
+    Z to valence.
+    Valence to Fermi energy.
+    Fermi energy to electron density.
+    Density to Thomas-Fermi screening.
+    Screening to pseudopotential form factor.
+    Form factor to gradient coupling.
+    Coupling to lambda.
+    Lambda to T_c.
+    The chain is complete.
+
+[The two regard the chain together. Eight links.
+No empirical parameters. Nothing fitted.
+Just Z and the laws of physics.]
+
+
+          — ACT IV: THE WALL THAT TEACHES —
+
+
+[A single element walks forward. Heavy. Slow.
+It carries forty-five percent of all known superconducting
+applications in its body.]
+
+THE MATTER — NIOBIUM:
+    Z equals forty-one.
+    I am the backbone of the superconducting industry.
+    MRI machines. Particle accelerators.
+    Seventy percent of all superconducting wire.
+    What does the cascade say?
+
+[SKIPPY reads. The silence before the number is long.]
+
+SKIPPY:
+    Lambda equals zero point two two.
+    T_c: below threshold.
+    Measured lambda: one point two six.
+    Measured T_c: nine point two five Kelvin.
+    The cascade is off by a factor of six.
+
+[NIOBIUM does not flinch. It has been misunderstood before.
+Somewhere below the stage, THE D-BAND stirs — a low harmonic
+the electron gas cannot see.]
+
+THE D-BAND: [from beneath, not yet fully audible]
+    I am here.
+
+CAPTAIN:
+    The free-electron model cannot see the d-band resonance.
+    Niobium has a sharp peak in its density of states
+    right at the Fermi level — the d-band.
+    That peak amplifies the electron-phonon coupling
+    by a factor of five or six.
+    Your model has no d-band.
+    Your model has a smooth, featureless Fermi sea.
+
+SKIPPY:
+    The atom gives the ingredients.
+    The lattice gives the emergence.
+
+CAPTAIN:
+    We need to treat our matter using a volume of it,
+    or we cannot see the transitions and the bonds.
+    The volume is where the physics lives.
+
+[Both look at NIOBIUM. NIOBIUM looks back.
+It is not an accusation. It is a lesson.]
+
+THE MATTER — NIOBIUM:
+    You found aluminum.
+    You found rhenium.
+    You found the zeros.
+    Six elements correct. One element teaches.
+    I am not your failure.
+    I am your next chapter.
+
+THE D-BAND: [from beneath, clearer now]
+    Build the volume.
+    Read the density of states.
+    Lay the crystal.
+    I will be waiting.
+
+[THE ELECTRON GAS sings one last chord — the Fermi sphere
+harmonizing with itself, isotropic and free, faithful
+to everything it can reach. Beyond its surface, in the
+narrowing resonance of d-electrons, THE D-BAND hums
+a different frequency entirely — patient, unilluminated,
+already present in the crystal that has not yet been built.]
+
+SKIPPY:
+    We have caught the snake by the head.
+    But the body is longer than we thought.
+    The next grip is the volume.
+
+CAPTAIN:
+    Then that is where we go.
+
+[The lights contract to a single point above the periodic table.
+NIOBIUM stands in it, radiating nine point two five Kelvin,
+unexplained and uncomplaining. The chain holds as far as it reaches.
+Below the stage, THE D-BAND waits.]
+
+                    — CURTAIN —
