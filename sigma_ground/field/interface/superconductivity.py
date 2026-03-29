@@ -964,6 +964,119 @@ def sigma_mcmillan_Tc(theta_D, lambda_ep, mu_star, sigma):
     return mcmillan_Tc(theta_D_sigma, lambda_ep, mu_star)
 
 
+def derive_mu_star(Z, theta_D_K=None):
+    """Derive Coulomb pseudopotential μ* from atomic number alone.
+
+    Morel-Anderson formula (1962):
+        μ  = N(E_F) × U_screened     (bare Coulomb parameter)
+        μ* = μ / (1 + μ × ln(E_F / ω_D))  (retarded pseudopotential)
+
+    The retardation arises because phonon-mediated attraction operates
+    on a timescale ~1/ω_D, while Coulomb repulsion acts at ~1/E_F.
+    Since E_F >> ω_D (~100×), the Coulomb repulsion is partially
+    screened by the time mismatch, reducing μ to μ*.
+
+    FIRST_PRINCIPLES: all inputs derived from Z via cascade.
+    N(E_F) = free-electron DOS at Fermi level.
+    U_screened from Thomas-Fermi screening of Coulomb interaction.
+    E_F from Sommerfeld free-electron model.
+    ω_D = k_B × θ_D / ℏ from Debye model.
+
+    Args:
+        Z: atomic number
+        theta_D_K: Debye temperature in K (if None, derives from Z)
+
+    Returns:
+        dict with mu, mu_star, and intermediate quantities.
+        Returns None if derivation fails.
+    """
+    from .element import (free_electron_count, predict_density_kg_m3,
+                          atomic_mass_kg, slater_zeff, slater_radius_m)
+
+    # Get θ_D
+    if theta_D_K is None:
+        from .thermal import debye_temperature_from_Z
+        theta_D_K = debye_temperature_from_Z(Z)
+    if theta_D_K is None or theta_D_K <= 0:
+        return None
+
+    # Free electron density
+    n_free = free_electron_count(Z)
+    if n_free <= 0:
+        return None
+
+    rho = predict_density_kg_m3(Z)
+    m_atom = atomic_mass_kg(Z)
+    if rho <= 0 or m_atom <= 0:
+        return None
+
+    n_atoms = rho / m_atom
+    n_e = n_atoms * n_free
+
+    # Fermi energy and wavevector
+    _HBAR = 1.054571817e-34
+    _ME = 9.1093837015e-31
+    _EV_J = 1.602176634e-19
+    _KB = 1.380649e-23
+    _E_CHARGE = 1.602176634e-19
+    _EPS0 = 8.854187817e-12
+    _A0 = 5.29177210903e-11  # Bohr radius
+
+    k_F = (3.0 * math.pi**2 * n_e) ** (1.0 / 3.0)
+    E_F_J = _HBAR**2 * k_F**2 / (2.0 * _ME)
+    E_F_eV = E_F_J / _EV_J
+
+    # Wigner-Seitz radius
+    omega_atom = m_atom / rho
+    r_ws = (3.0 * omega_atom / (4.0 * math.pi)) ** (1.0 / 3.0)
+
+    # Thomas-Fermi screening length
+    k_TF = math.sqrt(4.0 * k_F / (math.pi * _A0))
+    lam_TF = 1.0 / k_TF
+
+    # Screened Coulomb interaction
+    U_bare_J = _E_CHARGE**2 / (4.0 * math.pi * _EPS0 * r_ws)
+    U_bare_eV = U_bare_J / _EV_J
+    screening = min(1.0, lam_TF / r_ws)
+    U_screened_eV = U_bare_eV * screening
+
+    # Density of states at Fermi level (per eV per m³, free-electron)
+    # N(E_F) = (2m/ℏ²)^(3/2) × √(E_F) / (2π²)
+    # But for μ we need N(E_F) per atom (states/eV/atom):
+    # N_atom(E_F) = N_vol(E_F) / n_atoms
+    N_vol = (2.0 * _ME / _HBAR**2) ** 1.5 * math.sqrt(E_F_J) / (2.0 * math.pi**2)
+    N_vol_per_eV = N_vol * _EV_J  # convert from per-Joule to per-eV
+    N_per_atom = N_vol_per_eV / n_atoms  # states/eV/atom
+
+    # Bare Coulomb parameter: μ = N(E_F) × U_screened
+    # N(E_F) here is per atom per eV; U_screened is in eV
+    # Product is dimensionless
+    mu = N_per_atom * U_screened_eV
+
+    # Debye frequency
+    omega_D = _KB * theta_D_K / _HBAR  # rad/s
+    E_D_eV = _KB * theta_D_K / _EV_J   # eV
+
+    # Morel-Anderson retardation
+    log_ratio = math.log(E_F_eV / E_D_eV)
+    mu_star = mu / (1.0 + mu * log_ratio)
+
+    return {
+        'Z': Z,
+        'n_free': n_free,
+        'E_F_eV': round(E_F_eV, 3),
+        'theta_D_K': round(theta_D_K, 1),
+        'r_ws_angstrom': round(r_ws * 1e10, 3),
+        'U_bare_eV': round(U_bare_eV, 3),
+        'U_screened_eV': round(U_screened_eV, 3),
+        'screening_factor': round(screening, 4),
+        'N_EF_per_atom_per_eV': round(N_per_atom, 4),
+        'mu': round(mu, 4),
+        'log_EF_over_ED': round(log_ratio, 3),
+        'mu_star': round(mu_star, 4),
+    }
+
+
 def debye_comparison():
     """Compare derived Θ_D (from thermal.py matter model) vs measured Θ_D.
 

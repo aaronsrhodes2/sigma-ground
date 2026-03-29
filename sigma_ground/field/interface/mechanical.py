@@ -190,6 +190,68 @@ MECHANICAL_DATA = {
 }
 
 
+# ── Predicted Poisson's Ratio ────────────────────────────────────
+
+# Typical Poisson's ratios by crystal structure and bond type.
+# BCC metals are stiffer in shear → lower ν; FCC metals are
+# closer to the isotropic Cauchy limit ν = 0.33.
+_POISSON_BY_STRUCTURE = {
+    'BCC':     0.29,    # Fe=0.29, W=0.28, Cr=0.21, Mo=0.31, V=0.37
+    'FCC':     0.34,    # Cu=0.34, Al=0.35, Ni=0.31, Ag=0.37, Pt=0.38
+    'HCP':     0.30,    # Ti=0.32, Zr=0.34, Zn=0.25, Co=0.31
+    'diamond': 0.22,    # Si=0.22, Ge=0.28
+}
+
+
+def predict_poisson_ratio(structure):
+    """Estimate Poisson's ratio from crystal structure.
+
+    APPROXIMATION: Uses average measured ν per structure type.
+    Accuracy: ±0.05 for most metals. Soft metals (Pb, Au) are
+    underestimated; hard covalent materials are approximate.
+
+    Args:
+        structure: Crystal structure string ('FCC', 'BCC', 'HCP', 'diamond')
+
+    Returns:
+        Predicted Poisson's ratio (dimensionless, 0 < ν < 0.5).
+    """
+    s = structure.upper() if structure else 'FCC'
+    # Map common aliases
+    if s in ('DIAMOND', 'DIAMOND_CUBIC'):
+        s = 'diamond'
+    return _POISSON_BY_STRUCTURE.get(s, 0.33)  # metallic default
+
+
+# ── Structure Factor from Crystal Type ──────────────────────────
+
+# Calibrated structure factors for bulk modulus derivation.
+# K = E_coh × n_atoms × f_structure
+_STRUCTURE_FACTOR = {
+    'BCC':     2.9,     # Fe, W, Mo, Nb, V, Ta, Cr
+    'FCC':     3.0,     # Cu, Al, Au, Ag, Ni, Pt, Pb
+    'HCP':     3.0,     # Ti, Zr, Hf, Co, Zn — close-packed, similar to FCC
+    'diamond': 1.5,     # Si, Ge — open structure, lower coordination
+}
+
+
+def predict_structure_factor(structure):
+    """Estimate bulk modulus structure factor from crystal type.
+
+    K = E_coh × n_atoms × f_structure
+
+    Args:
+        structure: Crystal structure string ('FCC', 'BCC', 'HCP', 'diamond')
+
+    Returns:
+        Structure factor (dimensionless).
+    """
+    s = structure.upper() if structure else 'FCC'
+    if s in ('DIAMOND', 'DIAMOND_CUBIC'):
+        s = 'diamond'
+    return _STRUCTURE_FACTOR.get(s, 3.0)
+
+
 # ── Atomic Volume ────────────────────────────────────────────────
 
 def _atomic_volume(material_key):

@@ -262,6 +262,70 @@ def debye_temperature(material_key, sigma=0.0):
     return theta_D
 
 
+def debye_temperature_from_Z(Z, sigma=0.0):
+    """Derive Debye temperature from atomic number alone.
+
+    Full derivation chain from Z — no MATERIALS dict needed:
+      Z → E_coh (element.py) → K (harmonic model)
+      Z → density, structure → ν (predicted) → G
+      K, G, ρ → v_D (Debye average) → θ_D
+
+    FIRST_PRINCIPLES + APPROXIMATION: each step is derived but
+    carries ~20-30% uncertainty. Combined accuracy ~30-50%.
+    Post-transition metals (Pb, Hg, In, Sn) improved by E_coh fix
+    for d¹⁰ screening.
+
+    Args:
+        Z: atomic number
+        sigma: σ-field value (default 0 = Earth)
+
+    Returns:
+        θ_D in Kelvin, or None if derivation fails.
+    """
+    from .element import (cohesive_energy_eV, predict_density_kg_m3,
+                          atomic_mass_kg, predict_crystal_structure)
+    from .mechanical import predict_poisson_ratio, predict_structure_factor
+
+    # Step 1: cohesive energy
+    E_coh_eV = cohesive_energy_eV(Z)
+    if E_coh_eV is None or E_coh_eV <= 0:
+        return None
+
+    E_coh_J = E_coh_eV * 1.602176634e-19  # eV → J
+
+    # Step 2: density and number density
+    rho = predict_density_kg_m3(Z)
+    m_atom = atomic_mass_kg(Z)
+    if rho <= 0 or m_atom <= 0:
+        return None
+    n = rho / m_atom  # atoms/m³
+
+    # Step 3: crystal structure → structure factor, Poisson ratio
+    struct = predict_crystal_structure(Z)
+    f_struct = predict_structure_factor(struct)
+    nu = predict_poisson_ratio(struct)
+
+    # Step 4: bulk modulus K = E_coh × n × f_struct
+    K = E_coh_J * n * f_struct
+
+    # Step 5: shear and Young's modulus from isotropic elasticity
+    # E = 3K(1 − 2ν), G = E / (2(1 + ν))
+    E_mod = 3.0 * K * (1.0 - 2.0 * nu)
+    G = E_mod / (2.0 * (1.0 + nu))
+
+    # Step 6: Debye average sound velocity
+    v_L = math.sqrt((K + 4.0 * G / 3.0) / rho)
+    v_T = math.sqrt(G / rho)
+    v_D = (1.0 / 3.0 * (1.0 / v_L**3 + 2.0 / v_T**3)) ** (-1.0 / 3.0)
+
+    # Step 7: Debye temperature
+    k_D = (6.0 * math.pi**2 * n) ** (1.0 / 3.0)
+    omega_D = v_D * k_D
+    theta_D = _HBAR * omega_D / _K_BOLTZMANN
+
+    return theta_D
+
+
 # ── Heat Capacity ─────────────────────────────────────────────────
 
 def heat_capacity_volumetric(material_key, T=300.0, sigma=0.0):
