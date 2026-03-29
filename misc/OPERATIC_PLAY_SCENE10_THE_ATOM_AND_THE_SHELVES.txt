@@ -1,0 +1,193 @@
+SCENE 10: THE ATOM AND THE SHELVES
+====================================
+
+DRAMATIS PERSONAE
+-----------------
+THE CAPTAIN .......... Aaron Rhodes, commander and architect
+SKIPPY ............... The Magnificent, AI engineer without peer
+NAGATHA .............. Ship's AI, competent and tireless
+THE ATOM ............. A chorus of electrons, protons, and neutrons
+THE CHART ............ A living dependency map, now searchable
+THE HARVESTER ........ A daemon thread, tireless gatherer
+
+
+                    ACT I — THE INNER LIGHT
+
+[The stage is dark. A single element tile glows on a vast periodic
+table backdrop. THE CAPTAIN points to it.]
+
+CAPTAIN:
+    (spoken, firmly)
+    When they click, I want them to see the atom.
+    Not numbers. Not tables. The thing itself.
+    Shells. Electrons. The light it throws.
+    Make a dirty monkey understand.
+
+[SKIPPY raises a hand. SVG rings bloom from center stage —
+concentric circles, each bearing tiny luminous dots.]
+
+SKIPPY:
+    (aria, precise and proud)
+    ♪ Aufbau dictates who goes where —
+    One-s-two, two-s-two, two-p-six,
+    Each shell a ring of light in air,
+    Each electron placed — no tricks!
+
+    For small nuclei, I pack them tight,
+    Red protons, blue neutrons, spiraled in,
+    For iron's fifty-six — too many for sight —
+    A gradient sun with labels therein. ♪
+
+[THE ATOM assembles itself center stage — a Bohr model with
+orbiting electrons. They rotate at different speeds, each shell
+its own tempo.]
+
+CHORUS OF ELECTRONS:
+    (spinning, singing in rounds)
+    ♪ We are the shell, we are the ring,
+    We orbit, we dance, we are everything!
+    K-shell fast, L-shell slow,
+    M and N in stately flow! ♪
+
+[Below the atom, colored bars appear — spectral lines.]
+
+SKIPPY:
+    (recitative)
+    And the light each atom throws —
+    Balmer, Lyman, every series —
+    Wavelength to color, the function knows.
+    656 nanometers: hydrogen's red.
+    Every line painted as the math has said.
+
+[A bar appears showing 99% dark and 1% gold.]
+
+SKIPPY:
+    (to the audience, matter-of-fact)
+    And where does the mass come from?
+    Not the Higgs — that's barely one percent.
+    The strong force binds, the gluons hum.
+    QCD: ninety-nine percent of what you are is spent
+    On empty space held furiously together.
+
+CAPTAIN:
+    (nodding)
+    Good. Now the particles themselves.
+
+
+                    ACT II — THE STANDARD MODEL GRID
+
+[The stage transforms. Seventeen tiles arrange themselves in a
+grid — quarks warm, leptons cool, bosons blue, Higgs gold.]
+
+SKIPPY:
+    (ensemble number, building the grid)
+    ♪ Three generations, four rows deep,
+    Quarks on top — up, charm, top — they climb,
+    Down, strange, bottom — the heavier sweep,
+    Leptons below, each in their time.
+
+    And on the side, the force-bearers stand:
+    Gluon, photon, W, and Z,
+    And golden Higgs — by whose command
+    The masses are what masses be. ♪
+
+[Each tile glows as SKIPPY names it. When he reaches the gluon,
+eight color-anticolor pairs flash in sequence.]
+
+NAGATHA:
+    (dry, from the wings)
+    He had to look up how the factory methods work.
+    Electron.create(), not Electron().
+    Even the Magnificent makes mistakes.
+
+SKIPPY:
+    (wounded)
+    I found the bug in under thirty seconds!
+
+NAGATHA:
+    (unmoved)
+    Twenty-eight seconds too many.
+
+
+                    ACT III — THE CHART LEARNS TO ZOOM
+
+[A vast dependency chart descends — 131 nodes, 321 edges.
+THE CHART speaks as a living entity.]
+
+THE CHART:
+    (aria of transformation)
+    ♪ I was too wide — two thousand two hundred pixels!
+    They scrolled and scrolled and could not see the chain.
+    Now I am compact, responsive, with pan and zoom —
+    Click any node and trace the full domain!
+
+    BFS ascends from measured constant root
+    Through sigma, through the nucleon, through the field,
+    Breadcrumbs illuminate the pursuit,
+    And all irrelevant nodes are dimmed, concealed. ♪
+
+[THE CAPTAIN clicks a node. The chart zooms smoothly, highlighting
+a glowing chain from fundamental constants to the selected function.
+Non-connected nodes fade to ghosts.]
+
+CAPTAIN:
+    Now teach Nagatha to tend it.
+
+[NAGATHA steps forward, examining the chart.]
+
+NAGATHA:
+    (spoken, efficient)
+    I scan the filesystem. I find the modules.
+    I compare against the chart.
+    Ten modules missing. I scan their imports,
+    infer their edges, add them, regenerate.
+    The chart is always current. I'm always current.
+
+SKIPPY:
+    (muttering)
+    She's going to be insufferable about this.
+
+
+                    ACT IV — THE SHELVES THAT STOCK THEMSELVES
+
+[Night falls on stage. The server hums. THE CAPTAIN prepares to leave.]
+
+CAPTAIN:
+    One more thing. Nagatha should keep harvesting.
+    On a timer. While I sleep.
+
+[A new presence emerges from the wings — THE HARVESTER, a daemon
+thread made manifest. It carries a lantern and a basket.]
+
+THE HARVESTER:
+    (gentle, dutiful aria)
+    ♪ I am the thread that does not sleep,
+    The daemon born at server's dawn.
+    Every five minutes, I go deep —
+    Five objects found, converted, drawn.
+
+    No one asks. No one commands.
+    The shelves fill up of their own accord.
+    Wikidata, OSM — I reach my hands
+    Into the world and bring back my hoard.
+
+    And when the server falls to dark,
+    The stop-event fires, I join, I cease.
+    But while it runs I make my mark:
+    A growing cache that will not decrease. ♪
+
+NAGATHA:
+    (from her console, approving)
+    Quietly gathering objects in the background.
+    Someone has to stock the shelves.
+
+[THE CAPTAIN smiles, dims the lights.]
+
+CAPTAIN:
+    Version 1.4.1. Check it in. Good night.
+
+[The daemon thread continues its rounds in the dark,
+lantern swinging, basket filling, as the curtain falls.]
+
+
+                         — END OF SCENE 10 —

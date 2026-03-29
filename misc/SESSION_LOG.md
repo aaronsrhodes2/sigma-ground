@@ -1243,6 +1243,112 @@ SKIPPY: [generates comprehensive tests for untested modules]
 - `sigma_api/static/js/nagatha.js` — progress polling, commentary rendering
 - `sigma_api/templates/base.html` — favicon link
 
+---
+
+## SESSION 19 — March 28, 2026
+**Players:** Captain Aaron Rhodes, Skippy the Magnificent, Nagatha
+
+---
+
+### Interactive Atom Diagram — Bohr Model Visualizer
+
+CAPTAIN: When someone clicks an element on the periodic table, show them an atom. Shells, electrons, spectral lines. Make it understandable by dirty monkeys.
+
+SKIPPY: [builds SVG Bohr model renderer]
+- Concentric shell rings from aufbau configuration, electrons as dots with CSS rotation animation
+- Small nuclei (A≤20): individually packed protons (red) and neutrons (blue) via spiral algorithm
+- Large nuclei: gradient circle with "26p 30n" label
+- Spectral emission lines panel: colored vertical bars from `visible_lines(Z)`, wavelengths via `wavelength_to_rgb()`
+- Mass origin bar: QCD (~99%) vs Higgs (~1%) from `nucleon_decomposition()`
+- Full info card: symbol, name, Z, A, electron config in superscript notation
+
+New API endpoints:
+- `GET /api/elements/{Z}/spectra` — visible emission lines with RGB colors
+- `GET /api/elements/{Z}/mass-breakdown` — Higgs vs QCD mass fractions
+
+Files: `atom_visualizer.js` (NEW), `periodic_table.html` (modal + CSS), `periodic_table.js` (click hook), `elements.py` (2 endpoints)
+
+### Interactive Standard Model Table
+
+CAPTAIN: I want a Standard Model particle grid. All 17 fundamental particles, click for detail.
+
+SKIPPY: [builds SM page from sigma-ground particle classes]
+- Classic 4×5 CSS grid: 3 generation columns + gauge bosons + Higgs
+- Color-coded tiles: quarks (warm), leptons (cool), gauge (blue), scalar (gold)
+- Click → detail panel with quantum numbers, interaction badges, sigma notes
+- Gluon SU(3) octet visualization with color-anticolor dot pairs
+- Data from: `Quark.up()/.down()/.charm()/.strange()/.top()/.bottom()`, `Electron.create()`, `Muon.create()`, `Tau.create()`, neutrino `.create()` methods, `Gluon.SU3_OCTET`, `PhysicalConstants.m_W/.m_Z/.m_higgs`
+
+Bug: Particle classes use factory `@classmethod create()`, not `__init__()`. Fixed by detecting and using `.create()`.
+
+New endpoint: `GET /api/particles/standard-model` — all 17 particles with full quantum numbers
+Files: `particles.py` (NEW router), `standard_model.py` (NEW page), `standard_model.html` (NEW template), `standard_model.js` (NEW), `base.html` (nav link), `app.py` (wiring)
+
+### Improved Dependency Chart
+
+CAPTAIN: The dependency chart is too big and unreadable. Make it compact, searchable, with full ancestry tracing.
+
+SKIPPY: [rewrites chart generator and HTML template]
+- Responsive layout: W 2200→1800, ROW_H 148→105, nodes 118×50→100×40
+- Pan & zoom: mouse drag, scroll wheel, +/−/reset buttons
+- Search box: real-time node filtering with glow
+- Full BFS ancestry tracing (was immediate neighbors only)
+- Breadcrumb trail: path from root measured constants → clicked node
+- Stronger dim on non-connected nodes (0.06 opacity, was 0.18)
+- Zoom-to-fit when a node is pinned
+
+### Nagatha Chart Management — Auto-Discovery
+
+CAPTAIN: Can we train Nagatha to create and update that dependency chart based on the state of sigma-ground?
+
+SKIPPY: [adds auto-discovery + MCP tools]
+- `discover_modules()` — filesystem scan of `sigma_ground/field/` and `interface/` for all .py modules
+- `chart_status()` — compares discovered modules vs chart nodes, reports missing (found 10/84 missing)
+- `auto_discover_node()` — generates node + edges for missing modules via import scanning
+- `_scan_imports()` — regex for `sigma_ground.field.constants` imports, maps to chart node IDs
+- `regenerate()` — rebuilds `docs/dependency_chart.html` from current NODES/EDGES
+
+MCP tools: `chart_status` and `update_dependency_chart` added to mcp_server.py HANDLERS
+Nagatha commands: `chart`, `update_chart`, `rebuild_chart auto`
+Personality: commentary for chart operations
+
+### Background Harvest Timer
+
+CAPTAIN: Nagatha should continue to run and harvest random objects on a timer.
+
+SKIPPY: [builds daemon thread harvester]
+- `sigma_api/harvester.py` — background thread runs `handle_harvest(random=True, dry_run=False)` on interval
+- Configurable: `HARVEST_INTERVAL_S` (default 300s), `HARVEST_COUNT` (default 5), `HARVEST_ENABLED`
+- 30-second startup delay, clean shutdown via threading.Event
+- Wired into FastAPI lifespan (asynccontextmanager): start on boot, stop on shutdown
+- Harvester status exposed in `/api/nagatha/progress` response
+- Nagatha voice: "Quietly gathering objects in the background. Someone has to stock the shelves."
+
+### Version
+- sigma-ground: 1.4.0 → 1.4.1
+- Committed both repos
+
+### New/Modified Files (sigma-ground)
+- `docs/dependency_chart.html` — regenerated, improved layout (131 nodes, 321 edges)
+- `scripts/make_dependency_chart.py` — auto-discovery, BFS ancestry, pan/zoom, search
+- `pyproject.toml` — version → 1.4.1
+
+### New/Modified Files (sigma-api)
+- `sigma_api/routers/elements.py` — /spectra and /mass-breakdown endpoints
+- `sigma_api/routers/particles.py` — Standard Model data endpoint (NEW)
+- `sigma_api/pages/standard_model.py` — /standard-model page (NEW)
+- `sigma_api/templates/standard_model.html` — SM grid page (NEW)
+- `sigma_api/static/js/standard_model.js` — SM renderer (NEW)
+- `sigma_api/static/js/atom_visualizer.js` — Bohr model SVG renderer (NEW)
+- `sigma_api/templates/periodic_table.html` — atom modal + CSS
+- `sigma_api/static/js/periodic_table.js` — click → atom visualizer
+- `sigma_api/templates/base.html` — Standard Model nav link
+- `sigma_api/app.py` — particles router, SM page, lifespan harvester
+- `sigma_api/mcp_server.py` — chart_status + update_dependency_chart tools
+- `sigma_api/routers/nagatha.py` — chart commands, harvester status in progress
+- `sigma_api/personality.py` — chart + harvester commentary
+- `sigma_api/harvester.py` — background harvest daemon (NEW)
+
 ### Key Numbers
 | Quantity | Value | Significance |
 |----------|-------|-------------|
