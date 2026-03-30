@@ -159,6 +159,29 @@ truly cannot be determined, flag it explicitly — never silently omit the entry
 
 ---
 
+## Rule 10 — Test Against a Volume of Matter
+
+Always test physics against a volume of matter, unless specifically testing
+an isolated entity. Conductivity, resistance, superconductivity, phase
+transitions, and bonding are collective phenomena — they emerge from many
+atoms interacting in a volume. A single-atom calculation that ignores
+the solid-state environment will miss the physics that matters.
+
+```python
+# Wrong — isolated atom, misses d-band formation
+lambda_ep = pseudopotential_scattering(Z)  # free-electron model
+
+# Correct — accounts for d-band in the solid
+lambda_ep = d_band_coupling(Z)  # tight-binding: bandwidth, coordination, hopping
+```
+
+If a property is intrinsically collective (band structure, phonons,
+screening, phase transitions), the model must include the volume.
+If a property is intrinsically atomic (ionization energy, electron config),
+test the atom.
+
+---
+
 *These rules exist because the σ-field framework lives or dies on the
 precision of its foundations. Every magic number is a crack in the theory.
 Every undocumented approximation is a place where the framework secretly fails.

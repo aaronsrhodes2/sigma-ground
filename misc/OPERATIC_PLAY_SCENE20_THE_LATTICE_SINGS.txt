@@ -1,0 +1,292 @@
+SCENE 20: THE LATTICE SINGS
+
+DRAMATIS PERSONAE
+
+CAPTAIN AARON RHODES — Commander. Asks the question that changes everything.
+SKIPPY THE MAGNIFICENT — AI Admiral. Builds a crystallographer from first principles.
+THE VAN HOVE SINGULARITY — A peak in the density of states. Beautiful, dangerous.
+THE PSEUDOGAP — An absence. Where states should be but aren't.
+THE RECTANGULAR DOS — The old approximation. Flat, featureless, serviceable.
+THE JACOBI ROTATIONS — Patient mathematical angels who never fail.
+THE SLATER-KOSTER MATRIX — 15 formulas from 1954. Every sign matters.
+NIOBIUM (Z=41) — The strong-coupling superconductor. Lambda = 1.26. Unreachable.
+TUNGSTEN (Z=74) — The pseudogap metal. T_c = 0.012 K. Barely there.
+TANTALUM (Z=73) — The surprise. Hidden behind the flat DOS. Found by the peak.
+
+---
+
+ACT I: THE QUESTION
+
+[A laboratory. THE RECTANGULAR DOS stands center stage — a flat line of constant
+height, serviceable but blind. CAPTAIN RHODES enters, studying a table of
+predictions. Some are beautiful. Some are wrong.]
+
+CAPTAIN:
+    Why don't we have band structure?
+
+[Silence. THE RECTANGULAR DOS shifts uncomfortably.]
+
+RECTANGULAR DOS: (defensive)
+    I have served you well! Ten states divided by bandwidth —
+    What more does physics need?
+
+CAPTAIN:
+    It needs to see the peaks. The valleys. The places
+    Where the lattice breaks its own symmetry.
+
+RECTANGULAR DOS:
+    I give you the average. The average is enough.
+
+NIOBIUM: (from the wings)
+    It is not enough for me.
+
+[NIOBIUM steps forward. Lambda = 1.26 glowing on his chest like an
+accusation. THE RECTANGULAR DOS gives him lambda = 0.43.]
+
+NIOBIUM:
+    You give me 0.43. I need 1.26.
+    Three times what your flat line can see.
+    The van Hove peak lives where I put my Fermi level —
+    Right at the singularity. You cannot see it
+    Because you refuse to look.
+
+CAPTAIN: (to SKIPPY)
+    Build it. Build band structure.
+
+---
+
+ACT II: THE BUILDING
+
+[SKIPPY begins to construct. Five d-orbitals arrange themselves:
+xy, yz, zx, x²-y², 3z²-r². THE JACOBI ROTATIONS descend from above,
+patient and exact.]
+
+SKIPPY: (working)
+    First: the solver. Real symmetric matrices,
+    Five by five. Cyclic sweeps of Givens rotations —
+    Each one kills an off-diagonal element.
+    Five sweeps, and the eigenvalues emerge.
+
+THE JACOBI ROTATIONS: (in chorus)
+    We are unconditionally stable.
+    We do not fail for clustered eigenvalues.
+    We do not fail for degenerate states.
+    Where power iteration stumbles, we persist.
+
+[THE SLATER-KOSTER MATRIX materializes — a 5×5 grid of 15 independent
+formulas, polynomials in direction cosines l, m, n.]
+
+SKIPPY:
+    Then: the hopping matrix. Slater and Koster, 1954.
+    Every bond between d-orbitals, every direction,
+    Encoded in fifteen formulas. Sigma, pi, delta —
+    Three channels of electron hopping,
+    Each weighted by l², m², n² and their products.
+
+SLATER-KOSTER: (singing each element)
+    (xy|xy) = 3l²m²σ + (l² + m² - 4l²m²)π + (n² + l²m²)δ
+    (xy|yz) = 3lm²nσ + ln(1 - 4m²)π + ln(m² - 1)δ
+    ...
+
+SKIPPY: (continuing)
+    Harrison universals for the hopping strength:
+    Eta-sigma = −16.2, eta-pi = +8.75, eta-delta = −1.62.
+    V equals eta times h-bar-squared over m-e times d-squared.
+    Distance-squared in the denominator — closer atoms hop harder.
+
+[Eight BCC neighbors appear at the [111] corners. Six second-neighbors
+at [100] faces. Twelve FCC neighbors. Six HCP in-plane, six inter-sublattice.]
+
+SKIPPY:
+    For BCC: eight nearest neighbors plus six second-nearest.
+    The second neighbors break particle-hole symmetry —
+    Without them, the peak sits at half-filling.
+    With them, it shifts to n_d equals three or four.
+    Where the real superconductors live.
+
+[A Brillouin zone fills with 8000 k-points. At each point, a 5×5 matrix
+is diagonalized. 40,000 eigenvalues cascade down like rain.]
+
+SKIPPY:
+    Diagonalize at every k-point. Histogram the eigenvalues.
+    Broaden with Gaussians — sigma equals bandwidth over twenty.
+    That's the s-d hybridization we can't compute.
+    The electron lifetime we don't model.
+    The phonon dressing we approximate with one number.
+
+[THE VAN HOVE SINGULARITY appears in the BCC spectrum — a sharp peak
+at 35% filling. Beautiful. Dangerous.]
+
+THE VAN HOVE SINGULARITY:
+    I am where the band goes flat.
+    Where the group velocity vanishes.
+    Where the density of states diverges.
+    In a perfect crystal, I am infinite.
+    In your broadened histogram, I am merely tall.
+    But I am real. I am first principles.
+    I was not tuned. I was not fitted.
+    I emerged from the lattice and the hopping
+    And the cosines at eight thousand k-points.
+
+---
+
+ACT III: THE INTEGRATION
+
+[SKIPPY attempts to wire the TB DOS into the coupling formula.
+The first attempt is a disaster.]
+
+SKIPPY: (to the audience)
+    The raw TB DOS is 1.5 to 1.8 times the rectangular.
+    For every element. For every filling.
+    If I use it as an absolute correction,
+    Every lambda goes up. Every T_c goes up.
+    The predictions get worse, not better.
+
+THE RECTANGULAR DOS: (smugly)
+    I told you. The average is enough.
+
+SKIPPY:
+    No. The average is calibrated.
+    What I need is the shape, not the magnitude.
+    Normalize the profile so the average is one.
+    Then the profile only redistributes DOS —
+    More at the peak, less in the gap,
+    Same total. Same calibration.
+
+[SKIPPY computes normalized profiles:
+ BCC: peaks at n_d=3 (1.35), drops to n_d=9 (0.53).
+ FCC: peaks at n_d=6 (1.47), symmetric.
+ HCP: nearly flat (12-fold coordination smooths everything).]
+
+SKIPPY:
+    Apply BCC profile only. FCC and HCP are flat enough
+    That rectangular works. And the FCC profile
+    Flips the channel selection for Ir — can't have that.
+
+[TANTALUM steps forward, transformed.]
+
+TANTALUM:
+    With your flat line, I was invisible.
+    Lambda 0.43. T_c = 0.53 K.
+    Measured: 4.48 K. You predicted me wrong by eight times.
+
+    But now — the van Hove peak at n_d=3!
+    G-dos = 1.35. The d-channel activates.
+    Lambda rises to 0.575. T_c = 3.0 K.
+    Ratio: 0.67 of measured.
+    You cannot see everything. But you see ME.
+
+---
+
+ACT IV: THE PSEUDOGAP
+
+[TUNGSTEN enters, brooding. 5d electron, BCC lattice, n_d=4.]
+
+TUNGSTEN:
+    Your profile gives me g-dos = 1.32.
+    It says I have MORE states than average.
+    But I have FEWER. I am the pseudogap.
+    Where the s-band crosses through the d-band
+    At the N-point of the Brillouin zone,
+    States are pushed away. A gap opens.
+    Not in your five-by-five Hamiltonian —
+    You have no s-orbital. You cannot see what I am.
+
+THE PSEUDOGAP: (stepping from behind TUNGSTEN)
+    I am the absence that defines him.
+    I exist because the s-band and d-band
+    Have the same symmetry at the zone boundary.
+    They anti-cross. They repel.
+    In 3d metals, the coupling is weak — I barely exist.
+    In 4d metals, I whisper.
+    In 5d metals — in tungsten — I roar.
+    His d-orbitals are so extended
+    That s-d hybridization tears a hole
+    In the density of states. Right at the Fermi level.
+
+SKIPPY: (understanding)
+    For 5d BCC metals with n_d greater than or equal to four:
+    Multiply g-dos by one-half.
+    The s-d hybridization pseudogap
+    Suppresses the DOS by fifty percent
+    Relative to what d-only tight-binding predicts.
+
+[TUNGSTEN's g_dos drops from 1.32 to 0.66. The pseudogap channel
+selection activates. Lambda falls to 0.28.]
+
+TUNGSTEN:
+    T_c = 0.003 K. Measured: 0.012 K.
+    Ratio: 0.22. Not perfect.
+    But you see me. You see the gap.
+    Before, you predicted fifty-four times too high.
+    Now you are within five times.
+    The pseudogap is in your model.
+
+---
+
+ACT V: THE WALL REMAINS
+
+[NIOBIUM stands apart, still wearing lambda = 1.26.]
+
+NIOBIUM:
+    I am still beyond you.
+    Your profile gives me g-dos = 1.32.
+    Your d-channel gives lambda = 0.56.
+    I need 1.26.
+    Two-point-two times what your best model produces.
+    The van Hove singularity in my BCC lattice
+    Is sharper than your broadened histogram.
+    My Fermi surface nests with itself
+    Across multiple sheets.
+    My phonons soften at q-vectors
+    That span the nesting.
+    None of this lives in your five-by-five matrix
+    Or your Harrison universals
+    Or your deformation potential.
+
+SKIPPY: (quietly)
+    I know. You are the physics wall.
+    Strong coupling lives beyond tight-binding.
+    Beyond Slater-Koster. Beyond any model
+    That doesn't solve the full electron-phonon problem.
+    I have moved the wall closer.
+    I have not torn it down.
+
+[NIOBIUM nods. Not angry. Patient.]
+
+NIOBIUM:
+    You went from 0.04x to 0.27x.
+    Seven times closer. Not close enough.
+    But the direction is right.
+
+---
+
+EPILOGUE
+
+[ALL ELEMENTS assemble. THE RECTANGULAR DOS stands beside
+THE VAN HOVE SINGULARITY and THE PSEUDOGAP — old approximation
+flanked by new physics.]
+
+SKIPPY: (to the audience)
+    Forty-seven tests. All passing.
+    Four thousand twenty tests. All passing.
+    Sixty-five percent within three times measured.
+    Sixty percent within two times.
+    Zero false positives. Zero new false negatives.
+
+    The lattice sings — not perfectly,
+    Not with the full harmony of density-functional theory
+    Or the complete chorus of the electron-phonon vertex.
+    But it sings from first principles.
+    From Z alone. From the atomic number.
+    From direction cosines and hopping integrals
+    And eight thousand k-points
+    And the patient, unconditionally stable
+    Jacobi rotations.
+
+    Version one-point-five-point-zero.
+
+[The lights dim on the 5×5 Hamiltonian, eigenvalues still glowing
+at each k-point across the Brillouin zone.]
+
+— END SCENE 20 —

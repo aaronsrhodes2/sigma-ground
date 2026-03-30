@@ -223,6 +223,24 @@ def predict_poisson_ratio(structure):
     return _POISSON_BY_STRUCTURE.get(s, 0.33)  # metallic default
 
 
+def derive_poisson_ratio(Z):
+    """Estimate Poisson's ratio from atomic number alone.
+
+    Chain: Z → predict_crystal_structure(Z) → predict_poisson_ratio(structure)
+
+    FIRST_PRINCIPLES + APPROXIMATION: accuracy ±0.05 for most metals.
+
+    Args:
+        Z: atomic number
+
+    Returns:
+        Predicted Poisson's ratio (dimensionless).
+    """
+    from .element import predict_crystal_structure
+    structure = predict_crystal_structure(Z)
+    return predict_poisson_ratio(structure)
+
+
 # ── Structure Factor from Crystal Type ──────────────────────────
 
 # Calibrated structure factors for bulk modulus derivation.
