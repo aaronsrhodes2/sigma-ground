@@ -1,0 +1,54 @@
+
+ξ = 0.1582  σ_conv = 1.8439
+Phase I threshold (background p99): |ρ| = 2.3
+
+[GW150914/H1]
+  GW150914/H1: ρ_QNM=0.841  (amp=1.5845, bg_mean=2.3607, σ_noise=1.8836)
+[GW150914/L1]
+  GW150914/L1: ρ_QNM=0.821  (amp=34.0992, bg_mean=52.0394, σ_noise=41.5214)
+[GW151226/H1]
+  GW151226/H1: ρ_QNM=1.458  (amp=6.5807, bg_mean=5.6586, σ_noise=4.5149)
+[GW151226/L1]
+  GW151226/L1: ρ_QNM=1.205  (amp=52.0299, bg_mean=54.1333, σ_noise=43.1921)
+[GW170814/H1]
+  GW170814/H1: ρ_QNM=1.216  (amp=1.3628, bg_mean=1.4049, σ_noise=1.1210)
+[GW170814/L1]
+  GW170814/L1: ρ_QNM=1.059  (amp=5.2398, bg_mean=6.2023, σ_noise=4.9487)
+[GW170814/V1]
+  GW170814/V1: ρ_QNM=1.402  (amp=13.7733, bg_mean=12.3155, σ_noise=9.8264)
+[GW170104/H1]
+  GW170104/H1: ρ_QNM=0.392  (amp=0.4655, bg_mean=1.4881, σ_noise=1.1873)
+[GW170104/L1]
+  GW170104/L1: ρ_QNM=0.875  (amp=10.4099, bg_mean=14.9136, σ_noise=11.8994)
+[GW190521/H1]
+  GW190521/H1: ρ_QNM=2.164  (amp=2.3000, bg_mean=1.3322, σ_noise=1.0630)
+[GW190521/L1]
+  GW190521/L1: ρ_QNM=0.395  (amp=0.3325, bg_mean=1.0537, σ_noise=0.8407)
+
+======================================================================
+Event/Det             ρ_QNM  ρ_echo_pred  threshold       status
+----------------------------------------------------------------------
+GW150914/H1            0.841        0.133        2.3 below thresh
+GW150914/L1            0.821        0.130        2.3 below thresh
+GW151226/H1            1.458        0.231        2.3 below thresh
+GW151226/L1            1.205        0.191        2.3 below thresh
+GW170814/H1            1.216        0.192        2.3 below thresh
+GW170814/L1            1.059        0.168        2.3 below thresh
+GW170814/V1            1.402        0.222        2.3 below thresh
+GW170104/H1            0.392        0.062        2.3 below thresh
+GW170104/L1            0.875        0.138        2.3 below thresh
+GW190521/H1            2.164        0.342        2.3 below thresh
+GW190521/L1            0.395        0.063        2.3 below thresh
+
+======================================================================
+Phase II — Amplitude falsifiability summary
+  ξ_predicted (σ_conv)         = 0.1582
+  ξ_UL incoherent (95% CL)     = 1.0000
+  ξ_sens coherent (3σ thresh)  = 0.7675
+  Combined coherent echo SNR   = 0.62σ
+  Model status:
+    ξ_pred < ξ_UL_incoherent — CONSISTENT with Phase I.4 null
+    ξ_pred < ξ_sens_coherent — coherent stack still insufficient
+======================================================================
+
+wrote D:\Aaron\development\sigma-ground\misc\bh_phase_ii_amplitude_bound.png (81.6 KB)
