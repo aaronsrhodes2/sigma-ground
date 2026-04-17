@@ -1,0 +1,42 @@
+
+[GW151226/H1] loading...
+  GW151226/H1: Δt_1=0.756 ms, window=1000.0 ms, Δf_rescaled=0.0008
+
+[GW151226/L1] loading...
+  GW151226/L1: Δt_1=0.756 ms, window=1000.0 ms, Δf_rescaled=0.0008
+
+[GW150914/H1] loading...
+  GW150914/H1: Δt_1=2.260 ms, window=1000.0 ms, Δf_rescaled=0.0023
+
+[GW150914/L1] loading...
+  GW150914/L1: Δt_1=2.260 ms, window=1000.0 ms, Δf_rescaled=0.0023
+
+[GW170814/H1] loading...
+  GW170814/H1: Δt_1=1.933 ms, window=1000.0 ms, Δf_rescaled=0.0019
+
+[GW170814/L1] loading...
+  GW170814/L1: Δt_1=1.933 ms, window=1000.0 ms, Δf_rescaled=0.0019
+
+[GW170814/V1] loading...
+  GW170814/V1: Δt_1=1.933 ms, window=1000.0 ms, Δf_rescaled=0.0019
+
+[GW170104/H1] loading...
+  GW170104/H1: Δt_1=1.784 ms, window=1000.0 ms, Δf_rescaled=0.0018
+
+[GW170104/L1] loading...
+  GW170104/L1: Δt_1=1.784 ms, window=1000.0 ms, Δf_rescaled=0.0018
+
+[GW190521/H1] loading...
+  GW190521/H1: Δt_1=5.160 ms, window=1000.0 ms, Δf_rescaled=0.0052
+
+[GW190521/L1] loading...
+  GW190521/L1: Δt_1=5.160 ms, window=1000.0 ms, Δf_rescaled=0.0052
+
+============================================================
+Phase I.5 — sideband comb excess (positive k=1,2,3 only)
+  on-comb median power: 1.4811
+  off-comb median power: 1.3494
+  ratio (null → 1.0, signal → >1): 1.0976
+  contributors per sideband k=1,2,3: [9, 2, 2]
+============================================================
+wrote D:\Aaron\development\sigma-ground\misc\bh_phase_i_5_freq_stack.png (228.2 KB)
