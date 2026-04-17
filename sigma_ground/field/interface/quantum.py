@@ -223,14 +223,15 @@ def fringe_count_in_envelope(d, a):
 
 # ── Huygens-Fresnel amplitude ──────────────────────────────────────────────────
 
-def double_slit_intensity(y_screen, d, L, wavelength_m, D=0.0, a=None):
+def double_slit_intensity(y_screen, d, L, wavelength_m, D=0.0, a=None, gamma=1.0):
     """Probability density for a particle to arrive at y_screen.
 
     Slits are at y = ±d/2 (symmetric about center).
     Screen is at perpendicular distance L.
 
-    Decoherence model (Englert-Greenberger-Yasin 1996):
-        P = |A₁|² + |A₂|² + 2·√(1-D²)·|A₁|·|A₂|·cos(k·Δr)
+    Decoherence model (Englert-Greenberger-Yasin 1996, extended to the
+    Khatiwada-Qian 2025 duality ellipse):
+        P = |A₁|² + |A₂|² + 2·γ·√(1-D²)·|A₁|·|A₂|·cos(k·Δr)
 
     where Δr = r₁ − r₂ (path difference), computed via the identity:
         Δr = (r₁² − r₂²) / (r₁ + r₂) = −2·y·d / (r₁ + r₂)
@@ -246,6 +247,10 @@ def double_slit_intensity(y_screen, d, L, wavelength_m, D=0.0, a=None):
     D = 1: fully incoherent (which-path known, no fringes)
     0 < D < 1: partial decoherence (observer extracts partial info)
 
+    γ = 1 (default): Englert saturation, identical to Englert-Greenberger-Yasin.
+    γ < 1: environment notepads |M₁⟩,|M₂⟩ only partially overlap — the
+           cross term is damped by γ even at D=0. Khatiwada-Qian 2025.
+
     Args:
         y_screen:     y-coordinate on screen (meters)
         d:            slit separation center-to-center (meters)
@@ -253,6 +258,7 @@ def double_slit_intensity(y_screen, d, L, wavelength_m, D=0.0, a=None):
         wavelength_m: de Broglie wavelength (meters)
         D:            which-path distinguishability (0=coherent, 1=classical)
         a:            slit width in meters (None = ignore diffraction envelope)
+        gamma:        marginal coherence γ = |⟨M₁|M₂⟩| in [0, 1], default 1.0
 
     Returns:
         intensity (probability density, unnormalized)
@@ -278,8 +284,8 @@ def double_slit_intensity(y_screen, d, L, wavelength_m, D=0.0, a=None):
     # Incoherent background: |A₁|² + |A₂|²
     I_incoherent = A1_mag * A1_mag + A2_mag * A2_mag
 
-    # Cross term with coherence factor
-    coherence_factor = math.sqrt(max(0.0, 1.0 - D * D))
+    # Cross term with coherence factor (Khatiwada-Qian 2025 γ · Englert √(1−D²))
+    coherence_factor = gamma * math.sqrt(max(0.0, 1.0 - D * D))
     I = I_incoherent + 2.0 * coherence_factor * A1_mag * A2_mag * math.cos(delta_phase)
 
     # Apply single-slit diffraction envelope if slit width given
@@ -357,19 +363,24 @@ def englert_bound_satisfied(D, V):
     return D * D + V * V <= 1.0 + 1e-10   # small tolerance for numerics
 
 
-def visibility_from_D(D):
-    """Maximum visibility given distinguishability D.
+def visibility_from_D(D, gamma=1.0):
+    """Maximum visibility given distinguishability D and coherence γ.
 
-    For a pure state and optimal measurement: D² + V² = 1 (saturated).
-    Mixed states satisfy D² + V² < 1.
+    For a pure state and optimal measurement on the duality ellipse:
+        V²/γ² + D² = 1   (Khatiwada-Qian 2025, arXiv:2505.21443v1)
+        → V = γ · √(1 − D²)
+
+    At γ = 1 this reduces to the Englert 1996 saturation V = √(1 − D²).
+    Mixed states satisfy V²/γ² + D² < 1.
 
     Args:
-        D: which-path distinguishability [0, 1]
+        D:     which-path distinguishability [0, 1]
+        gamma: marginal coherence γ = |⟨M₁|M₂⟩| in [0, 1], default 1.0
 
     Returns:
-        maximum fringe visibility V = √(1 - D²)
+        maximum fringe visibility V = γ · √(1 - D²)
     """
-    return math.sqrt(max(0.0, 1.0 - D * D))
+    return gamma * math.sqrt(max(0.0, 1.0 - D * D))
 
 
 # ── SSBM predictions ──────────────────────────────────────────────────────────
@@ -434,7 +445,8 @@ def fringe_compression_per_sigma(sigma_small=0.01):
 # ── Probability sampling ──────────────────────────────────────────────────────
 
 def build_intensity_profile(d, L, wavelength_m, D=0.0, a=None,
-                             y_min=-0.01, y_max=0.01, n_points=1000):
+                             y_min=-0.01, y_max=0.01, n_points=1000,
+                             gamma=1.0):
     """Compute intensity profile across the screen.
 
     Returns:
@@ -448,10 +460,11 @@ def build_intensity_profile(d, L, wavelength_m, D=0.0, a=None,
         a:            slit width (m), or None
         y_min, y_max: screen extent (m)
         n_points:     number of evaluation points
+        gamma:        marginal coherence γ (Khatiwada-Qian 2025), default 1.0
     """
     dy = (y_max - y_min) / (n_points - 1)
     y_arr = [y_min + i * dy for i in range(n_points)]
-    I_arr = [double_slit_intensity(y, d, L, wavelength_m, D=D, a=a)
+    I_arr = [double_slit_intensity(y, d, L, wavelength_m, D=D, a=a, gamma=gamma)
              for y in y_arr]
     return y_arr, I_arr
 

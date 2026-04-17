@@ -169,6 +169,37 @@ A_C_MEV = (3.0 / 5.0) * KE_E2_MEV_FM / R0_FM  # ≈ 0.7111 MeV (σ-INVARIANT)
 #   - Any interaction that created entanglement and was never decohered
 ETA = 0.4153  # DERIVED — cosmic entanglement fraction (dark energy constraint)
 
+# ── Duality-ellipse marginal coherence γ ─────────────────────────────
+# γ = |⟨M₁|M₂⟩| = overlap between the environment's two "notepad"
+# states that record which-path information in a double-slit setup.
+#
+# FIRST_PRINCIPLES: Khatiwada-Qian 2025, arXiv:2505.21443v1. The
+# duality ellipse V²/γ² + D² = 1 generalises Englert 1996's circle
+# V² + D² ≤ 1. At γ=1 the ellipse degenerates to the Englert circle,
+# recovering all pre-existing sigma-ground double-slit behaviour
+# byte-for-byte.
+#
+# γ is an OPEN INPUT KNOB. The σ→γ mapping is intentionally left
+# unspecified here; it is derived empirically (see Phase F/G of the
+# duality-ellipse verdict artifact). Do NOT confuse this with GAMMA
+# above — that is the spectral index from Planck 2018.
+GAMMA_COHERENCE_DEFAULT = 1.0
+
+# ── Per-dimension entanglement fraction Θ (H4 candidate) ──────────────
+# Θ = η^(1/3) — the cube root of the cosmic entanglement fraction,
+# interpreted as the share of entangled matter "per gravitational
+# dimension" in 3-D flat space (Θ³ = η recovers the total).
+#
+# HYPOTHESIS (user, not paper): the Khatiwada-Qian marginal coherence γ
+# is not a free knob but a derived cosmological constant equal to Θ.
+# Near Earth (σ ≈ 0) laboratory double-slit observations pin γ → 1
+# because the coherence is normalised by the local σ-frame; at
+# cosmological scales with σ ≠ 0 the γ = Θ prediction becomes visible.
+#
+# This constant is DERIVED from ETA, not fitted. Treat as a testable
+# prediction — see Phase E/F/G of the duality-ellipse verdict artifact.
+THETA_ENTANGLEMENT_PER_DIM = ETA ** (1.0 / 3.0)  # ≈ 0.7463
+
 # ── Observer Frame σ ─────────────────────────────────────────────────
 # The σ-field value in OUR spacetime — the observer's compression frame.
 #
