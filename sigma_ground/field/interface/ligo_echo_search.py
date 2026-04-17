@@ -92,6 +92,50 @@ EVENTS = {
             'L1_16k': 'https://gwosc.org/eventapi/json/GWTC-1-confident/GW151226/v2/L-L1_GWOSC_16KHZ_R1-1135136335-32.hdf5',
         },
     },
+    # Catalog extension events — Phase I.4.  f_qnm and tau_qnm computed via
+    # the `qnm` library at (M_rem, a_spin) from GWTC LVC papers.
+    'GW170814': {
+        # H1+L1+V1 (Virgo first observation) — only 3-detector event in O1/O2.
+        'gps_event': 1186741861.5,
+        'M_rem_msun': 53.2,
+        'a_spin': 0.72,
+        'f_qnm_hz': 329.0,  # qnm l=m=2 n=0 at a*=0.72, M=53.2 M_sun
+        'tau_qnm_s': 3.28e-3,
+        'file_start_gps': 1186741846,
+        'duration_s': 32,
+        'strain_urls': {
+            'H1_4k': 'https://gwosc.org/eventapi/json/GWTC-1-confident/GW170814/v3/H-H1_GWOSC_4KHZ_R1-1186741846-32.hdf5',
+            'L1_4k': 'https://gwosc.org/eventapi/json/GWTC-1-confident/GW170814/v3/L-L1_GWOSC_4KHZ_R1-1186741846-32.hdf5',
+            'V1_4k': 'https://gwosc.org/eventapi/json/GWTC-1-confident/GW170814/v3/V-V1_GWOSC_4KHZ_R1-1186741846-32.hdf5',
+        },
+    },
+    'GW170104': {
+        'gps_event': 1167559936.6,
+        'M_rem_msun': 49.1,
+        'a_spin': 0.66,
+        'f_qnm_hz': 339.4,  # qnm l=m=2 n=0 at a*=0.66, M=49.1 M_sun
+        'tau_qnm_s': 2.94e-3,
+        'file_start_gps': 1167559921,
+        'duration_s': 32,
+        'strain_urls': {
+            'H1_4k': 'https://gwosc.org/eventapi/json/GWTC-1-confident/GW170104/v2/H-H1_GWOSC_4KHZ_R1-1167559921-32.hdf5',
+            'L1_4k': 'https://gwosc.org/eventapi/json/GWTC-1-confident/GW170104/v2/L-L1_GWOSC_4KHZ_R1-1167559921-32.hdf5',
+        },
+    },
+    'GW190521': {
+        # IMBH-scale merger; longest Δt_1 in catalog (~5.1 ms).
+        'gps_event': 1242442967.4,
+        'M_rem_msun': 142.0,
+        'a_spin': 0.72,
+        'f_qnm_hz': 123.3,  # qnm l=m=2 n=0 at a*=0.72, M=142 M_sun
+        'tau_qnm_s': 8.75e-3,
+        'file_start_gps': 1242442952,
+        'duration_s': 32,
+        'strain_urls': {
+            'H1_4k': 'https://gwosc.org/eventapi/json/GWTC-2/GW190521/v3/H-H1_GWOSC_4KHZ_R1-1242442952-32.hdf5',
+            'L1_4k': 'https://gwosc.org/eventapi/json/GWTC-2/GW190521/v3/L-L1_GWOSC_4KHZ_R1-1242442952-32.hdf5',
+        },
+    },
 }
 
 
@@ -748,19 +792,33 @@ def cross_detector_coherence(snr_h1, snr_l1, bg_h1, bg_l1,
     }
 
 
-def search_event_both_detectors(event_name, fs_khz=4, **kwargs):
-    """Run search on H1 and L1, return per-detector dict + combined."""
+def search_event_both_detectors(event_name, fs_khz=4, detectors=None, **kwargs):
+    """Run search on all available detectors, return per-detector dict + combined.
+
+    `detectors` defaults to the set of detectors with strain_urls for this
+    event and sample rate, sorted alphabetically (H1, L1, V1, ...).
+    Cross-detector coherence is computed for every distinct pair.
+    The key 'cross_detector' in results['_coherent'] is kept as a backward-
+    compat alias for the H1×L1 pair when both are present.
+    """
+    meta = EVENTS.get(event_name, {})
+    if detectors is None:
+        suffix = f'_{fs_khz}k'
+        detected = sorted({k.split('_')[0]
+                           for k in meta.get('strain_urls', {})
+                           if k.endswith(suffix)})
+        detectors = detected or ['H1', 'L1']
     results = {}
-    for det in ('H1', 'L1'):
+    for det in detectors:
         try:
             results[det] = search_event(event_name, detector=det,
                                         fs_khz=fs_khz, **kwargs)
         except Exception as exc:
             results[det] = {'error': str(exc)}
-    snrs = [r.get('combined_snr', 0.0) for r in results.values()
-            if isinstance(r, dict) and 'combined_snr' in r]
-    p_values = [r.get('p_value_combined', 1.0) for r in results.values()
-                if isinstance(r, dict) and 'p_value_combined' in r]
+    valid = {d: r for d, r in results.items()
+             if isinstance(r, dict) and 'combined_snr' in r}
+    snrs = [r['combined_snr'] for r in valid.values()]
+    p_values = [r['p_value_combined'] for r in valid.values()]
     coherent = {}
     if snrs:
         coherent.update({
@@ -768,21 +826,26 @@ def search_event_both_detectors(event_name, fs_khz=4, **kwargs):
             'p_value_min': float(min(p_values)),
             'p_value_product': float(np.prod(p_values)),
         })
-    h1 = results.get('H1')
-    l1 = results.get('L1')
-    if (isinstance(h1, dict) and isinstance(l1, dict)
-            and 'echo_snrs' in h1 and 'echo_snrs' in l1
-            and 'background_samples_calibrated' in h1
-            and 'background_samples_calibrated' in l1):
-        snr_h1 = [e['snr'] for e in h1['echo_snrs']]
-        snr_l1 = [e['snr'] for e in l1['echo_snrs']]
-        coh = cross_detector_coherence(
-            snr_h1, snr_l1,
-            h1['background_samples_calibrated'],
-            l1['background_samples_calibrated'],
-        )
-        if coh is not None:
-            coherent['cross_detector'] = coh
+    det_keys = list(valid.keys())
+    for i in range(len(det_keys)):
+        for j in range(i + 1, len(det_keys)):
+            da, db = det_keys[i], det_keys[j]
+            ra, rb = valid[da], valid[db]
+            if ('background_samples_calibrated' not in ra
+                    or 'background_samples_calibrated' not in rb):
+                continue
+            snr_a = [e['snr'] for e in ra['echo_snrs']]
+            snr_b = [e['snr'] for e in rb['echo_snrs']]
+            coh = cross_detector_coherence(
+                snr_a, snr_b,
+                ra['background_samples_calibrated'],
+                rb['background_samples_calibrated'],
+            )
+            if coh is not None:
+                key = f'cross_{da}_{db}'
+                coherent[key] = coh
+                if da == 'H1' and db == 'L1':
+                    coherent['cross_detector'] = coh  # backward compat
     if coherent:
         results['_coherent'] = coherent
     return results
@@ -866,3 +929,55 @@ if __name__ == '__main__':
                 print(f'{ev:<10} {det:<4} {e_n0["n"]:>3}  '
                       f'{abs(e_n0["snr"]):>9.3f} {abs(e_none["snr"]):>10.3f} '
                       f'{delta:>+7.3f}')
+
+    # ─── Phase I.4: catalog extension ────────────────────────────────────────
+    # Three additional BBH events with subtraction_mode='none' (established
+    # as the clean pipeline mode in Phase I.3).  GW170814 adds V1 (Virgo)
+    # for three-detector coherence; GW190521 tests the IMBH-scale regime.
+    catalog_plan = [
+        ('GW170814', 4),   # H1+L1+V1 — 3-detector coherence test
+        ('GW170104', 4),   # H1+L1 — similar mass regime to GW150914
+        ('GW190521', 4),   # H1+L1 — IMBH scale, Δt_1 ≈ 5.1 ms
+    ]
+    catalog_results = {}
+    for ev, fs_khz in catalog_plan:
+        print(f'\n{"="*70}\n{ev}  ({fs_khz} kHz)  '
+              f'Phase I.4 — catalog extension, subtraction_mode=none\n{"="*70}')
+        res = search_event_both_detectors(ev, fs_khz=fs_khz,
+                                          n_echoes=5, n_background=2000,
+                                          subtraction_mode='none')
+        catalog_results[ev] = res
+        for det, det_res in res.items():
+            if det.startswith('_'):
+                continue
+            if 'error' in det_res:
+                print(f'  {det}: ERROR {det_res["error"]}')
+                continue
+            print(f'\n  --- {det} ---')
+            print(f'    Δt_1 predicted: {det_res["predicted_delta_t1_ms"]:.3f} ms')
+            print(f'    whitened std:   {det_res["whitened_pre_merger_std"]:.3f} '
+                  f'(ideal 1.0)')
+            for e in det_res['echo_snrs']:
+                print(f'    n={e["n"]}: Δt={e["delay_ms"]:.3f} ms, '
+                      f'SNR={e["snr"]:+.3f}σ, p={e["p_value"]:.4f}')
+            print(f'    combined SNR:   {det_res["combined_snr"]:+.3f}')
+            print(f'    p-value:        {det_res["p_value_combined"]:.4f}')
+            print(f'    bg |SNR| p99:   {det_res["background_p99"]:.3f}')
+        if '_coherent' in res:
+            c = res['_coherent']
+            print(f'\n  === multi-detector combined ===')
+            print(f'    quadrature SNR: {c["combined_snr_quadrature"]:.3f}')
+            print(f'    min p-value:    {c["p_value_min"]:.4f}')
+            for key, cc in c.items():
+                if not key.startswith('cross_') or key == 'cross_detector':
+                    continue
+                pair = key.replace('cross_', '')
+                print(f'    --- {pair} coherence ---')
+                print(f'    per-echo products: '
+                      + ', '.join(f'{p:+.3f}' for p in cc['per_echo_products']))
+                print(f'    |{pair[3:]}/{pair[:2]}| per n:   '
+                      + ', '.join(f'{r:.2f}' for r in cc['magnitude_ratio_l_over_h']))
+                print(f'    sign matches:      {cc["sign_matches"]}/5  '
+                      f'(p={cc["sign_p_value_binomial"]:.3f} binomial)')
+                print(f'    z-score:           {cc["z_score"]:+.3f}')
+                print(f'    p-value (1-sided): {cc["p_value"]:.4f}')

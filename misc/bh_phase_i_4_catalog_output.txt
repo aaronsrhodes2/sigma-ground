@@ -1,0 +1,488 @@
+
+======================================================================
+GW151226  (16 kHz)  subtraction_mode=n0
+======================================================================
+[GW151226 / H1 / 16kHz] fetching strain...
+  loaded 524288 samples at 16384.0 Hz, t0 = 1135136335.0
+  QNM fit (n0): A=1.531e-20, f=737.0 Hz, tau=1.20 ms, phi=1.26
+  whitened pre-merger std: 0.405 (ideal ~1.0)
+  bootstrapping 2000 off-source background SNRs...
+  echo n=1: Δt = 0.756 ms, SNR = +1.215 (calibrated)
+  echo n=2: Δt = 1.512 ms, SNR = +3.321 (calibrated)
+  echo n=3: Δt = 2.267 ms, SNR = -3.239 (calibrated)
+  echo n=4: Δt = 3.023 ms, SNR = +2.428 (calibrated)
+  echo n=5: Δt = 3.779 ms, SNR = -0.334 (calibrated)
+  background: mean=-0.013, std=1.000, p99=2.531
+[GW151226 / L1 / 16kHz] fetching strain...
+  loaded 524288 samples at 16384.0 Hz, t0 = 1135136335.0
+  QNM fit (n0): A=8.675e-20, f=737.0 Hz, tau=1.20 ms, phi=1.66
+  whitened pre-merger std: 0.375 (ideal ~1.0)
+  bootstrapping 2000 off-source background SNRs...
+  echo n=1: Δt = 0.756 ms, SNR = -32.567 (calibrated)
+  echo n=2: Δt = 1.512 ms, SNR = +34.687 (calibrated)
+  echo n=3: Δt = 2.267 ms, SNR = -25.381 (calibrated)
+  echo n=4: Δt = 3.023 ms, SNR = +11.569 (calibrated)
+  echo n=5: Δt = 3.779 ms, SNR = -5.722 (calibrated)
+  background: mean=-0.022, std=1.000, p99=2.422
+
+  --- H1 ---
+    Δt_1 predicted: 0.756 ms
+    whitened std:   0.405 (ideal 1.0)
+    n=1: Δt=0.756 ms, SNR=+1.215σ, p=0.2200
+    n=2: Δt=1.512 ms, SNR=+3.321σ, p=0.0010
+    n=3: Δt=2.267 ms, SNR=-3.239σ, p=0.0010
+    n=4: Δt=3.023 ms, SNR=+2.428σ, p=0.0150
+    n=5: Δt=3.779 ms, SNR=-0.334σ, p=0.7345
+    combined SNR:   +5.385
+    p-value:        0.0000
+    bg |SNR| p99:   2.531
+
+  --- L1 ---
+    Δt_1 predicted: 0.756 ms
+    whitened std:   0.375 (ideal 1.0)
+    n=1: Δt=0.756 ms, SNR=-32.567σ, p=0.0000
+    n=2: Δt=1.512 ms, SNR=+34.687σ, p=0.0000
+    n=3: Δt=2.267 ms, SNR=-25.381σ, p=0.0000
+    n=4: Δt=3.023 ms, SNR=+11.569σ, p=0.0000
+    n=5: Δt=3.779 ms, SNR=-5.722σ, p=0.0000
+    combined SNR:   +55.449
+    p-value:        0.0000
+    bg |SNR| p99:   2.422
+
+  === H1+L1 combined ===
+    quadrature SNR: 55.710
+    min p-value:    0.0000
+    --- cross-detector coherence ---
+    per-echo products: -39.554, +115.182, +82.214, +28.088, +1.909
+    |L1|/|H1| per n:   26.81, 10.45, 7.84, 4.76, 17.15
+    sign matches:      4/5  (p=0.188 binomial)
+    Σ SNR_H1·SNR_L1:   +187.839  (weighted by |SNR|; artefact-sensitive)
+    null μ, σ:         +0.016, 2.259
+    z-score:           +83.128
+    p-value (1-sided): 0.0000
+
+======================================================================
+GW151226  (16 kHz)  subtraction_mode=none
+======================================================================
+[GW151226 / H1 / 16kHz] fetching strain...
+  loaded 524288 samples at 16384.0 Hz, t0 = 1135136335.0
+  subtraction_mode=none: raw whitened strain; template f=737.0 Hz τ=1.20 ms
+  whitened pre-merger std: 0.405 (ideal ~1.0)
+  bootstrapping 2000 off-source background SNRs...
+  echo n=1: Δt = 0.756 ms, SNR = +0.070 (calibrated)
+  echo n=2: Δt = 1.512 ms, SNR = -0.409 (calibrated)
+  echo n=3: Δt = 2.267 ms, SNR = +0.202 (calibrated)
+  echo n=4: Δt = 3.023 ms, SNR = +0.338 (calibrated)
+  echo n=5: Δt = 3.779 ms, SNR = +0.916 (calibrated)
+  background: mean=-0.009, std=1.000, p99=2.489
+[GW151226 / L1 / 16kHz] fetching strain...
+  loaded 524288 samples at 16384.0 Hz, t0 = 1135136335.0
+  subtraction_mode=none: raw whitened strain; template f=737.0 Hz τ=1.20 ms
+  whitened pre-merger std: 0.375 (ideal ~1.0)
+  bootstrapping 2000 off-source background SNRs...
+  echo n=1: Δt = 0.756 ms, SNR = +0.405 (calibrated)
+  echo n=2: Δt = 1.512 ms, SNR = -1.211 (calibrated)
+  echo n=3: Δt = 2.267 ms, SNR = -0.323 (calibrated)
+  echo n=4: Δt = 3.023 ms, SNR = -0.282 (calibrated)
+  echo n=5: Δt = 3.779 ms, SNR = +0.199 (calibrated)
+  background: mean=-0.016, std=1.000, p99=2.475
+
+  --- H1 ---
+    Δt_1 predicted: 0.756 ms
+    whitened std:   0.405 (ideal 1.0)
+    n=1: Δt=0.756 ms, SNR=+0.070σ, p=0.9460
+    n=2: Δt=1.512 ms, SNR=-0.409σ, p=0.6910
+    n=3: Δt=2.267 ms, SNR=+0.202σ, p=0.8425
+    n=4: Δt=3.023 ms, SNR=+0.338σ, p=0.7445
+    n=5: Δt=3.779 ms, SNR=+0.916σ, p=0.3685
+    combined SNR:   +1.080
+    p-value:        0.9520
+    bg |SNR| p99:   2.489
+
+  --- L1 ---
+    Δt_1 predicted: 0.756 ms
+    whitened std:   0.375 (ideal 1.0)
+    n=1: Δt=0.756 ms, SNR=+0.405σ, p=0.6950
+    n=2: Δt=1.512 ms, SNR=-1.211σ, p=0.2320
+    n=3: Δt=2.267 ms, SNR=-0.323σ, p=0.7480
+    n=4: Δt=3.023 ms, SNR=-0.282σ, p=0.7845
+    n=5: Δt=3.779 ms, SNR=+0.199σ, p=0.8505
+    combined SNR:   +1.362
+    p-value:        0.8790
+    bg |SNR| p99:   2.475
+
+  === H1+L1 combined ===
+    quadrature SNR: 1.738
+    min p-value:    0.8790
+    --- cross-detector coherence ---
+    per-echo products: +0.029, +0.495, -0.065, -0.095, +0.182
+    |L1|/|H1| per n:   5.75, 2.96, 1.60, 0.84, 0.22
+    sign matches:      3/5  (p=0.500 binomial)
+    Σ SNR_H1·SNR_L1:   +0.545  (weighted by |SNR|; artefact-sensitive)
+    null μ, σ:         +0.009, 2.214
+    z-score:           +0.242
+    p-value (1-sided): 0.3852
+
+======================================================================
+GW150914  (4 kHz)  subtraction_mode=n0
+======================================================================
+[GW150914 / H1 / 4kHz] fetching strain...
+  loaded 131072 samples at 4096.0 Hz, t0 = 1126259447.0
+  QNM fit (n0): A=3.697e-22, f=251.0 Hz, tau=4.00 ms, phi=1.39
+  whitened pre-merger std: 0.635 (ideal ~1.0)
+  bootstrapping 2000 off-source background SNRs...
+  echo n=1: Δt = 2.260 ms, SNR = +0.470 (calibrated)
+  echo n=2: Δt = 4.520 ms, SNR = -1.428 (calibrated)
+  echo n=3: Δt = 6.781 ms, SNR = -1.494 (calibrated)
+  echo n=4: Δt = 9.041 ms, SNR = -1.381 (calibrated)
+  echo n=5: Δt = 11.301 ms, SNR = +1.176 (calibrated)
+  background: mean=+0.006, std=1.000, p99=2.650
+[GW150914 / L1 / 4kHz] fetching strain...
+  loaded 131072 samples at 4096.0 Hz, t0 = 1126259447.0
+  QNM fit (n0): A=8.964e-21, f=251.0 Hz, tau=4.00 ms, phi=-2.48
+  whitened pre-merger std: 0.631 (ideal ~1.0)
+  bootstrapping 2000 off-source background SNRs...
+  echo n=1: Δt = 2.260 ms, SNR = -12.025 (calibrated)
+  echo n=2: Δt = 4.520 ms, SNR = -4.434 (calibrated)
+  echo n=3: Δt = 6.781 ms, SNR = +5.246 (calibrated)
+  echo n=4: Δt = 9.041 ms, SNR = -4.039 (calibrated)
+  echo n=5: Δt = 11.301 ms, SNR = +4.354 (calibrated)
+  background: mean=+0.039, std=1.000, p99=2.558
+
+  --- H1 ---
+    Δt_1 predicted: 2.260 ms
+    whitened std:   0.635 (ideal 1.0)
+    n=1: Δt=2.260 ms, SNR=+0.470σ, p=0.6540
+    n=2: Δt=4.520 ms, SNR=-1.428σ, p=0.1545
+    n=3: Δt=6.781 ms, SNR=-1.494σ, p=0.1355
+    n=4: Δt=9.041 ms, SNR=-1.381σ, p=0.1680
+    n=5: Δt=11.301 ms, SNR=+1.176σ, p=0.2460
+    combined SNR:   +2.790
+    p-value:        0.1930
+    bg |SNR| p99:   2.650
+
+  --- L1 ---
+    Δt_1 predicted: 2.260 ms
+    whitened std:   0.631 (ideal 1.0)
+    n=1: Δt=2.260 ms, SNR=-12.025σ, p=0.0000
+    n=2: Δt=4.520 ms, SNR=-4.434σ, p=0.0000
+    n=3: Δt=6.781 ms, SNR=+5.246σ, p=0.0000
+    n=4: Δt=9.041 ms, SNR=-4.039σ, p=0.0000
+    n=5: Δt=11.301 ms, SNR=+4.354σ, p=0.0000
+    combined SNR:   +15.069
+    p-value:        0.0000
+    bg |SNR| p99:   2.558
+
+  === H1+L1 combined ===
+    quadrature SNR: 15.325
+    min p-value:    0.0000
+    --- cross-detector coherence ---
+    per-echo products: -5.652, +6.334, -7.838, +5.580, +5.119
+    |L1|/|H1| per n:   25.59, 3.10, 3.51, 2.92, 3.70
+    sign matches:      3/5  (p=0.500 binomial)
+    Σ SNR_H1·SNR_L1:   +3.543  (weighted by |SNR|; artefact-sensitive)
+    null μ, σ:         +0.026, 2.233
+    z-score:           +1.575
+    p-value (1-sided): 0.0556
+
+======================================================================
+GW150914  (4 kHz)  subtraction_mode=none
+======================================================================
+[GW150914 / H1 / 4kHz] fetching strain...
+  loaded 131072 samples at 4096.0 Hz, t0 = 1126259447.0
+  subtraction_mode=none: raw whitened strain; template f=251.0 Hz τ=4.00 ms
+  whitened pre-merger std: 0.635 (ideal ~1.0)
+  bootstrapping 2000 off-source background SNRs...
+  echo n=1: Δt = 2.260 ms, SNR = +0.777 (calibrated)
+  echo n=2: Δt = 4.520 ms, SNR = -2.038 (calibrated)
+  echo n=3: Δt = 6.781 ms, SNR = -0.965 (calibrated)
+  echo n=4: Δt = 9.041 ms, SNR = -1.679 (calibrated)
+  echo n=5: Δt = 11.301 ms, SNR = +1.293 (calibrated)
+  background: mean=+0.005, std=1.000, p99=2.651
+[GW150914 / L1 / 4kHz] fetching strain...
+  loaded 131072 samples at 4096.0 Hz, t0 = 1126259447.0
+  subtraction_mode=none: raw whitened strain; template f=251.0 Hz τ=4.00 ms
+  whitened pre-merger std: 0.631 (ideal ~1.0)
+  bootstrapping 2000 off-source background SNRs...
+  echo n=1: Δt = 2.260 ms, SNR = +0.618 (calibrated)
+  echo n=2: Δt = 4.520 ms, SNR = -1.570 (calibrated)
+  echo n=3: Δt = 6.781 ms, SNR = +0.032 (calibrated)
+  echo n=4: Δt = 9.041 ms, SNR = +0.586 (calibrated)
+  echo n=5: Δt = 11.301 ms, SNR = +1.080 (calibrated)
+  background: mean=+0.026, std=1.000, p99=2.559
+
+  --- H1 ---
+    Δt_1 predicted: 2.260 ms
+    whitened std:   0.635 (ideal 1.0)
+    n=1: Δt=2.260 ms, SNR=+0.777σ, p=0.4300
+    n=2: Δt=4.520 ms, SNR=-2.038σ, p=0.0420
+    n=3: Δt=6.781 ms, SNR=-0.965σ, p=0.3340
+    n=4: Δt=9.041 ms, SNR=-1.679σ, p=0.0870
+    n=5: Δt=11.301 ms, SNR=+1.293σ, p=0.1995
+    combined SNR:   +3.191
+    p-value:        0.0790
+    bg |SNR| p99:   2.651
+
+  --- L1 ---
+    Δt_1 predicted: 2.260 ms
+    whitened std:   0.631 (ideal 1.0)
+    n=1: Δt=2.260 ms, SNR=+0.618σ, p=0.5250
+    n=2: Δt=4.520 ms, SNR=-1.570σ, p=0.1250
+    n=3: Δt=6.781 ms, SNR=+0.032σ, p=0.9735
+    n=4: Δt=9.041 ms, SNR=+0.586σ, p=0.5455
+    n=5: Δt=11.301 ms, SNR=+1.080σ, p=0.2840
+    combined SNR:   +2.088
+    p-value:        0.5160
+    bg |SNR| p99:   2.559
+
+  === H1+L1 combined ===
+    quadrature SNR: 3.813
+    min p-value:    0.0790
+    --- cross-detector coherence ---
+    per-echo products: +0.480, +3.201, -0.031, -0.983, +1.396
+    |L1|/|H1| per n:   0.80, 0.77, 0.03, 0.35, 0.83
+    sign matches:      3/5  (p=0.500 binomial)
+    Σ SNR_H1·SNR_L1:   +4.063  (weighted by |SNR|; artefact-sensitive)
+    null μ, σ:         +0.009, 2.219
+    z-score:           +1.827
+    p-value (1-sided): 0.0366
+
+======================================================================
+Phase I.3 summary — subtraction mode × event × detector
+======================================================================
+event      det    n   |SNR|_n0 |SNR|_none       Δ
+GW151226   H1     1      1.215      0.070  +1.144
+GW151226   H1     2      3.321      0.409  +2.912
+GW151226   H1     3      3.239      0.202  +3.037
+GW151226   H1     4      2.428      0.338  +2.090
+GW151226   H1     5      0.334      0.916  -0.583
+GW151226   L1     1     32.567      0.405 +32.162
+GW151226   L1     2     34.687      1.211 +33.476
+GW151226   L1     3     25.381      0.323 +25.059
+GW151226   L1     4     11.569      0.282 +11.287
+GW151226   L1     5      5.722      0.199  +5.523
+GW150914   H1     1      0.470      0.777  -0.307
+GW150914   H1     2      1.428      2.038  -0.610
+GW150914   H1     3      1.494      0.965  +0.529
+GW150914   H1     4      1.381      1.679  -0.298
+GW150914   H1     5      1.176      1.293  -0.118
+GW150914   L1     1     12.025      0.618 +11.408
+GW150914   L1     2      4.434      1.570  +2.864
+GW150914   L1     3      5.246      0.032  +5.213
+GW150914   L1     4      4.039      0.586  +3.454
+GW150914   L1     5      4.354      1.080  +3.274
+
+======================================================================
+GW170814  (4 kHz)  Phase I.4 — catalog extension, subtraction_mode=none
+======================================================================
+[GW170814 / H1 / 4kHz] fetching strain...
+  loaded 131072 samples at 4096.0 Hz, t0 = 1186741846.0
+  subtraction_mode=none: raw whitened strain; template f=329.0 Hz τ=3.28 ms
+  whitened pre-merger std: 0.586 (ideal ~1.0)
+  bootstrapping 2000 off-source background SNRs...
+  echo n=1: Δt = 1.933 ms, SNR = -1.291 (calibrated)
+  echo n=2: Δt = 3.866 ms, SNR = +0.034 (calibrated)
+  echo n=3: Δt = 5.799 ms, SNR = +0.283 (calibrated)
+  echo n=4: Δt = 7.733 ms, SNR = -0.357 (calibrated)
+  echo n=5: Δt = 9.666 ms, SNR = +0.284 (calibrated)
+  background: mean=-0.001, std=1.000, p99=2.393
+[GW170814 / L1 / 4kHz] fetching strain...
+  loaded 131072 samples at 4096.0 Hz, t0 = 1186741846.0
+  subtraction_mode=none: raw whitened strain; template f=329.0 Hz τ=3.28 ms
+  whitened pre-merger std: 0.636 (ideal ~1.0)
+  bootstrapping 2000 off-source background SNRs...
+  echo n=1: Δt = 1.933 ms, SNR = +0.990 (calibrated)
+  echo n=2: Δt = 3.866 ms, SNR = +1.308 (calibrated)
+  echo n=3: Δt = 5.799 ms, SNR = -1.169 (calibrated)
+  echo n=4: Δt = 7.733 ms, SNR = -1.175 (calibrated)
+  echo n=5: Δt = 9.666 ms, SNR = +0.616 (calibrated)
+  background: mean=+0.004, std=1.000, p99=2.532
+[GW170814 / V1 / 4kHz] fetching strain...
+  loaded 131072 samples at 4096.0 Hz, t0 = 1186741846.0
+  subtraction_mode=none: raw whitened strain; template f=329.0 Hz τ=3.28 ms
+  whitened pre-merger std: 0.643 (ideal ~1.0)
+  bootstrapping 2000 off-source background SNRs...
+  echo n=1: Δt = 1.933 ms, SNR = -1.181 (calibrated)
+  echo n=2: Δt = 3.866 ms, SNR = -1.377 (calibrated)
+  echo n=3: Δt = 5.799 ms, SNR = +0.643 (calibrated)
+  echo n=4: Δt = 7.733 ms, SNR = +0.835 (calibrated)
+  echo n=5: Δt = 9.666 ms, SNR = -1.086 (calibrated)
+  background: mean=-0.034, std=1.000, p99=2.610
+
+  --- H1 ---
+    Δt_1 predicted: 1.933 ms
+    whitened std:   0.586 (ideal 1.0)
+    n=1: Δt=1.933 ms, SNR=-1.291σ, p=0.2065
+    n=2: Δt=3.866 ms, SNR=+0.034σ, p=0.9705
+    n=3: Δt=5.799 ms, SNR=+0.283σ, p=0.7755
+    n=4: Δt=7.733 ms, SNR=-0.357σ, p=0.7085
+    n=5: Δt=9.666 ms, SNR=+0.284σ, p=0.7745
+    combined SNR:   +1.398
+    p-value:        0.8650
+    bg |SNR| p99:   2.393
+
+  --- L1 ---
+    Δt_1 predicted: 1.933 ms
+    whitened std:   0.636 (ideal 1.0)
+    n=1: Δt=1.933 ms, SNR=+0.990σ, p=0.3260
+    n=2: Δt=3.866 ms, SNR=+1.308σ, p=0.1965
+    n=3: Δt=5.799 ms, SNR=-1.169σ, p=0.2450
+    n=4: Δt=7.733 ms, SNR=-1.175σ, p=0.2445
+    n=5: Δt=9.666 ms, SNR=+0.616σ, p=0.5350
+    combined SNR:   +2.412
+    p-value:        0.3570
+    bg |SNR| p99:   2.532
+
+  --- V1 ---
+    Δt_1 predicted: 1.933 ms
+    whitened std:   0.643 (ideal 1.0)
+    n=1: Δt=1.933 ms, SNR=-1.181σ, p=0.2480
+    n=2: Δt=3.866 ms, SNR=-1.377σ, p=0.1780
+    n=3: Δt=5.799 ms, SNR=+0.643σ, p=0.5135
+    n=4: Δt=7.733 ms, SNR=+0.835σ, p=0.4065
+    n=5: Δt=9.666 ms, SNR=-1.086σ, p=0.2930
+    combined SNR:   +2.362
+    p-value:        0.3530
+    bg |SNR| p99:   2.610
+
+  === multi-detector combined ===
+    quadrature SNR: 3.654
+    min p-value:    0.3530
+    --- H1_L1 coherence ---
+    per-echo products: -1.277, +0.044, -0.331, +0.420, +0.175
+    |L1/H1| per n:   0.77, 39.00, 4.13, 3.29, 2.17
+    sign matches:      3/5  (p=0.500 binomial)
+    z-score:           -0.430
+    p-value (1-sided): 0.6930
+    --- H1_V1 coherence ---
+    per-echo products: +1.524, -0.046, +0.182, -0.298, -0.309
+    |V1/H1| per n:   0.91, 41.06, 2.27, 2.34, 3.82
+    sign matches:      2/5  (p=0.812 binomial)
+    z-score:           +0.469
+    p-value (1-sided): 0.2910
+    --- L1_V1 coherence ---
+    per-echo products: -1.168, -1.801, -0.752, -0.981, -0.669
+    |V1/L1| per n:   1.19, 1.05, 0.55, 0.71, 1.76
+    sign matches:      0/5  (p=1.000 binomial)
+    z-score:           -2.407
+    p-value (1-sided): 0.9858
+
+======================================================================
+GW170104  (4 kHz)  Phase I.4 — catalog extension, subtraction_mode=none
+======================================================================
+[GW170104 / H1 / 4kHz] fetching strain...
+  loaded 131072 samples at 4096.0 Hz, t0 = 1167559921.0
+  subtraction_mode=none: raw whitened strain; template f=339.4 Hz τ=2.94 ms
+  whitened pre-merger std: 0.598 (ideal ~1.0)
+  bootstrapping 2000 off-source background SNRs...
+  echo n=1: Δt = 1.784 ms, SNR = +1.558 (calibrated)
+  echo n=2: Δt = 3.568 ms, SNR = -1.509 (calibrated)
+  echo n=3: Δt = 5.353 ms, SNR = -0.488 (calibrated)
+  echo n=4: Δt = 7.137 ms, SNR = -0.827 (calibrated)
+  echo n=5: Δt = 8.921 ms, SNR = -1.277 (calibrated)
+  background: mean=-0.010, std=1.000, p99=2.759
+[GW170104 / L1 / 4kHz] fetching strain...
+  loaded 131072 samples at 4096.0 Hz, t0 = 1167559921.0
+  subtraction_mode=none: raw whitened strain; template f=339.4 Hz τ=2.94 ms
+  whitened pre-merger std: 0.637 (ideal ~1.0)
+  bootstrapping 2000 off-source background SNRs...
+  echo n=1: Δt = 1.784 ms, SNR = -2.190 (calibrated)
+  echo n=2: Δt = 3.568 ms, SNR = -0.380 (calibrated)
+  echo n=3: Δt = 5.353 ms, SNR = +1.351 (calibrated)
+  echo n=4: Δt = 7.137 ms, SNR = -1.199 (calibrated)
+  echo n=5: Δt = 8.921 ms, SNR = +0.608 (calibrated)
+  background: mean=+0.001, std=1.000, p99=2.892
+
+  --- H1 ---
+    Δt_1 predicted: 1.784 ms
+    whitened std:   0.598 (ideal 1.0)
+    n=1: Δt=1.784 ms, SNR=+1.558σ, p=0.1180
+    n=2: Δt=3.568 ms, SNR=-1.509σ, p=0.1255
+    n=3: Δt=5.353 ms, SNR=-0.488σ, p=0.6180
+    n=4: Δt=7.137 ms, SNR=-0.827σ, p=0.3915
+    n=5: Δt=8.921 ms, SNR=-1.277σ, p=0.1980
+    combined SNR:   +2.694
+    p-value:        0.2060
+    bg |SNR| p99:   2.759
+
+  --- L1 ---
+    Δt_1 predicted: 1.784 ms
+    whitened std:   0.637 (ideal 1.0)
+    n=1: Δt=1.784 ms, SNR=-2.190σ, p=0.0370
+    n=2: Δt=3.568 ms, SNR=-0.380σ, p=0.6700
+    n=3: Δt=5.353 ms, SNR=+1.351σ, p=0.1560
+    n=4: Δt=7.137 ms, SNR=-1.199σ, p=0.2095
+    n=5: Δt=8.921 ms, SNR=+0.608σ, p=0.5235
+    combined SNR:   +2.928
+    p-value:        0.1440
+    bg |SNR| p99:   2.892
+
+  === multi-detector combined ===
+    quadrature SNR: 3.979
+    min p-value:    0.1440
+    --- H1_L1 coherence ---
+    per-echo products: -3.411, +0.574, -0.660, +0.991, -0.776
+    |L1/H1| per n:   1.41, 0.25, 2.77, 1.45, 0.48
+    sign matches:      2/5  (p=0.812 binomial)
+    z-score:           -1.473
+    p-value (1-sided): 0.9350
+
+======================================================================
+GW190521  (4 kHz)  Phase I.4 — catalog extension, subtraction_mode=none
+======================================================================
+[GW190521 / H1 / 4kHz] fetching strain...
+  loaded 131072 samples at 4096.0 Hz, t0 = 1242442952.0
+  subtraction_mode=none: raw whitened strain; template f=123.3 Hz τ=8.75 ms
+  whitened pre-merger std: 0.641 (ideal ~1.0)
+  bootstrapping 2000 off-source background SNRs...
+  echo n=1: Δt = 5.160 ms, SNR = +1.727 (calibrated)
+  echo n=2: Δt = 10.320 ms, SNR = -0.382 (calibrated)
+  echo n=3: Δt = 15.480 ms, SNR = -0.570 (calibrated)
+  echo n=4: Δt = 20.640 ms, SNR = +0.369 (calibrated)
+  echo n=5: Δt = 25.800 ms, SNR = -0.509 (calibrated)
+  background: mean=+0.026, std=1.000, p99=2.439
+[GW190521 / L1 / 4kHz] fetching strain...
+  loaded 131072 samples at 4096.0 Hz, t0 = 1242442952.0
+  subtraction_mode=none: raw whitened strain; template f=123.3 Hz τ=8.75 ms
+  whitened pre-merger std: 0.633 (ideal ~1.0)
+  bootstrapping 2000 off-source background SNRs...
+  echo n=1: Δt = 5.160 ms, SNR = -0.627 (calibrated)
+  echo n=2: Δt = 10.320 ms, SNR = +0.114 (calibrated)
+  echo n=3: Δt = 15.480 ms, SNR = -1.157 (calibrated)
+  echo n=4: Δt = 20.640 ms, SNR = +0.073 (calibrated)
+  echo n=5: Δt = 25.800 ms, SNR = -0.727 (calibrated)
+  background: mean=-0.025, std=1.000, p99=2.420
+
+  --- H1 ---
+    Δt_1 predicted: 5.160 ms
+    whitened std:   0.641 (ideal 1.0)
+    n=1: Δt=5.160 ms, SNR=+1.727σ, p=0.0800
+    n=2: Δt=10.320 ms, SNR=-0.382σ, p=0.7290
+    n=3: Δt=15.480 ms, SNR=-0.570σ, p=0.6045
+    n=4: Δt=20.640 ms, SNR=+0.369σ, p=0.7355
+    n=5: Δt=25.800 ms, SNR=-0.509σ, p=0.6510
+    combined SNR:   +1.962
+    p-value:        0.6150
+    bg |SNR| p99:   2.439
+
+  --- L1 ---
+    Δt_1 predicted: 5.160 ms
+    whitened std:   0.633 (ideal 1.0)
+    n=1: Δt=5.160 ms, SNR=-0.627σ, p=0.5425
+    n=2: Δt=10.320 ms, SNR=+0.114σ, p=0.9145
+    n=3: Δt=15.480 ms, SNR=-1.157σ, p=0.2630
+    n=4: Δt=20.640 ms, SNR=+0.073σ, p=0.9330
+    n=5: Δt=25.800 ms, SNR=-0.727σ, p=0.4895
+    combined SNR:   +1.509
+    p-value:        0.8250
+    bg |SNR| p99:   2.420
+
+  === multi-detector combined ===
+    quadrature SNR: 2.475
+    min p-value:    0.6150
+    --- H1_L1 coherence ---
+    per-echo products: -1.084, -0.044, +0.659, +0.027, +0.370
+    |L1/H1| per n:   0.36, 0.30, 2.03, 0.20, 1.43
+    sign matches:      3/5  (p=0.500 binomial)
+    z-score:           -0.033
+    p-value (1-sided): 0.5108
