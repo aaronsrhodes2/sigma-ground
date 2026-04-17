@@ -33,10 +33,10 @@
   GW190521/L1: Δt_1=5.160 ms, window=1000.0 ms, Δf_rescaled=0.0052
 
 ============================================================
-Phase I.5 — sideband comb excess (positive k=1,2,3 only)
-  on-comb median power: 1.4811
-  off-comb median power: 1.3494
-  ratio (null → 1.0, signal → >1): 1.0976
-  contributors per sideband k=1,2,3: [9, 2, 2]
+Phase I.5 — sideband comb excess (positive k=1..7)
+  on-comb median power: 1.3458
+  off-comb median power: 1.4700
+  ratio (null → 1.0, signal → >1): 0.9155
+  contributors per sideband k=1..7: [11, 6, 4, 4, 2, 2, 2]
 ============================================================
-wrote D:\Aaron\development\sigma-ground\misc\bh_phase_i_5_freq_stack.png (228.2 KB)
+wrote D:\Aaron\development\sigma-ground\misc\bh_phase_i_5_freq_stack.png (200.1 KB)

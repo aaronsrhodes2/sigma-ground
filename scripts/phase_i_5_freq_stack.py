@@ -34,8 +34,8 @@ import matplotlib.pyplot as plt
 DETECTOR_PLAN = [
     ('GW151226', 'H1', 16),
     ('GW151226', 'L1', 16),
-    ('GW150914', 'H1', 4),
-    ('GW150914', 'L1', 4),
+    ('GW150914', 'H1', 16),  # 16 kHz — unlocks k=1–7 sidebands
+    ('GW150914', 'L1', 16),
     ('GW170814', 'H1', 4),
     ('GW170814', 'L1', 4),
     ('GW170814', 'V1', 4),
@@ -56,8 +56,9 @@ MIN_WINDOW_MS = 1000.0
 
 # Rescaled frequency grid: (f − f_QNM) × Δt_1
 # Sidebands from echoes live at ±1, ±2, ±3, ...
-F_RESCALED_MAX = 4.0
-F_RESCALED_NPTS = 2000
+# GW150914 at 16 kHz reaches f_r ≈ 7.8, so extend to 8.
+F_RESCALED_MAX = 8.0
+F_RESCALED_NPTS = 4000
 
 
 def get_sideband_spectrum(event_name, detector, fs_khz=4,
@@ -83,7 +84,7 @@ def get_sideband_spectrum(event_name, detector, fs_khz=4,
     psd_start = max(0, merger_idx - int(2.0 * fs) - psd_len)
     psd_freqs, psd_vals = estimate_psd(strain, fs, psd_start, psd_len)
 
-    bp = bandpass(strain, fs, lo=35.0, hi=min(fs / 2 * 0.45, 1500.0))
+    bp = bandpass(strain, fs, lo=35.0, hi=fs / 2 * 0.45)
 
     delta_t1 = echo_delay_n(meta['M_rem_msun'], 1)
     f_qnm = meta['f_qnm_hz']
@@ -108,7 +109,7 @@ def get_sideband_spectrum(event_name, detector, fs_khz=4,
     # ~flat noise.  np.interp would treat those out-of-band bins as valid data,
     # making all events appear to cover the full f_rescaled grid.
     bp_lo = 35.0
-    bp_hi = min(fs / 2.0 * 0.45, 1500.0)
+    bp_hi = fs / 2.0 * 0.45
     in_band = (freqs >= bp_lo) & (freqs <= bp_hi)
     freqs = freqs[in_band]
     power = power[in_band]
@@ -216,14 +217,14 @@ def main():
 
     stack, n_valid = stack_spectra(f_resc_list, pwr_list, f_grid)
     ratio, on_mean, off_mean, n_contribs = comb_excess(
-        stack, f_grid, n_valid=n_valid)
+        stack, f_grid, n_valid=n_valid, sideband_k=tuple(range(1, 8)))
 
     print(f'\n{"="*60}')
-    print(f'Phase I.5 — sideband comb excess (positive k=1,2,3 only)')
+    print(f'Phase I.5 — sideband comb excess (positive k=1..7)')
     print(f'  on-comb median power: {on_mean:.4f}')
     print(f'  off-comb median power: {off_mean:.4f}')
     print(f'  ratio (null → 1.0, signal → >1): {ratio:.4f}')
-    print(f'  contributors per sideband k=1,2,3: {n_contribs}')
+    print(f'  contributors per sideband k=1..7: {n_contribs}')
     print(f'{"="*60}')
 
     # ── Figure ──────────────────────────────────────────────────────────────
@@ -256,9 +257,8 @@ def main():
         ax.plot(f_grid, pwr_interp, color=DET_COL.get(det, '#aaa'),
                 lw=0.7, alpha=0.85)
         ax.axhline(1.0, color='#666', lw=0.6, ls='--', alpha=0.6)
-        for k in (1, 2, 3):
-            for s in (+1, -1):
-                ax.axvline(s * k, color='#f6b26b', lw=0.7, ls=':', alpha=0.55)
+        for k in range(1, 8):
+            ax.axvline(k, color='#f6b26b', lw=0.7, ls=':', alpha=0.55)
         ax.set_xlim(-F_RESCALED_MAX, F_RESCALED_MAX)
         ax.set_ylim(0, None)
         ax.set_title(f'{ev} / {det}', fontsize=8.5,
@@ -275,11 +275,9 @@ def main():
                   label=f'stack (N={len(per_det)})')
     ax_stack.axhline(1.0, color='#666', lw=0.8, ls='--', alpha=0.7,
                      label='noise baseline')
-    for k in (1, 2, 3):
-        for s in (+1, -1):
-            ax_stack.axvline(s * k, color='#f6b26b', lw=1.0, ls='--',
-                             alpha=0.7,
-                             label='echo comb' if (k == 1 and s == 1) else None)
+    for k in range(1, 8):
+        ax_stack.axvline(k, color='#f6b26b', lw=1.0, ls='--', alpha=0.7,
+                         label='echo comb (k=1..7)' if k == 1 else None)
     ax_stack.set_xlim(-F_RESCALED_MAX, F_RESCALED_MAX)
     ax_stack.set_ylim(0, None)
     ax_stack.set_title(
