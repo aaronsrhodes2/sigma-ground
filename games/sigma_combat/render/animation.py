@@ -155,20 +155,25 @@ class AnimationState:
         self.rings:      list[ShockRing] = []
         self.blooms:     list[HeatBloom] = []
 
-        self._layer_triggered = [False] * max(len(layer_rects), 1)
-        self._breach_flash    = 0
+        self._breach_flash = 0
 
-        # Pre-compute per-layer penetration time allocation
-        # Layers get time proportional to (damage_fraction + 0.1) — more time in tough layers
-        n = len(layer_rects)
-        if n > 0:
+        # Only animate layers the weapon actually reaches:
+        #   - all penetrated layers + the stopping layer (or all if breached)
+        if result and not result.breached:
+            n_active = min(result.layers_penetrated + 1, len(layer_rects))
+        else:
+            n_active = len(layer_rects)
+        self._n_active = n_active
+        self._layer_triggered = [False] * max(n_active, 1)
+
+        # Allocate penetration time proportional to resistance of each active layer
+        if n_active > 0:
             weights = []
-            for i in range(n):
+            for i in range(n_active):
                 st = result.layers[i] if (result and i < len(result.layers)) else None
                 w = (st.damage_fraction if st else 0.5) + 0.15
                 weights.append(w)
             total_w = sum(weights) or 1.0
-            # Cumulative trigger times in [0, 1] over PENETRATE phase
             cum = 0.0
             self._layer_trigger_t = []
             for w in weights:
@@ -220,23 +225,22 @@ class AnimationState:
             return self._final_x()
 
         pt = self.penetrate_t
-        # Interpolate through layers proportionally
-        n_pen = self.result.layers_penetrated if self.result else 0
 
-        # Find which layer we're in based on penetrate_t
+        # Walk only the active layers (weapon can't enter layers beyond stopping point)
         for i, trig in enumerate(self._layer_trigger_t):
             next_t = self._layer_trigger_t[i + 1] if i + 1 < len(self._layer_trigger_t) else 1.0
-            if pt <= next_t or i == len(self._layer_trigger_t) - 1:
+            if pt <= next_t or i == self._n_active - 1:
                 rect = self.layer_rects[i]
                 st   = self.result.layers[i] if (self.result and i < len(self.result.layers)) else None
                 df   = st.damage_fraction if st else 1.0
                 span = next_t - trig
                 local_t = (pt - trig) / span if span > 0 else 1.0
                 local_t = min(1.0, local_t)
-                x = rect.left + int(rect.width * df * local_t)
-                # Slow down near stopping point
                 if st and not st.penetrated:
+                    # Decelerate into stopping layer — ease-out so it visually brakes
                     x = rect.left + int(rect.width * df * (local_t ** 2))
+                else:
+                    x = rect.left + int(rect.width * local_t)
                 return x
 
         return self._final_x()
@@ -273,12 +277,14 @@ class AnimationState:
         if self._breach_flash > 0:
             self._breach_flash -= 1
 
-        # Trigger layer events
+        # Trigger layer events — only for layers the weapon actually reaches
         if self.penetrate_t > 0 and self.layer_rects:
-            for i, trig_t in enumerate(self._layer_trigger_t):
+            for i in range(self._n_active):
+                if i >= len(self._layer_trigger_t):
+                    break
                 if self._layer_triggered[i]:
                     continue
-                if self.penetrate_t >= trig_t:
+                if self.penetrate_t >= self._layer_trigger_t[i]:
                     self._layer_triggered[i] = True
                     self._spawn_layer_event(i)
 
