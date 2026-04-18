@@ -21,6 +21,13 @@ import math
 #   Canonical SSBM value (used in all publications and tests):
 XI = 0.1582
 
+# Kobakhidze-Liang 2024 (arXiv:2410.22412): ξ from QCD beta-function ratios
+# For an N=8 composite-axion gauge group, Ω_DM/Ω_B = 5.36 →
+# ξ = 1/(1 + 5.36) = 0.1572, within 0.6% of Planck 2018's 0.1582.
+# [SPECULATIVE] — the N=8 identification with sigma-ground's σ-field is not established.
+XI_KOBAKHIDZE = 1.0 / (1.0 + 5.36)          # ≈ 0.1572 (N=8 gauge group prediction)
+SIGMA_CONV_KOBAKHIDZE = -math.log(XI_KOBAKHIDZE)  # ≈ 1.849
+
 # QCD confinement scale (PDG reference)
 LAMBDA_QCD_MEV = 217.0  # MeV
 

@@ -495,7 +495,7 @@ class TestPhaseGGammaFromSigma(unittest.TestCase):
       sigma_coh: 1 − η/2    (new prediction, reuses sigma_coherence damping)
     """
 
-    MODES = ('linear', 'exp', 'cbrt', 'sigma_coh')
+    MODES = ('linear', 'exp', 'cbrt', 'sigma_coh', 'csl_linear', 'csl_psl', 'dp')
 
     def test_g1_all_modes_pin_gamma_to_one_at_sigma_zero(self):
         """γ(σ=0) = 1 exactly in every mode — recovers H1 at lab scale."""
@@ -581,20 +581,68 @@ class TestPhaseGGammaFromSigma(unittest.TestCase):
                 self.assertAlmostEqual(g, fraction, places=12)
 
     def test_g9_mode_ordering_at_sigma_conv(self):
-        """At σ_conv: linear == cbrt < sigma_coh < exp — visibility-reduction
-        hierarchy predicted by each candidate.  Different physics, different
-        predicted V_max at the conversion horizon:
-            linear, cbrt → Θ          ≈ 0.7461  (H4 terminus)
+        """At σ_conv visibility-reduction hierarchy (low γ = more suppression):
+            dp           → 1/e        ≈ 0.3679  (Diósi–Penrose terminus)
+            linear, cbrt,
+            csl_linear,
+            csl_psl      → Θ          ≈ 0.7461  (H4 terminus)
             sigma_coh    → 1 − η/2    ≈ 0.7924  (damping-ratio terminus)
             exp          → Θ + (1−Θ)/e ≈ 0.8395 (slowest decay)
         """
-        gL = coherence_gamma_from_sigma(SIGMA_CONV, mode='linear')
-        gC = coherence_gamma_from_sigma(SIGMA_CONV, mode='cbrt')
-        gE = coherence_gamma_from_sigma(SIGMA_CONV, mode='exp')
-        gS = coherence_gamma_from_sigma(SIGMA_CONV, mode='sigma_coh')
-        self.assertAlmostEqual(gL, gC, places=12)  # both = Θ
-        self.assertLess(gC, gS)
-        self.assertLess(gS, gE)
+        gL  = coherence_gamma_from_sigma(SIGMA_CONV, mode='linear')
+        gC  = coherence_gamma_from_sigma(SIGMA_CONV, mode='cbrt')
+        gCL = coherence_gamma_from_sigma(SIGMA_CONV, mode='csl_linear')
+        gCP = coherence_gamma_from_sigma(SIGMA_CONV, mode='csl_psl')
+        gE  = coherence_gamma_from_sigma(SIGMA_CONV, mode='exp')
+        gS  = coherence_gamma_from_sigma(SIGMA_CONV, mode='sigma_coh')
+        gDP = coherence_gamma_from_sigma(SIGMA_CONV, mode='dp')
+        self.assertAlmostEqual(gL, gC,  places=12)   # both = Θ
+        self.assertAlmostEqual(gL, gCL, places=12)   # csl_linear = Θ
+        self.assertAlmostEqual(gL, gCP, places=12)   # csl_psl = Θ
+        self.assertLess(gDP, gL)                     # dp (1/e) < Θ
+        self.assertLess(gC,  gS)
+        self.assertLess(gS,  gE)
+
+    def test_g12_csl_linear_terminates_at_theta(self):
+        """csl_linear γ(σ_conv) = Θ = η^(1/3) (arXiv:2501.17637, α=1)."""
+        self.assertAlmostEqual(
+            coherence_gamma_from_sigma(SIGMA_CONV, mode='csl_linear'),
+            THETA_ENTANGLEMENT_PER_DIM, places=12,
+        )
+
+    def test_g13_csl_psl_terminates_at_theta(self):
+        """csl_psl γ(σ_conv) = Θ = η^(1/3) (arXiv:2501.17637, α=1/2)."""
+        self.assertAlmostEqual(
+            coherence_gamma_from_sigma(SIGMA_CONV, mode='csl_psl'),
+            THETA_ENTANGLEMENT_PER_DIM, places=12,
+        )
+
+    def test_g14_dp_terminates_at_one_over_e(self):
+        """dp γ(σ_conv) = 1/e ≈ 0.3679 (Diósi–Penrose, arXiv:2406.18494).
+        This is the only mode outside the η-derived floor [0.746, 0.839].
+        """
+        self.assertAlmostEqual(
+            coherence_gamma_from_sigma(SIGMA_CONV, mode='dp'),
+            math.exp(-1.0), places=12,
+        )
+
+    def test_g15_csl_psl_decays_faster_midrange_than_csl_linear(self):
+        """At any intermediate σ, csl_psl < csl_linear (steeper initial drop).
+        Both terminate at Θ; they differ only in trajectory.
+        """
+        for frac in (0.1, 0.3, 0.5, 0.7, 0.9):
+            s = frac * SIGMA_CONV
+            gCL = coherence_gamma_from_sigma(s, mode='csl_linear')
+            gCP = coherence_gamma_from_sigma(s, mode='csl_psl')
+            self.assertLess(gCP, gCL,
+                msg=f"csl_psl not below csl_linear at σ={s:.3f}")
+
+    def test_g16_dp_lowest_of_all_modes_at_sigma_conv(self):
+        """dp terminates strictly below every η-derived mode."""
+        dp_val = coherence_gamma_from_sigma(SIGMA_CONV, mode='dp')
+        for mode in ('linear', 'exp', 'cbrt', 'sigma_coh', 'csl_linear', 'csl_psl'):
+            g = coherence_gamma_from_sigma(SIGMA_CONV, mode=mode)
+            self.assertLess(dp_val, g, msg=f"dp not below {mode} at σ_conv")
 
     def test_g10_rejects_sigma_outside_physical_range(self):
         """σ < 0 or σ > σ_conv must raise — model is undefined past conversion."""

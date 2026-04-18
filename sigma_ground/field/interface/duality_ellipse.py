@@ -271,4 +271,34 @@ def coherence_gamma_from_sigma(sigma, mode='sigma_coh'):
         # 1 − η/2 · (σ/σ_conv).  Reuses the existing damping ratio.
         return 1.0 - (ETA / 2.0) * x
 
-    raise ValueError(f"unknown mode '{mode}'; expected 'linear', 'exp', 'cbrt', or 'sigma_coh'")
+    if mode == 'csl_linear':
+        # CSL α=1 (standard Continuous Spontaneous Localisation).
+        # arXiv:2501.17637 proves only α=1 and α=1/2 survive compoundation-
+        # invariance and Markovian-feedback tests; α≥3/2 excluded.
+        # γ = Θ^(σ/σ_conv) = exp(−κ·x), κ = −ln(Θ), terminates at Θ.
+        # [THEORETICAL]
+        kappa = -math.log(Theta)  # ≈ 0.293
+        return math.exp(-kappa * x)
+
+    if mode == 'csl_psl':
+        # PSL α=1/2 (Poissonian Spontaneous Localisation).
+        # Same theoretical constraint as csl_linear (arXiv:2501.17637).
+        # γ = Θ^√(σ/σ_conv) = exp(−κ·√x) — same endpoint Θ, steeper
+        # initial decay due to √x diverging faster near x=0.
+        # [THEORETICAL]
+        kappa = -math.log(Theta)  # ≈ 0.293
+        return math.exp(-kappa * math.sqrt(x))
+
+    if mode == 'dp':
+        # Diósi–Penrose gravitational self-energy decoherence.
+        # arXiv:2406.18494 (Donadi et al., NJP 26, 113004, 2024).
+        # Collapse timescale τ = ℏ/ΔE_grav; mapping σ/σ_conv ↔ ΔE/ΔE_horizon
+        # gives γ = exp(−σ/σ_conv), terminating at 1/e ≈ 0.368 — the only
+        # candidate below the η-derived floor [0.746, 0.839].
+        # [SPECULATIVE]
+        return math.exp(-x)
+
+    raise ValueError(
+        f"unknown mode '{mode}'; expected one of "
+        "'linear', 'exp', 'cbrt', 'sigma_coh', 'csl_linear', 'csl_psl', 'dp'"
+    )

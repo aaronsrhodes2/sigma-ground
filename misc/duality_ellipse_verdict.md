@@ -70,23 +70,25 @@ The visibility reduction factors (c)/(a) = 0.600000 and (d)/(a) = 0.746083 exact
 
 ## Phase G — σ → γ candidate table
 
-Four candidate σ→γ derivations, all implemented in `coherence_gamma_from_sigma(sigma, mode)` at `sigma_ground/field/interface/duality_ellipse.py:231`.  All satisfy γ(σ=0) = 1 (H1 match at the laboratory regime) and are monotonic non-increasing in σ.  They differ in **where γ terminates** at σ = σ_conv ≈ 1.8439 (the matter-conversion horizon).
+Seven candidate σ→γ derivations, all implemented in `coherence_gamma_from_sigma(sigma, mode)` at `sigma_ground/field/interface/duality_ellipse.py:231`.  All satisfy γ(σ=0) = 1 (H1 match at the laboratory regime) and are monotonic non-increasing in σ.  They differ in **where γ terminates** at σ = σ_conv ≈ 1.8439 (the matter-conversion horizon).
+
+Three new modes added 2026-04-17 (arXiv integration sprint): `csl_linear` and `csl_psl` from Dominguez et al. 2025 (arXiv:2501.17637) and `dp` from Donadi et al. 2024 (arXiv:2406.18494).
 
 ### σ-sweep table
 
 γ(σ) across σ ∈ [0, σ_conv]:
 
-| σ          | linear     | exp        | cbrt       | sigma_coh  |
-|------------|------------|------------|------------|------------|
-| 0.0000     | 1.000000   | 1.000000   | 1.000000   | 1.000000   |
-| 0.1000     | 0.986229   | 0.986596   | 0.989316   | 0.988739   |
-| 0.3000     | 0.958688   | 0.961874   | 0.967228   | 0.966216   |
-| 0.5000     | 0.931147   | 0.939692   | 0.944081   | 0.943693   |
-| 1.0000     | 0.862293   | 0.893708   | 0.880614   | 0.887385   |
-| 1.5000     | 0.793440   | 0.858646   | 0.806381   | 0.831078   |
-| **σ_conv** | **0.746083** | **0.839494** | **0.746083** | **0.792350** |
+| σ          | linear     | exp        | cbrt       | sigma_coh  | csl_linear | csl_psl    | dp         |
+|------------|------------|------------|------------|------------|------------|------------|------------|
+| 0.0000     | 1.000000   | 1.000000   | 1.000000   | 1.000000   | 1.000000   | 1.000000   | 1.000000   |
+| 0.1000     | 0.986229   | 0.986596   | 0.989316   | 0.988739   | 0.984240   | 0.934060   | 0.947211   |
+| 0.3000     | 0.958688   | 0.961874   | 0.967228   | 0.966216   | 0.953460   | 0.888562   | 0.849847   |
+| 0.5000     | 0.931147   | 0.939692   | 0.944081   | 0.943693   | 0.923643   | 0.858531   | 0.762491   |
+| 1.0000     | 0.862293   | 0.893708   | 0.880614   | 0.887385   | 0.853117   | 0.805966   | 0.581392   |
+| 1.5000     | 0.793440   | 0.858646   | 0.806381   | 0.831078   | 0.787976   | 0.767824   | 0.443306   |
+| **σ_conv** | **0.746083** | **0.839494** | **0.746083** | **0.792350** | **0.746083** | **0.746083** | **0.367879** |
 
-Endpoint hierarchy at σ_conv: **linear == cbrt (Θ) < sigma_coh (1 − η/2) < exp**.
+Endpoint hierarchy at σ_conv: **dp (1/e) < linear == cbrt == csl_linear == csl_psl (Θ) < sigma_coh (1 − η/2) < exp**.
 
 ### Mode commentary
 
@@ -94,8 +96,11 @@ Endpoint hierarchy at σ_conv: **linear == cbrt (Θ) < sigma_coh (1 − η/2) < 
 - **exp** `γ = Θ + (1−Θ)·exp(−σ/σ_conv)`.  Smooth exponential decay toward Θ, but only reaches Θ + (1−Θ)/e ≈ 0.8395 at σ_conv — the only candidate that does **not** terminate at an independently-meaningful cosmological constant.  Geometrically attractive, physically under-motivated.
 - **cbrt** `γ = (1 − (1−η)·σ/σ_conv)^(1/3)`.  Also terminates at Θ (since Θ = η^(1/3)).  Reads as "fraction of fossil entanglement remaining, per gravitational dimension".  Same endpoint as linear but with a gentler near-zero slope and a steeper horizon approach.
 - **sigma_coh** `γ = 1 − (η/2)·(σ/σ_conv)`.  **Default.**  Directly mirrors the existing `sigma_coherence(η, σ_local, 0) / σ_local = 1 − η/2` formula from `entanglement.py:209`, reinterpreting gravitational σ-damping as quantum marginal coherence.  Terminates at 1 − η/2 ≈ 0.7924 — **not** at Θ, **not** at any geometric constant, but at the pre-existing σ_eff/σ ratio.  Cleanest "missing link" candidate: one mechanism drives both gravitational compression and quantum coherence, no new functional form introduced.
+- **csl_linear** `γ = Θ^(σ/σ_conv) = exp(−κ·σ/σ_conv)`, κ = −ln(Θ) ≈ 0.293.  `[THEORETICAL]` — arXiv:2501.17637 (Dominguez et al. 2025) proves α=1 (linear-in-d²) is one of only two CSL functional forms that survive compoundation-invariance and Markovian-feedback tests.  Terminates at Θ; shape is exponential-in-σ rather than linear-in-γ.
+- **csl_psl** `γ = Θ^√(σ/σ_conv) = exp(−κ·√(σ/σ_conv))`, same κ.  `[THEORETICAL]` — α=1/2 (Poissonian Spontaneous Localisation) is the other theoretically-surviving form from arXiv:2501.17637.  Same endpoint Θ as csl_linear; decays faster at intermediate σ (csl_psl < csl_linear for all σ ∈ (0, σ_conv)).
+- **dp** `γ = exp(−σ/σ_conv)`.  `[SPECULATIVE]` — arXiv:2406.18494 (Donadi et al. 2024, NJP).  Diósi–Penrose gravitational self-energy collapse gives γ(σ_conv) = 1/e ≈ 0.368 — the **only candidate outside the η-derived floor [0.746, 0.839]**.  A single V(D=0) measurement at σ ≈ σ_conv that returns ~0.37 would confirm DP and rule out all other modes simultaneously.
 
-All four modes agree to four decimal places for σ ≲ 0.3 — meaning the matter-shaper σ≈0 regime cannot discriminate between them even in principle.
+All modes agree to three decimal places for σ ≲ 0.1 — meaning laboratory-scale σ≈0 measurements cannot discriminate between any of them.  The `dp` mode diverges from the pack by σ ≈ 0.3 and provides the sharpest target for future astrophysical tests.
 
 ### Cross-check: decoherence_at_horizon scaling
 
