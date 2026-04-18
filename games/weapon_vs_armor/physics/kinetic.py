@@ -19,8 +19,15 @@ C_LIGHT = 299_792_458.0
 # Woven/fibrous materials resist kinetic penetration via progressive delamination
 # and fiber pullout — effective ballistic resistance is higher than tensile yield alone.
 _FIBER_MULT = {
-    'kevlar':      2.0,   # NIJ-tested; woven UHMWPE fiber delamination
+    'kevlar':      3.5,   # calibrated to NIJ 0101.06 IIA–IIIA: stops pistol, yields to rifle
     'carbon_fiber': 2.2,  # woven ply delamination + shear resistance
+}
+
+# Ceramics defeat projectiles through shattering + bullet comminution/fragmentation.
+# The Poncelet model underestimates ceramic effectiveness because it doesn't model
+# projectile deformation. Empirical correction: NIJ III alumina plate (10mm stops 7.62 FMJ).
+_CERAMIC_MULT = {
+    'ceramic_alumina': 3.2,  # calibrated to NIJ 0101.06 III: 10mm stops 7.62×51 FMJ
 }
 
 
@@ -51,7 +58,9 @@ def interact(weapon: dict, layer_material: str, thickness_m: float) -> dict:
 
     rho_t = target['density_kg_m3']
     rho_p = pen['density_kg_m3']
-    Y = target['yield_stress_pa'] * _FIBER_MULT.get(layer_material, 1.0)
+    Y = (target['yield_stress_pa']
+         * _FIBER_MULT.get(layer_material, 1.0)
+         * _CERAMIC_MULT.get(layer_material, 1.0))
     area = math.pi * r * r
 
     # Relativistic kinetic energy
