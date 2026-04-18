@@ -207,11 +207,11 @@ WEAPON_PRESETS = {
     # ── ANTI-ARMOR ───────────────────────────────────────────────────────────
     'rpg7': {
         'name': 'RPG-7 (shaped charge)',
-        'weapon': {'type':'explosive','tnt_kg':0.35,'standoff_m':0},
+        'weapon': {'type':'explosive','tnt_kg':0.35,'standoff_m':0,'shaped_charge':True},
     },
     'atgm': {
         'name': 'Anti-Tank Missile (Tandem HEAT)',
-        'weapon': {'type':'explosive','tnt_kg':4.5,'standoff_m':0},
+        'weapon': {'type':'explosive','tnt_kg':4.5,'standoff_m':0,'shaped_charge':True},
     },
     'sabot_apfsds': {
         'name': 'Tank APFSDS (depleted uranium)',

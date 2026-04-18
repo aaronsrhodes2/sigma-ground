@@ -1,24 +1,106 @@
 """
-Explosive physics — Hopkinson-Cranz blast wave + thermal pulse.
+Explosive physics — two modes:
 
-Kingery-Bulmash scaled distance: Z = r / W^(1/3)  [m/kg^(1/3)]
-Peak overpressure (simplified Sadovsky):
-    P_peak = (0.84/Z + 2.7/Z^2 + 7.2/Z^3) MPa  for Z in [0.5, 40]
+1. Pure blast (HE, thermobaric):
+   Hopkinson-Cranz scaled distance Z = r / W^(1/3)
+   Sadovsky overpressure: P = (0.84/Z + 2.7/Z² + 7.2/Z³) MPa
 
-At Z < 0.1 (contact): catastrophic destruction.
+2. Shaped charge / HEAT jet (weapon['shaped_charge'] = True):
+   Munroe-effect copper jet at ~8 km/s.
+   Penetration capacity = SHAPED_CHARGE_FACTOR * W^(1/3)  [m RHA-equiv]
+   Per layer: resistance = thickness * (yield_stress / RHA_YIELD) * _HEAT_MULT
+   Gaps disrupt jet coherence (2× their length in RHA-equiv).
 """
 import math
 from ..materials import get_material
 
-TNT_ENERGY_J_PER_KG = 4.6e6  # J/kg
+TNT_ENERGY_J_PER_KG = 4.6e6   # J/kg
+RHA_YIELD_PA        = 1.2e9   # reference yield of Rolled Homogeneous Armour steel
+SHAPED_CHARGE_FACTOR = 0.35   # m RHA-equiv per kg^(1/3) TNT — calibrated to RPG-7/ATGM data
+
+# Materials that disrupt/resist HEAT jets better than RHA-equiv predicts
+_HEAT_MULT = {
+    'ceramic_alumina':  4.0,   # brittle conoid fracture breaks jet coherence
+    'tungsten':         2.5,   # very high density; jet erodes rapidly
+    'depleted_uranium': 2.0,
+}
 
 
 def interact(weapon: dict, layer_material: str, thickness_m: float) -> dict:
-    """
-    Explosive interaction with one armor layer.
+    """Explosive interaction with one armor layer."""
+    if weapon.get('shaped_charge', False):
+        return _shaped_charge_interact(weapon, layer_material, thickness_m)
+    return _blast_interact(weapon, layer_material, thickness_m)
 
-    weapon keys: tnt_kg, standoff_m (0 = contact), detonation_face (0=first layer)
+
+def _shaped_charge_interact(weapon: dict, layer_material: str, thickness_m: float) -> dict:
     """
+    Munroe-effect HEAT jet — erosion model.
+
+    Jet capacity starts at SHAPED_CHARGE_FACTOR * W^(1/3) meters of RHA-equivalent.
+    Each layer consumes capacity = thickness * (yield / RHA_YIELD) * _HEAT_MULT.
+    Air gaps cost 2× their length (disrupts jet coherence).
+    """
+    tnt_kg = weapon['tnt_kg']
+    jet_cap = weapon.get('_jet_remaining_m',
+                         SHAPED_CHARGE_FACTOR * tnt_kg ** (1.0 / 3.0))
+
+    if jet_cap <= 0:
+        return _no_effect(thickness_m, 'HEAT jet exhausted')
+
+    # Gap: coherence disruption (not material resistance)
+    if layer_material == 'gap':
+        loss = thickness_m * 2.0
+        w_out = dict(weapon)
+        w_out['_jet_remaining_m'] = max(0.0, jet_cap - loss)
+        return {
+            'penetrated': True,
+            'temperature_k': 300.0,
+            'damage_depth_m': thickness_m,
+            'energy_deposited_j': 0.0,
+            'notes': f'HEAT jet crosses gap, coherence loss {loss*1000:.0f}mm RHA-eq',
+            'weapon_out': w_out,
+        }
+
+    target = get_material(layer_material)
+    mult = _HEAT_MULT.get(layer_material, 1.0)
+    rha_equiv = thickness_m * (target['yield_stress_pa'] / RHA_YIELD_PA) * mult
+
+    if rha_equiv <= jet_cap:
+        # Jet punches through
+        w_out = dict(weapon)
+        w_out['_jet_remaining_m'] = jet_cap - rha_equiv
+        energy = tnt_kg * TNT_ENERGY_J_PER_KG * min(1.0, rha_equiv / (jet_cap + 1e-10))
+        vol = math.pi * (0.005 ** 2) * thickness_m  # ~5mm jet diameter
+        dT = energy / max(vol * target['heat_cap_vol'], 1e-30)
+        return {
+            'penetrated': True,
+            'temperature_k': 300.0 + dT,
+            'damage_depth_m': thickness_m,
+            'energy_deposited_j': energy,
+            'notes': (f'HEAT jet: {rha_equiv*1000:.0f}mm RHA-eq consumed, '
+                      f'{w_out["_jet_remaining_m"]*1000:.0f}mm remaining'),
+            'weapon_out': w_out,
+        }
+    else:
+        # Jet stops inside this layer
+        depth = thickness_m * (jet_cap / max(rha_equiv, 1e-10))
+        energy = tnt_kg * TNT_ENERGY_J_PER_KG * 0.8
+        vol = math.pi * (0.005 ** 2) * max(depth, 1e-4)
+        dT = energy / max(vol * target['heat_cap_vol'], 1e-30)
+        return {
+            'penetrated': False,
+            'temperature_k': 300.0 + dT,
+            'damage_depth_m': depth,
+            'energy_deposited_j': energy,
+            'notes': (f'HEAT jet stopped: {jet_cap*1000:.0f}mm capacity '
+                      f'vs {rha_equiv*1000:.0f}mm needed'),
+            'weapon_out': None,
+        }
+
+
+def _blast_interact(weapon: dict, layer_material: str, thickness_m: float) -> dict:
+    """Original Hopkinson-Cranz blast model."""
     tnt_kg = weapon['tnt_kg']
     standoff = weapon.get('standoff_m', 0.0)
 

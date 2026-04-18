@@ -16,6 +16,13 @@ from ..materials import get_material
 
 C_LIGHT = 299_792_458.0
 
+# Woven/fibrous materials resist kinetic penetration via progressive delamination
+# and fiber pullout — effective ballistic resistance is higher than tensile yield alone.
+_FIBER_MULT = {
+    'kevlar':      2.0,   # NIJ-tested; woven UHMWPE fiber delamination
+    'carbon_fiber': 2.2,  # woven ply delamination + shear resistance
+}
+
 
 def _sound_speed(mat_name: str) -> float:
     props = get_material(mat_name)
@@ -44,7 +51,7 @@ def interact(weapon: dict, layer_material: str, thickness_m: float) -> dict:
 
     rho_t = target['density_kg_m3']
     rho_p = pen['density_kg_m3']
-    Y = target['yield_stress_pa']
+    Y = target['yield_stress_pa'] * _FIBER_MULT.get(layer_material, 1.0)
     area = math.pi * r * r
 
     # Relativistic kinetic energy
