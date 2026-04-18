@@ -24,6 +24,10 @@ from sigma_ground.field.electrodynamics import (
     skin_depth,
     fine_structure_constant,
     sigma_em_coupling,
+    muon_anomalous_moment_experimental,
+    muon_anomalous_moment_sm,
+    muon_g2_tension_sigmas,
+    muon_g2_consistency_status,
 )
 
 
@@ -226,3 +230,47 @@ def test_sigma_em_coupling_at_conv():
     alpha_eff = sigma_em_coupling(SIGMA_CONV)
     expected = ALPHA * math.exp(2 * XI * SIGMA_CONV)
     assert alpha_eff == pytest.approx(expected, rel=1e-10)
+
+
+# ── Phase XII.c.1: Muon g−2 Theory Initiative 2025 ────────────────────
+
+def test_muon_g2_experimental_value():
+    """Fermilab final 2025: a_μ × 10¹¹ = 116 592 061 ± 22 (127 ppb)."""
+    a, s = muon_anomalous_moment_experimental()
+    assert a == pytest.approx(116_592_061.0, rel=1e-12)
+    assert s == pytest.approx(22.0, rel=1e-12)
+
+
+def test_muon_g2_sm_prediction_value():
+    """MTI 2025 WP: a_μ,SM × 10¹¹ = 116 591 810 ± 43 (lattice-HVP)."""
+    a, s = muon_anomalous_moment_sm()
+    assert a == pytest.approx(116_591_810.0, rel=1e-12)
+    assert s == pytest.approx(43.0, rel=1e-12)
+
+
+def test_muon_g2_tension_sigmas_in_expected_band():
+    """Residual CMD-3-vs-lattice tension is ~5σ but is a data-choice artefact."""
+    t = muon_g2_tension_sigmas()
+    # Not a physics tension per MTI 2025 — but the number itself should match.
+    assert 4.5 < t < 6.0
+
+
+def test_muon_g2_consistency_status_keys():
+    r = muon_g2_consistency_status()
+    for key in ('a_mu_exp_x1e11', 'a_mu_sm_x1e11', 'tension_sigmas',
+                'tension_resolved', 'lambda_qcd_mev', 'note'):
+        assert key in r
+
+
+def test_muon_g2_tension_resolved_flag():
+    """Per MTI 2025 WP, anomaly dissolved with lattice-HVP adopted."""
+    r = muon_g2_consistency_status()
+    assert r['tension_resolved'] is True
+
+
+def test_muon_g2_engine_lambda_qcd_matches_pdg():
+    """Sigma-ground's Λ_QCD = 217 MeV must equal the PDG value used by MTI 2025."""
+    from sigma_ground.field.constants import LAMBDA_QCD_MEV
+    r = muon_g2_consistency_status()
+    assert r['lambda_qcd_mev'] == LAMBDA_QCD_MEV
+    assert LAMBDA_QCD_MEV == 217.0

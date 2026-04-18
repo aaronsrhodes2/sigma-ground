@@ -16,7 +16,7 @@ Dependency: C from constants only — the most fundamental SR module.
 
 import math
 
-from .constants import C
+from .constants import C, LAMBDA_LIV_MIN_GEV
 from .scale import scale_ratio
 
 
@@ -224,3 +224,29 @@ def sigma_time_dilation(sigma, t0):
         coordinate time interval in the external frame (s)
     """
     return t0 * scale_ratio(sigma)
+
+
+def effective_liv_scale_gev(sigma):
+    """Effective Lorentz-invariance-violation scale Λ₂_eff(σ) for photon/neutrino dispersion.
+
+    The engine's σ-coupling is strictly time-dilation-like: t_coord = t₀ × e^σ.
+    There is NO σ-dependent modification of the dispersion relation
+    E² = p²c² + m²c⁴ anywhere in sigma_ground.field.*; photon and neutrino
+    kinematics in vacuum are exactly special-relativistic at every σ.
+
+    Therefore this function returns math.inf for every input — the engine
+    predicts no second-order LIV at any scale, trivially satisfying the
+    KM3-230213A bound (arXiv:2502.18256, Λ₂ > 5.0 × 10¹⁹ GeV).
+
+    If a future σ↔dispersion coupling is proposed and added to the engine,
+    this function is the single place that needs to be updated. Any finite
+    return value less than LAMBDA_LIV_MIN_GEV indicates an engine bug.
+
+    Args:
+        sigma: σ-field value (dimensionless).
+
+    Returns:
+        Effective Λ₂ in GeV. Always math.inf with the current engine.
+    """
+    _ = sigma  # parameter retained for forward compatibility
+    return math.inf

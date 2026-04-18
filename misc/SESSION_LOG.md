@@ -1523,3 +1523,108 @@ Built tight-binding band structure module (`band_structure.py`, ~900 lines) with
 | T_c within 3x | 13/20 (65%) |
 | False positives | 0 |
 | False negatives | 1 (Rh) |
+
+---
+
+## Session 21 — 2026-04-17 — Phase XII: Wider arXiv Net + Codebase Confidence Audit + Game-Dev Bridge Direction
+
+### Summary
+Three stages in one session. First, widened the arXiv search across ten under-represented domains (emergent gravity, causal sets, Hubble/S₈, LIV, axions, muon g−2, primordial GW, neutrino mass, bulk reconstruction, Page curve) and triaged 15 new candidates into the survey as "Batch 3" — each carrying a five-question pass (Falsify? Integrate? Tighten? Streamline? Unpublished phenomenon?). Two strong falsifier candidates identified (arXiv:2502.18256 LIV bound, arXiv:2502.04430 Page time). Second, ran a codebase-wide confidence-tier audit: introduced `[EMPIRICAL-INPUT]`, `[MATH-EXACT]`, and `[OPEN-KNOB]` tiers alongside the existing `[VERIFIED]/[DERIVED]/[THEORETICAL]/[SPECULATIVE]` tiers; tagged all 66 module-level constants in `sigma_ground/field/constants.py` (untagged count: 0); extended `audit.py` with a `confidence_summary()` helper; mirrored tagging into the quarksum sibling checkout (29 constants). Third, produced a design doc for the user-chosen Phase XIII direction: Nagatha MCP as a live physics oracle inside a Claude-Code-built game loop, with a "σ-slider sandbox" demo as the first deliverable.
+
+### Side-goal captured (new)
+Aaron shared the quiet aim behind the project: "bring all of physics together in one place and hope obvious patterns emerge" — with the secret hope of eventually contributing something concrete to science. The η-triple-coincidence (ρ_DE fit, exp(−φ/σ_conv), DESI DR2 HDE c²) all landing within 1% of 0.4153 is flagged as the current best candidate pattern. Saved as user-memory `user_north_star.md`.
+
+### New Deliverables
+- `misc/arxiv_pluggable_survey_2025.md` — appended "Batch 3 — Wider Net (2026-04-17)" section with 15 candidates, full five-question pass on Tier 1, condensed pass on Tier 2, headline notes on Tier 3.
+- `misc/unpublished_predictions.md` — NEW ledger; 7 initial entries (UP-001 through UP-007) for predictions that emerge from engine + paper combinations but appear in neither alone.
+- `misc/confidence_audit_2026-04.md` — NEW audit doc; tier vocabulary extension, current counts, key observations, next action items.
+- `misc/gamedev_bridge_notes.md` — NEW design doc for Phase XIII; live MCP oracle path, latency budget table, determinism notes, MVP surface (8 tools), σ-sandbox demo proposal.
+- `misc/OPERATIC_PLAY_SCENE21_THE_NET_WIDENS.txt` — Scene 21.
+
+### Modified
+- `sigma_ground/field/constants.py` (sigma-ground tree) — inline tier tags on all 66 constants.
+- `sigma_ground/field/constants.py` (quarksum tree) — inline tier tags on 29 mirrored constants.
+- `sigma_ground/field/audit.py` — added `CONFIDENCE_TIERS`, `scan_confidence_tags()`, `confidence_summary()` functions.
+
+### Memory updates (user-facing, persistent)
+- NEW `user_north_star.md` — Aaron's stated side-goal.
+- UPDATED `project_sigma_frozen.md` — corrected stale "frozen" claim (project is active again through Phase XII).
+- UPDATED `MEMORY.md` index.
+
+### Key Numbers
+| Quantity | Value |
+|----------|-------|
+| sigma-ground tests before | 4,153 passed / 8 skipped / 2,420 subtests |
+| sigma-ground tests after  | 4,153 passed / 8 skipped / 2,420 subtests — unchanged |
+| quarksum tests before     | 1,219 passed / 6 skipped |
+| quarksum tests after      | 1,219 passed / 6 skipped — unchanged |
+| arXiv domains searched    | 10 |
+| New candidates triaged    | 15 |
+| Tier-1 candidates         | 4 (plus 1 falsifier-check) |
+| Falsifier candidates      | 2 (LIV bound, Page time) |
+| Unpublished predictions logged | 7 (UP-001 to UP-007) |
+| Constants tagged (sigma-ground) | 66 / 66 (zero untagged) |
+| Constants tagged (quarksum)     | 29 mirrored |
+| New confidence tiers introduced | 3 (EMPIRICAL-INPUT, MATH-EXACT, OPEN-KNOB) |
+
+### Not done (explicitly out of scope, tracked for Phase XII.a / XIII)
+- Did NOT run the two falsifier checks against the engine. That is the next action — gate before any Batch-3 integration.
+- Did NOT integrate any of the 15 new candidates — survey only.
+- Did NOT tag formulas inside `interface/*.py` or `inventory/` or `dynamics/`. `confidence_summary()` is written to be extended to walk those modules in a future pass.
+- Did NOT build any game-dev bridge code. That is Phase XIII.
+
+### Next action
+Run the two Tier-1 falsifier checks in a new Phase XII.a script:
+1. Confirm the engine predicts no vacuum LIV at σ=0 (arXiv:2502.18256, Λ₂ > 5×10¹⁹ GeV).
+2. Compute sigma-ground's Page time for a reference PBH mass and compare against SM prediction from arXiv:2502.04430.
+If either fails, fix the engine before integrating Batch-3 math.
+
+---
+
+## Session 22 — 2026-04-17 — Phase XII complete: Batch-3 integrations, curation, commit
+
+### What happened
+
+Continuation of Session 21 (context compacted). Executed the full Phase XII.d integration plan:
+
+**Curation pass**: All 11 Batch-3 integrations retained. Concrete numerical modules (LIV gate, Page time, Bekenstein-Hawking entropy, η bit-thread fraction, muon g-2, neutrino mass eigenstates, MOND a₀, Kobakhidze ratio, HDE ρ_DE) produce real numerical output. Pure stubs (replica wormhole, EDE+IDE, Dirac seesaw, asymptotic safety) are honest `NotImplementedError` markers with paper citations — they mark integration slots for future work without fabricating values. Nothing pruned.
+
+**New modules written**:
+- `sigma_ground/field/interface/cosmology.py` — η-coincidence report, HDE ρ_DE, MOND a₀, EDE+IDE scaffold
+- `sigma_ground/field/interface/neutrino.py` — mass eigenstates (normal/inverted), sum_mass_ev, seesaw/AS stubs
+- `sigma_ground/field/interface/hidden_sector.py` — axion regime classifier, ALP-photon CAST bound, Kobakhidze N=8 ratio
+
+**Existing modules extended**:
+- `relativity.py` — LIV gate (effective_liv_scale_gev → math.inf; no LIV coupling)
+- `gr_basics.py` — Page time (SM + sigma-ground shift by (1−η/2) ≈ 0.7924), BH entropy, bit-thread η fraction, replica wormhole stub
+- `electrodynamics.py` — muon g-2 experimental/SM/tension (5.2σ declared data-choice, not engine physics)
+- `audit.py` — confidence_summary() with 8-tier CONFIDENCE_TIERS; Windows-safe ASCII output
+- `constants.py` — 92 constants total, all tagged, 0 untagged (added LIV, g-2, neutrino masses, MOND a₀, axion bounds, DR3 placeholders)
+
+**Docs written**:
+- `misc/unpublished_predictions.md` — UP-001 through UP-007
+- `misc/confidence_audit_2026-04.md` — full tier-by-tier breakdown
+- `misc/gamedev_bridge_notes.md` — σ-slider sandbox design; Nagatha as in-game oracle; 5 questions answered for Phase XIII
+- `misc/arxiv_pluggable_survey_2025.md` — Batch 3 appended (15 candidates, all five-question passes)
+
+**Bugs fixed**:
+- HDE ρ_DE formula was dimensionally wrong (off by 24 orders of magnitude) — corrected to 3 c_HDE² c⁴ / (8πGL²)
+- Windows UnicodeEncodeError in confidence_summary() — replaced box-drawing chars with ASCII dashes
+- Fabricated DR3 DESI numbers corrected to None placeholders with [SPECULATIVE-PENDING] tags
+
+**"Two repos" mystery**: Explained to user that the second sigma-ground they see on GitHub is a Claude Code git worktree at `.claude/worktrees/quirky-mcclintock-860188/` — not a true fork, just an isolated working tree sharing the same repo history, used by Claude Code for parallel-task isolation.
+
+### Key Numbers
+| Quantity | Value |
+|----------|-------|
+| sigma-ground tests at session start | 4,153 passed |
+| sigma-ground tests at session end | 4,224 passed (+71) |
+| New test files | 3 (test_cosmology.py, test_neutrino.py, test_hidden_sector.py) |
+| Tests added to existing files | ~41 (gr_basics, electrodynamics, relativity) |
+| New interface modules | 3 (cosmology, neutrino, hidden_sector) |
+| Constants in constants.py | 92 (all tagged) |
+| Unpublished predictions logged | 7 (UP-001 to UP-007) |
+| Regressions | 0 |
+
+### Next action (Phase XIII)
+Game-dev bridge: σ-slider sandbox demo using pygame + Nagatha MCP client. See `misc/gamedev_bridge_notes.md` for full design. Starting point: `lookup_material` + `element` + one `run` recipe driving a σ-parameter slider with real-time Nagatha calls.
