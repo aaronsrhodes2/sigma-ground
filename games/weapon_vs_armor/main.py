@@ -1,10 +1,10 @@
 """
-sigma-combat — Weapons vs. Armor
+Weapon vs. Armor — sigma-ground bonus game
 
 All damage is derived from sigma-ground material physics.
 No HP. No tuning knobs. Just thermodynamics, yield stress, and bond failure.
 
-Run:  python games/sigma_combat/main.py
+Run:  python run_weapon_vs_armor.py
 """
 import sys
 import os
@@ -39,7 +39,7 @@ ARMOR_W = 290     # armor panel   (far right)
 XS_W    = SCREEN_W - LEFT_W - ARMOR_W  # cross-section center (760px)
 
 FPS = 60
-TITLE = 'sigma-combat — Weapons vs. Armor'
+TITLE = 'Weapon vs. Armor  |  sigma-ground'
 
 # ── Color palette ───────────────────────────────────────────────
 BG            = (10, 12, 18)

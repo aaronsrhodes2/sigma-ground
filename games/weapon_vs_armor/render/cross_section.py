@@ -34,9 +34,11 @@ def render(surface: pygame.Surface,
            armor_layers: list,
            result=None,
            weapon_type: str = 'kinetic',
-           title: str = '') -> None:
+           title: str = '',
+           anim_state=None) -> list:
     """
     Draw the cross-section onto *surface* (clears it first).
+    Returns list of layer_rects for the animation system.
 
     armor_layers: list of {'material':str, 'thickness_m':float}
                   or {'gap':True, 'thickness_m':float}
@@ -55,7 +57,7 @@ def render(surface: pygame.Surface,
     if not layers:
         msg = _font(18).render('No armor layers defined', True, (80, 90, 100))
         surface.blit(msg, (W // 2 - msg.get_width() // 2, H // 2))
-        return
+        return []
 
     # Compute pixel widths
     total_thickness = sum(l['thickness_m'] for l in layers)
@@ -113,11 +115,17 @@ def render(surface: pygame.Surface,
         _draw_layer_label(surface, rect, layer, temp_k, layer_state)
 
     # ── Draw penetration indicator ────────────────────────────────
-    if result:
+    if result and not anim_state:
         _draw_penetration_summary(surface, layer_rects, result, block_y, block_h)
 
     # ── Thickness ruler ───────────────────────────────────────────
     _draw_ruler(surface, layers, layer_rects, block_y + block_h + 5)
+
+    # ── Animation overlay ─────────────────────────────────────────
+    if anim_state:
+        anim_state.render_overlay(surface)
+
+    return [r for r in layer_rects]
 
 
 def _draw_weapon_zone(surface, zone_w, block_y, block_h, weapon_type):
