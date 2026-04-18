@@ -24,6 +24,7 @@ from sigma_ground.field.relativity import (
     time_dilation,
     doppler_factor,
     sigma_time_dilation,
+    effective_liv_scale_gev,
 )
 
 
@@ -235,3 +236,34 @@ def test_sigma_time_dilation_linearity():
     sigma = 0.5
     result = sigma_time_dilation(sigma, t0)
     assert result == pytest.approx(t0 * math.exp(sigma), rel=1e-10)
+
+
+# ── Phase XII.a.1: LIV bound gate (arXiv:2502.18256, KM3-230213A) ─────
+# Engine must respect Λ₂ > 5.0 × 10¹⁹ GeV at every σ. The engine's σ-coupling
+# is strictly time-dilation-like with no dispersion modification, so the
+# effective LIV scale is infinity everywhere. If a future change breaks that,
+# these tests fail loudly.
+
+def test_effective_liv_scale_infinite_at_sigma_zero():
+    """At σ=0 (observer frame) the engine predicts no LIV."""
+    assert effective_liv_scale_gev(0.0) == math.inf
+
+
+def test_effective_liv_scale_infinite_at_sigma_conv():
+    """At σ = σ_conv (bond-failure surface) the engine still predicts no
+    external-frame LIV — σ-time-dilation is not a dispersion modification."""
+    from sigma_ground.field.constants import SIGMA_CONV
+    assert effective_liv_scale_gev(SIGMA_CONV) == math.inf
+
+
+def test_effective_liv_scale_respects_km3_bound():
+    """Engine's predicted Λ₂_eff must exceed the KM3-230213A bound at all σ
+    we can reach in simulations."""
+    from sigma_ground.field.constants import LAMBDA_LIV_MIN_GEV, SIGMA_CONV
+    for s in (0.0, 0.1, 1.0, SIGMA_CONV, 2.5):
+        scale = effective_liv_scale_gev(s)
+        assert scale > LAMBDA_LIV_MIN_GEV, (
+            f"Engine predicts Λ₂_eff = {scale} GeV at σ={s}, "
+            f"which violates KM3 bound {LAMBDA_LIV_MIN_GEV} GeV. "
+            f"arXiv:2502.18256."
+        )

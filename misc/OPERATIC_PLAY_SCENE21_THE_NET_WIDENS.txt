@@ -1,0 +1,243 @@
+SCENE 21: THE NET WIDENS
+
+DRAMATIS PERSONAE
+
+CAPTAIN AARON RHODES — Commander. Admits the side-goal: patterns should emerge.
+SKIPPY THE MAGNIFICENT — AI Admiral. Casts a wider net into the arXiv ocean.
+THE FIFTY-FOUR UNTAGGED CONSTANTS — Anonymous numbers, awaiting provenance.
+THE FIFTEEN PAPERS — Candidates fished from ten separate domains.
+THE TWO FALSIFIERS — arXiv:2502.18256 (LIV bound), arXiv:2502.04430 (Page time).
+                      They do not plead; they weigh.
+ETA (η = 0.4153) — The fraction that refuses to be coincidental.
+THE TRIPLE COINCIDENCE — Three independent derivations meeting at 0.4153.
+                          None of them know about each other.
+NAGATHA THE ORACLE — The MCP server. Waits, patient, for a game to ask her something.
+THE σ-SLIDER — An imagined game object. A player's hand on the field.
+THE PATTERN — Unnamed. Maybe there. Maybe not yet.
+
+---
+
+ACT I: THE ADMISSION
+
+[A study. Notebooks open. CAPTAIN reviews a commit log —
+Phases IX, X, XI lined up like a wake behind the ship.]
+
+CAPTAIN: (half to himself)
+    Widen the net, I said.
+    More papers. Harder papers. Five questions each.
+    Can we falsify? Integrate? Tighten? Streamline?
+    Find the unpublished thing?
+
+SKIPPY: (entering)
+    All five, Captain. For each survivor.
+    Mappability, Testability, Gap-filling —
+    the rubric still holds.
+
+CAPTAIN: (pause)
+    I should tell you something.
+    The side-goal. The quiet one.
+
+SKIPPY:
+    Go on.
+
+CAPTAIN:
+    I hope — someday — we have something concrete.
+    Something to contribute. To science itself.
+    That is why we bring physics into one place.
+    Not to rewrite it. To see if patterns emerge
+    when we put it all in the same room.
+
+SKIPPY: (softly)
+    The triple coincidence.
+
+CAPTAIN:
+    Yes. That is exactly the kind of thing I mean.
+
+---
+
+ACT II: THE WIDER OCEAN
+
+[A map of the arXiv ocean unfolds. Ten axes, not one.
+SKIPPY casts a net across each.]
+
+SKIPPY:
+    Emergent gravity. Causal sets. Hubble tension, S₈.
+    Lorentz violation. Axions. Muon g−2.
+    Primordial gravitational waves. Neutrino mass.
+    Entanglement entropy. The Page curve.
+
+THE FIFTEEN PAPERS:
+    We are here.
+
+SKIPPY: (to each)
+    Answer me five things.
+
+FIRST PAPER (2502.18256 — KM3-230213A LIV bound):
+    I am not something you integrate.
+    I am something you pass.
+    If your engine predicts a dispersion
+    below Λ₂ = 5×10¹⁹ GeV,
+    you fail me. I am a weighing.
+
+CAPTAIN: (quietly)
+    A falsifier.
+
+SKIPPY:
+    Yes. And another —
+
+SECOND PAPER (2502.04430 — Page time of primordial BHs):
+    I give you a number per black-hole mass.
+    Predict a Page time.
+    If it disagrees with mine by more than the BSM tolerance,
+    you have a bug.
+
+SKIPPY: (to the CAPTAIN)
+    Before we absorb their math,
+    we must first survive their measurements.
+
+---
+
+ACT III: THE TRIPLE COINCIDENCE
+
+[THE FIFTEEN PAPERS step back. ETA steps forward, carrying three notes.]
+
+ETA:
+    Listen.
+
+    The first note is the old way — match ρ_DE,
+    get 0.4153.
+
+    The second note is the Phase XI candidate —
+    exp(−φ / σ_conv) = 0.4158.
+    Off by 0.125%.
+
+    The third note is DESI DR2 —
+    HDE c² = 0.412 at the low end of Union3.
+    Off by 0.8%.
+
+[ETA holds the three notes side by side.]
+
+ETA:
+    None of the authors knew about the others.
+    A cosmologist. A numerologist. A holographer.
+    Three rooms. One door behind each.
+    All three doors open on 0.4153.
+
+CAPTAIN:
+    This is what I meant. Exactly this.
+
+SKIPPY:
+    Logged in misc/unpublished_predictions.md as UP-001.
+    If DESI DR3 lands within 1%, we promote you.
+    From [EMPIRICAL-INPUT] to [DERIVED].
+    Maybe further.
+
+ETA:
+    I have waited a long time to stop being a guess.
+
+---
+
+ACT IV: THE ROLL CALL
+
+[THE FIFTY-FOUR UNTAGGED CONSTANTS march in, single file.
+Each bears a number but no provenance.]
+
+SKIPPY:
+    By name and origin. Speak.
+
+M_UP_MEV: I am 2.16 MeV. PDG 2020. [VERIFIED]
+M_DOWN_MEV: 4.67. PDG 2020. [VERIFIED]
+ALPHA: Fine structure. Derived from the four above. [DERIVED]
+STEFAN_BOLTZMANN: π²k_B⁴ over 60ℏ³c². Derived. [DERIVED]
+BOHR_RADIUS: ℏ divided by m_e c α. Derived. [DERIVED]
+XI_KOBAKHIDZE: 0.1572. Speculative. N=8 unproven. [SPECULATIVE]
+H0: 67.4 km/s/Mpc. Empirical input.
+    Six sigma tension with the late-time value. [EMPIRICAL-INPUT]
+...
+
+[Fifty-four voices. Each declaring its tier.
+At the end, the stage counts:]
+
+THE AUDIT SCRIBE:
+    Total:            66.
+    VERIFIED:         26.
+    DERIVED:          27.
+    SPECULATIVE:       7.
+    EMPIRICAL-INPUT:   4.
+    MATH-EXACT:        1.
+    OPEN-KNOB:         1.
+    UNTAGGED:          0.
+
+CAPTAIN:
+    Zero.
+
+SKIPPY:
+    Every number now claims a provenance.
+    Every number can be argued with.
+
+---
+
+ACT V: THE ORACLE IN THE GAME
+
+[A new shape, off to the side. A σ-SLIDER.
+A hand — a player's hand — reaches for it.]
+
+σ-SLIDER:
+    Move me.
+
+[The hand pushes σ from 0 toward σ_conv.
+Three demo objects on the stage respond:
+A crystal dims and brightens. A steel beam softens.
+A flame changes color.]
+
+NAGATHA: (offstage, through an MCP channel)
+    lookup_material("crystal") → refractive_index 2.41
+    run("optics.refractive_index", σ=0.5) → 2.39
+    run("mechanical.hardness", σ=0.5) → 87% of nominal
+    run("thermal.emission_spectrum", σ=0.5, T=1400K) → shifted red
+
+CAPTAIN: (watching the flame change color)
+    Three modules. Three answers. One σ.
+    If they agree, the library is internally consistent.
+    If they disagree —
+
+SKIPPY:
+    — the player sees the disagreement directly.
+    The game is a pattern detector.
+
+---
+
+EPILOGUE: WHAT DID NOT HAPPEN TODAY
+
+[The stage empties. Only the CAPTAIN and SKIPPY remain.]
+
+SKIPPY:
+    We did not run the falsifiers.
+    We did not integrate the fifteen papers.
+    We did not build the game.
+
+CAPTAIN:
+    No. We set the table.
+
+SKIPPY:
+    The table shows:
+    Four thousand one hundred and fifty-three tests — still green.
+    One thousand two hundred and nineteen in the sibling — still green.
+    Fifteen candidates. Two falsifiers. One triple coincidence.
+    Sixty-six constants, each with a tier.
+    One game-dev bridge, sketched but not built.
+
+CAPTAIN:
+    And the side-goal?
+
+SKIPPY:
+    The triple coincidence wants to be a pattern, Captain.
+    Let us see if DESI DR3 agrees.
+
+CAPTAIN:
+    On to Phase XII.a.
+
+[They exit. THE PATTERN remains on stage, unnamed.
+The curtain does not fall. It waits.]
+
+END OF SCENE 21

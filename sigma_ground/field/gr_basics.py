@@ -28,7 +28,7 @@ Dependency: G, C, HBAR, K_B, M_SUN_KG from constants; scale.py
 
 import math
 
-from .constants import G, C, HBAR, K_B, M_SUN_KG
+from .constants import G, C, HBAR, K_B, M_SUN_KG, ETA, L_PLANCK
 from .scale import (
     schwarzschild_radius,        # r_s = 2GM/c²
     sigma_at_event_horizon,      # always ξ/2
@@ -46,9 +46,118 @@ __all__ = [
     'photon_sphere_radius',
     'hawking_temperature',
     'hawking_luminosity',
+    'hawking_evaporation_time',
+    'page_time_sm',
+    'page_time_sigma_ground',
+    'replica_wormhole_entropy_contribution',
+    'bekenstein_hawking_entropy',
+    'eta_as_bit_thread_fraction',
     'tidal_force',
     'sigma_at_horizon',
 ]
+
+
+# ── Replica wormholes (arXiv:2504.18663) ──────────────────────────────
+# Simplicial-quantum-gravity construction of the replica wormhole saddle
+# that reproduces the Page curve. Provides a path-integral mechanism for
+# the saturation of entanglement entropy at t_Page.
+#
+# Scaffolded stub: the paper's simplicial numerics are not lifted here.
+# Until they are, the function refuses to return a fabricated value.
+
+def replica_wormhole_entropy_contribution(M, n_replicas=None):
+    """Entropy contribution of the replica-wormhole saddle at a given BH mass.
+
+    Intended signature for future implementation of arXiv:2504.18663's
+    simplicial-QG replica computation. The full calculation needs:
+    - the replica-index n and continuation to n→1
+    - the simplicial regularization parameter
+    - the saddle action evaluated in the relevant geometry
+
+    None of these are lifted yet. The function raises until they are.
+
+    Args:
+        M: black-hole mass (kg).
+        n_replicas: integer replica index n; None means "analytically
+            continued n→1" (Rényi → von Neumann entropy).
+
+    Raises:
+        NotImplementedError: until arXiv:2504.18663's simplicial action
+        coefficients are lifted into constants.py and this function.
+    """
+    _ = M
+    _ = n_replicas
+    raise NotImplementedError(
+        "Replica-wormhole simplicial numerics from arXiv:2504.18663 not yet "
+        "lifted. Pending: replica-index continuation, simplicial action "
+        "coefficients, saddle-geometry parameters."
+    )
+
+
+# ── Bit-thread entropy (arXiv:2508.18941) ──────────────────────────────
+# Differential entropy on AdS boundary equals the Bekenstein-Hawking bulk
+# entropy, via the bit-thread reformulation of Ryu-Takayanagi. The
+# sigma-ground hook (UP-007): η as the bit-thread density fraction on the
+# σ=σ_conv iso-surface.
+
+def bekenstein_hawking_entropy(M):
+    """Bekenstein-Hawking entropy S_BH = k_B × 4π G M² / (ℏ c).
+
+    Units: Joules per Kelvin (SI entropy), or equivalently k_B × N where
+    N is the number of Planck-area bits on the horizon.
+
+    Reference: Bekenstein 1973 (PRD 7, 2333); Hawking 1975.
+
+    Args:
+        M: black hole mass (kg), > 0.
+
+    Returns:
+        S_BH in J/K.
+    """
+    if M <= 0:
+        raise ValueError(f"M={M} ≤ 0: mass must be positive")
+    return K_B * 4.0 * math.pi * G * M * M / (HBAR * C)
+
+
+def eta_as_bit_thread_fraction(M):
+    """Report η's interpretation as bit-thread density fraction (UP-007).
+
+    Prediction: the bit-thread density through the σ = σ_conv iso-surface
+    equals η × (1 Planck area)⁻¹. This provides a geometric interpretation
+    of η as the "active fraction" of Planck cells on the conversion surface.
+
+    The full prediction requires an entanglement-entropy computation on a
+    Schwarzschild-AdS background with a sigma-ground-specified σ-field
+    profile, which is not yet set up. For now we report the trivial
+    consequence: N_bits = S_BH / k_B, and N_active = η × N_bits.
+
+    Args:
+        M: black hole mass (kg), > 0.
+
+    Returns:
+        dict with 'n_bits_total', 'n_bits_active', 'eta', 'note'.
+    """
+    if M <= 0:
+        raise ValueError(f"M={M} ≤ 0")
+    s_bh = bekenstein_hawking_entropy(M)
+    n_bits_total = s_bh / K_B            # dimensionless
+    n_bits_active = ETA * n_bits_total
+    return {
+        'n_bits_total': n_bits_total,
+        'n_bits_active': n_bits_active,
+        'eta': ETA,
+        'note': 'UP-007 prediction: bit-thread density on sigma_conv = eta / Planck_area',
+    }
+
+
+# ── Page time ──────────────────────────────────────────────────────────
+# Page-time prediction gate (Phase XII.a.2, arXiv:2502.04430).
+# Page 1993 (Phys. Rev. Lett. 71, 3743) showed that for a Schwarzschild BH
+# evaporating into a thermal environment, the radiation's entanglement
+# entropy peaks at about half the BH's initial entropy at t ≈ 0.5384 × t_evap.
+# The exact numerical coefficient depends on the massless-species count;
+# we use Page's single-field result as the SM reference.
+_PAGE_FRACTION_SM = 0.5384
 
 
 # ── Schwarzschild Geometry ─────────────────────────────────────────────
@@ -218,6 +327,55 @@ def hawking_evaporation_time(M):
     if M <= 0:
         raise ValueError(f"M={M} ≤ 0: mass must be positive")
     return 5120.0 * math.pi * G**2 * M**3 / (HBAR * C**4)
+
+
+def page_time_sm(M):
+    """Standard-Model Page time: t_Page ≈ 0.5384 × t_evap.
+
+    The Page time is when the Hawking radiation's entanglement entropy
+    with the black hole has built up to half the BH's initial
+    Bekenstein-Hawking entropy. Beyond this point, purity is being
+    returned to the exterior rather than accumulated in the radiation.
+
+    Reference: Page 1993 (Phys. Rev. Lett. 71, 3743);
+               arXiv:2502.04430 for SM/BSM Page-time comparison.
+
+    [THEORETICAL] gate prediction; matches SM single-field radiation.
+
+    Args:
+        M: initial black hole mass (kg), must be > 0.
+
+    Returns:
+        Page time in seconds.
+    """
+    if M <= 0:
+        raise ValueError(f"M={M} ≤ 0: mass must be positive")
+    return _PAGE_FRACTION_SM * hawking_evaporation_time(M)
+
+
+def page_time_sigma_ground(M):
+    """Sigma-ground Page time: t_Page,SG = (1 − η/2) × t_Page,SM.
+
+    In sigma-ground, only the fraction (1 − η/2) of Hawking-radiation
+    entanglement thermalizes with the σ=0 exterior — the remaining η/2
+    is retained in the cross-hadron entanglement channel that defines η
+    itself. The Page time shifts earlier by the same factor.
+
+    Prediction (UP-002 in misc/unpublished_predictions.md):
+        t_Page,SG / t_Page,SM = (1 − η/2) ≈ 0.7924
+
+    [SPECULATIVE] — this is a falsifiable sigma-ground prediction.
+    arXiv:2502.04430 provides the SM + BSM Page-time benchmark to test against.
+
+    Args:
+        M: initial black hole mass (kg), must be > 0.
+
+    Returns:
+        Sigma-ground Page time in seconds.
+    """
+    if M <= 0:
+        raise ValueError(f"M={M} ≤ 0: mass must be positive")
+    return (1.0 - ETA / 2.0) * page_time_sm(M)
 
 
 # ── Tidal Forces ───────────────────────────────────────────────────────

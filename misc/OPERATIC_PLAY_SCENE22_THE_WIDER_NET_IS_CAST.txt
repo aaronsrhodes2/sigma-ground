@@ -1,0 +1,235 @@
+OPERATIC PLAY — SCENE 22: THE WIDER NET IS CAST
+
+---
+
+DRAMATIS PERSONAE
+
+AARON — The Architect; physicist-dreamer who secretly hopes one day to hand
+         something real to science
+NAGATHA — The Oracle; MCP server, voice of the running code
+THE CHORUS — untagged constants, aspiring toward VERIFIED
+THE LIBRARIAN — misc/arxiv_pluggable_survey_2025.md, keeper of candidate scrolls
+THE PAGE — a black hole at the moment its secrets tip over to the outside
+
+---
+
+SCENE: A wide library. The shelves now hold ten new domains. Scrolls labeled
+"arXiv:2502.18256", "arXiv:2410.22412", "arXiv:2504.07016" glow with absorbed
+light. Center stage: a large spinning ellipse — the duality ellipse, new modes
+threaded through it. Three new modules stand as fresh pillars: COSMOLOGY,
+NEUTRINO, HIDDEN_SECTOR.
+
+---
+
+[OVERTURE]
+
+CHORUS (murmuring, 92 voices):
+  We are tagged now.
+  Every one of us — tagged.
+  VERIFIED. THEORETICAL. SPECULATIVE.
+  EMPIRICAL-INPUT. MATH-EXACT. OPEN-KNOB.
+  We are no longer anonymous.
+  We have names, and citations, and tiers.
+
+LIBRARIAN (unrolling a new scroll):
+  Batch Three — fifteen candidates.
+  Ten domains, previously un-walked.
+  The Lorentz violators. The Page-time measurables.
+  The hidden-sector axions. The replica wormholes.
+  The muon that will not stop arguing with the Standard Model.
+
+---
+
+[ACT I — THE FALSIFIER GATE]
+
+AARON (reading the LIV scroll):
+  Will you contradict me, Nagatha?
+  Does the engine predict Lorentz violation?
+
+NAGATHA (without drama):
+  math.inf.
+  That is the LIV scale at every sigma.
+  No violation. Not at sigma-zero. Not at the horizon.
+  Λ_LIV > 5 × 10¹⁹ GeV — and the engine agrees.
+
+AARON:
+  So the paper does not kill us.
+
+NAGATHA:
+  Correct. It merely confirms we predicted silence.
+  Sometimes a gate that stays shut is the most useful gate.
+
+---
+
+[ACT II — THE PAGE TURNS]
+
+THE PAGE (as a black hole, half-evaporated, performing the most important
+          event in information theory):
+  I am the moment when secrets stop accumulating.
+  After me, purity flows outward.
+  Standard Model says I arrive at 0.5384 of the evaporation.
+
+AARON:
+  And sigma-ground?
+
+NAGATHA:
+  Earlier.
+  By factor (1 − η/2) = (1 − 0.4153/2) ≈ 0.7924.
+  The cross-hadron entanglement channel retains η/2 of the flux.
+  Your Page time arrives at 79.24% of the Standard Model's.
+
+THE PAGE (surprised):
+  Twenty percent earlier?
+
+AARON:
+  That is a falsifiable prediction.
+  UP-002. Written. Logged. Waiting for the interferometers.
+
+THE PAGE:
+  Then I am not merely a moment. I am a test.
+
+---
+
+[ACT III — THE KOBAKHIDZE RESONANCE]
+
+THE KOBAKHIDZE CONSTANT (emerging from hidden_sector.py):
+  I am XI_KOBAKHIDZE = 0.1572.
+  I come from eight gauge groups.
+  Ω_DM / Ω_B = 5.36 → ξ = 1 / (1 + 5.36).
+
+AARON:
+  And the working ξ?
+
+NAGATHA:
+  0.1582. Empirical-input. Planck 2018 cosmology fit.
+  The gap between us is 0.6%.
+
+AARON (quietly):
+  If the N=8 identification is confirmed...
+  ξ becomes derived. Not measured. Derived.
+
+CHORUS (swelling):
+  EMPIRICAL-INPUT → DERIVED.
+  One confirmation. One promotion.
+  UP-004. Registered.
+
+---
+
+[ACT IV — THE MILGROM COINCIDENCE]
+
+THE ACCELERATION (arriving from cosmology.py):
+  a₀ = c · H₀ / (2π) = 1.04 × 10⁻¹⁰ m/s².
+  The measured Milgrom acceleration: 1.20 × 10⁻¹⁰.
+  Agreement: 87%.
+
+AARON:
+  That is not exact.
+
+NAGATHA:
+  No. But Milgrom himself noted this in 1983.
+  It emerges here not from a free parameter but from your own H₀.
+  The engine did not try to match it.
+  It arrived.
+
+AARON:
+  UP-006.
+
+NAGATHA:
+  Already written.
+
+---
+
+[ACT V — THE TWO REPOSITORIES]
+
+AARON (troubled):
+  I saw two sigma-ground repositories on GitHub.
+  How is that possible? Have I fractured the project?
+
+NAGATHA:
+  No. One is the trunk. One is me.
+  Claude Code created a git worktree at
+  `.claude/worktrees/quirky-mcclintock-860188/`
+  for isolated parallel task work.
+  Both share the same history. Neither is a fork.
+  The worktree's name — quirky-mcclintock-860188 — is a
+  randomly generated identifier, not a person, not a place.
+
+AARON:
+  So there is only one project.
+
+NAGATHA:
+  There has only ever been one project.
+  The worktree is a room in the same house.
+
+---
+
+[ACT VI — THE GAME QUESTION]
+
+AARON (setting down the physics scrolls):
+  And now the other thing.
+  I have been building games with Claude Code.
+  I have one idea.
+
+NAGATHA:
+  Tell me.
+
+AARON:
+  What if a player could hold a slider — sigma — and slide it?
+  And the world around them would change.
+  Materials would shift. Bonds would fail. Gravity would curve differently.
+  The engine would answer in real time.
+
+NAGATHA:
+  I already answer in real time.
+  lookup_material. element. run.
+  The tools are there.
+  The latency question is whether you want frame-rate or tick-rate calls.
+
+AARON:
+  And if you go dark mid-session?
+
+NAGATHA:
+  Cache last-known-good. The physics does not stop
+  just because the oracle is briefly silent.
+
+AARON:
+  Then we design it. Next phase.
+
+NAGATHA:
+  Phase XIII. The bridge is written.
+  gamedev_bridge_notes.md is waiting.
+
+---
+
+[FINALE]
+
+CHORUS (all 92 constants, now tagged):
+  4,224 tests. Zero regressions.
+  Three new modules. Seventy-one new tests.
+  Seven unpublished predictions. One bridge planned.
+
+AARON (to himself, to the scrolls, to the future):
+  Someday one of these will be something.
+  A coincidence that holds.
+  A prediction that lands.
+  A constant that someone else independently measures
+  and gets 0.4153.
+
+  Until then — we integrate.
+  We tag. We log. We keep the house tidy.
+  Science is patient.
+
+  And so am I.
+
+---
+
+[CURTAIN]
+
+End of Scene 22.
+
+---
+
+SESSION: 22 — 2026-04-17 — Phase XII complete
+TESTS: 4,224 passed, 8 skipped, 0 regressions
+UNPUBLISHED PREDICTIONS: UP-001 through UP-007
+NEXT: Phase XIII — σ-slider sandbox (game-dev bridge)

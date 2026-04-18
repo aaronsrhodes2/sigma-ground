@@ -435,3 +435,123 @@ def print_audit():
     print(f"\n  Audited {total} formulas in {elapsed*1000:.1f} ms\n")
 
     return formulas
+
+
+# ═══════════════════════════════════════════════════════════════════════
+#  CONFIDENCE TIER SUMMARY (added 2026-04-17, Phase XII)
+# ═══════════════════════════════════════════════════════════════════════
+
+CONFIDENCE_TIERS = (
+    'VERIFIED',             # CODATA/PDG/NIST-measured, or reproduces a published result
+    'DERIVED',              # computed inline from [VERIFIED] or [EMPIRICAL-INPUT] constants
+    'THEORETICAL',          # first-principles grounding not yet empirically discriminated
+    'SPECULATIVE',          # imported from a single paper, not yet engine-confirmed
+    'SPECULATIVE-PENDING',  # slot reserved for a paper value not yet lifted from source
+    'EMPIRICAL-INPUT',      # phenomenological fit (not a direct measurement, not derived)
+    'MATH-EXACT',           # pure mathematical identity (e.g. φ = (1+√5)/2)
+    'OPEN-KNOB',            # intentionally unfixed, resolved empirically downstream
+)
+
+_TIER_RE = None
+
+
+def _load_constants_source():
+    """Return the text of constants.py. Isolated for test stubbing."""
+    import os
+    here = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(here, 'constants.py')
+    with open(path, 'r', encoding='utf-8') as f:
+        return path, f.read()
+
+
+def scan_confidence_tags(source=None):
+    """Walk constants.py looking for `NAME = ... # [TIER] ...` markers.
+
+    Returns (tagged, untagged) where:
+        tagged   = list of (lineno, name, tier, note)
+        untagged = list of (lineno, name, value_expr)  — constants without a tier tag.
+
+    A "constant" is any module-level assignment `IDENTIFIER = expr` where
+    IDENTIFIER is ALL_CAPS_WITH_UNDERSCORES (the project convention). Private
+    names starting with `_` are skipped.
+    """
+    import re
+    if source is None:
+        _, source = _load_constants_source()
+
+    assign_re = re.compile(
+        r'^(?P<name>[A-Z][A-Z0-9_]*)\s*=\s*(?P<rhs>[^\n]+)$'
+    )
+    tier_re = re.compile(
+        r'\[(?P<tier>' + '|'.join(CONFIDENCE_TIERS) + r')\](?P<rest>[^\n]*)'
+    )
+
+    tagged = []
+    untagged = []
+    for lineno, line in enumerate(source.splitlines(), 1):
+        m = assign_re.match(line)
+        if not m:
+            continue
+        name = m.group('name')
+        rhs = m.group('rhs').rstrip()
+        tm = tier_re.search(line)
+        if tm:
+            tagged.append((lineno, name, tm.group('tier'), tm.group('rest').strip()))
+        else:
+            untagged.append((lineno, name, rhs))
+    return tagged, untagged
+
+
+def confidence_summary(verbose=False):
+    """Print a tier-by-tier summary of constants.py annotations.
+
+    With verbose=True, also lists every tagged constant under its tier and
+    every untagged constant under an "untagged" bucket.
+
+    Return value: dict with keys 'tagged', 'untagged', 'counts', 'path'.
+    """
+    path, source = _load_constants_source()
+    tagged, untagged = scan_confidence_tags(source)
+
+    counts = {t: 0 for t in CONFIDENCE_TIERS}
+    for _, _, tier, _ in tagged:
+        counts[tier] = counts.get(tier, 0) + 1
+
+    total = len(tagged) + len(untagged)
+    print()
+    print("  =============================================================")
+    print("     CONSTANTS CONFIDENCE-TIER SUMMARY (Phase XII)")
+    print("  =============================================================")
+    print(f"  Source: {path}")
+    print(f"  Total module-level UPPERCASE constants: {total}")
+    print()
+    print("  Tier counts:")
+    for tier in CONFIDENCE_TIERS:
+        print(f"    [{tier:<16s}] {counts[tier]:3d}")
+    print(f"    [UNTAGGED        ] {len(untagged):3d}  "
+          + ("<- action item" if untagged else "ok"))
+    print()
+
+    if verbose:
+        print("  Tagged constants:")
+        by_tier = {t: [] for t in CONFIDENCE_TIERS}
+        for lineno, name, tier, note in tagged:
+            by_tier[tier].append((lineno, name, note))
+        for tier in CONFIDENCE_TIERS:
+            if not by_tier[tier]:
+                continue
+            print(f"\n    [{tier}]")
+            for lineno, name, note in by_tier[tier]:
+                print(f"      line {lineno:4d}  {name}"
+                      + (f"  — {note}" if note else ""))
+        if untagged:
+            print(f"\n    [UNTAGGED] ({len(untagged)})")
+            for lineno, name, rhs in untagged:
+                print(f"      line {lineno:4d}  {name} = {rhs[:60]}")
+
+    return {
+        'path': path,
+        'tagged': tagged,
+        'untagged': untagged,
+        'counts': counts,
+    }

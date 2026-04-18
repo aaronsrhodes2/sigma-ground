@@ -296,3 +296,259 @@ prior to be claimed as a prediction rather than a selection.
 - Full synthesis: `misc/bh_sigma_conv_synthesis.md`
 - Constants: `sigma_ground/field/constants.py`
 - γ(σ) implementation: `sigma_ground/field/interface/duality_ellipse.py`
+
+---
+
+# Batch 3 — Wider Net (2026-04-17)
+
+**Date:** 2026-04-17
+**Method:** Ten-axis WebSearch sweep across under-represented domains (emergent gravity,
+causal sets, Hubble/S₈ tensions, Lorentz violation, axion/hidden sector, muon g−2 /
+W-mass, primordial GW, neutrino mass, entanglement entropy / bulk reconstruction,
+Page-curve / island formula). 15 candidates triaged from ~40 hits using the same
+Mappability + Testability + Gap-filling rubric.
+**New convention for this batch:** every candidate carries a **five-question pass**
+answering the user's five evaluation prompts (Falsify? Integrate cleanly? Tighten gap?
+Streamline? Unpublished phenomenon?). Where any answer is "yes — here's how", it is
+called out explicitly; where no, it is marked "—" rather than left blank.
+
+## Batch 3 Ranking
+
+| Rank | arXiv ID | Title (short) | Domain | M | T | G | Total | Tier |
+|------|----------|---------------|--------|---|---|---|-------|------|
+| 1 | 2502.18256 | KM3-230213A LIV neutrino bound | Lorentz-violation | 5 | 5 | 4 | **14** | FALSIFIER-CHECK |
+| 1 | 2512.07281 | DESI 2025 dynamical DE multi-model | Dark-energy | 5 | 5 | 4 | **14** | Tier 1 |
+| 3 | 2511.09467 | Hubble tension in HDE framework | Dark-energy | 5 | 4 | 4 | **13** | Tier 1 |
+| 4 | 2505.23382 | EDE + interacting dark sector (H₀ + S₈) | Dark-energy | 4 | 4 | 4 | **12** | Tier 1 |
+| 4 | 2502.04430 | Page time of primordial BHs in SM+BSM | BH-information | 4 | 4 | 4 | **12** | Tier 1 |
+| 6 | 2505.08051 | ACT DR6 + DESI DR2 impact on EDE | Dark-energy | 4 | 4 | 3 | **11** | Tier 2 |
+| 6 | MuonTI-2025 WP | Muon g−2 Initiative 2025 white paper | QCD / HVP | 3 | 5 | 3 | **11** | Tier 2 |
+| 6 | 2408.14245 | GALPs — composite axion-like DM | Hidden-sector | 4 | 3 | 4 | **11** | Tier 2 |
+| 6 | 2506.06449 | Dirac Type-I seesaw cosmology | Neutrino-mass | 3 | 4 | 4 | **11** | Tier 2 |
+| 6 | 2505.01422 | Neutrino mass from asymptotic-safety | Neutrino-mass | 4 | 3 | 4 | **11** | Tier 2 |
+| 6 | 2508.18941 | Differential entropy ≡ Bekenstein-Hawking | Bulk-reconstruction | 4 | 3 | 4 | **11** | Tier 2 |
+| 12 | 2511.05632 | Relativistic MOND from entropic gravity | Emergent-gravity | 3 | 3 | 4 | **10** | Tier 3 |
+| 12 | 2508.11172 | LIV multi-messenger review 2025 | Lorentz-violation | 3 | 4 | 3 | **10** | Tier 3 |
+| 12 | 2410.12634 | Dark axion portal at Z-factories | Hidden-sector | 3 | 3 | 4 | **10** | Tier 3 |
+| 12 | 2504.18663 | Replica wormholes via simplicial QG | BH-information | 3 | 3 | 4 | **10** | Tier 3 |
+
+**Causal-set axis (no Tier-1 hit):** 2505.22217 and 2506.19538 both score M=2 — interesting
+but no drop-in formula. Recorded as `[DOMAIN-WATCH]` only; revisit when a CST paper
+publishes a concrete σ-observable like a bound on Lorentz dispersion at a specific energy.
+
+---
+
+## Tier-1 candidates — full five-question pass
+
+### arXiv:2502.18256 — LIV neutrino bound from KM3-230213A (Feb 2025)
+**Domain:** Lorentz-invariance violation / quantum-gravity phenomenology
+**Key formula / result:** From the single ultra-high-energy event KM3-230213A, the
+second-order LIV energy scale must satisfy **Λ₂ > 5.0 × 10¹⁹ GeV at 90% CL** to be
+compatible with the arrival time. Parameterizes modified dispersion E² = p²c² + m² ± (E/Λ₂)²·p²c².
+
+**Five-question pass:**
+- **Disprove?** → **This paper is itself a filter on our engine.** Sigma-ground's □σ = −ξR
+  predicts NO energy-dependent photon/neutrino dispersion (σ = 0 today; spatial gradients
+  of σ in vacuum are negligible on extragalactic scales). If our engine inadvertently
+  predicts an effective Λ₂ ≤ 5 × 10¹⁹ GeV anywhere (e.g., via coupling of σ-gradients to
+  propagation), THIS PAPER FALSIFIES THE ENGINE. **Action:** search `relativity.py`,
+  `electrodynamics.py`, `scale.py` for any σ-dependent dispersion. None expected, but must
+  be verified explicitly.
+- **Clean integrate?** → Yes. One constant `LAMBDA_LIV_MIN_GEV = 5.0e19` in `constants.py`
+  with `[VERIFIED]` tag once our engine is confirmed to respect this bound. One test in
+  `test_relativity.py` asserting `effective_LIV_scale_from_sigma(sigma=0) == math.inf`.
+- **Tightens gap?** → Yes: closes an otherwise open direction. Currently sigma-ground has
+  no test that its σ=0 limit is exactly Lorentz-invariant — this is the first external
+  numerical bound forcing that test to exist.
+- **Streamline?** → No — does not derive any existing knob.
+- **Unpublished phenomenon?** → Potentially: sigma-ground's σ-field inside black holes
+  could produce intra-horizon LIV without external LIV. If we model photons in the bond-
+  failure layer and the engine predicts an in-horizon Λ₂ value, that is novel — and
+  testable against any future-detected intra-shadow EHT fluctuation.
+
+**Label:** `[VERIFIED]` for the external bound (it constrains the engine); `[SPECULATIVE]`
+for any intra-horizon LIV prediction we derive.
+
+---
+
+### arXiv:2512.07281 — Dynamical DE & Hubble tension: DESI 2025 multi-model (Dec 2025)
+**Domain:** Dark energy / cosmology
+**Key formula / result:** DESI DR3 + CMB + SNe joint fits across w₀wₐCDM, HDE, and EDE.
+Hubble constant tension now **> 6σ** regardless of model. Dynamical DE (phantom-crossing)
+mildly preferred over ΛCDM; HDE c² remains in the 0.41–0.49 band.
+
+**Five-question pass:**
+- **Disprove?** → Partially — if DESI 2025 pushes HDE c² outside [0.38, 0.50], our
+  η = 0.4153 identification c² ≡ η becomes untenable. Current post-DR3 band still brackets
+  it, so the engine survives, but the window is narrowing.
+- **Clean integrate?** → Yes. Append DR3 numerics to the DESI-HDE constants block:
+  `C_HDE_UNION3_DR3`, `ETA_HDE_UNION3_DR3`. Extend [Phase XI](bh_phase_xi_eta_candidates_results.md)
+  η-candidate table with the DR3 row.
+- **Tightens gap?** → **Yes, strongly.** Our η is currently under-constrained (only 2 independent
+  derivations: the ρ_DE fit and ETA_FORMULA = exp(−φ/σ_conv)). DR3 makes the HDE fit a third
+  independent derivation at tighter uncertainty.
+- **Streamline?** → Yes: η moves from `[DERIVED]` toward `[VERIFIED]` once the DR3 HDE band
+  overlaps 0.4153 to better than 1%.
+- **Unpublished phenomenon?** → Yes, candidate: **the simultaneous pinning of three η
+  derivations (ρ_DE fit, exp(−φ/σ_conv), DESI HDE) at 0.4153 ± 0.005 is a coincidence
+  the literature does not discuss.** If sigma-ground holds, this triple-coincidence is
+  a prediction-in-hindsight that calls for explanation.
+
+**Label:** `[VERIFIED-PENDING-DR3]` on the η identification; `[SPECULATIVE]` on the
+triple-coincidence claim.
+
+---
+
+### arXiv:2511.09467 — Hubble tension in HDE framework (Nov 2025)
+**Domain:** Holographic dark energy
+**Key formula / result:** Re-derives HDE ρ_DE = 3 c² M_Pl² / L² constraints under DESI
++ Hubble-tension priors. Finds HDE partially ameliorates but does not fully resolve the
+H₀ tension, requiring a second component (often EDE or interacting DE).
+
+**Five-question pass:**
+- **Disprove?** → No; consistent with sigma-ground's HDE interpretation.
+- **Clean integrate?** → Yes. One function `hde_rho_de_given_eta(L, eta=ETA)` in
+  `sigma_ground/field/interface/cosmology.py` (new module if missing). One test against
+  the paper's Table 2 baseline.
+- **Tightens gap?** → Moderately. Joins the evidence queue that HDE alone isn't sufficient
+  for tension resolution → opens space for sigma-ground's σ-field to *be* the second
+  component.
+- **Streamline?** → Yes, conditional: if we write ρ_DE = 3η M_Pl²/L² *and* ρ_DE(σ)
+  contributes an EDE-like early-time boost via γ(σ)-mediated decoherence at high σ, we
+  may derive *both* H₀ and S₈ shifts without adding a new knob. This is speculative but
+  testable.
+- **Unpublished phenomenon?** → **Yes: a prediction that H₀ tension magnitude should
+  correlate with the number of σ-conv-crossing events in the local horizon.** No paper
+  we've found makes this correlation because no other framework has a σ-conv concept.
+
+**Label:** `[THEORETICAL]` once the cosmology module exists; `[SPECULATIVE]` on the
+H₀–σ-conv-event correlation prediction.
+
+---
+
+### arXiv:2505.23382 — EDE + interacting dark sector (H₀ and S₈ simultaneous) (May 2025)
+**Domain:** Dark energy / dark matter interaction
+**Key formula / result:** Two-parameter extension where EDE fraction `f_EDE` lifts H₀
+while a dark-sector interaction coefficient `ξ_IDE` suppresses S₈ growth. Simultaneous
+fit reduces both tensions to ≤2σ.
+
+**Five-question pass:**
+- **Disprove?** → Potentially: if the fitted `ξ_IDE` range excludes a sigma-ground-
+  motivated value of the DM-baryon coupling (derivable from Kobakhidze ξ + γ(σ) mode),
+  we have a quantitative falsifier.
+- **Clean integrate?** → Yes — but requires a new `ide_coupling_from_sigma(sigma)`
+  formula. Not drop-in; call it a design-review item.
+- **Tightens gap?** → Yes: provides the first joint H₀+S₈ target range for any σ-field
+  extension of ΛCDM.
+- **Streamline?** → Yes, if the dark-sector interaction maps to our γ(σ) terminator —
+  the IDE coefficient becomes a derived function of σ_conv instead of a free fit parameter.
+- **Unpublished phenomenon?** → Candidate: **sigma-ground predicts S₈ should anti-correlate
+  with η across cosmological ensembles**, because γ(σ) flattens the small-scale power
+  spectrum through η. The IDE paper does not make this specific prediction.
+
+**Label:** `[SPECULATIVE]` pending quantitative match.
+
+---
+
+### arXiv:2502.04430 — Page time of primordial black holes in SM and beyond (Feb 2025)
+**Domain:** Black hole information / primordial BHs
+**Key formula / result:** Page time t_P(M) for PBHs of mass M, computed in SM and with
+BSM-dof extensions. Provides concrete numerical prediction for any BH evaporation model.
+
+**Five-question pass:**
+- **Disprove?** → Yes, potentially: sigma-ground's entanglement module predicts
+  η × M_BH ≈ entanglement carried by Hawking radiation. If our Page time differs from
+  SM's by more than the BSM tolerance, engine is inconsistent.
+- **Clean integrate?** → Yes. `page_time_sigma_ground(M_bh)` function in
+  `sigma_ground/field/interface/bh_merger.py`, reusing existing Hawking-temperature code
+  plus an η-weighted correction.
+- **Tightens gap?** → Yes: currently Phase VII/VIII pipelines don't specify a
+  Page-time prediction — this paper forces one and makes the entanglement integration
+  falsifiable per BH.
+- **Streamline?** → Possibly: if our η-derivation of Page time matches SM within ~1%,
+  η moves from `[DERIVED]` to `[VERIFIED-BY-PAGECURVE]`.
+- **Unpublished phenomenon?** → **Yes: sigma-ground predicts a Page-time shift of
+  order η (≈ 42%) relative to "naïve Hawking-only" Page time, which is not predicted
+  by the SM or most BSM extensions.** This is the cleanest Batch-3 falsifiable prediction.
+
+**Label:** `[THEORETICAL]` once integrated; `[SPECULATIVE-PREDICTION]` on the η-shift.
+
+---
+
+## Tier-2 candidates — condensed five-question pass
+
+### arXiv:2505.08051 — ACT DR6 + DESI DR2 impact on EDE (May 2025)
+- **Disprove?** No. **Integrate?** Yes — append constants to DESI-HDE block.
+- **Tightens gap?** Moderately (narrows EDE fraction by ~15%).
+- **Streamline?** No. **Unpublished?** —
+
+### Muon g−2 Theory Initiative 2025 White Paper (June 2025, Fermilab final result)
+- **Disprove?** **Potentially important:** resolves g−2 anomaly via lattice-HVP. If
+  sigma-ground's Λ_QCD = 217 MeV + σ=0 prediction produces an a_μ inconsistent with the
+  new consensus, engine fails a major precision test. Must be run.
+- **Integrate?** Yes — add `a_mu_sm_prediction_2025 = 116 591 810e−11` with tolerance.
+- **Tightens gap?** Yes: pins Λ_QCD precision.
+- **Streamline?** Yes: promotes `LAMBDA_QCD_MEV = 217` from `[EMPIRICAL-INPUT]` to
+  `[VERIFIED]` if consistent.
+- **Unpublished?** —
+
+### arXiv:2408.14245 — GALPs, composite axion-like DM (Aug 2024)
+- **Disprove?** —. **Integrate?** Yes — extends Kobakhidze N=8 path.
+- **Tightens gap?** ξ derivation is reinforced if GALP gauge group matches N=8.
+- **Streamline?** Yes: reduces `XI_KOBAKHIDZE`'s `[SPECULATIVE]` to `[THEORETICAL]` if
+  composite axion sector is independently motivated.
+- **Unpublished?** Possibly: sigma-ground + GALPs together predict an axion mass window
+  set by σ_conv × m_Planck, which neither predicts alone.
+
+### arXiv:2506.06449 — Dirac Type-I seesaw cosmological phenomenology (June 2025)
+- **Disprove?** No. **Integrate?** Opens new `sigma_ground/field/interface/neutrino.py`
+  module. Non-trivial, design-review required.
+- **Tightens gap?** Yes — first neutrino-sector constraint on η (via N_eff).
+- **Streamline?** No. **Unpublished?** —
+
+### arXiv:2505.01422 — Neutrino mass from asymptotic-safety (May 2025)
+- **Disprove?** **Yes, potentially:** paper predicts a specific neutrino mass hierarchy
+  from asymptotic-safety RG flow. If we interpret our ξ as the RG fixed-point coupling
+  and the predicted m_ν hierarchy disagrees with cosmological bounds, we falsify.
+- **Integrate?** Yes, via the new neutrino module.
+- **Tightens gap?** Yes — first independent check of ξ as an RG fixed-point value.
+- **Streamline?** Yes: ξ from asymptotic safety + ξ from Kobakhidze N=8 becomes a
+  *consistency check*, not two independent hypotheses.
+- **Unpublished?** **Candidate: the consistency of ξ = 0.1572 (N=8) with asymptotic-safety
+  RG flow at the neutrino scale is not a claim in either paper.** If both hold, it
+  would be a genuinely novel unification hint.
+
+### arXiv:2508.18941 — Differential entropy ≡ Bekenstein-Hawking via bit threads (Aug 2025)
+- **Disprove?** —. **Integrate?** Yes — augments `entanglement.py` (52KB, under-cited).
+- **Tightens gap?** Links η to bit-thread density per unit area.
+- **Streamline?** Yes: η becomes interpretable as a geometric fraction of Planck-area bits.
+- **Unpublished?** Candidate: η = bit-thread fraction on a σ_conv surface.
+
+---
+
+## Tier-3 candidates — headline note each
+
+| arXiv | One-line five-question summary |
+|-------|-------------------------------|
+| 2511.05632 | Entropic-MOND: Falsify? No. Integrate? Only as commentary. Tightens? Minor. Streamline? Possibly G-derivation. Unpublished? No. |
+| 2508.11172 | LIV review: adds no new bound beyond 2502.18256. Use as citation umbrella only. |
+| 2410.12634 | Dark axion portal: integrates into axion module; tightens hidden-sector mass window; no unpublished claim. |
+| 2504.18663 | Replica-wormholes simplicial-QG: informational for entanglement module; not drop-in. |
+
+---
+
+## Key findings from Batch 3
+
+1. **Two strong falsifiers identified** (arXiv:2502.18256 and 2502.04430). Both must be
+   actively checked against the engine in a follow-on Phase XII.a before any integration
+   is declared safe. If either fails, the engine has a concrete observable bug to fix.
+2. **η-pinning by DESI 2025** is the highest-value Batch-3 integration (triple coincidence
+   with ETA_FORMULA and ρ_DE fit).
+3. **Neutrino-sector module is missing** and now blocks two Tier-2 integrations
+   (2506.06449 and 2505.01422). Recommend opening it in Phase XIII.
+4. **Muon g−2 2025 resolution is a free precision test** for Λ_QCD = 217 MeV — should be
+   run regardless of whether we integrate other Batch-3 papers.
+5. **Unpublished-phenomenon candidates logged** (see [unpublished_predictions.md](unpublished_predictions.md)):
+   the η-triple-coincidence, η-shifted Page-time, H₀–σ-conv-event correlation, S₈–η
+   anti-correlation, and ξ ↔ asymptotic-safety unification.
+

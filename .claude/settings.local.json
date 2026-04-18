@@ -18,7 +18,24 @@
       "Bash(python -m pytest sigma_ground/field/interface/test_quantum_algorithms.py -v --tb=short)",
       "Bash(cd /d D:Aarondevelopmentsigma-ground)",
       "mcp__sigma-ground__list_functions",
-      "mcp__sigma-ground__update_dependency_chart"
+      "mcp__sigma-ground__update_dependency_chart",
+      "Bash(pytest -q --no-header)",
+      "WebSearch",
+      "Bash(python -c \"from sigma_ground.field.audit import confidence_summary; confidence_summary\\(verbose=False\\)\")",
+      "Bash(python -c \"from sigma_ground.field.audit import confidence_summary; r = confidence_summary\\(verbose=False\\); print\\('DONE. Tagged:', len\\(r['tagged']\\), 'Untagged:', len\\(r['untagged']\\)\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(pytest tests/test_relativity.py -q --no-header)",
+      "Bash(pytest tests/test_gr_basics.py -q --no-header)",
+      "Bash(pytest sigma_ground/field/interface/test_cosmology.py -v --no-header)",
+      "Bash(pytest sigma_ground/field/interface/test_cosmology.py -q --no-header)",
+      "Bash(pytest tests/test_electrodynamics.py -q --no-header)",
+      "Bash(pytest tests/test_electrodynamics.py::test_muon_g2_tension_sigmas_in_expected_band -v --no-header)",
+      "Bash(pytest sigma_ground/field/interface/test_neutrino.py -q --no-header)",
+      "Bash(python -c \"import pygame; print\\(pygame.__version__\\)\")",
+      "Bash(pip show *)",
+      "Bash(pip install *)",
+      "Bash(python run_combat.py)",
+      "Bash(python -c \"import pygame; pygame.init\\(\\); from games.sigma_combat.main import main; print\\('import OK'\\)\")"
     ]
   }
 }
