@@ -30,13 +30,13 @@ from .presets import get_armor, get_weapon, armor_menu, weapon_menu, WEAPON_PRES
 SCREEN_W = 1340
 SCREEN_H = 800
 
-TOP_H = 58       # environment bar
-BOTTOM_H = 90    # fire button + results bar
-MAIN_H = SCREEN_H - TOP_H - BOTTOM_H
+TOP_H    = 70     # environment bar (taller to prevent overlap)
+BOTTOM_H = 90     # fire button + results bar
+MAIN_H   = SCREEN_H - TOP_H - BOTTOM_H
 
-LEFT_W = 330     # weapon panel
-ARMOR_W = 260    # armor builder
-XS_W = SCREEN_W - LEFT_W - ARMOR_W  # cross-section (750px)
+LEFT_W  = 290     # weapon panel  (far left)
+ARMOR_W = 290     # armor panel   (far right)
+XS_W    = SCREEN_W - LEFT_W - ARMOR_W  # cross-section center (760px)
 
 FPS = 60
 TITLE = 'sigma-combat — Weapons vs. Armor'
@@ -96,11 +96,11 @@ def main():
     screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
     clock = pygame.time.Clock()
 
-    # Panel rectangles (with 5px padding inside each)
+    # Panel rectangles — weapon far left, cross-section center, armor far right
     env_rect    = pygame.Rect(0, 0, SCREEN_W, TOP_H)
-    weapon_rect = pygame.Rect(5, TOP_H + 20, LEFT_W - 10, MAIN_H - 25)
-    armor_rect  = pygame.Rect(LEFT_W + 5, TOP_H + 20, ARMOR_W - 10, MAIN_H - 25)
-    xs_rect     = pygame.Rect(LEFT_W + ARMOR_W, TOP_H, XS_W, MAIN_H)
+    weapon_rect = pygame.Rect(5, TOP_H + 18, LEFT_W - 10, MAIN_H - 22)
+    xs_rect     = pygame.Rect(LEFT_W, TOP_H, XS_W, MAIN_H)
+    armor_rect  = pygame.Rect(LEFT_W + XS_W + 5, TOP_H + 18, ARMOR_W - 10, MAIN_H - 22)
     bottom_rect = pygame.Rect(0, TOP_H + MAIN_H, SCREEN_W, BOTTOM_H)
 
     env_panel    = EnvPanel(env_rect)
@@ -231,15 +231,15 @@ def main():
         # ── Draw ────────────────────────────────────────────────
         screen.fill(BG)
 
-        # Red side tint — weapon panel region
+        # Red side tint — weapon panel (far left)
         red_tint = pygame.Surface((LEFT_W, MAIN_H), pygame.SRCALPHA)
         red_tint.fill((*RED_BG, 180))
         screen.blit(red_tint, (0, TOP_H))
 
-        # Blue side tint — armor panel region
+        # Blue side tint — armor panel (far right)
         blue_tint = pygame.Surface((ARMOR_W, MAIN_H), pygame.SRCALPHA)
         blue_tint.fill((*BLUE_BG, 180))
-        screen.blit(blue_tint, (LEFT_W, TOP_H))
+        screen.blit(blue_tint, (LEFT_W + XS_W, TOP_H))
 
         # Gradient top bar: red → dark → blue
         _draw_gradient_rect(screen, pygame.Rect(0, 0, SCREEN_W, TOP_H),
@@ -248,15 +248,15 @@ def main():
         # Environment bar drawn on top of gradient
         env_panel.draw(screen)
 
-        # Panel labels — red team / blue team titles
-        f14b = pygame.font.SysFont('consolas', 14, bold=True)
-        f14  = pygame.font.SysFont('consolas', 14)
-        screen.blit(f14b.render('◀ RED TEAM', True, RED_TITLE),
-                    (weapon_rect.left, TOP_H + 2))
-        screen.blit(f14b.render('BLUE TEAM ▶', True, BLUE_TITLE),
-                    (armor_rect.left, TOP_H + 2))
-        screen.blit(f14.render('CROSS-SECTION', True, (80, 110, 150)),
-                    (xs_rect.left + 6, TOP_H + 2))
+        # Panel labels — drawn in the env bar area, far left / far right corners
+        f14b = pygame.font.SysFont('consolas', 13, bold=True)
+        f14  = pygame.font.SysFont('consolas', 13)
+        red_lbl  = f14b.render('◀  WEAPON', True, RED_TITLE)
+        blue_lbl = f14b.render('ARMOR  ▶', True, BLUE_TITLE)
+        xs_lbl   = f14.render('CROSS-SECTION', True, (80, 110, 150))
+        screen.blit(red_lbl,  (6, 4))
+        screen.blit(blue_lbl, (SCREEN_W - blue_lbl.get_width() - 6, 4))
+        screen.blit(xs_lbl,   (LEFT_W + XS_W // 2 - xs_lbl.get_width() // 2, 4))
 
         # Colored borders on panels
         pygame.draw.rect(screen, RED_BORDER,
@@ -266,9 +266,9 @@ def main():
                          pygame.Rect(armor_rect.left - 2, armor_rect.top - 2,
                                      armor_rect.width + 4, armor_rect.height + 4), 2)
 
-        # Dividers — red left, neutral center, blue right
+        # Dividers — red|xs left edge, xs|blue right edge
         pygame.draw.line(screen, RED_ACCENT,  (LEFT_W, TOP_H), (LEFT_W, TOP_H + MAIN_H))
-        pygame.draw.line(screen, BLUE_ACCENT, (LEFT_W + ARMOR_W, TOP_H), (LEFT_W + ARMOR_W, TOP_H + MAIN_H))
+        pygame.draw.line(screen, BLUE_ACCENT, (LEFT_W + XS_W, TOP_H), (LEFT_W + XS_W, TOP_H + MAIN_H))
         pygame.draw.line(screen, DIVIDER,     (0, TOP_H + MAIN_H), (SCREEN_W, TOP_H + MAIN_H))
 
         # Panels
