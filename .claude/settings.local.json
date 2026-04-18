@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m pytest sigma_ground/field/interface/test_acoustics.py sigma_ground/field/interface/test_magnetism.py sigma_ground/field/interface/test_nucleosynthesis.py sigma_ground/field/interface/test_radioactive_decay.py -v --tb=short)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(ls sigma_ground/field/*.py)",
+      "Bash(python -c \":*)",
+      "Bash(python -m pytest sigma_ground/field/interface/test_elasticity.py sigma_ground/field/interface/test_diffusion.py sigma_ground/field/interface/test_viscosity.py sigma_ground/field/interface/test_electrochemistry.py sigma_ground/field/interface/test_photonics.py sigma_ground/field/interface/test_superconductivity.py sigma_ground/field/interface/test_piezoelectricity.py -v --tb=short)",
+      "Bash(python -m pytest --tb=short -q)",
+      "Bash(python3:*)",
+      "Bash(python -m pytest sigma_ground/field/interface/test_superconductivity.py -v)",
+      "Bash(python -m pytest -v)",
+      "Bash(python scripts/make_dependency_chart.py)",
+      "Bash(python -m pytest sigma_ground/field/interface/test_organic_materials.py -v --tb=short)",
+      "Bash(xargs grep:*)",
+      "Bash(python -m pytest sigma_ground/field/interface/test_quantum_algorithms.py -v --tb=short)",
+      "Bash(cd /d D:Aarondevelopmentsigma-ground)",
+      "mcp__sigma-ground__list_functions",
+      "mcp__sigma-ground__update_dependency_chart"
+    ]
+  }
+}

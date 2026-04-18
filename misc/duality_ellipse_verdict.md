@@ -70,25 +70,25 @@ The visibility reduction factors (c)/(a) = 0.600000 and (d)/(a) = 0.746083 exact
 
 ## Phase G — σ → γ candidate table
 
-Seven candidate σ→γ derivations, all implemented in `coherence_gamma_from_sigma(sigma, mode)` at `sigma_ground/field/interface/duality_ellipse.py:231`.  All satisfy γ(σ=0) = 1 (H1 match at the laboratory regime) and are monotonic non-increasing in σ.  They differ in **where γ terminates** at σ = σ_conv ≈ 1.8439 (the matter-conversion horizon).
+Ten candidate σ→γ derivations, all implemented in `coherence_gamma_from_sigma(sigma, mode)` at `sigma_ground/field/interface/duality_ellipse.py:231`.  All satisfy γ(σ=0) = 1 (H1 match at the laboratory regime) and are monotonic non-increasing in σ.  They differ in **where γ terminates** at σ = σ_conv ≈ 1.8439 (the matter-conversion horizon).
 
-Three new modes added 2026-04-17 (arXiv integration sprint): `csl_linear` and `csl_psl` from Dominguez et al. 2025 (arXiv:2501.17637) and `dp` from Donadi et al. 2024 (arXiv:2406.18494).
+Three new modes added 2026-04-17 (arXiv integration sprint, batch 1): `csl_linear` and `csl_psl` from Dominguez et al. 2025 (arXiv:2501.17637) and `dp` from Donadi et al. 2024 (arXiv:2406.18494).  Three further modes added (batch 2): `local_tpf` from Wald et al. 2024 (arXiv:2407.02567), `hubble_cubic` from arXiv:2501.00213, and `gw_gaussian` from arXiv:2501.18111.
 
 ### σ-sweep table
 
 γ(σ) across σ ∈ [0, σ_conv]:
 
-| σ          | linear     | exp        | cbrt       | sigma_coh  | csl_linear | csl_psl    | dp         |
-|------------|------------|------------|------------|------------|------------|------------|------------|
-| 0.0000     | 1.000000   | 1.000000   | 1.000000   | 1.000000   | 1.000000   | 1.000000   | 1.000000   |
-| 0.1000     | 0.986229   | 0.986596   | 0.989316   | 0.988739   | 0.984240   | 0.934060   | 0.947211   |
-| 0.3000     | 0.958688   | 0.961874   | 0.967228   | 0.966216   | 0.953460   | 0.888562   | 0.849847   |
-| 0.5000     | 0.931147   | 0.939692   | 0.944081   | 0.943693   | 0.923643   | 0.858531   | 0.762491   |
-| 1.0000     | 0.862293   | 0.893708   | 0.880614   | 0.887385   | 0.853117   | 0.805966   | 0.581392   |
-| 1.5000     | 0.793440   | 0.858646   | 0.806381   | 0.831078   | 0.787976   | 0.767824   | 0.443306   |
-| **σ_conv** | **0.746083** | **0.839494** | **0.746083** | **0.792350** | **0.746083** | **0.746083** | **0.367879** |
+| σ          | linear     | exp        | cbrt       | sigma_coh  | csl_linear | csl_psl    | dp         | local_tpf  | hubble_cubic | gw_gaussian |
+|------------|------------|------------|------------|------------|------------|------------|------------|------------|--------------|-------------|
+| 0.0000     | 1.000000   | 1.000000   | 1.000000   | 1.000000   | 1.000000   | 1.000000   | 1.000000   | 1.000000   | 1.000000     | 1.000000    |
+| 0.1000     | 0.986229   | 0.986596   | 0.989316   | 0.988739   | 0.984240   | 0.934060   | 0.947211   | 0.973222   | 0.999953     | 0.999139    |
+| 0.3000     | 0.958688   | 0.961874   | 0.967228   | 0.966216   | 0.953460   | 0.888562   | 0.849847   | 0.921841   | 0.998740     | 0.992276    |
+| 0.5000     | 0.931147   | 0.939692   | 0.944081   | 0.943693   | 0.923643   | 0.858531   | 0.762491   | 0.873146   | 0.994172     | 0.978692    |
+| 1.0000     | 0.862293   | 0.893708   | 0.880614   | 0.887385   | 0.853117   | 0.805966   | 0.581392   | 0.762461   | 0.954363     | 0.917453    |
+| 1.5000     | 0.793440   | 0.858646   | 0.806381   | 0.831078   | 0.787976   | 0.767824   | 0.443306   | 0.665721   | 0.854166     | 0.823801    |
+| **σ_conv** | **0.746083** | **0.839494** | **0.746083** | **0.792350** | **0.746083** | **0.746083** | **0.367879** | **0.606531** | **0.746083** | **0.746083** |
 
-Endpoint hierarchy at σ_conv: **dp (1/e) < linear == cbrt == csl_linear == csl_psl (Θ) < sigma_coh (1 − η/2) < exp**.
+Endpoint hierarchy at σ_conv: **dp (1/e) < local_tpf (exp(−1/2)) < linear == cbrt == csl_linear == csl_psl == hubble_cubic == gw_gaussian (Θ) < sigma_coh (1 − η/2) < exp**.
 
 ### Mode commentary
 
@@ -98,9 +98,12 @@ Endpoint hierarchy at σ_conv: **dp (1/e) < linear == cbrt == csl_linear == csl_
 - **sigma_coh** `γ = 1 − (η/2)·(σ/σ_conv)`.  **Default.**  Directly mirrors the existing `sigma_coherence(η, σ_local, 0) / σ_local = 1 − η/2` formula from `entanglement.py:209`, reinterpreting gravitational σ-damping as quantum marginal coherence.  Terminates at 1 − η/2 ≈ 0.7924 — **not** at Θ, **not** at any geometric constant, but at the pre-existing σ_eff/σ ratio.  Cleanest "missing link" candidate: one mechanism drives both gravitational compression and quantum coherence, no new functional form introduced.
 - **csl_linear** `γ = Θ^(σ/σ_conv) = exp(−κ·σ/σ_conv)`, κ = −ln(Θ) ≈ 0.293.  `[THEORETICAL]` — arXiv:2501.17637 (Dominguez et al. 2025) proves α=1 (linear-in-d²) is one of only two CSL functional forms that survive compoundation-invariance and Markovian-feedback tests.  Terminates at Θ; shape is exponential-in-σ rather than linear-in-γ.
 - **csl_psl** `γ = Θ^√(σ/σ_conv) = exp(−κ·√(σ/σ_conv))`, same κ.  `[THEORETICAL]` — α=1/2 (Poissonian Spontaneous Localisation) is the other theoretically-surviving form from arXiv:2501.17637.  Same endpoint Θ as csl_linear; decays faster at intermediate σ (csl_psl < csl_linear for all σ ∈ (0, σ_conv)).
-- **dp** `γ = exp(−σ/σ_conv)`.  `[SPECULATIVE]` — arXiv:2406.18494 (Donadi et al. 2024, NJP).  Diósi–Penrose gravitational self-energy collapse gives γ(σ_conv) = 1/e ≈ 0.368 — the **only candidate outside the η-derived floor [0.746, 0.839]**.  A single V(D=0) measurement at σ ≈ σ_conv that returns ~0.37 would confirm DP and rule out all other modes simultaneously.
+- **dp** `γ = exp(−σ/σ_conv)`.  `[SPECULATIVE]` — arXiv:2406.18494 (Donadi et al. 2024, NJP).  Diósi–Penrose gravitational self-energy collapse gives γ(σ_conv) = 1/e ≈ 0.368 — **strictly below every other mode**; a single V(D=0) ≈ 0.37 at σ ≈ σ_conv would confirm DP and rule out all others simultaneously.
+- **local_tpf** `γ = exp(−σ/(2σ_conv))`.  `[THEORETICAL]` — Wald et al. 2024 (arXiv:2407.02567): QFT two-point-function decoherence, γ = exp(−⟨N⟩/2) with ⟨N⟩ ∝ σ/σ_conv.  Terminates at exp(−1/2) ≈ **0.6065 — a new saturation band between dp (0.368) and the Θ-group (0.746)**.  Only mode with a QFT-grounded functional form outside the η-derived range.
+- **hubble_cubic** `γ = exp(−κ·(σ/σ_conv)³)`, κ = −ln(Θ).  `[SPECULATIVE]` — arXiv:2501.00213 (de Sitter decoherence, H³ rate scaling).  Terminates at Θ (same endpoint as linear group), but has the **most extreme late-onset profile**: essentially 1.0 for σ < σ_conv/2, dropping sharply only near the horizon.  Matches the "last 22% active" double-slit observation most literally.
+- **gw_gaussian** `γ = exp(−c·σ²)`, c = −ln(Θ)/σ_conv².  `[SPECULATIVE]` — arXiv:2501.18111 (GW decoherence, Gaussian-in-σ).  Terminates at Θ.  Quadratic exponent: flatter than linear/csl near σ=0, less extreme than cubic.  The three Θ-endpoint modes with non-trivial shapes now span linear, quadratic (Gaussian), and cubic onsets.
 
-All modes agree to three decimal places for σ ≲ 0.1 — meaning laboratory-scale σ≈0 measurements cannot discriminate between any of them.  The `dp` mode diverges from the pack by σ ≈ 0.3 and provides the sharpest target for future astrophysical tests.
+All modes agree to three decimal places for σ ≲ 0.1 — meaning laboratory-scale σ≈0 measurements cannot discriminate between any of them.  The new `local_tpf` fills the gap between dp and the Θ-group, providing a second discriminable band. `hubble_cubic` and `gw_gaussian` diverge significantly from the linear/csl modes only above σ ≈ 1.2, making them harder to discriminate without near-horizon data.
 
 ### Cross-check: decoherence_at_horizon scaling
 

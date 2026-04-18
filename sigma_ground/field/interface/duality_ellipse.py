@@ -231,14 +231,16 @@ def gamma_from_schmidt(state, subsystem_qubits):
 def coherence_gamma_from_sigma(sigma, mode='sigma_coh'):
     """Derive γ from the sigma-ground scale field σ.
 
-    FIRST_PRINCIPLES: four candidate derivations connecting sigma-ground's
+    FIRST_PRINCIPLES: ten candidate derivations connecting sigma-ground's
     gravitational σ to the Khatiwada-Qian marginal coherence γ.  All
     satisfy γ(σ=0) = 1 (laboratory regime → Englert saturation) and are
     monotonic non-increasing in σ.  See module docstring for the forms.
 
     Args:
         sigma: sigma-ground scale field value in [0, σ_conv]
-        mode:  one of 'linear', 'exp', 'cbrt', 'sigma_coh' (default).
+        mode:  one of 'linear', 'exp', 'cbrt', 'sigma_coh' (default),
+               'csl_linear', 'csl_psl', 'dp', 'local_tpf',
+               'hubble_cubic', 'gw_gaussian'.
 
     Returns:
         γ in [0, 1] — the marginal coherence predicted for this σ.
@@ -298,7 +300,32 @@ def coherence_gamma_from_sigma(sigma, mode='sigma_coh'):
         # [SPECULATIVE]
         return math.exp(-x)
 
+    if mode == 'local_tpf':
+        # Wald et al. 2024 (arXiv:2407.02567): two-point-function decoherence by black holes.
+        # γ = |⟨Ψ_L|Ψ_R⟩| = exp(−⟨N⟩/2), ⟨N⟩ ∝ σ/σ_conv (natural normalisation ⟨N⟩=x).
+        # Terminates at exp(−1/2) ≈ 0.6065 — a new band between dp (1/e≈0.368) and Θ (0.746).
+        # [THEORETICAL] — QFT-grounded functional form; σ/σ_conv identification is speculative.
+        return math.exp(-0.5 * x)
+
+    if mode == 'hubble_cubic':
+        # de Sitter local decoherence (arXiv:2501.00213, Dec 2024): decoherence rate ∝ H³.
+        # Identification H ↔ exp(σ/σ_conv) makes γ = exp(−κ·(σ/σ_conv)³), κ = −ln(Θ).
+        # Extremely flat near σ=0 (lab-immune), plunges only near σ_conv — the most
+        # extreme "last 22% active" profile of any candidate. Terminates at Θ.
+        # [SPECULATIVE] — H↔σ monotone mapping not derived from first principles.
+        kappa = -math.log(Theta)  # ≈ 0.293
+        return math.exp(-kappa * x ** 3)
+
+    if mode == 'gw_gaussian':
+        # Gravitational-wave decoherence (arXiv:2501.18111): Gaussian-in-σ functional form.
+        # γ = exp(−c·σ²), c = −ln(Θ)/σ_conv² — Gaussian onset, same endpoint Θ as linear group.
+        # Quadratic exponent suppresses decoherence near σ=0 more than linear, less than cubic.
+        # [SPECULATIVE]
+        c = -math.log(Theta) / SIGMA_CONV ** 2
+        return math.exp(-c * sigma ** 2)
+
     raise ValueError(
         f"unknown mode '{mode}'; expected one of "
-        "'linear', 'exp', 'cbrt', 'sigma_coh', 'csl_linear', 'csl_psl', 'dp'"
+        "'linear', 'exp', 'cbrt', 'sigma_coh', 'csl_linear', 'csl_psl', "
+        "'dp', 'local_tpf', 'hubble_cubic', 'gw_gaussian'"
     )

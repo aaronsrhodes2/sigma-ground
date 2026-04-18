@@ -495,7 +495,8 @@ class TestPhaseGGammaFromSigma(unittest.TestCase):
       sigma_coh: 1 − η/2    (new prediction, reuses sigma_coherence damping)
     """
 
-    MODES = ('linear', 'exp', 'cbrt', 'sigma_coh', 'csl_linear', 'csl_psl', 'dp')
+    MODES = ('linear', 'exp', 'cbrt', 'sigma_coh', 'csl_linear', 'csl_psl',
+             'dp', 'local_tpf', 'hubble_cubic', 'gw_gaussian')
 
     def test_g1_all_modes_pin_gamma_to_one_at_sigma_zero(self):
         """γ(σ=0) = 1 exactly in every mode — recovers H1 at lab scale."""
@@ -582,26 +583,32 @@ class TestPhaseGGammaFromSigma(unittest.TestCase):
 
     def test_g9_mode_ordering_at_sigma_conv(self):
         """At σ_conv visibility-reduction hierarchy (low γ = more suppression):
-            dp           → 1/e        ≈ 0.3679  (Diósi–Penrose terminus)
-            linear, cbrt,
-            csl_linear,
-            csl_psl      → Θ          ≈ 0.7461  (H4 terminus)
-            sigma_coh    → 1 − η/2    ≈ 0.7924  (damping-ratio terminus)
-            exp          → Θ + (1−Θ)/e ≈ 0.8395 (slowest decay)
+            dp                                       → 1/e       ≈ 0.3679  (Diósi–Penrose)
+            local_tpf                                → exp(−1/2) ≈ 0.6065  (Wald TPF)
+            linear, cbrt, csl_linear, csl_psl,
+            hubble_cubic, gw_gaussian                → Θ         ≈ 0.7461  (H4 terminus)
+            sigma_coh                                → 1 − η/2   ≈ 0.7924  (damping-ratio)
+            exp                                      → Θ+(1−Θ)/e ≈ 0.8395  (slowest decay)
         """
-        gL  = coherence_gamma_from_sigma(SIGMA_CONV, mode='linear')
-        gC  = coherence_gamma_from_sigma(SIGMA_CONV, mode='cbrt')
-        gCL = coherence_gamma_from_sigma(SIGMA_CONV, mode='csl_linear')
-        gCP = coherence_gamma_from_sigma(SIGMA_CONV, mode='csl_psl')
-        gE  = coherence_gamma_from_sigma(SIGMA_CONV, mode='exp')
-        gS  = coherence_gamma_from_sigma(SIGMA_CONV, mode='sigma_coh')
-        gDP = coherence_gamma_from_sigma(SIGMA_CONV, mode='dp')
-        self.assertAlmostEqual(gL, gC,  places=12)   # both = Θ
-        self.assertAlmostEqual(gL, gCL, places=12)   # csl_linear = Θ
-        self.assertAlmostEqual(gL, gCP, places=12)   # csl_psl = Θ
-        self.assertLess(gDP, gL)                     # dp (1/e) < Θ
-        self.assertLess(gC,  gS)
-        self.assertLess(gS,  gE)
+        gL   = coherence_gamma_from_sigma(SIGMA_CONV, mode='linear')
+        gC   = coherence_gamma_from_sigma(SIGMA_CONV, mode='cbrt')
+        gCL  = coherence_gamma_from_sigma(SIGMA_CONV, mode='csl_linear')
+        gCP  = coherence_gamma_from_sigma(SIGMA_CONV, mode='csl_psl')
+        gHC  = coherence_gamma_from_sigma(SIGMA_CONV, mode='hubble_cubic')
+        gGG  = coherence_gamma_from_sigma(SIGMA_CONV, mode='gw_gaussian')
+        gE   = coherence_gamma_from_sigma(SIGMA_CONV, mode='exp')
+        gS   = coherence_gamma_from_sigma(SIGMA_CONV, mode='sigma_coh')
+        gDP  = coherence_gamma_from_sigma(SIGMA_CONV, mode='dp')
+        gTPF = coherence_gamma_from_sigma(SIGMA_CONV, mode='local_tpf')
+        self.assertAlmostEqual(gL, gC,   places=12)  # both = Θ
+        self.assertAlmostEqual(gL, gCL,  places=12)  # csl_linear = Θ
+        self.assertAlmostEqual(gL, gCP,  places=12)  # csl_psl = Θ
+        self.assertAlmostEqual(gL, gHC,  places=12)  # hubble_cubic = Θ
+        self.assertAlmostEqual(gL, gGG,  places=12)  # gw_gaussian = Θ
+        self.assertLess(gDP,  gTPF)                  # dp (1/e) < local_tpf (exp(−1/2))
+        self.assertLess(gTPF, gL)                    # local_tpf < Θ-group
+        self.assertLess(gC,   gS)
+        self.assertLess(gS,   gE)
 
     def test_g12_csl_linear_terminates_at_theta(self):
         """csl_linear γ(σ_conv) = Θ = η^(1/3) (arXiv:2501.17637, α=1)."""
@@ -638,11 +645,59 @@ class TestPhaseGGammaFromSigma(unittest.TestCase):
                 msg=f"csl_psl not below csl_linear at σ={s:.3f}")
 
     def test_g16_dp_lowest_of_all_modes_at_sigma_conv(self):
-        """dp terminates strictly below every η-derived mode."""
+        """dp terminates strictly below every other mode at σ_conv."""
         dp_val = coherence_gamma_from_sigma(SIGMA_CONV, mode='dp')
-        for mode in ('linear', 'exp', 'cbrt', 'sigma_coh', 'csl_linear', 'csl_psl'):
+        for mode in ('linear', 'exp', 'cbrt', 'sigma_coh', 'csl_linear', 'csl_psl',
+                     'local_tpf', 'hubble_cubic', 'gw_gaussian'):
             g = coherence_gamma_from_sigma(SIGMA_CONV, mode=mode)
             self.assertLess(dp_val, g, msg=f"dp not below {mode} at σ_conv")
+
+    def test_g17_local_tpf_terminates_at_exp_minus_half(self):
+        """local_tpf γ(σ_conv) = exp(−1/2) ≈ 0.6065 (Wald arXiv:2407.02567)."""
+        self.assertAlmostEqual(
+            coherence_gamma_from_sigma(SIGMA_CONV, mode='local_tpf'),
+            math.exp(-0.5), places=12,
+        )
+
+    def test_g18_hubble_cubic_terminates_at_theta(self):
+        """hubble_cubic γ(σ_conv) = Θ = η^(1/3) (arXiv:2501.00213, H³ scaling)."""
+        self.assertAlmostEqual(
+            coherence_gamma_from_sigma(SIGMA_CONV, mode='hubble_cubic'),
+            THETA_ENTANGLEMENT_PER_DIM, places=12,
+        )
+
+    def test_g19_gw_gaussian_terminates_at_theta(self):
+        """gw_gaussian γ(σ_conv) = Θ = η^(1/3) (arXiv:2501.18111, Gaussian-in-σ)."""
+        self.assertAlmostEqual(
+            coherence_gamma_from_sigma(SIGMA_CONV, mode='gw_gaussian'),
+            THETA_ENTANGLEMENT_PER_DIM, places=12,
+        )
+
+    def test_g20_local_tpf_between_dp_and_theta_group_at_conv(self):
+        """local_tpf exp(−1/2)≈0.607 sits strictly between dp (1/e≈0.368) and Θ≈0.746."""
+        g_tpf = coherence_gamma_from_sigma(SIGMA_CONV, mode='local_tpf')
+        g_dp  = coherence_gamma_from_sigma(SIGMA_CONV, mode='dp')
+        g_lin = coherence_gamma_from_sigma(SIGMA_CONV, mode='linear')
+        self.assertLess(g_dp,  g_tpf)
+        self.assertLess(g_tpf, g_lin)
+
+    def test_g21_hubble_cubic_flatter_than_linear_at_low_sigma(self):
+        """hubble_cubic is flatter than linear near σ=0 (cubic vs linear exponent)."""
+        for frac in (0.1, 0.2, 0.3, 0.5):
+            s = frac * SIGMA_CONV
+            g_hc = coherence_gamma_from_sigma(s, mode='hubble_cubic')
+            g_li = coherence_gamma_from_sigma(s, mode='linear')
+            self.assertGreater(g_hc, g_li,
+                msg=f"hubble_cubic not flatter than linear at σ={s:.3f}")
+
+    def test_g22_gw_gaussian_flatter_than_linear_at_low_sigma(self):
+        """gw_gaussian is flatter than linear near σ=0 (quadratic vs linear exponent)."""
+        for frac in (0.1, 0.2, 0.3, 0.5):
+            s = frac * SIGMA_CONV
+            g_gg = coherence_gamma_from_sigma(s, mode='gw_gaussian')
+            g_li = coherence_gamma_from_sigma(s, mode='linear')
+            self.assertGreater(g_gg, g_li,
+                msg=f"gw_gaussian not flatter than linear at σ={s:.3f}")
 
     def test_g10_rejects_sigma_outside_physical_range(self):
         """σ < 0 or σ > σ_conv must raise — model is undefined past conversion."""

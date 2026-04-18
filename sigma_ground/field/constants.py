@@ -28,6 +28,16 @@ XI = 0.1582
 XI_KOBAKHIDZE = 1.0 / (1.0 + 5.36)          # ≈ 0.1572 (N=8 gauge group prediction)
 SIGMA_CONV_KOBAKHIDZE = -math.log(XI_KOBAKHIDZE)  # ≈ 1.849
 
+# DESI 2024 Holographic Dark Energy (arXiv:2411.08639)
+# [SPECULATIVE] HDE: ρ_DE = 3 c² M_Pl²/L². If c² ≡ η, DESI DR2 fits bracket
+# σ-ground's η = 0.4153 at the low end of the Union3 band:
+#   CMB+DESI+Union3:  c = 0.642 ± 0.028  →  c² = 0.412  (η within ~0.5σ)
+#   CMB+DESI+DESY5:   c = 0.701 ± 0.024  →  c² = 0.491
+C_HDE_UNION3   = 0.642            # HDE c from CMB+DESI+Union3 (DESI 2024)
+C_HDE_DESY5    = 0.701            # HDE c from CMB+DESI+DESY5
+ETA_HDE_UNION3 = C_HDE_UNION3 ** 2  # ≈ 0.412 — lower bound of DESI range
+ETA_HDE_DESY5  = C_HDE_DESY5  ** 2  # ≈ 0.491 — upper bound of DESI range
+
 # QCD confinement scale (PDG reference)
 LAMBDA_QCD_MEV = 217.0  # MeV
 
@@ -175,6 +185,22 @@ A_C_MEV = (3.0 / 5.0) * KE_E2_MEV_FM / R0_FM  # ≈ 0.7111 MeV (σ-INVARIANT)
 #   - Cosmological correlations from the Big Bang
 #   - Any interaction that created entanglement and was never decohered
 ETA = 0.4153  # DERIVED — cosmic entanglement fraction (dark energy constraint)
+# Note (2026-04-17): ETA was derived heuristically from a convenient coherence
+# ratio related to the golden spiral. Retained as the working value; see
+# ETA_FORMULA below for a candidate first-principles expression.
+
+# ── Golden ratio ──────────────────────────────────────────────────────
+PHI = (1.0 + math.sqrt(5.0)) / 2.0  # = (1+√5)/2 ≈ 1.6180339887...
+
+# ── ETA formula candidate: exp(-φ/σ_conv)  [SPECULATIVE] ────────────
+# Systematic formula search (2026-04-17) over combinations of {ξ, σ_conv, π, e, φ}:
+#   exp(-φ / σ_conv) ≈ 0.4158   (0.125% error from η = 0.4153)
+# Equivalent forms:  exp(-φ / σ_conv) = exp(φ / ln ξ)
+# If valid, η has no free parameters — fully derived from ξ and φ, where φ is
+# the golden ratio (consistent with the original "related to the golden spiral"
+# heuristic) and σ_conv = −ln ξ is the model's matter-conversion horizon.
+# ETA = 0.4153 remains the working value until ETA_FORMULA is confirmed.
+ETA_FORMULA = math.exp(-PHI / SIGMA_CONV)  # exp(-φ/σ_conv) ≈ 0.4158 [SPECULATIVE]
 
 # ── Duality-ellipse marginal coherence γ ─────────────────────────────
 # γ = |⟨M₁|M₂⟩| = overlap between the environment's two "notepad"
