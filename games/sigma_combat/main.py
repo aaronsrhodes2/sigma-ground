@@ -24,7 +24,7 @@ from .render.animation import AnimationState
 from .ui.weapon_panel import WeaponPanel
 from .ui.armor_panel import ArmorPanel
 from .ui.env_panel import EnvPanel
-from .presets import get_armor, get_weapon, armor_menu, weapon_menu, WEAPON_PRESETS
+from .presets import get_armor, get_weapon, WEAPON_PRESETS
 
 # ── Layout ──────────────────────────────────────────────────────
 SCREEN_W = 1340
@@ -122,17 +122,6 @@ def main():
     firing_flash = 0  # countdown for fire button flash
     anim_state = None  # active animation
 
-    # Preset dropdowns (bottom bar)
-    from .ui.widgets import Dropdown as _DD
-    _wmenu = weapon_menu()
-    _amenu = armor_menu()
-    weapon_preset_dd = _DD(
-        (10, bottom_rect.top + 10, 320, 24),
-        _wmenu, selected=0, label='')
-    armor_preset_dd = _DD(
-        (bottom_rect.right - 330, bottom_rect.top + 10, 320, 24),
-        _amenu, selected=0, label='')
-
     # Fire button
     fire_rect = pygame.Rect(SCREEN_W // 2 - 120, bottom_rect.top + 10, 240, 50)
     fire_hovered = False
@@ -179,50 +168,6 @@ def main():
             env_panel.handle_event(event)
             weapon_panel.handle_event(event)
             armor_panel.handle_event(event)
-
-            # Preset dropdowns
-            if weapon_preset_dd.handle_event(event):
-                wkey = weapon_preset_dd.value
-                w = get_weapon(wkey)
-                wtype = w.get('type', 'kinetic')
-                # Select weapon type in panel
-                from .ui.weapon_panel import WEAPON_TYPES as _WT
-                for i, (k, *_) in enumerate(_WT):
-                    if k == wtype:
-                        weapon_panel.selected_type = i
-                        for j, b in enumerate(weapon_panel.type_btns):
-                            b.active = (j == i)
-                        break
-                # Load params
-                if wtype == 'kinetic':
-                    weapon_panel.k_mass.value   = w.get('mass_kg', 0.01)
-                    weapon_panel.k_vel.value    = w.get('velocity_ms', 900)
-                    weapon_panel.k_radius.value = w.get('radius_m', 0.004)
-                elif wtype == 'laser':
-                    weapon_panel.l_power.value = w.get('power_w', 1e6)
-                    weapon_panel.l_wave.value  = w.get('wavelength_nm', 1064)
-                    weapon_panel.l_dur.value   = w.get('pulse_duration_s', 1.0)
-                    weapon_panel.l_spot.value  = w.get('spot_radius_m', 0.01)
-                elif wtype == 'plasma':
-                    weapon_panel.p_temp.value = w.get('temperature_ev', 10)
-                    weapon_panel.p_pres.value = w.get('pressure_pa', 1e5)
-                    weapon_panel.p_dur.value  = w.get('duration_s', 0.1)
-                    weapon_panel.p_rad.value  = w.get('contact_radius_m', 0.05)
-                elif wtype == 'explosive':
-                    weapon_panel.e_yield.value    = w.get('tnt_kg', 1)
-                    weapon_panel.e_standoff.value = w.get('standoff_m', 0)
-                elif wtype == 'particle':
-                    weapon_panel.pt_energy.value  = w.get('energy_mev', 100)
-                    weapon_panel.pt_current.value = w.get('current_a', 1e-6)
-                    weapon_panel.pt_dur.value     = w.get('duration_s', 0.5)
-                elif wtype == 'gravitational':
-                    weapon_panel.g_tidal.value = w.get('tidal_gradient_ms2', 0)
-                    weapon_panel.g_sigma.value = w.get('sigma_spike', 0)
-                result = None
-
-            if armor_preset_dd.handle_event(event):
-                armor_panel.layers = get_armor(armor_preset_dd.value)
-                result = None
 
         # ── Advance animation ───────────────────────────────────
         if anim_state and not anim_state.done:
@@ -301,15 +246,6 @@ def main():
         # Gradient bottom bar: dark red → black → dark blue
         _draw_gradient_rect(screen, bottom_rect, (28, 8, 8), (8, 8, 28))
         pygame.draw.line(screen, DIVIDER, (0, bottom_rect.top), (SCREEN_W, bottom_rect.top))
-
-        # Preset dropdowns
-        f11 = pygame.font.SysFont('consolas', 11)
-        screen.blit(f11.render('Weapon preset:', True, RED_ACCENT),
-                    (10, bottom_rect.top - 2))
-        screen.blit(f11.render('Armor preset:', True, BLUE_ACCENT),
-                    (bottom_rect.right - 330, bottom_rect.top - 2))
-        weapon_preset_dd.draw(screen)
-        armor_preset_dd.draw(screen)
 
         # Fire button — glow on hover/active
         if firing_flash > 0:
