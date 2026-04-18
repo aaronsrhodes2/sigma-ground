@@ -22,11 +22,14 @@ import math
 XI = 0.1582
 
 # Kobakhidze-Liang 2024 (arXiv:2410.22412): ξ from QCD beta-function ratios
-# For an N=8 composite-axion gauge group, Ω_DM/Ω_B = 5.36 →
-# ξ = 1/(1 + 5.36) = 0.1572, within 0.6% of Planck 2018's 0.1582.
-# [SPECULATIVE] — the N=8 identification with sigma-ground's σ-field is not established.
-XI_KOBAKHIDZE = 1.0 / (1.0 + 5.36)          # ≈ 0.1572 (N=8 gauge group prediction)
-SIGMA_CONV_KOBAKHIDZE = -math.log(XI_KOBAKHIDZE)  # ≈ 1.849
+# SU(N) composite-axion gauge group with relaxation mechanism. Key formula:
+#   Ω_DM/Ω_B = 2N / (27 − 3N)
+# N=8 is the UNIQUE integer satisfying the sign-alignment constraint.
+# N=8 → 16/3 exactly (paper rounds to 5.36).  Exact: ξ = 3/19 = 0.157895,
+# within 0.19% of Planck 2018's 0.1582.
+# [SPECULATIVE] — the N=8 SU(8) sector has no established connection to the σ-field.
+XI_KOBAKHIDZE = 3.0 / 19.0                       # exact: ξ = 3/(3+16), N=8 unique
+SIGMA_CONV_KOBAKHIDZE = -math.log(XI_KOBAKHIDZE)  # ≈ 1.8458
 
 # DESI 2024 Holographic Dark Energy (arXiv:2411.08639)
 # [SPECULATIVE] HDE: ρ_DE = 3 c² M_Pl²/L². If c² ≡ η, DESI DR2 fits bracket
