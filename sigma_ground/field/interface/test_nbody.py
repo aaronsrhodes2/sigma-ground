@@ -301,6 +301,191 @@ class TestTidalDeformation(unittest.TestCase):
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# J₂ zonal quadrupole (oblateness)
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestJ2Quadrupole(unittest.TestCase):
+    """J₂ zonal-harmonic acceleration: oblateness of the central body.
+
+    Standard form (Vallado 2013 §9.4):
+        a_J2 = (3 G M_j R_j² J₂_j / (2 r⁵))
+               × [(5(r·n̂)²/r² − 1) × r − 2(r·n̂) × n̂]
+    where r = pos_i − pos_j (FROM j TO i) and n̂_j is j's pole unit vector.
+    """
+
+    # Earth canonical values (CODATA / IERS conventions 2010)
+    M_EARTH = 5.972e24
+    R_EARTH = 6.371e6
+    J2_EARTH = 1.08263e-3
+
+    def test_j2_default_is_zero(self):
+        """Bodies without explicit j2 default to 0.0 (pure spherical)."""
+        body = CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.5)
+        self.assertEqual(body.j2, 0.0)
+
+    def test_default_pole_axis_is_z(self):
+        """Default pole axis is +z unit vector."""
+        body = CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.5)
+        np.testing.assert_array_equal(body.pole_axis_unit, np.array([0.0, 0.0, 1.0]))
+
+    def test_pole_axis_auto_normalized(self):
+        """User-supplied non-unit pole vector is normalized to unit length."""
+        body = CelestialBody(
+            M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.5,
+            pole_axis_unit=np.array([0.0, 3.0, 4.0]),  # |v| = 5
+        )
+        np.testing.assert_allclose(
+            body.pole_axis_unit, np.array([0.0, 0.6, 0.8]), atol=1e-15,
+        )
+
+    def test_pole_axis_zero_vector_raises(self):
+        with self.assertRaises(ValueError):
+            CelestialBody(
+                M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.5,
+                pole_axis_unit=np.zeros(3),
+            )
+
+    def test_pole_axis_bad_shape_raises(self):
+        with self.assertRaises(ValueError):
+            CelestialBody(
+                M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.5,
+                pole_axis_unit=np.array([1.0, 0.0]),
+            )
+
+    def test_zero_j2_matches_newtonian(self):
+        """j2=0 path produces identical accelerations to plain Newtonian."""
+        # Earth + satellite at LEO altitude
+        earth_no_j2 = CelestialBody(
+            self.M_EARTH, np.zeros(3), np.zeros(3), self.R_EARTH, 0.3, j2=0.0,
+        )
+        sat = CelestialBody(
+            1.0, np.array([6.771e6, 0.0, 0.0]), np.zeros(3), 1.0, 0.0,
+        )
+        sys_no_j2 = NBodySystem([earth_no_j2, sat])
+        acc_no_j2 = sys_no_j2.compute_accelerations()
+
+        # Earth WITHOUT explicit j2 kwarg (default path) should be identical
+        earth_default = CelestialBody(
+            self.M_EARTH, np.zeros(3), np.zeros(3), self.R_EARTH, 0.3,
+        )
+        sys_default = NBodySystem([earth_default, sat])
+        acc_default = sys_default.compute_accelerations()
+
+        np.testing.assert_allclose(acc_no_j2, acc_default, atol=0.0)
+
+    def test_equatorial_force_oblate_is_extra_inward(self):
+        """At equator (r·n̂ = 0), J₂ > 0 adds extra inward radial force.
+
+        |a_J2| = 1.5 × G × M × J₂ × R² / r⁴ along −r̂
+        For Earth (J₂ = 1.083e-3) + LEO (r = 6771 km): ≈ 0.0125 m/s² inward.
+        """
+        earth = CelestialBody(
+            self.M_EARTH, np.zeros(3), np.zeros(3),
+            self.R_EARTH, 0.3, j2=self.J2_EARTH,
+        )
+        r = 6.771e6
+        sat = CelestialBody(1.0, np.array([r, 0.0, 0.0]), np.zeros(3), 1.0, 0.0)
+        sys = NBodySystem([earth, sat])
+        acc = sys.compute_accelerations()
+
+        # Newtonian on sat: a = −GM/r² in +x → −x
+        a_newton = -_G * self.M_EARTH / (r * r)
+        # J₂ adds extra inward (−x) of magnitude 1.5 G M J₂ R²/r⁴
+        a_j2 = -1.5 * _G * self.M_EARTH * self.J2_EARTH * self.R_EARTH ** 2 / r ** 4
+
+        expected_x = a_newton + a_j2
+        self.assertAlmostEqual(
+            acc[1][0], expected_x, delta=abs(expected_x) * 1e-10,
+        )
+        # No tangential force at equator
+        self.assertAlmostEqual(acc[1][1], 0.0, delta=1e-15)
+        self.assertAlmostEqual(acc[1][2], 0.0, delta=1e-15)
+
+    def test_polar_force_oblate_is_less_attractive(self):
+        """At pole (r along n̂), J₂ > 0 reduces inward attraction.
+
+        Total a_z = −GM/r² + 3 G M J₂ R²/r⁴
+        Magnitude smaller than pure Newtonian.
+        """
+        earth = CelestialBody(
+            self.M_EARTH, np.zeros(3), np.zeros(3),
+            self.R_EARTH, 0.3, j2=self.J2_EARTH,
+        )
+        r = 6.771e6
+        sat = CelestialBody(1.0, np.array([0.0, 0.0, r]), np.zeros(3), 1.0, 0.0)
+        sys = NBodySystem([earth, sat])
+        acc = sys.compute_accelerations()
+
+        a_newton = -_G * self.M_EARTH / (r * r)               # −z direction
+        a_j2     = +3.0 * _G * self.M_EARTH * self.J2_EARTH * self.R_EARTH ** 2 / r ** 4  # +z (outward)
+
+        expected_z = a_newton + a_j2
+        self.assertAlmostEqual(
+            acc[1][2], expected_z, delta=abs(expected_z) * 1e-10,
+        )
+        self.assertAlmostEqual(acc[1][0], 0.0, delta=1e-15)
+        self.assertAlmostEqual(acc[1][1], 0.0, delta=1e-15)
+
+    def test_earth_leo_j2_magnitude_canonical(self):
+        """Sanity: Earth's J₂ effect at LEO altitude is ~0.14% of Newtonian.
+
+        This is the magnitude that drives Sun-synchronous orbits and is
+        documented in every astrodynamics textbook (Vallado, Curtis, etc.)
+        """
+        earth = CelestialBody(
+            self.M_EARTH, np.zeros(3), np.zeros(3),
+            self.R_EARTH, 0.3, j2=self.J2_EARTH,
+        )
+        r = 6.771e6  # 400 km altitude
+        sat = CelestialBody(1.0, np.array([r, 0.0, 0.0]), np.zeros(3), 1.0, 0.0)
+        sys = NBodySystem([earth, sat])
+        acc = sys.compute_accelerations()
+
+        a_newton_mag = _G * self.M_EARTH / (r * r)
+        # |acc[1]| should be a_newton + a_j2 ≈ 8.69 + 0.0125 ≈ 8.70 m/s²
+        a_total = float(np.linalg.norm(acc[1]))
+        ratio = (a_total - a_newton_mag) / a_newton_mag
+        # J₂ contribution at LEO: ~0.14% of Newtonian (canonical textbook value)
+        self.assertAlmostEqual(ratio, 0.00143, delta=2e-4)
+
+    def test_j2_does_not_self_force(self):
+        """A body's own J₂ does not apply force to itself."""
+        # Standalone body with non-zero j2 — no other bodies
+        earth = CelestialBody(
+            self.M_EARTH, np.zeros(3), np.zeros(3),
+            self.R_EARTH, 0.3, j2=self.J2_EARTH,
+        )
+        sys = NBodySystem([earth])
+        acc = sys.compute_accelerations()
+        np.testing.assert_array_equal(acc[0], np.zeros(3))
+
+    def test_tilted_pole_force_direction(self):
+        """With pole tilted, the equator/pole geometry rotates accordingly.
+
+        Pole along +x means the "equator" is the y-z plane.
+        A satellite at (r, 0, 0) is now at the POLE, not the equator,
+        so should experience an outward (less attractive) J₂ correction.
+        """
+        earth = CelestialBody(
+            self.M_EARTH, np.zeros(3), np.zeros(3),
+            self.R_EARTH, 0.3, j2=self.J2_EARTH,
+            pole_axis_unit=np.array([1.0, 0.0, 0.0]),  # pole along x-axis
+        )
+        r = 6.771e6
+        sat = CelestialBody(1.0, np.array([r, 0.0, 0.0]), np.zeros(3), 1.0, 0.0)
+        sys = NBodySystem([earth, sat])
+        acc = sys.compute_accelerations()
+
+        a_newton = -_G * self.M_EARTH / (r * r)
+        a_j2     = +3.0 * _G * self.M_EARTH * self.J2_EARTH * self.R_EARTH ** 2 / r ** 4
+
+        expected_x = a_newton + a_j2  # x-axis behaves like "pole" now
+        self.assertAlmostEqual(
+            acc[1][0], expected_x, delta=abs(expected_x) * 1e-10,
+        )
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # Roche limit
 # ═══════════════════════════════════════════════════════════════════════════
 
