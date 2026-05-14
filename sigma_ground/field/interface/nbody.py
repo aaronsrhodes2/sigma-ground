@@ -13,6 +13,7 @@ Physics included (all deriving from local_library constants):
   - Pairwise Newtonian gravity (point masses)
   - σ-field mass scaling via local_library.scale.scale_ratio
   - Optional 1PN Schwarzschild post-Newtonian correction (GR time dilation)
+  - Zonal J₂ quadrupole acceleration (rotational oblateness / static tides)
   - Tidal deformation: r(θ) = R₀[1 + ε₂ P₂(cos θ)]
   - Love number k₂ tidal response
   - Gravitational wave energy loss (Peters 1964 formula)
@@ -33,6 +34,8 @@ References
   Peters (1964): GW inspiral formula, Phys. Rev. 136, B1224.
   Wisdom & Holman (1991): Symplectic integration, AJ 102(4), 1528-1538.
   Darwin (1879) / Love (1911): Tidal deformation.
+  Vallado (2013) §9.4: J₂ zonal-harmonic acceleration, exact vector form.
+  Montenbruck & Gill (2000) §3.5: Earth oblateness in orbit propagation.
 """
 
 from __future__ import annotations
@@ -127,6 +130,16 @@ class CelestialBody:
     reflectivity    : radiation pressure coefficient CR in [0, 1];
                       0 = perfect absorber, 1 = perfect mirror (2× pressure).
                       Typical rocky body: ~0.1.  Solar sail: ~1.
+    j2              : zonal J₂ quadrupole coefficient (dimensionless);
+                      0 = perfect sphere (default).  Positive = oblate (Earth-like).
+                      Typical solar-system values:
+                        Sun:     2.0e-7   Earth:  1.083e-3   Jupiter:  1.470e-2
+                        Saturn:  1.629e-2 Uranus: 3.510e-3   Neptune:  3.539e-3
+                      Off-diagonal terms (J₃, J₄, sectorials) NOT modelled.
+    pole_axis_unit  : unit vector along rotational symmetry axis, shape (3,).
+                      Default: (0, 0, 1) — z-axis aligned (good for ecliptic/ICRS
+                      where most planets' poles are within ~30° of z-axis).
+                      Auto-normalized in __post_init__ if not unit length.
     """
 
     mass_kg:        float
@@ -137,12 +150,25 @@ class CelestialBody:
     sigma_field:    float = 0.0
     area_m2:        float = 0.0   # cross-sectional area for solar radiation pressure (m²)
     reflectivity:   float = 0.0   # radiation pressure coefficient CR: 0=absorber, 1=mirror
+    j2:             float = 0.0   # zonal quadrupole coefficient (oblateness)
+    pole_axis_unit: NDArray[np.float64] | None = None  # default → +z axis in __post_init__
 
     def __post_init__(self) -> None:
         if self.position_m.shape != (3,):
             raise ValueError(f"position_m must be (3,), got {self.position_m.shape}")
         if self.velocity_m_s.shape != (3,):
             raise ValueError(f"velocity_m_s must be (3,), got {self.velocity_m_s.shape}")
+        # Pole axis: default to +z, auto-normalize if user supplied a non-unit vector
+        if self.pole_axis_unit is None:
+            object.__setattr__(self, "pole_axis_unit", np.array([0.0, 0.0, 1.0]))
+        else:
+            if self.pole_axis_unit.shape != (3,):
+                raise ValueError(f"pole_axis_unit must be (3,), got {self.pole_axis_unit.shape}")
+            norm = float(np.linalg.norm(self.pole_axis_unit))
+            if norm == 0.0:
+                raise ValueError("pole_axis_unit must not be the zero vector")
+            if abs(norm - 1.0) > 1e-10:
+                object.__setattr__(self, "pole_axis_unit", self.pole_axis_unit / norm)
 
     @property
     def gm_m3_s2(self) -> float:
@@ -233,6 +259,17 @@ class NBodySystem:
         LOCAL_LIBRARY: approximation — single-body 1PN; full N-body EIH
         cross-terms neglected (< 1% for solar system).
 
+        J₂ zonal quadrupole (when body.j2 != 0):
+            a_J2 = (3 G M_j R_j² J₂_j / (2 r⁵))
+                   × [(5(r·n̂)²/r² − 1) × r − 2(r·n̂) × n̂]
+        where r = pos_i − pos_j (FROM j to i) and n̂ is j's pole axis.
+        Standard form (Vallado 2013 §9.4; Montenbruck & Gill 2000 §3.5).
+        At equator (r·n̂ = 0): inward attraction for J₂ > 0 (oblate body).
+        At pole   (r·n̂ = r): outward correction for J₂ > 0 (less attractive).
+        Captures rotational oblateness of the Sun, gas giants, and ice giants —
+        the dominant non-spherical effect for satellites of oblate primaries.
+        Drives nodal regression and apsidal precession (Sun-synchronous orbits).
+
         Solar radiation pressure (solar_luminosity_W > 0):
             F_SRP = L☉ A_i (1 + CR_i) / (4π r²_i☉ c)   [N, away from Sun]
             a_SRP = F_SRP / m_i
@@ -267,6 +304,38 @@ class NBodySystem:
                     acc[i] += factor * (
                         (4.0 * gm_j / r - vi2) * r_hat + 4.0 * rdotv * vi
                     )
+
+        # ── J₂ zonal quadrupole (rotational oblateness) ───────────────────
+        # Only bodies with non-zero j2 contribute. For each such body j,
+        # add the quadrupole acceleration on every other body.
+        # Vector form (Vallado 2013 §9.4):
+        #   a_J2 = (3 G M_j R_j² J₂_j / (2 r⁵))
+        #          × [(5(r·n̂)²/r² − 1) × r − 2(r·n̂) × n̂]
+        # where r is the vector FROM the J₂ body TO the test particle.
+        for j in range(n):
+            bj = self.bodies[j]
+            if bj.j2 == 0.0 or bj.radius_m == 0.0:
+                continue
+            gm_j   = bj.gm_m3_s2
+            R_j_sq = bj.radius_m * bj.radius_m
+            j2_j   = bj.j2
+            n_hat  = bj.pole_axis_unit  # already normalized in __post_init__
+
+            for i in range(n):
+                if i == j:
+                    continue
+                # r_vec points FROM j (the J₂ body) TO i (test particle)
+                r_vec = self.bodies[i].position_m - bj.position_m
+                r_sq  = float(np.dot(r_vec, r_vec)) + self.softening_m ** 2
+                if r_sq == 0.0:
+                    continue
+                r        = math.sqrt(r_sq)
+                r_dot_n  = float(np.dot(r_vec, n_hat))
+                cos2     = (r_dot_n * r_dot_n) / r_sq
+                # coef = 3 G M_j J₂ R² / (2 r⁵)
+                coef     = 1.5 * gm_j * j2_j * R_j_sq / (r_sq * r_sq * r)
+                acc[i] += coef * ((5.0 * cos2 - 1.0) * r_vec
+                                  - 2.0 * r_dot_n * n_hat)
 
         # ── Solar radiation pressure ───────────────────────────────────────
         # Applied to any body with area_m2 > 0, relative to bodies[0] (Sun).
