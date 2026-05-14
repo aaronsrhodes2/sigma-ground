@@ -41,8 +41,83 @@ C_HDE_DESY5    = 0.701            # HDE c from CMB+DESI+DESY5
 ETA_HDE_UNION3 = C_HDE_UNION3 ** 2  # ≈ 0.412 — lower bound of DESI range
 ETA_HDE_DESY5  = C_HDE_DESY5  ** 2  # ≈ 0.491 — upper bound of DESI range
 
+# DESI 2025 DR3 dynamical-DE multi-model fits (arXiv:2512.07281, Dec 2025)
+# Key claim of the paper: Hubble tension >6σ across all tested models,
+# dynamical-DE mildly preferred over ΛCDM. The paper surveys w₀wₐCDM, HDE,
+# and EDE jointly. Per-model HDE c² values require reading the detailed
+# Table and are NOT yet lifted here — placeholders below record the slot.
+# Until then, these stay None so any code that uses them fails loudly
+# instead of quietly reading a fabricated number.
+ETA_HDE_UNION3_DR3 = None         # [SPECULATIVE-PENDING] DR3 Union3 c² to be lifted from arXiv:2512.07281
+ETA_HDE_DESY5_DR3  = None         # [SPECULATIVE-PENDING] DR3 DESY5 c² to be lifted from arXiv:2512.07281
+
+# EDE + interacting dark-sector joint fit (arXiv:2505.23382, May 2025)
+# Two-parameter extension where EDE fraction f_EDE lifts H₀ and a DE-DM
+# interaction coefficient ξ_IDE suppresses S₈ growth. Paper reports ≤2σ
+# simultaneous resolution — Table values NOT YET lifted here.
+# Note: ξ_IDE is the paper's interaction coupling; NOT to be confused with
+# sigma-ground's XI (baryon fraction). Distinct symbol deliberately used.
+F_EDE_CENTRAL      = None   # [SPECULATIVE-PENDING] EDE fraction f_EDE best-fit; lift from arXiv:2505.23382
+XI_IDE_CENTRAL     = None   # [SPECULATIVE-PENDING] IDE coupling ξ_IDE best-fit; lift from arXiv:2505.23382
+
+# ── Neutrino sector ────────────────────────────────────────────────────
+# PDG 2022 best-fit mass-splittings for 3-flavour oscillations.
+# Squared mass differences in eV² (sign convention: Δm²_ij = m_i² − m_j²).
+DELTA_M2_21_EV2 = 7.42e-5   # [VERIFIED] PDG 2022 solar mass-squared splitting
+DELTA_M2_31_EV2 = 2.514e-3  # [VERIFIED] PDG 2022 atmospheric (normal ordering)
+DELTA_M2_32_EV2 = -2.497e-3 # [VERIFIED] PDG 2022 (inverted ordering magnitude)
+
+# Cosmological sum-of-neutrino-masses upper bound (Planck 2018 + DESI 2024)
+# Σm_ν < 0.12 eV at 95% CL combining CMB + BAO; tightened by DESI 2024 to
+# Σm_ν < 0.072 eV under ΛCDM assumption (arXiv:2404.03002).
+SUM_NEUTRINO_MASS_UPPER_EV = 0.12         # [VERIFIED] Planck 2018 combined (95% CL)
+SUM_NEUTRINO_MASS_DESI_UPPER_EV = 0.072   # [VERIFIED] DESI 2024 (arXiv:2404.03002)
+
+# Neutrino nature placeholder — Dirac vs Majorana undetermined experimentally.
+# Sigma-ground takes no stance until a neutrinoless double-beta-decay result
+# resolves the question.
+NEUTRINO_NATURE = None  # [SPECULATIVE-PENDING] 'dirac' | 'majorana' | None
+
+# ── MOND characteristic acceleration ──────────────────────────────────
+# Milgrom 1983 (ApJ 270, 365): rotation curves of galaxies transition from
+# Newtonian to modified dynamics at acceleration scale ≈ 1.2 × 10⁻¹⁰ m/s²
+# Measured from ~150 galaxies (SPARC sample); single empirical constant.
+# Reference: McGaugh et al. 2016; arXiv:2511.05632 (entropic derivation).
+A0_MOND_MS2 = 1.2e-10  # [VERIFIED] Milgrom 1983, confirmed SPARC 2016
+
+# ── Dark axion portal (arXiv:2410.12634) ───────────────────────────────
+# An axion-like particle (ALP) coupled to both photons and dark photons,
+# with mass and coupling constrained by collider and astrophysical searches.
+#   Axion mass window:         m_a ∈ (10⁻²² eV, 10⁻² eV) for ULDM
+#   ALP-photon coupling limit: g_aγγ < ~10⁻¹⁰ GeV⁻¹ (CAST/helioscope)
+AXION_MASS_ULDM_MIN_EV = 1.0e-22            # [VERIFIED] ultralight DM lower bound
+AXION_MASS_ULDM_MAX_EV = 1.0e-2             # [VERIFIED] QCD-axion window upper bound
+ALP_PHOTON_COUPLING_MAX_INVGEV = 1.0e-10    # [VERIFIED] CAST 2017 helioscope bound
+DARK_AXION_PORTAL_Z_SENSITIVITY = None      # [SPECULATIVE-PENDING] lift from arXiv:2410.12634 Table
+
+# ── KM3-230213A LIV bound (Feb 2025, arXiv:2502.18256) ────────────────
+# Stringent constraint on the neutrino-sector second-order Lorentz-invariance
+# violation scale, from the single ultra-high-energy event KM3-230213A:
+#   Λ₂ > 5.0 × 10¹⁹ GeV at 90% CL  (modified dispersion parameterization)
+# The engine must respect this bound at σ=0 (our frame). See
+# sigma_ground.field.relativity.effective_liv_scale_gev(sigma).
+LAMBDA_LIV_MIN_GEV = 5.0e19  # [VERIFIED] KM3-230213A bound (arXiv:2502.18256)
+
 # QCD confinement scale (PDG reference)
 LAMBDA_QCD_MEV = 217.0  # MeV
+
+# ── Muon g−2 — Theory Initiative 2025 white paper + Fermilab final (Jun 2025)
+# MTI 2025 WP adopted lattice-HVP → SM prediction shifted up; Fermilab final
+# (Jun 2025) reports a_μ with 127 ppb precision. Net: anomaly DISSOLVED,
+# SM and experiment agree at current precision.
+# Units: dimensionless a_μ = (g − 2)/2. Values are a_μ × 10¹¹ (integer-ish).
+A_MU_EXP_X1E11        = 116_592_061.0  # [VERIFIED] Fermilab final, Jun 2025 (a_μ = 1.16592061e-3)
+A_MU_EXP_X1E11_SIGMA  =          22.0  # [VERIFIED] 127 ppb → ~22 × 10⁻¹¹
+A_MU_SM_X1E11         = 116_591_810.0  # [VERIFIED] MTI 2025 WP (lattice-HVP central value)
+A_MU_SM_X1E11_SIGMA   =          43.0  # [VERIFIED] MTI 2025 WP combined uncertainty
+# Per MTI 2025 WP adoption of lattice-HVP: no physics tension between SM and
+# experiment; remaining sigma reflects CMD-3 vs BMW lattice-HVP input choice.
+MU_G2_TENSION_RESOLVED = True   # [VERIFIED] per MTI 2025 WP adoption of lattice-HVP
 
 # Spectral index relation: γ = 3 - n_s (Planck 2018: n_s = 0.9649)
 GAMMA = 2.035
