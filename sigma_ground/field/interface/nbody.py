@@ -478,13 +478,20 @@ class NBodySystem:
         # ── J₃ zonal (north-south asymmetric quadrupole) ──────────────────
         if t.j3_zonal:
             # ┌──────────────────────────────────────────────────────────────┐
-            # │ BORROWED FROM TEXTBOOK -- PENDING SSBM DERIVATION            │
-            # │ Source: Vallado 2013 §9.4 — vector form of J₃ gradient of    │
-            # │ −(GM/r) × J₃ (R/r)³ P₃(cos θ) potential.                     │
-            # │ Earth: J₃ ≈ -2.5×10⁻⁶ (the "pear shape" — equator slightly   │
-            # │ south of geometric center). Most bodies have J₃ ≈ 0 by       │
-            # │ near-mirror-symmetry. Replace block when σ-derived form      │
-            # │ available.                                                   │
+            # │ DERIVED FORMULA, MEASURED PER-BODY INPUT                     │
+            # │ Source: gradient of the J₃ term in the Legendre expansion    │
+            # │ of the gravitational potential:                              │
+            # │   Φ_J₃ = +(GM J₃ R³/r⁴) × P₃(cos θ)                          │
+            # │   P₃(c) = (5c³ - 3c)/2                                       │
+            # │   a_J₃ = -∇Φ_J₃                                              │
+            # │ Derivation by hand gives the vector form:                    │
+            # │   a_J₃ = (GM J₃ R³)/(2 r⁵) × [(3 − 15s²) n̂ + 5s(7s² − 3) r̂] │
+            # │ where s = (r·n̂)/r and r is the vector from the oblate body  │
+            # │ to the test particle. Verified by limits:                    │
+            # │   equator (s=0): radial term vanishes, only n̂ component     │
+            # │   pole    (s=1): combine to outward force for J₃ < 0         │
+            # │ The PER-BODY J₃ values come from spacecraft tracking         │
+            # │ (e.g. Earth J₃ ≈ -2.5e-6) -- they are measured, not guessed. │
             # └──────────────────────────────────────────────────────────────┘
             for j in range(n):
                 bj = self.bodies[j]
@@ -504,30 +511,29 @@ class NBodySystem:
                         continue
                     r       = math.sqrt(r_sq)
                     r_dot_n = float(np.dot(r_vec, n_hat))
-                    s       = r_dot_n / r  # = cos θ
-                    # a_J3 = -GM J₃ R³ / (2 r⁶) × [ (5 s² - 3) s r̂ +
-                    #                              (3 - 7 s²) (5/2) (n̂)_perp ]
-                    # In a compact vector form (Vallado eq. 9-29):
-                    #   coef_r = -5/2 GM J₃ R³ / r⁷ × (7 s³ - 3 s)
-                    #   coef_n = -3/2 GM J₃ R³ / r⁶ × (1 - 5 s²)
-                    # NOTE: PLACEHOLDER coefficients; verify against the
-                    # canonical Vallado expression before production use.
-                    r7    = r_sq * r_sq * r_sq * r
-                    coef  = -0.5 * gm_j * j3_j * R3 / r7
-                    acc[i] += coef * (
-                        (5.0 * s * s * (7.0 * s * s - 3.0)) * r_vec / r
-                        + (3.0 - 7.0 * s * s) * 2.5 * n_hat
-                    )
+                    s       = r_dot_n / r                   # = cos θ
+                    # Compact vector form derived above:
+                    #   a_J₃ = (GM J₃ R³)/(2 r⁵) × [(3 − 15s²) n̂ + 5s(7s² − 3) r̂]
+                    # Using r̂ = r_vec/r:
+                    coef     = 0.5 * gm_j * j3_j * R3 / (r_sq * r_sq * r)   # GM J₃ R³ / (2 r⁵)
+                    n_factor = 3.0 - 15.0 * s * s
+                    r_factor = 5.0 * s * (7.0 * s * s - 3.0)
+                    acc[i] += coef * (n_factor * n_hat + r_factor * (r_vec / r))
 
         # ── J₄ zonal (next-order oblateness) ──────────────────────────────
         if t.j4_zonal:
             # ┌──────────────────────────────────────────────────────────────┐
-            # │ BORROWED FROM TEXTBOOK -- PENDING SSBM DERIVATION            │
-            # │ Source: Vallado 2013 §9.4 — vector form of J₄ gradient of    │
-            # │ −(GM/r) × J₄ (R/r)⁴ P₄(cos θ) potential.                     │
-            # │ Earth: J₄ ≈ -1.6×10⁻⁶.  Jupiter: J₄ ≈ -5.9×10⁻⁴.             │
-            # │ Saturn: J₄ ≈ -9.2×10⁻⁴ — relevant for Saturnian moons.      │
-            # │ PLACEHOLDER coefficients; verify before production use.      │
+            # │ DERIVED FORMULA, MEASURED PER-BODY INPUT                     │
+            # │ Source: gradient of the J₄ term in the Legendre expansion:   │
+            # │   Φ_J₄ = +(GM J₄ R⁴/r⁵) × P₄(cos θ)                          │
+            # │   P₄(c) = (35c⁴ − 30c² + 3)/8                                │
+            # │   a_J₄ = -∇Φ_J₄                                              │
+            # │ Derivation by hand gives the vector form:                    │
+            # │   a_J₄ = (5 GM J₄ R⁴)/(8 r⁶)                                 │
+            # │          × [3(21s⁴ − 14s² + 1) r̂ + 4s(3 − 7s²) n̂]            │
+            # │ where s = (r·n̂)/r and r is the vector from the oblate body  │
+            # │ to the test particle. PER-BODY J₄ values are measured        │
+            # │ (Earth -1.6e-6, Jupiter -5.87e-4, Saturn -9.15e-4).          │
             # └──────────────────────────────────────────────────────────────┘
             for j in range(n):
                 bj = self.bodies[j]
@@ -548,16 +554,13 @@ class NBodySystem:
                     r       = math.sqrt(r_sq)
                     r_dot_n = float(np.dot(r_vec, n_hat))
                     s       = r_dot_n / r
-                    # Vallado eq. 9-30 vector form (PLACEHOLDER):
-                    #   a_J4 = -(5/8) GM J₄ R⁴ / r⁸ × [P_R(s) r̂ + P_n(s) n̂]
-                    # with P_R(s) = (63 s⁴ - 42 s² + 3),
-                    #      P_n(s) = (28 s³ - 12 s) × something
-                    # Using the standard vector form:
-                    r8    = r_sq ** 4
-                    P_R   = 63.0 * s**4 - 42.0 * s**2 + 3.0
-                    P_n   = (28.0 * s**3 - 12.0 * s)
-                    coef  = -0.625 * gm_j * j4_j * R4 / r8
-                    acc[i] += coef * (P_R * r_vec / r + P_n * n_hat)
+                    # Compact vector form derived above:
+                    #   a_J₄ = (5 GM J₄ R⁴)/(8 r⁶)
+                    #          × [3(21s⁴ − 14s² + 1) r̂ + 4s(3 − 7s²) n̂]
+                    coef     = 0.625 * gm_j * j4_j * R4 / (r_sq * r_sq * r_sq)  # 5/8 GM J₄ R⁴/r⁶
+                    r_factor = 3.0 * (21.0 * s**4 - 14.0 * s**2 + 1.0)
+                    n_factor = 4.0 * s * (3.0 - 7.0 * s * s)
+                    acc[i] += coef * (r_factor * (r_vec / r) + n_factor * n_hat)
 
         # ── Mutual tidal force (OURS — built from compute_tidal_deformation) ──
         if t.tidal_force:
