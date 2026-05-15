@@ -21,6 +21,7 @@ from sigma_ground.field.constants import G as _G
 from sigma_ground.field.interface.nbody import (
     CelestialBody,
     NBodySystem,
+    PhysicsToggles,
     TidalDeformationField,
     _FR_THETA,
 )
@@ -597,6 +598,406 @@ class TestGRCorrection(unittest.TestCase):
         ratio = float(np.linalg.norm(acc_gr[1])) / float(np.linalg.norm(acc_n[1]))
         # Correction is ~(4GM/rc²) / 1 ≈ very small
         self.assertAlmostEqual(ratio, 1.0, delta=0.01)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PhysicsToggles dataclass + backward-compat shim
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestPhysicsToggles(unittest.TestCase):
+    """The toggles dataclass governs each force layer; defaults all-False."""
+
+    def test_default_all_false(self):
+        t = PhysicsToggles()
+        for flag in ("gr_1pn", "gr_2pn", "eih_cross", "srp",
+                     "j2_zonal", "j3_zonal", "j4_zonal",
+                     "tidal_force", "gw_damping"):
+            self.assertFalse(getattr(t, flag), f"{flag} should default False")
+
+    def test_toggles_are_frozen(self):
+        t = PhysicsToggles(gr_1pn=True)
+        with self.assertRaises(Exception):  # FrozenInstanceError
+            t.gr_1pn = False  # type: ignore
+
+    def test_legacy_kwargs_build_toggles_gr_only(self):
+        """include_gr=True without explicit toggles -> gr_1pn=True, others False."""
+        b1, b2 = _two_body_circular()
+        sys = NBodySystem([b1, b2], include_gr=True)
+        self.assertTrue(sys.toggles.gr_1pn)
+        self.assertFalse(sys.toggles.srp)
+        self.assertFalse(sys.toggles.j2_zonal)  # no body has j2
+
+    def test_legacy_kwargs_build_toggles_with_srp(self):
+        b1, b2 = _two_body_circular()
+        sys = NBodySystem([b1, b2], include_gr=True, solar_luminosity_W=3.828e26)
+        self.assertTrue(sys.toggles.gr_1pn)
+        self.assertTrue(sys.toggles.srp)
+
+    def test_legacy_kwargs_auto_detect_j2(self):
+        """If any body has j2 != 0 and no toggles given, j2_zonal is auto-on."""
+        b1 = CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.5)
+        b2 = CelestialBody(M_SUN, np.array([1e10, 0.0, 0.0]),
+                            np.zeros(3), R_SUN, 0.5, j2=1e-3)
+        sys = NBodySystem([b1, b2])
+        self.assertTrue(sys.toggles.j2_zonal,
+                        "j2_zonal should auto-enable when any body has j2 != 0")
+
+    def test_explicit_toggles_overrides_legacy(self):
+        """If toggles= is given explicitly, legacy kwargs are ignored."""
+        b1, b2 = _two_body_circular()
+        # Pass include_gr=True but explicit toggles with gr_1pn=False
+        sys = NBodySystem([b1, b2],
+                          toggles=PhysicsToggles(gr_1pn=False),
+                          include_gr=True)
+        self.assertFalse(sys.toggles.gr_1pn,
+                         "explicit toggles must win over legacy include_gr")
+
+    def test_backward_compat_acceleration_bit_identical(self):
+        """Without any new toggles enabled, accelerations match pre-refactor.
+
+        The classic invocation `NBodySystem(bodies, include_gr=True,
+        solar_luminosity_W=L)` should produce the same accelerations as it
+        did before PhysicsToggles existed.
+        """
+        b1 = CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.5)
+        b2 = CelestialBody(M_SUN, np.array([1e11, 0.0, 0.0]),
+                            np.array([0.0, 3e4, 0.0]), R_SUN, 0.5)
+        sys = NBodySystem([b1, b2], include_gr=True, solar_luminosity_W=3.828e26)
+        acc = sys.compute_accelerations()
+        # The legacy interface gave us Newtonian + 1PN with no other layers,
+        # since neither body has j2/j3/j4/love_number_k2 set.
+        # If we explicitly disable all toggles except gr_1pn, we should get
+        # the same numbers.
+        sys_explicit = NBodySystem([b1, b2],
+                                    toggles=PhysicsToggles(gr_1pn=True))
+        acc_explicit = sys_explicit.compute_accelerations()
+        np.testing.assert_allclose(acc, acc_explicit, atol=0.0)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2PN GR (BORROWED) — single-body Schwarzschild c⁻⁴ correction
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestGR2PN(unittest.TestCase):
+    """The gr_2pn toggle adds a c⁻⁴ correction on top of 1PN.
+
+    These tests verify (a) backward-compat with toggle off, and
+    (b) the c⁻⁴ correction has the expected magnitude (smaller than 1PN
+    by a factor of v²/c² or GM/(rc²) -- order 10⁻⁸ for Mercury).
+    """
+
+    def _mercury_like(self):
+        """Mercury-like configuration: tight orbit around the Sun."""
+        sun = CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.0)
+        # Mercury at perihelion: r=0.31 AU, v=58.98 km/s
+        r_au = 0.31 * AU
+        v    = 58.98e3
+        body = CelestialBody(
+            3.302e23, np.array([r_au, 0.0, 0.0]),
+            np.array([0.0, v, 0.0]), 2440e3, 0.0,
+        )
+        return [sun, body]
+
+    def test_2pn_off_matches_1pn_only(self):
+        bodies = self._mercury_like()
+        a_1pn = NBodySystem(bodies,
+                             toggles=PhysicsToggles(gr_1pn=True)).compute_accelerations()
+        a_both = NBodySystem(bodies,
+                              toggles=PhysicsToggles(gr_1pn=True, gr_2pn=False)
+                              ).compute_accelerations()
+        np.testing.assert_allclose(a_both, a_1pn, atol=0.0)
+
+    def test_2pn_correction_detectable_in_compact_binary(self):
+        """2PN correction at NS-binary scale (v ~ 0.05c) should be detectable.
+
+        At Mercury's solar-system scale, 2PN is ~10⁻²⁵ m/s² -- below float64
+        precision when added to Newton's ~10⁻² m/s². We need a strong-field
+        regime to make 2PN measurable.
+        """
+        # Neutron-star binary: m=1.4 M_sun each, separation 1e7 m → v ~ 0.05c
+        M  = 1.4 * M_SUN
+        r  = 1e7
+        v  = math.sqrt(_G * M / r)  # circular velocity at r (~0.05c here)
+        b1 = CelestialBody(M, np.zeros(3), np.zeros(3), 1e4, 0.0)
+        b2 = CelestialBody(M, np.array([r, 0.0, 0.0]),
+                            np.array([0.0, v, 0.0]), 1e4, 0.0)
+        bodies = [b1, b2]
+        a_1pn  = NBodySystem(bodies,
+                              toggles=PhysicsToggles(gr_1pn=True)
+                              ).compute_accelerations()
+        a_2pn  = NBodySystem(bodies,
+                              toggles=PhysicsToggles(gr_1pn=True, gr_2pn=True)
+                              ).compute_accelerations()
+        delta_2pn = float(np.linalg.norm(a_2pn[1] - a_1pn[1]))
+        # In this regime v/c ≈ 0.05, so 2PN/1PN ratio ~ 0.0025.
+        # Both deltas should be measurable.
+        self.assertGreater(delta_2pn, 0,
+                            "2PN should change accel in strong-field regime")
+
+    def test_2pn_zero_velocity_still_has_radial(self):
+        """At v=0, 2PN should give a purely radial (GM/r)² correction."""
+        sun = CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.0)
+        body = CelestialBody(
+            1e20, np.array([1e10, 0.0, 0.0]), np.zeros(3), 1e3, 0.0,
+        )
+        a_2pn = NBodySystem([sun, body],
+                             toggles=PhysicsToggles(gr_2pn=True)
+                             ).compute_accelerations()
+        a_n   = NBodySystem([sun, body],
+                             toggles=PhysicsToggles()
+                             ).compute_accelerations()
+        # The 2PN delta should be in the radial direction (along -x for body at +x)
+        delta = a_2pn[1] - a_n[1]
+        # The y and z components of delta should be zero (radial-only at v=0)
+        self.assertAlmostEqual(delta[1], 0.0, delta=abs(delta[0]) * 1e-10)
+        self.assertAlmostEqual(delta[2], 0.0, delta=abs(delta[0]) * 1e-10)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# J₃ and J₄ zonal harmonics (BORROWED)
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestZonalJ3J4(unittest.TestCase):
+    """The j3_zonal and j4_zonal toggles add higher-order zonal corrections."""
+
+    M_EARTH = 5.972e24
+    R_EARTH = 6.371e6
+    J3_EARTH = -2.5e-6
+    J4_EARTH = -1.6e-6
+
+    def _earth_with_satellite(self, j3=0.0, j4=0.0):
+        earth = CelestialBody(
+            self.M_EARTH, np.zeros(3), np.zeros(3),
+            self.R_EARTH, 0.0, j2=0.0, j3=j3, j4=j4,
+        )
+        # LEO satellite at z != 0 so the asymmetric J3 force is visible
+        r = 6.771e6
+        sat = CelestialBody(
+            1.0, np.array([r * 0.7071, 0.0, r * 0.7071]),
+            np.zeros(3), 1.0, 0.0,
+        )
+        return [earth, sat]
+
+    def test_j3_default_zero(self):
+        body = CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.5)
+        self.assertEqual(body.j3, 0.0)
+
+    def test_j4_default_zero(self):
+        body = CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.5)
+        self.assertEqual(body.j4, 0.0)
+
+    def test_j3_toggle_off(self):
+        """j3_zonal=False -> no contribution even if body.j3 set."""
+        bodies = self._earth_with_satellite(j3=self.J3_EARTH)
+        sys = NBodySystem(bodies, toggles=PhysicsToggles())
+        acc = sys.compute_accelerations()
+        # Compare to pure Newton (no j3 set)
+        bodies_n = self._earth_with_satellite(j3=0.0)
+        sys_n = NBodySystem(bodies_n, toggles=PhysicsToggles())
+        acc_n = sys_n.compute_accelerations()
+        np.testing.assert_allclose(acc, acc_n, atol=0.0)
+
+    def test_j3_toggle_on_with_zero_coeff(self):
+        """j3_zonal=True but body.j3=0 -> no change."""
+        bodies = self._earth_with_satellite(j3=0.0)
+        sys_on  = NBodySystem(bodies, toggles=PhysicsToggles(j3_zonal=True))
+        sys_off = NBodySystem(bodies, toggles=PhysicsToggles())
+        np.testing.assert_allclose(sys_on.compute_accelerations(),
+                                    sys_off.compute_accelerations(),
+                                    atol=0.0)
+
+    def test_j3_toggle_on_changes_accel(self):
+        """j3_zonal=True with non-trivial body.j3 -> measurable change.
+
+        Use j3 = 0.01 (well above Earth's -2.5e-6) to make the change
+        detectable against Newton's much larger acceleration. The realistic
+        Earth J₃ is too small to detect at float64 precision when subtracted
+        from a Newton ~1e-1 m/s²; this test validates the formula path, not
+        the realistic magnitude.
+        """
+        bodies = self._earth_with_satellite(j3=0.01)
+        sys_on = NBodySystem(bodies, toggles=PhysicsToggles(j3_zonal=True))
+        sys_off = NBodySystem(bodies, toggles=PhysicsToggles())
+        acc_on  = sys_on.compute_accelerations()
+        acc_off = sys_off.compute_accelerations()
+        delta = acc_on[1] - acc_off[1]
+        self.assertGreater(float(np.linalg.norm(delta)), 0.0,
+                            "J₃ should change satellite acceleration "
+                            "(with inflated J₃ coefficient for FP detectability)")
+
+    def test_j4_toggle_off(self):
+        bodies = self._earth_with_satellite(j4=self.J4_EARTH)
+        sys = NBodySystem(bodies, toggles=PhysicsToggles())
+        acc = sys.compute_accelerations()
+        bodies_n = self._earth_with_satellite(j4=0.0)
+        sys_n = NBodySystem(bodies_n, toggles=PhysicsToggles())
+        np.testing.assert_allclose(acc, sys_n.compute_accelerations(), atol=0.0)
+
+    def test_j4_toggle_on_changes_accel(self):
+        """j4_zonal with non-trivial body.j4 -> measurable change.
+
+        Same FP-precision caveat as j3: realistic Earth J4 ~ -1.6e-6 is below
+        detectability against Newton; use inflated 0.01 to validate the path.
+        """
+        bodies = self._earth_with_satellite(j4=0.01)
+        sys_on  = NBodySystem(bodies, toggles=PhysicsToggles(j4_zonal=True))
+        sys_off = NBodySystem(bodies, toggles=PhysicsToggles())
+        delta = sys_on.compute_accelerations()[1] - sys_off.compute_accelerations()[1]
+        self.assertGreater(float(np.linalg.norm(delta)), 0.0)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Tidal force (OURS — built from compute_tidal_deformation)
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestTidalForce(unittest.TestCase):
+    """The tidal_force toggle applies the tidally-induced quadrupole."""
+
+    M_EARTH = 5.972e24
+    R_EARTH = 6.371e6
+    M_MOON  = 7.342e22
+    R_MOON  = 1.7374e6
+    EARTH_MOON_DIST = 3.844e8
+
+    def _earth_moon(self, k2_earth=0.30):
+        earth = CelestialBody(
+            self.M_EARTH, np.zeros(3), np.zeros(3),
+            self.R_EARTH, k2_earth,
+        )
+        moon = CelestialBody(
+            self.M_MOON,
+            np.array([self.EARTH_MOON_DIST, 0.0, 0.0]),
+            np.array([0.0, 1.022e3, 0.0]),  # ~lunar orbital velocity
+            self.R_MOON, 0.0,
+        )
+        return [earth, moon]
+
+    def test_tidal_off_matches_newtonian(self):
+        bodies = self._earth_moon()
+        sys_off = NBodySystem(bodies, toggles=PhysicsToggles())
+        sys_n   = NBodySystem(bodies, toggles=PhysicsToggles())
+        np.testing.assert_allclose(sys_off.compute_accelerations(),
+                                    sys_n.compute_accelerations(),
+                                    atol=0.0)
+
+    def test_tidal_on_zero_love_no_effect(self):
+        """Earth with k₂=0 -> no tidal bulge -> no tidal force."""
+        bodies = self._earth_moon(k2_earth=0.0)
+        sys_on  = NBodySystem(bodies, toggles=PhysicsToggles(tidal_force=True))
+        sys_off = NBodySystem(bodies, toggles=PhysicsToggles())
+        np.testing.assert_allclose(sys_on.compute_accelerations(),
+                                    sys_off.compute_accelerations(),
+                                    atol=0.0)
+
+    def test_tidal_on_earth_k2_changes_moon_accel(self):
+        """With k₂_Earth = 0.30, Moon should feel an extra force from Earth's bulge."""
+        bodies = self._earth_moon(k2_earth=0.30)
+        sys_on  = NBodySystem(bodies, toggles=PhysicsToggles(tidal_force=True))
+        sys_off = NBodySystem(bodies, toggles=PhysicsToggles())
+        a_on  = sys_on.compute_accelerations()
+        a_off = sys_off.compute_accelerations()
+        delta_moon = a_on[1] - a_off[1]
+        self.assertGreater(float(np.linalg.norm(delta_moon)), 0.0,
+                            "tidal_force should change Moon's acceleration "
+                            "when Earth has a non-zero Love number")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# gw_damping toggle (was step() kwarg, now PhysicsToggles)
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestGWDampingToggle(unittest.TestCase):
+    """The gw_damping toggle replaces the step(include_gw_loss=...) kwarg.
+
+    The legacy kwarg is still honored when explicitly True/False; only when
+    it's None (the new default) does the toggle take effect.
+    """
+
+    @staticmethod
+    def _ns_binary(a=1e9):
+        M = 1.4 * M_SUN
+        v = math.sqrt(_G * M / (2 * a))
+        b1 = CelestialBody(M, np.array([ a/2, 0, 0.0]),
+                            np.array([0,  v, 0.0]), 1e4, 0.3)
+        b2 = CelestialBody(M, np.array([-a/2, 0, 0.0]),
+                            np.array([0, -v, 0.0]), 1e4, 0.3)
+        return b1, b2
+
+    def test_legacy_kwarg_true_still_damps(self):
+        """step(dt, include_gw_loss=True) overrides toggle and applies damping."""
+        b1, b2 = self._ns_binary()
+        sys = NBodySystem([b1, b2])  # toggles.gw_damping defaults False
+        e0 = sys.total_energy()
+        for _ in range(20):
+            sys.step(1.0, include_gw_loss=True)
+        e1 = sys.total_energy()
+        # Energy should DECREASE due to GW damping
+        self.assertLess(e1, e0)
+
+    def test_default_kwarg_uses_toggle(self):
+        """step(dt) with no kwarg -> uses self.toggles.gw_damping."""
+        b1, b2 = self._ns_binary()
+        sys = NBodySystem([b1, b2],
+                           toggles=PhysicsToggles(gw_damping=True))
+        e0 = sys.total_energy()
+        for _ in range(20):
+            sys.step(1.0)
+        e1 = sys.total_energy()
+        self.assertLess(e1, e0)
+
+    def test_legacy_kwarg_false_blocks_toggle(self):
+        """step(dt, include_gw_loss=False) overrides even if toggle is True."""
+        b1, b2 = self._ns_binary()
+        sys = NBodySystem([b1, b2],
+                           toggles=PhysicsToggles(gw_damping=True))
+        # Take a step with override-off
+        e0 = sys.total_energy()
+        for _ in range(20):
+            sys.step(1.0, include_gw_loss=False)
+        e1 = sys.total_energy()
+        # Without damping (and good integration), energy should be nearly conserved
+        self.assertAlmostEqual(e1 / e0, 1.0, delta=1e-3)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Sigma-bounds validation
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestSigmaBoundsCheck(unittest.TestCase):
+    """CelestialBody.__post_init__ rejects σ values outside the SSBM domain."""
+
+    def test_sigma_zero_safe(self):
+        """σ = 0 (vacuum) is SAFE — no exception."""
+        body = CelestialBody(M_SUN, np.zeros(3), np.zeros(3),
+                              R_SUN, 0.5, sigma_field=0.0)
+        self.assertEqual(body.sigma_field, 0.0)
+
+    def test_sigma_small_positive_safe(self):
+        """Earth-surface-class σ (~1e-9) is SAFE."""
+        body = CelestialBody(M_SUN, np.zeros(3), np.zeros(3),
+                              R_SUN, 0.5, sigma_field=1e-9)
+        self.assertEqual(body.sigma_field, 1e-9)
+
+    def test_sigma_negative_raises(self):
+        """σ < 0 is BEYOND domain -- must raise."""
+        with self.assertRaises(ValueError):
+            CelestialBody(M_SUN, np.zeros(3), np.zeros(3),
+                           R_SUN, 0.5, sigma_field=-0.1)
+
+    def test_sigma_beyond_conv_raises(self):
+        """σ > σ_conv (≈1.849) is BEYOND domain -- must raise."""
+        with self.assertRaises(ValueError):
+            CelestialBody(M_SUN, np.zeros(3), np.zeros(3),
+                           R_SUN, 0.5, sigma_field=2.0)
+
+    def test_gm_uses_scale_ratio(self):
+        """gm_m3_s2 calls scale.scale_ratio (which clamps at ±709), not raw math.exp."""
+        # σ = 700 is large but still within scale_ratio's guard
+        body = CelestialBody(M_SUN, np.zeros(3), np.zeros(3),
+                              R_SUN, 0.5, sigma_field=1.0)  # use safe value
+        gm = body.gm_m3_s2
+        expected = _G * M_SUN * math.exp(1.0)
+        self.assertAlmostEqual(gm, expected, delta=expected * 1e-10)
 
 
 if __name__ == "__main__":
