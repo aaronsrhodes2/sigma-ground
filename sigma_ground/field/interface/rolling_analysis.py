@@ -52,7 +52,41 @@ import pandas as pd
 
 _FIXTURES   = Path(__file__).parent / "fixtures"
 _RESULTS_FILE = _FIXTURES / "rolling_shootout_results.json"
+_DE440_FILE   = _FIXTURES / "de440_state_vectors.json"
 _PLOTS_DIR  = _FIXTURES / "rolling_shootout_plots"
+
+AU_KM = 1.495978707e8
+
+# Parent body for each tracked body. For moons this is the planet they orbit;
+# for planets and dwarf-planets it's the Sun. Used to build the RTN frame
+# (Radial / along-Track / Normal) for position-error decomposition.
+_PARENT_OF: dict[str, str] = {
+    "Mercury":   "Sun",
+    "Venus":     "Sun",
+    "Earth":     "Sun",
+    "Moon":      "Earth",
+    "Mars":      "Sun",
+    "Phobos":    "Mars",
+    "Deimos":    "Mars",
+    "Jupiter":   "Sun",
+    "Io":        "Jupiter",
+    "Europa":    "Jupiter",
+    "Ganymede":  "Jupiter",
+    "Callisto":  "Jupiter",
+    "Saturn":    "Sun",
+    "Enceladus": "Saturn",
+    "Titan":     "Saturn",
+    "Uranus":    "Sun",
+    "Miranda":   "Uranus",
+    "Ariel":     "Uranus",
+    "Umbriel":   "Uranus",
+    "Titania":   "Uranus",
+    "Oberon":    "Uranus",
+    "Neptune":   "Sun",
+    "Triton":    "Neptune",
+    "Pluto":     "Sun",     # heliocentric (could also use Pluto-Charon barycenter)
+    "Charon":    "Pluto",
+}
 
 
 # Orbital element references (semi-major axis in AU, eccentricity, inclination
@@ -88,7 +122,173 @@ _ORBITAL: dict[str, tuple[float, float, float]] = {
 }
 
 
-# ── Loading ──────────────────────────────────────────────────────────────
+# -- RTN decomposition ----------------------------------------------------
+
+def _build_truth_state_lookup(de440: dict) -> dict[tuple[int, str], tuple[np.ndarray, np.ndarray]]:
+    """Index DE440 snapshots: (round(jd), body_name) -> (pos_km_ssb, vel_km_s_ssb)."""
+    out: dict[tuple[int, str], tuple[np.ndarray, np.ndarray]] = {}
+    for _, snap in de440["snapshots"].items():
+        jd = round(snap["epoch"]["jd_tdb"])
+        for b in snap["bodies"]:
+            sv = b["state_vector"]
+            pos = np.array([sv["x_km"], sv["y_km"], sv["z_km"]])
+            vel = np.array([sv["vx_km_s"], sv["vy_km_s"], sv["vz_km_s"]])
+            out[(jd, b["name"])] = (pos, vel)
+    return out
+
+
+def _rtn_decompose(
+    err_helio_km: np.ndarray,
+    body_pos_ssb: np.ndarray,
+    body_vel_ssb: np.ndarray,
+    primary_pos_ssb: np.ndarray,
+    primary_vel_ssb: np.ndarray,
+) -> tuple[float, float, float]:
+    """Decompose position error VECTOR (predicted - truth) into RTN.
+
+    The RTN frame is built from the body's truth state RELATIVE to its primary:
+      r_hat = (r_body - r_primary) / |...|     radial outward from primary
+      n_hat = (r_rel x v_rel) / |...|          orbital-plane normal
+      t_hat = n_hat x r_hat                    along-track (motion direction)
+
+    err_helio_km is a difference of two positions, so the primary's position
+    cancels under subtraction -- we can express it in any inertial frame and
+    still recover the same RTN components.
+
+    Returns (dR, dT, dN) in AU.
+    """
+    r_rel = body_pos_ssb - primary_pos_ssb
+    v_rel = body_vel_ssb - primary_vel_ssb
+
+    r_norm = float(np.linalg.norm(r_rel))
+    if r_norm == 0.0:
+        return (float("nan"), float("nan"), float("nan"))
+    r_hat = r_rel / r_norm
+
+    h_vec = np.cross(r_rel, v_rel)
+    h_norm = float(np.linalg.norm(h_vec))
+    if h_norm == 0.0:
+        return (float("nan"), float("nan"), float("nan"))
+    n_hat = h_vec / h_norm
+    t_hat = np.cross(n_hat, r_hat)
+
+    dR = float(np.dot(err_helio_km, r_hat)) / AU_KM
+    dT = float(np.dot(err_helio_km, t_hat)) / AU_KM
+    dN = float(np.dot(err_helio_km, n_hat)) / AU_KM
+    return dR, dT, dN
+
+
+def add_rtn_components(df: pd.DataFrame, de440: dict | None = None) -> pd.DataFrame:
+    """Add dR_au, dT_au, dN_au columns to a results DataFrame.
+
+    Requires df to have 'predicted_km' column. Loads DE440 fixture for the
+    truth state vectors (positions and velocities).
+    """
+    if de440 is None:
+        de440 = json.loads(_DE440_FILE.read_text())
+    lookup = _build_truth_state_lookup(de440)
+
+    dRs: list[float] = []
+    dTs: list[float] = []
+    dNs: list[float] = []
+    for _, row in df.iterrows():
+        err_au_v = row.get("error_au")
+        pred_km  = row.get("predicted_km")
+        if (err_au_v is None
+                or (isinstance(err_au_v, float) and np.isnan(err_au_v))
+                or pred_km is None or pred_km[0] is None):
+            dRs.append(np.nan); dTs.append(np.nan); dNs.append(np.nan)
+            continue
+
+        sample_key = round(row["sample_jd"])
+        body = row["body"]
+        primary = _PARENT_OF.get(body, "Sun")
+
+        body_state    = lookup.get((sample_key, body))
+        primary_state = lookup.get((sample_key, primary))
+        sun_state     = lookup.get((sample_key, "Sun"))
+        if body_state is None or primary_state is None or sun_state is None:
+            dRs.append(np.nan); dTs.append(np.nan); dNs.append(np.nan)
+            continue
+
+        body_pos_ssb,    body_vel_ssb    = body_state
+        primary_pos_ssb, primary_vel_ssb = primary_state
+        sun_pos_ssb,     _               = sun_state
+
+        truth_helio_km = body_pos_ssb - sun_pos_ssb
+        pred_helio_km  = np.array(pred_km)
+        err_vec_km     = pred_helio_km - truth_helio_km
+
+        dR, dT, dN = _rtn_decompose(
+            err_vec_km, body_pos_ssb, body_vel_ssb,
+            primary_pos_ssb, primary_vel_ssb,
+        )
+        dRs.append(dR); dTs.append(dT); dNs.append(dN)
+
+    df = df.copy()
+    df["dR_au"] = dRs
+    df["dT_au"] = dTs
+    df["dN_au"] = dNs
+    return df
+
+
+def _load_predicted_km_into_df(payload_path: Path) -> pd.DataFrame:
+    """Like load_results() but ALSO keeps the predicted_km vectors (for RTN)."""
+    payload = json.loads(payload_path.read_text())
+    rows = []
+    for s in payload["samples"]:
+        rows.append({
+            "predictor":       s["predictor"],
+            "body":            s["body"],
+            "window_start_jd": s["window_start_jd"],
+            "sample_jd":       s["sample_jd"],
+            "error_au":        s["error_au"],
+            "predicted_km":    s.get("predicted_km"),
+        })
+    df = pd.DataFrame(rows)
+    df["t_yr"] = (df["sample_jd"] - df["window_start_jd"]) / 365.25
+    df["t_yr_bin"] = df["t_yr"].round().astype(int)
+    starts = sorted(df["window_start_jd"].unique())
+    start_to_idx = {s: i for i, s in enumerate(starts)}
+    df["window_idx"] = df["window_start_jd"].map(start_to_idx)
+    return df
+
+
+def rtn_summary(df_with_rtn: pd.DataFrame) -> pd.DataFrame:
+    """Per (predictor, body): RMS of each RTN component + dominant-axis label.
+
+    The dominant-axis label says which way the error MOSTLY points:
+      'T' = phase / timing error (along-track dominant)
+      'R' = energy / shape error (radial dominant)
+      'N' = orbital-plane error (cross-track dominant)
+    """
+    rows = []
+    for (pred, body), grp in df_with_rtn.dropna(subset=["dR_au"]).groupby(
+            ["predictor", "body"]):
+        rms_R = float(np.sqrt(np.mean(grp["dR_au"] ** 2)))
+        rms_T = float(np.sqrt(np.mean(grp["dT_au"] ** 2)))
+        rms_N = float(np.sqrt(np.mean(grp["dN_au"] ** 2)))
+        total = rms_R ** 2 + rms_T ** 2 + rms_N ** 2
+        if total == 0:
+            rows.append({"predictor": pred, "body": body,
+                         "rms_R_au": 0.0, "rms_T_au": 0.0, "rms_N_au": 0.0,
+                         "frac_R": np.nan, "frac_T": np.nan, "frac_N": np.nan,
+                         "dominant": "-"})
+            continue
+        fR = rms_R ** 2 / total
+        fT = rms_T ** 2 / total
+        fN = rms_N ** 2 / total
+        dominant = max(("R", fR), ("T", fT), ("N", fN), key=lambda x: x[1])[0]
+        rows.append({
+            "predictor": pred, "body": body,
+            "rms_R_au": rms_R, "rms_T_au": rms_T, "rms_N_au": rms_N,
+            "frac_R": fR, "frac_T": fT, "frac_N": fN,
+            "dominant": dominant,
+        })
+    return pd.DataFrame(rows)
+
+
+# -- Loading --------------------------------------------------------------
 
 def load_results(path: Path = _RESULTS_FILE) -> tuple[dict, pd.DataFrame]:
     """Load the rolling-shootout JSON into a DataFrame.
@@ -532,6 +732,8 @@ if __name__ == "__main__":
                              "--results is the NEW file and we print the diff")
     parser.add_argument("--focus", nargs="+", default=None,
                         help="restrict diff to these predictors")
+    parser.add_argument("--rtn", action="store_true",
+                        help="also print RTN (Radial/Track/Normal) decomposition")
     args = parser.parse_args()
 
     if args.diff is not None:
@@ -546,6 +748,40 @@ if __name__ == "__main__":
                              f"Run rolling_shootout.py first to generate it.")
         meta, df = load_results(args.results)
         print_report(meta, df)
+
+        if args.rtn:
+            print("\n" + "=" * 78)
+            print("RTN DECOMPOSITION -- where in the orbit does the error live?")
+            print("=" * 78)
+            df_rtn_src = _load_predicted_km_into_df(args.results)
+            df_rtn = add_rtn_components(df_rtn_src)
+            rtn = rtn_summary(df_rtn)
+
+            print("\nDominant-axis tally per predictor:")
+            tally = rtn.groupby(["predictor", "dominant"]).size().unstack(
+                fill_value=0)
+            print(tally.to_string())
+
+            print("\nTop-15 cells by total RTN RMS (largest errors first):")
+            rtn["rms_total_au"] = np.sqrt(
+                rtn["rms_R_au"]**2 + rtn["rms_T_au"]**2 + rtn["rms_N_au"]**2)
+            cols = ["predictor", "body", "rms_R_au", "rms_T_au", "rms_N_au",
+                    "frac_R", "frac_T", "frac_N", "dominant"]
+            print(rtn.nlargest(15, "rms_total_au")[cols].to_string(
+                index=False,
+                float_format=lambda x: f"{x:.3e}" if abs(x) < 0.01 or abs(x) > 100 else f"{x:.3f}"))
+
+            print("\nFor key bodies -- RTN breakdown across predictors:")
+            for body in ("Mercury", "Io", "Europa", "Miranda", "Ariel",
+                         "Ganymede", "Earth", "Jupiter"):
+                rows = rtn[rtn["body"] == body]
+                if rows.empty:
+                    continue
+                print(f"\n  {body}:")
+                print(rows[cols[:-1] + ["dominant"]].to_string(
+                    index=False,
+                    float_format=lambda x: f"{x:.3e}" if abs(x) < 0.01 else f"{x:.3f}"))
+
         if args.plots:
             summary = per_predictor_body_summary(df)
             save_plots(meta, df, summary)
