@@ -64,8 +64,27 @@ from typing import Callable
 import numpy as np
 
 from sigma_ground.field.constants import G as _G, L_SUN_W as _L_SUN_W
-from sigma_ground.field.interface.nbody import CelestialBody, NBodySystem
+from sigma_ground.field.interface.nbody import (
+    CelestialBody, NBodySystem, PhysicsToggles,
+)
 from sigma_ground.field.interface.orbital import fit_orbit, predict_ssb_position
+
+
+def _pole_unit_from_radec(ra_deg: float, dec_deg: float) -> np.ndarray:
+    """Convert IAU 2015 pole RA/Dec (degrees) to an ICRS unit vector.
+
+    Standard astrometric convention:
+        x = cos(Dec) * cos(RA)
+        y = cos(Dec) * sin(RA)
+        z = sin(Dec)
+    """
+    ra  = math.radians(ra_deg)
+    dec = math.radians(dec_deg)
+    return np.array([
+        math.cos(dec) * math.cos(ra),
+        math.cos(dec) * math.sin(ra),
+        math.sin(dec),
+    ])
 
 
 AU_KM   = 1.495978707e8
@@ -89,38 +108,65 @@ _RESULTS_FILE = _FIXTURES / "rolling_shootout_results.json"
 #       set each body's true pole from IAU 2015 rotation models.
 @dataclass(frozen=True)
 class BodyParams:
-    radius_km: float
-    albedo:    float
-    j2:        float
+    """Per-body physical parameters (canonical IAU/NASA values).
+
+    For each oblate body we now also carry j3, j4, and pole_axis_unit so the
+    higher-order zonal-harmonic toggles (j3_zonal, j4_zonal) have data to
+    operate on, and so J2/J3/J4 are evaluated in the body's true rotational
+    frame rather than blindly along ICRS +z.
+    """
+    radius_km:      float
+    albedo:         float
+    j2:             float
+    j3:             float                       = 0.0
+    j4:             float                       = 0.0
+    pole_axis_unit: np.ndarray | None           = None  # None → ICRS +z default
+
+
+# IAU 2015 pole RA/Dec (J2000.0) for the high-obliquity bodies.
+# Most planets have poles within ~30° of ICRS +z so the default works fine;
+# these three need explicit vectors for J2/J3/J4 to be evaluated correctly.
+_URANUS_POLE = _pole_unit_from_radec(257.311, -15.175)
+_PLUTO_POLE  = _pole_unit_from_radec(132.993,  -6.163)
+# Neptune's pole RA/Dec (43.46°, 89.45° -- nearly +z but slightly tilted).
+_NEPTUNE_POLE = _pole_unit_from_radec(299.36,  43.46)
+# Triton orbits Neptune retrograde at ~157° to Neptune's equator. Triton's
+# own rotational pole is roughly opposite Neptune's orbital normal; we use
+# -Neptune's pole as a first approximation since Triton's own J2 = 0.
+_TRITON_POLE = -_NEPTUNE_POLE
 
 
 _BODY_PARAMS: dict[str, BodyParams] = {
-    # body         R(km)     albedo    J2
-    "Sun":      BodyParams(695700.0,  0.000,  2.0e-7),
-    "Mercury":  BodyParams(  2440.0,  0.088,  5.03e-5),
-    "Venus":    BodyParams(  6052.0,  0.689,  4.46e-6),
-    "Earth":    BodyParams(  6371.0,  0.367,  1.0826e-3),
-    "Moon":     BodyParams(  1737.4,  0.120,  2.034e-4),
-    "Mars":     BodyParams(  3389.5,  0.170,  1.9606e-3),
+    # body         R(km)     albedo    J2          J3         J4         pole
+    "Sun":      BodyParams(695700.0,  0.000,  2.0e-7,    0.0,       -9.0e-7),
+    "Mercury":  BodyParams(  2440.0,  0.088,  5.03e-5,   0.0,       -1.0e-5),
+    "Venus":    BodyParams(  6052.0,  0.689,  4.46e-6,   0.0,        0.0),
+    "Earth":    BodyParams(  6371.0,  0.367,  1.0826e-3, -2.5e-6,   -1.6e-6),
+    "Moon":     BodyParams(  1737.4,  0.120,  2.034e-4,   8.5e-6,   -1.2e-5),
+    "Mars":     BodyParams(  3389.5,  0.170,  1.9606e-3,  3.5e-5,   -1.4e-5),
     "Phobos":   BodyParams(    11.2,  0.071,  0.0),
     "Deimos":   BodyParams(     6.1,  0.068,  0.0),
-    "Jupiter":  BodyParams( 71492.0,  0.520,  1.4736e-2),
-    "Io":       BodyParams(  1821.6,  0.630,  1.846e-3),
-    "Europa":   BodyParams(  1560.8,  0.670,  4.355e-4),
-    "Ganymede": BodyParams(  2634.1,  0.430,  1.276e-4),
-    "Callisto": BodyParams(  2410.3,  0.170,  3.5e-5),
-    "Saturn":   BodyParams( 60268.0,  0.470,  1.6298e-2),
-    "Enceladus":BodyParams(   252.1,  0.990,  5.4e-3),
-    "Titan":    BodyParams(  2574.7,  0.220,  3.318e-5),
-    "Uranus":   BodyParams( 25559.0,  0.510,  3.5107e-3),
+    "Jupiter":  BodyParams( 71492.0,  0.520,  1.4736e-2,  0.0,      -5.87e-4),
+    "Io":       BodyParams(  1821.6,  0.630,  1.846e-3,   0.0,        0.0),
+    "Europa":   BodyParams(  1560.8,  0.670,  4.355e-4,   0.0,        0.0),
+    "Ganymede": BodyParams(  2634.1,  0.430,  1.276e-4,   0.0,        0.0),
+    "Callisto": BodyParams(  2410.3,  0.170,  3.5e-5,     0.0,        0.0),
+    "Saturn":   BodyParams( 60268.0,  0.470,  1.6298e-2,  0.0,      -9.15e-4),
+    "Enceladus":BodyParams(   252.1,  0.990,  5.4e-3,     0.0,        0.0),
+    "Titan":    BodyParams(  2574.7,  0.220,  3.318e-5,   0.0,        0.0),
+    "Uranus":   BodyParams( 25559.0,  0.510,  3.5107e-3,  0.0,      -3.4e-5,
+                            pole_axis_unit=_URANUS_POLE),
     "Miranda":  BodyParams(   235.8,  0.320,  0.0),
     "Ariel":    BodyParams(   578.9,  0.530,  0.0),
     "Umbriel":  BodyParams(   584.7,  0.260,  0.0),
     "Titania":  BodyParams(   788.9,  0.350,  0.0),
     "Oberon":   BodyParams(   761.4,  0.310,  0.0),
-    "Neptune":  BodyParams( 24764.0,  0.410,  3.539e-3),
-    "Triton":   BodyParams(  1353.4,  0.760,  0.0),
-    "Pluto":    BodyParams(  1188.3,  0.520,  0.0),
+    "Neptune":  BodyParams( 24764.0,  0.410,  3.539e-3,   0.0,      -3.5e-5,
+                            pole_axis_unit=_NEPTUNE_POLE),
+    "Triton":   BodyParams(  1353.4,  0.760,  0.0,        0.0,        0.0,
+                            pole_axis_unit=_TRITON_POLE),
+    "Pluto":    BodyParams(  1188.3,  0.520,  0.0,        0.0,        0.0,
+                            pole_axis_unit=_PLUTO_POLE),
     "Charon":   BodyParams(   606.0,  0.350,  0.0),
 }
 
@@ -129,30 +175,44 @@ _BODY_PARAMS: dict[str, BodyParams] = {
 
 @dataclass(frozen=True)
 class Predictor:
-    """A predictor specification (the physics configuration)."""
+    """A predictor specification.
+
+    The `toggles` field carries the full physics configuration (which
+    force layers are enabled). All new ablation variants are produced by
+    `dataclasses.replace(some_toggles, flag=value)` — no scattered bool
+    fields drifting out of sync.
+
+    `use_kepler` is a special path (no n-body integration; per-body
+    Keplerian fits). When True, `toggles` is ignored.
+    """
     name:        str
-    include_gr:  bool
-    include_srp: bool
-    j2_enabled:  bool
-    use_kepler:  bool = False  # special path — no n-body, fit Kepler per body
-    integrator:  str  = "fr4"  # "fr4" or "verlet"
-    dt_days:     float = 1.0
-    description: str  = ""
+    toggles:     PhysicsToggles
+    use_kepler:  bool   = False
+    integrator:  str    = "fr4"  # "fr4" or "verlet"
+    dt_days:     float  = 1.0
+    description: str    = ""
+
+
+# Common toggle bundles for the existing predictor lineup.
+_NO_PHYSICS         = PhysicsToggles()  # all False -> pure Newton baseline
+_GR_ONLY            = PhysicsToggles(gr_1pn=True)
+_GR_SRP             = PhysicsToggles(gr_1pn=True, srp=True)
+_GR_SRP_J2          = PhysicsToggles(gr_1pn=True, srp=True, j2_zonal=True)
 
 
 PREDICTORS: list[Predictor] = [
-    Predictor("pure_newton",        False, False, False, integrator="fr4",
-              description="Newton only (no GR, no SRP, no J2) — baseline"),
-    Predictor("standard",           True,  False, False, integrator="fr4",
+    Predictor("pure_newton",        _NO_PHYSICS,
+              description="Newton only (no GR, no SRP, no J2) -- baseline"),
+    Predictor("standard",           _GR_ONLY,
               description="Newton + 1PN GR (no SRP, no J2)"),
-    Predictor("over_physics_no_j2", True,  True,  False, integrator="fr4",
-              description="Newton + GR + SRP (J2 ablated) — diagnostic"),
-    Predictor("over_physics",       True,  True,  True,  integrator="fr4",
+    Predictor("over_physics_no_j2", _GR_SRP,
+              description="Newton + GR + SRP (J2 ablated) -- diagnostic"),
+    Predictor("over_physics",       _GR_SRP_J2,
               description="Newton + GR + SRP + J2 (current best)"),
-    Predictor("over_physics_finedt", True, True,  True,  integrator="fr4",
+    Predictor("over_physics_finedt", _GR_SRP_J2,
               dt_days=0.1,
               description="Over_physics with dt=0.1d (10x finer; targets fast-moon row)"),
-    Predictor("kepler",             False, False, False, use_kepler=True,
+    Predictor("kepler",             _NO_PHYSICS, use_kepler=True,
               description="2-body Keplerian fit per body"),
 ]
 
@@ -170,11 +230,15 @@ def _build_bodies_at_snapshot(
 ) -> tuple[list[CelestialBody], list[str], int]:
     """Build CelestialBody list from a DE440 annual snapshot.
 
-    Returns
-    -------
-    bodies      : list of CelestialBody (in DE440 order)
-    body_names  : list of names matching `bodies`
-    sun_idx     : index of the Sun in the list
+    Per-body parameters (j2, j3, j4, area_m2, pole_axis_unit) are ALWAYS set
+    from _BODY_PARAMS regardless of the predictor's toggles. Predictor-level
+    gating now happens at the force-computation layer inside NBodySystem
+    (via PhysicsToggles), not by zeroing per-body data here.
+
+    This is the fix for the j2-zero bug: previously, `j2_enabled=False`
+    zeroed `body.j2`, which lost the true data value and forced bodies to be
+    re-instantiated for any ablation. Now the body always carries its real
+    parameter values; the toggle decides whether the force is computed.
     """
     snap = de440["snapshots"][snap_key]
     bodies: list[CelestialBody] = []
@@ -184,7 +248,7 @@ def _build_bodies_at_snapshot(
     for entry in snap["bodies"]:
         name = entry["name"]
         sv   = entry["state_vector"]
-        gm   = entry["gm_km3_s2"] * 1e9            # → m³/s²
+        gm   = entry["gm_km3_s2"] * 1e9            # -> m³/s²
         mass = gm / _G
         pos  = np.array([sv["x_km"],  sv["y_km"],  sv["z_km"]])  * KM_TO_M
         vel  = np.array([sv["vx_km_s"],sv["vy_km_s"],sv["vz_km_s"]]) * KM_TO_M
@@ -192,11 +256,10 @@ def _build_bodies_at_snapshot(
         params = _BODY_PARAMS.get(name, BodyParams(1.0, 0.0, 0.0))
         r_m = params.radius_km * KM_TO_M
 
-        # SRP-relevant cross-section (None for Sun, since Sun is the emitter)
+        # SRP-relevant cross-section (None for Sun, since Sun is the emitter).
+        # Always populated; toggle.srp + solar_luminosity_W > 0 decides
+        # whether the SRP block runs.
         area_m2 = math.pi * r_m * r_m if (name != "Sun") else 0.0
-
-        # J2: only populated for predictors with j2_enabled
-        j2_val = params.j2 if predictor.j2_enabled else 0.0
 
         body = CelestialBody(
             mass_kg=mass,
@@ -204,10 +267,12 @@ def _build_bodies_at_snapshot(
             velocity_m_s=vel,
             radius_m=r_m,
             love_number_k2=0.0,
-            area_m2=area_m2 if predictor.include_srp else 0.0,
-            reflectivity=params.albedo if predictor.include_srp else 0.0,
-            j2=j2_val,
-            # pole_axis_unit defaults to +z (ICRF z)
+            area_m2=area_m2,
+            reflectivity=params.albedo,
+            j2=params.j2,
+            j3=params.j3,
+            j4=params.j4,
+            pole_axis_unit=params.pole_axis_unit,
         )
         bodies.append(body)
         names.append(name)
@@ -255,10 +320,12 @@ def _integrate_nbody(
         raise ValueError("sample_jds[0] must equal start_jd")
 
     dt_s = predictor.dt_days * DAY_S
+    # Toggles dictate which force layers run; solar_luminosity_W is a
+    # parameter (need a value for L_sun), gated by toggles.srp.
     system = NBodySystem(
         bodies,
-        include_gr=predictor.include_gr,
-        solar_luminosity_W=_L_SUN_W if predictor.include_srp else 0.0,
+        toggles=predictor.toggles,
+        solar_luminosity_W=_L_SUN_W if predictor.toggles.srp else 0.0,
     )
 
     if predictor.integrator == "fr4":
