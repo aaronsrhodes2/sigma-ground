@@ -60,7 +60,7 @@ include = ["sigma_ground*"]
 "sigma_ground.inventory" = ["data/*.json", "samples/*.json"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "renderer/tests", "sigma_ground/field/interface"]
+testpaths = ["tests", "renderer/tests", "sigma_ground/field/interface", "sigma_ground/inventory"]
 
 [tool.pip-compile]
 dependencies = ["pip-compile"]
