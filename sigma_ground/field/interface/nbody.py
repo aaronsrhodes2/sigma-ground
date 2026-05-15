@@ -414,29 +414,34 @@ class NBodySystem:
 
                 if t.gr_2pn:
                     # ┌──────────────────────────────────────────────────────┐
-                    # │ BORROWED FROM TEXTBOOK -- PENDING SSBM DERIVATION    │
+                    # │ BORROWED FROM TEXTBOOK -- LEADING TERM ONLY          │
                     # │ Source: Will 1993 "Theory and Experiment in          │
                     # │ Gravitational Physics" §4.4 (test-particle 2PN in    │
-                    # │ Schwarzschild). Should match Soffel 2003 eq. 10.12   │
-                    # │ at c⁻⁴ order in PN bookkeeping.                      │
+                    # │ Schwarzschild), Soffel 2003 eq. 10.12 at c⁻⁴.        │
                     # │                                                      │
-                    # │ STATUS: PLACEHOLDER — leading-order radial-only      │
-                    # │ form. Captures the dimensionally-correct dominant    │
-                    # │ structure  a_2PN ~ (GM/r²) × (GM/(rc²))² × r̂        │
-                    # │ but the O(1) coefficient and velocity-coupled terms  │
-                    # │ are NOT verified against the canonical form.         │
-                    # │ Magnitude scaling is correct:                        │
-                    # │   Mercury (v/c ~ 1.6e-4): a_2PN ~ 10⁻¹⁵ m/s²        │
-                    # │   NS binary at 1e7 m  : a_2PN ~ 0.1 m/s²            │
-                    # │ Replace this block when σ-derived 2PN lands in       │
-                    # │ sigma_ground.field.gr_basics.                        │
+                    # │ STATUS: LEADING RADIAL TERM with the correct c⁻⁴     │
+                    # │ Schwarzschild coefficient 9:                         │
+                    # │   a_2PN_leading = +9 (GM/r)² × (1/c⁴) × (1/r²) × r̂   │
+                    # │                 = 9 GM × (GM/(rc²))² / r² × r̂        │
+                    # │ Earlier version had a placeholder coefficient 1; the │
+                    # │ correct leading-order radial coefficient from the    │
+                    # │ Schwarzschild metric expansion is 9.                 │
+                    # │                                                      │
+                    # │ NOT YET INCLUDED (full 2PN has additional terms):    │
+                    # │   - v_i² mixed terms ~ (GM/r) × v² × r̂/c⁴            │
+                    # │   - (r̂·v_i)² terms                                   │
+                    # │   - Cross-velocity-radial couplings                  │
+                    # │ The leading radial dominates for slow orbits         │
+                    # │ (v/c < 0.05); add velocity terms for compact binary  │
+                    # │ work. Per SSBM derivation roadmap (GOLDEN_RULES §2)  │
+                    # │ this whole block awaits σ-modified geodesic.         │
                     # └──────────────────────────────────────────────────────┘
                     r_hat     = r_ij / r
                     gm_over_r = gm_j / r          # m²/s²
                     pn_param  = gm_over_r / _c2   # dimensionless (GM/(rc²))
-                    # Dominant leading radial 2PN term, dimensionally clean:
-                    #   a_2PN = (GM/r²) × (GM/(rc²))² × r̂   [O(1) coef = 1]
-                    a_2pn_mag = (gm_j / r_sq) * pn_param * pn_param
+                    # Leading radial 2PN: +9 GM³/(r⁴ c⁴) × r̂
+                    #   = 9 × (GM/r²) × (GM/(rc²))² × r̂
+                    a_2pn_mag = 9.0 * (gm_j / r_sq) * pn_param * pn_param
                     acc[i] += a_2pn_mag * r_hat
 
         # ── J₂ zonal quadrupole (rotational oblateness) ───────────────────

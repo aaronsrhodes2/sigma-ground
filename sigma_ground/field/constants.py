@@ -15,11 +15,12 @@ those measurements.
 import math
 
 # ── SSBM Parameters ───────────────────────────────────────────────────
-# The single new constant: baryon fraction (Planck 2018)
+# THE ONE FREE PARAMETER OF SSBM:
+# baryon fraction Ω_b/(Ω_b+Ω_c) from Planck 2018 CMB analysis.
 #   Ω_b h² = 0.02237,  Ω_c h² = 0.1200
-#   Exact: 0.02237 / (0.02237 + 0.1200) = 0.15716...
+#   Exact ratio: 0.02237 / (0.02237 + 0.1200) = 0.15716...
 #   Canonical SSBM value (used in all publications and tests):
-XI = 0.1582
+XI = 0.1582  # [EMPIRICAL-INPUT] Planck 2018 cosmology; the single free parameter SSBM introduces
 
 # Kobakhidze-Liang 2024 (arXiv:2410.22412): ξ from QCD beta-function ratios
 # SU(N) composite-axion gauge group with relaxation mechanism. Key formula:
