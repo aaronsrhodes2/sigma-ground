@@ -175,29 +175,42 @@ def test_hde_rho_de_at_eta_matches_observed_rho_de_to_factor_eta_over_omega_de()
     assert ratio == pytest.approx(expected, rel=0.20)
 
 
-# ── Phase XII.b.3: EDE+IDE scaffolding (arXiv:2505.23382) ─────────────
+# ── Phase XII.b.3: EDE+IDE values (arXiv:2505.23382 Table 2) ──────────
+# Values lifted 2026-05-15 from arXiv:2505.23382 Table 2 (mixed EDE+iDEDM
+# model, joint P18+DESI+DES+PP+H0 analysis). Both parameters come out as
+# 95% C.L. UPPER BOUNDS, not central values with symmetric uncertainties:
+#   f_EDE      < 0.113   at 95% C.L.
+#   ξ_iDEDM    < 0.071   at 95% C.L.
 
-def test_ede_ide_not_yet_available():
-    """Until arXiv:2505.23382 numerics are lifted, the predictor is unavailable."""
+def test_ede_ide_now_available():
+    """Values lifted from arXiv:2505.23382 -- predictor data is in place."""
     from sigma_ground.field.interface.cosmology import ede_ide_available
-    assert ede_ide_available() is False
+    assert ede_ide_available() is True
 
 
 def test_ede_ide_prediction_refuses_to_fabricate():
-    """Predictor raises rather than returning a fabricated number."""
+    """Predictor still raises because the (f_ede,ξ) → (ΔH₀,ΔS₈) mapping
+    function hasn't been implemented -- only the upper-bound values
+    themselves are lifted, not the predictive coefficients."""
     from sigma_ground.field.interface.cosmology import ede_ide_h0_s8_prediction
     with pytest.raises(NotImplementedError):
         ede_ide_h0_s8_prediction()
 
 
-def test_ede_ide_constants_are_pending():
-    """The EDE/IDE constants are None placeholders pending paper Table 2."""
+def test_ede_ide_upper_bounds_match_paper_table2():
+    """The EDE+iDEDM upper bounds from arXiv:2505.23382 Table 2 (mixed
+    model, P18+DESI+DES+PP+H0): f_EDE < 0.113, ξ_iDEDM < 0.071, both
+    at 95% C.L.
+    """
     from sigma_ground.field.constants import (
-        F_EDE_CENTRAL,
-        XI_IDE_CENTRAL,
+        F_EDE_UPPER_95CL, XI_IDE_UPPER_95CL,
+        F_EDE_CENTRAL, XI_IDE_CENTRAL,  # legacy aliases
     )
-    assert F_EDE_CENTRAL is None
-    assert XI_IDE_CENTRAL is None
+    assert F_EDE_UPPER_95CL == pytest.approx(0.113, abs=1e-12)
+    assert XI_IDE_UPPER_95CL == pytest.approx(0.071, abs=1e-12)
+    # Legacy names alias the upper bounds for backward compatibility.
+    assert F_EDE_CENTRAL == F_EDE_UPPER_95CL
+    assert XI_IDE_CENTRAL == XI_IDE_UPPER_95CL
 
 
 # ── Phase XII.d.2: Entropic / MOND (arXiv:2511.05632) ────────────────

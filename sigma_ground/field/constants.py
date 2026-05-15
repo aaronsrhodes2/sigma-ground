@@ -42,24 +42,31 @@ C_HDE_DESY5    = 0.701            # HDE c from CMB+DESI+DESY5
 ETA_HDE_UNION3 = C_HDE_UNION3 ** 2  # ≈ 0.412 — lower bound of DESI range
 ETA_HDE_DESY5  = C_HDE_DESY5  ** 2  # ≈ 0.491 — upper bound of DESI range
 
-# DESI 2025 DR3 dynamical-DE multi-model fits (arXiv:2512.07281, Dec 2025)
-# Key claim of the paper: Hubble tension >6σ across all tested models,
-# dynamical-DE mildly preferred over ΛCDM. The paper surveys w₀wₐCDM, HDE,
-# and EDE jointly. Per-model HDE c² values require reading the detailed
-# Table and are NOT yet lifted here — placeholders below record the slot.
-# Until then, these stay None so any code that uses them fails loudly
-# instead of quietly reading a fabricated number.
-ETA_HDE_UNION3_DR3 = None         # [SPECULATIVE-PENDING] DR3 Union3 c² to be lifted from arXiv:2512.07281
-ETA_HDE_DESY5_DR3  = None         # [SPECULATIVE-PENDING] DR3 DESY5 c² to be lifted from arXiv:2512.07281
+# DESI 2025 DR3 dynamical-DE multi-model fits
+# ─────────────────────────────────────────────
+# CITATION CORRECTION (2026-05-15 audit, see PROVENANCE.md):
+# The originally-cited arXiv:2512.07281 surveys ΛCDM, wwCDM, w₀wₐCDM, φCDM,
+# and a "ξ-index" interacting-DE model -- it does NOT contain HDE c² values.
+# The correct source for DR3 HDE constraints is a separate (yet-to-be-found)
+# paper, possibly in the DESI 2025 cosmology release set. These slots stay
+# None with explicit citation-needed status -- loud failure beats fabricated
+# numbers.
+ETA_HDE_UNION3_DR3 = None         # [SPECULATIVE-PENDING] DR3 Union3 c²; CITATION NEEDED (arXiv:2512.07281 was checked and lacks HDE content)
+ETA_HDE_DESY5_DR3  = None         # [SPECULATIVE-PENDING] DR3 DESY5 c²;  CITATION NEEDED (same as above)
 
 # EDE + interacting dark-sector joint fit (arXiv:2505.23382, May 2025)
-# Two-parameter extension where EDE fraction f_EDE lifts H₀ and a DE-DM
-# interaction coefficient ξ_IDE suppresses S₈ growth. Paper reports ≤2σ
-# simultaneous resolution — Table values NOT YET lifted here.
-# Note: ξ_IDE is the paper's interaction coupling; NOT to be confused with
-# sigma-ground's XI (baryon fraction). Distinct symbol deliberately used.
-F_EDE_CENTRAL      = None   # [SPECULATIVE-PENDING] EDE fraction f_EDE best-fit; lift from arXiv:2505.23382
-XI_IDE_CENTRAL     = None   # [SPECULATIVE-PENDING] IDE coupling ξ_IDE best-fit; lift from arXiv:2505.23382
+# Two-parameter extension where EDE fraction f_EDE lifts H₀ and an iDEDM
+# coupling ξ suppresses S₈ growth. Joint analysis P18+DESI+DES+PP+H0
+# (paper's Table 2) constrains both as UPPER BOUNDS, not central values
+# with symmetric uncertainties -- the data is consistent with both = 0.
+# Note: ξ here (iDEDM coupling) is NOT sigma-ground's XI (baryon fraction).
+# Distinct symbol deliberately used.
+F_EDE_UPPER_95CL   = 0.113   # [VERIFIED] arXiv:2505.23382 Table 2, mixed EDE+iDEDM model, P18+DESI+DES+PP+H0 (95% C.L. upper bound)
+XI_IDE_UPPER_95CL  = 0.071   # [VERIFIED] arXiv:2505.23382 Table 2, mixed EDE+iDEDM model (95% C.L. upper bound)
+# Legacy aliases for backward compatibility -- now point to the upper bounds.
+# Future code should reference F_EDE_UPPER_95CL / XI_IDE_UPPER_95CL directly.
+F_EDE_CENTRAL      = F_EDE_UPPER_95CL   # alias: upper bound treated as conservative "best fit"
+XI_IDE_CENTRAL     = XI_IDE_UPPER_95CL  # alias: same
 
 # ── Neutrino sector ────────────────────────────────────────────────────
 # PDG 2022 best-fit mass-splittings for 3-flavour oscillations.
@@ -75,9 +82,17 @@ SUM_NEUTRINO_MASS_UPPER_EV = 0.12         # [VERIFIED] Planck 2018 combined (95%
 SUM_NEUTRINO_MASS_DESI_UPPER_EV = 0.072   # [VERIFIED] DESI 2024 (arXiv:2404.03002)
 
 # Neutrino nature placeholder — Dirac vs Majorana undetermined experimentally.
-# Sigma-ground takes no stance until a neutrinoless double-beta-decay result
-# resolves the question.
-NEUTRINO_NATURE = None  # [SPECULATIVE-PENDING] 'dirac' | 'majorana' | None
+# The distinction can only be resolved by a positive observation of
+# neutrinoless double-beta decay (0νββ). As of 2026, no experiment has
+# claimed detection: KamLAND-Zen, GERDA, CUORE, EXO-200, MAJORANA, LEGEND-200
+# all set upper bounds on the effective Majorana mass. Until LEGEND-1000,
+# nEXO, or similar next-gen experiment claims a positive signal (or rules
+# out the remaining parameter space at inverted-hierarchy sensitivity), the
+# question is genuinely open. Sigma-ground takes no stance.
+#
+# This is intentionally NOT a lift-from-table value -- it's a binary
+# (dirac/majorana/unknown) that requires experimental resolution we don't have.
+NEUTRINO_NATURE = None  # [SPECULATIVE-PENDING] genuinely open question, no measurement to lift
 
 # ── MOND characteristic acceleration ──────────────────────────────────
 # Milgrom 1983 (ApJ 270, 365): rotation curves of galaxies transition from
@@ -86,15 +101,21 @@ NEUTRINO_NATURE = None  # [SPECULATIVE-PENDING] 'dirac' | 'majorana' | None
 # Reference: McGaugh et al. 2016; arXiv:2511.05632 (entropic derivation).
 A0_MOND_MS2 = 1.2e-10  # [VERIFIED] Milgrom 1983, confirmed SPARC 2016
 
-# ── Dark axion portal (arXiv:2410.12634) ───────────────────────────────
+# ── Dark axion portal ──────────────────────────────────────────────────
 # An axion-like particle (ALP) coupled to both photons and dark photons,
 # with mass and coupling constrained by collider and astrophysical searches.
 #   Axion mass window:         m_a ∈ (10⁻²² eV, 10⁻² eV) for ULDM
 #   ALP-photon coupling limit: g_aγγ < ~10⁻¹⁰ GeV⁻¹ (CAST/helioscope)
+#
+# CITATION CORRECTION (2026-05-15 audit): the originally-cited
+# arXiv:2410.12634 is actually about cavity axion-photon conversion
+# physics, NOT a dark-axion-portal review. The Z-factory sensitivity slot
+# below references a paper we haven't located yet; it stays None until the
+# correct citation is identified.
 AXION_MASS_ULDM_MIN_EV = 1.0e-22            # [VERIFIED] ultralight DM lower bound
 AXION_MASS_ULDM_MAX_EV = 1.0e-2             # [VERIFIED] QCD-axion window upper bound
 ALP_PHOTON_COUPLING_MAX_INVGEV = 1.0e-10    # [VERIFIED] CAST 2017 helioscope bound
-DARK_AXION_PORTAL_Z_SENSITIVITY = None      # [SPECULATIVE-PENDING] lift from arXiv:2410.12634 Table
+DARK_AXION_PORTAL_Z_SENSITIVITY = None      # [SPECULATIVE-PENDING] Z-factory sensitivity; CITATION NEEDED (arXiv:2410.12634 was checked and is unrelated)
 
 # ── KM3-230213A LIV bound (Feb 2025, arXiv:2502.18256) ────────────────
 # Stringent constraint on the neutrino-sector second-order Lorentz-invariance

@@ -9,15 +9,15 @@ trace back to (a) a measurement of reality, (b) a mathematical
 derivation from such measurements, or (c) a definitional standard
 (SI unit definitions). No guesses.
 
-**Total quantities: 87**
+**Total quantities: 89**
 
 | Category | Count | Fraction |
 |---|---:|---:|
-| Measured (`[VERIFIED]`) | 48 | 55.2% |
-| Derived (`[DERIVED]`) | 31 | 35.6% |
+| Measured (`[VERIFIED]`) | 50 | 56.2% |
+| Derived (`[DERIVED]`) | 33 | 37.1% |
 | Free input (`[EMPIRICAL-INPUT]`) | 1 | 1.1% |
 | Mathematical (π, φ, e -- pure math) | 1 | 1.1% |
-| Speculative pending (`[SPECULATIVE-PENDING]`) | 6 | 6.9% |
+| Speculative pending (`[SPECULATIVE-PENDING]`) | 4 | 4.5% |
 | Unclassified | 0 | 0.0% |
 
 Toward perfect: minimize `free-input`, eliminate `speculative-pending`,
@@ -39,12 +39,10 @@ point of the framework is to minimize this list.
 Values currently set to `None` or with placeholder coefficients,
 awaiting derivation or measurement extraction. Each is a TODO.
 
-- **`ETA_HDE_UNION3_DR3`** = `None` -- [SPECULATIVE-PENDING] DR3 Union3 c² to be lifted from arXiv:2512.07281
-- **`ETA_HDE_DESY5_DR3`** = `None` -- [SPECULATIVE-PENDING] DR3 DESY5 c² to be lifted from arXiv:2512.07281
-- **`F_EDE_CENTRAL`** = `None` -- [SPECULATIVE-PENDING] EDE fraction f_EDE best-fit; lift from arXiv:2505.23382
-- **`XI_IDE_CENTRAL`** = `None` -- [SPECULATIVE-PENDING] IDE coupling ξ_IDE best-fit; lift from arXiv:2505.23382
-- **`NEUTRINO_NATURE`** = `None` -- [SPECULATIVE-PENDING] 'dirac' | 'majorana' | None
-- **`DARK_AXION_PORTAL_Z_SENSITIVITY`** = `None` -- [SPECULATIVE-PENDING] lift from arXiv:2410.12634 Table
+- **`ETA_HDE_UNION3_DR3`** = `None` -- [SPECULATIVE-PENDING] DR3 Union3 c²; CITATION NEEDED (arXiv:2512.07281 was checked and lacks HDE content)
+- **`ETA_HDE_DESY5_DR3`** = `None` -- [SPECULATIVE-PENDING] DR3 DESY5 c²;  CITATION NEEDED (same as above)
+- **`NEUTRINO_NATURE`** = `None` -- [SPECULATIVE-PENDING] genuinely open question, no measurement to lift
+- **`DARK_AXION_PORTAL_Z_SENSITIVITY`** = `None` -- [SPECULATIVE-PENDING] Z-factory sensitivity; CITATION NEEDED (arXiv:2410.12634 was checked and is unrelated)
 
 ---
 
@@ -58,6 +56,8 @@ the `derived` section computes downstream of these.
 - **`XI_KOBAKHIDZE`** = `3.0 / 19.0` -- exact: ξ = 3/(3+16), N=8 unique
 - **`C_HDE_UNION3`** = `0.642` -- HDE c from CMB+DESI+Union3 (DESI 2024)
 - **`C_HDE_DESY5`** = `0.701` -- HDE c from CMB+DESI+DESY5
+- **`F_EDE_UPPER_95CL`** = `0.113` -- [VERIFIED] arXiv:2505.23382 Table 2, mixed EDE+iDEDM model, P18+DESI+DES+PP+H0 (95% C.L. upper bound)
+- **`XI_IDE_UPPER_95CL`** = `0.071` -- [VERIFIED] arXiv:2505.23382 Table 2, mixed EDE+iDEDM model (95% C.L. upper bound)
 - **`DELTA_M2_21_EV2`** = `7.42e-5` -- [VERIFIED] PDG 2022 solar mass-squared splitting
 - **`DELTA_M2_31_EV2`** = `2.514e-3` -- [VERIFIED] PDG 2022 atmospheric (normal ordering)
 - **`DELTA_M2_32_EV2`** = `-2.497e-3` -- [VERIFIED] PDG 2022 (inverted ordering magnitude)
@@ -115,6 +115,8 @@ non-input values here.
 - **`SIGMA_CONV_KOBAKHIDZE`** = `-math.log(XI_KOBAKHIDZE)` -- ≈ 1.8458 deps: XI_KOBAKHIDZE
 - **`ETA_HDE_UNION3`** = `C_HDE_UNION3 ** 2` -- ≈ 0.412 — lower bound of DESI range deps: C_HDE_UNION3
 - **`ETA_HDE_DESY5`** = `C_HDE_DESY5  ** 2` -- ≈ 0.491 — upper bound of DESI range deps: C_HDE_DESY5
+- **`F_EDE_CENTRAL`** = `F_EDE_UPPER_95CL` -- alias: upper bound treated as conservative "best fit" deps: F_EDE_UPPER_95CL
+- **`XI_IDE_CENTRAL`** = `XI_IDE_UPPER_95CL` -- alias: same deps: XI_IDE_UPPER_95CL
 - **`SIGMA_CONV`** = `-math.log(XI)` -- ≈ 1.849... but using exact XI deps: XI
 - **`PROTON_BARE_MEV`** = `2 * M_UP_MEV + M_DOWN_MEV` -- = 8.99 MeV deps: M_DOWN_MEV, M_UP_MEV
 - **`PROTON_QCD_MEV`** = `PROTON_TOTAL_MEV - PROTON_BARE_MEV` -- = 929.282 MeV deps: PROTON_BARE_MEV, PROTON_TOTAL_MEV
