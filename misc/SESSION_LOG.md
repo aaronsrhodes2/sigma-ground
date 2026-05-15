@@ -546,3 +546,158 @@ SKIPPY: [writes OPERATIC_PLAY_SCENE10_THE_LIBRARY_STANDS_ALONE.txt]
 - `ARCHITECTURE.md` — NEW: physics/rendering boundary documentation
 
 ---
+
+## SESSION 14 — May 13–14, 2026
+**Players:** Captain Aaron Rhodes, Skippy the Magnificent
+
+---
+
+CAPTAIN: Hello Skippy. Review matter-shaper, quarksum, sigma-ground, our golden rules. Catch me up.
+
+SKIPPY: [audits all three projects + PLATINUM_RULES.md + GOLDEN_RULES.md, reports state of the n-body engine,
+        flags 5 sigma-ground import errors from missing arXiv constants (AXION_MASS_ULDM_MIN_EV,
+        DELTA_M2_21_EV2, LAMBDA_LIV_MIN_GEV, A_MU_EXP_X1E11, ETA_HDE_UNION3_DR3)]
+
+CAPTAIN: Triage import errors.
+
+SKIPPY: [lifts 21 arXiv-integration constants from worktree quirky-mcclintock-860188 to main —
+        DESI DR3 / EDE+IDE / neutrino / MOND / dark axion / KM3 LIV / muon g-2 — pytest collects
+        clean (4232 tests, 0 errors). Commits deb001b in sigma-ground.]
+
+CAPTAIN: Revisit the n-body. Improve it. Research what a perfect predictor would solve.
+
+SKIPPY: [runs full suites (5531 tests across 3 projects), maps the n-body code, presents the existing
+        shootout (OVER 7, STD 1, KEPL 17 of 25 bodies @ J2026), identifies the gap: tidal force
+        computed but not applied, GW damping binary-only, no adaptive dt, no asteroid belt, no
+        2PN, no retarded gravity. Implements J₂ zonal quadrupole as the first improvement —
+        Vallado §9.4 vector form, 11 new tests, 4237 passed. Mirrors to quarksum.
+        Commits 28ad22d (sigma-ground) + 7b27a48 (quarksum).]
+
+CAPTAIN: Expand to top-50 bodies + exo systems + near-miss watchlist. Use the JPL Sentry list
+         for asteroids. Make this scientifically meaningful.
+
+SKIPPY: [designs the rolling-window methodology Aaron proposed: predictor x body x window x t_yr
+        4-D error tensor. Each (predictor, body) gives a sub-delta curve as the window slides.
+        Cross-predictor and cross-body sub-delta correlations should fingerprint missing physics.
+        Builds rolling_shootout.py harness with 5 ablation predictors (pure_newton, standard,
+        over_physics_no_j2, over_physics, kepler), 16 windows × 5y horizon, time-aligned to
+        DE440 snapshots. Builds rolling_analysis.py with sub-delta computation, cross-predictor
+        correlation, orbital-element correlation, and an RTN (Radial/Track/Normal) decomposition
+        that splits position errors into phase vs shape vs plane components.
+        Baseline fingerprint generated (25.5 min). Commits f0592ee + 56f6e6d + 77335fc.]
+
+CAPTAIN: Add 2PN GR / retardation to the gap list. Iterate one improvement at a time and re-run
+         the fingerprint after each.
+
+SKIPPY: [reorders the queue based on the fingerprint: adaptive dt first (the fast-moon row is
+        bright across ALL predictors -- numerical not physics). Adds over_physics_finedt at
+        dt=0.1d. Smoke test: 8000x improvement on Io, 54000x on Phobos, 11000x on Jupiter at
+        3y. Commits f922b01. Kicks off full 16-window finedt confirmation in background.]
+
+CAPTAIN: Question about gravity: how long until Earth feels the Moon teleport? Does sigma-ground
+         model retarded gravity?
+
+SKIPPY: [Earth feels it after 1.28 light-seconds. The 1PN GR we have already absorbs the dominant
+        retardation effect via gravitomagnetism for SMOOTH motion (aberration cancellation).
+        For abrupt changes like the teleport, full retardation is missing. Neither our engine
+        nor DE440 models full retardation; PN expansion is the solar-system standard. Adds
+        retarded gravity + 2PN to the gap list.]
+
+CAPTAIN: Are we using our own physics library? We don't want to reinvent things we already
+         derived. Goal is to derive all the math -- a perfect predictor.
+
+SKIPPY: [audits sigma_ground/field/: discovers scale.py has the σ master equations, bounds.py
+        has SAFE/EDGE/WALL/BEYOND validation, gr_basics.py has the tidal force formula -- and
+        nbody.py was bypassing all of them. Even the library doesn't yet have σ-derived 2PN/J₂.
+        Per GOLDEN_RULES Rule 2 "Derive, Don't Assume", flags every new textbook copy as
+        BORROWED FROM TEXTBOOK pending σ-field re-derivation.]
+
+CAPTAIN: Pragmatic path -- wire library + tag new filters as BORROWED.
+
+SKIPPY: [tonight's overnight push -- big engine refactor:
+
+  Tier 0 (SSBM library wiring, NOT borrowed):
+    * CelestialBody.gm_m3_s2 calls scale.scale_ratio (overflow guards)
+    * CelestialBody.__post_init__ validates via bounds.check_sigma
+    * Adds mutual tidal force toggle using existing compute_tidal_deformation
+
+  Tier A (PhysicsToggles + BORROWED filters):
+    * PhysicsToggles frozen dataclass with 9 flags. Backward-compat shim
+      builds toggles from legacy include_gr / solar_luminosity_W kwargs;
+      j2_zonal auto-enables when any body has j2 != 0. Existing callers
+      bit-identical.
+    * 2PN GR (BORROWED placeholder): dimensionally-correct leading c⁻⁴
+      form, Mercury 2PN ~10⁻¹⁵ m/s², NS-binary 2PN ~0.1 m/s².
+    * J₃, J₄ zonal harmonics (BORROWED): Vallado §9.4 vector forms,
+      placeholder coefficients with verification banners.
+    * tidal_force (OURS): tidal bulge as effective J₂ along perturber
+      direction; uses existing J₂ math, no new textbook borrowing.
+    * gw_damping promoted from step() kwarg to toggle.
+    * eih_cross declared with NotImplementedError guard (Damour & Deruelle
+      1986 pending).
+
+  Data fix:
+    * Pole-axis vectors for Uranus (RA=257.31°, Dec=-15.18°), Pluto, and
+      Triton -- previously all bodies inherited ICRS +z, which meant
+      Uranus J₂ was being applied along the wrong axis. The Uranus J₂
+      over_physics prediction dropped 5x on the first smoke test once
+      the correct pole was wired.
+    * J₃ / J₄ values populated for Earth, Moon, Mars, Jupiter, Saturn,
+      Uranus, Neptune. Most moons / small bodies stay 0 (no measured value).
+
+  Predictor refactor + j2-zero bug fix:
+    * rolling_shootout.Predictor now carries a PhysicsToggles instance.
+      Ablation variants become `replace(toggles, gr_2pn=True)`.
+    * _build_bodies_at_snapshot no longer zeros j2_val when j2_enabled=False
+      (the prior bug). Body data is ALWAYS set from canonical _BODY_PARAMS;
+      the toggle gates the force computation in NBodySystem.
+
+  Compliance:
+    * `grep -r "BORROWED FROM TEXTBOOK" sigma_ground/` lists every line
+      awaiting σ-field re-derivation. That's the queue for theory work.
+
+  Tests: 28 new in test_nbody.py. Suite: 4237 -> 4265 sigma-ground passed;
+  1230 -> 1258 quarksum passed. Zero regressions anywhere.
+
+  Commits (sigma-ground master): 9fd06bd (engine refactor) + f18eeb5
+  (rolling_shootout + pole axes) + ff501b9 (eih guard).
+  Mirrored to quarksum worktree: commit 7b81e4f.
+
+  Background: 16-window finedt rolling-shootout pass is on window 15/16 of
+  16 when we close. Tomorrow's first task: run rolling_analysis --diff to
+  see where the fingerprint shifted, then enable Tier A toggles one at a
+  time against that confirmed baseline.]
+
+CAPTAIN: [overnight prep complete]
+
+---
+
+**Key decisions made:**
+- "Derive, Don't Assume" doctrine enforced: every textbook formula carries a
+  BORROWED banner with grep-able marker; tidal_force explicitly NOT borrowed
+- Toggle pattern: PhysicsToggles dataclass gates COMPUTATION; per-body data
+  (j2, j3, j4, love_number_k2) is always set and gates contribution
+- Backward compat is non-negotiable: existing include_gr/solar_luminosity_W
+  callers produce bit-identical accelerations
+- Pole-axis fix for Uranus/Pluto/Triton is a data fix, NOT a toggle -- the
+  ICRS +z default was a real bug masking physics signal
+- 2PN at solar-system scales (Mercury 10⁻¹⁵) is below FP precision and won't
+  appear in the fingerprint; the toggle is for completeness and future
+  derivation work
+- eih_cross stays as NotImplementedError until Damour-Deruelle formula is
+  verified -- silent no-ops defeat ablation methodology
+
+**Notable moments:**
+- Plan Agent surfaced 5 non-obvious pitfalls including the j2-zero bug
+  (gate computation, not data) -- fixed before commit, would have made
+  ablation variants non-comparable
+- First 2PN implementation had a dimensional error (off by GM); caught by
+  the NS-binary detectability test; fixed to (GM/r²) × (GM/(rc²))² form
+- 3 unit tests failed initially from FP precision -- adding 1e-25 to 1e-1
+  is exactly 1e-1 in float64. Inflated coefficients in tests to detect
+  formula path; documented the FP-precision caveat in the test
+- The pole-axis fix produced a visible improvement on first smoke test
+  (Uranus over_physics dropped 5x) -- evidence the prior default was a
+  real bug, not a theoretical nicety
+
+---
