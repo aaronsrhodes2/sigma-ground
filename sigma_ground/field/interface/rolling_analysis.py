@@ -6,14 +6,14 @@ of each predictor's failure mode.
 
 EXPERIMENTAL DESIGN RECAP
 -------------------------
-For each (predictor, body, window_idx) we have an error curve e(τ) where τ
+For each (predictor, body, window_idx) we have an error curve e(tau) where tau
 is time-since-window-start. The "sub-delta" is the difference between this
 curve across adjacent windows:
 
-    sub_delta(predictor, body, w → w+1, τ) = e_{w+1}(τ) − e_w(τ)
+    sub_delta(predictor, body, w -> w+1, tau) = e_{w+1}(tau) - e_w(tau)
 
 If the model is correct AND the chaos horizon is far away, sub_delta ≈ 0 for
-all τ (the model's residuals don't drift as we slide forward).
+all tau (the model's residuals don't drift as we slide forward).
 
 A non-zero sub_delta means SOMETHING about the model's relationship to
 ground truth is changing across windows. Possible sources:
@@ -27,12 +27,12 @@ over_physics vs over_physics_no_j2), we can attribute drift to that physics.
 
 OUTPUTS
 -------
-1. Summary table  — mean error & growth rate per (predictor, body)
-2. Sub-delta table — window-to-window variance per (predictor, body)
-3. Ablation table — over_physics minus over_physics_no_j2 = the J2 effect
-                  — standard minus pure_newton = the GR effect
-4. Heatmap PNGs   — error-magnitude and sub-delta-variance grids
-5. Pattern report — ranked list of biggest anomalies and best explanations
+1. Summary table  -- mean error & growth rate per (predictor, body)
+2. Sub-delta table -- window-to-window variance per (predictor, body)
+3. Ablation table -- over_physics minus over_physics_no_j2 = the J2 effect
+                  -- standard minus pure_newton = the GR effect
+4. Heatmap PNGs   -- error-magnitude and sub-delta-variance grids
+5. Pattern report -- ranked list of biggest anomalies and best explanations
 
 USAGE
 -----
@@ -135,14 +135,14 @@ def per_predictor_body_summary(df: pd.DataFrame) -> pd.DataFrame:
     max_err_au          : worst error
     growth_rate_au_yr   : average dE/dt across windows (least-squares slope)
     growth_std_au_yr    : window-to-window std of slopes (the SUB-DELTA)
-    sub_delta_rms_au    : RMS of (e_{w+1}(τ) − e_w(τ)) across all (w, τ)
+    sub_delta_rms_au    : RMS of (e_{w+1}(tau) - e_w(tau)) across all (w, tau)
     """
     rows = []
     for (pred, body), grp in df.groupby(["predictor", "body"]):
         valid = grp.dropna(subset=["error_au"])
         if len(valid) < 2:
             continue
-        # Per-window slope from t_yr → error
+        # Per-window slope from t_yr -> error
         slopes = []
         for w_idx, w_grp in valid.groupby("window_idx"):
             t = w_grp["t_yr"].to_numpy()
@@ -169,8 +169,8 @@ def per_predictor_body_summary(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _sub_delta_rms(grp: pd.DataFrame) -> float:
-    """RMS of e_{w+1}(τ) − e_w(τ) over all matched (w, τ) pairs within one (predictor, body)."""
-    # Pivot to (window_idx, t_yr_bin) → error_au
+    """RMS of e_{w+1}(tau) - e_w(tau) over all matched (w, tau) pairs within one (predictor, body)."""
+    # Pivot to (window_idx, t_yr_bin) -> error_au
     piv = grp.pivot_table(index="window_idx", columns="t_yr_bin",
                           values="error_au", aggfunc="mean")
     if piv.shape[0] < 2:
@@ -185,12 +185,12 @@ def _sub_delta_rms(grp: pd.DataFrame) -> float:
 def ablation_table(summary: pd.DataFrame) -> pd.DataFrame:
     """Isolate individual physics contributions.
 
-    j2_effect_au_yr  = growth_rate(over_physics)  − growth_rate(over_physics_no_j2)
-    srp_effect_au_yr = growth_rate(over_physics_no_j2) − growth_rate(standard)
-    gr_effect_au_yr  = growth_rate(standard)      − growth_rate(pure_newton)
+    j2_effect_au_yr  = growth_rate(over_physics)  - growth_rate(over_physics_no_j2)
+    srp_effect_au_yr = growth_rate(over_physics_no_j2) - growth_rate(standard)
+    gr_effect_au_yr  = growth_rate(standard)      - growth_rate(pure_newton)
 
     Positive values mean the more-physics predictor has LARGER error growth
-    (i.e. enabling that physics made things WORSE for that body — likely a
+    (i.e. enabling that physics made things WORSE for that body -- likely a
     bug, numerical issue, or genuine model mismatch with truth).
 
     Negative values mean enabling that physics CLOSED the gap.
@@ -209,7 +209,7 @@ def ablation_table(summary: pd.DataFrame) -> pd.DataFrame:
 def cross_predictor_correlation(df: pd.DataFrame) -> pd.DataFrame:
     """Per body: correlation matrix of error curves across predictors.
 
-    For each body, build a long-form table (window_idx, t_yr_bin, predictor → error_au),
+    For each body, build a long-form table (window_idx, t_yr_bin, predictor -> error_au),
     pivot to get a column per predictor, and compute the predictor-predictor
     correlation matrix. High correlation = predictors agree on this body's
     error pattern (likely shared cause: data limitation, body chaos, etc.).
@@ -264,10 +264,10 @@ def orbital_correlation(summary: pd.DataFrame) -> pd.DataFrame:
 
 def print_report(meta: dict, df: pd.DataFrame) -> None:
     print("\n" + "=" * 78)
-    print("ROLLING-WINDOW SHOOTOUT — SUB-DELTA ANALYSIS REPORT")
+    print("ROLLING-WINDOW SHOOTOUT -- SUB-DELTA ANALYSIS REPORT")
     print("=" * 78)
     print(f"\nWindows:    {meta['n_windows']}   "
-          f"({meta['window_start_keys'][0]} → {meta['window_start_keys'][-1]})")
+          f"({meta['window_start_keys'][0]} -> {meta['window_start_keys'][-1]})")
     print(f"Horizon:    {meta['prediction_horizon_yr']:.0f} yr")
     print(f"Predictors: {', '.join(meta['predictors'])}")
     print(f"Samples:    {len(df):,}")
@@ -276,7 +276,7 @@ def print_report(meta: dict, df: pd.DataFrame) -> None:
 
     # ── 1. Top-line: which predictor "wins" each body? ────────────────────
     print("\n" + "-" * 78)
-    print("WINNERS (lowest mean error across all windows × times)")
+    print("WINNERS (lowest mean error across all windows x times)")
     print("-" * 78)
     pivot = summary.pivot(index="body", columns="predictor", values="mean_err_au")
     if not pivot.empty:
@@ -288,7 +288,7 @@ def print_report(meta: dict, df: pd.DataFrame) -> None:
     ab = ablation_table(summary)
     if not ab.empty:
         print("\n" + "-" * 78)
-        print("ABLATION — growth-rate difference, AU/yr")
+        print("ABLATION -- growth-rate difference, AU/yr")
         print("(positive = enabling this physics made the error grow FASTER)")
         print("(negative = enabling this physics CLOSED the gap)")
         print("-" * 78)
@@ -304,7 +304,7 @@ def print_report(meta: dict, df: pd.DataFrame) -> None:
     if not corr_df.empty:
         print("\n" + "-" * 78)
         print("CROSS-PREDICTOR CORRELATION OF ERROR CURVES")
-        print("(high = predictors agree → shared cause; low = physics-level disagreement)")
+        print("(high = predictors agree -> shared cause; low = physics-level disagreement)")
         print("-" * 78)
         # Average correlation across predictor pairs, by body
         body_corr = corr_df.groupby("body")["corr"].mean().sort_values()
@@ -336,7 +336,7 @@ def print_report(meta: dict, df: pd.DataFrame) -> None:
 
     # ── 5. Outliers: (predictor, body) cells with anomalous sub-delta ─────
     print("\n" + "-" * 78)
-    print("TOP-10 ANOMALIES — largest sub_delta_rms relative to mean error")
+    print("TOP-10 ANOMALIES -- largest sub_delta_rms relative to mean error")
     print("(big sub-delta means error PATTERN is unstable across windows)")
     print("-" * 78)
     summary = summary.copy()
@@ -373,7 +373,7 @@ def save_plots(meta: dict, df: pd.DataFrame, summary: pd.DataFrame) -> None:
     plt.savefig(_PLOTS_DIR / "heatmap_mean_error.png", dpi=120)
     plt.close(fig)
 
-    # 2. Heatmap of sub-delta RMS (per predictor × body)
+    # 2. Heatmap of sub-delta RMS (per predictor x body)
     pivot_sd = summary.pivot(index="body", columns="predictor", values="sub_delta_rms_au")
     pivot_sd_log = np.log10(pivot_sd.clip(lower=1e-10))
     fig, ax = plt.subplots(figsize=(8, max(6, 0.3 * len(pivot_sd))))
@@ -389,7 +389,7 @@ def save_plots(meta: dict, df: pd.DataFrame, summary: pd.DataFrame) -> None:
     plt.savefig(_PLOTS_DIR / "heatmap_subdelta.png", dpi=120)
     plt.close(fig)
 
-    # 3. Per-body error curves (one panel per body, all windows × predictors)
+    # 3. Per-body error curves (one panel per body, all windows x predictors)
     bodies = sorted(df["body"].unique())
     predictors = sorted(df["predictor"].unique())
     n_cols = 4

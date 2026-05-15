@@ -149,6 +149,9 @@ PREDICTORS: list[Predictor] = [
               description="Newton + GR + SRP (J2 ablated) — diagnostic"),
     Predictor("over_physics",       True,  True,  True,  integrator="fr4",
               description="Newton + GR + SRP + J2 (current best)"),
+    Predictor("over_physics_finedt", True, True,  True,  integrator="fr4",
+              dt_days=0.1,
+              description="Over_physics with dt=0.1d (10x finer; targets fast-moon row)"),
     Predictor("kepler",             False, False, False, use_kepler=True,
               description="2-body Keplerian fit per body"),
 ]
