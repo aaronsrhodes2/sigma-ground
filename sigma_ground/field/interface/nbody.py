@@ -368,6 +368,17 @@ class NBodySystem:
         acc = np.zeros((n, 3), dtype=np.float64)
         t   = self.toggles
 
+        # ── EIH cross-terms guard (toggle declared but NOT yet implemented) ──
+        if t.eih_cross:
+            raise NotImplementedError(
+                "PhysicsToggles.eih_cross is declared but the full N-body 1PN "
+                "EIH cross-term implementation (Damour & Deruelle 1986) is not "
+                "yet in place. The single-body 1PN approximation in gr_1pn is "
+                "what currently does the GR work. Use gr_1pn=True instead, or "
+                "implement the EIH block here (BORROWED FROM TEXTBOOK pending "
+                "SSBM σ-field re-derivation)."
+            )
+
         # ── Newtonian + 1PN GR + 2PN GR (per-pair loop) ───────────────────
         for i in range(n):
             vi  = self.bodies[i].velocity_m_s
