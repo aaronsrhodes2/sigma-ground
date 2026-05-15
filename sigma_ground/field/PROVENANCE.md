@@ -9,15 +9,15 @@ trace back to (a) a measurement of reality, (b) a mathematical
 derivation from such measurements, or (c) a definitional standard
 (SI unit definitions). No guesses.
 
-**Total quantities: 89**
+**Total quantities: 91**
 
 | Category | Count | Fraction |
 |---|---:|---:|
-| Measured (`[VERIFIED]`) | 50 | 56.2% |
-| Derived (`[DERIVED]`) | 33 | 37.1% |
+| Measured (`[VERIFIED]`) | 52 | 57.1% |
+| Derived (`[DERIVED]`) | 33 | 36.3% |
 | Free input (`[EMPIRICAL-INPUT]`) | 1 | 1.1% |
 | Mathematical (π, φ, e -- pure math) | 1 | 1.1% |
-| Speculative pending (`[SPECULATIVE-PENDING]`) | 4 | 4.5% |
+| Speculative pending (`[SPECULATIVE-PENDING]`) | 4 | 4.4% |
 | Unclassified | 0 | 0.0% |
 
 Toward perfect: minimize `free-input`, eliminate `speculative-pending`,
@@ -63,6 +63,8 @@ the `derived` section computes downstream of these.
 - **`DELTA_M2_32_EV2`** = `-2.497e-3` -- [VERIFIED] PDG 2022 (inverted ordering magnitude)
 - **`SUM_NEUTRINO_MASS_UPPER_EV`** = `0.12` -- [VERIFIED] Planck 2018 combined (95% CL)
 - **`SUM_NEUTRINO_MASS_DESI_UPPER_EV`** = `0.072` -- [VERIFIED] DESI 2024 (arXiv:2404.03002)
+- **`NEUTRINOLESS_BETA_HALFLIFE_LEGEND200_YR`** = `0.5e26` -- [VERIFIED] arXiv:2603.12884 (90% CL lower bound)
+- **`NEUTRINOLESS_BETA_HALFLIFE_GERMANIUM_COMBINED_YR`** = `1.9e26` -- [VERIFIED] LEGEND-200 + GERDA + MAJORANA joint (90% CL)
 - **`A0_MOND_MS2`** = `1.2e-10` -- [VERIFIED] Milgrom 1983, confirmed SPARC 2016
 - **`AXION_MASS_ULDM_MIN_EV`** = `1.0e-22` -- [VERIFIED] ultralight DM lower bound
 - **`AXION_MASS_ULDM_MAX_EV`** = `1.0e-2` -- [VERIFIED] QCD-axion window upper bound

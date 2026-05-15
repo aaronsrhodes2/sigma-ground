@@ -83,7 +83,7 @@ SUM_NEUTRINO_MASS_DESI_UPPER_EV = 0.072   # [VERIFIED] DESI 2024 (arXiv:2404.030
 
 # Neutrino nature placeholder — Dirac vs Majorana undetermined experimentally.
 # The distinction can only be resolved by a positive observation of
-# neutrinoless double-beta decay (0νββ). As of 2026, no experiment has
+# neutrinoless double-beta decay (0νββ). As of May 2026, no experiment has
 # claimed detection: KamLAND-Zen, GERDA, CUORE, EXO-200, MAJORANA, LEGEND-200
 # all set upper bounds on the effective Majorana mass. Until LEGEND-1000,
 # nEXO, or similar next-gen experiment claims a positive signal (or rules
@@ -93,6 +93,16 @@ SUM_NEUTRINO_MASS_DESI_UPPER_EV = 0.072   # [VERIFIED] DESI 2024 (arXiv:2404.030
 # This is intentionally NOT a lift-from-table value -- it's a binary
 # (dirac/majorana/unknown) that requires experimental resolution we don't have.
 NEUTRINO_NATURE = None  # [SPECULATIVE-PENDING] genuinely open question, no measurement to lift
+
+# LEGEND-200 first 0νββ results (arXiv:2603.12884, March 2026)
+# Searching for 0νββ in ⁷⁶Ge with 142.5 kg of detectors over first year.
+# No positive signal -- only lower limits on the half-life:
+#   LEGEND-200 alone:                  T₁/₂⁰ν > 0.5 × 10²⁶ yr  (90% CL)
+#   Joint with GERDA + MAJORANA Demo:  T₁/₂⁰ν > 1.9 × 10²⁶ yr  (90% CL)
+# These tighten the upper bound on the effective Majorana mass m_ββ but do
+# not resolve the Dirac/Majorana question (no positive observation).
+NEUTRINOLESS_BETA_HALFLIFE_LEGEND200_YR = 0.5e26  # [VERIFIED] arXiv:2603.12884 (90% CL lower bound)
+NEUTRINOLESS_BETA_HALFLIFE_GERMANIUM_COMBINED_YR = 1.9e26  # [VERIFIED] LEGEND-200 + GERDA + MAJORANA joint (90% CL)
 
 # ── MOND characteristic acceleration ──────────────────────────────────
 # Milgrom 1983 (ApJ 270, 365): rotation curves of galaxies transition from
