@@ -845,6 +845,90 @@ class TestZonalJ3J4(unittest.TestCase):
         delta = sys_on.compute_accelerations()[1] - sys_off.compute_accelerations()[1]
         self.assertGreater(float(np.linalg.norm(delta)), 0.0)
 
+    # -- Quantitative formula checks: limits and magnitudes ---------------
+
+    def test_j3_at_equator_is_purely_along_pole(self):
+        """At equator (s=0), J3 force must be along n̂ only, zero radial.
+
+        Derivation: a_J3 = (GM J₃ R³)/(2 r⁵) × [(3 - 15s²) n̂ + 5s(7s² - 3) r̂]
+        At s=0: a_J3 = (3 GM J₃ R³)/(2 r⁵) × n̂  -- pure n̂ component.
+
+        If the formula has the wrong angular-polynomial coefficients (e.g.
+        my previous buggy implementation with (35s⁴ - 15s²) on r̂), the
+        force at equator would have a nonzero radial component. This test
+        catches that class of error.
+        """
+        # Build an "Earth" with inflated J₃ for FP detectability.
+        earth = CelestialBody(
+            self.M_EARTH, np.zeros(3), np.zeros(3),
+            self.R_EARTH, 0.0, j3=0.01,
+        )
+        # Satellite at equator (z=0)
+        r_sat = 1e7
+        sat = CelestialBody(1.0, np.array([r_sat, 0.0, 0.0]),
+                             np.zeros(3), 1.0, 0.0)
+        sys = NBodySystem([earth, sat], toggles=PhysicsToggles(j3_zonal=True))
+        sys_n = NBodySystem([earth, sat], toggles=PhysicsToggles())
+        delta = sys.compute_accelerations()[1] - sys_n.compute_accelerations()[1]
+        # delta should be purely along +z (n̂); x and y components must be zero
+        self.assertAlmostEqual(delta[0], 0.0, delta=abs(delta[2]) * 1e-10,
+                                msg="J3 at equator has spurious radial-x component")
+        self.assertAlmostEqual(delta[1], 0.0, delta=abs(delta[2]) * 1e-10)
+        self.assertGreater(abs(delta[2]), 0.0,
+                            "J3 at equator should produce nonzero n̂ force")
+
+    def test_j3_at_equator_magnitude_matches_derivation(self):
+        """At equator, |a_J3| = 3 GM J₃ R³/(2 r⁵)."""
+        earth = CelestialBody(
+            self.M_EARTH, np.zeros(3), np.zeros(3),
+            self.R_EARTH, 0.0, j3=self.J3_EARTH,
+        )
+        r = 1e7
+        sat = CelestialBody(1.0, np.array([r, 0.0, 0.0]), np.zeros(3), 1.0, 0.0)
+        sys = NBodySystem([earth, sat], toggles=PhysicsToggles(j3_zonal=True))
+        sys_n = NBodySystem([earth, sat], toggles=PhysicsToggles())
+        delta = sys.compute_accelerations()[1] - sys_n.compute_accelerations()[1]
+        # |a_J3_n̂| = 3 GM J₃ R³ / (2 r⁵)
+        expected = 3.0 * _G * self.M_EARTH * self.J3_EARTH * self.R_EARTH**3 / (2.0 * r**5)
+        self.assertAlmostEqual(delta[2], expected, delta=abs(expected) * 1e-8)
+
+    def test_j4_at_equator_is_purely_radial(self):
+        """At equator (s=0), J4 force is purely radial.
+
+        Derivation: a_J4 = (5 GM J₄ R⁴)/(8 r⁶) × [3(21s⁴-14s²+1) r̂ + 4s(3-7s²) n̂]
+        At s=0: a_J4 = (15/8) GM J₄ R⁴/r⁶ × r̂  -- pure r̂ component.
+        """
+        earth = CelestialBody(
+            self.M_EARTH, np.zeros(3), np.zeros(3),
+            self.R_EARTH, 0.0, j4=0.01,
+        )
+        r = 1e7
+        sat = CelestialBody(1.0, np.array([r, 0.0, 0.0]), np.zeros(3), 1.0, 0.0)
+        sys = NBodySystem([earth, sat], toggles=PhysicsToggles(j4_zonal=True))
+        sys_n = NBodySystem([earth, sat], toggles=PhysicsToggles())
+        delta = sys.compute_accelerations()[1] - sys_n.compute_accelerations()[1]
+        # delta should be purely along x (r̂ direction); y and z must be zero
+        self.assertGreater(abs(delta[0]), 0.0,
+                            "J4 at equator should produce nonzero radial force")
+        self.assertAlmostEqual(delta[1], 0.0, delta=abs(delta[0]) * 1e-10,
+                                msg="J4 at equator has spurious y component")
+        self.assertAlmostEqual(delta[2], 0.0, delta=abs(delta[0]) * 1e-10,
+                                msg="J4 at equator has spurious z (n̂) component")
+
+    def test_j4_at_equator_magnitude_matches_derivation(self):
+        """At equator, |a_J4_radial| = (15/8) GM J₄ R⁴/r⁶."""
+        earth = CelestialBody(
+            self.M_EARTH, np.zeros(3), np.zeros(3),
+            self.R_EARTH, 0.0, j4=self.J4_EARTH,
+        )
+        r = 1e7
+        sat = CelestialBody(1.0, np.array([r, 0.0, 0.0]), np.zeros(3), 1.0, 0.0)
+        sys = NBodySystem([earth, sat], toggles=PhysicsToggles(j4_zonal=True))
+        sys_n = NBodySystem([earth, sat], toggles=PhysicsToggles())
+        delta = sys.compute_accelerations()[1] - sys_n.compute_accelerations()[1]
+        expected = (15.0 / 8.0) * _G * self.M_EARTH * self.J4_EARTH * self.R_EARTH**4 / r**6
+        self.assertAlmostEqual(delta[0], expected, delta=abs(expected) * 1e-8)
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Tidal force (OURS — built from compute_tidal_deformation)
