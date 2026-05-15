@@ -110,16 +110,25 @@ _RESULTS_FILE = _FIXTURES / "rolling_shootout_results.json"
 class BodyParams:
     """Per-body physical parameters (canonical IAU/NASA values).
 
-    For each oblate body we now also carry j3, j4, and pole_axis_unit so the
-    higher-order zonal-harmonic toggles (j3_zonal, j4_zonal) have data to
-    operate on, and so J2/J3/J4 are evaluated in the body's true rotational
-    frame rather than blindly along ICRS +z.
+    For each oblate body we now also carry j3, j4, love_number_k2, and
+    pole_axis_unit so the higher-order zonal-harmonic toggles (j3_zonal,
+    j4_zonal) and the tidal_force toggle have data to operate on, and so
+    J2/J3/J4 are evaluated in the body's true rotational frame rather than
+    blindly along ICRS +z.
+
+    love_number_k2: dimensionless tidal Love number (gates tidal_force).
+                    Earth 0.30, Moon 0.024, Mars 0.169, Jupiter 0.535,
+                    Saturn 0.39, Io 0.7 (tidally hot), Europa 0.26,
+                    Ganymede 0.13. Sun ~0.02 (small). Defaults to 0 for
+                    moons/dwarfs without published values -- the
+                    tidal_force toggle then has no effect for those.
     """
     radius_km:      float
     albedo:         float
     j2:             float
     j3:             float                       = 0.0
     j4:             float                       = 0.0
+    love_number_k2: float                       = 0.0
     pole_axis_unit: np.ndarray | None           = None  # None → ICRS +z default
 
 
@@ -137,24 +146,39 @@ _TRITON_POLE = -_NEPTUNE_POLE
 
 
 _BODY_PARAMS: dict[str, BodyParams] = {
-    # body         R(km)     albedo    J2          J3         J4         pole
-    "Sun":      BodyParams(695700.0,  0.000,  2.0e-7,    0.0,       -9.0e-7),
-    "Mercury":  BodyParams(  2440.0,  0.088,  5.03e-5,   0.0,       -1.0e-5),
-    "Venus":    BodyParams(  6052.0,  0.689,  4.46e-6,   0.0,        0.0),
-    "Earth":    BodyParams(  6371.0,  0.367,  1.0826e-3, -2.5e-6,   -1.6e-6),
-    "Moon":     BodyParams(  1737.4,  0.120,  2.034e-4,   8.5e-6,   -1.2e-5),
-    "Mars":     BodyParams(  3389.5,  0.170,  1.9606e-3,  3.5e-5,   -1.4e-5),
+    # body         R(km)     albedo    J2          J3         J4        k2     pole
+    "Sun":      BodyParams(695700.0,  0.000,  2.0e-7,    0.0,       -9.0e-7,
+                            love_number_k2=0.02),
+    "Mercury":  BodyParams(  2440.0,  0.088,  5.03e-5,   0.0,       -1.0e-5,
+                            love_number_k2=0.45),
+    "Venus":    BodyParams(  6052.0,  0.689,  4.46e-6,   0.0,        0.0,
+                            love_number_k2=0.295),
+    "Earth":    BodyParams(  6371.0,  0.367,  1.0826e-3, -2.5e-6,   -1.6e-6,
+                            love_number_k2=0.299),
+    "Moon":     BodyParams(  1737.4,  0.120,  2.034e-4,   8.5e-6,   -1.2e-5,
+                            love_number_k2=0.024),
+    "Mars":     BodyParams(  3389.5,  0.170,  1.9606e-3,  3.5e-5,   -1.4e-5,
+                            love_number_k2=0.169),
     "Phobos":   BodyParams(    11.2,  0.071,  0.0),
     "Deimos":   BodyParams(     6.1,  0.068,  0.0),
-    "Jupiter":  BodyParams( 71492.0,  0.520,  1.4736e-2,  0.0,      -5.87e-4),
-    "Io":       BodyParams(  1821.6,  0.630,  1.846e-3,   0.0,        0.0),
-    "Europa":   BodyParams(  1560.8,  0.670,  4.355e-4,   0.0,        0.0),
-    "Ganymede": BodyParams(  2634.1,  0.430,  1.276e-4,   0.0,        0.0),
-    "Callisto": BodyParams(  2410.3,  0.170,  3.5e-5,     0.0,        0.0),
-    "Saturn":   BodyParams( 60268.0,  0.470,  1.6298e-2,  0.0,      -9.15e-4),
-    "Enceladus":BodyParams(   252.1,  0.990,  5.4e-3,     0.0,        0.0),
-    "Titan":    BodyParams(  2574.7,  0.220,  3.318e-5,   0.0,        0.0),
+    "Jupiter":  BodyParams( 71492.0,  0.520,  1.4736e-2,  0.0,      -5.87e-4,
+                            love_number_k2=0.535),
+    "Io":       BodyParams(  1821.6,  0.630,  1.846e-3,   0.0,        0.0,
+                            love_number_k2=0.7),
+    "Europa":   BodyParams(  1560.8,  0.670,  4.355e-4,   0.0,        0.0,
+                            love_number_k2=0.26),
+    "Ganymede": BodyParams(  2634.1,  0.430,  1.276e-4,   0.0,        0.0,
+                            love_number_k2=0.13),
+    "Callisto": BodyParams(  2410.3,  0.170,  3.5e-5,     0.0,        0.0,
+                            love_number_k2=0.05),
+    "Saturn":   BodyParams( 60268.0,  0.470,  1.6298e-2,  0.0,      -9.15e-4,
+                            love_number_k2=0.39),
+    "Enceladus":BodyParams(   252.1,  0.990,  5.4e-3,     0.0,        0.0,
+                            love_number_k2=0.01),
+    "Titan":    BodyParams(  2574.7,  0.220,  3.318e-5,   0.0,        0.0,
+                            love_number_k2=0.6),
     "Uranus":   BodyParams( 25559.0,  0.510,  3.5107e-3,  0.0,      -3.4e-5,
+                            love_number_k2=0.36,
                             pole_axis_unit=_URANUS_POLE),
     "Miranda":  BodyParams(   235.8,  0.320,  0.0),
     "Ariel":    BodyParams(   578.9,  0.530,  0.0),
@@ -162,6 +186,7 @@ _BODY_PARAMS: dict[str, BodyParams] = {
     "Titania":  BodyParams(   788.9,  0.350,  0.0),
     "Oberon":   BodyParams(   761.4,  0.310,  0.0),
     "Neptune":  BodyParams( 24764.0,  0.410,  3.539e-3,   0.0,      -3.5e-5,
+                            love_number_k2=0.4,
                             pole_axis_unit=_NEPTUNE_POLE),
     "Triton":   BodyParams(  1353.4,  0.760,  0.0,        0.0,        0.0,
                             pole_axis_unit=_TRITON_POLE),
@@ -266,7 +291,7 @@ def _build_bodies_at_snapshot(
             position_m=pos,
             velocity_m_s=vel,
             radius_m=r_m,
-            love_number_k2=0.0,
+            love_number_k2=params.love_number_k2,  # was 0.0 -- bug fix for tidal_force
             area_m2=area_m2,
             reflectivity=params.albedo,
             j2=params.j2,
