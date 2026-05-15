@@ -430,7 +430,93 @@ def save_plots(meta: dict, df: pd.DataFrame, summary: pd.DataFrame) -> None:
     print(f"\nPlots saved to {_PLOTS_DIR}/")
 
 
-# ── Entry point ──────────────────────────────────────────────────────────
+# -- Fingerprint diff -----------------------------------------------------
+
+def fingerprint_diff(baseline_path: Path, new_path: Path,
+                     focus_predictors: list[str] | None = None) -> None:
+    """Print a side-by-side diff of two result JSONs.
+
+    For each (predictor, body) cell, compares mean_err, growth_rate, and
+    sub_delta_rms between baseline and new. Sorts by absolute improvement.
+    """
+    _, df_b = load_results(baseline_path)
+    _, df_n = load_results(new_path)
+
+    sum_b = per_predictor_body_summary(df_b)
+    sum_n = per_predictor_body_summary(df_n)
+
+    merged = sum_b.merge(
+        sum_n, on=["predictor", "body"], how="outer",
+        suffixes=("_base", "_new"), indicator=True,
+    )
+
+    if focus_predictors:
+        merged = merged[merged["predictor"].isin(focus_predictors)]
+
+    in_both = merged[merged["_merge"] == "both"].copy()
+    new_only = merged[merged["_merge"] == "right_only"].copy()
+
+    if not in_both.empty:
+        in_both["mean_err_ratio"] = in_both["mean_err_au_new"] / in_both["mean_err_au_base"]
+        in_both["subdelta_ratio"] = in_both["sub_delta_rms_au_new"] / in_both["sub_delta_rms_au_base"]
+
+        print("\n" + "=" * 78)
+        print("FINGERPRINT DIFF -- baseline vs new")
+        print("=" * 78)
+        print(f"baseline: {baseline_path.name}")
+        print(f"new:      {new_path.name}")
+        print()
+
+        print("-" * 78)
+        print("TOP-15 IMPROVEMENTS (largest mean-error reduction)")
+        print("-" * 78)
+        improvements = in_both[in_both["mean_err_ratio"] < 0.999].sort_values(
+            "mean_err_ratio")
+        cols = ["predictor", "body", "mean_err_au_base", "mean_err_au_new", "mean_err_ratio"]
+        if not improvements.empty:
+            print(improvements[cols].head(15).to_string(
+                index=False, float_format=lambda x: f"{x:.4e}"))
+        else:
+            print("  (none)")
+
+        print()
+        print("-" * 78)
+        print("TOP-10 REGRESSIONS (mean error got WORSE)")
+        print("-" * 78)
+        regressions = in_both[in_both["mean_err_ratio"] > 1.001].sort_values(
+            "mean_err_ratio", ascending=False)
+        if not regressions.empty:
+            print(regressions[cols].head(10).to_string(
+                index=False, float_format=lambda x: f"{x:.4e}"))
+        else:
+            print("  (none -- no cell got worse)")
+
+        print()
+        print("-" * 78)
+        print("SUB-DELTA SHIFT -- pattern-stability change")
+        print("(ratio < 1 means error pattern is now more stable across windows)")
+        print("-" * 78)
+        sd_top = in_both.dropna(subset=["subdelta_ratio"]).sort_values(
+            "subdelta_ratio").head(15)
+        sd_cols = ["predictor", "body", "sub_delta_rms_au_base",
+                   "sub_delta_rms_au_new", "subdelta_ratio"]
+        if not sd_top.empty:
+            print(sd_top[sd_cols].to_string(
+                index=False, float_format=lambda x: f"{x:.4e}"))
+
+    if not new_only.empty:
+        print()
+        print("-" * 78)
+        print("NEW PREDICTORS (not in baseline)")
+        print("-" * 78)
+        for pred, grp in new_only.groupby("predictor"):
+            print(f"\n  {pred} -- top-10 worst bodies:")
+            cols2 = ["body", "mean_err_au_new", "sub_delta_rms_au_new"]
+            top = grp.nlargest(10, "mean_err_au_new")[cols2]
+            print(top.to_string(index=False, float_format=lambda x: f"{x:.4e}"))
+
+
+# -- Entry point ----------------------------------------------------------
 
 if __name__ == "__main__":
     import argparse
@@ -441,15 +527,25 @@ if __name__ == "__main__":
                         help="path to results JSON")
     parser.add_argument("--plots", action="store_true",
                         help="also generate matplotlib heatmaps + per-body curves")
+    parser.add_argument("--diff", type=Path, default=None,
+                        help="path to baseline JSON to diff against; when given, "
+                             "--results is the NEW file and we print the diff")
+    parser.add_argument("--focus", nargs="+", default=None,
+                        help="restrict diff to these predictors")
     args = parser.parse_args()
 
-    if not args.results.exists():
-        raise SystemExit(f"results file not found: {args.results}\n"
-                         f"Run rolling_shootout.py first to generate it.")
-
-    meta, df = load_results(args.results)
-    print_report(meta, df)
-
-    if args.plots:
-        summary = per_predictor_body_summary(df)
-        save_plots(meta, df, summary)
+    if args.diff is not None:
+        if not args.diff.exists():
+            raise SystemExit(f"baseline file not found: {args.diff}")
+        if not args.results.exists():
+            raise SystemExit(f"new results file not found: {args.results}")
+        fingerprint_diff(args.diff, args.results, focus_predictors=args.focus)
+    else:
+        if not args.results.exists():
+            raise SystemExit(f"results file not found: {args.results}\n"
+                             f"Run rolling_shootout.py first to generate it.")
+        meta, df = load_results(args.results)
+        print_report(meta, df)
+        if args.plots:
+            summary = per_predictor_body_summary(df)
+            save_plots(meta, df, summary)
