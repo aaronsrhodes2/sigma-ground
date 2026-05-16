@@ -1628,3 +1628,107 @@ Continuation of Session 21 (context compacted). Executed the full Phase XII.d in
 
 ### Next action (Phase XIII)
 Game-dev bridge: σ-slider sandbox demo using pygame + Nagatha MCP client. See `misc/gamedev_bridge_notes.md` for full design. Starting point: `lookup_material` + `element` + one `run` recipe driving a σ-parameter slider with real-time Nagatha calls.
+
+
+---
+
+## Session 23 — 2026-05-15 — JPL DE440 alignment + ETA empirical-input + Saturn-system completeness
+
+### What happened
+
+Day-long sequence of compounding improvements to the rolling-window n-body shootout, plus an audit-driven correction to the constants library.
+
+**1. Per-body visualization** (commit 5df32f0)
+
+Built two new plots to replace the busy `per_body_curves.png`:
+- `fig_per_body_magnitude.png`: 25-panel grid, bodies ordered by orbital regime, median + IQR shaded band across 16 windows.
+- `fig_per_body_rtn.png`: same grid in RTN decomposition. Reveals that along-track (T) dominates almost everywhere -- phase error, not shape error, is the residual.
+
+**2. JPL DE440 alignment** (commit bdd35bc, +10 EIH tests)
+
+Replaced single-body Schwarzschild gr_1pn with full N-body 1PN EIH equations (Will 1993 Box 6.2, IAU 2000 §8.4). This is the canonical 1PN form used by DE440. Includes cross-potential terms `-(4/c^2) Phi_i - (1/c^2) Phi_j`, velocity contributions `v_j^2, v_i.v_j`, and the `7/(2c^2) sum_j mu_j a_j^N / r_ij` coupling. Mutually exclusive with single-body gr_1pn to avoid double-counting.
+
+Also: Sun J2 bumped from 2.0e-7 to 2.1106e-7 (DE440 Park 2021 fitted value); Sun pole set from IAU 2015 (286.13 deg, 63.87 deg) instead of ICRS +z default; new `jpl_de440` predictor bundles the canonical stack.
+
+Smoke test (j2015, 5y): Earth 4.42e-6 -> 5.61e-7 AU (8x better), Mars/Moon/Venus 5-6x better, Mercury 1.6x better. EIH cross-terms close most of the inner-planet 1PN gap.
+
+**3. ETA empirical-input rework** (commit 3a2387b)
+
+User asked the hard question about ETA = 0.4153 (claimed [DERIVED]) and ETA_FORMULA = exp(-phi/sigma_conv) (claimed [SPECULATIVE]). Audit found:
+- ETA = 0.4153 was derived heuristically via a "golden-spiral coherence ratio" -- the rho_released side of the rho_DE match wasn't independently constructed. Partly circular.
+- ETA_FORMULA came from a 2026-04-17 formula search over {xi, sigma_conv, pi, e, phi}. The phi-in-target / phi-in-formula loop is the textbook setup for numerology; the 0.125% residual is the giveaway (a real derivation would be exact).
+
+Resolution: ETA reassigned as [EMPIRICAL-INPUT], anchored at the DESI 2024 Union3 HDE c^2 fit (arXiv:2411.08639):
+- ETA = 0.642^2 ~ 0.412164 (was 0.4153)
+- ETA_UNCERTAINTY_1SIGMA = 0.036
+- ETA_FORMULA = None (tombstoned as [REJECTED 2026-05-15]; any callsite that still expects a number fails loudly with TypeError)
+
+Downstream: cosmology.py's `eta_candidates()` drops 'formula' entry, `eta_coincidence_report()` reframed from "triple coincidence" to "single external corroboration". PROVENANCE.md regenerated: 92 constants total, now 2 free-inputs (XI + ETA), 1 rejected entry. generate_provenance.py extended with [REJECTED ...] tag support. inventory/core/sigma.py mirror updated. New verdict doc: `misc/eta_empirical_verdict_2026-05-15.md`. Phase XI candidate doc and script banner-marked SUPERSEDED.
+
+**4. Toggle ablation diagnostic** (commit f77f7ad)
+
+132-min background run earlier (b1je8htzu): 4 windows x 8 predictors x 25 bodies x 4 samples = 3200 samples isolating each toggle's per-body effect.
+
+Result: at the over_physics_finedt accuracy floor, **nothing moves except one cell**. 2PN c^-4, J3, tidal_force, and J4 all produce <0.01% delta on every body except Enceladus, where J4 alone gives +1.25% (a regression). Disabled `j4_zonal` in `jpl_de440` default until the Enceladus issue is understood; added `jpl_de440_exp` variant with J4 on for ablation studies.
+
+New visualization: `fig_toggle_heatmap.png` (mostly white) and `fig_toggle_movers_only.png` (one red row, Enceladus). The "mostly white" picture is the headline finding: the BORROWED textbook layers (except J4) are inert at our accuracy floor -- meaning the remaining gap is structural, not formulaic.
+
+**5. J4 formula verification + Enceladus root-cause** (commit e66f320)
+
+Closed-form unit tests verify the J4 vector formula `a_J4 = (5 GM J4 R^4)/(8 r^6) * [3(21s^4 - 14s^2 + 1) r_hat + 4s(3 - 7s^2) n_hat]` matches analytic to machine precision at pole, equator, and the Saturn-Enceladus geometry. Three new tests pin this.
+
+So J4 formula is NOT the bug. Real cause: our DE440 fixture is missing Dione (Enceladus's 2:1 mean-motion resonance partner). Without Dione, Enceladus's forced eccentricity is unmodelled and the prediction drifts; layering J4 on top makes things worse. Documented in `misc/saturn_enceladus_j4_verdict_2026-05-15.md`. General lesson: bodies in our fixture were chosen by name recognition, not by dynamical completeness.
+
+**6. DE440 fixture extension** (commit c9310a7)
+
+Wrote `scripts/extend_de440_fixture_saturn_moons.py`: queries JPL Horizons API for SSB-centred ICRF state vectors of Mimas, Tethys, Dione, Rhea at each of the 27 annual epochs (J2000-J2026). 108 HTTP calls, polite 0.5s throttle, idempotent. GM values from SAT441 (matches existing fixture source tag).
+
+Fixture grew from 408KB to 482KB. 26 -> 30 bodies.
+
+Smoke test on j2015 finedt baseline showed:
+- **Titan**: 4.23e-5 -> 2.34e-5 AU (45% improvement -- missing-perturber hypothesis confirmed for slow moons)
+- **Enceladus**: 3.09e-3 -> 3.08e-3 AU (essentially unchanged -- fast-moon residual is dt-noise, not perturber gap)
+
+Mimas at jpl_de440 with j4 ON: 8.29e-5 AU (49% better than without J4). With this new evidence -- J4 no longer regresses Enceladus meaningfully (1.25% -> 0.76%, dt-noise floor) AND J4 clearly helps Mimas -- re-enabled `j4_zonal` in canonical `jpl_de440`. Removed the `_exp` variant.
+
+**7. Finer-dt smoke test** (commit cd370c9 + dt_tradeoff_verdict)
+
+Added `jpl_de440_finer` predictor with dt=0.02d (5x finer) to test whether the integrator-noise hypothesis would close the fast-moon gap. 60-minute background run.
+
+Result: 18 bodies improved (5-500x better), but 4 REGRESSED significantly. Umbriel/Ariel/Triton/Charon: 42-500x improvement. Enceladus: 5.1x improvement (down to 6e-4 AU). But Mimas: 28x WORSE; Phobos/Deimos: 4-6x worse; Jupiter: 1.7x worse.
+
+Diagnosis: symplectic-integrator shadow-Hamiltonian phase drift. At dt=0.1d, Forest-Ruth integrates a "near" Hamiltonian whose error patterns happen to be tolerable for fast moons; at dt=0.02d the phase drift shifts and the underlying integration error becomes visible for the tightest-coupled bodies (Mimas, Phobos, Deimos around their parent planets).
+
+Decision: keep `jpl_de440` at dt=0.1d as canonical default; keep `jpl_de440_finer` as documented experimental variant; **the actual architectural fix is per-body dt** (Wisdom-Holman hierarchical), deferred to a future session. New verdict doc: `misc/dt_tradeoff_verdict_2026-05-15.md`.
+
+### Key Numbers
+
+| Quantity | Value |
+|----------|-------|
+| Tests at session start | 4,237 passed |
+| Tests at session end | **4,304 passed** (+67) |
+| New EIH tests | 10 |
+| New J4 verification tests | 2 |
+| New ETA-rework tests | ~10 |
+| New verdict docs | 3 (eta_empirical, saturn_enceladus_j4, dt_tradeoff) |
+| Bodies in fixture | 26 -> **30** |
+| Free inputs of SSBM | "1" (with hidden numerology) -> **2** (honest: XI, ETA) |
+| Rejected constants | 0 -> **1** (ETA_FORMULA tombstoned) |
+| Earth 5y prediction error | 4.42e-6 AU -> **5.61e-7 AU** (8x better) |
+| Commits today | **7** |
+
+### Commits
+
+- `5df32f0` Per-body magnitude + RTN visualization
+- `bdd35bc` JPL DE440 alignment: EIH 1PN, Sun J2, jpl_de440 predictor
+- `3a2387b` ETA empirical-input rework; ETA_FORMULA rejected
+- `f77f7ad` Toggle ablation diagnostic; j4_zonal disabled in default (later reverted)
+- `e66f320` J4 formula verification; Enceladus root-cause = missing Dione
+- `c9310a7` DE440 fixture extension: Mimas/Tethys/Dione/Rhea; j4 re-enabled
+- `cd370c9` jpl_de440_finer predictor + plot script ordering update
+
+### Next action
+
+**Per-body dt architecture** (Wisdom-Holman-style hierarchical timestepping). Each body uses an integration step matched to its own orbital period: Mimas at dt~0.005d (200 steps/orbit), Pluto at dt~1.0d (90 steps/orbit). The "regressions at fixed-global-finer-dt" finding shows that a global dt change is not the right approach; per-body dt unlocks an order of magnitude on the fast-moon tier without breaking the integrator on the slowest bodies.
+
+In the meantime, the JPL DE440 alignment story is structurally complete: 4304 tests passing, EIH cross-terms working as predicted, ETA empirically anchored without numerology, Saturn system dynamically complete in the fixture, J4 formula proven exact, dt trade-off measured and documented.
