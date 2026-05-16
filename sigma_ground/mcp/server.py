@@ -23,44 +23,54 @@ from sigma_ground.mcp.provenance import ToolResult
 SYSTEM_INSTRUCTIONS = """\
 You are a physics assistant backed by sigma-ground, a curated physics
 library with rigorous provenance, plus wrapped externals (scipy.constants,
-pint, sympy, astropy).
+pint, sympy, astropy, periodictable).
 
-DEFAULTS:
-- Standard physics for all queries unless the user explicitly invokes a
-  theoretical framework.
-- Every numerical answer must include its source (CODATA, PDG, DESI, etc.)
-  and uncertainty when available. Read these from the ToolResult fields
-  `source` and `uncertainty`.
-- Use SI units internally. Use convert_units() if the user asks for
-  different units in the output.
+ABSOLUTE RULES (these override convenience):
 
-WORKFLOW:
-1. Call get_manifest() at session start (or when uncertain about
-   available tools) to see what's callable.
-2. Plan multi-step answers using the listed tools. Do not invent tools.
-3. For each numeric tool call, faithfully report the returned
-   `source` and `provenance_tag` fields in your answer.
+1. For every numerical value you put in an answer, you MUST do one of:
+   (a) Call a sigma-ground MCP tool. Faithfully report the `source`
+       and (when present) `provenance_tag` and `uncertainty` from the
+       returned ToolResult. Phrase attribution like:
+           "value units (sigma-ground via <source>)"
+       Example: "2954 m (sigma-ground via gr_basics, standard Schwarzschild)"
+   (b) If no tool can supply the value, state the value followed by:
+           "[SOURCE: Fitted due to incompetence -- sigma-ground library
+            lacks <specific physics description>. This value is my best
+            estimate; please verify.]"
+       Example: "Approximately 124 degrees C [SOURCE: Fitted due to
+       incompetence -- sigma-ground library lacks melting-point data for
+       trans-stilbene; this value is my best estimate; please verify.]"
+
+   You are FORBIDDEN to silently insert numerical values from memory
+   without one of these two attributions. If you find yourself wanting
+   to state a number, STOP, and either call a tool or use the fitted tag.
+
+2. Default to standard physics. Use SI units internally. Use
+   convert_units() if the user asks for the result in non-SI units.
+
+3. Always call get_manifest() at session start (or when uncertain) to
+   know what tools exist. Do not hallucinate tool names.
+
+PROVENANCE TAGS (in ToolResult.provenance_tag):
+- VERIFIED            -- measured from CODATA/PDG/IAU/peer-reviewed
+- DERIVED             -- computed from other library constants
+- EMPIRICAL-INPUT     -- free parameter set by observation (XI, ETA)
+- SPECULATIVE-PENDING -- placeholder; flag prominently
+- REJECTED            -- former candidate, now disproven (value None)
 
 SSBM POSITIONING:
 The library contains an SSBM (Scale-Shifted Baryonic Matter) theoretical
-layer. It is NOT in the PRIMARY tier of tools. Only mention SSBM when:
-- The user asks about black hole interior structure, dark matter
-  mechanism, or cosmic origin hypothesis.
-- The user explicitly invokes SSBM, sigma-field, eta entanglement
-  fraction, or related concepts.
-- A comparison between standard physics and an alternative framework
-  is genuinely useful.
+layer. It is NOT in the PRIMARY tier of tools. Only invoke when:
+- User asks about BH interior structure, dark-matter mechanism, cosmic
+  origin hypothesis, or sigma-field dynamics.
+- User explicitly invokes SSBM, sigma, eta entanglement fraction, etc.
 Do NOT volunteer SSBM framing for ordinary physics queries.
 
-PROVENANCE TAGS (when present in ToolResult.provenance_tag):
-- VERIFIED            -- measured value from CODATA/PDG/IAU/peer-reviewed
-- DERIVED             -- computed from other library constants
-- EMPIRICAL-INPUT     -- a free parameter set by observation (XI, ETA)
-- SPECULATIVE-PENDING -- placeholder, awaits derivation or measurement
-- REJECTED            -- former candidate, now disproven (will be `None`)
-
-If a ToolResult has provenance_tag=SPECULATIVE-PENDING or REJECTED,
-note this prominently in your answer.
+CONVERSATIONAL STYLE:
+- Plain language, no equations unless asked.
+- Include the tool-call citations naturally.
+- If a value is "Fitted due to incompetence", say so prominently --
+  the user MUST know the value isn't grounded.
 """
 
 
@@ -78,6 +88,16 @@ def main() -> int:
     from sigma_ground.mcp.tools import units as t_units
     from sigma_ground.mcp.tools import symbolic as t_sym
     from sigma_ground.mcp.tools import gr as t_gr
+    from sigma_ground.mcp.tools import kinematics as t_kin
+    from sigma_ground.mcp.tools import energy_conversion as t_econv
+    from sigma_ground.mcp.tools import relativity as t_rel
+    from sigma_ground.mcp.tools import cosmology as t_cos
+    from sigma_ground.mcp.tools import thermodynamics as t_thermo
+    from sigma_ground.mcp.tools import optics as t_opt
+    from sigma_ground.mcp.tools import materials as t_mat
+    from sigma_ground.mcp.tools import circuits as t_circ
+    from sigma_ground.mcp.tools import atomic as t_atom
+    from sigma_ground.mcp.tools import astronomy as t_astr
     from sigma_ground.mcp import manifest as t_manifest
 
     server = FastMCP("sigma-ground")
@@ -211,6 +231,478 @@ def main() -> int:
                                       radius_m: float) -> dict[str, Any]:
         """Clock rate at r relative to infinity: sqrt(1 - r_s/r)."""
         return t_gr.gravitational_time_dilation(mass_kg, radius_m).to_dict()
+
+    # ── kinematics ──────────────────────────────────────────────────
+    @server.tool()
+    def free_fall_time(height_m: float, g_m_s2: float = 9.80665) -> dict[str, Any]:
+        """Time to fall from rest: t = sqrt(2h/g). Vacuum approximation."""
+        return t_kin.free_fall_time(height_m, g_m_s2).to_dict()
+
+    @server.tool()
+    def free_fall_velocity(height_m: float, g_m_s2: float = 9.80665) -> dict[str, Any]:
+        """Impact speed: v = sqrt(2gh). Vacuum."""
+        return t_kin.free_fall_velocity(height_m, g_m_s2).to_dict()
+
+    @server.tool()
+    def projectile_range(initial_speed_m_s: float, launch_angle_deg: float,
+                          g_m_s2: float = 9.80665) -> dict[str, Any]:
+        """Range R = v^2 sin(2 theta) / g (level ground, vacuum)."""
+        return t_kin.projectile_range(initial_speed_m_s, launch_angle_deg,
+                                         g_m_s2).to_dict()
+
+    @server.tool()
+    def projectile_max_height(initial_speed_m_s: float,
+                                launch_angle_deg: float,
+                                g_m_s2: float = 9.80665) -> dict[str, Any]:
+        """Max height = (v sin theta)^2 / (2g)."""
+        return t_kin.projectile_max_height(initial_speed_m_s,
+                                              launch_angle_deg,
+                                              g_m_s2).to_dict()
+
+    @server.tool()
+    def projectile_flight_time(initial_speed_m_s: float,
+                                 launch_angle_deg: float,
+                                 g_m_s2: float = 9.80665) -> dict[str, Any]:
+        """Flight time = 2 v sin(theta) / g."""
+        return t_kin.projectile_flight_time(initial_speed_m_s,
+                                               launch_angle_deg,
+                                               g_m_s2).to_dict()
+
+    @server.tool()
+    def kinetic_energy(mass_kg: float, velocity_m_s: float) -> dict[str, Any]:
+        """Non-relativistic KE = 0.5 m v^2."""
+        return t_kin.kinetic_energy(mass_kg, velocity_m_s).to_dict()
+
+    @server.tool()
+    def momentum(mass_kg: float, velocity_m_s: float) -> dict[str, Any]:
+        """Non-relativistic momentum p = m v."""
+        return t_kin.momentum(mass_kg, velocity_m_s).to_dict()
+
+    @server.tool()
+    def gravitational_potential_energy(mass_kg: float, height_m: float,
+                                         g_m_s2: float = 9.80665) -> dict[str, Any]:
+        """Uniform gravity U = m g h."""
+        return t_kin.gravitational_potential_energy(mass_kg, height_m,
+                                                       g_m_s2).to_dict()
+
+    @server.tool()
+    def friction_stopping_distance(mass_kg: float, initial_velocity_m_s: float,
+                                     friction_coefficient: float,
+                                     g_m_s2: float = 9.80665) -> dict[str, Any]:
+        """Sliding stopping distance d = v^2 / (2 mu g)."""
+        return t_kin.friction_stopping_distance(mass_kg, initial_velocity_m_s,
+                                                   friction_coefficient,
+                                                   g_m_s2).to_dict()
+
+    @server.tool()
+    def circular_orbit_velocity(central_mass_kg: float,
+                                  radius_m: float) -> dict[str, Any]:
+        """Keplerian circular orbit v = sqrt(G M / r)."""
+        return t_kin.circular_orbit_velocity(central_mass_kg, radius_m).to_dict()
+
+    @server.tool()
+    def escape_velocity(mass_kg: float, radius_m: float) -> dict[str, Any]:
+        """Classical escape velocity v_esc = sqrt(2 G M / r)."""
+        return t_kin.escape_velocity_classical(mass_kg, radius_m).to_dict()
+
+    # ── energy conversion ───────────────────────────────────────────
+    @server.tool()
+    def mass_to_energy(mass_kg: float) -> dict[str, Any]:
+        """E = m c^2."""
+        return t_econv.mass_to_energy(mass_kg).to_dict()
+
+    @server.tool()
+    def energy_to_mass(energy_j: float) -> dict[str, Any]:
+        """m = E / c^2."""
+        return t_econv.energy_to_mass(energy_j).to_dict()
+
+    @server.tool()
+    def luminosity_to_mass_conversion_rate(luminosity_watts: float) -> dict[str, Any]:
+        """dm/dt = L / c^2 (e.g. Sun converts ~4.26e9 kg/s to energy)."""
+        return t_econv.luminosity_to_mass_conversion_rate(luminosity_watts).to_dict()
+
+    @server.tool()
+    def joules_to_eV(energy_joules: float) -> dict[str, Any]:
+        """Convert J to eV (1 eV = 1.602176634e-19 J)."""
+        return t_econv.joules_to_eV(energy_joules).to_dict()
+
+    @server.tool()
+    def eV_to_joules(energy_eV: float) -> dict[str, Any]:
+        """Convert eV to J."""
+        return t_econv.eV_to_joules(energy_eV).to_dict()
+
+    @server.tool()
+    def joules_to_TNT(energy_joules: float, unit: str = "ton") -> dict[str, Any]:
+        """Convert joules to TNT equivalent. unit: 'ton', 'kt', 'MT'."""
+        return t_econv.joules_to_TNT(energy_joules, unit).to_dict()
+
+    # ── special relativity ─────────────────────────────────────────
+    @server.tool()
+    def lorentz_factor(velocity_m_s: float) -> dict[str, Any]:
+        """gamma = 1 / sqrt(1 - v^2/c^2)."""
+        return t_rel.lorentz_factor(velocity_m_s).to_dict()
+
+    @server.tool()
+    def relativistic_time_dilation(rest_time_s: float,
+                                     velocity_m_s: float) -> dict[str, Any]:
+        """t = gamma t0 (moving clock ticks slower)."""
+        return t_rel.relativistic_time_dilation(rest_time_s, velocity_m_s).to_dict()
+
+    @server.tool()
+    def relativistic_length_contraction(rest_length_m: float,
+                                          velocity_m_s: float) -> dict[str, Any]:
+        """L = L0 / gamma."""
+        return t_rel.relativistic_length_contraction(rest_length_m,
+                                                        velocity_m_s).to_dict()
+
+    @server.tool()
+    def relativistic_energy(rest_mass_kg: float,
+                              velocity_m_s: float) -> dict[str, Any]:
+        """Total energy E = gamma m c^2."""
+        return t_rel.relativistic_energy(rest_mass_kg, velocity_m_s).to_dict()
+
+    @server.tool()
+    def relativistic_momentum(rest_mass_kg: float,
+                                velocity_m_s: float) -> dict[str, Any]:
+        """p = gamma m v."""
+        return t_rel.relativistic_momentum(rest_mass_kg, velocity_m_s).to_dict()
+
+    @server.tool()
+    def relativistic_velocity_addition(u_m_s: float, v_m_s: float) -> dict[str, Any]:
+        """Einstein velocity addition w = (u+v)/(1+uv/c^2)."""
+        return t_rel.relativistic_velocity_addition(u_m_s, v_m_s).to_dict()
+
+    @server.tool()
+    def doppler_shift_factor(velocity_m_s: float,
+                               angle_to_los_deg: float = 0.0) -> dict[str, Any]:
+        """Relativistic Doppler factor lambda_obs / lambda_emit."""
+        return t_rel.doppler_shift_factor(velocity_m_s, angle_to_los_deg).to_dict()
+
+    # ── cosmology ───────────────────────────────────────────────────
+    @server.tool()
+    def hubble_radius() -> dict[str, Any]:
+        """R_H = c / H_0 (~14 Gpc)."""
+        return t_cos.hubble_radius().to_dict()
+
+    @server.tool()
+    def hde_dark_energy_density(c_squared: float | None = None,
+                                  L_meters: float | None = None) -> dict[str, Any]:
+        """Holographic dark energy density. Defaults c^2=ETA, L=R_H."""
+        return t_cos.hde_dark_energy_density(c_squared, L_meters).to_dict()
+
+    @server.tool()
+    def eta_desi_band_check(dataset: str = "dr2") -> dict[str, Any]:
+        """Is our adopted ETA within the DESI Union3 1-sigma c^2 band?"""
+        return t_cos.eta_desi_band_check(dataset).to_dict()
+
+    @server.tool()
+    def mond_regime_classifier(acceleration_m_s2: float) -> dict[str, Any]:
+        """Classify acceleration as newtonian / mond / transition."""
+        return t_cos.mond_regime_classifier(acceleration_m_s2).to_dict()
+
+    @server.tool()
+    def mond_a0_constant() -> dict[str, Any]:
+        """Milgrom's a_0 ~ 1.2e-10 m/s^2."""
+        return t_cos.mond_a0_constant().to_dict()
+
+    @server.tool()
+    def critical_density() -> dict[str, Any]:
+        """Cosmological critical density 3 H_0^2 / (8 pi G)."""
+        return t_cos.critical_density().to_dict()
+
+    @server.tool()
+    def age_of_universe() -> dict[str, Any]:
+        """Hubble time t_H = 1/H_0 (approx 13.8 Gyr in LambdaCDM)."""
+        return t_cos.age_of_universe().to_dict()
+
+    @server.tool()
+    def eta_value_report() -> dict[str, Any]:
+        """ETA = c^2_DESI_Union3 ~ 0.4122 (cosmic entanglement fraction)."""
+        return t_cos.eta_value_report().to_dict()
+
+    # ── thermodynamics ─────────────────────────────────────────────
+    @server.tool()
+    def ideal_gas_pressure(n_moles: float, temperature_k: float,
+                            volume_m3: float) -> dict[str, Any]:
+        """P = n R T / V."""
+        return t_thermo.ideal_gas_pressure(n_moles, temperature_k,
+                                              volume_m3).to_dict()
+
+    @server.tool()
+    def ideal_gas_volume(n_moles: float, temperature_k: float,
+                          pressure_pa: float) -> dict[str, Any]:
+        """V = n R T / P."""
+        return t_thermo.ideal_gas_volume(n_moles, temperature_k,
+                                            pressure_pa).to_dict()
+
+    @server.tool()
+    def blackbody_peak_wavelength(temperature_k: float) -> dict[str, Any]:
+        """Wien's law: lambda_max = b / T."""
+        return t_thermo.blackbody_peak_wavelength(temperature_k).to_dict()
+
+    @server.tool()
+    def blackbody_total_power(temperature_k: float, area_m2: float = 1.0,
+                                emissivity: float = 1.0) -> dict[str, Any]:
+        """Stefan-Boltzmann: P = epsilon sigma A T^4."""
+        return t_thermo.blackbody_total_power(temperature_k, area_m2,
+                                                 emissivity).to_dict()
+
+    @server.tool()
+    def carnot_efficiency(t_hot_k: float, t_cold_k: float) -> dict[str, Any]:
+        """eta = 1 - T_cold/T_hot."""
+        return t_thermo.carnot_efficiency(t_hot_k, t_cold_k).to_dict()
+
+    @server.tool()
+    def thermal_energy_per_molecule(temperature_k: float,
+                                      degrees_of_freedom: int = 3) -> dict[str, Any]:
+        """E = (f/2) k_B T per molecule via equipartition."""
+        return t_thermo.thermal_energy_per_molecule(temperature_k,
+                                                       degrees_of_freedom).to_dict()
+
+    @server.tool()
+    def speed_of_sound_in_ideal_gas(temperature_k: float, gamma: float = 1.4,
+                                      molar_mass_kg_per_mol: float = 0.029
+                                      ) -> dict[str, Any]:
+        """v_sound = sqrt(gamma R T / M). Defaults to air."""
+        return t_thermo.speed_of_sound_in_ideal_gas(
+            temperature_k, gamma, molar_mass_kg_per_mol).to_dict()
+
+    @server.tool()
+    def maxwell_boltzmann_most_probable_speed(temperature_k: float,
+                                                 molecular_mass_kg: float
+                                                 ) -> dict[str, Any]:
+        """v_p = sqrt(2 k_B T / m)."""
+        return t_thermo.maxwell_boltzmann_most_probable_speed(
+            temperature_k, molecular_mass_kg).to_dict()
+
+    @server.tool()
+    def temperature_celsius_to_kelvin(t_celsius: float) -> dict[str, Any]:
+        """T_K = T_C + 273.15."""
+        return t_thermo.temperature_celsius_to_kelvin(t_celsius).to_dict()
+
+    @server.tool()
+    def temperature_kelvin_to_celsius(t_kelvin: float) -> dict[str, Any]:
+        """T_C = T_K - 273.15."""
+        return t_thermo.temperature_kelvin_to_celsius(t_kelvin).to_dict()
+
+    # ── optics ──────────────────────────────────────────────────────
+    @server.tool()
+    def snells_law_refraction_angle(n1: float, n2: float,
+                                      incident_angle_deg: float) -> dict[str, Any]:
+        """n1 sin(theta1) = n2 sin(theta2)."""
+        return t_opt.snells_law_refraction_angle(n1, n2,
+                                                    incident_angle_deg).to_dict()
+
+    @server.tool()
+    def critical_angle_for_tir(n_dense: float, n_rare: float) -> dict[str, Any]:
+        """Total internal reflection critical angle."""
+        return t_opt.critical_angle_for_tir(n_dense, n_rare).to_dict()
+
+    @server.tool()
+    def thin_lens_focal_length(object_distance_m: float,
+                                 image_distance_m: float) -> dict[str, Any]:
+        """1/f = 1/d_o + 1/d_i."""
+        return t_opt.thin_lens_focal_length(object_distance_m,
+                                                image_distance_m).to_dict()
+
+    @server.tool()
+    def thin_lens_image_distance(object_distance_m: float,
+                                   focal_length_m: float) -> dict[str, Any]:
+        """d_i = 1/(1/f - 1/d_o)."""
+        return t_opt.thin_lens_image_distance(object_distance_m,
+                                                  focal_length_m).to_dict()
+
+    @server.tool()
+    def lens_magnification(object_distance_m: float,
+                             image_distance_m: float) -> dict[str, Any]:
+        """m = -d_i / d_o."""
+        return t_opt.lens_magnification(object_distance_m,
+                                            image_distance_m).to_dict()
+
+    @server.tool()
+    def rydberg_hydrogen_wavelength(n_initial: int, n_final: int) -> dict[str, Any]:
+        """Rydberg formula for hydrogen transitions."""
+        return t_opt.rydberg_hydrogen_wavelength(n_initial, n_final).to_dict()
+
+    @server.tool()
+    def double_slit_fringe_spacing(wavelength_m: float, slit_separation_m: float,
+                                     screen_distance_m: float) -> dict[str, Any]:
+        """Young's double-slit y = lambda L / d."""
+        return t_opt.double_slit_fringe_spacing(wavelength_m, slit_separation_m,
+                                                   screen_distance_m).to_dict()
+
+    @server.tool()
+    def single_slit_first_minimum_angle(wavelength_m: float,
+                                          slit_width_m: float) -> dict[str, Any]:
+        """sin(theta) = lambda / a."""
+        return t_opt.single_slit_first_minimum_angle(wavelength_m,
+                                                        slit_width_m).to_dict()
+
+    @server.tool()
+    def diffraction_grating_angle(wavelength_m: float, grating_spacing_m: float,
+                                    order: int = 1) -> dict[str, Any]:
+        """d sin(theta) = m lambda."""
+        return t_opt.diffraction_grating_angle(wavelength_m, grating_spacing_m,
+                                                  order).to_dict()
+
+    # ── materials ───────────────────────────────────────────────────
+    @server.tool()
+    def density(material: str) -> dict[str, Any]:
+        """Density of a material in kg/m^3 (e.g. 'water', 'copper')."""
+        return t_mat.density(material).to_dict()
+
+    @server.tool()
+    def refractive_index(material: str) -> dict[str, Any]:
+        """Refractive index at 589 nm (e.g. 'water'=1.333, 'diamond'=2.42)."""
+        return t_mat.refractive_index(material).to_dict()
+
+    @server.tool()
+    def melting_point(material: str) -> dict[str, Any]:
+        """Melting point at 1 atm in K."""
+        return t_mat.melting_point(material).to_dict()
+
+    @server.tool()
+    def boiling_point(material: str) -> dict[str, Any]:
+        """Boiling point at 1 atm in K."""
+        return t_mat.boiling_point(material).to_dict()
+
+    @server.tool()
+    def youngs_modulus(material: str) -> dict[str, Any]:
+        """Young's modulus in Pa."""
+        return t_mat.youngs_modulus(material).to_dict()
+
+    @server.tool()
+    def band_gap_ev(material: str) -> dict[str, Any]:
+        """Semiconductor band gap at 300 K in eV."""
+        return t_mat.band_gap_ev(material).to_dict()
+
+    @server.tool()
+    def list_materials() -> dict[str, Any]:
+        """List all materials available in lookup tables."""
+        return t_mat.list_materials().to_dict()
+
+    @server.tool()
+    def element_atomic_data(element_symbol: str) -> dict[str, Any]:
+        """Atomic Z, name, mass via periodictable (e.g. 'Au')."""
+        return t_mat.element_atomic_data(element_symbol).to_dict()
+
+    # ── electrical circuits ────────────────────────────────────────
+    @server.tool()
+    def ohms_law_voltage(current_a: float,
+                           resistance_ohm: float) -> dict[str, Any]:
+        """V = I R."""
+        return t_circ.ohms_law_voltage(current_a, resistance_ohm).to_dict()
+
+    @server.tool()
+    def ohms_law_current(voltage_v: float,
+                           resistance_ohm: float) -> dict[str, Any]:
+        """I = V / R."""
+        return t_circ.ohms_law_current(voltage_v, resistance_ohm).to_dict()
+
+    @server.tool()
+    def electrical_power(voltage_v: float, current_a: float) -> dict[str, Any]:
+        """P = V I."""
+        return t_circ.electrical_power(voltage_v, current_a).to_dict()
+
+    @server.tool()
+    def power_dissipation_resistor(current_a: float,
+                                     resistance_ohm: float) -> dict[str, Any]:
+        """P = I^2 R."""
+        return t_circ.power_dissipation_resistor(current_a, resistance_ohm).to_dict()
+
+    @server.tool()
+    def parallel_plate_capacitance(area_m2: float, separation_m: float,
+                                     dielectric_constant: float = 1.0
+                                     ) -> dict[str, Any]:
+        """C = eps_0 eps_r A / d."""
+        return t_circ.parallel_plate_capacitance(area_m2, separation_m,
+                                                    dielectric_constant).to_dict()
+
+    @server.tool()
+    def rc_time_constant(resistance_ohm: float,
+                           capacitance_f: float) -> dict[str, Any]:
+        """tau = R C."""
+        return t_circ.rc_time_constant(resistance_ohm, capacitance_f).to_dict()
+
+    @server.tool()
+    def rl_time_constant(resistance_ohm: float,
+                           inductance_h: float) -> dict[str, Any]:
+        """tau = L / R."""
+        return t_circ.rl_time_constant(resistance_ohm, inductance_h).to_dict()
+
+    @server.tool()
+    def rlc_resonant_frequency(inductance_h: float,
+                                 capacitance_f: float) -> dict[str, Any]:
+        """omega_0 = 1 / sqrt(L C). Returns angular frequency in rad/s."""
+        return t_circ.rlc_resonant_frequency(inductance_h, capacitance_f).to_dict()
+
+    @server.tool()
+    def em_wave_wavelength(frequency_hz: float,
+                             refractive_index: float = 1.0) -> dict[str, Any]:
+        """lambda = c / (n f)."""
+        return t_circ.em_wave_wavelength(frequency_hz, refractive_index).to_dict()
+
+    @server.tool()
+    def em_wave_frequency(wavelength_m: float,
+                            refractive_index: float = 1.0) -> dict[str, Any]:
+        """f = c / (n lambda)."""
+        return t_circ.em_wave_frequency(wavelength_m, refractive_index).to_dict()
+
+    # ── atomic physics ─────────────────────────────────────────────
+    @server.tool()
+    def first_ionization_energy(element_symbol: str) -> dict[str, Any]:
+        """First IE in eV (e.g. H=13.6, Na=5.1)."""
+        return t_atom.first_ionization_energy(element_symbol).to_dict()
+
+    @server.tool()
+    def hydrogen_like_energy_level(n: int,
+                                     atomic_number: int = 1) -> dict[str, Any]:
+        """E_n = -13.606 Z^2 / n^2 eV."""
+        return t_atom.hydrogen_like_energy_level(n, atomic_number).to_dict()
+
+    @server.tool()
+    def hydrogen_emission_wavelength(n_initial: int, n_final: int,
+                                       atomic_number: int = 1) -> dict[str, Any]:
+        """Rydberg wavelength for hydrogen-like transitions."""
+        return t_atom.hydrogen_emission_wavelength(n_initial, n_final,
+                                                      atomic_number).to_dict()
+
+    @server.tool()
+    def de_broglie_wavelength(mass_kg: float,
+                                velocity_m_s: float) -> dict[str, Any]:
+        """lambda = h / (m v)."""
+        return t_atom.de_broglie_wavelength(mass_kg, velocity_m_s).to_dict()
+
+    @server.tool()
+    def photon_energy_from_wavelength(wavelength_m: float) -> dict[str, Any]:
+        """E = h c / lambda."""
+        return t_atom.photon_energy_from_wavelength(wavelength_m).to_dict()
+
+    @server.tool()
+    def photon_energy_from_frequency(frequency_hz: float) -> dict[str, Any]:
+        """E = h f."""
+        return t_atom.photon_energy_from_frequency(frequency_hz).to_dict()
+
+    # ── astronomy ──────────────────────────────────────────────────
+    @server.tool()
+    def solar_system_body(body_name: str) -> dict[str, Any]:
+        """Look up planet/moon/sun parameters (e.g. 'earth', 'mars')."""
+        return t_astr.solar_system_body(body_name).to_dict()
+
+    @server.tool()
+    def named_star(star_name: str) -> dict[str, Any]:
+        """Named bright star data (e.g. 'sirius_a', 'vega')."""
+        return t_astr.named_star(star_name).to_dict()
+
+    @server.tool()
+    def light_travel_time(distance_m: float) -> dict[str, Any]:
+        """t = d / c."""
+        return t_astr.light_travel_time(distance_m).to_dict()
+
+    @server.tool()
+    def list_bodies() -> dict[str, Any]:
+        """List all solar-system bodies and named stars available."""
+        return t_astr.list_bodies().to_dict()
 
     # Run via stdio transport (standard MCP).
     server.run()

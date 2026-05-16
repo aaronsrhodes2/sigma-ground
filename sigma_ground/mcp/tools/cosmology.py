@@ -1,0 +1,205 @@
+"""Cosmology tools: Hubble radius, HDE, MOND classifier, dark energy.
+
+Wraps sigma_ground.field.interface.cosmology which already has the
+physics implementations and the η/DESI Union3 integration.
+
+The ETA framework is presented as the empirical-input parameter from
+DESI; the deeper SSBM theoretical framing remains in the EXTENDED tier
+not surfaced here.
+"""
+
+from __future__ import annotations
+
+from sigma_ground.mcp.provenance import ToolResult
+
+
+def hubble_radius() -> ToolResult:
+    """Current-epoch Hubble radius R_H = c / H_0 in meters.
+
+    Uses H_0 from sigma_ground.field.constants (Planck 2018 base value).
+    """
+    from sigma_ground.field.interface.cosmology import hubble_radius as _hr
+    R_H = _hr()
+    return ToolResult(
+        value=R_H,
+        units="m",
+        source="sigma-ground (Planck 2018 H_0)",
+        formula="R_H = c / H_0",
+        notes=(f"~{R_H/3.086e22:.2f} Gpc. The Hubble radius is the distance "
+                f"at which the cosmological recession velocity equals c."),
+    )
+
+
+def hde_dark_energy_density(c_squared: float | None = None,
+                              L_meters: float | None = None) -> ToolResult:
+    """Holographic Dark Energy density: rho_DE = 3 c^2 M_Pl^2 c^4 / (8 pi G L^2).
+
+    Parameters
+    ----------
+    c_squared : float | None
+        HDE parameter c^2. Defaults to ETA (=0.4122, the DESI Union3 anchor).
+    L_meters : float | None
+        IR cutoff length. Defaults to Hubble radius.
+
+    Returns
+    -------
+    ToolResult with energy density in J/m^3.
+    """
+    if c_squared is not None and c_squared < 0:
+        return ToolResult(value=None, source="invalid input",
+                           notes="c_squared must be non-negative",
+                           inputs={"c_squared": c_squared, "L_meters": L_meters})
+    if L_meters is not None and L_meters <= 0:
+        return ToolResult(value=None, source="invalid input",
+                           notes="L_meters must be positive",
+                           inputs={"c_squared": c_squared, "L_meters": L_meters})
+    from sigma_ground.field.interface.cosmology import hde_rho_de
+    rho = hde_rho_de(c_squared=c_squared, L=L_meters)
+    return ToolResult(
+        value=rho,
+        units="J/m^3",
+        source="sigma-ground (HDE; Li 2004, DESI 2024 anchor)",
+        formula="rho_DE = 3 c^2 M_Pl^2 c^4 / (8 pi G L^2)",
+        inputs={"c_squared": c_squared, "L_meters": L_meters},
+        notes=("Holographic Dark Energy model. c^2 defaults to ETA "
+                "(0.4122, anchored at DESI 2024 Union3 fit). L defaults "
+                "to the Hubble radius."),
+    )
+
+
+def eta_desi_band_check(dataset: str = "dr2") -> ToolResult:
+    """Does our adopted ETA fall within the DESI Union3 1-sigma band?
+
+    Parameters
+    ----------
+    dataset : str
+        "dr2" (default) or "dr3" (placeholder, not yet lifted).
+
+    Returns
+    -------
+    ToolResult with `value` = dict {in_band, low, high, eta}.
+    """
+    from sigma_ground.field.interface.cosmology import eta_in_desi_union3_band
+    if dataset not in ("dr2", "dr3"):
+        return ToolResult(value=None, source="invalid input",
+                           notes="dataset must be 'dr2' or 'dr3'",
+                           inputs={"dataset": dataset})
+    r = eta_in_desi_union3_band(dataset)
+    return ToolResult(
+        value=r,
+        source="sigma-ground (DESI 2024 Union3 HDE fit, arXiv:2411.08639)",
+        inputs={"dataset": dataset},
+        notes=("ETA is the empirical-input cosmic entanglement fraction "
+                "anchored at the central DESI Union3 c^2 value."),
+    )
+
+
+def mond_regime_classifier(acceleration_m_s2: float) -> ToolResult:
+    """Classify an acceleration as Newtonian / MOND-regime / transition.
+
+    Uses Milgrom's a_0 ~ 1.2e-10 m/s^2. Above ~10 a_0, gravity is
+    Newtonian; below ~0.1 a_0, deep MOND regime.
+
+    Parameters
+    ----------
+    acceleration_m_s2 : float
+        Magnitude of the gravitational acceleration in m/s^2.
+
+    Returns
+    -------
+    ToolResult with `value` in {"newtonian", "mond", "transition"}.
+    """
+    if acceleration_m_s2 < 0:
+        return ToolResult(value=None, source="invalid input",
+                           notes="acceleration_m_s2 must be non-negative",
+                           inputs={"acceleration_m_s2": acceleration_m_s2})
+    from sigma_ground.field.interface.cosmology import newtonian_regime
+    regime = newtonian_regime(acceleration_m_s2)
+    return ToolResult(
+        value=regime,
+        source="sigma-ground (Milgrom MOND, arXiv:2511.05632)",
+        inputs={"acceleration_m_s2": acceleration_m_s2},
+        notes=("Newtonian gravity well-tested above ~1e-9 m/s^2. "
+                "Galaxy outskirts probe the transition (~1e-10 m/s^2). "
+                "MOND is one phenomenological resolution; dark matter "
+                "is another. The classifier just flags which regime "
+                "your input is in."),
+    )
+
+
+def mond_a0_constant() -> ToolResult:
+    """Milgrom's a_0 constant in m/s^2, with the cosmological coincidence check."""
+    from sigma_ground.field.interface.cosmology import a0_mond_from_cosmological_scale
+    r = a0_mond_from_cosmological_scale()
+    return ToolResult(
+        value=r["a0_measured_ms2"],
+        units="m/s^2",
+        source="sigma-ground (Milgrom 1983; SPARC 2016 confirmation)",
+        formula="a_0 ~ c H_0 / (2 pi)",
+        inputs={},
+        notes=("Empirical MOND constant. The cosmological coincidence: "
+                f"a_0 ~ c H_0/(2 pi) = {r['a0_predicted_ms2']:.3e} m/s^2 "
+                f"vs measured {r['a0_measured_ms2']:.3e} m/s^2 "
+                f"(ratio: {r['ratio']:.3f})."),
+    )
+
+
+def critical_density() -> ToolResult:
+    """Cosmological critical density rho_crit = 3 H_0^2 / (8 pi G)."""
+    import math
+    from sigma_ground.field.constants import H0, G
+    rho_crit = 3.0 * H0 * H0 / (8.0 * math.pi * G)
+    return ToolResult(
+        value=rho_crit,
+        units="kg/m^3",
+        source="sigma-ground (FLRW critical density, Planck 2018 H_0)",
+        formula="rho_crit = 3 H_0^2 / (8 pi G)",
+        inputs={},
+        notes=(f"~{rho_crit*1e29:.3f}e-29 kg/m^3. Density at which the "
+                f"universe would be spatially flat. Current best estimate "
+                f"matches this closely (Omega_total ~ 1)."),
+    )
+
+
+def age_of_universe() -> ToolResult:
+    """Hubble time t_H = 1/H_0, approximation for the age of the universe.
+
+    The actual age depends on the matter+dark-energy content; t_H is the
+    'Hubble time' which differs from the true age by an O(1) factor.
+    For Planck 2018 LambdaCDM, age = 13.787 +/- 0.020 Gyr.
+    """
+    from sigma_ground.field.constants import H0
+    tH_sec = 1.0 / H0
+    tH_gyr = tH_sec / (1e9 * 365.25 * 86400.0)
+    return ToolResult(
+        value=tH_sec,
+        units="s",
+        source="sigma-ground (Planck 2018 H_0)",
+        formula="t_H = 1 / H_0",
+        inputs={},
+        notes=(f"Hubble time = {tH_gyr:.2f} Gyr. The true age of the "
+                f"universe in LambdaCDM is 13.787 Gyr (Planck 2018), "
+                f"differing from t_H by an O(1) factor."),
+    )
+
+
+def eta_value_report() -> ToolResult:
+    """The cosmic entanglement fraction ETA, with provenance.
+
+    Returns ETA and its source (DESI 2024 Union3 c^2). The deeper
+    interpretation is part of the SSBM theoretical layer not surfaced
+    here for routine queries.
+    """
+    from sigma_ground.field.constants import ETA, ETA_UNCERTAINTY_1SIGMA, C_HDE_UNION3
+    return ToolResult(
+        value=ETA,
+        units="dimensionless",
+        source="sigma-ground via DESI 2024 Union3 HDE fit (arXiv:2411.08639)",
+        provenance_tag="EMPIRICAL-INPUT",
+        uncertainty=ETA_UNCERTAINTY_1SIGMA,
+        formula=f"ETA = c^2_DESI_Union3 = {C_HDE_UNION3}^2",
+        inputs={},
+        notes=("Cosmic entanglement fraction. Empirical input parameter "
+                "anchored at the central DESI 2024 Union3 HDE c^2 fit. "
+                "1-sigma uncertainty = 2 c sigma_c = 0.036."),
+    )

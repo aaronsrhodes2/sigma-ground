@@ -68,8 +68,12 @@ class ToolResult:
         The LLM can include this verbatim in its prose answer, OR parse
         it and reformat -- both work. Format prioritizes citations so
         the LLM is steered toward attribution.
+
+        Every formatted result includes the LIBRARY identifier
+        ("sigma-ground") prominently so the LLM-side answer carries
+        the attribution forward into user-visible prose.
         """
-        parts = []
+        parts = ["library: sigma-ground"]
         if isinstance(self.value, (int, float)):
             parts.append(f"value: {self.value:.6g}")
         else:
