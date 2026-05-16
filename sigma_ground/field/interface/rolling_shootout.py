@@ -299,6 +299,19 @@ PREDICTORS: list[Predictor] = [
               dt_days=0.02,
               description="JPL DE440 stack with dt=0.02d (5x finer) -- targets fast-moon "
                           "integrator-noise floor (Enceladus, Io, Europa at 1-2d period)"),
+    # RESPA per-body dt: macro dt=0.1d for slow forces (Sun on moons, J2/J3/J4,
+    # EIH cross-terms, etc.), inner dt=0.01d for the parent-pair Newton force
+    # (Saturn-Mimas, Mars-Phobos, etc.). Symplectic via Strang splitting; works
+    # because for our fast moons the parent-pull dominates Sun's pull by 4-6
+    # orders of magnitude (Saturn pulls Mimas 10000x harder than Sun does).
+    # Parent-attractor links are read from the DE440 fixture's
+    # gravitational_anchor field. See misc/respa_attempt_2026-05-16.md.
+    Predictor("jpl_de440_respa",    _JPL_DE440,
+              dt_days=0.1,
+              integrator="respa",
+              fast_substep_factor=10,
+              description="JPL DE440 with RESPA symplectic multi-timestep: "
+                          "slow forces @ 0.1d, parent-pair Newton @ 0.01d"),
     # NOTE (2026-05-16): jpl_de440_hier removed from canonical PREDICTORS
     # because the underlying forest_ruth_step_hierarchical method has a
     # known correctness bug in the slow/fast operator split (the slow-body
@@ -327,7 +340,7 @@ def _build_bodies_at_snapshot(
     snap_key: str,
     de440:    dict,
     predictor: Predictor,
-) -> tuple[list[CelestialBody], list[str], int]:
+) -> tuple[list[CelestialBody], list[str], int, list[int | None]]:
     """Build CelestialBody list from a DE440 annual snapshot.
 
     Per-body parameters (j2, j3, j4, area_m2, pole_axis_unit) are ALWAYS set
@@ -335,14 +348,15 @@ def _build_bodies_at_snapshot(
     gating now happens at the force-computation layer inside NBodySystem
     (via PhysicsToggles), not by zeroing per-body data here.
 
-    This is the fix for the j2-zero bug: previously, `j2_enabled=False`
-    zeroed `body.j2`, which lost the true data value and forced bodies to be
-    re-instantiated for any ablation. Now the body always carries its real
-    parameter values; the toggle decides whether the force is computed.
+    Returns (bodies, names, sun_idx, parent_attractor_indices).
+    parent_attractor_indices[i] = index of body i's `gravitational_anchor`
+    in the same list, or None for Sun / unanchored bodies. Used by
+    NBodySystem.respa_step to identify parent-pair fast forces.
     """
     snap = de440["snapshots"][snap_key]
     bodies: list[CelestialBody] = []
     names: list[str] = []
+    anchor_names: list[str | None] = []  # parallel list of anchor body names
     sun_idx = -1
 
     for entry in snap["bodies"]:
@@ -376,12 +390,24 @@ def _build_bodies_at_snapshot(
         )
         bodies.append(body)
         names.append(name)
+        anchor_names.append(entry.get("gravitational_anchor"))
         if name == "Sun":
             sun_idx = len(bodies) - 1
 
     if sun_idx < 0:
         raise ValueError(f"snapshot {snap_key} has no Sun")
-    return bodies, names, sun_idx
+
+    # Resolve anchor names to indices. Bodies whose anchor isn't present in
+    # this snapshot (or is the body itself) get None.
+    name_to_idx = {n: i for i, n in enumerate(names)}
+    parent_attractor_indices: list[int | None] = []
+    for i, a_name in enumerate(anchor_names):
+        if a_name is None or a_name == names[i]:
+            parent_attractor_indices.append(None)
+        else:
+            parent_attractor_indices.append(name_to_idx.get(a_name))
+
+    return bodies, names, sun_idx, parent_attractor_indices
 
 
 def _de440_heliocentric_km(de440: dict, snap_key: str, name: str) -> np.ndarray | None:
@@ -406,10 +432,15 @@ def _integrate_nbody(
     sun_idx:          int,
     start_jd:         float,
     sample_jds:       list[float],
+    parent_attractor_indices: list[int | None] | None = None,
 ) -> dict[str, np.ndarray]:
     """Forward-integrate from start_jd, sample heliocentric km at sample_jds.
 
     sample_jds[0] must equal start_jd (the trivial sample = initial state).
+
+    parent_attractor_indices: optional per-body parent attractor indices,
+    used by integrator='respa' to identify the fast Newton pair for each
+    body. Read from DE440 fixture's gravitational_anchor field upstream.
 
     Returns
     -------
@@ -426,6 +457,7 @@ def _integrate_nbody(
         bodies,
         toggles=predictor.toggles,
         solar_luminosity_W=_L_SUN_W if predictor.toggles.srp else 0.0,
+        parent_attractor_indices=parent_attractor_indices,
     )
 
     # Resolve fast-body indices (for hierarchical substepping). Bodies named
@@ -439,10 +471,15 @@ def _integrate_nbody(
             if fname in name_to_idx:
                 fast_indices.append(name_to_idx[fname])
 
-    if predictor.integrator == "fr4":
+    if predictor.integrator == "respa":
+        sub = max(1, predictor.fast_substep_factor)
+        step_fn: Callable[[float], None] = (
+            lambda dt: system.respa_step(dt, sub)
+        )
+    elif predictor.integrator == "fr4":
         if fast_indices:
             sub = predictor.fast_substep_factor
-            step_fn: Callable[[float], None] = (
+            step_fn = (
                 lambda dt: system.forest_ruth_step_hierarchical(
                     dt, fast_indices, sub
                 )
@@ -621,10 +658,11 @@ def run_rolling_shootout(
                 body_names = [b["name"] for b in de440["snapshots"][w_key]["bodies"]]
                 preds = _kepler_predictions(de440, w_key, body_names, sample_jds)
             else:
-                bodies, body_names, sun_idx = _build_bodies_at_snapshot(
+                bodies, body_names, sun_idx, parent_idx = _build_bodies_at_snapshot(
                     w_key, de440, predictor)
                 preds = _integrate_nbody(
-                    predictor, bodies, body_names, sun_idx, start_jd, sample_jds)
+                    predictor, bodies, body_names, sun_idx, start_jd, sample_jds,
+                    parent_attractor_indices=parent_idx)
 
             elapsed = time.time() - t0
             if verbose:

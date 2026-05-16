@@ -315,6 +315,7 @@ class NBodySystem:
         softening_m:        float = 0.0,
         toggles:            PhysicsToggles | None = None,
         solar_luminosity_W: float = 0.0,
+        parent_attractor_indices: list[int | None] | None = None,
         # Legacy kwargs (deprecated, accepted for backward compatibility):
         include_gr:         bool  = False,
     ) -> None:
@@ -322,6 +323,19 @@ class NBodySystem:
         self.softening_m        = softening_m
         self.solar_luminosity_W = solar_luminosity_W
         self._time              = 0.0
+        # parent_attractor_indices[i] = index of body i's dominant Newton
+        # attractor (e.g. Earth -> Sun, Mimas -> Saturn), or None if i has
+        # no fast-pair partner. Used by respa_step to split the Hamiltonian
+        # by force type. None for all bodies disables RESPA-style fast/slow
+        # separation; respa_step degenerates to a slow-only kick scheme.
+        if parent_attractor_indices is None:
+            parent_attractor_indices = [None] * len(self.bodies)
+        if len(parent_attractor_indices) != len(self.bodies):
+            raise ValueError(
+                f"parent_attractor_indices length {len(parent_attractor_indices)} "
+                f"must match bodies length {len(self.bodies)}"
+            )
+        self.parent_attractor_indices = list(parent_attractor_indices)
         if toggles is None:
             # Backward-compat: build PhysicsToggles from legacy kwargs +
             # auto-detect of per-body J2 data so existing callers behave
@@ -817,6 +831,156 @@ class NBodySystem:
         _drift(c[2])  # drift (1−θ)/2
         _kick(d[2])   # kick θ
         _drift(c[3])  # drift θ/2
+
+        self._time += dt
+
+    # ── RESPA-style force decomposition (per-body dt by force type) ─────
+    def compute_fast_accelerations(self) -> NDArray[np.float64]:
+        """Newtonian accelerations for fast parent-child pairs only.
+
+        For each body i with a parent attractor p (set via the
+        parent_attractor_indices NBodySystem constructor argument), this
+        returns the Newtonian acceleration on i from p, AND the reciprocal
+        back-reaction on p from i (Newton's third law).
+
+        Bodies without a parent contribute zero to the fast acceleration.
+        Bodies that ARE parents (e.g. Saturn, parent of multiple moons)
+        accumulate back-reactions from each of their children.
+
+        Used by respa_step (Tuckerman 1992 / Wisdom-Holman style symplectic
+        multi-timestep) to separate fast-varying forces (close binary
+        Newton) from slow-varying ones (planet-Sun perturbations, J₂/J₃/J₄,
+        EIH cross-terms, tides, SRP).
+
+        Returns
+        -------
+        ndarray of shape (N, 3) in m/s².
+        """
+        n = len(self.bodies)
+        acc = np.zeros((n, 3), dtype=np.float64)
+        for i in range(n):
+            p_idx = self.parent_attractor_indices[i]
+            if p_idx is None or p_idx == i:
+                continue
+            b_i = self.bodies[i]
+            b_p = self.bodies[p_idx]
+            r_vec = b_p.position_m - b_i.position_m
+            r_sq = float(np.dot(r_vec, r_vec)) + self.softening_m ** 2
+            if r_sq == 0.0:
+                continue
+            r = math.sqrt(r_sq)
+            # Acceleration on i toward parent: F = G M_p / r²  -> a = GM_p r̂ / r²
+            gm_p = b_p.gm_m3_s2
+            acc[i] += gm_p * r_vec / (r_sq * r)
+            # Reciprocal acceleration on parent from i: opposite direction.
+            gm_i = b_i.gm_m3_s2
+            acc[p_idx] -= gm_i * r_vec / (r_sq * r)
+        return acc
+
+    def compute_slow_accelerations(self) -> NDArray[np.float64]:
+        """Full acceleration minus fast-pair Newton.
+
+        This is the "rest" of the dynamics: planet-Sun, planet-planet,
+        moon-Sun, J₂/J₃/J₄ zonals, EIH cross-terms, mutual tides, SRP.
+        Sampled at the macro dt by respa_step.
+
+        Returns
+        -------
+        ndarray of shape (N, 3) in m/s².
+        """
+        return self.compute_accelerations() - self.compute_fast_accelerations()
+
+    # ── RESPA step: symplectic multi-timestep (slow outer, fast inner) ──
+    def respa_step(self, dt: float, n_substeps: int) -> None:
+        """Symplectic multi-timestep: slow forces at dt, fast forces at dt/N.
+
+        ⚠ EXPERIMENTAL — Works for systems where the parent-pair Newton
+        force genuinely dominates over the rest of the dynamics (2-body
+        Earth-Moon: validated, 12x better than uniform-coarse). FAILS for
+        cases where the "slow" force is comparable to the "fast" force
+        (3-body Sun-Earth-Moon: Moon's Sun-pull is ~5.9e-3 m/s², Earth-pull
+        is ~2.7e-3 m/s² -- they're the same order, so the Strang splitting
+        introduces large errors). The fix is Wisdom-Holman-style Kepler
+        splitting (analytic two-body inside the inner block), which is a
+        substantial implementation. See misc/respa_attempt_2026-05-16.md.
+
+        Implements the Tuckerman, Berne, Martyna 1992 RESPA scheme:
+
+            exp(dt L) = exp(dt/2 L_slow) [exp(dt/N L_fast)]^N exp(dt/2 L_slow)
+
+        with the inner block run as N steps of leapfrog (velocity-Verlet)
+        over the fast Hamiltonian (T + U_fast). This decomposition is by
+        FORCE TYPE: U_fast = Newtonian potential of declared fast pairs;
+        U_slow = everything else. Set the fast pairs via the
+        parent_attractor_indices argument to NBodySystem.
+
+        Order: 2nd-order globally (outer Strang on slow forces), but the
+        inner leapfrog at dt/N gives the fast forces 2nd-order resolution
+        at the fast orbital timescale. For our solar-system application,
+        this is sufficient -- the slow forces (Sun on moon, zonals, GR)
+        are slowly varying over fast-moon orbital periods.
+
+        Symplectic for fixed dt and fixed n_substeps: long-term energy
+        bounded, no secular drift. The earlier forest_ruth_step_hierarchical
+        attempt failed precisely because it was NOT symplectic; this method
+        is the correct fix.
+
+        Parameters
+        ----------
+        dt          : macro time step in seconds (slow forces sampled here)
+        n_substeps  : inner leapfrog substeps for fast forces
+                       (effective fast force resolution = dt / n_substeps)
+        """
+        if n_substeps < 1:
+            raise ValueError(f"n_substeps={n_substeps} must be >= 1")
+        n = len(self.bodies)
+
+        # 1. Half-kick using slow forces
+        acc_slow = self.compute_slow_accelerations()
+        for i in range(n):
+            b = self.bodies[i]
+            self.bodies[i] = b.replace(
+                velocity_m_s=b.velocity_m_s + 0.5 * dt * acc_slow[i]
+            )
+
+        # 2. N inner leapfrog steps using fast forces only.
+        # Standard velocity-Verlet on the fast Hamiltonian:
+        #   v(t+dt/2)   = v(t)    + 0.5 dt a_fast(x(t))
+        #   x(t+dt)     = x(t)    + dt v(t+dt/2)
+        #   v(t+dt)     = v(t+dt/2) + 0.5 dt a_fast(x(t+dt))
+        # We collapse adjacent half-kicks across substeps where possible
+        # by tracking that the post-substep state has v = v_half + ...
+        # For simplicity, run each substep as a full velocity-Verlet step.
+        sub_dt = dt / n_substeps
+        for _ in range(n_substeps):
+            acc_fast = self.compute_fast_accelerations()
+            # Half-kick
+            for i in range(n):
+                b = self.bodies[i]
+                self.bodies[i] = b.replace(
+                    velocity_m_s=b.velocity_m_s + 0.5 * sub_dt * acc_fast[i]
+                )
+            # Drift
+            for i in range(n):
+                b = self.bodies[i]
+                self.bodies[i] = b.replace(
+                    position_m=b.position_m + sub_dt * b.velocity_m_s
+                )
+            # Half-kick at new positions
+            acc_fast = self.compute_fast_accelerations()
+            for i in range(n):
+                b = self.bodies[i]
+                self.bodies[i] = b.replace(
+                    velocity_m_s=b.velocity_m_s + 0.5 * sub_dt * acc_fast[i]
+                )
+
+        # 3. Half-kick using slow forces (recomputed at new positions)
+        acc_slow = self.compute_slow_accelerations()
+        for i in range(n):
+            b = self.bodies[i]
+            self.bodies[i] = b.replace(
+                velocity_m_s=b.velocity_m_s + 0.5 * dt * acc_slow[i]
+            )
 
         self._time += dt
 

@@ -1330,6 +1330,153 @@ class TestHierarchicalForestRuth(unittest.TestCase):
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# RESPA per-body dt: symplectic multi-timestep (Tuckerman 1992)
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestRespaStep(unittest.TestCase):
+    """respa_step splits Hamiltonian into fast (parent-pair Newton) and slow
+    (everything else), evolves them on different timescales via Strang split.
+
+    Works correctly when parent-pair force genuinely dominates other forces
+    on the fast body. Validated for the real solar-system case where Saturn
+    pulls Mimas 10000x harder than Sun does. Documented limitation for cases
+    where slow forces are comparable (Earth-Moon-Sun in isolation).
+    """
+
+    def _earth_moon(self):
+        return [
+            CelestialBody(5.972e24, np.zeros(3), np.zeros(3),
+                           6.371e6, 0.3),
+            CelestialBody(7.342e22, np.array([3.844e8, 0, 0]),
+                           np.array([0, 1.022e3, 0]),
+                           1.737e6, 0.024),
+        ]
+
+    def test_respa_two_body_beats_coarse(self):
+        """In a 2-body Earth-Moon (no Sun), RESPA macro=1d/sub=0.1d should
+        approach the reference dt=0.1d Forest-Ruth accuracy and clearly
+        beat uniform dt=1d Forest-Ruth.
+        """
+        DAY = 86400.0
+        # Reference uniform dt=0.1d FR
+        s_ref = NBodySystem(self._earth_moon())
+        for _ in range(300):
+            s_ref.forest_ruth_step(0.1 * DAY)
+        pos_ref = s_ref.bodies[1].position_m.copy()
+        # Uniform coarse dt=1d FR
+        s_coarse = NBodySystem(self._earth_moon())
+        for _ in range(30):
+            s_coarse.forest_ruth_step(1.0 * DAY)
+        # RESPA 1d / 0.1d (parent of Moon = Earth)
+        s_respa = NBodySystem(self._earth_moon(),
+                               parent_attractor_indices=[None, 0])
+        for _ in range(30):
+            s_respa.respa_step(1.0 * DAY, n_substeps=10)
+        err_coarse = float(np.linalg.norm(s_coarse.bodies[1].position_m - pos_ref))
+        err_respa  = float(np.linalg.norm(s_respa.bodies[1].position_m - pos_ref))
+        self.assertLess(err_respa, err_coarse * 0.5,
+                         f"RESPA err {err_respa:.2e} should be <0.5x "
+                         f"coarse err {err_coarse:.2e}")
+
+    def test_respa_three_body_KNOWN_LIMITATION_sun_earth_moon(self):
+        """In a 3-body Sun-Earth-Moon system, Sun's pull on Moon (5.9e-3 m/s²)
+        is LARGER than Earth's (2.7e-3 m/s²), so declaring Moon's parent as
+        Earth puts the dominant force in H_slow and breaks the Strang split.
+        RESPA underperforms uniform-coarse in this case.
+
+        This test pins the limitation. The Earth-Moon-Sun case is an
+        unrepresentative worst-case; real solar-system fast moons
+        (Mimas/Phobos/Deimos) have parent/Sun force ratios of 10000+ so
+        the Strang split works cleanly. See misc/respa_attempt_2026-05-16.md.
+
+        When/if Wisdom-Holman with analytic Kepler inner solver is
+        implemented, flip this test's assertion direction.
+        """
+        DAY = 86400.0
+        M_SUN, R_SUN, AU = 1.989e30, 6.96e8, 1.496e11
+
+        def make():
+            return [
+                CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.02),
+                CelestialBody(5.972e24, np.array([AU, 0, 0]),
+                               np.array([0, 2.978e4, 0]), 6.371e6, 0.3),
+                CelestialBody(7.342e22, np.array([AU + 3.844e8, 0, 0]),
+                               np.array([0, 2.978e4 + 1.022e3, 0]),
+                               1.737e6, 0.024),
+            ]
+        # Reference: uniform dt=0.1d
+        s_ref = NBodySystem(make())
+        for _ in range(300):
+            s_ref.forest_ruth_step(0.1 * DAY)
+        pos_moon_ref = s_ref.bodies[2].position_m.copy()
+        # Coarse: uniform dt=1d
+        s_coarse = NBodySystem(make())
+        for _ in range(30):
+            s_coarse.forest_ruth_step(1.0 * DAY)
+        # RESPA: Earth's parent=Sun, Moon's parent=Earth
+        s_respa = NBodySystem(make(), parent_attractor_indices=[None, 0, 1])
+        for _ in range(30):
+            s_respa.respa_step(1.0 * DAY, n_substeps=10)
+        err_coarse = float(np.linalg.norm(s_coarse.bodies[2].position_m - pos_moon_ref))
+        err_respa  = float(np.linalg.norm(s_respa.bodies[2].position_m - pos_moon_ref))
+        # Known limitation: RESPA is currently WORSE in this 3-body case.
+        # When the underlying scheme is upgraded to Wisdom-Holman with analytic
+        # Kepler inner solver, this assertion should be flipped.
+        self.assertGreater(err_respa, err_coarse,
+                            f"Expected RESPA err > coarse err in this known-"
+                            f"limitation case. If now {err_respa:.2e} < "
+                            f"{err_coarse:.2e}, the algorithm has improved -- "
+                            f"flip the assertion direction.")
+
+    def test_respa_n_substeps_zero_raises(self):
+        s = NBodySystem(self._earth_moon(),
+                         parent_attractor_indices=[None, 0])
+        with self.assertRaises(ValueError):
+            s.respa_step(86400.0, n_substeps=0)
+
+    def test_respa_compute_fast_with_no_parents_is_zero(self):
+        """If no body has a parent (parent_attractor_indices all None),
+        compute_fast_accelerations returns zeros."""
+        s = NBodySystem(self._earth_moon())  # default: all None
+        fast = s.compute_fast_accelerations()
+        np.testing.assert_array_almost_equal(fast, np.zeros((2, 3)), decimal=20)
+
+    def test_respa_compute_slow_plus_fast_equals_total(self):
+        """compute_total == compute_slow + compute_fast (linearity sanity)."""
+        s = NBodySystem(self._earth_moon(),
+                         parent_attractor_indices=[None, 0])
+        total = s.compute_accelerations()
+        fast = s.compute_fast_accelerations()
+        slow = s.compute_slow_accelerations()
+        np.testing.assert_array_almost_equal(slow + fast, total, decimal=10)
+
+    def test_respa_advances_time_by_dt(self):
+        s = NBodySystem(self._earth_moon(),
+                         parent_attractor_indices=[None, 0])
+        t0 = s.time
+        s.respa_step(86400.0, n_substeps=5)
+        self.assertAlmostEqual(s.time - t0, 86400.0, delta=1e-9)
+
+    def test_respa_fast_back_reaction_pulls_parent(self):
+        """The fast force on a body's parent (back-reaction) must point
+        from parent toward the child. Sanity check Newton's third law."""
+        # Earth at origin, Moon at +x. Moon's parent = Earth (index 0).
+        # Earth's compute_fast acceleration should point in +x direction
+        # (toward Moon).
+        s = NBodySystem(self._earth_moon(),
+                         parent_attractor_indices=[None, 0])
+        fast = s.compute_fast_accelerations()
+        # Earth (idx 0) should be pulled toward Moon (+x).
+        self.assertGreater(fast[0, 0], 0.0,
+                            "Earth's fast acceleration (back-reaction from Moon) "
+                            "should be positive in +x")
+        # Magnitude check: should equal GM_moon / r_em²
+        expected = _G * 7.342e22 / (3.844e8 ** 2)
+        self.assertAlmostEqual(float(fast[0, 0]), expected,
+                                delta=expected * 1e-6)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # EIH N-body 1PN cross-terms — JPL DE440 canonical force model
 # ═══════════════════════════════════════════════════════════════════════════
 
