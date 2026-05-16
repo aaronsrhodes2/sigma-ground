@@ -25,6 +25,136 @@ classify everything in `unclassified`.
 
 ---
 
+## Dependency graph
+
+Mermaid diagram of the derivation DAG. Renders inline on GitHub.
+Free inputs are red, measured constants green, derived blue,
+mathematical (π, φ) gray. Edges run upstream → downstream.
+Measured constants that aren't referenced by any derived value
+are omitted (they're listed in the Measured section but don't
+participate in the derivation DAG).
+
+```mermaid
+graph LR
+    classDef freeinput fill:#fcc,stroke:#900,stroke-width:2px
+    classDef measured  fill:#cfc,stroke:#060
+    classDef derived   fill:#ccf,stroke:#006
+    classDef math      fill:#eee,stroke:#666,stroke-dasharray:3 3
+
+    ALPHA["ALPHA"]:::derived
+    A_C_MEV["A_C_MEV"]:::derived
+    BOHR_RADIUS["BOHR_RADIUS"]:::derived
+    C_HDE_DESY5["C_HDE_DESY5"]:::measured
+    C_HDE_UNION3["C_HDE_UNION3"]:::measured
+    DELTA_NP_BARE_MEV["DELTA_NP_BARE_MEV"]:::derived
+    DELTA_NP_QCD_MEV["DELTA_NP_QCD_MEV"]:::derived
+    DELTA_NP_TOTAL_MEV["DELTA_NP_TOTAL_MEV"]:::measured
+    EPS_0["EPS_0"]:::measured
+    ETA["ETA"]:::measured
+    ETA_FORMULA["ETA_FORMULA"]:::derived
+    ETA_HDE_DESY5["ETA_HDE_DESY5"]:::derived
+    ETA_HDE_UNION3["ETA_HDE_UNION3"]:::derived
+    EV_TO_J["EV_TO_J"]:::derived
+    E_CHARGE["E_CHARGE"]:::measured
+    F_EDE_CENTRAL["F_EDE_CENTRAL"]:::derived
+    F_EDE_UPPER_95CL["F_EDE_UPPER_95CL"]:::measured
+    H0["H0"]:::measured
+    HBAR["HBAR"]:::measured
+    H_PLANCK["H_PLANCK"]:::derived
+    KEV_TO_J["KEV_TO_J"]:::derived
+    KE_E2_MEV_FM["KE_E2_MEV_FM"]:::derived
+    K_B["K_B"]:::measured
+    L_PLANCK["L_PLANCK"]:::derived
+    MEV_TO_J["MEV_TO_J"]:::derived
+    MU_BOHR["MU_BOHR"]:::derived
+    M_DOWN_MEV["M_DOWN_MEV"]:::measured
+    M_ELECTRON_KG["M_ELECTRON_KG"]:::measured
+    M_HUBBLE_KG["M_HUBBLE_KG"]:::derived
+    M_PLANCK_KG["M_PLANCK_KG"]:::derived
+    M_UP_MEV["M_UP_MEV"]:::measured
+    NEUTRON_BARE_MEV["NEUTRON_BARE_MEV"]:::derived
+    NEUTRON_QCD_FRACTION["NEUTRON_QCD_FRACTION"]:::derived
+    NEUTRON_QCD_MEV["NEUTRON_QCD_MEV"]:::derived
+    NEUTRON_TOTAL_MEV["NEUTRON_TOTAL_MEV"]:::measured
+    N_AVOGADRO["N_AVOGADRO"]:::measured
+    PHI["PHI"]:::math
+    PROTON_BARE_MEV["PROTON_BARE_MEV"]:::derived
+    PROTON_QCD_FRACTION["PROTON_QCD_FRACTION"]:::derived
+    PROTON_QCD_MEV["PROTON_QCD_MEV"]:::derived
+    PROTON_TOTAL_MEV["PROTON_TOTAL_MEV"]:::measured
+    R0_FM["R0_FM"]:::measured
+    R_GAS["R_GAS"]:::derived
+    SIGMA_0["SIGMA_0"]:::derived
+    SIGMA_CONV["SIGMA_CONV"]:::derived
+    SIGMA_CONV_KOBAKHIDZE["SIGMA_CONV_KOBAKHIDZE"]:::derived
+    SIGMA_FLOOR["SIGMA_FLOOR"]:::derived
+    SIGMA_HERE["SIGMA_HERE"]:::derived
+    STEFAN_BOLTZMANN["STEFAN_BOLTZMANN"]:::derived
+    THETA_ENTANGLEMENT_PER_DIM["THETA_ENTANGLEMENT_PER_DIM"]:::derived
+    XI["XI"]:::freeinput
+    XI_IDE_CENTRAL["XI_IDE_CENTRAL"]:::derived
+    XI_IDE_UPPER_95CL["XI_IDE_UPPER_95CL"]:::measured
+    XI_KOBAKHIDZE["XI_KOBAKHIDZE"]:::measured
+
+    EPS_0 --> ALPHA
+    E_CHARGE --> ALPHA
+    HBAR --> ALPHA
+    KE_E2_MEV_FM --> A_C_MEV
+    R0_FM --> A_C_MEV
+    ALPHA --> BOHR_RADIUS
+    HBAR --> BOHR_RADIUS
+    M_ELECTRON_KG --> BOHR_RADIUS
+    M_DOWN_MEV --> DELTA_NP_BARE_MEV
+    M_UP_MEV --> DELTA_NP_BARE_MEV
+    DELTA_NP_BARE_MEV --> DELTA_NP_QCD_MEV
+    DELTA_NP_TOTAL_MEV --> DELTA_NP_QCD_MEV
+    PHI --> ETA_FORMULA
+    SIGMA_CONV --> ETA_FORMULA
+    C_HDE_DESY5 --> ETA_HDE_DESY5
+    C_HDE_UNION3 --> ETA_HDE_UNION3
+    E_CHARGE --> EV_TO_J
+    F_EDE_UPPER_95CL --> F_EDE_CENTRAL
+    HBAR --> H_PLANCK
+    E_CHARGE --> KEV_TO_J
+    EPS_0 --> KE_E2_MEV_FM
+    E_CHARGE --> KE_E2_MEV_FM
+    MEV_TO_J --> KE_E2_MEV_FM
+    HBAR --> L_PLANCK
+    M_PLANCK_KG --> L_PLANCK
+    E_CHARGE --> MEV_TO_J
+    E_CHARGE --> MU_BOHR
+    HBAR --> MU_BOHR
+    M_ELECTRON_KG --> MU_BOHR
+    H0 --> M_HUBBLE_KG
+    HBAR --> M_PLANCK_KG
+    M_DOWN_MEV --> NEUTRON_BARE_MEV
+    M_UP_MEV --> NEUTRON_BARE_MEV
+    NEUTRON_QCD_MEV --> NEUTRON_QCD_FRACTION
+    NEUTRON_TOTAL_MEV --> NEUTRON_QCD_FRACTION
+    NEUTRON_BARE_MEV --> NEUTRON_QCD_MEV
+    NEUTRON_TOTAL_MEV --> NEUTRON_QCD_MEV
+    M_DOWN_MEV --> PROTON_BARE_MEV
+    M_UP_MEV --> PROTON_BARE_MEV
+    PROTON_QCD_MEV --> PROTON_QCD_FRACTION
+    PROTON_TOTAL_MEV --> PROTON_QCD_FRACTION
+    PROTON_BARE_MEV --> PROTON_QCD_MEV
+    PROTON_TOTAL_MEV --> PROTON_QCD_MEV
+    K_B --> R_GAS
+    N_AVOGADRO --> R_GAS
+    SIGMA_HERE --> SIGMA_0
+    XI --> SIGMA_CONV
+    XI_KOBAKHIDZE --> SIGMA_CONV_KOBAKHIDZE
+    H0 --> SIGMA_FLOOR
+    L_PLANCK --> SIGMA_FLOOR
+    SIGMA_FLOOR --> SIGMA_HERE
+    HBAR --> STEFAN_BOLTZMANN
+    K_B --> STEFAN_BOLTZMANN
+    ETA --> THETA_ENTANGLEMENT_PER_DIM
+    XI_IDE_UPPER_95CL --> XI_IDE_CENTRAL
+```
+
+---
+
 ## Free inputs of the theory
 
 These are quantities SSBM takes as INPUT from observation. The whole

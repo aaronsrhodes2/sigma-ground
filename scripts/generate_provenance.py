@@ -148,6 +148,69 @@ def _format_row(r: dict) -> str:
     return f"- **`{name}`** = `{expr}`{note_str}{deps_str}"
 
 
+def _generate_mermaid_graph(rows: list[dict]) -> str:
+    """Build a Mermaid dependency-graph block from the parsed rows.
+
+    Only includes constants that participate in a derivation:
+      - free inputs and mathematical constants that are *used* downstream
+      - all derived constants
+    Excludes measured-but-not-derived-from constants (which would bloat
+    the graph -- they're listed in the Measured section already).
+
+    Edges go from upstream input -> downstream derived value.
+    Color: free-input red, measured green, derived blue, math gray.
+    """
+    by_name = {r["name"]: r for r in rows}
+
+    # Find all names referenced as deps by some derived row
+    referenced: set[str] = set()
+    for r in rows:
+        if r["tag"] == "derived":
+            for d in r["deps"]:
+                referenced.add(d)
+
+    # Nodes to include: every derived row, plus referenced free-inputs /
+    # measured / mathematical sources.
+    included: dict[str, dict] = {}
+    for r in rows:
+        if r["tag"] == "derived":
+            included[r["name"]] = r
+        elif r["name"] in referenced:
+            included[r["name"]] = r
+
+    if not included:
+        return ""
+
+    lines: list[str] = []
+    lines.append("```mermaid")
+    lines.append("graph LR")
+    lines.append("    classDef freeinput fill:#fcc,stroke:#900,stroke-width:2px")
+    lines.append("    classDef measured  fill:#cfc,stroke:#060")
+    lines.append("    classDef derived   fill:#ccf,stroke:#006")
+    lines.append("    classDef math      fill:#eee,stroke:#666,stroke-dasharray:3 3")
+    lines.append("")
+
+    # Node declarations
+    for name, r in sorted(included.items()):
+        tag = r["tag"]
+        # Short label (no value -- keep the boxes compact)
+        cls = {"free-input": "freeinput", "measured": "measured",
+               "derived": "derived", "mathematical": "math"}.get(tag, "")
+        lines.append(f"    {name}[\"{name}\"]:::{cls}")
+
+    lines.append("")
+    # Edges: for each derived row, draw arrows from each dep to this name
+    for name, r in sorted(included.items()):
+        if r["tag"] != "derived":
+            continue
+        for d in r["deps"]:
+            if d in included:
+                lines.append(f"    {d} --> {name}")
+
+    lines.append("```")
+    return "\n".join(lines)
+
+
 def write_provenance_md(rows: list[dict], output_path: Path) -> None:
     by_cat = _categorize(rows)
     total = len(rows)
@@ -187,6 +250,23 @@ def write_provenance_md(rows: list[dict], output_path: Path) -> None:
     lines.append("Toward perfect: minimize `free-input`, eliminate `speculative-pending`,")
     lines.append("classify everything in `unclassified`.")
     lines.append("")
+
+    # --- Dependency graph (Mermaid -- renders inline on GitHub) -----------
+    graph_block = _generate_mermaid_graph(rows)
+    if graph_block:
+        lines.append("---")
+        lines.append("")
+        lines.append("## Dependency graph")
+        lines.append("")
+        lines.append("Mermaid diagram of the derivation DAG. Renders inline on GitHub.")
+        lines.append("Free inputs are red, measured constants green, derived blue,")
+        lines.append("mathematical (π, φ) gray. Edges run upstream → downstream.")
+        lines.append("Measured constants that aren't referenced by any derived value")
+        lines.append("are omitted (they're listed in the Measured section but don't")
+        lines.append("participate in the derivation DAG).")
+        lines.append("")
+        lines.append(graph_block)
+        lines.append("")
 
     # --- Free inputs (the irreducible SSBM parameters) ---------------------
     lines.append("---")
