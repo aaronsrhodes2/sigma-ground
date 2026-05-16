@@ -929,6 +929,74 @@ class TestZonalJ3J4(unittest.TestCase):
         expected = (15.0 / 8.0) * _G * self.M_EARTH * self.J4_EARTH * self.R_EARTH**4 / r**6
         self.assertAlmostEqual(delta[0], expected, delta=abs(expected) * 1e-8)
 
+    def test_j4_at_pole_magnitude_matches_derivation(self):
+        """At pole (s=1), |a_J4| = 5 GM J₄ R⁴/r⁶ along the pole axis.
+
+        Derivation: at s=1, the vector form
+          a_J4 = (5 GM J₄ R⁴)/(8 r⁶) × [3(21s⁴-14s²+1) r̂ + 4s(3-7s²) n̂]
+        simplifies (r̂ = n̂ at the pole):
+          coef × [3(21-14+1) + 4(3-7)] = coef × [24 - 16] = 8 coef
+          = (5 GM J₄ R⁴) / r⁶
+        Sign of force matches sign of J₄ (positive J₄ pushes outward at pole;
+        negative J₄ like Saturn's pulls inward at pole).
+        """
+        earth = CelestialBody(
+            self.M_EARTH, np.zeros(3), np.zeros(3),
+            self.R_EARTH, 0.0, j4=self.J4_EARTH,
+        )
+        r = 1e7
+        # Test particle at the north pole — position purely along +z
+        sat = CelestialBody(1.0, np.array([0.0, 0.0, r]), np.zeros(3), 1.0, 0.0)
+        sys = NBodySystem([earth, sat], toggles=PhysicsToggles(j4_zonal=True))
+        sys_n = NBodySystem([earth, sat], toggles=PhysicsToggles())
+        delta = sys.compute_accelerations()[1] - sys_n.compute_accelerations()[1]
+        expected_z = 5.0 * _G * self.M_EARTH * self.J4_EARTH * self.R_EARTH**4 / r**6
+        # Pole result should be purely along z, magnitude matching analytic
+        self.assertAlmostEqual(delta[0], 0.0, delta=abs(expected_z) * 1e-10,
+                                msg="J4 at pole has spurious x component")
+        self.assertAlmostEqual(delta[1], 0.0, delta=abs(expected_z) * 1e-10,
+                                msg="J4 at pole has spurious y component")
+        self.assertAlmostEqual(delta[2], expected_z,
+                                delta=abs(expected_z) * 1e-8)
+
+    def test_j4_saturn_enceladus_geometry_matches_analytic(self):
+        """Saturn J4 effect at Enceladus's orbital radius -- specific to the
+        2026-05-15 regression diagnosis.
+
+        Verified that the J4 formula is correct for the Saturn-Enceladus
+        case AT the pole (most-favourable analytic check). The Enceladus
+        regression we observed in rolling_shootout_toggle_iteration is
+        NOT a J4 formula bug -- it's that our DE440 fixture is missing
+        Dione, breaking Enceladus's 2:1 resonance perturbation. See
+        misc/saturn_enceladus_j4_verdict_2026-05-15.md for details.
+
+        This test exists to lock in the formula's correctness so the
+        Dione-perturber fix doesn't accidentally regress here.
+        """
+        G_real = _G
+        M_SAT  = 5.6834e26     # kg, Saturn mass
+        R_SAT  = 60268e3       # m
+        J4_SAT = -9.15e-4      # Anderson & Schubert 2007
+        r_enc  = 238042e3      # m, Enceladus orbital radius
+
+        saturn = CelestialBody(
+            M_SAT, np.zeros(3), np.zeros(3),
+            R_SAT, 0.39, j4=J4_SAT,
+        )
+        # Test particle at Saturn's north pole (purely along +z)
+        enc = CelestialBody(1.0, np.array([0.0, 0.0, r_enc]), np.zeros(3), 1.0, 0.0)
+
+        sys = NBodySystem([saturn, enc], toggles=PhysicsToggles(j4_zonal=True))
+        sys_n = NBodySystem([saturn, enc], toggles=PhysicsToggles())
+        delta = sys.compute_accelerations()[1] - sys_n.compute_accelerations()[1]
+
+        expected_z = 5.0 * G_real * M_SAT * J4_SAT * R_SAT**4 / r_enc**6
+        self.assertAlmostEqual(delta[2], expected_z, delta=abs(expected_z) * 1e-8)
+        # Negative J4 means the force at the pole is INWARD (toward Saturn),
+        # which means a_z is negative for a moon above the pole.
+        self.assertLess(delta[2], 0.0,
+                         "Saturn negative J4 should produce inward force at pole")
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Tidal force (OURS — built from compute_tidal_deformation)
