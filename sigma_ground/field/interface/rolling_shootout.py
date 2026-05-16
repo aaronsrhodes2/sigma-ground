@@ -288,6 +288,10 @@ PREDICTORS: list[Predictor] = [
     Predictor("jpl_de440",          _JPL_DE440,
               dt_days=0.1,
               description="JPL DE440 canonical: EIH N-body 1PN + J2/J3/J4 zonals + tides + SRP"),
+    Predictor("jpl_de440_finer",    _JPL_DE440,
+              dt_days=0.02,
+              description="JPL DE440 stack with dt=0.02d (5x finer) -- targets fast-moon "
+                          "integrator-noise floor (Enceladus, Io, Europa at 1-2d period)"),
     Predictor("kepler",             _NO_PHYSICS, use_kepler=True,
               description="2-body Keplerian fit per body"),
 ]

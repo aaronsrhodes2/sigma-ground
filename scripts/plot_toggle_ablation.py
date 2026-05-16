@@ -51,9 +51,10 @@ _PLOTS_DIR.mkdir(exist_ok=True)
 _BODY_ORDER = [
     "Mercury", "Venus", "Earth", "Moon", "Mars",
     "Phobos", "Deimos", "Jupiter", "Io", "Europa",
-    "Ganymede", "Callisto", "Saturn", "Enceladus", "Titan",
-    "Uranus", "Miranda", "Ariel", "Umbriel", "Titania",
-    "Oberon", "Neptune", "Triton", "Pluto", "Charon",
+    "Ganymede", "Callisto", "Saturn", "Mimas", "Enceladus",
+    "Tethys", "Dione", "Rhea", "Titan", "Uranus",
+    "Miranda", "Ariel", "Umbriel", "Titania", "Oberon",
+    "Neptune", "Triton", "Pluto", "Charon",
 ]
 
 # Order columns left to right: the toggles get progressively more "stuff" enabled.

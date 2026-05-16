@@ -45,12 +45,17 @@ _PLOTS_DIR = _FIXTURES / "rolling_shootout_plots"
 _PLOTS_DIR.mkdir(exist_ok=True)
 
 # Body order: by orbital regime (inner/outer/dwarf), grouped meaningfully.
+# Saturn moons in semi-major-axis order: Mimas < Enceladus < Tethys <
+# Dione < Rhea < Titan (Mimas/Tethys/Dione/Rhea added 2026-05-15 to
+# complete the Saturn-system perturbation chain -- see fixture extension
+# commit and misc/saturn_enceladus_j4_verdict_2026-05-15.md).
 _BODY_ORDER = [
     "Mercury", "Venus", "Earth", "Moon", "Mars",
     "Phobos", "Deimos", "Jupiter", "Io", "Europa",
-    "Ganymede", "Callisto", "Saturn", "Enceladus", "Titan",
-    "Uranus", "Miranda", "Ariel", "Umbriel", "Titania",
-    "Oberon", "Neptune", "Triton", "Pluto", "Charon",
+    "Ganymede", "Callisto", "Saturn", "Mimas", "Enceladus",
+    "Tethys", "Dione", "Rhea", "Titan", "Uranus",
+    "Miranda", "Ariel", "Umbriel", "Titania", "Oberon",
+    "Neptune", "Triton", "Pluto", "Charon",
 ]
 
 # Predictor colors -- consistent across both plots
