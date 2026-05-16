@@ -9,19 +9,21 @@ trace back to (a) a measurement of reality, (b) a mathematical
 derivation from such measurements, or (c) a definitional standard
 (SI unit definitions). No guesses.
 
-**Total quantities: 91**
+**Total quantities: 92**
 
 | Category | Count | Fraction |
 |---|---:|---:|
-| Measured (`[VERIFIED]`) | 52 | 57.1% |
-| Derived (`[DERIVED]`) | 33 | 36.3% |
-| Free input (`[EMPIRICAL-INPUT]`) | 1 | 1.1% |
+| Measured (`[VERIFIED]`) | 51 | 55.4% |
+| Derived (`[DERIVED]`) | 33 | 35.9% |
+| Free input (`[EMPIRICAL-INPUT]`) | 2 | 2.2% |
 | Mathematical (π, φ, e -- pure math) | 1 | 1.1% |
-| Speculative pending (`[SPECULATIVE-PENDING]`) | 4 | 4.4% |
+| Speculative pending (`[SPECULATIVE-PENDING]`) | 4 | 4.3% |
+| Rejected (`[REJECTED ...]`) | 1 | 1.1% |
 | Unclassified | 0 | 0.0% |
 
 Toward perfect: minimize `free-input`, eliminate `speculative-pending`,
-classify everything in `unclassified`.
+classify everything in `unclassified`. Rejected entries are tombstones
+for failed candidates and stay where they are.
 
 ---
 
@@ -50,10 +52,10 @@ graph LR
     DELTA_NP_QCD_MEV["DELTA_NP_QCD_MEV"]:::derived
     DELTA_NP_TOTAL_MEV["DELTA_NP_TOTAL_MEV"]:::measured
     EPS_0["EPS_0"]:::measured
-    ETA["ETA"]:::measured
-    ETA_FORMULA["ETA_FORMULA"]:::derived
+    ETA["ETA"]:::freeinput
     ETA_HDE_DESY5["ETA_HDE_DESY5"]:::derived
     ETA_HDE_UNION3["ETA_HDE_UNION3"]:::derived
+    ETA_UNCERTAINTY_1SIGMA["ETA_UNCERTAINTY_1SIGMA"]:::derived
     EV_TO_J["EV_TO_J"]:::derived
     E_CHARGE["E_CHARGE"]:::measured
     F_EDE_CENTRAL["F_EDE_CENTRAL"]:::derived
@@ -77,7 +79,6 @@ graph LR
     NEUTRON_QCD_MEV["NEUTRON_QCD_MEV"]:::derived
     NEUTRON_TOTAL_MEV["NEUTRON_TOTAL_MEV"]:::measured
     N_AVOGADRO["N_AVOGADRO"]:::measured
-    PHI["PHI"]:::math
     PROTON_BARE_MEV["PROTON_BARE_MEV"]:::derived
     PROTON_QCD_FRACTION["PROTON_QCD_FRACTION"]:::derived
     PROTON_QCD_MEV["PROTON_QCD_MEV"]:::derived
@@ -108,10 +109,9 @@ graph LR
     M_UP_MEV --> DELTA_NP_BARE_MEV
     DELTA_NP_BARE_MEV --> DELTA_NP_QCD_MEV
     DELTA_NP_TOTAL_MEV --> DELTA_NP_QCD_MEV
-    PHI --> ETA_FORMULA
-    SIGMA_CONV --> ETA_FORMULA
     C_HDE_DESY5 --> ETA_HDE_DESY5
     C_HDE_UNION3 --> ETA_HDE_UNION3
+    C_HDE_UNION3 --> ETA_UNCERTAINTY_1SIGMA
     E_CHARGE --> EV_TO_J
     F_EDE_UPPER_95CL --> F_EDE_CENTRAL
     HBAR --> H_PLANCK
@@ -161,6 +161,7 @@ These are quantities SSBM takes as INPUT from observation. The whole
 point of the framework is to minimize this list.
 
 - **`XI`** = `0.1582` -- [EMPIRICAL-INPUT] Planck 2018 cosmology; the single free parameter SSBM introduces
+- **`ETA`** = `ETA_HDE_UNION3` -- [EMPIRICAL-INPUT] cosmic entanglement fraction (DESI Union3) deps: ETA_HDE_UNION3
 
 ---
 
@@ -224,7 +225,6 @@ the `derived` section computes downstream of these.
 - **`AMU_KG`** = `1.66053906660e-27` -- kg
 - **`N_AVOGADRO`** = `6.02214076e23` -- 1/mol (exact by 2019 SI)
 - **`R0_FM`** = `1.215` -- fm (nuclear charge radius, electron scattering)
-- **`ETA`** = `0.4153` -- DERIVED — cosmic entanglement fraction (dark energy constraint)
 - **`GAMMA_COHERENCE_DEFAULT`** = `1.0`
 - **`N0_FM3`** = `0.16` -- fm⁻³ (nuclear saturation density)
 - **`E_SAT_MEV`** = `-16.0` -- MeV (binding energy per nucleon at saturation)
@@ -245,8 +245,8 @@ formula and the upstream dependencies. A perfect library has all
 non-input values here.
 
 - **`SIGMA_CONV_KOBAKHIDZE`** = `-math.log(XI_KOBAKHIDZE)` -- ≈ 1.8458 deps: XI_KOBAKHIDZE
-- **`ETA_HDE_UNION3`** = `C_HDE_UNION3 ** 2` -- ≈ 0.412 — lower bound of DESI range deps: C_HDE_UNION3
-- **`ETA_HDE_DESY5`** = `C_HDE_DESY5  ** 2` -- ≈ 0.491 — upper bound of DESI range deps: C_HDE_DESY5
+- **`ETA_HDE_UNION3`** = `C_HDE_UNION3 ** 2` -- ≈ 0.412164 -- ADOPTED as ETA (2026-05-15) deps: C_HDE_UNION3
+- **`ETA_HDE_DESY5`** = `C_HDE_DESY5  ** 2` -- ≈ 0.491   -- shown for comparison only deps: C_HDE_DESY5
 - **`F_EDE_CENTRAL`** = `F_EDE_UPPER_95CL` -- alias: upper bound treated as conservative "best fit" deps: F_EDE_UPPER_95CL
 - **`XI_IDE_CENTRAL`** = `XI_IDE_UPPER_95CL` -- alias: same deps: XI_IDE_UPPER_95CL
 - **`SIGMA_CONV`** = `-math.log(XI)` -- ≈ 1.849... but using exact XI deps: XI
@@ -269,7 +269,7 @@ non-input values here.
 - **`MU_BOHR`** = `E_CHARGE * HBAR / (2 * M_ELECTRON_KG)` -- ≈ 9.2740e-24 J/T deps: E_CHARGE, HBAR, M_ELECTRON_KG
 - **`KE_E2_MEV_FM`** = `E_CHARGE**2 / (4 * math.pi * EPS_0) / MEV_TO_J * 1e15` deps: EPS_0, E_CHARGE, MEV_TO_J
 - **`A_C_MEV`** = `(3.0 / 5.0) * KE_E2_MEV_FM / R0_FM` -- ≈ 0.7111 MeV (σ-INVARIANT) deps: KE_E2_MEV_FM, R0_FM
-- **`ETA_FORMULA`** = `math.exp(-PHI / SIGMA_CONV)` -- exp(-φ/σ_conv) ≈ 0.4158 [SPECULATIVE] deps: PHI, SIGMA_CONV
+- **`ETA_UNCERTAINTY_1SIGMA`** = `2.0 * C_HDE_UNION3 * 0.028` -- ≈ 0.0360 deps: C_HDE_UNION3
 - **`THETA_ENTANGLEMENT_PER_DIM`** = `ETA ** (1.0 / 3.0)` -- ≈ 0.7463 deps: ETA
 - **`M_HUBBLE_KG`** = `C**3 / (2 * G * H0)` -- Hubble mass ≈ 9.3e52 kg deps: H0
 - **`M_PLANCK_KG`** = `math.sqrt(HBAR * C / G)` -- Planck mass ≈ 2.18e-8 kg deps: HBAR
@@ -287,3 +287,14 @@ e.g. π, φ, e. These are definitional and identical in every
 universe; they don't constrain or get constrained by the theory.
 
 - **`PHI`** = `(1.0 + math.sqrt(5.0)) / 2.0` -- = (1+√5)/2 ≈ 1.6180339887...
+
+---
+
+## Rejected
+
+Former candidates that did not survive audit. Kept here so the
+rejection is visible, the historical reasoning is traceable, and
+silent re-adoption is impossible -- importers still see the name
+but it now evaluates to `None`, so any arithmetic on it raises.
+
+- **`ETA_FORMULA`** = `None` -- [REJECTED 2026-05-15] -- formula-search numerology

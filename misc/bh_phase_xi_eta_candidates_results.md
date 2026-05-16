@@ -1,9 +1,22 @@
 # Phase XI — η Candidate Comparison
 
+> **STATUS (2026-05-15): SUPERSEDED.** The "best candidate" verdict at the
+> bottom of this document — `ETA_FORMULA = exp(−φ/σ_conv)` — was **REJECTED**
+> by a 2026-05-15 audit as formula-search numerology. The formula was found
+> by searching {ξ, σ_conv, π, e, φ} for an expression matching the working
+> ETA = 0.4153; that target was itself derived from a "golden-spiral"
+> heuristic, so the φ-match was circular by construction. The 0.125% residual
+> gap is the signature of a near-miss in a wide search, not of a near-derivation.
+>
+> **Current resolution:** see `misc/eta_empirical_verdict_2026-05-15.md`. η is
+> now [EMPIRICAL-INPUT] anchored at DESI Union3 c² ≈ 0.4122. This document
+> is retained for historical traceability; do not cite it as a current verdict.
+
 **Date:** 2026-04-17
 **Phase:** XI — systematic evaluation of η = 0.4153 replacement candidates
 **Pipeline:** `scripts/phase_xi_eta_candidates.py`
 **Label:** `[SPECULATIVE]` — no candidate is yet confirmed
+**Status (2026-05-15):** SUPERSEDED — see banner above
 
 ---
 

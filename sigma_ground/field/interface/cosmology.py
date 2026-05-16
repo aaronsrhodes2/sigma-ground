@@ -2,17 +2,22 @@
 Cosmology interface — σ-grounded dark-energy, HDE, and tension-resolution models.
 
 Adds in Phase XII.b (Batch 3 arXiv integrations):
-- η-coincidence status: compares the three independent candidate derivations
-  of η (working ρ_DE fit, Phase XI formula, DESI HDE c²) against each other.
+- η-coincidence status: compares the working η value against the DESI HDE c²
+  constraint and its DR3 successor.
 - HDE Hubble-tension helpers (arXiv:2511.09467).
 - EDE + interacting dark-sector helpers (arXiv:2505.23382).
 
 Confidence tags follow the Phase XII audit convention:
   [SPECULATIVE], [SPECULATIVE-PENDING], [THEORETICAL], [VERIFIED], [DERIVED].
 
+Note (2026-05-15): the Phase XI ETA_FORMULA = exp(-φ/σ_conv) candidate has
+been REJECTED as formula-search numerology. ETA is now an [EMPIRICAL-INPUT]
+anchored at ETA_HDE_UNION3 (DESI Union3 c²); the "triple coincidence" framing
+collapsed to a single empirical observation by adoption.
+
 References:
-  Phase XI η candidate analysis: misc/bh_phase_xi_eta_candidates_results.md
-  Unpublished-predictions ledger: misc/unpublished_predictions.md (UP-001)
+  Rejection: misc/eta_empirical_verdict_2026-05-15.md
+  Superseded Phase XI: misc/bh_phase_xi_eta_candidates_results.md
 """
 
 import math
@@ -24,7 +29,6 @@ from ..constants import (
     HBAR,
     M_PLANCK_KG,
     ETA,
-    ETA_FORMULA,
     ETA_HDE_UNION3,
     ETA_HDE_DESY5,
     ETA_HDE_UNION3_DR3,
@@ -50,40 +54,42 @@ __all__ = [
 def eta_candidates():
     """Return the available candidate values for η with their sources.
 
+    Post-2026-05-15: 'working' is anchored at ETA_HDE_UNION3, so it and the
+    'hde_union3_dr2' entry are identical by construction. They are kept
+    separate so the empirical-input chain is visible.
+
     Any candidate whose source value is not yet lifted into constants.py
     (SPECULATIVE-PENDING placeholders) is omitted from the returned dict.
+
+    The Phase XI 'formula' candidate exp(-φ/σ_conv) was REJECTED as
+    numerology and is no longer returned. See cosmology.py module docstring.
 
     Returns:
         dict mapping short-name → (value, source_label).
     """
     cands = {
-        'working':       (ETA,              'ρ_DE match (hardcoded working value)'),
-        'formula':       (ETA_FORMULA,      'exp(−φ/σ_conv), Phase XI candidate'),
+        'working':       (ETA,              'DESI Union3 c² (adopted as empirical input)'),
         'hde_union3_dr2': (ETA_HDE_UNION3,  'DESI DR2 Union3 HDE c² (arXiv:2411.08639)'),
         'hde_desy5_dr2':  (ETA_HDE_DESY5,   'DESI DR2 DESY5 HDE c² (arXiv:2411.08639)'),
     }
     if ETA_HDE_UNION3_DR3 is not None:
-        cands['hde_union3_dr3'] = (ETA_HDE_UNION3_DR3, 'DESI DR3 Union3 HDE c² (arXiv:2512.07281)')
+        cands['hde_union3_dr3'] = (ETA_HDE_UNION3_DR3, 'DESI DR3 Union3 HDE c² (citation pending)')
     if ETA_HDE_DESY5_DR3 is not None:
-        cands['hde_desy5_dr3'] = (ETA_HDE_DESY5_DR3, 'DESI DR3 DESY5 HDE c² (arXiv:2512.07281)')
+        cands['hde_desy5_dr3'] = (ETA_HDE_DESY5_DR3, 'DESI DR3 DESY5 HDE c² (citation pending)')
     return cands
 
 
 def eta_coincidence_report(tolerance_pct=1.0):
-    """Return a dict summarizing the pairwise agreement between η candidates.
+    """Return a dict summarising agreement between η candidates and the working value.
 
-    The central working value is ETA. For each other candidate, the relative
-    deviation (|cand − ETA| / ETA) is reported in percent. A candidate is
-    flagged as 'agrees' when the deviation is within `tolerance_pct` percent.
-
-    UP-001 (triple coincidence): we predict that 'working', 'formula', and
-    'hde_union3_dr2' all agree within ~1% of one another. DR3 updates are
-    expected to tighten this further; a falsifier would be a DR3 value
-    outside [0.410, 0.420].
+    After 2026-05-15: ETA is anchored at ETA_HDE_UNION3, so 'hde_union3_dr2'
+    matches 'working' by construction (deviation 0%). The interesting signal
+    is now the DESY5 disagreement and any future DR3 entries -- they probe
+    whether Union3 was the right SN compilation to adopt.
 
     Args:
-        tolerance_pct: agreement threshold in percent (default 1.0 for
-                       UP-001 triple-coincidence). Non-negative.
+        tolerance_pct: agreement threshold in percent (default 1.0).
+                       Non-negative.
 
     Returns:
         dict with keys:
@@ -91,9 +97,10 @@ def eta_coincidence_report(tolerance_pct=1.0):
           'deviations_pct': dict {name → deviation %}
           'agrees':         dict {name → bool}
           'tolerance_pct':  echoed threshold
-          'coincidence_live': bool — True when ≥2 candidates agree within
-                              `tolerance_pct`, indicating the pattern is
-                              not yet dissolved.
+          'coincidence_live': bool -- True when ≥1 non-working candidate
+                              agrees within `tolerance_pct` (a single
+                              external corroboration suffices once ETA is
+                              an empirical input).
     """
     if tolerance_pct < 0:
         raise ValueError(f"tolerance_pct={tolerance_pct} must be ≥ 0")
@@ -107,7 +114,7 @@ def eta_coincidence_report(tolerance_pct=1.0):
         dev = abs(val - working) / working * 100.0
         deviations[name] = dev
         agrees[name] = dev <= tolerance_pct
-    coincidence_live = sum(agrees.values()) >= 2
+    coincidence_live = sum(agrees.values()) >= 1
     return {
         'working': working,
         'deviations_pct': deviations,

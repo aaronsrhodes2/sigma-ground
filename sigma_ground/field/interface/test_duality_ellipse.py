@@ -368,7 +368,7 @@ class TestHypothesisH4ThetaPerGravitationalDimension(unittest.TestCase):
     def test_h4_ellipse_holds_with_gamma_theta(self):
         """With γ pinned to Θ, the ellipse V²/γ² + D² = 1 still saturates."""
         gamma = THETA_ENTANGLEMENT_PER_DIM
-        self.assertAlmostEqual(gamma, 0.4153 ** (1.0 / 3.0), places=12)
+        self.assertAlmostEqual(gamma, ETA ** (1.0 / 3.0), places=12)
         for p in (0.1, 0.3, 0.5, 0.7, 0.9):
             c1 = math.sqrt(p)
             c2 = math.sqrt(1.0 - p)

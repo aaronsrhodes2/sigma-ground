@@ -3,8 +3,12 @@ SSBM Constants — The three numbers that define Scale-Shifted Baryonic Matter.
 
   ξ (XI)    = 0.1582  — INPUT:   baryon fraction Ω_b/(Ω_b+Ω_c), Planck 2018.
                                   The one new free parameter the theory introduces.
-  η (ETA)   = 0.4153  — DERIVED: cosmic entanglement fraction, from dark energy.
-                                  Falls out of ξ matched to observed ρ_DE.
+  η (ETA)   = 0.4122  — EMPIRICAL-INPUT: cosmic entanglement fraction.
+                                  Set equal to c² from DESI 2024 Union3 HDE fit
+                                  (arXiv:2411.08639): c = 0.642 ± 0.028.
+                                  Previously 0.4153 [DERIVED] from a heuristic
+                                  golden-spiral coherence-ratio argument that
+                                  did not survive 2026-05-15 audit.
   σ (SIGMA) = 0       — FIELD:   scale field value in the current epoch (our reference).
                                   Nonzero inside black holes and at the Big Bang.
 
@@ -33,14 +37,20 @@ XI_KOBAKHIDZE = 3.0 / 19.0                       # exact: ξ = 3/(3+16), N=8 uni
 SIGMA_CONV_KOBAKHIDZE = -math.log(XI_KOBAKHIDZE)  # ≈ 1.8458
 
 # DESI 2024 Holographic Dark Energy (arXiv:2411.08639)
-# [SPECULATIVE] HDE: ρ_DE = 3 c² M_Pl²/L². If c² ≡ η, DESI DR2 fits bracket
-# σ-ground's η = 0.4153 at the low end of the Union3 band:
-#   CMB+DESI+Union3:  c = 0.642 ± 0.028  →  c² = 0.412  (η within ~0.5σ)
-#   CMB+DESI+DESY5:   c = 0.701 ± 0.024  →  c² = 0.491
+# HDE: ρ_DE = 3 c² M_Pl²/L². Under the identification c² ≡ η, the DESI 2024
+# Union3 fit gives the empirical anchor for our cosmic entanglement fraction:
+#   CMB+DESI+Union3:  c = 0.642 ± 0.028  →  c² ≈ 0.412   (adopted as ETA)
+#   CMB+DESI+DESY5:   c = 0.701 ± 0.024  →  c² ≈ 0.491   (sub-sample shown,
+#                                                        not adopted -- DESY5
+#                                                        differs from Union3
+#                                                        by ~18%, suggesting
+#                                                        SN systematics).
+# Adopting Union3 specifically: it's the standardised Pantheon+ZTF compilation
+# with consistent SN cuts; DESY5 has known photometric-calibration drift.
 C_HDE_UNION3   = 0.642            # HDE c from CMB+DESI+Union3 (DESI 2024)
 C_HDE_DESY5    = 0.701            # HDE c from CMB+DESI+DESY5
-ETA_HDE_UNION3 = C_HDE_UNION3 ** 2  # ≈ 0.412 — lower bound of DESI range
-ETA_HDE_DESY5  = C_HDE_DESY5  ** 2  # ≈ 0.491 — upper bound of DESI range
+ETA_HDE_UNION3 = C_HDE_UNION3 ** 2  # ≈ 0.412164 -- ADOPTED as ETA (2026-05-15)
+ETA_HDE_DESY5  = C_HDE_DESY5  ** 2  # ≈ 0.491   -- shown for comparison only
 
 # DESI 2025 DR3 dynamical-DE multi-model fits
 # ─────────────────────────────────────────────
@@ -276,41 +286,65 @@ A_C_MEV = (3.0 / 5.0) * KE_E2_MEV_FM / R0_FM  # ≈ 0.7111 MeV (σ-INVARIANT)
 # The ratio of particles entangled with at least one other particle
 # *somewhere* (it doesn't matter where the partner is).
 #
-# DERIVED from the dark energy constraint:
-#   At σ_conv, QCD binding energy is released. The entangled fraction
-#   releases coherently → gluon condensate (w = −1, dark energy).
-#   The non-entangled fraction thermalizes → radiation (w = +1/3).
-#   Matching ρ_DE(observed) = η × ρ_released gives η = 0.4153.
+# [EMPIRICAL-INPUT] (2026-05-15): η is now an empirical input alongside ξ,
+# set equal to c² from the DESI 2024 Union3 HDE fit (arXiv:2411.08639).
+# Previously ETA = 0.4153 was tagged [DERIVED] under the claim "ρ_DE(observed)
+# = η × ρ_released gives η = 0.4153", but a 2026-05-15 audit found:
+#
+#   1. The "derivation" relied on a heuristic golden-spiral coherence ratio
+#      whose ρ_released side was not independently constructed -- partly
+#      circular.
+#   2. The candidate first-principles expression ETA_FORMULA = exp(-φ/σ_conv)
+#      ≈ 0.4158 came from a formula search over {ξ, σ_conv, π, e, φ}, with
+#      the golden ratio φ pre-baked into the target. The 0.125% gap was
+#      treated as approximate agreement; for a genuine derivation it should
+#      be exact, not 0.125% off.
+#   3. See misc/bh_phase_xi_eta_candidates_results.md for the rejected
+#      Phase XI verdict; see misc/eta_empirical_verdict_2026-05-15.md for
+#      the current adoption.
 #
 # Bounds:   0 ≤ η ≤ 1
 #   η = 0:  no particles entangled (fully classical limit)
 #   η = 1:  every particle entangled with at least one other
 #
 # Physical meaning: inside a hadron, quarks are always entangled
-# (color singlet). But η asks about CROSS-HADRON entanglement —
+# (color singlet). But η asks about CROSS-HADRON entanglement --
 # particles that share quantum correlations with partners in other
 # hadrons, other atoms, other galaxies. This includes:
 #   - EPR pairs (produced together, flew apart)
 #   - Particles from common decay chains
 #   - Cosmological correlations from the Big Bang
 #   - Any interaction that created entanglement and was never decohered
-ETA = 0.4153  # DERIVED — cosmic entanglement fraction (dark energy constraint)
-# Note (2026-04-17): ETA was derived heuristically from a convenient coherence
-# ratio related to the golden spiral. Retained as the working value; see
-# ETA_FORMULA below for a candidate first-principles expression.
+#
+# Defined further below as ETA = ETA_HDE_UNION3 (= 0.642²) so the empirical
+# provenance is explicit in code. Uncertainty: σ_η = 2c·σ_c = 0.036 (1σ).
 
 # ── Golden ratio ──────────────────────────────────────────────────────
 PHI = (1.0 + math.sqrt(5.0)) / 2.0  # = (1+√5)/2 ≈ 1.6180339887...
 
-# ── ETA formula candidate: exp(-φ/σ_conv)  [SPECULATIVE] ────────────
-# Systematic formula search (2026-04-17) over combinations of {ξ, σ_conv, π, e, φ}:
-#   exp(-φ / σ_conv) ≈ 0.4158   (0.125% error from η = 0.4153)
-# Equivalent forms:  exp(-φ / σ_conv) = exp(φ / ln ξ)
-# If valid, η has no free parameters — fully derived from ξ and φ, where φ is
-# the golden ratio (consistent with the original "related to the golden spiral"
-# heuristic) and σ_conv = −ln ξ is the model's matter-conversion horizon.
-# ETA = 0.4153 remains the working value until ETA_FORMULA is confirmed.
-ETA_FORMULA = math.exp(-PHI / SIGMA_CONV)  # exp(-φ/σ_conv) ≈ 0.4158 [SPECULATIVE]
+# ── ETA empirical anchor ──────────────────────────────────────────────
+# η is now set equal to the DESI 2024 Union3 HDE c² fit. The value
+# ETA_HDE_UNION3 = C_HDE_UNION3 ** 2 = 0.642² ≈ 0.412164 is defined near
+# the top of this file (Phase XII.b DESI block).
+ETA = ETA_HDE_UNION3  # [EMPIRICAL-INPUT] cosmic entanglement fraction (DESI Union3)
+
+# 1σ uncertainty on η, propagated from c = 0.642 ± 0.028:
+#   σ_η = 2 c σ_c = 2 · 0.642 · 0.028 ≈ 0.036
+ETA_UNCERTAINTY_1SIGMA = 2.0 * C_HDE_UNION3 * 0.028  # ≈ 0.0360
+
+# ── ETA_FORMULA: REJECTED (numerology, not derivation) ───────────────
+# exp(-φ/σ_conv) was a Phase XI (2026-04-17) formula-search candidate
+# claiming to be a first-principles expression for η. A 2026-05-15 audit
+# rejected it:
+#   - Came from a search over {ξ, σ_conv, π, e, φ} -- order ~10³ simple
+#     combinations, so a near-hit at any target is expected by chance.
+#   - The target η = 0.4153 was itself derived with a "golden-spiral"
+#     heuristic, so finding a φ-formula matching it is circular.
+#   - The 0.125% residual gap is the signature: a real derivation would
+#     be exact, not 0.125% off.
+# ETA_FORMULA is retained as None so legacy imports do not silently break;
+# any code that depended on a numeric value will fail loudly.
+ETA_FORMULA = None  # [REJECTED 2026-05-15] -- formula-search numerology
 
 # ── Duality-ellipse marginal coherence γ ─────────────────────────────
 # γ = |⟨M₁|M₂⟩| = overlap between the environment's two "notepad"

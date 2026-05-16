@@ -5,6 +5,9 @@ The constants file already carries inline tags on each definition:
   [DERIVED]             -- computed from upstream constants in the file
   [EMPIRICAL-INPUT]     -- a free parameter of SSBM (the one new number it adds)
   [SPECULATIVE-PENDING] -- placeholder, awaiting reference/derivation
+  [REJECTED ...]        -- a former candidate that did not survive audit;
+                           retained for historical traceability and to make
+                           silent re-adoption impossible
 
 This script parses constants.py and emits a structured PROVENANCE.md:
   - Every numeric constant by category
@@ -37,6 +40,7 @@ _TAGS = {
     "DERIVED":             "derived",
     "EMPIRICAL-INPUT":     "free-input",
     "SPECULATIVE-PENDING": "speculative",
+    "REJECTED":            "rejected",
 }
 
 
@@ -83,9 +87,12 @@ def _parse_constants_file(path: Path) -> list[dict]:
 
         # Identify provenance tag in the inline comment (and possibly preceding)
         full_comment = inline_comment + " | " + " | ".join(preceding_comment)
+        # Match either "[TAG]" or "[TAG ...notes]". This lets us write
+        # "[REJECTED 2026-05-15]" while still classifying it as REJECTED.
         tag = None
         for tag_key in _TAGS:
-            if f"[{tag_key}]" in full_comment:
+            if (f"[{tag_key}]" in full_comment
+                    or f"[{tag_key} " in full_comment):
                 tag = _TAGS[tag_key]
                 break
 
@@ -218,6 +225,7 @@ def write_provenance_md(rows: list[dict], output_path: Path) -> None:
     n_derived      = len(by_cat.get("derived", []))
     n_free_input   = len(by_cat.get("free-input", []))
     n_speculative  = len(by_cat.get("speculative", []))
+    n_rejected     = len(by_cat.get("rejected", []))
     n_mathematical = len(by_cat.get("mathematical", []))
     n_unclassified = len(by_cat.get("unclassified", []))
 
@@ -245,10 +253,13 @@ def write_provenance_md(rows: list[dict], output_path: Path) -> None:
     lines.append(f"| Free input (`[EMPIRICAL-INPUT]`) | {n_free_input} | {n_free_input/total*100:.1f}% |")
     lines.append(f"| Mathematical (π, φ, e -- pure math) | {n_mathematical} | {n_mathematical/total*100:.1f}% |")
     lines.append(f"| Speculative pending (`[SPECULATIVE-PENDING]`) | {n_speculative} | {n_speculative/total*100:.1f}% |")
+    if n_rejected:
+        lines.append(f"| Rejected (`[REJECTED ...]`) | {n_rejected} | {n_rejected/total*100:.1f}% |")
     lines.append(f"| Unclassified | {n_unclassified} | {n_unclassified/total*100:.1f}% |")
     lines.append("")
     lines.append("Toward perfect: minimize `free-input`, eliminate `speculative-pending`,")
-    lines.append("classify everything in `unclassified`.")
+    lines.append("classify everything in `unclassified`. Rejected entries are tombstones")
+    lines.append("for failed candidates and stay where they are.")
     lines.append("")
 
     # --- Dependency graph (Mermaid -- renders inline on GitHub) -----------
@@ -333,6 +344,21 @@ def write_provenance_md(rows: list[dict], output_path: Path) -> None:
         lines.append("universe; they don't constrain or get constrained by the theory.")
         lines.append("")
         for r in by_cat.get("mathematical", []):
+            lines.append(_format_row(r))
+        lines.append("")
+
+    # --- Rejected (tombstones for failed candidates) --------------------
+    if n_rejected > 0:
+        lines.append("---")
+        lines.append("")
+        lines.append("## Rejected")
+        lines.append("")
+        lines.append("Former candidates that did not survive audit. Kept here so the")
+        lines.append("rejection is visible, the historical reasoning is traceable, and")
+        lines.append("silent re-adoption is impossible -- importers still see the name")
+        lines.append("but it now evaluates to `None`, so any arithmetic on it raises.")
+        lines.append("")
+        for r in by_cat.get("rejected", []):
             lines.append(_format_row(r))
         lines.append("")
 

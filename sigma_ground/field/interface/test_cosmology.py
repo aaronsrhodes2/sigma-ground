@@ -1,8 +1,9 @@
 """
 Tests for sigma_ground.field.interface.cosmology — Phase XII.b Batch-3 integrations.
 
-Reference values:
-  ETA = 0.4153 (working), ETA_FORMULA = exp(−φ/σ_conv) ≈ 0.4158
+Reference values (after 2026-05-15 ETA empirical-input rework):
+  ETA = ETA_HDE_UNION3 = 0.642² ≈ 0.4122   (DESI DR2 Union3 c², adopted)
+  ETA_FORMULA = None                         (REJECTED -- formula-search numerology)
   DESI DR2 Union3: c = 0.642 ± 0.028 → c² ∈ [0.377, 0.449] (arXiv:2411.08639)
 """
 
@@ -29,13 +30,20 @@ def test_eta_candidates_returns_working():
     assert 'working' in cands
     value, source = cands['working']
     assert value == ETA
-    assert 'ρ_DE' in source or 'rho_DE' in source or 'ρ' in source
+    # Source now references DESI / empirical input, not ρ_DE matching.
+    assert 'DESI' in source or 'empirical' in source.lower()
 
 
-def test_eta_candidates_returns_formula():
+def test_eta_candidates_no_longer_returns_formula():
+    """ETA_FORMULA was rejected (2026-05-15 audit) and removed from candidates."""
     cands = eta_candidates()
-    assert 'formula' in cands
-    assert cands['formula'][0] == ETA_FORMULA
+    assert 'formula' not in cands
+
+
+def test_eta_formula_constant_is_none():
+    """The constant itself is now None so any callsite that still expects
+    a numeric value fails loudly."""
+    assert ETA_FORMULA is None
 
 
 def test_eta_candidates_omits_pending_dr3_values():
@@ -47,30 +55,32 @@ def test_eta_candidates_omits_pending_dr3_values():
 
 # ── eta_coincidence_report ─────────────────────────────────────────────
 
-def test_coincidence_report_triple_within_1pct():
-    """UP-001: working, formula, and DESI DR2 Union3 agree within ~1% of ETA."""
+def test_coincidence_report_union3_agrees_by_construction():
+    """ETA is now anchored at ETA_HDE_UNION3, so Union3 must agree exactly."""
     r = eta_coincidence_report(tolerance_pct=1.0)
-    assert r['agrees']['formula'] is True
     assert r['agrees']['hde_union3_dr2'] is True
+    assert r['deviations_pct']['hde_union3_dr2'] == pytest.approx(0.0, abs=1e-12)
 
 
 def test_coincidence_report_desy5_does_not_agree():
-    """DESY5 central value (~0.491) is ~18% off ETA and should NOT agree at 1%."""
+    """DESY5 central value (~0.491) differs from Union3 (~0.412) by ~19%."""
     r = eta_coincidence_report(tolerance_pct=1.0)
     assert r['agrees']['hde_desy5_dr2'] is False
     assert r['deviations_pct']['hde_desy5_dr2'] > 10.0
 
 
 def test_coincidence_live_flag():
+    """One non-working candidate (Union3) agrees → coincidence_live remains True
+    by the new 'single external corroboration' rule."""
     r = eta_coincidence_report(tolerance_pct=1.0)
-    assert r['coincidence_live'] is True  # formula + Union3 both agree
+    assert r['coincidence_live'] is True
 
 
-def test_coincidence_deviation_magnitudes():
-    """Sanity: the formula deviation is sub-percent, Union3 is sub-1%."""
+def test_coincidence_no_longer_reports_formula():
+    """The Phase XI formula candidate is gone -- ensure it's not in deviations."""
     r = eta_coincidence_report(tolerance_pct=1.0)
-    assert r['deviations_pct']['formula'] < 0.5
-    assert r['deviations_pct']['hde_union3_dr2'] < 1.0
+    assert 'formula' not in r['deviations_pct']
+    assert 'formula' not in r['agrees']
 
 
 def test_coincidence_rejects_negative_tolerance():

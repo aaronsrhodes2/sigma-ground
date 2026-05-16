@@ -40,9 +40,16 @@ XI: float = 0.1582
 """ξ = Ω_b / (Ω_b + Ω_c).  Planck 2018: Ω_b h² = 0.02237, Ω_c h² = 0.1200.
 INPUT parameter — the one new free parameter SSBM introduces."""
 
-ETA: float = 0.4153
-"""η = cosmic entanglement fraction.  DERIVED from the dark energy constraint:
-ρ_DE(observed) = η × ρ_released at σ_conv.  Falls out of ξ + Planck cosmology."""
+ETA: float = 0.642 ** 2  # = 0.412164
+"""η = cosmic entanglement fraction. [EMPIRICAL-INPUT] (2026-05-15 audit):
+anchored at the DESI 2024 Union3 HDE c² fit (arXiv:2411.08639, c = 0.642 ± 0.028).
+
+Previously ETA = 0.4153 was tagged DERIVED under "ρ_DE(observed) = η × ρ_released
+at σ_conv", but the ρ_released side of that match was not independently
+constructed and the heuristic was partly circular. See
+misc/eta_empirical_verdict_2026-05-15.md for the rejection rationale and
+sigma_ground/field/constants.py for the canonical definition (this module's
+value tracks that one)."""
 
 SIGMA_0: float = 0.0  # Legacy value, see SIGMA_HERE below
 """σ ≈ 0 in the present epoch — our spacetime is the reference frame.

@@ -1,11 +1,17 @@
 """Phase XI — η candidate comparison: formula search, HDE, and Barrow.
 
-Compares four independent lines of evidence for σ-ground's cosmic entanglement
-fraction η ≈ 0.4153 (currently a heuristic "hobby number"):
+⚠ SUPERSEDED 2026-05-15: this script's "best candidate" verdict
+(ETA_FORMULA = exp(-φ/σ_conv)) was rejected as formula-search numerology.
+See misc/eta_empirical_verdict_2026-05-15.md for the current resolution
+(η anchored at DESI Union3 c²). The script is retained for historical
+traceability and will fail loudly when run because ETA_FORMULA is now None.
 
-  1. η_working   = 0.4153          — original dark-energy heuristic
-  2. η_formula   = ξ^φ ≈ 0.4158   — systematic formula search (2026-04-17)
-  3. η_HDE_U3    = c²  ≈ 0.412    — DESI 2024 HDE fit, Union3 dataset
+Compares four independent lines of evidence for σ-ground's cosmic entanglement
+fraction η ≈ 0.4153 (HISTORICAL VALUE -- now superseded):
+
+  1. η_working   = 0.4153          — original dark-energy heuristic [REJECTED]
+  2. η_formula   = exp(-φ/σ_conv)  — formula search (2026-04-17)    [REJECTED]
+  3. η_HDE_U3    = c²  ≈ 0.412    — DESI 2024 HDE fit, Union3 dataset [ADOPTED]
   4. η_HDE_D5    = c²  ≈ 0.491    — DESI 2024 HDE fit, DESY5 dataset
   5. η_Barrow    ≤ 0.43            — Barrow HDE fractal limit (arXiv:2503.18230)
 
