@@ -49,9 +49,21 @@ Issues = "https://github.com/aaronsrhodes2/sigma-ground/issues"
 
 [project.scripts]
 sigma-ground = "sigma_ground.inventory.__main__:main"
+sigma-ground-mcp = "sigma_ground.mcp.server:main"
 
 [project.optional-dependencies]
 test = ["pytest>=8.0"]
+# MCP server + LLM-front-end deps. Installed only when the MCP layer is
+# used; the core sigma_ground library remains zero-dependency.
+mcp = [
+    "mcp>=1.0",                # Anthropic MCP Python SDK (FastMCP)
+    "scipy>=1.11",             # CODATA constants + numerics
+    "pint>=0.23",              # unit conversion
+    "sympy>=1.12",             # symbolic math
+    "astropy>=6.0",            # astronomy data + ephemeris
+    "periodictable>=1.7",      # element / isotope data
+    "numpy>=1.26",             # array math (also a transitive scipy/astropy dep)
+]
 
 [tool.setuptools.packages.find]
 include = ["sigma_ground*"]
@@ -60,7 +72,7 @@ include = ["sigma_ground*"]
 "sigma_ground.inventory" = ["data/*.json", "samples/*.json"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "renderer/tests", "sigma_ground/field/interface", "sigma_ground/inventory"]
+testpaths = ["tests", "renderer/tests", "sigma_ground/field/interface", "sigma_ground/inventory", "sigma_ground/mcp"]
 
 [tool.pip-compile]
 dependencies = ["pip-compile"]
