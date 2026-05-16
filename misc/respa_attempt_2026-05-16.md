@@ -1,6 +1,8 @@
 # RESPA Per-Body dt: Attempt Verdict — 2026-05-16
 
-**Status:** Implementation committed as EXPERIMENTAL — works for 2-body cases where the parent-pair Newton force genuinely dominates, but fails for the general solar-system case where the parent-pair force and the "slow" forces are comparable in magnitude. Not added to the canonical `PREDICTORS` list. The path to a correct general solution is Wisdom-Holman with an analytic Kepler inner solver, deferred to a future session.
+**Status:** Implementation committed in [c86b66d] as EXPERIMENTAL with the `jpl_de440_respa` predictor in `PREDICTORS`. Smoke-tested on j2015 3y in the real solar system: **total error across 29 bodies dropped ~40%** (from ~28e-3 to ~17e-3 AU), but the per-body picture is mixed — half the bodies improved (some dramatically, Europa 8.5× better), while half regressed in a pattern that **diagnoses the next fix**: parent-multipole interactions need to move from `H_slow` to `H_fast`.
+
+The current implementation is left in place for diagnostic use. Canonical recommended predictor remains `jpl_de440` (uniform Forest-Ruth at dt=0.1d) until the parent-multipole extension lands.
 
 ## Background
 
@@ -81,7 +83,92 @@ This is roughly the rebound code's `whfast` integrator. Implementing it from scr
 - `test_respa_two_body_earth_moon_beats_coarse` — pins the 2-body win (RESPA error < 0.2 × coarse error).
 - `test_respa_three_body_KNOWN_LIMITATION_sun_earth_moon` — pins the 3-body failure (RESPA error > coarse error) so we'll notice if a future fix improves it.
 - `test_respa_n_substeps_zero_raises` — argument validation.
-- `test_respa_with_no_parents_degenerates_to_slow_kick_only` — sanity check.
+- `test_respa_compute_fast_with_no_parents_is_zero` — sanity check.
+- `test_respa_compute_slow_plus_fast_equals_total` — linearity sanity.
+- `test_respa_advances_time_by_dt` — timekeeping.
+- `test_respa_fast_back_reaction_pulls_parent` — Newton's third law.
+
+## Smoke test on the actual solar system (j2015 3y, 30 bodies)
+
+Run: `jpl_de440` (canonical, dt=0.1d Forest-Ruth) vs `jpl_de440_respa`
+(dt=0.1d outer, dt=0.01d inner Newton). Wall clock: 1166 s.
+
+**Total error sum dropped ~40%**: from ~28e-3 AU canonical to ~17e-3 AU
+RESPA. The aggregate is a clear win even though per-body results are mixed.
+
+### Big improvements (RESPA helps cleanly)
+
+| Body | Canonical | RESPA | Ratio |
+|---|---:|---:|---:|
+| Europa | 7.87e-3 | 9.22e-4 | 0.117× (8.5× better) |
+| Phobos | 2.17e-5 | 4.34e-6 | 0.200× |
+| Umbriel | 1.17e-3 | 2.22e-4 | 0.190× |
+| Rhea | 1.60e-3 | 4.44e-4 | 0.278× |
+| Triton | 2.91e-4 | 1.11e-4 | 0.381× |
+| Charon, Ariel, Dione | various | various | 0.45–0.49× |
+| Pluto, Mercury, Ganymede, Mars, Tethys, Titania | various | various | 0.52–0.77× |
+
+### Regressions (RESPA hurts)
+
+| Body | Canonical | RESPA | Ratio |
+|---|---:|---:|---:|
+| **Moon** | 1.30e-7 | 1.30e-4 | **1001× WORSE** |
+| Deimos | 2.32e-5 | 2.66e-4 | 11.5× worse |
+| Earth | 2.59e-7 | 1.89e-6 | 7.3× worse |
+| **Mimas** | 8.29e-5 | 3.28e-4 | 3.95× worse |
+| Jupiter | 1.53e-7 | 4.43e-7 | 2.9× worse |
+| Oberon, Titan, Venus, Miranda | various | various | 1.4–1.7× worse |
+| Io, Callisto | various | various | 1.1–1.3× worse |
+
+## The pattern: parent-multipole strength predicts regression
+
+Bodies that improved are those where the **parent body's Newton force is essentially the only relevant gravity** at orbital range. Bodies that regressed are those where the **parent body's J₂/J₃/J₄ multipoles** contribute strongly to the moon's orbit:
+
+| Body | Parent Newton (m/s²) | Parent J₂ (m/s²) | r/R | Regressed? |
+|---|---:|---:|---:|---|
+| Europa | 0.28 (Jupiter) | ~7e-5 | 9.4 | NO |
+| Triton | 0.07 (Neptune) | ~5e-6 | 14.3 | NO |
+| **Mimas** | **0.67 (Saturn)** | **~1.0e-3** | **3.95** | **YES** |
+| **Deimos** | **0.001 (Mars)** | **~3e-7** | **6.92** | **YES** |
+| **Moon** | 2.7e-3 (Earth) | ~3e-9 | 60.3 | **YES** (different cause) |
+
+For Mimas, Saturn J₂ produces ~1.5e-3 of the Newton force — substantial. Since the current `compute_fast` includes only Newton, Saturn's J₂ on Mimas lands in `compute_slow` and gets sampled only at macro dt=0.1d boundaries (when Mimas has moved 36° around Saturn between samples). The slow-half-kick can't capture the J₂ force's angular variation, and Mimas drifts in mean anomaly.
+
+For Deimos: r/R=6.92 around Mars means Mars J₂ matters substantially. Same issue.
+
+For Moon: a different failure mode — Sun's direct pull on Moon (5.9e-3 m/s²) is LARGER than Earth's pull on Moon (2.7e-3 m/s²), so Moon's dominant force lives in `H_slow` and the Strang split is invalid (slow force isn't actually slow).
+
+## The next fix: parent-multipoles in H_fast
+
+The natural extension that should resolve the regressions:
+
+```
+H_fast = sum over fast-pairs (i, p) of:
+   Newton between i and p
+ + J₂/J₃/J₄ of p acting on i (and the small back-reaction)
+ + 1PN/2PN GR correction between i and p
+```
+
+This is the **complete parent-pair Hamiltonian**. Implementing it means
+adding pair-filtered J₂/J₃/J₄ and GR computation in compute_fast_accelerations.
+
+For the Moon case (where the issue isn't multipoles but Sun-dominance),
+the fix is different: Wisdom-Holman with Jacobi coordinates would reframe
+the Moon's dynamics in Earth's reference frame, where Sun's pull becomes
+a small tidal perturbation rather than a dominant force.
+
+For our solar system as a whole:
+- ~7 bodies that benefit from parent-multipoles in H_fast (Mimas/Deimos
+  and the inner-multipole-affected moons would move from regression to
+  improvement)
+- 1 body (Moon) needs Wisdom-Holman to fix; less urgent since it's only
+  one body and the canonical jpl_de440 already gives it sub-µm error
+
+## Decision
+
+Leave `jpl_de440_respa` in `PREDICTORS` as a diagnostic / alternative option
+clearly labeled as experimental. Canonical recommended predictor stays as
+`jpl_de440`. The next concrete work is the parent-multipole H_fast extension.
 
 ## Lessons
 
