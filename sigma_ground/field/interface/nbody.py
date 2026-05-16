@@ -368,16 +368,29 @@ class NBodySystem:
         acc = np.zeros((n, 3), dtype=np.float64)
         t   = self.toggles
 
-        # ── EIH cross-terms guard (toggle declared but NOT yet implemented) ──
+        # ── EIH pre-pass: Newtonian a_j and potential Φ_i needed by EIH ──────
+        # eih_cross is mutually exclusive with gr_1pn: both model the 1PN
+        # contribution; eih_cross is the full N-body form, gr_1pn the
+        # single-body Schwarzschild approximation. If both are on, eih_cross
+        # wins and gr_1pn is silently skipped to avoid double-counting.
+        a_newton: NDArray[np.float64] | None = None
+        phi:      NDArray[np.float64] | None = None
         if t.eih_cross:
-            raise NotImplementedError(
-                "PhysicsToggles.eih_cross is declared but the full N-body 1PN "
-                "EIH cross-term implementation (Damour & Deruelle 1986) is not "
-                "yet in place. The single-body 1PN approximation in gr_1pn is "
-                "what currently does the GR work. Use gr_1pn=True instead, or "
-                "implement the EIH block here (BORROWED FROM TEXTBOOK pending "
-                "SSBM σ-field re-derivation)."
-            )
+            a_newton = np.zeros((n, 3), dtype=np.float64)
+            phi      = np.zeros(n, dtype=np.float64)
+            for ii in range(n):
+                for kk in range(n):
+                    if ii == kk:
+                        continue
+                    r_diff = (self.bodies[kk].position_m
+                              - self.bodies[ii].position_m)
+                    r_sq_p = float(np.dot(r_diff, r_diff)) + self.softening_m**2
+                    r_p    = math.sqrt(r_sq_p)
+                    if r_p == 0.0:
+                        continue
+                    gm_k   = self.bodies[kk].gm_m3_s2
+                    a_newton[ii] += gm_k * r_diff / (r_sq_p * r_p)
+                    phi[ii]      += gm_k / r_p
 
         # ── Newtonian + 1PN GR + 2PN GR (per-pair loop) ───────────────────
         for i in range(n):
@@ -396,7 +409,55 @@ class NBodySystem:
                 gm_j = self.bodies[j].gm_m3_s2
                 acc[i] += gm_j * r_ij / (r_sq * r)   # Newtonian (always on)
 
-                if t.gr_1pn:
+                if t.eih_cross:
+                    # ┌──────────────────────────────────────────────────────┐
+                    # │ BORROWED FROM TEXTBOOK -- PENDING SSBM DERIVATION    │
+                    # │ Full N-body 1PN Einstein-Infeld-Hoffmann equations   │
+                    # │ in the GR specialization (β = γ = 1).                │
+                    # │                                                      │
+                    # │ Source: Will 1993 "Theory and Experiment in          │
+                    # │   Gravitational Physics" Box 6.2 (eq. 6.4.4),        │
+                    # │   equivalent to Soffel et al. 2003 §8 (the IAU 2000  │
+                    # │   resolutions form). This is the canonical force     │
+                    # │   model used by JPL DE440 (Park et al. 2021).        │
+                    # │                                                      │
+                    # │ Form with vec_ij = x_j - x_i:                        │
+                    # │   a_i = Σ_j (μ_j vec_ij / r_ij³) × (1 + A_ij)        │
+                    # │        + Σ_j (μ_j / (c² r_ij³)) ×                    │
+                    # │           (vec_ij·(4v_i - 3v_j)) × (v_i - v_j)       │
+                    # │        + (7/(2c²)) Σ_j (μ_j a_j^N / r_ij)            │
+                    # │ where                                                │
+                    # │   A_ij = -(4/c²) Φ_i  -(1/c²) Φ_j                    │
+                    # │         + v_i²/c² + 2 v_j²/c² - (4/c²)(v_i·v_j)      │
+                    # │         - (3/(2c²)) ((vec_ij·v_j)/r_ij)²             │
+                    # │         + (1/(2c²)) (vec_ij·a_j^N)                   │
+                    # │   Φ_i = Σ_{k≠i} μ_k / r_ik                           │
+                    # │                                                      │
+                    # │ Replaces single-body gr_1pn when both are on.        │
+                    # │ Pending σ-field re-derivation of full N-body 1PN.    │
+                    # └──────────────────────────────────────────────────────┘
+                    vj  = self.bodies[j].velocity_m_s
+                    vj2 = float(np.dot(vj, vj))
+
+                    r_dot_vj = float(np.dot(r_ij, vj))
+                    A_ij = (
+                        - (4.0 / _c2) * phi[i]
+                        - (1.0 / _c2) * phi[j]
+                        + vi2 / _c2
+                        + 2.0 * vj2 / _c2
+                        - (4.0 / _c2) * float(np.dot(vi, vj))
+                        - (3.0 / (2.0 * _c2)) * (r_dot_vj / r) ** 2
+                        + (1.0 / (2.0 * _c2)) * float(np.dot(r_ij, a_newton[j]))
+                    )
+                    acc[i] += gm_j * r_ij * A_ij / (r_sq * r)
+
+                    B_ij = 4.0 * vi - 3.0 * vj
+                    cross = float(np.dot(r_ij, B_ij)) / _c2
+                    acc[i] += (gm_j / (r_sq * r)) * cross * (vi - vj)
+
+                    acc[i] += (7.0 / (2.0 * _c2)) * gm_j * a_newton[j] / r
+
+                elif t.gr_1pn:
                     # ┌──────────────────────────────────────────────────────┐
                     # │ BORROWED FROM TEXTBOOK -- PENDING SSBM DERIVATION    │
                     # │ Source: Soffel et al. 2003, eq. 10.12                │

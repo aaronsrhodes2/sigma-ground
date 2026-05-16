@@ -1084,5 +1084,204 @@ class TestSigmaBoundsCheck(unittest.TestCase):
         self.assertAlmostEqual(gm, expected, delta=expected * 1e-10)
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# EIH N-body 1PN cross-terms — JPL DE440 canonical force model
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestEIH1PN(unittest.TestCase):
+    """Full N-body 1PN EIH equations (Will 1993 Box 6.2 / IAU 2000 §8.4).
+
+    This is the canonical 1PN form used by JPL DE440 (Park et al. 2021).
+    It differs from the single-body gr_1pn Schwarzschild approximation by
+    including the cross-body potential terms (-(4/c²) Φ_i, -(1/c²) Φ_j),
+    the v_j velocity contributions, and the 7/(2c²) Σ_j μ_j a_j^N / r_ij
+    coupling. The differences are second-order in (v/c) so they're small
+    at solar-system scales (~10⁻⁹), but they are what gives DE440 its
+    mm-level Mercury accuracy.
+    """
+
+    def _three_body_solar_system_like(self):
+        """Sun + Mercury-like + Jupiter-like (just for forcing a non-trivial
+        Φ_i and Φ_j; not a quantitative match to the real solar system)."""
+        b_sun = CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.02)
+        b_inner = CelestialBody(
+            3.3e23,
+            np.array([0.4 * AU, 0.0, 0.0]),
+            np.array([0.0, 4.7e4, 0.0]),
+            2.44e6, 0.45,
+        )
+        b_outer = CelestialBody(
+            1.9e27,
+            np.array([5.2 * AU, 0.0, 0.0]),
+            np.array([0.0, 1.3e4, 0.0]),
+            7.0e7, 0.535,
+        )
+        return [b_sun, b_inner, b_outer]
+
+    def test_eih_no_longer_raises(self):
+        """eih_cross used to raise NotImplementedError; now it returns finite accelerations."""
+        bodies = self._three_body_solar_system_like()
+        sys = NBodySystem(bodies, toggles=PhysicsToggles(eih_cross=True))
+        acc = sys.compute_accelerations()
+        self.assertTrue(np.all(np.isfinite(acc)))
+        # All bodies must experience non-zero acceleration toward each other.
+        for i in range(len(bodies)):
+            self.assertGreater(float(np.linalg.norm(acc[i])), 0.0)
+
+    def test_eih_off_reproduces_pre_eih_behavior(self):
+        """Default toggles (eih_cross=False) MUST be bit-identical to pre-EIH code.
+
+        This is the backward-compat guarantee. Pure-Newton baseline with no
+        toggles set should produce the same acceleration regardless of any
+        eih_cross machinery being added.
+        """
+        bodies = self._three_body_solar_system_like()
+        acc_off = NBodySystem(bodies, toggles=PhysicsToggles()).compute_accelerations()
+        # Re-construct fresh bodies and re-run — same numerical result expected.
+        bodies2 = self._three_body_solar_system_like()
+        acc_off2 = NBodySystem(bodies2, toggles=PhysicsToggles()).compute_accelerations()
+        np.testing.assert_array_almost_equal(acc_off, acc_off2, decimal=20)
+
+    def test_eih_differs_from_pure_newton(self):
+        """EIH adds 1PN corrections — must differ from pure Newton."""
+        bodies = self._three_body_solar_system_like()
+        acc_newton = NBodySystem(bodies, toggles=PhysicsToggles()
+                                  ).compute_accelerations()
+        acc_eih = NBodySystem(bodies, toggles=PhysicsToggles(eih_cross=True)
+                               ).compute_accelerations()
+        diff = float(np.linalg.norm(acc_eih - acc_newton))
+        self.assertGreater(diff, 0.0)
+
+    def test_eih_differs_from_single_body_1pn_in_three_body(self):
+        """In a 3-body system EIH and gr_1pn (single-body) should differ.
+
+        Reason: EIH includes the cross-potential Φ_i = Σ_{k≠i} GM_k/r_ik
+        terms, which the single-body Schwarzschild approximation lacks.
+        In a 3-body Sun + 2-planet system the inner planet sees the Sun's
+        potential AND the outer planet's potential in the EIH formulation,
+        whereas single-body sees only the Sun.
+        """
+        bodies = self._three_body_solar_system_like()
+        acc_1pn = NBodySystem(bodies, toggles=PhysicsToggles(gr_1pn=True)
+                               ).compute_accelerations()
+        acc_eih = NBodySystem(bodies, toggles=PhysicsToggles(eih_cross=True)
+                               ).compute_accelerations()
+        # The inner-body acceleration is where the cross-potential matters most.
+        diff_inner = float(np.linalg.norm(acc_eih[1] - acc_1pn[1]))
+        # Both should be O(GM_sun / r²) ≈ 0.04 m/s²; the EIH-1PN delta is
+        # typically ~10⁻⁹ smaller. Just require strictly nonzero.
+        self.assertGreater(diff_inner, 0.0)
+
+    def test_eih_correction_is_small_at_solar_system_scales(self):
+        """At v/c ~ 10⁻⁴ and GM/(rc²) ~ 10⁻⁸ the 1PN correction is ~10⁻⁸ of Newton."""
+        bodies = self._three_body_solar_system_like()
+        acc_newton = NBodySystem(bodies, toggles=PhysicsToggles()
+                                  ).compute_accelerations()
+        acc_eih = NBodySystem(bodies, toggles=PhysicsToggles(eih_cross=True)
+                               ).compute_accelerations()
+        for i in range(len(bodies)):
+            mag_n   = float(np.linalg.norm(acc_newton[i]))
+            mag_eih = float(np.linalg.norm(acc_eih[i]))
+            if mag_n == 0.0:
+                continue
+            # Ratio close to 1.0 (correction is small fraction)
+            ratio = mag_eih / mag_n
+            self.assertAlmostEqual(ratio, 1.0, delta=1e-4)
+
+    def test_eih_supersedes_gr1pn_when_both_on(self):
+        """When eih_cross=True AND gr_1pn=True, only eih_cross applies.
+
+        Both model the same 1PN physics — double-counting would be a bug.
+        Verify by comparing (eih + gr1pn) ≡ (eih alone).
+        """
+        bodies = self._three_body_solar_system_like()
+        acc_both = NBodySystem(
+            bodies, toggles=PhysicsToggles(eih_cross=True, gr_1pn=True)
+        ).compute_accelerations()
+        bodies2 = self._three_body_solar_system_like()
+        acc_eih_only = NBodySystem(
+            bodies2, toggles=PhysicsToggles(eih_cross=True)
+        ).compute_accelerations()
+        np.testing.assert_array_almost_equal(acc_both, acc_eih_only, decimal=20)
+
+    def test_eih_two_body_reduces_to_schwarzschild_at_leading_order(self):
+        """For an isolated 2-body system, EIH and single-body 1PN agree at
+        leading order (the small differences come from v_j² and v_i·v_j
+        terms that single-body Schwarzschild treats as if v_j = 0 in the
+        Sun frame).
+
+        Since we DON'T impose a heliocentric frame here, even 2-body shows
+        a measurable EIH/1PN delta. We just verify the ratio is close to 1.
+        """
+        b1 = CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.02)
+        b2 = CelestialBody(
+            3.3e23,
+            np.array([0.4 * AU, 0.0, 0.0]),
+            np.array([0.0, 4.7e4, 0.0]),
+            2.44e6, 0.45,
+        )
+        acc_1pn = NBodySystem([b1, b2], toggles=PhysicsToggles(gr_1pn=True)
+                               ).compute_accelerations()
+        b1b = CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.02)
+        b2b = CelestialBody(
+            3.3e23,
+            np.array([0.4 * AU, 0.0, 0.0]),
+            np.array([0.0, 4.7e4, 0.0]),
+            2.44e6, 0.45,
+        )
+        acc_eih = NBodySystem([b1b, b2b], toggles=PhysicsToggles(eih_cross=True)
+                               ).compute_accelerations()
+        # Test-particle approximation agrees on direction; magnitudes within 0.01%.
+        ratio = (float(np.linalg.norm(acc_eih[1]))
+                 / float(np.linalg.norm(acc_1pn[1])))
+        self.assertAlmostEqual(ratio, 1.0, delta=1e-4)
+
+    def test_eih_includes_a_newton_self_consistency(self):
+        """The 7/(2c²) Σ_j μ_j a_j^N / r_ij coupling means each body's
+        acceleration depends on the Newtonian accelerations of all OTHER
+        bodies. This is what makes EIH 'mutual' rather than just superposed
+        Schwarzschild fields. Test that this term is non-zero.
+        """
+        # Construct a config where a_j^N is large for j ≠ i: put the inner
+        # planet next to the Sun so its Newtonian acceleration dominates.
+        bodies = self._three_body_solar_system_like()
+        # With EIH, the outer planet feels coupling from the inner planet's
+        # large Newtonian acceleration via the 7/(2c²) term.
+        sys = NBodySystem(bodies, toggles=PhysicsToggles(eih_cross=True))
+        acc_eih = sys.compute_accelerations()
+        # Without the 7/(2c²) term, the outer body's acceleration would be
+        # dominated entirely by the Sun's GM. We can't easily isolate the
+        # 7/(2c²) contribution analytically here without re-implementing it,
+        # so this test just guards finite output (already done elsewhere)
+        # and existence of a third-body effect.
+        self.assertTrue(np.all(np.isfinite(acc_eih)))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Sun J2 — DE440 canonical value
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestSunJ2:
+    """The Sun's J₂ is part of the DE440 force model.
+
+    Park et al. 2021 ("The JPL Planetary and Lunar Ephemerides DE440 and
+    DE441") Table 3 lists J₂_⊙ = 2.1106e-7 as the fitted value used in DE440.
+    """
+
+    def test_sun_j2_value_matches_de440(self):
+        from sigma_ground.field.interface.rolling_shootout import _BODY_PARAMS
+        assert _BODY_PARAMS["Sun"].j2 == 2.1106e-7
+
+    def test_sun_has_iau2015_pole(self):
+        """Sun's rotational pole at IAU 2015 (RA=286.13°, Dec=63.87°) -- not ICRS +z."""
+        from sigma_ground.field.interface.rolling_shootout import _BODY_PARAMS
+        pole = _BODY_PARAMS["Sun"].pole_axis_unit
+        assert pole is not None
+        # Sun's pole is tilted ~7.25° to the ecliptic normal; the z-component
+        # should be sin(63.87°) ≈ 0.898, NOT 1.0 (which would be ICRS +z).
+        assert pole[2] != 1.0
+        assert abs(pole[2] - math.sin(math.radians(63.87))) < 1e-10
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -132,9 +132,10 @@ class BodyParams:
     pole_axis_unit: np.ndarray | None           = None  # None → ICRS +z default
 
 
-# IAU 2015 pole RA/Dec (J2000.0) for the high-obliquity bodies.
+# IAU 2015 pole RA/Dec (J2000.0) for high-obliquity bodies.
 # Most planets have poles within ~30° of ICRS +z so the default works fine;
-# these three need explicit vectors for J2/J3/J4 to be evaluated correctly.
+# these need explicit vectors for J2/J3/J4 to be evaluated correctly.
+_SUN_POLE    = _pole_unit_from_radec(286.13,   63.87)  # IAU 2015 solar pole
 _URANUS_POLE = _pole_unit_from_radec(257.311, -15.175)
 _PLUTO_POLE  = _pole_unit_from_radec(132.993,  -6.163)
 # Neptune's pole RA/Dec (43.46°, 89.45° -- nearly +z but slightly tilted).
@@ -147,8 +148,12 @@ _TRITON_POLE = -_NEPTUNE_POLE
 
 _BODY_PARAMS: dict[str, BodyParams] = {
     # body         R(km)     albedo    J2          J3         J4        k2     pole
-    "Sun":      BodyParams(695700.0,  0.000,  2.0e-7,    0.0,       -9.0e-7,
-                            love_number_k2=0.02),
+    # Sun J2 = 2.1106e-7 is the DE440 fitted value (Park et al. 2021,
+    # "The JPL Planetary and Lunar Ephemerides DE440 and DE441", AJ 161:105,
+    # Table 3). Earlier table value was 2.0e-7 placeholder.
+    "Sun":      BodyParams(695700.0,  0.000,  2.1106e-7, 0.0,       -9.0e-7,
+                            love_number_k2=0.02,
+                            pole_axis_unit=_SUN_POLE),
     "Mercury":  BodyParams(  2440.0,  0.088,  5.03e-5,   0.0,       -1.0e-5,
                             love_number_k2=0.45),
     "Venus":    BodyParams(  6052.0,  0.689,  4.46e-6,   0.0,        0.0,
@@ -224,6 +229,22 @@ _GR_ONLY            = PhysicsToggles(gr_1pn=True)
 _GR_SRP             = PhysicsToggles(gr_1pn=True, srp=True)
 _GR_SRP_J2          = PhysicsToggles(gr_1pn=True, srp=True, j2_zonal=True)
 
+# JPL DE440 canonical force model (Park et al. 2021, AJ 161:105):
+#   - Newton + full N-body 1PN EIH (eih_cross, replaces single-body gr_1pn)
+#   - Sun J2 + Earth J2 + Moon J2 + planetary J2 (j2_zonal)
+#   - J3/J4 zonal harmonics where measured (j3_zonal, j4_zonal)
+#   - Solar radiation pressure on small bodies (srp)
+#   - Mutual tidal force via Love numbers (tidal_force)
+# Not yet in our model: lunar full 6DOF orientation, asteroid masses.
+_JPL_DE440          = PhysicsToggles(
+    eih_cross=True,
+    srp=True,
+    j2_zonal=True,
+    j3_zonal=True,
+    j4_zonal=True,
+    tidal_force=True,
+)
+
 
 PREDICTORS: list[Predictor] = [
     Predictor("pure_newton",        _NO_PHYSICS,
@@ -237,6 +258,9 @@ PREDICTORS: list[Predictor] = [
     Predictor("over_physics_finedt", _GR_SRP_J2,
               dt_days=0.1,
               description="Over_physics with dt=0.1d (10x finer; targets fast-moon row)"),
+    Predictor("jpl_de440",          _JPL_DE440,
+              dt_days=0.1,
+              description="JPL DE440 canonical stack: EIH N-body 1PN + zonals + tides + SRP"),
     Predictor("kepler",             _NO_PHYSICS, use_kepler=True,
               description="2-body Keplerian fit per body"),
 ]
