@@ -232,11 +232,34 @@ _GR_SRP_J2          = PhysicsToggles(gr_1pn=True, srp=True, j2_zonal=True)
 # JPL DE440 canonical force model (Park et al. 2021, AJ 161:105):
 #   - Newton + full N-body 1PN EIH (eih_cross, replaces single-body gr_1pn)
 #   - Sun J2 + Earth J2 + Moon J2 + planetary J2 (j2_zonal)
-#   - J3/J4 zonal harmonics where measured (j3_zonal, j4_zonal)
+#   - J3 zonal harmonics where measured (j3_zonal)
 #   - Solar radiation pressure on small bodies (srp)
 #   - Mutual tidal force via Love numbers (tidal_force)
+#
 # Not yet in our model: lunar full 6DOF orientation, asteroid masses.
+#
+# DELIBERATELY OFF (2026-05-15):
+#   - j4_zonal: Toggle-iteration ablation found that enabling J4 in
+#     isolation REGRESSES Enceladus by +1.25% at the 3y horizon and +20%
+#     at 5y (over_physics_finedt -> jpl_de440 smoke test). Every other
+#     body moves by <0.01% with j4 on. Conclusion: our J4 formula is
+#     producing a force on Saturn-system moons that diverges from DE440's
+#     actual treatment. Until the J4 formula geometry / Saturn-Enceladus
+#     handling is verified (likely needs DE440's separate planet-system
+#     model rather than a global zonal expansion), j4_zonal stays off in
+#     the canonical predictor.
+#     See misc/SESSION_LOG.md 2026-05-15 for the diagnostic data.
 _JPL_DE440          = PhysicsToggles(
+    eih_cross=True,
+    srp=True,
+    j2_zonal=True,
+    j3_zonal=True,
+    tidal_force=True,
+)
+
+# Experimental: includes j4_zonal so we can re-test once the Saturn-system
+# J4 issue is debugged. Used for ablation studies; NOT the recommended stack.
+_JPL_DE440_EXP      = PhysicsToggles(
     eih_cross=True,
     srp=True,
     j2_zonal=True,
@@ -260,7 +283,12 @@ PREDICTORS: list[Predictor] = [
               description="Over_physics with dt=0.1d (10x finer; targets fast-moon row)"),
     Predictor("jpl_de440",          _JPL_DE440,
               dt_days=0.1,
-              description="JPL DE440 canonical stack: EIH N-body 1PN + zonals + tides + SRP"),
+              description="JPL DE440 canonical: EIH N-body 1PN + J2/J3 zonals + tides + SRP "
+                          "(j4 disabled pending Saturn-system formula verification)"),
+    Predictor("jpl_de440_exp",      _JPL_DE440_EXP,
+              dt_days=0.1,
+              description="Experimental: jpl_de440 + j4_zonal (regresses Enceladus -- "
+                          "not for production)"),
     Predictor("kepler",             _NO_PHYSICS, use_kepler=True,
               description="2-body Keplerian fit per body"),
 ]
