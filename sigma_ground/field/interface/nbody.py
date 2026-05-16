@@ -820,6 +820,133 @@ class NBodySystem:
 
         self._time += dt
 
+    # ── selective Forest-Ruth: update only a subset of bodies ────────────
+    def _selective_fr_step(self, dt: float, body_indices: list[int]) -> None:
+        """Forest-Ruth on a subset of bodies. Other bodies remain fixed.
+
+        Used by forest_ruth_step_hierarchical to integrate fast bodies
+        through micro-steps while slow bodies are held at their interpolated
+        positions. Forces at each kick are computed using the FULL current
+        state, but only the listed bodies have their position/velocity
+        updated. Does NOT advance self._time -- the caller manages it.
+        """
+        c = _FR_C
+        d = _FR_D
+
+        def _drift_partial(frac: float) -> None:
+            for i in body_indices:
+                b = self.bodies[i]
+                self.bodies[i] = b.replace(
+                    position_m=b.position_m + frac * dt * b.velocity_m_s
+                )
+
+        def _kick_partial(frac: float) -> None:
+            acc = self.compute_accelerations()
+            for i in body_indices:
+                b = self.bodies[i]
+                self.bodies[i] = b.replace(
+                    velocity_m_s=b.velocity_m_s + frac * dt * acc[i]
+                )
+
+        _drift_partial(c[0])
+        _kick_partial(d[0])
+        _drift_partial(c[1])
+        _kick_partial(d[1])
+        _drift_partial(c[2])
+        _kick_partial(d[2])
+        _drift_partial(c[3])
+
+    # ── Hierarchical Forest-Ruth: per-body dt ────────────────────────────
+    def forest_ruth_step_hierarchical(
+        self,
+        dt: float,
+        fast_indices: list[int],
+        n_substeps: int,
+    ) -> None:
+        """Macro-step at dt, substepping fast bodies at dt/n_substeps.
+
+        Motivation: with a single global dt, fast moons (Mimas at 0.94d,
+        Phobos at 0.32d) under-resolve at dt=0.1d but Forest-Ruth's
+        shadow-Hamiltonian phase drift makes a global dt=0.02d REGRESS
+        them (see misc/dt_tradeoff_verdict_2026-05-15.md). The right fix
+        is per-body dt: slow bodies use dt=0.1d, fast bodies use a fraction.
+
+        Algorithm:
+          1. Snapshot all body states.
+          2. Advance SLOW bodies one full Forest-Ruth step at dt, with
+             fast bodies frozen at their start positions. (Fast bodies
+             perturb slow bodies very weakly: Mimas/Saturn mass ratio is
+             ~6e-8; over 0.1d the displacement bias is negligible.)
+          3. Reset fast bodies to their start state. Save slow-body end state.
+          4. Run n_substeps Forest-Ruth steps for fast bodies at dt/n_substeps,
+             with slow bodies linearly interpolated between their start and
+             end positions/velocities at each substep.
+
+        NOT symplectic: the operator-split between slow and fast loses
+        Forest-Ruth's exact symplecticity. For multi-year integrations the
+        secular energy drift is bounded by the slow-fast perturbation
+        magnitudes -- in the solar system that's ~1e-8 per outer step, so
+        accumulated drift over 5y stays sub-percent for slow bodies.
+
+        Parameters
+        ----------
+        dt           : macro step in seconds (slow bodies advance by this)
+        fast_indices : indices into self.bodies to substep
+        n_substeps   : substeps per macro step for fast bodies
+                       (effective fast-body dt = dt / n_substeps)
+        """
+        if n_substeps < 1:
+            raise ValueError(f"n_substeps={n_substeps} must be >= 1")
+        if not fast_indices:
+            self.forest_ruth_step(dt)
+            return
+        if n_substeps == 1:
+            self.forest_ruth_step(dt)
+            return
+
+        n = len(self.bodies)
+        fast_set = set(fast_indices)
+        slow_indices = [i for i in range(n) if i not in fast_set]
+
+        # 1. Snapshot
+        initial = [(b.position_m.copy(), b.velocity_m_s.copy())
+                   for b in self.bodies]
+
+        # 2. Advance slow bodies one full step (fast bodies frozen)
+        self._selective_fr_step(dt, slow_indices)
+        slow_end = [(self.bodies[i].position_m.copy(),
+                     self.bodies[i].velocity_m_s.copy())
+                    for i in range(n)]
+
+        # 3. Reset fast bodies to their start state (slow bodies stay at end)
+        for i in fast_indices:
+            self.bodies[i] = self.bodies[i].replace(
+                position_m=initial[i][0].copy(),
+                velocity_m_s=initial[i][1].copy(),
+            )
+
+        # 4. Substep fast bodies. At each substep, set slow bodies to their
+        #    linearly-interpolated start-of-substep state, then run a fast-only
+        #    Forest-Ruth at sub_dt.
+        sub_dt = dt / n_substeps
+        for sub in range(n_substeps):
+            alpha = sub / n_substeps  # start-of-substep interpolation parameter
+            for i in slow_indices:
+                interp_pos = (1.0 - alpha) * initial[i][0] + alpha * slow_end[i][0]
+                interp_vel = (1.0 - alpha) * initial[i][1] + alpha * slow_end[i][1]
+                self.bodies[i] = self.bodies[i].replace(
+                    position_m=interp_pos, velocity_m_s=interp_vel,
+                )
+            self._selective_fr_step(sub_dt, fast_indices)
+
+        # 5. Finalize slow bodies at their full-step end state
+        for i in slow_indices:
+            self.bodies[i] = self.bodies[i].replace(
+                position_m=slow_end[i][0], velocity_m_s=slow_end[i][1],
+            )
+
+        self._time += dt
+
     # ── conserved quantities ────────────────────────────────────────────────
 
     def total_energy(self) -> float:

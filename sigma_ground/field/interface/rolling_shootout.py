@@ -224,13 +224,20 @@ class Predictor:
 
     `use_kepler` is a special path (no n-body integration; per-body
     Keplerian fits). When True, `toggles` is ignored.
+
+    `fast_body_names` + `fast_substep_factor` enable per-body dt via
+    NBodySystem.forest_ruth_step_hierarchical: listed bodies integrate at
+    dt_days/fast_substep_factor while others stay at dt_days. Default
+    behaviour (fast_body_names=None) uses uniform dt_days for all bodies.
     """
-    name:        str
-    toggles:     PhysicsToggles
-    use_kepler:  bool   = False
-    integrator:  str    = "fr4"  # "fr4" or "verlet"
-    dt_days:     float  = 1.0
-    description: str    = ""
+    name:                str
+    toggles:             PhysicsToggles
+    use_kepler:          bool   = False
+    integrator:          str    = "fr4"  # "fr4" or "verlet"
+    dt_days:             float  = 1.0
+    description:         str    = ""
+    fast_body_names:     tuple[str, ...] | None = None
+    fast_substep_factor: int    = 1
 
 
 # Common toggle bundles for the existing predictor lineup.
@@ -292,6 +299,20 @@ PREDICTORS: list[Predictor] = [
               dt_days=0.02,
               description="JPL DE440 stack with dt=0.02d (5x finer) -- targets fast-moon "
                           "integrator-noise floor (Enceladus, Io, Europa at 1-2d period)"),
+    # Hierarchical predictor: slow bodies advance at dt=0.1d, fast bodies
+    # substep at dt=0.01d (factor 10). Targets the tightly-coupled fast
+    # moons that regressed at globally-finer dt -- Mimas (period 0.94d),
+    # Phobos (0.32d), Deimos (1.26d), plus the Saturn moons near the
+    # dt-floor (Enceladus, Tethys, Dione, Rhea, Io, Europa). See
+    # misc/dt_tradeoff_verdict_2026-05-15.md for the rationale.
+    Predictor("jpl_de440_hier",     _JPL_DE440,
+              dt_days=0.1,
+              fast_body_names=("Mimas", "Phobos", "Deimos",
+                                "Enceladus", "Tethys", "Dione", "Rhea",
+                                "Io", "Europa"),
+              fast_substep_factor=10,
+              description="JPL DE440 stack with per-body dt: slow bodies @ 0.1d, "
+                          "fast moons (period <2d) @ 0.01d via hierarchical Forest-Ruth"),
     Predictor("kepler",             _NO_PHYSICS, use_kepler=True,
               description="2-body Keplerian fit per body"),
 ]
@@ -408,8 +429,27 @@ def _integrate_nbody(
         solar_luminosity_W=_L_SUN_W if predictor.toggles.srp else 0.0,
     )
 
+    # Resolve fast-body indices (for hierarchical substepping). Bodies named
+    # in predictor.fast_body_names that aren't present in this fixture snapshot
+    # are silently skipped -- caller can specify a generous list without
+    # tripping the integrator on snapshots where some bodies are absent.
+    fast_indices: list[int] = []
+    if predictor.fast_body_names and predictor.fast_substep_factor > 1:
+        name_to_idx = {n: i for i, n in enumerate(body_names)}
+        for fname in predictor.fast_body_names:
+            if fname in name_to_idx:
+                fast_indices.append(name_to_idx[fname])
+
     if predictor.integrator == "fr4":
-        step_fn: Callable[[float], None] = lambda dt: system.forest_ruth_step(dt)
+        if fast_indices:
+            sub = predictor.fast_substep_factor
+            step_fn: Callable[[float], None] = (
+                lambda dt: system.forest_ruth_step_hierarchical(
+                    dt, fast_indices, sub
+                )
+            )
+        else:
+            step_fn = lambda dt: system.forest_ruth_step(dt)
     else:
         step_fn = lambda dt: system.step(dt)
 

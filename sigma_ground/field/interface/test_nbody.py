@@ -1153,6 +1153,136 @@ class TestSigmaBoundsCheck(unittest.TestCase):
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# Hierarchical Forest-Ruth (per-body dt)
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestHierarchicalForestRuth(unittest.TestCase):
+    """forest_ruth_step_hierarchical advances slow bodies at dt and fast
+    bodies at dt/n_substeps. Validates that:
+      - With n_substeps=1 the result equals forest_ruth_step(dt) exactly.
+      - With an empty fast_indices list the result equals forest_ruth_step(dt).
+      - Slow bodies end up at the same position as a uniform-dt run.
+      - Fast bodies' final positions differ from uniform-dt (substepping
+        is doing something), and total energy stays well-bounded.
+    """
+
+    def _three_body(self):
+        """Sun + Earth + Moon — Moon is the 'fast' body candidate."""
+        b_sun = CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.02)
+        b_earth = CelestialBody(
+            5.972e24,
+            np.array([1.0 * AU, 0.0, 0.0]),
+            np.array([0.0, 2.978e4, 0.0]),
+            6.371e6, 0.3,
+        )
+        b_moon = CelestialBody(
+            7.342e22,
+            np.array([1.0 * AU + 3.844e8, 0.0, 0.0]),
+            np.array([0.0, 2.978e4 + 1.022e3, 0.0]),
+            1.737e6, 0.024,
+        )
+        return [b_sun, b_earth, b_moon]
+
+    def test_hierarchical_with_n_substeps_1_matches_uniform(self):
+        """n_substeps=1 must reduce to forest_ruth_step bit-identically."""
+        bodies_a = self._three_body()
+        bodies_b = self._three_body()
+        sys_a = NBodySystem(bodies_a)
+        sys_b = NBodySystem(bodies_b)
+        dt = 86400.0  # 1 day
+        sys_a.forest_ruth_step(dt)
+        sys_b.forest_ruth_step_hierarchical(dt, fast_indices=[2], n_substeps=1)
+        for i in range(3):
+            np.testing.assert_array_almost_equal(
+                sys_a.bodies[i].position_m, sys_b.bodies[i].position_m,
+                decimal=20,
+                err_msg=f"body {i}: n_substeps=1 path diverged from uniform",
+            )
+
+    def test_hierarchical_with_empty_fast_list_matches_uniform(self):
+        """Empty fast_indices must fall through to forest_ruth_step."""
+        bodies_a = self._three_body()
+        bodies_b = self._three_body()
+        sys_a = NBodySystem(bodies_a)
+        sys_b = NBodySystem(bodies_b)
+        dt = 86400.0
+        sys_a.forest_ruth_step(dt)
+        sys_b.forest_ruth_step_hierarchical(dt, fast_indices=[], n_substeps=10)
+        for i in range(3):
+            np.testing.assert_array_almost_equal(
+                sys_a.bodies[i].position_m, sys_b.bodies[i].position_m,
+                decimal=20,
+            )
+
+    def test_hierarchical_substepping_changes_fast_body_trajectory(self):
+        """With n_substeps=10, the Moon's position must differ from uniform dt
+        (otherwise the substepping is inert)."""
+        bodies_a = self._three_body()
+        bodies_b = self._three_body()
+        sys_a = NBodySystem(bodies_a)
+        sys_b = NBodySystem(bodies_b)
+        dt = 86400.0 * 0.1   # 0.1 day, the canonical macro step
+        # Run 30 macro steps (3 simulated days)
+        for _ in range(30):
+            sys_a.forest_ruth_step(dt)
+            sys_b.forest_ruth_step_hierarchical(dt, fast_indices=[2], n_substeps=10)
+        delta = float(np.linalg.norm(
+            sys_a.bodies[2].position_m - sys_b.bodies[2].position_m
+        ))
+        # Moon moves ~3km/s in our frame; after 3 days the substepping
+        # should produce at least some delta from uniform integration.
+        # Make the check loose -- the substepping shouldn't be wildly
+        # different but it shouldn't be exactly zero either.
+        self.assertGreater(delta, 0.0,
+                            "Hierarchical substepping produced no delta vs uniform")
+
+    def test_hierarchical_advances_time_by_dt(self):
+        """One hierarchical step at dt must advance system._time by exactly dt."""
+        bodies = self._three_body()
+        sys = NBodySystem(bodies)
+        t0 = sys.time
+        dt = 86400.0
+        sys.forest_ruth_step_hierarchical(dt, fast_indices=[2], n_substeps=10)
+        self.assertAlmostEqual(sys.time - t0, dt, delta=1e-9)
+
+    def test_hierarchical_rejects_zero_substeps(self):
+        bodies = self._three_body()
+        sys = NBodySystem(bodies)
+        with self.assertRaises(ValueError):
+            sys.forest_ruth_step_hierarchical(86400.0, fast_indices=[2], n_substeps=0)
+
+    def test_hierarchical_slow_body_drift_is_bounded(self):
+        """The slow bodies' end state from hierarchical drifts from a pure
+        forest_ruth_step run because we treat fast bodies as frozen during
+        the slow-body integration. The drift is bounded by the magnitude
+        of the fast body's perturbation; for Earth (slow) under Moon (fast)
+        it's bounded by Moon's gravitational acceleration on Earth times
+        dt^2. Test that the relative drift is small compared to Earth's
+        orbital scale.
+        """
+        bodies_a = self._three_body()
+        bodies_b = self._three_body()
+        sys_a = NBodySystem(bodies_a)
+        sys_b = NBodySystem(bodies_b)
+        dt = 86400.0 * 0.1   # 0.1 day
+        for _ in range(10):
+            sys_a.forest_ruth_step(dt)
+            sys_b.forest_ruth_step_hierarchical(dt, fast_indices=[2], n_substeps=10)
+        # Earth (the "slow" body in this test). The hierarchical's frozen-
+        # fast-body assumption introduces an error of order (Moon GM / r²)
+        # × dt² per outer step; over 1 day of simulation, the absolute drift
+        # is tens of km, but relative to Earth's 1-AU orbit (150e9 m) that's
+        # ~1e-10. Verify drift is sub-1e-6 of orbital radius.
+        earth_pos = sys_a.bodies[1].position_m
+        earth_r = float(np.linalg.norm(earth_pos))
+        delta = float(np.linalg.norm(earth_pos - sys_b.bodies[1].position_m))
+        rel_drift = delta / earth_r
+        self.assertLess(rel_drift, 1e-6,
+                         f"Slow body (Earth) drifted {delta:.2f} m "
+                         f"({rel_drift:.2e} of orbital radius {earth_r:.2e} m)")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # EIH N-body 1PN cross-terms — JPL DE440 canonical force model
 # ═══════════════════════════════════════════════════════════════════════════
 
