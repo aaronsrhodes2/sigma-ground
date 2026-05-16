@@ -299,20 +299,19 @@ PREDICTORS: list[Predictor] = [
               dt_days=0.02,
               description="JPL DE440 stack with dt=0.02d (5x finer) -- targets fast-moon "
                           "integrator-noise floor (Enceladus, Io, Europa at 1-2d period)"),
-    # Hierarchical predictor: slow bodies advance at dt=0.1d, fast bodies
-    # substep at dt=0.01d (factor 10). Targets the tightly-coupled fast
-    # moons that regressed at globally-finer dt -- Mimas (period 0.94d),
-    # Phobos (0.32d), Deimos (1.26d), plus the Saturn moons near the
-    # dt-floor (Enceladus, Tethys, Dione, Rhea, Io, Europa). See
-    # misc/dt_tradeoff_verdict_2026-05-15.md for the rationale.
-    Predictor("jpl_de440_hier",     _JPL_DE440,
-              dt_days=0.1,
-              fast_body_names=("Mimas", "Phobos", "Deimos",
-                                "Enceladus", "Tethys", "Dione", "Rhea",
-                                "Io", "Europa"),
-              fast_substep_factor=10,
-              description="JPL DE440 stack with per-body dt: slow bodies @ 0.1d, "
-                          "fast moons (period <2d) @ 0.01d via hierarchical Forest-Ruth"),
+    # NOTE (2026-05-16): jpl_de440_hier removed from canonical PREDICTORS
+    # because the underlying forest_ruth_step_hierarchical method has a
+    # known correctness bug in the slow/fast operator split (the slow-body
+    # advancement under the frozen-fast-body assumption produces a wrong
+    # slow trajectory, which then mis-leads the fast-body substeps).
+    # Validation tests in test_nbody.py demonstrate this:
+    #   - 2-body Earth-Moon hierarchical(1d/0.1d) is 8.5x WORSE than uniform 1d
+    #   - 3-body Sun-Earth-Moon similar
+    # See misc/hierarchical_dt_known_bug_2026-05-16.md.
+    # The methods _selective_fr_step and forest_ruth_step_hierarchical
+    # remain in nbody.py for future repair; the right fix is symplectic
+    # multi-timestep (Tuckerman 1992 RESPA, split by force type) rather
+    # than the body-split operator scheme.
     Predictor("kepler",             _NO_PHYSICS, use_kepler=True,
               description="2-body Keplerian fit per body"),
 ]

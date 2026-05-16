@@ -865,6 +865,24 @@ class NBodySystem:
     ) -> None:
         """Macro-step at dt, substepping fast bodies at dt/n_substeps.
 
+        ⚠ KNOWN BROKEN 2026-05-16 ⚠
+        This body-split operator scheme has a correctness bug: the slow-
+        body advancement under the frozen-fast-body assumption produces
+        a wrong slow trajectory (because the fast body's gravity is
+        modelled as constant during the macro step, not time-averaged
+        over its orbit). The fast substeps then run on an incorrect
+        slow-body trajectory, compounding the error.
+
+        Demonstrated by tests in test_nbody.py:
+          - 2-body Earth-Moon hier(1d/0.1d) is 8.5x WORSE than uniform 1d
+          - 3-body Sun-Earth-Moon similar pattern
+        See misc/hierarchical_dt_known_bug_2026-05-16.md for details.
+
+        The correct fix is symplectic multi-timestep (Tuckerman 1992
+        RESPA) split by FORCE TYPE not body: half-kick from slow forces,
+        N small kicks from fast forces, half-kick from slow forces.
+        Deferred to a future session.
+
         Motivation: with a single global dt, fast moons (Mimas at 0.94d,
         Phobos at 0.32d) under-resolve at dt=0.1d but Forest-Ruth's
         shadow-Hamiltonian phase drift makes a global dt=0.02d REGRESS

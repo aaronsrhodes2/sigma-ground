@@ -1251,6 +1251,53 @@ class TestHierarchicalForestRuth(unittest.TestCase):
         with self.assertRaises(ValueError):
             sys.forest_ruth_step_hierarchical(86400.0, fast_indices=[2], n_substeps=0)
 
+    def test_hierarchical_KNOWN_BROKEN_two_body_earth_moon(self):
+        """Demonstrates the known bug: in a 2-body Earth-Moon system
+        (no Sun), hierarchical(1d/0.1d) is WORSE than uniform 1d,
+        because the slow-body advancement with frozen fast body produces
+        a wrong slow trajectory.
+
+        Expected behaviour with a CORRECT hierarchical method: the
+        hierarchical result should approximate the uniform dt=0.1d
+        reference. This test currently FAILS that expectation and is
+        marked as a known regression. When the underlying algorithm is
+        fixed (symplectic multi-timestep / RESPA), flip the assertion
+        to assertLess and remove this banner.
+        """
+        def make():
+            return [
+                CelestialBody(5.972e24, np.zeros(3), np.zeros(3),
+                               6.371e6, 0.3),
+                CelestialBody(7.342e22, np.array([3.844e8, 0, 0]),
+                               np.array([0, 1.022e3, 0]),
+                               1.737e6, 0.024),
+            ]
+        DAY = 86400.0
+        # Reference: uniform dt=0.1d
+        s_ref = NBodySystem(make())
+        for _ in range(300):
+            s_ref.forest_ruth_step(0.1 * DAY)
+        pos_ref = s_ref.bodies[1].position_m
+        # Hierarchical 1d / 0.1d
+        s_hier = NBodySystem(make())
+        for _ in range(30):
+            s_hier.forest_ruth_step_hierarchical(1.0 * DAY, [1], 10)
+        pos_hier = s_hier.bodies[1].position_m
+        # Uniform-coarse dt=1d
+        s_coarse = NBodySystem(make())
+        for _ in range(30):
+            s_coarse.forest_ruth_step(1.0 * DAY)
+        pos_coarse = s_coarse.bodies[1].position_m
+
+        err_hier   = float(np.linalg.norm(pos_hier - pos_ref))
+        err_coarse = float(np.linalg.norm(pos_coarse - pos_ref))
+        # Known bug: hierarchical is several times WORSE than uniform-coarse.
+        # When fixed, this assertion should be FLIPPED to err_hier < err_coarse.
+        self.assertGreater(err_hier, err_coarse,
+                            f"Bug regression: hierarchical err {err_hier:.2e} "
+                            f"should be > uniform-coarse err {err_coarse:.2e} "
+                            f"until the operator-split fix lands.")
+
     def test_hierarchical_slow_body_drift_is_bounded(self):
         """The slow bodies' end state from hierarchical drifts from a pure
         forest_ruth_step run because we treat fast bodies as frozen during
