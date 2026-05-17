@@ -808,5 +808,545 @@
     "extracted_value": null,
     "extracted_units": "",
     "elapsed_s": 6.670389890670776
+  },
+  {
+    "id": "em_adv_003",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.102131128311157
+  },
+  {
+    "id": "em_adv_004",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.213468313217163
+  },
+  {
+    "id": "em_adv_005",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 4.922337532043457
+  },
+  {
+    "id": "em_adv_006",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.4004316329956055
+  },
+  {
+    "id": "em_adv_007",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.86033821105957
+  },
+  {
+    "id": "em_adv_008",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.2075793743133545
+  },
+  {
+    "id": "em_adv_009",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 4.381037950515747
+  },
+  {
+    "id": "em_adv_010",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.413731813430786
+  },
+  {
+    "id": "gr_001",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.633074045181274
+  },
+  {
+    "id": "gr_002",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.189622402191162
+  },
+  {
+    "id": "gr_003",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.006171941757202
+  },
+  {
+    "id": "gr_004",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 12.171074867248535
+  },
+  {
+    "id": "gr_005",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 7.900921821594238
+  },
+  {
+    "id": "gr_006",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 7.499469041824341
+  },
+  {
+    "id": "gr_007",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 7.566336154937744
+  },
+  {
+    "id": "gr_008",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.21065354347229
+  },
+  {
+    "id": "gr_009",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.938366413116455
+  },
+  {
+    "id": "gr_010",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 9.493970394134521
+  },
+  {
+    "id": "cosmo_001",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 4.95474100112915
+  },
+  {
+    "id": "cosmo_002",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] convert 1 t_H (Hubble time) to ages of the universe\n[Result] 1.1 t_0 (ages of the universe)\n[Additional conversions] \u2248 15 billion years\n[Additional conversions] \u2248 15 Gyr (gigayears)\n[Additional conversions] \u2248 5\u00d710^17 seconds\n[Comparisons] \u2248 1.5 \u00d7 expected lifetime of the sun ( \u2248 10 billion yr )\n[Comparisons] \u2248 3.2 \u00d7 age of the sun ( \u2248 4.57 billion yr )\n[Comparisons] \u2248 3.2 \u00d7 age of the earth ( \u2248 4.5 billion yr )\n[Interpretation] age",
+    "primary_result_pod": "1.1 t_0 (ages of the universe)",
+    "extracted_value": 1.1,
+    "extracted_units": "",
+    "elapsed_s": 2.0289156436920166
+  },
+  {
+    "id": "cosmo_003",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] \u03c1_crit (universe critical mass density)\n[Definition] (3 H_0^2)/(8 \u03c0 G)\n(H_0: Hubble parameter; G: Newtonian gravitational constant)\n[Value] \u2248 9\u00d710^-27 kg/m^3 (kilograms per cubic meter)\n[Value] \u2248 9\u00d710^-30 g/cm^3 (grams per cubic centimeter)\n[Comparisons] \u2248 universe mass density ( \u2248 9\u00d710^-27 kg/m^3 )\n[Comparisons] \u2248 1.5 \u00d7 universe dark energy mass density ( \u2248 6\u00d710^-27 kg/m^3 )\n[Comparisons] \u2248 3 \u00d7 universe pressureless matter mass density ( \u2248 3\u00d710^-27 kg/m^3 )\n[Interpretation] mass density\n[Basic unit dimensions] [mass] [length]^(-3)",
+    "primary_result_pod": "[Input interpretation] \u03c1_crit (universe critical mass density)\n[Definition] (3 H_0^2)/(8 \u03c0 G)\n(H_0: Hubble parameter; G: Newtonian gravitational constant)\n[Value] \u2248 9\u00d710^-27 kg/m^3 (kilograms per cubic meter)\n[Value] \u2248 9\u00d710^-30 g/cm^3 (grams per cubic centimeter)\n[Comparisons] \u2248 universe mass density ( \u2248 9\u00d710^-27 kg/m^3 )\n[Comparisons] \u2248 1.5 \u00d7 universe dark energy mass density ( \u2248 6\u00d710^-27 kg/m^3 )\n[Comparisons] \u2248 3 \u00d7 universe pressureless matter mass density ( \u2248 3\u00d710^-27 kg/m^3 )\n[Interpretation] mass density\n[Basic unit dimensions] [mass] [length]^(-3)",
+    "extracted_value": 9e-27,
+    "extracted_units": "kg/m^",
+    "elapsed_s": 1.312856912612915
+  },
+  {
+    "id": "cosmo_004",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.3604700565338135
+  },
+  {
+    "id": "cosmo_005",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.689044952392578
+  },
+  {
+    "id": "cosmo_006",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 4.461163759231567
+  },
+  {
+    "id": "cosmo_007",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.696248531341553
+  },
+  {
+    "id": "cosmo_008",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 4.8832783699035645
+  },
+  {
+    "id": "astro_001",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.673376083374023
+  },
+  {
+    "id": "astro_002",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] Sun | effective temperature\n[Result] 5772 K (kelvins)\n[Unit conversions] 5.772 kK (kilokelvins)\n[Unit conversions] 0.005772 MK (megakelvins)\n[Unit conversions] 5499 \u00b0C (degrees Celsius)\n[Unit conversions] 9930 \u00b0F (degrees Fahrenheit)\n[Unit conversions] 10390 \u00b0R (degrees Rankine)\n[Comparison as temperature] 120 K above inner core boundary temperature of the earth (5650 K)\n[Corresponding quantities] Thermodynamic energy E from E = kT:\n | 50 ceV (centielectronvolts)\n[Corresponding quantities] Blackbody energy flux \u03a6 from \u03a6 = \u03c3T^4:\n | 6.294\u00d710^7 W/m^2 (watts per square meter)\n[Corresponding quantities] Approximate luminous exitance from a planar blackbody radiator perpendicular to its surface:\n | 5.793\u00d710^9 lx (lux)",
+    "primary_result_pod": "5772 K (kelvins)",
+    "extracted_value": 5772.0,
+    "extracted_units": "",
+    "elapsed_s": 3.4330296516418457
+  },
+  {
+    "id": "astro_003",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.23591685295105
+  },
+  {
+    "id": "astro_004",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.943283796310425
+  },
+  {
+    "id": "astro_005",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] convert Vega | mass to solar masses\n[Result] 2.9 M_\u2609 (solar masses)\n[Additional conversions] \u2248 5.8\u00d710^30 kg (kilograms)\n[Additional conversions] \u2248 5.8\u00d710^33 grams\n[Additional conversions] \u2248 1.3\u00d710^31 lb (pounds)\n[Additional conversions] \u2248 1000000 M_ earth (Earth masses)\n[Comparisons] \u2248 (0.1 to 1.4) \u00d7 mass of a B-type main-sequence star ( 2 to 16 M_\u2609 )\n[Comparisons] \u2248 (1.2 to 1.8) \u00d7 mass of an A-type main-sequence star ( 1.62 to 2.4 M_\u2609 )\n[Comparisons] \u2248 1.6 \u00d7 stellar mass scale ( 3.685\u00d710^30 kg )\n[Corresponding main-sequence star properties] color | \ntemperature class | B8\neffective temperature | 11000 K\nabsolute magnitude | +0.082 (bolometric)\nradius | 2.4 R_\u2609\nluminosity | 82 L_\u2609\nB-V color index | -0.077\nlifetime | 700 million yr\nend state | carbon-oxygen white dwarf\n[Corresponding quantities] Relativistic energy E from E = mc^2:\n | 5.183\u00d710^47 J (joules)\n | 3.235\u00d710^66 eV (electronvolts)\n[Corresponding quantities] Weight w of a body from w = mg:\n | 1.271\u00d710^31 lbf (pounds-force)\n | 5.655\u00d710^31 N (newtons)\n | 5.655\u00d710^36 dynes\n | 5.766\u00d710^33 ponds\n[Corresponding quantities] Luminosity L for a main-sequence star from L = L_\u2609(M/M_\u2609)^3.5:\n | 42 L_\u2609 (solar luminosities)\n | 1.59\u00d710^28 W (watts)",
+    "primary_result_pod": "2.9 M_\u2609 (solar masses)",
+    "extracted_value": 2.9,
+    "extracted_units": "",
+    "elapsed_s": 2.4563820362091064
+  },
+  {
+    "id": "astro_006",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] Jupiter | orbital period\n[Result] 11.862615 a (Julian years)\n[Unit conversions] 3.7435566\u00d710^8 seconds\n[Unit conversions] 6.239261\u00d710^6 minutes\n[Unit conversions] 103987.68 hours\n[Unit conversions] 4332.8201 days\n[Unit conversions] 11.862859 average Gregorian years\n[Orbital properties] current distance from Earth | 5.779 au\n48.06 light minutes\naverage distance from Earth | 5.26 au\n43.7 light minutes\ncurrent distance from Sun | 5.261 au\n43.75 light minutes\napoapsis | 507.089507 million mi\n5.45516759 au\nperiapsis | 460.276111 million mi\n4.95155843 au\norbital period | 11.862615 a",
+    "primary_result_pod": "11.862615 a (Julian years)",
+    "extracted_value": 11.862615,
+    "extracted_units": "",
+    "elapsed_s": 1.365295171737671
+  },
+  {
+    "id": "astro_007",
+    "system": "wolfram",
+    "answer_text": "[Input information] equation of motion for an object at the speed of light | \ndistance | 1 pc (parsec)\n[Result] time | 1.029\u00d710^8 seconds\n= 1.715\u00d710^6 minutes\n= 28591 hours\n[Equation] d = c t | \nt | time\nd | distance\nc | speed of light (\u2248 2.998\u00d710^8 m/s)\n(assuming an inertial observer)",
+    "primary_result_pod": "time | 1.029\u00d710^8 seconds\n= 1.715\u00d710^6 minutes\n= 28591 hours",
+    "extracted_value": 102899999.99999999,
+    "extracted_units": "seconds",
+    "elapsed_s": 1.0910732746124268
+  },
+  {
+    "id": "astro_008",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.30078387260437
+  },
+  {
+    "id": "astro_009",
+    "system": "wolfram",
+    "answer_text": "[Input information] energy formula for luminosity | \nstellar luminosity | Sun (star) (luminosity): 3.83\u00d710^26 W (watts)\ntime | 1 year\n[Result] energy | 1.207\u00d710^34 J (joules)\n= 7.535\u00d710^52 eV (electronvolts)\n= 1.144\u00d710^31 BTU_IT (IT British thermal units)\n[Equation] E = L t | \nE | energy\nL | stellar luminosity\nt | time",
+    "primary_result_pod": "energy | 1.207\u00d710^34 J (joules)\n= 7.535\u00d710^52 eV (electronvolts)\n= 1.144\u00d710^31 BTU_IT (IT British thermal units)",
+    "extracted_value": 1.207e+34,
+    "extracted_units": "J (joules)",
+    "elapsed_s": 1.4127678871154785
+  },
+  {
+    "id": "astro_010",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.992135763168335
+  },
+  {
+    "id": "astro_011",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] Jupiter | mass\n[Result] 1.898\u00d710^27 kg (kilograms)\n[Unit conversions] 4.185\u00d710^27 lb (pounds)\n[Unit conversions] 1.898\u00d710^30 grams\n[Unit conversions] 1.898\u00d710^24 t (metric tons)\n[Unit conversions] 9.55\u00d710^-4 M_\u2609 (solar masses)\n[Comparisons as mass] \u2248 ( 0.011 \u2248 1/93 ) \u00d7 mass of AB Doradus C ( \u2248 93 M_\u2643 )\n[Comparisons as mass] \u2248 ( 0.012 \u2248 1/85 ) \u00d7 mass of EBLM J0555-57Ab (smallest known main sequence star as of 2018) ( \u2248 85 M_\u2643 )\n[Comparisons as mass] \u2248 320 \u00d7 Earth mass ( \u2248 5.97\u00d710^24 kg )\n[Corresponding quantities] Relativistic energy E from E = mc^2:\n | 1.706\u00d710^44 J (joules)\n | 1.065\u00d710^63 eV (electronvolts)\n[Corresponding quantities] Weight w of a body from w = mg:\n | 4.185\u00d710^27 lbf (pounds-force)\n | 1.861\u00d710^28 N (newtons)\n | 1.861\u00d710^33 dynes\n | 1.898\u00d710^30 ponds",
+    "primary_result_pod": "1.898\u00d710^27 kg (kilograms)",
+    "extracted_value": 1.898e+27,
+    "extracted_units": "kg (kilograms)",
+    "elapsed_s": 1.8912856578826904
+  },
+  {
+    "id": "astro_012",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] convert Polaris | distance from Earth to light years\n[Result] 447.6 ly (light years)\n[Additional conversions] 137.2 pc (parsecs)\n[Additional conversions] 0.1372 kpc (kiloparsecs)\n[Additional conversions] 4.235\u00d710^15 km (kilometers)\n[Additional conversions] 4.235\u00d710^18 meters\n[Additional conversions] 2.631 quadrillion miles\n[Corresponding quantities] Light travel time t in vacuum from t = x/c:\n | 448 years\n[Corresponding quantities] Light travel time t in an optical fiber t = 1.48x/c:\n | 663 years\n[Corresponding quantities] Parallax p from distance d using d/parsec = arcsecond/p:\n | 7.3 mas (milliarcseconds)\n | 35 nrad (nanoradians)",
+    "primary_result_pod": "447.6 ly (light years)",
+    "extracted_value": 447.6,
+    "extracted_units": "",
+    "elapsed_s": 1.5290803909301758
+  },
+  {
+    "id": "atom_001",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] gold | atomic number\n[Result] 79",
+    "primary_result_pod": "79",
+    "extracted_value": 79.0,
+    "extracted_units": "",
+    "elapsed_s": 0.9449119567871094
+  },
+  {
+    "id": "atom_002",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] convert carbon | atomic mass to unified atomic mass units\n[Result] 12.011 u (unified atomic mass units)\n[Additional conversions] 12.011 Da (daltons)\n[Additional conversions] 0.012011 kDa (kilodaltons)\n[Additional conversions] 1.9945\u00d710^-23 grams\n[Additional conversions] 1.9945\u00d710^-26 kg (kilograms)\n[Additional conversions] 12.012 chemical atomic mass units\n (unit officially deprecated)\n[Corresponding quantities] Relative atomic mass A_r from A_r = m_aN_A/M_u:\n | 12\n[Corresponding quantities] Molar mass M from M = m_aN_A:\n | 12 g/mol (grams per mole)",
+    "primary_result_pod": "12.011 u (unified atomic mass units)",
+    "extracted_value": 12.011,
+    "extracted_units": "",
+    "elapsed_s": 1.705409288406372
+  },
+  {
+    "id": "atom_003",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.709814786911011
+  },
+  {
+    "id": "atom_004",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] highest noble gases | by first ionization energy\n[Result] 1 | helium | 24.587 eV | \n2 | neon | 21.565 eV | \n3 | argon | 15.76 eV | \n4 | krypton | 14 eV | \n5 | xenon | 12.13 eV |",
+    "primary_result_pod": "1 | helium | 24.587 eV | \n2 | neon | 21.565 eV | \n3 | argon | 15.76 eV | \n4 | krypton | 14 eV | \n5 | xenon | 12.13 eV |",
+    "extracted_value": 1.0,
+    "extracted_units": "",
+    "elapsed_s": 1.0489683151245117
+  },
+  {
+    "id": "atom_005",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.0352702140808105
+  },
+  {
+    "id": "atom_006",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] iron | atomic number\n[Result] 26",
+    "primary_result_pod": "26",
+    "extracted_value": 26.0,
+    "extracted_units": "",
+    "elapsed_s": 0.9107234477996826
+  },
+  {
+    "id": "atom_007",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.164984941482544
+  },
+  {
+    "id": "atom_008",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] uranium | atomic mass\n[Result] 238.02891 u (unified atomic mass units)\n[Unit conversions] 238.02891 Da (daltons)\n[Unit conversions] 0.23802891 kDa (kilodaltons)\n[Unit conversions] 3.952563\u00d710^-22 grams\n[Unit conversions] 3.952563\u00d710^-25 kg (kilograms)\n[Unit conversions] 238.0391 chemical atomic mass units\n (unit officially deprecated)\n[Corresponding quantities] Relative atomic mass A_r from A_r = m_aN_A/M_u:\n | 238\n[Corresponding quantities] Molar mass M from M = m_aN_A:\n | 238 g/mol (grams per mole)",
+    "primary_result_pod": "238.02891 u (unified atomic mass units)",
+    "extracted_value": 238.02891,
+    "extracted_units": "",
+    "elapsed_s": 1.2428185939788818
+  },
+  {
+    "id": "nuc_001",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 7.097568035125732
+  },
+  {
+    "id": "nuc_002",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.7036004066467285
+  },
+  {
+    "id": "nuc_003",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.536313056945801
+  },
+  {
+    "id": "nuc_004",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.088061094284058
+  },
+  {
+    "id": "nuc_005",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.314922094345093
+  },
+  {
+    "id": "nuc_006",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 4.9401819705963135
+  },
+  {
+    "id": "nuc_007",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.957149267196655
+  },
+  {
+    "id": "math_001",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] solve x^2 - 4 = 0\n[Result] x = \u00b1 2\n[Sum of roots] 0\n[Product of roots] -4",
+    "primary_result_pod": "x = \u00b1 2",
+    "extracted_value": 2.0,
+    "extracted_units": "",
+    "elapsed_s": 1.22756028175354
+  },
+  {
+    "id": "math_002",
+    "system": "wolfram",
+    "answer_text": "[Definite integral] integral_0^1 x^2 dx = 1/3\u22480.33333\n[Riemann sums] left sum | ((n - 1) (2 n - 1))/(6 n^2) = 1/3 - 1/(2 n) + O((1/n)^2)\n(assuming subintervals of equal length)\n[Indefinite integral] integral x^2 dx = x^3/3 + constant",
+    "primary_result_pod": "[Definite integral] integral_0^1 x^2 dx = 1/3\u22480.33333\n[Riemann sums] left sum | ((n - 1) (2 n - 1))/(6 n^2) = 1/3 - 1/(2 n) + O((1/n)^2)\n(assuming subintervals of equal length)\n[Indefinite integral] integral x^2 dx = x^3/3 + constant",
+    "extracted_value": 1.0,
+    "extracted_units": "/",
+    "elapsed_s": 1.1543207168579102
+  },
+  {
+    "id": "math_003",
+    "system": "wolfram",
+    "answer_text": "[Derivative] d/dx(sin(x)) = cos(x)\n[Alternate form] e^(-i x)/2 + e^(i x)/2\n[Roots] x = \u03c0 n - \u03c0/2, n element Z\n[Properties as a real function] R (all real numbers)\n[Properties as a real function] {y element R : -1<=y<=1}\n[Properties as a real function] periodic in x with period 2 \u03c0\n[Properties as a real function] even\n[Series expansion at x = 0] 1 - x^2/2 + x^4/24 + O(x^6)\n(Taylor series)\n[Indefinite integral] integral cos(x) dx = sin(x) + constant\n[Global minima] min{cos(x)} = -1 at x = 2 \u03c0 n - \u03c0 for integer n\n[Global minima] min{cos(x)} = -1 at x = 2 \u03c0 n + \u03c0 for integer n\n[Global maxima] max{cos(x)} = 1 at x = 2 \u03c0 n for integer n\n[Definite integral] integral_0^(\u03c0/2) cos(x) dx = 1\n[Definite integral mean square] integral_0^(2 \u03c0) (cos^2(x))/(2 \u03c0) dx = 1/2 = 0.5",
+    "primary_result_pod": "[Derivative] d/dx(sin(x)) = cos(x)\n[Alternate form] e^(-i x)/2 + e^(i x)/2\n[Roots] x = \u03c0 n - \u03c0/2, n element Z\n[Properties as a real function] R (all real numbers)\n[Properties as a real function] {y element R : -1<=y<=1}\n[Properties as a real function] periodic in x with period 2 \u03c0\n[Properties as a real function] even\n[Series expansion at x = 0] 1 - x^2/2 + x^4/24 + O(x^6)\n(Taylor series)\n[Indefinite integral] integral cos(x) dx = sin(x) + constant\n[Global minima] min{cos(x)} = -1 at x = 2 \u03c0 n - \u03c0 for integer n\n[Global minima] min{cos(x)} = -1 at x = 2 \u03c0 n + \u03c0 for integer n\n[Global maxima] max{cos(x)} = 1 at x = 2 \u03c0 n for integer n\n[Definite integral] integral_0^(\u03c0/2) cos(x) dx = 1\n[Definite integral mean square] integral_0^(2 \u03c0) (cos^2(x))/(2 \u03c0) dx = 1/2 = 0.5",
+    "extracted_value": -1.0,
+    "extracted_units": "<=y<=",
+    "elapsed_s": 1.0514862537384033
+  },
+  {
+    "id": "math_004",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] solve x^3 - 6 x^2 + 11 x - 6 = 0\n[Results] x = 1\n[Results] x = 2\n[Results] x = 3\n[Sum of roots] 6\n[Product of roots] 6",
+    "primary_result_pod": "x = 1",
+    "extracted_value": 1.0,
+    "extracted_units": "",
+    "elapsed_s": 1.3906927108764648
+  },
+  {
+    "id": "math_005",
+    "system": "wolfram",
+    "answer_text": "[Definite integral] integral_(-\u221e)^\u221e 1/(1 + x^2) dx = \u03c0\u22483.1416\n[Indefinite integral] integral1/(1 + x^2) dx = tan^(-1)(x) + constant",
+    "primary_result_pod": "[Definite integral] integral_(-\u221e)^\u221e 1/(1 + x^2) dx = \u03c0\u22483.1416\n[Indefinite integral] integral1/(1 + x^2) dx = tan^(-1)(x) + constant",
+    "extracted_value": 1.0,
+    "extracted_units": "",
+    "elapsed_s": 1.5711133480072021
+  },
+  {
+    "id": "math_006",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] convert 1 ly (light year) to meters\n[Result] 9.461\u00d710^15 meters\n[Additional conversions] 5.879 trillion miles\n[Additional conversions] 9.461\u00d710^12 km (kilometers)\n[Additional conversions] 63241 au (astronomical units)\n[Additional conversions] 0.3066 pc (parsecs)\n[Comparisons as distance] \u2248 ( 0.24 \u2248 1/4 ) \u00d7 distance from Earth to Proxima Centauri ( \u2248 4.22 ly )\n[Comparisons as distance] \u2248 0.9 \u00d7 distance from the Sun to the Oort cloud's boundary ( \u2248 1.05\u00d710^16 m )\n[Interpretations] length\n[Interpretations] distance\n[Corresponding quantities] Light travel time t in vacuum from t = x/c:\n | 1 year\n[Corresponding quantities] Light travel time t in an optical fiber t = 1.48x/c:\n | 1.5 years\n[Corresponding quantities] Angular wavelength \u019b from \u019b = \u03bb/(2\u03c0):\n | 1.506\u00d710^15 meters\n[Corresponding quantities] Spectroscopic wavenumber \u03bd^~ from \u03bd^~ = 1/\u03bb:\n | 1.1\u00d710^-18 cm^(-1) (reciprocal centimeters)\n | 1.1\u00d710^-18 wavenumbers\n[Corresponding quantities] Wavenumber k from k = 2\u03c0/\u03bb:\n | 6.641\u00d710^-18 cm^(-1) (reciprocal centimeters)\n[Corresponding quantities] Wavelength \u03bb from \u03bb = 2\u03c0\u019b:\n | 5.944\u00d710^16 meters\n[Corresponding quantities] Spectroscopic wavenumber \u03bd^~ from \u03bd^~ = 2\u03c0/\u019b:\n | 6.641\u00d710^-16 m^(-1) (reciprocal meters)\n[Corresponding quantities] Wavenumber k from k = 1/\u019b:\n | 1.1\u00d710^-16 m^(-1) (reciprocal meters)\n[Corresponding quantities] Optical power P from P = 1/f:\n | 1.1\u00d710^-16 D (diopters)",
+    "primary_result_pod": "9.461\u00d710^15 meters",
+    "extracted_value": 9461000000000000.0,
+    "extracted_units": "meters",
+    "elapsed_s": 1.8738391399383545
+  },
+  {
+    "id": "math_007",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] simplify | sin^2(x) + cos^2(x)\n[Result] 1",
+    "primary_result_pod": "1",
+    "extracted_value": 1.0,
+    "extracted_units": "",
+    "elapsed_s": 0.7283389568328857
   }
 ]
