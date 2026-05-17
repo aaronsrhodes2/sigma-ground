@@ -2,7 +2,7 @@
 
 **Date**: TODO  
 **Corpus**: 150 questions, 14 physics-major domains  
-**Systems tested**: sigma_ground+qwen2.5:7b, Wolfram Alpha free tier, Gemini 2.5 Pro
+**Systems tested**: sigma_ground+qwen2.5:14b, Wolfram Alpha free tier, Gemini 2.5 Flash
 
 ---
 
@@ -11,9 +11,9 @@
 Each of the 150 corpus questions was posed verbatim (natural English, no formula-style prompting) to all three systems. Numerical answers were extracted with light regex parsing and compared against textbook ground truths within stated tolerance bands. Tolerance is per-question (typically 1-5%) and reflects realistic measurement precision rather than arbitrary cutoffs.
 
 System configurations:
-- **sigma_ground+Qwen**: `qwen2.5:7b` via Ollama on RTX 4070 Ti 16GB, talking to the sigma-ground MCP server over stdio. System prompt enforces tool-use-or-flag discipline. 94 PRIMARY tools available.
-- **Wolfram Alpha**: Free-tier `wolframalpha` Python client, Full Results API, primary "Result" pod extracted.
-- **Gemini 2.5 Pro**: `google-generativeai` SDK, default sampling parameters, no tool calls (bare LLM).
+- **sigma_ground+Qwen**: `qwen2.5:14b` via Ollama on RTX 4070 Ti 16GB, talking to the sigma-ground MCP server over stdio. System prompt enforces tool-use-or-flag discipline + a TOOL INDEX listing every tool's exact parameter names. Runner nudges Qwen if it returns prose without either a tool call or an ANSWER: line. 94 PRIMARY tools available.
+- **Wolfram Alpha**: Free-tier API via raw urllib + xmltodict (the official `wolframalpha==5.1.3` Python package was bricked by a strict Content-Type assertion against current server responses). Full Results API XML; primary "Result" pod extracted.
+- **Gemini 2.5 Flash**: `google-generativeai` SDK, free tier (5 req/min — runner paces at 13s + 429-retry with parsed retry-after delay). No tool calls (bare LLM). Note: original plan was 2.5 Pro but the free tier 429s for the project's API key forced the downgrade to Flash.
 
 ---
 
