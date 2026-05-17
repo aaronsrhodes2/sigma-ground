@@ -1,5 +1,9 @@
 # sigma-ground physics MCP — 3-way benchmark report
 
+**Project goal:** physics-professor assistant with Q&A accuracy
+**≥98% of Wolfram Alpha** on the same questions + future conversation
+mode. See `PROJECT_GOAL.md` at the repo root.
+
 **Date**: TODO  
 **Corpus**: 150 questions, 14 physics-major domains  
 **Systems tested**: sigma_ground+qwen2.5:14b, Wolfram Alpha free tier, Gemini 2.5 Flash
