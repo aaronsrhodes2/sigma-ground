@@ -287,6 +287,33 @@ async def _run_one_question(session, ollama_url: str, model: str,
                     "content": tool_text[:4000],
                 })
 
+            # Loop detection: if the last 3 tool calls are identical
+            # (same name + same args), Qwen is stuck repeating itself.
+            # This was the dominant failure mode on the first run:
+            # 96/150 questions hit max_turns because the model kept
+            # calling solar_system_body('earth') 14 times waiting for
+            # a different answer that never came.
+            if len(tool_calls_made) >= 3:
+                last3 = tool_calls_made[-3:]
+                if all((c["name"] == last3[0]["name"]
+                          and json.dumps(c["args"], sort_keys=True, default=str)
+                              == json.dumps(last3[0]["args"], sort_keys=True, default=str))
+                         for c in last3):
+                    loop_warning = (
+                        f"STOP. You have called `{last3[0]['name']}` with "
+                        f"the same arguments 3 times in a row. The tool's "
+                        f"output will not change. Either:\n"
+                        f"  (a) Call a DIFFERENT tool from the TOOL INDEX, OR\n"
+                        f"  (b) Produce the ANSWER: line using the values "
+                        f"you already have, OR\n"
+                        f"  (c) Produce the ANSWER: line with the '[SOURCE: "
+                        f"Fitted due to incompetence ...]' tag.\n"
+                        f"The user's question is still: {question}"
+                    )
+                    messages.append({"role": "user", "content": loop_warning})
+                    # Count as a nudge so we don't loop on the warning too
+                    nudges_sent += 1
+
         # Hit max turns -- try fallback before giving up
         val, units = _extract_value_from_tool_calls(tool_calls_made)
         return {
@@ -297,6 +324,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
             "turns":                  max_turns,
             "elapsed_s":              time.time() - t0,
             "extracted_via_fallback": val is not None,
+            "nudges_sent":            nudges_sent,
         }
 
 
