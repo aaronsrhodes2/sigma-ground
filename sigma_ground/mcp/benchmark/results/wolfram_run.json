@@ -1,0 +1,812 @@
+[
+  {
+    "id": "mech_intro_001",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 7.284016370773315
+  },
+  {
+    "id": "mech_intro_002",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.192984342575073
+  },
+  {
+    "id": "mech_intro_003",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.639099359512329
+  },
+  {
+    "id": "mech_intro_004",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.371007919311523
+  },
+  {
+    "id": "mech_intro_005",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.592892169952393
+  },
+  {
+    "id": "mech_intro_006",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 7.257932424545288
+  },
+  {
+    "id": "mech_intro_007",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.333103179931641
+  },
+  {
+    "id": "mech_intro_008",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] Earth | escape velocity\n[Result] 25010 mph (miles per hour)\n[Unit conversions] 40250 km/h (kilometers per hour)\n[Unit conversions] 11.18 km/s (kilometers per second)\n[Unit conversions] 11180 m/s (meters per second)\n[Unit conversions] 670800 m/min (meters per minute)\n[Unit conversions] 6.947 mi/s (miles per second)\n[Comparisons as speed] \u2248 0.69 \u00d7 Earth-relative launch speed of the New Horizons spacecraft ( 16.26 km/s )\n[Comparisons as speed] \u2248 1.009 \u00d7 fastest speed traveled by a human (Apollo 10 spacecraft relative to Earth upon return) ( 39897 km/h )\n[Comparisons as speed] \u2248 theoretical maximum ground vehicle speed for graphene tires ( 10.709 km/s )\n[Corresponding quantities] Time to travel 1 meter from t = d/v:\n | 89 \u03bcs (microseconds)\n[Corresponding quantities] Time to travel 1 kilometer from t = d/v:\n | 89 ms (milliseconds)\n[Corresponding quantities] Slowness from s = 1/v:\n | 0.089 s/km (seconds per kilometer)",
+    "primary_result_pod": "25010 mph (miles per hour)",
+    "extracted_value": 25010.0,
+    "extracted_units": "",
+    "elapsed_s": 1.9001848697662354
+  },
+  {
+    "id": "mech_intro_009",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.382692813873291
+  },
+  {
+    "id": "mech_intro_010",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.047719955444336
+  },
+  {
+    "id": "mech_intro_011",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 7.500696182250977
+  },
+  {
+    "id": "mech_intro_012",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.985832929611206
+  },
+  {
+    "id": "mech_intro_013",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.568202257156372
+  },
+  {
+    "id": "mech_intro_014",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.101064920425415
+  },
+  {
+    "id": "mech_intro_015",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 8.542574167251587
+  },
+  {
+    "id": "em_intro_001",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 4.960208177566528
+  },
+  {
+    "id": "em_intro_002",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.404757976531982
+  },
+  {
+    "id": "em_intro_003",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.923070669174194
+  },
+  {
+    "id": "em_intro_004",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.487147808074951
+  },
+  {
+    "id": "em_intro_005",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.410465478897095
+  },
+  {
+    "id": "em_intro_006",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.2780749797821045
+  },
+  {
+    "id": "em_intro_007",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] green light | frequency (550 nm (nanometers) (wavelength))\n[Result] (293000 to 331000) nm THz (nanometer terahertz)\n[Unit conversions] (2.99\u00d710^7 to 3.37\u00d710^7) lbf s/lb (pounds-force second per pound)\n[Unit conversions] (5.78\u00d710^10 to 6.51\u00d710^10) ft^3/min/ft^2 (cubic feet per minute per square foot)\n[Unit conversions] (5.78\u00d710^10 to 6.51\u00d710^10) ft/min (feet per minute)\n[Unit conversions] (4.32\u00d710^11 to 4.87\u00d710^11) gal/min/ft^2 (gallons per minute per square foot)\n[Unit conversions] (3.47\u00d710^12 to 3.91\u00d710^12) ft^3/h/ft^2 (cubic feet per hour per square foot)",
+    "primary_result_pod": "(293000 to 331000) nm THz (nanometer terahertz)",
+    "extracted_value": 293000.0,
+    "extracted_units": "",
+    "elapsed_s": 2.068758726119995
+  },
+  {
+    "id": "em_intro_008",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.994016170501709
+  },
+  {
+    "id": "em_intro_009",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.447803497314453
+  },
+  {
+    "id": "em_intro_010",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 4.9454944133758545
+  },
+  {
+    "id": "em_intro_011",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 4.770770072937012
+  },
+  {
+    "id": "em_intro_012",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.802947282791138
+  },
+  {
+    "id": "em_intro_013",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.193603754043579
+  },
+  {
+    "id": "em_intro_014",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.287377595901489
+  },
+  {
+    "id": "em_intro_015",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.098612070083618
+  },
+  {
+    "id": "optics_001",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 7.597080945968628
+  },
+  {
+    "id": "optics_002",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 7.225424289703369
+  },
+  {
+    "id": "optics_003",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 9.962899208068848
+  },
+  {
+    "id": "optics_004",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.344458103179932
+  },
+  {
+    "id": "optics_005",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.181652545928955
+  },
+  {
+    "id": "optics_006",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.317382335662842
+  },
+  {
+    "id": "optics_007",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.663075685501099
+  },
+  {
+    "id": "optics_008",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] diamond (mineral) | refractive indices\n[Result] 2.418 | 0 | 0 | 0 | 0 | 0\n(the elements of the property list refer to \\!\\(\\*SubscriptBox[\\(n\\), \\(\u03b1\\)]\\), \\!\\(\\*SubscriptBox[\\(n\\), \\(\u03b2\\)]\\), \\!\\(\\*SubscriptBox[\\(n\\), \\(\u03b3\\)]\\), \\!\\(\\*SubscriptBox[\\(n\\), \\(\u03c9\\)]\\), \\!\\(\\*SubscriptBox[\\(n\\), \\(\u03f5\\)]\\), and n respectively)",
+    "primary_result_pod": "2.418 | 0 | 0 | 0 | 0 | 0\n(the elements of the property list refer to \\!\\(\\*SubscriptBox[\\(n\\), \\(\u03b1\\)]\\), \\!\\(\\*SubscriptBox[\\(n\\), \\(\u03b2\\)]\\), \\!\\(\\*SubscriptBox[\\(n\\), \\(\u03b3\\)]\\), \\!\\(\\*SubscriptBox[\\(n\\), \\(\u03c9\\)]\\), \\!\\(\\*SubscriptBox[\\(n\\), \\(\u03f5\\)]\\), and n respectively)",
+    "extracted_value": 2.418,
+    "extracted_units": "",
+    "elapsed_s": 0.9112720489501953
+  },
+  {
+    "id": "optics_009",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 20.11733603477478
+  },
+  {
+    "id": "optics_010",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 12.613627195358276
+  },
+  {
+    "id": "optics_011",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] air | sound speed | temperature | 20 \u00b0C (degrees Celsius)\npressure | 1 atm (atmosphere)\n[Unit conversions] 1236 km/h (kilometers per hour)\n[Unit conversions] 343.3 m/s (meters per second)\n[Unit conversions] 0.3433 km/s (kilometers per second)\n[Unit conversions] 20601 m/min (meters per minute)\n[Unit conversions] 29665 km/d (kilometers per day)\n[Comparisons as speed] \u2248 Mach speed ( 1 speed of sound )\n[Comparisons as speed] \u2248 speed of sound ( \u2248 340 m/s )\n[Comparisons as speed] \u2248 1.0004 \u00d7 speed of sound in dry air at 20 \u00b0C and 1 atmosphere pressure ( 343.21 m/s )\n[Corresponding quantities] Time to travel 1 meter from t = d/v:\n | 2.9 ms (milliseconds)\n[Corresponding quantities] Time to travel 1 kilometer from t = d/v:\n | 2.9 seconds\n[Corresponding quantities] Slowness from s = 1/v:\n | 2.9 s/km (seconds per kilometer)\n | 0.049 min/km (minutes per kilometer)\n[Corresponding quantities] Corresponding Mach number under standard conditions:\n | 1\n | (assuming speed of sound \u2248 340 m/s)",
+    "primary_result_pod": "[Input interpretation] air | sound speed | temperature | 20 \u00b0C (degrees Celsius)\npressure | 1 atm (atmosphere)\n[Unit conversions] 1236 km/h (kilometers per hour)\n[Unit conversions] 343.3 m/s (meters per second)\n[Unit conversions] 0.3433 km/s (kilometers per second)\n[Unit conversions] 20601 m/min (meters per minute)\n[Unit conversions] 29665 km/d (kilometers per day)\n[Comparisons as speed] \u2248 Mach speed ( 1 speed of sound )\n[Comparisons as speed] \u2248 speed of sound ( \u2248 340 m/s )\n[Comparisons as speed] \u2248 1.0004 \u00d7 speed of sound in dry air at 20 \u00b0C and 1 atmosphere pressure ( 343.21 m/s )\n[Corresponding quantities] Time to travel 1 meter from t = d/v:\n | 2.9 ms (milliseconds)\n[Corresponding quantities] Time to travel 1 kilometer from t = d/v:\n | 2.9 seconds\n[Corresponding quantities] Slowness from s = 1/v:\n | 2.9 s/km (seconds per kilometer)\n | 0.049 min/km (minutes per kilometer)\n[Corresponding quantities] Corresponding Mach number under standard conditions:\n | 1\n | (assuming speed of sound \u2248 340 m/s)",
+    "extracted_value": 1.0,
+    "extracted_units": "/v:",
+    "elapsed_s": 6.114048719406128
+  },
+  {
+    "id": "optics_012",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 16.202389240264893
+  },
+  {
+    "id": "thermo_001",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.830577850341797
+  },
+  {
+    "id": "thermo_002",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.483901262283325
+  },
+  {
+    "id": "thermo_003",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.0146074295043945
+  },
+  {
+    "id": "thermo_004",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.815345525741577
+  },
+  {
+    "id": "thermo_005",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.811091184616089
+  },
+  {
+    "id": "thermo_006",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 7.124145746231079
+  },
+  {
+    "id": "thermo_007",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.196713209152222
+  },
+  {
+    "id": "thermo_008",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] convert iron | melting point to degrees Celsius\n[Result] 1538 \u00b0C (degrees Celsius)\n[Additional conversions] 1811 K (kelvins)\n[Additional conversions] 2800 \u00b0F (degrees Fahrenheit)\n[Additional conversions] 3260 \u00b0R (degrees Rankine)\n[Additional conversions] 1230 \u00b0R\u00e9 (degrees R\u00e9aumur)\n[Additional conversions] 815 \u00b0R\u00f8 (degrees R\u00f8mer)\n[Comparisons as temperature] 130 \u00b0C below melting temperature of titanium (1668 \u00b0C)\n[Comparisons as temperature] 60 \u00b0C below temperature of a Bunsen burner flame (1870 K)\n[Comparisons as temperature] 140 \u00b0C above temperature in the blue part of a candle flame (1670 K)\n[Blackbody information] perceived color | \npeak wavelength | 1.6 \u03bcm (micrometers)\npeak frequency | 106.5 THz (terahertz)\n[Corresponding quantities] Thermodynamic energy E from E = kT:\n | 16 ceV (centielectronvolts)\n[Corresponding quantities] Blackbody energy flux \u03a6 from \u03a6 = \u03c3T^4:\n | 610000 W/m^2 (watts per square meter)\n[Corresponding quantities] Approximate luminous exitance from a planar blackbody radiator perpendicular to its surface:\n | 402000 lx (lux)",
+    "primary_result_pod": "1538 \u00b0C (degrees Celsius)",
+    "extracted_value": 1538.0,
+    "extracted_units": "",
+    "elapsed_s": 2.5326650142669678
+  },
+  {
+    "id": "thermo_009",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] convert water | freezing point to kelvins\n[Result] 273.2 K (kelvins)\n[Additional conversions] 0.2732 kK (kilokelvins)\n[Additional conversions] 2.732\u00d710^-4 MK (megakelvins)\n[Additional conversions] 0 \u00b0C (degrees Celsius)\n[Additional conversions] 32 \u00b0F (degrees Fahrenheit)\n[Additional conversions] 491.7 \u00b0R (degrees Rankine)\n[Comparisons as temperature] 15.56 K below temperature at standard temperature and pressure using the US customary convention (60 \u00b0F)\n[Comparisons as temperature] 15 K below temperature at standard temperature and pressure using the convention of European and South American natural gas companies (15 \u00b0C)\n[Comparisons as temperature] \u2248 temperature at standard temperature and pressure using the International Union of Pure and Applied Chemistry convention (0 \u00b0C)\n[Corresponding quantities] Thermodynamic energy E from E = kT:\n | 24 meV (millielectronvolts)\n[Corresponding quantities] Blackbody energy flux \u03a6 from \u03a6 = \u03c3T^4:\n | 316 W/m^2 (watts per square meter)\n[Corresponding quantities] Approximate luminous exitance from a planar blackbody radiator perpendicular to its surface:\n | 3.1\u00d710^-24 lx (lux)",
+    "primary_result_pod": "273.2 K (kelvins)",
+    "extracted_value": 273.2,
+    "extracted_units": "",
+    "elapsed_s": 1.7303509712219238
+  },
+  {
+    "id": "thermo_010",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] convert liquid elements (at STP) | boiling point | nitrogen | boiling point to degrees Celsius\n[Result] 208 \u00b0C (degrees Celsius) | -195.79 \u00b0C (degrees Celsius)",
+    "primary_result_pod": "208 \u00b0C (degrees Celsius) | -195.79 \u00b0C (degrees Celsius)",
+    "extracted_value": 208.0,
+    "extracted_units": "",
+    "elapsed_s": 1.0661487579345703
+  },
+  {
+    "id": "thermo_011",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] convert 100 \u00b0C (degrees Celsius) to kelvins\n[Result] 373.2 K (kelvins)\n[Additional conversions] 0.37315 kK (kilokelvins)\n[Additional conversions] 3.7315\u00d710^-4 MK (megakelvins)\n[Additional conversions] 212 \u00b0F (degrees Fahrenheit)\n[Additional conversions] 671.67 \u00b0R (degrees Rankine)\n[Additional conversions] 80 \u00b0R\u00e9 (degrees R\u00e9aumur)\n[Comparisons as temperature] 27 K below hottest temperature of a Concorde nose tip (127 \u00b0C)\n[Comparisons as temperature] 0.016 K above temperature at which water boils at standard pressure (99.9839 \u00b0C)\n[Comparisons as temperature] 80 K above conventional US room temperature (68 \u00b0F)\n[Interpretations] temperature\n[Basic unit dimensions] [temperature]\n[Corresponding quantities] Thermodynamic energy E from E = kT:\n | 32 meV (millielectronvolts)\n[Corresponding quantities] Blackbody energy flux \u03a6 from \u03a6 = \u03c3T^4:\n | 1099 W/m^2 (watts per square meter)\n[Corresponding quantities] Approximate luminous exitance from a planar blackbody radiator perpendicular to its surface:\n | 9.1\u00d710^-16 lx (lux)\n[Nearest corresponding gas marks] | temperature | usage\nstufe 1/2 | 212 \u00b0F | Germany\n(actual measurements may vary)",
+    "primary_result_pod": "373.2 K (kelvins)",
+    "extracted_value": 373.2,
+    "extracted_units": "",
+    "elapsed_s": 1.6674346923828125
+  },
+  {
+    "id": "thermo_012",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.170639991760254
+  },
+  {
+    "id": "modern_001",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.755059480667114
+  },
+  {
+    "id": "modern_002",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 7.175801753997803
+  },
+  {
+    "id": "modern_003",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.501951217651367
+  },
+  {
+    "id": "modern_004",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.0085999965667725
+  },
+  {
+    "id": "modern_005",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.191805362701416
+  },
+  {
+    "id": "modern_006",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.1753621101379395
+  },
+  {
+    "id": "modern_007",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 8.286870956420898
+  },
+  {
+    "id": "modern_008",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] convert 1 J (joule) to electronvolts\n[Result] 6.242\u00d710^18 eV (electronvolts)\n[Additional conversions] 6.242 EeV (exaelectronvolts)\n[Additional conversions] 6.242\u00d710^9 GeV (gigaelectronvolts)\n[Additional conversions] 1000 mJ (millijoules)\n[Additional conversions] 1\u00d710^7 ergs\n (unit officially deprecated)\n[Comparisons as energy] \u2248 30 \u00d7 estimated energy of most energetic neutrino ever detected (2025) ( \u2248 200 PeV )\n[Comparisons as energy] \u2248 100 \u00d7 acoustic energy contained in a whisper ( \u2248 0.01 J )\n[Interpretations] energy\n[Basic unit dimensions] [mass] [length]^2 [time]^(-2)\n[Corresponding quantities] Relativistic mass m from E = mc^2:\n | 11 fg (femtograms)\n | 1.1\u00d710^-17 kg (kilograms)\n[Corresponding quantities] Spectroscopic wavenumber for a photon from the Planck relation connecting spectroscopic wavenumber \u03bd^~ with energy E = hc\u03bd^~:\n | 5.034\u00d710^24 m^(-1) (reciprocal meters)\n[Corresponding quantities] Corresponding molar energy:\n | 6.022\u00d710^23 J/mol (joules per mole)",
+    "primary_result_pod": "6.242\u00d710^18 eV (electronvolts)",
+    "extracted_value": 6.242e+18,
+    "extracted_units": "eV (electronvolts)",
+    "elapsed_s": 1.459014654159546
+  },
+  {
+    "id": "modern_009",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.24504017829895
+  },
+  {
+    "id": "modern_010",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.974247694015503
+  },
+  {
+    "id": "modern_011",
+    "system": "wolfram",
+    "answer_text": "[Input information] velocity | 1\u00d710^7 m/s (meters per second)\n | e^- (electron) (mass): 510.9989461 keV/c^2\n[De Broglie relations] velocity | 1\u00d710^7 m/s (meters per second)\nmass | e^- (electron) (mass): 510.9989461 keV/c^2\n[De Broglie relations] wavelength | 72.73895159 pm (picometers)\n= 2.863738251\u00d710^-9 inches\n= 0.07273895159 nm (nanometers)\n(neglecting relativistic effects)\n[Relativistic de Broglie relations] velocity | 1\u00d710^7 m/s (meters per second)\nmass | e^- (electron) (mass): 510.9989461 keV/c^2\n[Relativistic de Broglie relations] wavelength | 72.69847383 pm (picometers)\n= 2.862144639\u00d710^-9 inches\n= 0.07269847383 nm (nanometers)",
+    "primary_result_pod": "[Input information] velocity | 1\u00d710^7 m/s (meters per second)\n | e^- (electron) (mass): 510.9989461 keV/c^2\n[De Broglie relations] velocity | 1\u00d710^7 m/s (meters per second)\nmass | e^- (electron) (mass): 510.9989461 keV/c^2\n[De Broglie relations] wavelength | 72.73895159 pm (picometers)\n= 2.863738251\u00d710^-9 inches\n= 0.07273895159 nm (nanometers)\n(neglecting relativistic effects)\n[Relativistic de Broglie relations] velocity | 1\u00d710^7 m/s (meters per second)\nmass | e^- (electron) (mass): 510.9989461 keV/c^2\n[Relativistic de Broglie relations] wavelength | 72.69847383 pm (picometers)\n= 2.862144639\u00d710^-9 inches\n= 0.07269847383 nm (nanometers)",
+    "extracted_value": 10000000.0,
+    "extracted_units": "m/s (meters per second)",
+    "elapsed_s": 2.097017288208008
+  },
+  {
+    "id": "modern_012",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 16.177406787872314
+  },
+  {
+    "id": "qm_001",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.429022789001465
+  },
+  {
+    "id": "qm_002",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.509363889694214
+  },
+  {
+    "id": "qm_003",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] helium | first ionization energy\n[Result] 2372.3 kJ/mol (kilojoules per mole)\n[Unit conversions] 2.3723 MJ/mol (megajoules per mole)\n[Unit conversions] 2.3723\u00d710^6 J/mol (joules per mole)\n[Unit conversions] 566.99 kcal/mol (thermochemical kilocalories per mole)\n[Unit conversions] 24.587 eV (molar electronvolts)\n[Comparisons as molar ionization energy] \u2248 1.0001 \u00d7 molar energy required to remove the first electron from helium ( 2372 kJ/mol )\n[Comparisons as molar ionization energy] \u2248 6.3 \u00d7 molar energy required to remove the first electron from cesium ( 377 kJ/mol )",
+    "primary_result_pod": "2372.3 kJ/mol (kilojoules per mole)",
+    "extracted_value": 2372.3,
+    "extracted_units": "",
+    "elapsed_s": 2.025336503982544
+  },
+  {
+    "id": "qm_004",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.818254709243774
+  },
+  {
+    "id": "qm_005",
+    "system": "wolfram",
+    "answer_text": "[Input information] 1 keV (kiloelectronvolt)\ne^- (electron) (mass): 510.9989461 keV/c^2\n[De Broglie relations] kinetic energy | 1 keV (kiloelectronvolt)\nmass | e^- (electron) (mass): 510.9989461 keV/c^2\n[De Broglie relations] wavelength | 38.78299449 pm (picometers)\n= 1.526889547\u00d710^-9 inches\n= 0.03878299449 nm (nanometers)\n[Relativistic de Broglie relations] kinetic energy | 1 keV (kiloelectronvolt)\nmass | e^- (electron) (mass): 510.9989461 keV/c^2\n[Relativistic de Broglie relations] wavelength | 38.7640343 pm (picometers)\n= 1.526143083\u00d710^-9 inches\n= 0.0387640343 nm (nanometers)",
+    "primary_result_pod": "[Input information] 1 keV (kiloelectronvolt)\ne^- (electron) (mass): 510.9989461 keV/c^2\n[De Broglie relations] kinetic energy | 1 keV (kiloelectronvolt)\nmass | e^- (electron) (mass): 510.9989461 keV/c^2\n[De Broglie relations] wavelength | 38.78299449 pm (picometers)\n= 1.526889547\u00d710^-9 inches\n= 0.03878299449 nm (nanometers)\n[Relativistic de Broglie relations] kinetic energy | 1 keV (kiloelectronvolt)\nmass | e^- (electron) (mass): 510.9989461 keV/c^2\n[Relativistic de Broglie relations] wavelength | 38.7640343 pm (picometers)\n= 1.526143083\u00d710^-9 inches\n= 0.0387640343 nm (nanometers)",
+    "extracted_value": 1.526889547e-09,
+    "extracted_units": "inches",
+    "elapsed_s": 1.5661735534667969
+  },
+  {
+    "id": "qm_006",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.350975751876831
+  },
+  {
+    "id": "qm_007",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.659349203109741
+  },
+  {
+    "id": "qm_008",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] sodium | first ionization energy",
+    "primary_result_pod": "[Input interpretation] sodium | first ionization energy",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.798641204833984
+  },
+  {
+    "id": "qm_009",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.3903114795684814
+  },
+  {
+    "id": "qm_010",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] carbon | first ionization energy\n[Result] 11.261 eV (molar electronvolts)\n[Unit conversions] 1.0865 MJ/mol (megajoules per mole)\n[Unit conversions] 1.0865\u00d710^6 J/mol (joules per mole)\n[Unit conversions] 259.68 kcal/mol (thermochemical kilocalories per mole)\n[Unit conversions] 11.261 eV (molar electronvolts)\n[Comparisons as molar ionization energy] \u2248 0.46 \u00d7 molar energy required to remove the first electron from helium ( 2372 kJ/mol )\n[Comparisons as molar ionization energy] \u2248 2.9 \u00d7 molar energy required to remove the first electron from cesium ( 377 kJ/mol )",
+    "primary_result_pod": "11.261 eV (molar electronvolts)",
+    "extracted_value": 11.261,
+    "extracted_units": "",
+    "elapsed_s": 2.7209200859069824
+  },
+  {
+    "id": "qm_011",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 16.16744828224182
+  },
+  {
+    "id": "qm_012",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.467898368835449
+  },
+  {
+    "id": "mech_adv_001",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.522623300552368
+  },
+  {
+    "id": "mech_adv_002",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.702758312225342
+  },
+  {
+    "id": "mech_adv_003",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] Sun | escape velocity\n[Result] 1.3814\u00d710^6 mph (miles per hour)\n[Unit conversions] 617.54 km/s (kilometers per second)\n[Unit conversions] 617540 m/s (meters per second)\n[Unit conversions] 383.72 mi/s (miles per second)\n[Unit conversions] 0.0020599 c (speed of light)\n[Comparisons as speed] \u2248 0.56 \u00d7 Rydberg speed ( 1.09384563\u00d710^6 m/s )\n[Comparisons as speed] \u2248 (1 to 1.2) \u00d7 escape velocity from the Milky Way ( 494 to 596 km/s )\n[Comparisons as speed] \u2248 1.4 \u00d7 typical speed of the solar wind ( \u2248 450000 m/s )\n[Corresponding quantities] Time to travel 1 meter from t = d/v:\n | 1.6 \u03bcs (microseconds)\n[Corresponding quantities] Time to travel 1 kilometer from t = d/v:\n | 1.6 ms (milliseconds)\n[Corresponding quantities] Slowness from s = 1/v:\n | 1.6\u00d710^-6 s/m (seconds per meter)",
+    "primary_result_pod": "1.3814\u00d710^6 mph (miles per hour)",
+    "extracted_value": 1381400.0,
+    "extracted_units": "mph (miles per hour)",
+    "elapsed_s": 2.271111488342285
+  },
+  {
+    "id": "mech_adv_004",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] Sun (star)\nEarth (planet) | travel time along a straight line | at c (speed of light)\n[Current result] 8.41 minutes\n[Unit conversions] 8 minutes 24.6 seconds\n[Unit conversions] 504.6 seconds\n[Corresponding quantities] Distance x traveled by light in a vacuum from x = ct:\n | 94 million miles\n | 1.513\u00d710^8 km (kilometers)\n | 1 au (astronomical unit)\n | 1.513\u00d710^11 meters\n[Corresponding quantities] Frequency \u03bd from \u03bd = 1/T:\n | 0.002 Hz (hertz)",
+    "primary_result_pod": "8.41 minutes",
+    "extracted_value": 8.41,
+    "extracted_units": "",
+    "elapsed_s": 2.313551664352417
+  },
+  {
+    "id": "mech_adv_005",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] Mars | gravity\n[Result] 12.2 ft/s^2 (feet per second squared)\n[Unit conversions] 146 in/s^2 (inches per second squared)\n[Unit conversions] 8.3 mi/h/s (miles per hour per second)\n[Unit conversions] 3.71 m/s^2 (meters per second squared)\n[Unit conversions] 371 cm/s^2 (centimeters per second squared)\n[Unit conversions] 13.4 km/h/s (kilometers per hour per second)\n[Comparisons as acceleration] \u2248 0.98 \u00d7 acceleration from 0 to 60 mph of a 2001 Jaguar XK8 ( \u2248 3.8 m/s^2 )\n[Comparisons as acceleration] \u2248 maximum acceleration during the launch of a Saturn V rocket ( \u2248 3.7 m/s^2 )\n[Comparisons as acceleration] \u2248 1.2 \u00d7 average acceleration of Usain Bolt in the 100-meter dash ( \u2248 3.07 m/s^2 )\n[Comparisons as gravitational acceleration] \u2248 ( 0.15 \u2248 1/7 ) \u00d7 gravitational acceleration at the 1 atmosphere level of Jupiter ( 24.79 m/s^2 )\n[Comparisons as gravitational acceleration] \u2248 0.42 \u00d7 gravitational acceleration on the surface of Venus ( \u2248 8.87 m/s^2 )\n[Comparisons as gravitational acceleration] \u2248 2.3 \u00d7 gravitational acceleration on the surface of the moon ( 1.624 m/s^2 )",
+    "primary_result_pod": "12.2 ft/s^2 (feet per second squared)",
+    "extracted_value": 12.2,
+    "extracted_units": "",
+    "elapsed_s": 1.7573487758636475
+  },
+  {
+    "id": "mech_adv_006",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 9.260508060455322
+  },
+  {
+    "id": "mech_adv_007",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] Jupiter | escape velocity\n[Result] 134700 mph (miles per hour)\n[Unit conversions] 60.2 km/s (kilometers per second)\n[Unit conversions] 60200 m/s (meters per second)\n[Unit conversions] 37.41 mi/s (miles per second)\n[Unit conversions] 2.008\u00d710^-4 c (speed of light)\n[Comparisons as speed] \u2248 0.31 \u00d7 maximum speed of the Parker solar probe with respect to the sun ( \u2248 690000 km/h )\n[Comparisons as speed] \u2248 0.86 \u00d7 maximum speed of the Helios 2 solar probe with respect to the sun ( 252792 km/h )\n[Comparisons as speed] \u2248 (0.6 to 1.2) \u00d7 surface rotation speed of a typical pulsar ( 46.98 to 93.97 km/s )\n[Corresponding quantities] Time to travel 1 meter from t = d/v:\n | 17 \u03bcs (microseconds)\n[Corresponding quantities] Time to travel 1 kilometer from t = d/v:\n | 17 ms (milliseconds)\n[Corresponding quantities] Slowness from s = 1/v:\n | 0.017 s/km (seconds per kilometer)",
+    "primary_result_pod": "134700 mph (miles per hour)",
+    "extracted_value": 134700.0,
+    "extracted_units": "",
+    "elapsed_s": 1.6673192977905273
+  },
+  {
+    "id": "mech_adv_008",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] Moon | orbit circumference\u00d7384000 km (kilometers) Moon | average orbit velocity Moon | equatorial circumference Earth | average orbit velocity\n[Result] 3.68\u00d710^23 mi^5/h^2 (miles to the fifth per hour squared)\n[Unit conversion] 3.067\u00d710^32 m^5/s^2 (meters to the fifth per second squared)",
+    "primary_result_pod": "3.68\u00d710^23 mi^5/h^2 (miles to the fifth per hour squared)",
+    "extracted_value": 3.6799999999999997e+23,
+    "extracted_units": "mi^",
+    "elapsed_s": 2.7788877487182617
+  },
+  {
+    "id": "mech_adv_009",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.695664644241333
+  },
+  {
+    "id": "mech_adv_010",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.603601694107056
+  },
+  {
+    "id": "em_adv_001",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.671862602233887
+  },
+  {
+    "id": "em_adv_002",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.670389890670776
+  }
+]
