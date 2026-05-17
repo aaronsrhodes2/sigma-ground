@@ -214,16 +214,25 @@ async def _run_one_question(session, ollama_url: str, model: str,
                 # OR signalled "let me calculate" but stopped. Nudge it.
                 if val is None and "ANSWER:" not in final.upper() \
                        and nudges_sent < max_nudges:
+                    # IMPORTANT: re-state the original question in the
+                    # nudge. Without it, Qwen sometimes treats the
+                    # nudge as a fresh conversation and replies "OK,
+                    # please ask your question" -- forgetting the
+                    # actual question entirely.
                     nudge = (
-                        "STOP. You are not a physics expert -- you are "
-                        "a switchboard between the user and the "
-                        "sigma-ground library. Do not write prose "
-                        "about formulas; CALL THE TOOL. Pick the tool "
-                        "from the TOOL INDEX that matches the question "
-                        "and call it now. If no tool fits, produce the "
-                        "ANSWER: line with the '[SOURCE: Fitted due to "
-                        "incompetence ...]' tag. Respond with EITHER a "
-                        "tool call OR an ANSWER: line -- nothing else."
+                        "STOP. You are a switchboard, not a physics "
+                        "expert. You did not call a tool and did not "
+                        "produce an ANSWER: line. The user's question "
+                        "is still:\n\n"
+                        f"    {question}\n\n"
+                        "Call the appropriate tool from the TOOL INDEX "
+                        "with the correct parameter names. If truly no "
+                        "tool fits, produce the ANSWER: line with the "
+                        "'[SOURCE: Fitted due to incompetence ...]' "
+                        "tag. Respond with EITHER a tool call OR an "
+                        "ANSWER: line. Do not reply with prose, do not "
+                        "ask for clarification, do not acknowledge "
+                        "this message."
                     )
                     messages.append({"role": "user", "content": nudge})
                     nudges_sent += 1
