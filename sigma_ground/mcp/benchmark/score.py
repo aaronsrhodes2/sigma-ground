@@ -82,13 +82,57 @@ def _try_unit_convert(value: float, from_units: str, to_units: str
 
     Both units are cleaned first (parenthetical aliases stripped).
     Returns the input unchanged if the units match case-insensitively.
+
+    Special case: pint treats radians as dimensionless, so it converts
+    'rad/s' -> 'Hz' as a no-op. For physics we want the 2pi factor
+    (omega = 2 pi f). Same for Hz -> rad/s in reverse.
     """
+    import math
     fu = _clean_units(from_units)
     tu = _clean_units(to_units)
     if not fu or not tu:
         return None
-    if fu.lower() == tu.lower():
+    fu_low = fu.lower().replace(" ", "")
+    tu_low = tu.lower().replace(" ", "")
+    if fu_low == tu_low:
         return value
+
+    # Special case: angular freq (rad/s) <-> ordinary freq (Hz).
+    # Pint treats radians as dimensionless, so without this it would
+    # convert rad/s -> Hz as a no-op. Physics wants omega = 2pi f.
+    rad_per_s = {"rad/s", "radian/s", "rad·s^-1", "rad*s^-1", "rad s^-1"}
+    hz_set = {"hz", "hertz", "s^-1", "1/s", "cycle/s", "cycles/s"}
+    if fu_low in rad_per_s and tu_low in hz_set:
+        return value / (2.0 * math.pi)
+    if fu_low in hz_set and tu_low in rad_per_s:
+        return value * (2.0 * math.pi)
+
+    # Special case: bare 'C' / 'F' for temperature. Pint defaults to
+    # Coulomb / Farad respectively. Rewrite to degC / degF when the
+    # other side is a temperature unit.
+    temperature_units = {"k", "kelvin", "celsius", "degc", "degree_celsius",
+                            "fahrenheit", "degf", "degree_fahrenheit",
+                            "rankine", "degr"}
+    def _temp_alias(u: str) -> str:
+        if u == "c":
+            return "degC"
+        if u == "f":
+            return "degF"
+        if u == "celsius":
+            return "degC"
+        if u == "fahrenheit":
+            return "degF"
+        return u
+    if fu_low in temperature_units or tu_low in temperature_units:
+        fu_use = _temp_alias(fu_low) if fu_low in {"c", "f", "celsius", "fahrenheit"} else fu
+        tu_use = _temp_alias(tu_low) if tu_low in {"c", "f", "celsius", "fahrenheit"} else tu
+        try:
+            import pint
+            ureg = pint.UnitRegistry()
+            return ureg.Quantity(value, fu_use).to(tu_use).magnitude
+        except Exception:
+            return None
+
     try:
         import pint
         ureg = pint.UnitRegistry()
