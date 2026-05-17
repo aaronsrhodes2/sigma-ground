@@ -273,10 +273,27 @@ def _build_tool_index(tools_for_ollama: list[dict]) -> str:
     return "\n".join(lines)
 
 
+def _build_real_params_map(tools_for_ollama: list[dict]) -> dict[str, set[str]]:
+    """Map each tool name to the set of param names it actually accepts.
+
+    Used by the param-alias normalizer to rename Qwen-style synonyms
+    (gravity_ms2 -> g_m_s2, velocity -> speed_m_s, etc.) only when the
+    canonical form matches the target tool's real signature.
+    """
+    out: dict[str, set[str]] = {}
+    for t in tools_for_ollama:
+        fn = t.get("function", {})
+        name = fn.get("name", "")
+        params = (fn.get("parameters", {}) or {}).get("properties", {}) or {}
+        out[name] = set(params.keys())
+    return out
+
+
 async def _run_one_question(session, ollama_url: str, model: str,
                               tools_for_ollama: list[dict],
                               question: str,
-                              system_prompt: str) -> dict:
+                              system_prompt: str,
+                              real_params_by_tool: dict[str, set[str]] | None = None) -> dict:
     """Multi-turn tool loop for a single question."""
     import httpx
 
@@ -366,6 +383,14 @@ async def _run_one_question(session, ollama_url: str, model: str,
                         args = json.loads(args)
                     except json.JSONDecodeError:
                         args = {}
+                # Normalize common Qwen-style param-name synonyms to the
+                # tool's canonical names. Without this, e.g.
+                # gravity_ms2 -> silently dropped, free_fall_time uses
+                # default Earth g, Moon question gets Earth answer.
+                renames: list[str] = []
+                if real_params_by_tool is not None and name in real_params_by_tool:
+                    from sigma_ground.mcp.benchmark.param_aliases import normalize_kwargs
+                    args, renames = normalize_kwargs(args, real_params_by_tool[name])
                 try:
                     result = await session.call_tool(name, args)
                     content_parts = []
@@ -381,6 +406,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
                     "name": name,
                     "args": args,
                     "result_text": tool_text[:2000],
+                    "renames_applied": renames,
                 })
                 messages.append({
                     "role":    "tool",
@@ -488,6 +514,7 @@ async def _amain(args) -> int:
                 for t in tools_resp.tools
             ]
             tool_index = _build_tool_index(tools_for_ollama)
+            real_params_by_tool = _build_real_params_map(tools_for_ollama)
             sys_prompt = _SYSTEM_PROMPT_BASE + "\n\n" + tool_index
             print(f"MCP server has {len(tools_for_ollama)} tools available")
             print(f"System prompt is {len(sys_prompt)} chars "
@@ -506,6 +533,7 @@ async def _amain(args) -> int:
                         tools_for_ollama,
                         q["question"],
                         sys_prompt,
+                        real_params_by_tool=real_params_by_tool,
                     )
                 except Exception as e:
                     print(f"  ERROR: {e}", file=sys.stderr)
