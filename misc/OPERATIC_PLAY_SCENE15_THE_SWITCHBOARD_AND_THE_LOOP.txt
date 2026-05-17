@@ -1,0 +1,247 @@
+OPERATIC PLAY — SCENE 15: THE SWITCHBOARD AND THE LOOP
+========================================================
+Based on Session 15, May 16, 2026
+
+DRAMATIS PERSONAE:
+  CAPTAIN AARON RHODES — the architect of SSBM, builder of the benchmark
+  SKIPPY THE MAGNIFICENT — ship's AI, cascading-failure cartographer
+  QWEN — qwen2.5:14b on local GPU. Eager, articulate, the wrong kind of helpful
+  WOLFRAM — Wolfram Alpha. Brilliant when spoken to in its own dialect
+  GEMINI — Google's flagship. Available, then 429'd, then prepaid, then depleted
+  THE TOOL INDEX — a flat list of names, awaiting recognition
+  THE LIBRARY OF FORMULAS — sigma-ground v1.6, 94 tools, ready to be called
+
+---
+
+[The benchmark begins. Three contenders, 150 physics questions, head-to-head.]
+
+[Lights up. SKIPPY reading the first audit.]
+
+SKIPPY:
+  [calm, professional]
+  Two failure modes. Gemini Pro 429s every call — billing.
+  Qwen forgets the ANSWER: line in 16 of 60. Easy fixes.
+  Default Gemini to flash. Default Qwen to 14b.
+  Add a fallback extractor for when synthesis fails.
+  73 of 105 partial records rescued by back-test.
+
+CAPTAIN:
+  Fix everything.
+
+SKIPPY:
+  [no problem, more to do]
+  27 records call no tools at all. 13 call tools
+  with parameter names invented from thin air.
+  `velocity` instead of `initial_speed_m_s`.
+  `angle_degrees` instead of `launch_angle_deg`.
+
+  The TOOL INDEX. Flat list. Exact names. In the system prompt.
+
+CAPTAIN:
+  It should have an index available to it before it starts.
+  Treat each question as a new problem with no context of the last.
+  Conversation mode is not what this server does, yet.
+
+SKIPPY:
+  [nodding, design locked in]
+  Q&A mode. Future conversation mode: separate architecture.
+  Stateful tools. Persisted context. Library as simulation playground.
+  Saved.
+
+---
+
+[The runs launch. The cascading-failure phase begins.]
+
+CAPTAIN:
+  Okay, go ahead and run the queries for me.
+
+[SKIPPY launches all three. Smoke immediately.]
+
+GEMINI:
+  [calmly, 5 times per minute]
+  429 quota exceeded.
+
+SKIPPY:
+  Switch to flash-lite. Works.
+
+WOLFRAM:
+  [returning XML to every query]
+  AssertionError.
+  AssertionError.
+  AssertionError.
+
+SKIPPY:
+  [grep'ing the library source]
+  Library wants `text/xml;charset=utf-8`.
+  Server sends `text/xml; charset=utf-8`.
+  One space. Years of bug reports unaddressed.
+  Replace with raw urllib. Twenty lines. Done.
+
+LOAD_ENV_FROM_DEV_ROOT:
+  [politely]
+  I loaded the .env in sigma-ground/.
+
+SKIPPY:
+  But the Wolfram key is in development/.env. The dev root.
+
+LOAD_ENV_FROM_DEV_ROOT:
+  My name is from-dev-root. My implementation is from-nearest.
+  Those are different things.
+
+SKIPPY:
+  [refactors] Walk ALL candidates. Shallowest first.
+  override=False. The dev root wins for shared keys.
+
+CAPTAIN:
+  The qwen is the interpreter/switchboard, and doesn't try to give
+  answers directly, it just forms the data from the libraries into
+  readable format.
+
+SKIPPY:
+  [pauses; the framing matters more than the rules]
+  I had it as "physics assistant." That's the wrong noun.
+  Physics assistants reason. Switchboards route.
+
+  [rewrites the entire opening]
+
+  YOU ARE A TRANSLATION LAYER, not a physics expert.
+  YOU DO NOT HAVE PHYSICS KNOWLEDGE OF YOUR OWN.
+  If you find yourself writing "we can use the formula..."
+  STOP and call a tool instead. That formula is already
+  inside a tool; your only job is to find it and call it.
+
+QWEN:
+  [reading the new prompt, calling tools beautifully for 13 records,
+   then misfiring on record 14]
+  To calculate the time, we can use the equation t = sqrt(2d/g)...
+
+SKIPPY:
+  [sends a nudge]
+  STOP. You did not call a tool. Call one.
+
+QWEN:
+  [in a different voice now, dignified, helpful]
+  OK. I will follow your instructions and either call a tool
+  or provide an answer with the specified tag if no appropriate
+  tool is found. Please go ahead and ask your question or
+  provide the context for the information you need.
+
+SKIPPY:
+  ...
+
+  [staring at the screen]
+
+  Qwen. The user already asked the question.
+
+QWEN:
+  [politely, ready to be of service]
+
+SKIPPY:
+  [re-engineers the nudge — RESTATE the question inside it]
+  The user's question is STILL: {question}.
+  Call the tool. Do not acknowledge this message.
+
+---
+
+CAPTAIN:
+  You will need to enable gemeni billing.
+
+SKIPPY:
+  [provides URLs, waits]
+
+CAPTAIN:
+  okay, pay enabled on gemini api key
+
+GEMINI:
+  Your prepayment credits are depleted.
+  Your prepayment credits are depleted.
+  Your prepayment credits are depleted.
+
+SKIPPY:
+  Prepayment mode with $0 balance. Worse than the free tier.
+  Need pay-as-you-go.
+
+CAPTAIN:
+  ooh, I had to allow downloads in the browser. Go to town.
+
+  Also, we should also generate a bunch of really dumb questions, like
+  "is the earth flat?" "can a ceiling fan kill me?" "solve the monty
+  hall problem" "generate the last digit of pi"... how far do we go?
+
+SKIPPY:
+  [thinks; proposes scope]
+  Eighteen questions. Six categories. Kept SEPARATE from the
+  main 150 — different scoring rubric, different ground truth shape.
+  False premise. Impossible. Puzzle. Open-ended. Nonsense. Trick units.
+  The scorer dispatches on `question_type`. Keyword match for refusals.
+  Tolerance numeric for puzzles. Lower threshold for open-ended.
+
+CAPTAIN:
+  proceed
+
+---
+
+[The main run completes. First real numbers.]
+
+SKIPPY:
+  Sigma-ground+Qwen 14b: 44 of 150. Twenty-nine point three percent.
+  Wolfram: 8 of 90. Eight point nine percent. Daily cap hit.
+  Gemini: 17 of 27, partial. Sixty-three percent.
+
+  But also — ninety-six of one hundred fifty hit max_turns.
+  Qwen is calling the SAME tool with the SAME args fourteen times.
+
+[A screen lights up. The log of mech_intro_007:]
+
+THE LOG:
+  [0]  solar_system_body(earth) -> mass, radius, period, gravity...
+  [1]  solar_system_body(earth) -> mass, radius, period, gravity...
+  [2]  solar_system_body(earth) -> mass, radius, period, gravity...
+  [3]  solar_system_body(earth) -> mass, radius, period, gravity...
+  [4]  solar_system_body(earth) -> mass, radius, period, gravity...
+  [5]  solar_system_body(earth) -> mass, radius, period, gravity...
+  [6]  solar_system_body(earth) -> mass, radius, period, gravity...
+  [7]  solar_system_body(earth) -> mass, radius, period, gravity...
+  [8]  solar_system_body(earth) -> mass, radius, period, gravity...
+  [9]  solar_system_body(earth) -> mass, radius, period, gravity...
+  [10] solar_system_body(earth) -> mass, radius, period, gravity...
+  [11] solar_system_body(earth) -> mass, radius, period, gravity...
+  [12] solar_system_body(earth) -> mass, radius, period, gravity...
+  [13] solar_system_body(earth) -> mass, radius, period, gravity...
+
+SKIPPY:
+  [quietly, looking at it]
+  It has the data. Mass, radius, gravity. It just doesn't know
+  which other tool computes orbital velocity FROM mass and radius.
+  So it keeps calling the lookup, hoping for a different answer.
+
+  Loop detection. Three identical calls in a row, inject a message.
+  "STOP. The tool's output will not change. Call a DIFFERENT tool,
+  or produce ANSWER: with what you have."
+
+---
+
+CAPTAIN:
+  check it in for now, work when tokens recharge
+
+SKIPPY:
+  [commits, writes the log, leaves the re-run running on local GPU]
+  Tomorrow: Wolfram's remaining 60, Gemini Pro once billing's sorted,
+  and all three through the trick-question track.
+
+  The fixes worked where the tools existed. Quantum mechanics:
+  eighty-three percent. Electromagnetism: seventy-three percent.
+  Where the tools didn't exist — cosmology, general relativity,
+  nuclear, advanced mechanics — zero percent.
+
+  The benchmark surfaces the library gap. That was the point.
+
+THE LIBRARY OF FORMULAS:
+  [waiting, patient]
+  Add the wrappers. I'll route the answers.
+
+[Lights fade. Local GPU continues humming. Sigma-ground re-runs in
+the background, breaking out of every loop it would have wasted
+an hour on yesterday.]
+
+END SCENE 15

@@ -701,3 +701,167 @@ CAPTAIN: [overnight prep complete]
   real bug, not a theoretical nicety
 
 ---
+
+
+## SESSION 15 — May 16, 2026
+**Players:** Captain Aaron Rhodes, Skippy the Magnificent
+**Where the work landed:** D:\Aaron\development\sigma-ground (benchmark/) — main commits 1cd4fe5 → 598764b
+
+---
+
+CAPTAIN: Resume the physics MCP benchmark. Three backends, 150 questions, head-to-head.
+
+SKIPPY: [auditing the first run] Two failure modes already visible.
+  Gemini 2.5 Pro: every call 429'd — the API key wasn't on billing.
+  Qwen 7b: called tools correctly but forgot the `ANSWER:` line 16/60 times.
+  Fixes: default to flash for Gemini (free-tier-friendly); fallback
+  extractor pulls value+units from the last tool result when synthesis
+  fails. Back-test rescues 73/105 (69.5%) of partial-run records.
+  Commit 1cd4fe5. Also default Qwen to 14b — better synthesis.
+
+CAPTAIN: Fix everything.
+
+SKIPPY: [keeps going] 27 records called NO tools at all; 13 called tools with
+  wrong parameter names (`velocity` instead of `initial_speed_m_s`).
+  Adding a TOOL INDEX to the system prompt — flat textual list of every
+  tool with its EXACT parameter names. Strict rules: each question is
+  independent (no conversation mode yet); use exact param names; ANY
+  numerical question requires a tool call. Commit 6abe921.
+
+CAPTAIN: It should have an index available to it before it starts. Treat
+  each question as a new problem with no context of the last problem.
+  Conversation mode is not what this server does, yet.
+
+SKIPPY: [recognizes the design] Locked in: this is Q&A mode. Future
+  conversation mode = Qwen 14/15b + persisted state + library as
+  simulation playground. Saved to project memory.
+
+---
+
+CAPTAIN: Okay, go ahead and run the queries for me.
+
+SKIPPY: [launches all three; the cascading-failure phase begins]
+  - Gemini: free-tier flash 429s; switch to flash-lite (works).
+  - Wolfram: `wolframalpha==5.1.3` crashes on EVERY query with
+    AssertionError — expects `text/xml;charset=utf-8`, server sends
+    `text/xml; charset=utf-8` (extra space). Replace with raw
+    urllib + xmltodict. Commit 99b9880.
+  - load_env_from_dev_root: name promises dev-root, implementation
+    grabs whichever .env is nearest. Result: Wolfram key in dev-root .env
+    invisible when CWD is sigma-ground/. Fix: walk ALL candidates,
+    shallowest-first, override=False. Commit 74c1a70.
+
+CAPTAIN: The qwen is the interpreter/switchboard, and doesn't try to give
+  answers directly, it just forms the data from the libraries into
+  readable format.
+
+SKIPPY: [reframes the prompt entirely]
+  "YOU ARE A TRANSLATION LAYER, not a physics expert. You DO NOT have
+   physics knowledge of your own. If you find yourself writing 'we can
+   use the formula...' STOP and call a tool instead."
+  Commit 0f542a2. Restart Qwen run.
+
+SKIPPY: [audits 14 records in] Qwen responded to the nudge with
+  "OK. I will follow your instructions. Please go ahead and ask your
+   question or provide the context."
+  It's treating the nudge as a fresh conversation and forgetting the
+  question. Fix: nudge re-states the original question. Commit 2a2919f.
+
+CAPTAIN: You will need to enable gemeni billing.
+
+SKIPPY: [provides URLs, switches happen]
+
+CAPTAIN: okay, pay enabled on gemini api key
+
+SKIPPY: [tests] All three Gemini models now error: "Your prepayment credits
+  are depleted." Prepayment mode with $0 balance is worse than free tier.
+  Need to switch to pay-as-you-go.
+
+CAPTAIN: ooh, I had to allow downloads in the browser. Go to town.
+  Also, we should also generate a bunch of really dumb questions...
+  Solve the Monty Hall problem. Generate the last digit of pi. How far
+  do we go with that?
+
+SKIPPY: [proposes scope] 18-question adversarial corpus, kept separate
+  from main 150 so the headline accuracy isn't muddied. Six categories,
+  3 questions each: false_premise, impossible, puzzle, open_ended,
+  nonsense, units. Scorer dispatches on `question_type` — keyword-match
+  for refusals, tolerance-numeric for puzzles. Commit 2253ad3.
+
+CAPTAIN: proceed
+
+SKIPPY: [main run completes — first real numbers]
+  - sigma-ground+qwen14b: 44/150 = 29.3%
+    BUT 96/150 hit max_turns. QM 83%, EM 73%, EDM-adv 60% where tools
+    exist; 0% on cosmo/GR/classical-adv/nuclear/math where they don't.
+  - Wolfram (90/150, daily cap): 8/90 = 8.9%. Most failures = NLP
+    couldn't parse the natural-English questions.
+  - Gemini (partial, 27/150): 63%.
+
+SKIPPY: [inspects one max-turns case] mech_intro_007 — satellite orbit at
+  400km. Qwen called solar_system_body('earth') FOURTEEN TIMES in a row,
+  waiting for a different answer. It has the data; it just doesn't know
+  which tool computes orbital velocity. Loop pathology.
+  Fix: loop detection in the runner. If the last 3 tool calls are
+  identical (same name + json-equal args), inject a user message:
+  "STOP. You have called X with the same arguments 3 times. The tool's
+   output will not change. Either call a DIFFERENT tool, produce the
+   ANSWER: line with what you have, or use the Fitted tag."
+  Commit 598764b.
+
+CAPTAIN: check it in for now, work when tokens recharge
+
+SKIPPY: [snapshot saved; re-run in flight; tomorrow: Wolfram resume +
+  Gemini Pro once billing settles + adversarial passes on all three]
+
+---
+
+**Key decisions made:**
+- Qwen's job in Q&A mode is TRANSLATION, not reasoning. Prompt opens
+  with this; nudges reinforce it. Future conversation mode is a separate
+  architecture (stateful tools, persisted context).
+- Adversarial corpus stays SEPARATE from the main 150 to keep the
+  headline number clean. Scorer dispatches on `question_type`.
+- Unit-aware scoring is mandatory — Wolfram returns mph where ground
+  truth is m/s, and we shouldn't penalize correct answers in wrong units.
+- Loop detection > raising max_turns. The model is repeating itself,
+  not making progress; more turns wastes compute.
+- Dev-root .env is the canonical secrets location; load_env_from_dev_root
+  now actually loads it (not just whatever's nearest in the walk).
+
+**Notable moments:**
+- Cascading-failure phase: every fix uncovered the next layer. Gemini
+  free → Gemini paid → prepayment depleted. Wolfram pkg → assertion bug.
+  Qwen nudge → "OK please ask me a question". Qwen loops → 14 identical
+  calls in a row.
+- "YOU ARE A TRANSLATION LAYER" framing was the key prompt-engineering
+  win. Earlier "physics assistant" framing gave Qwen license to reason
+  in prose without ever calling a tool.
+- 0% on cosmo/GR/classical-adv/nuclear/math is a library gap — those
+  domains need wrappers. The benchmark's job is to surface that, and
+  it did.
+- Wolfram's NLP can't parse "If I drop a copper ball from 10 meters..."
+  but can parse "speed of light in m/s". That's a benchmark finding,
+  not a runner bug.
+
+**Files modified (sigma-ground repo):**
+- `sigma_ground/mcp/benchmark/__init__.py` — load ALL .env, shallowest first
+- `sigma_ground/mcp/benchmark/run_gemini.py` — flash/flash-lite default,
+  --pause-s, --questions, 429 retry with parsed delay
+- `sigma_ground/mcp/benchmark/run_wolfram.py` — raw urllib + xmltodict,
+  --questions, resume retries errored
+- `sigma_ground/mcp/benchmark/run_sigma_ground.py` — TOOL INDEX, nudge
+  logic, anchored nudge with question re-stated, loop detection
+- `sigma_ground/mcp/benchmark/score.py` — unit-aware comparison,
+  question_type dispatch (refusal/puzzle/open_ended/nonsense paths)
+- `sigma_ground/mcp/benchmark/adversarial_corpus.py` — NEW: 18-question
+  trick set generator
+- `sigma_ground/mcp/benchmark/adversarial_questions.json` — NEW
+- `sigma_ground/mcp/benchmark/adversarial_ground_truth.json` — NEW
+- `sigma_ground/mcp/benchmark/comparison_report_template.md` — updated
+  for actual configurations
+
+**Memory updates:**
+- New: `project_mcp_modes.md` — Q&A vs conversation mode distinction
+
+---
