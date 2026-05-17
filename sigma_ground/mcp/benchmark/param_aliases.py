@@ -134,6 +134,95 @@ PARAM_ALIASES: dict[str, str] = {
 }
 
 
+async def resolve_body_name_chain(session, kwargs: dict,
+                                       real_params: set[str]) -> tuple[dict, list[str]]:
+    """If kwargs has body_name but tool wants mass/radius, chain via solar_system_body.
+
+    Qwen frequently calls schwarzschild_radius(body_name='sun') instead
+    of chaining solar_system_body(sun) -> schwarzschild_radius(mass_kg=...).
+    This handles that for any tool whose real_params include mass_kg,
+    central_mass_kg, or radius_m.
+
+    Also tries `named_star` for star-name inputs.
+
+    Returns (rewritten_kwargs, chain_log).
+    """
+    import json
+    chain: list[str] = []
+    if "body_name" in real_params or "star_name" in real_params:
+        # Tool actually wants the name -- don't chain
+        return kwargs, chain
+
+    needs_body = ("mass_kg" in real_params or "central_mass_kg" in real_params
+                     or "radius_m" in real_params)
+    if not needs_body:
+        return kwargs, chain
+
+    # Find a "name" key in kwargs and remove it
+    name_key = None
+    for k in ("body_name", "planet_name", "planet", "body", "name", "star_name"):
+        if k in kwargs:
+            name_key = k
+            break
+    if name_key is None:
+        return kwargs, chain
+    name_value = kwargs[name_key]
+
+    # Try solar_system_body lookup
+    body_data = None
+    try:
+        result = await session.call_tool("solar_system_body",
+                                              {"body_name": name_value})
+        text = ""
+        for piece in (result.content or []):
+            t = getattr(piece, "text", None)
+            if t:
+                text += t
+        parsed = json.loads(text) if text else {}
+        if isinstance(parsed, dict) and isinstance(parsed.get("value"), dict):
+            body_data = parsed["value"]
+        chain.append(f"chained solar_system_body({name_value!r})")
+    except Exception as e:
+        chain.append(f"chain attempt failed: {e}")
+
+    # Try named_star if solar_system_body failed
+    if body_data is None:
+        try:
+            result = await session.call_tool("named_star",
+                                                  {"star_name": name_value})
+            text = ""
+            for piece in (result.content or []):
+                t = getattr(piece, "text", None)
+                if t:
+                    text += t
+            parsed = json.loads(text) if text else {}
+            if isinstance(parsed, dict) and isinstance(parsed.get("value"), dict):
+                body_data = parsed["value"]
+                # named_star gives mass_solar, convert to kg
+                if "mass_solar" in body_data and "mass_kg" not in body_data:
+                    body_data["mass_kg"] = body_data["mass_solar"] * 1.989e30
+            chain.append(f"chained named_star({name_value!r})")
+        except Exception as e:
+            chain.append(f"named_star chain failed: {e}")
+
+    if body_data is None:
+        # Couldn't resolve; pass through unchanged
+        return kwargs, chain
+
+    # Substitute into kwargs
+    new_kwargs = {k: v for k, v in kwargs.items() if k != name_key}
+    if "mass_kg" in real_params and "mass_kg" not in new_kwargs:
+        if body_data.get("mass_kg") is not None:
+            new_kwargs["mass_kg"] = body_data["mass_kg"]
+    if "central_mass_kg" in real_params and "central_mass_kg" not in new_kwargs:
+        if body_data.get("mass_kg") is not None:
+            new_kwargs["central_mass_kg"] = body_data["mass_kg"]
+    if "radius_m" in real_params and "radius_m" not in new_kwargs:
+        if body_data.get("radius_m") is not None:
+            new_kwargs["radius_m"] = body_data["radius_m"]
+    return new_kwargs, chain
+
+
 def normalize_kwargs(kwargs: dict, real_params: set[str]) -> tuple[dict, list[str]]:
     """Rename Qwen-style aliases to the target tool's canonical params.
 

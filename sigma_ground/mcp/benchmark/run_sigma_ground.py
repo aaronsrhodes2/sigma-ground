@@ -388,9 +388,15 @@ async def _run_one_question(session, ollama_url: str, model: str,
                 # gravity_ms2 -> silently dropped, free_fall_time uses
                 # default Earth g, Moon question gets Earth answer.
                 renames: list[str] = []
+                chain_log: list[str] = []
                 if real_params_by_tool is not None and name in real_params_by_tool:
-                    from sigma_ground.mcp.benchmark.param_aliases import normalize_kwargs
+                    from sigma_ground.mcp.benchmark.param_aliases import (
+                        normalize_kwargs, resolve_body_name_chain)
                     args, renames = normalize_kwargs(args, real_params_by_tool[name])
+                    # Chain body_name -> solar_system_body / named_star -> mass/radius
+                    # for tools that want mass_kg / radius_m but were given a body name.
+                    args, chain_log = await resolve_body_name_chain(
+                        session, args, real_params_by_tool[name])
                 try:
                     result = await session.call_tool(name, args)
                     content_parts = []
@@ -407,6 +413,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
                     "args": args,
                     "result_text": tool_text[:2000],
                     "renames_applied": renames,
+                    "chain_log": chain_log,
                 })
                 messages.append({
                     "role":    "tool",
