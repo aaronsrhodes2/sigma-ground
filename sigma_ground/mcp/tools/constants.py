@@ -92,32 +92,48 @@ def _lookup_scipy(name: str) -> ToolResult | None:
 def lookup_constant(name: str) -> ToolResult:
     """Look up a physical constant by name.
 
-    Resolution order: sigma_ground curated -> scipy.constants CODATA.
+    Resolution order: alias map -> sigma_ground curated -> scipy.constants CODATA.
+
+    Accepts symbol ("G", "c", "ℏ", "α"), informal name ("Newton's
+    constant", "speed of light", "h-bar", "fine structure"), and
+    canonical name ("gravitational_constant"). See aliases.py for the
+    full map.
 
     Parameters
     ----------
     name : str
-        Constant name. Case-insensitive. Common forms accepted:
-        "G" or "gravitational_constant" or "Newtonian constant of gravitation"
+        Constant name in any of the accepted forms above.
 
     Returns
     -------
     ToolResult with `value`, `units`, `source`, and (when curated)
-    `provenance_tag`.
+    `provenance_tag`. `inputs` echoes the requested name and the
+    canonical name that was actually resolved.
     """
-    result = _lookup_sigma_ground(name)
-    if result is not None:
-        return result
-    result = _lookup_scipy(name)
-    if result is not None:
-        return result
+    from sigma_ground.mcp.tools.aliases import CONSTANT_ALIASES, resolve
+    canonical = resolve(name, CONSTANT_ALIASES)
+    # Try original name first (covers exact matches like 'speed_of_light'
+    # that aren't in the alias map but already are canonical). Then try
+    # the resolved canonical form.
+    for query in (name, canonical):
+        result = _lookup_sigma_ground(query)
+        if result is not None:
+            result.inputs["requested_name"] = name
+            result.inputs["resolved_via"] = "alias" if query != name else "direct"
+            return result
+        result = _lookup_scipy(query)
+        if result is not None:
+            result.inputs["requested_name"] = name
+            result.inputs["resolved_via"] = "alias" if query != name else "direct"
+            return result
     return ToolResult(
         value=None,
         source="not found",
-        notes=f"Constant '{name}' not found in sigma_ground.field.constants "
-               f"or scipy.constants. Try a more standard name or use "
-               f"list_constants() to see what's available.",
-        inputs={"name": name},
+        notes=f"Constant '{name}' (resolved to '{canonical}') not found in "
+               f"sigma_ground.field.constants or scipy.constants. Try a "
+               f"more standard name or use list_constants() to see what's "
+               f"available.",
+        inputs={"name": name, "resolved_to": canonical},
     )
 
 

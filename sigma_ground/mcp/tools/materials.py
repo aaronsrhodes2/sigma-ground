@@ -152,8 +152,30 @@ _BAND_GAPS_EV: dict[str, tuple[float, str]] = {
 
 def _generic_lookup(table: dict, key: str, units: str,
                       kind: str) -> ToolResult:
-    """Internal helper for table-based lookups."""
-    key_norm = key.lower().replace(" ", "_").replace("-", "_")
+    """Internal helper for table-based lookups.
+
+    Accepts material name, chemical formula ('H2O' -> water), and
+    common nicknames ('stainless' -> steel). See aliases.MATERIAL_ALIASES.
+    Element symbols (Fe -> iron) also resolve here via ELEMENT_ALIASES
+    so 'Fe' / 'iron' / 'ferrum' all hit the iron entry.
+    """
+    from sigma_ground.mcp.tools.aliases import (MATERIAL_ALIASES,
+                                                    ELEMENT_ALIASES, resolve)
+    # Try material aliases first; fall back to element aliases for
+    # element-symbol inputs (Fe, Au, etc.).
+    key_norm = resolve(key, MATERIAL_ALIASES)
+    if key_norm not in table:
+        # Element-symbol form (Fe -> iron); MATERIAL_ALIASES doesn't
+        # know about element symbols, so try the element map and then
+        # lowercase the element name.
+        elem_sym = resolve(key, ELEMENT_ALIASES)
+        if elem_sym != resolve(key, MATERIAL_ALIASES):  # element-lookup hit
+            # Convert "Fe" -> "iron" via the values we just resolved against
+            for alias, sym in ELEMENT_ALIASES.items():
+                if sym == elem_sym and alias.isalpha() and len(alias) > 2:
+                    if alias in table:
+                        key_norm = alias
+                        break
     if key_norm not in table:
         candidates = ", ".join(sorted(list(table.keys())[:20]))
         return ToolResult(

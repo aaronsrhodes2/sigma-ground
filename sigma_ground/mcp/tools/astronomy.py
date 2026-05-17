@@ -163,11 +163,19 @@ _NAMED_STARS: dict[str, dict] = {
 def solar_system_body(body_name: str) -> ToolResult:
     """Look up canonical parameters for a solar-system body.
 
-    Examples: 'earth', 'mars', 'jupiter', 'moon', 'sun', 'pluto'.
+    Accepts formal name, common nickname, and mythological name.
+    Examples:
+      "earth" / "Terra" / "Gaia" / "our planet"
+      "mars" / "Ares" / "Red Planet"
+      "moon" / "Luna" / "Earth's Moon"
+      "venus" / "Morning Star" / "Evening Star"
+      "jupiter" / "Zeus" / "Jove"
+      "sun" / "Sol" / "Helios"
 
     Returns a dict of (parameter -> value) with the data source.
     """
-    key = body_name.lower().strip().replace(" ", "_")
+    from sigma_ground.mcp.tools.aliases import BODY_ALIASES, resolve
+    key = resolve(body_name, BODY_ALIASES)
     if key not in _SOLAR_SYSTEM_BODIES:
         return ToolResult(
             value=None,
@@ -191,10 +199,17 @@ def solar_system_body(body_name: str) -> ToolResult:
 def named_star(star_name: str) -> ToolResult:
     """Look up parameters for a named star.
 
-    Examples: 'sirius_a', 'vega', 'betelgeuse', 'alpha_centauri_a',
-    'proxima_centauri', 'polaris', 'rigel'.
+    Accepts common name, Bayer designation, nickname, and Greek-letter
+    forms. Examples:
+      "sirius" / "Sirius" / "α CMa" / "Alpha Canis Majoris" / "Dog Star"
+      "alpha_centauri" / "α Cen" / "Rigil Kentaurus" / "Toliman"
+      "betelgeuse" / "α Ori" / "Beetlejuice"
+      "vega" / "α Lyr" / "Alpha Lyrae"
+      "polaris" / "North Star" / "Pole Star" / "α UMi"
+      "proxima_centauri" / "Proxima" / "nearest star"
     """
-    key = star_name.lower().strip().replace(" ", "_")
+    from sigma_ground.mcp.tools.aliases import STAR_ALIASES, resolve
+    key = resolve(star_name, STAR_ALIASES)
     if key not in _NAMED_STARS:
         return ToolResult(
             value=None,

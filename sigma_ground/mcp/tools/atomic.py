@@ -45,8 +45,16 @@ def first_ionization_energy(element_symbol: str) -> ToolResult:
 
     NIST Atomic Spectra Database. The first IE is the energy to remove
     one electron from the ground-state neutral atom.
+
+    Accepts symbol ('H', 'Fe', 'Hg'), full name ('hydrogen', 'iron',
+    'mercury_element' to disambiguate from the planet), Latin name
+    ('ferrum', 'aurum'), or atomic number ('1', 'Z=1', '26').
     """
-    sym = element_symbol.strip().capitalize()
+    from sigma_ground.mcp.tools.aliases import ELEMENT_ALIASES, resolve
+    resolved = resolve(element_symbol, ELEMENT_ALIASES)
+    # If the alias map returned a symbol (length 1-2, starts with capital),
+    # use it. Otherwise try the input's capitalize() as a last resort.
+    sym = resolved if resolved in _FIRST_IONIZATION_EV else element_symbol.strip().capitalize()
     if sym not in _FIRST_IONIZATION_EV:
         return ToolResult(
             value=None,
