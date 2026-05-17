@@ -67,8 +67,40 @@ def _coerce_to_float(x: Any) -> float | None:
     return None
 
 
+def _clean_units(s: str) -> str:
+    """Strip parenthetical aliases and lowercase. 'mph (miles per hour)' -> 'mph'."""
+    if not s:
+        return ""
+    # Drop anything from first '(' onward
+    s = s.split("(", 1)[0].strip()
+    return s
+
+
+def _try_unit_convert(value: float, from_units: str, to_units: str
+                       ) -> float | None:
+    """Convert value via pint. Returns None on any failure.
+
+    Both units are cleaned first (parenthetical aliases stripped).
+    Returns the input unchanged if the units match case-insensitively.
+    """
+    fu = _clean_units(from_units)
+    tu = _clean_units(to_units)
+    if not fu or not tu:
+        return None
+    if fu.lower() == tu.lower():
+        return value
+    try:
+        import pint
+        ureg = pint.UnitRegistry()
+        return ureg.Quantity(value, fu).to(tu).magnitude
+    except Exception:
+        return None
+
+
 def _values_match(extracted: Any, expected: Any,
-                   tolerance_rel: float) -> tuple[bool, float | None, str]:
+                   tolerance_rel: float,
+                   extracted_units: str = "",
+                   expected_units: str = "") -> tuple[bool, float | None, str]:
     """Compare extracted and expected. Returns (correct, rel_error, notes).
 
     Numeric: relative-error tolerance.
@@ -122,13 +154,25 @@ def _values_match(extracted: Any, expected: Any,
     x_float = _coerce_to_float(extracted)
     if e_float is None or x_float is None:
         return False, None, "couldn't coerce to float"
+
+    # Try unit-aware comparison first. If the extracted value is in
+    # different units than expected (e.g. Wolfram returns mph but
+    # ground truth is m/s), convert before comparing.
+    note_unit = ""
+    if extracted_units and expected_units \
+           and _clean_units(extracted_units).lower() != _clean_units(expected_units).lower():
+        converted = _try_unit_convert(x_float, extracted_units, expected_units)
+        if converted is not None:
+            x_float = converted
+            note_unit = f" [unit-converted {extracted_units!r}->{expected_units!r}]"
+
     if abs(e_float) < 1e-30 and abs(x_float) < 1e-30:
-        return True, 0.0, "both ~0"
+        return True, 0.0, "both ~0" + note_unit
     if abs(e_float) < 1e-30:
         # Expected is 0; check absolute deviation
-        return abs(x_float) < tolerance_rel, None, "absolute tolerance (expected ~0)"
+        return abs(x_float) < tolerance_rel, None, "absolute tolerance (expected ~0)" + note_unit
     rel_err = abs(x_float - e_float) / abs(e_float)
-    return rel_err <= tolerance_rel, rel_err, f"rel_err {rel_err:.3e}"
+    return rel_err <= tolerance_rel, rel_err, f"rel_err {rel_err:.3e}" + note_unit
 
 
 def score_run(run_path: Path, corpus_path: Path,
@@ -151,6 +195,8 @@ def score_run(run_path: Path, corpus_path: Path,
             record.get("extracted_value"),
             truth["expected_value"],
             truth["tolerance_rel"],
+            extracted_units=record.get("extracted_units", "") or "",
+            expected_units=truth.get("expected_units", "") or "",
         )
         out.append(ScoreRow(
             id=qid,
