@@ -67,8 +67,14 @@ _VALUE_RE = re.compile(
     re.IGNORECASE,
 )
 
+_TOOL_VALUE_RE = re.compile(
+    r'"value"\s*:\s*([\-+]?[0-9]+(?:\.[0-9]+)?(?:[eE][\-+]?[0-9]+)?)'
+)
+_TOOL_UNITS_RE = re.compile(r'"units"\s*:\s*"([^"]*)"')
+
 
 def _extract_value(answer: str) -> tuple[Any, str]:
+    """Extract numeric value from an LLM 'ANSWER:' line."""
     m = _VALUE_RE.search(answer)
     if not m:
         m2 = re.search(r"ANSWER:\s*([^\n]+)", answer, re.IGNORECASE)
@@ -81,6 +87,28 @@ def _extract_value(answer: str) -> tuple[Any, str]:
         return float(val_str), units
     except ValueError:
         return val_str, units
+
+
+def _extract_value_from_tool_calls(tool_calls: list[dict]) -> tuple[Any, str]:
+    """Fallback: pull value+units from the LAST tool call's JSON result.
+
+    Used when Qwen calls a tool, gets a correct answer, but then fails
+    to produce the "ANSWER:" line. The MCP ToolResult contract
+    guarantees the result JSON contains "value" and "units" fields.
+    """
+    for tc in reversed(tool_calls):
+        text = tc.get("result_text", "") or ""
+        m_val = _TOOL_VALUE_RE.search(text)
+        if not m_val:
+            continue
+        try:
+            val = float(m_val.group(1))
+        except ValueError:
+            continue
+        m_units = _TOOL_UNITS_RE.search(text)
+        units = m_units.group(1) if m_units else ""
+        return val, units
+    return None, ""
 
 
 async def _run_one_question(session, ollama_url: str, model: str,
@@ -116,15 +144,24 @@ async def _run_one_question(session, ollama_url: str, model: str,
             # If no tool calls, we're done
             tcs = msg.get("tool_calls") or []
             if not tcs:
-                final = msg.get("content", "")
+                final = msg.get("content", "") or ""
                 val, units = _extract_value(final)
+                fallback_used = False
+                # Fallback: if the LLM forgot the ANSWER: line but did call
+                # tools, pull value/units from the last tool result. This
+                # rescues the common Qwen-7b failure mode where tools work
+                # but synthesis is weak.
+                if val is None and tool_calls_made:
+                    val, units = _extract_value_from_tool_calls(tool_calls_made)
+                    fallback_used = val is not None
                 return {
-                    "answer_text":      final,
-                    "extracted_value":  val,
-                    "extracted_units":  units,
-                    "tool_calls":       tool_calls_made,
-                    "turns":            turn + 1,
-                    "elapsed_s":        time.time() - t0,
+                    "answer_text":            final,
+                    "extracted_value":        val,
+                    "extracted_units":        units,
+                    "tool_calls":             tool_calls_made,
+                    "turns":                  turn + 1,
+                    "elapsed_s":              time.time() - t0,
+                    "extracted_via_fallback": fallback_used,
                 }
 
             # Dispatch each tool call to the MCP session
@@ -158,14 +195,16 @@ async def _run_one_question(session, ollama_url: str, model: str,
                     "content": tool_text[:4000],
                 })
 
-        # Hit max turns
+        # Hit max turns -- try fallback before giving up
+        val, units = _extract_value_from_tool_calls(tool_calls_made)
         return {
-            "answer_text":     "<exceeded max turns>",
-            "extracted_value": None,
-            "extracted_units": "",
-            "tool_calls":      tool_calls_made,
-            "turns":           max_turns,
-            "elapsed_s":       time.time() - t0,
+            "answer_text":            "<exceeded max turns>",
+            "extracted_value":        val,
+            "extracted_units":        units,
+            "tool_calls":             tool_calls_made,
+            "turns":                  max_turns,
+            "elapsed_s":              time.time() - t0,
+            "extracted_via_fallback": val is not None,
         }
 
 
@@ -197,6 +236,12 @@ async def _amain(args) -> int:
     if args.resume and args.output.exists():
         with args.output.open(encoding="utf-8") as f:
             for rec in json.load(f):
+                # Skip errored or different-model records -- re-run them
+                ans = rec.get("answer_text", "") or ""
+                if ans.startswith("<ERROR") or ans == "<exceeded max turns>":
+                    continue
+                if rec.get("model") and rec["model"] != args.model:
+                    continue
                 existing[rec["id"]] = rec
     out = list(existing.values())
 
@@ -265,7 +310,11 @@ async def _amain(args) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--model", default="qwen2.5:7b")
+    parser.add_argument("--model", default="qwen2.5:14b",
+                        help="Ollama model tag. 14b is the default (better "
+                              "synthesis after tool calls than 7b); 7b is "
+                              "faster but more often forgets the ANSWER: line "
+                              "(the fallback extractor catches that case).")
     parser.add_argument("--ollama-url", default="http://localhost:11434")
     parser.add_argument("--output", type=Path,
                         default=Path(__file__).parent / "results" / "sigma_ground_run.json")

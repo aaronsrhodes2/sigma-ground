@@ -68,7 +68,8 @@ def _extract_value(answer: str) -> tuple[Any, str]:
     return val, units
 
 
-def run_question(model, question: str, timeout_s: float = 60.0) -> dict:
+def run_question(model, question: str, model_name: str = "",
+                   timeout_s: float = 60.0) -> dict:
     """Ask Gemini one question, return record dict."""
     t0 = time.time()
     try:
@@ -95,24 +96,36 @@ def run_question(model, question: str, timeout_s: float = 60.0) -> dict:
         "elapsed_s": elapsed,
         "tokens_in": tokens_in,
         "tokens_out": tokens_out,
-        "cost_usd": _estimate_cost(tokens_in, tokens_out),
+        "cost_usd": _estimate_cost(tokens_in, tokens_out, model_name),
     }
 
 
 def _estimate_cost(tokens_in: int | None, tokens_out: int | None,
-                     model: str = "gemini-2.5-pro") -> float | None:
-    """Best-effort cost estimate using Gemini 2.5 Pro published rates."""
+                     model: str = "gemini-2.5-flash") -> float | None:
+    """Best-effort cost estimate using published Gemini pricing.
+
+    Published rates as of 2026-05:
+      gemini-2.5-pro        $1.25/M in, $10.00/M out (<=200k context)
+      gemini-2.5-flash      $0.30/M in,  $2.50/M out
+      gemini-2.5-flash-lite $0.10/M in,  $0.40/M out
+    """
     if tokens_in is None or tokens_out is None:
         return None
-    # 2.5 Pro: $1.25/M input, $10/M output (<=200K context)
-    rate_in = 1.25e-6
-    rate_out = 10.0e-6
+    rates = {
+        "gemini-2.5-pro":        (1.25e-6, 10.00e-6),
+        "gemini-2.5-flash":      (0.30e-6,  2.50e-6),
+        "gemini-2.5-flash-lite": (0.10e-6,  0.40e-6),
+    }
+    rate_in, rate_out = rates.get(model, rates["gemini-2.5-flash"])
     return tokens_in * rate_in + tokens_out * rate_out
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--model", default="gemini-2.5-pro")
+    parser.add_argument("--model", default="gemini-2.5-flash",
+                        help="Gemini model. 'flash' is the default (free tier-"
+                              "friendly). 'pro' needs paid billing; 'flash-lite' "
+                              "is cheapest.")
     parser.add_argument("--output", type=Path,
                         default=Path(__file__).parent / "results" / "gemini_run.json")
     parser.add_argument("--limit", type=int, default=None,
@@ -152,6 +165,12 @@ def main() -> int:
     if args.resume and args.output.exists():
         with args.output.open(encoding="utf-8") as f:
             for rec in json.load(f):
+                # Skip records that errored or used a different model -- re-run them
+                ans = rec.get("answer_text", "") or ""
+                if ans.startswith("<ERROR"):
+                    continue
+                if rec.get("model") and rec["model"] != args.model:
+                    continue
                 existing[rec["id"]] = rec
 
     out: list[dict] = list(existing.values())
@@ -160,7 +179,7 @@ def main() -> int:
             print(f"[{i+1}/{len(questions)}] {q['id']}: skipped (resume)")
             continue
         print(f"[{i+1}/{len(questions)}] {q['id']}: {q['question'][:60]}...")
-        result = run_question(model, q["question"])
+        result = run_question(model, q["question"], model_name=args.model)
         rec = {"id": q["id"], "system": "gemini",
                 "model": args.model, **result}
         out.append(rec)
