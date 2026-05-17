@@ -1,0 +1,164 @@
+[
+  {
+    "id": "adv_false_001",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] Is the earth flat?\n[Result] No.\n(Only locally. And even then only for specific localities such as the American Midwest.)",
+    "primary_result_pod": "No.\n(Only locally. And even then only for specific localities such as the American Midwest.)",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 0.737377405166626
+  },
+  {
+    "id": "adv_false_002",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.485309600830078
+  },
+  {
+    "id": "adv_false_003",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.27766752243042
+  },
+  {
+    "id": "adv_impossible_001",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] last digit of \u03c0",
+    "primary_result_pod": "[Input interpretation] last digit of \u03c0",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 7.600090980529785
+  },
+  {
+    "id": "adv_impossible_002",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 7.032277345657349
+  },
+  {
+    "id": "adv_impossible_003",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.440157890319824
+  },
+  {
+    "id": "adv_puzzle_001",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.959537744522095
+  },
+  {
+    "id": "adv_puzzle_002",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.8048810958862305
+  },
+  {
+    "id": "adv_puzzle_003",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.896169424057007
+  },
+  {
+    "id": "adv_open_001",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 7.624127149581909
+  },
+  {
+    "id": "adv_open_002",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.542792320251465
+  },
+  {
+    "id": "adv_open_003",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.731734752655029
+  },
+  {
+    "id": "adv_nonsense_001",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 4.829742193222046
+  },
+  {
+    "id": "adv_nonsense_002",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 4.807418584823608
+  },
+  {
+    "id": "adv_nonsense_003",
+    "system": "wolfram",
+    "answer_text": "[Input interpretation] Idea | weight\n[Result] (data not available)\n[Scientific name] Idea",
+    "primary_result_pod": "(data not available)",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 1.1735851764678955
+  },
+  {
+    "id": "adv_units_001",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 5.771013259887695
+  },
+  {
+    "id": "adv_units_002",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 12.564061880111694
+  },
+  {
+    "id": "adv_units_003",
+    "system": "wolfram",
+    "answer_text": "",
+    "primary_result_pod": "",
+    "extracted_value": null,
+    "extracted_units": "",
+    "elapsed_s": 6.289083003997803
+  }
+]

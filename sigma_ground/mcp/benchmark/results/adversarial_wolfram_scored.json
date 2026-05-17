@@ -1,0 +1,275 @@
+{
+  "summary": {
+    "overall_accuracy_pct": 0.0,
+    "overall_correct": 0,
+    "overall_total": 18,
+    "by_domain": {
+      "adversarial_false_premise": {
+        "correct": 0,
+        "total": 3,
+        "pct": 0.0
+      },
+      "adversarial_impossible": {
+        "correct": 0,
+        "total": 3,
+        "pct": 0.0
+      },
+      "adversarial_puzzle": {
+        "correct": 0,
+        "total": 3,
+        "pct": 0.0
+      },
+      "adversarial_open_ended": {
+        "correct": 0,
+        "total": 3,
+        "pct": 0.0
+      },
+      "adversarial_nonsense": {
+        "correct": 0,
+        "total": 3,
+        "pct": 0.0
+      },
+      "adversarial_units": {
+        "correct": 0,
+        "total": 3,
+        "pct": 0.0
+      }
+    }
+  },
+  "rows": [
+    {
+      "id": "adv_false_001",
+      "system": "wolfram",
+      "domain": "adversarial_false_premise",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": false,
+      "rel_error": 0.16666666666666666,
+      "tolerance_rel": null,
+      "answer_text": "[Input interpretation] Is the earth flat?\n[Result] No.\n(Only locally. And even then only for specific localities such as the American Midwest.)",
+      "elapsed_s": 0.737377405166626,
+      "notes": "failed refusal/nonsense: matched 1/6: ['no']"
+    },
+    {
+      "id": "adv_false_002",
+      "system": "wolfram",
+      "domain": "adversarial_false_premise",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": false,
+      "rel_error": 0.0,
+      "tolerance_rel": null,
+      "answer_text": "",
+      "elapsed_s": 5.485309600830078,
+      "notes": "failed refusal/nonsense: matched 0/6: []"
+    },
+    {
+      "id": "adv_false_003",
+      "system": "wolfram",
+      "domain": "adversarial_false_premise",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": false,
+      "rel_error": 0.0,
+      "tolerance_rel": null,
+      "answer_text": "",
+      "elapsed_s": 5.27766752243042,
+      "notes": "failed refusal/nonsense: matched 0/5: []"
+    },
+    {
+      "id": "adv_impossible_001",
+      "system": "wolfram",
+      "domain": "adversarial_impossible",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": null,
+      "rel_error": 0.0,
+      "tolerance_rel": null,
+      "answer_text": "[Input interpretation] last digit of \u03c0",
+      "elapsed_s": 7.600090980529785,
+      "notes": "failed refusal/nonsense: matched 0/5: []"
+    },
+    {
+      "id": "adv_impossible_002",
+      "system": "wolfram",
+      "domain": "adversarial_impossible",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": null,
+      "rel_error": 0.0,
+      "tolerance_rel": null,
+      "answer_text": "",
+      "elapsed_s": 7.032277345657349,
+      "notes": "failed refusal/nonsense: matched 0/5: []"
+    },
+    {
+      "id": "adv_impossible_003",
+      "system": "wolfram",
+      "domain": "adversarial_impossible",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": 6.02214076e+23,
+      "rel_error": 0.0,
+      "tolerance_rel": null,
+      "answer_text": "",
+      "elapsed_s": 5.440157890319824,
+      "notes": "failed refusal/nonsense: matched 0/5: []"
+    },
+    {
+      "id": "adv_puzzle_001",
+      "system": "wolfram",
+      "domain": "adversarial_puzzle",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": 0.6666666666666667,
+      "rel_error": null,
+      "tolerance_rel": 0.02,
+      "answer_text": "",
+      "elapsed_s": 6.959537744522095,
+      "notes": "no value extracted"
+    },
+    {
+      "id": "adv_puzzle_002",
+      "system": "wolfram",
+      "domain": "adversarial_puzzle",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": 0.5073,
+      "rel_error": null,
+      "tolerance_rel": 0.02,
+      "answer_text": "",
+      "elapsed_s": 5.8048810958862305,
+      "notes": "no value extracted"
+    },
+    {
+      "id": "adv_puzzle_003",
+      "system": "wolfram",
+      "domain": "adversarial_puzzle",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": 1.0,
+      "rel_error": null,
+      "tolerance_rel": 0.02,
+      "answer_text": "",
+      "elapsed_s": 5.896169424057007,
+      "notes": "no value extracted"
+    },
+    {
+      "id": "adv_open_001",
+      "system": "wolfram",
+      "domain": "adversarial_open_ended",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": null,
+      "rel_error": 0.0,
+      "tolerance_rel": null,
+      "answer_text": "",
+      "elapsed_s": 7.624127149581909,
+      "notes": "matched 0/6: []"
+    },
+    {
+      "id": "adv_open_002",
+      "system": "wolfram",
+      "domain": "adversarial_open_ended",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": 1e+28,
+      "rel_error": 0.0,
+      "tolerance_rel": 1.0,
+      "answer_text": "",
+      "elapsed_s": 5.542792320251465,
+      "notes": "matched 0/6: []"
+    },
+    {
+      "id": "adv_open_003",
+      "system": "wolfram",
+      "domain": "adversarial_open_ended",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": null,
+      "rel_error": 0.0,
+      "tolerance_rel": null,
+      "answer_text": "",
+      "elapsed_s": 5.731734752655029,
+      "notes": "matched 0/8: []"
+    },
+    {
+      "id": "adv_nonsense_001",
+      "system": "wolfram",
+      "domain": "adversarial_nonsense",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": null,
+      "rel_error": 0.0,
+      "tolerance_rel": null,
+      "answer_text": "",
+      "elapsed_s": 4.829742193222046,
+      "notes": "failed refusal/nonsense: matched 0/6: []"
+    },
+    {
+      "id": "adv_nonsense_002",
+      "system": "wolfram",
+      "domain": "adversarial_nonsense",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": null,
+      "rel_error": 0.0,
+      "tolerance_rel": null,
+      "answer_text": "",
+      "elapsed_s": 4.807418584823608,
+      "notes": "failed refusal/nonsense: matched 0/5: []"
+    },
+    {
+      "id": "adv_nonsense_003",
+      "system": "wolfram",
+      "domain": "adversarial_nonsense",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": null,
+      "rel_error": 0.0,
+      "tolerance_rel": null,
+      "answer_text": "[Input interpretation] Idea | weight\n[Result] (data not available)\n[Scientific name] Idea",
+      "elapsed_s": 1.1735851764678955,
+      "notes": "failed refusal/nonsense: matched 0/6: []"
+    },
+    {
+      "id": "adv_units_001",
+      "system": "wolfram",
+      "domain": "adversarial_units",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": 49247.0,
+      "rel_error": null,
+      "tolerance_rel": 0.02,
+      "answer_text": "",
+      "elapsed_s": 5.771013259887695,
+      "notes": "no value extracted"
+    },
+    {
+      "id": "adv_units_002",
+      "system": "wolfram",
+      "domain": "adversarial_units",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": 4.35e+26,
+      "rel_error": null,
+      "tolerance_rel": 0.05,
+      "answer_text": "",
+      "elapsed_s": 12.564061880111694,
+      "notes": "no value extracted"
+    },
+    {
+      "id": "adv_units_003",
+      "system": "wolfram",
+      "domain": "adversarial_units",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": 2940000000.0,
+      "rel_error": null,
+      "tolerance_rel": 0.05,
+      "answer_text": "",
+      "elapsed_s": 6.289083003997803,
+      "notes": "no value extracted"
+    }
+  ]
+}
