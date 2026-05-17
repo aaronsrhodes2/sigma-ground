@@ -558,7 +558,105 @@ def main() -> int:
                                   gm_records, plan_path)
     print(f"  [Catalog] {stats}")
     print(f"  [Plan]    appended to {plan_path}")
+
+    # Step 6: Print target-progress dashboard (from PROJECT_GOAL.md).
+    _print_target_dashboard(results_dir, prefix)
     return 0
+
+
+def _print_target_dashboard(results_dir: Path, prefix: str) -> None:
+    """Print the current state of every PROJECT_GOAL.md target.
+
+    Each row marks PASS / FAIL so the daily log surfaces 'we hit the
+    target' the same morning it happens. The pytest xfail tests in
+    test_targets.py are the CI-enforced version; this is the eyeball
+    version that runs every day.
+    """
+    print()
+    print("  ┌──────────────────────────────────────────────────────────────┐")
+    print("  │ TARGET DASHBOARD (PROJECT_GOAL.md)                           │")
+    print("  ├──────────────────────────────────────────────────────────────┤")
+
+    def _scored(name: str) -> dict | None:
+        p = results_dir / f"{prefix}{name}_scored.json"
+        if not p.exists():
+            return None
+        with p.open(encoding="utf-8") as f:
+            return json.load(f)
+
+    def _run(name: str) -> list[dict] | None:
+        p = results_dir / f"{prefix}{name}_run.json"
+        if not p.exists():
+            return None
+        with p.open(encoding="utf-8") as f:
+            return json.load(f)
+
+    sg_scored = _scored("sigma_ground")
+    wf_scored = _scored("wolfram")
+    sg_run = _run("sigma_ground")
+    adv_scored = _scored("adversarial_sigma_ground") if not prefix else None
+
+    def _row(label: str, ok: bool, detail: str) -> None:
+        marker = "PASS" if ok else "...."
+        bullet = "✓" if ok else " "
+        print(f"  │ [{bullet}] {marker} {label:<28s} {detail:<25s} │")
+
+    # Target 1: overall >= Wolfram overall
+    if sg_scored and wf_scored:
+        sg_pct = sg_scored["summary"]["overall_accuracy_pct"]
+        wf_pct = wf_scored["summary"]["overall_accuracy_pct"]
+        _row("sg overall >= WA overall", sg_pct >= wf_pct,
+              f"sg={sg_pct:.1f}% WA={wf_pct:.1f}%")
+    # Target 2: match WA on subset WA got right (>=98%)
+    if sg_scored and wf_scored:
+        wf_ok_ids = {r["id"] for r in wf_scored["rows"] if r.get("correct")}
+        sg_by_id = {r["id"]: r for r in sg_scored["rows"]}
+        if wf_ok_ids:
+            overlap = sum(1 for q in wf_ok_ids
+                            if sg_by_id.get(q, {}).get("correct"))
+            rate = overlap / len(wf_ok_ids)
+            _row("sg matches WA-correct >=98%", rate >= 0.98,
+                  f"{overlap}/{len(wf_ok_ids)} = {rate:.0%}")
+        else:
+            _row("sg matches WA-correct >=98%", False, "WA got 0 right")
+    # Target 3: overall >= 80%
+    if sg_scored:
+        sg_pct = sg_scored["summary"]["overall_accuracy_pct"]
+        _row("sg overall >= 80%", sg_pct >= 80.0, f"{sg_pct:.1f}%")
+    # Target 4: every domain >= 80%
+    if sg_scored:
+        by_dom = sg_scored["summary"].get("by_domain", {})
+        below = [d for d, s in by_dom.items() if s["pct"] < 80]
+        _row("all 14 domains >= 80%", not below,
+              f"{len(below)} below" if below else "all pass")
+    # Target 5: median latency <= 30s
+    if sg_run:
+        times = sorted(r["elapsed_s"] for r in sg_run
+                          if isinstance(r.get("elapsed_s"), (int, float)))
+        if times:
+            med = times[len(times) // 2]
+            _row("median latency <= 30s", med <= 30.0, f"{med:.1f}s")
+    # Target 6: library-gap <= 5%
+    if sg_run:
+        fitted = sum(1 for r in sg_run
+                       if isinstance(r.get("extracted_value"), str)
+                       and "Fitted due to incompetence" in (r.get("extracted_value") or ""))
+        rate = fitted / max(len(sg_run), 1)
+        _row("library-gap rate <= 5%", rate <= 0.05, f"{rate:.1%} ({fitted}/{len(sg_run)})")
+    # Target 7 (adversarial): refusal rate >= 50%
+    if adv_scored:
+        refusal = [r for r in adv_scored["rows"]
+                       if r.get("domain") in ("adversarial_false_premise",
+                                                "adversarial_nonsense")]
+        if refusal:
+            ok = sum(1 for r in refusal if r.get("correct"))
+            rate = ok / len(refusal)
+            _row("adversarial refusal >= 50%", rate >= 0.5,
+                  f"{ok}/{len(refusal)} = {rate:.0%}")
+    # Target 8: conversation mode -- placeholder
+    _row("conversation mode built", False, "roadmap")
+
+    print("  └──────────────────────────────────────────────────────────────┘")
 
 
 if __name__ == "__main__":
