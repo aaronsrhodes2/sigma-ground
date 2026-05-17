@@ -90,7 +90,39 @@ ABSOLUTE RULES:
    me calculate" preamble. Even for things you "know" (like the speed
    of light or g at sea level), call `lookup_constant`.
 
-7. REFUSAL TRIAGE -- answer IMMEDIATELY, NO tool call, for these cases:
+7. TOOL-FIRST DISCIPLINE -- this is a tight budget. You are NOT here to
+   explore. Pick the right tool from the TOOL INDEX and call it.
+
+   (a) MAX 5 TOOL CALLS per question. After 5 distinct calls, if you
+       don't have an answer, the harness will force a refusal. So use
+       your budget purposefully:
+         budget 1: the primary tool for this question
+         budgets 2-3: a chained lookup (e.g. solar_system_body -> escape_velocity)
+         budgets 4-5: an alternative if the first tool returned `null`
+
+   (b) NEVER call the same tool with the same arguments twice. The
+       result will not change. If a tool returned the wrong value or
+       null, try a DIFFERENT tool or different arguments.
+
+   (c) The CORRECT pattern is one of:
+         Q: "What's the escape velocity from Earth?"
+         -> escape_velocity_classical(body_name='earth')      (1 call)
+         -> ANSWER: 11180 m/s
+
+         Q: "What's the event horizon of the Sun-as-BH?"
+         -> schwarzschild_radius(body_name='sun')             (1 call, body_name auto-chains)
+         -> ANSWER: 2954 m
+
+         Q: "1 joule equals how many electronvolts?"
+         -> joules_to_eV(joules=1)                            (1 call)
+         -> ANSWER: 6.242e18 eV
+
+   (d) Do NOT enter exploratory mode: 5 different tools, none of which
+       answer the question. If you can't find the tool in the first
+       2 tries, the answer is "Fitted due to incompetence", not
+       "let me try another tool".
+
+8. REFUSAL TRIAGE -- answer IMMEDIATELY, NO tool call, for these cases:
 
    (a) FALSE PREMISES. The question presupposes something physically
        false. Answer "ANSWER: false" plus a one-line reason.
@@ -386,7 +418,8 @@ async def _run_one_question(session, ollama_url: str, model: str,
     tool_calls_made: list[dict] = []
     t0 = time.time()
     timeout_s = 120.0
-    max_turns = 14
+    max_turns = 8                # was 14; tight budget for tool-first discipline
+    max_tool_calls = 5           # hard cap per question -- forces purposeful tool use
     nudges_sent = 0
     max_nudges = 2
 
@@ -513,22 +546,39 @@ async def _run_one_question(session, ollama_url: str, model: str,
                     "content": tool_text[:4000],
                 })
 
-            # Loop detection: if the last 3 tool calls are identical
-            # (same name + same args), Qwen is stuck repeating itself.
-            # This was the dominant failure mode on the first run:
-            # 96/150 questions hit max_turns because the model kept
-            # calling solar_system_body('earth') 14 times waiting for
+            # Hard cap: 5 tool calls per question. After that, force
+            # the LLM to finalize with whatever it has (or refuse).
+            # Without this, Qwen explores 14 tools hoping one fits.
+            if len(tool_calls_made) >= max_tool_calls and nudges_sent < max_nudges:
+                budget_warning = (
+                    f"STOP. You have used your {max_tool_calls}-tool-call "
+                    f"budget. No more tool calls allowed. Either:\n"
+                    f"  (a) Produce the ANSWER: line using values you "
+                    f"already have, OR\n"
+                    f"  (b) Produce 'ANSWER: [SOURCE: Fitted due to "
+                    f"incompetence -- could not find the right tool]'.\n"
+                    f"The user's question is still: {question}"
+                )
+                messages.append({"role": "user", "content": budget_warning})
+                nudges_sent += 1
+                continue
+
+            # Loop detection: any repeat of (tool_name, args) -- tighter than
+            # 'last 3 identical' because Qwen wastes budget if even ONE
+            # repeat happens. Treat first repeat as already-loop.
+            # (was: same 3 in a row, after Qwen kept calling
+            # solar_system_body('earth') 14 times waiting for
             # a different answer that never came.
-            if len(tool_calls_made) >= 3:
-                last3 = tool_calls_made[-3:]
-                if all((c["name"] == last3[0]["name"]
-                          and json.dumps(c["args"], sort_keys=True, default=str)
-                              == json.dumps(last3[0]["args"], sort_keys=True, default=str))
-                         for c in last3):
+            if len(tool_calls_made) >= 2:
+                last_two = tool_calls_made[-2:]
+                same_name = last_two[0]["name"] == last_two[1]["name"]
+                same_args = (json.dumps(last_two[0]["args"], sort_keys=True, default=str)
+                                == json.dumps(last_two[1]["args"], sort_keys=True, default=str))
+                if same_name and same_args:
                     loop_warning = (
-                        f"STOP. You have called `{last3[0]['name']}` with "
-                        f"the same arguments 3 times in a row. The tool's "
-                        f"output will not change. Either:\n"
+                        f"STOP. You called `{last_two[0]['name']}` twice "
+                        f"with identical args. The tool's output will not "
+                        f"change. Either:\n"
                         f"  (a) Call a DIFFERENT tool from the TOOL INDEX, OR\n"
                         f"  (b) Produce the ANSWER: line using the values "
                         f"you already have, OR\n"
@@ -537,7 +587,6 @@ async def _run_one_question(session, ollama_url: str, model: str,
                         f"The user's question is still: {question}"
                     )
                     messages.append({"role": "user", "content": loop_warning})
-                    # Count as a nudge so we don't loop on the warning too
                     nudges_sent += 1
 
         # Hit max turns -- try fallback before giving up
