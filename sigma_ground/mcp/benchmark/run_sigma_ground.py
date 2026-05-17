@@ -142,34 +142,125 @@ def _extract_value_from_tool_calls(tool_calls: list[dict]) -> tuple[Any, str]:
     return None, ""
 
 
+# Question-pattern -> domain hints. When a question matches a phrase
+# in `_PATTERN_HINTS`, point Qwen at the relevant section of the index.
+# Surfaced at the TOP of the system prompt so Qwen sees them before
+# scanning the alphabetical tool list.
+_PATTERN_HINTS: list[tuple[str, str]] = [
+    ("event horizon | Schwarzschild | black hole | photon sphere | "
+     "ISCO | Hawking | gravitational time dilation | gravitational redshift",
+     "gr"),
+    ("Hubble | expansion of universe | age of universe | critical density | "
+     "MOND | a_0 | dark energy | cosmological",
+     "cosmology"),
+    ("E=mc^2 | mass to energy | energy to mass | matter conversion | "
+     "nuclear binding | fission | fusion | TNT equivalent | megaton",
+     "energy"),
+    ("convert | unit conversion | how many X in Y | light year to meters | "
+     "MeV to joules | eV to joules | electronvolt",
+     "units"),
+    ("solve equation | integrate | derivative | simplify | algebra | "
+     "symbolic math | polynomial root",
+     "symbolic"),
+    ("Lorentz | time dilation | length contraction | special relativity | "
+     "relativistic momentum | Doppler shift",
+     "relativity"),
+    ("ideal gas | blackbody | Stefan-Boltzmann | Wien | Carnot | "
+     "entropy | thermal | temperature in K | melting point | boiling",
+     "thermodynamics"),
+    ("Snell | lens | refraction | diffraction | Rydberg | hydrogen line | "
+     "single slit | double slit | grating",
+     "optics"),
+    ("Ohm | resistance | capacitor | inductor | RC | RL | RLC | "
+     "voltage | current | power dissipated | wavelength of EM",
+     "circuits"),
+    ("ionization energy | hydrogen-like | photon energy | "
+     "Bohr model | atomic transition",
+     "atomic"),
+    ("planet | star | Sirius | Vega | solar system body | "
+     "mass of Earth | radius of Jupiter",
+     "astronomy"),
+    ("density | refractive index | Young's modulus | band gap | "
+     "material property",
+     "materials"),
+    ("free fall | projectile | kinetic energy | momentum | "
+     "escape velocity | orbital velocity",
+     "kinematics"),
+    ("speed of light | Planck constant | Avogadro | physical constant | "
+     "lookup constant",
+     "constants"),
+]
+
+
 def _build_tool_index(tools_for_ollama: list[dict]) -> str:
-    """Compact textual inventory of tools with their parameter names.
+    """Tool inventory grouped by domain + pattern hints at top.
+
+    Earlier flat-list version had Qwen calling `solar_system_body('sun')`
+    14 times for 'event horizon of Sun-as-black-hole' because it
+    couldn't find `schwarzschild_radius` in a flat alphabetical list.
+    This version groups tools by domain and prepends pattern hints
+    that map question phrases to the right domain section.
 
     The LLM also receives the full JSONSchema via the Ollama `tools`
-    field, but a flat textual index in the system prompt reinforces
-    EXACT parameter names so Qwen is less likely to invent synonyms
-    (which we observed in the 7b qwen2.5 run: 'velocity' instead of
-    'initial_speed_m_s', 'angle_degrees' instead of 'launch_angle_deg').
+    field; this textual index is the human-readable map.
     """
+    # Pull domain info from the manifest (richer than tools_for_ollama,
+    # which only carries name + description + JSONSchema).
+    try:
+        from sigma_ground.mcp.manifest import _PRIMARY_TOOLS
+        domain_by_name = {t["name"]: t.get("domain", "other")
+                            for t in _PRIMARY_TOOLS}
+    except Exception:
+        domain_by_name = {}
+
+    # Group tools by domain.
+    by_domain: dict[str, list[dict]] = {}
+    for t in tools_for_ollama:
+        name = t["function"]["name"]
+        d = domain_by_name.get(name, "other")
+        by_domain.setdefault(d, []).append(t)
+
+    # Stable order: most-common physics topics first, then others.
+    domain_order = [
+        "constants", "units", "kinematics", "circuits", "optics",
+        "thermodynamics", "atomic", "relativity", "gr", "cosmology",
+        "energy", "astronomy", "materials", "symbolic", "other",
+    ]
+    seen = set()
+    ordered_domains = [d for d in domain_order if d in by_domain]
+    for d in by_domain:
+        if d not in ordered_domains:
+            ordered_domains.append(d)
+
     lines = [
         "=== TOOL INDEX ===",
-        f"({len(tools_for_ollama)} tools available; * = required parameter)",
+        f"({len(tools_for_ollama)} tools, grouped by domain; "
+        f"* = required parameter)",
         "",
+        "PATTERN HINTS (match question phrasing to the right section):",
     ]
-    for t in tools_for_ollama:
-        fn = t["function"]
-        name = fn["name"]
-        params = fn.get("parameters", {}) or {}
-        props = params.get("properties", {}) or {}
-        required = set(params.get("required", []))
-        param_strs = []
-        for pname in props.keys():
-            marker = "*" if pname in required else ""
-            param_strs.append(f"{pname}{marker}")
-        desc = (fn.get("description") or "").split("\n")[0][:90].strip()
-        lines.append(f"  {name}({', '.join(param_strs)})")
-        if desc:
-            lines.append(f"      {desc}")
+    for phrases, dom in _PATTERN_HINTS:
+        lines.append(f"  [{dom}] {phrases}")
+    lines.append("")
+
+    for dom in ordered_domains:
+        tools = by_domain[dom]
+        lines.append(f"## {dom.upper()}")
+        for t in tools:
+            fn = t["function"]
+            name = fn["name"]
+            params = fn.get("parameters", {}) or {}
+            props = params.get("properties", {}) or {}
+            required = set(params.get("required", []))
+            param_strs = []
+            for pname in props.keys():
+                marker = "*" if pname in required else ""
+                param_strs.append(f"{pname}{marker}")
+            desc = (fn.get("description") or "").split("\n")[0][:90].strip()
+            lines.append(f"  {name}({', '.join(param_strs)})")
+            if desc:
+                lines.append(f"      {desc}")
+        lines.append("")
     return "\n".join(lines)
 
 
