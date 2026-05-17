@@ -35,3 +35,15 @@ simulations/
 # IDE
 .vscode/
 .idea/
+
+# Secrets / API keys -- NEVER commit
+.env
+.env.*
+!.env.example
+!.env.reference.md
+secrets.json
+*.pem
+*.key
+
+# Operatic scenes archived separately - do not commit to project
+misc/OPERATIC_PLAY_SCENE*.txt
