@@ -68,25 +68,53 @@ def _extract_value(answer: str) -> tuple[Any, str]:
     return val, units
 
 
+def _parse_retry_delay(err_str: str, default: float = 30.0) -> float:
+    """Pull the 'retry in Xs' hint from a Gemini 429 error string."""
+    m = re.search(r"retry in ([\d.]+)s", err_str)
+    if m:
+        try:
+            return float(m.group(1)) + 1.0  # +1s safety margin
+        except ValueError:
+            pass
+    return default
+
+
 def run_question(model, question: str, model_name: str = "",
-                   timeout_s: float = 60.0) -> dict:
-    """Ask Gemini one question, return record dict."""
+                   timeout_s: float = 60.0,
+                   max_429_retries: int = 8) -> dict:
+    """Ask Gemini one question, return record dict.
+
+    Retries on 429 (free-tier rate limit) up to max_429_retries times,
+    parsing the suggested retry-delay from the error if present.
+    """
     t0 = time.time()
-    try:
-        response = model.generate_content(question)
-        text = response.text
-        # token counts (best-effort; API may not include for all models)
-        usage = getattr(response, "usage_metadata", None)
-        tokens_in = getattr(usage, "prompt_token_count", None) if usage else None
-        tokens_out = getattr(usage, "candidates_token_count", None) if usage else None
-    except Exception as e:
-        return {
-            "answer_text": f"<ERROR: {e}>",
-            "extracted_value": None,
-            "extracted_units": "",
-            "elapsed_s": time.time() - t0,
-            "tokens_in": None, "tokens_out": None, "cost_usd": None,
-        }
+    attempt = 0
+    while True:
+        try:
+            response = model.generate_content(question)
+            text = response.text
+            usage = getattr(response, "usage_metadata", None)
+            tokens_in = getattr(usage, "prompt_token_count", None) if usage else None
+            tokens_out = getattr(usage, "candidates_token_count", None) if usage else None
+            break
+        except Exception as e:
+            err_str = str(e)
+            is_429 = "429" in err_str or "quota" in err_str.lower() \
+                       or "rate" in err_str.lower()
+            if is_429 and attempt < max_429_retries:
+                delay = _parse_retry_delay(err_str, default=15.0 + attempt * 5)
+                print(f"    [429 retry {attempt+1}/{max_429_retries}] "
+                      f"sleeping {delay:.1f}s...", flush=True)
+                time.sleep(delay)
+                attempt += 1
+                continue
+            return {
+                "answer_text": f"<ERROR: {e}>",
+                "extracted_value": None,
+                "extracted_units": "",
+                "elapsed_s": time.time() - t0,
+                "tokens_in": None, "tokens_out": None, "cost_usd": None,
+            }
     elapsed = time.time() - t0
     val, units = _extract_value(text)
     return {
@@ -130,8 +158,13 @@ def main() -> int:
                         default=Path(__file__).parent / "results" / "gemini_run.json")
     parser.add_argument("--limit", type=int, default=None,
                         help="Only run first N questions (for testing).")
-    parser.add_argument("--resume", action="store_true",
+    parser.add_argument("--resume", action="store_true", default=True,
                         help="Skip questions already in the output file.")
+    parser.add_argument("--no-resume", dest="resume", action="store_false")
+    parser.add_argument("--pause-s", type=float, default=13.0,
+                        help="Sleep between questions. Default 13s respects "
+                              "the free-tier rate limit (5 req/min). On a "
+                              "paid plan you can drop this to 0.2.")
     args = parser.parse_args()
 
     # Auto-load API keys from the dev-root .env (or any ancestor)
@@ -186,8 +219,7 @@ def main() -> int:
         # Save after each question (resumable)
         with args.output.open("w", encoding="utf-8") as f:
             json.dump(out, f, indent=2, default=str)
-        # Light rate-limit guard
-        time.sleep(0.2)
+        time.sleep(args.pause_s)
     print(f"\nWrote {args.output}")
     return 0
 
