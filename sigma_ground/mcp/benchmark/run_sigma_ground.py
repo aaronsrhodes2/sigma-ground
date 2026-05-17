@@ -204,14 +204,17 @@ def _build_tool_index(tools_for_ollama: list[dict]) -> str:
     The LLM also receives the full JSONSchema via the Ollama `tools`
     field; this textual index is the human-readable map.
     """
-    # Pull domain info from the manifest (richer than tools_for_ollama,
-    # which only carries name + description + JSONSchema).
+    # Pull domain + keywords from the manifest (richer than
+    # tools_for_ollama, which only carries name + description + JSONSchema).
     try:
         from sigma_ground.mcp.manifest import _PRIMARY_TOOLS
         domain_by_name = {t["name"]: t.get("domain", "other")
                             for t in _PRIMARY_TOOLS}
+        keywords_by_name = {t["name"]: t.get("keywords", [])
+                              for t in _PRIMARY_TOOLS}
     except Exception:
         domain_by_name = {}
+        keywords_by_name = {}
 
     # Group tools by domain.
     by_domain: dict[str, list[dict]] = {}
@@ -260,6 +263,12 @@ def _build_tool_index(tools_for_ollama: list[dict]) -> str:
             lines.append(f"  {name}({', '.join(param_strs)})")
             if desc:
                 lines.append(f"      {desc}")
+            kws = keywords_by_name.get(name, [])
+            if kws:
+                # Show up to 6 keywords per tool; that's enough to catch
+                # common phrasings without bloating the prompt.
+                shown = " | ".join(kws[:6])
+                lines.append(f"      AKA: {shown}")
         lines.append("")
     return "\n".join(lines)
 

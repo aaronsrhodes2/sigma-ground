@@ -448,6 +448,21 @@ _EXTENDED_TOOLS: list[dict] = [
 ]
 
 
+# Merge keyword/formula/attribution metadata from the sidecar.
+# This adds a `keywords` list to each tool dict so the MCP capability
+# manifest publishes the formal names ('Schwarzschild radius',
+# 'Stefan-Boltzmann law', 'Hawking 1974') alongside the canonical
+# tool names. The benchmark TOOL INDEX surfaces them so the LLM can
+# match 'event horizon of the Sun' -> schwarzschild_radius.
+try:
+    from sigma_ground.mcp.tool_keywords import TOOL_KEYWORDS as _TK
+    for _t in _PRIMARY_TOOLS:
+        _t["keywords"] = _TK.get(_t["name"], [])
+except ImportError:
+    for _t in _PRIMARY_TOOLS:
+        _t.setdefault("keywords", [])
+
+
 def get_manifest() -> ToolResult:
     """Return the full capabilities manifest.
 
