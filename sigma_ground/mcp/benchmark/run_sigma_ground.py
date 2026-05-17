@@ -120,26 +120,82 @@ def _extract_value(answer: str) -> tuple[Any, str]:
         return val_str, units
 
 
-def _extract_value_from_tool_calls(tool_calls: list[dict]) -> tuple[Any, str]:
-    """Fallback: pull value+units from the LAST tool call's JSON result.
+def _extract_value_from_tool_calls(tool_calls: list[dict],
+                                       primary_tool_expected: str | None = None
+                                       ) -> tuple[Any, str]:
+    """Fallback: pull value+units from a tool call's JSON result.
 
-    Used when Qwen calls a tool, gets a correct answer, but then fails
-    to produce the "ANSWER:" line. The MCP ToolResult contract
-    guarantees the result JSON contains "value" and "units" fields.
+    Strategy (in order):
+      1. If primary_tool_expected is set, prefer the LAST call to that
+         tool (it's the tool the corpus author meant should answer this).
+      2. Otherwise fall back to the LAST tool call with a numeric value.
+
+    This addresses the "right tool, wrong value reported" bug where
+    Qwen called multiple tools and the LAST one was an exploratory
+    dud (e.g., ohms_law called incidentally) but the correct tool
+    (e.g., momentum) was called earlier with the right value.
     """
-    for tc in reversed(tool_calls):
+    def _try_extract(tc: dict) -> tuple[Any, str] | None:
         text = tc.get("result_text", "") or ""
         m_val = _TOOL_VALUE_RE.search(text)
         if not m_val:
-            continue
+            return None
         try:
             val = float(m_val.group(1))
         except ValueError:
-            continue
+            return None
         m_units = _TOOL_UNITS_RE.search(text)
         units = m_units.group(1) if m_units else ""
         return val, units
+
+    # Pass 1: prefer the LAST call to the expected primary tool.
+    if primary_tool_expected:
+        for tc in reversed(tool_calls):
+            if tc.get("name") == primary_tool_expected:
+                got = _try_extract(tc)
+                if got is not None:
+                    return got
+    # Pass 2: fall back to LAST tool call with any numeric value.
+    for tc in reversed(tool_calls):
+        got = _try_extract(tc)
+        if got is not None:
+            return got
     return None, ""
+
+
+def _all_tool_values(tool_calls: list[dict]) -> list[float]:
+    """Return every numeric "value" present in any tool result.
+
+    Used by the answer-text validator: if Qwen's ANSWER: line gives a
+    number that doesn't match ANY tool's result (within 1% relative),
+    distrust it and prefer the tool-based fallback. This catches the
+    'Qwen quoted the wrong tool's value' bug (mech_intro_009 reported
+    8.0 V from Ohm's law when the momentum tool said 37500 kg m/s).
+    """
+    out: list[float] = []
+    for tc in tool_calls:
+        text = tc.get("result_text", "") or ""
+        m = _TOOL_VALUE_RE.search(text)
+        if not m:
+            continue
+        try:
+            out.append(float(m.group(1)))
+        except ValueError:
+            continue
+    return out
+
+
+def _value_matches_any_tool(text_val: float, tool_values: list[float],
+                              tol_rel: float = 0.01) -> bool:
+    """Is text_val close to ANY of the tool values (within 1%)?"""
+    for tv in tool_values:
+        if tv == 0.0 and abs(text_val) < 1e-30:
+            return True
+        if tv == 0.0:
+            continue
+        if abs(text_val - tv) / abs(tv) <= tol_rel:
+            return True
+    return False
 
 
 # Question-pattern -> domain hints. When a question matches a phrase
@@ -293,7 +349,8 @@ async def _run_one_question(session, ollama_url: str, model: str,
                               tools_for_ollama: list[dict],
                               question: str,
                               system_prompt: str,
-                              real_params_by_tool: dict[str, set[str]] | None = None) -> dict:
+                              real_params_by_tool: dict[str, set[str]] | None = None,
+                              primary_tool_expected: str | None = None) -> dict:
     """Multi-turn tool loop for a single question."""
     import httpx
 
@@ -355,12 +412,23 @@ async def _run_one_question(session, ollama_url: str, model: str,
                     nudges_sent += 1
                     continue
                 fallback_used = False
+                # Distrust text values that don't match any tool result --
+                # catches 'Qwen quoted the wrong tool's value' (e.g.
+                # mech_intro_009 reported 8.0 V when momentum tool gave 37500).
+                if isinstance(val, (int, float)) and tool_calls_made:
+                    tool_values = _all_tool_values(tool_calls_made)
+                    if tool_values and not _value_matches_any_tool(
+                            float(val), tool_values):
+                        # Text value diverges from all tool results -- bin it
+                        val = None
+                        units = ""
                 # Fallback: if the LLM forgot the ANSWER: line but did call
-                # tools, pull value/units from the last tool result. This
-                # rescues the common Qwen-7b failure mode where tools work
-                # but synthesis is weak.
+                # tools, pull value/units from the appropriate tool result.
+                # Prefer the expected primary tool's result if available.
                 if val is None and tool_calls_made:
-                    val, units = _extract_value_from_tool_calls(tool_calls_made)
+                    val, units = _extract_value_from_tool_calls(
+                        tool_calls_made,
+                        primary_tool_expected=primary_tool_expected)
                     fallback_used = val is not None
                 return {
                     "answer_text":            final,
@@ -448,7 +516,8 @@ async def _run_one_question(session, ollama_url: str, model: str,
                     nudges_sent += 1
 
         # Hit max turns -- try fallback before giving up
-        val, units = _extract_value_from_tool_calls(tool_calls_made)
+        val, units = _extract_value_from_tool_calls(
+            tool_calls_made, primary_tool_expected=primary_tool_expected)
         return {
             "answer_text":            "<exceeded max turns>",
             "extracted_value":        val,
@@ -541,6 +610,7 @@ async def _amain(args) -> int:
                         q["question"],
                         sys_prompt,
                         real_params_by_tool=real_params_by_tool,
+                        primary_tool_expected=q.get("primary_tool_expected"),
                     )
                 except Exception as e:
                     print(f"  ERROR: {e}", file=sys.stderr)
