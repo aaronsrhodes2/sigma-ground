@@ -174,7 +174,9 @@ async def _run_one_question(session, ollama_url: str, model: str,
     tool_calls_made: list[dict] = []
     t0 = time.time()
     timeout_s = 120.0
-    max_turns = 10
+    max_turns = 14
+    nudges_sent = 0
+    max_nudges = 2
 
     async with httpx.AsyncClient(timeout=timeout_s) as http:
         for turn in range(max_turns):
@@ -190,11 +192,29 @@ async def _run_one_question(session, ollama_url: str, model: str,
             msg = data.get("message", {})
             messages.append(msg)
 
-            # If no tool calls, we're done
             tcs = msg.get("tool_calls") or []
             if not tcs:
                 final = msg.get("content", "") or ""
                 val, units = _extract_value(final)
+                # If the model produced no tool call AND no ANSWER: line,
+                # it has either reasoned in prose without calling a tool
+                # OR signalled "let me calculate" but stopped. Nudge it.
+                if val is None and "ANSWER:" not in final.upper() \
+                       and nudges_sent < max_nudges:
+                    nudge = (
+                        "STOP. You did not call any tool, and you did "
+                        "not produce an ANSWER: line. Per rule 7 of "
+                        "your system prompt, any numerical question "
+                        "REQUIRES a tool call. Call the appropriate "
+                        "tool from the TOOL INDEX now. If no tool fits "
+                        "the question, produce the ANSWER: line with "
+                        "the '[SOURCE: Fitted due to incompetence ...]' "
+                        "tag. Respond with EITHER a tool call OR an "
+                        "ANSWER: line -- nothing else."
+                    )
+                    messages.append({"role": "user", "content": nudge})
+                    nudges_sent += 1
+                    continue
                 fallback_used = False
                 # Fallback: if the LLM forgot the ANSWER: line but did call
                 # tools, pull value/units from the last tool result. This
@@ -211,6 +231,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
                     "turns":                  turn + 1,
                     "elapsed_s":              time.time() - t0,
                     "extracted_via_fallback": fallback_used,
+                    "nudges_sent":            nudges_sent,
                 }
 
             # Dispatch each tool call to the MCP session
@@ -285,11 +306,15 @@ async def _amain(args) -> int:
     if args.resume and args.output.exists():
         with args.output.open(encoding="utf-8") as f:
             for rec in json.load(f):
-                # Skip errored or different-model records -- re-run them
+                # Skip errored, different-model, or no-value records --
+                # re-run them. A None extracted_value means we got no
+                # useful answer, regardless of how the run terminated.
                 ans = rec.get("answer_text", "") or ""
                 if ans.startswith("<ERROR") or ans == "<exceeded max turns>":
                     continue
                 if rec.get("model") and rec["model"] != args.model:
+                    continue
+                if rec.get("extracted_value") is None:
                     continue
                 existing[rec["id"]] = rec
     out = list(existing.values())
