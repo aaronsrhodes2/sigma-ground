@@ -317,8 +317,7 @@ async def _amain(args) -> int:
         print("ERROR: pip install httpx", file=sys.stderr)
         return 1
 
-    here = Path(__file__).parent
-    with (here / "questions.json").open(encoding="utf-8") as f:
+    with args.questions.open(encoding="utf-8") as f:
         questions = json.load(f)
     if args.limit:
         questions = questions[:args.limit]
@@ -414,6 +413,9 @@ def main() -> int:
     parser.add_argument("--ollama-url", default="http://localhost:11434")
     parser.add_argument("--output", type=Path,
                         default=Path(__file__).parent / "results" / "sigma_ground_run.json")
+    parser.add_argument("--questions", type=Path,
+                        default=Path(__file__).parent / "questions.json",
+                        help="Path to questions corpus JSON.")
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--resume", action="store_true", default=True)
     parser.add_argument("--no-resume", dest="resume", action="store_false")

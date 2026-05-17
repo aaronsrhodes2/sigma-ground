@@ -156,6 +156,11 @@ def main() -> int:
                               "is cheapest.")
     parser.add_argument("--output", type=Path,
                         default=Path(__file__).parent / "results" / "gemini_run.json")
+    parser.add_argument("--questions", type=Path,
+                        default=Path(__file__).parent / "questions.json",
+                        help="Path to questions corpus JSON. Defaults to the "
+                              "main 150-question physics corpus. Pass "
+                              "adversarial_questions.json for the trick set.")
     parser.add_argument("--limit", type=int, default=None,
                         help="Only run first N questions (for testing).")
     parser.add_argument("--resume", action="store_true", default=True,
@@ -187,8 +192,7 @@ def main() -> int:
     model = genai.GenerativeModel(args.model,
                                      system_instruction=_SYSTEM_PROMPT)
 
-    here = Path(__file__).parent
-    with (here / "questions.json").open(encoding="utf-8") as f:
+    with args.questions.open(encoding="utf-8") as f:
         questions = json.load(f)
     if args.limit:
         questions = questions[:args.limit]

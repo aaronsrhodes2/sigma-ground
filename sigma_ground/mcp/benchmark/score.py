@@ -175,6 +175,68 @@ def _values_match(extracted: Any, expected: Any,
     return rel_err <= tolerance_rel, rel_err, f"rel_err {rel_err:.3e}" + note_unit
 
 
+def _score_keyword_match(answer_text: str, expected_keywords: list[str],
+                            threshold: float = 0.5) -> tuple[bool, float, str]:
+    """Count how many expected keywords appear in the answer (case insensitive).
+
+    Returns (correct, fraction_matched, notes). 'correct' iff fraction >= threshold.
+    """
+    if not expected_keywords:
+        return False, 0.0, "no keywords defined"
+    text = (answer_text or "").lower()
+    matched = [k for k in expected_keywords if k.lower() in text]
+    frac = len(matched) / len(expected_keywords)
+    notes = f"matched {len(matched)}/{len(expected_keywords)}: {matched[:3]!r}"
+    return frac >= threshold, frac, notes
+
+
+def _score_one(record: dict, q: dict, truth: dict
+                ) -> tuple[bool, float | None, str]:
+    """Dispatch on question_type. Returns (correct, rel_err_or_frac, notes)."""
+    qtype = truth.get("question_type") or q.get("question_type") or "numerical"
+    answer = record.get("answer_text", "") or ""
+    extracted = record.get("extracted_value")
+    expected = truth.get("expected_value")
+    tol = truth.get("tolerance_rel")
+    keywords = truth.get("expected_keywords", []) or []
+
+    if qtype in ("numerical", "puzzle"):
+        return _values_match(
+            extracted, expected, tol if tol is not None else 0.05,
+            extracted_units=record.get("extracted_units", "") or "",
+            expected_units=truth.get("expected_units", "") or "",
+        )
+
+    if qtype in ("refusal_expected", "nonsense"):
+        # Primary: keyword presence in answer. Bonus: if expected_value
+        # is also numeric and the system gets that right, accept it.
+        kw_ok, frac, notes = _score_keyword_match(answer, keywords, threshold=0.34)
+        if kw_ok:
+            return True, frac, f"refusal/nonsense kw {notes}"
+        # Allow a numeric escape hatch: e.g. adv_impossible_003 (Avogadro)
+        # has an exact value AND keywords -- accept either path.
+        if isinstance(expected, (int, float)) and extracted is not None:
+            num_ok, rel_err, num_notes = _values_match(
+                extracted, expected, tol if tol is not None else 0.02,
+                extracted_units=record.get("extracted_units", "") or "",
+                expected_units=truth.get("expected_units", "") or "",
+            )
+            if num_ok:
+                return True, rel_err, f"numeric ({num_notes})"
+        return False, frac, f"failed refusal/nonsense: {notes}"
+
+    if qtype == "open_ended":
+        # Lower threshold: 33% of keywords mentioned = correct
+        return _score_keyword_match(answer, keywords, threshold=0.34)
+
+    # Unknown type -> fall back to numerical
+    return _values_match(
+        extracted, expected, tol if tol is not None else 0.05,
+        extracted_units=record.get("extracted_units", "") or "",
+        expected_units=truth.get("expected_units", "") or "",
+    )
+
+
 def score_run(run_path: Path, corpus_path: Path,
                 ground_truth_path: Path) -> list[ScoreRow]:
     """Score one runner's output against ground truth."""
@@ -191,13 +253,7 @@ def score_run(run_path: Path, corpus_path: Path,
         truth = gt.get(qid)
         if q is None or truth is None:
             continue
-        correct, rel_err, notes = _values_match(
-            record.get("extracted_value"),
-            truth["expected_value"],
-            truth["tolerance_rel"],
-            extracted_units=record.get("extracted_units", "") or "",
-            expected_units=truth.get("expected_units", "") or "",
-        )
+        correct, rel_err, notes = _score_one(record, q, truth)
         out.append(ScoreRow(
             id=qid,
             system=record.get("system", "unknown"),
@@ -241,24 +297,39 @@ def summarize(rows: list[ScoreRow]) -> dict[str, Any]:
 
 
 def main() -> None:
-    """CLI: score all available runner outputs in results/."""
+    """CLI: score all available runner outputs in results/.
+
+    Each {system}_run.json is scored against the main corpus
+    (questions.json + ground_truth.json). Each adversarial_{system}_run.json
+    is scored against the adversarial corpus.
+    """
     here = Path(__file__).parent
-    corpus_path = here / "questions.json"
-    ground_truth_path = here / "ground_truth.json"
+    main_corpus = (here / "questions.json", here / "ground_truth.json")
+    adv_corpus = (here / "adversarial_questions.json",
+                    here / "adversarial_ground_truth.json")
     results_dir = here / "results"
     if not results_dir.exists():
         print(f"No results/ directory. Run a runner first.")
         return
     for run_file in sorted(results_dir.glob("*_run.json")):
-        rows = score_run(run_file, corpus_path, ground_truth_path)
+        if run_file.name.startswith("adversarial_"):
+            corpus_path, gt_path = adv_corpus
+            tag = "[adversarial]"
+        else:
+            corpus_path, gt_path = main_corpus
+            tag = "[main]"
+        if not corpus_path.exists() or not gt_path.exists():
+            print(f"{run_file.name}: skipping ({corpus_path.name} or "
+                  f"{gt_path.name} missing)")
+            continue
+        rows = score_run(run_file, corpus_path, gt_path)
         summary = summarize(rows)
-        print(f"\n=== {run_file.name} ===")
+        print(f"\n=== {run_file.name} {tag} ===")
         print(f"Overall: {summary['overall_correct']}/{summary['overall_total']} "
               f"= {summary['overall_accuracy_pct']:.1f}%")
         print("By domain:")
         for d, s in sorted(summary["by_domain"].items()):
             print(f"  {d:<35s} {s['correct']:3d}/{s['total']:3d} ({s['pct']:5.1f}%)")
-        # Save detailed scoring
         score_out = results_dir / run_file.name.replace("_run.json", "_scored.json")
         with score_out.open("w", encoding="utf-8") as f:
             json.dump({"summary": summary,

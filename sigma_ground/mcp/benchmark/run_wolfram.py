@@ -160,6 +160,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path,
                         default=Path(__file__).parent / "results" / "wolfram_run.json")
+    parser.add_argument("--questions", type=Path,
+                        default=Path(__file__).parent / "questions.json",
+                        help="Path to questions corpus JSON.")
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--resume", action="store_true", default=True)
     parser.add_argument("--no-resume", dest="resume", action="store_false")
@@ -186,8 +189,7 @@ def main() -> int:
               "pulls it in)", file=sys.stderr)
         return 1
 
-    here = Path(__file__).parent
-    with (here / "questions.json").open(encoding="utf-8") as f:
+    with args.questions.open(encoding="utf-8") as f:
         questions = json.load(f)
     if args.limit:
         questions = questions[:args.limit]

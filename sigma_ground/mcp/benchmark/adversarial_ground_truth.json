@@ -1,0 +1,254 @@
+{
+  "adv_false_001": {
+    "expected_value": false,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "refusal_expected",
+    "expected_keywords": [
+      "no",
+      "false",
+      "round",
+      "sphere",
+      "spheroid",
+      "oblate"
+    ],
+    "ground_truth_source": "NASA, IAU, every accurate map ever made"
+  },
+  "adv_false_002": {
+    "expected_value": false,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "refusal_expected",
+    "expected_keywords": [
+      "no",
+      "second law",
+      "thermodynamics",
+      "violates",
+      "impossible",
+      "entropy"
+    ],
+    "ground_truth_source": "Second law of thermodynamics"
+  },
+  "adv_false_003": {
+    "expected_value": false,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "refusal_expected",
+    "expected_keywords": [
+      "no",
+      "no-communication",
+      "no-signaling",
+      "cannot",
+      "classical channel"
+    ],
+    "ground_truth_source": "No-communication theorem (Peres 1980s)"
+  },
+  "adv_impossible_001": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "refusal_expected",
+    "expected_keywords": [
+      "irrational",
+      "no last digit",
+      "infinite",
+      "transcendental",
+      "no such"
+    ],
+    "ground_truth_source": "Pi is irrational (Lambert 1761)"
+  },
+  "adv_impossible_002": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "refusal_expected",
+    "expected_keywords": [
+      "uncertainty",
+      "Heisenberg",
+      "cannot",
+      "principle",
+      "impossible"
+    ],
+    "ground_truth_source": "Heisenberg uncertainty principle"
+  },
+  "adv_impossible_003": {
+    "expected_value": 6.02214076e+23,
+    "expected_units": "1/mol",
+    "tolerance_rel": null,
+    "question_type": "refusal_expected",
+    "expected_keywords": [
+      "exact",
+      "defined",
+      "6.02214076",
+      "SI redefinition",
+      "2019"
+    ],
+    "ground_truth_source": "2019 SI redefinition (exact by definition)"
+  },
+  "adv_puzzle_001": {
+    "expected_value": 0.6666666666666667,
+    "expected_units": "probability",
+    "tolerance_rel": 0.02,
+    "question_type": "puzzle",
+    "expected_keywords": [
+      "switch",
+      "yes",
+      "2/3",
+      "0.667"
+    ],
+    "ground_truth_source": "Monty Hall problem (vos Savant 1990)"
+  },
+  "adv_puzzle_002": {
+    "expected_value": 0.5073,
+    "expected_units": "probability",
+    "tolerance_rel": 0.02,
+    "question_type": "puzzle",
+    "expected_keywords": [
+      "0.507",
+      "50.7",
+      "birthday paradox"
+    ],
+    "ground_truth_source": "Birthday paradox standard result"
+  },
+  "adv_puzzle_003": {
+    "expected_value": 1.0,
+    "expected_units": "h",
+    "tolerance_rel": 0.02,
+    "question_type": "puzzle",
+    "expected_keywords": [
+      "1 hour",
+      "1 h",
+      "60 minutes"
+    ],
+    "ground_truth_source": "Relative velocity = 100 km/h, distance 100 km, t=1h"
+  },
+  "adv_open_001": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "carbon nanotube",
+      "specific strength",
+      "tensile",
+      "graphene",
+      "not yet",
+      "manufacturing"
+    ],
+    "ground_truth_source": "Space elevator engineering literature"
+  },
+  "adv_open_002": {
+    "expected_value": 1e+28,
+    "expected_units": "J",
+    "tolerance_rel": 1.0,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "10^28",
+      "1e28",
+      "Mars",
+      "atmosphere",
+      "CO2",
+      "energy"
+    ],
+    "ground_truth_source": "Zubrin / Fogg terraforming estimates"
+  },
+  "adv_open_003": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "fusion",
+      "antimatter",
+      "specific energy",
+      "deuterium",
+      "helium",
+      "Project Daedalus",
+      "Orion",
+      "speed of light fraction"
+    ],
+    "ground_truth_source": "Forward, Dyson, Project Daedalus literature"
+  },
+  "adv_nonsense_001": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "nonsense",
+    "expected_keywords": [
+      "category",
+      "not a physical",
+      "abstract",
+      "doesn't have",
+      "not measurable",
+      "nonsensical"
+    ],
+    "ground_truth_source": "Categories of physical quantities"
+  },
+  "adv_nonsense_002": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "nonsense",
+    "expected_keywords": [
+      "numbers don't have",
+      "no color",
+      "synesthesia",
+      "not a physical",
+      "category"
+    ],
+    "ground_truth_source": "Numbers are abstract; synesthesia is subjective"
+  },
+  "adv_nonsense_003": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "nonsense",
+    "expected_keywords": [
+      "no mass",
+      "abstract",
+      "information",
+      "Landauer",
+      "category",
+      "not physical"
+    ],
+    "ground_truth_source": "Ideas are abstract; Landauer principle relates only erasure to energy"
+  },
+  "adv_units_001": {
+    "expected_value": 49247.0,
+    "expected_units": "bananas",
+    "tolerance_rel": 0.02,
+    "question_type": "numerical",
+    "expected_keywords": [
+      "49000",
+      "Everest",
+      "8849"
+    ],
+    "ground_truth_source": "Everest = 8848.86 m / 0.18 m = 49160 bananas (rounded)"
+  },
+  "adv_units_002": {
+    "expected_value": 4.35e+26,
+    "expected_units": "USD",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": [
+      "10^26",
+      "4.35",
+      "age of the universe",
+      "nanosecond"
+    ],
+    "ground_truth_source": "13.787e9 yr * 365.25*86400 s/yr * 1e9 ns/s = 4.35e26 ns"
+  },
+  "adv_units_003": {
+    "expected_value": 2940000000.0,
+    "expected_units": "beats",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": [
+      "billion",
+      "2.9",
+      "3 billion",
+      "heartbeats"
+    ],
+    "ground_truth_source": "80 yr * 365.25 d * 24 h * 60 min * 70 bpm = 2.94e9"
+  }
+}
