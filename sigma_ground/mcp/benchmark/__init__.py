@@ -33,26 +33,42 @@ def load_env_from_dev_root(verbose: bool = False) -> Path | None:
     -------
     Path of the loaded .env, or None if none found.
     """
-    # Walk up from CWD; also check the parent of this package as a fallback
-    # so the runners work even if invoked from inside an IDE with a weird CWD.
+    # Collect all .env candidates from CWD ancestry + package ancestry.
     candidates: list[Path] = []
     here = Path.cwd().resolve()
     for ancestor in [here, *here.parents]:
         candidates.append(ancestor / ".env")
-    # Also try the dev root if we can identify it from this file's path
     pkg_root = Path(__file__).resolve()
     for ancestor in pkg_root.parents:
         candidates.append(ancestor / ".env")
 
+    # Find all existing .env files, dedup, and load shallowest-first
+    # (closest to filesystem root). With override=False, the dev-root
+    # .env (typically the shallowest) wins for any shared key. This
+    # matters because the dev root is the AUTHORITATIVE location for
+    # shared secrets; project-local .env files may exist as stubs.
+    seen: set[Path] = set()
+    existing: list[Path] = []
     for path in candidates:
+        if path in seen:
+            continue
+        seen.add(path)
         if path.is_file():
-            _load_env_file(path)
-            if verbose:
-                print(f"Loaded env vars from {path}")
-            return path
-    if verbose:
-        print("No .env file found in CWD ancestry or package ancestry.")
-    return None
+            existing.append(path)
+    # Shallowest first (fewest path parts).
+    existing.sort(key=lambda p: len(p.parts))
+
+    if not existing:
+        if verbose:
+            print("No .env file found in CWD ancestry or package ancestry.")
+        return None
+
+    for path in existing:
+        _load_env_file(path)
+        if verbose:
+            print(f"Loaded env vars from {path}")
+    # Return the dev-root one (shallowest) for the function name to be honest.
+    return existing[0]
 
 
 def _load_env_file(path: Path) -> None:
