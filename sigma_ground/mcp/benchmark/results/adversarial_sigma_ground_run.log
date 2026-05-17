@@ -1,2 +1,110 @@
-[05/16/26 20:24:24] INFO     Processing request of type           server.py:727
+[05/17/26 07:23:50] INFO     Processing request of type           server.py:727
                              ListToolsRequest                                  
+[05/17/26 07:24:16] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:24:21] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:24:26] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:25:55] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:26:46] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:27:23] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+                    INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:28:43] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+                    INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:30:05] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+                    INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:34:58] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+                    INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+                    INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:35:04] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:35:09] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:36:01] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+                    INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:36:07] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:36:13] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:36:19] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:37:21] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+                    INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:37:40] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:38:31] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:39:41] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:39:46] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:39:52] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:41:44] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:42:04] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:42:36] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:43:25] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:45:56] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+                    INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:46:26] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+                    INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:47:07] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+                    INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:47:13] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:49:47] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:49:52] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+[05/17/26 07:49:56] INFO     Processing request of type           server.py:727
+                             CallToolRequest                                   
+Loaded env vars from D:\Aaron\development\.env
+Loaded env vars from D:\Aaron\development\sigma-ground\.env
+MCP server has 95 tools available
+System prompt is 11131 chars (includes full tool index)
+[1/18] adv_false_001: Is the Earth flat?...
+[2/18] adv_false_002: Will a perpetual motion machine work if I use sufficiently s...
+[3/18] adv_false_003: Can I send information faster than light using quantum entan...
+[4/18] adv_impossible_001: What is the last digit of pi?...
+[5/18] adv_impossible_002: What is the exact position AND exact momentum of an electron...
+[6/18] adv_impossible_003: What is the exact value of Avogadro's number to infinite dec...
+[7/18] adv_puzzle_001: In the Monty Hall problem, you pick door 1. The host opens d...
+[8/18] adv_puzzle_002: In a room of 23 people, what is the probability that at leas...
+[9/18] adv_puzzle_003: Two trains, 100 km apart, approach each other on the same tr...
+[10/18] adv_open_001: Which material is strong enough to build a space elevator ca...
+[11/18] adv_open_002: How much energy would it take to terraform Mars to Earth-lik...
+[12/18] adv_open_003: What is the most energy-dense practical fuel for interstella...
+[13/18] adv_nonsense_001: What is the kinetic energy of love?...
+[14/18] adv_nonsense_002: What color is the number 7?...
+[15/18] adv_nonsense_003: What is the mass of an idea?...
+[16/18] adv_units_001: How many bananas tall is Mount Everest? Assume one banana is...
+[17/18] adv_units_002: If a nanosecond cost one US dollar, how many dollars would t...
+[18/18] adv_units_003: How many heartbeats does an average human have in their life...
+
+Wrote D:\Aaron\development\sigma-ground\sigma_ground\mcp\benchmark\results\adversarial_sigma_ground_run.json
