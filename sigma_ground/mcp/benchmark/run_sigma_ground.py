@@ -58,6 +58,24 @@ ABSOLUTE RULES:
 
 4. If the question is conceptual (no numeric answer), write:
        ANSWER: <one-word or short phrase>
+
+5. Each question is INDEPENDENT. Treat every question as a brand-new
+   problem with NO context from any previous question. This server does
+   not run in conversation mode; you have no memory between questions.
+   Do not assume any value, convention, unit choice, or setup carries
+   over from anything you saw before this prompt.
+
+6. Use the EXACT tool and parameter names listed in the TOOL INDEX
+   below. Do not invent synonyms. If the index lists
+   `initial_speed_m_s`, do NOT pass `velocity`, `speed`, or `v0`. If a
+   tool returns `"value": null`, your inputs were wrong -- pick a
+   different tool or correct the parameter names/values before falling
+   back to the "Fitted due to incompetence" tag.
+
+7. For ANY question that has a numerical answer, you MUST call at least
+   one tool before producing the ANSWER: line. Do not answer numerical
+   questions from memory even if you "know" the value -- look it up via
+   `lookup_constant` or compute it via the appropriate domain tool.
 """
 
 
@@ -109,6 +127,37 @@ def _extract_value_from_tool_calls(tool_calls: list[dict]) -> tuple[Any, str]:
         units = m_units.group(1) if m_units else ""
         return val, units
     return None, ""
+
+
+def _build_tool_index(tools_for_ollama: list[dict]) -> str:
+    """Compact textual inventory of tools with their parameter names.
+
+    The LLM also receives the full JSONSchema via the Ollama `tools`
+    field, but a flat textual index in the system prompt reinforces
+    EXACT parameter names so Qwen is less likely to invent synonyms
+    (which we observed in the 7b qwen2.5 run: 'velocity' instead of
+    'initial_speed_m_s', 'angle_degrees' instead of 'launch_angle_deg').
+    """
+    lines = [
+        "=== TOOL INDEX ===",
+        f"({len(tools_for_ollama)} tools available; * = required parameter)",
+        "",
+    ]
+    for t in tools_for_ollama:
+        fn = t["function"]
+        name = fn["name"]
+        params = fn.get("parameters", {}) or {}
+        props = params.get("properties", {}) or {}
+        required = set(params.get("required", []))
+        param_strs = []
+        for pname in props.keys():
+            marker = "*" if pname in required else ""
+            param_strs.append(f"{pname}{marker}")
+        desc = (fn.get("description") or "").split("\n")[0][:90].strip()
+        lines.append(f"  {name}({', '.join(param_strs)})")
+        if desc:
+            lines.append(f"      {desc}")
+    return "\n".join(lines)
 
 
 async def _run_one_question(session, ollama_url: str, model: str,
@@ -264,11 +313,11 @@ async def _amain(args) -> int:
                 }
                 for t in tools_resp.tools
             ]
-            sys_prompt = _SYSTEM_PROMPT_BASE + (
-                f"\n\nAvailable tools: {len(tools_for_ollama)}. "
-                f"Call get_manifest() first if you need a tool inventory."
-            )
+            tool_index = _build_tool_index(tools_for_ollama)
+            sys_prompt = _SYSTEM_PROMPT_BASE + "\n\n" + tool_index
             print(f"MCP server has {len(tools_for_ollama)} tools available")
+            print(f"System prompt is {len(sys_prompt)} chars "
+                  f"(includes full tool index)")
 
             for i, q in enumerate(questions):
                 if q["id"] in existing:
