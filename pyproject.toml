@@ -70,6 +70,7 @@ benchmark = [
     "wolframalpha>=5.1",       # Wolfram Alpha free-tier API client
     "google-generativeai>=0.8", # Gemini API SDK
     "httpx>=0.27",             # async HTTP client for Ollama tool loop
+    "python-dotenv>=1.0",      # auto-load env vars from dev-root .env
 ]
 
 [tool.setuptools.packages.find]

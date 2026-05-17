@@ -170,6 +170,10 @@ async def _run_one_question(session, ollama_url: str, model: str,
 
 
 async def _amain(args) -> int:
+    # Auto-load env vars from the dev-root .env (Ollama URL override, etc.)
+    from sigma_ground.mcp.benchmark import load_env_from_dev_root
+    load_env_from_dev_root(verbose=True)
+
     try:
         from mcp import ClientSession, StdioServerParameters
         from mcp.client.stdio import stdio_client

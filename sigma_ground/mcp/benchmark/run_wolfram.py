@@ -132,9 +132,14 @@ def main() -> int:
                         help="Pause between queries to be polite")
     args = parser.parse_args()
 
+    # Auto-load API keys from the dev-root .env (or any ancestor)
+    from sigma_ground.mcp.benchmark import load_env_from_dev_root
+    load_env_from_dev_root(verbose=True)
+
     app_id = os.environ.get("WOLFRAM_ALPHA_APP_ID")
     if not app_id:
-        print("ERROR: set WOLFRAM_ALPHA_APP_ID env var", file=sys.stderr)
+        print("ERROR: set WOLFRAM_ALPHA_APP_ID env var (or add to dev-root .env)",
+              file=sys.stderr)
         return 1
 
     try:

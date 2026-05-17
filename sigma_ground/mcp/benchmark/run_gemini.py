@@ -121,9 +121,14 @@ def main() -> int:
                         help="Skip questions already in the output file.")
     args = parser.parse_args()
 
+    # Auto-load API keys from the dev-root .env (or any ancestor)
+    from sigma_ground.mcp.benchmark import load_env_from_dev_root
+    load_env_from_dev_root(verbose=True)
+
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        print("ERROR: set GEMINI_API_KEY env var", file=sys.stderr)
+        print("ERROR: set GEMINI_API_KEY env var (or add to dev-root .env)",
+              file=sys.stderr)
         return 1
 
     try:

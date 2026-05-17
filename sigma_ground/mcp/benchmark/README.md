@@ -40,14 +40,28 @@ cd D:\Aaron\development\sigma-ground
 pip install -e ".[mcp,benchmark]"
 ```
 
-### 2. Regenerate corpus (if needed)
+### 2. Set up API keys
+
+Put your keys in `D:\Aaron\development\.env` (the dev-root shared `.env`).
+The runners auto-load this file via `python-dotenv` — no manual sourcing
+needed. See `D:\Aaron\development\.env.reference.md` for the variable
+catalog. Required for the benchmark:
+
+```
+GEMINI_API_KEY=...           # from https://aistudio.google.com/
+WOLFRAM_ALPHA_APP_ID=...     # from https://developer.wolframalpha.com/ (free)
+```
+
+(`run_sigma_ground.py` needs no API keys; it uses local Ollama.)
+
+### 3. Regenerate corpus (if needed)
 
 ```bash
 python -m sigma_ground.mcp.benchmark.corpus
 # Writes questions.json + ground_truth.json
 ```
 
-### 3. Run each backend (parallel-safe)
+### 4. Run each backend (parallel-safe)
 
 **sigma_ground + Qwen** (~75 min runtime on 4070 Ti 16 GB):
 ```bash
@@ -60,7 +74,6 @@ python -m sigma_ground.mcp.benchmark.run_sigma_ground \
 
 **Wolfram Alpha** (~2 days, rate-limited free tier):
 ```bash
-export WOLFRAM_ALPHA_APP_ID=<your free APP_ID from developer.wolframalpha.com>
 python -m sigma_ground.mcp.benchmark.run_wolfram \
     --output sigma_ground/mcp/benchmark/results/wolfram_run.json \
     --pace-per-day 90 --pause-s 2
@@ -69,7 +82,6 @@ python -m sigma_ground.mcp.benchmark.run_wolfram \
 
 **Gemini 2.5 Pro** (~8 min, $1-5 total):
 ```bash
-export GEMINI_API_KEY=<your key from aistudio.google.com>
 python -m sigma_ground.mcp.benchmark.run_gemini \
     --model gemini-2.5-pro \
     --output sigma_ground/mcp/benchmark/results/gemini_run.json
