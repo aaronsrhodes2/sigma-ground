@@ -712,11 +712,12 @@ async def _amain(args) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--model", default="qwen2.5:14b",
-                        help="Ollama model tag. 14b is the default (better "
-                              "synthesis after tool calls than 7b); 7b is "
-                              "faster but more often forgets the ANSWER: line "
-                              "(the fallback extractor catches that case).")
+    parser.add_argument("--model", default="qwen2.5:7b",
+                        help="Ollama model tag. 7b is the default after testing "
+                              "showed it ~2x faster with comparable accuracy "
+                              "once the tool-first discipline rules + fallback "
+                              "extractor are in place. 14b available if needed "
+                              "for harder synthesis questions.")
     parser.add_argument("--ollama-url", default="http://localhost:11434")
     parser.add_argument("--output", type=Path,
                         default=Path(__file__).parent / "results" / "sigma_ground_run.json")
