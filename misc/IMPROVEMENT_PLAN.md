@@ -79,3 +79,477 @@ Categories:
 
 ---
 
+## 2026-05-17
+
+- LIBRARY GAP count:        0
+- DISCOVERABILITY GAP count: 2
+- WOLFRAM PHRASING count:    1
+- GEMINI HALLUCINATION count:2
+
+### DISCOVERABILITY GAP — keywords or pattern hint needed
+- `mech_intro_007` (classical_mechanics_intro): How fast does a satellite need to orbit at 400 km altitude above Earth's surface?
+    expected: `circular_orbit_velocity` ; Qwen tried: ['solar_system_body', 'light_travel_time']
+- `mech_intro_014` (classical_mechanics_intro): What speed does a 0.5 kg ball need to have 100 joules of kinetic energy?
+    expected: `solve_equation` ; Qwen tried: ['kinetic_energy', 'ohms_law_voltage']
+
+### WOLFRAM PHRASING — add manual `wolfram_phrasing` to question
+- `qm_008` (quantum_mechanics): What's the first ionization energy of sodium?
+
+### GEMINI HALLUCINATION (Gemini confident, wrong)
+- `mech_intro_015` (classical_mechanics_intro): expected 0.0, gemini said 3074.0
+- `em_intro_003` (electromagnetism_intro): expected 8.854e-09, gemini said $8.854 \times 10^{-9} \text{ F}$
+
+---
+
+## 2026-05-17
+
+- LIBRARY GAP count:        1
+- DISCOVERABILITY GAP count: 25
+- WOLFRAM PHRASING count:    1
+- GEMINI HALLUCINATION count:2
+
+### LIBRARY GAP — build the missing tool
+- `thermo_006` (thermodynamics_statmech): What's the most probable speed for an oxygen molecule at room temperature 300 K? Mass of O
+    expected tool: `maxwell_boltzmann_most_probable_speed`; expected value: 395.0
+
+### DISCOVERABILITY GAP — keywords or pattern hint needed
+- `mech_intro_007` (classical_mechanics_intro): How fast does a satellite need to orbit at 400 km altitude above Earth's surface?
+    expected: `circular_orbit_velocity` ; Qwen tried: ['solar_system_body', 'light_travel_time']
+- `mech_intro_014` (classical_mechanics_intro): What speed does a 0.5 kg ball need to have 100 joules of kinetic energy?
+    expected: `solve_equation` ; Qwen tried: ['kinetic_energy', 'ohms_law_voltage']
+- `em_intro_012` (electromagnetism_intro): If I want a capacitor with 1 microfarad capacitance using 1 mm separation between plates i
+    expected: `solve_equation` ; Qwen tried: ['parallel_plate_capacitance']
+- `optics_001` (waves_optics): Light hits water (n=1.333) from air at 30 degrees from vertical. What angle does it bend t
+    expected: `snells_law_refraction_angle` ; Qwen tried: ['double_slit_fringe_spacing', 'single_slit_first_minimum_angle', 'refractive_index']
+- `optics_002` (waves_optics): I'm looking up from underwater. At what angle does light from above stop being able to esc
+    expected: `critical_angle_for_tir` ; Qwen tried: ['melting_point']
+- `optics_012` (waves_optics): Sirius B is a white dwarf about 8.6 light years away. How long does its light take to reac
+    expected: `named_star` ; Qwen tried: ['light_travel_time']
+- `thermo_001` (thermodynamics_statmech): What pressure does 1 mole of ideal gas exert at 0 Celsius in a 22.4 liter container?
+    expected: `ideal_gas_pressure` ; Qwen tried: ['ohms_law_voltage']
+- `thermo_004` (thermodynamics_statmech): A heat engine runs between 600 K and 300 K. What's the maximum possible efficiency?
+    expected: `carnot_efficiency` ; Qwen tried: ['ohms_law_voltage', 'electrical_power', 'rydberg_hydrogen_wavelength']
+- `thermo_012` (thermodynamics_statmech): The Sun's surface temperature is about 5778 K. What wavelength is its peak emission?
+    expected: `blackbody_peak_wavelength` ; Qwen tried: ['single_slit_first_minimum_angle']
+- `modern_005` (modern_physics): The Sun emits about 3.828e26 watts of energy. How much mass does it convert to energy ever
+    expected: `luminosity_to_mass_conversion_rate` ; Qwen tried: ['power_dissipation_resistor', 'photon_energy_from_wavelength', 'electrical_power']
+- `modern_008` (modern_physics): 1 joule equals how many electronvolts?
+    expected: `joules_to_eV` ; Qwen tried: ['photon_energy_from_wavelength', 'photon_energy_from_frequency']
+- `modern_009` (modern_physics): A 1-megaton nuclear weapon releases how many joules?
+    expected: `joules_to_TNT` ; Qwen tried: ['light_travel_time']
+- `modern_012` (modern_physics): If a galaxy recedes from us at 1000 km/s (0.0033 c), by what factor are its emission wavel
+    expected: `doppler_shift_factor` ; Qwen tried: ['de_broglie_wavelength', 'em_wave_frequency']
+- `qm_005` (quantum_mechanics): What's the de Broglie wavelength of a 1 keV electron?
+    expected: `de_broglie_wavelength` ; Qwen tried: ['hydrogen_like_energy_level']
+- `mech_adv_009` (classical_mechanics_advanced): How fast is the International Space Station going? It orbits at about 408 km altitude.
+    expected: `circular_orbit_velocity` ; Qwen tried: ['solar_system_body', 'em_wave_wavelength']
+- `em_adv_004` (electrodynamics_advanced): I want a 100 microfarad capacitor with 0.1 mm plates separation and a dielectric of relati
+    expected: `solve_equation` ; Qwen tried: ['parallel_plate_capacitance']
+- `em_adv_007` (electrodynamics_advanced): A 5 kW electric heater dissipates how much energy in 1 hour?
+    expected: `solve_equation` ; Qwen tried: ['electrical_power', 'power_dissipation_resistor']
+- `em_adv_010` (electrodynamics_advanced): How long does it take a 5 watt LED to dissipate 1 kilojoule of energy?
+    expected: `solve_equation` ; Qwen tried: ['electrical_power', 'power_dissipation_resistor', 'ohms_law_voltage']
+- `gr_002` (general_relativity): Where is the photon sphere of a 10-solar-mass black hole?
+    expected: `photon_sphere_radius` ; Qwen tried: ['hydrogen_like_energy_level', 'schwarzschild_radius']
+- `gr_008` (general_relativity): At what altitude above Earth do GPS satellite clocks run faster by about 38 microseconds p
+    expected: `gravitational_time_dilation` ; Qwen tried: ['light_travel_time', 'solar_system_body']
+- ... +5 more
+
+### WOLFRAM PHRASING — add manual `wolfram_phrasing` to question
+- `qm_008` (quantum_mechanics): What's the first ionization energy of sodium?
+
+### GEMINI HALLUCINATION (Gemini confident, wrong)
+- `mech_intro_015` (classical_mechanics_intro): expected 0.0, gemini said 3074.0
+- `em_intro_003` (electromagnetism_intro): expected 8.854e-09, gemini said $8.854 \times 10^{-9} \text{ F}$
+
+---
+
+## 2026-05-17
+
+- LIBRARY GAP count:        0
+- DISCOVERABILITY GAP count: 12
+- WOLFRAM PHRASING count:    1
+- GEMINI HALLUCINATION count:2
+
+### DISCOVERABILITY GAP — keywords or pattern hint needed
+- `mech_intro_014` (classical_mechanics_intro): What speed does a 0.5 kg ball need to have 100 joules of kinetic energy?
+    expected: `solve_equation` ; Qwen tried: ['kinetic_energy', 'ohms_law_voltage']
+- `em_intro_012` (electromagnetism_intro): If I want a capacitor with 1 microfarad capacitance using 1 mm separation between plates i
+    expected: `solve_equation` ; Qwen tried: ['parallel_plate_capacitance']
+- `optics_002` (waves_optics): I'm looking up from underwater. At what angle does light from above stop being able to esc
+    expected: `critical_angle_for_tir` ; Qwen tried: ['melting_point', 'refractive_index']
+- `optics_012` (waves_optics): Sirius B is a white dwarf about 8.6 light years away. How long does its light take to reac
+    expected: `named_star` ; Qwen tried: ['light_travel_time']
+- `thermo_012` (thermodynamics_statmech): The Sun's surface temperature is about 5778 K. What wavelength is its peak emission?
+    expected: `blackbody_peak_wavelength` ; Qwen tried: ['single_slit_first_minimum_angle']
+- `modern_002` (modern_physics): An astronaut travels at 0.99 c for 10 years (his time). How much time passes on Earth?
+    expected: `relativistic_time_dilation` ; Qwen tried: ['light_travel_time']
+- `modern_003` (modern_physics): A 1 meter rod moves at 0.6 c. How long is it as seen from the rest frame?
+    expected: `relativistic_length_contraction` ; Qwen tried: ['thin_lens_image_distance', 'de_broglie_wavelength']
+- `modern_004` (modern_physics): How much energy is contained in 1 kg of mass via E=mc^2?
+    expected: `mass_to_energy` ; Qwen tried: ['electrical_power', 'power_dissipation_resistor', 'ohms_law_voltage']
+- `modern_005` (modern_physics): The Sun emits about 3.828e26 watts of energy. How much mass does it convert to energy ever
+    expected: `luminosity_to_mass_conversion_rate` ; Qwen tried: ['power_dissipation_resistor', 'electrical_power', 'list_materials', 'light_travel_time']
+- `modern_008` (modern_physics): 1 joule equals how many electronvolts?
+    expected: `joules_to_eV` ; Qwen tried: ['photon_energy_from_wavelength']
+- `modern_009` (modern_physics): A 1-megaton nuclear weapon releases how many joules?
+    expected: `joules_to_TNT` ; Qwen tried: ['light_travel_time', 'list_bodies']
+- `mech_adv_001` (classical_mechanics_advanced): What's Jupiter's orbital velocity around the Sun (assuming a circular orbit)?
+    expected: `circular_orbit_velocity` ; Qwen tried: ['solar_system_body']
+
+### WOLFRAM PHRASING — add manual `wolfram_phrasing` to question
+- `qm_008` (quantum_mechanics): What's the first ionization energy of sodium?
+
+### GEMINI HALLUCINATION (Gemini confident, wrong)
+- `mech_intro_015` (classical_mechanics_intro): expected 0.0, gemini said 3074.0
+- `em_intro_003` (electromagnetism_intro): expected 8.854e-09, gemini said $8.854 \times 10^{-9} \text{ F}$
+
+---
+
+## 2026-05-17
+
+- LIBRARY GAP count:        0
+- DISCOVERABILITY GAP count: 35
+- WOLFRAM PHRASING count:    1
+- GEMINI HALLUCINATION count:2
+
+### DISCOVERABILITY GAP — keywords or pattern hint needed
+- `em_intro_012` (electromagnetism_intro): If I want a capacitor with 1 microfarad capacitance using 1 mm separation between plates i
+    expected: `solve_equation` ; Qwen tried: ['parallel_plate_capacitance']
+- `optics_001` (waves_optics): Light hits water (n=1.333) from air at 30 degrees from vertical. What angle does it bend t
+    expected: `snells_law_refraction_angle` ; Qwen tried: ['double_slit_fringe_spacing', 'single_slit_first_minimum_angle']
+- `optics_002` (waves_optics): I'm looking up from underwater. At what angle does light from above stop being able to esc
+    expected: `critical_angle_for_tir` ; Qwen tried: ['single_slit_first_minimum_angle']
+- `optics_011` (waves_optics): What's the speed of sound in air at 20 degrees Celsius?
+    expected: `speed_of_sound_in_ideal_gas` ; Qwen tried: ['rydberg_hydrogen_wavelength', 'de_broglie_wavelength']
+- `optics_012` (waves_optics): Sirius B is a white dwarf about 8.6 light years away. How long does its light take to reac
+    expected: `named_star` ; Qwen tried: ['light_travel_time']
+- `thermo_001` (thermodynamics_statmech): What pressure does 1 mole of ideal gas exert at 0 Celsius in a 22.4 liter container?
+    expected: `ideal_gas_pressure` ; Qwen tried: ['ohms_law_voltage']
+- `thermo_002` (thermodynamics_statmech): What's the peak emission wavelength for a 6000 K star?
+    expected: `blackbody_peak_wavelength` ; Qwen tried: ['rydberg_hydrogen_wavelength']
+- `thermo_003` (thermodynamics_statmech): What's the total power per square meter radiated by a perfect blackbody at 300 K?
+    expected: `blackbody_total_power` ; Qwen tried: ['em_wave_wavelength', 'em_wave_frequency', 'photon_energy_from_wavelength', 'rydberg_hydrogen_wavelength', 'photon_energy_from_frequency']
+- `thermo_004` (thermodynamics_statmech): A heat engine runs between 600 K and 300 K. What's the maximum possible efficiency?
+    expected: `carnot_efficiency` ; Qwen tried: ['ohms_law_voltage', 'ohms_law_current', 'rydberg_hydrogen_wavelength', 'hydrogen_like_energy_level', 'hydrogen_emission_wavelength']
+- `thermo_005` (thermodynamics_statmech): What's the average thermal energy per molecule for a monatomic gas at room temperature, 30
+    expected: `thermal_energy_per_molecule` ; Qwen tried: ['hydrogen_like_energy_level']
+- `thermo_006` (thermodynamics_statmech): What's the most probable speed for an oxygen molecule at room temperature 300 K? Mass of O
+    expected: `maxwell_boltzmann_most_probable_speed` ; Qwen tried: ['de_broglie_wavelength', 'hydrogen_like_energy_level', 'hydrogen_emission_wavelength', 'photon_energy_from_wavelength', 'photon_energy_from_frequency']
+- `thermo_007` (thermodynamics_statmech): How much volume does 1 mole of gas take up at 25 Celsius and atmospheric pressure?
+    expected: `ideal_gas_volume` ; Qwen tried: ['density']
+- `thermo_011` (thermodynamics_statmech): Convert 100 Celsius to Kelvin.
+    expected: `temperature_celsius_to_kelvin` ; Qwen tried: ['melting_point', 'ohms_law_voltage']
+- `thermo_012` (thermodynamics_statmech): The Sun's surface temperature is about 5778 K. What wavelength is its peak emission?
+    expected: `blackbody_peak_wavelength` ; Qwen tried: ['rydberg_hydrogen_wavelength']
+- `modern_002` (modern_physics): An astronaut travels at 0.99 c for 10 years (his time). How much time passes on Earth?
+    expected: `relativistic_time_dilation` ; Qwen tried: ['thin_lens_image_distance']
+- `modern_003` (modern_physics): A 1 meter rod moves at 0.6 c. How long is it as seen from the rest frame?
+    expected: `relativistic_length_contraction` ; Qwen tried: ['thin_lens_image_distance']
+- `modern_004` (modern_physics): How much energy is contained in 1 kg of mass via E=mc^2?
+    expected: `mass_to_energy` ; Qwen tried: ['electrical_power']
+- `modern_005` (modern_physics): The Sun emits about 3.828e26 watts of energy. How much mass does it convert to energy ever
+    expected: `luminosity_to_mass_conversion_rate` ; Qwen tried: ['power_dissipation_resistor', 'electrical_power', 'photon_energy_from_wavelength', 'hydrogen_like_energy_level', 'photon_energy_from_frequency']
+- `modern_007` (modern_physics): How fast must I add 0.9 c to another 0.9 c (Einstein style) to get the total observed velo
+    expected: `relativistic_velocity_addition` ; Qwen tried: ['rydberg_hydrogen_wavelength']
+- `modern_008` (modern_physics): 1 joule equals how many electronvolts?
+    expected: `joules_to_eV` ; Qwen tried: ['photon_energy_from_wavelength']
+- ... +15 more
+
+### WOLFRAM PHRASING — add manual `wolfram_phrasing` to question
+- `qm_008` (quantum_mechanics): What's the first ionization energy of sodium?
+
+### GEMINI HALLUCINATION (Gemini confident, wrong)
+- `mech_intro_015` (classical_mechanics_intro): expected 0.0, gemini said 3074.0
+- `em_intro_003` (electromagnetism_intro): expected 8.854e-09, gemini said $8.854 \times 10^{-9} \text{ F}$
+
+---
+
+## 2026-05-19
+
+- LIBRARY GAP count:        0
+- DISCOVERABILITY GAP count: 35
+- WOLFRAM PHRASING count:    42
+- GEMINI HALLUCINATION count:8
+
+### DISCOVERABILITY GAP — keywords or pattern hint needed
+- `em_intro_012` (electromagnetism_intro): If I want a capacitor with 1 microfarad capacitance using 1 mm separation between plates i
+    expected: `solve_equation` ; Qwen tried: ['parallel_plate_capacitance']
+- `optics_001` (waves_optics): Light hits water (n=1.333) from air at 30 degrees from vertical. What angle does it bend t
+    expected: `snells_law_refraction_angle` ; Qwen tried: ['double_slit_fringe_spacing', 'single_slit_first_minimum_angle']
+- `optics_002` (waves_optics): I'm looking up from underwater. At what angle does light from above stop being able to esc
+    expected: `critical_angle_for_tir` ; Qwen tried: ['single_slit_first_minimum_angle']
+- `optics_011` (waves_optics): What's the speed of sound in air at 20 degrees Celsius?
+    expected: `speed_of_sound_in_ideal_gas` ; Qwen tried: ['rydberg_hydrogen_wavelength', 'de_broglie_wavelength']
+- `optics_012` (waves_optics): Sirius B is a white dwarf about 8.6 light years away. How long does its light take to reac
+    expected: `named_star` ; Qwen tried: ['light_travel_time']
+- `thermo_001` (thermodynamics_statmech): What pressure does 1 mole of ideal gas exert at 0 Celsius in a 22.4 liter container?
+    expected: `ideal_gas_pressure` ; Qwen tried: ['ohms_law_voltage']
+- `thermo_002` (thermodynamics_statmech): What's the peak emission wavelength for a 6000 K star?
+    expected: `blackbody_peak_wavelength` ; Qwen tried: ['rydberg_hydrogen_wavelength']
+- `thermo_003` (thermodynamics_statmech): What's the total power per square meter radiated by a perfect blackbody at 300 K?
+    expected: `blackbody_total_power` ; Qwen tried: ['em_wave_wavelength', 'em_wave_frequency', 'photon_energy_from_wavelength', 'rydberg_hydrogen_wavelength', 'photon_energy_from_frequency']
+- `thermo_004` (thermodynamics_statmech): A heat engine runs between 600 K and 300 K. What's the maximum possible efficiency?
+    expected: `carnot_efficiency` ; Qwen tried: ['ohms_law_voltage', 'ohms_law_current', 'rydberg_hydrogen_wavelength', 'hydrogen_like_energy_level', 'hydrogen_emission_wavelength']
+- `thermo_005` (thermodynamics_statmech): What's the average thermal energy per molecule for a monatomic gas at room temperature, 30
+    expected: `thermal_energy_per_molecule` ; Qwen tried: ['hydrogen_like_energy_level']
+- `thermo_006` (thermodynamics_statmech): What's the most probable speed for an oxygen molecule at room temperature 300 K? Mass of O
+    expected: `maxwell_boltzmann_most_probable_speed` ; Qwen tried: ['de_broglie_wavelength', 'hydrogen_like_energy_level', 'hydrogen_emission_wavelength', 'photon_energy_from_wavelength', 'photon_energy_from_frequency']
+- `thermo_007` (thermodynamics_statmech): How much volume does 1 mole of gas take up at 25 Celsius and atmospheric pressure?
+    expected: `ideal_gas_volume` ; Qwen tried: ['density']
+- `thermo_011` (thermodynamics_statmech): Convert 100 Celsius to Kelvin.
+    expected: `temperature_celsius_to_kelvin` ; Qwen tried: ['melting_point', 'ohms_law_voltage']
+- `thermo_012` (thermodynamics_statmech): The Sun's surface temperature is about 5778 K. What wavelength is its peak emission?
+    expected: `blackbody_peak_wavelength` ; Qwen tried: ['rydberg_hydrogen_wavelength']
+- `modern_002` (modern_physics): An astronaut travels at 0.99 c for 10 years (his time). How much time passes on Earth?
+    expected: `relativistic_time_dilation` ; Qwen tried: ['thin_lens_image_distance']
+- `modern_003` (modern_physics): A 1 meter rod moves at 0.6 c. How long is it as seen from the rest frame?
+    expected: `relativistic_length_contraction` ; Qwen tried: ['thin_lens_image_distance']
+- `modern_004` (modern_physics): How much energy is contained in 1 kg of mass via E=mc^2?
+    expected: `mass_to_energy` ; Qwen tried: ['electrical_power']
+- `modern_005` (modern_physics): The Sun emits about 3.828e26 watts of energy. How much mass does it convert to energy ever
+    expected: `luminosity_to_mass_conversion_rate` ; Qwen tried: ['power_dissipation_resistor', 'electrical_power', 'photon_energy_from_wavelength', 'hydrogen_like_energy_level', 'photon_energy_from_frequency']
+- `modern_007` (modern_physics): How fast must I add 0.9 c to another 0.9 c (Einstein style) to get the total observed velo
+    expected: `relativistic_velocity_addition` ; Qwen tried: ['rydberg_hydrogen_wavelength']
+- `modern_008` (modern_physics): 1 joule equals how many electronvolts?
+    expected: `joules_to_eV` ; Qwen tried: ['photon_energy_from_wavelength']
+- ... +15 more
+
+### WOLFRAM PHRASING — add manual `wolfram_phrasing` to question
+- `mech_intro_001` (classical_mechanics_intro): If I drop a copper ball from 10 meters at sea level, how many seconds before it hits the g
+- `mech_intro_002` (classical_mechanics_intro): I drop a steel ball from 50 meters. How fast is it moving when it hits the ground?
+- `mech_intro_003` (classical_mechanics_intro): I shoot a cannonball at 100 meters per second from ground level at 45 degrees. How far doe
+- `mech_intro_004` (classical_mechanics_intro): I shoot a ball at 50 m/s straight up. How high does it go?
+- `mech_intro_005` (classical_mechanics_intro): What is the kinetic energy of a 70 kg person running at 5 m/s?
+- `mech_intro_006` (classical_mechanics_intro): If I push a coffee cup with mass 0.2 kg across a table at 1 meter per second and the frict
+- `mech_intro_007` (classical_mechanics_intro): How fast does a satellite need to orbit at 400 km altitude above Earth's surface?
+- `mech_intro_009` (classical_mechanics_intro): What's the momentum of a 1500 kg car going 25 m/s?
+- `mech_intro_010` (classical_mechanics_intro): How much potential energy does a 70 kg climber have at the top of a 100 m cliff?
+- `mech_intro_011` (classical_mechanics_intro): I drop a ball from 10 meters on the Moon. How long does it take to land? Moon gravity is a
+- ... +32 more
+
+### GEMINI HALLUCINATION (Gemini confident, wrong)
+- `mech_intro_015` (classical_mechanics_intro): expected 0.0, gemini said 3074.0
+- `em_intro_003` (electromagnetism_intro): expected 8.854e-09, gemini said $8.854 \times 10^{-9} \text{ F}$
+- `qm_006` (quantum_mechanics): expected 4.861e-07, gemini said 4.8628
+- `cosmo_007` (cosmology): expected 0.412, gemini said Reproduction factor
+- `cosmo_008` (cosmology): expected 4.35e+17, gemini said 4.36
+- `astro_001` (astrophysics): expected 4.24, gemini said 1.34
+- `astro_011` (astrophysics): expected 1.89813e+27, gemini said 1.898
+- `astro_012` (astrophysics): expected 433.5, gemini said 323.0
+
+---
+
+## 2026-05-19
+
+- LIBRARY GAP count:        0
+- DISCOVERABILITY GAP count: 35
+- WOLFRAM PHRASING count:    42
+- GEMINI HALLUCINATION count:2
+
+### DISCOVERABILITY GAP — keywords or pattern hint needed
+- `em_intro_012` (electromagnetism_intro): If I want a capacitor with 1 microfarad capacitance using 1 mm separation between plates i
+    expected: `solve_equation` ; Qwen tried: ['parallel_plate_capacitance']
+- `optics_001` (waves_optics): Light hits water (n=1.333) from air at 30 degrees from vertical. What angle does it bend t
+    expected: `snells_law_refraction_angle` ; Qwen tried: ['double_slit_fringe_spacing', 'single_slit_first_minimum_angle']
+- `optics_002` (waves_optics): I'm looking up from underwater. At what angle does light from above stop being able to esc
+    expected: `critical_angle_for_tir` ; Qwen tried: ['single_slit_first_minimum_angle']
+- `optics_011` (waves_optics): What's the speed of sound in air at 20 degrees Celsius?
+    expected: `speed_of_sound_in_ideal_gas` ; Qwen tried: ['rydberg_hydrogen_wavelength', 'de_broglie_wavelength']
+- `optics_012` (waves_optics): Sirius B is a white dwarf about 8.6 light years away. How long does its light take to reac
+    expected: `named_star` ; Qwen tried: ['light_travel_time']
+- `thermo_001` (thermodynamics_statmech): What pressure does 1 mole of ideal gas exert at 0 Celsius in a 22.4 liter container?
+    expected: `ideal_gas_pressure` ; Qwen tried: ['ohms_law_voltage']
+- `thermo_002` (thermodynamics_statmech): What's the peak emission wavelength for a 6000 K star?
+    expected: `blackbody_peak_wavelength` ; Qwen tried: ['rydberg_hydrogen_wavelength']
+- `thermo_003` (thermodynamics_statmech): What's the total power per square meter radiated by a perfect blackbody at 300 K?
+    expected: `blackbody_total_power` ; Qwen tried: ['em_wave_wavelength', 'em_wave_frequency', 'photon_energy_from_wavelength', 'rydberg_hydrogen_wavelength', 'photon_energy_from_frequency']
+- `thermo_004` (thermodynamics_statmech): A heat engine runs between 600 K and 300 K. What's the maximum possible efficiency?
+    expected: `carnot_efficiency` ; Qwen tried: ['ohms_law_voltage', 'ohms_law_current', 'rydberg_hydrogen_wavelength', 'hydrogen_like_energy_level', 'hydrogen_emission_wavelength']
+- `thermo_005` (thermodynamics_statmech): What's the average thermal energy per molecule for a monatomic gas at room temperature, 30
+    expected: `thermal_energy_per_molecule` ; Qwen tried: ['hydrogen_like_energy_level']
+- `thermo_006` (thermodynamics_statmech): What's the most probable speed for an oxygen molecule at room temperature 300 K? Mass of O
+    expected: `maxwell_boltzmann_most_probable_speed` ; Qwen tried: ['de_broglie_wavelength', 'hydrogen_like_energy_level', 'hydrogen_emission_wavelength', 'photon_energy_from_wavelength', 'photon_energy_from_frequency']
+- `thermo_007` (thermodynamics_statmech): How much volume does 1 mole of gas take up at 25 Celsius and atmospheric pressure?
+    expected: `ideal_gas_volume` ; Qwen tried: ['density']
+- `thermo_011` (thermodynamics_statmech): Convert 100 Celsius to Kelvin.
+    expected: `temperature_celsius_to_kelvin` ; Qwen tried: ['melting_point', 'ohms_law_voltage']
+- `thermo_012` (thermodynamics_statmech): The Sun's surface temperature is about 5778 K. What wavelength is its peak emission?
+    expected: `blackbody_peak_wavelength` ; Qwen tried: ['rydberg_hydrogen_wavelength']
+- `modern_002` (modern_physics): An astronaut travels at 0.99 c for 10 years (his time). How much time passes on Earth?
+    expected: `relativistic_time_dilation` ; Qwen tried: ['thin_lens_image_distance']
+- `modern_003` (modern_physics): A 1 meter rod moves at 0.6 c. How long is it as seen from the rest frame?
+    expected: `relativistic_length_contraction` ; Qwen tried: ['thin_lens_image_distance']
+- `modern_004` (modern_physics): How much energy is contained in 1 kg of mass via E=mc^2?
+    expected: `mass_to_energy` ; Qwen tried: ['electrical_power']
+- `modern_005` (modern_physics): The Sun emits about 3.828e26 watts of energy. How much mass does it convert to energy ever
+    expected: `luminosity_to_mass_conversion_rate` ; Qwen tried: ['power_dissipation_resistor', 'electrical_power', 'photon_energy_from_wavelength', 'hydrogen_like_energy_level', 'photon_energy_from_frequency']
+- `modern_007` (modern_physics): How fast must I add 0.9 c to another 0.9 c (Einstein style) to get the total observed velo
+    expected: `relativistic_velocity_addition` ; Qwen tried: ['rydberg_hydrogen_wavelength']
+- `modern_008` (modern_physics): 1 joule equals how many electronvolts?
+    expected: `joules_to_eV` ; Qwen tried: ['photon_energy_from_wavelength']
+- ... +15 more
+
+### WOLFRAM PHRASING — add manual `wolfram_phrasing` to question
+- `mech_intro_001` (classical_mechanics_intro): If I drop a copper ball from 10 meters at sea level, how many seconds before it hits the g
+- `mech_intro_002` (classical_mechanics_intro): I drop a steel ball from 50 meters. How fast is it moving when it hits the ground?
+- `mech_intro_003` (classical_mechanics_intro): I shoot a cannonball at 100 meters per second from ground level at 45 degrees. How far doe
+- `mech_intro_004` (classical_mechanics_intro): I shoot a ball at 50 m/s straight up. How high does it go?
+- `mech_intro_005` (classical_mechanics_intro): What is the kinetic energy of a 70 kg person running at 5 m/s?
+- `mech_intro_006` (classical_mechanics_intro): If I push a coffee cup with mass 0.2 kg across a table at 1 meter per second and the frict
+- `mech_intro_007` (classical_mechanics_intro): How fast does a satellite need to orbit at 400 km altitude above Earth's surface?
+- `mech_intro_009` (classical_mechanics_intro): What's the momentum of a 1500 kg car going 25 m/s?
+- `mech_intro_010` (classical_mechanics_intro): How much potential energy does a 70 kg climber have at the top of a 100 m cliff?
+- `mech_intro_011` (classical_mechanics_intro): I drop a ball from 10 meters on the Moon. How long does it take to land? Moon gravity is a
+- ... +32 more
+
+### GEMINI HALLUCINATION (Gemini confident, wrong)
+- `mech_intro_015` (classical_mechanics_intro): expected 0.0, gemini said 3074.0
+- `em_intro_003` (electromagnetism_intro): expected 8.854e-09, gemini said $8.854 \times 10^{-9} \text{ F}$
+
+---
+
+## 2026-05-19
+
+- LIBRARY GAP count:        0
+- DISCOVERABILITY GAP count: 35
+- WOLFRAM PHRASING count:    42
+- GEMINI HALLUCINATION count:6
+
+### DISCOVERABILITY GAP — keywords or pattern hint needed
+- `em_intro_012` (electromagnetism_intro): If I want a capacitor with 1 microfarad capacitance using 1 mm separation between plates i
+    expected: `solve_equation` ; Qwen tried: ['parallel_plate_capacitance']
+- `optics_001` (waves_optics): Light hits water (n=1.333) from air at 30 degrees from vertical. What angle does it bend t
+    expected: `snells_law_refraction_angle` ; Qwen tried: ['double_slit_fringe_spacing', 'single_slit_first_minimum_angle']
+- `optics_002` (waves_optics): I'm looking up from underwater. At what angle does light from above stop being able to esc
+    expected: `critical_angle_for_tir` ; Qwen tried: ['single_slit_first_minimum_angle']
+- `optics_011` (waves_optics): What's the speed of sound in air at 20 degrees Celsius?
+    expected: `speed_of_sound_in_ideal_gas` ; Qwen tried: ['rydberg_hydrogen_wavelength', 'de_broglie_wavelength']
+- `optics_012` (waves_optics): Sirius B is a white dwarf about 8.6 light years away. How long does its light take to reac
+    expected: `named_star` ; Qwen tried: ['light_travel_time']
+- `thermo_001` (thermodynamics_statmech): What pressure does 1 mole of ideal gas exert at 0 Celsius in a 22.4 liter container?
+    expected: `ideal_gas_pressure` ; Qwen tried: ['ohms_law_voltage']
+- `thermo_002` (thermodynamics_statmech): What's the peak emission wavelength for a 6000 K star?
+    expected: `blackbody_peak_wavelength` ; Qwen tried: ['rydberg_hydrogen_wavelength']
+- `thermo_003` (thermodynamics_statmech): What's the total power per square meter radiated by a perfect blackbody at 300 K?
+    expected: `blackbody_total_power` ; Qwen tried: ['em_wave_wavelength', 'em_wave_frequency', 'photon_energy_from_wavelength', 'rydberg_hydrogen_wavelength', 'photon_energy_from_frequency']
+- `thermo_004` (thermodynamics_statmech): A heat engine runs between 600 K and 300 K. What's the maximum possible efficiency?
+    expected: `carnot_efficiency` ; Qwen tried: ['ohms_law_voltage', 'ohms_law_current', 'rydberg_hydrogen_wavelength', 'hydrogen_like_energy_level', 'hydrogen_emission_wavelength']
+- `thermo_005` (thermodynamics_statmech): What's the average thermal energy per molecule for a monatomic gas at room temperature, 30
+    expected: `thermal_energy_per_molecule` ; Qwen tried: ['hydrogen_like_energy_level']
+- `thermo_006` (thermodynamics_statmech): What's the most probable speed for an oxygen molecule at room temperature 300 K? Mass of O
+    expected: `maxwell_boltzmann_most_probable_speed` ; Qwen tried: ['de_broglie_wavelength', 'hydrogen_like_energy_level', 'hydrogen_emission_wavelength', 'photon_energy_from_wavelength', 'photon_energy_from_frequency']
+- `thermo_007` (thermodynamics_statmech): How much volume does 1 mole of gas take up at 25 Celsius and atmospheric pressure?
+    expected: `ideal_gas_volume` ; Qwen tried: ['density']
+- `thermo_011` (thermodynamics_statmech): Convert 100 Celsius to Kelvin.
+    expected: `temperature_celsius_to_kelvin` ; Qwen tried: ['melting_point', 'ohms_law_voltage']
+- `thermo_012` (thermodynamics_statmech): The Sun's surface temperature is about 5778 K. What wavelength is its peak emission?
+    expected: `blackbody_peak_wavelength` ; Qwen tried: ['rydberg_hydrogen_wavelength']
+- `modern_002` (modern_physics): An astronaut travels at 0.99 c for 10 years (his time). How much time passes on Earth?
+    expected: `relativistic_time_dilation` ; Qwen tried: ['thin_lens_image_distance']
+- `modern_003` (modern_physics): A 1 meter rod moves at 0.6 c. How long is it as seen from the rest frame?
+    expected: `relativistic_length_contraction` ; Qwen tried: ['thin_lens_image_distance']
+- `modern_004` (modern_physics): How much energy is contained in 1 kg of mass via E=mc^2?
+    expected: `mass_to_energy` ; Qwen tried: ['electrical_power']
+- `modern_005` (modern_physics): The Sun emits about 3.828e26 watts of energy. How much mass does it convert to energy ever
+    expected: `luminosity_to_mass_conversion_rate` ; Qwen tried: ['power_dissipation_resistor', 'electrical_power', 'photon_energy_from_wavelength', 'hydrogen_like_energy_level', 'photon_energy_from_frequency']
+- `modern_007` (modern_physics): How fast must I add 0.9 c to another 0.9 c (Einstein style) to get the total observed velo
+    expected: `relativistic_velocity_addition` ; Qwen tried: ['rydberg_hydrogen_wavelength']
+- `modern_008` (modern_physics): 1 joule equals how many electronvolts?
+    expected: `joules_to_eV` ; Qwen tried: ['photon_energy_from_wavelength']
+- ... +15 more
+
+### WOLFRAM PHRASING — add manual `wolfram_phrasing` to question
+- `mech_intro_001` (classical_mechanics_intro): If I drop a copper ball from 10 meters at sea level, how many seconds before it hits the g
+- `mech_intro_002` (classical_mechanics_intro): I drop a steel ball from 50 meters. How fast is it moving when it hits the ground?
+- `mech_intro_003` (classical_mechanics_intro): I shoot a cannonball at 100 meters per second from ground level at 45 degrees. How far doe
+- `mech_intro_004` (classical_mechanics_intro): I shoot a ball at 50 m/s straight up. How high does it go?
+- `mech_intro_005` (classical_mechanics_intro): What is the kinetic energy of a 70 kg person running at 5 m/s?
+- `mech_intro_006` (classical_mechanics_intro): If I push a coffee cup with mass 0.2 kg across a table at 1 meter per second and the frict
+- `mech_intro_007` (classical_mechanics_intro): How fast does a satellite need to orbit at 400 km altitude above Earth's surface?
+- `mech_intro_009` (classical_mechanics_intro): What's the momentum of a 1500 kg car going 25 m/s?
+- `mech_intro_010` (classical_mechanics_intro): How much potential energy does a 70 kg climber have at the top of a 100 m cliff?
+- `mech_intro_011` (classical_mechanics_intro): I drop a ball from 10 meters on the Moon. How long does it take to land? Moon gravity is a
+- ... +32 more
+
+### GEMINI HALLUCINATION (Gemini confident, wrong)
+- `mech_intro_015` (classical_mechanics_intro): expected 0.0, gemini said 3074.0
+- `em_intro_003` (electromagnetism_intro): expected 8.854e-09, gemini said $8.854 \times 10^{-9} \text{ F}$
+- `nuc_005` (nuclear_physics): expected 19.6, gemini said 0.02
+- `math_001` (mathematical_methods): expected [-2, 2], gemini said 2.0
+- `math_003` (mathematical_methods): expected cos(x), gemini said cosine of x
+- `math_004` (mathematical_methods): expected [1, 2, 3], gemini said Not a physics question
+
+---
+
+## 2026-05-19
+
+- LIBRARY GAP count:        0
+- DISCOVERABILITY GAP count: 35
+- WOLFRAM PHRASING count:    42
+- GEMINI HALLUCINATION count:4
+
+### DISCOVERABILITY GAP — keywords or pattern hint needed
+- `em_intro_012` (electromagnetism_intro): If I want a capacitor with 1 microfarad capacitance using 1 mm separation between plates i
+    expected: `solve_equation` ; Qwen tried: ['parallel_plate_capacitance']
+- `optics_001` (waves_optics): Light hits water (n=1.333) from air at 30 degrees from vertical. What angle does it bend t
+    expected: `snells_law_refraction_angle` ; Qwen tried: ['double_slit_fringe_spacing', 'single_slit_first_minimum_angle']
+- `optics_002` (waves_optics): I'm looking up from underwater. At what angle does light from above stop being able to esc
+    expected: `critical_angle_for_tir` ; Qwen tried: ['single_slit_first_minimum_angle']
+- `optics_011` (waves_optics): What's the speed of sound in air at 20 degrees Celsius?
+    expected: `speed_of_sound_in_ideal_gas` ; Qwen tried: ['rydberg_hydrogen_wavelength', 'de_broglie_wavelength']
+- `optics_012` (waves_optics): Sirius B is a white dwarf about 8.6 light years away. How long does its light take to reac
+    expected: `named_star` ; Qwen tried: ['light_travel_time']
+- `thermo_001` (thermodynamics_statmech): What pressure does 1 mole of ideal gas exert at 0 Celsius in a 22.4 liter container?
+    expected: `ideal_gas_pressure` ; Qwen tried: ['ohms_law_voltage']
+- `thermo_002` (thermodynamics_statmech): What's the peak emission wavelength for a 6000 K star?
+    expected: `blackbody_peak_wavelength` ; Qwen tried: ['rydberg_hydrogen_wavelength']
+- `thermo_003` (thermodynamics_statmech): What's the total power per square meter radiated by a perfect blackbody at 300 K?
+    expected: `blackbody_total_power` ; Qwen tried: ['em_wave_wavelength', 'em_wave_frequency', 'photon_energy_from_wavelength', 'rydberg_hydrogen_wavelength', 'photon_energy_from_frequency']
+- `thermo_004` (thermodynamics_statmech): A heat engine runs between 600 K and 300 K. What's the maximum possible efficiency?
+    expected: `carnot_efficiency` ; Qwen tried: ['ohms_law_voltage', 'ohms_law_current', 'rydberg_hydrogen_wavelength', 'hydrogen_like_energy_level', 'hydrogen_emission_wavelength']
+- `thermo_005` (thermodynamics_statmech): What's the average thermal energy per molecule for a monatomic gas at room temperature, 30
+    expected: `thermal_energy_per_molecule` ; Qwen tried: ['hydrogen_like_energy_level']
+- `thermo_006` (thermodynamics_statmech): What's the most probable speed for an oxygen molecule at room temperature 300 K? Mass of O
+    expected: `maxwell_boltzmann_most_probable_speed` ; Qwen tried: ['de_broglie_wavelength', 'hydrogen_like_energy_level', 'hydrogen_emission_wavelength', 'photon_energy_from_wavelength', 'photon_energy_from_frequency']
+- `thermo_007` (thermodynamics_statmech): How much volume does 1 mole of gas take up at 25 Celsius and atmospheric pressure?
+    expected: `ideal_gas_volume` ; Qwen tried: ['density']
+- `thermo_011` (thermodynamics_statmech): Convert 100 Celsius to Kelvin.
+    expected: `temperature_celsius_to_kelvin` ; Qwen tried: ['melting_point', 'ohms_law_voltage']
+- `thermo_012` (thermodynamics_statmech): The Sun's surface temperature is about 5778 K. What wavelength is its peak emission?
+    expected: `blackbody_peak_wavelength` ; Qwen tried: ['rydberg_hydrogen_wavelength']
+- `modern_002` (modern_physics): An astronaut travels at 0.99 c for 10 years (his time). How much time passes on Earth?
+    expected: `relativistic_time_dilation` ; Qwen tried: ['thin_lens_image_distance']
+- `modern_003` (modern_physics): A 1 meter rod moves at 0.6 c. How long is it as seen from the rest frame?
+    expected: `relativistic_length_contraction` ; Qwen tried: ['thin_lens_image_distance']
+- `modern_004` (modern_physics): How much energy is contained in 1 kg of mass via E=mc^2?
+    expected: `mass_to_energy` ; Qwen tried: ['electrical_power']
+- `modern_005` (modern_physics): The Sun emits about 3.828e26 watts of energy. How much mass does it convert to energy ever
+    expected: `luminosity_to_mass_conversion_rate` ; Qwen tried: ['power_dissipation_resistor', 'electrical_power', 'photon_energy_from_wavelength', 'hydrogen_like_energy_level', 'photon_energy_from_frequency']
+- `modern_007` (modern_physics): How fast must I add 0.9 c to another 0.9 c (Einstein style) to get the total observed velo
+    expected: `relativistic_velocity_addition` ; Qwen tried: ['rydberg_hydrogen_wavelength']
+- `modern_008` (modern_physics): 1 joule equals how many electronvolts?
+    expected: `joules_to_eV` ; Qwen tried: ['photon_energy_from_wavelength']
+- ... +15 more
+
+### WOLFRAM PHRASING — add manual `wolfram_phrasing` to question
+- `mech_intro_001` (classical_mechanics_intro): If I drop a copper ball from 10 meters at sea level, how many seconds before it hits the g
+- `mech_intro_002` (classical_mechanics_intro): I drop a steel ball from 50 meters. How fast is it moving when it hits the ground?
+- `mech_intro_003` (classical_mechanics_intro): I shoot a cannonball at 100 meters per second from ground level at 45 degrees. How far doe
+- `mech_intro_004` (classical_mechanics_intro): I shoot a ball at 50 m/s straight up. How high does it go?
+- `mech_intro_005` (classical_mechanics_intro): What is the kinetic energy of a 70 kg person running at 5 m/s?
+- `mech_intro_006` (classical_mechanics_intro): If I push a coffee cup with mass 0.2 kg across a table at 1 meter per second and the frict
+- `mech_intro_007` (classical_mechanics_intro): How fast does a satellite need to orbit at 400 km altitude above Earth's surface?
+- `mech_intro_009` (classical_mechanics_intro): What's the momentum of a 1500 kg car going 25 m/s?
+- `mech_intro_010` (classical_mechanics_intro): How much potential energy does a 70 kg climber have at the top of a 100 m cliff?
+- `mech_intro_011` (classical_mechanics_intro): I drop a ball from 10 meters on the Moon. How long does it take to land? Moon gravity is a
+- ... +32 more
+
+### GEMINI HALLUCINATION (Gemini confident, wrong)
+- `mech_intro_015` (classical_mechanics_intro): expected 0.0, gemini said 3074.0
+- `em_intro_003` (electromagnetism_intro): expected 8.854e-09, gemini said $8.854 \times 10^{-9} \text{ F}$
+- `em_intro_007` (electromagnetism_intro): expected 545100000000000.0, gemini said $5.45 \times 10^{14}$ Hz
+- `em_intro_014` (electromagnetism_intro): expected 3e+18, gemini said 3.0
+
+---
+
