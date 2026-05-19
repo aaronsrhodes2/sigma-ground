@@ -472,7 +472,10 @@ def main() -> int:
                               "(250 req/day) which is plenty for the 150-Q "
                               "corpus. Use 'gemini-2.5-pro' only if billing "
                               "is on pay-as-you-go (not prepayment-depleted).")
-    parser.add_argument("--gemini-pause", type=float, default=0.5)
+    parser.add_argument("--gemini-pause", type=float, default=13.0,
+                        help="Seconds between Gemini calls. Default 13s "
+                              "respects free-tier flash rate limit (5 req/min). "
+                              "On paid pay-as-you-go you can drop to 0.5.")
     parser.add_argument("--skip-wolfram", action="store_true")
     parser.add_argument("--skip-gemini", action="store_true")
     args = parser.parse_args()
