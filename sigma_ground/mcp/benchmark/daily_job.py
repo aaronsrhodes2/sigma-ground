@@ -467,8 +467,11 @@ def main() -> int:
     parser.add_argument("--wolfram-pace", type=int, default=85,
                         help="Max Wolfram queries/day (free tier ~100/day).")
     parser.add_argument("--wolfram-pause", type=float, default=2.0)
-    parser.add_argument("--gemini-model", default="gemini-2.5-pro",
-                        help="Gemini model to use (needs pay-as-you-go billing).")
+    parser.add_argument("--gemini-model", default="gemini-2.5-flash",
+                        help="Gemini model. Flash works on free tier "
+                              "(250 req/day) which is plenty for the 150-Q "
+                              "corpus. Use 'gemini-2.5-pro' only if billing "
+                              "is on pay-as-you-go (not prepayment-depleted).")
     parser.add_argument("--gemini-pause", type=float, default=0.5)
     parser.add_argument("--skip-wolfram", action="store_true")
     parser.add_argument("--skip-gemini", action="store_true")
@@ -518,14 +521,19 @@ def main() -> int:
                                        wf_path)
             print(f"  [Wolfram] {stats}")
 
-    # Step 2: Gemini
+    # Step 2: Gemini (prefer free-tier key over paid key -- the paid
+    # key on Aaron's project is in prepayment mode with zero credits).
     if args.skip_gemini:
         print("  [Gemini] skipped")
     else:
-        api_key = os.environ.get("GEMINI_API_KEY")
+        api_key = (os.environ.get("GEMINI_FREE_API_KEY")
+                     or os.environ.get("GEMINI_API_KEY"))
         if not api_key:
-            print("  [Gemini] GEMINI_API_KEY not set; skipping")
+            print("  [Gemini] no GEMINI_FREE_API_KEY or GEMINI_API_KEY; skipping")
         else:
+            key_source = ("FREE" if os.environ.get("GEMINI_FREE_API_KEY")
+                            else "paid")
+            print(f"  [Gemini] using {key_source}-tier key")
             existing = _load_run(gm_path)
             stats = run_gemini_step(questions, existing, api_key,
                                       args.gemini_model, args.gemini_pause,

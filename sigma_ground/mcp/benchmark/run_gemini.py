@@ -176,11 +176,20 @@ def main() -> int:
     from sigma_ground.mcp.benchmark import load_env_from_dev_root
     load_env_from_dev_root(verbose=True)
 
-    api_key = os.environ.get("GEMINI_API_KEY")
+    # Prefer the free-tier key when set. The paid key on Aaron's project
+    # is currently bound to prepayment-mode billing with zero credits,
+    # which returns "prepayment credits depleted" on every call. A
+    # separate key generated against a non-billed AI Studio project gets
+    # free-tier limits (flash-lite: 500/day, flash: 250/day) which is
+    # more than enough for the 150-question corpus.
+    api_key = os.environ.get("GEMINI_FREE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+    key_source = ("GEMINI_FREE_API_KEY" if os.environ.get("GEMINI_FREE_API_KEY")
+                    else "GEMINI_API_KEY")
     if not api_key:
-        print("ERROR: set GEMINI_API_KEY env var (or add to dev-root .env)",
+        print("ERROR: set GEMINI_FREE_API_KEY or GEMINI_API_KEY in dev-root .env",
               file=sys.stderr)
         return 1
+    print(f"  Using key from {key_source}")
 
     try:
         import google.generativeai as genai
