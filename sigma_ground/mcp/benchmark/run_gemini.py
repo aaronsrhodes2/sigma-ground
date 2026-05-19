@@ -81,7 +81,7 @@ def _parse_retry_delay(err_str: str, default: float = 30.0) -> float:
 
 def run_question(model, question: str, model_name: str = "",
                    timeout_s: float = 60.0,
-                   max_429_retries: int = 8) -> dict:
+                   max_429_retries: int = 2) -> dict:
     """Ask Gemini one question, return record dict.
 
     Retries on 429 (free-tier rate limit) up to max_429_retries times,
