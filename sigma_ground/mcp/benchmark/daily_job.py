@@ -585,9 +585,9 @@ def _print_target_dashboard(results_dir: Path, prefix: str) -> None:
     version that runs every day.
     """
     print()
-    print("  ┌──────────────────────────────────────────────────────────────┐")
-    print("  │ TARGET DASHBOARD (PROJECT_GOAL.md)                           │")
-    print("  ├──────────────────────────────────────────────────────────────┤")
+    print("  +--------------------------------------------------------------+")
+    print("  | TARGET DASHBOARD (PROJECT_GOAL.md)                           |")
+    print("  +--------------------------------------------------------------+")
 
     def _scored(name: str) -> dict | None:
         p = results_dir / f"{prefix}{name}_scored.json"
@@ -610,8 +610,8 @@ def _print_target_dashboard(results_dir: Path, prefix: str) -> None:
 
     def _row(label: str, ok: bool, detail: str) -> None:
         marker = "PASS" if ok else "...."
-        bullet = "✓" if ok else " "
-        print(f"  │ [{bullet}] {marker} {label:<28s} {detail:<25s} │")
+        bullet = "X" if ok else " "
+        print(f"  | [{bullet}] {marker} {label:<28s} {detail:<25s} |")
 
     # Target 1: overall >= Wolfram overall
     if sg_scored and wf_scored:
@@ -668,7 +668,7 @@ def _print_target_dashboard(results_dir: Path, prefix: str) -> None:
     # Target 8: conversation mode -- placeholder
     _row("conversation mode built", False, "roadmap")
 
-    print("  └──────────────────────────────────────────────────────────────┘")
+    print("  +--------------------------------------------------------------+")
 
 
 if __name__ == "__main__":
