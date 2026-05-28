@@ -130,13 +130,16 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "RLC resonance", "f_0 = 1/(2 pi sqrt(LC))",
         "LC tank circuit", "resonant frequency",
     ],
-    "em_wavelength_from_frequency": [
+    "em_wave_wavelength": [
         "EM wavelength", "lambda = c / f",
         "wavelength from frequency", "radio wavelength",
+        "WiFi wavelength", "X-ray wavelength", "gamma ray wavelength",
+        "5G wavelength", "microwave wavelength",
     ],
-    "em_frequency_from_wavelength": [
+    "em_wave_frequency": [
         "EM frequency", "f = c / lambda",
         "frequency from wavelength",
+        "green light frequency", "X-ray frequency",
     ],
 
     # ============ OPTICS / WAVES ============
@@ -145,9 +148,10 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "n1 sin(theta1) = n2 sin(theta2)", "refraction angle",
         "Willebrord Snell 1621",
     ],
-    "critical_angle_total_internal_reflection": [
+    "critical_angle_for_tir": [
         "total internal reflection", "critical angle",
         "sin(theta_c) = n2 / n1", "TIR", "fiber optic principle",
+        "at what angle does light stop being able to escape",
     ],
     "thin_lens_image_distance": [
         "thin lens equation", "1/f = 1/d_o + 1/d_i",
@@ -175,9 +179,9 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "diffraction grating", "d sin(theta) = m lambda",
         "grating equation", "spectral grating",
     ],
-    "speed_of_sound_in_air": [
+    "speed_of_sound_in_ideal_gas": [
         "speed of sound", "v_sound = 331 + 0.6 T",
-        "sound velocity in air",
+        "sound velocity in air", "speed of sound in air at temperature",
     ],
 
     # ============ THERMODYNAMICS / STATMECH ============
@@ -193,19 +197,21 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "blackbody peak", "Planck radiation peak",
         "Wilhelm Wien 1893",
     ],
-    "stefan_boltzmann_power": [
+    "blackbody_total_power": [
         "Stefan-Boltzmann law", "P = sigma A T^4",
         "blackbody total radiation", "Stefan's law",
         "Josef Stefan 1879 / Ludwig Boltzmann 1884",
+        "total power per square meter radiated by blackbody",
     ],
     "carnot_efficiency": [
         "Carnot efficiency", "eta = 1 - T_c/T_h",
         "Carnot cycle", "ideal heat engine",
         "Sadi Carnot 1824", "second law thermodynamics",
     ],
-    "average_thermal_energy": [
+    "thermal_energy_per_molecule": [
         "equipartition theorem", "(3/2) k_B T",
         "average kinetic energy of gas molecule",
+        "average thermal energy", "thermal energy per molecule",
     ],
     "maxwell_boltzmann_most_probable_speed": [
         "Maxwell-Boltzmann distribution",
