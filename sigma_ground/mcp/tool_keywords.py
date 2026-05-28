@@ -212,14 +212,23 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "v_mp = sqrt(2 k T / m)", "most probable speed",
         "molecular speed distribution",
     ],
-    "celsius_to_kelvin": [
-        "C to K", "Celsius Kelvin conversion", "T_K = T_C + 273.15",
+    "temperature_celsius_to_kelvin": [
+        "Convert Celsius to Kelvin", "C to K", "Celsius to K",
+        "degrees Celsius to Kelvin", "T_K = T_C + 273.15",
+        "what's 100 Celsius in Kelvin", "freezing point in Kelvin",
+        "boiling point in Kelvin", "convert temperature",
     ],
-    "kelvin_to_celsius": [
-        "K to C", "Kelvin Celsius conversion", "T_C = T_K - 273.15",
+    "temperature_kelvin_to_celsius": [
+        "Convert Kelvin to Celsius", "K to C", "Kelvin to Celsius",
+        "T_C = T_K - 273.15", "what is X K in Celsius",
+        "convert temperature",
     ],
-    "fahrenheit_to_celsius": ["F to C", "Fahrenheit Celsius"],
-    "celsius_to_fahrenheit": ["C to F", "Celsius Fahrenheit"],
+    "temperature_fahrenheit_to_celsius": [
+        "F to C", "Fahrenheit to Celsius", "convert temperature",
+    ],
+    "temperature_celsius_to_fahrenheit": [
+        "C to F", "Celsius to Fahrenheit", "convert temperature",
+    ],
 
     # ============ ATOMIC / QUANTUM ============
     "element_atomic_data": [
@@ -367,7 +376,10 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "MeV", "GeV", "TeV", "particle physics energy",
     ],
     "joules_to_eV": [
-        "J to eV", "joules to electronvolts",
+        "J to eV", "joules to electronvolts", "1 J equals how many eV",
+        "convert energy J to eV", "joules in electronvolts",
+        "1 joule equals how many electronvolts",
+        "energy unit conversion", "6.242e18",
     ],
     "luminosity_to_mass_conversion_rate": [
         "stellar mass loss to luminosity",
