@@ -697,6 +697,27 @@ async def _run_one_question(session, ollama_url: str, model: str,
                 "classical_intro_hit":    ci_match.tool,
             }
 
+    # Optics pre-classifier: Snell's law / TIR critical angle /
+    # diffraction grating / speed of sound in air.
+    from sigma_ground.mcp.benchmark.optics_classifier import (
+        classify_for_optics, execute_optics_match,
+    )
+    opt_match = classify_for_optics(question)
+    if opt_match is not None:
+        val, units, answer_text = execute_optics_match(opt_match)
+        if val is not None:
+            return {
+                "answer_text":            answer_text,
+                "extracted_value":        val,
+                "extracted_units":        units,
+                "tool_calls":             [],
+                "turns":                  0,
+                "elapsed_s":              time.time() - t0,
+                "extracted_via_fallback": False,
+                "nudges_sent":            0,
+                "optics_classifier_hit":  opt_match.tool,
+            }
+
     # Astrophysics pre-classifier:
     # Light-travel-time from a named star (parsec -> light-year),
     # star property lookup (luminosity / mass / distance),
