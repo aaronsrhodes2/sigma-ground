@@ -411,12 +411,35 @@ async def _run_one_question(session, ollama_url: str, model: str,
     """Multi-turn tool loop for a single question."""
     import httpx
 
+    t0 = time.time()
+
+    # Refusal pre-classifier: short-circuit obvious refusal cases
+    # before involving Qwen at all. Patterns like "Is the Earth flat?"
+    # or "What is the kinetic energy of love?" get an immediate
+    # canonical answer, skipping the LLM (which Qwen 7b reliably
+    # botches because Rule 7 is buried in a 19k-char system prompt).
+    from sigma_ground.mcp.benchmark.refusal_classifier import (
+        classify_for_refusal, render_answer_text)
+    refusal = classify_for_refusal(question)
+    if refusal is not None:
+        answer_text = render_answer_text(refusal, question)
+        return {
+            "answer_text":            answer_text,
+            "extracted_value":        refusal.answer,
+            "extracted_units":        "",
+            "tool_calls":             [],
+            "turns":                  0,
+            "elapsed_s":              time.time() - t0,
+            "extracted_via_fallback": False,
+            "nudges_sent":            0,
+            "refusal_classifier_hit": refusal.refusal_type,
+        }
+
     messages = [
         {"role": "system",    "content": system_prompt},
         {"role": "user",      "content": question},
     ]
     tool_calls_made: list[dict] = []
-    t0 = time.time()
     timeout_s = 120.0
     max_turns = 8                # was 14; tight budget for tool-first discipline
     max_tool_calls = 5           # hard cap per question -- forces purposeful tool use

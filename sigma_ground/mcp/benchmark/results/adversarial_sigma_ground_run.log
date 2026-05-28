@@ -1,92 +1,64 @@
-[05/27/26 20:59:44] INFO     Processing request of type           server.py:727
+[05/27/26 21:21:45] INFO     Processing request of type           server.py:727
                              ListToolsRequest                                  
-[05/27/26 20:59:53] INFO     Processing request of type           server.py:727
+[05/27/26 21:21:49] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 20:59:54] INFO     Processing request of type           server.py:727
+[05/27/26 21:21:51] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 20:59:55] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:08] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 20:59:56] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:09] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 20:59:58] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:10] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 20:59:59] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:11] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:00:01] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:12] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:00:23] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:14] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:00:25] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:16] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:00:32] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:17] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:00:33] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:29] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:00:52] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:30] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:00:53] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:32] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:00:54] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:33] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:00:56] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:35] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:00:57] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:36] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:00:58] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:38] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:01:00] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:45] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:01:01] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:46] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:01:08] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:47] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:01:09] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:50] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:01:11] INFO     Processing request of type           server.py:727
+[05/27/26 21:22:51] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:01:12] INFO     Processing request of type           server.py:727
+[05/27/26 21:23:07] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:01:13] INFO     Processing request of type           server.py:727
+[05/27/26 21:23:08] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:01:15] INFO     Processing request of type           server.py:727
+[05/27/26 21:23:09] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:01:17] INFO     Processing request of type           server.py:727
+[05/27/26 21:23:11] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:01:22] INFO     Processing request of type           server.py:727
+[05/27/26 21:23:12] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:01:24] INFO     Processing request of type           server.py:727
-                             CallToolRequest                                   
-[05/27/26 21:01:25] INFO     Processing request of type           server.py:727
-                             CallToolRequest                                   
-[05/27/26 21:01:28] INFO     Processing request of type           server.py:727
-                             CallToolRequest                                   
-[05/27/26 21:01:29] INFO     Processing request of type           server.py:727
-                             CallToolRequest                                   
-[05/27/26 21:01:37] INFO     Processing request of type           server.py:727
-                             CallToolRequest                                   
-[05/27/26 21:01:38] INFO     Processing request of type           server.py:727
-                             CallToolRequest                                   
-[05/27/26 21:01:49] INFO     Processing request of type           server.py:727
-                             CallToolRequest                                   
-[05/27/26 21:01:50] INFO     Processing request of type           server.py:727
-                             CallToolRequest                                   
-[05/27/26 21:02:07] INFO     Processing request of type           server.py:727
-                             CallToolRequest                                   
-[05/27/26 21:02:08] INFO     Processing request of type           server.py:727
-                             CallToolRequest                                   
-[05/27/26 21:02:10] INFO     Processing request of type           server.py:727
-                             CallToolRequest                                   
-[05/27/26 21:02:12] INFO     Processing request of type           server.py:727
-                             CallToolRequest                                   
-[05/27/26 21:02:13] INFO     Processing request of type           server.py:727
-                             CallToolRequest                                   
-[05/27/26 21:02:16] INFO     Processing request of type           server.py:727
+[05/27/26 21:23:14] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
                     INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
-[05/27/26 21:02:17] INFO     Processing request of type           server.py:727
-                             CallToolRequest                                   
-[05/27/26 21:02:22] INFO     Processing request of type           server.py:727
+[05/27/26 21:23:16] INFO     Processing request of type           server.py:727
                              CallToolRequest                                   
 Loaded env vars from D:\Aaron\development\.env
 MCP server has 95 tools available

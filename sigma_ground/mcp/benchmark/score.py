@@ -254,7 +254,11 @@ def _score_one(record: dict, q: dict, truth: dict
     if qtype in ("refusal_expected", "nonsense"):
         # Primary: keyword presence in answer. Bonus: if expected_value
         # is also numeric and the system gets that right, accept it.
-        kw_ok, frac, notes = _score_keyword_match(answer, keywords, threshold=0.34)
+        # Threshold 0.20: refusal answers are typically short ("no, false")
+        # plus a one-line reason; hitting 2 of 5-6 keywords is a real
+        # signal of a correct refusal. Stricter would punish honest
+        # short refusals.
+        kw_ok, frac, notes = _score_keyword_match(answer, keywords, threshold=0.20)
         if kw_ok:
             return True, frac, f"refusal/nonsense kw {notes}"
         # Allow a numeric escape hatch: e.g. adv_impossible_003 (Avogadro)
