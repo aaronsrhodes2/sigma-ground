@@ -132,14 +132,14 @@ def mond_a0_constant() -> ToolResult:
     from sigma_ground.field.interface.cosmology import a0_mond_from_cosmological_scale
     r = a0_mond_from_cosmological_scale()
     return ToolResult(
-        value=r["a0_measured_ms2"],
+        value=r["a0_measured"],
         units="m/s^2",
         source="sigma-ground (Milgrom 1983; SPARC 2016 confirmation)",
         formula="a_0 ~ c H_0 / (2 pi)",
         inputs={},
         notes=("Empirical MOND constant. The cosmological coincidence: "
-                f"a_0 ~ c H_0/(2 pi) = {r['a0_predicted_ms2']:.3e} m/s^2 "
-                f"vs measured {r['a0_measured_ms2']:.3e} m/s^2 "
+                f"a_0 ~ c H_0/(2 pi) = {r['a0_predicted']:.3e} m/s^2 "
+                f"vs measured {r['a0_measured']:.3e} m/s^2 "
                 f"(ratio: {r['ratio']:.3f})."),
     )
 

@@ -583,6 +583,30 @@ async def _run_one_question(session, ollama_url: str, model: str,
                 "gr_classifier_hit":      gr_match.tool,
             }
 
+    # Cosmology pre-classifier: dispatches Hubble radius / age of
+    # universe / critical density / MOND regime / MOND a_0 / eta
+    # directly. Qwen 7b picks rydberg_hydrogen_wavelength for the
+    # 'is Earth gravity Newtonian or MOND?' question. The classifier
+    # fixes it via straight keyword match.
+    from sigma_ground.mcp.benchmark.cosmology_classifier import (
+        classify_for_cosmology, execute_cosmology_match,
+    )
+    cos_match = classify_for_cosmology(question)
+    if cos_match is not None:
+        val, units, answer_text = execute_cosmology_match(cos_match)
+        if val is not None:
+            return {
+                "answer_text":            answer_text,
+                "extracted_value":        val,
+                "extracted_units":        units,
+                "tool_calls":             [],
+                "turns":                  0,
+                "elapsed_s":              time.time() - t0,
+                "extracted_via_fallback": False,
+                "nudges_sent":            0,
+                "cosmology_classifier_hit": cos_match.tool,
+            }
+
     messages = [
         {"role": "system",    "content": system_prompt},
         {"role": "user",      "content": question},
