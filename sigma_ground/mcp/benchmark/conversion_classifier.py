@@ -131,18 +131,59 @@ def _normalize_unit(raw: str) -> str:
     return s.replace(" ", "_")
 
 
+# Specialty patterns for energy-energy and mass-energy conversions
+# that show up in nuclear-physics questions but don't fit the standard
+# "convert X to Y" or "N X equals how many Y" templates.
+_ENERGY_UNITS_REGEX = (
+    r"(meV|eV|keV|MeV|GeV|TeV|joule|joules|J)"
+)
+
+
+# Detect: NUMBER + energy_unit ... "how many" + energy_unit (cross-sentence OK)
+# e.g. "Typical fission releases about 200 MeV. How many joules is that?"
+_ENERGY_CROSS_SENTENCE = re.compile(
+    rf"\b([\-+]?[0-9]+(?:\.[0-9]+)?(?:[eE][\-+]?[0-9]+)?)\s*"
+    rf"{_ENERGY_UNITS_REGEX}\b.*?"
+    rf"how\s+many\s+{_ENERGY_UNITS_REGEX}\b",
+    re.IGNORECASE | re.DOTALL,
+)
+
+# Detect: "X kg of mass [is fully] converted [to energy/in annihilation]"
+# -> compute E=mc^2 in J. Covers nuc_001 ("1 kg of mass is fully converted")
+# and the matter-antimatter / annihilation phrasings.
+_MASS_TO_ENERGY = re.compile(
+    r"\b([\-+]?[0-9]+(?:\.[0-9]+)?)\s*(kg|kilogram|kilograms|g|gram|grams)\s+"
+    r"(?:of\s+(?:mass|matter)\s+)?"
+    r"(?:is\s+|fully\s+|completely\s+)*"
+    r"(?:converted|annihilat\w+|destroyed)"
+    r"(?:.*?(?:annihilation|matter.antimatter|energy))?",
+    re.IGNORECASE | re.DOTALL,
+)
+
+# Detect: "X kg ... megatons TNT" (mass -> TNT, via E=mc^2 then J -> MT_TNT)
+_MASS_TO_TNT = re.compile(
+    r"\b([\-+]?[0-9]+(?:\.[0-9]+)?)\s*(kg|kilogram|kilograms|g|gram|grams)\s+"
+    r".*?(?:how\s+many\s+)?(megatons?|MT|kt|kilotons?)\s+(?:of\s+)?TNT",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
 def classify_for_conversion(question: str) -> ConversionMatch | None:
     """Return a ConversionMatch if the question is unambiguously a conversion.
 
-    Returns None for questions that aren't a recognizable "convert X to Y"
-    pattern.
+    Returns None for questions that aren't a recognizable conversion pattern.
     """
     try:
         import pint
     except ImportError:
         return None
     ureg = pint.UnitRegistry()
+    # 1 kg c^2 in joules (E=mc^2 with c = 299792458 m/s)
+    _C2 = 299792458.0 ** 2
+    # 1 megaton TNT = 4.184e15 J
+    _MT_TNT_J = 4.184e15
 
+    # === Standard convert/equals/inverted patterns ===
     for i, pat in enumerate(_PATTERNS):
         m = pat.search(question)
         if not m:
@@ -150,20 +191,18 @@ def classify_for_conversion(question: str) -> ConversionMatch | None:
         groups = m.groups()
         if len(groups) != 3:
             continue
-        # Pattern 0 and 1: (value, from, to). Pattern 2: (to, value, from).
         if i in (0, 1):
             try:
                 value = float(groups[0])
             except ValueError:
                 continue
             from_raw, to_raw = groups[1], groups[2]
-        else:  # pattern 2 swaps
+        else:
             try:
                 value = float(groups[1])
             except ValueError:
                 continue
             from_raw, to_raw = groups[2], groups[0]
-
         from_u = _normalize_unit(from_raw)
         to_u = _normalize_unit(to_raw)
         if not from_u or not to_u or from_u == to_u:
@@ -177,6 +216,72 @@ def classify_for_conversion(question: str) -> ConversionMatch | None:
             value=value, from_units=from_u, to_units=to_u,
             result=float(result), matched_pattern=pat.pattern[:60],
         )
+
+    # === Energy-to-energy across sentences (e.g. "fission releases 200 MeV. How many joules?") ===
+    m = _ENERGY_CROSS_SENTENCE.search(question)
+    if m:
+        try:
+            value = float(m.group(1))
+            from_u = _normalize_unit(m.group(2))
+            to_u = _normalize_unit(m.group(3))
+            if from_u != to_u:
+                q = ureg.Quantity(value, from_u)
+                result = q.to(to_u).magnitude
+                return ConversionMatch(
+                    value=value, from_units=from_u, to_units=to_u,
+                    result=float(result),
+                    matched_pattern="cross_sentence_energy",
+                )
+        except Exception:
+            pass
+
+    # === Mass -> TNT (check FIRST -- more specific than mass-to-energy) ===
+    # Skip if the question mentions fission or fusion: those only convert
+    # ~0.09% (fission) or ~0.7% (D-T fusion) of mass to energy, NOT full
+    # E=mc^2. Let the LLM handle those with the right binding-energy values.
+    nuclear_partial_conversion = re.search(
+        r"\b(fission|fusion|nuclear\s+(?:reaction|reactor)|binding\s+energy|deuter|trit)",
+        question, re.IGNORECASE)
+    m = _MASS_TO_TNT.search(question) if not nuclear_partial_conversion else None
+    if m:
+        try:
+            value = float(m.group(1))
+            mass_unit = _normalize_unit(m.group(2))
+            tnt_unit_raw = m.group(3).lower()
+            kg = ureg.Quantity(value, mass_unit).to("kilogram").magnitude
+            energy_J = kg * _C2
+            if "megaton" in tnt_unit_raw or tnt_unit_raw == "mt":
+                tnt_value = energy_J / _MT_TNT_J
+                to_u = "megaton_TNT"
+            else:
+                tnt_value = energy_J / (_MT_TNT_J / 1000.0)
+                to_u = "kiloton_TNT"
+            return ConversionMatch(
+                value=value, from_units=mass_unit,
+                to_units=to_u, result=float(tnt_value),
+                matched_pattern="mass_to_TNT_E=mc^2",
+            )
+        except Exception:
+            pass
+
+    # === Mass -> Energy (E = mc^2) -- after the TNT check ===
+    # Same nuclear-partial-conversion guard: don't match if the question
+    # is about fission/fusion (partial mass conversion via binding energy).
+    m = _MASS_TO_ENERGY.search(question) if not nuclear_partial_conversion else None
+    if m:
+        try:
+            value = float(m.group(1))
+            mass_unit = _normalize_unit(m.group(2))
+            kg = ureg.Quantity(value, mass_unit).to("kilogram").magnitude
+            energy_J = kg * _C2
+            return ConversionMatch(
+                value=value, from_units=mass_unit,
+                to_units="joule", result=float(energy_J),
+                matched_pattern="mass_to_energy_E=mc^2",
+            )
+        except Exception:
+            pass
+
     return None
 
 
