@@ -9,10 +9,10 @@ from __future__ import annotations
 from sigma_ground.mcp.provenance import ToolResult
 
 
-# Periodic-table data: atomic number (Z) and standard atomic mass (amu).
-# IUPAC 2021 standard atomic weights.
-# https://iupac.org/what-we-do/periodic-table-of-elements/
-_PERIODIC_DATA: dict[str, tuple[int, float]] = {
+# Periodic-table data is now provided by materials.element_atomic_data
+# (uses the periodictable library). This local table was removed to
+# avoid duplicate registrations. Kept commented for reference.
+_UNUSED_PERIODIC_DATA_FOR_REFERENCE: dict[str, tuple[int, float]] = {
     "H":  (1,   1.008),    "He": (2,   4.0026),
     "Li": (3,   6.94),     "Be": (4,   9.0122),
     "B":  (5,  10.81),     "C":  (6,  12.011),
@@ -51,40 +51,9 @@ _PERIODIC_DATA: dict[str, tuple[int, float]] = {
 }
 
 
-def element_atomic_data(element: str) -> ToolResult:
-    """Atomic number Z and standard atomic mass (amu) for an element.
-
-    Accepts symbol ('H', 'Au', 'Fe'), full name ('hydrogen', 'gold',
-    'iron'), Latin name ('aurum', 'ferrum'), or atomic number ('79', 'Z=79').
-
-    Returns a dict {atomic_number, atomic_mass_amu, symbol} with provenance.
-    Source: IUPAC 2021 standard atomic weights.
-    """
-    from sigma_ground.mcp.tools.aliases import ELEMENT_ALIASES, resolve
-    sym = resolve(element, ELEMENT_ALIASES)
-    if sym not in _PERIODIC_DATA:
-        # Try capitalize for stripped-down input
-        sym = element.strip().capitalize()
-    if sym not in _PERIODIC_DATA:
-        return ToolResult(
-            value=None,
-            source="sigma-ground (atomic data lookup)",
-            notes=(f"Element '{element}' not in periodic table. "
-                    f"Accepts symbol, name, Latin name, or atomic number. "
-                    f"Coverage: most of the first 56 plus selected heavy elements."),
-            inputs={"element": element},
-        )
-    Z, amu = _PERIODIC_DATA[sym]
-    return ToolResult(
-        value={"atomic_number": Z, "atomic_mass_amu": amu, "symbol": sym},
-        units="",
-        source="sigma-ground via IUPAC 2021 standard atomic weights",
-        provenance_tag="VERIFIED",
-        inputs={"element": element, "resolved_symbol": sym},
-        notes=("atomic_number is integer Z (count of protons); "
-                "atomic_mass_amu is the standard atomic weight in unified "
-                "atomic mass units (1 amu = 1.66054e-27 kg)."),
-    )
+# element_atomic_data() moved to sigma_ground.mcp.tools.materials
+# (it uses the periodictable library for complete coverage). Don't
+# re-define here -- would create a duplicate MCP registration.
 
 
 # First ionization energies in eV. NIST Atomic Spectra Database.

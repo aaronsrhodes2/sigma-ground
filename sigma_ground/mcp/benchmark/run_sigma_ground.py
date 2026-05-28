@@ -177,8 +177,69 @@ def _extract_value(answer: str) -> tuple[Any, str]:
         return val_str, units
 
 
+# Question-keyword -> dict-field priority. Used by the fallback
+# extractor when a tool returns a dict-shaped value (e.g.
+# element_atomic_data returns {atomic_number, atomic_mass_amu,
+# symbol}). The question text picks which scalar field to pull.
+_FIELD_PRIORITY_BY_QUESTION_KEYWORD: list[tuple[tuple[str, ...], list[str]]] = [
+    # (question keywords, preferred fields in order)
+    (("atomic number", "atomic_number", "how many protons", "Z of"),
+     ["atomic_number"]),
+    (("atomic mass", "atomic weight", "amu", "atomic_mass"),
+     ["atomic_mass_amu", "mass_amu"]),
+    (("surface temperature", "surface temp"),
+     ["surface_temp_k"]),
+    (("mass of", "how massive", "what is the mass"),
+     ["mass_kg", "mass_solar"]),
+    (("radius of", "what is the radius"),
+     ["radius_m"]),
+    (("distance to", "how far is", "how far away"),
+     ["distance_pc"]),
+    (("orbital period", "how long does .* take to orbit"),
+     ["orbital_period_d"]),
+    (("luminosity of", "how bright"),
+     ["luminosity_w", "luminosity_solar"]),
+    (("surface gravity", "g at the surface"),
+     ["surface_g_ms2"]),
+]
+
+
+def _pick_dict_scalar(d: dict, question: str = "") -> tuple[float | None, str]:
+    """Pick the most-likely scalar field from a dict-valued tool result.
+
+    Uses question keywords to bias the choice. Returns (value, field_name)
+    or (None, "") if no numeric field found.
+    """
+    q_low = (question or "").lower()
+    # Try keyword-guided picks first
+    for keywords, fields in _FIELD_PRIORITY_BY_QUESTION_KEYWORD:
+        if any(kw in q_low for kw in keywords):
+            for f in fields:
+                v = d.get(f)
+                if isinstance(v, (int, float)):
+                    return float(v), f
+    # Default priority list
+    default_priority = [
+        "atomic_number", "atomic_mass_amu",
+        "surface_temp_k", "mass_kg", "radius_m",
+        "luminosity_w", "distance_pc", "orbital_period_d",
+        "surface_g_ms2", "semimajor_axis_au",
+        "abs_v_mag", "mass_solar", "luminosity_solar",
+    ]
+    for f in default_priority:
+        v = d.get(f)
+        if isinstance(v, (int, float)):
+            return float(v), f
+    # Fallback: first numeric field
+    for k, v in d.items():
+        if isinstance(v, (int, float)):
+            return float(v), k
+    return None, ""
+
+
 def _extract_value_from_tool_calls(tool_calls: list[dict],
-                                       primary_tool_expected: str | None = None
+                                       primary_tool_expected: str | None = None,
+                                       question: str = ""
                                        ) -> tuple[Any, str]:
     """Fallback: pull value+units from a tool call's JSON result.
 
@@ -186,6 +247,10 @@ def _extract_value_from_tool_calls(tool_calls: list[dict],
       1. If primary_tool_expected is set, prefer the LAST call to that
          tool (it's the tool the corpus author meant should answer this).
       2. Otherwise fall back to the LAST tool call with a numeric value.
+
+    For dict-shaped `value` (e.g. element_atomic_data returning
+    {atomic_number, atomic_mass_amu, symbol}), uses the question text
+    to pick the relevant scalar field.
 
     This addresses the "right tool, wrong value reported" bug where
     Qwen called multiple tools and the LAST one was an exploratory
@@ -195,15 +260,28 @@ def _extract_value_from_tool_calls(tool_calls: list[dict],
     def _try_extract(tc: dict) -> tuple[Any, str] | None:
         text = tc.get("result_text", "") or ""
         m_val = _TOOL_VALUE_RE.search(text)
-        if not m_val:
-            return None
+        if m_val:
+            try:
+                val = float(m_val.group(1))
+                m_units = _TOOL_UNITS_RE.search(text)
+                units = m_units.group(1) if m_units else ""
+                return val, units
+            except ValueError:
+                pass
+        # Fallback to NESTED scalars: many tools return `"value": {...}`
+        # with named scalar fields. Use the question text to pick the
+        # relevant field.
         try:
-            val = float(m_val.group(1))
-        except ValueError:
-            return None
-        m_units = _TOOL_UNITS_RE.search(text)
-        units = m_units.group(1) if m_units else ""
-        return val, units
+            import json as _json
+            parsed = _json.loads(text)
+            v = parsed.get("value")
+            if isinstance(v, dict):
+                picked_val, picked_field = _pick_dict_scalar(v, question)
+                if picked_val is not None:
+                    return picked_val, picked_field
+        except Exception:
+            pass
+        return None
 
     # Pass 1: prefer the LAST call to the expected primary tool.
     if primary_tool_expected:
@@ -509,7 +587,8 @@ async def _run_one_question(session, ollama_url: str, model: str,
                 if val is None and tool_calls_made:
                     val, units = _extract_value_from_tool_calls(
                         tool_calls_made,
-                        primary_tool_expected=primary_tool_expected)
+                        primary_tool_expected=primary_tool_expected,
+                        question=question)
                     fallback_used = val is not None
                 return {
                     "answer_text":            final,
@@ -614,7 +693,8 @@ async def _run_one_question(session, ollama_url: str, model: str,
 
         # Hit max turns -- try fallback before giving up
         val, units = _extract_value_from_tool_calls(
-            tool_calls_made, primary_tool_expected=primary_tool_expected)
+            tool_calls_made, primary_tool_expected=primary_tool_expected,
+            question=question)
         return {
             "answer_text":            "<exceeded max turns>",
             "extracted_value":        val,

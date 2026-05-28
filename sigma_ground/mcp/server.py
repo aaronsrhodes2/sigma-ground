@@ -649,16 +649,8 @@ def main() -> int:
         return t_circ.em_wave_frequency(wavelength_m, refractive_index).to_dict()
 
     # ── atomic physics ─────────────────────────────────────────────
-    @server.tool()
-    def element_atomic_data(element: str) -> dict[str, Any]:
-        """Atomic number Z and standard atomic mass (amu) for an element.
-
-        Accepts symbol ('H', 'Au', 'Fe'), full name ('hydrogen', 'gold'),
-        Latin name ('aurum'), or atomic number ('79', 'Z=79').
-        Returns dict with atomic_number, atomic_mass_amu, symbol.
-        Source: IUPAC 2021 standard atomic weights.
-        """
-        return t_atom.element_atomic_data(element).to_dict()
+    # (element_atomic_data is registered in the materials section above
+    # using periodictable lib; it covers Z + atomic mass for all elements.)
 
     @server.tool()
     def first_ionization_energy(element_symbol: str) -> dict[str, Any]:

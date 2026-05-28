@@ -267,7 +267,8 @@ def element_atomic_data(element_symbol: str) -> ToolResult:
     Parameters
     ----------
     element_symbol : str
-        Element symbol (e.g. 'H', 'He', 'Fe', 'Au') or full name.
+        Element symbol ('H', 'Au'), full name ('hydrogen', 'gold'),
+        Latin name ('aurum', 'ferrum'), or atomic number ('79', 'Z=79').
     """
     try:
         import periodictable
@@ -275,18 +276,28 @@ def element_atomic_data(element_symbol: str) -> ToolResult:
         return ToolResult(value=None, source="periodictable not installed",
                            notes="pip install sigma-ground[mcp]",
                            inputs={"element_symbol": element_symbol})
+    # Resolve alias names (gold->Au, aurum->Au, 79->Au, etc.) before looking up
+    from sigma_ground.mcp.tools.aliases import ELEMENT_ALIASES, resolve
+    canonical = resolve(element_symbol, ELEMENT_ALIASES)
     try:
-        # periodictable indexes both by symbol and by name.
-        elem = periodictable.elements.symbol(element_symbol)
+        elem = periodictable.elements.symbol(canonical)
     except (ValueError, AttributeError):
         try:
-            elem = periodictable.elements.name(element_symbol.lower())
+            elem = periodictable.elements.name(canonical.lower())
         except (ValueError, AttributeError):
-            return ToolResult(
-                value=None, source="periodictable lookup failed",
-                notes=f"Element '{element_symbol}' not found",
-                inputs={"element_symbol": element_symbol},
-            )
+            try:
+                # Fall back to whatever the user typed
+                elem = periodictable.elements.symbol(element_symbol)
+            except (ValueError, AttributeError):
+                try:
+                    elem = periodictable.elements.name(element_symbol.lower())
+                except (ValueError, AttributeError):
+                    return ToolResult(
+                        value=None, source="periodictable lookup failed",
+                        notes=f"Element '{element_symbol}' not found",
+                        inputs={"element_symbol": element_symbol,
+                                 "resolved_to": canonical},
+                    )
     return ToolResult(
         value={
             "name":             elem.name,
