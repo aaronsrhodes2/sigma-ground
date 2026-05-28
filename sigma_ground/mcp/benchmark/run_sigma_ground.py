@@ -607,6 +607,29 @@ async def _run_one_question(session, ollama_url: str, model: str,
                 "cosmology_classifier_hit": cos_match.tool,
             }
 
+    # Math pre-classifier: dispatches solve_equation / integrate_expr /
+    # differentiate_expr / simplify_expr for natural-English math
+    # questions ('x squared minus 4 equals zero', 'integral of x^2
+    # from 0 to 1'). Translates natural phrasing to sympy syntax.
+    from sigma_ground.mcp.benchmark.math_classifier import (
+        classify_for_math, execute_math_match,
+    )
+    math_match = classify_for_math(question)
+    if math_match is not None:
+        val, units, answer_text = execute_math_match(math_match)
+        if val is not None:
+            return {
+                "answer_text":            answer_text,
+                "extracted_value":        val,
+                "extracted_units":        units,
+                "tool_calls":             [],
+                "turns":                  0,
+                "elapsed_s":              time.time() - t0,
+                "extracted_via_fallback": False,
+                "nudges_sent":            0,
+                "math_classifier_hit":    math_match.tool,
+            }
+
     messages = [
         {"role": "system",    "content": system_prompt},
         {"role": "user",      "content": question},
