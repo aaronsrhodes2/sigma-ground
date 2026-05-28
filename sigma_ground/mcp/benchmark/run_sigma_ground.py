@@ -630,6 +630,27 @@ async def _run_one_question(session, ollama_url: str, model: str,
                 "math_classifier_hit":    math_match.tool,
             }
 
+    # Thermo pre-classifier: ideal gas / Wien / Stefan-Boltzmann /
+    # Carnot / equipartition / Maxwell-Boltzmann / melting+boiling.
+    from sigma_ground.mcp.benchmark.thermo_classifier import (
+        classify_for_thermo, execute_thermo_match,
+    )
+    thermo_match = classify_for_thermo(question)
+    if thermo_match is not None:
+        val, units, answer_text = execute_thermo_match(thermo_match)
+        if val is not None:
+            return {
+                "answer_text":            answer_text,
+                "extracted_value":        val,
+                "extracted_units":        units,
+                "tool_calls":             [],
+                "turns":                  0,
+                "elapsed_s":              time.time() - t0,
+                "extracted_via_fallback": False,
+                "nudges_sent":            0,
+                "thermo_classifier_hit":  thermo_match.tool,
+            }
+
     messages = [
         {"role": "system",    "content": system_prompt},
         {"role": "user",      "content": question},
