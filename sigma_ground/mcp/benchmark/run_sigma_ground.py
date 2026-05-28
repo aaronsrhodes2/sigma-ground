@@ -560,6 +560,29 @@ async def _run_one_question(session, ollama_url: str, model: str,
             "conversion_classifier_hit": True,
         }
 
+    # GR / black-hole pre-classifier: dispatches schwarzschild/ISCO/
+    # photon-sphere/Hawking/time-dilation directly when mass + concept
+    # are unambiguous. Qwen 7b reliably fumbles these because it
+    # passes "mass_kg=10" literally for "10 solar masses".
+    from sigma_ground.mcp.benchmark.gr_classifier import (
+        classify_for_gr, execute_gr_match,
+    )
+    gr_match = classify_for_gr(question)
+    if gr_match is not None:
+        val, units, answer_text = execute_gr_match(gr_match)
+        if val is not None:
+            return {
+                "answer_text":            answer_text,
+                "extracted_value":        val,
+                "extracted_units":        units,
+                "tool_calls":             [],
+                "turns":                  0,
+                "elapsed_s":              time.time() - t0,
+                "extracted_via_fallback": False,
+                "nudges_sent":            0,
+                "gr_classifier_hit":      gr_match.tool,
+            }
+
     messages = [
         {"role": "system",    "content": system_prompt},
         {"role": "user",      "content": question},
