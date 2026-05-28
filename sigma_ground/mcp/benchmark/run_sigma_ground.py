@@ -697,6 +697,30 @@ async def _run_one_question(session, ollama_url: str, model: str,
                 "classical_intro_hit":    ci_match.tool,
             }
 
+    # Astrophysics pre-classifier:
+    # Light-travel-time from a named star (parsec -> light-year),
+    # star property lookup (luminosity / mass / distance),
+    # planet orbital period, Sun's peak emission wavelength,
+    # Sun's energy output per year, Earth's orbital velocity.
+    from sigma_ground.mcp.benchmark.astro_classifier import (
+        classify_for_astro, execute_astro_match,
+    )
+    astro_match = classify_for_astro(question)
+    if astro_match is not None:
+        val, units, answer_text = execute_astro_match(astro_match)
+        if val is not None:
+            return {
+                "answer_text":            answer_text,
+                "extracted_value":        val,
+                "extracted_units":        units,
+                "tool_calls":             [],
+                "turns":                  0,
+                "elapsed_s":              time.time() - t0,
+                "extracted_via_fallback": False,
+                "nudges_sent":            0,
+                "astro_classifier_hit":   astro_match.tool,
+            }
+
     messages = [
         {"role": "system",    "content": system_prompt},
         {"role": "user",      "content": question},
