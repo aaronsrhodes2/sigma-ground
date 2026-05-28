@@ -651,6 +651,29 @@ async def _run_one_question(session, ollama_url: str, model: str,
                 "thermo_classifier_hit":  thermo_match.tool,
             }
 
+    # Modern physics (special relativity + early QM) pre-classifier.
+    # Dispatches lorentz_factor / time-dilation / length-contraction /
+    # mass_to_energy / luminosity_to_mass_rate / photon-energy /
+    # velocity-addition / Doppler / de Broglie.
+    from sigma_ground.mcp.benchmark.modern_classifier import (
+        classify_for_modern, execute_modern_match,
+    )
+    modern_match = classify_for_modern(question)
+    if modern_match is not None:
+        val, units, answer_text = execute_modern_match(modern_match)
+        if val is not None:
+            return {
+                "answer_text":            answer_text,
+                "extracted_value":        val,
+                "extracted_units":        units,
+                "tool_calls":             [],
+                "turns":                  0,
+                "elapsed_s":              time.time() - t0,
+                "extracted_via_fallback": False,
+                "nudges_sent":            0,
+                "modern_classifier_hit":  modern_match.tool,
+            }
+
     messages = [
         {"role": "system",    "content": system_prompt},
         {"role": "user",      "content": question},
