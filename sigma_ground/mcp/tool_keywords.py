@@ -222,6 +222,12 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
     "celsius_to_fahrenheit": ["C to F", "Celsius Fahrenheit"],
 
     # ============ ATOMIC / QUANTUM ============
+    "element_atomic_data": [
+        "atomic number", "atomic mass", "Z of", "atomic weight",
+        "amu", "u", "unified atomic mass", "periodic table",
+        "how many protons", "mass of element", "Mendeleev",
+        "IUPAC atomic weight",
+    ],
     "first_ionization_energy": [
         "ionization energy", "IE", "first ionization potential",
         "Z_eff", "remove electron energy",

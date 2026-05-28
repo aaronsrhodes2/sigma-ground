@@ -650,6 +650,17 @@ def main() -> int:
 
     # ── atomic physics ─────────────────────────────────────────────
     @server.tool()
+    def element_atomic_data(element: str) -> dict[str, Any]:
+        """Atomic number Z and standard atomic mass (amu) for an element.
+
+        Accepts symbol ('H', 'Au', 'Fe'), full name ('hydrogen', 'gold'),
+        Latin name ('aurum'), or atomic number ('79', 'Z=79').
+        Returns dict with atomic_number, atomic_mass_amu, symbol.
+        Source: IUPAC 2021 standard atomic weights.
+        """
+        return t_atom.element_atomic_data(element).to_dict()
+
+    @server.tool()
     def first_ionization_energy(element_symbol: str) -> dict[str, Any]:
         """First IE in eV (e.g. H=13.6, Na=5.1)."""
         return t_atom.first_ionization_energy(element_symbol).to_dict()

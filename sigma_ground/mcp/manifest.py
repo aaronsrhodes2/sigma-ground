@@ -404,6 +404,10 @@ _PRIMARY_TOOLS = [
      "inputs": {"wavelength_m": "float", "refractive_index": "float"},
      "returns": "frequency in Hz"},
     # ── atomic physics (Phase 1.9) ──
+    {"name": "element_atomic_data", "tier": "PRIMARY", "domain": "atomic",
+     "summary": "Atomic number Z and atomic mass (amu) by symbol/name/Z.",
+     "inputs": {"element": "str (e.g. 'H', 'gold', 'aurum', '79')"},
+     "returns": "dict {atomic_number, atomic_mass_amu, symbol}"},
     {"name": "first_ionization_energy", "tier": "PRIMARY", "domain": "atomic",
      "summary": "First IE in eV (NIST lookup).",
      "inputs": {"element_symbol": "str"}, "returns": "eV"},

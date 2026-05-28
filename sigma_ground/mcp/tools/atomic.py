@@ -9,6 +9,84 @@ from __future__ import annotations
 from sigma_ground.mcp.provenance import ToolResult
 
 
+# Periodic-table data: atomic number (Z) and standard atomic mass (amu).
+# IUPAC 2021 standard atomic weights.
+# https://iupac.org/what-we-do/periodic-table-of-elements/
+_PERIODIC_DATA: dict[str, tuple[int, float]] = {
+    "H":  (1,   1.008),    "He": (2,   4.0026),
+    "Li": (3,   6.94),     "Be": (4,   9.0122),
+    "B":  (5,  10.81),     "C":  (6,  12.011),
+    "N":  (7,  14.007),    "O":  (8,  15.999),
+    "F":  (9,  18.998),    "Ne": (10, 20.180),
+    "Na": (11, 22.990),    "Mg": (12, 24.305),
+    "Al": (13, 26.982),    "Si": (14, 28.085),
+    "P":  (15, 30.974),    "S":  (16, 32.06),
+    "Cl": (17, 35.45),     "Ar": (18, 39.948),
+    "K":  (19, 39.098),    "Ca": (20, 40.078),
+    "Sc": (21, 44.956),    "Ti": (22, 47.867),
+    "V":  (23, 50.942),    "Cr": (24, 51.996),
+    "Mn": (25, 54.938),    "Fe": (26, 55.845),
+    "Co": (27, 58.933),    "Ni": (28, 58.693),
+    "Cu": (29, 63.546),    "Zn": (30, 65.38),
+    "Ga": (31, 69.723),    "Ge": (32, 72.630),
+    "As": (33, 74.922),    "Se": (34, 78.971),
+    "Br": (35, 79.904),    "Kr": (36, 83.798),
+    "Rb": (37, 85.468),    "Sr": (38, 87.62),
+    "Y":  (39, 88.906),    "Zr": (40, 91.224),
+    "Nb": (41, 92.906),    "Mo": (42, 95.95),
+    "Tc": (43, 98.0),      "Ru": (44, 101.07),
+    "Rh": (45, 102.91),    "Pd": (46, 106.42),
+    "Ag": (47, 107.868),   "Cd": (48, 112.414),
+    "In": (49, 114.818),   "Sn": (50, 118.710),
+    "Sb": (51, 121.760),   "Te": (52, 127.60),
+    "I":  (53, 126.904),   "Xe": (54, 131.293),
+    "Cs": (55, 132.905),   "Ba": (56, 137.327),
+    "La": (57, 138.905),   "Ce": (58, 140.116),
+    "Pr": (59, 140.908),   "Nd": (60, 144.242),
+    "W":  (74, 183.84),    "Pt": (78, 195.084),
+    "Au": (79, 196.967),   "Hg": (80, 200.592),
+    "Pb": (82, 207.2),     "Bi": (83, 208.980),
+    "Th": (90, 232.038),   "U":  (92, 238.02891),
+    "Pu": (94, 244.0),
+}
+
+
+def element_atomic_data(element: str) -> ToolResult:
+    """Atomic number Z and standard atomic mass (amu) for an element.
+
+    Accepts symbol ('H', 'Au', 'Fe'), full name ('hydrogen', 'gold',
+    'iron'), Latin name ('aurum', 'ferrum'), or atomic number ('79', 'Z=79').
+
+    Returns a dict {atomic_number, atomic_mass_amu, symbol} with provenance.
+    Source: IUPAC 2021 standard atomic weights.
+    """
+    from sigma_ground.mcp.tools.aliases import ELEMENT_ALIASES, resolve
+    sym = resolve(element, ELEMENT_ALIASES)
+    if sym not in _PERIODIC_DATA:
+        # Try capitalize for stripped-down input
+        sym = element.strip().capitalize()
+    if sym not in _PERIODIC_DATA:
+        return ToolResult(
+            value=None,
+            source="sigma-ground (atomic data lookup)",
+            notes=(f"Element '{element}' not in periodic table. "
+                    f"Accepts symbol, name, Latin name, or atomic number. "
+                    f"Coverage: most of the first 56 plus selected heavy elements."),
+            inputs={"element": element},
+        )
+    Z, amu = _PERIODIC_DATA[sym]
+    return ToolResult(
+        value={"atomic_number": Z, "atomic_mass_amu": amu, "symbol": sym},
+        units="",
+        source="sigma-ground via IUPAC 2021 standard atomic weights",
+        provenance_tag="VERIFIED",
+        inputs={"element": element, "resolved_symbol": sym},
+        notes=("atomic_number is integer Z (count of protons); "
+                "atomic_mass_amu is the standard atomic weight in unified "
+                "atomic mass units (1 amu = 1.66054e-27 kg)."),
+    )
+
+
 # First ionization energies in eV. NIST Atomic Spectra Database.
 # https://physics.nist.gov/cgi-bin/ASD/ie.pl
 _FIRST_IONIZATION_EV: dict[str, tuple[float, str]] = {
