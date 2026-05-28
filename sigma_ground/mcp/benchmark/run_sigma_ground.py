@@ -204,11 +204,35 @@ _FIELD_PRIORITY_BY_QUESTION_KEYWORD: list[tuple[tuple[str, ...], list[str]]] = [
 ]
 
 
+# Mapping from dict-result field names to canonical SI units. Lets the
+# unit-aware scorer convert (e.g. pc -> light_year) when the question
+# asks for one and the tool returns the other.
+_FIELD_TO_UNITS: dict[str, str] = {
+    "atomic_number":     "",         # dimensionless (count of protons)
+    "atomic_mass_amu":   "amu",
+    "mass_amu":          "amu",
+    "surface_temp_k":    "K",
+    "mass_kg":           "kg",
+    "radius_m":          "m",
+    "luminosity_w":      "W",
+    "distance_pc":       "parsec",
+    "distance_m":        "m",
+    "orbital_period_d":  "day",
+    "surface_g_ms2":     "m/s^2",
+    "semimajor_axis_au": "AU",
+    "abs_v_mag":         "",         # dimensionless
+    "mass_solar":        "solar_mass",
+    "luminosity_solar":  "solar_luminosity",
+}
+
+
 def _pick_dict_scalar(d: dict, question: str = "") -> tuple[float | None, str]:
     """Pick the most-likely scalar field from a dict-valued tool result.
 
-    Uses question keywords to bias the choice. Returns (value, field_name)
-    or (None, "") if no numeric field found.
+    Uses question keywords to bias the choice. Returns (value, units)
+    where `units` is the canonical SI unit derived from the field name,
+    so the unit-aware scorer can convert if the question expects
+    different units. Returns (None, "") if no numeric field found.
     """
     q_low = (question or "").lower()
     # Try keyword-guided picks first
@@ -217,7 +241,7 @@ def _pick_dict_scalar(d: dict, question: str = "") -> tuple[float | None, str]:
             for f in fields:
                 v = d.get(f)
                 if isinstance(v, (int, float)):
-                    return float(v), f
+                    return float(v), _FIELD_TO_UNITS.get(f, f)
     # Default priority list
     default_priority = [
         "atomic_number", "atomic_mass_amu",
@@ -229,11 +253,11 @@ def _pick_dict_scalar(d: dict, question: str = "") -> tuple[float | None, str]:
     for f in default_priority:
         v = d.get(f)
         if isinstance(v, (int, float)):
-            return float(v), f
+            return float(v), _FIELD_TO_UNITS.get(f, f)
     # Fallback: first numeric field
     for k, v in d.items():
         if isinstance(v, (int, float)):
-            return float(v), k
+            return float(v), _FIELD_TO_UNITS.get(k, k)
     return None, ""
 
 
@@ -497,10 +521,12 @@ async def _run_one_question(session, ollama_url: str, model: str,
     # canonical answer, skipping the LLM (which Qwen 7b reliably
     # botches because Rule 7 is buried in a 19k-char system prompt).
     from sigma_ground.mcp.benchmark.refusal_classifier import (
-        classify_for_refusal, render_answer_text)
+        classify_for_refusal,
+        render_answer_text as _render_refusal_text,
+    )
     refusal = classify_for_refusal(question)
     if refusal is not None:
-        answer_text = render_answer_text(refusal, question)
+        answer_text = _render_refusal_text(refusal, question)
         return {
             "answer_text":            answer_text,
             "extracted_value":        refusal.answer,
@@ -511,6 +537,27 @@ async def _run_one_question(session, ollama_url: str, model: str,
             "extracted_via_fallback": False,
             "nudges_sent":            0,
             "refusal_classifier_hit": refusal.refusal_type,
+        }
+
+    # Conversion pre-classifier: short-circuit obvious "convert X to Y"
+    # questions via pint directly. Qwen 7b often picks wrong tools for
+    # these even when convert_units is in the index.
+    from sigma_ground.mcp.benchmark.conversion_classifier import (
+        classify_for_conversion,
+        render_answer_text as _render_conversion_text,
+    )
+    conversion = classify_for_conversion(question)
+    if conversion is not None:
+        return {
+            "answer_text":            _render_conversion_text(conversion),
+            "extracted_value":        conversion.result,
+            "extracted_units":        conversion.to_units,
+            "tool_calls":             [],
+            "turns":                  0,
+            "elapsed_s":              time.time() - t0,
+            "extracted_via_fallback": False,
+            "nudges_sent":            0,
+            "conversion_classifier_hit": True,
         }
 
     messages = [

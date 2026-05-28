@@ -1730,7 +1730,7 @@
     "course_level": "year_4",
     "question": "What's the distance to Polaris in light-years?",
     "expected_value": 433.5,
-    "expected_units": "year",
+    "expected_units": "light_year",
     "tolerance_rel": 0.05,
     "primary_tool_expected": "named_star",
     "secondary_tools_expected": [],

@@ -890,7 +890,7 @@
   },
   "astro_012": {
     "expected_value": 433.5,
-    "expected_units": "year",
+    "expected_units": "light_year",
     "tolerance_rel": 0.05,
     "ground_truth_source": "Gaia DR3 (Polaris is 133 pc)",
     "notes": "133 pc * 3.262 ly/pc ~ 434 ly"
