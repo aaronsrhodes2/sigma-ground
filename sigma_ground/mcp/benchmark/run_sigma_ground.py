@@ -674,6 +674,29 @@ async def _run_one_question(session, ollama_url: str, model: str,
                 "modern_classifier_hit":  modern_match.tool,
             }
 
+    # Classical mechanics (intro) pre-classifier.
+    # Projectile max-height / flight-time, circular orbit, free fall
+    # with explicit gravity (Moon/Mars), friction stopping distance,
+    # inverse KE (v from KE).
+    from sigma_ground.mcp.benchmark.classical_intro_classifier import (
+        classify_for_classical_intro, execute_classical_intro_match,
+    )
+    ci_match = classify_for_classical_intro(question)
+    if ci_match is not None:
+        val, units, answer_text = execute_classical_intro_match(ci_match)
+        if val is not None:
+            return {
+                "answer_text":            answer_text,
+                "extracted_value":        val,
+                "extracted_units":        units,
+                "tool_calls":             [],
+                "turns":                  0,
+                "elapsed_s":              time.time() - t0,
+                "extracted_via_fallback": False,
+                "nudges_sent":            0,
+                "classical_intro_hit":    ci_match.tool,
+            }
+
     messages = [
         {"role": "system",    "content": system_prompt},
         {"role": "user",      "content": question},
