@@ -6,6 +6,8 @@ generalized to hydrogen-like ions (He+, Li2+, etc.) by Z^2 scaling.
 
 from __future__ import annotations
 
+import math
+
 from sigma_ground.mcp.provenance import ToolResult
 
 
@@ -219,6 +221,65 @@ def de_broglie_wavelength(mass_kg: float, velocity_m_s: float) -> ToolResult:
         notes=("Matter wave. Electron at 1 keV: ~0.04 nm (X-ray scale). "
                 "Proton at thermal speed (300 K, ~2500 m/s): ~80 nm. "
                 "Macroscopic objects: << atomic scale, no diffraction."),
+    )
+
+
+_PARTICLE_REST_MASS_KG = {
+    "electron": 9.1093837015e-31,
+    "proton":   1.67262192369e-27,
+    "neutron":  1.67492749804e-27,
+    "alpha":    6.6446573357e-27,   # helium-4 nucleus
+    "muon":     1.883531627e-28,
+}
+
+
+def de_broglie_from_kinetic_energy(kinetic_energy_eV: float,
+                                     particle: str = "electron"
+                                     ) -> ToolResult:
+    """de Broglie wavelength from KINETIC ENERGY (not velocity).
+
+    Collapses the chain the benchmark kept failing: a "1 keV electron"
+    question needs KE -> momentum -> wavelength. This does it in one call,
+    relativistically exact so it's correct at any energy:
+        E_total = KE + m c²,   p = sqrt(E_total² − (m c²)²)/c,   λ = h/p
+
+    Parameters
+    ----------
+    kinetic_energy_eV : float
+        Kinetic energy in electronvolts (1 keV = 1000, 1 MeV = 1e6).
+    particle : str
+        'electron' (default), 'proton', 'neutron', 'alpha', 'muon'.
+
+    Example:
+      de_broglie_from_kinetic_energy(1000, "electron")  # 1 keV e- -> 3.88e-11 m
+    """
+    p_key = (particle or "electron").strip().lower()
+    m = _PARTICLE_REST_MASS_KG.get(p_key)
+    if m is None:
+        return ToolResult(value=None, source="unknown particle",
+                           notes=f"Known: {sorted(_PARTICLE_REST_MASS_KG)}",
+                           inputs={"particle": particle})
+    if kinetic_energy_eV <= 0:
+        return ToolResult(value=None, source="invalid input",
+                           inputs={"kinetic_energy_eV": kinetic_energy_eV})
+    from sigma_ground.field.constants import HBAR, C
+    eV_J = 1.602176634e-19
+    h = HBAR * 2.0 * math.pi
+    KE = kinetic_energy_eV * eV_J
+    mc2 = m * C * C
+    E_total = KE + mc2
+    p = math.sqrt(max(E_total * E_total - mc2 * mc2, 0.0)) / C
+    lam = h / p
+    rel = "relativistic" if KE > 0.01 * mc2 else "non-relativistic regime"
+    return ToolResult(
+        value=lam, units="m",
+        source="sigma-ground (de Broglie, relativistic momentum)",
+        formula="λ = h c / sqrt(KE² + 2 KE m c²)",
+        inputs={"kinetic_energy_eV": kinetic_energy_eV, "particle": p_key,
+                "rest_mass_kg": m},
+        notes=(f"{p_key} at {kinetic_energy_eV:g} eV ({rel}). "
+                f"Exact at all energies; reduces to h/sqrt(2 m KE) "
+                f"non-relativistically."),
     )
 
 

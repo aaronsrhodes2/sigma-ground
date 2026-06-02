@@ -58,6 +58,51 @@ def electrical_power(voltage_v: float, current_a: float) -> ToolResult:
     )
 
 
+def energy_power_time(power_w: float | None = None,
+                        time_s: float | None = None,
+                        energy_j: float | None = None) -> ToolResult:
+    """Solve E = P · t for whichever value is missing. Provide exactly two.
+
+    Collapses the "5 kW heater for 1 hour = how many joules?" and
+    "5 W LED to dissipate 1 kJ = how long?" questions into one tool —
+    the LLM just supplies the two it knows and leaves the unknown as None.
+
+    Examples:
+      energy_power_time(power_w=5000, time_s=3600)      # -> energy_j
+      energy_power_time(power_w=5, energy_j=1000)       # -> time_s
+      energy_power_time(time_s=3600, energy_j=1.8e7)    # -> power_w
+    """
+    known = [x is not None for x in (power_w, time_s, energy_j)]
+    if sum(known) != 2:
+        return ToolResult(value=None, source="invalid input",
+                           notes="Provide exactly two of power_w, time_s, energy_j.",
+                           inputs={"power_w": power_w, "time_s": time_s,
+                                   "energy_j": energy_j})
+    if energy_j is None:
+        val, units, solved = power_w * time_s, "J", "energy_j"
+        formula = "E = P t"
+    elif time_s is None:
+        if power_w == 0:
+            return ToolResult(value=None, source="invalid input",
+                               notes="power_w is zero.", inputs={})
+        val, units, solved = energy_j / power_w, "s", "time_s"
+        formula = "t = E / P"
+    else:  # power_w is None
+        if time_s == 0:
+            return ToolResult(value=None, source="invalid input",
+                               notes="time_s is zero.", inputs={})
+        val, units, solved = energy_j / time_s, "W", "power_w"
+        formula = "P = E / t"
+    return ToolResult(
+        value=val, units=units,
+        source="sigma-ground (energy = power × time)",
+        formula=formula,
+        inputs={"power_w": power_w, "time_s": time_s, "energy_j": energy_j,
+                "solved_for": solved},
+        notes=f"Solved for {solved}. 1 hour = 3600 s; 1 kWh = 3.6e6 J.",
+    )
+
+
 def power_dissipation_resistor(current_a: float,
                                  resistance_ohm: float) -> ToolResult:
     """P = I^2 R. Power dissipated as heat in a resistor."""

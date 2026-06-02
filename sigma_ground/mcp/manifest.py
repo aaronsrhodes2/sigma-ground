@@ -439,6 +439,61 @@ _PRIMARY_TOOLS = [
     {"name": "list_bodies", "tier": "PRIMARY", "domain": "astronomy",
      "summary": "List all solar-system bodies and named stars available.",
      "inputs": {}, "returns": "dict"},
+
+    # ── orbital mechanics (body-aware, multi-step) ──
+    {"name": "orbital_velocity", "tier": "PRIMARY", "domain": "orbital",
+     "summary": "Circular orbital speed, body-aware: name + altitude_km (or "
+                "radius_m, or semimajor_axis_au). Does mass lookup internally.",
+     "inputs": {"central_body": "str (e.g. 'earth','sun')",
+                "altitude_km": "float (above surface)",
+                "orbital_radius_m": "float (from center)",
+                "semimajor_axis_au": "float (heliocentric)"},
+     "returns": "v in m/s"},
+    {"name": "orbital_period", "tier": "PRIMARY", "domain": "orbital",
+     "summary": "Kepler's third law T=2π√(a³/GM). Defaults to Sun. "
+                "Asteroid at 3 AU: orbital_period(semimajor_axis_au=3).",
+     "inputs": {"semimajor_axis_au": "float",
+                "central_body": "str (default 'sun')"},
+     "returns": "period in seconds"},
+    {"name": "gravitational_force", "tier": "PRIMARY", "domain": "orbital",
+     "summary": "Newton's law of gravitation F = G m1 m2 / r².",
+     "inputs": {"mass1_kg": "float", "mass2_kg": "float",
+                "separation_m": "float"}, "returns": "force in N"},
+    {"name": "orbital_raise_energy", "tier": "PRIMARY", "domain": "orbital",
+     "summary": "Gravitational PE to raise a mass between orbits ΔU=GMm(1/r1-1/r2). "
+                "Body-aware (altitudes above surface).",
+     "inputs": {"mass_kg": "float", "central_body": "str (default 'earth')",
+                "from_altitude_km": "float", "to_altitude_km": "float"},
+     "returns": "energy in J"},
+
+    # ── nuclear physics ──
+    {"name": "nuclear_binding_energy", "tier": "PRIMARY", "domain": "nuclear",
+     "summary": "Binding energy + mass defect for a nucleus. Exact with "
+                "measured_mass_u, else SEMF. Returns mass_defect_fraction "
+                "(baryon-count vs mass-energy gap, peaks ~0.9% at iron).",
+     "inputs": {"protons": "int", "neutrons": "int",
+                "measured_mass_u": "float|None"},
+     "returns": "dict {binding_energy_MeV, binding_per_nucleon_MeV, "
+                "mass_defect_u, mass_defect_fraction}"},
+    {"name": "coulomb_force", "tier": "PRIMARY", "domain": "nuclear",
+     "summary": "Coulomb's law F = q1 q2 / (4π ε0 r²). +repulsive/−attractive.",
+     "inputs": {"charge1_c": "float", "charge2_c": "float",
+                "separation_m": "float"}, "returns": "force in N"},
+
+    # ── multi-step atomic / circuits ──
+    {"name": "de_broglie_from_kinetic_energy", "tier": "PRIMARY",
+     "domain": "atomic",
+     "summary": "de Broglie wavelength from KINETIC ENERGY (relativistically "
+                "exact). '1 keV electron' = de_broglie_from_kinetic_energy("
+                "1000,'electron').",
+     "inputs": {"kinetic_energy_eV": "float",
+                "particle": "str: electron|proton|neutron|alpha|muon"},
+     "returns": "wavelength in m"},
+    {"name": "energy_power_time", "tier": "PRIMARY", "domain": "circuits",
+     "summary": "Solve E=P·t for the missing one; provide exactly two. "
+                "'5 kW for 1 hr' = energy_power_time(power_w=5000,time_s=3600).",
+     "inputs": {"power_w": "float|None", "time_s": "float|None",
+                "energy_j": "float|None"}, "returns": "the missing quantity"},
 ]
 
 

@@ -98,6 +98,8 @@ def main() -> int:
     from sigma_ground.mcp.tools import circuits as t_circ
     from sigma_ground.mcp.tools import atomic as t_atom
     from sigma_ground.mcp.tools import astronomy as t_astr
+    from sigma_ground.mcp.tools import orbital as t_orb
+    from sigma_ground.mcp.tools import nuclear as t_nuc
     from sigma_ground.mcp import manifest as t_manifest
 
     server = FastMCP("sigma-ground")
@@ -706,6 +708,97 @@ def main() -> int:
     def list_bodies() -> dict[str, Any]:
         """List all solar-system bodies and named stars available."""
         return t_astr.list_bodies().to_dict()
+
+    # ── orbital mechanics (body-aware, multi-step) ─────────────────
+    @server.tool()
+    def orbital_velocity(central_body: str | None = None,
+                           central_mass_kg: float | None = None,
+                           altitude_km: float | None = None,
+                           orbital_radius_m: float | None = None,
+                           semimajor_axis_au: float | None = None
+                           ) -> dict[str, Any]:
+        """Circular orbital speed, body-aware. Give central_body (name) OR
+        central_mass_kg, plus altitude_km (above surface) OR orbital_radius_m
+        (from center) OR semimajor_axis_au. E.g. orbital_velocity('earth',
+        altitude_km=408) for the ISS; orbital_velocity('sun',
+        semimajor_axis_au=5.2) for Jupiter."""
+        return t_orb.orbital_velocity(central_body, central_mass_kg,
+                                        altitude_km, orbital_radius_m,
+                                        semimajor_axis_au).to_dict()
+
+    @server.tool()
+    def orbital_period(semimajor_axis_au: float | None = None,
+                         semimajor_axis_m: float | None = None,
+                         central_body: str | None = "sun",
+                         central_mass_kg: float | None = None
+                         ) -> dict[str, Any]:
+        """Kepler's third law T = 2π sqrt(a³/GM). Defaults to Sun; an
+        asteroid at 3 AU is orbital_period(semimajor_axis_au=3). Returns
+        seconds."""
+        return t_orb.orbital_period(semimajor_axis_au, semimajor_axis_m,
+                                      central_body, central_mass_kg).to_dict()
+
+    @server.tool()
+    def gravitational_force(mass1_kg: float, mass2_kg: float,
+                              separation_m: float) -> dict[str, Any]:
+        """Newton's law F = G m1 m2 / r²."""
+        return t_orb.gravitational_force(mass1_kg, mass2_kg,
+                                           separation_m).to_dict()
+
+    @server.tool()
+    def orbital_raise_energy(mass_kg: float,
+                               central_body: str | None = "earth",
+                               central_mass_kg: float | None = None,
+                               from_altitude_km: float | None = 0.0,
+                               to_altitude_km: float | None = None,
+                               from_radius_m: float | None = None,
+                               to_radius_m: float | None = None
+                               ) -> dict[str, Any]:
+        """Gravitational PE to raise a mass between two orbits:
+        ΔU = G M m (1/r1 − 1/r2). Body-aware (altitudes above surface)."""
+        return t_orb.orbital_raise_energy(mass_kg, central_body,
+                                            central_mass_kg, from_altitude_km,
+                                            to_altitude_km, from_radius_m,
+                                            to_radius_m).to_dict()
+
+    # ── nuclear physics ────────────────────────────────────────────
+    @server.tool()
+    def nuclear_binding_energy(protons: int, neutrons: int,
+                                 measured_mass_u: float | None = None
+                                 ) -> dict[str, Any]:
+        """Nuclear binding energy + mass defect. Exact with measured_mass_u
+        (atomic mass units), else SEMF estimate. Returns binding_energy_MeV,
+        binding_per_nucleon_MeV, mass_defect_u, mass_defect_fraction —
+        the last is how much lighter the bound nucleus is than its free
+        baryons (peaks ~0.9% near iron)."""
+        return t_nuc.nuclear_binding_energy(protons, neutrons,
+                                              measured_mass_u).to_dict()
+
+    @server.tool()
+    def coulomb_force(charge1_c: float, charge2_c: float,
+                        separation_m: float) -> dict[str, Any]:
+        """Coulomb's law F = q1 q2 / (4π ε0 r²). +repulsive / −attractive."""
+        return t_nuc.coulomb_force(charge1_c, charge2_c,
+                                     separation_m).to_dict()
+
+    # ── extra atomic / circuits multi-step ─────────────────────────
+    @server.tool()
+    def de_broglie_from_kinetic_energy(kinetic_energy_eV: float,
+                                         particle: str = "electron"
+                                         ) -> dict[str, Any]:
+        """de Broglie wavelength from KINETIC ENERGY (relativistically exact).
+        de_broglie_from_kinetic_energy(1000, 'electron') for a 1 keV electron.
+        Particles: electron, proton, neutron, alpha, muon."""
+        return t_atom.de_broglie_from_kinetic_energy(kinetic_energy_eV,
+                                                       particle).to_dict()
+
+    @server.tool()
+    def energy_power_time(power_w: float | None = None,
+                            time_s: float | None = None,
+                            energy_j: float | None = None) -> dict[str, Any]:
+        """Solve E = P·t for the missing one. Provide exactly two.
+        energy_power_time(power_w=5000, time_s=3600) -> energy in joules."""
+        return t_circ.energy_power_time(power_w, time_s, energy_j).to_dict()
 
     # Run via stdio transport (standard MCP).
     server.run()

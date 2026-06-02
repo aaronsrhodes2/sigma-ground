@@ -92,6 +92,27 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "v_orbit = sqrt(GM/r)", "Kepler third law derivation",
         "satellite speed",
     ],
+    "orbital_velocity": [
+        "orbital velocity", "how fast does it orbit", "satellite speed",
+        "ISS speed", "orbital speed at altitude", "Moon orbital velocity",
+        "Jupiter orbital velocity", "geostationary speed",
+        "how fast is X moving in its orbit", "v = sqrt(GM/r)",
+    ],
+    "orbital_period": [
+        "orbital period", "Kepler third law", "how long is a year on",
+        "year length", "T = 2 pi sqrt(a^3/GM)", "period of an orbit",
+        "asteroid orbital period", "how long to orbit",
+    ],
+    "gravitational_force": [
+        "gravitational force", "Newton's law of gravitation",
+        "F = G m1 m2 / r^2", "force of gravity between two masses",
+        "gravitational attraction",
+    ],
+    "orbital_raise_energy": [
+        "energy to lift to orbit", "energy to raise a satellite",
+        "lift to geosynchronous", "gravitational PE difference",
+        "delta U = GMm(1/r1 - 1/r2)", "energy to reach orbit",
+    ],
     "escape_velocity": [
         "escape velocity", "v_esc = sqrt(2GM/r)",
         "escape from gravity well", "minimum speed to leave",
@@ -263,6 +284,27 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "de Broglie wavelength", "lambda = h / p",
         "wave-particle duality", "matter wave",
         "Louis de Broglie 1924",
+    ],
+    "de_broglie_from_kinetic_energy": [
+        "de Broglie wavelength of a 1 keV electron",
+        "de Broglie from energy", "matter wave from kinetic energy",
+        "wavelength of an electron at X eV", "lambda from KE",
+        "1 keV electron wavelength", "X MeV particle wavelength",
+    ],
+    "nuclear_binding_energy": [
+        "nuclear binding energy", "mass defect", "binding energy per nucleon",
+        "how much lighter is the nucleus", "Bethe-Weizsacker", "SEMF",
+        "iron binding energy", "He-4 binding", "baryon vs mass",
+    ],
+    "coulomb_force": [
+        "Coulomb force", "Coulomb's law", "F = k q1 q2 / r^2",
+        "electrostatic force", "force between two charges",
+    ],
+    "energy_power_time": [
+        "energy = power times time", "E = P t",
+        "how much energy in X hours", "how long to dissipate",
+        "kilowatt hour", "heater energy", "LED energy",
+        "watt-hour", "5 kW for 1 hour", "joules dissipated",
     ],
 
     # ============ SPECIAL RELATIVITY ============
