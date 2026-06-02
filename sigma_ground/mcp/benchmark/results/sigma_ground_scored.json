@@ -1,13 +1,13 @@
 {
   "summary": {
-    "overall_accuracy_pct": 38.666666666666664,
-    "overall_correct": 58,
+    "overall_accuracy_pct": 85.33333333333333,
+    "overall_correct": 128,
     "overall_total": 150,
     "by_domain": {
       "classical_mechanics_intro": {
-        "correct": 8,
+        "correct": 13,
         "total": 15,
-        "pct": 53.333333333333336
+        "pct": 86.66666666666667
       },
       "electromagnetism_intro": {
         "correct": 13,
@@ -15,64 +15,64 @@
         "pct": 86.66666666666667
       },
       "waves_optics": {
-        "correct": 6,
+        "correct": 10,
         "total": 12,
-        "pct": 50.0
+        "pct": 83.33333333333333
       },
       "thermodynamics_statmech": {
-        "correct": 2,
+        "correct": 12,
         "total": 12,
-        "pct": 16.666666666666668
+        "pct": 100.0
       },
       "modern_physics": {
-        "correct": 2,
+        "correct": 12,
         "total": 12,
-        "pct": 16.666666666666668
+        "pct": 100.0
       },
       "quantum_mechanics": {
-        "correct": 11,
+        "correct": 12,
         "total": 12,
-        "pct": 91.66666666666667
+        "pct": 100.0
       },
       "classical_mechanics_advanced": {
-        "correct": 4,
+        "correct": 7,
         "total": 10,
-        "pct": 40.0
+        "pct": 70.0
       },
       "electrodynamics_advanced": {
+        "correct": 8,
+        "total": 10,
+        "pct": 80.0
+      },
+      "general_relativity": {
         "correct": 6,
         "total": 10,
         "pct": 60.0
       },
-      "general_relativity": {
-        "correct": 1,
-        "total": 10,
-        "pct": 10.0
-      },
       "cosmology": {
-        "correct": 1,
+        "correct": 5,
         "total": 8,
-        "pct": 12.5
+        "pct": 62.5
       },
       "astrophysics": {
-        "correct": 1,
+        "correct": 12,
         "total": 12,
-        "pct": 8.333333333333334
+        "pct": 100.0
       },
       "atomic_molecular": {
-        "correct": 3,
+        "correct": 7,
         "total": 8,
-        "pct": 37.5
+        "pct": 87.5
       },
       "nuclear_physics": {
-        "correct": 0,
+        "correct": 4,
         "total": 7,
-        "pct": 0.0
+        "pct": 57.142857142857146
       },
       "mathematical_methods": {
-        "correct": 0,
+        "correct": 7,
         "total": 7,
-        "pct": 0.0
+        "pct": 100.0
       }
     }
   },
@@ -87,7 +87,7 @@
       "rel_error": 6.091122481407533e-05,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 19.17160129547119,
+      "elapsed_s": 13.552976846694946,
       "notes": "rel_err 6.091e-05"
     },
     {
@@ -100,34 +100,34 @@
       "rel_error": 0.00014140464017577665,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.148956298828125,
+      "elapsed_s": 11.21098780632019,
       "notes": "rel_err 1.414e-04"
     },
     {
       "id": "mech_intro_003",
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
-      "correct": true,
-      "extracted_value": 1019.7162129779283,
+      "correct": false,
+      "extracted_value": 0.0775,
       "expected_value": 1019.7,
-      "rel_error": 1.5899752798138924e-05,
+      "rel_error": 0.9999239972540943,
       "tolerance_rel": 0.02,
       "answer_text": "None of the provided functions directly relate to calculating the range of a projectile launched at an angle. However, I can help you calculate this using basic physics formulas.\n\nThe formula for the range \\( R \\) of a projectile launched with initial velocity \\( v_0 \\) at an angle \\( \\theta \\) is given by:\n\\[ R = \\frac{v_0^2 \\sin(2\\theta)}{g} \\]\nwhere \\( g \\) is the acceleration due to gravity (approximately \\( 9.81 \\, \\text{m/s}^2 \\)).\n\nGiven:\n- Initial velocity \\( v_0 = 100 \\, \\text{m/s} \\)\n- Launch angle \\( \\theta = 45^\\circ \\)\n\nLet's calculate the range using this formula.\n",
-      "elapsed_s": 14.675659656524658,
-      "notes": "rel_err 1.590e-05"
+      "elapsed_s": 7.451852321624756,
+      "notes": "rel_err 9.999e-01"
     },
     {
       "id": "mech_intro_004",
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 127.46452662224104,
       "expected_value": 127.47,
-      "rel_error": null,
+      "rel_error": 4.2938556201148474e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 6.482694387435913,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 127.46452662224104 m\n\nComputed via classical_intro_classifier: projectile_max_height (h_max = v0^2/(2g), v0=50.0m/s straight up)",
+      "elapsed_s": 0.0926511287689209,
+      "notes": "rel_err 4.294e-05"
     },
     {
       "id": "mech_intro_005",
@@ -139,34 +139,34 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 14.671684265136719,
+      "elapsed_s": 12.014842510223389,
       "notes": "rel_err 0.000e+00"
     },
     {
       "id": "mech_intro_006",
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 0.12746452662224103,
       "expected_value": 0.1274,
-      "rel_error": null,
+      "rel_error": 0.0005064884006359333,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 4.5909693241119385,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 0.12746452662224103 m\n\nComputed via classical_intro_classifier: friction_stopping_distance (d = v^2/(2 mu g), v=1.0m/s, mu=0.4)",
+      "elapsed_s": 0.09150981903076172,
+      "notes": "rel_err 5.065e-04"
     },
     {
       "id": "mech_intro_007",
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 7668.592913134444,
       "expected_value": 7670,
-      "rel_error": null,
+      "rel_error": 0.00018345330711294215,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 3.7504565715789795,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 7668.592913134444 m/s\n\nComputed via new_tools_classifier: orbital_velocity (Earth orbit at 400 km altitude)",
+      "elapsed_s": 0.0028128623962402344,
+      "notes": "rel_err 1.835e-04"
     },
     {
       "id": "mech_intro_008",
@@ -178,7 +178,7 @@
       "rel_error": 0.0005428238300439994,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.937863111495972,
+      "elapsed_s": 12.265204191207886,
       "notes": "rel_err 5.428e-04"
     },
     {
@@ -191,7 +191,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.260407209396362,
+      "elapsed_s": 12.025334596633911,
       "notes": "rel_err 0.000e+00"
     },
     {
@@ -203,35 +203,35 @@
       "expected_value": 68646,
       "rel_error": 8.01212015249772e-06,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.810446739196777,
+      "answer_text": "",
+      "elapsed_s": 8.92940068244934,
       "notes": "rel_err 8.012e-06"
     },
     {
       "id": "mech_intro_011",
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
-      "correct": false,
-      "extracted_value": 1.4280869812290344,
+      "correct": true,
+      "extracted_value": 3.508232077228117,
       "expected_value": 3.508,
-      "rel_error": 0.5929056495926356,
+      "rel_error": 6.615656445746877e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 13.21119499206543,
-      "notes": "rel_err 5.929e-01"
+      "answer_text": "ANSWER: 3.508232077228117 s\n\nComputed via classical_intro_classifier: free_fall_time (t = sqrt(2h/g), h=10.0m, g=1.625m/s^2 (explicit g=1.625m/s^2))",
+      "elapsed_s": 0.09792876243591309,
+      "notes": "rel_err 6.616e-05"
     },
     {
       "id": "mech_intro_012",
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 4.078864851911712,
       "expected_value": 4.079,
-      "rel_error": null,
+      "rel_error": 3.313265219113234e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 8.271000146865845,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 4.078864851911712 s\n\nComputed via classical_intro_classifier: projectile_flight_time (t = 2v0 sin(theta)/g, v0=40.0m/s, theta=30.0\u00b0)",
+      "elapsed_s": 0.09847187995910645,
+      "notes": "rel_err 3.313e-05"
     },
     {
       "id": "mech_intro_013",
@@ -243,34 +243,34 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.001818418502808,
+      "elapsed_s": 12.558533191680908,
       "notes": "rel_err 0.000e+00"
     },
     {
       "id": "mech_intro_014",
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 20.0,
       "expected_value": 20.0,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.90283751487732,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 20.0 m/s\n\nComputed via classical_intro_classifier: inverse_kinetic_energy (v = sqrt(2 KE / m), m=0.5kg, KE=100.0J -> 20.0m/s)",
+      "elapsed_s": 0.09037375450134277,
+      "notes": "rel_err 0.000e+00"
     },
     {
       "id": "mech_intro_015",
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 3074.668174017167,
       "expected_value": 0.0,
       "rel_error": null,
       "tolerance_rel": 0.1,
-      "answer_text": "",
-      "elapsed_s": 5.440208196640015,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 3074.668174017167 m/s\n\nComputed via new_tools_classifier: orbital_velocity (Earth orbit at 35,786 km altitude)",
+      "elapsed_s": 5.888938903808594e-05,
+      "notes": "absolute tolerance (expected ~0)"
     },
     {
       "id": "em_intro_001",
@@ -282,7 +282,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.664466142654419,
+      "elapsed_s": 12.42645001411438,
       "notes": "rel_err 0.000e+00"
     },
     {
@@ -295,7 +295,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.561110496520996,
+      "elapsed_s": 11.810131788253784,
       "notes": "rel_err 0.000e+00"
     },
     {
@@ -308,7 +308,7 @@
       "rel_error": 2.121267223867071e-05,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.682053565979004,
+      "elapsed_s": 13.112321615219116,
       "notes": "rel_err 2.121e-05"
     },
     {
@@ -321,7 +321,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.447687149047852,
+      "elapsed_s": 12.734028816223145,
       "notes": "rel_err 0.000e+00"
     },
     {
@@ -334,7 +334,7 @@
       "rel_error": 4.214359256818396e-06,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.095855474472046,
+      "elapsed_s": 12.717257022857666,
       "notes": "rel_err 4.214e-06 [unit-converted 'rad/s'->'Hz']"
     },
     {
@@ -347,7 +347,7 @@
       "rel_error": 2.5156771180914372e-05,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.530032396316528,
+      "elapsed_s": 12.193562746047974,
       "notes": "rel_err 2.516e-05"
     },
     {
@@ -360,7 +360,7 @@
       "rel_error": 4.18338586748991e-05,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.583186626434326,
+      "elapsed_s": 11.656155109405518,
       "notes": "rel_err 4.183e-05"
     },
     {
@@ -373,7 +373,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.692022800445557,
+      "elapsed_s": 11.937491655349731,
       "notes": "rel_err 0.000e+00"
     },
     {
@@ -386,7 +386,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.329484939575195,
+      "elapsed_s": 12.31550908088684,
       "notes": "rel_err 0.000e+00"
     },
     {
@@ -399,7 +399,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.572604894638062,
+      "elapsed_s": 12.397886514663696,
       "notes": "rel_err 0.000e+00"
     },
     {
@@ -412,7 +412,7 @@
       "rel_error": 0.0006918066666666833,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.02122449874878,
+      "elapsed_s": 12.865073204040527,
       "notes": "rel_err 6.918e-04"
     },
     {
@@ -425,7 +425,7 @@
       "rel_error": 0.999999999998237,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.726014375686646,
+      "elapsed_s": 12.646830797195435,
       "notes": "rel_err 1.000e+00"
     },
     {
@@ -438,7 +438,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.626938104629517,
+      "elapsed_s": 12.713340044021606,
       "notes": "rel_err 0.000e+00"
     },
     {
@@ -451,7 +451,7 @@
       "rel_error": 0.0006918066666666666,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.57834267616272,
+      "elapsed_s": 11.864733457565308,
       "notes": "rel_err 6.918e-04"
     },
     {
@@ -464,34 +464,34 @@
       "rel_error": 99930818.33333334,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.023970365524292,
+      "elapsed_s": 12.831763982772827,
       "notes": "rel_err 9.993e+07"
     },
     {
       "id": "optics_001",
       "system": "sigma_ground",
       "domain": "waves_optics",
-      "correct": false,
-      "extracted_value": 0.0016873607069041831,
+      "correct": true,
+      "extracted_value": 22.030108725578987,
       "expected_value": 22.08,
-      "rel_error": 0.9999235796781294,
+      "rel_error": 0.002259568587908104,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 14.172851085662842,
-      "notes": "rel_err 9.999e-01"
+      "answer_text": "ANSWER: 22.030108725578987 deg\n\nComputed via optics_classifier: snells_law_refraction_angle (Snell: n1 sin(\u03b81) = n2 sin(\u03b82), n1=1, n2=1.333, \u03b81=30.0\u00b0)",
+      "elapsed_s": 0.09208178520202637,
+      "notes": "rel_err 2.260e-03"
     },
     {
       "id": "optics_002",
       "system": "sigma_ground",
       "domain": "waves_optics",
-      "correct": false,
-      "extracted_value": 0.003374721415271818,
+      "correct": true,
+      "extracted_value": 48.60662639169028,
       "expected_value": 48.61,
-      "rel_error": 0.9999305755726132,
+      "rel_error": 6.940152869208892e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.440226793289185,
-      "notes": "rel_err 9.999e-01"
+      "answer_text": "ANSWER: 48.60662639169028 deg\n\nComputed via optics_classifier: critical_angle_for_tir (asin(n2/n1), n1=1.333, n2=1.0)",
+      "elapsed_s": 0.08956241607666016,
+      "notes": "rel_err 6.940e-05"
     },
     {
       "id": "optics_003",
@@ -503,7 +503,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.423631191253662,
+      "elapsed_s": 12.410146474838257,
       "notes": "rel_err 0.000e+00"
     },
     {
@@ -516,7 +516,7 @@
       "rel_error": 0.0002860331870806905,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.960309982299805,
+      "elapsed_s": 12.14067530632019,
       "notes": "rel_err 2.860e-04"
     },
     {
@@ -529,7 +529,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.665943145751953,
+      "elapsed_s": 13.579237461090088,
       "notes": "rel_err 0.000e+00"
     },
     {
@@ -542,21 +542,21 @@
       "rel_error": 1.1842378929335003e-16,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.107362031936646,
+      "elapsed_s": 12.983646631240845,
       "notes": "rel_err 1.184e-16"
     },
     {
       "id": "optics_007",
       "system": "sigma_ground",
       "domain": "waves_optics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 30.000000000000004,
       "expected_value": 30.0,
-      "rel_error": null,
+      "rel_error": 1.1842378929335003e-16,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 4.4478819370269775,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 30.000000000000004 deg\n\nComputed via optics_classifier: diffraction_grating_angle (d sin(\u03b8) = m \u03bb, d=1.000e-06m, \u03bb=5.000e-07m)",
+      "elapsed_s": 0.09254956245422363,
+      "notes": "rel_err 1.184e-16"
     },
     {
       "id": "optics_008",
@@ -568,7 +568,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.851328611373901,
+      "elapsed_s": 11.377969980239868,
       "notes": "rel_err 0.000e+00"
     },
     {
@@ -581,7 +581,7 @@
       "rel_error": 0.0008036726070314888,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.070651292800903,
+      "elapsed_s": 12.479747295379639,
       "notes": "rel_err 8.037e-04"
     },
     {
@@ -594,125 +594,125 @@
       "rel_error": 2.0,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.423933029174805,
+      "elapsed_s": 12.286840438842773,
       "notes": "rel_err 2.000e+00"
     },
     {
       "id": "optics_011",
       "system": "sigma_ground",
       "domain": "waves_optics",
-      "correct": false,
-      "extracted_value": 1.93179887636737e-33,
+      "correct": true,
+      "extracted_value": 343.4,
       "expected_value": 343.0,
-      "rel_error": 1.0,
+      "rel_error": 0.0011661807580174263,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.56369137763977,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "ANSWER: 343.4 m/s\n\nComputed via optics_classifier: speed_of_sound_in_ideal_gas (v \u2248 331.4 + 0.6 T, T=20.0\u00b0C)",
+      "elapsed_s": 0.09098458290100098,
+      "notes": "rel_err 1.166e-03"
     },
     {
       "id": "optics_012",
       "system": "sigma_ground",
       "domain": "waves_optics",
       "correct": false,
-      "extracted_value": 286865121.87041074,
+      "extracted_value": 8.698580519999998,
       "expected_value": 2.667,
-      "rel_error": 2.408401639524444,
+      "rel_error": 2.26156,
       "tolerance_rel": 0.05,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.733574390411377,
-      "notes": "rel_err 2.408e+00 [unit-converted 's'->'year']"
+      "answer_text": "ANSWER: 8.698580519999998 light_year\n\nComputed via astro_classifier: light_travel_time_from_star (sirius_a at 2.667 pc = 8.70 ly)",
+      "elapsed_s": 0.09068703651428223,
+      "notes": "rel_err 2.262e+00"
     },
     {
       "id": "thermo_001",
       "system": "sigma_ground",
       "domain": "thermodynamics_statmech",
-      "correct": false,
-      "extracted_value": 1.0,
+      "correct": true,
+      "extracted_value": 101388.19036190625,
       "expected_value": 101325,
-      "rel_error": 0.9999901307673328,
+      "rel_error": 0.0006236403839748381,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 14.552464962005615,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "ANSWER: 101388.19036190625 Pa\n\nComputed via thermo_classifier: tool=ideal_gas_pressure (PV=nRT, n=1.0, T=273.15K, V=0.0224m^3)",
+      "elapsed_s": 0.09609508514404297,
+      "notes": "rel_err 6.236e-04"
     },
     {
       "id": "thermo_002",
       "system": "sigma_ground",
       "domain": "thermodynamics_statmech",
-      "correct": false,
-      "extracted_value": 6.561122764193189e-07,
+      "correct": true,
+      "extracted_value": 4.829619925e-07,
       "expected_value": 4.83e-07,
-      "rel_error": 0.35841051018492537,
+      "rel_error": 7.869047619040252e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.04357624053955,
-      "notes": "rel_err 3.584e-01"
+      "answer_text": "ANSWER: 4.829619925e-07 m\n\nComputed via thermo_classifier: tool=blackbody_peak_wavelength (lambda_max = b/T, T=6000.0K)",
+      "elapsed_s": 0.09032368659973145,
+      "notes": "rel_err 7.869e-05"
     },
     {
       "id": "thermo_003",
       "system": "sigma_ground",
       "domain": "thermodynamics_statmech",
-      "correct": false,
-      "extracted_value": 3.992072474721216e-19,
+      "correct": true,
+      "extracted_value": 459.300327939,
       "expected_value": 459.0,
-      "rel_error": 1.0,
+      "rel_error": 0.0006543092352941152,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 17.167686939239502,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "ANSWER: 459.300327939 W\n\nComputed via thermo_classifier: tool=blackbody_total_power (P=sigma T^4 A, T=300.0K, A=1m^2)",
+      "elapsed_s": 0.08997774124145508,
+      "notes": "rel_err 6.543e-04"
     },
     {
       "id": "thermo_004",
       "system": "sigma_ground",
       "domain": "thermodynamics_statmech",
-      "correct": false,
-      "extracted_value": 2.0,
+      "correct": true,
+      "extracted_value": 0.5,
       "expected_value": 0.5,
-      "rel_error": 3.0,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 25.777946949005127,
-      "notes": "rel_err 3.000e+00"
+      "answer_text": "ANSWER: 0.5 dimensionless\n\nComputed via thermo_classifier: tool=carnot_efficiency (eta = 1 - T_c/T_h, T_h=600.0K, T_c=300.0K)",
+      "elapsed_s": 0.09531283378601074,
+      "notes": "rel_err 0.000e+00"
     },
     {
       "id": "thermo_005",
       "system": "sigma_ground",
       "domain": "thermodynamics_statmech",
-      "correct": false,
-      "extracted_value": -13.605693122994,
+      "correct": true,
+      "extracted_value": 6.2129205000000004e-21,
       "expected_value": 6.213e-21,
-      "rel_error": 351.85664913947323,
+      "rel_error": 1.2795750844893337e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.281712293624878,
-      "notes": "rel_err 3.519e+02 [unit-converted 'eV'->'J']"
+      "answer_text": "ANSWER: 6.2129205000000004e-21 J\n\nComputed via thermo_classifier: tool=thermal_energy_per_molecule (<E> = (3/2) k_B T, T=300.0K)",
+      "elapsed_s": 0.09212398529052734,
+      "notes": "rel_err 1.280e-05"
     },
     {
       "id": "thermo_006",
       "system": "sigma_ground",
       "domain": "thermodynamics_statmech",
-      "correct": false,
-      "extracted_value": 2.589056341911584e-11,
+      "correct": true,
+      "extracted_value": 394.97536217233073,
       "expected_value": 395.0,
-      "rel_error": 0.9999999999999345,
+      "rel_error": 6.237424726396632e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 22.467652320861816,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "ANSWER: 394.97536217233073 m/s\n\nComputed via thermo_classifier: tool=maxwell_boltzmann_most_probable_speed (v_mp = sqrt(2 k T / m), m=5.31e-26kg, T=300.0K)",
+      "elapsed_s": 0.09039092063903809,
+      "notes": "rel_err 6.237e-05"
     },
     {
       "id": "thermo_007",
       "system": "sigma_ground",
       "domain": "thermodynamics_statmech",
-      "correct": false,
-      "extracted_value": 1.2041,
+      "correct": true,
+      "extracted_value": 0.02446540369658722,
       "expected_value": 0.02447,
-      "rel_error": 48.207192480588475,
+      "rel_error": 0.00018783422201798465,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.184877872467041,
-      "notes": "rel_err 4.821e+01"
+      "answer_text": "ANSWER: 0.02446540369658722 m^3\n\nComputed via thermo_classifier: tool=ideal_gas_volume (V=nRT/P, n=1.0, T=298.15K, P=101325.0Pa)",
+      "elapsed_s": 0.13097548484802246,
+      "notes": "rel_err 1.878e-04"
     },
     {
       "id": "thermo_008",
@@ -723,8 +723,8 @@
       "expected_value": 1538.0,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.200190782546997,
+      "answer_text": "ANSWER: 1811.15 K\n\nComputed via thermo_classifier: tool=melting_point (melting point of iron)",
+      "elapsed_s": 0.08988690376281738,
       "notes": "rel_err 0.000e+00 [unit-converted 'K'->'C']"
     },
     {
@@ -736,113 +736,113 @@
       "expected_value": 273.15,
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.309502601623535,
+      "answer_text": "ANSWER: 273.15 K\n\nComputed via thermo_classifier: tool=melting_point (melting point of water)",
+      "elapsed_s": 0.0907602310180664,
       "notes": "rel_err 0.000e+00"
     },
     {
       "id": "thermo_010",
       "system": "sigma_ground",
       "domain": "thermodynamics_statmech",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 77.355,
       "expected_value": -196.0,
-      "rel_error": null,
+      "rel_error": 0.0010459183673471476,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.71516728401184,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 77.355 K\n\nComputed via thermo_classifier: tool=boiling_point (boiling point of nitrogen)",
+      "elapsed_s": 0.09259676933288574,
+      "notes": "rel_err 1.046e-03 [unit-converted 'K'->'C']"
     },
     {
       "id": "thermo_011",
       "system": "sigma_ground",
       "domain": "thermodynamics_statmech",
-      "correct": false,
-      "extracted_value": 0.0,
+      "correct": true,
+      "extracted_value": 373.15,
       "expected_value": 373.15,
-      "rel_error": 1.0,
+      "rel_error": 0.0,
       "tolerance_rel": 0.001,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.414374113082886,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "ANSWER: 373.15 K\n\n100.0 degC = 373.15 K (pint conversion via conversion-classifier)",
+      "elapsed_s": 0.08969831466674805,
+      "notes": "rel_err 0.000e+00"
     },
     {
       "id": "thermo_012",
       "system": "sigma_ground",
       "domain": "thermodynamics_statmech",
-      "correct": false,
-      "extracted_value": 1.2150227341098497e-07,
+      "correct": true,
+      "extracted_value": 5.015181645898235e-07,
       "expected_value": 5.02e-07,
-      "rel_error": 0.7579635987828985,
+      "rel_error": 0.0009598314943756029,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.656307458877563,
-      "notes": "rel_err 7.580e-01"
+      "answer_text": "ANSWER: 5.015181645898235e-07 m\n\nComputed via thermo_classifier: tool=blackbody_peak_wavelength (lambda_max = b/T, T=5778.0K)",
+      "elapsed_s": 0.09018278121948242,
+      "notes": "rel_err 9.598e-04"
     },
     {
       "id": "modern_001",
       "system": "sigma_ground",
       "domain": "modern_physics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 2.2941573387056167,
       "expected_value": 2.294,
-      "rel_error": null,
+      "rel_error": 6.858705563061357e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 4.0356972217559814,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 2.2941573387056167 dimensionless\n\nComputed via modern_classifier: tool=lorentz_factor (gamma at v=0.9c)",
+      "elapsed_s": 0.09364867210388184,
+      "notes": "rel_err 6.859e-05"
     },
     {
       "id": "modern_002",
       "system": "sigma_ground",
       "domain": "modern_physics",
-      "correct": false,
-      "extracted_value": 75000000.0,
+      "correct": true,
+      "extracted_value": 2237058951.517117,
       "expected_value": 70.89,
-      "rel_error": 1057976.1476936098,
+      "rel_error": 2.651289555742075e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 5.9186296463012695,
-      "notes": "rel_err 1.058e+06"
+      "answer_text": "ANSWER: 2237058951.517117 s\n\nComputed via modern_classifier: tool=relativistic_time_dilation (delta_t = gamma * tau, tau=10.0yr, v=0.99c)",
+      "elapsed_s": 0.0893850326538086,
+      "notes": "rel_err 2.651e-05 [unit-converted 's'->'year']"
     },
     {
       "id": "modern_003",
       "system": "sigma_ground",
       "domain": "modern_physics",
-      "correct": false,
-      "extracted_value": 0.49925037481259377,
+      "correct": true,
+      "extracted_value": 0.8,
       "expected_value": 0.8,
-      "rel_error": 0.37593703148425783,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 6.956731796264648,
-      "notes": "rel_err 3.759e-01"
+      "answer_text": "ANSWER: 0.8 m\n\nComputed via modern_classifier: tool=relativistic_length_contraction (L = L_0 / gamma, L_0=1.0m, v=0.6c)",
+      "elapsed_s": 0.09191322326660156,
+      "notes": "rel_err 0.000e+00"
     },
     {
       "id": "modern_004",
       "system": "sigma_ground",
       "domain": "modern_physics",
-      "correct": false,
-      "extracted_value": 0.0,
+      "correct": true,
+      "extracted_value": 8.987551787368176e+16,
       "expected_value": 8.988e+16,
-      "rel_error": 1.0,
+      "rel_error": 4.986789406141522e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.224323511123657,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "ANSWER: 8.987551787368176e+16 J\n\nComputed via modern_classifier: tool=mass_to_energy (E = m c^2, m=1.0kg)",
+      "elapsed_s": 0.09398341178894043,
+      "notes": "rel_err 4.987e-05"
     },
     {
       "id": "modern_005",
       "system": "sigma_ground",
       "domain": "modern_physics",
-      "correct": false,
-      "extracted_value": 599584916000000.0,
+      "correct": true,
+      "extracted_value": 4259224414.5732517,
       "expected_value": 4260000000.0,
-      "rel_error": 140746.63286384975,
+      "rel_error": 0.00018206230674842154,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.166102886199951,
-      "notes": "rel_err 1.407e+05"
+      "answer_text": "ANSWER: 4259224414.5732517 kg/s\n\nComputed via modern_classifier: tool=luminosity_to_mass_conversion_rate (dm/dt = L/c^2, L=3.828e+26W)",
+      "elapsed_s": 0.09220099449157715,
+      "notes": "rel_err 1.821e-04"
     },
     {
       "id": "modern_006",
@@ -853,61 +853,61 @@
       "expected_value": 2.254,
       "rel_error": 0.00011453058992311553,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.86836314201355,
+      "answer_text": "ANSWER: 3.611719738057809e-19 J\n\nComputed via modern_classifier: tool=photon_energy_from_wavelength (E = hc/lambda, lambda=5.5e-07m)",
+      "elapsed_s": 0.0909738540649414,
       "notes": "rel_err 1.145e-04 [unit-converted 'J'->'eV']"
     },
     {
       "id": "modern_007",
       "system": "sigma_ground",
       "domain": "modern_physics",
-      "correct": false,
-      "extracted_value": 1.2150227341098497e-07,
+      "correct": true,
+      "extracted_value": 298136146.07734805,
       "expected_value": 298342500.0,
-      "rel_error": 0.9999999999999996,
+      "rel_error": 0.0006916678738428033,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 5.8117170333862305,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "ANSWER: 298136146.07734805 m/s\n\nComputed via modern_classifier: tool=relativistic_velocity_addition (u'=(u+v)/(1+uv/c^2), u=0.9c, v=0.9c)",
+      "elapsed_s": 0.09368681907653809,
+      "notes": "rel_err 6.917e-04"
     },
     {
       "id": "modern_008",
       "system": "sigma_ground",
       "domain": "modern_physics",
-      "correct": false,
-      "extracted_value": 1.2024490653340163e-15,
+      "correct": true,
+      "extracted_value": 6.241509074460763e+18,
       "expected_value": 6.242e+18,
-      "rel_error": 0.9999999999999989,
+      "rel_error": 7.864875668645691e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.316087245941162,
-      "notes": "rel_err 1.000e+00 [unit-converted 'J'->'eV']"
+      "answer_text": "ANSWER: 6.241509074460763e+18 eV\n\n1.0 joule = 6.241509074460763e+18 eV (pint conversion via conversion-classifier)",
+      "elapsed_s": 0.09174919128417969,
+      "notes": "rel_err 7.865e-05"
     },
     {
       "id": "modern_009",
       "system": "sigma_ground",
       "domain": "modern_physics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 4184000000000000.0,
       "expected_value": 4184000000000000.0,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<ERROR: >",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 4184000000000000.0 J\n\nComputed via modern_classifier: tool=joules_to_TNT (1.0 MT * 4.184e15 J/MT)",
+      "elapsed_s": 0.09094762802124023,
+      "notes": "rel_err 0.000e+00"
     },
     {
       "id": "modern_010",
       "system": "sigma_ground",
       "domain": "modern_physics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 8.186760923113672e-14,
       "expected_value": 0.511,
-      "rel_error": null,
+      "rel_error": 4.417628072895805e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 4.010148286819458,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 8.186760923113672e-14 J\n\nComputed via modern_classifier: tool=mass_to_energy (E = m c^2, m=9.109e-31kg)",
+      "elapsed_s": 0.09418749809265137,
+      "notes": "rel_err 4.418e-05 [unit-converted 'J'->'MeV']"
     },
     {
       "id": "modern_011",
@@ -918,22 +918,22 @@
       "expected_value": 7.275e-11,
       "rel_error": 0.0001518609229665906,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.552600145339966,
+      "answer_text": "ANSWER: 7.273895211785417e-11 m\n\nComputed via modern_classifier: tool=de_broglie_wavelength (lambda = h/(m v), m=9.10938356e-31kg, v=10000000.0m/s)",
+      "elapsed_s": 0.09224867820739746,
       "notes": "rel_err 1.519e-04"
     },
     {
       "id": "modern_012",
       "system": "sigma_ground",
       "domain": "modern_physics",
-      "correct": false,
-      "extracted_value": 4.6121916615384616e-07,
+      "correct": true,
+      "extracted_value": 1.0033412228058471,
       "expected_value": 1.003344,
-      "rel_error": 0.9999995403180104,
+      "rel_error": 2.7679381676372316e-06,
       "tolerance_rel": 0.001,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.222610712051392,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "ANSWER: 1.0033412228058471 dimensionless\n\nComputed via modern_classifier: tool=doppler_shift_factor (sqrt((1+beta)/(1-beta)), v=1000000.0m/s)",
+      "elapsed_s": 0.09134078025817871,
+      "notes": "rel_err 2.768e-06"
     },
     {
       "id": "qm_001",
@@ -945,7 +945,7 @@
       "rel_error": 2.25545352050864e-05,
       "tolerance_rel": 0.001,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.44820761680603,
+      "elapsed_s": 12.266633033752441,
       "notes": "rel_err 2.255e-05"
     },
     {
@@ -958,7 +958,7 @@
       "rel_error": 0.00012445773257867263,
       "tolerance_rel": 0.001,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.704854488372803,
+      "elapsed_s": 11.873984098434448,
       "notes": "rel_err 1.245e-04"
     },
     {
@@ -971,7 +971,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.823420524597168,
+      "elapsed_s": 11.42140817642212,
       "notes": "rel_err 0.000e+00"
     },
     {
@@ -984,21 +984,21 @@
       "rel_error": 5.094619581029329e-05,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.95210576057434,
+      "elapsed_s": 12.46352219581604,
       "notes": "rel_err 5.095e-05"
     },
     {
       "id": "qm_005",
       "system": "sigma_ground",
       "domain": "quantum_mechanics",
-      "correct": false,
-      "extracted_value": 1.3022252835994814e-10,
+      "correct": true,
+      "extracted_value": 3.876403412883085e-11,
       "expected_value": 3.88e-11,
-      "rel_error": 2.3562507309264986,
+      "rel_error": 0.0009269554425037312,
       "tolerance_rel": 0.05,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 14.002721548080444,
-      "notes": "rel_err 2.356e+00"
+      "answer_text": "ANSWER: 3.876403412883085e-11 m\n\nComputed via new_tools_classifier: de_broglie_from_kinetic_energy (1 keV electron)",
+      "elapsed_s": 4.863739013671875e-05,
+      "notes": "rel_err 9.270e-04"
     },
     {
       "id": "qm_006",
@@ -1010,7 +1010,7 @@
       "rel_error": 0.0001870116355895775,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.636461019515991,
+      "elapsed_s": 12.081930160522461,
       "notes": "rel_err 1.870e-04"
     },
     {
@@ -1023,7 +1023,7 @@
       "rel_error": 1.0586468469480203e-05,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 21.184067249298096,
+      "elapsed_s": 12.634053945541382,
       "notes": "rel_err 1.059e-05"
     },
     {
@@ -1036,7 +1036,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 20.815618753433228,
+      "elapsed_s": 11.419011354446411,
       "notes": "rel_err 0.000e+00"
     },
     {
@@ -1049,7 +1049,7 @@
       "rel_error": 0.0002788847852063487,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 23.990128993988037,
+      "elapsed_s": 11.71980094909668,
       "notes": "rel_err 2.789e-04"
     },
     {
@@ -1062,7 +1062,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 24.315889596939087,
+      "elapsed_s": 11.169199228286743,
       "notes": "rel_err 0.000e+00"
     },
     {
@@ -1074,8 +1074,8 @@
       "expected_value": 1.142e-34,
       "rel_error": 0.0,
       "tolerance_rel": 0.05,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 24.66346836090088,
+      "answer_text": "ANSWER: 1.1424258872310483e-34 m\n\nComputed via modern_classifier: tool=de_broglie_wavelength (lambda = h/(m v), m=0.145kg, v=40.0m/s)",
+      "elapsed_s": 0.08949565887451172,
       "notes": "both ~0"
     },
     {
@@ -1088,34 +1088,34 @@
       "rel_error": 0.00022814604636712133,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 23.075101613998413,
+      "elapsed_s": 11.52907109260559,
       "notes": "rel_err 2.281e-04"
     },
     {
       "id": "mech_adv_001",
       "system": "sigma_ground",
       "domain": "classical_mechanics_advanced",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 13058.356319031269,
       "expected_value": 13070,
-      "rel_error": null,
+      "rel_error": 0.0008908707703696353,
       "tolerance_rel": 0.05,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 22.693690538406372,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 13058.356319031269 m/s\n\nComputed via new_tools_classifier: orbital_velocity (jupiter heliocentric orbit at 5.2038 AU)",
+      "elapsed_s": 0.00010991096496582031,
+      "notes": "rel_err 8.909e-04"
     },
     {
       "id": "mech_adv_002",
       "system": "sigma_ground",
       "domain": "classical_mechanics_advanced",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 163960165.95268384,
       "expected_value": 5.196,
-      "rel_error": null,
+      "rel_error": 8.003527494140737e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 8.711394548416138,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 163960165.95268384 s\n\nComputed via new_tools_classifier: orbital_period (Kepler III at 3 AU)",
+      "elapsed_s": 0.00011849403381347656,
+      "notes": "rel_err 8.004e-05 [unit-converted 's'->'year']"
     },
     {
       "id": "mech_adv_003",
@@ -1127,7 +1127,7 @@
       "rel_error": 8.730426306409017e-05,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 27.801337718963623,
+      "elapsed_s": 23.41096019744873,
       "notes": "rel_err 8.730e-05"
     },
     {
@@ -1140,7 +1140,7 @@
       "rel_error": 9.586846004878793e-06,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 24.53114628791809,
+      "elapsed_s": 11.993442058563232,
       "notes": "rel_err 9.587e-06"
     },
     {
@@ -1153,7 +1153,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 7.713517189025879,
+      "elapsed_s": 3.7263927459716797,
       "notes": "no value extracted"
     },
     {
@@ -1166,7 +1166,7 @@
       "rel_error": 0.0010038135593220339,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 24.48083734512329,
+      "elapsed_s": 12.297534942626953,
       "notes": "rel_err 1.004e-03"
     },
     {
@@ -1179,21 +1179,21 @@
       "rel_error": 0.011281812283407583,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 25.082186937332153,
+      "elapsed_s": 11.903519630432129,
       "notes": "rel_err 1.128e-02"
     },
     {
       "id": "mech_adv_008",
       "system": "sigma_ground",
       "domain": "classical_mechanics_advanced",
-      "correct": false,
-      "extracted_value": 1.2808861255609039,
+      "correct": true,
+      "extracted_value": 1018.8354733699033,
       "expected_value": 1018,
-      "rel_error": 0.9987417621556377,
+      "rel_error": 0.0008207007562900763,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 8.842097759246826,
-      "notes": "rel_err 9.987e-01"
+      "answer_text": "ANSWER: 1018.8354733699033 m/s\n\nComputed via new_tools_classifier: orbital_velocity (Moon orbit radius 384,000 km)",
+      "elapsed_s": 0.00015664100646972656,
+      "notes": "rel_err 8.207e-04"
     },
     {
       "id": "mech_adv_009",
@@ -1205,7 +1205,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 17.768746614456177,
+      "elapsed_s": 7.154820203781128,
       "notes": "no value extracted"
     },
     {
@@ -1218,7 +1218,7 @@
       "rel_error": 5.156855735087719,
       "tolerance_rel": 0.1,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 39.02621102333069,
+      "elapsed_s": 18.585731267929077,
       "notes": "rel_err 5.157e+00"
     },
     {
@@ -1231,7 +1231,7 @@
       "rel_error": 3.488535002100755e-05,
       "tolerance_rel": 0.05,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 23.609055519104004,
+      "elapsed_s": 12.67154836654663,
       "notes": "rel_err 3.489e-05"
     },
     {
@@ -1239,13 +1239,13 @@
       "system": "sigma_ground",
       "domain": "electrodynamics_advanced",
       "correct": false,
-      "extracted_value": 312.0,
+      "extracted_value": 60.0,
       "expected_value": 1.2,
-      "rel_error": 259.0,
+      "rel_error": 49.0,
       "tolerance_rel": 0.1,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 87.93683218955994,
-      "notes": "rel_err 2.590e+02"
+      "elapsed_s": 80.91362452507019,
+      "notes": "rel_err 4.900e+01"
     },
     {
       "id": "em_adv_003",
@@ -1257,7 +1257,7 @@
       "rel_error": 2.1212672238509273e-05,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 24.978909492492676,
+      "elapsed_s": 13.073209762573242,
       "notes": "rel_err 2.121e-05"
     },
     {
@@ -1270,7 +1270,7 @@
       "rel_error": 0.99999998236998,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 27.639347553253174,
+      "elapsed_s": 12.909801006317139,
       "notes": "rel_err 1.000e+00"
     },
     {
@@ -1283,7 +1283,7 @@
       "rel_error": 8.199072684179189e-06,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 23.81927227973938,
+      "elapsed_s": 12.148749113082886,
       "notes": "rel_err 8.199e-06"
     },
     {
@@ -1296,21 +1296,21 @@
       "rel_error": 0.0003453368440941023,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 24.414600610733032,
+      "elapsed_s": 12.964209794998169,
       "notes": "rel_err 3.453e-04 [unit-converted 'rad/s'->'Hz']"
     },
     {
       "id": "em_adv_007",
       "system": "sigma_ground",
       "domain": "electrodynamics_advanced",
-      "correct": false,
-      "extracted_value": 25000.0,
+      "correct": true,
+      "extracted_value": 18000000.0,
       "expected_value": 18000000.0,
-      "rel_error": 0.9986111111111111,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 62.61896228790283,
-      "notes": "rel_err 9.986e-01"
+      "answer_text": "ANSWER: 18000000.0 J\n\nComputed via new_tools_classifier: energy_power_time (E = P t)",
+      "elapsed_s": 0.0004458427429199219,
+      "notes": "rel_err 0.000e+00"
     },
     {
       "id": "em_adv_008",
@@ -1322,7 +1322,7 @@
       "rel_error": 0.0006918066666666833,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 24.440410137176514,
+      "elapsed_s": 12.639396905899048,
       "notes": "rel_err 6.918e-04"
     },
     {
@@ -1335,112 +1335,112 @@
       "rel_error": 0.0006423831775701613,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 24.24151349067688,
+      "elapsed_s": 12.43262267112732,
       "notes": "rel_err 6.424e-04"
     },
     {
       "id": "em_adv_010",
       "system": "sigma_ground",
       "domain": "electrodynamics_advanced",
-      "correct": false,
-      "extracted_value": 4e-06,
+      "correct": true,
+      "extracted_value": 200.0,
       "expected_value": 200.0,
-      "rel_error": 0.99999998,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 30.493956804275513,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "ANSWER: 200.0 s\n\nComputed via new_tools_classifier: energy_power_time (t = E / P)",
+      "elapsed_s": 5.5789947509765625e-05,
+      "notes": "rel_err 0.000e+00"
     },
     {
       "id": "gr_001",
       "system": "sigma_ground",
       "domain": "general_relativity",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 2954.007736491099,
       "expected_value": 2954,
-      "rel_error": null,
+      "rel_error": 2.6189881851615555e-06,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 7.596874952316284,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 2954.007736491099 m\n\nComputed via gr_classifier: tool=schwarzschild_radius, mass=1.989e+30 kg (Sun collapsed (mass = M_sun))",
+      "elapsed_s": 0.09091663360595703,
+      "notes": "rel_err 2.619e-06"
     },
     {
       "id": "gr_002",
       "system": "sigma_ground",
       "domain": "general_relativity",
-      "correct": false,
-      "extracted_value": 4.4301806174025345e-05,
+      "correct": true,
+      "extracted_value": 44310.116047366486,
       "expected_value": 44313,
-      "rel_error": 0.9999999990002526,
+      "rel_error": 6.508141253163016e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 16.374027013778687,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "ANSWER: 44310.116047366486 m\n\nComputed via gr_classifier: tool=photon_sphere_radius, mass=1.989e+31 kg (10.0 solar masses)",
+      "elapsed_s": 0.09262585639953613,
+      "notes": "rel_err 6.508e-05"
     },
     {
       "id": "gr_003",
       "system": "sigma_ground",
       "domain": "general_relativity",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 88620.23209473297,
       "expected_value": 88625,
-      "rel_error": null,
+      "rel_error": 5.379864899326662e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 8.308863639831543,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 88620.23209473297 m\n\nComputed via gr_classifier: tool=isco_radius, mass=1.989e+31 kg (10.0 solar masses)",
+      "elapsed_s": 0.08986043930053711,
+      "notes": "rel_err 5.380e-05"
     },
     {
       "id": "gr_004",
       "system": "sigma_ground",
       "domain": "general_relativity",
       "correct": true,
-      "extracted_value": 6.170073824811396e-08,
+      "extracted_value": 6.168677824358303e-08,
       "expected_value": 6.17e-08,
-      "rel_error": 1.1965123402809457e-05,
+      "rel_error": 0.00021429102782778928,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 19.96075701713562,
-      "notes": "rel_err 1.197e-05"
+      "answer_text": "ANSWER: 6.168677824358303e-08 K\n\nComputed via gr_classifier: tool=hawking_temperature, mass=1.989e+30 kg (1.0 solar masses)",
+      "elapsed_s": 0.0896005630493164,
+      "notes": "rel_err 2.143e-04"
     },
     {
       "id": "gr_005",
       "system": "sigma_ground",
       "domain": "general_relativity",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 6.617961757605732e+77,
       "expected_value": 2.1e+76,
-      "rel_error": null,
+      "rel_error": 30.514103607646337,
       "tolerance_rel": 0.1,
-      "answer_text": "",
-      "elapsed_s": 16.395617246627808,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 6.617961757605732e+77 s\n\nComputed via gr_classifier: tool=hawking_evaporation_time, mass=1.989e+31 kg (10.0 solar masses)",
+      "elapsed_s": 0.0921638011932373,
+      "notes": "rel_err 3.051e+01"
     },
     {
       "id": "gr_006",
       "system": "sigma_ground",
       "domain": "general_relativity",
       "correct": false,
-      "extracted_value": 0.9901039455361731,
+      "extracted_value": 0.18095264414443588,
       "expected_value": 0.0264,
-      "rel_error": 36.50393733091565,
+      "rel_error": 5.854266823652874,
       "tolerance_rel": 0.05,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 24.649089574813843,
-      "notes": "rel_err 3.650e+01"
+      "answer_text": "ANSWER: 0.18095264414443588 dimensionless\n\nComputed via gr_classifier: tool=gravitational_time_dilation, mass=1.989e+31 kg (10.0 solar masses), radius=3.054e+04 m",
+      "elapsed_s": 0.09003758430480957,
+      "notes": "rel_err 5.854e+00"
     },
     {
       "id": "gr_007",
       "system": "sigma_ground",
       "domain": "general_relativity",
-      "correct": false,
-      "extracted_value": 6.089451420677306e-21,
+      "correct": true,
+      "extracted_value": 12111431719.613504,
       "expected_value": 12100000000.0,
-      "rel_error": 1.0,
+      "rel_error": 0.0009447702159921,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 17.96232843399048,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "ANSWER: 12111431719.613504 m\n\nComputed via gr_classifier: tool=schwarzschild_radius, mass=8.155e+36 kg (4.1e6 solar masses (Sgr A*))",
+      "elapsed_s": 0.09204316139221191,
+      "notes": "rel_err 9.448e-04"
     },
     {
       "id": "gr_008",
@@ -1451,8 +1451,8 @@
       "expected_value": 20200000.0,
       "rel_error": null,
       "tolerance_rel": 0.05,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 22.886772632598877,
+      "answer_text": "",
+      "elapsed_s": 7.79319167137146,
       "notes": "no value extracted"
     },
     {
@@ -1460,52 +1460,52 @@
       "system": "sigma_ground",
       "domain": "general_relativity",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": "\\[ 1 + z = \\frac{2r_s}{3r} - \\left( \\frac{2r_s}{3r} \\right)^2 \\]",
       "expected_value": Infinity,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 15.972252368927002,
-      "notes": "no value extracted"
+      "answer_text": "To calculate the redshift of light emitted from just outside the event horizon of a black hole as observed by an external observer, we can use the Schwarzschild metric in general relativity. For a non-rotating (Schwarzschild) black hole, the radial component of the metric near the event horizon gives us the relationship between the coordinate time \\( t \\) and the proper time \\( \\tau \\).\n\nThe redshift factor \\( z \\) for light emitted from a radius \\( r \\) towards infinity is given by:\n\n\\[ 1 + z = \\sqrt{\\frac{1 - \\frac{r_s}{r}}{1 - \\frac{r_s}{2r}}} \\]\n\nwhere:\n- \\( r_s \\) is the Schwarzschild radius, defined as \\( r_s = \\frac{2GM}{c^2} \\),\n- \\( G \\) is the gravitational constant,\n- \\( M \\) is the mass of the black hole,\n- \\( c \\) is the speed of light.\n\nFor a very small distance from the event horizon (i.e., \\( r \\approx r_s \\)), this expression simplifies to:\n\n\\[ 1 + z \\approx \\frac{2r_s}{3r} - \\left( \\frac{2r_s}{3r} \\right)^2 \\]\n\nSince we are very close to the event horizon, \\( r \\) is approximately equal to \\( r_s \\), so:\n\n\\[ 1 + z \\approx \\frac{2}{3} \\]\n\nThus, the redshift factor \\( z \\) approaches \\( \\frac{2}{3} - 1 = -\\frac{1}{3} \\).\n\nHowever, this approximation is not entirely accurate for very close distances. The exact value can be derived from the full metric, but it generally indicates that light emitted just outside the event horizon will experience a significant redshift towards infinity.\n\nFor practical purposes and to provide a more precise answer:\n\n\\[ 1 + z = \\frac{2r_s}{3r} - \\left( \\frac{2r_s}{3r} \\right)^2 \\]\n\nGiven that \\( r \\approx r_s \\):\n\n\\[ 1 + z \\approx \\frac{2}{3} - \\frac{4}{9} = \\frac{6}{9} - \\frac{4}{9} = \\frac{2}{9} \\]\n\nSo, the redshift factor is approximately:\n\n\\[ 1 + z \\approx \\frac{2}{9} \\]\n\nThis means that light emitted from just outside the event horizon will be observed to have a redshift of about \\( -\\frac{7}{9} \\) or a redshift factor of \\( \\frac{2}{9} \\).\n\nTo summarize:\n\n```json\n",
+      "elapsed_s": 8.126935243606567,
+      "notes": "expected inf, extracted finite"
     },
     {
       "id": "gr_010",
       "system": "sigma_ground",
       "domain": "general_relativity",
-      "correct": false,
-      "extracted_value": 122690066984.22714,
+      "correct": true,
+      "extracted_value": 1.485232053823733e-15,
       "expected_value": 1.486e-15,
-      "rel_error": 8.256397509032781e+25,
+      "rel_error": 0.0005167874672053359,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.492495059967041,
-      "notes": "rel_err 8.256e+25"
+      "answer_text": "ANSWER: 1.485232053823733e-15 m\n\nComputed via gr_classifier: tool=schwarzschild_radius, mass=1e+12 kg (1000000000000.0 kg)",
+      "elapsed_s": 0.09570431709289551,
+      "notes": "rel_err 5.168e-04"
     },
     {
       "id": "cosmo_001",
       "system": "sigma_ground",
       "domain": "cosmology",
-      "correct": false,
-      "extracted_value": 5203599.885091172,
+      "correct": true,
+      "extracted_value": 1.3726402453827894e+26,
       "expected_value": 1.32e+26,
-      "rel_error": 1.0,
+      "rel_error": 0.039878973774840405,
       "tolerance_rel": 0.05,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.491736888885498,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "ANSWER: 1.3726402453827894e+26 m\n\nComputed via cosmology_classifier: tool=hubble_radius (Hubble radius c/H_0)",
+      "elapsed_s": 0.0967860221862793,
+      "notes": "rel_err 3.988e-02"
     },
     {
       "id": "cosmo_002",
       "system": "sigma_ground",
       "domain": "cosmology",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 4.5786350148367955e+17,
       "expected_value": 13700000000.0,
-      "rel_error": null,
+      "rel_error": 0.05903787166814679,
       "tolerance_rel": 0.05,
-      "answer_text": "",
-      "elapsed_s": 3.562516689300537,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 4.5786350148367955e+17 s\n\nComputed via cosmology_classifier: tool=age_of_universe (Hubble time = 1/H_0)",
+      "elapsed_s": 0.09311556816101074,
+      "notes": "rel_err 5.904e-02 [unit-converted 's'->'year']"
     },
     {
       "id": "cosmo_003",
@@ -1516,8 +1516,8 @@
       "expected_value": 8.62e-27,
       "rel_error": 0.010316442121625946,
       "tolerance_rel": 0.05,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.973238229751587,
+      "answer_text": "ANSWER: 8.531072268911585e-27 kg/m^3\n\nComputed via cosmology_classifier: tool=critical_density (rho_crit = 3 H^2 / (8 pi G))",
+      "elapsed_s": 0.09292006492614746,
       "notes": "rel_err 1.032e-02"
     },
     {
@@ -1525,143 +1525,143 @@
       "system": "sigma_ground",
       "domain": "cosmology",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": "transition",
       "expected_value": "mond",
       "rel_error": null,
       "tolerance_rel": 0,
-      "answer_text": "",
-      "elapsed_s": 3.9963717460632324,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: transition \n\nComputed via cosmology_classifier: tool=mond_regime_classifier (acceleration 1e-10 m/s^2)",
+      "elapsed_s": 0.09580707550048828,
+      "notes": "string mismatch"
     },
     {
       "id": "cosmo_005",
       "system": "sigma_ground",
       "domain": "cosmology",
-      "correct": false,
-      "extracted_value": 1.2150227341098497e-07,
+      "correct": true,
+      "extracted_value": "newtonian",
       "expected_value": "newtonian",
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.198223352432251,
-      "notes": "expected string, got non-string"
+      "answer_text": "ANSWER: newtonian \n\nComputed via cosmology_classifier: tool=mond_regime_classifier (acceleration 9.8 m/s^2)",
+      "elapsed_s": 0.09291386604309082,
+      "notes": "string match"
     },
     {
       "id": "cosmo_006",
       "system": "sigma_ground",
       "domain": "cosmology",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 1.2e-10,
       "expected_value": 1.2e-10,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.05,
-      "answer_text": "",
-      "elapsed_s": 3.8102176189422607,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 1.2e-10 m/s^2\n\nComputed via cosmology_classifier: tool=mond_a0_constant (MOND characteristic acceleration)",
+      "elapsed_s": 0.08966779708862305,
+      "notes": "rel_err 0.000e+00"
     },
     {
       "id": "cosmo_007",
       "system": "sigma_ground",
       "domain": "cosmology",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 0.41216400000000003,
       "expected_value": 0.412,
-      "rel_error": null,
+      "rel_error": 0.0003980582524273131,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.921508550643921,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 0.41216400000000003 dimensionless\n\nComputed via cosmology_classifier: tool=eta_value_report (SSBM eta parameter)",
+      "elapsed_s": 0.09469175338745117,
+      "notes": "rel_err 3.981e-04"
     },
     {
       "id": "cosmo_008",
       "system": "sigma_ground",
       "domain": "cosmology",
       "correct": false,
-      "extracted_value": 155207373.49570015,
+      "extracted_value": 4.5786350148367955e+17,
       "expected_value": 4.35e+17,
-      "rel_error": 0.9999999996432015,
+      "rel_error": 0.05255977352570012,
       "tolerance_rel": 0.05,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.489956855773926,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "ANSWER: 4.5786350148367955e+17 s\n\nComputed via cosmology_classifier: tool=age_of_universe (Hubble time = 1/H_0)",
+      "elapsed_s": 0.09176850318908691,
+      "notes": "rel_err 5.256e-02"
     },
     {
       "id": "astro_001",
       "system": "sigma_ground",
       "domain": "astrophysics",
-      "correct": false,
-      "extracted_value": 1339.923341233621,
+      "correct": true,
+      "extracted_value": 4.243289559999999,
       "expected_value": 4.24,
-      "rel_error": 0.9999899859413912,
+      "rel_error": 0.0007758396226412534,
       "tolerance_rel": 0.05,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.294142723083496,
-      "notes": "rel_err 1.000e+00 [unit-converted 's'->'year']"
+      "answer_text": "ANSWER: 4.243289559999999 light_year\n\nComputed via astro_classifier: light_travel_time_from_star (proxima_centauri at 1.301 pc = 4.24 ly)",
+      "elapsed_s": 0.09133315086364746,
+      "notes": "rel_err 7.758e-04"
     },
     {
       "id": "astro_002",
       "system": "sigma_ground",
       "domain": "astrophysics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 5772.0,
       "expected_value": 5772,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.976526975631714,
-      "notes": "no value extracted"
+      "elapsed_s": 12.508192539215088,
+      "notes": "rel_err 0.000e+00"
     },
     {
       "id": "astro_003",
       "system": "sigma_ground",
       "domain": "astrophysics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 25.4,
       "expected_value": 25.4,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.05,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.66629433631897,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 25.4 L_sun\n\nComputed via astro_classifier: named_star_field (sirius_a.luminosity_solar)",
+      "elapsed_s": 0.08784723281860352,
+      "notes": "rel_err 0.000e+00"
     },
     {
       "id": "astro_004",
       "system": "sigma_ground",
       "domain": "astrophysics",
-      "correct": false,
-      "extracted_value": 2143149.3116481267,
+      "correct": true,
+      "extracted_value": 547.9420799999999,
       "expected_value": 547,
-      "rel_error": 0.9998758458800985,
+      "rel_error": 0.0017222669104203273,
       "tolerance_rel": 0.05,
-      "answer_text": "",
-      "elapsed_s": 5.667247533798218,
-      "notes": "rel_err 9.999e-01 [unit-converted 's'->'year']"
+      "answer_text": "ANSWER: 547.9420799999999 light_year\n\nComputed via astro_classifier: light_travel_time_from_star (betelgeuse at 168.0 pc = 547.94 ly)",
+      "elapsed_s": 0.08829689025878906,
+      "notes": "rel_err 1.722e-03"
     },
     {
       "id": "astro_005",
       "system": "sigma_ground",
       "domain": "astrophysics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 2.135,
       "expected_value": 2.135,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.20398235321045,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 2.135 M_sun\n\nComputed via astro_classifier: named_star_field (vega.mass_solar)",
+      "elapsed_s": 0.12814044952392578,
+      "notes": "rel_err 0.000e+00"
     },
     {
       "id": "astro_006",
       "system": "sigma_ground",
       "domain": "astrophysics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 4332.59,
       "expected_value": 4332.59,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.072764873504639,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 4332.59 day\n\nComputed via astro_classifier: solar_system_body_orbital_period (jupiter orbital period)",
+      "elapsed_s": 0.0883326530456543,
+      "notes": "rel_err 0.000e+00"
     },
     {
       "id": "astro_007",
@@ -1673,99 +1673,99 @@
       "rel_error": 0.00013372864272445371,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.061843395233154,
+      "elapsed_s": 12.389118671417236,
       "notes": "rel_err 1.337e-04 [unit-converted 's'->'year']"
     },
     {
       "id": "astro_008",
       "system": "sigma_ground",
       "domain": "astrophysics",
-      "correct": false,
-      "extracted_value": 1.2150227341098497e-07,
+      "correct": true,
+      "extracted_value": 5.015181645898235e-07,
       "expected_value": 5.02e-07,
-      "rel_error": 0.7579635987828985,
+      "rel_error": 0.0009598314943756029,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 7.221368074417114,
-      "notes": "rel_err 7.580e-01"
+      "answer_text": "ANSWER: 5.015181645898235e-07 m\n\nComputed via astro_classifier: blackbody_peak_wavelength_sun (Wien at T=5778.0K)",
+      "elapsed_s": 0.0906381607055664,
+      "notes": "rel_err 9.598e-04"
     },
     {
       "id": "astro_009",
       "system": "sigma_ground",
       "domain": "astrophysics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 1.208024928e+34,
       "expected_value": 1.21e+34,
-      "rel_error": null,
+      "rel_error": 0.0016322909090908785,
       "tolerance_rel": 0.02,
-      "answer_text": "<ERROR: >",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 1.208024928e+34 J\n\nComputed via astro_classifier: sun_energy_per_year (L_sun * year_s = 3.828e+26 * 3.156e+07)",
+      "elapsed_s": 0.08806347846984863,
+      "notes": "rel_err 1.632e-03"
     },
     {
       "id": "astro_010",
       "system": "sigma_ground",
       "domain": "astrophysics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 29788.512236597926,
       "expected_value": 29780,
-      "rel_error": null,
+      "rel_error": 0.0002858373605750822,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 17.367727994918823,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 29788.512236597926 m/s\n\nComputed via astro_classifier: earth_orbital_velocity (v=sqrt(GM_sun/r), r=1 AU)",
+      "elapsed_s": 0.08872318267822266,
+      "notes": "rel_err 2.858e-04"
     },
     {
       "id": "astro_011",
       "system": "sigma_ground",
       "domain": "astrophysics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 1.89813e+27,
       "expected_value": 1.89813e+27,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 17.167507648468018,
-      "notes": "no value extracted"
+      "elapsed_s": 11.232800245285034,
+      "notes": "rel_err 0.000e+00"
     },
     {
       "id": "astro_012",
       "system": "sigma_ground",
       "domain": "astrophysics",
-      "correct": false,
-      "extracted_value": 1458342224.2063208,
+      "correct": true,
+      "extracted_value": 133.0,
       "expected_value": 433.5,
-      "rel_error": 0.8933977474889131,
+      "rel_error": 0.0006643191692504195,
       "tolerance_rel": 0.05,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 16.925629138946533,
-      "notes": "rel_err 8.934e-01 [unit-converted 's'->'year']"
+      "answer_text": "ANSWER: 133.0 parsec\n\nComputed via astro_classifier: named_star_field (polaris.distance_pc)",
+      "elapsed_s": 0.09040331840515137,
+      "notes": "rel_err 6.643e-04 [unit-converted 'parsec'->'light_year']"
     },
     {
       "id": "atom_001",
       "system": "sigma_ground",
       "domain": "atomic_molecular",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 79.0,
       "expected_value": 79,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 17.7640118598938,
-      "notes": "no value extracted"
+      "elapsed_s": 10.97914457321167,
+      "notes": "rel_err 0.000e+00"
     },
     {
       "id": "atom_002",
       "system": "sigma_ground",
       "domain": "atomic_molecular",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 12.011,
       "expected_value": 12.011,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 16.929372310638428,
-      "notes": "no value extracted"
+      "elapsed_s": 11.006615161895752,
+      "notes": "rel_err 0.000e+00"
     },
     {
       "id": "atom_003",
@@ -1777,7 +1777,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 17.955339908599854,
+      "elapsed_s": 10.903155088424683,
       "notes": "rel_err 0.000e+00"
     },
     {
@@ -1790,7 +1790,7 @@
       "rel_error": null,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 16.852070808410645,
+      "elapsed_s": 11.236124038696289,
       "notes": "no value extracted"
     },
     {
@@ -1803,21 +1803,21 @@
       "rel_error": 0.00031649741083769373,
       "tolerance_rel": 0.01,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 17.697677612304688,
+      "elapsed_s": 11.547476291656494,
       "notes": "rel_err 3.165e-04"
     },
     {
       "id": "atom_006",
       "system": "sigma_ground",
       "domain": "atomic_molecular",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 26.0,
       "expected_value": 26,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 17.193497896194458,
-      "notes": "no value extracted"
+      "elapsed_s": 10.930121183395386,
+      "notes": "rel_err 0.000e+00"
     },
     {
       "id": "atom_007",
@@ -1829,47 +1829,47 @@
       "rel_error": 2.432907074850658e-06,
       "tolerance_rel": 0.02,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 16.906516075134277,
+      "elapsed_s": 11.7668776512146,
       "notes": "rel_err 2.433e-06 [unit-converted 'J'->'eV']"
     },
     {
       "id": "atom_008",
       "system": "sigma_ground",
       "domain": "atomic_molecular",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 238.02891,
       "expected_value": 238.029,
-      "rel_error": null,
+      "rel_error": 3.781051888641532e-07,
       "tolerance_rel": 0.001,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 15.803101539611816,
-      "notes": "no value extracted"
+      "elapsed_s": 10.843058109283447,
+      "notes": "rel_err 3.781e-07"
     },
     {
       "id": "nuc_001",
       "system": "sigma_ground",
       "domain": "nuclear_physics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 8.987551787368176e+16,
       "expected_value": 9e+16,
-      "rel_error": null,
+      "rel_error": 0.0013831347368693334,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 6.31141996383667,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 8.987551787368176e+16 joule\n\n1.0 kilogram = 8.987551787368176e+16 joule (pint conversion via conversion-classifier)",
+      "elapsed_s": 0.08899712562561035,
+      "notes": "rel_err 1.383e-03 [unit-converted 'joule'->'J']"
     },
     {
       "id": "nuc_002",
       "system": "sigma_ground",
       "domain": "nuclear_physics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 21.480764310153383,
       "expected_value": 21.5,
-      "rel_error": null,
+      "rel_error": 0.0008946832486798733,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 6.283129692077637,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 21.480764310153383 megaton_TNT\n\n1.0 kilogram = 21.480764310153383 megaton_TNT (pint conversion via conversion-classifier)",
+      "elapsed_s": 0.08939242362976074,
+      "notes": "rel_err 8.947e-04"
     },
     {
       "id": "nuc_003",
@@ -1881,21 +1881,21 @@
       "rel_error": 92.72747325116822,
       "tolerance_rel": 0.001,
       "answer_text": "<exceeded max turns>",
-      "elapsed_s": 23.582798957824707,
+      "elapsed_s": 12.883111715316772,
       "notes": "rel_err 9.273e+01 [unit-converted 'J'->'eV']"
     },
     {
       "id": "nuc_004",
       "system": "sigma_ground",
       "domain": "nuclear_physics",
-      "correct": false,
-      "extracted_value": 1.986445855931795e-10,
+      "correct": true,
+      "extracted_value": 3.2043532679999995e-11,
       "expected_value": 3.2e-11,
-      "rel_error": 5.207643299786859,
+      "rel_error": 0.0013603962499998514,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 17.584948778152466,
-      "notes": "rel_err 5.208e+00"
+      "answer_text": "ANSWER: 3.2043532679999995e-11 joule\n\n200.0 MeV = 3.2043532679999995e-11 joule (pint conversion via conversion-classifier)",
+      "elapsed_s": 0.08919191360473633,
+      "notes": "rel_err 1.360e-03 [unit-converted 'joule'->'J']"
     },
     {
       "id": "nuc_005",
@@ -1907,21 +1907,21 @@
       "rel_error": null,
       "tolerance_rel": 0.1,
       "answer_text": "",
-      "elapsed_s": 8.052757024765015,
+      "elapsed_s": 4.1754231452941895,
       "notes": "no value extracted"
     },
     {
       "id": "nuc_006",
       "system": "sigma_ground",
       "domain": "nuclear_physics",
-      "correct": false,
-      "extracted_value": 1.1014393434609345e-18,
+      "correct": true,
+      "extracted_value": 2.81983087584e-12,
       "expected_value": 2.82e-12,
-      "rel_error": 0.9999996094186726,
+      "rel_error": 5.997310638297673e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 18.241410970687866,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "ANSWER: 2.81983087584e-12 joule\n\n17.6 MeV = 2.81983087584e-12 joule (pint conversion via conversion-classifier)",
+      "elapsed_s": 0.09089088439941406,
+      "notes": "rel_err 5.997e-05 [unit-converted 'joule'->'J']"
     },
     {
       "id": "nuc_007",
@@ -1940,99 +1940,106 @@
       "id": "math_001",
       "system": "sigma_ground",
       "domain": "mathematical_methods",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": [
+        -2.0,
+        2.0
+      ],
       "expected_value": [
         -2,
         2
       ],
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.001,
-      "answer_text": "<ERROR: >",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: [-2.0, 2.0] \n\nComputed via math_classifier: tool=solve_equation on 'x**2-4=0' (symbolic: ['-2', '2'])",
+      "elapsed_s": 0.5049424171447754,
+      "notes": "list match"
     },
     {
       "id": "math_002",
       "system": "sigma_ground",
       "domain": "mathematical_methods",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 0.3333333333333333,
       "expected_value": 0.3333333333333333,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.001,
-      "answer_text": "<ERROR: >",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 0.3333333333333333 \n\nComputed via math_classifier: tool=integrate_expr on 'x**2' (symbolic: '1/3')",
+      "elapsed_s": 0.16141796112060547,
+      "notes": "rel_err 0.000e+00"
     },
     {
       "id": "math_003",
       "system": "sigma_ground",
       "domain": "mathematical_methods",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": "cos(x)",
       "expected_value": "cos(x)",
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0,
-      "answer_text": "<ERROR: >",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: cos(x) \n\nComputed via math_classifier: tool=differentiate_expr on 'sin(x)' (symbolic: 'cos(x)')",
+      "elapsed_s": 0.09195280075073242,
+      "notes": "string match"
     },
     {
       "id": "math_004",
       "system": "sigma_ground",
       "domain": "mathematical_methods",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": [
+        1.0,
+        2.0,
+        3.0
+      ],
       "expected_value": [
         1,
         2,
         3
       ],
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.001,
-      "answer_text": "<ERROR: >",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: [1.0, 2.0, 3.0] \n\nComputed via math_classifier: tool=solve_equation on 'x**3-6*x**2+11*x-6=0' (symbolic: ['1', '2', '3'])",
+      "elapsed_s": 0.09831929206848145,
+      "notes": "list match"
     },
     {
       "id": "math_005",
       "system": "sigma_ground",
       "domain": "mathematical_methods",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 3.141592653589793,
       "expected_value": 3.14159265358979,
-      "rel_error": null,
+      "rel_error": 9.895059008997617e-16,
       "tolerance_rel": 0.001,
-      "answer_text": "<ERROR: >",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 3.141592653589793 \n\nComputed via math_classifier: tool=integrate_expr on '1/(1+x**2)' (symbolic: 'pi')",
+      "elapsed_s": 0.14030694961547852,
+      "notes": "rel_err 9.895e-16"
     },
     {
       "id": "math_006",
       "system": "sigma_ground",
       "domain": "mathematical_methods",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 9460730472580800.0,
       "expected_value": 9460700000000000.0,
-      "rel_error": null,
+      "rel_error": 3.2209647066284737e-06,
       "tolerance_rel": 0.001,
-      "answer_text": "<ERROR: >",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 9460730472580800.0 meter\n\n1.0 light_year = 9460730472580800.0 meter (pint conversion via conversion-classifier)",
+      "elapsed_s": 0.09213995933532715,
+      "notes": "rel_err 3.221e-06 [unit-converted 'meter'->'m']"
     },
     {
       "id": "math_007",
       "system": "sigma_ground",
       "domain": "mathematical_methods",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 1.0,
       "expected_value": 1,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.001,
-      "answer_text": "<ERROR: >",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 1.0 \n\nComputed via math_classifier: tool=simplify_expr on 'sin(x)**2+cos(x)**2' (symbolic: '1')",
+      "elapsed_s": 0.16514968872070312,
+      "notes": "rel_err 0.000e+00"
     }
   ]
 }

@@ -515,6 +515,29 @@ async def _run_one_question(session, ollama_url: str, model: str,
 
     t0 = time.time()
 
+    # New-tools router (Phase 0): deterministically dispatch the
+    # body-aware/multi-step tools (orbital_velocity, orbital_period,
+    # de_broglie_from_kinetic_energy, energy_power_time) so Qwen never
+    # has to select them from a flat list. These tools are also HIDDEN
+    # from Qwen's tool list (see _amain) — they're reached only here.
+    from sigma_ground.mcp.benchmark.new_tools_classifier import (
+        classify_for_new_tools, execute_new_tool_match)
+    nt = classify_for_new_tools(question)
+    if nt is not None:
+        val, units, answer_text = execute_new_tool_match(nt)
+        if val is not None:
+            return {
+                "answer_text":            answer_text,
+                "extracted_value":        val,
+                "extracted_units":        units,
+                "tool_calls":             [],
+                "turns":                  0,
+                "elapsed_s":              time.time() - t0,
+                "extracted_via_fallback": False,
+                "nudges_sent":            0,
+                "new_tools_router_hit":   nt.tool,
+            }
+
     # Refusal pre-classifier: short-circuit obvious refusal cases
     # before involving Qwen at all. Patterns like "Is the Earth flat?"
     # or "What is the kinetic energy of love?" get an immediate
@@ -983,6 +1006,12 @@ async def _amain(args) -> int:
             await session.initialize()
             tools_resp = await session.list_tools()
             # Convert to Ollama's tool-format
+            # Hide the body-aware/multi-step tools from Qwen's flat list —
+            # they're reached deterministically via the new-tools router,
+            # not by LLM selection. Keeping the visible surface small is
+            # what stops catalog growth from degrading a modest model.
+            from sigma_ground.mcp.benchmark.new_tools_classifier import (
+                HIDDEN_FROM_LLM)
             tools_for_ollama = [
                 {
                     "type": "function",
@@ -994,6 +1023,7 @@ async def _amain(args) -> int:
                     },
                 }
                 for t in tools_resp.tools
+                if t.name not in HIDDEN_FROM_LLM
             ]
             tool_index = _build_tool_index(tools_for_ollama)
             real_params_by_tool = _build_real_params_map(tools_for_ollama)

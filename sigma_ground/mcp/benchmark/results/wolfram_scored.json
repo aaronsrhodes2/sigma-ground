@@ -86,8 +86,8 @@
       "expected_value": 1.428,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 7.284016370773315,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -99,8 +99,8 @@
       "expected_value": 31.32,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 6.192984342575073,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -112,8 +112,8 @@
       "expected_value": 1019.7,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 6.639099359512329,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -125,8 +125,8 @@
       "expected_value": 127.47,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 6.371007919311523,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -138,8 +138,8 @@
       "expected_value": 875.0,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 5.592892169952393,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -151,8 +151,8 @@
       "expected_value": 0.1274,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 7.257932424545288,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -164,8 +164,8 @@
       "expected_value": 7670,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 6.333103179931641,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -190,8 +190,8 @@
       "expected_value": 37500,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 5.382692813873291,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -203,8 +203,8 @@
       "expected_value": 68646,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 6.047719955444336,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -216,8 +216,8 @@
       "expected_value": 3.508,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 7.500696182250977,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -229,8 +229,8 @@
       "expected_value": 4.079,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 6.985832929611206,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -242,8 +242,8 @@
       "expected_value": 800.0,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 5.568202257156372,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -255,8 +255,8 @@
       "expected_value": 20.0,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 6.101064920425415,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -268,8 +268,8 @@
       "expected_value": 0.0,
       "rel_error": null,
       "tolerance_rel": 0.1,
-      "answer_text": "",
-      "elapsed_s": 8.542574167251587,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -281,8 +281,8 @@
       "expected_value": 0.05,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 4.960208177566528,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -294,8 +294,8 @@
       "expected_value": 24.0,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 5.404757976531982,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -307,8 +307,8 @@
       "expected_value": 8.854e-09,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 6.923070669174194,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -320,8 +320,8 @@
       "expected_value": 0.001,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 6.487147808074951,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -333,8 +333,8 @@
       "expected_value": 5032.9,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 5.410465478897095,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -346,8 +346,8 @@
       "expected_value": 2.998,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 5.2780749797821045,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -372,8 +372,8 @@
       "expected_value": 250.0,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 5.994016170501709,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -385,8 +385,8 @@
       "expected_value": 0.2,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 5.447803497314453,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -398,8 +398,8 @@
       "expected_value": 10.0,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 4.9454944133758545,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -411,8 +411,8 @@
       "expected_value": 0.125,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 4.770770072937012,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -424,8 +424,8 @@
       "expected_value": 113.0,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 6.802947282791138,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -437,8 +437,8 @@
       "expected_value": 0.0001,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 6.193603754043579,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -450,8 +450,8 @@
       "expected_value": 3e+18,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 5.287377595901489,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -463,8 +463,8 @@
       "expected_value": 3e-14,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 6.098612070083618,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -476,8 +476,8 @@
       "expected_value": 22.08,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 7.597080945968628,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -489,8 +489,8 @@
       "expected_value": 48.61,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 7.225424289703369,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -502,8 +502,8 @@
       "expected_value": 0.3,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 9.962899208068848,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -515,8 +515,8 @@
       "expected_value": 6.563e-07,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 6.344458103179932,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -528,8 +528,8 @@
       "expected_value": 0.00633,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 6.181652545928955,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -541,8 +541,8 @@
       "expected_value": 30.0,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 6.317382335662842,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -554,8 +554,8 @@
       "expected_value": 30.0,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 6.663075685501099,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -580,8 +580,8 @@
       "expected_value": 1.216e-07,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 20.11733603477478,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -593,8 +593,8 @@
       "expected_value": -0.5,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 12.613627195358276,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -619,8 +619,8 @@
       "expected_value": 2.667,
       "rel_error": null,
       "tolerance_rel": 0.05,
-      "answer_text": "",
-      "elapsed_s": 16.202389240264893,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -632,8 +632,8 @@
       "expected_value": 101325,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 5.830577850341797,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -645,8 +645,8 @@
       "expected_value": 4.83e-07,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 5.483901262283325,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {
@@ -658,8 +658,8 @@
       "expected_value": 459.0,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 6.0146074295043945,
+      "answer_text": "<no parseable result after reformulation>",
+      "elapsed_s": 0.0,
       "notes": "no value extracted"
     },
     {

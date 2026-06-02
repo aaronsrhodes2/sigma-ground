@@ -2,65 +2,72 @@
   {
     "id": "mech_intro_001",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 7.284016370773315
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 3
   },
   {
     "id": "mech_intro_002",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.192984342575073
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "mech_intro_003",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.639099359512329
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "mech_intro_004",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.371007919311523
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "mech_intro_005",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 5.592892169952393
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "mech_intro_006",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 7.257932424545288
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 3
   },
   {
     "id": "mech_intro_007",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.333103179931641
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "mech_intro_008",
@@ -74,119 +81,132 @@
   {
     "id": "mech_intro_009",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 5.382692813873291
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "mech_intro_010",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.047719955444336
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "mech_intro_011",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 7.500696182250977
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "mech_intro_012",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.985832929611206
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "mech_intro_013",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 5.568202257156372
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "mech_intro_014",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.101064920425415
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "mech_intro_015",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 8.542574167251587
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "em_intro_001",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 4.960208177566528
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "em_intro_002",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 5.404757976531982
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "em_intro_003",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.923070669174194
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "em_intro_004",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.487147808074951
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "em_intro_005",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 5.410465478897095
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "em_intro_006",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 5.2780749797821045
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "em_intro_007",
@@ -200,137 +220,152 @@
   {
     "id": "em_intro_008",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 5.994016170501709
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 3
   },
   {
     "id": "em_intro_009",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 5.447803497314453
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "em_intro_010",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 4.9454944133758545
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "em_intro_011",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 4.770770072937012
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "em_intro_012",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.802947282791138
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "em_intro_013",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.193603754043579
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "em_intro_014",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 5.287377595901489
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "em_intro_015",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.098612070083618
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "optics_001",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 7.597080945968628
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "optics_002",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 7.225424289703369
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "optics_003",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 9.962899208068848
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 3
   },
   {
     "id": "optics_004",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.344458103179932
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "optics_005",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.181652545928955
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "optics_006",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.317382335662842
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "optics_007",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.663075685501099
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "optics_008",
@@ -344,20 +379,22 @@
   {
     "id": "optics_009",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 20.11733603477478
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "optics_010",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 12.613627195358276
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "optics_011",
@@ -371,38 +408,42 @@
   {
     "id": "optics_012",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 16.202389240264893
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "thermo_001",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 5.830577850341797
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "thermo_002",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 5.483901262283325
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "thermo_003",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.0146074295043945
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "thermo_004",
