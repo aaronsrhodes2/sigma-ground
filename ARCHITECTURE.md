@@ -1,136 +1,74 @@
-# QuarkSum / SSBM — Architecture
+# Mentat — Architecture
 
-## The Physics/Rendering Boundary
+**Mentat** is the umbrella for a pure-Python physics + rendering stack. The
+Python import root stays `sigma_ground`; "Mentat" is the product/brand, and the
+**MCP server is its public face** — exposing every service's tools to LLM clients.
 
-The fundamental rule of this codebase:
+## The role layering (the import contract)
 
-> **Physics never imports from renderers. Renderers may import from physics.**
-
-```
-local_library/   ──┐
-quarksum/         ─┼──► sgphysics/   ◄── MatterShaper/render/ (entangler)
-MatterShaper/      │                          ↑
-  physics/ ────────┘                     (one-way)
-```
-
----
-
-## Package Map
-
-### `sgphysics/` — Sigma-Ground Physics Library
-The canonical unified physics package. Consolidates all SSBM physics into
-one importable namespace. **Zero rendering imports.**
+Six service roles, in dependency tiers. **A module may import only its own tier
+or below** — enforced on every test run by `tests/test_layering.py`, a
+zero-dependency AST guard:
 
 ```
-sgphysics/
-├── __init__.py          public API: G, C, HBAR, L_PLANCK, Vec3, ...
-├── constants.py         all physical constants (re-exports local_library.constants)
-├── dynamics/
-│   ├── vec.py           Vec3 — 3D vector math (pure math, NO renderer dependency)
-│   ├── collision.py     sphere-sphere / sphere-plane impulse response
-│   ├── stepper.py       leapfrog integrator with CFL-constrained dt
-│   ├── parcel.py        PhysicsParcel: matter + dynamics state
-│   ├── scene.py         PhysicsScene: parcels + gravity + ground
-│   ├── fluid/
-│   │   ├── kernel.py    cubic spline SPH kernel W(r,h)
-│   │   └── eos.py       equation of state P(ρ,ρ₀,K)
-│   └── gravity/
-│       └── barnes_hut.py  Barnes-Hut O(N log N) gravity
-├── core/                SSBM σ-field physics (re-exports local_library)
-├── celestial/           N-body: NBodySystem, CelestialBody (re-exports local_library)
-└── inventory/           particle inventory / mass closure (re-exports quarksum)
+tier 0   kernel/       geometry + math primitives: shapes, csg, parts, vec (the single Vec3)
+             ▲
+tier 1   field/        σ-field physics + authoritative constants     (Sigma Ground)
+         inventory/    particle inventory & mass closure             (Quarksum)
+         dynamics/     N-body, SPH, Barnes-Hut, integrators (shared sim engine)
+             ▲
+tier 2   deckard/      matter compiler: a name → a validated Construct
+             ▲
+tier 3   materia/      physics / movement engine (+ materia.labs)
+         radiance/     renderer: SDF ray-march + entangler push renderer
+             ▲
+tier 4   mcp/          the Mentat face — MCP tools over every service
 ```
 
-### `local_library/` — SSBM Light Proofs
-Proof-of-concept implementations for □σ = −ξR. Contains:
-- `constants.py` — authoritative physical constants (G, C, HBAR, L_PLANCK, ...)
-- `interface/nbody.py` — Forest-Ruth FR4 N-body + 1PN GR + SRP
-- `interface/` — σ-field tests, celestial mechanics, bond failure layers
-- `entanglement.py` — quantum entanglement fraction η, photon emission (PHYSICS, not rendering)
+`field.constants` is the authoritative constants source and is importable from
+any tier (a universal foundation, exempt from the tier rule).
 
-Note: "rendering" in local_library means matter becoming electromagnetically
-visible at the σ-transition — SSBM physics terminology, not computer graphics.
+## Package map (`sigma_ground/`)
 
-### `quarksum/` — Particle Inventory & Mass Closure
-CLI tool resolving materials → molecules → atoms → quarks. Proves the books
-balance. Pure Python, zero external dependencies.
-
-### `Materia/` — Full SSBM Physics Engine
-Spacetime geometry, σ-field computation, orbital mechanics, fluid dynamics,
-nucleosynthesis, gravitational waves.
-
-### `MatterShaper/` — 3D Push Renderer
-Pure-Python ray-free renderer. Physics layer and render layer are strictly
-separated within MatterShaper itself:
-
-```
-MatterShaper/
-├── mattershaper/physics/    rigid-body sim, SPH, gravity (imports from sgphysics)
-└── mattershaper/render/     Entangler push renderer — pixels, PNG, GIF
-    └── entangler/
-        └── vec.py           self-contained Vec3 copy (renderer standalone use)
-```
-
-`mattershaper/physics/` imports Vec3 from `..render.entangler.vec` — this is
-a legacy dependency. The canonical Vec3 lives in `sgphysics/dynamics/vec.py`.
-New code should import from sgphysics.
-
----
-
-## Vec3 — The Migration Path
-
-`Vec3` is pure math (3D vector arithmetic). It belongs in physics, not rendering.
-
-| Location | Status | Use |
+| Role | Location | Notes |
 |---|---|---|
-| `sgphysics/dynamics/vec.py` | **CANONICAL** | New code imports from here |
-| `MatterShaper/render/entangler/vec.py` | Legacy (self-contained) | MatterShaper standalone |
-| `MatterShaper/physics/*.py` | Legacy (imports from render) | Unchanged for now |
+| **Sigma Ground** | `kernel/` + `field/` | `kernel/` = geometry/math primitives; `field/` = σ-physics (`field/constants.py` authoritative) |
+| **Quarksum** | `inventory/` | materials → molecules → atoms → particles → quarks; CLI `mentat` |
+| **Materia** | `materia/` (+ `materia/labs/`) | drag / orbital / scenario engine; `dynamics/` is the shared kernel-tier sim engine |
+| **Deckard** | `deckard/` | fits primitives → SDF `Construct` with a mass/CoM/inertia self-check |
+| **Radiance** | `radiance/` (+ `radiance/entangler/`, `radiance/materials/`) | SDF renderer plus the MatterShaper push/entangler renderer, folded in |
+| **Mentat MCP** | `mcp/` | `FastMCP("mentat")` server + tools; `mcp/benchmark/` is a dev-only eval harness |
 
-Future migration: `MatterShaper/physics/` files should import Vec3 from
-`sgphysics.dynamics.vec` rather than `..render.entangler.vec`.
+### Compatibility shims
+The geometry kernel moved into `kernel/`, but the old top-level paths remain as
+thin re-export shims, so existing imports keep working with **class identity
+preserved** (`isinstance` / dataclasses unaffected):
 
----
+| Old path | Canonical home |
+|---|---|
+| `sigma_ground.shapes` / `.csg` / `.parts` | `sigma_ground.kernel.*` |
+| `sigma_ground.dynamics.vec` | `sigma_ground.kernel.vec` |
+| `sigma_ground.labs` | `sigma_ground.materia.labs` |
 
-## Constants — Single Source of Truth
+New code should import from the canonical location.
 
-`local_library/constants.py` is the authoritative source.
-`sgphysics/constants.py` re-exports everything from it.
+## Constants — single source of truth
+`sigma_ground/field/constants.py` is authoritative; `sigma_ground/constants.py`
+and `sigma_ground.kernel` re-export it. Never define a physical constant twice.
 
-**Never define a physical constant in two places.** If a constant is needed
-in a new module, import it from `sgphysics.constants` or `local_library.constants`.
-
----
-
-## N-Body Integration Hierarchy
-
-```
-Keplerian (analytic)
-    ↓ add mutual perturbations
-Standard N-body (Verlet/FR4)
-    ↓ add 1PN GR correction
-Standard + GR
-    ↓ add solar radiation pressure
-Standard + GR + SRP                    ← "over-physics-nbody"
-    ↓ add GW damping + tidal deformation
-Full kitchen-sink (test_physics_stability.py)
-```
-
-Shootout result (J2026, 26 bodies): Keplerian wins 17/26, over-physics 7/26,
-standard 1/26. Inner moon phase problem documented in fixture metadata.
-
----
+## The Deckard → Materia / Radiance contract
+Deckard compiles a *name* into a `Construct` (an SDF plus per-point material and
+density, with mass / centre-of-mass / inertia). **Materia** consumes it to move
+it; **Radiance** consumes it to render it. Deckard depends only on the kernel —
+it never imports its consumers, which keeps the pipeline one-directional.
 
 ## Testing
-
-| Suite | Location | Count | Notes |
-|---|---|---|---|
-| quarksum | `tests/` | ~354 | mass closure, material resolution |
-| local_library | `local_library/interface/` | ~709 | σ-field, N-body, celestial |
-| MatterShaper | `MatterShaper/` | ~130 | physics + render |
-
-Run all: `pytest` (from project root runs `tests/` only — see pyproject.toml).
-Full run: `pytest tests/ local_library/ && cd MatterShaper && pytest`
-
-Permanently red (expected): `test_jpl_ephemeris` (network-gated),
-`test_position_precision` (simulation-gated).
+- `pytest` from the repo root. Baseline on this branch: **4429 passed, 6 failed,
+  6 skipped, 2 xfailed** plus ~2440 subtests.
+- The 6 failures are all in `mcp/benchmark/test_targets.py` (QA-threshold tests
+  that depend on benchmark result data) — known-red, not a regression signal.
+- `tests/test_layering.py` enforces the tier contract on every run.
+- The folded-in entangler ships its own tests under `radiance/entangler/`
+  (run explicitly: `pytest sigma_ground/radiance/entangler/`).
+- Permanently red (expected, EXTREME): `test_jpl_ephemeris` (network-gated),
+  `test_position_precision` (simulation-gated).

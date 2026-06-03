@@ -102,7 +102,7 @@ def main() -> int:
     from sigma_ground.mcp.tools import nuclear as t_nuc
     from sigma_ground.mcp import manifest as t_manifest
 
-    server = FastMCP("sigma-ground")
+    server = FastMCP("mentat")
 
     # ── manifest ──────────────────────────────────────────────────────
     @server.tool()

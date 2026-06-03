@@ -1,16 +1,19 @@
 """
-sigma_ground — Sigma-Ground Physics Library
-============================================
+sigma_ground — the Mentat physics + rendering stack
+===================================================
 
-Unified physics library covering particle inventory, scalar field
-mechanics, and N-body dynamics. Pure Python, zero external dependencies.
+Pure Python, zero external dependencies. "Mentat" is the umbrella brand (the
+MCP server is its public face); the import root stays ``sigma_ground``. Service
+roles (see ARCHITECTURE.md for the tier contract):
 
-  sigma_ground.inventory  — Particle inventory and mass closure tool.
-                            Resolves materials → molecules → atoms → quarks.
-  sigma_ground.field      — σ-field scalar physics. Constants, bounds,
-                            entanglement, and spacetime geometry.
-  sigma_ground.dynamics   — N-body dynamics, SPH fluid, leapfrog integrator,
-                            Barnes-Hut gravity.
+  sigma_ground.kernel     — shared geometry/math primitives (shapes, csg, Vec3).
+  sigma_ground.field      — σ-field scalar physics + authoritative constants.
+  sigma_ground.inventory  — particle inventory & mass closure (Quarksum).
+  sigma_ground.dynamics   — N-body, SPH fluid, Barnes-Hut, integrators.
+  sigma_ground.deckard    — matter compiler: a name → a validated Construct.
+  sigma_ground.materia    — physics / movement engine.
+  sigma_ground.radiance   — renderer (SDF ray-march + entangler push renderer).
+  sigma_ground.mcp        — the Mentat MCP face over every service.
 
 Quick start::
 
@@ -25,10 +28,10 @@ Quick start::
     # N-body dynamics
     from sigma_ground.dynamics.scene import PhysicsScene
 
-Physics/Rendering boundary
---------------------------
-This package contains ONLY physics. No pixel buffers, no PNG encoding,
-no ray tracing. Rendering lives in matter-shaper (separate project).
+Physics / rendering boundary
+----------------------------
+Physics never imports renderers; renderers may import physics. Rendering now
+lives in ``sigma_ground.radiance`` (folded in from the former matter-shaper repo).
 
 Author: Aaron Rhodes
 """

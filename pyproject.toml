@@ -3,9 +3,9 @@ requires = ["setuptools>=69.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sigma-ground"
+name = "mentat"
 version = "1.5.0"
-description = "Particle physics library: σ-field computation, particle inventory, and N-body dynamics"
+description = "Mentat — physics services (Sigma Ground, Quarksum, Materia, Deckard, Radiance) behind one MCP face"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
@@ -48,6 +48,10 @@ Repository = "https://github.com/aaronsrhodes2/sigma-ground"
 Issues = "https://github.com/aaronsrhodes2/sigma-ground/issues"
 
 [project.scripts]
+# Mentat — the umbrella product; the MCP server is its public face.
+mentat = "sigma_ground.inventory.__main__:main"
+mentat-mcp = "sigma_ground.mcp.server:main"
+# Back-compat aliases (the Python import root remains `sigma_ground`).
 sigma-ground = "sigma_ground.inventory.__main__:main"
 sigma-ground-mcp = "sigma_ground.mcp.server:main"
 
