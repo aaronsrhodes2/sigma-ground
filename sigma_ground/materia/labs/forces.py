@@ -29,7 +29,7 @@ Physics:
 """
 
 import math
-from ..dynamics.vec import Vec3
+from sigma_ground.dynamics.vec import Vec3
 
 
 def drag_force(parcel, medium_density, medium_viscosity):

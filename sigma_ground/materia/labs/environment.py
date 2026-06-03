@@ -35,7 +35,7 @@ class Medium:
 
         Uses sigma-ground's atmosphere module for derived properties.
         """
-        from ..field.interface.atmosphere import air_density
+        from sigma_ground.field.interface.atmosphere import air_density
         rho = air_density(T, P)
         # Sutherland's law for air viscosity
         # MEASURED: Sutherland constant S = 110.4 K, ref viscosity at 291.15 K
@@ -55,7 +55,7 @@ class Medium:
         # Slight temperature dependence (quadratic around 4C max)
         rho = 998.2 - 0.06 * (T - 293.15)  # linear approx near 20C
         try:
-            from ..field.interface.fluid import liquid_viscosity
+            from sigma_ground.field.interface.fluid import liquid_viscosity
             mu = liquid_viscosity('water', T)
         except (ImportError, KeyError):
             # Fallback: Arrhenius-type for water

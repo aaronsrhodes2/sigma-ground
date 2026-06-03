@@ -9,8 +9,8 @@ This is the orchestrator. It:
 """
 
 import math
-from ..dynamics.stepper import step
-from ..dynamics.vec import Vec3
+from sigma_ground.dynamics.stepper import step
+from sigma_ground.dynamics.vec import Vec3
 from .builder import build
 from .result import (
     SimulationResult, Snapshot, ObjectState, CollisionEvent,
@@ -63,7 +63,7 @@ def _detect_collisions(physics_scene, time, prev_ke):
 
     Simple approach: if two dynamic parcels overlap, record a collision.
     """
-    from ..dynamics.collision import sphere_sphere_collision
+    from sigma_ground.dynamics.collision import sphere_sphere_collision
 
     collisions = []
     parcels = physics_scene.parcels
@@ -96,7 +96,7 @@ def _detect_collisions(physics_scene, time, prev_ke):
     # Ground collisions
     if physics_scene.ground is not None:
         gnd = physics_scene.ground
-        from ..dynamics.collision import sphere_plane_collision
+        from sigma_ground.dynamics.collision import sphere_plane_collision
         for p in parcels:
             if p.is_static:
                 continue
@@ -132,7 +132,7 @@ def _check_event(event, physics_scene, time):
     # Collision-based: "collision" or "collision:ball,ground"
     if cond.startswith('collision'):
         parcels = physics_scene.parcels
-        from ..dynamics.collision import sphere_sphere_collision
+        from sigma_ground.dynamics.collision import sphere_sphere_collision
         for i in range(len(parcels)):
             for j in range(i + 1, len(parcels)):
                 is_col, _, _ = sphere_sphere_collision(parcels[i], parcels[j])

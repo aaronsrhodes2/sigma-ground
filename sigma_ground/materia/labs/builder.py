@@ -10,9 +10,9 @@ No hardcoded material constants. Everything flows from the cascade.
 """
 
 import math
-from ..dynamics.vec import Vec3
-from ..dynamics.parcel import PhysicsParcel
-from ..dynamics.scene import PhysicsScene, GroundPlane
+from sigma_ground.dynamics.vec import Vec3
+from sigma_ground.dynamics.parcel import PhysicsParcel
+from sigma_ground.dynamics.scene import PhysicsScene, GroundPlane
 from .forces import combined_forces
 
 
@@ -23,7 +23,7 @@ def _make_shape(shape_type, dimensions):
 
     Returns a Shape instance from sigma_ground.shapes.
     """
-    from ..shapes import Sphere, Cylinder, Box, Ellipsoid, Cone, Torus
+    from sigma_ground.shapes import Sphere, Cylinder, Box, Ellipsoid, Cone, Torus
 
     s = shape_type.lower()
 
@@ -70,8 +70,8 @@ def cascade_material(material_key, T=293.15, velocity=1.0, radius=0.01):
     Returns:
         dict with all computed properties and their units.
     """
-    from ..field.interface.surface import MATERIALS
-    from ..field.constants import SIGMA_HERE
+    from sigma_ground.field.interface.surface import MATERIALS
+    from sigma_ground.field.constants import SIGMA_HERE
 
     mat = MATERIALS[material_key]
     props = {
@@ -84,7 +84,7 @@ def cascade_material(material_key, T=293.15, velocity=1.0, radius=0.01):
 
     # Thermal properties
     try:
-        from ..field.interface.thermal import (
+        from sigma_ground.field.interface.thermal import (
             sound_velocity, debye_temperature, specific_heat_j_kg_K,
             thermal_conductivity,
         )
@@ -97,7 +97,7 @@ def cascade_material(material_key, T=293.15, velocity=1.0, radius=0.01):
 
     # Mechanical properties
     try:
-        from ..field.interface.mechanical import (
+        from sigma_ground.field.interface.mechanical import (
             bulk_modulus, shear_modulus, youngs_modulus,
         )
         props['bulk_modulus_Pa'] = bulk_modulus(material_key)
@@ -108,7 +108,7 @@ def cascade_material(material_key, T=293.15, velocity=1.0, radius=0.01):
 
     # Impact properties
     try:
-        from ..field.interface.impact import coefficient_of_restitution
+        from sigma_ground.field.interface.impact import coefficient_of_restitution
         props['restitution'] = coefficient_of_restitution(
             material_key, velocity=velocity, radius_m=radius)
     except Exception:
@@ -116,7 +116,7 @@ def cascade_material(material_key, T=293.15, velocity=1.0, radius=0.01):
 
     # Friction
     try:
-        from ..field.interface.friction import friction_coefficient
+        from sigma_ground.field.interface.friction import friction_coefficient
         props['friction_coefficient'] = friction_coefficient(
             material_key, material_key)
     except Exception:
@@ -124,7 +124,7 @@ def cascade_material(material_key, T=293.15, velocity=1.0, radius=0.01):
 
     # Optical properties
     try:
-        from ..field.interface.optics import get_material_color
+        from sigma_ground.field.interface.optics import get_material_color
         mat_type = mat.get('material_type', 'metal')
         if mat_type == 'metal':
             props['color_rgb'] = get_material_color('metal', material_key)

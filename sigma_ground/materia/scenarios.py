@@ -410,7 +410,7 @@ def material_profile(material_key: str = "steel_mild",
     whole property suite (thermal, mechanical, impact, friction, optics) — one
     verb exercising many methods, and the matter half of any simulation.
     """
-    from ..labs.builder import cascade_material
+    from .labs.builder import cascade_material
     p = cascade_material(material_key, T=temperature_k)
     g = lambda k: p.get(k)
     steps = [

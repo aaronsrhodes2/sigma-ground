@@ -121,7 +121,7 @@ def make_atmospheric_drag(gravity_vec, T: float = 288.15,
     altitude via density_at_altitude(z). Pass uniform_density to pin a
     constant medium (used for the closed-form self-check).
     """
-    from ..labs.forces import drag_force, buoyancy_force
+    from .labs.forces import drag_force, buoyancy_force
     from ..field.interface.atmosphere import density_at_altitude
 
     mu = _air_viscosity(T)
@@ -189,7 +189,7 @@ def simulate_fall(material_key: str, radius_m: float, start_altitude_m: float,
     cb = make_atmospheric_drag(scene.gravity, T,
                                uniform_density=(rho0 if uniform else None))
 
-    from ..labs.forces import drag_force
+    from .labs.forces import drag_force
     g = 9.80665
     mu = _air_viscosity(T)
     max_speed, max_speed_alt = 0.0, start_altitude_m
