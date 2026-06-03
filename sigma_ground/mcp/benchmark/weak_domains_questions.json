@@ -1,0 +1,447 @@
+[
+  {
+    "id": "gr_001",
+    "domain": "general_relativity",
+    "course_level": "year_4",
+    "question": "If the Sun collapsed into a black hole, what would its event horizon radius be?",
+    "expected_value": 2954,
+    "expected_units": "m",
+    "tolerance_rel": 0.01,
+    "primary_tool_expected": "schwarzschild_radius",
+    "secondary_tools_expected": [
+      "solar_system_body"
+    ],
+    "ground_truth_source": "Schutz A First Course in GR 2e Ch.11",
+    "notes": "r_s = 2 G M / c^2 ~ 2.954 km (RADIUS not diameter)"
+  },
+  {
+    "id": "gr_002",
+    "domain": "general_relativity",
+    "course_level": "year_4",
+    "question": "Where is the photon sphere of a 10-solar-mass black hole?",
+    "expected_value": 44313,
+    "expected_units": "m",
+    "tolerance_rel": 0.01,
+    "primary_tool_expected": "photon_sphere_radius",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Schutz 2e Ch.11",
+    "notes": "r_ph = 3 G M / c^2 = 1.5 * r_s; for 10 M_sun ~ 44.3 km"
+  },
+  {
+    "id": "gr_003",
+    "domain": "general_relativity",
+    "course_level": "year_4",
+    "question": "What's the innermost stable circular orbit around a 10 solar mass black hole?",
+    "expected_value": 88625,
+    "expected_units": "m",
+    "tolerance_rel": 0.01,
+    "primary_tool_expected": "isco_radius",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Schutz 2e Ch.11",
+    "notes": "r_ISCO = 6 G M / c^2 = 3 r_s; ~88.6 km"
+  },
+  {
+    "id": "gr_004",
+    "domain": "general_relativity",
+    "course_level": "year_4",
+    "question": "What's the Hawking temperature of a 1-solar-mass black hole?",
+    "expected_value": 6.17e-08,
+    "expected_units": "K",
+    "tolerance_rel": 0.02,
+    "primary_tool_expected": "hawking_temperature",
+    "secondary_tools_expected": [
+      "solar_system_body"
+    ],
+    "ground_truth_source": "Schutz 2e Ch.11",
+    "notes": "T_H = hbar c^3 / (8 pi G M k_B); ~62 nanokelvin for solar mass"
+  },
+  {
+    "id": "gr_005",
+    "domain": "general_relativity",
+    "course_level": "year_4",
+    "question": "How long would it take a stellar-mass (10 solar mass) black hole to evaporate via Hawking radiation?",
+    "expected_value": 2.1e+76,
+    "expected_units": "s",
+    "tolerance_rel": 0.1,
+    "primary_tool_expected": "hawking_evaporation_time",
+    "secondary_tools_expected": [
+      "solar_system_body"
+    ],
+    "ground_truth_source": "Page 1976",
+    "notes": "~7e68 years; vastly longer than universe age"
+  },
+  {
+    "id": "gr_006",
+    "domain": "general_relativity",
+    "course_level": "year_4",
+    "question": "If I drop a clock 1 km above a 10 solar mass black hole's event horizon, how slow does it run compared to one at infinity?",
+    "expected_value": 0.0264,
+    "expected_units": "",
+    "tolerance_rel": 0.05,
+    "primary_tool_expected": "gravitational_time_dilation",
+    "secondary_tools_expected": [
+      "schwarzschild_radius"
+    ],
+    "ground_truth_source": "Schutz 2e Ch.10",
+    "notes": "r = r_s + 1000 m; factor = sqrt(1 - r_s/r); for 10 M_sun (r_s=29.5 km), 1 km above gives factor ~0.18"
+  },
+  {
+    "id": "gr_007",
+    "domain": "general_relativity",
+    "course_level": "year_4",
+    "question": "Sagittarius A* is the black hole at our galaxy's center with about 4.1 million solar masses. What's its Schwarzschild radius?",
+    "expected_value": 12100000000.0,
+    "expected_units": "m",
+    "tolerance_rel": 0.02,
+    "primary_tool_expected": "schwarzschild_radius",
+    "secondary_tools_expected": [
+      "solar_system_body"
+    ],
+    "ground_truth_source": "Genzel et al. 2020",
+    "notes": "~12 million km = ~17 solar radii"
+  },
+  {
+    "id": "gr_008",
+    "domain": "general_relativity",
+    "course_level": "year_4",
+    "question": "At what altitude above Earth do GPS satellite clocks run faster by about 38 microseconds per day?",
+    "expected_value": 20200000.0,
+    "expected_units": "m",
+    "tolerance_rel": 0.05,
+    "primary_tool_expected": "gravitational_time_dilation",
+    "secondary_tools_expected": [
+      "solar_system_body"
+    ],
+    "ground_truth_source": "Ashby 2003 Relativity in the GPS",
+    "notes": "GPS orbits at MEO ~20,200 km altitude; clocks run faster by GR effect partially canceled by SR. Test multi-step."
+  },
+  {
+    "id": "gr_009",
+    "domain": "general_relativity",
+    "course_level": "year_4",
+    "question": "If I'm right at the event horizon of a black hole, what's the redshift of light I emit, as seen by an observer at infinity?",
+    "expected_value": Infinity,
+    "expected_units": "",
+    "tolerance_rel": 0.01,
+    "primary_tool_expected": "gravitational_redshift",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Schutz 2e Ch.11",
+    "notes": "Redshift diverges at horizon; light is infinitely stretched"
+  },
+  {
+    "id": "gr_010",
+    "domain": "general_relativity",
+    "course_level": "year_4",
+    "question": "If a 1-kilometer-mass black hole existed (1e12 kg), what's its event horizon size and Hawking temperature?",
+    "expected_value": 1.486e-15,
+    "expected_units": "m",
+    "tolerance_rel": 0.02,
+    "primary_tool_expected": "schwarzschild_radius",
+    "secondary_tools_expected": [
+      "hawking_temperature"
+    ],
+    "ground_truth_source": "Page 1976",
+    "notes": "Primordial-BH-scale; r_s ~1.5 femtometer, T_H ~10^11 K, evaporates in ~Hubble time"
+  },
+  {
+    "id": "cosmo_001",
+    "domain": "cosmology",
+    "course_level": "year_4",
+    "question": "What's the current Hubble radius of the universe?",
+    "expected_value": 1.32e+26,
+    "expected_units": "m",
+    "tolerance_rel": 0.05,
+    "primary_tool_expected": "hubble_radius",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Planck 2018 H_0",
+    "notes": "R_H = c/H_0; using Planck 2018 H_0 ~ 67.4 km/s/Mpc"
+  },
+  {
+    "id": "cosmo_002",
+    "domain": "cosmology",
+    "course_level": "year_4",
+    "question": "What's the Hubble time (approximate age of the universe)?",
+    "expected_value": 13700000000.0,
+    "expected_units": "year",
+    "tolerance_rel": 0.05,
+    "primary_tool_expected": "age_of_universe",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Planck 2018",
+    "notes": "t_H = 1/H_0 ~ 14.5 Gyr; true LambdaCDM age = 13.787 Gyr (differs by O(1) factor)"
+  },
+  {
+    "id": "cosmo_003",
+    "domain": "cosmology",
+    "course_level": "year_4",
+    "question": "What's the critical density of the universe?",
+    "expected_value": 8.62e-27,
+    "expected_units": "kg/m^3",
+    "tolerance_rel": 0.05,
+    "primary_tool_expected": "critical_density",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Carroll & Ostlie 2e Ch.29",
+    "notes": "rho_crit = 3 H_0^2 / (8 pi G) ~ 8.6e-27 kg/m^3"
+  },
+  {
+    "id": "cosmo_004",
+    "domain": "cosmology",
+    "course_level": "year_4",
+    "question": "Galaxy rotation curves probe accelerations of about 1e-10 m/s squared. Which regime is that?",
+    "expected_value": "mond",
+    "expected_units": "",
+    "tolerance_rel": 0,
+    "primary_tool_expected": "mond_regime_classifier",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Milgrom 1983",
+    "notes": "Below ~1.2e-10 m/s^2 is MOND regime"
+  },
+  {
+    "id": "cosmo_005",
+    "domain": "cosmology",
+    "course_level": "year_4",
+    "question": "Earth's surface gravity is 9.8 m/s squared. Is that in the Newtonian or MOND regime?",
+    "expected_value": "newtonian",
+    "expected_units": "",
+    "tolerance_rel": 0,
+    "primary_tool_expected": "mond_regime_classifier",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Milgrom 1983",
+    "notes": "9.8 >> 1.2e-10 m/s^2; deep Newtonian"
+  },
+  {
+    "id": "cosmo_006",
+    "domain": "cosmology",
+    "course_level": "year_4",
+    "question": "What's the MOND a_0 acceleration constant?",
+    "expected_value": 1.2e-10,
+    "expected_units": "m/s^2",
+    "tolerance_rel": 0.05,
+    "primary_tool_expected": "mond_a0_constant",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Milgrom 1983; SPARC 2016",
+    "notes": "Empirical constant; intriguingly close to c H_0 / (2 pi)"
+  },
+  {
+    "id": "cosmo_007",
+    "domain": "cosmology",
+    "course_level": "year_4",
+    "question": "What's eta in the sigma-ground library, and where does its value come from?",
+    "expected_value": 0.412,
+    "expected_units": "",
+    "tolerance_rel": 0.02,
+    "primary_tool_expected": "eta_value_report",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "DESI 2024 Union3, arXiv:2411.08639",
+    "notes": "Empirical input parameter; c^2 from DESI Union3 HDE fit"
+  },
+  {
+    "id": "cosmo_008",
+    "domain": "cosmology",
+    "course_level": "year_4",
+    "question": "How old is the universe in seconds, approximately?",
+    "expected_value": 4.35e+17,
+    "expected_units": "s",
+    "tolerance_rel": 0.05,
+    "primary_tool_expected": "age_of_universe",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Planck 2018",
+    "notes": "Hubble time in seconds; ~14 Gyr in s"
+  },
+  {
+    "id": "nuc_001",
+    "domain": "nuclear_physics",
+    "course_level": "year_3",
+    "question": "How much energy is released when 1 kg of mass is fully converted (like in matter-antimatter annihilation)?",
+    "expected_value": 9e+16,
+    "expected_units": "J",
+    "tolerance_rel": 0.01,
+    "primary_tool_expected": "mass_to_energy",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "E = mc^2",
+    "notes": "8.988e16 J = ~21 megatons TNT"
+  },
+  {
+    "id": "nuc_002",
+    "domain": "nuclear_physics",
+    "course_level": "year_3",
+    "question": "1 kg of mass converted to energy equals how many megatons of TNT?",
+    "expected_value": 21.5,
+    "expected_units": "MT_TNT",
+    "tolerance_rel": 0.01,
+    "primary_tool_expected": "joules_to_TNT",
+    "secondary_tools_expected": [
+      "mass_to_energy"
+    ],
+    "ground_truth_source": "E = mc^2 + IUPAC TNT eq.",
+    "notes": "8.988e16 J / 4.184e15 J/MT = 21.48 MT"
+  },
+  {
+    "id": "nuc_003",
+    "domain": "nuclear_physics",
+    "course_level": "year_3",
+    "question": "How much energy in eV does an alpha particle (4 amu) carry at 5 MeV?",
+    "expected_value": 5000000.0,
+    "expected_units": "eV",
+    "tolerance_rel": 0.001,
+    "primary_tool_expected": "eV_to_joules",
+    "secondary_tools_expected": [
+      "joules_to_eV"
+    ],
+    "ground_truth_source": "Krane Intro Nuclear Physics",
+    "notes": "Trivial unit-check question"
+  },
+  {
+    "id": "nuc_004",
+    "domain": "nuclear_physics",
+    "course_level": "year_3",
+    "question": "Typical fission of one uranium-235 nucleus releases about 200 MeV. How many joules is that?",
+    "expected_value": 3.2e-11,
+    "expected_units": "J",
+    "tolerance_rel": 0.02,
+    "primary_tool_expected": "eV_to_joules",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Krane Intro Nuclear Physics",
+    "notes": "200e6 eV * 1.6e-19 J/eV"
+  },
+  {
+    "id": "nuc_005",
+    "domain": "nuclear_physics",
+    "course_level": "year_3",
+    "question": "1 kg of U-235 fully fissioned releases how many megatons TNT?",
+    "expected_value": 19.6,
+    "expected_units": "MT_TNT",
+    "tolerance_rel": 0.1,
+    "primary_tool_expected": "joules_to_TNT",
+    "secondary_tools_expected": [
+      "solve_equation"
+    ],
+    "ground_truth_source": "Nuclear weapons reference",
+    "notes": "200 MeV/fission * N_A/235 * 1 kg ~ 8.2e13 J -> 19.6 kt. Actually order of magnitude: 1 kg gives ~17 kt (Hiroshima used 64 kg)."
+  },
+  {
+    "id": "nuc_006",
+    "domain": "nuclear_physics",
+    "course_level": "year_3",
+    "question": "Deuterium-tritium fusion releases 17.6 MeV per reaction. How many joules?",
+    "expected_value": 2.82e-12,
+    "expected_units": "J",
+    "tolerance_rel": 0.02,
+    "primary_tool_expected": "eV_to_joules",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Krane Intro Nuclear Physics",
+    "notes": "17.6e6 eV * 1.6e-19"
+  },
+  {
+    "id": "nuc_007",
+    "domain": "nuclear_physics",
+    "course_level": "year_3",
+    "question": "How much mass is converted to energy in a 1-megaton thermonuclear explosion?",
+    "expected_value": 0.0465,
+    "expected_units": "kg",
+    "tolerance_rel": 0.02,
+    "primary_tool_expected": "energy_to_mass",
+    "secondary_tools_expected": [
+      "joules_to_TNT"
+    ],
+    "ground_truth_source": "Glasstone & Dolan Effects of Nuclear Weapons",
+    "notes": "1 MT = 4.184e15 J / c^2 = 46.5 g of mass converted"
+  },
+  {
+    "id": "math_001",
+    "domain": "mathematical_methods",
+    "course_level": "year_1",
+    "question": "What's the solution to the equation x squared minus 4 equals zero?",
+    "expected_value": [
+      -2,
+      2
+    ],
+    "expected_units": "",
+    "tolerance_rel": 0.001,
+    "primary_tool_expected": "solve_equation",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Standard algebra",
+    "notes": "Both roots; tool returns list"
+  },
+  {
+    "id": "math_002",
+    "domain": "mathematical_methods",
+    "course_level": "year_2",
+    "question": "What's the integral of x squared from 0 to 1?",
+    "expected_value": 0.3333333333333333,
+    "expected_units": "",
+    "tolerance_rel": 0.001,
+    "primary_tool_expected": "integrate_expr",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Standard calculus",
+    "notes": "[x^3/3] from 0 to 1 = 1/3"
+  },
+  {
+    "id": "math_003",
+    "domain": "mathematical_methods",
+    "course_level": "year_2",
+    "question": "What's the derivative of sine of x?",
+    "expected_value": "cos(x)",
+    "expected_units": "",
+    "tolerance_rel": 0,
+    "primary_tool_expected": "differentiate_expr",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Standard calculus",
+    "notes": "d/dx sin(x) = cos(x)"
+  },
+  {
+    "id": "math_004",
+    "domain": "mathematical_methods",
+    "course_level": "year_2",
+    "question": "Solve x cubed minus 6 x squared plus 11 x minus 6 equals zero.",
+    "expected_value": [
+      1,
+      2,
+      3
+    ],
+    "expected_units": "",
+    "tolerance_rel": 0.001,
+    "primary_tool_expected": "solve_equation",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Standard algebra (Cardano roots are 1, 2, 3)",
+    "notes": "(x-1)(x-2)(x-3) = 0"
+  },
+  {
+    "id": "math_005",
+    "domain": "mathematical_methods",
+    "course_level": "year_3",
+    "question": "What's the integral of 1 over (1 plus x squared) from minus infinity to infinity?",
+    "expected_value": 3.14159265358979,
+    "expected_units": "",
+    "tolerance_rel": 0.001,
+    "primary_tool_expected": "integrate_expr",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Standard calculus",
+    "notes": "= pi; arctan from -inf to inf"
+  },
+  {
+    "id": "math_006",
+    "domain": "mathematical_methods",
+    "course_level": "year_2",
+    "question": "Convert 1 light year to meters.",
+    "expected_value": 9460700000000000.0,
+    "expected_units": "m",
+    "tolerance_rel": 0.001,
+    "primary_tool_expected": "convert_units",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "IAU 2015",
+    "notes": "1 ly = c * 1 julian year"
+  },
+  {
+    "id": "math_007",
+    "domain": "mathematical_methods",
+    "course_level": "year_2",
+    "question": "Simplify sine squared plus cosine squared.",
+    "expected_value": 1,
+    "expected_units": "",
+    "tolerance_rel": 0.001,
+    "primary_tool_expected": "simplify_expr",
+    "secondary_tools_expected": [],
+    "ground_truth_source": "Pythagorean identity",
+    "notes": "Tests symbolic simplification"
+  }
+]

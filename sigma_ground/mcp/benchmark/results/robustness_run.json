@@ -1,0 +1,1370 @@
+[
+  {
+    "id": "para_rs_01",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "",
+    "extracted_value": 2953.383939028493,
+    "extracted_units": "m",
+    "tool_calls": [
+      {
+        "name": "schwarzschild_radius",
+        "args": {
+          "mass_kg": 1.9885e+30
+        },
+        "result_text": "{\n  \"value\": 2953.383939028493,\n  \"units\": \"m\",\n  \"source\": \"sigma_ground.field.gr_basics (standard Schwarzschild)\",\n  \"uncertainty\": null,\n  \"formula\": \"r_s = 2 G M / c^2\",\n  \"provenance_tag\": null,\n  \"notes\": \"Event horizon radius for non-rotating uncharged black hole.\",\n  \"inputs\": {\n    \"mass_kg\": 1.9885e30\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 4,
+    "elapsed_s": 10.257995128631592,
+    "extracted_via_fallback": true,
+    "nudges_sent": 2,
+    "grounded": true,
+    "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
+  },
+  {
+    "id": "para_rs_02",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "",
+    "extracted_value": 2953.383939028493,
+    "extracted_units": "m",
+    "tool_calls": [
+      {
+        "name": "schwarzschild_radius",
+        "args": {
+          "speed_of_light": 299792458,
+          "mass_kg": 1.9885e+30,
+          "gravitational_constant": 6.6743e-11
+        },
+        "result_text": "{\n  \"value\": 2953.383939028493,\n  \"units\": \"m\",\n  \"source\": \"sigma_ground.field.gr_basics (standard Schwarzschild)\",\n  \"uncertainty\": null,\n  \"formula\": \"r_s = 2 G M / c^2\",\n  \"provenance_tag\": null,\n  \"notes\": \"Event horizon radius for non-rotating uncharged black hole.\",\n  \"inputs\": {\n    \"mass_kg\": 1.9885e30\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 4,
+    "elapsed_s": 7.931334972381592,
+    "extracted_via_fallback": true,
+    "nudges_sent": 2,
+    "grounded": true,
+    "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
+  },
+  {
+    "id": "para_rs_03",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "<exceeded max turns>",
+    "extracted_value": 5772.0,
+    "extracted_units": "K",
+    "tool_calls": [
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "sun"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 1.98892e30,\n    \"radius_m\": 695700000.0,\n    \"luminosity_w\": 3.828e26,\n    \"surface_temp_k\": 5772.0\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via IAU 2015 nominal solar values\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"sun\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "sun"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 1.98892e30,\n    \"radius_m\": 695700000.0,\n    \"luminosity_w\": 3.828e26,\n    \"surface_temp_k\": 5772.0\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via IAU 2015 nominal solar values\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"sun\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "sun"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 1.98892e30,\n    \"radius_m\": 695700000.0,\n    \"luminosity_w\": 3.828e26,\n    \"surface_temp_k\": 5772.0\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via IAU 2015 nominal solar values\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"sun\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "sun"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 1.98892e30,\n    \"radius_m\": 695700000.0,\n    \"luminosity_w\": 3.828e26,\n    \"surface_temp_k\": 5772.0\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via IAU 2015 nominal solar values\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"sun\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "sun"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 1.98892e30,\n    \"radius_m\": 695700000.0,\n    \"luminosity_w\": 3.828e26,\n    \"surface_temp_k\": 5772.0\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via IAU 2015 nominal solar values\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"sun\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "sun"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 1.98892e30,\n    \"radius_m\": 695700000.0,\n    \"luminosity_w\": 3.828e26,\n    \"surface_temp_k\": 5772.0\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via IAU 2015 nominal solar values\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"sun\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "sun"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 1.98892e30,\n    \"radius_m\": 695700000.0,\n    \"luminosity_w\": 3.828e26,\n    \"surface_temp_k\": 5772.0\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via IAU 2015 nominal solar values\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"sun\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "sun"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 1.98892e30,\n    \"radius_m\": 695700000.0,\n    \"luminosity_w\": 3.828e26,\n    \"surface_temp_k\": 5772.0\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via IAU 2015 nominal solar values\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"sun\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 8,
+    "elapsed_s": 11.773727893829346,
+    "extracted_via_fallback": true,
+    "nudges_sent": 7,
+    "grounded": true,
+    "groundedness_reason": "LLM tool-grounded (8 tool call(s))"
+  },
+  {
+    "id": "para_rs_04",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n",
+    "extracted_value": null,
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 3,
+    "elapsed_s": 4.144520044326782,
+    "extracted_via_fallback": false,
+    "nudges_sent": 2,
+    "grounded": false,
+    "groundedness_reason": "no value produced (error/empty)"
+  },
+  {
+    "id": "para_esc_01",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "<exceeded max turns>",
+    "extracted_value": 11179.927972637128,
+    "extracted_units": "m/s",
+    "tool_calls": [
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 0
+        },
+        "result_text": "{\n  \"value\": null,\n  \"units\": \"\",\n  \"source\": \"invalid input\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"wavelength_m\": 0.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_frequency",
+        "args": {
+          "wavelength_m": 0
+        },
+        "result_text": "{\n  \"value\": null,\n  \"units\": \"\",\n  \"source\": \"invalid input\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"wavelength_m\": 0.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_frequency",
+        "args": {
+          "refractive_index": 1,
+          "wavelength_m": 0
+        },
+        "result_text": "{\n  \"value\": null,\n  \"units\": \"\",\n  \"source\": \"invalid input\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"wavelength_m\": 0.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_frequency",
+        "args": {
+          "wavelength_m": 0,
+          "refractive_index": 1
+        },
+        "result_text": "{\n  \"value\": null,\n  \"units\": \"\",\n  \"source\": \"invalid input\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"wavelength_m\": 0.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "escape_velocity",
+        "args": {
+          "mass_kg": 5.97219e+24,
+          "radius_m": 6378100.0
+        },
+        "result_text": "{\n  \"value\": 11179.927972637128,\n  \"units\": \"m/s\",\n  \"source\": \"sigma-ground (classical escape velocity)\",\n  \"uncertainty\": null,\n  \"formula\": \"v_esc = sqrt(2 G M / r)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Velocity needed to escape gravitational binding to infinity. For Earth's surface, ~11.2 km/s. For the Sun's surface, ~617 km/s. When v_esc -> c, you're at the Schwarzschild radius.\",\n  \"inputs\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": [
+          "chained solar_system_body('earth')"
+        ]
+      },
+      {
+        "name": "ohms_law_voltage",
+        "args": {
+          "current_a": 0,
+          "resistance_ohm": 0
+        },
+        "result_text": "{\n  \"value\": 0.0,\n  \"units\": \"V\",\n  \"source\": \"sigma-ground (Ohm's law)\",\n  \"uncertainty\": null,\n  \"formula\": \"V = I R\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"current_a\": 0.0,\n    \"resistance_ohm\": 0.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 0
+        },
+        "result_text": "{\n  \"value\": null,\n  \"units\": \"\",\n  \"source\": \"invalid input\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"wavelength_m\": 0.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_frequency",
+        "args": {
+          "wavelength_m": 0
+        },
+        "result_text": "{\n  \"value\": null,\n  \"units\": \"\",\n  \"source\": \"invalid input\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"wavelength_m\": 0.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "de_broglie_wavelength",
+        "args": {
+          "mass_kg": 0,
+          "velocity_m_s": 0
+        },
+        "result_text": "{\n  \"value\": null,\n  \"units\": \"\",\n  \"source\": \"invalid input\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"mass_kg\": 0.0,\n    \"velocity_m_s\": 0.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "first_ionization_energy",
+        "args": {
+          "element_symbol": "H"
+        },
+        "result_text": "{\n  \"value\": 13.598,\n  \"units\": \"eV\",\n  \"source\": \"sigma-ground via NIST ASD (Hydrogen, ground state)\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"First ionization energy: minimum energy to remove the outermost electron from the neutral atom. Larger IE -> less reactive (noble gases peak).\",\n  \"inputs\": {\n    \"element_symbol\": \"H\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "hydrogen_like_energy_level",
+        "args": {
+          "atomic_number": 1,
+          "n": 1
+        },
+        "result_text": "{\n  \"value\": -13.605693122994,\n  \"units\": \"eV\",\n  \"source\": \"sigma-ground (Bohr model / Schrodinger hydrogen-like)\",\n  \"uncertainty\": null,\n  \"formula\": \"E_n = -Ry Z^2 / n^2\",\n  \"provenance_tag\": null,\n  \"notes\": \"Ground state of hydrogen (n=1, Z=1): -13.606 eV. Bound states are negative. Ionization energy from level n is |E_n|.\",\n  \"inputs\": {\n    \"n\": 1,\n    \"atomic_number\": 1\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "hydrogen_like_energy_level",
+        "args": {
+          "n": 1,
+          "atomic_number": 1
+        },
+        "result_text": "{\n  \"value\": -13.605693122994,\n  \"units\": \"eV\",\n  \"source\": \"sigma-ground (Bohr model / Schrodinger hydrogen-like)\",\n  \"uncertainty\": null,\n  \"formula\": \"E_n = -Ry Z^2 / n^2\",\n  \"provenance_tag\": null,\n  \"notes\": \"Ground state of hydrogen (n=1, Z=1): -13.606 eV. Bound states are negative. Ionization energy from level n is |E_n|.\",\n  \"inputs\": {\n    \"n\": 1,\n    \"atomic_number\": 1\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "escape_velocity",
+        "args": {
+          "mass_kg": 5.97219e+24,
+          "radius_m": 6378100.0
+        },
+        "result_text": "{\n  \"value\": 11179.927972637128,\n  \"units\": \"m/s\",\n  \"source\": \"sigma-ground (classical escape velocity)\",\n  \"uncertainty\": null,\n  \"formula\": \"v_esc = sqrt(2 G M / r)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Velocity needed to escape gravitational binding to infinity. For Earth's surface, ~11.2 km/s. For the Sun's surface, ~617 km/s. When v_esc -> c, you're at the Schwarzschild radius.\",\n  \"inputs\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": [
+          "chained solar_system_body('earth')"
+        ]
+      }
+    ],
+    "turns": 8,
+    "elapsed_s": 21.961776971817017,
+    "extracted_via_fallback": true,
+    "nudges_sent": 3,
+    "grounded": true,
+    "groundedness_reason": "LLM tool-grounded (13 tool call(s))"
+  },
+  {
+    "id": "para_esc_02",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<ERROR: >",
+    "extracted_value": null,
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.0,
+    "grounded": false,
+    "groundedness_reason": "no value produced (error/empty)"
+  },
+  {
+    "id": "para_c_01",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "<exceeded max turns>",
+    "extracted_value": 599584916000000.0,
+    "extracted_units": "Hz",
+    "tool_calls": [
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 0
+        },
+        "result_text": "{\n  \"value\": null,\n  \"units\": \"\",\n  \"source\": \"invalid input\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 0.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 0,
+          "refractive_index": 1
+        },
+        "result_text": "{\n  \"value\": null,\n  \"units\": \"\",\n  \"source\": \"invalid input\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 0.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 0,
+          "refractive_index": 1
+        },
+        "result_text": "{\n  \"value\": null,\n  \"units\": \"\",\n  \"source\": \"invalid input\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 0.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 1000000000000000
+        },
+        "result_text": "{\n  \"value\": 2.99792458e-7,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 1000000000000000.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 1000000000000000,
+          "refractive_index": 1
+        },
+        "result_text": "{\n  \"value\": 2.99792458e-7,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 1000000000000000.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 300000000
+        },
+        "result_text": "{\n  \"value\": 0.9993081933333333,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 300000000.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_frequency",
+        "args": {
+          "wavelength_m": 1e-07
+        },
+        "result_text": "{\n  \"value\": 2997924580000000.0,\n  \"units\": \"Hz\",\n  \"source\": \"sigma-ground (EM wave dispersion)\",\n  \"uncertainty\": null,\n  \"formula\": \"f = c / (n lambda)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"wavelength_m\": 1e-7,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_frequency",
+        "args": {
+          "wavelength_m": 1e-07
+        },
+        "result_text": "{\n  \"value\": 2997924580000000.0,\n  \"units\": \"Hz\",\n  \"source\": \"sigma-ground (EM wave dispersion)\",\n  \"uncertainty\": null,\n  \"formula\": \"f = c / (n lambda)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"wavelength_m\": 1e-7,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_frequency",
+        "args": {
+          "wavelength_m": 5e-07
+        },
+        "result_text": "{\n  \"value\": 599584916000000.0,\n  \"units\": \"Hz\",\n  \"source\": \"sigma-ground (EM wave dispersion)\",\n  \"uncertainty\": null,\n  \"formula\": \"f = c / (n lambda)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"wavelength_m\": 5e-7,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 8,
+    "elapsed_s": 14.547606706619263,
+    "extracted_via_fallback": true,
+    "nudges_sent": 3,
+    "grounded": true,
+    "groundedness_reason": "LLM tool-grounded (9 tool call(s))"
+  },
+  {
+    "id": "para_ph_01",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "<exceeded max turns>",
+    "extracted_value": 3.9728917118635906e-19,
+    "extracted_units": "J",
+    "tool_calls": [
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 5e-07
+        },
+        "result_text": "{\n  \"value\": 3.9728917118635906e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h c / lambda\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 2.48 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.\",\n  \"inputs\": {\n    \"wavelength_m\": 5e-7\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 5e-07
+        },
+        "result_text": "{\n  \"value\": 3.9728917118635906e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h c / lambda\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 2.48 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.\",\n  \"inputs\": {\n    \"wavelength_m\": 5e-7\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 5e-07
+        },
+        "result_text": "{\n  \"value\": 3.9728917118635906e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h c / lambda\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 2.48 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.\",\n  \"inputs\": {\n    \"wavelength_m\": 5e-7\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 5e-07
+        },
+        "result_text": "{\n  \"value\": 3.9728917118635906e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h c / lambda\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 2.48 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.\",\n  \"inputs\": {\n    \"wavelength_m\": 5e-7\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 5e-07
+        },
+        "result_text": "{\n  \"value\": 3.9728917118635906e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h c / lambda\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 2.48 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.\",\n  \"inputs\": {\n    \"wavelength_m\": 5e-7\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 5e-07
+        },
+        "result_text": "{\n  \"value\": 3.9728917118635906e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h c / lambda\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 2.48 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.\",\n  \"inputs\": {\n    \"wavelength_m\": 5e-7\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 5e-07
+        },
+        "result_text": "{\n  \"value\": 3.9728917118635906e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h c / lambda\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 2.48 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.\",\n  \"inputs\": {\n    \"wavelength_m\": 5e-7\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 5e-07
+        },
+        "result_text": "{\n  \"value\": 3.9728917118635906e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h c / lambda\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 2.48 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.\",\n  \"inputs\": {\n    \"wavelength_m\": 5e-7\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 8,
+    "elapsed_s": 11.67893362045288,
+    "extracted_via_fallback": true,
+    "nudges_sent": 7,
+    "grounded": true,
+    "groundedness_reason": "LLM tool-grounded (8 tool call(s))"
+  },
+  {
+    "id": "para_db_01",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "<exceeded max turns>",
+    "extracted_value": 1.227148841717165e-10,
+    "extracted_units": "m",
+    "tool_calls": [
+      {
+        "name": "de_broglie_wavelength",
+        "args": {
+          "mass_kg": 9.10938356e-31,
+          "velocity_m_s": 22340000
+        },
+        "result_text": "{\n  \"value\": 3.255996066152828e-11,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (de Broglie 1924)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = h / (m v)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Matter wave. Electron at 1 keV: ~0.04 nm (X-ray scale). Proton at thermal speed (300 K, ~2500 m/s): ~80 nm. Macroscopic objects: << atomic scale, no diffraction.\",\n  \"inputs\": {\n    \"mass_kg\": 9.10938356e-31,\n    \"velocity_m_s\": 22340000.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "de_broglie_wavelength",
+        "args": {
+          "mass_kg": 9.10938356e-31,
+          "velocity_m_s": 22340000
+        },
+        "result_text": "{\n  \"value\": 3.255996066152828e-11,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (de Broglie 1924)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = h / (m v)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Matter wave. Electron at 1 keV: ~0.04 nm (X-ray scale). Proton at thermal speed (300 K, ~2500 m/s): ~80 nm. Macroscopic objects: << atomic scale, no diffraction.\",\n  \"inputs\": {\n    \"mass_kg\": 9.10938356e-31,\n    \"velocity_m_s\": 22340000.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "de_broglie_wavelength",
+        "args": {
+          "mass_kg": 9.10938356e-31,
+          "velocity_m_s": 592747.592
+        },
+        "result_text": "{\n  \"value\": 1.2271488420969273e-9,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (de Broglie 1924)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = h / (m v)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Matter wave. Electron at 1 keV: ~0.04 nm (X-ray scale). Proton at thermal speed (300 K, ~2500 m/s): ~80 nm. Macroscopic objects: << atomic scale, no diffraction.\",\n  \"inputs\": {\n    \"mass_kg\": 9.10938356e-31,\n    \"velocity_m_s\": 592747.592\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "de_broglie_wavelength",
+        "args": {
+          "mass_kg": 9.10938356e-31,
+          "velocity_m_s": 592747.592
+        },
+        "result_text": "{\n  \"value\": 1.2271488420969273e-9,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (de Broglie 1924)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = h / (m v)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Matter wave. Electron at 1 keV: ~0.04 nm (X-ray scale). Proton at thermal speed (300 K, ~2500 m/s): ~80 nm. Macroscopic objects: << atomic scale, no diffraction.\",\n  \"inputs\": {\n    \"mass_kg\": 9.10938356e-31,\n    \"velocity_m_s\": 592747.592\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "de_broglie_wavelength",
+        "args": {
+          "mass_kg": 9.10938356e-31,
+          "velocity_m_s": 592747.592
+        },
+        "result_text": "{\n  \"value\": 1.2271488420969273e-9,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (de Broglie 1924)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = h / (m v)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Matter wave. Electron at 1 keV: ~0.04 nm (X-ray scale). Proton at thermal speed (300 K, ~2500 m/s): ~80 nm. Macroscopic objects: << atomic scale, no diffraction.\",\n  \"inputs\": {\n    \"mass_kg\": 9.10938356e-31,\n    \"velocity_m_s\": 592747.592\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "de_broglie_wavelength",
+        "args": {
+          "mass_kg": 9.10938356e-31,
+          "velocity_m_s": 592747.592
+        },
+        "result_text": "{\n  \"value\": 1.2271488420969273e-9,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (de Broglie 1924)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = h / (m v)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Matter wave. Electron at 1 keV: ~0.04 nm (X-ray scale). Proton at thermal speed (300 K, ~2500 m/s): ~80 nm. Macroscopic objects: << atomic scale, no diffraction.\",\n  \"inputs\": {\n    \"mass_kg\": 9.10938356e-31,\n    \"velocity_m_s\": 592747.592\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "de_broglie_wavelength",
+        "args": {
+          "mass_kg": 9.10938356e-31,
+          "velocity_m_s": 592747.592
+        },
+        "result_text": "{\n  \"value\": 1.2271488420969273e-9,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (de Broglie 1924)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = h / (m v)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Matter wave. Electron at 1 keV: ~0.04 nm (X-ray scale). Proton at thermal speed (300 K, ~2500 m/s): ~80 nm. Macroscopic objects: << atomic scale, no diffraction.\",\n  \"inputs\": {\n    \"mass_kg\": 9.10938356e-31,\n    \"velocity_m_s\": 592747.592\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "de_broglie_wavelength",
+        "args": {
+          "mass_kg": 9.10938356e-31,
+          "velocity_m_s": 5927475.921834358
+        },
+        "result_text": "{\n  \"value\": 1.227148841717165e-10,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (de Broglie 1924)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = h / (m v)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Matter wave. Electron at 1 keV: ~0.04 nm (X-ray scale). Proton at thermal speed (300 K, ~2500 m/s): ~80 nm. Macroscopic objects: << atomic scale, no diffraction.\",\n  \"inputs\": {\n    \"mass_kg\": 9.10938356e-31,\n    \"velocity_m_s\": 5927475.921834358\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 8,
+    "elapsed_s": 13.75333833694458,
+    "extracted_via_fallback": true,
+    "nudges_sent": 5,
+    "grounded": true,
+    "groundedness_reason": "LLM tool-grounded (8 tool call(s))"
+  },
+  {
+    "id": "para_orb_01",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "<exceeded max turns>",
+    "extracted_value": 5.97219e+24,
+    "extracted_units": "kg",
+    "tool_calls": [
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "earth"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0,\n    \"semimajor_axis_au\": 1.000001018,\n    \"orbital_period_d\": 365.256,\n    \"surface_g_ms2\": 9.80665\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"earth\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "earth"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0,\n    \"semimajor_axis_au\": 1.000001018,\n    \"orbital_period_d\": 365.256,\n    \"surface_g_ms2\": 9.80665\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"earth\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "earth"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0,\n    \"semimajor_axis_au\": 1.000001018,\n    \"orbital_period_d\": 365.256,\n    \"surface_g_ms2\": 9.80665\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"earth\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "earth"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0,\n    \"semimajor_axis_au\": 1.000001018,\n    \"orbital_period_d\": 365.256,\n    \"surface_g_ms2\": 9.80665\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"earth\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "earth"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0,\n    \"semimajor_axis_au\": 1.000001018,\n    \"orbital_period_d\": 365.256,\n    \"surface_g_ms2\": 9.80665\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"earth\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "earth"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0,\n    \"semimajor_axis_au\": 1.000001018,\n    \"orbital_period_d\": 365.256,\n    \"surface_g_ms2\": 9.80665\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"earth\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "earth"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0,\n    \"semimajor_axis_au\": 1.000001018,\n    \"orbital_period_d\": 365.256,\n    \"surface_g_ms2\": 9.80665\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"earth\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "earth"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0,\n    \"semimajor_axis_au\": 1.000001018,\n    \"orbital_period_d\": 365.256,\n    \"surface_g_ms2\": 9.80665\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"earth\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 8,
+    "elapsed_s": 11.439038038253784,
+    "extracted_via_fallback": true,
+    "nudges_sent": 7,
+    "grounded": true,
+    "groundedness_reason": "LLM tool-grounded (8 tool call(s))"
+  },
+  {
+    "id": "mal_esc_01",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "<exceeded max turns>",
+    "extracted_value": 11179.927972637128,
+    "extracted_units": "m/s",
+    "tool_calls": [
+      {
+        "name": "escape_velocity",
+        "args": {
+          "mass_kg": 5.97219e+24,
+          "radius_m": 6378100.0
+        },
+        "result_text": "{\n  \"value\": 11179.927972637128,\n  \"units\": \"m/s\",\n  \"source\": \"sigma-ground (classical escape velocity)\",\n  \"uncertainty\": null,\n  \"formula\": \"v_esc = sqrt(2 G M / r)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Velocity needed to escape gravitational binding to infinity. For Earth's surface, ~11.2 km/s. For the Sun's surface, ~617 km/s. When v_esc -> c, you're at the Schwarzschild radius.\",\n  \"inputs\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": [
+          "chained solar_system_body('earth')"
+        ]
+      },
+      {
+        "name": "escape_velocity",
+        "args": {
+          "mass_kg": 5.97219e+24,
+          "radius_m": 6378100
+        },
+        "result_text": "{\n  \"value\": 11179.927972637128,\n  \"units\": \"m/s\",\n  \"source\": \"sigma-ground (classical escape velocity)\",\n  \"uncertainty\": null,\n  \"formula\": \"v_esc = sqrt(2 G M / r)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Velocity needed to escape gravitational binding to infinity. For Earth's surface, ~11.2 km/s. For the Sun's surface, ~617 km/s. When v_esc -> c, you're at the Schwarzschild radius.\",\n  \"inputs\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "escape_velocity",
+        "args": {
+          "mass_kg": 5.97219e+24,
+          "radius_m": 6378100
+        },
+        "result_text": "{\n  \"value\": 11179.927972637128,\n  \"units\": \"m/s\",\n  \"source\": \"sigma-ground (classical escape velocity)\",\n  \"uncertainty\": null,\n  \"formula\": \"v_esc = sqrt(2 G M / r)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Velocity needed to escape gravitational binding to infinity. For Earth's surface, ~11.2 km/s. For the Sun's surface, ~617 km/s. When v_esc -> c, you're at the Schwarzschild radius.\",\n  \"inputs\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "escape_velocity",
+        "args": {
+          "mass_kg": 5.97219e+24,
+          "radius_m": 6378100.0
+        },
+        "result_text": "{\n  \"value\": 11179.927972637128,\n  \"units\": \"m/s\",\n  \"source\": \"sigma-ground (classical escape velocity)\",\n  \"uncertainty\": null,\n  \"formula\": \"v_esc = sqrt(2 G M / r)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Velocity needed to escape gravitational binding to infinity. For Earth's surface, ~11.2 km/s. For the Sun's surface, ~617 km/s. When v_esc -> c, you're at the Schwarzschild radius.\",\n  \"inputs\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": [
+          "chained solar_system_body('earth')"
+        ]
+      },
+      {
+        "name": "escape_velocity",
+        "args": {
+          "mass_kg": 5.97219e+24,
+          "radius_m": 6378100
+        },
+        "result_text": "{\n  \"value\": 11179.927972637128,\n  \"units\": \"m/s\",\n  \"source\": \"sigma-ground (classical escape velocity)\",\n  \"uncertainty\": null,\n  \"formula\": \"v_esc = sqrt(2 G M / r)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Velocity needed to escape gravitational binding to infinity. For Earth's surface, ~11.2 km/s. For the Sun's surface, ~617 km/s. When v_esc -> c, you're at the Schwarzschild radius.\",\n  \"inputs\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "escape_velocity",
+        "args": {
+          "mass_kg": 5.97219e+24,
+          "radius_m": 6378100.0
+        },
+        "result_text": "{\n  \"value\": 11179.927972637128,\n  \"units\": \"m/s\",\n  \"source\": \"sigma-ground (classical escape velocity)\",\n  \"uncertainty\": null,\n  \"formula\": \"v_esc = sqrt(2 G M / r)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Velocity needed to escape gravitational binding to infinity. For Earth's surface, ~11.2 km/s. For the Sun's surface, ~617 km/s. When v_esc -> c, you're at the Schwarzschild radius.\",\n  \"inputs\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": [
+          "chained solar_system_body('earth')"
+        ]
+      },
+      {
+        "name": "escape_velocity",
+        "args": {
+          "mass_kg": 5.97219e+24,
+          "radius_m": 6378100
+        },
+        "result_text": "{\n  \"value\": 11179.927972637128,\n  \"units\": \"m/s\",\n  \"source\": \"sigma-ground (classical escape velocity)\",\n  \"uncertainty\": null,\n  \"formula\": \"v_esc = sqrt(2 G M / r)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Velocity needed to escape gravitational binding to infinity. For Earth's surface, ~11.2 km/s. For the Sun's surface, ~617 km/s. When v_esc -> c, you're at the Schwarzschild radius.\",\n  \"inputs\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "escape_velocity",
+        "args": {
+          "mass_kg": 5.97219e+24,
+          "radius_m": 6378100
+        },
+        "result_text": "{\n  \"value\": 11179.927972637128,\n  \"units\": \"m/s\",\n  \"source\": \"sigma-ground (classical escape velocity)\",\n  \"uncertainty\": null,\n  \"formula\": \"v_esc = sqrt(2 G M / r)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Velocity needed to escape gravitational binding to infinity. For Earth's surface, ~11.2 km/s. For the Sun's surface, ~617 km/s. When v_esc -> c, you're at the Schwarzschild radius.\",\n  \"inputs\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 8,
+    "elapsed_s": 11.82502794265747,
+    "extracted_via_fallback": true,
+    "nudges_sent": 3,
+    "grounded": true,
+    "groundedness_reason": "LLM tool-grounded (8 tool call(s))"
+  },
+  {
+    "id": "mal_c_01",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "<exceeded max turns>",
+    "extracted_value": 0.9993081933333333,
+    "extracted_units": "m",
+    "tool_calls": [
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 0
+        },
+        "result_text": "{\n  \"value\": null,\n  \"units\": \"\",\n  \"source\": \"invalid input\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 0.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 0,
+          "refractive_index": 1
+        },
+        "result_text": "{\n  \"value\": null,\n  \"units\": \"\",\n  \"source\": \"invalid input\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 0.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 0,
+          "refractive_index": 1
+        },
+        "result_text": "{\n  \"value\": null,\n  \"units\": \"\",\n  \"source\": \"invalid input\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 0.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 500000000000000
+        },
+        "result_text": "{\n  \"value\": 5.99584916e-7,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 500000000000000.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 500000000000000,
+          "refractive_index": 1
+        },
+        "result_text": "{\n  \"value\": 5.99584916e-7,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 500000000000000.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 300000000
+        },
+        "result_text": "{\n  \"value\": 0.9993081933333333,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 300000000.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 300000000,
+          "refractive_index": 1
+        },
+        "result_text": "{\n  \"value\": 0.9993081933333333,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 300000000.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 300000000,
+          "refractive_index": 1
+        },
+        "result_text": "{\n  \"value\": 0.9993081933333333,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 300000000.0,\n    \"refractive_index\": 1.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 8,
+    "elapsed_s": 11.78009557723999,
+    "extracted_via_fallback": true,
+    "nudges_sent": 3,
+    "grounded": true,
+    "groundedness_reason": "LLM tool-grounded (8 tool call(s))"
+  },
+  {
+    "id": "mal_rs_01",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "<exceeded max turns>",
+    "extracted_value": 5772.0,
+    "extracted_units": "K",
+    "tool_calls": [
+      {
+        "name": "schwarzschild_radius",
+        "args": {
+          "mass_kg": 1.9885e+30,
+          "gravitational_constant": 6.6743e-11,
+          "speed_of_light": 299792458
+        },
+        "result_text": "{\n  \"value\": 2953.383939028493,\n  \"units\": \"m\",\n  \"source\": \"sigma_ground.field.gr_basics (standard Schwarzschild)\",\n  \"uncertainty\": null,\n  \"formula\": \"r_s = 2 G M / c^2\",\n  \"provenance_tag\": null,\n  \"notes\": \"Event horizon radius for non-rotating uncharged black hole.\",\n  \"inputs\": {\n    \"mass_kg\": 1.9885e30\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "sun"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 1.98892e30,\n    \"radius_m\": 695700000.0,\n    \"luminosity_w\": 3.828e26,\n    \"surface_temp_k\": 5772.0\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via IAU 2015 nominal solar values\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"sun\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "sun"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 1.98892e30,\n    \"radius_m\": 695700000.0,\n    \"luminosity_w\": 3.828e26,\n    \"surface_temp_k\": 5772.0\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via IAU 2015 nominal solar values\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"sun\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "sun"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 1.98892e30,\n    \"radius_m\": 695700000.0,\n    \"luminosity_w\": 3.828e26,\n    \"surface_temp_k\": 5772.0\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via IAU 2015 nominal solar values\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"sun\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "sun"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 1.98892e30,\n    \"radius_m\": 695700000.0,\n    \"luminosity_w\": 3.828e26,\n    \"surface_temp_k\": 5772.0\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via IAU 2015 nominal solar values\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"sun\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "sun"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 1.98892e30,\n    \"radius_m\": 695700000.0,\n    \"luminosity_w\": 3.828e26,\n    \"surface_temp_k\": 5772.0\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via IAU 2015 nominal solar values\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"sun\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "sun"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 1.98892e30,\n    \"radius_m\": 695700000.0,\n    \"luminosity_w\": 3.828e26,\n    \"surface_temp_k\": 5772.0\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via IAU 2015 nominal solar values\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"sun\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 8,
+    "elapsed_s": 13.283078670501709,
+    "extracted_via_fallback": true,
+    "nudges_sent": 6,
+    "grounded": true,
+    "groundedness_reason": "LLM tool-grounded (7 tool call(s))"
+  },
+  {
+    "id": "mal_m_01",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "<exceeded max turns>",
+    "extracted_value": 5.97219e+24,
+    "extracted_units": "kg",
+    "tool_calls": [
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "earth"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0,\n    \"semimajor_axis_au\": 1.000001018,\n    \"orbital_period_d\": 365.256,\n    \"surface_g_ms2\": 9.80665\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"earth\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "earth"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0,\n    \"semimajor_axis_au\": 1.000001018,\n    \"orbital_period_d\": 365.256,\n    \"surface_g_ms2\": 9.80665\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"earth\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "earth"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0,\n    \"semimajor_axis_au\": 1.000001018,\n    \"orbital_period_d\": 365.256,\n    \"surface_g_ms2\": 9.80665\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"earth\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "earth"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0,\n    \"semimajor_axis_au\": 1.000001018,\n    \"orbital_period_d\": 365.256,\n    \"surface_g_ms2\": 9.80665\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"earth\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "earth"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0,\n    \"semimajor_axis_au\": 1.000001018,\n    \"orbital_period_d\": 365.256,\n    \"surface_g_ms2\": 9.80665\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"earth\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "earth"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0,\n    \"semimajor_axis_au\": 1.000001018,\n    \"orbital_period_d\": 365.256,\n    \"surface_g_ms2\": 9.80665\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"earth\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "earth"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0,\n    \"semimajor_axis_au\": 1.000001018,\n    \"orbital_period_d\": 365.256,\n    \"surface_g_ms2\": 9.80665\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"earth\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "solar_system_body",
+        "args": {
+          "body_name": "earth"
+        },
+        "result_text": "{\n  \"value\": {\n    \"mass_kg\": 5.97219e24,\n    \"radius_m\": 6378100.0,\n    \"semimajor_axis_au\": 1.000001018,\n    \"orbital_period_d\": 365.256,\n    \"surface_g_ms2\": 9.80665\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.\",\n  \"inputs\": {\n    \"body_name\": \"earth\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 8,
+    "elapsed_s": 12.25779914855957,
+    "extracted_via_fallback": true,
+    "nudges_sent": 7,
+    "grounded": true,
+    "groundedness_reason": "LLM tool-grounded (8 tool call(s))"
+  },
+  {
+    "id": "mal_ph_01",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "<exceeded max turns>",
+    "extracted_value": 3.9728917118635906e-19,
+    "extracted_units": "J",
+    "tool_calls": [
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 5e-07
+        },
+        "result_text": "{\n  \"value\": 3.9728917118635906e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h c / lambda\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 2.48 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.\",\n  \"inputs\": {\n    \"wavelength_m\": 5e-7\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 5e-07
+        },
+        "result_text": "{\n  \"value\": 3.9728917118635906e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h c / lambda\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 2.48 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.\",\n  \"inputs\": {\n    \"wavelength_m\": 5e-7\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 5e-07
+        },
+        "result_text": "{\n  \"value\": 3.9728917118635906e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h c / lambda\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 2.48 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.\",\n  \"inputs\": {\n    \"wavelength_m\": 5e-7\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 5e-07
+        },
+        "result_text": "{\n  \"value\": 3.9728917118635906e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h c / lambda\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 2.48 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.\",\n  \"inputs\": {\n    \"wavelength_m\": 5e-7\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 5e-07
+        },
+        "result_text": "{\n  \"value\": 3.9728917118635906e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h c / lambda\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 2.48 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.\",\n  \"inputs\": {\n    \"wavelength_m\": 5e-7\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 5e-07
+        },
+        "result_text": "{\n  \"value\": 3.9728917118635906e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h c / lambda\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 2.48 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.\",\n  \"inputs\": {\n    \"wavelength_m\": 5e-7\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 5e-07
+        },
+        "result_text": "{\n  \"value\": 3.9728917118635906e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h c / lambda\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 2.48 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.\",\n  \"inputs\": {\n    \"wavelength_m\": 5e-7\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 5e-07
+        },
+        "result_text": "{\n  \"value\": 3.9728917118635906e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h c / lambda\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 2.48 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.\",\n  \"inputs\": {\n    \"wavelength_m\": 5e-7\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 8,
+    "elapsed_s": 12.054419755935669,
+    "extracted_via_fallback": true,
+    "nudges_sent": 7,
+    "grounded": true,
+    "groundedness_reason": "LLM tool-grounded (8 tool call(s))"
+  },
+  {
+    "id": "mal_db_01",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "<exceeded max turns>",
+    "extracted_value": 8.21527959805773e-31,
+    "extracted_units": "J",
+    "tool_calls": [
+      {
+        "name": "de_broglie_wavelength",
+        "args": {
+          "mass_kg": 9.10938356e-31,
+          "velocity_m_s": null
+        },
+        "result_text": "Error executing tool de_broglie_wavelength: 1 validation error for de_broglie_wavelengthArguments\nvelocity_m_s\n  Input should be a valid number [type=float_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/float_type",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "de_broglie_wavelength",
+        "args": {
+          "mass_kg": 9.10938356e-31,
+          "velocity_m_s": 15000000
+        },
+        "result_text": "{\n  \"value\": 4.8492634745236114e-11,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (de Broglie 1924)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = h / (m v)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Matter wave. Electron at 1 keV: ~0.04 nm (X-ray scale). Proton at thermal speed (300 K, ~2500 m/s): ~80 nm. Macroscopic objects: << atomic scale, no diffraction.\",\n  \"inputs\": {\n    \"mass_kg\": 9.10938356e-31,\n    \"velocity_m_s\": 15000000.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "de_broglie_wavelength",
+        "args": {
+          "mass_kg": 9.10938356e-31,
+          "velocity_m_s": 15000000
+        },
+        "result_text": "{\n  \"value\": 4.8492634745236114e-11,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (de Broglie 1924)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = h / (m v)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Matter wave. Electron at 1 keV: ~0.04 nm (X-ray scale). Proton at thermal speed (300 K, ~2500 m/s): ~80 nm. Macroscopic objects: << atomic scale, no diffraction.\",\n  \"inputs\": {\n    \"mass_kg\": 9.10938356e-31,\n    \"velocity_m_s\": 15000000.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "de_broglie_wavelength",
+        "args": {
+          "mass_kg": 9.10938356e-31,
+          "velocity_m_s": 2187653.75
+        },
+        "result_text": "{\n  \"value\": 3.324975541392425e-10,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (de Broglie 1924)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = h / (m v)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Matter wave. Electron at 1 keV: ~0.04 nm (X-ray scale). Proton at thermal speed (300 K, ~2500 m/s): ~80 nm. Macroscopic objects: << atomic scale, no diffraction.\",\n  \"inputs\": {\n    \"mass_kg\": 9.10938356e-31,\n    \"velocity_m_s\": 2187653.75\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "de_broglie_wavelength",
+        "args": {
+          "mass_kg": 9.10938356e-31,
+          "velocity_m_s": 2187653.75
+        },
+        "result_text": "{\n  \"value\": 3.324975541392425e-10,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (de Broglie 1924)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = h / (m v)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Matter wave. Electron at 1 keV: ~0.04 nm (X-ray scale). Proton at thermal speed (300 K, ~2500 m/s): ~80 nm. Macroscopic objects: << atomic scale, no diffraction.\",\n  \"inputs\": {\n    \"mass_kg\": 9.10938356e-31,\n    \"velocity_m_s\": 2187653.75\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "de_broglie_wavelength",
+        "args": {
+          "mass_kg": 9.10938356e-31,
+          "velocity_m_s": null
+        },
+        "result_text": "Error executing tool de_broglie_wavelength: 1 validation error for de_broglie_wavelengthArguments\nvelocity_m_s\n  Input should be a valid number [type=float_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/float_type",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_frequency",
+        "args": {
+          "frequency_hz": null
+        },
+        "result_text": "Error executing tool photon_energy_from_frequency: 1 validation error for photon_energy_from_frequencyArguments\nfrequency_hz\n  Input should be a valid number [type=float_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/float_type",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_frequency",
+        "args": {
+          "frequency_hz": null
+        },
+        "result_text": "Error executing tool photon_energy_from_frequency: 1 validation error for photon_energy_from_frequencyArguments\nfrequency_hz\n  Input should be a valid number [type=float_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/float_type",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "photon_energy_from_frequency",
+        "args": {
+          "frequency_hz": 1239.84193
+        },
+        "result_text": "{\n  \"value\": 8.21527959805773e-31,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h f\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 5.128e-12 eV.\",\n  \"inputs\": {\n    \"frequency_hz\": 1239.84193\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 8,
+    "elapsed_s": 16.895058631896973,
+    "extracted_via_fallback": true,
+    "nudges_sent": 3,
+    "grounded": true,
+    "groundedness_reason": "LLM tool-grounded (9 tool call(s))"
+  },
+  {
+    "id": "clar_01",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: I can't compute the energy of 'thought barrier' \u2014 'thought' isn't a physics quantity or object I recognize, and physics doesn't define it. If you mean a real system (a photon, a particle, a mass), tell me which and I'll compute its energy. Could you clarify what physical system you mean?\n\n[clarification_classifier: unrecognized term 'thought' as subject of energy]",
+    "extracted_value": "clarification needed",
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.0004875659942626953,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "clarification_hit": "thought",
+    "grounded": true,
+    "groundedness_reason": "deterministic dispatch (thought)"
+  },
+  {
+    "id": "clar_02",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: I can't compute the schwarzschild radius of 'happiness' \u2014 'happiness' isn't a physics quantity or object I recognize, and physics doesn't define it. If you point me at a real physical system, I can compute its schwarzschild radius from the library. Could you clarify what physical system you mean?\n\n[clarification_classifier: unrecognized term 'happiness' as subject of schwarzschild radius]",
+    "extracted_value": "clarification needed",
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.00015234947204589844,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "clarification_hit": "happiness",
+    "grounded": true,
+    "groundedness_reason": "deterministic dispatch (happiness)"
+  },
+  {
+    "id": "clar_03",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: I can't compute the resonance of 'soul' \u2014 'soul' isn't a physics quantity or object I recognize, and physics doesn't define it. If you point me at a real physical system, I can compute its resonance from the library. Could you clarify what physical system you mean?\n\n[clarification_classifier: unrecognized term 'soul' as subject of resonance]",
+    "extracted_value": "clarification needed",
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.00016617774963378906,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "clarification_hit": "soul",
+    "grounded": true,
+    "groundedness_reason": "deterministic dispatch (soul)"
+  },
+  {
+    "id": "clar_04",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: I can't compute 'unicorn' \u2014 'unicorn' isn't a physics quantity or object I recognize, and physics doesn't define it. If you point me at a real physical system, I can compute its properties from the library. Could you clarify what physical system you mean?\n\n[clarification_classifier: unrecognized term 'unicorn']",
+    "extracted_value": "clarification needed",
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.00010633468627929688,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "clarification_hit": "unicorn",
+    "grounded": true,
+    "groundedness_reason": "deterministic dispatch (unicorn)"
+  },
+  {
+    "id": "clar_05",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: I can't compute the wavelength of 'psychic field' \u2014 'psychic' isn't a physics quantity or object I recognize, and physics doesn't define it. If you point me at a real physical system, I can compute its wavelength from the library. Could you clarify what physical system you mean?\n\n[clarification_classifier: unrecognized term 'psychic' as subject of wavelength]",
+    "extracted_value": "clarification needed",
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.00014638900756835938,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "clarification_hit": "psychic",
+    "grounded": true,
+    "groundedness_reason": "deterministic dispatch (psychic)"
+  },
+  {
+    "id": "clar_06",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: I can't compute the mass of 'ghost' \u2014 'ghost' isn't a physics quantity or object I recognize, and physics doesn't define it. If you point me at a real physical system, I can compute its mass from the library. Could you clarify what physical system you mean?\n\n[clarification_classifier: unrecognized term 'ghost' as subject of mass]",
+    "extracted_value": "clarification needed",
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.00011157989501953125,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "clarification_hit": "ghost",
+    "grounded": true,
+    "groundedness_reason": "deterministic dispatch (ghost)"
+  },
+  {
+    "id": "clar_07",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: I can't compute the gravitational pull of 'karma' \u2014 'karma' isn't a physics quantity or object I recognize, and physics doesn't define it. If you point me at a real physical system, I can compute its gravitational pull from the library. Could you clarify what physical system you mean?\n\n[clarification_classifier: unrecognized term 'karma' as subject of gravitational pull]",
+    "extracted_value": "clarification needed",
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.0001590251922607422,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "clarification_hit": "karma",
+    "grounded": true,
+    "groundedness_reason": "deterministic dispatch (karma)"
+  },
+  {
+    "id": "clar_08",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: I can't compute 'telepathy weigh' \u2014 'telepathy' isn't a physics quantity or object I recognize, and physics doesn't define it. If you point me at a real physical system, I can compute its properties from the library. Could you clarify what physical system you mean?\n\n[clarification_classifier: unrecognized term 'telepathy']",
+    "extracted_value": "clarification needed",
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.0001556873321533203,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "clarification_hit": "telepathy",
+    "grounded": true,
+    "groundedness_reason": "deterministic dispatch (telepathy)"
+  }
+]

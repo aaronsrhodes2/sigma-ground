@@ -1,0 +1,131 @@
+{
+  "frontier_bh_001": {
+    "expected_value": 1.05e+77,
+    "expected_units": "",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "frontier_bh_002": {
+    "expected_value": 3.1416,
+    "expected_units": "",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "frontier_bh_003": {
+    "expected_value": 1.2e+40,
+    "expected_units": "",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "frontier_bh_004": {
+    "expected_value": 22540000000.0,
+    "expected_units": "kg",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "frontier_bh_005": {
+    "expected_value": "matter overflows the horizon",
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "overflow",
+      "matter"
+    ]
+  },
+  "frontier_bh_006": {
+    "expected_value": 2.28e+41,
+    "expected_units": "J",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "frontier_bh_007": {
+    "expected_value": 3.97e-20,
+    "expected_units": "K",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "frontier_bh_008": {
+    "expected_value": 9.46146358155371e+65,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "frontier_bh_009": {
+    "expected_value": 1.2026246382267743e+76,
+    "expected_units": "",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "fringe_qm_001": {
+    "expected_value": 3.7e-12,
+    "expected_units": "m",
+    "tolerance_rel": 0.03,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "fringe_nuc_001": {
+    "expected_value": 7.57,
+    "expected_units": "MeV",
+    "tolerance_rel": 0.02,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "fringe_em_001": {
+    "expected_value": 2.307e-10,
+    "expected_units": "N",
+    "tolerance_rel": 0.03,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "fringe_mech_001": {
+    "expected_value": 3.54e+22,
+    "expected_units": "N",
+    "tolerance_rel": 0.03,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "fringe_astro_001": {
+    "expected_value": 2369662362.1061983,
+    "expected_units": "s",
+    "tolerance_rel": 0.03,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "ent_comm_001": {
+    "expected_value": "no faster-than-light communication",
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "cannot",
+      "no-communication",
+      "classical channel"
+    ]
+  },
+  "ent_key_001": {
+    "expected_value": "yes, a shared secret key via QKD",
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "secret key",
+      "quantum key distribution"
+    ]
+  },
+  "ent_chsh_001": {
+    "expected_value": 2.828427,
+    "expected_units": "",
+    "tolerance_rel": 0.01,
+    "question_type": "numerical",
+    "expected_keywords": []
+  }
+}

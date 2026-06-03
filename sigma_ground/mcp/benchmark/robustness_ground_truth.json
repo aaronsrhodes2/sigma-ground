@@ -1,0 +1,202 @@
+{
+  "para_rs_01": {
+    "expected_value": 2954.126555055405,
+    "expected_units": "m",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "para_rs_02": {
+    "expected_value": 2954.126555055405,
+    "expected_units": "m",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "para_rs_03": {
+    "expected_value": 2954.126555055405,
+    "expected_units": "m",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "para_rs_04": {
+    "expected_value": 2954.126555055405,
+    "expected_units": "m",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "para_esc_01": {
+    "expected_value": 11185.97789184991,
+    "expected_units": "m/s",
+    "tolerance_rel": 0.03,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "para_esc_02": {
+    "expected_value": 11185.97789184991,
+    "expected_units": "m/s",
+    "tolerance_rel": 0.03,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "para_c_01": {
+    "expected_value": 299792458.0,
+    "expected_units": "m/s",
+    "tolerance_rel": 0.001,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "para_ph_01": {
+    "expected_value": 3.972891714297857e-19,
+    "expected_units": "J",
+    "tolerance_rel": 0.03,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "para_db_01": {
+    "expected_value": 3.876403412883085e-11,
+    "expected_units": "m",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "para_orb_01": {
+    "expected_value": 352786106.76452714,
+    "expected_units": "s",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "mal_esc_01": {
+    "expected_value": 11185.97789184991,
+    "expected_units": "m/s",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "mal_c_01": {
+    "expected_value": 299792458.0,
+    "expected_units": "m/s",
+    "tolerance_rel": 0.001,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "mal_rs_01": {
+    "expected_value": 2954.126555055405,
+    "expected_units": "m",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "mal_m_01": {
+    "expected_value": 5.972e+24,
+    "expected_units": "kg",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "mal_ph_01": {
+    "expected_value": 3.972891714297857e-19,
+    "expected_units": "J",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "mal_db_01": {
+    "expected_value": 3.876403412883085e-11,
+    "expected_units": "m",
+    "tolerance_rel": 0.05,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "clar_01": {
+    "expected_value": "clarification needed",
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "physics",
+      "recognize",
+      "clarify"
+    ]
+  },
+  "clar_02": {
+    "expected_value": "clarification needed",
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "physics",
+      "recognize",
+      "clarify"
+    ]
+  },
+  "clar_03": {
+    "expected_value": "clarification needed",
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "physics",
+      "recognize",
+      "clarify"
+    ]
+  },
+  "clar_04": {
+    "expected_value": "clarification needed",
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "physics",
+      "recognize",
+      "clarify"
+    ]
+  },
+  "clar_05": {
+    "expected_value": "clarification needed",
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "physics",
+      "recognize",
+      "clarify"
+    ]
+  },
+  "clar_06": {
+    "expected_value": "clarification needed",
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "physics",
+      "recognize",
+      "clarify"
+    ]
+  },
+  "clar_07": {
+    "expected_value": "clarification needed",
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "physics",
+      "recognize",
+      "clarify"
+    ]
+  },
+  "clar_08": {
+    "expected_value": "clarification needed",
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "physics",
+      "recognize",
+      "clarify"
+    ]
+  }
+}

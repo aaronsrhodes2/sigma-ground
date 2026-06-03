@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radiance — Mentat viewer</title>
+<style>
+  :root { --bg:#000; --fg:#e8e8ea; --dim:#6a6a72; --accent:#00CCFF; --ok:#00FF88; --bad:#FF4444; }
+  * { box-sizing: border-box; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--fg);
+              font:13px/1.5 ui-monospace,Menlo,Consolas,monospace; overflow:hidden; }
+  #wrap { display:flex; flex-direction:column; height:100%; }
+  #view { flex:1; position:relative; }
+  canvas { display:block; width:100%; height:100%; }
+  #hud { position:absolute; top:10px; left:12px; color:var(--dim); pointer-events:none;
+         text-shadow:0 0 6px #000; }
+  #hud b { color:var(--fg); } #hud .ok { color:var(--ok); } #hud .bad { color:var(--bad); }
+  #bar { display:flex; align-items:center; gap:14px; padding:8px 14px; background:#0b0b0d;
+         border-top:1px solid #1c1c20; flex-wrap:wrap; }
+  button { background:#16161a; color:var(--fg); border:1px solid #2a2a30; border-radius:6px;
+           padding:5px 11px; cursor:pointer; font:inherit; }
+  button:hover { border-color:var(--accent); }
+  button.on { border-color:var(--accent); color:var(--accent); }
+  .grp { display:flex; align-items:center; gap:7px; }
+  .lbl { color:var(--dim); }
+  input[type=range] { accent-color:var(--accent); }
+  #scrub { width:230px; } #rate { width:150px; }
+  #rateval { color:var(--accent); min-width:148px; }
+  #tval { color:var(--fg); min-width:120px; }
+  .sep { width:1px; height:20px; background:#26262c; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="view">
+    <canvas id="gl"></canvas>
+    <div id="hud">
+      <div><b id="title">Radiance</b> &nbsp;<span id="src" class="lbl"></span></div>
+      <div id="check" class="lbl">geometry self-check: …</div>
+      <div class="lbl">drag&nbsp;=&nbsp;orbit &nbsp;·&nbsp; wheel&nbsp;=&nbsp;zoom</div>
+      <div id="dbg" class="lbl" style="color:#FFAA00"></div>
+    </div>
+  </div>
+  <div id="bar">
+    <div class="grp">
+      <span class="lbl">scene</span>
+      <button id="b-cup" class="on">Coffee cup</button>
+      <button id="b-drop">Dropped sphere</button>
+      <button id="b-mat">Materials</button>
+    </div>
+    <div class="sep"></div>
+    <div class="grp" id="playgrp" style="opacity:.35;">
+      <button id="play">▶ play</button>
+      <input id="scrub" type="range" min="0" max="1000" value="0">
+      <span id="tval" class="lbl">—</span>
+    </div>
+    <div class="sep"></div>
+    <div class="grp" id="rategrp" style="opacity:.35;">
+      <span class="lbl">time-rate</span>
+      <input id="rate" type="range" min="-6" max="6" step="0.01" value="0">
+      <span id="rateval">1.0 sim-s / wall-s</span>
+    </div>
+    <div class="grp" style="margin-left:auto;"><span id="fps" class="lbl"></span></div>
+  </div>
+</div>
+<script src="viewer.js"></script>
+</body>
+</html>

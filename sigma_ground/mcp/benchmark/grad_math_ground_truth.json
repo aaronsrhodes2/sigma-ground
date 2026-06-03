@@ -1,0 +1,198 @@
+{
+  "gm_det_1": {
+    "expected_value": -3,
+    "expected_units": "",
+    "tolerance_rel": 0.001,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "gm_eig_1": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "3",
+      "1"
+    ]
+  },
+  "gm_eig_2": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "I",
+      "-I"
+    ]
+  },
+  "gm_lim_1": {
+    "expected_value": 0.5,
+    "expected_units": "",
+    "tolerance_rel": 0.001,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "gm_lim_2": {
+    "expected_value": 0.5,
+    "expected_units": "",
+    "tolerance_rel": 0.001,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "gm_lim_3": {
+    "expected_value": 1.0,
+    "expected_units": "",
+    "tolerance_rel": 0.001,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "gm_ser_1": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "x",
+      "x**2/2",
+      "x**3/3"
+    ]
+  },
+  "gm_sum_1": {
+    "expected_value": 1.6449340668,
+    "expected_units": "",
+    "tolerance_rel": 0.001,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "gm_sum_2": {
+    "expected_value": 2.0,
+    "expected_units": "",
+    "tolerance_rel": 0.001,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "gm_sum_3": {
+    "expected_value": 5050,
+    "expected_units": "",
+    "tolerance_rel": 0.0001,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "gm_int_1": {
+    "expected_value": 2.0,
+    "expected_units": "",
+    "tolerance_rel": 0.001,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "gm_int_2": {
+    "expected_value": 3.14159265,
+    "expected_units": "",
+    "tolerance_rel": 0.001,
+    "question_type": "numerical",
+    "expected_keywords": []
+  },
+  "gm_lap_1": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "2",
+      "s**3"
+    ]
+  },
+  "gm_lap_2": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "3",
+      "s**2 + 9"
+    ]
+  },
+  "gm_fou_1": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "sqrt(pi)",
+      "exp"
+    ]
+  },
+  "gm_ode_1": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "sin(2*x)",
+      "cos(2*x)"
+    ]
+  },
+  "gm_ode_2": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "exp(2*x)"
+    ]
+  },
+  "gm_div_1": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "2*x",
+      "2*y",
+      "2*z"
+    ]
+  },
+  "gm_curl_1": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "2"
+    ]
+  },
+  "gm_grad_1": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "y*z",
+      "x*z",
+      "x*y"
+    ]
+  },
+  "gm_fac_1": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "x - 1",
+      "x + 1",
+      "x**2 + 1"
+    ]
+  },
+  "gm_fac_2": {
+    "expected_value": null,
+    "expected_units": "",
+    "tolerance_rel": null,
+    "question_type": "open_ended",
+    "expected_keywords": [
+      "x - 1",
+      "x - 2",
+      "x - 3"
+    ]
+  }
+}

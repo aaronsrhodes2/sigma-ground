@@ -1,0 +1,374 @@
+{
+ "name": "emergent element colors",
+ "csg_leaves": [
+  {
+   "op": "add",
+   "material": "copper",
+   "dynamic": false,
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.27,
+     0.18,
+     0.0
+    ],
+    "radius": 0.06
+   }
+  },
+  {
+   "op": "add",
+   "material": "gold",
+   "dynamic": false,
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.09,
+     0.18,
+     0.0
+    ],
+    "radius": 0.06
+   }
+  },
+  {
+   "op": "add",
+   "material": "silver",
+   "dynamic": false,
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.09,
+     0.18,
+     0.0
+    ],
+    "radius": 0.06
+   }
+  },
+  {
+   "op": "add",
+   "material": "aluminum",
+   "dynamic": false,
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.27,
+     0.18,
+     0.0
+    ],
+    "radius": 0.06
+   }
+  },
+  {
+   "op": "add",
+   "material": "iron",
+   "dynamic": false,
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.27,
+     0.0,
+     0.0
+    ],
+    "radius": 0.06
+   }
+  },
+  {
+   "op": "add",
+   "material": "nickel",
+   "dynamic": false,
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.09,
+     0.0,
+     0.0
+    ],
+    "radius": 0.06
+   }
+  },
+  {
+   "op": "add",
+   "material": "titanium",
+   "dynamic": false,
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.09,
+     0.0,
+     0.0
+    ],
+    "radius": 0.06
+   }
+  },
+  {
+   "op": "add",
+   "material": "lead",
+   "dynamic": false,
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.27,
+     0.0,
+     0.0
+    ],
+    "radius": 0.06
+   }
+  },
+  {
+   "op": "add",
+   "material": "tungsten",
+   "dynamic": false,
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.27,
+     -0.18,
+     0.0
+    ],
+    "radius": 0.06
+   }
+  },
+  {
+   "op": "add",
+   "material": "platinum",
+   "dynamic": false,
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.09,
+     -0.18,
+     0.0
+    ],
+    "radius": 0.06
+   }
+  },
+  {
+   "op": "add",
+   "material": "depleted_uranium",
+   "dynamic": false,
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.09,
+     -0.18,
+     0.0
+    ],
+    "radius": 0.06
+   }
+  },
+  {
+   "op": "add",
+   "material": "steel_mild",
+   "dynamic": false,
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.27,
+     -0.18,
+     0.0
+    ],
+    "radius": 0.06
+   }
+  }
+ ],
+ "materials": {
+  "copper": {
+   "color_rgb": [
+    0.9437487443916159,
+    0.6377905221853305,
+    0.5493692099995344
+   ],
+   "emergent": true,
+   "density_kg_m3": 8960
+  },
+  "gold": {
+   "color_rgb": [
+    0.9508308146177096,
+    0.7626532338496887,
+    0.38147807995801547
+   ],
+   "emergent": true,
+   "density_kg_m3": 19300
+  },
+  "silver": {
+   "color_rgb": [
+    0.9697658472851349,
+    0.9828714574248664,
+    0.9803854263717942
+   ],
+   "emergent": true,
+   "density_kg_m3": 10490
+  },
+  "aluminum": {
+   "color_rgb": [
+    0.9018090322052736,
+    0.9185675839399388,
+    0.9374501555927379
+   ],
+   "emergent": true,
+   "density_kg_m3": 2700
+  },
+  "iron": {
+   "color_rgb": [
+    0.5435932095575081,
+    0.5543689745313911,
+    0.5670923033038575
+   ],
+   "emergent": true,
+   "density_kg_m3": 7874
+  },
+  "nickel": {
+   "color_rgb": [
+    0.6609832351020726,
+    0.6617721807618676,
+    0.6668976892370345
+   ],
+   "emergent": true,
+   "density_kg_m3": 8908
+  },
+  "titanium": {
+   "color_rgb": [
+    0.5347459680676342,
+    0.5585180055401662,
+    0.5722143002648198
+   ],
+   "emergent": true,
+   "density_kg_m3": 4507
+  },
+  "lead": {
+   "color_rgb": [
+    0.6296368491842264,
+    0.6465949600221538,
+    0.6426373726553776
+   ],
+   "emergent": true,
+   "density_kg_m3": 11340
+  },
+  "tungsten": {
+   "color_rgb": [
+    0.5142277640913379,
+    0.5111618054423985,
+    0.5044477558811931
+   ],
+   "emergent": true,
+   "density_kg_m3": 19250
+  },
+  "platinum": {
+   "color_rgb": [
+    0.6539405383000981,
+    0.6626190649312877,
+    0.6476592174865425
+   ],
+   "emergent": true,
+   "density_kg_m3": 21450
+  },
+  "depleted_uranium": {
+   "color_rgb": [
+    0.8998258941765709,
+    0.898993933915915,
+    0.8979557100565023
+   ],
+   "emergent": true,
+   "density_kg_m3": 19100
+  },
+  "steel_mild": {
+   "color_rgb": [
+    0.942923511615341,
+    0.9426430405317449,
+    0.942244601809706
+   ],
+   "emergent": true,
+   "density_kg_m3": 7850
+  }
+ },
+ "physics": {
+  "mass_kg": 0,
+  "com_m": [
+   0,
+   0,
+   0
+  ],
+  "inertia_kgm2": [
+   0,
+   0,
+   0
+  ]
+ },
+ "bbox": [
+  [
+   -0.34,
+   0.34
+  ],
+  [
+   -0.26,
+   0.26
+  ],
+  [
+   -0.06,
+   0.06
+  ]
+ ],
+ "camera": {
+  "target": [
+   0,
+   0,
+   0
+  ],
+  "orbit_radius": 1.05,
+  "fov_deg": 38.0,
+  "up": [
+   0,
+   1,
+   0
+  ]
+ },
+ "lights": [
+  {
+   "dir": [
+    -0.384,
+    -0.816,
+    -0.432
+   ],
+   "color": [
+    1.0,
+    0.9313,
+    0.8716
+   ],
+   "intensity": 1.05,
+   "temperature_k": 5500
+  },
+  {
+   "dir": [
+    -0.3143,
+    -0.3928,
+    0.8642
+   ],
+   "color": [
+    0.8937,
+    0.9164,
+    1.0
+   ],
+   "intensity": 0.4,
+   "temperature_k": 7600
+  }
+ ],
+ "ambient": {
+  "sky": [
+   0.1,
+   0.12,
+   0.16
+  ],
+  "ground": [
+   0.06,
+   0.05,
+   0.045
+  ],
+  "up": [
+   0.0,
+   1.0,
+   0.0
+  ]
+ },
+ "identified": true,
+ "source": "each sphere's color = get_material_color (Drude/Fresnel) \u2014 nobody chose them",
+ "kind": "static"
+}
