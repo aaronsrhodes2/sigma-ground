@@ -10,3 +10,4 @@ Pure stdlib; nothing here imports above tier 0 (the layering guard enforces it).
 """
 from .shapes import *  # noqa: F401,F403
 from .csg import *     # noqa: F401,F403
+from .parts import *   # noqa: F401,F403
