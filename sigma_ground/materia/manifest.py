@@ -165,6 +165,15 @@ VERB_MANIFEST = {
                              "aliases": ["of", "for"]},
         },
     },
+    "quantum_report": {
+        "description": "Quantum & atomic physics: spectra, quantum wells, "
+                       "tunneling, crystal-field splitting, superconductivity.",
+        "answers": ["atomic spectra", "energy levels", "quantum well",
+                    "superconductor", "tunneling"],
+        "slots": {
+            "element_Z": {"unit": "Z", "default": 1, "aliases": ["element"]},
+        },
+    },
 }
 
 # Each verb's named outputs — what a later step can read from it. Used by the
@@ -188,6 +197,7 @@ _VERB_OUTPUTS = {
     "rotational_dynamics": ["moment_of_inertia_sphere", "angular_momentum",
                             "rotational_ke_J"],
     "material_full_profile": ["suites_computed"],
+    "quantum_report": ["suites_computed"],
 }
 for _v, _o in _VERB_OUTPUTS.items():
     VERB_MANIFEST[_v]["outputs"] = _o
@@ -238,6 +248,10 @@ _VERB_TRIGGERS = {
                                "full profile of", "complete profile of",
                                "full material profile", "characterize everything"],
                               True),
+    "quantum_report": (["atomic spectra", "energy levels", "quantum well",
+                        "tunneling", "crystal field", "superconductor",
+                        "superconductivity", "rydberg", "hydrogen spectrum",
+                        "term symbol", "bcs gap"], True),
 }
 for _v, (_t, _ex) in _VERB_TRIGGERS.items():
     VERB_MANIFEST[_v]["triggers"] = _t

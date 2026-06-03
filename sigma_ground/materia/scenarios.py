@@ -615,6 +615,54 @@ def material_full_profile(material_key: str = "steel_mild") -> MateriaResult:
                          outputs={"suites_computed": len(suites)})
 
 
+def _sweep(calls):
+    """Call a list of (module, fn, args, kwargs); return {fn: n_fields} for the
+    ones that succeed. Robust to signature drift — a failed call is just skipped."""
+    import importlib
+    suites = {}
+    for mod, fn, a, kw in calls:
+        try:
+            m = importlib.import_module("sigma_ground.field.interface." + mod)
+            r = getattr(m, fn)(*a, **kw)
+            if isinstance(r, dict) and r:
+                suites[fn] = len(r)
+        except Exception:
+            pass
+    return suites
+
+
+def _sweep_result(name, domain, suites, inputs):
+    steps = [
+        MateriaStep(f"{domain} suites computed", len(suites), "",
+                    ", ".join(sorted(suites)[:6]), "field.interface.* aggregators"),
+        MateriaStep("Total fields", sum(suites.values()), "", "across all suites",
+                    "field.interface.*"),
+    ]
+    summary = (f"{domain}: {len(suites)} suites computed "
+               f"({sum(suites.values())} fields) — {', '.join(sorted(suites)[:4])}…")
+    return MateriaResult(name, inputs, steps, summary=summary,
+                         validation={"passed": len(suites) > 0,
+                                     "note": f"{len(suites)} {domain} aggregators"},
+                         outputs={"suites_computed": len(suites)})
+
+
+def quantum_report(element_Z: int = 1) -> MateriaResult:
+    """Quantum & atomic physics: hydrogen-like spectra, quantum wells, tunneling,
+    crystal-field splitting, superconductivity. Wraps the quantum-domain
+    aggregators (the dependency chart's `quantum` group)."""
+    suites = _sweep([
+        ("atomic_spectra", "atomic_spectra_report", (), {"Z": element_Z}),
+        ("quantum_wells", "quantum_wells_report", (), {}),
+        ("tunneling", "tunneling_report", (), {}),
+        ("crystal_field", "crystal_field_report", (),
+         {"Z": 26, "oxidation_state": 2, "coord_key": "octahedral"}),
+        ("superconductivity", "superconductor_properties", ("Nb",), {}),
+        ("angular_momentum", "angular_momentum_report", (), {}),
+    ])
+    return _sweep_result("quantum_report", "Quantum", suites,
+                         {"element_Z": element_Z})
+
+
 SCENARIOS = {
     "terminal_velocity_drop": terminal_velocity_drop,
     "drag_heating_drop": drag_heating_drop,
@@ -627,4 +675,5 @@ SCENARIOS = {
     "thermal_response": thermal_response,
     "rotational_dynamics": rotational_dynamics,
     "material_full_profile": material_full_profile,
+    "quantum_report": quantum_report,
 }
