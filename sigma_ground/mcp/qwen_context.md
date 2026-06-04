@@ -152,6 +152,12 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **solve_ode** — Solve an ODE (use y, y', y''); "y''+y" -> C1*sin(x)+C2*cos(x).
 - **summation** — Symbolic sum over a variable; '1/n**2' to oo -> pi**2/6.
 
+### mechanics
+- **collision_analysis** — 1D two-body collision: elastic velocities, inelastic outcome, KE lost.  ↳ *say:* collision; elastic collision; inelastic collision; coefficient of restitution; two balls collide; energy lost in collision
+- **incline_analysis** — Inclined plane: critical sliding angle, slide distance up, speed at the bottom. angle in degrees.  ↳ *say:* inclined plane; ramp; sliding down a slope; angle of repose; friction on an incline; block on a ramp
+- **projectile_analysis** — Projectile range/apex/flight-time (vacuum) + drag force, terminal velocity, drag-corrected range. angle in degrees.  ↳ *say:* projectile; range of a projectile; maximum height; time of flight; launch angle; projectile with air resistance
+- **work_energy_analysis** — Work, power, friction loss, gravitational PE, rotational KE, impulse, total mechanical energy of a moving body.  ↳ *say:* work done; mechanical power; potential energy; impulse; work-energy theorem; energy of a moving object
+
 ### nuclear
 - **coulomb_force** — Coulomb's law F = q1 q2 / (4π ε0 r²). +repulsive/−attractive.  ↳ *say:* Coulomb force; Coulomb's law; F = k q1 q2 / r^2; electrostatic force; force between two charges
 - **nuclear_binding_energy** — Binding energy + mass defect for a nucleus. Exact with measured_mass_u, else SEMF. Returns mass_defect_fraction (baryon-count vs mass-energy gap, peaks ~0.9% at iron).  ↳ *say:* nuclear binding energy; mass defect; binding energy per nucleon; how much lighter is the nucleus; Bethe-Weizsacker; SEMF

@@ -404,6 +404,24 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "holographic dark energy parameter",
     ],
 
+    # ============ MECHANICS (composite analysis tools) ============
+    "collision_analysis": [
+        "collision", "elastic collision", "inelastic collision",
+        "coefficient of restitution", "two balls collide", "energy lost in collision",
+    ],
+    "work_energy_analysis": [
+        "work done", "mechanical power", "potential energy", "impulse",
+        "work-energy theorem", "energy of a moving object",
+    ],
+    "projectile_analysis": [
+        "projectile", "range of a projectile", "maximum height", "time of flight",
+        "launch angle", "projectile with air resistance", "how far will it fly",
+    ],
+    "incline_analysis": [
+        "inclined plane", "ramp", "sliding down a slope", "angle of repose",
+        "friction on an incline", "block on a ramp",
+    ],
+
     # ============ ENERGY CONVERSION (E=mc^2 family) ============
     "mass_to_energy": [
         "E=mc^2", "mass-energy equivalence", "rest mass energy",

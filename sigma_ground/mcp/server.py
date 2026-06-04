@@ -103,6 +103,7 @@ def main() -> int:
     from sigma_ground.mcp.tools import electronics as t_elec
     from sigma_ground.mcp.tools import mathx as t_mathx
     from sigma_ground.mcp.tools import frontier as t_front
+    from sigma_ground.mcp.tools import mechanics as t_mech
     from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
@@ -1151,6 +1152,45 @@ def main() -> int:
         and the CHSH / Tsirelson bound (2√2). Pass the user's question as
         scenario so the verdict is tailored."""
         return t_front.entanglement_channel(scenario).to_dict()
+
+    # ── mechanics: collisions, work/energy, projectile, incline ──
+    @server.tool()
+    def collision_analysis(mass1_kg: float, velocity1_m_s: float,
+                           mass2_kg: float, velocity2_m_s: float,
+                           restitution: float = 0.8) -> dict[str, Any]:
+        """1D two-body collision: elastic final velocities, the inelastic
+        outcome, and the kinetic energy lost. collision_analysis(2, 3, 1, -1)."""
+        return t_mech.collision_analysis(mass1_kg, velocity1_m_s, mass2_kg,
+                                         velocity2_m_s, restitution)
+
+    @server.tool()
+    def work_energy_analysis(mass_kg: float, velocity_m_s: float,
+                             height_m: float = 10.0, force_n: float = 20.0,
+                             distance_m: float = 5.0) -> dict[str, Any]:
+        """Work, mechanical power, friction loss, gravitational PE, rotational
+        KE, impulse, and total mechanical energy of a moving body."""
+        return t_mech.work_energy_analysis(mass_kg, velocity_m_s, height_m,
+                                           force_n, distance_m)
+
+    @server.tool()
+    def projectile_analysis(speed_m_s: float, angle_deg: float,
+                            mass_kg: float = 1.0,
+                            drag_coefficient: float = 0.47,
+                            area_m2: float = 0.01) -> dict[str, Any]:
+        """Projectile from a launch speed + angle (degrees): vacuum range, apex
+        height, flight time, drag force, terminal velocity, drag-corrected
+        range. projectile_analysis(50, 45)."""
+        return t_mech.projectile_analysis(speed_m_s, angle_deg, mass_kg,
+                                          drag_coefficient, area_m2)
+
+    @server.tool()
+    def incline_analysis(angle_deg: float, friction_coefficient: float = 0.3,
+                         speed_m_s: float = 10.0,
+                         height_m: float = 5.0) -> dict[str, Any]:
+        """Inclined plane: critical sliding angle, distance slid up before
+        stopping, and slide speed at the bottom."""
+        return t_mech.incline_analysis(angle_deg, friction_coefficient,
+                                       speed_m_s, height_m)
 
     # Run via stdio transport (standard MCP).
     server.run()

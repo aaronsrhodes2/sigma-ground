@@ -715,6 +715,31 @@ _PRIMARY_TOOLS = [
                 "Pass the user's question as scenario.",
      "inputs": {"scenario": "str (the question)"},
      "returns": "dict {verdict, primary, ...}"},
+
+    # ── mechanics (composite analysis tools) ──
+    {"name": "collision_analysis", "tier": "PRIMARY", "domain": "mechanics",
+     "summary": "1D two-body collision: elastic velocities, inelastic outcome, KE lost.",
+     "inputs": {"mass1_kg": "float", "velocity1_m_s": "float",
+                "mass2_kg": "float", "velocity2_m_s": "float",
+                "restitution": "float"}, "returns": "dict {velocities, energy_lost_J}"},
+    {"name": "work_energy_analysis", "tier": "PRIMARY", "domain": "mechanics",
+     "summary": "Work, power, friction loss, gravitational PE, rotational KE, "
+                "impulse, total mechanical energy of a moving body.",
+     "inputs": {"mass_kg": "float", "velocity_m_s": "float", "height_m": "float",
+                "force_n": "float", "distance_m": "float"},
+     "returns": "dict of energies/power"},
+    {"name": "projectile_analysis", "tier": "PRIMARY", "domain": "mechanics",
+     "summary": "Projectile range/apex/flight-time (vacuum) + drag force, "
+                "terminal velocity, drag-corrected range. angle in degrees.",
+     "inputs": {"speed_m_s": "float", "angle_deg": "float", "mass_kg": "float",
+                "drag_coefficient": "float", "area_m2": "float"},
+     "returns": "dict {range_m, max_height_m, time_of_flight_s, ...}"},
+    {"name": "incline_analysis", "tier": "PRIMARY", "domain": "mechanics",
+     "summary": "Inclined plane: critical sliding angle, slide distance up, "
+                "speed at the bottom. angle in degrees.",
+     "inputs": {"angle_deg": "float", "friction_coefficient": "float",
+                "speed_m_s": "float", "height_m": "float"},
+     "returns": "dict {critical_angle, distance, speed}"},
 ]
 
 
