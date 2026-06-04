@@ -10,9 +10,12 @@ measurement:
   * LLM / heuristic guesses are flagged ``[estimated]``;
   * unknown objects fall back to a default and set ``identified = False``.
 
-This generalises the v1 ``ItemSpec`` (research.py): the same layered-vessel
-geometry, now with explicit provenance and markdown emit/parse. ``compile()``
-(construct.py) consumes it.
+Two shape representations:
+  * ``layered_vessel`` geometry (``geometry`` dims + ``layers``) — the cup kit;
+  * a general primitive kit (``parts`` — spheres/cylinders/boxes/cones) for
+    solid and composite objects.
+
+``compile()`` (construct.py) consumes whichever is present.
 """
 from __future__ import annotations
 
@@ -64,7 +67,7 @@ class Fact:
 
 @dataclass
 class SpecLayer:
-    """One material shell of the object, ordered outer→inner."""
+    """One material shell of a layered vessel, ordered outer→inner."""
     name: str
     material: str
     density: Fact                       # kg/m3
@@ -92,18 +95,57 @@ class SpecLayer:
 
 
 @dataclass
-class ConstructSpec:
-    """A researched object: cited geometry + layered materials + provenance.
+class Part:
+    """One primitive solid: a kernel shape + its material + pose.
 
-    Generalises ItemSpec. ``geometry`` maps a dimension name to a Fact;
-    ``layers`` are SpecLayers outer→inner; ``sources`` lists the data sources
-    and their licenses. ``identified`` is False for a flagged best-guess.
+    A general-kit member (sphere/cylinder/box/cone) for solid and composite
+    objects, as opposed to the layered-vessel representation. ``dims`` are the
+    shape's parameters as Facts (e.g. sphere ``{radius_m}``; cylinder
+    ``{radius_m, height_m}``; box ``{x_m, y_m, z_m}``).
+    """
+    name: str
+    shape: str                          # sphere | cylinder | cone | box
+    dims: dict                          # dim_name -> Fact
+    material: str
+    density: Fact                       # kg/m3
+    center_m: tuple = (0.0, 0.0, 0.0)
+
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "shape": self.shape,
+            "dims": {k: f.to_dict() for k, f in self.dims.items()},
+            "material": self.material,
+            "density_kg_m3": self.density.to_dict(),
+            "center_m": list(self.center_m),
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Part":
+        return cls(
+            name=d["name"],
+            shape=d["shape"],
+            dims={k: Fact.from_dict(v) for k, v in d.get("dims", {}).items()},
+            material=d.get("material", d["name"]),
+            density=Fact.from_dict(d.get("density_kg_m3")),
+            center_m=tuple(d.get("center_m", (0.0, 0.0, 0.0))),
+        )
+
+
+@dataclass
+class ConstructSpec:
+    """A researched object: cited geometry + materials + provenance.
+
+    Generalises ItemSpec. A ``layered_vessel`` carries ``geometry`` (dim → Fact)
+    and ``layers`` (SpecLayers outer→inner); a solid/composite object carries
+    ``parts`` (primitive kit). ``identified`` is False for a flagged best-guess.
     """
     name: str
     kind: str = "layered_vessel"
     identified: bool = True
     geometry: dict = field(default_factory=dict)    # dim_name -> Fact
     layers: list = field(default_factory=list)       # [SpecLayer]
+    parts: list = field(default_factory=list)        # [Part] (general primitive kit)
     sources: list = field(default_factory=list)      # [{"name","license","url"}]
     notes: str = ""
 
@@ -131,6 +173,7 @@ class ConstructSpec:
             "identified": self.identified,
             "geometry": {k: f.to_dict() for k, f in self.geometry.items()},
             "layers": [L.to_dict() for L in self.layers],
+            "parts": [p.to_dict() for p in self.parts],
             "sources": list(self.sources),
             "notes": self.notes,
         }
@@ -143,6 +186,7 @@ class ConstructSpec:
             identified=bool(d.get("identified", True)),
             geometry={k: Fact.from_dict(v) for k, v in d.get("geometry", {}).items()},
             layers=[SpecLayer.from_dict(x) for x in d.get("layers", [])],
+            parts=[Part.from_dict(x) for x in d.get("parts", [])],
             sources=list(d.get("sources", [])),
             notes=d.get("notes", ""),
         )
@@ -175,19 +219,30 @@ def emit_markdown(spec: ConstructSpec) -> str:
         out.append("- (none cited)")
     out.append("")
 
-    out += ["## Geometry", ""]
-    for key, f in spec.geometry.items():
-        out.append(f"- **{key}**: {f.cite()}")
-    out.append("")
+    if spec.geometry:
+        out += ["## Geometry", ""]
+        for key, f in spec.geometry.items():
+            out.append(f"- **{key}**: {f.cite()}")
+        out.append("")
 
-    out += ["## Layers (outer→inner)", ""]
-    for L in spec.layers:
-        out.append(f"- **{L.name}** — {L.material}")
-        out.append(f"    - density: {L.density.cite()} kg/m³")
-        out.append(f"    - thickness: {L.thickness.cite()} m")
-        if L.interfaces:
-            out.append(f"    - interfaces: {', '.join(L.interfaces)}")
-    out.append("")
+    if spec.layers:
+        out += ["## Layers (outer→inner)", ""]
+        for L in spec.layers:
+            out.append(f"- **{L.name}** — {L.material}")
+            out.append(f"    - density: {L.density.cite()} kg/m³")
+            out.append(f"    - thickness: {L.thickness.cite()} m")
+            if L.interfaces:
+                out.append(f"    - interfaces: {', '.join(L.interfaces)}")
+        out.append("")
+
+    if spec.parts:
+        out += ["## Parts (primitives)", ""]
+        for p in spec.parts:
+            dims = ", ".join(f"{k}={f.cite()}" for k, f in p.dims.items())
+            out.append(f"- **{p.name}** — {p.shape} ({p.material}) @ {tuple(p.center_m)}")
+            out.append(f"    - dims: {dims}")
+            out.append(f"    - density: {p.density.cite()} kg/m³")
+        out.append("")
 
     if spec.notes:
         out += ["## Notes", "", spec.notes, ""]
@@ -208,6 +263,6 @@ def parse_markdown(md: str) -> ConstructSpec:
 
 
 __all__ = [
-    "ESTIMATED", "Fact", "SpecLayer", "ConstructSpec",
+    "ESTIMATED", "Fact", "SpecLayer", "Part", "ConstructSpec",
     "emit_markdown", "parse_markdown",
 ]

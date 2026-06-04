@@ -20,7 +20,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 
-from ..kernel.shapes import Cylinder
+from ..kernel.shapes import Cylinder, Sphere, Box, Cone
 from ..kernel.csg import ComposedSDF
 
 
@@ -160,6 +160,8 @@ def compile(spec, resolution: int = 64, tolerance: float = 0.05) -> Construct:
     Dispatches on ``spec.kind``. Today the ``layered_vessel`` kit is supported;
     new primitive kits register here behind the same self-check gate.
     """
+    if getattr(spec, "parts", None):
+        return _compile_parts(spec, resolution, tolerance)
     kind = getattr(spec, "kind", "layered_vessel")
     if kind == "layered_vessel":
         return _compile_vessel(spec, resolution, tolerance)
@@ -168,6 +170,102 @@ def compile(spec, resolution: int = 64, tolerance: float = 0.05) -> Construct:
 
 # Back-compat alias (the old entry point name).
 compile_vessel = compile
+
+
+# ── general primitive kit ───────────────────────────────────────────────
+def _shape_from(part):
+    """Instantiate a kernel shape from a spec Part (sphere/cylinder/box/cone)."""
+    d = {k: f.value for k, f in part.dims.items()}
+    c = tuple(part.center_m)
+    s = (part.shape or "").lower()
+    if s == "sphere":
+        return Sphere(d["radius_m"], center=c)
+    if s == "cylinder":
+        return Cylinder(d["radius_m"], d["height_m"], center=c)
+    if s == "box":
+        return Box(d["x_m"], d["y_m"], d["z_m"], center=c)
+    if s == "cone":
+        return Cone(d["radius_m"], d["height_m"], center=c)
+    raise ValueError(f"unsupported primitive shape '{part.shape}' in part '{part.name}'")
+
+
+def _half_extent(part):
+    """Axis-aligned half-extents (hx, hy, hz) of a part's shape — a *tight* bbox,
+    so the grid integrator isn't wasted on empty space around high-aspect shapes."""
+    d = {k: f.value for k, f in part.dims.items()}
+    s = (part.shape or "").lower()
+    if s == "sphere":
+        r = d["radius_m"]
+        return (r, r, r)
+    if s in ("cylinder", "cone"):
+        return (d["radius_m"], d["radius_m"], d["height_m"] / 2.0)
+    if s == "box":
+        return (d["x_m"] / 2.0, d["y_m"] / 2.0, d["z_m"] / 2.0)
+    raise ValueError(f"no AABB for shape '{part.shape}'")
+
+
+def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
+    """Compose primitive parts, integrate, self-check vs analytic Σ(ρ·V).
+
+    mass / CoM are the analytic sum over parts (exact for non-overlapping
+    primitives); inertia comes from the grid integrator, which is cross-checked
+    against the analytic mass.
+    """
+    if not spec.parts:
+        raise ValueError(f"spec '{spec.name}' has no parts to compile")
+
+    stack = _LayerStack()
+    density = {}
+    layers = []
+    analytic_mass = 0.0
+    Sx = Sy = Sz = 0.0                       # mass-weighted first moments
+    xs, ys, zs = [], [], []                  # for the bounding box
+    for part in spec.parts:
+        shp = _shape_from(part)
+        stack.add(shp, part.name, "add")
+        rho = part.density.value
+        density[part.name] = rho
+        vol = shp.volume()
+        m = rho * vol
+        analytic_mass += m
+        cx, cy, cz = shp.center
+        Sx += m * cx; Sy += m * cy; Sz += m * cz
+        hx, hy, hz = _half_extent(part)
+        xs += [cx - hx, cx + hx]; ys += [cy - hy, cy + hy]; zs += [cz - hz, cz + hz]
+        layers.append(Layer(part.name, part.material, rho, vol, m, part.density.cite()))
+
+    if analytic_mass <= 0.0:
+        raise ValueError(f"spec '{spec.name}' compiled to zero mass")
+    composed = ComposedSDF(stack)
+    com_ana = (Sx / analytic_mass, Sy / analytic_mass, Sz / analytic_mass)
+
+    pad = 0.02 * max(max(xs) - min(xs), max(ys) - min(ys), max(zs) - min(zs), 1e-9)
+    bbox = ((min(xs) - pad, max(xs) + pad),
+            (min(ys) - pad, max(ys) + pad),
+            (min(zs) - pad, max(zs) + pad))
+    M_num, com_num, inertia, _vol = _integrate(composed, density, bbox, resolution)
+    mass_res = abs(M_num - analytic_mass) / analytic_mass
+    com_res = math.dist(com_num, com_ana)
+    passed = mass_res <= tolerance and com_res <= 0.002
+
+    validation = {
+        "passed": passed,
+        "mass_analytic_total_kg": analytic_mass,
+        "mass_integrator_kg": M_num,
+        "mass_residual": mass_res,
+        "com_residual_m": com_res,
+        "resolution": resolution,
+        "note": (f"{len(spec.parts)} primitive(s): analytic Σ(ρ·V) "
+                 f"{analytic_mass*1000:.1f} g vs SDF integrator {M_num*1000:.1f} g "
+                 f"({mass_res*100:.1f}%); CoM Δ {com_res*1000:.2f} mm at "
+                 f"{resolution}³ (analytic assumes non-overlapping parts)."),
+    }
+
+    return Construct(
+        name=spec.name, composed=composed, density_by_label=density,
+        layers=layers, mass_kg=analytic_mass, com_m=com_ana,
+        inertia_kgm2=inertia, bbox=bbox, validation=validation,
+        identified=spec.identified, source=spec.note())
 
 
 def _compile_vessel(spec, resolution: int, tolerance: float) -> Construct:

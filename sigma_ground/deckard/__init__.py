@@ -22,7 +22,7 @@ primitives to them; it never ingests a foreign mesh.
 from __future__ import annotations
 
 from . import catalog
-from .schema import (ConstructSpec, Fact, SpecLayer,
+from .schema import (ConstructSpec, Fact, SpecLayer, Part,
                      emit_markdown, parse_markdown)
 from .research import research, CATALOG
 from .construct import compile, compile_vessel, Construct, Layer
@@ -42,7 +42,7 @@ def identify(name: str, resolution: int = 64, *, allow_llm: bool = True) -> Cons
 
 __all__ = [
     "identify", "research", "catalog", "CATALOG",
-    "ConstructSpec", "ItemSpec", "Fact", "SpecLayer",
+    "ConstructSpec", "ItemSpec", "Fact", "SpecLayer", "Part",
     "emit_markdown", "parse_markdown",
     "compile", "compile_vessel", "Construct", "Layer",
 ]
