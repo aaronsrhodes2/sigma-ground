@@ -39,11 +39,13 @@ _SYS = (
     "B) a SOLID or COMPOUND object (rod, ball, die, hammer, dumbbell, ring):\n"
     '{"kind":"composite","parts":[{"name":"<part>","shape":'
     '"sphere|cylinder|box|cone|torus|ellipsoid","dims":{...},'
-    '"material":"<material>","center_m":[x,y,z]}]}\n'
+    '"material":"<material>","center_m":[x,y,z],"euler_deg":[rx,ry,rz]}]}\n'
     "   dims: sphere {radius_m}; cylinder/cone {radius_m,height_m}; box "
     "{x_m,y_m,z_m}; torus {major_radius_m,minor_radius_m}; ellipsoid "
-    "{rx_m,ry_m,rz_m}. One part for a simple solid; several with center_m "
-    "offsets for a compound object (hammer = handle cylinder + head box).\n"
+    "{rx_m,ry_m,rz_m}. Cylinders/cones point along +z; euler_deg rotates a part "
+    "(e.g. [0,90,0] lays a cylinder along x). One part for a simple solid; several "
+    "with center_m offsets for a compound object (hammer = vertical handle "
+    "cylinder + head cylinder rotated horizontal across the top).\n"
     "Use realistic typical dimensions and a real material name (steel, glass, "
     'aluminium, oak, stoneware, ...). If you cannot, output {"kind":"unknown"}.'
 )
@@ -209,14 +211,17 @@ def _build_parts_spec(name: str, data: dict, model: str) -> ConstructSpec | None
         material = p.get("material") or "unknown"
         dens = _density(material)
         _cite_source(dens, sources, seen)
-        center = p.get("center_m", (0.0, 0.0, 0.0))
-        try:
-            center = tuple(float(x) for x in center)[:3]
-            if len(center) != 3:
-                center = (0.0, 0.0, 0.0)
-        except Exception:
-            center = (0.0, 0.0, 0.0)
-        parts.append(Part(p.get("name") or f"part{i}", shape, dims, material, dens, center))
+
+        def _vec3(v, default=(0.0, 0.0, 0.0)):
+            try:
+                t = tuple(float(x) for x in v)[:3]
+                return t if len(t) == 3 else default
+            except Exception:
+                return default
+        center = _vec3(p.get("center_m", (0.0, 0.0, 0.0)))
+        euler = _vec3(p.get("euler_deg", (0.0, 0.0, 0.0)))
+        parts.append(Part(p.get("name") or f"part{i}", shape, dims, material,
+                          dens, center, euler))
 
     return ConstructSpec(
         name=name, kind="composite", identified=True, parts=parts, sources=sources,

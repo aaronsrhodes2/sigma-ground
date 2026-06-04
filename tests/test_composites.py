@@ -9,7 +9,7 @@ import json
 import math
 
 from sigma_ground.deckard import compile
-from sigma_ground.deckard.schema import ConstructSpec, Part, Fact
+from sigma_ground.deckard.schema import ConstructSpec, Part, Fact, emit_markdown, parse_markdown
 from sigma_ground.deckard.sources import density_of
 from sigma_ground.deckard.researcher import research_spec
 
@@ -69,3 +69,20 @@ def test_researcher_emits_multipart_composite():
     assert all(all(f.estimated for f in p.dims.values()) for p in spec.parts)   # dims flagged
     assert not any(p.density.estimated for p in spec.parts)                     # grounded
     assert compile(spec, resolution=56).validation["passed"]
+
+
+def test_rotation_reorients_a_part_and_preserves_mass():
+    spec = ConstructSpec(name="rod-x", kind="composite", parts=[
+        Part("rod", "cylinder", {"radius_m": Fact(0.01), "height_m": Fact(0.20)},
+             "steel", density_of("steel"), (0, 0, 0), (0, 90, 0))])
+    c = compile(spec, resolution=56)
+    assert abs(c.mass_kg - density_of("steel").value * math.pi * 0.01 ** 2 * 0.20) < 1e-9
+    assert c.material_at(0.09, 0.0, 0.0) == "rod"     # along the new (x) axis
+    assert c.material_at(0.0, 0.0, 0.09) is None      # the old (z) axis is now empty
+
+
+def test_euler_round_trips_through_markdown():
+    spec = ConstructSpec(name="p", kind="composite", parts=[
+        Part("c", "cylinder", {"radius_m": Fact(0.01), "height_m": Fact(0.10)},
+             "steel", density_of("steel"), (0, 0, 0), (90, 0, 0))])
+    assert tuple(parse_markdown(emit_markdown(spec)).parts[0].euler_deg) == (90.0, 0.0, 0.0)

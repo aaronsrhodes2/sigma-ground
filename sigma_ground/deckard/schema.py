@@ -104,11 +104,12 @@ class Part:
     ``{radius_m, height_m}``; box ``{x_m, y_m, z_m}``).
     """
     name: str
-    shape: str                          # sphere | cylinder | cone | box
+    shape: str                          # sphere | cylinder | cone | box | torus | ellipsoid
     dims: dict                          # dim_name -> Fact
     material: str
     density: Fact                       # kg/m3
     center_m: tuple = (0.0, 0.0, 0.0)
+    euler_deg: tuple = (0.0, 0.0, 0.0)  # rotation about the part centre (Rz·Ry·Rx, degrees)
 
     def to_dict(self) -> dict:
         return {
@@ -118,6 +119,7 @@ class Part:
             "material": self.material,
             "density_kg_m3": self.density.to_dict(),
             "center_m": list(self.center_m),
+            "euler_deg": list(self.euler_deg),
         }
 
     @classmethod
@@ -129,6 +131,7 @@ class Part:
             material=d.get("material", d["name"]),
             density=Fact.from_dict(d.get("density_kg_m3")),
             center_m=tuple(d.get("center_m", (0.0, 0.0, 0.0))),
+            euler_deg=tuple(d.get("euler_deg", (0.0, 0.0, 0.0))),
         )
 
 

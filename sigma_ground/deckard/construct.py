@@ -213,6 +213,65 @@ def _half_extent(part):
     raise ValueError(f"no AABB for shape '{part.shape}'")
 
 
+# ── rotation (Euler degrees) — rotate the SDF query into the shape's frame ──
+def _matmul(A, B):
+    return tuple(tuple(sum(A[i][k] * B[k][j] for k in range(3)) for j in range(3))
+                 for i in range(3))
+
+
+def _rotation(euler_deg):
+    """3x3 rotation R = Rz·Ry·Rx from Euler angles in degrees."""
+    rx, ry, rz = (math.radians(a) for a in euler_deg)
+    cx, sx = math.cos(rx), math.sin(rx)
+    cy, sy = math.cos(ry), math.sin(ry)
+    cz, sz = math.cos(rz), math.sin(rz)
+    Rx = ((1.0, 0.0, 0.0), (0.0, cx, -sx), (0.0, sx, cx))
+    Ry = ((cy, 0.0, sy), (0.0, 1.0, 0.0), (-sy, 0.0, cy))
+    Rz = ((cz, -sz, 0.0), (sz, cz, 0.0), (0.0, 0.0, 1.0))
+    return _matmul(Rz, _matmul(Ry, Rx))
+
+
+class _Rotated:
+    """A kernel shape rotated by R about its centre (for SDF queries).
+
+    volume()/bounding_radius() are rotation-invariant (delegated); the SDF is
+    evaluated at the inverse-rotated query point (R^T · (p - c) + c).
+    """
+    def __init__(self, base, R):
+        self._base = base
+        self._R = R
+        self.center = base.center
+
+    def surface_distance(self, px, py, pz):
+        cx, cy, cz = self.center
+        dx, dy, dz = px - cx, py - cy, pz - cz
+        R = self._R
+        lx = R[0][0] * dx + R[1][0] * dy + R[2][0] * dz   # R^T · d
+        ly = R[0][1] * dx + R[1][1] * dy + R[2][1] * dz
+        lz = R[0][2] * dx + R[1][2] * dy + R[2][2] * dz
+        return self._base.surface_distance(cx + lx, cy + ly, cz + lz)
+
+    def volume(self):
+        return self._base.volume()
+
+    def bounding_radius(self):
+        return self._base.bounding_radius()
+
+
+def _rotated_half_extent(he, R):
+    """AABB half-extents of a box [±he] rotated by R (max |coord| over 8 corners)."""
+    hx, hy, hz = he
+    mx = my = mz = 0.0
+    for sx in (-hx, hx):
+        for sy in (-hy, hy):
+            for sz in (-hz, hz):
+                wx = R[0][0] * sx + R[0][1] * sy + R[0][2] * sz
+                wy = R[1][0] * sx + R[1][1] * sy + R[1][2] * sz
+                wz = R[2][0] * sx + R[2][1] * sy + R[2][2] * sz
+                mx = max(mx, abs(wx)); my = max(my, abs(wy)); mz = max(mz, abs(wz))
+    return (mx, my, mz)
+
+
 def _shape_mass(shape, rho, bbox, n):
     """Mass of a single shape by grid-sampling its own SDF — validates volume()."""
     (x0, x1), (y0, y1), (z0, z1) = bbox
@@ -251,6 +310,12 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
     xs, ys, zs = [], [], []
     for part in spec.parts:
         shp = _shape_from(part)
+        he = _half_extent(part)
+        euler = getattr(part, "euler_deg", (0.0, 0.0, 0.0))
+        if any(euler):
+            R = _rotation(euler)
+            shp = _Rotated(shp, R)
+            he = _rotated_half_extent(he, R)
         stack.add(shp, part.name, "add")
         rho = part.density.value
         density[part.name] = rho
@@ -259,7 +324,6 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
         analytic_mass += m
         cx, cy, cz = shp.center
         Sx += m * cx; Sy += m * cy; Sz += m * cz
-        he = _half_extent(part)
         xs += [cx - he[0], cx + he[0]]; ys += [cy - he[1], cy + he[1]]
         zs += [cz - he[2], cz + he[2]]
         info.append((shp, rho, m, he))
@@ -309,18 +373,18 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
                       "mass_integrator_kg": M_num, "mass_residual": worst,
                       "resolution": resolution, "note": note}
     else:
-        nlo = max(8, resolution // 2)
-        M_lo = _integrate(composed, density, bbox, nlo)[0]
-        stab = abs(M_num - M_lo) / M_num if M_num > 0 else 1.0
+        nhi = int(resolution * 1.5)
+        M_hi, com_hi, inertia, _ = _integrate(composed, density, bbox, nhi)
+        stab = abs(M_num - M_hi) / M_hi if M_hi > 0 else 1.0
         passed = stab <= tolerance
-        mass, com = M_num, com_num
+        mass, com = M_hi, com_hi
         note = (f"{len(info)} overlapping primitive(s): mass from the SDF integrator "
-                f"(union {M_num*1000:.1f} g), not Σρ·V ({analytic_mass*1000:.1f} g); "
-                f"2-resolution stability {stab*100:.1f}% ({resolution}³ vs {nlo}³).")
+                f"(union {M_hi*1000:.1f} g), not Σρ·V ({analytic_mass*1000:.1f} g); "
+                f"convergence {stab*100:.1f}% ({resolution}³→{nhi}³).")
         validation = {"passed": passed, "mode": "overlapping",
                       "mass_analytic_sum_kg": analytic_mass,
-                      "mass_integrator_kg": M_num, "mass_residual": stab,
-                      "resolution": resolution, "note": note}
+                      "mass_integrator_kg": M_hi, "mass_residual": stab,
+                      "resolution": nhi, "note": note}
 
     return Construct(
         name=spec.name, composed=composed, density_by_label=density,
