@@ -103,6 +103,8 @@ def main() -> int:
     from sigma_ground.mcp.tools import simulation as t_sim
     from sigma_ground.mcp.tools import chemistry as t_chem
     from sigma_ground.mcp.tools import electronics as t_elec
+    from sigma_ground.mcp.tools import mathx as t_mathx
+    from sigma_ground.mcp.tools import frontier as t_front
     from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
@@ -1019,6 +1021,138 @@ def main() -> int:
     # (parallel_plate_capacitance is already exposed by the circuits group;
     #  electronics.parallel_plate_capacitance is the same physics — not
     #  re-registered here to avoid a duplicate tool name.)
+
+    # ── extended math (sympy): linear algebra, transforms, calculus ──
+    @server.tool()
+    def matrix_determinant(matrix: str) -> dict[str, Any]:
+        """Determinant of a square matrix. matrix='[[1,2],[3,4]]' -> -2."""
+        return t_mathx.matrix_determinant(matrix).to_dict()
+
+    @server.tool()
+    def matrix_eigenvalues(matrix: str) -> dict[str, Any]:
+        """Eigenvalues of a square matrix (with multiplicity)."""
+        return t_mathx.matrix_eigenvalues(matrix).to_dict()
+
+    @server.tool()
+    def matrix_inverse(matrix: str) -> dict[str, Any]:
+        """Inverse of a square matrix. matrix='[[1,2],[3,4]]'."""
+        return t_mathx.matrix_inverse(matrix).to_dict()
+
+    @server.tool()
+    def matrix_multiply(matrix_a: str, matrix_b: str) -> dict[str, Any]:
+        """Matrix product A·B (nested-list strings)."""
+        return t_mathx.matrix_multiply(matrix_a, matrix_b).to_dict()
+
+    @server.tool()
+    def solve_linear_system(matrix_a: str, vector_b: str) -> dict[str, Any]:
+        """Solve A x = b. matrix_a='[[2,1],[1,3]]', vector_b='[1,2]'."""
+        return t_mathx.solve_linear_system(matrix_a, vector_b).to_dict()
+
+    @server.tool()
+    def compute_limit(expression: str, variable: str = "x",
+                      point: str = "0", direction: str = "+-"
+                      ) -> dict[str, Any]:
+        """Limit of expression as variable -> point. direction '+','-','+-'.
+        compute_limit('sin(x)/x') -> 1."""
+        return t_mathx.compute_limit(expression, variable, point,
+                                     direction).to_dict()
+
+    @server.tool()
+    def series_expansion(expression: str, variable: str = "x",
+                         point: str = "0", order: int = 6) -> dict[str, Any]:
+        """Taylor/Maclaurin series of expression about point, to given order."""
+        return t_mathx.series_expansion(expression, variable, point,
+                                        order).to_dict()
+
+    @server.tool()
+    def summation(expression: str, variable: str = "n",
+                  lower: str = "1", upper: str = "oo") -> dict[str, Any]:
+        """Symbolic sum over variable from lower to upper ('oo' = infinity).
+        summation('1/n**2', upper='oo') -> pi**2/6."""
+        return t_mathx.summation(expression, variable, lower, upper).to_dict()
+
+    @server.tool()
+    def laplace_transform(expression: str, t_var: str = "t",
+                          s_var: str = "s") -> dict[str, Any]:
+        """Laplace transform F(s) = L{f(t)}. laplace_transform('exp(-2*t)')
+        -> 1/(s+2)."""
+        return t_mathx.laplace_transform(expression, t_var, s_var).to_dict()
+
+    @server.tool()
+    def fourier_transform(expression: str, x_var: str = "x",
+                          k_var: str = "k") -> dict[str, Any]:
+        """Fourier transform of expression."""
+        return t_mathx.fourier_transform(expression, x_var, k_var).to_dict()
+
+    @server.tool()
+    def factor_expression(expression: str) -> dict[str, Any]:
+        """Factor a polynomial / expression. factor_expression('x**2-1')
+        -> (x-1)(x+1)."""
+        return t_mathx.factor_expression(expression).to_dict()
+
+    @server.tool()
+    def expand_expression(expression: str) -> dict[str, Any]:
+        """Expand an expression. expand_expression('(x+1)**2') -> x**2+2*x+1."""
+        return t_mathx.expand_expression(expression).to_dict()
+
+    @server.tool()
+    def solve_ode(equation: str, func: str = "y",
+                  variable: str = "x") -> dict[str, Any]:
+        """Solve an ODE; use y, y', y'' for the function and derivatives.
+        solve_ode("y'' + y") -> C1*sin(x)+C2*cos(x)."""
+        return t_mathx.solve_ode(equation, func, variable).to_dict()
+
+    @server.tool()
+    def gradient(scalar_field: str,
+                 variables: str = "x,y,z") -> dict[str, Any]:
+        """Gradient ∇f of a scalar field. variables comma-separated."""
+        return t_mathx.gradient(scalar_field, variables).to_dict()
+
+    @server.tool()
+    def divergence(vector_field: str,
+                   variables: str = "x,y,z") -> dict[str, Any]:
+        """Divergence ∇·F. vector_field comma-separated components."""
+        return t_mathx.divergence(vector_field, variables).to_dict()
+
+    @server.tool()
+    def curl(vector_field: str, variables: str = "x,y,z") -> dict[str, Any]:
+        """Curl ∇×F for a 3-component field. curl('-y,x,0') -> [0,0,2]."""
+        return t_mathx.curl(vector_field, variables).to_dict()
+
+    @server.tool()
+    def percent_of(percent: float, value: float) -> dict[str, Any]:
+        """X percent of a value: (percent/100)*value. percent_of(2,60) -> 1.2."""
+        return t_mathx.percent_of(percent, value).to_dict()
+
+    # ── frontier physics (standard): BH thermo, Unruh, entanglement ──
+    @server.tool()
+    def bekenstein_hawking_entropy(mass_kg: float) -> dict[str, Any]:
+        """Black-hole entropy, temperature, horizon area & Schwarzschild radius
+        from mass. Returns {entropy_k_B, horizon_area_m2,
+        schwarzschild_radius_m, hawking_temperature_K}; solar mass ~1e77 k_B."""
+        return t_front.bekenstein_hawking_entropy(mass_kg).to_dict()
+
+    @server.tool()
+    def gravitational_binding_energy(mass_kg: float,
+                                     radius_m: float) -> dict[str, Any]:
+        """Self-gravity binding energy of a uniform sphere: U = (3/5) G M²/R.
+        Earth ≈ 2.24e32 J."""
+        return t_front.gravitational_binding_energy(mass_kg,
+                                                    radius_m).to_dict()
+
+    @server.tool()
+    def unruh_temperature(acceleration_m_s2: float) -> dict[str, Any]:
+        """Unruh temperature seen by an accelerated observer:
+        T = ħ a / (2π c k_B)."""
+        return t_front.unruh_temperature(acceleration_m_s2).to_dict()
+
+    @server.tool()
+    def entanglement_channel(scenario: str = "") -> dict[str, Any]:
+        """What an entangled pair can / cannot do as a channel. Answers FTL
+        signaling (NO — no-communication theorem), QKD (a shared secret key),
+        and the CHSH / Tsirelson bound (2√2). Pass the user's question as
+        scenario so the verdict is tailored."""
+        return t_front.entanglement_channel(scenario).to_dict()
 
     # Run via stdio transport (standard MCP).
     server.run()

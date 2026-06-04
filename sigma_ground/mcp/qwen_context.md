@@ -92,6 +92,12 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **luminosity_to_mass_conversion_rate** — dm/dt = L / c^2.  ↳ *say:* stellar mass loss to luminosity; Sun mass-loss rate; L = (dm/dt) c^2; solar luminosity mass rate
 - **mass_to_energy** — E = m c^2.  ↳ *say:* E=mc^2; mass-energy equivalence; rest mass energy; Einstein 1905; matter to energy conversion; nuclear binding
 
+### frontier
+- **bekenstein_hawking_entropy** — Black-hole entropy/temperature/horizon-area/r_s from mass; solar mass entropy ~1e77 k_B.
+- **entanglement_channel** — Whether entanglement can signal (NO, no-communication theorem), do QKD (shared secret key), and the CHSH/Tsirelson bound (2 sqrt2). Pass the user's question as scenario.
+- **gravitational_binding_energy** — Self-gravity binding energy of a uniform sphere U=(3/5)GM^2/R; Earth ~2.24e32 J.
+- **unruh_temperature** — Unruh temperature of an accelerated observer T=hbar a/(2 pi c k_B).
+
 ### gr
 - **gravitational_redshift** — Schwarzschild gravitational redshift factor at radius r.  ↳ *say:* gravitational redshift; Pound-Rebka; z = sqrt(1 - r_s/r_emit) / sqrt(1 - r_s/r_obs) - 1; redshift from gravity well
 - **gravitational_time_dilation** — Clock-rate factor at radius r relative to infinity.  ↳ *say:* gravitational time dilation; GR time dilation; sqrt(1 - r_s/r); GPS time dilation; Pound-Rebka experiment; general relativistic redshift
@@ -123,6 +129,25 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **melting_point** — Melting point in K (lookup).  ↳ *say:* melting point; T_melt; fusion temperature
 - **refractive_index** — Refractive index at 589 nm (lookup).  ↳ *say:* refractive index; n at 589 nm; sodium D-line; speed of light in medium; optical density
 - **youngs_modulus** — Young's modulus in Pa (lookup).  ↳ *say:* Young's modulus; E; elastic modulus; Hooke's law constant; stiffness; Thomas Young 1807
+
+### math
+- **compute_limit** — Limit of expression as variable->point; 'sin(x)/x' -> 1.
+- **curl** — Curl of a 3-component vector field; '-y,x,0' -> [0,0,2].
+- **divergence** — Divergence div(F) of a vector field.
+- **expand_expression** — Expand an expression; '(x+1)**2' -> x**2+2*x+1.
+- **factor_expression** — Factor a polynomial/expression; 'x**2-1' -> (x-1)(x+1).
+- **fourier_transform** — Fourier transform of an expression.
+- **gradient** — Gradient grad(f) of a scalar field.
+- **laplace_transform** — Laplace transform F(s)=L{f(t)}; 'exp(-2*t)' -> 1/(s+2).
+- **matrix_determinant** — Determinant of a square matrix; '[[1,2],[3,4]]' -> -2.
+- **matrix_eigenvalues** — Eigenvalues of a square matrix (with multiplicity).
+- **matrix_inverse** — Inverse of a square matrix.
+- **matrix_multiply** — Matrix product A*B.
+- **percent_of** — X percent of a value: (percent/100)*value; (2,60) -> 1.2.
+- **series_expansion** — Taylor/Maclaurin series about a point to a given order.
+- **solve_linear_system** — Solve A x = b; matrix_a='[[2,1],[1,3]]', vector_b='[1,2]'.
+- **solve_ode** — Solve an ODE (use y, y', y''); "y''+y" -> C1*sin(x)+C2*cos(x).
+- **summation** — Symbolic sum over a variable; '1/n**2' to oo -> pi**2/6.
 
 ### nuclear
 - **coulomb_force** — Coulomb's law F = q1 q2 / (4π ε0 r²). +repulsive/−attractive.  ↳ *say:* Coulomb force; Coulomb's law; F = k q1 q2 / r^2; electrostatic force; force between two charges
