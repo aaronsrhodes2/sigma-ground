@@ -40,7 +40,6 @@ from sigma_ground.field.interface.rotational import (
     shape_moment_of_inertia,
     shape_rolling_acceleration,
     shape_rolling_speed_from_height,
-    sigma_inertia_shift,
     rotational_properties,
     G_EARTH,
 )
@@ -458,18 +457,6 @@ def test_shape_rolling_speed_negative_height_raises():
 # 12. SIGMA COUPLING — INERTIA SHIFTS
 # =====================================================================
 
-def test_sigma_inertia_shift_at_zero():
-    """At sigma=0, I is unchanged: scale_ratio(0) = 1."""
-    I0 = 5.0
-    I_shifted = sigma_inertia_shift(I0, sigma=0)
-    assert I_shifted == pytest.approx(I0)
-
-
-def test_sigma_inertia_shift_scales():
-    """At sigma=1, I scales by e (Euler's number)."""
-    I0 = 5.0
-    I_shifted = sigma_inertia_shift(I0, sigma=1.0)
-    assert I_shifted == pytest.approx(I0 * math.e)
 
 
 def test_moment_of_inertia_sphere_sigma_scaling():

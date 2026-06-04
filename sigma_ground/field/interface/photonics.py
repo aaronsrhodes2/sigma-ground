@@ -525,45 +525,6 @@ def absorption_coefficient_indirect(photon_energy_eV, bandgap_eV,
 
 # ── σ-Dependence ─────────────────────────────────────────────────
 
-def sigma_bragg_shift(n1, d1, n2, d2, sigma):
-    """Bragg wavelength shift under σ-field.
-
-    The lattice spacing shifts through nuclear mass:
-      d(σ) ≈ d(0) × (1 + δ)  where δ is the ZPE lattice expansion
-
-    Refractive indices are EM → invariant.
-    Net: λ_Bragg shifts proportionally to lattice expansion.
-
-    CORE: σ-dependence through nuclear mass → lattice spacing.
-
-    Args:
-        n1, d1, n2, d2: Bragg stack parameters
-        sigma: σ-field value
-
-    Returns:
-        (lambda_bragg_0, lambda_bragg_sigma) tuple in metres
-    """
-    from ..scale import scale_ratio
-    from ..constants import PROTON_QCD_FRACTION
-
-    lam_0 = bragg_wavelength(n1, d1, n2, d2)
-
-    if sigma == SIGMA_HERE:
-        return (lam_0, lam_0)
-
-    # Lattice expansion from ZPE shift (same model as mechanical.py)
-    f_qcd = PROTON_QCD_FRACTION
-    mass_ratio = (1.0 - f_qcd) + f_qcd * scale_ratio(sigma)
-    # ZPE contributes ~1% to lattice parameter, scales as 1/√m
-    f_zpe = 0.01
-    expansion = f_zpe * (1.0 - 1.0 / math.sqrt(mass_ratio))
-
-    d1_sigma = d1 * (1.0 + expansion)
-    d2_sigma = d2 * (1.0 + expansion)
-
-    lam_sigma = bragg_wavelength(n1, d1_sigma, n2, d2_sigma)
-    return (lam_0, lam_sigma)
-
 
 # ── Nagatha Integration ──────────────────────────────────────────
 

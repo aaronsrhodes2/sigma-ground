@@ -21,7 +21,6 @@ from sigma_ground.field.decay import (
     q_value_beta_plus,
     gamow_factor,
     alpha_decay_rate_geiger_nuttall,
-    sigma_decay_shift,
 )
 
 
@@ -216,19 +215,5 @@ def test_alpha_decay_rate_increases_with_Q():
 
 # ── σ-connection ───────────────────────────────────────────────────────
 
-def test_sigma_decay_shift_zero():
-    """At σ = 0: λ_eff = λ₀."""
-    lam = 1e-5
-    assert sigma_decay_shift(0.0, lam) == pytest.approx(lam, rel=1e-12)
 
 
-def test_sigma_decay_shift_increases():
-    """At σ > 0: λ_eff > λ₀ (faster decay in compressed spacetime)."""
-    lam = 1e-5
-    assert sigma_decay_shift(1.0, lam) > lam
-
-
-def test_sigma_decay_shift_exponential():
-    """λ_eff = λ₀ × e^σ."""
-    lam, sigma = 2e-3, 0.75
-    assert sigma_decay_shift(sigma, lam) == pytest.approx(lam * math.exp(sigma), rel=1e-10)

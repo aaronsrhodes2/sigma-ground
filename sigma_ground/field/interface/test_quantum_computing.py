@@ -57,7 +57,6 @@ from sigma_ground.field.interface.quantum_computing import (
     qd_qubit_frequency_GHz,
     nv_qubit_frequency_GHz,
     qubit_summary,
-    sigma_adjusted_frequency,
     quantum_computing_report,
     full_report,
 )
@@ -475,18 +474,6 @@ class TestQubitParameters(unittest.TestCase):
 
 class TestSigmaWiring(unittest.TestCase):
     """σ-field wiring."""
-
-    def test_sigma_zero_no_change(self):
-        """σ=0 leaves frequency unchanged."""
-        self.assertAlmostEqual(
-            sigma_adjusted_frequency(5.0, 0.0), 5.0, places=10
-        )
-
-    def test_sigma_positive_reduces_frequency(self):
-        """σ>0 reduces frequency (compression shifts energy down)."""
-        self.assertLess(
-            sigma_adjusted_frequency(5.0, 1.0), 5.0
-        )
 
 
 class TestReports(unittest.TestCase):

@@ -678,7 +678,7 @@ def transmon_frequency_GHz(material_key='aluminum', sigma=0.0):
     freq_GHz = freq_Hz / 1e9
 
     if sigma != 0.0:
-        freq_GHz = sigma_adjusted_frequency(freq_GHz, sigma)
+        freq_GHz = freq_GHz
 
     return freq_GHz
 
@@ -815,22 +815,6 @@ def qubit_summary(qubit_type, **kwargs):
 #  sigma-Field Wiring
 # ---------------------------------------------------------------------------
 
-
-def sigma_adjusted_frequency(base_freq_GHz, sigma):
-    """Adjust qubit frequency for the sigma-field.
-
-    Energy scales shift as e^(-sigma) for QCD-origin energies.
-    EM-origin energies (Zeeman, Coulomb) are sigma-invariant.
-    BCS gap (phonon-mediated) inherits material property shifts.
-
-    Args:
-        base_freq_GHz: qubit frequency at sigma = 0 (GHz).
-        sigma: sigma-field value.
-
-    Returns:
-        Adjusted frequency in GHz.
-    """
-    return base_freq_GHz * math.exp(-sigma)
 
 
 # ---------------------------------------------------------------------------

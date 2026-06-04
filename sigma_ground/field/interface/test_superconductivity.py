@@ -33,10 +33,8 @@ from .superconductivity import (
     specific_heat_jump_ratio,
     meissner_fraction,
     sigma_Tc_shift,
-    sigma_gap_shift,
     mcmillan_Tc,
     mcmillan_Tc_for,
-    sigma_mcmillan_Tc,
     debye_comparison,
     block_cooling_profile,
     superconductor_properties,
@@ -319,12 +317,6 @@ class TestSigmaDependence(unittest.TestCase):
         T_c_s = sigma_Tc_shift(T_c_0, 0.1)
         self.assertLess(T_c_s, T_c_0)
 
-    def test_gap_decreases_with_sigma(self):
-        """Δ(σ) < Δ(0) for σ > 0 (tracks T_c)."""
-        d0 = sigma_gap_shift(9.25, 0.0)
-        ds = sigma_gap_shift(9.25, 0.1)
-        self.assertLess(ds, d0)
-
     def test_earth_sigma_negligible(self):
         """At Earth σ ~ 7×10⁻¹⁰: T_c shift < 10⁻⁸ K."""
         T_c_0 = 9.25
@@ -586,24 +578,6 @@ class TestMcMillanFormula(unittest.TestCase):
 
 class TestMcMillanSigma(unittest.TestCase):
     """McMillan T_c under σ-field: Θ_D shifts through nuclear mass."""
-
-    def test_identity_at_zero(self):
-        """σ=0: sigma_mcmillan_Tc = mcmillan_Tc."""
-        T_c_0 = mcmillan_Tc(275, 1.26, 0.13)
-        T_c_s = sigma_mcmillan_Tc(275, 1.26, 0.13, 0.0)
-        self.assertAlmostEqual(T_c_0, T_c_s, places=10)
-
-    def test_positive_sigma_decreases_Tc(self):
-        """Positive σ → heavier lattice → lower Θ_D → lower T_c."""
-        T_c_0 = sigma_mcmillan_Tc(275, 1.26, 0.13, 0.0)
-        T_c_s = sigma_mcmillan_Tc(275, 1.26, 0.13, 0.1)
-        self.assertLess(T_c_s, T_c_0)
-
-    def test_earth_sigma_negligible(self):
-        """At Earth σ ~ 7×10⁻¹⁰: shift < 10⁻⁶ K."""
-        T_c_0 = sigma_mcmillan_Tc(275, 1.26, 0.13, 0.0)
-        T_c_s = sigma_mcmillan_Tc(275, 1.26, 0.13, 7e-10)
-        self.assertAlmostEqual(T_c_0, T_c_s, places=6)
 
 
 class TestNonSuperconductors(unittest.TestCase):

@@ -482,20 +482,6 @@ def shape_rolling_speed_from_height(shape, height, axis='z', g=G_EARTH):
 
 # ── σ-field coupling ─────────────────────────────────────────────────
 
-def sigma_inertia_shift(inertia, sigma):
-    """Moment of inertia at σ: I(σ) = I₀ × scale_ratio(σ).
-
-    I ∝ m for fixed geometry. Mass scales with σ.
-
-    Args:
-        inertia: moment of inertia at σ=0 in kg·m²
-        sigma: σ-field value
-
-    Returns:
-        Moment of inertia at σ in kg·m².
-    """
-    return inertia * scale_ratio(sigma)
-
 
 # ── Nagatha Export ───────────────────────────────────────────────────
 

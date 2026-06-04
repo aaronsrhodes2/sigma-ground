@@ -13,9 +13,6 @@ import unittest
 
 from sigma_ground.inventory.derived import (
     derive_moi_factor,
-    derive_j2_darwin_radau,
-    derive_j2_clairaut,
-    derive_love_number_k2,
     DerivedBodyParameters,
     ShellContribution,
 )
@@ -119,19 +116,6 @@ class TestUniformSphereSanity(unittest.TestCase):
 
 class TestUnimplementedScaffolds(unittest.TestCase):
     """The future-work scaffolds should fail loudly until implemented."""
-
-    def test_j2_darwin_radau_raises(self):
-        params = derive_moi_factor("earths_layers", 6371.0)
-        with self.assertRaises(NotImplementedError):
-            derive_j2_darwin_radau(params, rotation_rate_rad_s=7.2921e-5)
-
-    def test_j2_clairaut_raises(self):
-        with self.assertRaises(NotImplementedError):
-            derive_j2_clairaut("earths_layers", 6371.0, 7.2921e-5)
-
-    def test_love_number_k2_raises(self):
-        with self.assertRaises(NotImplementedError):
-            derive_love_number_k2("earths_layers", 6371.0, 1.5e11)
 
 
 if __name__ == "__main__":

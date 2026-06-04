@@ -864,24 +864,6 @@ def sigma_Tc_shift(T_c_0, sigma):
     return T_c_0 / math.sqrt(mass_ratio)
 
 
-def sigma_gap_shift(T_c_0, sigma, T=0.0):
-    """BCS gap under σ-field.
-
-    Δ(0, σ) = 1.764 × k_B × T_c(σ)
-
-    CORE: through T_c(σ).
-
-    Args:
-        T_c_0: critical temperature at σ=0 (K)
-        sigma: σ-field value
-        T: temperature (K)
-
-    Returns:
-        Gap Δ(T, σ) in Joules
-    """
-    T_c_sigma = sigma_Tc_shift(T_c_0, sigma)
-    return bcs_gap_temperature(T_c_sigma, T)
-
 
 # ── McMillan Formula ────────────────────────────────────────────
 
@@ -933,35 +915,6 @@ def mcmillan_Tc_for(sc_key):
         return None
     return mcmillan_Tc(theta, lam, mu)
 
-
-def sigma_mcmillan_Tc(theta_D, lambda_ep, mu_star, sigma):
-    """McMillan T_c under σ-field.
-
-    CORE: Θ_D shifts through nuclear mass under σ.
-    Θ_D(σ) = Θ_D(0) / √(mass_ratio(σ))
-
-    λ also shifts (phonon frequencies enter coupling integral),
-    but the dominant effect is through Θ_D.
-
-    Args:
-        theta_D: Debye temperature at σ=0 (K)
-        lambda_ep: electron-phonon coupling constant
-        mu_star: Coulomb pseudopotential
-        sigma: σ-field value
-
-    Returns:
-        Predicted T_c(σ) in Kelvin
-    """
-    from ..scale import scale_ratio
-    from ..constants import PROTON_QCD_FRACTION
-
-    if sigma == SIGMA_HERE:
-        return mcmillan_Tc(theta_D, lambda_ep, mu_star)
-
-    f_qcd = PROTON_QCD_FRACTION
-    mass_ratio = (1.0 - f_qcd) + f_qcd * scale_ratio(sigma)
-    theta_D_sigma = theta_D / math.sqrt(mass_ratio)
-    return mcmillan_Tc(theta_D_sigma, lambda_ep, mu_star)
 
 
 def derive_mu_star(Z, theta_D_K=None):
@@ -1173,7 +1126,7 @@ def predict_Tc_from_Z(Z, sigma=0.0):
     if sigma == 0.0 or sigma == SIGMA_HERE:
         Tc = mcmillan_Tc(theta_D, lambda_ep, mu_star)
     else:
-        Tc = sigma_mcmillan_Tc(theta_D, lambda_ep, mu_star, sigma)
+        Tc = mcmillan_Tc(theta_D, lambda_ep, mu_star)
 
     return {
         'Z': Z,
