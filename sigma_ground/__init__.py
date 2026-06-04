@@ -22,8 +22,8 @@ Quick start::
     s = build_quick_structure("Iron", 1.0)
     result = stoq(s)
 
-    # σ-field constants
-    from sigma_ground.field.constants import XI, HBAR, C
+    # physical constants
+    from sigma_ground.field.constants import HBAR, C
 
     # N-body dynamics
     from sigma_ground.dynamics.scene import PhysicsScene
@@ -38,7 +38,6 @@ Author: Aaron Rhodes
 
 from .constants import (
     G, C, HBAR, L_PLANCK,
-    XI, SIGMA_CONV, ETA,
     K_B, ALPHA, MU_0, M_ELECTRON_KG,
     M_SUN_KG, L_SUN_W, AU_M, YEAR_S,
 )
@@ -64,8 +63,6 @@ __all__ = [
     # Fundamental constants
     'G', 'C', 'HBAR', 'L_PLANCK',
     'K_B', 'ALPHA', 'MU_0', 'M_ELECTRON_KG',
-    # SSBM field parameters
-    'XI', 'SIGMA_CONV', 'ETA',
     # Astronomical
     'M_SUN_KG', 'L_SUN_W', 'AU_M', 'YEAR_S',
     # Math primitives

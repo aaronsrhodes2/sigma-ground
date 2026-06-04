@@ -10,11 +10,7 @@ No magic numbers.
 
 # ── Re-export from the authoritative source ──────────────────────────────────
 from sigma_ground.field.constants import (
-    # SSBM parameters
-    XI,
     LAMBDA_QCD_MEV,
-    GAMMA,
-    SIGMA_CONV,
 
     # Physical constants
     G,
@@ -72,7 +68,7 @@ from sigma_ground.field.constants import (
 # L_PLANCK = sqrt(ħG/c³) = 1.616255e-35 m  (re-exported above from local_library)
 
 __all__ = [
-    'XI', 'LAMBDA_QCD_MEV', 'GAMMA', 'SIGMA_CONV',
+    'LAMBDA_QCD_MEV',
     'G', 'C', 'HBAR',
     'M_UP_MEV', 'M_DOWN_MEV',
     'PROTON_BARE_MEV', 'PROTON_TOTAL_MEV', 'PROTON_QCD_MEV',

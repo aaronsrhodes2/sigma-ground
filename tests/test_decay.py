@@ -228,14 +228,6 @@ def test_sigma_decay_shift_increases():
     assert sigma_decay_shift(1.0, lam) > lam
 
 
-def test_sigma_decay_shift_at_conv():
-    """At σ_conv: λ_eff ≈ λ₀/ξ."""
-    from sigma_ground.field.constants import SIGMA_CONV, XI
-    lam = 1e-5
-    lam_eff = sigma_decay_shift(SIGMA_CONV, lam)
-    assert lam_eff == pytest.approx(lam / XI, rel=1e-3)
-
-
 def test_sigma_decay_shift_exponential():
     """λ_eff = λ₀ × e^σ."""
     lam, sigma = 2e-3, 0.75

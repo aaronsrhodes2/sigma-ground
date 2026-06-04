@@ -23,7 +23,6 @@ from sigma_ground.field.electrodynamics import (
     cyclotron_frequency,
     skin_depth,
     fine_structure_constant,
-    sigma_em_coupling,
     muon_anomalous_moment_experimental,
     muon_anomalous_moment_sm,
     muon_g2_tension_sigmas,
@@ -208,28 +207,6 @@ def test_fine_structure_constant_inverse():
 def test_fine_structure_constant_matches_module_constant():
     """fine_structure_constant() == ALPHA constant in constants.py."""
     assert fine_structure_constant() == pytest.approx(ALPHA, rel=1e-12)
-
-
-# ── σ-connection ───────────────────────────────────────────────────────
-
-def test_sigma_em_coupling_zero():
-    """At σ = 0: α_eff = α."""
-    alpha_eff = sigma_em_coupling(0.0)
-    assert alpha_eff == pytest.approx(ALPHA, rel=1e-12)
-
-
-def test_sigma_em_coupling_increases():
-    """At σ > 0: α_eff > α (stronger EM coupling in compressed spacetime)."""
-    alpha_eff = sigma_em_coupling(1.0)
-    assert alpha_eff > ALPHA
-
-
-def test_sigma_em_coupling_at_conv():
-    """At σ_conv: α_eff = α × e^(2ξ × σ_conv) = α × e^(−2ξ ln ξ) = α × ξ^(−2ξ)."""
-    from sigma_ground.field.constants import SIGMA_CONV, XI
-    alpha_eff = sigma_em_coupling(SIGMA_CONV)
-    expected = ALPHA * math.exp(2 * XI * SIGMA_CONV)
-    assert alpha_eff == pytest.approx(expected, rel=1e-10)
 
 
 # ── Phase XII.c.1: Muon g−2 Theory Initiative 2025 ────────────────────

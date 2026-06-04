@@ -223,13 +223,6 @@ def test_sigma_time_dilation_positive():
     assert t_coord == pytest.approx(math.e, rel=1e-10)
 
 
-def test_sigma_time_dilation_at_conv():
-    """At σ_conv ≈ 1.849: dilation factor ≈ 1/ξ = 1/0.1582 ≈ 6.32."""
-    from sigma_ground.field.constants import SIGMA_CONV, XI
-    dilation = sigma_time_dilation(SIGMA_CONV, 1.0)
-    assert dilation == pytest.approx(1.0 / XI, rel=1e-4)
-
-
 def test_sigma_time_dilation_linearity():
     """Dilation is linear in t₀."""
     t0 = 7.5
@@ -247,23 +240,3 @@ def test_sigma_time_dilation_linearity():
 def test_effective_liv_scale_infinite_at_sigma_zero():
     """At σ=0 (observer frame) the engine predicts no LIV."""
     assert effective_liv_scale_gev(0.0) == math.inf
-
-
-def test_effective_liv_scale_infinite_at_sigma_conv():
-    """At σ = σ_conv (bond-failure surface) the engine still predicts no
-    external-frame LIV — σ-time-dilation is not a dispersion modification."""
-    from sigma_ground.field.constants import SIGMA_CONV
-    assert effective_liv_scale_gev(SIGMA_CONV) == math.inf
-
-
-def test_effective_liv_scale_respects_km3_bound():
-    """Engine's predicted Λ₂_eff must exceed the KM3-230213A bound at all σ
-    we can reach in simulations."""
-    from sigma_ground.field.constants import LAMBDA_LIV_MIN_GEV, SIGMA_CONV
-    for s in (0.0, 0.1, 1.0, SIGMA_CONV, 2.5):
-        scale = effective_liv_scale_gev(s)
-        assert scale > LAMBDA_LIV_MIN_GEV, (
-            f"Engine predicts Λ₂_eff = {scale} GeV at σ={s}, "
-            f"which violates KM3 bound {LAMBDA_LIV_MIN_GEV} GeV. "
-            f"arXiv:2502.18256."
-        )

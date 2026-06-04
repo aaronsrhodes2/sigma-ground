@@ -11,7 +11,7 @@ Reference values:
 import math
 import pytest
 
-from sigma_ground.field.constants import G, C, HBAR, K_B, M_SUN_KG, XI
+from sigma_ground.field.constants import G, C, HBAR, K_B, M_SUN_KG
 from sigma_ground.field.gr_basics import (
     schwarzschild_radius,
     gravitational_redshift,
@@ -23,9 +23,7 @@ from sigma_ground.field.gr_basics import (
     hawking_luminosity,
     hawking_evaporation_time,
     page_time_sm,
-    page_time_sigma_ground,
     tidal_force,
-    sigma_at_horizon,
 )
 
 
@@ -253,35 +251,6 @@ def test_tidal_force_zero_radius_raises():
         tidal_force(M_SUN_KG, 0.0, 1.0)
 
 
-# ── σ-connection ───────────────────────────────────────────────────────
-
-def test_sigma_at_horizon_universal():
-    """σ at the horizon = ξ/2, regardless of mass."""
-    sigma_1 = sigma_at_horizon(M_SUN_KG)
-    sigma_2 = sigma_at_horizon(1e9 * M_SUN_KG)
-    sigma_3 = sigma_at_horizon(1e-3 * M_SUN_KG)
-    assert sigma_1 == pytest.approx(XI / 2, rel=1e-12)
-    assert sigma_1 == pytest.approx(sigma_2, rel=1e-12)
-    assert sigma_1 == pytest.approx(sigma_3, rel=1e-12)
-
-
-def test_sigma_at_horizon_value():
-    """σ at horizon = ξ/2 ≈ 0.0791."""
-    sigma_h = sigma_at_horizon(M_SUN_KG)
-    assert sigma_h == pytest.approx(XI / 2, rel=1e-10)
-
-
-def test_sigma_at_horizon_below_sigma_conv():
-    """σ at horizon must be below σ_conv (BH horizon is not the transition)."""
-    from sigma_ground.field.constants import SIGMA_CONV
-    sigma_h = sigma_at_horizon(M_SUN_KG)
-    assert sigma_h < SIGMA_CONV
-
-
-# ── Phase XII.a.2: Page time gate (arXiv:2502.04430) ──────────────────
-# Sigma-ground must produce a specific, falsifiable Page-time prediction.
-# Prediction: t_Page,SG / t_Page,SM = (1 − η/2) ≈ 0.7924 (UP-002).
-
 def test_page_time_sm_is_fraction_of_evaporation():
     """SM Page time must be a positive fraction of total evaporation time."""
     from sigma_ground.field.gr_basics import hawking_evaporation_time
@@ -292,41 +261,19 @@ def test_page_time_sm_is_fraction_of_evaporation():
     assert t_sm == pytest.approx(0.5384 * t_evap, rel=1e-10)
 
 
-def test_page_time_sigma_ground_shifted_by_one_minus_eta_over_two():
-    """Sigma-ground Page time differs from SM by factor (1 − η/2) ≈ 0.7924."""
-    from sigma_ground.field.constants import ETA
-    M = 1.0e12  # kg
-    ratio = page_time_sigma_ground(M) / page_time_sm(M)
-    expected = 1.0 - ETA / 2.0
-    assert ratio == pytest.approx(expected, rel=1e-10)
-    # Sanity: the predicted shift is non-trivial (~20% earlier than SM).
-    assert 0.75 < ratio < 0.85
-
-
-def test_page_time_scales_with_M_cubed():
-    """Page time inherits the M³ scaling of Hawking evaporation time."""
-    ratio = page_time_sigma_ground(2.0e12) / page_time_sigma_ground(1.0e12)
+def test_page_time_sm_scales_with_M_cubed():
+    """Page time inherits the M^3 scaling of Hawking evaporation time."""
+    ratio = page_time_sm(2.0e12) / page_time_sm(1.0e12)
     assert ratio == pytest.approx(8.0, rel=1e-10)
 
 
-def test_page_time_rejects_nonpositive_mass():
-    """Both Page-time functions reject M ≤ 0."""
+def test_page_time_sm_rejects_nonpositive_mass():
+    """page_time_sm rejects M <= 0."""
     with pytest.raises(ValueError):
         page_time_sm(0.0)
     with pytest.raises(ValueError):
-        page_time_sigma_ground(-1.0)
+        page_time_sm(-1.0)
 
-
-# ── Phase XII.d.1: Replica wormholes (arXiv:2504.18663) ──────────────
-
-def test_replica_wormhole_stub_refuses_to_fabricate():
-    """Stub raises NotImplementedError until paper numerics are lifted."""
-    from sigma_ground.field.gr_basics import replica_wormhole_entropy_contribution
-    with pytest.raises(NotImplementedError):
-        replica_wormhole_entropy_contribution(1.0e12)
-
-
-# ── Phase XII.d.4: Bit-thread entropy (arXiv:2508.18941) ─────────────
 
 def test_bekenstein_hawking_entropy_positive():
     from sigma_ground.field.gr_basics import bekenstein_hawking_entropy
@@ -357,20 +304,3 @@ def test_bekenstein_hawking_rejects_nonpositive_mass():
         bekenstein_hawking_entropy(0.0)
     with pytest.raises(ValueError):
         bekenstein_hawking_entropy(-1.0)
-
-
-def test_eta_as_bit_thread_fraction_consistent_with_eta():
-    """UP-007 scaffold: n_bits_active / n_bits_total = η exactly."""
-    from sigma_ground.field.gr_basics import eta_as_bit_thread_fraction
-    from sigma_ground.field.constants import ETA
-    r = eta_as_bit_thread_fraction(M_SUN_KG)
-    ratio = r['n_bits_active'] / r['n_bits_total']
-    assert ratio == pytest.approx(ETA, rel=1e-10)
-
-
-def test_eta_as_bit_thread_fraction_reports_eta():
-    from sigma_ground.field.gr_basics import eta_as_bit_thread_fraction
-    from sigma_ground.field.constants import ETA
-    r = eta_as_bit_thread_fraction(M_SUN_KG)
-    assert r['eta'] == ETA
-    assert 'UP-007' in r['note']

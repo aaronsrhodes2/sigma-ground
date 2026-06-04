@@ -23,7 +23,7 @@ Dependency: E_CHARGE, EPS_0, C, HBAR, MU_0, M_ELECTRON_KG, ALPHA, XI
 import math
 
 from .constants import (
-    E_CHARGE, EPS_0, C, HBAR, MU_0, M_ELECTRON_KG, ALPHA, XI,
+    E_CHARGE, EPS_0, C, HBAR, MU_0, M_ELECTRON_KG, ALPHA,
     A_MU_EXP_X1E11, A_MU_EXP_X1E11_SIGMA,
     A_MU_SM_X1E11,  A_MU_SM_X1E11_SIGMA,
     MU_G2_TENSION_RESOLVED,
@@ -255,34 +255,6 @@ def fine_structure_constant():
         α (dimensionless) ≈ 7.297e-3
     """
     return E_CHARGE**2 / (4.0 * math.pi * EPS_0 * HBAR * C)
-
-
-# ── σ-Connection ───────────────────────────────────────────────────────
-
-def sigma_em_coupling(sigma):
-    """Effective fine structure constant under σ-field compression.
-
-    At the σ-transition, the QCD energy scale Λ_QCD shifts by e^σ.
-    The EM coupling α is dimensionless and σ-invariant at tree level,
-    but the effective nuclear EM coupling (Coulomb coefficient A_C)
-    depends on r₀ which is a nuclear — not atomic — length.
-
-    In the SSBM framework:  α_eff(σ) = α × e^(2ξσ)
-
-    Physical interpretation: inside a σ-compressed pocket, the nuclear
-    charge radius r₀ shrinks as Λ_QCD grows, so the Coulomb repulsion
-    per nucleon pair increases.
-
-    At σ = 0: α_eff = α (standard value ≈ 1/137).
-    At σ_conv ≈ 1.849: α_eff ≈ α × e^(2×0.1582×1.849) ≈ α × 1.80.
-
-    Args:
-        sigma: σ-field value (dimensionless, ≥ 0)
-
-    Returns:
-        effective EM coupling (dimensionless)
-    """
-    return ALPHA * scale_ratio(2.0 * XI * sigma)
 
 
 # ── Muon g−2 precision test ──────────────────────────────────────────
