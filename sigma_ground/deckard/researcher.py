@@ -20,7 +20,7 @@ import re
 import urllib.request
 
 from .schema import ConstructSpec, Fact, SpecLayer, Part
-from .sources import local as _local
+from . import sources as _sources
 
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.environ.get("DECKARD_OLLAMA_MODEL", "qwen2.5:7b")
@@ -118,8 +118,8 @@ _SHAPE_DIMS = {"sphere": ["radius_m"], "cylinder": ["radius_m", "height_m"],
 
 
 def _density(material: str) -> Fact:
-    """Grounded density Fact, else a flagged [estimated] fallback."""
-    f = _local.density_of(material)
+    """Grounded density Fact (local first, then Wikidata), else flagged [estimated]."""
+    f = _sources.density_of(material, allow_web=True)
     return f if f is not None else Fact(1000.0, "estimated", "", 0.2)
 
 
