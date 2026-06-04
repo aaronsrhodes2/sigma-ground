@@ -2,18 +2,19 @@
 
 A catalog hit is the deterministic, offline path: resolve a name to a slug,
 read ``catalog/<slug>.md``, and parse its canonical json payload into a
-ConstructSpec. Researched specs are written here (frozen) and reused next time,
-so a given object is researched once and identified deterministically after.
+ConstructSpec. Researched specs are frozen here (``save_for``) and reused next
+time, so a given object is researched once and identified deterministically after.
 """
 from __future__ import annotations
 
 import pathlib
+import re
 
 from ..schema import ConstructSpec, emit_markdown, parse_markdown
 
 _DIR = pathlib.Path(__file__).resolve().parent
 
-# name (lowercased) -> slug.  Containment-matched too ("a ceramic mug" -> mug).
+# curated name (lowercased) -> slug.  Containment-matched too ("a ceramic mug").
 ALIASES = {
     "coffee cup": "coffee_cup",
     "coffee mug": "coffee_cup",
@@ -23,8 +24,13 @@ ALIASES = {
 }
 
 
+def slugify(name: str) -> str:
+    """Filesystem-safe slug for an arbitrary object name."""
+    return re.sub(r"[^a-z0-9]+", "_", name.strip().lower()).strip("_")
+
+
 def slug_for(name: str) -> str | None:
-    """Resolve a free-text name to a catalog slug, or None."""
+    """Resolve a free-text name to a *curated* catalog slug, or None."""
     key = name.strip().lower()
     if key in ALIASES:
         return ALIASES[key]
@@ -32,6 +38,11 @@ def slug_for(name: str) -> str | None:
         if alias in key:
             return slug
     return None
+
+
+def _resolve(name: str) -> str:
+    """The slug a name reads from / writes to (curated alias else slugified)."""
+    return slug_for(name) or slugify(name)
 
 
 def path_for(slug: str) -> pathlib.Path:
@@ -48,8 +59,8 @@ def load(slug: str) -> ConstructSpec:
 
 
 def lookup(name: str) -> ConstructSpec | None:
-    """Catalog hit for a free-text name, or None on a miss."""
-    slug = slug_for(name)
+    """Catalog hit for a free-text name (curated alias or a frozen slug)."""
+    slug = _resolve(name)
     if slug and has(slug):
         return load(slug)
     return None
@@ -62,4 +73,10 @@ def save(slug: str, spec: ConstructSpec) -> pathlib.Path:
     return p
 
 
-__all__ = ["ALIASES", "slug_for", "path_for", "has", "load", "lookup", "save"]
+def save_for(name: str, spec: ConstructSpec) -> pathlib.Path:
+    """Freeze a researched spec under the slug ``lookup(name)`` will find."""
+    return save(_resolve(name), spec)
+
+
+__all__ = ["ALIASES", "slugify", "slug_for", "path_for",
+           "has", "load", "lookup", "save", "save_for"]

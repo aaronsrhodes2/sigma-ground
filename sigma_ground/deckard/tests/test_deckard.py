@@ -52,5 +52,6 @@ def test_density_at_matches_layer():
 
 
 def test_unidentified_is_flagged_not_faked():
-    assert research("flux capacitor").identified is False
-    assert identify("flux capacitor", resolution=24).identified is False
+    # allow_llm=False exercises the deterministic fallback (no network).
+    assert research("flux capacitor", allow_llm=False).identified is False
+    assert identify("flux capacitor", resolution=24, allow_llm=False).identified is False

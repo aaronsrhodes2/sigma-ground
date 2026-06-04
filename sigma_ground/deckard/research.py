@@ -59,6 +59,10 @@ def research(name: str, *, allow_llm: bool = True) -> ConstructSpec:
             from .researcher import research_spec   # lazy: optional deps / network
             spec = research_spec(name)
             if spec is not None:
+                try:
+                    catalog.save_for(name, spec)   # freeze → next lookup is a hit
+                except Exception:
+                    pass
                 return spec
         except Exception:
             pass   # fall through to the flagged default — never a fake

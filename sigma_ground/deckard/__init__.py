@@ -31,9 +31,13 @@ from .construct import compile, compile_vessel, Construct, Layer
 ItemSpec = ConstructSpec
 
 
-def identify(name: str, resolution: int = 64) -> Construct:
-    """Full Deckard pipeline: a name → researched, compiled, validated matter."""
-    return compile(research(name), resolution=resolution)
+def identify(name: str, resolution: int = 64, *, allow_llm: bool = True) -> Construct:
+    """Full Deckard pipeline: a name → researched, compiled, validated matter.
+
+    ``allow_llm=False`` forces the deterministic path (catalog hit else flagged
+    best-guess) — no network — which is what tests and offline callers want.
+    """
+    return compile(research(name, allow_llm=allow_llm), resolution=resolution)
 
 
 __all__ = [
