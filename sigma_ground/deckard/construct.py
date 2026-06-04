@@ -20,7 +20,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 
-from ..kernel.shapes import Cylinder, Sphere, Box, Cone
+from ..kernel.shapes import Cylinder, Sphere, Box, Cone, Torus, Ellipsoid
 from ..kernel.csg import ComposedSDF
 
 
@@ -186,6 +186,10 @@ def _shape_from(part):
         return Box(d["x_m"], d["y_m"], d["z_m"], center=c)
     if s == "cone":
         return Cone(d["radius_m"], d["height_m"], center=c)
+    if s == "torus":
+        return Torus(d["major_radius_m"], d["minor_radius_m"], center=c)
+    if s == "ellipsoid":
+        return Ellipsoid(d["rx_m"], d["ry_m"], d["rz_m"], center=c)
     raise ValueError(f"unsupported primitive shape '{part.shape}' in part '{part.name}'")
 
 
@@ -201,15 +205,39 @@ def _half_extent(part):
         return (d["radius_m"], d["radius_m"], d["height_m"] / 2.0)
     if s == "box":
         return (d["x_m"] / 2.0, d["y_m"] / 2.0, d["z_m"] / 2.0)
+    if s == "torus":
+        rr = d["major_radius_m"] + d["minor_radius_m"]
+        return (rr, rr, d["minor_radius_m"])
+    if s == "ellipsoid":
+        return (d["rx_m"], d["ry_m"], d["rz_m"])
     raise ValueError(f"no AABB for shape '{part.shape}'")
 
 
-def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
-    """Compose primitive parts, integrate, self-check vs analytic Σ(ρ·V).
+def _shape_mass(shape, rho, bbox, n):
+    """Mass of a single shape by grid-sampling its own SDF — validates volume()."""
+    (x0, x1), (y0, y1), (z0, z1) = bbox
+    dx, dy, dz = (x1 - x0) / n, (y1 - y0) / n, (z1 - z0) / n
+    cell = dx * dy * dz
+    M = 0.0
+    for iz in range(n):
+        z = z0 + (iz + 0.5) * dz
+        for iy in range(n):
+            y = y0 + (iy + 0.5) * dy
+            for ix in range(n):
+                if shape.surface_distance(x0 + (ix + 0.5) * dx, y, z) < 0.0:
+                    M += rho * cell
+    return M
 
-    mass / CoM are the analytic sum over parts (exact for non-overlapping
-    primitives); inertia comes from the grid integrator, which is cross-checked
-    against the analytic mass.
+
+def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
+    """Compose primitive parts → validated matter.
+
+    Disjoint parts: mass / CoM are the exact analytic sum (Σ ρ·shape.volume());
+    the self-check grid-integrates each shape against its own analytic volume.
+    Overlapping parts (detected via intersecting bounding spheres): the SDF
+    integrator (union, last-material-wins) is canonical — Σ ρ·V would double-count
+    the overlap — and the self-check is a two-resolution stability test. Inertia
+    always comes from the integrator.
     """
     if not spec.parts:
         raise ValueError(f"spec '{spec.name}' has no parts to compile")
@@ -217,9 +245,10 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
     stack = _LayerStack()
     density = {}
     layers = []
+    info = []                                # (shape, rho, mass, half_extent)
     analytic_mass = 0.0
-    Sx = Sy = Sz = 0.0                       # mass-weighted first moments
-    xs, ys, zs = [], [], []                  # for the bounding box
+    Sx = Sy = Sz = 0.0                        # mass-weighted first moments
+    xs, ys, zs = [], [], []
     for part in spec.parts:
         shp = _shape_from(part)
         stack.add(shp, part.name, "add")
@@ -230,42 +259,74 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
         analytic_mass += m
         cx, cy, cz = shp.center
         Sx += m * cx; Sy += m * cy; Sz += m * cz
-        hx, hy, hz = _half_extent(part)
-        xs += [cx - hx, cx + hx]; ys += [cy - hy, cy + hy]; zs += [cz - hz, cz + hz]
+        he = _half_extent(part)
+        xs += [cx - he[0], cx + he[0]]; ys += [cy - he[1], cy + he[1]]
+        zs += [cz - he[2], cz + he[2]]
+        info.append((shp, rho, m, he))
         layers.append(Layer(part.name, part.material, rho, vol, m, part.density.cite()))
 
     if analytic_mass <= 0.0:
         raise ValueError(f"spec '{spec.name}' compiled to zero mass")
     composed = ComposedSDF(stack)
     com_ana = (Sx / analytic_mass, Sy / analytic_mass, Sz / analytic_mass)
-
     pad = 0.02 * max(max(xs) - min(xs), max(ys) - min(ys), max(zs) - min(zs), 1e-9)
-    bbox = ((min(xs) - pad, max(xs) + pad),
-            (min(ys) - pad, max(ys) + pad),
+    bbox = ((min(xs) - pad, max(xs) + pad), (min(ys) - pad, max(ys) + pad),
             (min(zs) - pad, max(zs) + pad))
     M_num, com_num, inertia, _vol = _integrate(composed, density, bbox, resolution)
-    mass_res = abs(M_num - analytic_mass) / analytic_mass
-    com_res = math.dist(com_num, com_ana)
-    passed = mass_res <= tolerance and com_res <= 0.002
 
-    validation = {
-        "passed": passed,
-        "mass_analytic_total_kg": analytic_mass,
-        "mass_integrator_kg": M_num,
-        "mass_residual": mass_res,
-        "com_residual_m": com_res,
-        "resolution": resolution,
-        "note": (f"{len(spec.parts)} primitive(s): analytic Σ(ρ·V) "
-                 f"{analytic_mass*1000:.1f} g vs SDF integrator {M_num*1000:.1f} g "
-                 f"({mass_res*100:.1f}%); CoM Δ {com_res*1000:.2f} mm at "
-                 f"{resolution}³ (analytic assumes non-overlapping parts)."),
-    }
+    # overlap test on tight AABBs (touching faces => not overlapping)
+    boxes = []
+    for shp, _r, _m, he in info:
+        c = shp.center
+        boxes.append((c[0] - he[0], c[0] + he[0], c[1] - he[1], c[1] + he[1],
+                      c[2] - he[2], c[2] + he[2]))
+    overlapping = False
+    for i in range(len(boxes)):
+        ax0, ax1, ay0, ay1, az0, az1 = boxes[i]
+        for j in range(i + 1, len(boxes)):
+            bx0, bx1, by0, by1, bz0, bz1 = boxes[j]
+            if (ax0 < bx1 and bx0 < ax1 and ay0 < by1 and by0 < ay1
+                    and az0 < bz1 and bz0 < az1):
+                overlapping = True
+                break
+        if overlapping:
+            break
+
+    if not overlapping:
+        worst = 0.0
+        for shp, rho, m, he in info:
+            c = shp.center
+            pb = ((c[0] - he[0], c[0] + he[0]), (c[1] - he[1], c[1] + he[1]),
+                  (c[2] - he[2], c[2] + he[2]))
+            if m > 0:
+                worst = max(worst, abs(_shape_mass(shp, rho, pb, resolution) - m) / m)
+        passed = worst <= tolerance
+        mass, com = analytic_mass, com_ana
+        note = (f"{len(info)} disjoint primitive(s): each grid integration matches "
+                f"its analytic volume (worst {worst*100:.1f}%) at {resolution}³.")
+        validation = {"passed": passed, "mode": "disjoint",
+                      "mass_analytic_total_kg": analytic_mass,
+                      "mass_integrator_kg": M_num, "mass_residual": worst,
+                      "resolution": resolution, "note": note}
+    else:
+        nlo = max(8, resolution // 2)
+        M_lo = _integrate(composed, density, bbox, nlo)[0]
+        stab = abs(M_num - M_lo) / M_num if M_num > 0 else 1.0
+        passed = stab <= tolerance
+        mass, com = M_num, com_num
+        note = (f"{len(info)} overlapping primitive(s): mass from the SDF integrator "
+                f"(union {M_num*1000:.1f} g), not Σρ·V ({analytic_mass*1000:.1f} g); "
+                f"2-resolution stability {stab*100:.1f}% ({resolution}³ vs {nlo}³).")
+        validation = {"passed": passed, "mode": "overlapping",
+                      "mass_analytic_sum_kg": analytic_mass,
+                      "mass_integrator_kg": M_num, "mass_residual": stab,
+                      "resolution": resolution, "note": note}
 
     return Construct(
         name=spec.name, composed=composed, density_by_label=density,
-        layers=layers, mass_kg=analytic_mass, com_m=com_ana,
-        inertia_kgm2=inertia, bbox=bbox, validation=validation,
-        identified=spec.identified, source=spec.note())
+        layers=layers, mass_kg=mass, com_m=com, inertia_kgm2=inertia,
+        bbox=bbox, validation=validation, identified=spec.identified,
+        source=spec.note())
 
 
 def _compile_vessel(spec, resolution: int, tolerance: float) -> Construct:

@@ -36,11 +36,14 @@ _SYS = (
     '"layers":[{"name":"glaze","material":"<outer skin>"},'
     '{"name":"ceramic","material":"<body>"},'
     '{"name":"water","material":"<liquid fill>"}]}\n'
-    "B) a SOLID object (rod, ball, die, brick, pylon):\n"
-    '{"kind":"composite","parts":[{"name":"<part>","shape":"sphere|cylinder|box|cone",'
-    '"dims":{...},"material":"<material>"}]}\n'
-    "   shape dims: sphere {radius_m}; cylinder/cone {radius_m,height_m}; "
-    "box {x_m,y_m,z_m}. One part is fine for simple solids.\n"
+    "B) a SOLID or COMPOUND object (rod, ball, die, hammer, dumbbell, ring):\n"
+    '{"kind":"composite","parts":[{"name":"<part>","shape":'
+    '"sphere|cylinder|box|cone|torus|ellipsoid","dims":{...},'
+    '"material":"<material>","center_m":[x,y,z]}]}\n'
+    "   dims: sphere {radius_m}; cylinder/cone {radius_m,height_m}; box "
+    "{x_m,y_m,z_m}; torus {major_radius_m,minor_radius_m}; ellipsoid "
+    "{rx_m,ry_m,rz_m}. One part for a simple solid; several with center_m "
+    "offsets for a compound object (hammer = handle cylinder + head box).\n"
     "Use realistic typical dimensions and a real material name (steel, glass, "
     'aluminium, oak, stoneware, ...). If you cannot, output {"kind":"unknown"}.'
 )
@@ -114,7 +117,9 @@ def _ask(name: str) -> str | None:
 _JSON = re.compile(r"\{.*\}", re.DOTALL)
 _VESSEL_DIMS = ("outer_radius_m", "height_m", "wall_m", "glaze_m", "base_m", "fill_fraction")
 _SHAPE_DIMS = {"sphere": ["radius_m"], "cylinder": ["radius_m", "height_m"],
-               "cone": ["radius_m", "height_m"], "box": ["x_m", "y_m", "z_m"]}
+               "cone": ["radius_m", "height_m"], "box": ["x_m", "y_m", "z_m"],
+               "torus": ["major_radius_m", "minor_radius_m"],
+               "ellipsoid": ["rx_m", "ry_m", "rz_m"]}
 
 
 def _density(material: str) -> Fact:

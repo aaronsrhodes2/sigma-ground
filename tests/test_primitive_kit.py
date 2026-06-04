@@ -55,6 +55,6 @@ def test_primitive_queries_resolve_real_geometry():
 
 def test_unsupported_shape_raises():
     spec = ConstructSpec(name="weird", kind="composite",
-                         parts=[Part("p", "torus", {"r": Fact(1.0)}, "steel", Fact(1000.0))])
+                         parts=[Part("p", "dodecahedron", {"r": Fact(1.0)}, "steel", Fact(1000.0))])
     with pytest.raises(ValueError):
         compile(spec, resolution=16)
