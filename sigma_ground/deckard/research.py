@@ -1,84 +1,66 @@
-"""Deckard's shape research — a name → concrete, cited spatial dimensions.
+"""Deckard's shape research — a name → a concrete, cited ConstructSpec.
 
-v1 is a small grounded catalog of common items with *typical* dimensions and
-material densities, each carrying its source. This is the deterministic core;
-the residual path (dimension databases, 3D-model references mined for
-proportions, general web/LLM) plugs in later behind the same `research()`
-front door. Unknown items return a flagged best-guess rather than a fake — the
-Deckard-Cain discipline: a partial ID is allowed, a confident fake is not.
+Order of resolution:
+  1. a frozen catalog hit (``catalog/<slug>.md``) — deterministic, offline;
+  2. on a miss, the Researcher (``researcher.py``: Gemini-free → local qwen,
+     grounded by our own data + free factual APIs) synthesises and freezes one;
+  3. if that is unavailable or fails, a flagged best-guess (identified=False).
 
-A `layered_vessel` is described by physical thicknesses (geometry-driven), so
-the layer mass-ratios fall out exactly — geometry and ratio are two readings of
-one dial; we author the dial we can ground (thickness), and the ratio derives.
+The Deckard–Cain discipline: a partial ID is allowed, a confident fake is not.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from . import catalog
+from .schema import ConstructSpec, Fact, SpecLayer
+
+# Back-compat: the old in-code CATALOG (name -> builder) is now the markdown
+# catalog; expose the alias map for introspection.
+CATALOG = catalog.ALIASES
 
 
-@dataclass
-class ItemSpec:
-    name: str
-    kind: str                      # 'layered_vessel'
-    geometry: dict                 # outer_radius_m, height_m, wall_m, glaze_m, base_m, fill_fraction
-    layers: list                   # [{name, material, density_kg_m3, source}], outer→inner
-    source: str = ""               # provenance of the dimensions
-    identified: bool = True        # False → best-guess, flagged
-
-    def note(self) -> str:
-        tag = "" if self.identified else "  [UNIDENTIFIED — best-guess proportions]"
-        return f"{self.name} ({self.kind}) — {self.source}{tag}"
-
-
-# ── Grounded catalog (typical dimensions; cited) ────────────────────────
-def _coffee_cup() -> ItemSpec:
-    return ItemSpec(
-        name="coffee cup",
-        kind="layered_vessel",
+def _generic_vessel(name: str) -> ConstructSpec:
+    """A flagged best-guess small vessel — used when nothing identifies ``name``."""
+    def est(v, c=0.3):
+        return Fact(v, "estimated", "", c)
+    return ConstructSpec(
+        name=name, kind="layered_vessel", identified=False,
         geometry={
-            "outer_radius_m": 0.040,   # 80 mm outer diameter
-            "height_m":       0.095,   # 95 mm tall
-            "wall_m":         0.005,   # 5 mm ceramic wall
-            "glaze_m":        0.0003,  # 0.3 mm glaze skin
-            "base_m":         0.007,   # 7 mm base thickness
-            "fill_fraction":  0.80,    # filled to 80% of interior height
+            "outer_radius_m": est(0.040), "height_m": est(0.095),
+            "wall_m": est(0.005), "glaze_m": est(0.0003),
+            "base_m": est(0.007), "fill_fraction": est(0.80),
         },
         layers=[
-            {"name": "glaze",   "material": "glaze (glassy)", "density_kg_m3": 2400.0,
-             "source": "typical ceramic glaze ≈ glass, ~2400 kg/m³"},
-            {"name": "ceramic", "material": "stoneware",      "density_kg_m3": 2300.0,
-             "source": "stoneware/earthenware body, ~2300 kg/m³"},
-            {"name": "water",   "material": "liquid water",   "density_kg_m3": 998.0,
-             "source": "liquid water at 20 °C, 998 kg/m³"},
+            SpecLayer("glaze", "glaze (glassy)", est(2400.0), est(0.0003),
+                      ["air", "ceramic"]),
+            SpecLayer("ceramic", "stoneware", est(2300.0), est(0.005),
+                      ["glaze", "air", "water"]),
+            SpecLayer("water", "liquid water", est(998.0), est(0.030),
+                      ["ceramic", "air"]),
         ],
-        source="typical stoneware coffee mug (approx.)",
-        identified=True,
+        sources=[{"name": "no catalog/DB entry — defaulted to a generic small vessel",
+                  "license": ""}],
+        notes="Unidentified: best-guess proportions of a generic small vessel.",
     )
 
 
-CATALOG = {
-    "coffee cup": _coffee_cup,
-    "coffee mug": _coffee_cup,
-    "mug":        _coffee_cup,
-    "cup":        _coffee_cup,
-    "teacup":     _coffee_cup,
-}
+def research(name: str, *, allow_llm: bool = True) -> ConstructSpec:
+    """Resolve a named object to a cited ConstructSpec; flag if unidentified.
 
+    A catalog hit is returned verbatim (deterministic). On a miss the Researcher
+    is consulted if available; failing that, a flagged best-guess is returned —
+    never a confident fake.
+    """
+    hit = catalog.lookup(name)
+    if hit is not None:
+        return hit
 
-def research(name: str) -> ItemSpec:
-    """Resolve a named object to a cited ItemSpec; flag if unidentified."""
-    key = name.strip().lower()
-    if key in CATALOG:
-        return CATALOG[key]()
-    # crude containment match ("a ceramic coffee cup" → coffee cup)
-    for cat_key, builder in CATALOG.items():
-        if cat_key in key:
-            spec = builder()
-            spec.source += f" (matched '{cat_key}' in request)"
-            return spec
-    # Unidentified → a flagged best-guess vessel, never a silent fake.
-    spec = _coffee_cup()
-    spec.name = name
-    spec.identified = False
-    spec.source = "no catalog/DB entry — defaulted to a generic small vessel"
-    return spec
+    if allow_llm:
+        try:
+            from .researcher import research_spec   # lazy: optional deps / network
+            spec = research_spec(name)
+            if spec is not None:
+                return spec
+        except Exception:
+            pass   # fall through to the flagged default — never a fake
+
+    return _generic_vessel(name)

@@ -1,24 +1,27 @@
-"""Deckard's compile step — researched dimensions → layered SDF matter.
+"""Deckard's compile step — a researched ConstructSpec → layered SDF matter.
 
-Fits the primitive kit (here: capped cylinders) to the researched dimensions,
-assembles the layered CSG via the existing kernel (`sigma_ground.csg`,
-`sigma_ground.shapes`), and integrates the result's physical properties — mass,
-centre of mass, inertia tensor — by sampling `material_at` over the bounding
-box with a per-material density.
+Fits the primitive kit (here: capped cylinders for a layered vessel) to the
+spec's cited dimensions, assembles the layered CSG via the geometry kernel
+(`sigma_ground.kernel`), and integrates the result's physical properties —
+mass, centre of mass, inertia tensor — by sampling `material_at` over the
+bounding box with a per-material density.
 
 The matter is *self-validating*: every layer's volume also has a closed-form
 (cylinder/annulus) value, and the SDF integrator is cross-checked against it.
 Agreement = the general integrator is trustworthy (the same discipline as
 Materia's two-method energy check). For arbitrary constructs only the
 integrator exists — validated here on a shape whose answer we know exactly.
+
+`compile(spec)` dispatches on `spec.kind`; the `layered_vessel` kit is
+implemented today, and new primitive kits plug in behind the same gate.
 """
 from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
 
-from ..shapes import Cylinder
-from ..csg import ComposedSDF
+from ..kernel.shapes import Cylinder
+from ..kernel.csg import ComposedSDF
 
 
 @dataclass
@@ -142,25 +145,48 @@ class Construct:
         return "\n".join(lines)
 
 
-def compile_vessel(spec, resolution: int = 64, tolerance: float = 0.05) -> Construct:
-    """Compile a `layered_vessel` ItemSpec into validated Construct matter."""
-    g = spec.geometry
-    R_out = g["outer_radius_m"]
-    H     = g["height_m"]
-    glaze = g["glaze_m"]
-    wall  = g["wall_m"]
-    base  = g["base_m"]
-    fill  = g["fill_fraction"]
+# ── compile: ConstructSpec → Construct ──────────────────────────────────
+def _layer(spec, name):
+    """The ConstructSpec layer with this engine label (raises if missing)."""
+    for L in spec.layers:
+        if L.name == name:
+            return L
+    raise KeyError(f"layer '{name}' missing from spec '{spec.name}'")
+
+
+def compile(spec, resolution: int = 64, tolerance: float = 0.05) -> Construct:
+    """Compile a ConstructSpec into validated Construct matter.
+
+    Dispatches on ``spec.kind``. Today the ``layered_vessel`` kit is supported;
+    new primitive kits register here behind the same self-check gate.
+    """
+    kind = getattr(spec, "kind", "layered_vessel")
+    if kind == "layered_vessel":
+        return _compile_vessel(spec, resolution, tolerance)
+    raise NotImplementedError(f"compile: no kit for kind '{kind}' yet")
+
+
+# Back-compat alias (the old entry point name).
+compile_vessel = compile
+
+
+def _compile_vessel(spec, resolution: int, tolerance: float) -> Construct:
+    """Fit nested capped cylinders to a layered-vessel spec, then self-check."""
+    R_out = spec.dim("outer_radius_m")
+    H     = spec.dim("height_m")
+    glaze = spec.dim("glaze_m")
+    wall  = spec.dim("wall_m")
+    base  = spec.dim("base_m")
+    fill  = spec.dim("fill_fraction")
 
     R_cer = R_out - glaze            # ceramic outer radius
     R_in  = R_cer - wall             # interior (cavity) radius
     h_fill = fill * (H - base)       # water column height
     z_water_top = base + h_fill
 
-    rho = {L["name"]: L["density_kg_m3"] for L in
-           zip_layer_labels(spec)}   # label → density
-    density = {"glaze": rho["glaze"], "ceramic": rho["ceramic"],
-               "water": rho["water"], "air": 0.0}
+    Lg, Lc, Lw = _layer(spec, "glaze"), _layer(spec, "ceramic"), _layer(spec, "water")
+    density = {"glaze": Lg.density.value, "ceramic": Lc.density.value,
+               "water": Lw.density.value, "air": 0.0}
 
     # ── assemble the layered SDF (outer→inner; ComposedSDF: last-added wins) ──
     stack = _LayerStack()
@@ -183,12 +209,12 @@ def compile_vessel(spec, resolution: int = 64, tolerance: float = 0.05) -> Const
     z_ceramic = (v_solid_cyl * z_solid - v_bore * z_bore) / v_ceramic
 
     layers = [
-        Layer("glaze", spec.layers[0]["material"], density["glaze"], v_glaze,
-              density["glaze"] * v_glaze, spec.layers[0]["source"]),
-        Layer("ceramic", spec.layers[1]["material"], density["ceramic"], v_ceramic,
-              density["ceramic"] * v_ceramic, spec.layers[1]["source"]),
-        Layer("water", spec.layers[2]["material"], density["water"], v_water,
-              density["water"] * v_water, spec.layers[2]["source"]),
+        Layer("glaze", Lg.material, density["glaze"], v_glaze,
+              density["glaze"] * v_glaze, Lg.density.cite()),
+        Layer("ceramic", Lc.material, density["ceramic"], v_ceramic,
+              density["ceramic"] * v_ceramic, Lc.density.cite()),
+        Layer("water", Lw.material, density["water"], v_water,
+              density["water"] * v_water, Lw.density.cite()),
     ]
     mass_ana = sum(L.mass_kg for L in layers)
     z_com_ana = sum(L.mass_kg * z for L, z in
@@ -227,13 +253,4 @@ def compile_vessel(spec, resolution: int = 64, tolerance: float = 0.05) -> Const
         name=spec.name, composed=composed, density_by_label=density,
         layers=layers, mass_kg=mass_ana, com_m=(0.0, 0.0, z_com_ana),
         inertia_kgm2=inertia, bbox=bbox, validation=validation,
-        identified=spec.identified, source=spec.source)
-
-
-def zip_layer_labels(spec):
-    """Attach engine labels (glaze/ceramic/water) to the spec's ordered layers."""
-    labels = ["glaze", "ceramic", "water"]
-    out = []
-    for label, L in zip(labels, spec.layers):
-        out.append({"name": label, "density_kg_m3": L["density_kg_m3"]})
-    return out
+        identified=spec.identified, source=spec.note())
