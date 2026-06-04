@@ -36,17 +36,17 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **photon_energy_from_wavelength** — E = h c / lambda.  ↳ *say:* photon energy; E = h c / lambda; Einstein photon
 
 ### chemistry
-- **boiling_point_elevation** — Colligative boiling-point elevation ΔTb (K) = i·Kb·molality.
-- **bond_angle** — VSEPR bond angle (degrees) from electron domains and lone pairs.
-- **bond_energy** — Single-bond dissociation energy A–B (eV) via Pauling. Atoms H,C,N,O,F,S,Cl.
-- **buffer_ph** — Buffer pH via Henderson–Hasselbalch (pKa + log10[A⁻]/[HA]).
-- **cell_potential** — Galvanic cell EMF (V), Nernst-corrected; electrodes by element name.
-- **electrolysis_mass** — Mass deposited by electrolysis (kg) — Faraday's first law.
-- **freezing_point_depression** — Colligative freezing-point depression ΔTf (K) = i·Kf·molality.
-- **molar_solubility** — Molar solubility (mol/L) of a sparingly-soluble salt from its Ksp.
+- **boiling_point_elevation** — Boiling-point elevation ΔTb (K) = i·Kb·molality (colligative).
+- **bond_angle** — VSEPR bond angle (deg) from steric number; bond_angle(4,0)=109.5°.
+- **bond_energy** — Bond dissociation energy (kJ/mol) for a diatomic bond.
+- **buffer_ph** — Buffer pH (Henderson-Hasselbalch): pH = pKa + log([base]/[acid]).
+- **cell_potential** — Galvanic cell EMF (V), Nernst-corrected; cell_potential('copper','zinc')≈1.10 V (Daniell).
+- **electrolysis_mass** — Mass deposited by electrolysis (kg) — Faraday: m = M·I·t/(n·F).
+- **freezing_point_depression** — Freezing-point depression ΔTf (K) = i·Kf·molality (colligative).
+- **molar_solubility** — Molar solubility (mol/L) of a sparingly-soluble salt from Ksp.
 - **osmotic_pressure** — Osmotic pressure π (Pa) = i·M·R·T (van't Hoff).
-- **reaction_enthalpy** — ΔH of a named reaction (kJ/mol), bond-energy estimate (~15%).
-- **weak_acid_ph** — pH of a weak-acid solution at a given molarity.
+- **reaction_enthalpy** — Standard reaction enthalpy ΔH° (kJ/mol) from formation enthalpies.
+- **weak_acid_ph** — pH of a weak acid from its Ka; weak_acid_ph('acetic_acid',0.1)≈2.88.
 
 ### circuits
 - **electrical_power** — P = V I.  ↳ *say:* electrical power; P = V I; P = I^2 R; P = V^2 / R; Joule heating
@@ -72,6 +72,18 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **mond_a0_constant** — Milgrom a_0 ~1.2e-10 m/s^2.  ↳ *say:* MOND a_0; 1.2e-10 m/s^2; MOND acceleration scale
 - **mond_regime_classifier** — Classify accel as newtonian/transition/mond.  ↳ *say:* MOND; modified Newtonian dynamics; a_0 acceleration; Mordehai Milgrom 1983; galaxy rotation curves; deep MOND regime
 
+### electronics
+- **carrier_mobility** — Electron drift mobility (m²/V·s) of a metal (metals only).
+- **depletion_width** — Depletion-region width of a p-n junction (m).
+- **diode_current** — Shockley diode current (A): I = I₀(exp(eV/kT) − 1).
+- **electrical_resistivity** — Electrical resistivity (Ω·m) of a metal; copper≈1.68e-8.
+- **electron_mean_free_path** — Electron mean free path (m) in a metal; copper≈39 nm.
+- **free_electron_density** — Free-electron (conduction) number density (m⁻³) of a metal.
+- **hall_coefficient** — Hall coefficient (m³/C) of a metal: R_H = −1/(n·e).
+- **intrinsic_carrier_density** — Intrinsic carrier density n_i (m⁻³) of a semiconductor.
+- **pn_built_in_voltage** — Built-in voltage of a p-n junction (V): V_bi = (kT/e) ln(N_A N_D / n_i²).
+- **semiconductor_band_gap** — Temperature-dependent band gap (eV) of a semiconductor (Varshni); silicon≈1.12 eV at 300 K.
+
 ### energy
 - **eV_to_joules** — eV -> Joule.  ↳ *say:* electronvolt; eV to J; 1 eV = 1.602e-19 J; MeV; GeV; TeV
 - **energy_to_mass** — m = E / c^2.  ↳ *say:* m = E / c^2; mass equivalent of energy; mass defect; energy to mass
@@ -79,11 +91,6 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **joules_to_eV** — Joule -> eV.  ↳ *say:* J to eV; joules to electronvolts; 1 J equals how many eV; convert energy J to eV; joules in electronvolts; 1 joule equals how many electronvolts
 - **luminosity_to_mass_conversion_rate** — dm/dt = L / c^2.  ↳ *say:* stellar mass loss to luminosity; Sun mass-loss rate; L = (dm/dt) c^2; solar luminosity mass rate
 - **mass_to_energy** — E = m c^2.  ↳ *say:* E=mc^2; mass-energy equivalence; rest mass energy; Einstein 1905; matter to energy conversion; nuclear binding
-
-### frontier
-- **bekenstein_hawking_entropy** — Black-hole entropy S = A/(4 L_p²), Hawking temperature, horizon area, and holographic thread/pixel count.  ↳ *say:* Bekenstein-Hawking entropy; black hole entropy; S = A / 4 L_p^2; horizon entropy; holographic bound; Jacob Bekenstein 1973
-- **gravitational_binding_energy** — Gravitational binding energy of a uniform sphere, U = (3/5) G M² / R.  ↳ *say:* gravitational binding energy; self-gravity energy; U = 3/5 G M^2 / R; energy to assemble a sphere; stellar binding energy
-- **unruh_temperature** — Unruh temperature of an accelerated observer, T = ħ a / (2π c k_B).  ↳ *say:* Unruh temperature; Unruh effect; acceleration temperature; T = hbar a / (2 pi c k_B); William Unruh 1976; thermal vacuum of an accelerated observer
 
 ### gr
 - **gravitational_redshift** — Schwarzschild gravitational redshift factor at radius r.  ↳ *say:* gravitational redshift; Pound-Rebka; z = sqrt(1 - r_s/r_emit) / sqrt(1 - r_s/r_obs) - 1; redshift from gravity well
@@ -139,14 +146,11 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **orbital_velocity** — Circular orbital speed, body-aware: name + altitude_km (or radius_m, or semimajor_axis_au). Does mass lookup internally.  ↳ *say:* orbital velocity; how fast does it orbit; satellite speed; ISS speed; orbital speed at altitude; Moon orbital velocity
 
 ### procedures
-- **procedure_black_hole_profile** — Full black-hole thermodynamics from mass: Schwarzschild radius -> Hawking temperature -> Bekenstein-Hawking entropy -> evaporation time.
-- **procedure_photon_spectrum** — All photon properties from a wavelength: frequency -> energy (J and eV) -> momentum.
-- **procedure_projectile_trajectory** — Projectile cascade: time of flight -> range -> max height.
-- **procedure_relativistic_particle** — Relativistic particle cascade: Lorentz factor -> total energy -> momentum -> de Broglie wavelength.
-- **procedure_stellar_blackbody** — Blackbody/star cascade: Wien peak wavelength -> Stefan-Boltzmann surface flux -> peak photon energy.
-
-### quantum information
-- **entanglement_channel** — What entanglement can/can't do: NO faster-than-light communication (no-communication theorem), shared secret key (QKD/Ekert), CHSH ≤ 2√2 (Tsirelson). Guardrail against the 'entanglement = FTL radio' misconception.  ↳ *say:* entanglement communication; faster than light; FTL signaling; no-communication theorem; quantum key distribution; QKD
+- **procedure_black_hole_profile** — Full black-hole thermodynamics cascade from one mass: Schwarzschild radius → Hawking temperature → Bekenstein-Hawking entropy → evaporation time.
+- **procedure_photon_spectrum** — Full photon cascade from one wavelength: frequency → energy (J and eV) → momentum.
+- **procedure_projectile_trajectory** — Projectile cascade (no drag): time of flight → range → max height.
+- **procedure_relativistic_particle** — Relativistic cascade: KE → Lorentz γ → total energy → momentum → de Broglie wavelength.
+- **procedure_stellar_blackbody** — Blackbody cascade: Wien peak wavelength → Stefan-Boltzmann surface flux → peak photon energy.
 
 ### relativity
 - **doppler_shift_factor** — Relativistic Doppler factor.  ↳ *say:* Doppler effect; Doppler shift; relativistic Doppler; redshift; blueshift; Christian Doppler 1842
@@ -158,9 +162,9 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **relativistic_velocity_addition** — (u+v)/(1+uv/c^2).  ↳ *say:* velocity addition formula; u' = (u+v)/(1 + uv/c^2); Einstein velocity addition
 
 ### simulation
-- **list_simulation_scenarios** — List the Materia simulation verbs with their inputs and outputs.
-- **run_simulation** — Run one Materia simulation verb directly with explicit params (deterministic, no LLM). Use list_simulation_scenarios() for verbs.
-- **simulate** — Run a natural-language physics what-if through the Materia time-evolution simulator (falling-body impact, drag heating, supersonic projectile, high-altitude descent, vertical launch); returns a worked, self-validated answer, or a clarification if the scenario is not yet modeled.
+- **list_simulation_scenarios** — List Materia simulation verbs with their input slots and named outputs.
+- **run_simulation** — Run one Materia verb directly with explicit params (deterministic, no LLM). See list_simulation_scenarios.
+- **simulate** — Natural-language physics what-if through the Materia simulator (falling, drag, terminal velocity, impact speed, reentry heating, parachute, projectile apex). Returns a worked answer or a clarification (value null) — never a fabricated number.
 
 ### symbolic
 - **differentiate_expr** — Symbolic differentiation.  ↳ *say:* derivative; differentiate; calculus; chain rule; rate of change
@@ -203,9 +207,6 @@ Never fabricate a number to seem helpful.
 **Unlock condition:** the user's message contains the literal token `SSBM`. If it does NOT, the items below do not exist for you — answer every question as **standard physics** and never mention them.
 
 If unlocked, these additional term→tool routes become available:
-- **entanglements_to_pop_bubble** — Entanglement threads to saturate (pop) a bubble of radius R: N = π R² / L_p². Smallest bubble (R=L_p) pops at N=π≈3 — the quantum of cavitation.
-- **holographic_matching_mass** — The black-hole mass where baryon count equals horizon pixel count: M = ħ c / (4π G m_p) ≈ 2.25e10 kg.
-- **baryon_vs_disc** — Compare a black hole's baryon count to its horizon pixel count; reports whether matter overflows the horizon or the horizon has room to spare.
 - **hde_dark_energy_density** — HDE rho_DE; defaults c^2=ETA, L=R_H.
 - **eta_desi_band_check** — Check ETA within DESI Union3 1-sigma band.
 - **eta_value_report** — ETA = c^2_DESI ~0.4122.

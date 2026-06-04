@@ -7,9 +7,12 @@ import math
 import os
 import sys
 
-_CANON = r"D:\Aaron\development\sigma-ground"
-if os.path.isdir(_CANON) and _CANON not in sys.path:
-    sys.path.insert(0, _CANON)
+# Import sigma_ground from THIS tree (worktree-portable): walk up from this file
+# (…/sigma_ground/mcp/<this>) to the repo root, rather than a hardcoded path —
+# so the test validates the worktree it lives in, never a shadowing sibling tree.
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if _ROOT not in sys.path:
+    sys.path.insert(0, _ROOT)
 
 from sigma_ground.mcp.tools import chemistry as C
 

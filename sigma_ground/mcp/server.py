@@ -100,6 +100,10 @@ def main() -> int:
     from sigma_ground.mcp.tools import astronomy as t_astr
     from sigma_ground.mcp.tools import orbital as t_orb
     from sigma_ground.mcp.tools import nuclear as t_nuc
+    from sigma_ground.mcp.tools import simulation as t_sim
+    from sigma_ground.mcp.tools import chemistry as t_chem
+    from sigma_ground.mcp.tools import electronics as t_elec
+    from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
     server = FastMCP("mentat")
@@ -799,6 +803,222 @@ def main() -> int:
         """Solve E = P·t for the missing one. Provide exactly two.
         energy_power_time(power_w=5000, time_s=3600) -> energy in joules."""
         return t_circ.energy_power_time(power_w, time_s, energy_j).to_dict()
+
+    # ── procedures: canonical multi-step scientific routines ───────
+    @server.tool()
+    def procedure_black_hole_profile(mass_kg: float) -> dict[str, Any]:
+        """Full black-hole thermodynamics cascade: Schwarzschild radius →
+        Hawking temperature → Bekenstein-Hawking entropy → evaporation time.
+        One mass in, the whole profile out, in the only correct order."""
+        return t_proc.black_hole_profile(mass_kg).to_dict()
+
+    @server.tool()
+    def procedure_photon_spectrum(wavelength_m: float) -> dict[str, Any]:
+        """Full photon cascade from one wavelength: frequency → energy (J) →
+        energy (eV) → momentum. Each value derived from the previous, in code."""
+        return t_proc.photon_spectrum(wavelength_m).to_dict()
+
+    @server.tool()
+    def procedure_relativistic_particle(kinetic_energy_eV: float,
+                                          particle: str = "electron"
+                                          ) -> dict[str, Any]:
+        """Relativistic-kinematics cascade: KE → Lorentz factor γ → total
+        energy → momentum → de Broglie wavelength. Particles: electron,
+        proton, neutron, muon."""
+        return t_proc.relativistic_particle(kinetic_energy_eV,
+                                             particle).to_dict()
+
+    @server.tool()
+    def procedure_projectile_trajectory(initial_speed_m_s: float,
+                                          launch_angle_deg: float
+                                          ) -> dict[str, Any]:
+        """Intro-mechanics cascade (no air resistance): time of flight →
+        range → max height. One launch, three outputs."""
+        return t_proc.projectile_trajectory(initial_speed_m_s,
+                                            launch_angle_deg).to_dict()
+
+    @server.tool()
+    def procedure_stellar_blackbody(temperature_k: float) -> dict[str, Any]:
+        """Blackbody/star-surface cascade: Wien peak wavelength →
+        Stefan-Boltzmann surface flux → peak photon energy."""
+        return t_proc.stellar_blackbody(temperature_k).to_dict()
+
+    # ── simulation: the Materia time-evolution engine (NL front door) ──
+    @server.tool()
+    def simulate(scenario: str) -> dict[str, Any]:
+        """Run a natural-language physics what-if through the Materia
+        simulator. Returns a worked, self-validated answer, or a clarification
+        (value null) if the scenario is not modeled — never a fabricated
+        number. e.g. "how fast does a 5 cm copper ball hit the ground from
+        10 km?"."""
+        return t_sim.simulate(scenario).to_dict()
+
+    @server.tool()
+    def run_simulation(verb: str,
+                       params: dict[str, Any] | None = None
+                       ) -> dict[str, Any]:
+        """Run one Materia simulation verb directly with explicit parameters
+        (deterministic, no LLM). Use list_simulation_scenarios() to see the
+        verbs and their input slots."""
+        return t_sim.run_simulation(verb, params).to_dict()
+
+    @server.tool()
+    def list_simulation_scenarios() -> dict[str, Any]:
+        """List the Materia simulation verbs with their inputs and named
+        outputs — discovery for the simulator."""
+        return t_sim.list_simulation_scenarios().to_dict()
+
+    # ── chemistry: bonds, reactions, acids/bases, electrochem, solutions ──
+    @server.tool()
+    def bond_energy(atom_a: str, atom_b: str) -> dict[str, Any]:
+        """Bond dissociation energy (kJ/mol) for a diatomic bond, e.g.
+        bond_energy('H', 'H') or bond_energy('C', 'O')."""
+        return t_chem.bond_energy(atom_a, atom_b)
+
+    @server.tool()
+    def bond_angle(electron_domains: int,
+                   lone_pairs: int = 0) -> dict[str, Any]:
+        """VSEPR bond angle (degrees) from steric number, e.g. bond_angle(4, 0)
+        → 109.5° (tetrahedral), bond_angle(4, 2) → ~104.5° (water)."""
+        return t_chem.bond_angle(electron_domains, lone_pairs)
+
+    @server.tool()
+    def reaction_enthalpy(reaction_key: str) -> dict[str, Any]:
+        """Standard reaction enthalpy ΔH° (kJ/mol) from formation enthalpies,
+        e.g. reaction_enthalpy('methane_combustion')."""
+        return t_chem.reaction_enthalpy(reaction_key)
+
+    @server.tool()
+    def weak_acid_ph(acid_key: str,
+                     concentration_mol_l: float) -> dict[str, Any]:
+        """pH of a weak-acid solution from its Ka, e.g.
+        weak_acid_ph('acetic_acid', 0.1) → ~2.88."""
+        return t_chem.weak_acid_ph(acid_key, concentration_mol_l)
+
+    @server.tool()
+    def buffer_ph(acid_key: str,
+                  ratio_base_over_acid: float = 1.0) -> dict[str, Any]:
+        """Buffer pH (Henderson-Hasselbalch): pH = pKa + log([base]/[acid])."""
+        return t_chem.buffer_ph(acid_key, ratio_base_over_acid)
+
+    @server.tool()
+    def cell_potential(cathode: str, anode: str,
+                       reaction_quotient: float = 1.0) -> dict[str, Any]:
+        """Galvanic cell EMF (V), Nernst-corrected, e.g.
+        cell_potential('copper', 'zinc') → ~1.10 V (Daniell cell)."""
+        return t_chem.cell_potential(cathode, anode, reaction_quotient)
+
+    @server.tool()
+    def electrolysis_mass(molar_mass_kg: float, current_a: float,
+                          time_s: float, electrons: int) -> dict[str, Any]:
+        """Mass deposited by electrolysis (kg) — Faraday's first law:
+        m = M·I·t / (n·F)."""
+        return t_chem.electrolysis_mass(molar_mass_kg, current_a,
+                                        time_s, electrons)
+
+    @server.tool()
+    def boiling_point_elevation(molality_mol_kg: float,
+                                van_t_hoff_i: float = 1.0) -> dict[str, Any]:
+        """Boiling-point elevation ΔTb (K) = i·Kb·molality (colligative)."""
+        return t_chem.boiling_point_elevation(molality_mol_kg, van_t_hoff_i)
+
+    @server.tool()
+    def freezing_point_depression(molality_mol_kg: float,
+                                  van_t_hoff_i: float = 1.0
+                                  ) -> dict[str, Any]:
+        """Freezing-point depression ΔTf (K) = i·Kf·molality (colligative)."""
+        return t_chem.freezing_point_depression(molality_mol_kg, van_t_hoff_i)
+
+    @server.tool()
+    def osmotic_pressure(molarity_mol_l: float,
+                         van_t_hoff_i: float = 1.0) -> dict[str, Any]:
+        """Osmotic pressure π (Pa) = i·M·R·T (van't Hoff)."""
+        return t_chem.osmotic_pressure(molarity_mol_l, van_t_hoff_i)
+
+    @server.tool()
+    def molar_solubility(salt_key: str) -> dict[str, Any]:
+        """Molar solubility (mol/L) of a sparingly-soluble salt from its Ksp,
+        e.g. molar_solubility('silver_chloride') → ~1.33e-5."""
+        return t_chem.molar_solubility(salt_key)
+
+    # ── electronics: transport, semiconductors, junctions, capacitance ──
+    @server.tool()
+    def electrical_resistivity(metal_key: str,
+                               temperature_k: float = 300.0
+                               ) -> dict[str, Any]:
+        """Electrical resistivity (Ω·m) of a metal, e.g.
+        electrical_resistivity('copper') → ~1.68e-8."""
+        return t_elec.electrical_resistivity(metal_key, temperature_k)
+
+    @server.tool()
+    def carrier_mobility(metal_key: str,
+                         temperature_k: float = 300.0) -> dict[str, Any]:
+        """Electron drift mobility (m²/V·s) of a metal (metals only)."""
+        return t_elec.carrier_mobility(metal_key, temperature_k)
+
+    @server.tool()
+    def hall_coefficient(metal_key: str) -> dict[str, Any]:
+        """Hall coefficient (m³/C) of a metal: R_H = −1/(n·e)."""
+        return t_elec.hall_coefficient(metal_key)
+
+    @server.tool()
+    def electron_mean_free_path(metal_key: str,
+                                temperature_k: float = 300.0
+                                ) -> dict[str, Any]:
+        """Electron mean free path (m) in a metal, e.g.
+        electron_mean_free_path('copper') → ~39 nm."""
+        return t_elec.electron_mean_free_path(metal_key, temperature_k)
+
+    @server.tool()
+    def free_electron_density(metal_key: str) -> dict[str, Any]:
+        """Free-electron (conduction) number density (m⁻³) of a metal."""
+        return t_elec.free_electron_density(metal_key)
+
+    @server.tool()
+    def semiconductor_band_gap(semiconductor_key: str,
+                               temperature_k: float = 300.0
+                               ) -> dict[str, Any]:
+        """Temperature-dependent band gap (eV) of a semiconductor (Varshni),
+        e.g. semiconductor_band_gap('silicon') → ~1.12 eV at 300 K."""
+        return t_elec.semiconductor_band_gap(semiconductor_key, temperature_k)
+
+    @server.tool()
+    def intrinsic_carrier_density(semiconductor_key: str,
+                                  temperature_k: float = 300.0
+                                  ) -> dict[str, Any]:
+        """Intrinsic carrier density n_i (m⁻³) of a semiconductor."""
+        return t_elec.intrinsic_carrier_density(semiconductor_key,
+                                                temperature_k)
+
+    @server.tool()
+    def pn_built_in_voltage(semiconductor_key: str, donor_density_m3: float,
+                            acceptor_density_m3: float,
+                            temperature_k: float = 300.0) -> dict[str, Any]:
+        """Built-in voltage of a p-n junction (V):
+        V_bi = (kT/e) ln(N_A N_D / n_i²)."""
+        return t_elec.pn_built_in_voltage(semiconductor_key, donor_density_m3,
+                                          acceptor_density_m3, temperature_k)
+
+    @server.tool()
+    def depletion_width(semiconductor_key: str, donor_density_m3: float,
+                        acceptor_density_m3: float,
+                        applied_voltage_v: float = 0.0,
+                        temperature_k: float = 300.0) -> dict[str, Any]:
+        """Depletion-region width of a p-n junction (m)."""
+        return t_elec.depletion_width(semiconductor_key, donor_density_m3,
+                                      acceptor_density_m3, applied_voltage_v,
+                                      temperature_k)
+
+    @server.tool()
+    def diode_current(saturation_current_a: float, voltage_v: float,
+                      temperature_k: float = 300.0) -> dict[str, Any]:
+        """Shockley diode current (A): I = I₀(exp(eV/kT) − 1)."""
+        return t_elec.diode_current(saturation_current_a, voltage_v,
+                                    temperature_k)
+
+    # (parallel_plate_capacitance is already exposed by the circuits group;
+    #  electronics.parallel_plate_capacitance is the same physics — not
+    #  re-registered here to avoid a duplicate tool name.)
 
     # Run via stdio transport (standard MCP).
     server.run()
