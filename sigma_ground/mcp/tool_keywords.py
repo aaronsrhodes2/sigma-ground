@@ -400,8 +400,8 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "MOND a_0", "1.2e-10 m/s^2", "MOND acceleration scale",
     ],
     "eta_value_report": [
-        "eta", "η", "SSBM eta", "scale conversion factor",
-        "sigma-ground eta", "DESI Union3 c^2",
+        "HDE c^2", "dark energy c^2 parameter", "DESI Union3 c^2",
+        "holographic dark energy parameter",
     ],
 
     # ============ ENERGY CONVERSION (E=mc^2 family) ============

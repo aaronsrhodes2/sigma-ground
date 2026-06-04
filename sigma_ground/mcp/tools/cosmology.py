@@ -1,11 +1,11 @@
 """Cosmology tools: Hubble radius, HDE, MOND classifier, dark energy.
 
-Wraps sigma_ground.field.interface.cosmology which already has the
-physics implementations and the η/DESI Union3 integration.
+Wraps sigma_ground.field.interface.cosmology, which holds the physics
+implementations plus the DESI Union3 dark-energy integration.
 
-The ETA framework is presented as the empirical-input parameter from
-DESI; the deeper SSBM theoretical framing remains in the EXTENDED tier
-not surfaced here.
+Mentat reports standard, observation-anchored cosmology: the Holographic
+Dark Energy (HDE) c^2 parameter is taken straight from the DESI 2024
+Union3 fit. No speculative interpretation is layered on top.
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ def hde_dark_energy_density(c_squared: float | None = None,
     Parameters
     ----------
     c_squared : float | None
-        HDE parameter c^2. Defaults to ETA (=0.4122, the DESI Union3 anchor).
+        HDE parameter c^2. Defaults to the DESI 2024 Union3 fit (~0.4122).
     L_meters : float | None
         IR cutoff length. Defaults to Hubble radius.
 
@@ -61,14 +61,14 @@ def hde_dark_energy_density(c_squared: float | None = None,
         source="sigma-ground (HDE; Li 2004, DESI 2024 anchor)",
         formula="rho_DE = 3 c^2 M_Pl^2 c^4 / (8 pi G L^2)",
         inputs={"c_squared": c_squared, "L_meters": L_meters},
-        notes=("Holographic Dark Energy model. c^2 defaults to ETA "
-                "(0.4122, anchored at DESI 2024 Union3 fit). L defaults "
-                "to the Hubble radius."),
+        notes=("Holographic Dark Energy model (Li 2004). c^2 defaults to the "
+                "DESI 2024 Union3 fit (~0.4122); L defaults to the Hubble "
+                "radius."),
     )
 
 
 def eta_desi_band_check(dataset: str = "dr2") -> ToolResult:
-    """Does our adopted ETA fall within the DESI Union3 1-sigma band?
+    """Does the adopted HDE c^2 fall within the DESI Union3 1-sigma band?
 
     Parameters
     ----------
@@ -89,8 +89,8 @@ def eta_desi_band_check(dataset: str = "dr2") -> ToolResult:
         value=r,
         source="sigma-ground (DESI 2024 Union3 HDE fit, arXiv:2411.08639)",
         inputs={"dataset": dataset},
-        notes=("ETA is the empirical-input cosmic entanglement fraction "
-                "anchored at the central DESI Union3 c^2 value."),
+        notes=("Consistency check of the adopted Holographic Dark Energy c^2 "
+                "against the central DESI 2024 Union3 fit."),
     )
 
 
@@ -184,11 +184,10 @@ def age_of_universe() -> ToolResult:
 
 
 def eta_value_report() -> ToolResult:
-    """The cosmic entanglement fraction ETA, with provenance.
+    """The adopted Holographic Dark Energy c^2 parameter, with provenance.
 
-    Returns ETA and its source (DESI 2024 Union3 c^2). The deeper
-    interpretation is part of the SSBM theoretical layer not surfaced
-    here for routine queries.
+    Returns the DESI 2024 Union3 HDE c^2 value and its source. This is a
+    standard observational input to the HDE dark-energy model.
     """
     from sigma_ground.field.constants import ETA, ETA_UNCERTAINTY_1SIGMA, C_HDE_UNION3
     return ToolResult(
@@ -199,7 +198,7 @@ def eta_value_report() -> ToolResult:
         uncertainty=ETA_UNCERTAINTY_1SIGMA,
         formula=f"ETA = c^2_DESI_Union3 = {C_HDE_UNION3}^2",
         inputs={},
-        notes=("Cosmic entanglement fraction. Empirical input parameter "
-                "anchored at the central DESI 2024 Union3 HDE c^2 fit. "
-                "1-sigma uncertainty = 2 c sigma_c = 0.036."),
+        notes=("Empirical-input Holographic Dark Energy c^2, anchored at the "
+                "central DESI 2024 Union3 HDE fit. 1-sigma uncertainty = "
+                "2 c sigma_c = 0.036."),
     )

@@ -54,17 +54,15 @@ ABSOLUTE RULES (these override convenience):
 PROVENANCE TAGS (in ToolResult.provenance_tag):
 - VERIFIED            -- measured from CODATA/PDG/IAU/peer-reviewed
 - DERIVED             -- computed from other library constants
-- EMPIRICAL-INPUT     -- free parameter set by observation (XI, ETA)
+- EMPIRICAL-INPUT     -- free parameter set by observation (e.g. HDE c^2)
 - SPECULATIVE-PENDING -- placeholder; flag prominently
 - REJECTED            -- former candidate, now disproven (value None)
 
-SSBM POSITIONING:
-The library contains an SSBM (Scale-Shifted Baryonic Matter) theoretical
-layer. It is NOT in the PRIMARY tier of tools. Only invoke when:
-- User asks about BH interior structure, dark-matter mechanism, cosmic
-  origin hypothesis, or sigma-field dynamics.
-- User explicitly invokes SSBM, sigma, eta entanglement fraction, etc.
-Do NOT volunteer SSBM framing for ordinary physics queries.
+SCOPE:
+Mentat answers standard, observation-anchored physics and chemistry. Do
+not introduce speculative or non-standard frameworks. If a question falls
+outside the curated tools, decline or use the fitted-due-to-incompetence
+tag rather than inventing a mechanism.
 
 CONVERSATIONAL STYLE:
 - Plain language, no equations unless asked.
@@ -395,12 +393,12 @@ def main() -> int:
     @server.tool()
     def hde_dark_energy_density(c_squared: float | None = None,
                                   L_meters: float | None = None) -> dict[str, Any]:
-        """Holographic dark energy density. Defaults c^2=ETA, L=R_H."""
+        """Holographic dark energy density. Defaults c^2=DESI Union3 fit, L=R_H."""
         return t_cos.hde_dark_energy_density(c_squared, L_meters).to_dict()
 
     @server.tool()
     def eta_desi_band_check(dataset: str = "dr2") -> dict[str, Any]:
-        """Is our adopted ETA within the DESI Union3 1-sigma c^2 band?"""
+        """Is the adopted HDE c^2 within the DESI Union3 1-sigma band?"""
         return t_cos.eta_desi_band_check(dataset).to_dict()
 
     @server.tool()
@@ -425,7 +423,7 @@ def main() -> int:
 
     @server.tool()
     def eta_value_report() -> dict[str, Any]:
-        """ETA = c^2_DESI_Union3 ~ 0.4122 (cosmic entanglement fraction)."""
+        """Adopted HDE c^2 = DESI Union3 fit ~ 0.4122 (with provenance)."""
         return t_cos.eta_value_report().to_dict()
 
     # ── thermodynamics ─────────────────────────────────────────────
