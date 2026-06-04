@@ -110,6 +110,7 @@ class Part:
     density: Fact                       # kg/m3
     center_m: tuple = (0.0, 0.0, 0.0)
     euler_deg: tuple = (0.0, 0.0, 0.0)  # rotation about the part centre (Rz·Ry·Rx, degrees)
+    op: str = "add"                     # "add" | "subtract" (carve a cavity / hollow)
 
     def to_dict(self) -> dict:
         return {
@@ -120,6 +121,7 @@ class Part:
             "density_kg_m3": self.density.to_dict(),
             "center_m": list(self.center_m),
             "euler_deg": list(self.euler_deg),
+            "op": self.op,
         }
 
     @classmethod
@@ -132,6 +134,7 @@ class Part:
             density=Fact.from_dict(d.get("density_kg_m3")),
             center_m=tuple(d.get("center_m", (0.0, 0.0, 0.0))),
             euler_deg=tuple(d.get("euler_deg", (0.0, 0.0, 0.0))),
+            op=d.get("op", "add"),
         )
 
 

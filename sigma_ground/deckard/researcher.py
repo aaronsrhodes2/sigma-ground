@@ -45,7 +45,10 @@ _SYS = (
     "{rx_m,ry_m,rz_m}. Cylinders/cones point along +z; euler_deg rotates a part "
     "(e.g. [0,90,0] lays a cylinder along x). One part for a simple solid; several "
     "with center_m offsets for a compound object (hammer = vertical handle "
-    "cylinder + head cylinder rotated horizontal across the top).\n"
+    "cylinder + head cylinder rotated horizontal across the top). Set "
+    'op:"subtract" on a part to carve a cavity (a pipe = outer cylinder + inner '
+    "cylinder op:subtract; a bottle = body + interior op:subtract); carving "
+    "parts go after the solids they hollow.\n"
     "Use realistic typical dimensions and a real material name (steel, glass, "
     'aluminium, oak, stoneware, ...). If you cannot, output {"kind":"unknown"}.'
 )
@@ -220,8 +223,9 @@ def _build_parts_spec(name: str, data: dict, model: str) -> ConstructSpec | None
                 return default
         center = _vec3(p.get("center_m", (0.0, 0.0, 0.0)))
         euler = _vec3(p.get("euler_deg", (0.0, 0.0, 0.0)))
+        op = "subtract" if str(p.get("op", "add")).lower() == "subtract" else "add"
         parts.append(Part(p.get("name") or f"part{i}", shape, dims, material,
-                          dens, center, euler))
+                          dens, center, euler, op))
 
     return ConstructSpec(
         name=name, kind="composite", identified=True, parts=parts, sources=sources,

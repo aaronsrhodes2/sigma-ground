@@ -86,3 +86,21 @@ def test_euler_round_trips_through_markdown():
         Part("c", "cylinder", {"radius_m": Fact(0.01), "height_m": Fact(0.10)},
              "steel", density_of("steel"), (0, 0, 0), (90, 0, 0))])
     assert tuple(parse_markdown(emit_markdown(spec)).parts[0].euler_deg) == (90.0, 0.0, 0.0)
+
+
+def test_hollow_part_carves_a_cavity():
+    pipe = ConstructSpec(name="pipe", kind="composite", parts=[
+        Part("wall", "cylinder", {"radius_m": Fact(0.02), "height_m": Fact(0.30)},
+             "steel", density_of("steel")),
+        Part("bore", "cylinder", {"radius_m": Fact(0.016), "height_m": Fact(0.32)},
+             "air", Fact(0.0), op="subtract")])
+    c = compile(pipe, resolution=64)
+    assert c.validation["mode"] == "hollow" and c.validation["passed"]
+    rho = density_of("steel").value
+    wall = rho * math.pi * (0.02 ** 2 - 0.016 ** 2) * 0.30
+    solid = rho * math.pi * 0.02 ** 2 * 0.30
+    assert c.mass_kg < 0.5 * solid                      # hollow, not the full solid
+    assert abs(c.mass_kg - wall) / wall < 0.03          # ≈ the wall mass
+    assert c.material_at(0.018, 0.0, 0.0) == "wall"     # steel wall
+    assert c.density_at(0.0, 0.0, 0.0) == 0.0           # empty bore
+    assert c.sdf(0.0, 0.0, 0.0) > 0.0                   # bore is carved (outside the solid)

@@ -308,7 +308,10 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
     analytic_mass = 0.0
     Sx = Sy = Sz = 0.0                        # mass-weighted first moments
     xs, ys, zs = [], [], []
-    for part in spec.parts:
+    add_parts = [p for p in spec.parts if getattr(p, "op", "add") != "subtract"]
+    sub_parts = [p for p in spec.parts if getattr(p, "op", "add") == "subtract"]
+    for part in add_parts + sub_parts:      # carves last: they subtract + win material_at
+        carve = getattr(part, "op", "add") == "subtract"
         shp = _shape_from(part)
         he = _half_extent(part)
         euler = getattr(part, "euler_deg", (0.0, 0.0, 0.0))
@@ -316,10 +319,10 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
             R = _rotation(euler)
             shp = _Rotated(shp, R)
             he = _rotated_half_extent(he, R)
-        stack.add(shp, part.name, "add")
-        rho = part.density.value
-        density[part.name] = rho
+        stack.add(shp, part.name, "subtract" if carve else "add")
         vol = shp.volume()
+        rho = 0.0 if carve else part.density.value   # a carve leaves an empty cavity
+        density[part.name] = rho
         m = rho * vol
         analytic_mass += m
         cx, cy, cz = shp.center
@@ -327,7 +330,8 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
         xs += [cx - he[0], cx + he[0]]; ys += [cy - he[1], cy + he[1]]
         zs += [cz - he[2], cz + he[2]]
         info.append((shp, rho, m, he))
-        layers.append(Layer(part.name, part.material, rho, vol, m, part.density.cite()))
+        layers.append(Layer(part.name, part.material, rho, vol, m,
+                            "carved cavity" if carve else part.density.cite()))
 
     if analytic_mass <= 0.0:
         raise ValueError(f"spec '{spec.name}' compiled to zero mass")
@@ -356,7 +360,7 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
         if overlapping:
             break
 
-    if not overlapping:
+    if not overlapping and not sub_parts:
         worst = 0.0
         for shp, rho, m, he in info:
             c = shp.center
@@ -373,15 +377,16 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
                       "mass_integrator_kg": M_num, "mass_residual": worst,
                       "resolution": resolution, "note": note}
     else:
+        mode = "hollow" if sub_parts else "overlapping"
         nhi = int(resolution * 1.5)
         M_hi, com_hi, inertia, _ = _integrate(composed, density, bbox, nhi)
         stab = abs(M_num - M_hi) / M_hi if M_hi > 0 else 1.0
         passed = stab <= tolerance
         mass, com = M_hi, com_hi
-        note = (f"{len(info)} overlapping primitive(s): mass from the SDF integrator "
-                f"(union {M_hi*1000:.1f} g), not Σρ·V ({analytic_mass*1000:.1f} g); "
+        note = (f"{len(info)} primitive(s) [{mode}]: mass from the SDF integrator "
+                f"({M_hi*1000:.1f} g) vs Σρ·V solids {analytic_mass*1000:.1f} g; "
                 f"convergence {stab*100:.1f}% ({resolution}³→{nhi}³).")
-        validation = {"passed": passed, "mode": "overlapping",
+        validation = {"passed": passed, "mode": mode,
                       "mass_analytic_sum_kg": analytic_mass,
                       "mass_integrator_kg": M_hi, "mass_residual": stab,
                       "resolution": nhi, "note": note}
