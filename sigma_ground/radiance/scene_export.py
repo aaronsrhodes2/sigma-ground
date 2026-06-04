@@ -66,13 +66,31 @@ def _bake_material(label: str, density=None) -> dict:
         if label in MATERIALS and MATERIALS[label].get("material_type") == "metal":
             from .shade import material_albedo
             c = material_albedo(label)
-            return {"color_rgb": [c.x, c.y, c.z], "emergent": True,
+            return {"color_rgb": [c.x, c.y, c.z], "emergent": True, "metal": True,
                     "density_kg_m3": density}
     except Exception:
         pass
     rgb = _LABEL_STUB.get(label, (0.72, 0.72, 0.72))
-    return {"color_rgb": list(rgb), "emergent": False,
+    return {"color_rgb": list(rgb), "emergent": False, "metal": False,
             "note": "v1 stub — awaiting molecular color", "density_kg_m3": density}
+
+
+def _bake_band_gap(semi_key: str) -> dict:
+    """Color of a semiconductor/dielectric from its BAND GAP — emergent.
+
+    semiconductor_rgb runs the 3-regime band-gap model (Beer-Lambert + Fresnel):
+    a wide gap reflects all visible (neutral/pale), a mid gap eats the blue
+    (yellow→orange as it shrinks), a narrow gap absorbs it all (dark). The hue
+    is forced by the gap; nobody picks it. (Brightness is the true — dim —
+    surface reflectance; the shader's sRGB gamma makes the hue legible.)
+    """
+    from ..field.interface.semiconductor_optics import semiconductor_rgb, band_gap_ev
+    c = list(semiconductor_rgb(semi_key))
+    if max(c) > 1.5:
+        c = [v / 255.0 for v in c]
+    return {"color_rgb": [round(v, 4) for v in c], "emergent": True, "metal": False,
+            "band_gap_ev": round(band_gap_ev(semi_key), 2),
+            "note": "emergent hue from band gap (surface reflectance)"}
 
 
 def _suggest_camera(bbox) -> dict:

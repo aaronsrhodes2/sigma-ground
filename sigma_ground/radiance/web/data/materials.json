@@ -1,5 +1,5 @@
 {
- "name": "emergent element colors",
+ "name": "emergent color \u2014 metals + band-gap semiconductors",
  "csg_leaves": [
   {
    "op": "add",
@@ -9,7 +9,7 @@
     "type": "Sphere",
     "center": [
      -0.27,
-     0.18,
+     0.27,
      0.0
     ],
     "radius": 0.06
@@ -23,7 +23,7 @@
     "type": "Sphere",
     "center": [
      -0.09,
-     0.18,
+     0.27,
      0.0
     ],
     "radius": 0.06
@@ -37,7 +37,7 @@
     "type": "Sphere",
     "center": [
      0.09,
-     0.18,
+     0.27,
      0.0
     ],
     "radius": 0.06
@@ -51,7 +51,7 @@
     "type": "Sphere",
     "center": [
      0.27,
-     0.18,
+     0.27,
      0.0
     ],
     "radius": 0.06
@@ -65,7 +65,7 @@
     "type": "Sphere",
     "center": [
      -0.27,
-     0.0,
+     0.09,
      0.0
     ],
     "radius": 0.06
@@ -79,7 +79,7 @@
     "type": "Sphere",
     "center": [
      -0.09,
-     0.0,
+     0.09,
      0.0
     ],
     "radius": 0.06
@@ -93,7 +93,7 @@
     "type": "Sphere",
     "center": [
      0.09,
-     0.0,
+     0.09,
      0.0
     ],
     "radius": 0.06
@@ -107,7 +107,7 @@
     "type": "Sphere",
     "center": [
      0.27,
-     0.0,
+     0.09,
      0.0
     ],
     "radius": 0.06
@@ -121,7 +121,7 @@
     "type": "Sphere",
     "center": [
      -0.27,
-     -0.18,
+     -0.09,
      0.0
     ],
     "radius": 0.06
@@ -135,7 +135,7 @@
     "type": "Sphere",
     "center": [
      -0.09,
-     -0.18,
+     -0.09,
      0.0
     ],
     "radius": 0.06
@@ -149,7 +149,7 @@
     "type": "Sphere",
     "center": [
      0.09,
-     -0.18,
+     -0.09,
      0.0
     ],
     "radius": 0.06
@@ -163,7 +163,63 @@
     "type": "Sphere",
     "center": [
      0.27,
-     -0.18,
+     -0.09,
+     0.0
+    ],
+    "radius": 0.06
+   }
+  },
+  {
+   "op": "add",
+   "material": "cadmium_sulfide",
+   "dynamic": false,
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.27,
+     -0.27,
+     0.0
+    ],
+    "radius": 0.06
+   }
+  },
+  {
+   "op": "add",
+   "material": "gallium_phosphide",
+   "dynamic": false,
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.09,
+     -0.27,
+     0.0
+    ],
+    "radius": 0.06
+   }
+  },
+  {
+   "op": "add",
+   "material": "silicon",
+   "dynamic": false,
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.09,
+     -0.27,
+     0.0
+    ],
+    "radius": 0.06
+   }
+  },
+  {
+   "op": "add",
+   "material": "titanium_dioxide",
+   "dynamic": false,
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.27,
+     -0.27,
      0.0
     ],
     "radius": 0.06
@@ -178,6 +234,7 @@
     0.5493692099995344
    ],
    "emergent": true,
+   "metal": true,
    "density_kg_m3": 8960
   },
   "gold": {
@@ -187,6 +244,7 @@
     0.38147807995801547
    ],
    "emergent": true,
+   "metal": true,
    "density_kg_m3": 19300
   },
   "silver": {
@@ -196,6 +254,7 @@
     0.9803854263717942
    ],
    "emergent": true,
+   "metal": true,
    "density_kg_m3": 10490
   },
   "aluminum": {
@@ -205,6 +264,7 @@
     0.9374501555927379
    ],
    "emergent": true,
+   "metal": true,
    "density_kg_m3": 2700
   },
   "iron": {
@@ -214,6 +274,7 @@
     0.5670923033038575
    ],
    "emergent": true,
+   "metal": true,
    "density_kg_m3": 7874
   },
   "nickel": {
@@ -223,6 +284,7 @@
     0.6668976892370345
    ],
    "emergent": true,
+   "metal": true,
    "density_kg_m3": 8908
   },
   "titanium": {
@@ -232,6 +294,7 @@
     0.5722143002648198
    ],
    "emergent": true,
+   "metal": true,
    "density_kg_m3": 4507
   },
   "lead": {
@@ -241,6 +304,7 @@
     0.6426373726553776
    ],
    "emergent": true,
+   "metal": true,
    "density_kg_m3": 11340
   },
   "tungsten": {
@@ -250,6 +314,7 @@
     0.5044477558811931
    ],
    "emergent": true,
+   "metal": true,
    "density_kg_m3": 19250
   },
   "platinum": {
@@ -259,6 +324,7 @@
     0.6476592174865425
    ],
    "emergent": true,
+   "metal": true,
    "density_kg_m3": 21450
   },
   "depleted_uranium": {
@@ -268,6 +334,7 @@
     0.8979557100565023
    ],
    "emergent": true,
+   "metal": true,
    "density_kg_m3": 19100
   },
   "steel_mild": {
@@ -277,7 +344,52 @@
     0.942244601809706
    ],
    "emergent": true,
+   "metal": true,
    "density_kg_m3": 7850
+  },
+  "cadmium_sulfide": {
+   "color_rgb": [
+    0.1877,
+    0.2084,
+    0.0
+   ],
+   "emergent": true,
+   "metal": false,
+   "band_gap_ev": 2.41,
+   "note": "emergent hue from band gap (surface reflectance)"
+  },
+  "gallium_phosphide": {
+   "color_rgb": [
+    0.287,
+    0.3163,
+    0.0
+   ],
+   "emergent": true,
+   "metal": false,
+   "band_gap_ev": 2.28,
+   "note": "emergent hue from band gap (surface reflectance)"
+  },
+  "silicon": {
+   "color_rgb": [
+    0.3449,
+    0.368,
+    0.4123
+   ],
+   "emergent": true,
+   "metal": false,
+   "band_gap_ev": 1.12,
+   "note": "emergent hue from band gap (surface reflectance)"
+  },
+  "titanium_dioxide": {
+   "color_rgb": [
+    0.2175,
+    0.23,
+    0.2562
+   ],
+   "emergent": true,
+   "metal": false,
+   "band_gap_ev": 3.06,
+   "note": "emergent hue from band gap (surface reflectance)"
   }
  },
  "physics": {
@@ -299,8 +411,8 @@
    0.34
   ],
   [
-   -0.26,
-   0.26
+   -0.34,
+   0.34
   ],
   [
    -0.06,
@@ -313,13 +425,15 @@
    0,
    0
   ],
-  "orbit_radius": 1.05,
-  "fov_deg": 38.0,
+  "orbit_radius": 1.5,
+  "fov_deg": 40.0,
   "up": [
    0,
    1,
    0
-  ]
+  ],
+  "az0": 0.0,
+  "el0": 0.16
  },
  "lights": [
   {
@@ -369,6 +483,6 @@
   ]
  },
  "identified": true,
- "source": "each sphere's color = get_material_color (Drude/Fresnel) \u2014 nobody chose them",
+ "source": "metals: Drude/Fresnel reflectance \u00b7 bottom row: band-gap absorption \u2014 every color emergent, none chosen",
  "kind": "static"
 }

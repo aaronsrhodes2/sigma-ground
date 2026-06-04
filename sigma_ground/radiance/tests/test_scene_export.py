@@ -71,3 +71,41 @@ def test_record_fall_trajectory():
     assert ys[0] > ys[-1] and ys[-1] <= 0.5                        # it falls to ground
     assert tr["suggested_rate"] > 0
     assert out["scene"]["csg_leaves"][0]["shape"]["type"] == "Sphere"
+
+
+def test_record_fall_emits_rigid_body_schema():
+    """The viewer's rigid-body contract: a `bodies` list with a pivot, each
+    moving leaf tagged with its body index, and a quaternion in every frame
+    (identity here — a sphere — but the slot the rotation pipeline reads)."""
+    out = record_fall("copper", 0.05, 1500.0, frame_dt=0.5)
+    sc = out["scene"]
+    assert sc["bodies"] and "pivot" in sc["bodies"][0]
+    assert len(sc["bodies"][0]["pivot"]) == 3
+    assert sc["csg_leaves"][0]["body"] == 0
+    for fr in out["trajectory"]["frames"]:
+        assert fr["bodies"], "every frame poses at least one body"
+        for bd in fr["bodies"]:
+            assert len(bd["pos"]) == 3 and len(bd["quat"]) == 4
+
+
+def test_metal_flag_split_from_emergent():
+    """`metal` drives chrome-vs-matte shading; it is NOT a synonym for emergent.
+    A metal is both; the dielectric stub is neither."""
+    from sigma_ground.radiance.scene_export import _bake_material
+    cu = _bake_material("copper", 8960.0)
+    assert cu["emergent"] is True and cu["metal"] is True
+    glaze = _bake_material("glaze")
+    assert glaze["emergent"] is False and glaze["metal"] is False
+
+
+def test_band_gap_color_is_emergent_yellow():
+    """A semiconductor's color is FORCED by its band gap — nobody picks it.
+    CdS (Eg≈2.4 eV) absorbs blue, so it must come out yellow (R,G > B). It is
+    emergent yet dielectric (metal=False) — band-gap matter, not chrome."""
+    from sigma_ground.radiance.scene_export import _bake_band_gap
+    cds = _bake_band_gap("cadmium_sulfide")
+    assert cds["emergent"] is True and cds["metal"] is False
+    assert cds.get("band_gap_ev", 0) > 0
+    r, g, b = cds["color_rgb"]
+    assert all(0.0 <= v <= 1.0 for v in (r, g, b))
+    assert r > b and g > b                              # blue eaten by the 2.4 eV gap → yellow

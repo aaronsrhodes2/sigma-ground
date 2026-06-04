@@ -37,7 +37,10 @@ def material_albedo(material_key: str) -> Vec3:
 
 def shade(scene, point: Vec3, normal: Vec3, view_dir: Vec3) -> Vec3:
     """Lambert diffuse + ambient, tinted by the emergent material albedo."""
-    label = scene.material_at(point)
+    # The ray halts a hair OUTSIDE the surface (sdf ≈ +eps), where no leaf is
+    # strictly inside and material_at would miss → grey fallback. Sample the
+    # material just INSIDE, along −normal (the GPU shader does the identical hop).
+    label = scene.material_at(point - normal * 1.0e-3)
     # Prefer a scene-supplied albedo (e.g. BAKED emergent colors from a
     # SceneSpec); otherwise derive it from the material library.
     if getattr(scene, "albedo", None) is not None:

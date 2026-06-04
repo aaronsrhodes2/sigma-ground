@@ -1,10 +1,21 @@
 {
  "scene": {
   "name": "copper sphere",
+  "bodies": [
+   {
+    "pivot": [
+     0,
+     0,
+     0
+    ],
+    "label": "copper"
+   }
+  ],
   "csg_leaves": [
    {
     "op": "add",
     "material": "copper",
+    "body": 0,
     "shape": {
      "type": "Sphere",
      "center": [
@@ -13,13 +24,11 @@
       0
      ],
      "radius": 0.05
-    },
-    "dynamic": true
+    }
    },
    {
     "op": "add",
     "material": "concrete",
-    "dynamic": false,
     "shape": {
      "type": "Box",
      "center": [
@@ -41,6 +50,7 @@
      0.5493692099995344
     ],
     "emergent": true,
+    "metal": true,
     "density_kg_m3": 8960.0
    },
    "concrete": {
@@ -50,6 +60,7 @@
      0.72
     ],
     "emergent": false,
+    "metal": false,
     "note": "v1 stub \u2014 awaiting molecular color",
     "density_kg_m3": 2400.0
    }

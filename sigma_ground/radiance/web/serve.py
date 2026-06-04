@@ -27,7 +27,7 @@ def main(port: int = 8765):
     handler = functools.partial(_Handler, directory=web_dir)
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("127.0.0.1", port), handler) as httpd:
-        print(f"Radiance viewer  →  http://127.0.0.1:{port}/   (no-cache)")
+        print(f"Radiance viewer  ->  http://127.0.0.1:{port}/   (no-cache)")
         print("Ctrl-C to stop.")
         try:
             httpd.serve_forever()

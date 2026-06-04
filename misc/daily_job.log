@@ -997,3 +997,47 @@ UnicodeEncodeError: 'charmap' codec can't encode characters in position 2-65: ch
 
  
 Daily benchmark job finished Tue 05/19/2026  2:09:24.54 
+ 
+============================================================ 
+Daily benchmark job started Wed 06/03/2026  6:00:01.91 
+============================================================ 
+D:\Aaron\development\sigma-ground\sigma_ground\mcp\benchmark\daily_job.py:272: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+Loaded env vars from D:\Aaron\development\.env
+
+=== Daily job: corpus=main (150 questions) ===
+  plan file: D:\Aaron\development\sigma-ground\misc\IMPROVEMENT_PLAN.md
+  [Wolfram] 111 unanswered; will attempt up to 85 today
+  [Wolfram] daily cap 85 reached; stopping
+  [Wolfram] {'new_attempted': 41, 'new_ok': 0, 'queries_consumed': 85, 'remaining': 70}
+  [Gemini] using FREE-tier key
+  [Gemini] 0 unanswered; querying with gemini-2.5-flash
+  [Gemini] {'new_attempted': 0, 'new_ok': 0}
+  [Score]
+    sigma_ground : 128/150 =  85.3%
+    wolfram      :  20/150 =  13.3%
+    gemini       :  90/150 =  60.0%
+  [Catalog] {'library_gaps': 0, 'discoverability': 12, 'wolfram_phrasing': 42, 'gemini_halluc': 60}
+  [Plan]    appended to D:\Aaron\development\sigma-ground\misc\IMPROVEMENT_PLAN.md
+
+  +--------------------------------------------------------------+
+  | TARGET DASHBOARD (PROJECT_GOAL.md)                           |
+  +--------------------------------------------------------------+
+  | [X] PASS sg overall >= WA overall     sg=85.3% WA=13.3%         |
+  | [X] PASS sg matches WA-correct >=98%  20/20 = 100%              |
+  | [X] PASS sg overall >= 80%            85.3%                     |
+  | [ ] .... all 14 domains >= 80%        4 below                   |
+  | [X] PASS median latency <= 30s        0.1s                      |
+  | [X] PASS library-gap rate <= 5%       0.0% (0/150)              |
+  | [X] PASS adversarial refusal >= 50%   6/6 = 100%                |
+  | [ ] .... conversation mode built      roadmap                   |
+  +--------------------------------------------------------------+
+ 
+Daily benchmark job finished Wed 06/03/2026  6:15:24.66 

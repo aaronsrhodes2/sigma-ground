@@ -13,8 +13,7 @@
     ],
     "radius": 0.04,
     "height": 0.095
-   },
-   "dynamic": false
+   }
   },
   {
    "op": "add",
@@ -28,8 +27,7 @@
     ],
     "radius": 0.0397,
     "height": 0.095
-   },
-   "dynamic": false
+   }
   },
   {
    "op": "subtract",
@@ -43,8 +41,7 @@
     ],
     "radius": 0.0347,
     "height": 0.088
-   },
-   "dynamic": false
+   }
   },
   {
    "op": "add",
@@ -58,8 +55,7 @@
     ],
     "radius": 0.0347,
     "height": 0.0704
-   },
-   "dynamic": false
+   }
   }
  ],
  "materials": {
@@ -70,6 +66,7 @@
     0.93
    ],
    "emergent": false,
+   "metal": false,
    "note": "v1 stub \u2014 awaiting molecular color",
    "density_kg_m3": 2400.0
   },
@@ -80,6 +77,7 @@
     0.76
    ],
    "emergent": false,
+   "metal": false,
    "note": "v1 stub \u2014 awaiting molecular color",
    "density_kg_m3": 2300.0
   },
@@ -90,6 +88,7 @@
     0.0
    ],
    "emergent": false,
+   "metal": false,
    "note": "v1 stub \u2014 awaiting molecular color",
    "density_kg_m3": 0.0
   },
@@ -100,6 +99,7 @@
     0.86
    ],
    "emergent": false,
+   "metal": false,
    "note": "v1 stub \u2014 awaiting molecular color",
    "density_kg_m3": 998.0
   }
@@ -193,7 +193,7 @@
   ]
  },
  "identified": true,
- "source": "typical stoneware coffee mug (approx.)",
+ "source": "coffee cup (layered_vessel) \u2014 typical stoneware coffee mug (approx.), liquid water at 20C = 998 kg/m^3",
  "kind": "static",
  "sdf_samples": [
   {

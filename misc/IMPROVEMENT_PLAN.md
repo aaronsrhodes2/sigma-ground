@@ -553,3 +553,64 @@ Categories:
 
 ---
 
+## 2026-06-03
+
+- LIBRARY GAP count:        0
+- DISCOVERABILITY GAP count: 12
+- WOLFRAM PHRASING count:    42
+- GEMINI HALLUCINATION count:60
+
+### DISCOVERABILITY GAP — keywords or pattern hint needed
+- `mech_intro_003` (classical_mechanics_intro): I shoot a cannonball at 100 meters per second from ground level at 45 degrees. How far doe
+    expected: `projectile_range` ; Qwen tried: ['double_slit_fringe_spacing']
+- `mech_intro_015` (classical_mechanics_intro): If I am in orbit 35,786 kilometers above Earth (geostationary altitude), how fast am I mov
+    expected: `circular_orbit_velocity` ; Qwen tried: []
+- `em_intro_012` (electromagnetism_intro): If I want a capacitor with 1 microfarad capacitance using 1 mm separation between plates i
+    expected: `solve_equation` ; Qwen tried: ['parallel_plate_capacitance']
+- `optics_012` (waves_optics): Sirius B is a white dwarf about 8.6 light years away. How long does its light take to reac
+    expected: `named_star` ; Qwen tried: []
+- `em_adv_004` (electrodynamics_advanced): I want a 100 microfarad capacitor with 0.1 mm plates separation and a dielectric of relati
+    expected: `solve_equation` ; Qwen tried: ['parallel_plate_capacitance']
+- `gr_005` (general_relativity): How long would it take a stellar-mass (10 solar mass) black hole to evaporate via Hawking 
+    expected: `hawking_evaporation_time` ; Qwen tried: []
+- `gr_006` (general_relativity): If I drop a clock 1 km above a 10 solar mass black hole's event horizon, how slow does it 
+    expected: `gravitational_time_dilation` ; Qwen tried: []
+- `gr_009` (general_relativity): If I'm right at the event horizon of a black hole, what's the redshift of light I emit, as
+    expected: `gravitational_redshift` ; Qwen tried: []
+- `cosmo_002` (cosmology): What's the Hubble time (approximate age of the universe)?
+    expected: `age_of_universe` ; Qwen tried: []
+- `cosmo_004` (cosmology): Galaxy rotation curves probe accelerations of about 1e-10 m/s squared. Which regime is tha
+    expected: `mond_regime_classifier` ; Qwen tried: []
+- `cosmo_008` (cosmology): How old is the universe in seconds, approximately?
+    expected: `age_of_universe` ; Qwen tried: []
+- `nuc_003` (nuclear_physics): How much energy in eV does an alpha particle (4 amu) carry at 5 MeV?
+    expected: `eV_to_joules` ; Qwen tried: ['photon_energy_from_frequency', 'kinetic_energy']
+
+### WOLFRAM PHRASING — add manual `wolfram_phrasing` to question
+- `mech_intro_001` (classical_mechanics_intro): If I drop a copper ball from 10 meters at sea level, how many seconds before it hits the g
+- `mech_intro_002` (classical_mechanics_intro): I drop a steel ball from 50 meters. How fast is it moving when it hits the ground?
+- `mech_intro_003` (classical_mechanics_intro): I shoot a cannonball at 100 meters per second from ground level at 45 degrees. How far doe
+- `mech_intro_004` (classical_mechanics_intro): I shoot a ball at 50 m/s straight up. How high does it go?
+- `mech_intro_005` (classical_mechanics_intro): What is the kinetic energy of a 70 kg person running at 5 m/s?
+- `mech_intro_006` (classical_mechanics_intro): If I push a coffee cup with mass 0.2 kg across a table at 1 meter per second and the frict
+- `mech_intro_007` (classical_mechanics_intro): How fast does a satellite need to orbit at 400 km altitude above Earth's surface?
+- `mech_intro_009` (classical_mechanics_intro): What's the momentum of a 1500 kg car going 25 m/s?
+- `mech_intro_010` (classical_mechanics_intro): How much potential energy does a 70 kg climber have at the top of a 100 m cliff?
+- `mech_intro_011` (classical_mechanics_intro): I drop a ball from 10 meters on the Moon. How long does it take to land? Moon gravity is a
+- ... +32 more
+
+### GEMINI HALLUCINATION (Gemini confident, wrong)
+- `mech_intro_015` (classical_mechanics_intro): expected 0.0, gemini said 3074.0
+- `em_intro_003` (electromagnetism_intro): expected 8.854e-09, gemini said $8.854 \times 10^{-9} \text{ F}$
+- `em_intro_007` (electromagnetism_intro): expected 545100000000000.0, gemini said $5.45 \times 10^{14}$ Hz
+- `em_intro_014` (electromagnetism_intro): expected 3e+18, gemini said 3.0
+- `optics_004` (waves_optics): expected 6.563e-07, gemini said 6.5647
+- `optics_009` (waves_optics): expected 1.216e-07, gemini said 1.2150242
+- `optics_012` (waves_optics): expected 2.667, gemini said 8.6
+- `thermo_001` (thermodynamics_statmech): expected 101325, gemini said 1.01
+- `thermo_002` (thermodynamics_statmech): expected 4.83e-07, gemini said $4.83 \times 10^{-7}$ m
+- `thermo_003` (thermodynamics_statmech): expected 459.0, gemini said 4.59
+- ... +50 more
+
+---
+

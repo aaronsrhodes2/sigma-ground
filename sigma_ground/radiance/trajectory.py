@@ -54,7 +54,11 @@ def record_fall(material_key: str = "copper", radius_m: float = 0.05,
     bbox = ((-r, r), (-r, r), (-r, r))
     scene_spec = {
         "name": f"{mat_name.lower()} sphere",
-        "csg_leaves": [{"op": "add", "material": material_key,
+        # body 0 = the sphere; pivot is its rest center, so the frame `pos`
+        # tracks the centre directly (a sphere needs no rotation, but the
+        # plumbing carries `quat` for the day Materia's rigid stage rotates it).
+        "bodies": [{"pivot": [0, 0, 0], "label": material_key}],
+        "csg_leaves": [{"op": "add", "material": material_key, "body": 0,
                         "shape": {"type": "Sphere", "center": [0, 0, 0],
                                   "radius": radius_m}}],
         "materials": {material_key: _bake_material(material_key, density)},
