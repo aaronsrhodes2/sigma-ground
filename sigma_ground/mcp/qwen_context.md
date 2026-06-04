@@ -95,6 +95,10 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **luminosity_to_mass_conversion_rate** — dm/dt = L / c^2.  ↳ *say:* stellar mass loss to luminosity; Sun mass-loss rate; L = (dm/dt) c^2; solar luminosity mass rate
 - **mass_to_energy** — E = m c^2.  ↳ *say:* E=mc^2; mass-energy equivalence; rest mass energy; Einstein 1905; matter to energy conversion; nuclear binding
 
+### fluids
+- **diffusion_analysis** — Diffusion: Einstein-Stokes diffusivity, Fick's first & second laws, penetration time, Darken interdiffusion.  ↳ *say:* diffusion; Fick's law; diffusion coefficient; Einstein-Stokes; how long to diffuse; interdiffusion
+- **viscous_flow_analysis** — Viscous flow: Reynolds number, Stokes drag + terminal velocity, drag coefficient, Poiseuille pipe flow, boundary layer, wall shear.  ↳ *say:* viscosity; Reynolds number; Stokes drag; terminal velocity; Poiseuille flow; drag on a sphere
+
 ### frontier
 - **bekenstein_hawking_entropy** — Black-hole entropy/temperature/horizon-area/r_s from mass; solar mass entropy ~1e77 k_B.
 - **entanglement_channel** — Whether entanglement can signal (NO, no-communication theorem), do QKD (shared secret key), and the CHSH/Tsirelson bound (2 sqrt2). Pass the user's question as scenario.
@@ -214,6 +218,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **ideal_gas_volume** — V = n R T / P.  ↳ *say:* molar volume; V = nRT/P; STP volume 22.4 L
 - **maxwell_boltzmann_most_probable_speed** — v_p = sqrt(2 k_B T / m).  ↳ *say:* Maxwell-Boltzmann distribution; v_mp = sqrt(2 k T / m); most probable speed; molecular speed distribution
 - **speed_of_sound_in_ideal_gas** — v = sqrt(gamma R T / M).  ↳ *say:* speed of sound; v_sound = 331 + 0.6 T; sound velocity in air; speed of sound in air at temperature
+- **statistical_distribution** — Fermi-Dirac & Bose-Einstein occupation, partition function, mean energy, entropy, equipartition heat capacity.  ↳ *say:* Fermi-Dirac; Bose-Einstein; partition function; occupation probability; equipartition; heat capacity from degrees of freedom
 - **temperature_celsius_to_kelvin** — T_K = T_C + 273.15.  ↳ *say:* Convert Celsius to Kelvin; C to K; Celsius to K; degrees Celsius to Kelvin; T_K = T_C + 273.15; what's 100 Celsius in Kelvin
 - **temperature_kelvin_to_celsius** — T_C = T_K - 273.15.  ↳ *say:* Convert Kelvin to Celsius; K to C; Kelvin to Celsius; T_C = T_K - 273.15; what is X K in Celsius; convert temperature
 - **thermal_energy_per_molecule** — E = (f/2) k_B T.  ↳ *say:* equipartition theorem; (3/2) k_B T; average kinetic energy of gas molecule; average thermal energy; thermal energy per molecule

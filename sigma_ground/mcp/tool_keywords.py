@@ -422,6 +422,20 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "friction on an incline", "block on a ramp",
     ],
 
+    # ============ TRANSPORT & STATISTICAL MECHANICS (composite) ============
+    "viscous_flow_analysis": [
+        "viscosity", "Reynolds number", "Stokes drag", "terminal velocity",
+        "Poiseuille flow", "drag on a sphere", "laminar or turbulent",
+    ],
+    "diffusion_analysis": [
+        "diffusion", "Fick's law", "diffusion coefficient", "Einstein-Stokes",
+        "how long to diffuse", "interdiffusion",
+    ],
+    "statistical_distribution": [
+        "Fermi-Dirac", "Bose-Einstein", "partition function", "occupation probability",
+        "equipartition", "heat capacity from degrees of freedom",
+    ],
+
     # ============ ENERGY CONVERSION (E=mc^2 family) ============
     "mass_to_energy": [
         "E=mc^2", "mass-energy equivalence", "rest mass energy",

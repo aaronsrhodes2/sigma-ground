@@ -740,6 +740,24 @@ _PRIMARY_TOOLS = [
      "inputs": {"angle_deg": "float", "friction_coefficient": "float",
                 "speed_m_s": "float", "height_m": "float"},
      "returns": "dict {critical_angle, distance, speed}"},
+
+    # ── transport & statistical mechanics (composite) ──
+    {"name": "viscous_flow_analysis", "tier": "PRIMARY", "domain": "fluids",
+     "summary": "Viscous flow: Reynolds number, Stokes drag + terminal velocity, "
+                "drag coefficient, Poiseuille pipe flow, boundary layer, wall shear.",
+     "inputs": {"velocity_m_s": "float", "radius_m": "float",
+                "viscosity_pa_s": "float", "fluid_density_kg_m3": "float"},
+     "returns": "dict of flow quantities"},
+    {"name": "diffusion_analysis", "tier": "PRIMARY", "domain": "fluids",
+     "summary": "Diffusion: Einstein-Stokes diffusivity, Fick's first & second "
+                "laws, penetration time, Darken interdiffusion.",
+     "inputs": {"temperature_k": "float", "diffusivity_m2_s": "float"},
+     "returns": "dict of diffusion quantities"},
+    {"name": "statistical_distribution", "tier": "PRIMARY", "domain": "thermodynamics",
+     "summary": "Fermi-Dirac & Bose-Einstein occupation, partition function, "
+                "mean energy, entropy, equipartition heat capacity.",
+     "inputs": {"temperature_k": "float", "energy_ev": "float"},
+     "returns": "dict of distribution quantities"},
 ]
 
 

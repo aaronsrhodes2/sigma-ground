@@ -104,6 +104,7 @@ def main() -> int:
     from sigma_ground.mcp.tools import mathx as t_mathx
     from sigma_ground.mcp.tools import frontier as t_front
     from sigma_ground.mcp.tools import mechanics as t_mech
+    from sigma_ground.mcp.tools import transport as t_trans
     from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
@@ -1191,6 +1192,32 @@ def main() -> int:
         stopping, and slide speed at the bottom."""
         return t_mech.incline_analysis(angle_deg, friction_coefficient,
                                        speed_m_s, height_m)
+
+    # ── transport & statistical mechanics ──
+    @server.tool()
+    def viscous_flow_analysis(velocity_m_s: float, radius_m: float,
+                              viscosity_pa_s: float = 1.0e-3,
+                              fluid_density_kg_m3: float = 1000.0) -> dict[str, Any]:
+        """Viscous flow: Reynolds number, Stokes drag + terminal velocity, drag
+        coefficient, Poiseuille pipe flow, boundary layer, wall shear, viscous
+        heating. viscous_flow_analysis(2, 0.005)."""
+        return t_trans.viscous_flow_analysis(velocity_m_s, radius_m,
+                                             viscosity_pa_s, fluid_density_kg_m3)
+
+    @server.tool()
+    def diffusion_analysis(temperature_k: float,
+                           diffusivity_m2_s: float = 1.0e-9) -> dict[str, Any]:
+        """Diffusion: Einstein-Stokes diffusivity, Fick's first & second laws,
+        penetration time, Darken interdiffusion."""
+        return t_trans.diffusion_analysis(temperature_k, diffusivity_m2_s)
+
+    @server.tool()
+    def statistical_distribution(temperature_k: float,
+                                 energy_ev: float = 0.5) -> dict[str, Any]:
+        """Statistical mechanics: Fermi-Dirac & Bose-Einstein occupation,
+        partition function, mean energy, entropy, equipartition heat capacity.
+        statistical_distribution(300, 0.5)."""
+        return t_trans.statistical_distribution(temperature_k, energy_ev)
 
     # Run via stdio transport (standard MCP).
     server.run()
