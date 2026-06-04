@@ -108,3 +108,16 @@ def test_density_of_is_cited():
     assert f is not None and not f.estimated
     assert "materials.json" in f.source
     assert density_of("unobtanium-quux-9000") is None
+
+
+def test_researcher_builds_solid_primitive():
+    rod = json.dumps({"kind": "composite", "parts": [
+        {"name": "rod", "shape": "cylinder",
+         "dims": {"radius_m": 0.006, "height_m": 0.25}, "material": "steel"}]})
+    spec = research_spec("steel rod", ask=lambda n: rod, model="stub")
+    assert spec is not None and spec.kind == "composite" and len(spec.parts) == 1
+    p = spec.parts[0]
+    assert all(f.estimated for f in p.dims.values())     # LLM dims flagged [estimated]
+    assert not p.density.estimated                       # density grounded in our data
+    assert p.density.value == density_of("steel").value
+    assert compile(spec, resolution=48).validation["passed"]

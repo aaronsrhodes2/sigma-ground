@@ -3,11 +3,11 @@
 Primary: Gemini-free (``google-generativeai`` with the dev-root ``.env`` key);
 fallback: local qwen via ollama ``/api/chat``. (The env-load + call are inlined
 rather than imported from the mcp layer, which sits far above deckard in the
-role tiers.) The LLM proposes the object's layered-vessel geometry + materials;
-Deckard GROUNDS
-each density in our own data (``sources.local``) and flags LLM-proposed
-dimensions as ``[estimated]``. Offline or on any failure it returns None, so
-``research()`` falls back to a flagged best-guess — never a confident fake.
+role tiers.) The LLM proposes the object's *shape* — either a hollow
+``layered_vessel`` or a ``composite`` of solid primitives — plus material names;
+Deckard GROUNDS each density in our own data (``sources.local``) and flags
+LLM-proposed dimensions as ``[estimated]``. Offline or on any failure it returns
+None, so ``research()`` falls back to a flagged best-guess — never a fake.
 
 Facts-first, facts-and-primitives only: no images, no meshes — the LLM supplies
 proportions, our data supplies attributable densities.
@@ -19,31 +19,30 @@ import os
 import re
 import urllib.request
 
-from .schema import ConstructSpec, Fact, SpecLayer
+from .schema import ConstructSpec, Fact, SpecLayer, Part
 from .sources import local as _local
 
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.environ.get("DECKARD_OLLAMA_MODEL", "qwen2.5:7b")
 GEMINI_MODEL = os.environ.get("DECKARD_GEMINI_MODEL", "gemini-2.5-flash")
 
-# The compiler today fits a layered vessel: an outer skin (glaze), a structural
-# body (ceramic), and a liquid fill (water). The researcher must conform.
 _SYS = (
     "You are Deckard, a shape researcher for a physics compiler. Given an "
-    "everyday object NAME, describe it as a layered cylindrical vessel and "
-    "output ONLY JSON (no prose), all lengths in SI metres:\n"
-    '{"kind":"layered_vessel",'
-    '"geometry":{"outer_radius_m":<r>,"height_m":<h>,"wall_m":<t>,'
-    '"glaze_m":<skin>,"base_m":<floor>,"fill_fraction":<0..1>},'
-    '"layers":[{"name":"glaze","material":"<outer coating/skin>"},'
-    '{"name":"ceramic","material":"<structural body>"},'
-    '{"name":"water","material":"<liquid fill, usually liquid water>"}],'
-    '"notes":"<one line>"}\n'
-    "Always exactly these three layers named glaze, ceramic, water. Use realistic "
-    "typical dimensions (a drinking glass ~0.03 m radius, ~0.12 m tall, ~0.002 m "
-    "wall, glaze_m 0 if uncoated). Choose body/skin materials suiting the object "
-    "(glass tumbler -> glass; mug -> stoneware). If the object is NOT a hollow "
-    'vessel, output {"kind":"unknown"}.'
+    "everyday object NAME, output ONLY JSON (no prose), all lengths in SI metres. "
+    "Choose ONE form:\n"
+    "A) a HOLLOW VESSEL (cup, mug, glass, bowl, bottle):\n"
+    '{"kind":"layered_vessel","geometry":{"outer_radius_m":<r>,"height_m":<h>,'
+    '"wall_m":<t>,"glaze_m":<skin>,"base_m":<floor>,"fill_fraction":<0..1>},'
+    '"layers":[{"name":"glaze","material":"<outer skin>"},'
+    '{"name":"ceramic","material":"<body>"},'
+    '{"name":"water","material":"<liquid fill>"}]}\n'
+    "B) a SOLID object (rod, ball, die, brick, pylon):\n"
+    '{"kind":"composite","parts":[{"name":"<part>","shape":"sphere|cylinder|box|cone",'
+    '"dims":{...},"material":"<material>"}]}\n'
+    "   shape dims: sphere {radius_m}; cylinder/cone {radius_m,height_m}; "
+    "box {x_m,y_m,z_m}. One part is fine for simple solids.\n"
+    "Use realistic typical dimensions and a real material name (steel, glass, "
+    'aluminium, oak, stoneware, ...). If you cannot, output {"kind":"unknown"}.'
 )
 
 
@@ -113,7 +112,9 @@ def _ask(name: str) -> str | None:
 
 
 _JSON = re.compile(r"\{.*\}", re.DOTALL)
-_REQUIRED = ("outer_radius_m", "height_m", "wall_m", "glaze_m", "base_m", "fill_fraction")
+_VESSEL_DIMS = ("outer_radius_m", "height_m", "wall_m", "glaze_m", "base_m", "fill_fraction")
+_SHAPE_DIMS = {"sphere": ["radius_m"], "cylinder": ["radius_m", "height_m"],
+               "cone": ["radius_m", "height_m"], "box": ["x_m", "y_m", "z_m"]}
 
 
 def _density(material: str) -> Fact:
@@ -122,10 +123,16 @@ def _density(material: str) -> Fact:
     return f if f is not None else Fact(1000.0, "estimated", "", 0.2)
 
 
-def _build_spec(name: str, data: dict, model: str) -> ConstructSpec | None:
+def _cite_source(dens: Fact, sources: list, seen: set) -> None:
+    if not dens.estimated and dens.source not in seen:
+        sources.append({"name": dens.source, "license": dens.license})
+        seen.add(dens.source)
+
+
+def _build_vessel_spec(name: str, data: dict, model: str) -> ConstructSpec | None:
     g = data.get("geometry") or {}
     geometry: dict = {}
-    for k in _REQUIRED:
+    for k in _VESSEL_DIMS:
         v = g.get(k)
         if not isinstance(v, (int, float)):
             return None
@@ -140,7 +147,6 @@ def _build_spec(name: str, data: dict, model: str) -> ConstructSpec | None:
             return None
         geometry[k] = Fact(v, "estimated", "", 0.5)   # LLM proportions => [estimated]
 
-    # geometric plausibility (the compiler needs R_in > 0 and a real fill column)
     R_in = (geometry["outer_radius_m"].value
             - geometry["glaze_m"].value - geometry["wall_m"].value)
     if R_in <= 0.0 or geometry["base_m"].value >= geometry["height_m"].value:
@@ -160,14 +166,12 @@ def _build_spec(name: str, data: dict, model: str) -> ConstructSpec | None:
                   "water": ["ceramic", "air"]}
 
     sources = [{"name": f"{model} — researched proportions (estimates)", "license": ""}]
-    seen_src: set[str] = set()
+    seen: set = set()
     layers = []
     for layer_name in ("glaze", "ceramic", "water"):
         material = by_name.get(layer_name) or defaults[layer_name]
         dens = _density(material)
-        if not dens.estimated and dens.source not in seen_src:
-            sources.append({"name": dens.source, "license": dens.license})
-            seen_src.add(dens.source)
+        _cite_source(dens, sources, seen)
         layers.append(SpecLayer(layer_name, material, dens,
                                 Fact(thick[layer_name], "estimated", "", 0.4),
                                 interfaces[layer_name]))
@@ -179,12 +183,49 @@ def _build_spec(name: str, data: dict, model: str) -> ConstructSpec | None:
     )
 
 
+def _build_parts_spec(name: str, data: dict, model: str) -> ConstructSpec | None:
+    raw_parts = data.get("parts") or []
+    if not raw_parts:
+        return None
+    sources = [{"name": f"{model} — researched proportions (estimates)", "license": ""}]
+    seen: set = set()
+    parts = []
+    for i, p in enumerate(raw_parts):
+        shape = (p.get("shape") or "").lower()
+        if shape not in _SHAPE_DIMS:
+            return None
+        dims_in = p.get("dims") or {}
+        dims = {}
+        for k in _SHAPE_DIMS[shape]:
+            v = dims_in.get(k)
+            if not isinstance(v, (int, float)) or v <= 0.0:
+                return None
+            dims[k] = Fact(float(v), "estimated", "", 0.5)   # LLM => [estimated]
+        material = p.get("material") or "unknown"
+        dens = _density(material)
+        _cite_source(dens, sources, seen)
+        center = p.get("center_m", (0.0, 0.0, 0.0))
+        try:
+            center = tuple(float(x) for x in center)[:3]
+            if len(center) != 3:
+                center = (0.0, 0.0, 0.0)
+        except Exception:
+            center = (0.0, 0.0, 0.0)
+        parts.append(Part(p.get("name") or f"part{i}", shape, dims, material, dens, center))
+
+    return ConstructSpec(
+        name=name, kind="composite", identified=True, parts=parts, sources=sources,
+        notes=str(data.get("notes", "")) or f"Researched by {model}.",
+    )
+
+
 def research_spec(name: str, *, ask=None, model: str = GEMINI_MODEL) -> ConstructSpec | None:
     """Synthesise a cited ConstructSpec for ``name`` via the LLM, or None.
 
     ``ask`` (name -> raw LLM text or None) is injectable for testing; it defaults
-    to Gemini-free → qwen. Returns None on no-LLM / bad output / non-vessel so
-    research() can fall back to a flagged best-guess.
+    to Gemini-free → qwen. Dispatches on the proposed kind (vessel or composite).
+    Returns None on no-LLM / bad output / unknown so research() can fall back to a
+    flagged best-guess.
     """
     raw = (ask or _ask)(name)
     if not raw:
@@ -196,9 +237,14 @@ def research_spec(name: str, *, ask=None, model: str = GEMINI_MODEL) -> Construc
         data = json.loads(m.group(0))
     except Exception:
         return None
-    if not isinstance(data, dict) or data.get("kind") != "layered_vessel":
+    if not isinstance(data, dict):
         return None
-    return _build_spec(name, data, model)
+    kind = data.get("kind")
+    if kind == "layered_vessel":
+        return _build_vessel_spec(name, data, model)
+    if kind == "composite" or data.get("parts"):
+        return _build_parts_spec(name, data, model)
+    return None
 
 
 __all__ = ["research_spec", "GEMINI_MODEL", "OLLAMA_MODEL"]
