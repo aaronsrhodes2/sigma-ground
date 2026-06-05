@@ -1,14 +1,13 @@
 # sigma-ground — Project Instructions
 
-## Session Log
-Maintain `misc/SESSION_LOG.md`.
-Append a new session block at the end of each working session or when asked.
+**First time here?** Read [PLATINUM_RULES.md](../../PLATINUM_RULES.md) — this project inherits all universal rules there.
+See also: [LOGGING_STANDARD.md](../../LOGGING_STANDARD.md) — format for session logs and operatic scene files.
 
-## Operatic Play — Scene Files
-At the end of each session (or when asked), produce `misc/OPERATIC_PLAY_SCENE[N]_[TITLE].txt`
-where [N] is the session number and [TITLE] is a short snake_case name for that session.
-Each scene file covers that session only and is self-contained with its own
-DRAMATIS PERSONAE header. Draw from SESSION_LOG.md.
+## Session Persistence
+
+Maintain `misc/SESSION_LOG.md` (append after each session) and create `misc/OPERATIC_PLAY_SCENE[N]_[TITLE].txt` files (prose narratives of discoveries).
+
+See [LOGGING_STANDARD.md](../../LOGGING_STANDARD.md) for templates and formatting guidelines.
 
 ## Project Context
 

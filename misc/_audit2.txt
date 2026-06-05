@@ -1,0 +1,19 @@
+
+==================================================================
+  sigma-ground LIBRARY AUDIT  (no LLM — direct, known inputs)
+==================================================================
+
+TOOL CASES: 76
+  CONFIRMED            75
+  TOOL_ERROR           1
+
+CONSTANTS: 16
+  CONFIRMED            15
+  SSBM_INPUT           1
+
+--- TOOL CASES NEEDING ATTENTION ---
+  [TOOL_ERROR] integrate_expr(integrate_expr)
+      got=None  expected=0.3333333333333333 
+      ref: ∫x^2 dx [0,1]  source: ''
+
+Wrote D:\Aaron\development\sigma-ground\misc\LIBRARY_AUDIT.md

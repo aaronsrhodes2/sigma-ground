@@ -4,7 +4,7 @@ Direct library validation — no LLM. Each tool called with hand-authored correc
 
 ## Summary
 
-- Tool cases: 76 (CONFIRMED 76, LIBRARY_BUG 0, HALLUCINATION_RISK 0, TOOL_ERROR 0)
+- Tool cases: 86 (CONFIRMED 86, LIBRARY_BUG 0, HALLUCINATION_RISK 0, TOOL_ERROR 0)
 - Constants: 16 (CONFIRMED 15, DISAGREES 0, SSBM_INPUT 1)
 
 ## Confirmed-against-known-physics (the reassuring bulk)
@@ -85,3 +85,13 @@ Direct library validation — no LLM. Each tool called with hand-authored correc
 - `integrate_expr` = 0.3333333333333333  ✓ (∫x^2 dx [0,1] (NOTE: bounds must be str per schema; tool does not coerce int bounds))
 - `differentiate_expr` = 'cos(x)'  ✓ (d/dx sin(x))
 - `simplify_expr` = 1.0  ✓ (Pythagorean identity)
+- `orbital_velocity` = 7664.071403380863 m/s ✓ (ISS at 408 km)
+- `orbital_velocity` = 13058.356319031269 m/s ✓ (Jupiter heliocentric)
+- `orbital_period` = 163960165.95268384 s ✓ (Kepler III, 3 AU → 5.196 yr)
+- `gravitational_force` = 1.9804922390990566e+20 N ✓ (Earth-Moon)
+- `nuclear_binding_energy` = 28.296830874778607  ✓ (He-4 BE)
+- `nuclear_binding_energy` = 8.790343676302655  ✓ (Fe-56 BE/A)
+- `coulomb_force` = 230.70775512473696 N ✓ (2 protons at 1 fm)
+- `de_broglie_from_kinetic_energy` = 3.876403412883085e-11 m ✓ (1 keV electron)
+- `energy_power_time` = 18000000.0 J ✓ (5 kW × 1 hr)
+- `energy_power_time` = 200.0 s ✓ (5 W to dissipate 1 kJ)

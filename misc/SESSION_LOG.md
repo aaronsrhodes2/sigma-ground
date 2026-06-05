@@ -1732,3 +1732,72 @@ Decision: keep `jpl_de440` at dt=0.1d as canonical default; keep `jpl_de440_fine
 **Per-body dt architecture** (Wisdom-Holman-style hierarchical timestepping). Each body uses an integration step matched to its own orbital period: Mimas at dt~0.005d (200 steps/orbit), Pluto at dt~1.0d (90 steps/orbit). The "regressions at fixed-global-finer-dt" finding shows that a global dt change is not the right approach; per-body dt unlocks an order of magnitude on the fast-moon tier without breaking the integrator on the slowest bodies.
 
 In the meantime, the JPL DE440 alignment story is structurally complete: 4304 tests passing, EIH cross-terms working as predicted, ETA empirically anchored without numerology, Saturn system dynamically complete in the fixture, J4 formula proven exact, dt trade-off measured and documented.
+
+
+## Session 24 — 2026-06-01 — Frontier tools + fringe corpus (MCP switchboard thread)
+
+The MCP physics-switchboard thread (Qwen-2.5:7b as English→tool-call translator,
+deterministic classifiers as the primary answer path). This session added the
+"frontier" tier — black-hole thermodynamics / holography — and the fringe corpus
+of harder questions previously skipped for time.
+
+### What shipped
+
+**`sigma_ground/mcp/tools/frontier.py`** (NEW) — 6 closed-form tools, every one
+one line of geometry grounded in library G, c, ħ, L_p (no solvers):
+- `bekenstein_hawking_entropy(mass_kg)` — S = A/(4 L_p²); also returns Hawking T,
+  horizon area, r_s, thread count. Solar BH: S = 1.05e77 k_B.
+- `entanglements_to_pop_bubble(radius_m)` — N = π R² / L_p². Smallest bubble
+  (R = L_p) pops at N = π ≈ 3: the quantum of cavitation.
+- `holographic_matching_mass()` — M = ħc/(4π G m_p) ≈ 2.254e10 kg, where baryon
+  count crosses horizon pixel count.
+- `baryon_vs_disc(mass_kg)` — n_baryons vs n_disc_pixels; regime = overflow / room.
+- `gravitational_binding_energy(mass_kg, radius_m)` — U = (3/5) G M²/R.
+- `unruh_temperature(accel)` — T = ħa/(2π c k_B).
+
+**`frontier_classifier.py`** (NEW) — regex→tool router for the holography/BH-thermo
+questions. Hyphen-aware ("Planck-length", "1-kilometer"), body-mass-aware
+("Earth-mass", "solar-mass"), qualitative-vs-quantitative field selection
+(overflow question → regime string; ratio question → number).
+
+**`new_tools_classifier.py`** (MOD) — added the three force routes that were hidden
+but never wired: `nuclear_binding_energy` (per-nucleon field selection),
+`coulomb_force` (named-particle → elementary charge), `gravitational_force`
+(two-mass + separation). Added `_length_m()` unit helper and a `field` selector
+on NewToolMatch for dict-valued tools. Added the 6 frontier tools to
+HIDDEN_FROM_LLM.
+
+**`fringe_questions.json` + `fringe_ground_truth.json`** (NEW) — 14 questions:
+9 frontier BH/holography + 5 harder breadth (de Broglie 100 keV, U-238 BE/nucleon,
+Coulomb e-e, Sun-Earth gravity, 17.8-AU orbital period). Ground truth from
+verified physics.
+
+**Wiring** — frontier router inserted first in the run_sigma_ground cascade;
+6 tools registered in server.py (now 109 total, 95 visible to the LLM = 109 − 14
+hidden); manifest split by tier — 3 standard tools (Bekenstein, binding energy,
+Unruh) → PRIMARY, 3 SSBM-framed tools (bubble-pop, matching-mass, baryon-vs-disc)
+→ EXTENDED, finally populating the previously-empty EXTENDED tier exactly as the
+positioning doctrine intended. Keyword aliases added to tool_keywords.py.
+
+### Result
+
+| Metric | Value |
+|--------|-------|
+| Fringe corpus score | **14/14 = 100%** |
+| Routing | 100% deterministic (0 LLM calls, ~0 ms median) |
+| Server tools | 95 → **109** (+14: 8 prior hidden + 6 frontier) |
+| LLM-visible tools | **95** (14 hidden via HIDDEN_FROM_LLM) |
+| EXTENDED tier | 0 → **3** SSBM holographic tools |
+| Main-corpus regression | **none** (new routes catch 0 of 150; field default None) |
+
+All 6 frontier tools verified over the real MCP stdio wire. The bubble-pop quantum
+(π ≈ 3) and the baryon-vs-disc matching mass (2.254e10 kg) — derived in the gravity
+conversation — are now callable, provenance-tagged library tools.
+
+### Next action
+
+Phase 1 of "go dumber": the `find_tool` embedding router. The go-dumber experiment
+(Session prior) showed tiny generative models collapse (qwen-1.5b = 49%); the real
+path is more classifiers + a retrieval/embedding tool-selector, not a smaller LLM.
+Two open physics forks for the Captain: (1) does SSBM "reform" trigger AT or BEFORE
+Bekenstein saturation; (2) which side of M ≈ 2.25e10 kg SSBM cares about.

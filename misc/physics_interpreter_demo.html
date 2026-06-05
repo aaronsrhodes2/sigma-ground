@@ -1,0 +1,84 @@
+<!doctype html><html><head><meta charset="utf-8">
+<title>Skippy · Physics for All</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true}],throwOnError:false})"></script>
+<style>
+ body{background:#000;color:#fff;font-family:'Segoe UI',system-ui,sans-serif;max-width:880px;margin:0 auto;padding:32px}
+ h1{color:#00FF88;font-weight:600;letter-spacing:.5px} h1 .s{color:#00CCFF}
+ .sub{color:#006644;margin:-8px 0 28px;font-size:14px}
+ .card{background:#000;border:1px solid #003322;border-radius:12px;padding:20px 22px;margin:16px 0}
+ .route{color:#00CCFF;font-size:12px;font-family:ui-monospace,monospace;margin-bottom:10px;opacity:.85}
+ .q{color:#fff;font-size:18px;font-weight:600;margin-bottom:14px}
+ .a{margin:6px 0 14px} .val{color:#00FF88;font-size:30px;font-weight:700}
+ .unit{color:#FFAA00;font-size:18px} .prose{color:#00FF88;font-size:16px;line-height:1.5}
+ .muted{color:#003322}
+ .work,.inputs,.bib{border-top:1px solid #003322;padding-top:10px;margin-top:10px;font-size:14px;color:#cfe}
+ .lab{display:inline-block;color:#818CF8;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-right:8px}
+ .ktx{color:#fff} .inputs{color:#FFAA00;font-family:ui-monospace,monospace;font-size:13px}
+ .bib ol{margin:6px 0 0;padding-left:22px;color:#9fb} .bib li{margin:3px 0}
+ .note{color:#006644}
+ .badge{display:inline-block;margin-top:14px;padding:4px 12px;border:1px solid;border-radius:20px;
+   font-size:12px;font-weight:600;letter-spacing:.5px}
+</style></head><body>
+<h1>Skippy <span class="s">·</span> Physics for All</h1>
+<div class="sub">local · free · every answer cites its work, or says it can't</div>
+
+    <div class="card">
+      <div class="route">interpreted by meaning -&gt; schwarzschild_radius (similarity 0.72)</div>
+      <div class="q">If the Sun collapsed into a black hole, how small would it become?</div>
+      <div class="a"><span class="val">2954</span> <span class="unit">m</span></div>
+      <div class="work"><span class="lab">Work</span><span class="ktx">$$ r_s = 2 G M / c^2 $$</span></div><div class="inputs"><span class="lab">Inputs</span> mass_kg=1.989e+30</div><div class="bib"><span class="lab">Sources</span><ol><li>sigma_ground.field.gr_basics (standard Schwarzschild) <span class="note">— Event horizon radius for non-rotating uncharged black hole.</span></li></ol></div>
+      <div class="badge" style="color:#00FF88;border-color:#00FF88">✓ GROUNDED</div>
+    </div>
+    <div class="card">
+      <div class="route">interpreted by meaning -&gt; bekenstein_hawking_entropy (similarity 0.77)</div>
+      <div class="q">How much entropy does a black hole the mass of the Sun hold?</div>
+      <div class="a"><span class="val">1.049e+77</span> <span class="unit"></span></div>
+      <div class="work"><span class="lab">Work</span><span class="ktx">$$ S = A/(4 L_p^{2}) = k_B c^{3} A/(4 G \hbar ) $$</span></div><div class="inputs"><span class="lab">Inputs</span> mass_kg=1.989e+30</div><div class="bib"><span class="lab">Sources</span><ol><li>sigma-ground (Bekenstein 1973 / Hawking 1974) <span class="note">— entropy_k_B is also the max entanglement threads the horizon can hold (one per ~4 Planck pixels). Solar mass ~10^77.</span></li></ol></div>
+      <div class="badge" style="color:#00FF88;border-color:#00FF88">✓ GROUNDED</div>
+    </div>
+    <div class="card">
+      <div class="route">interpreted by meaning -&gt; entanglements_to_pop_bubble (similarity 0.83)</div>
+      <div class="q">How many entanglement threads does it take to pop the tiniest possible bubble?</div>
+      <div class="a"><span class="val">3.142</span> <span class="unit"></span></div>
+      <div class="work"><span class="lab">Work</span><span class="ktx">$$ N = \pi  R^{2} / L_p^{2} $$</span></div><div class="inputs"><span class="lab">Inputs</span> radius_m=1.616e-35</div><div class="bib"><span class="lab">Sources</span><ol><li>sigma-ground (holographic thread saturation) <span class="note">— Threads to pop a bubble of radius R. Smallest bubble (R=L_p) pops at N=π≈3 — the quantum of cavitation. = the bubble&#x27;s Bekenstein-Hawking pixel count.</span></li></ol></div>
+      <div class="badge" style="color:#00FF88;border-color:#00FF88">✓ GROUNDED</div>
+    </div>
+    <div class="card">
+      <div class="route">interpreted by meaning -&gt; holographic_matching_mass (similarity 0.76)</div>
+      <div class="q">At what mass do a black hole&#x27;s quarks and its surface pixels match up?</div>
+      <div class="a"><span class="val">2.254e+10</span> <span class="unit">kg</span></div>
+      <div class="work"><span class="lab">Work</span><span class="ktx">$$ M = \hbar  c / (4\pi  G m_p) $$</span></div><div class="bib"><span class="lab">Sources</span><ol><li>sigma-ground (baryon-count = horizon-pixel crossover) <span class="note">— r_s = 3.347e-17 m (sub-proton). Above: disc has room; below: matter overflows the horizon.</span></li></ol></div>
+      <div class="badge" style="color:#00FF88;border-color:#00FF88">✓ GROUNDED</div>
+    </div>
+    <div class="card">
+      <div class="route">interpreted by meaning -&gt; de_broglie_from_kinetic_energy (similarity 0.80)</div>
+      <div class="q">What&#x27;s the wave-nature wavelength of an electron carrying 1 keV of energy?</div>
+      <div class="a"><span class="val">3.876e-11</span> <span class="unit">m</span></div>
+      <div class="work"><span class="lab">Work</span><span class="ktx">$$ λ = h c / sqrt(KE^{2} + 2 KE m c^{2}) $$</span></div><div class="inputs"><span class="lab">Inputs</span> kinetic_energy_eV=1000, particle=electron, rest_mass_kg=9.109e-31</div><div class="bib"><span class="lab">Sources</span><ol><li>sigma-ground (de Broglie, relativistic momentum) <span class="note">— electron at 1000 eV (non-relativistic regime). Exact at all energies; reduces to h/sqrt(2 m KE) non-relativistically.</span></li></ol></div>
+      <div class="badge" style="color:#00FF88;border-color:#00FF88">✓ GROUNDED</div>
+    </div>
+    <div class="card">
+      <div class="route">interpreted by meaning -&gt; orbital_period (similarity 0.63)</div>
+      <div class="q">How long does something 5 AU out take to circle the Sun?</div>
+      <div class="a"><span class="val">3.528e+08</span> <span class="unit">s</span></div>
+      <div class="work"><span class="lab">Work</span><span class="ktx">$$ T = 2\pi  sqrt(a^{3} / (G M)) $$</span></div><div class="inputs"><span class="lab">Inputs</span> central_body=sun, central_mass_kg=1.989e+30, semimajor_axis_m=7.48e+11</div><div class="bib"><span class="lab">Sources</span><ol><li>sigma-ground (Kepler&#x27;s third law) <span class="note">— Central: sun. a from 5.0 AU. T = 4083 days = 11.18 years.</span></li></ol></div>
+      <div class="badge" style="color:#00FF88;border-color:#00FF88">✓ GROUNDED</div>
+    </div>
+    <div class="card">
+      <div class="route">interpreted by meaning -&gt; entanglement_channel (similarity 0.83)</div>
+      <div class="q">Can two entangled particles send a message faster than light?</div>
+      <div class="a"><span class="prose">NO — entangled particles cannot communicate or send information, faster than light or otherwise (the no-communication theorem). They share private correlated randomness, not a signal; extracting any message requires a separate classical channel at ≤ c.</span></div>
+      <div class="work"><span class="lab">Work</span><span class="ktx">$$ CHSH: |S| ≤ 2 (classical) &lt; |S| ≤ 2\sqrt2 (quantum); no-signaling $$</span></div><div class="inputs"><span class="lab">Inputs</span> scenario=Can two entangled particles send a message faster than light?</div><div class="bib"><span class="lab">Sources</span><ol><li>sigma-ground (no-communication theorem; Bell 1964; Tsirelson 1980; Ekert 1991) <span class="note">— Entanglement is a correlation resource, not a communication channel. Faster-than-light signaling via entanglement is impossible; the only transferable thing is shared secret randomness, and using it needs a classical channel at ≤ c.</span></li></ol></div>
+      <div class="badge" style="color:#00FF88;border-color:#00FF88">✓ GROUNDED</div>
+    </div>
+    <div class="card">
+      <div class="route">unrecognized term -&gt; clarification gate</div>
+      <div class="q">What&#x27;s the energy of a magical thought barrier?</div>
+      <div class="a"><span class="prose">I can&#x27;t compute the energy of &#x27;magical thought barrier&#x27; — &#x27;magical&#x27; isn&#x27;t a physics quantity or object I recognize, and physics doesn&#x27;t define it. If you mean a real system (a photon, a particle, a mass), tell me which and I&#x27;ll compute its energy. Could you clarify what physical system you mean?</span></div>
+      <div class="bib"><span class="lab">Sources</span><ol><li>clarification gate (no grounded tool)</li></ol></div>
+      <div class="badge" style="color:#FFAA00;border-color:#FFAA00">⚠ NEEDS CLARIFICATION</div>
+    </div>
+</body></html>

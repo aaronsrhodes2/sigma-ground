@@ -1,0 +1,13 @@
+
+==================================================================
+  sigma-ground LIBRARY AUDIT  (no LLM — direct, known inputs)
+==================================================================
+
+TOOL CASES: 86
+  CONFIRMED            86
+
+CONSTANTS: 16
+  CONFIRMED            15
+  SSBM_INPUT           1
+
+Wrote D:\Aaron\development\sigma-ground\misc\LIBRARY_AUDIT.md

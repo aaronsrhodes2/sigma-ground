@@ -1,0 +1,1703 @@
+# sigma_ground.csg
+sigma_ground.csg.sdf_intersect
+sigma_ground.csg.sdf_smooth_intersect
+sigma_ground.csg.sdf_smooth_subtract
+sigma_ground.csg.sdf_smooth_union
+sigma_ground.csg.sdf_subtract
+sigma_ground.csg.sdf_union
+# sigma_ground.deckard
+sigma_ground.deckard.identify
+# sigma_ground.deckard.construct
+sigma_ground.deckard.construct.compile_vessel
+sigma_ground.deckard.construct.zip_layer_labels
+# sigma_ground.deckard.research
+sigma_ground.deckard.research.research
+# sigma_ground.dynamics.collision
+sigma_ground.dynamics.collision.resolve_sphere_plane
+sigma_ground.dynamics.collision.resolve_sphere_sphere
+sigma_ground.dynamics.collision.sphere_plane_collision
+sigma_ground.dynamics.collision.sphere_sphere_collision
+# sigma_ground.dynamics.continuum
+sigma_ground.dynamics.continuum.cfl_timestep
+sigma_ground.dynamics.continuum.continuum_step
+sigma_ground.dynamics.continuum.continuum_step_to
+sigma_ground.dynamics.continuum.material_properties
+# sigma_ground.dynamics.fluid.eos
+sigma_ground.dynamics.fluid.eos.pressure_ideal_gas
+sigma_ground.dynamics.fluid.eos.pressure_tait
+sigma_ground.dynamics.fluid.eos.pressure_tait_full
+sigma_ground.dynamics.fluid.eos.speed_of_sound_liquid
+# sigma_ground.dynamics.fluid.kernel
+sigma_ground.dynamics.fluid.kernel.W
+sigma_ground.dynamics.fluid.kernel.grad_W
+sigma_ground.dynamics.fluid.kernel.smoothing_length
+# sigma_ground.dynamics.gravity.barnes_hut
+sigma_ground.dynamics.gravity.barnes_hut.barnes_hut_gravity
+sigma_ground.dynamics.gravity.barnes_hut.brute_force_gravity
+# sigma_ground.dynamics.stepper
+sigma_ground.dynamics.stepper.step
+sigma_ground.dynamics.stepper.step_to
+# sigma_ground.field.asteroids
+sigma_ground.field.asteroids.axis_ratios
+sigma_ground.field.asteroids.ellipsoid_volume
+sigma_ground.field.asteroids.escape_velocity
+sigma_ground.field.asteroids.mean_radius
+sigma_ground.field.asteroids.surface_gravity
+# sigma_ground.field.audit
+sigma_ground.field.audit.build_audit
+sigma_ground.field.audit.confidence_summary
+sigma_ground.field.audit.count_by_origin
+sigma_ground.field.audit.eject_candidates
+sigma_ground.field.audit.print_audit
+sigma_ground.field.audit.scan_confidence_tags
+# sigma_ground.field.binding
+sigma_ground.field.binding.binding_decomposition
+sigma_ground.field.binding.binding_energy_mev
+sigma_ground.field.binding.coulomb_energy_mev
+# sigma_ground.field.bounds
+sigma_ground.field.bounds.check_binding_energy
+sigma_ground.field.bounds.check_eta
+sigma_ground.field.bounds.check_nesting_level
+sigma_ground.field.bounds.check_nucleon_mass
+sigma_ground.field.bounds.check_radius
+sigma_ground.field.bounds.check_sigma
+sigma_ground.field.bounds.clamp_eta
+sigma_ground.field.bounds.clamp_sigma
+sigma_ground.field.bounds.domain_map
+sigma_ground.field.bounds.print_boundary_tests
+sigma_ground.field.bounds.run_boundary_tests
+sigma_ground.field.bounds.safe_binding
+sigma_ground.field.bounds.safe_neutron_mass
+sigma_ground.field.bounds.safe_proton_mass
+sigma_ground.field.bounds.safe_sigma
+# sigma_ground.field.decay
+sigma_ground.field.decay.activity
+sigma_ground.field.decay.alpha_decay_rate_geiger_nuttall
+sigma_ground.field.decay.decay_constant
+sigma_ground.field.decay.gamow_factor
+sigma_ground.field.decay.half_life
+sigma_ground.field.decay.q_value_alpha
+sigma_ground.field.decay.q_value_beta_minus
+sigma_ground.field.decay.q_value_beta_plus
+sigma_ground.field.decay.q_value_mev
+sigma_ground.field.decay.remaining_nuclei
+sigma_ground.field.decay.sigma_decay_shift
+# sigma_ground.field.electrodynamics
+sigma_ground.field.electrodynamics.coulomb_force
+sigma_ground.field.electrodynamics.cyclotron_frequency
+sigma_ground.field.electrodynamics.electric_field_point
+sigma_ground.field.electrodynamics.electric_potential
+sigma_ground.field.electrodynamics.em_wave_energy_density
+sigma_ground.field.electrodynamics.em_wave_intensity
+sigma_ground.field.electrodynamics.fine_structure_constant
+sigma_ground.field.electrodynamics.lorentz_force
+sigma_ground.field.electrodynamics.magnetic_force
+sigma_ground.field.electrodynamics.muon_anomalous_moment_experimental
+sigma_ground.field.electrodynamics.muon_anomalous_moment_sm
+sigma_ground.field.electrodynamics.muon_g2_consistency_status
+sigma_ground.field.electrodynamics.muon_g2_tension_sigmas
+sigma_ground.field.electrodynamics.radiation_power_larmor
+sigma_ground.field.electrodynamics.sigma_em_coupling
+sigma_ground.field.electrodynamics.skin_depth
+# sigma_ground.field.entanglement
+sigma_ground.field.entanglement.cosmic_rendering_budget
+sigma_ground.field.entanglement.dark_energy_with_eta
+sigma_ground.field.entanglement.decoherence_at_horizon
+sigma_ground.field.entanglement.decoherence_environments
+sigma_ground.field.entanglement.decoherence_time
+sigma_ground.field.entanglement.disturbance_propagation
+sigma_ground.field.entanglement.entanglement_bounds
+sigma_ground.field.entanglement.eta_scan
+sigma_ground.field.entanglement.find_eta_from_dark_energy
+sigma_ground.field.entanglement.local_eta
+sigma_ground.field.entanglement.photon_rendering_event
+sigma_ground.field.entanglement.photon_rendering_spectrum
+sigma_ground.field.entanglement.print_photon_rendering
+sigma_ground.field.entanglement.print_rendering_report
+sigma_ground.field.entanglement.rendering_connectivity
+sigma_ground.field.entanglement.rendering_cost
+sigma_ground.field.entanglement.rendering_environments
+sigma_ground.field.entanglement.sigma_coherence
+# sigma_ground.field.gr_basics
+sigma_ground.field.gr_basics.bekenstein_hawking_entropy
+sigma_ground.field.gr_basics.escape_velocity
+sigma_ground.field.gr_basics.eta_as_bit_thread_fraction
+sigma_ground.field.gr_basics.gravitational_redshift
+sigma_ground.field.gr_basics.hawking_evaporation_time
+sigma_ground.field.gr_basics.hawking_luminosity
+sigma_ground.field.gr_basics.hawking_temperature
+sigma_ground.field.gr_basics.isco_radius
+sigma_ground.field.gr_basics.page_time_sigma_ground
+sigma_ground.field.gr_basics.page_time_sm
+sigma_ground.field.gr_basics.photon_sphere_radius
+sigma_ground.field.gr_basics.replica_wormhole_entropy_contribution
+sigma_ground.field.gr_basics.sigma_at_horizon
+sigma_ground.field.gr_basics.tidal_force
+sigma_ground.field.gr_basics.time_dilation_gr
+# sigma_ground.field.interface.acid_base
+sigma_ground.field.interface.acid_base.Ka
+sigma_ground.field.interface.acid_base.Kb
+sigma_ground.field.interface.acid_base.acid_base_report
+sigma_ground.field.interface.acid_base.buffer_capacity
+sigma_ground.field.interface.acid_base.buffer_capacity_max
+sigma_ground.field.interface.acid_base.buffer_range
+sigma_ground.field.interface.acid_base.full_report
+sigma_ground.field.interface.acid_base.henderson_hasselbalch
+sigma_ground.field.interface.acid_base.neutral_pH
+sigma_ground.field.interface.acid_base.pH_solution
+sigma_ground.field.interface.acid_base.pH_strong_acid
+sigma_ground.field.interface.acid_base.pH_strong_base
+sigma_ground.field.interface.acid_base.pH_weak_acid
+sigma_ground.field.interface.acid_base.pH_weak_base
+sigma_ground.field.interface.acid_base.pKa
+sigma_ground.field.interface.acid_base.pKb
+sigma_ground.field.interface.acid_base.percent_dissociation
+sigma_ground.field.interface.acid_base.polyprotic_alpha
+sigma_ground.field.interface.acid_base.sigma_pKa_shift
+sigma_ground.field.interface.acid_base.titration_curve
+sigma_ground.field.interface.acid_base.titration_strong_acid_strong_base
+sigma_ground.field.interface.acid_base.titration_weak_acid_strong_base
+sigma_ground.field.interface.acid_base.water_ion_product
+# sigma_ground.field.interface.acoustics
+sigma_ground.field.interface.acoustics.acoustic_impedance
+sigma_ground.field.interface.acoustics.critical_angle
+sigma_ground.field.interface.acoustics.debye_velocity
+sigma_ground.field.interface.acoustics.density_at_sigma
+sigma_ground.field.interface.acoustics.longitudinal_wave_speed
+sigma_ground.field.interface.acoustics.material_acoustic_properties
+sigma_ground.field.interface.acoustics.reflection_coefficient
+sigma_ground.field.interface.acoustics.resonant_frequency
+sigma_ground.field.interface.acoustics.ring_frequency
+sigma_ground.field.interface.acoustics.snell_refraction_angle
+sigma_ground.field.interface.acoustics.transmission_coefficient
+sigma_ground.field.interface.acoustics.transverse_wave_speed
+sigma_ground.field.interface.acoustics.wave_speed_ratio
+sigma_ground.field.interface.acoustics.wavelength
+# sigma_ground.field.interface.adapters._jplephem_bridge
+sigma_ground.field.interface.adapters._jplephem_bridge.query_jplephem
+# sigma_ground.field.interface.adapters.constants
+sigma_ground.field.interface.adapters.constants.sg_patch_astropy
+sigma_ground.field.interface.adapters.constants.sg_patch_scipy
+# sigma_ground.field.interface.adapters.integrator
+sigma_ground.field.interface.adapters.integrator.sg_nbody
+sigma_ground.field.interface.adapters.integrator.sg_odeint
+sigma_ground.field.interface.adapters.integrator.sg_solve_ivp
+# sigma_ground.field.interface.adhesion
+sigma_ground.field.interface.adhesion.adhesion_decomposition
+sigma_ground.field.interface.adhesion.contact_angle
+sigma_ground.field.interface.adhesion.interface_energy
+sigma_ground.field.interface.adhesion.material_adhesion_properties
+sigma_ground.field.interface.adhesion.work_of_adhesion
+sigma_ground.field.interface.adhesion.work_of_adhesion_at_sigma
+# sigma_ground.field.interface.alloys
+sigma_ground.field.interface.alloys.alloy_Nordheim_resistivity
+sigma_ground.field.interface.alloys.alloy_Tc_all_models
+sigma_ground.field.interface.alloys.alloy_properties
+sigma_ground.field.interface.alloys.composition_sweep
+sigma_ground.field.interface.alloys.list_alloys
+sigma_ground.field.interface.alloys.predict_all
+sigma_ground.field.interface.alloys.predict_alloy_Tc
+sigma_ground.field.interface.alloys.sigma_alloy_Tc
+# sigma_ground.field.interface.angular_momentum
+sigma_ground.field.interface.angular_momentum.all_term_symbols
+sigma_ground.field.interface.angular_momentum.allowed_J_values
+sigma_ground.field.interface.angular_momentum.angular_momentum_magnitude
+sigma_ground.field.interface.angular_momentum.angular_momentum_report
+sigma_ground.field.interface.angular_momentum.angular_momentum_z_values
+sigma_ground.field.interface.angular_momentum.clebsch_gordan
+sigma_ground.field.interface.angular_momentum.full_report
+sigma_ground.field.interface.angular_momentum.hund_ground_state
+sigma_ground.field.interface.angular_momentum.hydrogen_spin_orbit_constant_eV
+sigma_ground.field.interface.angular_momentum.lande_g_factor
+sigma_ground.field.interface.angular_momentum.lande_interval_check
+sigma_ground.field.interface.angular_momentum.magnetic_moment_bohr_magnetons
+sigma_ground.field.interface.angular_momentum.multi_electron_SO_constant_eV
+sigma_ground.field.interface.angular_momentum.multiplicity
+sigma_ground.field.interface.angular_momentum.pauli_matrices
+sigma_ground.field.interface.angular_momentum.spin_expectation
+sigma_ground.field.interface.angular_momentum.spin_orbit_energy_eV
+sigma_ground.field.interface.angular_momentum.spin_orbit_splitting_eV
+sigma_ground.field.interface.angular_momentum.term_symbol
+sigma_ground.field.interface.angular_momentum.total_states
+sigma_ground.field.interface.angular_momentum.verify_state_count
+# sigma_ground.field.interface.atmosphere
+sigma_ground.field.interface.atmosphere.absolute_humidity
+sigma_ground.field.interface.atmosphere.air_cp_mass
+sigma_ground.field.interface.atmosphere.air_cp_molar
+sigma_ground.field.interface.atmosphere.air_density
+sigma_ground.field.interface.atmosphere.air_gamma
+sigma_ground.field.interface.atmosphere.altitude_for_pressure
+sigma_ground.field.interface.atmosphere.atmosphere_report
+sigma_ground.field.interface.atmosphere.column_number_density
+sigma_ground.field.interface.atmosphere.density_at_altitude
+sigma_ground.field.interface.atmosphere.dew_point
+sigma_ground.field.interface.atmosphere.dry_adiabatic_lapse_rate
+sigma_ground.field.interface.atmosphere.full_report
+sigma_ground.field.interface.atmosphere.mean_molar_mass_kg_mol
+sigma_ground.field.interface.atmosphere.mean_molecular_mass_kg
+sigma_ground.field.interface.atmosphere.mixing_ratio
+sigma_ground.field.interface.atmosphere.moist_adiabatic_lapse_rate
+sigma_ground.field.interface.atmosphere.pressure_at_altitude
+sigma_ground.field.interface.atmosphere.saturation_vapor_pressure
+sigma_ground.field.interface.atmosphere.scale_height
+sigma_ground.field.interface.atmosphere.specific_humidity
+sigma_ground.field.interface.atmosphere.speed_of_sound
+sigma_ground.field.interface.atmosphere.temperature_at_altitude
+# sigma_ground.field.interface.atomic_spectra
+sigma_ground.field.interface.atomic_spectra.allowed_transitions
+sigma_ground.field.interface.atomic_spectra.atomic_spectra_report
+sigma_ground.field.interface.atomic_spectra.balmer_series
+sigma_ground.field.interface.atomic_spectra.emission_spectrum
+sigma_ground.field.interface.atomic_spectra.fine_structure_shift_eV
+sigma_ground.field.interface.atomic_spectra.fine_structure_splitting_eV
+sigma_ground.field.interface.atomic_spectra.full_report
+sigma_ground.field.interface.atomic_spectra.hydrogen_energy_eV
+sigma_ground.field.interface.atomic_spectra.hydrogen_like_energy_eV
+sigma_ground.field.interface.atomic_spectra.hydrogen_reduced_mass
+sigma_ground.field.interface.atomic_spectra.ionization_energy_hydrogen_eV
+sigma_ground.field.interface.atomic_spectra.is_allowed_transition
+sigma_ground.field.interface.atomic_spectra.is_visible
+sigma_ground.field.interface.atomic_spectra.lande_g_factor
+sigma_ground.field.interface.atomic_spectra.lyman_series
+sigma_ground.field.interface.atomic_spectra.multi_electron_energy_eV
+sigma_ground.field.interface.atomic_spectra.paschen_series
+sigma_ground.field.interface.atomic_spectra.qho_classical_amplitude
+sigma_ground.field.interface.atomic_spectra.qho_energy_eV
+sigma_ground.field.interface.atomic_spectra.qho_level_spacing_eV
+sigma_ground.field.interface.atomic_spectra.qho_transition_energy_eV
+sigma_ground.field.interface.atomic_spectra.qho_zero_point_energy_eV
+sigma_ground.field.interface.atomic_spectra.rydberg_constant_at_sigma
+sigma_ground.field.interface.atomic_spectra.series_limit_nm
+sigma_ground.field.interface.atomic_spectra.sigma_spectral_shift
+sigma_ground.field.interface.atomic_spectra.transition_energy_eV
+sigma_ground.field.interface.atomic_spectra.transition_frequency_Hz
+sigma_ground.field.interface.atomic_spectra.transition_wavelength_nm
+sigma_ground.field.interface.atomic_spectra.transition_wavenumber
+sigma_ground.field.interface.atomic_spectra.visible_lines
+sigma_ground.field.interface.atomic_spectra.wavelength_to_rgb
+sigma_ground.field.interface.atomic_spectra.zeeman_pattern
+sigma_ground.field.interface.atomic_spectra.zeeman_shift_eV
+sigma_ground.field.interface.atomic_spectra.zeeman_splitting_count
+# sigma_ground.field.interface.band_structure
+sigma_ground.field.interface.band_structure.clear_cache
+sigma_ground.field.interface.band_structure.compute_dos
+sigma_ground.field.interface.band_structure.dos_at_fermi
+sigma_ground.field.interface.band_structure.dos_shape_factor
+# sigma_ground.field.interface.bh_mass_function
+sigma_ground.field.interface.bh_mass_function.b2_features
+sigma_ground.field.interface.bh_mass_function.b2_imr_exclusion
+sigma_ground.field.interface.bh_mass_function.b2_viable
+sigma_ground.field.interface.bh_mass_function.events_triggered_by_B2
+sigma_ground.field.interface.bh_mass_function.minimum_M_crit_90CL
+sigma_ground.field.interface.bh_mass_function.sweep_M_crit
+# sigma_ground.field.interface.bh_merger
+sigma_ground.field.interface.bh_merger.echo_delays
+sigma_ground.field.interface.bh_merger.gamma_at_merger
+sigma_ground.field.interface.bh_merger.predict_event
+sigma_ground.field.interface.bh_merger.predict_named_event
+sigma_ground.field.interface.bh_merger.ringdown_amplitude_suppression
+sigma_ground.field.interface.bh_merger.schwarzschild_radius
+sigma_ground.field.interface.bh_merger.shell_radii
+# sigma_ground.field.interface.chemical_reactions
+sigma_ground.field.interface.chemical_reactions.arrhenius_rate
+sigma_ground.field.interface.chemical_reactions.collision_prefactor
+sigma_ground.field.interface.chemical_reactions.entropy_change_estimate
+sigma_ground.field.interface.chemical_reactions.equilibrium_constant
+sigma_ground.field.interface.chemical_reactions.evans_polanyi_activation_energy
+sigma_ground.field.interface.chemical_reactions.full_report
+sigma_ground.field.interface.chemical_reactions.gibbs_energy_kJ_mol
+sigma_ground.field.interface.chemical_reactions.half_life
+sigma_ground.field.interface.chemical_reactions.reaction_enthalpy_by_key
+sigma_ground.field.interface.chemical_reactions.reaction_enthalpy_kJ_mol
+sigma_ground.field.interface.chemical_reactions.reaction_report
+sigma_ground.field.interface.chemical_reactions.temperature_for_rate
+# sigma_ground.field.interface.cigar
+sigma_ground.field.interface.cigar.combustion_enthalpy_per_mol_C
+sigma_ground.field.interface.cigar.combustion_temperature
+sigma_ground.field.interface.cigar.darcy_flow_velocity
+sigma_ground.field.interface.cigar.darcy_mass_flow_rate
+sigma_ground.field.interface.cigar.gas_temperature_after_cooling
+sigma_ground.field.interface.cigar.kozeny_carman_permeability
+sigma_ground.field.interface.cigar.simulate_carbon_cigar
+sigma_ground.field.interface.cigar.soot_emission_color
+sigma_ground.field.interface.cigar.soot_fraction
+sigma_ground.field.interface.cigar.sphere_pressure
+sigma_ground.field.interface.cigar.sphere_volume
+# sigma_ground.field.interface.classical_mechanics
+sigma_ground.field.interface.classical_mechanics.collision_energy_loss
+sigma_ground.field.interface.classical_mechanics.elastic_collision_velocities
+sigma_ground.field.interface.classical_mechanics.friction_dissipation
+sigma_ground.field.interface.classical_mechanics.gravitational_pe
+sigma_ground.field.interface.classical_mechanics.impulse
+sigma_ground.field.interface.classical_mechanics.inelastic_collision_velocity
+sigma_ground.field.interface.classical_mechanics.kinetic_energy
+sigma_ground.field.interface.classical_mechanics.mechanics_report
+sigma_ground.field.interface.classical_mechanics.momentum
+sigma_ground.field.interface.classical_mechanics.power_mechanical
+sigma_ground.field.interface.classical_mechanics.rotational_ke
+sigma_ground.field.interface.classical_mechanics.sigma_energy_shift
+sigma_ground.field.interface.classical_mechanics.total_mechanical_energy
+sigma_ground.field.interface.classical_mechanics.velocity_from_impulse
+sigma_ground.field.interface.classical_mechanics.work_done
+# sigma_ground.field.interface.composites
+sigma_ground.field.interface.composites.composite_density
+sigma_ground.field.interface.composites.composite_expansion
+sigma_ground.field.interface.composites.composite_modulus
+sigma_ground.field.interface.composites.composite_report
+sigma_ground.field.interface.composites.density_rule_of_mixtures
+sigma_ground.field.interface.composites.full_report
+sigma_ground.field.interface.composites.gibson_ashby_modulus
+sigma_ground.field.interface.composites.gibson_ashby_strength
+sigma_ground.field.interface.composites.halpin_tsai
+sigma_ground.field.interface.composites.hashin_shtrikman_bounds
+sigma_ground.field.interface.composites.reuss_bound
+sigma_ground.field.interface.composites.specific_stiffness
+sigma_ground.field.interface.composites.thermal_conductivity_bounds
+sigma_ground.field.interface.composites.thermal_expansion_voigt
+sigma_ground.field.interface.composites.voigt_bound
+sigma_ground.field.interface.composites.voigt_reuss_hill
+# sigma_ground.field.interface.corrosion
+sigma_ground.field.interface.corrosion.corrosion_properties
+sigma_ground.field.interface.corrosion.corrosion_rate_estimate
+sigma_ground.field.interface.corrosion.galvanic_potential
+sigma_ground.field.interface.corrosion.galvanic_series_rank
+sigma_ground.field.interface.corrosion.oxide_classification
+sigma_ground.field.interface.corrosion.parabolic_oxide_thickness
+sigma_ground.field.interface.corrosion.pilling_bedworth_ratio
+sigma_ground.field.interface.corrosion.sigma_corrosion_shift
+# sigma_ground.field.interface.cosmology
+sigma_ground.field.interface.cosmology.a0_mond_from_cosmological_scale
+sigma_ground.field.interface.cosmology.ede_ide_available
+sigma_ground.field.interface.cosmology.ede_ide_h0_s8_prediction
+sigma_ground.field.interface.cosmology.eta_candidates
+sigma_ground.field.interface.cosmology.eta_coincidence_report
+sigma_ground.field.interface.cosmology.eta_in_desi_union3_band
+sigma_ground.field.interface.cosmology.hde_c_squared_given_rho_de
+sigma_ground.field.interface.cosmology.hde_rho_de
+sigma_ground.field.interface.cosmology.hubble_radius
+sigma_ground.field.interface.cosmology.newtonian_regime
+# sigma_ground.field.interface.crystal_field
+sigma_ground.field.interface.crystal_field.absorption_bands
+sigma_ground.field.interface.crystal_field.crystal_field_report
+sigma_ground.field.interface.crystal_field.crystal_field_rgb
+sigma_ground.field.interface.crystal_field.d_electron_count
+sigma_ground.field.interface.crystal_field.mineral_rgb
+sigma_ground.field.interface.crystal_field.racah_b_crystal
+# sigma_ground.field.interface.demo_element
+sigma_ground.field.interface.demo_element.run_demo
+# sigma_ground.field.interface.demo_mobius
+sigma_ground.field.interface.demo_mobius.run_demo
+# sigma_ground.field.interface.demo_teg
+sigma_ground.field.interface.demo_teg.main
+sigma_ground.field.interface.demo_teg.print_header
+sigma_ground.field.interface.demo_teg.print_material_card
+# sigma_ground.field.interface.dielectric
+sigma_ground.field.interface.dielectric.breakdown_field
+sigma_ground.field.interface.dielectric.breakdown_voltage
+sigma_ground.field.interface.dielectric.clausius_mossotti
+sigma_ground.field.interface.dielectric.dielectric_constant
+sigma_ground.field.interface.dielectric.dielectric_loss_tangent
+sigma_ground.field.interface.dielectric.dielectric_report
+sigma_ground.field.interface.dielectric.energy_density
+sigma_ground.field.interface.dielectric.full_report
+sigma_ground.field.interface.dielectric.max_energy_density
+# sigma_ground.field.interface.diffusion
+sigma_ground.field.interface.diffusion.activation_energy_ev
+sigma_ground.field.interface.diffusion.darken_interdiffusion
+sigma_ground.field.interface.diffusion.diffusion_length
+sigma_ground.field.interface.diffusion.einstein_stokes_diffusivity
+sigma_ground.field.interface.diffusion.ficks_first_law
+sigma_ground.field.interface.diffusion.ficks_second_law_erf
+sigma_ground.field.interface.diffusion.material_diffusion_properties
+sigma_ground.field.interface.diffusion.sigma_diffusion_shift
+sigma_ground.field.interface.diffusion.solid_diffusivity
+sigma_ground.field.interface.diffusion.thermal_diffusivity
+sigma_ground.field.interface.diffusion.time_to_penetrate
+# sigma_ground.field.interface.duality_ellipse
+sigma_ground.field.interface.duality_ellipse.coherence_gamma_from_sigma
+sigma_ground.field.interface.duality_ellipse.concurrence_from_coherence
+sigma_ground.field.interface.duality_ellipse.duality_ellipse_holds
+sigma_ground.field.interface.duality_ellipse.duality_ellipse_visibility
+sigma_ground.field.interface.duality_ellipse.gamma_from_concurrence
+sigma_ground.field.interface.duality_ellipse.gamma_from_schmidt
+# sigma_ground.field.interface.elasticity
+sigma_ground.field.interface.elasticity.hydrostatic_stress
+sigma_ground.field.interface.elasticity.is_yielded
+sigma_ground.field.interface.elasticity.lame_lambda
+sigma_ground.field.interface.elasticity.lame_mu
+sigma_ground.field.interface.elasticity.material_elastic_properties
+sigma_ground.field.interface.elasticity.moduli_from_lame
+sigma_ground.field.interface.elasticity.p_wave_modulus
+sigma_ground.field.interface.elasticity.shear_stress
+sigma_ground.field.interface.elasticity.sigma_elastic_shift
+sigma_ground.field.interface.elasticity.strain_energy_density_hydrostatic
+sigma_ground.field.interface.elasticity.strain_energy_density_shear
+sigma_ground.field.interface.elasticity.strain_energy_density_uniaxial
+sigma_ground.field.interface.elasticity.transverse_strain
+sigma_ground.field.interface.elasticity.uniaxial_stress
+sigma_ground.field.interface.elasticity.volume_change_uniaxial
+sigma_ground.field.interface.elasticity.von_mises_stress
+# sigma_ground.field.interface.electrochemistry
+sigma_ground.field.interface.electrochemistry.activity_series
+sigma_ground.field.interface.electrochemistry.can_displace
+sigma_ground.field.interface.electrochemistry.cell_potential
+sigma_ground.field.interface.electrochemistry.faraday_charge_required
+sigma_ground.field.interface.electrochemistry.faraday_mass_deposited
+sigma_ground.field.interface.electrochemistry.faraday_time_required
+sigma_ground.field.interface.electrochemistry.gibbs_energy_cell
+sigma_ground.field.interface.electrochemistry.is_spontaneous
+sigma_ground.field.interface.electrochemistry.material_electrochemical_properties
+sigma_ground.field.interface.electrochemistry.molar_conductivity_dilute
+sigma_ground.field.interface.electrochemistry.nernst_potential
+sigma_ground.field.interface.electrochemistry.sigma_nernst_shift
+sigma_ground.field.interface.electrochemistry.solution_conductivity
+sigma_ground.field.interface.electrochemistry.tafel_overpotential
+sigma_ground.field.interface.electrochemistry.tafel_slope
+# sigma_ground.field.interface.electronics
+sigma_ground.field.interface.electronics.band_gap
+sigma_ground.field.interface.electronics.built_in_voltage
+sigma_ground.field.interface.electronics.carrier_concentration
+sigma_ground.field.interface.electronics.carrier_mobility
+sigma_ground.field.interface.electronics.coaxial_capacitance
+sigma_ground.field.interface.electronics.depletion_width
+sigma_ground.field.interface.electronics.derive_lambda_ep
+sigma_ground.field.interface.electronics.diode_current
+sigma_ground.field.interface.electronics.diode_saturation_current
+sigma_ground.field.interface.electronics.effective_dos_conduction
+sigma_ground.field.interface.electronics.effective_dos_valence
+sigma_ground.field.interface.electronics.energy_stored
+sigma_ground.field.interface.electronics.fermi_level_from_intrinsic
+sigma_ground.field.interface.electronics.free_electron_density
+sigma_ground.field.interface.electronics.hall_coefficient
+sigma_ground.field.interface.electronics.hall_voltage
+sigma_ground.field.interface.electronics.intrinsic_carrier_concentration
+sigma_ground.field.interface.electronics.junction_capacitance
+sigma_ground.field.interface.electronics.mean_free_path
+sigma_ground.field.interface.electronics.mean_free_time
+sigma_ground.field.interface.electronics.metal_transport_properties
+sigma_ground.field.interface.electronics.parallel_plate_capacitance
+sigma_ground.field.interface.electronics.resistivity
+sigma_ground.field.interface.electronics.resistivity_sigma
+sigma_ground.field.interface.electronics.semiconductor_properties
+sigma_ground.field.interface.electronics.spherical_capacitance
+# sigma_ground.field.interface.element
+sigma_ground.field.interface.element.atomic_mass_kg
+sigma_ground.field.interface.element.aufbau_configuration
+sigma_ground.field.interface.element.cohesive_energy_eV
+sigma_ground.field.interface.element.d_electron_count
+sigma_ground.field.interface.element.d_row
+sigma_ground.field.interface.element.element_properties
+sigma_ground.field.interface.element.free_electron_count
+sigma_ground.field.interface.element.friedel_cohesive_energy_eV
+sigma_ground.field.interface.element.material_from_Z
+sigma_ground.field.interface.element.material_from_key
+sigma_ground.field.interface.element.predict_crystal_structure
+sigma_ground.field.interface.element.predict_density_kg_m3
+sigma_ground.field.interface.element.predict_lattice_parameter_m
+sigma_ground.field.interface.element.preferred_face
+sigma_ground.field.interface.element.slater_radius_m
+sigma_ground.field.interface.element.slater_zeff
+sigma_ground.field.interface.element.stable_mass_number
+# sigma_ground.field.interface.fluid
+sigma_ground.field.interface.fluid.eyring_viscosity
+sigma_ground.field.interface.fluid.kinematic_viscosity
+sigma_ground.field.interface.fluid.liquid_properties
+sigma_ground.field.interface.fluid.liquid_viscosity
+sigma_ground.field.interface.fluid.reynolds_number
+sigma_ground.field.interface.fluid.surface_tension
+sigma_ground.field.interface.fluid.surface_tension_metal
+# sigma_ground.field.interface.friction
+sigma_ground.field.interface.friction.friction_coefficient
+sigma_ground.field.interface.friction.friction_force
+sigma_ground.field.interface.friction.interfacial_shear_strength
+sigma_ground.field.interface.friction.material_friction_properties
+sigma_ground.field.interface.friction.ploughing_friction
+sigma_ground.field.interface.friction.real_contact_fraction
+# sigma_ground.field.interface.gas
+sigma_ground.field.interface.gas.buoyancy_velocity
+sigma_ground.field.interface.gas.gas_cp_molar
+sigma_ground.field.interface.gas.gas_cv_molar
+sigma_ground.field.interface.gas.gas_diffusivity
+sigma_ground.field.interface.gas.gas_thermal_conductivity
+sigma_ground.field.interface.gas.gas_viscosity
+sigma_ground.field.interface.gas.grashof_number
+sigma_ground.field.interface.gas.heat_capacity_ratio
+sigma_ground.field.interface.gas.ideal_gas_density
+sigma_ground.field.interface.gas.molecular_mass_kg
+sigma_ground.field.interface.gas.molecule_gas_properties
+sigma_ground.field.interface.gas.molecule_vibrational_spectrum
+sigma_ground.field.interface.gas.number_density_gas
+sigma_ground.field.interface.gas.reduced_mass
+sigma_ground.field.interface.gas.sigma_from_frequency_shift
+sigma_ground.field.interface.gas.vibrational_frequency_hz
+sigma_ground.field.interface.gas.vibrational_temperature
+sigma_ground.field.interface.gas.vibrational_wavelength_um
+sigma_ground.field.interface.gas.vibrational_wavenumber
+# sigma_ground.field.interface.grain_structure
+sigma_ground.field.interface.grain_structure.annealing_profile
+sigma_ground.field.interface.grain_structure.dislocation_density_estimate
+sigma_ground.field.interface.grain_structure.grain_boundary_area_per_volume
+sigma_ground.field.interface.grain_structure.grain_boundary_energy_density
+sigma_ground.field.interface.grain_structure.grain_growth_rate_constant
+sigma_ground.field.interface.grain_structure.grain_size_after_anneal
+sigma_ground.field.interface.grain_structure.grain_size_for_yield
+sigma_ground.field.interface.grain_structure.grain_structure_properties
+sigma_ground.field.interface.grain_structure.hall_petch_slope
+sigma_ground.field.interface.grain_structure.hall_petch_yield
+sigma_ground.field.interface.grain_structure.polycrystal_yield
+sigma_ground.field.interface.grain_structure.sigma_hall_petch_shift
+sigma_ground.field.interface.grain_structure.taylor_hardening_stress
+sigma_ground.field.interface.grain_structure.time_to_grain_size
+sigma_ground.field.interface.grain_structure.zener_limit
+# sigma_ground.field.interface.hardness
+sigma_ground.field.interface.hardness.brinell_hardness
+sigma_ground.field.interface.hardness.full_report
+sigma_ground.field.interface.hardness.hardness_report
+sigma_ground.field.interface.hardness.knoop_hardness
+sigma_ground.field.interface.hardness.mohs_hardness
+sigma_ground.field.interface.hardness.shore_d_hardness
+sigma_ground.field.interface.hardness.sigma_hardness_ratio
+sigma_ground.field.interface.hardness.vickers_from_yield
+sigma_ground.field.interface.hardness.vickers_hardness
+sigma_ground.field.interface.hardness.yield_from_vickers
+# sigma_ground.field.interface.hidden_sector
+sigma_ground.field.interface.hidden_sector.alp_coupling_allowed
+sigma_ground.field.interface.hidden_sector.axion_mass_regime
+sigma_ground.field.interface.hidden_sector.dark_axion_portal_available
+sigma_ground.field.interface.hidden_sector.kobakhidze_gauge_group_ratio
+# sigma_ground.field.interface.hydrogen_bonding
+sigma_ground.field.interface.hydrogen_bonding.boiling_point_ordering
+sigma_ground.field.interface.hydrogen_bonding.estimated_boiling_point
+sigma_ground.field.interface.hydrogen_bonding.estimated_vaporization_enthalpy
+sigma_ground.field.interface.hydrogen_bonding.hb_energy_ordering
+sigma_ground.field.interface.hydrogen_bonding.hydrogen_bond_energy
+sigma_ground.field.interface.hydrogen_bonding.hydrogen_bond_energy_molecule
+sigma_ground.field.interface.hydrogen_bonding.intermolecular_breakdown
+sigma_ground.field.interface.hydrogen_bonding.intermolecular_properties
+sigma_ground.field.interface.hydrogen_bonding.keesom_dipole_energy
+sigma_ground.field.interface.hydrogen_bonding.london_dispersion_energy
+sigma_ground.field.interface.hydrogen_bonding.total_intermolecular_energy
+# sigma_ground.field.interface.hysteresis
+sigma_ground.field.interface.hysteresis.anhysteretic_magnetization
+sigma_ground.field.interface.hysteresis.curie_weiss_susceptibility
+sigma_ground.field.interface.hysteresis.energy_loss_per_cycle
+sigma_ground.field.interface.hysteresis.hysteresis_loop
+sigma_ground.field.interface.hysteresis.hysteresis_loop_point
+sigma_ground.field.interface.hysteresis.hysteresis_properties
+sigma_ground.field.interface.hysteresis.langevin_function
+sigma_ground.field.interface.hysteresis.magnetization_vs_temperature
+sigma_ground.field.interface.hysteresis.sigma_hysteresis_shift
+# sigma_ground.field.interface.ignition
+sigma_ground.field.interface.ignition.adiabatic_flame_temperature
+sigma_ground.field.interface.ignition.autoignition_temperature
+sigma_ground.field.interface.ignition.flash_point
+sigma_ground.field.interface.ignition.full_report
+sigma_ground.field.interface.ignition.ignition_delay
+sigma_ground.field.interface.ignition.ignition_report
+sigma_ground.field.interface.ignition.is_flammable_at
+# sigma_ground.field.interface.impact
+sigma_ground.field.interface.impact.coefficient_of_restitution
+sigma_ground.field.interface.impact.cor_pair
+sigma_ground.field.interface.impact.full_report
+sigma_ground.field.interface.impact.hertz_contact_duration
+sigma_ground.field.interface.impact.impact_energy_partition
+sigma_ground.field.interface.impact.impact_report
+sigma_ground.field.interface.impact.impact_sound_frequency
+sigma_ground.field.interface.impact.reduced_modulus_pair
+sigma_ground.field.interface.impact.sigma_cor_ratio
+sigma_ground.field.interface.impact.yield_onset_velocity
+# sigma_ground.field.interface.imr_consistency
+sigma_ground.field.interface.imr_consistency.exclusion_report
+sigma_ground.field.interface.imr_consistency.exclusion_sigma
+sigma_ground.field.interface.imr_consistency.predict_epsilon_M
+sigma_ground.field.interface.imr_consistency.published_bound
+# sigma_ground.field.interface.ligo_echo_search
+sigma_ground.field.interface.ligo_echo_search.background_distribution
+sigma_ground.field.interface.ligo_echo_search.bandpass
+sigma_ground.field.interface.ligo_echo_search.correlate_at_delay
+sigma_ground.field.interface.ligo_echo_search.cross_detector_coherence
+sigma_ground.field.interface.ligo_echo_search.echo_delay_n
+sigma_ground.field.interface.ligo_echo_search.estimate_psd
+sigma_ground.field.interface.ligo_echo_search.evaluate_overtone_sum
+sigma_ground.field.interface.ligo_echo_search.fetch_strain
+sigma_ground.field.interface.ligo_echo_search.find_merger_sample
+sigma_ground.field.interface.ligo_echo_search.fit_kerr_overtones
+sigma_ground.field.interface.ligo_echo_search.fit_kerr_overtones_constrained
+sigma_ground.field.interface.ligo_echo_search.fit_qnm
+sigma_ground.field.interface.ligo_echo_search.make_echo_template
+sigma_ground.field.interface.ligo_echo_search.qnm_damped_sinusoid
+sigma_ground.field.interface.ligo_echo_search.read_strain
+sigma_ground.field.interface.ligo_echo_search.schwarzschild_radius_m
+sigma_ground.field.interface.ligo_echo_search.search_event
+sigma_ground.field.interface.ligo_echo_search.search_event_both_detectors
+sigma_ground.field.interface.ligo_echo_search.whiten
+# sigma_ground.field.interface.liquid_water
+sigma_ground.field.interface.liquid_water.ice_density
+sigma_ground.field.interface.liquid_water.ice_like_fraction
+sigma_ground.field.interface.liquid_water.ice_like_fraction_derivative
+sigma_ground.field.interface.liquid_water.water_boiling_point
+sigma_ground.field.interface.liquid_water.water_density
+sigma_ground.field.interface.liquid_water.water_density_maximum_temperature
+sigma_ground.field.interface.liquid_water.water_enthalpy_of_vaporization
+sigma_ground.field.interface.liquid_water.water_heat_capacity
+sigma_ground.field.interface.liquid_water.water_molar_volume
+sigma_ground.field.interface.liquid_water.water_properties
+sigma_ground.field.interface.liquid_water.water_surface_tension
+sigma_ground.field.interface.liquid_water.water_viscosity
+# sigma_ground.field.interface.magnetism
+sigma_ground.field.interface.magnetism.curie_temperature
+sigma_ground.field.interface.magnetism.diamagnetic_susceptibility
+sigma_ground.field.interface.magnetism.is_ferromagnetic
+sigma_ground.field.interface.magnetism.magnetic_susceptibility
+sigma_ground.field.interface.magnetism.magnetization_at_temperature
+sigma_ground.field.interface.magnetism.material_magnetic_properties
+sigma_ground.field.interface.magnetism.mean_square_orbital_radius
+sigma_ground.field.interface.magnetism.nmr_frequency_shift
+sigma_ground.field.interface.magnetism.nuclear_magnetic_moment
+sigma_ground.field.interface.magnetism.paramagnetic_susceptibility
+sigma_ground.field.interface.magnetism.saturation_magnetization
+sigma_ground.field.interface.magnetism.saturation_magnetization_measured
+# sigma_ground.field.interface.mechanical
+sigma_ground.field.interface.mechanical.bulk_modulus
+sigma_ground.field.interface.mechanical.bulk_modulus_at_sigma
+sigma_ground.field.interface.mechanical.derive_poisson_ratio
+sigma_ground.field.interface.mechanical.material_mechanical_properties
+sigma_ground.field.interface.mechanical.predict_poisson_ratio
+sigma_ground.field.interface.mechanical.predict_structure_factor
+sigma_ground.field.interface.mechanical.shear_modulus
+sigma_ground.field.interface.mechanical.theoretical_shear_strength
+sigma_ground.field.interface.mechanical.youngs_modulus
+# sigma_ground.field.interface.mobius
+sigma_ground.field.interface.mobius.analyze_mobius_conductor
+sigma_ground.field.interface.mobius.bimetallic_seebeck_voltage
+sigma_ground.field.interface.mobius.coaxial_characteristic_impedance
+sigma_ground.field.interface.mobius.coaxial_field_cancellation
+sigma_ground.field.interface.mobius.coaxial_inductance
+sigma_ground.field.interface.mobius.coaxial_inductance_per_m
+sigma_ground.field.interface.mobius.compare_topologies
+sigma_ground.field.interface.mobius.conductor_resistance
+sigma_ground.field.interface.mobius.conductor_separation
+sigma_ground.field.interface.mobius.coupling_coefficient
+sigma_ground.field.interface.mobius.current_partition_ratio
+sigma_ground.field.interface.mobius.effective_resistance_ac
+sigma_ground.field.interface.mobius.field_cancellation_ratio
+sigma_ground.field.interface.mobius.impedance_magnitude
+sigma_ground.field.interface.mobius.impedance_phase_deg
+sigma_ground.field.interface.mobius.inductance_ratio
+sigma_ground.field.interface.mobius.mobius_net_inductance
+sigma_ground.field.interface.mobius.mobius_path_length
+sigma_ground.field.interface.mobius.mobius_total_resistance
+sigma_ground.field.interface.mobius.parallel_pair_inductance
+sigma_ground.field.interface.mobius.parallel_pair_inductance_per_m
+sigma_ground.field.interface.mobius.shielded_pair_field_cancellation
+sigma_ground.field.interface.mobius.single_loop_inductance
+sigma_ground.field.interface.mobius.skin_depth
+sigma_ground.field.interface.mobius.twisted_pair_coupling
+sigma_ground.field.interface.mobius.twisted_pair_field_cancellation
+sigma_ground.field.interface.mobius.twisted_pair_inductance
+sigma_ground.field.interface.mobius.twisted_pair_inductance_per_m
+# sigma_ground.field.interface.molecular_bonds
+sigma_ground.field.interface.molecular_bonds.badger_force_constant
+sigma_ground.field.interface.molecular_bonds.bond_dipole_debye
+sigma_ground.field.interface.molecular_bonds.bond_polarity
+sigma_ground.field.interface.molecular_bonds.bond_properties
+sigma_ground.field.interface.molecular_bonds.hybridization
+sigma_ground.field.interface.molecular_bonds.molecular_dipole_moment
+sigma_ground.field.interface.molecular_bonds.pauling_bond_energy
+sigma_ground.field.interface.molecular_bonds.reduced_mass_kg
+sigma_ground.field.interface.molecular_bonds.schomaker_stevenson_length
+sigma_ground.field.interface.molecular_bonds.vibrational_frequency
+sigma_ground.field.interface.molecular_bonds.vibrational_wavenumber
+sigma_ground.field.interface.molecular_bonds.vsepr_bond_angle
+# sigma_ground.field.interface.neutrino
+sigma_ground.field.interface.neutrino.asymptotic_safety_prediction
+sigma_ground.field.interface.neutrino.dirac_seesaw_prediction
+sigma_ground.field.interface.neutrino.mass_eigenstates_inverted
+sigma_ground.field.interface.neutrino.mass_eigenstates_normal
+sigma_ground.field.interface.neutrino.neutrino_nature
+sigma_ground.field.interface.neutrino.sum_mass_ev
+sigma_ground.field.interface.neutrino.sum_mass_respects_cosmology
+# sigma_ground.field.interface.nucleosynthesis
+sigma_ground.field.interface.nucleosynthesis.cno_energy_rate
+sigma_ground.field.interface.nucleosynthesis.gamow_energy_keV
+sigma_ground.field.interface.nucleosynthesis.gamow_window_keV
+sigma_ground.field.interface.nucleosynthesis.pp_chain_energy_rate
+sigma_ground.field.interface.nucleosynthesis.pp_cno_crossover_temperature
+sigma_ground.field.interface.nucleosynthesis.pp_temperature_exponent
+sigma_ground.field.interface.nucleosynthesis.reaction_properties
+sigma_ground.field.interface.nucleosynthesis.reaction_rate_sigma_v
+sigma_ground.field.interface.nucleosynthesis.reduced_mass_kg
+sigma_ground.field.interface.nucleosynthesis.reduced_mass_mev
+sigma_ground.field.interface.nucleosynthesis.stellar_burning_summary
+# sigma_ground.field.interface.optics
+sigma_ground.field.interface.optics.cauchy_n
+sigma_ground.field.interface.optics.dielectric_color_rgb
+sigma_ground.field.interface.optics.dielectric_opacity
+sigma_ground.field.interface.optics.dielectric_surface_reflectance
+sigma_ground.field.interface.optics.dielectric_transmission_rgb
+sigma_ground.field.interface.optics.drude_scattering_rate
+sigma_ground.field.interface.optics.drude_scattering_rate_from_atom
+sigma_ground.field.interface.optics.dye_transmission_rgb
+sigma_ground.field.interface.optics.electron_density
+sigma_ground.field.interface.optics.electron_density_from_atom
+sigma_ground.field.interface.optics.get_material_color
+sigma_ground.field.interface.optics.metal_reflectance
+sigma_ground.field.interface.optics.metal_reflectance_from_atom
+sigma_ground.field.interface.optics.metal_report
+sigma_ground.field.interface.optics.metal_rgb
+sigma_ground.field.interface.optics.metal_rgb_from_atom
+sigma_ground.field.interface.optics.organic_rgb
+sigma_ground.field.interface.optics.plasma_frequency
+sigma_ground.field.interface.optics.plasma_frequency_from_atom
+sigma_ground.field.interface.optics.valence_electrons_from_atom
+# sigma_ground.field.interface.orbital
+sigma_ground.field.interface.orbital.fit_orbit
+sigma_ground.field.interface.orbital.predict_ssb_position
+# sigma_ground.field.interface.organic_materials
+sigma_ground.field.interface.organic_materials.alkane_boiling_point_K
+sigma_ground.field.interface.organic_materials.alkane_combustion_enthalpy_kJ_mol
+sigma_ground.field.interface.organic_materials.bone_anisotropy_ratio
+sigma_ground.field.interface.organic_materials.bone_density_from_composition
+sigma_ground.field.interface.organic_materials.bone_modulus_longitudinal
+sigma_ground.field.interface.organic_materials.bone_modulus_transverse
+sigma_ground.field.interface.organic_materials.bone_report
+sigma_ground.field.interface.organic_materials.combustion_enthalpy_kJ_mol
+sigma_ground.field.interface.organic_materials.hydrocarbon_report
+sigma_ground.field.interface.organic_materials.wood_anisotropy_ratio
+sigma_ground.field.interface.organic_materials.wood_combustion_enthalpy_MJ_kg
+sigma_ground.field.interface.organic_materials.wood_modulus_across_grain
+sigma_ground.field.interface.organic_materials.wood_modulus_along_grain
+sigma_ground.field.interface.organic_materials.wood_report
+# sigma_ground.field.interface.phase_transition
+sigma_ground.field.interface.phase_transition.clausius_clapeyron_slope
+sigma_ground.field.interface.phase_transition.entropy_of_fusion
+sigma_ground.field.interface.phase_transition.latent_heat_ratio
+sigma_ground.field.interface.phase_transition.lindemann_melting_estimate
+sigma_ground.field.interface.phase_transition.melting_point_at_pressure
+sigma_ground.field.interface.phase_transition.phase_transition_properties
+sigma_ground.field.interface.phase_transition.sigma_melting_shift
+# sigma_ground.field.interface.phosphor
+sigma_ground.field.interface.phosphor.build_ascii_histogram
+sigma_ground.field.interface.phosphor.phosphor_brightness
+# sigma_ground.field.interface.photonics
+sigma_ground.field.interface.photonics.absorption_coefficient_direct
+sigma_ground.field.interface.photonics.absorption_coefficient_indirect
+sigma_ground.field.interface.photonics.bragg_bandwidth_fraction
+sigma_ground.field.interface.photonics.bragg_reflectance
+sigma_ground.field.interface.photonics.bragg_wavelength
+sigma_ground.field.interface.photonics.critical_angle
+sigma_ground.field.interface.photonics.is_single_mode_fiber
+sigma_ground.field.interface.photonics.kerr_refractive_index
+sigma_ground.field.interface.photonics.nonlinear_phase_shift
+sigma_ground.field.interface.photonics.number_of_modes_fiber
+sigma_ground.field.interface.photonics.numerical_aperture
+sigma_ground.field.interface.photonics.self_focusing_critical_power
+sigma_ground.field.interface.photonics.shg_efficiency_factor
+sigma_ground.field.interface.photonics.shg_phase_mismatch
+sigma_ground.field.interface.photonics.sigma_bragg_shift
+sigma_ground.field.interface.photonics.slab_modes_count
+sigma_ground.field.interface.photonics.v_number_fiber
+sigma_ground.field.interface.photonics.v_number_slab
+sigma_ground.field.interface.photonics.waveguide_properties
+# sigma_ground.field.interface.piezoelectricity
+sigma_ground.field.interface.piezoelectricity.coupling_coefficient
+sigma_ground.field.interface.piezoelectricity.coupling_coefficient_computed
+sigma_ground.field.interface.piezoelectricity.energy_density_harvested
+sigma_ground.field.interface.piezoelectricity.material_piezoelectric_properties
+sigma_ground.field.interface.piezoelectricity.piezoelectric_displacement
+sigma_ground.field.interface.piezoelectricity.piezoelectric_polarization
+sigma_ground.field.interface.piezoelectricity.piezoelectric_strain
+sigma_ground.field.interface.piezoelectricity.piezoelectric_voltage
+sigma_ground.field.interface.piezoelectricity.quartz_frequency
+sigma_ground.field.interface.piezoelectricity.resonant_frequency_thickness
+sigma_ground.field.interface.piezoelectricity.sigma_resonant_frequency_shift
+# sigma_ground.field.interface.plasma
+sigma_ground.field.interface.plasma.alfven_speed
+sigma_ground.field.interface.plasma.coulomb_logarithm
+sigma_ground.field.interface.plasma.cyclotron_radius
+sigma_ground.field.interface.plasma.debye_length
+sigma_ground.field.interface.plasma.debye_number
+sigma_ground.field.interface.plasma.plasma_beta
+sigma_ground.field.interface.plasma.plasma_frequency
+sigma_ground.field.interface.plasma.plasma_frequency_hz
+sigma_ground.field.interface.plasma.sigma_plasma_transition
+sigma_ground.field.interface.plasma.spitzer_resistivity
+# sigma_ground.field.interface.plasticity
+sigma_ground.field.interface.plasticity.hollomon_stress
+sigma_ground.field.interface.plasticity.johnson_cook_stress
+sigma_ground.field.interface.plasticity.ludwik_stress
+sigma_ground.field.interface.plasticity.necking_strain
+sigma_ground.field.interface.plasticity.necking_stress
+sigma_ground.field.interface.plasticity.plastic_work_density
+sigma_ground.field.interface.plasticity.plasticity_properties
+sigma_ground.field.interface.plasticity.ramberg_osgood_strain
+sigma_ground.field.interface.plasticity.reduction_in_area
+sigma_ground.field.interface.plasticity.sigma_yield_shift
+sigma_ground.field.interface.plasticity.strength_coefficient
+sigma_ground.field.interface.plasticity.stress_strain_curve
+sigma_ground.field.interface.plasticity.total_elongation
+sigma_ground.field.interface.plasticity.toughness_estimate
+sigma_ground.field.interface.plasticity.uniform_elongation
+sigma_ground.field.interface.plasticity.work_hardening_rate
+sigma_ground.field.interface.plasticity.yield_stress
+# sigma_ground.field.interface.projectile
+sigma_ground.field.interface.projectile.drag_force
+sigma_ground.field.interface.projectile.incline_acceleration
+sigma_ground.field.interface.projectile.incline_critical_angle
+sigma_ground.field.interface.projectile.incline_sliding_distance
+sigma_ground.field.interface.projectile.incline_speed_at_bottom
+sigma_ground.field.interface.projectile.projectile_max_height
+sigma_ground.field.interface.projectile.projectile_range
+sigma_ground.field.interface.projectile.projectile_report
+sigma_ground.field.interface.projectile.projectile_time_of_flight
+sigma_ground.field.interface.projectile.projectile_trajectory
+sigma_ground.field.interface.projectile.projectile_with_drag
+sigma_ground.field.interface.projectile.sigma_terminal_velocity_ratio
+sigma_ground.field.interface.projectile.terminal_velocity
+# sigma_ground.field.interface.quantum
+sigma_ground.field.interface.quantum.build_intensity_profile
+sigma_ground.field.interface.quantum.cumulative_probability
+sigma_ground.field.interface.quantum.de_broglie_electron
+sigma_ground.field.interface.quantum.de_broglie_neutron
+sigma_ground.field.interface.quantum.de_broglie_wavelength
+sigma_ground.field.interface.quantum.diffraction_envelope_zero
+sigma_ground.field.interface.quantum.double_slit_intensity
+sigma_ground.field.interface.quantum.electron_fringe_spacing_ratio
+sigma_ground.field.interface.quantum.englert_bound_satisfied
+sigma_ground.field.interface.quantum.ev_to_joules
+sigma_ground.field.interface.quantum.fringe_compression_per_sigma
+sigma_ground.field.interface.quantum.fringe_count_in_envelope
+sigma_ground.field.interface.quantum.fringe_spacing
+sigma_ground.field.interface.quantum.fringe_visibility
+sigma_ground.field.interface.quantum.joules_to_ev
+sigma_ground.field.interface.quantum.mev_to_kg
+sigma_ground.field.interface.quantum.neutron_fringe_spacing_ratio
+sigma_ground.field.interface.quantum.sample_hit_position
+sigma_ground.field.interface.quantum.visibility_from_D
+# sigma_ground.field.interface.quantum_algorithms
+sigma_ground.field.interface.quantum_algorithms.full_report
+sigma_ground.field.interface.quantum_algorithms.heisenberg_ground_state
+sigma_ground.field.interface.quantum_algorithms.inverse_qft_circuit
+sigma_ground.field.interface.quantum_algorithms.ising_coupling_from_curie
+sigma_ground.field.interface.quantum_algorithms.ising_ground_state
+sigma_ground.field.interface.quantum_algorithms.ising_phase_transition_prediction
+sigma_ground.field.interface.quantum_algorithms.phase_estimation_example
+sigma_ground.field.interface.quantum_algorithms.qaoa_maxcut
+sigma_ground.field.interface.quantum_algorithms.qec_bit_flip_demo
+sigma_ground.field.interface.quantum_algorithms.qft_circuit
+sigma_ground.field.interface.quantum_algorithms.qft_example
+sigma_ground.field.interface.quantum_algorithms.quantum_algorithms_report
+sigma_ground.field.interface.quantum_algorithms.quantum_walk
+sigma_ground.field.interface.quantum_algorithms.run_circuit_extended
+sigma_ground.field.interface.quantum_algorithms.shor_factor_15
+sigma_ground.field.interface.quantum_algorithms.simon_algorithm
+sigma_ground.field.interface.quantum_algorithms.vqe_heh_plus
+# sigma_ground.field.interface.quantum_computing
+sigma_ground.field.interface.quantum_computing.apply_controlled_gate
+sigma_ground.field.interface.quantum_computing.apply_doubly_controlled_gate
+sigma_ground.field.interface.quantum_computing.apply_single_gate
+sigma_ground.field.interface.quantum_computing.basis_state
+sigma_ground.field.interface.quantum_computing.full_report
+sigma_ground.field.interface.quantum_computing.gate_cnot
+sigma_ground.field.interface.quantum_computing.gate_cz
+sigma_ground.field.interface.quantum_computing.gate_fredkin
+sigma_ground.field.interface.quantum_computing.gate_h
+sigma_ground.field.interface.quantum_computing.gate_iswap
+sigma_ground.field.interface.quantum_computing.gate_phase
+sigma_ground.field.interface.quantum_computing.gate_rx
+sigma_ground.field.interface.quantum_computing.gate_ry
+sigma_ground.field.interface.quantum_computing.gate_rz
+sigma_ground.field.interface.quantum_computing.gate_s
+sigma_ground.field.interface.quantum_computing.gate_swap
+sigma_ground.field.interface.quantum_computing.gate_t
+sigma_ground.field.interface.quantum_computing.gate_toffoli
+sigma_ground.field.interface.quantum_computing.gate_x
+sigma_ground.field.interface.quantum_computing.gate_y
+sigma_ground.field.interface.quantum_computing.gate_z
+sigma_ground.field.interface.quantum_computing.normalize
+sigma_ground.field.interface.quantum_computing.nv_qubit_frequency_GHz
+sigma_ground.field.interface.quantum_computing.product_state
+sigma_ground.field.interface.quantum_computing.qd_qubit_frequency_GHz
+sigma_ground.field.interface.quantum_computing.quantum_computing_report
+sigma_ground.field.interface.quantum_computing.qubit_summary
+sigma_ground.field.interface.quantum_computing.run_circuit
+sigma_ground.field.interface.quantum_computing.sigma_adjusted_frequency
+sigma_ground.field.interface.quantum_computing.spin_qubit_frequency_GHz
+sigma_ground.field.interface.quantum_computing.state_norm
+sigma_ground.field.interface.quantum_computing.supported_gates
+sigma_ground.field.interface.quantum_computing.transmon_frequency_GHz
+sigma_ground.field.interface.quantum_computing.zero_state
+# sigma_ground.field.interface.quantum_matter
+sigma_ground.field.interface.quantum_matter.all_predictions
+sigma_ground.field.interface.quantum_matter.crystal_field_mott_ratio
+sigma_ground.field.interface.quantum_matter.crystal_field_phase_diagram
+sigma_ground.field.interface.quantum_matter.fermi_energy_eV
+sigma_ground.field.interface.quantum_matter.full_report
+sigma_ground.field.interface.quantum_matter.hubbard_ground_state
+sigma_ground.field.interface.quantum_matter.hubbard_parameters
+sigma_ground.field.interface.quantum_matter.mott_phase_diagram
+sigma_ground.field.interface.quantum_matter.nephelauxetic_metallicity
+sigma_ground.field.interface.quantum_matter.quantum_matter_report
+sigma_ground.field.interface.quantum_matter.superconductor_correlation_strength
+sigma_ground.field.interface.quantum_matter.thomas_fermi_screening_length
+sigma_ground.field.interface.quantum_matter.two_site_spin_hamiltonian_from_crystal_field
+sigma_ground.field.interface.quantum_matter.wigner_seitz_radius
+# sigma_ground.field.interface.quantum_output
+sigma_ground.field.interface.quantum_output.bell_state_example
+sigma_ground.field.interface.quantum_output.bernstein_vazirani
+sigma_ground.field.interface.quantum_output.deutsch_jozsa
+sigma_ground.field.interface.quantum_output.entanglement_entropy
+sigma_ground.field.interface.quantum_output.expectation_observable
+sigma_ground.field.interface.quantum_output.expectation_pauli
+sigma_ground.field.interface.quantum_output.extract_function_value
+sigma_ground.field.interface.quantum_output.extract_max_probability
+sigma_ground.field.interface.quantum_output.extract_phase
+sigma_ground.field.interface.quantum_output.full_report
+sigma_ground.field.interface.quantum_output.grover_search
+sigma_ground.field.interface.quantum_output.histogram_to_answer
+sigma_ground.field.interface.quantum_output.measure
+sigma_ground.field.interface.quantum_output.measure_all
+sigma_ground.field.interface.quantum_output.probabilities
+sigma_ground.field.interface.quantum_output.probability
+sigma_ground.field.interface.quantum_output.quantum_output_report
+sigma_ground.field.interface.quantum_output.sample
+sigma_ground.field.interface.quantum_output.sample_marginal
+sigma_ground.field.interface.quantum_output.schmidt_coefficients
+sigma_ground.field.interface.quantum_output.state_fidelity
+sigma_ground.field.interface.quantum_output.state_to_bloch
+sigma_ground.field.interface.quantum_output.teleportation_example
+# sigma_ground.field.interface.quantum_wells
+sigma_ground.field.interface.quantum_wells.box_energy_1d_eV
+sigma_ground.field.interface.quantum_wells.box_energy_3d_eV
+sigma_ground.field.interface.quantum_wells.box_ground_state_eV
+sigma_ground.field.interface.quantum_wells.box_transition_wavelength_nm
+sigma_ground.field.interface.quantum_wells.brus_energy_eV
+sigma_ground.field.interface.quantum_wells.confinement_energy_eV
+sigma_ground.field.interface.quantum_wells.critical_radius_nm
+sigma_ground.field.interface.quantum_wells.degeneracy_3d_cubic
+sigma_ground.field.interface.quantum_wells.dos_0d
+sigma_ground.field.interface.quantum_wells.dos_1d
+sigma_ground.field.interface.quantum_wells.dos_2d
+sigma_ground.field.interface.quantum_wells.dos_3d
+sigma_ground.field.interface.quantum_wells.finite_well_bound_states
+sigma_ground.field.interface.quantum_wells.finite_well_ground_state_eV
+sigma_ground.field.interface.quantum_wells.full_report
+sigma_ground.field.interface.quantum_wells.qd_color_rgb
+sigma_ground.field.interface.quantum_wells.qd_emission_wavelength_nm
+sigma_ground.field.interface.quantum_wells.qd_radius_for_wavelength_nm
+sigma_ground.field.interface.quantum_wells.quantum_well_subbands_eV
+sigma_ground.field.interface.quantum_wells.quantum_wells_report
+sigma_ground.field.interface.quantum_wells.quantum_wire_subbands_eV
+sigma_ground.field.interface.quantum_wells.size_vs_gap
+sigma_ground.field.interface.quantum_wells.tunneling_depth_m
+# sigma_ground.field.interface.radioactive_decay
+sigma_ground.field.interface.radioactive_decay.activity_becquerel
+sigma_ground.field.interface.radioactive_decay.alpha_Q_at_sigma
+sigma_ground.field.interface.radioactive_decay.alpha_Q_decomposition
+sigma_ground.field.interface.radioactive_decay.alpha_decay_constant
+sigma_ground.field.interface.radioactive_decay.alpha_half_life
+sigma_ground.field.interface.radioactive_decay.alpha_mass_mev
+sigma_ground.field.interface.radioactive_decay.beta_Q_decomposition
+sigma_ground.field.interface.radioactive_decay.beta_Q_value_mev
+sigma_ground.field.interface.radioactive_decay.beta_decay_constant
+sigma_ground.field.interface.radioactive_decay.beta_half_life
+sigma_ground.field.interface.radioactive_decay.decay_constant
+sigma_ground.field.interface.radioactive_decay.gamow_factor
+sigma_ground.field.interface.radioactive_decay.geiger_nuttall_check
+sigma_ground.field.interface.radioactive_decay.half_life
+sigma_ground.field.interface.radioactive_decay.half_life_human
+sigma_ground.field.interface.radioactive_decay.isotope_decay_properties
+sigma_ground.field.interface.radioactive_decay.nuclear_radius_fm
+sigma_ground.field.interface.radioactive_decay.remaining_fraction
+# sigma_ground.field.interface.rolling_analysis
+sigma_ground.field.interface.rolling_analysis.ablation_table
+sigma_ground.field.interface.rolling_analysis.add_rtn_components
+sigma_ground.field.interface.rolling_analysis.cross_predictor_correlation
+sigma_ground.field.interface.rolling_analysis.fingerprint_diff
+sigma_ground.field.interface.rolling_analysis.load_results
+sigma_ground.field.interface.rolling_analysis.orbital_correlation
+sigma_ground.field.interface.rolling_analysis.per_predictor_body_summary
+sigma_ground.field.interface.rolling_analysis.print_report
+sigma_ground.field.interface.rolling_analysis.rtn_summary
+sigma_ground.field.interface.rolling_analysis.save_plots
+# sigma_ground.field.interface.rolling_shootout
+sigma_ground.field.interface.rolling_shootout.run_rolling_shootout
+# sigma_ground.field.interface.rotational
+sigma_ground.field.interface.rotational.angular_acceleration
+sigma_ground.field.interface.rotational.angular_momentum
+sigma_ground.field.interface.rotational.i_factor
+sigma_ground.field.interface.rotational.moment_of_inertia_cylinder
+sigma_ground.field.interface.rotational.moment_of_inertia_disk
+sigma_ground.field.interface.rotational.moment_of_inertia_hollow_sphere
+sigma_ground.field.interface.rotational.moment_of_inertia_rod
+sigma_ground.field.interface.rotational.moment_of_inertia_sphere
+sigma_ground.field.interface.rotational.parallel_axis
+sigma_ground.field.interface.rotational.ramp_to_flat_distance
+sigma_ground.field.interface.rotational.rolling_acceleration_incline
+sigma_ground.field.interface.rotational.rolling_angular_velocity
+sigma_ground.field.interface.rotational.rolling_distance_on_flat
+sigma_ground.field.interface.rotational.rolling_speed_from_height
+sigma_ground.field.interface.rotational.rolling_time_on_flat
+sigma_ground.field.interface.rotational.rolling_velocity
+sigma_ground.field.interface.rotational.rotational_properties
+sigma_ground.field.interface.rotational.shape_moment_of_inertia
+sigma_ground.field.interface.rotational.shape_rolling_acceleration
+sigma_ground.field.interface.rotational.shape_rolling_speed_from_height
+sigma_ground.field.interface.rotational.sigma_inertia_shift
+sigma_ground.field.interface.rotational.torque
+# sigma_ground.field.interface.semiconductor_optics
+sigma_ground.field.interface.semiconductor_optics.band_edge_nm
+sigma_ground.field.interface.semiconductor_optics.band_gap_ev
+sigma_ground.field.interface.semiconductor_optics.semiconductor_report
+sigma_ground.field.interface.semiconductor_optics.semiconductor_rgb
+sigma_ground.field.interface.semiconductor_optics.semiconductor_rgb_from_z
+# sigma_ground.field.interface.sgr_a_star_rate
+sigma_ground.field.interface.sgr_a_star_rate.baseline_rate_test
+sigma_ground.field.interface.sgr_a_star_rate.minimum_object_years_to_test_baseline
+sigma_ground.field.interface.sgr_a_star_rate.rate_bound_null_observation
+sigma_ground.field.interface.sgr_a_star_rate.sgr_a_star_rate_bound
+sigma_ground.field.interface.sgr_a_star_rate.summary
+sigma_ground.field.interface.sgr_a_star_rate.xray_binary_population_rate_bound
+# sigma_ground.field.interface.solution
+sigma_ground.field.interface.solution.activity_coefficient_dh
+sigma_ground.field.interface.solution.activity_coefficient_salt
+sigma_ground.field.interface.solution.boiling_point_elevation
+sigma_ground.field.interface.solution.boiling_point_elevation_salt
+sigma_ground.field.interface.solution.debye_huckel_A
+sigma_ground.field.interface.solution.debye_huckel_B
+sigma_ground.field.interface.solution.debye_length
+sigma_ground.field.interface.solution.dilution
+sigma_ground.field.interface.solution.freezing_point_depression
+sigma_ground.field.interface.solution.freezing_point_depression_salt
+sigma_ground.field.interface.solution.full_report
+sigma_ground.field.interface.solution.ionic_strength
+sigma_ground.field.interface.solution.ionic_strength_from_salt
+sigma_ground.field.interface.solution.mixing_concentration
+sigma_ground.field.interface.solution.molality_from_molarity
+sigma_ground.field.interface.solution.molar_solubility
+sigma_ground.field.interface.solution.osmotic_pressure
+sigma_ground.field.interface.solution.osmotic_pressure_salt
+sigma_ground.field.interface.solution.sigma_Ksp_shift
+sigma_ground.field.interface.solution.sigma_colligative_shift
+sigma_ground.field.interface.solution.solubility_with_common_ion
+sigma_ground.field.interface.solution.solution_report
+sigma_ground.field.interface.solution.will_precipitate
+# sigma_ground.field.interface.statistical
+sigma_ground.field.interface.statistical.boltzmann_entropy
+sigma_ground.field.interface.statistical.boltzmann_factor
+sigma_ground.field.interface.statistical.bose_einstein
+sigma_ground.field.interface.statistical.entropy_from_partition
+sigma_ground.field.interface.statistical.fermi_dirac
+sigma_ground.field.interface.statistical.heat_capacity_equipartition
+sigma_ground.field.interface.statistical.maxwell_speed_dist
+sigma_ground.field.interface.statistical.mean_energy
+sigma_ground.field.interface.statistical.mean_speed
+sigma_ground.field.interface.statistical.most_probable_speed
+sigma_ground.field.interface.statistical.partition_function
+sigma_ground.field.interface.statistical.rms_speed
+sigma_ground.field.interface.statistical.sigma_partition_shift
+# sigma_ground.field.interface.stress
+sigma_ground.field.interface.stress.creep_rupture_time
+sigma_ground.field.interface.stress.creep_strain_rate
+sigma_ground.field.interface.stress.critical_crack_length
+sigma_ground.field.interface.stress.fatigue_life
+sigma_ground.field.interface.stress.fatigue_strength
+sigma_ground.field.interface.stress.fracture_toughness
+sigma_ground.field.interface.stress.griffith_toughness
+sigma_ground.field.interface.stress.larson_miller_parameter
+sigma_ground.field.interface.stress.paris_crack_growth_rate
+sigma_ground.field.interface.stress.paris_remaining_life
+sigma_ground.field.interface.stress.sigma_fatigue_shift
+sigma_ground.field.interface.stress.sigma_fracture_toughness_shift
+sigma_ground.field.interface.stress.stress_intensity
+sigma_ground.field.interface.stress.stress_properties
+# sigma_ground.field.interface.string_theory
+sigma_ground.field.interface.string_theory.compactification_predictions
+sigma_ground.field.interface.string_theory.compactification_radius
+sigma_ground.field.interface.string_theory.cosmological_constant_analysis
+sigma_ground.field.interface.string_theory.de_sitter_conjecture_check
+sigma_ground.field.interface.string_theory.dilaton_correspondence
+sigma_ground.field.interface.string_theory.distance_conjecture_check
+sigma_ground.field.interface.string_theory.effective_potential
+sigma_ground.field.interface.string_theory.effective_potential_derivative
+sigma_ground.field.interface.string_theory.full_report
+sigma_ground.field.interface.string_theory.gravitational_coupling
+sigma_ground.field.interface.string_theory.hierarchy_at_sigma_values
+sigma_ground.field.interface.string_theory.hierarchy_from_qcd_fraction
+sigma_ground.field.interface.string_theory.hierarchy_ratio
+sigma_ground.field.interface.string_theory.moduli_stabilization_summary
+sigma_ground.field.interface.string_theory.sigma_field_mass_mev
+sigma_ground.field.interface.string_theory.sigma_hierarchy_shift
+sigma_ground.field.interface.string_theory.sigma_modulus_comparison
+sigma_ground.field.interface.string_theory.string_theory_report
+sigma_ground.field.interface.string_theory.swampland_summary
+sigma_ground.field.interface.string_theory.vacuum_selection_analysis
+sigma_ground.field.interface.string_theory.weak_gravity_conjecture
+sigma_ground.field.interface.string_theory.wgc_critical_sigma
+# sigma_ground.field.interface.subsurface
+sigma_ground.field.interface.subsurface.absorption_length
+sigma_ground.field.interface.subsurface.bssrdf_parameters
+sigma_ground.field.interface.subsurface.diffuse_reflectance
+sigma_ground.field.interface.subsurface.diffusion_coefficient
+sigma_ground.field.interface.subsurface.diffusion_length
+sigma_ground.field.interface.subsurface.full_report
+sigma_ground.field.interface.subsurface.rayleigh_scattering_coefficient
+sigma_ground.field.interface.subsurface.scattering_length
+sigma_ground.field.interface.subsurface.single_scatter_albedo
+sigma_ground.field.interface.subsurface.subsurface_report
+sigma_ground.field.interface.subsurface.transport_mean_free_path
+# sigma_ground.field.interface.superconductivity
+sigma_ground.field.interface.superconductivity.bcs_coherence_length
+sigma_ground.field.interface.superconductivity.bcs_gap_temperature
+sigma_ground.field.interface.superconductivity.bcs_gap_zero
+sigma_ground.field.interface.superconductivity.block_cooling_profile
+sigma_ground.field.interface.superconductivity.debye_comparison
+sigma_ground.field.interface.superconductivity.depairing_current_density
+sigma_ground.field.interface.superconductivity.derive_mu_star
+sigma_ground.field.interface.superconductivity.gap_frequency
+sigma_ground.field.interface.superconductivity.gl_parameter
+sigma_ground.field.interface.superconductivity.gl_parameter_effective
+sigma_ground.field.interface.superconductivity.is_type_II
+sigma_ground.field.interface.superconductivity.london_penetration_at_T
+sigma_ground.field.interface.superconductivity.london_penetration_depth
+sigma_ground.field.interface.superconductivity.lower_critical_field
+sigma_ground.field.interface.superconductivity.mcmillan_Tc
+sigma_ground.field.interface.superconductivity.mcmillan_Tc_for
+sigma_ground.field.interface.superconductivity.meissner_fraction
+sigma_ground.field.interface.superconductivity.predict_Tc_from_Z
+sigma_ground.field.interface.superconductivity.sigma_Tc_shift
+sigma_ground.field.interface.superconductivity.sigma_gap_shift
+sigma_ground.field.interface.superconductivity.sigma_mcmillan_Tc
+sigma_ground.field.interface.superconductivity.specific_heat_jump_ratio
+sigma_ground.field.interface.superconductivity.superconductor_properties
+sigma_ground.field.interface.superconductivity.thermodynamic_critical_field
+sigma_ground.field.interface.superconductivity.upper_critical_field
+# sigma_ground.field.interface.surface
+sigma_ground.field.interface.surface.bulk_coordination
+sigma_ground.field.interface.surface.material_surface_properties
+sigma_ground.field.interface.surface.surface_atom_density
+sigma_ground.field.interface.surface.surface_coordination
+sigma_ground.field.interface.surface.surface_energy
+sigma_ground.field.interface.surface.surface_energy_at_sigma
+sigma_ground.field.interface.surface.surface_energy_decomposition
+# sigma_ground.field.interface.texture
+sigma_ground.field.interface.texture.atomic_step_height
+sigma_ground.field.interface.texture.grain_boundary_energy
+sigma_ground.field.interface.texture.material_texture_properties
+sigma_ground.field.interface.texture.microfacet_roughness
+sigma_ground.field.interface.texture.specular_fraction
+sigma_ground.field.interface.texture.step_formation_energy
+sigma_ground.field.interface.texture.thermal_roughness
+# sigma_ground.field.interface.thermal
+sigma_ground.field.interface.thermal.blackbody_color
+sigma_ground.field.interface.thermal.contact_conductance
+sigma_ground.field.interface.thermal.debye_temperature
+sigma_ground.field.interface.thermal.debye_temperature_from_Z
+sigma_ground.field.interface.thermal.electronic_thermal_conductivity
+sigma_ground.field.interface.thermal.heat_capacity_volumetric
+sigma_ground.field.interface.thermal.is_visibly_glowing
+sigma_ground.field.interface.thermal.material_thermal_properties
+sigma_ground.field.interface.thermal.phonon_mean_free_path
+sigma_ground.field.interface.thermal.sound_velocity
+sigma_ground.field.interface.thermal.specific_heat_j_kg_K
+sigma_ground.field.interface.thermal.thermal_conductivity
+sigma_ground.field.interface.thermal.thermal_emission_power
+sigma_ground.field.interface.thermal.wien_peak_wavelength
+# sigma_ground.field.interface.thermal_emission
+sigma_ground.field.interface.thermal_emission.emissivity
+sigma_ground.field.interface.thermal_emission.is_visibly_glowing
+sigma_ground.field.interface.thermal_emission.planck_spectral_radiance
+sigma_ground.field.interface.thermal_emission.thermal_emission_report
+sigma_ground.field.interface.thermal_emission.thermal_emission_rgb
+# sigma_ground.field.interface.thermal_expansion
+sigma_ground.field.interface.thermal_expansion.expansion_coefficient_at_T
+sigma_ground.field.interface.thermal_expansion.gruneisen_parameter
+sigma_ground.field.interface.thermal_expansion.gruneisen_relation
+sigma_ground.field.interface.thermal_expansion.length_change
+sigma_ground.field.interface.thermal_expansion.linear_expansion_coefficient
+sigma_ground.field.interface.thermal_expansion.sigma_expansion_shift
+sigma_ground.field.interface.thermal_expansion.thermal_expansion_properties
+sigma_ground.field.interface.thermal_expansion.thermal_strain
+sigma_ground.field.interface.thermal_expansion.thermal_stress
+sigma_ground.field.interface.thermal_expansion.volume_change
+sigma_ground.field.interface.thermal_expansion.volumetric_expansion_coefficient
+# sigma_ground.field.interface.thermoelectric
+sigma_ground.field.interface.thermoelectric.carnot_efficiency
+sigma_ground.field.interface.thermoelectric.electrical_conductivity
+sigma_ground.field.interface.thermoelectric.electrical_resistivity
+sigma_ground.field.interface.thermoelectric.fermi_energy
+sigma_ground.field.interface.thermoelectric.fermi_energy_ev
+sigma_ground.field.interface.thermoelectric.figure_of_merit_ZT
+sigma_ground.field.interface.thermoelectric.free_electron_density
+sigma_ground.field.interface.thermoelectric.heat_flow_through_leg
+sigma_ground.field.interface.thermoelectric.leg_resistance
+sigma_ground.field.interface.thermoelectric.material_thermoelectric_properties
+sigma_ground.field.interface.thermoelectric.seebeck_coefficient
+sigma_ground.field.interface.thermoelectric.seebeck_coefficient_uv_k
+sigma_ground.field.interface.thermoelectric.simulate_teg_system
+sigma_ground.field.interface.thermoelectric.thermocouple_voltage
+sigma_ground.field.interface.thermoelectric.thermoelectric_efficiency
+sigma_ground.field.interface.thermoelectric.thermoelectric_power_max
+# sigma_ground.field.interface.tunneling
+sigma_ground.field.interface.tunneling.decay_constant_m
+sigma_ground.field.interface.tunneling.double_barrier_resonances_eV
+sigma_ground.field.interface.tunneling.field_emission_onset_V_m
+sigma_ground.field.interface.tunneling.fowler_nordheim_current_density
+sigma_ground.field.interface.tunneling.full_report
+sigma_ground.field.interface.tunneling.gamow_factor
+sigma_ground.field.interface.tunneling.phase_time_s
+sigma_ground.field.interface.tunneling.rectangular_barrier_R
+sigma_ground.field.interface.tunneling.rectangular_barrier_T
+sigma_ground.field.interface.tunneling.stm_current
+sigma_ground.field.interface.tunneling.stm_decay_per_angstrom
+sigma_ground.field.interface.tunneling.stm_resolution_m
+sigma_ground.field.interface.tunneling.tunnel_diode_peak_current
+sigma_ground.field.interface.tunneling.tunneling_report
+sigma_ground.field.interface.tunneling.wkb_rectangular
+sigma_ground.field.interface.tunneling.wkb_transmission
+# sigma_ground.field.interface.viscoelasticity
+sigma_ground.field.interface.viscoelasticity.full_report
+sigma_ground.field.interface.viscoelasticity.kelvin_voigt_creep
+sigma_ground.field.interface.viscoelasticity.loss_modulus
+sigma_ground.field.interface.viscoelasticity.loss_tangent
+sigma_ground.field.interface.viscoelasticity.maxwell_creep_strain
+sigma_ground.field.interface.viscoelasticity.maxwell_stress_relaxation
+sigma_ground.field.interface.viscoelasticity.maxwell_viscosity
+sigma_ground.field.interface.viscoelasticity.peak_damping_frequency
+sigma_ground.field.interface.viscoelasticity.relaxation_time
+sigma_ground.field.interface.viscoelasticity.sigma_relaxation_ratio
+sigma_ground.field.interface.viscoelasticity.sls_creep
+sigma_ground.field.interface.viscoelasticity.sls_stress_relaxation
+sigma_ground.field.interface.viscoelasticity.storage_modulus
+sigma_ground.field.interface.viscoelasticity.viscoelastic_report
+# sigma_ground.field.interface.viscosity
+sigma_ground.field.interface.viscosity.boundary_layer_thickness
+sigma_ground.field.interface.viscosity.drag_coefficient_sphere
+sigma_ground.field.interface.viscosity.general_drag_force
+sigma_ground.field.interface.viscosity.nabarro_herring_strain_rate
+sigma_ground.field.interface.viscosity.particle_reynolds_number
+sigma_ground.field.interface.viscosity.poiseuille_flow_rate
+sigma_ground.field.interface.viscosity.poiseuille_max_velocity
+sigma_ground.field.interface.viscosity.sigma_terminal_velocity_shift
+sigma_ground.field.interface.viscosity.stokes_drag
+sigma_ground.field.interface.viscosity.terminal_velocity_stokes
+sigma_ground.field.interface.viscosity.viscous_dissipation_simple_shear
+sigma_ground.field.interface.viscosity.viscous_flow_properties
+sigma_ground.field.interface.viscosity.viscous_heating_temperature_rise
+sigma_ground.field.interface.viscosity.wall_shear_stress
+# sigma_ground.field.interface.wear
+sigma_ground.field.interface.wear.archard_wear_volume
+sigma_ground.field.interface.wear.relative_wear_resistance
+sigma_ground.field.interface.wear.sigma_wear_shift
+sigma_ground.field.interface.wear.sliding_distance_to_depth
+sigma_ground.field.interface.wear.sliding_wear_rate
+sigma_ground.field.interface.wear.specific_wear_rate
+sigma_ground.field.interface.wear.wear_depth
+sigma_ground.field.interface.wear.wear_mass_loss
+sigma_ground.field.interface.wear.wear_profile
+sigma_ground.field.interface.wear.wear_properties
+sigma_ground.field.interface.wear.wear_regime
+# sigma_ground.field.interior
+sigma_ground.field.interior.center_summary
+sigma_ground.field.interior.compute_profile
+sigma_ground.field.interior.enclosed_mass
+sigma_ground.field.interior.sigma_at_radius
+sigma_ground.field.interior.surface_summary
+# sigma_ground.field.irregular
+sigma_ground.field.irregular.full_analysis
+sigma_ground.field.irregular.sigma_at_surface
+sigma_ground.field.irregular.sigma_profile_axis
+sigma_ground.field.irregular.sigma_surface_map
+# sigma_ground.field.nesting
+sigma_ground.field.nesting.full_hierarchy
+sigma_ground.field.nesting.funnel_invariance
+sigma_ground.field.nesting.level_count
+sigma_ground.field.nesting.level_mass_kg
+sigma_ground.field.nesting.level_properties
+# sigma_ground.field.nucleon
+sigma_ground.field.nucleon.neutron_mass_mev
+sigma_ground.field.nucleon.nucleon_decomposition
+sigma_ground.field.nucleon.proton_mass_mev
+# sigma_ground.field.proof
+sigma_ground.field.proof.proof
+# sigma_ground.field.relativity
+sigma_ground.field.relativity.beta
+sigma_ground.field.relativity.doppler_factor
+sigma_ground.field.relativity.effective_liv_scale_gev
+sigma_ground.field.relativity.energy_momentum_invariant
+sigma_ground.field.relativity.kinetic_energy_rel
+sigma_ground.field.relativity.length_contraction
+sigma_ground.field.relativity.lorentz_factor
+sigma_ground.field.relativity.momentum_rel
+sigma_ground.field.relativity.relativistic_energy
+sigma_ground.field.relativity.rest_energy
+sigma_ground.field.relativity.sigma_time_dilation
+sigma_ground.field.relativity.time_dilation
+sigma_ground.field.relativity.velocity_addition
+# sigma_ground.field.render
+sigma_ground.field.render.render_all
+sigma_ground.field.render.render_cross_section
+sigma_ground.field.render.render_to_file
+# sigma_ground.field.render_asteroid
+sigma_ground.field.render_asteroid.render_all_asteroids
+sigma_ground.field.render_asteroid.render_asteroid
+sigma_ground.field.render_asteroid.render_asteroid_to_file
+# sigma_ground.field.sandbox
+sigma_ground.field.sandbox.print_drop
+sigma_ground.field.sandbox.print_environment_comparison
+sigma_ground.field.sandbox.print_sweep
+sigma_ground.field.sandbox.run_sandbox_demo
+# sigma_ground.field.scale
+sigma_ground.field.scale.lambda_eff
+sigma_ground.field.scale.scale_ratio
+sigma_ground.field.scale.schwarzschild_radius
+sigma_ground.field.scale.sigma_at_event_horizon
+sigma_ground.field.scale.sigma_conversion
+sigma_ground.field.scale.sigma_from_potential
+sigma_ground.field.scale.sigma_of_R
+# sigma_ground.field.scorecard
+sigma_ground.field.scorecard.build_scorecard
+sigma_ground.field.scorecard.print_scorecard
+# sigma_ground.field.shape_budget
+sigma_ground.field.shape_budget.print_budget_table
+sigma_ground.field.shape_budget.quality_multiplier
+sigma_ground.field.shape_budget.render_distance
+sigma_ground.field.shape_budget.render_size
+sigma_ground.field.shape_budget.shape_budget
+sigma_ground.field.shape_budget.shape_budget_for_body
+sigma_ground.field.shape_budget.validate_solar_system_viz
+# sigma_ground.field.unsolved
+sigma_ground.field.unsolved.galaxy_rotation_curve
+sigma_ground.field.unsolved.milky_way_rotation
+sigma_ground.field.unsolved.neutron_star_eos
+sigma_ground.field.unsolved.run_all
+sigma_ground.field.unsolved.tov_mass_estimate
+sigma_ground.field.unsolved.tully_fisher_test
+# sigma_ground.field.verify
+sigma_ground.field.verify.three_measures
+sigma_ground.field.verify.verify_all
+sigma_ground.field.verify.verify_summary
+# sigma_ground.inventory.__main__
+sigma_ground.inventory.__main__.main
+# sigma_ground.inventory.behaviors
+sigma_ground.inventory.behaviors.apply_env
+sigma_ground.inventory.behaviors.behaviors
+sigma_ground.inventory.behaviors.extract_fields
+# sigma_ground.inventory.behaviors.atom_behaviors
+sigma_ground.inventory.behaviors.atom_behaviors.compute_atom_behaviors
+sigma_ground.inventory.behaviors.atom_behaviors.resolve_atom_env
+# sigma_ground.inventory.behaviors.molecule_behaviors
+sigma_ground.inventory.behaviors.molecule_behaviors.compute_molecule_behaviors
+sigma_ground.inventory.behaviors.molecule_behaviors.resolve_molecule_env
+# sigma_ground.inventory.behaviors.particle_behaviors
+sigma_ground.inventory.behaviors.particle_behaviors.compute_particle_behaviors
+sigma_ground.inventory.behaviors.particle_behaviors.resolve_particle_env
+# sigma_ground.inventory.behaviors.quark_behaviors
+sigma_ground.inventory.behaviors.quark_behaviors.compute_quark_behaviors
+sigma_ground.inventory.behaviors.quark_behaviors.resolve_quark_env
+# sigma_ground.inventory.builder
+sigma_ground.inventory.builder.build_quick_structure
+sigma_ground.inventory.builder.build_structure_from_spec
+sigma_ground.inventory.builder.list_structures
+sigma_ground.inventory.builder.load_structure
+sigma_ground.inventory.builder.load_structure_spec
+# sigma_ground.inventory.checksum._walker_utils
+sigma_ground.inventory.checksum._walker_utils.molecule_ratios
+# sigma_ground.inventory.checksum.particle_count
+sigma_ground.inventory.checksum.particle_count.count_particles_in_structure
+# sigma_ground.inventory.checksum.particle_inventory
+sigma_ground.inventory.checksum.particle_inventory.compute_particle_inventory
+# sigma_ground.inventory.checksum.quark_chain
+sigma_ground.inventory.checksum.quark_chain.compute_quark_chain_checksum
+sigma_ground.inventory.checksum.quark_chain.predict_from_quark_chain
+sigma_ground.inventory.checksum.quark_chain.walk_quark_chain
+# sigma_ground.inventory.checksum.sigma_chain
+sigma_ground.inventory.checksum.sigma_chain.sigma_checksum_atom
+sigma_ground.inventory.checksum.sigma_chain.sigma_checksum_nucleus
+sigma_ground.inventory.checksum.sigma_chain.sigma_sweep
+# sigma_ground.inventory.checksum.stoq_checksum
+sigma_ground.inventory.checksum.stoq_checksum.compute_stoq_checksum
+# sigma_ground.inventory.core.sigma
+sigma_ground.inventory.core.sigma.lambda_eff_mev
+sigma_ground.inventory.core.sigma.neutron_mass_kg
+sigma_ground.inventory.core.sigma.neutron_mass_mev
+sigma_ground.inventory.core.sigma.nuclear_binding_mev
+sigma_ground.inventory.core.sigma.nucleon_qcd_fraction
+sigma_ground.inventory.core.sigma.proton_mass_kg
+sigma_ground.inventory.core.sigma.proton_mass_mev
+sigma_ground.inventory.core.sigma.scale_ratio
+sigma_ground.inventory.core.sigma.sigma_from_potential
+sigma_ground.inventory.core.sigma.three_measures_atom
+sigma_ground.inventory.core.sigma.three_measures_nucleus
+# sigma_ground.inventory.core.types
+sigma_ground.inventory.core.types.constant
+sigma_ground.inventory.core.types.variable
+# sigma_ground.inventory.data.refresh_isotopes
+sigma_ground.inventory.data.refresh_isotopes.refresh
+# sigma_ground.inventory.defaults
+sigma_ground.inventory.defaults.by_id
+sigma_ground.inventory.defaults.default_load
+# sigma_ground.inventory.derived
+sigma_ground.inventory.derived.derive_j2_clairaut
+sigma_ground.inventory.derived.derive_j2_darwin_radau
+sigma_ground.inventory.derived.derive_love_number_k2
+sigma_ground.inventory.derived.derive_moi_factor
+# sigma_ground.inventory.physics
+sigma_ground.inventory.physics.compute_physics
+sigma_ground.inventory.physics.compute_tangle
+# sigma_ground.inventory.resolver
+sigma_ground.inventory.resolver.resolve
+# sigma_ground.labs.builder
+sigma_ground.labs.builder.build
+sigma_ground.labs.builder.cascade_material
+# sigma_ground.labs.forces
+sigma_ground.labs.forces.buoyancy_force
+sigma_ground.labs.forces.combined_forces
+sigma_ground.labs.forces.drag_force
+# sigma_ground.labs.runner
+sigma_ground.labs.runner.run_simulation
+# sigma_ground.labs.validation
+sigma_ground.labs.validation.validate
+# sigma_ground.materia.engine
+sigma_ground.materia.engine.analytic_terminal_velocity
+sigma_ground.materia.engine.drag_coefficient_mach
+sigma_ground.materia.engine.drag_heating_temperature_rise
+sigma_ground.materia.engine.make_atmospheric_drag
+sigma_ground.materia.engine.simulate_drag_run
+sigma_ground.materia.engine.simulate_fall
+sigma_ground.materia.engine.simulate_vertical_launch
+# sigma_ground.materia.manifest
+sigma_ground.materia.manifest.manifest_for_prompt
+# sigma_ground.materia.scenarios
+sigma_ground.materia.scenarios.drag_heating_drop
+sigma_ground.materia.scenarios.high_altitude_descent
+sigma_ground.materia.scenarios.orbital_velocity
+sigma_ground.materia.scenarios.supersonic_projectile
+sigma_ground.materia.scenarios.terminal_velocity_drop
+sigma_ground.materia.scenarios.vertical_launch
+# sigma_ground.materia.spec
+sigma_ground.materia.spec.run_spec
+sigma_ground.materia.spec.synthesize_chain
+# sigma_ground.materia.translator
+sigma_ground.materia.translator.answer
+sigma_ground.materia.translator.translate
+# sigma_ground.mcp.build_qwen_context
+sigma_ground.mcp.build_qwen_context.build
+sigma_ground.mcp.build_qwen_context.main
+# sigma_ground.mcp.manifest
+sigma_ground.mcp.manifest.get_manifest
+# sigma_ground.mcp.procedures
+sigma_ground.mcp.procedures.black_hole_profile
+sigma_ground.mcp.procedures.photon_spectrum
+sigma_ground.mcp.procedures.projectile_trajectory
+sigma_ground.mcp.procedures.relativistic_particle
+sigma_ground.mcp.procedures.stellar_blackbody
+# sigma_ground.mcp.server
+sigma_ground.mcp.server.main
+# sigma_ground.mcp.tools.aliases
+sigma_ground.mcp.tools.aliases.resolve
+# sigma_ground.mcp.tools.astronomy
+sigma_ground.mcp.tools.astronomy.astronomical_unit_to_meters
+sigma_ground.mcp.tools.astronomy.light_travel_time
+sigma_ground.mcp.tools.astronomy.list_bodies
+sigma_ground.mcp.tools.astronomy.named_star
+sigma_ground.mcp.tools.astronomy.parsec_to_meters
+sigma_ground.mcp.tools.astronomy.solar_system_body
+# sigma_ground.mcp.tools.atomic
+sigma_ground.mcp.tools.atomic.de_broglie_from_kinetic_energy
+sigma_ground.mcp.tools.atomic.de_broglie_wavelength
+sigma_ground.mcp.tools.atomic.first_ionization_energy
+sigma_ground.mcp.tools.atomic.hydrogen_emission_wavelength
+sigma_ground.mcp.tools.atomic.hydrogen_like_energy_level
+sigma_ground.mcp.tools.atomic.photon_energy_from_frequency
+sigma_ground.mcp.tools.atomic.photon_energy_from_wavelength
+# sigma_ground.mcp.tools.chemistry
+sigma_ground.mcp.tools.chemistry.boiling_point_elevation
+sigma_ground.mcp.tools.chemistry.bond_angle
+sigma_ground.mcp.tools.chemistry.bond_energy
+sigma_ground.mcp.tools.chemistry.buffer_ph
+sigma_ground.mcp.tools.chemistry.cell_potential
+sigma_ground.mcp.tools.chemistry.electrolysis_mass
+sigma_ground.mcp.tools.chemistry.freezing_point_depression
+sigma_ground.mcp.tools.chemistry.molar_solubility
+sigma_ground.mcp.tools.chemistry.osmotic_pressure
+sigma_ground.mcp.tools.chemistry.reaction_enthalpy
+sigma_ground.mcp.tools.chemistry.weak_acid_ph
+# sigma_ground.mcp.tools.circuits
+sigma_ground.mcp.tools.circuits.electrical_power
+sigma_ground.mcp.tools.circuits.em_wave_frequency
+sigma_ground.mcp.tools.circuits.em_wave_wavelength
+sigma_ground.mcp.tools.circuits.energy_power_time
+sigma_ground.mcp.tools.circuits.ohms_law_current
+sigma_ground.mcp.tools.circuits.ohms_law_voltage
+sigma_ground.mcp.tools.circuits.parallel_plate_capacitance
+sigma_ground.mcp.tools.circuits.power_dissipation_resistor
+sigma_ground.mcp.tools.circuits.rc_time_constant
+sigma_ground.mcp.tools.circuits.rl_time_constant
+sigma_ground.mcp.tools.circuits.rlc_resonant_frequency
+# sigma_ground.mcp.tools.constants
+sigma_ground.mcp.tools.constants.list_constants
+sigma_ground.mcp.tools.constants.lookup_constant
+# sigma_ground.mcp.tools.cosmology
+sigma_ground.mcp.tools.cosmology.age_of_universe
+sigma_ground.mcp.tools.cosmology.critical_density
+sigma_ground.mcp.tools.cosmology.eta_desi_band_check
+sigma_ground.mcp.tools.cosmology.eta_value_report
+sigma_ground.mcp.tools.cosmology.hde_dark_energy_density
+sigma_ground.mcp.tools.cosmology.hubble_radius
+sigma_ground.mcp.tools.cosmology.mond_a0_constant
+sigma_ground.mcp.tools.cosmology.mond_regime_classifier
+# sigma_ground.mcp.tools.energy_conversion
+sigma_ground.mcp.tools.energy_conversion.eV_to_joules
+sigma_ground.mcp.tools.energy_conversion.energy_to_mass
+sigma_ground.mcp.tools.energy_conversion.joules_to_TNT
+sigma_ground.mcp.tools.energy_conversion.joules_to_eV
+sigma_ground.mcp.tools.energy_conversion.luminosity_to_mass_conversion_rate
+sigma_ground.mcp.tools.energy_conversion.mass_to_energy
+# sigma_ground.mcp.tools.frontier
+sigma_ground.mcp.tools.frontier.baryon_vs_disc
+sigma_ground.mcp.tools.frontier.bekenstein_hawking_entropy
+sigma_ground.mcp.tools.frontier.entanglement_channel
+sigma_ground.mcp.tools.frontier.entanglements_to_pop_bubble
+sigma_ground.mcp.tools.frontier.gravitational_binding_energy
+sigma_ground.mcp.tools.frontier.holographic_matching_mass
+sigma_ground.mcp.tools.frontier.unruh_temperature
+# sigma_ground.mcp.tools.gr
+sigma_ground.mcp.tools.gr.gravitational_redshift
+sigma_ground.mcp.tools.gr.gravitational_time_dilation
+sigma_ground.mcp.tools.gr.hawking_evaporation_time
+sigma_ground.mcp.tools.gr.hawking_temperature
+sigma_ground.mcp.tools.gr.isco_radius
+sigma_ground.mcp.tools.gr.photon_sphere_radius
+sigma_ground.mcp.tools.gr.schwarzschild_radius
+# sigma_ground.mcp.tools.kinematics
+sigma_ground.mcp.tools.kinematics.circular_orbit_velocity
+sigma_ground.mcp.tools.kinematics.escape_velocity_classical
+sigma_ground.mcp.tools.kinematics.free_fall_time
+sigma_ground.mcp.tools.kinematics.free_fall_velocity
+sigma_ground.mcp.tools.kinematics.friction_stopping_distance
+sigma_ground.mcp.tools.kinematics.gravitational_potential_energy
+sigma_ground.mcp.tools.kinematics.kinetic_energy
+sigma_ground.mcp.tools.kinematics.momentum
+sigma_ground.mcp.tools.kinematics.projectile_flight_time
+sigma_ground.mcp.tools.kinematics.projectile_max_height
+sigma_ground.mcp.tools.kinematics.projectile_range
+# sigma_ground.mcp.tools.materials
+sigma_ground.mcp.tools.materials.band_gap_ev
+sigma_ground.mcp.tools.materials.boiling_point
+sigma_ground.mcp.tools.materials.density
+sigma_ground.mcp.tools.materials.element_atomic_data
+sigma_ground.mcp.tools.materials.list_materials
+sigma_ground.mcp.tools.materials.melting_point
+sigma_ground.mcp.tools.materials.refractive_index
+sigma_ground.mcp.tools.materials.youngs_modulus
+# sigma_ground.mcp.tools.mathx
+sigma_ground.mcp.tools.mathx.compute_limit
+sigma_ground.mcp.tools.mathx.curl
+sigma_ground.mcp.tools.mathx.divergence
+sigma_ground.mcp.tools.mathx.expand_expression
+sigma_ground.mcp.tools.mathx.factor_expression
+sigma_ground.mcp.tools.mathx.fourier_transform
+sigma_ground.mcp.tools.mathx.gradient
+sigma_ground.mcp.tools.mathx.laplace_transform
+sigma_ground.mcp.tools.mathx.matrix_determinant
+sigma_ground.mcp.tools.mathx.matrix_eigenvalues
+sigma_ground.mcp.tools.mathx.matrix_inverse
+sigma_ground.mcp.tools.mathx.matrix_multiply
+sigma_ground.mcp.tools.mathx.percent_of
+sigma_ground.mcp.tools.mathx.series_expansion
+sigma_ground.mcp.tools.mathx.solve_linear_system
+sigma_ground.mcp.tools.mathx.solve_ode
+sigma_ground.mcp.tools.mathx.summation
+# sigma_ground.mcp.tools.nuclear
+sigma_ground.mcp.tools.nuclear.coulomb_force
+sigma_ground.mcp.tools.nuclear.nuclear_binding_energy
+# sigma_ground.mcp.tools.optics
+sigma_ground.mcp.tools.optics.critical_angle_for_tir
+sigma_ground.mcp.tools.optics.diffraction_grating_angle
+sigma_ground.mcp.tools.optics.double_slit_fringe_spacing
+sigma_ground.mcp.tools.optics.lens_magnification
+sigma_ground.mcp.tools.optics.rydberg_hydrogen_wavelength
+sigma_ground.mcp.tools.optics.single_slit_first_minimum_angle
+sigma_ground.mcp.tools.optics.snells_law_refraction_angle
+sigma_ground.mcp.tools.optics.thin_lens_focal_length
+sigma_ground.mcp.tools.optics.thin_lens_image_distance
+# sigma_ground.mcp.tools.orbital
+sigma_ground.mcp.tools.orbital.gravitational_force
+sigma_ground.mcp.tools.orbital.orbital_period
+sigma_ground.mcp.tools.orbital.orbital_raise_energy
+sigma_ground.mcp.tools.orbital.orbital_velocity
+sigma_ground.mcp.tools.orbital.surface_gravity
+# sigma_ground.mcp.tools.relativity
+sigma_ground.mcp.tools.relativity.doppler_shift_factor
+sigma_ground.mcp.tools.relativity.lorentz_factor
+sigma_ground.mcp.tools.relativity.relativistic_energy
+sigma_ground.mcp.tools.relativity.relativistic_length_contraction
+sigma_ground.mcp.tools.relativity.relativistic_momentum
+sigma_ground.mcp.tools.relativity.relativistic_time_dilation
+sigma_ground.mcp.tools.relativity.relativistic_velocity_addition
+# sigma_ground.mcp.tools.simulation
+sigma_ground.mcp.tools.simulation.list_simulation_scenarios
+sigma_ground.mcp.tools.simulation.run_simulation
+sigma_ground.mcp.tools.simulation.simulate
+# sigma_ground.mcp.tools.symbolic
+sigma_ground.mcp.tools.symbolic.differentiate_expr
+sigma_ground.mcp.tools.symbolic.integrate_expr
+sigma_ground.mcp.tools.symbolic.simplify_expr
+sigma_ground.mcp.tools.symbolic.solve_equation
+# sigma_ground.mcp.tools.thermodynamics
+sigma_ground.mcp.tools.thermodynamics.blackbody_peak_wavelength
+sigma_ground.mcp.tools.thermodynamics.blackbody_total_power
+sigma_ground.mcp.tools.thermodynamics.carnot_efficiency
+sigma_ground.mcp.tools.thermodynamics.ideal_gas_pressure
+sigma_ground.mcp.tools.thermodynamics.ideal_gas_volume
+sigma_ground.mcp.tools.thermodynamics.maxwell_boltzmann_most_probable_speed
+sigma_ground.mcp.tools.thermodynamics.speed_of_sound_in_ideal_gas
+sigma_ground.mcp.tools.thermodynamics.temperature_celsius_to_kelvin
+sigma_ground.mcp.tools.thermodynamics.temperature_kelvin_to_celsius
+sigma_ground.mcp.tools.thermodynamics.thermal_energy_per_molecule
+# sigma_ground.mcp.tools.units
+sigma_ground.mcp.tools.units.convert
+sigma_ground.mcp.tools.units.parse_quantity
+# sigma_ground.parts
+sigma_ground.parts.beam_structure
+sigma_ground.parts.bolt_structure
+sigma_ground.parts.convert_to_primitives
+sigma_ground.parts.list_parts
+sigma_ground.parts.pipe_structure
+sigma_ground.parts.sample_boundary
+sigma_ground.parts.shape_budget_from_source
+# sigma_ground.radiance.camera
+sigma_ground.radiance.camera.orbit_eye
+# sigma_ground.radiance.image
+sigma_ground.radiance.image.write_png
+# sigma_ground.radiance.raymarch
+sigma_ground.radiance.raymarch.march
+sigma_ground.radiance.raymarch.surface_normal
+# sigma_ground.radiance.render
+sigma_ground.radiance.render.render
+sigma_ground.radiance.render.render_ascii
+sigma_ground.radiance.render.render_to_png
+sigma_ground.radiance.render.render_turntable
+# sigma_ground.radiance.scene_export
+sigma_ground.radiance.scene_export.construct_to_scene
+sigma_ground.radiance.scene_export.scene_from_spec
+sigma_ground.radiance.scene_export.scene_spec_to_sdf
+sigma_ground.radiance.scene_export.sdf_samples
+# sigma_ground.radiance.shade
+sigma_ground.radiance.shade.material_albedo
+sigma_ground.radiance.shade.shade
+# sigma_ground.radiance.trajectory
+sigma_ground.radiance.trajectory.record_fall
+# sigma_ground.shapes
+sigma_ground.shapes.Plane
+sigma_ground.shapes.Ring
+sigma_ground.shapes.box
+sigma_ground.shapes.cone
+sigma_ground.shapes.cylinder
+sigma_ground.shapes.ellipsoid
+sigma_ground.shapes.mass_from_shape
+sigma_ground.shapes.moment_of_inertia
+sigma_ground.shapes.plane
+sigma_ground.shapes.sphere
+sigma_ground.shapes.torus
