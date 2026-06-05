@@ -113,6 +113,7 @@ class Part:
     op: str = "add"                     # "add" | "subtract" (carve a cavity / hollow)
     attach: dict | None = None          # {"to": <part>, "my": <anchor>, "their": <anchor>}
     fill: dict | None = None            # fluid fill: {"of": <cavity>, "fraction": 0..1, "gas": <material>}
+    conform: str | None = None          # name of the solid this part yields to (carved to mate)
 
     def to_dict(self) -> dict:
         d = {
@@ -129,6 +130,8 @@ class Part:
             d["attach"] = dict(self.attach)
         if self.fill:
             d["fill"] = dict(self.fill)
+        if self.conform:
+            d["conform"] = self.conform
         return d
 
     @classmethod
@@ -144,6 +147,7 @@ class Part:
             op=d.get("op", "add"),
             attach=d.get("attach"),
             fill=d.get("fill"),
+            conform=d.get("conform"),
         )
 
 
@@ -260,6 +264,8 @@ def emit_markdown(spec: ConstructSpec) -> str:
             if p.fill:
                 out.append(f"    - fills: {p.fill.get('of')} to "
                            f"{p.fill.get('fraction', 1.0)} (gas on top: {p.fill.get('gas', 'air')})")
+            if p.conform:
+                out.append(f"    - conforms to: {p.conform} (yields the overlap; carved to mate)")
         out.append("")
 
     if spec.notes:

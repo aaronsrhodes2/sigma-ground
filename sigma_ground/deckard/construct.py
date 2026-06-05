@@ -387,6 +387,54 @@ def _expand_fill(fp, by_name, centers, n=48):
     return items
 
 
+# ── conforming solids: a part yields where it would overlap its mate ──────
+class _Subtracted:
+    """Shape A with shape B carved out — A − B (= A ∩ ¬B). A conforming solid
+    yields wherever it would overlap its target: its surface becomes the
+    target's surface there, so distinct solids share an *exact matching*
+    (congruent) interface instead of clipping through each other.
+    """
+    def __init__(self, base, cut, volume, center):
+        self._base = base
+        self._cut = cut
+        self._volume = volume
+        self.center = center
+
+    def surface_distance(self, px, py, pz):
+        d = self._base.surface_distance(px, py, pz)
+        dc = -self._cut.surface_distance(px, py, pz)     # ¬B  (outside the cut)
+        return dc if dc > d else d                        # max(d_A, ¬d_B) = A ∩ ¬B
+
+    def volume(self):
+        return self._volume
+
+    def bounding_radius(self):
+        return self._base.bounding_radius()
+
+
+def _make_conform(base, cut, aabb, n=44):
+    """Carve ``cut`` out of ``base`` (base − cut); sample the result's volume and
+    centroid over ``aabb`` so the conforming part reports the matter it actually
+    keeps after yielding the overlap."""
+    (x0, x1), (y0, y1), (z0, z1) = aabb
+    dx, dy, dz = (x1 - x0) / n, (y1 - y0) / n, (z1 - z0) / n
+    cell = dx * dy * dz
+    cnt = 0
+    sx = sy = sz = 0.0
+    for iz in range(n):
+        z = z0 + (iz + 0.5) * dz
+        for iy in range(n):
+            y = y0 + (iy + 0.5) * dy
+            for ix in range(n):
+                x = x0 + (ix + 0.5) * dx
+                if base.surface_distance(x, y, z) < 0.0 and cut.surface_distance(x, y, z) >= 0.0:
+                    cnt += 1
+                    sx += x; sy += y; sz += z
+    if cnt == 0:
+        return _Subtracted(base, cut, 0.0, base.center)
+    return _Subtracted(base, cut, cnt * cell, (sx / cnt, sy / cnt, sz / cnt))
+
+
 # ── attachment: parts mate at anchors (touch at an interface, no overlap) ──
 def _local_anchor(part, name):
     """A named anchor point in the part's LOCAL frame (before rotate/translate)."""
@@ -539,10 +587,22 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
             R = _rotation(euler)
             shp = _Rotated(shp, R)
             he = _rotated_half_extent(he, R)
+        cite = "carved cavity" if carve else part.density.cite()
+        conform_to = getattr(part, "conform", None)
+        if conform_to and not carve and conform_to in by_name:
+            tgt = by_name[conform_to]
+            tshape = _shape_from(tgt, centers[tgt.name])
+            teuler = getattr(tgt, "euler_deg", (0.0, 0.0, 0.0))
+            if any(teuler):
+                tshape = _Rotated(tshape, _rotation(teuler))
+            c = shp.center
+            aabb = ((c[0] - he[0], c[0] + he[0]), (c[1] - he[1], c[1] + he[1]),
+                    (c[2] - he[2], c[2] + he[2]))
+            shp = _make_conform(shp, tshape, aabb)        # base − target: yield the overlap
+            cite = f"{part.density.cite()} (conforms to {conform_to})"
         items.append(dict(name=part.name, shape=shp, material=part.material,
                           rho=0.0 if carve else part.density.value,
-                          op="subtract" if carve else "add", he=he,
-                          cite="carved cavity" if carve else part.density.cite()))
+                          op="subtract" if carve else "add", he=he, cite=cite))
     for part in spec.parts:
         if getattr(part, "fill", None):
             items += _expand_fill(part, by_name, centers)
@@ -572,6 +632,8 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
         layers.append(Layer(it["name"], it["material"], rho, vol, m, it["cite"]))
 
     sub_parts = [it for it in items if it["op"] == "subtract"]
+    conformed = any(getattr(p, "conform", None) and getattr(p, "op", "add") != "subtract"
+                    and p.conform in by_name for p in spec.parts)
 
     if analytic_mass <= 0.0:
         raise ValueError(f"spec '{spec.name}' compiled to zero mass")
@@ -617,7 +679,7 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
                       "mass_integrator_kg": M_num, "mass_residual": worst,
                       "resolution": resolution, "note": note}
     else:
-        mode = "hollow" if sub_parts else "overlapping"
+        mode = "hollow" if sub_parts else ("conforming" if conformed else "overlapping")
         nhi = int(resolution * 1.5)
         M_hi, com_hi, inertia, _ = _integrate(composed, density, bbox, nhi)
         stab = abs(M_num - M_hi) / M_hi if M_hi > 0 else 1.0

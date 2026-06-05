@@ -167,6 +167,27 @@ def test_fluid_fill_floods_cavity_liquid_below_gas_on_top():
     assert frozenset({"air", "glass"}) in pairs
 
 
+def test_conforming_solid_yields_overlap_and_shares_a_congruent_interface():
+    # a stud cylinder pushed into a ball declares conform: it yields the overlap
+    # (scooped to the ball's surface) so they mate at a real interface, not a clip.
+    spec = ConstructSpec(name="ball-stud", kind="composite", parts=[
+        Part("ball", "sphere", {"radius_m": Fact(0.03)}, "steel", density_of("steel")),
+        Part("stud", "cylinder", {"radius_m": Fact(0.01), "height_m": Fact(0.06)},
+             "aluminium", density_of("aluminium"), center_m=(0, 0, 0.05), conform="ball")])
+    c = compile(spec, resolution=72)
+    assert c.validation["mode"] == "conforming" and c.validation["passed"]
+    # the stud yielded the overlap: mass below the naive ball + whole-cylinder sum
+    sphere = density_of("steel").value * 4 / 3 * math.pi * 0.03 ** 3
+    full_cyl = density_of("aluminium").value * math.pi * 0.01 ** 2 * 0.06
+    assert sphere < c.mass_kg < sphere + full_cyl
+    # they meet at the ball's surface with no gap and no clip
+    assert c.material_at(0.0, 0.0, 0.025) == "ball"   # inside the ball (stud carved away)
+    assert c.material_at(0.0, 0.0, 0.05) == "stud"    # the stud above the ball's surface
+    # the congruent contact (the scoop) is recorded as an interface
+    pairs = {frozenset(i["between"]) for i in c.validation["interfaces"]}
+    assert frozenset({"steel", "aluminium"}) in pairs
+
+
 def test_attach_mates_parts_at_an_interface_no_overlap():
     spec = ConstructSpec(name="post-cap", kind="composite", parts=[
         Part("cap", "box", {"x_m": Fact(0.06), "y_m": Fact(0.06), "z_m": Fact(0.02)},
@@ -224,3 +245,15 @@ def test_researcher_emits_a_fluid_fill():
     assert c.density_at(0.0, 0.0, -0.05) == density_of("liquid water").value   # liquid below
     pairs = {frozenset(i["between"]) for i in c.validation["interfaces"]}
     assert frozenset({"air", "liquid water"}) in pairs             # liquid surface ↔ gas
+
+
+def test_researcher_emits_conform():
+    payload = json.dumps({"kind": "composite", "parts": [
+        {"name": "ball", "shape": "sphere", "dims": {"radius_m": 0.03}, "material": "steel"},
+        {"name": "stud", "shape": "cylinder", "dims": {"radius_m": 0.01, "height_m": 0.06},
+         "material": "aluminium", "center_m": [0, 0, 0.05], "conform": "ball"}]})
+    spec = research_spec("ball stud", ask=lambda n: payload, model="stub")
+    assert spec is not None and spec.parts[1].conform == "ball"
+    assert parse_markdown(emit_markdown(spec)).parts[1].conform == "ball"   # round-trips
+    c = compile(spec, resolution=64)
+    assert c.validation["mode"] == "conforming" and c.validation["passed"]
