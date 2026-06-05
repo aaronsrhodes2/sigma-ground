@@ -44,6 +44,8 @@ from .scenarios import (terminal_velocity_drop, drag_heating_drop,
 from .spec import SimulationSpec, SpecStep, run_spec, synthesize_chain
 from .manifest import VERB_MANIFEST
 from .translator import translate, answer
+from . import constructs
+from .constructs import available_shapes, load_shape, drop as drop_shape
 
 __all__ = [
     "simulate_fall",

@@ -66,6 +66,12 @@ def lookup(name: str) -> ConstructSpec | None:
     return None
 
 
+def available() -> list[str]:
+    """Slugs of every frozen shape in the catalog (sorted) — the set of shapes a
+    consumer like Materia can pull without researching anew."""
+    return sorted(p.stem for p in _DIR.glob("*.md"))
+
+
 def save(slug: str, spec: ConstructSpec) -> pathlib.Path:
     """Freeze a ConstructSpec to catalog/<slug>.md and return its path."""
     p = path_for(slug)
@@ -79,4 +85,4 @@ def save_for(name: str, spec: ConstructSpec) -> pathlib.Path:
 
 
 __all__ = ["ALIASES", "slugify", "slug_for", "path_for",
-           "has", "load", "lookup", "save", "save_for"]
+           "has", "load", "lookup", "available", "save", "save_for"]
