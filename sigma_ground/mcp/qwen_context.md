@@ -40,18 +40,23 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **zeeman_effect_analysis** — Number of Zeeman sublevels a state of total angular momentum j splits into in a magnetic field (2j+1).  ↳ *say:* Zeeman effect; Zeeman splitting; magnetic sublevels; 2j+1; spectral line splitting magnetic field; m_j states
 
 ### chemistry
+- **acid_speciation_analysis** — Fractional abundance of each protonation state of a polyprotic acid at a given pH (default phosphoric acid).  ↳ *say:* polyprotic acid; alpha fraction; speciation; phosphoric acid species; fraction of species at pH; distribution diagram
 - **boiling_point_elevation** — Boiling-point elevation ΔTb (K) = i·Kb·molality (colligative).
 - **bond_angle** — VSEPR bond angle (deg) from steric number; bond_angle(4,0)=109.5°.
 - **bond_energy** — Bond dissociation energy (kJ/mol) for a diatomic bond.
 - **buffer_ph** — Buffer pH (Henderson-Hasselbalch): pH = pKa + log([base]/[acid]).
 - **cell_potential** — Galvanic cell EMF (V), Nernst-corrected; cell_potential('copper','zinc')≈1.10 V (Daniell).
 - **combustion_enthalpy_analysis** — Combustion enthalpy of a hydrocarbon (methane/propane) from a bond-energy inventory (Hess's law; approximate).  ↳ *say:* heat of combustion; combustion enthalpy; bond energy method; Hess's law; methane combustion; enthalpy of reaction from bonds
+- **electrochemistry_analysis** — Tafel activation overpotential, limiting molar conductivity (Kohlrausch), and solution conductivity.  ↳ *say:* Tafel equation; overpotential; exchange current; molar conductivity; Kohlrausch; solution conductivity
 - **electrolysis_mass** — Mass deposited by electrolysis (kg) — Faraday: m = M·I·t/(n·F).
 - **freezing_point_depression** — Freezing-point depression ΔTf (K) = i·Kf·molality (colligative).
 - **molar_solubility** — Molar solubility (mol/L) of a sparingly-soluble salt from Ksp.
 - **molecular_dipole_analysis** — Net molecular dipole moment from the vector sum of bond dipoles (Debye). Default water-like (~1.84 D).  ↳ *say:* dipole moment; molecular polarity; bond dipole; net dipole; water dipole 1.85 D; vector sum of dipoles
 - **osmotic_pressure** — Osmotic pressure π (Pa) = i·M·R·T (van't Hoff).
 - **reaction_enthalpy** — Standard reaction enthalpy ΔH° (kJ/mol) from formation enthalpies.
+- **reaction_kinetics_analysis** — Collision-theory pre-exponential factor, first-order half-life (ln2/k), and the temperature for a target rate (Arrhenius).  ↳ *say:* reaction rate; half-life first order; Arrhenius; activation energy; collision theory; pre-exponential factor
+- **solution_analysis** — Solution concentration & solubility: dilution, mixed concentration, and precipitation (ion product vs Ksp).  ↳ *say:* dilution; C1V1=C2V2; mixing solutions; concentration after mixing; will it precipitate; Ksp
+- **titration_analysis** — pH at a point in an acid-base titration (strong acid and weak acid / buffer region) titrated with a strong base.  ↳ *say:* titration; pH at equivalence; acid base titration; buffer pH; Henderson-Hasselbalch; neutralization
 - **weak_acid_ph** — pH of a weak acid from its Ka; weak_acid_ph('acetic_acid',0.1)≈2.88.
 
 ### circuits
@@ -195,6 +200,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 ### nuclear
 - **coulomb_force** — Coulomb's law F = q1 q2 / (4π ε0 r²). +repulsive/−attractive.  ↳ *say:* Coulomb force; Coulomb's law; F = k q1 q2 / r^2; electrostatic force; force between two charges
 - **nuclear_binding_energy** — Binding energy + mass defect for a nucleus. Exact with measured_mass_u, else SEMF. Returns mass_defect_fraction (baryon-count vs mass-energy gap, peaks ~0.9% at iron).  ↳ *say:* nuclear binding energy; mass defect; binding energy per nucleon; how much lighter is the nucleus; Bethe-Weizsacker; SEMF
+- **radioactivity_analysis** — Radioactive activity A = lambda N (becquerel, curie) for an isotope sample.  ↳ *say:* radioactivity; activity becquerel; A = lambda N; curie; decay rate; specific activity
 
 ### optics
 - **critical_angle_for_tir** — Critical angle for TIR.  ↳ *say:* total internal reflection; critical angle; sin(theta_c) = n2 / n1; TIR; fiber optic principle; at what angle does light stop being able to escape

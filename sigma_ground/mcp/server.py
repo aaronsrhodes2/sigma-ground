@@ -117,6 +117,7 @@ def main() -> int:
     from sigma_ground.mcp.tools import relativity_spectra as t_relsp
     from sigma_ground.mcp.tools import tribology as t_tribo
     from sigma_ground.mcp.tools import materials_micro as t_micro
+    from sigma_ground.mcp.tools import chemistry_extended as t_chemx
     from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
@@ -1535,6 +1536,69 @@ def main() -> int:
         """Combustion enthalpy of a hydrocarbon (methane/propane) from a bond-
         energy inventory (Hess's law; approximate vs experiment)."""
         return t_micro.combustion_enthalpy_analysis(fuel)
+
+    @server.tool()
+    def titration_analysis(acid_concentration_M: float = 0.1,
+                           acid_volume_mL: float = 25.0,
+                           base_concentration_M: float = 0.1,
+                           base_volume_mL: float = 10.0,
+                           weak_acid_key: str = "acetic_acid") -> dict[str, Any]:
+        """pH at a point in an acid-base titration, for a strong acid and a weak
+        acid (buffer region) titrated with a strong base."""
+        return t_chemx.titration_analysis(acid_concentration_M, acid_volume_mL,
+            base_concentration_M, base_volume_mL, weak_acid_key)
+
+    @server.tool()
+    def acid_speciation_analysis(ph: float = 7.0,
+                                 pka_list: list[float] | None = None) -> dict[str, Any]:
+        """Fractional abundance (alpha) of each protonation state of a polyprotic
+        acid at a given pH. Default phosphoric acid."""
+        return t_chemx.acid_speciation_analysis(ph, pka_list)
+
+    @server.tool()
+    def solution_analysis(initial_concentration_M: float = 1.0,
+                          initial_volume_mL: float = 10.0,
+                          final_volume_mL: float = 100.0,
+                          second_concentration_M: float = 0.5,
+                          second_volume_mL: float = 50.0,
+                          salt_key: str = "silver_chloride",
+                          cation_concentration_M: float = 1.0e-3,
+                          anion_concentration_M: float = 1.0e-3) -> dict[str, Any]:
+        """Solution concentration & solubility: dilution, mixed concentration,
+        and whether a sparingly-soluble salt precipitates (Q vs Ksp)."""
+        return t_chemx.solution_analysis(initial_concentration_M, initial_volume_mL,
+            final_volume_mL, second_concentration_M, second_volume_mL, salt_key,
+            cation_concentration_M, anion_concentration_M)
+
+    @server.tool()
+    def electrochemistry_analysis(current_density: float = 10.0,
+                                  exchange_current_density: float = 1.0e-3,
+                                  lambda_cation: float = 73.5,
+                                  lambda_anion: float = 76.3,
+                                  concentration_M: float = 0.1) -> dict[str, Any]:
+        """Electrochemistry: Tafel activation overpotential, limiting molar
+        conductivity (Kohlrausch), and solution conductivity."""
+        return t_chemx.electrochemistry_analysis(current_density,
+            exchange_current_density, lambda_cation, lambda_anion, concentration_M)
+
+    @server.tool()
+    def reaction_kinetics_analysis(rate_constant: float = 0.01,
+                                   activation_energy_eV: float = 0.5,
+                                   prefactor: float = 1.0e13,
+                                   target_rate: float = 0.1,
+                                   m_a_amu: float = 16.0, m_b_amu: float = 32.0,
+                                   r_a_pm: float = 150.0, r_b_pm: float = 150.0) -> dict[str, Any]:
+        """Chemical kinetics: collision-theory pre-exponential factor, first-order
+        half-life (ln2/k), and the temperature for a target rate (Arrhenius)."""
+        return t_chemx.reaction_kinetics_analysis(rate_constant, activation_energy_eV,
+            prefactor, target_rate, m_a_amu, m_b_amu, r_a_pm, r_b_pm)
+
+    @server.tool()
+    def radioactivity_analysis(isotope_key: str = "C14",
+                               n_atoms: float = 6.022e23) -> dict[str, Any]:
+        """Radioactive activity A = lambda N (becquerel, curie). Isotopes:
+        U238, Ra226, Po210, C14, Co60, K40, free_neutron."""
+        return t_chemx.radioactivity_analysis(isotope_key, n_atoms)
 
     # Run via stdio transport (standard MCP).
     server.run()

@@ -32,6 +32,7 @@ The final 100% target = covered == (total − EXCLUDED). The regression test
 | batch 7 (devices/quantum-solids) | 976 | 1093 | 89% | capacitor/Hall/junction/BCS-gap/tunneling/box/DOS/exchange |
 | batch 8 (plasma-em/relativity-spectra) | 988 | 1093 | 90% | plasma-params/EM-forces/relativistic-energy/Zeeman |
 | batch 9 (tribology/materials-micro) | 1001 | 1093 | 92% | friction/wear/Taylor/Nordheim/dipole/combustion |
+| batch 10 (chemistry-extended) | 1014 | 1093 | 93% | titration/speciation/solution/echem/kinetics/radioactivity |
 
 ---
 
@@ -69,6 +70,12 @@ against coverage. Listed by the batch in which they were ruled out.
 - `field.interface.hysteresis.hysteresis_loop` — traces a full B-H major loop and
   returns a per-step list of points (re-bundles the already-covered
   hysteresis_loop_point). Simulation, not a scalar Q&A. EXCLUDE.
+
+### batch 10
+- `field.interface.acid_base.titration_curve` — generates a full titration curve
+  (list of (V_base, pH) from 0 to 2x equivalence); re-bundles the scalar
+  titration point functions covered via titration_analysis. Curve/sim, not a
+  scalar Q&A. EXCLUDE.
 
 ---
 

@@ -590,6 +590,32 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "Hess's law", "methane combustion", "enthalpy of reaction from bonds",
     ],
 
+    # ============ CHEMISTRY: ACID-BASE / SOLUTION / ELECTRO / KINETICS (batch 10) ============
+    "titration_analysis": [
+        "titration", "pH at equivalence", "acid base titration", "buffer pH",
+        "Henderson-Hasselbalch", "neutralization", "strong acid strong base",
+    ],
+    "acid_speciation_analysis": [
+        "polyprotic acid", "alpha fraction", "speciation", "phosphoric acid species",
+        "fraction of species at pH", "distribution diagram", "diprotic triprotic",
+    ],
+    "solution_analysis": [
+        "dilution", "C1V1=C2V2", "mixing solutions", "concentration after mixing",
+        "will it precipitate", "Ksp", "solubility product", "ion product",
+    ],
+    "electrochemistry_analysis": [
+        "Tafel equation", "overpotential", "exchange current", "molar conductivity",
+        "Kohlrausch", "solution conductivity", "electrolyte conductance",
+    ],
+    "reaction_kinetics_analysis": [
+        "reaction rate", "half-life first order", "Arrhenius", "activation energy",
+        "collision theory", "pre-exponential factor", "rate constant temperature",
+    ],
+    "radioactivity_analysis": [
+        "radioactivity", "activity becquerel", "A = lambda N", "curie", "decay rate",
+        "specific activity", "carbon-14 activity", "isotope activity",
+    ],
+
     # ============ ENERGY CONVERSION (E=mc^2 family) ============
     "mass_to_energy": [
         "E=mc^2", "mass-energy equivalence", "rest mass energy",

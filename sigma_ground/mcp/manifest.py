@@ -951,6 +951,41 @@ _PRIMARY_TOOLS = [
                 "bond-energy inventory (Hess's law; approximate).",
      "inputs": {"fuel": "str (methane/propane)"},
      "returns": "dict with energy_released and delta_H_combustion (kJ/mol)"},
+    {"name": "titration_analysis", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "pH at a point in an acid-base titration (strong acid and weak "
+                "acid / buffer region) titrated with a strong base.",
+     "inputs": {"acid_concentration_M": "float", "acid_volume_mL": "float",
+                "base_concentration_M": "float", "base_volume_mL": "float",
+                "weak_acid_key": "str"},
+     "returns": "dict with strong_acid_pH, weak_acid_pH"},
+    {"name": "acid_speciation_analysis", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Fractional abundance of each protonation state of a polyprotic "
+                "acid at a given pH (default phosphoric acid).",
+     "inputs": {"ph": "float", "pka_list": "list[float]"},
+     "returns": "dict with species_fractions"},
+    {"name": "solution_analysis", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Solution concentration & solubility: dilution, mixed "
+                "concentration, and precipitation (ion product vs Ksp).",
+     "inputs": {"initial_concentration_M": "float", "initial_volume_mL": "float",
+                "final_volume_mL": "float", "salt_key": "str"},
+     "returns": "dict with diluted/mixed concentration and will_precipitate"},
+    {"name": "electrochemistry_analysis", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Tafel activation overpotential, limiting molar conductivity "
+                "(Kohlrausch), and solution conductivity.",
+     "inputs": {"current_density": "float", "exchange_current_density": "float",
+                "lambda_cation": "float", "lambda_anion": "float", "concentration_M": "float"},
+     "returns": "dict of electrochemical quantities"},
+    {"name": "reaction_kinetics_analysis", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Collision-theory pre-exponential factor, first-order half-life "
+                "(ln2/k), and the temperature for a target rate (Arrhenius).",
+     "inputs": {"rate_constant": "float", "activation_energy_eV": "float",
+                "prefactor": "float", "target_rate": "float"},
+     "returns": "dict of kinetics quantities"},
+    {"name": "radioactivity_analysis", "tier": "PRIMARY", "domain": "nuclear",
+     "summary": "Radioactive activity A = lambda N (becquerel, curie) for an "
+                "isotope sample.",
+     "inputs": {"isotope_key": "str (U238/Ra226/Po210/C14/Co60/K40)", "n_atoms": "float"},
+     "returns": "dict with activity_Bq, activity_Ci"},
 ]
 
 
