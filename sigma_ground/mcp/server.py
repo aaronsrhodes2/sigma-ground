@@ -121,6 +121,7 @@ def main() -> int:
     from sigma_ground.mcp.tools import qcomputing as t_qcomp
     from sigma_ground.mcp.tools import misc_physics as t_miscphys
     from sigma_ground.mcp.tools import inventory_tools as t_inv
+    from sigma_ground.mcp.tools import playground as t_play
     from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
@@ -1724,6 +1725,67 @@ def main() -> int:
         """Moment-of-inertia factor C/MR^2 of a layered planet, derived from the
         inventory composition of its shells. Earth ~ 0.331."""
         return t_inv.planet_moment_of_inertia_analysis(structure_name, planet_radius_km)
+
+    # ── Conversation / simulation-playground (STATEFUL) tools ──────────────
+    @server.tool()
+    def playground_load(material: str = "water_molecule",
+                        handle: str = "scene") -> dict[str, Any]:
+        """[playground] Load matter into a LIVE scene that persists across turns:
+        formula, proton/neutron/electron counts, mass, and tunable knobs.
+        Materials: water_molecule, hydrogen_atom, bronze_cube, gold_ring,
+        earths_layers, tungsten_cube, seawater_liter, universe, ..."""
+        return t_play.playground_load(material, handle)
+
+    @server.tool()
+    def playground_inspect(handle: str = "scene",
+                           scope: str = "summary") -> dict[str, Any]:
+        """[playground] Query the CURRENT (possibly mutated) state of a scene.
+        scope: 'summary' (counts+mass), 'matter' (bond lengths, charge states,
+        net spin), 'constituents' (quark/particle/molecule behaviors)."""
+        return t_play.playground_inspect(handle, scope)
+
+    @server.tool()
+    def playground_apply(handle: str = "scene",
+                         environment: dict[str, float] | None = None,
+                         mode: str = "update") -> dict[str, Any]:
+        """[playground] Apply an environment and MUTATE the scene in place
+        (persists). Knobs: temperature_k, pressure_pa, electric_field_vm,
+        magnetic_field_t, energy_ev. Returns a diff of what changed.
+        e.g. playground_apply('scene', {'temperature_k': 1500})."""
+        return t_play.playground_apply(handle, environment, mode)
+
+    @server.tool()
+    def playground_simulate(handle: str = "scene",
+                            scenario: str = "drop it from 10 km altitude") -> dict[str, Any]:
+        """[playground] Run a Materia one-shot dynamics scenario (drop/launch/
+        heat/orbit) on the loaded body. Phrase the scenario explicitly."""
+        return t_play.playground_simulate(handle, scenario)
+
+    @server.tool()
+    def playground_render(handle: str = "scene", mode: str = "ascii",
+                          size: int = 48) -> dict[str, Any]:
+        """[playground] Render the current scene as a material-colored, lit
+        sphere (bulk-shape approximation). mode 'ascii' (terminal art) or 'png'
+        (file path)."""
+        return t_play.playground_render(handle, mode, size)
+
+    @server.tool()
+    def playground_reset(handle: str = "scene") -> dict[str, Any]:
+        """[playground] Rebuild the scene's matter to its pristine state and
+        clear the applied-environment history."""
+        return t_play.playground_reset(handle)
+
+    @server.tool()
+    def playground_status() -> dict[str, Any]:
+        """[playground] List the live scenes in this session, their materials,
+        and applied-environment history."""
+        return t_play.playground_status()
+
+    @server.tool()
+    def playground_clear(handle: str | None = None) -> dict[str, Any]:
+        """[playground] Drop a scene (or all scenes if handle omitted) from the
+        session."""
+        return t_play.playground_clear(handle)
 
     # Run via stdio transport (standard MCP).
     server.run()

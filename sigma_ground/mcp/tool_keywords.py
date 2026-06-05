@@ -774,4 +774,29 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "Lyman-alpha", "121.567 nm", "hydrogen UV line",
         "Lyman series first line",
     ],
+
+    # ============ SIMULATION PLAYGROUND (conversation mode) ============
+    "playground_load": [
+        "load a", "start a scene", "simulate matter", "playground", "let's explore",
+        "put a water molecule", "load bronze", "begin simulation", "scene",
+    ],
+    "playground_inspect": [
+        "what's in it", "current state", "inspect", "show the bonds", "what is it now",
+        "look at it", "tell me about the scene", "constituents",
+    ],
+    "playground_apply": [
+        "heat it", "cool it", "raise the temperature", "apply pressure", "compress it",
+        "apply a magnetic field", "ionize", "what if I change", "tune it", "now make it",
+    ],
+    "playground_simulate": [
+        "drop it", "throw it", "launch it", "what happens if it falls", "orbit",
+        "simulate the drop", "let it fall", "fire it",
+    ],
+    "playground_render": [
+        "show me a render", "draw it", "visualize", "what does it look like",
+        "picture of it", "render the scene",
+    ],
+    "playground_reset": ["reset", "start over", "undo all changes", "back to pristine"],
+    "playground_status": ["what scenes are open", "session status", "list scenes"],
+    "playground_clear": ["clear the scene", "drop the scene", "forget it"],
 }

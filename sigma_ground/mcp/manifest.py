@@ -1073,6 +1073,44 @@ _PRIMARY_TOOLS = [
                 "from the inventory composition of its shells (Earth ~ 0.331).",
      "inputs": {"structure_name": "str", "planet_radius_km": "float"},
      "returns": "dict with c_over_mr2, total_mass_kg, moi_C_kgm2"},
+    {"name": "playground_load", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Load matter into a LIVE simulation scene that persists across "
+                "turns (conversation mode): formula, p/n/e counts, mass, knobs.",
+     "inputs": {"material": "str (water_molecule/bronze_cube/gold_ring/...)",
+                "handle": "str"},
+     "returns": "dict scene summary"},
+    {"name": "playground_inspect", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Query a loaded scene's CURRENT (mutated) state. scope: "
+                "summary / matter (bonds, charges, net spin) / constituents.",
+     "inputs": {"handle": "str", "scope": "str"},
+     "returns": "dict of current state"},
+    {"name": "playground_apply", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Apply an environment and MUTATE the scene in place (persists). "
+                "Knobs: temperature_k, pressure_pa, magnetic_field_t, energy_ev, "
+                "electric_field_vm. Returns a diff of what changed.",
+     "inputs": {"handle": "str", "environment": "dict", "mode": "str (update/delta)"},
+     "returns": "dict diff of changed fields"},
+    {"name": "playground_simulate", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Run a Materia one-shot dynamics scenario (drop/launch/heat/"
+                "orbit) on the currently-loaded body.",
+     "inputs": {"handle": "str", "scenario": "str"},
+     "returns": "dict worked simulation result"},
+    {"name": "playground_render", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Render the current scene as a material-colored, lit sphere "
+                "(bulk-shape approximation). ascii art or png path.",
+     "inputs": {"handle": "str", "mode": "str (ascii/png)", "size": "int"},
+     "returns": "ascii string or png path"},
+    {"name": "playground_reset", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Rebuild the scene's matter to its pristine state and clear the "
+                "applied-environment history.",
+     "inputs": {"handle": "str"}, "returns": "dict pristine summary"},
+    {"name": "playground_status", "tier": "PRIMARY", "domain": "playground",
+     "summary": "List the live scenes in this session, their materials, and "
+                "applied-environment history.",
+     "inputs": {}, "returns": "dict of open scenes"},
+    {"name": "playground_clear", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Drop a scene (or all scenes if handle omitted) from the session.",
+     "inputs": {"handle": "str | None"}, "returns": "dict cleared"},
 ]
 
 

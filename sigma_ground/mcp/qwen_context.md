@@ -240,6 +240,16 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 ### plasma
 - **plasma_parameters_analysis** — Core plasma parameters: Debye length, Debye number, Coulomb logarithm ln(Lambda), ion Larmor (cyclotron) radius, and Spitzer parallel resistivity eta_parallel.  ↳ *say:* Debye length; Coulomb logarithm; Larmor radius; Debye number; Spitzer resistivity; plasma resistivity
 
+### playground
+- **playground_apply** — Apply an environment and MUTATE the scene in place (persists). Knobs: temperature_k, pressure_pa, magnetic_field_t, energy_ev, electric_field_vm. Returns a diff of what changed.  ↳ *say:* heat it; cool it; raise the temperature; apply pressure; compress it; apply a magnetic field
+- **playground_clear** — Drop a scene (or all scenes if handle omitted) from the session.  ↳ *say:* clear the scene; drop the scene; forget it
+- **playground_inspect** — Query a loaded scene's CURRENT (mutated) state. scope: summary / matter (bonds, charges, net spin) / constituents.  ↳ *say:* what's in it; current state; inspect; show the bonds; what is it now; look at it
+- **playground_load** — Load matter into a LIVE simulation scene that persists across turns (conversation mode): formula, p/n/e counts, mass, knobs.  ↳ *say:* load a; start a scene; simulate matter; playground; let's explore; put a water molecule
+- **playground_render** — Render the current scene as a material-colored, lit sphere (bulk-shape approximation). ascii art or png path.  ↳ *say:* show me a render; draw it; visualize; what does it look like; picture of it; render the scene
+- **playground_reset** — Rebuild the scene's matter to its pristine state and clear the applied-environment history.  ↳ *say:* reset; start over; undo all changes; back to pristine
+- **playground_simulate** — Run a Materia one-shot dynamics scenario (drop/launch/heat/orbit) on the currently-loaded body.  ↳ *say:* drop it; throw it; launch it; what happens if it falls; orbit; simulate the drop
+- **playground_status** — List the live scenes in this session, their materials, and applied-environment history.  ↳ *say:* what scenes are open; session status; list scenes
+
 ### procedures
 - **procedure_black_hole_profile** — Full black-hole thermodynamics cascade from one mass: Schwarzschild radius → Hawking temperature → Bekenstein-Hawking entropy → evaporation time.
 - **procedure_photon_spectrum** — Full photon cascade from one wavelength: frequency → energy (J and eV) → momentum.

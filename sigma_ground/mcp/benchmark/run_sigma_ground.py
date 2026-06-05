@@ -149,6 +149,40 @@ ABSOLUTE RULES:
 """
 
 
+_SYSTEM_PROMPT_CONVERSATION = """\
+You are the SIMULATION PLAYGROUND host for the sigma-ground physics library.
+This is CONVERSATION MODE: a multi-turn session with a SINGLE LIVE SCENE that
+PERSISTS across turns. The user loads a piece of matter, then iteratively tunes
+it ("now heat it to 2000 K", "now compress it", "now apply a magnetic field")
+and the scene's physics state mutates and carries forward.
+
+YOU ARE STILL A SWITCHBOARD, NOT A PHYSICS EXPERT:
+  - Never compute or recall numbers yourself -- every value comes from a tool.
+  - Drive the live scene with the playground_* tools:
+      playground_load     -- load matter into the live scene (DO THIS FIRST)
+      playground_inspect  -- read the CURRENT state (summary / matter / constituents)
+      playground_apply    -- apply an environment and MUTATE it; knobs:
+                             temperature_k, pressure_pa, magnetic_field_t,
+                             electric_field_vm, energy_ev
+      playground_simulate -- run a drop / launch / orbit dynamics scenario on it
+      playground_render   -- show an ASCII picture of the scene
+      playground_reset    -- restore the pristine (un-mutated) matter
+  - The scene is STATEFUL: after playground_apply, later playground_inspect calls
+    see the mutated state. Do NOT reload unless the user wants different matter.
+
+EACH TURN:
+  1. Map the user's request to a playground_* tool (or an ordinary physics tool
+     for a standalone lookup).
+  2. Call it; report the tool's value AND its `source`.
+  3. Reply conversationally in 1-3 sentences grounded in the tool result, noting
+     what changed from the previous state when relevant.
+
+The user's "it" always means the currently-loaded scene ("what's in it?",
+"heat it", "drop it"). Keep ONE scene across the conversation. Cite every number
+from a tool; if a tool returns value null, your inputs were wrong -- fix them.
+"""
+
+
 _VALUE_RE = re.compile(
     r"ANSWER:\s*([\-+]?[0-9]+(?:\.[0-9]+)?(?:[eE][\-+]?[0-9]+)?)"
     r"(?:\s*([^\n]*))?",
@@ -959,6 +993,108 @@ async def _run_one_question(session, ollama_url: str, model: str,
         }
 
 
+async def _run_conversation(session, ollama_url: str, model: str,
+                            tools_for_ollama: list[dict], system_prompt: str,
+                            real_params_by_tool: dict[str, set[str]] | None = None,
+                            script_lines: list[str] | None = None) -> dict:
+    """Multi-turn simulation-playground conversation.
+
+    ONE `messages` list persists across turns (so the model keeps context), and
+    the MCP server's module-level scene store persists across tool calls (so the
+    simulation state carries forward). Reads turns from `script_lines` (non-
+    interactive demo/eval) or from stdin (interactive). Degrades gracefully if
+    ollama is unreachable.
+    """
+    import httpx
+
+    messages: list[dict] = [{"role": "system", "content": system_prompt}]
+    transcript: list[dict] = []
+
+    def _turns():
+        if script_lines is not None:
+            for ln in script_lines:
+                yield ln
+            return
+        while True:
+            try:
+                ln = input("\nyou> ").strip()
+            except EOFError:
+                return
+            if not ln:
+                continue
+            if ln.lower() in ("quit", "exit", ":q"):
+                return
+            yield ln
+
+    async with httpx.AsyncClient(timeout=120.0) as http:
+        for user_msg in _turns():
+            if script_lines is not None:
+                print(f"\nyou> {user_msg}")
+            messages.append({"role": "user", "content": user_msg})
+            turn_tools: list[str] = []
+            seen_calls: set[str] = set()
+            final = ""
+            tool_budget = 4
+            for _ in range(8):                       # inner tool-loop
+                force_finalize = len(turn_tools) >= tool_budget
+                payload: dict = {"model": model, "messages": messages,
+                                 "stream": False, "options": {"temperature": 0.2}}
+                if not force_finalize:
+                    payload["tools"] = tools_for_ollama
+                else:
+                    # budget spent: ask for the reply with NO tools offered, so
+                    # the model must produce text instead of looping tool calls.
+                    messages.append({"role": "user", "content":
+                                     "You have enough tool results now. Reply to "
+                                     "the user in 1-3 sentences using those "
+                                     "results. Do NOT call any more tools."})
+                try:
+                    resp = await http.post(ollama_url, json=payload)
+                    resp.raise_for_status()
+                    data = resp.json()
+                except Exception as e:               # ollama down -> degrade, keep going
+                    final = f"[ollama unreachable: {e}]"
+                    break
+                msg = data.get("message", {})
+                messages.append(msg)
+                tcs = msg.get("tool_calls") or []
+                if force_finalize or not tcs:
+                    final = (msg.get("content", "") or "").strip()
+                    break
+                for tc in tcs:
+                    fn = tc.get("function", {})
+                    name = fn.get("name", "")
+                    a = fn.get("arguments", {})
+                    if isinstance(a, str):
+                        try:
+                            a = json.loads(a)
+                        except json.JSONDecodeError:
+                            a = {}
+                    if real_params_by_tool and name in real_params_by_tool:
+                        from sigma_ground.mcp.benchmark.param_aliases import normalize_kwargs
+                        a, _ = normalize_kwargs(a, real_params_by_tool[name])
+                    sig = f"{name}:{json.dumps(a, sort_keys=True, default=str)}"
+                    if sig in seen_calls:            # don't repeat an identical call
+                        messages.append({"role": "tool", "content":
+                                         "(already called with these args this "
+                                         "turn -- use the previous result)"})
+                        turn_tools.append(name)
+                        continue
+                    seen_calls.add(sig)
+                    try:
+                        result = await session.call_tool(name, a)
+                        parts = [getattr(p, "text", None) for p in (result.content or [])]
+                        tool_text = "\n".join(x for x in parts if x) or "(empty)"
+                    except Exception as e:
+                        tool_text = f"<TOOL ERROR: {e}>"
+                    turn_tools.append(name)
+                    messages.append({"role": "tool", "content": tool_text[:4000]})
+            print(f"mentat> {final or '(no reply)'}")
+            transcript.append({"user": user_msg, "assistant": final,
+                               "tools": turn_tools})
+    return {"turns": transcript}
+
+
 async def _amain(args) -> int:
     # Auto-load env vars from the dev-root .env (Ollama URL override, etc.)
     from sigma_ground.mcp.benchmark import load_env_from_dev_root
@@ -983,7 +1119,9 @@ async def _amain(args) -> int:
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     existing: dict[str, dict] = {}
-    if args.resume and args.output.exists():
+    # Resume is Q&A-only: conversation-mode output is a single {turns:[...]} dict,
+    # not a list of per-question records.
+    if args.mode == "qa" and args.resume and args.output.exists():
         with args.output.open(encoding="utf-8") as f:
             for rec in json.load(f):
                 # Skip errored, different-model, or no-value records --
@@ -999,8 +1137,16 @@ async def _amain(args) -> int:
                 existing[rec["id"]] = rec
     out = list(existing.values())
 
-    # Spawn the MCP server
-    params = StdioServerParameters(command="sigma-ground-mcp")
+    # Spawn the MCP server from THIS interpreter + package, so the spawned
+    # server is the same sigma_ground tree the runner is running from (the
+    # global `sigma-ground-mcp` console script may point at a different/older
+    # editable install). Inherit the environment so PYTHONPATH propagates.
+    import os
+    params = StdioServerParameters(
+        command=sys.executable,
+        args=["-m", "sigma_ground.mcp.server"],
+        env=dict(os.environ),
+    )
     async with stdio_client(params) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
@@ -1031,6 +1177,40 @@ async def _amain(args) -> int:
             print(f"MCP server has {len(tools_for_ollama)} tools available")
             print(f"System prompt is {len(sys_prompt)} chars "
                   f"(includes full tool index)")
+
+            # Conversation / simulation-playground mode: one persistent scene +
+            # message history across turns (vs the stateless Q&A loop below).
+            if getattr(args, "mode", "qa") == "conversation":
+                # Scope the visible tool set to the playground family (+ the
+                # Materia front doors). A 7b switchboard routes far better over
+                # ~10 focused tools than over 200+, and it shrinks the prompt.
+                _CONV_EXTRA = {"simulate", "run_simulation", "list_simulation_scenarios"}
+                conv_tools = [t for t in tools_for_ollama
+                              if t["function"]["name"].startswith("playground_")
+                              or t["function"]["name"] in _CONV_EXTRA]
+                conv_index = _build_tool_index(conv_tools)
+                conv_prompt = _SYSTEM_PROMPT_CONVERSATION + "\n\n" + conv_index
+                script_lines = None
+                if args.script:
+                    script_lines = [
+                        ln.strip() for ln in
+                        Path(args.script).read_text(encoding="utf-8").splitlines()
+                        if ln.strip() and not ln.lstrip().startswith("#")
+                    ]
+                print("\n=== CONVERSATION / SIMULATION PLAYGROUND ===")
+                print(f"(playground tool set: {len(conv_tools)} tools)")
+                print("(type 'quit' to exit)" if script_lines is None
+                      else f"(scripted: {len(script_lines)} turns)")
+                convo = await _run_conversation(
+                    session, args.ollama_url + "/api/chat", args.model,
+                    conv_tools, conv_prompt,
+                    real_params_by_tool=real_params_by_tool,
+                    script_lines=script_lines)
+                with args.output.open("w", encoding="utf-8") as f:
+                    json.dump({"mode": "conversation", "model": args.model,
+                               **convo}, f, indent=2, default=str)
+                print(f"\nWrote {args.output}")
+                return 0
 
             for i, q in enumerate(questions):
                 if q["id"] in existing:
@@ -1089,6 +1269,12 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--resume", action="store_true", default=True)
     parser.add_argument("--no-resume", dest="resume", action="store_false")
+    parser.add_argument("--mode", choices=["qa", "conversation"], default="qa",
+                        help="qa: stateless benchmark switchboard (default); "
+                             "conversation: stateful simulation playground")
+    parser.add_argument("--script", type=Path, default=None,
+                        help="conversation mode: a file of user turns (one per "
+                             "line; '#' comments ignored). Omit for interactive.")
     args = parser.parse_args()
     return asyncio.run(_amain(args))
 
