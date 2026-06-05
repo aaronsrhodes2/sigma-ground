@@ -132,10 +132,12 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **boiling_point** — Boiling point in K (lookup).  ↳ *say:* boiling point; T_boil; vaporization temperature
 - **composite_bounds_analysis** — Two-phase composite bounds: Voigt-Reuss-Hill, Hashin-Shtrikman, thermal-conductivity bounds, Gibson-Ashby foam strength.  ↳ *say:* composite material; Voigt-Reuss-Hill; Hashin-Shtrikman; rule of mixtures; effective modulus; foam strength
 - **density** — Material density in kg/m^3 (lookup).  ↳ *say:* density; rho = m/V; kg/m^3; specific gravity
+- **dielectric_polarization_analysis** — Relative permittivity from the Clausius-Mossotti relation given molecular polarizability and number density.  ↳ *say:* Clausius-Mossotti; relative permittivity; dielectric constant from polarizability; polarizability; Lorentz-Lorenz; induced dipole permittivity
 - **elastic_analysis** — Elastic response: uniaxial/shear/hydrostatic stress, strain-energy densities, transverse strain, volume change, von Mises yield.  ↳ *say:* Young's modulus; stress and strain; Hooke's law; shear stress; strain energy; Poisson ratio
 - **element_atomic_data** — Element Z, name, mass via periodictable.  ↳ *say:* atomic number; atomic mass; Z of; atomic weight; amu; u
 - **list_materials** — Inventory of materials in lookup tables.  ↳ *say:* available materials
 - **melting_point** — Melting point in K (lookup).  ↳ *say:* melting point; T_melt; fusion temperature
+- **piezoelectric_actuator_analysis** — Converse piezoelectric effect: induced strain (d E) and tip displacement (d E L) of an actuator under applied field.  ↳ *say:* piezoelectric; piezo actuator; converse piezoelectric effect; PZT displacement; strain from voltage; d33
 - **plasticity_analysis** — Plastic flow stress: Johnson-Cook, Ludwik hardening, work-hardening rate.  ↳ *say:* plastic deformation; flow stress; work hardening; Johnson-Cook; Ludwik; yield and beyond
 - **refractive_index** — Refractive index at 589 nm (lookup).  ↳ *say:* refractive index; n at 589 nm; sodium D-line; speed of light in medium; optical density
 - **stress_failure_analysis** — Fracture/fatigue/creep: stress-intensity, critical crack length, fatigue life, Paris life, creep rate + rupture time.  ↳ *say:* fracture toughness; stress intensity; crack; fatigue life; creep; Paris law
@@ -176,6 +178,8 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **diffraction_grating_angle** — d sin(theta) = m lambda.  ↳ *say:* diffraction grating; d sin(theta) = m lambda; grating equation; spectral grating
 - **double_slit_fringe_spacing** — y = lambda L / d.  ↳ *say:* double slit; Young's double-slit; interference fringes; y = lambda L / d; Thomas Young 1801
 - **lens_magnification** — m = -d_i / d_o.  ↳ *say:* lens magnification; m = -d_i / d_o; image magnification
+- **material_color_analysis** — Physically-derived sRGB color of a material (metal Drude reflectance, organic spectrum, or dye-on-substrate).  ↳ *say:* what color is; metal color; color of gold; color of copper; sRGB of material; physical color
+- **phosphor_decay_analysis** — Phosphor / luminescence afterglow brightness I(t)=I0 exp(-t/tau) and surviving fraction at time t.  ↳ *say:* phosphor; afterglow; persistence; luminescence decay; glow brightness; exponential decay of light
 - **rydberg_hydrogen_wavelength** — Rydberg formula for hydrogen lines.  ↳ *say:* Rydberg formula; Balmer series; Lyman series; Paschen series; Brackett series; Pfund series
 - **single_slit_first_minimum_angle** — sin(theta) = lambda / a.  ↳ *say:* single slit diffraction; first minimum; a sin(theta) = m lambda; single slit pattern
 - **snells_law_refraction_angle** — n1 sin(theta1) = n2 sin(theta2).  ↳ *say:* Snell's law; law of refraction; n1 sin(theta1) = n2 sin(theta2); refraction angle; Willebrord Snell 1621
@@ -187,6 +191,11 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **orbital_period** — Kepler's third law T=2π√(a³/GM). Defaults to Sun. Asteroid at 3 AU: orbital_period(semimajor_axis_au=3).  ↳ *say:* orbital period; Kepler third law; how long is a year on; year length; T = 2 pi sqrt(a^3/GM); period of an orbit
 - **orbital_raise_energy** — Gravitational PE to raise a mass between orbits ΔU=GMm(1/r1-1/r2). Body-aware (altitudes above surface).  ↳ *say:* energy to lift to orbit; energy to raise a satellite; lift to geosynchronous; gravitational PE difference; delta U = GMm(1/r1 - 1/r2); energy to reach orbit
 - **orbital_velocity** — Circular orbital speed, body-aware: name + altitude_km (or radius_m, or semimajor_axis_au). Does mass lookup internally.  ↳ *say:* orbital velocity; how fast does it orbit; satellite speed; ISS speed; orbital speed at altitude; Moon orbital velocity
+
+### photonics
+- **nonlinear_optics_analysis** — Nonlinear optics: Kerr index, B-integral (nonlinear phase), self-focusing critical power, SHG efficiency factor.  ↳ *say:* nonlinear optics; Kerr effect; self-focusing; B-integral; second harmonic generation; SHG
+- **optical_waveguide_analysis** — Slab dielectric waveguide: numerical aperture, V-number (normalized frequency), guided TE-mode count.  ↳ *say:* optical waveguide; slab waveguide; V-number; numerical aperture; guided modes; single-mode fiber
+- **photonic_bandgap_analysis** — Quarter-wave Bragg mirror / 1D photonic bandgap: center wavelength, stop-band fractional width, peak reflectance.  ↳ *say:* Bragg mirror; dielectric mirror; distributed Bragg reflector; photonic bandgap; quarter-wave stack; stop band
 
 ### procedures
 - **procedure_black_hole_profile** — Full black-hole thermodynamics cascade from one mass: Schwarzschild radius → Hawking temperature → Bekenstein-Hawking entropy → evaporation time.

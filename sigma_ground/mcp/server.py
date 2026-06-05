@@ -107,6 +107,8 @@ def main() -> int:
     from sigma_ground.mcp.tools import transport as t_trans
     from sigma_ground.mcp.tools import rotation as t_rot
     from sigma_ground.mcp.tools import materials_strength as t_matstr
+    from sigma_ground.mcp.tools import photonics as t_photon
+    from sigma_ground.mcp.tools import electroceramics as t_eceram
     from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
@@ -1270,6 +1272,68 @@ def main() -> int:
         foam strength."""
         return t_matstr.composite_bounds_analysis(bulk_modulus1_pa,
                                                   bulk_modulus2_pa, fraction1)
+
+    @server.tool()
+    def optical_waveguide_analysis(wavelength_m: float = 1.55e-6,
+                                   core_thickness_m: float = 5.0e-6,
+                                   n_core: float = 1.50,
+                                   n_clad: float = 1.48) -> dict[str, Any]:
+        """Symmetric slab dielectric waveguide: numerical aperture, V-number,
+        and guided TE-mode count. optical_waveguide_analysis(1.55e-6, 5e-6)."""
+        return t_photon.optical_waveguide_analysis(wavelength_m, core_thickness_m,
+                                                   n_core, n_clad)
+
+    @server.tool()
+    def photonic_bandgap_analysis(design_wavelength_m: float = 550.0e-9,
+                                  n_low: float = 1.46, n_high: float = 2.35,
+                                  n_pairs: int = 10) -> dict[str, Any]:
+        """Quarter-wave Bragg mirror (1D photonic bandgap): center wavelength,
+        stop-band fractional width, peak reflectance for N pairs."""
+        return t_photon.photonic_bandgap_analysis(design_wavelength_m, n_low,
+                                                  n_high, n_pairs)
+
+    @server.tool()
+    def nonlinear_optics_analysis(intensity_w_m2: float = 1.0e13,
+                                  wavelength_m: float = 1.064e-6,
+                                  n0: float = 1.45, n2_m2_w: float = 2.7e-20,
+                                  length_m: float = 0.01) -> dict[str, Any]:
+        """Nonlinear optics: Kerr index, B-integral, self-focusing critical
+        power, and an SHG efficiency factor."""
+        return t_photon.nonlinear_optics_analysis(intensity_w_m2, wavelength_m,
+                                                  n0, n2_m2_w, length_m)
+
+    @server.tool()
+    def material_color_analysis(category: str = "metal", key: str = "copper",
+                                dye_key: str | None = None,
+                                substrate_key: str | None = None) -> dict[str, Any]:
+        """Physically-derived sRGB color of a material (metal/organic/dye).
+        material_color_analysis('metal', 'gold')."""
+        return t_photon.material_color_analysis(category, key, dye_key, substrate_key)
+
+    @server.tool()
+    def phosphor_decay_analysis(time_s: float = 10.0e-3, tau_s: float = 5.0e-3,
+                                initial_brightness: float = 1.0) -> dict[str, Any]:
+        """Phosphor/luminescence afterglow I(t)=I0 exp(-t/tau) and surviving
+        fraction at time t. phosphor_decay_analysis(10e-3, 5e-3)."""
+        return t_photon.phosphor_decay_analysis(time_s, tau_s, initial_brightness)
+
+    @server.tool()
+    def piezoelectric_actuator_analysis(material_key: str = "PZT5A",
+                                        e_field_v_m: float = 1.0e6,
+                                        length_m: float = 0.02) -> dict[str, Any]:
+        """Converse piezoelectric effect: induced strain (d E) and tip
+        displacement (d E L). Keys: quartz, PZT4, PZT5A, BaTiO3, LiNbO3,
+        AlN, PVDF. piezoelectric_actuator_analysis('PZT5A', 1e6, 0.02)."""
+        return t_eceram.piezoelectric_actuator_analysis(material_key,
+                                                       e_field_v_m, length_m)
+
+    @server.tool()
+    def dielectric_polarization_analysis(polarizability_fm2: float = 1.6e-40,
+                                         number_density_m3: float = 3.0e28) -> dict[str, Any]:
+        """Relative permittivity from the Clausius-Mossotti relation given
+        molecular polarizability (F.m^2) and number density."""
+        return t_eceram.dielectric_polarization_analysis(polarizability_fm2,
+                                                        number_density_m3)
 
     # Run via stdio transport (standard MCP).
     server.run()

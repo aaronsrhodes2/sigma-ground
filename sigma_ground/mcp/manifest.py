@@ -789,6 +789,45 @@ _PRIMARY_TOOLS = [
                 "thermal-conductivity bounds, Gibson-Ashby foam strength.",
      "inputs": {"bulk_modulus1_pa": "float", "bulk_modulus2_pa": "float",
                 "fraction1": "float"}, "returns": "dict of composite bounds"},
+    {"name": "optical_waveguide_analysis", "tier": "PRIMARY", "domain": "photonics",
+     "summary": "Slab dielectric waveguide: numerical aperture, V-number "
+                "(normalized frequency), guided TE-mode count.",
+     "inputs": {"wavelength_m": "float", "core_thickness_m": "float",
+                "n_core": "float", "n_clad": "float"},
+     "returns": "dict of waveguide quantities"},
+    {"name": "photonic_bandgap_analysis", "tier": "PRIMARY", "domain": "photonics",
+     "summary": "Quarter-wave Bragg mirror / 1D photonic bandgap: center "
+                "wavelength, stop-band fractional width, peak reflectance.",
+     "inputs": {"design_wavelength_m": "float", "n_low": "float",
+                "n_high": "float", "n_pairs": "int"},
+     "returns": "dict of Bragg-stack quantities"},
+    {"name": "nonlinear_optics_analysis", "tier": "PRIMARY", "domain": "photonics",
+     "summary": "Nonlinear optics: Kerr index, B-integral (nonlinear phase), "
+                "self-focusing critical power, SHG efficiency factor.",
+     "inputs": {"intensity_w_m2": "float", "wavelength_m": "float",
+                "n0": "float", "n2_m2_w": "float", "length_m": "float"},
+     "returns": "dict of nonlinear-optics quantities"},
+    {"name": "material_color_analysis", "tier": "PRIMARY", "domain": "optics",
+     "summary": "Physically-derived sRGB color of a material (metal Drude "
+                "reflectance, organic spectrum, or dye-on-substrate).",
+     "inputs": {"category": "str ('metal'/'organic'/'dye')", "key": "str (e.g. 'gold')"},
+     "returns": "dict with rgb_0_1, rgb_8bit, hex"},
+    {"name": "phosphor_decay_analysis", "tier": "PRIMARY", "domain": "optics",
+     "summary": "Phosphor / luminescence afterglow brightness "
+                "I(t)=I0 exp(-t/tau) and surviving fraction at time t.",
+     "inputs": {"time_s": "float", "tau_s": "float", "initial_brightness": "float"},
+     "returns": "dict with brightness, fraction_remaining"},
+    {"name": "piezoelectric_actuator_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Converse piezoelectric effect: induced strain (d E) and tip "
+                "displacement (d E L) of an actuator under applied field.",
+     "inputs": {"material_key": "str (quartz/PZT4/PZT5A/BaTiO3/LiNbO3/AlN/PVDF)",
+                "e_field_v_m": "float", "length_m": "float"},
+     "returns": "dict with strain, displacement_m"},
+    {"name": "dielectric_polarization_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Relative permittivity from the Clausius-Mossotti relation "
+                "given molecular polarizability and number density.",
+     "inputs": {"polarizability_fm2": "float", "number_density_m3": "float"},
+     "returns": "dict with relative_permittivity"},
 ]
 
 

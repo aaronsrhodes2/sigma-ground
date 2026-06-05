@@ -462,6 +462,36 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "rule of mixtures", "effective modulus", "foam strength",
     ],
 
+    # ============ PHOTONICS / OPTICS / ELECTROCERAMICS (batch 5) ============
+    "optical_waveguide_analysis": [
+        "optical waveguide", "slab waveguide", "V-number", "numerical aperture",
+        "guided modes", "single-mode fiber", "how many modes", "core cladding",
+    ],
+    "photonic_bandgap_analysis": [
+        "Bragg mirror", "dielectric mirror", "distributed Bragg reflector",
+        "photonic bandgap", "quarter-wave stack", "stop band", "DBR reflectance",
+    ],
+    "nonlinear_optics_analysis": [
+        "nonlinear optics", "Kerr effect", "self-focusing", "B-integral",
+        "second harmonic generation", "SHG", "critical power", "n2 intensity",
+    ],
+    "material_color_analysis": [
+        "what color is", "metal color", "color of gold", "color of copper",
+        "sRGB of material", "physical color", "reflectance color", "dye color",
+    ],
+    "phosphor_decay_analysis": [
+        "phosphor", "afterglow", "persistence", "luminescence decay",
+        "glow brightness", "exponential decay of light", "decay time constant",
+    ],
+    "piezoelectric_actuator_analysis": [
+        "piezoelectric", "piezo actuator", "converse piezoelectric effect",
+        "PZT displacement", "strain from voltage", "d33", "quartz actuator",
+    ],
+    "dielectric_polarization_analysis": [
+        "Clausius-Mossotti", "relative permittivity", "dielectric constant from polarizability",
+        "polarizability", "Lorentz-Lorenz", "induced dipole permittivity",
+    ],
+
     # ============ ENERGY CONVERSION (E=mc^2 family) ============
     "mass_to_energy": [
         "E=mc^2", "mass-energy equivalence", "rest mass energy",
