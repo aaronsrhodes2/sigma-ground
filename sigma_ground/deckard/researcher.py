@@ -49,7 +49,11 @@ _SYS = (
     'op:"subtract" on a part to carve a cavity, and a later op:"add" part to '
     "fill it (a pipe = outer cylinder + inner cylinder op:subtract; a bottle = "
     "body + interior op:subtract + liquid op:add). Parts compose IN ORDER — list "
-    "solids first, then carves, then fills.\n"
+    "solids first, then carves, then fills. To JOIN parts, prefer attach over "
+    'center_m: set attach:{"to":"<part>","my":"<anchor>","their":"<anchor>"} so '
+    "the anchors meet exactly (no overlap, no gap). Anchors: top, bottom (any "
+    "shape); +x,-x,+y,-y (box/sphere). E.g. hammer = head + handle "
+    "attach:{to:head,my:top,their:bottom}.\n"
     "Use realistic typical dimensions and a real material name (steel, glass, "
     'aluminium, oak, stoneware, ...). If you cannot, output {"kind":"unknown"}.'
 )
@@ -225,8 +229,9 @@ def _build_parts_spec(name: str, data: dict, model: str) -> ConstructSpec | None
         center = _vec3(p.get("center_m", (0.0, 0.0, 0.0)))
         euler = _vec3(p.get("euler_deg", (0.0, 0.0, 0.0)))
         op = "subtract" if str(p.get("op", "add")).lower() == "subtract" else "add"
+        attach = p.get("attach") if isinstance(p.get("attach"), dict) else None
         parts.append(Part(p.get("name") or f"part{i}", shape, dims, material,
-                          dens, center, euler, op))
+                          dens, center, euler, op, attach))
 
     return ConstructSpec(
         name=name, kind="composite", identified=True, parts=parts, sources=sources,

@@ -121,3 +121,38 @@ def test_filled_cavity_composes_in_order():
     assert c.material_at(0.0335, 0.0, 0.05) == "body"              # glass wall
     assert c.density_at(0.0, 0.0, -0.04) == density_of("liquid water").value   # in the liquid
     assert c.density_at(0.0, 0.0, 0.09) == 0.0                     # headspace (empty)
+
+
+def test_attach_mates_parts_at_an_interface_no_overlap():
+    spec = ConstructSpec(name="post-cap", kind="composite", parts=[
+        Part("cap", "box", {"x_m": Fact(0.06), "y_m": Fact(0.06), "z_m": Fact(0.02)},
+             "steel", density_of("steel"), center_m=(0, 0, 0.30)),
+        Part("post", "cylinder", {"radius_m": Fact(0.01), "height_m": Fact(0.30)},
+             "oak", density_of("oak"), attach={"to": "cap", "my": "top", "their": "bottom"})])
+    c = compile(spec, resolution=64)
+    # attached parts butt up (no interpenetration) -> disjoint, EXACT analytic mass
+    assert c.validation["mode"] == "disjoint"
+    m = (density_of("steel").value * 0.06 * 0.06 * 0.02
+         + density_of("oak").value * math.pi * 0.01 ** 2 * 0.30)
+    assert abs(c.mass_kg - m) < 1e-9
+    # positioned under the cap, meeting at the interface plane z=0.29
+    assert c.material_at(0.0, 0.0, 0.0) == "post"
+    assert c.material_at(0.0, 0.0, 0.30) == "cap"
+    assert c.material_at(0.0, 0.0, 0.288) == "post"
+    assert c.material_at(0.0, 0.0, 0.292) == "cap"
+    # the interface is recorded
+    assert c.validation["interfaces"] == [{"between": ["post", "cap"], "at": "bottom"}]
+
+
+def test_researcher_emits_attachment():
+    payload = json.dumps({"kind": "composite", "parts": [
+        {"name": "head", "shape": "box", "dims": {"x_m": 0.06, "y_m": 0.06, "z_m": 0.02},
+         "material": "steel", "center_m": [0, 0, 0.30]},
+        {"name": "handle", "shape": "cylinder", "dims": {"radius_m": 0.01, "height_m": 0.30},
+         "material": "oak", "attach": {"to": "head", "my": "top", "their": "bottom"}}]})
+    spec = research_spec("mallet", ask=lambda n: payload, model="stub")
+    assert spec is not None and len(spec.parts) == 2
+    assert spec.parts[1].attach == {"to": "head", "my": "top", "their": "bottom"}
+    c = compile(spec, resolution=56)
+    assert c.validation["mode"] == "disjoint" and c.validation["passed"]
+    assert c.validation["interfaces"]                              # the joint is recorded

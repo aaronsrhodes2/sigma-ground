@@ -173,10 +173,10 @@ compile_vessel = compile
 
 
 # ── general primitive kit ───────────────────────────────────────────────
-def _shape_from(part):
+def _shape_from(part, center=None):
     """Instantiate a kernel shape from a spec Part (sphere/cylinder/box/cone)."""
     d = {k: f.value for k, f in part.dims.items()}
-    c = tuple(part.center_m)
+    c = tuple(center) if center is not None else tuple(part.center_m)
     s = (part.shape or "").lower()
     if s == "sphere":
         return Sphere(d["radius_m"], center=c)
@@ -272,6 +272,70 @@ def _rotated_half_extent(he, R):
     return (mx, my, mz)
 
 
+# ── attachment: parts mate at anchors (touch at an interface, no overlap) ──
+def _local_anchor(part, name):
+    """A named anchor point in the part's LOCAL frame (before rotate/translate)."""
+    d = {k: f.value for k, f in part.dims.items()}
+    s = (part.shape or "").lower()
+    name = (name or "center").lower()
+    if name in ("center", "centre"):
+        return (0.0, 0.0, 0.0)
+    if s in ("cylinder", "cone"):
+        h = d.get("height_m", 0.0)
+        return {"top": (0.0, 0.0, h / 2.0),
+                "bottom": (0.0, 0.0, -h / 2.0)}.get(name, (0.0, 0.0, 0.0))
+    if s == "box":
+        x, y, z = d.get("x_m", 0.0), d.get("y_m", 0.0), d.get("z_m", 0.0)
+        return {"top": (0.0, 0.0, z / 2.0), "bottom": (0.0, 0.0, -z / 2.0),
+                "+x": (x / 2.0, 0.0, 0.0), "-x": (-x / 2.0, 0.0, 0.0),
+                "+y": (0.0, y / 2.0, 0.0), "-y": (0.0, -y / 2.0, 0.0)}.get(name, (0.0, 0.0, 0.0))
+    if s in ("sphere", "ellipsoid"):
+        r = d.get("radius_m") or d.get("rz_m", 0.0)
+        rx = d.get("rx_m", r); ry = d.get("ry_m", r)
+        return {"top": (0.0, 0.0, r), "bottom": (0.0, 0.0, -r),
+                "+x": (rx, 0.0, 0.0), "-x": (-rx, 0.0, 0.0),
+                "+y": (0.0, ry, 0.0), "-y": (0.0, -ry, 0.0)}.get(name, (0.0, 0.0, 0.0))
+    return (0.0, 0.0, 0.0)
+
+
+def _apply(R, v):
+    """R · v (forward rotation of a vector)."""
+    return (R[0][0] * v[0] + R[0][1] * v[1] + R[0][2] * v[2],
+            R[1][0] * v[0] + R[1][1] * v[1] + R[1][2] * v[2],
+            R[2][0] * v[0] + R[2][1] * v[1] + R[2][2] * v[2])
+
+
+def _resolve_positions(parts):
+    """World centre of each part, honouring ``attach`` so anchors mate exactly
+    (parts touch at a shared interface — no overlap, no gap). Returns {name: center}.
+    """
+    by_name = {p.name: p for p in parts}
+    R = {p.name: _rotation(getattr(p, "euler_deg", (0.0, 0.0, 0.0))) for p in parts}
+    centers = {}
+
+    def world_anchor(pname, anchor):
+        la = _apply(R[pname], _local_anchor(by_name[pname], anchor))
+        c = centers[pname]
+        return (c[0] + la[0], c[1] + la[1], c[2] + la[2])
+
+    def resolve(name, stack):
+        if name in centers:
+            return
+        p = by_name[name]
+        att = getattr(p, "attach", None)
+        if not att or att.get("to") not in by_name or att.get("to") in stack:
+            centers[name] = tuple(float(x) for x in p.center_m)   # root / no-attach / bad ref
+            return
+        resolve(att["to"], stack | {name})
+        target = world_anchor(att["to"], att.get("their", "top"))
+        mine = _apply(R[name], _local_anchor(p, att.get("my", "bottom")))
+        centers[name] = (target[0] - mine[0], target[1] - mine[1], target[2] - mine[2])
+
+    for p in parts:
+        resolve(p.name, frozenset())
+    return centers
+
+
 def _shape_mass(shape, rho, bbox, n):
     """Mass of a single shape by grid-sampling its own SDF — validates volume()."""
     (x0, x1), (y0, y1), (z0, z1) = bbox
@@ -308,10 +372,11 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
     analytic_mass = 0.0
     Sx = Sy = Sz = 0.0                        # mass-weighted first moments
     xs, ys, zs = [], [], []
+    centers = _resolve_positions(spec.parts)   # honour attach: parts mate at interfaces
     sub_parts = [p for p in spec.parts if getattr(p, "op", "add") == "subtract"]
     for part in spec.parts:      # compose IN ORDER: solids → carves → fills (last wins)
         carve = getattr(part, "op", "add") == "subtract"
-        shp = _shape_from(part)
+        shp = _shape_from(part, centers[part.name])
         he = _half_extent(part)
         euler = getattr(part, "euler_deg", (0.0, 0.0, 0.0))
         if any(euler):
@@ -389,6 +454,12 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
                       "mass_analytic_sum_kg": analytic_mass,
                       "mass_integrator_kg": M_hi, "mass_residual": stab,
                       "resolution": nhi, "note": note}
+
+    attached = {p.name for p in spec.parts}
+    validation["interfaces"] = [
+        {"between": [p.name, p.attach["to"]], "at": p.attach.get("their", "top")}
+        for p in spec.parts
+        if getattr(p, "attach", None) and p.attach.get("to") in attached]
 
     return Construct(
         name=spec.name, composed=composed, density_by_label=density,

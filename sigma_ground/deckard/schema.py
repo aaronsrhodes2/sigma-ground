@@ -111,9 +111,10 @@ class Part:
     center_m: tuple = (0.0, 0.0, 0.0)
     euler_deg: tuple = (0.0, 0.0, 0.0)  # rotation about the part centre (Rz·Ry·Rx, degrees)
     op: str = "add"                     # "add" | "subtract" (carve a cavity / hollow)
+    attach: dict | None = None          # {"to": <part>, "my": <anchor>, "their": <anchor>}
 
     def to_dict(self) -> dict:
-        return {
+        d = {
             "name": self.name,
             "shape": self.shape,
             "dims": {k: f.to_dict() for k, f in self.dims.items()},
@@ -123,6 +124,9 @@ class Part:
             "euler_deg": list(self.euler_deg),
             "op": self.op,
         }
+        if self.attach:
+            d["attach"] = dict(self.attach)
+        return d
 
     @classmethod
     def from_dict(cls, d: dict) -> "Part":
@@ -135,6 +139,7 @@ class Part:
             center_m=tuple(d.get("center_m", (0.0, 0.0, 0.0))),
             euler_deg=tuple(d.get("euler_deg", (0.0, 0.0, 0.0))),
             op=d.get("op", "add"),
+            attach=d.get("attach"),
         )
 
 
