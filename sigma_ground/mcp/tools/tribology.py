@@ -1,11 +1,13 @@
 """Tribology analysis tools (standard physics).
 
-Composite tools cascading through field.interface.{friction, wear}.
+Composite tools cascading through field.interface.{friction, wear, adhesion}.
 
-(adhesion.contact_angle is intentionally NOT wired -- with only a solids surface-
-energy DB the work-of-adhesion model overestimates wetting and returns 0 deg
-(complete wetting) for metal pairs that are really non-wetting; deferred for
-review. See misc/COVERAGE_LEDGER.md.)
+wetting_analysis uses the Owens-Wendt wetting model (adhesion.WETTING_SOLIDS /
+WETTING_LIQUIDS), which DOES give physical contact angles (water/PTFE ~108 deg,
+mercury/glass ~133-140 deg, water/clean-glass ~0 deg). The older
+adhesion.contact_angle stays unwired: it draws both phases from the solids
+broken-bond DB, so for metal pairs cos(theta)=W/gamma_LV-1 >= 1 and it reports
+0 deg (complete wetting) for systems that really bead. See misc/COVERAGE_LEDGER.md.
 """
 from __future__ import annotations
 
@@ -69,3 +71,59 @@ def wear_analysis(material_key: str = "copper",
                               "sliding_distance_m": sliding_distance_m,
                               "velocity_m_s": velocity_m_s,
                               "counter_material": counter_material}).to_dict()
+
+
+def wetting_analysis(solid_key: str = "glass",
+                     liquid_key: str = "water") -> dict[str, Any]:
+    """Liquid wetting on a solid (Young-Dupre + Owens-Wendt): equilibrium
+    contact angle, work of adhesion, spreading coefficient, and wetting regime.
+    e.g. wetting_analysis('ptfe', 'water') -> ~108 deg (hydrophobic);
+    wetting_analysis('glass', 'mercury') -> ~133 deg (beads, non-wetting)."""
+    from sigma_ground.field.interface import adhesion as A
+
+    solid = A.WETTING_SOLIDS.get(solid_key)
+    liquid = A.WETTING_LIQUIDS.get(liquid_key)
+    if solid is None or liquid is None:
+        return ToolResult(
+            value={"contact_angle_deg": None}, units="deg", source=_SRC,
+            provenance_tag="DERIVED",
+            notes=("unknown material key. available solids: "
+                   f"{sorted(A.WETTING_SOLIDS)}; "
+                   f"available liquids: {sorted(A.WETTING_LIQUIDS)}"),
+            inputs={"solid_key": solid_key, "liquid_key": liquid_key}).to_dict()
+
+    theta = A.wetting_contact_angle(solid_key, liquid_key)
+    W = A.work_of_solid_liquid_adhesion(solid_key, liquid_key)
+    S = A.spreading_coefficient(solid_key, liquid_key)
+    gamma_lv = liquid["gamma_lv"]
+
+    if theta is None:
+        regime = "undefined"
+    elif theta <= 1.0:
+        regime = "complete wetting (spreads)"
+    elif theta < 90.0:
+        regime = "wetting (hydrophilic)"
+    elif theta < 180.0:
+        regime = "non-wetting (hydrophobic)"
+    else:
+        regime = "complete non-wetting (beads)"
+
+    results = {
+        "contact_angle_deg": theta,
+        "work_of_adhesion_J_m2": W,
+        "spreading_coefficient_J_m2": S,
+        "gamma_lv_N_m": gamma_lv,
+        "wetting_regime": regime,
+        "solid": solid["name"],
+        "liquid": liquid["name"],
+    }
+    return ToolResult(
+        value=results, units="deg, J/m^2, J/m^2, N/m, label", source=_SRC,
+        provenance_tag="DERIVED",
+        formula=("cos(theta) = W_SL/gamma_LV - 1 (Young-Dupre); "
+                 "W_SL = 2 sqrt(gd_s gd_l) + 2 sqrt(gp_s gp_l) (Owens-Wendt)"),
+        notes=("Owens-Wendt geometric-mean combining rule; metallic liquids "
+               "(mercury, molten solder, gallium) use the dispersive (Fowkes) "
+               "term only on a dielectric solid. Real contact angles are "
+               "sensitive to surface cleanliness/roughness -- treat as +/-10 deg."),
+        inputs={"solid_key": solid_key, "liquid_key": liquid_key}).to_dict()

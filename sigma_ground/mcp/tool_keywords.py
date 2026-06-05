@@ -502,6 +502,13 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "natural convection", "buoyancy", "Grashof number", "free convection",
         "hot plate rising air", "gas diffusivity", "Boussinesq", "candle plume",
     ],
+    "thermal_contact_analysis": [
+        "thermal contact conductance", "thermal contact resistance",
+        "joint conductance", "interface conductance", "contact heat transfer",
+        "pressed metal interface", "thermal interface", "TCR",
+        "Cooper-Mikic-Yovanovich", "bolted joint heat transfer",
+        "heat across a contact", "thermal joint resistance",
+    ],
     "viscoelastic_creep_analysis": [
         "creep", "viscoelastic", "Maxwell model", "Kelvin-Voigt", "stress relaxation",
         "standard linear solid", "polymer creep", "time-dependent strain",
@@ -529,6 +536,12 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "superconducting gap", "BCS gap", "energy gap from Tc", "gap frequency",
         "2 Delta over h", "spectroscopic gap", "Cooper pair gap",
     ],
+    "superconductor_critical_field_analysis": [
+        "critical field", "upper critical field", "lower critical field",
+        "Hc2", "Hc1", "Ginzburg-Landau parameter", "kappa parameter",
+        "type I or type II superconductor", "Abrikosov vortex field",
+        "superconducting magnet field",
+    ],
     "quantum_tunneling_analysis": [
         "quantum tunneling", "WKB approximation", "tunneling probability",
         "barrier penetration", "transmission through barrier", "alpha decay tunneling",
@@ -548,8 +561,11 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
 
     # ============ PLASMA / EM / RELATIVITY / ATOMIC (batch 8) ============
     "plasma_parameters_analysis": [
-        "Debye length", "Debye shielding", "plasma parameter", "Coulomb logarithm",
-        "Larmor radius", "gyroradius", "fusion plasma", "Debye number",
+        "Debye length", "Coulomb logarithm", "Larmor radius", "Debye number",
+        "Spitzer resistivity", "plasma resistivity",
+        "Debye shielding", "plasma parameter", "gyroradius", "fusion plasma",
+        "resistivity of a plasma", "Spitzer-Harm", "eta parallel",
+        "how conductive is a plasma",
     ],
     "electromagnetic_force_analysis": [
         "Coulomb's law", "Lorentz force", "magnetic force on charge", "qv cross B",
@@ -572,6 +588,12 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
     "wear_analysis": [
         "wear", "Archard wear", "wear rate", "material loss sliding",
         "abrasive wear", "adhesive wear", "wear volume",
+    ],
+    "wetting_analysis": [
+        "contact angle", "wetting", "wettability", "hydrophobic", "hydrophilic",
+        "Young equation", "Young-Dupre", "spreading coefficient",
+        "water on glass", "water on Teflon", "mercury on glass", "beads up",
+        "does it wet", "work of adhesion liquid",
     ],
     "dislocation_strengthening_analysis": [
         "work hardening", "Taylor hardening", "dislocation density", "flow stress",
@@ -650,6 +672,20 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
     "holographic_dark_energy_analysis": [
         "holographic dark energy", "HDE", "dark energy density", "c squared parameter",
         "DESI dark energy", "Hubble radius cutoff", "rho dark energy",
+    ],
+
+    # ============ QUARKSUM INVENTORY (batch 13) ============
+    "material_inventory_analysis": [
+        "particle inventory", "how many protons", "quark count", "mass closure",
+        "mass defect", "proton neutron electron count", "quarksum", "books balance",
+    ],
+    "constituent_behaviors_analysis": [
+        "quark properties", "constituent mass", "particle behaviors", "bond summary",
+        "QCD behavior", "what is in water", "molecular constituents",
+    ],
+    "planet_moment_of_inertia_analysis": [
+        "moment of inertia factor", "C/MR^2", "polar moment planet", "core size",
+        "planetary structure inertia", "differentiation", "Earth moment of inertia",
     ],
 
     # ============ ENERGY CONVERSION (E=mc^2 family) ============

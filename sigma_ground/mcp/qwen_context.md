@@ -28,6 +28,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **light_travel_time** — t = d / c.  ↳ *say:* light travel time; delay = distance / c; communication lag; Earth-Sun light time 8 minutes; Proxima 4.2 light years
 - **list_bodies** — List all solar-system bodies and named stars available.  ↳ *say:* list solar system bodies; available planets
 - **named_star** — Named bright star data (Sirius, Vega...).  ↳ *say:* named star data; bright star catalog; Sirius Vega Polaris Betelgeuse Rigel Proxima; Hipparcos Gaia DR3; Bayer designation
+- **planet_moment_of_inertia_analysis** — Moment-of-inertia factor C/MR^2 of a layered planet, derived from the inventory composition of its shells (Earth ~ 0.331).  ↳ *say:* moment of inertia factor; C/MR^2; polar moment planet; core size; planetary structure inertia; differentiation
 - **solar_system_body** — Look up planet/moon/sun parameters.  ↳ *say:* planet data; moon data; Sun data; NASA planetary fact sheet; IAU 2015 nominal; Mercury Venus Earth Mars Jupiter Saturn Uranus Neptune Pluto
 
 ### atomic
@@ -77,6 +78,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **band_dos_shape_analysis** — Tight-binding density-of-states shape factor at the Fermi level for a transition metal (van Hove peak > 1, pseudogap < 1).  ↳ *say:* density of states; van Hove singularity; tight binding DOS; d-band filling; pseudogap; DOS at Fermi level
 - **magnetic_exchange_analysis** — Two-site Heisenberg model for a magnetic ion: exchange J from crystal field, VQE vs exact ground energy, spin state.  ↳ *say:* exchange coupling; Heisenberg model; antiferromagnet; superexchange; Goodenough-Kanamori; spin Hamiltonian
 - **superconducting_gap_analysis** — BCS spectroscopic gap frequency f=2*Delta/h from the critical temperature (Delta = 1.764 k_B Tc).  ↳ *say:* superconducting gap; BCS gap; energy gap from Tc; gap frequency; 2 Delta over h; spectroscopic gap
+- **superconductor_critical_field_analysis** — Critical magnetic fields of a named superconductor: Ginzburg-Landau kappa, thermodynamic Hc, and (Type-II) lower/upper Hc1/Hc2.  ↳ *say:* critical field; upper critical field; lower critical field; Hc2; Hc1; Ginzburg-Landau parameter
 
 ### constants
 - **list_constants** — List constants available, with optional filter.  ↳ *say:* available constants; constant catalog
@@ -172,6 +174,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **stress_failure_analysis** — Fracture/fatigue/creep: stress-intensity, critical crack length, fatigue life, Paris life, creep rate + rupture time.  ↳ *say:* fracture toughness; stress intensity; crack; fatigue life; creep; Paris law
 - **viscoelastic_creep_analysis** — Viscoelastic creep & relaxation: Maxwell, Kelvin-Voigt, standard-linear-solid creep, and SLS stress relaxation.  ↳ *say:* creep; viscoelastic; Maxwell model; Kelvin-Voigt; stress relaxation; standard linear solid
 - **wear_analysis** — Sliding wear (Archard): worn volume, mass loss, sliding wear rate, and wear regime (mild/severe, adhesive/abrasive).  ↳ *say:* wear; Archard wear; wear rate; material loss sliding; abrasive wear; adhesive wear
+- **wetting_analysis** — Liquid wetting on a solid (Young-Dupre + Owens-Wendt): equilibrium contact angle, work of adhesion, spreading coefficient, and wetting regime (e.g. water/PTFE ~108 deg, mercury/glass ~133 deg, water/clean-glass ~0 deg).  ↳ *say:* contact angle; wetting; wettability; hydrophobic; hydrophilic; Young equation
 - **youngs_modulus** — Young's modulus in Pa (lookup).  ↳ *say:* Young's modulus; E; elastic modulus; Hooke's law constant; stiffness; Thomas Young 1807
 
 ### math
@@ -225,13 +228,17 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **orbital_raise_energy** — Gravitational PE to raise a mass between orbits ΔU=GMm(1/r1-1/r2). Body-aware (altitudes above surface).  ↳ *say:* energy to lift to orbit; energy to raise a satellite; lift to geosynchronous; gravitational PE difference; delta U = GMm(1/r1 - 1/r2); energy to reach orbit
 - **orbital_velocity** — Circular orbital speed, body-aware: name + altitude_km (or radius_m, or semimajor_axis_au). Does mass lookup internally.  ↳ *say:* orbital velocity; how fast does it orbit; satellite speed; ISS speed; orbital speed at altitude; Moon orbital velocity
 
+### particle inventory
+- **constituent_behaviors_analysis** — Physical behaviors of a structure's constituents: QCD behaviors of a quark, a subatomic particle, and a molecule.  ↳ *say:* quark properties; constituent mass; particle behaviors; bond summary; QCD behavior; what is in water
+- **material_inventory_analysis** — Quarksum particle inventory & mass closure: proton/neutron/electron counts, total particles/baryons, mass, mass defect, GM.  ↳ *say:* particle inventory; how many protons; quark count; mass closure; mass defect; proton neutron electron count
+
 ### photonics
 - **nonlinear_optics_analysis** — Nonlinear optics: Kerr index, B-integral (nonlinear phase), self-focusing critical power, SHG efficiency factor.  ↳ *say:* nonlinear optics; Kerr effect; self-focusing; B-integral; second harmonic generation; SHG
 - **optical_waveguide_analysis** — Slab dielectric waveguide: numerical aperture, V-number (normalized frequency), guided TE-mode count.  ↳ *say:* optical waveguide; slab waveguide; V-number; numerical aperture; guided modes; single-mode fiber
 - **photonic_bandgap_analysis** — Quarter-wave Bragg mirror / 1D photonic bandgap: center wavelength, stop-band fractional width, peak reflectance.  ↳ *say:* Bragg mirror; dielectric mirror; distributed Bragg reflector; photonic bandgap; quarter-wave stack; stop band
 
 ### plasma
-- **plasma_parameters_analysis** — Core plasma parameters: Debye length, Debye number, Coulomb logarithm ln(Lambda), and ion Larmor (cyclotron) radius.  ↳ *say:* Debye length; Debye shielding; plasma parameter; Coulomb logarithm; Larmor radius; gyroradius
+- **plasma_parameters_analysis** — Core plasma parameters: Debye length, Debye number, Coulomb logarithm ln(Lambda), ion Larmor (cyclotron) radius, and Spitzer parallel resistivity eta_parallel.  ↳ *say:* Debye length; Coulomb logarithm; Larmor radius; Debye number; Spitzer resistivity; plasma resistivity
 
 ### procedures
 - **procedure_black_hole_profile** — Full black-hole thermodynamics cascade from one mass: Schwarzschild radius → Hawking temperature → Bekenstein-Hawking entropy → evaporation time.
@@ -283,6 +290,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **statistical_distribution** — Fermi-Dirac & Bose-Einstein occupation, partition function, mean energy, entropy, equipartition heat capacity.  ↳ *say:* Fermi-Dirac; Bose-Einstein; partition function; occupation probability; equipartition; heat capacity from degrees of freedom
 - **temperature_celsius_to_kelvin** — T_K = T_C + 273.15.  ↳ *say:* Convert Celsius to Kelvin; C to K; Celsius to K; degrees Celsius to Kelvin; T_K = T_C + 273.15; what's 100 Celsius in Kelvin
 - **temperature_kelvin_to_celsius** — T_C = T_K - 273.15.  ↳ *say:* Convert Kelvin to Celsius; K to C; Kelvin to Celsius; T_C = T_K - 273.15; what is X K in Celsius; convert temperature
+- **thermal_contact_analysis** — Engineering thermal contact (joint) conductance of two pressed metal surfaces (Cooper-Mikic-Yovanovich plastic model): h_c=1.25 k_s (m/sigma)(P/H_c)^0.95, plus contact resistance, harmonic-mean conductivity, contact microhardness, real-contact fraction. Roughness/slope are surface-finish inputs.  ↳ *say:* thermal contact conductance; thermal contact resistance; joint conductance; interface conductance; contact heat transfer; pressed metal interface
 - **thermal_energy_per_molecule** — E = (f/2) k_B T.  ↳ *say:* equipartition theorem; (3/2) k_B T; average kinetic energy of gas molecule; average thermal energy; thermal energy per molecule
 - **thermoelectric_generator_analysis** — Thermoelectric generator: Carnot limit, Seebeck thermocouple voltage, leg resistance, max power, ZT efficiency, heat flow.  ↳ *say:* thermoelectric; Seebeck effect; thermocouple voltage; TEG; Peltier; figure of merit ZT
 

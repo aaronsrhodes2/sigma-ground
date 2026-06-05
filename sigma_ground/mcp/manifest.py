@@ -840,6 +840,16 @@ _PRIMARY_TOOLS = [
      "inputs": {"hot_temperature_k": "float", "ambient_temperature_k": "float",
                 "length_m": "float", "gas_key": "str (N2/O2/CO2/H2O/CH4/CO)"},
      "returns": "dict with buoyancy velocity, Grashof, diffusivity"},
+    {"name": "thermal_contact_analysis", "tier": "PRIMARY", "domain": "thermodynamics",
+     "summary": "Engineering thermal contact (joint) conductance of two pressed "
+                "metal surfaces (Cooper-Mikic-Yovanovich plastic model): "
+                "h_c=1.25 k_s (m/sigma)(P/H_c)^0.95, plus contact resistance, "
+                "harmonic-mean conductivity, contact microhardness, real-contact "
+                "fraction. Roughness/slope are surface-finish inputs.",
+     "inputs": {"material_1": "str", "material_2": "str", "pressure_pa": "float",
+                "temperature_k": "float", "roughness_m": "float (RMS, ~1-10 um)",
+                "asperity_slope": "float (~0.05-0.3)"},
+     "returns": "dict with contact conductance, resistance, k_s, microhardness"},
     {"name": "viscoelastic_creep_analysis", "tier": "PRIMARY", "domain": "materials",
      "summary": "Viscoelastic creep & relaxation: Maxwell, Kelvin-Voigt, "
                 "standard-linear-solid creep, and SLS stress relaxation.",
@@ -875,6 +885,12 @@ _PRIMARY_TOOLS = [
                 "temperature (Delta = 1.764 k_B Tc).",
      "inputs": {"critical_temp_k": "float"},
      "returns": "dict with gap_frequency_Hz"},
+    {"name": "superconductor_critical_field_analysis", "tier": "PRIMARY", "domain": "condensed_matter",
+     "summary": "Critical magnetic fields of a named superconductor: Ginzburg-Landau "
+                "kappa, thermodynamic Hc, and (Type-II) lower/upper Hc1/Hc2.",
+     "inputs": {"material": "str (niobium/NbTi/Nb3Sn/lead/aluminum/YBCO/...)"},
+     "returns": "dict with type, gl_parameter_kappa, Hc_thermodynamic_A_per_m, "
+                "Hc1_lower_A_per_m, Hc2_upper_A_per_m (+ tesla equivalents)"},
     {"name": "quantum_tunneling_analysis", "tier": "PRIMARY", "domain": "quantum",
      "summary": "WKB transmission probability through a rectangular potential "
                 "barrier.",
@@ -899,10 +915,12 @@ _PRIMARY_TOOLS = [
      "returns": "dict of exchange/VQE quantities"},
     {"name": "plasma_parameters_analysis", "tier": "PRIMARY", "domain": "plasma",
      "summary": "Core plasma parameters: Debye length, Debye number, Coulomb "
-                "logarithm ln(Lambda), and ion Larmor (cyclotron) radius.",
+                "logarithm ln(Lambda), ion Larmor (cyclotron) radius, and "
+                "Spitzer parallel resistivity eta_parallel.",
      "inputs": {"electron_density_m3": "float", "electron_temperature_k": "float",
-                "magnetic_field_t": "float"},
-     "returns": "dict of plasma parameters"},
+                "magnetic_field_t": "float",
+                "z_eff": "float (effective ion charge, default 1.0)"},
+     "returns": "dict of plasma parameters (incl. spitzer_resistivity_ohm_m)"},
     {"name": "electromagnetic_force_analysis", "tier": "PRIMARY", "domain": "electromagnetism",
      "summary": "Coulomb force, magnetic (qv x B) and Lorentz force magnitudes, "
                 "and EM-wave time-averaged energy density and intensity.",
@@ -931,6 +949,15 @@ _PRIMARY_TOOLS = [
      "inputs": {"material_key": "str", "normal_force_n": "float",
                 "sliding_distance_m": "float", "counter_material": "str"},
      "returns": "dict of wear quantities"},
+    {"name": "wetting_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Liquid wetting on a solid (Young-Dupre + Owens-Wendt): "
+                "equilibrium contact angle, work of adhesion, spreading "
+                "coefficient, and wetting regime (e.g. water/PTFE ~108 deg, "
+                "mercury/glass ~133 deg, water/clean-glass ~0 deg).",
+     "inputs": {"solid_key": "str (glass, ptfe, paraffin, gold, ...)",
+                "liquid_key": "str (water, mercury, ethanol, glycerol, ...)"},
+     "returns": "dict with contact_angle_deg, work_of_adhesion_J_m2, "
+                "spreading_coefficient_J_m2, wetting_regime"},
     {"name": "dislocation_strengthening_analysis", "tier": "PRIMARY", "domain": "materials",
      "summary": "Taylor work-hardening: shear flow stress from a dislocation "
                 "forest, tau = alpha G b sqrt(rho).",
@@ -1031,6 +1058,21 @@ _PRIMARY_TOOLS = [
                 "dark-energy density with the Hubble-radius IR cutoff.",
      "inputs": {"rho_de_J_m3": "float"},
      "returns": "dict with hde_c_squared"},
+    {"name": "material_inventory_analysis", "tier": "PRIMARY", "domain": "particle_inventory",
+     "summary": "Quarksum particle inventory & mass closure: proton/neutron/"
+                "electron counts, total particles/baryons, mass, mass defect, GM.",
+     "inputs": {"structure_name": "str (water_molecule/hydrogen_atom/bronze_cube/earths_layers/...)"},
+     "returns": "dict of particle counts and mass budget"},
+    {"name": "constituent_behaviors_analysis", "tier": "PRIMARY", "domain": "particle_inventory",
+     "summary": "Physical behaviors of a structure's constituents: QCD behaviors "
+                "of a quark, a subatomic particle, and a molecule.",
+     "inputs": {"structure_name": "str"},
+     "returns": "dict of quark/particle/molecule behaviors"},
+    {"name": "planet_moment_of_inertia_analysis", "tier": "PRIMARY", "domain": "astronomy",
+     "summary": "Moment-of-inertia factor C/MR^2 of a layered planet, derived "
+                "from the inventory composition of its shells (Earth ~ 0.331).",
+     "inputs": {"structure_name": "str", "planet_radius_km": "float"},
+     "returns": "dict with c_over_mr2, total_mass_kg, moi_C_kgm2"},
 ]
 
 

@@ -45,15 +45,17 @@ Derivation chains:
      Type II: κ > 1/√2 (mixed state with vortices)
 
   6. Critical Magnetic Fields (FIRST_PRINCIPLES: thermodynamics)
-     Type I:
+     Thermodynamic field from the BCS condensation energy
+     ½N(0)Δ² = ½μ₀H_c²  (N(0) = single-spin free-electron DOS = 3n_e/4E_F):
+       H_c(0) = Δ(0) √(N(0)/μ₀)
        H_c(T) = H_c(0) × (1 − (T/T_c)²)
-       H_c(0) = Δ(0) / (μ₀ μ_B √(2π))  (thermodynamic critical field)
 
      Type II (Abrikosov):
-       H_c1 = H_c × (ln κ) / (√2 κ)   (lower critical field, vortex entry)
-       H_c2 = √2 κ H_c                  (upper critical field, bulk normal)
+       H_c1 = H_c × (ln κ + 0.5) / (√2 κ)   (lower critical field, vortex entry)
+       H_c2 = √2 κ H_c                        (upper critical field, bulk normal)
 
-     Abrikosov (1957): vortex lattice between H_c1 and H_c2.
+     Abrikosov (1957): vortex lattice between H_c1 < H_c < H_c2.
+     Type I (κ < 1/√2): no mixed state — the single critical field is H_c.
 
   7. Critical Current Density — Depairing (FIRST_PRINCIPLES)
      J_c = Φ₀ / (3√3 π μ₀ λ_L² ξ)
@@ -683,15 +685,52 @@ def is_type_II(n_e, v_F, T_c, sc_key=None):
 
 # ── Critical Fields ──────────────────────────────────────────────
 
+def _fermi_energy(n_e):
+    """Free-electron Fermi energy E_F (Joules).
+
+    E_F = (ℏ²/2mₑ)(3π²n_e)^{2/3}
+
+    FIRST_PRINCIPLES: Sommerfeld free-electron model.
+    """
+    k_F = (3.0 * math.pi ** 2 * n_e) ** (1.0 / 3.0)
+    return HBAR ** 2 * k_F ** 2 / (2.0 * M_ELECTRON_KG)
+
+
+def _dos_fermi_per_spin(n_e):
+    """Single-spin free-electron density of states at E_F
+    (states · J⁻¹ · m⁻³).
+
+    N(0) = 3 n_e / (4 E_F)   =   ½ g(E_F),   g(E_F) = 3 n_e / (2 E_F)
+
+    This is the per-spin DOS in the BCS/Tinkham convention — the N(0)
+    that enters the condensation energy u = ½ N(0) Δ² (Tinkham, Eq. 3.41).
+
+    FIRST_PRINCIPLES: Sommerfeld free-electron model.
+    """
+    return 3.0 * n_e / (4.0 * _fermi_energy(n_e))
+
+
 def thermodynamic_critical_field(n_e, T_c, T=0.0):
     """Thermodynamic critical field H_c (A/m).
 
-    H_c(0) = Δ(0) × √(n_e) / (μ₀^(1/2) × √(k_B T_c))
-    Simplified: H_c(0) = Δ(0) / (μ₀ × λ_L × √2)
+    Derived from the BCS condensation energy. At T=0 the energy gained by
+    condensing into the superconducting state equals the magnetic energy
+    density needed to destroy it:
 
-    H_c(T) = H_c(0) × (1 − (T/T_c)²)
+        ½ N(0) Δ(0)²  =  ½ μ₀ H_c(0)²      ⇒   H_c(0) = Δ(0) √(N(0)/μ₀)
 
-    FIRST_PRINCIPLES: condensation energy = (1/2)μ₀ H_c².
+    where N(0) = 3 n_e/(4 E_F) is the single-spin free-electron DOS at the
+    Fermi level (Tinkham convention) and Δ(0) = 1.764 k_B T_c.
+
+    Temperature dependence (empirical parabolic law):
+        H_c(T) = H_c(0) × (1 − (T/T_c)²)
+
+    FIRST_PRINCIPLES: BCS condensation energy ½ N(0) Δ² = ½ μ₀ H_c².
+
+    Accuracy: the free-electron N(0) ignores band-structure / effective-mass
+    enhancement, so H_c is good to ~20% for simple metals (Al, Sn, In) and
+    is a LOWER bound — underestimating by up to ~2-3× — for high-DOS d-band
+    / A15 materials (Nb, Nb₃Sn) and strong-coupling cases (Pb). B_c = μ₀ H_c.
 
     Args:
         n_e: electron density (m⁻³)
@@ -699,26 +738,34 @@ def thermodynamic_critical_field(n_e, T_c, T=0.0):
         T: temperature (K)
 
     Returns:
-        H_c in A/m
+        H_c in A/m  (B_c = μ₀ H_c, in tesla)
     """
     if T >= T_c:
         return 0.0
 
     delta_0 = bcs_gap_zero(T_c)
-    lam = london_penetration_depth(n_e)
+    N0 = _dos_fermi_per_spin(n_e)
 
-    H_c0 = delta_0 / (MU_0 * lam * math.sqrt(2.0))
+    H_c0 = delta_0 * math.sqrt(N0 / MU_0)
     return H_c0 * (1.0 - (T / T_c) ** 2)
 
 
 def lower_critical_field(n_e, v_F, T_c, T=0.0, sc_key=None):
     """Lower critical field H_c1 for Type II superconductors (A/m).
 
-    H_c1 = H_c × ln(κ) / (√2 κ)
+    H_c1 = H_c × (ln κ + 0.5) / (√2 κ)
 
-    FIRST_PRINCIPLES: energy balance for a single vortex entry.
-    Below H_c1: complete Meissner effect.
-    Above H_c1: vortices begin to enter.
+    FIRST_PRINCIPLES: energy balance for a single vortex entry (Abrikosov /
+    London). Below H_c1: complete Meissner effect. Above H_c1: vortices
+    begin to enter. The +0.5 vortex-core correction keeps H_c1 finite and
+    positive down to the Type-I/II boundary κ = 1/√2 (so H_c1 < H_c2 there).
+
+    For Type-I superconductors (κ ≤ 1/√2) there is no mixed state; the
+    single critical field is the thermodynamic H_c, which is returned.
+
+    Uses the MEASURED (dirty-limit) κ from the database when ``sc_key`` is
+    given — essential for alloys/compounds where the clean-limit estimate
+    badly underestimates κ. See ``gl_parameter_effective``.
 
     Args:
         n_e, v_F, T_c: superconductor parameters
@@ -726,7 +773,7 @@ def lower_critical_field(n_e, v_F, T_c, T=0.0, sc_key=None):
         sc_key: optional database key for measured κ
 
     Returns:
-        H_c1 in A/m
+        H_c1 in A/m  (= H_c for Type-I inputs)
     """
     H_c = thermodynamic_critical_field(n_e, T_c, T)
     if sc_key is not None:
@@ -734,10 +781,11 @@ def lower_critical_field(n_e, v_F, T_c, T=0.0, sc_key=None):
     else:
         kappa = gl_parameter(n_e, v_F, T_c)
 
-    if kappa <= 1:
+    # Type-I: no vortex state — single critical field is H_c.
+    if kappa <= 1.0 / math.sqrt(2.0):
         return H_c
 
-    return H_c * math.log(kappa) / (math.sqrt(2.0) * kappa)
+    return H_c * (math.log(kappa) + 0.5) / (math.sqrt(2.0) * kappa)
 
 
 def upper_critical_field(n_e, v_F, T_c, T=0.0, sc_key=None):
@@ -755,13 +803,16 @@ def upper_critical_field(n_e, v_F, T_c, T=0.0, sc_key=None):
         sc_key: optional database key for measured κ
 
     Returns:
-        H_c2 in A/m
+        H_c2 in A/m  (= H_c for Type-I inputs)
     """
     H_c = thermodynamic_critical_field(n_e, T_c, T)
     if sc_key is not None:
         kappa = gl_parameter_effective(sc_key)
     else:
         kappa = gl_parameter(n_e, v_F, T_c)
+    # Type-I: no upper critical field — the single critical field is H_c.
+    if kappa <= 1.0 / math.sqrt(2.0):
+        return H_c
     return math.sqrt(2.0) * kappa * H_c
 
 

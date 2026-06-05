@@ -11,6 +11,9 @@ from sigma_ground.mcp.provenance import ToolResult
 
 _SRC = "sigma_ground.field.interface (superconductivity, tunneling, quantum_wells, band_structure, quantum_matter)"
 
+# μ₀ (H/m) — converts an H-field in A/m to a B-field in tesla.
+_MU_0 = 1.25663706212e-6
+
 
 def _safe(fn, *a, **k):
     try:
@@ -19,14 +22,33 @@ def _safe(fn, *a, **k):
         return None
 
 
+def _resolve_sc_key(material: str):
+    """Map a user material string to a SUPERCONDUCTORS database key.
+
+    Case/space/hyphen-insensitive; matches either the dict key or the
+    human-readable name. Returns None if no match.
+    """
+    from sigma_ground.field.interface import superconductivity as SC
+    if material in SC.SUPERCONDUCTORS:
+        return material
+
+    def _norm(s):
+        return "".join(ch for ch in str(s).lower() if ch.isalnum())
+
+    target = _norm(material)
+    for key, data in SC.SUPERCONDUCTORS.items():
+        if target == _norm(key) or target == _norm(data.get("name", "")):
+            return key
+    return None
+
+
 def superconducting_gap_analysis(critical_temp_k: float = 9.2) -> dict[str, Any]:
     """BCS spectroscopic gap frequency f = 2*Delta/h of a superconductor from
     its critical temperature (Delta = 1.764 k_B Tc). Defaults to niobium
     (Tc=9.2 K -> ~677 GHz). e.g. superconducting_gap_analysis(9.2).
 
-    (The GL-parameter and Hc1/Hc2 critical-field functions are intentionally
-    NOT wired -- their current model is ~12 orders off and inverts Hc1/Hc2;
-    deferred for review. See misc/COVERAGE_LEDGER.md.)"""
+    (For the Ginzburg-Landau parameter kappa and the Hc1/Hc2 critical fields,
+    see superconductor_critical_field_analysis.)"""
     from sigma_ground.field.interface import superconductivity as SC
     results = {"gap_frequency_Hz": _safe(SC.gap_frequency, critical_temp_k)}
     return ToolResult(value=results, units="Hz",
@@ -34,6 +56,80 @@ def superconducting_gap_analysis(critical_temp_k: float = 9.2) -> dict[str, Any]
                       provenance_tag="DERIVED",
                       formula="f = 2*Delta/h, Delta = 1.764 k_B Tc (BCS weak coupling)",
                       inputs={"critical_temp_k": critical_temp_k}).to_dict()
+
+
+def superconductor_critical_field_analysis(material: str = "niobium") -> dict[str, Any]:
+    """Critical magnetic fields of a named superconductor: the Ginzburg-Landau
+    parameter kappa, the thermodynamic critical field Hc, and (for Type-II)
+    the lower/upper critical fields Hc1 and Hc2. The material is looked up in
+    the library's superconductor database (e.g. niobium, NbTi, Nb3Sn, lead,
+    aluminum, YBCO). e.g. superconductor_critical_field_analysis('NbTi')."""
+    from sigma_ground.field.interface import superconductivity as SC
+
+    key = _resolve_sc_key(material)
+    if key is None:
+        return ToolResult(
+            value={"error": f"unknown superconductor '{material}'"},
+            units="", source="sigma_ground.field.interface.superconductivity",
+            provenance_tag="DERIVED",
+            notes="Material not found in the superconductor database.",
+            inputs={"material": material}).to_dict()
+
+    data = SC.SUPERCONDUCTORS[key]
+    n_e, v_F, T_c = data["n_e_m3"], data["v_F_m_s"], data["T_c_K"]
+
+    if not data.get("is_superconductor", True) or T_c <= 0:
+        return ToolResult(
+            value={"name": data["name"], "is_superconductor": False,
+                   "suppression": data.get("suppression")},
+            units="", source="sigma_ground.field.interface.superconductivity",
+            provenance_tag="DERIVED",
+            notes=(f"{data['name']} does not superconduct at ambient conditions "
+                   "— no critical fields."),
+            inputs={"material": material}).to_dict()
+
+    sc_type = data.get("type")
+    is_type_II = sc_type == "II"
+    # Effective (measured/dirty-limit) kappa drives Hc1/Hc2; the clean-limit
+    # estimate is the pure free-electron lambda/xi0 ratio (often much smaller
+    # for dirty alloys/compounds — e.g. Nb 0.11 clean vs 1.05 measured).
+    kappa = _safe(SC.gl_parameter_effective, key)
+    kappa_clean = _safe(SC.gl_parameter, n_e, v_F, T_c)
+    H_c = _safe(SC.thermodynamic_critical_field, n_e, T_c, 0.0)
+    H_c1 = _safe(SC.lower_critical_field, n_e, v_F, T_c, 0.0, key) if is_type_II else None
+    H_c2 = _safe(SC.upper_critical_field, n_e, v_F, T_c, 0.0, key) if is_type_II else None
+
+    results = {
+        "name": data["name"],
+        "type": sc_type,
+        "T_c_K": T_c,
+        "gl_parameter_kappa": kappa,
+        "kappa_source": data.get("kappa_source"),
+        "gl_parameter_kappa_clean_limit": kappa_clean,
+        "Hc_thermodynamic_A_per_m": H_c,
+        "Hc_thermodynamic_T": (H_c * _MU_0) if H_c is not None else None,
+        "Hc1_lower_A_per_m": H_c1,
+        "Hc2_upper_A_per_m": H_c2,
+        "Hc2_upper_T": (H_c2 * _MU_0) if H_c2 is not None else None,
+    }
+    note = ("Type-II: Hc1 < Hc < Hc2 (Abrikosov vortex/mixed state between them)."
+            if is_type_II else
+            "Type-I: a single critical field Hc; no mixed state, so Hc1/Hc2 "
+            "are not defined.")
+    note += (" Hc1/Hc2 use the measured (dirty-limit) kappa where available; "
+             "gl_parameter_kappa_clean_limit is the free-electron lambda/xi0 "
+             "estimate for comparison.")
+    note += (" Hc uses a free-electron DOS N(0): ~20% accurate for simple metals, "
+             "a lower bound for high-DOS d-band/A15 materials.")
+    return ToolResult(
+        value=results,
+        units="A/m for H-fields (T = mu0*H given alongside)",
+        source="sigma_ground.field.interface.superconductivity",
+        provenance_tag="DERIVED",
+        formula=("Hc = Delta*sqrt(N(0)/mu0), Delta=1.764 k_B Tc, N(0)=3 n_e/(4 E_F); "
+                 "Hc1 = Hc*(ln k + 0.5)/(sqrt2*k); Hc2 = sqrt2*k*Hc (Abrikosov)"),
+        notes=note,
+        inputs={"material": material}).to_dict()
 
 
 def quantum_tunneling_analysis(barrier_height_eV: float = 1.0,

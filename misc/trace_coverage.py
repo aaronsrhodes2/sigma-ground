@@ -37,7 +37,12 @@ def dotted(path):
     if "sigma_ground" not in parts:
         return None
     i = parts.index("sigma_ground")
-    return ".".join(parts[i:]).rsplit(".py", 1)[0]
+    mod = ".".join(parts[i:]).rsplit(".py", 1)[0]
+    # Normalize a package __init__ to the package name so functions defined in
+    # __init__.py match the registry (which keys them by the package name).
+    if mod.endswith(".__init__"):
+        mod = mod[: -len(".__init__")]
+    return mod
 
 
 covered = set()

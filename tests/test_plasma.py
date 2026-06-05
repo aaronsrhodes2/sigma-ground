@@ -223,6 +223,48 @@ def test_spitzer_resistivity_decreases_with_T():
     assert eta_hot < eta_cold
 
 
+def test_spitzer_resistivity_hydrogen_1e6K_magnitude():
+    """A 10⁶ K (~86 eV) hydrogen plasma is a near-perfect conductor:
+    η_∥ ~ 1e-6 Ω·m, NOT ~1e5 (insulator).
+
+    Regression guard for the dropped spurious 1/(4πε₀) factor, which had
+    inflated η by ~9e9× to ~1.7e5 Ω·m. The NRL value here (lnΛ≈15) is
+    ~9e-7 Ω·m, comfortably inside 1e-7–1e-5.
+    """
+    eta = spitzer_resistivity(1e6, 1.0)
+    assert 1e-7 < eta < 1e-5, f"η={eta:.3e} Ω·m outside hot-plasma range"
+
+
+def test_spitzer_resistivity_matches_nrl_parallel_100eV():
+    """Within 2× of the NRL parallel Spitzer value at 100 eV, Z=1.
+
+    NRL practical formula: η_∥ = 5.2e-5 · Z · lnΛ / T_eV^1.5 Ω·m.
+    """
+    T_e = 100.0 * E_CHARGE / K_B            # 100 eV expressed in kelvin
+    T_eV = K_B * T_e / E_CHARGE             # = 100.0
+    lnL = coulomb_logarithm(1e18, T_e)
+    nrl_parallel = 5.2e-5 * 1.0 * lnL / T_eV**1.5
+    eta = spitzer_resistivity(T_e, 1.0)
+    assert 0.5 < eta / nrl_parallel < 2.0, (
+        f"η={eta:.3e} vs NRL η_∥={nrl_parallel:.3e} (ratio {eta/nrl_parallel:.2f})"
+    )
+
+
+def test_spitzer_resistivity_scales_T_minus_three_halves():
+    """η ∝ T^{-3/2}: at fixed ln Λ, a 4× rise in T drops η by 4^1.5 = 8×.
+
+    ln Λ carries a weak logarithmic T-dependence, so divide it out to isolate
+    the pure (k_B T)^{-3/2} power law.
+    """
+    T1, T2 = 1e6, 4e6
+    eta1 = spitzer_resistivity(T1, 1.0)
+    eta2 = spitzer_resistivity(T2, 1.0)
+    lnL1 = coulomb_logarithm(1e18, T1)
+    lnL2 = coulomb_logarithm(1e18, T2)
+    ratio = (eta1 / lnL1) / (eta2 / lnL2)
+    assert ratio == pytest.approx(4 ** 1.5, rel=1e-9)   # = 8.0
+
+
 # ── σ-connection ───────────────────────────────────────────────────────
 
 def test_sigma_plasma_transition_zero():

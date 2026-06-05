@@ -120,6 +120,7 @@ def main() -> int:
     from sigma_ground.mcp.tools import chemistry_extended as t_chemx
     from sigma_ground.mcp.tools import qcomputing as t_qcomp
     from sigma_ground.mcp.tools import misc_physics as t_miscphys
+    from sigma_ground.mcp.tools import inventory_tools as t_inv
     from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
@@ -1370,6 +1371,22 @@ def main() -> int:
             ambient_temperature_k, length_m, gas_key, gas_key_2)
 
     @server.tool()
+    def thermal_contact_analysis(material_1: str = "copper",
+                                 material_2: str = "aluminum",
+                                 pressure_pa: float = 1.0e6,
+                                 temperature_k: float = 300.0,
+                                 roughness_m: float = 2.0e-6,
+                                 asperity_slope: float = 0.1) -> dict[str, Any]:
+        """Engineering thermal contact (joint) conductance of two pressed
+        metal surfaces via the Cooper-Mikic-Yovanovich plastic model
+        h_c=1.25 k_s (m/sigma)(P/H_c)^0.95: also contact resistance,
+        harmonic-mean conductivity, contact microhardness, real-contact
+        fraction. Roughness/slope are surface-finish inputs (typ. 1-10 um,
+        0.05-0.3). Cu-Al at 1 MPa ~ 6e4 W/(m^2.K)."""
+        return t_thermsys.thermal_contact_analysis(material_1, material_2,
+            pressure_pa, temperature_k, roughness_m, asperity_slope)
+
+    @server.tool()
     def viscoelastic_creep_analysis(material_key: str = "copper",
                                     time_s: float = 3600.0,
                                     applied_stress: float = 5.0e7,
@@ -1425,6 +1442,13 @@ def main() -> int:
         """BCS spectroscopic gap frequency f = 2*Delta/h from critical
         temperature (Delta = 1.764 k_B Tc). Niobium Tc=9.2 K -> ~677 GHz."""
         return t_qsolids.superconducting_gap_analysis(critical_temp_k)
+
+    @server.tool()
+    def superconductor_critical_field_analysis(material: str = "niobium") -> dict[str, Any]:
+        """Critical magnetic fields of a named superconductor: Ginzburg-Landau
+        kappa, thermodynamic Hc, and (Type-II) lower/upper fields Hc1, Hc2.
+        Looked up by material (niobium, NbTi, Nb3Sn, lead, aluminum, YBCO, ...)."""
+        return t_qsolids.superconductor_critical_field_analysis(material)
 
     @server.tool()
     def quantum_tunneling_analysis(barrier_height_eV: float = 1.0,
@@ -1511,6 +1535,15 @@ def main() -> int:
         the wear regime (mild/severe, adhesive/abrasive)."""
         return t_tribo.wear_analysis(material_key, normal_force_n,
             sliding_distance_m, velocity_m_s, counter_material)
+
+    @server.tool()
+    def wetting_analysis(solid_key: str = "glass",
+                         liquid_key: str = "water") -> dict[str, Any]:
+        """Liquid wetting on a solid (Young-Dupre + Owens-Wendt): equilibrium
+        contact angle, work of adhesion, spreading coefficient, and wetting
+        regime. e.g. wetting_analysis('ptfe','water') ~108 deg (hydrophobic),
+        wetting_analysis('glass','mercury') ~133 deg (beads)."""
+        return t_tribo.wetting_analysis(solid_key, liquid_key)
 
     @server.tool()
     def dislocation_strengthening_analysis(material_key: str = "copper",
@@ -1670,6 +1703,27 @@ def main() -> int:
         energy density with the Hubble-radius IR cutoff. ~6e-10 J/m^3 -> c^2 ~
         0.78 (DESI-consistent)."""
         return t_miscphys.holographic_dark_energy_analysis(rho_de_J_m3)
+
+    @server.tool()
+    def material_inventory_analysis(structure_name: str = "water_molecule") -> dict[str, Any]:
+        """Quarksum particle inventory & mass closure: proton/neutron/electron
+        counts, total particles/baryons, total mass, mass defect (binding), GM.
+        Structures: water_molecule, hydrogen_atom, bronze_cube, earths_layers, ..."""
+        return t_inv.material_inventory_analysis(structure_name)
+
+    @server.tool()
+    def constituent_behaviors_analysis(structure_name: str = "water_molecule") -> dict[str, Any]:
+        """Physical behaviors of a structure's constituents: QCD behaviors of a
+        quark (flavor/color/mass), a subatomic particle (type/mass/charge), and a
+        molecule (formula/bonds)."""
+        return t_inv.constituent_behaviors_analysis(structure_name)
+
+    @server.tool()
+    def planet_moment_of_inertia_analysis(structure_name: str = "earths_layers",
+                                          planet_radius_km: float = 6371.0) -> dict[str, Any]:
+        """Moment-of-inertia factor C/MR^2 of a layered planet, derived from the
+        inventory composition of its shells. Earth ~ 0.331."""
+        return t_inv.planet_moment_of_inertia_analysis(structure_name, planet_radius_km)
 
     # Run via stdio transport (standard MCP).
     server.run()
