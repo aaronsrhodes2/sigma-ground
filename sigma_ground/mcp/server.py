@@ -105,6 +105,7 @@ def main() -> int:
     from sigma_ground.mcp.tools import frontier as t_front
     from sigma_ground.mcp.tools import mechanics as t_mech
     from sigma_ground.mcp.tools import transport as t_trans
+    from sigma_ground.mcp.tools import rotation as t_rot
     from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
@@ -1218,6 +1219,24 @@ def main() -> int:
         partition function, mean energy, entropy, equipartition heat capacity.
         statistical_distribution(300, 0.5)."""
         return t_trans.statistical_distribution(temperature_k, energy_ev)
+
+    # ── rotational dynamics + atomic angular momentum ──
+    @server.tool()
+    def rotational_dynamics(mass_kg: float, radius_m: float,
+                            angle_deg: float = 30.0,
+                            angular_velocity_rad_s: float = 10.0) -> dict[str, Any]:
+        """Rotational dynamics: moment of inertia (rod + shape geometry),
+        parallel-axis, angular momentum, torque, angular acceleration, and
+        rolling down a ramp (speed/distance/time). rotational_dynamics(2, 0.5)."""
+        return t_rot.rotational_dynamics(mass_kg, radius_m, angle_deg,
+                                         angular_velocity_rad_s)
+
+    @server.tool()
+    def atomic_angular_momentum(total_j: float = 1.5,
+                                spin_orbit_constant_ev: float = 0.05) -> dict[str, Any]:
+        """Atomic angular momentum: |J| magnitude, allowed m_j values, spin-orbit
+        coupling energy/splitting, and the Lande interval (L=2, S=1/2)."""
+        return t_rot.atomic_angular_momentum(total_j, spin_orbit_constant_ev)
 
     # Run via stdio transport (standard MCP).
     server.run()

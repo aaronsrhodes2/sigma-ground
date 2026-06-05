@@ -435,6 +435,14 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "Fermi-Dirac", "Bose-Einstein", "partition function", "occupation probability",
         "equipartition", "heat capacity from degrees of freedom",
     ],
+    "rotational_dynamics": [
+        "moment of inertia", "angular momentum", "torque", "rolling",
+        "rolling down a ramp", "parallel axis theorem", "rotational kinetic energy",
+    ],
+    "atomic_angular_momentum": [
+        "angular momentum quantum number", "spin-orbit coupling", "term symbol",
+        "Lande interval", "fine structure splitting", "spin expectation value",
+    ],
 
     # ============ ENERGY CONVERSION (E=mc^2 family) ============
     "mass_to_energy": [

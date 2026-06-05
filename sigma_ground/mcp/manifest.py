@@ -758,6 +758,17 @@ _PRIMARY_TOOLS = [
                 "mean energy, entropy, equipartition heat capacity.",
      "inputs": {"temperature_k": "float", "energy_ev": "float"},
      "returns": "dict of distribution quantities"},
+    {"name": "rotational_dynamics", "tier": "PRIMARY", "domain": "mechanics",
+     "summary": "Moment of inertia (rod + shape geometry), parallel-axis, "
+                "angular momentum, torque, angular acceleration, rolling ramp.",
+     "inputs": {"mass_kg": "float", "radius_m": "float", "angle_deg": "float",
+                "angular_velocity_rad_s": "float"},
+     "returns": "dict of rotational quantities"},
+    {"name": "atomic_angular_momentum", "tier": "PRIMARY", "domain": "quantum",
+     "summary": "|J| magnitude, allowed m_j, spin-orbit coupling energy/"
+                "splitting, Lande interval (L=2, S=1/2).",
+     "inputs": {"total_j": "float", "spin_orbit_constant_ev": "float"},
+     "returns": "dict of angular-momentum quantities"},
 ]
 
 

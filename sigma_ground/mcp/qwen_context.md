@@ -160,6 +160,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **collision_analysis** — 1D two-body collision: elastic velocities, inelastic outcome, KE lost.  ↳ *say:* collision; elastic collision; inelastic collision; coefficient of restitution; two balls collide; energy lost in collision
 - **incline_analysis** — Inclined plane: critical sliding angle, slide distance up, speed at the bottom. angle in degrees.  ↳ *say:* inclined plane; ramp; sliding down a slope; angle of repose; friction on an incline; block on a ramp
 - **projectile_analysis** — Projectile range/apex/flight-time (vacuum) + drag force, terminal velocity, drag-corrected range. angle in degrees.  ↳ *say:* projectile; range of a projectile; maximum height; time of flight; launch angle; projectile with air resistance
+- **rotational_dynamics** — Moment of inertia (rod + shape geometry), parallel-axis, angular momentum, torque, angular acceleration, rolling ramp.  ↳ *say:* moment of inertia; angular momentum; torque; rolling; rolling down a ramp; parallel axis theorem
 - **work_energy_analysis** — Work, power, friction loss, gravitational PE, rotational KE, impulse, total mechanical energy of a moving body.  ↳ *say:* work done; mechanical power; potential energy; impulse; work-energy theorem; energy of a moving object
 
 ### nuclear
@@ -189,6 +190,9 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **procedure_projectile_trajectory** — Projectile cascade (no drag): time of flight → range → max height.
 - **procedure_relativistic_particle** — Relativistic cascade: KE → Lorentz γ → total energy → momentum → de Broglie wavelength.
 - **procedure_stellar_blackbody** — Blackbody cascade: Wien peak wavelength → Stefan-Boltzmann surface flux → peak photon energy.
+
+### quantum
+- **atomic_angular_momentum** — |J| magnitude, allowed m_j, spin-orbit coupling energy/splitting, Lande interval (L=2, S=1/2).  ↳ *say:* angular momentum quantum number; spin-orbit coupling; term symbol; Lande interval; fine structure splitting; spin expectation value
 
 ### relativity
 - **doppler_shift_factor** — Relativistic Doppler factor.  ↳ *say:* Doppler effect; Doppler shift; relativistic Doppler; redshift; blueshift; Christian Doppler 1842
