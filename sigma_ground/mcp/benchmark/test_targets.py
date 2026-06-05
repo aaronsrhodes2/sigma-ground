@@ -1,10 +1,12 @@
-"""Target tests — PROJECT_GOAL.md success metrics as pytest xfails.
+"""Target tests — PROJECT_GOAL.md success metrics.
 
-Each test is marked `xfail(strict=True)`:
-  - Currently failing -> pytest reports XFAIL (silent, expected).
-  - Eventually passes -> pytest reports XPASS -> with strict=True this
-    becomes a FAILURE in CI. That's the alert: 'we hit the target,
-    update the xfail and celebrate.'
+Targets the benchmark now meets are NORMAL tests (they must keep passing).
+Targets not yet reached stay `xfail(strict=True)`: a silent XFAIL today, and
+the day the benchmark clears the bar it XPASSes -> strict turns that into a
+FAILURE — the alert to promote it to a normal test here, as we just did for
+the six achieved targets.
+
+Still aspirational (xfail): all-14-domains >= 80%, and conversation mode.
 
 Run:
     pytest sigma_ground/mcp/benchmark/test_targets.py -v
@@ -46,8 +48,6 @@ def _load_run(system: str) -> list[dict] | None:
 # The fair test: of the questions Wolfram answered correctly, what
 # fraction does sigma-ground also answer correctly? Target >=98%.)
 # ============================================================
-@pytest.mark.xfail(strict=True,
-                    reason="Target: on questions Wolfram got right, sigma-ground gets >=98% right too.")
 def test_qa_matches_wolfram_on_subset_wa_got_right() -> None:
     sg = _load_scored("sigma_ground")
     wf = _load_scored("wolfram")
@@ -69,8 +69,6 @@ def test_qa_matches_wolfram_on_subset_wa_got_right() -> None:
 # ============================================================
 # Q&A overall >= Wolfram's overall (the easier lower-bound check)
 # ============================================================
-@pytest.mark.xfail(strict=True,
-                    reason="Target: sigma-ground overall accuracy >= Wolfram's overall accuracy.")
 def test_qa_overall_at_least_wolfram() -> None:
     sg = _load_scored("sigma_ground")
     wf = _load_scored("wolfram")
@@ -86,8 +84,6 @@ def test_qa_overall_at_least_wolfram() -> None:
 # ============================================================
 # Stretch: Q&A overall >= 80%
 # ============================================================
-@pytest.mark.xfail(strict=True,
-                    reason="Stretch target: sigma-ground overall Q&A accuracy >= 80%.")
 def test_qa_overall_above_80_percent() -> None:
     sg = _load_scored("sigma_ground")
     if sg is None:
@@ -120,8 +116,6 @@ def test_all_domains_above_80_percent() -> None:
 # ============================================================
 # Q&A median latency <= 30 seconds
 # ============================================================
-@pytest.mark.xfail(strict=True,
-                    reason="Target: Q&A median latency <= 30s.")
 def test_qa_median_latency_under_30s() -> None:
     rows = _load_run("sigma_ground")
     if rows is None:
@@ -137,8 +131,6 @@ def test_qa_median_latency_under_30s() -> None:
 # ============================================================
 # Library-gap rate <= 5% of total questions
 # ============================================================
-@pytest.mark.xfail(strict=True,
-                    reason="Target: 'Fitted due to incompetence' rate <= 5%.")
 def test_library_gap_rate_under_5_percent() -> None:
     rows = _load_run("sigma_ground")
     if rows is None:
@@ -161,8 +153,6 @@ def test_library_gap_rate_under_5_percent() -> None:
 # Adversarial: refusal-expected questions get correct refusal
 # (Looser target: 50% of refusal_expected at least)
 # ============================================================
-@pytest.mark.xfail(strict=True,
-                    reason="Target: >=50% of adversarial refusal_expected Qs correctly refused.")
 def test_adversarial_refusal_rate() -> None:
     sg = _load_scored("adversarial_sigma_ground")
     if sg is None:
