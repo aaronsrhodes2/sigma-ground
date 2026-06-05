@@ -19,6 +19,8 @@ from ..schema import Fact
 
 _MATERIALS_JSON = (pathlib.Path(__file__).resolve().parents[2]
                    / "inventory" / "data" / "materials.json")
+_DIMENSIONS_JSON = (pathlib.Path(__file__).resolve().parents[2]
+                    / "inventory" / "data" / "dimensions.json")
 
 # researcher/vocabulary name -> canonical data key
 _ALIASES = {
@@ -110,4 +112,49 @@ def density_of(material: str) -> Fact | None:
     return None
 
 
-__all__ = ["density_of"]
+@functools.lru_cache(maxsize=1)
+def _dimensions_table() -> list:
+    """[(names:set, shape, dims:dict, source, license)] from dimensions.json —
+    standard human-scale objects with exact, cited dimensions."""
+    try:
+        data = json.loads(_DIMENSIONS_JSON.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    out = []
+    for d in data:
+        if not isinstance(d, dict):
+            continue
+        obj = (d.get("object") or "").strip().lower()
+        shape = (d.get("shape") or "").strip().lower()
+        dims = d.get("dims") or {}
+        if not (obj and shape and isinstance(dims, dict)):
+            continue
+        names = {obj} | {str(a).strip().lower() for a in (d.get("aliases") or [])}
+        out.append((names, shape,
+                    {k: float(v) for k, v in dims.items() if isinstance(v, (int, float))},
+                    d.get("source", ""), d.get("license", "")))
+    return out
+
+
+def dimensions_of(name: str, shape: str) -> dict | None:
+    """Cited dimensions ``{dim_name: Fact}`` for a STANDARD object of the given
+    primitive shape, or None. The object's name is matched by whole-word
+    containment (the table name's words all appear in the query) and the proposed
+    shape must agree — so "a tennis ball" (sphere) grounds its radius, but the
+    same name asked as a box does not.
+    """
+    key_w = _words(name)
+    shape = (shape or "").strip().lower()
+    best_len, best = 0, None
+    for names, sh, dims, source, lic in _dimensions_table():
+        if sh != shape or not dims:
+            continue
+        m = max((len(w) for w in (_words(nm) for nm in names) if w and w <= key_w),
+                default=0)
+        if m > best_len:
+            best_len = m
+            best = {k: Fact(v, source, lic, 0.9) for k, v in dims.items()}
+    return best
+
+
+__all__ = ["density_of", "dimensions_of"]

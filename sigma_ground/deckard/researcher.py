@@ -127,6 +127,24 @@ def _cite_source(dens: Fact, sources: list, seen: set) -> None:
         seen.add(dens.source)
 
 
+_HUMAN_SCALE_MAX_M = 100.0   # above this an object isn't human-scale (hallucination guard)
+
+
+def _ground_dims(name, shape, dims, sources, seen, allow_web):
+    """Replace the model's dimension ESTIMATES with CITED dimensions where the
+    object is a known standard (a tennis ball's radius, A4's sides, an AA cell).
+    Mutates ``dims`` in place and records the source; leaves estimates otherwise.
+    Local table first; Wikidata length properties only in production (allow_web).
+    """
+    grounded = _sources.dimensions_of(name, shape, allow_web=allow_web)
+    if not grounded:
+        return
+    for k, fact in grounded.items():
+        if k in dims:
+            dims[k] = fact
+            _cite_source(fact, sources, seen)
+
+
 def _build_vessel_spec(name: str, data: dict, model: str) -> ConstructSpec | None:
     g = data.get("geometry") or {}
     geometry: dict = {}
@@ -181,7 +199,8 @@ def _build_vessel_spec(name: str, data: dict, model: str) -> ConstructSpec | Non
     )
 
 
-def _build_parts_spec(name: str, data: dict, model: str) -> ConstructSpec | None:
+def _build_parts_spec(name: str, data: dict, model: str,
+                      allow_web: bool = False) -> ConstructSpec | None:
     raw_parts = data.get("parts") or []
     if not raw_parts:
         return None
@@ -217,6 +236,9 @@ def _build_parts_spec(name: str, data: dict, model: str) -> ConstructSpec | None
             if not isinstance(v, (int, float)) or v <= 0.0:
                 return None
             dims[k] = Fact(float(v), "estimated", "", 0.5)   # LLM => [estimated]
+        _ground_dims(name, shape, dims, sources, seen, allow_web)   # cite real dims if standard
+        if any(f.value > _HUMAN_SCALE_MAX_M for f in dims.values()):
+            return None                                            # not a human-scale object
         material = p.get("material") or "unknown"
         dens = _density(material)
         _cite_source(dens, sources, seen)
@@ -251,9 +273,9 @@ def research_spec(name: str, *, ask=None, model: str = OLLAMA_MODEL) -> Construc
     unknown so research() can fall back to a flagged best-guess.
     """
     if ask is None:                       # production: local qwen, web-grounded
-        ask, query = _ask, _augment_with_web(name)
+        ask, query, allow_web = _ask, _augment_with_web(name), True
     else:                                 # injected (tests): bare name, no network
-        query = name
+        query, allow_web = name, False
     raw = ask(query)
     if not raw:
         return None
@@ -270,7 +292,7 @@ def research_spec(name: str, *, ask=None, model: str = OLLAMA_MODEL) -> Construc
     if kind == "layered_vessel":
         return _build_vessel_spec(name, data, model)
     if kind == "composite" or data.get("parts"):
-        return _build_parts_spec(name, data, model)
+        return _build_parts_spec(name, data, model, allow_web)
     return None
 
 

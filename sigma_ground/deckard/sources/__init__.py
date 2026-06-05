@@ -12,7 +12,7 @@ confidence) so the researcher attributes every density, never guesses.
 """
 from __future__ import annotations
 
-from . import local, web, materials_api, wikipedia
+from . import local, web, materials_api, dimensions_api, wikipedia
 
 
 def density_of(material: str, *, allow_web: bool = False):
@@ -25,6 +25,19 @@ def density_of(material: str, *, allow_web: bool = False):
     return None
 
 
+def dimensions_of(name: str, shape: str, *, allow_web: bool = False):
+    """Cited dimensions ``{dim_name: Fact}`` for a standard object of ``shape``:
+    our own standard-object table first, then Wikidata length properties if
+    ``allow_web``. None if the object isn't a known standard — the researcher
+    then keeps the model's flagged estimate."""
+    d = local.dimensions_of(name, shape)
+    if d:
+        return d
+    if allow_web:
+        return dimensions_api.wikidata_dimensions(name, shape)
+    return None
+
+
 def wikipedia_summary(name: str):
     """A free-text Wikipedia summary of an object (typical proportions/what it is
     made of), or None — grounds the researcher's shape proposal in web text, not
@@ -32,5 +45,5 @@ def wikipedia_summary(name: str):
     return wikipedia.summary(name)
 
 
-__all__ = ["local", "web", "materials_api", "wikipedia", "density_of",
-           "wikipedia_summary"]
+__all__ = ["local", "web", "materials_api", "dimensions_api", "wikipedia",
+           "density_of", "dimensions_of", "wikipedia_summary"]
