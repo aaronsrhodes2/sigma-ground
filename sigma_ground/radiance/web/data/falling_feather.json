@@ -32,21 +32,6 @@
      "rz": 0.05
     },
     "body": 0
-   },
-   {
-    "op": "add",
-    "material": "stage_dark",
-    "shape": {
-     "type": "Box",
-     "center": [
-      0.0,
-      -0.05,
-      0.0
-     ],
-     "x": 1.2,
-     "y": 0.1,
-     "z": 1.2
-    }
    }
   ],
   "materials": {
@@ -73,26 +58,6 @@
     "mechanism": "measured keratin-family reflectance (wool proxy)",
     "density_kg_m3": 1300.0,
     "density_method": "unknown material"
-   },
-   "stage_dark": {
-    "color_rgb": [
-     0.07,
-     0.07,
-     0.08
-    ],
-    "emergent": false,
-    "metal": false,
-    "mechanism": "neutral render stage (dark matte backdrop, not a grounded material colour)",
-    "note": "awaiting composition",
-    "density_kg_m3": 700.0,
-    "density_derived_kg_m3": 700,
-    "density_pct_vs_supplied": 0.0,
-    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
-    "youngs_modulus_gpa": 0.2,
-    "sound_speed_m_s": 706.0,
-    "restitution_ref": 1.0,
-    "ring_frequency_hz": 847.0,
-    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
    }
   },
   "physics": {

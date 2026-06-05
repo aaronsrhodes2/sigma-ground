@@ -91,13 +91,21 @@ def dispatch(text: str, *, use_llm: bool = True,
         session.last_intent = env["intent"]
         return env
 
-    # 2. Simulation — let Materia's own router decide (deterministic first; the
-    #    qwen residual only if the sentence is sim-cued, to keep ASK fast).
+    # 2. Simulation — an OBJECT IN MOTION (the North Star's dividing line). Let
+    #    Materia's own router compile it (deterministic first; the qwen residual
+    #    only if the sentence is sim-cued, to keep ASK fast). A runnable spec is a
+    #    SIMULATION only when it concerns a physical object/motion — a domain
+    #    *report* verb (e.g. "the speed of light") that happens to be routable is
+    #    a fact, and belongs to ASK.
     from sigma_ground import materia
+    from sigma_ground.materia import translator as _t
     spec = materia.translate(text, use_qwen=False)
     if not spec.is_runnable() and use_llm and _has(text, _SIM_CUES):
         spec = materia.translate(text, use_qwen=True)
-    if spec.is_runnable():
+    verbs = {st.verb for st in spec.steps}
+    is_sim = spec.is_runnable() and (
+        "drop_object" in verbs or _t._has_object_context(text.lower()))
+    if is_sim:
         env = _run_simulation(text, spec, use_llm=use_llm, session=session)
         # An EXPLICIT "render"/"draw" of a renderable sim skips the offer and
         # renders straight away (the user already said they want to see it).

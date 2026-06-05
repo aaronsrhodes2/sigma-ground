@@ -103,8 +103,7 @@ def _lay_flat_quat(dx, dy, dz):
 def record_object_fall(construct, start_altitude_m: float = 2.4384, *,
                        cd: float = 1.0, area_m2: float | None = None,
                        T: float = 288.15, dt: float = 0.01, t_max: float = 60.0,
-                       frame_dt: float = 0.05, target_watch_s: float = 5.0,
-                       floor: bool = True) -> dict:
+                       frame_dt: float = 0.05, target_watch_s: float = 5.0) -> dict:
     """Drop a Deckard Construct — its REAL compiled shape, mass and area — through
     the atmosphere, integrating Materia's drag, and emit the viewer's trajectory
     bundle. The object's actual geometry (a feather's cone+ellipsoid, say) is the
@@ -114,9 +113,15 @@ def record_object_fall(construct, start_altitude_m: float = 2.4384, *,
     face, so unless `area_m2` is given the area is the largest bbox face — never
     the (edge-on) footprint, which would fall far too fast. The body is laid flat
     by a constant orientation; a straight-down terminal-velocity fall, no flutter.
+
+    SHAPES COME ONLY FROM DECKARD. We render the construct and nothing else — no
+    hand-authored floor or scenery. Black is empty space (and on the passthrough
+    glasses the real floor shows through, where the object comes to rest at y=0);
+    if a scene ever needs a floor it must be a Deckard-grounded construct, never a
+    faked box — Deckard returns identified=False for "floor", so we add none.
     """
     from ..materia.engine import simulate_drag_run   # lazy: tier-3 sibling, no cycle
-    from .scene_export import construct_to_scene, _bake_material
+    from .scene_export import construct_to_scene
 
     scene = construct_to_scene(construct)
     mass_kg = scene["physics"]["mass_kg"]
@@ -147,23 +152,7 @@ def record_object_fall(construct, start_altitude_m: float = 2.4384, *,
         leaf["body"] = 0
     scene["bodies"] = [{"pivot": list(construct.com_m), "label": construct.name}]
 
-    if floor:
-        # No grounded wood reflectance, so rather than fake a colour we use an
-        # honest neutral dark matte stage (a backdrop, not a material claim) — a
-        # pale object reads against it.
-        stage = _bake_material("wood_oak", 700.0)
-        stage["color_rgb"] = [0.07, 0.07, 0.08]
-        stage["mechanism"] = ("neutral render stage (dark matte backdrop, not a "
-                              "grounded material colour)")
-        stage["emergent"] = False
-        scene["materials"]["stage_dark"] = stage
-        half = max(0.6, 1.5 * max(dx, dz))
-        scene["csg_leaves"].append({                 # static floor (no body)
-            "op": "add", "material": "stage_dark",
-            "shape": {"type": "Box", "center": [0.0, -0.05, 0.0],
-                      "x": 2 * half, "y": 0.1, "z": 2 * half}})
-
-    # Frame the whole fall column, floor → just above the release height.
+    # Frame the whole fall column, ground → just above the release height.
     top = start_altitude_m + max(dx, dy, dz)
     wide = max(1.0, 1.5 * max(dx, dz))
     scene["bbox"] = [[-wide, wide], [-0.1, top + 0.1], [-wide, wide]]

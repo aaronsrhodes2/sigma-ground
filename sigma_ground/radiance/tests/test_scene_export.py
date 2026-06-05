@@ -255,8 +255,10 @@ def test_record_object_fall_renders_real_shape_falling():
     moving = [l for l in sc["csg_leaves"] if l.get("body") == 0]
     types = {l["shape"]["type"] for l in moving}
     assert types and "Sphere" not in types and types <= {"Cone", "Ellipsoid"}
-    # a static floor leaf (untagged) so the feather floats down TO something
-    assert any("body" not in l for l in sc["csg_leaves"])
+    # EVERY leaf is the Deckard construct (body 0) — no hand-authored floor or
+    # scenery: shapes come only from Deckard (black = empty space / real-world
+    # passthrough), and Deckard returns no floor, so we never fake one.
+    assert all(l.get("body") == 0 for l in sc["csg_leaves"])
     assert sc["bodies"] and len(sc["bodies"][0]["pivot"]) == 3
     # the fall: starts at the release height, descends monotonically to the floor
     ys = [fr["bodies"][0]["pos"][1] for fr in tr["frames"]]
