@@ -769,6 +769,26 @@ _PRIMARY_TOOLS = [
                 "splitting, Lande interval (L=2, S=1/2).",
      "inputs": {"total_j": "float", "spin_orbit_constant_ev": "float"},
      "returns": "dict of angular-momentum quantities"},
+    {"name": "elastic_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Elastic response: uniaxial/shear/hydrostatic stress, strain-"
+                "energy densities, transverse strain, volume change, von Mises yield.",
+     "inputs": {"material_key": "str (e.g. 'iron','copper','aluminum','steel_mild')",
+                "strain": "float"}, "returns": "dict of stresses/energies"},
+    {"name": "stress_failure_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Fracture/fatigue/creep: stress-intensity, critical crack "
+                "length, fatigue life, Paris life, creep rate + rupture time.",
+     "inputs": {"material_key": "str", "applied_stress": "float (Pa)"},
+     "returns": "dict of fracture/fatigue/creep quantities"},
+    {"name": "plasticity_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Plastic flow stress: Johnson-Cook, Ludwik hardening, work-"
+                "hardening rate.",
+     "inputs": {"material_key": "str", "plastic_strain": "float"},
+     "returns": "dict of flow stresses"},
+    {"name": "composite_bounds_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Two-phase composite bounds: Voigt-Reuss-Hill, Hashin-Shtrikman, "
+                "thermal-conductivity bounds, Gibson-Ashby foam strength.",
+     "inputs": {"bulk_modulus1_pa": "float", "bulk_modulus2_pa": "float",
+                "fraction1": "float"}, "returns": "dict of composite bounds"},
 ]
 
 

@@ -106,6 +106,7 @@ def main() -> int:
     from sigma_ground.mcp.tools import mechanics as t_mech
     from sigma_ground.mcp.tools import transport as t_trans
     from sigma_ground.mcp.tools import rotation as t_rot
+    from sigma_ground.mcp.tools import materials_strength as t_matstr
     from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
@@ -1237,6 +1238,38 @@ def main() -> int:
         """Atomic angular momentum: |J| magnitude, allowed m_j values, spin-orbit
         coupling energy/splitting, and the Lande interval (L=2, S=1/2)."""
         return t_rot.atomic_angular_momentum(total_j, spin_orbit_constant_ev)
+
+    # ── materials strength + composites ──
+    @server.tool()
+    def elastic_analysis(material_key: str, strain: float = 0.001) -> dict[str, Any]:
+        """Elastic response: uniaxial/shear/hydrostatic stress, strain-energy
+        densities, transverse strain, volume change, von Mises yield, and
+        moduli from Lame parameters. elastic_analysis('iron', 0.001)."""
+        return t_matstr.elastic_analysis(material_key, strain)
+
+    @server.tool()
+    def stress_failure_analysis(material_key: str,
+                                applied_stress: float = 1.0e8) -> dict[str, Any]:
+        """Fracture/fatigue/creep: stress-intensity factor, critical crack
+        length, fatigue life, Paris remaining life, creep rate + rupture time."""
+        return t_matstr.stress_failure_analysis(material_key, applied_stress)
+
+    @server.tool()
+    def plasticity_analysis(material_key: str,
+                            plastic_strain: float = 0.05) -> dict[str, Any]:
+        """Plastic flow stress: Johnson-Cook, Ludwik hardening, and the
+        work-hardening rate. plasticity_analysis('aluminum', 0.05)."""
+        return t_matstr.plasticity_analysis(material_key, plastic_strain)
+
+    @server.tool()
+    def composite_bounds_analysis(bulk_modulus1_pa: float = 100.0e9,
+                                  bulk_modulus2_pa: float = 200.0e9,
+                                  fraction1: float = 0.5) -> dict[str, Any]:
+        """Two-phase composite property bounds: Voigt-Reuss-Hill average,
+        Hashin-Shtrikman bounds, thermal-conductivity bounds, Gibson-Ashby
+        foam strength."""
+        return t_matstr.composite_bounds_analysis(bulk_modulus1_pa,
+                                                  bulk_modulus2_pa, fraction1)
 
     # Run via stdio transport (standard MCP).
     server.run()

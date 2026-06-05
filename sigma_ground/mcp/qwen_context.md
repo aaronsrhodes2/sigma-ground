@@ -130,11 +130,15 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 ### materials
 - **band_gap_ev** — Semiconductor band gap in eV (lookup).  ↳ *say:* band gap; semiconductor gap; valence to conduction; Si Ge GaAs gap; Eg
 - **boiling_point** — Boiling point in K (lookup).  ↳ *say:* boiling point; T_boil; vaporization temperature
+- **composite_bounds_analysis** — Two-phase composite bounds: Voigt-Reuss-Hill, Hashin-Shtrikman, thermal-conductivity bounds, Gibson-Ashby foam strength.  ↳ *say:* composite material; Voigt-Reuss-Hill; Hashin-Shtrikman; rule of mixtures; effective modulus; foam strength
 - **density** — Material density in kg/m^3 (lookup).  ↳ *say:* density; rho = m/V; kg/m^3; specific gravity
+- **elastic_analysis** — Elastic response: uniaxial/shear/hydrostatic stress, strain-energy densities, transverse strain, volume change, von Mises yield.  ↳ *say:* Young's modulus; stress and strain; Hooke's law; shear stress; strain energy; Poisson ratio
 - **element_atomic_data** — Element Z, name, mass via periodictable.  ↳ *say:* atomic number; atomic mass; Z of; atomic weight; amu; u
 - **list_materials** — Inventory of materials in lookup tables.  ↳ *say:* available materials
 - **melting_point** — Melting point in K (lookup).  ↳ *say:* melting point; T_melt; fusion temperature
+- **plasticity_analysis** — Plastic flow stress: Johnson-Cook, Ludwik hardening, work-hardening rate.  ↳ *say:* plastic deformation; flow stress; work hardening; Johnson-Cook; Ludwik; yield and beyond
 - **refractive_index** — Refractive index at 589 nm (lookup).  ↳ *say:* refractive index; n at 589 nm; sodium D-line; speed of light in medium; optical density
+- **stress_failure_analysis** — Fracture/fatigue/creep: stress-intensity, critical crack length, fatigue life, Paris life, creep rate + rupture time.  ↳ *say:* fracture toughness; stress intensity; crack; fatigue life; creep; Paris law
 - **youngs_modulus** — Young's modulus in Pa (lookup).  ↳ *say:* Young's modulus; E; elastic modulus; Hooke's law constant; stiffness; Thomas Young 1807
 
 ### math

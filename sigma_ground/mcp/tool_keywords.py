@@ -444,6 +444,24 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "Lande interval", "fine structure splitting", "spin expectation value",
     ],
 
+    # ============ MATERIALS STRENGTH + COMPOSITES (composite) ============
+    "elastic_analysis": [
+        "Young's modulus", "stress and strain", "Hooke's law", "shear stress",
+        "strain energy", "Poisson ratio", "von Mises yield",
+    ],
+    "stress_failure_analysis": [
+        "fracture toughness", "stress intensity", "crack", "fatigue life",
+        "creep", "Paris law", "when will it break",
+    ],
+    "plasticity_analysis": [
+        "plastic deformation", "flow stress", "work hardening", "Johnson-Cook",
+        "Ludwik", "yield and beyond",
+    ],
+    "composite_bounds_analysis": [
+        "composite material", "Voigt-Reuss-Hill", "Hashin-Shtrikman",
+        "rule of mixtures", "effective modulus", "foam strength",
+    ],
+
     # ============ ENERGY CONVERSION (E=mc^2 family) ============
     "mass_to_energy": [
         "E=mc^2", "mass-energy equivalence", "rest mass energy",
