@@ -33,6 +33,7 @@ The final 100% target = covered == (total − EXCLUDED). The regression test
 | batch 8 (plasma-em/relativity-spectra) | 988 | 1093 | 90% | plasma-params/EM-forces/relativistic-energy/Zeeman |
 | batch 9 (tribology/materials-micro) | 1001 | 1093 | 92% | friction/wear/Taylor/Nordheim/dipole/combustion |
 | batch 10 (chemistry-extended) | 1014 | 1093 | 93% | titration/speciation/solution/echem/kinetics/radioactivity |
+| batch 11 (qcomputing) | 1025 | 1093 | 94% | Grover/QAOA/Simon/qubit-state/qubit-HW/visibility |
 
 ---
 
@@ -76,6 +77,21 @@ against coverage. Listed by the batch in which they were ruled out.
   (list of (V_base, pH) from 0 to 2x equivalence); re-bundles the scalar
   titration point functions covered via titration_analysis. Curve/sim, not a
   scalar Q&A. EXCLUDE.
+
+### batch 11
+Per the Phase-0 triage ruling ("wire high-level QC, exclude gate primitives"):
+- `field.interface.quantum_computing.{gate_cz, gate_fredkin, gate_iswap,
+  gate_phase, gate_rx, gate_rz, gate_s, gate_t, gate_y}` (9) — single/two-qubit
+  gate-MATRIX constructors. Building blocks, not standalone Q&A capabilities;
+  demonstrated in action by the algorithm tools (Grover/QAOA/Simon). EXCLUDE.
+- `field.interface.quantum_output.{extract_phase, extract_function_value,
+  histogram_to_answer}` (3) — algorithm-result post-processing plumbing
+  (histogram_to_answer takes a callable interpret_fn). Internal to running an
+  algorithm, not a standalone question. EXCLUDE.
+- `field.interface.quantum.{sample_hit_position, cumulative_probability}` (2) —
+  double-slit Monte-Carlo CDF-sampling internals. sample_hit_position is
+  non-deterministic (takes a rand_val); cumulative_probability builds the CDF
+  array that feeds it. EXCLUDE.
 
 ---
 

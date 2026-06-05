@@ -986,6 +986,29 @@ _PRIMARY_TOOLS = [
                 "isotope sample.",
      "inputs": {"isotope_key": "str (U238/Ra226/Po210/C14/Co60/K40)", "n_atoms": "float"},
      "returns": "dict with activity_Bq, activity_Ci"},
+    {"name": "quantum_algorithm_analysis", "tier": "PRIMARY", "domain": "quantum_computing",
+     "summary": "Run canonical quantum algorithms: Grover search, QAOA Max-Cut, "
+                "and Simon's algorithm (hidden-period recovery).",
+     "inputs": {"grover_n_qubits": "int", "grover_marked_item": "int",
+                "qaoa_edges": "list[list[int]]", "qaoa_n_nodes": "int",
+                "simon_hidden_string": "str"},
+     "returns": "dict of algorithm outcomes"},
+    {"name": "quantum_state_analysis", "tier": "PRIMARY", "domain": "quantum_computing",
+     "summary": "Qubit-state diagnostics: Pauli-Z expectation on |+>, Bloch "
+                "angles, Bell-state Schmidt coefficients + entanglement entropy.",
+     "inputs": {},
+     "returns": "dict of state diagnostics"},
+    {"name": "qubit_hardware_analysis", "tier": "PRIMARY", "domain": "quantum_computing",
+     "summary": "Physical-qubit operating parameters: frequency, T1/T2 coherence, "
+                "gate fidelity. Types: transmon, spin, quantum_dot, nv_center.",
+     "inputs": {"qubit_type": "str", "material_key": "str", "b_tesla": "float",
+                "radius_m": "float"},
+     "returns": "dict of qubit parameters"},
+    {"name": "interference_visibility_analysis", "tier": "PRIMARY", "domain": "quantum",
+     "summary": "Fringe visibility (contrast) of an interference pattern, "
+                "V = (I_max - I_min)/(I_max + I_min).",
+     "inputs": {"intensity_max": "float", "intensity_min": "float"},
+     "returns": "dict with fringe_visibility"},
 ]
 
 

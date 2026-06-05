@@ -118,6 +118,7 @@ def main() -> int:
     from sigma_ground.mcp.tools import tribology as t_tribo
     from sigma_ground.mcp.tools import materials_micro as t_micro
     from sigma_ground.mcp.tools import chemistry_extended as t_chemx
+    from sigma_ground.mcp.tools import qcomputing as t_qcomp
     from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
@@ -1599,6 +1600,40 @@ def main() -> int:
         """Radioactive activity A = lambda N (becquerel, curie). Isotopes:
         U238, Ra226, Po210, C14, Co60, K40, free_neutron."""
         return t_chemx.radioactivity_analysis(isotope_key, n_atoms)
+
+    @server.tool()
+    def quantum_algorithm_analysis(grover_n_qubits: int = 3,
+                                   grover_marked_item: int = 5,
+                                   qaoa_edges: list[list[int]] | None = None,
+                                   qaoa_n_nodes: int = 3,
+                                   simon_hidden_string: str = "11") -> dict[str, Any]:
+        """Run three canonical quantum algorithms: Grover search, QAOA Max-Cut,
+        and Simon's algorithm (hidden-period recovery)."""
+        return t_qcomp.quantum_algorithm_analysis(grover_n_qubits, grover_marked_item,
+            qaoa_edges, qaoa_n_nodes, simon_hidden_string)
+
+    @server.tool()
+    def quantum_state_analysis() -> dict[str, Any]:
+        """Qubit-state diagnostics on canonical states: Pauli-Z expectation on
+        |+>, Bloch angles of |+>, Schmidt coefficients + entanglement entropy of
+        a Bell state, and one stochastic Born-rule measurement."""
+        return t_qcomp.quantum_state_analysis()
+
+    @server.tool()
+    def qubit_hardware_analysis(qubit_type: str = "transmon",
+                                material_key: str = "aluminum",
+                                b_tesla: float = 1.0,
+                                radius_m: float = 5.0e-9) -> dict[str, Any]:
+        """Physical-qubit operating parameters: frequency, T1/T2 coherence, gate
+        fidelity. Types: transmon, spin, quantum_dot, nv_center."""
+        return t_qcomp.qubit_hardware_analysis(qubit_type, material_key, b_tesla, radius_m)
+
+    @server.tool()
+    def interference_visibility_analysis(intensity_max: float = 1.0,
+                                         intensity_min: float = 0.2) -> dict[str, Any]:
+        """Fringe visibility (contrast) of an interference pattern,
+        V = (I_max - I_min)/(I_max + I_min)."""
+        return t_qcomp.interference_visibility_analysis(intensity_max, intensity_min)
 
     # Run via stdio transport (standard MCP).
     server.run()

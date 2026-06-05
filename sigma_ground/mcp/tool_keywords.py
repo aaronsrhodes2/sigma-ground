@@ -616,6 +616,24 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "specific activity", "carbon-14 activity", "isotope activity",
     ],
 
+    # ============ QUANTUM COMPUTING / QUANTUM (batch 11) ============
+    "quantum_algorithm_analysis": [
+        "Grover search", "quantum search", "QAOA", "max-cut", "Simon's algorithm",
+        "quantum algorithm", "quantum speedup", "oracle", "amplitude amplification",
+    ],
+    "quantum_state_analysis": [
+        "expectation value", "Bloch sphere", "Schmidt decomposition", "entanglement entropy",
+        "Bell state", "qubit state", "Pauli expectation", "bipartite entanglement",
+    ],
+    "qubit_hardware_analysis": [
+        "transmon", "qubit frequency", "coherence time", "T1 T2", "gate fidelity",
+        "spin qubit", "NV center", "quantum dot qubit", "superconducting qubit",
+    ],
+    "interference_visibility_analysis": [
+        "fringe visibility", "interference contrast", "double slit visibility",
+        "Imax Imin", "coherence visibility", "interferometer contrast",
+    ],
+
     # ============ ENERGY CONVERSION (E=mc^2 family) ============
     "mass_to_energy": [
         "E=mc^2", "mass-energy equivalence", "rest mass energy",

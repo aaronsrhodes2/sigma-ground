@@ -238,8 +238,14 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 
 ### quantum
 - **atomic_angular_momentum** — |J| magnitude, allowed m_j, spin-orbit coupling energy/splitting, Lande interval (L=2, S=1/2).  ↳ *say:* angular momentum quantum number; spin-orbit coupling; term symbol; Lande interval; fine structure splitting; spin expectation value
+- **interference_visibility_analysis** — Fringe visibility (contrast) of an interference pattern, V = (I_max - I_min)/(I_max + I_min).  ↳ *say:* fringe visibility; interference contrast; double slit visibility; Imax Imin; coherence visibility; interferometer contrast
 - **quantum_box_energy_analysis** — Energy of a state (n1,n2,n3) for a particle in a 3D cubic infinite well.  ↳ *say:* particle in a box; infinite square well; quantum well energy; 3D box energy levels; quantum confinement; nanoparticle energy levels
 - **quantum_tunneling_analysis** — WKB transmission probability through a rectangular potential barrier.  ↳ *say:* quantum tunneling; WKB approximation; tunneling probability; barrier penetration; transmission through barrier; alpha decay tunneling
+
+### quantum computing
+- **quantum_algorithm_analysis** — Run canonical quantum algorithms: Grover search, QAOA Max-Cut, and Simon's algorithm (hidden-period recovery).  ↳ *say:* Grover search; quantum search; QAOA; max-cut; Simon's algorithm; quantum algorithm
+- **quantum_state_analysis** — Qubit-state diagnostics: Pauli-Z expectation on |+>, Bloch angles, Bell-state Schmidt coefficients + entanglement entropy.  ↳ *say:* expectation value; Bloch sphere; Schmidt decomposition; entanglement entropy; Bell state; qubit state
+- **qubit_hardware_analysis** — Physical-qubit operating parameters: frequency, T1/T2 coherence, gate fidelity. Types: transmon, spin, quantum_dot, nv_center.  ↳ *say:* transmon; qubit frequency; coherence time; T1 T2; gate fidelity; spin qubit
 
 ### relativity
 - **doppler_shift_factor** — Relativistic Doppler factor.  ↳ *say:* Doppler effect; Doppler shift; relativistic Doppler; redshift; blueshift; Christian Doppler 1842
