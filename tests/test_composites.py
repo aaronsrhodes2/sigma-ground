@@ -104,3 +104,20 @@ def test_hollow_part_carves_a_cavity():
     assert c.material_at(0.018, 0.0, 0.0) == "wall"     # steel wall
     assert c.density_at(0.0, 0.0, 0.0) == 0.0           # empty bore
     assert c.sdf(0.0, 0.0, 0.0) > 0.0                   # bore is carved (outside the solid)
+
+
+def test_filled_cavity_composes_in_order():
+    bottle = ConstructSpec(name="bottle", kind="composite", parts=[
+        Part("body", "cylinder", {"radius_m": Fact(0.035), "height_m": Fact(0.20)},
+             "glass", density_of("glass")),
+        Part("interior", "cylinder", {"radius_m": Fact(0.032), "height_m": Fact(0.185)},
+             "air", Fact(0.0), center_m=(0, 0, 0.0075), op="subtract"),
+        Part("liquid", "cylinder", {"radius_m": Fact(0.032), "height_m": Fact(0.12)},
+             "liquid water", density_of("liquid water"), center_m=(0, 0, -0.025))])
+    c = compile(bottle, resolution=64)
+    assert c.validation["mode"] == "hollow" and c.validation["passed"]
+    full_body = density_of("glass").value * math.pi * 0.035 ** 2 * 0.20
+    assert c.mass_kg < full_body                                   # hollowed + filled, not solid
+    assert c.material_at(0.0335, 0.0, 0.05) == "body"              # glass wall
+    assert c.density_at(0.0, 0.0, -0.04) == density_of("liquid water").value   # in the liquid
+    assert c.density_at(0.0, 0.0, 0.09) == 0.0                     # headspace (empty)

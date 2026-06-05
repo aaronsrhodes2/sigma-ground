@@ -308,9 +308,8 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
     analytic_mass = 0.0
     Sx = Sy = Sz = 0.0                        # mass-weighted first moments
     xs, ys, zs = [], [], []
-    add_parts = [p for p in spec.parts if getattr(p, "op", "add") != "subtract"]
     sub_parts = [p for p in spec.parts if getattr(p, "op", "add") == "subtract"]
-    for part in add_parts + sub_parts:      # carves last: they subtract + win material_at
+    for part in spec.parts:      # compose IN ORDER: solids → carves → fills (last wins)
         carve = getattr(part, "op", "add") == "subtract"
         shp = _shape_from(part)
         he = _half_extent(part)

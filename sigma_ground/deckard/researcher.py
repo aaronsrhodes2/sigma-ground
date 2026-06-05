@@ -46,9 +46,10 @@ _SYS = (
     "(e.g. [0,90,0] lays a cylinder along x). One part for a simple solid; several "
     "with center_m offsets for a compound object (hammer = vertical handle "
     "cylinder + head cylinder rotated horizontal across the top). Set "
-    'op:"subtract" on a part to carve a cavity (a pipe = outer cylinder + inner '
-    "cylinder op:subtract; a bottle = body + interior op:subtract); carving "
-    "parts go after the solids they hollow.\n"
+    'op:"subtract" on a part to carve a cavity, and a later op:"add" part to '
+    "fill it (a pipe = outer cylinder + inner cylinder op:subtract; a bottle = "
+    "body + interior op:subtract + liquid op:add). Parts compose IN ORDER — list "
+    "solids first, then carves, then fills.\n"
     "Use realistic typical dimensions and a real material name (steel, glass, "
     'aluminium, oak, stoneware, ...). If you cannot, output {"kind":"unknown"}.'
 )
