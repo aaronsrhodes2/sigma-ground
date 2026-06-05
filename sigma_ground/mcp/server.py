@@ -113,6 +113,8 @@ def main() -> int:
     from sigma_ground.mcp.tools import mechanical_response as t_mechresp
     from sigma_ground.mcp.tools import devices as t_devices
     from sigma_ground.mcp.tools import quantum_solids as t_qsolids
+    from sigma_ground.mcp.tools import plasma_em as t_plasma
+    from sigma_ground.mcp.tools import relativity_spectra as t_relsp
     from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
@@ -1449,6 +1451,44 @@ def main() -> int:
         """Two-site Heisenberg model for a magnetic ion: exchange J from crystal
         field, VQE vs exact ground energy, spin state. Default Cr3+ octahedral."""
         return t_qsolids.magnetic_exchange_analysis(atomic_number, oxidation_state, coord_key)
+
+    @server.tool()
+    def plasma_parameters_analysis(electron_density_m3: float = 1.0e19,
+                                   electron_temperature_k: float = 1.0e6,
+                                   magnetic_field_t: float = 1.0,
+                                   ion_mass_kg: float = 1.673e-27,
+                                   perp_velocity_m_s: float = 1.0e5) -> dict[str, Any]:
+        """Core plasma parameters: Debye length, Debye number (particles in a
+        Debye sphere), Coulomb logarithm ln(Lambda), and ion Larmor radius."""
+        return t_plasma.plasma_parameters_analysis(electron_density_m3,
+            electron_temperature_k, magnetic_field_t, ion_mass_kg, perp_velocity_m_s)
+
+    @server.tool()
+    def electromagnetic_force_analysis(charge_c: float = 1.602176634e-19,
+                                       charge2_c: float = 1.602176634e-19,
+                                       separation_m: float = 1.0e-9,
+                                       e_field_v_m: float = 1.0e5,
+                                       velocity_m_s: float = 1.0e6,
+                                       b_field_t: float = 0.5) -> dict[str, Any]:
+        """Electromagnetic forces & wave energetics: Coulomb force, magnetic
+        (qv x B) and Lorentz force magnitudes, EM-wave energy density and
+        intensity."""
+        return t_plasma.electromagnetic_force_analysis(charge_c, charge2_c,
+            separation_m, e_field_v_m, velocity_m_s, b_field_t)
+
+    @server.tool()
+    def relativistic_energy_analysis(rest_mass_kg: float = 9.1093837015e-31,
+                                     velocity_m_s: float = 2.6e8) -> dict[str, Any]:
+        """Relativistic energy of a moving particle: rest energy m0 c^2,
+        relativistic kinetic energy (gamma-1) m0 c^2, and the energy-momentum
+        invariant (m0 c^2)^2. Default: an electron at 0.867 c."""
+        return t_relsp.relativistic_energy_analysis(rest_mass_kg, velocity_m_s)
+
+    @server.tool()
+    def zeeman_effect_analysis(total_angular_momentum_j: float = 1.0) -> dict[str, Any]:
+        """Number of Zeeman sublevels a state of total angular momentum j splits
+        into in a magnetic field (2j+1 values of m_j)."""
+        return t_relsp.zeeman_effect_analysis(total_angular_momentum_j)
 
     # Run via stdio transport (standard MCP).
     server.run()

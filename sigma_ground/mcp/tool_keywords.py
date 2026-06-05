@@ -546,6 +546,24 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "Goodenough-Kanamori", "spin Hamiltonian", "crystal field magnetism",
     ],
 
+    # ============ PLASMA / EM / RELATIVITY / ATOMIC (batch 8) ============
+    "plasma_parameters_analysis": [
+        "Debye length", "Debye shielding", "plasma parameter", "Coulomb logarithm",
+        "Larmor radius", "gyroradius", "fusion plasma", "Debye number",
+    ],
+    "electromagnetic_force_analysis": [
+        "Coulomb's law", "Lorentz force", "magnetic force on charge", "qv cross B",
+        "EM wave intensity", "Poynting flux", "energy density of light", "force between charges",
+    ],
+    "relativistic_energy_analysis": [
+        "rest energy", "E=mc^2", "relativistic kinetic energy", "Lorentz factor",
+        "energy momentum relation", "relativistic energy", "gamma factor energy",
+    ],
+    "zeeman_effect_analysis": [
+        "Zeeman effect", "Zeeman splitting", "magnetic sublevels", "2j+1",
+        "spectral line splitting magnetic field", "m_j states",
+    ],
+
     # ============ ENERGY CONVERSION (E=mc^2 family) ============
     "mass_to_energy": [
         "E=mc^2", "mass-energy equivalence", "rest mass energy",

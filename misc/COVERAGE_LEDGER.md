@@ -30,6 +30,7 @@ The final 100% target = covered == (total − EXCLUDED). The regression test
 | batch 5 (photonics/electroceramics) | 946 | 1093 | 87% | waveguide/bandgap/nonlinear/color/phosphor/piezo/dielectric |
 | batch 6 (thermal-systems/mech-response) | 964 | 1093 | 88% | TEG/convection/viscoelastic-creep/acoustic-interface |
 | batch 7 (devices/quantum-solids) | 976 | 1093 | 89% | capacitor/Hall/junction/BCS-gap/tunneling/box/DOS/exchange |
+| batch 8 (plasma-em/relativity-spectra) | 988 | 1093 | 90% | plasma-params/EM-forces/relativistic-energy/Zeeman |
 
 ---
 
@@ -78,6 +79,13 @@ honest denominator can subtract them while keeping them visible as TODO.
   kappa (e.g. Nb 0.11 vs measured ~1.05) and feeds the same machinery. Wired only
   `gap_frequency` (correct, 677 GHz for Nb). Whole Hc chain deferred. (Review
   task spawned.)
+- `field.interface.plasma.spitzer_resistivity` — carries a spurious extra
+  `1/(4 pi eps0)` factor (line ~220, labelled a "Dimensional prefactor /
+  correction") that inflates the result by ~9e9. Returns ~1.7e5 ohm.m for a
+  10^6 K hydrogen plasma; the NRL Spitzer value is ~1e-6 ohm.m (hot plasmas are
+  near-perfect conductors). Drop the bogus factor and it's right-order. Wired
+  the other 4 plasma parameters (Debye length/number, ln Lambda, Larmor radius,
+  all validated). Deferred pending the one-line fix. (Review task spawned.)
 
 ---
 

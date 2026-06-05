@@ -37,6 +37,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **hydrogen_like_energy_level** — E_n = -13.606 Z^2/n^2 eV.  ↳ *say:* Bohr model; E_n = -13.6 Z^2 / n^2 eV; hydrogen energy levels; Bohr energy; Niels Bohr 1913
 - **photon_energy_from_frequency** — E = h f.  ↳ *say:* photon energy from frequency; E = h f; Planck-Einstein relation
 - **photon_energy_from_wavelength** — E = h c / lambda.  ↳ *say:* photon energy; E = h c / lambda; Einstein photon
+- **zeeman_effect_analysis** — Number of Zeeman sublevels a state of total angular momentum j splits into in a magnetic field (2j+1).  ↳ *say:* Zeeman effect; Zeeman splitting; magnetic sublevels; 2j+1; spectral line splitting magnetic field; m_j states
 
 ### chemistry
 - **boiling_point_elevation** — Boiling-point elevation ΔTb (K) = i·Kb·molality (colligative).
@@ -85,6 +86,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 
 ### electromagnetism
 - **capacitor_analysis** — Capacitance of parallel-plate, coaxial, and concentric-sphere geometries, plus energy stored on the parallel-plate cap.  ↳ *say:* capacitance; parallel plate capacitor; coaxial cable capacitance; spherical capacitor; energy stored in capacitor; C = epsilon A / d
+- **electromagnetic_force_analysis** — Coulomb force, magnetic (qv x B) and Lorentz force magnitudes, and EM-wave time-averaged energy density and intensity.  ↳ *say:* Coulomb's law; Lorentz force; magnetic force on charge; qv cross B; EM wave intensity; Poynting flux
 - **hall_effect_analysis** — Hall voltage of a current-carrying conductor in a transverse magnetic field (negative for electron carriers).  ↳ *say:* Hall effect; Hall voltage; Lorentz force in conductor; carrier sign; magnetic field on current; V_H = R_H I B / t
 
 ### electronics
@@ -212,6 +214,9 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **optical_waveguide_analysis** — Slab dielectric waveguide: numerical aperture, V-number (normalized frequency), guided TE-mode count.  ↳ *say:* optical waveguide; slab waveguide; V-number; numerical aperture; guided modes; single-mode fiber
 - **photonic_bandgap_analysis** — Quarter-wave Bragg mirror / 1D photonic bandgap: center wavelength, stop-band fractional width, peak reflectance.  ↳ *say:* Bragg mirror; dielectric mirror; distributed Bragg reflector; photonic bandgap; quarter-wave stack; stop band
 
+### plasma
+- **plasma_parameters_analysis** — Core plasma parameters: Debye length, Debye number, Coulomb logarithm ln(Lambda), and ion Larmor (cyclotron) radius.  ↳ *say:* Debye length; Debye shielding; plasma parameter; Coulomb logarithm; Larmor radius; gyroradius
+
 ### procedures
 - **procedure_black_hole_profile** — Full black-hole thermodynamics cascade from one mass: Schwarzschild radius → Hawking temperature → Bekenstein-Hawking entropy → evaporation time.
 - **procedure_photon_spectrum** — Full photon cascade from one wavelength: frequency → energy (J and eV) → momentum.
@@ -228,6 +233,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **doppler_shift_factor** — Relativistic Doppler factor.  ↳ *say:* Doppler effect; Doppler shift; relativistic Doppler; redshift; blueshift; Christian Doppler 1842
 - **lorentz_factor** — gamma = 1/sqrt(1 - v^2/c^2).  ↳ *say:* Lorentz factor; gamma = 1/sqrt(1 - v^2/c^2); time dilation factor; Hendrik Lorentz
 - **relativistic_energy** — E = gamma m c^2 (total).  ↳ *say:* relativistic energy; E = gamma m c^2; total relativistic energy
+- **relativistic_energy_analysis** — Rest energy m0 c^2, relativistic kinetic energy (gamma-1) m0 c^2, and the energy-momentum invariant (m0 c^2)^2.  ↳ *say:* rest energy; E=mc^2; relativistic kinetic energy; Lorentz factor; energy momentum relation; relativistic energy
 - **relativistic_length_contraction** — L = L0 / gamma.  ↳ *say:* length contraction; Lorentz contraction; L = L_0 / gamma; ladder paradox
 - **relativistic_momentum** — p = gamma m v.  ↳ *say:* relativistic momentum; p = gamma m v; high-velocity momentum
 - **relativistic_time_dilation** — t = gamma t0.  ↳ *say:* time dilation; moving clocks tick slower; delta_t = gamma delta_tau; twin paradox; Einstein 1905 special relativity

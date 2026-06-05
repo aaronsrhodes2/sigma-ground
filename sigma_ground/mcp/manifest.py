@@ -897,6 +897,28 @@ _PRIMARY_TOOLS = [
      "inputs": {"atomic_number": "int", "oxidation_state": "int",
                 "coord_key": "str (e.g. 'oxide_oct')"},
      "returns": "dict of exchange/VQE quantities"},
+    {"name": "plasma_parameters_analysis", "tier": "PRIMARY", "domain": "plasma",
+     "summary": "Core plasma parameters: Debye length, Debye number, Coulomb "
+                "logarithm ln(Lambda), and ion Larmor (cyclotron) radius.",
+     "inputs": {"electron_density_m3": "float", "electron_temperature_k": "float",
+                "magnetic_field_t": "float"},
+     "returns": "dict of plasma parameters"},
+    {"name": "electromagnetic_force_analysis", "tier": "PRIMARY", "domain": "electromagnetism",
+     "summary": "Coulomb force, magnetic (qv x B) and Lorentz force magnitudes, "
+                "and EM-wave time-averaged energy density and intensity.",
+     "inputs": {"charge_c": "float", "separation_m": "float", "e_field_v_m": "float",
+                "velocity_m_s": "float", "b_field_t": "float"},
+     "returns": "dict of forces and wave energetics"},
+    {"name": "relativistic_energy_analysis", "tier": "PRIMARY", "domain": "relativity",
+     "summary": "Rest energy m0 c^2, relativistic kinetic energy (gamma-1) m0 c^2, "
+                "and the energy-momentum invariant (m0 c^2)^2.",
+     "inputs": {"rest_mass_kg": "float", "velocity_m_s": "float"},
+     "returns": "dict with rest/kinetic energy (J, MeV) and invariant"},
+    {"name": "zeeman_effect_analysis", "tier": "PRIMARY", "domain": "atomic",
+     "summary": "Number of Zeeman sublevels a state of total angular momentum j "
+                "splits into in a magnetic field (2j+1).",
+     "inputs": {"total_angular_momentum_j": "float"},
+     "returns": "dict with zeeman_sublevels"},
 ]
 
 
