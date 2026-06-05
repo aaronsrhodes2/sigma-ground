@@ -65,6 +65,12 @@ _SYS = (
     "the anchors meet exactly (no overlap, no gap). Anchors: top, bottom (any "
     "shape); +x,-x,+y,-y (box/sphere). E.g. hammer = head + handle "
     "attach:{to:head,my:top,their:bottom}.\n"
+    "For an ORGANIC shape that is not a simple solid (feather, leaf, petal, "
+    "blade), use a part with shape:\"outline\" and dims {length_m,thickness_m} "
+    "plus a material — Deckard supplies the researched 2D outline (you do NOT "
+    "draw it); it becomes a thin extruded sheet. E.g. a feather = a vane "
+    'shape:"outline" (length_m~0.1, thickness_m~0.0006, keratin) + a thin '
+    "cylinder shaft laid along it.\n"
     "Use realistic typical dimensions and a real material name (steel, glass, "
     'aluminium, oak, stoneware, ...). If you cannot, output {"kind":"unknown"}.'
 )
@@ -225,6 +231,35 @@ def _build_parts_spec(name: str, data: dict, model: str,
             parts.append(Part(p.get("name") or f"part{i}", "fill", {}, material, dens,
                               (0.0, 0.0, 0.0), (0.0, 0.0, 0.0), "add", None,
                               {"of": str(of), "fraction": frac, "gas": gas}))
+            continue
+        if (p.get("shape") or "").lower() == "outline":
+            got = _sources.outline_of(name)          # Deckard supplies the researched outline
+            if not got:
+                return None                          # no researched outline for this object
+            prof_unit, osrc, olic = got
+            di = p.get("dims") or {}
+            try:
+                length = float(di.get("length_m") or di.get("size_m") or 0.0)
+                thick = float(di.get("thickness_m") or 0.001)
+            except Exception:
+                return None
+            if not (0.0 < length <= _HUMAN_SCALE_MAX_M and thick > 0.0):
+                return None
+            profile = [[u * length, v * length] for u, v in prof_unit]   # scale unit -> metres
+            material = p.get("material") or "unknown"
+            dens = _density(material)
+            _cite_source(dens, sources, seen)
+            if osrc and osrc not in seen:
+                sources.append({"name": osrc, "license": olic})
+                seen.add(osrc)
+            try:
+                center = tuple(float(x) for x in (p.get("center_m") or (0.0, 0.0, 0.0)))[:3]
+                center = center if len(center) == 3 else (0.0, 0.0, 0.0)
+            except Exception:
+                center = (0.0, 0.0, 0.0)
+            parts.append(Part(p.get("name") or f"part{i}", "outline", {}, material, dens,
+                              center, (0.0, 0.0, 0.0), "add", None,
+                              outline={"profile": profile, "mode": "extrude", "thickness": thick}))
             continue
         shape = (p.get("shape") or "").lower()
         if shape not in _SHAPE_DIMS:

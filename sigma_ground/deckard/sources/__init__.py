@@ -12,7 +12,8 @@ confidence) so the researcher attributes every density, never guesses.
 """
 from __future__ import annotations
 
-from . import local, web, materials_api, dimensions_api, wikipedia
+from . import local, web, materials_api, dimensions_api, wikipedia, outlines
+from .outlines import outline_of
 
 
 def density_of(material: str, *, allow_web: bool = False):
@@ -45,5 +46,5 @@ def wikipedia_summary(name: str):
     return wikipedia.summary(name)
 
 
-__all__ = ["local", "web", "materials_api", "dimensions_api", "wikipedia",
-           "density_of", "dimensions_of", "wikipedia_summary"]
+__all__ = ["local", "web", "materials_api", "dimensions_api", "wikipedia", "outlines",
+           "density_of", "dimensions_of", "outline_of", "wikipedia_summary"]
