@@ -591,34 +591,33 @@ def _resolve_positions(parts):
     return centers
 
 
-def _interfaces(composed, name_to_material, bbox, n):
-    """Every mated surface pair: adjacent distinct materials + contact area (m²).
+def _contacts(composed, bbox, n):
+    """Raw part-name adjacency over the grid: {(nameA, nameB): contact area m²}.
 
-    Walks the composed construct on a grid and tallies each face where the
-    material changes — solid↔solid, solid↔liquid, liquid↔gas, solid↔gas, and
-    anything↔ambient-air (outside). The boundary between two materials *is* the
-    interface.
+    Walks the composed construct and tallies each face where the leaf PART label
+    changes; outside/empty reads as 'air'. One sweep feeds both the interface
+    report (aggregated to materials) and mate gap-detection (kept per part).
     """
     (x0, x1), (y0, y1), (z0, z1) = bbox
     dx, dy, dz = (x1 - x0) / n, (y1 - y0) / n, (z1 - z0) / n
 
-    def mat(ix, iy, iz):
+    def lab(ix, iy, iz):
         name = composed.material_at(x0 + (ix + 0.5) * dx, y0 + (iy + 0.5) * dy,
                                     z0 + (iz + 0.5) * dz)
-        return name_to_material.get(name, "air") if name else "air"  # outside = ambient air
+        return name if name else "air"               # outside = ambient air
 
     pairs = {}
 
     def add(a, b, area):
         if a == b:
             return
-        k = tuple(sorted((a, b)))
+        k = (a, b) if a < b else (b, a)
         pairs[k] = pairs.get(k, 0.0) + area
 
     ax, ay, az = dy * dz, dx * dz, dx * dy
     prev = None
     for iz in range(n):
-        cur = [[mat(ix, iy, iz) for ix in range(n)] for iy in range(n)]
+        cur = [[lab(ix, iy, iz) for ix in range(n)] for iy in range(n)]
         for iy in range(n):
             for ix in range(n):
                 a = cur[iy][ix]
@@ -629,8 +628,25 @@ def _interfaces(composed, name_to_material, bbox, n):
                 if prev is not None:
                     add(a, prev[iy][ix], az)
         prev = cur
+    return pairs
+
+
+def _interfaces_from_contacts(raw, name_to_material):
+    """Aggregate raw part-name contacts to material pairs — every mated surface
+    pair (solid↔solid, solid↔liquid, liquid↔gas, solid↔gas, …↔ambient air). The
+    boundary between two materials *is* the interface."""
+    def m(name):
+        return name_to_material.get(name, "air") if name != "air" else "air"
+
+    mat = {}
+    for (a, b), area in raw.items():
+        ma, mb = m(a), m(b)
+        if ma == mb:
+            continue
+        k = tuple(sorted((ma, mb)))
+        mat[k] = mat.get(k, 0.0) + area
     return [{"between": list(k), "area_m2": round(v, 6)}
-            for k, v in sorted(pairs.items(), key=lambda kv: -kv[1])]
+            for k, v in sorted(mat.items(), key=lambda kv: -kv[1])]
 
 
 def _shape_mass(shape, rho, bbox, n):
@@ -786,13 +802,39 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
                       "mass_integrator_kg": M_hi, "mass_residual": stab,
                       "resolution": nhi, "note": note}
 
-    attached = {p.name for p in spec.parts}
-    validation["joints"] = [
-        {"between": [p.name, p.attach["to"]], "at": p.attach.get("their", "top")}
-        for p in spec.parts
-        if getattr(p, "attach", None) and p.attach.get("to") in attached]
-    validation["interfaces"] = _interfaces(composed, name_to_material, bbox,
-                                            min(resolution, 48))
+    raw = _contacts(composed, bbox, min(resolution, 48))
+    validation["interfaces"] = _interfaces_from_contacts(raw, name_to_material)
+
+    def _area(a, b):
+        return raw.get((a, b) if a < b else (b, a), 0.0)
+
+    # gap-detection: a declared mate that produced essentially no contact area is
+    # not a real interface — a gap, or a bare point-touch where the surfaces do
+    # not match. Report each mate's measured area; flag the empty ones.
+    mate_min = 2.0e-5                       # m² (0.2 cm²): below this is not a mate
+    joints = []
+    for p in spec.parts:
+        att = getattr(p, "attach", None)
+        if att and att.get("to") in by_name:
+            joints.append({"between": [p.name, att["to"]], "at": att.get("their", "top"),
+                           "area_m2": round(_area(p.name, att["to"]), 6)})
+    validation["joints"] = joints
+
+    conforms = [{"part": p.name, "to": p.conform,
+                 "area_m2": round(_area(p.name, p.conform), 6)}
+                for p in spec.parts
+                if getattr(p, "conform", None) and p.conform in by_name]
+    if conforms:
+        validation["conforms"] = conforms
+
+    unmated = ([{"between": j["between"], "area_m2": j["area_m2"]}
+                for j in joints if j["area_m2"] < mate_min]
+               + [{"between": [c["part"], c["to"]], "area_m2": c["area_m2"]}
+                  for c in conforms if c["area_m2"] < mate_min])
+    if unmated:
+        validation["unmated"] = unmated
+        validation["note"] += (f"  WARNING: {len(unmated)} declared mate(s) form no "
+                               f"real interface (gap or point-touch — surfaces don't match).")
 
     return Construct(
         name=spec.name, composed=composed, density_by_label=density,

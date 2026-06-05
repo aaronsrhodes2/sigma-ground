@@ -206,6 +206,20 @@ def test_conform_auto_seats_against_its_attach_target():
     assert c.material_at(0.0, 0.0, 0.032) == "stud"
 
 
+def test_unmated_declared_mate_is_flagged():
+    # a stud told to conform to the ball but positioned away from it: no overlap,
+    # so no real interface forms -> Deckard flags it (the spec must seat it).
+    spec = ConstructSpec(name="no-touch", kind="composite", parts=[
+        Part("ball", "sphere", {"radius_m": Fact(0.03)}, "steel", density_of("steel")),
+        Part("stud", "cylinder", {"radius_m": Fact(0.01), "height_m": Fact(0.06)},
+             "aluminium", density_of("aluminium"), center_m=(0, 0, 0.10), conform="ball")])
+    c = compile(spec, resolution=56)
+    assert c.validation.get("unmated")                       # the gap is caught
+    flagged = {frozenset(u["between"]) for u in c.validation["unmated"]}
+    assert frozenset({"stud", "ball"}) in flagged
+    assert "WARNING" in c.validation["note"]
+
+
 def test_attach_mates_parts_at_an_interface_no_overlap():
     spec = ConstructSpec(name="post-cap", kind="composite", parts=[
         Part("cap", "box", {"x_m": Fact(0.06), "y_m": Fact(0.06), "z_m": Fact(0.02)},
@@ -224,10 +238,13 @@ def test_attach_mates_parts_at_an_interface_no_overlap():
     assert c.material_at(0.0, 0.0, 0.288) == "post"
     assert c.material_at(0.0, 0.0, 0.292) == "cap"
     # solids that mate form a real interface (oak post ↔ steel cap), and the
-    # declared joint is recorded
+    # declared joint is recorded with its measured contact area
     pairs = {frozenset(i["between"]) for i in c.validation["interfaces"]}
     assert frozenset({"oak", "steel"}) in pairs
-    assert c.validation["joints"] == [{"between": ["post", "cap"], "at": "bottom"}]
+    j = c.validation["joints"][0]
+    assert j["between"] == ["post", "cap"] and j["at"] == "bottom"
+    assert j["area_m2"] > 2e-5                       # a real mate, not a point-touch
+    assert not c.validation.get("unmated")           # ...so nothing is flagged
 
 
 def test_researcher_emits_attachment():
