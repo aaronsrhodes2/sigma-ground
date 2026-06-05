@@ -114,6 +114,7 @@ class Part:
     attach: dict | None = None          # {"to": <part>, "my": <anchor>, "their": <anchor>}
     fill: dict | None = None            # fluid fill: {"of": <cavity>, "fraction": 0..1, "gas": <material>}
     conform: str | None = None          # name of the solid this part yields to (carved to mate)
+    outline: dict | None = None         # swept profile: {"profile":[[u,v],...],"mode":"extrude|revolve","thickness":t}
 
     def to_dict(self) -> dict:
         d = {
@@ -132,6 +133,12 @@ class Part:
             d["fill"] = dict(self.fill)
         if self.conform:
             d["conform"] = self.conform
+        if self.outline:
+            d["outline"] = {
+                "profile": [[float(u), float(v)] for u, v in self.outline.get("profile", [])],
+                "mode": self.outline.get("mode", "extrude"),
+                "thickness": self.outline.get("thickness"),
+            }
         return d
 
     @classmethod
@@ -148,6 +155,7 @@ class Part:
             attach=d.get("attach"),
             fill=d.get("fill"),
             conform=d.get("conform"),
+            outline=d.get("outline"),
         )
 
 

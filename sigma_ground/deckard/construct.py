@@ -21,6 +21,7 @@ import math
 from dataclasses import dataclass, field
 
 from ..kernel.shapes import Cylinder, Sphere, Box, Cone, Torus, Ellipsoid
+from ..kernel.outline import Outline
 from ..kernel.csg import ComposedSDF
 from .sources import density_of as _density_of
 
@@ -191,6 +192,10 @@ def _shape_from(part, center=None):
         return Torus(d["major_radius_m"], d["minor_radius_m"], center=c)
     if s == "ellipsoid":
         return Ellipsoid(d["rx_m"], d["ry_m"], d["rz_m"], center=c)
+    if s == "outline":
+        o = getattr(part, "outline", None) or {}
+        return Outline(o.get("profile") or [], o.get("mode", "extrude"),
+                       o.get("thickness"), center=c)
     raise ValueError(f"unsupported primitive shape '{part.shape}' in part '{part.name}'")
 
 
@@ -211,6 +216,16 @@ def _half_extent(part):
         return (rr, rr, d["minor_radius_m"])
     if s == "ellipsoid":
         return (d["rx_m"], d["ry_m"], d["rz_m"])
+    if s == "outline":
+        o = getattr(part, "outline", None) or {}
+        prof = o.get("profile") or []
+        if (o.get("mode", "extrude")) == "revolve":
+            hr = max((abs(r) for _, r in prof), default=0.0)
+            hz = max((abs(z) for z, _ in prof), default=0.0)
+            return (hr, hr, hz)
+        hx = max((abs(u) for u, _ in prof), default=0.0)
+        hy = max((abs(v) for _, v in prof), default=0.0)
+        return (hx, hy, 0.5 * float(o.get("thickness") or 0.0))
     raise ValueError(f"no AABB for shape '{part.shape}'")
 
 

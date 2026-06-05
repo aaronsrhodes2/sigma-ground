@@ -292,3 +292,25 @@ def test_researcher_emits_conform():
     assert parse_markdown(emit_markdown(spec)).parts[1].conform == "ball"   # round-trips
     c = compile(spec, resolution=64)
     assert c.validation["mode"] == "conforming" and c.validation["passed"]
+
+
+def test_outline_part_builds_organic_matter_through_deckard():
+    # a feather: an EXTRUDED keratin vane (a researched 2D outline the analytic
+    # kit can't express) + a cylinder shaft laid flat along it. Compiles to
+    # validated matter through the same integrator as every other shape.
+    vane = [[-0.05, 0.0], [-0.01, 0.012], [0.0, 0.013], [0.02, 0.010],
+            [0.05, 0.0], [0.02, -0.010], [0.0, -0.013], [-0.01, -0.012]]
+    spec = ConstructSpec(name="feather", kind="composite", parts=[
+        Part("vane", "outline", {}, "keratin", Fact(1300.0),
+             outline={"profile": vane, "mode": "extrude", "thickness": 0.0006}),
+        Part("rachis", "cylinder", {"radius_m": Fact(0.0008), "height_m": Fact(0.10)},
+             "keratin", Fact(1300.0), euler_deg=(0, 90, 0))])
+    c = compile(spec, resolution=72)
+    assert c.validation["passed"]
+    assert 0.3e-3 < c.mass_kg < 5e-3                     # ~1 g, a feather
+    assert c.material_at(0.0, 0.008, 0.0) == "vane"      # the vane holds real matter
+    assert c.material_at(0.0, 0.0, 0.0) == "rachis"      # shaft through the centre
+    # the researched outline survives the cited-markdown round-trip
+    rt = parse_markdown(emit_markdown(spec))
+    assert rt.parts[0].outline["mode"] == "extrude"
+    assert len(rt.parts[0].outline["profile"]) == len(vane)
