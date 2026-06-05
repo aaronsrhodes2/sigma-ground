@@ -1,16 +1,17 @@
 """Deckard's Researcher — synthesise a cited ConstructSpec for an unknown name.
 
-Primary: Gemini-free (``google-generativeai`` with the dev-root ``.env`` key);
-fallback: local qwen via ollama ``/api/chat``. (The env-load + call are inlined
-rather than imported from the mcp layer, which sits far above deckard in the
-role tiers.) The LLM proposes the object's *shape* — either a hollow
-``layered_vessel`` or a ``composite`` of solid primitives — plus material names;
-Deckard GROUNDS each density in our own data (``sources.local``) and flags
-LLM-proposed dimensions as ``[estimated]``. Offline or on any failure it returns
-None, so ``research()`` falls back to a flagged best-guess — never a fake.
+Fully LOCAL: the research LLM is qwen via ollama ``/api/chat`` (Gemini dropped —
+no cloud, no API key). The prompt is GROUNDED with a free, cached Wikipedia
+extract of the object (its real typical proportions + what it is made of), so the
+model anchors the shape it proposes in web text rather than pure recall. The LLM
+proposes the object's *shape* — either a hollow ``layered_vessel`` or a
+``composite`` of solid primitives — plus material names; Deckard GROUNDS each
+density in our own data / Wikidata (``sources``) and flags LLM-proposed dimensions
+as ``[estimated]``. Offline or on any failure it returns None, so ``research()``
+falls back to a flagged best-guess — never a fake.
 
-Facts-first, facts-and-primitives only: no images, no meshes — the LLM supplies
-proportions, our data supplies attributable densities.
+Facts-first, facts-and-primitives only: no images, no meshes — the web + the
+model supply proportions, our data supplies attributable densities.
 """
 from __future__ import annotations
 
@@ -24,7 +25,6 @@ from . import sources as _sources
 
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.environ.get("DECKARD_OLLAMA_MODEL", "qwen2.5:7b")
-GEMINI_MODEL = os.environ.get("DECKARD_GEMINI_MODEL", "gemini-2.5-flash")
 
 _SYS = (
     "You are Deckard, a shape researcher for a physics compiler. Given an "
@@ -70,49 +70,6 @@ _SYS = (
 )
 
 
-def _load_dev_env() -> None:
-    """Best-effort: load KEY=VALUE from the nearest ancestor .env (no override).
-
-    Mirrors the dev-root .env convention without importing the mcp layer (which
-    would invert the role tiers — deckard sits well below mcp).
-    """
-    import pathlib
-    cwd = pathlib.Path.cwd().resolve()
-    pkg = pathlib.Path(__file__).resolve()
-    seen: set = set()
-    for d in [cwd, *cwd.parents, *pkg.parents]:
-        p = d / ".env"
-        if p in seen or not p.is_file():
-            continue
-        seen.add(p)
-        try:
-            for line in p.read_text(encoding="utf-8").splitlines():
-                line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    k, _, v = line.partition("=")
-                    os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
-        except Exception:
-            pass
-
-
-def _gemini(name: str) -> str | None:
-    """Ask Gemini-free; return raw text or None (no key / error / offline)."""
-    key = os.environ.get("GEMINI_FREE_API_KEY") or os.environ.get("GEMINI_API_KEY")
-    if not key:
-        _load_dev_env()
-        key = os.environ.get("GEMINI_FREE_API_KEY") or os.environ.get("GEMINI_API_KEY")
-    if not key:
-        return None
-    try:
-        import google.generativeai as genai
-        genai.configure(api_key=key)
-        model = genai.GenerativeModel(GEMINI_MODEL, system_instruction=_SYS)
-        resp = model.generate_content(name)
-        return (getattr(resp, "text", "") or "") or None
-    except Exception:
-        return None
-
-
 def _qwen(name: str) -> str | None:
     """Ask local qwen via ollama /api/chat; return raw text or None."""
     body = json.dumps({
@@ -131,8 +88,23 @@ def _qwen(name: str) -> str | None:
 
 
 def _ask(name: str) -> str | None:
-    """Default LLM: Gemini-free primary, local qwen fallback."""
-    return _gemini(name) or _qwen(name)
+    """The research LLM: LOCAL qwen via ollama (Gemini dropped — fully local)."""
+    return _qwen(name)
+
+
+def _augment_with_web(name: str) -> str:
+    """Prepend a free Wikipedia extract (the object's real typical dimensions and
+    what it is made of) to the research prompt, so the model GROUNDS the shape in
+    web text rather than pure recall. Degrades silently to the bare name when
+    offline or when there's no article — research still runs."""
+    try:
+        extract = _sources.wikipedia_summary(name)
+    except Exception:
+        extract = None
+    if not extract:
+        return name
+    return (f"{name}\n\nReference (Wikipedia — use it for this object's typical "
+            f"real dimensions and what it is made of):\n{extract}")
 
 
 _JSON = re.compile(r"\{.*\}", re.DOTALL)
@@ -269,15 +241,20 @@ def _build_parts_spec(name: str, data: dict, model: str) -> ConstructSpec | None
     )
 
 
-def research_spec(name: str, *, ask=None, model: str = GEMINI_MODEL) -> ConstructSpec | None:
-    """Synthesise a cited ConstructSpec for ``name`` via the LLM, or None.
+def research_spec(name: str, *, ask=None, model: str = OLLAMA_MODEL) -> ConstructSpec | None:
+    """Synthesise a cited ConstructSpec for ``name`` via the local LLM, or None.
 
-    ``ask`` (name -> raw LLM text or None) is injectable for testing; it defaults
-    to Gemini-free → qwen. Dispatches on the proposed kind (vessel or composite).
-    Returns None on no-LLM / bad output / unknown so research() can fall back to a
-    flagged best-guess.
+    ``ask`` (name -> raw LLM text or None) is injectable for testing; in
+    production it is local qwen and the prompt is GROUNDED with a free Wikipedia
+    extract of the object (real proportions + composition). Dispatches on the
+    proposed kind (vessel or composite). Returns None on no-LLM / bad output /
+    unknown so research() can fall back to a flagged best-guess.
     """
-    raw = (ask or _ask)(name)
+    if ask is None:                       # production: local qwen, web-grounded
+        ask, query = _ask, _augment_with_web(name)
+    else:                                 # injected (tests): bare name, no network
+        query = name
+    raw = ask(query)
     if not raw:
         return None
     m = _JSON.search(raw)
@@ -297,4 +274,4 @@ def research_spec(name: str, *, ask=None, model: str = GEMINI_MODEL) -> Construc
     return None
 
 
-__all__ = ["research_spec", "GEMINI_MODEL", "OLLAMA_MODEL"]
+__all__ = ["research_spec", "OLLAMA_MODEL"]

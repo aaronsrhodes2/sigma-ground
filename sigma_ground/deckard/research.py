@@ -2,8 +2,8 @@
 
 Order of resolution:
   1. a frozen catalog hit (``catalog/<slug>.md``) — deterministic, offline;
-  2. on a miss, the Researcher (``researcher.py``: Gemini-free → local qwen,
-     grounded by our own data + free factual APIs) synthesises and freezes one;
+  2. on a miss, the Researcher (``researcher.py``: local qwen, prompt grounded by
+     a free Wikipedia extract + our own data/Wikidata) synthesises and freezes one;
   3. if that is unavailable or fails, a flagged best-guess (identified=False).
 
 The Deckard–Cain discipline: a partial ID is allowed, a confident fake is not.
