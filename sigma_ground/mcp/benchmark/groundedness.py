@@ -66,8 +66,16 @@ def assess(record: dict) -> Groundedness:
                              f"deterministic dispatch ({record.get(hit, hit) if hit else 'classifier'})",
                              "classifier")
 
-    # 2. LLM path, but it called a real tool and got a value -> grounded.
+    # 2. LLM path, it called a real tool and got a value. Require the value to be
+    # a CONCRETE finite quantity (not NaN/inf or a half-rendered LaTeX fragment /
+    # flag string) — a present-but-garbage value is still ungrounded. Reuses the
+    # shared infallibility gate (materia.groundedness, tier 3).
     if tool_calls and value is not None:
+        from sigma_ground.materia import groundedness as _mg
+        vq = _mg.check_value(value)
+        if not vq.grounded:
+            return Groundedness(False, f"tool ran but value not grounded "
+                                f"({vq.detail})", "ungrounded")
         return Groundedness(True,
                              f"LLM tool-grounded ({len(tool_calls)} tool call(s))",
                              "tool_call")
@@ -76,6 +84,26 @@ def assess(record: dict) -> Groundedness:
     if not tool_calls:
         return Groundedness(False, "LLM answered with no tool call", "ungrounded")
     return Groundedness(False, "LLM produced no library-backed value", "ungrounded")
+
+
+def route_consistent(sample_a: list[dict], sample_b: list[dict]) -> bool:
+    """Route-consistency cross-check (the LLM router's gate 2): two independent
+    routing samples must agree on which TOOL(S) were called. If they diverge the
+    model is uncertain which tool fits — exactly how a question gets sent to the
+    WRONG tool — so the answer should be refused, not served. Run the routing
+    twice (the second at higher temperature) and pass the two tool-call lists;
+    False → refuse. This is the OPT-IN high-assurance mode: it doubles routing
+    cost, so it trades latency for catching the wrong-tool class of errors.
+    """
+    def _names(tcs):
+        out = []
+        for t in (tcs or []):
+            fn = t.get("function") or {}
+            n = fn.get("name") or t.get("name")
+            if n:
+                out.append(n)
+        return tuple(sorted(out))
+    return _names(sample_a) == _names(sample_b)
 
 
 def apply_gate(record: dict) -> dict:

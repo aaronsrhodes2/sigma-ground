@@ -569,7 +569,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "[Input interpretation] diamond (mineral) | refractive indices\n[Result] 2.418 | 0 | 0 | 0 | 0 | 0\n(the elements of the property list refer to \\!\\(\\*SubscriptBox[\\(n\\), \\(\u03b1\\)]\\), \\!\\(\\*SubscriptBox[\\(n\\), \\(\u03b2\\)]\\), \\!\\(\\*SubscriptBox[\\(n\\), \\(\u03b3\\)]\\), \\!\\(\\*SubscriptBox[\\(n\\), \\(\u03c9\\)]\\), \\!\\(\\*SubscriptBox[\\(n\\), \\(\u03f5\\)]\\), and n respectively)",
       "elapsed_s": 0.9112720489501953,
-      "notes": "rel_err 8.264e-04"
+      "notes": "match"
     },
     {
       "id": "optics_009",
@@ -725,7 +725,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "[Input interpretation] convert iron | melting point to degrees Celsius\n[Result] 1538 \u00b0C (degrees Celsius)\n[Additional conversions] 1811 K (kelvins)\n[Additional conversions] 2800 \u00b0F (degrees Fahrenheit)\n[Additional conversions] 3260 \u00b0R (degrees Rankine)\n[Additional conversions] 1230 \u00b0R\u00e9 (degrees R\u00e9aumur)\n[Additional conversions] 815 \u00b0R\u00f8 (degrees R\u00f8mer)\n[Comparisons as temperature] 130 \u00b0C below melting temperature of titanium (1668 \u00b0C)\n[Comparisons as temperature] 60 \u00b0C below temperature of a Bunsen burner flame (1870 K)\n[Comparisons as temperature] 140 \u00b0C above temperature in the blue part of a candle flame (1670 K)\n[Blackbody information] perceived color | \npeak wavelength | 1.6 \u03bcm (micrometers)\npeak frequency | 106.5 THz (terahertz)\n[Corresponding quantities] Thermodynamic energy E from E = kT:\n | 16 ceV (centielectronvolts)\n[Corresponding quantities] Blackbody energy flux \u03a6 from \u03a6 = \u03c3T^4:\n | 610000 W/m^2 (watts per square meter)\n[Corresponding quantities] Approximate luminous exitance from a planar blackbody radiator perpendicular to its surface:\n | 402000 lx (lux)",
       "elapsed_s": 2.5326650142669678,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "thermo_009",
@@ -738,7 +738,7 @@
       "tolerance_rel": 0.001,
       "answer_text": "[Input interpretation] convert water | freezing point to kelvins\n[Result] 273.2 K (kelvins)\n[Additional conversions] 0.2732 kK (kilokelvins)\n[Additional conversions] 2.732\u00d710^-4 MK (megakelvins)\n[Additional conversions] 0 \u00b0C (degrees Celsius)\n[Additional conversions] 32 \u00b0F (degrees Fahrenheit)\n[Additional conversions] 491.7 \u00b0R (degrees Rankine)\n[Comparisons as temperature] 15.56 K below temperature at standard temperature and pressure using the US customary convention (60 \u00b0F)\n[Comparisons as temperature] 15 K below temperature at standard temperature and pressure using the convention of European and South American natural gas companies (15 \u00b0C)\n[Comparisons as temperature] \u2248 temperature at standard temperature and pressure using the International Union of Pure and Applied Chemistry convention (0 \u00b0C)\n[Corresponding quantities] Thermodynamic energy E from E = kT:\n | 24 meV (millielectronvolts)\n[Corresponding quantities] Blackbody energy flux \u03a6 from \u03a6 = \u03c3T^4:\n | 316 W/m^2 (watts per square meter)\n[Corresponding quantities] Approximate luminous exitance from a planar blackbody radiator perpendicular to its surface:\n | 3.1\u00d710^-24 lx (lux)",
       "elapsed_s": 1.7303509712219238,
-      "notes": "rel_err 1.830e-04"
+      "notes": "match"
     },
     {
       "id": "thermo_010",
@@ -764,7 +764,7 @@
       "tolerance_rel": 0.001,
       "answer_text": "[Input interpretation] convert 100 \u00b0C (degrees Celsius) to kelvins\n[Result] 373.2 K (kelvins)\n[Additional conversions] 0.37315 kK (kilokelvins)\n[Additional conversions] 3.7315\u00d710^-4 MK (megakelvins)\n[Additional conversions] 212 \u00b0F (degrees Fahrenheit)\n[Additional conversions] 671.67 \u00b0R (degrees Rankine)\n[Additional conversions] 80 \u00b0R\u00e9 (degrees R\u00e9aumur)\n[Comparisons as temperature] 27 K below hottest temperature of a Concorde nose tip (127 \u00b0C)\n[Comparisons as temperature] 0.016 K above temperature at which water boils at standard pressure (99.9839 \u00b0C)\n[Comparisons as temperature] 80 K above conventional US room temperature (68 \u00b0F)\n[Interpretations] temperature\n[Basic unit dimensions] [temperature]\n[Corresponding quantities] Thermodynamic energy E from E = kT:\n | 32 meV (millielectronvolts)\n[Corresponding quantities] Blackbody energy flux \u03a6 from \u03a6 = \u03c3T^4:\n | 1099 W/m^2 (watts per square meter)\n[Corresponding quantities] Approximate luminous exitance from a planar blackbody radiator perpendicular to its surface:\n | 9.1\u00d710^-16 lx (lux)\n[Nearest corresponding gas marks] | temperature | usage\nstufe 1/2 | 212 \u00b0F | Germany\n(actual measurements may vary)",
       "elapsed_s": 1.6674346923828125,
-      "notes": "rel_err 1.340e-04"
+      "notes": "match"
     },
     {
       "id": "thermo_012",
@@ -881,7 +881,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "[Input interpretation] convert 1 J (joule) to electronvolts\n[Result] 6.242\u00d710^18 eV (electronvolts)\n[Additional conversions] 6.242 EeV (exaelectronvolts)\n[Additional conversions] 6.242\u00d710^9 GeV (gigaelectronvolts)\n[Additional conversions] 1000 mJ (millijoules)\n[Additional conversions] 1\u00d710^7 ergs\n (unit officially deprecated)\n[Comparisons as energy] \u2248 30 \u00d7 estimated energy of most energetic neutrino ever detected (2025) ( \u2248 200 PeV )\n[Comparisons as energy] \u2248 100 \u00d7 acoustic energy contained in a whisper ( \u2248 0.01 J )\n[Interpretations] energy\n[Basic unit dimensions] [mass] [length]^2 [time]^(-2)\n[Corresponding quantities] Relativistic mass m from E = mc^2:\n | 11 fg (femtograms)\n | 1.1\u00d710^-17 kg (kilograms)\n[Corresponding quantities] Spectroscopic wavenumber for a photon from the Planck relation connecting spectroscopic wavenumber \u03bd^~ with energy E = hc\u03bd^~:\n | 5.034\u00d710^24 m^(-1) (reciprocal meters)\n[Corresponding quantities] Corresponding molar energy:\n | 6.022\u00d710^23 J/mol (joules per mole)",
       "elapsed_s": 1.459014654159546,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "modern_009",
@@ -998,7 +998,7 @@
       "tolerance_rel": 0.05,
       "answer_text": "[Input information] 1 keV (kiloelectronvolt)\ne^- (electron) (mass): 510.9989461 keV/c^2\n[De Broglie relations] kinetic energy | 1 keV (kiloelectronvolt)\nmass | e^- (electron) (mass): 510.9989461 keV/c^2\n[De Broglie relations] wavelength | 38.78299449 pm (picometers)\n= 1.526889547\u00d710^-9 inches\n= 0.03878299449 nm (nanometers)\n[Relativistic de Broglie relations] kinetic energy | 1 keV (kiloelectronvolt)\nmass | e^- (electron) (mass): 510.9989461 keV/c^2\n[Relativistic de Broglie relations] wavelength | 38.7640343 pm (picometers)\n= 1.526143083\u00d710^-9 inches\n= 0.0387640343 nm (nanometers)",
       "elapsed_s": 1.5661735534667969,
-      "notes": "rel_err 4.383e-04 [unit-converted 'inches'->'m']"
+      "notes": "match [unit-converted inches->m]"
     },
     {
       "id": "qm_006",
@@ -1063,7 +1063,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "[Input interpretation] carbon | first ionization energy\n[Result] 11.261 eV (molar electronvolts)\n[Unit conversions] 1.0865 MJ/mol (megajoules per mole)\n[Unit conversions] 1.0865\u00d710^6 J/mol (joules per mole)\n[Unit conversions] 259.68 kcal/mol (thermochemical kilocalories per mole)\n[Unit conversions] 11.261 eV (molar electronvolts)\n[Comparisons as molar ionization energy] \u2248 0.46 \u00d7 molar energy required to remove the first electron from helium ( 2372 kJ/mol )\n[Comparisons as molar ionization energy] \u2248 2.9 \u00d7 molar energy required to remove the first electron from cesium ( 377 kJ/mol )",
       "elapsed_s": 2.7209200859069824,
-      "notes": "rel_err 8.881e-05"
+      "notes": "match"
     },
     {
       "id": "qm_011",
@@ -1128,7 +1128,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "[Input interpretation] Sun | escape velocity\n[Result] 1.3814\u00d710^6 mph (miles per hour)\n[Unit conversions] 617.54 km/s (kilometers per second)\n[Unit conversions] 617540 m/s (meters per second)\n[Unit conversions] 383.72 mi/s (miles per second)\n[Unit conversions] 0.0020599 c (speed of light)\n[Comparisons as speed] \u2248 0.56 \u00d7 Rydberg speed ( 1.09384563\u00d710^6 m/s )\n[Comparisons as speed] \u2248 (1 to 1.2) \u00d7 escape velocity from the Milky Way ( 494 to 596 km/s )\n[Comparisons as speed] \u2248 1.4 \u00d7 typical speed of the solar wind ( \u2248 450000 m/s )\n[Corresponding quantities] Time to travel 1 meter from t = d/v:\n | 1.6 \u03bcs (microseconds)\n[Corresponding quantities] Time to travel 1 kilometer from t = d/v:\n | 1.6 ms (milliseconds)\n[Corresponding quantities] Slowness from s = 1/v:\n | 1.6\u00d710^-6 s/m (seconds per meter)",
       "elapsed_s": 2.271111488342285,
-      "notes": "rel_err 2.573e-04 [unit-converted 'mph (miles per hour)'->'m/s']"
+      "notes": "match [unit-converted mph->m/s]"
     },
     {
       "id": "mech_adv_004",
@@ -1518,7 +1518,7 @@
       "tolerance_rel": 0.05,
       "answer_text": "[Input interpretation] \u03c1_crit (universe critical mass density)\n[Definition] (3 H_0^2)/(8 \u03c0 G)\n(H_0: Hubble parameter; G: Newtonian gravitational constant)\n[Value] \u2248 9\u00d710^-27 kg/m^3 (kilograms per cubic meter)\n[Value] \u2248 9\u00d710^-30 g/cm^3 (grams per cubic centimeter)\n[Comparisons] \u2248 universe mass density ( \u2248 9\u00d710^-27 kg/m^3 )\n[Comparisons] \u2248 1.5 \u00d7 universe dark energy mass density ( \u2248 6\u00d710^-27 kg/m^3 )\n[Comparisons] \u2248 3 \u00d7 universe pressureless matter mass density ( \u2248 3\u00d710^-27 kg/m^3 )\n[Interpretation] mass density\n[Basic unit dimensions] [mass] [length]^(-3)",
       "elapsed_s": 1.312856912612915,
-      "notes": "rel_err 4.408e-02"
+      "notes": "match"
     },
     {
       "id": "cosmo_004",
@@ -1609,7 +1609,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "[Input interpretation] Sun | effective temperature\n[Result] 5772 K (kelvins)\n[Unit conversions] 5.772 kK (kilokelvins)\n[Unit conversions] 0.005772 MK (megakelvins)\n[Unit conversions] 5499 \u00b0C (degrees Celsius)\n[Unit conversions] 9930 \u00b0F (degrees Fahrenheit)\n[Unit conversions] 10390 \u00b0R (degrees Rankine)\n[Comparison as temperature] 120 K above inner core boundary temperature of the earth (5650 K)\n[Corresponding quantities] Thermodynamic energy E from E = kT:\n | 50 ceV (centielectronvolts)\n[Corresponding quantities] Blackbody energy flux \u03a6 from \u03a6 = \u03c3T^4:\n | 6.294\u00d710^7 W/m^2 (watts per square meter)\n[Corresponding quantities] Approximate luminous exitance from a planar blackbody radiator perpendicular to its surface:\n | 5.793\u00d710^9 lx (lux)",
       "elapsed_s": 3.4330296516418457,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "astro_003",
@@ -1674,7 +1674,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "[Input information] equation of motion for an object at the speed of light | \ndistance | 1 pc (parsec)\n[Result] time | 1.029\u00d710^8 seconds\n= 1.715\u00d710^6 minutes\n= 28591 hours\n[Equation] d = c t | \nt | time\nd | distance\nc | speed of light (\u2248 2.998\u00d710^8 m/s)\n(assuming an inertial observer)",
       "elapsed_s": 1.0910732746124268,
-      "notes": "rel_err 3.972e-04 [unit-converted 'seconds'->'year']"
+      "notes": "match [unit-converted seconds->year]"
     },
     {
       "id": "astro_008",
@@ -1700,7 +1700,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "[Input information] energy formula for luminosity | \nstellar luminosity | Sun (star) (luminosity): 3.83\u00d710^26 W (watts)\ntime | 1 year\n[Result] energy | 1.207\u00d710^34 J (joules)\n= 7.535\u00d710^52 eV (electronvolts)\n= 1.144\u00d710^31 BTU_IT (IT British thermal units)\n[Equation] E = L t | \nE | energy\nL | stellar luminosity\nt | time",
       "elapsed_s": 1.4127678871154785,
-      "notes": "rel_err 2.479e-03"
+      "notes": "match"
     },
     {
       "id": "astro_010",
@@ -1726,7 +1726,7 @@
       "tolerance_rel": 0.001,
       "answer_text": "[Input interpretation] Jupiter | mass\n[Result] 1.898\u00d710^27 kg (kilograms)\n[Unit conversions] 4.185\u00d710^27 lb (pounds)\n[Unit conversions] 1.898\u00d710^30 grams\n[Unit conversions] 1.898\u00d710^24 t (metric tons)\n[Unit conversions] 9.55\u00d710^-4 M_\u2609 (solar masses)\n[Comparisons as mass] \u2248 ( 0.011 \u2248 1/93 ) \u00d7 mass of AB Doradus C ( \u2248 93 M_\u2643 )\n[Comparisons as mass] \u2248 ( 0.012 \u2248 1/85 ) \u00d7 mass of EBLM J0555-57Ab (smallest known main sequence star as of 2018) ( \u2248 85 M_\u2643 )\n[Comparisons as mass] \u2248 320 \u00d7 Earth mass ( \u2248 5.97\u00d710^24 kg )\n[Corresponding quantities] Relativistic energy E from E = mc^2:\n | 1.706\u00d710^44 J (joules)\n | 1.065\u00d710^63 eV (electronvolts)\n[Corresponding quantities] Weight w of a body from w = mg:\n | 4.185\u00d710^27 lbf (pounds-force)\n | 1.861\u00d710^28 N (newtons)\n | 1.861\u00d710^33 dynes\n | 1.898\u00d710^30 ponds",
       "elapsed_s": 1.8912856578826904,
-      "notes": "rel_err 6.849e-05"
+      "notes": "match"
     },
     {
       "id": "astro_012",
@@ -1739,7 +1739,7 @@
       "tolerance_rel": 0.05,
       "answer_text": "[Input interpretation] convert Polaris | distance from Earth to light years\n[Result] 447.6 ly (light years)\n[Additional conversions] 137.2 pc (parsecs)\n[Additional conversions] 0.1372 kpc (kiloparsecs)\n[Additional conversions] 4.235\u00d710^15 km (kilometers)\n[Additional conversions] 4.235\u00d710^18 meters\n[Additional conversions] 2.631 quadrillion miles\n[Corresponding quantities] Light travel time t in vacuum from t = x/c:\n | 448 years\n[Corresponding quantities] Light travel time t in an optical fiber t = 1.48x/c:\n | 663 years\n[Corresponding quantities] Parallax p from distance d using d/parsec = arcsecond/p:\n | 7.3 mas (milliarcseconds)\n | 35 nrad (nanoradians)",
       "elapsed_s": 1.5290803909301758,
-      "notes": "rel_err 3.253e-02"
+      "notes": "match"
     },
     {
       "id": "atom_001",
@@ -1752,7 +1752,7 @@
       "tolerance_rel": 0,
       "answer_text": "[Input interpretation] gold | atomic number\n[Result] 79",
       "elapsed_s": 0.9449119567871094,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "atom_002",
@@ -1765,7 +1765,7 @@
       "tolerance_rel": 0.001,
       "answer_text": "[Input interpretation] convert carbon | atomic mass to unified atomic mass units\n[Result] 12.011 u (unified atomic mass units)\n[Additional conversions] 12.011 Da (daltons)\n[Additional conversions] 0.012011 kDa (kilodaltons)\n[Additional conversions] 1.9945\u00d710^-23 grams\n[Additional conversions] 1.9945\u00d710^-26 kg (kilograms)\n[Additional conversions] 12.012 chemical atomic mass units\n (unit officially deprecated)\n[Corresponding quantities] Relative atomic mass A_r from A_r = m_aN_A/M_u:\n | 12\n[Corresponding quantities] Molar mass M from M = m_aN_A:\n | 12 g/mol (grams per mole)",
       "elapsed_s": 1.705409288406372,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "atom_003",
@@ -1817,7 +1817,7 @@
       "tolerance_rel": 0,
       "answer_text": "[Input interpretation] iron | atomic number\n[Result] 26",
       "elapsed_s": 0.9107234477996826,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "atom_007",
@@ -1843,7 +1843,7 @@
       "tolerance_rel": 0.001,
       "answer_text": "[Input interpretation] uranium | atomic mass\n[Result] 238.02891 u (unified atomic mass units)\n[Unit conversions] 238.02891 Da (daltons)\n[Unit conversions] 0.23802891 kDa (kilodaltons)\n[Unit conversions] 3.952563\u00d710^-22 grams\n[Unit conversions] 3.952563\u00d710^-25 kg (kilograms)\n[Unit conversions] 238.0391 chemical atomic mass units\n (unit officially deprecated)\n[Corresponding quantities] Relative atomic mass A_r from A_r = m_aN_A/M_u:\n | 238\n[Corresponding quantities] Molar mass M from M = m_aN_A:\n | 238 g/mol (grams per mole)",
       "elapsed_s": 1.2428185939788818,
-      "notes": "rel_err 3.781e-07"
+      "notes": "match"
     },
     {
       "id": "nuc_001",
@@ -2019,7 +2019,7 @@
       "tolerance_rel": 0.001,
       "answer_text": "[Input interpretation] convert 1 ly (light year) to meters\n[Result] 9.461\u00d710^15 meters\n[Additional conversions] 5.879 trillion miles\n[Additional conversions] 9.461\u00d710^12 km (kilometers)\n[Additional conversions] 63241 au (astronomical units)\n[Additional conversions] 0.3066 pc (parsecs)\n[Comparisons as distance] \u2248 ( 0.24 \u2248 1/4 ) \u00d7 distance from Earth to Proxima Centauri ( \u2248 4.22 ly )\n[Comparisons as distance] \u2248 0.9 \u00d7 distance from the Sun to the Oort cloud's boundary ( \u2248 1.05\u00d710^16 m )\n[Interpretations] length\n[Interpretations] distance\n[Corresponding quantities] Light travel time t in vacuum from t = x/c:\n | 1 year\n[Corresponding quantities] Light travel time t in an optical fiber t = 1.48x/c:\n | 1.5 years\n[Corresponding quantities] Angular wavelength \u019b from \u019b = \u03bb/(2\u03c0):\n | 1.506\u00d710^15 meters\n[Corresponding quantities] Spectroscopic wavenumber \u03bd^~ from \u03bd^~ = 1/\u03bb:\n | 1.1\u00d710^-18 cm^(-1) (reciprocal centimeters)\n | 1.1\u00d710^-18 wavenumbers\n[Corresponding quantities] Wavenumber k from k = 2\u03c0/\u03bb:\n | 6.641\u00d710^-18 cm^(-1) (reciprocal centimeters)\n[Corresponding quantities] Wavelength \u03bb from \u03bb = 2\u03c0\u019b:\n | 5.944\u00d710^16 meters\n[Corresponding quantities] Spectroscopic wavenumber \u03bd^~ from \u03bd^~ = 2\u03c0/\u019b:\n | 6.641\u00d710^-16 m^(-1) (reciprocal meters)\n[Corresponding quantities] Wavenumber k from k = 1/\u019b:\n | 1.1\u00d710^-16 m^(-1) (reciprocal meters)\n[Corresponding quantities] Optical power P from P = 1/f:\n | 1.1\u00d710^-16 D (diopters)",
       "elapsed_s": 1.8738391399383545,
-      "notes": "rel_err 3.171e-05 [unit-converted 'meters'->'m']"
+      "notes": "match"
     },
     {
       "id": "math_007",
@@ -2032,7 +2032,7 @@
       "tolerance_rel": 0.001,
       "answer_text": "[Input interpretation] simplify | sin^2(x) + cos^2(x)\n[Result] 1",
       "elapsed_s": 0.7283389568328857,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     }
   ]
 }

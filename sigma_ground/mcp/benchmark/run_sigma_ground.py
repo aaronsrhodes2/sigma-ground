@@ -49,6 +49,18 @@ YOU DO NOT HAVE PHYSICS KNOWLEDGE OF YOUR OWN.
   - You do not "reason in prose" about the problem before calling a tool.
   - The sigma-ground library is the SINGLE source of physics truth here.
 
+YOU DO NOT DO MATH IN YOUR HEAD EITHER.
+  - For ANY mathematics -- integrals, derivatives, solving equations,
+    determinants, eigenvalues, matrix inverses, limits, Taylor/series,
+    summations, Laplace/Fourier transforms, factoring/expanding, ODEs,
+    gradient/divergence/curl -- you MUST call the matching math tool
+    (integrate_expr, differentiate_expr, solve_equation, matrix_determinant,
+    matrix_eigenvalues, compute_limit, series_expansion, summation,
+    laplace_transform, fourier_transform, factor_expression, solve_ode,
+    gradient, divergence, curl, ...).
+  - sympy is EXACT; your mental arithmetic is not. A wrong digit is a
+    hallucination. ALWAYS route math through the tool, even if it looks easy.
+
 This is Q&A MODE: each question is a fresh, standalone problem with no
 memory of any previous question. (Conversation mode -- where the
 library acts as a persisted simulation playground across turns -- is a
@@ -515,6 +527,28 @@ async def _run_one_question(session, ollama_url: str, model: str,
 
     t0 = time.time()
 
+    # Frontier router: black-hole-thermodynamics / holography questions
+    # (Bekenstein-Hawking entropy, bubble-pop thread count, baryon-vs-disc
+    # crossover, gravitational binding energy, Unruh T). Most specialized,
+    # so it runs first. These tools are HIDDEN from Qwen's flat list.
+    from sigma_ground.mcp.benchmark.frontier_classifier import (
+        classify_for_frontier, execute_frontier_match)
+    fr = classify_for_frontier(question)
+    if fr is not None:
+        val, units, answer_text = execute_frontier_match(fr)
+        if val is not None:
+            return {
+                "answer_text":            answer_text,
+                "extracted_value":        val,
+                "extracted_units":        units,
+                "tool_calls":             [],
+                "turns":                  0,
+                "elapsed_s":              time.time() - t0,
+                "extracted_via_fallback": False,
+                "nudges_sent":            0,
+                "frontier_router_hit":    fr.tool,
+            }
+
     # New-tools router (Phase 0): deterministically dispatch the
     # body-aware/multi-step tools (orbital_velocity, orbital_period,
     # de_broglie_from_kinetic_energy, energy_power_time) so Qwen never
@@ -560,6 +594,29 @@ async def _run_one_question(session, ollama_url: str, model: str,
             "extracted_via_fallback": False,
             "nudges_sent":            0,
             "refusal_classifier_hit": refusal.refusal_type,
+        }
+
+    # Clarification pre-classifier: a non-physical noun ("magical thought
+    # barrier", "the soul") used as the SUBJECT of a physics-quantity
+    # request. Ask the user to clarify rather than guess a number or grab a
+    # keyword. Runs before the physics classifiers so "Schwarzschild radius
+    # of happiness" doesn't get hijacked by the GR classifier.
+    from sigma_ground.mcp.benchmark.clarification_classifier import (
+        classify_for_clarification,
+        render_answer_text as _render_clarification_text,
+    )
+    clarify = classify_for_clarification(question)
+    if clarify is not None:
+        return {
+            "answer_text":            _render_clarification_text(clarify, question),
+            "extracted_value":        "clarification needed",
+            "extracted_units":        "",
+            "tool_calls":             [],
+            "turns":                  0,
+            "elapsed_s":              time.time() - t0,
+            "extracted_via_fallback": False,
+            "nudges_sent":            0,
+            "clarification_hit":      clarify.unknown_term,
         }
 
     # Conversion pre-classifier: short-circuit obvious "convert X to Y"
@@ -764,6 +821,20 @@ async def _run_one_question(session, ollama_url: str, model: str,
                 "nudges_sent":            0,
                 "astro_classifier_hit":   astro_match.tool,
             }
+
+    # Semantic router (LAST resort before the LLM): the regex classifiers
+    # above are phrasing-specific; this catches PARAPHRASES they missed by
+    # MEANING (nomic-embed-text, local) and dispatches the matched tool —
+    # so a reworded question lands on the right tool instead of sending Qwen
+    # into a max-turns loop. Confident matches only; else fall through.
+    try:
+        from sigma_ground.mcp.benchmark.interpreter_demo import semantic_answer
+        sem = semantic_answer(question)
+        if sem is not None:
+            sem["elapsed_s"] = time.time() - t0
+            return sem
+    except Exception:
+        pass   # router is best-effort; never block the LLM path on its failure
 
     messages = [
         {"role": "system",    "content": system_prompt},
@@ -1058,6 +1129,10 @@ async def _amain(args) -> int:
                         "turns":           0,
                         "elapsed_s":       0.0,
                     }
+                # Groundedness gate: every answer is either tool-grounded or
+                # flagged [Fitted due to incompetence]. The trust linchpin.
+                from sigma_ground.mcp.benchmark.groundedness import apply_gate
+                apply_gate(result)
                 rec = {
                     "id":     q["id"],
                     "system": "sigma_ground",

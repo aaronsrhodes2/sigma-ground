@@ -22,6 +22,7 @@ class NewToolMatch:
     tool: str
     args: dict
     rationale: str
+    field: str | None = None   # pick a scalar from a dict-valued result
 
 
 def _num(s):
@@ -138,6 +139,76 @@ def classify_for_new_tools(question: str) -> NewToolMatch | None:
                                   {"power_w": _pw(mp), "energy_j": _ej(me)},
                                   "t = E / P")
 
+    # ── nuclear_binding_energy: "(Z protons, N neutrons, mass M u)" ──
+    if re.search(r"\bbinding\s+energy\b", q, re.IGNORECASE) and \
+       re.search(r"\b(nucleon|nucleus|nuclei|nuclide|protons?|neutrons?)\b",
+                   q, re.IGNORECASE):
+        mp_ = re.search(r"\b([0-9]+)\s*protons?\b", q, re.IGNORECASE)
+        mn_ = re.search(r"\b([0-9]+)\s*neutrons?\b", q, re.IGNORECASE)
+        mm_ = (re.search(r"\bmass\s*[:=]?\s*([0-9]+(?:\.[0-9]+)?)\s*u\b", q, re.IGNORECASE)
+                or re.search(r"\b([0-9]+\.[0-9]+)\s*u\b", q, re.IGNORECASE))
+        if mp_ and mn_:
+            args = {"protons": int(mp_.group(1)), "neutrons": int(mn_.group(1))}
+            if mm_:
+                args["measured_mass_u"] = _num(mm_.group(1))
+            # "per nucleon" → return the per-nucleon field, else total BE
+            field = ("binding_per_nucleon_MeV"
+                       if re.search(r"\bper\s+nucleon\b", q, re.IGNORECASE)
+                       else "binding_energy_MeV")
+            return NewToolMatch("nuclear_binding_energy", args,
+                                  "BE = [Z m_p + N m_n − M] c²", field=field)
+
+    # ── coulomb_force: between two charges/electrons/protons ──
+    if re.search(r"\b(coulomb|electrostatic)\s+force\b", q, re.IGNORECASE):
+        r_m = _length_m(q)
+        q1 = q2 = None
+        # named particles → elementary charge
+        if re.search(r"\btwo\s+electrons?\b|\belectron\s+and\s+electron\b", q, re.IGNORECASE):
+            q1 = q2 = 1.602176634e-19
+        elif re.search(r"\btwo\s+protons?\b", q, re.IGNORECASE):
+            q1 = q2 = 1.602176634e-19
+        elif re.search(r"\belectron\b", q, re.IGNORECASE) and re.search(r"\bproton\b", q, re.IGNORECASE):
+            q1, q2 = 1.602176634e-19, -1.602176634e-19
+        else:
+            chs = re.findall(r"\b([0-9]+(?:\.[0-9]+)?(?:[eE][\-+]?[0-9]+)?)\s*(?:C|coulomb)\b", q)
+            if len(chs) >= 2:
+                q1, q2 = _num(chs[0]), _num(chs[1])
+        if q1 is not None and q2 is not None and r_m is not None:
+            return NewToolMatch("coulomb_force",
+                                  {"charge1_c": q1, "charge2_c": q2, "separation_m": r_m},
+                                  "F = q1 q2 / (4π ε₀ r²)")
+
+    # ── gravitational_force: two masses (kg) + a separation (m) ──
+    if re.search(r"\bgravitational\s+force\b", q, re.IGNORECASE):
+        masses = re.findall(r"\b([0-9]+(?:\.[0-9]+)?(?:[eE][\-+]?[0-9]+)?)\s*kg\b", q)
+        sep = (re.search(r"\b(?:separated|apart|distance|separation)\b.{0,25}?"
+                          r"([0-9.]+(?:[eE][\-+]?[0-9]+)?)\s*m\b", q, re.IGNORECASE)
+                or re.search(r"\b([0-9.]+(?:[eE][\-+]?[0-9]+)?)\s*m\b", q, re.IGNORECASE))
+        if len(masses) >= 2 and sep:
+            return NewToolMatch("gravitational_force",
+                                  {"mass1_kg": _num(masses[0]), "mass2_kg": _num(masses[1]),
+                                   "separation_m": _num(sep.group(1))},
+                                  "F = G m1 m2 / r²")
+
+    return None
+
+
+def _length_m(q: str) -> float | None:
+    """Extract a length, converting common units to meters."""
+    for pat, scale in [(r"\b([0-9.]+)\s*[-\s]?\s*(?:fm|femtomet)", 1e-15),
+                         (r"\b([0-9.]+)\s*[-\s]?\s*(?:pm|picomet)", 1e-12),
+                         (r"\b([0-9.]+)\s*[-\s]?\s*(?:nm|nanomet)", 1e-9),
+                         (r"\b([0-9.]+)\s*[-\s]?\s*(?:angstrom|Å)", 1e-10),
+                         (r"\b([0-9.]+)\s*[-\s]?\s*(?:um|µm|micromet)", 1e-6),
+                         (r"\b([0-9.]+)\s*[-\s]?\s*(?:mm|millimet)", 1e-3),
+                         (r"\b([0-9.]+)\s*[-\s]?\s*(?:cm|centimet)", 1e-2),
+                         (r"\b([0-9.]+)\s*[-\s]?\s*(?:km|kilomet)", 1e3),
+                         (r"\b([0-9.]+(?:[eE][\-+]?[0-9]+)?)\s*[-\s]?\s*m(?:et(?:er|re)s?)?\b", 1.0)]:
+        m = re.search(pat, q, re.IGNORECASE)
+        if m:
+            v = _num(m.group(1))
+            if v is not None:
+                return v * scale
     return None
 
 
@@ -145,21 +216,35 @@ def execute_new_tool_match(match: NewToolMatch) -> tuple[object, str, str]:
     from sigma_ground.mcp.tools import orbital as t_orb
     from sigma_ground.mcp.tools import atomic as t_atom
     from sigma_ground.mcp.tools import circuits as t_circ
+    from sigma_ground.mcp.tools import nuclear as t_nuc
     try:
         if match.tool == "orbital_velocity":
             r = t_orb.orbital_velocity(**match.args)
         elif match.tool == "orbital_period":
             r = t_orb.orbital_period(**match.args)
+        elif match.tool == "gravitational_force":
+            r = t_orb.gravitational_force(**match.args)
+        elif match.tool == "orbital_raise_energy":
+            r = t_orb.orbital_raise_energy(**match.args)
         elif match.tool == "de_broglie_from_kinetic_energy":
             r = t_atom.de_broglie_from_kinetic_energy(**match.args)
         elif match.tool == "energy_power_time":
             r = t_circ.energy_power_time(**match.args)
+        elif match.tool == "nuclear_binding_energy":
+            r = t_nuc.nuclear_binding_energy(**match.args)
+        elif match.tool == "coulomb_force":
+            r = t_nuc.coulomb_force(**match.args)
         else:
             return None, "", ""
     except Exception as e:
         return None, "", f"<new_tools_classifier ERROR: {e}>"
     val = r.value if hasattr(r, "value") else None
     units = r.units if hasattr(r, "units") else ""
+    if isinstance(val, dict) and match.field:
+        val = val.get(match.field)
+        # binding-energy fields are MeV
+        if match.field and "MeV" in match.field:
+            units = "MeV"
     answer = (f"ANSWER: {val} {units}\n\n"
               f"Computed via new_tools_classifier: {match.tool} ({match.rationale})")
     return val, units, answer
@@ -172,4 +257,10 @@ HIDDEN_FROM_LLM = {
     "orbital_velocity", "orbital_period", "gravitational_force",
     "orbital_raise_energy", "nuclear_binding_energy", "coulomb_force",
     "de_broglie_from_kinetic_energy", "energy_power_time",
+    # frontier black-hole-thermodynamics / holography (routed via
+    # frontier_classifier, never exposed to the LLM's flat list)
+    "bekenstein_hawking_entropy", "entanglements_to_pop_bubble",
+    "holographic_matching_mass", "baryon_vs_disc",
+    "gravitational_binding_energy", "unruh_temperature",
+    "entanglement_channel",
 }

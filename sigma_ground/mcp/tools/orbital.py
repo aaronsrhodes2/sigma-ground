@@ -233,3 +233,22 @@ def orbital_raise_energy(mass_kg: float,
         notes=(f"Central: {label}. PE change only (not orbital KE). "
                 f"r1={r1:.4g} m, r2={r2:.4g} m."),
     )
+
+
+def surface_gravity(mass_kg: float, radius_m: float) -> ToolResult:
+    """Surface gravitational acceleration of a body: g = G M / R².
+
+    Example (Mars): surface_gravity(6.39e23, 3.3895e6) -> 3.71 m/s².
+    """
+    if mass_kg <= 0 or radius_m <= 0:
+        return ToolResult(value=None, source="invalid input",
+                           inputs={"mass_kg": mass_kg, "radius_m": radius_m})
+    from sigma_ground.field.constants import G
+    g = G * mass_kg / (radius_m ** 2)
+    return ToolResult(
+        value=g, units="m/s^2",
+        source="sigma-ground (Newtonian surface gravity)",
+        formula="g = G M / R²",
+        inputs={"mass_kg": mass_kg, "radius_m": radius_m},
+        notes="Surface gravitational acceleration of a spherical body.",
+    )

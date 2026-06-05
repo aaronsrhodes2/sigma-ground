@@ -53,6 +53,28 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "simplify expression", "algebraic simplification",
         "trig identities", "Pythagorean identity sin^2+cos^2=1",
     ],
+    "matrix_determinant": ["determinant", "det of matrix", "|A|"],
+    "matrix_eigenvalues": ["eigenvalues", "eigenvalue", "characteristic equation",
+                            "spectrum of a matrix"],
+    "matrix_inverse": ["matrix inverse", "invert a matrix", "A^-1"],
+    "matrix_multiply": ["matrix product", "multiply matrices", "AB"],
+    "solve_linear_system": ["linear system", "solve Ax=b", "system of equations",
+                             "Cramer's rule", "Gaussian elimination"],
+    "compute_limit": ["limit", "as x approaches", "L'Hopital", "tends to",
+                       "limit of a function"],
+    "series_expansion": ["Taylor series", "Maclaurin series", "power series",
+                          "series expansion"],
+    "summation": ["sum of a series", "summation", "infinite series",
+                   "sum from n to infinity", "geometric series"],
+    "laplace_transform": ["Laplace transform", "L{f(t)}", "s-domain"],
+    "fourier_transform": ["Fourier transform", "frequency domain", "spectrum"],
+    "factor_expression": ["factor", "factorize", "factorization", "roots of polynomial"],
+    "expand_expression": ["expand", "binomial expansion", "multiply out"],
+    "solve_ode": ["differential equation", "ODE", "solve y'' ", "general solution",
+                   "homogeneous equation"],
+    "gradient": ["gradient", "grad", "del f", "nabla f"],
+    "divergence": ["divergence", "div F", "del dot F"],
+    "curl": ["curl", "del cross F", "rotation of a vector field"],
 
     # ============ KINEMATICS ============
     "free_fall_time": [
@@ -362,6 +384,27 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
     "hawking_evaporation_time": [
         "Hawking evaporation time", "black hole lifetime",
         "tau ~ M^3", "Hawking radiation rate",
+    ],
+    "bekenstein_hawking_entropy": [
+        "Bekenstein-Hawking entropy", "black hole entropy",
+        "S = A / 4 L_p^2", "horizon entropy", "holographic bound",
+        "Jacob Bekenstein 1973", "horizon information capacity",
+    ],
+    "gravitational_binding_energy": [
+        "gravitational binding energy", "self-gravity energy",
+        "U = 3/5 G M^2 / R", "energy to assemble a sphere",
+        "stellar binding energy",
+    ],
+    "unruh_temperature": [
+        "Unruh temperature", "Unruh effect", "acceleration temperature",
+        "T = hbar a / (2 pi c k_B)", "William Unruh 1976",
+        "thermal vacuum of an accelerated observer",
+    ],
+    "entanglement_channel": [
+        "entanglement communication", "faster than light", "FTL signaling",
+        "no-communication theorem", "quantum key distribution", "QKD",
+        "Bell inequality", "CHSH", "Tsirelson bound", "spooky action",
+        "can entangled particles communicate", "EPR signaling",
     ],
     "gravitational_time_dilation": [
         "gravitational time dilation", "GR time dilation",

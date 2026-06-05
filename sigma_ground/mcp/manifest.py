@@ -494,14 +494,162 @@ _PRIMARY_TOOLS = [
                 "'5 kW for 1 hr' = energy_power_time(power_w=5000,time_s=3600).",
      "inputs": {"power_w": "float|None", "time_s": "float|None",
                 "energy_j": "float|None"}, "returns": "the missing quantity"},
+    # ── frontier (standard black-hole thermodynamics, textbook) ──
+    {"name": "bekenstein_hawking_entropy", "tier": "PRIMARY", "domain": "frontier",
+     "summary": "Black-hole entropy S = A/(4 L_p²), Hawking temperature, "
+                "horizon area, and holographic thread/pixel count.",
+     "inputs": {"mass_kg": "float"},
+     "returns": "dict {entropy_k_B, thread_count, horizon_area_m2, "
+                "schwarzschild_radius_m, hawking_temperature_K}"},
+    {"name": "gravitational_binding_energy", "tier": "PRIMARY", "domain": "frontier",
+     "summary": "Gravitational binding energy of a uniform sphere, "
+                "U = (3/5) G M² / R.",
+     "inputs": {"mass_kg": "float", "radius_m": "float"}, "returns": "energy in J"},
+    {"name": "unruh_temperature", "tier": "PRIMARY", "domain": "frontier",
+     "summary": "Unruh temperature of an accelerated observer, "
+                "T = ħ a / (2π c k_B).",
+     "inputs": {"acceleration_m_s2": "float"}, "returns": "temperature in K"},
+    {"name": "entanglement_channel", "tier": "PRIMARY", "domain": "quantum_information",
+     "summary": "What entanglement can/can't do: NO faster-than-light "
+                "communication (no-communication theorem), shared secret key "
+                "(QKD/Ekert), CHSH ≤ 2√2 (Tsirelson). Guardrail against the "
+                "'entanglement = FTL radio' misconception.",
+     "inputs": {"scenario": "str (the question; verdict adapts to it)"},
+     "returns": "dict {verdict, can_signal_faster_than_light, chsh_quantum_max, ...}"},
+    # ── procedures: canonical multi-step routines (the sequence is in code) ──
+    {"name": "procedure_black_hole_profile", "tier": "PRIMARY", "domain": "procedures",
+     "summary": "Full black-hole thermodynamics from mass: Schwarzschild radius -> "
+                "Hawking temperature -> Bekenstein-Hawking entropy -> evaporation time.",
+     "inputs": {"mass_kg": "float"}, "returns": "dict {steps[], result, summary}",
+     "keywords": ["full black hole profile", "everything about this black hole",
+                  "black hole thermodynamics"]},
+    {"name": "procedure_photon_spectrum", "tier": "PRIMARY", "domain": "procedures",
+     "summary": "All photon properties from a wavelength: frequency -> energy (J and "
+                "eV) -> momentum.",
+     "inputs": {"wavelength_m": "float"}, "returns": "dict {steps[], result}",
+     "keywords": ["full photon properties", "photon spectrum", "everything about this photon"]},
+    {"name": "procedure_relativistic_particle", "tier": "PRIMARY", "domain": "procedures",
+     "summary": "Relativistic particle cascade: Lorentz factor -> total energy -> "
+                "momentum -> de Broglie wavelength.",
+     "inputs": {"kinetic_energy_eV": "float", "particle": "str"},
+     "returns": "dict {steps[], result}",
+     "keywords": ["relativistic particle profile", "fast particle full properties"]},
+    {"name": "procedure_projectile_trajectory", "tier": "PRIMARY", "domain": "procedures",
+     "summary": "Projectile cascade: time of flight -> range -> max height.",
+     "inputs": {"initial_speed_m_s": "float", "launch_angle_deg": "float"},
+     "returns": "dict {steps[], result}",
+     "keywords": ["projectile trajectory", "range and max height", "full projectile"]},
+    {"name": "procedure_stellar_blackbody", "tier": "PRIMARY", "domain": "procedures",
+     "summary": "Blackbody/star cascade: Wien peak wavelength -> Stefan-Boltzmann "
+                "surface flux -> peak photon energy.",
+     "inputs": {"temperature_k": "float"}, "returns": "dict {steps[], result}",
+     "keywords": ["star blackbody profile", "stellar spectrum", "blackbody properties"]},
+    # ── simulation: the Materia time-evolution engine (separate track), exposed
+    #    via the MCP. simulate() is the NL front door (Materia routes + chains);
+    #    the others give structured access + discovery.
+    {"name": "simulate", "tier": "PRIMARY", "domain": "simulation",
+     "summary": "Run a natural-language physics what-if through the Materia "
+                "time-evolution simulator (falling-body impact, drag heating, "
+                "supersonic projectile, high-altitude descent, vertical launch); "
+                "returns a worked, self-validated answer, or a clarification if "
+                "the scenario is not yet modeled.",
+     "inputs": {"scenario": "str (plain-English what-if)"},
+     "returns": "dict {value, units, notes, inputs.chain[...]}",
+     "keywords": ["what if", "simulate", "how fast does it hit", "terminal velocity",
+                  "drop from", "does it heat up falling", "reentry heating",
+                  "supersonic", "breaks the sound barrier", "parachute",
+                  "throw it up", "how high does it go"]},
+    {"name": "run_simulation", "tier": "PRIMARY", "domain": "simulation",
+     "summary": "Run one Materia simulation verb directly with explicit params "
+                "(deterministic, no LLM). Use list_simulation_scenarios() for verbs.",
+     "inputs": {"verb": "str", "params": "dict"},
+     "returns": "dict {value, units, notes, inputs.chain[...]}",
+     "keywords": ["run simulation verb", "simulate with parameters",
+                  "structured simulation"]},
+    {"name": "list_simulation_scenarios", "tier": "PRIMARY", "domain": "simulation",
+     "summary": "List the Materia simulation verbs with their inputs and outputs.",
+     "inputs": {}, "returns": "dict {value: [verb names], inputs.catalog}",
+     "keywords": ["list simulations", "what can the simulator do",
+                  "simulation verbs"]},
+    # ── chemistry: bonds, thermochemistry, acid-base, electrochemistry, solutions ──
+    {"name": "bond_energy", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Single-bond dissociation energy A–B (eV) via Pauling. Atoms H,C,N,O,F,S,Cl.",
+     "inputs": {"atom_a": "str", "atom_b": "str"}, "returns": "dict {value, units}",
+     "keywords": ["bond energy", "bond strength", "dissociation energy", "how strong is the bond"]},
+    {"name": "bond_angle", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "VSEPR bond angle (degrees) from electron domains and lone pairs.",
+     "inputs": {"electron_domains": "int", "lone_pairs": "int"}, "returns": "dict {value, units}",
+     "keywords": ["bond angle", "VSEPR", "molecular geometry", "shape of the molecule"]},
+    {"name": "reaction_enthalpy", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "ΔH of a named reaction (kJ/mol), bond-energy estimate (~15%).",
+     "inputs": {"reaction_key": "str (e.g. methane_combustion, haber_process)"},
+     "returns": "dict {value, units}",
+     "keywords": ["reaction enthalpy", "heat of reaction", "energy released", "delta H"]},
+    {"name": "weak_acid_ph", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "pH of a weak-acid solution at a given molarity.",
+     "inputs": {"acid_key": "str (e.g. acetic_acid)", "concentration_mol_l": "float"},
+     "returns": "dict {value: pH}",
+     "keywords": ["pH of an acid", "weak acid pH", "how acidic", "acid concentration"]},
+    {"name": "buffer_ph", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Buffer pH via Henderson–Hasselbalch (pKa + log10[A⁻]/[HA]).",
+     "inputs": {"acid_key": "str", "ratio_base_over_acid": "float"},
+     "returns": "dict {value: pH}",
+     "keywords": ["buffer pH", "Henderson Hasselbalch", "buffer solution"]},
+    {"name": "cell_potential", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Galvanic cell EMF (V), Nernst-corrected; electrodes by element name.",
+     "inputs": {"cathode": "str", "anode": "str", "reaction_quotient": "float"},
+     "returns": "dict {value: V}",
+     "keywords": ["cell potential", "battery voltage", "galvanic cell", "EMF", "Nernst", "redox voltage"]},
+    {"name": "electrolysis_mass", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Mass deposited by electrolysis (kg) — Faraday's first law.",
+     "inputs": {"molar_mass_kg": "float", "current_a": "float", "time_s": "float", "electrons": "int"},
+     "returns": "dict {value: kg}",
+     "keywords": ["electrolysis", "electroplating", "Faraday law", "mass deposited"]},
+    {"name": "boiling_point_elevation", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Colligative boiling-point elevation ΔTb (K) = i·Kb·molality.",
+     "inputs": {"molality_mol_kg": "float", "van_t_hoff_i": "float"}, "returns": "dict {value: K}",
+     "keywords": ["boiling point elevation", "colligative", "salt raises boiling point"]},
+    {"name": "freezing_point_depression", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Colligative freezing-point depression ΔTf (K) = i·Kf·molality.",
+     "inputs": {"molality_mol_kg": "float", "van_t_hoff_i": "float"}, "returns": "dict {value: K}",
+     "keywords": ["freezing point depression", "colligative", "salt on ice", "antifreeze"]},
+    {"name": "osmotic_pressure", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Osmotic pressure π (Pa) = i·M·R·T (van't Hoff).",
+     "inputs": {"molarity_mol_l": "float", "van_t_hoff_i": "float"}, "returns": "dict {value: Pa}",
+     "keywords": ["osmotic pressure", "osmosis", "van't Hoff pressure"]},
+    {"name": "molar_solubility", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Molar solubility (mol/L) of a sparingly-soluble salt from its Ksp.",
+     "inputs": {"salt_key": "str (e.g. silver_chloride)"}, "returns": "dict {value: mol/L}",
+     "keywords": ["solubility", "Ksp", "how much dissolves", "precipitation"]},
 ]
 
 
 _EXTENDED_TOOLS: list[dict] = [
-    # SSBM-specific tools will be wired here later. They exist in the
-    # sigma_ground library already (entanglement.py, sigma-page-time,
-    # sigma-bounds) but are deliberately not foregrounded in PRIMARY.
+    # SSBM theoretical layer — the holographic/cavitation tools. These are
+    # standard holography arithmetic, but framed in the SSBM language of
+    # bubble saturation and the baryon-vs-horizon crossover, so they live in
+    # EXTENDED and are not foregrounded for routine queries.
     # See memory/project_mcp_server_positioning.md.
+    {"name": "entanglements_to_pop_bubble", "tier": "EXTENDED", "domain": "frontier",
+     "summary": "Entanglement threads to saturate (pop) a bubble of radius R: "
+                "N = π R² / L_p². Smallest bubble (R=L_p) pops at N=π≈3 — the "
+                "quantum of cavitation.",
+     "inputs": {"radius_m": "float"}, "returns": "thread count (dimensionless)",
+     "keywords": ["bubble pop", "cavitation quantum", "thread saturation",
+                  "holographic pixel count"]},
+    {"name": "holographic_matching_mass", "tier": "EXTENDED", "domain": "frontier",
+     "summary": "The black-hole mass where baryon count equals horizon pixel "
+                "count: M = ħ c / (4π G m_p) ≈ 2.25e10 kg.",
+     "inputs": {}, "returns": "mass in kg",
+     "keywords": ["matching mass", "baryon-disc crossover",
+                  "information paradox threshold"]},
+    {"name": "baryon_vs_disc", "tier": "EXTENDED", "domain": "frontier",
+     "summary": "Compare a black hole's baryon count to its horizon pixel "
+                "count; reports whether matter overflows the horizon or the "
+                "horizon has room to spare.",
+     "inputs": {"mass_kg": "float"},
+     "returns": "dict {n_baryons, n_disc_pixels, ratio_disc_over_baryons, regime}",
+     "keywords": ["baryon vs disc", "horizon capacity", "matter overflow"]},
 ]
 
 

@@ -141,6 +141,25 @@ def _try_unit_convert(value: float, from_units: str, to_units: str
         return None
 
 
+def _expected_in_base(value: float, units: str) -> tuple[float, str] | None:
+    """Express `value units` in SI base units (e.g. 5.196 year -> 1.64e8 s).
+
+    Used by the dimension-aware comparison: our tools return SI base units
+    (seconds, joules, meters), while ground truth often uses 'nice' units
+    (years, eV, km). Returns (magnitude, base_unit_str) or None if pint
+    can't parse the unit.
+    """
+    u = _clean_units(units)
+    if not u:
+        return None
+    try:
+        import pint
+        q = pint.UnitRegistry().Quantity(value, u).to_base_units()
+        return (q.magnitude, str(q.units))
+    except Exception:
+        return None
+
+
 def _values_match(extracted: Any, expected: Any,
                    tolerance_rel: float,
                    extracted_units: str = "",
@@ -199,24 +218,41 @@ def _values_match(extracted: Any, expected: Any,
     if e_float is None or x_float is None:
         return False, None, "couldn't coerce to float"
 
-    # Try unit-aware comparison first. If the extracted value is in
-    # different units than expected (e.g. Wolfram returns mph but
-    # ground truth is m/s), convert before comparing.
-    note_unit = ""
-    if extracted_units and expected_units \
-           and _clean_units(extracted_units).lower() != _clean_units(expected_units).lower():
-        converted = _try_unit_convert(x_float, extracted_units, expected_units)
-        if converted is not None:
-            x_float = converted
-            note_unit = f" [unit-converted {extracted_units!r}->{expected_units!r}]"
+    def _check(a: float, b: float) -> tuple[bool, float | None]:
+        """Is a within rel-tolerance of b? (absolute tol when b ~ 0)."""
+        if abs(b) < 1e-30 and abs(a) < 1e-30:
+            return True, 0.0
+        if abs(b) < 1e-30:
+            return abs(a) < tolerance_rel, None
+        re = abs(a - b) / abs(b)
+        return re <= tolerance_rel, re
 
-    if abs(e_float) < 1e-30 and abs(x_float) < 1e-30:
-        return True, 0.0, "both ~0" + note_unit
-    if abs(e_float) < 1e-30:
-        # Expected is 0; check absolute deviation
-        return abs(x_float) < tolerance_rel, None, "absolute tolerance (expected ~0)" + note_unit
-    rel_err = abs(x_float - e_float) / abs(e_float)
-    return rel_err <= tolerance_rel, rel_err, f"rel_err {rel_err:.3e}" + note_unit
+    # DIMENSION-AWARE: build candidate (extracted, expected) pairs and accept
+    # if ANY matches. A correct value expressed in a different unit (our tools
+    # return SI base like seconds/joules; ground truth often uses years/eV) is
+    # no longer scored wrong. False positives are negligible: a physically
+    # wrong value won't coincidentally equal the expected after a unit map.
+    eu = _clean_units(expected_units).lower()
+    xu = _clean_units(extracted_units).lower()
+    trials: list[tuple[float, float, str]] = [(x_float, e_float, "")]
+    if extracted_units and expected_units and xu != eu:        # explicit units
+        conv = _try_unit_convert(x_float, extracted_units, expected_units)
+        if conv is not None:
+            trials.append((conv, e_float, f" [unit-converted {xu}->{eu}]"))
+    if expected_units:                                          # SI-base rescue
+        base = _expected_in_base(e_float, expected_units)
+        if base is not None:
+            trials.append((x_float, base[0], f" [matched in SI base {base[1]}]"))
+
+    best_err: float | None = None
+    for a, b, note in trials:
+        ok, re = _check(a, b)
+        if ok:
+            return True, (re if re is not None else 0.0), "match" + note
+        if re is not None and (best_err is None or re < best_err):
+            best_err = re
+    return False, best_err, (f"rel_err {best_err:.3e}" if best_err is not None
+                              else "no match")
 
 
 def _score_keyword_match(answer_text: str, expected_keywords: list[str],

@@ -323,6 +323,47 @@ AUDIT_CASES: list[dict] = [
     {"id": "simplify_expr", "tool": "simplify_expr",
      "kwargs": {"expression": "sin(x)**2 + cos(x)**2"},
      "expected": 1, "units": "", "ref": "Pythagorean identity"},
+
+    # ---- new: orbital mechanics (body-aware, multi-step) ----
+    {"id": "orbital_velocity_iss", "tool": "orbital_velocity",
+     "kwargs": {"central_body": "earth", "altitude_km": 408},
+     "expected": 7660.0, "units": "m/s", "ref": "ISS at 408 km", "tol": 0.01},
+    {"id": "orbital_velocity_jupiter", "tool": "orbital_velocity",
+     "kwargs": {"central_body": "sun", "semimajor_axis_au": 5.2038},
+     "expected": 13060.0, "units": "m/s", "ref": "Jupiter heliocentric",
+     "tol": 0.01},
+    {"id": "orbital_period_asteroid", "tool": "orbital_period",
+     "kwargs": {"semimajor_axis_au": 3.0}, "expected": 1.6398e8, "units": "s",
+     "ref": "Kepler III, 3 AU → 5.196 yr", "tol": 0.01},
+    {"id": "gravitational_force_earth_moon", "tool": "gravitational_force",
+     "kwargs": {"mass1_kg": 5.972e24, "mass2_kg": 7.342e22,
+                  "separation_m": 3.844e8},
+     "expected": 1.98e20, "units": "N", "ref": "Earth-Moon", "tol": 0.02},
+
+    # ---- new: nuclear ----
+    {"id": "nuclear_binding_He4", "tool": "nuclear_binding_energy",
+     "kwargs": {"protons": 2, "neutrons": 2, "measured_mass_u": 4.002602},
+     "expected": 28.30, "units": "", "field": "binding_energy_MeV",
+     "ref": "He-4 BE", "tol": 0.01},
+    {"id": "nuclear_binding_Fe56_per_nucleon", "tool": "nuclear_binding_energy",
+     "kwargs": {"protons": 26, "neutrons": 30, "measured_mass_u": 55.9349363},
+     "expected": 8.790, "units": "", "field": "binding_per_nucleon_MeV",
+     "ref": "Fe-56 BE/A", "tol": 0.01},
+    {"id": "coulomb_two_protons_1fm", "tool": "coulomb_force",
+     "kwargs": {"charge1_c": 1.602176634e-19, "charge2_c": 1.602176634e-19,
+                  "separation_m": 1e-15},
+     "expected": 230.7, "units": "N", "ref": "2 protons at 1 fm", "tol": 0.02},
+
+    # ---- new: multi-step atomic / circuits ----
+    {"id": "de_broglie_from_KE_1keV_e", "tool": "de_broglie_from_kinetic_energy",
+     "kwargs": {"kinetic_energy_eV": 1000.0, "particle": "electron"},
+     "expected": 3.88e-11, "units": "m", "ref": "1 keV electron", "tol": 0.01},
+    {"id": "energy_power_time_heater", "tool": "energy_power_time",
+     "kwargs": {"power_w": 5000.0, "time_s": 3600.0},
+     "expected": 1.8e7, "units": "J", "ref": "5 kW × 1 hr"},
+    {"id": "energy_power_time_led", "tool": "energy_power_time",
+     "kwargs": {"power_w": 5.0, "energy_j": 1000.0},
+     "expected": 200.0, "units": "s", "ref": "5 W to dissipate 1 kJ"},
 ]
 
 

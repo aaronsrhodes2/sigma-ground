@@ -88,7 +88,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "To figure this out, we can use a physics equation that describes the motion of an object under constant acceleration, which in this case is the acceleration due to gravity. The relevant equation is:\n\n$d = v_0t + \\frac{1}{2}at^2$\n\nWhere:\n*   $d$ is the distance the object falls (10 meters).\n*   $v_0$ is the initial velocity of the object (since it's dropped, $v_0 = 0$ m/s).\n*   $a$ is the acceleration due to gravity (approximately $9.81 \\text{ m/s}^2$ at sea level).\n*   $t$ is the time it takes to fall.\n\nSince $v_0 = 0$, the equation simplifies to:\n\n$d = \\frac{1}{2}at^2$\n\nWe want to solve for $t$, so we can rearrange the equation:\n\n$t^2 = \\frac{2d}{a}$\n$t = \\sqrt{\\frac{2d}{a}}$\n\nNow, let's plug in the values:\n$t = \\sqrt{\\frac{2 \\times 10 \\text{ m}}{9.81 \\text{ m/s}^2}}$\n$t = \\sqrt{\\frac{20 \\text{ m}}{9.81 \\text{ m/s}^2}}$\n$t = \\sqrt{2.0387 \\text{ s}^2}$\n$t \\approx 1.428 \\text{ s}$\n\nANSWER: 1.43 s",
       "elapsed_s": 2.024970769882202,
-      "notes": "rel_err 1.401e-03"
+      "notes": "match"
     },
     {
       "id": "mech_intro_002",
@@ -101,7 +101,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "To figure this out, we can use the principle of conservation of energy. When you drop the ball, all of its energy is in the form of potential energy due to its height. As it falls, this potential energy is converted into kinetic energy (the energy of motion).\n\nThe formula for potential energy is PE = mgh, where:\n*   m is the mass of the object\n*   g is the acceleration due to gravity (approximately 9.8 m/s\u00b2)\n*   h is the height\n\nThe formula for kinetic energy is KE = \u00bdmv\u00b2, where:\n*   m is the mass of the object\n*   v is the velocity of the object\n\nSince energy is conserved, the initial potential energy equals the final kinetic energy:\nmgh = \u00bdmv\u00b2\n\nNotice that the mass (m) cancels out on both sides, so the final velocity doesn't depend on how heavy the ball is!\n\ngh = \u00bdv\u00b2\n\nNow, we can solve for v:\nv\u00b2 = 2gh\nv = \u221a(2gh)\n\nPlugging in the values:\ng = 9.8 m/s\u00b2\nh = 50 m\n\nv = \u221a(2 * 9.8 m/s\u00b2 * 50 m)\nv = \u221a(980 m\u00b2/s\u00b2)\nv \u2248 31.3 m/s\n\nANSWER: 31.3 m/s",
       "elapsed_s": 1.6532721519470215,
-      "notes": "rel_err 6.386e-04"
+      "notes": "match"
     },
     {
       "id": "mech_intro_003",
@@ -114,7 +114,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "To solve this, we need to find the horizontal distance the cannonball travels, also known as the range. We can break this down into the horizontal and vertical components of the initial velocity.\n\nThe initial velocity is $v_0 = 100 \\text{ m/s}$, and the launch angle is $\\theta = 45^\\circ$.\n\nThe horizontal component of the initial velocity is $v_{0x} = v_0 \\cos(\\theta)$.\nThe vertical component of the initial velocity is $v_{0y} = v_0 \\sin(\\theta)$.\n\nThe time of flight depends on the vertical motion. The vertical position is given by $y(t) = v_{0y}t - \\frac{1}{2}gt^2$, where $g$ is the acceleration due to gravity (approximately $9.8 \\text{ m/s}^2$). The cannonball lands when $y(t) = 0$.\n\n$v_{0y}t - \\frac{1}{2}gt^2 = 0$\n$t(v_{0y} - \\frac{1}{2}gt) = 0$\n\nThe two solutions are $t=0$ (launch time) and $t = \\frac{2v_{0y}}{g}$ (landing time).\n\nThe horizontal distance traveled is given by $x(t) = v_{0x}t$. Substituting the time of flight:\n$x = v_{0x} \\left(\\frac{2v_{0y}}{g}\\right) = \\frac{2v_0 \\cos(\\theta) v_0 \\sin(\\theta)}{g} = \\frac{v_0^2 (2 \\sin(\\theta) \\cos(\\theta))}{g}$\n\nUsing the trigonometric identity $\\sin(2\\theta) = 2 \\sin(\\theta) \\cos(\\theta)$:\n$x = \\frac{v_0^2 \\sin(2\\theta)}{g}$\n\nNow, plug in the values:\n$v_0 = 100 \\text{ m/s}$\n$\\theta = 45^\\circ$\n$g = 9.8 \\text{ m/s}^2$\n\n$x = \\frac{(100 \\text{ m/s})^2 \\sin(2 \\times 45^\\circ)}{9.8 \\text{ m/s}^2}$\n$x = \\frac{10000 \\text{ m}^2/\\text{s}^2 \\sin(90^\\circ)}{9.8 \\text{ m/s}^2}$\n$x = \\frac{10000 \\text{ m}^2/\\text{s}^2 \\times 1}{9.8 \\text{ m/s}^2}$\n$x \\approx 1020.4 \\text{ m}$\n\nANSWER: 1020.4 m",
       "elapsed_s": 2.699437379837036,
-      "notes": "rel_err 6.865e-04"
+      "notes": "match"
     },
     {
       "id": "mech_intro_004",
@@ -127,7 +127,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "To figure out how high the ball goes, we need to consider how gravity slows it down as it travels upwards. At its highest point, the ball's velocity will momentarily be zero before it starts to fall back down. We can use a physics equation that relates initial velocity, final velocity, acceleration due to gravity, and displacement (the height).\n\nThe equation we can use is:\n$v_f^2 = v_i^2 + 2ad$\n\nWhere:\n$v_f$ is the final velocity (0 m/s at the peak)\n$v_i$ is the initial velocity (50 m/s)\n$a$ is the acceleration due to gravity (-9.8 m/s\u00b2, negative because it acts downwards)\n$d$ is the displacement (the height we want to find)\n\nRearranging the equation to solve for $d$:\n$d = (v_f^2 - v_i^2) / (2a)$\n$d = (0^2 - (50 \\, \\text{m/s})^2) / (2 * -9.8 \\, \\text{m/s}^2)$\n$d = (-2500 \\, \\text{m}^2/\\text{s}^2) / (-19.6 \\, \\text{m/s}^2)$\n$d \\approx 127.55 \\, \\text{m}$\n\nANSWER: 127.55 m",
       "elapsed_s": 1.4693353176116943,
-      "notes": "rel_err 6.276e-04"
+      "notes": "match"
     },
     {
       "id": "mech_intro_005",
@@ -140,7 +140,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "The kinetic energy of an object is given by the formula $KE = \\frac{1}{2}mv^2$, where $m$ is the mass and $v$ is the velocity.\n\nFor a 70 kg person running at 5 m/s:\n$KE = \\frac{1}{2} \\times 70 \\text{ kg} \\times (5 \\text{ m/s})^2$\n$KE = \\frac{1}{2} \\times 70 \\text{ kg} \\times 25 \\text{ m}^2/\\text{s}^2$\n$KE = 35 \\text{ kg} \\times 25 \\text{ m}^2/\\text{s}^2$\n$KE = 875 \\text{ kg} \\cdot \\text{m}^2/\\text{s}^2$\n\nSince 1 Joule (J) is equal to 1 kg\u00b7m\u00b2/s\u00b2, the kinetic energy is 875 Joules.\n\nANSWER: 875 J",
       "elapsed_s": 1.0903904438018799,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "mech_intro_006",
@@ -153,7 +153,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "Here's how to figure out how far the coffee cup slides:\n\nFirst, we need to determine the force of friction acting on the cup. This is calculated by multiplying the coefficient of friction by the normal force. The normal force is equal to the gravitational force on the cup, which is its mass times the acceleration due to gravity (approximately 9.8 m/s\u00b2).\n\nForce of friction ($F_f$) = coefficient of friction ($\\mu$) * mass (m) * acceleration due to gravity (g)\n$F_f = 0.4 * 0.2 \\, \\text{kg} * 9.8 \\, \\text{m/s}\u00b2 = 0.784 \\, \\text{N}$\n\nNext, we need to find the deceleration of the cup due to friction. We can use Newton's second law: Force = mass * acceleration.\n\nDeceleration (a) = Force of friction ($F_f$) / mass (m)\n$a = 0.784 \\, \\text{N} / 0.2 \\, \\text{kg} = 3.92 \\, \\text{m/s}\u00b2$\n\nFinally, we can use a kinematic equation to find the distance traveled. The equation that relates initial velocity ($v_i$), final velocity ($v_f$), acceleration (a), and distance (d) is:\n$v_f\u00b2 = v_i\u00b2 + 2ad$\n\nSince the cup stops, its final velocity ($v_f$) is 0 m/s. The initial velocity ($v_i$) is 1 m/s. We need to solve for distance (d).\n\n$0\u00b2 = (1 \\, \\text{m/s})\u00b2 + 2 * (-3.92 \\, \\text{m/s}\u00b2) * d$\n$0 = 1 \\, \\text{m}\u00b2/ \\text{s}\u00b2 - 7.84 \\, \\text{m/s}\u00b2 * d$\n$7.84 \\, \\text{m/s}\u00b2 * d = 1 \\, \\text{m}\u00b2/ \\text{s}\u00b2$\n$d = 1 \\, \\text{m}\u00b2/ \\text{s}\u00b2 / 7.84 \\, \\text{m/s}\u00b2$\n$d \u2248 0.1276 \\, \\text{m}$\n\nANSWER: 0.128 m",
       "elapsed_s": 2.3010499477386475,
-      "notes": "rel_err 4.710e-03"
+      "notes": "match"
     },
     {
       "id": "mech_intro_007",
@@ -166,7 +166,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "To calculate the orbital speed of a satellite, we need to balance the gravitational force pulling the satellite towards the Earth with the centripetal force required to keep it in orbit.\n\nThe gravitational force is given by $F_g = \\frac{GMm}{r^2}$, where:\n*   $G$ is the gravitational constant ($6.674 \\times 10^{-11} \\, \\text{N} \\cdot \\text{m}^2/\\text{kg}^2$)\n*   $M$ is the mass of the Earth ($5.972 \\times 10^{24} \\, \\text{kg}$)\n*   $m$ is the mass of the satellite\n*   $r$ is the distance from the center of the Earth to the satellite.\n\nThe centripetal force is given by $F_c = \\frac{mv^2}{r}$, where:\n*   $m$ is the mass of the satellite\n*   $v$ is the orbital velocity\n*   $r$ is the distance from the center of the Earth to the satellite.\n\nFor a stable orbit, $F_g = F_c$:\n$\\frac{GMm}{r^2} = \\frac{mv^2}{r}$\n\nWe can cancel $m$ and one $r$ from both sides to get:\n$v^2 = \\frac{GM}{r}$\n$v = \\sqrt{\\frac{GM}{r}}$\n\nThe radius $r$ is the sum of the Earth's radius and the altitude of the satellite.\n*   Earth's radius ($R_e$) is approximately $6,371 \\, \\text{km}$ or $6,371,000 \\, \\text{m}$.\n*   The altitude is $400 \\, \\text{km}$ or $400,000 \\, \\text{m}$.\n*   So, $r = R_e + \\text{altitude} = 6,371,000 \\, \\text{m} + 400,000 \\, \\text{m} = 6,771,000 \\, \\text{m}$.\n\nNow, we can plug in the values:\n$v = \\sqrt{\\frac{(6.674 \\times 10^{-11} \\, \\text{N} \\cdot \\text{m}^2/\\text{kg}^2) \\times (5.972 \\times 10^{24} \\, \\text{kg})}{6,771,000 \\, \\text{m}}}$\n$v = \\sqrt{\\frac{3.986 \\times 10^{14} \\, \\text{m}^3/\\text{s}^2}{6,771,000 \\, \\text{m}}}$\n$v = \\sqrt{5.886 \\times 10^7 \\, \\text{m}^2/\\text{s}^2}$\n$v \\approx 7672 \\, \\text{m/s}$\n\nTo express this in kilometers per second:\n$v \\approx 7.672 \\, \\text{km/s}$\n\nANSWER: 7672 m/s",
       "elapsed_s": 2.92680287361145,
-      "notes": "rel_err 2.608e-04"
+      "notes": "match"
     },
     {
       "id": "mech_intro_008",
@@ -179,7 +179,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 11200 m/s",
       "elapsed_s": 0.4163994789123535,
-      "notes": "rel_err 1.252e-03"
+      "notes": "match"
     },
     {
       "id": "mech_intro_009",
@@ -192,7 +192,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 37500 kg*m/s",
       "elapsed_s": 0.4580421447753906,
-      "notes": "rel_err 0.000e+00 [unit-converted 'kg*m/s'->'kg m/s']"
+      "notes": "match"
     },
     {
       "id": "mech_intro_010",
@@ -205,7 +205,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "To find the potential energy, we use the formula:\nPotential Energy = mass \u00d7 acceleration due to gravity \u00d7 height\n\nMass (m) = 70 kg\nAcceleration due to gravity (g) = 9.8 m/s\u00b2\nHeight (h) = 100 m\n\nPotential Energy = 70 kg \u00d7 9.8 m/s\u00b2 \u00d7 100 m\nPotential Energy = 68600 Joules\n\nANSWER: 68600 J",
       "elapsed_s": 0.5581700801849365,
-      "notes": "rel_err 6.701e-04"
+      "notes": "match"
     },
     {
       "id": "mech_intro_011",
@@ -218,7 +218,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "To figure out how long it takes for the ball to hit the ground, we can use a physics formula that relates distance, initial velocity, acceleration, and time. Since the ball is dropped, its initial velocity is 0 m/s.\n\nThe formula is:\n$d = v_0 t + \\frac{1}{2} a t^2$\n\nWhere:\n*   $d$ is the distance (10 meters)\n*   $v_0$ is the initial velocity (0 m/s)\n*   $a$ is the acceleration due to gravity on the Moon (1.625 m/s\u00b2)\n*   $t$ is the time we want to find\n\nPlugging in the values:\n$10 \\text{ m} = (0 \\text{ m/s}) \\times t + \\frac{1}{2} \\times (1.625 \\text{ m/s}^2) \\times t^2$\n$10 \\text{ m} = 0.8125 \\text{ m/s}^2 \\times t^2$\n\nNow, we solve for $t^2$:\n$t^2 = \\frac{10 \\text{ m}}{0.8125 \\text{ m/s}^2}$\n$t^2 = 12.30769 \\text{ s}^2$\n\nFinally, we take the square root to find $t$:\n$t = \\sqrt{12.30769 \\text{ s}^2}$\n$t \\approx 3.508 \\text{ s}$\n\nANSWER: 3.51 s",
       "elapsed_s": 1.418327808380127,
-      "notes": "rel_err 5.701e-04"
+      "notes": "match"
     },
     {
       "id": "mech_intro_012",
@@ -231,7 +231,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "To determine how long the baseball is in the air, we need to analyze its vertical motion. The time it takes for the baseball to land is determined by how long it takes to go up and then come back down to its initial height.\n\nThe initial vertical velocity of the baseball can be calculated using trigonometry:\n$v_y = v \\sin(\\theta)$\nwhere $v$ is the launch speed (40 m/s) and $\\theta$ is the launch angle (30 degrees).\n$v_y = 40 \\text{ m/s} \\times \\sin(30^\\circ) = 40 \\text{ m/s} \\times 0.5 = 20 \\text{ m/s}$\n\nWe can use the following kinematic equation to find the time of flight:\n$y = v_{0y}t + \\frac{1}{2}at^2$\nwhere:\n$y$ is the vertical displacement (which is 0 when the ball lands at the same height it was launched from).\n$v_{0y}$ is the initial vertical velocity (20 m/s).\n$a$ is the acceleration due to gravity (-9.8 m/s\u00b2, negative because it acts downwards).\n$t$ is the time of flight.\n\nSetting $y = 0$:\n$0 = 20t + \\frac{1}{2}(-9.8)t^2$\n$0 = 20t - 4.9t^2$\n\nWe can factor out $t$:\n$0 = t(20 - 4.9t)$\n\nThis gives us two possible solutions for $t$:\n$t = 0$ (this is the moment of launch)\n$20 - 4.9t = 0$\n\nSolving for the second value of $t$:\n$4.9t = 20$\n$t = \\frac{20}{4.9}$\n$t \\approx 4.08 \\text{ s}$\n\nANSWER: 4.08 s",
       "elapsed_s": 1.7579090595245361,
-      "notes": "rel_err 2.452e-04"
+      "notes": "match"
     },
     {
       "id": "mech_intro_013",
@@ -244,7 +244,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 800 J\nThe kinetic energy of an object is calculated using the formula KE = 1/2 * m * v^2, where m is the mass and v is the velocity. First, convert the mass from grams to kilograms: 10 grams = 0.010 kg. Then, plug the values into the formula: KE = 1/2 * 0.010 kg * (400 m/s)^2 = 0.005 kg * 160000 m^2/s^2 = 800 Joules.",
       "elapsed_s": 0.8747622966766357,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "mech_intro_014",
@@ -257,7 +257,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 20.0 m/s\nThe kinetic energy of an object is given by the formula KE = (1/2)mv^2, where KE is kinetic energy, m is mass, and v is velocity. To find the speed, we can rearrange the formula to v = sqrt((2*KE)/m). Plugging in the given values, v = sqrt((2 * 100 J) / 0.5 kg) = sqrt(400 m^2/s^2) = 20.0 m/s.",
       "elapsed_s": 0.7836613655090332,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "mech_intro_015",
@@ -270,7 +270,7 @@
       "tolerance_rel": 0.1,
       "answer_text": "To determine your speed relative to the ground, we need to calculate the circumference of your orbit and then divide it by the time it takes to complete one orbit.\n\nThe radius of your orbit is the radius of the Earth plus the altitude:\n$r = 6,371 \\text{ km} + 35,786 \\text{ km} = 42,157 \\text{ km}$\n\nConvert this radius to meters:\n$r = 42,157 \\text{ km} \\times 1000 \\text{ m/km} = 42,157,000 \\text{ m}$\n\nThe circumference of your orbit is:\n$C = 2 \\pi r = 2 \\pi (42,157,000 \\text{ m}) \\approx 264,878,000 \\text{ m}$\n\nA geostationary orbit means that the satellite takes exactly one sidereal day (the time it takes for the Earth to rotate once relative to the stars) to complete one orbit. This is approximately 23 hours, 56 minutes, and 4 seconds.\n\nConvert this period to seconds:\n$T = (23 \\times 3600) + (56 \\times 60) + 4 \\text{ s} = 82800 + 3360 + 4 \\text{ s} = 86,164 \\text{ s}$\n\nNow, calculate your speed:\n$v = \\frac{C}{T} = \\frac{264,878,000 \\text{ m}}{86,164 \\text{ s}} \\approx 3074 \\text{ m/s}$\n\nConverting this to kilometers per second:\n$v = 3074 \\text{ m/s} \\div 1000 \\text{ m/km} \\approx 3.07 \\text{ km/s}$\n\nANSWER: 3074 m/s",
       "elapsed_s": 1.757153034210205,
-      "notes": "absolute tolerance (expected ~0)"
+      "notes": "no match"
     },
     {
       "id": "em_intro_001",
@@ -283,7 +283,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 0.05 A\n\nWe can use Ohm's Law, which states that voltage (V) is equal to current (I) multiplied by resistance (R): V = IR. To find the current, we rearrange the formula to I = V/R. In this case, V = 5 volts and R = 100 ohms. So, I = 5 V / 100 \u03a9 = 0.05 A.",
       "elapsed_s": 0.5514650344848633,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "em_intro_002",
@@ -296,7 +296,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 24 W",
       "elapsed_s": 0.4271068572998047,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "em_intro_003",
@@ -322,7 +322,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 0.001 s\n\nThis time is known as the time constant (\u03c4) of the RC circuit, which is calculated by multiplying the resistance (R) by the capacitance (C). Here, R = 1 kilo-ohm = 1000 ohms and C = 1 microfarad = 0.000001 farads. So, \u03c4 = R \u00d7 C = 1000 \u03a9 \u00d7 0.000001 F = 0.001 seconds. After one time constant, the capacitor charges to approximately 63.2% of the supply voltage.",
       "elapsed_s": 22.606536149978638,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "em_intro_005",
@@ -335,7 +335,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "The resonant frequency of an LC circuit is determined by the inductance (L) and capacitance (C) using the formula:\n\n$f_0 = 1 / (2 \\pi \\sqrt{LC})$\n\nGiven:\nInductance (L) = 1 millihenry = $1 \\times 10^{-3}$ H\nCapacitance (C) = 1 microfarad = $1 \\times 10^{-6}$ F\n\nFirst, calculate the product of L and C:\n$LC = (1 \\times 10^{-3} H) \\times (1 \\times 10^{-6} F) = 1 \\times 10^{-9} H \\cdot F$\n\nNext, take the square root of LC:\n$\\sqrt{LC} = \\sqrt{1 \\times 10^{-9}} = 1 \\times 10^{-4.5} \\approx 3.162 \\times 10^{-5} \\sqrt{H \\cdot F}$\n\nNow, calculate $2\\pi$:\n$2\\pi \\approx 6.283$\n\nFinally, calculate the resonant frequency:\n$f_0 = 1 / (6.283 \\times 3.162 \\times 10^{-5}) = 1 / (1.9869 \\times 10^{-4}) \\approx 5032.9$ Hz\n\nANSWER: 5033 Hz",
       "elapsed_s": 13.561129808425903,
-      "notes": "rel_err 1.987e-05"
+      "notes": "match"
     },
     {
       "id": "em_intro_006",
@@ -348,7 +348,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "To find the wavelength of an FM radio wave, we can use the relationship between the speed of light, frequency, and wavelength. The speed of light in a vacuum is a constant, approximately $3.00 \\times 10^8$ meters per second. The frequency is given as 100 MHz, which is equal to $100 \\times 10^6$ Hz, or $1.00 \\times 10^8$ Hz.\n\nThe formula relating these quantities is:\n\nspeed of light = frequency \u00d7 wavelength\n\nWe can rearrange this formula to solve for the wavelength:\n\nwavelength = speed of light / frequency\n\nPlugging in the values:\n\nwavelength = $(3.00 \\times 10^8 \\text{ m/s}) / (1.00 \\times 10^8 \\text{ Hz})$\n\nwavelength = $3.00 \\text{ meters}$\n\nANSWER: 3.00 m",
       "elapsed_s": 4.885469436645508,
-      "notes": "rel_err 6.671e-04"
+      "notes": "match"
     },
     {
       "id": "em_intro_007",
@@ -374,7 +374,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 250 W",
       "elapsed_s": 6.375806570053101,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "em_intro_009",
@@ -387,7 +387,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 0.2 A\n\nThis is calculated using Ohm's Law, which states that voltage (V) equals current (I) times resistance (R), or V = IR. Rearranging this to solve for current, we get I = V/R. In this case, I = 10 V / 50 ohms = 0.2 A.",
       "elapsed_s": 6.480866432189941,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "em_intro_010",
@@ -400,7 +400,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 10 V\nThis is calculated using Ohm's Law, which states that Voltage = Current \u00d7 Resistance.",
       "elapsed_s": 4.862307548522949,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "em_intro_011",
@@ -413,7 +413,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "To find the wavelength of an electromagnetic wave, you can use the formula:\n\nwavelength = speed of light / frequency\n\nThe speed of light is approximately $3.00 \\times 10^8$ meters per second, and the frequency is given as 2.4 GHz. First, convert the frequency from GHz to Hz:\n\n2.4 GHz = $2.4 \\times 10^9$ Hz\n\nNow, plug these values into the formula:\n\nwavelength = $(3.00 \\times 10^8 \\text{ m/s}) / (2.4 \\times 10^9 \\text{ Hz})$\nwavelength = $0.125$ meters\n\nANSWER: 0.125 m",
       "elapsed_s": 5.688106060028076,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "em_intro_012",
@@ -426,7 +426,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "To determine the size of the capacitor plates, we need to use the formula for capacitance:\n\n$C = \\frac{\\epsilon_0 A}{d}$\n\nwhere:\n*   $C$ is the capacitance (1 microfarad = $1 \\times 10^{-6}$ F)\n*   $\\epsilon_0$ is the permittivity of free space, which is approximately $8.854 \\times 10^{-12}$ F/m\n*   $A$ is the area of one of the plates (what we want to find)\n*   $d$ is the separation between the plates (1 mm = 0.001 m)\n\nWe can rearrange the formula to solve for the area $A$:\n\n$A = \\frac{C \\times d}{\\epsilon_0}$\n\nNow, let's plug in the values:\n\n$A = \\frac{(1 \\times 10^{-6} \\text{ F}) \\times (0.001 \\text{ m})}{8.854 \\times 10^{-12} \\text{ F/m}}$\n\n$A = \\frac{1 \\times 10^{-9} \\text{ F}\\cdot\\text{m}}{8.854 \\times 10^{-12} \\text{ F/m}}$\n\n$A \\approx 112.94 \\text{ m}^2$\n\nSince the plates are usually square or circular, we can find the side length or radius. For square plates, the side length $s$ would be $\\sqrt{A}$. For circular plates, the radius $r$ would be $\\sqrt{A/\\pi}$.\n\nIf we assume the plates are square, the side length would be:\n$s = \\sqrt{112.94 \\text{ m}^2} \\approx 10.63 \\text{ m}$\n\nIf we assume the plates are circular, the radius would be:\n$r = \\sqrt{\\frac{112.94 \\text{ m}^2}{\\pi}} \\approx \\sqrt{35.95 \\text{ m}^2} \\approx 5.99 \\text{ m}$\n\nSo, the plates would need to be very large, roughly 10.6 meters on each side if square, or about 6 meters in radius if circular.\n\nANSWER: 112.94 m^2",
       "elapsed_s": 9.82193374633789,
-      "notes": "rel_err 5.310e-04"
+      "notes": "match"
     },
     {
       "id": "em_intro_013",
@@ -439,7 +439,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "The time constant of an RL circuit is given by the formula $\\tau = L/R$, where L is the inductance and R is the resistance.\n\nGiven:\nResistance, $R = 100$ ohms\nInductance, $L = 10$ millihenries $= 10 \\times 10^{-3}$ henries\n\nCalculate the time constant:\n$\\tau = \\frac{10 \\times 10^{-3} \\text{ H}}{100 \\text{ } \\Omega}$\n$\\tau = \\frac{0.01 \\text{ H}}{100 \\text{ } \\Omega}$\n$\\tau = 0.0001 \\text{ s}$\n$\\tau = 0.1 \\text{ ms}$\n\nANSWER: 0.0001 s",
       "elapsed_s": 4.965958595275879,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "em_intro_014",
@@ -465,7 +465,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "Here's how to figure out the wavelength of the gamma ray:\n\nThe relationship between the speed of light ($c$), frequency ($f$), and wavelength ($\\lambda$) is given by the equation:\n\n$c = f \\lambda$\n\nWe know the speed of light is approximately $3 \\times 10^8$ meters per second. We are given the frequency as $1 \\times 10^{22}$ Hz.\n\nWe can rearrange the formula to solve for wavelength:\n\n$\\lambda = c / f$\n\nNow, let's plug in the values:\n\n$\\lambda = (3 \\times 10^8 \\text{ m/s}) / (1 \\times 10^{22} \\text{ Hz})$\n\n$\\lambda = 3 \\times 10^{-14} \\text{ m}$\n\nANSWER: 3e-14 m",
       "elapsed_s": 7.645047426223755,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "optics_001",
@@ -478,7 +478,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "This is a problem involving Snell's Law, which describes how light bends when it passes from one medium to another. Snell's Law states that $n_1 \\sin(\\theta_1) = n_2 \\sin(\\theta_2)$, where $n_1$ and $n_2$ are the refractive indices of the two media, and $\\theta_1$ and $\\theta_2$ are the angles of incidence and refraction, respectively, measured with respect to the normal (the vertical line).\n\nHere, the light starts in air, so $n_1 = 1.000$ (the refractive index of air is approximately 1). The light then enters water, so $n_2 = 1.333$. The angle of incidence is given as 30 degrees from the vertical, so $\\theta_1 = 30^\\circ$. We need to find the angle of refraction, $\\theta_2$.\n\nPlugging the values into Snell's Law:\n$1.000 \\sin(30^\\circ) = 1.333 \\sin(\\theta_2)$\n\nFirst, calculate $\\sin(30^\\circ)$:\n$\\sin(30^\\circ) = 0.5$\n\nNow, substitute this back into the equation:\n$1.000 \\times 0.5 = 1.333 \\sin(\\theta_2)$\n$0.5 = 1.333 \\sin(\\theta_2)$\n\nNext, solve for $\\sin(\\theta_2)$:\n$\\sin(\\theta_2) = \\frac{0.5}{1.333}$\n$\\sin(\\theta_2) \\approx 0.3751$\n\nFinally, find $\\theta_2$ by taking the inverse sine (arcsin) of this value:\n$\\theta_2 = \\arcsin(0.3751)$\n$\\theta_2 \\approx 22.03^\\circ$\n\nANSWER: 22.03 degrees",
       "elapsed_s": 15.495239973068237,
-      "notes": "rel_err 2.264e-03 [unit-converted 'degrees'->'deg']"
+      "notes": "match"
     },
     {
       "id": "optics_002",
@@ -491,7 +491,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "To determine the angle at which light from above stops being able to escape from underwater and becomes totally internally reflected, we need to use Snell's Law and the concept of the critical angle.\n\nSnell's Law describes the relationship between the angles of incidence and refraction and the refractive indices of the two media involved. It is given by:\n\n$n_1 \\sin(\\theta_1) = n_2 \\sin(\\theta_2)$\n\nwhere:\n*   $n_1$ is the refractive index of the first medium (in this case, water).\n*   $\\theta_1$ is the angle of incidence (the angle at which light strikes the interface from within the water).\n*   $n_2$ is the refractive index of the second medium (in this case, air).\n*   $\\theta_2$ is the angle of refraction (the angle at which light passes into the air).\n\nTotal internal reflection occurs when light traveling from a denser medium ($n_1 > n_2$) to a less dense medium reaches an angle of incidence such that the angle of refraction would be greater than 90 degrees. The critical angle ($\\theta_c$) is the angle of incidence at which the angle of refraction is exactly 90 degrees. At angles of incidence greater than the critical angle, total internal reflection occurs.\n\nWe can find the critical angle by setting $\\theta_2 = 90^\\circ$ in Snell's Law. When $\\theta_2 = 90^\\circ$, $\\sin(\\theta_2) = 1$. So, Snell's Law becomes:\n\n$n_1 \\sin(\\theta_c) = n_2 \\sin(90^\\circ)$\n$n_1 \\sin(\\theta_c) = n_2 \\times 1$\n$n_1 \\sin(\\theta_c) = n_2$\n\nNow, we can solve for $\\sin(\\theta_c)$:\n\n$\\sin(\\theta_c) = \\frac{n_2}{n_1}$\n\nWe need the refractive indices of water and air.\nThe refractive index of water ($n_1$) is approximately 1.33.\nThe refractive index of air ($n_2$) is approximately 1.00.\n\nPlugging these values into the formula:\n\n$\\sin(\\theta_c) = \\frac{1.00}{1.33}$\n$\\sin(\\theta_c) \\approx 0.75188$\n\nTo find the critical angle $\\theta_c$, we take the inverse sine (arcsin) of this value:\n\n$\\theta_c = \\arcsin(0.75188)$\n$\\theta_c \\approx 48.75^\\circ$\n\nTherefore, light from above will stop being able to escape and will become totally internally reflected when it strikes the water's surface at an angle of incidence greater than approximately 48.75 degrees. The question asks for the angle at which it *stops* being able to escape, which is the critical angle itself.\n\nANSWER: 48.75 degrees",
       "elapsed_s": 10.519783973693848,
-      "notes": "rel_err 2.880e-03 [unit-converted 'degrees'->'deg']"
+      "notes": "match"
     },
     {
       "id": "optics_003",
@@ -504,7 +504,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 30 cm\n\nThe image is formed 30 cm from the lens on the opposite side from the object. This is a real image.",
       "elapsed_s": 3.359137773513794,
-      "notes": "rel_err 0.000e+00 [unit-converted 'cm'->'m']"
+      "notes": "match [unit-converted cm->m]"
     },
     {
       "id": "optics_004",
@@ -530,7 +530,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 0.00633 m\n\nThe distance between bright fringes is calculated using the formula \u0394y = (\u03bb * L) / d, where \u03bb is the wavelength of light, L is the distance to the screen, and d is the slit separation.\nSubstituting the given values:\n\u03bb = 633 x 10\u207b\u2079 m\nL = 1 m\nd = 0.1 x 10\u207b\u00b3 m\n\u0394y = (633 x 10\u207b\u2079 m * 1 m) / (0.1 x 10\u207b\u00b3 m) = 0.00633 m",
       "elapsed_s": 3.0692861080169678,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "optics_006",
@@ -543,7 +543,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 0.5236 rad\n\nThe condition for dark fringes in a single-slit diffraction pattern is given by a sin \u03b8 = m\u03bb, where 'a' is the slit width, '\u03b8' is the angle to the fringe, 'm' is the order of the fringe (m=1 for the first dark fringe), and '\u03bb' is the wavelength of the light.\n\nGiven:\n\u03bb = 500 nm = 500 x 10\u207b\u2079 m\na = 1 \u00b5m = 1 x 10\u207b\u2076 m\nm = 1\n\nUsing the formula:\n(1 x 10\u207b\u2076 m) * sin \u03b8 = 1 * (500 x 10\u207b\u2079 m)\nsin \u03b8 = (500 x 10\u207b\u2079 m) / (1 x 10\u207b\u2076 m)\nsin \u03b8 = 0.5\n\n\u03b8 = arcsin(0.5)\n\u03b8 = 30 degrees\n\nConverting to radians (the SI unit for angle):\n\u03b8 = 30 * (\u03c0 / 180) rad\n\u03b8 = \u03c0 / 6 rad\n\u03b8 \u2248 0.52359877 rad",
       "elapsed_s": 7.661419153213501,
-      "notes": "rel_err 2.338e-06 [unit-converted 'rad'->'deg']"
+      "notes": "match [unit-converted rad->deg]"
     },
     {
       "id": "optics_007",
@@ -556,7 +556,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 0.524 rad\n\nThe spacing between the lines on the diffraction grating, $d$, is the inverse of the lines per millimeter.\n$d = 1 \\text{ mm} / 1000 \\text{ lines} = 0.001 \\text{ mm} = 1 \\times 10^{-6} \\text{ m}$\n\nThe wavelength of the light, $\\lambda$, is 500 nm.\n$\\lambda = 500 \\times 10^{-9} \\text{ m}$\n\nFor the first order maximum, the order $m = 1$.\nThe diffraction grating equation is:\n$d \\sin(\\theta_m) = m \\lambda$\n\nSubstitute the values:\n$(1 \\times 10^{-6} \\text{ m}) \\sin(\\theta_1) = 1 \\times (500 \\times 10^{-9} \\text{ m})$\n\nSolve for $\\sin(\\theta_1)$:\n$\\sin(\\theta_1) = (500 \\times 10^{-9}) / (1 \\times 10^{-6})$\n$\\sin(\\theta_1) = 500 \\times 10^{-3}$\n$\\sin(\\theta_1) = 0.5$\n\nNow, find the angle $\\theta_1$:\n$\\theta_1 = \\arcsin(0.5)$\n$\\theta_1 = 30^\\circ$\n\nTo express this in SI units (radians), convert degrees to radians:\n$\\theta_1 = 30^\\circ \\times (\\pi / 180^\\circ) \\text{ rad}$\n$\\theta_1 = \\pi / 6 \\text{ rad}$\n$\\theta_1 \\approx 0.523598776 \\text{ rad}$\n\nRounding to three significant figures, we get 0.524 rad.",
       "elapsed_s": 14.401214361190796,
-      "notes": "rel_err 7.663e-04 [unit-converted 'rad'->'deg']"
+      "notes": "match [unit-converted rad->deg]"
     },
     {
       "id": "optics_008",
@@ -569,7 +569,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 2.42",
       "elapsed_s": 1.760660171508789,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "optics_009",
@@ -595,7 +595,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: -0.5\n\nReasoning: Magnification is calculated as the negative ratio of the image distance to the object distance. Given an object distance of 20 cm and an image distance of 10 cm (both positive as per sign conventions for real objects and images formed by converging lenses), the magnification is -(10 cm / 20 cm) = -0.5.",
       "elapsed_s": 3.0066330432891846,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "optics_011",
@@ -608,7 +608,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 343.4 m/s\n\nThe speed of sound in air increases with temperature. At 20 degrees Celsius, it is approximately 343.4 meters per second.",
       "elapsed_s": 1.4430253505706787,
-      "notes": "rel_err 1.166e-03"
+      "notes": "match"
     },
     {
       "id": "optics_012",
@@ -617,11 +617,11 @@
       "correct": false,
       "extracted_value": 8.6,
       "expected_value": 2.667,
-      "rel_error": 2.224596925384327,
+      "rel_error": 0.9999998978186896,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 8.6 years",
       "elapsed_s": 1.5064973831176758,
-      "notes": "rel_err 2.225e+00 [unit-converted 'years'->'year']"
+      "notes": "rel_err 1.000e+00"
     },
     {
       "id": "thermo_001",
@@ -673,7 +673,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 0.5\nThe maximum possible efficiency for a heat engine operating between two temperatures is given by the Carnot efficiency, which is calculated as 1 - (T_cold / T_hot). In this case, 1 - (300 K / 600 K) = 1 - 0.5 = 0.5.",
       "elapsed_s": 1.7396790981292725,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "thermo_005",
@@ -699,7 +699,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 395 m/s\n\nThe most probable speed for a molecule in a gas is given by the formula $v_p = \\sqrt{\\frac{2 k_B T}{m}}$, where $k_B$ is the Boltzmann constant ($1.38 \\times 10^{-23}$ J/K), $T$ is the temperature in Kelvin, and $m$ is the mass of the molecule.\nPlugging in the given values:\n$v_p = \\sqrt{\\frac{2 \\times (1.38 \\times 10^{-23} \\text{ J/K}) \\times (300 \\text{ K})}{5.31 \\times 10^{-26} \\text{ kg}}}$\n$v_p = \\sqrt{\\frac{8.28 \\times 10^{-21} \\text{ J}}{5.31 \\times 10^{-26} \\text{ kg}}}$\n$v_p = \\sqrt{1.5593 \\times 10^5 \\text{ m}^2/\\text{s}^2}$\n$v_p \\approx 394.88 \\text{ m/s}$",
       "elapsed_s": 3.67323899269104,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "thermo_007",
@@ -712,7 +712,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 0.0245 m\u00b3\n\nThis is calculated using the ideal gas law (PV = nRT) where:\n- n = 1 mole\n- R = 8.314 J/(mol\u00b7K) (ideal gas constant)\n- T = 25 \u00b0C = 298.15 K\n- P = 1 atmosphere = 101325 Pascals",
       "elapsed_s": 2.918748140335083,
-      "notes": "rel_err 1.226e-03 [unit-converted 'm\u00b3'->'m^3']"
+      "notes": "match"
     },
     {
       "id": "thermo_008",
@@ -725,7 +725,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 1538 \u00b0C",
       "elapsed_s": 428.4323811531067,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "thermo_009",
@@ -738,7 +738,7 @@
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 273.15 K",
       "elapsed_s": 1.4140980243682861,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "thermo_010",
@@ -751,7 +751,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: -196 \u00b0C",
       "elapsed_s": 1.3119072914123535,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "thermo_011",
@@ -764,7 +764,7 @@
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 373.15 K",
       "elapsed_s": 30.40121364593506,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "thermo_012",
@@ -790,7 +790,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 2.294\n\nThe gamma factor (also known as the Lorentz factor) is calculated using the formula:\n$\\gamma = 1 / \\sqrt{1 - (v^2 / c^2)}$\nwhere $v$ is the speed of the particle and $c$ is the speed of light.\n\nGiven $v = 0.9c$, we have $v^2 / c^2 = (0.9c)^2 / c^2 = 0.81$.\n\nSubstituting this value:\n$\\gamma = 1 / \\sqrt{1 - 0.81}$\n$\\gamma = 1 / \\sqrt{0.19}$\n$\\gamma = 1 / 0.435889894$\n$\\gamma \\approx 2.294$",
       "elapsed_s": 2.9298694133758545,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "modern_002",
@@ -803,7 +803,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 70.9 years\n\nThis is a time dilation problem. When an object travels at a high speed, time slows down for that object relative to a stationary observer. The formula for time dilation is \u0394t = \u03b3 * \u0394t\u2080, where \u0394t is the time measured by the Earth observer, \u0394t\u2080 is the proper time measured by the astronaut, and \u03b3 is the Lorentz factor, given by \u03b3 = 1 / sqrt(1 - v\u00b2/c\u00b2).\n\nGiven:\nv = 0.99 c\n\u0394t\u2080 = 10 years\n\nFirst, calculate the Lorentz factor (\u03b3):\n\u03b3 = 1 / sqrt(1 - (0.99c)\u00b2/c\u00b2)\n\u03b3 = 1 / sqrt(1 - 0.99\u00b2)\n\u03b3 = 1 / sqrt(1 - 0.9801)\n\u03b3 = 1 / sqrt(0.0199)\n\u03b3 \u2248 7.089\n\nNow, calculate the time passed on Earth (\u0394t):\n\u0394t = \u03b3 * \u0394t\u2080\n\u0394t = 7.089 * 10 years\n\u0394t \u2248 70.9 years",
       "elapsed_s": 4.099158048629761,
-      "notes": "rel_err 1.411e-04 [unit-converted 'years'->'year']"
+      "notes": "match"
     },
     {
       "id": "modern_003",
@@ -816,7 +816,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 0.8 m\n\nWhen an object moves at a significant fraction of the speed of light, its length, as measured by an observer in a different reference frame, appears shorter in the direction of motion. This phenomenon is called length contraction.\n\nThe formula for length contraction is L = L\u2080 * sqrt(1 - v\u00b2/c\u00b2), where:\nL is the contracted length (what we want to find).\nL\u2080 is the proper length (the length in the rod's own rest frame), which is 1 meter.\nv is the velocity of the rod relative to the observer, which is 0.6 c.\nc is the speed of light.\n\nPlugging in the values:\nL = 1 m * sqrt(1 - (0.6c)\u00b2/c\u00b2)\nL = 1 m * sqrt(1 - 0.36c\u00b2/c\u00b2)\nL = 1 m * sqrt(1 - 0.36)\nL = 1 m * sqrt(0.64)\nL = 1 m * 0.8\nL = 0.8 m",
       "elapsed_s": 4.442235946655273,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "modern_004",
@@ -842,7 +842,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 4.259e9 kg/s\n\nThe Sun's power output (energy per second) is related to the mass converted to energy by Einstein's mass-energy equivalence formula, E = mc\u00b2, where E is energy, m is mass, and c is the speed of light. Since we are looking for mass converted per second, we can write P = (dm/dt)c\u00b2, where P is power and dm/dt is the rate of mass conversion.\n\nGiven:\nPower, P = 3.828 x 10^26 W\nSpeed of light, c = 2.99792458 x 10^8 m/s\n\nRearranging the formula to solve for dm/dt:\ndm/dt = P / c\u00b2\ndm/dt = (3.828 x 10^26 W) / (2.99792458 x 10^8 m/s)\u00b2\ndm/dt = (3.828 x 10^26 J/s) / (8.987551787 x 10^16 m\u00b2/s\u00b2)\ndm/dt = 4.259 x 10^9 kg/s",
       "elapsed_s": 4.147557497024536,
-      "notes": "rel_err 2.347e-04"
+      "notes": "match"
     },
     {
       "id": "modern_006",
@@ -855,7 +855,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 2.25 eV\n\nTo find the energy of a photon, you can use the formula E = hc/\u03bb, where:\n*   E is the energy of the photon\n*   h is Planck's constant (6.626 x 10\u207b\u00b3\u2074 J\u00b7s)\n*   c is the speed of light (3.00 x 10\u2078 m/s)\n*   \u03bb is the wavelength (550 nm = 550 x 10\u207b\u2079 m)\n\nFirst, calculate the energy in Joules:\nE = (6.626 x 10\u207b\u00b3\u2074 J\u00b7s) * (3.00 x 10\u2078 m/s) / (550 x 10\u207b\u2079 m)\nE = (1.9878 x 10\u207b\u00b2\u2075 J\u00b7m) / (5.50 x 10\u207b\u2077 m)\nE = 3.614 x 10\u207b\u00b9\u2079 J\n\nNext, convert the energy from Joules to electronvolts, using the conversion factor 1 eV = 1.602 x 10\u207b\u00b9\u2079 J:\nE (in eV) = (3.614 x 10\u207b\u00b9\u2079 J) / (1.602 x 10\u207b\u00b9\u2079 J/eV)\nE = 2.256 eV\n\nRounding to three significant figures (consistent with 550 nm), the energy is 2.26 eV.\nAlternatively, a common shortcut for this calculation is E (in eV) = 1240 / \u03bb (in nm):\nE = 1240 / 550\nE = 2.2545... eV, which rounds to 2.25 eV.",
       "elapsed_s": 7.659722805023193,
-      "notes": "rel_err 1.775e-03"
+      "notes": "match"
     },
     {
       "id": "modern_007",
@@ -868,7 +868,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 0.99448 c\n\nWhen adding velocities in an \"Einstein style\" (relativistically), you use the formula:\nv_total = (v1 + v2) / (1 + (v1 * v2 / c^2))\n\nGiven v1 = 0.9 c and v2 = 0.9 c:\nv_total = (0.9c + 0.9c) / (1 + (0.9c * 0.9c / c^2))\nv_total = (1.8c) / (1 + (0.81c^2 / c^2))\nv_total = (1.8c) / (1 + 0.81)\nv_total = (1.8c) / (1.81)\nv_total = 0.994475... c",
       "elapsed_s": 3.100658416748047,
-      "notes": "rel_err 6.868e-04 [unit-converted 'c'->'m/s']"
+      "notes": "match [unit-converted c->m/s]"
     },
     {
       "id": "modern_008",
@@ -881,7 +881,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 6.242e+18 eV",
       "elapsed_s": 0.9274740219116211,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "modern_009",
@@ -907,7 +907,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 0.5111 MeV\n\nTo find the rest energy, we use Einstein's mass-energy equivalence formula, E = mc\u00b2, where m is the rest mass and c is the speed of light.\n\n1.  **Calculate energy in Joules:**\n    *   m = 9.109 \u00d7 10\u207b\u00b3\u00b9 kg\n    *   c = 2.998 \u00d7 10\u2078 m/s\n    *   E = (9.109 \u00d7 10\u207b\u00b3\u00b9 kg) \u00d7 (2.998 \u00d7 10\u2078 m/s)\u00b2\n    *   E = 8.187 \u00d7 10\u207b\u00b9\u2074 J\n\n2.  **Convert Joules to electronvolts (eV):**\n    *   1 eV = 1.602 \u00d7 10\u207b\u00b9\u2079 J\n    *   E_eV = (8.187 \u00d7 10\u207b\u00b9\u2074 J) / (1.602 \u00d7 10\u207b\u00b9\u2079 J/eV)\n    *   E_eV = 511,048 eV\n\n3.  **Convert electronvolts to mega-electronvolts (MeV):**\n    *   1 MeV = 1 \u00d7 10\u2076 eV\n    *   E_MeV = (511,048 eV) / (1 \u00d7 10\u2076 eV/MeV)\n    *   E_MeV = 0.511048 MeV\n\nRounding to four significant figures based on the given mass: 0.5111 MeV.",
       "elapsed_s": 4.0469746589660645,
-      "notes": "rel_err 1.957e-04"
+      "notes": "match"
     },
     {
       "id": "modern_011",
@@ -933,7 +933,7 @@
       "tolerance_rel": 0.001,
       "answer_text": "To find the factor by which the emission wavelengths are redshifted, we use the relativistic Doppler effect formula for a receding source:\n\n\u03bb_observed / \u03bb_emitted = sqrt((1 + v/c) / (1 - v/c))\n\nWhere:\nv = 1000 km/s = 1.0 x 10^6 m/s (recession velocity)\nc = 299,792.458 km/s = 2.99792458 x 10^8 m/s (speed of light)\n\nFirst, calculate the ratio v/c:\nv/c = (1000 km/s) / (299,792.458 km/s) = 0.003335509...\n\nNow substitute this value into the Doppler formula:\n\u03bb_observed / \u03bb_emitted = sqrt((1 + 0.003335509) / (1 - 0.003335509))\n\u03bb_observed / \u03bb_emitted = sqrt(1.003335509 / 0.996664491)\n\u03bb_observed / \u03bb_emitted = sqrt(1.00669279)\n\u03bb_observed / \u03bb_emitted = 1.0033407\n\nRounding to five significant figures, as suggested by the input precision:\n\nANSWER: 1.0033",
       "elapsed_s": 11.769564867019653,
-      "notes": "rel_err 4.385e-05"
+      "notes": "match"
     },
     {
       "id": "qm_001",
@@ -1024,7 +1024,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 6.626e-19 J\n\nThe energy of a photon is calculated using the Planck-Einstein relation E = hf, where E is energy, h is Planck's constant (approximately 6.626 x 10^-34 J\u00b7s), and f is the frequency.",
       "elapsed_s": 2.101630210876465,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "qm_008",
@@ -1076,7 +1076,7 @@
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 1.1 x 10^-34 m\n\nThe de Broglie wavelength (\u03bb) is calculated using the formula \u03bb = h / (mv), where h is Planck's constant (6.626 x 10^-34 J\u00b7s), m is the mass, and v is the velocity.\n\nFirst, calculate the momentum (p = mv):\np = 0.145 kg * 40 m/s = 5.8 kg\u00b7m/s\n\nThen, calculate the wavelength:\n\u03bb = (6.626 x 10^-34 J\u00b7s) / (5.8 kg\u00b7m/s)\n\u03bb = 1.142 x 10^-34 m\n\nRounded to two significant figures, this is 1.1 x 10^-34 m.",
       "elapsed_s": 3.239567518234253,
-      "notes": "absolute tolerance (expected ~0)"
+      "notes": "no match"
     },
     {
       "id": "qm_012",
@@ -1102,7 +1102,7 @@
       "tolerance_rel": 0.05,
       "answer_text": "To find Jupiter's orbital velocity, we can use the formula for the speed of an object in a circular orbit:\n\n$v = \\sqrt{\\frac{GM}{r}}$\n\nwhere:\n- $v$ is the orbital velocity\n- $G$ is the gravitational constant ($6.674 \\times 10^{-11} \\, \\text{N} \\cdot \\text{m}^2/\\text{kg}^2$)\n- $M$ is the mass of the Sun ($1.989 \\times 10^{30} \\, \\text{kg}$)\n- $r$ is the average distance between Jupiter and the Sun (also known as the semi-major axis of Jupiter's orbit, which is approximately $7.786 \\times 10^{11} \\, \\text{m}$)\n\nPlugging in these values:\n\n$v = \\sqrt{\\frac{(6.674 \\times 10^{-11} \\, \\text{N} \\cdot \\text{m}^2/\\text{kg}^2)(1.989 \\times 10^{30} \\, \\text{kg})}{7.786 \\times 10^{11} \\, \\text{m}}}$\n$v = \\sqrt{\\frac{1.327 \\times 10^{20} \\, \\text{N} \\cdot \\text{m}^2/\\text{kg}}{7.786 \\times 10^{11} \\, \\text{m}}}$\n$v = \\sqrt{1.704 \\times 10^{8} \\, \\text{m}^2/\\text{s}^2}$\n$v \\approx 13054 \\, \\text{m/s}$\n\nANSWER: 13054 m/s",
       "elapsed_s": 50.672558546066284,
-      "notes": "rel_err 1.224e-03"
+      "notes": "match"
     },
     {
       "id": "mech_adv_002",
@@ -1128,7 +1128,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 617512 m/s\n\nThe escape velocity is calculated using the formula $v_e = \\sqrt{\\frac{2GM}{R}}$, where G is the gravitational constant ($6.674 \\times 10^{-11} \\text{ N m}^2/\\text{kg}^2$), M is the mass of the Sun ($1.989 \\times 10^{30} \\text{ kg}$), and R is the radius of the Sun ($6.957 \\times 10^8 \\text{ m}$).",
       "elapsed_s": 5.703335762023926,
-      "notes": "rel_err 3.044e-04"
+      "notes": "match"
     },
     {
       "id": "mech_adv_004",
@@ -1141,7 +1141,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 499 s\n\nThe average distance between the Earth and the Sun is about 150 million kilometers, and light travels at a speed of approximately 300,000 kilometers per second. Dividing the distance by the speed gives the time.",
       "elapsed_s": 53.52495861053467,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "mech_adv_005",
@@ -1154,7 +1154,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 3.71 m/s\u00b2",
       "elapsed_s": 1.1467411518096924,
-      "notes": "rel_err 2.695e-04 [unit-converted 'm/s\u00b2'->'m/s^2']"
+      "notes": "match"
     },
     {
       "id": "mech_adv_006",
@@ -1167,7 +1167,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 4724738000 J\n\nThe kinetic energy of an object is calculated using the formula KE = 0.5 * m * v^2, where m is the mass and v is the speed.\nGiven:\nMass (m) = 1000 kg\nSpeed (v) = 3074 m/s\n\nKE = 0.5 * 1000 kg * (3074 m/s)^2\nKE = 500 kg * 9449476 m^2/s^2\nKE = 4724738000 Joules",
       "elapsed_s": 4.517762184143066,
-      "notes": "rel_err 1.004e-03"
+      "notes": "match"
     },
     {
       "id": "mech_adv_007",
@@ -1180,7 +1180,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 60180 m/s\n\nThe escape velocity is calculated using the formula $v_e = \\sqrt{\\frac{2GM}{R}}$, where:\n$G$ is the gravitational constant ($6.674 \\times 10^{-11} \\text{ N m}^2/\\text{kg}^2$)\n$M$ is the mass of Jupiter ($1.898 \\times 10^{27}$ kg)\n$R$ is the average radius of Jupiter ($6.9911 \\times 10^7$ m)",
       "elapsed_s": 5.445557117462158,
-      "notes": "rel_err 1.092e-02"
+      "notes": "match"
     },
     {
       "id": "mech_adv_008",
@@ -1193,7 +1193,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 1020 m/s\n\nTo find the Moon's orbital velocity, we can use the formula for orbital speed for a circular orbit:\nv = sqrt(GM/r)\n\nWhere:\n*   G is the gravitational constant, approximately 6.674 \u00d7 10^-11 N m^2/kg^2\n*   M is the mass of Earth, approximately 5.972 \u00d7 10^24 kg\n*   r is the orbital radius, which is 384,000 km = 3.84 \u00d7 10^8 m\n\nPlugging in the values:\nv = sqrt((6.674 \u00d7 10^-11 N m^2/kg^2 * 5.972 \u00d7 10^24 kg) / (3.84 \u00d7 10^8 m))\nv = sqrt((3.9833608 \u00d7 10^14) / (3.84 \u00d7 10^8))\nv = sqrt(1.03733354 \u00d7 10^6)\nv = 1018.4957 m/s\n\nRounding to three significant figures, consistent with the input distance \"384,000 km\":\nv = 1020 m/s",
       "elapsed_s": 15.13156533241272,
-      "notes": "rel_err 1.965e-03"
+      "notes": "match"
     },
     {
       "id": "mech_adv_009",
@@ -1206,7 +1206,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 7670 m/s\n\nThe speed of the International Space Station (ISS) can be calculated using the formula for orbital velocity:\nv = sqrt(GM/r)\nwhere:\n*   G is the gravitational constant (6.674 \u00d7 10^-11 N m^2/kg^2)\n*   M is the mass of the Earth (5.972 \u00d7 10^24 kg)\n*   r is the orbital radius (distance from the center of the Earth to the ISS)\n\nFirst, calculate the orbital radius:\nEarth's radius (R_E) \u2248 6371 km = 6,371,000 m\nAltitude (h) = 408 km = 408,000 m\nr = R_E + h = 6,371,000 m + 408,000 m = 6,779,000 m\n\nNow, calculate the speed:\nv = sqrt((6.674 \u00d7 10^-11 N m^2/kg^2 * 5.972 \u00d7 10^24 kg) / 6,779,000 m)\nv = sqrt((3.983 \u00d7 10^14 m^3/s^2) / 6,779,000 m)\nv = sqrt(5.875 \u00d7 10^7 m^2/s^2)\nv \u2248 7665 m/s\n\nUsing a more precise value for Earth's standard gravitational parameter (GM \u2248 3.986004418 \u00d7 10^14 m^3/s^2):\nv = sqrt((3.986004418 \u00d7 10^14 m^3/s^2) / 6,779,000 m)\nv = sqrt(5.88049 \u00d7 10^7 m^2/s^2)\nv \u2248 7668 m/s\n\nRounding to three significant figures based on the altitude given (408 km).",
       "elapsed_s": 8.032955646514893,
-      "notes": "rel_err 1.305e-03"
+      "notes": "match"
     },
     {
       "id": "mech_adv_010",
@@ -1232,7 +1232,7 @@
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 0.0920 m\n\nThe wavelength of electromagnetic radiation in a medium is its wavelength in vacuum divided by the refractive index of the medium.\nFirst, calculate the wavelength in a vacuum:\n\u03bb_vacuum = c / f\nwhere c is the speed of light in a vacuum (approximately 2.998 x 10^8 m/s) and f is the frequency (2.45 GHz = 2.45 x 10^9 Hz).\n\u03bb_vacuum = (2.998 x 10^8 m/s) / (2.45 x 10^9 Hz) = 0.122367 m\n\nNext, divide the vacuum wavelength by the refractive index of water:\n\u03bb_water = \u03bb_vacuum / n\n\u03bb_water = 0.122367 m / 1.33 = 0.09199 m\n\nRounding to three significant figures gives 0.0920 m.",
       "elapsed_s": 4.560638427734375,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "em_adv_002",
@@ -1245,7 +1245,7 @@
       "tolerance_rel": 0.1,
       "answer_text": "ANSWER: 1.2 W\n\nTo find the power of visible light, you multiply the total power of the bulb by its efficiency for visible light.\nPower of visible light = 60 W * 0.02 = 1.2 W",
       "elapsed_s": 1.2874033451080322,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "em_adv_003",
@@ -1258,7 +1258,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 8.854 \u00b5F\n\nThe capacitance of parallel plates is calculated using the formula C = (\u03b5\u2080 * A) / d, where C is capacitance, \u03b5\u2080 is the permittivity of free space (approximately 8.854 \u00d7 10\u207b\u00b9\u00b2 F/m), A is the area of the plates, and d is the distance between them.\nGiven A = 1 m\u00b2 and d = 1 micron (1 \u00d7 10\u207b\u2076 m):\nC = (8.854 \u00d7 10\u207b\u00b9\u00b2 F/m * 1 m\u00b2) / (1 \u00d7 10\u207b\u2076 m)\nC = 8.854 \u00d7 10\u207b\u2076 F\nC = 8.854 \u00b5F",
       "elapsed_s": 2.166774272918701,
-      "notes": "rel_err 1.913e-16 [unit-converted '\u00b5F'->'F']"
+      "notes": "match [unit-converted \u00b5f->f]"
     },
     {
       "id": "em_adv_004",
@@ -1284,7 +1284,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 300 m\n\nTo find the wavelength, you divide the speed of light by the frequency. The speed of light is approximately 3 x 10^8 meters per second. The given frequency is 1 MHz, which is 1 x 10^6 Hz.\nWavelength = (3 x 10^8 m/s) / (1 x 10^6 Hz) = 300 m.",
       "elapsed_s": 1.6882343292236328,
-      "notes": "rel_err 7.005e-04"
+      "notes": "match"
     },
     {
       "id": "em_adv_006",
@@ -1297,7 +1297,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 1.592e+08 Hz\n\nThe resonant frequency (f) of an RLC circuit is calculated using the formula f = 1 / (2\u03c0\u221a(LC)), where L is the inductance and C is the capacitance.\nGiven:\nL = 1 microhenry = 1 \u00d7 10\u207b\u2076 H\nC = 1 picofarad = 1 \u00d7 10\u207b\u00b9\u00b2 F\n\nf = 1 / (2\u03c0\u221a(1 \u00d7 10\u207b\u2076 H \u00d7 1 \u00d7 10\u207b\u00b9\u00b2 F))\nf = 1 / (2\u03c0\u221a(1 \u00d7 10\u207b\u00b9\u2078))\nf = 1 / (2\u03c0 \u00d7 1 \u00d7 10\u207b\u2079)\nf = 10\u2079 / (2\u03c0)\nf \u2248 159154943 Hz",
       "elapsed_s": 4.196014165878296,
-      "notes": "rel_err 6.285e-04"
+      "notes": "match"
     },
     {
       "id": "em_adv_007",
@@ -1323,7 +1323,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 0.125 m\n\nTo find the wavelength, you divide the speed of light by the frequency.\nWavelength = (Speed of light) / Frequency\nWavelength = (3 x 10^8 m/s) / (2.4 x 10^9 Hz)\nWavelength = 0.125 m",
       "elapsed_s": 2.012899875640869,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "em_adv_009",
@@ -1336,7 +1336,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 0.0107 m\n\nThe wavelength (\u03bb) can be calculated using the formula \u03bb = c / f, where c is the speed of light (approximately 3 x 10^8 m/s) and f is the frequency.\nGiven f = 28 GHz = 28 x 10^9 Hz.\n\u03bb = (3 x 10^8 m/s) / (28 x 10^9 Hz) = 0.010714... m",
       "elapsed_s": 2.374084711074829,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "em_adv_010",
@@ -1349,7 +1349,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 200 s\n\nEnergy (E) is equal to Power (P) multiplied by Time (t).\nE = P \u00d7 t\n\nGiven:\nEnergy (E) = 1 kilojoule = 1000 joules\nPower (P) = 5 watts\n\nRearranging the formula to solve for time:\nt = E / P\nt = 1000 J / 5 W\nt = 200 s",
       "elapsed_s": 1.7252225875854492,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "gr_001",
@@ -1362,7 +1362,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 2952 m\n\nThe event horizon radius (Schwarzschild radius) is calculated using the formula R_s = (2GM)/c^2, where G is the gravitational constant, M is the mass of the Sun (1.989 \u00d7 10^30 kg), and c is the speed of light.",
       "elapsed_s": 2.8920769691467285,
-      "notes": "rel_err 6.770e-04"
+      "notes": "match"
     },
     {
       "id": "gr_002",
@@ -1375,7 +1375,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 44270 m\n\nThe photon sphere of a black hole is located at a radius $r_{ps}$ which is $\\frac{3}{2}$ times its Schwarzschild radius ($r_s$).\nFirst, we calculate the Schwarzschild radius for a 10-solar-mass black hole:\nThe mass of the black hole is $M = 10 \\times 1.98847 \\times 10^{30} \\text{ kg} = 1.98847 \\times 10^{31} \\text{ kg}$.\nThe Schwarzschild radius is given by the formula $r_s = \\frac{2GM}{c^2}$, where:\n$G = 6.67430 \\times 10^{-11} \\text{ m}^3 \\text{ kg}^{-1} \\text{ s}^{-2}$ (gravitational constant)\n$c = 2.99792458 \\times 10^8 \\text{ m/s}$ (speed of light)\n\n$r_s = \\frac{2 \\times (6.67430 \\times 10^{-11} \\text{ m}^3 \\text{ kg}^{-1} \\text{ s}^{-2}) \\times (1.98847 \\times 10^{31} \\text{ kg})}{(2.99792458 \\times 10^8 \\text{ m/s})^2}$\n$r_s \\approx 29515.2 \\text{ m}$\n\nThe radius of the photon sphere is $r_{ps} = \\frac{3}{2} r_s$:\n$r_{ps} = 1.5 \\times 29515.2 \\text{ m}$\n$r_{ps} \\approx 44272.8 \\text{ m}$\n\nRounding to four significant figures, the photon sphere is located at approximately 44270 meters from the center of the black hole.",
       "elapsed_s": 10.846380949020386,
-      "notes": "rel_err 9.704e-04"
+      "notes": "match"
     },
     {
       "id": "gr_003",
@@ -1388,7 +1388,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 8.858e+04 m\n\nThis is the radius of the Innermost Stable Circular Orbit (ISCO) for a non-rotating (Schwarzschild) black hole. For such a black hole, the ISCO is located at a radius of $6GM/c^2$.\nGiven:\nMass of the black hole $M = 10$ solar masses $= 10 \\times (1.989 \\times 10^{30} \\text{ kg}) = 1.989 \\times 10^{31}$ kg\nGravitational constant $G = 6.674 \\times 10^{-11} \\text{ N m}^2/\\text{kg}^2$\nSpeed of light $c = 2.998 \\times 10^8 \\text{ m/s}$\n\nCalculating the ISCO radius:\n$r_{ISCO} = \\frac{6GM}{c^2} = \\frac{6 \\times (6.674 \\times 10^{-11} \\text{ N m}^2/\\text{kg}^2) \\times (1.989 \\times 10^{31} \\text{ kg})}{(2.998 \\times 10^8 \\text{ m/s})^2}$\n$r_{ISCO} = 8.858 \\times 10^4 \\text{ m}$",
       "elapsed_s": 7.411401748657227,
-      "notes": "rel_err 5.078e-04"
+      "notes": "match"
     },
     {
       "id": "gr_004",
@@ -1453,7 +1453,7 @@
       "tolerance_rel": 0.05,
       "answer_text": "To determine the altitude at which GPS satellite clocks run faster by 38 microseconds per day, we need to consider both special relativistic and general relativistic effects.\n\n1.  **Special Relativistic Time Dilation (Kinetic Effect):** Due to its speed, a satellite clock runs slower. For a satellite in circular orbit, its speed `v` is given by `v = \u221a(GM/r)`, where `G` is the gravitational constant, `M` is Earth's mass, and `r` is the orbital radius. The fractional time difference (clock runs slower) is approximately `\u0394t_K / t = -v\u00b2 / (2c\u00b2)`, which simplifies to `\u0394t_K / t = -GM / (2rc\u00b2)`.\n\n2.  **General Relativistic Time Dilation (Gravitational Effect):** Due to the weaker gravitational field at higher altitude, a satellite clock runs faster. The fractional time difference (clock runs faster) between an altitude `r` and Earth's surface `R_E` is approximately `\u0394t_G / t = (GM / c\u00b2) * (1/R_E - 1/r)`.\n\nThe net fractional time difference `\u0394t_net / t` (where the satellite clock runs faster) is the sum of these two effects:\n`\u0394t_net / t = \u0394t_G / t + \u0394t_K / t`\n`\u0394t_net / t = (GM / c\u00b2) * (1/R_E - 1/r) - (GM / (2rc\u00b2))`\n`\u0394t_net / t = (GM / c\u00b2) * (1/R_E - 1/r - 1/(2r))`\n`\u0394t_net / t = (GM / c\u00b2) * (1/R_E - 3/(2r))`\n\nGiven values:\n*   `\u0394t_net` = 38 microseconds = 38 \u00d7 10\u207b\u2076 s\n*   `t` = 1 day = 86400 s\n*   `G` = 6.67430 \u00d7 10\u207b\u00b9\u00b9 N m\u00b2/kg\u00b2\n*   `M` = 5.9722 \u00d7 10\u00b2\u2074 kg (mass of Earth)\n*   `c` = 2.99792458 \u00d7 10\u2078 m/s (speed of light)\n*   `R_E` = 6.371 \u00d7 10\u2076 m (mean radius of Earth)\n\nFirst, calculate constants:\n`GM = 6.67430 \u00d7 10\u207b\u00b9\u00b9 N m\u00b2/kg\u00b2 * 5.9722 \u00d7 10\u00b2\u2074 kg = 3.98600465 \u00d7 10\u00b9\u2074 m\u00b3/s\u00b2`\n`c\u00b2 = (2.99792458 \u00d7 10\u2078 m/s)\u00b2 = 8.987551787 \u00d7 10\u00b9\u2076 m\u00b2/s\u00b2`\n`GM / c\u00b2 = 3.98600465 \u00d7 10\u00b9\u2074 / 8.987551787 \u00d7 10\u00b9\u2076 \u2248 0.0044349106 m`\n\nNow, plug these into the net time difference equation:\n`38 \u00d7 10\u207b\u2076 s / 86400 s = (0.0044349106 m) * (1/(6.371 \u00d7 10\u2076 m) - 3/(2r))`\n`4.398148148 \u00d7 10\u207b\u00b9\u2070 = 0.0044349106 * (1.569612306 \u00d7 10\u207b\u2077 - 3/(2r))`\n\nDivide by `(GM / c\u00b2)`:\n`4.398148148 \u00d7 10\u207b\u00b9\u2070 / 0.0044349106 = 1.569612306 \u00d7 10\u207b\u2077 - 3/(2r)`\n`9.9171736 \u00d7 10\u207b\u2078 = 1.569612306 \u00d7 10\u207b\u2077 - 3/(2r)`\n\nRearrange to solve for `3/(2r)`:\n`3/(2r) = 1.569612306 \u00d7 10\u207b\u2077 - 9.9171736 \u00d7 10\u207b\u2078`\n`3/(2r) = 5.77894946 \u00d7 10\u207b\u2078 m\u207b\u00b9`\n\nNow solve for `r`:\n`2r / 3 = 1 / (5.77894946 \u00d7 10\u207b\u2078 m\u207b\u00b9) = 17304724.7 m`\n`2r = 3 * 17304724.7 m = 51914174.1 m`\n`r = 25957087.05 m`\n\nThis is the orbital radius from the center of the Earth. The altitude `h` is `r - R_E`:\n`h = 25957087.05 m - 6371000 m`\n`h = 19586087.05 m`\n\nConverting to kilometers:\n`h = 19586.087 km`\n\nRounding to the nearest kilometer, the altitude is 19586 km.\n\nANSWER: 19586 km",
       "elapsed_s": 37.96961498260498,
-      "notes": "rel_err 3.040e-02 [unit-converted 'km'->'m']"
+      "notes": "match [unit-converted km->m]"
     },
     {
       "id": "gr_009",
@@ -1518,7 +1518,7 @@
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 8.53e-27 kg/m^3\n\nThe critical density of the universe is calculated using the formula:\n$\\rho_c = \\frac{3 H_0^2}{8 \\pi G}$\n\nWhere:\n*   $H_0$ is the Hubble constant. Using the value from the Planck 2018 results, $H_0 = 67.4 \\text{ km/s/Mpc}$, which converts to approximately $2.1847 \\times 10^{-18} \\text{ s}^{-1}$.\n*   $G$ is the gravitational constant, $6.6743 \\times 10^{-11} \\text{ N m}^2/\\text{kg}^2$.\n\nPlugging in these values yields a critical density of approximately $8.53 \\times 10^{-27} \\text{ kg/m}^3$.",
       "elapsed_s": 10.81267499923706,
-      "notes": "rel_err 1.044e-02"
+      "notes": "match"
     },
     {
       "id": "cosmo_004",
@@ -1596,7 +1596,7 @@
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 4.24 years\n\nLight from Proxima Centauri, which is about 4.24 light-years away, takes 4.24 years to reach us.",
       "elapsed_s": 3.6890342235565186,
-      "notes": "rel_err 0.000e+00 [unit-converted 'years'->'year']"
+      "notes": "match"
     },
     {
       "id": "astro_002",
@@ -1609,7 +1609,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 5778 K",
       "elapsed_s": 0.6653776168823242,
-      "notes": "rel_err 1.040e-03"
+      "notes": "match"
     },
     {
       "id": "astro_003",
@@ -1622,7 +1622,7 @@
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 25 $L_\\odot$\nSirius is approximately 25 times more luminous than our Sun.",
       "elapsed_s": 1.1413114070892334,
-      "notes": "rel_err 1.575e-02"
+      "notes": "match"
     },
     {
       "id": "astro_004",
@@ -1635,7 +1635,7 @@
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 640 years\n\nThe distance to Betelgeuse is approximately 640 light-years. A light-year is the distance light travels in one year, so if Betelgeuse is 640 light-years away, it would take 640 years for the light from a supernova event to reach Earth.",
       "elapsed_s": 2.7793285846710205,
-      "notes": "rel_err 1.700e-01 [unit-converted 'years'->'year']"
+      "notes": "rel_err 1.700e-01"
     },
     {
       "id": "astro_005",
@@ -1648,7 +1648,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 2.1 M\u2609",
       "elapsed_s": 0.8512263298034668,
-      "notes": "rel_err 1.639e-02"
+      "notes": "match"
     },
     {
       "id": "astro_006",
@@ -1713,7 +1713,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 29780 m/s\n\nThe Earth travels approximately 940 million kilometers in one year. Dividing this distance by the number of seconds in a year gives the average speed.\nCircumference of Earth's orbit = 2 * pi * (average orbital radius)\nAverage orbital radius = 1.496 x 10^11 m\nCircumference = 2 * pi * 1.496 x 10^11 m = 9.40 x 10^11 m\nTime for one orbit (1 sidereal year) = 365.256 days = 3.1558 x 10^7 s\nSpeed = Distance / Time = (9.40 x 10^11 m) / (3.1558 x 10^7 s) = 29780 m/s",
       "elapsed_s": 3.7646358013153076,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "astro_011",
@@ -1739,7 +1739,7 @@
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 433 light-years",
       "elapsed_s": 1.0680420398712158,
-      "notes": "rel_err 1.153e-03"
+      "notes": "match"
     },
     {
       "id": "atom_001",
@@ -1752,7 +1752,7 @@
       "tolerance_rel": 0,
       "answer_text": "ANSWER: 79",
       "elapsed_s": 0.8819065093994141,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "atom_002",
@@ -1765,7 +1765,7 @@
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 12.011 u",
       "elapsed_s": 1.0303640365600586,
-      "notes": "rel_err 0.000e+00 [unit-converted 'u'->'amu']"
+      "notes": "match"
     },
     {
       "id": "atom_003",
@@ -1817,7 +1817,7 @@
       "tolerance_rel": 0,
       "answer_text": "ANSWER: 26",
       "elapsed_s": 105.99473309516907,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "atom_007",
@@ -1843,7 +1843,7 @@
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 238.02891 u\n\nThe atomic mass of uranium is typically given as the standard atomic weight, which is the weighted average of the isotopic masses of uranium as found in nature. The most common isotope, U-238, has a mass very close to this value. The 'u' stands for unified atomic mass unit.",
       "elapsed_s": 1.0645384788513184,
-      "notes": "rel_err 3.781e-07 [unit-converted 'u'->'amu']"
+      "notes": "match"
     },
     {
       "id": "nuc_001",
@@ -1869,7 +1869,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 21.51 megatons\n\nTo convert 1 kg of mass to energy, we use Einstein's famous equation E=mc\u00b2.\nE = (1 kg) * (3.00 x 10\u2078 m/s)\u00b2 = 9.00 x 10\u00b9\u2076 Joules.\n\nNext, we convert this energy into megatons of TNT.\n1 ton of TNT is defined as 4.184 x 10\u2079 Joules.\nTherefore, 1 megaton of TNT = 10\u2076 tons * 4.184 x 10\u2079 J/ton = 4.184 x 10\u00b9\u2075 Joules.\n\nFinally, we divide the calculated energy by the energy equivalent of one megaton of TNT:\n(9.00 x 10\u00b9\u2076 J) / (4.184 x 10\u00b9\u2075 J/megaton) = 21.51 megatons.",
       "elapsed_s": 3.6695938110351562,
-      "notes": "rel_err 4.651e-04"
+      "notes": "match"
     },
     {
       "id": "nuc_003",
@@ -1921,7 +1921,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 2.82e-12 J\n\nTo convert from MeV to joules, first convert MeV to eV (1 MeV = 10^6 eV), then convert eV to joules (1 eV = 1.602 x 10^-19 J).\n17.6 MeV = 17.6 x 10^6 eV\n17.6 x 10^6 eV * (1.602 x 10^-19 J/eV) = 2.82 x 10^-12 J",
       "elapsed_s": 2.764427661895752,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     },
     {
       "id": "nuc_007",
@@ -1934,7 +1934,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 0.0466 kg\n\nTo find the mass converted to energy, we use Einstein's mass-energy equivalence formula, E=mc\u00b2.\n\n1.  **Convert the energy release to Joules:**\n    A 1-megaton explosion is equivalent to 1 million tons of TNT.\n    One ton of TNT releases approximately 4.184 x 10^9 Joules of energy.\n    So, E = 1 x 10^6 tons * 4.184 x 10^9 J/ton = 4.184 x 10^15 J.\n\n2.  **Use the speed of light (c):**\n    c = 2.99792458 x 10^8 m/s\n    c\u00b2 = (2.99792458 x 10^8 m/s)\u00b2 \u2248 8.98755 x 10^16 m\u00b2/s\u00b2\n\n3.  **Calculate the mass (m):**\n    m = E / c\u00b2\n    m = (4.184 x 10^15 J) / (8.98755 x 10^16 m\u00b2/s\u00b2)\n    m \u2248 0.046556 kg\n\nRounding to three significant figures, the mass converted is 0.0466 kg.",
       "elapsed_s": 4.947376728057861,
-      "notes": "rel_err 2.151e-03"
+      "notes": "match"
     },
     {
       "id": "math_001",
@@ -1963,7 +1963,7 @@
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 0.333",
       "elapsed_s": 46.17685055732727,
-      "notes": "rel_err 1.000e-03"
+      "notes": "match"
     },
     {
       "id": "math_003",
@@ -2006,7 +2006,7 @@
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 3.14159",
       "elapsed_s": 1.6011075973510742,
-      "notes": "rel_err 8.447e-07"
+      "notes": "match"
     },
     {
       "id": "math_006",
@@ -2032,7 +2032,7 @@
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 1",
       "elapsed_s": 0.6121616363525391,
-      "notes": "rel_err 0.000e+00"
+      "notes": "match"
     }
   ]
 }
