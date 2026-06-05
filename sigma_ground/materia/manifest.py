@@ -219,8 +219,8 @@ _VERB_TRIGGERS = {
     "terminal_velocity_drop": (SPEED_TRIGGERS, False),
     "drag_heating_drop": (HEAT_TRIGGERS, False),
     "high_altitude_descent": (["parachute", "skydiv", "drogue", "stratosphere",
-                               "free fall", "free-fall", "freefall",
-                               "from space"], True),
+                               "from space", "from orbit", "reentry",
+                               "re-entry"], True),
     "supersonic_projectile": (["supersonic", "sound barrier", "transonic",
                                r"\bmach\b"], True),
     "vertical_launch": ([], False),   # chain-only; reached via the launch template
@@ -248,20 +248,588 @@ _VERB_TRIGGERS = {
                                "full profile of", "complete profile of",
                                "full material profile", "characterize everything"],
                               True),
-    "quantum_report": (["atomic spectra", "energy levels", "quantum well",
-                        "tunneling", "crystal field", "superconductor",
-                        "superconductivity", "rydberg", "hydrogen spectrum",
-                        "term symbol", "bcs gap"], True),
+    "quantum_report": (["crystal field", "crystal-field", "ligand field"], True),
 }
 for _v, (_t, _ex) in _VERB_TRIGGERS.items():
     VERB_MANIFEST[_v]["triggers"] = _t
     VERB_MANIFEST[_v]["exclusive"] = _ex
 
 
-def manifest_for_prompt() -> str:
-    """Render the manifest as a compact verb list for the LLM system prompt."""
+# ── Domain verbs (the coverage campaign) — registered for routing here ──────
+# Each entry carries DISTINCTIVE triggers (a match returns ONLY this verb), a
+# couple of example questions (few-shot for the LLM *and* the validation corpus),
+# and slots (material_key where the verb takes one; everything else defaults in
+# the verb, so routing to the verb alone already yields a valid answer). The
+# example questions are the "questions and answers" that both drive and verify
+# the matching — see misc/routing_corpus.py.
+_MAT = {"material_key": {"unit": "material", "default": "iron",
+                         "aliases": ["of", "for"]}}
+_ELEM = {"element_Z": {"unit": "Z", "default": 1, "aliases": ["element", "Z="]}}
+
+_ROUTABLE_NEW = {
+    # ── electromagnetism ──
+    "charged_particle": {
+        "description": "Electric & magnetic forces on a charged particle — "
+                       "Coulomb's law, point fields, cyclotron motion, Lorentz "
+                       "force, EM-wave energy.",
+        "triggers": ["coulomb force", "coulomb's law", "electric field",
+                     "electric potential", "cyclotron", "lorentz force",
+                     "charged particle", "force between two charges",
+                     "two charges", "point charge"],
+        "examples": ["coulomb force between two 1 microcoulomb charges 1 cm apart",
+                     "cyclotron frequency of an electron in a 1 tesla field"],
+        "slots": {}},
+    "transmission_line": {
+        "description": "Transmission-line EM — coaxial / twisted-pair / Möbius "
+                       "conductor inductance, characteristic impedance, skin "
+                       "depth, field cancellation.",
+        "triggers": ["coaxial", "transmission line", "twisted pair",
+                     "characteristic impedance", "skin depth", "mobius conductor",
+                     "möbius conductor", "cable inductance"],
+        "examples": ["characteristic impedance of a coaxial cable",
+                     "skin depth of copper at 1 MHz"],
+        "slots": _MAT},
+    "optical_fiber": {
+        "description": "Fiber-optic & nonlinear photonics — numerical aperture, "
+                       "mode count, single-mode cutoff, Bragg stacks, Kerr / "
+                       "second-harmonic.",
+        "triggers": ["optical fiber", "fibre optic", "fiber optic",
+                     "numerical aperture", "single mode fiber", "bragg",
+                     "second harmonic", "kerr effect"],
+        "examples": ["numerical aperture of an optical fiber",
+                     "how many modes does an optical fiber support"],
+        "slots": {}},
+    "optical_dispersion": {
+        "description": "Optical dispersion & colour of a material — refractive "
+                       "index, metal reflectance, Drude scattering, plasma "
+                       "frequency, dielectric colour.",
+        "triggers": ["refractive index", "reflectance of", "drude",
+                     "optical dispersion", "cauchy", "metal colour",
+                     "metal color"],
+        "examples": ["reflectance of copper", "refractive index of glass"],
+        "slots": _MAT},
+    "semiconductor_device": {
+        "description": "Semiconductor device physics — band gap, carrier "
+                       "concentration & mobility, p-n junction built-in voltage "
+                       "and depletion width, diode current.",
+        "triggers": ["semiconductor", "band gap", "diode", "p-n junction",
+                     "pn junction", "depletion width", "carrier concentration",
+                     "fermi level"],
+        "examples": ["band gap of silicon", "depletion width of a pn junction"],
+        "slots": {"sc_key": {"unit": "material", "default": "silicon",
+                             "aliases": ["of", "for"]}}},
+    "magnetic_material": {
+        "description": "Magnetic & dielectric response of a material — "
+                       "ferromagnetism, susceptibility, saturation "
+                       "magnetization; dielectric breakdown and stored energy.",
+        "triggers": ["magnetic susceptibility", "ferromagnetic",
+                     "saturation magnetization", "dielectric breakdown",
+                     "breakdown field", "diamagnetic", "paramagnetic"],
+        "examples": ["is iron ferromagnetic",
+                     "dielectric breakdown field of quartz"],
+        "slots": _MAT},
+    "magnetic_hysteresis": {
+        "description": "Ferromagnetic hysteresis — the B-H loop, coercivity, "
+                       "anhysteretic magnetization, Curie-Weiss susceptibility, "
+                       "energy lost per cycle.",
+        "triggers": ["hysteresis", "b-h loop", "bh loop", "coercivity",
+                     "hysteresis loss", "curie-weiss", "magnetic loss",
+                     "energy loss per cycle"],
+        "examples": ["hysteresis loop of iron",
+                     "magnetic energy loss per cycle of a transformer core"],
+        "slots": _MAT},
+    "piezoelectric_material": {
+        "description": "Piezoelectric response — charge/voltage from stress, "
+                       "strain from field, electromechanical coupling, harvested "
+                       "energy.",
+        "triggers": ["piezoelectric", "piezo", "quartz frequency",
+                     "electromechanical coupling"],
+        "examples": ["piezoelectric voltage of PZT under stress",
+                     "electromechanical coupling of quartz"],
+        "slots": {"material_key": {"unit": "material", "default": "PZT4",
+                                   "aliases": ["of", "for"]}}},
+    "thermoelectric": {
+        "description": "Thermoelectric transport — Seebeck-derived figure of "
+                       "merit ZT, electrical conductivity, Carnot bound, "
+                       "thermocouple voltage.",
+        "triggers": ["thermoelectric", "seebeck", "peltier",
+                     "figure of merit", "thermocouple", "figure of merit zt"],
+        "examples": ["thermoelectric figure of merit of bismuth telluride",
+                     "seebeck voltage of a thermocouple"],
+        "slots": _MAT},
+    # ── mechanics & motion ──
+    "projectile_motion": {
+        "description": "Projectile & inclined-plane kinematics — range, max "
+                       "height, time of flight, launch at an angle, motion on a "
+                       "ramp.",
+        "triggers": ["projectile range", "projectile motion", "range of a",
+                     "launch angle", "trajectory", "at an angle", "how far does",
+                     "thrown at an angle", "ballistic", "fired at an angle",
+                     "maximum height of", "degree angle", "degrees"],
+        "examples": ["range of a projectile launched at 45 degrees",
+                     "how far does a ball thrown at 30 m/s travel"],
+        "slots": {}},
+    "collision_dynamics": {
+        "description": "Energy, momentum & collisions — kinetic / potential / "
+                       "rotational energy, elastic and inelastic collision "
+                       "outcomes, energy dissipated.",
+        "triggers": ["collision", "collide", "elastic collision",
+                     "inelastic collision", "conservation of momentum",
+                     "two balls collide", "head-on", "crash into"],
+        "examples": ["elastic collision of two balls",
+                     "energy lost in an inelastic collision"],
+        "slots": {}},
+    "rolling_object": {
+        "description": "A body rolling without slipping — moments of inertia, "
+                       "rolling acceleration down an incline, speed from a "
+                       "height, rolling distance.",
+        "triggers": ["rolling without slipping", "rolls down", "rolling down",
+                     "down an incline", "down a ramp", "rolling acceleration",
+                     "rolling speed"],
+        "examples": ["how fast does a sphere roll down a ramp",
+                     "rolling acceleration of a cylinder on an incline"],
+        "slots": {}},
+    "relativistic_motion": {
+        "description": "Special relativity — Lorentz factor, time dilation, "
+                       "length contraction, relativistic energy / momentum, "
+                       "relativistic Doppler.",
+        "triggers": ["relativistic", "lorentz factor", "time dilation",
+                     "length contraction", "speed of light", "special "
+                     "relativity", "near light speed"],
+        "examples": ["time dilation at 0.9c",
+                     "relativistic energy of a proton near light speed"],
+        "slots": {}},
+    "thermal_statistics": {
+        "description": "Statistical mechanics of a gas — Maxwell-Boltzmann "
+                       "speeds, Boltzmann factors & entropy, partition function, "
+                       "Fermi-Dirac / Bose-Einstein.",
+        "triggers": ["maxwell-boltzmann", "boltzmann distribution",
+                     "boltzmann factor", "partition function", "fermi-dirac",
+                     "bose-einstein", "average speed of", "statistical mechanics",
+                     "most probable speed", "rms speed", "thermal speed",
+                     "root mean square speed"],
+        "examples": ["average speed of nitrogen molecules at 300 K",
+                     "maxwell-boltzmann distribution of a gas"],
+        "slots": {}},
+    "elastic_solid": {
+        "description": "Linear elasticity of a solid — Lamé parameters, elastic "
+                       "moduli, P-wave modulus, strain energy, yield check.",
+        "triggers": ["lame parameter", "lamé parameter", "p-wave modulus",
+                     "strain energy", "elastic modulus of", "shear modulus of",
+                     "poisson ratio"],
+        "examples": ["shear modulus of steel", "Lamé parameters of aluminum"],
+        "slots": _MAT},
+    "acoustics": {
+        "description": "Acoustic waves in and across materials — longitudinal / "
+                       "transverse sound speed, acoustic impedance, reflection / "
+                       "transmission, resonance.",
+        "triggers": ["speed of sound", "acoustic impedance", "sound speed",
+                     "acoustic", "ultrasound", "wave speed in",
+                     "sound travel through", "how fast does sound"],
+        "examples": ["speed of sound in steel", "acoustic impedance of water"],
+        "slots": _MAT},
+    "tribology": {
+        "description": "Friction, wear & adhesion at a sliding contact — Archard "
+                       "wear, wear rate, work of adhesion, contact angle.",
+        "triggers": ["wear rate", "archard", "sliding wear", "friction",
+                     "work of adhesion", "tribolog", "abrasion"],
+        "examples": ["wear rate of steel sliding on iron",
+                     "work of adhesion between two metals"],
+        "slots": _MAT},
+    "composite_material": {
+        "description": "Composite-material mechanics — stiffness & density by "
+                       "rule-of-mixtures and Halpin-Tsai, foam scaling, thermal "
+                       "expansion.",
+        "triggers": ["composite", "fiber reinforced", "fibre reinforced",
+                     "carbon fiber", "carbon fibre", "halpin-tsai",
+                     "rule of mixtures"],
+        "examples": ["stiffness of a carbon-fiber composite",
+                     "modulus of a fiber-reinforced composite"],
+        "slots": {"composite_key": {"unit": "material",
+                                    "default": "cfrp_unidirectional",
+                                    "aliases": ["of", "for"]}}},
+    "metallurgy": {
+        "description": "Microstructure-dependent strength — Hall-Petch yield vs "
+                       "grain size, polycrystal & Taylor hardening, grain "
+                       "growth, alloy prediction.",
+        "triggers": ["grain size", "hall-petch yield", "hall petch yield",
+                     "hall-petch", "hall petch", "grain boundary",
+                     "dislocation density", "annealing", "alloy properties",
+                     "microstructure"],
+        "examples": ["Hall-Petch yield strength vs grain size",
+                     "how grain size affects steel strength"],
+        "slots": _MAT},
+    "viscoelastic_material": {
+        "description": "Viscoelastic polymer response — Maxwell / Kelvin-Voigt "
+                       "creep and stress relaxation, storage & loss moduli, loss "
+                       "tangent.",
+        "triggers": ["viscoelastic", "creep of", "stress relaxation",
+                     "maxwell model", "kelvin-voigt", "loss tangent",
+                     "storage modulus"],
+        "examples": ["creep of a polymer under load",
+                     "stress relaxation of a viscoelastic material"],
+        "slots": _MAT},
+    "fluid_flow": {
+        "description": "Viscous fluid flow — pipe (Poiseuille) flow, Stokes drag "
+                       "& settling, Reynolds number, boundary layer.",
+        "triggers": ["reynolds number", "stokes drag", "poiseuille",
+                     "pipe flow", "viscous flow", "boundary layer",
+                     "terminal settling", "turbulent", "laminar flow",
+                     "flow in this pipe", "flow in a pipe"],
+        "examples": ["reynolds number of water flowing in a pipe",
+                     "stokes drag on a settling sphere"],
+        "slots": {}},
+    "fluid_dynamics": {
+        "description": "Liquid-phase fluid properties — dynamic & kinematic "
+                       "viscosity, surface tension.",
+        "triggers": ["viscosity of", "surface tension", "kinematic viscosity",
+                     "how viscous"],
+        "examples": ["viscosity of ethanol at 20 C", "surface tension of water"],
+        "slots": {"liquid_key": {"unit": "material", "default": "water",
+                                 "aliases": ["of", "for"]}}},
+    "diffusion_transport": {
+        "description": "Mass diffusion & transport — Einstein-Stokes "
+                       "diffusivity, Fick's first and second laws, "
+                       "interdiffusion.",
+        "triggers": ["diffusion coefficient", "fick's", "ficks",
+                     "einstein-stokes", "diffusivity", "interdiffusion",
+                     "how fast does it diffuse"],
+        "examples": ["diffusion coefficient of a particle in water",
+                     "Fick's first law flux"],
+        "slots": {}},
+    # ── chemistry ──
+    "chemistry_lab": {
+        "description": "Acid-base & solution chemistry — pH, Ka/Kb, buffers, "
+                       "titration, plus ideal-gas transport and galvanic cells.",
+        "triggers": ["ph of", "acid", "base", "buffer", "titration",
+                     "henderson", "pka", "pkb", "acidic", "alkaline"],
+        "examples": ["pH of 0.1 M acetic acid",
+                     "titration curve of a weak acid with a strong base"],
+        "slots": {}},
+    "solution_chemistry": {
+        "description": "Electrolyte solutions — Debye-Hückel activity & "
+                       "screening, colligative shifts (boiling-point elevation, "
+                       "freezing-point depression), Faraday electrolysis.",
+        "triggers": ["solubility", "electrolyte", "debye-huckel", "debye-hückel",
+                     "osmotic pressure", "boiling point elevation",
+                     "freezing point depression", "electrolysis", "faraday"],
+        "examples": ["boiling point elevation of salt water",
+                     "how much metal is deposited by electrolysis"],
+        "slots": {}},
+    "chemical_reaction": {
+        "description": "Reaction kinetics & thermodynamics — Arrhenius rate, "
+                       "equilibrium constant & Gibbs energy, activation energy.",
+        "triggers": ["reaction rate", "arrhenius", "activation energy",
+                     "equilibrium constant", "gibbs energy of reaction",
+                     "rate constant", "reaction enthalpy"],
+        "examples": ["arrhenius reaction rate at 350 K",
+                     "equilibrium constant of a reaction"],
+        "slots": {}},
+    "molecular_bond": {
+        "description": "Chemical-bond properties — bond energy (Pauling), length, "
+                       "force constant, dipole, hybridization, reduced mass.",
+        "triggers": ["bond energy", "bond length", "bond dipole",
+                     "chemical bond", "hybridization", "bond order",
+                     "pauling"],
+        "examples": ["C-O bond energy", "hybridization of carbon in methane"],
+        "slots": {}},
+    "intermolecular_forces": {
+        "description": "Hydrogen bonding & intermolecular forces — H-bond "
+                       "energy, estimated boiling point & vaporization enthalpy.",
+        "triggers": ["hydrogen bond", "intermolecular", "van der waals",
+                     "vaporization enthalpy", "why does water boil"],
+        "examples": ["hydrogen bond energy in water",
+                     "intermolecular forces in water"],
+        "slots": {}},
+    "corrosion_attack": {
+        "description": "Corrosion & oxidation — corrosion rate, galvanic "
+                       "potential & series, oxide growth, Pilling-Bedworth ratio.",
+        "triggers": ["corrosion", "corrode", "rust", "galvanic",
+                     "pilling-bedworth", "oxidation rate", "oxide growth"],
+        "examples": ["corrosion rate of iron",
+                     "galvanic potential between zinc and copper"],
+        "slots": _MAT},
+    "combustion_flow": {
+        "description": "Combustion with porous flow — heat of combustion & flame "
+                       "temperature, soot, Darcy flow, Kozeny-Carman "
+                       "permeability.",
+        "triggers": ["combustion", "flame temperature", "soot",
+                     "darcy flow", "porous flow", "kozeny-carman",
+                     "adiabatic flame"],
+        "examples": ["adiabatic flame temperature of burning carbon",
+                     "flame temperature of a smouldering column"],
+        "slots": {}},
+    "fuel_ignition": {
+        "description": "Combustion-ignition properties of a fuel — adiabatic "
+                       "flame temperature, autoignition, flash point, ignition "
+                       "delay, flammability.",
+        "triggers": ["ignition", "flash point", "autoignition",
+                     "flammable", "flammability", "ignition delay",
+                     "catch fire"],
+        "examples": ["flash point of a fuel", "autoignition temperature of methane"],
+        "slots": {}},
+    # ── nuclear & atomic ──
+    "nuclear_decay": {
+        "description": "Nuclear & radioactive properties — alpha/beta half-lives "
+                       "& decay constants, Q-values, activity, plus the parent "
+                       "element's structure.",
+        "triggers": ["radioactive", "half-life", "half life", "decay constant",
+                     "alpha decay", "beta decay", "isotope", "becquerel",
+                     "geiger-nuttall", "activity of", "decay", "radon", "radium"],
+        "examples": ["half-life of uranium-238", "alpha decay Q-value of U238"],
+        "slots": _ELEM},
+    "nucleon_masses": {
+        "description": "Nucleon & nuclear masses — proton and neutron rest "
+                       "masses, the QCD scale, QCD/Higgs mass fractions, nuclear "
+                       "binding.",
+        "triggers": ["proton mass", "neutron mass", "nucleon", "qcd scale",
+                     "nuclear binding energy", "mass of a proton",
+                     "mass of a neutron", "rest energy of", "rest mass"],
+        "examples": ["what is the mass of a proton",
+                     "nuclear binding energy of helium-4"],
+        "slots": {}},
+    "stellar_fusion": {
+        "description": "Stellar nucleosynthesis — proton-proton chain & CNO "
+                       "cycle energy rates, crossover temperature, Gamow peak.",
+        "triggers": ["nucleosynthesis", "stellar fusion", "proton-proton chain",
+                     "pp chain", "cno cycle", "gamow", "fusion in the sun",
+                     "stellar burning", "sun produce energy", "powers the sun",
+                     "fusion in stars"],
+        "examples": ["energy rate of the proton-proton chain in the sun",
+                     "CNO cycle energy generation"],
+        "slots": {}},
+    "hydrogen_spectrum": {
+        "description": "Hydrogen-like atomic spectra — energy levels, Balmer / "
+                       "Lyman / Paschen series, transitions, fine structure.",
+        "triggers": ["hydrogen spectrum", "hydrogen atom", "balmer", "lyman",
+                     "paschen", "rydberg", "spectral lines",
+                     "energy levels of hydrogen", "atomic spectrum",
+                     "emission spectrum", "hydrogen-alpha", "hydrogen alpha"],
+        "examples": ["Balmer series of hydrogen",
+                     "energy levels of a hydrogen atom"],
+        "slots": _ELEM},
+    "atomic_coupling": {
+        "description": "Angular-momentum coupling in atoms — term symbols, "
+                       "Hund's-rule ground state, allowed J, Clebsch-Gordan, "
+                       "spin-orbit.",
+        "triggers": ["term symbol", "spin-orbit", "spin orbit",
+                     "clebsch-gordan", "hund's rule", "hunds rule",
+                     "lande g", "russell-saunders"],
+        "examples": ["term symbols of a carbon atom",
+                     "spin-orbit splitting of an energy level"],
+        "slots": {}},
+    # ── quantum ──
+    "matter_wave": {
+        "description": "Quantum matter waves — de Broglie wavelength, double-slit "
+                       "interference, diffraction, which-path bounds.",
+        "triggers": ["de broglie", "matter wave", "double slit",
+                     "double-slit", "wavelength of an electron",
+                     "electron diffraction", "interference fringes"],
+        "examples": ["de Broglie wavelength of a 100 eV electron",
+                     "double-slit interference of electrons"],
+        "slots": {}},
+    "quantum_dot": {
+        "description": "Quantum confinement — particle-in-a-box levels, the Brus "
+                       "quantum-dot gap, confinement energy, density of states.",
+        "triggers": ["quantum dot", "particle in a box",
+                     "particle-in-a-box", "quantum well", "confinement energy",
+                     "brus", "nanocrystal"],
+        "examples": ["energy levels of a quantum dot",
+                     "particle in a box ground state energy"],
+        "slots": {}},
+    "quantum_tunneling": {
+        "description": "Quantum tunneling — barrier transmission & WKB, decay "
+                       "constant, resonant levels, field emission, STM, Gamow.",
+        "triggers": ["tunneling", "tunnelling", "tunnel through", "barrier "
+                     "transmission", "wkb", "field emission", "scanning "
+                     "tunneling", "tunnel diode"],
+        "examples": ["tunneling probability through a barrier",
+                     "WKB transmission through a potential barrier"],
+        "slots": {}},
+    "quantum_gates": {
+        "description": "Quantum computing — build a multi-qubit circuit, apply "
+                       "gates (Hadamard, CNOT, Toffoli…), measure probabilities "
+                       "and entanglement.",
+        "triggers": ["qubit", "quantum gate", "bell state", "cnot", "hadamard",
+                     "quantum circuit", "entanglement entropy", "quantum "
+                     "computer"],
+        "examples": ["build a Bell state", "apply a Hadamard then a CNOT gate"],
+        "slots": {}},
+    "quantum_algorithms_demo": {
+        "description": "Quantum algorithms — Deutsch-Jozsa, Bernstein-Vazirani, "
+                       "Grover, QFT, phase estimation, Shor, VQE, Ising/"
+                       "Heisenberg ground states.",
+        "triggers": ["quantum algorithm", "grover", "shor", "quantum fourier",
+                     "deutsch-jozsa", "bernstein-vazirani", "vqe",
+                     "phase estimation"],
+        "examples": ["run Grover's search algorithm",
+                     "Shor's algorithm to factor 15"],
+        "slots": {}},
+    "condensed_matter": {
+        "description": "Strongly-correlated electron matter — Fermi energy, "
+                       "Hubbard parameters & ground state, Mott metal-insulator "
+                       "transition.",
+        "triggers": ["fermi energy", "hubbard", "mott", "correlated electron",
+                     "metal-insulator", "metal insulator transition"],
+        "examples": ["Fermi energy of a metal", "Mott metal-insulator transition"],
+        "slots": _MAT},
+    # ── other domains ──
+    "plasma_physics": {
+        "description": "Plasma parameters — plasma & cyclotron frequencies, "
+                       "Debye length & number, Alfvén speed, Coulomb logarithm, "
+                       "plasma beta.",
+        "triggers": ["plasma", "debye length", "plasma frequency", "alfven",
+                     "alfvén", "coulomb logarithm", "plasma beta", "gyroradius",
+                     "larmor radius", "cyclotron radius"],
+        "examples": ["plasma frequency of a 1e19 density plasma",
+                     "Debye length of a plasma at 10 eV"],
+        "slots": {}},
+    "black_hole": {
+        "description": "Black-hole thermodynamics — Schwarzschild radius, Hawking "
+                       "temperature / luminosity / lifetime, entropy, ISCO, "
+                       "photon sphere, tidal force.",
+        "triggers": ["black hole", "hawking", "schwarzschild", "event horizon",
+                     "photon sphere", "isco", "bekenstein", "tidal force near"],
+        "examples": ["Hawking temperature of a 10 solar-mass black hole",
+                     "Schwarzschild radius of a black hole"],
+        "slots": {"solar_masses": {"unit": "Msun", "default": 10.0,
+                                   "aliases": ["solar mass", "solar masses",
+                                               "sun masses"]}}},
+    "superconductor": {
+        "description": "Superconductivity — BCS gap & coherence length, "
+                       "Ginzburg-Landau parameter & type, London penetration, "
+                       "critical fields, McMillan Tc.",
+        "triggers": ["superconductor", "superconducting", "bcs gap",
+                     "critical field", "london penetration", "cooper pair",
+                     "meissner", "type ii", "type-ii", "mcmillan"],
+        "examples": ["BCS gap of niobium",
+                     "upper critical field of a superconductor"],
+        "slots": {"sc_key": {"unit": "material", "default": "niobium",
+                             "aliases": ["of", "for"]}}},
+    "atmospheric_profile": {
+        "description": "Standard-atmosphere state & transport — density / "
+                       "pressure vs altitude, humidity & dew point, specific "
+                       "heats.",
+        "triggers": ["atmosphere", "air density", "dew point", "humidity",
+                     "standard atmosphere", "air pressure", "at altitude",
+                     "on the summit", "on top of everest"],
+        "examples": ["air density at 5000 m altitude", "dew point at 50% humidity"],
+        "slots": {}},
+    "water_state": {
+        "description": "Anomalous properties of liquid water vs temperature — "
+                       "density (4 °C max), viscosity, surface tension, heat "
+                       "capacity, ice fraction.",
+        "triggers": ["density of water", "properties of water", "water viscosity",
+                     "viscosity of water", "boiling point of water",
+                     "water density", "water heat capacity"],
+        "examples": ["density of water at 20 C", "viscosity of water vs temperature"],
+        "slots": {}},
+    "subsurface_scattering": {
+        "description": "Subsurface light transport in translucent materials — "
+                       "absorption & scattering lengths, diffusion length, "
+                       "diffuse reflectance, BSSRDF.",
+        "triggers": ["subsurface scattering", "translucent", "skin scattering",
+                     "diffuse reflectance", "bssrdf", "light through skin"],
+        "examples": ["subsurface scattering of skin",
+                     "subsurface scattering in marble"],
+        "slots": {"material_key": {"unit": "material",
+                                   "default": "skin_caucasian",
+                                   "aliases": ["of", "for", "in"]}}},
+    "organic_material": {
+        "description": "Organic & biological materials — alkane boiling points "
+                       "and combustion enthalpy, anisotropic bone and wood "
+                       "mechanics.",
+        "triggers": ["alkane", "hydrocarbon", "bone", "wood strength",
+                     "boiling point of octane", "combustion enthalpy of"],
+        "examples": ["boiling point of octane", "mechanical strength of bone"],
+        "slots": {}},
+    "asteroid_shape": {
+        "description": "Shape & surface gravity of a small body — triaxial "
+                       "ellipsoid volume & mean radius, axis ratios, surface "
+                       "gravity, escape velocity.",
+        "triggers": ["asteroid", "ellipsoid volume", "small body",
+                     "axis ratio", "surface gravity of an asteroid"],
+        "examples": ["surface gravity of an asteroid",
+                     "mean radius of a triaxial asteroid"],
+        "slots": {}},
+    # ── Phase-2 ledger drains (questions the system used to refuse) ──
+    "planetary_surface": {
+        "description": "Surface conditions of a solar-system body: surface "
+                       "gravity, escape velocity, mass and radius.",
+        "triggers": ["surface gravity", "gravity on", "gravity of mars",
+                     "gravity on the moon", "escape velocity from",
+                     "how strong is gravity"],
+        "examples": ["what is the surface gravity of Mars",
+                     "escape velocity from the Moon"],
+        "slots": {"body": {"unit": "body", "default": "earth",
+                           "aliases": ["of", "on", "from"]}}},
+    "mass_energy": {
+        "description": "Mass-energy equivalence E=mc² — rest energy of a mass, "
+                       "or the energy released by converting mass.",
+        "triggers": ["e=mc", "e = mc", "mass-energy", "mass energy",
+                     "rest energy", "converted to energy", "mass to energy",
+                     "energy from converting", "annihilat", "kg of mass"],
+        "examples": ["how much energy is in 1 kg of mass",
+                     "how much mass is converted to energy in a 1-megaton bomb"],
+        "slots": {"mass_kg": {"unit": "kg", "default": 1.0,
+                              "aliases": ["kg", "kilogram", "mass"]},
+                  "energy_j": {"unit": "J", "default": None,
+                               "aliases": ["megaton", "kiloton", "joule"]}}},
+    "drop_object": {
+        "description": "Drop a NAMED real object (anvil, piano, frying pan…) — "
+                       "asks the Deckard shape researcher for its real "
+                       "mass/shape, then simulates the fall.",
+        "triggers": [],          # custom-routed in the translator (named object)
+        "examples": ["drop a steel anvil from 10 km",
+                     "how fast does a piano hit the ground"],
+        "slots": {"object_name": {"unit": "object", "default": "anvil",
+                                  "aliases": ["drop a", "drop an", "drop the"]},
+                  "drop_altitude_m": {"unit": "m", "default": 1000.0}}},
+}
+for _v, _e in _ROUTABLE_NEW.items():
+    _e["exclusive"] = True
+    _e.setdefault("answers", _e["examples"])
+    _e.setdefault("outputs", ["functions_called"])
+    VERB_MANIFEST[_v] = _e
+
+# Example questions for the ORIGINAL verbs too, so the corpus covers all of them.
+_ORIG_EXAMPLES = {
+    "terminal_velocity_drop": ["how fast does a 5 cm steel ball hit the ground "
+                               "from 10 km", "impact speed of a dropped cannonball"],
+    "drag_heating_drop": ["does an iron sphere heat up falling from 30 km",
+                          "how hot does a meteorite get from drag"],
+    "high_altitude_descent": ["does a skydiver go supersonic jumping from the "
+                              "stratosphere", "parachute descent from 35 km"],
+    "supersonic_projectile": ["how does a bullet's drag change going supersonic",
+                              "a projectile at mach 2.5"],
+    "vertical_launch": ["throw a steel ball straight up at 300 m/s how high",
+                        "launch a marble upward how high does it go"],
+    "orbital_velocity": ["orbital velocity at 400 km above Earth",
+                         "how fast does the Moon orbit"],
+    "material_profile": ["properties of copper", "young's modulus of titanium"],
+    "structural_response": ["fracture toughness of steel", "fatigue life of aluminum"],
+    "thermal_response": ["thermal expansion of aluminum", "melting point of copper"],
+    "rotational_dynamics": ["moment of inertia of a solid sphere",
+                            "angular momentum of a spinning flywheel"],
+    "material_full_profile": ["all properties of steel", "full profile of copper"],
+    "quantum_report": ["crystal field splitting of an iron ion",
+                       "crystal-field stabilization energy"],
+}
+for _v, _ex in _ORIG_EXAMPLES.items():
+    VERB_MANIFEST[_v]["examples"] = _ex
+
+
+def manifest_for_prompt(with_examples: bool = True) -> str:
+    """Render the manifest as a compact verb list for the LLM system prompt.
+    With `with_examples`, append one example question per verb — the few-shot
+    anchor that makes the LLM's verb match reliable across the full catalogue.
+    """
     lines = []
     for verb, m in VERB_MANIFEST.items():
         slots = ", ".join(f"{s}" for s in m["slots"])
-        lines.append(f"- {verb}({slots}): {m['description']}")
+        line = f"- {verb}({slots}): {m['description']}"
+        ex = m.get("examples")
+        if with_examples and ex:
+            line += f'   e.g. "{ex[0]}"'
+        lines.append(line)
     return "\n".join(lines)

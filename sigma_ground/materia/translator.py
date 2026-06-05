@@ -81,6 +81,26 @@ def _has_object_context(low: str) -> bool:
     return (any(n in low for n in _OBJECT_NOUNS)
             or any(c in low for c in _SCENARIO_CUES))
 
+
+# Named NON-sphere objects whose shape Materia doesn't carry: a drop/fall of one
+# of these asks the DECKARD shape researcher for its real mass/shape (the
+# Materia↔Deckard seam). Spheres (ball/marble/…) keep the fast analytic path.
+_SHAPE_OBJECTS = {
+    "anvil", "piano", "hammer", "anchor", "watermelon", "brick", "steak",
+    "dumbbell", "toaster", "frying pan", "skillet", "chair", "laptop",
+    "bottle", "coffee cup", "mug", "wrench", "axe", "log", "kettle", "teapot",
+    "vase", "bucket", "ladder", "fridge", "refrigerator", "microwave",
+    "feather",
+}
+
+
+def _named_shape_object(low: str):
+    """The named non-sphere object in the question (longest match), or None."""
+    for obj in sorted(_SHAPE_OBJECTS, key=len, reverse=True):
+        if re.search(r"\b" + re.escape(obj) + r"\b", low):
+            return obj
+    return None
+
 _LEN_UNIT_M = {  # → metres
     "mm": 1e-3, "millimeter": 1e-3, "millimetre": 1e-3, "millimeters": 1e-3,
     "cm": 1e-2, "centimeter": 1e-2, "centimetre": 1e-2, "centimeters": 1e-2,
@@ -88,11 +108,13 @@ _LEN_UNIT_M = {  # → metres
     "km": 1e3, "kilometer": 1e3, "kilometre": 1e3, "kilometers": 1e3,
     "mi": 1609.344, "mile": 1609.344, "miles": 1609.344,
     "ft": 0.3048, "foot": 0.3048, "feet": 0.3048,
+    "in": 0.0254, "inch": 0.0254, "inches": 0.0254,
 }
 _BIG_UNITS = {"km", "kilometer", "kilometre", "kilometers", "mi", "mile",
               "miles"}
 _SMALL_UNITS = {"mm", "millimeter", "millimetre", "millimeters",
-                "cm", "centimeter", "centimetre", "centimeters"}
+                "cm", "centimeter", "centimetre", "centimeters",
+                "in", "inch", "inches"}
 
 # No true zero. A material object is at least ~1 atom across, so we clamp a
 # degenerate radius to this physical floor — "0 cm" becomes the smallest
@@ -173,6 +195,20 @@ def _extract_mach(q: str):
     return float(m.group(1)) if m else None
 
 
+_ENERGY_UNIT_J = {"megaton": 4.184e15, "megatons": 4.184e15, "mt": 4.184e15,
+                  "kiloton": 4.184e12, "kilotons": 4.184e12, "kt": 4.184e12,
+                  "joule": 1.0, "joules": 1.0}
+
+
+def _extract_energy_j(q: str):
+    """An energy with a TNT/SI unit → joules (for the reverse E=mc² direction)."""
+    m = re.search(r"(\d+(?:\.\d+)?)\s*-?\s*"
+                  r"(megatons?|kilotons?|mt|kt|joules?)\b", q.lower())
+    if m:
+        return float(m.group(1)) * _ENERGY_UNIT_J.get(m.group(2).strip(), 1.0)
+    return None
+
+
 def _params_for(verb: str, q: str) -> dict:
     """Fill ONLY the slots the chosen verb declares (verb-aware extraction)."""
     slots = VERB_MANIFEST[verb]["slots"]
@@ -193,6 +229,22 @@ def _params_for(verb: str, q: str) -> dict:
         p["central_body"] = body
         if sma_au is not None:
             p["semimajor_axis_au"] = sma_au
+    if "body" in slots:                       # planetary_surface: gravity OF Mars
+        b = _extract_body(q)
+        if b:
+            p["body"] = b
+    if "object_name" in slots:                # drop_object: the named object
+        obj = _named_shape_object(q.lower())
+        if obj:
+            p["object_name"] = obj
+    if "mass_kg" in slots:
+        mm = re.search(r"(\d+(?:\.\d+)?)\s*(?:kg|kilograms?)\b", q.lower())
+        if mm:
+            p["mass_kg"] = float(mm.group(1))
+    if "energy_j" in slots:
+        ej = _extract_energy_j(q)
+        if ej is not None:
+            p["energy_j"] = ej
     if "launch_mach" in slots:
         mach = _extract_mach(q)
         if mach is not None:
@@ -272,13 +324,29 @@ def _auto_bind(steps):
 def _matches(low: str, triggers) -> bool:
     r"""A trigger starting with \b is a word-boundary regex (so 'mach' doesn't
     fire on 'machine'); any other trigger is a plain substring test."""
+    return _match_len(low, triggers) > 0
+
+
+def _match_len(low: str, triggers) -> int:
+    r"""Length of the LONGEST matching trigger (0 if none). A trigger containing
+    a backslash is a regex (\b word-boundary etc.); else a plain substring. The
+    length lets the router pick the MOST SPECIFIC verb — 'shear modulus of'
+    (elastic_solid) beats 'shear modulus' (material_profile), 'all properties of'
+    beats 'properties of' — so routing is specificity-ordered, not dict-ordered.
+    """
+    best = 0
     for t in triggers:
-        if t.startswith(r"\b"):
-            if re.search(t, low):
-                return True
+        if "\\" in t:                                   # a regex trigger
+            try:
+                mm = re.search(t, low)
+                if mm:
+                    best = max(best, len(mm.group(0)))
+            except re.error:
+                if t in low:
+                    best = max(best, len(t))
         elif t in low:
-            return True
-    return False
+            best = max(best, len(t))
+    return best
 
 
 def _classify_verbs(q: str):
@@ -290,6 +358,13 @@ def _classify_verbs(q: str):
     """
     low = q.lower()
     ctx = _has_object_context(low)
+    # 0. A drop/fall of a NAMED non-sphere object → ask Deckard for its real
+    #    shape (Materia carries only spheres natively). Spheres fall through.
+    obj = _named_shape_object(low)
+    if obj and (any(c in low for c in ("drop", "fall", "fell", "off a ",
+                                       "off the ", "thrown off", "tossed off"))
+                or _matches(low, SPEED_TRIGGERS)):
+        return ["drop_object"]
     # 1. Launch-then-descend template — needs an object NOUN (so "throw a ball
     #    up" routes, but "I might throw up" does not).
     if (any(n in low for n in _OBJECT_NOUNS)
@@ -308,10 +383,25 @@ def _classify_verbs(q: str):
     # 2. Exclusive verbs route on their (specific) triggers alone — no generic
     #    object-context gate. "orbital velocity"/"supersonic"/"parachute" are
     #    already unambiguous physics; only the generic speed/heat verbs need the
-    #    object gate.
+    #    object gate. Among all matching exclusive verbs the MOST SPECIFIC wins
+    #    (longest matched trigger), so a precise domain phrase beats a generic
+    #    one regardless of registration order.
+    best_verb, best_len, matched = None, 0, set()
     for verb, m in VERB_MANIFEST.items():
-        if m.get("exclusive") and _matches(low, m.get("triggers", [])):
-            return [verb]
+        if not m.get("exclusive"):
+            continue
+        ml = _match_len(low, m.get("triggers", []))
+        if ml > 0:
+            matched.add(verb)
+        if ml > best_len:
+            best_verb, best_len = verb, ml
+    # A faller going supersonic (skydiver, re-entry) is a high-altitude DESCENT,
+    # not a fired projectile — descent owns that framing even though "sound
+    # barrier" is a longer literal match than "skydiver".
+    if best_verb == "supersonic_projectile" and "high_altitude_descent" in matched:
+        best_verb = "high_altitude_descent"
+    if best_verb:
+        return [best_verb]
     # 3. A family we don't model yet → decline regardless.
     if any(k in low for k in _OUT_OF_SCOPE):
         return []
@@ -387,8 +477,35 @@ def _coerce_material(name: str) -> str:
     return _extract_material(str(name))
 
 
+def _route_consistent(question: str, n: int = 2, temperature: float = 0.5,
+                      use_qwen: bool = True) -> bool:
+    """Route-consistency cross-check (gate 2 for the LLM residual): sample the
+    router `n` times at non-zero temperature. If it agrees with ITSELF on the
+    verb sequence every time, the routing is confident → trust it. If the
+    samples diverge, the LLM is uncertain — and an uncertain route is exactly
+    how a question gets sent to the WRONG tool — so we refuse instead of guess.
+    The model's own disagreement is the second opinion.
+    """
+    if not use_qwen:
+        return True
+    seen = None
+    for _ in range(max(2, n)):
+        raw = _ollama_plan(question, temperature=temperature)
+        if not raw:
+            return False                     # router unavailable → can't verify
+        try:
+            verbs = tuple(s.get("verb") for s in json.loads(raw).get("steps", []))
+        except Exception:
+            return False
+        if seen is None:
+            seen = verbs
+        elif verbs != seen:
+            return False                     # diverged → uncertain → refuse
+    return True
+
+
 def _ollama_plan(question: str, url=OLLAMA_URL, model=OLLAMA_MODEL,
-                 timeout=45) -> str | None:
+                 timeout=45, temperature: float = 0.0) -> str | None:
     sys_prompt = (
         "You break a physics what-if into an ORDERED LIST of Materia verbs (a "
         "plan). Output ONLY JSON: {\"steps\":[{\"verb\":<name>,\"params\":"
@@ -402,7 +519,7 @@ def _ollama_plan(question: str, url=OLLAMA_URL, model=OLLAMA_MODEL,
         "Do NOT compute physics — only choose verbs and fill slots.")
     body = json.dumps({
         "model": model, "stream": False, "format": "json",
-        "options": {"temperature": 0},
+        "options": {"temperature": temperature},
         "messages": [{"role": "system", "content": sys_prompt},
                      {"role": "user", "content": question}],
     }).encode()
@@ -467,12 +584,32 @@ def translate(question: str, use_qwen: bool = True) -> SimulationSpec:
     return SimulationSpec(question, [], source="clarify", note=_CLARIFY)
 
 
-def answer(question: str, use_qwen: bool = True) -> str:
-    """Translate, run, and narrate — the full babble→simulation→answer path."""
+def answer(question: str, use_qwen: bool = True, ledger=None,
+           verify: bool = False) -> str:
+    """Translate, run, and narrate — the full babble→simulation→answer path.
+
+    INFALLIBILITY GATE: a run whose results don't pass their own self-check (or
+    produce no grounded value) is REFUSED, not reported — so a Materia answer is
+    EXACT or ``[refused due to incompetence]``, never confidently wrong. Every
+    refusal is logged (reason → the Phase-2 backlog)."""
+    from . import groundedness as _g
     spec = translate(question, use_qwen=use_qwen)
     if not spec.is_runnable():
         return f"❓ {spec.note}"
+    # GATE 2 for the LLM residual: a qwen-routed answer must survive a
+    # route-consistency cross-check (deterministic routes are already reliable —
+    # 100% on the corpus — so they skip it). An uncertain route → refuse.
+    if verify and spec.source == "qwen":
+        if not _route_consistent(question, use_qwen=use_qwen):
+            v = _g.Verdict(False, _g.CROSS_CHECK_FAILED,
+                           "router not self-consistent — uncertain which tool")
+            (ledger or _g.DEFAULT_LEDGER).record(question, v)
+            return _g.refuse_text(v)
     results = run_spec(spec)
+    verdict = _g.gate_results(results)
+    if not verdict.grounded:
+        (ledger or _g.DEFAULT_LEDGER).record(question, verdict)
+        return _g.refuse_text(verdict)
     routes = "; ".join(
         f"{s.verb}(" + ", ".join(f"{k}={v}" for k, v in s.params.items()) + ")"
         for s in spec.steps)

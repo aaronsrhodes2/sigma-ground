@@ -71,6 +71,8 @@ class MateriaResult:
             lines.append(f"  • {s.label}: {val}{unit}")
             if s.formula:
                 lines.append(f"        {s.formula}   [{s.source}]")
+            elif s.source:                       # provenance even without a formula
+                lines.append(f"        [{s.source}]")
         v = self.validation
         if v:
             mark = "✓ PASS" if v.get("passed") else "✗ FAIL"

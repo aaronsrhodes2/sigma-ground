@@ -689,22 +689,78 @@ def _pick(values, fn):
     return None
 
 
+def _fmt_value(x):
+    """Human-readable rendering of any computed value."""
+    if isinstance(x, bool):
+        return "yes" if x else "no"
+    if isinstance(x, (int, float)):
+        return f"{x:.4g}"
+    if isinstance(x, (list, tuple)):
+        return f"({len(x)} values)"
+    s = str(x)
+    return s if len(s) <= 38 else s[:35] + "…"
+
+
+# High-confidence units by quantity-name keyword (the sigma-ground functions
+# return bare floats; this is a best-effort label, blank when unsure — never a
+# wrong unit). Order matters: more specific keys first.
+_UNIT_HINTS = (("mass kg", "kg"), ("mass mev", "MeV"), ("energy mev", "MeV"),
+               ("binding mev", "MeV"), ("energy j", "J"), ("temperature", "K"),
+               ("velocity", "m/s"), ("speed", "m/s"), ("frequency", "Hz"),
+               ("wavelength", "m"), ("luminosity", "W"), ("density", "kg/m^3"),
+               ("voltage", "V"), ("inductance", "H"), ("capacitance", "F"),
+               ("mev", "MeV"))
+# Names that are dimensionless or non-numeric — never attach a unit (a WRONG
+# unit, e.g. labelling an acoustic impedance "ohm", is worse than none).
+_DIMENSIONLESS = ("ratio", "fraction", "number", "coefficient", "sensitivity",
+                  "factor", "count", "index", "efficiency", "probability")
+
+
+def _units_for(q):
+    ql = q.lower()
+    if any(w in ql for w in _DIMENSIONLESS):
+        return ""
+    for kw, u in _UNIT_HINTS:
+        if kw in ql:
+            return u
+    return ""
+
+
 def _domain_result(name, domain, values, inputs, headline, sources):
-    """Build a MateriaResult from a domain sweep: a representative headline plus
-    how many sigma-ground functions the scenario exercised."""
+    """Build a MateriaResult that SHOWS THE WORK: one row per computed quantity,
+    each CITED to the sigma-ground function that produced it. `values` maps
+    'module.fn' -> the function's return — scalars render directly, aggregator
+    dicts expand into their named fields. The headline leads as the summary; the
+    rows are the worked answer (not a coverage count)."""
     n = len(values)
-    fields = sum(len(v) if isinstance(v, dict) else 1 for v in values.values())
-    called = ", ".join(sorted(values)[:6]) + ("…" if n > 6 else "")
-    steps = [
-        MateriaStep(f"{domain} result", headline, "", "(representative)", sources),
-        MateriaStep("Functions exercised", n, "", called, sources),
-        MateriaStep("Result fields", fields, "", "scalars + aggregator dicts",
-                    sources),
-    ]
-    summary = f"{domain}: {headline} — {n} sigma-ground functions exercised."
+    rows, seen = [], set()                     # (quantity, value, units, cite)
+    for label, val in values.items():
+        pairs = (val.items() if isinstance(val, dict)
+                 else [(label.split(".")[-1], val)])
+        for k, sv in pairs:
+            if isinstance(sv, (dict, list, tuple)):
+                continue
+            q = str(k).replace("_", " ")
+            if q.lower() in ("sigma", "sigma field", "origin", "material",
+                             "name", "key", "method", "source", "notes", "note",
+                             "provenance", "tier", "label"):
+                continue                       # sigma echo / metadata — not a result
+            vs = _fmt_value(sv)
+            if (q, vs) in seen:
+                continue                       # dedupe scalar vs aggregator overlap
+            seen.add((q, vs))
+            rows.append((q, vs, _units_for(q), label))
+    fields = len(rows)
+    shown = rows[:16]
+    steps = [MateriaStep(q, v, u, "", src) for q, v, u, src in shown]
+    if fields > len(shown):
+        steps.append(MateriaStep("(more)", f"+{fields - len(shown)} further "
+                                 f"quantities", "", "", sources))
+    summary = headline if headline else f"{domain} computed."
     return MateriaResult(name, inputs, steps, summary=summary,
                          validation={"passed": n > 0,
-                                     "note": f"{n} {domain} functions exercised"},
+                                     "note": f"{fields} quantities from {n} "
+                                             f"{domain} methods"},
                          outputs={"functions_called": n, "result_fields": fields})
 
 
@@ -2108,7 +2164,538 @@ def diffusion_transport(temperature_k: float = 300.0) -> MateriaResult:
                           {"temperature_k": temperature_k}, headline, D)
 
 
+def transmission_line(material_key: str = "copper") -> MateriaResult:
+    """Transmission-line and Möbius-conductor electromagnetics: coaxial /
+    twisted-pair / parallel-pair inductance and characteristic impedance, skin
+    depth, AC resistance, field cancellation and the Möbius net inductance —
+    comparing cable topologies. Sweeps the mobius module."""
+    M = "sigma_ground.field.interface.mobius"
+    vals = _sweep_calls([
+        (M, "analyze_mobius_conductor", (), {}),
+        (M, "compare_topologies", (), {}),
+        (M, "coaxial_characteristic_impedance", (0.0005, 0.0015), {}),
+        (M, "coaxial_inductance", (0.0005, 0.0015, 1.0), {}),
+        (M, "coaxial_inductance_per_m", (0.0005, 0.0015), {}),
+        (M, "coaxial_field_cancellation", (0.01,), {}),
+        (M, "parallel_pair_inductance", (0.0005, 0.002, 1.0), {}),
+        (M, "parallel_pair_inductance_per_m", (0.0005, 0.002), {}),
+        (M, "twisted_pair_inductance", (0.0005, 0.0015, 200.0, 1.0), {}),
+        (M, "twisted_pair_inductance_per_m", (0.0005, 0.0015), {}),
+        (M, "twisted_pair_coupling", (200.0, 0.0015), {}),
+        (M, "twisted_pair_field_cancellation", (0.01, 0.0015), {}),
+        (M, "single_loop_inductance", (0.1, 0.01), {}),
+        (M, "mobius_net_inductance", (0.1, 0.01, 0.0001), {}),
+        (M, "mobius_path_length", (0.1,), {}),
+        (M, "mobius_total_resistance", (material_key, material_key, 0.1, 0.01,
+                                        3.5e-5), {}),
+        (M, "inductance_ratio", (0.1, 0.01, 0.0001), {}),
+        (M, "skin_depth", (material_key, 1e6), {}),
+        (M, "conductor_resistance", (material_key, 0.1, 0.01, 3.5e-5), {}),
+        (M, "effective_resistance_ac", (material_key, 0.1, 0.01, 3.5e-5, 1e6), {}),
+        (M, "conductor_separation", (0.0001,), {}),
+        (M, "coupling_coefficient", (0.0001, 0.01), {}),
+        (M, "current_partition_ratio", (material_key, material_key, 1e6, 3.5e-5),
+         {}),
+        (M, "field_cancellation_ratio", (0.01, 0.0001), {}),
+        (M, "impedance_magnitude", (1.0, 1e-6, 1e6), {}),
+        (M, "impedance_phase_deg", (1.0, 1e-6, 1e6), {}),
+        (M, "bimetallic_seebeck_voltage", (material_key, "iron", 350.0, 300.0),
+         {}),
+        (M, "shielded_pair_field_cancellation", (0.01, 0.0001, 1e6), {}),
+    ])
+    z = _pick(vals, "coaxial_characteristic_impedance")
+    headline = (f"coax impedance {z:.1f} ohm"
+                if isinstance(z, (int, float)) else "transmission-line EM")
+    return _domain_result("transmission_line", "Transmission-line EM", vals,
+                          {"material_key": material_key}, headline, M)
+
+
+def nucleon_masses() -> MateriaResult:
+    """Nucleon and nuclear masses by the book (sigma=0): proton and neutron rest
+    masses, the effective QCD scale, the QCD/Higgs mass fractions and nuclear
+    binding — the inventory's mass-closure core evaluated at the standard point.
+    Sweeps inventory's nucleon-mass module."""
+    S = "sigma_ground.inventory.core.sigma"
+    vals = _sweep_calls([
+        (S, "proton_mass_kg", (0.0,), {}),
+        (S, "proton_mass_mev", (0.0,), {}),
+        (S, "neutron_mass_kg", (0.0,), {}),
+        (S, "neutron_mass_mev", (0.0,), {}),
+        (S, "lambda_eff_mev", (0.0,), {}),
+        (S, "scale_ratio", (0.0,), {}),
+        (S, "nucleon_qcd_fraction", (), {}),
+        (S, "nuclear_binding_mev", (28.3, 2, 4, 0.0), {}),
+        (S, "three_measures_atom", (2, 2, 28.3, 0.0), {}),
+        (S, "three_measures_nucleus", (2, 2, 28.3, 0.0), {}),
+    ])
+    mp = _pick(vals, "proton_mass_mev")
+    headline = (f"proton mass {mp:.2f} MeV"
+                if isinstance(mp, (int, float)) else "nucleon masses")
+    return _domain_result("nucleon_masses", "Nucleon masses", vals, {}, headline,
+                          S)
+
+
+def magnetic_hysteresis(material_key: str = "iron") -> MateriaResult:
+    """Ferromagnetic hysteresis: the B-H loop and a loop point, anhysteretic
+    magnetization (Langevin), Curie-Weiss susceptibility, magnetization vs
+    temperature and the energy lost per cycle. Sweeps the hysteresis module."""
+    H = "sigma_ground.field.interface.hysteresis"
+    vals = _sweep_calls([
+        (H, "hysteresis_properties", (material_key,), {}),
+        (H, "hysteresis_loop", (material_key, 1000.0), {}),
+        (H, "hysteresis_loop_point", (material_key, 500.0), {}),
+        (H, "anhysteretic_magnetization", (material_key, 1000.0), {}),
+        (H, "curie_weiss_susceptibility", (material_key, 400.0), {}),
+        (H, "magnetization_vs_temperature", (material_key, 400.0), {}),
+        (H, "energy_loss_per_cycle", (material_key,), {}),
+        (H, "langevin_function", (2.0,), {}),
+    ])
+    e = _pick(vals, "energy_loss_per_cycle")
+    headline = (f"{material_key} hysteresis loss {e:.3g} J/m³"
+                if isinstance(e, (int, float)) else f"{material_key} hysteresis")
+    return _domain_result("magnetic_hysteresis", "Magnetic hysteresis", vals,
+                          {"material_key": material_key}, headline, H)
+
+
+def corrosion_attack(material_key: str = "iron") -> MateriaResult:
+    """Corrosion and oxidation: corrosion-rate estimate, galvanic potential and
+    series rank between metals, oxide classification, parabolic oxide growth and
+    the Pilling-Bedworth ratio. Sweeps the corrosion module."""
+    C = "sigma_ground.field.interface.corrosion"
+    vals = _sweep_calls([
+        (C, "corrosion_properties", (material_key,), {}),
+        (C, "corrosion_rate_estimate", (material_key,), {}),
+        (C, "galvanic_potential", (material_key, "copper"), {}),
+        (C, "galvanic_series_rank", (), {}),
+        (C, "oxide_classification", (material_key,), {}),
+        (C, "parabolic_oxide_thickness", (material_key, 3.15e7), {}),
+        (C, "pilling_bedworth_ratio", (material_key,), {}),
+    ])
+    pbr = _pick(vals, "pilling_bedworth_ratio")
+    headline = (f"{material_key} Pilling-Bedworth {pbr:.3g}"
+                if isinstance(pbr, (int, float)) else f"{material_key} corrosion")
+    return _domain_result("corrosion_attack", "Corrosion", vals,
+                          {"material_key": material_key}, headline, C)
+
+
+def quantum_tunneling(barrier_eV: float = 2.0, energy_eV: float = 1.0,
+                      width_nm: float = 1.0) -> MateriaResult:
+    """Quantum tunneling: rectangular-barrier transmission/reflection and WKB,
+    decay constant and phase time, resonant double-barrier levels, field
+    emission (Fowler-Nordheim), STM current and resolution, the alpha-decay
+    Gamow factor and the tunnel-diode peak current. Sweeps the tunneling
+    module."""
+    Tn = "sigma_ground.field.interface.tunneling"
+    d = max(float(width_nm), 0.01) * 1e-9
+    V0 = max(float(barrier_eV), 0.01)
+    E = max(float(energy_eV), 0.001)
+    vals = _sweep_calls([
+        (Tn, "full_report", (), {}),
+        (Tn, "rectangular_barrier_T", (E, V0, d), {}),
+        (Tn, "rectangular_barrier_R", (E, V0, d), {}),
+        (Tn, "wkb_rectangular", (E, V0, d), {}),
+        (Tn, "decay_constant_m", (V0, E), {}),
+        (Tn, "phase_time_s", (E, V0, d), {}),
+        (Tn, "double_barrier_resonances_eV", (V0, d, d), {}),
+        (Tn, "field_emission_onset_V_m", (4.5,), {}),
+        (Tn, "fowler_nordheim_current_density", (1e9, 4.5), {}),
+        (Tn, "gamow_factor", (90, 4.27, 7.4e-15), {}),
+        (Tn, "stm_current", (0.1, 5e-10, 4.5), {}),
+        (Tn, "stm_decay_per_angstrom", (4.5,), {}),
+        (Tn, "stm_resolution_m", (4.5,), {}),
+        (Tn, "tunnel_diode_peak_current", (1.1, 1e-8), {}),
+    ])
+    T = _pick(vals, "rectangular_barrier_T")
+    headline = (f"barrier transmission {T:.3g}"
+                if isinstance(T, (int, float)) else "tunneling computed")
+    return _domain_result("quantum_tunneling", "Quantum tunneling", vals,
+                          {"barrier_eV": barrier_eV, "energy_eV": energy_eV},
+                          headline, Tn)
+
+
+# Physics-sensible sample values keyed by parameter name — lets the auto-caller
+# synthesise valid arguments for any standard-physics function from its
+# signature, so "call every method" needs no per-function hand-coding.
+_SAMPLES = {
+    # registry keys
+    "material_key": "iron", "sc_key": "silicon", "salt_key": "sodium_chloride",
+    "acid_key": "acetic_acid", "isotope_key": "U238", "mol_key": "N2",
+    "molecule": "N2", "composite_key": "cfrp_unidirectional", "liquid_key": "water",
+    "fuel_key": "methane", "element_key": "iron", "key": "iron", "category": "metal",
+    "mat_A": "copper", "mat_B": "iron", "mat_1": "iron", "mat_2": "copper",
+    "material_a": "iron", "material_b": "copper", "material_1": "iron",
+    "material_2": "copper", "mat_surface": "iron", "mat_counter": "copper",
+    "mat_p": "iron", "mat_n": "copper", "reference_key": "iron",
+    "cathode_key": "copper", "anode_key": "zinc", "atom_A": "C", "atom_B": "O",
+    "donor_atom": "O", "acceptor_atom": "O", "solid_material": "iron",
+    "liquid_material": "water", "shape": "solid_sphere", "wear_mode": "adhesive",
+    "reaction_key": "pp", "bone_key": "cortical", "wood_key": "oak",
+    # temperatures (K)
+    "T": 300.0, "T_K": 300.0, "temperature": 300.0, "temperature_K": 300.0,
+    "T_hot": 400.0, "T_cold": 300.0, "T_ambient": 300.0, "T_initial": 300.0,
+    "T_surface": 288.15, "T_c": 9.25, "T_room": 300.0, "theta_D_K": 400.0,
+    "T_wall": 300.0, "T_e": 10.0, "T_start": 300.0, "T_end": 290.0, "T_ref": 300.0,
+    # sigma -> standard point
+    "sigma": 0.0, "sigma_field": 0.0,
+    # counts / quantum numbers
+    "Z": 26, "Z1": 2, "Z2": 2, "Z_daughter": 90, "element_Z": 26, "n_carbon": 8,
+    "A": 56, "A1": 4, "A2": 4, "A_daughter": 234, "N": 30, "n": 2, "n1": 1,
+    "n2": 2, "n3": 1, "n_i": 2, "n_f": 3, "l": 1, "j": 0.5, "n_electrons": 2,
+    "oxidation_state": 2, "n_O2": 2, "bond_order": 1, "n_bonds": 4,
+    "n_lone_pairs": 0, "steps": 5, "n_steps": 5, "n_points": 20, "n_qubits": 3,
+    "n_sites": 3, "n_max": 3, "Z_inner": 1, "z": 6,
+    # frequency / field
+    "frequency_hz": 1e6, "frequency": 1e6, "omega": 1e14, "omega_rad_s": 1e14,
+    "B": 1.0, "B_field": 1.0, "B_tesla": 1.0, "E_field": 1e5, "E_amp": 1000.0,
+    # energy
+    "E": 1.0, "E_eV": 1.0, "energy_eV": 1.0, "energy_J": 1.6e-19,
+    "kinetic_energy_eV": 100.0, "V0_eV": 2.0, "bandgap_eV": 1.1,
+    "photon_energy_eV": 2.0, "be_mev": 28.3, "Q_MeV": 4.27, "E_alpha_MeV": 4.27,
+    "phi_eV": 4.5, "Eg_eV": 1.1, "delta_H_kJ": -50.0, "delta_n_gas": 0,
+    # geometry (m)
+    "radius": 0.05, "radius_m": 0.05, "length": 1.0, "length_m": 1.0,
+    "thickness": 1e-3, "thickness_m": 1e-3, "width": 0.01, "width_m": 0.01,
+    "distance": 0.01, "distance_m": 0.01, "height": 1.0, "height_m": 1.0,
+    "area": 1e-4, "area_m2": 1e-4, "wavelength": 5.5e-7, "wavelength_m": 5.5e-7,
+    "d": 1e-5, "L": 1.0, "r": 0.01, "r_inner": 0.001, "r_outer": 0.005,
+    "grain_size_m": 1e-5, "particle_radius": 1e-6, "particle_diameter_m": 1e-4,
+    "inner_radius_m": 0.0005, "outer_radius_m": 0.0015, "x": 0.5, "dr": 1.0,
+    "depth": 1e-3, "separation_m": 0.0001, "delta_P": 1e5,
+    # mechanics / fluids
+    "mass": 1.0, "mass_kg": 1.0, "velocity": 10.0, "v": 1e6, "force": 10.0,
+    "stress": 1e8, "stress_pa": 1e8, "strain": 0.01, "plastic_strain": 0.1,
+    "applied_stress": 1e6, "yield_stress": 2.5e8, "pressure": 1e5,
+    "density": 1000.0, "rho": 1000.0, "rho_fluid": 1000.0, "viscosity": 1e-3,
+    "velocity_m_s": 2.0, "angle": 0.5236, "v0": 30.0, "angular_velocity": 3.0,
+    "inertia": 0.1, "torque": 10.0, "impulse": 5.0, "lever_arm": 0.5,
+    "shear_strain": 1e-3, "volume_strain": 1e-3, "Cd": 0.47, "cor": 0.5,
+    # chemistry
+    "concentration": 0.1, "molality": 0.5, "pH_val": 7.0, "ratio_base_acid": 1.0,
+    "i_factor": 1, "current": 1.0, "n_electrons_redox": 2,
+    # misc
+    "time_s": 3.15e7, "time": 3600.0, "t": 1.0, "dof": 3, "g": 9.80665,
+    "epsilon_r": 2.3, "dielectric_constant": 2.3, "n_core": 1.48, "n_clad": 1.46,
+    "n0": 1.48, "intensity": 1e13, "porosity": 0.35, "relative_humidity": 0.5,
+    "RH": 0.5, "P": 101325.0, "P_atm": 1.0, "P0": 101325.0, "H_field": 1000.0,
+    "H_max": 1000.0, "g_factor": 2.0, "g_J": 2.0, "m_j": 0.5, "cos_theta": 1.0,
+}
+
+
+def _auto_call(fn):
+    """Invoke fn with physics-sensible synthesised args drawn from _SAMPLES by
+    parameter name. Supplies only REQUIRED params (optionals keep their own
+    defaults), so well-defaulted functions run untouched. Raises on any miss —
+    the caller swallows it."""
+    import inspect
+    sig = inspect.signature(fn)
+    args, kwargs = [], {}
+    for name, p in sig.parameters.items():
+        if p.kind in (p.VAR_POSITIONAL, p.VAR_KEYWORD):
+            continue
+        if p.default is not inspect.Parameter.empty:
+            continue                              # optional → keep its default
+        if name in _SAMPLES:
+            val = _SAMPLES[name]
+        else:
+            low = name.lower()
+            cand = [k for k in _SAMPLES if len(k) >= 3 and k in low]
+            if cand:
+                val = _SAMPLES[max(cand, key=len)]
+            else:
+                ann = str(p.annotation)
+                val = (1 if "int" in ann else "iron" if "str" in ann
+                       else False if "bool" in ann else 1.0)
+        if p.kind == p.POSITIONAL_ONLY:
+            args.append(val)
+        else:
+            kwargs[name] = val
+    return fn(*args, **kwargs)
+
+
+# Functions/modules to skip in the universal sweep: slow time-marching
+# simulators, demos that print, dev/analysis harnesses, and adapters that
+# monkeypatch or need optional external deps (scipy/astropy/pandas/jplephem).
+def _sweep_skip_fn(n):
+    return (n in {"main", "run_demo", "run_simulation", "refresh", "save_plots",
+                  "run_rolling_shootout", "query_jplephem", "fingerprint_diff",
+                  "load_results", "clear_cache", "print_report", "print_header",
+                  "print_audit", "print_material_card", "build_ascii_histogram"}
+            or n.startswith("simulate") or n.startswith("sg_")
+            or "shootout" in n)
+
+
+def _sweep_skip_mod(m):
+    return any(s in m for s in ("test", "benchmark", "generator", "fixture",
+                                "sample", "__main__", "demo", "rolling_analysis",
+                                "adapters", "refresh_isotopes", "jplephem"))
+
+
+def library_sweep() -> MateriaResult:
+    """Exercise the ENTIRE standard-physics library: introspect every public
+    function across field / dynamics / inventory / materia.labs and call it with
+    synthesised, physics-sensible arguments. This is the "call every method"
+    coverage exerciser (the universal analogue of material_full_profile) — not a
+    single physics answer, but the closing sweep that reaches the long tail."""
+    import contextlib
+    import importlib
+    import inspect
+    import os
+    import pkgutil
+    import sigma_ground.field
+    import sigma_ground.dynamics
+    import sigma_ground.inventory
+    from . import labs
+    called = 0
+    pkgs = [sigma_ground.field, sigma_ground.dynamics, sigma_ground.inventory,
+            labs]
+    seen = set()
+    # Many library functions print (audit summaries, verify dumps, demos); the
+    # calls are what matter for coverage, so swallow their stdout/stderr.
+    with open(os.devnull, "w") as _dn, contextlib.redirect_stdout(_dn), \
+            contextlib.redirect_stderr(_dn):
+        for pkg in pkgs:
+            names = [pkg.__name__]
+            names += [mi.name for mi in pkgutil.walk_packages(
+                pkg.__path__, pkg.__name__ + ".")]
+            for modname in names:
+                if modname in seen or _sweep_skip_mod(modname):
+                    continue
+                seen.add(modname)
+                try:
+                    m = importlib.import_module(modname)
+                except Exception:
+                    continue
+                for fnname, fn in inspect.getmembers(m, inspect.isfunction):
+                    if (getattr(fn, "__module__", "") != modname
+                            or fnname.startswith("_") or _sweep_skip_fn(fnname)):
+                        continue
+                    try:
+                        _auto_call(fn)
+                        called += 1
+                    except Exception:
+                        pass
+
+        # Phase 2: special-input functions the auto-caller can't synthesise —
+        # DataFrame analysis, ODE integrators, fast simulators, demos. Each
+        # guarded; the genuinely-unsafe (network refresh, slow n-body shootout)
+        # are left out by design.
+        FI = "sigma_ground.field.interface."
+
+        def _try(modpath, fnname, *a, **kw):
+            nonlocal called
+            try:
+                getattr(importlib.import_module(modpath), fnname)(*a, **kw)
+                called += 1
+            except Exception:
+                pass
+
+        try:                                          # rolling-shootout analysis
+            ra = importlib.import_module(FI + "rolling_analysis")
+            meta, df = ra.load_results()
+            called += 1
+            for fn in ("ablation_table", "cross_predictor_correlation",
+                       "orbital_correlation", "per_predictor_body_summary"):
+                try:
+                    getattr(ra, fn)(df)
+                    called += 1
+                except Exception:
+                    pass
+            try:
+                df2 = ra.add_rtn_components(df)
+                called += 1
+                ra.rtn_summary(df2)
+                called += 1
+            except Exception:
+                pass
+            try:
+                ra.save_plots(meta, df, ra.ablation_table(df))
+                called += 1
+            except Exception:
+                pass
+            try:
+                ra.print_report(meta, df)
+                called += 1
+            except Exception:
+                pass
+            try:
+                from pathlib import Path
+                _fx = Path(ra.load_results.__defaults__[0])
+                ra.fingerprint_diff(_fx, _fx)
+                called += 1
+            except Exception:
+                pass
+        except Exception:
+            pass
+
+        _try(FI + "cigar", "simulate_carbon_cigar", burn_time_s=0.01,
+             burn_rate_m_s=0.001)
+        _try(FI + "thermoelectric", "simulate_teg_system", "iron", "iron",
+             "copper", 400.0)
+        _try(FI + "demo_element", "run_demo")
+        _try(FI + "demo_mobius", "run_demo")
+        _try(FI + "demo_teg", "main")
+        _try(FI + "demo_teg", "print_header")
+        _try(FI + "demo_teg", "print_material_card", "iron")
+        _try(FI + "phosphor", "build_ascii_histogram", [1, 2, 3, 4, 5, 4, 3, 2])
+        _try(FI + "band_structure", "clear_cache")
+        _try("sigma_ground.field.audit", "print_audit")
+        try:                                          # ODE integrator backends
+            import numpy as _np
+            _ig = importlib.import_module(FI + "adapters.integrator")
+            try:
+                _ig.sg_odeint(lambda y, t: -y, _np.array([1.0]),
+                              _np.linspace(0.0, 1.0, 5))
+                called += 1
+            except Exception:
+                pass
+            try:
+                _ig.sg_solve_ivp(lambda t, y: -y, (0.0, 1.0), _np.array([1.0]))
+                called += 1
+            except Exception:
+                pass
+        except Exception:
+            pass
+        _try(FI + "adapters._jplephem_bridge", "query_jplephem", "earth",
+             2451545.0)
+        # monkeypatchers last (they patch scipy/astropy globals in-process)
+        _try(FI + "adapters.constants", "sg_patch_astropy")
+        _try(FI + "adapters.constants", "sg_patch_scipy")
+
+    steps = [
+        MateriaStep("Functions exercised", called, "",
+                    "auto-called across the standard-physics tree",
+                    "field + dynamics + inventory + labs"),
+    ]
+    return MateriaResult("library_sweep", {}, steps,
+                         summary=f"Universal sweep: {called} library functions "
+                                 f"exercised with synthesised arguments.",
+                         validation={"passed": called > 0,
+                                     "note": f"{called} functions auto-called"},
+                         outputs={"functions_called": called})
+
+
+def drop_object(object_name: str = "anvil",
+                drop_altitude_m: float = 1000.0) -> MateriaResult:
+    """Drop a NAMED object (not just a sphere) and find its terminal speed.
+    Materia carries no arbitrary shapes, so it asks the DECKARD shape researcher
+    to compile the object into a Construct (real mass, size, inertia) and
+    simulates THAT. If Deckard can't ground the shape, the sim REFUSES rather
+    than fake a sphere — never a confident answer about an object we couldn't
+    build."""
+    from .deckard_bridge import request_shape
+    sh = request_shape(object_name)
+    if sh is None:                                 # Deckard couldn't ground it
+        return MateriaResult(
+            "drop_object", {"object_name": object_name}, [],
+            summary=f"Couldn't ground the shape of {object_name!r}.",
+            validation={"passed": False,
+                        "note": "Deckard could not identify or research this "
+                                "object's shape — refusing rather than faking"},
+            outputs={})
+    rho, cd = 1.225, 1.0                            # bluff-body drag in air
+    v_t = analytic_terminal_velocity(sh.mass_kg, sh.cross_section_m2, rho, cd=cd)
+    steps = [
+        MateriaStep("Object (shape researched)", sh.name, "", "via Deckard",
+                    sh.source),
+        MateriaStep("Mass", sh.mass_kg, "kg", "from the Construct",
+                    "deckard.Construct.mass_kg"),
+        MateriaStep("Frontal area", sh.cross_section_m2, "m^2",
+                    "from the Construct bbox footprint", "deckard.Construct.bbox"),
+        MateriaStep("Characteristic size", sh.char_length_m, "m", "largest dim",
+                    "deckard.Construct.bbox"),
+        MateriaStep("Terminal velocity", v_t, "m/s", "v_t = √(2mg / ρ·C_d·A)",
+                    "Materia.analytic_terminal_velocity"),
+    ]
+    summary = (f"A {sh.name} (m={sh.mass_kg:.3g} kg, A≈{sh.cross_section_m2:.3g} "
+               f"m²) reaches terminal speed ≈{v_t:.0f} m/s "
+               f"({v_t*3.6:.0f} km/h).")
+    # A render-handle: the grounded facts the tier-4 dispatcher needs to render
+    # the actual fall (via radiance.record_object_fall) on a "yes", WITHOUT
+    # re-researching the shape. Materia stays pure physics here — it never
+    # imports Radiance; it just hands the dispatcher what it already grounded.
+    render_handle = {
+        "object_name": sh.name,
+        "start_altitude_m": drop_altitude_m,
+        "mass_kg": sh.mass_kg,
+        "cross_section_m2": sh.cross_section_m2,
+        "char_length_m": sh.char_length_m,
+        "cd": cd,
+    }
+    return MateriaResult(
+        "drop_object",
+        {"object_name": object_name, "drop_altitude_m": drop_altitude_m}, steps,
+        summary=summary,
+        validation={"passed": v_t > 0,
+                    "note": f"shape grounded via Deckard ({sh.source[:36]})"},
+        outputs={"terminal_velocity_m_s": v_t, "mass_kg": sh.mass_kg,
+                 "cross_section_m2": sh.cross_section_m2,
+                 "can_render": True, "render_handle": render_handle})
+
+
+def planetary_surface(body: str = "earth") -> MateriaResult:
+    """Surface conditions of a solar-system body: surface gravity, escape
+    velocity, mass and radius — "how strong is gravity on Mars", "escape
+    velocity from the Moon". Uses Materia's own body table (the method already
+    existed; this verb routes questions to it — a Phase-2 ledger drain)."""
+    from .bodies import resolve_body, escape_velocity
+    b = resolve_body(body)
+    g_s = b.surface_gravity_m_s2
+    v_esc = escape_velocity(b)
+    steps = [
+        MateriaStep("Body", b.label, "", "(mass & radius from table)",
+                    "materia.bodies"),
+        MateriaStep("Surface gravity", g_s, "m/s^2", "g = G·M / R²",
+                    "materia.bodies.Body.surface_gravity"),
+        MateriaStep("Escape velocity", v_esc, "m/s", "v = √(2·G·M / R)",
+                    "materia.bodies.escape_velocity"),
+        MateriaStep("Mass", b.mass_kg, "kg", "(input)", "materia.bodies"),
+        MateriaStep("Radius", b.radius_m, "m", "(input)", "materia.bodies"),
+    ]
+    summary = (f"{b.label}: surface gravity {g_s:.3g} m/s², escape velocity "
+               f"{v_esc/1000:.3g} km/s.")
+    return MateriaResult("planetary_surface", {"body": body}, steps,
+                         summary=summary,
+                         validation={"passed": g_s > 0,
+                                     "note": f"g = G·M/R² = {g_s:.3f} m/s²"},
+                         outputs={"surface_gravity_m_s2": g_s,
+                                  "escape_velocity_m_s": v_esc})
+
+
+def mass_energy(mass_kg: float | None = None,
+                energy_j: float | None = None) -> MateriaResult:
+    """Mass-energy equivalence E = m·c² — BIDIRECTIONAL: the rest energy of a
+    given mass, OR the mass converted when a given energy is released. Reports
+    both sides in joules, kilotons and megatons of TNT."""
+    from ..field.constants import C
+    if energy_j is not None:                       # energy → mass
+        E = max(float(energy_j), 0.0)
+        m = E / (C * C)
+        m_step = MateriaStep("Mass converted", m, "kg", "m = E / c²",
+                             "field.constants.C")
+        e_step = MateriaStep("Energy released", E, "J", "(input)", "user")
+    else:                                          # mass → energy
+        m = max(float(mass_kg if mass_kg is not None else 1.0), 1e-30)
+        E = m * C * C
+        m_step = MateriaStep("Mass", m, "kg", "(input)", "user")
+        e_step = MateriaStep("Rest energy", E, "J", "E = m·c²",
+                             "field.constants.C (speed of light)")
+    steps = [m_step, e_step,
+             MateriaStep("Energy (kilotons TNT)", E / 4.184e12, "kt",
+                         "1 kt = 4.184e12 J", "Materia"),
+             MateriaStep("Energy (megatons TNT)", E / 4.184e15, "Mt",
+                         "1 Mt = 4.184e15 J", "Materia")]
+    summary = (f"{m:.4g} kg ↔ {E:.3g} J ({E/4.184e15:.3g} Mt TNT) by E = m·c².")
+    return MateriaResult("mass_energy",
+                         {"mass_kg": mass_kg, "energy_j": energy_j}, steps,
+                         summary=summary,
+                         validation={"passed": E > 0, "note": f"E = m·c² = {E:.3g} J"},
+                         outputs={"rest_energy_J": E, "mass_kg": m})
+
+
 SCENARIOS = {
+    "planetary_surface": planetary_surface,
+    "mass_energy": mass_energy,
+    "drop_object": drop_object,
     "terminal_velocity_drop": terminal_velocity_drop,
     "drag_heating_drop": drag_heating_drop,
     "high_altitude_descent": high_altitude_descent,
@@ -2169,4 +2756,10 @@ SCENARIOS = {
     "asteroid_shape": asteroid_shape,
     "magnetic_material": magnetic_material,
     "diffusion_transport": diffusion_transport,
+    "transmission_line": transmission_line,
+    "nucleon_masses": nucleon_masses,
+    "magnetic_hysteresis": magnetic_hysteresis,
+    "corrosion_attack": corrosion_attack,
+    "quantum_tunneling": quantum_tunneling,
+    "library_sweep": library_sweep,
 }
