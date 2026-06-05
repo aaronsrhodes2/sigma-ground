@@ -435,6 +435,98 @@ def _make_conform(base, cut, aabb, n=44):
     return _Subtracted(base, cut, cnt * cell, (sx / cnt, sy / cnt, sz / cnt))
 
 
+# ── auto-seat: push a conforming part into its target until its face seats ──
+def _cross(a, b):
+    return (a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2],
+            a[0] * b[1] - a[1] * b[0])
+
+
+def _unit(a):
+    m = math.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2])
+    return (a[0] / m, a[1] / m, a[2] / m) if m > 1e-12 else (0.0, 0.0, 0.0)
+
+
+def _march_gap(X, p, d, max_dist, steps=48):
+    """Distance from p along unit dir d to X's surface (first outside→inside
+    crossing), or None if X isn't reached within max_dist."""
+    if X.surface_distance(*p) <= 0.0:
+        return 0.0                                   # already touching/inside X
+    t, dt = 0.0, max_dist / steps
+    for _ in range(steps):
+        t2 = t + dt
+        if X.surface_distance(p[0] + t2 * d[0], p[1] + t2 * d[1], p[2] + t2 * d[2]) <= 0.0:
+            lo, hi = t, t2
+            for _ in range(24):                       # bisect to the crossing
+                mid = 0.5 * (lo + hi)
+                if X.surface_distance(p[0] + mid * d[0], p[1] + mid * d[1],
+                                      p[2] + mid * d[2]) <= 0.0:
+                    hi = mid
+                else:
+                    lo = mid
+            return 0.5 * (lo + hi)
+        t = t2
+    return None
+
+
+def _seat_depth(B, X, face_pt, seat_dir, k=15):
+    """How far to push B along seat_dir so its contact face seats against X:
+    the max gap, over B's face footprint, between the face and X's surface."""
+    ref = (1.0, 0.0, 0.0) if abs(seat_dir[0]) < 0.9 else (0.0, 1.0, 0.0)
+    u = _unit(_cross(seat_dir, ref))
+    v = _unit(_cross(seat_dir, u))
+    ext = B.bounding_radius()
+    eps = max(ext * 1e-3, 1e-6)
+    best = 0.0
+    for i in range(k):
+        for j in range(k):
+            du = (i / (k - 1) - 0.5) * 2.0 * ext
+            dv = (j / (k - 1) - 0.5) * 2.0 * ext
+            p = (face_pt[0] + du * u[0] + dv * v[0],
+                 face_pt[1] + du * u[1] + dv * v[1],
+                 face_pt[2] + du * u[2] + dv * v[2])
+            # keep only points actually backed by B material (its contact face)
+            if B.surface_distance(p[0] - eps * seat_dir[0], p[1] - eps * seat_dir[1],
+                                  p[2] - eps * seat_dir[2]) > 0.0:
+                continue
+            g = _march_gap(X, p, seat_dir, 2.0 * ext)
+            if g is not None and g > best:
+                best = g
+    return best
+
+
+def _seat_conforming(parts, centers, by_name):
+    """For a part that BOTH attaches to and conforms to the same target, push it
+    along the contact normal until its face seats against that target (close the
+    gap a curved mate leaves), so the spec need not hand-position the overlap.
+    Only ever pushes INTO the target — a part already overlapping is left alone."""
+    R = {p.name: _rotation(getattr(p, "euler_deg", (0.0, 0.0, 0.0))) for p in parts}
+    for p in parts:
+        tgt = getattr(p, "conform", None)
+        att = getattr(p, "attach", None)
+        if not tgt or tgt not in by_name or not (att and att.get("to") == tgt):
+            continue                                  # only auto-seat attach+conform pairs
+        X = by_name[tgt]
+        Xs = _shape_from(X, centers[X.name])
+        if any(getattr(X, "euler_deg", (0.0, 0.0, 0.0))):
+            Xs = _Rotated(Xs, R[X.name])
+        Bs = _shape_from(p, centers[p.name])
+        if any(getattr(p, "euler_deg", (0.0, 0.0, 0.0))):
+            Bs = _Rotated(Bs, R[p.name])
+        nrm = _apply(R[X.name], _local_anchor(X, att.get("their", "top")))
+        nmag = math.sqrt(nrm[0] ** 2 + nrm[1] ** 2 + nrm[2] ** 2)
+        if nmag < 1e-12:
+            continue
+        seat_dir = (-nrm[0] / nmag, -nrm[1] / nmag, -nrm[2] / nmag)   # into the target
+        la = _apply(R[p.name], _local_anchor(p, att.get("my", "bottom")))
+        face = (centers[p.name][0] + la[0], centers[p.name][1] + la[1],
+                centers[p.name][2] + la[2])
+        s = _seat_depth(Bs, Xs, face, seat_dir)
+        if s > 0.0:
+            centers[p.name] = (centers[p.name][0] + s * seat_dir[0],
+                               centers[p.name][1] + s * seat_dir[1],
+                               centers[p.name][2] + s * seat_dir[2])
+
+
 # ── attachment: parts mate at anchors (touch at an interface, no overlap) ──
 def _local_anchor(part, name):
     """A named anchor point in the part's LOCAL frame (before rotate/translate)."""
@@ -570,8 +662,9 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
     if not spec.parts:
         raise ValueError(f"spec '{spec.name}' has no parts to compile")
 
-    centers = _resolve_positions(spec.parts)   # honour attach: parts mate at interfaces
     by_name = {p.name: p for p in spec.parts}
+    centers = _resolve_positions(spec.parts)   # honour attach: parts mate at interfaces
+    _seat_conforming(spec.parts, centers, by_name)   # attach+conform: seat into the target
 
     # normalise parts into build items: solids/carves first, then expand fluid
     # fills into liquid (+ gas) that flood the named cavity bottom-up.

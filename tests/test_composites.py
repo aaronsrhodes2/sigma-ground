@@ -188,6 +188,24 @@ def test_conforming_solid_yields_overlap_and_shares_a_congruent_interface():
     assert frozenset({"steel", "aluminium"}) in pairs
 
 
+def test_conform_auto_seats_against_its_attach_target():
+    # attach + conform, NO hand-positioned overlap: Deckard computes the push-in
+    # (the sagitta) and seats the stud into the ball itself, then carves to mate.
+    spec = ConstructSpec(name="ball-stud-auto", kind="composite", parts=[
+        Part("ball", "sphere", {"radius_m": Fact(0.03)}, "steel", density_of("steel")),
+        Part("stud", "cylinder", {"radius_m": Fact(0.01), "height_m": Fact(0.06)},
+             "aluminium", density_of("aluminium"),
+             attach={"to": "ball", "my": "bottom", "their": "top"}, conform="ball")])
+    c = compile(spec, resolution=72)
+    assert c.validation["mode"] == "conforming" and c.validation["passed"]
+    # the auto-seat produced a real congruent scoop — a point-touch would be ~0 cm²
+    iface = {frozenset(i["between"]): i["area_m2"] for i in c.validation["interfaces"]}
+    assert iface.get(frozenset({"steel", "aluminium"}), 0.0) > 2e-4   # > 2 cm²
+    # seated flush: ball just below its surface, stud just above — no air gap
+    assert c.material_at(0.0, 0.0, 0.029) == "ball"
+    assert c.material_at(0.0, 0.0, 0.032) == "stud"
+
+
 def test_attach_mates_parts_at_an_interface_no_overlap():
     spec = ConstructSpec(name="post-cap", kind="composite", parts=[
         Part("cap", "box", {"x_m": Fact(0.06), "y_m": Fact(0.06), "z_m": Fact(0.02)},
