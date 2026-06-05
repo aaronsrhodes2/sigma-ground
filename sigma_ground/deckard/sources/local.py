@@ -13,6 +13,7 @@ from __future__ import annotations
 import functools
 import json
 import pathlib
+import re
 
 from ..schema import Fact
 
@@ -67,10 +68,17 @@ def _surface_materials() -> dict:
     return out
 
 
+def _words(s: str) -> set:
+    return {w for w in re.split(r"[^a-z0-9]+", s.lower()) if w}
+
+
 def density_of(material: str) -> Fact | None:
     """A cited density Fact (kg/m³) for a material name, or None if unknown.
 
-    Exact matches are confidence 0.9; loose (containment) matches 0.6.
+    Exact matches are confidence 0.9; loose (whole-word containment) matches 0.6.
+    Containment is WORD-level, never a bare substring — so "ceramic mug body"
+    still grounds in "ceramic", but "keratin" no longer mis-matches "tin" (and
+    "hair" no longer matches "air", "marigold" no longer matches "gold", …).
     """
     key = material.strip().lower()
     key = _ALIASES.get(key, key)
@@ -83,13 +91,22 @@ def density_of(material: str) -> Fact | None:
     if key in mats:
         return Fact(mats[key][0], "inventory/data/materials.json", "", 0.9)
 
-    # loose containment fallback ("ceramic mug body" → "ceramic")
-    for nm, rho in surface.items():
-        if key in nm or nm in key:
-            return Fact(rho, "field.interface.surface.MATERIALS", "", 0.6)
-    for nm, (rho, _f) in mats.items():
-        if key in nm or nm in key:
-            return Fact(rho, "inventory/data/materials.json", "", 0.6)
+    # loose containment fallback ("ceramic mug body" → "ceramic"), word-level:
+    # the data name's words must ALL appear in the query (not an arbitrary
+    # substring, and not the reverse — so a bare "carbon" can't grab "carbon
+    # dioxide"). Prefer the most specific (longest) such name.
+    key_w = _words(key)
+    if key_w:
+        best = None
+        for src, table in (("field.interface.surface.MATERIALS", surface),
+                           ("inventory/data/materials.json", mats)):
+            for nm, val in table.items():
+                nm_w = _words(nm)
+                if nm_w and nm_w <= key_w and (best is None or len(nm_w) > best[0]):
+                    rho = val[0] if isinstance(val, tuple) else val
+                    best = (len(nm_w), Fact(rho, src, "", 0.6))
+        if best is not None:
+            return best[1]
     return None
 
 

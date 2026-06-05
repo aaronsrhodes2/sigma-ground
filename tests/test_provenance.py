@@ -92,6 +92,21 @@ def test_construct_uses_the_real_geometry_kernel():
     assert cup.material_at(0.0, 0.0, 0.05) in {"water", "ceramic", "air", "glaze"}
 
 
+def test_grounding_matches_whole_words_not_substrings():
+    # A name that merely *contains* a material's letters must not mis-ground:
+    # "keratin" must never resolve to "tin" (7310 kg/m³), "hair" never to "air".
+    # A wrong cited density is worse than an honest estimate.
+    for word, sub in [("keratin", "tin"), ("hair", "air"), ("marigold", "gold")]:
+        sub_fact = density_of(sub, allow_web=False)
+        assert sub_fact is not None, sub                 # the short material IS in our data
+        got = density_of(word, allow_web=False)
+        assert got is None or got.value != sub_fact.value, (word, sub, got)
+    # ...but real whole-word containment still grounds a verbose phrase to its core
+    gold = density_of("gold", allow_web=False)
+    phrase = density_of("gold ring band", allow_web=False)
+    assert phrase is not None and phrase.value == gold.value
+
+
 def test_mass_is_recomputed_from_inputs_not_memorized():
     base = compile(_spec(), resolution=48)
     spec2 = _spec()
