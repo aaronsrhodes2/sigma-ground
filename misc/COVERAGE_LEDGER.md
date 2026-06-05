@@ -28,6 +28,7 @@ The final 100% target = covered == (total − EXCLUDED). The regression test
 | batch 1-3 (mechanics/transport/rotation) | — | 1093 | — | → 909 |
 | batch 4 (materials strength) | 931 | 1093 | 85% | elasticity/stress/plasticity/composites |
 | batch 5 (photonics/electroceramics) | 946 | 1093 | 87% | waveguide/bandgap/nonlinear/color/phosphor/piezo/dielectric |
+| batch 6 (thermal-systems/mech-response) | 964 | 1093 | 88% | TEG/convection/viscoelastic-creep/acoustic-interface |
 
 ---
 
@@ -40,6 +41,27 @@ against coverage. Listed by the batch in which they were ruled out.
 ### batch 5
 - `field.interface.phosphor.build_ascii_histogram` — ASCII-art terminal render
   helper (`█` bars). Presentation, not physics. EXCLUDE.
+
+### batch 6
+- `field.interface.viscosity.viscous_flow_properties` — explicitly a
+  "Nagatha-compatible format" export aggregator; it only re-bundles physics
+  already covered directly (stokes_drag, poiseuille_*, terminal_velocity_stokes,
+  particle_reynolds_number). Serialization helper, not a new capability. EXCLUDE.
+
+---
+
+## DEFERRED (real capability, but current model fails the accuracy bar)
+
+NOT exposed and NOT counted as covered — a known gap to fix, then wire. Distinct
+from EXCLUDE (which is "not a capability at all"). Listed so the regression test's
+honest denominator can subtract them while keeping them visible as TODO.
+
+- `field.interface.thermal.contact_conductance` — returns h ~ 1.9e9 W/(m^2.K)
+  at 1 MPa for Cu-Al (scales linearly with pressure). Real engineering joint
+  conductance is ~1e3-1e5 W/(m^2.K); this model uses an atomic-scale gap length,
+  yielding a near-ballistic value 4-5 orders too high. "Never confidently wrong"
+  -> do not expose until the gap-length / asperity model is reviewed. (Review
+  task spawned.)
 
 ---
 

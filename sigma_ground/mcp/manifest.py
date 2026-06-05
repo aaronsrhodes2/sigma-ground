@@ -828,6 +828,30 @@ _PRIMARY_TOOLS = [
                 "given molecular polarizability and number density.",
      "inputs": {"polarizability_fm2": "float", "number_density_m3": "float"},
      "returns": "dict with relative_permittivity"},
+    {"name": "thermoelectric_generator_analysis", "tier": "PRIMARY", "domain": "thermodynamics",
+     "summary": "Thermoelectric generator: Carnot limit, Seebeck thermocouple "
+                "voltage, leg resistance, max power, ZT efficiency, heat flow.",
+     "inputs": {"hot_temperature_k": "float", "cold_temperature_k": "float",
+                "material_key": "str", "mat_p": "str", "mat_n": "str"},
+     "returns": "dict of TEG quantities"},
+    {"name": "natural_convection_analysis", "tier": "PRIMARY", "domain": "fluids",
+     "summary": "Buoyancy-driven natural convection of a gas: buoyancy velocity, "
+                "Grashof number (laminar/turbulent), binary gas diffusivity.",
+     "inputs": {"hot_temperature_k": "float", "ambient_temperature_k": "float",
+                "length_m": "float", "gas_key": "str (N2/O2/CO2/H2O/CH4/CO)"},
+     "returns": "dict with buoyancy velocity, Grashof, diffusivity"},
+    {"name": "viscoelastic_creep_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Viscoelastic creep & relaxation: Maxwell, Kelvin-Voigt, "
+                "standard-linear-solid creep, and SLS stress relaxation.",
+     "inputs": {"material_key": "str", "time_s": "float", "applied_stress": "float (Pa)",
+                "temperature_k": "float"},
+     "returns": "dict of strains and relaxed stress"},
+    {"name": "acoustic_interface_analysis", "tier": "PRIMARY", "domain": "acoustics",
+     "summary": "Sound at a planar interface: energy reflection/transmission "
+                "coefficients, Snell refraction angle, critical angle (TIR).",
+     "inputs": {"material_key_1": "str", "material_key_2": "str",
+                "incidence_angle_deg": "float"},
+     "returns": "dict of acoustic-interface quantities"},
 ]
 
 

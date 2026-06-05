@@ -20,6 +20,9 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 
 ## TERM → TOOL  (standard physics)
 
+### acoustics
+- **acoustic_interface_analysis** — Sound at a planar interface: energy reflection/transmission coefficients, Snell refraction angle, critical angle (TIR).  ↳ *say:* acoustic impedance; sound reflection; transmission coefficient; Snell's law for sound; critical angle sound; ultrasound interface
+
 ### astronomy
 - **light_travel_time** — t = d / c.  ↳ *say:* light travel time; delay = distance / c; communication lag; Earth-Sun light time 8 minutes; Proxima 4.2 light years
 - **list_bodies** — List all solar-system bodies and named stars available.  ↳ *say:* list solar system bodies; available planets
@@ -97,6 +100,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 
 ### fluids
 - **diffusion_analysis** — Diffusion: Einstein-Stokes diffusivity, Fick's first & second laws, penetration time, Darken interdiffusion.  ↳ *say:* diffusion; Fick's law; diffusion coefficient; Einstein-Stokes; how long to diffuse; interdiffusion
+- **natural_convection_analysis** — Buoyancy-driven natural convection of a gas: buoyancy velocity, Grashof number (laminar/turbulent), binary gas diffusivity.  ↳ *say:* natural convection; buoyancy; Grashof number; free convection; hot plate rising air; gas diffusivity
 - **viscous_flow_analysis** — Viscous flow: Reynolds number, Stokes drag + terminal velocity, drag coefficient, Poiseuille pipe flow, boundary layer, wall shear.  ↳ *say:* viscosity; Reynolds number; Stokes drag; terminal velocity; Poiseuille flow; drag on a sphere
 
 ### frontier
@@ -141,6 +145,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **plasticity_analysis** — Plastic flow stress: Johnson-Cook, Ludwik hardening, work-hardening rate.  ↳ *say:* plastic deformation; flow stress; work hardening; Johnson-Cook; Ludwik; yield and beyond
 - **refractive_index** — Refractive index at 589 nm (lookup).  ↳ *say:* refractive index; n at 589 nm; sodium D-line; speed of light in medium; optical density
 - **stress_failure_analysis** — Fracture/fatigue/creep: stress-intensity, critical crack length, fatigue life, Paris life, creep rate + rupture time.  ↳ *say:* fracture toughness; stress intensity; crack; fatigue life; creep; Paris law
+- **viscoelastic_creep_analysis** — Viscoelastic creep & relaxation: Maxwell, Kelvin-Voigt, standard-linear-solid creep, and SLS stress relaxation.  ↳ *say:* creep; viscoelastic; Maxwell model; Kelvin-Voigt; stress relaxation; standard linear solid
 - **youngs_modulus** — Young's modulus in Pa (lookup).  ↳ *say:* Young's modulus; E; elastic modulus; Hooke's law constant; stiffness; Thomas Young 1807
 
 ### math
@@ -239,6 +244,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **temperature_celsius_to_kelvin** — T_K = T_C + 273.15.  ↳ *say:* Convert Celsius to Kelvin; C to K; Celsius to K; degrees Celsius to Kelvin; T_K = T_C + 273.15; what's 100 Celsius in Kelvin
 - **temperature_kelvin_to_celsius** — T_C = T_K - 273.15.  ↳ *say:* Convert Kelvin to Celsius; K to C; Kelvin to Celsius; T_C = T_K - 273.15; what is X K in Celsius; convert temperature
 - **thermal_energy_per_molecule** — E = (f/2) k_B T.  ↳ *say:* equipartition theorem; (3/2) k_B T; average kinetic energy of gas molecule; average thermal energy; thermal energy per molecule
+- **thermoelectric_generator_analysis** — Thermoelectric generator: Carnot limit, Seebeck thermocouple voltage, leg resistance, max power, ZT efficiency, heat flow.  ↳ *say:* thermoelectric; Seebeck effect; thermocouple voltage; TEG; Peltier; figure of merit ZT
 
 ### units
 - **convert_units** — Convert a value between unit systems via pint.  ↳ *say:* unit conversion; convert between units; pint; meters to feet; joules to electronvolts; kelvin to celsius

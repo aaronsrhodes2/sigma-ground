@@ -492,6 +492,26 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "polarizability", "Lorentz-Lorenz", "induced dipole permittivity",
     ],
 
+    # ============ THERMAL SYSTEMS / MECHANICAL RESPONSE (batch 6) ============
+    "thermoelectric_generator_analysis": [
+        "thermoelectric", "Seebeck effect", "thermocouple voltage", "TEG",
+        "Peltier", "figure of merit ZT", "Carnot efficiency", "Ioffe",
+        "waste heat to electricity",
+    ],
+    "natural_convection_analysis": [
+        "natural convection", "buoyancy", "Grashof number", "free convection",
+        "hot plate rising air", "gas diffusivity", "Boussinesq", "candle plume",
+    ],
+    "viscoelastic_creep_analysis": [
+        "creep", "viscoelastic", "Maxwell model", "Kelvin-Voigt", "stress relaxation",
+        "standard linear solid", "polymer creep", "time-dependent strain",
+    ],
+    "acoustic_interface_analysis": [
+        "acoustic impedance", "sound reflection", "transmission coefficient",
+        "Snell's law for sound", "critical angle sound", "ultrasound interface",
+        "total internal reflection acoustics",
+    ],
+
     # ============ ENERGY CONVERSION (E=mc^2 family) ============
     "mass_to_energy": [
         "E=mc^2", "mass-energy equivalence", "rest mass energy",

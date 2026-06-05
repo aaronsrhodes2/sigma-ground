@@ -109,6 +109,8 @@ def main() -> int:
     from sigma_ground.mcp.tools import materials_strength as t_matstr
     from sigma_ground.mcp.tools import photonics as t_photon
     from sigma_ground.mcp.tools import electroceramics as t_eceram
+    from sigma_ground.mcp.tools import thermal_systems as t_thermsys
+    from sigma_ground.mcp.tools import mechanical_response as t_mechresp
     from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
@@ -1334,6 +1336,50 @@ def main() -> int:
         molecular polarizability (F.m^2) and number density."""
         return t_eceram.dielectric_polarization_analysis(polarizability_fm2,
                                                         number_density_m3)
+
+    @server.tool()
+    def thermoelectric_generator_analysis(hot_temperature_k: float = 600.0,
+                                          cold_temperature_k: float = 300.0,
+                                          material_key: str = "silicon",
+                                          mat_p: str = "iron",
+                                          mat_n: str = "copper") -> dict[str, Any]:
+        """Thermoelectric generator: Carnot limit, Seebeck thermocouple voltage,
+        leg resistance, max power, Ioffe (ZT) efficiency, Fourier heat flow,
+        full-system sim. Metals have ZT~0 (poor TEGs)."""
+        return t_thermsys.thermoelectric_generator_analysis(hot_temperature_k,
+            cold_temperature_k, material_key, mat_p, mat_n)
+
+    @server.tool()
+    def natural_convection_analysis(hot_temperature_k: float = 350.0,
+                                    ambient_temperature_k: float = 300.0,
+                                    length_m: float = 0.01,
+                                    gas_key: str = "N2",
+                                    gas_key_2: str = "O2") -> dict[str, Any]:
+        """Buoyancy-driven natural convection of a gas: buoyancy velocity,
+        Grashof number (laminar/turbulent), binary gas diffusivity."""
+        return t_thermsys.natural_convection_analysis(hot_temperature_k,
+            ambient_temperature_k, length_m, gas_key, gas_key_2)
+
+    @server.tool()
+    def viscoelastic_creep_analysis(material_key: str = "copper",
+                                    time_s: float = 3600.0,
+                                    applied_stress: float = 5.0e7,
+                                    temperature_k: float = 400.0,
+                                    initial_strain: float = 0.001) -> dict[str, Any]:
+        """Viscoelastic creep & relaxation: Maxwell creep, Kelvin-Voigt retarded
+        strain, standard-linear-solid creep, and SLS stress relaxation."""
+        return t_mechresp.viscoelastic_creep_analysis(material_key, time_s,
+            applied_stress, temperature_k, initial_strain)
+
+    @server.tool()
+    def acoustic_interface_analysis(material_key_1: str = "lead",
+                                    material_key_2: str = "aluminum",
+                                    incidence_angle_deg: float = 10.0) -> dict[str, Any]:
+        """Sound at a planar interface: energy reflection/transmission
+        coefficients (normal incidence), Snell refraction angle, and the
+        critical angle for total internal reflection."""
+        return t_mechresp.acoustic_interface_analysis(material_key_1,
+            material_key_2, incidence_angle_deg)
 
     # Run via stdio transport (standard MCP).
     server.run()
