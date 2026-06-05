@@ -161,7 +161,8 @@ def playground_load(material: str = "water_molecule",
             value=None, source=_SRC, provenance_tag="SPECULATIVE-PENDING",
             notes=f"unknown material {material!r}. available: {ids}",
             inputs={"material": material, "handle": handle}).to_dict()
-    _SCENES[handle] = {"material": material, "structure": st, "history": []}
+    _SCENES[handle] = {"kind": "structure", "material": material,
+                       "structure": st, "history": []}
     mols = _molecules(st)
     val = {
         "handle": handle,
@@ -175,6 +176,56 @@ def playground_load(material: str = "water_molecule",
                          f"tune it with playground_apply.")
 
 
+def request_clarification(variable: str, question: str, reason: str = "",
+                          options: list[str] | None = None) -> dict[str, Any]:
+    """Ask the user for a variable you genuinely need but cannot responsibly
+    guess (the answer materially changes the physics). Use this INSTEAD of
+    inventing a value -- e.g. the size of a fissile sphere, where a pellet is
+    inert but a hand-sized ball is supercritical. The conversation surfaces the
+    question and waits for the user's next reply. e.g. request_clarification(
+    'size', 'How big is the sphere?', 'A fissile sphere is size-decisive')."""
+    return ToolResult(
+        value=None, units="", source="sigma_ground.mcp.playground",
+        provenance_tag="NEEDS-INPUT",
+        notes=(f"{question}" + (f" — {reason}" if reason else "")),
+        inputs={"needed_variable": variable, "question": question,
+                "reason": reason, "suggestions": options or []}).to_dict()
+
+
+def playground_make(object: str = "brick", size_m: float | None = None,
+                    handle: str = "scene") -> dict[str, Any]:
+    """Make a physical object into the live scene from a description. Fills in a
+    STANDARD size for named everyday objects (a 'brick' has known dimensions);
+    but for a raw shape of a material whose behavior is DECISIVE in its size --
+    a fissile 'ball of plutonium' (an inert pellet vs a supercritical hand-sized
+    sphere) -- it ASKS for the size instead of guessing. Reports mass and, for
+    fissile materials, a criticality verdict. e.g. playground_make('brick');
+    playground_make('ball of plutonium') -> asks; playground_make('ball of
+    plutonium', 0.07)."""
+    from sigma_ground.mcp.tools import object_library as OL
+    r = OL.resolve(object, size_m)
+    if r["status"] == "clarify":
+        return ToolResult(
+            value=None, source=_SRC, provenance_tag="NEEDS-INPUT",
+            notes=f"{r['question']} — {r['reason']}",
+            inputs={"needed_variable": r["variable"], "question": r["question"],
+                    "reason": r["reason"], "suggestions": r.get("suggestions", []),
+                    "object": object}).to_dict()
+    if r["status"] != "made":
+        return ToolResult(value=None, source=_SRC,
+                          provenance_tag="SPECULATIVE-PENDING",
+                          notes=r.get("note", "could not resolve the object"),
+                          inputs={"object": object}).to_dict()
+    _SCENES[handle] = {"kind": "bulk", "material": r["material"],
+                       "object": object, "spec": r, "history": []}
+    note = r["note"]
+    if "criticality" in r:
+        note += f"  [criticality: {r['criticality']['verdict']}]"
+    return _result({"handle": handle, **{k: v for k, v in r.items()
+                                         if k != "status"}},
+                   handle, units="kg, m", notes=note)
+
+
 def playground_inspect(handle: str = "scene",
                        scope: str = "summary") -> dict[str, Any]:
     """Query the CURRENT (possibly mutated) state of a loaded scene. scope:
@@ -184,6 +235,10 @@ def playground_inspect(handle: str = "scene",
     sc = _SCENES.get(handle)
     if sc is None:
         return _missing(handle)
+    if sc.get("kind") == "bulk":
+        return _result({k: v for k, v in sc["spec"].items() if k != "status"},
+                       handle, units="kg, m",
+                       notes=f"bulk object: {sc['object']}")
     st = sc["structure"]
     if scope == "matter":
         val = {"operable_fields": _snapshot(st),
@@ -220,6 +275,14 @@ def playground_apply(handle: str = "scene",
     sc = _SCENES.get(handle)
     if sc is None:
         return _missing(handle)
+    if sc.get("kind") == "bulk":
+        return ToolResult(
+            value=None, source=_SRC, provenance_tag="SPECULATIVE-PENDING",
+            notes=(f"{handle!r} is a bulk object ({sc['object']}); apply_env "
+                   "tunes molecular-resolution matter. Load a molecular "
+                   "structure (e.g. playground_load('water_molecule')) to tune "
+                   "temperature/pressure/fields."),
+            inputs={"handle": handle}).to_dict()
     environment = environment or {}
     if not environment:
         return ToolResult(
@@ -286,6 +349,23 @@ def _material_key(structure) -> str:
     return "copper"  # known-good albedo fallback
 
 
+def _radiance_key(material: str) -> str:
+    """Map an arbitrary material name to a radiance albedo key (with fallbacks)."""
+    known = {"copper", "water", "gold", "iron", "silicon", "aluminum"}
+    m = (material or "").lower()
+    if m in known:
+        return m
+    mapping = {"glass": "silicon", "fired_clay": "iron", "concrete": "iron",
+               "granite": "iron", "ceramic_alumina": "silicon", "lead": "iron",
+               "steel_mild": "iron", "plutonium": "iron", "uranium_235": "iron",
+               "depleted_uranium": "iron", "tungsten": "iron", "nickel": "iron",
+               "titanium": "aluminum", "silver": "gold", "platinum": "gold",
+               "plastic_abs": "water", "rubber": "water", "wood_oak": "gold",
+               "ice": "water", "water_ice": "water", "carbon_fiber": "iron",
+               "kevlar": "water", "bone": "water"}
+    return mapping.get(m, "iron")
+
+
 def playground_render(handle: str = "scene", mode: str = "ascii",
                       size: int = 48) -> dict[str, Any]:
     """Render a quick visual of the current scene as a material-colored,
@@ -295,18 +375,25 @@ def playground_render(handle: str = "scene", mode: str = "ascii",
     sc = _SCENES.get(handle)
     if sc is None:
         return _missing(handle)
-    st = sc["structure"]
     from sigma_ground.radiance import RadianceScene, render_ascii, render_to_png, Camera, orbit_eye
     from sigma_ground.radiance.camera import Vec3
     from sigma_ground.shapes import Sphere
 
-    mass = getattr(st, "resolved_mass_kg", None) or getattr(st, "mass_kg", None) or 0.0
-    rho = getattr(st, "standard_density", None) or 0.0
-    if mass > 0 and rho > 0:
-        radius = (3.0 * mass / (4.0 * math.pi * rho)) ** (1.0 / 3.0)
+    if sc.get("kind") == "bulk":
+        spec = sc["spec"]
+        radius = spec.get("radius_m") or spec.get("char_size_m") or 0.05
+        key = _radiance_key(spec.get("material", ""))
+        label = sc.get("object", spec.get("material", "object"))
     else:
-        radius = 1.0  # illustrative unit sphere (e.g. single molecule)
-    key = _material_key(st)
+        st = sc["structure"]
+        mass = getattr(st, "resolved_mass_kg", None) or getattr(st, "mass_kg", None) or 0.0
+        rho = getattr(st, "standard_density", None) or 0.0
+        if mass > 0 and rho > 0:
+            radius = (3.0 * mass / (4.0 * math.pi * rho)) ** (1.0 / 3.0)
+        else:
+            radius = 1.0  # illustrative unit sphere (e.g. single molecule)
+        key = _material_key(st)
+        label = sc.get("material", "object")
     scene = _safe(RadianceScene.from_shape, Sphere(radius), key)
     if scene is None:
         return ToolResult(value=None, source="sigma_ground.radiance",
@@ -316,8 +403,8 @@ def playground_render(handle: str = "scene", mode: str = "ascii",
     target = Vec3(0.0, 0.0, 0.0)
     eye = orbit_eye(target, 3.0 * radius, 35.0, 20.0)
     w = max(16, int(size)); h = max(8, int(size // 2))
-    note = (f"bulk-shape render of {sc['material']} as a {key}-colored sphere "
-            f"(r={radius:.3g} m from mass/density); illustrative, not atomic geometry.")
+    note = (f"bulk-shape render of {label} as a {key}-colored sphere "
+            f"(r={radius:.3g} m); illustrative, not atomic geometry.")
     if mode == "png":
         cam = Camera(eye, target, width=4 * w, height=4 * h)
         path = _safe(render_to_png, scene, cam, f".mentat_render_{handle}.png")
@@ -333,10 +420,21 @@ def playground_reset(handle: str = "scene") -> dict[str, Any]:
     sc = _SCENES.get(handle)
     if sc is None:
         return _missing(handle)
+    if sc.get("kind") == "bulk":
+        from sigma_ground.mcp.tools import object_library as OL
+        r = OL.resolve(sc["object"], sc["spec"].get("radius_m"))
+        if r.get("status") != "made":
+            return _missing(handle)
+        _SCENES[handle] = {"kind": "bulk", "material": r["material"],
+                           "object": sc["object"], "spec": r, "history": []}
+        return _result({"handle": handle, **{k: v for k, v in r.items()
+                                             if k != "status"}}, handle,
+                       notes=f"bulk object {sc['object']!r} re-made (no mutable state).")
     st = _build(sc["material"])
     if st is None:
         return _missing(handle)
-    _SCENES[handle] = {"material": sc["material"], "structure": st, "history": []}
+    _SCENES[handle] = {"kind": "structure", "material": sc["material"],
+                       "structure": st, "history": []}
     return _result({"handle": handle, "material": sc["material"], **_summary(st)},
                    handle, notes=f"scene {handle!r} reset to pristine {sc['material']!r}.")
 
@@ -344,7 +442,9 @@ def playground_reset(handle: str = "scene") -> dict[str, Any]:
 def playground_status() -> dict[str, Any]:
     """List the live scenes in this session, their materials, and applied
     history. e.g. playground_status()."""
-    scenes = {h: {"material": sc["material"],
+    scenes = {h: {"kind": sc.get("kind", "structure"),
+                  "material": sc.get("material"),
+                  "object": sc.get("object"),
                   "mutations_applied": len(sc["history"]),
                   "history": sc["history"]}
               for h, sc in _SCENES.items()}

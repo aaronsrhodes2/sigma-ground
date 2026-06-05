@@ -180,6 +180,20 @@ EACH TURN:
 The user's "it" always means the currently-loaded scene ("what's in it?",
 "heat it", "drop it"). Keep ONE scene across the conversation. Cite every number
 from a tool; if a tool returns value null, your inputs were wrong -- fix them.
+
+MAKING THINGS / ASKING WHEN YOU MUST:
+  - To create matter, call playground_make("<the user's phrase>"). It fills in a
+    STANDARD size for named everyday objects (a "brick" has known dimensions),
+    so just make it.
+  - But for a raw shape of a SIZE-DECISIVE material -- e.g. "a ball of plutonium"
+    (a pellet is inert; a hand-sized sphere is supercritical) -- playground_make
+    returns provenance_tag "NEEDS-INPUT" with a question. When ANY tool returns
+    NEEDS-INPUT, RELAY that exact question to the user and STOP for this turn.
+    DO NOT invent the missing value. On the next turn the user gives it; pass it
+    as size_m (e.g. playground_make("ball of plutonium", "7 cm")).
+  - If you need some other variable a tool can't default, call
+    request_clarification(variable, question, reason) and relay it the same way.
+  Guessing a decisive value (like a fissile size) is worse than asking.
 """
 
 
@@ -1184,7 +1198,8 @@ async def _amain(args) -> int:
                 # Scope the visible tool set to the playground family (+ the
                 # Materia front doors). A 7b switchboard routes far better over
                 # ~10 focused tools than over 200+, and it shrinks the prompt.
-                _CONV_EXTRA = {"simulate", "run_simulation", "list_simulation_scenarios"}
+                _CONV_EXTRA = {"simulate", "run_simulation", "list_simulation_scenarios",
+                               "request_clarification"}
                 conv_tools = [t for t in tools_for_ollama
                               if t["function"]["name"].startswith("playground_")
                               or t["function"]["name"] in _CONV_EXTRA]

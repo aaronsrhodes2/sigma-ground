@@ -799,4 +799,13 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
     "playground_reset": ["reset", "start over", "undo all changes", "back to pristine"],
     "playground_status": ["what scenes are open", "session status", "list scenes"],
     "playground_clear": ["clear the scene", "drop the scene", "forget it"],
+    "playground_make": [
+        "make a", "make me a", "create a", "build a", "a ball of", "a cube of",
+        "a sphere of", "brick", "marble", "cannonball", "ball of plutonium",
+        "how big", "criticality", "critical mass",
+    ],
+    "request_clarification": [
+        "ask the user", "I need to know", "clarify", "what value", "how big",
+        "need more information", "can't guess", "which", "specify",
+    ],
 }

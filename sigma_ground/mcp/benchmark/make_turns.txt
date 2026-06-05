@@ -1,0 +1,4 @@
+# Ask-vs-guess demo
+make a brick
+now make a ball of plutonium
+make it 7 cm radius

@@ -1787,6 +1787,25 @@ def main() -> int:
         session."""
         return t_play.playground_clear(handle)
 
+    @server.tool()
+    def playground_make(object: str = "brick", size_m: float | None = None,
+                        handle: str = "scene") -> dict[str, Any]:
+        """[playground] Make a physical object into the live scene. Fills in a
+        STANDARD size for named objects (a 'brick' has known dimensions); for a
+        raw shape of a size-DECISIVE material (a fissile 'ball of plutonium' --
+        inert pellet vs supercritical hand-sized sphere) it ASKS for the size
+        instead of guessing, and reports a criticality verdict once sized."""
+        return t_play.playground_make(object, size_m, handle)
+
+    @server.tool()
+    def request_clarification(variable: str, question: str, reason: str = "",
+                              options: list[str] | None = None) -> dict[str, Any]:
+        """Ask the user for a variable you need but cannot responsibly guess
+        (the answer materially changes the physics, e.g. the size of a fissile
+        sphere). Use this INSTEAD of inventing a value. The conversation
+        surfaces the question and waits for the user's reply."""
+        return t_play.request_clarification(variable, question, reason, options)
+
     # Run via stdio transport (standard MCP).
     server.run()
     return 0

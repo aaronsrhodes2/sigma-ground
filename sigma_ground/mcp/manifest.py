@@ -1111,6 +1111,20 @@ _PRIMARY_TOOLS = [
     {"name": "playground_clear", "tier": "PRIMARY", "domain": "playground",
      "summary": "Drop a scene (or all scenes if handle omitted) from the session.",
      "inputs": {"handle": "str | None"}, "returns": "dict cleared"},
+    {"name": "playground_make", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Make an object into the scene: fills a standard size for named "
+                "objects (brick), but ASKS for the size of a size-decisive "
+                "fissile shape (ball of plutonium) and reports criticality.",
+     "inputs": {"object": "str (e.g. 'brick', 'ball of plutonium')",
+                "size_m": "float|str (optional; e.g. 0.07 or '7 cm')", "handle": "str"},
+     "returns": "dict (made object, or NEEDS-INPUT clarification)"},
+    {"name": "request_clarification", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Ask the user for a variable you need but cannot responsibly "
+                "guess (the answer materially changes the physics). Use instead "
+                "of inventing a value.",
+     "inputs": {"variable": "str", "question": "str", "reason": "str",
+                "options": "list[str]"},
+     "returns": "dict NEEDS-INPUT clarification"},
 ]
 
 

@@ -102,3 +102,70 @@ def test_missing_handle_declines_gracefully():
     d = P.playground_inspect("nope")
     assert d["value"] is None
     assert "no scene loaded" in (d["notes"] or "")
+
+
+# ── make: guess when you can, ASK when the variable is decisive ──────────────
+
+def test_make_named_object_fills_standard_size():
+    P.playground_clear("mk")
+    d = P.playground_make("make a brick", handle="mk")
+    assert d["provenance_tag"] == "DERIVED"
+    v = d["value"]
+    assert v["shape"] == "box" and v["material"] == "fired_clay"
+    assert 2.0 < v["mass_kg"] < 4.0          # a standard brick ~2.7 kg
+    assert "brick" in d["notes"].lower()
+    P.playground_clear("mk")
+
+
+def test_make_fissile_ball_asks_for_size():
+    P.playground_clear("mk")
+    d = P.playground_make("a ball of plutonium", handle="mk")
+    assert d["provenance_tag"] == "NEEDS-INPUT"   # must ask, not guess
+    assert d["value"] is None
+    assert d["inputs"]["needed_variable"] == "size"
+    assert "critical" in d["inputs"]["reason"].lower()
+    assert "mk" not in P._SCENES                   # nothing was made
+    P.playground_clear("mk")
+
+
+def test_make_fissile_with_size_reports_criticality():
+    P.playground_clear("mk")
+    big = P.playground_make("ball of plutonium", 0.07, handle="mk")["value"]
+    assert big["mass_kg"] > big["criticality"]["bare_critical_mass_kg"]
+    assert "SUPERCRITICAL" in big["criticality"]["verdict"]
+    small = P.playground_make("ball of plutonium", 0.01, handle="mk")["value"]
+    assert "subcritical" in small["criticality"]["verdict"]
+    P.playground_clear("mk")
+
+
+def test_make_nondecisive_material_uses_default_with_note():
+    P.playground_clear("mk")
+    d = P.playground_make("a ball of copper", handle="mk")
+    assert d["provenance_tag"] == "DERIVED"        # copper isn't size-decisive
+    assert d["value"]["mass_kg"] > 0
+    assert "assumed" in d["notes"].lower()         # states the guessed size
+    P.playground_clear("mk")
+
+
+def test_make_unknown_material_asks():
+    P.playground_clear("mk")
+    d = P.playground_make("a ball of unobtainium", handle="mk")
+    assert d["provenance_tag"] == "NEEDS-INPUT"
+    assert d["inputs"]["needed_variable"] == "material"
+    P.playground_clear("mk")
+
+
+def test_apply_to_bulk_object_declines():
+    P.playground_clear("mk")
+    P.playground_make("a lead cube", handle="mk")
+    d = P.playground_apply("mk", {"temperature_k": 500.0})
+    assert d["value"] is None and d["provenance_tag"] == "SPECULATIVE-PENDING"
+    assert "bulk object" in d["notes"]
+    P.playground_clear("mk")
+
+
+def test_request_clarification_tool():
+    d = P.request_clarification("size", "How big?", "a fissile sphere is size-decisive")
+    assert d["provenance_tag"] == "NEEDS-INPUT"
+    assert d["value"] is None
+    assert d["inputs"]["needed_variable"] == "size"
