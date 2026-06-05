@@ -852,6 +852,51 @@ _PRIMARY_TOOLS = [
      "inputs": {"material_key_1": "str", "material_key_2": "str",
                 "incidence_angle_deg": "float"},
      "returns": "dict of acoustic-interface quantities"},
+    {"name": "capacitor_analysis", "tier": "PRIMARY", "domain": "electromagnetism",
+     "summary": "Capacitance of parallel-plate, coaxial, and concentric-sphere "
+                "geometries, plus energy stored on the parallel-plate cap.",
+     "inputs": {"area_m2": "float", "separation_m": "float", "epsilon_r": "float",
+                "voltage_v": "float"},
+     "returns": "dict of capacitances and stored energy"},
+    {"name": "hall_effect_analysis", "tier": "PRIMARY", "domain": "electromagnetism",
+     "summary": "Hall voltage of a current-carrying conductor in a transverse "
+                "magnetic field (negative for electron carriers).",
+     "inputs": {"material_key": "str", "current_a": "float", "b_field_t": "float",
+                "thickness_m": "float"},
+     "returns": "dict with hall_voltage_V"},
+    {"name": "semiconductor_junction_analysis", "tier": "PRIMARY", "domain": "electronics",
+     "summary": "p-n junction: depletion (junction) capacitance and reverse "
+                "saturation current.",
+     "inputs": {"sc_key": "str (silicon/germanium/gallium_arsenide/...)",
+                "donor_density": "float", "acceptor_density": "float", "area_m2": "float"},
+     "returns": "dict with junction_capacitance_F, saturation_current_A"},
+    {"name": "superconducting_gap_analysis", "tier": "PRIMARY", "domain": "condensed_matter",
+     "summary": "BCS spectroscopic gap frequency f=2*Delta/h from the critical "
+                "temperature (Delta = 1.764 k_B Tc).",
+     "inputs": {"critical_temp_k": "float"},
+     "returns": "dict with gap_frequency_Hz"},
+    {"name": "quantum_tunneling_analysis", "tier": "PRIMARY", "domain": "quantum",
+     "summary": "WKB transmission probability through a rectangular potential "
+                "barrier.",
+     "inputs": {"barrier_height_eV": "float", "particle_energy_eV": "float",
+                "barrier_width_nm": "float"},
+     "returns": "dict with transmission_probability"},
+    {"name": "quantum_box_energy_analysis", "tier": "PRIMARY", "domain": "quantum",
+     "summary": "Energy of a state (n1,n2,n3) for a particle in a 3D cubic "
+                "infinite well.",
+     "inputs": {"n1": "int", "n2": "int", "n3": "int", "box_size_nm": "float"},
+     "returns": "dict with energy_eV"},
+    {"name": "band_dos_shape_analysis", "tier": "PRIMARY", "domain": "condensed_matter",
+     "summary": "Tight-binding density-of-states shape factor at the Fermi level "
+                "for a transition metal (van Hove peak > 1, pseudogap < 1).",
+     "inputs": {"structure": "str (bcc/fcc/hcp)", "d_electron_count": "int (1-9)"},
+     "returns": "dict with dos_shape_factor"},
+    {"name": "magnetic_exchange_analysis", "tier": "PRIMARY", "domain": "condensed_matter",
+     "summary": "Two-site Heisenberg model for a magnetic ion: exchange J from "
+                "crystal field, VQE vs exact ground energy, spin state.",
+     "inputs": {"atomic_number": "int", "oxidation_state": "int",
+                "coord_key": "str (e.g. 'oxide_oct')"},
+     "returns": "dict of exchange/VQE quantities"},
 ]
 
 

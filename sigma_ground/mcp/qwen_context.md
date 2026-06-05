@@ -64,6 +64,11 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **rl_time_constant** — tau = L / R.  ↳ *say:* RL time constant; tau = L / R; inductor RL
 - **rlc_resonant_frequency** — omega_0 = 1 / sqrt(L C).  ↳ *say:* RLC resonance; f_0 = 1/(2 pi sqrt(LC)); LC tank circuit; resonant frequency
 
+### condensed matter
+- **band_dos_shape_analysis** — Tight-binding density-of-states shape factor at the Fermi level for a transition metal (van Hove peak > 1, pseudogap < 1).  ↳ *say:* density of states; van Hove singularity; tight binding DOS; d-band filling; pseudogap; DOS at Fermi level
+- **magnetic_exchange_analysis** — Two-site Heisenberg model for a magnetic ion: exchange J from crystal field, VQE vs exact ground energy, spin state.  ↳ *say:* exchange coupling; Heisenberg model; antiferromagnet; superexchange; Goodenough-Kanamori; spin Hamiltonian
+- **superconducting_gap_analysis** — BCS spectroscopic gap frequency f=2*Delta/h from the critical temperature (Delta = 1.764 k_B Tc).  ↳ *say:* superconducting gap; BCS gap; energy gap from Tc; gap frequency; 2 Delta over h; spectroscopic gap
+
 ### constants
 - **list_constants** — List constants available, with optional filter.  ↳ *say:* available constants; constant catalog
 - **lookup_constant** — Look up a physical constant by name. Tries the library curated, then scipy.constants CODATA.  ↳ *say:* physical constant; fundamental constant; CODATA; speed of light c; planck constant h; boltzmann k
@@ -78,6 +83,10 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **mond_a0_constant** — Milgrom a_0 ~1.2e-10 m/s^2.  ↳ *say:* MOND a_0; 1.2e-10 m/s^2; MOND acceleration scale
 - **mond_regime_classifier** — Classify accel as newtonian/transition/mond.  ↳ *say:* MOND; modified Newtonian dynamics; a_0 acceleration; Mordehai Milgrom 1983; galaxy rotation curves; deep MOND regime
 
+### electromagnetism
+- **capacitor_analysis** — Capacitance of parallel-plate, coaxial, and concentric-sphere geometries, plus energy stored on the parallel-plate cap.  ↳ *say:* capacitance; parallel plate capacitor; coaxial cable capacitance; spherical capacitor; energy stored in capacitor; C = epsilon A / d
+- **hall_effect_analysis** — Hall voltage of a current-carrying conductor in a transverse magnetic field (negative for electron carriers).  ↳ *say:* Hall effect; Hall voltage; Lorentz force in conductor; carrier sign; magnetic field on current; V_H = R_H I B / t
+
 ### electronics
 - **carrier_mobility** — Electron drift mobility (m²/V·s) of a metal (metals only).
 - **depletion_width** — Depletion-region width of a p-n junction (m).
@@ -89,6 +98,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **intrinsic_carrier_density** — Intrinsic carrier density n_i (m⁻³) of a semiconductor.
 - **pn_built_in_voltage** — Built-in voltage of a p-n junction (V): V_bi = (kT/e) ln(N_A N_D / n_i²).
 - **semiconductor_band_gap** — Temperature-dependent band gap (eV) of a semiconductor (Varshni); silicon≈1.12 eV at 300 K.
+- **semiconductor_junction_analysis** — p-n junction: depletion (junction) capacitance and reverse saturation current.  ↳ *say:* p-n junction; diode; depletion capacitance; junction capacitance; saturation current; reverse current
 
 ### energy
 - **eV_to_joules** — eV -> Joule.  ↳ *say:* electronvolt; eV to J; 1 eV = 1.602e-19 J; MeV; GeV; TeV
@@ -211,6 +221,8 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 
 ### quantum
 - **atomic_angular_momentum** — |J| magnitude, allowed m_j, spin-orbit coupling energy/splitting, Lande interval (L=2, S=1/2).  ↳ *say:* angular momentum quantum number; spin-orbit coupling; term symbol; Lande interval; fine structure splitting; spin expectation value
+- **quantum_box_energy_analysis** — Energy of a state (n1,n2,n3) for a particle in a 3D cubic infinite well.  ↳ *say:* particle in a box; infinite square well; quantum well energy; 3D box energy levels; quantum confinement; nanoparticle energy levels
+- **quantum_tunneling_analysis** — WKB transmission probability through a rectangular potential barrier.  ↳ *say:* quantum tunneling; WKB approximation; tunneling probability; barrier penetration; transmission through barrier; alpha decay tunneling
 
 ### relativity
 - **doppler_shift_factor** — Relativistic Doppler factor.  ↳ *say:* Doppler effect; Doppler shift; relativistic Doppler; redshift; blueshift; Christian Doppler 1842

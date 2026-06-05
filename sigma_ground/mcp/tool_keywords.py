@@ -512,6 +512,40 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "total internal reflection acoustics",
     ],
 
+    # ============ DEVICES / QUANTUM SOLIDS (batch 7) ============
+    "capacitor_analysis": [
+        "capacitance", "parallel plate capacitor", "coaxial cable capacitance",
+        "spherical capacitor", "energy stored in capacitor", "C = epsilon A / d",
+    ],
+    "hall_effect_analysis": [
+        "Hall effect", "Hall voltage", "Lorentz force in conductor",
+        "carrier sign", "magnetic field on current", "V_H = R_H I B / t",
+    ],
+    "semiconductor_junction_analysis": [
+        "p-n junction", "diode", "depletion capacitance", "junction capacitance",
+        "saturation current", "reverse current", "semiconductor diode",
+    ],
+    "superconducting_gap_analysis": [
+        "superconducting gap", "BCS gap", "energy gap from Tc", "gap frequency",
+        "2 Delta over h", "spectroscopic gap", "Cooper pair gap",
+    ],
+    "quantum_tunneling_analysis": [
+        "quantum tunneling", "WKB approximation", "tunneling probability",
+        "barrier penetration", "transmission through barrier", "alpha decay tunneling",
+    ],
+    "quantum_box_energy_analysis": [
+        "particle in a box", "infinite square well", "quantum well energy",
+        "3D box energy levels", "quantum confinement", "nanoparticle energy levels",
+    ],
+    "band_dos_shape_analysis": [
+        "density of states", "van Hove singularity", "tight binding DOS",
+        "d-band filling", "pseudogap", "DOS at Fermi level",
+    ],
+    "magnetic_exchange_analysis": [
+        "exchange coupling", "Heisenberg model", "antiferromagnet", "superexchange",
+        "Goodenough-Kanamori", "spin Hamiltonian", "crystal field magnetism",
+    ],
+
     # ============ ENERGY CONVERSION (E=mc^2 family) ============
     "mass_to_energy": [
         "E=mc^2", "mass-energy equivalence", "rest mass energy",

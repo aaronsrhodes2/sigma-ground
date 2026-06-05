@@ -111,6 +111,8 @@ def main() -> int:
     from sigma_ground.mcp.tools import electroceramics as t_eceram
     from sigma_ground.mcp.tools import thermal_systems as t_thermsys
     from sigma_ground.mcp.tools import mechanical_response as t_mechresp
+    from sigma_ground.mcp.tools import devices as t_devices
+    from sigma_ground.mcp.tools import quantum_solids as t_qsolids
     from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
@@ -1380,6 +1382,73 @@ def main() -> int:
         critical angle for total internal reflection."""
         return t_mechresp.acoustic_interface_analysis(material_key_1,
             material_key_2, incidence_angle_deg)
+
+    @server.tool()
+    def capacitor_analysis(area_m2: float = 1.0e-4, separation_m: float = 1.0e-3,
+                           epsilon_r: float = 1.0, length_m: float = 1.0,
+                           r_inner_m: float = 1.0e-3, r_outer_m: float = 5.0e-3,
+                           sphere_inner_m: float = 0.05, sphere_outer_m: float = 0.10,
+                           voltage_v: float = 100.0) -> dict[str, Any]:
+        """Capacitance of parallel-plate, coaxial, and concentric-sphere
+        geometries, plus energy stored on the parallel-plate cap at a voltage."""
+        return t_devices.capacitor_analysis(area_m2, separation_m, epsilon_r,
+            length_m, r_inner_m, r_outer_m, sphere_inner_m, sphere_outer_m, voltage_v)
+
+    @server.tool()
+    def hall_effect_analysis(material_key: str = "copper", current_a: float = 1.0,
+                             b_field_t: float = 0.5,
+                             thickness_m: float = 1.0e-4) -> dict[str, Any]:
+        """Hall voltage of a current-carrying conductor in a transverse magnetic
+        field (negative for electron carriers)."""
+        return t_devices.hall_effect_analysis(material_key, current_a, b_field_t, thickness_m)
+
+    @server.tool()
+    def semiconductor_junction_analysis(sc_key: str = "silicon",
+                                        donor_density: float = 1.0e22,
+                                        acceptor_density: float = 1.0e22,
+                                        area_m2: float = 1.0e-6,
+                                        applied_voltage: float = 0.0) -> dict[str, Any]:
+        """p-n junction: depletion (junction) capacitance and reverse saturation
+        current. Keys: silicon, germanium, gallium_arsenide, etc."""
+        return t_devices.semiconductor_junction_analysis(sc_key, donor_density,
+            acceptor_density, area_m2, applied_voltage)
+
+    @server.tool()
+    def superconducting_gap_analysis(critical_temp_k: float = 9.2) -> dict[str, Any]:
+        """BCS spectroscopic gap frequency f = 2*Delta/h from critical
+        temperature (Delta = 1.764 k_B Tc). Niobium Tc=9.2 K -> ~677 GHz."""
+        return t_qsolids.superconducting_gap_analysis(critical_temp_k)
+
+    @server.tool()
+    def quantum_tunneling_analysis(barrier_height_eV: float = 1.0,
+                                   particle_energy_eV: float = 0.5,
+                                   barrier_width_nm: float = 1.0) -> dict[str, Any]:
+        """WKB transmission probability through a rectangular potential barrier
+        (e.g. a 0.5 eV electron through a 1 eV, 1 nm barrier)."""
+        return t_qsolids.quantum_tunneling_analysis(barrier_height_eV,
+            particle_energy_eV, barrier_width_nm)
+
+    @server.tool()
+    def quantum_box_energy_analysis(n1: int = 1, n2: int = 1, n3: int = 1,
+                                    box_size_nm: float = 1.0) -> dict[str, Any]:
+        """Energy of state (n1,n2,n3) for a particle in a 3D cubic infinite
+        well. Ground state of an electron in a 1 nm box ~ 1.13 eV."""
+        return t_qsolids.quantum_box_energy_analysis(n1, n2, n3, box_size_nm)
+
+    @server.tool()
+    def band_dos_shape_analysis(structure: str = "bcc",
+                                d_electron_count: int = 5) -> dict[str, Any]:
+        """Tight-binding density-of-states shape factor at the Fermi level for
+        a transition metal (van Hove peak > 1, pseudogap < 1)."""
+        return t_qsolids.band_dos_shape_analysis(structure, d_electron_count)
+
+    @server.tool()
+    def magnetic_exchange_analysis(atomic_number: int = 24,
+                                   oxidation_state: int = 3,
+                                   coord_key: str = "oxide_oct") -> dict[str, Any]:
+        """Two-site Heisenberg model for a magnetic ion: exchange J from crystal
+        field, VQE vs exact ground energy, spin state. Default Cr3+ octahedral."""
+        return t_qsolids.magnetic_exchange_analysis(atomic_number, oxidation_state, coord_key)
 
     # Run via stdio transport (standard MCP).
     server.run()

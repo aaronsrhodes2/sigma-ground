@@ -29,6 +29,7 @@ The final 100% target = covered == (total − EXCLUDED). The regression test
 | batch 4 (materials strength) | 931 | 1093 | 85% | elasticity/stress/plasticity/composites |
 | batch 5 (photonics/electroceramics) | 946 | 1093 | 87% | waveguide/bandgap/nonlinear/color/phosphor/piezo/dielectric |
 | batch 6 (thermal-systems/mech-response) | 964 | 1093 | 88% | TEG/convection/viscoelastic-creep/acoustic-interface |
+| batch 7 (devices/quantum-solids) | 976 | 1093 | 89% | capacitor/Hall/junction/BCS-gap/tunneling/box/DOS/exchange |
 
 ---
 
@@ -48,6 +49,13 @@ against coverage. Listed by the batch in which they were ruled out.
   already covered directly (stokes_drag, poiseuille_*, terminal_velocity_stokes,
   particle_reynolds_number). Serialization helper, not a new capability. EXCLUDE.
 
+### batch 7
+- `field.interface.superconductivity.block_cooling_profile` — multi-step
+  *simulation* returning a per-temperature-step series (resistivity/gap/Meissner/
+  London/H_c). It only re-bundles already-covered physics (bcs_gap_temperature,
+  meissner_fraction, london_penetration_at_T, thermodynamic_critical_field). A
+  simulation pipeline (Materia's lane), not a scalar Q&A. EXCLUDE.
+
 ---
 
 ## DEFERRED (real capability, but current model fails the accuracy bar)
@@ -61,6 +69,14 @@ honest denominator can subtract them while keeping them visible as TODO.
   conductance is ~1e3-1e5 W/(m^2.K); this model uses an atomic-scale gap length,
   yielding a near-ballistic value 4-5 orders too high. "Never confidently wrong"
   -> do not expose until the gap-length / asperity model is reviewed. (Review
+  task spawned.)
+- `field.interface.superconductivity.{gl_parameter, lower_critical_field,
+  upper_critical_field}` — the critical-field chain is broken: for every DB
+  superconductor `thermodynamic_critical_field` yields H_c ~12 orders too small
+  (Al should be ~8000 A/m, model implies ~2.5e-9), so Hc1/Hc2 come out ~1e-9 to
+  1e-18 A/m AND inverted (Hc1 > Hc2). `gl_parameter` returns only the clean-limit
+  kappa (e.g. Nb 0.11 vs measured ~1.05) and feeds the same machinery. Wired only
+  `gap_frequency` (correct, 677 GHz for Nb). Whole Hc chain deferred. (Review
   task spawned.)
 
 ---
