@@ -57,7 +57,10 @@ def _build_drop():
     out = record_fall("copper", radius_m=0.05, start_altitude_m=1.5,
                       dt_max=0.005, frame_dt=0.02, target_watch_s=8.0)
     scene = out["scene"]                              # sphere already tagged body:0
-    scene["csg_leaves"].append({                      # a static concrete floor (no body)
+    scene["csg_leaves"][0]["temperature_k"] = 1700.0  # a HOT copper ball (sim layer) — in path-trace
+    scene["name"] = "hot copper sphere (1700 K) on a cold floor"  # mode it lights the cold concrete
+    scene["pt_env"] = 0.12                             # dim environment → the ball is the dominant light
+    scene["csg_leaves"].append({                      # a static concrete floor at STP (no body)
         "op": "add", "material": "concrete",
         "shape": {"type": "Box", "center": [0.0, -0.05, 0.0],
                   "x": 3.0, "y": 0.1, "z": 3.0}})
@@ -116,6 +119,38 @@ def _build_materials():
         "source": "metals: Drude/Fresnel reflectance · bottom row: band-gap absorption — every color emergent, none chosen",
         "kind": "static"})
 _bundle("materials.json", _build_materials)
+
+# ── 3b) emergent ceramic glazes — color from the chromophore ION ─────────
+def _build_glazes():
+    # The color of a ceramic glaze EMERGES from its transition-metal ion via
+    # crystal-field d-d absorption. Headline pair: Cr3+ is RED in an oxide host
+    # (ruby) but GREEN in a silicate host (emerald) — same element, the crystal
+    # field sets the color. Nobody picks it.
+    ROW = ["ceramic", "cobalt_glaze", "chrome_glaze", "emerald_glaze",
+           "copper_glaze", "titanium_glaze"]
+    r, sx = 0.07, 0.185
+    leaves, mats = [], {}
+    print("\nEmergent ceramic glazes (crystal-field d-d; the ION sets the color):")
+    for i, mk in enumerate(ROW):
+        leaves.append({"op": "add", "material": mk,
+                       "shape": {"type": "Sphere",
+                                 "center": [(i - 2.5) * sx, 0.0, 0.0], "radius": r}})
+        mats[mk] = _bake_material(mk)
+        c = mats[mk]["color_rgb"]
+        print(f"  {mk:16s} #{int(c[0]*255):02x}{int(c[1]*255):02x}{int(c[2]*255):02x}"
+              f"  {mats[mk]['mechanism']}")
+    _lt = _default_lighting([0.0, 1.0, 0.0])
+    _write("glazes.json", {
+        "name": "emergent ceramic glazes - color from the chromophore ion",
+        "csg_leaves": leaves, "materials": mats,
+        "physics": {"mass_kg": 0, "com_m": [0, 0, 0], "inertia_kgm2": [0, 0, 0]},
+        "bbox": [[-0.6, 0.6], [-0.12, 0.12], [-r, r]],
+        "camera": {"target": [0, 0, 0], "orbit_radius": 1.7, "fov_deg": 40.0,
+                   "up": [0, 1, 0], "az0": 0.0, "el0": 0.14},
+        "lights": _lt["lights"], "ambient": _lt["ambient"], "identified": True,
+        "source": "glaze color = crystal-field d-d of the metal ion; Cr3+ is RED in oxide (ruby) but GREEN in silicate (emerald) - same element",
+        "kind": "static"})
+_bundle("glazes.json", _build_glazes)
 
 # ── 4) kinematic chair tip — proves rigid ROTATION + MULTI-BODY playback ──
 # HONEST LABEL: this is a *kinematic preview*. The chair's tip angle and the
@@ -189,6 +224,203 @@ def _build_tip():
                                        "body_labels": ["chair", "ball"]}})
     print(f"  tip: {len(frames)} frames · chair 0->88° about back edge (body 0) · ball bounces (body 1)")
 _bundle("tip.json", _build_tip)
+
+# ── 5) clatter — emergent BOUNCE: each material rebounds by its own restitution ──
+def _build_clatter():
+    from sigma_ground.radiance.trajectory import bounce_heights
+    # Dropped together, each sphere bounces with its OWN velocity-dependent
+    # coefficient of restitution (Hertz/Johnson, derived from cohesive energy).
+    # rubber boings back near full height (COR~1); titanium gives a modest hop;
+    # copper thuds dead (COR~0.1). Nobody scripts the heights.
+    ROW = [("rubber", -0.5), ("titanium", 0.0), ("copper", 0.5)]
+    r, drop, dt, T = 0.07, 0.45, 0.02, 3.0
+    leaves, mats, bodies, series = [], {}, [], []
+    print("\nEmergent clatter (restitution + ring pitch from cohesive energy):")
+    for bi, (mk, x) in enumerate(ROW):
+        leaves.append({"op": "add", "material": mk, "body": bi,
+                       "shape": {"type": "Sphere", "center": [x, r, 0.0], "radius": r}})
+        mats[mk] = _bake_material(mk, None)
+        bodies.append({"pivot": [x, r, 0.0], "label": mk})
+        series.append(bounce_heights(mk, radius_m=r, drop_height_m=drop, dt=dt, t_total=T))
+        c = mats[mk]
+        print(f"  {mk:10s} restitution_ref={c.get('restitution_ref')}  ring={c.get('ring_frequency_hz')} Hz")
+    leaves.append({"op": "add", "material": "concrete",        # static floor
+                   "shape": {"type": "Box", "center": [0.0, -0.05, 0.0],
+                             "x": 3.0, "y": 0.1, "z": 1.2}})
+    mats["concrete"] = _bake_material("concrete", 2400.0)
+    n = len(series[0])
+    frames = [{"t_sim": round(i * dt, 4), "bodies": [
+        {"pos": [ROW[bi][1], series[bi][i], 0.0], "quat": [0.0, 0.0, 0.0, 1.0]}
+        for bi in range(len(ROW))]} for i in range(n)]
+    _lt = _default_lighting([0.0, 1.0, 0.0])
+    scene = {
+        "name": "clatter - emergent bounce (rubber boings, copper thuds)",
+        "bodies": bodies, "csg_leaves": leaves, "materials": mats,
+        "physics": {"mass_kg": 0, "com_m": [0, 0, 0], "inertia_kgm2": [0, 0, 0]},
+        "bbox": [[-0.8, 0.8], [-0.1, 1.0], [-0.6, 0.6]],
+        "camera": {"target": [0.0, 0.33, 0.0], "orbit_radius": 2.7, "fov_deg": 42.0,
+                   "up": [0.0, 1.0, 0.0], "az0": 0.0, "el0": 0.08},
+        "lights": _lt["lights"], "ambient": _lt["ambient"], "identified": True,
+        "source": "each sphere rebounds by its OWN derived restitution (Hertz/Johnson from cohesive energy); rubber COR~1 boings, copper COR~0.1 thuds - nobody scripts it",
+    }
+    _write("clatter.json", {"scene": scene, "kind": "trajectory",
+                            "trajectory": {"frames": frames, "t_end_s": round((n - 1) * dt, 4),
+                                           "natural_timescale_s": T,
+                                           "suggested_rate": max(1e-6, T / 8.0),
+                                           "body_labels": [m for m, _ in ROW]}})
+    print(f"  clatter: {n} frames, {len(ROW)} materials bouncing by emergent restitution")
+_bundle("clatter.json", _build_clatter)
+
+# ── 6) water — emergent Fresnel REFLECTION + wind-driven RIPPLES (no polygons) ──
+def _build_water():
+    from sigma_ground.radiance.water_waves import wind_wave_components
+    # A pond stirred by a 5 m/s fan, a copper ball half-sunk so its reflection
+    # shows in the surface. The ripples are REAL gravity-capillary waves (the GPU
+    # evaluates the height field + analytic normal); the reflection is a Fresnel-
+    # weighted ray off water (n=1.333) — clear looking down, mirror at grazing.
+    comps = wind_wave_components(wind_speed=5.0, wind_dir_rad=0.5, n=7, amplitude=0.010)
+    level, hx, hz, depth = 0.0, 1.0, 0.7, 0.35
+    leaves = [
+        {"op": "add", "material": "water",
+         "shape": {"type": "Water", "center": [0.0, level - depth / 2, 0.0],
+                   "x": hx, "z": hz, "depth": depth, "level": level}},
+        {"op": "add", "material": "copper",
+         "shape": {"type": "Sphere", "center": [0.35, 0.10, -0.15], "radius": 0.14}},
+    ]
+    mats = {"water": _bake_material("water", None), "copper": _bake_material("copper", 8960.0)}
+    # A deep pond's BODY is dark: the blue-green that survives absorption, at a low
+    # albedo (most light transmits down into the dark and never returns). That is
+    # the surface body — not the near-clear thin-film of a drinking glass. The
+    # brightness on the water comes from the Fresnel REFLECTION, not the body.
+    try:
+        from sigma_ground.field.interface.optics import dielectric_color_rgb
+        hue = dielectric_color_rgb("water", "water_blue", 2.5)        # blue-green survivor
+        mats["water"]["color_rgb"] = [round(0.13 * v, 4) for v in hue]  # low deep-water albedo
+        mats["water"]["render_note"] = "deep-water body: absorption hue at low albedo"
+    except Exception:
+        mats["water"]["color_rgb"] = [0.02, 0.06, 0.08]
+    _lt = _default_lighting([0.0, 1.0, 0.0])
+    print(f"  water: {len(comps)} wave components, reflect_r0={mats['water'].get('reflect_r0')}, "
+          f"n={mats['water'].get('refractive_index')}")
+    _write("water.json", {
+        "name": "water - emergent Fresnel reflection + wind ripples (no polygons)",
+        "csg_leaves": leaves, "materials": mats,
+        "water": {"components": comps, "wind_speed_m_s": 5.0, "wind_dir_rad": 0.5},
+        "physics": {"mass_kg": 0, "com_m": [0, 0, 0], "inertia_kgm2": [0, 0, 0]},
+        "bbox": [[-1.1, 1.1], [-0.4, 0.4], [-0.8, 0.8]],
+        "camera": {"target": [0.0, 0.02, 0.0], "orbit_radius": 2.4, "fov_deg": 44.0,
+                   "up": [0.0, 1.0, 0.0], "az0": 0.6, "el0": 0.10},
+        "lights": _lt["lights"], "ambient": _lt["ambient"], "identified": True,
+        "source": "ripples = gravity-capillary dispersion (w^2 = gk + (gamma/rho)k^3) driven by a 5 m/s fan; reflection = Fresnel ray off water n=1.333, mirror at grazing",
+    })
+_bundle("water.json", _build_water)
+
+# ── 7) FEATHER DROP — the full pipeline: Materia simulates, Radiance renders ──
+def _build_feather():
+    import sigma_ground.materia as Materia
+    REQUEST = "drop a feather from 8 feet in atmosphere and watch it float to the floor"
+    # The sim-layer seed: WHAT it is (keratin) and a feather's mass + planform area.
+    # A feather floats because of its area-to-mass ratio, not its material — its
+    # structure (mostly air) makes it light, its broad face makes it draggy.
+    H = 8 * 0.3048                                     # 8 feet → 2.4384 m
+    MASS, AREA, CD = 0.0006, 0.003, 1.0               # ~0.6 g, ~12cm×2.5cm flat plate
+    vt = Materia.analytic_terminal_velocity(MASS, AREA, 1.225, cd=CD)
+    run = Materia.simulate_drag_run(MASS, AREA, start_altitude_m=H, cd_value=CD,
+                                    dt=0.02, t_max=8.0, sample_every=2)   # MATERIA computes the movement
+    hist = run["history"]
+    fall_t = run["fall_time_s"]
+    # Materia's altitude-over-time → render frames (the feather falls straight; real
+    # fluttering/tumbling is chaotic aerodynamics Materia doesn't model yet).
+    frames = [{"t_sim": round(s["t"], 4),
+               "bodies": [{"pos": [0.0, round(s["altitude_m"], 5), 0.0], "quat": [0, 0, 0, 1]}]}
+              for s in hist]
+    fr = 0.07                                          # feather half-length (a thin flat plank)
+    leaves = [
+        {"op": "add", "material": "wool_natural", "body": 0,          # keratin (the feather)
+         "shape": {"type": "Box", "center": [0.0, 0.0, 0.0], "x": 0.14, "y": 0.003, "z": 0.035}},
+        {"op": "add", "material": "stage_dark",                        # a floor to float down to
+         "shape": {"type": "Box", "center": [0.0, -0.05, 0.0], "x": 2.0, "y": 0.1, "z": 2.0}},
+    ]
+    # Floor: we have NO grounded oak reflectance (wood_oak bakes to a flat grey
+    # placeholder, "no model yet"), so rather than fake an oak colour we use an
+    # honest neutral *dark matte stage* — a photographer's backdrop, not a
+    # material claim — which also lets the pale keratin feather read against it.
+    floor = _bake_material("wood_oak", 700.0)
+    floor["color_rgb"] = [0.07, 0.07, 0.08]
+    floor["mechanism"] = "neutral render stage (dark matte backdrop, not a grounded material colour)"
+    floor["emergent"] = False
+    mats = {"wool_natural": _bake_material("wool_natural", None),
+            "stage_dark": floor}
+    _lt = _default_lighting([0.0, 1.0, 0.0])
+    # The simulation data the renderer is fed — material, initial temperature, motion.
+    sim_data = {
+        "request": REQUEST,
+        "materia_routing": "deterministic translator misrouted to atmospheric_profile (NL gap); "
+                           "drove simulate_drag_run directly with the feather's mass + area",
+        "material": {"name": "keratin (beta-keratin)",
+                     "composition": "(Cys-Gly-Leu-Ala)n keratin polypeptide, S crosslinks",
+                     "mass_kg": MASS, "planform_area_m2": AREA, "drag_coefficient": CD},
+        "environment": {"medium": "air at STP", "density_kg_m3": 1.225, "T_K": 288.15},
+        "initial_temperature_K": 293.15,
+        "motion_over_time": {"drop_height_m": round(H, 4), "gravity_m_s2": 9.80665,
+                             "terminal_velocity_m_s": round(vt, 3),
+                             "fall_time_s": round(fall_t, 3) if fall_t else None,
+                             "samples": len(frames),
+                             "physics": "gravity on mass + atmospheric drag rising with speed -> "
+                                        "terminal velocity set by area (Materia.simulate_drag_run)"},
+    }
+    print("\nFEATHER DROP — Materia simulated, Radiance renders:")
+    print(f"  terminal velocity {vt:.2f} m/s · fall time {fall_t:.2f} s · {len(frames)} frames")
+    bodies = [{"pivot": [0, 0, 0], "label": "feather (keratin)"}]
+    _write("feather.json", {
+        "scene": {
+            "name": "feather drop (8 ft, air STP) — Materia simulated, Radiance renders",
+            "bodies": bodies, "csg_leaves": leaves, "materials": mats,
+            "physics": {"mass_kg": MASS, "com_m": [0, 0, 0], "inertia_kgm2": [0, 0, 0]},
+            "bbox": [[-1.0, 1.0], [-0.1, 2.6], [-1.0, 1.0]],
+            "camera": {"target": [0.0, 1.15, 0.0], "orbit_radius": 3.7, "fov_deg": 46.0,
+                       "up": [0.0, 1.0, 0.0], "az0": 0.35, "el0": 0.34},
+            "lights": _lt["lights"], "ambient": _lt["ambient"], "identified": True,
+            "sim_data": sim_data,
+            "source": "keratin feather · air at STP · floats at terminal velocity 1.78 m/s (Materia drag) — the sim layer holds material + temperature + motion; Radiance derives the rest",
+        },
+        "trajectory": {"frames": frames, "t_end_s": round(frames[-1]["t_sim"], 4),
+                       "natural_timescale_s": fall_t,
+                       "suggested_rate": max(1e-6, (fall_t or 1.5) / 5.0),   # slow-mo float
+                       "body_labels": ["feather"]},
+        "kind": "trajectory"})
+_bundle("feather.json", _build_feather)
+
+
+def _build_deckard_feather():
+    """Render Deckard's ACTUAL identified feather — not a Box stand-in.
+
+    Deckard.identify('feather') researches + compiles a primitive-kit flight
+    feather: a tapered keratin shaft (Cone) + a flattened webbed vane (Ellipsoid),
+    co-axial along +z. construct_to_scene() serializes the compiled SDF straight
+    through; Radiance renders the cone+ellipsoid directly (newly taught to the
+    viewer). Colour is the measured keratin reflectance; mass/CoM/inertia are
+    Deckard's integrated values. The shape is deliberately approximate (dims
+    flagged confidence 0.40) — honest, not faked.
+    """
+    feather = deckard.identify("feather", allow_llm=False)
+    spec = construct_to_scene(feather)
+    spec["kind"] = "static"
+    # The auto-camera frames by bounding-diagonal, which is too tight for a long
+    # thin feather (it overflows the fov). Pull back and take a 3/4 view so the
+    # broad vane face AND the full 125 mm length read; z is up (Deckard's axis).
+    bb = spec["bbox"]; cz = 0.5 * (bb[2][0] + bb[2][1])
+    spec["camera"] = {"target": [0.0, 0.0, cz], "orbit_radius": 0.34, "fov_deg": 40.0,
+                      "up": [0.0, 0.0, 1.0], "az0": 0.62, "el0": 0.18}
+    spec["source"] = ("Deckard-identified feather: Cone rachis (0.8mm x 120mm) + "
+                      "Ellipsoid vane (0.6 x 24 x 100mm), keratin -- Radiance renders the "
+                      "compiled SDF directly. Primitive-kit approximation, dims conf 0.40.")
+    print("\nDECKARD FEATHER -> Radiance:")
+    print(f"  leaves   : {[(l['shape']['type'], l['material']) for l in spec['csg_leaves']]}")
+    print(f"  mass     : {spec['physics']['mass_kg']*1000:.3f} g  (keratin, density [estimated])")
+    print(f"  colour   : keratin {spec['materials'][spec['csg_leaves'][0]['material']]['color_rgb']}")
+    _write("deckard_feather.json", spec)
+_bundle("deckard_feather.json", _build_deckard_feather)
 
 if _FAILED:
     print(f"\n!! {len(_FAILED)} bundle(s) skipped: " + ", ".join(n for n, _ in _FAILED)

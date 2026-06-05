@@ -1,0 +1,275 @@
+{
+ "name": "emergent ceramic glazes - color from the chromophore ion",
+ "csg_leaves": [
+  {
+   "op": "add",
+   "material": "ceramic",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.4625,
+     0.0,
+     0.0
+    ],
+    "radius": 0.07
+   }
+  },
+  {
+   "op": "add",
+   "material": "cobalt_glaze",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.27749999999999997,
+     0.0,
+     0.0
+    ],
+    "radius": 0.07
+   }
+  },
+  {
+   "op": "add",
+   "material": "chrome_glaze",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.0925,
+     0.0,
+     0.0
+    ],
+    "radius": 0.07
+   }
+  },
+  {
+   "op": "add",
+   "material": "emerald_glaze",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.0925,
+     0.0,
+     0.0
+    ],
+    "radius": 0.07
+   }
+  },
+  {
+   "op": "add",
+   "material": "copper_glaze",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.27749999999999997,
+     0.0,
+     0.0
+    ],
+    "radius": 0.07
+   }
+  },
+  {
+   "op": "add",
+   "material": "titanium_glaze",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.4625,
+     0.0,
+     0.0
+    ],
+    "radius": 0.07
+   }
+  }
+ ],
+ "materials": {
+  "ceramic": {
+   "color_rgb": [
+    0.9,
+    0.9,
+    0.9
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "wide-gap insulator: no visible absorber -> white",
+   "density_kg_m3": null,
+   "density_method": "unknown material"
+  },
+  "cobalt_glaze": {
+   "color_rgb": [
+    0.259,
+    0.3614,
+    1.0
+   ],
+   "emergent": true,
+   "metal": false,
+   "ion": [
+    27,
+    2,
+    "oxide_tet"
+   ],
+   "mechanism": "crystal-field d-d (Z27 ox+2, oxide_tet)",
+   "density_kg_m3": null,
+   "density_method": "unknown material"
+  },
+  "chrome_glaze": {
+   "color_rgb": [
+    0.9575,
+    0.1092,
+    0.5211
+   ],
+   "emergent": true,
+   "metal": false,
+   "ion": [
+    24,
+    3,
+    "oxide_oct"
+   ],
+   "mechanism": "crystal-field d-d (Z24 ox+3, oxide_oct)",
+   "density_kg_m3": null,
+   "density_method": "unknown material"
+  },
+  "emerald_glaze": {
+   "color_rgb": [
+    0.5352,
+    0.6801,
+    0.2175
+   ],
+   "emergent": true,
+   "metal": false,
+   "ion": [
+    24,
+    3,
+    "silicate_oct"
+   ],
+   "mechanism": "crystal-field d-d (Z24 ox+3, silicate_oct)",
+   "density_kg_m3": null,
+   "density_method": "unknown material"
+  },
+  "copper_glaze": {
+   "color_rgb": [
+    0.4194,
+    0.9696,
+    0.9999
+   ],
+   "emergent": true,
+   "metal": false,
+   "ion": [
+    29,
+    2,
+    "carbonate_oct"
+   ],
+   "mechanism": "crystal-field d-d (Z29 ox+2, carbonate_oct)",
+   "density_kg_m3": null,
+   "density_method": "unknown material"
+  },
+  "titanium_glaze": {
+   "color_rgb": [
+    1.0,
+    0.8195,
+    0.5779
+   ],
+   "emergent": true,
+   "metal": false,
+   "ion": [
+    22,
+    3,
+    "oxide_oct"
+   ],
+   "mechanism": "crystal-field d-d (Z22 ox+3, oxide_oct)",
+   "density_kg_m3": null,
+   "density_method": "unknown material"
+  }
+ },
+ "physics": {
+  "mass_kg": 0,
+  "com_m": [
+   0,
+   0,
+   0
+  ],
+  "inertia_kgm2": [
+   0,
+   0,
+   0
+  ]
+ },
+ "bbox": [
+  [
+   -0.6,
+   0.6
+  ],
+  [
+   -0.12,
+   0.12
+  ],
+  [
+   -0.07,
+   0.07
+  ]
+ ],
+ "camera": {
+  "target": [
+   0,
+   0,
+   0
+  ],
+  "orbit_radius": 1.7,
+  "fov_deg": 40.0,
+  "up": [
+   0,
+   1,
+   0
+  ],
+  "az0": 0.0,
+  "el0": 0.14
+ },
+ "lights": [
+  {
+   "dir": [
+    -0.384,
+    -0.816,
+    -0.432
+   ],
+   "color": [
+    1.0,
+    0.9313,
+    0.8716
+   ],
+   "intensity": 1.05,
+   "temperature_k": 5500
+  },
+  {
+   "dir": [
+    -0.3143,
+    -0.3928,
+    0.8642
+   ],
+   "color": [
+    0.8937,
+    0.9164,
+    1.0
+   ],
+   "intensity": 0.4,
+   "temperature_k": 7600
+  }
+ ],
+ "ambient": {
+  "sky": [
+   0.1,
+   0.12,
+   0.16
+  ],
+  "ground": [
+   0.06,
+   0.05,
+   0.045
+  ],
+  "up": [
+   0.0,
+   1.0,
+   0.0
+  ]
+ },
+ "identified": true,
+ "source": "glaze color = crystal-field d-d of the metal ion; Cr3+ is RED in oxide (ruby) but GREEN in silicate (emerald) - same element",
+ "kind": "static"
+}

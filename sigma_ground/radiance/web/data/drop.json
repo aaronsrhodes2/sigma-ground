@@ -1,6 +1,6 @@
 {
  "scene": {
-  "name": "copper sphere",
+  "name": "hot copper sphere (1700 K) on a cold floor",
   "bodies": [
    {
     "pivot": [
@@ -24,7 +24,8 @@
       0
      ],
      "radius": 0.05
-    }
+    },
+    "temperature_k": 1700.0
    },
    {
     "op": "add",
@@ -45,24 +46,46 @@
   "materials": {
    "copper": {
     "color_rgb": [
-     0.9437487443916159,
-     0.6377905221853305,
-     0.5493692099995344
+     0.9437,
+     0.6378,
+     0.5494
     ],
     "emergent": true,
     "metal": true,
-    "density_kg_m3": 8960.0
+    "mechanism": "Drude-Fresnel (free electrons)",
+    "density_kg_m3": 8960.0,
+    "density_derived_kg_m3": 8998.4,
+    "density_pct_vs_supplied": 0.43,
+    "density_method": "crystallographic (fcc cell, a=3.615 A, A=64)",
+    "youngs_modulus_gpa": 135.8,
+    "sound_speed_m_s": 4829.0,
+    "restitution_ref": 0.103,
+    "ring_frequency_hz": 11089.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "emissivity_rgb": [
+     0.056,
+     0.362,
+     0.451
+    ]
    },
    "concrete": {
     "color_rgb": [
-     0.72,
-     0.72,
-     0.72
+     0.55,
+     0.54,
+     0.52
     ],
-    "emergent": false,
+    "emergent": true,
     "metal": false,
-    "note": "v1 stub \u2014 awaiting molecular color",
-    "density_kg_m3": 2400.0
+    "mechanism": "weakly-absorbing aggregate -> grey",
+    "density_kg_m3": 2400.0,
+    "density_derived_kg_m3": 2300,
+    "density_pct_vs_supplied": -4.17,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 33.3,
+    "sound_speed_m_s": 4010.0,
+    "restitution_ref": 0.152,
+    "ring_frequency_hz": 6115.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
    }
   },
   "physics": {
@@ -108,6 +131,7 @@
   },
   "identified": true,
   "source": "falling sphere (Materia drag integration)",
+  "pt_env": 0.12,
   "lights": [
    {
     "dir": [

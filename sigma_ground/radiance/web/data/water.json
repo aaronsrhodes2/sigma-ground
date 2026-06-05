@@ -1,0 +1,229 @@
+{
+ "name": "water - emergent Fresnel reflection + wind ripples (no polygons)",
+ "csg_leaves": [
+  {
+   "op": "add",
+   "material": "water",
+   "shape": {
+    "type": "Water",
+    "center": [
+     0.0,
+     -0.175,
+     0.0
+    ],
+    "x": 1.0,
+    "z": 0.7,
+    "depth": 0.35,
+    "level": 0.0
+   }
+  },
+  {
+   "op": "add",
+   "material": "copper",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.35,
+     0.1,
+     -0.15
+    ],
+    "radius": 0.14
+   }
+  }
+ ],
+ "materials": {
+  "water": {
+   "color_rgb": [
+    0.0589,
+    0.1045,
+    0.1183
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "dielectric Fresnel + Beer-Lambert",
+   "density_kg_m3": null,
+   "density_method": "unknown material",
+   "reflect_r0": 0.0214,
+   "refractive_index": 1.3422,
+   "render_note": "deep-water body: absorption hue at low albedo"
+  },
+  "copper": {
+   "color_rgb": [
+    0.9437,
+    0.6378,
+    0.5494
+   ],
+   "emergent": true,
+   "metal": true,
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 8960.0,
+   "density_derived_kg_m3": 8998.4,
+   "density_pct_vs_supplied": 0.43,
+   "density_method": "crystallographic (fcc cell, a=3.615 A, A=64)",
+   "youngs_modulus_gpa": 135.8,
+   "sound_speed_m_s": 4829.0,
+   "restitution_ref": 0.103,
+   "ring_frequency_hz": 11089.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "emissivity_rgb": [
+    0.056,
+    0.362,
+    0.451
+   ]
+  }
+ },
+ "water": {
+  "components": [
+   {
+    "amp": 0.017678,
+    "kx": 23.41838,
+    "kz": -2.34968,
+    "omega": 15.22366,
+    "phase": 0.0,
+    "k": 23.53596
+   },
+   {
+    "amp": 0.015749,
+    "kx": 18.58718,
+    "kz": 1.86494,
+    "omega": 13.55244,
+    "phase": 2.39996,
+    "k": 18.6805
+   },
+   {
+    "amp": 0.014031,
+    "kx": 14.16451,
+    "kz": 4.3816,
+    "omega": 12.06807,
+    "phase": 4.79993,
+    "k": 14.82673
+   },
+   {
+    "amp": 0.0125,
+    "kx": 10.32737,
+    "kz": 5.64187,
+    "omega": 10.74818,
+    "phase": 0.9167,
+    "k": 11.76798
+   },
+   {
+    "amp": 0.011136,
+    "kx": 7.14382,
+    "kz": 6.01716,
+    "omega": 9.57371,
+    "phase": 3.31667,
+    "k": 9.34025
+   },
+   {
+    "amp": 0.009921,
+    "kx": 4.60822,
+    "kz": 5.80709,
+    "omega": 8.52819,
+    "phase": 5.71663,
+    "k": 7.41336
+   },
+   {
+    "amp": 0.008839,
+    "kx": 2.66896,
+    "kz": 5.24386,
+    "omega": 7.59718,
+    "phase": 1.83341,
+    "k": 5.88399
+   }
+  ],
+  "wind_speed_m_s": 5.0,
+  "wind_dir_rad": 0.5
+ },
+ "physics": {
+  "mass_kg": 0,
+  "com_m": [
+   0,
+   0,
+   0
+  ],
+  "inertia_kgm2": [
+   0,
+   0,
+   0
+  ]
+ },
+ "bbox": [
+  [
+   -1.1,
+   1.1
+  ],
+  [
+   -0.4,
+   0.4
+  ],
+  [
+   -0.8,
+   0.8
+  ]
+ ],
+ "camera": {
+  "target": [
+   0.0,
+   0.02,
+   0.0
+  ],
+  "orbit_radius": 2.4,
+  "fov_deg": 44.0,
+  "up": [
+   0.0,
+   1.0,
+   0.0
+  ],
+  "az0": 0.6,
+  "el0": 0.1
+ },
+ "lights": [
+  {
+   "dir": [
+    -0.384,
+    -0.816,
+    -0.432
+   ],
+   "color": [
+    1.0,
+    0.9313,
+    0.8716
+   ],
+   "intensity": 1.05,
+   "temperature_k": 5500
+  },
+  {
+   "dir": [
+    -0.3143,
+    -0.3928,
+    0.8642
+   ],
+   "color": [
+    0.8937,
+    0.9164,
+    1.0
+   ],
+   "intensity": 0.4,
+   "temperature_k": 7600
+  }
+ ],
+ "ambient": {
+  "sky": [
+   0.1,
+   0.12,
+   0.16
+  ],
+  "ground": [
+   0.06,
+   0.05,
+   0.045
+  ],
+  "up": [
+   0.0,
+   1.0,
+   0.0
+  ]
+ },
+ "identified": true,
+ "source": "ripples = gravity-capillary dispersion (w^2 = gk + (gamma/rho)k^3) driven by a 5 m/s fan; reflection = Fresnel ray off water n=1.333, mirror at grazing"
+}

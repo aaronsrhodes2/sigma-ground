@@ -83,3 +83,34 @@ def record_fall(material_key: str = "copper", radius_m: float = 0.05,
             "body_labels": [material_key],
         },
     }
+
+
+def bounce_heights(material_key, radius_m=0.07, drop_height_m=0.45, floor_y=0.0,
+                   dt=0.02, t_total=3.0, g=9.80665):
+    """Centre-height of a dropped sphere per frame — a KINEMATIC drop+bounce whose
+    rebound is the material's EMERGENT clatter.
+
+    Each impact's rebound velocity = v_impact x coefficient_of_restitution(material,
+    v_impact, r) — the velocity-dependent Hertz/Johnson COR from field.interface.
+    impact (consumed, not re-derived). A bouncer (rubber, COR~1) climbs back to
+    near its drop height again and again; a thudder (lead/copper, COR~0.1) dies on
+    the first contact. The envelope is set by what the material IS.
+    """
+    from ..field.interface.impact import coefficient_of_restitution
+    rest_y = floor_y + radius_m
+    y, vy, ys = drop_height_m + rest_y, 0.0, []
+    for _ in range(int(t_total / dt) + 1):
+        ys.append(round(y, 5))
+        vy -= g * dt
+        y += vy * dt
+        if y <= rest_y and vy < 0.0:                  # ground contact
+            v_impact = max(abs(vy), 1e-3)
+            try:
+                e = coefficient_of_restitution(material_key, velocity=v_impact,
+                                               radius_m=radius_m)
+            except Exception:
+                e = 0.5
+            y, vy = rest_y, e * v_impact               # emergent rebound
+            if vy < 0.04:
+                vy = 0.0                               # settle
+    return ys

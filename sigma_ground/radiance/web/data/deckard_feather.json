@@ -1,0 +1,153 @@
+{
+ "name": "feather",
+ "csg_leaves": [
+  {
+   "op": "add",
+   "material": "rachis",
+   "shape": {
+    "type": "Cone",
+    "center": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "radius": 0.0008,
+    "height": 0.12
+   }
+  },
+  {
+   "op": "add",
+   "material": "vane",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rx": 0.0003,
+    "ry": 0.012,
+    "rz": 0.05
+   }
+  }
+ ],
+ "materials": {
+  "rachis": {
+   "color_rgb": [
+    0.82,
+    0.78,
+    0.68
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "measured keratin-family reflectance (wool proxy)",
+   "density_kg_m3": 1300.0,
+   "density_method": "unknown material"
+  },
+  "vane": {
+   "color_rgb": [
+    0.82,
+    0.78,
+    0.68
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "measured keratin-family reflectance (wool proxy)",
+   "density_kg_m3": 1300.0,
+   "density_method": "unknown material"
+  }
+ },
+ "physics": {
+  "mass_kg": 0.00101994880000041,
+  "com_m": [
+   -2.1983977904474315e-19,
+   -1.7687923989941066e-19,
+   -5.807264050876463e-05
+  ],
+  "inertia_kgm2": [
+   5.500572925004673e-07,
+   5.217378675599858e-07,
+   2.8370459635555888e-08
+  ]
+ },
+ "bbox": [
+  [
+   -0.0031999999999999997,
+   0.0031999999999999997
+  ],
+  [
+   -0.0144,
+   0.0144
+  ],
+  [
+   -0.0624,
+   0.0624
+  ]
+ ],
+ "camera": {
+  "target": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "orbit_radius": 0.34,
+  "fov_deg": 40.0,
+  "up": [
+   0.0,
+   0.0,
+   1.0
+  ],
+  "az0": 0.62,
+  "el0": 0.18
+ },
+ "lights": [
+  {
+   "dir": [
+    -0.384,
+    0.432,
+    -0.816
+   ],
+   "color": [
+    1.0,
+    0.9313,
+    0.8716
+   ],
+   "intensity": 1.05,
+   "temperature_k": 5500
+  },
+  {
+   "dir": [
+    -0.3143,
+    -0.8642,
+    -0.3928
+   ],
+   "color": [
+    0.8937,
+    0.9164,
+    1.0
+   ],
+   "intensity": 0.4,
+   "temperature_k": 7600
+  }
+ ],
+ "ambient": {
+  "sky": [
+   0.1,
+   0.12,
+   0.16
+  ],
+  "ground": [
+   0.06,
+   0.05,
+   0.045
+  ],
+  "up": [
+   0.0,
+   0.0,
+   1.0
+  ]
+ },
+ "identified": true,
+ "source": "Deckard-identified feather: Cone rachis (0.8mm x 120mm) + Ellipsoid vane (0.6 x 24 x 100mm), keratin -- Radiance renders the compiled SDF directly. Primitive-kit approximation, dims conf 0.40.",
+ "kind": "static"
+}

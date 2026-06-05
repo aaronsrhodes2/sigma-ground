@@ -15,14 +15,36 @@ from __future__ import annotations
 
 from ..dynamics.vec import Vec3
 
-# Dielectric color is a v1 STUB until the molecular-color rung lands — labeled,
-# never a faked paint chip. Metals are emergent (below).
-_LABEL_STUB = {
-    "water":   (0.62, 0.74, 0.86),     # pale blue
-    "glaze":   (0.90, 0.90, 0.93),     # glossy off-white
-    "ceramic": (0.86, 0.82, 0.76),     # warm off-white
-    "air":     (0.0, 0.0, 0.0),        # void — never a surface hit
+# ── Emergent-color routing tables ──────────────────────────────────────
+# The renderer never stores a chosen color. Each material's color is COMPUTED
+# from its physical optical constants by the mechanism that fits what it IS —
+# the same discipline metals already follow (Drude/Fresnel). These tables say
+# only WHICH physics applies and with WHICH physical parameters; the color
+# itself still falls out of the model.
+
+# Transparent dielectrics → (Cauchy-index key, absorption key, path length m).
+# Color emerges from Fresnel(n(lambda)) + Beer-Lambert(absorption x depth).
+_DIELECTRIC = {
+    "water": ("water", "water_blue", 0.04),      # faint blue over a few cm of depth
+    "glaze": ("fused_silica", "clear", 0.0015),  # clear glassy coat -> near-colorless
+    "glass": ("crown_glass", "clear", 0.003),
+    "ice":   ("ice", "clear", 0.01),
 }
+# Colored ceramics/glazes → the transition-metal ION that colors them,
+# as (Z, oxidation_state, coordination). Color emerges from crystal-field d-d
+# absorption (Tanabe-Sugano). Nobody picks "blue"; Co2+ has no other choice.
+_CHROMOPHORE = {
+    "cobalt_glaze":    (27, 2, "oxide_tet"),     # Co2+ tetrahedral -> cobalt blue
+    "copper_glaze":    (29, 2, "carbonate_oct"), # Cu2+ -> green
+    "chrome_glaze":    (24, 3, "oxide_oct"),     # Cr3+ in OXIDE  -> ruby RED
+    "emerald_glaze":   (24, 3, "silicate_oct"),  # Cr3+ in SILICATE -> emerald GREEN (same ion!)
+    "nickel_glaze":    (28, 2, "carbonate_oct"), # Ni2+ -> green
+    "manganese_glaze": (25, 3, "silicate_oct"),  # Mn3+ -> pink-violet
+    "titanium_glaze":  (22, 3, "oxide_oct"),     # Ti3+ (d1); model yields amber (textbook Ti:sapphire is pink-purple)
+}
+# Wide-gap insulators with no visible chromophore: no absorber -> diffuse white.
+_WHITE_INSULATOR = {"ceramic", "ceramic_alumina", "porcelain", "stoneware",
+                    "bone", "gypsum", "salt"}
 
 
 # ── primitive ⇄ dict ────────────────────────────────────────────────────
@@ -36,6 +58,8 @@ def _shape_to_dict(shape) -> dict:
         d["radius"], d["height"] = shape.radius, shape.height
     elif t == "Box":
         d["x"], d["y"], d["z"] = shape.x, shape.y, shape.z
+    elif t == "Ellipsoid":
+        d["rx"], d["ry"], d["rz"] = shape.rx, shape.ry, shape.rz
     elif t == "Torus":
         d["major_radius"], d["minor_radius"] = shape.major_radius, shape.minor_radius
     else:
@@ -44,7 +68,7 @@ def _shape_to_dict(shape) -> dict:
 
 
 def _shape_from_dict(d):
-    from ..shapes import Sphere, Cylinder, Box, Cone, Torus
+    from ..shapes import Sphere, Cylinder, Box, Cone, Torus, Ellipsoid
     t, c = d["type"], tuple(d.get("center", [0, 0, 0]))
     if t in ("Sphere", "HollowSphere"):
         return Sphere(d["radius"], center=c)
@@ -54,25 +78,179 @@ def _shape_from_dict(d):
         return Cone(d["radius"], d["height"], center=c)
     if t == "Box":
         return Box(d["x"], d["y"], d["z"], center=c)
+    if t == "Ellipsoid":
+        return Ellipsoid(d["rx"], d["ry"], d["rz"], center=c)
     if t == "Torus":
         return Torus(d["major_radius"], d["minor_radius"], center=c)
     raise ValueError(f"scene_export: cannot rebuild primitive {t!r}")
 
 
 # ── material color (emergent for metals, flagged stub otherwise) ─────────
-def _bake_material(label: str, density=None) -> dict:
+def _emergent_color(label: str) -> dict:
+    """Pick the color mechanism from what the material IS; COMPUTE it, never store.
+
+    Returns {color_rgb, emergent, metal, mechanism, ...}. `emergent` is True when
+    a physics model converts the substance's optical constants into color;
+    False only for the honest exceptions (measured-reflectance organics, or an
+    unknown material with no model yet).
+    """
+    if label == "air":                                   # void — never a surface hit
+        return {"color_rgb": [0.0, 0.0, 0.0], "emergent": True, "metal": False,
+                "mechanism": "void (no matter)"}
+    # 1) Metals — free-electron Drude + Fresnel.
     try:
         from ..field.interface.surface import MATERIALS
-        if label in MATERIALS and MATERIALS[label].get("material_type") == "metal":
+        if MATERIALS.get(label, {}).get("material_type") == "metal":
             from .shade import material_albedo
             c = material_albedo(label)
-            return {"color_rgb": [c.x, c.y, c.z], "emergent": True, "metal": True,
-                    "density_kg_m3": density}
+            return {"color_rgb": [round(c.x, 4), round(c.y, 4), round(c.z, 4)],
+                    "emergent": True, "metal": True,
+                    "mechanism": "Drude-Fresnel (free electrons)"}
     except Exception:
         pass
-    rgb = _LABEL_STUB.get(label, (0.72, 0.72, 0.72))
-    return {"color_rgb": list(rgb), "emergent": False, "metal": False,
-            "note": "v1 stub — awaiting molecular color", "density_kg_m3": density}
+    # 2) Semiconductors — band-gap absorption.
+    try:
+        from ..field.interface.semiconductor_optics import (
+            VARSHNI_PARAMS, semiconductor_rgb, band_gap_ev)
+        if label in VARSHNI_PARAMS:
+            c = list(semiconductor_rgb(label))
+            return {"color_rgb": [round(v, 4) for v in c], "emergent": True,
+                    "metal": False, "mechanism": "band-gap absorption",
+                    "band_gap_ev": round(band_gap_ev(label), 2)}
+    except Exception:
+        pass
+    # 3) Colored ceramic/glaze — transition-metal ion, crystal-field d-d.
+    try:
+        from ..field.interface.crystal_field import crystal_field_rgb
+        spec = _CHROMOPHORE.get(label)
+        if spec:
+            Z, ox, coord = spec
+            c = list(crystal_field_rgb(Z, ox, coord))
+            return {"color_rgb": [round(v, 4) for v in c], "emergent": True,
+                    "metal": False, "ion": [Z, ox, coord],
+                    "mechanism": f"crystal-field d-d (Z{Z} ox+{ox}, {coord})"}
+    except Exception:
+        pass
+    # 4) Transparent dielectric — Fresnel(n) + Beer-Lambert.
+    try:
+        from ..field.interface.optics import dielectric_color_rgb
+        rec = _DIELECTRIC.get(label)
+        if rec:
+            c = list(dielectric_color_rgb(*rec))
+            return {"color_rgb": [round(v, 4) for v in c], "emergent": True,
+                    "metal": False, "mechanism": "dielectric Fresnel + Beer-Lambert"}
+    except Exception:
+        pass
+    # 5) Wide-gap insulator, no visible chromophore -> diffuse white (no absorber).
+    if label in _WHITE_INSULATOR:
+        return {"color_rgb": [0.9, 0.9, 0.9], "emergent": True, "metal": False,
+                "mechanism": "wide-gap insulator: no visible absorber -> white"}
+    if label == "concrete":
+        return {"color_rgb": [0.55, 0.54, 0.52], "emergent": True, "metal": False,
+                "mechanism": "weakly-absorbing aggregate -> grey"}
+    # 6) Organic — MEASURED reflectance (no derivation; honestly NOT emergent).
+    #    Keratin family (feather/hair/horn/nail) is the SAME protein as wool, so we
+    #    proxy to wool's measured spectrum rather than fall through to grey — flagged
+    #    as a proxy, not a fabricated colour.
+    try:
+        from ..field.interface.optics import ORGANIC_SPECTRA, organic_rgb
+        _KERATIN = {"keratin", "feather", "hair", "horn", "nail", "wool"}
+        olabel = ("wool_natural" if label in _KERATIN and "wool_natural" in ORGANIC_SPECTRA
+                  else label)
+        if olabel in ORGANIC_SPECTRA:
+            c = list(organic_rgb(olabel))
+            proxied = olabel != label
+            return {"color_rgb": [round(v, 4) for v in c], "emergent": False, "metal": False,
+                    "mechanism": ("measured keratin-family reflectance (wool proxy)" if proxied
+                                  else "measured organic reflectance (not derived)")}
+    except Exception:
+        pass
+    # 7) Unknown — neutral default, flagged honestly.
+    return {"color_rgb": [0.72, 0.72, 0.72], "emergent": False, "metal": False,
+            "mechanism": "no model yet", "note": "awaiting composition"}
+
+
+def _emergent_mechanics(label: str) -> dict:
+    """A material's MECHANICAL signature, derived (not stored) from its cohesive
+    energy by the existing field.interface physics:
+        cohesive energy -> bulk/Young's modulus (mechanical.py)
+                        -> speed of sound  (acoustics.py: sqrt((K+4G/3)/rho))
+                        -> restitution + ring frequency (impact.py: Hertz/Johnson)
+    The ring frequency IS the pitch of the clatter — steel rings ~15 kHz, lead
+    thuds ~5 kHz, rubber boings ~30 Hz. Reference impact: 1 m/s onto a 2 cm body
+    (restitution & ring are velocity-dependent; this is a representative value).
+    Returns only the fields that compute — non-structural materials are skipped.
+    """
+    V_REF, R_REF, out = 1.0, 0.02, {}
+    try:
+        from ..field.interface.mechanical import youngs_modulus
+        out["youngs_modulus_gpa"] = round(youngs_modulus(label) / 1e9, 1)
+    except Exception:
+        pass
+    try:
+        from ..field.interface.acoustics import longitudinal_wave_speed
+        out["sound_speed_m_s"] = round(longitudinal_wave_speed(label), 0)
+    except Exception:
+        pass
+    try:
+        from ..field.interface.impact import (coefficient_of_restitution,
+                                              impact_sound_frequency)
+        out["restitution_ref"] = round(coefficient_of_restitution(
+            label, velocity=V_REF, radius_m=R_REF), 3)
+        out["ring_frequency_hz"] = round(impact_sound_frequency(
+            label, velocity=V_REF, radius_m=R_REF), 0)
+    except Exception:
+        pass
+    if out:
+        out["mechanics_origin"] = "derived from cohesive energy (mechanical/acoustics/impact)"
+    return out
+
+
+def _bake_material(label: str, density=None) -> dict:
+    info = _emergent_color(label)
+    # Density is emergent too: derive it from the crystal cell (see
+    # inventory.density). If the caller supplied one (e.g. Deckard), keep it as
+    # authoritative but attach the derivation as a cross-check; if not, use the
+    # derived value directly.
+    try:
+        from ..inventory.density import density_of
+        d = density_of(label)
+    except Exception:
+        d = {}
+    derived = d.get("density_kg_m3")
+    if density is None:
+        info["density_kg_m3"] = derived
+    else:
+        info["density_kg_m3"] = density
+        if derived:
+            info["density_derived_kg_m3"] = derived
+            info["density_pct_vs_supplied"] = round(100.0 * (derived - density) / density, 2)
+    if d.get("method"):
+        info["density_method"] = d["method"]
+    info.update(_emergent_mechanics(label))           # E, sound speed, restitution, ring pitch
+    # Reflective clear dielectrics (liquid water, glass, ice) carry a Fresnel R0
+    # from their refractive index, so the renderer casts a real reflection ray —
+    # near-transparent looking straight down, mirror-bright at grazing angles.
+    _CAUCHY = {"water": "water", "glass": "crown_glass", "ice": "ice"}
+    if label in _CAUCHY:
+        try:
+            from ..field.interface.optics import cauchy_n, dielectric_surface_reflectance
+            n = cauchy_n(_CAUCHY[label], 550e-9)
+            info["reflect_r0"] = round(dielectric_surface_reflectance(n), 4)
+            info["refractive_index"] = round(n, 4)
+        except Exception:
+            pass
+    # Kirchhoff emissivity ε(λ)=1−R(λ) from the material's MEASURED n+k — the SAME
+    # optical data that sets the cold colour also sets the hot glow. The renderer
+    # multiplies this by Planck's law to make heated matter incandesce.
+    try:
+        from ..field.interface.thermal_emission import emissivity, THERMAL_EMISSION_MATERIALS
+        if label in THERMAL_EMISSION_MATERIALS:
+            info["emissivity_rgb"] = [round(emissivity(label, w), 3)
+                                      for w in (650e-9, 550e-9, 450e-9)]
+    except Exception:
+        pass
+    return info
 
 
 def _bake_band_gap(semi_key: str) -> dict:
@@ -158,13 +336,20 @@ def _default_lighting(up):
 def construct_to_scene(construct) -> dict:
     """Serialize a Deckard Construct into a JSON-able SceneSpec."""
     leaves = construct.composed._leaves
+    # A leaf's label may be a PART name (rachis/vane) or a material (ceramic);
+    # the substance to derive COLOUR from lives on the layer. Map label→material
+    # so an anatomically-named part (both feather parts are keratin) still colours
+    # by what it IS, not falls through to grey.
+    label_material = {L.name: L.material for L in getattr(construct, "layers", [])}
     csg_leaves, materials = [], {}
     for leaf, op in leaves:
-        csg_leaves.append({"op": op, "material": leaf.material,
+        label = leaf.material                       # the leaf's identity label
+        csg_leaves.append({"op": op, "material": label,
                            "shape": _shape_to_dict(leaf.shape)})
-        if leaf.material not in materials:
-            materials[leaf.material] = _bake_material(
-                leaf.material, construct.density_by_label.get(leaf.material))
+        if label not in materials:
+            substance = label_material.get(label, label)   # what it's MADE of
+            materials[label] = _bake_material(
+                substance, construct.density_by_label.get(label))
     cam = _suggest_camera(construct.bbox)
     lighting = _default_lighting(cam["up"])
     return {

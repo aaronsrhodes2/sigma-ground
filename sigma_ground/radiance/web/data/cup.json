@@ -61,25 +61,28 @@
  "materials": {
   "glaze": {
    "color_rgb": [
-    0.9,
-    0.9,
-    0.93
+    0.72,
+    0.72,
+    0.72
    ],
    "emergent": false,
    "metal": false,
-   "note": "v1 stub \u2014 awaiting molecular color",
-   "density_kg_m3": 2400.0
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 2400.0,
+   "density_method": "unknown material"
   },
   "ceramic": {
    "color_rgb": [
-    0.86,
-    0.82,
-    0.76
+    0.9,
+    0.9,
+    0.9
    ],
-   "emergent": false,
+   "emergent": true,
    "metal": false,
-   "note": "v1 stub \u2014 awaiting molecular color",
-   "density_kg_m3": 2300.0
+   "mechanism": "wide-gap insulator: no visible absorber -> white",
+   "density_kg_m3": 2300.0,
+   "density_method": "unknown material"
   },
   "air": {
    "color_rgb": [
@@ -87,21 +90,24 @@
     0.0,
     0.0
    ],
-   "emergent": false,
+   "emergent": true,
    "metal": false,
-   "note": "v1 stub \u2014 awaiting molecular color",
-   "density_kg_m3": 0.0
+   "mechanism": "void (no matter)",
+   "density_kg_m3": 0.0,
+   "density_method": "unknown material"
   },
   "water": {
    "color_rgb": [
-    0.62,
-    0.74,
-    0.86
+    0.72,
+    0.72,
+    0.72
    ],
    "emergent": false,
    "metal": false,
-   "note": "v1 stub \u2014 awaiting molecular color",
-   "density_kg_m3": 998.0
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 998.0,
+   "density_method": "unknown material"
   }
  },
  "physics": {

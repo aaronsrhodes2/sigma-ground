@@ -47,8 +47,15 @@
       <button id="b-cup" class="on">Coffee cup</button>
       <button id="b-drop">Dropped sphere</button>
       <button id="b-mat">Materials</button>
+      <button id="b-glaze">Glazes</button>
       <button id="b-tip">Chair tip ⚙</button>
+      <button id="b-clatter">Clatter</button>
+      <button id="b-water">Water</button>
+      <button id="b-feather">Feather</button>
+      <button id="b-dfeather" title="Deckard-identified feather: cone rachis + ellipsoid vane (the real compiled shape)">Feather ◆</button>
     </div>
+    <div class="sep"></div>
+    <div class="grp"><button id="b-pt" title="Real light transport — no headlight/ambient/AO (slower, noisier)">Path trace</button></div>
     <div class="sep"></div>
     <div class="grp" id="playgrp" style="opacity:.35;">
       <button id="play">▶ play</button>
@@ -60,6 +67,12 @@
       <span class="lbl">time-rate</span>
       <input id="rate" type="range" min="-6" max="6" step="0.01" value="0">
       <span id="rateval">1.0 sim-s / wall-s</span>
+    </div>
+    <div class="sep"></div>
+    <div class="grp" id="heatgrp">
+      <span class="lbl">heat</span>
+      <input id="temp" type="range" min="0" max="2900" step="10" value="0">
+      <span id="tempval" class="lbl">293 K (cold)</span>
     </div>
     <div class="grp" style="margin-left:auto;"><span id="fps" class="lbl"></span></div>
   </div>

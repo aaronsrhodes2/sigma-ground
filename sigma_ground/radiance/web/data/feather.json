@@ -1,0 +1,1560 @@
+{
+ "scene": {
+  "name": "feather drop (8 ft, air STP) \u2014 Materia simulated, Radiance renders",
+  "bodies": [
+   {
+    "pivot": [
+     0,
+     0,
+     0
+    ],
+    "label": "feather (keratin)"
+   }
+  ],
+  "csg_leaves": [
+   {
+    "op": "add",
+    "material": "wool_natural",
+    "body": 0,
+    "shape": {
+     "type": "Box",
+     "center": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "x": 0.14,
+     "y": 0.003,
+     "z": 0.035
+    }
+   },
+   {
+    "op": "add",
+    "material": "stage_dark",
+    "shape": {
+     "type": "Box",
+     "center": [
+      0.0,
+      -0.05,
+      0.0
+     ],
+     "x": 2.0,
+     "y": 0.1,
+     "z": 2.0
+    }
+   }
+  ],
+  "materials": {
+   "wool_natural": {
+    "color_rgb": [
+     0.82,
+     0.78,
+     0.68
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "measured organic reflectance (not derived)",
+    "density_kg_m3": null,
+    "density_method": "unknown material"
+   },
+   "stage_dark": {
+    "color_rgb": [
+     0.07,
+     0.07,
+     0.08
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "neutral render stage (dark matte backdrop, not a grounded material colour)",
+    "note": "awaiting composition",
+    "density_kg_m3": 700.0,
+    "density_derived_kg_m3": 700,
+    "density_pct_vs_supplied": 0.0,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 0.2,
+    "sound_speed_m_s": 706.0,
+    "restitution_ref": 1.0,
+    "ring_frequency_hz": 847.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+   }
+  },
+  "physics": {
+   "mass_kg": 0.0006,
+   "com_m": [
+    0,
+    0,
+    0
+   ],
+   "inertia_kgm2": [
+    0,
+    0,
+    0
+   ]
+  },
+  "bbox": [
+   [
+    -1.0,
+    1.0
+   ],
+   [
+    -0.1,
+    2.6
+   ],
+   [
+    -1.0,
+    1.0
+   ]
+  ],
+  "camera": {
+   "target": [
+    0.0,
+    1.15,
+    0.0
+   ],
+   "orbit_radius": 3.7,
+   "fov_deg": 46.0,
+   "up": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "az0": 0.35,
+   "el0": 0.34
+  },
+  "lights": [
+   {
+    "dir": [
+     -0.384,
+     -0.816,
+     -0.432
+    ],
+    "color": [
+     1.0,
+     0.9313,
+     0.8716
+    ],
+    "intensity": 1.05,
+    "temperature_k": 5500
+   },
+   {
+    "dir": [
+     -0.3143,
+     -0.3928,
+     0.8642
+    ],
+    "color": [
+     0.8937,
+     0.9164,
+     1.0
+    ],
+    "intensity": 0.4,
+    "temperature_k": 7600
+   }
+  ],
+  "ambient": {
+   "sky": [
+    0.1,
+    0.12,
+    0.16
+   ],
+   "ground": [
+    0.06,
+    0.05,
+    0.045
+   ],
+   "up": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  "identified": true,
+  "sim_data": {
+   "request": "drop a feather from 8 feet in atmosphere and watch it float to the floor",
+   "materia_routing": "deterministic translator misrouted to atmospheric_profile (NL gap); drove simulate_drag_run directly with the feather's mass + area",
+   "material": {
+    "name": "keratin (beta-keratin)",
+    "composition": "(Cys-Gly-Leu-Ala)n keratin polypeptide, S crosslinks",
+    "mass_kg": 0.0006,
+    "planform_area_m2": 0.003,
+    "drag_coefficient": 1.0
+   },
+   "environment": {
+    "medium": "air at STP",
+    "density_kg_m3": 1.225,
+    "T_K": 288.15
+   },
+   "initial_temperature_K": 293.15,
+   "motion_over_time": {
+    "drop_height_m": 2.4384,
+    "gravity_m_s2": 9.80665,
+    "terminal_velocity_m_s": 1.789,
+    "fall_time_s": 1.5,
+    "samples": 75,
+    "physics": "gravity on mass + atmospheric drag rising with speed -> terminal velocity set by area (Materia.simulate_drag_run)"
+   }
+  },
+  "source": "keratin feather \u00b7 air at STP \u00b7 floats at terminal velocity 1.78 m/s (Materia drag) \u2014 the sim layer holds material + temperature + motion; Radiance derives the rest"
+ },
+ "trajectory": {
+  "frames": [
+   {
+    "t_sim": 0.01,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.43791,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.03,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.43401,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.05,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.4263,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.07,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.41496,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.09,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.40024,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.11,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.38243,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.13,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.36185,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.15,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.33883,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.17,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.31369,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.19,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.28675,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.21,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.25827,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.23,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.22851,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.25,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.19768,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.27,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.16596,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.29,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.13352,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.31,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.10049,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.33,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.06697,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.35,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.03307,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.37,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.99884,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.39,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.96435,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.41,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.92966,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.43,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.8948,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.45,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.85981,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.47,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.8247,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.49,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.78951,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.51,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.75425,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.53,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.71894,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.55,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.68358,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.57,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.64818,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.59,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.61275,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.61,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.5773,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.63,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.54183,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.65,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.50635,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.67,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.47085,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.69,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.43534,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.71,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.39983,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.73,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.36431,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.75,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.32879,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.77,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.29326,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.79,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.25773,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.81,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.22219,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.83,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.18665,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.85,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.15112,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.87,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.11558,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.89,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.08004,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.91,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.0445,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.93,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.00895,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.95,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.97341,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.97,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.93787,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.99,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.90233,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.01,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.86678,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.03,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.83124,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.05,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.7957,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.07,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.76016,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.09,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.72461,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.11,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.68907,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.13,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.65353,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.15,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.61798,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.17,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.58244,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.19,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.5469,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.21,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.51135,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.23,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.47581,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.25,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.44027,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.27,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.40472,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.29,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.36918,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.31,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.33364,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.33,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.2981,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.35,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.26255,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.37,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.22701,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.39,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.19147,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.41,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.15592,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.43,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.12038,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.45,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.08484,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.47,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0493,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 1.49,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.01376,
+       0.0
+      ],
+      "quat": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    ]
+   }
+  ],
+  "t_end_s": 1.49,
+  "natural_timescale_s": 1.500000000000001,
+  "suggested_rate": 0.3000000000000002,
+  "body_labels": [
+   "feather"
+  ]
+ },
+ "kind": "trajectory"
+}

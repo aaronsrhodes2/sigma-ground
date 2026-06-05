@@ -229,123 +229,281 @@
  "materials": {
   "copper": {
    "color_rgb": [
-    0.9437487443916159,
-    0.6377905221853305,
-    0.5493692099995344
+    0.9437,
+    0.6378,
+    0.5494
    ],
    "emergent": true,
    "metal": true,
-   "density_kg_m3": 8960
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 8960,
+   "density_derived_kg_m3": 8998.4,
+   "density_pct_vs_supplied": 0.43,
+   "density_method": "crystallographic (fcc cell, a=3.615 A, A=64)",
+   "youngs_modulus_gpa": 135.8,
+   "sound_speed_m_s": 4829.0,
+   "restitution_ref": 0.103,
+   "ring_frequency_hz": 11089.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "emissivity_rgb": [
+    0.056,
+    0.362,
+    0.451
+   ]
   },
   "gold": {
    "color_rgb": [
-    0.9508308146177096,
-    0.7626532338496887,
-    0.38147807995801547
+    0.9508,
+    0.7627,
+    0.3815
    ],
    "emergent": true,
    "metal": true,
-   "density_kg_m3": 19300
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 19300,
+   "density_derived_kg_m3": 19294.5,
+   "density_pct_vs_supplied": -0.03,
+   "density_method": "crystallographic (fcc cell, a=4.078 A, A=197)",
+   "youngs_modulus_gpa": 38.9,
+   "sound_speed_m_s": 2556.0,
+   "restitution_ref": 0.099,
+   "ring_frequency_hz": 6978.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "emissivity_rgb": [
+    0.049,
+    0.237,
+    0.619
+   ]
   },
   "silver": {
    "color_rgb": [
-    0.9697658472851349,
-    0.9828714574248664,
-    0.9803854263717942
+    0.9698,
+    0.9829,
+    0.9804
    ],
    "emergent": true,
    "metal": true,
-   "density_kg_m3": 10490
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 10490,
+   "density_derived_kg_m3": 10523.4,
+   "density_pct_vs_supplied": 0.32,
+   "density_method": "crystallographic (fcc cell, a=4.085 A, A=108)",
+   "youngs_modulus_gpa": 64.7,
+   "sound_speed_m_s": 3303.0,
+   "restitution_ref": 0.11,
+   "ring_frequency_hz": 8324.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "emissivity_rgb": [
+    0.03,
+    0.017,
+    0.02
+   ]
   },
   "aluminum": {
    "color_rgb": [
-    0.9018090322052736,
-    0.9185675839399388,
-    0.9374501555927379
+    0.9018,
+    0.9186,
+    0.9375
    ],
    "emergent": true,
    "metal": true,
-   "density_kg_m3": 2700
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 2700,
+   "density_derived_kg_m3": 2699.7,
+   "density_pct_vs_supplied": -0.01,
+   "density_method": "crystallographic (fcc cell, a=4.05 A, A=27)",
+   "youngs_modulus_gpa": 88.3,
+   "sound_speed_m_s": 7245.0,
+   "restitution_ref": 0.096,
+   "ring_frequency_hz": 9365.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "emissivity_rgb": [
+    0.098,
+    0.081,
+    0.063
+   ]
   },
   "iron": {
    "color_rgb": [
-    0.5435932095575081,
-    0.5543689745313911,
-    0.5670923033038575
+    0.5436,
+    0.5544,
+    0.5671
    ],
    "emergent": true,
    "metal": true,
-   "density_kg_m3": 7874
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 7874,
+   "density_derived_kg_m3": 7891.9,
+   "density_pct_vs_supplied": 0.23,
+   "density_method": "crystallographic (bcc cell, a=2.867 A, A=56)",
+   "youngs_modulus_gpa": 212.2,
+   "sound_speed_m_s": 5942.0,
+   "restitution_ref": 0.19,
+   "ring_frequency_hz": 13072.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "emissivity_rgb": [
+    0.456,
+    0.446,
+    0.433
+   ]
   },
   "nickel": {
    "color_rgb": [
-    0.6609832351020726,
-    0.6617721807618676,
-    0.6668976892370345
+    0.661,
+    0.6618,
+    0.6669
    ],
    "emergent": true,
    "metal": true,
-   "density_kg_m3": 8908
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 8908,
+   "density_derived_kg_m3": 8954.7,
+   "density_pct_vs_supplied": 0.52,
+   "density_method": "crystallographic (fcc cell, a=3.524 A, A=59)",
+   "youngs_modulus_gpa": 221.2,
+   "sound_speed_m_s": 5867.0,
+   "restitution_ref": 0.131,
+   "ring_frequency_hz": 13363.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "emissivity_rgb": [
+    0.339,
+    0.338,
+    0.333
+   ]
   },
   "titanium": {
    "color_rgb": [
-    0.5347459680676342,
-    0.5585180055401662,
-    0.5722143002648198
+    0.5347,
+    0.5585,
+    0.5722
    ],
    "emergent": true,
    "metal": true,
-   "density_kg_m3": 4507
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 4507,
+   "density_derived_kg_m3": 4386.3,
+   "density_pct_vs_supplied": -2.68,
+   "density_method": "crystallographic (hcp cell, a=2.951 A, A=48)",
+   "youngs_modulus_gpa": 142.4,
+   "sound_speed_m_s": 6723.0,
+   "restitution_ref": 0.261,
+   "ring_frequency_hz": 11234.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "emissivity_rgb": [
+    0.465,
+    0.441,
+    0.428
+   ]
   },
   "lead": {
    "color_rgb": [
-    0.6296368491842264,
-    0.6465949600221538,
-    0.6426373726553776
+    0.6296,
+    0.6466,
+    0.6426
    ],
    "emergent": true,
    "metal": true,
-   "density_kg_m3": 11340
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 11340,
+   "density_derived_kg_m3": 11336.1,
+   "density_pct_vs_supplied": -0.03,
+   "density_method": "crystallographic (fcc cell, a=4.95 A, A=207)",
+   "youngs_modulus_gpa": 11.6,
+   "sound_speed_m_s": 1820.0,
+   "restitution_ref": 0.103,
+   "ring_frequency_hz": 4299.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "emissivity_rgb": [
+    0.37,
+    0.353,
+    0.357
+   ]
   },
   "tungsten": {
    "color_rgb": [
-    0.5142277640913379,
-    0.5111618054423985,
-    0.5044477558811931
+    0.5142,
+    0.5112,
+    0.5044
    ],
    "emergent": true,
    "metal": true,
-   "density_kg_m3": 19250
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 19250,
+   "density_derived_kg_m3": 19274.2,
+   "density_pct_vs_supplied": 0.13,
+   "density_method": "crystallographic (bcc cell, a=3.165 A, A=184)",
+   "youngs_modulus_gpa": 343.9,
+   "sound_speed_m_s": 4779.0,
+   "restitution_ref": 0.266,
+   "ring_frequency_hz": 15819.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "emissivity_rgb": [
+    0.486,
+    0.489,
+    0.496
+   ]
   },
   "platinum": {
    "color_rgb": [
-    0.6539405383000981,
-    0.6626190649312877,
-    0.6476592174865425
+    0.6539,
+    0.6626,
+    0.6477
    ],
    "emergent": true,
    "metal": true,
-   "density_kg_m3": 21450
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 21450,
+   "density_derived_kg_m3": 21436.6,
+   "density_pct_vs_supplied": -0.06,
+   "density_method": "crystallographic (fcc cell, a=3.924 A, A=195)",
+   "youngs_modulus_gpa": 133.9,
+   "sound_speed_m_s": 3418.0,
+   "restitution_ref": 0.074,
+   "ring_frequency_hz": 11174.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "emissivity_rgb": [
+    0.346,
+    0.337,
+    0.352
+   ]
   },
   "depleted_uranium": {
    "color_rgb": [
-    0.8998258941765709,
-    0.898993933915915,
-    0.8979557100565023
+    0.8998,
+    0.899,
+    0.898
    ],
    "emergent": true,
    "metal": true,
-   "density_kg_m3": 19100
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 19100,
+   "density_derived_kg_m3": 18917.7,
+   "density_pct_vs_supplied": -0.95,
+   "density_method": "crystallographic (bcc cell, a=3.47 A, A=238)",
+   "youngs_modulus_gpa": 201.9,
+   "sound_speed_m_s": 3501.0,
+   "restitution_ref": 0.363,
+   "ring_frequency_hz": 12645.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
   },
   "steel_mild": {
    "color_rgb": [
-    0.942923511615341,
-    0.9426430405317449,
-    0.942244601809706
+    0.9429,
+    0.9426,
+    0.9422
    ],
    "emergent": true,
    "metal": true,
-   "density_kg_m3": 7850
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 7850,
+   "density_derived_kg_m3": 7891.9,
+   "density_pct_vs_supplied": 0.53,
+   "density_method": "crystallographic (bcc cell, a=2.867 A, A=56)",
+   "youngs_modulus_gpa": 201.4,
+   "sound_speed_m_s": 5878.0,
+   "restitution_ref": 0.194,
+   "ring_frequency_hz": 12837.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
   },
   "cadmium_sulfide": {
    "color_rgb": [
