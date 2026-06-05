@@ -230,6 +230,52 @@ def test_record_fall_emits_rigid_body_schema():
             assert len(bd["pos"]) == 3 and len(bd["quat"]) == 4
 
 
+def test_record_object_fall_renders_real_shape_falling():
+    """record_object_fall drops Deckard's ACTUAL construct — a feather's
+    cone+ellipsoid, not a sphere: the real shapes are body 0, a static floor is
+    untagged, the fall descends to the ground, and the body is laid flat by a
+    constant (non-fluttering) orientation that points its thinnest axis up."""
+    from sigma_ground import deckard
+    from sigma_ground.radiance.trajectory import record_object_fall
+
+    def _rotate(q, v):                       # rotate vector v by quaternion (x,y,z,w)
+        x, y, z, w = q
+        qv = (x, y, z)
+        cross = lambda a, b: (a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2],
+                              a[0]*b[1]-a[1]*b[0])
+        t = cross(qv, v)
+        t2 = cross(qv, t)
+        return tuple(v[i] + 2*w*t[i] + 2*t2[i] for i in range(3))
+
+    feather = deckard.identify("feather", allow_llm=False)   # catalogue hit, offline
+    out = record_object_fall(feather, start_altitude_m=2.4384, target_watch_s=5.0)
+    sc, tr = out["scene"], out["trajectory"]
+    assert out["kind"] == "trajectory"
+    # the REAL compiled shapes (not a Sphere) are the moving body 0
+    moving = [l for l in sc["csg_leaves"] if l.get("body") == 0]
+    types = {l["shape"]["type"] for l in moving}
+    assert types and "Sphere" not in types and types <= {"Cone", "Ellipsoid"}
+    # a static floor leaf (untagged) so the feather floats down TO something
+    assert any("body" not in l for l in sc["csg_leaves"])
+    assert sc["bodies"] and len(sc["bodies"][0]["pivot"]) == 3
+    # the fall: starts at the release height, descends monotonically to the floor
+    ys = [fr["bodies"][0]["pos"][1] for fr in tr["frames"]]
+    assert len(ys) >= 3
+    assert abs(ys[0] - 2.4384) < 0.05
+    assert ys[-1] <= 0.5                                  # reaches the ground
+    assert all(a >= b - 1e-6 for a, b in zip(ys, ys[1:]))  # never rises
+    assert tr["suggested_rate"] > 0
+    # laid flat by a CONSTANT orientation (same quat every frame), and that quat
+    # really points the thinnest axis up (+y) — flat-plate rest pose, no flutter
+    quats = {tuple(fr["bodies"][0]["quat"]) for fr in tr["frames"]}
+    assert len(quats) == 1
+    (x0, x1), (y0, y1), (z0, z1) = feather.bbox
+    thin = min((x1-x0, "x"), (y1-y0, "y"), (z1-z0, "z"))[1]
+    thin_axis = {"x": (1.0, 0.0, 0.0), "y": (0.0, 1.0, 0.0),
+                 "z": (0.0, 0.0, 1.0)}[thin]
+    assert _rotate(next(iter(quats)), thin_axis)[1] > 0.99   # thin axis → +y
+
+
 def test_metal_flag_split_from_emergent():
     """`metal` drives chrome-vs-matte shading; it is NOT a synonym for emergent.
     Copper is both; an emergent dielectric (ceramic) is emergent but matte; an

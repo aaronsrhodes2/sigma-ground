@@ -26,13 +26,14 @@ from .render import render, render_to_png, render_turntable, render_ascii
 from .image import write_png
 from .scene_export import (construct_to_scene, scene_spec_to_sdf,
                            scene_from_spec)
-from .trajectory import record_fall
+from .trajectory import record_fall, record_object_fall
 
 __all__ = [
     "construct_to_scene",
     "scene_spec_to_sdf",
     "scene_from_spec",
     "record_fall",
+    "record_object_fall",
     "RadianceScene",
     "Camera",
     "orbit_eye",
