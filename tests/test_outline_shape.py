@@ -68,6 +68,17 @@ def test_outline_of_loads_the_distilled_quickdraw_feather():
     assert "Quick" in source and "BY" in lic   # cited, CC BY 4.0
 
 
+def test_distilled_outlines_all_form_valid_closed_matter():
+    # every shipped Quick Draw outline loads and sweeps to real, closed matter.
+    for noun in ("feather", "leaf", "key", "fish", "tree", "flower"):
+        got = outline_of(noun)
+        assert got is not None, noun
+        prof = [(u * 0.1, v * 0.1) for u, v in got[0]]
+        o = Outline(prof, mode="extrude", thickness=0.001)
+        assert o.volume() > 0.0, noun
+        assert o.surface_distance(0.0, 0.0, 0.0) < 0.0, noun     # centre is inside (closed)
+
+
 def test_researcher_grounds_an_organic_outline_from_quickdraw():
     # the model declares a part shape:"outline"; Deckard supplies the RESEARCHED
     # Quick Draw profile, scales it to length_m, cites it — no hand-drawn shape,
