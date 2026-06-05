@@ -123,6 +123,24 @@ def test_filled_cavity_composes_in_order():
     assert c.density_at(0.0, 0.0, 0.09) == 0.0                     # headspace (empty)
 
 
+def test_every_mated_surface_pair_is_an_interface():
+    # solids hold cavities, liquid fills them, gas sits on top by gravity — and
+    # every boundary between two materials is recorded as an interface.
+    bottle = ConstructSpec(name="bottle", kind="composite", parts=[
+        Part("body", "cylinder", {"radius_m": Fact(0.035), "height_m": Fact(0.20)},
+             "glass", density_of("glass")),
+        Part("interior", "cylinder", {"radius_m": Fact(0.032), "height_m": Fact(0.185)},
+             "air", Fact(0.0), center_m=(0, 0, 0.0075), op="subtract"),
+        Part("liquid", "cylinder", {"radius_m": Fact(0.032), "height_m": Fact(0.12)},
+             "liquid water", density_of("liquid water"), center_m=(0, 0, -0.025))])
+    c = compile(bottle, resolution=56)
+    pairs = {frozenset(i["between"]) for i in c.validation["interfaces"]}
+    assert frozenset({"glass", "liquid water"}) in pairs    # solid cavity wall ↔ liquid
+    assert frozenset({"air", "liquid water"}) in pairs      # liquid surface ↔ gas on top
+    assert frozenset({"air", "glass"}) in pairs             # wall ↔ ambient/headspace air
+    assert all(i["area_m2"] > 0 for i in c.validation["interfaces"])   # real contact area
+
+
 def test_attach_mates_parts_at_an_interface_no_overlap():
     spec = ConstructSpec(name="post-cap", kind="composite", parts=[
         Part("cap", "box", {"x_m": Fact(0.06), "y_m": Fact(0.06), "z_m": Fact(0.02)},
@@ -140,8 +158,11 @@ def test_attach_mates_parts_at_an_interface_no_overlap():
     assert c.material_at(0.0, 0.0, 0.30) == "cap"
     assert c.material_at(0.0, 0.0, 0.288) == "post"
     assert c.material_at(0.0, 0.0, 0.292) == "cap"
-    # the interface is recorded
-    assert c.validation["interfaces"] == [{"between": ["post", "cap"], "at": "bottom"}]
+    # solids that mate form a real interface (oak post ↔ steel cap), and the
+    # declared joint is recorded
+    pairs = {frozenset(i["between"]) for i in c.validation["interfaces"]}
+    assert frozenset({"oak", "steel"}) in pairs
+    assert c.validation["joints"] == [{"between": ["post", "cap"], "at": "bottom"}]
 
 
 def test_researcher_emits_attachment():
@@ -155,4 +176,4 @@ def test_researcher_emits_attachment():
     assert spec.parts[1].attach == {"to": "head", "my": "top", "their": "bottom"}
     c = compile(spec, resolution=56)
     assert c.validation["mode"] == "disjoint" and c.validation["passed"]
-    assert c.validation["interfaces"]                              # the joint is recorded
+    assert c.validation["joints"]                                  # the joint is recorded

@@ -336,6 +336,48 @@ def _resolve_positions(parts):
     return centers
 
 
+def _interfaces(composed, name_to_material, bbox, n):
+    """Every mated surface pair: adjacent distinct materials + contact area (m²).
+
+    Walks the composed construct on a grid and tallies each face where the
+    material changes — solid↔solid, solid↔liquid, liquid↔gas, solid↔gas, and
+    anything↔ambient-air (outside). The boundary between two materials *is* the
+    interface.
+    """
+    (x0, x1), (y0, y1), (z0, z1) = bbox
+    dx, dy, dz = (x1 - x0) / n, (y1 - y0) / n, (z1 - z0) / n
+
+    def mat(ix, iy, iz):
+        name = composed.material_at(x0 + (ix + 0.5) * dx, y0 + (iy + 0.5) * dy,
+                                    z0 + (iz + 0.5) * dz)
+        return name_to_material.get(name, "air") if name else "air"  # outside = ambient air
+
+    pairs = {}
+
+    def add(a, b, area):
+        if a == b:
+            return
+        k = tuple(sorted((a, b)))
+        pairs[k] = pairs.get(k, 0.0) + area
+
+    ax, ay, az = dy * dz, dx * dz, dx * dy
+    prev = None
+    for iz in range(n):
+        cur = [[mat(ix, iy, iz) for ix in range(n)] for iy in range(n)]
+        for iy in range(n):
+            for ix in range(n):
+                a = cur[iy][ix]
+                if ix + 1 < n:
+                    add(a, cur[iy][ix + 1], ax)
+                if iy + 1 < n:
+                    add(a, cur[iy + 1][ix], ay)
+                if prev is not None:
+                    add(a, prev[iy][ix], az)
+        prev = cur
+    return [{"between": list(k), "area_m2": round(v, 6)}
+            for k, v in sorted(pairs.items(), key=lambda kv: -kv[1])]
+
+
 def _shape_mass(shape, rho, bbox, n):
     """Mass of a single shape by grid-sampling its own SDF — validates volume()."""
     (x0, x1), (y0, y1), (z0, z1) = bbox
@@ -456,10 +498,13 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
                       "resolution": nhi, "note": note}
 
     attached = {p.name for p in spec.parts}
-    validation["interfaces"] = [
+    validation["joints"] = [
         {"between": [p.name, p.attach["to"]], "at": p.attach.get("their", "top")}
         for p in spec.parts
         if getattr(p, "attach", None) and p.attach.get("to") in attached]
+    name_to_material = {p.name: p.material for p in spec.parts}
+    validation["interfaces"] = _interfaces(composed, name_to_material, bbox,
+                                            min(resolution, 48))
 
     return Construct(
         name=spec.name, composed=composed, density_by_label=density,
