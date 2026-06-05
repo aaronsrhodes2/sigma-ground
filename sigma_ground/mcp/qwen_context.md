@@ -45,9 +45,11 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **bond_energy** — Bond dissociation energy (kJ/mol) for a diatomic bond.
 - **buffer_ph** — Buffer pH (Henderson-Hasselbalch): pH = pKa + log([base]/[acid]).
 - **cell_potential** — Galvanic cell EMF (V), Nernst-corrected; cell_potential('copper','zinc')≈1.10 V (Daniell).
+- **combustion_enthalpy_analysis** — Combustion enthalpy of a hydrocarbon (methane/propane) from a bond-energy inventory (Hess's law; approximate).  ↳ *say:* heat of combustion; combustion enthalpy; bond energy method; Hess's law; methane combustion; enthalpy of reaction from bonds
 - **electrolysis_mass** — Mass deposited by electrolysis (kg) — Faraday: m = M·I·t/(n·F).
 - **freezing_point_depression** — Freezing-point depression ΔTf (K) = i·Kf·molality (colligative).
 - **molar_solubility** — Molar solubility (mol/L) of a sparingly-soluble salt from Ksp.
+- **molecular_dipole_analysis** — Net molecular dipole moment from the vector sum of bond dipoles (Debye). Default water-like (~1.84 D).  ↳ *say:* dipole moment; molecular polarity; bond dipole; net dipole; water dipole 1.85 D; vector sum of dipoles
 - **osmotic_pressure** — Osmotic pressure π (Pa) = i·M·R·T (van't Hoff).
 - **reaction_enthalpy** — Standard reaction enthalpy ΔH° (kJ/mol) from formation enthalpies.
 - **weak_acid_ph** — pH of a weak acid from its Ka; weak_acid_ph('acetic_acid',0.1)≈2.88.
@@ -144,13 +146,16 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **projectile_range** — Range R = v^2 sin(2 theta)/g.  ↳ *say:* projectile motion; projectile range; R = v^2 sin(2 theta) / g; cannonball range; ballistic range
 
 ### materials
+- **alloy_resistivity_analysis** — Residual resistivity of a binary solid-solution alloy from Nordheim's rule (delta-rho ~ x(1-x)).  ↳ *say:* alloy resistivity; Nordheim rule; residual resistivity; solid solution; Matthiessen; impurity scattering
 - **band_gap_ev** — Semiconductor band gap in eV (lookup).  ↳ *say:* band gap; semiconductor gap; valence to conduction; Si Ge GaAs gap; Eg
 - **boiling_point** — Boiling point in K (lookup).  ↳ *say:* boiling point; T_boil; vaporization temperature
 - **composite_bounds_analysis** — Two-phase composite bounds: Voigt-Reuss-Hill, Hashin-Shtrikman, thermal-conductivity bounds, Gibson-Ashby foam strength.  ↳ *say:* composite material; Voigt-Reuss-Hill; Hashin-Shtrikman; rule of mixtures; effective modulus; foam strength
 - **density** — Material density in kg/m^3 (lookup).  ↳ *say:* density; rho = m/V; kg/m^3; specific gravity
 - **dielectric_polarization_analysis** — Relative permittivity from the Clausius-Mossotti relation given molecular polarizability and number density.  ↳ *say:* Clausius-Mossotti; relative permittivity; dielectric constant from polarizability; polarizability; Lorentz-Lorenz; induced dipole permittivity
+- **dislocation_strengthening_analysis** — Taylor work-hardening: shear flow stress from a dislocation forest, tau = alpha G b sqrt(rho).  ↳ *say:* work hardening; Taylor hardening; dislocation density; flow stress; strain hardening; forest dislocations
 - **elastic_analysis** — Elastic response: uniaxial/shear/hydrostatic stress, strain-energy densities, transverse strain, volume change, von Mises yield.  ↳ *say:* Young's modulus; stress and strain; Hooke's law; shear stress; strain energy; Poisson ratio
 - **element_atomic_data** — Element Z, name, mass via periodictable.  ↳ *say:* atomic number; atomic mass; Z of; atomic weight; amu; u
+- **friction_analysis** — Dry sliding friction: interfacial shear strength, adhesive friction coefficient, ploughing term, total friction force.  ↳ *say:* friction; coefficient of friction; Amontons law; Bowden-Tabor; adhesive friction; ploughing
 - **list_materials** — Inventory of materials in lookup tables.  ↳ *say:* available materials
 - **melting_point** — Melting point in K (lookup).  ↳ *say:* melting point; T_melt; fusion temperature
 - **piezoelectric_actuator_analysis** — Converse piezoelectric effect: induced strain (d E) and tip displacement (d E L) of an actuator under applied field.  ↳ *say:* piezoelectric; piezo actuator; converse piezoelectric effect; PZT displacement; strain from voltage; d33
@@ -158,6 +163,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **refractive_index** — Refractive index at 589 nm (lookup).  ↳ *say:* refractive index; n at 589 nm; sodium D-line; speed of light in medium; optical density
 - **stress_failure_analysis** — Fracture/fatigue/creep: stress-intensity, critical crack length, fatigue life, Paris life, creep rate + rupture time.  ↳ *say:* fracture toughness; stress intensity; crack; fatigue life; creep; Paris law
 - **viscoelastic_creep_analysis** — Viscoelastic creep & relaxation: Maxwell, Kelvin-Voigt, standard-linear-solid creep, and SLS stress relaxation.  ↳ *say:* creep; viscoelastic; Maxwell model; Kelvin-Voigt; stress relaxation; standard linear solid
+- **wear_analysis** — Sliding wear (Archard): worn volume, mass loss, sliding wear rate, and wear regime (mild/severe, adhesive/abrasive).  ↳ *say:* wear; Archard wear; wear rate; material loss sliding; abrasive wear; adhesive wear
 - **youngs_modulus** — Young's modulus in Pa (lookup).  ↳ *say:* Young's modulus; E; elastic modulus; Hooke's law constant; stiffness; Thomas Young 1807
 
 ### math

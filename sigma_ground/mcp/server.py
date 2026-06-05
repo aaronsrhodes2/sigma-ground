@@ -115,6 +115,8 @@ def main() -> int:
     from sigma_ground.mcp.tools import quantum_solids as t_qsolids
     from sigma_ground.mcp.tools import plasma_em as t_plasma
     from sigma_ground.mcp.tools import relativity_spectra as t_relsp
+    from sigma_ground.mcp.tools import tribology as t_tribo
+    from sigma_ground.mcp.tools import materials_micro as t_micro
     from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
@@ -1489,6 +1491,50 @@ def main() -> int:
         """Number of Zeeman sublevels a state of total angular momentum j splits
         into in a magnetic field (2j+1 values of m_j)."""
         return t_relsp.zeeman_effect_analysis(total_angular_momentum_j)
+
+    @server.tool()
+    def friction_analysis(material_key_1: str = "copper",
+                          material_key_2: str = "steel_mild",
+                          normal_force_n: float = 10.0) -> dict[str, Any]:
+        """Dry sliding friction: interfacial shear strength, adhesive friction
+        coefficient, ploughing term, and total friction force at a normal load."""
+        return t_tribo.friction_analysis(material_key_1, material_key_2, normal_force_n)
+
+    @server.tool()
+    def wear_analysis(material_key: str = "copper", normal_force_n: float = 10.0,
+                      sliding_distance_m: float = 100.0, velocity_m_s: float = 1.0,
+                      counter_material: str = "steel_mild") -> dict[str, Any]:
+        """Sliding wear (Archard): worn volume, mass loss, sliding wear rate, and
+        the wear regime (mild/severe, adhesive/abrasive)."""
+        return t_tribo.wear_analysis(material_key, normal_force_n,
+            sliding_distance_m, velocity_m_s, counter_material)
+
+    @server.tool()
+    def dislocation_strengthening_analysis(material_key: str = "copper",
+                                           dislocation_density: float = 1.0e14) -> dict[str, Any]:
+        """Taylor work-hardening: shear flow stress from a dislocation forest,
+        tau = alpha G b sqrt(rho)."""
+        return t_micro.dislocation_strengthening_analysis(material_key, dislocation_density)
+
+    @server.tool()
+    def alloy_resistivity_analysis(metal_a: str = "copper", metal_b: str = "nickel",
+                                   fraction_b: float = 0.3) -> dict[str, Any]:
+        """Residual resistivity of a binary solid-solution alloy from Nordheim's
+        rule (delta-rho ~ x(1-x))."""
+        return t_micro.alloy_resistivity_analysis(metal_a, metal_b, fraction_b)
+
+    @server.tool()
+    def molecular_dipole_analysis(bond_dipoles_debye: list[float] | None = None,
+                                  bond_angles_deg: list[float] | None = None) -> dict[str, Any]:
+        """Net molecular dipole moment from the vector sum of bond dipoles (D).
+        Default is a water-like molecule (~1.84 D)."""
+        return t_micro.molecular_dipole_analysis(bond_dipoles_debye, bond_angles_deg)
+
+    @server.tool()
+    def combustion_enthalpy_analysis(fuel: str = "methane") -> dict[str, Any]:
+        """Combustion enthalpy of a hydrocarbon (methane/propane) from a bond-
+        energy inventory (Hess's law; approximate vs experiment)."""
+        return t_micro.combustion_enthalpy_analysis(fuel)
 
     # Run via stdio transport (standard MCP).
     server.run()

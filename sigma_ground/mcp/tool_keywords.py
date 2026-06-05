@@ -564,6 +564,32 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "spectral line splitting magnetic field", "m_j states",
     ],
 
+    # ============ TRIBOLOGY / MICROSTRUCTURE / MOLECULAR (batch 9) ============
+    "friction_analysis": [
+        "friction", "coefficient of friction", "Amontons law", "Bowden-Tabor",
+        "adhesive friction", "ploughing", "sliding friction force",
+    ],
+    "wear_analysis": [
+        "wear", "Archard wear", "wear rate", "material loss sliding",
+        "abrasive wear", "adhesive wear", "wear volume",
+    ],
+    "dislocation_strengthening_analysis": [
+        "work hardening", "Taylor hardening", "dislocation density", "flow stress",
+        "strain hardening", "forest dislocations", "tau = alpha G b sqrt rho",
+    ],
+    "alloy_resistivity_analysis": [
+        "alloy resistivity", "Nordheim rule", "residual resistivity", "solid solution",
+        "Matthiessen", "impurity scattering", "brass cupronickel resistivity",
+    ],
+    "molecular_dipole_analysis": [
+        "dipole moment", "molecular polarity", "bond dipole", "net dipole",
+        "water dipole 1.85 D", "vector sum of dipoles", "polar molecule",
+    ],
+    "combustion_enthalpy_analysis": [
+        "heat of combustion", "combustion enthalpy", "bond energy method",
+        "Hess's law", "methane combustion", "enthalpy of reaction from bonds",
+    ],
+
     # ============ ENERGY CONVERSION (E=mc^2 family) ============
     "mass_to_energy": [
         "E=mc^2", "mass-energy equivalence", "rest mass energy",

@@ -919,6 +919,38 @@ _PRIMARY_TOOLS = [
                 "splits into in a magnetic field (2j+1).",
      "inputs": {"total_angular_momentum_j": "float"},
      "returns": "dict with zeeman_sublevels"},
+    {"name": "friction_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Dry sliding friction: interfacial shear strength, adhesive "
+                "friction coefficient, ploughing term, total friction force.",
+     "inputs": {"material_key_1": "str", "material_key_2": "str",
+                "normal_force_n": "float"},
+     "returns": "dict of friction quantities"},
+    {"name": "wear_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Sliding wear (Archard): worn volume, mass loss, sliding wear "
+                "rate, and wear regime (mild/severe, adhesive/abrasive).",
+     "inputs": {"material_key": "str", "normal_force_n": "float",
+                "sliding_distance_m": "float", "counter_material": "str"},
+     "returns": "dict of wear quantities"},
+    {"name": "dislocation_strengthening_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Taylor work-hardening: shear flow stress from a dislocation "
+                "forest, tau = alpha G b sqrt(rho).",
+     "inputs": {"material_key": "str", "dislocation_density": "float (1/m^2)"},
+     "returns": "dict with taylor_flow_stress_Pa"},
+    {"name": "alloy_resistivity_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Residual resistivity of a binary solid-solution alloy from "
+                "Nordheim's rule (delta-rho ~ x(1-x)).",
+     "inputs": {"metal_a": "str", "metal_b": "str", "fraction_b": "float"},
+     "returns": "dict with residual_resistivity_uOhm_cm"},
+    {"name": "molecular_dipole_analysis", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Net molecular dipole moment from the vector sum of bond "
+                "dipoles (Debye). Default water-like (~1.84 D).",
+     "inputs": {"bond_dipoles_debye": "list[float]", "bond_angles_deg": "list[float]"},
+     "returns": "dict with dipole_moment_debye"},
+    {"name": "combustion_enthalpy_analysis", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Combustion enthalpy of a hydrocarbon (methane/propane) from a "
+                "bond-energy inventory (Hess's law; approximate).",
+     "inputs": {"fuel": "str (methane/propane)"},
+     "returns": "dict with energy_released and delta_H_combustion (kJ/mol)"},
 ]
 
 

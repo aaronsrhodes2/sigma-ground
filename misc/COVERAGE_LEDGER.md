@@ -31,6 +31,7 @@ The final 100% target = covered == (total − EXCLUDED). The regression test
 | batch 6 (thermal-systems/mech-response) | 964 | 1093 | 88% | TEG/convection/viscoelastic-creep/acoustic-interface |
 | batch 7 (devices/quantum-solids) | 976 | 1093 | 89% | capacitor/Hall/junction/BCS-gap/tunneling/box/DOS/exchange |
 | batch 8 (plasma-em/relativity-spectra) | 988 | 1093 | 90% | plasma-params/EM-forces/relativistic-energy/Zeeman |
+| batch 9 (tribology/materials-micro) | 1001 | 1093 | 92% | friction/wear/Taylor/Nordheim/dipole/combustion |
 
 ---
 
@@ -56,6 +57,18 @@ against coverage. Listed by the batch in which they were ruled out.
   London/H_c). It only re-bundles already-covered physics (bcs_gap_temperature,
   meissner_fraction, london_penetration_at_T, thermodynamic_critical_field). A
   simulation pipeline (Materia's lane), not a scalar Q&A. EXCLUDE.
+
+### batch 9
+- `field.interface.friction.material_friction_properties` — "Export friction
+  properties in Nagatha-compatible format"; re-bundles already-covered
+  interfacial_shear_strength / friction_coefficient / ploughing_friction.
+  Serialization helper. EXCLUDE.
+- `field.interface.wear.wear_profile` — "Simulate wear depth vs time", returns a
+  per-time-step list; re-bundles the Archard physics covered via wear_analysis.
+  Simulation pipeline, not Q&A. EXCLUDE.
+- `field.interface.hysteresis.hysteresis_loop` — traces a full B-H major loop and
+  returns a per-step list of points (re-bundles the already-covered
+  hysteresis_loop_point). Simulation, not a scalar Q&A. EXCLUDE.
 
 ---
 
@@ -86,6 +99,13 @@ honest denominator can subtract them while keeping them visible as TODO.
   near-perfect conductors). Drop the bogus factor and it's right-order. Wired
   the other 4 plasma parameters (Debye length/number, ln Lambda, Larmor radius,
   all validated). Deferred pending the one-line fix. (Review task spawned.)
+- `field.interface.adhesion.contact_angle` — Young-Dupre is correct, but the
+  module has only a SOLIDS surface-energy DB (no liquids), so work_of_adhesion
+  between two metals is large and cos(theta)=W/gamma_LV-1 >= 1 -> returns 0 deg
+  (complete wetting) for metal pairs (e.g. molten Pb on Cu) that are really
+  non-wetting (~100-130 deg). Structurally cannot give a physical contact angle
+  with the available inputs. Deferred until a liquid surface-energy DB exists.
+  (Review task spawned.)
 
 ---
 
