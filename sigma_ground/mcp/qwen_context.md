@@ -24,6 +24,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **acoustic_interface_analysis** — Sound at a planar interface: energy reflection/transmission coefficients, Snell refraction angle, critical angle (TIR).  ↳ *say:* acoustic impedance; sound reflection; transmission coefficient; Snell's law for sound; critical angle sound; ultrasound interface
 
 ### astronomy
+- **asteroid_analysis** — Small-body geophysics: surface gravity, escape velocity, and shape (axis ratios, oblateness). bennu/ryugu/itokawa/eros/vesta/ceres.  ↳ *say:* asteroid; surface gravity; escape velocity small body; Ceres Vesta; Bennu Ryugu; minor planet shape
 - **light_travel_time** — t = d / c.  ↳ *say:* light travel time; delay = distance / c; communication lag; Earth-Sun light time 8 minutes; Proxima 4.2 light years
 - **list_bodies** — List all solar-system bodies and named stars available.  ↳ *say:* list solar system bodies; available planets
 - **named_star** — Named bright star data (Sirius, Vega...).  ↳ *say:* named star data; bright star catalog; Sirius Vega Polaris Betelgeuse Rigel Proxima; Hipparcos Gaia DR3; Bayer designation
@@ -87,6 +88,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **eta_desi_band_check** — Check adopted HDE c^2 within DESI Union3 1-sigma band.
 - **eta_value_report** — Adopted HDE c^2 = DESI Union3 fit ~0.4122.  ↳ *say:* HDE c^2; dark energy c^2 parameter; DESI Union3 c^2; holographic dark energy parameter
 - **hde_dark_energy_density** — HDE rho_DE; defaults c^2=DESI Union3 fit, L=R_H.  ↳ *say:* holographic dark energy; HDE; DESI dark energy; Union3 supernova
+- **holographic_dark_energy_analysis** — Holographic dark-energy parameter c^2 implied by an observed dark-energy density with the Hubble-radius IR cutoff.  ↳ *say:* holographic dark energy; HDE; dark energy density; c squared parameter; DESI dark energy; Hubble radius cutoff
 - **hubble_radius** — R_H = c / H_0.  ↳ *say:* Hubble radius; Hubble sphere; c / H_0; observable universe radius; Hubble length
 - **mond_a0_constant** — Milgrom a_0 ~1.2e-10 m/s^2.  ↳ *say:* MOND a_0; 1.2e-10 m/s^2; MOND acceleration scale
 - **mond_regime_classifier** — Classify accel as newtonian/transition/mond.  ↳ *say:* MOND; modified Newtonian dynamics; a_0 acceleration; Mordehai Milgrom 1983; galaxy rotation curves; deep MOND regime
@@ -163,6 +165,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **friction_analysis** — Dry sliding friction: interfacial shear strength, adhesive friction coefficient, ploughing term, total friction force.  ↳ *say:* friction; coefficient of friction; Amontons law; Bowden-Tabor; adhesive friction; ploughing
 - **list_materials** — Inventory of materials in lookup tables.  ↳ *say:* available materials
 - **melting_point** — Melting point in K (lookup).  ↳ *say:* melting point; T_melt; fusion temperature
+- **mobius_bimetallic_analysis** — Bimetallic strip / Mobius loop: total series resistance and thermoelectric (Seebeck) voltage across a hot-cold gradient.  ↳ *say:* bimetallic strip; Mobius loop; thermocouple voltage; Seebeck strip; two-metal resistance; bimetallic Seebeck
 - **piezoelectric_actuator_analysis** — Converse piezoelectric effect: induced strain (d E) and tip displacement (d E L) of an actuator under applied field.  ↳ *say:* piezoelectric; piezo actuator; converse piezoelectric effect; PZT displacement; strain from voltage; d33
 - **plasticity_analysis** — Plastic flow stress: Johnson-Cook, Ludwik hardening, work-hardening rate.  ↳ *say:* plastic deformation; flow stress; work hardening; Johnson-Cook; Ludwik; yield and beyond
 - **refractive_index** — Refractive index at 589 nm (lookup).  ↳ *say:* refractive index; n at 589 nm; sodium D-line; speed of light in medium; optical density
@@ -192,6 +195,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 
 ### mechanics
 - **collision_analysis** — 1D two-body collision: elastic velocities, inelastic outcome, KE lost.  ↳ *say:* collision; elastic collision; inelastic collision; coefficient of restitution; two balls collide; energy lost in collision
+- **hertzian_impact_analysis** — Hertzian contact impact: reduced (effective) elastic modulus and the velocity-dependent coefficient of restitution.  ↳ *say:* coefficient of restitution; Hertzian contact; reduced modulus; elastic impact; bounce; contact mechanics impact
 - **incline_analysis** — Inclined plane: critical sliding angle, slide distance up, speed at the bottom. angle in degrees.  ↳ *say:* inclined plane; ramp; sliding down a slope; angle of repose; friction on an incline; block on a ramp
 - **projectile_analysis** — Projectile range/apex/flight-time (vacuum) + drag force, terminal velocity, drag-corrected range. angle in degrees.  ↳ *say:* projectile; range of a projectile; maximum height; time of flight; launch angle; projectile with air resistance
 - **rotational_dynamics** — Moment of inertia (rod + shape geometry), parallel-axis, angular momentum, torque, angular acceleration, rolling ramp.  ↳ *say:* moment of inertia; angular momentum; torque; rolling; rolling down a ramp; parallel axis theorem

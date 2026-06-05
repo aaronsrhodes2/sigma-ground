@@ -634,6 +634,24 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "Imax Imin", "coherence visibility", "interferometer contrast",
     ],
 
+    # ============ ASSORTED PHYSICS (batch 12) ============
+    "asteroid_analysis": [
+        "asteroid", "surface gravity", "escape velocity small body", "Ceres Vesta",
+        "Bennu Ryugu", "minor planet shape", "oblateness asteroid",
+    ],
+    "mobius_bimetallic_analysis": [
+        "bimetallic strip", "Mobius loop", "thermocouple voltage", "Seebeck strip",
+        "two-metal resistance", "bimetallic Seebeck",
+    ],
+    "hertzian_impact_analysis": [
+        "coefficient of restitution", "Hertzian contact", "reduced modulus",
+        "elastic impact", "bounce", "contact mechanics impact", "effective modulus",
+    ],
+    "holographic_dark_energy_analysis": [
+        "holographic dark energy", "HDE", "dark energy density", "c squared parameter",
+        "DESI dark energy", "Hubble radius cutoff", "rho dark energy",
+    ],
+
     # ============ ENERGY CONVERSION (E=mc^2 family) ============
     "mass_to_energy": [
         "E=mc^2", "mass-energy equivalence", "rest mass energy",

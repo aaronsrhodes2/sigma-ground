@@ -1009,6 +1009,28 @@ _PRIMARY_TOOLS = [
                 "V = (I_max - I_min)/(I_max + I_min).",
      "inputs": {"intensity_max": "float", "intensity_min": "float"},
      "returns": "dict with fringe_visibility"},
+    {"name": "asteroid_analysis", "tier": "PRIMARY", "domain": "astronomy",
+     "summary": "Small-body geophysics: surface gravity, escape velocity, and "
+                "shape (axis ratios, oblateness). bennu/ryugu/itokawa/eros/vesta/ceres.",
+     "inputs": {"body_key": "str"},
+     "returns": "dict of small-body geophysics"},
+    {"name": "mobius_bimetallic_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Bimetallic strip / Mobius loop: total series resistance and "
+                "thermoelectric (Seebeck) voltage across a hot-cold gradient.",
+     "inputs": {"mat_a": "str", "mat_b": "str", "loop_length_m": "float",
+                "t_hot": "float", "t_cold": "float"},
+     "returns": "dict with resistance and Seebeck voltage"},
+    {"name": "hertzian_impact_analysis", "tier": "PRIMARY", "domain": "mechanics",
+     "summary": "Hertzian contact impact: reduced (effective) elastic modulus and "
+                "the velocity-dependent coefficient of restitution.",
+     "inputs": {"e1_pa": "float", "nu1": "float", "yield1_pa": "float",
+                "e2_pa": "float", "nu2": "float", "velocity_m_s": "float"},
+     "returns": "dict with reduced_modulus and coefficient_of_restitution"},
+    {"name": "holographic_dark_energy_analysis", "tier": "PRIMARY", "domain": "cosmology",
+     "summary": "Holographic dark-energy parameter c^2 implied by an observed "
+                "dark-energy density with the Hubble-radius IR cutoff.",
+     "inputs": {"rho_de_J_m3": "float"},
+     "returns": "dict with hde_c_squared"},
 ]
 
 

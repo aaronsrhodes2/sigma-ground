@@ -34,6 +34,7 @@ The final 100% target = covered == (total − EXCLUDED). The regression test
 | batch 9 (tribology/materials-micro) | 1001 | 1093 | 92% | friction/wear/Taylor/Nordheim/dipole/combustion |
 | batch 10 (chemistry-extended) | 1014 | 1093 | 93% | titration/speciation/solution/echem/kinetics/radioactivity |
 | batch 11 (qcomputing) | 1025 | 1093 | 94% | Grover/QAOA/Simon/qubit-state/qubit-HW/visibility |
+| batch 12 (misc-physics) | 1033 | 1093 | 95% | asteroid/mobius/Hertzian-impact/HDE |
 
 ---
 
@@ -92,6 +93,16 @@ Per the Phase-0 triage ruling ("wire high-level QC, exclude gate primitives"):
   double-slit Monte-Carlo CDF-sampling internals. sample_hit_position is
   non-deterministic (takes a rand_val); cumulative_probability builds the CDF
   array that feeds it. EXCLUDE.
+
+### batch 12
+- `field.interface.orbital.{fit_orbit, predict_ssb_position}` (2) — the JPL/DE440
+  ephemeris least-squares FIT pipeline. fit_orbit fits Keplerian elements from
+  yearly DE440 fixture snapshots (rv-to-elements + LSQ residual refine);
+  predict_ssb_position takes a FittedOrbit object it produces. Needs internal
+  ephemeris fixtures; an internal fit pipeline, not a scalar Q&A. EXCLUDE.
+- `field.interface.projectile.projectile_report` — "Export projectile analysis in
+  Nagatha-compatible format"; re-bundles already-covered projectile_range /
+  projectile_max_height. Serialization helper. EXCLUDE.
 
 ---
 

@@ -119,6 +119,7 @@ def main() -> int:
     from sigma_ground.mcp.tools import materials_micro as t_micro
     from sigma_ground.mcp.tools import chemistry_extended as t_chemx
     from sigma_ground.mcp.tools import qcomputing as t_qcomp
+    from sigma_ground.mcp.tools import misc_physics as t_miscphys
     from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
@@ -1634,6 +1635,41 @@ def main() -> int:
         """Fringe visibility (contrast) of an interference pattern,
         V = (I_max - I_min)/(I_max + I_min)."""
         return t_qcomp.interference_visibility_analysis(intensity_max, intensity_min)
+
+    @server.tool()
+    def asteroid_analysis(body_key: str = "ceres") -> dict[str, Any]:
+        """Small-body geophysics: surface gravity, escape velocity, and shape
+        (axis ratios, oblateness). Bodies: bennu, ryugu, itokawa, eros, vesta,
+        ceres."""
+        return t_miscphys.asteroid_analysis(body_key)
+
+    @server.tool()
+    def mobius_bimetallic_analysis(mat_a: str = "copper", mat_b: str = "iron",
+                                   loop_length_m: float = 0.1, width_m: float = 0.01,
+                                   thickness_m: float = 0.001,
+                                   t_hot: float = 400.0, t_cold: float = 300.0) -> dict[str, Any]:
+        """Bimetallic strip / Mobius loop: total series resistance and the
+        thermoelectric (Seebeck) voltage across a hot-cold gradient."""
+        return t_miscphys.mobius_bimetallic_analysis(mat_a, mat_b, loop_length_m,
+            width_m, thickness_m, t_hot, t_cold)
+
+    @server.tool()
+    def hertzian_impact_analysis(e1_pa: float = 200.0e9, nu1: float = 0.3,
+                                 yield1_pa: float = 250.0e6, density1: float = 7850.0,
+                                 e2_pa: float = 200.0e9, nu2: float = 0.3,
+                                 yield2_pa: float = 250.0e6, density2: float = 7850.0,
+                                 velocity_m_s: float = 1.0) -> dict[str, Any]:
+        """Hertzian contact impact: reduced (effective) elastic modulus and the
+        velocity-dependent coefficient of restitution. Default steel-on-steel."""
+        return t_miscphys.hertzian_impact_analysis(e1_pa, nu1, yield1_pa, density1,
+            e2_pa, nu2, yield2_pa, density2, velocity_m_s)
+
+    @server.tool()
+    def holographic_dark_energy_analysis(rho_de_J_m3: float = 6.0e-10) -> dict[str, Any]:
+        """Holographic dark-energy parameter c^2 implied by an observed dark-
+        energy density with the Hubble-radius IR cutoff. ~6e-10 J/m^3 -> c^2 ~
+        0.78 (DESI-consistent)."""
+        return t_miscphys.holographic_dark_energy_analysis(rho_de_J_m3)
 
     # Run via stdio transport (standard MCP).
     server.run()
