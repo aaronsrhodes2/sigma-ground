@@ -90,11 +90,10 @@ def superconductor_critical_field_analysis(material: str = "niobium") -> dict[st
 
     sc_type = data.get("type")
     is_type_II = sc_type == "II"
-    # Effective (measured/dirty-limit) kappa drives Hc1/Hc2; the clean-limit
-    # estimate is the pure free-electron lambda/xi0 ratio (often much smaller
-    # for dirty alloys/compounds — e.g. Nb 0.11 clean vs 1.05 measured).
+    # gl_parameter_effective returns the MEASURED (dirty-limit) kappa where the
+    # DB has it — essential for alloys/compounds (the clean-limit free-electron
+    # gl_parameter badly underestimates kappa, e.g. Nb 0.11 vs measured 1.05).
     kappa = _safe(SC.gl_parameter_effective, key)
-    kappa_clean = _safe(SC.gl_parameter, n_e, v_F, T_c)
     H_c = _safe(SC.thermodynamic_critical_field, n_e, T_c, 0.0)
     H_c1 = _safe(SC.lower_critical_field, n_e, v_F, T_c, 0.0, key) if is_type_II else None
     H_c2 = _safe(SC.upper_critical_field, n_e, v_F, T_c, 0.0, key) if is_type_II else None
@@ -105,7 +104,6 @@ def superconductor_critical_field_analysis(material: str = "niobium") -> dict[st
         "T_c_K": T_c,
         "gl_parameter_kappa": kappa,
         "kappa_source": data.get("kappa_source"),
-        "gl_parameter_kappa_clean_limit": kappa_clean,
         "Hc_thermodynamic_A_per_m": H_c,
         "Hc_thermodynamic_T": (H_c * _MU_0) if H_c is not None else None,
         "Hc1_lower_A_per_m": H_c1,
@@ -116,10 +114,8 @@ def superconductor_critical_field_analysis(material: str = "niobium") -> dict[st
             if is_type_II else
             "Type-I: a single critical field Hc; no mixed state, so Hc1/Hc2 "
             "are not defined.")
-    note += (" Hc1/Hc2 use the measured (dirty-limit) kappa where available; "
-             "gl_parameter_kappa_clean_limit is the free-electron lambda/xi0 "
-             "estimate for comparison.")
-    note += (" Hc uses a free-electron DOS N(0): ~20% accurate for simple metals, "
+    note += (" kappa is the measured (dirty-limit) value where available. "
+             "Hc uses a free-electron DOS N(0): ~20% accurate for simple metals, "
              "a lower bound for high-DOS d-band/A15 materials.")
     return ToolResult(
         value=results,
