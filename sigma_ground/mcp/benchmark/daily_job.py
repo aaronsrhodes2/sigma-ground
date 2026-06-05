@@ -265,41 +265,13 @@ def run_wolfram_step(questions: list[dict], existing_records: list[dict],
 def run_gemini_step(questions: list[dict], existing_records: list[dict],
                       api_key: str, model: str, pause_s: float,
                       output_path: Path) -> dict:
-    """Query Gemini for unanswered questions."""
-    from sigma_ground.mcp.benchmark.run_gemini import (
-        run_question, _SYSTEM_PROMPT)
-    try:
-        import google.generativeai as genai
-    except ImportError:
-        return {"error": "google-generativeai not installed"}
-    genai.configure(api_key=api_key)
-    model_obj = genai.GenerativeModel(model, system_instruction=_SYSTEM_PROMPT)
-    all_qids = [q["id"] for q in questions]
-    by_id = {q["id"]: q for q in questions}
-    needed = _ids_needing_query(existing_records, all_qids)
-    print(f"  [Gemini] {len(needed)} unanswered; querying with {model}")
-    by_record = {r["id"]: r for r in existing_records}
-    new_ok = 0
-    for qid in needed:
-        q = by_id[qid]
-        try:
-            result = run_question(model_obj, q["question"], model_name=model)
-        except Exception as e:
-            result = {
-                "answer_text": f"<ERROR: {e}>",
-                "extracted_value": None,
-                "extracted_units": "",
-                "elapsed_s": 0.0,
-                "tokens_in": None, "tokens_out": None, "cost_usd": None,
-            }
-        rec = {"id": qid, "system": "gemini", "model": model, **result}
-        by_record[qid] = rec
-        if result.get("extracted_value") is not None:
-            new_ok += 1
-        with output_path.open("w", encoding="utf-8") as f:
-            json.dump(list(by_record.values()), f, indent=2, default=str)
-        time.sleep(pause_s)
-    return {"new_attempted": len(needed), "new_ok": new_ok}
+    """Gemini removed from this build — a no-op so the daily job still runs.
+
+    Deckard's researcher and this benchmark are now fully local (qwen via
+    ollama); the Gemini comparison baseline is no longer maintained. Kept as a
+    stub (rather than deleted) so the runner's call sites stay intact.
+    """
+    return {"error": "gemini removed from this build", "new_attempted": 0, "new_ok": 0}
 
 
 # ============================================================
