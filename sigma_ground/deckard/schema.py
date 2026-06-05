@@ -112,6 +112,7 @@ class Part:
     euler_deg: tuple = (0.0, 0.0, 0.0)  # rotation about the part centre (Rz·Ry·Rx, degrees)
     op: str = "add"                     # "add" | "subtract" (carve a cavity / hollow)
     attach: dict | None = None          # {"to": <part>, "my": <anchor>, "their": <anchor>}
+    fill: dict | None = None            # fluid fill: {"of": <cavity>, "fraction": 0..1, "gas": <material>}
 
     def to_dict(self) -> dict:
         d = {
@@ -126,6 +127,8 @@ class Part:
         }
         if self.attach:
             d["attach"] = dict(self.attach)
+        if self.fill:
+            d["fill"] = dict(self.fill)
         return d
 
     @classmethod
@@ -140,6 +143,7 @@ class Part:
             euler_deg=tuple(d.get("euler_deg", (0.0, 0.0, 0.0))),
             op=d.get("op", "add"),
             attach=d.get("attach"),
+            fill=d.get("fill"),
         )
 
 
@@ -249,10 +253,13 @@ def emit_markdown(spec: ConstructSpec) -> str:
     if spec.parts:
         out += ["## Parts (primitives)", ""]
         for p in spec.parts:
-            dims = ", ".join(f"{k}={f.cite()}" for k, f in p.dims.items())
             out.append(f"- **{p.name}** — {p.shape} ({p.material}) @ {tuple(p.center_m)}")
-            out.append(f"    - dims: {dims}")
+            if p.dims:
+                out.append(f"    - dims: {', '.join(f'{k}={f.cite()}' for k, f in p.dims.items())}")
             out.append(f"    - density: {p.density.cite()} kg/m³")
+            if p.fill:
+                out.append(f"    - fills: {p.fill.get('of')} to "
+                           f"{p.fill.get('fraction', 1.0)} (gas on top: {p.fill.get('gas', 'air')})")
         out.append("")
 
     if spec.notes:

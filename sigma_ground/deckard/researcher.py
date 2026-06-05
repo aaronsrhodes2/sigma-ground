@@ -47,9 +47,15 @@ _SYS = (
     "with center_m offsets for a compound object (hammer = vertical handle "
     "cylinder + head cylinder rotated horizontal across the top). Set "
     'op:"subtract" on a part to carve a cavity, and a later op:"add" part to '
-    "fill it (a pipe = outer cylinder + inner cylinder op:subtract; a bottle = "
-    "body + interior op:subtract + liquid op:add). Parts compose IN ORDER — list "
-    "solids first, then carves, then fills. To JOIN parts, prefer attach over "
+    "fill it (a pipe = outer cylinder + inner cylinder op:subtract). Parts compose "
+    "IN ORDER — list solids first, then carves, then fills. To FILL a hollow with "
+    "fluid, prefer a FILL part over a hand-sized solid: a part with shape:\"fill\" "
+    'and fill:{"of":"<cavity part>","fraction":<0..1>,"gas":"<gas, default air>"} '
+    "floods that carved cavity — the liquid sinks to the bottom, the gas settles on "
+    "top (gravity). A half-full water bottle = body + interior op:subtract + "
+    '{"name":"water","shape":"fill","material":"liquid water",'
+    '"fill":{"of":"interior","fraction":0.5,"gas":"air"}}. '
+    "To JOIN parts, prefer attach over "
     'center_m: set attach:{"to":"<part>","my":"<anchor>","their":"<anchor>"} so '
     "the anchors meet exactly (no overlap, no gap). Anchors: top, bottom (any "
     "shape); +x,-x,+y,-y (box/sphere). E.g. hammer = head + handle "
@@ -206,6 +212,24 @@ def _build_parts_spec(name: str, data: dict, model: str) -> ConstructSpec | None
     seen: set = set()
     parts = []
     for i, p in enumerate(raw_parts):
+        fill = p.get("fill") if isinstance(p.get("fill"), dict) else None
+        if fill or (p.get("shape") or "").lower() == "fill":
+            of = (fill or {}).get("of")
+            if not of:
+                return None                              # a fill must name its cavity
+            try:
+                frac = min(1.0, max(0.0, float((fill or {}).get("fraction", 1.0))))
+            except Exception:
+                frac = 1.0
+            gas = str((fill or {}).get("gas", "air"))
+            material = p.get("material") or "liquid water"
+            dens = _density(material)                    # ground the liquid
+            _cite_source(dens, sources, seen)
+            _cite_source(_density(gas), sources, seen)   # and the gas
+            parts.append(Part(p.get("name") or f"part{i}", "fill", {}, material, dens,
+                              (0.0, 0.0, 0.0), (0.0, 0.0, 0.0), "add", None,
+                              {"of": str(of), "fraction": frac, "gas": gas}))
+            continue
         shape = (p.get("shape") or "").lower()
         if shape not in _SHAPE_DIMS:
             return None

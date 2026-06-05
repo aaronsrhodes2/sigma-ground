@@ -141,6 +141,32 @@ def test_every_mated_surface_pair_is_an_interface():
     assert all(i["area_m2"] > 0 for i in c.validation["interfaces"])   # real contact area
 
 
+def test_fluid_fill_floods_cavity_liquid_below_gas_on_top():
+    # a single `fill` part floods the carved cavity: the liquid sinks to the
+    # bottom, the gas (air) settles on top — gravity = -z. No hand-placed column.
+    spec = ConstructSpec(name="flask", kind="composite", parts=[
+        Part("body", "cylinder", {"radius_m": Fact(0.035), "height_m": Fact(0.20)},
+             "glass", density_of("glass")),
+        Part("interior", "cylinder", {"radius_m": Fact(0.032), "height_m": Fact(0.185)},
+             "air", Fact(0.0), center_m=(0, 0, 0.0075), op="subtract"),
+        Part("water", "fill", {}, "liquid water", density_of("liquid water"),
+             fill={"of": "interior", "fraction": 0.6, "gas": "air"})])
+    c = compile(spec, resolution=64)
+    assert c.validation["mode"] == "hollow" and c.validation["passed"]
+    assert c.density_at(0.0, 0.0, -0.05) == density_of("liquid water").value   # liquid below
+    assert abs(c.density_at(0.0, 0.0, 0.085) - 1.225) < 0.1                    # gas on top
+    # mass ≈ glass walls + 60%-of-cavity of water (gas is negligible)
+    cav = math.pi * 0.032 ** 2 * 0.185
+    water = density_of("liquid water").value * 0.6 * cav
+    glass = density_of("glass").value * (math.pi * 0.035 ** 2 * 0.20 - cav)
+    assert abs(c.mass_kg - (glass + water)) / (glass + water) < 0.05
+    # every mated surface pair is recorded: solid↔liquid, liquid↔gas, solid↔gas
+    pairs = {frozenset(i["between"]) for i in c.validation["interfaces"]}
+    assert frozenset({"glass", "liquid water"}) in pairs
+    assert frozenset({"air", "liquid water"}) in pairs       # liquid surface ↔ gas on top
+    assert frozenset({"air", "glass"}) in pairs
+
+
 def test_attach_mates_parts_at_an_interface_no_overlap():
     spec = ConstructSpec(name="post-cap", kind="composite", parts=[
         Part("cap", "box", {"x_m": Fact(0.06), "y_m": Fact(0.06), "z_m": Fact(0.02)},
@@ -177,3 +203,24 @@ def test_researcher_emits_attachment():
     c = compile(spec, resolution=56)
     assert c.validation["mode"] == "disjoint" and c.validation["passed"]
     assert c.validation["joints"]                                  # the joint is recorded
+
+
+def test_researcher_emits_a_fluid_fill():
+    payload = json.dumps({"kind": "composite", "parts": [
+        {"name": "body", "shape": "cylinder", "dims": {"radius_m": 0.035, "height_m": 0.20},
+         "material": "glass"},
+        {"name": "interior", "shape": "cylinder", "dims": {"radius_m": 0.032, "height_m": 0.185},
+         "material": "air", "center_m": [0, 0, 0.0075], "op": "subtract"},
+        {"name": "water", "shape": "fill", "material": "liquid water",
+         "fill": {"of": "interior", "fraction": 0.6, "gas": "air"}}]})
+    spec = research_spec("water bottle", ask=lambda n: payload, model="stub")
+    assert spec is not None and len(spec.parts) == 3
+    assert spec.parts[2].fill == {"of": "interior", "fraction": 0.6, "gas": "air"}
+    assert not spec.parts[2].density.estimated                     # liquid grounded
+    # round-trips through the cited markdown payload
+    assert parse_markdown(emit_markdown(spec)).parts[2].fill == spec.parts[2].fill
+    c = compile(spec, resolution=64)   # 3 mm glass wall needs the default res to converge
+    assert c.validation["passed"]
+    assert c.density_at(0.0, 0.0, -0.05) == density_of("liquid water").value   # liquid below
+    pairs = {frozenset(i["between"]) for i in c.validation["interfaces"]}
+    assert frozenset({"air", "liquid water"}) in pairs             # liquid surface ↔ gas

@@ -22,6 +22,7 @@ from dataclasses import dataclass, field
 
 from ..kernel.shapes import Cylinder, Sphere, Box, Cone, Torus, Ellipsoid
 from ..kernel.csg import ComposedSDF
+from .sources import density_of as _density_of
 
 
 @dataclass
@@ -272,6 +273,120 @@ def _rotated_half_extent(he, R):
     return (mx, my, mz)
 
 
+# ── fluid fill: liquid floods a cavity bottom-up, gas settles on top (−z) ──
+class _Clipped:
+    """A shape intersected with a horizontal half-space — the cavity kept on one
+    side of a fill plane. ``sign=+1`` keeps the part BELOW ``level`` (the liquid
+    that sinks); ``sign=-1`` keeps it ABOVE (the gas on top). Volume and centre
+    are precomputed when the fill is solved; the SDF is the CSG-intersection max.
+    """
+    def __init__(self, base, axis, sign, level, volume, center):
+        self._base = base
+        self._axis = axis
+        self._sign = sign
+        self._level = level
+        self._volume = volume
+        self.center = center
+
+    def surface_distance(self, px, py, pz):
+        d = self._base.surface_distance(px, py, pz)
+        half = self._sign * ((px, py, pz)[self._axis] - self._level)
+        return half if half > d else d          # max(d_base, d_halfspace) = ∩
+
+    def volume(self):
+        return self._volume
+
+    def bounding_radius(self):
+        return self._base.bounding_radius()
+
+
+def _gas_density(material):
+    """Grounded gas density (kg/m³); defaults to air if unknown — never the
+    estimated-solid fallback, so a headspace can't accidentally weigh like rock."""
+    f = _density_of(material, allow_web=False)
+    return f.value if (f is not None and not f.estimated) else 1.225
+
+
+def _fill_solve(base, aabb, fraction, axis=2, n=48):
+    """Solve the fill plane on ``axis`` so the cavity below it holds ``fraction``
+    of the cavity volume; return (level, below_vol, below_com, above_vol, above_com).
+
+    Samples the cavity interior once; the plane is the fraction-quantile of the
+    interior cells' coordinates — exact for a prismatic cavity, robust for any
+    shape (cone, sphere, …). Volumes are partitioned from the analytic total so
+    below+above == base.volume() exactly.
+    """
+    (x0, x1), (y0, y1), (z0, z1) = aabb
+    dx, dy, dz = (x1 - x0) / n, (y1 - y0) / n, (z1 - z0) / n
+    cells = []
+    for iz in range(n):
+        z = z0 + (iz + 0.5) * dz
+        for iy in range(n):
+            y = y0 + (iy + 0.5) * dy
+            for ix in range(n):
+                x = x0 + (ix + 0.5) * dx
+                if base.surface_distance(x, y, z) < 0.0:
+                    cells.append((x, y, z))
+    V = base.volume()
+    if not cells:
+        return aabb[axis][0], 0.0, base.center, 0.0, base.center
+    cells.sort(key=lambda p: p[axis])
+    frac = min(1.0, max(0.0, fraction))
+    k = int(round(frac * len(cells)))           # this many interior cells are liquid
+    below, above = cells[:k], cells[k:]
+
+    def com(pts, fallback):
+        if not pts:
+            return fallback
+        m = len(pts)
+        return (sum(p[0] for p in pts) / m, sum(p[1] for p in pts) / m,
+                sum(p[2] for p in pts) / m)
+
+    if k <= 0:
+        level = aabb[axis][0]
+    elif k >= len(cells):
+        level = aabb[axis][1]
+    else:
+        level = 0.5 * (below[-1][axis] + above[0][axis])
+    below_vol = (len(below) / len(cells)) * V
+    return (level, below_vol, com(below, base.center),
+            V - below_vol, com(above, base.center))
+
+
+def _expand_fill(fp, by_name, centers, n=48):
+    """Expand a fluid ``fill`` part into concrete liquid (+ gas) build items that
+    flood the named cavity. Gravity (−z) settles the liquid to the bottom; the
+    gas, lighter, takes the headspace on top. Returns a list of item dicts."""
+    ref = (fp.fill or {}).get("of")
+    cav = by_name.get(ref)
+    if cav is None:
+        raise ValueError(f"fill part '{fp.name}' references unknown cavity '{ref}'")
+    base = _shape_from(cav, centers[cav.name])
+    he = _half_extent(cav)
+    euler = getattr(cav, "euler_deg", (0.0, 0.0, 0.0))
+    if any(euler):
+        R = _rotation(euler)
+        base = _Rotated(base, R)
+        he = _rotated_half_extent(he, R)
+    c = base.center
+    aabb = ((c[0] - he[0], c[0] + he[0]), (c[1] - he[1], c[1] + he[1]),
+            (c[2] - he[2], c[2] + he[2]))
+    fraction = (fp.fill or {}).get("fraction", 1.0)
+    level, v_below, com_below, v_above, com_above = _fill_solve(base, aabb, fraction, 2, n)
+
+    items = [dict(name=fp.name, shape=_Clipped(base, 2, 1.0, level, v_below, com_below),
+                  material=fp.material, rho=fp.density.value, op="add", he=he,
+                  cite=f"{fp.density.cite()} (fills {ref} to {fraction:g})")]
+    if v_above > 0.0 and fraction < 1.0:
+        gas_mat = (fp.fill or {}).get("gas", "air")
+        gas_rho = _gas_density(gas_mat)
+        items.append(dict(name=f"{fp.name}__gas",
+                          shape=_Clipped(base, 2, -1.0, level, v_above, com_above),
+                          material=gas_mat, rho=gas_rho, op="add", he=he,
+                          cite=f"{gas_mat} headspace on top ({gas_rho:g} kg/m³)"))
+    return items
+
+
 # ── attachment: parts mate at anchors (touch at an interface, no overlap) ──
 def _local_anchor(part, name):
     """A named anchor point in the part's LOCAL frame (before rotate/translate)."""
@@ -407,16 +522,15 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
     if not spec.parts:
         raise ValueError(f"spec '{spec.name}' has no parts to compile")
 
-    stack = _LayerStack()
-    density = {}
-    layers = []
-    info = []                                # (shape, rho, mass, half_extent)
-    analytic_mass = 0.0
-    Sx = Sy = Sz = 0.0                        # mass-weighted first moments
-    xs, ys, zs = [], [], []
     centers = _resolve_positions(spec.parts)   # honour attach: parts mate at interfaces
-    sub_parts = [p for p in spec.parts if getattr(p, "op", "add") == "subtract"]
-    for part in spec.parts:      # compose IN ORDER: solids → carves → fills (last wins)
+    by_name = {p.name: p for p in spec.parts}
+
+    # normalise parts into build items: solids/carves first, then expand fluid
+    # fills into liquid (+ gas) that flood the named cavity bottom-up.
+    items = []
+    for part in spec.parts:
+        if getattr(part, "fill", None):
+            continue                              # fills expanded after the solids
         carve = getattr(part, "op", "add") == "subtract"
         shp = _shape_from(part, centers[part.name])
         he = _half_extent(part)
@@ -425,10 +539,29 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
             R = _rotation(euler)
             shp = _Rotated(shp, R)
             he = _rotated_half_extent(he, R)
-        stack.add(shp, part.name, "subtract" if carve else "add")
+        items.append(dict(name=part.name, shape=shp, material=part.material,
+                          rho=0.0 if carve else part.density.value,
+                          op="subtract" if carve else "add", he=he,
+                          cite="carved cavity" if carve else part.density.cite()))
+    for part in spec.parts:
+        if getattr(part, "fill", None):
+            items += _expand_fill(part, by_name, centers)
+
+    stack = _LayerStack()
+    density = {}
+    name_to_material = {}
+    layers = []
+    info = []                                # (shape, rho, mass, half_extent)
+    analytic_mass = 0.0
+    Sx = Sy = Sz = 0.0                        # mass-weighted first moments
+    xs, ys, zs = [], [], []
+    for it in items:             # compose IN ORDER: solids → carves → fills (last wins)
+        shp, he = it["shape"], it["he"]
+        stack.add(shp, it["name"], it["op"])
         vol = shp.volume()
-        rho = 0.0 if carve else part.density.value   # a carve leaves an empty cavity
-        density[part.name] = rho
+        rho = it["rho"]
+        density[it["name"]] = rho
+        name_to_material[it["name"]] = it["material"]
         m = rho * vol
         analytic_mass += m
         cx, cy, cz = shp.center
@@ -436,8 +569,9 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
         xs += [cx - he[0], cx + he[0]]; ys += [cy - he[1], cy + he[1]]
         zs += [cz - he[2], cz + he[2]]
         info.append((shp, rho, m, he))
-        layers.append(Layer(part.name, part.material, rho, vol, m,
-                            "carved cavity" if carve else part.density.cite()))
+        layers.append(Layer(it["name"], it["material"], rho, vol, m, it["cite"]))
+
+    sub_parts = [it for it in items if it["op"] == "subtract"]
 
     if analytic_mass <= 0.0:
         raise ValueError(f"spec '{spec.name}' compiled to zero mass")
@@ -502,7 +636,6 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
         {"between": [p.name, p.attach["to"]], "at": p.attach.get("their", "top")}
         for p in spec.parts
         if getattr(p, "attach", None) and p.attach.get("to") in attached]
-    name_to_material = {p.name: p.material for p in spec.parts}
     validation["interfaces"] = _interfaces(composed, name_to_material, bbox,
                                             min(resolution, 48))
 
