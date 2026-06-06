@@ -1,55 +1,824 @@
 [
-  {"object": "hammer", "aliases": ["claw hammer"], "parts": [
-    {"name": "handle", "shape": "cylinder"}, {"name": "head", "shape": "box"}],
-   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
-  {"object": "axe", "aliases": ["hatchet"], "parts": [
-    {"name": "handle", "shape": "cylinder"}, {"name": "head", "shape": "box"}],
-   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
-  {"object": "screwdriver", "aliases": [], "parts": [
-    {"name": "handle", "shape": "cylinder"}, {"name": "shaft", "shape": "cylinder"}],
-   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
-  {"object": "pencil", "aliases": [], "parts": [
-    {"name": "body", "shape": "cylinder"}, {"name": "lead", "shape": "cylinder"},
-    {"name": "eraser", "shape": "cylinder"}],
-   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
-  {"object": "pen", "aliases": ["ballpoint pen"], "parts": [
-    {"name": "barrel", "shape": "cylinder"}, {"name": "cap", "shape": "cylinder"},
-    {"name": "tip", "shape": "cone"}],
-   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
-  {"object": "spoon", "aliases": [], "parts": [
-    {"name": "handle", "shape": "cylinder"}, {"name": "bowl", "shape": "ellipsoid"}],
-   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
-  {"object": "fork", "aliases": [], "parts": [
-    {"name": "handle", "shape": "cylinder"}, {"name": "head", "shape": "box"}],
-   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
-  {"object": "knife", "aliases": ["kitchen knife"], "parts": [
-    {"name": "handle", "shape": "cylinder"}, {"name": "blade", "shape": "outline"}],
-   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
-  {"object": "dumbbell", "aliases": [], "parts": [
-    {"name": "handle", "shape": "cylinder"}, {"name": "weight", "shape": "cylinder", "count": 2}],
-   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
-  {"object": "mug", "aliases": ["coffee mug"], "parts": [
-    {"name": "body", "shape": "cylinder"}, {"name": "handle", "shape": "torus"}],
-   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
-  {"object": "chair", "aliases": [], "parts": [
-    {"name": "seat", "shape": "box"}, {"name": "back", "shape": "box"},
-    {"name": "leg", "shape": "cylinder", "count": 4}],
-   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
-  {"object": "table", "aliases": [], "parts": [
-    {"name": "top", "shape": "box"}, {"name": "leg", "shape": "cylinder", "count": 4}],
-   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
-  {"object": "toothbrush", "aliases": [], "parts": [
-    {"name": "handle", "shape": "box"}, {"name": "head", "shape": "box"}],
-   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
-  {"object": "arrow", "aliases": [], "parts": [
-    {"name": "shaft", "shape": "cylinder"}, {"name": "head", "shape": "cone"},
-    {"name": "fletching", "shape": "outline", "count": 3}],
-   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
-  {"object": "light bulb", "aliases": ["lightbulb"], "parts": [
-    {"name": "bulb", "shape": "ellipsoid"}, {"name": "base", "shape": "cylinder"}],
-   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
-  {"object": "wine glass", "aliases": ["wineglass"], "parts": [
-    {"name": "bowl", "shape": "outline"}, {"name": "stem", "shape": "cylinder"},
-    {"name": "foot", "shape": "cylinder"}],
-   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""}
+ {
+  "object": "bag",
+  "aliases": [
+   "handbag"
+  ],
+  "parts": [
+   {
+    "name": "body",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "handle",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "shoulder_strap",
+    "shape": "",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "bed",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "sleep_area",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "frame",
+    "shape": "box",
+    "count": 1
+   },
+   {
+    "name": "ladder",
+    "shape": "",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "bottle",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "body",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "lid",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "handle",
+    "shape": "cylinder",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "bowl",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "container",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "bottom",
+    "shape": "",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "chair",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "head",
+    "shape": "box",
+    "count": 1
+   },
+   {
+    "name": "back",
+    "shape": "box",
+    "count": 1
+   },
+   {
+    "name": "arm",
+    "shape": "box",
+    "count": 1
+   },
+   {
+    "name": "base",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "seat",
+    "shape": "box",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "clock",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "body",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "base",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "pendulum_clock_base",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "pendulum_clock_frame",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "pendulum",
+    "shape": "",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "dishwasher",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "body",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "base",
+    "shape": "cylinder",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "monitor",
+  "aliases": [
+   "display",
+   "screen"
+  ],
+  "parts": [
+   {
+    "name": "screen",
+    "shape": "box",
+    "count": 1
+   },
+   {
+    "name": "base",
+    "shape": "cylinder",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "door",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "outside_frame",
+    "shape": "",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "earphone",
+  "aliases": [
+   "headphones",
+   "earbuds"
+  ],
+  "parts": [
+   {
+    "name": "earbud",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "earbud_connector_wire",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "head_band",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "earcup",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "connector_wire",
+    "shape": "",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "faucet",
+  "aliases": [
+   "tap"
+  ],
+  "parts": [
+   {
+    "name": "switch",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "hose",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "spout",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "frame",
+    "shape": "box",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "hat",
+  "aliases": [
+   "cap"
+  ],
+  "parts": [
+   {
+    "name": "crown",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "brim",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "button",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "bill",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "panel",
+    "shape": "",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "keyboard",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "frame",
+    "shape": "box",
+    "count": 1
+   },
+   {
+    "name": "key",
+    "shape": "",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "knife",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "handle",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "blade",
+    "shape": "outline",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "lamp",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "body",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "chain",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "base",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "power_cord",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "pendant_lamp",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "post",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "street_lamp_base",
+    "shape": "",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "laptop",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "screen",
+    "shape": "box",
+    "count": 1
+   },
+   {
+    "name": "base",
+    "shape": "cylinder",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "microwave",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "body",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "base",
+    "shape": "cylinder",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "mug",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "body",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "handle",
+    "shape": "cylinder",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "refrigerator",
+  "aliases": [
+   "fridge"
+  ],
+  "parts": [
+   {
+    "name": "body",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "base",
+    "shape": "cylinder",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "scissors",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "blade",
+    "shape": "outline",
+    "count": 1
+   },
+   {
+    "name": "handle",
+    "shape": "cylinder",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "cabinet",
+  "aliases": [
+   "storage furniture",
+   "dresser",
+   "cupboard"
+  ],
+  "parts": [
+   {
+    "name": "countertop",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "shelf",
+    "shape": "box",
+    "count": 1
+   },
+   {
+    "name": "cabinet_frame",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "drawer",
+    "shape": "box",
+    "count": 1
+   },
+   {
+    "name": "cabinet_base",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "cabinet_door",
+    "shape": "",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "table",
+  "aliases": [
+   "desk"
+  ],
+  "parts": [
+   {
+    "name": "ping_pong_net",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "tabletop",
+    "shape": "box",
+    "count": 1
+   },
+   {
+    "name": "base",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "bench",
+    "shape": "box",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "trash can",
+  "aliases": [
+   "bin",
+   "garbage can"
+  ],
+  "parts": [
+   {
+    "name": "container",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "outside_frame",
+    "shape": "",
+    "count": 1
+   },
+   {
+    "name": "base",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "cover",
+    "shape": "",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "vase",
+  "aliases": [
+   "pot"
+  ],
+  "parts": [
+   {
+    "name": "body",
+    "shape": "cylinder",
+    "count": 1
+   },
+   {
+    "name": "base",
+    "shape": "cylinder",
+    "count": 1
+   }
+  ],
+  "source": "PartNet (Mo et al. 2019)",
+  "license": "MIT"
+ },
+ {
+  "object": "hammer",
+  "aliases": [
+   "claw hammer"
+  ],
+  "parts": [
+   {
+    "name": "handle",
+    "shape": "cylinder"
+   },
+   {
+    "name": "head",
+    "shape": "box"
+   }
+  ],
+  "source": "curated common-knowledge decomposition (replace with PartNet)",
+  "license": ""
+ },
+ {
+  "object": "axe",
+  "aliases": [
+   "hatchet"
+  ],
+  "parts": [
+   {
+    "name": "handle",
+    "shape": "cylinder"
+   },
+   {
+    "name": "head",
+    "shape": "box"
+   }
+  ],
+  "source": "curated common-knowledge decomposition (replace with PartNet)",
+  "license": ""
+ },
+ {
+  "object": "screwdriver",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "handle",
+    "shape": "cylinder"
+   },
+   {
+    "name": "shaft",
+    "shape": "cylinder"
+   }
+  ],
+  "source": "curated common-knowledge decomposition (replace with PartNet)",
+  "license": ""
+ },
+ {
+  "object": "pencil",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "body",
+    "shape": "cylinder"
+   },
+   {
+    "name": "lead",
+    "shape": "cylinder"
+   },
+   {
+    "name": "eraser",
+    "shape": "cylinder"
+   }
+  ],
+  "source": "curated common-knowledge decomposition (replace with PartNet)",
+  "license": ""
+ },
+ {
+  "object": "pen",
+  "aliases": [
+   "ballpoint pen"
+  ],
+  "parts": [
+   {
+    "name": "barrel",
+    "shape": "cylinder"
+   },
+   {
+    "name": "cap",
+    "shape": "cylinder"
+   },
+   {
+    "name": "tip",
+    "shape": "cone"
+   }
+  ],
+  "source": "curated common-knowledge decomposition (replace with PartNet)",
+  "license": ""
+ },
+ {
+  "object": "spoon",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "handle",
+    "shape": "cylinder"
+   },
+   {
+    "name": "bowl",
+    "shape": "ellipsoid"
+   }
+  ],
+  "source": "curated common-knowledge decomposition (replace with PartNet)",
+  "license": ""
+ },
+ {
+  "object": "fork",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "handle",
+    "shape": "cylinder"
+   },
+   {
+    "name": "head",
+    "shape": "box"
+   }
+  ],
+  "source": "curated common-knowledge decomposition (replace with PartNet)",
+  "license": ""
+ },
+ {
+  "object": "dumbbell",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "handle",
+    "shape": "cylinder"
+   },
+   {
+    "name": "weight",
+    "shape": "cylinder",
+    "count": 2
+   }
+  ],
+  "source": "curated common-knowledge decomposition (replace with PartNet)",
+  "license": ""
+ },
+ {
+  "object": "toothbrush",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "handle",
+    "shape": "box"
+   },
+   {
+    "name": "head",
+    "shape": "box"
+   }
+  ],
+  "source": "curated common-knowledge decomposition (replace with PartNet)",
+  "license": ""
+ },
+ {
+  "object": "arrow",
+  "aliases": [],
+  "parts": [
+   {
+    "name": "shaft",
+    "shape": "cylinder"
+   },
+   {
+    "name": "head",
+    "shape": "cone"
+   },
+   {
+    "name": "fletching",
+    "shape": "outline",
+    "count": 3
+   }
+  ],
+  "source": "curated common-knowledge decomposition (replace with PartNet)",
+  "license": ""
+ },
+ {
+  "object": "light bulb",
+  "aliases": [
+   "lightbulb"
+  ],
+  "parts": [
+   {
+    "name": "bulb",
+    "shape": "ellipsoid"
+   },
+   {
+    "name": "base",
+    "shape": "cylinder"
+   }
+  ],
+  "source": "curated common-knowledge decomposition (replace with PartNet)",
+  "license": ""
+ },
+ {
+  "object": "wine glass",
+  "aliases": [
+   "wineglass"
+  ],
+  "parts": [
+   {
+    "name": "bowl",
+    "shape": "outline"
+   },
+   {
+    "name": "stem",
+    "shape": "cylinder"
+   },
+   {
+    "name": "foot",
+    "shape": "cylinder"
+   }
+  ],
+  "source": "curated common-knowledge decomposition (replace with PartNet)",
+  "license": ""
+ }
 ]

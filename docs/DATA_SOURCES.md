@@ -23,14 +23,16 @@ attribution below, so a Construct-Spec's `## Sources` section credits each sourc
 | **Wikidata** (Action API: `wbsearchentities`, `wbgetclaims`) | material **density** (P2054) and object **dimensions** (P2048 height / P2049 width / P2386 diameter / P2043 length) | CC0 | public API; UA + sequential; only whitelisted units trusted, unknown units refused | "Wikidata <QID>, CC0" |
 | **Quick, Draw!** (`storage.googleapis.com/quickdraw_dataset/full/simplified/<category>.ndjson`) | a canonical **2D outline** per noun (medoid stroke) → the `Outline` primitive | **CC BY 4.0** | public GCS bucket; per-category NDJSON fetched **once**, distilled offline into `inventory/data/outlines/<noun>.json`; the dataset itself is not redistributed | **"Quick, Draw! by Google, Inc., CC BY 4.0"** |
 | **Standard dimension tables** (ISO 216 paper, ISO 4014/4017 + ISO 261 fasteners, nominal lumber, sports balls, brick) | exact **dimensions** of standardized objects | the numeric values are facts (uncopyrightable); cited by standard number | encoded locally in `inventory/data/dimensions.json` — no network | "ISO 216", "ISO 4014", … |
-| **PartNet** (part hierarchies) | a **part-decomposition** prior for composites (deferred) | research license, free account + approval, **non-commercial** | NOT yet pulled; would be distilled OFFLINE into a tiny `compositions.json` table, never the meshes; terms to be re-confirmed before any download | "PartNet (Mo et al. 2019)" |
-| **ShapeNetSem** (real-world dims/volume/weight) | object **scale** grounding (deferred) | research license, account-gated, **non-commercial** | NOT yet pulled; same offline-distill-only policy as PartNet | "ShapeNet (Chang et al. 2015)" |
+| **PartNet** part taxonomy (`stats/after_merging_label_ids/`, in the repo) | the **part-decomposition** prior — which parts a category has | **MIT** (the label taxonomy) | **PUBLIC in the repo** (distinct from the gated meshes); fetched politely + distilled offline by `tools/distill_partnet.py` into `compositions.json`. PartNet's **meshes / point-clouds** are separately account-gated and are NOT used. | "PartNet (Mo et al. 2019), MIT" |
+| **ShapeNetSem** (real-world dims/volume/weight) | object **scale** grounding (deferred) | research license, account-gated, **non-commercial** | NOT yet pulled; offline-distill-only policy, same as PartNet's gated meshes | "ShapeNet (Chang et al. 2015)" |
 
 ## Notes
-- **PartNet / ShapeNetSem are not pulled yet.** They are account-gated and
-  carry non-commercial research terms; before any download we re-read their
-  current license and only ship a small *distilled* fact-table (part graphs /
-  bounding-box sizes), never the datasets or meshes.
+- **PartNet's part *taxonomy* is public + MIT** (it lives in the repo, separate
+  from the gated dataset download), so we distil it now into `compositions.json`
+  — the part-label vocabulary per category, never any mesh. PartNet's
+  **meshes / point-clouds** and **ShapeNetSem** remain account-gated under
+  non-commercial research terms; if we ever use those we re-read the license and
+  ship only a small distilled fact-table, never the datasets.
 - **Quick Draw** is fetched per-category (a few MB each, e.g. `feather.ndjson`),
   cached, and reduced to one canonical outline per noun. We ship the distilled
   outline, attributed to Google under CC BY 4.0.
