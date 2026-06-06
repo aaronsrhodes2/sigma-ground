@@ -573,7 +573,11 @@ function draw(){
   const key=`${eye.map(x=>x.toFixed(3))}|${cam.target.map(x=>x.toFixed(3))}|${simTime.toFixed(3)}|${heatDeltaK}|${w}x${h}|${sceneId}`;
   const moving = key!==ptKey; ptKey=key;                     // is the view changing this frame?
   if(moving) accN=0;                                         // view changed → restart accumulation
-  const ptAccum = ptMode && extF && dispProg && progPT && !moving;   // PT renders the STILL (final) image
+  // An ANIMATED scene (water ripples advance with real time every frame) can't be
+  // path-traced — PT would average a moving surface into a flickery smear. These
+  // use the fast renderer, where live ripples + the Fresnel reflection look right.
+  const animated = (scene.csg_leaves||[]).some(l=>l.shape && l.shape.type==="Water");
+  const ptAccum = ptMode && extF && dispProg && progPT && !moving && !animated;   // PT = the STILL image
   if(ptAccum){                                               // ── progressive path tracing (still → converge) ──
     ensureAccum(w,h);
     const reset = (accN===0);
@@ -603,7 +607,9 @@ function draw(){
     gl.useProgram(prog); bindScene(U,(performance.now()-T0)*0.001, frameCount);
     gl.drawArrays(gl.TRIANGLES,0,3);
     const dEye=jsEvalSDF(scene,eye,bodyPoses);
-    const dd=$("dbg"); if(dd) dd.textContent = (ptMode&&extF&&progPT)
+    const dd=$("dbg"); if(dd) dd.textContent = animated
+      ? `animated — fast renderer (live ripples + Fresnel; PT can't average a moving surface) · ${w}x${h}`
+      : (ptMode&&extF&&progPT)
       ? `preview (moving) — path tracer converges when still · ${w}x${h}`
       : `eye(${eye.map(x=>+x.toFixed(3))})  d(eye)=${dEye.toFixed(3)}  maxDist=${md.toFixed(2)}  ${w}x${h}`;
   }
