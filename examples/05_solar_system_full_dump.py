@@ -7,7 +7,7 @@ behaviors, and environment application.
 """
 
 import json
-import quarksum
+import sigma_ground.inventory as quarksum
 
 
 def divider(title):

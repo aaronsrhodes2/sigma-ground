@@ -41,7 +41,7 @@ def section(title):
 # ══════════════════════════════════════════════════════════════════════
 section("Part 1: QuarkSum Reference Data")
 
-from quarksum.core.constants import CONSTANTS as C
+from sigma_ground.inventory.core.constants import CONSTANTS as C
 
 # CODATA 2018 / 2019 SI exact values
 test("c = 299792458 m/s (exact)", C.c == 299792458.0)
@@ -68,7 +68,7 @@ test("m_bottom = 4180 MeV", C.m_bottom_mev == 4180.0)
 test("m_top = 172500 MeV", C.m_top_mev == 172500.0)
 
 # Particle models
-from quarksum.models.particle import Proton, Neutron
+from sigma_ground.inventory.models.particle import Proton, Neutron
 p = Proton.create()
 n = Neutron.create()
 test("Proton has 3 valence quarks", len(p.quarks) == 3)
@@ -78,7 +78,7 @@ test("Proton has 8 gluons", len(p.gluons) == 8)
 test("Gluon rest mass = 0", all(g.rest_mass_kg == 0.0 for g in p.gluons))
 
 # Data loaders
-from quarksum.data.loader import ElementDB, IsotopeDB
+from sigma_ground.inventory.data.loader import ElementDB, IsotopeDB
 
 elements = ElementDB.get()
 h_elem = elements.by_symbol("H")
@@ -90,9 +90,9 @@ test("Fe-56 exists", fe56 is not None)
 test("Fe-56 B/A ~ 8.79 MeV", abs(fe56["binding_energy_per_nucleon_kev"] / 1000 - 8.79) < 0.01)
 
 # Quark chain closure
-from quarksum.builder import build_quick_structure
-from quarksum.resolver import resolve
-from quarksum.checksum.quark_chain import compute_quark_chain_checksum
+from sigma_ground.inventory.builder import build_quick_structure
+from sigma_ground.inventory.resolver import resolve
+from sigma_ground.inventory.checksum.quark_chain import compute_quark_chain_checksum
 
 water = build_quick_structure("Water", 1.0)
 resolve(water)
@@ -102,7 +102,7 @@ test("Water quark-chain closure < 0.1%",
      f"got {wc['mass_defect_percent']:.6f}%")
 
 # Particle inventory
-from quarksum.checksum.particle_inventory import compute_particle_inventory
+from sigma_ground.inventory.checksum.particle_inventory import compute_particle_inventory
 inv = compute_particle_inventory(water)
 test("Water has protons", inv["protons"] > 0)
 test("Water has neutrons", inv["neutrons"] > 0)
@@ -128,7 +128,7 @@ test("All 19 SM particles present", all(k in inv for k in [
 section("Part 2: Materia → QuarkSum Delegation")
 
 from materia.core.constants import CONSTANTS as MC
-from quarksum.core.constants import CONSTANTS as QC
+from sigma_ground.inventory.core.constants import CONSTANTS as QC
 
 test("Materia c == QuarkSum c", MC.c == QC.c)
 test("Materia h == QuarkSum h", MC.h == QC.h)
@@ -148,7 +148,7 @@ test("Materia m_up_quark == QuarkSum m_up_mev * 1e-3",
 
 # Data loader delegation
 from materia.data.loader import ElementDB as MElementDB
-from quarksum.data.loader import ElementDB as QElementDB
+from sigma_ground.inventory.data.loader import ElementDB as QElementDB
 m_elem = MElementDB.get()
 q_elem = QElementDB.get()
 test("Materia ElementDB inherits QuarkSum",
@@ -561,9 +561,9 @@ for sp_name, sp_data in comp["species"].items():
 section("Part 7: Cross-Package Consistency")
 
 # Verify QuarkSum and Materia give identical particle masses
-from quarksum.models.particle import Proton as QProton
+from sigma_ground.inventory.models.particle import Proton as QProton
 from materia.core.constants import CONSTANTS as MatConst
-from quarksum.core.constants import CONSTANTS as QConst
+from sigma_ground.inventory.core.constants import CONSTANTS as QConst
 
 test("Proton mass bit-identical across packages",
      MatConst.m_p == QConst.m_p)
@@ -580,7 +580,7 @@ test("Herschel module uses Materia k_B", _k_B == MatConst.k_B)
 
 # Verify element data consistency
 from materia.data.loader import IsotopeDB as MIsotopeDB
-from quarksum.data.loader import IsotopeDB as QIsotopeDB
+from sigma_ground.inventory.data.loader import IsotopeDB as QIsotopeDB
 m_iso = MIsotopeDB.get()
 q_iso = QIsotopeDB.get()
 fe56_m = m_iso.by_z_and_a(26, 56)
@@ -646,7 +646,7 @@ test("Bridge ratios sum to 1.0",
      abs(sum(c.ratio for c in qs_tree.children) - 1.0) < 1e-10)
 
 # QuarkSum resolver on bridged tree
-from quarksum.resolver import resolve as qs_resolve
+from sigma_ground.inventory.resolver import resolve as qs_resolve
 qs_resolve(qs_tree)
 test("QuarkSum resolves bridged tree",
      abs(qs_tree.resolved_mass_kg - 50.0) < 1e-10)

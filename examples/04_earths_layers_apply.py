@@ -6,7 +6,7 @@ shells to various stimuli: temperature, pressure, electric and
 magnetic fields, demonstrating the universal apply() API.
 """
 
-import quarksum
+import sigma_ground.inventory as quarksum
 
 
 def main():

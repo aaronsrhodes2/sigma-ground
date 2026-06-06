@@ -6,7 +6,7 @@ level of the object graph: quark -> particle -> atom -> molecule.
 """
 
 import json
-import quarksum
+import sigma_ground.inventory as quarksum
 
 
 def section(title):

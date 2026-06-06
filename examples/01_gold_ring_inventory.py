@@ -5,7 +5,7 @@ Loads the gold_ring structure (Au/Ag/Cu alloy with NaCl sweat residue)
 and prints the full Standard Model particle census.
 """
 
-import quarksum
+import sigma_ground.inventory as quarksum
 
 
 def main():

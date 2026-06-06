@@ -12,6 +12,7 @@ build/
 .ruff_cache/
 
 # Rendered images and media
+Images/
 renders/
 *.gif
 *.svg
@@ -31,3 +32,10 @@ renders/
 
 # Materia submodule / large external dirs
 quarksum/Materia/qamss
+
+# One-time trial runs and full simulations (large outputs, not re-run)
+quarksum/trials/
+quarksum/simulations/
+
+# Operatic scenes archived separately - do not commit to project
+misc/OPERATIC_PLAY_SCENE*.txt

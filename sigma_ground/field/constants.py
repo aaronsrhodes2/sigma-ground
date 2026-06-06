@@ -19,45 +19,45 @@ import math
 #   Ω_b h² = 0.02237,  Ω_c h² = 0.1200
 #   Exact: 0.02237 / (0.02237 + 0.1200) = 0.15716...
 #   Canonical SSBM value (used in all publications and tests):
-XI = 0.1582
+XI = 0.1582  # [EMPIRICAL-INPUT] Planck 2018 cosmology fit; Kobakhidze N=8 (arXiv:2410.22412) candidate derivation at 0.1572
 
 # QCD confinement scale (PDG reference)
-LAMBDA_QCD_MEV = 217.0  # MeV
+LAMBDA_QCD_MEV = 217.0  # MeV [VERIFIED] PDG; consistency re-check against Muon g-2 Theory Initiative 2025 white paper pending
 
 # Spectral index relation: γ = 3 - n_s (Planck 2018: n_s = 0.9649)
-GAMMA = 2.035
+GAMMA = 2.035  # [EMPIRICAL-INPUT] Planck 2018 n_s fit
 
 # Critical σ where nuclear bonds fail
-SIGMA_CONV = -math.log(XI)  # ≈ 1.849... but using exact XI
+SIGMA_CONV = -math.log(XI)  # ≈ 1.849... but using exact XI [DERIVED] from XI
 
 # ── Physical Constants ────────────────────────────────────────────────
-G = 6.67430e-11       # m³ kg⁻¹ s⁻²  (gravitational constant)
-C = 2.99792458e8      # m/s            (speed of light)
-HBAR = 1.054571817e-34  # J·s          (reduced Planck constant)
+G = 6.67430e-11       # m³ kg⁻¹ s⁻²  (gravitational constant) [VERIFIED] CODATA 2018
+C = 2.99792458e8      # m/s            (speed of light) [VERIFIED] SI exact (2019)
+HBAR = 1.054571817e-34  # J·s          (reduced Planck constant) [VERIFIED] CODATA 2018
 
 # ── Nucleon Mass Decomposition (MeV) ─────────────────────────────────
 # This is the KEY FACT: ~99% of nucleon mass is QCD binding, not Higgs.
 
 # Quark bare masses (Higgs origin — σ-INVARIANT)
-M_UP_MEV = 2.16       # MeV (PDG 2020)
-M_DOWN_MEV = 4.67     # MeV (PDG 2020)
+M_UP_MEV = 2.16       # MeV (PDG 2020)  [VERIFIED]
+M_DOWN_MEV = 4.67     # MeV (PDG 2020)  [VERIFIED]
 
 # Proton (uud): bare = 2×m_u + m_d
-PROTON_BARE_MEV = 2 * M_UP_MEV + M_DOWN_MEV  # = 8.99 MeV
-PROTON_TOTAL_MEV = 938.272          # MeV (measured)
-PROTON_QCD_MEV = PROTON_TOTAL_MEV - PROTON_BARE_MEV  # = 929.282 MeV
+PROTON_BARE_MEV = 2 * M_UP_MEV + M_DOWN_MEV  # = 8.99 MeV  [DERIVED]
+PROTON_TOTAL_MEV = 938.272          # MeV (measured)  [VERIFIED]
+PROTON_QCD_MEV = PROTON_TOTAL_MEV - PROTON_BARE_MEV  # = 929.282 MeV  [DERIVED]
 
 # Neutron (udd): bare = m_u + 2×m_d
-NEUTRON_BARE_MEV = M_UP_MEV + 2 * M_DOWN_MEV  # = 11.50 MeV
-NEUTRON_TOTAL_MEV = 939.565         # MeV (measured)
-NEUTRON_QCD_MEV = NEUTRON_TOTAL_MEV - NEUTRON_BARE_MEV  # = 928.065 MeV
+NEUTRON_BARE_MEV = M_UP_MEV + 2 * M_DOWN_MEV  # = 11.50 MeV  [DERIVED]
+NEUTRON_TOTAL_MEV = 939.565         # MeV (measured)  [VERIFIED]
+NEUTRON_QCD_MEV = NEUTRON_TOTAL_MEV - NEUTRON_BARE_MEV  # = 928.065 MeV  [DERIVED]
 
 # QCD fractions
-PROTON_QCD_FRACTION = PROTON_QCD_MEV / PROTON_TOTAL_MEV   # ≈ 0.9904
-NEUTRON_QCD_FRACTION = NEUTRON_QCD_MEV / NEUTRON_TOTAL_MEV  # ≈ 0.9878
+PROTON_QCD_FRACTION = PROTON_QCD_MEV / PROTON_TOTAL_MEV   # ≈ 0.9904  [DERIVED]
+NEUTRON_QCD_FRACTION = NEUTRON_QCD_MEV / NEUTRON_TOTAL_MEV  # ≈ 0.9878  [DERIVED]
 
 # Electron mass (Higgs origin — σ-INVARIANT)
-M_ELECTRON_MEV = 0.51100            # MeV
+M_ELECTRON_MEV = 0.51100            # MeV  [VERIFIED]
 
 # ── Coulomb Energy (first-principles electrostatics) ─────────────────
 # NOT from SEMF. Derived from Coulomb's law integrated over a uniform
@@ -71,16 +71,16 @@ M_ELECTRON_MEV = 0.51100            # MeV
 # ke × e² = e²/(4πε₀) = 1.43996 MeV·fm  (EM coupling constant)
 # a_C = (3/5) × 1.43996 / 1.215 = 0.7111 MeV
 
-E_CHARGE = 1.602176634e-19    # C  (elementary charge, exact by 2019 SI)
-EPS_0 = 8.854187817e-12       # F/m (vacuum permittivity)
-R0_FM = 1.215                 # fm (nuclear charge radius, electron scattering)
+E_CHARGE = 1.602176634e-19    # C  (elementary charge, exact by 2019 SI)  [VERIFIED]
+EPS_0 = 8.854187817e-12       # F/m (vacuum permittivity)  [VERIFIED]
+R0_FM = 1.215                 # fm (nuclear charge radius, electron scattering)  [VERIFIED]
 
 # ke × e²  in MeV·fm
 _MeV_per_J = 1 / 1.602176634e-13
-KE_E2_MEV_FM = E_CHARGE**2 / (4 * math.pi * EPS_0) * _MeV_per_J * 1e15
+KE_E2_MEV_FM = E_CHARGE**2 / (4 * math.pi * EPS_0) * _MeV_per_J * 1e15  # [DERIVED]
 
 # Coulomb coefficient — pure electrostatics, no SEMF
-A_C_MEV = (3.0 / 5.0) * KE_E2_MEV_FM / R0_FM  # ≈ 0.7111 MeV (σ-INVARIANT)
+A_C_MEV = (3.0 / 5.0) * KE_E2_MEV_FM / R0_FM  # ≈ 0.7111 MeV (σ-INVARIANT)  [DERIVED]
 
 # ── Entanglement Fraction (η) ─────────────────────────────────────────
 # The ratio of particles entangled with at least one other particle
@@ -104,46 +104,46 @@ A_C_MEV = (3.0 / 5.0) * KE_E2_MEV_FM / R0_FM  # ≈ 0.7111 MeV (σ-INVARIANT)
 #   - Particles from common decay chains
 #   - Cosmological correlations from the Big Bang
 #   - Any interaction that created entanglement and was never decohered
-ETA = 0.4153  # DERIVED — cosmic entanglement fraction (dark energy constraint)
+ETA = 0.4153  # [EMPIRICAL-INPUT] heuristic fit to ρ_DE; promotion to [DERIVED] pending ETA_FORMULA verification (see sigma-ground Phase XI)
 
 # ── Current Epoch & Computational Floor ───────────────────────────────
 # σ = 0 here, by definition: our spacetime is the reference frame.
 # It is a convention, not a measurement — we are the baseline.
 # The field is nonzero inside black hole accretion disks and at the Big Bang.
-SIGMA_0 = 0.0  # σ in the present epoch (reference frame convention)
+SIGMA_0 = 0.0  # σ in the present epoch (reference frame convention)  [DERIVED]
 # → See SIGMA_FLOOR below (after cosmological constants) for the computational epsilon.
 
 # ── Nuclear Matter (QCD observables) ─────────────────────────────────
 # Nuclear saturation density: where attraction and repulsion balance.
 # MEASURED from electron scattering on heavy nuclei.
-N0_FM3 = 0.16              # fm⁻³ (nuclear saturation density)
-E_SAT_MEV = -16.0           # MeV (binding energy per nucleon at saturation)
+N0_FM3 = 0.16              # fm⁻³ (nuclear saturation density)  [VERIFIED]
+E_SAT_MEV = -16.0           # MeV (binding energy per nucleon at saturation)  [VERIFIED]
 
 # Nuclear incompressibility: K = 9n₀² d²(E/A)/dn² at saturation.
 # MEASURED from giant monopole resonances in heavy nuclei.
 # This is a QCD observable — it's the stiffness of nuclear matter,
 # set by the balance of attractive σ-meson and repulsive ω-meson exchange.
 # In SSBM: both meson masses scale with Λ_QCD × e^σ, so K(σ) = K₀ × e^σ.
-K_SAT_MEV = 230.0           # MeV (nuclear incompressibility)
+K_SAT_MEV = 230.0           # MeV (nuclear incompressibility)  [VERIFIED]
 
 # Symmetry energy: energy cost of neutron-proton imbalance.
 # MEASURED from nuclear mass differences.
-J_SYM_MEV = 32.0            # MeV (symmetry energy at saturation)
+J_SYM_MEV = 32.0            # MeV (symmetry energy at saturation)  [VERIFIED]
 
 # ── Cosmological ──────────────────────────────────────────────────────
-H0 = 67.4e3 / 3.086e22  # Hubble constant in s⁻¹ (67.4 km/s/Mpc)
-M_HUBBLE_KG = C**3 / (2 * G * H0)  # Hubble mass ≈ 9.3e52 kg
-M_PLANCK_KG = math.sqrt(HBAR * C / G)  # Planck mass ≈ 2.18e-8 kg
-L_PLANCK    = HBAR / (M_PLANCK_KG * C) # Planck length √(ℏG/c³) ≈ 1.616e-35 m
+H0 = 67.4e3 / 3.086e22  # Hubble constant in s⁻¹ (67.4 km/s/Mpc) [EMPIRICAL-INPUT] Planck 2018; >6σ tension with late-time value per DESI 2025 (arXiv:2512.07281)
+M_HUBBLE_KG = C**3 / (2 * G * H0)  # Hubble mass ≈ 9.3e52 kg  [DERIVED]
+M_PLANCK_KG = math.sqrt(HBAR * C / G)  # Planck mass ≈ 2.18e-8 kg  [DERIVED]
+L_PLANCK    = HBAR / (M_PLANCK_KG * C) # Planck length √(ℏG/c³) ≈ 1.616e-35 m  [DERIVED]
 #   The smallest length with physical meaning (below this: quantum gravity).
 #   Use as the natural "effectively zero" floor — not a magic number,
 #   but the universe's own minimum. Derived from ℏ, G, c above.
-M_SUN_KG = 1.989e30    # Solar mass
-L_SUN_W  = 3.828e26    # Solar luminosity (W) — IAU 2015 nominal solar luminosity
-AU_M     = 1.495978707e11  # 1 Astronomical Unit in metres (IAU 2012 exact)
+M_SUN_KG = 1.989e30    # Solar mass  [VERIFIED]
+L_SUN_W  = 3.828e26    # Solar luminosity (W) — IAU 2015 nominal solar luminosity  [VERIFIED]
+AU_M     = 1.495978707e11  # 1 Astronomical Unit in metres (IAU 2012 exact)  [VERIFIED]
 
 # Derived time constants
-YEAR_S = 365.25 * 86400.0  # Julian year in seconds (exact by IAU definition)
+YEAR_S = 365.25 * 86400.0  # Julian year in seconds (exact by IAU definition)  [VERIFIED]
 
 # ── SIGMA_FLOOR: Planck-derived σ computational epsilon ───────────────
 # Never use SIGMA_0 = 0.0 directly in σ computations — division by σ,
@@ -165,4 +165,4 @@ YEAR_S = 365.25 * 86400.0  # Julian year in seconds (exact by IAU definition)
 #   - Derived from L_PLANCK, H0, C — no new free parameters
 #   - Above double-precision underflow (~ 5×10⁻³²⁴)
 #   - Below any physically meaningful σ (Earth surface: ~7×10⁻¹⁰)
-SIGMA_FLOOR = L_PLANCK * H0 / C  # ≈ 1.18e-61 (Planck/Hubble ratio)
+SIGMA_FLOOR = L_PLANCK * H0 / C  # ≈ 1.18e-61 (Planck/Hubble ratio)  [DERIVED]

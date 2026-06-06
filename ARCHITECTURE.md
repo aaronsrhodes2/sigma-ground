@@ -121,16 +121,78 @@ standard 1/26. Inner moon phase problem documented in fixture metadata.
 
 ---
 
+## Interface Physics — Module Dependency Graph
+
+`sigma_ground/field/interface/` contains 24 physics modules deriving material
+properties from atomic-scale inputs. The dependency flows downward:
+
+```
+                        ┌─────────────────────────────────────────┐
+                        │         sigma_ground/field/             │
+                        │   constants, scale, binding, nucleon    │
+                        └──────────┬──────────────────────────────┘
+                                   │
+              ┌────────────────────┼────────────────────┐
+              ▼                    ▼                     ▼
+         ┌─────────┐     ┌──────────────┐     ┌────────────────┐
+         │ surface │     │     gas      │     │  standalone    │
+         │(MATERIALS│     └──────┬───────┘     │  modules:     │
+         │database)│            │             │  quantum       │
+         └────┬────┘            ▼             │  orbital       │
+              │           ┌──────────┐        │  nbody         │
+     ┌────────┼────────┐  │  cigar   │        │  crystal_field │
+     │        │        │  └──────────┘        │  element       │
+     ▼        ▼        ▼                      │  phosphor      │
+ ┌────────┐┌────────┐┌───────┐                │  semiconductor │
+ │texture ││ optics ││mechani│                │  radioactive   │
+ └───┬────┘└───┬────┘│  cal  │                │    _decay      │
+     │         │     └───┬───┘                │  nucleosynth.  │
+     │         ▼         │                    └────────────────┘
+     │   ┌──────────┐    │
+     │   │ thermal  │◄───┤
+     │   │ emission │    │
+     │   └──────────┘    │
+     │                   │
+     ▼                   ▼
+ ┌────────┐  ┌────────────────┐
+ │thermal │  │  friction      │
+ │(Debye, │  │  adhesion      │
+ │ Planck)│  │  fluid         │
+ └───┬────┘  │  acoustics     │
+     │       │  magnetism     │
+     ▼       └────────────────┘
+ ┌────────────────┐
+ │ thermoelectric │  (imports: surface, mechanical, thermal)
+ └────────────────┘
+```
+
+**Core data hub**: `surface.py` — contains the `MATERIALS` dict (8 metals/
+semiconductors with Z, A, density, crystal structure, cohesive energy, lattice
+parameter). Imported by 10 modules.
+
+**Three tiers**:
+1. **Foundation**: surface (data), mechanical (K, E, G), gas (ideal + vdW)
+2. **Transport**: thermal (κ, Θ_D), optics (n+ik, Fresnel), texture (roughness)
+3. **Applications**: thermoelectric, acoustics, magnetism, friction, adhesion, fluid
+
+**Standalone** (import only from parent `field/`): quantum, orbital, nbody,
+crystal_field, element, phosphor, semiconductor_optics, radioactive_decay,
+nucleosynthesis
+
+**Test count**: ~850 tests across 24 modules + 24 test files.
+
+---
+
 ## Testing
 
 | Suite | Location | Count | Notes |
 |---|---|---|---|
-| quarksum | `tests/` | ~354 | mass closure, material resolution |
-| local_library | `local_library/interface/` | ~709 | σ-field, N-body, celestial |
+| sigma_ground interface | `sigma_ground/field/interface/` | ~850 | material physics (24 modules) |
+| quarksum core | `tests/` | ~354 | mass closure, material resolution |
 | MatterShaper | `MatterShaper/` | ~130 | physics + render |
 
-Run all: `pytest` (from project root runs `tests/` only — see pyproject.toml).
-Full run: `pytest tests/ local_library/ && cd MatterShaper && pytest`
+Run all: `pytest` (from project root — see pyproject.toml).
+Total: ~1407 tests, 6 skipped.
 
 Permanently red (expected): `test_jpl_ephemeris` (network-gated),
 `test_position_precision` (simulation-gated).

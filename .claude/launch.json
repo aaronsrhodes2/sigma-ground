@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "QuarkSum Renderer",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "renderer"],
+      "port": 8421
+    },
+    {
+      "name": "Nagatha Gallery",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["quarksum/MatterShaper/gallery/server.py"],
+      "port": 8422
+    },
+    {
+      "name": "Materia API",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "uvicorn", "materia.api.app:app", "--host", "0.0.0.0", "--port", "8000"],
+      "port": 8000
+    },
+    {
+      "name": "Materia Frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 5173
+    }
+  ]
+}

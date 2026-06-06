@@ -6,7 +6,7 @@ the StoQ checksum and the full quark-chain reconstruction,
 showing how mass accounting closes at every level.
 """
 
-import quarksum
+import sigma_ground.inventory as quarksum
 
 
 def fmt_kg(kg):
