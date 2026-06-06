@@ -1,0 +1,201 @@
+{
+ "scene": {
+  "name": "lead sphere",
+  "bodies": [
+   {
+    "pivot": [
+     0,
+     0,
+     0
+    ],
+    "label": "lead"
+   }
+  ],
+  "csg_leaves": [
+   {
+    "op": "add",
+    "material": "lead",
+    "body": 0,
+    "shape": {
+     "type": "Sphere",
+     "center": [
+      0,
+      0,
+      0
+     ],
+     "radius": 0.05
+    }
+   }
+  ],
+  "materials": {
+   "lead": {
+    "color_rgb": [
+     0.6296,
+     0.6466,
+     0.6426
+    ],
+    "emergent": true,
+    "metal": true,
+    "mechanism": "Drude-Fresnel (free electrons)",
+    "density_kg_m3": 11340.0,
+    "density_derived_kg_m3": 11336.1,
+    "density_pct_vs_supplied": -0.03,
+    "density_method": "crystallographic (fcc cell, a=4.95 A, A=207)",
+    "youngs_modulus_gpa": 11.6,
+    "sound_speed_m_s": 1820.0,
+    "restitution_ref": 0.103,
+    "ring_frequency_hz": 4299.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "emissivity_rgb": [
+     0.37,
+     0.353,
+     0.357
+    ]
+   }
+  },
+  "physics": {
+   "mass_kg": 5.93761011528471,
+   "com_m": [
+    0,
+    0,
+    0
+   ],
+   "inertia_kgm2": [
+    0,
+    0,
+    0
+   ]
+  },
+  "bbox": [
+   [
+    -0.05,
+    0.05
+   ],
+   [
+    -0.05,
+    0.05
+   ],
+   [
+    -0.05,
+    0.05
+   ]
+  ],
+  "camera": {
+   "target": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "orbit_radius": 0.2251666049839541,
+   "fov_deg": 40.0,
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  "identified": true,
+  "source": "falling sphere (Materia drag integration)"
+ },
+ "trajectory": {
+  "frames": [
+   {
+    "t_sim": 0.0,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       3.048,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.20000000000000004,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.851892809095161,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4000000000000002,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.263626284166367,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.6000000000000003,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.283365185630245,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.7900000000000005,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       -0.010719314016904024,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   }
+  ],
+  "t_end_s": 0.7900000000000005,
+  "natural_timescale_s": 0.7900000000000005,
+  "suggested_rate": 0.0526666666666667,
+  "body_labels": [
+   "lead"
+  ]
+ },
+ "kind": "trajectory"
+}

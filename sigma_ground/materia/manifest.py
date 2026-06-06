@@ -718,6 +718,10 @@ _ROUTABLE_NEW = {
                      "standard atmosphere", "air pressure", "at altitude",
                      "on the summit", "on top of everest"],
         "examples": ["air density at 5000 m altitude", "dew point at 50% humidity"],
+        # An ambient report — it must NOT hijack a falling-object sim that merely
+        # mentions the setting ("drop a ball ... in standard atmosphere"). The
+        # translator skips it when the query is a drop scenario.
+        "ambient_report": True,
         "slots": {}},
     "water_state": {
         "description": "Anomalous properties of liquid water vs temperature — "
@@ -786,7 +790,7 @@ _ROUTABLE_NEW = {
         "triggers": [],          # custom-routed in the translator (named object)
         "examples": ["drop a steel anvil from 10 km",
                      "how fast does a piano hit the ground"],
-        "slots": {"object_name": {"unit": "object", "default": "anvil",
+        "slots": {"object_name": {"unit": "object", "default": None,
                                   "aliases": ["drop a", "drop an", "drop the"]},
                   "drop_altitude_m": {"unit": "m", "default": 1000.0}}},
 }

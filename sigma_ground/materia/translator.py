@@ -52,6 +52,11 @@ _OUT_OF_SCOPE = [
     # collisions / momentum transfer — we drop ONE body, not interactions
     "collide", "collision", "collides", "head-on", "elastic collision",
     "inelastic", "ricochet", "newton's cradle", "rebound off", "recoil",
+    # static / free-surface / fluid-interaction — a body IN or AROUND a fluid is
+    # not a single falling object (no verb, no solver). Refuse, don't force-fit.
+    "sitting in", "sits in", "submerged", "half-submerged", "floating in",
+    "floats in", "splash", "splashes", "wake", "ripple", "ripples",
+    "flows around", "flowing around", "running water", "trough",
 ]
 
 # A Materia simulation is about an OBJECT in motion. A trigger word
@@ -82,6 +87,20 @@ def _has_object_context(low: str) -> bool:
             or any(c in low for c in _SCENARIO_CUES))
 
 
+# A drop/fall of an object FROM a height — the cues that mark a terminal-velocity
+# scenario even with no explicit "how fast" (impact speed is the implied
+# question). The caller gates this on object context so "prices fall" can't trip
+# it. "from <number>" catches "from 12 feet / from 10 km".
+_DROP_CUES = ("drop", "dropped", "fall", "falls", "fell", "falling", "plummet",
+              "off a ", "off the ", "thrown off", "tossed off", "released from",
+              "from a height")
+
+
+def _is_drop(low: str) -> bool:
+    return (any(c in low for c in _DROP_CUES)
+            or re.search(r"\bfrom\s+\d", low) is not None)
+
+
 # Named NON-sphere objects whose shape Materia doesn't carry: a drop/fall of one
 # of these asks the DECKARD shape researcher for its real mass/shape (the
 # Materia↔Deckard seam). Spheres (ball/marble/…) keep the fast analytic path.
@@ -100,6 +119,17 @@ def _named_shape_object(low: str):
         if re.search(r"\b" + re.escape(obj) + r"\b", low):
             return obj
     return None
+
+
+def _candidate_object(low: str):
+    """The object-ish word the user named that we could NOT ground to a shape
+    (longest match over the known object nouns). Used ONLY to name it honestly in
+    a refusal — never to run a sim."""
+    for noun in sorted(_OBJECT_NOUNS, key=len, reverse=True):
+        if re.search(r"\b" + re.escape(noun) + r"\b", low):
+            return noun
+    return None
+
 
 _LEN_UNIT_M = {  # → metres
     "mm": 1e-3, "millimeter": 1e-3, "millimetre": 1e-3, "millimeters": 1e-3,
@@ -202,7 +232,9 @@ def _extract_lengths(q: str) -> dict:
         if low[m.end():m.end() + 1] == "/":   # m/s, km/h — a rate, not a length
             continue
         metres = float(m.group(1)) * _LEN_UNIT_M[unit]
-        win = low[max(0, m.start() - 12):min(len(low), m.end() + 10)]
+        # Wide enough to catch "5 inches IN DIAMETER" (the qualifier trails the
+        # number by ~12 chars) and "DIAMETER of 5 inches" (it leads).
+        win = low[max(0, m.start() - 16):min(len(low), m.end() + 24)]
         is_diam = "diameter" in win
         if unit in _SMALL_UNITS or is_diam:
             radius, radius_found = (metres / 2.0 if is_diam else metres), True
@@ -387,12 +419,14 @@ def _classify_verbs(q: str):
     """
     low = q.lower()
     ctx = _has_object_context(low)
+    is_drop = ctx and _is_drop(low)
     # 0. A drop/fall of a NAMED non-sphere object → ask Deckard for its real
     #    shape (Materia carries only spheres natively). Spheres fall through.
     obj = _named_shape_object(low)
-    if obj and (any(c in low for c in ("drop", "fall", "fell", "off a ",
-                                       "off the ", "thrown off", "tossed off"))
-                or _matches(low, SPEED_TRIGGERS)):
+    if obj and not any(k in low for k in _OUT_OF_SCOPE) and (
+            any(c in low for c in ("drop", "fall", "fell", "off a ",
+                                   "off the ", "thrown off", "tossed off"))
+            or _matches(low, SPEED_TRIGGERS)):
         return ["drop_object"]
     # 1. Launch-then-descend template — needs an object NOUN (so "throw a ball
     #    up" routes, but "I might throw up" does not).
@@ -428,6 +462,10 @@ def _classify_verbs(q: str):
         # sensible default; the flag is only for material-IS-the-answer verbs.)
         if m.get("material_required") and not mat_named:
             continue
+        # An ambient REPORT (atmospheric_profile) must not hijack a falling-object
+        # sim that only mentions the setting ("... in standard atmosphere").
+        if is_drop and m.get("ambient_report"):
+            continue
         ml = _match_len(low, m.get("triggers", []))
         if ml > 0:
             matched.add(verb)
@@ -443,6 +481,21 @@ def _classify_verbs(q: str):
     # 3. A family we don't model yet → decline regardless.
     if any(k in low for k in _OUT_OF_SCOPE):
         return []
+    # 3.5 A drop/fall of an object from a height IS a terminal-velocity sim — even
+    #     with no "how fast" cue, and even amid ambient words ("in standard
+    #     atmosphere", "onto a concrete floor"): those are the setting, not the
+    #     question. (Named non-sphere objects were already taken by step 0; this
+    #     is the generic-sphere drop.) Impact speed is the default question; add
+    #     heating only when a heat cue is also present.
+    if is_drop:
+        speed = _matches(low, SPEED_TRIGGERS)
+        heat = _matches(low, HEAT_TRIGGERS)
+        chain = []
+        if speed or not heat:
+            chain.append("terminal_velocity_drop")
+        if heat:
+            chain.append("drag_heating_drop")
+        return chain
     # 4. Generic verbs route only WITH object context (else it isn't a sim;
     #    speed + heat both present → both drop verbs, terminal first).
     if ctx:
@@ -502,6 +555,11 @@ def _qwen_translate(question: str) -> SimulationSpec | None:
                     params[slot] = float(p_in[slot])
                 except (TypeError, ValueError):
                     pass
+        # Fix C — same guard as _qwen_plan: no force-fit drop onto a static/fluid scene.
+        low = question.lower()
+        if verb == "drop_object" and (
+                any(k in low for k in _OUT_OF_SCOPE) or not _is_drop(low)):
+            return None
         return SimulationSpec(question, [SpecStep(verb, params)], source="qwen",
                               note="routed by qwen2.5:7b")
     except Exception:
@@ -598,6 +656,12 @@ def _qwen_plan(question: str) -> SimulationSpec | None:
                             pass
             steps.append(SpecStep(verb, params))
         _auto_bind(steps)
+        # Fix C — qwen must not force-fit a drop onto a static/fluid scene (no verb
+        # for it). Decline → translate() falls through to clarify, not a fake drop.
+        low = question.lower()
+        if any(s.verb == "drop_object" for s in steps) and (
+                any(k in low for k in _OUT_OF_SCOPE) or not _is_drop(low)):
+            return None
         n = len(steps)
         return SimulationSpec(question, steps, source="qwen",
                               note=f"planned by qwen2.5:7b ({n} step{'s' * (n != 1)})")

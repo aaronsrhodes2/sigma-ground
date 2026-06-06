@@ -1,0 +1,555 @@
+{
+ "scene": {
+  "name": "cast iron skillet",
+  "csg_leaves": [
+   {
+    "op": "add",
+    "material": "glaze",
+    "shape": {
+     "type": "Cylinder",
+     "center": [
+      0.0,
+      0.0,
+      0.06
+     ],
+     "radius": 0.15,
+     "height": 0.12
+    },
+    "body": 0
+   },
+   {
+    "op": "add",
+    "material": "ceramic",
+    "shape": {
+     "type": "Cylinder",
+     "center": [
+      0.0,
+      0.0,
+      0.06
+     ],
+     "radius": 0.149,
+     "height": 0.12
+    },
+    "body": 0
+   },
+   {
+    "op": "subtract",
+    "material": "air",
+    "shape": {
+     "type": "Cylinder",
+     "center": [
+      0.0,
+      0.0,
+      0.061
+     ],
+     "radius": 0.146,
+     "height": 0.118
+    },
+    "body": 0
+   },
+   {
+    "op": "add",
+    "material": "water",
+    "shape": {
+     "type": "Cylinder",
+     "center": [
+      0.0,
+      0.0,
+      0.002
+     ],
+     "radius": 0.146,
+     "height": 0.0
+    },
+    "body": 0
+   },
+   {
+    "op": "add",
+    "material": "stage_dark",
+    "shape": {
+     "type": "Box",
+     "center": [
+      0.0,
+      -0.06,
+      0.0
+     ],
+     "x": 4.0,
+     "y": 0.12,
+     "z": 4.0
+    }
+   }
+  ],
+  "materials": {
+   "glaze": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "density_kg_m3": 1000.0,
+    "density_method": "unknown material"
+   },
+   "ceramic": {
+    "color_rgb": [
+     0.9,
+     0.9,
+     0.9
+    ],
+    "emergent": true,
+    "metal": false,
+    "mechanism": "wide-gap insulator: no visible absorber -> white",
+    "density_kg_m3": 3950.0,
+    "density_method": "unknown material"
+   },
+   "air": {
+    "color_rgb": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emergent": true,
+    "metal": false,
+    "mechanism": "void (no matter)",
+    "density_kg_m3": 0.0,
+    "density_method": "unknown material"
+   },
+   "water": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "density_kg_m3": 997.0,
+    "density_method": "unknown material"
+   },
+   "stage_dark": {
+    "color_rgb": [
+     0.07,
+     0.07,
+     0.08
+    ],
+    "emergent": true,
+    "metal": false,
+    "mechanism": "weakly-absorbing aggregate -> grey",
+    "density_kg_m3": 2400.0,
+    "density_derived_kg_m3": 2300,
+    "density_pct_vs_supplied": -4.17,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 33.3,
+    "sound_speed_m_s": 4010.0,
+    "restitution_ref": 0.152,
+    "ring_frequency_hz": 6115.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+   }
+  },
+  "physics": {
+   "mass_kg": 1.9596199397961487,
+   "com_m": [
+    0.0,
+    0.0,
+    0.04407194167560169
+   ],
+   "inertia_kgm2": [
+    0.021747611265184364,
+    0.021747611265184437,
+    0.03737992090657265
+   ]
+  },
+  "bbox": [
+   [
+    -2.0,
+    2.0
+   ],
+   [
+    -0.2,
+    3.4
+   ],
+   [
+    -2.0,
+    2.0
+   ]
+  ],
+  "camera": {
+   "target": [
+    0.0,
+    1.26,
+    0.0
+   ],
+   "orbit_radius": 3.75,
+   "fov_deg": 44.0,
+   "up": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "az0": 0.5,
+   "el0": 0.18
+  },
+  "lights": [
+   {
+    "dir": [
+     -0.384,
+     -0.816,
+     -0.432
+    ],
+    "color": [
+     1.0,
+     0.9313,
+     0.8716
+    ],
+    "intensity": 1.05,
+    "temperature_k": 5500
+   },
+   {
+    "dir": [
+     -0.3143,
+     -0.3928,
+     0.8642
+    ],
+    "color": [
+     0.8937,
+     0.9164,
+     1.0
+    ],
+    "intensity": 0.4,
+    "temperature_k": 7600
+   }
+  ],
+  "ambient": {
+   "sky": [
+    0.1,
+    0.12,
+    0.16
+   ],
+   "ground": [
+    0.06,
+    0.05,
+    0.045
+   ],
+   "up": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  "identified": true,
+  "source": "cast iron skillet (layered_vessel) \u2014 qwen2.5:7b \u2014 researched proportions (estimates), field.interface.surface.MATERIALS, inventory/data/materials.json",
+  "bodies": [
+   {
+    "pivot": [
+     0.0,
+     0.0,
+     0.04407194167560169
+    ],
+    "label": "cast iron skillet"
+   }
+  ],
+  "kind": "trajectory"
+ },
+ "trajectory": {
+  "frames": [
+   {
+    "t_sim": 0.01,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.99951,
+       0.0
+      ],
+      "quat": [
+       -0.7071067811865476,
+       0.0,
+       0.0,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.06,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.98235,
+       0.0
+      ],
+      "quat": [
+       -0.7071067811865476,
+       0.0,
+       0.0,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.11,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.9407,
+       0.0
+      ],
+      "quat": [
+       -0.7071067811865476,
+       0.0,
+       0.0,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.16,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.87462,
+       0.0
+      ],
+      "quat": [
+       -0.7071067811865476,
+       0.0,
+       0.0,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.21,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.78421,
+       0.0
+      ],
+      "quat": [
+       -0.7071067811865476,
+       0.0,
+       0.0,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.26,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.66957,
+       0.0
+      ],
+      "quat": [
+       -0.7071067811865476,
+       0.0,
+       0.0,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.31,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.53087,
+       0.0
+      ],
+      "quat": [
+       -0.7071067811865476,
+       0.0,
+       0.0,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.36,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.36831,
+       0.0
+      ],
+      "quat": [
+       -0.7071067811865476,
+       0.0,
+       0.0,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.41,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.18208,
+       0.0
+      ],
+      "quat": [
+       -0.7071067811865476,
+       0.0,
+       0.0,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.46,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.97245,
+       0.0
+      ],
+      "quat": [
+       -0.7071067811865476,
+       0.0,
+       0.0,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.51,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.73968,
+       0.0
+      ],
+      "quat": [
+       -0.7071067811865476,
+       0.0,
+       0.0,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.56,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.48408,
+       0.0
+      ],
+      "quat": [
+       -0.7071067811865476,
+       0.0,
+       0.0,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.61,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.20598,
+       0.0
+      ],
+      "quat": [
+       -0.7071067811865476,
+       0.0,
+       0.0,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.66,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.90572,
+       0.0
+      ],
+      "quat": [
+       -0.7071067811865476,
+       0.0,
+       0.0,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.71,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.58368,
+       0.0
+      ],
+      "quat": [
+       -0.7071067811865476,
+       0.0,
+       0.0,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.76,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.24024,
+       0.0
+      ],
+      "quat": [
+       -0.7071067811865476,
+       0.0,
+       0.0,
+       0.7071067811865476
+      ]
+     }
+    ]
+   }
+  ],
+  "t_end_s": 0.76,
+  "natural_timescale_s": 0.8000000000000005,
+  "suggested_rate": 0.1600000000000001,
+  "body_labels": [
+   "cast iron skillet"
+  ]
+ },
+ "kind": "trajectory"
+}

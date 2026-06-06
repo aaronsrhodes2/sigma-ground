@@ -55,3 +55,22 @@ def test_question_routes_to_ask():
     e = dispatch("what is the speed of light", use_llm=False, session=Session())
     assert e["intent"] == "ask"
     assert e["text"]                                 # a grounded value or honest clarify
+
+
+def test_bare_ball_drop_simulates_and_renders_as_sphere():
+    """A plain 'drop a ball from a height' (no 'how fast' cue, ambient words
+    present) now SIMULATES and renders natively as a sphere via record_fall — the
+    regression that routed it to atmospheric_profile / decline is fixed."""
+    s = Session()
+    e1 = dispatch("drop a 5 cm steel ball from 10 km onto a concrete floor "
+                  "in standard atmosphere", use_llm=False, session=s)
+    assert e1["intent"] == "simulate" and e1["can_render"] is True
+    assert s.render_handle and s.render_handle["kind"] == "sphere"
+    e2 = dispatch("yes", use_llm=False, session=s)
+    assert e2["intent"] == "render"
+    assert e2["saved"]["slug"].startswith("falling_")
+    bundle = json.load(open(e2["saved"]["path"], encoding="utf-8"))
+    assert bundle["kind"] == "trajectory"
+    moving = {l["shape"]["type"] for l in bundle["scene"]["csg_leaves"]
+              if l.get("body") == 0}
+    assert moving == {"Sphere"}

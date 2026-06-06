@@ -28,17 +28,107 @@
   #rateval { color:var(--accent); min-width:148px; }
   #tval { color:var(--fg); min-width:120px; }
   .sep { width:1px; height:20px; background:#26262c; }
+  /* "behind the simulation" — a right-docked editor drawer over the canvas */
+  #editor { position:absolute; top:0; right:0; height:100%; width:min(46%,560px);
+            background:rgba(8,8,10,0.94); border-left:1px solid #26262c;
+            transform:translateX(101%); transition:transform .18s ease;
+            display:flex; flex-direction:column; z-index:5; }
+  #editor.open { transform:translateX(0); }
+  .ehead { padding:8px 12px; border-bottom:1px solid #1c1c20; color:var(--fg); font-size:12px; }
+  .ehead .lbl { color:var(--dim); }
+  #json { flex:1; width:100%; resize:none; border:0; outline:none; background:transparent;
+          color:#bfe3d2; font:12px/1.55 ui-monospace,Menlo,Consolas,monospace;
+          padding:10px 12px; white-space:pre; overflow:auto; tab-size:2; }
+  .erow { display:flex; align-items:center; gap:10px; padding:8px 12px; border-top:1px solid #1c1c20; }
+  #editmsg { margin-left:auto; }
+  /* ── Mentat chat cockpit: a text pane beside the simulation view ── */
+  #panes { display:flex; flex:1; min-height:0; }            /* row: chat | view */
+  #view { flex:1; min-width:0; }                            /* keep position:relative from above */
+  #chatpane { width:380px; flex:0 0 380px; display:flex; flex-direction:column;
+              background:#000; border-right:1px solid #1c1c20; min-height:0; }
+  #chatpane.collapsed { display:none; }
+  .chead { padding:9px 12px; border-bottom:1px solid #1c1c20; color:var(--fg); }
+  .chead .lbl { color:var(--dim); font-size:11px; }
+  #chatlog { flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:9px; }
+  /* bubbles = text on black, NO fill; role is COLOR + side only (passthrough doctrine) */
+  .msg { max-width:90%; white-space:pre-wrap; word-break:break-word; line-height:1.45; }
+  .msg.user    { align-self:flex-end;  color:#FFFFFF; text-align:right; }   /* Captain */
+  .msg.mentat  { align-self:flex-start; color:var(--ok); }                  /* reply, green */
+  .msg.clarify { align-self:flex-start; color:#FFAA00; }                    /* amber: clarify/warn */
+  .msg.error   { align-self:flex-start; color:var(--bad); }                 /* red: offline/error */
+  .msg.dim, .msg.pending { align-self:flex-start; color:#006644; }          /* narration / thinking */
+  .msg.pending { font-style:italic; }
+  .msg a { color:var(--accent); text-decoration:none; cursor:pointer; }     /* cyan identifiers */
+  .msg a:hover { text-decoration:underline; }
+  #chatrow { display:flex; gap:6px; padding:9px 12px; border-top:1px solid #1c1c20; }
+  #chatinput { flex:1; background:#000; color:var(--fg); border:1px solid #2a2a30;
+               border-radius:6px; padding:6px 9px; font:inherit; outline:none; }
+  #chatinput:focus { border-color:var(--accent); }
+  #chatinput:disabled { opacity:.5; }
+  #mic { padding:5px 9px; } #mic.rec { border-color:var(--bad); color:var(--bad); }
+  #chatstatus { padding:0 12px 9px; min-height:14px; font-size:11px; }
+  /* explicit lane selector — static routing, no classifier guess */
+  #chatmodes { display:flex; gap:5px; padding:7px 12px 0; }
+  .modebtn { padding:3px 9px; font-size:11px; background:#0c0c0e; color:var(--dim);
+             border:1px solid #2a2a30; border-radius:5px; cursor:pointer; font:inherit; }
+  .modebtn:hover { border-color:var(--accent); }
+  .modebtn.on { color:var(--accent); border-color:var(--accent); }
+  /* simulation library — a right-docked gallery of generated sims */
+  #library { position:absolute; top:0; right:0; height:100%; width:min(48%,470px);
+             background:rgba(8,8,10,0.96); border-left:1px solid #26262c;
+             transform:translateX(101%); transition:transform .18s ease;
+             display:flex; flex-direction:column; z-index:6; }
+  #library.open { transform:translateX(0); }
+  .libhead { padding:9px 12px; border-bottom:1px solid #1c1c20; color:var(--fg); font-size:12px; }
+  .libhead .lbl { color:var(--dim); }
+  #liblist { flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:6px; }
+  .libcard { padding:8px 11px; border:1px solid #26262c; border-radius:7px; cursor:pointer; background:#0c0c0e; }
+  .libcard:hover { border-color:var(--accent); }
+  .libcard .t { color:var(--ok); }
+  .libcard .q { color:var(--dim); font-size:11px; margin-top:2px; }
 </style>
 </head>
 <body>
 <div id="wrap">
-  <div id="view">
+  <div id="panes">
+    <aside id="chatpane">
+      <div class="chead"><b>Mentat</b> &nbsp;<span class="lbl">ask · simulate · render — grounded physics</span></div>
+      <div id="chatlog"></div>
+      <div id="chatmodes">
+        <button class="modebtn on" data-mode="auto" title="Let Mentat pick the lane">auto</button>
+        <button class="modebtn" data-mode="ask" title="Q&amp;A — a grounded answer">ask</button>
+        <button class="modebtn" data-mode="simulate" title="Compute the physics (numbers + provenance)">simulate</button>
+        <button class="modebtn" data-mode="render" title="Build a watchable 3D sim and load it (the runnable .json)">render</button>
+      </div>
+      <div id="chatrow">
+        <button id="mic" title="Voice input (hold or click to talk)">🎤</button>
+        <input id="chatinput" type="text" autocomplete="off" spellcheck="false"
+               placeholder="ask, or “drop a feather from 8 feet”…">
+        <button id="chatsend">send</button>
+      </div>
+      <div id="chatstatus" class="lbl"></div>
+    </aside>
+    <div id="view">
     <canvas id="gl"></canvas>
     <div id="hud">
       <div><b id="title">Radiance</b> &nbsp;<span id="src" class="lbl"></span></div>
       <div id="check" class="lbl">geometry self-check: …</div>
       <div class="lbl">drag&nbsp;=&nbsp;orbit &nbsp;·&nbsp; wheel&nbsp;=&nbsp;zoom</div>
       <div id="dbg" class="lbl" style="color:#FFAA00"></div>
+    </div>
+    <div id="editor">
+      <div class="ehead"><b>behind the simulation</b> &nbsp;<span class="lbl">the seed Radiance renders from — edit anything and it re-renders. physics isn't enforced; the picture is just its consequence.</span></div>
+      <textarea id="json" spellcheck="false" autocomplete="off"></textarea>
+      <div class="erow">
+        <button id="rerender" title="Re-render from the edited JSON (Ctrl/Cmd+Enter)">⟳ re-render</button>
+        <button id="editreset" title="Restore the original JSON">reset</button>
+        <span id="editmsg" class="lbl"></span>
+      </div>
+    </div>
+    <div id="library">
+      <div class="libhead"><b>simulation library</b> &nbsp;<span class="lbl">Materia's renderable questions — click to load &amp; play</span></div>
+      <div id="liblist"></div>
+    </div>
     </div>
   </div>
   <div id="bar">
@@ -55,7 +145,13 @@
       <button id="b-dfeather" title="Deckard-identified feather: cone rachis + ellipsoid vane (the real compiled shape)">Feather ◆</button>
     </div>
     <div class="sep"></div>
+    <div class="grp"><button id="b-lib" title="A gallery of ready-made simulations from Materia's questions">⊞ Library</button></div>
+    <div class="sep"></div>
+    <div class="grp"><button id="b-chat" class="on" title="Mentat — chat to ask, simulate, and render physics">☰ Mentat</button></div>
+    <div class="sep"></div>
     <div class="grp"><button id="b-pt" title="Real light transport — no headlight/ambient/AO (slower, noisier)">Path trace</button></div>
+    <div class="sep"></div>
+    <div class="grp"><button id="b-edit" title="Behind the simulation — the JSON Radiance renders from. Edit it; physics isn't enforced.">⟨ / ⟩ behind</button></div>
     <div class="sep"></div>
     <div class="grp" id="playgrp" style="opacity:.35;">
       <button id="play">▶ play</button>
@@ -78,5 +174,6 @@
   </div>
 </div>
 <script src="viewer.js"></script>
+<script src="chat.js"></script>
 </body>
 </html>

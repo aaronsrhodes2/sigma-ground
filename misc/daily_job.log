@@ -2424,3 +2424,37 @@ Loaded env vars from D:\Aaron\development\.env
   +--------------------------------------------------------------+
  
 Daily benchmark job finished Thu 06/04/2026  6:14:53.11 
+ 
+============================================================ 
+Daily benchmark job started Fri 06/05/2026  6:00:02.08 
+============================================================ 
+Loaded env vars from D:\Aaron\development\.env
+
+=== Daily job: corpus=main (150 questions) ===
+  plan file: D:\Aaron\development\sigma-ground\misc\IMPROVEMENT_PLAN.md
+  [Wolfram] 111 unanswered; will attempt up to 85 today
+  [Wolfram] daily cap 85 reached; stopping
+  [Wolfram] {'new_attempted': 41, 'new_ok': 0, 'queries_consumed': 85, 'remaining': 70}
+  [Gemini] using FREE-tier key
+  [Gemini] {'error': 'gemini removed from this build', 'new_attempted': 0, 'new_ok': 0}
+  [Score]
+    sigma_ground : 128/150 =  85.3%
+    wolfram      :  20/150 =  13.3%
+    gemini       :  90/150 =  60.0%
+  [Catalog] {'library_gaps': 0, 'discoverability': 12, 'wolfram_phrasing': 42, 'gemini_halluc': 60}
+  [Plan]    appended to D:\Aaron\development\sigma-ground\misc\IMPROVEMENT_PLAN.md
+
+  +--------------------------------------------------------------+
+  | TARGET DASHBOARD (PROJECT_GOAL.md)                           |
+  +--------------------------------------------------------------+
+  | [X] PASS sg overall >= WA overall     sg=85.3% WA=13.3%         |
+  | [X] PASS sg matches WA-correct >=98%  20/20 = 100%              |
+  | [X] PASS sg overall >= 80%            85.3%                     |
+  | [ ] .... all 14 domains >= 80%        4 below                   |
+  | [X] PASS median latency <= 30s        0.1s                      |
+  | [X] PASS library-gap rate <= 5%       0.0% (0/150)              |
+  | [X] PASS adversarial refusal >= 50%   6/6 = 100%                |
+  | [ ] .... conversation mode built      roadmap                   |
+  +--------------------------------------------------------------+
+ 
+Daily benchmark job finished Fri 06/05/2026  6:15:06.01 

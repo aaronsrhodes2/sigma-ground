@@ -1,0 +1,554 @@
+{
+ "scene": {
+  "name": "drinking glass",
+  "csg_leaves": [
+   {
+    "op": "add",
+    "material": "glaze",
+    "shape": {
+     "type": "Cylinder",
+     "center": [
+      0.0,
+      0.0,
+      0.06
+     ],
+     "radius": 0.035,
+     "height": 0.12
+    },
+    "body": 0
+   },
+   {
+    "op": "add",
+    "material": "ceramic",
+    "shape": {
+     "type": "Cylinder",
+     "center": [
+      0.0,
+      0.0,
+      0.06
+     ],
+     "radius": 0.035,
+     "height": 0.12
+    },
+    "body": 0
+   },
+   {
+    "op": "subtract",
+    "material": "air",
+    "shape": {
+     "type": "Cylinder",
+     "center": [
+      0.0,
+      0.0,
+      0.0625
+     ],
+     "radius": 0.033,
+     "height": 0.11499999999999999
+    },
+    "body": 0
+   },
+   {
+    "op": "add",
+    "material": "water",
+    "shape": {
+     "type": "Cylinder",
+     "center": [
+      0.0,
+      0.0,
+      0.051000000000000004
+     ],
+     "radius": 0.033,
+     "height": 0.092
+    },
+    "body": 0
+   },
+   {
+    "op": "add",
+    "material": "stage_dark",
+    "shape": {
+     "type": "Box",
+     "center": [
+      0.0,
+      -0.06,
+      0.0
+     ],
+     "x": 4.0,
+     "y": 0.12,
+     "z": 4.0
+    }
+   }
+  ],
+  "materials": {
+   "glaze": {
+    "color_rgb": [
+     0.9136,
+     0.9126,
+     0.9109
+    ],
+    "emergent": true,
+    "metal": false,
+    "mechanism": "dielectric Fresnel + Beer-Lambert",
+    "density_kg_m3": 2500.0,
+    "density_derived_kg_m3": 2500,
+    "density_pct_vs_supplied": 0.0,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 162.1,
+    "sound_speed_m_s": 8604.0,
+    "restitution_ref": 0.072,
+    "ring_frequency_hz": 11560.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "reflect_r0": 0.044,
+    "refractive_index": 1.5307
+   },
+   "ceramic": {
+    "color_rgb": [
+     0.9136,
+     0.9126,
+     0.9109
+    ],
+    "emergent": true,
+    "metal": false,
+    "mechanism": "dielectric Fresnel + Beer-Lambert",
+    "density_kg_m3": 2500.0,
+    "density_derived_kg_m3": 2500,
+    "density_pct_vs_supplied": 0.0,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 162.1,
+    "sound_speed_m_s": 8604.0,
+    "restitution_ref": 0.072,
+    "ring_frequency_hz": 11560.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "reflect_r0": 0.044,
+    "refractive_index": 1.5307
+   },
+   "air": {
+    "color_rgb": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emergent": true,
+    "metal": false,
+    "mechanism": "void (no matter)",
+    "density_kg_m3": 0.0,
+    "density_method": "unknown material"
+   },
+   "water": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "density_kg_m3": 997.0,
+    "density_method": "unknown material"
+   },
+   "stage_dark": {
+    "color_rgb": [
+     0.07,
+     0.07,
+     0.08
+    ],
+    "emergent": true,
+    "metal": false,
+    "mechanism": "weakly-absorbing aggregate -> grey",
+    "density_kg_m3": 2400.0,
+    "density_derived_kg_m3": 2300,
+    "density_pct_vs_supplied": -4.17,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 33.3,
+    "sound_speed_m_s": 4010.0,
+    "restitution_ref": 0.152,
+    "ring_frequency_hz": 6115.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+   }
+  },
+  "physics": {
+   "mass_kg": 0.4847475453869754,
+   "com_m": [
+    0.0,
+    0.0,
+    0.04910106045669392
+   ],
+   "inertia_kgm2": [
+    0.0006784533465168201,
+    0.0006784533465168299,
+    0.000351974747744615
+   ]
+  },
+  "bbox": [
+   [
+    -2.0,
+    2.0
+   ],
+   [
+    -0.2,
+    2.9
+   ],
+   [
+    -2.0,
+    2.0
+   ]
+  ],
+  "camera": {
+   "target": [
+    0.0,
+    1.05,
+    0.0
+   ],
+   "orbit_radius": 3.125,
+   "fov_deg": 44.0,
+   "up": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "az0": 0.5,
+   "el0": 0.18
+  },
+  "lights": [
+   {
+    "dir": [
+     -0.384,
+     -0.816,
+     -0.432
+    ],
+    "color": [
+     1.0,
+     0.9313,
+     0.8716
+    ],
+    "intensity": 1.05,
+    "temperature_k": 5500
+   },
+   {
+    "dir": [
+     -0.3143,
+     -0.3928,
+     0.8642
+    ],
+    "color": [
+     0.8937,
+     0.9164,
+     1.0
+    ],
+    "intensity": 0.4,
+    "temperature_k": 7600
+   }
+  ],
+  "ambient": {
+   "sky": [
+    0.1,
+    0.12,
+    0.16
+   ],
+   "ground": [
+    0.06,
+    0.05,
+    0.045
+   ],
+   "up": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  "identified": true,
+  "source": "drinking glass (layered_vessel) \u2014 gemini-2.5-flash \u2014 researched proportions (estimates), field.interface.surface.MATERIALS, inventory/data/materials.json",
+  "bodies": [
+   {
+    "pivot": [
+     0.0,
+     0.0,
+     0.04910106045669392
+    ],
+    "label": "drinking glass"
+   }
+  ],
+  "kind": "trajectory"
+ },
+ "trajectory": {
+  "frames": [
+   {
+    "t_sim": 0.01,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.49951,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.06,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.48235,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.11,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.44068,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.16,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.37453,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.21,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.28393,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.26,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.16893,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.31,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.02958,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.36,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.86596,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.41,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.67816,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.46,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.46626,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.51,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.23039,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.56,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.97065,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.61,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.68718,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.66,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.38012,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.71,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.04963,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   }
+  ],
+  "t_end_s": 0.71,
+  "natural_timescale_s": 0.7200000000000004,
+  "suggested_rate": 0.14400000000000007,
+  "body_labels": [
+   "drinking glass"
+  ]
+ },
+ "kind": "trajectory"
+}

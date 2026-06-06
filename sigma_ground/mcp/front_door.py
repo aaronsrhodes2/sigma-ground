@@ -73,50 +73,92 @@ def _has(text, cues):
 
 
 def dispatch(text: str, *, use_llm: bool = True,
-             session: Session | None = None) -> dict:
+             session: Session | None = None, mode: str | None = None) -> dict:
     """Classify one sentence and route it. Returns an envelope dict (keys: intent,
     text, value, can_render, render_handle, saved, source). Pass the same
-    ``session`` across turns so a "yes" renders the last simulation."""
+    ``session`` across turns so a "yes" renders the last simulation.
+
+    ``mode`` FORCES the lane — no classifier guess: "ask" | "simulate" | "render"
+    (None/"auto" → classify, the old behavior). RENDER runs the sim AND builds the
+    watchable scene in one shot — that is the path that yields a runnable .json."""
     session = session or Session()
     text = (text or "").strip()
     if not text:
         return _envelope("clarify",
                          text="Say something to ask, simulate, or render.")
+    mode = (mode or "").strip().lower() or None
+    if mode == "auto":
+        mode = None
 
-    # 1. A "yes" with a pending renderable simulation → render it now.
-    if session.render_handle and _is_affirmative(text):
+    # 1. A "yes" renders the pending simulation (auto or render mode).
+    if session.render_handle and _is_affirmative(text) and mode in (None, "render"):
         handle = session.render_handle
         session.render_handle = None
         env = _render_from_handle(handle)
         session.last_intent = env["intent"]
         return env
 
-    # 2. Simulation — an OBJECT IN MOTION (the North Star's dividing line). Let
-    #    Materia's own router compile it (deterministic first; the qwen residual
-    #    only if the sentence is sim-cued, to keep ASK fast). A runnable spec is a
-    #    SIMULATION only when it concerns a physical object/motion — a domain
-    #    *report* verb (e.g. "the speed of light") that happens to be routable is
-    #    a fact, and belongs to ASK.
-    from sigma_ground import materia
-    from sigma_ground.materia import translator as _t
-    spec = materia.translate(text, use_qwen=False)
-    if not spec.is_runnable() and use_llm and _has(text, _SIM_CUES):
-        spec = materia.translate(text, use_qwen=True)
-    verbs = {st.verb for st in spec.steps}
-    is_sim = spec.is_runnable() and (
-        "drop_object" in verbs or _t._has_object_context(text.lower()))
-    if is_sim:
-        env = _run_simulation(text, spec, use_llm=use_llm, session=session)
-        # An EXPLICIT "render"/"draw" of a renderable sim skips the offer and
-        # renders straight away (the user already said they want to see it).
-        if env.get("render_handle") and _has(text, _RENDER_CUES):
-            handle = env["render_handle"]
-            session.render_handle = None
-            env = _render_from_handle(handle)
+    # Explicit ASK — force the Q&A switchboard; never attempt a sim.
+    if mode == "ask":
+        env = _ask(text)
         session.last_intent = env["intent"]
         return env
 
-    # 3. Otherwise it's a question → the Q&A switchboard.
+    # 2. Simulation — an OBJECT IN MOTION. Materia's own router compiles it
+    #    (deterministic first; the qwen residual when the lane is forced to
+    #    sim/render, or the sentence is sim-cued). A runnable spec is a SIMULATION
+    #    only when it concerns a physical object/motion — a domain *report* verb
+    #    that happens to be routable is a fact and belongs to ASK (auto mode).
+    from sigma_ground import materia
+    from sigma_ground.materia import translator as _t
+    forced = mode in ("simulate", "render")
+    spec = materia.translate(text, use_qwen=False)
+    if not spec.is_runnable() and use_llm and (forced or _has(text, _SIM_CUES)):
+        spec = materia.translate(text, use_qwen=True)
+    verbs = {st.verb for st in spec.steps}
+    # Fix A — a drop with no grounded object must not silently default to a
+    # stand-in (an anvil). Name the user's word honestly and refuse the drop.
+    if "drop_object" in verbs and not any(
+            st.params.get("object_name") for st in spec.steps
+            if st.verb == "drop_object"):
+        cand = _t._candidate_object(text.lower())
+        msg = (f"I don't have a {cand!r} shape — give me an object I can ground "
+               f"(e.g. an anvil, a brick, a feather)." if cand else
+               "Name an object I can ground to drop (e.g. an anvil, a brick, "
+               "a feather).")
+        env = _envelope("simulate", text=msg, can_render=False, source=spec.source)
+        session.last_intent = env["intent"]
+        return env
+    # Forced sim/render skips the object-context gate (the user already said it's
+    # a sim); auto requires object context before it calls something a simulation.
+    is_sim = spec.is_runnable() and (forced or "drop_object" in verbs
+                                     or _t._has_object_context(text.lower()))
+    if is_sim:
+        env = _run_simulation(text, spec, use_llm=use_llm, session=session)
+        # RENDER mode (or an explicit "render"/"draw" cue) → build the watchable
+        # scene right now, one shot — no "reply yes" round-trip.
+        if env.get("render_handle") and (mode == "render" or _has(text, _RENDER_CUES)):
+            handle = env["render_handle"]
+            session.render_handle = None
+            env = _render_from_handle(handle)
+        elif mode == "render" and not env.get("render_handle") \
+                and env.get("intent") == "simulate":
+            env = {**env, "text": (env.get("text") or "")
+                   + "\n\n(Nothing to render here — this one's a number, not a "
+                     "moving object.)"}
+        session.last_intent = env["intent"]
+        return env
+
+    # A forced sim/render that wouldn't compile → refuse honestly, don't fall to ASK.
+    if forced:
+        msg = (getattr(spec, "note", "") or
+               "I couldn't compile that into a simulation. Name an object and a "
+               "height — e.g. 'drop a feather from 8 feet'.")
+        env = _envelope("simulate", text=msg, can_render=False, source=spec.source)
+        session.last_intent = env["intent"]
+        return env
+
+    # 3. Auto mode, not a sim → the Q&A switchboard.
     env = _ask(text)
     session.last_intent = env["intent"]
     return env
@@ -161,11 +203,23 @@ def _run_simulation(text, spec, *, use_llm, session) -> dict:
 
 
 def _render_from_handle(handle: dict) -> dict:
-    """Turn a Materia render-handle into a watchable, saved Radiance fall."""
+    """Turn a Materia render-handle into a watchable, saved Radiance fall.
+
+    Two kinds: a generic SPHERE renders natively from its material + radius
+    (radiance.record_fall — no Deckard); a NAMED object has Deckard compile its
+    real shape, then record_object_fall drops it. Either way we never fake a shape.
+    """
+    if handle.get("kind") == "sphere":
+        from sigma_ground.radiance import record_fall
+        label = handle.get("label", "sphere")
+        bundle = record_fall(handle.get("material_key", "iron"),
+                             radius_m=handle.get("radius_m", 0.05),
+                             start_altitude_m=handle.get("start_altitude_m", 1000.0))
+        bundle["kind"] = "trajectory"        # record_fall omits it; the viewer needs it
+        return _announce_render("falling " + label, bundle)
+
     from sigma_ground import deckard
     from sigma_ground.radiance import record_object_fall
-    from sigma_ground.deckard import catalog
-
     name = handle.get("object_name", "object")
     try:
         construct = deckard.identify(name)        # catalogue hit = instant
@@ -174,24 +228,26 @@ def _render_from_handle(handle: dict) -> dict:
     if construct is None or not getattr(construct, "identified", False):
         return _envelope("render", source="deckard",
                          text=f"Couldn't ground the shape of {name!r} to render.")
-
     bundle = record_object_fall(construct,
                                 handle.get("start_altitude_m", 2.4384),
                                 cd=handle.get("cd", 1.0))
-    slug = catalog.slugify("falling " + name)
+    return _announce_render("falling " + name, bundle)
+
+
+def _announce_render(title: str, bundle: dict) -> dict:
+    """Save a render bundle to the viewer's data dir; return the render envelope."""
+    from sigma_ground.deckard import catalog
+    slug = catalog.slugify(title)
     path = _save_bundle(slug, bundle)
     url = f"{_VIEWER}/?scene={slug}"
-    title = f"falling {name}"
     tr = bundle["trajectory"]
-    text = (f"Rendered the {name} fall — its real shape descending to the floor "
-            f"({len(tr['frames'])} frames, ground in "
-            f"{tr['natural_timescale_s']:.2f} s). Saved as “{title}”. "
-            f"Serve with `python -m sigma_ground.radiance.web.serve`, then open "
-            f"{url} and press ▶.")
+    text = (f"Rendered “{title}” — {len(tr['frames'])} frames, ground in "
+            f"{tr['natural_timescale_s']:.2f} s; saved for replay. Serve with "
+            f"`python -m sigma_ground.radiance.web.serve`, then open {url} and "
+            f"press ▶.")
     return _envelope("render", text=text, can_render=False,
-                     saved={"slug": slug, "path": path, "url": url,
-                            "title": title},
-                     source="radiance.record_object_fall")
+                     saved={"slug": slug, "path": path, "url": url, "title": title},
+                     source="radiance")
 
 
 def _save_bundle(slug: str, bundle: dict) -> str:

@@ -42,8 +42,14 @@ def terminal_velocity_drop(material_key: str = "copper",
     residual = sim["energy_residual"]
     gap = (sim["impact_speed_m_s"] - v_t) / v_t        # + = above terminal (relaxation incomplete)
     passed = residual <= 0.01                           # engine self-check: energy conserved
+    # Did the sphere overshoot v_t in the thin upper air (a tall drop), or simply
+    # never approach it (a short, low drop)? The prose must not claim a "high-
+    # altitude overshoot" for a 12 ft drop.
+    overshoot = sim["max_speed_m_s"] > sim["impact_speed_m_s"] * 1.02
     relaxed = ("near-complete" if abs(gap) < tolerance
-               else "incomplete — high-altitude overshoot still decaying")
+               else "above terminal — high-altitude overshoot still decaying"
+               if gap > 0 else
+               "below terminal — too short a fall to reach v_t")
 
     steps = [
         MateriaStep("Material", f"{sim['material_name']} "
@@ -56,9 +62,11 @@ def terminal_velocity_drop(material_key: str = "copper",
                     "sigma_ground.shapes.Sphere"),
         MateriaStep("Released from", sim["start_altitude_m"], "m", "(input)",
                     "user"),
-        MateriaStep("Max speed (aloft)", sim["max_speed_m_s"], "m/s",
-                    f"at altitude {sim['max_speed_altitude_m']:.0f} m — thin air, "
-                    f"v_t locally higher",
+        MateriaStep("Max speed (aloft)" if overshoot else "Max speed",
+                    sim["max_speed_m_s"], "m/s",
+                    (f"at altitude {sim['max_speed_altitude_m']:.0f} m — thin air, "
+                     f"v_t locally higher" if overshoot else
+                     "reached at impact — a short fall, never near terminal"),
                     "sigma_ground.dynamics.stepper (leapfrog)"),
         MateriaStep("Impact speed", sim["impact_speed_m_s"], "m/s",
                     f"after {sim['fall_time_s']:.1f} s, "
@@ -66,17 +74,24 @@ def terminal_velocity_drop(material_key: str = "copper",
                     "sigma_ground.dynamics.stepper + "
                     "field.interface.atmosphere.density_at_altitude"),
         MateriaStep("Energy-conservation residual", residual * 100.0, "%",
-                    "|Q_A − Q_B| / Q_A — engine self-check", "Materia"),
+                    "drag-work mismatch / energy dropped — engine self-check",
+                    "Materia"),
         MateriaStep("Terminal velocity (closed form)", v_t, "m/s",
                     "v_t = √(2mg / ρ₀C_dA)",
                     "Materia.analytic_terminal_velocity"),
     ]
 
-    summary = (f"A {radius_m*100:.0f} cm {sim['material_name'].lower()} sphere "
-               f"dropped from {drop_altitude_m/1000:.0f} km hits the ground at "
+    # Altitude in m for short drops, km for tall ones (so a 3.7 m drop doesn't
+    # read "from 0 km"); the upper-air overshoot only happens on a tall drop that
+    # actually peaked above its impact speed.
+    h_str = (f"{drop_altitude_m:.1f} m" if drop_altitude_m < 1000.0
+             else f"{drop_altitude_m/1000:.0f} km")
+    peak = (f", having peaked at ≈{sim['max_speed_m_s']:.0f} m/s in the thin "
+            f"upper air" if overshoot else "")
+    summary = (f"A {radius_m*100:.0f} cm-radius {sim['material_name'].lower()} "
+               f"sphere dropped from {h_str} hits the ground at "
                f"≈{sim['impact_speed_m_s']:.0f} m/s "
-               f"({sim['impact_speed_m_s']*3.6:.0f} km/h), having peaked at "
-               f"≈{sim['max_speed_m_s']:.0f} m/s in the thin upper air.")
+               f"({sim['impact_speed_m_s']*3.6:.0f} km/h){peak}.")
 
     validation = {
         "passed": passed,
@@ -97,7 +112,18 @@ def terminal_velocity_drop(material_key: str = "copper",
                          outputs={"impact_speed_m_s": sim["impact_speed_m_s"],
                                   "max_speed_m_s": sim["max_speed_m_s"],
                                   "terminal_velocity_m_s": v_t,
-                                  "fall_time_s": sim["fall_time_s"]})
+                                  "fall_time_s": sim["fall_time_s"],
+                                  # A renderable sphere fall: the tier-4 dispatcher
+                                  # can hand this to radiance.record_fall on a
+                                  # "yes" (spheres render natively — no Deckard).
+                                  "can_render": True,
+                                  "render_handle": {
+                                      "kind": "sphere",
+                                      "material_key": material_key,
+                                      "radius_m": radius_m,
+                                      "start_altitude_m": drop_altitude_m,
+                                      "label": f"{sim['material_name'].lower()} ball",
+                                  }})
 
 
 def drag_heating_drop(material_key: str = "iron",
@@ -179,7 +205,17 @@ def drag_heating_drop(material_key: str = "iron",
                          outputs={"delta_T_K": heat["delta_T_K"],
                                   "peak_T_K": heat["peak_T_K"],
                                   "dissipation_J": q_budget,
-                                  "impact_speed_m_s": sim["impact_speed_m_s"]})
+                                  "impact_speed_m_s": sim["impact_speed_m_s"],
+                                  # Same renderable sphere fall as terminal_velocity_drop:
+                                  # the dispatcher hands this to record_fall on a "yes".
+                                  "can_render": True,
+                                  "render_handle": {
+                                      "kind": "sphere",
+                                      "material_key": material_key,
+                                      "radius_m": radius_m,
+                                      "start_altitude_m": drop_altitude_m,
+                                      "label": f"{sim['material_name'].lower()} ball",
+                                  }})
 
 
 def high_altitude_descent(payload_mass_kg: float = 118.0,
@@ -2574,7 +2610,7 @@ def library_sweep() -> MateriaResult:
                          outputs={"functions_called": called})
 
 
-def drop_object(object_name: str = "anvil",
+def drop_object(object_name: str | None = None,
                 drop_altitude_m: float = 1000.0) -> MateriaResult:
     """Drop a NAMED object (not just a sphere) and find its terminal speed.
     Materia carries no arbitrary shapes, so it asks the DECKARD shape researcher
@@ -2582,6 +2618,28 @@ def drop_object(object_name: str = "anvil",
     simulates THAT. If Deckard can't ground the shape, the sim REFUSES rather
     than fake a sphere — never a confident answer about an object we couldn't
     build."""
+    # Fix A — no silent default: an objectless drop REFUSES, never substitutes a
+    # stand-in. (The front door names the user's actual word; this is the net for
+    # any direct caller of the verb.)
+    if not object_name or not str(object_name).strip():
+        return MateriaResult(
+            "drop_object", {"object_name": object_name}, [],
+            summary="No object to drop — name something I can ground.",
+            validation={"passed": False,
+                        "note": "no object named — refusing rather than "
+                                "defaulting to a stand-in object"},
+            outputs={})
+    # Fix B — a 0 m 'drop' doesn't fall. Terminal velocity is altitude-independent,
+    # so without this we'd report a speed the object never reaches.
+    if drop_altitude_m is not None and drop_altitude_m <= 0:
+        return MateriaResult(
+            "drop_object", {"object_name": object_name,
+                            "drop_altitude_m": drop_altitude_m}, [],
+            summary=f"A {drop_altitude_m:g} m drop doesn't fall.",
+            validation={"passed": False,
+                        "note": "drop altitude must be > 0 — a 0 m drop never "
+                                "reaches terminal velocity; give me a height"},
+            outputs={})
     from .deckard_bridge import request_shape
     sh = request_shape(object_name)
     if sh is None:                                 # Deckard couldn't ground it

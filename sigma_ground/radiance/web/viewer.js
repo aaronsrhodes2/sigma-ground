@@ -707,7 +707,8 @@ $("b-feather").addEventListener("click",()=>load("data/feather.json","feather").
 $("b-dfeather").addEventListener("click",()=>load("data/deckard_feather.json","Deckard feather ◆").then(()=>$("b-dfeather").classList.add("on")).catch(()=>{}));
 // "behind the simulation" flip + the live JSON editor
 $("b-edit").addEventListener("click",()=>{ const open=$("editor").classList.toggle("open");
-  $("b-edit").classList.toggle("on",open); if(open && !$("json").value) syncEditor(); });
+  $("b-edit").classList.toggle("on",open); if(open && !$("json").value) syncEditor();
+  if(open){ $("library").classList.remove("open"); $("b-lib").classList.remove("on"); } });
 $("rerender").addEventListener("click",reRender);
 $("editreset").addEventListener("click",()=>{ syncEditor(); reRender(); });
 $("json").addEventListener("keydown",e=>{
@@ -722,6 +723,31 @@ $("b-pt").addEventListener("click",()=>{
 // path tracing is the default when supported; the button drops to the fast renderer
 if(extF){ $("b-pt").classList.toggle("on",ptMode); $("b-pt").textContent="Path trace ●"; }
 else { $("b-pt").textContent="Path trace (no float)"; }
+
+// ── simulation library — a gallery built from data/scenes.json (build_library.py) ──
+(async function buildLibrary(){
+  const listEl=$("liblist"); if(!listEl) return;
+  try{
+    const r=await fetch("data/scenes.json"); if(!r.ok) return;
+    const scenes=await r.json();
+    listEl.innerHTML="";
+    for(const s of scenes){
+      const card=document.createElement("div"); card.className="libcard";
+      const t=document.createElement("div"); t.className="t"; t.textContent=s.title||s.slug;
+      const q=document.createElement("div"); q.className="q";
+      q.textContent=(s.question||"")+(s.verb?"  ·  "+s.verb:"")+(s.frames?"  ·  "+s.frames+"f":"");
+      card.append(t,q);
+      card.addEventListener("click",()=>{
+        load("data/"+s.slug+".json", s.title||s.slug).catch(e=>setErr("library: "+e));
+        $("library").classList.remove("open"); $("b-lib").classList.remove("on"); });
+      listEl.appendChild(card);
+    }
+    if(scenes.length) $("b-lib").title=scenes.length+" simulations — click to browse";
+  }catch(e){ console.error("library:",e); }
+})();
+$("b-lib").addEventListener("click",()=>{
+  const open=$("library").classList.toggle("open"); $("b-lib").classList.toggle("on",open);
+  if(open){ $("editor").classList.remove("open"); $("b-edit").classList.remove("on"); } });  // one drawer at a time
 
 // ── main loop ─────────────────────────────────────────────────────────
 let last=performance.now(), fpsT=last, fpsN=0;
@@ -747,5 +773,13 @@ if(_scene && /^[a-z0-9_]+$/i.test(_scene)){
 }else{
   load("data/cup.json","coffee cup").then(()=>$("b-cup").classList.add("on")).catch(()=>{});
 }
+
+// ── external hook: let the Mentat chat drive this viewer without an iframe reload ──
+// MUST live inside the IIFE to capture the module-scoped load()/scene(). chat.js
+// awaits `radiance-ready`, then window.Radiance.load("data/<slug>.json", title)
+// swaps the scene on the SHARED canvas (PT accumulation preserved) — no flicker.
+window.Radiance = { load, applyObj, scene: () => scene, ready: true };
+window.dispatchEvent(new Event("radiance-ready"));
+
 requestAnimationFrame(loop);
 })();

@@ -1,0 +1,537 @@
+{
+ "scene": {
+  "name": "coffee cup",
+  "csg_leaves": [
+   {
+    "op": "add",
+    "material": "glaze",
+    "shape": {
+     "type": "Cylinder",
+     "center": [
+      0.0,
+      0.0,
+      0.0475
+     ],
+     "radius": 0.04,
+     "height": 0.095
+    },
+    "body": 0
+   },
+   {
+    "op": "add",
+    "material": "ceramic",
+    "shape": {
+     "type": "Cylinder",
+     "center": [
+      0.0,
+      0.0,
+      0.0475
+     ],
+     "radius": 0.0397,
+     "height": 0.095
+    },
+    "body": 0
+   },
+   {
+    "op": "subtract",
+    "material": "air",
+    "shape": {
+     "type": "Cylinder",
+     "center": [
+      0.0,
+      0.0,
+      0.051000000000000004
+     ],
+     "radius": 0.0347,
+     "height": 0.088
+    },
+    "body": 0
+   },
+   {
+    "op": "add",
+    "material": "water",
+    "shape": {
+     "type": "Cylinder",
+     "center": [
+      0.0,
+      0.0,
+      0.04220000000000001
+     ],
+     "radius": 0.0347,
+     "height": 0.0704
+    },
+    "body": 0
+   },
+   {
+    "op": "add",
+    "material": "stage_dark",
+    "shape": {
+     "type": "Box",
+     "center": [
+      0.0,
+      -0.06,
+      0.0
+     ],
+     "x": 4.0,
+     "y": 0.12,
+     "z": 4.0
+    }
+   }
+  ],
+  "materials": {
+   "glaze": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "density_kg_m3": 2400.0,
+    "density_method": "unknown material"
+   },
+   "ceramic": {
+    "color_rgb": [
+     0.9,
+     0.9,
+     0.9
+    ],
+    "emergent": true,
+    "metal": false,
+    "mechanism": "wide-gap insulator: no visible absorber -> white",
+    "density_kg_m3": 2300.0,
+    "density_method": "unknown material"
+   },
+   "air": {
+    "color_rgb": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "emergent": true,
+    "metal": false,
+    "mechanism": "void (no matter)",
+    "density_kg_m3": 0.0,
+    "density_method": "unknown material"
+   },
+   "water": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "density_kg_m3": 998.0,
+    "density_method": "unknown material"
+   },
+   "stage_dark": {
+    "color_rgb": [
+     0.07,
+     0.07,
+     0.08
+    ],
+    "emergent": true,
+    "metal": false,
+    "mechanism": "weakly-absorbing aggregate -> grey",
+    "density_kg_m3": 2400.0,
+    "density_derived_kg_m3": 2300,
+    "density_pct_vs_supplied": -4.17,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 33.3,
+    "sound_speed_m_s": 4010.0,
+    "restitution_ref": 0.152,
+    "ring_frequency_hz": 6115.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+   }
+  },
+  "physics": {
+   "mass_kg": 0.5991574167378529,
+   "com_m": [
+    0.0,
+    0.0,
+    0.04067657103705865
+   ],
+   "inertia_kgm2": [
+    0.0007059607286235992,
+    0.000705960728623591,
+    0.0005829675582153917
+   ]
+  },
+  "bbox": [
+   [
+    -2.0,
+    2.0
+   ],
+   [
+    -0.2,
+    2.9
+   ],
+   [
+    -2.0,
+    2.0
+   ]
+  ],
+  "camera": {
+   "target": [
+    0.0,
+    1.05,
+    0.0
+   ],
+   "orbit_radius": 3.125,
+   "fov_deg": 44.0,
+   "up": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "az0": 0.5,
+   "el0": 0.18
+  },
+  "lights": [
+   {
+    "dir": [
+     -0.384,
+     -0.816,
+     -0.432
+    ],
+    "color": [
+     1.0,
+     0.9313,
+     0.8716
+    ],
+    "intensity": 1.05,
+    "temperature_k": 5500
+   },
+   {
+    "dir": [
+     -0.3143,
+     -0.3928,
+     0.8642
+    ],
+    "color": [
+     0.8937,
+     0.9164,
+     1.0
+    ],
+    "intensity": 0.4,
+    "temperature_k": 7600
+   }
+  ],
+  "ambient": {
+   "sky": [
+    0.1,
+    0.12,
+    0.16
+   ],
+   "ground": [
+    0.06,
+    0.05,
+    0.045
+   ],
+   "up": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  "identified": true,
+  "source": "coffee cup (layered_vessel) \u2014 typical stoneware coffee mug (approx.), liquid water at 20C = 998 kg/m^3",
+  "bodies": [
+   {
+    "pivot": [
+     0.0,
+     0.0,
+     0.04067657103705865
+    ],
+    "label": "coffee cup"
+   }
+  ],
+  "kind": "trajectory"
+ },
+ "trajectory": {
+  "frames": [
+   {
+    "t_sim": 0.01,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.49951,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.06,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.48235,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.11,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.44068,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.16,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.37452,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.21,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.28389,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.26,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.16882,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.31,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.02937,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.36,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.86558,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.41,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.67751,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.46,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.46525,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.51,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.22886,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.56,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.96843,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.61,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.68406,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.66,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.37587,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.71,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.04395,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.7071067811865476,
+       0.7071067811865476
+      ]
+     }
+    ]
+   }
+  ],
+  "t_end_s": 0.71,
+  "natural_timescale_s": 0.7200000000000004,
+  "suggested_rate": 0.14400000000000007,
+  "body_labels": [
+   "coffee cup"
+  ]
+ },
+ "kind": "trajectory"
+}

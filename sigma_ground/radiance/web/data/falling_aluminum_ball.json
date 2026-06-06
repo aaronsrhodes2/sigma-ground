@@ -1,0 +1,219 @@
+{
+ "scene": {
+  "name": "aluminum sphere",
+  "bodies": [
+   {
+    "pivot": [
+     0,
+     0,
+     0
+    ],
+    "label": "aluminum"
+   }
+  ],
+  "csg_leaves": [
+   {
+    "op": "add",
+    "material": "aluminum",
+    "body": 0,
+    "shape": {
+     "type": "Sphere",
+     "center": [
+      0,
+      0,
+      0
+     ],
+     "radius": 0.0635
+    }
+   }
+  ],
+  "materials": {
+   "aluminum": {
+    "color_rgb": [
+     0.9018,
+     0.9186,
+     0.9375
+    ],
+    "emergent": true,
+    "metal": true,
+    "mechanism": "Drude-Fresnel (free electrons)",
+    "density_kg_m3": 2700.0,
+    "density_derived_kg_m3": 2699.7,
+    "density_pct_vs_supplied": -0.01,
+    "density_method": "crystallographic (fcc cell, a=4.05 A, A=27)",
+    "youngs_modulus_gpa": 88.3,
+    "sound_speed_m_s": 7245.0,
+    "restitution_ref": 0.096,
+    "ring_frequency_hz": 9365.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "emissivity_rgb": [
+     0.098,
+     0.081,
+     0.063
+    ]
+   }
+  },
+  "physics": {
+   "mass_kg": 2.8958332430421994,
+   "com_m": [
+    0,
+    0,
+    0
+   ],
+   "inertia_kgm2": [
+    0,
+    0,
+    0
+   ]
+  },
+  "bbox": [
+   [
+    -0.0635,
+    0.0635
+   ],
+   [
+    -0.0635,
+    0.0635
+   ],
+   [
+    -0.0635,
+    0.0635
+   ]
+  ],
+  "camera": {
+   "target": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "orbit_radius": 0.28596158832962165,
+   "fov_deg": 40.0,
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  "identified": true,
+  "source": "falling sphere (Materia drag integration)"
+ },
+ "trajectory": {
+  "frames": [
+   {
+    "t_sim": 0.0,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       3.6576000000000004,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.20000000000000004,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       3.4615712459161045,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4000000000000002,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       2.8736668191630312,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.6000000000000003,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       1.8944304837817403,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.8000000000000005,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.5247657004371443,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.8700000000000006,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       -0.046633144918081584,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   }
+  ],
+  "t_end_s": 0.8700000000000006,
+  "natural_timescale_s": 0.8700000000000006,
+  "suggested_rate": 0.05800000000000004,
+  "body_labels": [
+   "aluminum"
+  ]
+ },
+ "kind": "trajectory"
+}

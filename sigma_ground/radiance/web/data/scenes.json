@@ -1,0 +1,110 @@
+[
+ {
+  "slug": "fall_feather",
+  "title": "Feather \u2014 dropped from 2.4384 m",
+  "question": "drop a feather from 2.4384 m",
+  "verb": "drop_object",
+  "kind": "trajectory",
+  "frames": 27,
+  "fall_s": 1.31
+ },
+ {
+  "slug": "fall_skillet",
+  "title": "Cast Iron Skillet \u2014 dropped from 3 m",
+  "question": "drop a cast iron skillet from 3 m",
+  "verb": "drop_object",
+  "kind": "trajectory",
+  "frames": 16,
+  "fall_s": 0.8
+ },
+ {
+  "slug": "fall_glass",
+  "title": "Drinking Glass \u2014 dropped from 2.5 m",
+  "question": "drop a drinking glass from 2.5 m",
+  "verb": "drop_object",
+  "kind": "trajectory",
+  "frames": 15,
+  "fall_s": 0.72
+ },
+ {
+  "slug": "fall_cup",
+  "title": "Coffee Cup \u2014 dropped from 2.5 m",
+  "question": "drop a coffee cup from 2.5 m",
+  "verb": "drop_object",
+  "kind": "trajectory",
+  "frames": 15,
+  "fall_s": 0.72
+ },
+ {
+  "slug": "fall_sphere_copper",
+  "title": "Copper ball \u2014 15 cm, from 4 m",
+  "question": "drop a 15 cm copper ball from 4 m",
+  "verb": "terminal_velocity_drop",
+  "kind": "trajectory",
+  "frames": 47,
+  "fall_s": 0.9
+ },
+ {
+  "slug": "fall_sphere_gold",
+  "title": "Gold ball \u2014 15 cm, from 4 m",
+  "question": "drop a 15 cm gold ball from 4 m",
+  "verb": "terminal_velocity_drop",
+  "kind": "trajectory",
+  "frames": 47,
+  "fall_s": 0.9
+ },
+ {
+  "slug": "fall_sphere_aluminum",
+  "title": "Aluminum ball \u2014 15 cm, from 4 m",
+  "question": "drop a 15 cm aluminum ball from 4 m",
+  "verb": "terminal_velocity_drop",
+  "kind": "trajectory",
+  "frames": 47,
+  "fall_s": 0.9
+ },
+ {
+  "slug": "fall_sphere_iron",
+  "title": "Iron ball \u2014 15 cm, from 4 m",
+  "question": "drop a 15 cm iron ball from 4 m",
+  "verb": "terminal_velocity_drop",
+  "kind": "trajectory",
+  "frames": 47,
+  "fall_s": 0.9
+ },
+ {
+  "slug": "fall_sphere_lead",
+  "title": "Lead ball \u2014 15 cm, from 4 m",
+  "question": "drop a 15 cm lead ball from 4 m",
+  "verb": "terminal_velocity_drop",
+  "kind": "trajectory",
+  "frames": 47,
+  "fall_s": 0.9
+ },
+ {
+  "slug": "fall_sphere_titanium",
+  "title": "Titanium ball \u2014 15 cm, from 4 m",
+  "question": "drop a 15 cm titanium ball from 4 m",
+  "verb": "terminal_velocity_drop",
+  "kind": "trajectory",
+  "frames": 47,
+  "fall_s": 0.9
+ },
+ {
+  "slug": "fall_sphere_tungsten",
+  "title": "Tungsten ball \u2014 15 cm, from 4 m",
+  "question": "drop a 15 cm tungsten ball from 4 m",
+  "verb": "terminal_velocity_drop",
+  "kind": "trajectory",
+  "frames": 47,
+  "fall_s": 0.9
+ },
+ {
+  "slug": "fall_sphere_steel",
+  "title": "Steel ball \u2014 15 cm, from 4 m",
+  "question": "drop a 15 cm steel ball from 4 m",
+  "verb": "terminal_velocity_drop",
+  "kind": "trajectory",
+  "frames": 47,
+  "fall_s": 0.9
+ }
+]

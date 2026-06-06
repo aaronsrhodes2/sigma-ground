@@ -220,7 +220,13 @@ def simulate_fall(material_key: str, radius_m: float, start_altitude_m: float,
     pe_lost = parcel.mass * g * drop_distance
     ke_gained = 0.5 * parcel.mass * impact_speed * impact_speed
     q_budget = pe_lost - ke_gained
-    energy_residual = abs(q_budget - q_drag) / q_budget if q_budget else 0.0
+    # Normalise the drag-work mismatch by the TOTAL energy dropped (pe_lost), NOT
+    # by the drag loss q_budget. On a short, slow drop drag is negligible, so
+    # q_budget → 0 and |q_budget − q_drag| / q_budget blows up (two tiny numbers
+    # disagreeing) even though the impact speed is exactly free-fall-correct.
+    # Per energy-dropped it stays well-conditioned for every fall and matches the
+    # old ratio when drag dominates (q_budget ≈ pe_lost at terminal velocity).
+    energy_residual = abs(q_budget - q_drag) / pe_lost if pe_lost else 0.0
     # Reynolds number at impact → which drag regime we ended in
     Re = rho0 * impact_speed * (2.0 * radius_m) / _air_viscosity(T)
     regime = ("Newton (Re>1e3, C_d≈0.44)" if Re > 1000 else

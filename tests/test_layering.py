@@ -45,6 +45,12 @@ ALLOW = {
     # that math to a shared lower tier; deferred because orbital.py is part of
     # in-flight stashed WIP and refactoring it now would collide on stash pop.
     ("sigma_ground.materia.scenarios", "sigma_ground.mcp.tools.orbital"),
+    # The web cockpit (radiance/web/serve.py) wires the Mentat front door into a
+    # /chat endpoint — a tier-3 static server reaching the tier-4 dispatcher. It's
+    # a composition seam (an entry point), not library coupling. RETIRE by moving
+    # the dynamic server to a tier-4 entry (e.g. sigma_ground/mcp/cockpit.py) that
+    # imports both serve (static) and front_door; serve.py then stays pure static.
+    ("sigma_ground.radiance.web.serve", "sigma_ground.mcp.front_door"),
 }
 
 
