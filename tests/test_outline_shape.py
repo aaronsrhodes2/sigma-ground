@@ -69,7 +69,8 @@ def test_outline_of_loads_the_distilled_quickdraw_feather():
 
 
 def test_distilled_outlines_all_form_valid_closed_matter():
-    # every shipped Quick Draw outline loads and sweeps to real, closed matter.
+    # the original organic outlines load and sweep to real, closed matter
+    # (centre-inside holds for these star-convex shapes).
     for noun in ("feather", "leaf", "key", "fish", "tree", "flower"):
         got = outline_of(noun)
         assert got is not None, noun
@@ -77,6 +78,27 @@ def test_distilled_outlines_all_form_valid_closed_matter():
         o = Outline(prof, mode="extrude", thickness=0.001)
         assert o.volume() > 0.0, noun
         assert o.surface_distance(0.0, 0.0, 0.0) < 0.0, noun     # centre is inside (closed)
+
+
+def test_every_shipped_outline_is_well_formed():
+    # Directory-wide guard: every distilled Quick Draw outline that ships must
+    # load, be cited (CC BY 4.0), be non-degenerate (real enclosed area, not a
+    # collapsed/self-intersecting medoid), and sweep to positive-volume matter.
+    # Protects the broadened set and any future distill from shipping junk.
+    import json
+    from sigma_ground.deckard.sources.outlines import _DIR
+    from sigma_ground.kernel.outline import _shoelace_area
+
+    files = sorted(_DIR.glob("*.json"))
+    assert len(files) >= 30, f"expected the broadened outline set, found {len(files)}"
+    for p in files:
+        d = json.loads(p.read_text(encoding="utf-8"))
+        prof = [(float(u), float(v)) for u, v in d.get("profile", [])]
+        assert len(prof) >= 3, p.stem                            # extrude needs a polygon
+        assert abs(_shoelace_area(prof)) > 0.05, p.stem          # real area, not collapsed
+        assert "Quick" in d.get("source", ""), p.stem            # attributed
+        assert "BY" in d.get("license", ""), p.stem              # CC BY 4.0
+        assert Outline(prof, mode="extrude", thickness=0.01).volume() > 0.0, p.stem
 
 
 def test_researcher_grounds_an_organic_outline_from_quickdraw():

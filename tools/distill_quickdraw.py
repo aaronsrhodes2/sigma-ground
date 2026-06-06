@@ -127,7 +127,7 @@ def distill(category: str) -> pathlib.Path:
         except Exception:
             continue
     if len(outlines) < 5:
-        raise SystemExit(f"too few usable outlines for '{category}' ({len(outlines)})")
+        raise ValueError(f"too few usable outlines for '{category}' ({len(outlines)})")
     med = _medoid(outlines)
     slug = category.strip().lower().replace(" ", "_")
     _OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -142,11 +142,18 @@ def distill(category: str) -> pathlib.Path:
 
 def main(argv):
     cats = argv or ["feather"]
+    ok, failed = [], []
     for i, cat in enumerate(cats):
         if i:
             time.sleep(1.0)                # polite: sequential, ~1 req/s
-        p = distill(cat)
-        print("wrote", p)
+        try:
+            p = distill(cat)
+            print("wrote", p)
+            ok.append(cat)
+        except Exception as e:
+            print(f"skip '{cat}': {type(e).__name__}: {e}")
+            failed.append(cat)
+    print(f"\n{len(ok)} written, {len(failed)} skipped" + (f": {failed}" if failed else ""))
 
 
 if __name__ == "__main__":
