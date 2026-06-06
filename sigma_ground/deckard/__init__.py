@@ -26,6 +26,7 @@ from .schema import (ConstructSpec, Fact, SpecLayer, Part,
                      emit_markdown, parse_markdown)
 from .research import research, CATALOG
 from .construct import compile, compile_vessel, Construct, Layer
+from .selfaudit import audit
 
 # Back-compat: ItemSpec is now the generalised ConstructSpec.
 ItemSpec = ConstructSpec
@@ -44,5 +45,5 @@ __all__ = [
     "identify", "research", "catalog", "CATALOG",
     "ConstructSpec", "ItemSpec", "Fact", "SpecLayer", "Part",
     "emit_markdown", "parse_markdown",
-    "compile", "compile_vessel", "Construct", "Layer",
+    "compile", "compile_vessel", "Construct", "Layer", "audit",
 ]
