@@ -79,14 +79,6 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
     "momentum": [
         "linear momentum", "p = m v", "Newton's second law in p form",
     ],
-    "elastic_collision_velocities": [
-        "elastic collision", "conservation of momentum",
-        "1D collision", "billiard ball collision",
-    ],
-    "inelastic_collision_velocity": [
-        "inelastic collision", "perfectly inelastic",
-        "stick together collision",
-    ],
     "circular_orbit_velocity": [
         "orbital velocity", "circular orbit speed",
         "v_orbit = sqrt(GM/r)", "Kepler third law derivation",
@@ -128,9 +120,6 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
     ],
     "ohms_law_current": [
         "Ohm's law for current", "I = V / R",
-    ],
-    "ohms_law_resistance": [
-        "Ohm's law for resistance", "R = V / I",
     ],
     "electrical_power": [
         "electrical power", "P = V I", "P = I^2 R",
@@ -249,12 +238,6 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "Convert Kelvin to Celsius", "K to C", "Kelvin to Celsius",
         "T_C = T_K - 273.15", "what is X K in Celsius",
         "convert temperature",
-    ],
-    "temperature_fahrenheit_to_celsius": [
-        "F to C", "Fahrenheit to Celsius", "convert temperature",
-    ],
-    "temperature_celsius_to_fahrenheit": [
-        "C to F", "Celsius to Fahrenheit", "convert temperature",
     ],
 
     # ============ ATOMIC / QUANTUM ============
@@ -758,22 +741,6 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "Si Ge GaAs gap", "Eg",
     ],
     "list_materials": ["available materials"],
-    "thermal_conductivity": [
-        "thermal conductivity", "k_thermal",
-        "Fourier law of heat conduction", "W/(m K)",
-    ],
-
-    # ============ CIRCUITS - extended ============
-    "speed_of_em_in_medium": [
-        "speed of light in a medium", "v = c / n",
-        "phase velocity in matter",
-    ],
-
-    # ============ OPTICS - extended ============
-    "lyman_alpha_wavelength": [
-        "Lyman-alpha", "121.567 nm", "hydrogen UV line",
-        "Lyman series first line",
-    ],
 
     # ============ SIMULATION PLAYGROUND (conversation mode) ============
     "playground_load": [

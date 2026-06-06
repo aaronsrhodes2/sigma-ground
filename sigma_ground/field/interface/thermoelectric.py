@@ -215,20 +215,16 @@ def fermi_energy_ev(material_key):
 def seebeck_coefficient(material_key, T=300.0):
     """Seebeck coefficient S (V/K) from the Mott formula.
 
-    S = (π²/3) × (k_B/e) × (k_B T / E_F)
+    FIRST_PRINCIPLES: Boltzmann transport in the relaxation-time
+    approximation. The Mott formula relates thermopower to the energy
+    derivative of conductivity at the Fermi level:
 
-    FIRST_PRINCIPLES: Boltzmann transport equation in the relaxation
-    time approximation. The Mott formula relates thermopower to the
-    energy derivative of conductivity at the Fermi level.
+        S = (π²/3)(k_B/e)(k_B T)·d(ln σ)/dE |_{E_F}
 
-    For free electrons, d(ln σ)/d(ln E) = 3/2, giving:
-      S = (π²/2) × (k_B²T) / (e × E_F)
+    For free electrons σ(E) ∝ E^{3/2}, so d(ln σ)/d(ln E) = 3/2 and the
+    generic (π²/3) prefactor becomes (π²/3)·(3/2) = (π²/2):
 
-    Wait — the standard Mott result for free electrons is:
-      S = (π²/3) × (k_B²T) / (e × E_F) × (3/2)
-      S = (π²/2) × (k_B²T) / (e × E_F)
-
-    This is the standard free-electron Seebeck coefficient.
+        S = (π²/2) × (k_B² T) / (e · E_F)          ← used below.
 
     APPROXIMATION: misses d-band density of states effects in
     transition metals. For Cu, Al: within factor of 2.

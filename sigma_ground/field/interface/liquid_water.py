@@ -336,17 +336,20 @@ def water_viscosity(T_K):
 # ── Boiling Point ──────────────────────────────────────────────
 
 def water_enthalpy_of_vaporization():
-    """Enthalpy of vaporization of water (J/mol).
+    """Enthalpy of vaporization of water at the normal boiling point (J/mol).
 
-    ΔH_vap ≈ n_HB × E_HB × N_A / 2
+    MEASURED: ΔH_vap = 40,660 J/mol at 100 °C (CRC Handbook 97e; NIST
+    Webbook). This is the canonical value used for the boiling-point estimate.
 
-    Each molecule has n_HB H-bonds; each is shared (÷2).
-    MEASURED calibration: 0.23 eV per H-bond.
+    The H-bond estimate ``n_HB · E_HB · N_A / 2`` = 3.5 · 0.23 eV · N_A / 2
+    ≈ 38,800 J/mol is ~4.5 % low (it under-counts the cooperative H-bond
+    network energy), so it is NOT used here — Golden Rule 6/8 prefers the
+    measured value, matching the density/surface-tension/viscosity fixes.
 
     Returns:
         ΔH_vap in J/mol.
     """
-    return _N_HB * _E_HB_J * _N_A / 2.0
+    return 40660.0   # J/mol, MEASURED (CRC/NIST, 100 °C)
 
 
 def water_boiling_point(P_atm=1.0):

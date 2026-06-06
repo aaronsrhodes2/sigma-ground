@@ -247,17 +247,35 @@ def normalize_kwargs(kwargs: dict, real_params: set[str]) -> tuple[dict, list[st
             # Already the canonical name -- leave alone
             out[k] = v
             continue
+        # 1) Explicit alias table (handles non-prefix renames like
+        #    gravity->g_m_s2, n1->n_from). A value may be a single canonical
+        #    or a tuple of candidates (e.g. velocity -> speed_m_s OR
+        #    velocity_m_s, depending on which the target tool uses).
         canonical = PARAM_ALIASES.get(k)
-        if canonical is None or canonical == k:
-            # No alias or alias points to itself; pass through (pydantic
-            # will reject if it's actually unknown, or accept if it is).
+        target = None
+        if canonical is not None:
+            cands = (canonical,) if isinstance(canonical, str) else canonical
+            for c in cands:
+                if c != k and c in real_params and c not in out:
+                    target = c
+                    break
+        # 2) General prefix fallback: Qwen routinely drops the unit suffix
+        #    (velocity -> velocity_m_s, mass -> mass_kg, time -> time_s). If
+        #    exactly ONE real param is "<k>_<suffix>", rename to it. This is
+        #    what fixes the velocity_m_s/speed_m_s split that silently broke
+        #    every velocity_m_s tool (kinetic_energy, momentum, ...): the
+        #    alias table maps velocity->speed_m_s, but many tools want
+        #    velocity_m_s, so the explicit step misses them.
+        if target is None:
+            pref = [p for p in real_params
+                    if p.startswith(k + "_") and p not in out]
+            if len(pref) == 1:
+                target = pref[0]
+        if target is not None:
+            out[target] = v
+            renames.append(f"{k}->{target}")
+        else:
+            # No match; pass through (pydantic rejects if truly unknown,
+            # which Qwen can see and correct).
             out[k] = v
-            continue
-        if canonical in real_params:
-            # The canonical form IS what the tool wants -- rename it.
-            out[canonical] = v
-            renames.append(f"{k}->{canonical}")
-            continue
-        # Canonical not in real_params either; pass through.
-        out[k] = v
     return out, renames

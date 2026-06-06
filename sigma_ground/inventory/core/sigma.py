@@ -93,15 +93,15 @@ _NEUTRON_BARE_MEV: float = CONSTANTS.m_up_mev + 2.0 * CONSTANTS.m_down_mev
 _NEUTRON_TOTAL_MEV: float = CONSTANTS.m_n / _MEV_TO_KG
 _NEUTRON_QCD_MEV: float = _NEUTRON_TOTAL_MEV - _NEUTRON_BARE_MEV
 
-# SEMF Coulomb coefficient (MeV) — the EM piece of nuclear binding
-# Derived from first principles: a_C = (3/5) × e² / (4πε₀ r₀)
-# where r₀ ≈ 1.25 fm (nuclear charge radius parameter).
-# NOT a textbook fit — computed from fundamental constants.
-A_C_MEV: float = (
-    3.0 / 5.0
-    * (CONSTANTS.e ** 2 / (4.0 * math.pi * CONSTANTS.epsilon_0 * 1.25e-15))
-    / CONSTANTS.e * 1e-6  # J → MeV
-)
+# SEMF Coulomb coefficient (MeV) — the EM piece of nuclear binding.
+#   a_C = (3/5) × e²/(4πε₀ r₀),  r₀ = 1.215 fm (nuclear charge radius from
+#   electron scattering, Hofstadter) → a_C ≈ 0.7111 MeV (the standard SEMF
+#   value, Krane/Wong). σ-invariant (Coulomb energy does not scale with σ).
+# Imported from field.constants so the inventory and field layers share ONE
+# value. (This previously hardcoded r₀ = 1.25 fm → a_C = 0.691 MeV, which
+# diverged ~3% from the canonical 0.711 and gave inconsistent binding
+# energies between the inventory and field code paths.)
+from sigma_ground.field.constants import A_C_MEV  # noqa: E402  (σ-invariant)
 
 
 # ── Core scale function ──────────────────────────────────────────────

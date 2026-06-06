@@ -883,7 +883,12 @@ async def _run_one_question(session, ollama_url: str, model: str,
                 "messages": messages,
                 "tools":    tools_for_ollama,
                 "stream":   False,
-                "options":  {"temperature": 0.1},
+                # num_ctx MUST be set explicitly: the system prompt (~13k tokens,
+                # full tool index) + 219 tool schemas overflow ollama's small
+                # default context, which silently TRUNCATES the input -> the model
+                # sees a mangled prompt and returns an empty reply with no tool
+                # call. That was the 85%->53% regression (30 "0-call empty" Qs).
+                "options":  {"temperature": 0.1, "num_ctx": 32768},
             })
             response.raise_for_status()
             data = response.json()
@@ -1075,6 +1080,9 @@ async def _run_conversation(session, ollama_url: str, model: str,
 
     messages: list[dict] = [{"role": "system", "content": system_prompt}]
     transcript: list[dict] = []
+    if script_lines is None:
+        print("commands: /clear (or /reset) = fresh slate (history + scenes); "
+              "/question /simulation /render = scope tools; quit/exit = leave")
 
     def _turns():
         if script_lines is not None:
@@ -1094,6 +1102,24 @@ async def _run_conversation(session, ollama_url: str, model: str,
 
     async with httpx.AsyncClient(timeout=120.0) as http:
         for user_msg in _turns():
+            # /clear (alias /reset): fresh slate. Wipe the conversation history
+            # AND drop every live playground scene. The message history lives
+            # here; the scene store lives in the server process, so it's cleared
+            # via the MCP playground_clear tool (handle omitted = all scenes).
+            if user_msg.strip().lower() in ("/clear", "/reset"):
+                if script_lines is not None:
+                    print(f"\nyou> {user_msg}")
+                messages[:] = [{"role": "system", "content": system_prompt}]
+                transcript.clear()
+                note = ""
+                try:
+                    res = await session.call_tool("playground_clear", {})
+                    note = " ".join((getattr(p, "text", "") or "")
+                                    for p in (res.content or []))
+                except Exception as e:                       # pragma: no cover
+                    note = f"(scene-clear error: {e})"
+                print(f"🧹 /clear — conversation reset, scenes dropped. {note[:160]}")
+                continue
             # A per-turn /simulation /render /question flag refines the visible
             # tool set for just this turn (deterministic routing).
             _tcat, user_msg = _split_tool_flag(user_msg)
@@ -1108,7 +1134,8 @@ async def _run_conversation(session, ollama_url: str, model: str,
             for _ in range(8):                       # inner tool-loop
                 force_finalize = len(turn_tools) >= tool_budget
                 payload: dict = {"model": model, "messages": messages,
-                                 "stream": False, "options": {"temperature": 0.2}}
+                                 "stream": False,
+                                 "options": {"temperature": 0.2, "num_ctx": 32768}}
                 if not force_finalize:
                     payload["tools"] = active_tools
                 else:

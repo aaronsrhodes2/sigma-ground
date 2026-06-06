@@ -233,17 +233,19 @@ class TestBoilingPoint(unittest.TestCase):
     """Boiling point from Clausius-Clapeyron."""
 
     def test_at_1atm(self):
-        """T_boil at 1 atm ≈ 373 K — within 20%."""
+        """T_boil at 1 atm ≈ 373.15 K (100 °C) — within ~1 K.
+
+        Tightened from the old 300-450 K bound (which let a 17 K boiling-point
+        bug pass): ΔH_vap was uncalibrated and gave 356 K. Golden Rule 8."""
         T = water_boiling_point(1.0)
-        self.assertGreater(T, 300.0)
-        self.assertLess(T, 450.0)
+        self.assertAlmostEqual(T, 373.15, delta=1.0)
 
     def test_vaporization_enthalpy(self):
-        """ΔH_vap ≈ 40.7 kJ/mol — within factor 2."""
-        dH = water_enthalpy_of_vaporization()
-        dH_kJ = dH / 1000.0
-        self.assertGreater(dH_kJ, 20.0)
-        self.assertLess(dH_kJ, 80.0)
+        """ΔH_vap ≈ 40.66 kJ/mol (CRC/NIST, 100 °C) — within 2%.
+
+        Tightened from the old factor-2 bound that masked the bug."""
+        dH_kJ = water_enthalpy_of_vaporization() / 1000.0
+        self.assertAlmostEqual(dH_kJ, 40.66, delta=0.02 * 40.66)
 
     def test_higher_pressure_higher_boiling(self):
         """Higher pressure → higher boiling point."""
@@ -355,6 +357,20 @@ class TestNISTAccuracy(unittest.TestCase):
         self.assertAlmostEqual(water_surface_tension(T), 0.0728, delta=0.0005)
         self.assertAlmostEqual(water_viscosity(T), 1.002e-3, delta=2.0e-5)
         self.assertAlmostEqual(water_density(T), 998.2, delta=0.5)
+
+    def test_enthalpy_vaporization_matches_measured(self):
+        """ΔH_vap at the normal boiling point ≈ 40.66 kJ/mol (CRC/NIST).
+
+        Regression guard: the old H-bond estimate gave ~38.8 kJ/mol (4.5% low),
+        which pushed the boiling point down to ~83 C."""
+        self.assertAlmostEqual(water_enthalpy_of_vaporization(), 40660.0,
+                               delta=0.02 * 40660.0)  # within 2%
+
+    def test_boiling_point_matches_measured(self):
+        """Normal boiling point must be ~373.15 K (100 C), not 356 K (83 C)."""
+        self.assertAlmostEqual(water_boiling_point(1.0), 373.15, delta=1.0)
+        # reduced pressure lowers it (Mt. Everest ~0.33 atm -> ~70 C)
+        self.assertLess(water_boiling_point(0.33), water_boiling_point(1.0))
 
 
 if __name__ == '__main__':
