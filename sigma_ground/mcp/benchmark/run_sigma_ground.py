@@ -1166,6 +1166,11 @@ async def _run_conversation(session, ollama_url: str, model: str,
 
 
 async def _amain(args) -> int:
+    # Mode-dependent default model: conversation narrates multi-field tool results
+    # better on 14b; the Q&A benchmark stays on its tuned 7b. Explicit --model wins.
+    if getattr(args, "model", None) is None:
+        args.model = "qwen2.5:14b" if getattr(args, "mode", "qa") == "conversation" else "qwen2.5:7b"
+
     # Auto-load env vars from the dev-root .env (Ollama URL override, etc.)
     from sigma_ground.mcp.benchmark import load_env_from_dev_root
     load_env_from_dev_root(verbose=True)
@@ -1328,12 +1333,13 @@ async def _amain(args) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--model", default="qwen2.5:7b",
-                        help="Ollama model tag. 7b is the default after testing "
-                              "showed it ~2x faster with comparable accuracy "
-                              "once the tool-first discipline rules + fallback "
-                              "extractor are in place. 14b available if needed "
-                              "for harder synthesis questions.")
+    parser.add_argument("--model", default=None,
+                        help="Ollama model tag. Mode-dependent default: qwen2.5:7b "
+                             "for --mode qa (tuned: ~2x faster, comparable accuracy "
+                             "with the tool-first rules + fallback extractor) and "
+                             "qwen2.5:14b for --mode conversation (higher narration "
+                             "fidelity reading multi-field tool results). Pass "
+                             "--model to override either.")
     parser.add_argument("--ollama-url", default="http://localhost:11434")
     parser.add_argument("--output", type=Path,
                         default=Path(__file__).parent / "results" / "sigma_ground_run.json")
