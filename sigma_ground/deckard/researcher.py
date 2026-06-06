@@ -197,6 +197,95 @@ def _scale_to_typical_size(name, parts, sources, seen, allow_web):
     sources.append({"name": f"{src} — overall size (construct scaled to it)", "license": lic})
 
 
+# Object classes that are mostly AIR (a thin shell), not solid material.
+_HOLLOW_WORDS = {
+    "toaster", "microwave", "oven", "stove", "refrigerator", "fridge", "freezer",
+    "dishwasher", "washer", "washing", "dryer", "kettle", "blender", "fryer",
+    "cooker", "box", "bin", "basket", "bucket", "crate", "container", "tank",
+    "barrel", "drum", "bottle", "jar", "jug", "flask", "can", "carton", "bag",
+    "backpack", "suitcase", "briefcase", "case", "cabinet", "drawer", "dresser",
+    "wardrobe", "cupboard", "chest", "locker", "bookcase", "television", "tv",
+    "monitor", "computer", "laptop", "console", "radio", "speaker", "printer",
+    "router", "camera", "microwave", "mug", "cup", "bowl", "pot", "pan", "kettle",
+    "vase", "teapot", "helmet", "fan", "heater", "fridge", "guitar", "violin",
+}
+# ...unless clearly SOLID.
+_SOLID_WORDS = {
+    "ball", "brick", "block", "dumbbell", "weight", "anvil", "hammer", "mallet",
+    "rock", "stone", "bar", "rod", "ingot", "bullet", "coin", "dice", "die",
+    "marble", "bead", "nail", "screw", "bolt", "pencil", "crayon", "sword",
+    "blade", "knife", "axe", "key", "wrench", "spanner", "chisel", "magnet",
+}
+
+
+def _is_hollow(name: str) -> bool:
+    w = {x for x in re.split(r"[^a-z]+", name.lower()) if x}
+    if w & _SOLID_WORDS:
+        return False
+    return bool(w & _HOLLOW_WORDS)
+
+
+def _hollow_pass(name, parts, sources):
+    """Hollow-class objects (appliances, containers, furniture, electronics) are
+    mostly air, but the model fills them solid -> absurd masses (a 300 kg
+    "microwave"). Give each BULKY part an EFFECTIVE bulk density (its material
+    density x the shell fraction for a thin wall), so its mass is a shell's mass,
+    not a solid block's.
+
+    We reduce the density rather than CARVE a true cavity on purpose: a 1-2 mm
+    wall on a 0.3 m box falls between integration cells, so a carved shell's mass
+    collapses to a resolution-dependent 0-14 kg that never passes the self-check.
+    A solid body at the reduced density integrates exactly and gives a stable
+    mass; the Fact is re-provenanced as an estimate, so the self-audit still
+    reports density as not-grounded. Conservative: known hollow classes only,
+    box/cylinder/sphere parts above 10% of the total volume.
+    """
+    if not _is_hollow(name):
+        return
+    import math
+    from .construct import _shape_from
+    info = []
+    for p in parts:
+        if p.op == "add" and (p.shape or "").lower() in ("box", "cylinder", "sphere"):
+            try:
+                info.append((p, _shape_from(p).volume()))
+            except Exception:
+                info.append((p, 0.0))
+        else:
+            info.append((p, 0.0))
+    total = sum(v for _, v in info) or 1.0
+    touched = 0
+    for p, vol in info:
+        if vol < 0.10 * total:                    # only the bulky parts
+            continue
+        d = {k: f.value for k, f in p.dims.items()}
+        if not d:
+            continue
+        w = max(0.0008, min(0.0025, 0.01 * min(d.values())))   # thin wall ~1-2.5 mm
+        shape = p.shape.lower()
+        if shape == "box" and all(d[k] > 2.2 * w for k in ("x_m", "y_m", "z_m")):
+            outer = d["x_m"] * d["y_m"] * d["z_m"]
+            inner = (d["x_m"] - 2 * w) * (d["y_m"] - 2 * w) * (d["z_m"] - 2 * w)
+        elif shape == "cylinder" and d["radius_m"] > 1.5 * w and d["height_m"] > 2.2 * w:
+            outer = math.pi * d["radius_m"] ** 2 * d["height_m"]
+            inner = math.pi * (d["radius_m"] - w) ** 2 * (d["height_m"] - 2 * w)
+        elif shape == "sphere" and d["radius_m"] > 1.5 * w:
+            outer = d["radius_m"] ** 3
+            inner = (d["radius_m"] - w) ** 3
+        else:
+            continue
+        frac = 1.0 - inner / outer if outer > 0 else 1.0
+        if not (0.0 < frac < 0.9):                # not really hollow (thin/solid) -> leave it
+            continue
+        # An effective bulk density is a heuristic, NOT a citation -> flag it estimated
+        # (so the audit reports density as not-grounded); material name stays on p.material.
+        p.density = Fact(round(p.density.value * frac, 3), confidence=0.4)
+        touched += 1
+    if touched:
+        sources.append({"name": "modeled hollow - bulk density from a thin-wall shell estimate "
+                                "(appliances/containers are mostly air)", "license": ""})
+
+
 def _build_vessel_spec(name: str, data: dict, model: str) -> ConstructSpec | None:
     g = data.get("geometry") or {}
     geometry: dict = {}
@@ -340,6 +429,7 @@ def _build_parts_spec(name: str, data: dict, model: str,
         return None                                        # nothing usable — let research() fall back
 
     _scale_to_typical_size(name, parts, sources, seen, allow_web)   # fix absolute scale if known
+    _hollow_pass(name, parts, sources)            # shell-model hollow-class objects (not solid)
 
     comp = _sources.composition_of(name)          # cite the documented part decomposition
     if comp and len(parts) > 1 and comp[1] and comp[1] not in seen:
