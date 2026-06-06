@@ -25,7 +25,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 
 ### astronomy
 - **asteroid_analysis** — Small-body geophysics: surface gravity, escape velocity, and shape (axis ratios, oblateness). bennu/ryugu/itokawa/eros/vesta/ceres.  ↳ *say:* asteroid; surface gravity; escape velocity small body; Ceres Vesta; Bennu Ryugu; minor planet shape
-- **light_travel_time** — t = d / c.  ↳ *say:* light travel time; delay = distance / c; communication lag; Earth-Sun light time 8 minutes; Proxima 4.2 light years
+- **light_travel_time** — t = d / c.  ↳ *say:* light travel time; delay = distance / c; communication lag; Earth-Sun light time 8 minutes; Proxima 4.2 light years; how long for light to get there
 - **list_bodies** — List all solar-system bodies and named stars available.  ↳ *say:* list solar system bodies; available planets
 - **named_star** — Named bright star data (Sirius, Vega...).  ↳ *say:* named star data; bright star catalog; Sirius Vega Polaris Betelgeuse Rigel Proxima; Hipparcos Gaia DR3; Bayer designation
 - **planet_moment_of_inertia_analysis** — Moment-of-inertia factor C/MR^2 of a layered planet, derived from the inventory composition of its shells (Earth ~ 0.331).  ↳ *say:* moment of inertia factor; C/MR^2; polar moment planet; core size; planetary structure inertia; differentiation
@@ -33,7 +33,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 
 ### atomic
 - **de_broglie_from_kinetic_energy** — de Broglie wavelength from KINETIC ENERGY (relativistically exact). '1 keV electron' = de_broglie_from_kinetic_energy(1000,'electron').  ↳ *say:* de Broglie wavelength of a 1 keV electron; de Broglie from energy; matter wave from kinetic energy; wavelength of an electron at X eV; lambda from KE; 1 keV electron wavelength
-- **de_broglie_wavelength** — lambda = h / (m v).  ↳ *say:* de Broglie wavelength; lambda = h / p; wave-particle duality; matter wave; Louis de Broglie 1924
+- **de_broglie_wavelength** — lambda = h / (m v).  ↳ *say:* de Broglie wavelength; lambda = h / p; wave-particle duality; matter wave; Louis de Broglie 1924; wavelength of a particle
 - **first_ionization_energy** — First IE in eV (NIST lookup).  ↳ *say:* ionization energy; IE; first ionization potential; Z_eff; remove electron energy
 - **hydrogen_emission_wavelength** — Rydberg transition wavelength.
 - **hydrogen_like_energy_level** — E_n = -13.606 Z^2/n^2 eV.  ↳ *say:* Bohr model; E_n = -13.6 Z^2 / n^2 eV; hydrogen energy levels; Bohr energy; Niels Bohr 1913
@@ -62,7 +62,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **weak_acid_ph** — pH of a weak acid from its Ka; weak_acid_ph('acetic_acid',0.1)≈2.88.
 
 ### circuits
-- **electrical_power** — P = V I.  ↳ *say:* electrical power; P = V I; P = I^2 R; P = V^2 / R; Joule heating
+- **electrical_power** — P = V I.  ↳ *say:* electrical power; P = V I; P = I^2 R; P = V^2 / R; Joule heating; how much power
 - **em_wave_frequency** — f = c / (n lambda).  ↳ *say:* EM frequency; f = c / lambda; frequency from wavelength; green light frequency; X-ray frequency
 - **em_wave_wavelength** — lambda = c / (n f).  ↳ *say:* EM wavelength; lambda = c / f; wavelength from frequency; radio wavelength; WiFi wavelength; X-ray wavelength
 - **energy_power_time** — Solve E=P·t for the missing one; provide exactly two. '5 kW for 1 hr' = energy_power_time(power_w=5000,time_s=3600).  ↳ *say:* energy = power times time; E = P t; how much energy in X hours; how long to dissipate; kilowatt hour; heater energy
@@ -116,7 +116,7 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 ### energy
 - **eV_to_joules** — eV -> Joule.  ↳ *say:* electronvolt; eV to J; 1 eV = 1.602e-19 J; MeV; GeV; TeV
 - **energy_to_mass** — m = E / c^2.  ↳ *say:* m = E / c^2; mass equivalent of energy; mass defect; energy to mass
-- **joules_to_TNT** — Joule -> tons/kt/MT TNT equivalent.  ↳ *say:* TNT equivalent; megatons of TNT; 1 ton TNT = 4.184e9 J; explosive yield; nuclear yield
+- **joules_to_TNT** — Joule -> tons/kt/MT TNT equivalent.  ↳ *say:* TNT equivalent; megatons of TNT; 1 ton TNT = 4.184e9 J; explosive yield; nuclear yield; how big a bang
 - **joules_to_eV** — Joule -> eV.  ↳ *say:* J to eV; joules to electronvolts; 1 J equals how many eV; convert energy J to eV; joules in electronvolts; 1 joule equals how many electronvolts
 - **luminosity_to_mass_conversion_rate** — dm/dt = L / c^2.  ↳ *say:* stellar mass loss to luminosity; Sun mass-loss rate; L = (dm/dt) c^2; solar luminosity mass rate
 - **mass_to_energy** — E = m c^2.  ↳ *say:* E=mc^2; mass-energy equivalence; rest mass energy; Einstein 1905; matter to energy conversion; nuclear binding
@@ -136,37 +136,37 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **gravitational_redshift** — Schwarzschild gravitational redshift factor at radius r.  ↳ *say:* gravitational redshift; Pound-Rebka; z = sqrt(1 - r_s/r_emit) / sqrt(1 - r_s/r_obs) - 1; redshift from gravity well
 - **gravitational_time_dilation** — Clock-rate factor at radius r relative to infinity.  ↳ *say:* gravitational time dilation; GR time dilation; sqrt(1 - r_s/r); GPS time dilation; Pound-Rebka experiment; general relativistic redshift
 - **hawking_evaporation_time** — Black-hole evaporation timescale in seconds.  ↳ *say:* Hawking evaporation time; black hole lifetime; tau ~ M^3; Hawking radiation rate
-- **hawking_temperature** — Hawking temperature T_H = hbar c^3 / (8 pi G M k_B) in K.  ↳ *say:* Hawking temperature; Hawking radiation; T_H = hbar c^3 / (8 pi G M k_B); Stephen Hawking 1974; black hole evaporation temperature
+- **hawking_temperature** — Hawking temperature T_H = hbar c^3 / (8 pi G M k_B) in K.  ↳ *say:* Hawking temperature; Hawking radiation; T_H = hbar c^3 / (8 pi G M k_B); Stephen Hawking 1974; black hole evaporation temperature; does a black hole glow
 - **isco_radius** — Innermost stable circular orbit r_ISCO = 6 G M / c^2.  ↳ *say:* ISCO; innermost stable circular orbit; r_ISCO = 3 r_s; Schwarzschild ISCO; accretion disk inner edge
 - **photon_sphere_radius** — Photon sphere r_ph = 3 G M / c^2.  ↳ *say:* photon sphere; r = 1.5 r_s; 1.5 Schwarzschild radii; unstable photon orbit; black hole shadow
 - **schwarzschild_radius** — Schwarzschild radius r_s = 2 G M / c^2 in meters.  ↳ *say:* Schwarzschild radius; event horizon; r_s = 2GM/c^2; black hole radius; Karl Schwarzschild 1916; Schwarzschild solution
 
 ### kinematics
 - **circular_orbit_velocity** — Keplerian v = sqrt(G M / r).  ↳ *say:* orbital velocity; circular orbit speed; v_orbit = sqrt(GM/r); Kepler third law derivation; satellite speed
-- **escape_velocity** — v_esc = sqrt(2 G M / r).  ↳ *say:* escape velocity; v_esc = sqrt(2GM/r); escape from gravity well; minimum speed to leave
-- **free_fall_time** — Time to fall from rest: t=sqrt(2h/g) (vacuum).  ↳ *say:* free fall; drop time; t = sqrt(2h/g); Galileo free fall; kinematics equation
-- **free_fall_velocity** — Impact speed: v=sqrt(2gh).  ↳ *say:* free fall velocity; v = sqrt(2gh); impact velocity; terminal velocity (in vacuum)
+- **escape_velocity** — v_esc = sqrt(2 G M / r).  ↳ *say:* escape velocity; v_esc = sqrt(2GM/r); escape from gravity well; minimum speed to leave; how fast to escape gravity; speed to leave the planet
+- **free_fall_time** — Time to fall from rest: t=sqrt(2h/g) (vacuum).  ↳ *say:* free fall; drop time; t = sqrt(2h/g); Galileo free fall; kinematics equation; how long to fall
+- **free_fall_velocity** — Impact speed: v=sqrt(2gh).  ↳ *say:* free fall velocity; v = sqrt(2gh); impact velocity; terminal velocity (in vacuum); how fast when it lands; how fast does it hit
 - **friction_stopping_distance** — d = v^2 / (2 mu g).
-- **gravitational_potential_energy** — U = m g h (uniform gravity).  ↳ *say:* gravitational PE; U = -GMm/r; PE in gravity well; Newton's gravity potential; lift to orbit energy
-- **kinetic_energy** — KE = 0.5 m v^2 (non-relativistic).  ↳ *say:* kinetic energy; KE = 0.5 m v^2; KE; K_e; energy of motion
-- **momentum** — p = m v (non-relativistic).  ↳ *say:* linear momentum; p = m v; Newton's second law in p form
+- **gravitational_potential_energy** — U = m g h (uniform gravity).  ↳ *say:* gravitational PE; U = -GMm/r; PE in gravity well; Newton's gravity potential; lift to orbit energy; energy to lift it
+- **kinetic_energy** — KE = 0.5 m v^2 (non-relativistic).  ↳ *say:* kinetic energy; KE = 0.5 m v^2; KE; K_e; energy of motion; energy of a moving thing
+- **momentum** — p = m v (non-relativistic).  ↳ *say:* linear momentum; p = m v; Newton's second law in p form; how much oomph; how hard to stop it; moving mass
 - **projectile_flight_time** — Flight time 2 v sin(theta)/g.
-- **projectile_max_height** — Max height (v sin theta)^2/(2g).  ↳ *say:* projectile peak; h_max = v^2 sin^2(theta) / (2g); maximum height of a projectile
-- **projectile_range** — Range R = v^2 sin(2 theta)/g.  ↳ *say:* projectile motion; projectile range; R = v^2 sin(2 theta) / g; cannonball range; ballistic range
+- **projectile_max_height** — Max height (v sin theta)^2/(2g).  ↳ *say:* projectile peak; h_max = v^2 sin^2(theta) / (2g); maximum height of a projectile; how high will it go; how high does it fly; top of the arc
+- **projectile_range** — Range R = v^2 sin(2 theta)/g.  ↳ *say:* projectile motion; projectile range; R = v^2 sin(2 theta) / g; cannonball range; ballistic range; how far will it go
 
 ### materials
 - **alloy_resistivity_analysis** — Residual resistivity of a binary solid-solution alloy from Nordheim's rule (delta-rho ~ x(1-x)).  ↳ *say:* alloy resistivity; Nordheim rule; residual resistivity; solid solution; Matthiessen; impurity scattering
 - **band_gap_ev** — Semiconductor band gap in eV (lookup).  ↳ *say:* band gap; semiconductor gap; valence to conduction; Si Ge GaAs gap; Eg
-- **boiling_point** — Boiling point in K (lookup).  ↳ *say:* boiling point; T_boil; vaporization temperature
+- **boiling_point** — Boiling point in K (lookup).  ↳ *say:* boiling point; T_boil; vaporization temperature; when does it boil; how hot to boil
 - **composite_bounds_analysis** — Two-phase composite bounds: Voigt-Reuss-Hill, Hashin-Shtrikman, thermal-conductivity bounds, Gibson-Ashby foam strength.  ↳ *say:* composite material; Voigt-Reuss-Hill; Hashin-Shtrikman; rule of mixtures; effective modulus; foam strength
-- **density** — Material density in kg/m^3 (lookup).  ↳ *say:* density; rho = m/V; kg/m^3; specific gravity
+- **density** — Material density in kg/m^3 (lookup).  ↳ *say:* density; rho = m/V; kg/m^3; specific gravity; how heavy for its size; how dense
 - **dielectric_polarization_analysis** — Relative permittivity from the Clausius-Mossotti relation given molecular polarizability and number density.  ↳ *say:* Clausius-Mossotti; relative permittivity; dielectric constant from polarizability; polarizability; Lorentz-Lorenz; induced dipole permittivity
 - **dislocation_strengthening_analysis** — Taylor work-hardening: shear flow stress from a dislocation forest, tau = alpha G b sqrt(rho).  ↳ *say:* work hardening; Taylor hardening; dislocation density; flow stress; strain hardening; forest dislocations
 - **elastic_analysis** — Elastic response: uniaxial/shear/hydrostatic stress, strain-energy densities, transverse strain, volume change, von Mises yield.  ↳ *say:* Young's modulus; stress and strain; Hooke's law; shear stress; strain energy; Poisson ratio
 - **element_atomic_data** — Element Z, name, mass via periodictable.  ↳ *say:* atomic number; atomic mass; Z of; atomic weight; amu; u
 - **friction_analysis** — Dry sliding friction: interfacial shear strength, adhesive friction coefficient, ploughing term, total friction force.  ↳ *say:* friction; coefficient of friction; Amontons law; Bowden-Tabor; adhesive friction; ploughing
-- **list_materials** — Inventory of materials in lookup tables.  ↳ *say:* available materials
-- **melting_point** — Melting point in K (lookup).  ↳ *say:* melting point; T_melt; fusion temperature
+- **list_materials** — Inventory of materials in lookup tables.  ↳ *say:* available materials; what materials do you have; what stuff can I use
+- **melting_point** — Melting point in K (lookup).  ↳ *say:* melting point; T_melt; fusion temperature; when does it melt; how hot to melt it; melts at
 - **mobius_bimetallic_analysis** — Bimetallic strip / Mobius loop: total series resistance and thermoelectric (Seebeck) voltage across a hot-cold gradient.  ↳ *say:* bimetallic strip; Mobius loop; thermocouple voltage; Seebeck strip; two-metal resistance; bimetallic Seebeck
 - **piezoelectric_actuator_analysis** — Converse piezoelectric effect: induced strain (d E) and tip displacement (d E L) of an actuator under applied field.  ↳ *say:* piezoelectric; piezo actuator; converse piezoelectric effect; PZT displacement; strain from voltage; d33
 - **plasticity_analysis** — Plastic flow stress: Johnson-Cook, Ludwik hardening, work-hardening rate.  ↳ *say:* plastic deformation; flow stress; work hardening; Johnson-Cook; Ludwik; yield and beyond
@@ -218,12 +218,12 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **phosphor_decay_analysis** — Phosphor / luminescence afterglow brightness I(t)=I0 exp(-t/tau) and surviving fraction at time t.  ↳ *say:* phosphor; afterglow; persistence; luminescence decay; glow brightness; exponential decay of light
 - **rydberg_hydrogen_wavelength** — Rydberg formula for hydrogen lines.  ↳ *say:* Rydberg formula; Balmer series; Lyman series; Paschen series; Brackett series; Pfund series
 - **single_slit_first_minimum_angle** — sin(theta) = lambda / a.  ↳ *say:* single slit diffraction; first minimum; a sin(theta) = m lambda; single slit pattern
-- **snells_law_refraction_angle** — n1 sin(theta1) = n2 sin(theta2).  ↳ *say:* Snell's law; law of refraction; n1 sin(theta1) = n2 sin(theta2); refraction angle; Willebrord Snell 1621
+- **snells_law_refraction_angle** — n1 sin(theta1) = n2 sin(theta2).  ↳ *say:* Snell's law; law of refraction; n1 sin(theta1) = n2 sin(theta2); refraction angle; Willebrord Snell 1621; light bending
 - **thin_lens_focal_length** — 1/f = 1/d_o + 1/d_i.
-- **thin_lens_image_distance** — 1/d_i = 1/f - 1/d_o.  ↳ *say:* thin lens equation; 1/f = 1/d_o + 1/d_i; lens formula; image distance; focal length lens
+- **thin_lens_image_distance** — 1/d_i = 1/f - 1/d_o.  ↳ *say:* thin lens equation; 1/f = 1/d_o + 1/d_i; lens formula; image distance; focal length lens; magnifying glass
 
 ### orbital
-- **gravitational_force** — Newton's law of gravitation F = G m1 m2 / r².  ↳ *say:* gravitational force; Newton's law of gravitation; F = G m1 m2 / r^2; force of gravity between two masses; gravitational attraction
+- **gravitational_force** — Newton's law of gravitation F = G m1 m2 / r².  ↳ *say:* gravitational force; Newton's law of gravitation; F = G m1 m2 / r^2; force of gravity between two masses; gravitational attraction; pull between two things
 - **orbital_period** — Kepler's third law T=2π√(a³/GM). Defaults to Sun. Asteroid at 3 AU: orbital_period(semimajor_axis_au=3).  ↳ *say:* orbital period; Kepler third law; how long is a year on; year length; T = 2 pi sqrt(a^3/GM); period of an orbit
 - **orbital_raise_energy** — Gravitational PE to raise a mass between orbits ΔU=GMm(1/r1-1/r2). Body-aware (altitudes above surface).  ↳ *say:* energy to lift to orbit; energy to raise a satellite; lift to geosynchronous; gravitational PE difference; delta U = GMm(1/r1 - 1/r2); energy to reach orbit
 - **orbital_velocity** — Circular orbital speed, body-aware: name + altitude_km (or radius_m, or semimajor_axis_au). Does mass lookup internally.  ↳ *say:* orbital velocity; how fast does it orbit; satellite speed; ISS speed; orbital speed at altitude; Moon orbital velocity
@@ -272,18 +272,18 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 
 ### relativity
 - **doppler_shift_factor** — Relativistic Doppler factor.  ↳ *say:* Doppler effect; Doppler shift; relativistic Doppler; redshift; blueshift; Christian Doppler 1842
-- **lorentz_factor** — gamma = 1/sqrt(1 - v^2/c^2).  ↳ *say:* Lorentz factor; gamma = 1/sqrt(1 - v^2/c^2); time dilation factor; Hendrik Lorentz
+- **lorentz_factor** — gamma = 1/sqrt(1 - v^2/c^2).  ↳ *say:* Lorentz factor; gamma = 1/sqrt(1 - v^2/c^2); time dilation factor; Hendrik Lorentz; near the speed of light; time slows down
 - **relativistic_energy** — E = gamma m c^2 (total).  ↳ *say:* relativistic energy; E = gamma m c^2; total relativistic energy
 - **relativistic_energy_analysis** — Rest energy m0 c^2, relativistic kinetic energy (gamma-1) m0 c^2, and the energy-momentum invariant (m0 c^2)^2.  ↳ *say:* rest energy; E=mc^2; relativistic kinetic energy; Lorentz factor; energy momentum relation; relativistic energy
 - **relativistic_length_contraction** — L = L0 / gamma.  ↳ *say:* length contraction; Lorentz contraction; L = L_0 / gamma; ladder paradox
 - **relativistic_momentum** — p = gamma m v.  ↳ *say:* relativistic momentum; p = gamma m v; high-velocity momentum
-- **relativistic_time_dilation** — t = gamma t0.  ↳ *say:* time dilation; moving clocks tick slower; delta_t = gamma delta_tau; twin paradox; Einstein 1905 special relativity
+- **relativistic_time_dilation** — t = gamma t0.  ↳ *say:* time dilation; moving clocks tick slower; delta_t = gamma delta_tau; twin paradox; Einstein 1905 special relativity; time slows at high speed
 - **relativistic_velocity_addition** — (u+v)/(1+uv/c^2).  ↳ *say:* velocity addition formula; u' = (u+v)/(1 + uv/c^2); Einstein velocity addition
 
 ### simulation
 - **list_simulation_scenarios** — List Materia simulation verbs with their input slots and named outputs.
 - **run_simulation** — Run one Materia verb directly with explicit params (deterministic, no LLM). See list_simulation_scenarios.
-- **simulate** — Natural-language physics what-if through the Materia simulator (falling, drag, terminal velocity, impact speed, reentry heating, parachute, projectile apex). Returns a worked answer or a clarification (value null) — never a fabricated number.
+- **simulate** — Natural-language physics what-if through the Materia simulator (falling, drag, terminal velocity, impact speed, reentry heating, parachute, projectile apex). Returns a worked answer or a clarification (value null) — never a fabricated number.  ↳ *say:* pond; puddle; wind blowing across; ripples; waves on the water; splash
 
 ### symbolic
 - **differentiate_expr** — Symbolic differentiation.  ↳ *say:* derivative; differentiate; calculus; chain rule; rate of change
@@ -292,13 +292,13 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **solve_equation** — Symbolic solve via sympy. Accepts 'expr=0' or 'lhs=rhs'.  ↳ *say:* symbolic solve; algebra; polynomial root; quadratic formula; cubic equation; find x such that
 
 ### thermodynamics
-- **blackbody_peak_wavelength** — Wien lambda_max = b/T.  ↳ *say:* Wien's displacement law; lambda_max T = b; blackbody peak; Planck radiation peak; Wilhelm Wien 1893
+- **blackbody_peak_wavelength** — Wien lambda_max = b/T.  ↳ *say:* Wien's displacement law; lambda_max T = b; blackbody peak; Planck radiation peak; Wilhelm Wien 1893; what color does it glow when hot
 - **blackbody_total_power** — Stefan-Boltzmann P = sigma A T^4.  ↳ *say:* Stefan-Boltzmann law; P = sigma A T^4; blackbody total radiation; Stefan's law; Josef Stefan 1879 / Ludwig Boltzmann 1884; total power per square meter radiated by blackbody
 - **carnot_efficiency** — eta = 1 - T_cold/T_hot.  ↳ *say:* Carnot efficiency; eta = 1 - T_c/T_h; Carnot cycle; ideal heat engine; Sadi Carnot 1824; second law thermodynamics
 - **ideal_gas_pressure** — P = n R T / V.  ↳ *say:* ideal gas law; PV = nRT; P from ideal gas; Clapeyron equation; perfect gas
 - **ideal_gas_volume** — V = n R T / P.  ↳ *say:* molar volume; V = nRT/P; STP volume 22.4 L
 - **maxwell_boltzmann_most_probable_speed** — v_p = sqrt(2 k_B T / m).  ↳ *say:* Maxwell-Boltzmann distribution; v_mp = sqrt(2 k T / m); most probable speed; molecular speed distribution
-- **speed_of_sound_in_ideal_gas** — v = sqrt(gamma R T / M).  ↳ *say:* speed of sound; v_sound = 331 + 0.6 T; sound velocity in air; speed of sound in air at temperature
+- **speed_of_sound_in_ideal_gas** — v = sqrt(gamma R T / M).  ↳ *say:* speed of sound; v_sound = 331 + 0.6 T; sound velocity in air; speed of sound in air at temperature; how fast is sound; speed of sound in air
 - **statistical_distribution** — Fermi-Dirac & Bose-Einstein occupation, partition function, mean energy, entropy, equipartition heat capacity.  ↳ *say:* Fermi-Dirac; Bose-Einstein; partition function; occupation probability; equipartition; heat capacity from degrees of freedom
 - **temperature_celsius_to_kelvin** — T_K = T_C + 273.15.  ↳ *say:* Convert Celsius to Kelvin; C to K; Celsius to K; degrees Celsius to Kelvin; T_K = T_C + 273.15; what's 100 Celsius in Kelvin
 - **temperature_kelvin_to_celsius** — T_C = T_K - 273.15.  ↳ *say:* Convert Kelvin to Celsius; K to C; Kelvin to Celsius; T_C = T_K - 273.15; what is X K in Celsius; convert temperature
