@@ -1,0 +1,55 @@
+[
+  {"object": "hammer", "aliases": ["claw hammer"], "parts": [
+    {"name": "handle", "shape": "cylinder"}, {"name": "head", "shape": "box"}],
+   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
+  {"object": "axe", "aliases": ["hatchet"], "parts": [
+    {"name": "handle", "shape": "cylinder"}, {"name": "head", "shape": "box"}],
+   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
+  {"object": "screwdriver", "aliases": [], "parts": [
+    {"name": "handle", "shape": "cylinder"}, {"name": "shaft", "shape": "cylinder"}],
+   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
+  {"object": "pencil", "aliases": [], "parts": [
+    {"name": "body", "shape": "cylinder"}, {"name": "lead", "shape": "cylinder"},
+    {"name": "eraser", "shape": "cylinder"}],
+   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
+  {"object": "pen", "aliases": ["ballpoint pen"], "parts": [
+    {"name": "barrel", "shape": "cylinder"}, {"name": "cap", "shape": "cylinder"},
+    {"name": "tip", "shape": "cone"}],
+   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
+  {"object": "spoon", "aliases": [], "parts": [
+    {"name": "handle", "shape": "cylinder"}, {"name": "bowl", "shape": "ellipsoid"}],
+   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
+  {"object": "fork", "aliases": [], "parts": [
+    {"name": "handle", "shape": "cylinder"}, {"name": "head", "shape": "box"}],
+   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
+  {"object": "knife", "aliases": ["kitchen knife"], "parts": [
+    {"name": "handle", "shape": "cylinder"}, {"name": "blade", "shape": "outline"}],
+   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
+  {"object": "dumbbell", "aliases": [], "parts": [
+    {"name": "handle", "shape": "cylinder"}, {"name": "weight", "shape": "cylinder", "count": 2}],
+   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
+  {"object": "mug", "aliases": ["coffee mug"], "parts": [
+    {"name": "body", "shape": "cylinder"}, {"name": "handle", "shape": "torus"}],
+   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
+  {"object": "chair", "aliases": [], "parts": [
+    {"name": "seat", "shape": "box"}, {"name": "back", "shape": "box"},
+    {"name": "leg", "shape": "cylinder", "count": 4}],
+   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
+  {"object": "table", "aliases": [], "parts": [
+    {"name": "top", "shape": "box"}, {"name": "leg", "shape": "cylinder", "count": 4}],
+   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
+  {"object": "toothbrush", "aliases": [], "parts": [
+    {"name": "handle", "shape": "box"}, {"name": "head", "shape": "box"}],
+   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
+  {"object": "arrow", "aliases": [], "parts": [
+    {"name": "shaft", "shape": "cylinder"}, {"name": "head", "shape": "cone"},
+    {"name": "fletching", "shape": "outline", "count": 3}],
+   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
+  {"object": "light bulb", "aliases": ["lightbulb"], "parts": [
+    {"name": "bulb", "shape": "ellipsoid"}, {"name": "base", "shape": "cylinder"}],
+   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""},
+  {"object": "wine glass", "aliases": ["wineglass"], "parts": [
+    {"name": "bowl", "shape": "outline"}, {"name": "stem", "shape": "cylinder"},
+    {"name": "foot", "shape": "cylinder"}],
+   "source": "curated common-knowledge decomposition (replace with PartNet)", "license": ""}
+]

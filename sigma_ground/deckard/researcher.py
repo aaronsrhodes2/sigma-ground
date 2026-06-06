@@ -292,6 +292,11 @@ def _build_parts_spec(name: str, data: dict, model: str,
         parts.append(Part(p.get("name") or f"part{i}", shape, dims, material,
                           dens, center, euler, op, attach, conform=conform))
 
+    comp = _sources.composition_of(name)          # cite the documented part decomposition
+    if comp and len(parts) > 1 and comp[1] and comp[1] not in seen:
+        sources.append({"name": comp[1], "license": comp[2]})
+        seen.add(comp[1])
+
     return ConstructSpec(
         name=name, kind="composite", identified=True, parts=parts, sources=sources,
         notes=str(data.get("notes", "")) or f"Researched by {model}.",
@@ -307,8 +312,12 @@ def research_spec(name: str, *, ask=None, model: str = OLLAMA_MODEL) -> Construc
     proposed kind (vessel or composite). Returns None on no-LLM / bad output /
     unknown so research() can fall back to a flagged best-guess.
     """
-    if ask is None:                       # production: local qwen, web-grounded
-        ask, query, allow_web = _ask, _augment_with_web(name), True
+    if ask is None:                       # production: local qwen, web- + structure-grounded
+        q = _augment_with_web(name)
+        ch = _sources.composition.hint(name)      # anchor the decomposition in known parts
+        if ch:
+            q = f"{q}\n\n{ch}"
+        ask, query, allow_web = _ask, q, True
     else:                                 # injected (tests): bare name, no network
         query, allow_web = name, False
     raw = ask(query)
