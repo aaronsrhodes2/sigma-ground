@@ -151,6 +151,52 @@ def _ground_dims(name, shape, dims, sources, seen, allow_web):
             _cite_source(fact, sources, seen)
 
 
+def _scale_to_typical_size(name, parts, sources, seen, allow_web):
+    """Plausibility-scaling: the model gets proportions right but absolute SIZE
+    wrong (a 90 kg "toaster"). If the object has NO grounded dimension but a
+    typical OVERALL size is known, uniformly scale the whole construct so its
+    longest extent matches that size — proportions kept, only the scale fixed.
+    The scaled dims are re-provenanced to the size source (no longer pure guesses).
+    """
+    if any(not f.estimated for p in parts for f in p.dims.values()):
+        return                                  # already has a grounded dim -> trust it
+    got = _sources.typical_size_of(name, allow_web=allow_web)
+    if not got:
+        return
+    target, src, lic = got
+    from .construct import _half_extent
+    xs, ys, zs = [], [], []
+    for p in parts:
+        if (p.shape or "").lower() == "fill":
+            continue
+        try:
+            hx, hy, hz = _half_extent(p)
+        except Exception:
+            continue
+        cx, cy, cz = p.center_m
+        xs += [cx - hx, cx + hx]; ys += [cy - hy, cy + hy]; zs += [cz - hz, cz + hz]
+    if not xs:
+        return
+    ext = max(max(xs) - min(xs), max(ys) - min(ys), max(zs) - min(zs))
+    if ext <= 0.0:
+        return
+    factor = target / ext
+    if 0.7 < factor < 1.43:                     # already about the right size -> leave it
+        return
+    note = f"scaled to {src}"
+    for p in parts:
+        p.center_m = tuple(c * factor for c in p.center_m)
+        for k, f in list(p.dims.items()):
+            p.dims[k] = Fact(round(f.value * factor, 6), note, lic, 0.45)
+        if p.outline:
+            p.outline = dict(p.outline)
+            p.outline["profile"] = [[u * factor, v * factor]
+                                    for u, v in p.outline.get("profile", [])]
+            if p.outline.get("thickness"):
+                p.outline["thickness"] = p.outline["thickness"] * factor
+    sources.append({"name": f"{src} — overall size (construct scaled to it)", "license": lic})
+
+
 def _build_vessel_spec(name: str, data: dict, model: str) -> ConstructSpec | None:
     g = data.get("geometry") or {}
     geometry: dict = {}
@@ -292,6 +338,8 @@ def _build_parts_spec(name: str, data: dict, model: str,
 
     if not parts:
         return None                                        # nothing usable — let research() fall back
+
+    _scale_to_typical_size(name, parts, sources, seen, allow_web)   # fix absolute scale if known
 
     comp = _sources.composition_of(name)          # cite the documented part decomposition
     if comp and len(parts) > 1 and comp[1] and comp[1] not in seen:
