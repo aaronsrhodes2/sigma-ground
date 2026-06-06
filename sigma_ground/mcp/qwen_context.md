@@ -122,9 +122,11 @@ The TOOLS hold every formula, constant, and exact computation. You hold none.
 - **mass_to_energy** — E = m c^2.  ↳ *say:* E=mc^2; mass-energy equivalence; rest mass energy; Einstein 1905; matter to energy conversion; nuclear binding
 
 ### fluids
+- **buoyancy_analysis** — Will it float and how deep does it sit? Archimedes submerged fraction = rho_body/rho_fluid (sinks if >= 1). Default copper in water.  ↳ *say:* will it float; does it float or sink; buoyancy; Archimedes; how deep does it sit; submerged
 - **diffusion_analysis** — Diffusion: Einstein-Stokes diffusivity, Fick's first & second laws, penetration time, Darken interdiffusion.  ↳ *say:* diffusion; Fick's law; diffusion coefficient; Einstein-Stokes; how long to diffuse; interdiffusion
 - **natural_convection_analysis** — Buoyancy-driven natural convection of a gas: buoyancy velocity, Grashof number (laminar/turbulent), binary gas diffusivity.  ↳ *say:* natural convection; buoyancy; Grashof number; free convection; hot plate rising air; gas diffusivity
 - **viscous_flow_analysis** — Viscous flow: Reynolds number, Stokes drag + terminal velocity, drag coefficient, Poiseuille pipe flow, boundary layer, wall shear.  ↳ *say:* viscosity; Reynolds number; Stokes drag; terminal velocity; Poiseuille flow; drag on a sphere
+- **wind_wave_analysis** — Wind across water: shear stress, friction velocity, the capillary-gravity minimum (~0.23 m/s at ~1.7 cm), and the ripple field (wavelength/speed/frequency/amplitude) for rendering.  ↳ *say:* wind blowing across; wind on water; ripples; waves on a pond; wind-driven waves; capillary waves
 
 ### frontier
 - **bekenstein_hawking_entropy** — Black-hole entropy/temperature/horizon-area/r_s from mass; solar mass entropy ~1e77 k_B.

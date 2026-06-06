@@ -1125,6 +1125,19 @@ _PRIMARY_TOOLS = [
      "inputs": {"variable": "str", "question": "str", "reason": "str",
                 "options": "list[str]"},
      "returns": "dict NEEDS-INPUT clarification"},
+    {"name": "buoyancy_analysis", "tier": "PRIMARY", "domain": "fluids",
+     "summary": "Will it float and how deep does it sit? Archimedes submerged "
+                "fraction = rho_body/rho_fluid (sinks if >= 1). Default copper in water.",
+     "inputs": {"material_key": "str (copper/water_ice/wood_oak/...)",
+                "temperature_k": "float", "fluid_density_kg_m3": "float|None"},
+     "returns": "dict with floats, submerged_fraction"},
+    {"name": "wind_wave_analysis", "tier": "PRIMARY", "domain": "fluids",
+     "summary": "Wind across water: shear stress, friction velocity, the capillary-"
+                "gravity minimum (~0.23 m/s at ~1.7 cm), and the ripple field "
+                "(wavelength/speed/frequency/amplitude) for rendering.",
+     "inputs": {"wind_speed_m_s": "float", "temperature_k": "float",
+                "wavelength_m": "float|None"},
+     "returns": "dict of stress + ripple-field quantities"},
 ]
 
 

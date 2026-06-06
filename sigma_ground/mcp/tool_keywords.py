@@ -808,6 +808,18 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "ask the user", "I need to know", "clarify", "what value", "how big",
         "need more information", "can't guess", "which", "specify",
     ],
+
+    # ============ FREE-SURFACE FLUID DYNAMICS (water sim) ============
+    "buoyancy_analysis": [
+        "will it float", "does it float or sink", "buoyancy", "Archimedes",
+        "how deep does it sit", "submerged", "half sunk", "floats or sinks",
+        "why does ice float", "displacement",
+    ],
+    "wind_wave_analysis": [
+        "wind blowing across", "wind on water", "ripples", "waves on a pond",
+        "wind-driven waves", "capillary waves", "surface waves", "wind stress",
+        "breeze ruffling the water", "how fast do ripples move", "wavelength of ripples",
+    ],
 }
 
 

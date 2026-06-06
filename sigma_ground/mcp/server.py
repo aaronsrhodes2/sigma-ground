@@ -122,6 +122,7 @@ def main() -> int:
     from sigma_ground.mcp.tools import misc_physics as t_miscphys
     from sigma_ground.mcp.tools import inventory_tools as t_inv
     from sigma_ground.mcp.tools import playground as t_play
+    from sigma_ground.mcp.tools import fluid_surface as t_fluidsurf
     from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
@@ -1805,6 +1806,25 @@ def main() -> int:
         sphere). Use this INSTEAD of inventing a value. The conversation
         surfaces the question and waits for the user's reply."""
         return t_play.request_clarification(variable, question, reason, options)
+
+    @server.tool()
+    def buoyancy_analysis(material_key: str = "copper",
+                          temperature_k: float = 293.15,
+                          fluid_density_kg_m3: float | None = None) -> dict[str, Any]:
+        """Will it float, and how deep does it sit? Archimedes: submerged
+        fraction = rho_body/rho_fluid (sinks if >= 1). Default copper in water
+        (copper sinks). Body keys: copper, water_ice, wood_oak, lead, ..."""
+        return t_fluidsurf.buoyancy_analysis(material_key, temperature_k, fluid_density_kg_m3)
+
+    @server.tool()
+    def wind_wave_analysis(wind_speed_m_s: float = 5.0,
+                           temperature_k: float = 293.15,
+                           wavelength_m: float | None = None) -> dict[str, Any]:
+        """Wind blowing across water: surface shear stress, friction velocity, the
+        capillary-gravity minimum (~0.23 m/s at ~1.7 cm), and the ripple field
+        (wavelength, phase/group speed, frequency, amplitude estimate) for
+        rendering. e.g. wind_wave_analysis(5.0)."""
+        return t_fluidsurf.wind_wave_analysis(wind_speed_m_s, temperature_k, wavelength_m)
 
     # Run via stdio transport (standard MCP).
     server.run()
