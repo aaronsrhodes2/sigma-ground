@@ -552,16 +552,68 @@ def _build_real_params_map(tools_for_ollama: list[dict]) -> dict[str, set[str]]:
     return out
 
 
+# ── Static tool-category flags (deterministic routing for functional tests) ──
+# A leading "/simulation", "/question", or "/render" on a prompt pins the
+# visible tool set, so a small local model doesn't have to route among 200+
+# tools -- it just fills slots. Also settable run-wide via --tools. This takes
+# the model-choosing problem out of functional tests.
+_SIM_TOOL_NAMES = {"simulate", "run_simulation", "list_simulation_scenarios"}
+_FLAG_TO_CATEGORY = {"/simulation": "simulation", "/sim": "simulation",
+                     "/question": "question", "/qa": "question", "/q": "question",
+                     "/render": "render", "/all": "all"}
+
+
+def _split_tool_flag(text: str) -> tuple[str | None, str]:
+    """Pull a leading /category flag off a prompt -> (category, rest)."""
+    s = (text or "").lstrip()
+    low = s.lower()
+    for flag, cat in _FLAG_TO_CATEGORY.items():
+        if low.startswith(flag) and (len(low) == len(flag) or not low[len(flag)].isalnum()):
+            return cat, s[len(flag):].lstrip(" :\t-")
+    return None, text
+
+
+def _scope_tools(tools_for_ollama: list[dict], category: str | None) -> list[dict]:
+    """Filter the Ollama tool list to a category. auto/all/None -> unchanged."""
+    if category in (None, "auto", "all"):
+        return tools_for_ollama
+
+    def keep(name: str) -> bool:
+        # request_clarification is an interactive (conversation) tool -- it has no
+        # use in stateless Q&A, where it just hands a weak model an escape hatch,
+        # so it lives with the simulation family, not "question".
+        is_sim = (name.startswith("playground_") or name in _SIM_TOOL_NAMES
+                  or name == "request_clarification")
+        if category == "simulation":
+            return is_sim
+        if category == "render":
+            return name == "playground_render" or "render" in name
+        if category == "question":
+            return not is_sim
+        return True
+
+    scoped = [t for t in tools_for_ollama if keep(t["function"]["name"])]
+    return scoped or tools_for_ollama          # never hand the model an empty list
+
+
 async def _run_one_question(session, ollama_url: str, model: str,
                               tools_for_ollama: list[dict],
                               question: str,
                               system_prompt: str,
                               real_params_by_tool: dict[str, set[str]] | None = None,
-                              primary_tool_expected: str | None = None) -> dict:
+                              primary_tool_expected: str | None = None,
+                              tool_category: str = "auto") -> dict:
     """Multi-turn tool loop for a single question."""
     import httpx
 
     t0 = time.time()
+
+    # Static tool-category flag: a leading /simulation /question /render pins the
+    # visible tool set (or the run-wide --tools default), so routing is
+    # deterministic. The Q&A pre-classifiers below are pattern-specific and won't
+    # fire on sim/render prompts.
+    _flag_cat, question = _split_tool_flag(question)
+    tools_for_ollama = _scope_tools(tools_for_ollama, _flag_cat or tool_category)
 
     # New-tools router (Phase 0): deterministically dispatch the
     # body-aware/multi-step tools (orbital_velocity, orbital_period,
@@ -1042,6 +1094,10 @@ async def _run_conversation(session, ollama_url: str, model: str,
 
     async with httpx.AsyncClient(timeout=120.0) as http:
         for user_msg in _turns():
+            # A per-turn /simulation /render /question flag refines the visible
+            # tool set for just this turn (deterministic routing).
+            _tcat, user_msg = _split_tool_flag(user_msg)
+            active_tools = _scope_tools(tools_for_ollama, _tcat) if _tcat else tools_for_ollama
             if script_lines is not None:
                 print(f"\nyou> {user_msg}")
             messages.append({"role": "user", "content": user_msg})
@@ -1054,7 +1110,7 @@ async def _run_conversation(session, ollama_url: str, model: str,
                 payload: dict = {"model": model, "messages": messages,
                                  "stream": False, "options": {"temperature": 0.2}}
                 if not force_finalize:
-                    payload["tools"] = tools_for_ollama
+                    payload["tools"] = active_tools
                 else:
                     # budget spent: ask for the reply with NO tools offered, so
                     # the model must produce text instead of looping tool calls.
@@ -1242,6 +1298,7 @@ async def _amain(args) -> int:
                         sys_prompt,
                         real_params_by_tool=real_params_by_tool,
                         primary_tool_expected=q.get("primary_tool_expected"),
+                        tool_category=args.tools,
                     )
                 except Exception as e:
                     print(f"  ERROR: {e}", file=sys.stderr)
@@ -1290,6 +1347,11 @@ def main() -> int:
     parser.add_argument("--script", type=Path, default=None,
                         help="conversation mode: a file of user turns (one per "
                              "line; '#' comments ignored). Omit for interactive.")
+    parser.add_argument("--tools", default="auto",
+                        choices=["auto", "question", "simulation", "render", "all"],
+                        help="pin the visible tool category so routing is "
+                             "deterministic in functional tests (also per-prompt "
+                             "via a leading /simulation /question /render flag).")
     args = parser.parse_args()
     return asyncio.run(_amain(args))
 
