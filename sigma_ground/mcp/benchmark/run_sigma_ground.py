@@ -1255,7 +1255,9 @@ async def _amain(args) -> int:
                 # Materia front doors). A 7b switchboard routes far better over
                 # ~10 focused tools than over 200+, and it shrinks the prompt.
                 _CONV_EXTRA = {"simulate", "run_simulation", "list_simulation_scenarios",
-                               "request_clarification"}
+                               "request_clarification",
+                               # free-surface physics the playground scene reasons about
+                               "buoyancy_analysis", "wind_wave_analysis"}
                 conv_tools = [t for t in tools_for_ollama
                               if t["function"]["name"].startswith("playground_")
                               or t["function"]["name"] in _CONV_EXTRA]
