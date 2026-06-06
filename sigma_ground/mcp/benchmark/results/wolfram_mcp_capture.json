@@ -1,0 +1,971 @@
+{
+ "mech_intro_001": {
+  "id": "mech_intro_001",
+  "system": "wolfram",
+  "extracted_value": 1.4,
+  "extracted_units": "s",
+  "source": "wolfram_mcp_clean"
+ },
+ "mech_intro_003": {
+  "id": "mech_intro_003",
+  "system": "wolfram",
+  "extracted_value": 1020.0,
+  "extracted_units": "m",
+  "source": "wolfram_mcp_clean"
+ },
+ "mech_intro_004": {
+  "id": "mech_intro_004",
+  "system": "wolfram",
+  "extracted_value": 130.0,
+  "extracted_units": "m",
+  "source": "wolfram_mcp_clean"
+ },
+ "mech_intro_005": {
+  "id": "mech_intro_005",
+  "system": "wolfram",
+  "extracted_value": 875.0,
+  "extracted_units": "J",
+  "source": "wolfram_mcp_clean"
+ },
+ "mech_intro_007": {
+  "id": "mech_intro_007",
+  "system": "wolfram",
+  "extracted_value": 7673.0,
+  "extracted_units": "m/s",
+  "source": "wolfram_mcp_clean"
+ },
+ "mech_intro_009": {
+  "id": "mech_intro_009",
+  "system": "wolfram",
+  "extracted_value": 37500.0,
+  "extracted_units": "kg m/s",
+  "source": "wolfram_mcp_clean"
+ },
+ "mech_intro_010": {
+  "id": "mech_intro_010",
+  "system": "wolfram",
+  "extracted_value": 68650.0,
+  "extracted_units": "J",
+  "source": "wolfram_mcp_clean"
+ },
+ "mech_intro_012": {
+  "id": "mech_intro_012",
+  "system": "wolfram",
+  "extracted_value": 4.079,
+  "extracted_units": "s",
+  "source": "wolfram_mcp_clean"
+ },
+ "mech_intro_013": {
+  "id": "mech_intro_013",
+  "system": "wolfram",
+  "extracted_value": 800.0,
+  "extracted_units": "J",
+  "source": "wolfram_mcp_clean"
+ },
+ "mech_intro_014": {
+  "id": "mech_intro_014",
+  "system": "wolfram",
+  "extracted_value": 20.0,
+  "extracted_units": "m/s",
+  "source": "wolfram_mcp_clean"
+ },
+ "mech_intro_015": {
+  "id": "mech_intro_015",
+  "system": "wolfram",
+  "extracted_value": 3074.0,
+  "extracted_units": "m/s",
+  "source": "wolfram_mcp_clean"
+ },
+ "mech_intro_002": {
+  "id": "mech_intro_002",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "freefall final velocity 50 meters",
+  "result_pod": ""
+ },
+ "mech_intro_006": {
+  "id": "mech_intro_006",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "error": "UnicodeEncodeError: 'charmap' codec can't encode characters in position 35-42: character maps to <undefined>"
+ },
+ "mech_intro_011": {
+  "id": "mech_intro_011",
+  "system": "wolfram",
+  "extracted_value": 3.5082,
+  "extracted_units": "seconds",
+  "source": "wolfram_qwen_api",
+  "clean_query": "time to fall 10 meters with acceleration 1.625 m/s^2",
+  "result_pod": "time | 3.5082 seconds\nspeed | 5.7009 m/s (meters per second)\n= 12.752 mph (miles per hour)\n= 18.704 ft/s (feet per second)"
+ },
+ "em_intro_001": {
+  "id": "em_intro_001",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "error": "UnicodeEncodeError: 'charmap' codec can't encode character '\\u03a9' in position 55: character maps to <undefined>"
+ },
+ "em_intro_002": {
+  "id": "em_intro_002",
+  "system": "wolfram",
+  "extracted_value": 24.0,
+  "extracted_units": "V A",
+  "source": "wolfram_qwen_api",
+  "clean_query": "12 volts * 2 amps",
+  "result_pod": "24 V A (volt amperes)"
+ },
+ "em_intro_003": {
+  "id": "em_intro_003",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "capacitance of parallel plates 1 mm apart with 1 m\u00b2 area in vacuum",
+  "result_pod": ""
+ },
+ "em_intro_004": {
+  "id": "em_intro_004",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "error": "UnicodeEncodeError: 'charmap' codec can't encode characters in position 29-30: character maps to <undefined>"
+ },
+ "em_intro_005": {
+  "id": "em_intro_005",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "resonant frequency of 1 millihenry inductor and 1 microfarad capacitor",
+  "result_pod": ""
+ },
+ "em_intro_006": {
+  "id": "em_intro_006",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "wavelength of 100 MHz in vacuum",
+  "result_pod": ""
+ },
+ "em_intro_008": {
+  "id": "em_intro_008",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "error": "UnicodeEncodeError: 'charmap' codec can't encode character '\\u03a9' in position 58: character maps to <undefined>"
+ },
+ "em_intro_009": {
+  "id": "em_intro_009",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "error": "UnicodeEncodeError: 'charmap' codec can't encode character '\\u03a9' in position 55: character maps to <undefined>"
+ },
+ "em_intro_010": {
+  "id": "em_intro_010",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "error": "UnicodeEncodeError: 'charmap' codec can't encode character '\\u03a9' in position 56: character maps to <undefined>"
+ },
+ "em_intro_011": {
+  "id": "em_intro_011",
+  "system": "wolfram",
+  "extracted_value": 2.4,
+  "extracted_units": "GHz",
+  "source": "wolfram_qwen_api",
+  "clean_query": "2.4 GHz to wavelength",
+  "result_pod": "frequency | 2.4 GHz (gigahertz)\nwave propagation speed | 1 c (speed of light)"
+ },
+ "em_intro_012": {
+  "id": "em_intro_012",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "area of plates for 1 microfarad capacitor with 1 mm separation in vacuum",
+  "result_pod": ""
+ },
+ "em_intro_013": {
+  "id": "em_intro_013",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "error": "UnicodeEncodeError: 'charmap' codec can't encode character '\\u03a9' in position 65: character maps to <undefined>"
+ },
+ "em_intro_014": {
+  "id": "em_intro_014",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "frequency[0.1 nanometers]",
+  "result_pod": ""
+ },
+ "em_intro_015": {
+  "id": "em_intro_015",
+  "system": "wolfram",
+  "extracted_value": 1e+22,
+  "extracted_units": "Hz",
+  "source": "wolfram_qwen_api",
+  "clean_query": "wavelength of 1e22 Hz",
+  "result_pod": "frequency | 1\u00d710^22 Hz (hertz)\nwave propagation speed | 1 c (speed of light)"
+ },
+ "optics_001": {
+  "id": "optics_001",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "Bending angle of light from air to water at 30 degrees from vertical n=1.333",
+  "result_pod": ""
+ },
+ "optics_002": {
+  "id": "optics_002",
+  "system": "wolfram",
+  "extracted_value": 50.28,
+  "extracted_units": "\u00b0",
+  "source": "wolfram_qwen_api",
+  "clean_query": "critical angle for total internal reflection",
+  "result_pod": "critical angle | 50.28\u00b0 (degrees)\n= 877.6 mrad (milliradians)\n= 0.8776 radians"
+ },
+ "optics_003": {
+  "id": "optics_003",
+  "system": "wolfram",
+  "extracted_value": 2.0,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "image distance 30 cm / 15 cm",
+  "result_pod": "2"
+ },
+ "optics_004": {
+  "id": "optics_004",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "wavelength of H-alpha spectral line emitted when hydrogen drops from n=3 to n=2",
+  "result_pod": ""
+ },
+ "optics_005": {
+  "id": "optics_005",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "distance between bright fringes for 633 nm laser with 0.1 mm slits 1 m away",
+  "result_pod": ""
+ },
+ "optics_006": {
+  "id": "optics_006",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "angle for first dark fringe 500 nm through 1 \u03bcm slit",
+  "result_pod": ""
+ },
+ "optics_007": {
+  "id": "optics_007",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "1000 lines/mm, 500 nm first order diffraction angle",
+  "result_pod": ""
+ },
+ "optics_009": {
+  "id": "optics_009",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "wavelength Lyman-alpha hydrogen line n=2 to n=1",
+  "result_pod": ""
+ },
+ "optics_010": {
+  "id": "optics_010",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "magnification for object distance 20 cm and image distance -10 cm",
+  "result_pod": ""
+ },
+ "optics_012": {
+  "id": "optics_012",
+  "system": "wolfram",
+  "extracted_value": 448.0,
+  "extracted_units": "weeks",
+  "source": "wolfram_qwen_api",
+  "clean_query": "8.6 years",
+  "result_pod": "448 weeks"
+ },
+ "thermo_001": {
+  "id": "thermo_001",
+  "system": "wolfram",
+  "extracted_value": 1.0006,
+  "extracted_units": "atm",
+  "source": "wolfram_qwen_api",
+  "clean_query": "1 mole ideal gas 0 Celsius 22.4 liter pressure",
+  "result_pod": "pressure | 1.0006 atm (atmospheres)\n= 101.39 kPa (kilopascals)\n= 0.10139 MPa (megapascals)"
+ },
+ "thermo_002": {
+  "id": "thermo_002",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "peak emission wavelength 6000 K",
+  "result_pod": ""
+ },
+ "thermo_003": {
+  "id": "thermo_003",
+  "system": "wolfram",
+  "extracted_value": 459.3,
+  "extracted_units": "W/m^2",
+  "source": "wolfram_qwen_api",
+  "clean_query": "Stefan-Boltzmann law 300 K",
+  "result_pod": "radiant exitance | 459.3 W/m^2 (watts per square meter)\n= 45.93 mW/cm^2 (milliwatts per square centimeter)\n= 459.3 MW/km^2 (megawatts per square kilometer)"
+ },
+ "thermo_004": {
+  "id": "thermo_004",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "maximum efficiency of heat engine 600 K to 300 K",
+  "result_pod": ""
+ },
+ "thermo_005": {
+  "id": "thermo_005",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "average thermal energy per molecule 300 K monatomic gas",
+  "result_pod": ""
+ },
+ "thermo_006": {
+  "id": "thermo_006",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "Most probable speed O2 at 300 K 5.31e-26 kg",
+  "result_pod": ""
+ },
+ "thermo_007": {
+  "id": "thermo_007",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "volume of 1 mole gas at 25 Celsius and 1 atm",
+  "result_pod": ""
+ },
+ "thermo_012": {
+  "id": "thermo_012",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "peak emission wavelength of black body at 5778 K",
+  "result_pod": ""
+ },
+ "modern_001": {
+  "id": "modern_001",
+  "system": "wolfram",
+  "extracted_value": 1.11111,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "gamma(0.9*c)",
+  "result_pod": "(1.11111 (0.9 c)!)/c"
+ },
+ "modern_002": {
+  "id": "modern_002",
+  "system": "wolfram",
+  "extracted_value": 315.4,
+  "extracted_units": "million seconds",
+  "source": "wolfram_qwen_api",
+  "clean_query": "time dilation 0.99 c 10 years Earth",
+  "result_pod": "time in rest frame | 315.4 million seconds\n= 5.256 million minutes\n= 87600 hours\n= 10 years"
+ },
+ "modern_003": {
+  "id": "modern_003",
+  "system": "wolfram",
+  "extracted_value": 125.0,
+  "extracted_units": "cm",
+  "source": "wolfram_qwen_api",
+  "clean_query": "1 meter Lorentz contraction 0.6 c",
+  "result_pod": "stationary length | 125 cm (centimeters)\n= 49.21 inches\n= 4' 1.213\""
+ },
+ "modern_004": {
+  "id": "modern_004",
+  "system": "wolfram",
+  "extracted_value": 8.988e+16,
+  "extracted_units": "kg m^2/s^2",
+  "source": "wolfram_qwen_api",
+  "clean_query": "1 kg c^2",
+  "result_pod": "8.988\u00d710^16 kg m^2/s^2 (kilogram meters squared per second squared)"
+ },
+ "modern_005": {
+  "id": "modern_005",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "3.828e26 watts to kg per second",
+  "result_pod": "(W (watt) and kg/s (kilogram per second) are not compatible)"
+ },
+ "modern_006": {
+  "id": "modern_006",
+  "system": "wolfram",
+  "extracted_value": 0.0,
+  "extracted_units": "nm eV/c^2",
+  "source": "wolfram_qwen_api",
+  "clean_query": "550 nm photon energy in eV",
+  "result_pod": "0 nm eV/c^2 (nanometer electronvolts per speed of light squared)"
+ },
+ "modern_007": {
+  "id": "modern_007",
+  "system": "wolfram",
+  "extracted_value": 1.8,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "0.9 + 0.9*c / c",
+  "result_pod": "1.8"
+ },
+ "modern_009": {
+  "id": "modern_009",
+  "system": "wolfram",
+  "extracted_value": 4184000000000000.0,
+  "extracted_units": "J",
+  "source": "wolfram_qwen_api",
+  "clean_query": "1 megaton of TNT in joules",
+  "result_pod": "4.184\u00d710^15 J (joules)"
+ },
+ "modern_010": {
+  "id": "modern_010",
+  "system": "wolfram",
+  "extracted_value": 0.511,
+  "extracted_units": "MeV/c^2",
+  "source": "wolfram_qwen_api",
+  "clean_query": "9.109e-31 kg to MeV",
+  "result_pod": "0.511 MeV/c^2"
+ },
+ "modern_012": {
+  "id": "modern_012",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "redshift factor for recession velocity of 1000 km/s",
+  "result_pod": ""
+ },
+ "qm_001": {
+  "id": "qm_001",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "ground state energy hydrogen",
+  "result_pod": ""
+ },
+ "qm_002": {
+  "id": "qm_002",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "energy of the n=2 state of hydrogen",
+  "result_pod": ""
+ },
+ "qm_004": {
+  "id": "qm_004",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "energy ground state He+",
+  "result_pod": ""
+ },
+ "qm_006": {
+  "id": "qm_006",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "4 to 2 energy level transition hydrogen wavelength",
+  "result_pod": ""
+ },
+ "qm_007": {
+  "id": "qm_007",
+  "system": "wolfram",
+  "extracted_value": 6.626e-19,
+  "extracted_units": "J",
+  "source": "wolfram_qwen_api",
+  "clean_query": "energy of 1e15 Hz photon",
+  "result_pod": "energy | 6.626\u00d710^-19 J (joules)\n= 4.136 eV (electronvolts)\n= 6.28\u00d710^-22 BTU_IT (IT British thermal units)"
+ },
+ "qm_008": {
+  "id": "qm_008",
+  "system": "wolfram",
+  "extracted_value": 495.8,
+  "extracted_units": "kJ/mol",
+  "source": "wolfram_qwen_api",
+  "clean_query": "first ionization energy of sodium",
+  "result_pod": "495.8 kJ/mol (kilojoules per mole)"
+ },
+ "qm_009": {
+  "id": "qm_009",
+  "system": "wolfram",
+  "extracted_value": 1.9860000000000003e-15,
+  "extracted_units": "J",
+  "source": "wolfram_qwen_api",
+  "clean_query": "energy of a photon with wavelength 0.1 nm",
+  "result_pod": "energy | 1.986\u00d710^-15 J (joules)\n= 12.4 keV (kiloelectronvolts)\n= 0.0124 MeV (megaelectronvolts)"
+ },
+ "qm_011": {
+  "id": "qm_011",
+  "system": "wolfram",
+  "extracted_value": 1.1419999999999999e-34,
+  "extracted_units": "meters",
+  "source": "wolfram_qwen_api",
+  "clean_query": "de Broglie wavelength 0.145 kg 40 m/s",
+  "result_pod": "wavelength | 1.142\u00d710^-34 meters\n= 4.498\u00d710^-33 inches"
+ },
+ "qm_012": {
+  "id": "qm_012",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "Brackett-alpha line wavelength hydrogen 5 to 4",
+  "result_pod": ""
+ },
+ "mech_adv_001": {
+  "id": "mech_adv_001",
+  "system": "wolfram",
+  "extracted_value": 13.49,
+  "extracted_units": "km/s",
+  "source": "wolfram_qwen_api",
+  "clean_query": "Jupiter orbital velocity around the Sun circular orbit",
+  "result_pod": "circular velocity | 13.49 km/s (kilometers per second)\n= 30184 mph (miles per hour)\n= 48577 km/h (kilometers per hour)"
+ },
+ "mech_adv_002": {
+  "id": "mech_adv_002",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "orbital period of an object at 3 AU",
+  "result_pod": ""
+ },
+ "mech_adv_006": {
+  "id": "mech_adv_006",
+  "system": "wolfram",
+  "extracted_value": 4.725,
+  "extracted_units": "GJ",
+  "source": "wolfram_qwen_api",
+  "clean_query": "kinetic energy of 1000 kg with speed 3074 m/s",
+  "result_pod": "kinetic energy | 4.725 GJ (gigajoules)\n= 1.312 MW h (megawatt hours)\n= 0.001312 GW h (gigawatt hours)"
+ },
+ "mech_adv_009": {
+  "id": "mech_adv_009",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "orbital speed of ISS at 408 km altitude",
+  "result_pod": "(data not available)"
+ },
+ "mech_adv_010": {
+  "id": "mech_adv_010",
+  "system": "wolfram",
+  "extracted_value": 350.9,
+  "extracted_units": "GJ",
+  "source": "wolfram_qwen_api",
+  "clean_query": "energy to lift 1000 kg to 35786000 m",
+  "result_pod": "gravitational potential energy | 350.9 GJ (gigajoules)\n= 97.48 MW h (megawatt hours)\n= 0.09748 GW h (gigawatt hours)"
+ },
+ "em_adv_001": {
+  "id": "em_adv_001",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "wavelength of 2.45 GHz in water with refractive index 1.33",
+  "result_pod": ""
+ },
+ "em_adv_002": {
+  "id": "em_adv_002",
+  "system": "wolfram",
+  "extracted_value": 1.2,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "60 * 0.02",
+  "result_pod": "1.2"
+ },
+ "em_adv_003": {
+  "id": "em_adv_003",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "capacitance of parallel plates 1 m^2 with 1 micron gap in vacuum",
+  "result_pod": ""
+ },
+ "em_adv_004": {
+  "id": "em_adv_004",
+  "system": "wolfram",
+  "extracted_value": 11.294,
+  "extracted_units": "m^2",
+  "source": "wolfram_qwen_api",
+  "clean_query": "plate area for 100 microfarads with 0.1 mm separation and relative permittivity 100",
+  "result_pod": "area of overlap of the two plates | 11.294 m^2 (square meters)\n= 4.3607\u00d710^-6 mi^2 (square miles)\n= 121.57 ft^2 (square feet)"
+ },
+ "em_adv_005": {
+  "id": "em_adv_005",
+  "system": "wolfram",
+  "extracted_value": 1.0,
+  "extracted_units": "MHz",
+  "source": "wolfram_qwen_api",
+  "clean_query": "1 MHz wavelength",
+  "result_pod": "frequency | 1 MHz (megahertz)\nwave propagation speed | 1 c (speed of light)"
+ },
+ "em_adv_006": {
+  "id": "em_adv_006",
+  "system": "wolfram",
+  "extracted_value": 159.2,
+  "extracted_units": "MHz",
+  "source": "wolfram_qwen_api",
+  "clean_query": "resonant frequency of RLC circuit with L=1 microhenry C=1 picofarad",
+  "result_pod": "resonance frequency | 159.2 MHz (megahertz)\n= 0.1592 GHz (gigahertz)\n= 1.592\u00d710^8 Hz (hertz)"
+ },
+ "em_adv_007": {
+  "id": "em_adv_007",
+  "system": "wolfram",
+  "extracted_value": 5.0,
+  "extracted_units": "kW h",
+  "source": "wolfram_qwen_api",
+  "clean_query": "5 kW * 1 hour",
+  "result_pod": "5 kW h (kilowatt hours)"
+ },
+ "em_adv_008": {
+  "id": "em_adv_008",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "100 mW 2.4 GHz wavelength",
+  "result_pod": ""
+ },
+ "em_adv_009": {
+  "id": "em_adv_009",
+  "system": "wolfram",
+  "extracted_value": 28.0,
+  "extracted_units": "GHz",
+  "source": "wolfram_qwen_api",
+  "clean_query": "wavelength of 28 GHz",
+  "result_pod": "frequency | 28 GHz (gigahertz)\nwave propagation speed | 1 c (speed of light)"
+ },
+ "em_adv_010": {
+  "id": "em_adv_010",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "time to dissipate 1000 joules with 5 watts",
+  "result_pod": ""
+ },
+ "gr_001": {
+  "id": "gr_001",
+  "system": "wolfram",
+  "extracted_value": 1.2250000000000002e+32,
+  "extracted_units": "kg m/",
+  "source": "wolfram_qwen_api",
+  "clean_query": "mass of Sun*2*Pi*G/(c^2)^(1/2)",
+  "result_pod": "1.225\u00d710^32 kg m/(s^2K) (kilogram meters per second squared kelvin difference)"
+ },
+ "gr_002": {
+  "id": "gr_002",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "radius of photon sphere for 10 solar mass black hole",
+  "result_pod": ""
+ },
+ "gr_003": {
+  "id": "gr_003",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "innermost stable circular orbit radius 10 solar masses",
+  "result_pod": ""
+ },
+ "gr_004": {
+  "id": "gr_004",
+  "system": "wolfram",
+  "extracted_value": 6.170000000000001e-05,
+  "extracted_units": "mK",
+  "source": "wolfram_qwen_api",
+  "clean_query": "Hawking temperature 1 solar mass",
+  "result_pod": "temperature | 6.17\u00d710^-5 mK (millikelvins)\n= -459.7 \u00b0F (degrees Fahrenheit)\n= 6.17\u00d710^-8 K (kelvins)"
+ },
+ "gr_005": {
+  "id": "gr_005",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "Hawking radiation lifetime for 10 solar mass black hole",
+  "result_pod": ""
+ },
+ "gr_006": {
+  "id": "gr_006",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "time dilation factor for clock 1 km above 10 solar masses black hole compared to infinity",
+  "result_pod": ""
+ },
+ "gr_007": {
+  "id": "gr_007",
+  "system": "wolfram",
+  "extracted_value": 12110000000.0,
+  "extracted_units": "meters",
+  "source": "wolfram_qwen_api",
+  "clean_query": "Schwarzschild radius 4.1 million solar masses",
+  "result_pod": "event horizon radius | 1.211\u00d710^10 meters\n= 7.524 million miles\n= 1.211\u00d710^7 km (kilometers)"
+ },
+ "gr_008": {
+  "id": "gr_008",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "altitude for GPS satellite time dilation 38 microseconds per day",
+  "result_pod": ""
+ },
+ "gr_009": {
+  "id": "gr_009",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "redshift at event horizon as seen from infinity",
+  "result_pod": ""
+ },
+ "gr_010": {
+  "id": "gr_010",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "event horizon size and hawking temperature for 1000000000000 kg black hole",
+  "result_pod": ""
+ },
+ "cosmo_001": {
+  "id": "cosmo_001",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "Hubble radius of the universe in meters",
+  "result_pod": ""
+ },
+ "cosmo_004": {
+  "id": "cosmo_004",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "1e-10 m/s\u00b2 regime",
+  "result_pod": ""
+ },
+ "cosmo_005": {
+  "id": "cosmo_005",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "9.8 m/s^2 in Newtonian or MOND regime",
+  "result_pod": ""
+ },
+ "cosmo_006": {
+  "id": "cosmo_006",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "MOND a_0 acceleration constant",
+  "result_pod": ""
+ },
+ "cosmo_007": {
+  "id": "cosmo_007",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "eta value in sigma-ground library",
+  "result_pod": ""
+ },
+ "cosmo_008": {
+  "id": "cosmo_008",
+  "system": "wolfram",
+  "extracted_value": 4.3e+17,
+  "extracted_units": "seconds",
+  "source": "wolfram_qwen_api",
+  "clean_query": "age of the universe in seconds",
+  "result_pod": "4.3\u00d710^17 seconds"
+ },
+ "astro_001": {
+  "id": "astro_001",
+  "system": "wolfram",
+  "extracted_value": 4.247,
+  "extracted_units": "ly/c",
+  "source": "wolfram_qwen_api",
+  "clean_query": "distance Proxima Centauri to Earth / speed of light",
+  "result_pod": "4.247 ly/c (light years per speed of light)"
+ },
+ "astro_003": {
+  "id": "astro_003",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "error": "UnicodeEncodeError: 'charmap' codec can't encode character '\\u2609' in position 71: character maps to <undefined>"
+ },
+ "astro_004": {
+  "id": "astro_004",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "distance_to_betelgeuse_light_travel_time",
+  "result_pod": "(no complete common words)"
+ },
+ "astro_008": {
+  "id": "astro_008",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "peak wavelength Sun blackbody spectrum",
+  "result_pod": ""
+ },
+ "astro_010": {
+  "id": "astro_010",
+  "system": "wolfram",
+  "extracted_value": 65654.0,
+  "extracted_units": "mph",
+  "source": "wolfram_qwen_api",
+  "clean_query": "Earth orbital speed around Sun",
+  "result_pod": "65654 mph (miles per hour)"
+ },
+ "atom_003": {
+  "id": "atom_003",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "energy to ionize hydrogen atom from ground state",
+  "result_pod": ""
+ },
+ "atom_005": {
+  "id": "atom_005",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "wavelength of hydrogen transition from n=6 to n=2",
+  "result_pod": ""
+ },
+ "atom_007": {
+  "id": "atom_007",
+  "system": "wolfram",
+  "extracted_value": 3.3730000000000003e-19,
+  "extracted_units": "J",
+  "source": "wolfram_qwen_api",
+  "clean_query": "energy of a photon wavelength 589 nm",
+  "result_pod": "energy | 3.373\u00d710^-19 J (joules)\n= 2.105 eV (electronvolts)\n= 3.197\u00d710^-22 BTU_IT (IT British thermal units)"
+ },
+ "nuc_001": {
+  "id": "nuc_001",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "1 kg to joules from mass-energy equivalence",
+  "result_pod": ""
+ },
+ "nuc_002": {
+  "id": "nuc_002",
+  "system": "wolfram",
+  "extracted_value": 21.48,
+  "extracted_units": "Mt TNT",
+  "source": "wolfram_qwen_api",
+  "clean_query": "1 kg to megatons of TNT",
+  "result_pod": "21.48 Mt TNT (megatons of TNT)\n(using relativistic energy E of a body from E = mc^2)"
+ },
+ "nuc_003": {
+  "id": "nuc_003",
+  "system": "wolfram",
+  "extracted_value": 5000000.0,
+  "extracted_units": "eV",
+  "source": "wolfram_qwen_api",
+  "clean_query": "5 MeV to eV",
+  "result_pod": "5\u00d710^6 eV (electronvolts)"
+ },
+ "nuc_004": {
+  "id": "nuc_004",
+  "system": "wolfram",
+  "extracted_value": 3.204e-11,
+  "extracted_units": "J",
+  "source": "wolfram_qwen_api",
+  "clean_query": "200 MeV to joules",
+  "result_pod": "3.204\u00d710^-11 J (joules)"
+ },
+ "nuc_005": {
+  "id": "nuc_005",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "1 kg of U-235 fully fissioned energy in megatons TNT",
+  "result_pod": ""
+ },
+ "nuc_006": {
+  "id": "nuc_006",
+  "system": "wolfram",
+  "extracted_value": 2.8199999999999997e-12,
+  "extracted_units": "J",
+  "source": "wolfram_qwen_api",
+  "clean_query": "17.6 MeV to joules",
+  "result_pod": "2.82\u00d710^-12 J (joules)"
+ },
+ "nuc_007": {
+  "id": "nuc_007",
+  "system": "wolfram",
+  "extracted_value": null,
+  "extracted_units": "",
+  "source": "wolfram_qwen_api",
+  "clean_query": "1 megaton of TNT equivalent in kg mass converted to energy",
+  "result_pod": ""
+ }
+}
