@@ -23,18 +23,21 @@ gaps are bounded and listed below by owner. Mentat's two enablers are already do
 
 ---
 
-## Step 0 — FIX THE WATER SEEDS FIRST (blocker)
-`sigma_ground/field/interface/liquid_water.py` at 20 °C is off vs NIST (violates
-Deckard's Golden Rule 8). The ripple dispersion uses σ and ρ, so wrong seeds →
-wrong ripples:
+## Step 0 — FIX THE WATER SEEDS FIRST — ✅ RESOLVED
+`sigma_ground/field/interface/liquid_water.py` was off vs NIST at 20 °C (violated
+Golden Rule 8). The two-state derivation was *qualitatively* right but
+quantitatively wrong; replaced the three bulk properties with NIST-anchored
+empirical correlations (the two-state model stays for ice-fraction / heat
+capacity / the 4 °C anomaly narrative — Kell reproduces the maximum):
 
-| quantity | model @20 °C | NIST | error |
-|---|---|---|---|
-| `water_surface_tension` | 0.1006 N/m | 0.0728 N/m | **+38%** |
-| `water_viscosity` | 1.01e-4 Pa·s | 1.00e-3 Pa·s | **10× low** |
-| `water_density` | 1032.6 kg/m³ | 998.2 kg/m³ | +3.5% |
+| quantity | was @20 °C | now @20 °C | NIST | correlation |
+|---|---|---|---|---|
+| `water_surface_tension` | 0.1006 (+38%) | 0.07274 | 0.0728 N/m | IAPWS-1994 |
+| `water_viscosity` | 1.01e-4 (10× low) | 1.002e-3 | 1.002e-3 Pa·s | Vogel |
+| `water_density` | 1032.6 (+3.5%) | 998.20 | 998.2 kg/m³ | Kell 1975 |
 
-Fix these (and add NIST-anchored tests) before building the wave verbs.
+Validated across 4-100 °C; NIST tests added (`TestNISTAccuracy`). 41
+liquid-water + 144 dependent tests green. Ripple verbs can now build on σ and ρ.
 
 ---
 
