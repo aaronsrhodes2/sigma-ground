@@ -14,7 +14,7 @@ import sys
 sys.path.insert(0, r"D:\Aaron\development\sigma-ground")
 
 from sigma_ground import deckard
-from sigma_ground.radiance import construct_to_scene, record_fall
+from sigma_ground.radiance import construct_to_scene, record_fall, record_object_fall
 from sigma_ground.radiance.scene_export import (sdf_samples, _bake_material,
                                                _default_lighting)
 
@@ -315,80 +315,22 @@ def _build_water():
     })
 _bundle("water.json", _build_water)
 
-# ── 7) FEATHER DROP — the full pipeline: Materia simulates, Radiance renders ──
+# ── 7) FEATHER DROP — Deckard's shape · Materia's drag · Radiance renders ──
 def _build_feather():
-    import sigma_ground.materia as Materia
-    REQUEST = "drop a feather from 8 feet in atmosphere and watch it float to the floor"
-    # The sim-layer seed: WHAT it is (keratin) and a feather's mass + planform area.
-    # A feather floats because of its area-to-mass ratio, not its material — its
-    # structure (mostly air) makes it light, its broad face makes it draggy.
-    H = 8 * 0.3048                                     # 8 feet → 2.4384 m
-    MASS, AREA, CD = 0.0006, 0.003, 1.0               # ~0.6 g, ~12cm×2.5cm flat plate
-    vt = Materia.analytic_terminal_velocity(MASS, AREA, 1.225, cd=CD)
-    run = Materia.simulate_drag_run(MASS, AREA, start_altitude_m=H, cd_value=CD,
-                                    dt=0.02, t_max=8.0, sample_every=2)   # MATERIA computes the movement
-    hist = run["history"]
-    fall_t = run["fall_time_s"]
-    # Materia's altitude-over-time → render frames (the feather falls straight; real
-    # fluttering/tumbling is chaotic aerodynamics Materia doesn't model yet).
-    frames = [{"t_sim": round(s["t"], 4),
-               "bodies": [{"pos": [0.0, round(s["altitude_m"], 5), 0.0], "quat": [0, 0, 0, 1]}]}
-              for s in hist]
-    fr = 0.07                                          # feather half-length (a thin flat plank)
-    leaves = [
-        {"op": "add", "material": "wool_natural", "body": 0,          # keratin (the feather)
-         "shape": {"type": "Box", "center": [0.0, 0.0, 0.0], "x": 0.14, "y": 0.003, "z": 0.035}},
-        {"op": "add", "material": "stage_dark",                        # a floor to float down to
-         "shape": {"type": "Box", "center": [0.0, -0.05, 0.0], "x": 2.0, "y": 0.1, "z": 2.0}},
-    ]
-    # Floor: we have NO grounded oak reflectance (wood_oak bakes to a flat grey
-    # placeholder, "no model yet"), so rather than fake an oak colour we use an
-    # honest neutral *dark matte stage* — a photographer's backdrop, not a
-    # material claim — which also lets the pale keratin feather read against it.
-    floor = _bake_material("wood_oak", 700.0)
-    floor["color_rgb"] = [0.07, 0.07, 0.08]
-    floor["mechanism"] = "neutral render stage (dark matte backdrop, not a grounded material colour)"
-    floor["emergent"] = False
-    mats = {"wool_natural": _bake_material("wool_natural", None),
-            "stage_dark": floor}
-    _lt = _default_lighting([0.0, 1.0, 0.0])
-    # The simulation data the renderer is fed — material, initial temperature, motion.
-    sim_data = {
-        "request": REQUEST,
-        "materia_routing": "deterministic translator misrouted to atmospheric_profile (NL gap); "
-                           "drove simulate_drag_run directly with the feather's mass + area",
-        "material": {"name": "keratin (beta-keratin)",
-                     "composition": "(Cys-Gly-Leu-Ala)n keratin polypeptide, S crosslinks",
-                     "mass_kg": MASS, "planform_area_m2": AREA, "drag_coefficient": CD},
-        "environment": {"medium": "air at STP", "density_kg_m3": 1.225, "T_K": 288.15},
-        "initial_temperature_K": 293.15,
-        "motion_over_time": {"drop_height_m": round(H, 4), "gravity_m_s2": 9.80665,
-                             "terminal_velocity_m_s": round(vt, 3),
-                             "fall_time_s": round(fall_t, 3) if fall_t else None,
-                             "samples": len(frames),
-                             "physics": "gravity on mass + atmospheric drag rising with speed -> "
-                                        "terminal velocity set by area (Materia.simulate_drag_run)"},
-    }
-    print("\nFEATHER DROP — Materia simulated, Radiance renders:")
-    print(f"  terminal velocity {vt:.2f} m/s · fall time {fall_t:.2f} s · {len(frames)} frames")
-    bodies = [{"pivot": [0, 0, 0], "label": "feather (keratin)"}]
-    _write("feather.json", {
-        "scene": {
-            "name": "feather drop (8 ft, air STP) — Materia simulated, Radiance renders",
-            "bodies": bodies, "csg_leaves": leaves, "materials": mats,
-            "physics": {"mass_kg": MASS, "com_m": [0, 0, 0], "inertia_kgm2": [0, 0, 0]},
-            "bbox": [[-1.0, 1.0], [-0.1, 2.6], [-1.0, 1.0]],
-            "camera": {"target": [0.0, 1.15, 0.0], "orbit_radius": 3.7, "fov_deg": 46.0,
-                       "up": [0.0, 1.0, 0.0], "az0": 0.35, "el0": 0.34},
-            "lights": _lt["lights"], "ambient": _lt["ambient"], "identified": True,
-            "sim_data": sim_data,
-            "source": "keratin feather · air at STP · floats at terminal velocity 1.78 m/s (Materia drag) — the sim layer holds material + temperature + motion; Radiance derives the rest",
-        },
-        "trajectory": {"frames": frames, "t_end_s": round(frames[-1]["t_sim"], 4),
-                       "natural_timescale_s": fall_t,
-                       "suggested_rate": max(1e-6, (fall_t or 1.5) / 5.0),   # slow-mo float
-                       "body_labels": ["feather"]},
-        "kind": "trajectory"})
+    # Deckard OWNS the shape: identify() compiles the real feather (cone rachis +
+    # ellipsoid vane, keratin) — we author NO geometry here (the old hand-built
+    # Box feather + Box floor is retired). record_object_fall drops that construct
+    # through Materia's atmospheric drag and emits the viewer bundle — the exact
+    # path the front-door dispatcher uses for "drop a feather". No floor: black is
+    # empty space (the real floor shows through on the passthrough glasses).
+    feather = deckard.identify("feather", allow_llm=False)
+    out = record_object_fall(feather, start_altitude_m=8 * 0.3048)   # 8 ft → 2.4384 m
+    _write("feather.json", out)
+    tr = out["trajectory"]
+    shapes = [l["shape"]["type"] for l in out["scene"]["csg_leaves"]]
+    print("\nFEATHER DROP — Deckard shape · Materia drag · Radiance renders:")
+    print(f"  shapes {shapes} · {len(tr['frames'])} frames · "
+          f"fall {tr['natural_timescale_s']:.2f}s (no hand-authored geometry)")
 _bundle("feather.json", _build_feather)
 
 

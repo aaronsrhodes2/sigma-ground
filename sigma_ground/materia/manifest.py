@@ -427,6 +427,10 @@ _ROUTABLE_NEW = {
                      "acoustic", "ultrasound", "wave speed in",
                      "sound travel through", "how fast does sound"],
         "examples": ["speed of sound in steel", "acoustic impedance of water"],
+        # The material IS the answer here; with none named the verb would default
+        # to iron and report a confidently-wrong sound speed ("at sea level" →
+        # iron 5942 m/s). Require a named material — else decline (→ Q&A).
+        "material_required": True,
         "slots": _MAT},
     "tribology": {
         "description": "Friction, wear & adhesion at a sliding contact — Archard "

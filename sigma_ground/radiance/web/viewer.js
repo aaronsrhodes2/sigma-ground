@@ -619,31 +619,60 @@ function selfCheck(){
   setOk(`geometry self-check: <span class="${ok?'ok':'bad'}">${ok?'PASS':'FAIL'}</span> `
        +`<span class="lbl">(max Δ ${md.toExponential(1)} vs Python)</span>`);
 }
+let loadedObj=null;                                  // the pristine JSON Radiance was handed (editor + reset)
+
+// Apply a parsed scene/trajectory object. Compiles FIRST, so a broken edit can
+// never corrupt the live render; commits the globals only after a clean compile.
+// `preserve` keeps the current camera + playhead — the live editor wants that;
+// a fresh scene load resets them.
+function applyObj(obj, title, preserve){
+  const newScene = obj.kind==="trajectory" ? obj.scene : obj;
+  const newTraj  = obj.kind==="trajectory" ? obj.trajectory : (obj.trajectory||null);
+  if(!newScene||!newScene.csg_leaves||!newScene.csg_leaves.length) throw new Error("scene has no csg_leaves");
+  buildProgram(newScene);                            // throws on a bad shader → live render untouched
+  scene=newScene; traj=newTraj;                      // commit only after the compile succeeds
+  if(!preserve){ const cm=scene.camera||{};
+    cam.target=(cm.target||[0,0,0]).slice(); cam.up=(cm.up||[0,0,1]).slice();
+    cam.radius=cm.orbit_radius||0.3;                 // a scene may suggest its opening angle (flat grids want face-on)
+    cam.az=(cm.az0!==undefined?cm.az0:0.8); cam.el=(cm.el0!==undefined?cm.el0:0.45); }
+  const bb=scene.bbox||[[-1,1],[-1,1],[-1,1]];
+  sceneDiag=len(sub([bb[0][1],bb[1][1],bb[2][1]],[bb[0][0],bb[1][0],bb[2][0]]));
+  sceneId++;                                         // new scene → PT accumulation resets
+  selfCheck();
+  $("title").textContent=scene.name||title||""; $("src").textContent=scene.source||"";
+  const hasTraj=!!(traj&&traj.frames&&traj.frames.length>1);
+  tEnd=hasTraj?traj.t_end_s:0;
+  if(!preserve){ simTime=0; playing=false; $("play").textContent="▶ play";
+    if(hasTraj){ rate=traj.suggested_rate||1; $("rate").value=Math.log10(rate); updRate(); } }
+  else if(simTime>tEnd){ simTime=tEnd>0?tEnd:0; }
+  $("playgrp").style.opacity=$("rategrp").style.opacity=hasTraj?"1":"0.35";
+  bodyPoses=posesAt(simTime); drewOnce=false;
+  return true;
+}
 async function load(url, title){
   try{
     const resp=await fetch(url); if(!resp.ok) throw new Error(`fetch ${url} → ${resp.status}`);
     const obj=await resp.json();
-    scene = obj.kind==="trajectory" ? obj.scene : obj;
-    traj  = obj.kind==="trajectory" ? obj.trajectory : (obj.trajectory||null);
-    if(!scene||!scene.csg_leaves||!scene.csg_leaves.length) throw new Error("scene has no csg_leaves");
-    const cm=scene.camera||{};
-    cam.target=(cm.target||[0,0,0]).slice(); cam.up=(cm.up||[0,0,1]).slice();
-    cam.radius=cm.orbit_radius||0.3;                 // a scene may suggest its opening angle (flat grids want face-on)
-    cam.az=(cm.az0!==undefined?cm.az0:0.8); cam.el=(cm.el0!==undefined?cm.el0:0.45);
-    const bb=scene.bbox||[[-1,1],[-1,1],[-1,1]];
-    sceneDiag=len(sub([bb[0][1],bb[1][1],bb[2][1]],[bb[0][0],bb[1][0],bb[2][0]]));
-    sceneId++;                                       // new scene → PT accumulation resets
-    buildProgram(scene);
-    selfCheck();
-    $("title").textContent=scene.name||title; $("src").textContent=scene.source||"";
-    const hasTraj=!!(traj&&traj.frames&&traj.frames.length>1);
-    tEnd=hasTraj?traj.t_end_s:0; simTime=0; playing=false; bodyPoses=posesAt(0); drewOnce=false;
-    $("playgrp").style.opacity=$("rategrp").style.opacity=hasTraj?"1":"0.35";
-    $("play").textContent="▶ play";
-    if(hasTraj){ rate=traj.suggested_rate||1; $("rate").value=Math.log10(rate); updRate(); }
+    applyObj(obj, title, false);
+    loadedObj=obj;                                   // pristine copy for the editor + reset
     document.querySelectorAll("#bar button").forEach(b=>b.classList.remove("on"));
+    syncEditor();
     return true;
   }catch(e){ setErr((""+e).slice(0,180)); console.error(e); throw e; }
+}
+
+// ── "behind the simulation": the JSON Radiance renders from, live-editable ──
+// The picture is a pure function of this JSON, so editing it IS editing the
+// world. Nothing is validated — type an impossible seed and you see the
+// impossible thing it implies. A bad parse / bad shader keeps the last render.
+function editMsg(m,bad){ const el=$("editmsg"); if(el){ el.textContent=m||""; el.style.color=bad?"#FF4444":"#00FF88"; } }
+function syncEditor(){ const ta=$("json"); if(ta&&loadedObj){ ta.value=JSON.stringify(loadedObj,null,2); } editMsg(""); }
+function reRender(){ const ta=$("json"); if(!ta) return;
+  let parsed; try{ parsed=JSON.parse(ta.value); }
+  catch(e){ editMsg("JSON: "+e.message, true); return; }            // bad JSON → keep last render
+  try{ applyObj(parsed, $("title").textContent, true);              // keep camera + playhead
+       editMsg("rendered — physics is whatever you typed", false); }
+  catch(e){ editMsg((""+e).slice(0,120), true); }                   // bad scene → keep last render
 }
 
 // ── time-rate knob + scrub ────────────────────────────────────────────
@@ -676,6 +705,16 @@ $("b-clatter").addEventListener("click",()=>load("data/clatter.json","clatter").
 $("b-water").addEventListener("click",()=>load("data/water.json","water").then(()=>$("b-water").classList.add("on")).catch(()=>{}));
 $("b-feather").addEventListener("click",()=>load("data/feather.json","feather").then(()=>$("b-feather").classList.add("on")).catch(()=>{}));
 $("b-dfeather").addEventListener("click",()=>load("data/deckard_feather.json","Deckard feather ◆").then(()=>$("b-dfeather").classList.add("on")).catch(()=>{}));
+// "behind the simulation" flip + the live JSON editor
+$("b-edit").addEventListener("click",()=>{ const open=$("editor").classList.toggle("open");
+  $("b-edit").classList.toggle("on",open); if(open && !$("json").value) syncEditor(); });
+$("rerender").addEventListener("click",reRender);
+$("editreset").addEventListener("click",()=>{ syncEditor(); reRender(); });
+$("json").addEventListener("keydown",e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){ e.preventDefault(); reRender(); return; }
+  if(e.key==="Tab"){ e.preventDefault(); const t=e.target,a=t.selectionStart,b=t.selectionEnd;
+    t.value=t.value.slice(0,a)+"  "+t.value.slice(b); t.selectionStart=t.selectionEnd=a+2; } });
+let _editTmr=0; $("json").addEventListener("input",()=>{ clearTimeout(_editTmr); _editTmr=setTimeout(reRender,650); });
 $("b-pt").addEventListener("click",()=>{
   if(!extF){ $("b-pt").textContent="Path trace (no float)"; return; }   // needs float render targets
   ptMode=!ptMode; $("b-pt").classList.toggle("on",ptMode);
@@ -697,6 +736,16 @@ function loop(now){
   fpsN++; if(now-fpsT>500){ $("fps").textContent=`${Math.round(fpsN*1000/(now-fpsT))} fps`; fpsT=now; fpsN=0; }
   requestAnimationFrame(loop);
 }
-load("data/cup.json","coffee cup").then(()=>$("b-cup").classList.add("on")).catch(()=>{});
+// A SAVED simulation opens directly by slug:  .../?scene=falling_feather
+// This is the front-door dispatcher's hand-off — the URL it returns just works.
+// The slug is sanitised (slugify's own [a-z0-9_] charset) so it can't escape data/.
+const _scene=new URLSearchParams(location.search).get("scene");
+if(_scene && /^[a-z0-9_]+$/i.test(_scene)){
+  load(`data/${_scene}.json`,_scene.replace(/_/g," "))
+    .catch(()=>load("data/cup.json","coffee cup")
+      .then(()=>$("b-cup").classList.add("on")).catch(()=>{}));
+}else{
+  load("data/cup.json","coffee cup").then(()=>$("b-cup").classList.add("on")).catch(()=>{});
+}
 requestAnimationFrame(loop);
 })();

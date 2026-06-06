@@ -155,6 +155,35 @@ def _extract_material(q: str) -> str:
     return "iron"
 
 
+# Generic material-CLASS words: naming a class ("a metal", "a polymer") still
+# makes it a material query — a representative answer is fair. Naming NO material
+# at all is the danger: a material-property verb would fall back to the iron
+# DEFAULT and answer confidently about the wrong substance.
+_MATERIAL_CLASS_WORDS = (
+    "metal", "metals", "material", "alloy", "polymer", "ceramic", "composite",
+    "semiconductor", "dielectric", "magnet", "glass", "plastic", "fluid",
+    "liquid", "gas", "crystal", "insulator", "conductor", "elastomer", "rubber",
+    "water",          # a common acoustics/optics medium the synonym table omits
+)
+
+
+def _named_material(low: str) -> bool:
+    """Does the question NAME a material — a specific one OR a material class?
+
+    A pure material-property verb needs this. Without it the verb defaults to
+    iron and answers confidently about the WRONG substance — e.g. "speed of sound
+    at sea level" would route to acoustics and report "iron 5942 m/s". No material
+    named ⇒ the verb must DECLINE, not guess iron (dial-1: never confidently
+    wrong). A named material ("in steel", "of a metal") routes as before.
+    """
+    syn = _material_synonyms()
+    for phrase in syn:
+        if re.search(r"\b" + re.escape(phrase) + r"\b", low):
+            return True
+    return any(re.search(r"\b" + re.escape(w) + r"\b", low)
+               for w in _MATERIAL_CLASS_WORDS)
+
+
 def _extract_lengths(q: str) -> dict:
     """Pull radius and altitude (metres) from the question, with defaults.
 
@@ -386,9 +415,18 @@ def _classify_verbs(q: str):
     #    object gate. Among all matching exclusive verbs the MOST SPECIFIC wins
     #    (longest matched trigger), so a precise domain phrase beats a generic
     #    one regardless of registration order.
+    mat_named = _named_material(low)
     best_verb, best_len, matched = None, 0, set()
     for verb, m in VERB_MANIFEST.items():
         if not m.get("exclusive"):
+            continue
+        # A verb flagged material_required has the MATERIAL as its subject; with
+        # none named it would default to iron and answer confidently about the
+        # WRONG substance ("speed of sound at sea level" → "iron 5942 m/s"). So
+        # it is not a candidate unless a material is named — it declines instead.
+        # (Opt-in per verb: structure verbs like transmission_line keep their
+        # sensible default; the flag is only for material-IS-the-answer verbs.)
+        if m.get("material_required") and not mat_named:
             continue
         ml = _match_len(low, m.get("triggers", []))
         if ml > 0:
