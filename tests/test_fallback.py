@@ -3,8 +3,52 @@ nothing. A known-parts object scaffolds from its composition prior (flagged); an
 unknown one falls back to a flagged generic vessel. Both are identified=False and
 audit as not-trustworthy. Offline.
 """
+import json
+
 from sigma_ground.deckard import research, compile, audit
 from sigma_ground.deckard.research import _scaffold_from_composition
+from sigma_ground.deckard.researcher import research_spec
+
+
+def test_parser_skips_a_bad_part_keeps_the_good_one():
+    # one unknown-shape part + one valid sphere -> the sphere survives (a single
+    # odd part no longer throws away the whole object).
+    payload = json.dumps({"kind": "composite", "parts": [
+        {"name": "weird", "shape": "dodecahedron", "dims": {"r": 1}, "material": "steel"},
+        {"name": "ball", "shape": "sphere", "dims": {"radius_m": 0.03}, "material": "steel"}]})
+    spec = research_spec("thing", ask=lambda n: payload, model="stub")
+    assert spec is not None and len(spec.parts) == 1 and spec.parts[0].name == "ball"
+
+
+def test_parser_accepts_fill_params_from_dims():
+    # qwen sometimes puts the fill's of/fraction in `dims`, not a `fill` field.
+    payload = json.dumps({"kind": "composite", "parts": [
+        {"name": "body", "shape": "cylinder", "dims": {"radius_m": 0.03, "height_m": 0.1},
+         "material": "glass"},
+        {"name": "hollow", "shape": "cylinder", "dims": {"radius_m": 0.028, "height_m": 0.09},
+         "material": "air", "op": "subtract"},
+        {"name": "water", "shape": "fill", "dims": {"of": "hollow", "fraction": 0.5},
+         "material": "liquid water"}]})
+    spec = research_spec("flask", ask=lambda n: payload, model="stub")
+    assert spec is not None
+    assert any(p.fill and p.fill.get("of") == "hollow" for p in spec.parts)
+
+
+def test_parser_skips_outline_with_no_distilled_profile():
+    # an outline part for an object with no Quick Draw outline -> skipped, rest kept
+    payload = json.dumps({"kind": "composite", "parts": [
+        {"name": "vane", "shape": "outline", "dims": {"length_m": 0.1, "thickness_m": 0.001},
+         "material": "steel"},
+        {"name": "core", "shape": "sphere", "dims": {"radius_m": 0.02}, "material": "steel"}]})
+    spec = research_spec("nonexistent organic zzz", ask=lambda n: payload, model="stub")
+    assert spec is not None and len(spec.parts) == 1 and spec.parts[0].shape == "sphere"
+
+
+def test_all_bad_parts_returns_none():
+    # nothing parseable -> None, so research() falls back (never a confident fake)
+    payload = json.dumps({"kind": "composite", "parts": [
+        {"name": "x", "shape": "dodecahedron", "dims": {"r": 1}, "material": "steel"}]})
+    assert research_spec("thing", ask=lambda n: payload, model="stub") is None
 
 
 def test_scaffold_builds_known_parts_flagged():

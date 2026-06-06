@@ -213,38 +213,47 @@ def _build_parts_spec(name: str, data: dict, model: str,
     sources = [{"name": f"{model} — researched proportions (estimates)", "license": ""}]
     seen: set = set()
     parts = []
+    # Tolerant: a single unparseable part is SKIPPED, not fatal — a good
+    # decomposition isn't thrown away over one odd part. (Only an all-bad spec
+    # returns None, so research() can fall back.)
+    def _vec3(v, default=(0.0, 0.0, 0.0)):
+        try:
+            t = tuple(float(x) for x in v)[:3]
+            return t if len(t) == 3 else default
+        except Exception:
+            return default
+
     for i, p in enumerate(raw_parts):
+        di = p.get("dims") or {}
         fill = p.get("fill") if isinstance(p.get("fill"), dict) else None
         if fill or (p.get("shape") or "").lower() == "fill":
-            of = (fill or {}).get("of")
+            of = (fill or {}).get("of") or di.get("of")   # qwen sometimes puts it in dims
             if not of:
-                return None                              # a fill must name its cavity
+                continue                                   # a fill needs a cavity — skip it
+            src = fill or di
             try:
-                frac = min(1.0, max(0.0, float((fill or {}).get("fraction", 1.0))))
+                frac = min(1.0, max(0.0, float(src.get("fraction", 1.0))))
             except Exception:
                 frac = 1.0
-            gas = str((fill or {}).get("gas", "air"))
+            gas = str(src.get("gas", "air"))
             material = p.get("material") or "liquid water"
-            dens = _density(material)                    # ground the liquid
+            dens = _density(material)
             _cite_source(dens, sources, seen)
-            _cite_source(_density(gas), sources, seen)   # and the gas
+            _cite_source(_density(gas), sources, seen)
             parts.append(Part(p.get("name") or f"part{i}", "fill", {}, material, dens,
                               (0.0, 0.0, 0.0), (0.0, 0.0, 0.0), "add", None,
                               {"of": str(of), "fraction": frac, "gas": gas}))
             continue
         if (p.get("shape") or "").lower() == "outline":
-            got = _sources.outline_of(name)          # Deckard supplies the researched outline
-            if not got:
-                return None                          # no researched outline for this object
-            prof_unit, osrc, olic = got
-            di = p.get("dims") or {}
+            got = _sources.outline_of(name)               # Deckard supplies the researched outline
             try:
                 length = float(di.get("length_m") or di.get("size_m") or 0.0)
                 thick = float(di.get("thickness_m") or 0.001)
             except Exception:
-                return None
-            if not (0.0 < length <= _HUMAN_SCALE_MAX_M and thick > 0.0):
-                return None
+                length = thick = 0.0
+            if not got or not (0.0 < length <= _HUMAN_SCALE_MAX_M and thick > 0.0):
+                continue                                   # no researched outline / bad size — skip it
+            prof_unit, osrc, olic = got
             profile = [[u * length, v * length] for u, v in prof_unit]   # scale unit -> metres
             material = p.get("material") or "unknown"
             dens = _density(material)
@@ -252,45 +261,37 @@ def _build_parts_spec(name: str, data: dict, model: str,
             if osrc and osrc not in seen:
                 sources.append({"name": osrc, "license": olic})
                 seen.add(osrc)
-            try:
-                center = tuple(float(x) for x in (p.get("center_m") or (0.0, 0.0, 0.0)))[:3]
-                center = center if len(center) == 3 else (0.0, 0.0, 0.0)
-            except Exception:
-                center = (0.0, 0.0, 0.0)
             parts.append(Part(p.get("name") or f"part{i}", "outline", {}, material, dens,
-                              center, (0.0, 0.0, 0.0), "add", None,
+                              _vec3(p.get("center_m")), (0.0, 0.0, 0.0), "add", None,
                               outline={"profile": profile, "mode": "extrude", "thickness": thick}))
             continue
         shape = (p.get("shape") or "").lower()
         if shape not in _SHAPE_DIMS:
-            return None
-        dims_in = p.get("dims") or {}
-        dims = {}
+            continue                                       # unknown shape — skip it
+        dims, bad = {}, False
         for k in _SHAPE_DIMS[shape]:
-            v = dims_in.get(k)
+            v = di.get(k)
             if not isinstance(v, (int, float)) or v <= 0.0:
-                return None
+                bad = True
+                break
             dims[k] = Fact(float(v), "estimated", "", 0.5)   # LLM => [estimated]
+        if bad:
+            continue                                       # missing/bad dims — skip it
         _ground_dims(name, shape, dims, sources, seen, allow_web)   # cite real dims if standard
         if any(f.value > _HUMAN_SCALE_MAX_M for f in dims.values()):
-            return None                                            # not a human-scale object
+            continue                                       # not a human-scale object — skip it
         material = p.get("material") or "unknown"
         dens = _density(material)
         _cite_source(dens, sources, seen)
-
-        def _vec3(v, default=(0.0, 0.0, 0.0)):
-            try:
-                t = tuple(float(x) for x in v)[:3]
-                return t if len(t) == 3 else default
-            except Exception:
-                return default
-        center = _vec3(p.get("center_m", (0.0, 0.0, 0.0)))
-        euler = _vec3(p.get("euler_deg", (0.0, 0.0, 0.0)))
         op = "subtract" if str(p.get("op", "add")).lower() == "subtract" else "add"
         attach = p.get("attach") if isinstance(p.get("attach"), dict) else None
         conform = p.get("conform") if isinstance(p.get("conform"), str) else None
-        parts.append(Part(p.get("name") or f"part{i}", shape, dims, material,
-                          dens, center, euler, op, attach, conform=conform))
+        parts.append(Part(p.get("name") or f"part{i}", shape, dims, material, dens,
+                          _vec3(p.get("center_m")), _vec3(p.get("euler_deg")),
+                          op, attach, conform=conform))
+
+    if not parts:
+        return None                                        # nothing usable — let research() fall back
 
     comp = _sources.composition_of(name)          # cite the documented part decomposition
     if comp and len(parts) > 1 and comp[1] and comp[1] not in seen:
