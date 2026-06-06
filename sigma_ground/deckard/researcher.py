@@ -303,24 +303,8 @@ def _build_parts_spec(name: str, data: dict, model: str,
     )
 
 
-def research_spec(name: str, *, ask=None, model: str = OLLAMA_MODEL) -> ConstructSpec | None:
-    """Synthesise a cited ConstructSpec for ``name`` via the local LLM, or None.
-
-    ``ask`` (name -> raw LLM text or None) is injectable for testing; in
-    production it is local qwen and the prompt is GROUNDED with a free Wikipedia
-    extract of the object (real proportions + composition). Dispatches on the
-    proposed kind (vessel or composite). Returns None on no-LLM / bad output /
-    unknown so research() can fall back to a flagged best-guess.
-    """
-    if ask is None:                       # production: local qwen, web- + structure-grounded
-        q = _augment_with_web(name)
-        ch = _sources.composition.hint(name)      # anchor the decomposition in known parts
-        if ch:
-            q = f"{q}\n\n{ch}"
-        ask, query, allow_web = _ask, q, True
-    else:                                 # injected (tests): bare name, no network
-        query, allow_web = name, False
-    raw = ask(query)
+def _spec_from_raw(name: str, raw, model: str, allow_web: bool) -> ConstructSpec | None:
+    """Parse one raw LLM reply into a ConstructSpec, or None on bad/unknown output."""
     if not raw:
         return None
     m = _JSON.search(raw)
@@ -337,6 +321,32 @@ def research_spec(name: str, *, ask=None, model: str = OLLAMA_MODEL) -> Construc
         return _build_vessel_spec(name, data, model)
     if kind == "composite" or data.get("parts"):
         return _build_parts_spec(name, data, model, allow_web)
+    return None
+
+
+def research_spec(name: str, *, ask=None, model: str = OLLAMA_MODEL) -> ConstructSpec | None:
+    """Synthesise a cited ConstructSpec for ``name`` via the local LLM, or None.
+
+    ``ask`` (name -> raw LLM text or None) is injectable for testing; in
+    production it is local qwen and the prompt is GROUNDED with a free Wikipedia
+    extract + the object's known parts. A flaky/empty reply is RETRIED once in
+    production (the local 7B model occasionally returns malformed JSON or an
+    empty body), so a nameable object is less likely to be dropped over a
+    transient miss. Returns None on persistent no-LLM / bad output / unknown so
+    ``research()`` can fall back to a flagged best-guess.
+    """
+    if ask is None:                       # production: local qwen, web- + structure-grounded
+        q = _augment_with_web(name)
+        ch = _sources.composition.hint(name)      # anchor the decomposition in known parts
+        if ch:
+            q = f"{q}\n\n{ch}"
+        runner, query, allow_web, attempts = _ask, q, True, 2     # one retry on a flaky reply
+    else:                                 # injected (tests): bare name, no network, deterministic
+        runner, query, allow_web, attempts = ask, name, False, 1
+    for _ in range(attempts):
+        spec = _spec_from_raw(name, runner(query), model, allow_web)
+        if spec is not None:
+            return spec
     return None
 
 
