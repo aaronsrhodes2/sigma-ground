@@ -66,7 +66,10 @@ def test_researcher_emits_multipart_composite():
          "material": "steel", "center_m": [0, 0, 0.315]}]})
     spec = research_spec("hammer", ask=lambda n: payload, model="stub")
     assert spec is not None and len(spec.parts) == 2
-    assert all(all(f.estimated for f in p.dims.values()) for p in spec.parts)   # dims flagged
+    # dims are flagged guesses OR census-anchored ("scaled to ShapeNetSem …")
+    # — never presented as a measurement of THIS object
+    assert all(all(f.estimated or "scaled to" in f.source or "ShapeNetSem" in f.source
+                   for f in p.dims.values()) for p in spec.parts)
     assert not any(p.density.estimated for p in spec.parts)                     # grounded
     assert compile(spec, resolution=56).validation["passed"]
 

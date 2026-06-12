@@ -126,6 +126,12 @@ def aggregate(rows, aliases: dict | None = None) -> tuple[dict, dict]:
         raw = (r.get("aligned.dims") or "").strip()
         if not raw:
             continue
+        # scale-verified rows only: a model with no `unit` kept ShapeNetSem's
+        # DEFAULT scale, and its aligned.dims are not real-world (the famous
+        # 1.4-metre pushpin came from 7 unitless models). ~9.5k of 12.3k
+        # models carry a verified unit — plenty, and honest.
+        if "unit" in r and not (r.get("unit") or "").strip():
+            continue
         try:
             dims = _split_dims(raw)
         except ValueError:

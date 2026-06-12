@@ -71,11 +71,14 @@ def composition_of(name: str, _aliased: bool = False):
         if m > best_len:
             best_len, best = m, (parts, source, lic)
     if best is None and not _aliased:
+        # exact-name alias retries only (no containment stacking — see
+        # shapenetsem._entry for the bowling-pin cautionary tale)
         from . import aliases
         for alt in sorted(aliases.expand(name)):
-            best = composition_of(alt, _aliased=True)
-            if best is not None:
-                break
+            aw = _words(alt)
+            for names, parts, source, lic in _table():
+                if any(_words(nm) == aw for nm in names):
+                    return (parts, source, lic)
     return best
 
 

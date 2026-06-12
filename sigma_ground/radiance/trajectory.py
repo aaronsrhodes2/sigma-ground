@@ -85,6 +85,13 @@ def record_fall(material_key: str = "copper", radius_m: float = 0.05,
     r = radius_m
     top = max(start_altitude_m, apex_m) + 2 * r
     wide = max(4 * r, 0.5)
+    follow = top > 40 * r
+    # The viewer scales its ray/shadow epsilons from the bbox DIAGONAL. A
+    # follow-camera scene must therefore carry an OBJECT-sized bbox — a 40 km
+    # fall-column bbox makes the hit epsilon ~60 m and a 5 cm ball can never
+    # register a hit. Only short, whole-column views keep the wide bbox.
+    bbox = ([[-4 * r, 4 * r], [-4 * r, 4 * r], [-4 * r, 4 * r]] if follow
+            else [[-wide, wide], [-0.1, top], [-wide, wide]])
     scene_spec = {
         "name": f"{mat_name.lower()} sphere",
         # body 0 = the sphere; pivot is its rest center, so the frame `pos`
@@ -97,12 +104,13 @@ def record_fall(material_key: str = "copper", radius_m: float = 0.05,
         "materials": {material_key: _bake_material(material_key, density)},
         "physics": {"mass_kg": parcel.mass, "com_m": [0, 0, 0],
                     "inertia_kgm2": [0, 0, 0]},
-        # frame the whole fall column so the drop stays watchable
-        "bbox": [[-wide, wide], [-0.1, top], [-wide, wide]],
-        "camera": {"target": [0.0, min(top, max(2 * r, top * 0.5)), 0.0],
-                   "orbit_radius": max(6 * r, 0.4 * top), "fov_deg": 45.0,
+        "bbox": bbox,
+        "camera": {"target": ([0.0, start_altitude_m, 0.0] if follow else
+                              [0.0, min(top, max(2 * r, top * 0.5)), 0.0]),
+                   "orbit_radius": 8 * r if follow else max(6 * r, 0.4 * top),
+                   "fov_deg": 45.0,
                    "up": [0.0, 1.0, 0.0], "az0": 0.4, "el0": 0.15,
-                   **({"follow": True} if top > 40 * r else {})},
+                   **({"follow": True} if follow else {})},
         "identified": True,
         "source": "falling sphere (Materia drag integration)",
     }
@@ -374,7 +382,12 @@ def record_object_fall(construct, start_altitude_m: float = 2.4384, *,
                        "az0": 0.35, "el0": 0.22}
     if start_altitude_m > 20.0 * max(dx, dy, dz):
         scene["camera"]["follow"] = True               # long fall: keep it on screen
-        scene["camera"]["orbit_radius"] = max(3.0, 12.0 * max(dx, dy, dz))
+        scene["camera"]["orbit_radius"] = max(0.5, 6.0 * max(dx, dy, dz))
+        scene["camera"]["target"] = [0.0, start_altitude_m, 0.0]
+        # object-sized bbox: the viewer's hit/shadow epsilons scale from the
+        # bbox diagonal — a km-tall column bbox would swallow the object
+        s = 2.0 * max(dx, dy, dz)
+        scene["bbox"] = [[-s, s], [-s, s], [-s, s]]
     scene["kind"] = "trajectory"
     try:
         from .scene_export import sdf_samples           # in-page self-check data
@@ -439,9 +452,11 @@ def record_descent(payload_mass_kg: float = 118.0, drag_area_m2: float = 0.28,
         "materials": {"payload": _bake_material("payload")},   # honest grey: no model
         "physics": {"mass_kg": payload_mass_kg, "com_m": [0, 0, 0],
                     "inertia_kgm2": [0, 0, 0]},
-        "bbox": [[-2 * r_eff, 2 * r_eff], [-0.1, start_altitude_m + 2 * r_eff],
+        # object-sized bbox: the follow camera tracks the body, and the
+        # viewer's precision constants scale from this diagonal
+        "bbox": [[-2 * r_eff, 2 * r_eff], [-2 * r_eff, 2 * r_eff],
                  [-2 * r_eff, 2 * r_eff]],
-        "camera": {"target": [0.0, start_altitude_m * 0.5, 0.0],
+        "camera": {"target": [0.0, start_altitude_m, 0.0],
                    "orbit_radius": max(8 * r_eff, 3.0), "fov_deg": 45.0,
                    "up": [0.0, 1.0, 0.0], "follow": True},
         "identified": True,
@@ -489,8 +504,10 @@ def record_horizontal_run(mass_kg: float = 0.02, diameter_m: float = 0.01,
         "materials": {"tungsten": _bake_material("tungsten")},
         "physics": {"mass_kg": mass_kg, "com_m": [0, 0, 0],
                     "inertia_kgm2": [0, 0, 0]},
-        "bbox": [[-r, x_end + r], [0.0, 4 * r], [-2 * r, 2 * r]],
-        "camera": {"target": [0.0, r, 0.0], "orbit_radius": max(20 * r, 0.5),
+        # object-sized bbox (the slug travels ~hundreds of metres; the follow
+        # camera rides along, so precision stays at slug scale)
+        "bbox": [[-4 * r, 4 * r], [-4 * r, 4 * r], [-4 * r, 4 * r]],
+        "camera": {"target": [0.0, r, 0.0], "orbit_radius": max(20 * r, 0.3),
                    "fov_deg": 45.0, "up": [0.0, 1.0, 0.0], "follow": True},
         "identified": True,
         "source": "supersonic projectile (Materia transonic-drag integration)",

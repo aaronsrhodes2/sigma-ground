@@ -153,11 +153,14 @@ def main(argv: list[str]) -> None:
         lanes = [L for L in lanes if L[1] in only]
 
     rows = {}
-    if os.path.exists(_REPORT) and not force:
+    if os.path.exists(_REPORT):
         try:
             rows = json.load(open(_REPORT, encoding="utf-8")).get("items", {})
         except Exception:
             rows = {}
+    if force:                                   # lane-aware: wipe only what we re-run
+        for _kind, slug, _p in lanes:
+            rows.pop(slug, None)
 
     for kind, slug, prompt in lanes:
         if not force and rows.get(slug, {}).get("status") == "rendered" \

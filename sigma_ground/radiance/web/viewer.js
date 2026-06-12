@@ -23,6 +23,8 @@ if (PROBE) {
   const _ce = console.error.bind(console);
   console.error = (...a) => { probeErrors.push(a.map(String).join(" ").slice(0, 300)); _ce(...a); };
   window.addEventListener("error", e => probeErrors.push(String(e.message || e).slice(0, 300)));
+  fetch("/probe", {method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({slug: "__boot_" + (new URLSearchParams(location.search).get("scene") || "x")})}).catch(() => {});
 }
 
 const gl = canvas.getContext("webgl2", { antialias: false, preserveDrawingBuffer: false });
@@ -919,7 +921,7 @@ function loop(now){
     $("tval").textContent=`t=${simTime.toFixed(2)}s  y=${p0[1].toFixed(2)}m`; }
   frameCount++;
   if(prog){ try{ draw(); }catch(e){ setErr("draw: "+e); } }
-  if(PROBE && !probeSent && typeof drewOnce!=="undefined" && drewOnce && scene){
+  if(PROBE && !probeSent && scene && prog){
     probeSent=true;
     let pass=null, maxd=0;
     try{ const ss=scene.sdf_samples||[];

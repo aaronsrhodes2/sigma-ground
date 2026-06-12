@@ -299,8 +299,12 @@ def _apply_composition_priors(name, parts, sources, seen):
         all_est = all(f.estimated for f in part.dims.values())
         sf = prior["size_frac"]
         tx, ty, tz = (sf[i] * ext[i] for i in range(3))
-        # 1) proportions — only when grossly off and nothing is cited
-        if all_est and part.dims and not any(part.euler_deg):
+        # 1) proportions — only when grossly off and nothing is cited, and only
+        #    from SLENDER-credible census parts: a part thin on some axis
+        #    (a leg, a tabletop) is a real component measurement; a near-full-
+        #    volume entry is a PartNet GROUP (the whole seat assembly) and must
+        #    not inflate an individual part toward the object's bulk.
+        if all_est and part.dims and not any(part.euler_deg) and min(sf) <= 0.5:
             cur = _half_extent_safe(part)
             if cur and any(c > 0 and t > 0 and (c / t > 1.8 or t / c > 1.8)
                            for c, t in zip(cur, (tx / 2, ty / 2, tz / 2))):
@@ -583,6 +587,8 @@ def _build_parts_spec(name: str, data: dict, model: str,
     single_part = len([p for p in raw_parts if isinstance(p, dict)]) == 1
 
     for i, p in enumerate(raw_parts):
+        if not isinstance(p, dict):
+            continue                       # the 7B sometimes leaks strings into parts
         di = p.get("dims") or {}
         fill = p.get("fill") if isinstance(p.get("fill"), dict) else None
         if fill or (p.get("shape") or "").lower() == "fill":
@@ -671,6 +677,54 @@ def _build_parts_spec(name: str, data: dict, model: str,
     )
 
 
+def _salvage_parts(text: str):
+    """Rescue COMPLETE part objects from a corrupt/truncated LLM reply.
+
+    The 7B sometimes emits a perfectly good parts list and then appends
+    garbage ('"attach:{to:","my:"…'), which fails json.loads wholesale and
+    used to throw away a correct decomposition. Brace-scan the parts array
+    and keep every part object that parses on its own; stop at the first
+    broken one.
+    """
+    m = re.search(r'"parts"\s*:\s*\[', text)
+    if not m:
+        return None
+    i, n, parts = m.end(), len(text), []
+    while i < n:
+        while i < n and text[i] in " \t\r\n,":
+            i += 1
+        if i >= n or text[i] != "{":
+            break
+        depth, j, in_str, esc = 0, i, False, False
+        while j < n:
+            c = text[j]
+            if in_str:
+                if esc:
+                    esc = False
+                elif c == "\\":
+                    esc = True
+                elif c == '"':
+                    in_str = False
+            else:
+                if c == '"':
+                    in_str = True
+                elif c == "{":
+                    depth += 1
+                elif c == "}":
+                    depth -= 1
+                    if depth == 0:
+                        break
+            j += 1
+        if depth != 0:
+            break
+        try:
+            parts.append(json.loads(text[i:j + 1]))
+        except Exception:
+            break
+        i = j + 1
+    return {"kind": "composite", "parts": parts} if parts else None
+
+
 def _spec_from_raw(name: str, raw, model: str, allow_web: bool) -> ConstructSpec | None:
     """Parse one raw LLM reply into a ConstructSpec, or None on bad/unknown output."""
     if not raw:
@@ -681,7 +735,9 @@ def _spec_from_raw(name: str, raw, model: str, allow_web: bool) -> ConstructSpec
     try:
         data = json.loads(m.group(0))
     except Exception:
-        return None
+        data = _salvage_parts(raw)            # corrupt tail? keep the good parts
+        if data is None:
+            return None
     if not isinstance(data, dict):
         return None
     kind = data.get("kind")
@@ -714,7 +770,14 @@ def research_spec(name: str, *, ask=None, model: str = OLLAMA_MODEL) -> Construc
         runner, query, allow_web, attempts = _ask, q, True, 2     # one retry on a flaky reply
     else:                                 # injected (tests): bare name, no network, deterministic
         runner, query, allow_web, attempts = ask, name, False, 1
-    for _ in range(attempts):
+    for attempt in range(attempts):
+        if attempt == 1:
+            # the retry is NOT a verbatim re-ask: a generic decomposition nudge
+            # (object-agnostic) often unsticks the 7B on simple objects it
+            # declined the first time. Never names parts — that stays its job.
+            query = (f"{query}\n\nIf unsure, still decompose the object into a "
+                     f"few simple primitive parts (cylinder/box/sphere/cone) "
+                     f"with rough human-scale sizes in meters.")
         spec = _spec_from_raw(name, runner(query), model, allow_web)
         if spec is not None:
             return spec

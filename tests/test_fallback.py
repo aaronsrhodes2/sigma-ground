@@ -100,3 +100,16 @@ def test_research_never_returns_nothing_for_an_unknown_object():
     spec = research("zxqwerty gizmo 99", allow_llm=False)
     assert not spec.identified
     assert compile(spec, resolution=40).validation["passed"]
+
+
+def test_corrupt_json_tail_is_salvaged():
+    # qwen emits two perfect parts then garbage — the good parts survive
+    raw = ('{"kind":"composite","parts":['
+           '{"name":"shaft","shape":"cylinder","dims":{"radius_m":0.0005,'
+           '"height_m":0.02},"material":"steel","center_m":[0,0,0]},'
+           '{"name":"head","shape":"sphere","dims":{"radius_m":0.003},'
+           '"material":"plastic","center_m":[0,0,0.02]},'
+           '"attach:{to:","my:","their:"]}')
+    spec = research_spec("zz pin thing", ask=lambda n: raw, model="stub")
+    assert spec is not None and len(spec.parts) == 2
+    assert {p.shape for p in spec.parts} == {"cylinder", "sphere"}

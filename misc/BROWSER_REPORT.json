@@ -1,0 +1,88 @@
+{
+ "curl_test": {
+  "slug": "curl_test",
+  "shader_ok": true
+ },
+ "js_test": {
+  "slug": "js_test",
+  "shader_ok": true
+ },
+ "obj_hammer": {
+  "slug": "obj_hammer",
+  "selfcheck_pass": true,
+  "max_delta": 2.7755575615628914e-17,
+  "shader_ok": true,
+  "console_errors": [],
+  "kind": "static",
+  "animated": false
+ },
+ "__boot_obj_hammer": {
+  "slug": "__boot_obj_hammer"
+ },
+ "__boot_obj_chair": {
+  "slug": "__boot_obj_chair"
+ },
+ "__boot_obj_flashlight": {
+  "slug": "__boot_obj_flashlight"
+ },
+ "__boot_obj_flashlight_parts": {
+  "slug": "__boot_obj_flashlight_parts"
+ },
+ "__boot_obj_car": {
+  "slug": "__boot_obj_car"
+ },
+ "__boot_obj_pushpin": {
+  "slug": "__boot_obj_pushpin"
+ },
+ "__boot_obj_wineglass": {
+  "slug": "__boot_obj_wineglass"
+ },
+ "__boot_obj_dumbbell": {
+  "slug": "__boot_obj_dumbbell"
+ },
+ "__boot_obj_guitar": {
+  "slug": "__boot_obj_guitar"
+ },
+ "__boot_obj_bookcase": {
+  "slug": "__boot_obj_bookcase"
+ },
+ "__boot_sim_cup_bounce": {
+  "slug": "__boot_sim_cup_bounce"
+ },
+ "__boot_sim_copper_ball": {
+  "slug": "__boot_sim_copper_ball"
+ },
+ "__boot_sim_feather": {
+  "slug": "__boot_sim_feather"
+ },
+ "__boot_sim_anvil": {
+  "slug": "__boot_sim_anvil"
+ },
+ "__boot_sim_steel_heat": {
+  "slug": "__boot_sim_steel_heat"
+ },
+ "__boot_sim_skydiver": {
+  "slug": "__boot_sim_skydiver"
+ },
+ "__boot_sim_baseball_up": {
+  "slug": "__boot_sim_baseball_up"
+ },
+ "__boot_sim_mach2_slug": {
+  "slug": "__boot_sim_mach2_slug"
+ },
+ "__boot_sim_hammer_drop": {
+  "slug": "__boot_sim_hammer_drop"
+ },
+ "__boot_sim_wineglass_drop": {
+  "slug": "__boot_sim_wineglass_drop"
+ },
+ "obj_wineglass": {
+  "slug": "obj_wineglass",
+  "selfcheck_pass": true,
+  "max_delta": 0,
+  "shader_ok": true,
+  "console_errors": [],
+  "kind": "static",
+  "animated": false
+ }
+}

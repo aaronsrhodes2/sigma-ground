@@ -1,9 +1,74 @@
 [
  {
+  "slug": "water",
+  "title": "Water \u2014 Fresnel reflection + wind ripples",
+  "question": "emergent water surface",
+  "verb": "showcase",
+  "group": "showcase",
+  "kind": "static"
+ },
+ {
+  "slug": "materials",
+  "title": "Materials \u2014 emergent metal + band-gap colour",
+  "question": "every colour derived",
+  "verb": "showcase",
+  "group": "showcase",
+  "kind": "static"
+ },
+ {
+  "slug": "glazes",
+  "title": "Glazes \u2014 crystal-field chromophore colour",
+  "question": "the ion sets the hue",
+  "verb": "showcase",
+  "group": "showcase",
+  "kind": "static"
+ },
+ {
+  "slug": "cup",
+  "title": "Coffee cup \u2014 layered ceramic vessel",
+  "question": "a Deckard construct",
+  "verb": "showcase",
+  "group": "showcase",
+  "kind": "static"
+ },
+ {
+  "slug": "deckard_feather",
+  "title": "Feather \u25c6 \u2014 Deckard cone+ellipsoid shape",
+  "question": "the real compiled shape",
+  "verb": "showcase",
+  "group": "showcase",
+  "kind": "static"
+ },
+ {
+  "slug": "drop",
+  "title": "Hot copper sphere on a cold floor",
+  "question": "incandescence + the fall",
+  "verb": "showcase",
+  "group": "showcase",
+  "kind": "trajectory"
+ },
+ {
+  "slug": "tip",
+  "title": "Chair tip \u2014 topple",
+  "question": "rigid-body playback",
+  "verb": "showcase",
+  "group": "showcase",
+  "kind": "trajectory"
+ },
+ {
+  "slug": "clatter",
+  "title": "Clatter \u2014 bounce",
+  "question": "emergent restitution + ring",
+  "verb": "showcase",
+  "group": "showcase",
+  "kind": "trajectory"
+ },
+ {
   "slug": "fall_feather",
   "title": "Feather \u2014 dropped from 2.4384 m",
   "question": "drop a feather from 2.4384 m",
   "verb": "drop_object",
+  "group": "drop",
   "kind": "trajectory",
   "frames": 27,
   "fall_s": 1.31
@@ -13,6 +78,7 @@
   "title": "Cast Iron Skillet \u2014 dropped from 3 m",
   "question": "drop a cast iron skillet from 3 m",
   "verb": "drop_object",
+  "group": "drop",
   "kind": "trajectory",
   "frames": 16,
   "fall_s": 0.8
@@ -22,6 +88,7 @@
   "title": "Drinking Glass \u2014 dropped from 2.5 m",
   "question": "drop a drinking glass from 2.5 m",
   "verb": "drop_object",
+  "group": "drop",
   "kind": "trajectory",
   "frames": 15,
   "fall_s": 0.72
@@ -31,6 +98,7 @@
   "title": "Coffee Cup \u2014 dropped from 2.5 m",
   "question": "drop a coffee cup from 2.5 m",
   "verb": "drop_object",
+  "group": "drop",
   "kind": "trajectory",
   "frames": 15,
   "fall_s": 0.72
@@ -40,6 +108,7 @@
   "title": "Copper ball \u2014 15 cm, from 4 m",
   "question": "drop a 15 cm copper ball from 4 m",
   "verb": "terminal_velocity_drop",
+  "group": "drop",
   "kind": "trajectory",
   "frames": 47,
   "fall_s": 0.9
@@ -49,6 +118,7 @@
   "title": "Gold ball \u2014 15 cm, from 4 m",
   "question": "drop a 15 cm gold ball from 4 m",
   "verb": "terminal_velocity_drop",
+  "group": "drop",
   "kind": "trajectory",
   "frames": 47,
   "fall_s": 0.9
@@ -58,6 +128,7 @@
   "title": "Aluminum ball \u2014 15 cm, from 4 m",
   "question": "drop a 15 cm aluminum ball from 4 m",
   "verb": "terminal_velocity_drop",
+  "group": "drop",
   "kind": "trajectory",
   "frames": 47,
   "fall_s": 0.9
@@ -67,6 +138,7 @@
   "title": "Iron ball \u2014 15 cm, from 4 m",
   "question": "drop a 15 cm iron ball from 4 m",
   "verb": "terminal_velocity_drop",
+  "group": "drop",
   "kind": "trajectory",
   "frames": 47,
   "fall_s": 0.9
@@ -76,6 +148,7 @@
   "title": "Lead ball \u2014 15 cm, from 4 m",
   "question": "drop a 15 cm lead ball from 4 m",
   "verb": "terminal_velocity_drop",
+  "group": "drop",
   "kind": "trajectory",
   "frames": 47,
   "fall_s": 0.9
@@ -85,6 +158,7 @@
   "title": "Titanium ball \u2014 15 cm, from 4 m",
   "question": "drop a 15 cm titanium ball from 4 m",
   "verb": "terminal_velocity_drop",
+  "group": "drop",
   "kind": "trajectory",
   "frames": 47,
   "fall_s": 0.9
@@ -94,6 +168,7 @@
   "title": "Tungsten ball \u2014 15 cm, from 4 m",
   "question": "drop a 15 cm tungsten ball from 4 m",
   "verb": "terminal_velocity_drop",
+  "group": "drop",
   "kind": "trajectory",
   "frames": 47,
   "fall_s": 0.9
@@ -103,8 +178,179 @@
   "title": "Steel ball \u2014 15 cm, from 4 m",
   "question": "drop a 15 cm steel ball from 4 m",
   "verb": "terminal_velocity_drop",
+  "group": "drop",
   "kind": "trajectory",
   "frames": 47,
   "fall_s": 0.9
+ },
+ {
+  "slug": "sim_cup_bounce",
+  "title": "Drop a coffee cup from 2 meters and show me the bounce and tumbl",
+  "question": "Drop a coffee cup from 2 meters and show me the bounce and tumble.",
+  "verb": "falling coffee cup",
+  "group": "gauntlet",
+  "kind": "trajectory",
+  "frames": 40
+ },
+ {
+  "slug": "sim_copper_ball",
+  "title": "How fast is a 5 cm copper ball going when it falls from 2 km?",
+  "question": "How fast is a 5 cm copper ball going when it falls from 2 km?",
+  "verb": "falling copper ball",
+  "group": "gauntlet",
+  "kind": "trajectory",
+  "frames": 121
+ },
+ {
+  "slug": "sim_feather",
+  "title": "Drop a feather from 8 feet.",
+  "question": "Drop a feather from 8 feet.",
+  "verb": "falling feather",
+  "group": "gauntlet",
+  "kind": "trajectory",
+  "frames": 35
+ },
+ {
+  "slug": "sim_anvil",
+  "title": "Drop an anvil from 50 meters.",
+  "question": "Drop an anvil from 50 meters.",
+  "verb": "falling anvil",
+  "group": "gauntlet",
+  "kind": "trajectory",
+  "frames": 184
+ },
+ {
+  "slug": "sim_steel_heat",
+  "title": "How hot does a steel ball get falling from 5 km?",
+  "question": "How hot does a steel ball get falling from 5 km?",
+  "verb": "falling mild steel ball",
+  "group": "gauntlet",
+  "kind": "trajectory",
+  "frames": 222
+ },
+ {
+  "slug": "sim_skydiver",
+  "title": "A skydiver jumps from 40 km up \u2014 does she break the sound barrie",
+  "question": "A skydiver jumps from 40 km up \u2014 does she break the sound barrier?",
+  "verb": "high-altitude payload",
+  "group": "gauntlet",
+  "kind": "trajectory",
+  "frames": 703
+ },
+ {
+  "slug": "sim_baseball_up",
+  "title": "Throw a baseball straight up at 30 m/s \u2014 how high does it go and",
+  "question": "Throw a baseball straight up at 30 m/s \u2014 how high does it go and how fast is it moving when it lands?",
+  "verb": "iron ball thrown up",
+  "group": "gauntlet",
+  "kind": "trajectory",
+  "frames": 167
+ },
+ {
+  "slug": "sim_mach2_slug",
+  "title": "Fire a 2 cm tungsten slug at Mach 2 \u2014 how far does it travel bef",
+  "question": "Fire a 2 cm tungsten slug at Mach 2 \u2014 how far does it travel before it slows below the speed of sound?",
+  "verb": "Mach 2 projectile",
+  "group": "gauntlet",
+  "kind": "trajectory",
+  "frames": 280
+ },
+ {
+  "slug": "sim_hammer_drop",
+  "title": "Drop a hammer from 3 meters.",
+  "question": "Drop a hammer from 3 meters.",
+  "verb": "falling hammer",
+  "group": "gauntlet",
+  "kind": "trajectory",
+  "frames": 45
+ },
+ {
+  "slug": "sim_wineglass_drop",
+  "title": "Drop a wine glass from a 75 cm table.",
+  "question": "Drop a wine glass from a 75 cm table.",
+  "verb": "falling wine glass",
+  "group": "gauntlet",
+  "kind": "trajectory",
+  "frames": 26
+ },
+ {
+  "slug": "obj_hammer",
+  "title": "a hammer",
+  "question": "a hammer",
+  "verb": "deckard",
+  "group": "gauntlet",
+  "kind": "static"
+ },
+ {
+  "slug": "obj_chair",
+  "title": "a wooden chair",
+  "question": "a wooden chair",
+  "verb": "deckard",
+  "group": "gauntlet",
+  "kind": "static"
+ },
+ {
+  "slug": "obj_flashlight",
+  "title": "a flashlight",
+  "question": "a flashlight",
+  "verb": "deckard",
+  "group": "gauntlet",
+  "kind": "static"
+ },
+ {
+  "slug": "obj_flashlight_parts",
+  "title": "a disassembled flashlight",
+  "question": "a disassembled flashlight",
+  "verb": "deckard",
+  "group": "gauntlet",
+  "kind": "static"
+ },
+ {
+  "slug": "obj_car",
+  "title": "a car",
+  "question": "a car",
+  "verb": "deckard",
+  "group": "gauntlet",
+  "kind": "static"
+ },
+ {
+  "slug": "obj_wineglass",
+  "title": "a wine glass",
+  "question": "a wine glass",
+  "verb": "deckard",
+  "group": "gauntlet",
+  "kind": "static"
+ },
+ {
+  "slug": "obj_dumbbell",
+  "title": "a dumbbell",
+  "question": "a dumbbell",
+  "verb": "deckard",
+  "group": "gauntlet",
+  "kind": "static"
+ },
+ {
+  "slug": "obj_guitar",
+  "title": "an acoustic guitar",
+  "question": "an acoustic guitar",
+  "verb": "deckard",
+  "group": "gauntlet",
+  "kind": "static"
+ },
+ {
+  "slug": "obj_bookcase",
+  "title": "a bookcase",
+  "question": "a bookcase",
+  "verb": "deckard",
+  "group": "gauntlet",
+  "kind": "static"
+ },
+ {
+  "slug": "obj_pushpin",
+  "title": "a pushpin",
+  "question": "a pushpin",
+  "verb": "deckard",
+  "group": "gauntlet",
+  "kind": "static"
  }
 ]

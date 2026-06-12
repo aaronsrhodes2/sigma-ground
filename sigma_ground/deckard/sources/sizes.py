@@ -50,11 +50,14 @@ def _local(name: str, _aliased: bool = False):
         if m > best_len:
             best_len, best = m, (size, src, lic)
     if best is None and not _aliased:
+        # exact-name alias retries only (no containment stacking — see
+        # shapenetsem._entry for the bowling-pin cautionary tale)
         from . import aliases
         for alt in sorted(aliases.expand(name)):
-            best = _local(alt, _aliased=True)
-            if best is not None:
-                break
+            aw = _words(alt)
+            for names, size, src, lic in _table():
+                if any(_words(nm) == aw for nm in names):
+                    return (size, src, lic)
     return best
 
 

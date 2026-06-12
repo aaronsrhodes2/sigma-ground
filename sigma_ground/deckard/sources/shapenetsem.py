@@ -52,9 +52,12 @@ def _entry(name: str, _aliased: bool = False):
         if nw and nw <= qw and len(nw) > best_len:
             best_len, best = len(nw), entry
     if best is None and not _aliased:
+        # alias retries match EXACT keys only: aliases are precise lemma swaps,
+        # and stacking word-containment on top cascades into false friends
+        # ("pushpin" -> "drawing pin" -> containment -> bowling "pin").
         from . import aliases
         for alt in sorted(aliases.expand(name)):
-            best = _entry(alt, _aliased=True)
+            best = cats.get(alt.strip().lower())
             if best is not None:
                 break
     return best
