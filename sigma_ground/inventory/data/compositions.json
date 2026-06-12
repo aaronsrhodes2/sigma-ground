@@ -7,22 +7,41 @@
   "parts": [
    {
     "name": "body",
-    "shape": "cylinder",
-    "count": 1
+    "count": 1,
+    "freq": 0.984,
+    "size_frac": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.0,
+    "shape": "box"
    },
    {
     "name": "handle",
-    "shape": "cylinder",
-    "count": 1
+    "count": 2,
+    "freq": 0.774,
+    "size_frac": [
+     0.818,
+     0.821,
+     0.98
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.029,
+    "shape": "cylinder"
    },
    {
     "name": "shoulder_strap",
-    "shape": "",
-    "count": 1
+    "count": 2,
+    "freq": 0.199,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 186,
+  "n_geom": 149,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 186 models (geometry n=149)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "bed",
@@ -30,22 +49,85 @@
   "parts": [
    {
     "name": "sleep_area",
-    "shape": "",
-    "count": 1
+    "count": 2,
+    "freq": 0.806,
+    "shape": "box"
    },
    {
-    "name": "frame",
-    "shape": "box",
-    "count": 1
+    "name": "mattress",
+    "count": 2,
+    "freq": 0.798,
+    "shape": "box"
+   },
+   {
+    "name": "frame_horizontal_hard_surface",
+    "count": 2,
+    "freq": 0.702,
+    "shape": "box"
+   },
+   {
+    "name": "leg",
+    "count": 4,
+    "freq": 0.524,
+    "size_frac": [
+     0.762,
+     0.463,
+     1.0
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.555,
+    "shape": "cylinder"
+   },
+   {
+    "name": "post",
+    "count": 8,
+    "freq": 0.516,
+    "shape": "box"
+   },
+   {
+    "name": "bar_stretcher",
+    "count": 5,
+    "freq": 0.504,
+    "size_frac": [
+     0.715,
+     0.93,
+     0.118
+    ],
+    "z_frac": -0.039,
+    "r_frac": 0.611,
+    "shape": "box"
    },
    {
     "name": "ladder",
-    "shape": "",
-    "count": 1
+    "count": 1,
+    "freq": 0.48,
+    "size_frac": [
+     0.966,
+     0.359,
+     0.998
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.448,
+    "shape": "box"
+   },
+   {
+    "name": "rung",
+    "count": 5,
+    "freq": 0.46,
+    "size_frac": [
+     0.391,
+     0.225,
+     0.922
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.748,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 248,
+  "n_geom": 147,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 248 models (geometry n=147)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "bottle",
@@ -53,22 +135,34 @@
   "parts": [
    {
     "name": "body",
-    "shape": "cylinder",
-    "count": 1
+    "count": 1,
+    "freq": 1.0,
+    "size_frac": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.0,
+    "shape": "box"
+   },
+   {
+    "name": "neck",
+    "count": 1,
+    "freq": 0.753,
+    "shape": "cylinder"
    },
    {
     "name": "lid",
-    "shape": "cylinder",
-    "count": 1
-   },
-   {
-    "name": "handle",
-    "shape": "cylinder",
-    "count": 1
+    "count": 1,
+    "freq": 0.69,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 519,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 519 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "bowl",
@@ -76,101 +170,236 @@
   "parts": [
    {
     "name": "container",
-    "shape": "",
-    "count": 1
+    "count": 1,
+    "freq": 1.0,
+    "size_frac": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.0,
+    "shape": "box"
    },
    {
     "name": "bottom",
-    "shape": "",
-    "count": 1
+    "count": 1,
+    "freq": 0.34,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 247,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 247 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "chair",
   "aliases": [],
   "parts": [
    {
-    "name": "head",
-    "shape": "box",
-    "count": 1
+    "name": "seat",
+    "count": 1,
+    "freq": 0.999,
+    "size_frac": [
+     1.0,
+     1.0,
+     0.76
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.006,
+    "shape": "box"
    },
    {
-    "name": "back",
-    "shape": "box",
-    "count": 1
+    "name": "seat_surface",
+    "count": 1,
+    "freq": 0.998,
+    "size_frac": [
+     0.934,
+     0.916,
+     0.415
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.041,
+    "shape": "box"
    },
    {
-    "name": "arm",
-    "shape": "box",
-    "count": 1
+    "name": "back_surface",
+    "count": 1,
+    "freq": 0.988,
+    "size_frac": [
+     0.988,
+     0.877,
+     0.628
+    ],
+    "z_frac": 0.179,
+    "r_frac": 0.104,
+    "shape": "box"
    },
    {
     "name": "base",
-    "shape": "cylinder",
-    "count": 1
+    "count": 1,
+    "freq": 0.969,
+    "size_frac": [
+     1.0,
+     0.982,
+     0.774
+    ],
+    "z_frac": -0.113,
+    "r_frac": 0.01,
+    "shape": "box"
    },
    {
-    "name": "seat",
-    "shape": "box",
-    "count": 1
+    "name": "seat_single_surface",
+    "count": 1,
+    "freq": 0.96,
+    "size_frac": [
+     0.937,
+     0.939,
+     0.477
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.036,
+    "shape": "box"
+   },
+   {
+    "name": "back_single_surface",
+    "count": 1,
+    "freq": 0.825,
+    "size_frac": [
+     0.988,
+     0.896,
+     0.628
+    ],
+    "z_frac": 0.18,
+    "r_frac": 0.093,
+    "shape": "box"
+   },
+   {
+    "name": "leg",
+    "count": 4,
+    "freq": 0.792,
+    "shape": "cylinder"
+   },
+   {
+    "name": "arm",
+    "count": 2,
+    "freq": 0.46,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 8176,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 8176 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "clock",
   "aliases": [],
   "parts": [
    {
-    "name": "body",
-    "shape": "cylinder",
-    "count": 1
+    "name": "frame",
+    "count": 1,
+    "freq": 0.732,
+    "size_frac": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.0,
+    "shape": "box"
    },
    {
-    "name": "base",
-    "shape": "cylinder",
-    "count": 1
+    "name": "surface",
+    "count": 1,
+    "freq": 0.696,
+    "shape": "box"
    },
    {
-    "name": "pendulum_clock_base",
-    "shape": "",
-    "count": 1
+    "name": "base_surface",
+    "count": 1,
+    "freq": 0.218,
+    "shape": "box"
    },
    {
-    "name": "pendulum_clock_frame",
-    "shape": "",
-    "count": 1
+    "name": "box",
+    "count": 1,
+    "freq": 0.191,
+    "shape": "box"
    },
    {
-    "name": "pendulum",
-    "shape": "",
-    "count": 1
+    "name": "pendulum_clock_top",
+    "count": 1,
+    "freq": 0.152,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 624,
+  "n_geom": 146,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 624 models (geometry n=146)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "dishwasher",
   "aliases": [],
   "parts": [
    {
-    "name": "body",
-    "shape": "cylinder",
-    "count": 1
+    "name": "frame",
+    "count": 1,
+    "freq": 1.0,
+    "size_frac": [
+     1.0,
+     0.99,
+     1.0
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.01,
+    "shape": "box"
    },
    {
-    "name": "base",
-    "shape": "cylinder",
-    "count": 1
+    "name": "door_frame",
+    "count": 1,
+    "freq": 0.983,
+    "shape": "box"
+   },
+   {
+    "name": "handle",
+    "count": 1,
+    "freq": 0.846,
+    "size_frac": [
+     0.933,
+     0.089,
+     0.058
+    ],
+    "z_frac": 0.299,
+    "r_frac": 0.918,
+    "shape": "cylinder"
+   },
+   {
+    "name": "surface",
+    "count": 1,
+    "freq": 0.651,
+    "shape": "box"
+   },
+   {
+    "name": "foot",
+    "count": 4,
+    "freq": 0.278,
+    "size_frac": [
+     0.063,
+     0.054,
+     0.037
+    ],
+    "z_frac": -0.481,
+    "r_frac": 1.049,
+    "shape": "cylinder"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 241,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 241 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "monitor",
@@ -180,31 +409,123 @@
   ],
   "parts": [
    {
-    "name": "screen",
-    "shape": "box",
-    "count": 1
+    "name": "frame",
+    "count": 1,
+    "freq": 1.0,
+    "size_frac": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.0,
+    "shape": "box"
    },
    {
-    "name": "base",
-    "shape": "cylinder",
-    "count": 1
+    "name": "screen",
+    "count": 1,
+    "freq": 1.0,
+    "shape": "box"
+   },
+   {
+    "name": "surface",
+    "count": 1,
+    "freq": 0.792,
+    "size_frac": [
+     0.808,
+     1.0,
+     0.622
+    ],
+    "z_frac": -0.189,
+    "r_frac": 0.0,
+    "shape": "box"
+   },
+   {
+    "name": "base_support",
+    "count": 1,
+    "freq": 0.749,
+    "size_frac": [
+     0.783,
+     1.0,
+     0.821
+    ],
+    "z_frac": -0.09,
+    "r_frac": 0.001,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 1005,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 1005 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "door",
   "aliases": [],
   "parts": [
    {
+    "name": "surface_board",
+    "count": 1,
+    "freq": 0.965,
+    "size_frac": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.0,
+    "shape": "box"
+   },
+   {
+    "name": "handle",
+    "count": 1,
+    "freq": 0.737,
+    "size_frac": [
+     0.15,
+     0.409,
+     0.109
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.62,
+    "shape": "cylinder"
+   },
+   {
+    "name": "fixed_part",
+    "count": 2,
+    "freq": 0.67,
+    "size_frac": [
+     0.093,
+     0.393,
+     0.127
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.557,
+    "shape": "cylinder"
+   },
+   {
     "name": "outside_frame",
-    "shape": "",
-    "count": 1
+    "count": 1,
+    "freq": 0.421,
+    "shape": "box"
+   },
+   {
+    "name": "movable_part",
+    "count": 2,
+    "freq": 0.365,
+    "size_frac": [
+     0.106,
+     0.239,
+     0.028
+    ],
+    "z_frac": -0.007,
+    "r_frac": 1.083,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 285,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 285 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "earphone",
@@ -214,33 +535,101 @@
   ],
   "parts": [
    {
-    "name": "earbud",
-    "shape": "",
-    "count": 1
+    "name": "earcup",
+    "count": 2,
+    "freq": 0.867,
+    "size_frac": [
+     0.393,
+     1.0,
+     0.607
+    ],
+    "z_frac": -0.181,
+    "r_frac": 0.836,
+    "shape": "box"
    },
    {
-    "name": "earbud_connector_wire",
-    "shape": "",
-    "count": 1
+    "name": "earcup_frame",
+    "count": 2,
+    "freq": 0.867,
+    "size_frac": [
+     0.224,
+     0.971,
+     0.461
+    ],
+    "z_frac": -0.247,
+    "r_frac": 0.897,
+    "shape": "box"
    },
    {
     "name": "head_band",
-    "shape": "",
-    "count": 1
+    "count": 1,
+    "freq": 0.867,
+    "size_frac": [
+     0.985,
+     0.388,
+     0.49
+    ],
+    "z_frac": 0.252,
+    "r_frac": 0.004,
+    "shape": "box"
    },
    {
-    "name": "earcup",
-    "shape": "",
-    "count": 1
+    "name": "top_band",
+    "count": 1,
+    "freq": 0.867,
+    "size_frac": [
+     0.985,
+     0.388,
+     0.427
+    ],
+    "z_frac": 0.278,
+    "r_frac": 0.004,
+    "shape": "box"
+   },
+   {
+    "name": "earcup_pad",
+    "count": 2,
+    "freq": 0.856,
+    "size_frac": [
+     0.203,
+     1.0,
+     0.446
+    ],
+    "z_frac": -0.247,
+    "r_frac": 0.706,
+    "shape": "box"
+   },
+   {
+    "name": "earcup_connector",
+    "count": 2,
+    "freq": 0.604,
+    "size_frac": [
+     0.187,
+     0.897,
+     0.586
+    ],
+    "z_frac": -0.177,
+    "r_frac": 1.113,
+    "shape": "box"
    },
    {
     "name": "connector_wire",
-    "shape": "",
-    "count": 1
+    "count": 1,
+    "freq": 0.186,
+    "size_frac": [
+     0.878,
+     0.517,
+     0.56
+    ],
+    "z_frac": -0.22,
+    "r_frac": 0.195,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 285,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 285 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "faucet",
@@ -249,28 +638,101 @@
   ],
   "parts": [
    {
-    "name": "switch",
-    "shape": "",
-    "count": 1
-   },
-   {
-    "name": "hose",
-    "shape": "",
-    "count": 1
+    "name": "frame",
+    "count": 1,
+    "freq": 0.988,
+    "size_frac": [
+     0.749,
+     0.442,
+     0.698
+    ],
+    "z_frac": -0.103,
+    "r_frac": 0.598,
+    "shape": "box"
    },
    {
     "name": "spout",
-    "shape": "cylinder",
-    "count": 1
+    "count": 1,
+    "freq": 0.969,
+    "size_frac": [
+     0.378,
+     0.938,
+     0.716
+    ],
+    "z_frac": 0.015,
+    "r_frac": 0.192,
+    "shape": "cylinder"
    },
    {
-    "name": "frame",
-    "shape": "box",
-    "count": 1
+    "name": "tube",
+    "count": 1,
+    "freq": 0.962,
+    "size_frac": [
+     0.316,
+     0.911,
+     0.704
+    ],
+    "z_frac": 0.017,
+    "r_frac": 0.198,
+    "shape": "box"
+   },
+   {
+    "name": "switch",
+    "count": 1,
+    "freq": 0.918,
+    "size_frac": [
+     0.324,
+     0.337,
+     0.317
+    ],
+    "z_frac": -0.161,
+    "r_frac": 0.872,
+    "shape": "box"
+   },
+   {
+    "name": "vertical_support",
+    "count": 1,
+    "freq": 0.881,
+    "size_frac": [
+     0.377,
+     0.345,
+     0.521
+    ],
+    "z_frac": -0.144,
+    "r_frac": 0.66,
+    "shape": "box"
+   },
+   {
+    "name": "surface_base",
+    "count": 1,
+    "freq": 0.723,
+    "size_frac": [
+     0.294,
+     0.302,
+     0.333
+    ],
+    "z_frac": -0.291,
+    "r_frac": 0.885,
+    "shape": "box"
+   },
+   {
+    "name": "horizontal_support",
+    "count": 1,
+    "freq": 0.387,
+    "size_frac": [
+     0.71,
+     0.335,
+     0.126
+    ],
+    "z_frac": -0.19,
+    "r_frac": 0.594,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 840,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 840 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "hat",
@@ -280,147 +742,359 @@
   "parts": [
    {
     "name": "crown",
-    "shape": "",
-    "count": 1
+    "count": 1,
+    "freq": 0.571,
+    "size_frac": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.0,
+    "shape": "box"
    },
    {
     "name": "brim",
-    "shape": "",
-    "count": 1
-   },
-   {
-    "name": "button",
-    "shape": "cylinder",
-    "count": 1
+    "count": 1,
+    "freq": 0.467,
+    "shape": "box"
    },
    {
     "name": "bill",
-    "shape": "",
-    "count": 1
+    "count": 1,
+    "freq": 0.429,
+    "shape": "box"
    },
    {
     "name": "panel",
-    "shape": "",
-    "count": 1
+    "count": 1,
+    "freq": 0.429,
+    "shape": "box"
+   },
+   {
+    "name": "button",
+    "count": 1,
+    "freq": 0.3,
+    "size_frac": [
+     0.076,
+     0.047,
+     0.04
+    ],
+    "z_frac": 0.48,
+    "r_frac": 0.28,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 287,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 287 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "keyboard",
   "aliases": [],
   "parts": [
    {
-    "name": "frame",
-    "shape": "box",
-    "count": 1
+    "name": "key",
+    "count": 8,
+    "freq": 1.0,
+    "size_frac": [
+     0.06,
+     0.144,
+     0.5
+    ],
+    "z_frac": 0.078,
+    "r_frac": 0.345,
+    "shape": "box"
    },
    {
-    "name": "key",
-    "shape": "",
-    "count": 1
+    "name": "frame",
+    "count": 1,
+    "freq": 0.971,
+    "size_frac": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.0,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 210,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 210 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "knife",
   "aliases": [],
   "parts": [
    {
-    "name": "handle",
-    "shape": "cylinder",
-    "count": 1
+    "name": "guard",
+    "count": 1,
+    "freq": 0.572,
+    "size_frac": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.0,
+    "shape": "box"
    },
    {
-    "name": "blade",
-    "shape": "outline",
-    "count": 1
+    "name": "butt",
+    "count": 1,
+    "freq": 0.34,
+    "shape": "box"
+   },
+   {
+    "name": "bolster",
+    "count": 1,
+    "freq": 0.329,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 514,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 514 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "lamp",
   "aliases": [],
   "parts": [
    {
-    "name": "body",
-    "shape": "cylinder",
-    "count": 1
+    "name": "head",
+    "count": 1,
+    "freq": 0.938,
+    "size_frac": [
+     0.928,
+     0.837,
+     0.321
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.24,
+    "shape": "box"
    },
    {
-    "name": "chain",
-    "shape": "cylinder",
-    "count": 1
+    "name": "cover",
+    "count": 1,
+    "freq": 0.886,
+    "size_frac": [
+     0.811,
+     0.517,
+     0.287
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.358,
+    "shape": "box"
+   },
+   {
+    "name": "shade",
+    "count": 1,
+    "freq": 0.818,
+    "size_frac": [
+     0.749,
+     0.47,
+     0.286
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.462,
+    "shape": "box"
    },
    {
     "name": "base",
-    "shape": "cylinder",
-    "count": 1
+    "count": 1,
+    "freq": 0.731,
+    "size_frac": [
+     0.918,
+     0.656,
+     0.64
+    ],
+    "z_frac": -0.008,
+    "r_frac": 0.007,
+    "shape": "box"
    },
    {
-    "name": "power_cord",
-    "shape": "",
-    "count": 1
+    "name": "lamp",
+    "count": 1,
+    "freq": 0.704,
+    "size_frac": [
+     0.868,
+     0.837,
+     0.417
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.163,
+    "shape": "box"
    },
    {
-    "name": "pendant_lamp",
-    "shape": "",
-    "count": 1
+    "name": "holistic_base",
+    "count": 1,
+    "freq": 0.687,
+    "size_frac": [
+     0.93,
+     0.626,
+     0.627
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.004,
+    "shape": "box"
    },
    {
-    "name": "post",
-    "shape": "",
-    "count": 1
+    "name": "base_part",
+    "count": 1,
+    "freq": 0.686,
+    "size_frac": [
+     0.93,
+     0.575,
+     0.596
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.005,
+    "shape": "box"
    },
    {
-    "name": "street_lamp_base",
-    "shape": "",
-    "count": 1
+    "name": "body",
+    "count": 1,
+    "freq": 0.495,
+    "size_frac": [
+     0.711,
+     0.728,
+     0.923
+    ],
+    "z_frac": -0.007,
+    "r_frac": 0.01,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 3408,
+  "n_geom": 148,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 3408 models (geometry n=148)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "laptop",
   "aliases": [],
   "parts": [
    {
-    "name": "screen",
-    "shape": "box",
-    "count": 1
+    "name": "base_frame",
+    "count": 1,
+    "freq": 1.0,
+    "size_frac": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.0,
+    "shape": "box"
    },
    {
-    "name": "base",
-    "shape": "cylinder",
-    "count": 1
+    "name": "screen_frame",
+    "count": 1,
+    "freq": 0.996,
+    "shape": "box"
+   },
+   {
+    "name": "keyboard",
+    "count": 1,
+    "freq": 0.981,
+    "shape": "box"
+   },
+   {
+    "name": "touchpad",
+    "count": 1,
+    "freq": 0.889,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 485,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 485 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "microwave",
   "aliases": [],
   "parts": [
    {
-    "name": "body",
-    "shape": "cylinder",
-    "count": 1
+    "name": "frame",
+    "count": 1,
+    "freq": 1.0,
+    "size_frac": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.0,
+    "shape": "box"
    },
    {
-    "name": "base",
-    "shape": "cylinder",
-    "count": 1
+    "name": "door_frame",
+    "count": 1,
+    "freq": 0.996,
+    "shape": "box"
+   },
+   {
+    "name": "glass",
+    "count": 1,
+    "freq": 0.996,
+    "shape": "box"
+   },
+   {
+    "name": "handle",
+    "count": 1,
+    "freq": 0.5,
+    "size_frac": [
+     0.917,
+     0.119,
+     0.901
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.849,
+    "shape": "cylinder"
+   },
+   {
+    "name": "body_interior",
+    "count": 1,
+    "freq": 0.254,
+    "size_frac": [
+     0.543,
+     0.683,
+     0.067
+    ],
+    "z_frac": -0.278,
+    "r_frac": 0.181,
+    "shape": "box"
+   },
+   {
+    "name": "tray",
+    "count": 1,
+    "freq": 0.231,
+    "size_frac": [
+     0.556,
+     0.683,
+     0.032
+    ],
+    "z_frac": -0.282,
+    "r_frac": 0.167,
+    "shape": "box"
+   },
+   {
+    "name": "foot",
+    "count": 4,
+    "freq": 0.213,
+    "shape": "cylinder"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 268,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 268 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "mug",
@@ -428,17 +1102,35 @@
   "parts": [
    {
     "name": "body",
-    "shape": "cylinder",
-    "count": 1
+    "count": 1,
+    "freq": 1.0,
+    "size_frac": [
+     1.0,
+     0.767,
+     1.0
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.263,
+    "shape": "box"
    },
    {
     "name": "handle",
-    "shape": "cylinder",
-    "count": 1
+    "count": 1,
+    "freq": 0.964,
+    "size_frac": [
+     0.206,
+     0.354,
+     0.865
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.752,
+    "shape": "cylinder"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 252,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 252 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "refrigerator",
@@ -447,18 +1139,107 @@
   ],
   "parts": [
    {
-    "name": "body",
-    "shape": "cylinder",
-    "count": 1
+    "name": "frame",
+    "count": 1,
+    "freq": 1.0,
+    "size_frac": [
+     1.0,
+     0.982,
+     1.0
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.02,
+    "shape": "box"
+   },
+   {
+    "name": "door_frame",
+    "count": 2,
+    "freq": 0.988,
+    "shape": "box"
+   },
+   {
+    "name": "handle",
+    "count": 2,
+    "freq": 0.794,
+    "size_frac": [
+     0.466,
+     0.099,
+     0.772
+    ],
+    "z_frac": 0.005,
+    "r_frac": 0.769,
+    "shape": "cylinder"
    },
    {
     "name": "base",
-    "shape": "cylinder",
-    "count": 1
+    "count": 1,
+    "freq": 0.437,
+    "size_frac": [
+     0.994,
+     0.918,
+     0.116
+    ],
+    "z_frac": -0.442,
+    "r_frac": 0.06,
+    "shape": "box"
+   },
+   {
+    "name": "foot_base",
+    "count": 1,
+    "freq": 0.356,
+    "size_frac": [
+     0.984,
+     0.902,
+     0.062
+    ],
+    "z_frac": -0.469,
+    "r_frac": 0.068,
+    "shape": "box"
+   },
+   {
+    "name": "foot",
+    "count": 4,
+    "freq": 0.324,
+    "size_frac": [
+     0.085,
+     0.089,
+     0.031
+    ],
+    "z_frac": -0.484,
+    "r_frac": 1.038,
+    "shape": "cylinder"
+   },
+   {
+    "name": "body_interior",
+    "count": 1,
+    "freq": 0.174,
+    "size_frac": [
+     0.886,
+     0.766,
+     0.817
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.171,
+    "shape": "box"
+   },
+   {
+    "name": "shelf",
+    "count": 3,
+    "freq": 0.17,
+    "size_frac": [
+     0.863,
+     0.523,
+     0.027
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.358,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 247,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 247 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "scissors",
@@ -466,17 +1247,54 @@
   "parts": [
    {
     "name": "blade",
-    "shape": "outline",
-    "count": 1
+    "count": 2,
+    "freq": 1.0,
+    "size_frac": [
+     0.735,
+     0.556,
+     0.532
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.312,
+    "shape": "outline"
+   },
+   {
+    "name": "blade_handle",
+    "count": 2,
+    "freq": 1.0,
+    "shape": "box"
    },
    {
     "name": "handle",
-    "shape": "cylinder",
-    "count": 1
+    "count": 2,
+    "freq": 1.0,
+    "size_frac": [
+     0.676,
+     0.619,
+     0.948
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.506,
+    "shape": "cylinder"
+   },
+   {
+    "name": "screw",
+    "count": 1,
+    "freq": 0.74,
+    "size_frac": [
+     0.05,
+     0.105,
+     0.715
+    ],
+    "z_frac": 0.001,
+    "r_frac": 0.168,
+    "shape": "cylinder"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 127,
+  "n_geom": 127,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 127 models (geometry n=127)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "cabinet",
@@ -487,38 +1305,79 @@
   ],
   "parts": [
    {
-    "name": "countertop",
-    "shape": "",
-    "count": 1
+    "name": "vertical_side_panel",
+    "count": 2,
+    "freq": 0.937,
+    "shape": "box"
+   },
+   {
+    "name": "bottom_panel",
+    "count": 1,
+    "freq": 0.917,
+    "shape": "box"
+   },
+   {
+    "name": "back_panel",
+    "count": 1,
+    "freq": 0.867,
+    "shape": "box"
+   },
+   {
+    "name": "top_panel",
+    "count": 1,
+    "freq": 0.754,
+    "shape": "box"
+   },
+   {
+    "name": "handle",
+    "count": 3,
+    "freq": 0.545,
+    "size_frac": [
+     0.077,
+     0.057,
+     0.039
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.79,
+    "shape": "cylinder"
    },
    {
     "name": "shelf",
-    "shape": "box",
-    "count": 1
+    "count": 3,
+    "freq": 0.544,
+    "shape": "box"
    },
    {
-    "name": "cabinet_frame",
-    "shape": "",
-    "count": 1
+    "name": "door",
+    "count": 2,
+    "freq": 0.494,
+    "size_frac": [
+     0.825,
+     0.117,
+     0.83
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.689,
+    "shape": "box"
    },
    {
-    "name": "drawer",
-    "shape": "box",
-    "count": 1
-   },
-   {
-    "name": "cabinet_base",
-    "shape": "",
-    "count": 1
-   },
-   {
-    "name": "cabinet_door",
-    "shape": "",
-    "count": 1
+    "name": "door_surface",
+    "count": 2,
+    "freq": 0.482,
+    "size_frac": [
+     0.825,
+     0.084,
+     0.83
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.689,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 2639,
+  "n_geom": 149,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 2639 models (geometry n=149)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "table",
@@ -527,28 +1386,93 @@
   ],
   "parts": [
    {
-    "name": "ping_pong_net",
-    "shape": "",
-    "count": 1
-   },
-   {
     "name": "tabletop",
-    "shape": "box",
-    "count": 1
+    "count": 1,
+    "freq": 0.996,
+    "size_frac": [
+     1.0,
+     1.0,
+     0.26
+    ],
+    "z_frac": 0.342,
+    "r_frac": 0.0,
+    "shape": "box"
    },
    {
-    "name": "base",
-    "shape": "cylinder",
-    "count": 1
+    "name": "tabletop_surface",
+    "count": 1,
+    "freq": 0.995,
+    "size_frac": [
+     1.0,
+     1.0,
+     0.24
+    ],
+    "z_frac": 0.376,
+    "r_frac": 0.0,
+    "shape": "box"
    },
    {
-    "name": "bench",
-    "shape": "box",
-    "count": 1
+    "name": "board",
+    "count": 1,
+    "freq": 0.841,
+    "size_frac": [
+     1.0,
+     1.0,
+     0.602
+    ],
+    "z_frac": 0.199,
+    "r_frac": 0.0,
+    "shape": "box"
+   },
+   {
+    "name": "leg",
+    "count": 4,
+    "freq": 0.799,
+    "shape": "cylinder"
+   },
+   {
+    "name": "tabletop_connector",
+    "count": 4,
+    "freq": 0.412,
+    "size_frac": [
+     0.828,
+     0.843,
+     0.452
+    ],
+    "z_frac": 0.274,
+    "r_frac": 0.024,
+    "shape": "box"
+   },
+   {
+    "name": "bar_stretcher",
+    "count": 4,
+    "freq": 0.233,
+    "size_frac": [
+     0.455,
+     0.481,
+     0.274
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.7,
+    "shape": "box"
+   },
+   {
+    "name": "vertical_side_panel",
+    "count": 2,
+    "freq": 0.216,
+    "shape": "box"
+   },
+   {
+    "name": "bar",
+    "count": 4,
+    "freq": 0.173,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 9906,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 9906 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "trash can",
@@ -558,28 +1482,100 @@
   ],
   "parts": [
    {
-    "name": "container",
-    "shape": "",
-    "count": 1
+    "name": "container_box",
+    "count": 1,
+    "freq": 0.955,
+    "size_frac": [
+     0.913,
+     0.912,
+     0.873
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.0,
+    "shape": "box"
    },
    {
-    "name": "outside_frame",
-    "shape": "",
-    "count": 1
-   },
-   {
-    "name": "base",
-    "shape": "cylinder",
-    "count": 1
+    "name": "container_bottom",
+    "count": 1,
+    "freq": 0.788,
+    "shape": "box"
    },
    {
     "name": "cover",
-    "shape": "",
-    "count": 1
+    "count": 1,
+    "freq": 0.72,
+    "size_frac": [
+     0.968,
+     0.989,
+     0.187
+    ],
+    "z_frac": 0.379,
+    "r_frac": 0.0,
+    "shape": "box"
+   },
+   {
+    "name": "cover_lid",
+    "count": 1,
+    "freq": 0.717,
+    "size_frac": [
+     0.949,
+     0.941,
+     0.095
+    ],
+    "z_frac": 0.405,
+    "r_frac": 0.001,
+    "shape": "box"
+   },
+   {
+    "name": "base",
+    "count": 1,
+    "freq": 0.423,
+    "size_frac": [
+     0.868,
+     0.834,
+     0.122
+    ],
+    "z_frac": -0.439,
+    "r_frac": 0.001,
+    "shape": "box"
+   },
+   {
+    "name": "frame_vertical_bar",
+    "count": 8,
+    "freq": 0.368,
+    "size_frac": [
+     0.089,
+     0.089,
+     0.858
+    ],
+    "z_frac": -0.007,
+    "r_frac": 0.852,
+    "shape": "cylinder"
+   },
+   {
+    "name": "frame_horizontal_circle",
+    "count": 2,
+    "freq": 0.339,
+    "shape": "box"
+   },
+   {
+    "name": "frame_bottom",
+    "count": 1,
+    "freq": 0.307,
+    "size_frac": [
+     0.841,
+     0.836,
+     0.017
+    ],
+    "z_frac": -0.442,
+    "r_frac": 0.002,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 378,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 378 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "vase",
@@ -588,18 +1584,49 @@
   ],
   "parts": [
    {
-    "name": "body",
-    "shape": "cylinder",
-    "count": 1
+    "name": "container",
+    "count": 1,
+    "freq": 0.996,
+    "size_frac": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "z_frac": 0.0,
+    "r_frac": 0.0,
+    "shape": "box"
    },
    {
-    "name": "base",
-    "shape": "cylinder",
-    "count": 1
+    "name": "plant",
+    "count": 1,
+    "freq": 0.313,
+    "size_frac": [
+     1.0,
+     1.0,
+     0.753
+    ],
+    "z_frac": 0.1,
+    "r_frac": 0.0,
+    "shape": "box"
+   },
+   {
+    "name": "liquid_or_soil",
+    "count": 1,
+    "freq": 0.272,
+    "size_frac": [
+     0.58,
+     0.657,
+     0.389
+    ],
+    "z_frac": -0.266,
+    "r_frac": 0.081,
+    "shape": "box"
    }
   ],
-  "source": "PartNet (Mo et al. 2019)",
-  "license": "MIT"
+  "n_models": 1160,
+  "n_geom": 150,
+  "source": "PartNet (Mo et al. 2019) \u2014 aggregate medians over 1160 models (geometry n=150)",
+  "license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
  },
  {
   "object": "hammer",

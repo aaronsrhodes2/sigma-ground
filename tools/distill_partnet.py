@@ -284,9 +284,32 @@ def aggregate_category(model_dirs: list, root_label: str,
         else:
             entry["shape"] = _SHAPE_HINT.get(label, "")
         parts.append(entry)
+    _strip_degenerate_geometry(parts)
     # rank: frequent-and-measured first, keep the table readable
     parts.sort(key=lambda p: (-p["freq"], p["name"]))
     return {"parts": parts[:_MAX_PARTS], "n_models": n_models, "n_geom": n_geom}
+
+
+def _strip_degenerate_geometry(parts: list) -> None:
+    """PartNet merge noise can hand a part the WHOLE object's bbox. A
+    replicated part (count>=2) cannot EACH span 2+ axes (four table legs of
+    [0.94,0.98,0.98] are annotation unions, not legs — though a stretcher
+    spanning ONE axis is real); an all-axes-spanning part is credible only for
+    the category's BODY (the most frequent such part). Degenerate parts keep
+    their count/freq (vocabulary value) and lose the untrustworthy fractions."""
+    spanning = [p for p in parts
+                if "size_frac" in p and min(p["size_frac"]) >= _WHOLE_OBJ]
+    body = max(spanning, key=lambda p: p["freq"], default=None)
+    for p in parts:
+        sf = p.get("size_frac")
+        if not sf:
+            continue
+        big_axes = sum(1 for v in sf if v >= _WHOLE_OBJ)
+        if (p["count"] >= 2 and big_axes >= 2) or \
+                (min(sf) >= _WHOLE_OBJ and p is not body):
+            for k in ("size_frac", "z_frac", "r_frac"):
+                p.pop(k, None)
+            p["shape"] = p.get("shape") or _SHAPE_HINT.get(p["name"], "")
 
 
 # ── subcommands ─────────────────────────────────────────────────────────────

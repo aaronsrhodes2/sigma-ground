@@ -110,12 +110,13 @@ def test_whole_object_wrapper_is_filtered(tmp_path):
         dirs.append(md)
     agg = m.aggregate_category(dirs, "mug", {d.name for d in dirs})
     names = [p["name"] for p in agg["parts"]]
-    assert "regular_mug" not in names                    # covers >85% of every axis
-    assert "body" not in names or True                   # body == whole object too: filtered
-    # nothing in the output may span the whole object on all axes
-    for p in agg["parts"]:
-        if "size_frac" in p:
-            assert min(p["size_frac"]) < 0.85
+    # the subtype WRAPPER (an internal node spanning the object) is filtered…
+    assert "regular_mug" not in names
+    # …but the LEAF body that spans the object is a REAL part (a bottle is
+    # mostly one part) and must be kept, fractions intact
+    assert "body" in names
+    body = next(p for p in agg["parts"] if p["name"] == "body")
+    assert min(body["size_frac"]) >= 0.85
 
 
 def test_classify_prim_rod_slab_and_label_override():

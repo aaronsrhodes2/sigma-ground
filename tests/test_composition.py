@@ -45,7 +45,9 @@ def test_researcher_cites_partnet_for_a_known_multipart_object():
         {"name": "handle", "shape": "cylinder", "dims": {"radius_m": 0.006, "height_m": 0.05},
          "material": "steel"}]})
     spec = research_spec("scissors", ask=lambda n: payload, model="stub")
-    assert spec is not None and len(spec.parts) == 2
+    # the census may REPLICATE under-counted parts (scissors: 2x blade), so the
+    # part count can exceed the model's two — never fewer
+    assert spec is not None and len(spec.parts) >= 2
     assert any("PartNet" in s.get("name", "") for s in spec.sources)
 
 
