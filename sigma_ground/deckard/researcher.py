@@ -575,6 +575,13 @@ def _build_parts_spec(name: str, data: dict, model: str,
         except Exception:
             return default
 
+    # Object-LEVEL dimension sources (Wikidata height of "a chair", standard
+    # tables) describe the WHOLE object — they may only ground a part directly
+    # when the object IS one part. On a multi-part object they would brand a
+    # seat with the chair's full height as a "cited" dim, and that false
+    # citation locks out every construct-level shaping pass downstream.
+    single_part = len([p for p in raw_parts if isinstance(p, dict)]) == 1
+
     for i, p in enumerate(raw_parts):
         di = p.get("dims") or {}
         fill = p.get("fill") if isinstance(p.get("fill"), dict) else None
@@ -629,7 +636,8 @@ def _build_parts_spec(name: str, data: dict, model: str,
             dims[k] = Fact(float(v), "estimated", "", 0.5)   # LLM => [estimated]
         if bad:
             continue                                       # missing/bad dims — skip it
-        _ground_dims(name, shape, dims, sources, seen, allow_web)   # cite real dims if standard
+        if single_part:
+            _ground_dims(name, shape, dims, sources, seen, allow_web)  # cite real dims
         if any(f.value > _HUMAN_SCALE_MAX_M for f in dims.values()):
             continue                                       # not a human-scale object — skip it
         material = p.get("material") or "unknown"
@@ -645,8 +653,10 @@ def _build_parts_spec(name: str, data: dict, model: str,
     if not parts:
         return None                                        # nothing usable — let research() fall back
 
-    _apply_composition_priors(name, parts, sources, seen)   # PartNet shaping (relative)
+    # Order matters: fix the OVERALL box first (Sem real aspect), THEN place
+    # parts within it (census fractions of a sane box), THEN absolute scale.
     _correct_aspect_ratio(name, parts, sources, seen)       # Sem real proportions (relative)
+    _apply_composition_priors(name, parts, sources, seen)   # PartNet shaping (relative)
     _scale_to_typical_size(name, parts, sources, seen, allow_web)   # fix absolute scale if known
     _hollow_pass(name, parts, sources)            # shell-model hollow-class objects (not solid)
 

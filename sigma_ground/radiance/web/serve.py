@@ -50,6 +50,25 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
             pass                                    # client gave up mid-dispatch — fine
 
     def do_POST(self):
+        # ── POST /probe : the browser gauntlet's verification sink ──
+        if self.path.split("?")[0] == "/probe":
+            try:
+                n = int(self.headers.get("Content-Length", 0))
+                rep = json.loads(self.rfile.read(n) or b"{}")
+            except Exception:
+                rep = {}
+            path = os.path.join(_ROOT, "misc", "BROWSER_REPORT.json")
+            try:
+                cur = json.load(open(path, encoding="utf-8"))
+            except Exception:
+                cur = {}
+            if rep.get("slug"):
+                cur[rep["slug"]] = rep
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                with open(path, "w", encoding="utf-8") as f:
+                    json.dump(cur, f, indent=1)
+            self._send_json(200, {"ok": True, "count": len(cur)})
+            return
         if self.path.split("?")[0] != "/chat":
             self.send_error(404, "only /chat accepts POST")
             return

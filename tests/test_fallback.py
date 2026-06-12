@@ -54,7 +54,10 @@ def test_all_bad_parts_returns_none():
 def test_scaffold_builds_known_parts_flagged():
     spec = _scaffold_from_composition("scissors")       # a known PartNet decomposition
     assert spec is not None and not spec.identified
-    assert {"blade", "handle"} <= {p.name for p in spec.parts}    # the known parts
+    names = {p.name for p in spec.parts}
+    # the known parts (enriched census may replicate: blade_1/blade_2)
+    assert any(n.startswith("blade") for n in names)
+    assert any("handle" in n for n in names)
     c = compile(spec, resolution=40)
     assert c.validation["passed"]                       # a real, validated placeholder
     assert audit(spec, c)["verdict"] in ("estimated", "suspect")  # never "verified"

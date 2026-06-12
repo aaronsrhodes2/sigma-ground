@@ -117,7 +117,10 @@ def test_researcher_builds_solid_primitive():
     spec = research_spec("steel rod", ask=lambda n: rod, model="stub")
     assert spec is not None and spec.kind == "composite" and len(spec.parts) == 1
     p = spec.parts[0]
-    assert all(f.estimated for f in p.dims.values())     # LLM dims flagged [estimated]
+    # dims are flagged guesses OR census-anchored ("scaled to ShapeNetSem …") —
+    # never presented as a measurement of THIS rod
+    assert all(f.estimated or "ShapeNetSem" in f.source
+               for f in p.dims.values())
     assert not p.density.estimated                       # density grounded in our data
     assert p.density.value == density_of("steel").value
     assert compile(spec, resolution=48).validation["passed"]

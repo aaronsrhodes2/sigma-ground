@@ -96,19 +96,36 @@ def test_attach_anchored_parts_are_never_moved_or_cloned(monkeypatch):
 
 
 def test_cited_dims_are_never_touched(monkeypatch):
+    # invariant at the pass level: a part carrying ANY cited dim is exempt from
+    # proportion correction (citations always outrank census medians)
     _with_priors(monkeypatch)
-    monkeypatch.setattr(R, "_ground_dims",
-                        lambda name, shape, dims, sources, seen, allow_web:
-                        dims.__setitem__("radius_m",
-                                         R.Fact(0.5, "Cited Source", "CC0", 0.9))
-                        if "radius_m" in dims else None)
-    spec = _spec({"kind": "composite", "parts": [
-        {"name": "seat", "shape": "box",
-         "dims": {"x_m": 0.5, "y_m": 0.5, "z_m": 0.5}, "material": "oak",
-         "center_m": [0, 0, 0.25]},
-        {"name": "leg", "shape": "cylinder",
-         "dims": {"radius_m": 0.5, "height_m": 0.25}, "material": "oak",
-         "center_m": [0.2, 0.2, -0.125]}]})
-    leg = next(p for p in spec.parts if p.name == "leg")
+    from sigma_ground.deckard.schema import Part
+    seat = Part("seat", "box", {"x_m": R.Fact(0.5, "estimated", "", 0.5),
+                                "y_m": R.Fact(0.5, "estimated", "", 0.5),
+                                "z_m": R.Fact(0.5, "estimated", "", 0.5)},
+                "oak", R.Fact(700.0), (0, 0, 0.25))
+    leg = Part("leg", "cylinder", {"radius_m": R.Fact(0.5, "Cited Source", "CC0", 0.9),
+                                   "height_m": R.Fact(0.25, "estimated", "", 0.5)},
+               "oak", R.Fact(700.0), (0.2, 0.2, -0.125))
+    parts, sources, seen = [seat, leg], [], set()
+    R._apply_composition_priors("zz contraption", parts, sources, seen)
     assert leg.dims["radius_m"].value == 0.5                       # cited -> untouched
     assert leg.dims["radius_m"].source == "Cited Source"
+
+
+def test_multipart_specs_never_brand_parts_with_object_level_citations(monkeypatch):
+    # the chair-slab bug: Wikidata's "chair height" must not land on a SEAT.
+    _with_priors(monkeypatch)
+    called = []
+    monkeypatch.setattr(R, "_ground_dims",
+                        lambda *a, **k: called.append(a[0]))
+    _spec({"kind": "composite", "parts": [
+        {"name": "seat", "shape": "box",
+         "dims": {"x_m": 0.5, "y_m": 0.5, "z_m": 0.1}, "material": "oak"},
+        {"name": "leg", "shape": "cylinder",
+         "dims": {"radius_m": 0.02, "height_m": 0.4}, "material": "oak"}]})
+    assert called == []                            # multi-part: no per-part grounding
+    _spec({"kind": "composite", "parts": [
+        {"name": "ball", "shape": "sphere",
+         "dims": {"radius_m": 0.04}, "material": "oak"}]})
+    assert len(called) == 1                        # single-part: object dims apply

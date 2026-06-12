@@ -103,14 +103,17 @@ def _subtree_objs(node) -> list:
 
 
 def _node_instances(root_node, root_label: str) -> list:
-    """Every named node below the category root as (cleaned_label, [subtree objs]).
-    A node IS an instance of its label; its geometry is its whole subtree."""
+    """Every named node below the category root as
+    (cleaned_label, [subtree objs], is_leaf). A node IS an instance of its
+    label; its geometry is its whole subtree. ``is_leaf`` distinguishes a real
+    PART that happens to span the object (a bottle's body) from a subtype
+    WRAPPER (regular_table) — only wrappers get whole-object-filtered."""
     out = []
 
     def walk(n, depth):
         nm = _clean(n.get("name") or "", root_label)
         if depth >= 1 and nm not in _NOISE:
-            out.append((nm, _subtree_objs(n)))
+            out.append((nm, _subtree_objs(n), not (n.get("children"))))
         for ch in n.get("children") or []:
             walk(ch, depth + 1)
 
@@ -183,8 +186,9 @@ def _model_part_stats(model_dir: pathlib.Path, root_label: str):
         return bbox_cache[obj_name]
 
     inst: dict[str, list] = {}
+    leafness: dict[str, bool] = {}
     obj_bb = None
-    for label, objs in _node_instances(root, root_label):
+    for label, objs, is_leaf in _node_instances(root, root_label):
         bb = None
         for o in objs:
             bb = _union(bb, bbox_of(o))
@@ -193,10 +197,11 @@ def _model_part_stats(model_dir: pathlib.Path, root_label: str):
         ext = [bb[1][i] - bb[0][i] for i in range(3)]
         ctr = [(bb[1][i] + bb[0][i]) / 2.0 for i in range(3)]
         inst.setdefault(label, []).append((ext, ctr))
+        leafness[label] = leafness.get(label, True) and is_leaf
         obj_bb = _union(obj_bb, bb)
     if obj_bb is None:
         return None
-    return inst, obj_bb
+    return inst, obj_bb, leafness
 
 
 def _classify_prim(size_frac, label: str) -> str:
@@ -222,13 +227,14 @@ def aggregate_category(model_dirs: list, root_label: str,
     contain: dict[str, int] = {}
     counts: dict[str, list] = {}
     fracs: dict[str, dict] = {}
+    leaf_label: dict[str, bool] = {}
     for md in model_dirs:
         root = _load_hierarchy(md)
         if root is None:
             continue
         n_models += 1
         labels: dict[str, int] = {}
-        for label, _objs in _node_instances(root, root_label):
+        for label, _objs, _leaf in _node_instances(root, root_label):
             labels[label] = labels.get(label, 0) + 1
         for label, k in labels.items():
             contain[label] = contain.get(label, 0) + 1
@@ -239,7 +245,9 @@ def aggregate_category(model_dirs: list, root_label: str,
         if not got:
             continue
         n_geom += 1
-        inst, obj_bb = got
+        inst, obj_bb, leafness = got
+        for lbl, is_leaf in leafness.items():
+            leaf_label[lbl] = leaf_label.get(lbl, True) and is_leaf
         oext = [max(obj_bb[1][i] - obj_bb[0][i], 1e-9) for i in range(3)]
         octr = [(obj_bb[1][i] + obj_bb[0][i]) / 2.0 for i in range(3)]
         lat = (oext[0] + oext[1]) / 4.0                     # mean lateral half-extent
@@ -265,8 +273,10 @@ def aggregate_category(model_dirs: list, root_label: str,
         if f and len(f["size"]) >= _MIN_GEOM:
             sf = [round(statistics.median(s[i] for s in f["size"]), 3)
                   for i in range(3)]
-            if all(v >= _WHOLE_OBJ for v in sf):
-                continue                                    # the object itself, not a part
+            # a subtype WRAPPER spanning the whole object is not a part — but a
+            # LEAF that spans it (a bottle's body) is the object's main part
+            if all(v >= _WHOLE_OBJ for v in sf) and not leaf_label.get(label, False):
+                continue
             entry["size_frac"] = sf
             entry["z_frac"] = round(statistics.median(f["z"]), 3)
             entry["r_frac"] = round(statistics.median(f["r"]), 3)

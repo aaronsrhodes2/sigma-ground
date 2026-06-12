@@ -13,6 +13,18 @@ const $ = (id) => document.getElementById(id);
 const setErr = (m) => { $("check").innerHTML = `<span style="color:#FF4444">ERROR: ${m}</span>`; };
 const setOk  = (m) => { $("check").innerHTML = m; };
 
+// ── probe mode (?probe=1): the browser gauntlet's measurement hook ──────
+// Collects console errors + the in-page SDF self-check result and POSTs them
+// to /probe once the first frame has drawn — headless verification, additive.
+const PROBE = new URLSearchParams(location.search).get("probe") === "1";
+const probeErrors = [];
+let probeSent = false;
+if (PROBE) {
+  const _ce = console.error.bind(console);
+  console.error = (...a) => { probeErrors.push(a.map(String).join(" ").slice(0, 300)); _ce(...a); };
+  window.addEventListener("error", e => probeErrors.push(String(e.message || e).slice(0, 300)));
+}
+
 const gl = canvas.getContext("webgl2", { antialias: false, preserveDrawingBuffer: false });
 if (!gl) { setErr("WebGL2 not available in this browser"); return; }
 gl.bindVertexArray(gl.createVertexArray());      // some drivers require a bound VAO
@@ -907,6 +919,19 @@ function loop(now){
     $("tval").textContent=`t=${simTime.toFixed(2)}s  y=${p0[1].toFixed(2)}m`; }
   frameCount++;
   if(prog){ try{ draw(); }catch(e){ setErr("draw: "+e); } }
+  if(PROBE && !probeSent && typeof drewOnce!=="undefined" && drewOnce && scene){
+    probeSent=true;
+    let pass=null, maxd=0;
+    try{ const ss=scene.sdf_samples||[];
+      for(const s of ss){ const d=jsEvalSDF(scene,s.p,null); maxd=Math.max(maxd,Math.abs(d-s.d)); }
+      pass = ss.length ? maxd<1e-6 : null;        // null = no samples shipped
+    }catch(e){ probeErrors.push("selfcheck: "+e); pass=false; }
+    fetch("/probe",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({slug:(_scene||"?"), selfcheck_pass:pass,
+        max_delta:maxd, shader_ok:!!prog,
+        console_errors:probeErrors.slice(0,10), kind:scene.kind||"static",
+        animated:tEnd>0})}).catch(()=>{});
+  }
   fpsN++; if(now-fpsT>500){ $("fps").textContent=`${Math.round(fpsN*1000/(now-fpsT))} fps`; fpsT=now; fpsN=0; }
   requestAnimationFrame(loop);
 }
