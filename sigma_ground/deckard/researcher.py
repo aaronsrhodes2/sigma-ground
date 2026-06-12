@@ -479,6 +479,9 @@ def research_spec(name: str, *, ask=None, model: str = OLLAMA_MODEL) -> Construc
         ch = _sources.composition.hint(name)      # anchor the decomposition in known parts
         if ch:
             q = f"{q}\n\n{ch}"
+        mh = _sources.shapenetsem.hint(name)      # ground the material choice (Sem ratios)
+        if mh:
+            q = f"{q}\n{mh}"
         runner, query, allow_web, attempts = _ask, q, True, 2     # one retry on a flaky reply
     else:                                 # injected (tests): bare name, no network, deterministic
         runner, query, allow_web, attempts = ask, name, False, 1

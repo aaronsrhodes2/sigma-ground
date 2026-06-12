@@ -1,9 +1,13 @@
 """Distill ShapeNetSem physical metadata into a Deckard fact-table.
 
 ShapeNetSem (Savva et al. 2015; a ShapeNet subset) annotates ~12k models with
-REAL-WORLD physical attributes: consistently-aligned dimensions, weight, volume,
-category + WordNet lemmas. That is exactly Deckard's missing grounding: typical
-SIZE and MASS per nameable category.
+REAL-WORLD physical attributes. The archive's CSV export carries, per model:
+consistently-aligned dimensions (``aligned.dims``, in cm, '\\,'-separated),
+category tokens + WordNet lemmas — plus per-CATEGORY material composition
+ratios (materials.csv) and a material->density table (densities.csv, g/cm3).
+(The per-model weight/solidVolume/isContainerLike columns are empty in this
+export — verified 2026-06-11 — so mass stays a derived quantity, not a cited
+one.)
 
 The data is access-gated under the ShapeNet Terms of Use (non-commercial
 research; see docs/DATA_SOURCES.md — terms documented BEFORE pulling). We honor
@@ -14,13 +18,15 @@ the distill-don't-redistribute design:
                   seekable HfFileSystem handle transfers just the needed
                   members, never the archive). Requires approved access +
                   the ``HF_ID`` token in the dev-root vault.
-  * ``distill`` — reduce the per-model CSV to an AGGREGATE fact-table:
-                  per category lemma, the MEDIAN aligned dims (m), median
-                  weight (kg), and sample count. Derived facts only — no
-                  raw rows, no meshes, nothing redistributable.
+  * ``distill`` — reduce the per-model CSVs to an AGGREGATE fact-table
+                  (``shapenetsem_sizes.json``): per name (category token,
+                  WordNet lemma, or synset alias) the MEDIAN aligned dims in
+                  meters + sample count; per name the category material
+                  ratios; and the material density table in kg/m3. Derived
+                  facts only — no raw rows, no meshes, nothing redistributable.
 
     python tools/distill_shapenetsem.py fetch
-    python tools/distill_shapenetsem.py distill [metadata.csv]
+    python tools/distill_shapenetsem.py distill [dir-with-csvs]
 
 Attribution: "ShapeNetSem (Savva et al. 2015) / ShapeNet (Chang et al. 2015)".
 """
@@ -39,10 +45,11 @@ _RAW_DIR = pathlib.Path("D:/Aaron/datasets/shapenetsem")      # outside any git 
 _OUT = (pathlib.Path(__file__).resolve().parents[1]
         / "sigma_ground" / "inventory" / "data" / "shapenetsem_sizes.json")
 
-_MIN_N = 3                  # categories with fewer usable samples are dropped
+_MIN_N = 3                  # names with fewer usable samples are dropped
 _MAX_DIM_M = 100.0          # sanity clamp: reject mis-scaled rows
 _MAX_WEIGHT_KG = 50_000.0
 _MAX_MEMBER_MB = 200        # never extract a zip member bigger than this (meshes)
+_MIN_RATIO = 0.02           # material ratios below this are noise
 
 
 def _token() -> str | None:
@@ -82,21 +89,45 @@ def fetch() -> list[pathlib.Path]:
     return got
 
 
-def aggregate(rows) -> dict:
-    """Per-category median real-world size + weight from ShapeNetSem rows.
+def _split_dims(raw: str) -> list[float]:
+    """ShapeNetSem joins dims with an ESCAPED comma ('111.97\\,84.16\\,0.0')."""
+    parts = raw.split("\\,") if "\\," in raw else raw.split(",")
+    return [float(x) for x in parts[:3]]
 
-    ``aligned.dims`` is read as CENTIMETERS (the ShapeNetSem convention) and
-    converted to meters — verify against the shipped README on the first real
-    run. A row contributes to every name in its ``category`` and ``wnlemmas``
-    columns. Junk rows (missing/non-positive/implausible) are skipped.
+
+def _names_of(row: dict, aliases: dict | None) -> tuple[set, set]:
+    """(all name keys, category tokens) a metadata row contributes to."""
+    names, cats = set(), set()
+    for nm in (row.get("category") or "").split(","):
+        nm = nm.strip().lower()
+        if nm and not nm.startswith("_"):                 # '_Attributes' etc. are tags
+            cats.add(nm)
+            names.add(nm)
+            for alias in (aliases or {}).get(nm, ()):
+                names.add(alias)
+    for nm in (row.get("wnlemmas") or "").split(","):
+        nm = nm.strip().lower()
+        if nm:
+            names.add(nm)
+    return names, cats
+
+
+def aggregate(rows, aliases: dict | None = None) -> tuple[dict, dict]:
+    """Per-name median real-world size (+ weight when present) from Sem rows.
+
+    ``aligned.dims`` is centimeters (verified against real data) -> meters.
+    A row contributes to every name in its ``category`` / ``wnlemmas`` columns
+    plus any synset ``aliases`` of its categories. Junk rows are skipped.
+    Returns (per-name stats, per-name contributing-category counts).
     """
     cats: dict[str, dict[str, list]] = {}
+    name_cats: dict[str, dict[str, int]] = {}
     for r in rows:
         raw = (r.get("aligned.dims") or "").strip()
         if not raw:
             continue
         try:
-            dims = [float(x) for x in raw.split(",")[:3]]
+            dims = _split_dims(raw)
         except ValueError:
             continue
         if len(dims) != 3 or any(d <= 0.0 for d in dims):
@@ -113,17 +144,15 @@ def aggregate(rows) -> dict:
                     weight = None
             except ValueError:
                 weight = None
-        names = set()
-        for col in ("category", "wnlemmas"):
-            for nm in (r.get(col) or "").split(","):
-                nm = nm.strip().lower()
-                if nm:
-                    names.add(nm)
+        names, row_cats = _names_of(r, aliases)
         for nm in names:
             c = cats.setdefault(nm, {"dims": [], "weight": []})
             c["dims"].append(dims_m)
             if weight is not None:
                 c["weight"].append(weight)
+            nc = name_cats.setdefault(nm, {})
+            for cat in row_cats:
+                nc[cat] = nc.get(cat, 0) + 1
 
     out = {}
     for nm, c in sorted(cats.items()):
@@ -134,19 +163,101 @@ def aggregate(rows) -> dict:
         if len(c["weight"]) >= _MIN_N:
             entry["weight_kg"] = round(statistics.median(c["weight"]), 4)
         out[nm] = entry
+    return out, name_cats
+
+
+def synset_aliases(path: pathlib.Path) -> dict:
+    """category token (lower) -> its WordNet synset words ('1Shelves' -> shelf)."""
+    out: dict[str, list] = {}
+    try:
+        with open(path, newline="", encoding="utf-8", errors="replace") as f:
+            for r in csv.DictReader(f):
+                cat = (r.get("category") or "").strip().lower()
+                words = [w.strip().lower() for w in (r.get("synset words") or "").split(",")]
+                words = [w for w in words if w]
+                if cat and words:
+                    out.setdefault(cat, [])
+                    for w in words:
+                        if w not in out[cat]:
+                            out[cat].append(w)
+    except OSError:
+        pass
     return out
 
 
-def write_table(agg: dict) -> pathlib.Path:
-    doc = {
+def material_ratios(path: pathlib.Path) -> dict:
+    """category token (lower) -> {material (lower): ratio} from materials.csv."""
+    out: dict[str, dict[str, float]] = {}
+    try:
+        with open(path, newline="", encoding="utf-8", errors="replace") as f:
+            for r in csv.DictReader(f):
+                cat = (r.get("Category") or "").strip().lower()
+                mat = (r.get("Material") or "").strip().lower()
+                try:
+                    ratio = float((r.get("Ratio") or "").strip())
+                except ValueError:
+                    continue
+                if cat and mat and ratio >= _MIN_RATIO:
+                    out.setdefault(cat, {})[mat] = round(ratio, 4)
+    except OSError:
+        pass
+    return out
+
+
+def material_densities(path: pathlib.Path) -> dict:
+    """material (lower) -> density kg/m3 (densities.csv is g/cm3)."""
+    out: dict[str, float] = {}
+    try:
+        with open(path, newline="", encoding="utf-8", errors="replace") as f:
+            for r in csv.DictReader(f):
+                mat = (r.get("Material") or "").strip().lower()
+                try:
+                    out[mat] = round(float((r.get("Density") or "").strip()) * 1000.0, 1)
+                except ValueError:
+                    continue
+    except OSError:
+        pass
+    return out
+
+
+def _blend_materials(name_cats: dict, ratios: dict) -> dict:
+    """Per name, the sample-count-weighted blend of its categories' materials."""
+    out: dict[str, dict[str, float]] = {}
+    for nm, ccounts in name_cats.items():
+        acc: dict[str, float] = {}
+        total = 0
+        for cat, n in ccounts.items():
+            mats = ratios.get(cat)
+            if not mats:
+                continue
+            total += n
+            for mat, ratio in mats.items():
+                acc[mat] = acc.get(mat, 0.0) + ratio * n
+        if total:
+            blended = {m: round(v / total, 3) for m, v in acc.items()}
+            out[nm] = dict(sorted(((m, v) for m, v in blended.items() if v >= _MIN_RATIO),
+                                  key=lambda kv: -kv[1]))
+    return out
+
+
+def build(raw_dir: pathlib.Path) -> dict:
+    aliases = synset_aliases(raw_dir / "categories.synset.csv")
+    with open(raw_dir / "metadata.csv", newline="", encoding="utf-8", errors="replace") as f:
+        sizes, name_cats = aggregate(csv.DictReader(f), aliases)
+    mats = _blend_materials(name_cats, material_ratios(raw_dir / "materials.csv"))
+    for nm, m in mats.items():
+        if nm in sizes:
+            sizes[nm]["materials"] = m
+    return {
         "_source": "ShapeNetSem (Savva et al. 2015) / ShapeNet (Chang et al. 2015)",
         "_license": "ShapeNet Terms of Use — non-commercial research; "
                     "derived aggregate facts only, no raw rows",
-        "_method": f"per-category median of aligned.dims (cm->m) + weight (kg); n>={_MIN_N}",
-        "categories": agg,
+        "_method": f"per-name median of aligned.dims (cm->m), n>={_MIN_N}; "
+                   "category material ratios blended per name; "
+                   "densities.csv g/cm3 -> kg/m3",
+        "categories": sizes,
+        "material_densities": material_densities(raw_dir / "densities.csv"),
     }
-    _OUT.write_text(json.dumps(doc, indent=1, sort_keys=True), encoding="utf-8")
-    return _OUT
 
 
 def main(argv: list[str]) -> None:
@@ -156,14 +267,16 @@ def main(argv: list[str]) -> None:
         print(f"\n{len(got)} files in {_RAW_DIR} — now run: "
               f"python tools/distill_shapenetsem.py distill")
     elif cmd == "distill":
-        src = pathlib.Path(argv[1]) if len(argv) > 1 else _RAW_DIR / "metadata.csv"
-        with open(src, newline="", encoding="utf-8", errors="replace") as f:
-            agg = aggregate(csv.DictReader(f))
-        p = write_table(agg)
-        sized = sum(1 for v in agg.values() if "weight_kg" in v)
-        print(f"wrote {p} — {len(agg)} categories ({sized} with weight)")
+        raw = pathlib.Path(argv[1]) if len(argv) > 1 else _RAW_DIR
+        doc = build(raw)
+        _OUT.write_text(json.dumps(doc, indent=1, sort_keys=True), encoding="utf-8")
+        cats = doc["categories"]
+        with_mat = sum(1 for v in cats.values() if "materials" in v)
+        print(f"wrote {_OUT}")
+        print(f"  {len(cats)} names ({with_mat} with material priors), "
+              f"{len(doc['material_densities'])} material densities")
     else:
-        raise SystemExit("usage: distill_shapenetsem.py [fetch|distill [metadata.csv]]")
+        raise SystemExit("usage: distill_shapenetsem.py [fetch|distill [dir]]")
 
 
 if __name__ == "__main__":

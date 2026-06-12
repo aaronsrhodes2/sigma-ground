@@ -69,8 +69,13 @@ def _wikidata(name: str):
 
 def typical_size_of(name: str, *, allow_web: bool = False):
     """Typical overall size (longest dimension, m) for ``name``: curated table
-    first, then Wikidata if ``allow_web``. None if unknown."""
+    first, then the ShapeNetSem-distilled medians (~1.2k names, measured-world),
+    then Wikidata if ``allow_web``. None if unknown."""
     got = _local(name)
+    if got:
+        return got
+    from . import shapenetsem
+    got = shapenetsem.size_of(name)
     if got:
         return got
     if allow_web:
