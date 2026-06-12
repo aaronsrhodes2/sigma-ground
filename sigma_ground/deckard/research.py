@@ -45,16 +45,88 @@ def _generic_vessel(name: str) -> ConstructSpec:
 
 def _scaffold_from_composition(name: str) -> ConstructSpec | None:
     """A flagged multi-part placeholder from a KNOWN part decomposition, used when
-    the model could not shape the object. We know its parts (the composition
-    prior), just not its proportions — so each part becomes a default primitive at
-    a default human-scale size, stacked disjoint, identified=False. Honest: parts
-    known, proportions guessed — never a confident fake."""
+    the model could not shape the object. With a geometry-ENRICHED prior (PartNet
+    medians: size_frac/z_frac/r_frac/count) the placeholder gets REAL proportions
+    and placement — measured census shape, still identified=False because THIS
+    object's specifics are unverified. Without enrichment, the old disjoint stack.
+    Honest either way: parts known, the rest census-or-guess — never a confident
+    fake."""
+    import math
     from . import sources
     from .schema import Part
     got = sources.composition_of(name)
     if not got:
         return None
     part_list, source, lic = got
+
+    # material prior: what the census says this object is made of (cited density)
+    material, dens = "plastic", None
+    mats = sources.shapenetsem.materials_of(name)
+    if mats:
+        for cand in mats[0]:
+            d = sources.density_of(cand, allow_web=False)
+            if d is not None:
+                material, dens = cand, d
+                break
+    if dens is None:
+        dens = sources.density_of("plastic", allow_web=False) \
+            or Fact(950.0, "estimated", "", 0.2)
+
+    enriched = [p for p in part_list if isinstance(p.get("size_frac"), list)]
+    if enriched:
+        # overall extents: Sem real medians, else typical size as a cube, else 25 cm
+        sem = sources.shapenetsem.dims_of(name)
+        if sem:
+            W, D, H = sem[0]
+        else:
+            got_sz = sources.typical_size_of(name)
+            W = D = H = (got_sz[0] if got_sz else 0.25)
+        parts = []
+        zs = []
+        for pp in enriched:
+            sf = pp["size_frac"]
+            tx, ty, tz = (max(sf[i] * (W, D, H)[i], 0.002) for i in range(3))
+            shape = pp.get("shape") or "box"
+            if shape == "box":
+                dims_raw = {"x_m": tx, "y_m": ty, "z_m": tz}
+            elif shape in ("cylinder", "cone"):
+                dims_raw = {"radius_m": (tx + ty) / 4.0, "height_m": tz}
+            elif shape == "sphere":
+                dims_raw = {"radius_m": (tx + ty + tz) / 6.0}
+            elif shape == "ellipsoid":
+                dims_raw = {"rx_m": tx / 2, "ry_m": ty / 2, "rz_m": tz / 2}
+            else:                                  # outline/blank -> slab placeholder
+                dims_raw = {"x_m": tx, "y_m": ty, "z_m": max(tz, 0.004)}
+                shape = "box"
+            dims = {k: Fact(round(v, 5), "estimated", "", 0.35)
+                    for k, v in dims_raw.items()}
+            count = max(1, int(pp.get("count", 1)))
+            zc = pp.get("z_frac", 0.0) * H
+            r = max(0.0, pp.get("r_frac", 0.0)) * (W + D) / 4.0
+            for k in range(count):
+                ang = 2.0 * math.pi * (k + 0.5) / count
+                cx, cy = (r * math.cos(ang), r * math.sin(ang)) if (
+                    count > 1 or pp.get("r_frac", 0.0) >= 0.25) else (0.0, 0.0)
+                nm = pp["name"] if count == 1 else f"{pp['name']}_{k+1}"
+                parts.append(Part(nm, shape, dict(dims) if k else dims, material,
+                                  dens, (round(cx, 5), round(cy, 5), round(zc, 5))))
+                zs.append(zc - tz / 2)
+        if parts:
+            floor = min(zs)                        # sit the construct on z≈0
+            for p in parts:
+                p.center_m = (p.center_m[0], p.center_m[1],
+                              round(p.center_m[2] - floor, 5))
+            return ConstructSpec(
+                name=name, kind="composite", identified=False, parts=parts,
+                sources=[{"name": source or "part decomposition", "license": lic},
+                         {"name": "scaffold: proportions & placement from PartNet "
+                                  "census medians — still a flagged placeholder",
+                          "license": ""}],
+                notes="Unidentified shape: scaffolded from the measured part "
+                      "census (median proportions/placement; this object's own "
+                      "specifics unverified).",
+            )
+
     _DEF = {
         "sphere":    ({"radius_m": 0.03}, 0.03),
         "cylinder":  ({"radius_m": 0.02, "height_m": 0.08}, 0.04),
@@ -63,7 +135,6 @@ def _scaffold_from_composition(name: str) -> ConstructSpec | None:
         "ellipsoid": ({"rx_m": 0.03, "ry_m": 0.02, "rz_m": 0.02}, 0.02),
         "torus":     ({"major_radius_m": 0.02, "minor_radius_m": 0.006}, 0.006),
     }
-    dens = sources.density_of("plastic", allow_web=False) or Fact(950.0, "estimated", "", 0.2)
     parts, z = [], 0.0
     for pp in part_list:
         shape = pp.get("shape") or "box"
@@ -72,7 +143,7 @@ def _scaffold_from_composition(name: str) -> ConstructSpec | None:
         dims_raw, hh = _DEF[shape]
         dims = {k: Fact(v, "estimated", "", 0.2) for k, v in dims_raw.items()}
         z += hh
-        parts.append(Part(pp["name"], shape, dims, "plastic", dens, (0.0, 0.0, z)))
+        parts.append(Part(pp["name"], shape, dims, material, dens, (0.0, 0.0, z)))
         z += hh + 0.02                        # gap -> a disjoint stack
     if not parts:
         return None

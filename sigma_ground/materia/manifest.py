@@ -800,6 +800,16 @@ for _v, _e in _ROUTABLE_NEW.items():
     _e.setdefault("outputs", ["functions_called"])
     VERB_MANIFEST[_v] = _e
 
+# Verbs that SIMULATE MOTION. When a question is an ACTION (fired/thrown/
+# dropped/jumps...), the translator lets these outrank property-report verbs
+# in the exclusive-trigger contest — "fire a slug at Mach 2" must not route
+# to acoustics just because "speed of sound" is a longer trigger string.
+for _v in ("terminal_velocity_drop", "drag_heating_drop",
+           "high_altitude_descent", "supersonic_projectile",
+           "vertical_launch", "drop_object", "projectile_motion"):
+    if _v in VERB_MANIFEST:
+        VERB_MANIFEST[_v]["motion"] = True
+
 # Example questions for the ORIGINAL verbs too, so the corpus covers all of them.
 _ORIG_EXAMPLES = {
     "terminal_velocity_drop": ["how fast does a 5 cm steel ball hit the ground "

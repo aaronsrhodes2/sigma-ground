@@ -48,6 +48,44 @@ _WHITE_INSULATOR = {"ceramic", "ceramic_alumina", "porcelain", "stoneware",
 
 
 # ── primitive ⇄ dict ────────────────────────────────────────────────────
+# Every shape type the exporter can emit — MUST mirror the viewer's coverage
+# (viewer.js jsShapeSDF/glslShapeCall); tools/verify_artifacts.py imports this
+# as the single source of truth.
+SUPPORTED_SHAPE_TYPES = {"Sphere", "HollowSphere", "Cylinder", "Cone", "Box",
+                         "Ellipsoid", "Torus", "Water", "Outline",
+                         "Rotated", "Clipped", "Subtracted"}
+
+
+def _mat_to_quat(R):
+    """Row-major 3x3 rotation -> unit quaternion (x, y, z, w), w >= 0.
+
+    Shepperd's method (largest-pivot branch, numerically safe). Converts the
+    MATRIX the SDF actually used — never re-derived from euler angles — so the
+    browser rotates exactly the geometry the physics weighed.
+    """
+    import math
+    t = R[0][0] + R[1][1] + R[2][2]
+    if t > 0.0:
+        s = math.sqrt(t + 1.0) * 2.0
+        q = [(R[2][1] - R[1][2]) / s, (R[0][2] - R[2][0]) / s,
+             (R[1][0] - R[0][1]) / s, 0.25 * s]
+    elif R[0][0] >= R[1][1] and R[0][0] >= R[2][2]:
+        s = math.sqrt(1.0 + R[0][0] - R[1][1] - R[2][2]) * 2.0
+        q = [0.25 * s, (R[0][1] + R[1][0]) / s,
+             (R[0][2] + R[2][0]) / s, (R[2][1] - R[1][2]) / s]
+    elif R[1][1] >= R[2][2]:
+        s = math.sqrt(1.0 + R[1][1] - R[0][0] - R[2][2]) * 2.0
+        q = [(R[0][1] + R[1][0]) / s, 0.25 * s,
+             (R[1][2] + R[2][1]) / s, (R[0][2] - R[2][0]) / s]
+    else:
+        s = math.sqrt(1.0 + R[2][2] - R[0][0] - R[1][1]) * 2.0
+        q = [(R[0][2] + R[2][0]) / s, (R[1][2] + R[2][1]) / s,
+             0.25 * s, (R[1][0] - R[0][1]) / s]
+    n = math.sqrt(sum(v * v for v in q)) or 1.0
+    q = [v / n for v in q]
+    return [-v for v in q] if q[3] < 0.0 else q
+
+
 def _shape_to_dict(shape) -> dict:
     t = type(shape).__name__
     cx, cy, cz = shape.center
@@ -62,9 +100,98 @@ def _shape_to_dict(shape) -> dict:
         d["rx"], d["ry"], d["rz"] = shape.rx, shape.ry, shape.rz
     elif t == "Torus":
         d["major_radius"], d["minor_radius"] = shape.major_radius, shape.minor_radius
+    elif t == "Outline":
+        d["type"] = "Outline"
+        d["mode"] = shape.mode
+        d["profile"] = [[u, v] for u, v in shape.profile]
+        if shape.mode == "extrude":
+            d["thickness"] = shape.thickness
+        if len(shape.profile) > 64:
+            raise ValueError("scene_export: outline profile too long for the "
+                             f"viewer shader ({len(shape.profile)} > 64 points)")
+    elif t == "_Rotated":                          # deckard rotation wrapper
+        d["type"] = "Rotated"
+        d["rot"] = _mat_to_quat(shape._R)
+        d["shape"] = _shape_to_dict(shape._base)
+    elif t == "_Clipped":                          # deckard fill half-space
+        d["type"] = "Clipped"
+        d["axis"] = shape._axis
+        d["sign"] = shape._sign
+        d["level"] = shape._level
+        d["shape"] = _shape_to_dict(shape._base)
+    elif t == "_Subtracted":                       # deckard conforming solid
+        d["type"] = "Subtracted"
+        d["shape"] = _shape_to_dict(shape._base)
+        d["cut"] = _shape_to_dict(shape._cut)
     else:
         raise ValueError(f"scene_export: primitive {t!r} not serializable yet")
     return d
+
+
+def _qrot_inv(q, v):
+    """Inverse-rotate v by quaternion q=(x,y,z,w) — same form as the viewer's
+    qrotInv: v + 2w(u x v) + 2 u x (u x v) with u = -q.xyz."""
+    ux, uy, uz = -q[0], -q[1], -q[2]
+    tx = 2.0 * (uy * v[2] - uz * v[1])
+    ty = 2.0 * (uz * v[0] - ux * v[2])
+    tz = 2.0 * (ux * v[1] - uy * v[0])
+    return (v[0] + q[3] * tx + uy * tz - uz * ty,
+            v[1] + q[3] * ty + uz * tx - ux * tz,
+            v[2] + q[3] * tz + ux * ty - uy * tx)
+
+
+class _QuatRotatedShape:
+    """Inverse of the exported "Rotated" node — applies the QUATERNION (the same
+    math path the browser runs), not a rebuilt matrix, so the round-trip
+    validation exercises the viewer's formula."""
+    def __init__(self, inner, quat, center):
+        self._inner, self._q = inner, quat
+        self.center = tuple(center)
+
+    def surface_distance(self, px, py, pz):
+        c = self.center
+        lx, ly, lz = _qrot_inv(self._q, (px - c[0], py - c[1], pz - c[2]))
+        return self._inner.surface_distance(c[0] + lx, c[1] + ly, c[2] + lz)
+
+    def volume(self):
+        return self._inner.volume()
+
+    def bounding_radius(self):
+        return self._inner.bounding_radius()
+
+
+class _ClippedShape:
+    def __init__(self, inner, axis, sign, level):
+        self._inner, self._axis, self._sign, self._level = inner, axis, sign, level
+        self.center = inner.center
+
+    def surface_distance(self, px, py, pz):
+        d = self._inner.surface_distance(px, py, pz)
+        half = self._sign * ((px, py, pz)[self._axis] - self._level)
+        return half if half > d else d
+
+    def volume(self):
+        return 0.0                                  # validation never integrates this
+
+    def bounding_radius(self):
+        return self._inner.bounding_radius()
+
+
+class _SubtractedShape:
+    def __init__(self, base, cut):
+        self._base, self._cut = base, cut
+        self.center = base.center
+
+    def surface_distance(self, px, py, pz):
+        d = self._base.surface_distance(px, py, pz)
+        dc = -self._cut.surface_distance(px, py, pz)
+        return dc if dc > d else d
+
+    def volume(self):
+        return 0.0
+
+    def bounding_radius(self):
+        return self._base.bounding_radius()
 
 
 def _shape_from_dict(d):
@@ -82,6 +209,23 @@ def _shape_from_dict(d):
         return Ellipsoid(d["rx"], d["ry"], d["rz"], center=c)
     if t == "Torus":
         return Torus(d["major_radius"], d["minor_radius"], center=c)
+    if t == "Outline":
+        from ..kernel.outline import Outline
+        prof = [(u, v) for u, v in d["profile"]]
+        if d.get("mode") == "revolve":
+            o = Outline(prof, mode="revolve")
+        else:
+            o = Outline(prof, mode="extrude", thickness=d.get("thickness", 0.001))
+        o.center = c
+        return o
+    if t == "Rotated":
+        return _QuatRotatedShape(_shape_from_dict(d["shape"]), d["rot"], c)
+    if t == "Clipped":
+        return _ClippedShape(_shape_from_dict(d["shape"]), d["axis"],
+                             d["sign"], d["level"])
+    if t == "Subtracted":
+        return _SubtractedShape(_shape_from_dict(d["shape"]),
+                                _shape_from_dict(d["cut"]))
     raise ValueError(f"scene_export: cannot rebuild primitive {t!r}")
 
 

@@ -37,9 +37,10 @@ def _doc() -> dict:
         return {}
 
 
-def _entry(name: str):
+def _entry(name: str, _aliased: bool = False):
     """The best table entry for ``name``: exact key, else whole-word containment
-    (the key's words all appear in the query; longest key wins)."""
+    (the key's words all appear in the query; longest key wins), else the
+    query's WordNet aliases (taxonomy table) retried once."""
     cats = _doc().get("categories") or {}
     key = name.strip().lower()
     if key in cats:
@@ -50,6 +51,12 @@ def _entry(name: str):
         nw = _words(nm)
         if nw and nw <= qw and len(nw) > best_len:
             best_len, best = len(nw), entry
+    if best is None and not _aliased:
+        from . import aliases
+        for alt in sorted(aliases.expand(name)):
+            best = _entry(alt, _aliased=True)
+            if best is not None:
+                break
     return best
 
 

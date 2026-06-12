@@ -1,0 +1,781 @@
+{
+ "_source": "ShapeNet taxonomy (Chang et al. 2015) / WordNet 3.0 lemma groups",
+ "_license": "WordNet 3.0 license (vocabulary only; no model data)",
+ "groups": [
+  [
+   "airplane",
+   "aeroplane",
+   "plane"
+  ],
+  [
+   "narrowbody aircraft",
+   "narrow-body aircraft",
+   "narrow-body"
+  ],
+  [
+   "widebody aircraft",
+   "wide-body aircraft",
+   "wide-body",
+   "twin-aisle airplane"
+  ],
+  [
+   "fighter",
+   "fighter aircraft",
+   "attack aircraft"
+  ],
+  [
+   "jet",
+   "jet plane",
+   "jet-propelled plane"
+  ],
+  [
+   "fanjet",
+   "fan-jet",
+   "turbofan",
+   "turbojet"
+  ],
+  [
+   "jumbojet",
+   "jumbo jet"
+  ],
+  [
+   "seaplane",
+   "hydroplane"
+  ],
+  [
+   "ashcan",
+   "trash can",
+   "garbage can",
+   "wastebin",
+   "ash bin",
+   "ash-bin",
+   "ashbin",
+   "dustbin",
+   "trash barrel",
+   "trash bin"
+  ],
+  [
+   "bag",
+   "traveling bag",
+   "travelling bag",
+   "grip",
+   "suitcase"
+  ],
+  [
+   "portmanteau",
+   "gladstone",
+   "gladstone bag"
+  ],
+  [
+   "basket",
+   "handbasket"
+  ],
+  [
+   "clothes hamper",
+   "laundry basket",
+   "clothes basket",
+   "voider"
+  ],
+  [
+   "bathtub",
+   "bathing tub",
+   "bath",
+   "tub"
+  ],
+  [
+   "berth",
+   "bunk",
+   "built in bed"
+  ],
+  [
+   "bunk bed",
+   "bunk"
+  ],
+  [
+   "cot",
+   "camp bed"
+  ],
+  [
+   "hammock",
+   "sack"
+  ],
+  [
+   "pew",
+   "church bench"
+  ],
+  [
+   "settle",
+   "settee"
+  ],
+  [
+   "bicycle",
+   "bike",
+   "wheel",
+   "cycle"
+  ],
+  [
+   "phial",
+   "vial",
+   "ampule",
+   "ampul",
+   "ampoule"
+  ],
+  [
+   "pop bottle",
+   "soda bottle"
+  ],
+  [
+   "bus",
+   "autobus",
+   "coach",
+   "charabanc",
+   "double-decker",
+   "jitney",
+   "motorbus",
+   "motorcoach",
+   "omnibus",
+   "passenger vehi"
+  ],
+  [
+   "trolleybus",
+   "trolley coach",
+   "trackless trolley"
+  ],
+  [
+   "china cabinet",
+   "china closet"
+  ],
+  [
+   "medicine chest",
+   "medicine cabinet"
+  ],
+  [
+   "camera",
+   "photographic camera"
+  ],
+  [
+   "box camera",
+   "box kodak"
+  ],
+  [
+   "motion-picture camera",
+   "movie camera",
+   "cine-camera"
+  ],
+  [
+   "can",
+   "tin",
+   "tin can"
+  ],
+  [
+   "baseball cap",
+   "jockey cap",
+   "golf cap"
+  ],
+  [
+   "cloth cap",
+   "flat cap"
+  ],
+  [
+   "kepi",
+   "peaked cap",
+   "service cap",
+   "yachting cap"
+  ],
+  [
+   "tam",
+   "tam-o'-shanter",
+   "tammy"
+  ],
+  [
+   "car",
+   "auto",
+   "automobile",
+   "machine",
+   "motorcar"
+  ],
+  [
+   "beach wagon",
+   "station wagon",
+   "wagon",
+   "estate car",
+   "beach waggon",
+   "station waggon",
+   "waggon"
+  ],
+  [
+   "cab",
+   "hack",
+   "taxi",
+   "taxicab"
+  ],
+  [
+   "cruiser",
+   "police cruiser",
+   "patrol car",
+   "police car",
+   "prowl car",
+   "squad car"
+  ],
+  [
+   "hot rod",
+   "hot-rod"
+  ],
+  [
+   "jeep",
+   "landrover"
+  ],
+  [
+   "limousine",
+   "limo"
+  ],
+  [
+   "racer",
+   "race car",
+   "racing car"
+  ],
+  [
+   "roadster",
+   "runabout",
+   "two-seater"
+  ],
+  [
+   "sedan",
+   "saloon"
+  ],
+  [
+   "sports car",
+   "sport car"
+  ],
+  [
+   "sport utility",
+   "sport utility vehicle",
+   "s.u.v.",
+   "suv"
+  ],
+  [
+   "touring car",
+   "phaeton",
+   "tourer"
+  ],
+  [
+   "easy chair",
+   "lounge chair",
+   "overstuffed chair"
+  ],
+  [
+   "recliner",
+   "reclining chair",
+   "lounger"
+  ],
+  [
+   "chaise longue",
+   "chaise",
+   "daybed"
+  ],
+  [
+   "deck chair",
+   "beach chair"
+  ],
+  [
+   "ladder-back",
+   "ladder-back chair"
+  ],
+  [
+   "lawn chair",
+   "garden chair"
+  ],
+  [
+   "rocking chair",
+   "rocker"
+  ],
+  [
+   "straight chair",
+   "side chair"
+  ],
+  [
+   "alarm clock",
+   "alarm"
+  ],
+  [
+   "grandfather clock",
+   "longcase clock"
+  ],
+  [
+   "computer keyboard",
+   "keypad"
+  ],
+  [
+   "dishwasher",
+   "dish washer",
+   "dishwashing machine"
+  ],
+  [
+   "display",
+   "video display"
+  ],
+  [
+   "digital display",
+   "alphanumeric display"
+  ],
+  [
+   "liquid crystal display",
+   "lcd"
+  ],
+  [
+   "display panel",
+   "display board",
+   "board"
+  ],
+  [
+   "flat panel display",
+   "fpd"
+  ],
+  [
+   "monitor",
+   "monitoring device"
+  ],
+  [
+   "screen",
+   "crt screen"
+  ],
+  [
+   "background",
+   "desktop",
+   "screen background"
+  ],
+  [
+   "computer screen",
+   "computer display"
+  ],
+  [
+   "earphone",
+   "earpiece",
+   "headphone",
+   "phone"
+  ],
+  [
+   "faucet",
+   "spigot"
+  ],
+  [
+   "water faucet",
+   "water tap",
+   "tap",
+   "hydrant"
+  ],
+  [
+   "file",
+   "file cabinet",
+   "filing cabinet"
+  ],
+  [
+   "hard hat",
+   "tin hat",
+   "safety hat"
+  ],
+  [
+   "dagger",
+   "sticker"
+  ],
+  [
+   "laptop",
+   "laptop computer"
+  ],
+  [
+   "loudspeaker",
+   "speaker",
+   "speaker unit",
+   "loudspeaker system",
+   "speaker system"
+  ],
+  [
+   "mailbox",
+   "letter box"
+  ],
+  [
+   "microphone",
+   "mike"
+  ],
+  [
+   "microwave",
+   "microwave oven"
+  ],
+  [
+   "motorcycle",
+   "bike"
+  ],
+  [
+   "minibike",
+   "motorbike"
+  ],
+  [
+   "trail bike",
+   "dirt bike",
+   "scrambler"
+  ],
+  [
+   "beer mug",
+   "stein"
+  ],
+  [
+   "piano",
+   "pianoforte",
+   "forte-piano"
+  ],
+  [
+   "grand piano",
+   "grand"
+  ],
+  [
+   "concert grand",
+   "concert piano"
+  ],
+  [
+   "upright",
+   "upright piano"
+  ],
+  [
+   "pistol",
+   "handgun",
+   "side arm",
+   "shooting iron"
+  ],
+  [
+   "revolver",
+   "six-gun",
+   "six-shooter"
+  ],
+  [
+   "pot",
+   "flowerpot"
+  ],
+  [
+   "printer",
+   "printing machine"
+  ],
+  [
+   "remote control",
+   "remote"
+  ],
+  [
+   "sniper rifle",
+   "precision rifle"
+  ],
+  [
+   "rocket",
+   "projectile"
+  ],
+  [
+   "buzz bomb",
+   "robot bomb",
+   "flying bomb",
+   "doodlebug",
+   "v-1"
+  ],
+  [
+   "surface-to-air missile",
+   "sam"
+  ],
+  [
+   "sofa",
+   "couch",
+   "lounge"
+  ],
+  [
+   "convertible",
+   "sofa bed"
+  ],
+  [
+   "studio couch",
+   "day bed"
+  ],
+  [
+   "daybed",
+   "divan bed"
+  ],
+  [
+   "love seat",
+   "loveseat",
+   "tete-a-tete",
+   "vis-a-vis"
+  ],
+  [
+   "altar",
+   "communion table",
+   "lord's table"
+  ],
+  [
+   "coffee table",
+   "cocktail table"
+  ],
+  [
+   "conference table",
+   "council table",
+   "council board"
+  ],
+  [
+   "console table",
+   "console"
+  ],
+  [
+   "checkout",
+   "checkout counter"
+  ],
+  [
+   "secretary",
+   "writing table",
+   "escritoire",
+   "secretaire"
+  ],
+  [
+   "dressing table",
+   "dresser",
+   "vanity",
+   "toilet table"
+  ],
+  [
+   "tilt-top table",
+   "tip-top table",
+   "tip table"
+  ],
+  [
+   "pool table",
+   "billiard table",
+   "snooker table"
+  ],
+  [
+   "lectern",
+   "reading desk"
+  ],
+  [
+   "table-tennis table",
+   "ping-pong table",
+   "pingpong table"
+  ],
+  [
+   "worktable",
+   "work table"
+  ],
+  [
+   "drafting table",
+   "drawing table"
+  ],
+  [
+   "workbench",
+   "work bench",
+   "bench"
+  ],
+  [
+   "lab bench",
+   "laboratory bench"
+  ],
+  [
+   "telephone",
+   "phone",
+   "telephone set"
+  ],
+  [
+   "handset",
+   "french telephone"
+  ],
+  [
+   "radiotelephone",
+   "radiophone",
+   "wireless telephone"
+  ],
+  [
+   "cellular telephone",
+   "cellular phone",
+   "cellphone",
+   "cell",
+   "mobile phone"
+  ],
+  [
+   "beacon",
+   "lighthouse",
+   "beacon light",
+   "pharos"
+  ],
+  [
+   "high-rise",
+   "tower block"
+  ],
+  [
+   "pylon",
+   "power pylon"
+  ],
+  [
+   "steeple",
+   "spire"
+  ],
+  [
+   "train",
+   "railroad train"
+  ],
+  [
+   "freight train",
+   "rattler"
+  ],
+  [
+   "commuter",
+   "commuter train"
+  ],
+  [
+   "vessel",
+   "watercraft"
+  ],
+  [
+   "barge",
+   "flatboat",
+   "hoy",
+   "lighter"
+  ],
+  [
+   "canal boat",
+   "narrow boat",
+   "narrowboat"
+  ],
+  [
+   "ferry",
+   "ferryboat"
+  ],
+  [
+   "motorboat",
+   "powerboat"
+  ],
+  [
+   "cabin cruiser",
+   "cruiser",
+   "pleasure boat",
+   "pleasure craft"
+  ],
+  [
+   "outboard motorboat",
+   "outboard"
+  ],
+  [
+   "dugout canoe",
+   "dugout",
+   "pirogue"
+  ],
+  [
+   "dinghy",
+   "dory",
+   "rowboat"
+  ],
+  [
+   "tender",
+   "ship's boat",
+   "pinnace",
+   "cutter"
+  ],
+  [
+   "fishing boat",
+   "fishing smack",
+   "fishing vessel"
+  ],
+  [
+   "patrol boat",
+   "patrol ship"
+  ],
+  [
+   "sailing vessel",
+   "sailing ship"
+  ],
+  [
+   "bark",
+   "barque"
+  ],
+  [
+   "clipper",
+   "clipper ship"
+  ],
+  [
+   "sailboat",
+   "sailing boat"
+  ],
+  [
+   "cargo ship",
+   "cargo vessel"
+  ],
+  [
+   "container ship",
+   "containership",
+   "container vessel"
+  ],
+  [
+   "oil tanker",
+   "oiler",
+   "tanker",
+   "tank ship"
+  ],
+  [
+   "liner",
+   "ocean liner"
+  ],
+  [
+   "cruise ship",
+   "cruise liner"
+  ],
+  [
+   "pirate",
+   "pirate ship"
+  ],
+  [
+   "school ship",
+   "training ship"
+  ],
+  [
+   "steamer",
+   "steamship"
+  ],
+  [
+   "tender",
+   "supply ship"
+  ],
+  [
+   "warship",
+   "war vessel",
+   "combat ship"
+  ],
+  [
+   "aircraft carrier",
+   "carrier",
+   "flattop",
+   "attack aircraft carrier"
+  ],
+  [
+   "destroyer",
+   "guided missile destroyer"
+  ],
+  [
+   "man-of-war",
+   "ship of the line"
+  ],
+  [
+   "submersible",
+   "submersible warship"
+  ],
+  [
+   "submarine",
+   "pigboat",
+   "sub",
+   "u-boat"
+  ],
+  [
+   "nautilus",
+   "nuclear submarine",
+   "nuclear-powered submarine"
+  ],
+  [
+   "yacht",
+   "racing yacht"
+  ],
+  [
+   "washer",
+   "automatic washer",
+   "washing machine"
+  ]
+ ]
+}

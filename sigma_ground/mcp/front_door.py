@@ -209,7 +209,8 @@ def _render_from_handle(handle: dict) -> dict:
     (radiance.record_fall — no Deckard); a NAMED object has Deckard compile its
     real shape, then record_object_fall drops it. Either way we never fake a shape.
     """
-    if handle.get("kind") == "sphere":
+    kind = handle.get("kind")
+    if kind == "sphere":
         from sigma_ground.radiance import record_fall
         label = handle.get("label", "sphere")
         bundle = record_fall(handle.get("material_key", "iron"),
@@ -217,6 +218,31 @@ def _render_from_handle(handle: dict) -> dict:
                              start_altitude_m=handle.get("start_altitude_m", 1000.0))
         bundle["kind"] = "trajectory"        # record_fall omits it; the viewer needs it
         return _announce_render("falling " + label, bundle)
+    if kind == "launch_arc":                 # whole arc: up, apex, down, bounce
+        from sigma_ground.radiance import record_fall
+        label = handle.get("label", "launched ball")
+        r = handle.get("radius_m", 0.05)
+        bundle = record_fall(handle.get("material_key", "steel_mild"),
+                             radius_m=r, start_altitude_m=r,
+                             v0_m_s=handle.get("launch_speed_m_s", 30.0),
+                             dt_max=0.004, frame_dt=0.04)
+        bundle["kind"] = "trajectory"
+        return _announce_render(label, bundle)
+    if kind == "descent":                    # the same drag body the verb integrated
+        from sigma_ground.radiance import record_descent
+        bundle = record_descent(
+            payload_mass_kg=handle.get("payload_mass_kg", 118.0),
+            drag_area_m2=handle.get("drag_area_m2", 0.28),
+            cd=handle.get("cd", 0.70),
+            start_altitude_m=handle.get("start_altitude_m", 35_000.0))
+        return _announce_render(handle.get("label", "high-altitude descent"), bundle)
+    if kind == "horizontal":                 # transonic slug along +x
+        from sigma_ground.radiance import record_horizontal_run
+        bundle = record_horizontal_run(
+            mass_kg=handle.get("mass_kg", 0.02),
+            diameter_m=handle.get("diameter_m", 0.01),
+            launch_mach=handle.get("launch_mach", 2.5))
+        return _announce_render(handle.get("label", "supersonic projectile"), bundle)
 
     from sigma_ground import deckard
     from sigma_ground.radiance import record_object_fall

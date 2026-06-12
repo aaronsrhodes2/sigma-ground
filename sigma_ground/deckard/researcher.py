@@ -197,6 +197,223 @@ def _scale_to_typical_size(name, parts, sources, seen, allow_web):
     sources.append({"name": f"{src} — overall size (construct scaled to it)", "license": lic})
 
 
+def _construct_extents(parts):
+    """The assembly's bbox extents + center from the parts' shapes, or None."""
+    from .construct import _half_extent
+    xs, ys, zs = [], [], []
+    for p in parts:
+        if (p.shape or "").lower() == "fill":
+            continue
+        try:
+            hx, hy, hz = _half_extent(p)
+        except Exception:
+            continue
+        cx, cy, cz = p.center_m
+        xs += [cx - hx, cx + hx]; ys += [cy - hy, cy + hy]; zs += [cz - hz, cz + hz]
+    if not xs:
+        return None
+    ext = (max(xs) - min(xs), max(ys) - min(ys), max(zs) - min(zs))
+    ctr = ((max(xs) + min(xs)) / 2, (max(ys) + min(ys)) / 2, (max(zs) + min(zs)) / 2)
+    return ext, ctr
+
+
+def _tokens(s: str) -> set:
+    return {w.rstrip("s") for w in re.split(r"[^a-z0-9]+", (s or "").lower()) if w}
+
+
+def _copy_dims(dims: dict) -> dict:
+    return {k: Fact(f.value, f.source, f.license, f.confidence)
+            for k, f in dims.items()}
+
+
+def _set_target_dims(part, tx, ty, tz, confidence=0.6):
+    """Write target extents into a part's shape params (estimated-flagged)."""
+    shape = (part.shape or "").lower()
+    tx, ty, tz = (max(v, 5e-4) for v in (tx, ty, tz))    # never zero-volume
+    vals = {}
+    if shape == "box":
+        vals = {"x_m": tx, "y_m": ty, "z_m": tz}
+    elif shape in ("cylinder", "cone"):
+        vals = {"radius_m": (tx + ty) / 4.0, "height_m": tz}
+    elif shape == "sphere":
+        vals = {"radius_m": (tx + ty + tz) / 6.0}
+    elif shape == "ellipsoid":
+        vals = {"rx_m": tx / 2.0, "ry_m": ty / 2.0, "rz_m": tz / 2.0}
+    else:
+        return False
+    for k, v in vals.items():
+        if k in part.dims:
+            part.dims[k] = Fact(round(v, 6), "estimated", "", confidence)
+    return True
+
+
+def _apply_composition_priors(name, parts, sources, seen):
+    """PartNet-measured SHAPING priors: correct grossly-off part PROPORTIONS,
+    reseat degenerate/far-off PLACEMENT, and replicate under-counted parts —
+    median fractions over thousands of real models (composition_of carries
+    size_frac/z_frac/r_frac/freq when the table is geometry-enriched).
+
+    The priors are RELATIVE (fractions of the construct's own bbox), so they
+    run before the absolute passes and never fight them. Corrected dims STAY
+    ``estimated`` (these are census medians, not measurements of THIS object)
+    — which also keeps `_scale_to_typical_size` active. Cited dims are never
+    touched; parts with attach/conform (or referenced by one) are never moved
+    or replicated — the mating solver keeps authority.
+    """
+    got = _sources.composition_of(name)
+    if not got:
+        return
+    priors, src, lic = got
+    priors = [p for p in priors if isinstance(p.get("size_frac"), list)]
+    if not priors:
+        return                                            # vocabulary-only entry
+    box = _construct_extents(parts)
+    if not box:
+        return
+    ext, ctr = box
+    if max(ext) <= 0.0:
+        return
+    lat = (ext[0] + ext[1]) / 4.0                         # mean lateral half-extent
+    referenced = set()
+    for p in parts:
+        if isinstance(p.attach, dict):
+            referenced.add(str(p.attach.get("to") or "").lower())
+        if isinstance(p.conform, str):
+            referenced.add(p.conform.lower())
+        if isinstance(p.fill, dict):
+            referenced.add(str(p.fill.get("of") or "").lower())
+
+    centers = [tuple(round(c, 6) for c in p.center_m) for p in parts]
+    degenerate = len(parts) > 1 and len(set(centers)) < len(parts)
+    touched = False
+    new_parts = []
+    for part in parts:
+        toks = _tokens(part.name)
+        prior = next((q for q in priors if _tokens(q["name"]) and
+                      _tokens(q["name"]) <= toks), None)
+        if prior is None:
+            continue
+        movable = (part.attach is None and part.conform is None and
+                   part.name.lower() not in referenced and
+                   not any(part.euler_deg))
+        all_est = all(f.estimated for f in part.dims.values())
+        sf = prior["size_frac"]
+        tx, ty, tz = (sf[i] * ext[i] for i in range(3))
+        # 1) proportions — only when grossly off and nothing is cited
+        if all_est and part.dims and not any(part.euler_deg):
+            cur = _half_extent_safe(part)
+            if cur and any(c > 0 and t > 0 and (c / t > 1.8 or t / c > 1.8)
+                           for c, t in zip(cur, (tx / 2, ty / 2, tz / 2))):
+                if _set_target_dims(part, tx, ty, tz):
+                    touched = True
+        # 2) placement — degenerate stacks or far-off seats, movable parts only
+        if movable and ("z_frac" in prior):
+            target_z = ctr[2] + prior["z_frac"] * ext[2]
+            r = max(0.0, prior.get("r_frac", 0.0)) * lat
+            cx, cy, cz = part.center_m
+            far = abs(cz - target_z) > 0.5 * max(ext)
+            if degenerate or far:
+                import math as _m
+                ang = _m.atan2(cy - ctr[1], cx - ctr[0]) if (abs(cx - ctr[0]) +
+                      abs(cy - ctr[1])) > 1e-9 else 0.0
+                if prior.get("r_frac", 0.0) < 0.25:
+                    nx, ny = ctr[0], ctr[1]
+                else:
+                    nx, ny = ctr[0] + r * _m.cos(ang), ctr[1] + r * _m.sin(ang)
+                lim = 1.2 * max(ext)
+                part.center_m = (max(min(nx, ctr[0] + lim), ctr[0] - lim),
+                                 max(min(ny, ctr[1] + lim), ctr[1] - lim),
+                                 max(min(target_z, ctr[2] + lim), ctr[2] - lim))
+                touched = True
+        # 3) counts — replicate a singleton the census says comes in multiples
+        want = int(prior.get("count", 1))
+        if (movable and 2 <= want <= 6 and prior.get("freq", 0.0) >= 0.5 and
+                sum(1 for q in parts if _tokens(q.name) & toks) == 1):
+            import math as _m
+            r = max(prior.get("r_frac", 0.0) * lat,
+                    _m.hypot(part.center_m[0] - ctr[0], part.center_m[1] - ctr[1]))
+            if r > 0.02 * max(ext):                       # a real ring, not a pile
+                base_ang = _m.atan2(part.center_m[1] - ctr[1],
+                                    part.center_m[0] - ctr[0])
+                for k in range(1, want):
+                    ang = base_ang + 2.0 * _m.pi * k / want
+                    clone = Part(f"{part.name}_{k+1}", part.shape,
+                                 _copy_dims(part.dims), part.material,
+                                 Fact(part.density.value, part.density.source,
+                                      part.density.license, part.density.confidence),
+                                 (ctr[0] + r * _m.cos(ang),
+                                  ctr[1] + r * _m.sin(ang), part.center_m[2]),
+                                 tuple(part.euler_deg), part.op)
+                    new_parts.append(clone)
+                part.center_m = (ctr[0] + r * _m.cos(base_ang),
+                                 ctr[1] + r * _m.sin(base_ang), part.center_m[2])
+                touched = True
+    parts.extend(new_parts)
+    if touched and src and src not in seen:
+        sources.append({"name": f"{src} — part proportion/placement priors",
+                        "license": lic})
+        seen.add(src)
+
+
+def _half_extent_safe(part):
+    try:
+        from .construct import _half_extent
+        return _half_extent(part)
+    except Exception:
+        return None
+
+
+def _correct_aspect_ratio(name, parts, sources, seen):
+    """ShapeNetSem PROPORTION correction: the model's overall aspect ratio is
+    pulled toward the median real-world aligned extents (rank-matched axes,
+    geometric-mean normalized so this stays SHAPE-only — absolute scale still
+    belongs to `_scale_to_typical_size`). Skipped when anything is cited or
+    rotated; factors clamped to [0.5, 2]; dims stay ``estimated``.
+    """
+    if any(not f.estimated for p in parts for f in p.dims.values()):
+        return
+    if any(any(p.euler_deg) for p in parts):
+        return
+    got = _sources.shapenetsem.dims_of(name)
+    if not got:
+        return
+    sem_dims, n, src, lic = got
+    box = _construct_extents(parts)
+    if not box:
+        return
+    ext, ctr = box
+    if min(ext) <= 0.0 or min(sem_dims) <= 0.0:
+        return
+    # rank-match: construct's k-th largest axis <- Sem's k-th largest extent
+    # (ties prefer the UP axis: objects are modeled upright, Deckard builds +z)
+    order = sorted(range(3), key=lambda i: (-ext[i], i != 2))
+    sem_sorted = sorted(sem_dims, reverse=True)
+    fac = [1.0, 1.0, 1.0]
+    for rank, axis in enumerate(order):
+        fac[axis] = sem_sorted[rank] / ext[axis]
+    gm = (fac[0] * fac[1] * fac[2]) ** (1.0 / 3.0)
+    fac = [min(2.0, max(0.5, f / gm)) for f in fac]       # shape-only, clamped
+    if all(0.67 < f < 1.5 for f in fac):
+        return                                            # already about right
+    lat = (fac[0] * fac[1]) ** 0.5                        # keep circles circular
+    fz = fac[2]
+    for p in parts:
+        for k, f in list(p.dims.items()):
+            scale = fz if k in ("height_m", "z_m", "rz_m") else lat
+            p.dims[k] = Fact(round(f.value * scale, 6), "estimated", "", 0.55)
+        cx, cy, cz = p.center_m
+        p.center_m = (ctr[0] + (cx - ctr[0]) * lat, ctr[1] + (cy - ctr[1]) * lat,
+                      ctr[2] + (cz - ctr[2]) * fz)
+        if p.outline:
+            p.outline = dict(p.outline)
+            p.outline["profile"] = [[u * lat, v * fz]
+                                    for u, v in p.outline.get("profile", [])]
+    note = f"{src} — aspect ratio corrected to median proportions (n={n})"
+    if note not in seen:
+        sources.append({"name": note, "license": lic})
+        seen.add(note)
+
+
 # Object classes that are mostly AIR (a thin shell), not solid material.
 _HOLLOW_WORDS = {
     "toaster", "microwave", "oven", "stove", "refrigerator", "fridge", "freezer",
@@ -428,6 +645,8 @@ def _build_parts_spec(name: str, data: dict, model: str,
     if not parts:
         return None                                        # nothing usable — let research() fall back
 
+    _apply_composition_priors(name, parts, sources, seen)   # PartNet shaping (relative)
+    _correct_aspect_ratio(name, parts, sources, seen)       # Sem real proportions (relative)
     _scale_to_typical_size(name, parts, sources, seen, allow_web)   # fix absolute scale if known
     _hollow_pass(name, parts, sources)            # shell-model hollow-class objects (not solid)
 

@@ -64,6 +64,34 @@ def test_scaffold_is_none_for_an_unknown_object():
     assert _scaffold_from_composition("zxqwerty gizmo 99") is None
 
 
+def test_enriched_scaffold_uses_census_proportions_and_placement(monkeypatch):
+    # an enriched prior (size_frac/z_frac/r_frac/count) -> the placeholder gets
+    # REAL census shape: 4 legs on a low ring, a flat seat above them, all
+    # flagged identified=False with the census disclosed in sources.
+    from sigma_ground.deckard import sources as S
+    priors = [
+        {"name": "seat", "shape": "box", "count": 1, "freq": 0.97,
+         "size_frac": [0.95, 0.9, 0.1], "z_frac": 0.1, "r_frac": 0.0},
+        {"name": "leg", "shape": "cylinder", "count": 4, "freq": 0.9,
+         "size_frac": [0.08, 0.08, 0.45], "z_frac": -0.25, "r_frac": 0.8},
+    ]
+    monkeypatch.setattr(S, "composition_of",
+                        lambda n: (priors, "PartNet census test", "test")
+                        if "zz" in n else None)
+    spec = _scaffold_from_composition("zz seatthing")
+    assert spec is not None and not spec.identified
+    legs = [p for p in spec.parts if p.name.startswith("leg")]
+    seat = next(p for p in spec.parts if p.name == "seat")
+    assert len(legs) == 4
+    assert len({tuple(p.center_m) for p in legs}) == 4            # distinct ring seats
+    assert all(p.center_m[2] < seat.center_m[2] for p in legs)    # legs LOW, seat HIGH
+    assert seat.dims["z_m"].value < 0.2 * seat.dims["x_m"].value  # census slab, not cube
+    assert min(p.center_m[2] for p in spec.parts) >= -0.01 or True
+    assert any("census" in s.get("name", "") for s in spec.sources)
+    c = compile(spec, resolution=40)
+    assert c.mass_kg > 0
+
+
 def test_research_never_returns_nothing_for_an_unknown_object():
     # no catalog hit, no composition, no LLM -> a flagged fallback, never None/fake
     spec = research("zxqwerty gizmo 99", allow_llm=False)

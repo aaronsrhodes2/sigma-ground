@@ -42,13 +42,19 @@ def _table() -> list:
     return out
 
 
-def _local(name: str):
+def _local(name: str, _aliased: bool = False):
     qw = _words(name)
     best, best_len = None, 0
     for names, size, src, lic in _table():
         m = max((len(w) for w in (_words(nm) for nm in names) if w and w <= qw), default=0)
         if m > best_len:
             best_len, best = m, (size, src, lic)
+    if best is None and not _aliased:
+        from . import aliases
+        for alt in sorted(aliases.expand(name)):
+            best = _local(alt, _aliased=True)
+            if best is not None:
+                break
     return best
 
 

@@ -278,7 +278,18 @@ def high_altitude_descent(payload_mass_kg: float = 118.0,
                          outputs={"max_speed_m_s": sim["max_speed_m_s"],
                                   "max_mach": sim["max_mach"],
                                   "landing_speed_m_s": sim["final_speed_m_s"],
-                                  "mach1_altitude_m": sim["mach1_altitude_m"]})
+                                  "mach1_altitude_m": sim["mach1_altitude_m"],
+                                  # renderable: the dispatcher replays this very
+                                  # descent (radiance.record_descent integrates
+                                  # the same drag body)
+                                  "can_render": True,
+                                  "render_handle": {
+                                      "kind": "descent",
+                                      "payload_mass_kg": payload_mass_kg,
+                                      "drag_area_m2": drag_area_m2, "cd": cd,
+                                      "start_altitude_m": start_altitude_m,
+                                      "label": "high-altitude payload",
+                                  }})
 
 
 def supersonic_projectile(mass_kg: float = 0.02, diameter_m: float = 0.01,
@@ -339,7 +350,17 @@ def supersonic_projectile(mass_kg: float = 0.02, diameter_m: float = 0.01,
                          summary=summary, validation=validation,
                          outputs={"launch_speed_m_s": v0,
                                   "distance_to_subsonic_m": sim["distance_m"],
-                                  "final_mach": sim["final_mach"]})
+                                  "final_mach": sim["final_mach"],
+                                  # renderable: the same transonic deceleration
+                                  # along +x (radiance.record_horizontal_run)
+                                  "can_render": True,
+                                  "render_handle": {
+                                      "kind": "horizontal",
+                                      "mass_kg": mass_kg,
+                                      "diameter_m": diameter_m,
+                                      "launch_mach": launch_mach,
+                                      "label": f"Mach {launch_mach:g} projectile",
+                                  }})
 
 
 def vertical_launch(material_key: str = "steel_mild", radius_m: float = 0.05,
@@ -373,7 +394,17 @@ def vertical_launch(material_key: str = "steel_mild", radius_m: float = 0.05,
                          validation={"passed": True,
                                      "note": "kinematic apex (ascent integration)"},
                          outputs={"apex_altitude_m": sim["apex_altitude_m"],
-                                  "time_to_apex_s": sim["time_to_apex_s"]})
+                                  "time_to_apex_s": sim["time_to_apex_s"],
+                                  # renderable: the WHOLE arc — ascent, apex,
+                                  # descent, bounce — in one record_fall(v0)
+                                  "can_render": True,
+                                  "render_handle": {
+                                      "kind": "launch_arc",
+                                      "material_key": material_key,
+                                      "radius_m": radius_m,
+                                      "launch_speed_m_s": launch_speed_m_s,
+                                      "label": f"{name.lower()} ball thrown up",
+                                  }})
 
 
 def orbital_velocity(central_body: str = "earth",

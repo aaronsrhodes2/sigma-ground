@@ -60,6 +60,8 @@ float sdConeZ(vec3 p, vec3 c, float R, float H){ vec3 q=p-c;
   float dLat=(rho-rAtZ)*H/slant;
   return (rho<=rAtZ) ? max(dLat,-lz) : dLat; }
 vec3 qrotInv(vec4 q, vec3 v){ vec3 u=-q.xyz; vec3 t=2.0*cross(u,v); return v+q.w*t+cross(u,t); }
+float sdTorus(vec3 p, vec3 c, float R, float r){ vec3 q=p-c; return length(vec2(length(q.xy)-R, q.z))-r; }
+vec3 leafRot(vec4 rot, vec3 p, vec3 c){ return qrotInv(rot, p-c)+c; }
 `;
 function jsLeafSDF(leaf, q){
   const s=leaf.shape, c=s.center;
@@ -91,6 +93,108 @@ function glslLeafCall(leaf, qvar){
   if(s.type==="Water") return `sdWater(${qvar},${ctr},${glf(s.x)},${glf(s.z)},${glf(s.depth)},${glf(s.level!==undefined?s.level:s.center[1])})`;
   return "1e9";
 }
+// ── wrapper shapes + organic outlines (Deckard's researched geometry) ────
+// JS + GLSL stay statement-for-statement with kernel/outline.py + deckard's
+// _Rotated/_Clipped/_Subtracted, so the in-page sdf_samples self-check holds.
+function segDist2(px,py,ax,ay,bx,by){ const dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy;
+  if(L2<=1e-18) return Math.hypot(px-ax,py-ay);
+  let t=((px-ax)*dx+(py-ay)*dy)/L2; t=t<0?0:(t>1?1:t);
+  return Math.hypot(px-(ax+t*dx),py-(ay+t*dy)); }
+function polySD(px,py,poly){ let inside=false,minD=Infinity; const n=poly.length;
+  for(let i=0;i<n;i++){ const a=poly[i],b=poly[(i+1)%n];
+    const d=segDist2(px,py,a[0],a[1],b[0],b[1]); if(d<minD)minD=d;
+    if((a[1]>py)!==(b[1]>py)){ const xint=a[0]+(py-a[1])/(b[1]-a[1])*(b[0]-a[0]);
+      if(px<xint) inside=!inside; } }
+  return inside?-minD:minD; }
+function sectionSD(z,rho,sec){ let inside=false,minD=Infinity; const n=sec.length;
+  for(let i=0;i<n;i++){ const a=sec[i],b=sec[(i+1)%n];
+    if((a[1]>rho)!==(b[1]>rho)){ const zint=a[0]+(rho-a[1])/(b[1]-a[1])*(b[0]-a[0]);
+      if(z<zint) inside=!inside; }
+    if(Math.abs(a[1])<1e-12&&Math.abs(b[1])<1e-12) continue;   // axis edge: not a surface
+    const d=segDist2(z,rho,a[0],a[1],b[0],b[1]); if(d<minD)minD=d; }
+  return inside?-minD:minD; }
+function jsOutlineSDF(s,q){ const c=s.center;
+  if(s.mode==="revolve"){
+    if(!s._section){ const zs=s.profile.map(p=>p[0]);
+      s._section=s.profile.concat([[Math.max(...zs),0],[Math.min(...zs),0]]); }
+    const rho=Math.hypot(q[0]-c[0],q[1]-c[1]);
+    return sectionSD(q[2]-c[2],rho,s._section); }
+  const d2=polySD(q[0]-c[0],q[1]-c[1],s.profile);
+  const dz=Math.abs(q[2]-c[2])-0.5*(s.thickness||0.001);
+  if(d2<=0&&dz<=0) return Math.max(d2,dz);
+  if(d2>0&&dz>0) return Math.hypot(d2,dz);
+  return Math.max(d2,dz); }
+function jsShapeSDF(s,q){
+  if(!s) return 1e9;
+  if(s.type==="Torus"){ const d=sub(q,s.center);
+    return Math.hypot(Math.hypot(d[0],d[1])-s.major_radius,d[2])-s.minor_radius; }
+  if(s.type==="Outline") return jsOutlineSDF(s,q);
+  if(s.type==="Rotated"){ const c=s.center;
+    return jsShapeSDF(s.shape, add(qrotInvJS(s.rot, sub(q,c)), c)); }
+  if(s.type==="Clipped") return Math.max(jsShapeSDF(s.shape,q), s.sign*(q[s.axis]-s.level));
+  if(s.type==="Subtracted") return Math.max(jsShapeSDF(s.shape,q), -jsShapeSDF(s.cut,q));
+  return jsLeafSDF({shape:s}, q);
+}
+// per-build registry of generated GLSL outline functions (profiles baked as consts)
+let EXTRA_GLSL="", outlineN=0, outlineKeys=new Map();
+function resetExtraGLSL(){ EXTRA_GLSL=""; outlineN=0; outlineKeys=new Map(); }
+function glslOutline(s,qvar){
+  const key=JSON.stringify([s.profile,s.mode,s.thickness||0,s.center]);
+  if(!outlineKeys.has(key)){
+    const k=outlineN++; outlineKeys.set(key,k); const c=s.center;
+    if(s.mode==="revolve"){
+      const zs=s.profile.map(p=>p[0]);
+      const sec=s.profile.concat([[Math.max(...zs),0],[Math.min(...zs),0]]);
+      const N=sec.length, arr=sec.map(p=>`vec2(${glf(p[0])},${glf(p[1])})`).join(",");
+      EXTRA_GLSL+=`
+const vec2 OSEC${k}[${N}] = vec2[${N}](${arr});
+float sdOutline${k}(vec3 p){
+  float z=p.z-(${glf(c[2])}); float rho=length(vec2(p.x-(${glf(c[0])}),p.y-(${glf(c[1])})));
+  bool inside=false; float minD=1e9;
+  for(int i=0;i<${N};i++){ vec2 a=OSEC${k}[i]; vec2 b=OSEC${k}[i+1==${N}?0:i+1];
+    if((a.y>rho)!=(b.y>rho)){ float zint=a.x+(rho-a.y)/(b.y-a.y)*(b.x-a.x); if(z<zint) inside=!inside; }
+    if(abs(a.y)<1e-12&&abs(b.y)<1e-12) continue;
+    vec2 e=b-a; float L2=dot(e,e); float t=L2<=1e-18?0.0:clamp(dot(vec2(z,rho)-a,e)/L2,0.0,1.0);
+    minD=min(minD,length(vec2(z,rho)-(a+e*t))); }
+  return inside?-minD:minD; }
+`;
+    } else {
+      const N=s.profile.length, th=s.thickness||0.001;
+      const arr=s.profile.map(p=>`vec2(${glf(p[0])},${glf(p[1])})`).join(",");
+      EXTRA_GLSL+=`
+const vec2 OPR${k}[${N}] = vec2[${N}](${arr});
+float sdOutline${k}(vec3 p){
+  vec2 q2=vec2(p.x-(${glf(c[0])}), p.y-(${glf(c[1])}));
+  bool inside=false; float minD=1e9;
+  for(int i=0;i<${N};i++){ vec2 a=OPR${k}[i]; vec2 b=OPR${k}[i+1==${N}?0:i+1];
+    vec2 e=b-a; float L2=dot(e,e); float t=L2<=1e-18?0.0:clamp(dot(q2-a,e)/L2,0.0,1.0);
+    minD=min(minD,length(q2-(a+e*t)));
+    if((a.y>q2.y)!=(b.y>q2.y)){ float xint=a.x+(q2.y-a.y)/(b.y-a.y)*(b.x-a.x); if(q2.x<xint) inside=!inside; } }
+  float d2=inside?-minD:minD;
+  float dz=abs(p.z-(${glf(c[2])}))-${glf(0.5*th)};
+  if(d2<=0.0&&dz<=0.0) return max(d2,dz);
+  if(d2>0.0&&dz>0.0) return length(vec2(d2,dz));
+  return max(d2,dz); }
+`;
+    }
+  }
+  return `sdOutline${outlineKeys.get(key)}(${qvar})`;
+}
+function glslShapeCall(s,qvar){
+  if(!s) return "1e9";
+  if(s.type==="Torus"){ const c=s.center;
+    return `sdTorus(${qvar},vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])}),${glf(s.major_radius)},${glf(s.minor_radius)})`; }
+  if(s.type==="Outline") return glslOutline(s,qvar);
+  if(s.type==="Rotated"){ const c=s.center,r=s.rot;
+    return glslShapeCall(s.shape,
+      `leafRot(vec4(${glf(r[0])},${glf(r[1])},${glf(r[2])},${glf(r[3])}),${qvar},vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])}))`); }
+  if(s.type==="Clipped")
+    return `max(${glslShapeCall(s.shape,qvar)},${glf(s.sign)}*((${qvar}).${"xyz"[s.axis]}-${glf(s.level)}))`;
+  if(s.type==="Subtracted")
+    return `max(${glslShapeCall(s.shape,qvar)},-${glslShapeCall(s.cut,qvar)})`;
+  return glslLeafCall({shape:s},qvar);
+}
+
 function jsEvalSDF(scene, p, poses){
   const ls=scene.csg_leaves, bodies=scene.bodies||[]; let d=0;
   for(let i=0;i<ls.length;i++){
@@ -99,7 +203,7 @@ function jsEvalSDF(scene, p, poses){
       const piv=(bodies[bi]&&bodies[bi].pivot)||[0,0,0];
       q=add(qrotInvJS(poses[bi].quat, sub(p,poses[bi].pos)), piv);
     }
-    const si = jsLeafSDF(ls[i], q);
+    const si = jsShapeSDF(ls[i].shape, q);
     if(i===0){ d=si; continue; }
     const op=ls[i].op;
     if(op==="subtract") d=Math.max(d,-si);
@@ -111,6 +215,7 @@ function jsEvalSDF(scene, p, poses){
 
 // ── build the fragment shader (colors BAKED as constants) ──────────────
 function buildFragmentShader(scene){
+  resetExtraGLSL();
   const ls=scene.csg_leaves, bodies=scene.bodies||[];
   // Per-body rigid transform (world→rest): inverse-rotate about the pose, then
   // re-add the body's pivot. A leaf with no `body` is static world geometry.
@@ -122,7 +227,7 @@ function buildFragmentShader(scene){
   let decls="", compose="  float d=s0;\n", matsel="  mat=-1;\n", colorfn="", metalfn="", reflfn="", emisfn="", tempfn="";
   for(let i=0;i<ls.length;i++){
     const q = ls[i].body!=null ? `bdy${ls[i].body}` : "(p)";
-    decls += `  float s${i}=${glslLeafCall(ls[i], q)};\n`;
+    decls += `  float s${i}=${glslShapeCall(ls[i].shape, q)};\n`;
     const mat=scene.materials[ls[i].material]||{};
     const c=mat.color_rgb||[0.72,0.72,0.72];
     colorfn += `  if(m==${i}) return vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])});\n`;
@@ -208,7 +313,7 @@ out vec4 frag;
 uniform vec2 uRes; uniform vec3 uEye,uFwd,uRight,uUp;
 uniform float uTanHalf,uAspect,uMaxDist,uTime,uTemp;
 uniform vec3 uBodyPos[MAXB]; uniform vec4 uBodyQuat[MAXB];
-${PRIMS_GLSL}${waterGLSL}
+${PRIMS_GLSL}${waterGLSL}${EXTRA_GLSL}
 float mapD(vec3 p, out int mat){
 ${bodyDecls}${decls}${compose}${matsel}  return d;
 }
@@ -317,6 +422,7 @@ void main(){
 // EMITS its own incandescence, so a hot object lights its cold neighbours. Noisy
 // at low sample count (Monte Carlo) — accumulation/denoise is the next rung.
 function buildPathShader(scene){
+  resetExtraGLSL();
   const ls=scene.csg_leaves, bodies=scene.bodies||[];
   const used=[...new Set(ls.map(l=>l.body).filter(b=>b!=null))].sort((a,b)=>a-b);
   let bodyDecls="";
@@ -325,7 +431,7 @@ function buildPathShader(scene){
   let decls="", compose="  float d=s0;\n", matsel="  mat=-1;\n", colorfn="", metalfn="", reflfn="", emisfn="", tempfn="", iorfn="";
   for(let i=0;i<ls.length;i++){
     const q = ls[i].body!=null ? `bdy${ls[i].body}` : "(p)";
-    decls += `  float s${i}=${glslLeafCall(ls[i], q)};\n`;
+    decls += `  float s${i}=${glslShapeCall(ls[i].shape, q)};\n`;
     const mat=scene.materials[ls[i].material]||{}, c=mat.color_rgb||[0.72,0.72,0.72];
     colorfn += `  if(m==${i}) return vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])});\n`;
     const isMetal=(mat.metal!==undefined?mat.metal:mat.emergent);
@@ -384,10 +490,12 @@ precision highp float; precision highp int;
 out vec4 frag;
 uniform vec2 uRes; uniform vec3 uEye,uFwd,uRight,uUp;
 uniform float uTanHalf,uAspect,uMaxDist,uTime,uTemp,uFrame,uReset;
+uniform int uSPP;             // samples THIS frame — the photon budget for this single exposure
+uniform float uPrevScale;     // fraction of the PRIOR exposure to keep: 1=integrate (long exposure), (N-1)/N=bounded shutter hold
 uniform vec3 uBodyPos[MAXB]; uniform vec4 uBodyQuat[MAXB];
 uniform sampler2D uPrev;                                 // previous accumulation (ping-pong)
 uniform vec3 uEmitterPos[${Math.max(1,NE)}];             // world centres of glowing-sphere emitters (NEE)
-${PRIMS_GLSL}${waterGLSL}
+${PRIMS_GLSL}${waterGLSL}${EXTRA_GLSL}
 float mapD(vec3 p, out int mat){ ${bodyDecls}${decls}${compose}${matsel}  return d; }
 float mapOnly(vec3 p){ int m; return mapD(p,m); }
 vec3 matColor(int m){ ${colorfn}  return vec3(0.72); }
@@ -447,15 +555,15 @@ vec3 trace(vec3 ro, vec3 rd, inout uint seed){
 void main(){
   vec2 fc=gl_FragCoord.xy;
   uint seed=hashu(uint(fc.x)+uint(fc.y)*9277u+uint(uFrame)*26699u);
-  vec3 col=vec3(0.0); const int SPP=3;
-  for(int s=0;s<SPP;s++){
+  vec3 col=vec3(0.0); const int MAXSPP=64;
+  for(int s=0;s<MAXSPP;s++){ if(s>=uSPP) break;            // dynamic photon budget (uSPP), hard-capped at MAXSPP
     vec2 j=vec2(rnd(seed),rnd(seed))-0.5;
     vec2 uv=((fc+j)/uRes)*2.0-1.0;
     vec3 dir=normalize(uFwd + uRight*(uv.x*uAspect*uTanHalf) + uUp*(uv.y*uTanHalf));
     col += trace(uEye, dir, seed);
   }
-  vec3 s=min(col/float(SPP), vec3(16.0));                 // this frame's radiance (firefly-clamped, linear HDR)
-  vec3 prev = uReset>0.5 ? vec3(0.0) : texelFetch(uPrev, ivec2(fc), 0).rgb;
+  vec3 s=min(col/float(uSPP), vec3(16.0));                // this frame's radiance (firefly-clamped, linear HDR)
+  vec3 prev = uReset>0.5 ? vec3(0.0) : texelFetch(uPrev, ivec2(fc), 0).rgb * uPrevScale;
   frag=vec4(prev+s, 1.0);                                 // ACCUMULATE — the display pass averages + gammas
 }`;
 }
@@ -467,7 +575,7 @@ void main(){ vec2 p=vec2(float((gl_VertexID<<1)&2),float(gl_VertexID&2));
 function compile(type,src){ const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s);
   if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){ const log=gl.getShaderInfoLog(s); console.error(log,"\n",src); throw new Error(log); } return s; }
 let prog=null, progPT=null, U={}, Upt={};
-const UNIFORMS=["uRes","uEye","uFwd","uRight","uUp","uTanHalf","uAspect","uMaxDist","uTime","uTemp","uBodyPos","uBodyQuat","uFrame","uPrev","uReset","uEmitterPos"];
+const UNIFORMS=["uRes","uEye","uFwd","uRight","uUp","uTanHalf","uAspect","uMaxDist","uTime","uTemp","uBodyPos","uBodyQuat","uFrame","uPrev","uReset","uEmitterPos","uSPP","uPrevScale"];
 function linkProg(fragSrc){
   const p=gl.createProgram();
   gl.attachShader(p,compile(gl.VERTEX_SHADER,VS));
@@ -516,7 +624,10 @@ const cam={az:0.8,el:0.45,radius:0.3,target:[0,0,0],up:[0,0,1]};
 const T0=performance.now();                        // wall-clock origin for live ripples
 const STP_K=293.15;                                 // standard ambient — the sim layer's default temperature
 let heatDeltaK=0;                                    // global heat added on top of each object's own temperature
-let ptMode=!!extF, frameCount=0, sceneId=0;          // path tracing is the DEFAULT renderer (when float targets exist)
+let ptMode=!!extF, frameCount=0, sceneId=0;          // path tracing is THE renderer (whenever float targets exist)
+let liveSPP=2;                                       // photons/frame for a LIVE exposure (cheap — quality comes from INTEGRATING frames, not brute force)
+let liveScale=1.0;                                   // resolution of a live exposure — full res (a capable GPU handles it; lower ONLY if a weak GPU can't keep up)
+let animateRipples=true;                             // live wind ripples by default — transparent AND animated. The bounded-shutter exposure stays clean at whatever frame rate the GPU delivers; toggle to a frozen still for a fully-converged showpiece.
 let ptEmitters=[];                                   // glowing-sphere emitters for next-event estimation
 let scene=null, traj=null, sceneDiag=1.0;
 let bodyPoses=[], simTime=0, tEnd=0, playing=false, rate=1.0, drewOnce=false;
@@ -545,8 +656,15 @@ function posesAt(t){     // → [{pos,quat}] for every body, interpolated
 
 // ── render ────────────────────────────────────────────────────────────
 function resize(){ const dpr=Math.min(2,window.devicePixelRatio||1);
-  let w=Math.floor((canvas.clientWidth||window.innerWidth)*dpr);
-  let h=Math.floor((canvas.clientHeight||(window.innerHeight-60))*dpr);
+  // An ANIMATED scene can't converge a still frame — it lives on a fresh shutter
+  // exposure EVERY frame, so at full resolution the path tracer stalls. Render it at
+  // a reduced backing-store resolution (fewer pixels, full physics per pixel — an
+  // honest exposure trade, not a filter) and let the canvas upscale; a STILL scene
+  // keeps full resolution because it has all the frames it needs to converge.
+  const anim=animateRipples && (scene.csg_leaves||[]).some(l=>l.shape&&l.shape.type==="Water");
+  const sc = anim ? liveScale : 1;
+  let w=Math.floor((canvas.clientWidth||window.innerWidth)*dpr*sc);
+  let h=Math.floor((canvas.clientHeight||(window.innerHeight-60))*dpr*sc);
   w=Math.max(2,w); h=Math.max(2,h);
   if(canvas.width!==w||canvas.height!==h){ canvas.width=w; canvas.height=h; } }
 function draw(){
@@ -573,18 +691,38 @@ function draw(){
   const key=`${eye.map(x=>x.toFixed(3))}|${cam.target.map(x=>x.toFixed(3))}|${simTime.toFixed(3)}|${heatDeltaK}|${w}x${h}|${sceneId}`;
   const moving = key!==ptKey; ptKey=key;                     // is the view changing this frame?
   if(moving) accN=0;                                         // view changed → restart accumulation
-  // An ANIMATED scene (water ripples advance with real time every frame) can't be
-  // path-traced — PT would average a moving surface into a flickery smear. These
-  // use the fast renderer, where live ripples + the Fresnel reflection look right.
-  const animated = (scene.csg_leaves||[]).some(l=>l.shape && l.shape.type==="Water");
-  const ptAccum = ptMode && extF && dispProg && progPT && !moving && !animated;   // PT = the STILL image
-  if(ptAccum){                                               // ── progressive path tracing (still → converge) ──
+  // ── Radiance has ONE renderer: the path tracer. Appearance is light transport,
+  // always — never a headlight/ambient "fast" trick. Quality comes not from brute
+  // force but from a real camera EXPOSURE that INTEGRATES photons over a shutter:
+  //   • STILL + static  → integrate UNBOUNDED → a long exposure → pristine.
+  //   • ANIMATED, still camera (water) → integrate over a BOUNDED shutter (NMAX
+  //     frames) while the ripples ADVANCE: photons pile up (clean) and the motion
+  //     becomes physically-real motion blur — capped so it stays live and can't
+  //     smear away. This is the camera model, NOT a denoiser.
+  //   • CAMERA MOVING → the view changes too fast to integrate; one cheap exposure
+  //     (honest shot noise while you drag; it clears the instant you stop).
+  // Each frame is cheap (≈2 spp); the picture cleans up by integrating, not by
+  // firing more rays per frame. (The fast shader survives ONLY as a no-float shim.)
+  const animated = animateRipples && (scene.csg_leaves||[]).some(l=>l.shape && l.shape.type==="Water");
+  const NMAX = 24;                                          // shutter length (frames) for a live exposure — bounds the motion blur
+  const ptOn = ptMode && extF && dispProg && progPT;        // the real renderer (float targets carry the exposure buffer)
+  if(ptOn){                                                  // ── path tracing — the ONLY renderer ──
     ensureAccum(w,h);
-    const reset = (accN===0);
-    if(reset) ptTime=(performance.now()-T0)*0.001;           // freeze ripple time when (re)starting accumulation
+    let reset, prevScale, spp, frames, advanceTime;
+    if(moving){                                              // view changing fast → can't integrate; one cheap exposure
+      reset=true; prevScale=0.0; spp=Math.min(liveSPP,4); advanceTime=true; accN=0; frames=1;
+    } else if(animated){                                    // still camera, live ripples → integrate over a bounded shutter
+      advanceTime=true;                                     // ripples ADVANCE during the exposure → real motion blur
+      if(accN<NMAX){ reset=(accN===0); prevScale=1.0; spp=liveSPP; accN++; frames=accN; }
+      else { reset=false; prevScale=(NMAX-1)/NMAX; spp=liveSPP; frames=NMAX; }   // steady-state hold — no pulse, bounded blur
+    } else {                                                // still + static → converge to pristine (freeze the ripples)
+      reset=(accN===0); prevScale=1.0; spp=3; advanceTime=reset; accN++; frames=accN;
+    }
+    if(advanceTime) ptTime=(performance.now()-T0)*0.001;
     const src=pingA?accumA:accumB, dst=pingA?accumB:accumA;
     gl.bindFramebuffer(gl.FRAMEBUFFER,dst.fbo); gl.viewport(0,0,w,h);
-    gl.useProgram(progPT); bindScene(Upt, ptTime, accN);
+    gl.useProgram(progPT); bindScene(Upt, ptTime, frameCount);
+    gl.uniform1i(Upt.uSPP, spp); gl.uniform1f(Upt.uPrevScale, prevScale);
     if(ptEmitters.length && Upt.uEmitterPos){      // emitter world centres (body motion carries the light)
       const ep=new Float32Array(ptEmitters.length*3);
       ptEmitters.forEach((e,k)=>{ let c=e.center;
@@ -595,23 +733,21 @@ function draw(){
       gl.uniform3fv(Upt.uEmitterPos, ep); }
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,src.tex);
     gl.uniform1i(Upt.uPrev,0); gl.uniform1f(Upt.uReset, reset?1.0:0.0);
-    gl.drawArrays(gl.TRIANGLES,0,3); accN++;
+    gl.drawArrays(gl.TRIANGLES,0,3);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.viewport(0,0,w,h);
     gl.useProgram(dispProg);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,dst.tex);
-    gl.uniform1i(dispU.uAccum,0); gl.uniform1f(dispU.uInvN,1.0/accN);
+    gl.uniform1i(dispU.uAccum,0); gl.uniform1f(dispU.uInvN,1.0/frames);
     gl.drawArrays(gl.TRIANGLES,0,3); pingA=!pingA;
-    const dd=$("dbg"); if(dd) dd.textContent=`path-traced · ${accN*3} samples/px accumulated · ${w}x${h}`;
-  } else {                                                   // ── fast renderer (default) ──
+    const dd=$("dbg"); if(dd) dd.textContent =
+        moving   ? `path-traced · live · ${spp} spp/frame · orbiting (clears when you stop) · ${w}x${h}`
+      : animated ? `path-traced · ${Math.min(accN,NMAX)}-frame exposure · ${frames*spp} photons/px · ripples live · ${w}x${h}`
+      :            `path-traced · ${frames*spp} samples/px · converging… · ${w}x${h}`;
+  } else {                                                   // ── compatibility shim: GPU lacks float render targets ──
     gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.viewport(0,0,w,h); gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(prog); bindScene(U,(performance.now()-T0)*0.001, frameCount);
     gl.drawArrays(gl.TRIANGLES,0,3);
-    const dEye=jsEvalSDF(scene,eye,bodyPoses);
-    const dd=$("dbg"); if(dd) dd.textContent = animated
-      ? `animated — fast renderer (live ripples + Fresnel; PT can't average a moving surface) · ${w}x${h}`
-      : (ptMode&&extF&&progPT)
-      ? `preview (moving) — path tracer converges when still · ${w}x${h}`
-      : `eye(${eye.map(x=>+x.toFixed(3))})  d(eye)=${dEye.toFixed(3)}  maxDist=${md.toFixed(2)}  ${w}x${h}`;
+    const dd=$("dbg"); if(dd) dd.textContent=`compatibility view — this GPU can't path-trace (no float render targets) · ${w}x${h}`;
   }
   drewOnce=true;
 }
@@ -661,8 +797,7 @@ async function load(url, title){
     const obj=await resp.json();
     applyObj(obj, title, false);
     loadedObj=obj;                                   // pristine copy for the editor + reset
-    document.querySelectorAll("#bar button").forEach(b=>b.classList.remove("on"));
-    syncEditor();
+    syncEditor();                                    // (scene buttons retired — the toggle states persist)
     return true;
   }catch(e){ setErr((""+e).slice(0,180)); console.error(e); throw e; }
 }
@@ -702,15 +837,7 @@ window.addEventListener("mousemove",e=>{ if(!drag) return;
   cam.az-=(e.clientX-lx)*0.01; cam.el=Math.max(-1.5,Math.min(1.5,cam.el+(e.clientY-ly)*0.01));
   lx=e.clientX; ly=e.clientY; });
 canvas.addEventListener("wheel",e=>{ e.preventDefault(); cam.radius*=Math.exp(e.deltaY*0.0012); },{passive:false});
-$("b-cup").addEventListener("click",()=>load("data/cup.json","coffee cup").then(()=>$("b-cup").classList.add("on")).catch(()=>{}));
-$("b-drop").addEventListener("click",()=>load("data/drop.json","dropped sphere").then(()=>$("b-drop").classList.add("on")).catch(()=>{}));
-$("b-mat").addEventListener("click",()=>load("data/materials.json","materials").then(()=>$("b-mat").classList.add("on")).catch(()=>{}));
-$("b-glaze").addEventListener("click",()=>load("data/glazes.json","glazes").then(()=>$("b-glaze").classList.add("on")).catch(()=>{}));
-$("b-tip").addEventListener("click",()=>load("data/tip.json","chair tip").then(()=>$("b-tip").classList.add("on")).catch(()=>{}));
-$("b-clatter").addEventListener("click",()=>load("data/clatter.json","clatter").then(()=>$("b-clatter").classList.add("on")).catch(()=>{}));
-$("b-water").addEventListener("click",()=>load("data/water.json","water").then(()=>$("b-water").classList.add("on")).catch(()=>{}));
-$("b-feather").addEventListener("click",()=>load("data/feather.json","feather").then(()=>$("b-feather").classList.add("on")).catch(()=>{}));
-$("b-dfeather").addEventListener("click",()=>load("data/deckard_feather.json","Deckard feather ◆").then(()=>$("b-dfeather").classList.add("on")).catch(()=>{}));
+// Scene selection lives in the ⊞ Library gallery now (built from data/scenes.json) — no hardcoded buttons.
 // "behind the simulation" flip + the live JSON editor
 $("b-edit").addEventListener("click",()=>{ const open=$("editor").classList.toggle("open");
   $("b-edit").classList.toggle("on",open); if(open && !$("json").value) syncEditor();
@@ -722,13 +849,17 @@ $("json").addEventListener("keydown",e=>{
   if(e.key==="Tab"){ e.preventDefault(); const t=e.target,a=t.selectionStart,b=t.selectionEnd;
     t.value=t.value.slice(0,a)+"  "+t.value.slice(b); t.selectionStart=t.selectionEnd=a+2; } });
 let _editTmr=0; $("json").addEventListener("input",()=>{ clearTimeout(_editTmr); _editTmr=setTimeout(reRender,650); });
+// Radiance is ALWAYS the path tracer — there is no "drop to fast" anymore. A clean
+// image is built by INTEGRATING many frames, so a STILL pool converges to pristine;
+// LIVE ripples deny the tracer those frames → it can only manage a rough, low-res
+// exposure. This button lets the Captain pick which physics tradeoff to watch.
 $("b-pt").addEventListener("click",()=>{
-  if(!extF){ $("b-pt").textContent="Path trace (no float)"; return; }   // needs float render targets
-  ptMode=!ptMode; $("b-pt").classList.toggle("on",ptMode);
-  $("b-pt").textContent = ptMode ? "Path trace ●" : "Fast preview"; });
-// path tracing is the default when supported; the button drops to the fast renderer
-if(extF){ $("b-pt").classList.toggle("on",ptMode); $("b-pt").textContent="Path trace ●"; }
-else { $("b-pt").textContent="Path trace (no float)"; }
+  if(!extF){ $("b-pt").textContent="≈ no float targets"; return; }      // this GPU can't path-trace at all
+  animateRipples=!animateRipples; accN=0;                              // restart the exposure on the mode switch
+  $("b-pt").classList.toggle("on",animateRipples);
+  $("b-pt").textContent = animateRipples ? "≈ Ripples: live" : "≈ Ripples: still"; });
+if(extF){ $("b-pt").textContent=animateRipples?"≈ Ripples: live":"≈ Ripples: still"; $("b-pt").classList.toggle("on",animateRipples); }
+else { $("b-pt").textContent="≈ no float targets"; }
 
 // ── simulation library — a gallery built from data/scenes.json (build_library.py) ──
 (async function buildLibrary(){
@@ -737,11 +868,19 @@ else { $("b-pt").textContent="Path trace (no float)"; }
     const r=await fetch("data/scenes.json"); if(!r.ok) return;
     const scenes=await r.json();
     listEl.innerHTML="";
+    let lastGroup=null;
+    const GROUP={showcase:"Showcases — emergent physics", drop:"Drops — Materia's questions",
+                 gauntlet:"Gauntlet — 20 minimal prompts, fully local"};
     for(const s of scenes){
+      const g=s.group||"drop";
+      if(g!==lastGroup){ lastGroup=g;
+        const hdr=document.createElement("div"); hdr.className="libgroup"; hdr.textContent=GROUP[g]||g;
+        listEl.appendChild(hdr); }
       const card=document.createElement("div"); card.className="libcard";
       const t=document.createElement("div"); t.className="t"; t.textContent=s.title||s.slug;
       const q=document.createElement("div"); q.className="q";
-      q.textContent=(s.question||"")+(s.verb?"  ·  "+s.verb:"")+(s.frames?"  ·  "+s.frames+"f":"");
+      const meta=(s.verb&&s.verb!=="showcase"?"  ·  "+s.verb:"")+(s.frames?"  ·  "+s.frames+"f":"");
+      q.textContent=(s.question||"")+meta;
       card.append(t,q);
       card.addEventListener("click",()=>{
         load("data/"+s.slug+".json", s.title||s.slug).catch(e=>setErr("library: "+e));
@@ -762,6 +901,9 @@ function loop(now){
   if(playing&&tEnd>0){ simTime+=dt*rate; if(simTime>=tEnd){ simTime=tEnd; playing=false; $("play").textContent="▶ play"; } }
   if(tEnd>0){ bodyPoses=posesAt(simTime); $("scrub").value=String(simTime/tEnd*1000);
     const p0=(bodyPoses[0]&&bodyPoses[0].pos)||[0,0,0];
+    // follow camera: long falls opt in via scene.camera.follow (the body would
+    // leave the frame for most of the drop otherwise)
+    if(scene&&scene.camera&&scene.camera.follow&&bodyPoses[0]) cam.target=p0.slice();
     $("tval").textContent=`t=${simTime.toFixed(2)}s  y=${p0[1].toFixed(2)}m`; }
   frameCount++;
   if(prog){ try{ draw(); }catch(e){ setErr("draw: "+e); } }
@@ -774,10 +916,9 @@ function loop(now){
 const _scene=new URLSearchParams(location.search).get("scene");
 if(_scene && /^[a-z0-9_]+$/i.test(_scene)){
   load(`data/${_scene}.json`,_scene.replace(/_/g," "))
-    .catch(()=>load("data/cup.json","coffee cup")
-      .then(()=>$("b-cup").classList.add("on")).catch(()=>{}));
+    .catch(()=>load("data/water.json","water").catch(()=>{}));
 }else{
-  load("data/cup.json","coffee cup").then(()=>$("b-cup").classList.add("on")).catch(()=>{});
+  load("data/water.json","water").catch(()=>{});           // open on the water showpiece
 }
 
 // ── external hook: let the Mentat chat drive this viewer without an iframe reload ──

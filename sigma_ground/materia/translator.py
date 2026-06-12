@@ -450,7 +450,11 @@ def _classify_verbs(q: str):
     #    (longest matched trigger), so a precise domain phrase beats a generic
     #    one regardless of registration order.
     mat_named = _named_material(low)
+    is_action = is_drop or bool(re.search(
+        r"\b(fire[sd]?|firing|shoot(s|ing)?|shot|launch(es|ed|ing)?|"
+        r"throw(s|n|ing)?|threw|toss(es|ed)?|hurl(s|ed)?|jump(s|ed|ing)?)\b", low))
     best_verb, best_len, matched = None, 0, set()
+    cands = []
     for verb, m in VERB_MANIFEST.items():
         if not m.get("exclusive"):
             continue
@@ -469,6 +473,15 @@ def _classify_verbs(q: str):
         ml = _match_len(low, m.get("triggers", []))
         if ml > 0:
             matched.add(verb)
+            cands.append((verb, ml, bool(m.get("motion"))))
+    # An ACTION question (fired/thrown/dropped/jumps...) with a motion-verb match:
+    # property REPORTS leave the contest — "Fire a slug at Mach 2" is a
+    # supersonic_projectile sim even though acoustics' "speed of sound" is the
+    # longer literal trigger. ("speed of sound in steel" has no action cue and
+    # still routes to acoustics.) Generalizes the old skydiver-only tiebreak.
+    if is_action and any(c[2] for c in cands):
+        cands = [c for c in cands if c[2]]
+    for verb, ml, _motion in cands:
         if ml > best_len:
             best_verb, best_len = verb, ml
     # A faller going supersonic (skydiver, re-entry) is a high-altitude DESCENT,
@@ -476,6 +489,11 @@ def _classify_verbs(q: str):
     # barrier" is a longer literal match than "skydiver".
     if best_verb == "supersonic_projectile" and "high_altitude_descent" in matched:
         best_verb = "high_altitude_descent"
+    # A projectile IN THE MACH REGIME is the transonic-drag verb, not the
+    # ballistic-arc one — the mach cue is decisive even when a range phrase
+    # ("how far") is the longer literal match.
+    if best_verb == "projectile_motion" and "supersonic_projectile" in matched:
+        best_verb = "supersonic_projectile"
     if best_verb:
         return [best_verb]
     # 3. A family we don't model yet → decline regardless.
@@ -649,6 +667,13 @@ def _qwen_plan(question: str) -> SimulationSpec | None:
                 if slot in p_in and p_in[slot] is not None:
                     if slot == "material_key":
                         params[slot] = _coerce_material(p_in[slot])
+                    elif declared[slot].get("unit") in ("object", "body"):
+                        # STRING slots survive (manifest-driven): float("wine
+                        # glass") used to silently delete drop_object's
+                        # object_name, orphaning the verb qwen chose.
+                        v = str(p_in[slot]).strip()
+                        if v:
+                            params[slot] = v
                     else:
                         try:
                             params[slot] = float(p_in[slot])
