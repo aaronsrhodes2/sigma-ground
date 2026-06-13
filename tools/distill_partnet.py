@@ -385,6 +385,166 @@ def cmd_geometry() -> None:
     print(f"\nwrote {_OUT}  ({len(pn_entries)} PartNet-measured + {len(kept)} curated)")
 
 
+def _leaf_geo(model_dir: pathlib.Path, root_label: str):
+    """Every TRUE leaf part (a node with objs and no children) of one model as
+    (cleaned_label, bbox) in Deckard axes, plus the model bbox — the real
+    assembled layout (four legs are four separate leaves at their real spots)."""
+    root = _load_hierarchy(model_dir)
+    if root is None:
+        return None
+    objs_dir = model_dir / "objs"
+    cache: dict = {}
+
+    def bbox_of(o):
+        if o not in cache:
+            cache[o] = _obj_bbox(objs_dir / f"{o}.obj")
+        return cache[o]
+
+    leaves = []
+
+    def walk(node):
+        objs, ch = node.get("objs"), node.get("children")
+        if objs and not ch:                            # a real leaf with geometry
+            bb = None
+            for o in objs:
+                bb = _union(bb, bbox_of(o))
+            if bb is not None:
+                leaves.append((_clean(node.get("name") or "", root_label), bb))
+        for c in (ch or []):
+            walk(c)
+
+    walk(root)
+    if not leaves:
+        return None
+    mbb = None
+    for _, bb in leaves:
+        mbb = _union(mbb, bb)
+    return leaves, mbb
+
+
+def _exemplar_shape(size_frac, label: str) -> str:
+    """A primitive for a leaf from its bbox aspect — cylinder ONLY for a rod
+    standing on its long (z) axis (placing it vertical is correct); everything
+    else is a box (axis-aligned, never mis-oriented). Knobs -> sphere."""
+    if label in ("knob", "ball"):
+        return "sphere"
+    e = size_frac
+    longest = max(range(3), key=lambda i: e[i])
+    srt = sorted(e, reverse=True)
+    is_rod = srt[0] >= 2.2 * max(srt[1], 1e-9) and srt[1] <= 1.6 * max(srt[2], 1e-9)
+    if is_rod and longest == 2:                        # vertical rod -> upright cylinder
+        return "cylinder"
+    return "box"
+
+
+def _dedup_leaves(leaves, oext, octr):
+    """Collapse leaves whose normalized bbox is near-identical (PartNet annotates
+    the same surface at several hierarchy levels — seat / seat_single_surface)."""
+    out, seen = [], []
+    for lbl, bb in leaves:
+        cf = tuple(round(((bb[1][i] + bb[0][i]) / 2 - octr[i]) / oext[i], 2)
+                   for i in range(3))
+        sf = tuple(round((bb[1][i] - bb[0][i]) / oext[i], 2) for i in range(3))
+        key = cf + sf
+        if any(max(abs(a - b) for a, b in zip(key, k)) < 0.04 for k in seen):
+            continue                                   # a duplicate of a kept part
+        seen.append(key)
+        out.append((lbl, bb))
+    return out
+
+
+def _exemplar_quality(leaves, mbb, freq):
+    """Rank a candidate model: deduped, spatially-distinct parts win; if the
+    category has legs, demand vertical posts at distinct corners (reject sled
+    bases and degenerate annotations); then prefer the typical part set."""
+    oext = [max(mbb[1][i] - mbb[0][i], 1e-9) for i in range(3)]
+    octr = [(mbb[1][i] + mbb[0][i]) / 2.0 for i in range(3)]
+    leaves = _dedup_leaves(leaves, oext, octr)
+    cen = [tuple(((bb[1][k] + bb[0][k]) / 2 - octr[k]) / oext[k] for k in range(3))
+           for _, bb in leaves]
+    coincident = sum(1 for i in range(len(cen)) for j in range(i + 1, len(cen))
+                     if max(abs(cen[i][k] - cen[j][k]) for k in range(3)) < 0.04)
+    leg_ok = True
+    if "leg" in freq:
+        legs = [(lbl, bb) for lbl, bb in leaves if lbl in ("leg", "foot")]
+        leg_ok = 3 <= len(legs) <= 6
+        for _, bb in legs:                             # a real leg is a vertical post
+            e = [bb[1][k] - bb[0][k] for k in range(3)]
+            if e[2] < 0.9 * max(e[0], e[1]):
+                leg_ok = False
+        xy = {(round((bb[1][0] + bb[0][0]) / 2, 2), round((bb[1][1] + bb[0][1]) / 2, 2))
+              for _, bb in legs}
+        if len(xy) < 3:
+            leg_ok = False                             # legs must reach distinct corners
+    # boxiness: a part fits a primitive well only if it's a ROD (one long axis) or
+    # a SLAB (one thin axis) — a "fat" part (all axes comparable, e.g. a curved or
+    # reclined back) fills its bounding box as an ugly block. Prefer models whose
+    # parts are all rod/slab, so box-fitting reproduces the real shape.
+    boxy = 0
+    for _, bb in leaves:
+        e = sorted([bb[1][k] - bb[0][k] for k in range(3)], reverse=True)
+        if e[0] >= 2.0 * max(e[1], 1e-9) or e[2] <= 0.35 * max(e[1], 1e-9):
+            boxy += 1
+    boxiness = boxy / max(len(leaves), 1)
+    cov = sum(freq.get(lbl, 0.05) for lbl in {l for l, _ in leaves if l not in _NOISE})
+    return (leg_ok, coincident == 0, round(boxiness, 2), round(cov, 3), len(leaves)), leaves
+
+
+def cmd_exemplar() -> None:
+    """Per category, pick ONE representative real model and ship its actual part
+    layout as primitives — Deckard learns the assembled shape of "a chair" from a
+    real chair, not from a hand-written template."""
+    try:
+        census = {e["object"]: e for e in json.loads(_OUT.read_text(encoding="utf-8"))}
+    except Exception:
+        census = {}
+    out_dir = _OUT.parent / "exemplars"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    cats = _models_by_category()
+    written = 0
+    for cat, dirs in sorted(cats.items()):
+        name, aliases = _CATEGORIES[cat]
+        freq = {p["name"]: p.get("freq", 0.0)
+                for p in census.get(name, {}).get("parts", [])}
+        best = None                                    # (quality_key, leaves, mbb, md)
+        for md in dirs:
+            if not (md / "objs").is_dir():
+                continue
+            got = _leaf_geo(md, name.replace(" ", "_"))
+            if not got or not (2 <= len(got[0]) <= 20):
+                continue
+            qual, dleaves = _exemplar_quality(got[0], got[1], freq)
+            if 2 <= len(dleaves) <= 14 and (best is None or qual > best[0]):
+                best = (qual, dleaves, got[1], md)
+        if best is None:
+            print(f"  ! {name}: no exemplar candidates")
+            continue
+        _qual, leaves, mbb, md = best
+        oext = [max(mbb[1][i] - mbb[0][i], 1e-9) for i in range(3)]
+        octr = [(mbb[1][i] + mbb[0][i]) / 2.0 for i in range(3)]
+        parts = []
+        for lbl, bb in leaves:
+            if lbl in _NOISE:
+                continue
+            ext = [bb[1][i] - bb[0][i] for i in range(3)]
+            ctr = [(bb[1][i] + bb[0][i]) / 2.0 for i in range(3)]
+            sf = [round(ext[i] / oext[i], 4) for i in range(3)]
+            cf = [round((ctr[i] - octr[i]) / oext[i], 4) for i in range(3)]
+            parts.append({"name": lbl, "shape": _exemplar_shape(sf, lbl),
+                          "center_frac": cf, "size_frac": sf})
+        doc = {"category": name, "aliases": aliases, "source_anno_id": md.name,
+               "n_parts": len(parts), "parts": parts,
+               "_source": f"PartNet (Mo et al. 2019) — representative model {md.name} "
+                          f"(real assembled part layout)",
+               "_license": _PN_LICENSE}
+        (out_dir / f"{name.replace(' ', '_')}.json").write_text(
+            json.dumps(doc, indent=1), encoding="utf-8")
+        written += 1
+        print(f"  + {name:14s} <- model {md.name} ({len(parts)} parts): "
+              + ", ".join(p["name"] for p in parts[:8]))
+    print(f"\nwrote {written} exemplars to {out_dir}")
+
+
 def cmd_verify() -> None:
     data = json.loads(_OUT.read_text(encoding="utf-8"))
     by_name = {e["object"]: e for e in data}
@@ -456,8 +616,8 @@ def cmd_taxonomy() -> None:
 
 def main(argv: list) -> None:
     cmd = argv[0] if argv else "geometry"
-    {"taxonomy": cmd_taxonomy, "sample": cmd_sample,
-     "geometry": cmd_geometry, "verify": cmd_verify}[cmd]()
+    {"taxonomy": cmd_taxonomy, "sample": cmd_sample, "geometry": cmd_geometry,
+     "exemplar": cmd_exemplar, "verify": cmd_verify}[cmd]()
 
 
 if __name__ == "__main__":

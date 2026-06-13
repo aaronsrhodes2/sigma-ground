@@ -1,0 +1,108 @@
+{
+ "category": "microwave",
+ "aliases": [],
+ "source_anno_id": "7333",
+ "n_parts": 7,
+ "parts": [
+  {
+   "name": "frame",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0381,
+    0.0066
+   ],
+   "size_frac": [
+    1.0,
+    0.9239,
+    0.9869
+   ]
+  },
+  {
+   "name": "glass",
+   "shape": "box",
+   "center_frac": [
+    -0.0613,
+    0.403,
+    0.0066
+   ],
+   "size_frac": [
+    0.6892,
+    0.0353,
+    0.8524
+   ]
+  },
+  {
+   "name": "handle",
+   "shape": "cylinder",
+   "center_frac": [
+    0.2444,
+    0.4603,
+    0.0092
+   ],
+   "size_frac": [
+    0.0777,
+    0.0794,
+    0.5307
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    0.4573,
+    0.3693,
+    -0.492
+   ],
+   "size_frac": [
+    0.0569,
+    0.0726,
+    0.0161
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    0.4573,
+    -0.4455,
+    -0.492
+   ],
+   "size_frac": [
+    0.0569,
+    0.0726,
+    0.0161
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    -0.4573,
+    -0.4455,
+    -0.492
+   ],
+   "size_frac": [
+    0.0569,
+    0.0726,
+    0.0161
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    -0.4573,
+    0.3693,
+    -0.492
+   ],
+   "size_frac": [
+    0.0569,
+    0.0726,
+    0.0161
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 7333 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

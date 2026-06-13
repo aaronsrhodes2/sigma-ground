@@ -1,0 +1,166 @@
+{
+ "category": "table",
+ "aliases": [
+  "desk"
+ ],
+ "source_anno_id": "21445",
+ "n_parts": 11,
+ "parts": [
+  {
+   "name": "board",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    0.4795
+   ],
+   "size_frac": [
+    1.0,
+    1.0,
+    0.0411
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    0.3607,
+    0.0003,
+    0.3204
+   ],
+   "size_frac": [
+    0.0309,
+    0.8064,
+    0.0959
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    -0.3295,
+    0.0003,
+    0.3204
+   ],
+   "size_frac": [
+    0.0309,
+    0.8064,
+    0.0959
+   ]
+  },
+  {
+   "name": "runner",
+   "shape": "box",
+   "center_frac": [
+    -0.3295,
+    0.0003,
+    -0.4658
+   ],
+   "size_frac": [
+    0.0309,
+    0.9656,
+    0.0685
+   ]
+  },
+  {
+   "name": "runner",
+   "shape": "box",
+   "center_frac": [
+    0.3604,
+    0.0003,
+    -0.4658
+   ],
+   "size_frac": [
+    0.0309,
+    0.9656,
+    0.0685
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    0.3604,
+    0.4035,
+    -0.0068
+   ],
+   "size_frac": [
+    0.0309,
+    0.0637,
+    0.9315
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    0.3604,
+    -0.4029,
+    -0.0042
+   ],
+   "size_frac": [
+    0.0309,
+    0.0637,
+    0.937
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    -0.3295,
+    -0.4029,
+    -0.0042
+   ],
+   "size_frac": [
+    0.0309,
+    0.0637,
+    0.937
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    -0.3295,
+    0.4035,
+    -0.0068
+   ],
+   "size_frac": [
+    0.0309,
+    0.0637,
+    0.9315
+   ]
+  },
+  {
+   "name": "tabletop_connector",
+   "shape": "box",
+   "center_frac": [
+    0.0154,
+    -0.4029,
+    0.43
+   ],
+   "size_frac": [
+    0.6899,
+    0.0318,
+    0.0685
+   ]
+  },
+  {
+   "name": "tabletop_connector",
+   "shape": "box",
+   "center_frac": [
+    0.0154,
+    0.4035,
+    0.4247
+   ],
+   "size_frac": [
+    0.6899,
+    0.0318,
+    0.0685
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 21445 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

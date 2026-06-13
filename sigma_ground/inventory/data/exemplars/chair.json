@@ -1,0 +1,150 @@
+{
+ "category": "chair",
+ "aliases": [],
+ "source_anno_id": "44164",
+ "n_parts": 10,
+ "parts": [
+  {
+   "name": "back_single_surface",
+   "shape": "box",
+   "center_frac": [
+    -0.0001,
+    -0.3152,
+    0.2547
+   ],
+   "size_frac": [
+    0.8664,
+    0.0675,
+    0.4906
+   ]
+  },
+  {
+   "name": "back_support",
+   "shape": "box",
+   "center_frac": [
+    -0.0001,
+    -0.3827,
+    0.2286
+   ],
+   "size_frac": [
+    0.8664,
+    0.0675,
+    0.5428
+   ]
+  },
+  {
+   "name": "arm_near_vertical_bar",
+   "shape": "box",
+   "center_frac": [
+    -0.3769,
+    0.016,
+    0.0577
+   ],
+   "size_frac": [
+    0.1026,
+    0.6154,
+    0.097
+   ]
+  },
+  {
+   "name": "arm_near_vertical_bar",
+   "shape": "box",
+   "center_frac": [
+    0.3769,
+    0.0161,
+    0.0577
+   ],
+   "size_frac": [
+    0.1026,
+    0.6152,
+    0.097
+   ]
+  },
+  {
+   "name": "seat_single_surface",
+   "shape": "box",
+   "center_frac": [
+    -0.0,
+    0.038,
+    0.0321
+   ],
+   "size_frac": [
+    0.8548,
+    0.774,
+    0.0455
+   ]
+  },
+  {
+   "name": "seat_support",
+   "shape": "box",
+   "center_frac": [
+    -0.0,
+    0.0042,
+    -0.0167
+   ],
+   "size_frac": [
+    0.8548,
+    0.8415,
+    0.0523
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    0.3625,
+    -0.3628,
+    -0.245
+   ],
+   "size_frac": [
+    0.2751,
+    0.2742,
+    0.509
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    -0.3625,
+    -0.3629,
+    -0.245
+   ],
+   "size_frac": [
+    0.275,
+    0.2743,
+    0.509
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    0.361,
+    0.3619,
+    -0.2453
+   ],
+   "size_frac": [
+    0.274,
+    0.2762,
+    0.5094
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    -0.3619,
+    0.3609,
+    -0.2451
+   ],
+   "size_frac": [
+    0.2746,
+    0.275,
+    0.5091
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 44164 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

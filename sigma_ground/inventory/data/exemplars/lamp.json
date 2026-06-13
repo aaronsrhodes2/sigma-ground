@@ -1,0 +1,66 @@
+{
+ "category": "lamp",
+ "aliases": [],
+ "source_anno_id": "14982",
+ "n_parts": 4,
+ "parts": [
+  {
+   "name": "base_part",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.3171,
+    -0.4831
+   ],
+   "size_frac": [
+    1.0,
+    0.3658,
+    0.0338
+   ]
+  },
+  {
+   "name": "body",
+   "shape": "box",
+   "center_frac": [
+    -0.0003,
+    0.0341,
+    0.0126
+   ],
+   "size_frac": [
+    0.215,
+    0.9317,
+    0.9749
+   ]
+  },
+  {
+   "name": "shade",
+   "shape": "box",
+   "center_frac": [
+    -0.0003,
+    0.0899,
+    0.3795
+   ],
+   "size_frac": [
+    0.215,
+    0.8202,
+    0.2409
+   ]
+  },
+  {
+   "name": "light_bulb",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.3335,
+    0.4664
+   ],
+   "size_frac": [
+    0.1885,
+    0.3308,
+    0.0307
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 14982 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

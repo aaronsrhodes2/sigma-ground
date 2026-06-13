@@ -1,0 +1,150 @@
+{
+ "category": "bed",
+ "aliases": [],
+ "source_anno_id": "12524",
+ "n_parts": 10,
+ "parts": [
+  {
+   "name": "mattress",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0011,
+    -0.0074
+   ],
+   "size_frac": [
+    0.9366,
+    0.9753,
+    0.2381
+   ]
+  },
+  {
+   "name": "headboard",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.4934,
+    0.0
+   ],
+   "size_frac": [
+    1.0,
+    0.0132,
+    1.0
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    -0.4722,
+    -0.4934,
+    0.0
+   ],
+   "size_frac": [
+    0.0556,
+    0.0132,
+    1.0
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    0.4722,
+    -0.4934,
+    0.0
+   ],
+   "size_frac": [
+    0.0556,
+    0.0132,
+    1.0
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    0.4683,
+    0.494,
+    -0.2605
+   ],
+   "size_frac": [
+    0.0464,
+    0.012,
+    0.4763
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    -0.4683,
+    0.494,
+    -0.2605
+   ],
+   "size_frac": [
+    0.0464,
+    0.012,
+    0.4763
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    -0.476,
+    0.0003,
+    -0.1116
+   ],
+   "size_frac": [
+    0.0155,
+    0.9753,
+    0.1488
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.4934,
+    -0.1414
+   ],
+   "size_frac": [
+    0.8902,
+    0.012,
+    0.0893
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    0.476,
+    0.0003,
+    -0.1116
+   ],
+   "size_frac": [
+    0.0155,
+    0.9753,
+    0.1488
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.494,
+    -0.1116
+   ],
+   "size_frac": [
+    0.8902,
+    0.012,
+    0.1488
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 12524 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

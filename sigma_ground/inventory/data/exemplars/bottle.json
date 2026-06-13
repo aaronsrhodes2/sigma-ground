@@ -1,0 +1,38 @@
+{
+ "category": "bottle",
+ "aliases": [],
+ "source_anno_id": "3610",
+ "n_parts": 2,
+ "parts": [
+  {
+   "name": "body",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    -0.173
+   ],
+   "size_frac": [
+    1.0,
+    1.0,
+    0.6541
+   ]
+  },
+  {
+   "name": "neck",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0,
+    0.3269
+   ],
+   "size_frac": [
+    0.2832,
+    0.2832,
+    0.3462
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 3610 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

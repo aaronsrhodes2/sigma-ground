@@ -13,10 +13,11 @@ confidence) so the researcher attributes every density, never guesses.
 from __future__ import annotations
 
 from . import (local, web, materials_api, dimensions_api, wikipedia, outlines,
-               composition, sizes, shapenetsem)
+               composition, sizes, shapenetsem, aliases, exemplar)
 from .outlines import outline_of
 from .composition import composition_of
 from .sizes import typical_size_of
+from .exemplar import exemplar_of
 
 
 def density_of(material: str, *, allow_web: bool = False):
@@ -50,5 +51,6 @@ def wikipedia_summary(name: str):
 
 
 __all__ = ["local", "web", "materials_api", "dimensions_api", "wikipedia", "outlines",
-           "composition", "sizes", "shapenetsem", "density_of", "dimensions_of",
-           "outline_of", "composition_of", "typical_size_of", "wikipedia_summary"]
+           "composition", "sizes", "shapenetsem", "aliases", "exemplar",
+           "density_of", "dimensions_of", "outline_of", "composition_of",
+           "typical_size_of", "exemplar_of", "wikipedia_summary"]
