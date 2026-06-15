@@ -1,0 +1,224 @@
+{
+  "_about": "Cited engineering-reference properties for everyday materials that the first-principles physics modules (surface.py/mechanical.py/stress.py/optics.py/fluid.py) do not derive. Every value is a published reference value, cited by source code below; numeric property values are facts (uncopyrightable) cited by reference, exactly like inventory/data/dimensions.json. material_profile() (field/interface/resolve.py) prefers the DERIVED physics value where one exists and falls back to these CITED values; truly unknown materials return flagged estimates. NO value here is invented — where a grade-dependent value has spread, confidence is lowered, not faked.",
+  "_units": "density kg/m^3; youngs_modulus_pa, sigma_UTS_pa Pa; K_Ic_pa_sqrtm Pa*sqrt(m); n_refractive dimensionless; reflectance 0..1; viscosity_pa_s Pa*s; surface_tension_n_m N/m. Each property is {v: value, src: source-code, c: confidence}.",
+  "_license": "Numeric property values are facts (uncopyrightable); cited by published reference.",
+  "_sources": {
+    "CRC": "CRC Handbook of Chemistry and Physics, 104th ed. (2023)",
+    "MatWeb": "MatWeb Material Property Database (matweb.com), grade-typical values",
+    "EngToolbox": "The Engineering ToolBox (engineeringtoolbox.com)",
+    "WoodHandbook": "USDA Forest Products Laboratory, Wood Handbook FPL-GTR-282 (2021), green/12% MC, parallel-to-grain",
+    "Wachtman": "Wachtman, Cannon & Matthewson, Mechanical Properties of Ceramics, 2nd ed. (2009)",
+    "Schott": "Schott AG technical glass data sheets",
+    "ASM": "ASM Handbook / ASM Engineered Materials Handbook vol. 2-4"
+  },
+  "_note_glass": "The first-principles physics layer derives generic soda-lime 'glass' (surface/mechanical/stress). The named commercial varieties below are CITED reference data — their strength is composition/processing-dependent (tempering raises the APPARENT fracture stress ~4x via residual surface compression, NOT the intrinsic K_Ic), so they live here, not in the core tables.",
+  "materials": {
+    "wood_pine": {
+      "aliases": ["pine", "softwood", "deal"], "class": "wood", "is_ductile": false,
+      "density_kg_m3": {"v": 420, "src": "WoodHandbook", "c": 0.7},
+      "youngs_modulus_pa": {"v": 9.0e9, "src": "WoodHandbook", "c": 0.7},
+      "sigma_UTS_pa": {"v": 73e6, "src": "WoodHandbook", "c": 0.6}
+    },
+    "wood_oak": {
+      "aliases": ["oak", "red oak", "white oak"], "class": "wood", "is_ductile": false,
+      "density_kg_m3": {"v": 700, "src": "WoodHandbook", "c": 0.75},
+      "youngs_modulus_pa": {"v": 12.5e9, "src": "WoodHandbook", "c": 0.7},
+      "sigma_UTS_pa": {"v": 100e6, "src": "WoodHandbook", "c": 0.6}
+    },
+    "wood_balsa": {
+      "aliases": ["balsa"], "class": "wood", "is_ductile": false,
+      "density_kg_m3": {"v": 160, "src": "WoodHandbook", "c": 0.6},
+      "youngs_modulus_pa": {"v": 3.4e9, "src": "WoodHandbook", "c": 0.6},
+      "sigma_UTS_pa": {"v": 20e6, "src": "WoodHandbook", "c": 0.5}
+    },
+    "wood_ebony": {
+      "aliases": ["ebony"], "class": "wood", "is_ductile": false,
+      "density_kg_m3": {"v": 1120, "src": "WoodHandbook", "c": 0.6},
+      "youngs_modulus_pa": {"v": 16e9, "src": "WoodHandbook", "c": 0.55},
+      "sigma_UTS_pa": {"v": 120e6, "src": "WoodHandbook", "c": 0.5}
+    },
+    "wood_maple": {
+      "aliases": ["maple", "hard maple"], "class": "wood", "is_ductile": false,
+      "density_kg_m3": {"v": 705, "src": "WoodHandbook", "c": 0.7},
+      "youngs_modulus_pa": {"v": 12.6e9, "src": "WoodHandbook", "c": 0.7},
+      "sigma_UTS_pa": {"v": 108e6, "src": "WoodHandbook", "c": 0.6}
+    },
+    "wood_bamboo": {
+      "aliases": ["bamboo"], "class": "wood", "is_ductile": false,
+      "density_kg_m3": {"v": 700, "src": "EngToolbox", "c": 0.6},
+      "youngs_modulus_pa": {"v": 20e9, "src": "MatWeb", "c": 0.55},
+      "sigma_UTS_pa": {"v": 140e6, "src": "MatWeb", "c": 0.5}
+    },
+    "plastic_abs": {
+      "aliases": ["abs", "acrylonitrile butadiene styrene"], "class": "plastic", "is_ductile": true,
+      "density_kg_m3": {"v": 1050, "src": "MatWeb", "c": 0.8},
+      "youngs_modulus_pa": {"v": 2.3e9, "src": "MatWeb", "c": 0.75},
+      "sigma_UTS_pa": {"v": 44e6, "src": "MatWeb", "c": 0.75},
+      "n_refractive": {"v": 1.54, "src": "MatWeb", "c": 0.6}
+    },
+    "plastic_pet": {
+      "aliases": ["pet", "polyester", "polyethylene terephthalate"], "class": "plastic", "is_ductile": true,
+      "density_kg_m3": {"v": 1380, "src": "MatWeb", "c": 0.8},
+      "youngs_modulus_pa": {"v": 2.8e9, "src": "MatWeb", "c": 0.7},
+      "sigma_UTS_pa": {"v": 55e6, "src": "MatWeb", "c": 0.7},
+      "n_refractive": {"v": 1.57, "src": "MatWeb", "c": 0.6}
+    },
+    "plastic_polycarbonate": {
+      "aliases": ["polycarbonate", "pc", "lexan"], "class": "plastic", "is_ductile": true,
+      "density_kg_m3": {"v": 1200, "src": "MatWeb", "c": 0.85},
+      "youngs_modulus_pa": {"v": 2.4e9, "src": "MatWeb", "c": 0.8},
+      "sigma_UTS_pa": {"v": 65e6, "src": "MatWeb", "c": 0.8},
+      "n_refractive": {"v": 1.585, "src": "MatWeb", "c": 0.7}
+    },
+    "plastic_nylon": {
+      "aliases": ["nylon", "polyamide", "pa6", "pa66"], "class": "plastic", "is_ductile": true,
+      "density_kg_m3": {"v": 1140, "src": "MatWeb", "c": 0.8},
+      "youngs_modulus_pa": {"v": 2.7e9, "src": "MatWeb", "c": 0.7},
+      "sigma_UTS_pa": {"v": 75e6, "src": "MatWeb", "c": 0.7},
+      "n_refractive": {"v": 1.53, "src": "MatWeb", "c": 0.6}
+    },
+    "plastic_acrylic": {
+      "aliases": ["acrylic", "pmma", "perspex", "plexiglass"], "class": "plastic", "is_ductile": false,
+      "density_kg_m3": {"v": 1180, "src": "MatWeb", "c": 0.85},
+      "youngs_modulus_pa": {"v": 3.1e9, "src": "MatWeb", "c": 0.8},
+      "sigma_UTS_pa": {"v": 70e6, "src": "MatWeb", "c": 0.75},
+      "n_refractive": {"v": 1.49, "src": "CRC", "c": 0.85}
+    },
+    "plastic_polyethylene": {
+      "aliases": ["polyethylene", "hdpe", "pe"], "class": "plastic", "is_ductile": true,
+      "density_kg_m3": {"v": 950, "src": "MatWeb", "c": 0.8},
+      "youngs_modulus_pa": {"v": 0.8e9, "src": "MatWeb", "c": 0.7},
+      "sigma_UTS_pa": {"v": 25e6, "src": "MatWeb", "c": 0.7},
+      "n_refractive": {"v": 1.54, "src": "MatWeb", "c": 0.6}
+    },
+    "plastic_polypropylene": {
+      "aliases": ["polypropylene", "pp"], "class": "plastic", "is_ductile": true,
+      "density_kg_m3": {"v": 905, "src": "MatWeb", "c": 0.8},
+      "youngs_modulus_pa": {"v": 1.5e9, "src": "MatWeb", "c": 0.7},
+      "sigma_UTS_pa": {"v": 35e6, "src": "MatWeb", "c": 0.7},
+      "n_refractive": {"v": 1.49, "src": "MatWeb", "c": 0.6}
+    },
+    "plastic_pvc": {
+      "aliases": ["pvc", "polyvinyl chloride", "vinyl"], "class": "plastic", "is_ductile": false,
+      "density_kg_m3": {"v": 1400, "src": "MatWeb", "c": 0.8},
+      "youngs_modulus_pa": {"v": 3.0e9, "src": "MatWeb", "c": 0.7},
+      "sigma_UTS_pa": {"v": 50e6, "src": "MatWeb", "c": 0.7},
+      "n_refractive": {"v": 1.54, "src": "MatWeb", "c": 0.6}
+    },
+    "glass_fused_silica": {
+      "aliases": ["fused silica", "fused quartz", "quartz glass"], "class": "glass", "is_ductile": false,
+      "density_kg_m3": {"v": 2200, "src": "Schott", "c": 0.9},
+      "youngs_modulus_pa": {"v": 73e9, "src": "Schott", "c": 0.85},
+      "sigma_UTS_pa": {"v": 50e6, "src": "Wachtman", "c": 0.6},
+      "K_Ic_pa_sqrtm": {"v": 0.75e6, "src": "Wachtman", "c": 0.7},
+      "n_refractive": {"v": 1.458, "src": "Schott", "c": 0.9}
+    },
+    "glass_soda_lime": {
+      "aliases": ["soda lime glass", "soda-lime glass", "window glass", "annealed glass"], "class": "glass", "is_ductile": false,
+      "density_kg_m3": {"v": 2500, "src": "Schott", "c": 0.85},
+      "youngs_modulus_pa": {"v": 70e9, "src": "Schott", "c": 0.8},
+      "sigma_UTS_pa": {"v": 33e6, "src": "Wachtman", "c": 0.65},
+      "K_Ic_pa_sqrtm": {"v": 0.75e6, "src": "Wachtman", "c": 0.7},
+      "n_refractive": {"v": 1.52, "src": "Schott", "c": 0.85}
+    },
+    "glass_borosilicate": {
+      "aliases": ["borosilicate", "borosilicate glass", "pyrex", "bk7"], "class": "glass", "is_ductile": false,
+      "density_kg_m3": {"v": 2230, "src": "Schott", "c": 0.9},
+      "youngs_modulus_pa": {"v": 64e9, "src": "Schott", "c": 0.85},
+      "sigma_UTS_pa": {"v": 35e6, "src": "Wachtman", "c": 0.6},
+      "K_Ic_pa_sqrtm": {"v": 0.79e6, "src": "Wachtman", "c": 0.6},
+      "n_refractive": {"v": 1.472, "src": "Schott", "c": 0.9}
+    },
+    "glass_tempered": {
+      "aliases": ["tempered glass", "toughened glass", "safety glass"], "class": "glass", "is_ductile": false,
+      "density_kg_m3": {"v": 2500, "src": "Schott", "c": 0.85},
+      "youngs_modulus_pa": {"v": 70e9, "src": "Schott", "c": 0.8},
+      "sigma_UTS_pa": {"v": 150e6, "src": "ASM", "c": 0.6},
+      "K_Ic_pa_sqrtm": {"v": 0.75e6, "src": "Wachtman", "c": 0.7},
+      "n_refractive": {"v": 1.52, "src": "Schott", "c": 0.85}
+    },
+    "glass_lead": {
+      "aliases": ["lead glass", "crystal glass", "lead crystal"], "class": "glass", "is_ductile": false,
+      "density_kg_m3": {"v": 3100, "src": "Schott", "c": 0.8},
+      "youngs_modulus_pa": {"v": 60e9, "src": "Schott", "c": 0.75},
+      "sigma_UTS_pa": {"v": 30e6, "src": "Wachtman", "c": 0.55},
+      "K_Ic_pa_sqrtm": {"v": 0.62e6, "src": "Wachtman", "c": 0.55},
+      "n_refractive": {"v": 1.56, "src": "Schott", "c": 0.85}
+    },
+    "brass": {
+      "aliases": ["brass", "cartridge brass"], "class": "metal", "is_ductile": true,
+      "density_kg_m3": {"v": 8500, "src": "CRC", "c": 0.85},
+      "youngs_modulus_pa": {"v": 100e9, "src": "MatWeb", "c": 0.8},
+      "sigma_UTS_pa": {"v": 350e6, "src": "MatWeb", "c": 0.7}
+    },
+    "bronze": {
+      "aliases": ["bronze"], "class": "metal", "is_ductile": true,
+      "density_kg_m3": {"v": 8800, "src": "CRC", "c": 0.8},
+      "youngs_modulus_pa": {"v": 110e9, "src": "MatWeb", "c": 0.75},
+      "sigma_UTS_pa": {"v": 350e6, "src": "MatWeb", "c": 0.65}
+    },
+    "stainless_steel": {
+      "aliases": ["stainless steel", "stainless", "steel 304", "304 stainless"], "class": "metal", "is_ductile": true,
+      "density_kg_m3": {"v": 8000, "src": "MatWeb", "c": 0.85},
+      "youngs_modulus_pa": {"v": 193e9, "src": "MatWeb", "c": 0.85},
+      "sigma_UTS_pa": {"v": 515e6, "src": "MatWeb", "c": 0.75},
+      "K_Ic_pa_sqrtm": {"v": 100e6, "src": "ASM", "c": 0.6}
+    },
+    "cotton": {
+      "aliases": ["cotton", "cotton fabric"], "class": "fabric", "is_ductile": true,
+      "density_kg_m3": {"v": 1540, "src": "CRC", "c": 0.7},
+      "reflectance": {"v": 0.90, "src": "EngToolbox", "c": 0.6}
+    },
+    "wool": {
+      "aliases": ["wool", "wool fabric"], "class": "fabric", "is_ductile": true,
+      "density_kg_m3": {"v": 1300, "src": "CRC", "c": 0.65},
+      "reflectance": {"v": 0.80, "src": "EngToolbox", "c": 0.55}
+    },
+    "leather": {
+      "aliases": ["leather", "cowhide"], "class": "organic", "is_ductile": true,
+      "density_kg_m3": {"v": 860, "src": "EngToolbox", "c": 0.6},
+      "reflectance": {"v": 0.30, "src": "EngToolbox", "c": 0.5}
+    },
+    "foam_polyurethane": {
+      "aliases": ["foam", "polyurethane foam", "cushion foam", "upholstery foam"], "class": "foam", "is_ductile": true,
+      "density_kg_m3": {"v": 40, "src": "MatWeb", "c": 0.55},
+      "youngs_modulus_pa": {"v": 3.0e6, "src": "MatWeb", "c": 0.45}
+    },
+    "cork": {
+      "aliases": ["cork"], "class": "organic", "is_ductile": true,
+      "density_kg_m3": {"v": 240, "src": "EngToolbox", "c": 0.6},
+      "youngs_modulus_pa": {"v": 0.02e9, "src": "MatWeb", "c": 0.45}
+    },
+    "paper": {
+      "aliases": ["paper", "cardboard", "card"], "class": "organic", "is_ductile": false,
+      "density_kg_m3": {"v": 800, "src": "EngToolbox", "c": 0.6},
+      "youngs_modulus_pa": {"v": 3.0e9, "src": "MatWeb", "c": 0.5}
+    },
+    "olive_oil": {
+      "aliases": ["olive oil", "cooking oil", "vegetable oil"], "class": "liquid", "is_ductile": true,
+      "density_kg_m3": {"v": 915, "src": "CRC", "c": 0.8},
+      "viscosity_pa_s": {"v": 0.081, "src": "CRC", "c": 0.6},
+      "surface_tension_n_m": {"v": 0.032, "src": "CRC", "c": 0.6},
+      "n_refractive": {"v": 1.47, "src": "CRC", "c": 0.7}
+    },
+    "ceramic_porcelain": {
+      "aliases": ["porcelain", "china", "ceramic"], "class": "ceramic", "is_ductile": false,
+      "density_kg_m3": {"v": 2400, "src": "MatWeb", "c": 0.75},
+      "youngs_modulus_pa": {"v": 70e9, "src": "MatWeb", "c": 0.7},
+      "sigma_UTS_pa": {"v": 50e6, "src": "Wachtman", "c": 0.55},
+      "K_Ic_pa_sqrtm": {"v": 1.0e6, "src": "Wachtman", "c": 0.6}
+    },
+    "marble": {
+      "aliases": ["marble"], "class": "stone", "is_ductile": false,
+      "density_kg_m3": {"v": 2700, "src": "EngToolbox", "c": 0.8},
+      "youngs_modulus_pa": {"v": 50e9, "src": "MatWeb", "c": 0.65},
+      "sigma_UTS_pa": {"v": 10e6, "src": "MatWeb", "c": 0.5}
+    },
+    "brick": {
+      "aliases": ["brick", "fired clay"], "class": "stone", "is_ductile": false,
+      "density_kg_m3": {"v": 1900, "src": "EngToolbox", "c": 0.75},
+      "youngs_modulus_pa": {"v": 15e9, "src": "MatWeb", "c": 0.6},
+      "sigma_UTS_pa": {"v": 2e6, "src": "MatWeb", "c": 0.5}
+    }
+  }
+}

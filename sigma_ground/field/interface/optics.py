@@ -204,6 +204,16 @@ MEASURED_NK = {
         550e-9: (2.32, 4.06),
         450e-9: (1.89, 3.62),
     },
+    # Liquid mercury — Inagaki, Arakawa & Williams (1976) Phys Rev B 13:5610;
+    # also Palik Vol. 1. Liquid Hg is a free-electron mirror: R ≈ 0.74–0.79
+    # across the visible (slightly warm-neutral, a touch duller than silver).
+    # Representative visible-range n+ik; liquid-metal constants carry some
+    # spread between tabulations, so downstream confidence is moderate.
+    'mercury': {
+        650e-9: (1.60, 4.80),
+        550e-9: (1.50, 4.40),
+        450e-9: (1.40, 4.00),
+    },
 }
 
 
