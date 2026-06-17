@@ -77,6 +77,13 @@ _ALIAS = {
     "ice": "water_ice", "water ice": "water_ice", "oak": "wood_oak", "wood": "wood_oak",
     "carbon fiber": "carbon_fiber", "carbon fibre": "carbon_fiber", "cfrp": "carbon_fiber",
     "alumina": "ceramic_alumina",
+    # generic category names (e.g. the ones ShapeNetSem/Deckard emit) → a
+    # representative member so they resolve to a CITED density rather than an
+    # estimate. "wood"→oak above; the rest here.
+    "metal": "steel_mild", "metallic": "steel_mild", "steel alloy": "steel_mild",
+    "plastic": "plastic_abs", "polymer": "plastic_abs",
+    "fabric": "cotton", "textile": "cotton", "cloth": "cotton", "carpet": "wool",
+    "foam": "foam_polyurethane",
 }
 
 # Glass/solid → the dielectric optics key that carries its refractive index.

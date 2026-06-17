@@ -190,13 +190,74 @@ def _furniture_archetype(name: str):
     return (*best, cat) if best else None
 
 
-def _exemplar_spec(name: str) -> ConstructSpec | None:
+# ── Per-part material: a documented ROLE-CONVENTION ──────────────────────────
+# PartNet carries NO per-part material, so we do NOT claim to measure it.
+# Instead each part's material is assigned by ROLE — cited to ShapeNetSem's
+# category material ratios. Structural parts (frame/legs/back/support) take the
+# frame material; soft parts (seat/cushion/pad) take the upholstery material
+# when the category composition includes one. This is a convention, flagged as
+# such; the SHAPE remains 100% the real exemplar's layout.
+_SOFT_ROLE = ("seat", "cushion", "pad", "mattress", "pillow", "headrest", "armrest", "sole")
+_STRUCT_ROLE = ("support", "frame", "bar", "leg", "stretcher", "runner", "post", "base", "rail")
+_SOFT_MATERIALS = ("fabric", "leather", "carpet", "foam", "cloth", "textile")
+
+# A material adjective ("a wooden chair") biases the FRAME material — it selects,
+# it does not invent. Maps the adjective to a canonical material the resolver
+# knows; resolve.material_profile() turns that into a cited density.
+_HINT_MATERIAL = {
+    "wood": "wood", "wooden": "wood", "oak": "wood_oak", "pine": "wood_pine",
+    "balsa": "wood_balsa", "maple": "wood_maple", "bamboo": "wood_bamboo",
+    "metal": "metal", "metallic": "metal", "steel": "steel", "stainless": "stainless_steel",
+    "iron": "iron", "aluminum": "aluminum", "aluminium": "aluminum",
+    "brass": "brass", "bronze": "bronze", "copper": "copper", "gold": "gold",
+    "plastic": "plastic", "acrylic": "plastic_acrylic", "abs": "plastic_abs",
+    "glass": "glass", "leather": "leather",
+}
+
+
+def _hint_to_material(material_hint):
+    """Adjective/hint → a canonical material name the resolver knows, or None."""
+    if not material_hint:
+        return None
+    h = material_hint.strip().lower()
+    if h in _HINT_MATERIAL:
+        return _HINT_MATERIAL[h]
+    for w in reversed(h.split()):                 # "a wooden chair" → "wooden"
+        if w in _HINT_MATERIAL:
+            return _HINT_MATERIAL[w]
+    return None
+
+
+def _role_material(part_name, structural, soft):
+    """Which material a part takes by ROLE (structural vs upholstery)."""
+    nm = (part_name or "").lower()
+    if soft and any(k in nm for k in _SOFT_ROLE) and not any(k in nm for k in _STRUCT_ROLE):
+        return soft
+    return structural
+
+
+def _density_fact(material_name):
+    """Cited density Fact for a material name via the combined resolver
+    (field.interface.resolve.material_profile — derived/cited where possible,
+    a flagged estimate otherwise). Tier-OK: deckard(2) → field(1)."""
+    try:
+        from sigma_ground.field.interface.resolve import material_profile
+        d = material_profile(material_name).get("density")
+        if d is not None:
+            return Fact(round(float(d.value), 1), d.source or "estimated", d.license, d.confidence)
+    except Exception:
+        pass
+    return Fact(700.0, "estimated", "", 0.3)
+
+
+def _exemplar_spec(name: str, material_hint: str | None = None) -> ConstructSpec | None:
     """Assemble a known PartNet category from a REAL representative model's part
     layout (legs/back/seat at their actual measured positions), scaled to the
-    object's median real-world size and given its measured material. The shape
-    is learned from real objects, not hand-authored — Deckard inherently knows
-    what a chair (mug, lamp, scissors…) is. None if the name isn't a PartNet
-    category."""
+    object's median real-world size, with per-part material by role-convention
+    (cited to ShapeNetSem ratios). The shape is learned from real objects, not
+    hand-authored — Deckard inherently knows what a chair (mug, lamp, scissors…)
+    is. ``material_hint`` (e.g. "wooden") biases the frame material. None if the
+    name isn't a PartNet category."""
     from . import sources
     from .schema import Part
 
@@ -217,18 +278,20 @@ def _exemplar_spec(name: str) -> ConstructSpec | None:
         W = D = 0.62 * H
         size_src = {"name": "typical overall size (scale estimate)", "license": ""}
 
-    # measured material composition; the densest cited SOLID becomes the body
-    material, dens, comp = "oak", None, sources.shapenetsem.materials_of(name)
-    if comp:
-        for cand in comp[0]:                         # ratio-ordered
-            if cand in ("fabric", "leather", "paper", "carpet"):
-                continue                             # upholstery, not the frame
-            d = sources.density_of(cand, allow_web=False)
-            if d is not None:
-                material, dens = cand, d
-                break
-    if dens is None:
-        dens = sources.density_of(material, allow_web=False) or Fact(700.0, "estimated", "", 0.3)
+    # per-part material by ROLE-CONVENTION (PartNet has no per-part material).
+    # Frame material = the densest cited SOLID in the ShapeNetSem category
+    # composition, OR the material_hint override; soft parts take the upholstery
+    # material when the composition has one. Densities are resolved AND cited
+    # through material_profile (the combined resolver).
+    comp = sources.shapenetsem.materials_of(name)
+    ratios = comp[0] if comp else {}
+    structural = _hint_to_material(material_hint)
+    hint_used = structural is not None
+    if structural is None:
+        structural = next((c for c in ratios if c not in _SOFT_MATERIALS), None) or "wood"
+    soft = next((c for c in ratios if c in _SOFT_MATERIALS), None)
+    struct_dens = _density_fact(structural)
+    soft_dens = _density_fact(soft) if soft else None
 
     WDH = (W, D, H)
     est = lambda v: Fact(round(max(v, 0.003), 5), "estimated", "PartNet exemplar", 0.5)
@@ -244,7 +307,9 @@ def _exemplar_spec(name: str) -> ConstructSpec | None:
             dims = {"radius_m": est((ext[0] + ext[1] + ext[2]) / 6.0)}
         else:
             dims, shape = {"x_m": est(ext[0]), "y_m": est(ext[1]), "z_m": est(ext[2])}, "box"
-        parts.append(Part(f"{pp['name'] or 'part'}_{i}", shape, dims, material, dens,
+        pmat = _role_material(pp.get("name"), structural, soft)
+        pdens = soft_dens if (soft is not None and pmat == soft) else struct_dens
+        parts.append(Part(f"{pp['name'] or 'part'}_{i}", shape, dims, pmat, pdens,
                           tuple(round(x, 5) for x in ctr)))
         zs.append(ctr[2] - ext[2] / 2.0)
     if not parts:
@@ -253,18 +318,22 @@ def _exemplar_spec(name: str) -> ConstructSpec | None:
     for p in parts:
         p.center_m = (p.center_m[0], p.center_m[1], round(p.center_m[2] - floor, 5))
 
-    comp_str = (", ".join(f"{m} {r:.0%}" for m, r in list(comp[0].items())[:4])
-                if comp else material)
+    comp_str = (", ".join(f"{m} {r:.0%}" for m, r in list(ratios.items())[:4])
+                if ratios else structural)
+    mat_note = (f"per-part material by role-convention (frame={structural}"
+                + (f", upholstery={soft}" if soft else "") + ")"
+                + (f"; material_hint '{material_hint}' applied" if hint_used else ""))
     return ConstructSpec(
         name=name, kind="composite", identified=True, parts=parts,
         sources=[{"name": "assembled from a representative real model — its actual "
                           "part layout (no hand-authored template)", "license": lic},
                  {"name": src, "license": lic}, size_src,
                  {"name": f"material composition (ShapeNetSem): {comp_str}",
-                  "license": comp[2] if comp else ""}],
+                  "license": comp[2] if comp else ""},
+                 {"name": mat_note + " — PartNet carries no per-part material; "
+                          "materials cited to ShapeNetSem category ratios", "license": ""}],
         notes=f"A representative {name}: {len(parts)} parts at their measured "
-              f"relative positions, scaled to the median real size; "
-              f"composition {comp_str}.",
+              f"relative positions, scaled to the median real size; {mat_note}.",
     )
 
 
@@ -349,19 +418,22 @@ def _furniture_spec(name: str) -> ConstructSpec | None:
     )
 
 
-def research(name: str, *, allow_llm: bool = True) -> ConstructSpec:
+def research(name: str, *, allow_llm: bool = True,
+             material_hint: str | None = None) -> ConstructSpec:
     """Resolve a named object to a cited ConstructSpec; flag if unidentified.
 
-    A catalog hit is returned verbatim (deterministic). A legged-furniture name
-    gets the structural assembler (a chair must be BUILT like a chair, not
-    sampled part-by-part). On a miss the Researcher is consulted if available;
-    failing that, a flagged best-guess is returned — never a confident fake.
+    A catalog hit is returned verbatim (deterministic). A PartNet category gets
+    the real-exemplar assembler with per-part materials (``material_hint`` such
+    as "wooden" biases the frame material — it SELECTS, it does not invent). On
+    a miss the Researcher is consulted if available; failing that, a flagged
+    best-guess is returned — never a confident fake.
     """
     hit = catalog.lookup(name)
     if hit is not None:
         return hit
 
-    structured = _exemplar_spec(name) or _furniture_spec(name)   # real layout, else archetype
+    structured = (_exemplar_spec(name, material_hint=material_hint)
+                  or _furniture_spec(name))         # real layout, else archetype
     if structured is not None:
         return structured
 
