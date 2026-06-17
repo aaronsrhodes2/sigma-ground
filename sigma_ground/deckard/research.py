@@ -250,6 +250,67 @@ def _density_fact(material_name):
     return Fact(700.0, "estimated", "", 0.3)
 
 
+# ── Containers: carve an open-top interior so a vessel can actually hold a fill.
+# The exemplar body is a solid block; a real container is hollow. We make the
+# largest body part a round wall and carve an interior cavity (named 'interior')
+# that a scenario's fill floods bottom-up (construct.py op="subtract" + fill).
+# A documented convention (carved interior at a flagged wall fraction), NOT
+# measured geometry — the part LAYOUT still comes from the real exemplar.
+_CONTAINER_WORDS = (
+    "mug", "cup", "glass", "bowl", "bottle", "vase", "jar", "bucket",
+    "pitcher", "tumbler", "flask", "jug", "tankard", "goblet", "beaker",
+)
+
+
+def _is_container(name):
+    """True if the head noun (last word) names a vessel — so 'a wine glass' is a
+    container but 'a glass table' is not."""
+    words = name.lower().replace("-", " ").replace("_", " ").split()
+    return bool(words) and words[-1] in _CONTAINER_WORDS
+
+
+def _carve_interior(parts):
+    """Hollow the container: round the largest body part into a wall and add an
+    open-top interior cavity (op='subtract'). Returns the cavity name, or None."""
+    from .schema import Part
+
+    def vol(p):
+        d = p.dims
+        if p.shape == "cylinder":
+            return d["radius_m"].value ** 2 * d["height_m"].value
+        if p.shape == "box":
+            return d["x_m"].value * d["y_m"].value * d["z_m"].value
+        return 0.0
+
+    bodies = [p for p in parts if p.shape in ("box", "cylinder")]
+    if not bodies:
+        return None
+    body = max(bodies, key=vol)
+    d = body.dims
+    if body.shape == "box":                          # containers are round
+        r_out = min(d["x_m"].value, d["y_m"].value) / 2.0
+        h = d["z_m"].value
+        body.shape = "cylinder"
+        body.dims = {"radius_m": Fact(round(r_out, 5), "estimated", "container convention", 0.4),
+                     "height_m": d["z_m"]}
+    else:
+        r_out, h = d["radius_m"].value, d["height_m"].value
+    wall = max(0.002, 0.08 * r_out)                  # ~8% wall, ≥2 mm
+    base = max(0.002, 0.10 * h)                       # ~10% floor
+    r_in = max(r_out - wall, 0.001)
+    cx, cy, cz = body.center_m
+    interior = Part(
+        "interior", "cylinder",
+        {"radius_m": Fact(round(r_in, 5), "estimated", "carved cavity", 0.4),
+         "height_m": Fact(round(h, 5), "estimated", "carved cavity", 0.4)},
+        "air", Fact(1.2, "air (cavity)", "", 0.5),
+        (cx, cy, round(cz + base, 5)),               # raised → floor below, open at top
+    )
+    interior.op = "subtract"
+    parts.append(interior)
+    return "interior"
+
+
 def _exemplar_spec(name: str, material_hint: str | None = None) -> ConstructSpec | None:
     """Assemble a known PartNet category from a REAL representative model's part
     layout (legs/back/seat at their actual measured positions), scaled to the
@@ -318,11 +379,14 @@ def _exemplar_spec(name: str, material_hint: str | None = None) -> ConstructSpec
     for p in parts:
         p.center_m = (p.center_m[0], p.center_m[1], round(p.center_m[2] - floor, 5))
 
+    cavity = _carve_interior(parts) if _is_container(name) else None
+
     comp_str = (", ".join(f"{m} {r:.0%}" for m, r in list(ratios.items())[:4])
                 if ratios else structural)
     mat_note = (f"per-part material by role-convention (frame={structural}"
                 + (f", upholstery={soft}" if soft else "") + ")"
-                + (f"; material_hint '{material_hint}' applied" if hint_used else ""))
+                + (f"; material_hint '{material_hint}' applied" if hint_used else "")
+                + ("; hollow vessel (carved open-top interior, fillable)" if cavity else ""))
     return ConstructSpec(
         name=name, kind="composite", identified=True, parts=parts,
         sources=[{"name": "assembled from a representative real model — its actual "

@@ -4,8 +4,9 @@ material). A material adjective biases the frame material — it SELECTS, it doe
 not invent. Densities resolve through field.interface.resolve.material_profile.
 """
 from sigma_ground.deckard.research import (
-    _exemplar_spec, _role_material, _hint_to_material,
+    _exemplar_spec, _role_material, _hint_to_material, _is_container,
 )
+from sigma_ground.deckard import compile
 
 
 def test_chair_parts_carry_per_part_cited_materials():
@@ -59,3 +60,18 @@ def test_role_and_hint_helpers():
     assert _role_material("seat_support", "wood", "fabric") == "wood"   # structural
     assert _role_material("leg_3", "wood", "fabric") == "wood"
     assert _role_material("back", "wood", None) == "wood"               # no upholstery
+
+
+def test_container_is_hollow_open_top_and_compiles():
+    spec = _exemplar_spec("a mug")
+    assert spec is not None
+    cav = [p for p in spec.parts if p.name == "interior"]
+    assert cav and cav[0].op == "subtract" and cav[0].shape == "cylinder"  # carved cavity
+    # a non-container is NOT hollowed
+    chair = _exemplar_spec("a chair")
+    assert not any(p.name == "interior" for p in chair.parts)
+    # head-noun heuristic: 'a wine glass' is a vessel, 'a glass table' is not
+    assert _is_container("a wine glass") and not _is_container("a glass table")
+    # the hollow vessel still compiles to a real solid with mass
+    c = compile(spec, resolution=40)
+    assert c.mass_kg > 0
