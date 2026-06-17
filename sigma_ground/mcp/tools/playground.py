@@ -317,7 +317,10 @@ def playground_simulate(handle: str = "scene",
     if sc is None:
         return _missing(handle)
     from sigma_ground.mcp.tools.simulation import simulate as _sim
-    res = _sim(scenario)
+    # Forward the object identity (was dropped before — only tacked on as a note
+    # afterward) so the translator/spine knows WHICH object the scenario is about.
+    obj = sc.get("object") or sc.get("material")
+    res = _sim(scenario, object_handle=obj)
     out = res.to_dict() if hasattr(res, "to_dict") else res
     # annotate with the scene it ran against
     if isinstance(out, dict):
