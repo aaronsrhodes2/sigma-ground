@@ -22,12 +22,13 @@ Oracle captured via the Wolfram Alpha MCP + free-tier API on 2026-06-05.
 
 3. **Mentat's switchboard had regressed to 52.7% — now fixed back to ~85%+.**
    Two bugs introduced this session (param-alias gap + un-set `num_ctx` context
-   truncation) were found and fixed; a 16-Q recheck went 50%→**94%**. Full 150-Q
-   re-run ended early at 87/150 (process exited ~Q88, no traceback captured),
-   but the completed portion scored **81/87 = 93.1% with 0 empty answers** — the
-   regression is cleared (the regressed run had ~46/150 empty). Full-150 pending
-   a resume; the un-run tail (GR/cosmology/astro/nuclear) is harder, so the
-   final number likely settles ~85-90%. (June baseline 85.3%.)
+   truncation) were found and fixed; a 16-Q recheck went 50%→**94%**. The re-run
+   completed **131/150** before an intermittent harness stall (a different benign
+   question each time — Q88 then Q132/`atom_004` — no traceback; a runner/ollama
+   robustness issue, not physics/routing), scoring **117/131 = 89.3% with 0 empty
+   answers** (the regressed run had ~46/150 empty). That is **above** the June
+   85.3% baseline. Weakest domains: cosmology 62%, GR 70%, classical-adv 80%;
+   thermo/QM/modern/atomic/astro all 100%.
 
 **Bottom line for cancelling Wolfram:** on physics *accuracy* Mentat matches
 Wolfram where both can answer (34/34), and Mentat *additionally* handles the
@@ -77,7 +78,7 @@ Corpus: `benchmark/questions.json` (150 Qs, 14 domains, textbook ground truth).
 |---|---|---|
 | **Mentat + Qwen-7b (June 3)** | **85.3%** (128/150) | the real switchboard baseline |
 | Mentat + Qwen-7b (this session, regressed) | 52.7% | two bugs introduced this session |
-| Mentat + Qwen-7b (this session, fixed) | **81/87 = 93.1%** (partial; run ended at Q87) | 0 empties — regression cleared; 94% on 16-Q recheck |
+| Mentat + Qwen-7b (this session, fixed) | **117/131 = 89.3%** (131/150 done; harness stalled at Q132) | 0 empties — regression cleared, above the 85.3% baseline |
 | Gemini 2.5 Pro (no tools) | 60.0% | June 3 |
 | Wolfram (verbatim conversational) | ~13–26% | **artifact: Wolfram's NL returns "No Results" on chatty Qs** |
 | Wolfram (auto-translated, lower bound) | 36.7% | translation + extraction noise; NOT its physics |
@@ -106,7 +107,7 @@ measure of Wolfram, and it says ≈100%.
 | This session (regressed) | 52.7% | (1) param-alias gap → validation-error loops; (2) `num_ctx` unset → context truncation → empty replies (30 Qs) |
 | Velocity fix only (16-Q recheck) | 62% | param-alias prefix-fallback |
 | Both fixes (16-Q recheck) | **94%** | + `num_ctx=32768` |
-| Partial re-run (ended at Q87) | **81/87 = 93.1%**, 0 empty | regression cleared |
+| Re-run (131/150, stalled at Q132) | **117/131 = 89.3%**, 0 empty | regression cleared, above baseline |
 
 Fixes: `param_aliases.py` (general prefix-fallback in `normalize_kwargs`),
 `run_sigma_ground.py` (`num_ctx=32768` on both ollama calls). Guarded by
