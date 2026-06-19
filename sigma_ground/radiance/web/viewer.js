@@ -76,6 +76,16 @@ float sdConeZ(vec3 p, vec3 c, float R, float H){ vec3 q=p-c;
 vec3 qrotInv(vec4 q, vec3 v){ vec3 u=-q.xyz; vec3 t=2.0*cross(u,v); return v+q.w*t+cross(u,t); }
 float sdTorus(vec3 p, vec3 c, float R, float r){ vec3 q=p-c; return length(vec2(length(q.xy)-R, q.z))-r; }
 vec3 leafRot(vec4 rot, vec3 p, vec3 c){ return qrotInv(rot, p-c)+c; }
+// Transparency test-card environment (debug toggle): the universal grey/white
+// checker meaning "nothing here". A transparent thing shows it refracted, a
+// mirror shows it reflected — so you can SEE what's see-through. Cube-map
+// projection keeps the tiles stable as the camera orbits. NOT physics — a view
+// affordance; the glasses passthrough always keeps black = transparent.
+vec3 checkerEnv(vec3 rd){ vec3 a=abs(rd); vec2 uv;
+  if(a.x>=a.y&&a.x>=a.z) uv=rd.yz/max(a.x,1e-6);
+  else if(a.y>=a.z) uv=rd.xz/max(a.y,1e-6); else uv=rd.xy/max(a.z,1e-6);
+  float c=mod(floor(uv.x*8.0)+floor(uv.y*8.0),2.0);
+  return mix(vec3(0.16),vec3(0.86),c); }                  // tiles sized in the [-1,1] cube-face uv
 `;
 function jsLeafSDF(leaf, q){
   const s=leaf.shape, c=s.center;
@@ -151,6 +161,7 @@ function jsShapeSDF(s,q){
 }
 // per-build registry of generated GLSL outline functions (profiles baked as consts)
 let EXTRA_GLSL="", outlineN=0, outlineKeys=new Map();
+let envChecker=false;        // debug: swap the environment for a transparency checker (view-only; never the glasses output)
 function resetExtraGLSL(){ EXTRA_GLSL=""; outlineN=0; outlineKeys=new Map(); }
 function glslOutline(s,qvar){
   const key=JSON.stringify([s.profile,s.mode,s.thickness||0,s.center]);
@@ -540,7 +551,7 @@ float sunShadow(vec3 ro, vec3 rd){ float t=EPS;
   for(int i=0;i<64;i++){ float d=mapOnly(ro+rd*t); if(d<0.001) return 0.0; t+=clamp(d,${SHMIN},${SHMAX}); if(t>${SMAXT}) break; } return 1.0; }
 float visRay(vec3 ro, vec3 rd, float maxt){ float t=EPS;   // unoccluded toward an emitter up to maxt?
   for(int i=0;i<64;i++){ if(t>maxt) return 1.0; float d=mapOnly(ro+rd*t); if(d<0.001) return 0.0; t+=clamp(d,${SHMIN},${SHMAX}); } return 1.0; }
-vec3 skyEmit(vec3 rd){ vec3 AUP=normalize(vec3(${glf(au[0])},${glf(au[1])},${glf(au[2])}));
+vec3 skyEmit(vec3 rd){ ${envChecker?"return checkerEnv(rd);":""} vec3 AUP=normalize(vec3(${glf(au[0])},${glf(au[1])},${glf(au[2])}));
   float u=clamp(0.5+0.5*dot(rd,AUP),0.0,1.0);
   // NON-DERIVED (audit): these sky RGBs are hand-picked, not Rayleigh/Mie from a
   // real atmosphere — the largest remaining physics-to-screen gap in the PT path.
@@ -549,7 +560,7 @@ vec3 skyEmit(vec3 rd){ vec3 AUP=normalize(vec3(${glf(au[0])},${glf(au[1])},${glf
   return c; }
 vec3 trace(vec3 ro, vec3 rd, inout uint seed){
   vec3 L=vec3(0.0), thr=vec3(1.0); bool spec=true;       // primary ray counts as a specular arrival
-  for(int b=0;b<3;b++){
+  for(int b=0;b<8;b++){                                  // bounce depth: nested dielectrics (a glass of water) need >3 to cross every interface and reach the bright far side instead of dying black inside
     vec3 p; if(!march(ro,rd,p)){ L+=thr*skyEmit(rd); break; }
     vec3 n=calcN(p); int mat; mapD(p-n*0.0008,mat);
     if(spec) L += thr*incandescence(matTempK(mat)+uTemp, emissivityOf(mat)); // own glow — only on specular arrival (NEE counts it otherwise)
@@ -865,6 +876,8 @@ $("b-edit").addEventListener("click",()=>{ const open=$("editor").classList.togg
   $("b-edit").classList.toggle("on",open); if(open && !$("json").value) syncEditor();
   if(open){ $("library").classList.remove("open"); $("b-lib").classList.remove("on"); } });
 $("rerender").addEventListener("click",reRender);
+$("b-checker").addEventListener("click",()=>{                 // toolbar → the public render API (the seam: UI never pokes internals)
+  window.Radiance.setEnvChecker(!envChecker); $("b-checker").classList.toggle("on",envChecker); });
 $("editreset").addEventListener("click",()=>{ syncEditor(); reRender(); });
 $("json").addEventListener("keydown",e=>{
   if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){ e.preventDefault(); reRender(); return; }
@@ -960,7 +973,16 @@ if(_scene && /^[a-z0-9_]+$/i.test(_scene)){
 // MUST live inside the IIFE to capture the module-scoped load()/scene(). chat.js
 // awaits `radiance-ready`, then window.Radiance.load("data/<slug>.json", title)
 // swaps the scene on the SHARED canvas (PT accumulation preserved) — no flicker.
-window.Radiance = { load, applyObj, scene: () => scene, ready: true };
+window.Radiance = {
+  load, applyObj, scene: () => scene, ready: true,
+  // ── render-display options ────────────────────────────────────────────────
+  // The app's UI drives these THROUGH the API, so it never reaches into renderer
+  // internals. Each applies the change and resets the exposure. The data contract
+  // is the SceneSpec (the JSON load() takes); these toggles are how it's shown.
+  setEnvChecker: (on) => { envChecker = !!on; if (scene) { buildProgram(scene); sceneId++; } },
+  setRipples:    (on) => { animateRipples = !!on; sceneId++; },
+  options:       () => ({ envChecker, animateRipples }),
+};
 window.dispatchEvent(new Event("radiance-ready"));
 
 requestAnimationFrame(loop);
