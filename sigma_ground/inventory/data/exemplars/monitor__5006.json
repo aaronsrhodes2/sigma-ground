@@ -1,7 +1,10 @@
 {
- "category": "dishwasher",
- "aliases": [],
- "source_anno_id": "13192",
+ "category": "monitor",
+ "aliases": [
+  "display",
+  "screen"
+ ],
+ "source_anno_id": "5006",
  "n_parts": 3,
  "parts": [
   {
@@ -9,44 +12,44 @@
    "shape": "box",
    "center_frac": [
     0.0,
-    -0.0012,
-    -0.0001
+    0.0549,
+    0.0902
    ],
    "size_frac": [
     1.0,
-    0.9977,
-    0.9994
+    0.1998,
+    0.8196
    ]
   },
   {
-   "name": "door_frame",
+   "name": "screen",
    "shape": "box",
    "center_frac": [
-    0.0003,
-    0.4977,
-    0.0
+    0.0023,
+    0.1507,
+    0.1027
    ],
    "size_frac": [
-    0.9977,
+    0.9387,
     0.005,
-    1.0
+    0.7051
    ]
   },
   {
-   "name": "handle",
+   "name": "base_support",
    "shape": "box",
    "center_frac": [
-    0.0118,
-    0.4838,
-    0.3981
+    0.0004,
+    0.0,
+    -0.4107
    ],
    "size_frac": [
-    0.3057,
-    0.0277,
-    0.0526
+    0.5078,
+    1.0,
+    0.1786
    ]
   }
  ],
- "_source": "PartNet (Mo et al. 2019) \u2014 representative model 13192 (real assembled part layout)",
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 5006 (real assembled part layout)",
  "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
 }

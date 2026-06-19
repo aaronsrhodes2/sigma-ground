@@ -1,0 +1,97 @@
+{
+ "category": "earphone",
+ "aliases": [
+  "headphones",
+  "earbuds"
+ ],
+ "source_anno_id": "11465",
+ "n_parts": 6,
+ "parts": [
+  {
+   "name": "top_band",
+   "shape": "box",
+   "center_frac": [
+    -0.0,
+    -0.0002,
+    0.3525
+   ],
+   "size_frac": [
+    0.8846,
+    0.5747,
+    0.2949
+   ]
+  },
+  {
+   "name": "earcup_frame",
+   "shape": "box",
+   "center_frac": [
+    0.4361,
+    -0.0003,
+    -0.0667
+   ],
+   "size_frac": [
+    0.1277,
+    0.9657,
+    0.5549
+   ]
+  },
+  {
+   "name": "earcup_pad",
+   "shape": "box",
+   "center_frac": [
+    0.3675,
+    0.0,
+    -0.1263
+   ],
+   "size_frac": [
+    0.071,
+    1.0,
+    0.4464
+   ]
+  },
+  {
+   "name": "earcup_frame",
+   "shape": "box",
+   "center_frac": [
+    -0.4361,
+    -0.0004,
+    -0.0668
+   ],
+   "size_frac": [
+    0.1277,
+    0.9649,
+    0.5549
+   ]
+  },
+  {
+   "name": "earcup_pad",
+   "shape": "box",
+   "center_frac": [
+    -0.3675,
+    0.0,
+    -0.1263
+   ],
+   "size_frac": [
+    0.071,
+    1.0,
+    0.4464
+   ]
+  },
+  {
+   "name": "connector_wire",
+   "shape": "box",
+   "center_frac": [
+    0.4337,
+    -0.0001,
+    -0.4207
+   ],
+   "size_frac": [
+    0.037,
+    0.1242,
+    0.1586
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 11465 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

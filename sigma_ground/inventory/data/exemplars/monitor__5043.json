@@ -1,0 +1,69 @@
+{
+ "category": "monitor",
+ "aliases": [
+  "display",
+  "screen"
+ ],
+ "source_anno_id": "5043",
+ "n_parts": 4,
+ "parts": [
+  {
+   "name": "frame",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0246,
+    0.1008
+   ],
+   "size_frac": [
+    1.0,
+    0.5198,
+    0.7985
+   ]
+  },
+  {
+   "name": "screen",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0492,
+    0.1008
+   ],
+   "size_frac": [
+    1.0,
+    0.3724,
+    0.7985
+   ]
+  },
+  {
+   "name": "base_support",
+   "shape": "cylinder",
+   "center_frac": [
+    0.0141,
+    -0.3146,
+    -0.18
+   ],
+   "size_frac": [
+    0.2212,
+    0.1816,
+    0.6017
+   ]
+  },
+  {
+   "name": "surface",
+   "shape": "box",
+   "center_frac": [
+    0.0075,
+    0.0,
+    -0.4904
+   ],
+   "size_frac": [
+    0.5308,
+    1.0,
+    0.0192
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 5043 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

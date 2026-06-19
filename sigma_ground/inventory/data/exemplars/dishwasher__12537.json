@@ -1,0 +1,38 @@
+{
+ "category": "dishwasher",
+ "aliases": [],
+ "source_anno_id": "12537",
+ "n_parts": 2,
+ "parts": [
+  {
+   "name": "door_frame",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0135,
+    0.0
+   ],
+   "size_frac": [
+    1.0,
+    0.9731,
+    1.0
+   ]
+  },
+  {
+   "name": "handle",
+   "shape": "box",
+   "center_frac": [
+    0.0044,
+    0.4636,
+    0.3562
+   ],
+   "size_frac": [
+    0.5976,
+    0.0729,
+    0.0241
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 12537 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

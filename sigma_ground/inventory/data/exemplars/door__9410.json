@@ -1,0 +1,94 @@
+{
+ "category": "door",
+ "aliases": [],
+ "source_anno_id": "9410",
+ "n_parts": 6,
+ "parts": [
+  {
+   "name": "outside_frame",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size_frac": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "surface_board",
+   "shape": "box",
+   "center_frac": [
+    -0.002,
+    -0.1125,
+    -0.0841
+   ],
+   "size_frac": [
+    0.7134,
+    0.1687,
+    0.8319
+   ]
+  },
+  {
+   "name": "fixed_part",
+   "shape": "box",
+   "center_frac": [
+    0.2713,
+    -0.1828,
+    -0.1125
+   ],
+   "size_frac": [
+    0.0455,
+    0.0281,
+    0.0247
+   ]
+  },
+  {
+   "name": "movable_part",
+   "shape": "box",
+   "center_frac": [
+    0.2282,
+    -0.3093,
+    -0.1125
+   ],
+   "size_frac": [
+    0.0999,
+    0.225,
+    0.0077
+   ]
+  },
+  {
+   "name": "fixed_part",
+   "shape": "box",
+   "center_frac": [
+    0.2713,
+    -0.0422,
+    -0.1125
+   ],
+   "size_frac": [
+    0.0455,
+    0.0281,
+    0.0247
+   ]
+  },
+  {
+   "name": "movable_part",
+   "shape": "box",
+   "center_frac": [
+    0.2282,
+    0.0844,
+    -0.1125
+   ],
+   "size_frac": [
+    0.0999,
+    0.225,
+    0.0077
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 9410 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

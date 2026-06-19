@@ -1,0 +1,168 @@
+{
+ "category": "cabinet",
+ "aliases": [
+  "storage furniture",
+  "dresser",
+  "cupboard"
+ ],
+ "source_anno_id": "46553",
+ "n_parts": 11,
+ "parts": [
+  {
+   "name": "vertical_side_panel",
+   "shape": "box",
+   "center_frac": [
+    0.4886,
+    0.0,
+    -0.0058
+   ],
+   "size_frac": [
+    0.0229,
+    1.0,
+    0.9885
+   ]
+  },
+  {
+   "name": "vertical_side_panel",
+   "shape": "box",
+   "center_frac": [
+    -0.4886,
+    0.0,
+    -0.0058
+   ],
+   "size_frac": [
+    0.0229,
+    1.0,
+    0.9885
+   ]
+  },
+  {
+   "name": "back_panel",
+   "shape": "box",
+   "center_frac": [
+    -0.0002,
+    -0.4284,
+    -0.0056
+   ],
+   "size_frac": [
+    0.9618,
+    0.0456,
+    0.9883
+   ]
+  },
+  {
+   "name": "bottom_panel",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0437,
+    -0.426
+   ],
+   "size_frac": [
+    0.9585,
+    0.9068,
+    0.0125
+   ]
+  },
+  {
+   "name": "top_panel",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0002,
+    0.4938
+   ],
+   "size_frac": [
+    0.9958,
+    0.9938,
+    0.0125
+   ]
+  },
+  {
+   "name": "shelf",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0122,
+    -0.2931
+   ],
+   "size_frac": [
+    0.9585,
+    0.795,
+    0.0083
+   ]
+  },
+  {
+   "name": "shelf",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0122,
+    -0.1623
+   ],
+   "size_frac": [
+    0.9585,
+    0.795,
+    0.0083
+   ]
+  },
+  {
+   "name": "shelf",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0122,
+    -0.0315
+   ],
+   "size_frac": [
+    0.9585,
+    0.795,
+    0.0083
+   ]
+  },
+  {
+   "name": "shelf",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0122,
+    0.0993
+   ],
+   "size_frac": [
+    0.9585,
+    0.795,
+    0.0083
+   ]
+  },
+  {
+   "name": "shelf",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0122,
+    0.2301
+   ],
+   "size_frac": [
+    0.9585,
+    0.795,
+    0.0083
+   ]
+  },
+  {
+   "name": "shelf",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0122,
+    0.3609
+   ],
+   "size_frac": [
+    0.9585,
+    0.795,
+    0.0083
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 46553 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

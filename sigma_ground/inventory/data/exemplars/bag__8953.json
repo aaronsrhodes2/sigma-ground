@@ -1,0 +1,54 @@
+{
+ "category": "bag",
+ "aliases": [
+  "handbag"
+ ],
+ "source_anno_id": "8953",
+ "n_parts": 3,
+ "parts": [
+  {
+   "name": "handle",
+   "shape": "box",
+   "center_frac": [
+    -0.0236,
+    0.2359,
+    0.2016
+   ],
+   "size_frac": [
+    0.4781,
+    0.3895,
+    0.5967
+   ]
+  },
+  {
+   "name": "handle",
+   "shape": "box",
+   "center_frac": [
+    -0.0236,
+    -0.2359,
+    0.2016
+   ],
+   "size_frac": [
+    0.4781,
+    0.3895,
+    0.5967
+   ]
+  },
+  {
+   "name": "body",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    -0.1656
+   ],
+   "size_frac": [
+    1.0,
+    1.0,
+    0.6689
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 8953 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

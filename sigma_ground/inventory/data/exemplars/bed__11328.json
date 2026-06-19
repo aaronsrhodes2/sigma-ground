@@ -1,0 +1,122 @@
+{
+ "category": "bed",
+ "aliases": [],
+ "source_anno_id": "11328",
+ "n_parts": 8,
+ "parts": [
+  {
+   "name": "mattress",
+   "shape": "box",
+   "center_frac": [
+    -0.0049,
+    -0.0064,
+    -0.1087
+   ],
+   "size_frac": [
+    0.9075,
+    0.9012,
+    0.1602
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    0.4698,
+    -0.477,
+    -0.0284
+   ],
+   "size_frac": [
+    0.0605,
+    0.0451,
+    0.9431
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    0.4689,
+    0.4775,
+    -0.2244
+   ],
+   "size_frac": [
+    0.0605,
+    0.0451,
+    0.5513
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.4698,
+    0.4775,
+    -0.2244
+   ],
+   "size_frac": [
+    0.0605,
+    0.0451,
+    0.5513
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.4689,
+    -0.4775,
+    -0.0284
+   ],
+   "size_frac": [
+    0.0605,
+    0.0451,
+    0.9431
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    0.47,
+    0.0003,
+    -0.2467
+   ],
+   "size_frac": [
+    0.0151,
+    0.9237,
+    0.1513
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    -0.468,
+    0.0003,
+    -0.2467
+   ],
+   "size_frac": [
+    0.0151,
+    0.9237,
+    0.1513
+   ]
+  },
+  {
+   "name": "headboard",
+   "shape": "box",
+   "center_frac": [
+    0.0013,
+    -0.4777,
+    0.1564
+   ],
+   "size_frac": [
+    0.8995,
+    0.0189,
+    0.6873
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 11328 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

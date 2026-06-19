@@ -1,0 +1,83 @@
+{
+ "category": "trash can",
+ "aliases": [
+  "bin",
+  "garbage can"
+ ],
+ "source_anno_id": "12219",
+ "n_parts": 5,
+ "parts": [
+  {
+   "name": "cover_lid",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0015,
+    0.4773
+   ],
+   "size_frac": [
+    1.0,
+    0.997,
+    0.0454
+   ]
+  },
+  {
+   "name": "cover_support",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0507,
+    0.4034
+   ],
+   "size_frac": [
+    0.1684,
+    0.8587,
+    0.1023
+   ]
+  },
+  {
+   "name": "container_box",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0042,
+    -0.0223
+   ],
+   "size_frac": [
+    0.9836,
+    0.9916,
+    0.9554
+   ]
+  },
+  {
+   "name": "container_bottom",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0055,
+    0.1344
+   ],
+   "size_frac": [
+    0.9836,
+    0.989,
+    0.6352
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.434,
+    -0.0223
+   ],
+   "size_frac": [
+    0.1945,
+    0.1152,
+    0.9554
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 12219 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

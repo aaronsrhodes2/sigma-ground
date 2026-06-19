@@ -1,0 +1,94 @@
+{
+ "category": "microwave",
+ "aliases": [],
+ "source_anno_id": "7153",
+ "n_parts": 6,
+ "parts": [
+  {
+   "name": "frame",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.024,
+    0.0069
+   ],
+   "size_frac": [
+    1.0,
+    0.952,
+    0.9862
+   ]
+  },
+  {
+   "name": "handle",
+   "shape": "cylinder",
+   "center_frac": [
+    0.2428,
+    0.4742,
+    0.0072
+   ],
+   "size_frac": [
+    0.0579,
+    0.0517,
+    0.8945
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    -0.4265,
+    -0.3917,
+    -0.491
+   ],
+   "size_frac": [
+    0.0652,
+    0.0961,
+    0.0179
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    0.4265,
+    -0.3917,
+    -0.491
+   ],
+   "size_frac": [
+    0.0652,
+    0.0961,
+    0.0179
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    0.4265,
+    0.3438,
+    -0.491
+   ],
+   "size_frac": [
+    0.0652,
+    0.0961,
+    0.0179
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    -0.4265,
+    0.3438,
+    -0.491
+   ],
+   "size_frac": [
+    0.0652,
+    0.0961,
+    0.0179
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 7153 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

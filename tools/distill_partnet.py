@@ -500,7 +500,10 @@ def _exemplar_parts(leaves, mbb):
             continue
         ext = [bb[1][i] - bb[0][i] for i in range(3)]
         ctr = [(bb[1][i] + bb[0][i]) / 2.0 for i in range(3)]
-        sf = [round(ext[i] / oext[i], 4) for i in range(3)]
+        # floor each normalized size to a small nonzero value — a degenerate-thin
+        # part (a screen's depth, a bar's width) rounds to 0.0 otherwise, which is
+        # not a valid solid (compile re-floors the extent to ~4 mm anyway).
+        sf = [round(max(ext[i] / oext[i], 0.005), 4) for i in range(3)]
         cf = [round((ctr[i] - octr[i]) / oext[i], 4) for i in range(3)]
         parts.append({"name": lbl, "shape": _exemplar_shape(sf, lbl),
                       "center_frac": cf, "size_frac": sf})

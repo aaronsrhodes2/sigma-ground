@@ -1,0 +1,80 @@
+{
+ "category": "lamp",
+ "aliases": [],
+ "source_anno_id": "13794",
+ "n_parts": 5,
+ "parts": [
+  {
+   "name": "base_part",
+   "shape": "box",
+   "center_frac": [
+    0.0224,
+    0.4472,
+    0.474
+   ],
+   "size_frac": [
+    0.9297,
+    0.1057,
+    0.0521
+   ]
+  },
+  {
+   "name": "base_part",
+   "shape": "box",
+   "center_frac": [
+    0.0224,
+    -0.4472,
+    0.474
+   ],
+   "size_frac": [
+    0.9297,
+    0.1057,
+    0.0521
+   ]
+  },
+  {
+   "name": "shade",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    -0.2335
+   ],
+   "size_frac": [
+    1.0,
+    0.879,
+    0.5331
+   ]
+  },
+  {
+   "name": "chain",
+   "shape": "box",
+   "center_frac": [
+    0.0224,
+    0.4472,
+    0.1862
+   ],
+   "size_frac": [
+    0.1044,
+    0.0117,
+    0.6276
+   ]
+  },
+  {
+   "name": "chain",
+   "shape": "box",
+   "center_frac": [
+    0.0224,
+    -0.4472,
+    0.1862
+   ],
+   "size_frac": [
+    0.1044,
+    0.0117,
+    0.6276
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 13794 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

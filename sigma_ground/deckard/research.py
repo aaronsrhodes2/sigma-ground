@@ -353,8 +353,13 @@ def _exemplar_spec(name: str, material_hint: str | None = None,
     structural = _hint_to_material(material_hint)
     hint_used = structural is not None
     if structural is None:
-        structural = next((c for c in ratios if c not in _SOFT_MATERIALS), None) or "wood"
-    soft = next((c for c in ratios if c in _SOFT_MATERIALS), None)
+        # the DOMINANT non-soft material is the frame (highest ratio), not the
+        # first one the dict happens to list — a 40%-wood / 4%-plastic chair is
+        # wood-framed, not plastic.
+        non_soft = {c: r for c, r in ratios.items() if c not in _SOFT_MATERIALS}
+        structural = (max(non_soft, key=non_soft.get) if non_soft else None) or "wood"
+    soft_r = {c: r for c, r in ratios.items() if c in _SOFT_MATERIALS}
+    soft = max(soft_r, key=soft_r.get) if soft_r else None
     struct_dens = _density_fact(structural)
     soft_dens = _density_fact(soft) if soft else None
 

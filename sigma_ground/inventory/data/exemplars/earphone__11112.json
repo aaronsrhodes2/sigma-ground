@@ -1,0 +1,111 @@
+{
+ "category": "earphone",
+ "aliases": [
+  "headphones",
+  "earbuds"
+ ],
+ "source_anno_id": "11112",
+ "n_parts": 7,
+ "parts": [
+  {
+   "name": "top_band",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0061,
+    0.4231
+   ],
+   "size_frac": [
+    0.8119,
+    0.2956,
+    0.1537
+   ]
+  },
+  {
+   "name": "earcup_frame",
+   "shape": "box",
+   "center_frac": [
+    0.455,
+    0.033,
+    -0.2465
+   ],
+   "size_frac": [
+    0.0786,
+    0.8658,
+    0.4793
+   ]
+  },
+  {
+   "name": "earcup_pad",
+   "shape": "box",
+   "center_frac": [
+    0.3928,
+    0.0512,
+    -0.343
+   ],
+   "size_frac": [
+    0.0458,
+    0.8976,
+    0.293
+   ]
+  },
+  {
+   "name": "earcup_connector",
+   "shape": "box",
+   "center_frac": [
+    0.4703,
+    -0.0152,
+    -0.2354
+   ],
+   "size_frac": [
+    0.0595,
+    0.9622,
+    0.5013
+   ]
+  },
+  {
+   "name": "earcup_frame",
+   "shape": "box",
+   "center_frac": [
+    -0.4503,
+    0.0229,
+    -0.2862
+   ],
+   "size_frac": [
+    0.0689,
+    0.8784,
+    0.4022
+   ]
+  },
+  {
+   "name": "earcup_pad",
+   "shape": "box",
+   "center_frac": [
+    -0.393,
+    0.0196,
+    -0.3535
+   ],
+   "size_frac": [
+    0.0458,
+    0.8976,
+    0.293
+   ]
+  },
+  {
+   "name": "earcup_connector",
+   "shape": "box",
+   "center_frac": [
+    -0.4502,
+    -0.0189,
+    -0.2357
+   ],
+   "size_frac": [
+    0.0996,
+    0.9622,
+    0.5013
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 11112 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

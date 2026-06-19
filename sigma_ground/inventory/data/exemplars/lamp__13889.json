@@ -1,0 +1,108 @@
+{
+ "category": "lamp",
+ "aliases": [],
+ "source_anno_id": "13889",
+ "n_parts": 7,
+ "parts": [
+  {
+   "name": "shade",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    -0.3877
+   ],
+   "size_frac": [
+    1.0,
+    1.0,
+    0.2247
+   ]
+  },
+  {
+   "name": "chain",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.0,
+    0.0605,
+    -0.005
+   ],
+   "size_frac": [
+    0.0158,
+    0.0158,
+    0.52
+   ]
+  },
+  {
+   "name": "chain",
+   "shape": "cylinder",
+   "center_frac": [
+    0.0605,
+    -0.0,
+    -0.005
+   ],
+   "size_frac": [
+    0.0158,
+    0.0158,
+    0.52
+   ]
+  },
+  {
+   "name": "chain",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.0,
+    -0.0605,
+    -0.005
+   ],
+   "size_frac": [
+    0.0158,
+    0.0158,
+    0.52
+   ]
+  },
+  {
+   "name": "chain",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.0605,
+    -0.0,
+    -0.005
+   ],
+   "size_frac": [
+    0.0158,
+    0.0158,
+    0.52
+   ]
+  },
+  {
+   "name": "chain",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.0,
+    0.0006,
+    0.1113
+   ],
+   "size_frac": [
+    0.1395,
+    0.1408,
+    0.7773
+   ]
+  },
+  {
+   "name": "base_part",
+   "shape": "box",
+   "center_frac": [
+    -0.0,
+    -0.0,
+    0.4801
+   ],
+   "size_frac": [
+    0.2196,
+    0.2208,
+    0.0398
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 13889 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

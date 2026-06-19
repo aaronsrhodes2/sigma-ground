@@ -1,0 +1,54 @@
+{
+ "category": "hat",
+ "aliases": [
+  "cap"
+ ],
+ "source_anno_id": "12228",
+ "n_parts": 3,
+ "parts": [
+  {
+   "name": "panel",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.1573,
+    -0.0208
+   ],
+   "size_frac": [
+    1.0,
+    0.6854,
+    0.9584
+   ]
+  },
+  {
+   "name": "button",
+   "shape": "box",
+   "center_frac": [
+    0.0059,
+    -0.1529,
+    0.4647
+   ],
+   "size_frac": [
+    0.1297,
+    0.0888,
+    0.0706
+   ]
+  },
+  {
+   "name": "bill",
+   "shape": "box",
+   "center_frac": [
+    -0.0203,
+    0.1122,
+    -0.3605
+   ],
+   "size_frac": [
+    0.8664,
+    0.7757,
+    0.1397
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 12228 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

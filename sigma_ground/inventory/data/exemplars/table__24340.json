@@ -1,0 +1,138 @@
+{
+ "category": "table",
+ "aliases": [
+  "desk"
+ ],
+ "source_anno_id": "24340",
+ "n_parts": 9,
+ "parts": [
+  {
+   "name": "board",
+   "shape": "box",
+   "center_frac": [
+    0.0017,
+    -0.017,
+    0.4865
+   ],
+   "size_frac": [
+    0.9891,
+    0.9661,
+    0.0271
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    -0.4546,
+    -0.3917,
+    -0.0128
+   ],
+   "size_frac": [
+    0.0907,
+    0.2166,
+    0.9744
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    -0.4546,
+    0.3917,
+    -0.0128
+   ],
+   "size_frac": [
+    0.0907,
+    0.2166,
+    0.9744
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    0.4546,
+    0.3917,
+    -0.0128
+   ],
+   "size_frac": [
+    0.0907,
+    0.2166,
+    0.9744
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    0.4546,
+    -0.3917,
+    -0.0128
+   ],
+   "size_frac": [
+    0.0907,
+    0.2166,
+    0.9744
+   ]
+  },
+  {
+   "name": "tabletop_connector",
+   "shape": "box",
+   "center_frac": [
+    0.0017,
+    -0.2843,
+    0.4237
+   ],
+   "size_frac": [
+    0.844,
+    0.1119,
+    0.1015
+   ]
+  },
+  {
+   "name": "tabletop_connector",
+   "shape": "box",
+   "center_frac": [
+    0.4284,
+    0.0,
+    0.4237
+   ],
+   "size_frac": [
+    0.0094,
+    0.6199,
+    0.1015
+   ]
+  },
+  {
+   "name": "tabletop_connector",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.2843,
+    0.4237
+   ],
+   "size_frac": [
+    0.8473,
+    0.1119,
+    0.1015
+   ]
+  },
+  {
+   "name": "tabletop_connector",
+   "shape": "box",
+   "center_frac": [
+    -0.4096,
+    -0.0044,
+    0.4237
+   ],
+   "size_frac": [
+    0.0469,
+    0.6288,
+    0.1015
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 24340 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

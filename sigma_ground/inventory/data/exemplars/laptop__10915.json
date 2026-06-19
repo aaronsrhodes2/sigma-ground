@@ -1,0 +1,52 @@
+{
+ "category": "laptop",
+ "aliases": [],
+ "source_anno_id": "10915",
+ "n_parts": 3,
+ "parts": [
+  {
+   "name": "screen",
+   "shape": "box",
+   "center_frac": [
+    0.0008,
+    -0.2767,
+    0.0833
+   ],
+   "size_frac": [
+    0.9961,
+    0.0516,
+    0.8333
+   ]
+  },
+  {
+   "name": "keyboard",
+   "shape": "box",
+   "center_frac": [
+    -0.0157,
+    0.1353,
+    -0.4125
+   ],
+   "size_frac": [
+    0.9554,
+    0.7273,
+    0.1421
+   ]
+  },
+  {
+   "name": "base_frame",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    -0.3996
+   ],
+   "size_frac": [
+    1.0,
+    1.0,
+    0.2008
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 10915 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

@@ -1,0 +1,40 @@
+{
+ "category": "hat",
+ "aliases": [
+  "cap"
+ ],
+ "source_anno_id": "10326",
+ "n_parts": 2,
+ "parts": [
+  {
+   "name": "crown",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0177,
+    0.0689
+   ],
+   "size_frac": [
+    0.5555,
+    0.5764,
+    0.8622
+   ]
+  },
+  {
+   "name": "brim",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    -0.1837
+   ],
+   "size_frac": [
+    1.0,
+    1.0,
+    0.6326
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 10326 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

@@ -3,49 +3,21 @@
  "aliases": [
   "fridge"
  ],
- "source_anno_id": "11585",
- "n_parts": 9,
+ "source_anno_id": "11719",
+ "n_parts": 8,
  "parts": [
   {
    "name": "frame",
    "shape": "box",
    "center_frac": [
     0.0,
-    -0.0674,
-    0.0013
+    -0.0415,
+    0.0
    ],
    "size_frac": [
     1.0,
-    0.8652,
-    0.9951
-   ]
-  },
-  {
-   "name": "door_frame",
-   "shape": "box",
-   "center_frac": [
-    -0.0,
-    0.4036,
-    -0.2931
-   ],
-   "size_frac": [
-    0.9745,
-    0.1076,
-    0.3739
-   ]
-  },
-  {
-   "name": "handle",
-   "shape": "box",
-   "center_frac": [
-    -0.4514,
-    0.4272,
-    -0.2084
-   ],
-   "size_frac": [
-    0.0883,
-    0.1455,
-    0.1545
+    0.917,
+    1.0
    ]
   },
   {
@@ -53,86 +25,100 @@
    "shape": "box",
    "center_frac": [
     0.0,
-    -0.0208,
-    0.0019
+    0.3807,
+    0.359
    ],
    "size_frac": [
-    1.0,
-    0.9584,
-    0.9963
+    0.9884,
+    0.1188,
+    0.277
    ]
   },
   {
    "name": "handle",
    "shape": "box",
    "center_frac": [
-    -0.4514,
-    0.4272,
-    0.0009
+    -0.4589,
+    0.47,
+    0.3598
    ],
    "size_frac": [
-    0.0883,
-    0.1455,
-    0.1545
+    0.0353,
+    0.0599,
+    0.2754
    ]
   },
   {
-   "name": "foot",
+   "name": "door_frame",
    "shape": "box",
    "center_frac": [
-    0.4625,
-    -0.4651,
-    -0.4979
+    0.0,
+    0.3272,
+    -0.1197
    ],
    "size_frac": [
-    0.0403,
-    0.0375,
-    0.005
+    0.9884,
+    0.2258,
+    0.6652
    ]
   },
   {
-   "name": "foot",
+   "name": "handle",
    "shape": "box",
    "center_frac": [
-    -0.4625,
-    -0.4651,
-    -0.4979
+    -0.4589,
+    0.47,
+    0.0734
    ],
    "size_frac": [
-    0.0403,
-    0.0375,
-    0.005
+    0.0353,
+    0.0599,
+    0.2754
    ]
   },
   {
-   "name": "foot",
+   "name": "shelf",
    "shape": "box",
    "center_frac": [
-    0.4625,
-    0.3191,
-    -0.4979
+    0.0,
+    -0.1284,
+    -0.0221
    ],
    "size_frac": [
-    0.0403,
-    0.0375,
-    0.005
+    0.8825,
+    0.5704,
+    0.0236
    ]
   },
   {
-   "name": "foot",
+   "name": "shelf",
    "shape": "box",
    "center_frac": [
-    -0.4625,
-    0.3191,
-    -0.4979
+    0.0,
+    -0.1284,
+    -0.2332
    ],
    "size_frac": [
-    0.0403,
-    0.0375,
-    0.005
+    0.8825,
+    0.5704,
+    0.0236
+   ]
+  },
+  {
+   "name": "shelf",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.059,
+    0.3524
+   ],
+   "size_frac": [
+    0.8472,
+    0.3644,
+    0.0302
    ]
   }
  ],
- "_source": "PartNet (Mo et al. 2019) \u2014 representative model 11585 (real assembled part layout)",
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 11719 (real assembled part layout)",
  "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
 }

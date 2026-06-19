@@ -1,0 +1,80 @@
+{
+ "category": "microwave",
+ "aliases": [],
+ "source_anno_id": "7183",
+ "n_parts": 5,
+ "parts": [
+  {
+   "name": "frame",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    0.0102
+   ],
+   "size_frac": [
+    1.0,
+    1.0,
+    0.9797
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    -0.3731,
+    -0.3826,
+    -0.4879
+   ],
+   "size_frac": [
+    0.1241,
+    0.1515,
+    0.0243
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    0.3731,
+    -0.3826,
+    -0.4879
+   ],
+   "size_frac": [
+    0.1241,
+    0.1515,
+    0.0243
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    0.3731,
+    0.303,
+    -0.4879
+   ],
+   "size_frac": [
+    0.1241,
+    0.1515,
+    0.0243
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    -0.3731,
+    0.303,
+    -0.4879
+   ],
+   "size_frac": [
+    0.1241,
+    0.1515,
+    0.0243
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 7183 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

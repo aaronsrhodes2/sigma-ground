@@ -1,0 +1,166 @@
+{
+ "category": "table",
+ "aliases": [
+  "desk"
+ ],
+ "source_anno_id": "22821",
+ "n_parts": 11,
+ "parts": [
+  {
+   "name": "board",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0003,
+    0.4907
+   ],
+   "size_frac": [
+    1.0,
+    0.9995,
+    0.0187
+   ]
+  },
+  {
+   "name": "bar",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.5,
+    0.458
+   ],
+   "size_frac": [
+    0.9074,
+    0.005,
+    0.0467
+   ]
+  },
+  {
+   "name": "bar",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.5,
+    0.458
+   ],
+   "size_frac": [
+    0.9074,
+    0.005,
+    0.0467
+   ]
+  },
+  {
+   "name": "bar",
+   "shape": "box",
+   "center_frac": [
+    -0.4769,
+    0.0003,
+    0.458
+   ],
+   "size_frac": [
+    0.0463,
+    0.7432,
+    0.0467
+   ]
+  },
+  {
+   "name": "bar",
+   "shape": "box",
+   "center_frac": [
+    0.4769,
+    0.0003,
+    0.458
+   ],
+   "size_frac": [
+    0.0463,
+    0.7432,
+    0.0467
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    -0.4769,
+    -0.4354,
+    0.0
+   ],
+   "size_frac": [
+    0.0463,
+    0.1281,
+    1.0
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    -0.4769,
+    0.4359,
+    0.0
+   ],
+   "size_frac": [
+    0.0463,
+    0.1281,
+    1.0
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    0.4769,
+    0.4359,
+    0.0
+   ],
+   "size_frac": [
+    0.0463,
+    0.1281,
+    1.0
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    0.4769,
+    -0.4354,
+    0.0
+   ],
+   "size_frac": [
+    0.0463,
+    0.1281,
+    1.0
+   ]
+  },
+  {
+   "name": "tabletop_connector",
+   "shape": "box",
+   "center_frac": [
+    0.0006,
+    -0.1743,
+    0.458
+   ],
+   "size_frac": [
+    0.9988,
+    0.005,
+    0.0467
+   ]
+  },
+  {
+   "name": "tabletop_connector",
+   "shape": "box",
+   "center_frac": [
+    0.0006,
+    0.1743,
+    0.458
+   ],
+   "size_frac": [
+    0.9988,
+    0.005,
+    0.0467
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 22821 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

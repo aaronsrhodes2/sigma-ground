@@ -1,0 +1,136 @@
+{
+ "category": "bed",
+ "aliases": [],
+ "source_anno_id": "10555",
+ "n_parts": 9,
+ "parts": [
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    -0.4536,
+    -0.4789,
+    -0.0833
+   ],
+   "size_frac": [
+    0.0534,
+    0.0246,
+    0.8333
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    0.4541,
+    -0.4789,
+    -0.0833
+   ],
+   "size_frac": [
+    0.0534,
+    0.0246,
+    0.8333
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    0.4541,
+    0.4789,
+    -0.0833
+   ],
+   "size_frac": [
+    0.0534,
+    0.0246,
+    0.8333
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    -0.4536,
+    0.4789,
+    -0.0833
+   ],
+   "size_frac": [
+    0.0534,
+    0.0246,
+    0.8333
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.4956,
+    0.3214
+   ],
+   "size_frac": [
+    0.9615,
+    0.0088,
+    0.3571
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    -0.4904,
+    0.0,
+    0.3214
+   ],
+   "size_frac": [
+    0.0192,
+    1.0,
+    0.3571
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.4956,
+    0.3214
+   ],
+   "size_frac": [
+    0.9615,
+    0.0088,
+    0.3571
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    0.4904,
+    0.0,
+    0.3214
+   ],
+   "size_frac": [
+    0.0192,
+    1.0,
+    0.3571
+   ]
+  },
+  {
+   "name": "frame_horizontal_hard_surface",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0,
+    0.3
+   ],
+   "size_frac": [
+    0.9615,
+    0.9823,
+    0.1714
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 10555 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

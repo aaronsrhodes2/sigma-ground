@@ -1,0 +1,153 @@
+{
+ "category": "trash can",
+ "aliases": [
+  "bin",
+  "garbage can"
+ ],
+ "source_anno_id": "11378",
+ "n_parts": 10,
+ "parts": [
+  {
+   "name": "cover_lid",
+   "shape": "box",
+   "center_frac": [
+    -0.0,
+    0.0237,
+    0.441
+   ],
+   "size_frac": [
+    0.8984,
+    0.9526,
+    0.1179
+   ]
+  },
+  {
+   "name": "cover_support",
+   "shape": "box",
+   "center_frac": [
+    0.418,
+    -0.0915,
+    0.3769
+   ],
+   "size_frac": [
+    0.0492,
+    0.005,
+    0.1124
+   ]
+  },
+  {
+   "name": "cover_support",
+   "shape": "box",
+   "center_frac": [
+    0.418,
+    0.1389,
+    0.3769
+   ],
+   "size_frac": [
+    0.0492,
+    0.005,
+    0.1124
+   ]
+  },
+  {
+   "name": "cover_support",
+   "shape": "box",
+   "center_frac": [
+    0.2459,
+    0.4709,
+    0.3909
+   ],
+   "size_frac": [
+    0.005,
+    0.0459,
+    0.0842
+   ]
+  },
+  {
+   "name": "cover_support",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.4709,
+    0.3909
+   ],
+   "size_frac": [
+    0.005,
+    0.0459,
+    0.0842
+   ]
+  },
+  {
+   "name": "cover_support",
+   "shape": "box",
+   "center_frac": [
+    -0.2459,
+    0.4709,
+    0.3909
+   ],
+   "size_frac": [
+    0.005,
+    0.0459,
+    0.0842
+   ]
+  },
+  {
+   "name": "cover_support",
+   "shape": "box",
+   "center_frac": [
+    -0.418,
+    0.1389,
+    0.3769
+   ],
+   "size_frac": [
+    0.0492,
+    0.005,
+    0.1124
+   ]
+  },
+  {
+   "name": "cover_support",
+   "shape": "box",
+   "center_frac": [
+    -0.418,
+    -0.0915,
+    0.3769
+   ],
+   "size_frac": [
+    0.0492,
+    0.005,
+    0.1124
+   ]
+  },
+  {
+   "name": "container_box",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0237,
+    -0.0089
+   ],
+   "size_frac": [
+    0.7869,
+    0.8486,
+    0.9822
+   ]
+  },
+  {
+   "name": "base",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.3471,
+    -0.3997
+   ],
+   "size_frac": [
+    1.0,
+    0.3058,
+    0.2007
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 11378 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}
