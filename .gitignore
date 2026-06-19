@@ -47,3 +47,6 @@ secrets.json
 
 # Operatic scenes archived separately - do not commit to project
 misc/OPERATIC_PLAY_SCENE*.txt
+
+# Holodeck render-experiment output (regenerable: PNGs, gallery.html, scorecards)
+sigma_ground/mcp/benchmark/holodeck_out/
