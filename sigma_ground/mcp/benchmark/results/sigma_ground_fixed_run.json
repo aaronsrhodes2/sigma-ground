@@ -2471,5 +2471,355 @@
     "elapsed_s": 2.2207136154174805,
     "extracted_via_fallback": false,
     "nudges_sent": 0
+  },
+  {
+    "id": "atom_004",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: 24.59 eV\n\nThe highest noble gas first ionization energy is approximately 24.59 eV for krypton (Kr). Xenon has a slightly higher value, but krypton is the last noble gas in the periodic table before moving to the next group with significantly different properties.",
+    "extracted_value": 24.59,
+    "extracted_units": "eV",
+    "tool_calls": [
+      {
+        "name": "lookup_constant",
+        "args": {
+          "name": "first_ionization_energy(gas)"
+        },
+        "result_text": "<TOOL TIMEOUT: lookup_constant exceeded 60s \u2014 skipped>",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 2,
+    "elapsed_s": 78.41425156593323,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0
+  },
+  {
+    "id": "atom_005",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: 410.07 nm\n\nThe hydrogen atom emits light with a wavelength of approximately 410.07 nanometers when an electron transitions from the n=6 energy level to the n=2 energy level. This falls within the blue region of the visible spectrum.",
+    "extracted_value": 4.100701727620744e-07,
+    "extracted_units": "m",
+    "tool_calls": [
+      {
+        "name": "hydrogen_emission_wavelength",
+        "args": {
+          "n_initial": 6,
+          "n_final": 2
+        },
+        "result_text": "{\n  \"value\": 4.100701727620744e-7,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (Rydberg formula, CODATA 2018 R_inf)\",\n  \"uncertainty\": null,\n  \"formula\": \"1/lambda = R_inf Z^2 |1/n_f^2 - 1/n_i^2|\",\n  \"provenance_tag\": null,\n  \"notes\": \"Balmer (visible) series for Z=1. Notable H lines: H-alpha (3->2)=656 nm, Lyman-alpha (2->1)=121.6 nm.\",\n  \"inputs\": {\n    \"n_initial\": 6,\n    \"n_final\": 2,\n    \"atomic_number\": 1\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 2,
+    "elapsed_s": 2.808347463607788,
+    "extracted_via_fallback": true,
+    "nudges_sent": 0
+  },
+  {
+    "id": "atom_006",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: 26",
+    "extracted_value": 26.0,
+    "extracted_units": "",
+    "tool_calls": [
+      {
+        "name": "element_atomic_data",
+        "args": {
+          "element_symbol": "Fe"
+        },
+        "result_text": "{\n  \"value\": {\n    \"name\": \"iron\",\n    \"symbol\": \"Fe\",\n    \"atomic_number\": 26,\n    \"atomic_mass_amu\": 55.845,\n    \"covalent_radius_angstrom\": 1.32\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via periodictable (NIST atomic data)\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": null,\n  \"notes\": \"Atomic mass in unified atomic mass units (amu). For natural abundance weighted; use isotope-specific lookups for pure isotopes.\",\n  \"inputs\": {\n    \"element_symbol\": \"Fe\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 2,
+    "elapsed_s": 1.5416123867034912,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0
+  },
+  {
+    "id": "atom_007",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: 3.3726e-19 J\n\nThe energy of a photon at the sodium D-line (589 nm) is approximately \\(3.37 \\times 10^{-19}\\) Joules, which is equivalent to about 2.105 electronvolts (eV). This falls within the visible light spectrum, where energies range from roughly 1.6 eV to 3.3 eV.",
+    "extracted_value": 3.3726e-19,
+    "extracted_units": "J",
+    "tool_calls": [
+      {
+        "name": "photon_energy_from_wavelength",
+        "args": {
+          "wavelength_m": 5.89e-07
+        },
+        "result_text": "{\n  \"value\": 3.3725736093918423e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h c / lambda\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 2.105 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.\",\n  \"inputs\": {\n    \"wavelength_m\": 5.89e-7\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 2,
+    "elapsed_s": 2.746098279953003,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0
+  },
+  {
+    "id": "atom_008",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: 238.02891 amu\n\nThe atomic mass of uranium (U) is approximately 238.02891 unified atomic mass units (amu). This value reflects the natural abundance weighted average of its isotopes.",
+    "extracted_value": 238.02891,
+    "extracted_units": "amu",
+    "tool_calls": [
+      {
+        "name": "element_atomic_data",
+        "args": {
+          "element_symbol": "U"
+        },
+        "result_text": "{\n  \"value\": {\n    \"name\": \"uranium\",\n    \"symbol\": \"U\",\n    \"atomic_number\": 92,\n    \"atomic_mass_amu\": 238.02891,\n    \"covalent_radius_angstrom\": 1.96\n  },\n  \"units\": \"\",\n  \"source\": \"sigma-ground via periodictable (NIST atomic data)\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": null,\n  \"notes\": \"Atomic mass in unified atomic mass units (amu). For natural abundance weighted; use isotope-specific lookups for pure isotopes.\",\n  \"inputs\": {\n    \"element_symbol\": \"U\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 2,
+    "elapsed_s": 2.1230034828186035,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0
+  },
+  {
+    "id": "nuc_001",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: 8.987551787368176e+16 joule\n\n1.0 kilogram = 8.987551787368176e+16 joule (pint conversion via conversion-classifier)",
+    "extracted_value": 8.987551787368176e+16,
+    "extracted_units": "joule",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.0976412296295166,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "conversion_classifier_hit": true
+  },
+  {
+    "id": "nuc_002",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: 21.480764310153383 megaton_TNT\n\n1.0 kilogram = 21.480764310153383 megaton_TNT (pint conversion via conversion-classifier)",
+    "extracted_value": 21.480764310153383,
+    "extracted_units": "megaton_TNT",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.09784674644470215,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "conversion_classifier_hit": true
+  },
+  {
+    "id": "nuc_003",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "The energy of an alpha particle with a kinetic energy of 5 MeV corresponds to a mass of approximately \\(5.56 \\times 10^{-11}\\) kg. To convert this mass into electronvolts (eV), we use the formula \\(E = m c^2\\). \n\nANSWER: 87839400 eV",
+    "extracted_value": 5.563250280268092e-11,
+    "extracted_units": "kg",
+    "tool_calls": [
+      {
+        "name": "energy_to_mass",
+        "args": {
+          "energy_j": 5000000,
+          "from_units": "MeV",
+          "to_units": "eV"
+        },
+        "result_text": "{\n  \"value\": 5.563250280268092e-11,\n  \"units\": \"kg\",\n  \"source\": \"sigma-ground (Einstein mass-energy equivalence)\",\n  \"uncertainty\": null,\n  \"formula\": \"m = E / c^2\",\n  \"provenance_tag\": null,\n  \"notes\": \"Inverse of E = m c^2. For 1 joule, this is ~1.11e-17 kg (tiny). For typical stellar luminosities (1e26-1e27 W) the rate is millions of tonnes per second.\",\n  \"inputs\": {\n    \"energy_j\": 5000000.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 2,
+    "elapsed_s": 2.712597131729126,
+    "extracted_via_fallback": true,
+    "nudges_sent": 0
+  },
+  {
+    "id": "nuc_004",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: 3.2043532679999995e-11 joule\n\n200.0 MeV = 3.2043532679999995e-11 joule (pint conversion via conversion-classifier)",
+    "extracted_value": 3.2043532679999995e-11,
+    "extracted_units": "joule",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.09470963478088379,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "conversion_classifier_hit": true
+  },
+  {
+    "id": "nuc_005",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: 10.277 MT TNT\n\nThe complete fission of 1 kg of U-235 releases an energy equivalent to approximately 10.277 megatons of TNT.",
+    "extracted_value": 10.277,
+    "extracted_units": "MT TNT",
+    "tool_calls": [
+      {
+        "name": "joules_to_TNT",
+        "args": {
+          "unit": "MT",
+          "energy_joules": 43000000000000000
+        },
+        "result_text": "{\n  \"value\": 10.277246653919693,\n  \"units\": \"MT_TNT\",\n  \"source\": \"sigma-ground via IUPAC TNT-equivalence (1 ton = 4.184e9 J)\",\n  \"uncertainty\": null,\n  \"formula\": \"E_TNT = E_J / (4.184e9 * scale)\",\n  \"provenance_tag\": null,\n  \"notes\": \"1 ton TNT = 4.184e9 J by IUPAC convention. Real TNT energy density is ~4.6e6 J/kg; the 4.184e9 J/ton value rounds for convention.\",\n  \"inputs\": {\n    \"energy_joules\": 4.3e16,\n    \"unit\": \"MT\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 2,
+    "elapsed_s": 2.2483391761779785,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0
+  },
+  {
+    "id": "nuc_006",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: 2.81983087584e-12 joule\n\n17.6 MeV = 2.81983087584e-12 joule (pint conversion via conversion-classifier)",
+    "extracted_value": 2.81983087584e-12,
+    "extracted_units": "joule",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.10008358955383301,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "conversion_classifier_hit": true
+  },
+  {
+    "id": "nuc_007",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: 1.0 ton TNT\n\nThis means that the energy released in a 1-megaton thermonuclear explosion corresponds to the mass of one ton of TNT being completely converted into energy, according to the equation \\( E = mc^2 \\).",
+    "extracted_value": 1000000.0,
+    "extracted_units": "ton_TNT",
+    "tool_calls": [
+      {
+        "name": "joules_to_TNT",
+        "args": {
+          "energy_joules": 4184000000000000,
+          "unit": "ton"
+        },
+        "result_text": "{\n  \"value\": 1000000.0,\n  \"units\": \"ton_TNT\",\n  \"source\": \"sigma-ground via IUPAC TNT-equivalence (1 ton = 4.184e9 J)\",\n  \"uncertainty\": null,\n  \"formula\": \"E_TNT = E_J / (4.184e9 * scale)\",\n  \"provenance_tag\": null,\n  \"notes\": \"1 ton TNT = 4.184e9 J by IUPAC convention. Real TNT energy density is ~4.6e6 J/kg; the 4.184e9 J/ton value rounds for convention.\",\n  \"inputs\": {\n    \"energy_joules\": 4184000000000000.0,\n    \"unit\": \"ton\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 2,
+    "elapsed_s": 2.442415237426758,
+    "extracted_via_fallback": true,
+    "nudges_sent": 0
+  },
+  {
+    "id": "math_001",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: [-2.0, 2.0] \n\nComputed via math_classifier: tool=solve_equation on 'x**2-4=0' (symbolic: ['-2', '2'])",
+    "extracted_value": [
+      -2.0,
+      2.0
+    ],
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.6242551803588867,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "math_classifier_hit": "solve_equation"
+  },
+  {
+    "id": "math_002",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: 0.3333333333333333 \n\nComputed via math_classifier: tool=integrate_expr on 'x**2' (symbolic: '1/3')",
+    "extracted_value": 0.3333333333333333,
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.12300229072570801,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "math_classifier_hit": "integrate_expr"
+  },
+  {
+    "id": "math_003",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: cos(x) \n\nComputed via math_classifier: tool=differentiate_expr on 'sin(x)' (symbolic: 'cos(x)')",
+    "extracted_value": "cos(x)",
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.09818768501281738,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "math_classifier_hit": "differentiate_expr"
+  },
+  {
+    "id": "math_004",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: [1.0, 2.0, 3.0] \n\nComputed via math_classifier: tool=solve_equation on 'x**3-6*x**2+11*x-6=0' (symbolic: ['1', '2', '3'])",
+    "extracted_value": [
+      1.0,
+      2.0,
+      3.0
+    ],
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.10199213027954102,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "math_classifier_hit": "solve_equation"
+  },
+  {
+    "id": "math_005",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: 3.141592653589793 \n\nComputed via math_classifier: tool=integrate_expr on '1/(1+x**2)' (symbolic: 'pi')",
+    "extracted_value": 3.141592653589793,
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.15635466575622559,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "math_classifier_hit": "integrate_expr"
+  },
+  {
+    "id": "math_006",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: 9460730472580800.0 meter\n\n1.0 light_year = 9460730472580800.0 meter (pint conversion via conversion-classifier)",
+    "extracted_value": 9460730472580800.0,
+    "extracted_units": "meter",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.09427404403686523,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "conversion_classifier_hit": true
+  },
+  {
+    "id": "math_007",
+    "system": "sigma_ground",
+    "model": "qwen2.5:7b",
+    "answer_text": "ANSWER: 1.0 \n\nComputed via math_classifier: tool=simplify_expr on 'sin(x)**2+cos(x)**2' (symbolic: '1')",
+    "extracted_value": 1.0,
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.17835474014282227,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "math_classifier_hit": "simplify_expr"
   }
 ]
