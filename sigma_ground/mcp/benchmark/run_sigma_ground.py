@@ -562,6 +562,15 @@ _FLAG_TO_CATEGORY = {"/simulation": "simulation", "/sim": "simulation",
                      "/question": "question", "/qa": "question", "/q": "question",
                      "/render": "render", "/all": "all"}
 
+# Hang guards. An MCP `call_tool` has no built-in timeout, so an occasional
+# stuck call (server stall / wedged stdio) would freeze the WHOLE benchmark run
+# indefinitely — it silently hung the 150-Q run twice (~2 days each, at a
+# different benign question each time). With these, a stuck call fails just that
+# call/question (marked None) and the run continues. No legit physics tool needs
+# anywhere near 60 s; a normal question finishes in well under 180 s.
+_TOOL_CALL_TIMEOUT_S = 60.0     # per individual MCP tool call
+_QUESTION_TIMEOUT_S = 180.0     # per-question backstop (catches any other hang)
+
 
 def _split_tool_flag(text: str) -> tuple[str | None, str]:
     """Pull a leading /category flag off a prompt -> (category, rest)."""
@@ -983,13 +992,17 @@ async def _run_one_question(session, ollama_url: str, model: str,
                     args, chain_log = await resolve_body_name_chain(
                         session, args, real_params_by_tool[name])
                 try:
-                    result = await session.call_tool(name, args)
+                    result = await asyncio.wait_for(
+                        session.call_tool(name, args), _TOOL_CALL_TIMEOUT_S)
                     content_parts = []
                     for piece in (result.content or []):
                         text = getattr(piece, "text", None)
                         if text:
                             content_parts.append(text)
                     tool_text = "\n".join(content_parts) or "(empty)"
+                except asyncio.TimeoutError:
+                    tool_text = (f"<TOOL TIMEOUT: {name} exceeded "
+                                 f"{_TOOL_CALL_TIMEOUT_S:.0f}s — skipped>")
                 except Exception as e:
                     tool_text = f"<TOOL ERROR: {e}>"
 
@@ -1323,17 +1336,31 @@ async def _amain(args) -> int:
                     continue
                 print(f"[{i+1}/{len(questions)}] {q['id']}: {q['question'][:60]}...")
                 try:
-                    result = await _run_one_question(
-                        session,
-                        args.ollama_url + "/api/chat",
-                        args.model,
-                        tools_for_ollama,
-                        q["question"],
-                        sys_prompt,
-                        real_params_by_tool=real_params_by_tool,
-                        primary_tool_expected=q.get("primary_tool_expected"),
-                        tool_category=args.tools,
+                    result = await asyncio.wait_for(
+                        _run_one_question(
+                            session,
+                            args.ollama_url + "/api/chat",
+                            args.model,
+                            tools_for_ollama,
+                            q["question"],
+                            sys_prompt,
+                            real_params_by_tool=real_params_by_tool,
+                            primary_tool_expected=q.get("primary_tool_expected"),
+                            tool_category=args.tools,
+                        ),
+                        _QUESTION_TIMEOUT_S,
                     )
+                except asyncio.TimeoutError:
+                    print(f"  TIMEOUT after {_QUESTION_TIMEOUT_S:.0f}s — skipped "
+                          f"(harness backstop)", file=sys.stderr)
+                    result = {
+                        "answer_text":     f"<timed out after {_QUESTION_TIMEOUT_S:.0f}s>",
+                        "extracted_value": None,
+                        "extracted_units": "",
+                        "tool_calls":      [],
+                        "turns":           0,
+                        "elapsed_s":       _QUESTION_TIMEOUT_S,
+                    }
                 except Exception as e:
                     print(f"  ERROR: {e}", file=sys.stderr)
                     result = {
