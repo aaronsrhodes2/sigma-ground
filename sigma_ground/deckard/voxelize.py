@@ -40,6 +40,7 @@ class VoxelField:
     confidence: float
     density_by_label: dict = None   # {material: density} actually used for mass
     notes: str = ""
+    reconciliation: dict = None     # set by fill_cavity: requested vs capacity vs filled
 
     def to_voxel(self):
         """Build the kernel `Voxel` shape (centred on this field)."""
@@ -89,6 +90,63 @@ def _scan_interfaces(label, materials, pitch):
     return pairs, free
 
 
+def _finalize(label, materials, pitch, lo, density_of, watertight_frac,
+              *, reconciliation=None, extra_note="") -> VoxelField:
+    """Build a VoxelField from a labeled grid: SDF + exact mass props + interfaces.
+
+    Shared by ``voxelize`` (first build) and ``fill_cavity`` (re-derive after a
+    fill paints cavity cells) so the two paths can never drift.
+    """
+    import numpy as np
+    import scipy.ndimage as ndi
+
+    label = np.ascontiguousarray(label)
+    dims = np.asarray(label.shape)
+    lo = np.asarray(lo, float)
+    occ = label > 0
+    if not occ.any():
+        raise ValueError("voxelize: empty occupancy after solidification")
+
+    # signed distance grid (− inside), in metres
+    sdf = (ndi.distance_transform_edt(~occ) - ndi.distance_transform_edt(occ)) * pitch
+
+    cellvol = pitch ** 3
+    dens_by_id = np.zeros(len(materials))
+    for i, name in enumerate(materials):
+        if i:
+            dens_by_id[i] = density_of(name)
+
+    occ_idx = np.argwhere(occ)
+    world = lo + (occ_idx + 0.5) * pitch
+    m = dens_by_id[label[occ]] * cellvol
+    mass = float(m.sum())
+    com = (world * m[:, None]).sum(0) / mass if mass > 0 else world.mean(0)
+    r = world - com
+    Ixx = float((m * (r[:, 1] ** 2 + r[:, 2] ** 2)).sum())
+    Iyy = float((m * (r[:, 0] ** 2 + r[:, 2] ** 2)).sum())
+    Izz = float((m * (r[:, 0] ** 2 + r[:, 1] ** 2)).sum())
+    volume = float(occ.sum()) * cellvol
+
+    interfaces, free = _scan_interfaces(label, materials, pitch)
+    conf = round(0.5 + 0.5 * watertight_frac, 2)
+    center = tuple((lo + dims * pitch * 0.5).tolist())
+    note = (f"voxel {tuple(int(d) for d in dims)} @ {pitch*1000:.0f}mm; "
+            f"per-part fill+union; watertight {watertight_frac:.0%} "
+            f"(mass/volume confidence {conf})")
+    if extra_note:
+        note += "; " + extra_note
+    return VoxelField(
+        sdf_grid=sdf, label_grid=label, voxel_size=float(pitch),
+        center=center, materials=list(materials), volume_m3=volume, mass_kg=mass,
+        com_m=tuple(float(c) for c in com), inertia_kgm2=(Ixx, Iyy, Izz),
+        interfaces=interfaces, free_surfaces=free, watertight_frac=watertight_frac,
+        confidence=conf,
+        density_by_label={materials[i]: float(dens_by_id[i])
+                          for i in range(1, len(materials))},
+        notes=note, reconciliation=reconciliation,
+    )
+
+
 def voxelize(parts, *, pitch=0.008, margin=4, density_of=None) -> VoxelField:
     """Voxelize ``parts`` = ``[(trimesh.Trimesh, material_name), ...]`` into a field.
 
@@ -135,45 +193,137 @@ def voxelize(parts, *, pitch=0.008, margin=4, density_of=None) -> VoxelField:
         gi = gi[ok]
         label[gi[:, 0], gi[:, 1], gi[:, 2]] = mid       # later part wins on overlap
 
-    occ = label > 0
-    if not occ.any():
-        raise ValueError("voxelize: empty occupancy after solidification")
-
-    # signed distance grid (− inside), in metres
-    sdf = (ndi.distance_transform_edt(~occ) - ndi.distance_transform_edt(occ)) * pitch
-
-    cellvol = pitch ** 3
-    dens_by_id = np.zeros(len(materials))
-    for i, name in enumerate(materials):
-        if i:
-            dens_by_id[i] = density_of(name)
-
-    occ_idx = np.argwhere(occ)
-    world = lo + (occ_idx + 0.5) * pitch
-    m = dens_by_id[label[occ]] * cellvol
-    mass = float(m.sum())
-    com = (world * m[:, None]).sum(0) / mass if mass > 0 else world.mean(0)
-    r = world - com
-    Ixx = float((m * (r[:, 1] ** 2 + r[:, 2] ** 2)).sum())
-    Iyy = float((m * (r[:, 0] ** 2 + r[:, 2] ** 2)).sum())
-    Izz = float((m * (r[:, 0] ** 2 + r[:, 1] ** 2)).sum())
-    volume = float(occ.sum()) * cellvol
-
-    interfaces, free = _scan_interfaces(label, materials, pitch)
     wt_frac = (sum(watertight) / len(watertight)) if watertight else 0.0
-    center = tuple((lo + dims * pitch * 0.5).tolist())
-    return VoxelField(
-        sdf_grid=sdf, label_grid=label, voxel_size=float(pitch),
-        center=center, materials=materials, volume_m3=volume, mass_kg=mass,
-        com_m=tuple(float(c) for c in com), inertia_kgm2=(Ixx, Iyy, Izz),
-        interfaces=interfaces, free_surfaces=free, watertight_frac=wt_frac,
-        confidence=round(0.5 + 0.5 * wt_frac, 2),
-        density_by_label={materials[i]: float(dens_by_id[i])
-                          for i in range(1, len(materials))},
-        notes=(f"voxel {tuple(dims.tolist())} @ {pitch*1000:.0f}mm; "
-               f"per-part fill+union; watertight {wt_frac:.0%} "
-               f"(mass/volume confidence {round(0.5 + 0.5*wt_frac, 2)})"),
-    )
+    return _finalize(label, materials, pitch, lo, density_of, wt_frac)
+
+
+def _trapped_cavity(label, *, up_axis=2):
+    """The gravity-trapped void of a container: the cells liquid would rest in.
+
+    Physical model (z-up, gravity along −``up_axis``): sweep a water level up one
+    cell at a time. At level ``L`` the candidate water is the void at or below L;
+    its connected components that touch a *lateral or bottom* grid face leak to the
+    outside, the rest are trapped by the surrounding solid. Capacity is the largest
+    trapped volume over all levels — the brim, just before water spills over the
+    lowest rim. This needs no seed and handles BOTH a sealed pocket (trapped at
+    every level) and an open cup (trapped up to its rim), exactly as poured liquid
+    behaves. Returns ``(mask, capacity_cells)``.
+    """
+    import numpy as np
+    import scipy.ndimage as ndi
+
+    void = (label == 0)
+    n_up = label.shape[up_axis]
+    struct = ndi.generate_binary_structure(3, 1)        # 6-connectivity
+    # index of each cell along the up-axis, broadcast to the grid
+    shape_idx = [1, 1, 1]
+    shape_idx[up_axis] = n_up
+    level = np.arange(n_up).reshape(shape_idx)
+    lvl = np.broadcast_to(level, label.shape)
+
+    # which faces are "leaks" (liquid escapes): the four lateral faces + the bottom
+    # face (the up-axis low face). The top face is the open sky and never a leak.
+    lateral_axes = [a for a in (0, 1, 2) if a != up_axis]
+
+    best_mask = np.zeros_like(void)
+    best_cells = 0
+    for L in range(n_up):
+        below = void & (lvl <= L)
+        if not below.any():
+            continue
+        comp, ncomp = ndi.label(below, structure=struct)
+        if ncomp == 0:
+            continue
+        leak = set()
+        for a in lateral_axes:                          # both lateral faces leak
+            lo_face = np.take(comp, 0, axis=a)
+            hi_face = np.take(comp, comp.shape[a] - 1, axis=a)
+            leak.update(np.unique(lo_face).tolist())
+            leak.update(np.unique(hi_face).tolist())
+        bottom = np.take(comp, 0, axis=up_axis)         # the floor leaks too
+        leak.update(np.unique(bottom).tolist())
+        leak.discard(0)
+        trapped = below & ~np.isin(comp, list(leak)) if leak else below
+        c = int(trapped.sum())
+        if c > best_cells:
+            best_cells = c
+            best_mask = trapped
+    return best_mask, best_cells
+
+
+def fill_cavity(field, fill_material, *, requested_m3=None, density_of=None,
+                up_axis=2) -> "tuple[VoxelField, dict]":
+    """Pour ``fill_material`` into the container's cavity under gravity.
+
+    The SHAPE is authoritative (the Captain's rule): we never place more than the
+    cavity physically holds. Liquid settles bottom-first; we fill the lowest cells
+    up to ``min(requested_m3, capacity)``. If ``requested_m3`` is None we fill to
+    the brim. Returns ``(new_field, reconciliation)`` — a re-finalized field (mass,
+    CoM, SDF, interfaces all recomputed with the fill present) plus a report of
+    requested vs capacity vs actually-filled volume so Mentat can amend the sim.
+    Never silently fudges: any shortfall is deferred to the shape and flagged.
+    """
+    import numpy as np
+
+    density_of = density_of or _default_density
+    pitch = field.voxel_size
+    cellvol = pitch ** 3
+    label = np.array(field.label_grid, dtype=field.label_grid.dtype, copy=True)
+    materials = list(field.materials)
+
+    # ensure the fill material has a label id
+    if fill_material in materials:
+        mid = materials.index(fill_material)
+    else:
+        mid = len(materials)
+        materials.append(fill_material)
+
+    mask, cap_cells = _trapped_cavity(label, up_axis=up_axis)
+    capacity_m3 = cap_cells * cellvol
+
+    if requested_m3 is None:
+        target_m3 = capacity_m3
+    else:
+        target_m3 = min(float(requested_m3), capacity_m3)
+    n_fill = int(round(target_m3 / cellvol)) if cellvol > 0 else 0
+    n_fill = max(0, min(n_fill, cap_cells))
+
+    cells = np.argwhere(mask)
+    filled_cells = 0
+    if n_fill and cells.size:
+        order = np.argsort(cells[:, up_axis], kind="stable")   # gravity: low cells first
+        chosen = cells[order[:n_fill]]
+        label[chosen[:, 0], chosen[:, 1], chosen[:, 2]] = mid
+        filled_cells = len(chosen)
+    filled_m3 = filled_cells * cellvol
+
+    # geometry confidence is unchanged by a fill (the outer shell is the same)
+    lo = np.asarray(field.center, float) - np.asarray(label.shape, float) * pitch * 0.5
+    short_m3 = max(0.0, (float(requested_m3) - capacity_m3)) if requested_m3 is not None else 0.0
+    deferred = requested_m3 is not None and (requested_m3 - capacity_m3) > 0.5 * cellvol
+    reconciliation = {
+        "fill_material": fill_material,
+        "requested_m3": (float(requested_m3) if requested_m3 is not None else None),
+        "capacity_m3": capacity_m3,
+        "filled_m3": filled_m3,
+        "shortfall_m3": short_m3,
+        "cell_quantum_m3": cellvol,    # fill resolution — one voxel = the smallest drop
+        "fill_fraction": (filled_m3 / capacity_m3) if capacity_m3 > 0 else 0.0,
+        "deferred_to_shape": bool(deferred),
+        "confidence": field.confidence,
+        "note": (
+            f"requested {requested_m3*1e6:.1f} cm3 > capacity {capacity_m3*1e6:.1f} cm3 - "
+            f"deferred to shape, filled to brim ({filled_m3*1e6:.1f} cm3)"
+            if deferred else
+            f"filled {filled_m3*1e6:.1f} cm3 of {fill_material} "
+            f"(cavity capacity {capacity_m3*1e6:.1f} cm3)"
+        ),
+    }
+    note = f"filled {fill_material} {filled_m3*1e6:.1f}/{capacity_m3*1e6:.1f} cm3"
+    new_field = _finalize(label, materials, pitch, lo, density_of,
+                          field.watertight_frac, reconciliation=reconciliation,
+                          extra_note=note)
+    return new_field, reconciliation
 
 
 class _VoxelComposed:
@@ -235,6 +385,8 @@ def construct_from_field(name, field, *, source="", identified=True):
         "interfaces": {f"{x}|{y}": area for (x, y), area in field.interfaces.items()},
         "free_surfaces": dict(field.free_surfaces),
     }
+    if field.reconciliation:
+        validation["volume_reconciliation"] = dict(field.reconciliation)
     return Construct(
         name=name, composed=composed, density_by_label=density_by_label,
         layers=layers, mass_kg=field.mass_kg, com_m=field.com_m,
@@ -242,4 +394,4 @@ def construct_from_field(name, field, *, source="", identified=True):
         identified=identified, source=source or field.notes)
 
 
-__all__ = ["VoxelField", "voxelize", "construct_from_field"]
+__all__ = ["VoxelField", "voxelize", "fill_cavity", "construct_from_field"]
