@@ -355,6 +355,9 @@ float softShadow(vec3 ro, vec3 rd){          // sphere-traced soft shadow toward
     t+=clamp(h,SHMIN,SHMAX); if(t>SMAXT) break; }
   return clamp(res,0.0,1.0);
 }
+// NON-DERIVED (audit): ambient occlusion is a darkening heuristic, NOT light
+// transport — a fast-preview crutch; the path tracer computes real occlusion.
+// The 1.6 gain and AOH radius are hand-tuned. Retires with the fast path.
 float calcAO(vec3 p, vec3 n){                 // 5-tap SDF ambient occlusion (creases self-darken)
   float occ=0.0, sca=1.0;
   for(int i=0;i<5;i++){ float hr=AOH*(0.2+0.2*float(i));
@@ -402,6 +405,9 @@ vec3 incandescence(float T, vec3 emis){   // Planck's law × Kirchhoff emissivit
   vec3 x=1.4388e-2/(lam*T);                // c2/(lambda T), c2 = hc/k = 1.4388e-2 m*K
   vec3 L=emis/(pow(lam/650e-9,vec3(5.0))*(exp(x)-vec3(1.0)));   // ε(λ)·B(λ,T), spectral radiance
   vec3 e=L*EMISSION_SCALE;
+  // NON-DERIVED (audit): the Planck×Kirchhoff spectrum above IS physics; this
+  // Reinhard tone-map + 1.7 gain (and EMISSION_SCALE) is a camera/exposure
+  // choice — the error term between the real glow and the pixel, not the glow.
   return e/(1.0+max(e.r,max(e.g,e.b)))*1.7;   // tone-map: compress brightness, preserve the Planck hue
 }
 void main(){
@@ -522,7 +528,7 @@ vec3 calcN(vec3 p){ float h=2e-4; vec2 e=vec2(1.0,-1.0);
 vec3 incandescence(float T, vec3 emis){ if(T<700.0) return vec3(0.0);
   vec3 lam=vec3(650e-9,550e-9,450e-9); vec3 x=1.4388e-2/(lam*T);
   vec3 L=emis/(pow(lam/650e-9,vec3(5.0))*(exp(x)-vec3(1.0))); vec3 e=L*EMISSION_SCALE;
-  return e/(1.0+max(e.r,max(e.g,e.b)))*1.7; }
+  return e/(1.0+max(e.r,max(e.g,e.b)))*1.7; }   // NON-DERIVED (audit): the 1.7 gain + Reinhard is an exposure choice atop the derived Planck×Kirchhoff spectrum (twin of the fast-shader incandescence)
 uint hashu(uint x){ x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;x^=x>>16;return x; }
 float rnd(inout uint s){ s=hashu(s); return float(s)*(1.0/4294967296.0); }
 vec3 cosHemi(vec3 n, float u1, float u2){ float r=sqrt(u1), phi=6.2831853*u2;
@@ -536,6 +542,8 @@ float visRay(vec3 ro, vec3 rd, float maxt){ float t=EPS;   // unoccluded toward 
   for(int i=0;i<64;i++){ if(t>maxt) return 1.0; float d=mapOnly(ro+rd*t); if(d<0.001) return 0.0; t+=clamp(d,${SHMIN},${SHMAX}); } return 1.0; }
 vec3 skyEmit(vec3 rd){ vec3 AUP=normalize(vec3(${glf(au[0])},${glf(au[1])},${glf(au[2])}));
   float u=clamp(0.5+0.5*dot(rd,AUP),0.0,1.0);
+  // NON-DERIVED (audit): these sky RGBs are hand-picked, not Rayleigh/Mie from a
+  // real atmosphere — the largest remaining physics-to-screen gap in the PT path.
   vec3 c=PT_ENV*mix(vec3(0.50,0.57,0.65),vec3(0.32,0.47,0.75),u);           // sky area light (dimmable per scene)
   c += PT_ENV*${Sc}*${Si}*9.0*pow(max(0.0,dot(rd,-normalize(${Sd}))),3000.0);  // the sun disc
   return c; }

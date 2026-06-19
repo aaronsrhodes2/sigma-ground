@@ -46,6 +46,27 @@ _CHROMOPHORE = {
 _WHITE_INSULATOR = {"ceramic", "ceramic_alumina", "porcelain", "stoneware",
                     "bone", "gypsum", "salt"}
 
+# Phase-qualified fill labels — the shape researcher emits "liquid water" /
+# "liquid mercury", but every optics table here is keyed by the BARE substance.
+# Strip a leading phase word so the colour routes to real physics instead of the
+# grey stub. No optical key begins with a phase word, so this only ever rescues a
+# label that would otherwise fall through (it never mangles a resolvable one).
+_PHASE_WORDS = ("liquid ", "molten ", "solid ", "frozen ", "gaseous ")
+
+
+def _canonical_substance(label: str) -> str:
+    s = (label or "").strip()
+    # Drop a trailing descriptive qualifier the researcher appends:
+    # "glaze (glassy)" → "glaze". No optical key contains parentheses, so this
+    # only ever rescues a label that would otherwise fall through.
+    if s.endswith(")") and "(" in s:
+        s = s[:s.rindex("(")].strip()
+    low = s.lower()
+    for w in _PHASE_WORDS:
+        if low.startswith(w):
+            return s[len(w):].strip()
+    return s
+
 
 # ── primitive ⇄ dict ────────────────────────────────────────────────────
 # Every shape type the exporter can emit — MUST mirror the viewer's coverage
@@ -238,10 +259,14 @@ def _emergent_color(label: str) -> dict:
     False only for the honest exceptions (measured-reflectance organics, or an
     unknown material with no model yet).
     """
+    label = _canonical_substance(label)                  # "liquid water" → "water"
     if label == "air":                                   # void — never a surface hit
         return {"color_rgb": [0.0, 0.0, 0.0], "emergent": True, "metal": False,
                 "mechanism": "void (no matter)"}
-    # 1) Metals — free-electron Drude + Fresnel.
+    # 1) Metals — free-electron Drude + Fresnel. Solid metals are tagged in
+    #    MATERIALS; liquid metals (mercury) are mirrors too — a measured n+k in
+    #    MEASURED_NK is the same Fresnel-mirror physics, even when MATERIALS does
+    #    not carry them as a structural "metal".
     try:
         from ..field.interface.surface import MATERIALS
         if MATERIALS.get(label, {}).get("material_type") == "metal":
@@ -250,6 +275,12 @@ def _emergent_color(label: str) -> dict:
             return {"color_rgb": [round(c.x, 4), round(c.y, 4), round(c.z, 4)],
                     "emergent": True, "metal": True,
                     "mechanism": "Drude-Fresnel (free electrons)"}
+        from ..field.interface.optics import MEASURED_NK, metal_rgb
+        if label in MEASURED_NK:                         # liquid-metal mirror (Hg)
+            r, g, b = metal_rgb(label)
+            return {"color_rgb": [round(r, 4), round(g, 4), round(b, 4)],
+                    "emergent": True, "metal": True,
+                    "mechanism": "measured n+k Fresnel mirror (liquid metal)"}
     except Exception:
         pass
     # 2) Semiconductors — band-gap absorption.
@@ -351,6 +382,7 @@ def _emergent_mechanics(label: str) -> dict:
 
 
 def _bake_material(label: str, density=None) -> dict:
+    label = _canonical_substance(label)                  # canonical optical key
     info = _emergent_color(label)
     # Density is emergent too: derive it from the crystal cell (see
     # inventory.density). If the caller supplied one (e.g. Deckard), keep it as
@@ -375,13 +407,28 @@ def _bake_material(label: str, density=None) -> dict:
     # Reflective clear dielectrics (liquid water, glass, ice) carry a Fresnel R0
     # from their refractive index, so the renderer casts a real reflection ray —
     # near-transparent looking straight down, mirror-bright at grazing angles.
-    _CAUCHY = {"water": "water", "glass": "crown_glass", "ice": "ice"}
+    # Clear glaze is a thin fused-silica-like coat — give it the same Cauchy index
+    # so it's a glossy Fresnel dielectric (refracts to the body beneath), not matte.
+    _CAUCHY = {"water": "water", "glass": "crown_glass", "ice": "ice",
+               "glaze": "fused_silica"}
     if label in _CAUCHY:
         try:
             from ..field.interface.optics import cauchy_n, dielectric_surface_reflectance
             n = cauchy_n(_CAUCHY[label], 550e-9)
             info["reflect_r0"] = round(dielectric_surface_reflectance(n), 4)
             info["refractive_index"] = round(n, 4)
+        except Exception:
+            pass
+    # Liquid-metal mirrors (mercury) reflect but aren't tagged structural metals;
+    # give them the Fresnel R0 from their measured n+k so the renderer casts a
+    # reflection ray at the DERIVED strength (~0.76 for Hg). Solid metals — which
+    # already render via their albedo — are deliberately left untouched.
+    if info.get("metal") and "reflect_r0" not in info:
+        try:
+            from ..field.interface.surface import MATERIALS
+            from ..field.interface.optics import MEASURED_NK, metal_reflectance
+            if label in MEASURED_NK and MATERIALS.get(label, {}).get("material_type") != "metal":
+                info["reflect_r0"] = round(metal_reflectance(label, 550e-9), 4)
         except Exception:
             pass
     # Kirchhoff emissivity ε(λ)=1−R(λ) from the material's MEASURED n+k — the SAME
