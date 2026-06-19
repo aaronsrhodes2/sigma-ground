@@ -12,3 +12,4 @@ from .vec import *     # noqa: F401,F403
 from .shapes import *  # noqa: F401,F403
 from .csg import *     # noqa: F401,F403
 from .parts import *   # noqa: F401,F403
+from .voxel import Voxel  # noqa: F401  (voxel SDF shape; indexes numpy, never imports it)
