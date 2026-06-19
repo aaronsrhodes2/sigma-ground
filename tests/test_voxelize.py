@@ -13,7 +13,7 @@ np = pytest.importorskip("numpy")
 trimesh = pytest.importorskip("trimesh")
 pytest.importorskip("scipy")
 
-from sigma_ground.deckard.voxelize import voxelize, VoxelField
+from sigma_ground.deckard.voxelize import voxelize, VoxelField, construct_from_field
 from sigma_ground.deckard.sources import mesh as meshsrc
 from sigma_ground.kernel.voxel import Voxel
 
@@ -54,6 +54,29 @@ def test_inertia_is_sane_for_sphere():
     for I in (Ixx, Iyy, Izz):
         assert abs(I - I_true) / I_true < 0.15
     assert abs(Ixx - Izz) / Ixx < 0.05                                # symmetry
+
+
+def test_voxel_construct_is_a_drop_in():
+    R = 0.10
+    sph = trimesh.creation.icosphere(subdivisions=3, radius=R)
+    field = voxelize([(sph, "iron")], pitch=0.006, density_of=_density)
+    c = construct_from_field("iron ball", field, source="unit test")
+    # exact mass props pass straight through (no bbox-mass bug)
+    assert c.mass_kg == field.mass_kg
+    assert c.com_m == field.com_m
+    assert c.inertia_kgm2 == field.inertia_kgm2
+    # the bbox encloses the sphere
+    (x0, x1), (y0, y1), (z0, z1) = c.bbox
+    assert x0 < -R and x1 > R and z0 < -R and z1 > R
+    # the full Construct interface works (what physics queries)
+    assert c.material_at(*c.com_m) == "iron"
+    assert c.sdf(*c.com_m) < 0.0                       # CoM is inside
+    assert c.density_at(*c.com_m) == pytest.approx(7874.0)
+    assert c.material_at(0.5, 0.5, 0.5) is None        # far outside → void
+    # one cited layer for iron; render() narrates it
+    assert any(L.material == "iron" for L in c.layers)
+    txt = c.render()
+    assert "iron" in txt and "voxel" in c.validation["mode"]
 
 
 @pytest.mark.skipif(not meshsrc.data_available("44164"),

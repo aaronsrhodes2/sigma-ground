@@ -38,6 +38,7 @@ class VoxelField:
     free_surfaces: dict         # {mat: area_m2} — material↔void faces
     watertight_frac: float
     confidence: float
+    density_by_label: dict = None   # {material: density} actually used for mass
     notes: str = ""
 
     def to_voxel(self):
@@ -167,10 +168,78 @@ def voxelize(parts, *, pitch=0.008, margin=4, density_of=None) -> VoxelField:
         com_m=tuple(float(c) for c in com), inertia_kgm2=(Ixx, Iyy, Izz),
         interfaces=interfaces, free_surfaces=free, watertight_frac=wt_frac,
         confidence=round(0.5 + 0.5 * wt_frac, 2),
+        density_by_label={materials[i]: float(dens_by_id[i])
+                          for i in range(1, len(materials))},
         notes=(f"voxel {tuple(dims.tolist())} @ {pitch*1000:.0f}mm; "
                f"per-part fill+union; watertight {wt_frac:.0%} "
                f"(mass/volume confidence {round(0.5 + 0.5*wt_frac, 2)})"),
     )
 
 
-__all__ = ["VoxelField", "voxelize"]
+class _VoxelComposed:
+    """Adapts a kernel `Voxel` to the `ComposedSDF` interface the `Construct`
+    consumers expect: ``sdf(x,y,z)`` (the trilinear distance) and
+    ``material_at(x,y,z)`` (the per-cell label → material NAME, or None for void).
+    """
+
+    def __init__(self, voxel, materials):
+        self._v = voxel
+        self._mats = materials
+
+    def sdf(self, x, y, z):
+        return self._v.surface_distance(x, y, z)
+
+    def material_at(self, x, y, z):
+        lid = self._v.material_at(x, y, z)
+        if not lid:                       # None or 0 → void / air
+            return None
+        return self._mats[lid]
+
+
+def construct_from_field(name, field, *, source="", identified=True):
+    """Build a drop-in Deckard `Construct` from a `VoxelField`.
+
+    The construct exposes the SAME interface as the primitive path
+    (mass/CoM/inertia/bbox/.sdf()/.material_at()/density_at), so the physics that
+    consumes a Construct works unchanged — exact mass props come straight from the
+    voxel field (closing the bbox-mass bug). The geometry RENDER (serializing the
+    Voxel leaf to a SceneSpec) is Phase R-vox; this delivers the data + physics.
+    """
+    import numpy as np
+    from .construct import Construct, Layer
+
+    voxel = field.to_voxel()
+    composed = _VoxelComposed(voxel, field.materials)
+    cellvol = field.voxel_size ** 3
+    lab = field.label_grid
+    dby = field.density_by_label or {}
+    density_by_label, layers = {}, []
+    for i, matname in enumerate(field.materials):
+        if i == 0:
+            continue
+        cells = int((lab == i).sum())
+        if cells == 0:
+            continue
+        rho = float(dby.get(matname, 0.0))
+        vol = cells * cellvol
+        density_by_label[matname] = rho
+        layers.append(Layer(matname, matname, rho, vol, rho * vol, source="voxel field"))
+
+    cx, cy, cz = field.center
+    a, b, c = voxel._extents()
+    bbox = ((cx - a / 2, cx + a / 2), (cy - b / 2, cy + b / 2), (cz - c / 2, cz + c / 2))
+    validation = {
+        "passed": True, "mode": "voxel", "volume_m3": field.volume_m3,
+        "watertight_frac": field.watertight_frac, "confidence": field.confidence,
+        "note": field.notes,
+        "interfaces": {f"{x}|{y}": area for (x, y), area in field.interfaces.items()},
+        "free_surfaces": dict(field.free_surfaces),
+    }
+    return Construct(
+        name=name, composed=composed, density_by_label=density_by_label,
+        layers=layers, mass_kg=field.mass_kg, com_m=field.com_m,
+        inertia_kgm2=field.inertia_kgm2, bbox=bbox, validation=validation,
+        identified=identified, source=source or field.notes)
+
+
+__all__ = ["VoxelField", "voxelize", "construct_from_field"]
