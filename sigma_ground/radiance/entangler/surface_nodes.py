@@ -259,6 +259,12 @@ def generate_surface_nodes(shape, density=100, jitter=None):
     """
     density = getattr(shape, 'density_override', None) or density
 
+    if shape.shape_type == 'nodes':
+        # A pre-sampled node cloud (e.g. a Deckard construct sampled off its SDF
+        # surface). The points already carry per-node normals and materials and
+        # are irregularly distributed, so no Fibonacci generation and no jitter
+        # (the sampling is already decorrelated — nothing to anti-moiré).
+        return list(getattr(shape, 'nodes', []))
     if shape.shape_type == 'sphere':
         return _generate_sphere_nodes(shape, density, jitter)
     elif shape.shape_type == 'ellipsoid':

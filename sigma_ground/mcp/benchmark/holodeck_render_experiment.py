@@ -70,9 +70,23 @@ CATALOG = [
     ("launch_copper","throw a copper ball straight up at 200 m/s — how high?", "vertical_launch", "launch"),
     ("launch_gold",  "fling a gold ball up at 150 m/s — what apex altitude?", "vertical_launch", "launch"),
 
-    # — named objects: the HONEST GAP (need the Deckard→entangler CSG converter) —
-    ("obj_anvil",  "drop an anvil from 1 km — what's its terminal speed?", "drop_object", "named-object"),
-    ("obj_hammer", "drop a hammer from 100 m — how fast does it land?", "drop_object", "named-object"),
+    # — more drops / heating: extra material + glow variety —
+    ("heat_tung80",  "does a tungsten ball heat up dropping from 80 km?", "drag_heating_drop", "drag-heat"),
+    ("heat_iron100", "does an iron sphere get hot falling from 100 km?", "drag_heating_drop", "drag-heat"),
+    ("fall_nickel",  "drop a nickel ball from 9 km — impact speed?", "terminal_velocity_drop", "free-fall"),
+    ("fall_copper2", "drop a copper ball from 25 km — terminal velocity?", "terminal_velocity_drop", "terminal-v"),
+    ("launch_alum",  "throw an aluminum ball up at 250 m/s — how high?", "vertical_launch", "launch"),
+    ("slug_m6",      "a Mach 6 tungsten slug — distance to subsonic?", "supersonic_projectile", "supersonic"),
+
+    # — named objects: now RENDERED via the Deckard→entangler CSG converter —
+    # (real CSG shape sampled off its SDF surface, with per-part materials) —
+    ("obj_anvil",    "drop an anvil from 1 km — what's its terminal speed?", "drop_object", "named-object"),
+    ("obj_hammer",   "drop a hammer from 100 m — how fast does it land?", "drop_object", "named-object"),
+    ("obj_dumbbell", "drop a dumbbell from 200 m — terminal velocity?", "drop_object", "named-object"),
+    ("obj_skillet",  "drop a cast iron skillet from 50 m — impact speed?", "drop_object", "named-object"),
+    ("obj_cup",      "drop a coffee cup from 10 m — how fast does it land?", "drop_object", "named-object"),
+    ("obj_kettle",   "drop an electric kettle from 30 m — terminal speed?", "drop_object", "named-object"),
+    ("obj_feather",  "drop a feather from 2 m — how fast does it land?", "drop_object", "named-object"),
 ]
 
 
