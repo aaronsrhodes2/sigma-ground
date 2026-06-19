@@ -66,9 +66,18 @@ class Material:
                  composition="",
                  alpha_r=0.0, alpha_g=0.0, alpha_b=0.0,
                  viscosity_pa_s=None, bulk_modulus_pa=None,
-                 restitution=0.5, reference_temp_K=293.15):
+                 restitution=0.5, reference_temp_K=293.15,
+                 material_key=None, temperature_K=None):
         self.name = name
         self.color = color
+        # The field-library key (e.g. "copper") — when set, a lattice node answers
+        # a ray from PHYSICS (emergent reflectance + Planck glow at temperature_K)
+        # instead of the static `color`. None = legacy static-colour rendering.
+        self.material_key = material_key
+        # The matter's current temperature for the render (its physical STATE).
+        # Defaults to the reference (ambient) temperature.
+        self.temperature_K = (temperature_K if temperature_K is not None
+                              else reference_temp_K)
         self.reflectance = reflectance
         self.roughness = roughness
         self.opacity = opacity

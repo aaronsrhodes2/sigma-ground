@@ -16,6 +16,26 @@ Zero shared code with any ray tracer.
 import math
 from .vec import Vec3
 from .shapes import _apply_mat
+from .jitter import apply_thermal_jitter
+
+
+def _apply_jitter(nodes, shape, spacing, jitter):
+    """Apply thermal jitter to freshly-generated nodes if a spec is given.
+
+    ``jitter`` is None (off — the default, fully backward compatible) or a dict of
+    ``apply_thermal_jitter`` kwargs (``frame``, ``scene_seed``; an empty dict means
+    on with defaults). Material key + temperature come from the shape's Material.
+    """
+    if jitter is None:
+        return nodes
+    mat = shape.material
+    return apply_thermal_jitter(
+        nodes,
+        getattr(mat, "material_key", None),
+        getattr(mat, "temperature_K", 293.15),
+        spacing=spacing,
+        **jitter,
+    )
 
 
 class SurfaceNode:
@@ -40,7 +60,7 @@ class SurfaceNode:
 GOLDEN_ANGLE = math.pi * (3.0 - math.sqrt(5.0))
 
 
-def _generate_sphere_nodes(sphere, density):
+def _generate_sphere_nodes(sphere, density, jitter=None):
     """Generate surface nodes on a sphere using Fibonacci spiral.
 
     Node count = surface_area × density (exact 4πr²).
@@ -71,10 +91,11 @@ def _generate_sphere_nodes(sphere, density):
 
         nodes.append(SurfaceNode(pos, normal, sphere.material))
 
-    return nodes
+    # Surface inter-node spacing ≈ √(area / n) — drives the jitter amplitude.
+    return _apply_jitter(nodes, sphere, math.sqrt(area / n), jitter)
 
 
-def _generate_ellipsoid_nodes(ellipsoid, density):
+def _generate_ellipsoid_nodes(ellipsoid, density, jitter=None):
     """Generate surface nodes on an ellipsoid.
 
     Strategy: Fibonacci spiral on unit sphere → scale by radii.
@@ -126,10 +147,10 @@ def _generate_ellipsoid_nodes(ellipsoid, density):
 
         nodes.append(SurfaceNode(pos, normal_world, ellipsoid.material))
 
-    return nodes
+    return _apply_jitter(nodes, ellipsoid, math.sqrt(area / n), jitter)
 
 
-def _generate_torus_nodes(torus, density):
+def _generate_torus_nodes(torus, density, jitter=None):
     """Generate surface nodes on a torus.
 
     Parameterisation (XZ-plane torus before rotation):
@@ -216,10 +237,10 @@ def _generate_torus_nodes(torus, density):
 
         nodes.append(SurfaceNode(pos, normal, torus.material))
 
-    return nodes
+    return _apply_jitter(nodes, torus, math.sqrt(area / n), jitter)
 
 
-def generate_surface_nodes(shape, density=100):
+def generate_surface_nodes(shape, density=100, jitter=None):
     """Generate surface nodes for any supported quadric.
 
     Args:
@@ -228,6 +249,10 @@ def generate_surface_nodes(shape, density=100):
                  If the shape carries a ``density_override`` attribute, that
                  value replaces the caller-supplied density.  This lets
                  per-shape density be set without modifying the engine call.
+        jitter:  None (off — default) or a dict of thermal-jitter kwargs
+                 (``frame``, ``scene_seed``). When set, node positions are
+                 decorrelated by a temperature-scaled per-frame displacement
+                 (anti-moiré). See ``jitter.apply_thermal_jitter``.
 
     Returns:
         list of SurfaceNode
@@ -235,11 +260,11 @@ def generate_surface_nodes(shape, density=100):
     density = getattr(shape, 'density_override', None) or density
 
     if shape.shape_type == 'sphere':
-        return _generate_sphere_nodes(shape, density)
+        return _generate_sphere_nodes(shape, density, jitter)
     elif shape.shape_type == 'ellipsoid':
-        return _generate_ellipsoid_nodes(shape, density)
+        return _generate_ellipsoid_nodes(shape, density, jitter)
     elif shape.shape_type == 'torus':
-        return _generate_torus_nodes(shape, density)
+        return _generate_torus_nodes(shape, density, jitter)
     else:
         raise ValueError(
             f"Entangler: unsupported shape type '{shape.shape_type}'"

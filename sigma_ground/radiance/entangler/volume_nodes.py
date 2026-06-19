@@ -57,6 +57,27 @@ Scene units: inches (scene_unit = 1 inch throughout MatterShaper).
 import math
 from .vec import Vec3
 from .shapes import _apply_mat
+from .jitter import apply_thermal_jitter
+
+
+def _apply_jitter(nodes, shape, spacing, jitter):
+    """Apply thermal jitter to freshly-filled volume nodes if a spec is given.
+
+    ``jitter`` is None (off — default, backward compatible) or a dict of
+    ``apply_thermal_jitter`` kwargs. Interior nodes have no normal, so the jitter
+    is isotropic 3D (handled inside ``apply_thermal_jitter``). Spacing is the
+    node ``dl`` = (V/n)^(1/3).
+    """
+    if jitter is None:
+        return nodes
+    mat = shape.material
+    return apply_thermal_jitter(
+        nodes,
+        getattr(mat, "material_key", None),
+        getattr(mat, "temperature_K", 293.15),
+        spacing=spacing,
+        **jitter,
+    )
 
 
 # ── Golden ratio ────────────────────────────────────────────────────────────
@@ -144,7 +165,7 @@ def volume_node_opacity(node):
 
 # ── 3D Fibonacci volume fill ────────────────────────────────────────────────
 
-def _fill_sphere_fibonacci(sphere, n_nodes):
+def _fill_sphere_fibonacci(sphere, n_nodes, jitter=None):
     """Fill a sphere with n_nodes VolumeNodes using 3D Fibonacci distribution.
 
     Distribution is PROVEN uniform volumetrically:
@@ -198,10 +219,10 @@ def _fill_sphere_fibonacci(sphere, n_nodes):
 
         nodes.append(VolumeNode(pos, depth, mat, dl))
 
-    return nodes
+    return _apply_jitter(nodes, sphere, dl, jitter)
 
 
-def _fill_ellipsoid_fibonacci(ellipsoid, n_nodes):
+def _fill_ellipsoid_fibonacci(ellipsoid, n_nodes, jitter=None):
     """Fill an ellipsoid with n_nodes VolumeNodes.
 
     Strategy:
@@ -255,10 +276,10 @@ def _fill_ellipsoid_fibonacci(ellipsoid, n_nodes):
 
         nodes.append(VolumeNode(pos, depth, mat, dl))
 
-    return nodes
+    return _apply_jitter(nodes, ellipsoid, dl, jitter)
 
 
-def generate_volume_nodes(shape, n_nodes=10_000):
+def generate_volume_nodes(shape, n_nodes=10_000, jitter=None):
     """Generate n_nodes VolumeNodes filling a shape volumetrically.
 
     The caller controls density via n_nodes. Suggested values:
@@ -272,14 +293,18 @@ def generate_volume_nodes(shape, n_nodes=10_000):
     Args:
         shape:   EntanglerSphere or EntanglerEllipsoid with fill_volume=True
         n_nodes: number of VolumeNodes (controls density AND Beer-Lambert accuracy)
+        jitter:  None (off — default) or a dict of thermal-jitter kwargs
+                 (``frame``, ``scene_seed``). When set, interior nodes are
+                 displaced isotropically by a temperature-scaled per-frame
+                 amount (decorrelates the fill). See ``jitter.apply_thermal_jitter``.
 
     Returns:
         list of VolumeNode
     """
     if shape.shape_type == 'sphere':
-        return _fill_sphere_fibonacci(shape, n_nodes)
+        return _fill_sphere_fibonacci(shape, n_nodes, jitter)
     elif shape.shape_type == 'ellipsoid':
-        return _fill_ellipsoid_fibonacci(shape, n_nodes)
+        return _fill_ellipsoid_fibonacci(shape, n_nodes, jitter)
     else:
         raise ValueError(
             f"Entangler: volumetric fill not implemented for '{shape.shape_type}'. "

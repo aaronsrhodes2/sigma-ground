@@ -164,7 +164,7 @@ def _derive_light_from_emissives(objects):
 
 
 def entangle(objects, camera, light=None, density=200, bg_color=None,
-             volume_n_nodes=_VOLUME_NODES_DEFAULT, shadows=False):
+             volume_n_nodes=_VOLUME_NODES_DEFAULT, shadows=False, jitter=None):
     """Render a scene by push projection with Beer-Lambert transparency.
 
     Each object generates surface nodes (always) and, if fill_volume=True,
@@ -228,7 +228,7 @@ def entangle(objects, camera, light=None, density=200, bg_color=None,
 
     for obj in objects:
         # ── Surface nodes: matter that faces outward and emits ─────────────
-        surface_nodes = generate_surface_nodes(obj, density)
+        surface_nodes = generate_surface_nodes(obj, density, jitter)
         # Mean Voronoi cell area = 1/density. Cell radius (frontal projection):
         #   cell_r_front = sqrt(1 / (π × density))
         # At a surface node tilted by angle θ from the camera direction, the same
@@ -303,7 +303,8 @@ def entangle(objects, camera, light=None, density=200, bg_color=None,
         # Physics-out: these nodes exist for ALL physics (mass, gravity, interface).
         # The renderer just happens to also composite them as absorbers.
         if getattr(obj, 'fill_volume', False):
-            vol_nodes = generate_volume_nodes(obj, n_nodes=volume_n_nodes)
+            vol_nodes = generate_volume_nodes(obj, n_nodes=volume_n_nodes,
+                                              jitter=jitter)
             # All volume nodes in same shape have same dl — only compute op once.
             if vol_nodes:
                 op_r, op_g, op_b = volume_node_opacity(vol_nodes[0])
@@ -385,13 +386,13 @@ def _write_ppm(pixels, filepath):
 
 
 def entangle_to_file(objects, camera, light, filepath,
-                     density=200, bg_color=None):
+                     density=200, bg_color=None, jitter=None):
     """Render and save to file.
 
     Writes PPM (exact pixel format). Converts to PNG if
     ImageMagick is available.
     """
-    pixels = entangle(objects, camera, light, density, bg_color)
+    pixels = entangle(objects, camera, light, density, bg_color, jitter=jitter)
 
     # Determine output format
     base = filepath.rsplit('.', 1)[0] if '.' in filepath else filepath
