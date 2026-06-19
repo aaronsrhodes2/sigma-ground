@@ -22,11 +22,16 @@ def data_available(anno_id=None) -> bool:
     return root.is_dir()
 
 
-def load_parts(anno_id, *, scale_to_m: float | None = None):
+def load_parts(anno_id, *, scale_to_m: float | None = None, to_z_up: bool = True):
     """Return ``[(trimesh.Trimesh, obj_stem), ...]`` for a PartNet anno_id (or []).
 
     If ``scale_to_m`` is given, every part is uniformly scaled so the whole
     model's longest bbox edge equals that real-world size (from ShapeNetSem).
+
+    PartNet/ShapeNet ship in a **Y-up** canonical frame; this project is **Z-up**
+    (gravity along −z, floor at z=0). With ``to_z_up`` (default), each part is
+    rotated +90° about X (Y→Z) so the loaded mesh is already in the project frame
+    — the voxel Construct then stands up for both physics and the z-up renderer.
     """
     try:
         import trimesh
@@ -45,6 +50,13 @@ def load_parts(anno_id, *, scale_to_m: float | None = None):
             parts.append((m, f.stem))
     if not parts:
         return []
+    if to_z_up:
+        import math
+
+        import trimesh
+        R = trimesh.transformations.rotation_matrix(math.pi / 2.0, [1.0, 0.0, 0.0])
+        for m, _ in parts:
+            m.apply_transform(R)
     if scale_to_m and scale_to_m > 0:
         import trimesh
         full = trimesh.util.concatenate([m for m, _ in parts])

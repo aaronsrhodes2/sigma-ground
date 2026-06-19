@@ -606,3 +606,53 @@ def scene_from_spec(spec, **kw):
     albedo = lambda label: colors.get(label, Vec3(0.72, 0.72, 0.72))
     return RadianceScene(sdf, material_at, albedo=albedo,
                          max_dist=kw.pop("max_dist", 5.0), **kw)
+
+
+def scene_from_construct(construct, **kw):
+    """A RadianceScene that renders a Construct DIRECTLY from its SDF + per-cell
+    material — no SceneSpec serialization needed. Works for ANY backend: a voxel
+    Construct (real chair) or a primitive one. Each material is coloured by its
+    physics-derived emergent colour (the same `_emergent_color` the web bake uses),
+    so the render stays render-from-physics. This is R-vox's server-side path.
+    """
+    from .scene import RadianceScene
+    sdf = lambda p: construct.sdf(p.x, p.y, p.z)
+    mat = lambda p: construct.material_at(p.x, p.y, p.z)
+    _cache = {}
+
+    def albedo(label):
+        if label not in _cache:
+            if not label:
+                _cache[label] = Vec3(0.0, 0.0, 0.0)
+            else:
+                c = _emergent_color(label).get("color_rgb", [0.72, 0.72, 0.72])
+                _cache[label] = Vec3(*c)
+        return _cache[label]
+
+    (x0, x1), (y0, y1), (z0, z1) = construct.bbox
+    span = max(x1 - x0, y1 - y0, z1 - z0, 1e-3)
+    return RadianceScene(sdf, mat, albedo=albedo,
+                         max_dist=kw.pop("max_dist", span * 10.0), **kw)
+
+
+def bake_construct_png(construct, path, *, width=200, height=200,
+                       azimuth_deg=35.0, elevation_deg=20.0, distance=2.6,
+                       fov_deg=38.0):
+    """Render a Construct to a PNG from a framing camera (z-up world). Returns the
+    path. The server-side proof-of-life for a voxelized real object."""
+    import math
+    from .camera import Camera
+    from .render import render_to_png
+    scene = scene_from_construct(construct)
+    cx, cy, cz = construct.com_m
+    com = Vec3(cx, cy, cz)
+    (x0, x1), (y0, y1), (z0, z1) = construct.bbox
+    R = 0.5 * math.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2 + (z1 - z0) ** 2)
+    a = math.radians(azimuth_deg)
+    e = math.radians(elevation_deg)
+    eye = com + Vec3(distance * R * math.cos(e) * math.sin(a),
+                     distance * R * math.cos(e) * math.cos(a),
+                     distance * R * math.sin(e))
+    cam = Camera(eye, com, up=Vec3(0, 0, 1), fov_deg=fov_deg,
+                 width=width, height=height)
+    return render_to_png(scene, cam, path)
