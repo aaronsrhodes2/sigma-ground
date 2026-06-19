@@ -490,10 +490,32 @@ def _exemplar_quality(leaves, mbb, freq):
     return (leg_ok, coincident == 0, round(boxiness, 2), round(cov, 3), len(leaves)), leaves
 
 
+def _exemplar_parts(leaves, mbb):
+    """Leaf bboxes → normalized primitive parts (center_frac / size_frac)."""
+    oext = [max(mbb[1][i] - mbb[0][i], 1e-9) for i in range(3)]
+    octr = [(mbb[1][i] + mbb[0][i]) / 2.0 for i in range(3)]
+    parts = []
+    for lbl, bb in leaves:
+        if lbl in _NOISE:
+            continue
+        ext = [bb[1][i] - bb[0][i] for i in range(3)]
+        ctr = [(bb[1][i] + bb[0][i]) / 2.0 for i in range(3)]
+        sf = [round(ext[i] / oext[i], 4) for i in range(3)]
+        cf = [round((ctr[i] - octr[i]) / oext[i], 4) for i in range(3)]
+        parts.append({"name": lbl, "shape": _exemplar_shape(sf, lbl),
+                      "center_frac": cf, "size_frac": sf})
+    return parts
+
+
 def cmd_exemplar() -> None:
-    """Per category, pick ONE representative real model and ship its actual part
-    layout as primitives — Deckard learns the assembled shape of "a chair" from a
-    real chair, not from a hand-written template."""
+    """Per category, ship the TOP-K representative real models' actual part
+    layouts as a variant POOL — Deckard learns the assembled shape of "a chair"
+    from real chairs, and "a different chair" returns a *different real model*
+    (never a fabricated one). The best model is the canonical ``{name}.json``;
+    runners-up are ``{name}__{anno_id}.json`` (same category → one pool).
+    Optional argv: category name(s) to (re)distill only those (faster)."""
+    only = {a.strip().lower() for a in sys.argv[2:]}
+    K = 4                                              # real models kept per category
     try:
         census = {e["object"]: e for e in json.loads(_OUT.read_text(encoding="utf-8"))}
     except Exception:
@@ -504,9 +526,11 @@ def cmd_exemplar() -> None:
     written = 0
     for cat, dirs in sorted(cats.items()):
         name, aliases = _CATEGORIES[cat]
+        if only and name.lower() not in only and cat.lower() not in only:
+            continue
         freq = {p["name"]: p.get("freq", 0.0)
                 for p in census.get(name, {}).get("parts", [])}
-        best = None                                    # (quality_key, leaves, mbb, md)
+        cands = []                                     # (quality_key, leaves, mbb, md)
         for md in dirs:
             if not (md / "objs").is_dir():
                 continue
@@ -514,35 +538,27 @@ def cmd_exemplar() -> None:
             if not got or not (2 <= len(got[0]) <= 20):
                 continue
             qual, dleaves = _exemplar_quality(got[0], got[1], freq)
-            if 2 <= len(dleaves) <= 14 and (best is None or qual > best[0]):
-                best = (qual, dleaves, got[1], md)
-        if best is None:
+            if 2 <= len(dleaves) <= 14:
+                cands.append((qual, dleaves, got[1], md))
+        if not cands:
             print(f"  ! {name}: no exemplar candidates")
             continue
-        _qual, leaves, mbb, md = best
-        oext = [max(mbb[1][i] - mbb[0][i], 1e-9) for i in range(3)]
-        octr = [(mbb[1][i] + mbb[0][i]) / 2.0 for i in range(3)]
-        parts = []
-        for lbl, bb in leaves:
-            if lbl in _NOISE:
-                continue
-            ext = [bb[1][i] - bb[0][i] for i in range(3)]
-            ctr = [(bb[1][i] + bb[0][i]) / 2.0 for i in range(3)]
-            sf = [round(ext[i] / oext[i], 4) for i in range(3)]
-            cf = [round((ctr[i] - octr[i]) / oext[i], 4) for i in range(3)]
-            parts.append({"name": lbl, "shape": _exemplar_shape(sf, lbl),
-                          "center_frac": cf, "size_frac": sf})
-        doc = {"category": name, "aliases": aliases, "source_anno_id": md.name,
-               "n_parts": len(parts), "parts": parts,
-               "_source": f"PartNet (Mo et al. 2019) — representative model {md.name} "
-                          f"(real assembled part layout)",
-               "_license": _PN_LICENSE}
-        (out_dir / f"{name.replace(' ', '_')}.json").write_text(
-            json.dumps(doc, indent=1), encoding="utf-8")
-        written += 1
-        print(f"  + {name:14s} <- model {md.name} ({len(parts)} parts): "
-              + ", ".join(p["name"] for p in parts[:8]))
-    print(f"\nwrote {written} exemplars to {out_dir}")
+        cands.sort(key=lambda c: c[0], reverse=True)
+        keep = cands[:K]                               # top-K distinct real models
+        for rank, (_qual, leaves, mbb, md) in enumerate(keep):
+            parts = _exemplar_parts(leaves, mbb)
+            doc = {"category": name, "aliases": aliases, "source_anno_id": md.name,
+                   "n_parts": len(parts), "parts": parts,
+                   "_source": f"PartNet (Mo et al. 2019) — representative model {md.name} "
+                              f"(real assembled part layout)",
+                   "_license": _PN_LICENSE}
+            stem = name.replace(" ", "_")
+            fn = f"{stem}.json" if rank == 0 else f"{stem}__{md.name}.json"
+            (out_dir / fn).write_text(json.dumps(doc, indent=1), encoding="utf-8")
+            written += 1
+        print(f"  + {name:14s} <- {len(keep)} models (pool): "
+              + ", ".join(m.name for _, _, _, m in keep))
+    print(f"\nwrote {written} exemplar files to {out_dir}")
 
 
 def cmd_verify() -> None:

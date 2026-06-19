@@ -1,0 +1,178 @@
+{
+ "category": "chair",
+ "aliases": [],
+ "source_anno_id": "43198",
+ "n_parts": 12,
+ "parts": [
+  {
+   "name": "back_surface_vertical_bar",
+   "shape": "cylinder",
+   "center_frac": [
+    0.4095,
+    -0.2513,
+    0.2143
+   ],
+   "size_frac": [
+    0.074,
+    0.086,
+    0.5714
+   ]
+  },
+  {
+   "name": "back_surface_vertical_bar",
+   "shape": "cylinder",
+   "center_frac": [
+    0.2471,
+    -0.3421,
+    0.2143
+   ],
+   "size_frac": [
+    0.074,
+    0.0859,
+    0.5714
+   ]
+  },
+  {
+   "name": "back_surface_vertical_bar",
+   "shape": "cylinder",
+   "center_frac": [
+    0.059,
+    -0.3875,
+    0.2143
+   ],
+   "size_frac": [
+    0.074,
+    0.0859,
+    0.5714
+   ]
+  },
+  {
+   "name": "back_surface_vertical_bar",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.0413,
+    -0.3891,
+    0.2143
+   ],
+   "size_frac": [
+    0.0737,
+    0.0856,
+    0.5714
+   ]
+  },
+  {
+   "name": "back_surface_vertical_bar",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.2368,
+    -0.3474,
+    0.2143
+   ],
+   "size_frac": [
+    0.0737,
+    0.0856,
+    0.5714
+   ]
+  },
+  {
+   "name": "back_surface_vertical_bar",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.4166,
+    -0.2488,
+    0.2143
+   ],
+   "size_frac": [
+    0.0737,
+    0.0856,
+    0.5714
+   ]
+  },
+  {
+   "name": "back_single_surface",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.3147,
+    0.4024
+   ],
+   "size_frac": [
+    1.0,
+    0.3706,
+    0.1952
+   ]
+  },
+  {
+   "name": "seat_single_surface",
+   "shape": "box",
+   "center_frac": [
+    -0.0018,
+    0.0,
+    -0.0952
+   ],
+   "size_frac": [
+    0.9254,
+    1.0,
+    0.0476
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    0.4146,
+    -0.2684,
+    -0.3095
+   ],
+   "size_frac": [
+    0.0555,
+    0.0752,
+    0.381
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    0.4146,
+    0.4409,
+    -0.3095
+   ],
+   "size_frac": [
+    0.0555,
+    0.0752,
+    0.381
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.4182,
+    -0.2684,
+    -0.3095
+   ],
+   "size_frac": [
+    0.0555,
+    0.0752,
+    0.381
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.4182,
+    0.4409,
+    -0.3095
+   ],
+   "size_frac": [
+    0.0555,
+    0.0752,
+    0.381
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 43198 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

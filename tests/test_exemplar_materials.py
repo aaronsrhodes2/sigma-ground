@@ -77,20 +77,23 @@ def test_container_is_hollow_open_top_and_compiles():
     assert c.mass_kg > 0
 
 
-def test_different_chair_grabs_a_fresh_model_or_flags_honestly():
+def test_different_chair_grabs_a_fresh_real_model():
     from sigma_ground.deckard.sources import exemplar_of
+    from sigma_ground.deckard.sources.exemplar import _category_pool
     got = exemplar_of("a chair")
     assert got is not None and len(got) == 4
     _parts, _src, _lic, anno = got
     assert anno                                       # the real model id is surfaced
-    # "give me a DIFFERENT chair": exclude what we have. With a single-model pool
-    # the same model returns (reuse) — and that must be flagged, never silently
-    # passed off as a fresh chair.
+    pool_ids = {e[4] for e in _category_pool("a chair")}   # entry[4] == anno_id
+    # "give me a DIFFERENT chair": exclude what we have.
     _p2, _s2, _l2, anno2 = exemplar_of("a chair", exclude={anno})
-    assert anno2 == anno                              # pool of one → honest reuse
-    spec = _exemplar_spec("a chair", exclude={anno})
-    flagged = " ".join(s.get("name", "") for s in spec.sources)
-    assert "no distinct variant available yet" in flagged
+    if len(pool_ids) > 1:
+        assert anno2 != anno and anno2 in pool_ids    # a different REAL ShapeNet chair
+    else:
+        assert anno2 == anno                          # pool of one → honest reuse
+        spec = _exemplar_spec("a chair", exclude={anno})
+        flagged = " ".join(s.get("name", "") for s in spec.sources)
+        assert "no distinct variant available yet" in flagged
     # a normal spec carries the anno_id in provenance so Materia can track what
     # has already been solved (and exclude it next time).
     spec0 = _exemplar_spec("a chair")

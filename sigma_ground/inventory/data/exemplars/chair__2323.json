@@ -1,0 +1,108 @@
+{
+ "category": "chair",
+ "aliases": [],
+ "source_anno_id": "2323",
+ "n_parts": 7,
+ "parts": [
+  {
+   "name": "back_single_surface",
+   "shape": "box",
+   "center_frac": [
+    0.0008,
+    -0.3842,
+    0.3952
+   ],
+   "size_frac": [
+    0.8709,
+    0.2215,
+    0.2095
+   ]
+  },
+  {
+   "name": "back_support",
+   "shape": "box",
+   "center_frac": [
+    0.0008,
+    -0.4525,
+    0.097
+   ],
+   "size_frac": [
+    0.1643,
+    0.095,
+    0.3891
+   ]
+  },
+  {
+   "name": "seat_single_surface",
+   "shape": "box",
+   "center_frac": [
+    0.0008,
+    0.0257,
+    -0.057
+   ],
+   "size_frac": [
+    0.8709,
+    0.8726,
+    0.0812
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.4146,
+    0.4279,
+    -0.266
+   ],
+   "size_frac": [
+    0.1588,
+    0.1442,
+    0.4681
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    0.4206,
+    0.4279,
+    -0.266
+   ],
+   "size_frac": [
+    0.1588,
+    0.1442,
+    0.4681
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    0.4206,
+    -0.2404,
+    -0.266
+   ],
+   "size_frac": [
+    0.1588,
+    0.1442,
+    0.4681
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.4206,
+    -0.2404,
+    -0.266
+   ],
+   "size_frac": [
+    0.1588,
+    0.1442,
+    0.4681
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 2323 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}
