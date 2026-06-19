@@ -75,3 +75,23 @@ def test_container_is_hollow_open_top_and_compiles():
     # the hollow vessel still compiles to a real solid with mass
     c = compile(spec, resolution=40)
     assert c.mass_kg > 0
+
+
+def test_different_chair_grabs_a_fresh_model_or_flags_honestly():
+    from sigma_ground.deckard.sources import exemplar_of
+    got = exemplar_of("a chair")
+    assert got is not None and len(got) == 4
+    _parts, _src, _lic, anno = got
+    assert anno                                       # the real model id is surfaced
+    # "give me a DIFFERENT chair": exclude what we have. With a single-model pool
+    # the same model returns (reuse) — and that must be flagged, never silently
+    # passed off as a fresh chair.
+    _p2, _s2, _l2, anno2 = exemplar_of("a chair", exclude={anno})
+    assert anno2 == anno                              # pool of one → honest reuse
+    spec = _exemplar_spec("a chair", exclude={anno})
+    flagged = " ".join(s.get("name", "") for s in spec.sources)
+    assert "no distinct variant available yet" in flagged
+    # a normal spec carries the anno_id in provenance so Materia can track what
+    # has already been solved (and exclude it next time).
+    spec0 = _exemplar_spec("a chair")
+    assert any(s.get("anno_id") for s in spec0.sources)

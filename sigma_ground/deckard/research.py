@@ -311,21 +311,25 @@ def _carve_interior(parts):
     return "interior"
 
 
-def _exemplar_spec(name: str, material_hint: str | None = None) -> ConstructSpec | None:
+def _exemplar_spec(name: str, material_hint: str | None = None,
+                   exclude=None) -> ConstructSpec | None:
     """Assemble a known PartNet category from a REAL representative model's part
     layout (legs/back/seat at their actual measured positions), scaled to the
     object's median real-world size, with per-part material by role-convention
     (cited to ShapeNetSem ratios). The shape is learned from real objects, not
     hand-authored — Deckard inherently knows what a chair (mug, lamp, scissors…)
-    is. ``material_hint`` (e.g. "wooden") biases the frame material. None if the
-    name isn't a PartNet category."""
+    is. ``material_hint`` (e.g. "wooden") biases the frame material AND prefers a
+    tagged shape variant; ``exclude`` (anno_ids) skips already-used models so "a
+    different chair" grabs a fresh one. None if the name isn't a PartNet
+    category."""
     from . import sources
     from .schema import Part
 
-    got = sources.exemplar.exemplar_of(name)
+    got = sources.exemplar.exemplar_of(name, exclude=exclude, hint=material_hint)
     if got is None:
         return None
-    layout, src, lic = got
+    layout, src, lic, anno = got
+    reused = bool(exclude) and anno in {str(x) for x in exclude}
 
     # overall real-world extents (W x D x H) — ShapeNetSem median, else a guess
     dim = sources.shapenetsem.dims_of(name)
@@ -391,6 +395,11 @@ def _exemplar_spec(name: str, material_hint: str | None = None) -> ConstructSpec
         name=name, kind="composite", identified=True, parts=parts,
         sources=[{"name": "assembled from a representative real model — its actual "
                           "part layout (no hand-authored template)", "license": lic},
+                 {"name": (f"representative real model — PartNet anno_id {anno}"
+                           + (" (no distinct variant available yet — distill more "
+                              "exemplars for this category to vary the shape)"
+                              if reused else "")),
+                  "license": lic, "anno_id": anno},
                  {"name": src, "license": lic}, size_src,
                  {"name": f"material composition (ShapeNetSem): {comp_str}",
                   "license": comp[2] if comp else ""},
@@ -483,20 +492,22 @@ def _furniture_spec(name: str) -> ConstructSpec | None:
 
 
 def research(name: str, *, allow_llm: bool = True,
-             material_hint: str | None = None) -> ConstructSpec:
+             material_hint: str | None = None, exclude=None) -> ConstructSpec:
     """Resolve a named object to a cited ConstructSpec; flag if unidentified.
 
     A catalog hit is returned verbatim (deterministic). A PartNet category gets
     the real-exemplar assembler with per-part materials (``material_hint`` such
-    as "wooden" biases the frame material — it SELECTS, it does not invent). On
-    a miss the Researcher is consulted if available; failing that, a flagged
-    best-guess is returned — never a confident fake.
+    as "wooden" biases the frame material — it SELECTS, it does not invent).
+    ``exclude`` (anno_ids) skips already-used models so a "different" request
+    grabs a fresh real model from the category's variant pool. On a miss the
+    Researcher is consulted if available; failing that, a flagged best-guess is
+    returned — never a confident fake.
     """
     hit = catalog.lookup(name)
     if hit is not None:
         return hit
 
-    structured = (_exemplar_spec(name, material_hint=material_hint)
+    structured = (_exemplar_spec(name, material_hint=material_hint, exclude=exclude)
                   or _furniture_spec(name))         # real layout, else archetype
     if structured is not None:
         return structured
