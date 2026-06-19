@@ -1,6 +1,6 @@
 # Golden Rules of sigma-ground Physics
 
-These rules govern how all physics code is written in this project.
+These rules govern how all physics — and rendering — code is written in this project.
 They encode lessons learned building the library and ensure every module
 stays consistent, correct, and genuinely connected to the σ-field framework.
 
@@ -179,6 +179,62 @@ If a property is intrinsically collective (band structure, phonons,
 screening, phase transitions), the model must include the volume.
 If a property is intrinsically atomic (ionization energy, electron config),
 test the atom.
+
+---
+
+## Rule 11 — Fix the Physics, Never Patch the Picture
+
+Radiance renders the way nature does — by simulating light transport (path
+tracing). Appearance and dynamics are **consequences** of the physics, never
+things painted on afterward. When the image looks wrong, the fix lives in the
+physics, or in how we *integrate* it — **never in a post-hoc graphics trick** (a
+fake renderer, a denoiser, a fudge applied after the fact). A trick that hides
+one artifact is a new lie that resurfaces as another.
+
+```
+# Wrong — patch the picture after the fact
+Water flickers under path tracing  →  fall back to the headlight/ambient "fast"
+shader (does reflection, NOT refraction).  Flicker gone — and the water is now
+opaque. One lie stacked on the last.
+
+# Correct — fix it in the light transport
+Water flickers because a path tracer can't average a MOVING surface.  The frame
+is a real camera EXPOSURE: integrate photons over a bounded shutter while the
+ripples advance.  Clean, transparent, AND animated — from the one renderer.
+```
+
+There is exactly one renderer: the path tracer. The only quality knob is
+**photons** — samples integrated over an exposure — because that is the only knob
+nature has. No second "fast" path in the real pipeline; no denoiser guessing the
+image instead of computing it. If it's noisy, gather more photons. If it's slow,
+make the light transport cheaper. Never fake the light.
+
+**Corollary — measure reality before you "fix" it.** A "0.2 fps performance wall"
+once proved to be the browser *pausing* an occluded window
+(`document.visibilityState === "hidden"` → `requestAnimationFrame` frozen), not
+the renderer. It nearly bought real compromises — frozen ripples, quarter
+resolution — to solve a problem that did not exist. Confirm the bottleneck is
+real (window focused, frames actually advancing) before trading physics to chase it.
+
+---
+
+## The Golden Goal — Physics to Screen, Nothing in Between
+
+The Golden Rules are constraints; this is the aspiration they serve. Radiance's
+rendering model, as closely as we can possibly muster, is **physics to screen with
+nothing in between.**
+
+Every photon that reaches the eye should trace back to a real quantity the
+simulation actually produced — a temperature, a refractive index, an emission
+spectrum, a surface the dynamics actually formed — with no artist's fudge, no
+stylization pass, no "looks about right" constant slipped between the physics and
+the pixel. The renderer is a *window onto the simulation*, not a painter
+interpreting it.
+
+We will never close the gap completely — a screen is not the universe, and finite
+photons are finite photons. But the distance between the physics and the picture is
+the error term, and the whole craft is driving it toward zero. **When in doubt,
+remove a layer rather than add one.**
 
 ---
 
