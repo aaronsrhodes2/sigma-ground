@@ -326,15 +326,34 @@ def fill_cavity(field, fill_material, *, requested_m3=None, density_of=None,
     return new_field, reconciliation
 
 
+class _VoxLeaf:
+    """One CSG leaf wrapping a kernel `Voxel` — the single-leaf serialization
+    handle ``construct_to_scene`` reads (``.shape`` + ``.material``)."""
+    __slots__ = ("shape", "material")
+
+    def __init__(self, shape, material):
+        self.shape = shape
+        self.material = material
+
+
 class _VoxelComposed:
     """Adapts a kernel `Voxel` to the `ComposedSDF` interface the `Construct`
     consumers expect: ``sdf(x,y,z)`` (the trilinear distance) and
     ``material_at(x,y,z)`` (the per-cell label → material NAME, or None for void).
+
+    Also exposes ``_leaves`` (a single ``add`` Voxel leaf, labeled by the dominant
+    material) so the construct serializes through the existing primitive
+    ``construct_to_scene`` → the viewer gets a real Voxel leaf to raymarch. The
+    per-cell label grid still lives on the Voxel for the eventual per-cell material
+    render; stage-1 colours the whole solid by its dominant material.
     """
 
-    def __init__(self, voxel, materials):
+    def __init__(self, voxel, materials, dominant=None):
         self._v = voxel
         self._mats = materials
+        if dominant is None:
+            dominant = next((m for m in materials if m != "air"), "air")
+        self._leaves = [(_VoxLeaf(voxel, dominant), "add")]
 
     def sdf(self, x, y, z):
         return self._v.surface_distance(x, y, z)
@@ -359,21 +378,25 @@ def construct_from_field(name, field, *, source="", identified=True):
     from .construct import Construct, Layer
 
     voxel = field.to_voxel()
-    composed = _VoxelComposed(voxel, field.materials)
     cellvol = field.voxel_size ** 3
     lab = field.label_grid
     dby = field.density_by_label or {}
     density_by_label, layers = {}, []
+    dominant, dominant_cells = None, -1
     for i, matname in enumerate(field.materials):
         if i == 0:
             continue
         cells = int((lab == i).sum())
         if cells == 0:
             continue
+        if cells > dominant_cells:                      # most-voxels material = the look
+            dominant, dominant_cells = matname, cells
         rho = float(dby.get(matname, 0.0))
         vol = cells * cellvol
         density_by_label[matname] = rho
         layers.append(Layer(matname, matname, rho, vol, rho * vol, source="voxel field"))
+
+    composed = _VoxelComposed(voxel, field.materials, dominant)
 
     cx, cy, cz = field.center
     a, b, c = voxel._extents()

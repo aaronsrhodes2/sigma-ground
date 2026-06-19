@@ -73,8 +73,13 @@ def _canonical_substance(label: str) -> str:
 # (viewer.js jsShapeSDF/glslShapeCall); tools/verify_artifacts.py imports this
 # as the single source of truth.
 SUPPORTED_SHAPE_TYPES = {"Sphere", "HollowSphere", "Cylinder", "Cone", "Box",
-                         "Ellipsoid", "Torus", "Water", "Outline",
+                         "Ellipsoid", "Torus", "Water", "Outline", "Voxel",
                          "Rotated", "Clipped", "Subtracted"}
+
+# Voxel SDF grids are clamped to a narrow band of this many cells and quantized
+# to signed int8 (R8_SNORM in the viewer): band/127 ≈ 0.05·voxel sub-cell
+# resolution at the surface, big enough steps for cheap sphere-tracing far away.
+_VOXEL_BAND_CELLS = 6.0
 
 
 def _mat_to_quat(R):
@@ -121,6 +126,28 @@ def _shape_to_dict(shape) -> dict:
         d["rx"], d["ry"], d["rz"] = shape.rx, shape.ry, shape.rz
     elif t == "Torus":
         d["major_radius"], d["minor_radius"] = shape.major_radius, shape.minor_radius
+    elif t == "Voxel":
+        # A real voxelized solid: ship the signed-distance grid itself, narrow-band
+        # int8-quantized + base64, so the WebGL2 viewer can raymarch it as a 3-D
+        # texture ("just another SDF"). Heavy numpy import is lazy — only paid when
+        # a Voxel is actually serialized.
+        import base64
+        import numpy as np
+        g = np.asarray(shape._g, dtype=np.float32)
+        vs = float(shape.voxel_size)
+        band = _VOXEL_BAND_CELLS * vs
+        q = np.clip(np.round(g * (127.0 / band)), -127, 127).astype(np.int8)
+        # texImage3D wants x (width) fastest: payload[(k·ny+j)·nx+i] = grid[i,j,k]
+        payload = np.ascontiguousarray(q.transpose(2, 1, 0)).tobytes()
+        nx, ny, nz = shape._nx, shape._ny, shape._nz
+        d["type"] = "Voxel"
+        d["voxel_size"] = vs
+        d["dims"] = [nx, ny, nz]                    # box spans center ± dims·vs/2
+        d["band"] = band                            # decode: snorm[-1,1] · band = metres
+        d["encoding"] = "int8-snorm-xfast"
+        d["sdf_b64"] = base64.b64encode(payload).decode("ascii")
+        if getattr(shape, "source", ""):
+            d["source"] = shape.source
     elif t == "Outline":
         d["type"] = "Outline"
         d["mode"] = shape.mode
@@ -230,6 +257,18 @@ def _shape_from_dict(d):
         return Ellipsoid(d["rx"], d["ry"], d["rz"], center=c)
     if t == "Torus":
         return Torus(d["major_radius"], d["minor_radius"], center=c)
+    if t == "Voxel":
+        import base64
+        import numpy as np
+        from ..kernel.voxel import Voxel
+        nx, ny, nz = d["dims"]
+        band = float(d["band"])
+        raw = np.frombuffer(base64.b64decode(d["sdf_b64"]), dtype=np.int8)
+        # inverse of the x-fastest pack: (nz,ny,nx) → (nx,ny,nz)
+        g = (raw.reshape(nz, ny, nx).transpose(2, 1, 0).astype(np.float32)
+             * (band / 127.0))
+        g = np.ascontiguousarray(g)
+        return Voxel(g, float(d["voxel_size"]), center=c, source=d.get("source", ""))
     if t == "Outline":
         from ..kernel.outline import Outline
         prof = [(u, v) for u, v in d["profile"]]
