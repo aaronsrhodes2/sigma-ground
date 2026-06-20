@@ -1,0 +1,122 @@
+[
+ {
+  "slug": "vox_chair",
+  "title": "a wooden chair \u2014 dropped from 2.5 m",
+  "question": "drop a a wooden chair from 2.5 m",
+  "verb": "drop_object",
+  "group": "voxel",
+  "kind": "trajectory",
+  "shape": "voxel",
+  "dims": [
+   39,
+   42,
+   53
+  ],
+  "material": "wood"
+ },
+ {
+  "slug": "vox_mug",
+  "title": "coffee mug \u2014 dropped from 1.2 m",
+  "question": "drop a coffee mug from 1.2 m",
+  "verb": "drop_object",
+  "group": "voxel",
+  "kind": "trajectory",
+  "shape": "voxel",
+  "dims": [
+   39,
+   54,
+   46
+  ],
+  "material": "ceramic"
+ },
+ {
+  "slug": "vox_bowl",
+  "title": "bowl \u2014 dropped from 1.2 m",
+  "question": "drop a bowl from 1.2 m",
+  "verb": "drop_object",
+  "group": "voxel",
+  "kind": "trajectory",
+  "shape": "voxel",
+  "dims": [
+   53,
+   53,
+   20
+  ],
+  "material": "ceramic"
+ },
+ {
+  "slug": "vox_bottle",
+  "title": "bottle \u2014 dropped from 1.6 m",
+  "question": "drop a bottle from 1.6 m",
+  "verb": "drop_object",
+  "group": "voxel",
+  "kind": "trajectory",
+  "shape": "voxel",
+  "dims": [
+   21,
+   21,
+   54
+  ],
+  "material": "glass"
+ },
+ {
+  "slug": "vox_vase",
+  "title": "vase \u2014 dropped from 1.6 m",
+  "question": "drop a vase from 1.6 m",
+  "verb": "drop_object",
+  "group": "voxel",
+  "kind": "trajectory",
+  "shape": "voxel",
+  "dims": [
+   24,
+   24,
+   53
+  ],
+  "material": "ceramic"
+ },
+ {
+  "slug": "vox_lamp",
+  "title": "lamp \u2014 dropped from 1.8 m",
+  "question": "drop a lamp from 1.8 m",
+  "verb": "drop_object",
+  "group": "voxel",
+  "kind": "trajectory",
+  "shape": "voxel",
+  "dims": [
+   20,
+   41,
+   54
+  ],
+  "material": "glass"
+ },
+ {
+  "slug": "vox_knife",
+  "title": "knife \u2014 dropped from 1.4 m",
+  "question": "drop a knife from 1.4 m",
+  "verb": "drop_object",
+  "group": "voxel",
+  "kind": "trajectory",
+  "shape": "voxel",
+  "dims": [
+   10,
+   18,
+   53
+  ],
+  "material": "wood"
+ },
+ {
+  "slug": "vox_table",
+  "title": "a wooden table \u2014 dropped from 2.5 m",
+  "question": "drop a a wooden table from 2.5 m",
+  "verb": "drop_object",
+  "group": "voxel",
+  "kind": "trajectory",
+  "shape": "voxel",
+  "dims": [
+   53,
+   30,
+   25
+  ],
+  "material": "wood"
+ }
+]
