@@ -534,3 +534,37 @@ def research(name: str, *, allow_llm: bool = True,
     if scaffold is not None:
         return scaffold
     return _generic_vessel(name)
+
+
+def voxel_plan(name: str, *, material_hint: str | None = None, exclude=None):
+    """Resolve a name to the recipe for VOXELIZING its real mesh, or None if the
+    name isn't a real PartNet category.
+
+    Returns ``{"anno_id", "scale_to_m", "material", "source", "license"}`` — the
+    SAME exemplar selection, ShapeNetSem median size, and dominant role-convention
+    material that ``_exemplar_spec`` uses, so the voxel path and the primitive
+    path resolve identically: "a wooden chair" picks a real chair model + wood,
+    and ``exclude`` makes "a different chair" grab a fresh anno_id. The structural
+    (dominant) material is used for the whole solid in this stage; the per-part
+    label grid is the eventual per-cell refinement.
+    """
+    from . import sources
+
+    got = sources.exemplar.exemplar_of(name, exclude=exclude, hint=material_hint)
+    if got is None:
+        return None
+    _layout, src, lic, anno = got
+    dim = sources.shapenetsem.dims_of(name)
+    if dim:
+        longest = max(dim[0])                            # tallest/longest real edge
+    else:
+        sz = sources.typical_size_of(name)
+        longest = sz[0] if sz else 0.3
+    comp = sources.shapenetsem.materials_of(name)
+    ratios = comp[0] if comp else {}
+    structural = _hint_to_material(material_hint)
+    if structural is None:
+        non_soft = {c: r for c, r in ratios.items() if c not in _SOFT_MATERIALS}
+        structural = (max(non_soft, key=non_soft.get) if non_soft else None) or "wood"
+    return {"anno_id": str(anno), "scale_to_m": float(longest),
+            "material": structural, "source": src, "license": lic}
