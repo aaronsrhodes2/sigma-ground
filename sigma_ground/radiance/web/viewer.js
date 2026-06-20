@@ -148,11 +148,30 @@ function jsOutlineSDF(s,q){ const c=s.center;
   if(d2<=0&&dz<=0) return Math.max(d2,dz);
   if(d2>0&&dz>0) return Math.hypot(d2,dz);
   return Math.max(d2,dz); }
+function jsVoxelSDF(s,q){          // trilinear sample of the decoded int8 grid (self-check mirror)
+  const g=s._grid; if(!g) return 1e9;
+  const c=s.center, n=s.dims, vs=s.voxel_size, sc=s.band/127.0;
+  const nx=n[0],ny=n[1],nz=n[2];
+  let fi=(q[0]-c[0])/vs+(nx-1)*0.5, fj=(q[1]-c[1])/vs+(ny-1)*0.5, fk=(q[2]-c[2])/vs+(nz-1)*0.5;
+  const ci=Math.min(Math.max(fi,0),nx-1), cj=Math.min(Math.max(fj,0),ny-1), ck=Math.min(Math.max(fk,0),nz-1);
+  const i0=Math.floor(ci),j0=Math.floor(cj),k0=Math.floor(ck);
+  const i1=Math.min(i0+1,nx-1),j1=Math.min(j0+1,ny-1),k1=Math.min(k0+1,nz-1);
+  const di=ci-i0,dj=cj-j0,dk=ck-k0;
+  const at=(i,j,k)=>g[(k*ny+j)*nx+i]*sc;          // x-fastest pack (matches _shape_to_dict)
+  const c00=at(i0,j0,k0)*(1-di)+at(i1,j0,k0)*di, c01=at(i0,j0,k1)*(1-di)+at(i1,j0,k1)*di;
+  const c10=at(i0,j1,k0)*(1-di)+at(i1,j1,k0)*di, c11=at(i0,j1,k1)*(1-di)+at(i1,j1,k1)*di;
+  const c0=c00*(1-dj)+c10*dj, c1=c01*(1-dj)+c11*dj;
+  const val=c0*(1-dk)+c1*dk;
+  if(ci===fi&&cj===fj&&ck===fk) return val;        // inside the box → the interpolated distance
+  const bx=c[0]+(ci-(nx-1)*0.5)*vs, by=c[1]+(cj-(ny-1)*0.5)*vs, bz=c[2]+(ck-(nz-1)*0.5)*vs;
+  return Math.max(val,0)+Math.hypot(q[0]-bx,q[1]-by,q[2]-bz);
+}
 function jsShapeSDF(s,q){
   if(!s) return 1e9;
   if(s.type==="Torus"){ const d=sub(q,s.center);
     return Math.hypot(Math.hypot(d[0],d[1])-s.major_radius,d[2])-s.minor_radius; }
   if(s.type==="Outline") return jsOutlineSDF(s,q);
+  if(s.type==="Voxel") return jsVoxelSDF(s,q);
   if(s.type==="Rotated"){ const c=s.center;
     return jsShapeSDF(s.shape, add(qrotInvJS(s.rot, sub(q,c)), c)); }
   if(s.type==="Clipped") return Math.max(jsShapeSDF(s.shape,q), s.sign*(q[s.axis]-s.level));
@@ -160,9 +179,35 @@ function jsShapeSDF(s,q){
   return jsLeafSDF({shape:s}, q);
 }
 // per-build registry of generated GLSL outline functions (profiles baked as consts)
-let EXTRA_GLSL="", outlineN=0, outlineKeys=new Map();
+let EXTRA_GLSL="", outlineN=0, outlineKeys=new Map(), voxelKeys=new Set();
 let envChecker=false;        // debug: swap the environment for a transparency checker (view-only; never the glasses output)
-function resetExtraGLSL(){ EXTRA_GLSL=""; outlineN=0; outlineKeys=new Map(); }
+function resetExtraGLSL(){ EXTRA_GLSL=""; outlineN=0; outlineKeys=new Map(); voxelKeys=new Set(); }
+// A real voxel solid: sample its signed-distance grid (uploaded as a 3-D texture)
+// trilinearly in GLSL — the kernel Voxel's _trilinear, in hardware. uvw =
+// (p-center)/extent+0.5 maps p to the exact fractional grid index (validated by
+// the Python round-trip). Outside the box → distance-to-box (a safe sphere-trace
+// underestimate). The leaf's `_vid` (assigned in prepareVoxels) names its sampler.
+function glslVoxel(s,qvar){
+  const vid=s._vid;
+  if(!voxelKeys.has(vid)){
+    voxelKeys.add(vid);
+    const c=s.center, ex=[s.dims[0]*s.voxel_size, s.dims[1]*s.voxel_size, s.dims[2]*s.voxel_size];
+    const lo=[c[0]-ex[0]*0.5, c[1]-ex[1]*0.5, c[2]-ex[2]*0.5];
+    EXTRA_GLSL += `
+uniform highp sampler3D uVox${vid};
+float sdVox${vid}(vec3 p){
+  vec3 lo=vec3(${glf(lo[0])},${glf(lo[1])},${glf(lo[2])});
+  vec3 ex=vec3(${glf(ex[0])},${glf(ex[1])},${glf(ex[2])});
+  vec3 uvw=(p-lo)/ex;
+  vec3 cl=clamp(uvw,vec3(0.0),vec3(1.0));
+  float val=(texture(uVox${vid},cl).r*255.0-128.0)*${glf(s.band/127.0)};
+  if(all(equal(cl,uvw))) return val;                 // inside the box → interpolated distance
+  vec3 d=max(lo-p, p-(lo+ex));                        // outside → boundary sample (≥0 void margin)
+  return max(val,0.0)+length(max(d,vec3(0.0)));       // + distance to the box (kernel's formula)
+}`;
+  }
+  return `sdVox${vid}(${qvar})`;
+}
 function glslOutline(s,qvar){
   const key=JSON.stringify([s.profile,s.mode,s.thickness||0,s.center]);
   if(!outlineKeys.has(key)){
@@ -210,6 +255,7 @@ function glslShapeCall(s,qvar){
   if(s.type==="Torus"){ const c=s.center;
     return `sdTorus(${qvar},vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])}),${glf(s.major_radius)},${glf(s.minor_radius)})`; }
   if(s.type==="Outline") return glslOutline(s,qvar);
+  if(s.type==="Voxel") return glslVoxel(s,qvar);
   if(s.type==="Rotated"){ const c=s.center,r=s.rot;
     return glslShapeCall(s.shape,
       `leafRot(vec4(${glf(r[0])},${glf(r[1])},${glf(r[2])},${glf(r[3])}),${qvar},vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])}))`); }
@@ -618,12 +664,45 @@ function linkProg(fragSrc){
   return p;
 }
 const fetchU=(p)=>{ const u={}; for(const n of UNIFORMS) u[n]=gl.getUniformLocation(p,n); return u; };
+
+// ── voxel solids → WebGL2 3-D textures (the signed-distance grid in hardware) ──
+function b64ToI8(b64){ const bin=atob(b64), a=new Int8Array(bin.length);
+  for(let i=0;i<bin.length;i++) a[i]=(bin.charCodeAt(i)<<24)>>24; return a; }   // byte → signed
+function makeVoxTex(grid, dims){
+  // Upload as R8 UNORM (i8 → u8 by +128): universally LINEAR-filterable on the
+  // ANGLE/D3D backend, where R8_SNORM 3-D textures often are NOT (→ read as 0).
+  // GLSL decodes (r·255−128)·band/127 back to the signed distance in metres.
+  const u8=new Uint8Array(grid.length);
+  for(let i=0;i<grid.length;i++) u8[i]=grid[i]+128;
+  const tex=gl.createTexture(); gl.bindTexture(gl.TEXTURE_3D,tex);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);                                        // rows are nx bytes — no padding
+  gl.texImage3D(gl.TEXTURE_3D,0,gl.R8,dims[0],dims[1],dims[2],0,gl.RED,gl.UNSIGNED_BYTE,u8);
+  gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);              // trilinear in hardware
+  gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_WRAP_R,gl.CLAMP_TO_EDGE);
+  gl.bindTexture(gl.TEXTURE_3D,null); return tex;
+}
+function prepareVoxels(scene){     // decode + upload each Voxel leaf once; tag it with a stable sampler id
+  const list=[]; let vid=0;
+  for(const l of (scene.csg_leaves||[])){ const s=l.shape;
+    if(s && s.type==="Voxel"){
+      if(s._tex===undefined){ s._vid=vid; s._grid=b64ToI8(s.sdf_b64); s._tex=makeVoxTex(s._grid,s.dims); }
+      list.push({vid:s._vid, tex:s._tex}); vid++;
+    } }
+  scene._voxels=list;
+}
+function fetchVoxU(p, scene){ const m={};
+  for(const v of (scene._voxels||[])) m[v.vid]=gl.getUniformLocation(p,"uVox"+v.vid); return m; }
 function buildProgram(scene){
+  prepareVoxels(scene);                              // decode/upload voxel grids before the shaders reference them
   const t=linkProg(buildFragmentShader(scene));      // fast renderer (always)
   let pt=null; try{ pt=linkProg(buildPathShader(scene)); }   // path tracer (graceful if it fails)
   catch(e){ console.error("path-trace shader failed:",e); }
   if(prog) gl.deleteProgram(prog); if(progPT) gl.deleteProgram(progPT);
   prog=t; progPT=pt; U=fetchU(t); Upt=pt?fetchU(pt):{};
+  U.vox=fetchVoxU(t,scene); Upt.vox=pt?fetchVoxU(pt,scene):{};
 }
 
 // ── progressive-accumulation buffers (ping-pong float targets) ─────────
@@ -719,7 +798,11 @@ function draw(){
     gl.uniform1f(UU.uTanHalf,tanHalf); gl.uniform1f(UU.uAspect,w/h); gl.uniform1f(UU.uMaxDist,md);
     gl.uniform1f(UU.uTime,timeVal); gl.uniform1f(UU.uTemp,heatDeltaK);
     if(UU.uFrame!=null) gl.uniform1f(UU.uFrame,frameSeed);
-    if(NB){ gl.uniform3fv(UU.uBodyPos,fp); gl.uniform4fv(UU.uBodyQuat,fq); } };
+    if(NB){ gl.uniform3fv(UU.uBodyPos,fp); gl.uniform4fv(UU.uBodyQuat,fq); }
+    // voxel 3-D textures on units ≥1 (TEXTURE0 is the PT accumulation buffer)
+    (scene._voxels||[]).forEach((vx,u)=>{ gl.activeTexture(gl.TEXTURE0+1+u);
+      gl.bindTexture(gl.TEXTURE_3D, vx.tex);
+      if(UU.vox && UU.vox[vx.vid]!=null) gl.uniform1i(UU.vox[vx.vid], 1+u); }); };
   if(ptMode && extF && !dispProg) initDisplay();
   const key=`${eye.map(x=>x.toFixed(3))}|${cam.target.map(x=>x.toFixed(3))}|${simTime.toFixed(3)}|${heatDeltaK}|${w}x${h}|${sceneId}`;
   const moving = key!==ptKey; ptKey=key;                     // is the view changing this frame?
