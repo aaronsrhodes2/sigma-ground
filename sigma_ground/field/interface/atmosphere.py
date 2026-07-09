@@ -55,6 +55,31 @@ _G_STANDARD = 9.80665  # m/s²
 _P_STANDARD = 101325.0  # Pa
 _T_STANDARD = 288.15    # K (15°C, ISA sea level)
 
+# ═══════════════════════════════════════════════════════════════════
+# NAMED ATMOSPHERE PRESETS — the single source of the ambient datum
+# ═══════════════════════════════════════════════════════════════════
+# Radiance theaters stamp these into a scene's physics_env, and Materia
+# derives heat-solver boundary conditions from the SAME table, so the
+# temperature datum can never drift between the stage and the physics
+# again (it did once: theaters.plain carried 273.15 while every engine
+# default was _T_STANDARD's 288.15).
+#
+#   STP — ISA sea level (MEASURED, exact by definition; == _T_STANDARD)
+#   IRT — Internal Room Temperature: the 20 °C indoor convention
+#   ISM — interstellar medium: vacuum at the CMB floor (Fixsen 2009);
+#         with no medium, heat leaves a body by RADIATION ONLY
+ATMOSPHERES = {
+    "STP": {"medium": "air",    "pressure_pa": _P_STANDARD, "temperature_k": _T_STANDARD},
+    "IRT": {"medium": "air",    "pressure_pa": _P_STANDARD, "temperature_k": 293.15},
+    "ISM": {"medium": "vacuum", "pressure_pa": 0.0,         "temperature_k": 2.725},
+}
+
+
+def atmosphere_preset(name: str) -> dict:
+    """A copy of the named preset (STP | IRT | ISM), case-insensitive.
+    Raises KeyError on an unknown name — right-or-refuse, no silent default."""
+    return dict(ATMOSPHERES[name.upper()])
+
 
 # ═══════════════════════════════════════════════════════════════════
 # DRY AIR COMPOSITION

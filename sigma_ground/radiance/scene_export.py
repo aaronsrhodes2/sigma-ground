@@ -637,13 +637,229 @@ def sdf_samples(construct, n: int = 4) -> list:
     return out
 
 
-def scene_from_spec(spec, **kw):
-    """A RadianceScene that renders a SceneSpec with its BAKED emergent colors."""
+# ── per-cell FIELDS (the leaf `fields` registry — temperature first) ──────
+# A field is FROZEN sim output shipped verbatim: a per-cell scalar grid in the
+# LEAF-LOCAL frame (cell (i,j,k) at center + (i-(n-1)/2)·voxel_size — the same
+# convention as kernel.Voxel and materia.ThermalField), quantized uint8 over ONE
+# [t_min, t_max] shared by every keyframe (so the viewer's two-texture GLSL mix
+# is exact), packed x-fastest like sdf_b64. The renderers DISPLAY it (trilinear,
+# lerped between keyframes) — they never integrate it.
+
+_FIELD_ENCODING = "u8-xfast"
+
+
+def field_spec_from_grid(grids, times, *, voxel_size, center=(0.0, 0.0, 0.0),
+                         outside_value=None, source="") -> dict:
+    """Encode per-keyframe scalar grids (K, ndarray [i,j,k] with i→x) into the
+    leaf `fields` entry. One shared [t_min, t_max] across ALL keyframes —
+    quantization step (t_max−t_min)/255 is derivable by any consumer, nothing
+    hidden. APPROXIMATION (flagged): u8 quantization, ~(range/255) K per step —
+    well under a visible incandescence hue step for any physical range here."""
+    import base64
+    import numpy as np
+    arrs = [np.asarray(g, dtype=float) for g in grids]
+    times = [float(t) for t in times]
+    if len(arrs) != len(times) or not arrs:
+        raise ValueError("grids and times must be equal-length and non-empty")
+    if any(a.shape != arrs[0].shape for a in arrs):
+        raise ValueError("every keyframe grid must share one shape")
+    if any(b <= a for a, b in zip(times, times[1:])):
+        raise ValueError("keyframe times must be strictly increasing")
+    t_min = float(min(a.min() for a in arrs))
+    t_max = float(max(a.max() for a in arrs))
+    if t_max <= t_min:
+        t_max = t_min + 1.0                       # degenerate (uniform) field guard
+    nx, ny, nz = arrs[0].shape
+    scale = 255.0 / (t_max - t_min)
+    keyframes = []
+    for t, a in zip(times, arrs):
+        q = np.clip(np.round((a - t_min) * scale), 0, 255).astype(np.uint8)
+        payload = np.ascontiguousarray(q.transpose(2, 1, 0)).tobytes()  # x-fastest
+        keyframes.append({"t_sim": t,
+                          "values_b64": base64.b64encode(payload).decode("ascii")})
+    total = nx * ny * nz * len(keyframes)
+    if total > 4_000_000:                         # ~4 MB raw — an honest budget line
+        import sys
+        print(f"[field_spec_from_grid] WARNING: {total/1e6:.1f} MB of field "
+              f"payload ({nx}x{ny}x{nz} × {len(keyframes)} keyframes)",
+              file=sys.stderr)
+    return {"grid": {"dims": [int(nx), int(ny), int(nz)],
+                     "voxel_size": float(voxel_size),
+                     "center": [float(c) for c in center]},
+            "encoding": _FIELD_ENCODING,
+            "t_min": t_min, "t_max": t_max,
+            "outside_value": (float(outside_value) if outside_value is not None
+                              else t_min),
+            "keyframes": keyframes,
+            "source": source}
+
+
+def field_spec_from_thermal(fields, times, *, source="") -> dict:
+    """The materia seam, duck-typed: any objects carrying ``.T`` (grid), ``.dx``
+    and ``.T_ambient`` (materia.thermal_field.ThermalField qualifies) become a
+    field spec — no materia import, layering stays clean. NOTE the contract's
+    sampling rule is TRILINEAR on the decoded payload; ThermalField.sample()'s
+    nearest-cell lookup is that class's internal accessor, not this contract."""
+    fs = list(fields)
+    if not fs:
+        raise ValueError("no thermal fields given")
+    return field_spec_from_grid([f.T for f in fs], times,
+                                voxel_size=fs[0].dx,
+                                outside_value=fs[0].T_ambient,
+                                source=source)
+
+
+def decode_field_keyframe(fspec, k):
+    """Keyframe ``k``'s raw x-fastest uint8 payload (bytes) — stdlib only."""
+    import base64
+    raw = base64.b64decode(fspec["keyframes"][k]["values_b64"])
+    nx, ny, nz = fspec["grid"]["dims"]
+    if len(raw) != nx * ny * nz:
+        raise ValueError(f"keyframe {k}: {len(raw)} bytes != {nx}*{ny}*{nz}")
+    return raw
+
+
+def field_trilinear(raw, fspec, p):
+    """Trilinear sample of a decoded keyframe at leaf-local ``p`` — pure stdlib,
+    the Python twin of the viewer's LINEAR 3-D texture read (and of
+    jsFieldSampleAt). Outside the grid box the coordinate clamps to the edge
+    (CLAMP_TO_EDGE): the sim holds its outer cells at ambient, so the clamp IS
+    the ambient fallback."""
+    g = fspec["grid"]
+    nx, ny, nz = g["dims"]
+    vs, c = g["voxel_size"], g["center"]
+    span = fspec["t_max"] - fspec["t_min"]
+    fi = (p[0] - c[0]) / vs + (nx - 1) * 0.5
+    fj = (p[1] - c[1]) / vs + (ny - 1) * 0.5
+    fk = (p[2] - c[2]) / vs + (nz - 1) * 0.5
+    ci = min(max(fi, 0.0), nx - 1.0)
+    cj = min(max(fj, 0.0), ny - 1.0)
+    ck = min(max(fk, 0.0), nz - 1.0)
+    i0, j0, k0 = int(ci), int(cj), int(ck)
+    i1, j1, k1 = min(i0 + 1, nx - 1), min(j0 + 1, ny - 1), min(k0 + 1, nz - 1)
+    di, dj, dk = ci - i0, cj - j0, ck - k0
+
+    def at(i, j, k):
+        return raw[(k * ny + j) * nx + i]         # x-fastest, same as jsVoxelSDF
+
+    c00 = at(i0, j0, k0) * (1 - di) + at(i1, j0, k0) * di
+    c01 = at(i0, j0, k1) * (1 - di) + at(i1, j0, k1) * di
+    c10 = at(i0, j1, k0) * (1 - di) + at(i1, j1, k0) * di
+    c11 = at(i0, j1, k1) * (1 - di) + at(i1, j1, k1) * di
+    q = (c00 * (1 - dj) + c10 * dj) * (1 - dk) + (c01 * (1 - dj) + c11 * dj) * dk
+    return fspec["t_min"] + q * span / 255.0
+
+
+def field_samples(leaf_index, fspec, quantity="temperature_k") -> list:
+    """Ground-truth (leaf-local point, T) samples for the browser field
+    self-check — computed from the DECODED u8 payload (not the pre-quantization
+    floats), so the browser must match to ≲1e-3 K: the check proves
+    pack/transpose/decode fidelity, not quantization error. Keyframe-INDEXED
+    (`k`), never time-interpolated — deterministic."""
+    g = fspec["grid"]
+    nx, ny, nz = g["dims"]
+    vs, c = g["voxel_size"], g["center"]
+    ext = [nx * vs, ny * vs, nz * vs]
+    lo = [c[a] - ext[a] * 0.5 for a in range(3)]
+    # cell-centre, off-centre (trilinear weights) AND box-corner points (the
+    # corners clamp onto the exact first/last texels — any pack offset, axis
+    # transpose, or corrupted edge byte shows up here)
+    fracs = [(0.5, 0.5, 0.5), (0.25, 0.5, 0.75), (0.37, 0.61, 0.42),
+             (0.8, 0.2, 0.55), (0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]
+    n_kf = len(fspec["keyframes"])
+    kfs = sorted({0, n_kf // 2, n_kf - 1})
+    out = []
+    for k in kfs:
+        raw = decode_field_keyframe(fspec, k)
+        for f in fracs:
+            p = [lo[a] + f[a] * ext[a] for a in range(3)]
+            out.append({"leaf": int(leaf_index), "quantity": quantity, "k": int(k),
+                        "p": [round(v, 9) for v in p],
+                        "T": round(field_trilinear(raw, fspec, p), 6)})
+    return out
+
+
+def scene_from_spec(spec, t_sim=None, **kw):
+    """A RadianceScene that renders a SceneSpec with its BAKED emergent colors.
+
+    Thermal channel (the Python twin of the viewer's precedence chain): a
+    leaf's per-cell ``fields.temperature_k`` (trilinear on the decoded payload,
+    two keyframes lerped at ``t_sim``) beats a ``temperature_k`` — static, or
+    baked from a trajectory frame by ``trajectory.bake_frame_temperatures`` —
+    which beats ``physics_env.temperature_k``, then 293.15. The scene gets
+    ``temperature_at``/``emissivity_of`` hooks and shade() adds the Planck ×
+    Kirchhoff glow. Fields are sampled at the REST pose (this renderer replays
+    leaves in their authored frame; pose parity is the viewer's job).
+    Emissivity per material: the baked ``emissivity_rgb`` else 1 − color (the
+    viewer's exact fallback)."""
     from .scene import RadianceScene
     sdf, material_at = scene_spec_to_sdf(spec)
     colors = {k: Vec3(*v["color_rgb"]) for k, v in spec["materials"].items()}
     albedo = lambda label: colors.get(label, Vec3(0.72, 0.72, 0.72))
+
+    temperature_at = emissivity_of = None
+    leaves = spec.get("csg_leaves", [])
+    if any(l.get("temperature_k") is not None
+           or (l.get("fields") or {}).get("temperature_k") for l in leaves):
+        env_T = float((spec.get("physics_env") or {}).get("temperature_k", 293.15))
+
+        def _field_sampler(fspec):
+            """(t_sim, p)-independent closure: keyframe pair at t_sim, lerped."""
+            times = [kf["t_sim"] for kf in fspec["keyframes"]]
+            raws = [decode_field_keyframe(fspec, k) for k in range(len(times))]
+
+            def sample(p):
+                t = times[0] if t_sim is None else float(t_sim)
+                if t <= times[0]:
+                    lo = hi = 0; u = 0.0
+                elif t >= times[-1]:
+                    lo = hi = len(times) - 1; u = 0.0
+                else:
+                    lo = 0
+                    while times[lo + 1] <= t:
+                        lo += 1
+                    hi = lo + 1
+                    u = (t - times[lo]) / max(1e-9, times[hi] - times[lo])
+                a = field_trilinear(raws[lo], fspec, p)
+                if hi == lo:
+                    return a
+                # NON-DERIVED (audit): keyframe lerp is playback reconstruction
+                # of frozen sim states, never the heat equation
+                return a + (field_trilinear(raws[hi], fspec, p) - a) * u
+
+            return sample
+
+        shapes = []
+        for l in leaves:
+            fspec = (l.get("fields") or {}).get("temperature_k")
+            shapes.append((_shape_from_dict(l["shape"]),
+                           float(l["temperature_k"])
+                           if l.get("temperature_k") is not None else env_T,
+                           _field_sampler(fspec) if fspec else None))
+
+        def temperature_at(p):
+            # containing-leaf lookup — the same reversed loop material_at uses,
+            # so the temperature belongs to the leaf that owns the point;
+            # precedence per leaf: per-cell field > static/baked scalar
+            for shape, t_k, fld in reversed(shapes):
+                if shape.surface_distance(p.x, p.y, p.z) < 0.0:
+                    return fld((p.x, p.y, p.z)) if fld is not None else t_k
+            return env_T
+
+        emis = {}
+        for key, m in spec["materials"].items():
+            e = m.get("emissivity_rgb")
+            if e is None:                       # the viewer's fallback: ε = 1 − colour
+                c = m.get("color_rgb", [0.72, 0.72, 0.72])
+                e = [min(max(1.0 - v, 0.0), 1.0) for v in c]
+            emis[key] = tuple(e)
+
+        def emissivity_of(label):
+            return emis.get(label, (0.5, 0.5, 0.5))
+
     return RadianceScene(sdf, material_at, albedo=albedo,
+                         temperature_at=temperature_at,
+                         emissivity_of=emissivity_of,
                          max_dist=kw.pop("max_dist", 5.0), **kw)
 
 

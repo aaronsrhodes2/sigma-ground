@@ -7,12 +7,103 @@ density-wrapper — and the dynamics stepper, recording (t, position) along the
 way. Output is the contract bundle: a one-body SceneSpec + a Trajectory of
 poses, with an auto-suggested playback rate from the phenomenon's own timescale.
 
+THE FRAME CONTRACT (consumed by viewer.js posesAt and poses_at below):
+
+    {"t_sim": t, "bodies": [{"pos": [x,y,z], "quat": [x,y,z,w],
+                             "temperature_k": T?}]}
+
+``temperature_k`` is OPTIONAL per body per frame — the body's bulk temperature
+at that moment, frozen sim output from a thermal recorder (thermal_record.py).
+Renderer precedence (replacement, not addition — these are the same physical
+quantity at different times):
+
+    per-cell field  >  frame body temperature_k  >  leaf static temperature_k
+                    >  physics_env.temperature_k  >  293.15
+
+and the viewer's heat slider adds a user-probe delta on top of whichever won.
+Between frames every channel (pos, quat, temperature_k) is interpolated —
+NON-DERIVED (audit): inter-frame lerp is playback reconstruction of frozen sim
+states, never the heat equation (the renderer displays fields, it does not
+integrate them).
+
 Quaternions are identity for now (a sphere has no visible orientation); rotation
 arrives with Materia's rigid-body stage and slots straight into `quat`.
 """
 from __future__ import annotations
 
 from .scene_export import _bake_material, _suggest_camera
+
+
+def poses_at(trajectory: dict, t: float) -> list:
+    """The interpolated body states at sim-time ``t`` — the Python twin of
+    viewer.js ``posesAt`` (binary search; lerp pos; nlerp quat; lerp
+    temperature_k when both endpoints carry it, hold when one does).
+
+    Returns [{"pos", "quat", "temperature_k"?}, ...] per body.
+    """
+    frames = (trajectory or {}).get("frames") or []
+    if not frames:
+        return []
+
+    def _pack(bodies):
+        out = []
+        for b in bodies:
+            d = {"pos": list(b["pos"]), "quat": list(b.get("quat") or [0, 0, 0, 1])}
+            if b.get("temperature_k") is not None:
+                d["temperature_k"] = float(b["temperature_k"])
+            out.append(d)
+        return out
+
+    if t <= frames[0]["t_sim"]:
+        return _pack(frames[0]["bodies"])
+    if t >= frames[-1]["t_sim"]:
+        return _pack(frames[-1]["bodies"])
+    lo, hi = 0, len(frames) - 1
+    while hi - lo > 1:
+        mid = (lo + hi) // 2
+        if frames[mid]["t_sim"] <= t:
+            lo = mid
+        else:
+            hi = mid
+    fa, fb = frames[lo], frames[hi]
+    u = (t - fa["t_sim"]) / max(1e-9, fb["t_sim"] - fa["t_sim"])
+    out = []
+    for k, ba in enumerate(fa["bodies"]):
+        bb = fb["bodies"][k] if k < len(fb["bodies"]) else ba
+        pa, pb = ba["pos"], bb["pos"]
+        pos = [pa[i] + (pb[i] - pa[i]) * u for i in range(3)]
+        qa = ba.get("quat") or [0, 0, 0, 1]
+        qb = bb.get("quat") or [0, 0, 0, 1]
+        d = qa[0] * qb[0] + qa[1] * qb[1] + qa[2] * qb[2] + qa[3] * qb[3]
+        s = -1.0 if d < 0 else 1.0                    # shortest-path nlerp
+        q = [qa[i] + (qb[i] * s - qa[i]) * u for i in range(4)]
+        n = (q[0] ** 2 + q[1] ** 2 + q[2] ** 2 + q[3] ** 2) ** 0.5 or 1.0
+        body = {"pos": pos, "quat": [v / n for v in q]}
+        Ta, Tb = ba.get("temperature_k"), bb.get("temperature_k")
+        if Ta is not None and Tb is not None:
+            body["temperature_k"] = Ta + (Tb - Ta) * u     # playback lerp, NOT physics
+        elif Ta is not None or Tb is not None:
+            body["temperature_k"] = float(Ta if Ta is not None else Tb)
+        out.append(body)
+    return out
+
+
+def bake_frame_temperatures(bundle: dict, t_sim: float) -> dict:
+    """A deep-copied SceneSpec with each body-bound leaf's ``temperature_k``
+    overridden by the trajectory's interpolated body temperature at ``t_sim`` —
+    the Python renderer's ground-truth still for any scrub position. (Pose is
+    deliberately NOT baked: incandescence doesn't depend on pose, and geometric
+    pose parity is the viewer's job.)"""
+    import copy
+    scene = copy.deepcopy(bundle["scene"])
+    bodies = poses_at(bundle.get("trajectory") or {}, t_sim)
+    temps = {k: b["temperature_k"] for k, b in enumerate(bodies)
+             if b.get("temperature_k") is not None}
+    if temps:
+        for leaf in scene.get("csg_leaves", []):
+            if leaf.get("body") in temps:
+                leaf["temperature_k"] = temps[leaf["body"]]
+    return scene
 
 
 def record_fall(material_key: str = "copper", radius_m: float = 0.05,

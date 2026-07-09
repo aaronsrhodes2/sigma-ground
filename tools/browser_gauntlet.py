@@ -62,19 +62,22 @@ def main(argv: list) -> None:
 
         rep = json.load(open(_REPORT, encoding="utf-8"))
         ok = 0
-        print(f"\n{'slug':24s} {'drawn':6s} {'selfcheck':10s} errors")
+        print(f"\n{'slug':24s} {'drawn':6s} {'selfcheck':10s} {'field':8s} errors")
         for slug in slugs:
             r = rep.get(slug)
             if not r:
-                print(f"{slug:24s} {'-':6s} {'-':10s} NO REPORT")
+                print(f"{slug:24s} {'-':6s} {'-':10s} {'-':8s} NO REPORT")
                 continue
             sc = r.get("selfcheck_pass")
             sc_s = "pass" if sc else ("n/a" if sc is None else "FAIL")
+            fsc = r.get("field_selfcheck_pass")
+            fsc_s = "pass" if fsc else ("n/a" if fsc is None else "FAIL")
             errs = "; ".join(r.get("console_errors") or [])[:60]
-            good = r.get("shader_ok") and sc is not False and not errs
+            good = (r.get("shader_ok") and sc is not False
+                    and fsc is not False and not errs)
             ok += bool(good)
             print(f"{slug:24s} {'yes' if r.get('shader_ok') else 'NO':6s} "
-                  f"{sc_s:10s} {errs}")
+                  f"{sc_s:10s} {fsc_s:8s} {errs}")
         print(f"\n{ok}/{len(slugs)} scenes browser-verified")
         if ok < len(slugs):
             raise SystemExit(1)

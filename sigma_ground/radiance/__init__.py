@@ -28,12 +28,15 @@ from .scene_export import (construct_to_scene, scene_spec_to_sdf,
                            scene_from_spec)
 from .trajectory import (record_fall, record_object_fall, record_descent,
                          record_horizontal_run)
+from .thermal_record import record_fall_thermal, record_thermal_field
 
 __all__ = [
     "construct_to_scene",
     "scene_spec_to_sdf",
     "scene_from_spec",
     "record_fall",
+    "record_fall_thermal",
+    "record_thermal_field",
     "record_object_fall",
     "record_descent",
     "record_horizontal_run",

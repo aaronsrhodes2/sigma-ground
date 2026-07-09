@@ -31,6 +31,7 @@ from __future__ import annotations
 import copy
 import math
 
+from ..field.interface.atmosphere import atmosphere_preset
 from .scene_export import _bake_material, _light_color, _perp_frame
 
 
@@ -109,13 +110,15 @@ def plain(content, *, sun_temp_k=5778, gravity=True):
                    "orbit_radius": max(2.6 * r, 0.3), "fov_deg": 42.0,
                    "up": up, "az0": 0.6, "el0": 0.22}
     s["bbox"] = [[c[0] - 6 * r, c[0] + 6 * r], [c[1] - 6 * r, c[1] + 6 * r], [z0 - 0.2, z1 + 4 * r]]
+    # STP from the field-tier preset table (fixes the old 273.15 literal — ISA
+    # sea level is 288.15 K, the datum every Materia engine default already uses).
     s["physics_env"] = {"gravity_m_s2": 9.81 if gravity else 0.0, "gravity_dir": [0, 0, -1],
-                        "medium": "air", "pressure_pa": 101325.0, "temperature_k": 273.15}
+                        "atmosphere": "STP", **atmosphere_preset("STP")}
     s["theater"] = "plain"
     return s
 
 
-def room(content, *, light_temp_k=5000, gravity=True, temperature_k=293.15):
+def room(content, *, light_temp_k=5000, gravity=True, temperature_k=None):
     """Bounded indoor: a lit box (concrete floor, plaster walls), four corner lights
     near the ceiling, gravity, air. Walls bounce the light to fill the room."""
     s = _begin(content)
@@ -147,8 +150,13 @@ def room(content, *, light_temp_k=5000, gravity=True, temperature_k=293.15):
                    "up": up, "az0": 0.7, "el0": 0.16}
     s["bbox"] = [[c[0] - half - t, c[0] + half + t], [c[1] - half - t, c[1] + half + t],
                  [z0 - t, top + t]]
+    # IRT (Internal Room Temperature) from the preset table; an explicit
+    # temperature_k kwarg (a hot workshop, a cold cellar) overrides the datum.
+    env = atmosphere_preset("IRT")
+    if temperature_k is not None:
+        env["temperature_k"] = temperature_k
     s["physics_env"] = {"gravity_m_s2": 9.81 if gravity else 0.0, "gravity_dir": [0, 0, -1],
-                        "medium": "air", "pressure_pa": 101325.0, "temperature_k": temperature_k}
+                        "atmosphere": "IRT", **env}
     s["theater"] = "room"
     return s
 
@@ -173,8 +181,12 @@ def void(content, *, light_temp_k=5500):
     s["camera"] = {"target": list(c), "orbit_radius": max(4.0 * r, 0.34), "fov_deg": 38.0,
                    "up": up, "az0": 0.6, "el0": 0.22}      # pulled back so no light sits on the lens
     s["bbox"] = [[c[0] - 2.4 * L, c[0] + 2.4 * L], [c[1] - 2.4 * L, c[1] + 2.4 * L], [c[2] - 2.4 * L, c[2] + 2.4 * L]]
+    # A studio vacuum chamber whose radiative surroundings are room temperature —
+    # NOT the ISM (that is deep_space's 2.725 K CMB floor). Tagged so consumers
+    # can tell "no air, warm walls" from "no air, no walls".
     s["physics_env"] = {"gravity_m_s2": 0.0, "medium": "vacuum", "pressure_pa": 0.0,
-                        "temperature_k": 293.15}
+                        "temperature_k": atmosphere_preset("IRT")["temperature_k"],
+                        "atmosphere": "vacuum_room"}
     s["theater"] = "void"
     return s
 
@@ -192,8 +204,8 @@ def deep_space(content):
     s["camera"] = {"target": list(c), "orbit_radius": max(3.2 * r, 0.3), "fov_deg": 40.0,
                    "up": up, "az0": 0.6, "el0": 0.18}
     s["bbox"] = [[c[0] - 4 * r, c[0] + 4 * r], [c[1] - 4 * r, c[1] + 4 * r], [c[2] - 4 * r, c[2] + 4 * r]]
-    s["physics_env"] = {"gravity_m_s2": 0.0, "medium": "vacuum", "pressure_pa": 0.0,
-                        "temperature_k": 2.725}            # the CMB floor
+    s["physics_env"] = {"gravity_m_s2": 0.0, "atmosphere": "ISM",
+                        **atmosphere_preset("ISM")}        # vacuum at the CMB floor
     s["theater"] = "deep_space"
     return s
 

@@ -1,9 +1,10 @@
-"""The Mentat gauntlet — 20 minimal prompts, zero coaching, end to end.
+"""The Mentat gauntlet — 22 minimal prompts, zero coaching, end to end.
 
 The Captain's gate: a fully-LOCAL pipeline (qwen via ollama; no cloud) must turn
-minimal natural-language prompts into rendered physics — 10 SIMULATIONS (the
+minimal natural-language prompts into rendered physics — 12 SIMULATIONS (the
 model decides the sim from the question; Materia integrates; the viewer plays
-frames) and 10 STATIC multi-part objects (Deckard researches the shape; the
+frames — two of them THERMAL: per-frame body temperature and per-cell fields)
+and 10 STATIC multi-part objects (Deckard researches the shape; the
 viewer orbits it). We never help a prompt: the only permitted interventions are
 SYSTEMIC fixes (parser tolerance, renderer coverage, physics capability), so a
 failure here is a finding, not an embarrassment to hide.
@@ -51,6 +52,8 @@ SIMS = [
     ("sim_feather",       "Drop a feather from 8 feet."),
     ("sim_anvil",         "Drop an anvil from 50 meters."),
     ("sim_steel_heat",    "How hot does a steel ball get falling from 5 km?"),
+    ("sim_iron_glow",     "Does an iron sphere heat up falling from 30 km? Show me."),
+    ("sim_hot_cube",      "Put a hot iron cube on a cold copper slab in a room."),
     ("sim_skydiver",      "A skydiver jumps from 40 km up — does she break the sound barrier?"),
     ("sim_baseball_up",   "Throw a baseball straight up at 30 m/s — how high does it go and how fast is it moving when it lands?"),
     ("sim_mach2_slug",    "Fire a 2 cm tungsten slug at Mach 2 — how far does it travel before it slows below the speed of sound?"),

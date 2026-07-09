@@ -17,12 +17,18 @@ class RadianceScene:
     def __init__(self, sdf, material_at, light_dir: Vec3 = None,
                  light_color: Vec3 = None, ambient: float = 0.12,
                  background: Vec3 = None, max_dist: float = 50.0,
-                 albedo=None):
+                 albedo=None, temperature_at=None, emissivity_of=None):
         self.sdf = sdf
         self.material_at = material_at
         # Optional label→Vec3 albedo (e.g. BAKED emergent colors from a
         # SceneSpec). If None, shading derives color from the material library.
         self.albedo = albedo
+        # Optional thermal hooks (both None → identical pre-thermal output):
+        #   temperature_at(Vec3) -> K   — the body/field temperature at a point
+        #   emissivity_of(label) -> (r,g,b)  — Kirchhoff ε(λ)
+        # shade() adds Planck × Kirchhoff incandescence when both are present.
+        self.temperature_at = temperature_at
+        self.emissivity_of = emissivity_of
         ld = light_dir if light_dir is not None else Vec3(-0.5, -1.0, -0.55)
         self.light_dir = ld.normalized()             # direction the light travels
         self.light_color = light_color if light_color is not None else Vec3(1, 1, 1)

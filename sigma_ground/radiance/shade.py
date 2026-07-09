@@ -20,6 +20,36 @@ from ..dynamics.vec import Vec3
 
 _DIELECTRIC_STUB = Vec3(0.72, 0.72, 0.72)   # [v1 stub — awaiting molecular color]
 
+# Incandescence constants — the EXACT literals viewer.js bakes into GLSL
+# (tests/test_shade_thermal.py greps the JS for them, so the two renderers
+# cannot drift apart silently).
+_DRAPER_K = 700.0            # below ~700 K emission is entirely IR (Draper point)
+_C2_WIEN = 1.4388e-2         # c2 = h·c/k_B (m·K), Planck's second radiation constant
+_EMISSION_SCALE = 2400000000.0
+_LAMBDA_RGB = (650e-9, 550e-9, 450e-9)      # the shader's three sample wavelengths
+
+
+def incandescence(T_k: float, emissivity_rgb) -> Vec3:
+    """Planck's law × Kirchhoff emissivity — nature's glow, no colour table.
+
+    The twin of viewer.js ``incandescence()``: spectral radiance at (650, 550,
+    450) nm, ε(λ)-weighted, zero below the Draper point. NON-DERIVED (audit):
+    the Planck × Kirchhoff spectrum IS physics; the Reinhard tone-map + 1.7
+    gain (and _EMISSION_SCALE) is a camera/exposure choice — the error term
+    between the real glow and the pixel, not the glow.
+    """
+    import math
+    if T_k < _DRAPER_K:
+        return Vec3(0.0, 0.0, 0.0)
+    e = []
+    for lam, eps in zip(_LAMBDA_RGB, emissivity_rgb):
+        x = _C2_WIEN / (lam * T_k)
+        L = eps / ((lam / 650e-9) ** 5 * (math.exp(x) - 1.0))   # ε(λ)·B(λ,T)
+        e.append(L * _EMISSION_SCALE)
+    peak = max(e)
+    scale = 1.7 / (1.0 + peak)               # tone-map: compress brightness, keep the Planck hue
+    return Vec3(e[0] * scale, e[1] * scale, e[2] * scale)
+
 
 def material_albedo(material_key: str) -> Vec3:
     """Base reflectance color for a material — emergent for metals."""
@@ -50,4 +80,13 @@ def shade(scene, point: Vec3, normal: Vec3, view_dir: Vec3) -> Vec3:
     to_light = -scene.light_dir                      # surface is lit from -travel
     diffuse = max(0.0, normal.dot(to_light))
     intensity = scene.ambient + (1.0 - scene.ambient) * diffuse
-    return (albedo * (scene.light_color * intensity)).clamp(0.0, 1.0)
+    col = albedo * (scene.light_color * intensity)
+    # Thermal hooks (scene_from_spec wires them): each point glows at ITS
+    # temperature — Planck × Kirchhoff, sampled at the same inside point the
+    # material was. Hooks absent → identical pre-thermal output.
+    t_at = getattr(scene, "temperature_at", None)
+    e_of = getattr(scene, "emissivity_of", None)
+    if t_at is not None and e_of is not None:
+        inside = point - normal * 1.0e-3
+        col = col + incandescence(t_at(inside), e_of(label))
+    return col.clamp(0.0, 1.0)

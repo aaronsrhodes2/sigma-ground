@@ -508,7 +508,56 @@ def thermal_conductivity(material_key, T=300.0, sigma=0.0):
     return kappa_phonon + kappa_electronic
 
 
+def thermal_diffusivity(material_key, T=300.0, sigma=0.0):
+    """Thermal diffusivity α = κ / (ρ·cp) (m²/s).
+
+    DERIVED: the diffusion coefficient in ∂T/∂t = α∇²T, straight from the two
+    grounded quantities above — how fast a temperature disturbance spreads.
+    This is the per-cell value ``dynamics.fields.heat`` grids are built from.
+
+    Args:
+        material_key: key into MATERIALS dict
+        T: temperature in Kelvin
+        sigma: σ-field value
+
+    Returns:
+        Thermal diffusivity in m²/s (0.0 if the material has no heat capacity).
+    """
+    rhocp = heat_capacity_volumetric(material_key, T, sigma)
+    if rhocp <= 0:
+        return 0.0
+    return thermal_conductivity(material_key, T, sigma) / rhocp
+
+
 # ── Thermal Radiation ─────────────────────────────────────────────
+
+def emissivity(material_key, T=300.0, sigma=0.0):
+    """Total hemispherical emissivity ε ∈ [0.01, 1].
+
+    ε = 1 − f_specular (Kirchhoff's law: what doesn't reflect, absorbs — and a
+    good absorber is a good emitter). f_specular comes from the texture module
+    (Rayleigh roughness criterion), so a rough surface emits more.
+
+    Extracted from ``thermal_emission_power`` so orchestrators that need ε
+    itself (e.g. a radiative boundary condition ε·σ_SB·(T⁴−T_env⁴) applied per
+    exposed voxel face) use the SAME emissivity the emission law does.
+
+    Args:
+        material_key: key into MATERIALS dict
+        T: temperature in Kelvin
+        sigma: σ-field value
+
+    Returns:
+        Emissivity in [0.01, 1] (clamped to the physical range).
+    """
+    from .texture import specular_fraction
+    f_spec = specular_fraction(material_key, T, sigma=sigma)
+
+    # Emissivity = 1 - reflectivity (Kirchhoff's law, FIRST_PRINCIPLES)
+    # For thermal emission in the infrared, specular_fraction gives
+    # the mirror-like fraction. The complement absorbs and emits.
+    return max(0.01, min(1.0 - f_spec, 1.0))
+
 
 def thermal_emission_power(material_key, T=300.0, sigma=0.0):
     """Total thermal radiation power per unit area (W/m²).
@@ -516,9 +565,9 @@ def thermal_emission_power(material_key, T=300.0, sigma=0.0):
     P = ε × σ_SB × T⁴
 
     FIRST_PRINCIPLES: Stefan-Boltzmann law (exact from Planck's law).
-
-    Emissivity ε ≈ 1 - f_specular (rough surfaces emit more).
-    We get f_specular from the texture module (Rayleigh criterion).
+    ε from ``emissivity`` (Kirchhoff via the texture module's Rayleigh
+    criterion) — one emissivity for both the emission law and any radiative
+    boundary condition built on it.
 
     Args:
         material_key: key into MATERIALS dict
@@ -531,18 +580,7 @@ def thermal_emission_power(material_key, T=300.0, sigma=0.0):
     if T <= 0:
         return 0.0
 
-    from .texture import specular_fraction
-    f_spec = specular_fraction(material_key, T, sigma=sigma)
-
-    # Emissivity = 1 - reflectivity (Kirchhoff's law, FIRST_PRINCIPLES)
-    # For thermal emission in the infrared, specular_fraction gives
-    # the mirror-like fraction. The complement absorbs and emits.
-    emissivity = 1.0 - f_spec
-
-    # Clamp emissivity to physical range
-    emissivity = max(0.01, min(emissivity, 1.0))
-
-    return emissivity * _STEFAN_BOLTZMANN * T**4
+    return emissivity(material_key, T, sigma) * _STEFAN_BOLTZMANN * T**4
 
 
 def wien_peak_wavelength(T):

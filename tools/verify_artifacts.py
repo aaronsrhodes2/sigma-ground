@@ -26,7 +26,9 @@ import sys
 sys.path.insert(0, r"D:\Aaron\development\sigma-ground")
 
 from sigma_ground.radiance.scene_export import (SUPPORTED_SHAPE_TYPES,   # noqa: E402
-                                                scene_spec_to_sdf)
+                                                scene_spec_to_sdf,
+                                                decode_field_keyframe,
+                                                field_trilinear)
 
 _DATA = (pathlib.Path(__file__).resolve().parents[1]
          / "sigma_ground" / "radiance" / "web" / "data")
@@ -52,6 +54,9 @@ def verify(path: pathlib.Path) -> list:
         doc = json.loads(path.read_text(encoding="utf-8"))
     except Exception as e:
         return [f"unreadable JSON: {e}"]
+    if isinstance(doc, list):
+        return []              # an index manifest (scenes.json / voxel_scenes.json
+                               # family) — a gallery listing, not an artifact
     scene = doc.get("scene") or doc                       # statics are bare scenes
     leaves = scene.get("csg_leaves") or []
     if not leaves:
@@ -75,6 +80,49 @@ def verify(path: pathlib.Path) -> list:
                 probs.append(f"sdf_samples replay off by {worst:.3g} (> 1e-6)")
         except Exception as e:
             probs.append(f"sdf rebuild failed: {type(e).__name__}: {e}")
+    # ── per-cell fields: schema + the field_samples replay (stdlib trilinear) ──
+    field_leaves = [i for i, l in enumerate(leaves)
+                    if (l.get("fields") or {}).get("temperature_k")]
+    for i in field_leaves:
+        f = leaves[i]["fields"]["temperature_k"]
+        g = f.get("grid") or {}
+        dims = g.get("dims") or []
+        if f.get("encoding") != "u8-xfast":
+            probs.append(f"leaf {i}: field encoding {f.get('encoding')!r}")
+            continue
+        if (len(dims) != 3 or any(not isinstance(d, int) or d < 1 for d in dims)
+                or not (g.get("voxel_size") or 0) > 0):
+            probs.append(f"leaf {i}: bad field grid {g!r}")
+            continue
+        if not f.get("t_min", 0) < f.get("t_max", 0):
+            probs.append(f"leaf {i}: field t_min/t_max not ordered")
+        kts = [k.get("t_sim") for k in f.get("keyframes") or []]
+        if not kts or any(b <= a for a, b in zip(kts, kts[1:])):
+            probs.append(f"leaf {i}: field keyframes empty/non-increasing")
+        for k in range(len(kts)):
+            try:
+                decode_field_keyframe(f, k)       # length == nx·ny·nz enforced
+            except Exception as e:
+                probs.append(f"leaf {i} keyframe {k}: {e}")
+                break
+    fsamples = scene.get("field_samples") or []
+    if field_leaves and not fsamples:
+        probs.append("leaf carries fields but scene ships no field_samples "
+                     "(the not-faked check is mandatory)")
+    if fsamples:
+        raws = {}
+        worst_t = 0.0
+        for s in fsamples:
+            li, k = s["leaf"], s["k"]
+            f = (leaves[li].get("fields") or {}).get(s.get("quantity",
+                                                           "temperature_k"))
+            if not f:
+                probs.append(f"field_samples points at leaf {li} with no field")
+                break
+            raw = raws.setdefault((li, k), decode_field_keyframe(f, k))
+            worst_t = max(worst_t, abs(field_trilinear(raw, f, s["p"]) - s["T"]))
+        if worst_t > 1e-3:
+            probs.append(f"field_samples replay off by {worst_t:.3g} K (> 1e-3)")
     tr = doc.get("trajectory")
     if tr:
         frames = tr.get("frames") or []
@@ -89,6 +137,14 @@ def verify(path: pathlib.Path) -> list:
                 q = b.get("quat") or []
                 if len(q) != 4 or abs(math.sqrt(sum(v * v for v in q)) - 1) > 1e-3:
                     probs.append("non-unit quat in frames")
+                    break
+                # optional per-frame body temperature (the thermal contract):
+                # when present it must be a finite non-negative kelvin value
+                t_k = b.get("temperature_k")
+                if t_k is not None and not (
+                        isinstance(t_k, (int, float))
+                        and math.isfinite(t_k) and t_k >= 0.0):
+                    probs.append(f"bad frame temperature_k: {t_k!r}")
                     break
             if len(f.get("bodies") or []) != nb and nb:
                 probs.append(f"frame body count != scene bodies ({nb})")

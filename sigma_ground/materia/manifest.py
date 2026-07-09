@@ -144,6 +144,24 @@ VERB_MANIFEST = {
                              "aliases": ["of", "for"]},
         },
     },
+    "contact_conduction": {
+        "description": "A hot block set on a cold slab: per-cell heat flow "
+                       "across the material interface (harmonic-mean face "
+                       "conductivity), in room air (IRT) or interstellar "
+                       "vacuum (ISM). Renderable as a temperature field.",
+        "answers": ["how fast does heat flow between them", "does the slab "
+                    "warm up", "heat crossing the interface"],
+        "slots": {
+            "hot_material": {"unit": "material", "default": "iron",
+                             "aliases": ["hot"]},
+            "cold_material": {"unit": "material", "default": "copper",
+                              "aliases": ["cold", "onto", "on a"]},
+            "T_hot": {"unit": "K", "default": 900.0,
+                      "aliases": ["at", "temperature"]},
+            "environment": {"unit": "preset", "default": "IRT",
+                            "aliases": ["in"]},
+        },
+    },
     "rotational_dynamics": {
         "description": "Rigid-body rotation: moments of inertia for standard "
                        "shapes, angular momentum, rotational kinetic energy.",
@@ -182,7 +200,9 @@ _VERB_OUTPUTS = {
     "terminal_velocity_drop": ["impact_speed_m_s", "max_speed_m_s",
                                "terminal_velocity_m_s", "fall_time_s"],
     "drag_heating_drop": ["delta_T_K", "peak_T_K", "dissipation_J",
-                          "impact_speed_m_s"],
+                          "impact_speed_m_s", "temperature_history", "glows"],
+    "contact_conduction": ["heat_crossed_J", "interface_k_W_mK",
+                           "peak_T_end_K", "glows"],
     "high_altitude_descent": ["max_speed_m_s", "max_mach", "landing_speed_m_s",
                               "mach1_altitude_m"],
     "supersonic_projectile": ["launch_speed_m_s", "distance_to_subsonic_m",
@@ -241,6 +261,9 @@ _VERB_TRIGGERS = {
                           "expansion coefficient", "coefficient of expansion",
                           "melting point of", "latent heat",
                           "how much does it expand"], True),
+    "contact_conduction": (["conduction", "hot cube on", "hot block on",
+                            "touching", "press a hot", "heat flow between",
+                            "heat flowing between", "on a cold"], True),
     "rotational_dynamics": (["moment of inertia", "angular momentum",
                              "rotational kinetic energy", "rotational inertia",
                              "flywheel inertia"], True),
@@ -827,6 +850,8 @@ _ORIG_EXAMPLES = {
     "material_profile": ["properties of copper", "young's modulus of titanium"],
     "structural_response": ["fracture toughness of steel", "fatigue life of aluminum"],
     "thermal_response": ["thermal expansion of aluminum", "melting point of copper"],
+    "contact_conduction": ["put a hot iron cube on a cold copper slab",
+                           "how fast does heat flow between iron and copper"],
     "rotational_dynamics": ["moment of inertia of a solid sphere",
                             "angular momentum of a spinning flywheel"],
     "material_full_profile": ["all properties of steel", "full profile of copper"],

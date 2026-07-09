@@ -158,7 +158,8 @@ def analytic_terminal_velocity(mass_kg: float, area_m2: float,
 # ── The simulation: one body falling through the atmosphere ─────────────
 def simulate_fall(material_key: str, radius_m: float, start_altitude_m: float,
                   T: float = 288.15, uniform: bool = False,
-                  dt_max: float = 0.01, t_max: float = 600.0) -> dict:
+                  dt_max: float = 0.01, t_max: float = 600.0,
+                  record_every: float | None = None) -> dict:
     """Drop a solid sphere and integrate gravity + atmospheric drag to the ground.
 
     Args:
@@ -169,6 +170,11 @@ def simulate_fall(material_key: str, radius_m: float, start_altitude_m: float,
         uniform:         if True, use constant sea-level density everywhere
                          (gives the exact closed-form asymptote — the self-check).
         dt_max, t_max:   integration controls.
+        record_every:    if set, sample {t, altitude_m, speed_m_s, q_drag_J}
+                         every this many sim-seconds into ``history`` — the
+                         time-resolved feed for a thermal render (the running
+                         q_drag is the SAME trapezoidal integral the scalar
+                         answer cites, cut into moments).
 
     Returns a dict of the trajectory's meaningful quantities (all SI).
     """
@@ -198,6 +204,12 @@ def simulate_fall(material_key: str, radius_m: float, start_altitude_m: float,
     n_steps = 0
     q_drag = 0.0          # ∫ |F_drag|·v dt — drag work integrated from the force law
     prev_power = 0.0      # released from rest → zero drag power at t=0
+    history = []
+    next_rec = 0.0
+    if record_every is not None:                     # the t=0 state (at rest)
+        history.append({"t": 0.0, "altitude_m": start_altitude_m,
+                        "speed_m_s": 0.0, "q_drag_J": 0.0})
+        next_rec = record_every
     while parcel.position.y > 0.0 and scene.time < t_max:
         actual_dt = step(scene, dt=dt_max, sub_steps=4, external_forces=cb)
         spd = parcel.velocity.length()
@@ -206,11 +218,18 @@ def simulate_fall(material_key: str, radius_m: float, start_altitude_m: float,
         power = drag_force(parcel, rho, mu).length() * spd     # |F_drag|·|v|
         q_drag += 0.5 * (prev_power + power) * actual_dt        # trapezoidal
         prev_power = power
+        if record_every is not None and scene.time >= next_rec:
+            history.append({"t": scene.time, "altitude_m": z,
+                            "speed_m_s": spd, "q_drag_J": q_drag})
+            next_rec += record_every
         if spd > max_speed:
             max_speed, max_speed_alt = spd, parcel.position.y
         n_steps += 1
 
     impact_speed = parcel.velocity.length()
+    if record_every is not None:                     # the impact state, always
+        history.append({"t": scene.time, "altitude_m": max(0.0, parcel.position.y),
+                        "speed_m_s": impact_speed, "q_drag_J": q_drag})
 
     # Energy budget — an INDEPENDENT measure of the same dissipation, taken
     # from the trajectory endpoints (not the force law). q_budget and q_drag
@@ -252,6 +271,7 @@ def simulate_fall(material_key: str, radius_m: float, start_altitude_m: float,
                           "q_drag_budget_J": q_budget},
         "energy_residual": energy_residual,
         "uniform_atmosphere": uniform,
+        "history": history,
     }
 
 

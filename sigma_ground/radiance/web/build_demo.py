@@ -364,6 +364,23 @@ def _build_deckard_feather():
     _write("deckard_feather.json", spec)
 _bundle("deckard_feather.json", _build_deckard_feather)
 
+# ── 8) WINDWARD FIELD DEMO — the flagship's per-cell channel, as a demo file ──
+def _build_windward():
+    """The drag-heated iron ball with its per-cell windward temperature field:
+    each interval's drag dissipation lands on the leading face (Newtonian cosθ)
+    and Fourier-conducts inward (diffuse_fvm), adiabatic to match the cited
+    f=1 bulk ΔT — leading face crosses the Draper point first, the whole ball
+    glows by impact. The exact bundle the front door's "yes" produces for
+    "does an iron sphere heat up falling from 30 km?"."""
+    from sigma_ground.radiance.thermal_record import record_fall_thermal
+    out = record_fall_thermal("iron", 0.05, 30_000.0, windward_field=True)
+    _write("windward_iron_ball.json", out)
+    f = out["scene"]["csg_leaves"][0]["fields"]["temperature_k"]
+    print(f"  windward field: {len(f['keyframes'])} keyframes @ 24^3 u8, "
+          f"T in [{f['t_min']:.0f}, {f['t_max']:.0f}] K "
+          f"(deposited {out['trajectory']['validation']['windward_deposited_J']:.0f} J)")
+_bundle("windward_iron_ball.json", _build_windward)
+
 if _FAILED:
     print(f"\n!! {len(_FAILED)} bundle(s) skipped: " + ", ".join(n for n, _ in _FAILED)
           + " -- others written OK.")

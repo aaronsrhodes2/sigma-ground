@@ -208,6 +208,39 @@ float sdVox${vid}(vec3 p){
   }
   return `sdVox${vid}(${qvar})`;
 }
+// Per-cell field samplers → EXTRA_GLSL (one fn per fid) + the per-leaf switch
+// body for fieldTempK. Called by BOTH shader builders after their leaf loop.
+// The grid is LEAF-LOCAL; a body-bound leaf inverse-transforms the world point
+// first (same expression as mapD's bdy decls), so the hot rind rides the body.
+function glslFieldFns(scene){
+  let sel="";
+  for(const f of (scene._fields||[])){
+    const g=f.spec.grid, c=g.center;
+    const ex=[g.dims[0]*g.voxel_size, g.dims[1]*g.voxel_size, g.dims[2]*g.voxel_size];
+    const lo=[c[0]-ex[0]*0.5, c[1]-ex[1]*0.5, c[2]-ex[2]*0.5];
+    EXTRA_GLSL += `
+uniform highp sampler3D uFldA${f.fid}, uFldB${f.fid}; uniform float uFldU${f.fid};
+float fldT${f.fid}(vec3 p){                          // leaf-LOCAL point -> kelvin
+  vec3 lo=vec3(${glf(lo[0])},${glf(lo[1])},${glf(lo[2])});
+  vec3 ex=vec3(${glf(ex[0])},${glf(ex[1])},${glf(ex[2])});
+  vec3 cl=clamp((p-lo)/ex, vec3(0.0), vec3(1.0));    // CLAMP_TO_EDGE == the sim's ambient rind
+  // NON-DERIVED (audit): the keyframe mix is playback reconstruction of frozen
+  // sim states (u from the scrub time), never the heat equation
+  return ${glf(f.spec.t_min)} + mix(texture(uFldA${f.fid},cl).r,
+                                    texture(uFldB${f.fid},cl).r,
+                                    uFldU${f.fid})*${glf(f.spec.t_max-f.spec.t_min)};
+}`;
+    const leaf=scene.csg_leaves[f.leaf];
+    if(leaf.body!=null){
+      const piv=((scene.bodies||[])[leaf.body]||{}).pivot||[0,0,0];
+      sel += `  if(m==${f.leaf}) return fldT${f.fid}(qrotInv(uBodyQuat[${leaf.body}], `
+          +  `p-uBodyPos[${leaf.body}])+vec3(${glf(piv[0])},${glf(piv[1])},${glf(piv[2])}));\n`;
+    } else {
+      sel += `  if(m==${f.leaf}) return fldT${f.fid}(p);\n`;
+    }
+  }
+  return sel;
+}
 function glslOutline(s,qvar){
   const key=JSON.stringify([s.profile,s.mode,s.thickness||0,s.center]);
   if(!outlineKeys.has(key)){
@@ -295,7 +328,10 @@ function buildFragmentShader(scene){
   used.forEach(k=>{ const piv=(bodies[k]&&bodies[k].pivot)||[0,0,0];
     bodyDecls += `  vec3 bdy${k}=qrotInv(uBodyQuat[${k}], p-uBodyPos[${k}])`
               +  `+vec3(${glf(piv[0])},${glf(piv[1])},${glf(piv[2])});\n`; });
-  let decls="", compose="  float d=s0;\n", matsel="  mat=-1;\n", colorfn="", metalfn="", reflfn="", emisfn="", tempfn="";
+  let decls="", compose="  float d=s0;\n", matsel="  mat=-1;\n", colorfn="", metalfn="", reflfn="", emisfn="", tempfn="", bodyTempFn="";
+  // the theater's ambient datum (physics_env, from the STP/IRT/ISM presets) is
+  // the temperature a leaf falls back to — deep_space stops pretending 293 K
+  const envT=(scene.physics_env&&scene.physics_env.temperature_k!==undefined)?scene.physics_env.temperature_k:293.15;
   for(let i=0;i<ls.length;i++){
     const q = ls[i].body!=null ? `bdy${ls[i].body}` : "(p)";
     decls += `  float s${i}=${glslShapeCall(ls[i].shape, q)};\n`;
@@ -313,8 +349,10 @@ function buildFragmentShader(scene){
     const em = mat.emissivity_rgb;
     emisfn += em ? `  if(m==${i}) return vec3(${glf(em[0])},${glf(em[1])},${glf(em[2])});\n`
                  : `  if(m==${i}) return clamp(vec3(1.0)-vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])}),0.0,1.0);\n`;
-    // per-object initial temperature from the sim layer (default STP = 293.15 K)
-    tempfn += `  if(m==${i}) return ${glf(ls[i].temperature_k!==undefined?ls[i].temperature_k:293.15)};\n`;
+    // per-object initial temperature from the sim layer (default = the theater's ambient)
+    tempfn += `  if(m==${i}) return ${glf(ls[i].temperature_k!==undefined?ls[i].temperature_k:envT)};\n`;
+    // a body-bound leaf can carry a PER-FRAME temperature (uBodyTemp; -1 = none)
+    bodyTempFn += `  if(m==${i}) return ${ls[i].body!=null?`uBodyTemp[${ls[i].body}]`:"-1.0"};\n`;
   }
   for(let i=1;i<ls.length;i++){
     const op=ls[i].op;
@@ -324,6 +362,7 @@ function buildFragmentShader(scene){
   }
   for(let i=ls.length-1;i>=0;i--)
     matsel += `  ${i===ls.length-1?"if":"else if"}(s${i}<0.0) mat=${i};\n`;
+  const fieldSel=glslFieldFns(scene);               // per-cell field samplers → EXTRA_GLSL + switch
   // contact shadows + AO scale with the scene, so a 0.2 m cup and a 3 m chair both read right
   const bb=scene.bbox||[[-1,1],[-1,1],[-1,1]];
   const diag=len(sub([bb[0][1],bb[1][1],bb[2][1]],[bb[0][0],bb[1][0],bb[2][0]]))||1;
@@ -384,6 +423,7 @@ out vec4 frag;
 uniform vec2 uRes; uniform vec3 uEye,uFwd,uRight,uUp;
 uniform float uTanHalf,uAspect,uMaxDist,uTime,uTemp;
 uniform vec3 uBodyPos[MAXB]; uniform vec4 uBodyQuat[MAXB];
+uniform float uBodyTemp[MAXB];   // per-frame body temperature (K); -1 = no frame value
 ${PRIMS_GLSL}${waterGLSL}${EXTRA_GLSL}
 float mapD(vec3 p, out int mat){
 ${bodyDecls}${decls}${compose}${matsel}  return d;
@@ -401,8 +441,20 @@ ${reflfn}  return -1.0;
 vec3 emissivityOf(int m){    // Kirchhoff ε(λ): measured (1−R from n+k) where available
 ${emisfn}  return vec3(0.5);
 }
-float matTempK(int m){       // per-object initial temperature (sim layer; default STP)
-${tempfn}  return 293.15;
+float matTempK(int m){       // per-object initial temperature (sim layer; default = theater ambient)
+${tempfn}  return ${glf(envT)};
+}
+float bodyTempK(int m){      // the trajectory frame's body temperature, lerped on the CPU; -1 = absent
+${bodyTempFn}  return -1.0;
+}
+float fieldTempK(int m, vec3 p){   // per-cell field, sampled leaf-local; -1 = no field on this leaf
+${fieldSel}  return -1.0;
+}
+float effTempK(int m, vec3 p){     // precedence: per-cell field > frame body T > leaf static T
+  float ft = fieldTempK(m, p);     //   (> theater ambient baked above); the heat slider (uTemp)
+  if(ft >= 0.0) return ft + uTemp; //   adds a user-probe delta ON TOP of whichever won —
+  float bt = bodyTempK(m);         //   replacement not addition: same quantity, different times
+  return (bt >= 0.0 ? bt : matTempK(m)) + uTemp;
 }
 float softShadow(vec3 ro, vec3 rd){          // sphere-traced soft shadow toward a light
   float res=1.0, t=SHEPS;
@@ -488,7 +540,7 @@ void main(){
       vec3 tint=metal>0.5?matColor(mat):vec3(1.0);              // metals tint their reflection
       col=mix(col, rcol*tint, fres);
     }
-    col += incandescence(matTempK(mat)+uTemp, emissivityOf(mat));   // each object at ITS temperature + global heat (Planck × Kirchhoff)
+    col += incandescence(effTempK(mat, p), emissivityOf(mat));   // each POINT at ITS temperature — per-cell field, else per-frame body T (Planck × Kirchhoff)
   }
   frag=vec4(pow(clamp(col,0.0,1.0),vec3(0.4545)),1.0);  // sRGB gamma: black stays black (doctrine), dim hues read
 }`;
@@ -505,7 +557,8 @@ function buildPathShader(scene){
   let bodyDecls="";
   used.forEach(k=>{ const piv=(bodies[k]&&bodies[k].pivot)||[0,0,0];
     bodyDecls += `  vec3 bdy${k}=qrotInv(uBodyQuat[${k}], p-uBodyPos[${k}])+vec3(${glf(piv[0])},${glf(piv[1])},${glf(piv[2])});\n`; });
-  let decls="", compose="  float d=s0;\n", matsel="  mat=-1;\n", colorfn="", metalfn="", reflfn="", emisfn="", tempfn="", iorfn="";
+  let decls="", compose="  float d=s0;\n", matsel="  mat=-1;\n", colorfn="", metalfn="", reflfn="", emisfn="", tempfn="", iorfn="", bodyTempFn="";
+  const envT=(scene.physics_env&&scene.physics_env.temperature_k!==undefined)?scene.physics_env.temperature_k:293.15;
   for(let i=0;i<ls.length;i++){
     const q = ls[i].body!=null ? `bdy${ls[i].body}` : "(p)";
     decls += `  float s${i}=${glslShapeCall(ls[i].shape, q)};\n`;
@@ -517,12 +570,14 @@ function buildPathShader(scene){
     const em=mat.emissivity_rgb;
     emisfn += em ? `  if(m==${i}) return vec3(${glf(em[0])},${glf(em[1])},${glf(em[2])});\n`
                  : `  if(m==${i}) return clamp(vec3(1.0)-vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])}),0.0,1.0);\n`;
-    tempfn += `  if(m==${i}) return ${glf(ls[i].temperature_k!==undefined?ls[i].temperature_k:293.15)};\n`;
+    tempfn += `  if(m==${i}) return ${glf(ls[i].temperature_k!==undefined?ls[i].temperature_k:envT)};\n`;
     iorfn += `  if(m==${i}) return ${glf(mat.refractive_index!==undefined?mat.refractive_index:-1.0)};\n`;
+    bodyTempFn += `  if(m==${i}) return ${ls[i].body!=null?`uBodyTemp[${ls[i].body}]`:"-1.0"};\n`;
   }
   for(let i=1;i<ls.length;i++){ const op=ls[i].op;
     compose += (op==="subtract")?`  d=max(d,-s${i});\n`:(op==="intersect")?`  d=max(d,s${i});\n`:`  d=min(d,s${i});\n`; }
   for(let i=ls.length-1;i>=0;i--) matsel += `  ${i===ls.length-1?"if":"else if"}(s${i}<0.0) mat=${i};\n`;
+  const fieldSel=glslFieldFns(scene);               // per-cell field samplers → EXTRA_GLSL + switch
   const bb=scene.bbox||[[-1,1],[-1,1],[-1,1]];
   const diag=len(sub([bb[0][1],bb[1][1],bb[2][1]],[bb[0][0],bb[1][0],bb[2][0]]))||1;
   const SHMIN=glf(Math.max(0.004,diag*0.004)), SHMAX=glf(Math.max(0.05,diag*0.06)),
@@ -537,16 +592,21 @@ function buildPathShader(scene){
   const Sd=`vec3(${glf(L0.dir[0])},${glf(L0.dir[1])},${glf(L0.dir[2])})`,
         Sc=`vec3(${glf(L0.color[0])},${glf(L0.color[1])},${glf(L0.color[2])})`, Si=glf(L0.intensity||1.0);
   // ── emitters for next-event estimation: sphere leaves hot enough to glow.
-  // Their WORLD centre is uploaded each frame (uEmitterPos) so a body's motion
-  // carries the light; radius/temperature/emissivity are baked. NEE samples a
-  // point on each and shadow-rays to it, so a hot object lights its neighbours
-  // directly instead of waiting for a random bounce to land on it.
+  // Their WORLD centre + TEMPERATURE are uploaded each frame (uEmitterPos /
+  // uEmitterTemp) so a body's motion carries the light and a drag-heated fall
+  // brightens as it accelerates. Registration is compile-time (shaders build
+  // once per scene), so a body that crosses the 700 K Draper point at ANY
+  // trajectory frame must be an emitter for the program's lifetime —
+  // scene._bodyTempMax (applyObj scans the incoming trajectory) covers that.
   const emitters=[];
-  ls.forEach((l,i)=>{ const T=l.temperature_k;
-    if(l.shape&&l.shape.type==="Sphere"&&T!==undefined&&T>700){
+  ls.forEach((l,i)=>{ const Ts=l.temperature_k;
+    const Tdyn=(l.body!=null&&scene._bodyTempMax)?(scene._bodyTempMax[l.body]??-1):-1;
+    const Tmax=Math.max(Ts!==undefined?Ts:-1, Tdyn);
+    if(l.shape&&l.shape.type==="Sphere"&&Tmax>700){
       const m=scene.materials[l.material]||{}, e=m.emissivity_rgb||[0.5,0.5,0.5];
       emitters.push({leaf:i, center:l.shape.center.slice(), radius:l.shape.radius,
-                     body:(l.body!=null?l.body:-1), temp:T, emis:e}); }});
+                     body:(l.body!=null?l.body:-1),
+                     temp:(Ts!==undefined?Ts:envT), emis:e}); }});
   ptEmitters=emitters; const NE=emitters.length;
   let neeBlk="";
   emitters.forEach((e,k)=>{ neeBlk += `
@@ -556,7 +616,7 @@ function buildPathShader(scene){
         vec3 tt=normalize(cross(wcn, abs(wcn.y)<0.9?vec3(0.0,1.0,0.0):vec3(1.0,0.0,0.0))); vec3 bb=cross(wcn,tt);
         vec3 wl=normalize(tt*(sTs*cos(ph))+bb*(sTs*sin(ph))+wcn*cT); float ndl2=max(0.0,dot(n,wl));
         if(ndl2>0.0){ float vis=visRay(p+n*EPS, wl, dc-R-2.0*EPS);
-          vec3 Le=incandescence(${glf(e.temp)}+uTemp, vec3(${glf(e.emis[0])},${glf(e.emis[1])},${glf(e.emis[2])}));
+          vec3 Le=incandescence(uEmitterTemp[${k}]+uTemp, vec3(${glf(e.emis[0])},${glf(e.emis[1])},${glf(e.emis[2])}));
           L += thr*alb*Le*ndl2*2.0*(1.0-cosTm)*vis; } } }`; });
   return `#version 300 es
 precision highp float; precision highp int;
@@ -570,15 +630,21 @@ uniform float uTanHalf,uAspect,uMaxDist,uTime,uTemp,uFrame,uReset;
 uniform int uSPP;             // samples THIS frame — the photon budget for this single exposure
 uniform float uPrevScale;     // fraction of the PRIOR exposure to keep: 1=integrate (long exposure), (N-1)/N=bounded shutter hold
 uniform vec3 uBodyPos[MAXB]; uniform vec4 uBodyQuat[MAXB];
+uniform float uBodyTemp[MAXB];                           // per-frame body temperature (K); -1 = none
 uniform sampler2D uPrev;                                 // previous accumulation (ping-pong)
 uniform vec3 uEmitterPos[${Math.max(1,NE)}];             // world centres of glowing-sphere emitters (NEE)
+uniform float uEmitterTemp[${Math.max(1,NE)}];           // their live temperatures — a heating fall brightens
 ${PRIMS_GLSL}${waterGLSL}${EXTRA_GLSL}
 float mapD(vec3 p, out int mat){ ${bodyDecls}${decls}${compose}${matsel}  return d; }
 float mapOnly(vec3 p){ int m; return mapD(p,m); }
 vec3 matColor(int m){ ${colorfn}  return vec3(0.72); }
 float metalness(int m){ ${metalfn}  return 0.0; }
 vec3 emissivityOf(int m){ ${emisfn}  return vec3(0.5); }
-float matTempK(int m){ ${tempfn}  return 293.15; }
+float matTempK(int m){ ${tempfn}  return ${glf(envT)}; }
+float bodyTempK(int m){ ${bodyTempFn}  return -1.0; }
+float fieldTempK(int m, vec3 p){ ${fieldSel}  return -1.0; }   // per-cell field, leaf-local; -1 = none
+float effTempK(int m, vec3 p){ float ft=fieldTempK(m,p); if(ft>=0.0) return ft+uTemp;   // field > frame body T > leaf T > ambient
+  float bt=bodyTempK(m); return (bt>=0.0?bt:matTempK(m))+uTemp; }
 float iorOf(int m){ ${iorfn}  return -1.0; }              // refractive index (water/glass), else -1
 vec3 calcN(vec3 p){ float h=2e-4; vec2 e=vec2(1.0,-1.0);
   return normalize( e.xyy*mapOnly(p+e.xyy*h)+e.yyx*mapOnly(p+e.yyx*h)+e.yxy*mapOnly(p+e.yxy*h)+e.xxx*mapOnly(p+e.xxx*h) ); }
@@ -609,7 +675,7 @@ vec3 trace(vec3 ro, vec3 rd, inout uint seed){
   for(int b=0;b<8;b++){                                  // bounce depth: nested dielectrics (a glass of water) need >3 to cross every interface and reach the bright far side instead of dying black inside
     vec3 p; if(!march(ro,rd,p)){ L+=thr*skyEmit(rd); break; }
     vec3 n=calcN(p); int mat; mapD(p-n*0.0008,mat);
-    if(spec) L += thr*incandescence(matTempK(mat)+uTemp, emissivityOf(mat)); // own glow — only on specular arrival (NEE counts it otherwise)
+    if(spec) L += thr*incandescence(effTempK(mat, p), emissivityOf(mat)); // own glow at the POINT's temperature — only on specular arrival (NEE counts it otherwise; NEE cast light stays bulk-T — flagged: the gradient shows on the emitter's own surface, not yet in its cast light)
     vec3 alb=matColor(mat); float metal=metalness(mat);
     float ior=iorOf(mat); bool diffuse=(metal<0.5 && ior<=0.0);
     if(diffuse){                                                           // direct lighting — diffuse surfaces only
@@ -654,7 +720,7 @@ void main(){ vec2 p=vec2(float((gl_VertexID<<1)&2),float(gl_VertexID&2));
 function compile(type,src){ const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s);
   if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){ const log=gl.getShaderInfoLog(s); console.error(log,"\n",src); throw new Error(log); } return s; }
 let prog=null, progPT=null, U={}, Upt={};
-const UNIFORMS=["uRes","uEye","uFwd","uRight","uUp","uTanHalf","uAspect","uMaxDist","uTime","uTemp","uBodyPos","uBodyQuat","uFrame","uPrev","uReset","uEmitterPos","uSPP","uPrevScale"];
+const UNIFORMS=["uRes","uEye","uFwd","uRight","uUp","uTanHalf","uAspect","uMaxDist","uTime","uTemp","uBodyPos","uBodyQuat","uBodyTemp","uFrame","uPrev","uReset","uEmitterPos","uEmitterTemp","uSPP","uPrevScale"];
 function linkProg(fragSrc){
   const p=gl.createProgram();
   gl.attachShader(p,compile(gl.VERTEX_SHADER,VS));
@@ -695,14 +761,84 @@ function prepareVoxels(scene){     // decode + upload each Voxel leaf once; tag 
 }
 function fetchVoxU(p, scene){ const m={};
   for(const v of (scene._voxels||[])) m[v.vid]=gl.getUniformLocation(p,"uVox"+v.vid); return m; }
+
+// ── per-cell FIELDS (leaf `fields` registry — temperature first) ───────────
+// A field is FROZEN sim output: uint8 keyframe grids over one shared
+// [t_min,t_max] (u8-xfast — the sdf_b64 pack), uploaded once as R8/LINEAR
+// 3-D textures. Playback binds the two bracketing keyframes and mixes by
+// uFldU — display reconstruction between frozen sim states, NEVER the heat
+// equation. Grids live in the LEAF-LOCAL frame, so the body transform carries
+// a hot rind on a moving body for free.
+function b64ToU8(b64){ const bin=atob(b64), a=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) a[i]=bin.charCodeAt(i); return a; }
+function makeFieldTex(u8, dims){                    // same proven params as makeVoxTex, raw u8
+  const tex=gl.createTexture(); gl.bindTexture(gl.TEXTURE_3D,tex);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);
+  gl.texImage3D(gl.TEXTURE_3D,0,gl.R8,dims[0],dims[1],dims[2],0,gl.RED,gl.UNSIGNED_BYTE,u8);
+  gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_WRAP_R,gl.CLAMP_TO_EDGE);
+  gl.bindTexture(gl.TEXTURE_3D,null); return tex;
+}
+function prepareFields(scene){    // decode + upload each leaf's temperature field once
+  const list=[]; let fid=0;
+  const V=(scene._voxels||[]).length;
+  for(let i=0;i<(scene.csg_leaves||[]).length;i++){
+    const l=scene.csg_leaves[i], f=(l.fields||{}).temperature_k;
+    if(!f || f.encoding!=="u8-xfast") continue;
+    // texture-unit budget: 0 = PT accumulation, 1..V = voxel SDFs, 2 per field
+    if(1+V+2*(list.length+1) > 16){
+      console.error(`field on leaf ${i} dropped — texture-unit budget exceeded `
+        +`(1 accum + ${V} voxels + ${2*(list.length+1)} field units > 16); bulk T still shows`);
+      continue;
+    }
+    if(f._texs===undefined){
+      f._grids=f.keyframes.map(k=>b64ToU8(k.values_b64));
+      f._texs=f._grids.map(g=>makeFieldTex(g,f.grid.dims));
+    }
+    f._fid=fid; l._fid=fid;
+    list.push({fid, leaf:i, times:f.keyframes.map(k=>k.t_sim), texs:f._texs, spec:f});
+    fid++;
+  }
+  scene._fields=list;
+}
+function fetchFieldU(p, scene){ const m={};
+  for(const f of (scene._fields||[]))
+    m[f.fid]={a:gl.getUniformLocation(p,"uFldA"+f.fid),
+              b:gl.getUniformLocation(p,"uFldB"+f.fid),
+              u:gl.getUniformLocation(p,"uFldU"+f.fid)};
+  return m; }
+// JS twin of the GPU field read (and of Python's field_trilinear) — the field
+// self-check mirror. rec = {leaf, k, p, T}; p is LEAF-LOCAL (pose-independent).
+function jsFieldSampleAt(scene, rec){
+  const l=(scene.csg_leaves||[])[rec.leaf]; if(!l) return NaN;
+  const f=(l.fields||{})[rec.quantity||"temperature_k"]; if(!f||!f._grids) return NaN;
+  const g=f._grids[rec.k]; if(!g) return NaN;
+  const n=f.grid.dims, vs=f.grid.voxel_size, c=f.grid.center;
+  const nx=n[0],ny=n[1],nz=n[2], p=rec.p;
+  let fi=(p[0]-c[0])/vs+(nx-1)*0.5, fj=(p[1]-c[1])/vs+(ny-1)*0.5, fk=(p[2]-c[2])/vs+(nz-1)*0.5;
+  const ci=Math.min(Math.max(fi,0),nx-1), cj=Math.min(Math.max(fj,0),ny-1), ck=Math.min(Math.max(fk,0),nz-1);
+  const i0=Math.floor(ci),j0=Math.floor(cj),k0=Math.floor(ck);
+  const i1=Math.min(i0+1,nx-1),j1=Math.min(j0+1,ny-1),k1=Math.min(k0+1,nz-1);
+  const di=ci-i0,dj=cj-j0,dk=ck-k0;
+  const at=(i,j,k)=>g[(k*ny+j)*nx+i];               // x-fastest, the shared pack
+  const c00=at(i0,j0,k0)*(1-di)+at(i1,j0,k0)*di, c01=at(i0,j0,k1)*(1-di)+at(i1,j0,k1)*di;
+  const c10=at(i0,j1,k0)*(1-di)+at(i1,j1,k0)*di, c11=at(i0,j1,k1)*(1-di)+at(i1,j1,k1)*di;
+  const q=(c00*(1-dj)+c10*dj)*(1-dk)+(c01*(1-dj)+c11*dj)*dk;
+  return f.t_min + q*(f.t_max-f.t_min)/255.0;
+}
 function buildProgram(scene){
   prepareVoxels(scene);                              // decode/upload voxel grids before the shaders reference them
+  prepareFields(scene);                              // …and the per-cell field keyframes
   const t=linkProg(buildFragmentShader(scene));      // fast renderer (always)
   let pt=null; try{ pt=linkProg(buildPathShader(scene)); }   // path tracer (graceful if it fails)
   catch(e){ console.error("path-trace shader failed:",e); }
   if(prog) gl.deleteProgram(prog); if(progPT) gl.deleteProgram(progPT);
   prog=t; progPT=pt; U=fetchU(t); Upt=pt?fetchU(pt):{};
   U.vox=fetchVoxU(t,scene); Upt.vox=pt?fetchVoxU(pt,scene):{};
+  U.fld=fetchFieldU(t,scene); Upt.fld=pt?fetchFieldU(pt,scene):{};
 }
 
 // ── progressive-accumulation buffers (ping-pong float targets) ─────────
@@ -755,15 +891,22 @@ function eyePos(){
 }
 function posesAt(t){     // → [{pos,quat}] for every body, interpolated
   if(!traj||!traj.frames.length) return [];
-  const F=traj.frames, pack=(arr)=>arr.map(b=>({pos:b.pos.slice(),quat:(b.quat||[0,0,0,1]).slice()}));
+  const F=traj.frames, pack=(arr)=>arr.map(b=>({pos:b.pos.slice(),quat:(b.quat||[0,0,0,1]).slice(),
+    tempK:(b.temperature_k!==undefined?b.temperature_k:undefined)}));
   if(t<=F[0].t_sim) return pack(F[0].bodies);
   if(t>=F[F.length-1].t_sim) return pack(F[F.length-1].bodies);
   let lo=0,hi=F.length-1;
   while(hi-lo>1){ const m=(lo+hi)>>1; if(F[m].t_sim<=t) lo=m; else hi=m; }
   const a=F[lo],b=F[hi], u=(t-a.t_sim)/Math.max(1e-9,b.t_sim-a.t_sim);
   return a.bodies.map((ba,k)=>{ const bb=b.bodies[k]||ba, pa=ba.pos, pb=bb.pos;
+    const Ta=ba.temperature_k, Tb=bb.temperature_k;
     return {pos:[pa[0]+(pb[0]-pa[0])*u, pa[1]+(pb[1]-pa[1])*u, pa[2]+(pb[2]-pa[2])*u],
-            quat:nlerp(ba.quat||[0,0,0,1], bb.quat||[0,0,0,1], u)}; });
+            quat:nlerp(ba.quat||[0,0,0,1], bb.quat||[0,0,0,1], u),
+            // NON-DERIVED (audit): inter-frame temperature lerp is playback
+            // reconstruction of frozen sim states, never the heat equation
+            tempK:(Ta!==undefined&&Tb!==undefined)?Ta+(Tb-Ta)*u
+                 :(Ta!==undefined?Ta:Tb)};
+  });
 }
 
 // ── render ────────────────────────────────────────────────────────────
@@ -787,22 +930,41 @@ function draw(){
   const md=len(sub(eye,cam.target))+sceneDiag*1.5+0.1;       // dynamic — survives zoom
   const tanHalf=Math.tan((scene.camera.fov_deg||40)*Math.PI/360);
   const NB=(scene.bodies||[]).length;
-  let fp=null,fq=null;
-  if(NB){ fp=new Float32Array(NB*3); fq=new Float32Array(NB*4);
+  let fp=null,fq=null,ft=null;
+  if(NB){ fp=new Float32Array(NB*3); fq=new Float32Array(NB*4); ft=new Float32Array(NB);
     for(let k=0;k<NB;k++){ const Pp=bodyPoses[k]||{pos:[0,0,0],quat:[0,0,0,1]};
       fp[k*3]=Pp.pos[0]; fp[k*3+1]=Pp.pos[1]; fp[k*3+2]=Pp.pos[2];
-      fq[k*4]=Pp.quat[0]; fq[k*4+1]=Pp.quat[1]; fq[k*4+2]=Pp.quat[2]; fq[k*4+3]=Pp.quat[3]; } }
+      fq[k*4]=Pp.quat[0]; fq[k*4+1]=Pp.quat[1]; fq[k*4+2]=Pp.quat[2]; fq[k*4+3]=Pp.quat[3];
+      ft[k]=(Pp.tempK!==undefined)?Pp.tempK:-1.0; } }         // -1 = no frame temperature
   const bindScene=(UU,timeVal,frameSeed)=>{
     gl.uniform2f(UU.uRes,w,h);
     gl.uniform3fv(UU.uEye,eye); gl.uniform3fv(UU.uFwd,fwd); gl.uniform3fv(UU.uRight,right); gl.uniform3fv(UU.uUp,camUp);
     gl.uniform1f(UU.uTanHalf,tanHalf); gl.uniform1f(UU.uAspect,w/h); gl.uniform1f(UU.uMaxDist,md);
     gl.uniform1f(UU.uTime,timeVal); gl.uniform1f(UU.uTemp,heatDeltaK);
     if(UU.uFrame!=null) gl.uniform1f(UU.uFrame,frameSeed);
-    if(NB){ gl.uniform3fv(UU.uBodyPos,fp); gl.uniform4fv(UU.uBodyQuat,fq); }
+    if(NB){ gl.uniform3fv(UU.uBodyPos,fp); gl.uniform4fv(UU.uBodyQuat,fq);
+      if(UU.uBodyTemp!=null) gl.uniform1fv(UU.uBodyTemp,ft); }
     // voxel 3-D textures on units ≥1 (TEXTURE0 is the PT accumulation buffer)
     (scene._voxels||[]).forEach((vx,u)=>{ gl.activeTexture(gl.TEXTURE0+1+u);
       gl.bindTexture(gl.TEXTURE_3D, vx.tex);
-      if(UU.vox && UU.vox[vx.vid]!=null) gl.uniform1i(UU.vox[vx.vid], 1+u); }); };
+      if(UU.vox && UU.vox[vx.vid]!=null) gl.uniform1i(UU.vox[vx.vid], 1+u); });
+    // per-cell fields: bind the two keyframes bracketing simTime + the mix
+    // factor (units after the voxels; the exposure key already carries simTime,
+    // so a scrub restarts accumulation — no stale-glow ghosting)
+    const vbase=1+((scene._voxels||[]).length);
+    (scene._fields||[]).forEach((f,fi)=>{
+      const loc=UU.fld && UU.fld[f.fid]; if(!loc) return;
+      const ts=f.times; let lo=0;
+      if(simTime>=ts[ts.length-1]) lo=ts.length-1;
+      else while(lo+1<ts.length && ts[lo+1]<=simTime) lo++;
+      const hi=Math.min(lo+1, ts.length-1);
+      const u=(hi===lo)?0.0:Math.min(Math.max((simTime-ts[lo])/Math.max(1e-9,ts[hi]-ts[lo]),0.0),1.0);
+      gl.activeTexture(gl.TEXTURE0+vbase+fi*2);   gl.bindTexture(gl.TEXTURE_3D, f.texs[lo]);
+      if(loc.a!=null) gl.uniform1i(loc.a, vbase+fi*2);
+      gl.activeTexture(gl.TEXTURE0+vbase+fi*2+1); gl.bindTexture(gl.TEXTURE_3D, f.texs[hi]);
+      if(loc.b!=null) gl.uniform1i(loc.b, vbase+fi*2+1);
+      if(loc.u!=null) gl.uniform1f(loc.u, u);
+    }); };
   if(ptMode && extF && !dispProg) initDisplay();
   const key=`${eye.map(x=>x.toFixed(3))}|${cam.target.map(x=>x.toFixed(3))}|${simTime.toFixed(3)}|${heatDeltaK}|${w}x${h}|${sceneId}`;
   const moving = key!==ptKey; ptKey=key;                     // is the view changing this frame?
@@ -839,14 +1001,18 @@ function draw(){
     gl.bindFramebuffer(gl.FRAMEBUFFER,dst.fbo); gl.viewport(0,0,w,h);
     gl.useProgram(progPT); bindScene(Upt, ptTime, frameCount);
     gl.uniform1i(Upt.uSPP, spp); gl.uniform1f(Upt.uPrevScale, prevScale);
-    if(ptEmitters.length && Upt.uEmitterPos){      // emitter world centres (body motion carries the light)
-      const ep=new Float32Array(ptEmitters.length*3);
+    if(ptEmitters.length && Upt.uEmitterPos){      // emitter world centres + live temps (body motion carries the light; heating brightens it)
+      const ep=new Float32Array(ptEmitters.length*3), et=new Float32Array(ptEmitters.length);
       ptEmitters.forEach((e,k)=>{ let c=e.center;
         if(e.body>=0 && bodyPoses[e.body]){ const Po=bodyPoses[e.body];
           const piv=((scene.bodies[e.body]||{}).pivot)||[0,0,0];
           c=add(Po.pos, qrotJS(Po.quat, sub(e.center, piv))); }
-        ep[k*3]=c[0]; ep[k*3+1]=c[1]; ep[k*3+2]=c[2]; });
-      gl.uniform3fv(Upt.uEmitterPos, ep); }
+        ep[k*3]=c[0]; ep[k*3+1]=c[1]; ep[k*3+2]=c[2];
+        const Tf=(e.body>=0 && bodyPoses[e.body] && bodyPoses[e.body].tempK!==undefined)
+          ? bodyPoses[e.body].tempK : undefined;
+        et[k]=(Tf!==undefined)?Tf:e.temp; });      // frame T > the leaf's static bake
+      gl.uniform3fv(Upt.uEmitterPos, ep);
+      if(Upt.uEmitterTemp!=null) gl.uniform1fv(Upt.uEmitterTemp, et); }
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,src.tex);
     gl.uniform1i(Upt.uPrev,0); gl.uniform1f(Upt.uReset, reset?1.0:0.0);
     gl.drawArrays(gl.TRIANGLES,0,3);
@@ -869,13 +1035,27 @@ function draw(){
 }
 
 // ── self-check + load ─────────────────────────────────────────────────
+function fieldSelfCheck(){          // → [pass, maxΔK] | [null, 0] when no samples shipped
+  const fs=scene.field_samples;
+  if(!fs||!fs.length) return [null, 0];
+  let md=0;
+  for(const smp of fs) md=Math.max(md, Math.abs(jsFieldSampleAt(scene,smp)-smp.T));
+  return [md<1e-3, md];             // decoded-payload ground truth → double-precision match
+}
 function selfCheck(){
   const s=scene.sdf_samples;
-  if(!s||!s.length){ setOk("geometry self-check: <span class='lbl'>(no samples)</span>"); return; }
-  let md=0; for(const smp of s) md=Math.max(md,Math.abs(jsEvalSDF(scene,smp.p,null)-smp.d));
-  const ok=md<1e-6;
-  setOk(`geometry self-check: <span class="${ok?'ok':'bad'}">${ok?'PASS':'FAIL'}</span> `
-       +`<span class="lbl">(max Δ ${md.toExponential(1)} vs Python)</span>`);
+  let geo="geometry self-check: <span class='lbl'>(no samples)</span>";
+  if(s&&s.length){
+    let md=0; for(const smp of s) md=Math.max(md,Math.abs(jsEvalSDF(scene,smp.p,null)-smp.d));
+    const ok=md<1e-6;
+    geo=`geometry self-check: <span class="${ok?'ok':'bad'}">${ok?'PASS':'FAIL'}</span> `
+       +`<span class="lbl">(max Δ ${md.toExponential(1)} vs Python)</span>`;
+  }
+  const [fok,fmd]=fieldSelfCheck();
+  if(fok!==null)
+    geo+=` &nbsp;·&nbsp; field: <span class="${fok?'ok':'bad'}">${fok?'PASS':'FAIL'}</span> `
+        +`<span class="lbl">(max Δ ${fmd.toExponential(1)} K)</span>`;
+  setOk(geo);
 }
 let loadedObj=null;                                  // the pristine JSON Radiance was handed (editor + reset)
 
@@ -887,6 +1067,17 @@ function applyObj(obj, title, preserve){
   const newScene = obj.kind==="trajectory" ? obj.scene : obj;
   const newTraj  = obj.kind==="trajectory" ? obj.trajectory : (obj.trajectory||null);
   if(!newScene||!newScene.csg_leaves||!newScene.csg_leaves.length) throw new Error("scene has no csg_leaves");
+  // Per-body MAX temperature over the whole trajectory, computed BEFORE the
+  // compile: NEE emitter registration is compile-time, so a body that crosses
+  // the 700 K Draper point at any frame must be an emitter for the program's
+  // lifetime (its magnitude then rides the uEmitterTemp uniform per frame).
+  newScene._bodyTempMax = null;
+  if(newTraj && newTraj.frames){
+    const mx=[];
+    for(const f of newTraj.frames) (f.bodies||[]).forEach((b,k)=>{
+      if(b.temperature_k!==undefined) mx[k]=Math.max(mx[k]??-1, b.temperature_k); });
+    if(mx.length) newScene._bodyTempMax=mx;
+  }
   buildProgram(newScene);                            // throws on a bad shader → live render untouched
   scene=newScene; traj=newTraj;                      // commit only after the compile succeeds
   if(!preserve){ const cm=scene.camera||{};
@@ -1027,14 +1218,17 @@ function loop(now){
   if(prog){ try{ draw(); }catch(e){ setErr("draw: "+e); } }
   if(PROBE && !probeSent && scene && prog){
     probeSent=true;
-    let pass=null, maxd=0;
+    let pass=null, maxd=0, fpass=null, fmaxd=0;
     try{ const ss=scene.sdf_samples||[];
       for(const s of ss){ const d=jsEvalSDF(scene,s.p,null); maxd=Math.max(maxd,Math.abs(d-s.d)); }
       pass = ss.length ? maxd<1e-6 : null;        // null = no samples shipped
     }catch(e){ probeErrors.push("selfcheck: "+e); pass=false; }
+    try{ [fpass,fmaxd]=fieldSelfCheck(); }        // the per-cell field twin
+    catch(e){ probeErrors.push("fieldcheck: "+e); fpass=false; }
     fetch("/probe",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({slug:(_scene||"?"), selfcheck_pass:pass,
         max_delta:maxd, shader_ok:!!prog,
+        field_selfcheck_pass:fpass, field_max_delta_k:fmaxd,
         console_errors:probeErrors.slice(0,10), kind:scene.kind||"static",
         animated:tEnd>0})}).catch(()=>{});
   }
@@ -1047,7 +1241,14 @@ function loop(now){
 const _scene=new URLSearchParams(location.search).get("scene");
 if(_scene && /^[a-z0-9_]+$/i.test(_scene)){
   load(`data/${_scene}.json`,_scene.replace(/_/g," "))
-    .catch(()=>load("data/water.json","water").catch(()=>{}));
+    .catch((e)=>{
+      if(PROBE && !probeSent){ probeSent=true;      // report the LOAD FAILURE itself —
+        fetch("/probe",{method:"POST",headers:{"Content-Type":"application/json"},  // a silent no-report is undebuggable
+          body:JSON.stringify({slug:_scene, kind:"load-failed", shader_ok:false,
+            selfcheck_pass:false, console_errors:[String(e).slice(0,300)]
+              .concat(probeErrors.slice(0,9))})}).catch(()=>{}); }
+      return load("data/water.json","water").catch(()=>{});
+    });
 }else{
   load("data/water.json","water").catch(()=>{});           // open on the water showpiece
 }

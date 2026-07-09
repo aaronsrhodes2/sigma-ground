@@ -39,6 +39,7 @@ from .scenarios import (terminal_velocity_drop, drag_heating_drop,
                         high_altitude_descent, supersonic_projectile,
                         vertical_launch, orbital_velocity, material_profile,
                         structural_response, thermal_response,
+                        contact_conduction,
                         rotational_dynamics, material_full_profile,
                         quantum_report, SCENARIOS)
 from .spec import SimulationSpec, SpecStep, run_spec, synthesize_chain
@@ -64,6 +65,7 @@ __all__ = [
     "material_profile",
     "structural_response",
     "thermal_response",
+    "contact_conduction",
     "rotational_dynamics",
     "material_full_profile",
     "quantum_report",

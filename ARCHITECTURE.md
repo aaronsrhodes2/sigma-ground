@@ -56,6 +56,27 @@ New code should import from the canonical location.
 `sigma_ground/field/constants.py` is authoritative; `sigma_ground/constants.py`
 and `sigma_ground.kernel` re-export it. Never define a physical constant twice.
 
+## Atmosphere presets — single source of the ambient datum
+`sigma_ground/field/interface/atmosphere.py` owns `ATMOSPHERES` /
+`atmosphere_preset()` — **STP** (air, 101325 Pa, 288.15 K), **IRT** (Internal
+Room Temperature, 293.15 K), **ISM** (vacuum, 2.725 K CMB). Radiance theaters
+stamp these into `physics_env`, and Materia derives heat-solver boundary
+conditions from the SAME table (`materia.thermal_field.boundary_from_env`), so
+the stage and the physics can never disagree on the ambient again.
+
+## Thermal fields — physics-to-screen
+A field is FROZEN sim output; renderers display it, never integrate it.
+Per-body: trajectory frames carry `temperature_k` beside `pos`/`quat`
+(`radiance/trajectory.py` documents the contract + precedence chain).
+Per-cell: a leaf `fields` registry ships u8 keyframe grids (`u8-xfast`,
+`radiance/scene_export.py`) that the viewer uploads as R8/LINEAR 3-D textures
+and mixes during playback; `field_samples` is the browser's not-faked check
+(twin of `sdf_samples`). The law is `dynamics/fields/heat.py::diffuse_fvm` —
+conservative face-flux with harmonic-mean interface conductivity; Materia
+orchestrates it (`thermal_field.evolve_contact_field`, the `contact_conduction`
+verb, `drag_heating_drop`'s T(t)); `radiance/thermal_record.py` freezes the
+results into bundles.
+
 ## The Deckard → Materia / Radiance contract
 Deckard compiles a *name* into a `Construct` (an SDF plus per-point material and
 density, with mass / centre-of-mass / inertia). **Materia** consumes it to move

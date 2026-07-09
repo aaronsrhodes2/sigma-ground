@@ -1801,3 +1801,94 @@ Phase 1 of "go dumber": the `find_tool` embedding router. The go-dumber experime
 path is more classifiers + a retrieval/embedding tool-selector, not a smaller LLM.
 Two open physics forks for the Captain: (1) does SSBM "reform" trigger AT or BEFORE
 Bekenstein saturation; (2) which side of M ≈ 2.25e10 kg SSBM cares about.
+
+## Session 25 — 2026-07-07 — V-field campaign: physics-to-screen thermal fields (Phases 0–5)
+
+### Goal
+Materia sims convey inherent physics — temperature, motion, orientation, per-cell
+state — across the SceneSpec seam so Radiance renders physics-to-screen; theaters'
+`physics_env` (STP/IRT/ISM) doubles as the heat solver's boundary condition; motion
+and energy transfer between VOXEL INTERFACES becomes real, renderable physics.
+Plan: `~/.claude/plans/build-a-comprehensive-plan-hidden-tide.md` (Captain approved;
+flagship = 30 km re-entry glow + windward face; checkpoint after Phase 2).
+
+### Built
+
+**Phase 0 — one ambient datum.** `ATMOSPHERES`/`atmosphere_preset()` in
+`field/interface/atmosphere.py` (STP=288.15 — fixed `theaters.plain`'s 273.15 bug;
+IRT=293.15; ISM=vacuum/2.725 K). All four theaters compose `physics_env` from the
+table (`void` = tagged "vacuum_room"). Lock tests in `tests/test_atmosphere_presets.py`.
+
+**Phase 1 — the law gets interfaces right.** `diffuse_fvm` in
+`dynamics/fields/heat.py`: conservative face-flux FVM, harmonic-mean face
+conductivity (k_face = 2k₁k₂/(k₁+k₂), the contact_conductance law), Dirichlet-air
+ghost-cell BC (flagged well-stirred upper bound), Stefan-Boltzmann radiative sink
+per exposed face with an EXACT radiated_J ledger, CFL incl. a radiative bound.
+`thermal_diffusivity` + extracted `emissivity` in thermal.py; `material_grids` /
+`exposed_faces` / `boundary_from_env` in materia/thermal_field.py. Gates: uniform-
+equivalence vs legacy; iron|copper insulated conservation <1e-9; steady series-
+resistance flux ±2% with two-sided continuity; ISM E0−E1==radiated_J exact +
+lumped-capacitance ODE ±5%; IRT-cools-faster-than-ISM contrast.
+
+**Phase 2 — per-body T(t) (the ball glows).** Frame contract: bodies carry
+`temperature_k` beside pos/quat (trajectory.py docstring + `poses_at` +
+`bake_frame_temperatures`). `simulate_fall(record_every=)` q_drag history;
+`drag_heating_drop` emits `temperature_history` + handle kind `sphere_thermal`.
+NEW `radiance/thermal_record.py::record_fall_thermal` re-integrates independently
+and REFUSES >2% ΔT disagreement (measured residual 3e-05). shade.py gains the
+`incandescence` twin (constant-parity grep test vs viewer.js); RadianceScene
+`temperature_at`/`emissivity_of` hooks. viewer.js: `uBodyTemp[MAXB]`, `effTempK`
+precedence chain (field > frame T > leaf T > physics_env ambient > 293.15; heat
+slider on top), `uEmitterTemp[NE]` + `_bodyTempMax` compile-time NEE registration.
+front_door: `sphere_thermal` branch + kind-aware `_OFFERS` + thermal announce.
+30 km iron ball: 617 frames, 288→1030 K, crosses Draper mid-fall.
+
+**Phase 3 — per-cell fields.** Leaf `fields` registry (leaf-LOCAL grid, u8
+keyframes over ONE shared [t_min,t_max], x-fastest pack = the sdf_b64 convention);
+`field_spec_from_grid`/`_from_thermal` (duck-typed, no materia import),
+`decode_field_keyframe`/`field_trilinear`/`field_samples` (ground truth from the
+DECODED payload, corners included) in scene_export.py; `scene_from_spec(t_sim=)`
+per-cell hook. viewer.js: `prepareFields` (R8/LINEAR 3-D textures, unit budget
+1+V+2F≤16), `glslField` two-texture `uFldU` mix, `fieldTempK(m,p)` with inline
+body transform, JS twin `jsFieldSampleAt`, probe `field_selfcheck_pass`.
+verify_artifacts.py: schema + stdlib trilinear replay ≤1e-3 K + fields-require-
+samples rule (+ fixed its pre-existing crash on list-typed index manifests).
+Backward-compat PROVEN: HEAD's viewer draws a fields-carrying artifact unchanged.
+Browser field parity: ~1e-7 K.
+
+**Phase 4 — conduction verb + the flagship.** `evolve_contact_field` (any labeled
+grid — synthetic or a Deckard VoxelField, zero new physics); `contact_conduction`
+verb (hot iron cube on cold copper slab, IRT/ISM; effusivity interface check at a
+1 s probe window — the t→0⁺ closed form; 40 kJ crosses in the first second; per-
+label energy ledger; manifest-routed: "put a hot iron cube on a cold copper slab").
+`record_thermal_field` stages the matching theater (IRT→room, ISM→deep_space where
+matter is its own light). front_door `conduction_field` branch. FLAGSHIP: the
+windward deposit model — per-interval drag dissipation lands on the leading face
+(Newtonian cosθ) and Fourier-conducts inward, ADIABATIC to match the cited f=1
+bulk (deposited == f·q_drag bookkeeping-exact): field peaks 1431 K vs bulk 1030 K
+— the leading face crosses Draper first, the whole ball glows by impact.
+Front-door auto-gate: contact_conduction is object-context by definition (the
+drop_object precedent).
+
+**Phase 5 — gauntlet + docs.** mentat_gauntlet 20→22 prompts (+sim_iron_glow,
++sim_hot_cube; sim_steel_heat now exercises the thermal path free) — all rendered;
+browser gauntlet field column — 3/3 thermal scenes verified. Probe gained a
+load-failure report path (silent no-reports are now diagnosable). ARCHITECTURE.md:
+atmosphere-preset + thermal-fields sections.
+
+### Result
+
+| Metric | Value |
+|--------|-------|
+| Full suite | 4661+ passed / 6 skipped (from 4636 baseline; ~45 new gate tests) |
+| Artifacts | 73/73 offline-verified; field parity in-browser ~1e-7 K |
+| Flagship | "…iron sphere…30 km?" → "yes" → leading face 1431 K / bulk 1030 K |
+| Conduction | effusivity bracket ✓, 40 kJ/s across iron|copper, ISM ledger exact |
+| Honesty | f=1 flag rides steps→announce→bundle; recorder refuses >2% drift |
+
+### Known / next
+- Pre-existing: falling_feather browser SDF parity (~2 cm, Ellipsoid off-surface
+  bound vs kernel) — chip spawned (task_256a9f3a), fails on HEAD too.
+- Future arc (named): momentum/flow fields (the registry is shaped for it), phase
+  change (no melting data), convective film coefficients, NEE per-cell cast light,
+  dodexel lattice.

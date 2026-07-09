@@ -142,7 +142,8 @@ def drag_heating_drop(material_key: str = "iron",
     translation of that energy, with the body/air partition flagged as the
     assumption it is — not a claim about real reentry surface heating.
     """
-    sim = simulate_fall(material_key, radius_m, drop_altitude_m, T=T0)
+    sim = simulate_fall(material_key, radius_m, drop_altitude_m, T=T0,
+                        record_every=0.25)
     eb = sim["energy_budget"]
     q_budget = eb["q_drag_budget_J"]
     q_force = sim["drag_dissipation_J"]
@@ -150,6 +151,17 @@ def drag_heating_drop(material_key: str = "iron",
     heat = drag_heating_temperature_rise(material_key, q_budget,
                                          sim["mass_kg"], body_fraction, T0)
     passed = residual <= tolerance
+
+    # Time-resolved body temperature: the SAME ΔT = f·Q/(m·c_p) translation,
+    # applied to the running force-integral q_drag(t) — the scalar answer cut
+    # into moments. This is what makes the fall watchable as a THERMAL event.
+    mcp_inv = body_fraction / (sim["mass_kg"] * heat["specific_heat_J_kgK"])
+    temperature_history = [
+        {"t": s["t"], "altitude_m": s["altitude_m"], "speed_m_s": s["speed_m_s"],
+         "T_K": T0 + s["q_drag_J"] * mcp_inv}
+        for s in sim["history"]]
+    from ..field.interface.thermal import is_visibly_glowing
+    glows = bool(is_visibly_glowing(heat["peak_T_K"]))
 
     steps = [
         MateriaStep("Material", f"{sim['material_name']} "
@@ -177,6 +189,11 @@ def drag_heating_drop(material_key: str = "iron",
                     f"[ASSUMPTION: fraction of drag heat entering the body; "
                     f"f=1 = adiabatic upper bound]",
                     "Materia → thermal.specific_heat_j_kg_K"),
+        MateriaStep("Visible glow?", "yes" if glows else "no", "",
+                    f"peak {heat['peak_T_K']:.0f} K vs the Draper point "
+                    f"(~798 K, where hot matter first glows visibly) — under "
+                    f"the SAME f={body_fraction:g} flag as ΔT",
+                    "field.interface.thermal.is_visibly_glowing"),
     ]
 
     summary = (f"A {radius_m*100:.0f} cm {sim['material_name'].lower()} sphere "
@@ -206,14 +223,23 @@ def drag_heating_drop(material_key: str = "iron",
                                   "peak_T_K": heat["peak_T_K"],
                                   "dissipation_J": q_budget,
                                   "impact_speed_m_s": sim["impact_speed_m_s"],
-                                  # Same renderable sphere fall as terminal_velocity_drop:
-                                  # the dispatcher hands this to record_fall on a "yes".
+                                  "temperature_history": temperature_history,
+                                  "glows": glows,
+                                  # A THERMAL fall: the dispatcher hands this to
+                                  # record_fall_thermal on a "yes" — the ball
+                                  # carries its body temperature frame by frame.
+                                  # expected_delta_T_K is the FORCE-integral ΔT,
+                                  # the recorder's cross-check target (it
+                                  # re-integrates the same fall independently).
                                   "can_render": True,
                                   "render_handle": {
-                                      "kind": "sphere",
+                                      "kind": "sphere_thermal",
                                       "material_key": material_key,
                                       "radius_m": radius_m,
                                       "start_altitude_m": drop_altitude_m,
+                                      "body_fraction": body_fraction,
+                                      "T0": T0,
+                                      "expected_delta_T_K": q_force * mcp_inv,
                                       "label": f"{sim['material_name'].lower()} ball",
                                   }})
 
@@ -586,6 +612,187 @@ def thermal_response(material_key: str = "steel_mild", delta_T: float = 100.0,
                          validation={"passed": True,
                                      "note": "expansion + phase + radiation"},
                          outputs={"radiated_power_W_m2": P})
+
+
+def contact_conduction(hot_material: str = "iron", cold_material: str = "copper",
+                       hot_edge_m: float = 0.08, slab_thickness_m: float = 0.03,
+                       T_hot: float = 900.0, environment: str = "IRT",
+                       contact_time_s: float = 120.0) -> MateriaResult:
+    """A hot block set on a cold slab — heat flowing between VOXEL INTERFACES.
+
+    The per-cell showcase: a labeled voxel domain (hot cube face-to-face on a
+    cold slab, void margin all round) evolved by the conservative face-flux law
+    with HARMONIC-MEAN interface conductivity (``dynamics.fields.heat.
+    diffuse_fvm`` — the same 2k₁k₂/(k₁+k₂) series-resistance law as
+    ``thermal.contact_conductance``). The environment preset (IRT room air /
+    ISM vacuum) sets the boundary physics from the SAME table the theater
+    stages the render with. Keyframes of the field are FROZEN for the renderer.
+
+    Early-contact self-check: two suddenly-touching half-spaces share the
+    effusivity-weighted interface temperature T_i = (e₁T₁+e₂T₂)/(e₁+e₂),
+    e = √(k·ρ·cp) — a classic closed form the first keyframe must approach.
+    """
+    import math
+    import numpy as np
+    from .thermal_field import evolve_contact_field
+    from ..field.interface.thermal import (thermal_conductivity,
+                                           heat_capacity_volumetric,
+                                           is_visibly_glowing)
+    from ..field.interface.atmosphere import atmosphere_preset
+
+    env = atmosphere_preset(environment)
+    T_amb = env["temperature_k"]
+
+    # ── build the labeled domain: slab (z-low) with the cube ON it (z-up) ──
+    n_edge = 16                                   # cube = 16³ cells → dx from its size
+    dx = hot_edge_m / n_edge
+    n_th = max(3, round(slab_thickness_m / dx))   # slab thickness in cells
+    n_sw = n_edge * 2                             # slab is 2 cube-edges wide
+    pad = 3                                       # void margin (radiating/ambient rind)
+    N = [n_sw + 2 * pad, n_sw + 2 * pad, pad + n_th + n_edge + pad]
+    label = np.zeros(N, dtype=np.int8)
+    cx = N[0] // 2
+    s0, s1 = pad, pad + n_sw                      # slab footprint
+    label[s0:s1, s0:s1, pad:pad + n_th] = 2                       # cold slab
+    c0, c1 = cx - n_edge // 2, cx + n_edge // 2                   # cube centred on it
+    label[c0:c1, c0:c1, pad + n_th:pad + n_th + n_edge] = 1       # hot cube
+    materials = ["air", hot_material, cold_material]
+    T0 = np.full(N, float(T_amb))
+    T0[label == 1] = float(T_hot)
+
+    run = evolve_contact_field(label, materials, dx, T0,
+                               total_time=contact_time_s, env=env, n_keyframes=8)
+    # A SHORT probe window for the interface physics: the effusivity relation
+    # is a t→0⁺ property of sudden contact, and in air the (flagged, upper-
+    # bound) well-stirred bath drains both bodies within tens of seconds — by
+    # the first render keyframe the bath dominates and the interface signature
+    # is gone. One second in, conduction has crossed ~1 cell: early enough.
+    probe = evolve_contact_field(label, materials, dx, T0,
+                                 total_time=1.0, env=env, n_keyframes=2)
+
+    # ── worked physics ──
+    k1 = run["k_by_material"][hot_material]
+    k2 = run["k_by_material"][cold_material]
+    k_harm = 2.0 * k1 * k2 / (k1 + k2)
+    e1 = math.sqrt(k1 * heat_capacity_volumetric(hot_material, T=T_amb))
+    e2 = math.sqrt(k2 * heat_capacity_volumetric(cold_material, T=T_amb))
+    T_i_pred = (e1 * T_hot + e2 * T_amb) / (e1 + e2)   # effusivity interface temp
+    # measured: the two cell planes straddling the interface, 1 s after contact
+    Tp = probe["T_frames"][-1]
+    zi = pad + n_th                                    # first cube plane
+    T_below = float(Tp[c0:c1, c0:c1, zi - 1].mean())   # slab side of the interface
+    T_above = float(Tp[c0:c1, c0:c1, zi].mean())       # cube side
+    # bracket with one-cell discretization slack (√(α·1s) ≈ one 5 mm cell)
+    slack = 0.25 * (T_hot - T_amb)
+    straddles = (min(T_above, T_below) - slack <= T_i_pred
+                 <= max(T_above, T_below) + slack)
+    # heat that CROSSED the interface: the cold slab's energy gain over the
+    # 1 s probe (early window — before ambient losses swamp the signal), and
+    # the full-window number reported honestly beside it (in room air the slab
+    # also sheds to the bath, so the long number can be small or negative)
+    rho_cp_cold = heat_capacity_volumetric(cold_material, T=T_amb)
+    cell_J_K = rho_cp_cold * dx ** 3
+    slab = label == 2
+    dE_cold = float((Tp[slab].astype(float) - T0[slab]).sum()) * cell_J_K
+    dE_cold_full = float((run["T_frames"][-1][slab].astype(float)
+                          - T0[slab]).sum()) * cell_J_K
+    # energy ledger per environment
+    E0, E1 = run["E_frames_J"][0], run["E_frames_J"][-1]
+    if env["medium"] == "vacuum":
+        ledger_ok = abs((E0 - E1) - run["radiated_J"]) <= max(1e-6 * E0, 1e-6)
+        ledger_note = (f"vacuum: E0−E1 = {E0 - E1:.3f} J vs radiated ledger "
+                       f"{run['radiated_J']:.3f} J (exact bookkeeping)")
+    else:
+        ledger_ok = all(b <= a + 1e-6 for a, b in zip(run["E_frames_J"],
+                                                      run["E_frames_J"][1:]))
+        ledger_note = "air: total energy monotone → the ambient bath only ever drains it"
+    peak_end = float(run["T_frames"][-1].max())
+    passed = bool(straddles and ledger_ok and dE_cold > 0.0)
+
+    steps = [
+        MateriaStep("Bodies", f"{hot_material} cube {hot_edge_m * 100:.0f} cm at "
+                    f"{T_hot:.0f} K on a {cold_material} slab at {T_amb:.2f} K",
+                    "", "(input)", "field.interface.surface"),
+        MateriaStep("Environment", f"{environment} — {env['medium']}, "
+                    f"{env['temperature_k']:.2f} K", "",
+                    "one preset table stages the theater AND bounds the solver",
+                    "field.interface.atmosphere.ATMOSPHERES"),
+        MateriaStep("k (hot)", k1, "W/m·K", "phonon + Wiedemann-Franz",
+                    "thermal.thermal_conductivity"),
+        MateriaStep("k (cold)", k2, "W/m·K", "phonon + Wiedemann-Franz",
+                    "thermal.thermal_conductivity"),
+        MateriaStep("Interface face conductivity", k_harm, "W/m·K",
+                    "k_face = 2k₁k₂/(k₁+k₂) — series resistance of the two "
+                    "half-cells (same law as thermal.contact_conductance)",
+                    "dynamics.fields.heat.diffuse_fvm"),
+        MateriaStep("Interface temperature (1 s after contact)",
+                    0.5 * (T_above + T_below), "K",
+                    f"effusivity prediction (e₁T₁+e₂T₂)/(e₁+e₂) = {T_i_pred:.0f} K; "
+                    f"measured {T_below:.0f}/{T_above:.0f} K bracket it "
+                    f"(t→0⁺ closed form; ±1-cell discretization)",
+                    "transient contact of half-spaces (closed form)"),
+        MateriaStep("Heat crossed the interface (first 1 s)", dE_cold, "J",
+                    "ΔE of the cold body over the early probe window",
+                    "dynamics.fields.heat.thermal_energy"),
+        MateriaStep("Cold-body ΔE over the full run", dE_cold_full, "J",
+                    "long-run: in room air the slab ALSO sheds to the bath, so "
+                    "this can be small or negative — the bath, not the cube, "
+                    "sets its fate (flagged upper-bound convection)",
+                    "dynamics.fields.heat.thermal_energy"),
+        MateriaStep("Energy ledger", "exact" if ledger_ok else "VIOLATED", "",
+                    ledger_note, "Materia self-check"),
+        MateriaStep("Still glowing at the end?",
+                    "yes" if is_visibly_glowing(peak_end) else "no", "",
+                    f"peak {peak_end:.0f} K vs the Draper point (~798 K)",
+                    "field.interface.thermal.is_visibly_glowing"),
+    ]
+    summary = (f"A {hot_edge_m * 100:.0f} cm {hot_material} cube at {T_hot:.0f} K on a "
+               f"{cold_material} slab in {environment}: {dE_cold:.0f} J crosses the "
+               f"interface in the first second alone "
+               f"(k_face = {k_harm:.0f} W/m·K harmonic mean; interface settles at "
+               f"the effusivity temperature ≈{T_i_pred:.0f} K); after "
+               f"{contact_time_s:.0f} s the pair peaks at {peak_end:.0f} K. "
+               f"{ledger_note}.")
+
+    # geometry the recorder stages (world frame, z-up, slab bottom at z=0)
+    Nz = N[2]
+    grid_center = [0.0, 0.0, (Nz * dx) * 0.5 - pad * dx]
+    slab_box = {"center": [0.0, 0.0, n_th * dx * 0.5],
+                "x": n_sw * dx, "y": n_sw * dx, "z": n_th * dx}
+    cube_box = {"center": [0.0, 0.0, n_th * dx + hot_edge_m * 0.5],
+                "x": hot_edge_m, "y": hot_edge_m, "z": hot_edge_m}
+    return MateriaResult(
+        "contact_conduction",
+        {"hot_material": hot_material, "cold_material": cold_material,
+         "hot_edge_m": hot_edge_m, "T_hot": T_hot, "environment": environment,
+         "contact_time_s": contact_time_s},
+        steps, summary=summary,
+        validation={"passed": passed,
+                    "interface_T_predicted_K": round(T_i_pred, 2),
+                    "interface_T_measured_K": [round(T_below, 2), round(T_above, 2)],
+                    "energy_ledger_ok": ledger_ok,
+                    "dE_cold_J": round(dE_cold, 3),
+                    "radiated_J": round(run["radiated_J"], 3),
+                    "note": ledger_note},
+        outputs={"heat_crossed_J": dE_cold,
+                 "interface_k_W_mK": k_harm,
+                 "peak_T_end_K": peak_end,
+                 "glows": bool(is_visibly_glowing(peak_end)),
+                 "can_render": True,
+                 # frozen keyframes — in-process only (handles are never JSON'd;
+                 # the recorder samples/encodes them into the bundle)
+                 "render_handle": {
+                     "kind": "conduction_field",
+                     "environment": environment,
+                     "hot_material": hot_material, "cold_material": cold_material,
+                     "dx": dx, "dims": list(N), "grid_center": grid_center,
+                     "times_s": run["times_s"],
+                     "T_frames": run["T_frames"],
+                     "ambient_T": run["ambient_T"],
+                     "cube_box": cube_box, "slab_box": slab_box,
+                     "T_hot": T_hot,
+                     "label": f"hot {hot_material} cube on a {cold_material} slab "
+                              f"({environment})"}})
 
 
 def rotational_dynamics(mass_kg: float = 1.0, radius_m: float = 0.1,
@@ -2787,6 +2994,7 @@ SCENARIOS = {
     "drop_object": drop_object,
     "terminal_velocity_drop": terminal_velocity_drop,
     "drag_heating_drop": drag_heating_drop,
+    "contact_conduction": contact_conduction,
     "high_altitude_descent": high_altitude_descent,
     "supersonic_projectile": supersonic_projectile,
     "vertical_launch": vertical_launch,

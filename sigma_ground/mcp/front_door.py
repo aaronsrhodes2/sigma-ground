@@ -29,9 +29,12 @@ from dataclasses import dataclass
 
 @dataclass
 class Session:
-    """The thread of one conversation. The only state the front door keeps is the
-    last renderable simulation, so a bare "yes" can render it."""
+    """The thread of one conversation. State kept: the pending render offer
+    (``render_handle``, consumed by the next "yes") and the most recent
+    renderable (``last_renderable``, sticky — so "render that" still works after
+    intervening turns)."""
     render_handle: dict | None = None
+    last_renderable: dict | None = None
     last_intent: str | None = None
 
 
@@ -45,12 +48,31 @@ _SIM_CUES = ("simulate", "drop ", "throw", "fall", "falls", "what happens",
              "terminal velocity", "how fast", "how hot")
 _AFFIRM = {"yes", "y", "yeah", "yep", "yup", "ok", "okay", "sure", "do it",
            "render it", "go ahead", "please do", "yes please", "play it"}
+# Effects the simulator can't model yet — name them honestly instead of silently
+# substituting an impact-speed fall (a "shatter" request must not look answered).
+_UNMODELED_INTENTS = ("shatter", "fracture", "smash", "crack", "explode",
+                      "bounce", "splash", "spill", "melt", "burn")
+_RENDER_REF_WORDS = (" that", " it", " this", " last", " previous", " again",
+                     "that sim", "the sim", "the fall", "the drop", "the run")
 
 _DATA_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "radiance", "web", "data"))
 _VIEWER = "http://127.0.0.1:8765"
 _OFFER = ("Do you want Radiance to render this as a watchable 3D fall? "
           "Reply 'yes'.")
+# Kind-aware offers — a thermal sim promises what its render actually shows.
+_OFFERS = {
+    "sphere_thermal": ("Do you want Radiance to render this as a watchable fall "
+                       "with live body temperature — it glows where the physics "
+                       "says it glows? Reply 'yes'."),
+    "conduction_field": ("Do you want Radiance to render the heat flowing "
+                         "between them (a per-cell temperature field)? "
+                         "Reply 'yes'."),
+}
+
+
+def _offer_for(handle: dict | None) -> str:
+    return _OFFERS.get((handle or {}).get("kind"), _OFFER)
 
 
 def _envelope(intent, *, text="", value=None, can_render=False,
@@ -72,6 +94,17 @@ def _has(text, cues):
     return any(c in low for c in cues)
 
 
+def _is_render_reference(text: str) -> bool:
+    """A 'render that / render it / show the last one' back-reference: a render
+    cue pointing at the PREVIOUS renderable, with no new object to compile."""
+    low = text.strip().lower()
+    if not _has(low, ("render", "draw", "show", "play", "watch", "replay")):
+        return False
+    return (any(w in low for w in _RENDER_REF_WORDS)
+            or low.rstrip("!. ") in ("render", "replay", "play", "show me",
+                                     "render please", "render the simulation"))
+
+
 def dispatch(text: str, *, use_llm: bool = True,
              session: Session | None = None, mode: str | None = None) -> dict:
     """Classify one sentence and route it. Returns an envelope dict (keys: intent,
@@ -86,15 +119,33 @@ def dispatch(text: str, *, use_llm: bool = True,
     if not text:
         return _envelope("clarify",
                          text="Say something to ask, simulate, or render.")
+    # Guard against pasted output / runaway input — a huge blob is never a real
+    # request and mis-routes badly (a long paste once landed on a quantum demo).
+    if len(text) > 800 or any(m in text for m in ("━━", "[routed →", "self-check ✓")):
+        return _envelope("clarify",
+            text=("That looks like pasted output — give me a short request, e.g. "
+                  "“drop a brick from 3 m” or “what's the escape velocity of Mars?”"))
     mode = (mode or "").strip().lower() or None
     if mode == "auto":
         mode = None
 
-    # 1. A "yes" renders the pending simulation (auto or render mode).
-    if session.render_handle and _is_affirmative(text) and mode in (None, "render"):
+    # 1. A bare "yes" confirms the pending render offer — regardless of which lane
+    #    flag was prepended. Replying to "Reply 'yes'", users routinely type
+    #    "/simulate yes"; "yes" is never a real ask/sim query. (The bug this fixes:
+    #    "/simulate yes" used to re-route "yes" → the model hallucinated the demo
+    #    example instead of rendering the sim just computed.) ASK is the exception.
+    if session.render_handle and _is_affirmative(text) and mode != "ask":
         handle = session.render_handle
         session.render_handle = None
         env = _render_from_handle(handle)
+        session.last_intent = env["intent"]
+        return env
+
+    # 1b. "render that / render it / show the last one" → re-render the most recent
+    #     renderable, even after intervening turns cleared the live offer.
+    if session.last_renderable and _is_render_reference(text) \
+            and mode in (None, "render"):
+        env = _render_from_handle(session.last_renderable)
         session.last_intent = env["intent"]
         return env
 
@@ -131,7 +182,10 @@ def dispatch(text: str, *, use_llm: bool = True,
         return env
     # Forced sim/render skips the object-context gate (the user already said it's
     # a sim); auto requires object context before it calls something a simulation.
+    # contact_conduction is objects-in-contact by definition (a hot block ON a
+    # cold slab) — like drop_object, the verb itself IS the object context.
     is_sim = spec.is_runnable() and (forced or "drop_object" in verbs
+                                     or "contact_conduction" in verbs
                                      or _t._has_object_context(text.lower()))
     if is_sim:
         env = _run_simulation(text, spec, use_llm=use_llm, session=session)
@@ -195,9 +249,17 @@ def _run_simulation(text, spec, *, use_llm, session) -> dict:
     handle = next((r.outputs.get("render_handle") for r in results
                    if r.outputs.get("can_render")
                    and r.outputs.get("render_handle")), None)
+    # Honest caveat: if the user asked for an effect we don't model yet (shatter,
+    # bounce, …), say so — don't let the impact-speed fall masquerade as the answer.
+    unmodeled = next((w for w in _UNMODELED_INTENTS if w in text.lower()), None)
+    if unmodeled:
+        narration += (f"\n\n(Note — I can't model **{unmodeled}** yet: this is the "
+                      f"fall and impact speed; any render shows the drop, not the "
+                      f"{unmodeled}.)")
     if handle:
         session.render_handle = handle
-        narration += "\n\n" + _OFFER
+        session.last_renderable = handle      # sticky → enables "render that" later
+        narration += "\n\n" + _offer_for(handle)
     return _envelope("simulate", text=narration, can_render=bool(handle),
                      render_handle=handle, source=spec.source)
 
@@ -210,6 +272,22 @@ def _render_from_handle(handle: dict) -> dict:
     real shape, then record_object_fall drops it. Either way we never fake a shape.
     """
     kind = handle.get("kind")
+    if kind == "conduction_field":           # per-cell heat flow between solids
+        from sigma_ground.radiance import record_thermal_field
+        bundle = record_thermal_field(handle)
+        return _announce_render(handle.get("label", "contact conduction"), bundle)
+    if kind == "sphere_thermal":             # drag-heated fall: frames carry T(t)
+        from sigma_ground.radiance import record_fall_thermal
+        label = handle.get("label", "sphere")
+        bundle = record_fall_thermal(
+            handle.get("material_key", "iron"),
+            handle.get("radius_m", 0.05),
+            handle.get("start_altitude_m", 30_000.0),
+            body_fraction=handle.get("body_fraction", 1.0),
+            T0=handle.get("T0", 288.15),
+            expected_delta_T_K=handle.get("expected_delta_T_K"),
+            windward_field=True)             # the flagship: leading-face glow
+        return _announce_render("heating " + label, bundle)
     if kind == "sphere":
         from sigma_ground.radiance import record_fall
         label = handle.get("label", "sphere")
@@ -267,10 +345,28 @@ def _announce_render(title: str, bundle: dict) -> dict:
     path = _save_bundle(slug, bundle)
     url = f"{_VIEWER}/?scene={slug}"
     tr = bundle["trajectory"]
-    text = (f"Rendered “{title}” — {len(tr['frames'])} frames, ground in "
-            f"{tr['natural_timescale_s']:.2f} s; saved for replay. Serve with "
+    span = (f"ground in {tr['natural_timescale_s']:.2f} s"
+            if any(f.get("bodies") for f in tr["frames"])
+            else f"spanning {tr['natural_timescale_s']:.2f} s")   # static solids, field-only playback
+    text = (f"Rendered “{title}” — {len(tr['frames'])} frames, {span}; "
+            f"saved for replay. Serve with "
             f"`python -m sigma_ground.radiance.web.serve`, then open {url} and "
             f"press ▶.")
+    v = tr.get("validation") or {}
+    if bundle.get("thermal") and v.get("delta_T_final_K") is not None:
+        try:
+            from sigma_ground.field.interface.thermal import is_visibly_glowing
+            frames = bundle["trajectory"]["frames"]
+            peak = max(b.get("temperature_k", 0.0)
+                       for f in frames for b in f["bodies"])
+            glow = ("glows visibly" if is_visibly_glowing(peak)
+                    else "stays below the visible-glow (Draper) threshold")
+            text += (f"\nBody temperature rides the frames: peak {peak:.0f} K — "
+                     f"{glow} [{v.get('body_fraction_flag', 'f flagged')}]; "
+                     f"recorder ΔT cross-check residual "
+                     f"{(v.get('thermal_residual') or 0.0) * 100:.2f}%.")
+        except Exception:
+            pass                              # the announce line never blocks a render
     return _envelope("render", text=text, can_render=False,
                      saved={"slug": slug, "path": path, "url": url, "title": title},
                      source="radiance")
@@ -294,7 +390,16 @@ def _ask(text: str) -> dict:
     except Exception:
         a = None
     if a:
-        return _envelope("ask", text=a, value=a, source="semantic-interpreter")
+        # semantic_answer returns a benchmark-record dict (display string in
+        # `answer_text`, number in `extracted_value`). The envelope contract is
+        # text=str, value=number — unpack it so clients never see a raw dict.
+        if isinstance(a, dict):
+            txt = a.get("answer_text") or str(a)
+            val = a.get("extracted_value")
+        else:
+            txt, val = str(a), None
+        if txt and txt.strip():
+            return _envelope("ask", text=txt, value=val, source="semantic-interpreter")
     from sigma_ground import materia
     a2 = materia.answer(text, use_qwen=False)     # clarifies if it isn't a sim
     return _envelope("ask", text=a2, value=None, source="materia")
