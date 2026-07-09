@@ -220,15 +220,6 @@
   "frames": 184
  },
  {
-  "slug": "sim_steel_heat",
-  "title": "How hot does a steel ball get falling from 5 km?",
-  "question": "How hot does a steel ball get falling from 5 km?",
-  "verb": "falling mild steel ball",
-  "group": "gauntlet",
-  "kind": "trajectory",
-  "frames": 222
- },
- {
   "slug": "sim_skydiver",
   "title": "A skydiver jumps from 40 km up \u2014 does she break the sound barrie",
   "question": "A skydiver jumps from 40 km up \u2014 does she break the sound barrier?",
@@ -352,5 +343,32 @@
   "verb": "deckard",
   "group": "gauntlet",
   "kind": "static"
+ },
+ {
+  "slug": "sim_steel_heat",
+  "title": "How hot does a steel ball get falling from 5 km?",
+  "question": "How hot does a steel ball get falling from 5 km?",
+  "verb": "heating mild steel ball",
+  "group": "gauntlet",
+  "kind": "trajectory",
+  "frames": 222
+ },
+ {
+  "slug": "sim_iron_glow",
+  "title": "Does an iron sphere heat up falling from 30 km? Show me.",
+  "question": "Does an iron sphere heat up falling from 30 km? Show me.",
+  "verb": "heating iron ball",
+  "group": "gauntlet",
+  "kind": "trajectory",
+  "frames": 617
+ },
+ {
+  "slug": "sim_hot_cube",
+  "title": "Put a hot iron cube on a cold copper slab in a room.",
+  "question": "Put a hot iron cube on a cold copper slab in a room.",
+  "verb": "hot iron cube on a copper slab (IRT)",
+  "group": "gauntlet",
+  "kind": "trajectory",
+  "frames": 8
  }
 ]

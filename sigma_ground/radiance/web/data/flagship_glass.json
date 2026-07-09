@@ -1,0 +1,433 @@
+{
+ "name": "drinking glass",
+ "csg_leaves": [
+  {
+   "op": "add",
+   "material": "glaze",
+   "shape": {
+    "type": "Cylinder",
+    "center": [
+     0.0,
+     0.0,
+     0.06
+    ],
+    "radius": 0.035,
+    "height": 0.12
+   }
+  },
+  {
+   "op": "add",
+   "material": "ceramic",
+   "shape": {
+    "type": "Cylinder",
+    "center": [
+     0.0,
+     0.0,
+     0.06
+    ],
+    "radius": 0.035,
+    "height": 0.12
+   }
+  },
+  {
+   "op": "subtract",
+   "material": "air",
+   "shape": {
+    "type": "Cylinder",
+    "center": [
+     0.0,
+     0.0,
+     0.0625
+    ],
+    "radius": 0.033,
+    "height": 0.11499999999999999
+   }
+  },
+  {
+   "op": "add",
+   "material": "water",
+   "shape": {
+    "type": "Cylinder",
+    "center": [
+     0.0,
+     0.0,
+     0.051000000000000004
+    ],
+    "radius": 0.033,
+    "height": 0.092
+   }
+  },
+  {
+   "op": "add",
+   "material": "floor",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.0,
+     0.0,
+     -0.04
+    ],
+    "x": 1.4,
+    "y": 1.4,
+    "z": 0.08
+   }
+  },
+  {
+   "op": "add",
+   "material": "copper",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.084,
+     0.0,
+     0.06
+    ],
+    "radius": 0.021
+   }
+  },
+  {
+   "op": "add",
+   "material": "gold",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.025957427527495587,
+     0.0798887473687929,
+     0.06
+    ],
+    "radius": 0.021
+   }
+  },
+  {
+   "op": "add",
+   "material": "aluminum",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.06795742752749558,
+     0.049373961192567754,
+     0.06
+    ],
+    "radius": 0.021
+   }
+  },
+  {
+   "op": "add",
+   "material": "iron",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.06795742752749559,
+     -0.04937396119256774,
+     0.06
+    ],
+    "radius": 0.021
+   }
+  },
+  {
+   "op": "add",
+   "material": "titanium",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.02595742752749557,
+     -0.07988874736879291,
+     0.06
+    ],
+    "radius": 0.021
+   }
+  }
+ ],
+ "materials": {
+  "glaze": {
+   "color_rgb": [
+    0.9136,
+    0.9126,
+    0.9109
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "dielectric Fresnel + Beer-Lambert",
+   "density_kg_m3": 2500.0,
+   "density_derived_kg_m3": 2500,
+   "density_pct_vs_supplied": 0.0,
+   "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+   "youngs_modulus_gpa": 162.1,
+   "sound_speed_m_s": 8604.0,
+   "restitution_ref": 0.072,
+   "ring_frequency_hz": 11560.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "reflect_r0": 0.044,
+   "refractive_index": 1.5307
+  },
+  "ceramic": {
+   "color_rgb": [
+    0.9136,
+    0.9126,
+    0.9109
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "dielectric Fresnel + Beer-Lambert",
+   "density_kg_m3": 2500.0,
+   "density_derived_kg_m3": 2500,
+   "density_pct_vs_supplied": 0.0,
+   "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+   "youngs_modulus_gpa": 162.1,
+   "sound_speed_m_s": 8604.0,
+   "restitution_ref": 0.072,
+   "ring_frequency_hz": 11560.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "reflect_r0": 0.044,
+   "refractive_index": 1.5307
+  },
+  "air": {
+   "color_rgb": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "void (no matter)",
+   "density_kg_m3": 0.0,
+   "density_method": "unknown material"
+  },
+  "water": {
+   "color_rgb": [
+    0.9469,
+    0.9551,
+    0.9559
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "dielectric Fresnel + Beer-Lambert",
+   "density_kg_m3": 997.0,
+   "density_method": "unknown material",
+   "reflect_r0": 0.0214,
+   "refractive_index": 1.3422
+  },
+  "floor": {
+   "color_rgb": [
+    0.3,
+    0.29,
+    0.28
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "weakly-absorbing aggregate -> grey",
+   "density_kg_m3": 2400.0,
+   "density_derived_kg_m3": 2300,
+   "density_pct_vs_supplied": -4.17,
+   "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+   "youngs_modulus_gpa": 33.3,
+   "sound_speed_m_s": 4010.0,
+   "restitution_ref": 0.152,
+   "ring_frequency_hz": 6115.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+  },
+  "copper": {
+   "color_rgb": [
+    0.9437,
+    0.6378,
+    0.5494
+   ],
+   "emergent": true,
+   "metal": true,
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 8998.4,
+   "density_method": "crystallographic (fcc cell, a=3.615 A, A=64)",
+   "youngs_modulus_gpa": 135.8,
+   "sound_speed_m_s": 4829.0,
+   "restitution_ref": 0.103,
+   "ring_frequency_hz": 11089.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "emissivity_rgb": [
+    0.056,
+    0.362,
+    0.451
+   ]
+  },
+  "gold": {
+   "color_rgb": [
+    0.9508,
+    0.7627,
+    0.3815
+   ],
+   "emergent": true,
+   "metal": true,
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 19294.5,
+   "density_method": "crystallographic (fcc cell, a=4.078 A, A=197)",
+   "youngs_modulus_gpa": 38.9,
+   "sound_speed_m_s": 2556.0,
+   "restitution_ref": 0.099,
+   "ring_frequency_hz": 6978.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "emissivity_rgb": [
+    0.049,
+    0.237,
+    0.619
+   ]
+  },
+  "aluminum": {
+   "color_rgb": [
+    0.9018,
+    0.9186,
+    0.9375
+   ],
+   "emergent": true,
+   "metal": true,
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 2699.7,
+   "density_method": "crystallographic (fcc cell, a=4.05 A, A=27)",
+   "youngs_modulus_gpa": 88.3,
+   "sound_speed_m_s": 7245.0,
+   "restitution_ref": 0.096,
+   "ring_frequency_hz": 9365.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "emissivity_rgb": [
+    0.098,
+    0.081,
+    0.063
+   ]
+  },
+  "iron": {
+   "color_rgb": [
+    0.5436,
+    0.5544,
+    0.5671
+   ],
+   "emergent": true,
+   "metal": true,
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 7891.9,
+   "density_method": "crystallographic (bcc cell, a=2.867 A, A=56)",
+   "youngs_modulus_gpa": 212.2,
+   "sound_speed_m_s": 5942.0,
+   "restitution_ref": 0.19,
+   "ring_frequency_hz": 13072.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "emissivity_rgb": [
+    0.456,
+    0.446,
+    0.433
+   ]
+  },
+  "titanium": {
+   "color_rgb": [
+    0.5347,
+    0.5585,
+    0.5722
+   ],
+   "emergent": true,
+   "metal": true,
+   "mechanism": "Drude-Fresnel (free electrons)",
+   "density_kg_m3": 4386.3,
+   "density_method": "crystallographic (hcp cell, a=2.951 A, A=48)",
+   "youngs_modulus_gpa": 142.4,
+   "sound_speed_m_s": 6723.0,
+   "restitution_ref": 0.261,
+   "ring_frequency_hz": 11234.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "emissivity_rgb": [
+    0.465,
+    0.441,
+    0.428
+   ]
+  }
+ },
+ "physics": {
+  "mass_kg": 0.4847475453869754,
+  "com_m": [
+   0.0,
+   0.0,
+   0.04910106045669392
+  ],
+  "inertia_kgm2": [
+   0.0006784533465168201,
+   0.0006784533465168299,
+   0.000351974747744615
+  ]
+ },
+ "bbox": [
+  [
+   -0.035,
+   0.035
+  ],
+  [
+   -0.035,
+   0.035
+  ],
+  [
+   0.0,
+   0.12
+  ]
+ ],
+ "camera": {
+  "target": [
+   0.0,
+   0.0,
+   0.06
+  ],
+  "orbit_radius": 0.2856,
+  "fov_deg": 40.0,
+  "up": [
+   0.0,
+   0.0,
+   1.0
+  ],
+  "az0": 0.6,
+  "el0": 0.28
+ },
+ "lights": [
+  {
+   "dir": [
+    -0.384,
+    0.432,
+    -0.816
+   ],
+   "color": [
+    1.0,
+    0.9313,
+    0.8716
+   ],
+   "intensity": 1.05,
+   "temperature_k": 5500
+  },
+  {
+   "dir": [
+    -0.3143,
+    -0.8642,
+    -0.3928
+   ],
+   "color": [
+    0.8937,
+    0.9164,
+    1.0
+   ],
+   "intensity": 0.4,
+   "temperature_k": 7600
+  }
+ ],
+ "ambient": {
+  "sky": [
+   0.1,
+   0.12,
+   0.16
+  ],
+  "ground": [
+   0.06,
+   0.05,
+   0.045
+  ],
+  "up": [
+   0.0,
+   0.0,
+   1.0
+  ]
+ },
+ "identified": true,
+ "source": "drinking glass (layered_vessel) \u2014 gemini-2.5-flash \u2014 researched proportions (estimates), field.interface.surface.MATERIALS, inventory/data/materials.json",
+ "pt_env": 3.0
+}

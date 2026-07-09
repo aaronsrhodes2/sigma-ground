@@ -1,0 +1,398 @@
+{
+ "name": "coffee cup",
+ "csg_leaves": [
+  {
+   "op": "add",
+   "material": "glaze",
+   "shape": {
+    "type": "Cylinder",
+    "center": [
+     0.0,
+     0.0,
+     0.0475
+    ],
+    "radius": 0.04,
+    "height": 0.095
+   }
+  },
+  {
+   "op": "add",
+   "material": "ceramic",
+   "shape": {
+    "type": "Cylinder",
+    "center": [
+     0.0,
+     0.0,
+     0.0475
+    ],
+    "radius": 0.0397,
+    "height": 0.095
+   }
+  },
+  {
+   "op": "subtract",
+   "material": "air",
+   "shape": {
+    "type": "Cylinder",
+    "center": [
+     0.0,
+     0.0,
+     0.051000000000000004
+    ],
+    "radius": 0.0347,
+    "height": 0.088
+   }
+  },
+  {
+   "op": "add",
+   "material": "water",
+   "shape": {
+    "type": "Cylinder",
+    "center": [
+     0.0,
+     0.0,
+     0.04220000000000001
+    ],
+    "radius": 0.0347,
+    "height": 0.0704
+   }
+  },
+  {
+   "op": "add",
+   "material": "floor",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.0,
+     0.0,
+     -0.02
+    ],
+    "x": 0.84,
+    "y": 0.84,
+    "z": 0.04
+   }
+  },
+  {
+   "op": "add",
+   "material": "wall",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.0,
+     0.0,
+     0.67
+    ],
+    "x": 0.84,
+    "y": 0.84,
+    "z": 0.04
+   }
+  },
+  {
+   "op": "add",
+   "material": "wall",
+   "shape": {
+    "type": "Box",
+    "center": [
+     -0.42,
+     0.0,
+     0.325
+    ],
+    "x": 0.04,
+    "y": 0.84,
+    "z": 0.65
+   }
+  },
+  {
+   "op": "add",
+   "material": "wall",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.42,
+     0.0,
+     0.325
+    ],
+    "x": 0.04,
+    "y": 0.84,
+    "z": 0.65
+   }
+  },
+  {
+   "op": "add",
+   "material": "wall",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.0,
+     -0.42,
+     0.325
+    ],
+    "x": 0.84,
+    "y": 0.04,
+    "z": 0.65
+   }
+  },
+  {
+   "op": "add",
+   "material": "wall",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.0,
+     0.42,
+     0.325
+    ],
+    "x": 0.84,
+    "y": 0.04,
+    "z": 0.65
+   }
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.3276,
+     -0.3276,
+     0.559
+    ],
+    "radius": 0.06
+   },
+   "temperature_k": 5000
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.3276,
+     0.3276,
+     0.559
+    ],
+    "radius": 0.06
+   },
+   "temperature_k": 5000
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.3276,
+     -0.3276,
+     0.559
+    ],
+    "radius": 0.06
+   },
+   "temperature_k": 5000
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.3276,
+     0.3276,
+     0.559
+    ],
+    "radius": 0.06
+   },
+   "temperature_k": 5000
+  }
+ ],
+ "materials": {
+  "glaze": {
+   "color_rgb": [
+    0.9291,
+    0.9283,
+    0.9269
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "dielectric Fresnel + Beer-Lambert",
+   "density_kg_m3": 2400.0,
+   "density_method": "unknown material",
+   "reflect_r0": 0.0362,
+   "refractive_index": 1.4697
+  },
+  "ceramic": {
+   "color_rgb": [
+    0.9,
+    0.9,
+    0.9
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "wide-gap insulator: no visible absorber -> white",
+   "density_kg_m3": 2300.0,
+   "density_method": "unknown material"
+  },
+  "air": {
+   "color_rgb": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "void (no matter)",
+   "density_kg_m3": 0.0,
+   "density_method": "unknown material"
+  },
+  "water": {
+   "color_rgb": [
+    0.9469,
+    0.9551,
+    0.9559
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "dielectric Fresnel + Beer-Lambert",
+   "density_kg_m3": 998.0,
+   "density_method": "unknown material",
+   "reflect_r0": 0.0214,
+   "refractive_index": 1.3422
+  },
+  "floor": {
+   "color_rgb": [
+    0.55,
+    0.54,
+    0.52
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "weakly-absorbing aggregate -> grey",
+   "density_kg_m3": 2400.0,
+   "density_derived_kg_m3": 2300,
+   "density_pct_vs_supplied": -4.17,
+   "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+   "youngs_modulus_gpa": 33.3,
+   "sound_speed_m_s": 4010.0,
+   "restitution_ref": 0.152,
+   "ring_frequency_hz": 6115.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+  },
+  "wall": {
+   "color_rgb": [
+    0.9,
+    0.9,
+    0.9
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "wide-gap insulator: no visible absorber -> white",
+   "density_kg_m3": 2300.0,
+   "density_method": "unknown material"
+  },
+  "studio_light": {
+   "color_rgb": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emergent": true,
+   "metal": false,
+   "emissivity_rgb": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "mechanism": "artificial light (blackbody radiator)"
+  }
+ },
+ "physics": {
+  "mass_kg": 0.5991574167378529,
+  "com_m": [
+   0.0,
+   0.0,
+   0.04067657103705865
+  ],
+  "inertia_kgm2": [
+   0.0007059607286235992,
+   0.000705960728623591,
+   0.0005829675582153917
+  ]
+ },
+ "bbox": [
+  [
+   -0.45999999999999996,
+   0.45999999999999996
+  ],
+  [
+   -0.45999999999999996,
+   0.45999999999999996
+  ],
+  [
+   -0.04,
+   0.6900000000000001
+  ]
+ ],
+ "camera": {
+  "target": [
+   0.0,
+   0.0,
+   0.0475
+  ],
+  "orbit_radius": 0.24,
+  "fov_deg": 52.0,
+  "up": [
+   0.0,
+   0.0,
+   1.0
+  ],
+  "az0": 0.7,
+  "el0": 0.16
+ },
+ "lights": [
+  {
+   "dir": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "color": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "intensity": 0.0,
+   "temperature_k": 0.0
+  }
+ ],
+ "ambient": {
+  "sky": [
+   0.04,
+   0.04,
+   0.05
+  ],
+  "ground": [
+   0.03,
+   0.03,
+   0.03
+  ],
+  "up": [
+   0.0,
+   0.0,
+   1.0
+  ]
+ },
+ "identified": true,
+ "source": "coffee cup (layered_vessel) \u2014 typical stoneware coffee mug (approx.), liquid water at 20C = 998 kg/m^3",
+ "pt_env": 0.0,
+ "physics_env": {
+  "gravity_m_s2": 9.81,
+  "gravity_dir": [
+   0,
+   0,
+   -1
+  ],
+  "medium": "air",
+  "pressure_pa": 101325.0,
+  "temperature_k": 293.15
+ },
+ "theater": "room"
+}

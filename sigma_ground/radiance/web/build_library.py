@@ -59,14 +59,33 @@ def _frame(bundle, alt):
     return {"scene": scene, "trajectory": bundle["trajectory"], "kind": "trajectory"}
 
 
-def _add(slug, title, question, verb, bundle):
+def _add(slug, title, question, verb, bundle, group="drop"):
     with open(os.path.join(DATA, slug + ".json"), "w", encoding="utf-8") as fh:
         json.dump(bundle, fh, indent=1)
     tr = bundle["trajectory"]
     scenes.append({"slug": slug, "title": title, "question": question, "verb": verb,
-                   "kind": "trajectory", "frames": len(tr.get("frames", [])),
+                   "group": group, "kind": "trajectory", "frames": len(tr.get("frames", [])),
                    "fall_s": round(tr.get("natural_timescale_s") or tr.get("t_end_s") or 0.0, 2)})
     print(f"  + {slug:18s} {title}")
+
+
+# Existing SHOWCASE scenes (built by build_demo.py) — indexed here so the library
+# is the single place to pick ANY scene (the hardcoded scene buttons are retired).
+SHOWCASES = [
+    ("water",           "Water — Fresnel reflection + wind ripples", "emergent water surface", "static"),
+    ("materials",       "Materials — emergent metal + band-gap colour", "every colour derived", "static"),
+    ("glazes",          "Glazes — crystal-field chromophore colour", "the ion sets the hue", "static"),
+    ("cup",             "Coffee cup — layered ceramic vessel", "a Deckard construct", "static"),
+    ("deckard_feather", "Feather ◆ — Deckard cone+ellipsoid shape", "the real compiled shape", "static"),
+    ("drop",            "Hot copper sphere on a cold floor", "incandescence + the fall", "trajectory"),
+    ("tip",             "Chair tip — topple", "rigid-body playback", "trajectory"),
+    ("clatter",         "Clatter — bounce", "emergent restitution + ring", "trajectory"),
+]
+for _slug, _title, _note, _kind in SHOWCASES:
+    if os.path.exists(os.path.join(DATA, _slug + ".json")):
+        scenes.append({"slug": _slug, "title": _title, "question": _note,
+                       "verb": "showcase", "group": "showcase", "kind": _kind})
+        print(f"  ~ {_slug:18s} {_title}  (showcase)")
 
 
 # 1) named-object drops (real Deckard shapes)

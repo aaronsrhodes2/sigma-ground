@@ -141,6 +141,55 @@ def render_sphere_still(material_key, temperature_K, out_path, *,
             "glowing": glowing, "label": label}
 
 
+def render_thermal_sphere_still(field, material_key, out_path, *,
+                                px=240, density=150):
+    """Render a sphere whose per-node temperature is sampled from a thermal FIELD.
+
+    Each surface node glows by its LOCAL temperature, so a windward-heated body is
+    incandescent on its leading face and stays its cold material colour on the
+    trailing side — direct physics→pixel, now spatially resolved. ``field`` supplies
+    ``.sample(x, y, z)`` (K, in a centred metres frame), ``.radius_m`` and
+    ``.T_ambient``. Returns metadata.
+    """
+    from .entangler.surface_nodes import generate_surface_nodes
+
+    R = float(getattr(field, "radius_m", 0.05))
+    disp = 1.25                                       # display sphere radius
+    key = entangler_key(material_key)
+    base = Material(material_key, _fallback_color(material_key),
+                    material_key=key, temperature_K=getattr(field, "T_ambient", 288.15))
+    sphere = EntanglerSphere(Vec3(0.0, 0.0, 0.0), disp, base)
+    nodes = generate_surface_nodes(sphere, density=density)
+
+    # per-node material at the locally-sampled temperature (memoised by T → the
+    # field physics runs once per distinct temperature, not once per node)
+    scale = R / disp
+    cache = {}
+    for nd in nodes:
+        p = nd.position
+        Tk = round(float(field.sample(p.x * scale, p.y * scale, p.z * scale)), 1)
+        m = cache.get(Tk)
+        if m is None:
+            m = Material(material_key, _fallback_color(material_key),
+                         material_key=key, temperature_K=Tk)
+            cache[Tk] = m
+        nd.material = m
+
+    cam = PushCamera(Vec3(0.0, 0.0, 5.0), Vec3(0.0, 0.0, 0.0), px, px, fov=46)
+    light = PushLight(Vec3(3.0, 3.2, 5.0), intensity=1.05)
+    pixels = entangle([_NodeCloud(nodes)], cam, light, density=density,
+                      bg_color=Vec3(0.05, 0.05, 0.06))
+    rgb = bytearray()
+    for row in pixels:
+        for p in row:
+            rgb.extend(p.to_rgb())
+    write_png(out_path, px, px, bytes(rgb))
+    return {"path": out_path, "n_nodes": len(nodes),
+            "windward_T": round(float(getattr(field, "windward_T", 0.0)), 1),
+            "trailing_T": round(float(getattr(field, "trailing_T", 0.0)), 1),
+            "distinct_temps": len(cache)}
+
+
 def _keyframe_temps(outputs, inputs):
     """Pick (label, T) keyframes from a scenario's results.
 

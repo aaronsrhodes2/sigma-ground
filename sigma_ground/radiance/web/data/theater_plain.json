@@ -1,0 +1,240 @@
+{
+ "name": "coffee cup",
+ "csg_leaves": [
+  {
+   "op": "add",
+   "material": "glaze",
+   "shape": {
+    "type": "Cylinder",
+    "center": [
+     0.0,
+     0.0,
+     0.0475
+    ],
+    "radius": 0.04,
+    "height": 0.095
+   }
+  },
+  {
+   "op": "add",
+   "material": "ceramic",
+   "shape": {
+    "type": "Cylinder",
+    "center": [
+     0.0,
+     0.0,
+     0.0475
+    ],
+    "radius": 0.0397,
+    "height": 0.095
+   }
+  },
+  {
+   "op": "subtract",
+   "material": "air",
+   "shape": {
+    "type": "Cylinder",
+    "center": [
+     0.0,
+     0.0,
+     0.051000000000000004
+    ],
+    "radius": 0.0347,
+    "height": 0.088
+   }
+  },
+  {
+   "op": "add",
+   "material": "water",
+   "shape": {
+    "type": "Cylinder",
+    "center": [
+     0.0,
+     0.0,
+     0.04220000000000001
+    ],
+    "radius": 0.0347,
+    "height": 0.0704
+   }
+  },
+  {
+   "op": "add",
+   "material": "ground",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.0,
+     0.0,
+     -0.06
+    ],
+    "x": 6.0,
+    "y": 6.0,
+    "z": 0.1
+   }
+  }
+ ],
+ "materials": {
+  "glaze": {
+   "color_rgb": [
+    0.9291,
+    0.9283,
+    0.9269
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "dielectric Fresnel + Beer-Lambert",
+   "density_kg_m3": 2400.0,
+   "density_method": "unknown material",
+   "reflect_r0": 0.0362,
+   "refractive_index": 1.4697
+  },
+  "ceramic": {
+   "color_rgb": [
+    0.9,
+    0.9,
+    0.9
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "wide-gap insulator: no visible absorber -> white",
+   "density_kg_m3": 2300.0,
+   "density_method": "unknown material"
+  },
+  "air": {
+   "color_rgb": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "void (no matter)",
+   "density_kg_m3": 0.0,
+   "density_method": "unknown material"
+  },
+  "water": {
+   "color_rgb": [
+    0.9469,
+    0.9551,
+    0.9559
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "dielectric Fresnel + Beer-Lambert",
+   "density_kg_m3": 998.0,
+   "density_method": "unknown material",
+   "reflect_r0": 0.0214,
+   "refractive_index": 1.3422
+  },
+  "ground": {
+   "color_rgb": [
+    0.55,
+    0.54,
+    0.52
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "weakly-absorbing aggregate -> grey",
+   "density_kg_m3": 2400.0,
+   "density_derived_kg_m3": 2300,
+   "density_pct_vs_supplied": -4.17,
+   "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+   "youngs_modulus_gpa": 33.3,
+   "sound_speed_m_s": 4010.0,
+   "restitution_ref": 0.152,
+   "ring_frequency_hz": 6115.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+  }
+ },
+ "physics": {
+  "mass_kg": 0.5991574167378529,
+  "com_m": [
+   0.0,
+   0.0,
+   0.04067657103705865
+  ],
+  "inertia_kgm2": [
+   0.0007059607286235992,
+   0.000705960728623591,
+   0.0005829675582153917
+  ]
+ },
+ "bbox": [
+  [
+   -0.44319860108082476,
+   0.44319860108082476
+  ],
+  [
+   -0.44319860108082476,
+   0.44319860108082476
+  ],
+  [
+   -0.2,
+   0.3904657340538832
+  ]
+ ],
+ "camera": {
+  "target": [
+   0.0,
+   0.0,
+   0.04275
+  ],
+  "orbit_radius": 0.3,
+  "fov_deg": 42.0,
+  "up": [
+   0.0,
+   0.0,
+   1.0
+  ],
+  "az0": 0.6,
+  "el0": 0.22
+ },
+ "lights": [
+  {
+   "dir": [
+    -0.3016,
+    0.4021,
+    -0.8645
+   ],
+   "color": [
+    1.0,
+    0.9506,
+    0.9041
+   ],
+   "intensity": 1.7,
+   "temperature_k": 5778
+  }
+ ],
+ "ambient": {
+  "sky": [
+   0.3,
+   0.42,
+   0.62
+  ],
+  "ground": [
+   0.17,
+   0.15,
+   0.13
+  ],
+  "up": [
+   0.0,
+   0.0,
+   1.0
+  ]
+ },
+ "identified": true,
+ "source": "coffee cup (layered_vessel) \u2014 typical stoneware coffee mug (approx.), liquid water at 20C = 998 kg/m^3",
+ "pt_env": 1.6,
+ "physics_env": {
+  "gravity_m_s2": 9.81,
+  "gravity_dir": [
+   0,
+   0,
+   -1
+  ],
+  "medium": "air",
+  "pressure_pa": 101325.0,
+  "temperature_k": 273.15
+ },
+ "theater": "plain"
+}

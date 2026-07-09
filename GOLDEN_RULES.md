@@ -4,27 +4,13 @@ These rules govern how all physics — and rendering — code is written in this
 They encode lessons learned building the library and ensure every module
 stays consistent, correct, and genuinely connected to the σ-field framework.
 
----
-
-## Rule 1 — One Source of Truth for Constants
-
-All measured values live in `sigma_ground/field/constants.py`.
-Every module imports from there. **No magic numbers anywhere else.**
-
-```python
-# Correct
-from sigma_ground.field.constants import C, HBAR, G
-
-# Wrong — never do this
-C = 3e8
-```
-
-Cosmological constants (G, C, ℏ), nuclear data (proton mass, quark masses),
-electrostatics (e, ε₀), and SSBM parameters (ξ, η, σ_conv) all live there.
+**Note:** Some rules that used to live here now live in [`PLATINUM_RULES.md`](../PLATINUM_RULES.md)
+because they turned out to be universal, not physics-specific — see the audit
+log at the bottom of this file for what moved and why.
 
 ---
 
-## Rule 2 — Derive, Don't Assume
+## Rule 1 — Derive, Don't Assume
 
 Every non-measured value shows its derivation from measured constants
 inline. Comment the formula.
@@ -38,53 +24,23 @@ If a derivation requires more than a line, put it in the docstring.
 
 ---
 
-## Rule 3 — Explicit Domain Bounds
+## Rule 2 — Explicit Domain Bounds
 
-Every model defines where it is valid. Document the breakdown condition.
-Use SAFE / EDGE / WALL / BEYOND classification from `sigma_ground/field/bounds.py`
+**Formal definition:** **Design by Contract** — every model declares and *enforces*
+its preconditions (its domain of validity) and documents its breakdown condition.
+Use the SAFE / EDGE / WALL / BEYOND classification from `sigma_ground/field/bounds.py`
 when integrating with other field modules.
 
 ```python
 def lorentz_factor(v):
     """Valid for 0 ≤ v < c. Diverges at v = c."""
     if v >= C:
-        raise ValueError(f"v={v} ≥ c={C}: Lorentz factor undefined")
+        raise ValueError(f"v={v} ≥ c={C}: Lorentz factor undefined")  # the precondition, enforced
 ```
 
 ---
 
-## Rule 4 — Wire to σ
-
-Every physics module must include at least one function showing how the
-σ-field modifies its standard result. This is what makes sigma-ground
-different from a generic physics utilities package.
-
-The pattern:
-```python
-def sigma_X(sigma, standard_input):
-    """How X changes under σ-field compression."""
-    return standard_result * scale_factor(sigma)
-```
-
-The σ-field value in everyday matter is negligible (Earth surface: ~7×10⁻¹⁰).
-The σ-functions become meaningful approaching black hole accretion disks and
-at the Big Bang (σ → σ_conv ≈ 1.849).
-
----
-
-## Rule 5 — Physics Never Imports Rendering
-
-The ARCHITECTURE.md rule. Inviolable.
-
-```
-sigma_ground.field     ✓ may import sigma_ground.dynamics
-sigma_ground.field     ✗ may NOT import matter_shaper or any renderer
-sigma_ground.dynamics  ✓ may import sigma_ground.field
-```
-
----
-
-## Rule 6 — Nature Already Has the Best Answer
+## Rule 3 — Nature Already Has the Best Answer
 
 Prefer exact analytic solutions over approximations. Use numerical methods
 only when no closed form exists. Cite the source (textbook, PDG, NIST).
@@ -98,7 +54,7 @@ def hawking_temperature(M):
 
 ---
 
-## Rule 7 — No Averages, No Assumptions, No Gaps
+## Rule 4 — No Averages, No Assumptions, No Gaps
 
 Track all terms. Don't silently drop small contributions. When approximating,
 state what you are dropping and why it is safe to drop it.
@@ -114,52 +70,22 @@ def binding_energy(A, Z):
     volume = ...  # pairing term silently missing — don't do this
 ```
 
----
+**Enforcement (added 2026-07-01):** this rule kept getting restated because it
+kept getting quietly violated — fallback/legacy chains accumulated in the
+pipeline despite the stated principle. Stating an ideal isn't enough; gaps
+need to be visible. From now on:
 
-## Rule 8 — Tests Prove the Physics
-
-Every new function gets at least one test checking known values against
-standard references (NIST, PDG, textbooks). Physics tests are not unit
-tests — they are verification against reality.
-
-```python
-def test_electron_rest_energy():
-    # NIST CODATA: electron rest energy = 0.51099895 MeV
-    E_mev = rest_energy(M_ELECTRON_KG) / (E_CHARGE * 1e6)  # J → MeV
-    assert abs(E_mev - 0.511) < 0.001  # within 0.2%
-```
+- Any fallback, legacy path, or dropped term gets a `# PHYSICS_GAP:` comment
+  at the point it's introduced, explaining what's missing and why it was
+  acceptable at the time.
+- Every `# PHYSICS_GAP:` tag gets a matching one-line entry in
+  `KNOWN_GAPS.md` at the project root (create it if it doesn't exist yet).
+- `KNOWN_GAPS.md` is meant to be grepped and periodically reviewed — a gap
+  that's still there a year later is a decision to revisit, not a secret.
 
 ---
 
-## Rule 9 — If One, Then All
-
-When adding a property for one material, element, or entity, add it for
-**every applicable entry** in that database. Incomplete databases are silent
-gaps — they compile, they run, and they give wrong answers when simulated.
-
-```python
-# Wrong — cherry-picked data
-SUPERCONDUCTORS = {
-    'aluminum': {'T_c_K': 1.175, 'kappa': 0.01, ...},
-    'niobium':  {'T_c_K': 9.25,  'kappa': 1.05, ...},
-    # 45 other superconductors silently missing — simulation sees only 2
-}
-
-# Correct — every known superconductor, every field populated
-SUPERCONDUCTORS = {
-    'aluminum': {'T_c_K': 1.175, 'kappa': 0.01, 'kappa_source': 'measured', ...},
-    'niobium':  {'T_c_K': 9.25,  'kappa': 1.05, 'kappa_source': 'measured', ...},
-    'titanium': {'T_c_K': 0.40,  'kappa': 0.09, 'kappa_source': 'derived',  ...},
-    # ... all 53 elements + compounds, no gaps
-}
-```
-
-If a value cannot be measured, derive it and flag the provenance. If it
-truly cannot be determined, flag it explicitly — never silently omit the entry.
-
----
-
-## Rule 10 — Test Against a Volume of Matter
+## Rule 5 — Test Against a Volume of Matter
 
 Always test physics against a volume of matter, unless specifically testing
 an isolated entity. Conductivity, resistance, superconductivity, phase
@@ -182,7 +108,7 @@ test the atom.
 
 ---
 
-## Rule 11 — Fix the Physics, Never Patch the Picture
+## Rule 6 — Fix the Physics, Never Patch the Picture
 
 Radiance renders the way nature does — by simulating light transport (path
 tracing). Appearance and dynamics are **consequences** of the physics, never
@@ -286,3 +212,16 @@ FIRST_PRINCIPLES. The provenance is the proof.
 *"We proved we could load the entire universe and query any particle in it.
 The matter information cascade is the same insight applied to chemistry:
 the compression is the physics itself."*
+
+---
+
+## Audit Log
+
+**2026-07-01** — Golden rules audit, done alongside a Platinum Rules audit:
+- Old Rule 1 (One Source of Truth for Constants) removed — duplicated Platinum §3, which already covers `sigma_ground/field/constants.py` as the constants source of truth.
+- Old Rule 4 (Wire to σ) and Rule 5 (Physics Never Imports Rendering) removed by the Captain's choice.
+- Old Rule 8 (Tests Prove the Physics) removed — duplicated Platinum §6 (Test Against Reality), which already lists sigma-ground's NIST/PDG validation standard as its example.
+- Old Rule 9 (If One, Then All) **promoted to Platinum §10** — the exact same failure mode (touch one instance, forget to update the rest) turned up independently in music-collection's genre tags and a game's cleanup-method call sites, not just physics databases. See PLATINUM_RULES.md.
+- Old Rule 7 (No Averages, No Assumptions, No Gaps) enhanced with a concrete enforcement mechanism (`# PHYSICS_GAP:` tags + `KNOWN_GAPS.md`) after operatic-archive evidence showed the stated principle getting quietly violated by fallback-chain accumulation.
+- Remaining rules renumbered 1-6.
+- Rule 2 (Explicit Domain Bounds) anchored to its formal term, **Design by Contract** — the precondition/domain-of-validity concept it was restating in custom prose. Same audit day, formal-term compression pass.

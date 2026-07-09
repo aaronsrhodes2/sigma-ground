@@ -350,8 +350,7 @@
     ],
     "T": 288.149994
    }
-  ],
-  "prompt": "How hot does a steel ball get falling from 5 km?"
+  ]
  },
  "trajectory": {
   "frames": [
@@ -4629,6 +4628,5 @@
   }
  },
  "kind": "trajectory",
- "thermal": true,
- "mentat_text": "Rendered \u201cheating mild steel ball\u201d \u2014 222 frames, ground in 44.17 s; saved for replay. Serve with `python -m sigma_ground.radiance.web.serve`, then open http://127.0.0.1:8765/?scene=heating_mild_steel_ball and press \u25b6.\nBody temperature rides the frames: peak 388 K \u2014 stays below the visible-glow (Draper) threshold [f=1 \u2014 fraction of drag heat entering the body; f=1 is the adiabatic upper bound]; rec"
+ "thermal": true
 }

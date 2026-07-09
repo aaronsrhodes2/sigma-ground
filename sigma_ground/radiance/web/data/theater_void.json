@@ -1,0 +1,328 @@
+{
+ "name": "coffee cup",
+ "csg_leaves": [
+  {
+   "op": "add",
+   "material": "glaze",
+   "shape": {
+    "type": "Cylinder",
+    "center": [
+     0.0,
+     0.0,
+     0.0475
+    ],
+    "radius": 0.04,
+    "height": 0.095
+   }
+  },
+  {
+   "op": "add",
+   "material": "ceramic",
+   "shape": {
+    "type": "Cylinder",
+    "center": [
+     0.0,
+     0.0,
+     0.0475
+    ],
+    "radius": 0.0397,
+    "height": 0.095
+   }
+  },
+  {
+   "op": "subtract",
+   "material": "air",
+   "shape": {
+    "type": "Cylinder",
+    "center": [
+     0.0,
+     0.0,
+     0.051000000000000004
+    ],
+    "radius": 0.0347,
+    "height": 0.088
+   }
+  },
+  {
+   "op": "add",
+   "material": "water",
+   "shape": {
+    "type": "Cylinder",
+    "center": [
+     0.0,
+     0.0,
+     0.04220000000000001
+    ],
+    "radius": 0.0347,
+    "height": 0.0704
+   }
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.1108,
+     -0.1108,
+     -0.0633
+    ],
+    "radius": 0.025
+   },
+   "temperature_k": 5500
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.1108,
+     -0.1108,
+     0.1583
+    ],
+    "radius": 0.025
+   },
+   "temperature_k": 5500
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.1108,
+     0.1108,
+     -0.0633
+    ],
+    "radius": 0.025
+   },
+   "temperature_k": 5500
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.1108,
+     0.1108,
+     0.1583
+    ],
+    "radius": 0.025
+   },
+   "temperature_k": 5500
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.1108,
+     -0.1108,
+     -0.0633
+    ],
+    "radius": 0.025
+   },
+   "temperature_k": 5500
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.1108,
+     -0.1108,
+     0.1583
+    ],
+    "radius": 0.025
+   },
+   "temperature_k": 5500
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.1108,
+     0.1108,
+     -0.0633
+    ],
+    "radius": 0.025
+   },
+   "temperature_k": 5500
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.1108,
+     0.1108,
+     0.1583
+    ],
+    "radius": 0.025
+   },
+   "temperature_k": 5500
+  }
+ ],
+ "materials": {
+  "glaze": {
+   "color_rgb": [
+    0.9291,
+    0.9283,
+    0.9269
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "dielectric Fresnel + Beer-Lambert",
+   "density_kg_m3": 2400.0,
+   "density_method": "unknown material",
+   "reflect_r0": 0.0362,
+   "refractive_index": 1.4697
+  },
+  "ceramic": {
+   "color_rgb": [
+    0.9,
+    0.9,
+    0.9
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "wide-gap insulator: no visible absorber -> white",
+   "density_kg_m3": 2300.0,
+   "density_method": "unknown material"
+  },
+  "air": {
+   "color_rgb": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "void (no matter)",
+   "density_kg_m3": 0.0,
+   "density_method": "unknown material"
+  },
+  "water": {
+   "color_rgb": [
+    0.9469,
+    0.9551,
+    0.9559
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "dielectric Fresnel + Beer-Lambert",
+   "density_kg_m3": 998.0,
+   "density_method": "unknown material",
+   "reflect_r0": 0.0214,
+   "refractive_index": 1.3422
+  },
+  "studio_light": {
+   "color_rgb": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emergent": true,
+   "metal": false,
+   "emissivity_rgb": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "mechanism": "artificial light (blackbody radiator)"
+  }
+ },
+ "physics": {
+  "mass_kg": 0.5991574167378529,
+  "com_m": [
+   0.0,
+   0.0,
+   0.04067657103705865
+  ],
+  "inertia_kgm2": [
+   0.0007059607286235992,
+   0.000705960728623591,
+   0.0005829675582153917
+  ]
+ },
+ "bbox": [
+  [
+   -0.26591916064849486,
+   0.26591916064849486
+  ],
+  [
+   -0.26591916064849486,
+   0.26591916064849486
+  ],
+  [
+   -0.21841916064849487,
+   0.31341916064849484
+  ]
+ ],
+ "camera": {
+  "target": [
+   0.0,
+   0.0,
+   0.0475
+  ],
+  "orbit_radius": 0.34,
+  "fov_deg": 38.0,
+  "up": [
+   0.0,
+   0.0,
+   1.0
+  ],
+  "az0": 0.6,
+  "el0": 0.22
+ },
+ "lights": [
+  {
+   "dir": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "color": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "intensity": 0.0,
+   "temperature_k": 0.0
+  }
+ ],
+ "ambient": {
+  "sky": [
+   0.015,
+   0.015,
+   0.02
+  ],
+  "ground": [
+   0.01,
+   0.01,
+   0.012
+  ],
+  "up": [
+   0.0,
+   0.0,
+   1.0
+  ]
+ },
+ "identified": true,
+ "source": "coffee cup (layered_vessel) \u2014 typical stoneware coffee mug (approx.), liquid water at 20C = 998 kg/m^3",
+ "pt_env": 0.0,
+ "physics_env": {
+  "gravity_m_s2": 0.0,
+  "medium": "vacuum",
+  "pressure_pa": 0.0,
+  "temperature_k": 293.15
+ },
+ "theater": "void"
+}

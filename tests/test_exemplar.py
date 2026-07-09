@@ -24,7 +24,14 @@ def test_exemplars_are_shipped_and_well_formed():
         for part in d["parts"]:
             assert part["shape"] in ("box", "cylinder", "sphere")
             assert len(part["center_frac"]) == 3 and len(part["size_frac"]) == 3
-            assert all(0 < s <= 1.05 for s in part["size_frac"])   # within the bbox
+            # A part may be FLAT in an axis — a panel, keyboard, or bar normalises
+            # to size_frac 0.0 in its thin direction. That's legitimate real-model
+            # data: the consumer gives every box a real thickness at construction
+            # (research.py clamps each dim with max(sf*ext, 0.002-0.004 m)). So allow
+            # 0, but still reject negatives / out-of-bbox, and a fully-degenerate
+            # zero-volume part (all three axes flat → a point).
+            assert all(0.0 <= s <= 1.05 for s in part["size_frac"])
+            assert any(s > 0.0 for s in part["size_frac"])
             assert all(-0.6 <= c <= 0.6 for c in part["center_frac"])
 
 
