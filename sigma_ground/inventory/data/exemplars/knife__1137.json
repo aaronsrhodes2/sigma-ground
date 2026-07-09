@@ -1,0 +1,52 @@
+{
+ "category": "knife",
+ "aliases": [],
+ "source_anno_id": "1137",
+ "n_parts": 3,
+ "parts": [
+  {
+   "name": "blade",
+   "shape": "box",
+   "center_frac": [
+    0.0458,
+    -0.0388,
+    0.149
+   ],
+   "size_frac": [
+    0.165,
+    0.3245,
+    0.702
+   ]
+  },
+  {
+   "name": "guard",
+   "shape": "box",
+   "center_frac": [
+    0.0479,
+    0.0,
+    -0.222
+   ],
+   "size_frac": [
+    0.8832,
+    1.0,
+    0.0582
+   ]
+  },
+  {
+   "name": "handle",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0498,
+    -0.3573
+   ],
+   "size_frac": [
+    1.0,
+    0.251,
+    0.2854
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 1137 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

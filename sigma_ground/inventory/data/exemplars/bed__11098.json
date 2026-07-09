@@ -1,0 +1,192 @@
+{
+ "category": "bed",
+ "aliases": [],
+ "source_anno_id": "11098",
+ "n_parts": 13,
+ "parts": [
+  {
+   "name": "mattress",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0263,
+    -0.2113
+   ],
+   "size_frac": [
+    0.986,
+    0.9378,
+    0.4125
+   ]
+  },
+  {
+   "name": "headboard",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.4713,
+    0.0
+   ],
+   "size_frac": [
+    1.0,
+    0.0574,
+    1.0
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    -0.4605,
+    0.0454,
+    -0.4691
+   ],
+   "size_frac": [
+    0.0651,
+    0.8995,
+    0.0619
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.4729,
+    -0.4691
+   ],
+   "size_frac": [
+    0.8558,
+    0.0447,
+    0.0619
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    0.4605,
+    0.0454,
+    -0.4691
+   ],
+   "size_frac": [
+    0.0651,
+    0.8995,
+    0.0619
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.4266,
+    -0.4691
+   ],
+   "size_frac": [
+    0.986,
+    0.0447,
+    0.0619
+   ]
+  },
+  {
+   "name": "frame_horizontal_hard_surface",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0255,
+    -0.4485
+   ],
+   "size_frac": [
+    1.0,
+    0.949,
+    0.1031
+   ]
+  },
+  {
+   "name": "frame_horizontal_surface_bar",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.2289,
+    -0.4691
+   ],
+   "size_frac": [
+    0.986,
+    0.0447,
+    0.0619
+   ]
+  },
+  {
+   "name": "frame_horizontal_surface_bar",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0311,
+    -0.4691
+   ],
+   "size_frac": [
+    0.986,
+    0.0447,
+    0.0619
+   ]
+  },
+  {
+   "name": "frame_horizontal_surface_bar",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.1667,
+    -0.4691
+   ],
+   "size_frac": [
+    0.986,
+    0.0447,
+    0.0619
+   ]
+  },
+  {
+   "name": "frame_horizontal_surface_bar",
+   "shape": "box",
+   "center_frac": [
+    -0.2302,
+    0.3421,
+    -0.4691
+   ],
+   "size_frac": [
+    0.0651,
+    0.3062,
+    0.0619
+   ]
+  },
+  {
+   "name": "frame_horizontal_surface_bar",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.3421,
+    -0.4691
+   ],
+   "size_frac": [
+    0.0651,
+    0.3062,
+    0.0619
+   ]
+  },
+  {
+   "name": "frame_horizontal_surface_bar",
+   "shape": "box",
+   "center_frac": [
+    0.2302,
+    0.3421,
+    -0.4691
+   ],
+   "size_frac": [
+    0.0651,
+    0.3062,
+    0.0619
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 11098 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

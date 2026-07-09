@@ -1,0 +1,38 @@
+{
+ "category": "bottle",
+ "aliases": [],
+ "source_anno_id": "4080",
+ "n_parts": 2,
+ "parts": [
+  {
+   "name": "body",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    -0.019
+   ],
+   "size_frac": [
+    1.0,
+    1.0,
+    0.9619
+   ]
+  },
+  {
+   "name": "lid",
+   "shape": "box",
+   "center_frac": [
+    0.004,
+    0.0013,
+    0.4699
+   ],
+   "size_frac": [
+    0.4405,
+    0.4405,
+    0.0602
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 4080 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

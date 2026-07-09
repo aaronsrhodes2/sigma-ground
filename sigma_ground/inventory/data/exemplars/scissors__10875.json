@@ -1,0 +1,80 @@
+{
+ "category": "scissors",
+ "aliases": [],
+ "source_anno_id": "10875",
+ "n_parts": 5,
+ "parts": [
+  {
+   "name": "blade",
+   "shape": "box",
+   "center_frac": [
+    -0.1099,
+    -0.031,
+    -0.1676
+   ],
+   "size_frac": [
+    0.6408,
+    0.4271,
+    0.4693
+   ]
+  },
+  {
+   "name": "handle",
+   "shape": "cylinder",
+   "center_frac": [
+    0.2996,
+    0.3164,
+    -0.0318
+   ],
+   "size_frac": [
+    0.3784,
+    0.3672,
+    0.9364
+   ]
+  },
+  {
+   "name": "blade",
+   "shape": "box",
+   "center_frac": [
+    -0.1454,
+    0.0521,
+    0.1488
+   ],
+   "size_frac": [
+    0.7092,
+    0.4854,
+    0.2341
+   ]
+  },
+  {
+   "name": "handle",
+   "shape": "box",
+   "center_frac": [
+    0.3002,
+    -0.2715,
+    0.0253
+   ],
+   "size_frac": [
+    0.3997,
+    0.457,
+    0.9494
+   ]
+  },
+  {
+   "name": "screw",
+   "shape": "cylinder",
+   "center_frac": [
+    0.0784,
+    0.0285,
+    0.3829
+   ],
+   "size_frac": [
+    0.0767,
+    0.0783,
+    0.2341
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 10875 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

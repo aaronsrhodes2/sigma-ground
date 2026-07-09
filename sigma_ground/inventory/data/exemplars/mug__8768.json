@@ -1,0 +1,38 @@
+{
+ "category": "mug",
+ "aliases": [],
+ "source_anno_id": "8768",
+ "n_parts": 2,
+ "parts": [
+  {
+   "name": "body",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.1382,
+    0.0
+   ],
+   "size_frac": [
+    1.0,
+    0.7236,
+    1.0
+   ]
+  },
+  {
+   "name": "handle",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.321,
+    0.0901
+   ],
+   "size_frac": [
+    0.1056,
+    0.3579,
+    0.5845
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 8768 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

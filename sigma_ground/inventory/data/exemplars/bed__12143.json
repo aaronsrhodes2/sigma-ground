@@ -1,0 +1,122 @@
+{
+ "category": "bed",
+ "aliases": [],
+ "source_anno_id": "12143",
+ "n_parts": 8,
+ "parts": [
+  {
+   "name": "mattress",
+   "shape": "box",
+   "center_frac": [
+    -0.0046,
+    0.0004,
+    -0.0674
+   ],
+   "size_frac": [
+    0.9224,
+    0.8716,
+    0.309
+   ]
+  },
+  {
+   "name": "pillow",
+   "shape": "box",
+   "center_frac": [
+    0.2113,
+    -0.4054,
+    0.2308
+   ],
+   "size_frac": [
+    0.397,
+    0.1219,
+    0.252
+   ]
+  },
+  {
+   "name": "pillow",
+   "shape": "box",
+   "center_frac": [
+    -0.2009,
+    -0.4028,
+    0.228
+   ],
+   "size_frac": [
+    0.3532,
+    0.1219,
+    0.2569
+   ]
+  },
+  {
+   "name": "headboard",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    0.1216
+   ],
+   "size_frac": [
+    1.0,
+    1.0,
+    0.7567
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    0.4301,
+    -0.4358,
+    -0.3764
+   ],
+   "size_frac": [
+    0.0374,
+    0.0344,
+    0.2472
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    0.4301,
+    0.4358,
+    -0.3764
+   ],
+   "size_frac": [
+    0.0374,
+    0.0344,
+    0.2472
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.43,
+    0.4358,
+    -0.3764
+   ],
+   "size_frac": [
+    0.0374,
+    0.0344,
+    0.2472
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.43,
+    -0.4358,
+    -0.3764
+   ],
+   "size_frac": [
+    0.0374,
+    0.0344,
+    0.2472
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 12143 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

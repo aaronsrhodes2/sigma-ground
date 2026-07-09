@@ -1,0 +1,54 @@
+{
+ "category": "faucet",
+ "aliases": [
+  "tap"
+ ],
+ "source_anno_id": "1907",
+ "n_parts": 3,
+ "parts": [
+  {
+   "name": "switch",
+   "shape": "box",
+   "center_frac": [
+    0.2973,
+    -0.3916,
+    -0.032
+   ],
+   "size_frac": [
+    0.4055,
+    0.1601,
+    0.379
+   ]
+  },
+  {
+   "name": "surface_base",
+   "shape": "box",
+   "center_frac": [
+    -0.0139,
+    -0.3917,
+    -0.2055
+   ],
+   "size_frac": [
+    0.872,
+    0.2166,
+    0.5889
+   ]
+  },
+  {
+   "name": "tube",
+   "shape": "box",
+   "center_frac": [
+    -0.3075,
+    0.0285,
+    0.2943
+   ],
+   "size_frac": [
+    0.385,
+    0.9429,
+    0.4114
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 1907 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

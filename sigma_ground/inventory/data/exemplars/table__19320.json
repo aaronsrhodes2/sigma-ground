@@ -1,0 +1,180 @@
+{
+ "category": "table",
+ "aliases": [
+  "desk"
+ ],
+ "source_anno_id": "19320",
+ "n_parts": 12,
+ "parts": [
+  {
+   "name": "board",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    0.4164
+   ],
+   "size_frac": [
+    0.9651,
+    0.9375,
+    0.1607
+   ]
+  },
+  {
+   "name": "bar",
+   "shape": "box",
+   "center_frac": [
+    -0.4652,
+    -0.0626,
+    0.4082
+   ],
+   "size_frac": [
+    0.0486,
+    0.828,
+    0.1836
+   ]
+  },
+  {
+   "name": "bar",
+   "shape": "box",
+   "center_frac": [
+    -0.0176,
+    0.4067,
+    0.4082
+   ],
+   "size_frac": [
+    0.9387,
+    0.1487,
+    0.1836
+   ]
+  },
+  {
+   "name": "bar",
+   "shape": "box",
+   "center_frac": [
+    0.4652,
+    0.0626,
+    0.4082
+   ],
+   "size_frac": [
+    0.0486,
+    0.828,
+    0.1836
+   ]
+  },
+  {
+   "name": "bar",
+   "shape": "box",
+   "center_frac": [
+    0.0176,
+    -0.4067,
+    0.4082
+   ],
+   "size_frac": [
+    0.9387,
+    0.1487,
+    0.1836
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    -0.4479,
+    -0.4687,
+    0.0
+   ],
+   "size_frac": [
+    0.0353,
+    0.0625,
+    1.0
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    -0.4824,
+    0.3447,
+    0.0
+   ],
+   "size_frac": [
+    0.0351,
+    0.0618,
+    1.0
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    0.4479,
+    0.4687,
+    0.0
+   ],
+   "size_frac": [
+    0.0353,
+    0.0625,
+    1.0
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "box",
+   "center_frac": [
+    0.4824,
+    -0.3447,
+    0.0
+   ],
+   "size_frac": [
+    0.0351,
+    0.0618,
+    1.0
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    -0.4652,
+    -0.0626,
+    -0.3033
+   ],
+   "size_frac": [
+    0.0486,
+    0.828,
+    0.1836
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    -0.0,
+    -0.0,
+    -0.3033
+   ],
+   "size_frac": [
+    0.9153,
+    0.1509,
+    0.1836
+   ]
+  },
+  {
+   "name": "bar_stretcher",
+   "shape": "box",
+   "center_frac": [
+    0.4652,
+    0.0626,
+    -0.3033
+   ],
+   "size_frac": [
+    0.0486,
+    0.828,
+    0.1836
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 19320 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

@@ -1,0 +1,125 @@
+{
+ "category": "trash can",
+ "aliases": [
+  "bin",
+  "garbage can"
+ ],
+ "source_anno_id": "11348",
+ "n_parts": 8,
+ "parts": [
+  {
+   "name": "cover_lid",
+   "shape": "box",
+   "center_frac": [
+    -0.0,
+    0.0,
+    0.4046
+   ],
+   "size_frac": [
+    0.8403,
+    0.8279,
+    0.1909
+   ]
+  },
+  {
+   "name": "container_bottom",
+   "shape": "box",
+   "center_frac": [
+    -0.0,
+    0.0,
+    -0.4798
+   ],
+   "size_frac": [
+    0.8523,
+    0.8523,
+    0.0403
+   ]
+  },
+  {
+   "name": "container_neck",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    0.2911
+   ],
+   "size_frac": [
+    1.0,
+    1.0,
+    0.0548
+   ]
+  },
+  {
+   "name": "container_box",
+   "shape": "box",
+   "center_frac": [
+    -0.0,
+    0.0,
+    -0.0921
+   ],
+   "size_frac": [
+    0.977,
+    0.977,
+    0.7337
+   ]
+  },
+  {
+   "name": "frame_vertical_bar",
+   "shape": "cylinder",
+   "center_frac": [
+    0.4027,
+    0.4026,
+    -0.1002
+   ],
+   "size_frac": [
+    0.1839,
+    0.1836,
+    0.7276
+   ]
+  },
+  {
+   "name": "frame_vertical_bar",
+   "shape": "cylinder",
+   "center_frac": [
+    0.4026,
+    -0.4027,
+    -0.1002
+   ],
+   "size_frac": [
+    0.1836,
+    0.1839,
+    0.7276
+   ]
+  },
+  {
+   "name": "frame_vertical_bar",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.4027,
+    -0.4026,
+    -0.1002
+   ],
+   "size_frac": [
+    0.1839,
+    0.1836,
+    0.7276
+   ]
+  },
+  {
+   "name": "frame_vertical_bar",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.4026,
+    0.4027,
+    -0.1002
+   ],
+   "size_frac": [
+    0.1836,
+    0.1839,
+    0.7276
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 11348 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

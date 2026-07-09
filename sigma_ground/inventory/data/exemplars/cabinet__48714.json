@@ -1,0 +1,210 @@
+{
+ "category": "cabinet",
+ "aliases": [
+  "storage furniture",
+  "dresser",
+  "cupboard"
+ ],
+ "source_anno_id": "48714",
+ "n_parts": 14,
+ "parts": [
+  {
+   "name": "vertical_side_panel",
+   "shape": "box",
+   "center_frac": [
+    0.4519,
+    -0.0739,
+    -0.0078
+   ],
+   "size_frac": [
+    0.0192,
+    0.8522,
+    0.9845
+   ]
+  },
+  {
+   "name": "vertical_side_panel",
+   "shape": "box",
+   "center_frac": [
+    -0.4519,
+    -0.0739,
+    -0.0078
+   ],
+   "size_frac": [
+    0.0192,
+    0.8522,
+    0.9845
+   ]
+  },
+  {
+   "name": "bottom_panel",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0415,
+    -0.4441
+   ],
+   "size_frac": [
+    0.9038,
+    0.8615,
+    0.0248
+   ]
+  },
+  {
+   "name": "top_panel",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    0.4798
+   ],
+   "size_frac": [
+    1.0,
+    1.0,
+    0.0404
+   ]
+  },
+  {
+   "name": "frame_vertical_bar",
+   "shape": "cylinder",
+   "center_frac": [
+    0.4359,
+    0.3708,
+    -0.0078
+   ],
+   "size_frac": [
+    0.0513,
+    0.0371,
+    0.9845
+   ]
+  },
+  {
+   "name": "frame_vertical_bar",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.4359,
+    0.3708,
+    -0.0078
+   ],
+   "size_frac": [
+    0.0513,
+    0.0371,
+    0.9845
+   ]
+  },
+  {
+   "name": "shelf",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.06,
+    0.3199
+   ],
+   "size_frac": [
+    0.8846,
+    0.8245,
+    0.0093
+   ]
+  },
+  {
+   "name": "shelf",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.06,
+    0.1584
+   ],
+   "size_frac": [
+    0.9038,
+    0.8245,
+    0.0093
+   ]
+  },
+  {
+   "name": "shelf",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.06,
+    0.0217
+   ],
+   "size_frac": [
+    0.8846,
+    0.8245,
+    0.0093
+   ]
+  },
+  {
+   "name": "shelf",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.06,
+    -0.1149
+   ],
+   "size_frac": [
+    0.8846,
+    0.8245,
+    0.0093
+   ]
+  },
+  {
+   "name": "shelf",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.06,
+    -0.2516
+   ],
+   "size_frac": [
+    0.8846,
+    0.8245,
+    0.0093
+   ]
+  },
+  {
+   "name": "base_side_panel",
+   "shape": "box",
+   "center_frac": [
+    0.4696,
+    -0.0322,
+    -0.4752
+   ],
+   "size_frac": [
+    0.016,
+    0.9356,
+    0.0497
+   ]
+  },
+  {
+   "name": "base_side_panel",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.3661,
+    -0.4705
+   ],
+   "size_frac": [
+    0.9551,
+    0.139,
+    0.059
+   ]
+  },
+  {
+   "name": "base_side_panel",
+   "shape": "box",
+   "center_frac": [
+    -0.4696,
+    -0.0322,
+    -0.4752
+   ],
+   "size_frac": [
+    0.016,
+    0.9356,
+    0.0497
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 48714 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

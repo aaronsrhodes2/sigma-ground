@@ -1,0 +1,54 @@
+{
+ "category": "vase",
+ "aliases": [
+  "pot"
+ ],
+ "source_anno_id": "6041",
+ "n_parts": 3,
+ "parts": [
+  {
+   "name": "container",
+   "shape": "box",
+   "center_frac": [
+    0.0369,
+    0.0732,
+    -0.4113
+   ],
+   "size_frac": [
+    0.582,
+    0.813,
+    0.1773
+   ]
+  },
+  {
+   "name": "liquid_or_soil",
+   "shape": "box",
+   "center_frac": [
+    0.0328,
+    0.0717,
+    -0.3612
+   ],
+   "size_frac": [
+    0.3527,
+    0.5062,
+    0.005
+   ]
+  },
+  {
+   "name": "plant",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    0.0491
+   ],
+   "size_frac": [
+    1.0,
+    1.0,
+    0.9017
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 6041 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

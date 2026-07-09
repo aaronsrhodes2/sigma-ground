@@ -1,0 +1,98 @@
+{
+ "category": "cabinet",
+ "aliases": [
+  "storage furniture",
+  "dresser",
+  "cupboard"
+ ],
+ "source_anno_id": "45686",
+ "n_parts": 6,
+ "parts": [
+  {
+   "name": "vertical_side_panel",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0201,
+    0.0
+   ],
+   "size_frac": [
+    1.0,
+    0.9597,
+    1.0
+   ]
+  },
+  {
+   "name": "shelf",
+   "shape": "box",
+   "center_frac": [
+    -0.0,
+    -0.0375,
+    0.0808
+   ],
+   "size_frac": [
+    0.9604,
+    0.8374,
+    0.0281
+   ]
+  },
+  {
+   "name": "door_surface",
+   "shape": "box",
+   "center_frac": [
+    0.2398,
+    0.4184,
+    -0.2862
+   ],
+   "size_frac": [
+    0.475,
+    0.0641,
+    0.3371
+   ]
+  },
+  {
+   "name": "handle",
+   "shape": "box",
+   "center_frac": [
+    0.0344,
+    0.4752,
+    -0.2823
+   ],
+   "size_frac": [
+    0.0336,
+    0.0495,
+    0.0702
+   ]
+  },
+  {
+   "name": "door_surface",
+   "shape": "box",
+   "center_frac": [
+    -0.2394,
+    0.4184,
+    -0.2862
+   ],
+   "size_frac": [
+    0.475,
+    0.0641,
+    0.3371
+   ]
+  },
+  {
+   "name": "handle",
+   "shape": "box",
+   "center_frac": [
+    -0.0361,
+    0.4752,
+    -0.2823
+   ],
+   "size_frac": [
+    0.0336,
+    0.0495,
+    0.0702
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 45686 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

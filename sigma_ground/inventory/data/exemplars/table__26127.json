@@ -1,0 +1,138 @@
+{
+ "category": "table",
+ "aliases": [
+  "desk"
+ ],
+ "source_anno_id": "26127",
+ "n_parts": 9,
+ "parts": [
+  {
+   "name": "board",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    0.4837
+   ],
+   "size_frac": [
+    1.0,
+    1.0,
+    0.0326
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    0.408,
+    -0.3474,
+    -0.0163
+   ],
+   "size_frac": [
+    0.1149,
+    0.1053,
+    0.9674
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    0.408,
+    0.3474,
+    -0.0163
+   ],
+   "size_frac": [
+    0.1149,
+    0.1053,
+    0.9674
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.408,
+    -0.3474,
+    -0.0163
+   ],
+   "size_frac": [
+    0.1149,
+    0.1053,
+    0.9674
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.408,
+    0.3474,
+    -0.0163
+   ],
+   "size_frac": [
+    0.1149,
+    0.1053,
+    0.9674
+   ]
+  },
+  {
+   "name": "tabletop_connector",
+   "shape": "box",
+   "center_frac": [
+    -0.4284,
+    0.0002,
+    0.3913
+   ],
+   "size_frac": [
+    0.0517,
+    0.5895,
+    0.1522
+   ]
+  },
+  {
+   "name": "tabletop_connector",
+   "shape": "box",
+   "center_frac": [
+    0.4282,
+    0.0,
+    0.3913
+   ],
+   "size_frac": [
+    0.0517,
+    0.5895,
+    0.1522
+   ]
+  },
+  {
+   "name": "tabletop_connector",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.3658,
+    0.3913
+   ],
+   "size_frac": [
+    0.7011,
+    0.0474,
+    0.1522
+   ]
+  },
+  {
+   "name": "tabletop_connector",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.3658,
+    0.3913
+   ],
+   "size_frac": [
+    0.7011,
+    0.0474,
+    0.1522
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 26127 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

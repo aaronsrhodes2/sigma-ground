@@ -1,0 +1,94 @@
+{
+ "category": "chair",
+ "aliases": [],
+ "source_anno_id": "42547",
+ "n_parts": 6,
+ "parts": [
+  {
+   "name": "back_single_surface",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.4078,
+    0.3363
+   ],
+   "size_frac": [
+    1.0,
+    0.1843,
+    0.3274
+   ]
+  },
+  {
+   "name": "seat_single_surface",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0514,
+    0.115
+   ],
+   "size_frac": [
+    1.0,
+    0.8973,
+    0.0442
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.4651,
+    -0.3565,
+    -0.1637
+   ],
+   "size_frac": [
+    0.0698,
+    0.0816,
+    0.6726
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    0.4651,
+    -0.3565,
+    -0.1637
+   ],
+   "size_frac": [
+    0.0698,
+    0.0816,
+    0.6726
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    0.4651,
+    0.4592,
+    -0.2035
+   ],
+   "size_frac": [
+    0.0698,
+    0.0816,
+    0.5929
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.4651,
+    0.4592,
+    -0.2035
+   ],
+   "size_frac": [
+    0.0698,
+    0.0816,
+    0.5929
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 42547 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

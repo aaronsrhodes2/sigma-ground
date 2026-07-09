@@ -1,0 +1,108 @@
+{
+ "category": "dishwasher",
+ "aliases": [],
+ "source_anno_id": "12544",
+ "n_parts": 7,
+ "parts": [
+  {
+   "name": "frame",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0793,
+    0.0024
+   ],
+   "size_frac": [
+    1.0,
+    0.8414,
+    0.9951
+   ]
+  },
+  {
+   "name": "door_frame",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.367,
+    0.0525
+   ],
+   "size_frac": [
+    0.9928,
+    0.0729,
+    0.89
+   ]
+  },
+  {
+   "name": "handle",
+   "shape": "box",
+   "center_frac": [
+    -0.0008,
+    0.4488,
+    0.4382
+   ],
+   "size_frac": [
+    0.9103,
+    0.1024,
+    0.0524
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    0.4331,
+    0.2672,
+    -0.4955
+   ],
+   "size_frac": [
+    0.0509,
+    0.0447,
+    0.0089
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    0.4331,
+    -0.4445,
+    -0.4955
+   ],
+   "size_frac": [
+    0.0509,
+    0.0447,
+    0.0089
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    -0.4298,
+    -0.4445,
+    -0.4955
+   ],
+   "size_frac": [
+    0.0509,
+    0.0447,
+    0.0089
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    -0.4298,
+    0.2672,
+    -0.4955
+   ],
+   "size_frac": [
+    0.0509,
+    0.0447,
+    0.0089
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 12544 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

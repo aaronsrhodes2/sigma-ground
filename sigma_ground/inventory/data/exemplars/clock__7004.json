@@ -1,0 +1,38 @@
+{
+ "category": "clock",
+ "aliases": [],
+ "source_anno_id": "7004",
+ "n_parts": 2,
+ "parts": [
+  {
+   "name": "surface",
+   "shape": "box",
+   "center_frac": [
+    -0.0008,
+    0.375,
+    0.0052
+   ],
+   "size_frac": [
+    0.429,
+    0.25,
+    0.4321
+   ]
+  },
+  {
+   "name": "frame",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.125,
+    0.0
+   ],
+   "size_frac": [
+    1.0,
+    0.75,
+    1.0
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 7004 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

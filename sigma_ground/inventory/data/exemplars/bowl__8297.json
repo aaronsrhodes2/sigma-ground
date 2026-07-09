@@ -1,0 +1,38 @@
+{
+ "category": "bowl",
+ "aliases": [],
+ "source_anno_id": "8297",
+ "n_parts": 2,
+ "parts": [
+  {
+   "name": "container",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    0.0055
+   ],
+   "size_frac": [
+    1.0,
+    1.0,
+    0.989
+   ]
+  },
+  {
+   "name": "bottom",
+   "shape": "box",
+   "center_frac": [
+    -0.0,
+    0.0001,
+    -0.4923
+   ],
+   "size_frac": [
+    0.2699,
+    0.2699,
+    0.0153
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 8297 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

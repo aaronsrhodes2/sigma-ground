@@ -1,0 +1,80 @@
+{
+ "category": "door",
+ "aliases": [],
+ "source_anno_id": "9007",
+ "n_parts": 5,
+ "parts": [
+  {
+   "name": "surface_board",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0,
+    0.0
+   ],
+   "size_frac": [
+    1.0,
+    0.4947,
+    1.0
+   ]
+  },
+  {
+   "name": "fixed_part",
+   "shape": "box",
+   "center_frac": [
+    -0.4241,
+    0.2647,
+    -0.027
+   ],
+   "size_frac": [
+    0.0625,
+    0.0346,
+    0.025
+   ]
+  },
+  {
+   "name": "movable_part",
+   "shape": "box",
+   "center_frac": [
+    -0.3672,
+    0.391,
+    -0.027
+   ],
+   "size_frac": [
+    0.1362,
+    0.218,
+    0.009
+   ]
+  },
+  {
+   "name": "fixed_part",
+   "shape": "box",
+   "center_frac": [
+    -0.4241,
+    -0.2647,
+    -0.027
+   ],
+   "size_frac": [
+    0.0625,
+    0.0346,
+    0.025
+   ]
+  },
+  {
+   "name": "movable_part",
+   "shape": "box",
+   "center_frac": [
+    -0.3672,
+    -0.391,
+    -0.027
+   ],
+   "size_frac": [
+    0.1362,
+    0.218,
+    0.009
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 9007 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

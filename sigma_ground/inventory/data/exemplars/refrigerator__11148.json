@@ -1,0 +1,96 @@
+{
+ "category": "refrigerator",
+ "aliases": [
+  "fridge"
+ ],
+ "source_anno_id": "11148",
+ "n_parts": 6,
+ "parts": [
+  {
+   "name": "frame",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0318,
+    0.0
+   ],
+   "size_frac": [
+    1.0,
+    0.9365,
+    1.0
+   ]
+  },
+  {
+   "name": "door_frame",
+   "shape": "box",
+   "center_frac": [
+    0.2517,
+    0.3827,
+    0.2246
+   ],
+   "size_frac": [
+    0.4892,
+    0.1017,
+    0.5483
+   ]
+  },
+  {
+   "name": "handle",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.0089,
+    0.4666,
+    0.2272
+   ],
+   "size_frac": [
+    0.0743,
+    0.0668,
+    0.4177
+   ]
+  },
+  {
+   "name": "door_frame",
+   "shape": "box",
+   "center_frac": [
+    -0.2836,
+    0.3816,
+    0.2246
+   ],
+   "size_frac": [
+    0.4254,
+    0.0996,
+    0.5483
+   ]
+  },
+  {
+   "name": "handle",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.1222,
+    0.4616,
+    0.2272
+   ],
+   "size_frac": [
+    0.0743,
+    0.0668,
+    0.4177
+   ]
+  },
+  {
+   "name": "handle",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.4401,
+    -0.2401
+   ],
+   "size_frac": [
+    0.5672,
+    0.0637,
+    0.0679
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 11148 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

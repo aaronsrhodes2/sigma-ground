@@ -1,0 +1,83 @@
+{
+ "category": "earphone",
+ "aliases": [
+  "headphones",
+  "earbuds"
+ ],
+ "source_anno_id": "11462",
+ "n_parts": 5,
+ "parts": [
+  {
+   "name": "top_band",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.2568,
+    0.2491
+   ],
+   "size_frac": [
+    0.8401,
+    0.0734,
+    0.4742
+   ]
+  },
+  {
+   "name": "earcup_frame",
+   "shape": "box",
+   "center_frac": [
+    -0.4197,
+    0.0,
+    0.0
+   ],
+   "size_frac": [
+    0.1606,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "earcup_pad",
+   "shape": "box",
+   "center_frac": [
+    -0.4197,
+    -0.3042,
+    -0.2296
+   ],
+   "size_frac": [
+    0.1606,
+    0.3915,
+    0.5408
+   ]
+  },
+  {
+   "name": "earcup_frame",
+   "shape": "box",
+   "center_frac": [
+    0.4197,
+    0.0,
+    0.0
+   ],
+   "size_frac": [
+    0.1606,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "earcup_pad",
+   "shape": "box",
+   "center_frac": [
+    0.4197,
+    -0.3042,
+    -0.2296
+   ],
+   "size_frac": [
+    0.1606,
+    0.3915,
+    0.5408
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 11462 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

@@ -1,0 +1,68 @@
+{
+ "category": "vase",
+ "aliases": [
+  "pot"
+ ],
+ "source_anno_id": "3409",
+ "n_parts": 4,
+ "parts": [
+  {
+   "name": "container",
+   "shape": "box",
+   "center_frac": [
+    0.0017,
+    0.0012,
+    0.0857
+   ],
+   "size_frac": [
+    0.9965,
+    0.9977,
+    0.8285
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    0.0014,
+    0.2533,
+    -0.3887
+   ],
+   "size_frac": [
+    0.0156,
+    0.4887,
+    0.2209
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    0.0014,
+    -0.2533,
+    -0.3887
+   ],
+   "size_frac": [
+    0.0156,
+    0.4934,
+    0.2209
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    -0.0012,
+    0.0012,
+    -0.3887
+   ],
+   "size_frac": [
+    0.9976,
+    0.0174,
+    0.2226
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 3409 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

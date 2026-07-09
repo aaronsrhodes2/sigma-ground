@@ -1,0 +1,94 @@
+{
+ "category": "dishwasher",
+ "aliases": [],
+ "source_anno_id": "12193",
+ "n_parts": 6,
+ "parts": [
+  {
+   "name": "door_frame",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0408,
+    0.0025
+   ],
+   "size_frac": [
+    1.0,
+    0.9184,
+    0.9951
+   ]
+  },
+  {
+   "name": "handle",
+   "shape": "box",
+   "center_frac": [
+    -0.0007,
+    0.4562,
+    0.4383
+   ],
+   "size_frac": [
+    0.9586,
+    0.0875,
+    0.0204
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    -0.4298,
+    -0.4436,
+    -0.4956
+   ],
+   "size_frac": [
+    0.0509,
+    0.0454,
+    0.0089
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    0.4331,
+    -0.4436,
+    -0.4956
+   ],
+   "size_frac": [
+    0.0509,
+    0.0454,
+    0.0089
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    0.4331,
+    0.28,
+    -0.4956
+   ],
+   "size_frac": [
+    0.0509,
+    0.0454,
+    0.0089
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "box",
+   "center_frac": [
+    -0.4298,
+    0.28,
+    -0.4956
+   ],
+   "size_frac": [
+    0.0509,
+    0.0454,
+    0.0089
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 12193 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

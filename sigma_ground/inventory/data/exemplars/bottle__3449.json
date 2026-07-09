@@ -1,0 +1,66 @@
+{
+ "category": "bottle",
+ "aliases": [],
+ "source_anno_id": "3449",
+ "n_parts": 4,
+ "parts": [
+  {
+   "name": "mouth",
+   "shape": "cylinder",
+   "center_frac": [
+    0.0082,
+    -0.3261,
+    -0.0569
+   ],
+   "size_frac": [
+    0.3561,
+    0.3477,
+    0.8335
+   ]
+  },
+  {
+   "name": "body",
+   "shape": "box",
+   "center_frac": [
+    -0.0023,
+    0.0131,
+    -0.0707
+   ],
+   "size_frac": [
+    0.9714,
+    0.4266,
+    0.8586
+   ]
+  },
+  {
+   "name": "handle",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0104,
+    0.4222
+   ],
+   "size_frac": [
+    1.0,
+    0.439,
+    0.1555
+   ]
+  },
+  {
+   "name": "handle",
+   "shape": "box",
+   "center_frac": [
+    -0.0109,
+    0.357,
+    -0.0673
+   ],
+   "size_frac": [
+    0.1226,
+    0.2859,
+    0.8256
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 3449 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

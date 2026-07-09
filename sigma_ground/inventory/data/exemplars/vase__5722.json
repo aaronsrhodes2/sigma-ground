@@ -1,0 +1,96 @@
+{
+ "category": "vase",
+ "aliases": [
+  "pot"
+ ],
+ "source_anno_id": "5722",
+ "n_parts": 6,
+ "parts": [
+  {
+   "name": "foot",
+   "shape": "cylinder",
+   "center_frac": [
+    0.449,
+    -0.1304,
+    -0.4326
+   ],
+   "size_frac": [
+    0.0446,
+    0.0445,
+    0.1349
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "cylinder",
+   "center_frac": [
+    0.1304,
+    0.449,
+    -0.4326
+   ],
+   "size_frac": [
+    0.0445,
+    0.0446,
+    0.1349
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.449,
+    0.1304,
+    -0.4326
+   ],
+   "size_frac": [
+    0.0446,
+    0.0445,
+    0.1349
+   ]
+  },
+  {
+   "name": "foot",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.1304,
+    -0.449,
+    -0.4326
+   ],
+   "size_frac": [
+    0.0445,
+    0.0446,
+    0.1349
+   ]
+  },
+  {
+   "name": "container",
+   "shape": "box",
+   "center_frac": [
+    -0.0005,
+    -0.0003,
+    -0.1138
+   ],
+   "size_frac": [
+    0.9025,
+    0.9027,
+    0.7015
+   ]
+  },
+  {
+   "name": "container",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    0.0,
+    0.0057
+   ],
+   "size_frac": [
+    1.0,
+    1.0,
+    0.9886
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 5722 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}

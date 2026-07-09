@@ -1,0 +1,150 @@
+{
+ "category": "chair",
+ "aliases": [],
+ "source_anno_id": "35088",
+ "n_parts": 10,
+ "parts": [
+  {
+   "name": "back_single_surface",
+   "shape": "box",
+   "center_frac": [
+    -0.0039,
+    -0.0451,
+    0.2098
+   ],
+   "size_frac": [
+    0.9884,
+    0.8968,
+    0.4948
+   ]
+  },
+  {
+   "name": "arm_horizontal_bar",
+   "shape": "box",
+   "center_frac": [
+    0.0,
+    -0.0518,
+    0.3824
+   ],
+   "size_frac": [
+    1.0,
+    0.8964,
+    0.2352
+   ]
+  },
+  {
+   "name": "arm_near_vertical_bar",
+   "shape": "box",
+   "center_frac": [
+    -0.4429,
+    0.305,
+    0.1087
+   ],
+   "size_frac": [
+    0.1024,
+    0.3007,
+    0.3947
+   ]
+  },
+  {
+   "name": "arm_near_vertical_bar",
+   "shape": "box",
+   "center_frac": [
+    0.4417,
+    0.3114,
+    0.1087
+   ],
+   "size_frac": [
+    0.1027,
+    0.3049,
+    0.3947
+   ]
+  },
+  {
+   "name": "seat_single_surface",
+   "shape": "box",
+   "center_frac": [
+    -0.0049,
+    0.055,
+    0.0391
+   ],
+   "size_frac": [
+    0.9029,
+    0.8713,
+    0.1324
+   ]
+  },
+  {
+   "name": "seat_support",
+   "shape": "box",
+   "center_frac": [
+    -0.0032,
+    0.0573,
+    -0.0577
+   ],
+   "size_frac": [
+    0.9658,
+    0.8854,
+    0.0533
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.2923,
+    -0.3038,
+    -0.2849
+   ],
+   "size_frac": [
+    0.1064,
+    0.1206,
+    0.4284
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    0.3019,
+    -0.2981,
+    -0.2849
+   ],
+   "size_frac": [
+    0.1083,
+    0.121,
+    0.4284
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    0.4441,
+    0.4165,
+    -0.2916
+   ],
+   "size_frac": [
+    0.0797,
+    0.0744,
+    0.4169
+   ]
+  },
+  {
+   "name": "leg",
+   "shape": "cylinder",
+   "center_frac": [
+    -0.4423,
+    0.4074,
+    -0.2916
+   ],
+   "size_frac": [
+    0.0807,
+    0.0754,
+    0.4169
+   ]
+  }
+ ],
+ "_source": "PartNet (Mo et al. 2019) \u2014 representative model 35088 (real assembled part layout)",
+ "_license": "ShapeNet/PartNet Terms of Use (non-commercial research); derived aggregate facts only, no raw rows"
+}
