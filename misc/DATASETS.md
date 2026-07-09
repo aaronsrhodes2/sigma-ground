@@ -11,7 +11,7 @@ aggregates are committed** (`sigma_ground/inventory/data/*`). Updated
 |---|---|---|---|---|
 | PartNet `data_v0` | `D:/Aaron/datasets/shapenet/PartNet/` | 23 GB (extracted), 129 GB archives | **32,537 models, 24 categories**, censused; per-part semantic hierarchy (`result.json`) present per model. Exemplar pools redistilled **K=4 → K=8** (184 files, 23/24 categories — keyboard has no viable candidates in the geometry data) | ShapeNet ToU — non-commercial research; distilled aggregates only in git |
 | ShapeNetCore v1+v2 | `D:/Aaron/datasets/shapenet/ShapeNetCore*` | 23 GB processed + 55 GB archives | **120 models extracted, 5 target synsets** PartNet lacks entirely: car(30/3533), airplane(30/4045), guitar(20/797), watercraft(20/1939), motorcycle(20/337) — real engineering assemblies, not furniture. Every model ships a pre-computed `model_normalized.solid.binvox` — a trusted solid voxelization, alternative to our fill-heuristic path | ShapeNet ToU |
-| ShapeNetSem | `D:/Aaron/datasets/shapenet/ShapeNetSem-archive/` | 12 GB | dims + category material ratios distilled (`shapenetsem_sizes.json`, `materials.csv` distills). **Per-model weight columns are EMPTY in this copy** — no mass cross-check possible | ShapeNet ToU |
+| ShapeNetSem | `D:/Aaron/datasets/shapenet/ShapeNetSem-archive/` + `D:/Aaron/datasets/shapenetsem/` | 12 GB | Two layers: (1) aggregate stats already distilled (`shapenetsem_sizes.json`, `materials.csv` distills) — per-model weight/solidVolume/isContainerLike/staticFrictionForce columns are genuinely EMPTY (0/12,288) in this copy, confirmed against raw rows. (2) **A full shape source we'd never opened**: 12,288 models, real OBJ+MTL meshes + an independent `models-binvox-solid` grid per model, `up`/`front` real orientation (30% filled, 49 distinct up-vectors — NOT all Z-up) + `unit` real-world scale (77% filled). **30 gap-category models extracted**: Hammer(22), ScrewDriver(1), Motorcycle(7) — categories confirmed absent from PartNet. Its `fullId` hash is the SAME id scheme as ShapeNetCore/PartNet `model_id` (verified on our own chair 44164) | ShapeNet ToU |
 | Objaverse LVIS (targeted) | `D:/Aaron/datasets/objaverse/` | 4.4 GB | **864/864 models, 13 categories** (hammer 59, mallet 79, frying_pan 31, saucepan 26, teakettle 69, wineglass 101, pitcher 73, screwdriver 40, wrench 53, lightbulb 83, **motor 54**, cup 70, mug 126). NOT in LVIS: axe, skillet, anvil, feather, gear | **Per-object** Sketchfab licenses — see `inventory/data/objaverse_ledger.csv` (821 CC-BY, 15 CC-BY-NC, 9 CC-BY-SA, 14 CC-BY-NC-SA, 5 CC0). **No real-world scale annotation** — size grounding must come from typical-size/Wikidata at integration |
 | KiCad packages3D (sparse) | `D:/Aaron/datasets/electronics/kicad-packages3D/` | 76 MB | 8 THT component families (Resistor, Capacitor, Diode, LED, TO/SOT packages, Battery, Relay, Fuse) — real STEP/WRL models for future working-circuit internals | CC-BY-SA 4.0 (with KiCad libraries exception) |
 | PartNet-Mobility (SAPIEN) | — | est. 10–20 GB | **NOT on disk** — awaits the Captain's registration at sapien.ucsd.edu (2,346 articulated models, 46 categories, URDF joints — the actuation enabler) | SAPIEN ToU, non-commercial; account required |
@@ -50,6 +50,33 @@ free to regenerate.
 - `tools/distill_electronics.py` — Wikidata P5679/P2068 (polite, 429-backoff)
 - `tools/fetch_tpsx.py` — TPSX id sweep (1 req/s, HTML cached) + property distill
 - `tools/extract_shapenetcore_synsets.py` — selective per-synset extraction + census
+- `tools/extract_shapenetsem_gap_categories.py` — Hammer/ScrewDriver/Motorcycle from ShapeNetSem
+
+## Cross-dataset findings (unexploited, flagged for the main lane)
+
+- **PartNet ↔ ShapeNetCore/Sem join key exists and is unused.** Every PartNet
+  model's `meta.json` carries `model_id` — the literal ShapeNetCore synset
+  hash (verified: chair anno_id 44164's model_id `ee2ea12a2a2f8eb71335bcae
+  6f5543ce` is `ShapeNetCore.v2/03001627/<same hash>/`). This unlocks, per
+  PartNet model: ShapeNetCore's independently-computed `solid.binvox` as a
+  free cross-check against our own fill-heuristic voxelization, AND a
+  **higher-resolution 256³ solid binvox** (`model_normalized.256.solid.
+  binvox`) neither dataset's aggregate stats hinted existed.
+- **ShapeNetSem's `up`/`front` orientation is real ground truth, mostly
+  unused.** 30% of 12,288 rows carry it; 88% of those are Z-up (matching our
+  convention) but 49 distinct up-vectors exist — proof our single global
+  Y-up→Z-up rotation rule (`mesh.load_parts(to_z_up=True)`) is measurably
+  wrong for some real fraction of models when ground truth is checkable.
+- **Taxonomy hierarchy discarded.** `shape_aliases.json` keeps only flat
+  WordNet lemma groups from `taxonomy.json`, not its parent-child synset
+  tree — no "is-a" category fallback (an unmatched subtype can't fall back
+  to its parent category).
+- **ins_seg_h5.zip / sem_seg_h5.zip (21.2 + 8.6 GB) — deliberately NOT
+  pulled.** These are the official PartNet ML-benchmark point-cloud
+  segmentation files, built for training PointNet-style neural segmenters.
+  We already have something strictly better for our purposes: the
+  ground-truth mesh-level `result.json` hierarchy + real triangle geometry,
+  not a sampled point-cloud approximation of it. A conscious skip.
 
 ## Honest gaps
 
@@ -58,8 +85,14 @@ free to regenerate.
   create the account. The one dataset with real URDF joint axes/limits).
 - **No internal combustion engine mesh in any dataset** — the actuatable engine
   is an assembly-from-engineering-data frontier; Burcat gives its combustion
-  thermochemistry, Objaverse `motor` gives adjacent shapes.
-- ShapeNetSem per-model weights empty → voxel-mass cross-checks need another source.
+  thermochemistry, Objaverse `motor` + ShapeNetSem `Motorcycle` give adjacent shapes.
+- **Confirmed absent across ALL THREE ShapeNet-family sources** (PartNet's 24
+  categories, ShapeNetCore's synsets, ShapeNetSem's 355 category tokens) —
+  not a PartNet-specific gap: wrench, axe, anvil, saw, drill, pliers, gear,
+  engine. Objaverse remains the only source for these.
+- ShapeNetSem's own per-model weight/solidVolume/isContainerLike columns
+  are empty → voxel-mass cross-checks need another source (TPSX or Wikidata,
+  both already distilled this session, cover some overlapping materials).
 - Objaverse and ShapeNetCore meshes carry **no real-world scale** (both
   verified this session — a sampled Objaverse hammer and a ShapeNetCore car
   are both in an arbitrary model-space unit, not metres). Size grounding for
