@@ -1,0 +1,283 @@
+{
+ "_meta": {
+  "source": "ShapeNetSem (a per-model-annotated ShapeNet subset, distinct from PartNet/ShapeNetCore) \u2014 ShapeNet ToU, non-commercial research",
+  "note": "fullId's hash is the SAME id scheme as ShapeNetCore/PartNet model_id (verified: PartNet chair 44164 model_id == ShapeNetCore.v2/03001627/<same hash>) -- usable as a join key across the three datasets.",
+  "generated_by": "tools/extract_shapenetsem_gap_categories.py"
+ },
+ "hammer": [
+  {
+   "full_id": "2458e2de871023a5823708c0b62ca422",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.006477556745520572,
+   "aligned_dims_cm": "15.41011,38.237015,6.053276",
+   "tags": "*",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "31340e691294a750d30ee0b5a9888c0b",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.02584412662306679,
+   "aligned_dims_cm": "54.71898,6.9372797,23.702242",
+   "tags": "blacksmith,colonial,sledge hammer,tool",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "369593e48bdb2208419a349e9c699f76",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.0015161941851237746,
+   "aligned_dims_cm": "24.294857,32.34333,9.9073715",
+   "tags": "*",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "3a7840f2b310d62294a9d0491b6eccf9",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.0003548772491607748,
+   "aligned_dims_cm": "37.471775,5.160497,17.430471",
+   "tags": "*",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "3fd50768b172a71c1c1b3b2ed8d13bf8",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.03908705427602709,
+   "aligned_dims_cm": "12.317739,3.847151,39.59753",
+   "tags": "gereedschap,hammer,handwerkzeug,instrument,mallet,marteau,mazo,outil,schlaghammer,tools,werkzeug",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "405f308492a6f40d2c3380317c2cc450",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.0034704809092539353,
+   "aligned_dims_cm": "25.277111,6.5583763,41.536446",
+   "tags": "hammer,sachen,werkzeug",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "4502bbd24057ac99c2ca1dbfbac7f449",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.00037364458043484056,
+   "aligned_dims_cm": "13.675391,38.821747,6.3519573",
+   "tags": "*",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "5540651fd87e87187338e05fdf1a8a93",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.0025657253529925285,
+   "aligned_dims_cm": "15.41511,3.8757052,38.49505",
+   "tags": "penukul",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "59baa2f1fbb371beafde329224c7ac14",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.0005560557758637118,
+   "aligned_dims_cm": "8.888163,36.661648,12.186909",
+   "tags": "wood steel hammer handle",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "5d4da30b8c0eaae46d7014c7d6ce68fc",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.016576362953108482,
+   "aligned_dims_cm": "18.788593,16.840248,2.169448",
+   "tags": "claw hammer,hammer,tool",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "6479d3b11a3fc2712e718102b5cac3de",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.0029248265804842207,
+   "aligned_dims_cm": "27.089447,1.0338736,9.776554",
+   "tags": "diy,hammer,internet,nail,nails,photo,sketchosaurus,spanner,texture,texturing,tool,toolkit,tools,wrench",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "6683cadf1d45d69a3a3cbcf1ae739c36",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.004999635352368991,
+   "aligned_dims_cm": "18.833826,36.910507,4.1709557",
+   "tags": "hammer",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "6a78ea13e605452c8ee45bd8e008284e",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.017664093731465165,
+   "aligned_dims_cm": "4.064865,39.038464,13.927466",
+   "tags": "hammer",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "88557424d797492cc3b3d2515468c112",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.05054785743460494,
+   "aligned_dims_cm": "4.155853,35.3835,21.569174",
+   "tags": "*",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "8a9ebc285dc0f6e3dfa8261e130bcc9c",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.013535692091540413,
+   "aligned_dims_cm": "61.739014,13.657228,114.74609",
+   "tags": "blacksmith,frequent pee,hammer",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "94dbb6874c576ee428bcb63ced82086c",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.0015062852242798987,
+   "aligned_dims_cm": "26.058975,31.854317,6.4046645",
+   "tags": "hammer",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "a49a6c15dcef467bc84c00e08b1e25d7",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.0012094310261839842,
+   "aligned_dims_cm": "18.489023,3.8007178,37.128937",
+   "tags": "hammer,martelo",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "abb61e6edd2f642238eeb65ddb108127",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.00033437398243020203,
+   "aligned_dims_cm": "12.55591,3.1568449,31.477613",
+   "tags": "hammer,martelo,tool",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "dfccb4502cd9383fcb03b57fca000b1f",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.01199243256376653,
+   "aligned_dims_cm": "30.943146,26.602976,3.6700444",
+   "tags": "building,carpentry,framing,hammer,hand tools,home repair,remodeling,tools,trimming",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "e86500f6e9b4e88ea8963fe61f2bc75f",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.016667695190498703,
+   "aligned_dims_cm": "60.012863,12.267754,4.549715",
+   "tags": "firefighter,fireman,hammer,hickory,safety,sledge,sledge hammer",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "edc2832780df453fcfdf23923984a16f",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.0008356167310872194,
+   "aligned_dims_cm": "21.197842,4.105936,35.612938",
+   "tags": "*",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "f39a52112040a4c3b90880542dbc824b",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.018328207866158287,
+   "aligned_dims_cm": "7.5032043,36.071968,14.662476",
+   "tags": "hammer,marteau,mjolnir,thor",
+   "files_extracted": 3
+  }
+ ],
+ "screwdriver": [
+  {
+   "full_id": "28d88f47398c462977d2282deeabd2a4",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": 0.015231208698737599,
+   "aligned_dims_cm": "1.8307272,15.712194,1.6654016",
+   "tags": "craft,screw,screw driver,tool",
+   "files_extracted": 3
+  }
+ ],
+ "motorcycle": [
+  {
+   "full_id": "68af758e75c830d22ba9876b378f34a6",
+   "up": "0,0,1",
+   "front": "0,-1,0",
+   "unit_m_per_native": null,
+   "aligned_dims_cm": "10.404703,17.120996,28.355698",
+   "tags": "ambulance,army,carabinieri,emergency,emergenza,esercito,fdny,fire,fuoco,italy,marina,medic,notruf,nypd,police,polizia,rescue,sar,search,soccorso,vigili",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "6d4ee0be5746095d7c088bd2a4124c69",
+   "up": "0,0,1",
+   "front": "1,0,0",
+   "unit_m_per_native": null,
+   "aligned_dims_cm": "67.3161,111.25397,196.99986",
+   "tags": "engine motor,honda,moto,motorbike,motorcycle,transport",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "748e994cf5beeb7ec9e6d67e63729156",
+   "up": "0,0,1",
+   "front": "-1,0,0",
+   "unit_m_per_native": null,
+   "aligned_dims_cm": "64.73716,88.50345,214.87155",
+   "tags": "*",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "97bb8c467f0efadaf2b5d20b1742ee75",
+   "up": "0,0,1",
+   "front": "-1,0,0",
+   "unit_m_per_native": null,
+   "aligned_dims_cm": "297.63388,304.39417,772.22217",
+   "tags": "bike,biker,custom,motorbike,sketchyphysics,skpgroup,working",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "9dfb09bbadf812938640da3b661bbd47",
+   "up": "0,0,1",
+   "front": "-1,0,0",
+   "unit_m_per_native": null,
+   "aligned_dims_cm": "21.206282,27.183022,55.020416",
+   "tags": "bike",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "9f5286f2bd2abcaab4e8c1a281d48fc8",
+   "up": null,
+   "front": null,
+   "unit_m_per_native": null,
+   "aligned_dims_cm": "265.37894,355.37656,653.0351",
+   "tags": "bike,honda,mod,motor,motorsport,xe may",
+   "files_extracted": 3
+  },
+  {
+   "full_id": "b1bb49d472fa7a39e0dbf31b32c641d1",
+   "up": "0,0,1",
+   "front": "1,0,0",
+   "unit_m_per_native": null,
+   "aligned_dims_cm": "69.17818,102.89718,172.15002",
+   "tags": "ciao,detailed,engine,malossi,minarelli,moped,performance,scooter,top,tuning",
+   "files_extracted": 3
+  }
+ ]
+}
