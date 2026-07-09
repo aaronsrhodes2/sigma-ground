@@ -1,0 +1,300 @@
+{
+ "_meta": {
+  "generated_by": "tools/distill_optics_nk.py",
+  "method": "linear interpolation of the published tabulation at the renderer RGB wavelengths",
+  "source": "refractiveindex.info database (open data; papers cited per entry)",
+  "wavelengths_nm": [
+   650.0,
+   550.0,
+   450.0
+  ]
+ },
+ "aluminum": {
+  "citation": "Rakic 1995, Appl. Opt. 34, 4755",
+  "nk_by_nm": {
+   "450": [
+    0.6332,
+    5.4544
+   ],
+   "550": [
+    1.0152,
+    6.6273
+   ],
+   "650": [
+    1.558,
+    7.7124
+   ]
+  },
+  "ref": "main/Al/nk/Rakic.yml"
+ },
+ "chromium": {
+  "citation": "Johnson & Christy 1974, PRB 9, 5056",
+  "nk_by_nm": {
+   "450": [
+    2.323,
+    3.135
+   ],
+   "550": [
+    3.1812,
+    3.3291
+   ],
+   "650": [
+    3.1071,
+    3.3314
+   ]
+  },
+  "ref": "main/Cr/nk/Johnson.yml"
+ },
+ "copper": {
+  "citation": "Johnson & Christy 1972, PRB 6, 4370",
+  "nk_by_nm": {
+   "450": [
+    1.2404,
+    2.3929
+   ],
+   "550": [
+    1.0066,
+    2.5823
+   ],
+   "650": [
+    0.2378,
+    3.6264
+   ]
+  },
+  "ref": "main/Cu/nk/Johnson.yml"
+ },
+ "germanium": {
+  "citation": "Aspnes & Studna 1983, PRB 27, 985",
+  "nk_by_nm": {
+   "450": [
+    4.0556,
+    2.2069
+   ],
+   "550": [
+    5.1603,
+    2.1983
+   ],
+   "650": [
+    5.3165,
+    0.6606
+   ]
+  },
+  "ref": "main/Ge/nk/Aspnes.yml"
+ },
+ "gold": {
+  "citation": "Johnson & Christy 1972, PRB 6, 4370",
+  "nk_by_nm": {
+   "450": [
+    1.3831,
+    1.9155
+   ],
+   "550": [
+    0.4241,
+    2.4721
+   ],
+   "650": [
+    0.1556,
+    3.6024
+   ]
+  },
+  "ref": "main/Au/nk/Johnson.yml"
+ },
+ "iron": {
+  "citation": "Johnson & Christy 1974, PRB 9, 5056",
+  "nk_by_nm": {
+   "450": [
+    2.5845,
+    2.767
+   ],
+   "550": [
+    2.9497,
+    2.9318
+   ],
+   "650": [
+    2.9114,
+    3.0893
+   ]
+  },
+  "ref": "main/Fe/nk/Johnson.yml"
+ },
+ "lead": {
+  "citation": "Werner et al. 2009, JPCRD 38, 1013",
+  "nk_by_nm": {
+   "450": [
+    0.3874,
+    4.4821
+   ],
+   "550": [
+    0.6618,
+    5.6363
+   ],
+   "650": [
+    1.0761,
+    6.4525
+   ]
+  },
+  "ref": "main/Pb/nk/Werner.yml"
+ },
+ "mercury": {
+  "citation": "Inagaki et al. 1981, PRB 23, 5246",
+  "nk_by_nm": {
+   "450": [
+    1.0606,
+    3.8628
+   ],
+   "550": [
+    1.5523,
+    4.651
+   ],
+   "650": [
+    2.0733,
+    5.3383
+   ]
+  },
+  "ref": "main/Hg/nk/Inagaki.yml"
+ },
+ "nickel": {
+  "citation": "Johnson & Christy 1974, PRB 9, 5056",
+  "nk_by_nm": {
+   "450": [
+    1.729,
+    2.9435
+   ],
+   "550": [
+    1.9212,
+    3.6158
+   ],
+   "650": [
+    1.99,
+    4.2086
+   ]
+  },
+  "ref": "main/Ni/nk/Johnson.yml"
+ },
+ "platinum": {
+  "citation": "Werner et al. 2009, JPCRD 38, 1013",
+  "nk_by_nm": {
+   "450": [
+    0.6327,
+    3.7481
+   ],
+   "550": [
+    0.4652,
+    5.1073
+   ],
+   "650": [
+    0.4748,
+    6.3329
+   ]
+  },
+  "ref": "main/Pt/nk/Werner.yml"
+ },
+ "silicon": {
+  "citation": "Aspnes & Studna 1983, PRB 27, 985",
+  "nk_by_nm": {
+   "450": [
+    4.6784,
+    0.1485
+   ],
+   "550": [
+    4.087,
+    0.0409
+   ],
+   "650": [
+    3.8515,
+    0.0165
+   ]
+  },
+  "ref": "main/Si/nk/Aspnes.yml"
+ },
+ "silver": {
+  "citation": "Johnson & Christy 1972, PRB 6, 4370",
+  "nk_by_nm": {
+   "450": [
+    0.04,
+    2.6484
+   ],
+   "550": [
+    0.0596,
+    3.5974
+   ],
+   "650": [
+    0.0522,
+    4.4094
+   ]
+  },
+  "ref": "main/Ag/nk/Johnson.yml"
+ },
+ "titanium": {
+  "citation": "Johnson & Christy 1974, PRB 9, 5056",
+  "nk_by_nm": {
+   "450": [
+    2.267,
+    3.0385
+   ],
+   "550": [
+    2.5418,
+    3.4345
+   ],
+   "650": [
+    2.7407,
+    3.8143
+   ]
+  },
+  "ref": "main/Ti/nk/Johnson.yml"
+ },
+ "tungsten": {
+  "citation": "Werner et al. 2009, JPCRD 38, 1013",
+  "nk_by_nm": {
+   "450": [
+    2.2323,
+    5.1461
+   ],
+   "550": [
+    1.3437,
+    5.2293
+   ],
+   "650": [
+    0.9207,
+    6.8595
+   ]
+  },
+  "ref": "main/W/nk/Werner.yml"
+ },
+ "water": {
+  "citation": "Hale & Querry 1973, Appl. Opt. 12, 555",
+  "nk_by_nm": {
+   "450": [
+    1.337,
+    0.0
+   ],
+   "550": [
+    1.333,
+    0.0
+   ],
+   "650": [
+    1.331,
+    0.0
+   ]
+  },
+  "ref": "main/H2O/nk/Hale.yml"
+ },
+ "zinc": {
+  "citation": "Werner et al. 2009, JPCRD 38, 1013",
+  "nk_by_nm": {
+   "450": [
+    0.6777,
+    4.0122
+   ],
+   "550": [
+    0.9294,
+    4.9751
+   ],
+   "650": [
+    1.2338,
+    5.873
+   ]
+  },
+  "ref": "main/Zn/nk/Werner.yml"
+ }
+}
