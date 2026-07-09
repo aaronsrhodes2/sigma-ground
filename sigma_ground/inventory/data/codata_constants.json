@@ -1,0 +1,66 @@
+{
+ "_meta": {
+  "source": "CODATA recommended values (physics.nist.gov/cuu/Constants allascii table \u2014 public domain)",
+  "generated_by": "tools/distill_chemistry.py"
+ },
+ "Avogadro constant": {
+  "value": 6.02214076e+23,
+  "uncertainty": 0.0,
+  "unit": "mol^-1"
+ },
+ "Boltzmann constant": {
+  "value": 69.50348004,
+  "uncertainty": 0.0,
+  "unit": "m^-1 K^-1"
+ },
+ "electron mass": {
+  "value": 0.0005485799090441,
+  "uncertainty": 9.7e-15,
+  "unit": "u"
+ },
+ "elementary charge": {
+  "value": 1519267447000000.0,
+  "uncertainty": 0.0,
+  "unit": "A J^-1"
+ },
+ "fine-structure constant": {
+  "value": 0.0072973525643,
+  "uncertainty": 1.1e-12,
+  "unit": ""
+ },
+ "molar gas constant": {
+  "value": 8.314462618,
+  "uncertainty": 0.0,
+  "unit": "J mol^-1 K^-1"
+ },
+ "Newtonian constant of gravitation": {
+  "value": 6.70883e-39,
+  "uncertainty": 1.5e-43,
+  "unit": "(GeV/c^2)^-2"
+ },
+ "Planck constant": {
+  "value": 4.135667696e-15,
+  "uncertainty": 0.0,
+  "unit": "eV Hz^-1"
+ },
+ "proton mass": {
+  "value": 1.0072764665789,
+  "uncertainty": 8.3e-12,
+  "unit": "u"
+ },
+ "speed of light in vacuum": {
+  "value": 299792458.0,
+  "uncertainty": 0.0,
+  "unit": "m s^-1"
+ },
+ "Stefan-Boltzmann constant": {
+  "value": 5.670374419e-08,
+  "uncertainty": 0.0,
+  "unit": "W m^-2 K^-4"
+ },
+ "vacuum electric permittivity": {
+  "value": 8.8541878188e-12,
+  "uncertainty": 1.4e-21,
+  "unit": "F m^-1"
+ }
+}
