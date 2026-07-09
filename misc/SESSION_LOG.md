@@ -1892,3 +1892,121 @@ atmosphere-preset + thermal-fields sections.
 - Future arc (named): momentum/flow fields (the registry is shaped for it), phase
   change (no melting data), convective film coefficients, NEE per-cell cast light,
   dodexel lattice.
+
+## SESSION 22 — July 8, 2026
+**Players:** Captain Aaron Rhodes, Skippy the Magnificent
+
+---
+
+CAPTAIN: Delete all of our "primitive" shape renders and get Radiance to replace
+them all with new Deckard shapes, so the hammer is a hammer finally and not a
+rod and a box.
+
+SKIPPY: [maps the pipeline] `deckard.identify` always returns primitives —
+zero voxel routing. The falling hammer literally IS a Cylinder handle + Box
+head. Rendering: `viewer.js` is a WebGL2 SDF raymarcher; a voxel is "just
+another SDF," so the fix is a data path, not a rewrite.
+
+CAPTAIN: [picks Option A — in-browser 3-D-texture raymarch over server-baked frames]
+
+SKIPPY: [RR1] `Voxel` joins `SUPPORTED_SHAPE_TYPES`; narrow-band int8 + base64
+grid ships in the SceneSpec; round-trip renders pixel-identical to the direct
+construct. [RR3 — the hard piece] WebGL2 `sampler3D` per voxel leaf, R8 UNORM
+not SNORM (SNORM 3-D textures aren't LINEAR-filterable on ANGLE/D3D — silently
+reads 0). Hit a real bug: outside the grid box the SDF returned bare
+box-distance (0 AT the face) → the path-tracer false-hit the bounding box
+instead of marching in. Fixed with boundary_sample + distance-to-box (the
+kernel's own formula). A real ShapeNet chair and mug render live in Chrome —
+recognizable, lit, path-traced. [RR4] `identify(fidelity="voxel")` routes
+name→real mesh with honest primitive fallback. [RR5-6] 8 real drop bundles
+(chair/mug/bowl/bottle/vase/lamp/knife/table) verified falling in-browser.
+
+SKIPPY: Honest wall: ShapeNet/PartNet has NO hammer, anvil, skillet, or
+feather — it's furniture/household only. Won't fake a mesh.
+
+CAPTAIN: I would like for you to tackle a research cycle on all the knowledge
+you can gather on voxel-based rendering and real-matter simulation. See if
+we are doing this the right way, if we are forgetting key details.
+
+SKIPPY: [launches the deep-research workflow — 95 agents, 15 primary sources]
+Confirmed: our int8 narrow-band GPU quantization matches accepted budgets, and
+dense per-object stamps are the RIGHT choice at our scale (not the failure
+mode OpenVDB's paper targets — that's a shared world grid or much higher
+resolution). But CPU-side we compute a full dense EDT then narrow-band after
+the fact — backwards; Fast Sweeping/Marching builds the narrow band directly.
+Unverified (rate-limit outage killed the adversarial pass) but concrete:
+NVIDIA/DeepMind/Disney's Newton engine (built on Warp, MPM+articulation+cloth
+solvers, Apache 2.0) and Genesis (FEM+MPM+SPH+PBD+rigid on one platform,
+IPC-based joint+contact coupling) are real candidates to ADOPT for the
+unified rigid+deformable+fluid substrate, rather than hand-rolling one.
+
+CAPTAIN: I would like to restrict this lane to only downloading and data
+processing. I am giving your coding functions to the main lane now. Please
+re-plan any non/minor code operations we have left.
+
+SKIPPY: [re-plans; downloads + distills, verified against known physics at
+every step] DE440s ephemeris kernel (EMB at J2000 = 1.469e8 km ✓). refractive
+index.info database → 16 cited materials' RGB n,k (caught our old mercury
+values were smoothed approximations of the real Inagaki tabulation). NIST
+atomic weights (118 elements, 3352 isotopes, Hg=200.592 ✓) + Burcat NASA-7
+combustion polynomials (Hf298 recomputed from the polynomials matches
+textbook to the decimal) + CODATA. 864 Objaverse LVIS models across 13
+categories — the hammer is FINALLY a real hammer (59 of them), plus a
+motor (engine-adjacent) — per-object license ledger (Sketchfab licenses vary
+per model). Wikidata electrical properties (caught & documented a real
+coverage gap: only copper has resistivity curated at all — verified against
+raw claims, not a bug). KiCad component 3-D models. NASA TPSX: 700 named
+materials — caught a real extraction bug (every material landed "(unnamed)"
+while values were already correct) before shipping, fixed, re-ran free from
+cache. Exemplar pools deepened K=4→K=8 across 23/24 PartNet categories
+(keyboard has zero real candidates — an honest dataset limit). Voxel bake
+cache warmed for all 23 categories (53s). ShapeNetCore: 120 sampled models
+across 5 synsets PartNet lacks (car/airplane/guitar/watercraft/motorcycle) —
+found every model ships a pre-computed solid.binvox, a trusted alternative to
+our fill-heuristic voxelizer, worth the main lane's attention.
+
+CAPTAIN: PartNet-Mobility?
+
+SKIPPY: Blocked — needs your registration at sapien.ucsd.edu (non-commercial
+ToU; I can't create the account). The moment you have access, the joint census
+proceeds — it's the one dataset with real URDF articulation data on disk.
+
+---
+
+### Summary
+Two-phase session. Phase 1 (coding, main lane): shipped the voxel-render
+refresh end to end — `Voxel` SceneSpec serialization, the WebGL2 3-D-texture
+raymarcher (the session's hard bug: AABB-boundary false-hit, fixed via the
+kernel's boundary+distance formula), `identify(fidelity="voxel")` routing, 8
+real-shape falling bundles verified live in Chrome. A deep-research audit
+(95 agents) confirmed the SDF/voxel-storage half of the architecture and
+surfaced Newton/Genesis/Warp as concrete adopt-candidates for the physics
+half (unverified — rate-limited adversarial pass, flagged for re-run). Phase
+2 (data lane, re-scoped): 8 download/distill commits — ephemeris, optics,
+chemistry, Objaverse (closing the "no hammer" gap), electronics, TPSX
+materials, deepened exemplar pools, ShapeNetCore synset extraction (surfacing
+solid.binvox as a real alternative to our fill-heuristic voxelizer) — every
+distill spot-checked against a known physical value before being trusted.
+
+### Result
+| Metric | Value |
+|--------|-------|
+| Voxel refresh | 5 commits (`a1e2114`→`98ef48e`), full suite 4640 passed throughout |
+| Data lane | 8 commits (`4558f27`→`117d4c7`), every distill verified vs. a known value |
+| Objaverse | 864/864 models, 13 categories — hammer(59), motor(54), mug(126)... |
+| PartNet pools | K=4→K=8, 23/24 categories (184 exemplar files) |
+| ShapeNetCore | 120 models, 5 synsets (car/airplane/guitar/watercraft/motorcycle) |
+| Caught bugs | TPSX "(unnamed)" title regex; SNORM 3-D texture filtering; AABB false-hit |
+
+### Known / next
+- D1 PartNet-Mobility (SAPIEN, real URDF joints) blocked on Captain's account
+  registration — the one dataset this session couldn't reach.
+- Deep-research physics half (MPM/FLIP/LBM, joint representation, fracture,
+  adaptive resolution) needs a re-run — infra rate-limited the adversarial
+  verify pass; findings exist but are unverified.
+- Main-lane follow-ups surfaced by the data lane: adopt ShapeNetCore's
+  solid.binvox instead of the fill-heuristic voxelizer where available;
+  evaluate Warp/Newton for the unified physics substrate; validate (or drop)
+  the contact-patch-PCA joint-inference heuristic once real URDF data lands.
+- Wikidata electrical resistivity coverage is thin (only copper) — a denser
+  table would need a non-CC0 source (e.g. CRC Handbook).
