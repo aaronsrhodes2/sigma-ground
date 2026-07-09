@@ -1,0 +1,51 @@
+{
+ "_meta": {
+  "generated_by": "tools/distill_electronics.py",
+  "source": "Wikidata (CC0): P5679 electrical resistivity [ohm m], P2068 thermal conductivity [W/(m K)]; temperature-qualified claims nearest 20 C preferred",
+  "coverage_gap": "Verified against raw Wikidata claims (not a script bug): P5679 resistivity is curated for very few elements — only copper has it among our 17-element target list. Attempted: aluminium, silver, gold, iron, nickel, tungsten, zinc, lead, titanium, chromium, platinum, mercury, tin, silicon, germanium, carbon. 7/17 have any data; only copper has resistivity. Silver/nickel/zinc/lead/chromium/platinum/tin/silicon/germanium/carbon have ZERO claims on either property (spot-checked directly via wbgetclaims). A denser resistivity table (e.g. CRC Handbook figures, not freely redistributable) would need a different source."
+ },
+ "aluminium": {
+  "license": "CC0",
+  "qid": "Q663",
+  "thermal_conductivity_at_c": null,
+  "thermal_conductivity_w_mk": 236.0
+ },
+ "copper": {
+  "license": "CC0",
+  "qid": "Q753",
+  "resistivity_at_c": 20.0,
+  "resistivity_ohm_m": 1.7e-08,
+  "thermal_conductivity_at_c": 20.0,
+  "thermal_conductivity_w_mk": 395.0
+ },
+ "gold": {
+  "license": "CC0",
+  "qid": "Q897",
+  "thermal_conductivity_at_c": 20.0,
+  "thermal_conductivity_w_mk": 295.0
+ },
+ "iron": {
+  "license": "CC0",
+  "qid": "Q677",
+  "thermal_conductivity_at_c": null,
+  "thermal_conductivity_w_mk": 84.0
+ },
+ "mercury": {
+  "license": "CC0",
+  "qid": "Q925",
+  "thermal_conductivity_at_c": null,
+  "thermal_conductivity_w_mk": 8.3
+ },
+ "titanium": {
+  "license": "CC0",
+  "qid": "Q716",
+  "thermal_conductivity_at_c": 20.0,
+  "thermal_conductivity_w_mk": 21.9
+ },
+ "tungsten": {
+  "license": "CC0",
+  "qid": "Q743",
+  "thermal_conductivity_at_c": null,
+  "thermal_conductivity_w_mk": 173.0
+ }
+}
