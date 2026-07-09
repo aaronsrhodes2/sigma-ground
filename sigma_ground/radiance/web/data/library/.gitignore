@@ -1,0 +1,5 @@
+# Runtime conversation history (Mentat V2 UI) — per-user, regenerable, never
+# committed. This .gitignore is the only tracked file here, so the directory
+# exists on a fresh clone while the threads (conv_*.json, index.json) stay local.
+*
+!.gitignore

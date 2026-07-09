@@ -12,6 +12,7 @@ import os
 import socketserver
 import sys
 import threading
+import urllib.parse
 import uuid
 
 # Make `sigma_ground` importable no matter where the server is launched from, so
@@ -20,6 +21,8 @@ import uuid
 _ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
+
+from sigma_ground.radiance.web import library    # durable conversation store (Phase 0)
 
 # One front-door Session per browser tab (the client posts a stable session_id).
 # In-process and ephemeral — a restart clears them. This threads multi-turn state
@@ -49,6 +52,32 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
         except (BrokenPipeError, ConnectionError):
             pass                                    # client gave up mid-dispatch — fine
 
+    # ── GET /library, /conversation : the durable history (Phase 0) ──
+    def do_GET(self):
+        raw = urllib.parse.urlparse(self.path)
+        if raw.path == "/library":
+            self._send_json(200, library.load_index())
+            return
+        if raw.path == "/conversation":
+            cid = (urllib.parse.parse_qs(raw.query).get("id") or [""])[0]
+            conv = library.load_conversation(cid)
+            if conv is None:
+                self._send_json(404, {"error": "no such conversation", "id": cid})
+            else:
+                self._send_json(200, conv)
+            return
+        super().do_GET()                            # everything else: static files
+
+    # ── DELETE /conversation : forget a thread (its render bundles stay) ──
+    def do_DELETE(self):
+        raw = urllib.parse.urlparse(self.path)
+        if raw.path == "/conversation":
+            cid = (urllib.parse.parse_qs(raw.query).get("id") or [""])[0]
+            library.delete_conversation(cid)
+            self._send_json(200, {"ok": True, "id": cid})
+            return
+        self.send_error(404, "only /conversation accepts DELETE")
+
     def do_POST(self):
         # ── POST /probe : the browser gauntlet's verification sink ──
         if self.path.split("?")[0] == "/probe":
@@ -68,6 +97,17 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
                 with open(path, "w", encoding="utf-8") as f:
                     json.dump(cur, f, indent=1)
             self._send_json(200, {"ok": True, "count": len(cur)})
+            return
+        # ── POST /conversation : create (the rail's "+ New") or rename ──
+        if self.path.split("?")[0] == "/conversation":
+            try:
+                n = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(n) or b"{}")
+            except Exception as e:
+                self._send_json(400, {"error": f"bad request: {e}"})
+                return
+            cid = body.get("id") or uuid.uuid4().hex
+            self._send_json(200, library.upsert_conversation(cid, title=body.get("title")))
             return
         if self.path.split("?")[0] != "/chat":
             self.send_error(404, "only /chat accepts POST")
@@ -101,6 +141,13 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
                 return
         env = dict(env)
         env["session_id"] = sid
+        # Phase 0: append this exchange to the durable store so the thread
+        # survives a reload. Persistence must never break the reply.
+        if text:
+            try:
+                library.record_turn(sid, user_text=text, mode=mode, envelope=env)
+            except Exception:
+                pass
         self._send_json(200, env)
 
 
