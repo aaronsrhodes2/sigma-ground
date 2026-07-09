@@ -268,6 +268,127 @@ class TestContactAngle(unittest.TestCase):
             "Very low γ_lv should give complete wetting (θ=0°)")
 
 
+class TestWettingContactAngle(unittest.TestCase):
+    """Young-Dupré + Owens-Wendt wetting model: cos θ = W_SL/γ_LV − 1, with
+    W_SL = 2√(γ_S^d γ_L^d) + 2√(γ_S^p γ_L^p).
+
+    Unlike contact_angle() (solids DB → over-predicts wetting for liquids),
+    wetting_contact_angle() draws on the dispersive/polar surface-energy split
+    of real wetting phases and must reproduce textbook angles.
+    """
+
+    def test_water_on_ptfe_is_hydrophobic(self):
+        """Water on PTFE/Teflon ≈ 108° (textbook 108-112°)."""
+        from sigma_ground.field.interface.adhesion import wetting_contact_angle
+        theta = wetting_contact_angle('ptfe', 'water')
+        self.assertAlmostEqual(theta, 108, delta=8,
+            msg=f"water/PTFE should be ~108°, got {theta:.1f}°")
+
+    def test_mercury_on_glass_beads(self):
+        """Mercury on glass is strongly non-wetting, ≈ 140° (textbook).
+
+        The geometric-mean model lands at ~133° — within the beading regime
+        and within ~7° of the textbook value. We assert strong non-wetting
+        rather than an exact figure (liquid-metal/oxide wetting is a known
+        hard case for combining rules).
+        """
+        from sigma_ground.field.interface.adhesion import wetting_contact_angle
+        theta = wetting_contact_angle('glass', 'mercury')
+        self.assertGreaterEqual(theta, 125,
+            f"mercury/glass should strongly bead (~140°), got {theta:.1f}°")
+        self.assertLessEqual(theta, 150,
+            f"mercury/glass should be ~140°, got {theta:.1f}°")
+
+    def test_water_on_clean_glass_wets(self):
+        """Water sheets out on clean (high-energy) glass: θ ≈ 0°."""
+        from sigma_ground.field.interface.adhesion import wetting_contact_angle
+        theta = wetting_contact_angle('glass', 'water')
+        self.assertLessEqual(theta, 15,
+            f"water/clean-glass should wet (θ≈0°), got {theta:.1f}°")
+
+    def test_water_on_paraffin_is_hydrophobic(self):
+        """Water on paraffin wax ≈ 108-110°."""
+        from sigma_ground.field.interface.adhesion import wetting_contact_angle
+        theta = wetting_contact_angle('paraffin', 'water')
+        self.assertAlmostEqual(theta, 109, delta=10,
+            msg=f"water/paraffin should be ~108°, got {theta:.1f}°")
+
+    def test_water_on_gold_partial(self):
+        """Water on gold ≈ 0-80° depending on cleanliness; our lab-gold value
+        gives a partial angle in that band."""
+        from sigma_ground.field.interface.adhesion import wetting_contact_angle
+        theta = wetting_contact_angle('gold', 'water')
+        self.assertGreaterEqual(theta, 0)
+        self.assertLessEqual(theta, 85,
+            f"water/gold should be in the 0-80° band, got {theta:.1f}°")
+
+    def test_mercury_beads_on_teflon_too(self):
+        """Mercury beads on almost everything; PTFE should also be >120°."""
+        from sigma_ground.field.interface.adhesion import wetting_contact_angle
+        theta = wetting_contact_angle('ptfe', 'mercury')
+        self.assertGreater(theta, 120,
+            f"mercury/PTFE should strongly bead, got {theta:.1f}°")
+
+    def test_ethanol_wets_ptfe_better_than_water(self):
+        """Low-surface-tension ethanol wets PTFE far better than water does."""
+        from sigma_ground.field.interface.adhesion import wetting_contact_angle
+        eth = wetting_contact_angle('ptfe', 'ethanol')
+        wat = wetting_contact_angle('ptfe', 'water')
+        self.assertLess(eth, wat,
+            "ethanol (low γ) should wet PTFE better than water")
+
+    def test_angles_in_valid_range(self):
+        """Every tabulated solid/liquid pair must give 0 ≤ θ ≤ 180."""
+        from sigma_ground.field.interface.adhesion import (
+            wetting_contact_angle, WETTING_SOLIDS, WETTING_LIQUIDS,
+        )
+        for s in WETTING_SOLIDS:
+            for liq in WETTING_LIQUIDS:
+                theta = wetting_contact_angle(s, liq)
+                self.assertIsNotNone(theta, f"{liq}/{s} gave None")
+                self.assertGreaterEqual(theta, 0.0, f"{liq}/{s} θ<0")
+                self.assertLessEqual(theta, 180.0, f"{liq}/{s} θ>180")
+
+    def test_spreading_coefficient_sign(self):
+        """S > 0 when the liquid spreads (water/glass), S < 0 when it beads
+        (water/PTFE). S = W_SL − 2γ_LV."""
+        from sigma_ground.field.interface.adhesion import spreading_coefficient
+        self.assertGreater(spreading_coefficient('glass', 'water'), 0,
+            "water should spread on clean glass (S>0)")
+        self.assertLess(spreading_coefficient('ptfe', 'water'), 0,
+            "water should bead on PTFE (S<0)")
+
+    def test_metallic_liquid_uses_dispersive_term_only(self):
+        """A metallic liquid on a dielectric solid keeps only the dispersive
+        (Fowkes) cross term — that is what makes mercury bead on glass.
+
+        Verify W_SL equals the dispersive-only value, which is strictly less
+        than the full Owens-Wendt value (mercury has a large polar component).
+        """
+        import math
+        from sigma_ground.field.interface.adhesion import (
+            work_of_solid_liquid_adhesion, WETTING_SOLIDS, WETTING_LIQUIDS,
+        )
+        s = WETTING_SOLIDS['glass']
+        liq = WETTING_LIQUIDS['mercury']
+        disp_only = 2.0 * math.sqrt(s['gamma_d'] * liq['gamma_d'])
+        full_owrk = disp_only + 2.0 * math.sqrt(s['gamma_p'] * liq['gamma_p'])
+        W = work_of_solid_liquid_adhesion('glass', 'mercury')
+        self.assertAlmostEqual(W, disp_only, places=10,
+            msg="metallic liquid on dielectric should use dispersive term only")
+        self.assertLess(W, full_owrk,
+            "dispersive-only W must be below the full polar+dispersive value")
+
+    def test_does_not_regress_metal_pair_overwetting(self):
+        """The original failure: contact_angle('copper','lead',0.45) reported
+        complete wetting (0°). The wetting model instead treats lead as a
+        molten metal that beads on a non-metallic substrate."""
+        from sigma_ground.field.interface.adhesion import wetting_contact_angle
+        theta = wetting_contact_angle('glass', 'solder_lead')
+        self.assertGreater(theta, 90,
+            f"molten lead should not wet glass, got {theta:.1f}°")
+
+
 class TestNagathaIntegration(unittest.TestCase):
     """Adhesion properties in Nagatha-compatible export format."""
 

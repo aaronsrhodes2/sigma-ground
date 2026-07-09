@@ -241,11 +241,11 @@ _PRIMARY_TOOLS = [
     {"name": "hubble_radius", "tier": "PRIMARY", "domain": "cosmology",
      "summary": "R_H = c / H_0.", "inputs": {}, "returns": "radius in meters"},
     {"name": "hde_dark_energy_density", "tier": "PRIMARY", "domain": "cosmology",
-     "summary": "HDE rho_DE; defaults c^2=ETA, L=R_H.",
+     "summary": "HDE rho_DE; defaults c^2=DESI Union3 fit, L=R_H.",
      "inputs": {"c_squared": "float|None", "L_meters": "float|None"},
      "returns": "energy density in J/m^3"},
     {"name": "eta_desi_band_check", "tier": "PRIMARY", "domain": "cosmology",
-     "summary": "Check ETA within DESI Union3 1-sigma band.",
+     "summary": "Check adopted HDE c^2 within DESI Union3 1-sigma band.",
      "inputs": {"dataset": "str (dr2 or dr3)"}, "returns": "dict"},
     {"name": "mond_regime_classifier", "tier": "PRIMARY", "domain": "cosmology",
      "summary": "Classify accel as newtonian/transition/mond.",
@@ -260,7 +260,7 @@ _PRIMARY_TOOLS = [
      "summary": "Hubble time t_H = 1/H_0.", "inputs": {},
      "returns": "time in seconds"},
     {"name": "eta_value_report", "tier": "PRIMARY", "domain": "cosmology",
-     "summary": "ETA = c^2_DESI ~0.4122.", "inputs": {},
+     "summary": "Adopted HDE c^2 = DESI Union3 fit ~0.4122.", "inputs": {},
      "returns": "dimensionless"},
     # ── thermodynamics (Phase 1.5) ──
     {"name": "ideal_gas_pressure", "tier": "PRIMARY", "domain": "thermodynamics",
@@ -494,133 +494,798 @@ _PRIMARY_TOOLS = [
                 "'5 kW for 1 hr' = energy_power_time(power_w=5000,time_s=3600).",
      "inputs": {"power_w": "float|None", "time_s": "float|None",
                 "energy_j": "float|None"}, "returns": "the missing quantity"},
-    # ── frontier (standard black-hole thermodynamics, textbook) ──
-    {"name": "bekenstein_hawking_entropy", "tier": "PRIMARY", "domain": "frontier",
-     "summary": "Black-hole entropy S = A/(4 L_p²), Hawking temperature, "
-                "horizon area, and holographic thread/pixel count.",
-     "inputs": {"mass_kg": "float"},
-     "returns": "dict {entropy_k_B, thread_count, horizon_area_m2, "
-                "schwarzschild_radius_m, hawking_temperature_K}"},
-    {"name": "gravitational_binding_energy", "tier": "PRIMARY", "domain": "frontier",
-     "summary": "Gravitational binding energy of a uniform sphere, "
-                "U = (3/5) G M² / R.",
-     "inputs": {"mass_kg": "float", "radius_m": "float"}, "returns": "energy in J"},
-    {"name": "unruh_temperature", "tier": "PRIMARY", "domain": "frontier",
-     "summary": "Unruh temperature of an accelerated observer, "
-                "T = ħ a / (2π c k_B).",
-     "inputs": {"acceleration_m_s2": "float"}, "returns": "temperature in K"},
-    {"name": "entanglement_channel", "tier": "PRIMARY", "domain": "quantum_information",
-     "summary": "What entanglement can/can't do: NO faster-than-light "
-                "communication (no-communication theorem), shared secret key "
-                "(QKD/Ekert), CHSH ≤ 2√2 (Tsirelson). Guardrail against the "
-                "'entanglement = FTL radio' misconception.",
-     "inputs": {"scenario": "str (the question; verdict adapts to it)"},
-     "returns": "dict {verdict, can_signal_faster_than_light, chsh_quantum_max, ...}"},
-    # ── procedures: canonical multi-step routines (the sequence is in code) ──
+
+    # ── procedures: canonical multi-step scientific routines ──
     {"name": "procedure_black_hole_profile", "tier": "PRIMARY", "domain": "procedures",
-     "summary": "Full black-hole thermodynamics from mass: Schwarzschild radius -> "
-                "Hawking temperature -> Bekenstein-Hawking entropy -> evaporation time.",
-     "inputs": {"mass_kg": "float"}, "returns": "dict {steps[], result, summary}",
+     "summary": "Full black-hole thermodynamics cascade from one mass: "
+                "Schwarzschild radius → Hawking temperature → Bekenstein-Hawking "
+                "entropy → evaporation time.",
+     "inputs": {"mass_kg": "float"},
+     "returns": "dict {steps[], result, summary}",
      "keywords": ["full black hole profile", "everything about this black hole",
                   "black hole thermodynamics"]},
+
     {"name": "procedure_photon_spectrum", "tier": "PRIMARY", "domain": "procedures",
-     "summary": "All photon properties from a wavelength: frequency -> energy (J and "
-                "eV) -> momentum.",
-     "inputs": {"wavelength_m": "float"}, "returns": "dict {steps[], result}",
+     "summary": "Full photon cascade from one wavelength: frequency → energy "
+                "(J and eV) → momentum.",
+     "inputs": {"wavelength_m": "float"},
+     "returns": "dict {steps[], result, summary}",
      "keywords": ["full photon properties", "photon spectrum", "everything about this photon"]},
+
     {"name": "procedure_relativistic_particle", "tier": "PRIMARY", "domain": "procedures",
-     "summary": "Relativistic particle cascade: Lorentz factor -> total energy -> "
-                "momentum -> de Broglie wavelength.",
-     "inputs": {"kinetic_energy_eV": "float", "particle": "str"},
-     "returns": "dict {steps[], result}",
+     "summary": "Relativistic cascade: KE → Lorentz γ → total energy → momentum "
+                "→ de Broglie wavelength.",
+     "inputs": {"kinetic_energy_eV": "float",
+                "particle": "str: electron|proton|neutron|muon"},
+     "returns": "dict {steps[], result, summary}",
      "keywords": ["relativistic particle profile", "fast particle full properties"]},
+
     {"name": "procedure_projectile_trajectory", "tier": "PRIMARY", "domain": "procedures",
-     "summary": "Projectile cascade: time of flight -> range -> max height.",
+     "summary": "Projectile cascade (no drag): time of flight → range → max height.",
      "inputs": {"initial_speed_m_s": "float", "launch_angle_deg": "float"},
-     "returns": "dict {steps[], result}",
+     "returns": "dict {steps[], result, summary}",
      "keywords": ["projectile trajectory", "range and max height", "full projectile"]},
+
     {"name": "procedure_stellar_blackbody", "tier": "PRIMARY", "domain": "procedures",
-     "summary": "Blackbody/star cascade: Wien peak wavelength -> Stefan-Boltzmann "
-                "surface flux -> peak photon energy.",
-     "inputs": {"temperature_k": "float"}, "returns": "dict {steps[], result}",
+     "summary": "Blackbody cascade: Wien peak wavelength → Stefan-Boltzmann "
+                "surface flux → peak photon energy.",
+     "inputs": {"temperature_k": "float"},
+     "returns": "dict {steps[], result, summary}",
      "keywords": ["star blackbody profile", "stellar spectrum", "blackbody properties"]},
-    # ── simulation: the Materia time-evolution engine (separate track), exposed
-    #    via the MCP. simulate() is the NL front door (Materia routes + chains);
-    #    the others give structured access + discovery.
+
+
+    # ── simulation: the Materia time-evolution engine ──
     {"name": "simulate", "tier": "PRIMARY", "domain": "simulation",
-     "summary": "Run a natural-language physics what-if through the Materia "
-                "time-evolution simulator (falling-body impact, drag heating, "
-                "supersonic projectile, high-altitude descent, vertical launch); "
-                "returns a worked, self-validated answer, or a clarification if "
-                "the scenario is not yet modeled.",
-     "inputs": {"scenario": "str (plain-English what-if)"},
-     "returns": "dict {value, units, notes, inputs.chain[...]}",
+     "summary": "Natural-language physics what-if through the Materia simulator "
+                "(falling, drag, terminal velocity, impact speed, reentry "
+                "heating, parachute, projectile apex). Returns a worked answer "
+                "or a clarification (value null) — never a fabricated number.",
+     "inputs": {"scenario": "str (a plain-English what-if)"},
+     "returns": "dict {value, units, notes, inputs.chain}",
      "keywords": ["what if", "simulate", "how fast does it hit", "terminal velocity",
                   "drop from", "does it heat up falling", "reentry heating",
                   "supersonic", "breaks the sound barrier", "parachute",
                   "throw it up", "how high does it go"]},
+
     {"name": "run_simulation", "tier": "PRIMARY", "domain": "simulation",
-     "summary": "Run one Materia simulation verb directly with explicit params "
-                "(deterministic, no LLM). Use list_simulation_scenarios() for verbs.",
+     "summary": "Run one Materia verb directly with explicit params "
+                "(deterministic, no LLM). See list_simulation_scenarios.",
      "inputs": {"verb": "str", "params": "dict"},
-     "returns": "dict {value, units, notes, inputs.chain[...]}",
+     "returns": "dict {value, units, inputs.chain}",
      "keywords": ["run simulation verb", "simulate with parameters",
                   "structured simulation"]},
+
     {"name": "list_simulation_scenarios", "tier": "PRIMARY", "domain": "simulation",
-     "summary": "List the Materia simulation verbs with their inputs and outputs.",
-     "inputs": {}, "returns": "dict {value: [verb names], inputs.catalog}",
+     "summary": "List Materia simulation verbs with their input slots and "
+                "named outputs.",
+     "inputs": {}, "returns": "dict of verbs",
      "keywords": ["list simulations", "what can the simulator do",
                   "simulation verbs"]},
-    # ── chemistry: bonds, thermochemistry, acid-base, electrochemistry, solutions ──
+
+
+    # ── chemistry: bonds, reactions, acids/bases, electrochem, solutions ──
     {"name": "bond_energy", "tier": "PRIMARY", "domain": "chemistry",
-     "summary": "Single-bond dissociation energy A–B (eV) via Pauling. Atoms H,C,N,O,F,S,Cl.",
-     "inputs": {"atom_a": "str", "atom_b": "str"}, "returns": "dict {value, units}",
+     "summary": "Bond dissociation energy (kJ/mol) for a diatomic bond.",
+     "inputs": {"atom_a": "str", "atom_b": "str"}, "returns": "kJ/mol",
      "keywords": ["bond energy", "bond strength", "dissociation energy", "how strong is the bond"]},
+
     {"name": "bond_angle", "tier": "PRIMARY", "domain": "chemistry",
-     "summary": "VSEPR bond angle (degrees) from electron domains and lone pairs.",
-     "inputs": {"electron_domains": "int", "lone_pairs": "int"}, "returns": "dict {value, units}",
+     "summary": "VSEPR bond angle (deg) from steric number; bond_angle(4,0)=109.5°.",
+     "inputs": {"electron_domains": "int", "lone_pairs": "int"},
+     "returns": "degrees",
      "keywords": ["bond angle", "VSEPR", "molecular geometry", "shape of the molecule"]},
+
     {"name": "reaction_enthalpy", "tier": "PRIMARY", "domain": "chemistry",
-     "summary": "ΔH of a named reaction (kJ/mol), bond-energy estimate (~15%).",
-     "inputs": {"reaction_key": "str (e.g. methane_combustion, haber_process)"},
-     "returns": "dict {value, units}",
+     "summary": "Standard reaction enthalpy ΔH° (kJ/mol) from formation enthalpies.",
+     "inputs": {"reaction_key": "str (e.g. 'methane_combustion')"},
+     "returns": "kJ/mol",
      "keywords": ["reaction enthalpy", "heat of reaction", "energy released", "delta H"]},
+
     {"name": "weak_acid_ph", "tier": "PRIMARY", "domain": "chemistry",
-     "summary": "pH of a weak-acid solution at a given molarity.",
-     "inputs": {"acid_key": "str (e.g. acetic_acid)", "concentration_mol_l": "float"},
-     "returns": "dict {value: pH}",
+     "summary": "pH of a weak acid from its Ka; weak_acid_ph('acetic_acid',0.1)≈2.88.",
+     "inputs": {"acid_key": "str", "concentration_mol_l": "float"},
+     "returns": "pH",
      "keywords": ["pH of an acid", "weak acid pH", "how acidic", "acid concentration"]},
+
     {"name": "buffer_ph", "tier": "PRIMARY", "domain": "chemistry",
-     "summary": "Buffer pH via Henderson–Hasselbalch (pKa + log10[A⁻]/[HA]).",
+     "summary": "Buffer pH (Henderson-Hasselbalch): pH = pKa + log([base]/[acid]).",
      "inputs": {"acid_key": "str", "ratio_base_over_acid": "float"},
-     "returns": "dict {value: pH}",
+     "returns": "pH",
      "keywords": ["buffer pH", "Henderson Hasselbalch", "buffer solution"]},
+
     {"name": "cell_potential", "tier": "PRIMARY", "domain": "chemistry",
-     "summary": "Galvanic cell EMF (V), Nernst-corrected; electrodes by element name.",
+     "summary": "Galvanic cell EMF (V), Nernst-corrected; "
+                "cell_potential('copper','zinc')≈1.10 V (Daniell).",
      "inputs": {"cathode": "str", "anode": "str", "reaction_quotient": "float"},
-     "returns": "dict {value: V}",
+     "returns": "volts",
      "keywords": ["cell potential", "battery voltage", "galvanic cell", "EMF", "Nernst", "redox voltage"]},
+
     {"name": "electrolysis_mass", "tier": "PRIMARY", "domain": "chemistry",
-     "summary": "Mass deposited by electrolysis (kg) — Faraday's first law.",
-     "inputs": {"molar_mass_kg": "float", "current_a": "float", "time_s": "float", "electrons": "int"},
-     "returns": "dict {value: kg}",
+     "summary": "Mass deposited by electrolysis (kg) — Faraday: m = M·I·t/(n·F).",
+     "inputs": {"molar_mass_kg": "float", "current_a": "float",
+                "time_s": "float", "electrons": "int"}, "returns": "kg",
      "keywords": ["electrolysis", "electroplating", "Faraday law", "mass deposited"]},
+
     {"name": "boiling_point_elevation", "tier": "PRIMARY", "domain": "chemistry",
-     "summary": "Colligative boiling-point elevation ΔTb (K) = i·Kb·molality.",
-     "inputs": {"molality_mol_kg": "float", "van_t_hoff_i": "float"}, "returns": "dict {value: K}",
+     "summary": "Boiling-point elevation ΔTb (K) = i·Kb·molality (colligative).",
+     "inputs": {"molality_mol_kg": "float", "van_t_hoff_i": "float"},
+     "returns": "K",
      "keywords": ["boiling point elevation", "colligative", "salt raises boiling point"]},
+
     {"name": "freezing_point_depression", "tier": "PRIMARY", "domain": "chemistry",
-     "summary": "Colligative freezing-point depression ΔTf (K) = i·Kf·molality.",
-     "inputs": {"molality_mol_kg": "float", "van_t_hoff_i": "float"}, "returns": "dict {value: K}",
+     "summary": "Freezing-point depression ΔTf (K) = i·Kf·molality (colligative).",
+     "inputs": {"molality_mol_kg": "float", "van_t_hoff_i": "float"},
+     "returns": "K",
      "keywords": ["freezing point depression", "colligative", "salt on ice", "antifreeze"]},
+
     {"name": "osmotic_pressure", "tier": "PRIMARY", "domain": "chemistry",
      "summary": "Osmotic pressure π (Pa) = i·M·R·T (van't Hoff).",
-     "inputs": {"molarity_mol_l": "float", "van_t_hoff_i": "float"}, "returns": "dict {value: Pa}",
+     "inputs": {"molarity_mol_l": "float", "van_t_hoff_i": "float"},
+     "returns": "Pa",
      "keywords": ["osmotic pressure", "osmosis", "van't Hoff pressure"]},
+
     {"name": "molar_solubility", "tier": "PRIMARY", "domain": "chemistry",
-     "summary": "Molar solubility (mol/L) of a sparingly-soluble salt from its Ksp.",
-     "inputs": {"salt_key": "str (e.g. silver_chloride)"}, "returns": "dict {value: mol/L}",
+     "summary": "Molar solubility (mol/L) of a sparingly-soluble salt from Ksp.",
+     "inputs": {"salt_key": "str (e.g. 'silver_chloride')"}, "returns": "mol/L",
      "keywords": ["solubility", "Ksp", "how much dissolves", "precipitation"]},
+
+
+    # ── electronics: transport, semiconductors, junctions, capacitance ──
+    {"name": "electrical_resistivity", "tier": "PRIMARY", "domain": "electronics",
+     "summary": "Electrical resistivity (Ω·m) of a metal; copper≈1.68e-8.",
+     "inputs": {"metal_key": "str", "temperature_k": "float"}, "returns": "Ω·m"},
+
+    {"name": "carrier_mobility", "tier": "PRIMARY", "domain": "electronics",
+     "summary": "Electron drift mobility (m²/V·s) of a metal (metals only).",
+     "inputs": {"metal_key": "str", "temperature_k": "float"},
+     "returns": "m²/V·s"},
+
+    {"name": "hall_coefficient", "tier": "PRIMARY", "domain": "electronics",
+     "summary": "Hall coefficient (m³/C) of a metal: R_H = −1/(n·e).",
+     "inputs": {"metal_key": "str"}, "returns": "m³/C"},
+
+    {"name": "electron_mean_free_path", "tier": "PRIMARY", "domain": "electronics",
+     "summary": "Electron mean free path (m) in a metal; copper≈39 nm.",
+     "inputs": {"metal_key": "str", "temperature_k": "float"}, "returns": "m"},
+
+    {"name": "free_electron_density", "tier": "PRIMARY", "domain": "electronics",
+     "summary": "Free-electron (conduction) number density (m⁻³) of a metal.",
+     "inputs": {"metal_key": "str"}, "returns": "m⁻³"},
+
+    {"name": "semiconductor_band_gap", "tier": "PRIMARY", "domain": "electronics",
+     "summary": "Temperature-dependent band gap (eV) of a semiconductor "
+                "(Varshni); silicon≈1.12 eV at 300 K.",
+     "inputs": {"semiconductor_key": "str", "temperature_k": "float"},
+     "returns": "eV"},
+
+    {"name": "intrinsic_carrier_density", "tier": "PRIMARY", "domain": "electronics",
+     "summary": "Intrinsic carrier density n_i (m⁻³) of a semiconductor.",
+     "inputs": {"semiconductor_key": "str", "temperature_k": "float"},
+     "returns": "m⁻³"},
+
+    {"name": "pn_built_in_voltage", "tier": "PRIMARY", "domain": "electronics",
+     "summary": "Built-in voltage of a p-n junction (V): "
+                "V_bi = (kT/e) ln(N_A N_D / n_i²).",
+     "inputs": {"semiconductor_key": "str", "donor_density_m3": "float",
+                "acceptor_density_m3": "float", "temperature_k": "float"},
+     "returns": "volts"},
+
+    {"name": "depletion_width", "tier": "PRIMARY", "domain": "electronics",
+     "summary": "Depletion-region width of a p-n junction (m).",
+     "inputs": {"semiconductor_key": "str", "donor_density_m3": "float",
+                "acceptor_density_m3": "float", "applied_voltage_v": "float",
+                "temperature_k": "float"}, "returns": "m"},
+
+    {"name": "diode_current", "tier": "PRIMARY", "domain": "electronics",
+     "summary": "Shockley diode current (A): I = I₀(exp(eV/kT) − 1).",
+     "inputs": {"saturation_current_a": "float", "voltage_v": "float",
+                "temperature_k": "float"}, "returns": "amperes"},
+
+    # parallel_plate_capacitance is already published by the circuits group
+    # (same physics, C = ε₀ε_r A / d) — not duplicated under electronics.
+
+    # ── extended math (sympy): linear algebra, transforms, calculus ──
+    {"name": "matrix_determinant", "tier": "PRIMARY", "domain": "math",
+     "summary": "Determinant of a square matrix; '[[1,2],[3,4]]' -> -2.",
+     "inputs": {"matrix": "str (nested-list, e.g. '[[1,2],[3,4]]')"},
+     "returns": "determinant (str)"},
+
+    {"name": "matrix_eigenvalues", "tier": "PRIMARY", "domain": "math",
+     "summary": "Eigenvalues of a square matrix (with multiplicity).",
+     "inputs": {"matrix": "str (nested-list)"}, "returns": "list of eigenvalues"},
+
+    {"name": "matrix_inverse", "tier": "PRIMARY", "domain": "math",
+     "summary": "Inverse of a square matrix.",
+     "inputs": {"matrix": "str (nested-list)"}, "returns": "inverse matrix (str)"},
+
+    {"name": "matrix_multiply", "tier": "PRIMARY", "domain": "math",
+     "summary": "Matrix product A*B.",
+     "inputs": {"matrix_a": "str", "matrix_b": "str"}, "returns": "product (str)"},
+
+    {"name": "solve_linear_system", "tier": "PRIMARY", "domain": "math",
+     "summary": "Solve A x = b; matrix_a='[[2,1],[1,3]]', vector_b='[1,2]'.",
+     "inputs": {"matrix_a": "str", "vector_b": "str"},
+     "returns": "solution vector"},
+
+    {"name": "compute_limit", "tier": "PRIMARY", "domain": "math",
+     "summary": "Limit of expression as variable->point; 'sin(x)/x' -> 1.",
+     "inputs": {"expression": "str", "variable": "str", "point": "str",
+                "direction": "str '+'|'-'|'+-'"}, "returns": "limit (str)"},
+
+    {"name": "series_expansion", "tier": "PRIMARY", "domain": "math",
+     "summary": "Taylor/Maclaurin series about a point to a given order.",
+     "inputs": {"expression": "str", "variable": "str", "point": "str",
+                "order": "int"}, "returns": "series (str)"},
+
+    {"name": "summation", "tier": "PRIMARY", "domain": "math",
+     "summary": "Symbolic sum over a variable; '1/n**2' to oo -> pi**2/6.",
+     "inputs": {"expression": "str", "variable": "str", "lower": "str",
+                "upper": "str ('oo'=infinity)"}, "returns": "sum (str)"},
+
+    {"name": "laplace_transform", "tier": "PRIMARY", "domain": "math",
+     "summary": "Laplace transform F(s)=L{f(t)}; 'exp(-2*t)' -> 1/(s+2).",
+     "inputs": {"expression": "str", "t_var": "str", "s_var": "str"},
+     "returns": "F(s) (str)"},
+
+    {"name": "fourier_transform", "tier": "PRIMARY", "domain": "math",
+     "summary": "Fourier transform of an expression.",
+     "inputs": {"expression": "str", "x_var": "str", "k_var": "str"},
+     "returns": "F(k) (str)"},
+
+    {"name": "factor_expression", "tier": "PRIMARY", "domain": "math",
+     "summary": "Factor a polynomial/expression; 'x**2-1' -> (x-1)(x+1).",
+     "inputs": {"expression": "str"}, "returns": "factored form (str)"},
+
+    {"name": "expand_expression", "tier": "PRIMARY", "domain": "math",
+     "summary": "Expand an expression; '(x+1)**2' -> x**2+2*x+1.",
+     "inputs": {"expression": "str"}, "returns": "expanded form (str)"},
+
+    {"name": "solve_ode", "tier": "PRIMARY", "domain": "math",
+     "summary": "Solve an ODE (use y, y', y''); \"y''+y\" -> C1*sin(x)+C2*cos(x).",
+     "inputs": {"equation": "str", "func": "str", "variable": "str"},
+     "returns": "general solution (str)"},
+
+    {"name": "gradient", "tier": "PRIMARY", "domain": "math",
+     "summary": "Gradient grad(f) of a scalar field.",
+     "inputs": {"scalar_field": "str", "variables": "str (comma-separated)"},
+     "returns": "gradient components"},
+
+    {"name": "divergence", "tier": "PRIMARY", "domain": "math",
+     "summary": "Divergence div(F) of a vector field.",
+     "inputs": {"vector_field": "str (comma-separated)", "variables": "str"},
+     "returns": "divergence (str)"},
+
+    {"name": "curl", "tier": "PRIMARY", "domain": "math",
+     "summary": "Curl of a 3-component vector field; '-y,x,0' -> [0,0,2].",
+     "inputs": {"vector_field": "str (3 comps)", "variables": "str"},
+     "returns": "curl components"},
+
+    {"name": "percent_of", "tier": "PRIMARY", "domain": "math",
+     "summary": "X percent of a value: (percent/100)*value; (2,60) -> 1.2.",
+     "inputs": {"percent": "float", "value": "float"}, "returns": "result"},
+
+
+    # ── frontier physics (standard: BH thermo, Unruh, entanglement) ──
+    {"name": "bekenstein_hawking_entropy", "tier": "PRIMARY", "domain": "frontier",
+     "summary": "Black-hole entropy/temperature/horizon-area/r_s from mass; "
+                "solar mass entropy ~1e77 k_B.",
+     "inputs": {"mass_kg": "float"},
+     "returns": "dict {entropy_k_B, horizon_area_m2, schwarzschild_radius_m, "
+                "hawking_temperature_K}"},
+
+    {"name": "gravitational_binding_energy", "tier": "PRIMARY", "domain": "frontier",
+     "summary": "Self-gravity binding energy of a uniform sphere U=(3/5)GM^2/R; "
+                "Earth ~2.24e32 J.",
+     "inputs": {"mass_kg": "float", "radius_m": "float"},
+     "returns": "energy in J"},
+
+    {"name": "unruh_temperature", "tier": "PRIMARY", "domain": "frontier",
+     "summary": "Unruh temperature of an accelerated observer T=hbar a/(2 pi c k_B).",
+     "inputs": {"acceleration_m_s2": "float"}, "returns": "temperature in K"},
+
+    {"name": "entanglement_channel", "tier": "PRIMARY", "domain": "frontier",
+     "summary": "Whether entanglement can signal (NO, no-communication theorem), "
+                "do QKD (shared secret key), and the CHSH/Tsirelson bound (2 sqrt2). "
+                "Pass the user's question as scenario.",
+     "inputs": {"scenario": "str (the question)"},
+     "returns": "dict {verdict, primary, ...}"},
+
+
+    # ── mechanics (composite analysis tools) ──
+    {"name": "collision_analysis", "tier": "PRIMARY", "domain": "mechanics",
+     "summary": "1D two-body collision: elastic velocities, inelastic outcome, KE lost.",
+     "inputs": {"mass1_kg": "float", "velocity1_m_s": "float",
+                "mass2_kg": "float", "velocity2_m_s": "float",
+                "restitution": "float"}, "returns": "dict {velocities, energy_lost_J}"},
+
+    {"name": "work_energy_analysis", "tier": "PRIMARY", "domain": "mechanics",
+     "summary": "Work, power, friction loss, gravitational PE, rotational KE, "
+                "impulse, total mechanical energy of a moving body.",
+     "inputs": {"mass_kg": "float", "velocity_m_s": "float", "height_m": "float",
+                "force_n": "float", "distance_m": "float"},
+     "returns": "dict of energies/power"},
+
+    {"name": "projectile_analysis", "tier": "PRIMARY", "domain": "mechanics",
+     "summary": "Projectile range/apex/flight-time (vacuum) + drag force, "
+                "terminal velocity, drag-corrected range. angle in degrees.",
+     "inputs": {"speed_m_s": "float", "angle_deg": "float", "mass_kg": "float",
+                "drag_coefficient": "float", "area_m2": "float"},
+     "returns": "dict {range_m, max_height_m, time_of_flight_s, ...}"},
+
+    {"name": "incline_analysis", "tier": "PRIMARY", "domain": "mechanics",
+     "summary": "Inclined plane: critical sliding angle, slide distance up, "
+                "speed at the bottom. angle in degrees.",
+     "inputs": {"angle_deg": "float", "friction_coefficient": "float",
+                "speed_m_s": "float", "height_m": "float"},
+     "returns": "dict {critical_angle, distance, speed}"},
+
+
+    # ── transport & statistical mechanics (composite) ──
+    {"name": "viscous_flow_analysis", "tier": "PRIMARY", "domain": "fluids",
+     "summary": "Viscous flow: Reynolds number, Stokes drag + terminal velocity, "
+                "drag coefficient, Poiseuille pipe flow, boundary layer, wall shear.",
+     "inputs": {"velocity_m_s": "float", "radius_m": "float",
+                "viscosity_pa_s": "float", "fluid_density_kg_m3": "float"},
+     "returns": "dict of flow quantities"},
+
+    {"name": "diffusion_analysis", "tier": "PRIMARY", "domain": "fluids",
+     "summary": "Diffusion: Einstein-Stokes diffusivity, Fick's first & second "
+                "laws, penetration time, Darken interdiffusion.",
+     "inputs": {"temperature_k": "float", "diffusivity_m2_s": "float"},
+     "returns": "dict of diffusion quantities"},
+
+    {"name": "statistical_distribution", "tier": "PRIMARY", "domain": "thermodynamics",
+     "summary": "Fermi-Dirac & Bose-Einstein occupation, partition function, "
+                "mean energy, entropy, equipartition heat capacity.",
+     "inputs": {"temperature_k": "float", "energy_ev": "float"},
+     "returns": "dict of distribution quantities"},
+
+    {"name": "rotational_dynamics", "tier": "PRIMARY", "domain": "mechanics",
+     "summary": "Moment of inertia (rod + shape geometry), parallel-axis, "
+                "angular momentum, torque, angular acceleration, rolling ramp.",
+     "inputs": {"mass_kg": "float", "radius_m": "float", "angle_deg": "float",
+                "angular_velocity_rad_s": "float"},
+     "returns": "dict of rotational quantities"},
+
+    {"name": "atomic_angular_momentum", "tier": "PRIMARY", "domain": "quantum",
+     "summary": "|J| magnitude, allowed m_j, spin-orbit coupling energy/"
+                "splitting, Lande interval (L=2, S=1/2).",
+     "inputs": {"total_j": "float", "spin_orbit_constant_ev": "float"},
+     "returns": "dict of angular-momentum quantities"},
+
+    {"name": "elastic_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Elastic response: uniaxial/shear/hydrostatic stress, strain-"
+                "energy densities, transverse strain, volume change, von Mises yield.",
+     "inputs": {"material_key": "str (e.g. 'iron','copper','aluminum','steel_mild')",
+                "strain": "float"}, "returns": "dict of stresses/energies"},
+
+    {"name": "stress_failure_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Fracture/fatigue/creep: stress-intensity, critical crack "
+                "length, fatigue life, Paris life, creep rate + rupture time.",
+     "inputs": {"material_key": "str", "applied_stress": "float (Pa)"},
+     "returns": "dict of fracture/fatigue/creep quantities"},
+
+    {"name": "plasticity_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Plastic flow stress: Johnson-Cook, Ludwik hardening, work-"
+                "hardening rate.",
+     "inputs": {"material_key": "str", "plastic_strain": "float"},
+     "returns": "dict of flow stresses"},
+
+    {"name": "composite_bounds_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Two-phase composite bounds: Voigt-Reuss-Hill, Hashin-Shtrikman, "
+                "thermal-conductivity bounds, Gibson-Ashby foam strength.",
+     "inputs": {"bulk_modulus1_pa": "float", "bulk_modulus2_pa": "float",
+                "fraction1": "float"}, "returns": "dict of composite bounds"},
+
+    {"name": "optical_waveguide_analysis", "tier": "PRIMARY", "domain": "photonics",
+     "summary": "Slab dielectric waveguide: numerical aperture, V-number "
+                "(normalized frequency), guided TE-mode count.",
+     "inputs": {"wavelength_m": "float", "core_thickness_m": "float",
+                "n_core": "float", "n_clad": "float"},
+     "returns": "dict of waveguide quantities"},
+
+    {"name": "photonic_bandgap_analysis", "tier": "PRIMARY", "domain": "photonics",
+     "summary": "Quarter-wave Bragg mirror / 1D photonic bandgap: center "
+                "wavelength, stop-band fractional width, peak reflectance.",
+     "inputs": {"design_wavelength_m": "float", "n_low": "float",
+                "n_high": "float", "n_pairs": "int"},
+     "returns": "dict of Bragg-stack quantities"},
+
+    {"name": "nonlinear_optics_analysis", "tier": "PRIMARY", "domain": "photonics",
+     "summary": "Nonlinear optics: Kerr index, B-integral (nonlinear phase), "
+                "self-focusing critical power, SHG efficiency factor.",
+     "inputs": {"intensity_w_m2": "float", "wavelength_m": "float",
+                "n0": "float", "n2_m2_w": "float", "length_m": "float"},
+     "returns": "dict of nonlinear-optics quantities"},
+
+    {"name": "material_color_analysis", "tier": "PRIMARY", "domain": "optics",
+     "summary": "Physically-derived sRGB color of a material (metal Drude "
+                "reflectance, organic spectrum, or dye-on-substrate).",
+     "inputs": {"category": "str ('metal'/'organic'/'dye')", "key": "str (e.g. 'gold')"},
+     "returns": "dict with rgb_0_1, rgb_8bit, hex"},
+
+    {"name": "phosphor_decay_analysis", "tier": "PRIMARY", "domain": "optics",
+     "summary": "Phosphor / luminescence afterglow brightness "
+                "I(t)=I0 exp(-t/tau) and surviving fraction at time t.",
+     "inputs": {"time_s": "float", "tau_s": "float", "initial_brightness": "float"},
+     "returns": "dict with brightness, fraction_remaining"},
+
+    {"name": "piezoelectric_actuator_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Converse piezoelectric effect: induced strain (d E) and tip "
+                "displacement (d E L) of an actuator under applied field.",
+     "inputs": {"material_key": "str (quartz/PZT4/PZT5A/BaTiO3/LiNbO3/AlN/PVDF)",
+                "e_field_v_m": "float", "length_m": "float"},
+     "returns": "dict with strain, displacement_m"},
+
+    {"name": "dielectric_polarization_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Relative permittivity from the Clausius-Mossotti relation "
+                "given molecular polarizability and number density.",
+     "inputs": {"polarizability_fm2": "float", "number_density_m3": "float"},
+     "returns": "dict with relative_permittivity"},
+
+    {"name": "thermoelectric_generator_analysis", "tier": "PRIMARY", "domain": "thermodynamics",
+     "summary": "Thermoelectric generator: Carnot limit, Seebeck thermocouple "
+                "voltage, leg resistance, max power, ZT efficiency, heat flow.",
+     "inputs": {"hot_temperature_k": "float", "cold_temperature_k": "float",
+                "material_key": "str", "mat_p": "str", "mat_n": "str"},
+     "returns": "dict of TEG quantities"},
+
+    {"name": "natural_convection_analysis", "tier": "PRIMARY", "domain": "fluids",
+     "summary": "Buoyancy-driven natural convection of a gas: buoyancy velocity, "
+                "Grashof number (laminar/turbulent), binary gas diffusivity.",
+     "inputs": {"hot_temperature_k": "float", "ambient_temperature_k": "float",
+                "length_m": "float", "gas_key": "str (N2/O2/CO2/H2O/CH4/CO)"},
+     "returns": "dict with buoyancy velocity, Grashof, diffusivity"},
+
+    {"name": "thermal_contact_analysis", "tier": "PRIMARY", "domain": "thermodynamics",
+     "summary": "Engineering thermal contact (joint) conductance of two pressed "
+                "metal surfaces (Cooper-Mikic-Yovanovich plastic model): "
+                "h_c=1.25 k_s (m/sigma)(P/H_c)^0.95, plus contact resistance, "
+                "harmonic-mean conductivity, contact microhardness, real-contact "
+                "fraction. Roughness/slope are surface-finish inputs.",
+     "inputs": {"material_1": "str", "material_2": "str", "pressure_pa": "float",
+                "temperature_k": "float", "roughness_m": "float (RMS, ~1-10 um)",
+                "asperity_slope": "float (~0.05-0.3)"},
+     "returns": "dict with contact conductance, resistance, k_s, microhardness"},
+
+    {"name": "viscoelastic_creep_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Viscoelastic creep & relaxation: Maxwell, Kelvin-Voigt, "
+                "standard-linear-solid creep, and SLS stress relaxation.",
+     "inputs": {"material_key": "str", "time_s": "float", "applied_stress": "float (Pa)",
+                "temperature_k": "float"},
+     "returns": "dict of strains and relaxed stress"},
+
+    {"name": "acoustic_interface_analysis", "tier": "PRIMARY", "domain": "acoustics",
+     "summary": "Sound at a planar interface: energy reflection/transmission "
+                "coefficients, Snell refraction angle, critical angle (TIR).",
+     "inputs": {"material_key_1": "str", "material_key_2": "str",
+                "incidence_angle_deg": "float"},
+     "returns": "dict of acoustic-interface quantities"},
+
+    {"name": "capacitor_analysis", "tier": "PRIMARY", "domain": "electromagnetism",
+     "summary": "Capacitance of parallel-plate, coaxial, and concentric-sphere "
+                "geometries, plus energy stored on the parallel-plate cap.",
+     "inputs": {"area_m2": "float", "separation_m": "float", "epsilon_r": "float",
+                "voltage_v": "float"},
+     "returns": "dict of capacitances and stored energy"},
+
+    {"name": "hall_effect_analysis", "tier": "PRIMARY", "domain": "electromagnetism",
+     "summary": "Hall voltage of a current-carrying conductor in a transverse "
+                "magnetic field (negative for electron carriers).",
+     "inputs": {"material_key": "str", "current_a": "float", "b_field_t": "float",
+                "thickness_m": "float"},
+     "returns": "dict with hall_voltage_V"},
+
+    {"name": "semiconductor_junction_analysis", "tier": "PRIMARY", "domain": "electronics",
+     "summary": "p-n junction: depletion (junction) capacitance and reverse "
+                "saturation current.",
+     "inputs": {"sc_key": "str (silicon/germanium/gallium_arsenide/...)",
+                "donor_density": "float", "acceptor_density": "float", "area_m2": "float"},
+     "returns": "dict with junction_capacitance_F, saturation_current_A"},
+
+    {"name": "superconducting_gap_analysis", "tier": "PRIMARY", "domain": "condensed_matter",
+     "summary": "BCS spectroscopic gap frequency f=2*Delta/h from the critical "
+                "temperature (Delta = 1.764 k_B Tc).",
+     "inputs": {"critical_temp_k": "float"},
+     "returns": "dict with gap_frequency_Hz"},
+
+    {"name": "superconductor_critical_field_analysis", "tier": "PRIMARY", "domain": "condensed_matter",
+     "summary": "Critical magnetic fields of a named superconductor: Ginzburg-Landau "
+                "kappa, thermodynamic Hc, and (Type-II) lower/upper Hc1/Hc2.",
+     "inputs": {"material": "str (niobium/NbTi/Nb3Sn/lead/aluminum/YBCO/...)"},
+     "returns": "dict with type, gl_parameter_kappa, Hc_thermodynamic_A_per_m, "
+                "Hc1_lower_A_per_m, Hc2_upper_A_per_m (+ tesla equivalents)"},
+
+    {"name": "quantum_tunneling_analysis", "tier": "PRIMARY", "domain": "quantum",
+     "summary": "WKB transmission probability through a rectangular potential "
+                "barrier.",
+     "inputs": {"barrier_height_eV": "float", "particle_energy_eV": "float",
+                "barrier_width_nm": "float"},
+     "returns": "dict with transmission_probability"},
+
+    {"name": "quantum_box_energy_analysis", "tier": "PRIMARY", "domain": "quantum",
+     "summary": "Energy of a state (n1,n2,n3) for a particle in a 3D cubic "
+                "infinite well.",
+     "inputs": {"n1": "int", "n2": "int", "n3": "int", "box_size_nm": "float"},
+     "returns": "dict with energy_eV"},
+
+    {"name": "band_dos_shape_analysis", "tier": "PRIMARY", "domain": "condensed_matter",
+     "summary": "Tight-binding density-of-states shape factor at the Fermi level "
+                "for a transition metal (van Hove peak > 1, pseudogap < 1).",
+     "inputs": {"structure": "str (bcc/fcc/hcp)", "d_electron_count": "int (1-9)"},
+     "returns": "dict with dos_shape_factor"},
+
+    {"name": "magnetic_exchange_analysis", "tier": "PRIMARY", "domain": "condensed_matter",
+     "summary": "Two-site Heisenberg model for a magnetic ion: exchange J from "
+                "crystal field, VQE vs exact ground energy, spin state.",
+     "inputs": {"atomic_number": "int", "oxidation_state": "int",
+                "coord_key": "str (e.g. 'oxide_oct')"},
+     "returns": "dict of exchange/VQE quantities"},
+
+    {"name": "plasma_parameters_analysis", "tier": "PRIMARY", "domain": "plasma",
+     "summary": "Core plasma parameters: Debye length, Debye number, Coulomb "
+                "logarithm ln(Lambda), ion Larmor (cyclotron) radius, and "
+                "Spitzer parallel resistivity eta_parallel.",
+     "inputs": {"electron_density_m3": "float", "electron_temperature_k": "float",
+                "magnetic_field_t": "float",
+                "z_eff": "float (effective ion charge, default 1.0)"},
+     "returns": "dict of plasma parameters (incl. spitzer_resistivity_ohm_m)"},
+
+    {"name": "electromagnetic_force_analysis", "tier": "PRIMARY", "domain": "electromagnetism",
+     "summary": "Coulomb force, magnetic (qv x B) and Lorentz force magnitudes, "
+                "and EM-wave time-averaged energy density and intensity.",
+     "inputs": {"charge_c": "float", "separation_m": "float", "e_field_v_m": "float",
+                "velocity_m_s": "float", "b_field_t": "float"},
+     "returns": "dict of forces and wave energetics"},
+
+    {"name": "relativistic_energy_analysis", "tier": "PRIMARY", "domain": "relativity",
+     "summary": "Rest energy m0 c^2, relativistic kinetic energy (gamma-1) m0 c^2, "
+                "and the energy-momentum invariant (m0 c^2)^2.",
+     "inputs": {"rest_mass_kg": "float", "velocity_m_s": "float"},
+     "returns": "dict with rest/kinetic energy (J, MeV) and invariant"},
+
+    {"name": "zeeman_effect_analysis", "tier": "PRIMARY", "domain": "atomic",
+     "summary": "Number of Zeeman sublevels a state of total angular momentum j "
+                "splits into in a magnetic field (2j+1).",
+     "inputs": {"total_angular_momentum_j": "float"},
+     "returns": "dict with zeeman_sublevels"},
+
+    {"name": "friction_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Dry sliding friction: interfacial shear strength, adhesive "
+                "friction coefficient, ploughing term, total friction force.",
+     "inputs": {"material_key_1": "str", "material_key_2": "str",
+                "normal_force_n": "float"},
+     "returns": "dict of friction quantities"},
+
+    {"name": "wear_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Sliding wear (Archard): worn volume, mass loss, sliding wear "
+                "rate, and wear regime (mild/severe, adhesive/abrasive).",
+     "inputs": {"material_key": "str", "normal_force_n": "float",
+                "sliding_distance_m": "float", "counter_material": "str"},
+     "returns": "dict of wear quantities"},
+
+    {"name": "wetting_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Liquid wetting on a solid (Young-Dupre + Owens-Wendt): "
+                "equilibrium contact angle, work of adhesion, spreading "
+                "coefficient, and wetting regime (e.g. water/PTFE ~108 deg, "
+                "mercury/glass ~133 deg, water/clean-glass ~0 deg).",
+     "inputs": {"solid_key": "str (glass, ptfe, paraffin, gold, ...)",
+                "liquid_key": "str (water, mercury, ethanol, glycerol, ...)"},
+     "returns": "dict with contact_angle_deg, work_of_adhesion_J_m2, "
+                "spreading_coefficient_J_m2, wetting_regime"},
+
+    {"name": "dislocation_strengthening_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Taylor work-hardening: shear flow stress from a dislocation "
+                "forest, tau = alpha G b sqrt(rho).",
+     "inputs": {"material_key": "str", "dislocation_density": "float (1/m^2)"},
+     "returns": "dict with taylor_flow_stress_Pa"},
+
+    {"name": "alloy_resistivity_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Residual resistivity of a binary solid-solution alloy from "
+                "Nordheim's rule (delta-rho ~ x(1-x)).",
+     "inputs": {"metal_a": "str", "metal_b": "str", "fraction_b": "float"},
+     "returns": "dict with residual_resistivity_uOhm_cm"},
+
+    {"name": "molecular_dipole_analysis", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Net molecular dipole moment from the vector sum of bond "
+                "dipoles (Debye). Default water-like (~1.84 D).",
+     "inputs": {"bond_dipoles_debye": "list[float]", "bond_angles_deg": "list[float]"},
+     "returns": "dict with dipole_moment_debye"},
+
+    {"name": "combustion_enthalpy_analysis", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Combustion enthalpy of a hydrocarbon (methane/propane) from a "
+                "bond-energy inventory (Hess's law; approximate).",
+     "inputs": {"fuel": "str (methane/propane)"},
+     "returns": "dict with energy_released and delta_H_combustion (kJ/mol)"},
+
+    {"name": "titration_analysis", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "pH at a point in an acid-base titration (strong acid and weak "
+                "acid / buffer region) titrated with a strong base.",
+     "inputs": {"acid_concentration_M": "float", "acid_volume_mL": "float",
+                "base_concentration_M": "float", "base_volume_mL": "float",
+                "weak_acid_key": "str"},
+     "returns": "dict with strong_acid_pH, weak_acid_pH"},
+
+    {"name": "acid_speciation_analysis", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Fractional abundance of each protonation state of a polyprotic "
+                "acid at a given pH (default phosphoric acid).",
+     "inputs": {"ph": "float", "pka_list": "list[float]"},
+     "returns": "dict with species_fractions"},
+
+    {"name": "solution_analysis", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Solution concentration & solubility: dilution, mixed "
+                "concentration, and precipitation (ion product vs Ksp).",
+     "inputs": {"initial_concentration_M": "float", "initial_volume_mL": "float",
+                "final_volume_mL": "float", "salt_key": "str"},
+     "returns": "dict with diluted/mixed concentration and will_precipitate"},
+
+    {"name": "electrochemistry_analysis", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Tafel activation overpotential, limiting molar conductivity "
+                "(Kohlrausch), and solution conductivity.",
+     "inputs": {"current_density": "float", "exchange_current_density": "float",
+                "lambda_cation": "float", "lambda_anion": "float", "concentration_M": "float"},
+     "returns": "dict of electrochemical quantities"},
+
+    {"name": "reaction_kinetics_analysis", "tier": "PRIMARY", "domain": "chemistry",
+     "summary": "Collision-theory pre-exponential factor, first-order half-life "
+                "(ln2/k), and the temperature for a target rate (Arrhenius).",
+     "inputs": {"rate_constant": "float", "activation_energy_eV": "float",
+                "prefactor": "float", "target_rate": "float"},
+     "returns": "dict of kinetics quantities"},
+
+    {"name": "radioactivity_analysis", "tier": "PRIMARY", "domain": "nuclear",
+     "summary": "Radioactive activity A = lambda N (becquerel, curie) for an "
+                "isotope sample.",
+     "inputs": {"isotope_key": "str (U238/Ra226/Po210/C14/Co60/K40)", "n_atoms": "float"},
+     "returns": "dict with activity_Bq, activity_Ci"},
+
+    {"name": "quantum_algorithm_analysis", "tier": "PRIMARY", "domain": "quantum_computing",
+     "summary": "Run canonical quantum algorithms: Grover search, QAOA Max-Cut, "
+                "and Simon's algorithm (hidden-period recovery).",
+     "inputs": {"grover_n_qubits": "int", "grover_marked_item": "int",
+                "qaoa_edges": "list[list[int]]", "qaoa_n_nodes": "int",
+                "simon_hidden_string": "str"},
+     "returns": "dict of algorithm outcomes"},
+
+    {"name": "quantum_state_analysis", "tier": "PRIMARY", "domain": "quantum_computing",
+     "summary": "Qubit-state diagnostics: Pauli-Z expectation on |+>, Bloch "
+                "angles, Bell-state Schmidt coefficients + entanglement entropy.",
+     "inputs": {},
+     "returns": "dict of state diagnostics"},
+
+    {"name": "qubit_hardware_analysis", "tier": "PRIMARY", "domain": "quantum_computing",
+     "summary": "Physical-qubit operating parameters: frequency, T1/T2 coherence, "
+                "gate fidelity. Types: transmon, spin, quantum_dot, nv_center.",
+     "inputs": {"qubit_type": "str", "material_key": "str", "b_tesla": "float",
+                "radius_m": "float"},
+     "returns": "dict of qubit parameters"},
+
+    {"name": "interference_visibility_analysis", "tier": "PRIMARY", "domain": "quantum",
+     "summary": "Fringe visibility (contrast) of an interference pattern, "
+                "V = (I_max - I_min)/(I_max + I_min).",
+     "inputs": {"intensity_max": "float", "intensity_min": "float"},
+     "returns": "dict with fringe_visibility"},
+
+    {"name": "asteroid_analysis", "tier": "PRIMARY", "domain": "astronomy",
+     "summary": "Small-body geophysics: surface gravity, escape velocity, and "
+                "shape (axis ratios, oblateness). bennu/ryugu/itokawa/eros/vesta/ceres.",
+     "inputs": {"body_key": "str"},
+     "returns": "dict of small-body geophysics"},
+
+    {"name": "mobius_bimetallic_analysis", "tier": "PRIMARY", "domain": "materials",
+     "summary": "Bimetallic strip / Mobius loop: total series resistance and "
+                "thermoelectric (Seebeck) voltage across a hot-cold gradient.",
+     "inputs": {"mat_a": "str", "mat_b": "str", "loop_length_m": "float",
+                "t_hot": "float", "t_cold": "float"},
+     "returns": "dict with resistance and Seebeck voltage"},
+
+    {"name": "hertzian_impact_analysis", "tier": "PRIMARY", "domain": "mechanics",
+     "summary": "Hertzian contact impact: reduced (effective) elastic modulus and "
+                "the velocity-dependent coefficient of restitution.",
+     "inputs": {"e1_pa": "float", "nu1": "float", "yield1_pa": "float",
+                "e2_pa": "float", "nu2": "float", "velocity_m_s": "float"},
+     "returns": "dict with reduced_modulus and coefficient_of_restitution"},
+
+    {"name": "holographic_dark_energy_analysis", "tier": "PRIMARY", "domain": "cosmology",
+     "summary": "Holographic dark-energy parameter c^2 implied by an observed "
+                "dark-energy density with the Hubble-radius IR cutoff.",
+     "inputs": {"rho_de_J_m3": "float"},
+     "returns": "dict with hde_c_squared"},
+
+    {"name": "material_inventory_analysis", "tier": "PRIMARY", "domain": "particle_inventory",
+     "summary": "Quarksum particle inventory & mass closure: proton/neutron/"
+                "electron counts, total particles/baryons, mass, mass defect, GM.",
+     "inputs": {"structure_name": "str (water_molecule/hydrogen_atom/bronze_cube/earths_layers/...)"},
+     "returns": "dict of particle counts and mass budget"},
+
+    {"name": "constituent_behaviors_analysis", "tier": "PRIMARY", "domain": "particle_inventory",
+     "summary": "Physical behaviors of a structure's constituents: QCD behaviors "
+                "of a quark, a subatomic particle, and a molecule.",
+     "inputs": {"structure_name": "str"},
+     "returns": "dict of quark/particle/molecule behaviors"},
+
+    {"name": "planet_moment_of_inertia_analysis", "tier": "PRIMARY", "domain": "astronomy",
+     "summary": "Moment-of-inertia factor C/MR^2 of a layered planet, derived "
+                "from the inventory composition of its shells (Earth ~ 0.331).",
+     "inputs": {"structure_name": "str", "planet_radius_km": "float"},
+     "returns": "dict with c_over_mr2, total_mass_kg, moi_C_kgm2"},
+
+    {"name": "playground_load", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Load matter into a LIVE simulation scene that persists across "
+                "turns (conversation mode): formula, p/n/e counts, mass, knobs.",
+     "inputs": {"material": "str (water_molecule/bronze_cube/gold_ring/...)",
+                "handle": "str"},
+     "returns": "dict scene summary"},
+
+    {"name": "playground_inspect", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Query a loaded scene's CURRENT (mutated) state. scope: "
+                "summary / matter (bonds, charges, net spin) / constituents.",
+     "inputs": {"handle": "str", "scope": "str"},
+     "returns": "dict of current state"},
+
+    {"name": "playground_apply", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Apply an environment and MUTATE the scene in place (persists). "
+                "Knobs: temperature_k, pressure_pa, magnetic_field_t, energy_ev, "
+                "electric_field_vm. Returns a diff of what changed.",
+     "inputs": {"handle": "str", "environment": "dict", "mode": "str (update/delta)"},
+     "returns": "dict diff of changed fields"},
+
+    {"name": "playground_simulate", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Run a Materia one-shot dynamics scenario (drop/launch/heat/"
+                "orbit) on the currently-loaded body.",
+     "inputs": {"handle": "str", "scenario": "str"},
+     "returns": "dict worked simulation result"},
+
+    {"name": "playground_render", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Render the current scene as a material-colored, lit sphere "
+                "(bulk-shape approximation). ascii art or png path.",
+     "inputs": {"handle": "str", "mode": "str (ascii/png)", "size": "int"},
+     "returns": "ascii string or png path"},
+
+    {"name": "playground_reset", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Rebuild the scene's matter to its pristine state and clear the "
+                "applied-environment history.",
+     "inputs": {"handle": "str"}, "returns": "dict pristine summary"},
+
+    {"name": "playground_status", "tier": "PRIMARY", "domain": "playground",
+     "summary": "List the live scenes in this session, their materials, and "
+                "applied-environment history.",
+     "inputs": {}, "returns": "dict of open scenes"},
+
+    {"name": "playground_clear", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Drop a scene (or all scenes if handle omitted) from the session.",
+     "inputs": {"handle": "str | None"}, "returns": "dict cleared"},
+
+    {"name": "playground_make", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Make an object into the scene: fills a standard size for named "
+                "objects (brick), but ASKS for the size of a size-decisive "
+                "fissile shape (ball of plutonium) and reports criticality.",
+     "inputs": {"object": "str (e.g. 'brick', 'ball of plutonium')",
+                "size_m": "float|str (optional; e.g. 0.07 or '7 cm')", "handle": "str"},
+     "returns": "dict (made object, or NEEDS-INPUT clarification)"},
+
+    {"name": "request_clarification", "tier": "PRIMARY", "domain": "playground",
+     "summary": "Ask the user for a variable you need but cannot responsibly "
+                "guess (the answer materially changes the physics). Use instead "
+                "of inventing a value.",
+     "inputs": {"variable": "str", "question": "str", "reason": "str",
+                "options": "list[str]"},
+     "returns": "dict NEEDS-INPUT clarification"},
+
+    {"name": "buoyancy_analysis", "tier": "PRIMARY", "domain": "fluids",
+     "summary": "Will it float and how deep does it sit? Archimedes submerged "
+                "fraction = rho_body/rho_fluid (sinks if >= 1). Default copper in water.",
+     "inputs": {"material_key": "str (copper/water_ice/wood_oak/...)",
+                "temperature_k": "float", "fluid_density_kg_m3": "float|None"},
+     "returns": "dict with floats, submerged_fraction"},
+
+    {"name": "wind_wave_analysis", "tier": "PRIMARY", "domain": "fluids",
+     "summary": "Wind across water: shear stress, friction velocity, the capillary-"
+                "gravity minimum (~0.23 m/s at ~1.7 cm), and the ripple field "
+                "(wavelength/speed/frequency/amplitude) for rendering.",
+     "inputs": {"wind_speed_m_s": "float", "temperature_k": "float",
+                "wavelength_m": "float|None"},
+     "returns": "dict of stress + ripple-field quantities"},
 ]
 
 

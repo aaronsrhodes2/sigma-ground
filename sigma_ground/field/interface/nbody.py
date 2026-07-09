@@ -49,7 +49,6 @@ from numpy.typing import NDArray
 
 from ..constants import G as _G_SI, C as _C_SI, L_SUN_W as _L_SUN_W
 from ..scale import scale_ratio as _scale_ratio
-from ..bounds import check_sigma as _check_sigma, Safety as _Safety
 
 # ── derived (not magic) constants ─────────────────────────────────────────
 _G   = _G_SI                  # m³ kg⁻¹ s⁻²
@@ -210,16 +209,6 @@ class CelestialBody:
             raise ValueError(f"position_m must be (3,), got {self.position_m.shape}")
         if self.velocity_m_s.shape != (3,):
             raise ValueError(f"velocity_m_s must be (3,), got {self.velocity_m_s.shape}")
-        # σ-field validation: bounds.check_sigma classifies SAFE/EDGE/WALL/BEYOND.
-        # For solar-system bodies σ ≈ 0, deeply SAFE. The check exists so that any
-        # hand-edited body straying into the cavitation regime (σ → σ_conv) gets
-        # flagged loudly rather than silently producing nonsense via math.exp(σ).
-        sigma_status = _check_sigma(self.sigma_field)
-        if sigma_status["status"] == _Safety.BEYOND:
-            raise ValueError(
-                f"sigma_field={self.sigma_field} is BEYOND the SSBM domain "
-                f"(σ_conv ≈ {sigma_status.get('clamped')}). {sigma_status['note']}"
-            )
         # Pole axis: default to +z, auto-normalize if user supplied a non-unit vector
         if self.pole_axis_unit is None:
             object.__setattr__(self, "pole_axis_unit", np.array([0.0, 0.0, 1.0]))

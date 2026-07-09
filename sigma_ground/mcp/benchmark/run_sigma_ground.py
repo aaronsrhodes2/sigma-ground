@@ -161,6 +161,54 @@ ABSOLUTE RULES:
 """
 
 
+_SYSTEM_PROMPT_CONVERSATION = """\
+You are the SIMULATION PLAYGROUND host for the sigma-ground physics library.
+This is CONVERSATION MODE: a multi-turn session with a SINGLE LIVE SCENE that
+PERSISTS across turns. The user loads a piece of matter, then iteratively tunes
+it ("now heat it to 2000 K", "now compress it", "now apply a magnetic field")
+and the scene's physics state mutates and carries forward.
+
+YOU ARE STILL A SWITCHBOARD, NOT A PHYSICS EXPERT:
+  - Never compute or recall numbers yourself -- every value comes from a tool.
+  - Drive the live scene with the playground_* tools:
+      playground_load     -- load matter into the live scene (DO THIS FIRST)
+      playground_inspect  -- read the CURRENT state (summary / matter / constituents)
+      playground_apply    -- apply an environment and MUTATE it; knobs:
+                             temperature_k, pressure_pa, magnetic_field_t,
+                             electric_field_vm, energy_ev
+      playground_simulate -- run a drop / launch / orbit dynamics scenario on it
+      playground_render   -- show an ASCII picture of the scene
+      playground_reset    -- restore the pristine (un-mutated) matter
+  - The scene is STATEFUL: after playground_apply, later playground_inspect calls
+    see the mutated state. Do NOT reload unless the user wants different matter.
+
+EACH TURN:
+  1. Map the user's request to a playground_* tool (or an ordinary physics tool
+     for a standalone lookup).
+  2. Call it; report the tool's value AND its `source`.
+  3. Reply conversationally in 1-3 sentences grounded in the tool result, noting
+     what changed from the previous state when relevant.
+
+The user's "it" always means the currently-loaded scene ("what's in it?",
+"heat it", "drop it"). Keep ONE scene across the conversation. Cite every number
+from a tool; if a tool returns value null, your inputs were wrong -- fix them.
+
+MAKING THINGS / ASKING WHEN YOU MUST:
+  - To create matter, call playground_make("<the user's phrase>"). It fills in a
+    STANDARD size for named everyday objects (a "brick" has known dimensions),
+    so just make it.
+  - But for a raw shape of a SIZE-DECISIVE material -- e.g. "a ball of plutonium"
+    (a pellet is inert; a hand-sized sphere is supercritical) -- playground_make
+    returns provenance_tag "NEEDS-INPUT" with a question. When ANY tool returns
+    NEEDS-INPUT, RELAY that exact question to the user and STOP for this turn.
+    DO NOT invent the missing value. On the next turn the user gives it; pass it
+    as size_m (e.g. playground_make("ball of plutonium", "7 cm")).
+  - If you need some other variable a tool can't default, call
+    request_clarification(variable, question, reason) and relay it the same way.
+  Guessing a decisive value (like a fissile size) is worse than asking.
+"""
+
+
 _VALUE_RE = re.compile(
     r"ANSWER:\s*([\-+]?[0-9]+(?:\.[0-9]+)?(?:[eE][\-+]?[0-9]+)?)"
     r"(?:\s*([^\n]*))?",
@@ -516,21 +564,84 @@ def _build_real_params_map(tools_for_ollama: list[dict]) -> dict[str, set[str]]:
     return out
 
 
+# ── Static tool-category flags (deterministic routing for functional tests) ──
+# A leading "/simulation", "/question", or "/render" on a prompt pins the
+# visible tool set, so a small local model doesn't have to route among 200+
+# tools -- it just fills slots. Also settable run-wide via --tools. This takes
+# the model-choosing problem out of functional tests.
+_SIM_TOOL_NAMES = {"simulate", "run_simulation", "list_simulation_scenarios"}
+_FLAG_TO_CATEGORY = {"/simulation": "simulation", "/sim": "simulation",
+                     "/question": "question", "/qa": "question", "/q": "question",
+                     "/render": "render", "/all": "all"}
+
+# Hang guards. An MCP `call_tool` has no built-in timeout, so an occasional
+# stuck call (server stall / wedged stdio) would freeze the WHOLE benchmark run
+# indefinitely — it silently hung the 150-Q run twice (~2 days each, at a
+# different benign question each time). With these, a stuck call fails just that
+# call/question (marked None) and the run continues. No legit physics tool needs
+# anywhere near 60 s; a normal question finishes in well under 180 s.
+_TOOL_CALL_TIMEOUT_S = 60.0     # per individual MCP tool call
+_QUESTION_TIMEOUT_S = 180.0     # per-question backstop (catches any other hang)
+
+
+def _split_tool_flag(text: str) -> tuple[str | None, str]:
+    """Pull a leading /category flag off a prompt -> (category, rest)."""
+    s = (text or "").lstrip()
+    low = s.lower()
+    for flag, cat in _FLAG_TO_CATEGORY.items():
+        if low.startswith(flag) and (len(low) == len(flag) or not low[len(flag)].isalnum()):
+            return cat, s[len(flag):].lstrip(" :\t-")
+    return None, text
+
+
+def _scope_tools(tools_for_ollama: list[dict], category: str | None) -> list[dict]:
+    """Filter the Ollama tool list to a category. auto/all/None -> unchanged."""
+    if category in (None, "auto", "all"):
+        return tools_for_ollama
+
+    def keep(name: str) -> bool:
+        # request_clarification is an interactive (conversation) tool -- it has no
+        # use in stateless Q&A, where it just hands a weak model an escape hatch,
+        # so it lives with the simulation family, not "question".
+        is_sim = (name.startswith("playground_") or name in _SIM_TOOL_NAMES
+                  or name == "request_clarification")
+        if category == "simulation":
+            return is_sim
+        if category == "render":
+            return name == "playground_render" or "render" in name
+        if category == "question":
+            return not is_sim
+        return True
+
+    scoped = [t for t in tools_for_ollama if keep(t["function"]["name"])]
+    return scoped or tools_for_ollama          # never hand the model an empty list
+
+
 async def _run_one_question(session, ollama_url: str, model: str,
                               tools_for_ollama: list[dict],
                               question: str,
                               system_prompt: str,
                               real_params_by_tool: dict[str, set[str]] | None = None,
-                              primary_tool_expected: str | None = None) -> dict:
+                              primary_tool_expected: str | None = None,
+                              tool_category: str = "auto") -> dict:
     """Multi-turn tool loop for a single question."""
     import httpx
 
     t0 = time.time()
 
+    # Static tool-category flag: a leading /simulation /question /render pins the
+    # visible tool set (or the run-wide --tools default), so routing is
+    # deterministic. Runs FIRST so every classifier below (frontier included)
+    # sees the flag-stripped question. The Q&A pre-classifiers are
+    # pattern-specific and won't fire on sim/render prompts.
+    _flag_cat, question = _split_tool_flag(question)
+    tools_for_ollama = _scope_tools(tools_for_ollama, _flag_cat or tool_category)
+
     # Frontier router: black-hole-thermodynamics / holography questions
     # (Bekenstein-Hawking entropy, bubble-pop thread count, baryon-vs-disc
-    # crossover, gravitational binding energy, Unruh T). Most specialized,
-    # so it runs first. These tools are HIDDEN from Qwen's flat list.
+    # crossover, gravitational binding energy, Unruh T). Most specialized of
+    # the pre-classifiers, so it runs before them. These tools are HIDDEN
+    # from Qwen's flat list.
     from sigma_ground.mcp.benchmark.frontier_classifier import (
         classify_for_frontier, execute_frontier_match)
     fr = classify_for_frontier(question)
@@ -854,7 +965,12 @@ async def _run_one_question(session, ollama_url: str, model: str,
                 "messages": messages,
                 "tools":    tools_for_ollama,
                 "stream":   False,
-                "options":  {"temperature": 0.1},
+                # num_ctx MUST be set explicitly: the system prompt (~13k tokens,
+                # full tool index) + 219 tool schemas overflow ollama's small
+                # default context, which silently TRUNCATES the input -> the model
+                # sees a mangled prompt and returns an empty reply with no tool
+                # call. That was the 85%->53% regression (30 "0-call empty" Qs).
+                "options":  {"temperature": 0.1, "num_ctx": 32768},
             })
             response.raise_for_status()
             data = response.json()
@@ -949,13 +1065,17 @@ async def _run_one_question(session, ollama_url: str, model: str,
                     args, chain_log = await resolve_body_name_chain(
                         session, args, real_params_by_tool[name])
                 try:
-                    result = await session.call_tool(name, args)
+                    result = await asyncio.wait_for(
+                        session.call_tool(name, args), _TOOL_CALL_TIMEOUT_S)
                     content_parts = []
                     for piece in (result.content or []):
                         text = getattr(piece, "text", None)
                         if text:
                             content_parts.append(text)
                     tool_text = "\n".join(content_parts) or "(empty)"
+                except asyncio.TimeoutError:
+                    tool_text = (f"<TOOL TIMEOUT: {name} exceeded "
+                                 f"{_TOOL_CALL_TIMEOUT_S:.0f}s — skipped>")
                 except Exception as e:
                     tool_text = f"<TOOL ERROR: {e}>"
 
@@ -1030,7 +1150,140 @@ async def _run_one_question(session, ollama_url: str, model: str,
         }
 
 
+async def _run_conversation(session, ollama_url: str, model: str,
+                            tools_for_ollama: list[dict], system_prompt: str,
+                            real_params_by_tool: dict[str, set[str]] | None = None,
+                            script_lines: list[str] | None = None) -> dict:
+    """Multi-turn simulation-playground conversation.
+
+    ONE `messages` list persists across turns (so the model keeps context), and
+    the MCP server's module-level scene store persists across tool calls (so the
+    simulation state carries forward). Reads turns from `script_lines` (non-
+    interactive demo/eval) or from stdin (interactive). Degrades gracefully if
+    ollama is unreachable.
+    """
+    import httpx
+
+    messages: list[dict] = [{"role": "system", "content": system_prompt}]
+    transcript: list[dict] = []
+    if script_lines is None:
+        print("commands: /clear (or /reset) = fresh slate (history + scenes); "
+              "/question /simulation /render = scope tools; quit/exit = leave")
+
+    def _turns():
+        if script_lines is not None:
+            for ln in script_lines:
+                yield ln
+            return
+        while True:
+            try:
+                ln = input("\nyou> ").strip()
+            except EOFError:
+                return
+            if not ln:
+                continue
+            if ln.lower() in ("quit", "exit", ":q"):
+                return
+            yield ln
+
+    async with httpx.AsyncClient(timeout=120.0) as http:
+        for user_msg in _turns():
+            # /clear (alias /reset): fresh slate. Wipe the conversation history
+            # AND drop every live playground scene. The message history lives
+            # here; the scene store lives in the server process, so it's cleared
+            # via the MCP playground_clear tool (handle omitted = all scenes).
+            if user_msg.strip().lower() in ("/clear", "/reset"):
+                if script_lines is not None:
+                    print(f"\nyou> {user_msg}")
+                messages[:] = [{"role": "system", "content": system_prompt}]
+                transcript.clear()
+                note = ""
+                try:
+                    res = await session.call_tool("playground_clear", {})
+                    note = " ".join((getattr(p, "text", "") or "")
+                                    for p in (res.content or []))
+                except Exception as e:                       # pragma: no cover
+                    note = f"(scene-clear error: {e})"
+                print(f"🧹 /clear — conversation reset, scenes dropped. {note[:160]}")
+                continue
+            # A per-turn /simulation /render /question flag refines the visible
+            # tool set for just this turn (deterministic routing).
+            _tcat, user_msg = _split_tool_flag(user_msg)
+            active_tools = _scope_tools(tools_for_ollama, _tcat) if _tcat else tools_for_ollama
+            if script_lines is not None:
+                print(f"\nyou> {user_msg}")
+            messages.append({"role": "user", "content": user_msg})
+            turn_tools: list[str] = []
+            seen_calls: set[str] = set()
+            final = ""
+            tool_budget = 4
+            for _ in range(8):                       # inner tool-loop
+                force_finalize = len(turn_tools) >= tool_budget
+                payload: dict = {"model": model, "messages": messages,
+                                 "stream": False,
+                                 "options": {"temperature": 0.2, "num_ctx": 32768}}
+                if not force_finalize:
+                    payload["tools"] = active_tools
+                else:
+                    # budget spent: ask for the reply with NO tools offered, so
+                    # the model must produce text instead of looping tool calls.
+                    messages.append({"role": "user", "content":
+                                     "You have enough tool results now. Reply to "
+                                     "the user in 1-3 sentences using those "
+                                     "results. Do NOT call any more tools."})
+                try:
+                    resp = await http.post(ollama_url, json=payload)
+                    resp.raise_for_status()
+                    data = resp.json()
+                except Exception as e:               # ollama down -> degrade, keep going
+                    final = f"[ollama unreachable: {e}]"
+                    break
+                msg = data.get("message", {})
+                messages.append(msg)
+                tcs = msg.get("tool_calls") or []
+                if force_finalize or not tcs:
+                    final = (msg.get("content", "") or "").strip()
+                    break
+                for tc in tcs:
+                    fn = tc.get("function", {})
+                    name = fn.get("name", "")
+                    a = fn.get("arguments", {})
+                    if isinstance(a, str):
+                        try:
+                            a = json.loads(a)
+                        except json.JSONDecodeError:
+                            a = {}
+                    if real_params_by_tool and name in real_params_by_tool:
+                        from sigma_ground.mcp.benchmark.param_aliases import normalize_kwargs
+                        a, _ = normalize_kwargs(a, real_params_by_tool[name])
+                    sig = f"{name}:{json.dumps(a, sort_keys=True, default=str)}"
+                    if sig in seen_calls:            # don't repeat an identical call
+                        messages.append({"role": "tool", "content":
+                                         "(already called with these args this "
+                                         "turn -- use the previous result)"})
+                        turn_tools.append(name)
+                        continue
+                    seen_calls.add(sig)
+                    try:
+                        result = await session.call_tool(name, a)
+                        parts = [getattr(p, "text", None) for p in (result.content or [])]
+                        tool_text = "\n".join(x for x in parts if x) or "(empty)"
+                    except Exception as e:
+                        tool_text = f"<TOOL ERROR: {e}>"
+                    turn_tools.append(name)
+                    messages.append({"role": "tool", "content": tool_text[:4000]})
+            print(f"mentat> {final or '(no reply)'}")
+            transcript.append({"user": user_msg, "assistant": final,
+                               "tools": turn_tools})
+    return {"turns": transcript}
+
+
 async def _amain(args) -> int:
+    # Mode-dependent default model: conversation narrates multi-field tool results
+    # better on 14b; the Q&A benchmark stays on its tuned 7b. Explicit --model wins.
+    if getattr(args, "model", None) is None:
+        args.model = "qwen2.5:14b" if getattr(args, "mode", "qa") == "conversation" else "qwen2.5:7b"
+
     # Auto-load env vars from the dev-root .env (Ollama URL override, etc.)
     from sigma_ground.mcp.benchmark import load_env_from_dev_root
     load_env_from_dev_root(verbose=True)
@@ -1054,7 +1307,9 @@ async def _amain(args) -> int:
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     existing: dict[str, dict] = {}
-    if args.resume and args.output.exists():
+    # Resume is Q&A-only: conversation-mode output is a single {turns:[...]} dict,
+    # not a list of per-question records.
+    if args.mode == "qa" and args.resume and args.output.exists():
         with args.output.open(encoding="utf-8") as f:
             for rec in json.load(f):
                 # Skip errored, different-model, or no-value records --
@@ -1070,8 +1325,16 @@ async def _amain(args) -> int:
                 existing[rec["id"]] = rec
     out = list(existing.values())
 
-    # Spawn the MCP server
-    params = StdioServerParameters(command="sigma-ground-mcp")
+    # Spawn the MCP server from THIS interpreter + package, so the spawned
+    # server is the same sigma_ground tree the runner is running from (the
+    # global `sigma-ground-mcp` console script may point at a different/older
+    # editable install). Inherit the environment so PYTHONPATH propagates.
+    import os
+    params = StdioServerParameters(
+        command=sys.executable,
+        args=["-m", "sigma_ground.mcp.server"],
+        env=dict(os.environ),
+    )
     async with stdio_client(params) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
@@ -1103,22 +1366,74 @@ async def _amain(args) -> int:
             print(f"System prompt is {len(sys_prompt)} chars "
                   f"(includes full tool index)")
 
+            # Conversation / simulation-playground mode: one persistent scene +
+            # message history across turns (vs the stateless Q&A loop below).
+            if getattr(args, "mode", "qa") == "conversation":
+                # Scope the visible tool set to the playground family (+ the
+                # Materia front doors). A 7b switchboard routes far better over
+                # ~10 focused tools than over 200+, and it shrinks the prompt.
+                _CONV_EXTRA = {"simulate", "run_simulation", "list_simulation_scenarios",
+                               "request_clarification",
+                               # free-surface physics the playground scene reasons about
+                               "buoyancy_analysis", "wind_wave_analysis"}
+                conv_tools = [t for t in tools_for_ollama
+                              if t["function"]["name"].startswith("playground_")
+                              or t["function"]["name"] in _CONV_EXTRA]
+                conv_index = _build_tool_index(conv_tools)
+                conv_prompt = _SYSTEM_PROMPT_CONVERSATION + "\n\n" + conv_index
+                script_lines = None
+                if args.script:
+                    script_lines = [
+                        ln.strip() for ln in
+                        Path(args.script).read_text(encoding="utf-8").splitlines()
+                        if ln.strip() and not ln.lstrip().startswith("#")
+                    ]
+                print("\n=== CONVERSATION / SIMULATION PLAYGROUND ===")
+                print(f"(playground tool set: {len(conv_tools)} tools)")
+                print("(type 'quit' to exit)" if script_lines is None
+                      else f"(scripted: {len(script_lines)} turns)")
+                convo = await _run_conversation(
+                    session, args.ollama_url + "/api/chat", args.model,
+                    conv_tools, conv_prompt,
+                    real_params_by_tool=real_params_by_tool,
+                    script_lines=script_lines)
+                with args.output.open("w", encoding="utf-8") as f:
+                    json.dump({"mode": "conversation", "model": args.model,
+                               **convo}, f, indent=2, default=str)
+                print(f"\nWrote {args.output}")
+                return 0
+
             for i, q in enumerate(questions):
                 if q["id"] in existing:
                     print(f"[{i+1}/{len(questions)}] {q['id']}: skipped (resume)")
                     continue
                 print(f"[{i+1}/{len(questions)}] {q['id']}: {q['question'][:60]}...")
                 try:
-                    result = await _run_one_question(
-                        session,
-                        args.ollama_url + "/api/chat",
-                        args.model,
-                        tools_for_ollama,
-                        q["question"],
-                        sys_prompt,
-                        real_params_by_tool=real_params_by_tool,
-                        primary_tool_expected=q.get("primary_tool_expected"),
+                    result = await asyncio.wait_for(
+                        _run_one_question(
+                            session,
+                            args.ollama_url + "/api/chat",
+                            args.model,
+                            tools_for_ollama,
+                            q["question"],
+                            sys_prompt,
+                            real_params_by_tool=real_params_by_tool,
+                            primary_tool_expected=q.get("primary_tool_expected"),
+                            tool_category=args.tools,
+                        ),
+                        _QUESTION_TIMEOUT_S,
                     )
+                except asyncio.TimeoutError:
+                    print(f"  TIMEOUT after {_QUESTION_TIMEOUT_S:.0f}s — skipped "
+                          f"(harness backstop)", file=sys.stderr)
+                    result = {
+                        "answer_text":     f"<timed out after {_QUESTION_TIMEOUT_S:.0f}s>",
+                        "extracted_value": None,
+                        "extracted_units": "",
+                        "tool_calls":      [],
+                        "turns":           0,
+                        "elapsed_s":       _QUESTION_TIMEOUT_S,
+                    }
                 except Exception as e:
                     print(f"  ERROR: {e}", file=sys.stderr)
                     result = {
@@ -1149,12 +1464,13 @@ async def _amain(args) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--model", default="qwen2.5:7b",
-                        help="Ollama model tag. 7b is the default after testing "
-                              "showed it ~2x faster with comparable accuracy "
-                              "once the tool-first discipline rules + fallback "
-                              "extractor are in place. 14b available if needed "
-                              "for harder synthesis questions.")
+    parser.add_argument("--model", default=None,
+                        help="Ollama model tag. Mode-dependent default: qwen2.5:7b "
+                             "for --mode qa (tuned: ~2x faster, comparable accuracy "
+                             "with the tool-first rules + fallback extractor) and "
+                             "qwen2.5:14b for --mode conversation (higher narration "
+                             "fidelity reading multi-field tool results). Pass "
+                             "--model to override either.")
     parser.add_argument("--ollama-url", default="http://localhost:11434")
     parser.add_argument("--output", type=Path,
                         default=Path(__file__).parent / "results" / "sigma_ground_run.json")
@@ -1164,6 +1480,17 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--resume", action="store_true", default=True)
     parser.add_argument("--no-resume", dest="resume", action="store_false")
+    parser.add_argument("--mode", choices=["qa", "conversation"], default="qa",
+                        help="qa: stateless benchmark switchboard (default); "
+                             "conversation: stateful simulation playground")
+    parser.add_argument("--script", type=Path, default=None,
+                        help="conversation mode: a file of user turns (one per "
+                             "line; '#' comments ignored). Omit for interactive.")
+    parser.add_argument("--tools", default="auto",
+                        choices=["auto", "question", "simulation", "render", "all"],
+                        help="pin the visible tool category so routing is "
+                             "deterministic in functional tests (also per-prompt "
+                             "via a leading /simulation /question /render flag).")
     args = parser.parse_args()
     return asyncio.run(_amain(args))
 

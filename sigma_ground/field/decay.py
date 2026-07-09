@@ -230,30 +230,3 @@ def alpha_decay_rate_geiger_nuttall(Z, A, Q_MeV, r0_fm=1.215):
 
 # ── σ-Connection ───────────────────────────────────────────────────────
 
-def sigma_decay_shift(sigma, lambda_0):
-    """Modified decay constant in σ-compressed spacetime.
-
-    At the σ-transition, nuclear bond failure layers alter the effective
-    binding energies, changing the potential barrier height for tunneling.
-    The Gamow factor G depends on Λ_QCD (through r₀ scaling), so the
-    decay rate changes as:
-
-        λ_eff(σ) = λ₀ × e^σ
-
-    Physical interpretation: in compressed spacetime (σ > 0), the nuclear
-    radius shrinks and the potential barrier shortens — tunneling is
-    easier and decay happens faster.
-
-    At σ = 0: λ_eff = λ₀ (standard decay rate).
-    At σ_conv ≈ 1.849: λ_eff ≈ 6.35 × λ₀.
-
-    Uses scale_ratio(σ) = e^σ from sigma_ground.field.scale.
-
-    Args:
-        sigma: σ-field value (dimensionless, ≥ 0)
-        lambda_0: standard decay constant (s⁻¹)
-
-    Returns:
-        effective decay constant (s⁻¹)
-    """
-    return lambda_0 * scale_ratio(sigma)

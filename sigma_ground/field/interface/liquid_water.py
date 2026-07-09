@@ -54,6 +54,15 @@ Origin tags:
   - Heat capacity: FIRST_PRINCIPLES (H-bond breaking) + MEASURED (E_HB from Module 2)
   - Surface tension: FIRST_PRINCIPLES (broken-bond model)
   - Viscosity: FIRST_PRINCIPLES (Eyring) + MEASURED (E_HB)
+
+NOTE (calibration): the three bulk transport/interface properties below --
+density, surface tension, viscosity -- are computed from NIST-anchored empirical
+correlations (Kell 1975, IAPWS 1994, Vogel), NOT the two-state derivation, which
+was qualitatively right but quantitatively off at 20 C (density +3.5%, surface
+tension +38%, viscosity ~10x low). Per Golden Rule 6 (prefer the exact/measured
+result) and Rule 8 (match NIST). The two-state model is retained for the ice-like
+fraction, heat capacity, and the 4 C density-anomaly narrative -- and Kell
+reproduces the 4 C maximum directly from the data.
 """
 
 import math
@@ -155,46 +164,46 @@ def ice_like_fraction_derivative(T_K):
 # ── Density ────────────────────────────────────────────────────
 
 def water_molar_volume(T_K, P_atm=1.0):
-    """Molar volume of liquid water (m³/mol).
+    """Molar volume of liquid water (m³/mol) = M / ρ(T).
 
-    V(T) = f_ice(T) × V_ice + (1 - f_ice(T)) × V_dense × (1 + α(T - 277))
-
-    The thermal expansion term (1 + α(T-277)) only applies to the dense
-    state — ice-like clusters have a rigid tetrahedral framework.
+    Consistent with the Kell density correlation (see water_density).
 
     Args:
         T_K: temperature in Kelvin
-        P_atm: pressure in atmospheres (future use, currently ignored)
+        P_atm: pressure in atmospheres (correlation is at 1 atm)
 
     Returns:
         Molar volume in m³/mol.
     """
-    f = ice_like_fraction(T_K)
-    # Dense state expands thermally relative to 4°C (277 K)
-    V_dense_T = V_DENSE_M3_MOL * (1.0 + ALPHA_THERMAL * (T_K - 277.0))
-    return f * V_ICE_M3_MOL + (1.0 - f) * V_dense_T
+    return _M_WATER / water_density(T_K, P_atm)
 
 
 def water_density(T_K, P_atm=1.0):
-    """Density of liquid water (kg/m³).
+    """Density of liquid water at 1 atm (kg/m³).
 
-    ρ = M / V(T)
+    MEASURED / empirical: Kell (1975) correlation, J. Chem. Eng. Data 20, 97
+    (also CRC Handbook), accurate to ~1 ppm over 0-150 °C at 1 atm:
 
-    The density MAXIMUM at ~4°C emerges from the competition between:
-      - Collapsing ice-like fraction (increases density as T rises)
-      - Thermal expansion of dense state (decreases density as T rises)
+        ρ(t) = (a0 + a1 t + a2 t² + a3 t³ + a4 t⁴ + a5 t⁵) / (1 + b t)   [t in °C]
 
-    This is NOT hardcoded — it is an EMERGENT PREDICTION of the two-state model.
+    Reproduces water's 4 °C density MAXIMUM directly from the data, so
+    water_density_maximum_temperature() still finds the anomaly. The earlier
+    two-state V_ice/V_dense additivity gave the right qualitative max but was
+    ~3.5% high at 20 °C; replaced per Golden Rule 6 (exact/measured) and 8 (NIST).
 
     Args:
         T_K: temperature in Kelvin
-        P_atm: pressure in atmospheres
+        P_atm: pressure in atmospheres (correlation is at 1 atm; P ignored)
 
     Returns:
         Density in kg/m³.
     """
-    V = water_molar_volume(T_K, P_atm)
-    return _M_WATER / V
+    t = T_K - 273.15  # °C
+    num = (999.83952 + 16.945176 * t - 7.9870401e-3 * t ** 2
+           - 46.170461e-6 * t ** 3 + 105.56302e-9 * t ** 4
+           - 280.54253e-12 * t ** 5)
+    den = 1.0 + 16.879850e-3 * t
+    return num / den
 
 
 def water_density_maximum_temperature(T_min=270.0, T_max=290.0, steps=1000):
@@ -273,46 +282,44 @@ def water_heat_capacity(T_K):
 # ── Surface Tension ────────────────────────────────────────────
 
 def water_surface_tension(T_K):
-    """Surface tension of liquid water (N/m).
+    """Surface tension of liquid water against its vapor (N/m).
 
-    γ = n_lost(T) × E_HB / (2 × A_mol)
+    MEASURED / empirical: IAPWS (1994) correlation for the surface tension of
+    ordinary water, valid triple point → critical point T_c = 647.096 K:
 
-    Surface molecules lose H-bonds compared to bulk. The number lost
-    depends on structure: ice-like (tetrahedral) surfaces lose more
-    bonds than dense (disordered) surfaces.
+        γ = B · τ^μ · (1 + b·τ),   τ = 1 − T/T_c,
+        B = 0.2358 N/m,  b = −0.625,  μ = 1.256
 
-    Surface molecules partially rearrange to maintain their H-bonds,
-    so the effective loss is ~0.5 bonds, not a full bond.
-
-    FIRST_PRINCIPLES: broken-bond model (Becker 1938).
-    APPROXIMATION: n_lost calibrated to ~0.5 at room T.
+    Accurate to ~0.1% over 0-100 °C (0.0728 N/m at 20 °C, 0.0589 at 100 °C).
+    The earlier broken-bond estimate (n_lost·E_HB/2A_mol) was uncalibrated
+    (~+38% at 20 °C); replaced per Golden Rule 6/8.
 
     Args:
         T_K: temperature in Kelvin
 
     Returns:
-        Surface tension in N/m.
+        Surface tension in N/m (0 at/above the critical point).
     """
-    f = ice_like_fraction(T_K)
-
-    # Effective H-bonds lost at surface — higher for ice-like structure
-    # (more ordered → harder to rearrange at surface)
-    n_lost = 0.4 + 0.3 * f  # ranges from ~0.4 (dense) to ~0.7 (ice-like)
-
-    return n_lost * _E_HB_J / (2.0 * _A_MOL)
+    T_C_CRIT = 647.096   # K, critical temperature of water (IAPWS)
+    tau = 1.0 - T_K / T_C_CRIT
+    if tau <= 0.0:
+        return 0.0       # no liquid-vapor interface at/above T_c
+    return 0.2358 * tau ** 1.256 * (1.0 - 0.625 * tau)
 
 
 # ── Viscosity ──────────────────────────────────────────────────
 
 def water_viscosity(T_K):
-    """Dynamic viscosity of liquid water (Pa·s).
+    """Dynamic (shear) viscosity of liquid water (Pa·s).
 
-    η = (h / V_m) × exp(E_act / (R × T))
+    MEASURED / empirical: Vogel-type (Vogel-Fulcher-Tammann) correlation,
 
-    Where E_act = f_ice × n_HB × E_HB × N_A / 2
-    (activation energy scales with H-bond network connectivity).
+        η = A · 10^(B / (T − C)),   A = 2.414e-5 Pa·s, B = 247.8 K, C = 140 K
 
-    FIRST_PRINCIPLES: Eyring activated flow theory (1936).
+    A widely-used engineering fit (CRC; Al-Shemmeri) matching IAPWS within ~1%
+    over 0-100 °C (1.002e-3 Pa·s at 20 °C, 2.79e-4 at 100 °C). The earlier Eyring
+    derivation under-estimated the activation energy at room T (ice-like fraction
+    ≈ 0.09), giving ~10× too low; replaced per Golden Rule 6/8.
 
     Args:
         T_K: temperature in Kelvin
@@ -320,37 +327,29 @@ def water_viscosity(T_K):
     Returns:
         Viscosity in Pa·s.
     """
-    V_m = water_molar_volume(T_K)
-    f = ice_like_fraction(T_K)
-
-    # Activation energy — more H-bond network → harder to flow
-    E_act = f * _N_HB * _E_HB_J * _N_A / 2.0
-
-    # Eyring prefactor
-    prefactor = _H_PLANCK * _N_A / V_m
-
-    # Prevent overflow in exp
-    arg = E_act / (_R * T_K)
-    if arg > 500:
-        arg = 500
-
-    return prefactor * math.exp(arg)
+    A_VOGEL = 2.414e-5   # Pa·s
+    B_VOGEL = 247.8      # K
+    C_VOGEL = 140.0      # K
+    return A_VOGEL * 10.0 ** (B_VOGEL / (T_K - C_VOGEL))
 
 
 # ── Boiling Point ──────────────────────────────────────────────
 
 def water_enthalpy_of_vaporization():
-    """Enthalpy of vaporization of water (J/mol).
+    """Enthalpy of vaporization of water at the normal boiling point (J/mol).
 
-    ΔH_vap ≈ n_HB × E_HB × N_A / 2
+    MEASURED: ΔH_vap = 40,660 J/mol at 100 °C (CRC Handbook 97e; NIST
+    Webbook). This is the canonical value used for the boiling-point estimate.
 
-    Each molecule has n_HB H-bonds; each is shared (÷2).
-    MEASURED calibration: 0.23 eV per H-bond.
+    The H-bond estimate ``n_HB · E_HB · N_A / 2`` = 3.5 · 0.23 eV · N_A / 2
+    ≈ 38,800 J/mol is ~4.5 % low (it under-counts the cooperative H-bond
+    network energy), so it is NOT used here — Golden Rule 6/8 prefers the
+    measured value, matching the density/surface-tension/viscosity fixes.
 
     Returns:
         ΔH_vap in J/mol.
     """
-    return _N_HB * _E_HB_J * _N_A / 2.0
+    return 40660.0   # J/mol, MEASURED (CRC/NIST, 100 °C)
 
 
 def water_boiling_point(P_atm=1.0):
@@ -417,13 +416,12 @@ def water_properties(T_K=298.15, P_atm=1.0, sigma=SIGMA_HERE):
         'T_cross_K': T_CROSS_K,
         'T_width_K': T_WIDTH_K,
         'origin': (
-            "Two-state model: FIRST_PRINCIPLES (Boltzmann statistics) + "
-            "MEASURED (T_cross=225K, T_width=30K from X-ray scattering). "
-            "Density: FIRST_PRINCIPLES (volume additivity) + MEASURED (V_ice, V_dense). "
-            "Heat capacity: FIRST_PRINCIPLES (H-bond breaking contribution). "
-            "Surface tension: FIRST_PRINCIPLES (broken-bond model). "
-            "Viscosity: FIRST_PRINCIPLES (Eyring activated flow). "
-            "H-bond energy: MEASURED (0.23 eV from ice sublimation). "
+            "Density: MEASURED/empirical (Kell 1975 correlation, NIST-anchored; "
+            "reproduces the 4°C maximum). Surface tension: MEASURED/empirical "
+            "(IAPWS 1994). Viscosity: MEASURED/empirical (Vogel correlation, ~1% "
+            "vs IAPWS). Ice-like fraction & heat capacity: FIRST_PRINCIPLES "
+            "(Two-state model, Boltzmann statistics) + MEASURED (T_cross=225K, "
+            "T_width=30K from X-ray scattering; E_HB=0.23eV). "
             "σ-invariant to first order (all EM interactions)."
         ),
     }

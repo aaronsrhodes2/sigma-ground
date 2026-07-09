@@ -23,18 +23,9 @@ import math
 # baryon fraction Ω_b/(Ω_b+Ω_c) from Planck 2018 CMB analysis.
 #   Ω_b h² = 0.02237,  Ω_c h² = 0.1200
 #   Exact ratio: 0.02237 / (0.02237 + 0.1200) = 0.15716...
-#   Canonical SSBM value (used in all publications and tests):
-XI = 0.1582  # [EMPIRICAL-INPUT] Planck 2018 cosmology; the single free parameter SSBM introduces
+# (XI -- the SSBM baryon-fraction parameter -- relocated to ssbm-theory.)
 
-# Kobakhidze-Liang 2024 (arXiv:2410.22412): ξ from QCD beta-function ratios
-# SU(N) composite-axion gauge group with relaxation mechanism. Key formula:
-#   Ω_DM/Ω_B = 2N / (27 − 3N)
-# N=8 is the UNIQUE integer satisfying the sign-alignment constraint.
-# N=8 → 16/3 exactly (paper rounds to 5.36).  Exact: ξ = 3/19 = 0.157895,
-# within 0.19% of Planck 2018's 0.1582.
-# [SPECULATIVE] — the N=8 SU(8) sector has no established connection to the σ-field.
-XI_KOBAKHIDZE = 3.0 / 19.0                       # exact: ξ = 3/(3+16), N=8 unique
-SIGMA_CONV_KOBAKHIDZE = -math.log(XI_KOBAKHIDZE)  # ≈ 1.8458
+# (XI_KOBAKHIDZE / SIGMA_CONV_KOBAKHIDZE variants -- SSBM -- relocated to ssbm-theory.)
 
 # DESI 2024 Holographic Dark Energy (arXiv:2411.08639)
 # HDE: ρ_DE = 3 c² M_Pl²/L². Under the identification c² ≡ η, the DESI 2024
@@ -164,8 +155,7 @@ MU_G2_TENSION_RESOLVED = True   # [VERIFIED] per MTI 2025 WP adoption of lattice
 # Spectral index relation: γ = 3 - n_s (Planck 2018: n_s = 0.9649)
 GAMMA = 2.035
 
-# Critical σ where nuclear bonds fail
-SIGMA_CONV = -math.log(XI)  # ≈ 1.849... but using exact XI
+# (SIGMA_CONV -- the SSBM matter-conversion threshold -- relocated to ssbm-theory.)
 
 # ── Physical Constants ────────────────────────────────────────────────
 G = 6.67430e-11       # m³ kg⁻¹ s⁻²  (gravitational constant)
@@ -373,9 +363,7 @@ GAMMA_COHERENCE_DEFAULT = 1.0
 # because the coherence is normalised by the local σ-frame; at
 # cosmological scales with σ ≠ 0 the γ = Θ prediction becomes visible.
 #
-# This constant is DERIVED from ETA, not fitted. Treat as a testable
-# prediction — see Phase E/F/G of the duality-ellipse verdict artifact.
-THETA_ENTANGLEMENT_PER_DIM = ETA ** (1.0 / 3.0)  # ≈ 0.7463
+# (THETA_ENTANGLEMENT_PER_DIM -- SSBM duality prediction -- relocated to ssbm-theory.)
 
 # ── Observer Frame σ ─────────────────────────────────────────────────
 # The σ-field value in OUR spacetime — the observer's compression frame.

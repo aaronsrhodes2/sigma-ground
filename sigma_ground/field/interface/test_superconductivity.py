@@ -33,17 +33,15 @@ from .superconductivity import (
     specific_heat_jump_ratio,
     meissner_fraction,
     sigma_Tc_shift,
-    sigma_gap_shift,
     mcmillan_Tc,
     mcmillan_Tc_for,
-    sigma_mcmillan_Tc,
     debye_comparison,
     block_cooling_profile,
     superconductor_properties,
     SUPERCONDUCTORS,
     PHI_0,
 )
-from ..constants import K_B, E_CHARGE
+from ..constants import K_B, E_CHARGE, MU_0
 
 
 def _sc_only():
@@ -246,6 +244,119 @@ class TestCriticalFields(unittest.TestCase):
         self.assertGreater(Hc1, 0)
 
 
+class TestCriticalFieldMagnitudes(unittest.TestCase):
+    """Critical fields land in physically defensible ranges.
+
+    Regression guard for the units bug that returned H_c ~ 1e-9 A/m (12
+    orders too small) and inverted H_c1/H_c2.
+
+    The model uses a free-electron DOS N(0) = 3 n_e/(4 E_F), so H_c is good
+    to ~20% for simple metals and a systematic LOWER bound for high-DOS
+    d-band / A15 materials. The ranges below bracket BOTH the model output
+    and the textbook value — they assert 'physically sane', not 'exact'.
+
+    Textbook B_c(0): Al 0.0105 T, Pb 0.0803 T, Nb 0.199 T.
+    """
+
+    def _Bc(self, key, T=0.0):
+        """Critical flux density B_c = μ₀ H_c (tesla)."""
+        d = SUPERCONDUCTORS[key]
+        return MU_0 * thermodynamic_critical_field(d['n_e_m3'], d['T_c_K'], T)
+
+    def _fields(self, key, T=0.0):
+        d = SUPERCONDUCTORS[key]
+        a = (d['n_e_m3'], d['v_F_m_s'], d['T_c_K'], T, key)
+        Hc = thermodynamic_critical_field(d['n_e_m3'], d['T_c_K'], T)
+        return Hc, lower_critical_field(*a), upper_critical_field(*a)
+
+    def test_aluminum_Hc_range(self):
+        """Al H_c(0): model ≈0.0086 T, textbook 0.0105 T."""
+        Bc = self._Bc('aluminum')
+        self.assertGreater(Bc, 0.006)
+        self.assertLess(Bc, 0.015)
+
+    def test_lead_Hc_range(self):
+        """Pb H_c(0): model ≈0.05 T, textbook 0.0803 T (strong coupling)."""
+        Bc = self._Bc('lead')
+        self.assertGreater(Bc, 0.03)
+        self.assertLess(Bc, 0.12)
+
+    def test_niobium_Hc_range(self):
+        """Nb H_c(0): right order 10⁻²–10⁻¹ T (textbook 0.199 T, d-band)."""
+        Bc = self._Bc('niobium')
+        self.assertGreater(Bc, 0.02)
+        self.assertLess(Bc, 0.3)
+
+    def test_aluminum_type_I_single_field(self):
+        """Al is Type-I: H_c1 = H_c2 = H_c (no mixed state, no inversion)."""
+        Hc, Hc1, Hc2 = self._fields('aluminum')
+        self.assertAlmostEqual(Hc1, Hc, places=6)
+        self.assertAlmostEqual(Hc2, Hc, places=6)
+        self.assertGreaterEqual(Hc2, Hc1)   # never inverted
+
+    def test_NbTi_upper_field_tesla_scale(self):
+        """NbTi (high-field magnet wire, κ=80): H_c2 is several tesla
+        (model ≈6.5 T, textbook ~15 T) and dwarfs H_c1."""
+        Hc, Hc1, Hc2 = self._fields('NbTi')
+        Bc2 = MU_0 * Hc2
+        self.assertGreater(Bc2, 1.0)          # tesla-scale, not Type-I mT
+        self.assertLess(Bc2, 40.0)
+        self.assertGreater(Hc1, 0.0)
+        self.assertLess(Hc1, Hc)              # H_c1 < H_c < H_c2
+        self.assertGreater(Hc2, 10.0 * Hc1)   # strongly ordered for κ=80
+
+    def test_Nb3Sn_upper_field_tesla_scale(self):
+        """Nb3Sn (A15 high-field, κ=23): H_c2 tesla-scale, H_c1 < H_c2."""
+        Hc, Hc1, Hc2 = self._fields('Nb3Sn')
+        Bc2 = MU_0 * Hc2
+        self.assertGreater(Bc2, 1.0)
+        self.assertLess(Bc2, 60.0)
+        self.assertLess(Hc1, Hc2)
+
+    def test_well_known_Hc_not_collapsed(self):
+        """Regression for the units bug: well-known superconductors
+        (T_c ≳ 1 K) must have H_c ≫ the buggy ~1e-9 A/m (> 1000 A/m)."""
+        for key in ('aluminum', 'lead', 'niobium', 'tin', 'indium',
+                    'mercury', 'NbTi', 'Nb3Sn'):
+            d = SUPERCONDUCTORS[key]
+            Hc = thermodynamic_critical_field(d['n_e_m3'], d['T_c_K'], 0.0)
+            self.assertGreater(Hc, 1000.0,
+                f"{key}: H_c={Hc:.3e} A/m — units bug regression")
+
+
+class TestCriticalFieldOrdering(unittest.TestCase):
+    """The H_c1 < H_c < H_c2 invariant must hold for every DB entry —
+    this is exactly what the original bug violated (H_c1 > H_c2)."""
+
+    def test_type_II_ordering_all(self):
+        """Every Type-II superconductor: 0 < H_c1 < H_c < H_c2."""
+        for key, d in _sc_only().items():
+            if d['type'] != 'II':
+                continue
+            Hc = thermodynamic_critical_field(d['n_e_m3'], d['T_c_K'], 0.0)
+            Hc1 = lower_critical_field(d['n_e_m3'], d['v_F_m_s'],
+                                       d['T_c_K'], 0.0, key)
+            Hc2 = upper_critical_field(d['n_e_m3'], d['v_F_m_s'],
+                                       d['T_c_K'], 0.0, key)
+            self.assertGreater(Hc1, 0.0, f"{key}: H_c1 not positive")
+            self.assertLess(Hc1, Hc, f"{key}: H_c1 !< H_c")
+            self.assertLess(Hc, Hc2, f"{key}: H_c !< H_c2 (inverted!)")
+
+    def test_type_I_no_inversion_all(self):
+        """Every Type-I superconductor: H_c1 = H_c2 = H_c (no inversion)."""
+        for key, d in _sc_only().items():
+            if d['type'] != 'I':
+                continue
+            Hc = thermodynamic_critical_field(d['n_e_m3'], d['T_c_K'], 0.0)
+            Hc1 = lower_critical_field(d['n_e_m3'], d['v_F_m_s'],
+                                       d['T_c_K'], 0.0, key)
+            Hc2 = upper_critical_field(d['n_e_m3'], d['v_F_m_s'],
+                                       d['T_c_K'], 0.0, key)
+            self.assertGreaterEqual(Hc2, Hc1, f"{key}: Type-I inversion")
+            self.assertAlmostEqual(Hc1, Hc, places=3)
+            self.assertAlmostEqual(Hc2, Hc, places=3)
+
+
 class TestCriticalCurrent(unittest.TestCase):
     """Depairing critical current density."""
 
@@ -318,12 +429,6 @@ class TestSigmaDependence(unittest.TestCase):
         T_c_0 = 9.25
         T_c_s = sigma_Tc_shift(T_c_0, 0.1)
         self.assertLess(T_c_s, T_c_0)
-
-    def test_gap_decreases_with_sigma(self):
-        """Δ(σ) < Δ(0) for σ > 0 (tracks T_c)."""
-        d0 = sigma_gap_shift(9.25, 0.0)
-        ds = sigma_gap_shift(9.25, 0.1)
-        self.assertLess(ds, d0)
 
     def test_earth_sigma_negligible(self):
         """At Earth σ ~ 7×10⁻¹⁰: T_c shift < 10⁻⁸ K."""
@@ -586,24 +691,6 @@ class TestMcMillanFormula(unittest.TestCase):
 
 class TestMcMillanSigma(unittest.TestCase):
     """McMillan T_c under σ-field: Θ_D shifts through nuclear mass."""
-
-    def test_identity_at_zero(self):
-        """σ=0: sigma_mcmillan_Tc = mcmillan_Tc."""
-        T_c_0 = mcmillan_Tc(275, 1.26, 0.13)
-        T_c_s = sigma_mcmillan_Tc(275, 1.26, 0.13, 0.0)
-        self.assertAlmostEqual(T_c_0, T_c_s, places=10)
-
-    def test_positive_sigma_decreases_Tc(self):
-        """Positive σ → heavier lattice → lower Θ_D → lower T_c."""
-        T_c_0 = sigma_mcmillan_Tc(275, 1.26, 0.13, 0.0)
-        T_c_s = sigma_mcmillan_Tc(275, 1.26, 0.13, 0.1)
-        self.assertLess(T_c_s, T_c_0)
-
-    def test_earth_sigma_negligible(self):
-        """At Earth σ ~ 7×10⁻¹⁰: shift < 10⁻⁶ K."""
-        T_c_0 = sigma_mcmillan_Tc(275, 1.26, 0.13, 0.0)
-        T_c_s = sigma_mcmillan_Tc(275, 1.26, 0.13, 7e-10)
-        self.assertAlmostEqual(T_c_0, T_c_s, places=6)
 
 
 class TestNonSuperconductors(unittest.TestCase):

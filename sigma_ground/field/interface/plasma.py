@@ -189,35 +189,51 @@ def coulomb_logarithm(n_e, T_e):
     return math.log(ratio)
 
 
-def spitzer_resistivity(T_e, Z_eff=1.0):
-    """Spitzer electrical resistivity η_S ∝ Z_eff ln Λ / T_e^(3/2).
+def spitzer_resistivity(T_e, Z_eff=1.0, n_e=1e18):
+    """Spitzer *parallel* electrical resistivity η_∥ (Ω·m).
 
-    η_S = (π m_e)^(1/2) Z_eff e² ln Λ / (3 (2 k_B T_e)^(3/2) ε₀²)
+        η_∥ = 0.51 · (4√(2π)/3) · √(m_e) Z e² lnΛ / [(4πε₀)² (k_B T_e)^(3/2)]
 
-    Reference: Spitzer 1962; NRL Plasma Formulary
+    The group (4√(2π)/3)·√(m_e) Z e² lnΛ / [(4πε₀)² (k_B T_e)^(3/2)] is the
+    Lorentz-gas *transverse* resistivity η_⊥; it reproduces the NRL practical
+    value η_⊥ = 1.03e-4 Z lnΛ / T_eV^1.5 Ω·m to ~0.1%.  The leading 0.51 is
+    the Spitzer electron–electron correction for Z=1 that converts η_⊥ → η_∥
+    (η_⊥ = 1.96 η_∥; Spitzer & Härm 1953, NRL Plasma Formulary).
 
-    Note: this uses a reference electron density of n_e = 1e18 m⁻³
-    for computing ln Λ.  Pass n_e explicitly if you need a more accurate
-    Coulomb logarithm.
+    Dimensions — note ε₀ appears SQUARED, which is what yields Ω·m:
+        √(m_e)·e² / [(4πε₀)²·(k_B T_e)^{3/2}]
+          = (kg^½·A²s²) / [ (A²s⁴·kg⁻¹m⁻³)² · (kg·m²·s⁻²)^{3/2} ]
+          = kg·m³·A⁻²·s⁻³ = Ω·m.
+    (The pre-fix code multiplied this by a spurious extra 1/(4πε₀) — a third
+    power of ε₀ in the denominator. That is both dimensionally wrong and a
+    factor ~8.99e9 too large, returning ~1.7e5 Ω·m for a 10⁶ K hydrogen
+    plasma, i.e. insulator territory rather than near-perfect conductor.)
+
+    Validated vs NRL Plasma Formulary (η_∥ = 5.2e-5 Z lnΛ / T_eV^1.5 Ω·m):
+        100 eV, Z=1, lnΛ=10 → 5.26e-7 Ω·m   (NRL 5.2e-7, +1.2%)
+        1 keV,  Z=1, lnΛ=10 → 1.66e-8 Ω·m   (NRL 1.64e-8, +1.2%)
+
+    Reference: Spitzer 1962; NRL Plasma Formulary 2019.
 
     Args:
         T_e: electron temperature (K), must be > 0
-        Z_eff: effective charge state of ions (default 1.0 for hydrogen)
+        Z_eff: effective ion charge (default 1.0 for hydrogen)
+        n_e: electron number density (m⁻³), used only to compute ln Λ
+            (default 1e18 reference; pass the actual density for a more
+            accurate Coulomb logarithm)
 
     Returns:
-        η_S (Ω·m)
+        η_∥ (Ω·m)
     """
     if T_e <= 0:
         raise ValueError(f"T_e={T_e} K ≤ 0: temperature must be positive")
-    from sigma_ground.field.constants import HBAR
-    lnL = coulomb_logarithm(1e18, T_e)  # reference density
-    numerator = math.sqrt(math.pi * M_ELECTRON_KG) * Z_eff * E_CHARGE**2 * lnL
-    denominator = 3.0 * (2.0 * K_B * T_e) ** 1.5 * EPS_0**2
-    # Dimensional prefactor: SI units
-    # η has units Ω·m = kg·m³/(A²·s³)
-    # The standard form: η = (m_e)^{1/2} Z e² ln Λ / [3 (2πε₀)^{1/2} (kT)^{3/2}]
-    # Using the NRL form corrected to SI:
-    return numerator / denominator * (1.0 / (4.0 * math.pi * EPS_0))
+    lnL = coulomb_logarithm(n_e, T_e)
+    eta_perp = (
+        (4.0 * math.sqrt(2.0 * math.pi) / 3.0)
+        * math.sqrt(M_ELECTRON_KG) * Z_eff * E_CHARGE**2 * lnL
+        / ((4.0 * math.pi * EPS_0) ** 2 * (K_B * T_e) ** 1.5)
+    )
+    return 0.51 * eta_perp  # η_∥ = η_⊥ / 1.96  (Spitzer Z=1 e–e correction)
 
 
 # ── σ-Connection ───────────────────────────────────────────────────────

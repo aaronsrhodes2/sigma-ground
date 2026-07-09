@@ -1,0 +1,8 @@
+# Simulation-playground demo conversation (one user turn per line).
+# Run: python -m sigma_ground.mcp.benchmark.run_sigma_ground --mode conversation --script <this file>
+load a water molecule into the scene
+what's in it?
+heat it to 2000 K -- what happens to the bonds?
+now apply a 10 tesla magnetic field -- what changes?
+show me a render of the scene
+reset it back to pristine

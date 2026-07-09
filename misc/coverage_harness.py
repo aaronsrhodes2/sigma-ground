@@ -1,10 +1,10 @@
-"""Coverage harness — call every calculation function in the science tree.
+﻿"""Coverage harness â€” call every calculation function in the science tree.
 
 Auto-infers valid arguments per function (from parameter names, annotations, and
 each module's own data-table keys), calls it with stdout suppressed, and reports:
-  OK   — returned a value (exercised ✓)
-  ERR  — raised (potential bug, or needs better args)
-  SKIP — couldn't construct required args (needs a hand-written question)
+  OK   â€” returned a value (exercised âœ“)
+  ERR  â€” raised (potential bug, or needs better args)
+  SKIP â€” couldn't construct required args (needs a hand-written question)
 
 This is the engine for the coverage campaign. Run it, drive OK upward, and the
 ERR/SKIP lists are the worklist. Writes misc/coverage_report.txt.
@@ -16,7 +16,7 @@ import io
 import pkgutil
 import sys
 
-sys.path.insert(0, r"D:\Aaron\development\sigma-ground")
+sys.path.insert(0, r"D:\Aaron\development\sigma-ground-mentat")
 try:
     sys.stdout.reconfigure(encoding="utf-8")
 except Exception:
@@ -55,7 +55,7 @@ def infer(p):
     toks = set(n.replace("_", " ").split())
     if "sigma" in n:
         return 0.0
-    if toks & _OBJ:                       # structured arg → skip (no spurious ERR)
+    if toks & _OBJ:                       # structured arg â†’ skip (no spurious ERR)
         return None
     if "atom" in toks:
         return "C"
@@ -183,21 +183,22 @@ def main():
     ok = sum(b["OK"] for b in results.values())
     er = sum(b["ERR"] for b in results.values())
     sk = sum(b["SKIP"] for b in results.values())
-    print("══ coverage harness (field + inventory) ══")
+    print("â•â• coverage harness (field + inventory) â•â•")
     for area in sorted(results, key=lambda a: -sum(results[a].values())):
         b = results[area]
         print(f"  {b['OK']:4d} ok  {b['ERR']:4d} err  {b['SKIP']:4d} skip   {area}")
-    print(f"\n  TOTAL {total} funcs → {ok} OK ({100*ok/max(total,1):.0f}%) · "
-          f"{er} ERR · {sk} SKIP(need args)")
+    print(f"\n  TOTAL {total} funcs â†’ {ok} OK ({100*ok/max(total,1):.0f}%) Â· "
+          f"{er} ERR Â· {sk} SKIP(need args)")
 
-    out = r"D:\Aaron\development\sigma-ground\misc\coverage_report.txt"
+    out = r"D:\Aaron\development\sigma-ground-mentat\misc\coverage_report.txt"
     with open(out, "w", encoding="utf-8") as f:
         f.write(f"COVERAGE: {ok}/{total} OK, {er} ERR, {sk} SKIP\n\n=== ERR ===\n")
         f.write("\n".join(sorted(errs)))
         f.write("\n\n=== SKIP (need hand-specified args) ===\n")
         f.write("\n".join(sorted(skips)))
-    print(f"  worklist → {out}")
+    print(f"  worklist â†’ {out}")
 
 
 if __name__ == "__main__":
     main()
+

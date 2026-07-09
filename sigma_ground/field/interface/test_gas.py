@@ -35,7 +35,6 @@ from .gas import (
     gas_diffusivity,
     buoyancy_velocity,
     grashof_number,
-    sigma_from_frequency_shift,
     molecule_gas_properties,
     MOLECULES,
     BOND_ENERGIES_EV,
@@ -388,22 +387,6 @@ class TestSigmaDependence(unittest.TestCase):
             MOLECULES['CO2']['bonds'][0]['force_constant_N_m'],
             12.011, 15.999, sigma=7e-10)
         self.assertAlmostEqual(wn_0, wn_earth, delta=wn_0 * 1e-8)
-
-    def test_sigma_recovery_from_frequency(self):
-        """Can recover σ from an observed frequency shift."""
-        # Simulate observation at σ=0.1
-        bond = MOLECULES['N2']['bonds'][0]
-        f_expected = vibrational_frequency_hz(
-            bond['force_constant_N_m'],
-            bond['atom_A_amu'], bond['atom_B_amu'], sigma=0.0)
-        f_observed = vibrational_frequency_hz(
-            bond['force_constant_N_m'],
-            bond['atom_A_amu'], bond['atom_B_amu'], sigma=0.1)
-
-        sigma_recovered = sigma_from_frequency_shift(
-            f_observed, f_expected,
-            bond['atom_A_amu'], bond['atom_B_amu'])
-        self.assertAlmostEqual(sigma_recovered, 0.1, delta=0.01)
 
 
 class TestBondEnergies(unittest.TestCase):

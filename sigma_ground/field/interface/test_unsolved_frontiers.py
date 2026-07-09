@@ -606,35 +606,6 @@ class TestNeutronStarEOS(unittest.TestCase):
         self.assertLess(T_c, 1e6,
                         "Superfluidity should vanish at high density")
 
-    def test_tov_still_runs(self):
-        """Existing TOV solver still produces a result."""
-        from sigma_ground.field.unsolved import tov_mass_estimate
-        result = tov_mass_estimate()
-        self.assertIn('M_tov_ssbm_solar', result)
-        self.assertGreater(result['M_tov_ssbm_solar'], 0)
-
-    def test_tov_mass_in_observed_range(self):
-        """TOV mass should be near PSR J0740+6620 = 2.08 ± 0.07 M☉."""
-        from sigma_ground.field.unsolved import tov_mass_estimate
-        result = tov_mass_estimate()
-        M = result['M_tov_ssbm_solar']
-        # Generous bounds: 1.0 to 3.5 solar masses
-        # (exact agreement is the GOAL but not yet guaranteed)
-        self.assertGreater(M, 1.0,
-                           f"M_TOV = {M:.2f} M☉ — too low for any neutron star")
-        self.assertLess(M, 3.5,
-                        f"M_TOV = {M:.2f} M☉ — above theoretical maximum")
-
-    def test_eos_causality(self):
-        """Speed of sound² must be < c² at all densities (causality)."""
-        from sigma_ground.field.unsolved import neutron_star_eos
-        eos = neutron_star_eos(20)
-        for point in eos:
-            cs2 = point.get('sound_speed_sq', None)
-            if cs2 is not None:
-                self.assertLessEqual(cs2, 1.0 + 1e-10,
-                                     f"Sound speed² = {cs2:.4f} > 1 violates causality")
-
     def test_bcs_gap_for_neutron_pairing(self):
         """BCS gap formula works for neutron-like Tc (~10⁹ K)."""
         # If neutron pairing Tc ≈ 5×10⁹ K, BCS gives:

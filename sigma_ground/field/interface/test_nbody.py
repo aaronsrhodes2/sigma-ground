@@ -1130,18 +1130,6 @@ class TestSigmaBoundsCheck(unittest.TestCase):
                               R_SUN, 0.5, sigma_field=1e-9)
         self.assertEqual(body.sigma_field, 1e-9)
 
-    def test_sigma_negative_raises(self):
-        """σ < 0 is BEYOND domain -- must raise."""
-        with self.assertRaises(ValueError):
-            CelestialBody(M_SUN, np.zeros(3), np.zeros(3),
-                           R_SUN, 0.5, sigma_field=-0.1)
-
-    def test_sigma_beyond_conv_raises(self):
-        """σ > σ_conv (≈1.849) is BEYOND domain -- must raise."""
-        with self.assertRaises(ValueError):
-            CelestialBody(M_SUN, np.zeros(3), np.zeros(3),
-                           R_SUN, 0.5, sigma_field=2.0)
-
     def test_gm_uses_scale_ratio(self):
         """gm_m3_s2 calls scale.scale_ratio (which clamps at ±709), not raw math.exp."""
         # σ = 700 is large but still within scale_ratio's guard

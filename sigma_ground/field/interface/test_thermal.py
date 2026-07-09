@@ -33,6 +33,7 @@ from sigma_ground.field.interface.thermal import (
     blackbody_color,
     is_visibly_glowing,
     contact_conductance,
+    cmy_contact_conductance,
     material_thermal_properties,
 )
 
@@ -257,12 +258,57 @@ class TestThermalRadiation(unittest.TestCase):
 
 
 class TestContactConductance(unittest.TestCase):
-    """Contact conductance — THE hot copper on cardboard test!"""
+    """Engineering joint conductance — Cooper-Mikic-Yovanovich plastic model.
 
-    def test_copper_on_copper_high(self):
-        """Same-material contact should have high conductance."""
-        h = contact_conductance('copper', 'copper', pressure_pa=1e7, T=300.0)
-        self.assertGreater(h, 0)
+    These tests pin the ABSOLUTE magnitude, not just sign/ordering. The old
+    atomic-gap model returned ~1.9e9 W/(m²·K) for Cu-Al at 1 MPa — ~4-5
+    orders above any real pressed metal joint — and slipped through because
+    the prior tests only checked h > 0. The headline test below is the
+    regression guard against that class of bug.
+    """
+
+    def test_cu_al_at_1MPa_in_engineering_range(self):
+        """THE regression guard: Cu-Al at 1 MPa must be a believable joint.
+
+        Real engineering joint conductance for pressed metal-metal contacts
+        is ~1e3–1e5 W/(m²·K). The old model returned ~1.9e9 here.
+        """
+        h = contact_conductance('copper', 'aluminum', pressure_pa=1e6, T=300.0)
+        self.assertGreater(h, 1e3, "below any plausible pressed-joint value")
+        self.assertLess(h, 1e5, "above the engineering band — atomic-gap bug?")
+        # Hard ceiling well clear of the old near-ballistic regime.
+        self.assertLess(h, 1e6)
+
+    def test_cmy_matches_closed_form(self):
+        """The pure helper must reproduce the textbook CMY equation exactly.
+
+        h_c = 1.25 · k_s · (m/σ) · (P/H_c)^0.95. Literature-style inputs
+        (stainless-like k_s=40, m=0.1, σ=1 µm, P=1 MPa, H_c=1 GPa) give the
+        canonical ~7.06e3 W/(m²·K).
+        """
+        k_s, m, sigma_r, P, H_c = 40.0, 0.1, 1.0e-6, 1.0e6, 1.0e9
+        h = cmy_contact_conductance(k_s, m, sigma_r, P, H_c)
+        expected = 1.25 * k_s * (m / sigma_r) * (P / H_c) ** 0.95
+        self.assertAlmostEqual(h, expected, places=6)
+        self.assertAlmostEqual(h, 7062.69, places=1)
+
+    def test_cmy_dimensionless_invariant(self):
+        """The Cooper-Mikic-Yovanovich invariant h·σ/(k_s·m)=1.25·(P/H)^0.95
+        must hold for arbitrary physical inputs (formula-level validation)."""
+        for k_s, m, sigma_r, P, H_c in [
+            (40.0, 0.10, 1.0e-6, 1.0e6, 1.0e9),
+            (300.0, 0.15, 3.0e-6, 5.0e6, 8.0e8),
+            (120.0, 0.08, 2.0e-6, 2.0e6, 1.5e9),
+        ]:
+            h = cmy_contact_conductance(k_s, m, sigma_r, P, H_c)
+            c_star = h * sigma_r / (k_s * m)
+            self.assertAlmostEqual(c_star, 1.25 * (P / H_c) ** 0.95, places=10)
+
+    def test_pressure_scaling_is_0p95_power(self):
+        """Conductance scales as P^0.95 (CMY), NOT linearly (the old bug)."""
+        h_lo = contact_conductance('copper', 'aluminum', pressure_pa=1e6)
+        h_hi = contact_conductance('copper', 'aluminum', pressure_pa=1e7)
+        self.assertAlmostEqual(h_hi / h_lo, 10.0 ** 0.95, places=2)
 
     def test_higher_pressure_higher_conductance(self):
         """More pressure → more real contact → better heat transfer."""
@@ -270,22 +316,44 @@ class TestContactConductance(unittest.TestCase):
         h_high = contact_conductance('iron', 'iron', pressure_pa=1e7)
         self.assertGreater(h_high, h_low)
 
+    def test_rougher_surface_lower_conductance(self):
+        """A rougher finish (larger RMS roughness) conducts less heat."""
+        h_smooth = contact_conductance('copper', 'aluminum', pressure_pa=1e6,
+                                       roughness_m=1.0e-6)
+        h_rough = contact_conductance('copper', 'aluminum', pressure_pa=1e6,
+                                      roughness_m=5.0e-6)
+        self.assertGreater(h_smooth, h_rough)
+
     def test_copper_conducts_better_than_iron_interface(self):
-        """Cu-Cu interface should conduct heat better than Fe-Fe."""
+        """Cu-Cu interface should conduct heat better than Fe-Fe (higher k,
+        softer → larger real contact)."""
         h_cu = contact_conductance('copper', 'copper', pressure_pa=1e7)
         h_fe = contact_conductance('iron', 'iron', pressure_pa=1e7)
         self.assertGreater(h_cu, h_fe)
 
     def test_dissimilar_materials(self):
-        """Copper on aluminum — should work and give reasonable value."""
+        """Copper on aluminum — should work and give a reasonable value."""
         h = contact_conductance('copper', 'aluminum', pressure_pa=1e7)
         self.assertGreater(h, 0)
 
-    def test_conductance_increases_with_temperature(self):
-        """Higher T → more real contact (softer material) + rougher surface.
-        The net effect depends on the balance, but should remain physical."""
-        h = contact_conductance('copper', 'iron', pressure_pa=1e7, T=500.0)
-        self.assertGreater(h, 0)
+    def test_explicit_microhardness_override(self):
+        """Supplying H_c directly should bypass the derived hardness and
+        follow the closed form with the softer-material conductivities."""
+        h = contact_conductance('copper', 'aluminum', pressure_pa=1e6,
+                                roughness_m=1.0e-6, asperity_slope=0.1,
+                                microhardness_pa=1.0e9)
+        k1 = thermal_conductivity('copper', 300.0)
+        k2 = thermal_conductivity('aluminum', 300.0)
+        k_s = 2.0 * k1 * k2 / (k1 + k2)
+        expected = cmy_contact_conductance(k_s, 0.1, 1.0e-6, 1.0e6, 1.0e9)
+        self.assertAlmostEqual(h, expected, places=6)
+
+    def test_conductance_remains_physical_at_high_T(self):
+        """Higher T shifts the bulk conductivities but the joint stays in a
+        physically defensible band (not the old near-ballistic regime)."""
+        h = contact_conductance('copper', 'iron', pressure_pa=1e6, T=500.0)
+        self.assertGreater(h, 1e2)
+        self.assertLess(h, 1e6)
 
 
 class TestSigmaDependence(unittest.TestCase):

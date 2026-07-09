@@ -277,11 +277,3 @@ def test_sigma_partition_shift_increases():
     T_eff = sigma_partition_shift(1.0, 300.0)
     assert T_eff > 300.0
     assert T_eff == pytest.approx(300.0 * math.e, rel=1e-10)
-
-
-def test_sigma_partition_shift_at_conv():
-    """At σ_conv: T_eff ≈ T/ξ."""
-    from sigma_ground.field.constants import SIGMA_CONV, XI
-    T = 1000.0
-    T_eff = sigma_partition_shift(SIGMA_CONV, T)
-    assert T_eff == pytest.approx(T / XI, rel=1e-3)

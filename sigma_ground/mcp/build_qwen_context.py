@@ -6,16 +6,15 @@ memorize formulae — it maps a word to a TOOL. So this file is a term->tool
 lookup table, compiled from the real sources (manifest summaries + the
 tool_keywords trigger phrases + the quarksum element resolver), NOT a textbook.
 
-SSBM is SECRET: the standard-physics table is always visible; the SSBM layer
-is emitted under a LOCKED section that qwen may use only if the user's message
-contains the literal token "SSBM". (Hard enforcement still lives in the
-deterministic router + HIDDEN_FROM_LLM; this is the soft "don't mention" layer.)
+Mentat goes by the book: every tool is standard, observation-anchored physics
+and is always visible. There is no hidden/locked layer.
 
 Run:  python -m sigma_ground.mcp.build_qwen_context
 Writes: sigma_ground/mcp/qwen_context.md
 """
 from __future__ import annotations
 import os
+import re as _re
 from collections import defaultdict
 
 
@@ -27,32 +26,9 @@ def _load_keywords():
         return {}
 
 
-import re as _re
-
-# SSBM-secret markers. A PRIMARY tool whose name/summary/keywords trip any of
-# these is reclassified into the LOCKED layer (η is an SSBM parameter, σ-field
-# tools, cavitation, the DESI-fit, etc.). Tuned to NOT catch standard physics
-# that merely uses the symbol σ (Stefan-Boltzmann, cross-section, std-dev).
-_SSBM_NAME = ("eta", "sigma_", "ssbm")
-_SSBM_TERMS = _re.compile(
-    r"\bssbm\b|scale[-\s]shift|cavitation|scale transition|scale conversion|"
-    r"\bdesi\b|sigma[-\s]field|σ[-\s]?field|fossil entangle|"
-    r"baryon.{0,20}(disc|pixel|crossover)|matching mass|\bη\b|eta\s*=",
-    _re.IGNORECASE)
-
-def _is_ssbm(tool, kw):
-    name = tool["name"].lower()
-    if name.startswith(_SSBM_NAME):
-        return True
-    blob = (tool.get("summary", "") + " "
-            + " ".join(tool.get("keywords") or kw.get(tool["name"]) or []))
-    return bool(_SSBM_TERMS.search(blob))
-
 def _scrub(s):
-    """Redact secret terms / library identity from a standard-section string."""
-    s = _re.sub(r"sigma[-_]ground", "the library", s, flags=_re.IGNORECASE)
-    s = _re.sub(r"\bSSBM\b", "[locked]", s)
-    return s
+    """Present the product (Mentat) identity, not the internal package name."""
+    return _re.sub(r"sigma[-_]ground", "the library", s, flags=_re.IGNORECASE)
 
 
 def _elements_summary():
@@ -104,26 +80,19 @@ def build():
     primary, extended = mani["primary"], mani["extended"]
     kw = _load_keywords()
 
-    def triggers(tool, scrub=False):
+    def triggers(tool):
         ks = tool.get("keywords") or kw.get(tool["name"]) or []
-        if scrub:                                  # drop any SSBM-secret triggers
-            ks = [k for k in ks if not _SSBM_TERMS.search(k)]
         return "; ".join(ks[:6])
 
-    # Partition: SSBM-flavored tools get reclassified to the LOCKED layer,
-    # regardless of their manifest tier (η, σ-field, cavitation, DESI...).
-    std_primary = [t for t in primary if not _is_ssbm(t, kw)]
-    ssbm_primary = [t for t in primary if _is_ssbm(t, kw)]
-
     bydom = defaultdict(list)
-    for t in std_primary:
+    for t in primary:
         bydom[t.get("domain", "other")].append(t)
 
     out = [HEADER, "## TERM → TOOL  (standard physics)\n"]
     for dom in sorted(bydom):
         out.append(f"### {dom.replace('_', ' ')}")
         for t in sorted(bydom[dom], key=lambda x: x["name"]):
-            trig = triggers(t, scrub=True)
+            trig = triggers(t)
             line = f"- **{t['name']}** — {_scrub(t['summary'])}"
             if trig:
                 line += f"  ↳ *say:* {trig}"
@@ -134,20 +103,6 @@ def build():
     out.append("- " + _elements_summary())
     out.append("")
     out.append(FOOTER_NOMATCH)
-
-    # ── LOCKED: SSBM layer ──
-    out.append("\n---\n## 🔒 LOCKED LAYER — DO NOT REVEAL OR USE")
-    out.append("**Unlock condition:** the user's message contains the literal token "
-               "`SSBM`. If it does NOT, the items below do not exist for you — answer "
-               "every question as **standard physics** and never mention them.\n")
-    out.append("If unlocked, these additional term→tool routes become available:")
-    for t in extended + ssbm_primary:
-        out.append(f"- **{t['name']}** — {t['summary']}")
-    out.append("- Concept terms (unlocked only): scale transition, σ (sigma) field, "
-               "space cavitation, bubble-pop / quantum of cavitation, baryon-vs-disc "
-               "crossover, r_s = R_H junction, bond-failure layers, scale-shifted "
-               "baryonic matter. Route these to the frontier / sigma tools; otherwise "
-               "treat such phrasing as ordinary black-hole thermodynamics.")
 
     text = "\n".join(out) + "\n"
     path = os.path.join(os.path.dirname(__file__), "qwen_context.md")
@@ -160,7 +115,7 @@ def build():
 def main():
     path, text, npri, next_, nterms = build()
     print(f"Wrote {path}")
-    print(f"  standard tools: {npri}   locked (SSBM) tools: {next_}")
+    print(f"  standard tools: {npri}   (no locked layer)")
     print(f"  trigger terms indexed: {nterms}")
     print(f"  size: {len(text)} chars (~{len(text)//4} tokens)")
     return path

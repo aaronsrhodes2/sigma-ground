@@ -101,14 +101,6 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
     "momentum": [
         "linear momentum", "p = m v", "Newton's second law in p form",
     ],
-    "elastic_collision_velocities": [
-        "elastic collision", "conservation of momentum",
-        "1D collision", "billiard ball collision",
-    ],
-    "inelastic_collision_velocity": [
-        "inelastic collision", "perfectly inelastic",
-        "stick together collision",
-    ],
     "circular_orbit_velocity": [
         "orbital velocity", "circular orbit speed",
         "v_orbit = sqrt(GM/r)", "Kepler third law derivation",
@@ -150,9 +142,6 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
     ],
     "ohms_law_current": [
         "Ohm's law for current", "I = V / R",
-    ],
-    "ohms_law_resistance": [
-        "Ohm's law for resistance", "R = V / I",
     ],
     "electrical_power": [
         "electrical power", "P = V I", "P = I^2 R",
@@ -271,12 +260,6 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "Convert Kelvin to Celsius", "K to C", "Kelvin to Celsius",
         "T_C = T_K - 273.15", "what is X K in Celsius",
         "convert temperature",
-    ],
-    "temperature_fahrenheit_to_celsius": [
-        "F to C", "Fahrenheit to Celsius", "convert temperature",
-    ],
-    "temperature_celsius_to_fahrenheit": [
-        "C to F", "Celsius to Fahrenheit", "convert temperature",
     ],
 
     # ============ ATOMIC / QUANTUM ============
@@ -443,8 +426,292 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "MOND a_0", "1.2e-10 m/s^2", "MOND acceleration scale",
     ],
     "eta_value_report": [
-        "eta", "η", "SSBM eta", "scale conversion factor",
-        "sigma-ground eta", "DESI Union3 c^2",
+        "HDE c^2", "dark energy c^2 parameter", "DESI Union3 c^2",
+        "holographic dark energy parameter",
+    ],
+
+    # ============ MECHANICS (composite analysis tools) ============
+    "collision_analysis": [
+        "collision", "elastic collision", "inelastic collision",
+        "coefficient of restitution", "two balls collide", "energy lost in collision",
+    ],
+    "work_energy_analysis": [
+        "work done", "mechanical power", "potential energy", "impulse",
+        "work-energy theorem", "energy of a moving object",
+    ],
+    "projectile_analysis": [
+        "projectile", "range of a projectile", "maximum height", "time of flight",
+        "launch angle", "projectile with air resistance", "how far will it fly",
+    ],
+    "incline_analysis": [
+        "inclined plane", "ramp", "sliding down a slope", "angle of repose",
+        "friction on an incline", "block on a ramp",
+    ],
+
+    # ============ TRANSPORT & STATISTICAL MECHANICS (composite) ============
+    "viscous_flow_analysis": [
+        "viscosity", "Reynolds number", "Stokes drag", "terminal velocity",
+        "Poiseuille flow", "drag on a sphere", "laminar or turbulent",
+    ],
+    "diffusion_analysis": [
+        "diffusion", "Fick's law", "diffusion coefficient", "Einstein-Stokes",
+        "how long to diffuse", "interdiffusion",
+    ],
+    "statistical_distribution": [
+        "Fermi-Dirac", "Bose-Einstein", "partition function", "occupation probability",
+        "equipartition", "heat capacity from degrees of freedom",
+    ],
+    "rotational_dynamics": [
+        "moment of inertia", "angular momentum", "torque", "rolling",
+        "rolling down a ramp", "parallel axis theorem", "rotational kinetic energy",
+    ],
+    "atomic_angular_momentum": [
+        "angular momentum quantum number", "spin-orbit coupling", "term symbol",
+        "Lande interval", "fine structure splitting", "spin expectation value",
+    ],
+
+    # ============ MATERIALS STRENGTH + COMPOSITES (composite) ============
+    "elastic_analysis": [
+        "Young's modulus", "stress and strain", "Hooke's law", "shear stress",
+        "strain energy", "Poisson ratio", "von Mises yield",
+    ],
+    "stress_failure_analysis": [
+        "fracture toughness", "stress intensity", "crack", "fatigue life",
+        "creep", "Paris law", "when will it break",
+    ],
+    "plasticity_analysis": [
+        "plastic deformation", "flow stress", "work hardening", "Johnson-Cook",
+        "Ludwik", "yield and beyond",
+    ],
+    "composite_bounds_analysis": [
+        "composite material", "Voigt-Reuss-Hill", "Hashin-Shtrikman",
+        "rule of mixtures", "effective modulus", "foam strength",
+    ],
+
+    # ============ PHOTONICS / OPTICS / ELECTROCERAMICS (batch 5) ============
+    "optical_waveguide_analysis": [
+        "optical waveguide", "slab waveguide", "V-number", "numerical aperture",
+        "guided modes", "single-mode fiber", "how many modes", "core cladding",
+    ],
+    "photonic_bandgap_analysis": [
+        "Bragg mirror", "dielectric mirror", "distributed Bragg reflector",
+        "photonic bandgap", "quarter-wave stack", "stop band", "DBR reflectance",
+    ],
+    "nonlinear_optics_analysis": [
+        "nonlinear optics", "Kerr effect", "self-focusing", "B-integral",
+        "second harmonic generation", "SHG", "critical power", "n2 intensity",
+    ],
+    "material_color_analysis": [
+        "what color is", "metal color", "color of gold", "color of copper",
+        "sRGB of material", "physical color", "reflectance color", "dye color",
+    ],
+    "phosphor_decay_analysis": [
+        "phosphor", "afterglow", "persistence", "luminescence decay",
+        "glow brightness", "exponential decay of light", "decay time constant",
+    ],
+    "piezoelectric_actuator_analysis": [
+        "piezoelectric", "piezo actuator", "converse piezoelectric effect",
+        "PZT displacement", "strain from voltage", "d33", "quartz actuator",
+    ],
+    "dielectric_polarization_analysis": [
+        "Clausius-Mossotti", "relative permittivity", "dielectric constant from polarizability",
+        "polarizability", "Lorentz-Lorenz", "induced dipole permittivity",
+    ],
+
+    # ============ THERMAL SYSTEMS / MECHANICAL RESPONSE (batch 6) ============
+    "thermoelectric_generator_analysis": [
+        "thermoelectric", "Seebeck effect", "thermocouple voltage", "TEG",
+        "Peltier", "figure of merit ZT", "Carnot efficiency", "Ioffe",
+        "waste heat to electricity",
+    ],
+    "natural_convection_analysis": [
+        "natural convection", "buoyancy", "Grashof number", "free convection",
+        "hot plate rising air", "gas diffusivity", "Boussinesq", "candle plume",
+    ],
+    "thermal_contact_analysis": [
+        "thermal contact conductance", "thermal contact resistance",
+        "joint conductance", "interface conductance", "contact heat transfer",
+        "pressed metal interface", "thermal interface", "TCR",
+        "Cooper-Mikic-Yovanovich", "bolted joint heat transfer",
+        "heat across a contact", "thermal joint resistance",
+    ],
+    "viscoelastic_creep_analysis": [
+        "creep", "viscoelastic", "Maxwell model", "Kelvin-Voigt", "stress relaxation",
+        "standard linear solid", "polymer creep", "time-dependent strain",
+    ],
+    "acoustic_interface_analysis": [
+        "acoustic impedance", "sound reflection", "transmission coefficient",
+        "Snell's law for sound", "critical angle sound", "ultrasound interface",
+        "total internal reflection acoustics",
+    ],
+
+    # ============ DEVICES / QUANTUM SOLIDS (batch 7) ============
+    "capacitor_analysis": [
+        "capacitance", "parallel plate capacitor", "coaxial cable capacitance",
+        "spherical capacitor", "energy stored in capacitor", "C = epsilon A / d",
+    ],
+    "hall_effect_analysis": [
+        "Hall effect", "Hall voltage", "Lorentz force in conductor",
+        "carrier sign", "magnetic field on current", "V_H = R_H I B / t",
+    ],
+    "semiconductor_junction_analysis": [
+        "p-n junction", "diode", "depletion capacitance", "junction capacitance",
+        "saturation current", "reverse current", "semiconductor diode",
+    ],
+    "superconducting_gap_analysis": [
+        "superconducting gap", "BCS gap", "energy gap from Tc", "gap frequency",
+        "2 Delta over h", "spectroscopic gap", "Cooper pair gap",
+    ],
+    "superconductor_critical_field_analysis": [
+        "critical field", "upper critical field", "lower critical field",
+        "Hc2", "Hc1", "Ginzburg-Landau parameter", "kappa parameter",
+        "type I or type II superconductor", "Abrikosov vortex field",
+        "superconducting magnet field",
+    ],
+    "quantum_tunneling_analysis": [
+        "quantum tunneling", "WKB approximation", "tunneling probability",
+        "barrier penetration", "transmission through barrier", "alpha decay tunneling",
+    ],
+    "quantum_box_energy_analysis": [
+        "particle in a box", "infinite square well", "quantum well energy",
+        "3D box energy levels", "quantum confinement", "nanoparticle energy levels",
+    ],
+    "band_dos_shape_analysis": [
+        "density of states", "van Hove singularity", "tight binding DOS",
+        "d-band filling", "pseudogap", "DOS at Fermi level",
+    ],
+    "magnetic_exchange_analysis": [
+        "exchange coupling", "Heisenberg model", "antiferromagnet", "superexchange",
+        "Goodenough-Kanamori", "spin Hamiltonian", "crystal field magnetism",
+    ],
+
+    # ============ PLASMA / EM / RELATIVITY / ATOMIC (batch 8) ============
+    "plasma_parameters_analysis": [
+        "Debye length", "Coulomb logarithm", "Larmor radius", "Debye number",
+        "Spitzer resistivity", "plasma resistivity",
+        "Debye shielding", "plasma parameter", "gyroradius", "fusion plasma",
+        "resistivity of a plasma", "Spitzer-Harm", "eta parallel",
+        "how conductive is a plasma",
+    ],
+    "electromagnetic_force_analysis": [
+        "Coulomb's law", "Lorentz force", "magnetic force on charge", "qv cross B",
+        "EM wave intensity", "Poynting flux", "energy density of light", "force between charges",
+    ],
+    "relativistic_energy_analysis": [
+        "rest energy", "E=mc^2", "relativistic kinetic energy", "Lorentz factor",
+        "energy momentum relation", "relativistic energy", "gamma factor energy",
+    ],
+    "zeeman_effect_analysis": [
+        "Zeeman effect", "Zeeman splitting", "magnetic sublevels", "2j+1",
+        "spectral line splitting magnetic field", "m_j states",
+    ],
+
+    # ============ TRIBOLOGY / MICROSTRUCTURE / MOLECULAR (batch 9) ============
+    "friction_analysis": [
+        "friction", "coefficient of friction", "Amontons law", "Bowden-Tabor",
+        "adhesive friction", "ploughing", "sliding friction force",
+    ],
+    "wear_analysis": [
+        "wear", "Archard wear", "wear rate", "material loss sliding",
+        "abrasive wear", "adhesive wear", "wear volume",
+    ],
+    "wetting_analysis": [
+        "contact angle", "wetting", "wettability", "hydrophobic", "hydrophilic",
+        "Young equation", "Young-Dupre", "spreading coefficient",
+        "water on glass", "water on Teflon", "mercury on glass", "beads up",
+        "does it wet", "work of adhesion liquid",
+    ],
+    "dislocation_strengthening_analysis": [
+        "work hardening", "Taylor hardening", "dislocation density", "flow stress",
+        "strain hardening", "forest dislocations", "tau = alpha G b sqrt rho",
+    ],
+    "alloy_resistivity_analysis": [
+        "alloy resistivity", "Nordheim rule", "residual resistivity", "solid solution",
+        "Matthiessen", "impurity scattering", "brass cupronickel resistivity",
+    ],
+    "molecular_dipole_analysis": [
+        "dipole moment", "molecular polarity", "bond dipole", "net dipole",
+        "water dipole 1.85 D", "vector sum of dipoles", "polar molecule",
+    ],
+    "combustion_enthalpy_analysis": [
+        "heat of combustion", "combustion enthalpy", "bond energy method",
+        "Hess's law", "methane combustion", "enthalpy of reaction from bonds",
+    ],
+
+    # ============ CHEMISTRY: ACID-BASE / SOLUTION / ELECTRO / KINETICS (batch 10) ============
+    "titration_analysis": [
+        "titration", "pH at equivalence", "acid base titration", "buffer pH",
+        "Henderson-Hasselbalch", "neutralization", "strong acid strong base",
+    ],
+    "acid_speciation_analysis": [
+        "polyprotic acid", "alpha fraction", "speciation", "phosphoric acid species",
+        "fraction of species at pH", "distribution diagram", "diprotic triprotic",
+    ],
+    "solution_analysis": [
+        "dilution", "C1V1=C2V2", "mixing solutions", "concentration after mixing",
+        "will it precipitate", "Ksp", "solubility product", "ion product",
+    ],
+    "electrochemistry_analysis": [
+        "Tafel equation", "overpotential", "exchange current", "molar conductivity",
+        "Kohlrausch", "solution conductivity", "electrolyte conductance",
+    ],
+    "reaction_kinetics_analysis": [
+        "reaction rate", "half-life first order", "Arrhenius", "activation energy",
+        "collision theory", "pre-exponential factor", "rate constant temperature",
+    ],
+    "radioactivity_analysis": [
+        "radioactivity", "activity becquerel", "A = lambda N", "curie", "decay rate",
+        "specific activity", "carbon-14 activity", "isotope activity",
+    ],
+
+    # ============ QUANTUM COMPUTING / QUANTUM (batch 11) ============
+    "quantum_algorithm_analysis": [
+        "Grover search", "quantum search", "QAOA", "max-cut", "Simon's algorithm",
+        "quantum algorithm", "quantum speedup", "oracle", "amplitude amplification",
+    ],
+    "quantum_state_analysis": [
+        "expectation value", "Bloch sphere", "Schmidt decomposition", "entanglement entropy",
+        "Bell state", "qubit state", "Pauli expectation", "bipartite entanglement",
+    ],
+    "qubit_hardware_analysis": [
+        "transmon", "qubit frequency", "coherence time", "T1 T2", "gate fidelity",
+        "spin qubit", "NV center", "quantum dot qubit", "superconducting qubit",
+    ],
+    "interference_visibility_analysis": [
+        "fringe visibility", "interference contrast", "double slit visibility",
+        "Imax Imin", "coherence visibility", "interferometer contrast",
+    ],
+
+    # ============ ASSORTED PHYSICS (batch 12) ============
+    "asteroid_analysis": [
+        "asteroid", "surface gravity", "escape velocity small body", "Ceres Vesta",
+        "Bennu Ryugu", "minor planet shape", "oblateness asteroid",
+    ],
+    "mobius_bimetallic_analysis": [
+        "bimetallic strip", "Mobius loop", "thermocouple voltage", "Seebeck strip",
+        "two-metal resistance", "bimetallic Seebeck",
+    ],
+    "hertzian_impact_analysis": [
+        "coefficient of restitution", "Hertzian contact", "reduced modulus",
+        "elastic impact", "bounce", "contact mechanics impact", "effective modulus",
+    ],
+    "holographic_dark_energy_analysis": [
+        "holographic dark energy", "HDE", "dark energy density", "c squared parameter",
+        "DESI dark energy", "Hubble radius cutoff", "rho dark energy",
+    ],
+
+    # ============ QUARKSUM INVENTORY (batch 13) ============
+    "material_inventory_analysis": [
+        "particle inventory", "how many protons", "quark count", "mass closure",
+        "mass defect", "proton neutron electron count", "quarksum", "books balance",
+    ],
+    "constituent_behaviors_analysis": [
+        "quark properties", "constituent mass", "particle behaviors", "bond summary",
+        "QCD behavior", "what is in water", "molecular constituents",
+    ],
+    "planet_moment_of_inertia_analysis": [
+        "moment of inertia factor", "C/MR^2", "polar moment planet", "core size",
+        "planetary structure inertia", "differentiation", "Earth moment of inertia",
     ],
 
     # ============ ENERGY CONVERSION (E=mc^2 family) ============
@@ -517,20 +784,189 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "Si Ge GaAs gap", "Eg",
     ],
     "list_materials": ["available materials"],
-    "thermal_conductivity": [
-        "thermal conductivity", "k_thermal",
-        "Fourier law of heat conduction", "W/(m K)",
+
+    # ============ SIMULATION PLAYGROUND (conversation mode) ============
+    "playground_load": [
+        "load a", "start a scene", "simulate matter", "playground", "let's explore",
+        "put a water molecule", "load bronze", "begin simulation", "scene",
+    ],
+    "playground_inspect": [
+        "what's in it", "current state", "inspect", "show the bonds", "what is it now",
+        "look at it", "tell me about the scene", "constituents",
+    ],
+    "playground_apply": [
+        "heat it", "cool it", "raise the temperature", "apply pressure", "compress it",
+        "apply a magnetic field", "ionize", "what if I change", "tune it", "now make it",
+    ],
+    "playground_simulate": [
+        "drop it", "throw it", "launch it", "what happens if it falls", "orbit",
+        "simulate the drop", "let it fall", "fire it",
+    ],
+    "playground_render": [
+        "show me a render", "draw it", "visualize", "what does it look like",
+        "picture of it", "render the scene",
+    ],
+    "playground_reset": ["reset", "start over", "undo all changes", "back to pristine"],
+    "playground_status": ["what scenes are open", "session status", "list scenes"],
+    "playground_clear": ["clear the scene", "drop the scene", "forget it"],
+    "playground_make": [
+        "make a", "make me a", "create a", "build a", "a ball of", "a cube of",
+        "a sphere of", "brick", "marble", "cannonball", "ball of plutonium",
+        "how big", "criticality", "critical mass",
+    ],
+    "request_clarification": [
+        "ask the user", "I need to know", "clarify", "what value", "how big",
+        "need more information", "can't guess", "which", "specify",
     ],
 
-    # ============ CIRCUITS - extended ============
-    "speed_of_em_in_medium": [
-        "speed of light in a medium", "v = c / n",
-        "phase velocity in matter",
+    # ============ FREE-SURFACE FLUID DYNAMICS (water sim) ============
+    "buoyancy_analysis": [
+        "will it float", "does it float or sink", "buoyancy", "Archimedes",
+        "how deep does it sit", "submerged", "half sunk", "floats or sinks",
+        "why does ice float", "displacement",
     ],
-
-    # ============ OPTICS - extended ============
-    "lyman_alpha_wavelength": [
-        "Lyman-alpha", "121.567 nm", "hydrogen UV line",
-        "Lyman series first line",
+    "wind_wave_analysis": [
+        "wind blowing across", "wind on water", "ripples", "waves on a pond",
+        "wind-driven waves", "capillary waves", "surface waves", "wind stress",
+        "breeze ruffling the water", "how fast do ripples move", "wavelength of ripples",
     ],
 }
+
+
+# ── Colloquial / layman supplement ───────────────────────────────────────────
+# The entries above are FORMAL (formula names, theorems, attributions). This adds
+# how a NORMAL HUMAN describes the same phenomenon, so a plain-English scenario
+# routes without knowing the textbook term. Merged into TOOL_KEYWORDS at import.
+# Add generously -- false positives are cheap, missed matches are expensive.
+_COLLOQUIAL: dict[str, list[str]] = {
+    # ---- motion / falling / throwing ----
+    "free_fall_time": ["how long to fall", "how long does it take to drop",
+                       "time to hit the ground", "how long before it lands",
+                       "drop it from", "if I let go how long"],
+    "free_fall_velocity": ["how fast when it lands", "how fast does it hit",
+                           "how fast falling", "speed when it hits the ground",
+                           "how fast at the bottom"],
+    "projectile_range": ["how far will it go", "how far can I throw it",
+                         "how far does it fly", "throw distance", "how far will it land",
+                         "how far does the cannon shoot"],
+    "projectile_max_height": ["how high will it go", "how high does it fly",
+                              "top of the arc", "peak height", "highest point"],
+    "projectile_analysis": ["throw a ball", "fire a cannon", "shoot it at an angle",
+                            "launch at an angle", "kick a ball", "lob it"],
+    "kinetic_energy": ["energy of a moving thing", "how much energy is it carrying",
+                       "energy of motion", "how much punch"],
+    "momentum": ["how much oomph", "how hard to stop it", "moving mass"],
+    "collision_analysis": ["two things crash", "what happens when they collide",
+                           "bumper cars", "head-on crash", "smash together", "bounce off each other"],
+    "work_energy_analysis": ["how much work", "energy to push it", "push it up a hill",
+                             "how much effort to move"],
+    "incline_analysis": ["slide down a ramp", "push it up a slope", "ramp", "hill",
+                         "will it slide down", "steep slope"],
+    "rotational_dynamics": ["spinning", "how fast it spins", "spin it up",
+                            "twirl", "how hard to spin"],
+    "hertzian_impact_analysis": ["how much does it bounce", "bounciness",
+                                 "two balls hit", "how bouncy"],
+    "escape_velocity": ["how fast to escape gravity", "speed to leave the planet",
+                        "how fast to fly off into space", "break free of gravity"],
+    "gravitational_potential_energy": ["energy to lift it", "energy to raise it up"],
+    # ---- space / planets / orbits ----
+    "orbital_velocity": ["how fast does it orbit", "how fast does the moon go around",
+                         "how fast is the ISS", "orbit speed"],
+    "orbital_period": ["how long is a year on", "how long to go around",
+                       "how long to orbit"],
+    "gravitational_force": ["pull between two things", "how strong is gravity between",
+                            "how hard do they attract"],
+    "solar_system_body": ["tell me about mars", "facts about jupiter", "how big is earth",
+                          "planet info", "how heavy is the sun"],
+    "asteroid_analysis": ["jump off an asteroid", "gravity on an asteroid",
+                          "how heavy on ceres", "tiny world gravity"],
+    "light_travel_time": ["how long for light to get there", "how far in light years",
+                          "communication delay", "how long does light take"],
+    "planet_moment_of_inertia_analysis": ["what's the core like", "how is it layered inside",
+                                          "is it differentiated"],
+    # ---- materials / stuff ----
+    "density": ["how heavy for its size", "how dense", "will it be heavy",
+                "heavy or light", "mass per volume"],
+    "melting_point": ["when does it melt", "how hot to melt it", "melts at"],
+    "boiling_point": ["when does it boil", "how hot to boil"],
+    "youngs_modulus": ["how stiff", "how springy", "how much does it stretch", "how rigid"],
+    "elastic_analysis": ["will it stretch", "how much does it bend", "springiness",
+                         "stretch and squish"],
+    "stress_failure_analysis": ["when does it break", "will it snap", "how much before it breaks",
+                                "how strong before it fails", "will it crack", "fatigue"],
+    "friction_analysis": ["how slippery", "how much grip", "will it slide", "how much friction",
+                          "does it skid"],
+    "wear_analysis": ["how fast does it wear out", "wears down", "how long will it last rubbing"],
+    "wetting_analysis": ["does it wet the surface", "beads up", "spreads out",
+                         "does water stick", "is it waterproof", "contact angle"],
+    "material_inventory_analysis": ["what's it made of", "how many atoms", "how many protons",
+                                    "what's inside it", "how much does it weigh atom by atom"],
+    "list_materials": ["what materials do you have", "what stuff can I use"],
+    # ---- heat / temperature / fluids ----
+    "viscous_flow_analysis": ["how thick is the fluid", "how does it flow", "flow in a pipe",
+                              "honey vs water", "how runny"],
+    "natural_convection_analysis": ["hot air rises", "warm air rising", "heat plume",
+                                    "convection", "candle flame air"],
+    "diffusion_analysis": ["how fast does it spread", "smell spreading across a room",
+                           "how fast does it mix"],
+    "carnot_efficiency": ["best possible engine efficiency", "how efficient can an engine be"],
+    "speed_of_sound_in_ideal_gas": ["how fast is sound", "speed of sound in air"],
+    "blackbody_peak_wavelength": ["what color does it glow when hot", "color of hot metal",
+                                  "red hot or white hot", "what color when heated"],
+    "blackbody_total_power": ["how much heat does it radiate", "how much does it glow"],
+    "thermal_contact_analysis": ["heat through a joint", "how well heat passes between two surfaces"],
+    "thermoelectric_generator_analysis": ["make electricity from heat", "heat to power",
+                                          "thermocouple"],
+    # ---- light / electricity / magnets ----
+    "electrical_power": ["how much power", "how many watts", "power used"],
+    "capacitor_analysis": ["store charge", "how much charge can it hold", "capacitor"],
+    "hall_effect_analysis": ["voltage in a magnetic field", "magnet on a current"],
+    "material_color_analysis": ["what color is", "color of gold", "what color is copper",
+                                "what does it look like color"],
+    "phosphor_decay_analysis": ["glow in the dark", "afterglow", "how long does it keep glowing"],
+    "snells_law_refraction_angle": ["light bending", "straw looks bent in water", "bends the light"],
+    "thin_lens_image_distance": ["magnifying glass", "camera lens", "where's the image"],
+    "electromagnetic_force_analysis": ["force on a charge", "magnet pushes the charge",
+                                       "static electricity force"],
+    # ---- energy / nuclear / bangs ----
+    "mass_to_energy": ["how much energy in matter", "E=mc2", "energy locked in mass"],
+    "joules_to_TNT": ["how big a bang", "how many tons of TNT", "explosion size",
+                      "how big an explosion"],
+    "nuclear_binding_energy": ["what holds the nucleus together", "nuclear glue"],
+    "radioactivity_analysis": ["how radioactive", "how hot is the radiation", "how fast does it decay",
+                               "is it dangerous radioactive"],
+    # ---- relativity / black holes ----
+    "lorentz_factor": ["near the speed of light", "time slows down", "how much faster time"],
+    "relativistic_time_dilation": ["time slows at high speed", "twins paradox", "clock runs slow"],
+    "schwarzschild_radius": ["how small to be a black hole", "black hole size", "crush it to a black hole"],
+    "hawking_temperature": ["does a black hole glow", "black hole temperature"],
+    "gravitational_time_dilation": ["time near a black hole", "clocks slow in gravity"],
+    # ---- quantum ----
+    "quantum_tunneling_analysis": ["go through a wall", "tunnel through a barrier",
+                                   "leak through", "pass through when it shouldn't"],
+    "quantum_box_energy_analysis": ["particle in a box", "tiny box energy levels", "quantum dot"],
+    "quantum_algorithm_analysis": ["quantum computer", "quantum search", "grover", "quantum speedup"],
+    "de_broglie_wavelength": ["wavelength of a particle", "matter wave", "how wavy is an electron"],
+    # ---- chemistry ----
+    "titration_analysis": ["ph of the mix", "how acidic", "acid and base", "neutralize"],
+    "solution_analysis": ["mix two solutions", "will it dissolve", "dilute it",
+                          "will it precipitate", "cloudy when mixed"],
+    "combustion_enthalpy_analysis": ["how much heat from burning", "burn it", "set it on fire energy"],
+    "reaction_kinetics_analysis": ["how fast does it react", "reaction speed", "half life of the reaction"],
+    # ---- the playground (describing/building/poking a scene) ----
+    "playground_load": ["set up a", "start with a", "put a", "drop in a", "let's play with"],
+    "playground_make": ["make me a", "build a", "create a", "a ball of", "a cube of",
+                        "a block of", "a sphere of", "how big should it be"],
+    "playground_apply": ["heat it up", "cool it down", "squeeze it", "crush it", "zap it",
+                         "magnetize it", "put it under pressure", "warm it", "chill it"],
+    "playground_simulate": ["drop it", "throw it", "let it fall", "what happens if",
+                            "fire it", "launch it", "let it go"],
+    "playground_render": ["show me", "what does it look like", "draw it", "picture of it",
+                          "let me see it", "render it"],
+    # ---- water-scene vocabulary (routes scene/fluid talk to the playground/sim) ----
+    "simulate": ["pond", "puddle", "wind blowing across", "ripples", "waves on the water",
+                 "splash", "floating", "sinks or floats", "half sunk", "water surface"],
+}
+
+for _tool, _terms in _COLLOQUIAL.items():
+    TOOL_KEYWORDS.setdefault(_tool, []).extend(_terms)

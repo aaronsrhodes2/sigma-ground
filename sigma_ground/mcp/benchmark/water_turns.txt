@@ -1,0 +1,4 @@
+# Water-sim physics, local model
+will a solid copper ball float in a pond of water?
+a 5 m/s wind blows across the pond -- what ripples does it raise?
+how fast do those ripples travel?

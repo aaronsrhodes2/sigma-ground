@@ -786,51 +786,6 @@ def grashof_number(T_hot, T_ambient=300.0, L=0.01, mol_key='N2', sigma=SIGMA_HER
 
 # ── σ-Spectroscopy ───────────────────────────────────────────────
 
-def sigma_from_frequency_shift(f_observed, f_expected, m_A_amu, m_B_amu):
-    """Estimate σ from an observed frequency shift.
-
-    If ω = √(k/μ) and k is σ-invariant, then:
-      ω(σ) / ω(0) = √(μ(0) / μ(σ))
-
-    Inverting: μ(σ) = μ(0) × (ω(0)/ω(σ))²
-
-    And since μ ∝ mass_factor:
-      mass_factor = (f_expected / f_observed)²
-      mass_factor = (1 - f_QCD) + f_QCD × e^σ
-      e^σ = (mass_factor - (1 - f_QCD)) / f_QCD
-      σ = ln(e^σ)
-
-    This is the "you're not from around here" detector:
-    measure an infrared spectrum, compare to Earth values,
-    and you can read off σ.
-
-    FIRST_PRINCIPLES: pure algebra from ω = √(k/μ).
-
-    Args:
-        f_observed: observed frequency (any units)
-        f_expected: expected frequency at σ=0 (same units)
-        m_A_amu, m_B_amu: not used directly (for reference)
-
-    Returns:
-        Estimated σ value. Returns 0 if frequencies match.
-    """
-    if f_observed <= 0 or f_expected <= 0:
-        return 0.0
-
-    # ω ∝ 1/√μ ∝ 1/√(mass_factor)
-    # So mass_factor = (f_expected / f_observed)²
-    mass_factor = (f_expected / f_observed) ** 2
-
-    f_qcd = PROTON_QCD_FRACTION
-
-    # mass_factor = (1 - f_qcd) + f_qcd × e^σ
-    exp_sigma = (mass_factor - (1.0 - f_qcd)) / f_qcd
-
-    if exp_sigma <= 0:
-        return 0.0  # unphysical — can't have negative mass factor
-
-    return math.log(exp_sigma)
-
 
 # ── Nagatha Export ────────────────────────────────────────────────
 

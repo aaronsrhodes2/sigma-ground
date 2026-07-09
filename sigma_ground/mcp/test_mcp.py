@@ -81,7 +81,6 @@ class TestConstantsLookup:
         r = t_const.list_constants(category="sigma_ground", limit=200)
         assert isinstance(r.value, list)
         assert any("ETA" in n for n in r.value)
-        assert any("XI" in n for n in r.value)
 
     def test_list_constants_contains_filter(self):
         r = t_const.list_constants(contains="planck", limit=20)

@@ -36,13 +36,33 @@ def _semis():
     return SEMICONDUCTORS
 
 
+def _metal_guard(metal_key: str):
+    """Return a decline dict unless metal_key is a *pure* metal, else None.
+
+    'silicon' lives in BOTH METAL_TRANSPORT and SEMICONDUCTORS (materia uses its
+    bulk properties), so the metal Drude / free-electron models would otherwise
+    hand back a confidently-wrong number for it. Redirect semiconductors to the
+    semiconductor_* / pn_* tools rather than answer with the wrong model.
+    """
+    if metal_key in _semis():
+        return _decline(f"{metal_key!r} is a semiconductor; the metal transport "
+                        f"models (Drude / free-electron) don't apply — use the "
+                        f"semiconductor_band_gap / intrinsic_carrier_density / "
+                        f"pn_* tools instead", metal_key=metal_key)
+    if metal_key not in _metals():
+        pure = sorted(m for m in _metals() if m not in _semis())
+        return _decline(f"Needs a metal in {pure}; got {metal_key!r}",
+                        metal_key=metal_key)
+    return None
+
+
 # ── metal transport ─────────────────────────────────────────────────────
 def electrical_resistivity(metal_key: str, temperature_k: float = 300.0) -> dict[str, Any]:
     """Electrical resistivity of a metal (Ω·m). e.g. copper, aluminum, gold, tungsten."""
     from sigma_ground.field.interface.electronics import resistivity as f
-    if metal_key not in _metals():
-        return _decline(f"Needs a metal in {sorted(_metals())}; got {metal_key!r}",
-                        metal_key=metal_key)
+    g = _metal_guard(metal_key)
+    if g is not None:
+        return g
     try:
         v = f(metal_key, float(temperature_k))
     except Exception as e:
@@ -54,9 +74,9 @@ def electrical_resistivity(metal_key: str, temperature_k: float = 300.0) -> dict
 def carrier_mobility(metal_key: str, temperature_k: float = 300.0) -> dict[str, Any]:
     """Drude carrier mobility of a METAL (m²/V·s). Metals only (not semiconductors)."""
     from sigma_ground.field.interface.electronics import carrier_mobility as f
-    if metal_key not in _metals():
-        return _decline(f"Metal Drude mobility needs a metal in {sorted(_metals())}; "
-                        f"got {metal_key!r}", metal_key=metal_key)
+    g = _metal_guard(metal_key)
+    if g is not None:
+        return g
     try:
         v = f(metal_key, float(temperature_k))
     except Exception as e:
@@ -68,9 +88,9 @@ def carrier_mobility(metal_key: str, temperature_k: float = 300.0) -> dict[str, 
 def hall_coefficient(metal_key: str) -> dict[str, Any]:
     """Hall coefficient of a metal (m³/C), free-electron model R_H = −1/(n e)."""
     from sigma_ground.field.interface.electronics import hall_coefficient as f
-    if metal_key not in _metals():
-        return _decline(f"Needs a metal in {sorted(_metals())}; got {metal_key!r}",
-                        metal_key=metal_key)
+    g = _metal_guard(metal_key)
+    if g is not None:
+        return g
     try:
         v = f(metal_key)
     except Exception as e:
@@ -81,9 +101,9 @@ def hall_coefficient(metal_key: str) -> dict[str, Any]:
 def electron_mean_free_path(metal_key: str, temperature_k: float = 300.0) -> dict[str, Any]:
     """Electron mean free path in a metal (m). e.g. copper ≈ 39 nm at 300 K."""
     from sigma_ground.field.interface.electronics import mean_free_path as f
-    if metal_key not in _metals():
-        return _decline(f"Needs a metal in {sorted(_metals())}; got {metal_key!r}",
-                        metal_key=metal_key)
+    g = _metal_guard(metal_key)
+    if g is not None:
+        return g
     try:
         v = f(metal_key, float(temperature_k))
     except Exception as e:
@@ -94,9 +114,9 @@ def electron_mean_free_path(metal_key: str, temperature_k: float = 300.0) -> dic
 def free_electron_density(metal_key: str) -> dict[str, Any]:
     """Conduction-electron number density of a metal (m⁻³). e.g. copper 8.5e28."""
     from sigma_ground.field.interface.electronics import free_electron_density as f
-    if metal_key not in _metals():
-        return _decline(f"Needs a metal in {sorted(_metals())}; got {metal_key!r}",
-                        metal_key=metal_key)
+    g = _metal_guard(metal_key)
+    if g is not None:
+        return g
     try:
         v = f(metal_key)
     except Exception as e:

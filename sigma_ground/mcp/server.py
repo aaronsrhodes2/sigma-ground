@@ -54,17 +54,15 @@ ABSOLUTE RULES (these override convenience):
 PROVENANCE TAGS (in ToolResult.provenance_tag):
 - VERIFIED            -- measured from CODATA/PDG/IAU/peer-reviewed
 - DERIVED             -- computed from other library constants
-- EMPIRICAL-INPUT     -- free parameter set by observation (XI, ETA)
+- EMPIRICAL-INPUT     -- free parameter set by observation (e.g. HDE c^2)
 - SPECULATIVE-PENDING -- placeholder; flag prominently
 - REJECTED            -- former candidate, now disproven (value None)
 
-SSBM POSITIONING:
-The library contains an SSBM (Scale-Shifted Baryonic Matter) theoretical
-layer. It is NOT in the PRIMARY tier of tools. Only invoke when:
-- User asks about BH interior structure, dark-matter mechanism, cosmic
-  origin hypothesis, or sigma-field dynamics.
-- User explicitly invokes SSBM, sigma, eta entanglement fraction, etc.
-Do NOT volunteer SSBM framing for ordinary physics queries.
+SCOPE:
+Mentat answers standard, observation-anchored physics and chemistry. Do
+not introduce speculative or non-standard frameworks. If a question falls
+outside the curated tools, decline or use the fitted-due-to-incompetence
+tag rather than inventing a mechanism.
 
 CONVERSATIONAL STYLE:
 - Plain language, no equations unless asked.
@@ -101,10 +99,32 @@ def main() -> int:
     from sigma_ground.mcp.tools import astronomy as t_astr
     from sigma_ground.mcp.tools import orbital as t_orb
     from sigma_ground.mcp.tools import nuclear as t_nuc
-    from sigma_ground.mcp.tools import frontier as t_front
     from sigma_ground.mcp.tools import simulation as t_sim
     from sigma_ground.mcp.tools import chemistry as t_chem
     from sigma_ground.mcp.tools import electronics as t_elec
+    from sigma_ground.mcp.tools import mathx as t_mathx
+    from sigma_ground.mcp.tools import frontier as t_front
+    from sigma_ground.mcp.tools import mechanics as t_mech
+    from sigma_ground.mcp.tools import transport as t_trans
+    from sigma_ground.mcp.tools import rotation as t_rot
+    from sigma_ground.mcp.tools import materials_strength as t_matstr
+    from sigma_ground.mcp.tools import photonics as t_photon
+    from sigma_ground.mcp.tools import electroceramics as t_eceram
+    from sigma_ground.mcp.tools import thermal_systems as t_thermsys
+    from sigma_ground.mcp.tools import mechanical_response as t_mechresp
+    from sigma_ground.mcp.tools import devices as t_devices
+    from sigma_ground.mcp.tools import quantum_solids as t_qsolids
+    from sigma_ground.mcp.tools import plasma_em as t_plasma
+    from sigma_ground.mcp.tools import relativity_spectra as t_relsp
+    from sigma_ground.mcp.tools import tribology as t_tribo
+    from sigma_ground.mcp.tools import materials_micro as t_micro
+    from sigma_ground.mcp.tools import chemistry_extended as t_chemx
+    from sigma_ground.mcp.tools import qcomputing as t_qcomp
+    from sigma_ground.mcp.tools import misc_physics as t_miscphys
+    from sigma_ground.mcp.tools import inventory_tools as t_inv
+    from sigma_ground.mcp.tools import playground as t_play
+    from sigma_ground.mcp.tools import fluid_surface as t_fluidsurf
+    from sigma_ground.mcp import procedures as t_proc
     from sigma_ground.mcp import manifest as t_manifest
 
     server = FastMCP("mentat")
@@ -483,12 +503,12 @@ def main() -> int:
     @server.tool()
     def hde_dark_energy_density(c_squared: float | None = None,
                                   L_meters: float | None = None) -> dict[str, Any]:
-        """Holographic dark energy density. Defaults c^2=ETA, L=R_H."""
+        """Holographic dark energy density. Defaults c^2=DESI Union3 fit, L=R_H."""
         return t_cos.hde_dark_energy_density(c_squared, L_meters).to_dict()
 
     @server.tool()
     def eta_desi_band_check(dataset: str = "dr2") -> dict[str, Any]:
-        """Is our adopted ETA within the DESI Union3 1-sigma c^2 band?"""
+        """Is the adopted HDE c^2 within the DESI Union3 1-sigma band?"""
         return t_cos.eta_desi_band_check(dataset).to_dict()
 
     @server.tool()
@@ -513,7 +533,7 @@ def main() -> int:
 
     @server.tool()
     def eta_value_report() -> dict[str, Any]:
-        """ETA = c^2_DESI_Union3 ~ 0.4122 (cosmic entanglement fraction)."""
+        """Adopted HDE c^2 = DESI Union3 fit ~ 0.4122 (with provenance)."""
         return t_cos.eta_value_report().to_dict()
 
     # ── thermodynamics ─────────────────────────────────────────────
@@ -894,24 +914,12 @@ def main() -> int:
         energy_power_time(power_w=5000, time_s=3600) -> energy in joules."""
         return t_circ.energy_power_time(power_w, time_s, energy_j).to_dict()
 
-    # ── frontier: black-hole thermodynamics / holography ───────────
+    # ── procedures: canonical multi-step scientific routines ───────
     @server.tool()
-    def bekenstein_hawking_entropy(mass_kg: float) -> dict[str, Any]:
-        """BH entropy S=A/4L_p² (= max entanglement threads), Hawking temp,
-        horizon area & radius. Solar mass ~10^77."""
-        return t_front.bekenstein_hawking_entropy(mass_kg).to_dict()
-
-    @server.tool()
-    def entanglements_to_pop_bubble(radius_m: float) -> dict[str, Any]:
-        """Threads to saturate (pop) a bubble of radius R: N=πR²/L_p².
-        Smallest bubble (R=L_p) pops at π≈3 — the quantum of cavitation."""
-        return t_front.entanglements_to_pop_bubble(radius_m).to_dict()
-
-    @server.tool()
-    def holographic_matching_mass() -> dict[str, Any]:
-        """The BH mass where baryon count == horizon pixel count:
-        M=ħc/(4πGm_p) ≈ 2.25e10 kg."""
-        return t_front.holographic_matching_mass().to_dict()
+    def procedure_black_hole_profile(mass_kg: float) -> dict[str, Any]:
+        """Full black-hole thermodynamics cascade: Schwarzschild radius →
+        Hawking temperature → Bekenstein-Hawking entropy → evaporation time.
+        One mass in, the whole profile out, in the only correct order."""
 
     @server.tool()
     def baryon_vs_disc(mass_kg: float) -> dict[str, Any]:
@@ -920,15 +928,11 @@ def main() -> int:
         return t_front.baryon_vs_disc(mass_kg).to_dict()
 
     @server.tool()
-    def gravitational_binding_energy(mass_kg: float,
-                                       radius_m: float) -> dict[str, Any]:
-        """Self-gravity binding energy of a uniform sphere U=(3/5)GM²/R."""
-        return t_front.gravitational_binding_energy(mass_kg, radius_m).to_dict()
+    def bekenstein_hawking_entropy(mass_kg: float) -> dict[str, Any]:
+        """BH entropy S=A/4L_p² (= max entanglement threads), Hawking temp,
+        horizon area & radius. Solar mass ~10^77."""
+        return t_front.bekenstein_hawking_entropy(mass_kg).to_dict()
 
-    @server.tool()
-    def unruh_temperature(acceleration_m_s2: float) -> dict[str, Any]:
-        """Unruh temperature of an accelerated observer T=ħa/(2πck_B)."""
-        return t_front.unruh_temperature(acceleration_m_s2).to_dict()
 
     @server.tool()
     def entanglement_channel(scenario: str = "") -> dict[str, Any]:
@@ -938,107 +942,136 @@ def main() -> int:
 
     # ── procedures: canonical multi-step routines (the sequence lives in code,
     #    so the LLM can never mis-order or mis-chain it) ──
-    from sigma_ground.mcp import procedures as t_proc
+    @server.tool()
+    def entanglements_to_pop_bubble(radius_m: float) -> dict[str, Any]:
+        """Threads to saturate (pop) a bubble of radius R: N=πR²/L_p².
+        Smallest bubble (R=L_p) pops at π≈3 — the quantum of cavitation."""
+        return t_front.entanglements_to_pop_bubble(radius_m).to_dict()
+
 
     @server.tool()
-    def procedure_black_hole_profile(mass_kg: float) -> dict[str, Any]:
-        """Full black-hole thermodynamics in one call: Schwarzschild radius ->
-        Hawking temperature -> Bekenstein-Hawking entropy -> evaporation time."""
+    def gravitational_binding_energy(mass_kg: float,
+                                       radius_m: float) -> dict[str, Any]:
+        """Self-gravity binding energy of a uniform sphere U=(3/5)GM²/R."""
+        return t_front.gravitational_binding_energy(mass_kg, radius_m).to_dict()
+
+
+    @server.tool()
+    def holographic_matching_mass() -> dict[str, Any]:
+        """The BH mass where baryon count == horizon pixel count:
+        M=ħc/(4πGm_p) ≈ 2.25e10 kg."""
+        return t_front.holographic_matching_mass().to_dict()
+
+
+    @server.tool()
+    def unruh_temperature(acceleration_m_s2: float) -> dict[str, Any]:
+        """Unruh temperature of an accelerated observer T=ħa/(2πck_B)."""
+        return t_front.unruh_temperature(acceleration_m_s2).to_dict()
         return t_proc.black_hole_profile(mass_kg).to_dict()
 
     @server.tool()
     def procedure_photon_spectrum(wavelength_m: float) -> dict[str, Any]:
-        """All photon properties from a wavelength: frequency, energy (J and eV),
-        momentum -- the full photon cascade."""
+        """Full photon cascade from one wavelength: frequency → energy (J) →
+        energy (eV) → momentum. Each value derived from the previous, in code."""
         return t_proc.photon_spectrum(wavelength_m).to_dict()
 
     @server.tool()
     def procedure_relativistic_particle(kinetic_energy_eV: float,
-                                          particle: str = "electron") -> dict[str, Any]:
-        """Relativistic particle cascade: Lorentz factor -> total energy ->
-        momentum -> de Broglie wavelength, from kinetic energy + particle."""
-        return t_proc.relativistic_particle(kinetic_energy_eV, particle).to_dict()
+                                          particle: str = "electron"
+                                          ) -> dict[str, Any]:
+        """Relativistic-kinematics cascade: KE → Lorentz factor γ → total
+        energy → momentum → de Broglie wavelength. Particles: electron,
+        proton, neutron, muon."""
+        return t_proc.relativistic_particle(kinetic_energy_eV,
+                                             particle).to_dict()
 
     @server.tool()
     def procedure_projectile_trajectory(initial_speed_m_s: float,
-                                          launch_angle_deg: float) -> dict[str, Any]:
-        """Projectile cascade: time of flight -> range -> max height."""
-        return t_proc.projectile_trajectory(initial_speed_m_s, launch_angle_deg).to_dict()
+                                          launch_angle_deg: float
+                                          ) -> dict[str, Any]:
+        """Intro-mechanics cascade (no air resistance): time of flight →
+        range → max height. One launch, three outputs."""
+        return t_proc.projectile_trajectory(initial_speed_m_s,
+                                            launch_angle_deg).to_dict()
 
     @server.tool()
     def procedure_stellar_blackbody(temperature_k: float) -> dict[str, Any]:
-        """Blackbody/star cascade: Wien peak wavelength -> Stefan-Boltzmann surface
-        flux -> peak photon energy."""
+        """Blackbody/star-surface cascade: Wien peak wavelength →
+        Stefan-Boltzmann surface flux → peak photon energy."""
         return t_proc.stellar_blackbody(temperature_k).to_dict()
 
-    # ── simulation: the Materia time-evolution engine (separate track), exposed
-    #    here. Mentat consumes Materia's public API; Materia owns routing+chaining.
+    # ── simulation: the Materia time-evolution engine (NL front door) ──
     @server.tool()
     def simulate(scenario: str) -> dict[str, Any]:
-        """Run a natural-language physics what-if through the Materia simulator.
-
-        Materia translates the scenario into a (possibly multi-step, chained)
-        simulation and runs it, returning a worked, self-validated answer. For
-        scenarios it cannot model it returns a clarification (value null) rather
-        than a fabricated answer. Examples: "how fast does a 5 cm copper ball hit
-        the ground from 10 km?"; "does an iron sphere heat up falling from 30 km?"
-        """
+        """Run a natural-language physics what-if through the Materia
+        simulator. Returns a worked, self-validated answer, or a clarification
+        (value null) if the scenario is not modeled — never a fabricated
+        number. e.g. "how fast does a 5 cm copper ball hit the ground from
+        10 km?"."""
         return t_sim.simulate(scenario).to_dict()
 
     @server.tool()
     def run_simulation(verb: str,
-                       params: dict[str, Any] | None = None) -> dict[str, Any]:
-        """Run one Materia simulation verb directly with explicit parameters.
-
-        Call list_simulation_scenarios() to see verbs and their slots. Example:
-        run_simulation("terminal_velocity_drop", {"material_key": "copper",
-        "radius_m": 0.05, "drop_altitude_m": 10000}).
-        """
+                       params: dict[str, Any] | None = None
+                       ) -> dict[str, Any]:
+        """Run one Materia simulation verb directly with explicit parameters
+        (deterministic, no LLM). Use list_simulation_scenarios() to see the
+        verbs and their input slots."""
         return t_sim.run_simulation(verb, params).to_dict()
 
     @server.tool()
     def list_simulation_scenarios() -> dict[str, Any]:
-        """List Materia simulation verbs with their inputs and named outputs."""
+        """List the Materia simulation verbs with their inputs and named
+        outputs — discovery for the simulator."""
         return t_sim.list_simulation_scenarios().to_dict()
 
-    # ── chemistry: bonds, thermochemistry, acid-base, electrochemistry,
-    #    solutions — library science surfaced as MCP tools ──
+    # ── chemistry: bonds, reactions, acids/bases, electrochem, solutions ──
     @server.tool()
     def bond_energy(atom_a: str, atom_b: str) -> dict[str, Any]:
-        """Single-bond dissociation energy A–B in eV (Pauling). Atoms: H,C,N,O,F,S,Cl."""
+        """Bond dissociation energy (kJ/mol) for a diatomic bond, e.g.
+        bond_energy('H', 'H') or bond_energy('C', 'O')."""
         return t_chem.bond_energy(atom_a, atom_b)
 
     @server.tool()
-    def bond_angle(electron_domains: int, lone_pairs: int = 0) -> dict[str, Any]:
-        """VSEPR bond angle (degrees): (4,0)=109.47° CH4; (4,1)≈107° NH3; (2,0)=180° CO2."""
+    def bond_angle(electron_domains: int,
+                   lone_pairs: int = 0) -> dict[str, Any]:
+        """VSEPR bond angle (degrees) from steric number, e.g. bond_angle(4, 0)
+        → 109.5° (tetrahedral), bond_angle(4, 2) → ~104.5° (water)."""
         return t_chem.bond_angle(electron_domains, lone_pairs)
 
     @server.tool()
     def reaction_enthalpy(reaction_key: str) -> dict[str, Any]:
-        """ΔH of a named reaction (kJ/mol), bond-energy estimate. e.g. methane_combustion, haber_process."""
+        """Standard reaction enthalpy ΔH° (kJ/mol) from formation enthalpies,
+        e.g. reaction_enthalpy('methane_combustion')."""
         return t_chem.reaction_enthalpy(reaction_key)
 
     @server.tool()
-    def weak_acid_ph(acid_key: str, concentration_mol_l: float) -> dict[str, Any]:
-        """pH of a weak-acid solution. e.g. acetic_acid, hydrofluoric_acid, formic_acid."""
+    def weak_acid_ph(acid_key: str,
+                     concentration_mol_l: float) -> dict[str, Any]:
+        """pH of a weak-acid solution from its Ka, e.g.
+        weak_acid_ph('acetic_acid', 0.1) → ~2.88."""
         return t_chem.weak_acid_ph(acid_key, concentration_mol_l)
 
     @server.tool()
-    def buffer_ph(acid_key: str, ratio_base_over_acid: float = 1.0) -> dict[str, Any]:
-        """Buffer pH via Henderson–Hasselbalch: pH = pKa + log10([A⁻]/[HA])."""
+    def buffer_ph(acid_key: str,
+                  ratio_base_over_acid: float = 1.0) -> dict[str, Any]:
+        """Buffer pH (Henderson-Hasselbalch): pH = pKa + log([base]/[acid])."""
         return t_chem.buffer_ph(acid_key, ratio_base_over_acid)
 
     @server.tool()
     def cell_potential(cathode: str, anode: str,
                        reaction_quotient: float = 1.0) -> dict[str, Any]:
-        """Galvanic cell EMF (V), Nernst-corrected. Electrodes by element name (copper, zinc, …)."""
+        """Galvanic cell EMF (V), Nernst-corrected, e.g.
+        cell_potential('copper', 'zinc') → ~1.10 V (Daniell cell)."""
         return t_chem.cell_potential(cathode, anode, reaction_quotient)
 
     @server.tool()
-    def electrolysis_mass(molar_mass_kg: float, current_a: float, time_s: float,
-                          electrons: int) -> dict[str, Any]:
-        """Mass deposited by electrolysis (kg) — Faraday's first law m=M·I·t/(n·F)."""
-        return t_chem.electrolysis_mass(molar_mass_kg, current_a, time_s, electrons)
+    def electrolysis_mass(molar_mass_kg: float, current_a: float,
+                          time_s: float, electrons: int) -> dict[str, Any]:
+        """Mass deposited by electrolysis (kg) — Faraday's first law:
+        m = M·I·t / (n·F)."""
+        return t_chem.electrolysis_mass(molar_mass_kg, current_a,
+                                        time_s, electrons)
 
     @server.tool()
     def boiling_point_elevation(molality_mol_kg: float,
@@ -1048,7 +1081,8 @@ def main() -> int:
 
     @server.tool()
     def freezing_point_depression(molality_mol_kg: float,
-                                  van_t_hoff_i: float = 1.0) -> dict[str, Any]:
+                                  van_t_hoff_i: float = 1.0
+                                  ) -> dict[str, Any]:
         """Freezing-point depression ΔTf (K) = i·Kf·molality (colligative)."""
         return t_chem.freezing_point_depression(molality_mol_kg, van_t_hoff_i)
 
@@ -1060,78 +1094,749 @@ def main() -> int:
 
     @server.tool()
     def molar_solubility(salt_key: str) -> dict[str, Any]:
-        """Molar solubility (mol/L) from Ksp. e.g. silver_chloride, barium_sulfate, calcium_carbonate."""
+        """Molar solubility (mol/L) of a sparingly-soluble salt from its Ksp,
+        e.g. molar_solubility('silver_chloride') → ~1.33e-5."""
         return t_chem.molar_solubility(salt_key)
 
-    # ── electronics: metal transport, semiconductors, junctions, capacitance ──
+    # ── electronics: transport, semiconductors, junctions, capacitance ──
     @server.tool()
-    def electrical_resistivity(metal_key: str, temperature_k: float = 300.0) -> dict[str, Any]:
-        """Electrical resistivity of a metal (Ω·m). e.g. copper, aluminum, gold, tungsten."""
+    def electrical_resistivity(metal_key: str,
+                               temperature_k: float = 300.0
+                               ) -> dict[str, Any]:
+        """Electrical resistivity (Ω·m) of a metal, e.g.
+        electrical_resistivity('copper') → ~1.68e-8."""
         return t_elec.electrical_resistivity(metal_key, temperature_k)
 
     @server.tool()
-    def carrier_mobility(metal_key: str, temperature_k: float = 300.0) -> dict[str, Any]:
-        """Drude carrier mobility of a metal (m²/V·s). Metals only (not semiconductors)."""
+    def carrier_mobility(metal_key: str,
+                         temperature_k: float = 300.0) -> dict[str, Any]:
+        """Electron drift mobility (m²/V·s) of a metal (metals only)."""
         return t_elec.carrier_mobility(metal_key, temperature_k)
 
     @server.tool()
     def hall_coefficient(metal_key: str) -> dict[str, Any]:
-        """Hall coefficient of a metal (m³/C), free-electron model R_H=−1/(ne)."""
+        """Hall coefficient (m³/C) of a metal: R_H = −1/(n·e)."""
         return t_elec.hall_coefficient(metal_key)
 
     @server.tool()
-    def electron_mean_free_path(metal_key: str, temperature_k: float = 300.0) -> dict[str, Any]:
-        """Electron mean free path in a metal (m). e.g. copper ≈ 39 nm at 300 K."""
+    def electron_mean_free_path(metal_key: str,
+                                temperature_k: float = 300.0
+                                ) -> dict[str, Any]:
+        """Electron mean free path (m) in a metal, e.g.
+        electron_mean_free_path('copper') → ~39 nm."""
         return t_elec.electron_mean_free_path(metal_key, temperature_k)
 
     @server.tool()
     def free_electron_density(metal_key: str) -> dict[str, Any]:
-        """Conduction-electron number density of a metal (m⁻³). e.g. copper 8.5e28."""
+        """Free-electron (conduction) number density (m⁻³) of a metal."""
         return t_elec.free_electron_density(metal_key)
 
     @server.tool()
     def semiconductor_band_gap(semiconductor_key: str,
-                               temperature_k: float = 300.0) -> dict[str, Any]:
-        """Band gap of a semiconductor (eV). e.g. silicon 1.12, germanium, gallium_arsenide."""
+                               temperature_k: float = 300.0
+                               ) -> dict[str, Any]:
+        """Temperature-dependent band gap (eV) of a semiconductor (Varshni),
+        e.g. semiconductor_band_gap('silicon') → ~1.12 eV at 300 K."""
         return t_elec.semiconductor_band_gap(semiconductor_key, temperature_k)
 
     @server.tool()
     def intrinsic_carrier_density(semiconductor_key: str,
-                                  temperature_k: float = 300.0) -> dict[str, Any]:
-        """Intrinsic carrier concentration n_i (m⁻³) of a semiconductor."""
-        return t_elec.intrinsic_carrier_density(semiconductor_key, temperature_k)
+                                  temperature_k: float = 300.0
+                                  ) -> dict[str, Any]:
+        """Intrinsic carrier density n_i (m⁻³) of a semiconductor."""
+        return t_elec.intrinsic_carrier_density(semiconductor_key,
+                                                temperature_k)
 
     @server.tool()
     def pn_built_in_voltage(semiconductor_key: str, donor_density_m3: float,
                             acceptor_density_m3: float,
                             temperature_k: float = 300.0) -> dict[str, Any]:
-        """Built-in voltage of a p-n junction (V): (kT/e)·ln(N_A·N_D / n_i²)."""
+        """Built-in voltage of a p-n junction (V):
+        V_bi = (kT/e) ln(N_A N_D / n_i²)."""
         return t_elec.pn_built_in_voltage(semiconductor_key, donor_density_m3,
                                           acceptor_density_m3, temperature_k)
 
     @server.tool()
     def depletion_width(semiconductor_key: str, donor_density_m3: float,
-                        acceptor_density_m3: float, applied_voltage_v: float = 0.0,
+                        acceptor_density_m3: float,
+                        applied_voltage_v: float = 0.0,
                         temperature_k: float = 300.0) -> dict[str, Any]:
         """Depletion-region width of a p-n junction (m)."""
         return t_elec.depletion_width(semiconductor_key, donor_density_m3,
-                                      acceptor_density_m3, applied_voltage_v, temperature_k)
+                                      acceptor_density_m3, applied_voltage_v,
+                                      temperature_k)
 
     @server.tool()
     def diode_current(saturation_current_a: float, voltage_v: float,
                       temperature_k: float = 300.0) -> dict[str, Any]:
         """Shockley diode current (A): I = I₀(exp(eV/kT) − 1)."""
-        return t_elec.diode_current(saturation_current_a, voltage_v, temperature_k)
+        return t_elec.diode_current(saturation_current_a, voltage_v,
+                                    temperature_k)
+
+    # (parallel_plate_capacitance is already exposed by the circuits group;
+    #  electronics.parallel_plate_capacitance is the same physics — not
+    #  re-registered here to avoid a duplicate tool name.)
+
+    # ── extended math (sympy): linear algebra, transforms, calculus ──
+    @server.tool()
+    def percent_of(percent: float, value: float) -> dict[str, Any]:
+        """X percent of a value: (percent/100)*value. percent_of(2,60) -> 1.2."""
+        return t_mathx.percent_of(percent, value).to_dict()
+
+    # ── frontier physics (standard): BH thermo, Unruh, entanglement ──
+    @server.tool()
+    def collision_analysis(mass1_kg: float, velocity1_m_s: float,
+                           mass2_kg: float, velocity2_m_s: float,
+                           restitution: float = 0.8) -> dict[str, Any]:
+        """1D two-body collision: elastic final velocities, the inelastic
+        outcome, and the kinetic energy lost. collision_analysis(2, 3, 1, -1)."""
+        return t_mech.collision_analysis(mass1_kg, velocity1_m_s, mass2_kg,
+                                         velocity2_m_s, restitution)
 
     @server.tool()
-    def parallel_plate_capacitance(area_m2: float, separation_m: float,
-                                   relative_permittivity: float = 1.0) -> dict[str, Any]:
-        """Parallel-plate capacitance (F): C = ε₀ε_r A / d."""
-        return t_elec.parallel_plate_capacitance(area_m2, separation_m,
-                                                 relative_permittivity)
+    def work_energy_analysis(mass_kg: float, velocity_m_s: float,
+                             height_m: float = 10.0, force_n: float = 20.0,
+                             distance_m: float = 5.0) -> dict[str, Any]:
+        """Work, mechanical power, friction loss, gravitational PE, rotational
+        KE, impulse, and total mechanical energy of a moving body."""
+        return t_mech.work_energy_analysis(mass_kg, velocity_m_s, height_m,
+                                           force_n, distance_m)
 
-    # Run via stdio transport (standard MCP).
-    server.run()
+    @server.tool()
+    def projectile_analysis(speed_m_s: float, angle_deg: float,
+                            mass_kg: float = 1.0,
+                            drag_coefficient: float = 0.47,
+                            area_m2: float = 0.01) -> dict[str, Any]:
+        """Projectile from a launch speed + angle (degrees): vacuum range, apex
+        height, flight time, drag force, terminal velocity, drag-corrected
+        range. projectile_analysis(50, 45)."""
+        return t_mech.projectile_analysis(speed_m_s, angle_deg, mass_kg,
+                                          drag_coefficient, area_m2)
+
+    @server.tool()
+    def incline_analysis(angle_deg: float, friction_coefficient: float = 0.3,
+                         speed_m_s: float = 10.0,
+                         height_m: float = 5.0) -> dict[str, Any]:
+        """Inclined plane: critical sliding angle, distance slid up before
+        stopping, and slide speed at the bottom."""
+        return t_mech.incline_analysis(angle_deg, friction_coefficient,
+                                       speed_m_s, height_m)
+
+    # ── transport & statistical mechanics ──
+    @server.tool()
+    def viscous_flow_analysis(velocity_m_s: float, radius_m: float,
+                              viscosity_pa_s: float = 1.0e-3,
+                              fluid_density_kg_m3: float = 1000.0) -> dict[str, Any]:
+        """Viscous flow: Reynolds number, Stokes drag + terminal velocity, drag
+        coefficient, Poiseuille pipe flow, boundary layer, wall shear, viscous
+        heating. viscous_flow_analysis(2, 0.005)."""
+        return t_trans.viscous_flow_analysis(velocity_m_s, radius_m,
+                                             viscosity_pa_s, fluid_density_kg_m3)
+
+    @server.tool()
+    def diffusion_analysis(temperature_k: float,
+                           diffusivity_m2_s: float = 1.0e-9) -> dict[str, Any]:
+        """Diffusion: Einstein-Stokes diffusivity, Fick's first & second laws,
+        penetration time, Darken interdiffusion."""
+        return t_trans.diffusion_analysis(temperature_k, diffusivity_m2_s)
+
+    @server.tool()
+    def statistical_distribution(temperature_k: float,
+                                 energy_ev: float = 0.5) -> dict[str, Any]:
+        """Statistical mechanics: Fermi-Dirac & Bose-Einstein occupation,
+        partition function, mean energy, entropy, equipartition heat capacity.
+        statistical_distribution(300, 0.5)."""
+        return t_trans.statistical_distribution(temperature_k, energy_ev)
+
+    # ── rotational dynamics + atomic angular momentum ──
+    @server.tool()
+    def rotational_dynamics(mass_kg: float, radius_m: float,
+                            angle_deg: float = 30.0,
+                            angular_velocity_rad_s: float = 10.0) -> dict[str, Any]:
+        """Rotational dynamics: moment of inertia (rod + shape geometry),
+        parallel-axis, angular momentum, torque, angular acceleration, and
+        rolling down a ramp (speed/distance/time). rotational_dynamics(2, 0.5)."""
+        return t_rot.rotational_dynamics(mass_kg, radius_m, angle_deg,
+                                         angular_velocity_rad_s)
+
+    @server.tool()
+    def atomic_angular_momentum(total_j: float = 1.5,
+                                spin_orbit_constant_ev: float = 0.05) -> dict[str, Any]:
+        """Atomic angular momentum: |J| magnitude, allowed m_j values, spin-orbit
+        coupling energy/splitting, and the Lande interval (L=2, S=1/2)."""
+        return t_rot.atomic_angular_momentum(total_j, spin_orbit_constant_ev)
+
+    # ── materials strength + composites ──
+    @server.tool()
+    def elastic_analysis(material_key: str, strain: float = 0.001) -> dict[str, Any]:
+        """Elastic response: uniaxial/shear/hydrostatic stress, strain-energy
+        densities, transverse strain, volume change, von Mises yield, and
+        moduli from Lame parameters. elastic_analysis('iron', 0.001)."""
+        return t_matstr.elastic_analysis(material_key, strain)
+
+    @server.tool()
+    def stress_failure_analysis(material_key: str,
+                                applied_stress: float = 1.0e8) -> dict[str, Any]:
+        """Fracture/fatigue/creep: stress-intensity factor, critical crack
+        length, fatigue life, Paris remaining life, creep rate + rupture time."""
+        return t_matstr.stress_failure_analysis(material_key, applied_stress)
+
+    @server.tool()
+    def plasticity_analysis(material_key: str,
+                            plastic_strain: float = 0.05) -> dict[str, Any]:
+        """Plastic flow stress: Johnson-Cook, Ludwik hardening, and the
+        work-hardening rate. plasticity_analysis('aluminum', 0.05)."""
+        return t_matstr.plasticity_analysis(material_key, plastic_strain)
+
+    @server.tool()
+    def composite_bounds_analysis(bulk_modulus1_pa: float = 100.0e9,
+                                  bulk_modulus2_pa: float = 200.0e9,
+                                  fraction1: float = 0.5) -> dict[str, Any]:
+        """Two-phase composite property bounds: Voigt-Reuss-Hill average,
+        Hashin-Shtrikman bounds, thermal-conductivity bounds, Gibson-Ashby
+        foam strength."""
+        return t_matstr.composite_bounds_analysis(bulk_modulus1_pa,
+                                                  bulk_modulus2_pa, fraction1)
+
+    @server.tool()
+    def optical_waveguide_analysis(wavelength_m: float = 1.55e-6,
+                                   core_thickness_m: float = 5.0e-6,
+                                   n_core: float = 1.50,
+                                   n_clad: float = 1.48) -> dict[str, Any]:
+        """Symmetric slab dielectric waveguide: numerical aperture, V-number,
+        and guided TE-mode count. optical_waveguide_analysis(1.55e-6, 5e-6)."""
+        return t_photon.optical_waveguide_analysis(wavelength_m, core_thickness_m,
+                                                   n_core, n_clad)
+
+    @server.tool()
+    def photonic_bandgap_analysis(design_wavelength_m: float = 550.0e-9,
+                                  n_low: float = 1.46, n_high: float = 2.35,
+                                  n_pairs: int = 10) -> dict[str, Any]:
+        """Quarter-wave Bragg mirror (1D photonic bandgap): center wavelength,
+        stop-band fractional width, peak reflectance for N pairs."""
+        return t_photon.photonic_bandgap_analysis(design_wavelength_m, n_low,
+                                                  n_high, n_pairs)
+
+    @server.tool()
+    def nonlinear_optics_analysis(intensity_w_m2: float = 1.0e13,
+                                  wavelength_m: float = 1.064e-6,
+                                  n0: float = 1.45, n2_m2_w: float = 2.7e-20,
+                                  length_m: float = 0.01) -> dict[str, Any]:
+        """Nonlinear optics: Kerr index, B-integral, self-focusing critical
+        power, and an SHG efficiency factor."""
+        return t_photon.nonlinear_optics_analysis(intensity_w_m2, wavelength_m,
+                                                  n0, n2_m2_w, length_m)
+
+    @server.tool()
+    def material_color_analysis(category: str = "metal", key: str = "copper",
+                                dye_key: str | None = None,
+                                substrate_key: str | None = None) -> dict[str, Any]:
+        """Physically-derived sRGB color of a material (metal/organic/dye).
+        material_color_analysis('metal', 'gold')."""
+        return t_photon.material_color_analysis(category, key, dye_key, substrate_key)
+
+    @server.tool()
+    def phosphor_decay_analysis(time_s: float = 10.0e-3, tau_s: float = 5.0e-3,
+                                initial_brightness: float = 1.0) -> dict[str, Any]:
+        """Phosphor/luminescence afterglow I(t)=I0 exp(-t/tau) and surviving
+        fraction at time t. phosphor_decay_analysis(10e-3, 5e-3)."""
+        return t_photon.phosphor_decay_analysis(time_s, tau_s, initial_brightness)
+
+    @server.tool()
+    def piezoelectric_actuator_analysis(material_key: str = "PZT5A",
+                                        e_field_v_m: float = 1.0e6,
+                                        length_m: float = 0.02) -> dict[str, Any]:
+        """Converse piezoelectric effect: induced strain (d E) and tip
+        displacement (d E L). Keys: quartz, PZT4, PZT5A, BaTiO3, LiNbO3,
+        AlN, PVDF. piezoelectric_actuator_analysis('PZT5A', 1e6, 0.02)."""
+        return t_eceram.piezoelectric_actuator_analysis(material_key,
+                                                       e_field_v_m, length_m)
+
+    @server.tool()
+    def dielectric_polarization_analysis(polarizability_fm2: float = 1.6e-40,
+                                         number_density_m3: float = 3.0e28) -> dict[str, Any]:
+        """Relative permittivity from the Clausius-Mossotti relation given
+        molecular polarizability (F.m^2) and number density."""
+        return t_eceram.dielectric_polarization_analysis(polarizability_fm2,
+                                                        number_density_m3)
+
+    @server.tool()
+    def thermoelectric_generator_analysis(hot_temperature_k: float = 600.0,
+                                          cold_temperature_k: float = 300.0,
+                                          material_key: str = "silicon",
+                                          mat_p: str = "iron",
+                                          mat_n: str = "copper") -> dict[str, Any]:
+        """Thermoelectric generator: Carnot limit, Seebeck thermocouple voltage,
+        leg resistance, max power, Ioffe (ZT) efficiency, Fourier heat flow,
+        full-system sim. Metals have ZT~0 (poor TEGs)."""
+        return t_thermsys.thermoelectric_generator_analysis(hot_temperature_k,
+            cold_temperature_k, material_key, mat_p, mat_n)
+
+    @server.tool()
+    def natural_convection_analysis(hot_temperature_k: float = 350.0,
+                                    ambient_temperature_k: float = 300.0,
+                                    length_m: float = 0.01,
+                                    gas_key: str = "N2",
+                                    gas_key_2: str = "O2") -> dict[str, Any]:
+        """Buoyancy-driven natural convection of a gas: buoyancy velocity,
+        Grashof number (laminar/turbulent), binary gas diffusivity."""
+        return t_thermsys.natural_convection_analysis(hot_temperature_k,
+            ambient_temperature_k, length_m, gas_key, gas_key_2)
+
+    @server.tool()
+    def thermal_contact_analysis(material_1: str = "copper",
+                                 material_2: str = "aluminum",
+                                 pressure_pa: float = 1.0e6,
+                                 temperature_k: float = 300.0,
+                                 roughness_m: float = 2.0e-6,
+                                 asperity_slope: float = 0.1) -> dict[str, Any]:
+        """Engineering thermal contact (joint) conductance of two pressed
+        metal surfaces via the Cooper-Mikic-Yovanovich plastic model
+        h_c=1.25 k_s (m/sigma)(P/H_c)^0.95: also contact resistance,
+        harmonic-mean conductivity, contact microhardness, real-contact
+        fraction. Roughness/slope are surface-finish inputs (typ. 1-10 um,
+        0.05-0.3). Cu-Al at 1 MPa ~ 6e4 W/(m^2.K)."""
+        return t_thermsys.thermal_contact_analysis(material_1, material_2,
+            pressure_pa, temperature_k, roughness_m, asperity_slope)
+
+    @server.tool()
+    def viscoelastic_creep_analysis(material_key: str = "copper",
+                                    time_s: float = 3600.0,
+                                    applied_stress: float = 5.0e7,
+                                    temperature_k: float = 400.0,
+                                    initial_strain: float = 0.001) -> dict[str, Any]:
+        """Viscoelastic creep & relaxation: Maxwell creep, Kelvin-Voigt retarded
+        strain, standard-linear-solid creep, and SLS stress relaxation."""
+        return t_mechresp.viscoelastic_creep_analysis(material_key, time_s,
+            applied_stress, temperature_k, initial_strain)
+
+    @server.tool()
+    def acoustic_interface_analysis(material_key_1: str = "lead",
+                                    material_key_2: str = "aluminum",
+                                    incidence_angle_deg: float = 10.0) -> dict[str, Any]:
+        """Sound at a planar interface: energy reflection/transmission
+        coefficients (normal incidence), Snell refraction angle, and the
+        critical angle for total internal reflection."""
+        return t_mechresp.acoustic_interface_analysis(material_key_1,
+            material_key_2, incidence_angle_deg)
+
+    @server.tool()
+    def capacitor_analysis(area_m2: float = 1.0e-4, separation_m: float = 1.0e-3,
+                           epsilon_r: float = 1.0, length_m: float = 1.0,
+                           r_inner_m: float = 1.0e-3, r_outer_m: float = 5.0e-3,
+                           sphere_inner_m: float = 0.05, sphere_outer_m: float = 0.10,
+                           voltage_v: float = 100.0) -> dict[str, Any]:
+        """Capacitance of parallel-plate, coaxial, and concentric-sphere
+        geometries, plus energy stored on the parallel-plate cap at a voltage."""
+        return t_devices.capacitor_analysis(area_m2, separation_m, epsilon_r,
+            length_m, r_inner_m, r_outer_m, sphere_inner_m, sphere_outer_m, voltage_v)
+
+    @server.tool()
+    def hall_effect_analysis(material_key: str = "copper", current_a: float = 1.0,
+                             b_field_t: float = 0.5,
+                             thickness_m: float = 1.0e-4) -> dict[str, Any]:
+        """Hall voltage of a current-carrying conductor in a transverse magnetic
+        field (negative for electron carriers)."""
+        return t_devices.hall_effect_analysis(material_key, current_a, b_field_t, thickness_m)
+
+    @server.tool()
+    def semiconductor_junction_analysis(sc_key: str = "silicon",
+                                        donor_density: float = 1.0e22,
+                                        acceptor_density: float = 1.0e22,
+                                        area_m2: float = 1.0e-6,
+                                        applied_voltage: float = 0.0) -> dict[str, Any]:
+        """p-n junction: depletion (junction) capacitance and reverse saturation
+        current. Keys: silicon, germanium, gallium_arsenide, etc."""
+        return t_devices.semiconductor_junction_analysis(sc_key, donor_density,
+            acceptor_density, area_m2, applied_voltage)
+
+    @server.tool()
+    def superconducting_gap_analysis(critical_temp_k: float = 9.2) -> dict[str, Any]:
+        """BCS spectroscopic gap frequency f = 2*Delta/h from critical
+        temperature (Delta = 1.764 k_B Tc). Niobium Tc=9.2 K -> ~677 GHz."""
+        return t_qsolids.superconducting_gap_analysis(critical_temp_k)
+
+    @server.tool()
+    def superconductor_critical_field_analysis(material: str = "niobium") -> dict[str, Any]:
+        """Critical magnetic fields of a named superconductor: Ginzburg-Landau
+        kappa, thermodynamic Hc, and (Type-II) lower/upper fields Hc1, Hc2.
+        Looked up by material (niobium, NbTi, Nb3Sn, lead, aluminum, YBCO, ...)."""
+        return t_qsolids.superconductor_critical_field_analysis(material)
+
+    @server.tool()
+    def quantum_tunneling_analysis(barrier_height_eV: float = 1.0,
+                                   particle_energy_eV: float = 0.5,
+                                   barrier_width_nm: float = 1.0) -> dict[str, Any]:
+        """WKB transmission probability through a rectangular potential barrier
+        (e.g. a 0.5 eV electron through a 1 eV, 1 nm barrier)."""
+        return t_qsolids.quantum_tunneling_analysis(barrier_height_eV,
+            particle_energy_eV, barrier_width_nm)
+
+    @server.tool()
+    def quantum_box_energy_analysis(n1: int = 1, n2: int = 1, n3: int = 1,
+                                    box_size_nm: float = 1.0) -> dict[str, Any]:
+        """Energy of state (n1,n2,n3) for a particle in a 3D cubic infinite
+        well. Ground state of an electron in a 1 nm box ~ 1.13 eV."""
+        return t_qsolids.quantum_box_energy_analysis(n1, n2, n3, box_size_nm)
+
+    @server.tool()
+    def band_dos_shape_analysis(structure: str = "bcc",
+                                d_electron_count: int = 5) -> dict[str, Any]:
+        """Tight-binding density-of-states shape factor at the Fermi level for
+        a transition metal (van Hove peak > 1, pseudogap < 1)."""
+        return t_qsolids.band_dos_shape_analysis(structure, d_electron_count)
+
+    @server.tool()
+    def magnetic_exchange_analysis(atomic_number: int = 24,
+                                   oxidation_state: int = 3,
+                                   coord_key: str = "oxide_oct") -> dict[str, Any]:
+        """Two-site Heisenberg model for a magnetic ion: exchange J from crystal
+        field, VQE vs exact ground energy, spin state. Default Cr3+ octahedral."""
+        return t_qsolids.magnetic_exchange_analysis(atomic_number, oxidation_state, coord_key)
+
+    @server.tool()
+    def plasma_parameters_analysis(electron_density_m3: float = 1.0e19,
+                                   electron_temperature_k: float = 1.0e6,
+                                   magnetic_field_t: float = 1.0,
+                                   ion_mass_kg: float = 1.673e-27,
+                                   perp_velocity_m_s: float = 1.0e5) -> dict[str, Any]:
+        """Core plasma parameters: Debye length, Debye number (particles in a
+        Debye sphere), Coulomb logarithm ln(Lambda), and ion Larmor radius."""
+        return t_plasma.plasma_parameters_analysis(electron_density_m3,
+            electron_temperature_k, magnetic_field_t, ion_mass_kg, perp_velocity_m_s)
+
+    @server.tool()
+    def electromagnetic_force_analysis(charge_c: float = 1.602176634e-19,
+                                       charge2_c: float = 1.602176634e-19,
+                                       separation_m: float = 1.0e-9,
+                                       e_field_v_m: float = 1.0e5,
+                                       velocity_m_s: float = 1.0e6,
+                                       b_field_t: float = 0.5) -> dict[str, Any]:
+        """Electromagnetic forces & wave energetics: Coulomb force, magnetic
+        (qv x B) and Lorentz force magnitudes, EM-wave energy density and
+        intensity."""
+        return t_plasma.electromagnetic_force_analysis(charge_c, charge2_c,
+            separation_m, e_field_v_m, velocity_m_s, b_field_t)
+
+    @server.tool()
+    def relativistic_energy_analysis(rest_mass_kg: float = 9.1093837015e-31,
+                                     velocity_m_s: float = 2.6e8) -> dict[str, Any]:
+        """Relativistic energy of a moving particle: rest energy m0 c^2,
+        relativistic kinetic energy (gamma-1) m0 c^2, and the energy-momentum
+        invariant (m0 c^2)^2. Default: an electron at 0.867 c."""
+        return t_relsp.relativistic_energy_analysis(rest_mass_kg, velocity_m_s)
+
+    @server.tool()
+    def zeeman_effect_analysis(total_angular_momentum_j: float = 1.0) -> dict[str, Any]:
+        """Number of Zeeman sublevels a state of total angular momentum j splits
+        into in a magnetic field (2j+1 values of m_j)."""
+        return t_relsp.zeeman_effect_analysis(total_angular_momentum_j)
+
+    @server.tool()
+    def friction_analysis(material_key_1: str = "copper",
+                          material_key_2: str = "steel_mild",
+                          normal_force_n: float = 10.0) -> dict[str, Any]:
+        """Dry sliding friction: interfacial shear strength, adhesive friction
+        coefficient, ploughing term, and total friction force at a normal load."""
+        return t_tribo.friction_analysis(material_key_1, material_key_2, normal_force_n)
+
+    @server.tool()
+    def wear_analysis(material_key: str = "copper", normal_force_n: float = 10.0,
+                      sliding_distance_m: float = 100.0, velocity_m_s: float = 1.0,
+                      counter_material: str = "steel_mild") -> dict[str, Any]:
+        """Sliding wear (Archard): worn volume, mass loss, sliding wear rate, and
+        the wear regime (mild/severe, adhesive/abrasive)."""
+        return t_tribo.wear_analysis(material_key, normal_force_n,
+            sliding_distance_m, velocity_m_s, counter_material)
+
+    @server.tool()
+    def wetting_analysis(solid_key: str = "glass",
+                         liquid_key: str = "water") -> dict[str, Any]:
+        """Liquid wetting on a solid (Young-Dupre + Owens-Wendt): equilibrium
+        contact angle, work of adhesion, spreading coefficient, and wetting
+        regime. e.g. wetting_analysis('ptfe','water') ~108 deg (hydrophobic),
+        wetting_analysis('glass','mercury') ~133 deg (beads)."""
+        return t_tribo.wetting_analysis(solid_key, liquid_key)
+
+    @server.tool()
+    def dislocation_strengthening_analysis(material_key: str = "copper",
+                                           dislocation_density: float = 1.0e14) -> dict[str, Any]:
+        """Taylor work-hardening: shear flow stress from a dislocation forest,
+        tau = alpha G b sqrt(rho)."""
+        return t_micro.dislocation_strengthening_analysis(material_key, dislocation_density)
+
+    @server.tool()
+    def alloy_resistivity_analysis(metal_a: str = "copper", metal_b: str = "nickel",
+                                   fraction_b: float = 0.3) -> dict[str, Any]:
+        """Residual resistivity of a binary solid-solution alloy from Nordheim's
+        rule (delta-rho ~ x(1-x))."""
+        return t_micro.alloy_resistivity_analysis(metal_a, metal_b, fraction_b)
+
+    @server.tool()
+    def molecular_dipole_analysis(bond_dipoles_debye: list[float] | None = None,
+                                  bond_angles_deg: list[float] | None = None) -> dict[str, Any]:
+        """Net molecular dipole moment from the vector sum of bond dipoles (D).
+        Default is a water-like molecule (~1.84 D)."""
+        return t_micro.molecular_dipole_analysis(bond_dipoles_debye, bond_angles_deg)
+
+    @server.tool()
+    def combustion_enthalpy_analysis(fuel: str = "methane") -> dict[str, Any]:
+        """Combustion enthalpy of a hydrocarbon (methane/propane) from a bond-
+        energy inventory (Hess's law; approximate vs experiment)."""
+        return t_micro.combustion_enthalpy_analysis(fuel)
+
+    @server.tool()
+    def titration_analysis(acid_concentration_M: float = 0.1,
+                           acid_volume_mL: float = 25.0,
+                           base_concentration_M: float = 0.1,
+                           base_volume_mL: float = 10.0,
+                           weak_acid_key: str = "acetic_acid") -> dict[str, Any]:
+        """pH at a point in an acid-base titration, for a strong acid and a weak
+        acid (buffer region) titrated with a strong base."""
+        return t_chemx.titration_analysis(acid_concentration_M, acid_volume_mL,
+            base_concentration_M, base_volume_mL, weak_acid_key)
+
+    @server.tool()
+    def acid_speciation_analysis(ph: float = 7.0,
+                                 pka_list: list[float] | None = None) -> dict[str, Any]:
+        """Fractional abundance (alpha) of each protonation state of a polyprotic
+        acid at a given pH. Default phosphoric acid."""
+        return t_chemx.acid_speciation_analysis(ph, pka_list)
+
+    @server.tool()
+    def solution_analysis(initial_concentration_M: float = 1.0,
+                          initial_volume_mL: float = 10.0,
+                          final_volume_mL: float = 100.0,
+                          second_concentration_M: float = 0.5,
+                          second_volume_mL: float = 50.0,
+                          salt_key: str = "silver_chloride",
+                          cation_concentration_M: float = 1.0e-3,
+                          anion_concentration_M: float = 1.0e-3) -> dict[str, Any]:
+        """Solution concentration & solubility: dilution, mixed concentration,
+        and whether a sparingly-soluble salt precipitates (Q vs Ksp)."""
+        return t_chemx.solution_analysis(initial_concentration_M, initial_volume_mL,
+            final_volume_mL, second_concentration_M, second_volume_mL, salt_key,
+            cation_concentration_M, anion_concentration_M)
+
+    @server.tool()
+    def electrochemistry_analysis(current_density: float = 10.0,
+                                  exchange_current_density: float = 1.0e-3,
+                                  lambda_cation: float = 73.5,
+                                  lambda_anion: float = 76.3,
+                                  concentration_M: float = 0.1) -> dict[str, Any]:
+        """Electrochemistry: Tafel activation overpotential, limiting molar
+        conductivity (Kohlrausch), and solution conductivity."""
+        return t_chemx.electrochemistry_analysis(current_density,
+            exchange_current_density, lambda_cation, lambda_anion, concentration_M)
+
+    @server.tool()
+    def reaction_kinetics_analysis(rate_constant: float = 0.01,
+                                   activation_energy_eV: float = 0.5,
+                                   prefactor: float = 1.0e13,
+                                   target_rate: float = 0.1,
+                                   m_a_amu: float = 16.0, m_b_amu: float = 32.0,
+                                   r_a_pm: float = 150.0, r_b_pm: float = 150.0) -> dict[str, Any]:
+        """Chemical kinetics: collision-theory pre-exponential factor, first-order
+        half-life (ln2/k), and the temperature for a target rate (Arrhenius)."""
+        return t_chemx.reaction_kinetics_analysis(rate_constant, activation_energy_eV,
+            prefactor, target_rate, m_a_amu, m_b_amu, r_a_pm, r_b_pm)
+
+    @server.tool()
+    def radioactivity_analysis(isotope_key: str = "C14",
+                               n_atoms: float = 6.022e23) -> dict[str, Any]:
+        """Radioactive activity A = lambda N (becquerel, curie). Isotopes:
+        U238, Ra226, Po210, C14, Co60, K40, free_neutron."""
+        return t_chemx.radioactivity_analysis(isotope_key, n_atoms)
+
+    @server.tool()
+    def quantum_algorithm_analysis(grover_n_qubits: int = 3,
+                                   grover_marked_item: int = 5,
+                                   qaoa_edges: list[list[int]] | None = None,
+                                   qaoa_n_nodes: int = 3,
+                                   simon_hidden_string: str = "11") -> dict[str, Any]:
+        """Run three canonical quantum algorithms: Grover search, QAOA Max-Cut,
+        and Simon's algorithm (hidden-period recovery)."""
+        return t_qcomp.quantum_algorithm_analysis(grover_n_qubits, grover_marked_item,
+            qaoa_edges, qaoa_n_nodes, simon_hidden_string)
+
+    @server.tool()
+    def quantum_state_analysis() -> dict[str, Any]:
+        """Qubit-state diagnostics on canonical states: Pauli-Z expectation on
+        |+>, Bloch angles of |+>, Schmidt coefficients + entanglement entropy of
+        a Bell state, and one stochastic Born-rule measurement."""
+        return t_qcomp.quantum_state_analysis()
+
+    @server.tool()
+    def qubit_hardware_analysis(qubit_type: str = "transmon",
+                                material_key: str = "aluminum",
+                                b_tesla: float = 1.0,
+                                radius_m: float = 5.0e-9) -> dict[str, Any]:
+        """Physical-qubit operating parameters: frequency, T1/T2 coherence, gate
+        fidelity. Types: transmon, spin, quantum_dot, nv_center."""
+        return t_qcomp.qubit_hardware_analysis(qubit_type, material_key, b_tesla, radius_m)
+
+    @server.tool()
+    def interference_visibility_analysis(intensity_max: float = 1.0,
+                                         intensity_min: float = 0.2) -> dict[str, Any]:
+        """Fringe visibility (contrast) of an interference pattern,
+        V = (I_max - I_min)/(I_max + I_min)."""
+        return t_qcomp.interference_visibility_analysis(intensity_max, intensity_min)
+
+    @server.tool()
+    def asteroid_analysis(body_key: str = "ceres") -> dict[str, Any]:
+        """Small-body geophysics: surface gravity, escape velocity, and shape
+        (axis ratios, oblateness). Bodies: bennu, ryugu, itokawa, eros, vesta,
+        ceres."""
+        return t_miscphys.asteroid_analysis(body_key)
+
+    @server.tool()
+    def mobius_bimetallic_analysis(mat_a: str = "copper", mat_b: str = "iron",
+                                   loop_length_m: float = 0.1, width_m: float = 0.01,
+                                   thickness_m: float = 0.001,
+                                   t_hot: float = 400.0, t_cold: float = 300.0) -> dict[str, Any]:
+        """Bimetallic strip / Mobius loop: total series resistance and the
+        thermoelectric (Seebeck) voltage across a hot-cold gradient."""
+        return t_miscphys.mobius_bimetallic_analysis(mat_a, mat_b, loop_length_m,
+            width_m, thickness_m, t_hot, t_cold)
+
+    @server.tool()
+    def hertzian_impact_analysis(e1_pa: float = 200.0e9, nu1: float = 0.3,
+                                 yield1_pa: float = 250.0e6, density1: float = 7850.0,
+                                 e2_pa: float = 200.0e9, nu2: float = 0.3,
+                                 yield2_pa: float = 250.0e6, density2: float = 7850.0,
+                                 velocity_m_s: float = 1.0) -> dict[str, Any]:
+        """Hertzian contact impact: reduced (effective) elastic modulus and the
+        velocity-dependent coefficient of restitution. Default steel-on-steel."""
+        return t_miscphys.hertzian_impact_analysis(e1_pa, nu1, yield1_pa, density1,
+            e2_pa, nu2, yield2_pa, density2, velocity_m_s)
+
+    @server.tool()
+    def holographic_dark_energy_analysis(rho_de_J_m3: float = 6.0e-10) -> dict[str, Any]:
+        """Holographic dark-energy parameter c^2 implied by an observed dark-
+        energy density with the Hubble-radius IR cutoff. ~6e-10 J/m^3 -> c^2 ~
+        0.78 (DESI-consistent)."""
+        return t_miscphys.holographic_dark_energy_analysis(rho_de_J_m3)
+
+    @server.tool()
+    def material_inventory_analysis(structure_name: str = "water_molecule") -> dict[str, Any]:
+        """Quarksum particle inventory & mass closure: proton/neutron/electron
+        counts, total particles/baryons, total mass, mass defect (binding), GM.
+        Structures: water_molecule, hydrogen_atom, bronze_cube, earths_layers, ..."""
+        return t_inv.material_inventory_analysis(structure_name)
+
+    @server.tool()
+    def constituent_behaviors_analysis(structure_name: str = "water_molecule") -> dict[str, Any]:
+        """Physical behaviors of a structure's constituents: QCD behaviors of a
+        quark (flavor/color/mass), a subatomic particle (type/mass/charge), and a
+        molecule (formula/bonds)."""
+        return t_inv.constituent_behaviors_analysis(structure_name)
+
+    @server.tool()
+    def planet_moment_of_inertia_analysis(structure_name: str = "earths_layers",
+                                          planet_radius_km: float = 6371.0) -> dict[str, Any]:
+        """Moment-of-inertia factor C/MR^2 of a layered planet, derived from the
+        inventory composition of its shells. Earth ~ 0.331."""
+        return t_inv.planet_moment_of_inertia_analysis(structure_name, planet_radius_km)
+
+    # ── Conversation / simulation-playground (STATEFUL) tools ──────────────
+    @server.tool()
+    def playground_load(material: str = "water_molecule",
+                        handle: str = "scene") -> dict[str, Any]:
+        """[playground] Load matter into a LIVE scene that persists across turns:
+        formula, proton/neutron/electron counts, mass, and tunable knobs.
+        Materials: water_molecule, hydrogen_atom, bronze_cube, gold_ring,
+        earths_layers, tungsten_cube, seawater_liter, universe, ..."""
+        return t_play.playground_load(material, handle)
+
+    @server.tool()
+    def playground_inspect(handle: str = "scene",
+                           scope: str = "summary") -> dict[str, Any]:
+        """[playground] Query the CURRENT (possibly mutated) state of a scene.
+        scope: 'summary' (counts+mass), 'matter' (bond lengths, charge states,
+        net spin), 'constituents' (quark/particle/molecule behaviors)."""
+        return t_play.playground_inspect(handle, scope)
+
+    @server.tool()
+    def playground_apply(handle: str = "scene",
+                         environment: dict[str, float] | None = None,
+                         mode: str = "update") -> dict[str, Any]:
+        """[playground] Apply an environment and MUTATE the scene in place
+        (persists). Knobs: temperature_k, pressure_pa, electric_field_vm,
+        magnetic_field_t, energy_ev. Returns a diff of what changed.
+        e.g. playground_apply('scene', {'temperature_k': 1500})."""
+        return t_play.playground_apply(handle, environment, mode)
+
+    @server.tool()
+    def playground_simulate(handle: str = "scene",
+                            scenario: str = "drop it from 10 km altitude") -> dict[str, Any]:
+        """[playground] Run a Materia one-shot dynamics scenario (drop/launch/
+        heat/orbit) on the loaded body. Phrase the scenario explicitly."""
+        return t_play.playground_simulate(handle, scenario)
+
+    @server.tool()
+    def playground_render(handle: str = "scene", mode: str = "ascii",
+                          size: int = 48) -> dict[str, Any]:
+        """[playground] Render the current scene as a material-colored, lit
+        sphere (bulk-shape approximation). mode 'ascii' (terminal art) or 'png'
+        (file path)."""
+        return t_play.playground_render(handle, mode, size)
+
+    @server.tool()
+    def playground_reset(handle: str = "scene") -> dict[str, Any]:
+        """[playground] Rebuild the scene's matter to its pristine state and
+        clear the applied-environment history."""
+        return t_play.playground_reset(handle)
+
+    @server.tool()
+    def playground_status() -> dict[str, Any]:
+        """[playground] List the live scenes in this session, their materials,
+        and applied-environment history."""
+        return t_play.playground_status()
+
+    @server.tool()
+    def playground_clear(handle: str | None = None) -> dict[str, Any]:
+        """[playground] Drop a scene (or all scenes if handle omitted) from the
+        session."""
+        return t_play.playground_clear(handle)
+
+    @server.tool()
+    def playground_make(object: str = "brick", size_m: float | None = None,
+                        handle: str = "scene") -> dict[str, Any]:
+        """[playground] Make a physical object into the live scene. Fills in a
+        STANDARD size for named objects (a 'brick' has known dimensions); for a
+        raw shape of a size-DECISIVE material (a fissile 'ball of plutonium' --
+        inert pellet vs supercritical hand-sized sphere) it ASKS for the size
+        instead of guessing, and reports a criticality verdict once sized."""
+        return t_play.playground_make(object, size_m, handle)
+
+    @server.tool()
+    def request_clarification(variable: str, question: str, reason: str = "",
+                              options: list[str] | None = None) -> dict[str, Any]:
+        """Ask the user for a variable you need but cannot responsibly guess
+        (the answer materially changes the physics, e.g. the size of a fissile
+        sphere). Use this INSTEAD of inventing a value. The conversation
+        surfaces the question and waits for the user's reply."""
+        return t_play.request_clarification(variable, question, reason, options)
+
+    @server.tool()
+    def buoyancy_analysis(material_key: str = "copper",
+                          temperature_k: float = 293.15,
+                          fluid_density_kg_m3: float | None = None) -> dict[str, Any]:
+        """Will it float, and how deep does it sit? Archimedes: submerged
+        fraction = rho_body/rho_fluid (sinks if >= 1). Default copper in water
+        (copper sinks). Body keys: copper, water_ice, wood_oak, lead, ..."""
+        return t_fluidsurf.buoyancy_analysis(material_key, temperature_k, fluid_density_kg_m3)
+
+    @server.tool()
+    def wind_wave_analysis(wind_speed_m_s: float = 5.0,
+                           temperature_k: float = 293.15,
+                           wavelength_m: float | None = None) -> dict[str, Any]:
+        """Wind blowing across water: surface shear stress, friction velocity, the
+        capillary-gravity minimum (~0.23 m/s at ~1.7 cm), and the ripple field
+        (wavelength, phase/group speed, frequency, amplitude estimate) for
+        rendering. e.g. wind_wave_analysis(5.0)."""
+        return t_fluidsurf.wind_wave_analysis(wind_speed_m_s, temperature_k, wavelength_m)
+
     return 0
 
 

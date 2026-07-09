@@ -198,15 +198,9 @@ class TestSurfaceTension(unittest.TestCase):
         self.assertGreater(gamma, 0)
 
     def test_at_25C(self):
-        """γ at 25°C ≈ 0.0720 N/m — within factor 2.
-
-        The broken-bond model gives the right order of magnitude.
-        Exact agreement requires accounting for H-bond angle distortion
-        and thermal fluctuations at the interface.
-        """
+        """γ at 25°C = 0.0720 N/m (NIST/IAPWS-1994) — within ~1%."""
         gamma = water_surface_tension(298.15)
-        self.assertGreater(gamma, 0.03)
-        self.assertLess(gamma, 0.15)
+        self.assertAlmostEqual(gamma, 0.0720, delta=0.0007)
 
     def test_decreases_with_temperature(self):
         """Surface tension decreases at higher T (more disorder)."""
@@ -223,15 +217,10 @@ class TestViscosity(unittest.TestCase):
         eta = water_viscosity(298.15)
         self.assertGreater(eta, 0)
 
-    def test_at_20C_order_of_magnitude(self):
-        """η at 20°C ≈ 1.002e-3 Pa·s — within factor 3.
-
-        Eyring model captures the exponential T-dependence but the
-        absolute magnitude depends on the prefactor calibration.
-        """
+    def test_at_20C(self):
+        """η at 20°C = 1.002e-3 Pa·s (NIST) — within ~2%."""
         eta = water_viscosity(293.15)
-        self.assertGreater(eta, 1e-4)   # > 0.1 mPa·s
-        self.assertLess(eta, 1e-1)      # < 100 mPa·s
+        self.assertAlmostEqual(eta, 1.002e-3, delta=2.0e-5)
 
     def test_decreases_with_temperature(self):
         """Viscosity decreases at higher T (Arrhenius behavior)."""
@@ -244,17 +233,19 @@ class TestBoilingPoint(unittest.TestCase):
     """Boiling point from Clausius-Clapeyron."""
 
     def test_at_1atm(self):
-        """T_boil at 1 atm ≈ 373 K — within 20%."""
+        """T_boil at 1 atm ≈ 373.15 K (100 °C) — within ~1 K.
+
+        Tightened from the old 300-450 K bound (which let a 17 K boiling-point
+        bug pass): ΔH_vap was uncalibrated and gave 356 K. Golden Rule 8."""
         T = water_boiling_point(1.0)
-        self.assertGreater(T, 300.0)
-        self.assertLess(T, 450.0)
+        self.assertAlmostEqual(T, 373.15, delta=1.0)
 
     def test_vaporization_enthalpy(self):
-        """ΔH_vap ≈ 40.7 kJ/mol — within factor 2."""
-        dH = water_enthalpy_of_vaporization()
-        dH_kJ = dH / 1000.0
-        self.assertGreater(dH_kJ, 20.0)
-        self.assertLess(dH_kJ, 80.0)
+        """ΔH_vap ≈ 40.66 kJ/mol (CRC/NIST, 100 °C) — within 2%.
+
+        Tightened from the old factor-2 bound that masked the bug."""
+        dH_kJ = water_enthalpy_of_vaporization() / 1000.0
+        self.assertAlmostEqual(dH_kJ, 40.66, delta=0.02 * 40.66)
 
     def test_higher_pressure_higher_boiling(self):
         """Higher pressure → higher boiling point."""
@@ -325,6 +316,61 @@ class TestNagathaExport(unittest.TestCase):
         """σ value appears in export."""
         props = water_properties(sigma=0.1)
         self.assertEqual(props['sigma'], 0.1)
+
+
+class TestNISTAccuracy(unittest.TestCase):
+    """Golden Rule 8: the bulk transport/interface properties must match NIST
+    across 0-100 C, not just pass an order-of-magnitude check."""
+
+    # (T_C, value) reference points
+    _DENSITY = [(4, 999.97), (20, 998.21), (25, 997.05), (50, 988.04), (100, 958.37)]
+    _SURFACE = [(20, 0.07273), (50, 0.06794), (100, 0.05891)]   # IAPWS-1994
+    _VISCOSITY = [(20, 1.002e-3), (40, 6.53e-4), (100, 2.82e-4)]  # NIST/IAPWS
+
+    def test_density_matches_nist(self):
+        for tc, ref in self._DENSITY:
+            rho = water_density(273.15 + tc)
+            self.assertAlmostEqual(rho, ref, delta=0.5,
+                                   msg=f"density {tc}C: {rho:.3f} vs NIST {ref}")
+
+    def test_surface_tension_matches_iapws(self):
+        for tc, ref in self._SURFACE:
+            g = water_surface_tension(273.15 + tc)
+            self.assertAlmostEqual(g, ref, delta=0.0005,
+                                   msg=f"surface tension {tc}C: {g:.5f} vs {ref}")
+
+    def test_viscosity_matches_nist(self):
+        for tc, ref in self._VISCOSITY:
+            eta = water_viscosity(273.15 + tc)
+            self.assertAlmostEqual(eta, ref, delta=0.03 * ref,   # within 3%
+                                   msg=f"viscosity {tc}C: {eta:.4e} vs NIST {ref}")
+
+    def test_density_maximum_at_4C(self):
+        """Kell correlation reproduces the 3.98 C density maximum."""
+        T_max, rho_max = water_density_maximum_temperature()
+        self.assertAlmostEqual(T_max, 277.13, delta=0.3)   # 3.98 C
+        self.assertAlmostEqual(rho_max, 999.97, delta=0.1)
+
+    def test_repro_command_values(self):
+        """The exact 20 C values from the task's repro command."""
+        T = 293.15
+        self.assertAlmostEqual(water_surface_tension(T), 0.0728, delta=0.0005)
+        self.assertAlmostEqual(water_viscosity(T), 1.002e-3, delta=2.0e-5)
+        self.assertAlmostEqual(water_density(T), 998.2, delta=0.5)
+
+    def test_enthalpy_vaporization_matches_measured(self):
+        """ΔH_vap at the normal boiling point ≈ 40.66 kJ/mol (CRC/NIST).
+
+        Regression guard: the old H-bond estimate gave ~38.8 kJ/mol (4.5% low),
+        which pushed the boiling point down to ~83 C."""
+        self.assertAlmostEqual(water_enthalpy_of_vaporization(), 40660.0,
+                               delta=0.02 * 40660.0)  # within 2%
+
+    def test_boiling_point_matches_measured(self):
+        """Normal boiling point must be ~373.15 K (100 C), not 356 K (83 C)."""
+        self.assertAlmostEqual(water_boiling_point(1.0), 373.15, delta=1.0)
+        # reduced pressure lowers it (Mt. Everest ~0.33 atm -> ~70 C)
+        self.assertLess(water_boiling_point(0.33), water_boiling_point(1.0))
 
 
 if __name__ == '__main__':

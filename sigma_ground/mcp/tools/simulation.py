@@ -47,7 +47,8 @@ def _units_for_output(key: str | None) -> str:
     return ""
 
 
-def _wrap(results: list, *, spec=None, materia=None) -> ToolResult:
+def _wrap(results: list, *, spec=None, materia=None,
+          manifest: dict[str, Any] | None = None, why: str = "") -> ToolResult:
     """Turn a list of MateriaResults (a 1+ step chain) into one ToolResult."""
     if materia is None:
         from sigma_ground import materia as materia
@@ -76,18 +77,24 @@ def _wrap(results: list, *, spec=None, materia=None) -> ToolResult:
                 f"isothermal-atmosphere / constant-g model (~100 km); result "
                 f"approximate] {note}")
 
+    inputs: dict[str, Any] = {"primary_output": primary_key,
+                              "chain": [r.to_dict() for r in results]}
+    if manifest is not None:
+        inputs["scenario_manifest"] = manifest     # the "why" travels w/ the number
+        if why:
+            note = f"{why} {note}"
     return ToolResult(
         value=primary_val,
         units=_units_for_output(primary_key),
         source=f"sigma_ground.materia ({' → '.join(verbs)})",
         provenance_tag="DERIVED",
         notes=note,
-        inputs={"primary_output": primary_key,
-                "chain": [r.to_dict() for r in results]},
+        inputs=inputs,
     )
 
 
-def simulate(scenario: str, use_llm: bool = True) -> ToolResult:
+def simulate(scenario: str, use_llm: bool = True,
+             object_handle: str | None = None) -> ToolResult:
     """Run a natural-language what-if through the Materia simulator.
 
     Materia translates the scenario to a (possibly multi-step, chained)
@@ -99,25 +106,52 @@ def simulate(scenario: str, use_llm: bool = True) -> ToolResult:
                   copper ball hit the ground from 10 km?").
         use_llm:  allow the qwen residual for phrasings the keywords miss
                   (degrades gracefully if ollama is unreachable).
+        object_handle: optional object identity (e.g. a playground scene's
+                  object/material) to forward to the translator so the object
+                  isn't dropped, and to record in the scenario manifest.
     """
     from sigma_ground import materia
-    spec = materia.translate(scenario, use_qwen=use_llm)
+    from sigma_ground.mcp.tools import scenario_intent as si
+
+    # Build the forward-compatible scenario manifest (object + coarse intent +
+    # full text + provisional emphasis). It rides in every return so the "why"
+    # travels with the number; the spine overrides the emphasis once it emits one.
+    manifest = si.build_manifest(scenario, object_handle)
+    why = si.why_sentence(manifest)
+
+    # Don't collapse to a name: forward the object identity to the translator.
+    # Until front_door takes a structured manifest, the faithful channel is the
+    # text the spine already parses — prepend the object if it's not already named.
+    text = scenario
+    if object_handle and object_handle.lower() not in scenario.lower():
+        text = f"{object_handle}: {scenario}"
+
+    spec = materia.translate(text, use_qwen=use_llm)
     if not spec.is_runnable():
         return ToolResult(
             value=None, source="sigma_ground.materia.translator",
-            provenance_tag="SPECULATIVE-PENDING", notes=spec.note,
-            inputs={"scenario": scenario, "route": spec.source})
+            provenance_tag="SPECULATIVE-PENDING",
+            notes=(f"{why} {spec.note}".strip() if why else spec.note),
+            inputs={"scenario": scenario, "route": spec.source,
+                    "scenario_manifest": manifest})
     try:
         results = materia.run_spec(spec)
     except Exception as e:   # boundary: a degenerate/out-of-range scenario must not crash
         return ToolResult(
             value=None, source="sigma_ground.materia",
             provenance_tag="SPECULATIVE-PENDING",
-            notes=(f"Recognized the scenario but could not simulate it "
+            notes=(f"{why} Recognized the scenario but could not simulate it "
                    f"({type(e).__name__}: {e}) — likely degenerate or "
-                   f"out-of-range inputs."),
-            inputs={"scenario": scenario, "route": spec.source})
-    return _wrap(results, spec=spec, materia=materia)
+                   f"out-of-range inputs.").strip(),
+            inputs={"scenario": scenario, "route": spec.source,
+                    "scenario_manifest": manifest})
+    # Prefer the spine's authoritative emphasis if it ever returns one.
+    spine_emph = si.read_emphasis(spec, results[-1] if results else None)
+    if spine_emph:
+        manifest["emphasis"] = spine_emph
+        manifest["emphasis_source"] = "spine"
+        why = si.why_sentence(manifest)
+    return _wrap(results, spec=spec, materia=materia, manifest=manifest, why=why)
 
 
 # Slots that name a physical size/mass — a zero or negative value is

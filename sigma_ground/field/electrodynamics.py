@@ -23,7 +23,7 @@ Dependency: E_CHARGE, EPS_0, C, HBAR, MU_0, M_ELECTRON_KG, ALPHA, XI
 import math
 
 from .constants import (
-    E_CHARGE, EPS_0, C, HBAR, MU_0, M_ELECTRON_KG, ALPHA, XI,
+    E_CHARGE, EPS_0, C, HBAR, MU_0, M_ELECTRON_KG, ALPHA,
     A_MU_EXP_X1E11, A_MU_EXP_X1E11_SIGMA,
     A_MU_SM_X1E11,  A_MU_SM_X1E11_SIGMA,
     MU_G2_TENSION_RESOLVED,
@@ -219,25 +219,30 @@ def cyclotron_frequency(q, m, B):
 
 
 def skin_depth(n_e, omega=None):
-    """EM skin depth δ = c/ω_p.
+    """Collisionless (plasma) skin depth δ (m).
 
-    The depth to which an EM wave penetrates a plasma or conductor.
-    Uses the free-electron plasma frequency ω_p = √(n_e e²/(ε₀ m_e)).
+    Below the plasma frequency an EM wave is evanescent in the electron gas,
+    decaying as e^(−x/δ) with
+        δ = c / √(ω_p² − ω²),   ω_p = √(n_e e²/(ε₀ m_e)).
+    At ω = 0 (DC / London limit) this reduces to c/ω_p; for ω ≥ ω_p the wave
+    propagates (no skin depth) → returns inf.
+
+    NOTE: this is the COLLISIONLESS plasma skin depth. For the *resistive*
+    skin depth of a conductor at frequency f (δ = √(2/(μ₀ σ ω))), use
+    ``mobius.skin_depth(material_key, frequency_hz)`` instead.
 
     Args:
         n_e: free electron number density (m⁻³)
-        omega: angular frequency (rad/s). If None, uses ω_p itself
-               (i.e., returns the collisionless skin depth c/ω_p).
+        omega: angular frequency in rad/s; default None ⇒ 0 (DC, δ = c/ω_p)
 
     Returns:
-        skin depth (m)
+        skin depth (m); ``math.inf`` if ω ≥ ω_p (wave propagates).
     """
     omega_p = math.sqrt(n_e * E_CHARGE**2 / (EPS_0 * M_ELECTRON_KG))
-    if omega is None:
-        omega = omega_p
-    if omega == 0:
-        raise ValueError("omega=0: skin depth undefined at DC")
-    return C / omega_p  # collisionless skin depth; omega arg reserved for future use
+    w = 0.0 if omega is None else float(omega)   # DC limit when unspecified
+    if w >= omega_p:
+        return math.inf                          # over-dense → wave propagates
+    return C / math.sqrt(omega_p**2 - w**2)
 
 
 # ── Fundamental EM Constant ────────────────────────────────────────────
@@ -255,34 +260,6 @@ def fine_structure_constant():
         α (dimensionless) ≈ 7.297e-3
     """
     return E_CHARGE**2 / (4.0 * math.pi * EPS_0 * HBAR * C)
-
-
-# ── σ-Connection ───────────────────────────────────────────────────────
-
-def sigma_em_coupling(sigma):
-    """Effective fine structure constant under σ-field compression.
-
-    At the σ-transition, the QCD energy scale Λ_QCD shifts by e^σ.
-    The EM coupling α is dimensionless and σ-invariant at tree level,
-    but the effective nuclear EM coupling (Coulomb coefficient A_C)
-    depends on r₀ which is a nuclear — not atomic — length.
-
-    In the SSBM framework:  α_eff(σ) = α × e^(2ξσ)
-
-    Physical interpretation: inside a σ-compressed pocket, the nuclear
-    charge radius r₀ shrinks as Λ_QCD grows, so the Coulomb repulsion
-    per nucleon pair increases.
-
-    At σ = 0: α_eff = α (standard value ≈ 1/137).
-    At σ_conv ≈ 1.849: α_eff ≈ α × e^(2×0.1582×1.849) ≈ α × 1.80.
-
-    Args:
-        sigma: σ-field value (dimensionless, ≥ 0)
-
-    Returns:
-        effective EM coupling (dimensionless)
-    """
-    return ALPHA * scale_ratio(2.0 * XI * sigma)
 
 
 # ── Muon g−2 precision test ──────────────────────────────────────────

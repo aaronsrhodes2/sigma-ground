@@ -33,7 +33,6 @@ from .photonics import (
     nonlinear_phase_shift,
     absorption_coefficient_direct,
     absorption_coefficient_indirect,
-    sigma_bragg_shift,
     waveguide_properties,
     NONLINEAR_CRYSTALS,
     KERR_MATERIALS,
@@ -254,27 +253,6 @@ class TestAbsorptionEdge(unittest.TestCase):
 
 class TestSigmaDependence(unittest.TestCase):
     """σ-field shifts Bragg wavelength through lattice."""
-
-    def test_zero_sigma_unchanged(self):
-        """σ=0: no shift."""
-        d1 = 100e-9
-        d2 = 80e-9
-        lam_0, lam_s = sigma_bragg_shift(1.46, d1, 2.30, d2, 0.0)
-        self.assertAlmostEqual(lam_0, lam_s, places=15)
-
-    def test_positive_sigma_redshifts(self):
-        """σ > 0 expands lattice → redshift."""
-        d1 = 100e-9
-        d2 = 80e-9
-        lam_0, lam_s = sigma_bragg_shift(1.46, d1, 2.30, d2, 0.1)
-        self.assertGreater(lam_s, lam_0)
-
-    def test_earth_sigma_negligible(self):
-        """At Earth σ: shift < 10⁻⁸ nm."""
-        d1 = 100e-9
-        d2 = 80e-9
-        lam_0, lam_s = sigma_bragg_shift(1.46, d1, 2.30, d2, 7e-10)
-        self.assertAlmostEqual(lam_0, lam_s, places=15)
 
 
 class TestNagathaExport(unittest.TestCase):

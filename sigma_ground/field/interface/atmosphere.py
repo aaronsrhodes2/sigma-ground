@@ -427,10 +427,15 @@ def saturation_vapor_pressure(T):
       P_ref = 101325 Pa at T_ref = 373.15 K (boiling point)
       L_vap = DERIVED from H-bond model (liquid_water.py)
 
-    Accuracy: ±5% over 250-380 K range. The Clausius-Clapeyron
-    approximation assumes constant L_vap; in reality L_vap decreases
-    slightly with T. For better accuracy, use the Antoine equation
-    (MEASURED fit).
+    Accuracy: good near the boiling point (the anchor), but this
+    single-constant Clausius-Clapeyron form runs HIGH at low T because it
+    uses the boiling-point ΔH_vap (40.66 kJ/mol) whereas the real ΔH_vap
+    rises to ~44 kJ/mol at 20 °C. Expect ~+15-20% at 20 °C and worse below
+    (e.g. P_sat(20 °C) ≈ 2835 Pa vs the measured 2339 Pa). This residual is
+    inherent to the constant-L_vap CC approximation, not a calibration bug.
+    For <1% accuracy over 0-50 °C use the Magnus-Tetens correlation
+    P_sat = 610.94·exp(17.625·T_C/(T_C+243.04)) Pa (MEASURED fit) — and
+    update dew_point()'s inversion to match.
 
     Args:
         T: temperature in Kelvin

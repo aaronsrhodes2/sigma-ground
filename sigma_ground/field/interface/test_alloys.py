@@ -19,7 +19,6 @@ from sigma_ground.field.interface.alloys import (
     alloy_properties,
     predict_alloy_Tc,
     alloy_Tc_all_models,
-    sigma_alloy_Tc,
     alloy_Nordheim_resistivity,
     composition_sweep,
     predict_all,
@@ -178,22 +177,7 @@ class TestModelProperties:
 # ── σ-Field Dependence ───────────────────────────────────────────
 
 class TestSigmaField:
-
-    def test_sigma_zero_unchanged(self):
-        """T_c at σ = σ_here (Earth) equals standard prediction."""
-        comp = {'niobium': 0.53, 'titanium': 0.47}
-        Tc_std = predict_alloy_Tc(comp)
-        Tc_sigma = sigma_alloy_Tc(comp, SIGMA_HERE)
-        assert abs(Tc_sigma - Tc_std) < 0.01
-
-    def test_sigma_positive_decreases(self):
-        """T_c decreases monotonically with increasing σ."""
-        comp = {'niobium': 0.53, 'titanium': 0.47}
-        Tc_0 = sigma_alloy_Tc(comp, 0.0)
-        Tc_mid = sigma_alloy_Tc(comp, 0.1)
-        Tc_high = sigma_alloy_Tc(comp, 1.0)
-        assert Tc_mid < Tc_0
-        assert Tc_high < Tc_mid
+    pass
 
 
 # ── Composition Sweep ────────────────────────────────────────────

@@ -31,9 +31,9 @@ from pathlib import Path
 LAYER_NAMES = [
     "Cosmological",
     "Fundamental Measured Constants",
-    "SSBM Field Parameters",
+    "Observed Cosmology",
     "Derived Fundamentals",
-    "QCD / σ-Field",
+    "QCD Scale",
     "Quark & Nucleon",
     "Nuclear & Electromagnetic",
     "Astronomical",
@@ -80,24 +80,11 @@ NODES = [
      "Avogadro Constant", ""),
 
     # ── Layer 2: SSBM Parameters ───────────────────────────────────────
-    ("XI", "ξ", 2, "ssbm",
-     "Baryon fraction Ω_b/(Ω_b+Ω_c) = 0.1582\n"
-     "Planck 2018.  THE single new SSBM free parameter.\n"
-     "Ω_b h² = 0.02237,  Ω_c h² = 0.1200\n"
-     "Drives the entire scale transition framework.",
-     "Baryon Fraction", ""),
-    ("SIGMA_CONV", "σ_conv", 2, "ssbm",
-     "Critical σ for nuclear bond failure\n"
-     "= −ln(ξ) ≈ 1.849\n"
-     "Formula derivation: σ_conv = −ln(ξ)\n"
-     "The σ at which QCD binding energy overwhelms nuclear structure.",
-     "Bond Failure Threshold", ""),
-    ("ETA", "η", 2, "ssbm",
-     "Cosmic entanglement fraction = 0.4153\n"
-     "DERIVED from dark energy constraint:\n"
-     "  η × ρ_released = ρ_DE(observed)\n"
-     "Fraction of particles with cross-hadron quantum entanglement.",
-     "Entanglement Fraction", ""),
+    ("ETA", "c²_HDE", 2, "measured",
+     "Holographic Dark Energy c² parameter = 0.4122\n"
+     "Observed: DESI 2024 Union3 fit (arXiv:2411.08639).\n"
+     "Empirical input to the HDE dark-energy model.",
+     "HDE c² (DESI Union3)", ""),
 
     # ── Layer 3: Derived Fundamentals ─────────────────────────────────
     ("L_PLANCK",    "l_P",     3, "derived",
@@ -164,14 +151,6 @@ NODES = [
      "σ-DEPENDENT: Λ_eff(σ) = Λ_QCD × e^σ\n"
      "~99% of nucleon mass originates here.",
      "QCD Confinement Scale", ""),
-    ("SIGMA_FIELD", "σ(r)", 4, "field",
-     "σ-field value at location r\n"
-     "= ξ·GM/(rc²)  [from Newtonian potential]\n"
-     "Field equation: □σ = −ξR\n"
-     "σ = σ_here ≈ 0 in flat spacetime (observer frame)\n"
-     "σ > 0 inside matter, black holes, at Big Bang\n"
-     "σ_here = σ_floor (Planck/Hubble, not exact 0)",
-     "σ-Field at r", ""),
 
     # ── Layer 5: Quark & Nucleon ───────────────────────────────────────
     ("M_UP_MEV",        "m_u",     5, "higgs",
@@ -301,26 +280,13 @@ NODES = [
     ("api_hawking",    "T_H\n(M)",                     8, "api",
      "field.gr_basics\nT_H = ℏc³/(8πGMk_B)\nUses: ℏ, c, G, k_B",
      "Hawking Temperature", "gravity"),
-    ("api_sigma_hz",   "σ_H\n(M)",                     8, "api",
-     "field.gr_basics\nAlways = ξ/2 ≈ 0.079\nMass-independent! Uses: ξ only\nKey SSBM consistency check.",
-     "Horizon σ-Value", "field"),
     ("api_binding",    "B/A\n(Z,A)",                   8, "api",
      "field.binding\nBethe-Weizsäcker + QCD terms\nUses: a_C, K, n₀, J",
      "Nuclear Binding", "nuclear"),
-    ("api_scale",      "e^σ,Λ_eff",                    8, "api",
-     "field.scale\nscale_ratio(σ), lambda_eff(σ), sigma_from_potential\n"
-     "Uses: ξ, Λ_QCD, G, c\nThe fundamental σ-field scaling engine",
-     "σ-Field Scale", "field"),
-    ("api_bounds",     "σ bounds\n(check)",             8, "api",
-     "field.bounds\nDomain validity checks for all σ quantities\n"
-     "check_sigma, clamp_sigma, safe_proton_mass\n"
-     "Uses: σ_conv, ξ, p_bare, Λ_QCD",
-     "σ Validity Bounds", "field"),
-    ("api_entangle",   "η\n(decoherence)",              8, "api",
-     "field.entanglement\nη-fraction, dark energy constraint\n"
-     "decoherence_time, rendering connectivity\n"
-     "Uses: η, ξ, G, c, k_B, ℏ",
-     "Entanglement", "field"),
+    ("api_scale",      "e^σ, r_s",                     8, "api",
+     "field.scale\nscale_ratio(σ) = e^σ (inert; = 1.0 at σ = σ_here ≈ 0),\n"
+     "schwarzschild_radius(M) = 2GM/c²\nUses: G, c",
+     "Scale Factor + r_s", "field"),
 
     # ── Layer 9: Physics API — Interfaces ─────────────────────────────
     ("api_proton_mev","p(σ)\n(σ)",                    9, "api",
@@ -1026,9 +992,13 @@ def build_html(nodes, edges, layer_names):
          "group": n[6] if len(n) > 6 else ""}
         for n in nodes
     ]
+    _node_ids = {n[0] for n in nodes}
+    # Only keep edges whose endpoints both still exist (drops edges to any
+    # relocated/removed node, e.g. the retired SSBM nodes).
     edges_data = [
         {"src": e[0], "tgt": e[1], "type": e[2], "label": e[3]}
         for e in edges
+        if e[0] in _node_ids and e[1] in _node_ids
     ]
     graph_json = json.dumps(
         {"nodes": nodes_data, "edges": edges_data, "layers": layer_names},

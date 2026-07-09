@@ -387,47 +387,6 @@ def wall_shear_stress(rho_fluid, velocity, viscosity, x):
 
 # ── σ-Shifted Drag ──────────────────────────────────────────────
 
-def sigma_terminal_velocity_shift(radius, rho_particle, rho_fluid,
-                                  viscosity_0, sigma, viscosity_sigma):
-    """Ratio of terminal velocity at σ vs σ=0.
-
-    v_t(σ)/v_t(0) = η(0)/η(σ) × [ρ_p(σ)−ρ_f(σ)] / [ρ_p(0)−ρ_f(0)]
-
-    CORE: σ-dependence through viscosity and density shifts.
-    Heavier nuclei → denser particle + more viscous fluid → complex interplay.
-
-    Args:
-        radius: particle radius (m) — unused, cancels in ratio
-        rho_particle: particle density at σ=0 (kg/m³)
-        rho_fluid: fluid density at σ=0 (kg/m³)
-        viscosity_0: fluid viscosity at σ=0 (Pa·s)
-        sigma: σ-field value
-        viscosity_sigma: fluid viscosity at σ (Pa·s)
-
-    Returns:
-        Velocity ratio v_t(σ)/v_t(0) (dimensionless)
-    """
-    from ..constants import PROTON_QCD_FRACTION
-    from ..scale import scale_ratio
-
-    if sigma == 0.0:
-        return 1.0
-
-    f_qcd = PROTON_QCD_FRACTION
-    mass_factor = (1.0 - f_qcd) + f_qcd * scale_ratio(sigma)
-
-    rho_p_sigma = rho_particle * mass_factor
-    rho_f_sigma = rho_fluid * mass_factor
-
-    delta_rho_0 = rho_particle - rho_fluid
-    delta_rho_sigma = rho_p_sigma - rho_f_sigma
-
-    if delta_rho_0 == 0.0:
-        return 1.0
-
-    # Density difference scales identically → ratio = η(0)/η(σ)
-    return (viscosity_0 / viscosity_sigma) * (delta_rho_sigma / delta_rho_0)
-
 
 # ── Nagatha Integration ──────────────────────────────────────────
 

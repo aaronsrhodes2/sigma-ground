@@ -1,4 +1,4 @@
-"""Transitive coverage — which library methods actually EXECUTE when Mentat
+﻿"""Transitive coverage â€” which library methods actually EXECUTE when Mentat
 answers science questions.
 
 A method counts as covered if it runs as a byproduct of a question, even if we
@@ -7,7 +7,7 @@ tracer, run the question corpus (every MCP tool + the procedures, each a science
 question), plus a direct pass over field/inventory, and take the UNION of every
 sigma_ground function that executed.
 
-Writes misc/uncovered.txt — the functions no question reached yet.
+Writes misc/uncovered.txt â€” the functions no question reached yet.
 """
 import contextlib
 import importlib
@@ -17,8 +17,8 @@ import os
 import pkgutil
 import sys
 
-sys.path.insert(0, r"D:\Aaron\development\sigma-ground")
-sys.path.insert(0, r"D:\Aaron\development\sigma-ground\misc")
+sys.path.insert(0, r"D:\Aaron\development\sigma-ground-mentat")
+sys.path.insert(0, r"D:\Aaron\development\sigma-ground-mentat\misc")
 try:
     sys.stdout.reconfigure(encoding="utf-8")
 except Exception:
@@ -37,7 +37,12 @@ def dotted(path):
     if "sigma_ground" not in parts:
         return None
     i = parts.index("sigma_ground")
-    return ".".join(parts[i:]).rsplit(".py", 1)[0]
+    mod = ".".join(parts[i:]).rsplit(".py", 1)[0]
+    # Normalize a package __init__ to the package name so functions defined in
+    # __init__.py match the registry (which keys them by the package name).
+    if mod.endswith(".__init__"):
+        mod = mod[: -len(".__init__")]
+    return mod
 
 
 covered = set()
@@ -91,7 +96,7 @@ def main():
 
     sys.settrace(tracer)
     try:
-        exercise(tools)                            # questions → transitive library reach
+        exercise(tools)                            # questions â†’ transitive library reach
         exercise(tree)                             # direct pass (also counts)
         from sigma_ground.mcp import procedures as P
         for fn, args in [("black_hole_profile", (1.989e30,)),
@@ -107,7 +112,7 @@ def main():
         sys.settrace(None)
 
     hit = target & covered
-    print(f"══ transitive coverage (field + inventory) ══")
+    print(f"â•â• transitive coverage (field + inventory) â•â•")
     print(f"  covered {len(hit)}/{len(target)} = {100*len(hit)/max(len(target),1):.0f}%")
     print(f"  (total distinct sigma_ground funcs that executed: {len(covered)})")
 
@@ -119,11 +124,12 @@ def main():
     print("  top uncovered areas:")
     for a in sorted(by_area, key=lambda x: -by_area[x])[:12]:
         print(f"     {by_area[a]:4d}  {a}")
-    out = r"D:\Aaron\development\sigma-ground\misc\uncovered.txt"
+    out = r"D:\Aaron\development\sigma-ground-mentat\misc\uncovered.txt"
     with open(out, "w", encoding="utf-8") as f:
         f.write("\n".join(f"{m}.{fn}" for m, fn in uncovered))
-    print(f"  uncovered list → {out}")
+    print(f"  uncovered list â†’ {out}")
 
 
 if __name__ == "__main__":
     main()
+

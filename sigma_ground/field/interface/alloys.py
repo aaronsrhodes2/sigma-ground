@@ -334,37 +334,6 @@ def alloy_Tc_all_models(composition):
 
 # ── σ-Field Dependence (Rule 4) ──────────────────────────────────
 
-def sigma_alloy_Tc(composition, sigma, model='linear'):
-    """Alloy T_c under σ-field.
-
-    Θ_D shifts through nuclear mass under σ:
-      Θ_D(σ) = Θ_D(0) / √(mass_ratio(σ))
-    where mass_ratio = (1 − f_qcd) + f_qcd × scale_ratio(σ).
-
-    At Earth (σ ~ 7×10⁻¹⁰): shift is unmeasurably small.
-    Becomes significant approaching neutron star surfaces and beyond.
-
-    Args:
-        composition: {"niobium": 0.53, "titanium": 0.47}
-        sigma: σ-field value
-        model: 'linear' or 'dos_weighted'
-
-    Returns:
-        Predicted T_c(σ) in Kelvin
-    """
-    props = alloy_properties(composition, model=model)
-
-    if sigma == SIGMA_HERE:
-        return props['T_c_predicted_K']
-
-    f_qcd = PROTON_QCD_FRACTION
-    mass_ratio = (1.0 - f_qcd) + f_qcd * scale_ratio(sigma)
-    theta_D_sigma = props['theta_D_K'] / math.sqrt(mass_ratio)
-
-    return round(
-        mcmillan_Tc(theta_D_sigma, props['lambda_ep'], props['mu_star']),
-        3)
-
 
 # ── Normal-State Resistivity ─────────────────────────────────────
 

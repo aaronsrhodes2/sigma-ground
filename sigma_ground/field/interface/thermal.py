@@ -60,16 +60,22 @@ Three transport mechanisms, all derived from quantities we already have:
      Uses Planck spectrum integrated over CIE color matching functions.
      APPROXIMATION: polynomial fit to CIE 1931 → sRGB.
 
-  5. Contact thermal conductance
-     h_contact = κ_eff × A_real / (A_apparent × L_gap)
+  5. Contact thermal conductance (engineering joint conductance)
+     Cooper-Mikic-Yovanovich plastic model:
+       h_c = 1.25 × k_s × (m / σ_r) × (P / H_c)^0.95
 
      Where:
-       κ_eff = harmonic mean of both materials' conductivities
-       A_real / A_apparent = from friction module (real_contact_fraction)
-       L_gap = surface roughness (from texture module)
+       k_s = harmonic mean of both materials' conductivities
+       m   = effective mean asperity slope    (engineering surface finish)
+       σ_r = effective RMS surface roughness   (engineering surface finish)
+       P   = apparent contact pressure
+       H_c = contact microhardness of the softer material (from friction)
 
-     FIRST_PRINCIPLES: heat conduction through real contact patches.
-     Uses modules we already built: friction (contact area) + texture (roughness).
+     STANDARD CORRELATION (CMY 1969 / Mikic 1974). Roughness and slope are
+     surface-finish INPUTS, not lattice-derived quantities — joint
+     conductance is governed by the part's finish, not the material alone.
+     This replaced an earlier atomic-gap formula that used the lattice
+     parameter as the gap length and so overshot by ~4-5 orders.
 
   6. Electronic thermal conductivity (Wiedemann-Franz)
      κ_elec = L₀ × T / ρ_elec
@@ -105,8 +111,8 @@ Origin tags:
     APPROXIMATION (mean free path scattering factor)
   - Thermal radiation: FIRST_PRINCIPLES (Planck's law, exact QM)
   - Blackbody color: APPROXIMATION (polynomial fit to CIE tables)
-  - Contact conductance: FIRST_PRINCIPLES (Fourier's law) +
-    uses friction.real_contact_fraction and texture.thermal_roughness
+  - Contact conductance: STANDARD CORRELATION (Cooper-Mikic-Yovanovich
+    plastic model) + friction._hardness for the contact microhardness
 """
 
 import math
@@ -114,7 +120,6 @@ from .surface import MATERIALS, surface_energy_at_sigma
 from .mechanical import (
     bulk_modulus, shear_modulus, _number_density, _effective_cohesive_energy_j,
 )
-from .texture import thermal_roughness
 from ..constants import K_B, HBAR, AMU_KG, E_CHARGE, STEFAN_BOLTZMANN
 
 # ── Constants ─────────────────────────────────────────────────────
@@ -672,58 +677,132 @@ def is_visibly_glowing(T):
 
 # ── Contact Thermal Conductance ───────────────────────────────────
 
-def contact_conductance(mat1, mat2, pressure_pa=1e6, T=300.0, sigma=0.0):
-    """Thermal conductance across a contact interface (W/(m²·K)).
+def cmy_contact_conductance(k_harmonic, asperity_slope, rms_roughness_m,
+                            pressure_pa, microhardness_pa):
+    """Cooper-Mikic-Yovanovich solid-spot contact conductance (W/(m²·K)).
 
-    h = κ_eff × (A_real / A_apparent) / L_gap
+    The textbook correlation for the conductance of two conforming rough
+    metal surfaces pressed together in vacuum, with asperities deforming
+    plastically (Mikic plastic limit):
 
-    Where:
-      κ_eff = 2 × κ₁ × κ₂ / (κ₁ + κ₂)  (harmonic mean, FIRST_PRINCIPLES)
-      A_real/A_apparent = from friction module (pressure / hardness)
-      L_gap = RMS roughness of the rougher surface (from texture module)
+      h_c = 1.25 × k_s × (m / σ_r) × (P / H_c)^0.95
 
-    FIRST_PRINCIPLES: Fourier's law through real contact patches.
-    Heat flows through the actual touching area, not the apparent area.
-    The effective gap is set by the surface roughness.
+    Equivalently, in dimensionless form (the invariant this function obeys
+    exactly, used as the validation anchor):
 
-    Uses friction.real_contact_fraction and texture.thermal_roughness.
+      h_c × σ_r / (k_s × m) = 1.25 × (P / H_c)^0.95
 
-    Args:
-        mat1, mat2: material keys
-        pressure_pa: contact pressure in Pa
-        T: temperature in Kelvin
-        sigma: σ-field value
+    All inputs are explicit physical quantities — nothing here is derived
+    from the lattice, because joint conductance is governed by the
+    ENGINEERING surface finish, not by intrinsic material properties.
+
+    Args (SI):
+        k_harmonic: harmonic-mean thermal conductivity k_s = 2k₁k₂/(k₁+k₂)
+            of the two bulk solids [W/(m·K)].
+        asperity_slope: effective mean absolute asperity slope m
+            (combine two surfaces as m = √(m₁²+m₂²)); dimensionless,
+            typically 0.05–0.3.
+        rms_roughness_m: effective combined RMS surface roughness σ_r
+            (combine as σ_r = √(σ₁²+σ₂²)) [m]; typically 0.1–10 µm.
+        pressure_pa: apparent contact pressure P [Pa].
+        microhardness_pa: contact microhardness H_c of the SOFTER material
+            [Pa].
 
     Returns:
-        Contact conductance in W/(m²·K).
+        Solid-spot contact conductance h_c [W/(m²·K)], or 0.0 for
+        non-physical (non-positive) inputs.
+
+    Source: Cooper, Mikic & Yovanovich, Int. J. Heat Mass Transfer 12
+    (1969) 279–300; Mikic, IJHMT 17 (1974) 205. Valid for P/H_c ≲ 0.1
+    (the low-relative-pressure, plastic-asperity regime).
     """
-    from .friction import real_contact_fraction
+    if (k_harmonic <= 0 or asperity_slope <= 0 or rms_roughness_m <= 0
+            or pressure_pa <= 0 or microhardness_pa <= 0):
+        return 0.0
+
+    # Relative contact pressure. Real contact saturates at full contact
+    # (P → H_c); cap at 1 so the correlation can't return super-unity
+    # contact even if asked far outside its validity range.
+    relative_pressure = min(pressure_pa / microhardness_pa, 1.0)
+
+    return (1.25 * k_harmonic * (asperity_slope / rms_roughness_m)
+            * relative_pressure ** 0.95)
+
+
+def contact_conductance(mat1, mat2, pressure_pa=1e6, T=300.0, sigma=0.0,
+                        roughness_m=2.0e-6, asperity_slope=0.1,
+                        microhardness_pa=None):
+    """Engineering thermal contact (joint) conductance (W/(m²·K)).
+
+    Cooper-Mikic-Yovanovich plastic model for two conforming rough metal
+    surfaces pressed together in vacuum:
+
+      h_c = 1.25 × k_s × (m / σ_r) × (P / H_c)^0.95
+
+      k_s = harmonic-mean conductivity 2κ₁κ₂/(κ₁+κ₂)  [W/(m·K)]
+      m   = effective mean absolute asperity slope (asperity_slope)
+      σ_r = effective combined RMS roughness (roughness_m)  [m]
+      P   = apparent contact pressure (pressure_pa)  [Pa]
+      H_c = contact microhardness of the softer material  [Pa]
+
+    ⚠ SYMBOL COLLISION: the `sigma` argument is the SSBM σ-FIELD value
+    (scale transition); it is NOT the CMY roughness. The CMY roughness is
+    `roughness_m`. They merely share the Greek letter σ and are otherwise
+    unrelated. `sigma` only enters here through the bulk conductivities and
+    hardness (via their σ-dependence).
+
+    WHY ROUGHNESS IS AN INPUT, NOT DERIVED: real joint conductance is set
+    by the engineering surface finish (machining/polishing) — an extrinsic
+    property of the part, not of the material — so it cannot be derived
+    from the lattice. The previous model did exactly that: it used the
+    atomic lattice parameter (~3.6e-10 m) as the gap length, ~4 orders of
+    magnitude below a real ~1e-6 m finish, yielding a near-ballistic
+    ~1.9e9 W/(m²·K) that is physically impossible for a pressed joint.
+    Replaced with CMY on 2026-06-04.
+
+    Defaults describe a typical machined metal pair (combined RMS ~2 µm,
+    slope ~0.1). For Cu-Al at 1 MPa this gives ≈ 6e4 W/(m²·K), inside the
+    engineering band of ~1e3–1e5 W/(m²·K). Microhardness defaults to the
+    softer material's indentation hardness (friction._hardness).
+
+    Models the SOLID-SPOT (metal-to-metal) path only — no interstitial-gas
+    or radiative contribution. Roughen the surface (larger roughness_m) or
+    drop the pressure to move toward the low end of the band.
+
+    Args:
+        mat1, mat2: material keys.
+        pressure_pa: apparent contact pressure P [Pa].
+        T: temperature [K] (sets the bulk conductivities κ₁, κ₂).
+        sigma: SSBM σ-field value (NOT roughness — see collision note).
+        roughness_m: combined RMS surface roughness σ_r [m].
+        asperity_slope: combined mean absolute asperity slope m [-].
+        microhardness_pa: contact microhardness H_c [Pa]; default None →
+            softer material's indentation hardness.
+
+    Returns:
+        Joint (contact) conductance h_c in W/(m²·K).
+
+    Source: Cooper, Mikic & Yovanovich (1969); Mikic (1974).
+    """
+    from .friction import _hardness
 
     kappa_1 = thermal_conductivity(mat1, T, sigma)
     kappa_2 = thermal_conductivity(mat2, T, sigma)
 
-    # Harmonic mean of conductivities (series resistance)
+    # Harmonic mean of conductivities (series resistance of the two solids)
     if kappa_1 + kappa_2 < 1e-30:
         return 0.0
-    kappa_eff = 2.0 * kappa_1 * kappa_2 / (kappa_1 + kappa_2)
+    k_s = 2.0 * kappa_1 * kappa_2 / (kappa_1 + kappa_2)
 
-    # Real contact fraction from friction module
-    # Use the softer material's hardness
-    f_contact = real_contact_fraction(mat1, pressure_pa, sigma)
-    f_contact_2 = real_contact_fraction(mat2, pressure_pa, sigma)
-    f_real = max(f_contact, f_contact_2)  # limited by softer material
+    # Contact microhardness: the softer material controls plastic flow at
+    # the asperity tips, so it sets H_c (smaller H → larger real contact).
+    if microhardness_pa is None:
+        H_c = min(_hardness(mat1, sigma), _hardness(mat2, sigma))
+    else:
+        H_c = microhardness_pa
 
-    # Gap length: RMS roughness of the rougher surface
-    rms_1 = thermal_roughness(mat1, T, sigma)
-    rms_2 = thermal_roughness(mat2, T, sigma)
-    L_gap = max(rms_1, rms_2)
-
-    # Minimum gap: one lattice parameter (can't be smoother than atomic)
-    a1 = MATERIALS[mat1]['lattice_param_angstrom'] * 1e-10
-    a2 = MATERIALS[mat2]['lattice_param_angstrom'] * 1e-10
-    L_gap = max(L_gap, min(a1, a2))
-
-    return kappa_eff * f_real / L_gap
+    return cmy_contact_conductance(k_s, asperity_slope, roughness_m,
+                                   pressure_pa, H_c)
 
 
 # ── Nagatha Export ────────────────────────────────────────────────
@@ -778,7 +857,7 @@ def material_thermal_properties(material_key, T=300.0, sigma=0.0):
             "Thermal conductivity: FIRST_PRINCIPLES (phonon kinetic theory κ = CvℓL/3). "
             "Thermal radiation: FIRST_PRINCIPLES (Stefan-Boltzmann, Planck's law). "
             "Blackbody color: APPROXIMATION (polynomial fit to CIE 1931 tables). "
-            "Contact conductance: FIRST_PRINCIPLES (Fourier's law) + "
-            "friction.real_contact_fraction + texture.thermal_roughness."
+            "Contact conductance: STANDARD CORRELATION (Cooper-Mikic-Yovanovich "
+            "plastic joint model) + friction._hardness for microhardness."
         ),
     }
