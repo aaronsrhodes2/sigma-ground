@@ -40,8 +40,11 @@ def _auto_pitch(longest_m: float) -> float:
 
 def _voxel_identify(name, *, material_hint=None, exclude=None, pitch=None):
     """Try the REAL-MESH voxel path: resolve the name to a PartNet model, load its
-    actual per-part meshes, voxelize, and build a drop-in voxel Construct. Returns
-    None (caller falls back to primitives) when the name isn't a real category, the
+    actual per-part meshes, voxelize WITH PART IDENTITY (the result.json
+    hierarchy names each depth-1 part; parts survive as first-class bodies),
+    and build a drop-in voxel Construct. A bake cache under
+    ``local-cache/voxels/`` makes repeat identifies instant. Returns None
+    (caller falls back to primitives) when the name isn't a real category, the
     mesh data isn't on disk, or the opt-in [shapes] deps are missing."""
     plan = voxel_plan(name, material_hint=material_hint, exclude=exclude)
     if plan is None:
@@ -54,14 +57,40 @@ def _voxel_identify(name, *, material_hint=None, exclude=None, pitch=None):
     anno = plan["anno_id"]
     if not meshsrc.data_available(anno):
         return None                                   # local 242 GB not present
-    parts = meshsrc.load_parts(anno, scale_to_m=plan["scale_to_m"])
-    if not parts:
-        return None
     pitch = pitch or _auto_pitch(plan["scale_to_m"])
-    field = voxelize([(m, plan["material"]) for m, _ in parts], pitch=pitch)
     src = (f"PartNet anno_id {anno} — real mesh voxelized @ {pitch*1000:.0f}mm "
            f"(material {plan['material']}, cited {plan.get('license','')})")
-    return construct_from_field(name, field, source=src, identified=True)
+
+    from .voxel_cache import load_cached_field, save_cached_field
+    field = load_cached_field(anno, pitch)
+    if field is None:
+        parts = meshsrc.load_parts(anno, scale_to_m=plan["scale_to_m"])
+        if not parts:
+            return None
+        # obj stem → unique part name, from the semantic hierarchy (P0).
+        # Missing hierarchy → legacy unsegmented input, honestly flagged.
+        from .sources.partnet_hierarchy import part_groups
+        groups = part_groups(anno)
+        stem_part = {}
+        if groups:
+            for g in groups:
+                uname = g["name"] if g["instance"] == 0 \
+                    else f"{g['name']}_{g['instance'] + 1}"
+                for stem in g["objs"]:
+                    stem_part[stem] = uname
+        tuples = []
+        for m, stem in parts:
+            pname = stem_part.get(stem)
+            if pname is None and stem_part:
+                pname = "body"                        # stray obj: exact partition kept
+            if pname is None:
+                tuples.append((m, plan["material"]))  # legacy: no hierarchy on disk
+            else:
+                tuples.append((m, plan["material"], pname))
+        field = voxelize(tuples, pitch=pitch)
+        save_cached_field(anno, pitch, field)
+    return construct_from_field(name, field, source=src, identified=True,
+                                anno_id=anno)
 
 
 def identify(name: str, resolution: int = 64, *, allow_llm: bool = True,

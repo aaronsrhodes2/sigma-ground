@@ -24,7 +24,15 @@ from dataclasses import dataclass
 
 @dataclass
 class VoxelField:
-    """A voxelized model: geometry (SDF) + per-cell material + exact mass props."""
+    """A voxelized model: geometry (SDF) + per-cell material + exact mass props.
+
+    PART IDENTITY (actuation epic, Lane 1): a label id is one REGION — one
+    (part, material) pair. ``materials[k]`` KEEPS meaning "material name of
+    label k" (duplicate names allowed), so every material-keyed consumer
+    (interface scan, heat grids, colour bake) is unchanged; the parallel
+    tables below carry the part view. All three default None — a field built
+    from legacy 2-tuple input behaves exactly as before.
+    """
     sdf_grid: object            # ndarray (nx,ny,nz): signed distance, m (− inside)
     label_grid: object          # ndarray int: 0 = void/air, k = materials[k]
     voxel_size: float           # cell edge, m
@@ -41,6 +49,12 @@ class VoxelField:
     density_by_label: dict = None   # {material: density} actually used for mass
     notes: str = ""
     reconciliation: dict = None     # set by fill_cavity: requested vs capacity vs filled
+    # ── part tables (None = unsegmented legacy field) ──
+    parts: list = None          # [{part_id, name, material, labels, mass_kg,
+                                #   com_m, inertia_kgm2, volume_m3, flags}]
+    part_of_label: list = None  # label id → part id (index 0 → -1 = void)
+    part_interfaces: dict = None  # {(pid_a, pid_b): {area_m2, centroid_m,
+                                  #   principal_dir, elongation}} — the A-graph substrate
 
     def to_voxel(self):
         """Build the kernel `Voxel` shape (centred on this field)."""
@@ -90,12 +104,79 @@ def _scan_interfaces(label, materials, pitch):
     return pairs, free
 
 
+def _scan_part_interfaces(label, part_of_label, pitch, grid_lo):
+    """6-neighbour face adjacency between PARTS → per-pair contact GEOMETRY.
+
+    The A-graph substrate: for every touching part pair, the contact area plus
+    deterministic axis cues computed from the face-midpoint cloud — centroid
+    (a joint's anchor guess), principal direction (the dominant axis of the
+    contact patch, e.g. a hinge line), and elongation (λ₁/λ₂ of the patch's
+    2-D spread: a long thin patch ≈ a hinge; a round patch ≈ a pivot/weld).
+    All streamed as moment sums — no face-point storage.
+    """
+    import numpy as np
+    area = pitch * pitch
+    pol = np.asarray(part_of_label, dtype=np.int64)
+    P = int(pol.max()) + 2 if pol.size else 1
+    acc = {}                        # pair code → [n, Σx(3), Σxxᵀ(3x3)]
+    lo_w = np.asarray(grid_lo, float)
+    for ax in (0, 1, 2):
+        s1 = [slice(None)] * 3
+        s2 = [slice(None)] * 3
+        s1[ax] = slice(0, -1)
+        s2[ax] = slice(1, None)
+        A = label[tuple(s1)]
+        B = label[tuple(s2)]
+        pa = pol[A]
+        pb = pol[B]
+        m = (pa >= 0) & (pb >= 0) & (pa != pb)          # solid↔solid, different parts
+        if not m.any():
+            continue
+        idx = np.argwhere(m).astype(float)              # A-side cell index
+        mid = lo_w + (idx + 0.5) * pitch                # face midpoint world pos:
+        mid[:, ax] += 0.5 * pitch                       #   half a cell along the axis
+        qa, qb = pa[m], pb[m]
+        code = np.minimum(qa, qb) * P + np.maximum(qa, qb)
+        for cc in np.unique(code):
+            sel = code == cc
+            pts = mid[sel]
+            n = int(sel.sum())
+            s = pts.sum(0)
+            ss = pts.T @ pts
+            if cc in acc:
+                acc[cc][0] += n
+                acc[cc][1] += s
+                acc[cc][2] += ss
+            else:
+                acc[cc] = [n, s, ss]
+    out = {}
+    for cc, (n, s, ss) in acc.items():
+        pa, pb = int(cc // P), int(cc % P)
+        centroid = s / n
+        cov = ss / n - np.outer(centroid, centroid)
+        w, v = np.linalg.eigh(cov)                       # ascending eigenvalues
+        principal = v[:, 2]
+        elong = float(w[2] / w[1]) if w[1] > 1e-18 else float("inf")
+        out[(pa, pb)] = {
+            "area_m2": n * area,
+            "centroid_m": tuple(float(c) for c in centroid),
+            "principal_dir": tuple(float(c) for c in principal),
+            "elongation": round(elong, 3),
+        }
+    return out
+
+
 def _finalize(label, materials, pitch, lo, density_of, watertight_frac,
-              *, reconciliation=None, extra_note="") -> VoxelField:
+              *, reconciliation=None, extra_note="", regions=None) -> VoxelField:
     """Build a VoxelField from a labeled grid: SDF + exact mass props + interfaces.
 
     Shared by ``voxelize`` (first build) and ``fill_cavity`` (re-derive after a
     fill paints cavity cells) so the two paths can never drift.
+
+    ``regions``: the part table — ``[(part_name, material, [label ids], flags)]``
+    in part-id order, or None for an unsegmented legacy field. Per-part
+    mass/CoM/inertia come from the SAME sums as the totals, partitioned by
+    region mask — exact by construction, and asserted so.
     """
     import numpy as np
     import scipy.ndimage as ndi
@@ -118,7 +199,8 @@ def _finalize(label, materials, pitch, lo, density_of, watertight_frac,
 
     occ_idx = np.argwhere(occ)
     world = lo + (occ_idx + 0.5) * pitch
-    m = dens_by_id[label[occ]] * cellvol
+    lab_occ = label[occ]
+    m = dens_by_id[lab_occ] * cellvol
     mass = float(m.sum())
     com = (world * m[:, None]).sum(0) / mass if mass > 0 else world.mean(0)
     r = world - com
@@ -128,6 +210,43 @@ def _finalize(label, materials, pitch, lo, density_of, watertight_frac,
     volume = float(occ.sum()) * cellvol
 
     interfaces, free = _scan_interfaces(label, materials, pitch)
+
+    # ── part tables: the same sums, partitioned by region mask ──
+    parts = part_of_label = part_interfaces = None
+    if regions:
+        part_of_label = [-1] * len(materials)
+        parts = []
+        mass_check = 0.0
+        for pid, (pname, pmat, lids, flags) in enumerate(regions):
+            for lid in lids:
+                part_of_label[lid] = pid
+            sel = np.isin(lab_occ, lids)
+            pm = m[sel]
+            pmass = float(pm.sum())
+            mass_check += pmass
+            if pmass > 0:
+                pw = world[sel]
+                pcom = (pw * pm[:, None]).sum(0) / pmass
+                pr = pw - pcom
+                pI = (float((pm * (pr[:, 1] ** 2 + pr[:, 2] ** 2)).sum()),
+                      float((pm * (pr[:, 0] ** 2 + pr[:, 2] ** 2)).sum()),
+                      float((pm * (pr[:, 0] ** 2 + pr[:, 1] ** 2)).sum()))
+            else:                                       # a part that voxelized to nothing
+                pcom, pI = com, (0.0, 0.0, 0.0)
+                flags = tuple(flags) + ("empty",)
+            parts.append({
+                "part_id": pid, "name": pname, "material": pmat,
+                "labels": tuple(int(x) for x in lids),
+                "mass_kg": pmass,
+                "com_m": tuple(float(c) for c in pcom),
+                "inertia_kgm2": pI,                    # about the PART's own CoM, world axes
+                "volume_m3": float(sel.sum()) * cellvol,
+                "flags": tuple(flags),
+            })
+        assert abs(mass_check - mass) <= max(1e-9 * mass, 1e-15), (
+            f"part masses {mass_check} != total {mass} — region partition broken")
+        part_interfaces = _scan_part_interfaces(label, part_of_label, pitch, lo)
+
     conf = round(0.5 + 0.5 * watertight_frac, 2)
     center = tuple((lo + dims * pitch * 0.5).tolist())
     note = (f"voxel {tuple(int(d) for d in dims)} @ {pitch*1000:.0f}mm; "
@@ -144,15 +263,26 @@ def _finalize(label, materials, pitch, lo, density_of, watertight_frac,
         density_by_label={materials[i]: float(dens_by_id[i])
                           for i in range(1, len(materials))},
         notes=note, reconciliation=reconciliation,
+        parts=parts, part_of_label=part_of_label, part_interfaces=part_interfaces,
     )
 
 
 def voxelize(parts, *, pitch=0.008, margin=4, density_of=None) -> VoxelField:
-    """Voxelize ``parts`` = ``[(trimesh.Trimesh, material_name), ...]`` into a field.
+    """Voxelize ``parts`` into a field.
 
-    Each part is filled independently (avoids merged-shell over-solidification),
+    ``parts`` entries are ``(trimesh.Trimesh, material_name)`` — the LEGACY
+    form: one region per material, label grids byte-identical to the
+    pre-part-identity behavior, part table mirroring the materials flagged
+    ``("unsegmented",)`` — or ``(mesh, material_name, part_name)``: one region
+    per (part, material), so parts survive as first-class bodies. Meshes
+    sharing the same (part, material) share one region (a chair back's three
+    OBJ files are ONE part). Part names must be unique per part instance
+    (callers disambiguate repeats: "arm", "arm_2").
+
+    Each mesh is filled independently (avoids merged-shell over-solidification),
     unioned into one labeled grid; the SDF is the signed Euclidean distance
-    transform; mass/CoM/inertia are exact numpy sums over the labeled cells.
+    transform; mass/CoM/inertia are exact numpy sums over the labeled cells —
+    totals AND per part, from the same sums.
     """
     import numpy as np
     import trimesh
@@ -161,8 +291,15 @@ def voxelize(parts, *, pitch=0.008, margin=4, density_of=None) -> VoxelField:
     if not parts:
         raise ValueError("voxelize: no parts")
     density_of = density_of or _default_density
+    norm = []                                            # (mesh, material, part|None)
+    for entry in parts:
+        if len(entry) == 2:
+            norm.append((entry[0], entry[1], None))
+        else:
+            norm.append((entry[0], entry[1], entry[2]))
+    segmented = any(p is not None for _, _, p in norm)
 
-    meshes = [m for m, _ in parts]
+    meshes = [m for m, _, _ in norm]
     full = trimesh.util.concatenate(meshes)
     lo = np.asarray(full.bounds[0], float) - pitch * margin
     hi = np.asarray(full.bounds[1], float) + pitch * margin
@@ -170,14 +307,17 @@ def voxelize(parts, *, pitch=0.008, margin=4, density_of=None) -> VoxelField:
 
     label = np.zeros(tuple(dims.tolist()), dtype=np.int32)
     materials = ["air"]
-    mat_id = {}
+    region_id = {}                                       # (part|None, material) → label id
+    region_order = []                                    # region keys in id order
     watertight = []
-    for mesh, name in parts:
-        mid = mat_id.get(name)
+    for mesh, name, part in norm:
+        key = (part, name)
+        mid = region_id.get(key)
         if mid is None:
             mid = len(materials)
-            materials.append(name)
-            mat_id[name] = mid
+            materials.append(name)                       # duplicates allowed: label→material
+            region_id[key] = mid
+            region_order.append(key)
         try:
             vg = mesh.voxelized(pitch=pitch)
             filled = ndi.binary_fill_holes(np.asarray(vg.matrix))
@@ -191,10 +331,22 @@ def voxelize(parts, *, pitch=0.008, margin=4, density_of=None) -> VoxelField:
         gi = np.floor((world - lo) / pitch).astype(int)
         ok = ((gi >= 0) & (gi < dims)).all(1)
         gi = gi[ok]
-        label[gi[:, 0], gi[:, 1], gi[:, 2]] = mid       # later part wins on overlap
+        label[gi[:, 0], gi[:, 1], gi[:, 2]] = mid       # later mesh wins on overlap
+
+    # the part table: one region per (part, material); legacy fields get one
+    # part per material, honestly flagged unsegmented
+    regions = []
+    for part, name in region_order:
+        lid = region_id[(part, name)]
+        if part is None:
+            regions.append((name, name, [lid], ("unsegmented",)))
+        else:
+            regions.append((part, name, [lid], ()))
 
     wt_frac = (sum(watertight) / len(watertight)) if watertight else 0.0
-    return _finalize(label, materials, pitch, lo, density_of, wt_frac)
+    return _finalize(label, materials, pitch, lo, density_of, wt_frac,
+                     regions=regions,
+                     extra_note=("" if segmented else "unsegmented (legacy input)"))
 
 
 def _trapped_cavity(label, *, up_axis=2):
@@ -271,8 +423,14 @@ def fill_cavity(field, fill_material, *, requested_m3=None, density_of=None,
     label = np.array(field.label_grid, dtype=field.label_grid.dtype, copy=True)
     materials = list(field.materials)
 
-    # ensure the fill material has a label id
-    if fill_material in materials:
+    # the fill's label id: on a PART-AWARE field the fill is always its OWN new
+    # region (duplicate material names are legal now — merging the fill into an
+    # existing part would corrupt per-part masses); legacy fields keep the old
+    # reuse-the-material-id behavior exactly.
+    if field.parts is not None:
+        mid = len(materials)
+        materials.append(fill_material)
+    elif fill_material in materials:
         mid = materials.index(fill_material)
     else:
         mid = len(materials)
@@ -320,9 +478,19 @@ def fill_cavity(field, fill_material, *, requested_m3=None, density_of=None,
         ),
     }
     note = f"filled {fill_material} {filled_m3*1e6:.1f}/{capacity_m3*1e6:.1f} cm3"
+    regions = None
+    if field.parts is not None:
+        # carry the part table forward + the fill as its own flagged part.
+        # The liquid is APPROXIMATED AS RIGID (welded to its container) until
+        # the fluid lane exists — flagged, never hidden.
+        regions = [(p["name"], p["material"], list(p["labels"]), tuple(p["flags"]))
+                   for p in field.parts]
+        if filled_cells:
+            regions.append((f"fill:{fill_material}", fill_material, [mid],
+                            ("fill", "fluid_approximated_as_rigid")))
     new_field = _finalize(label, materials, pitch, lo, density_of,
                           field.watertight_frac, reconciliation=reconciliation,
-                          extra_note=note)
+                          extra_note=note, regions=regions)
     return new_field, reconciliation
 
 
@@ -348,9 +516,10 @@ class _VoxelComposed:
     render; stage-1 colours the whole solid by its dominant material.
     """
 
-    def __init__(self, voxel, materials, dominant=None):
+    def __init__(self, voxel, materials, dominant=None, part_of_label=None):
         self._v = voxel
         self._mats = materials
+        self._pol = part_of_label         # label id → part id (None = unsegmented)
         if dominant is None:
             dominant = next((m for m in materials if m != "air"), "air")
         self._leaves = [(_VoxLeaf(voxel, dominant), "add")]
@@ -364,8 +533,18 @@ class _VoxelComposed:
             return None
         return self._mats[lid]
 
+    def part_at(self, x, y, z):
+        """Part id at a point (−1 = void), or None when the field is unsegmented."""
+        if self._pol is None:
+            return None
+        lid = self._v.material_at(x, y, z)
+        if not lid:
+            return -1
+        return self._pol[lid]
 
-def construct_from_field(name, field, *, source="", identified=True):
+
+def construct_from_field(name, field, *, source="", identified=True,
+                         anno_id=None):
     """Build a drop-in Deckard `Construct` from a `VoxelField`.
 
     The construct exposes the SAME interface as the primitive path
@@ -383,20 +562,37 @@ def construct_from_field(name, field, *, source="", identified=True):
     dby = field.density_by_label or {}
     density_by_label, layers = {}, []
     dominant, dominant_cells = None, -1
-    for i, matname in enumerate(field.materials):
-        if i == 0:
-            continue
-        cells = int((lab == i).sum())
-        if cells == 0:
-            continue
-        if cells > dominant_cells:                      # most-voxels material = the look
-            dominant, dominant_cells = matname, cells
-        rho = float(dby.get(matname, 0.0))
-        vol = cells * cellvol
-        density_by_label[matname] = rho
-        layers.append(Layer(matname, matname, rho, vol, rho * vol, source="voxel field"))
+    if field.parts:
+        # Layer-per-PART: the layer is named by the part, carries its material
+        # (the existing name→material colour bake keeps working — layer.material
+        # is what it reads), and its exact per-part mass/volume.
+        mat_cells: dict = {}
+        for p in field.parts:
+            rho = float(dby.get(p["material"], 0.0))
+            density_by_label[p["material"]] = rho
+            layers.append(Layer(p["name"], p["material"], rho,
+                                p["volume_m3"], p["mass_kg"],
+                                source="voxel field (part)"))
+            n = int(round(p["volume_m3"] / cellvol))
+            mat_cells[p["material"]] = mat_cells.get(p["material"], 0) + n
+        dominant = max(mat_cells, key=mat_cells.get) if mat_cells else None
+    else:
+        for i, matname in enumerate(field.materials):
+            if i == 0:
+                continue
+            cells = int((lab == i).sum())
+            if cells == 0:
+                continue
+            if cells > dominant_cells:                  # most-voxels material = the look
+                dominant, dominant_cells = matname, cells
+            rho = float(dby.get(matname, 0.0))
+            vol = cells * cellvol
+            density_by_label[matname] = rho
+            layers.append(Layer(matname, matname, rho, vol, rho * vol,
+                                source="voxel field"))
 
-    composed = _VoxelComposed(voxel, field.materials, dominant)
+    composed = _VoxelComposed(voxel, field.materials, dominant,
+                              part_of_label=field.part_of_label)
 
     cx, cy, cz = field.center
     a, b, c = voxel._extents()
@@ -408,13 +604,30 @@ def construct_from_field(name, field, *, source="", identified=True):
         "interfaces": {f"{x}|{y}": area for (x, y), area in field.interfaces.items()},
         "free_surfaces": dict(field.free_surfaces),
     }
+    if field.parts:
+        validation["parts"] = [
+            {"name": p["name"], "material": p["material"],
+             "mass_kg": round(p["mass_kg"], 9), "flags": list(p["flags"])}
+            for p in field.parts]
     if field.reconciliation:
         validation["volume_reconciliation"] = dict(field.reconciliation)
-    return Construct(
+    articulation = None
+    if field.parts:
+        from .articulate import acquire
+        articulation = acquire(anno_id, field.parts, field.part_interfaces,
+                               source_note=source or field.notes)
+    construct = Construct(
         name=name, composed=composed, density_by_label=density_by_label,
         layers=layers, mass_kg=field.mass_kg, com_m=field.com_m,
         inertia_kgm2=field.inertia_kgm2, bbox=bbox, validation=validation,
-        identified=identified, source=source or field.notes)
+        identified=identified, source=source or field.notes,
+        articulation=articulation)
+    # the raw part view also rides the construct (tests + consumers that want
+    # the field tables directly)
+    construct.parts = field.parts
+    construct.part_interfaces = field.part_interfaces
+    construct.part_id_at = composed.part_at
+    return construct
 
 
 __all__ = ["VoxelField", "voxelize", "fill_cavity", "construct_from_field"]

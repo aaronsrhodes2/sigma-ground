@@ -73,7 +73,7 @@ _CATEGORIES = {
     "Vase": ("vase", ["pot"]),
 }
 
-_NOISE = {"containing_things", "other", "others", "other_leaf", ""}
+from sigma_ground.deckard.sources.partnet_hierarchy import _NOISE  # noqa: E402,F401
 _SHAPE_HINT = {
     "handle": "cylinder", "leg": "cylinder", "stem": "cylinder",
     "shaft": "cylinder", "neck": "cylinder", "spout": "cylinder",
@@ -83,55 +83,16 @@ _SHAPE_HINT = {
 }
 
 
-def _clean(name: str, root: str = "") -> str:
-    """Normalize a PartNet node label: strip grouping suffixes + category prefix."""
-    name = (name or "").strip().lower()
-    for suf in ("_side", "_group", "_set", "_unit"):
-        if name.endswith(suf):
-            name = name[: -len(suf)]
-    if root and name.startswith(root + "_"):
-        name = name[len(root) + 1:]
-    return name.strip("_")
-
-
-# ── hierarchy walking ────────────────────────────────────────────────────────
-def _subtree_objs(node) -> list:
-    objs = list(node.get("objs") or [])
-    for ch in node.get("children") or []:
-        objs += _subtree_objs(ch)
-    return objs
-
-
-def _node_instances(root_node, root_label: str) -> list:
-    """Every named node below the category root as
-    (cleaned_label, [subtree objs], is_leaf). A node IS an instance of its
-    label; its geometry is its whole subtree. ``is_leaf`` distinguishes a real
-    PART that happens to span the object (a bottle's body) from a subtype
-    WRAPPER (regular_table) — only wrappers get whole-object-filtered."""
-    out = []
-
-    def walk(n, depth):
-        nm = _clean(n.get("name") or "", root_label)
-        if depth >= 1 and nm not in _NOISE:
-            out.append((nm, _subtree_objs(n), not (n.get("children"))))
-        for ch in n.get("children") or []:
-            walk(ch, depth + 1)
-
-    walk(root_node, 0)
-    return out
+# ── hierarchy walking — EXTRACTED to the package (actuation epic Lane 1 P0):
+# one implementation, imported back here. Distill keeps its historical
+# merged-first file preference via the `prefer` parameter.
+from sigma_ground.deckard.sources.partnet_hierarchy import (  # noqa: E402
+    _clean, _subtree_objs, _node_instances, load_hierarchy)
 
 
 def _load_hierarchy(model_dir: pathlib.Path):
-    for fn in ("result_after_merging.json", "result.json"):
-        p = model_dir / fn
-        if p.exists():
-            try:
-                data = json.loads(p.read_text(encoding="utf-8", errors="replace"))
-                if isinstance(data, list) and data:
-                    return data[0]
-            except Exception:
-                return None
-    return None
+    return load_hierarchy(model_dir,
+                          prefer=("result_after_merging.json", "result.json"))
 
 
 # ── geometry ────────────────────────────────────────────────────────────────

@@ -111,6 +111,8 @@ class Construct:
     validation: dict = field(default_factory=dict)
     identified: bool = True
     source: str = ""
+    articulation: object = None     # deckard.articulate.Articulation | None —
+                                    # parts as bodies + typed joints (the A-graph)
 
     # consumers (Materia / Radiance) query the field:
     def sdf(self, x, y, z):

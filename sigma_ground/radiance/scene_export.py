@@ -582,7 +582,7 @@ def construct_to_scene(construct) -> dict:
                 substance, construct.density_by_label.get(label))
     cam = _suggest_camera(construct.bbox)
     lighting = _default_lighting(cam["up"])
-    return {
+    spec = {
         "name": construct.name,
         "csg_leaves": csg_leaves,                 # flat, ordered = faithful to evaluation
         "materials": materials,
@@ -595,6 +595,12 @@ def construct_to_scene(construct) -> dict:
         "identified": construct.identified,
         "source": construct.source,
     }
+    # the A-graph rides the bundle additively (old viewers ignore unknown keys —
+    # the proven fields-registry precedent); the mechanism recorder reads it
+    art = getattr(construct, "articulation", None)
+    if art is not None:
+        spec["articulation"] = art.to_dict()
+    return spec
 
 
 # ── SceneSpec → SDF (faithful inverse) ──────────────────────────────────
