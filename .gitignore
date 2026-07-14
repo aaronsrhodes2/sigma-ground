@@ -50,3 +50,6 @@ misc/OPERATIC_PLAY_SCENE*.txt
 
 # Holodeck render-experiment output (regenerable: PNGs, gallery.html, scorecards)
 sigma_ground/mcp/benchmark/holodeck_out/
+
+# Local operational state (regenerable: voxel bake cache, Dataset Minder status)
+local-cache/

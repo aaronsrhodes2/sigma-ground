@@ -14,6 +14,7 @@ import os
 import pathlib
 import tempfile
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -98,4 +99,31 @@ def get_text(url: str, timeout: float = 30.0):
     return text
 
 
-__all__ = ["get_json", "get_text"]
+def get_json_with_backoff(url: str, *, tries: int = 5, timeout: float = 30.0):
+    """GET ``url`` and parse JSON, honouring HTTP 429 + ``Retry-After`` with
+    exponential fallback. Deliberately NOT disk-cached (unlike :func:`get_json`)
+    — callers polling a source for FRESHNESS want the live answer, not a stale
+    cached one; still per-host rate-limited and polite (same UA + throttle as
+    :func:`get_json`). Factored out of the ad-hoc backoff loop
+    ``tools/distill_electronics.py`` grew this session, so any other polling
+    caller (Dataset Minder, future tools) shares one implementation instead of
+    a third copy-paste. Returns the parsed object, or None on exhausted retries
+    / any non-429 error.
+    """
+    for attempt in range(tries):
+        _rate_limit(url)
+        req = urllib.request.Request(url, headers={"User-Agent": _UA})
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return json.loads(r.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            if e.code != 429 or attempt == tries - 1:
+                return None
+            wait = float(e.headers.get("Retry-After") or 2 ** (attempt + 2))
+            time.sleep(wait)
+        except Exception:
+            return None
+    return None
+
+
+__all__ = ["get_json", "get_text", "get_json_with_backoff"]
