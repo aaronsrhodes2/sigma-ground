@@ -58,7 +58,9 @@ Gravity
 """
 
 import math
-from .collision import resolve_sphere_sphere, resolve_sphere_plane
+from .collision import collect_pair_contacts, collect_ground_contacts
+from .solver import solve_velocity, project_positions
+from .quat import quat_step
 
 
 _CFL_COEFF = 0.40      # NOT_PHYSICS — numerical stability parameter
@@ -191,28 +193,83 @@ def _leapfrog_sub_step(scene, dt, external_forces=None):
             a_ext = F_ext * (1.0 / p.mass)
             p.velocity = p.velocity + a_ext * (dt * 0.5)
 
-    # ── Step 2: full-step position update ────────────────────────────────────
+    # ── Step 1.5: pre-drift constraint solve (manifold contacts + joints) ────
+    # The drift-then-solve order (legacy, kept for bit-parity) leaks the
+    # half-kick velocity into a full drift before any constraint can object:
+    #   - for a box resting under friction that is a g·dt tangential creep
+    #     per substep, which reads as false sliding;
+    #   - for a pendulum it is a radial velocity component whose deletion
+    #     (plus the projection's PE work) drains real energy every step.
+    # Solving the ALREADY-overlapping manifold contacts on the half-kicked
+    # velocity BEFORE drift (velocities only, no position pass) kills the
+    # creep. Joints run their SHAKE rows here — position error solved
+    # THROUGH the pre-drift velocity so the drift lands ON the constraint
+    # manifold (first half of the RATTLE constrained leapfrog; a measured
+    # secular sink otherwise: plain post-drift deletion drained the double
+    # pendulum ~0.24 J/s). Legacy center-line rows are excluded on purpose:
+    # sphere scenes keep the exact legacy sequence, and a separating legacy
+    # row would have skipped itself anyway.
+    joints = getattr(scene, "constraints", None) or []
+    for j in joints:
+        reset = getattr(j, "reset_substep", None)
+        if reset is not None:
+            reset()                        # motor impulse caps span the substep
+    pre = []
+    if scene.ground is not None:
+        pre = [c for c in collect_ground_contacts(
+                   scene.parcels, scene.ground,
+                   restitution_fn=getattr(scene, "restitution_fn", None))
+               if c.kind == "manifold"]
+    iters = getattr(scene, "solver_iterations", 10)
+    if pre or joints:
+        mu_fn = getattr(scene, "friction_fn", None)
+        fr = ((lambda c: mu_fn(c.a, c.b)) if mu_fn is not None else None)
+        solve_velocity(pre, joints, dt, iterations=iters, friction_fn=fr,
+                       shake=True)
+
+    # ── Step 2: full-step position update (drift: linear + angular) ──────────
+    # Angular drift by KDK placement: ω was half-kicked by any contact/joint
+    # impulses of the PREVIOUS substep; the quaternion advances on the full
+    # step. quat_step renormalizes (unit-norm stable over 1e5 steps — gated).
     for p in scene.parcels:
         if p.is_static:
             continue
         p.position = p.position + p.velocity * dt
+        w = p.angular_velocity
+        if w.x != 0.0 or w.y != 0.0 or w.z != 0.0:
+            p.orientation = list(quat_step(p.orientation,
+                                           (w.x, w.y, w.z), dt))
 
-    # ── Step 3: collision resolution ─────────────────────────────────────────
+    # ── Step 3: constraint resolution (the ONE enforcement pass) ─────────────
+    # Contacts are COLLECTED from the drifted poses, then handed with the
+    # scene's joints to dynamics/solver.py (sequential impulses + split
+    # position projection). Center-line sphere rows carry kind="legacy" and
+    # reproduce the old resolve_* impulses exactly (r×n̂=0, skip-when-
+    # separating, single 0.8·pen position pass) — gated at 1e-12.
     parcels = scene.parcels
-
-    # Sphere-sphere (O(n²), adequate for small scenes)
-    n = len(parcels)
-    for i in range(n):
-        for j in range(i + 1, n):
-            resolve_sphere_sphere(parcels[i], parcels[j])
-
-    # Ground plane
+    restitution_fn = getattr(scene, "restitution_fn", None)
+    contacts = collect_pair_contacts(parcels, restitution_fn=restitution_fn)
     if scene.ground is not None:
-        gnd = scene.ground
-        for p in parcels:
-            if not p.is_static:
-                resolve_sphere_plane(p, gnd.point, gnd.normal,
-                                     gnd.restitution)
+        contacts.extend(collect_ground_contacts(
+            parcels, scene.ground, restitution_fn=restitution_fn))
+    # Joints join this pass only when contacts exist (contact↔joint coupling,
+    # e.g. a hinged lid resting on a table); without contacts the RATTLE
+    # stages own the joints — re-solving them here would re-introduce the
+    # radial-velocity-deletion sink the SHAKE stage exists to remove.
+    if contacts:
+        mu_fn = getattr(scene, "friction_fn", None)
+        friction = ((lambda c: mu_fn(c.a, c.b)) if mu_fn is not None
+                    else None)
+        solve_velocity(contacts, joints, dt, iterations=iters,
+                       friction_fn=friction)
+        # Positions: contacts always; joints only here, where contact
+        # impulses can knock anchors apart. In a joint-only scene SHAKE
+        # already landed the drift ON the constraint (anchor error ~1e-7 m
+        # measured) — projecting the residual was a measured energy
+        # polluter, so the teleport is reserved for contact events.
+        project_positions(
+            contacts, joints,
+            iterations=getattr(scene, "projection_iterations", 3))
 
     # ── Step 4: second half-step velocity ─────────────────────────────────────
     for p in scene.parcels:
@@ -225,6 +282,14 @@ def _leapfrog_sub_step(scene, dt, external_forces=None):
             F_ext = external_forces(p)
             a_ext = F_ext * (1.0 / p.mass)
             p.velocity = p.velocity + a_ext * (dt * 0.5)
+
+    # ── Step 5: RATTLE velocity projection (joints only) ─────────────────────
+    # The second half of the constrained leapfrog: remove the constraint-
+    # violating velocity components from the FULL-step velocity (after the
+    # second half-kick). Paired with the SHAKE stage this keeps the energy
+    # error bounded instead of secular.
+    if joints:
+        solve_velocity([], joints, dt, iterations=iters)
 
 
 def _snapshot(scene):

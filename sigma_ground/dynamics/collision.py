@@ -171,6 +171,90 @@ def sphere_plane_collision(parcel, plane_point, plane_normal):
     return True, penetration, n
 
 
+# ── contact COLLECTION for the sequential-impulse solver ────────────────────
+# (the resolve_* functions above stay for legacy callers; the stepper now
+# collects Contact rows and hands them to dynamics/solver.py)
+
+def collect_pair_contacts(parcels, restitution_fn=None):
+    """Sphere-sphere contact rows (bounding-sphere narrow phase — the honest
+    current model; SDF body-body manifolds are a later stone). Center-line
+    contact point ⇒ r×n̂=0 ⇒ the solver row reduces EXACTLY to the legacy
+    impulse (kind="legacy": separating pairs stay untouched, as before)."""
+    from .solver import Contact
+    out = []
+    n = len(parcels)
+    for i in range(n):
+        for j in range(i + 1, n):
+            p1, p2 = parcels[i], parcels[j]
+            is_col, pen, n_hat = sphere_sphere_collision(p1, p2)
+            if not is_col:
+                continue
+            if p1.inv_mass + p2.inv_mass < 1e-30:
+                continue
+            e = (restitution_fn(p1, p2) if restitution_fn is not None
+                 else min(p1.restitution, p2.restitution))
+            point = p1.position + n_hat * (p1.radius - pen * 0.5)
+            out.append(Contact(p1, p2, point, n_hat, pen, kind="legacy", e=e))
+    return out
+
+
+def collect_ground_contacts(parcels, ground, max_points=4, restitution_fn=None):
+    """Ground contact rows. A parcel WITH ``contact_offsets`` gets a torque-
+    aware manifold (up to ``max_points`` deepest offset points below the
+    plane, rotated by its orientation — resting stability without rocking);
+    a parcel without offsets keeps the analytic sphere support (kind="legacy",
+    bit-identical to resolve_sphere_plane by the r×n̂=0 reduction)."""
+    from .quat import qrot
+    from .solver import Contact
+    n_g = ground.normal.normalized()
+    pp = ground.point
+    out = []
+    for p in parcels:
+        if p.is_static or p.inv_mass <= 0.0:
+            continue
+        e = (restitution_fn(p, None) if restitution_fn is not None
+             else min(p.restitution, ground.restitution))
+        if p.contact_offsets:
+            cands = []
+            for off in p.contact_offsets:
+                o = (off.x, off.y, off.z) if hasattr(off, "x") else \
+                    (off[0], off[1], off[2])
+                w = qrot(p.orientation, o)
+                pt = Vec3(p.position.x + w[0], p.position.y + w[1],
+                          p.position.z + w[2])
+                pen = -((pt - pp).dot(n_g))            # >0 below the plane
+                if pen > 0.0:
+                    cands.append((pen, pt, o))
+            cands.sort(key=lambda c: -c[0])
+            chosen = []
+            for pen, pt, o in cands:
+                if len(chosen) >= max_points:
+                    break
+                # spatial dedupe: skip points on top of an already-chosen one
+                if any((pt - q).length() < 1e-3 for _, q, _ in chosen):
+                    continue
+                chosen.append((pen, pt, o))
+            for pen, pt, o in chosen:
+                def _depth_now(p=p, o=o, pp=pp, n_g=n_g):
+                    ww = qrot(p.orientation, o)
+                    q = Vec3(p.position.x + ww[0], p.position.y + ww[1],
+                             p.position.z + ww[2])
+                    return -((q - pp).dot(n_g))
+                out.append(Contact(p, None, pt, n_g * -1.0, pen,
+                                   kind="manifold", e=e, depth_now=_depth_now))
+        else:
+            signed = (p.position - pp).dot(n_g)
+            pen = p.radius - signed
+            if pen <= 0.0:
+                continue
+            point = p.position - n_g * p.radius
+            def _depth_sphere(p=p, pp=pp, n_g=n_g):
+                return p.radius - (p.position - pp).dot(n_g)
+            out.append(Contact(p, None, point, n_g * -1.0, pen,
+                               kind="legacy", e=e, depth_now=_depth_sphere))
+    return out
+
+
 def resolve_sphere_plane(parcel, plane_point, plane_normal,
                          plane_restitution=0.5):
     """Apply impulse and position correction for a sphere-plane collision.

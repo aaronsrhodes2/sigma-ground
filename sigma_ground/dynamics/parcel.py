@@ -73,7 +73,8 @@ class PhysicsParcel:
     def __init__(self, radius, material,
                  position=None, velocity=None,
                  is_static=False, mass=None, sigma=0.0,
-                 label=''):
+                 label='', orientation=None, inertia_body=None,
+                 contact_offsets=None, sdf_local=None):
         # Accept either a Shape or a bare radius
         from ..shapes import Shape, Sphere
         if isinstance(radius, Shape):
@@ -91,7 +92,15 @@ class PhysicsParcel:
         self.label     = label
 
         # Angular state (default: no rotation)
-        self.angular_velocity = Vec3(0, 0, 0)  # rad/s
+        self.angular_velocity = Vec3(0, 0, 0)  # rad/s, WORLD frame
+        # Orientation quaternion [x, y, z, w] — the viewer's layout.
+        self.orientation = list(orientation) if orientation is not None \
+            else [0.0, 0.0, 0.0, 1.0]
+        # Contact machinery (injected by the orchestrator — dynamics never
+        # samples SDFs itself): local-frame candidate contact points, and an
+        # optional local SDF callback for body-body narrow phase.
+        self.contact_offsets = contact_offsets
+        self.sdf_local = sdf_local
 
         # Mass: m = ρ(σ) × volume(shape)
         # FIRST_PRINCIPLES: density × volume
@@ -118,6 +127,20 @@ class PhysicsParcel:
 
         # Restitution: from material if available, else 0.5
         self.restitution = getattr(material, 'restitution', 0.5)
+
+        # Body-frame principal inertia diagonal (I1, I2, I3), kg·m².
+        # NON-DERIVED (audit): products of inertia are dropped — exact for
+        # parts whose local frames are symmetry frames (spheres, axis-aligned
+        # boxes/cylinders — every v1 body); v2 = full tensor + Jacobi
+        # eigendecomposition when Deckard integrates Jxy/Jxz/Jyz.
+        if inertia_body is not None:
+            self.inertia_body = tuple(float(v) for v in inertia_body)
+        elif is_static or self.mass in (0.0, float('inf')):
+            self.inertia_body = (float('inf'),) * 3 if is_static else (0.0,) * 3
+        else:
+            self.inertia_body = (self.mass * self.shape.inertia_factor('x'),
+                                 self.mass * self.shape.inertia_factor('y'),
+                                 self.mass * self.shape.inertia_factor('z'))
 
     @property
     def inv_mass(self):
@@ -185,20 +208,56 @@ class PhysicsParcel:
         return self.mass * self.shape.inertia_factor(axis)
 
     def rotational_ke(self):
-        """Rotational kinetic energy KE_rot = ½Iω² (Joules).
+        """Rotational kinetic energy KE_rot = ½ ωᵀ·I·ω (Joules).
 
-        Uses the shape's moment of inertia about each axis.
-
-        Returns:
-            Rotational kinetic energy in Joules.
+        ω is rotated into the BODY frame where the inertia is the principal
+        diagonal (identical to the old world-axis form at identity
+        orientation, which every pre-articulation caller had).
         """
         if self.is_static:
             return 0.0
-        wx, wy, wz = self.angular_velocity.x, self.angular_velocity.y, self.angular_velocity.z
-        Ix = self.moment_of_inertia('x')
-        Iy = self.moment_of_inertia('y')
-        Iz = self.moment_of_inertia('z')
-        return 0.5 * (Ix * wx**2 + Iy * wy**2 + Iz * wz**2)
+        from .quat import qrot_inv
+        w = qrot_inv(self.orientation,
+                     (self.angular_velocity.x, self.angular_velocity.y,
+                      self.angular_velocity.z))
+        I1, I2, I3 = self.inertia_body
+        return 0.5 * (I1 * w[0] ** 2 + I2 * w[1] ** 2 + I3 * w[2] ** 2)
+
+    def inv_inertia_apply(self, L):
+        """I⁻¹·L for a WORLD-frame vector L → world-frame result.
+
+        The matrix-free idiom (promoted from the tumble recorder): rotate to
+        the body frame, divide by the principal diagonal, rotate back.
+        Static parcels absorb angular impulses (return zero).
+        """
+        if self.is_static:
+            return Vec3(0, 0, 0)
+        from .quat import qrot, qrot_inv
+        q = self.orientation
+        ll = qrot_inv(q, (L.x, L.y, L.z) if hasattr(L, "x") else L)
+        I1, I2, I3 = self.inertia_body
+        wl = (ll[0] / I1 if I1 else 0.0,
+              ll[1] / I2 if I2 else 0.0,
+              ll[2] / I3 if I3 else 0.0)
+        w = qrot(q, wl)
+        return Vec3(w[0], w[1], w[2])
+
+    def apply_angular_impulse(self, L):
+        """Δω = I⁻¹·L (L in world frame, N·m·s)."""
+        self.angular_velocity = self.angular_velocity + self.inv_inertia_apply(L)
+
+    def angular_momentum(self):
+        """World-frame angular momentum I·ω about the parcel's own CoM."""
+        if self.is_static:
+            return Vec3(0, 0, 0)
+        from .quat import qrot, qrot_inv
+        q = self.orientation
+        wl = qrot_inv(q, (self.angular_velocity.x, self.angular_velocity.y,
+                          self.angular_velocity.z))
+        I1, I2, I3 = self.inertia_body
+        Ll = (I1 * wl[0], I2 * wl[1], I3 * wl[2])
+        Lw = qrot(q, Ll)
+        return Vec3(Lw[0], Lw[1], Lw[2])
 
     def __repr__(self):
         lbl = f' "{self.label}"' if self.label else ''

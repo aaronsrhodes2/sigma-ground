@@ -52,7 +52,9 @@ class PhysicsScene:
         time:        starting simulation time (s). Default: 0.
     """
 
-    def __init__(self, parcels, gravity=None, ground=None, time=0.0):
+    def __init__(self, parcels, gravity=None, ground=None, time=0.0,
+                 constraints=None, restitution_fn=None, friction_fn=None,
+                 solver_iterations=10, projection_iterations=3):
         self.parcels = list(parcels)
         self.gravity = (gravity if gravity is not None
                         else Vec3(0, -_G_STANDARD, 0))
@@ -65,9 +67,40 @@ class PhysicsScene:
         else:
             self.ground = ground
 
+        # ── articulation (the ONE clock's constraint set) ──
+        # constraints: dynamics.joints objects enforced every substep.
+        # restitution_fn(parcel_a, parcel_b|None) -> e and
+        # friction_fn(parcel_a, parcel_b|None) -> mu are CALLBACKS the
+        # orchestrator (materia) builds over material names — the
+        # make_atmospheric_drag tier-crossing idiom, so dynamics stays
+        # material-name-free. Defaults preserve legacy behavior exactly:
+        # e = min(restitutions), mu = 0 (frictionless — NOT_PHYSICS, flagged:
+        # a friction_fn should be injected wherever sliding matters).
+        self.constraints = list(constraints) if constraints else []
+        self.restitution_fn = restitution_fn
+        self.friction_fn = friction_fn
+        # Gauss–Seidel budget (NOT_PHYSICS — numerical convergence knobs;
+        # raise for stiff joint chains, e.g. a whipping double pendulum)
+        self.solver_iterations = int(solver_iterations)
+        self.projection_iterations = int(projection_iterations)
+
     def total_kinetic_energy(self):
-        """Sum of ½mv² for all dynamic parcels (J)."""
-        return sum(p.kinetic_energy() for p in self.parcels)
+        """Sum of ½mv² + ½ωᵀIω for all dynamic parcels (J). (The rotational
+        term is 0 for every pre-articulation scene — ω was never integrated.)"""
+        return sum(p.kinetic_energy() + p.rotational_ke() for p in self.parcels)
+
+    def total_angular_momentum(self, about=None):
+        """World-frame angular momentum about ``about`` (default: the origin):
+        Σ [ I·ω + r×(m·v) ] over dynamic parcels."""
+        o = about if about is not None else Vec3(0, 0, 0)
+        L = Vec3(0, 0, 0)
+        for p in self.parcels:
+            if p.is_static:
+                continue
+            L = L + p.angular_momentum()
+            r = p.position - o
+            L = L + r.cross(p.momentum())
+        return L
 
     def total_momentum(self):
         """Vector sum of mv for all dynamic parcels (kg·m/s)."""

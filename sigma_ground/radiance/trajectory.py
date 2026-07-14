@@ -241,31 +241,10 @@ def _lay_flat_quat(dx, dy, dz):
 
 
 # ── rigid-contact helpers (bounce + tumble) ────────────────────────────────
-def _qrot(q, v):
-    """Rotate v by quaternion q=(x,y,z,w) — the viewer's forward convention."""
-    ux, uy, uz, w = q[0], q[1], q[2], q[3]
-    tx = 2.0 * (uy * v[2] - uz * v[1])
-    ty = 2.0 * (uz * v[0] - ux * v[2])
-    tz = 2.0 * (ux * v[1] - uy * v[0])
-    return (v[0] + w * tx + uy * tz - uz * ty,
-            v[1] + w * ty + uz * tx - ux * tz,
-            v[2] + w * tz + ux * ty - uy * tx)
-
-
-def _qrot_inv(q, v):
-    return _qrot((-q[0], -q[1], -q[2], q[3]), v)
-
-
-def _quat_step(q, w, dt):
-    """q <- normalize(q + 0.5·(ω⊗q)·dt), ω in WORLD frame, layout (x,y,z,w)."""
-    wx, wy, wz = w
-    dx = 0.5 * (wx * q[3] + wy * q[2] - wz * q[1])
-    dy = 0.5 * (-wx * q[2] + wy * q[3] + wz * q[0])
-    dz = 0.5 * (wx * q[1] - wy * q[0] + wz * q[3])
-    dw = 0.5 * (-wx * q[0] - wy * q[1] - wz * q[2])
-    out = [q[0] + dx * dt, q[1] + dy * dt, q[2] + dz * dt, q[3] + dw * dt]
-    n = (out[0] ** 2 + out[1] ** 2 + out[2] ** 2 + out[3] ** 2) ** 0.5 or 1.0
-    return [v / n for v in out]
+# The quaternion math was LIFTED to dynamics/quat.py (actuation epic M0) —
+# these aliases keep every call site here byte-identical.
+from ..dynamics.quat import (qrot as _qrot, qrot_inv as _qrot_inv,  # noqa: E402
+                             quat_step as _quat_step)
 
 
 def _dominant_material(construct):
