@@ -15,7 +15,7 @@ import json
 import pathlib
 import zipfile
 
-_ZIP = pathlib.Path("D:/Aaron/datasets/shapenet/ShapeNetCore-archive/ShapeNetCore.v2.zip")
+_ZIP = pathlib.Path("D:/datasets/shapenet/ShapeNetCore-archive/ShapeNetCore.v2.zip")
 _MEMBER = "ShapeNetCore.v2/taxonomy.json"
 _OUT = (pathlib.Path(__file__).resolve().parents[1]
         / "sigma_ground" / "inventory" / "data" / "shape_aliases.json")

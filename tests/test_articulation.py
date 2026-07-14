@@ -16,7 +16,7 @@ pytest.importorskip("scipy")
 
 from sigma_ground.deckard.voxelize import voxelize, construct_from_field
 
-_PARTNET = r"D:/Aaron/datasets/shapenet/PartNet/data_v0/44164"
+_PARTNET = r"D:/datasets/shapenet/PartNet/data_v0/44164"
 _HAS_CHAIR = os.path.isdir(_PARTNET)
 
 

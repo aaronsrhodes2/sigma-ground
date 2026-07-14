@@ -7,7 +7,7 @@ categories (selective per-UID download, not the 47k bulk), and — ToU doctrine 
 record every object's license in a ledger CSV: Sketchfab licenses vary PER MODEL
 (mostly CC-BY family), so provenance is per-object, never per-dataset.
 
-Raw GLBs land under D:/Aaron/datasets/objaverse/ (local only, gitignored).
+Raw GLBs land under D:/datasets/objaverse/ (local only, gitignored).
 The ledger (a distilled provenance aggregate) is the committable artifact.
 
 Run:  python tools/fetch_objaverse_lvis.py            # survey + ledger + download
@@ -17,7 +17,7 @@ import csv
 import os
 import sys
 
-_DEST = "D:/Aaron/datasets/objaverse"
+_DEST = "D:/datasets/objaverse"
 _LEDGER = os.path.join(os.path.dirname(__file__), "..", "sigma_ground",
                        "inventory", "data", "objaverse_ledger.csv")
 

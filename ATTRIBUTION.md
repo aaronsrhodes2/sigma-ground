@@ -232,7 +232,8 @@ dependencies**. These libraries are used only in optional research scripts.
 |--------|-----------|----------|--------|
 | **Planck 2018** (ESA) | Ω_b h² = 0.02237, Ω_c h² = 0.1200, n_s = 0.9649, H₀ = 67.4 km/s/Mpc, T_CMB = 2.7255 K | Planck Collaboration VI (2020), A&A 641, A6 | Hardcoded — foundational to ξ, γ, η |
 | **CODATA 2018** / 2019 SI | c, h, e, k_B, N_A, m_e, ε₀, G | NIST SP 961 | Hardcoded — exact by definition |
-| **PDG 2024** (Particle Data Group) | Quark masses (u, d, c, b, t), lepton masses, gauge boson masses, Λ_QCD | Phys. Rev. D 110, 030001 | Hardcoded |
+| **PDG 2024** (Particle Data Group) | Quark masses (u, d, c, b, t), lepton masses, gauge boson masses, Λ_QCD | Phys. Rev. D 110, 030001 | Hardcoded in `inventory/core/constants.py` + `inventory/models/quark.py` (two copies — drift risk, flagged) |
+| **PDG 2026** (Particle Data Group) | Same particles, current edition — machine-readable snapshot | pdg.lbl.gov, via `pip install pdg` | Vendored: `inventory/data/particle_masses.json` (`tools/distill_pdg.py`, raw SQLite at `D:/datasets/pdg/`). Measurably differs from the PDG-2024 hardcoded values above (e.g. down quark 4.67→4.70 MeV, top 172500→172603.6 MeV) — **not yet reconciled into constants.py**, a deliberate pause pending review since `Proton`/`Neutron.qcd_binding_energy_mev` are hardcoded literals derived from the OLD down-quark value |
 | **AME2020** (IAEA) | Isotope atomic masses, binding energies for all known nuclides | Chin. Phys. C 45, 030003 (2021) | Active fetch via `--refresh` |
 | **NIST ASD** | Element properties, ionization energies, electron configurations | NIST Atomic Spectra Database v5 | Hardcoded |
 | **Hofstadter (1956)** | Nuclear charge radius r₀ = 1.215 fm | Rev. Mod. Phys. 28, 214 | Hardcoded |

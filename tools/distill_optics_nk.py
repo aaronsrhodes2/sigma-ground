@@ -20,7 +20,7 @@ import os
 
 import yaml
 
-_DB = "D:/Aaron/datasets/optics/refractiveindex.info-database/database/data"
+_DB = "D:/datasets/optics/refractiveindex.info-database/database/data"
 _OUT = os.path.join(os.path.dirname(__file__), "..", "sigma_ground",
                     "inventory", "data", "optics_nk.json")
 _WAVELENGTHS_NM = (650.0, 550.0, 450.0)

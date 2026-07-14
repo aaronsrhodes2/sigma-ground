@@ -127,6 +127,16 @@ def _check_not_yet_available(*_a, **_kw):
     return None                                            # PartNet-Mobility: awaiting account
 
 
+def _check_pypi_version(package: str):
+    """Latest release version string from PyPI's JSON API (metadata only —
+    the 'pdg' package ships a new edition's bundled SQLite as a new release,
+    so a version bump IS the freshness signal; no bulk download to check)."""
+    data = get_json_with_backoff(f"https://pypi.org/pypi/{package}/json")
+    if not data:
+        return None
+    return (data.get("info") or {}).get("version")
+
+
 # ── sync actions — invoke the EXISTING tool as a subprocess; never re-implement it ──
 def _sync_tool(module_or_script: str, *, timeout: float = 1800.0) -> tuple[bool, str]:
     script = str(_TOOLS / module_or_script)
@@ -211,6 +221,12 @@ SOURCES = [
           _check_not_yet_available,
           "awaiting account approval — justify-the-connection cadence once live",
           _sync_not_yet_available),
+    Source("pdg_particle_masses", "pdg.lbl.gov (Particle Data Group, via PyPI 'pdg' package)", 365,
+          "PDG data — freely usable with citation (Review of Particle Physics)",
+          lambda: _check_pypi_version("pdg"),
+          "PyPI JSON API latest version (a new edition ships as a new 'pdg' "
+          "release, bundling that edition's SQLite)",
+          lambda: _sync_tool("distill_pdg.py")),
 ]
 
 CADENCE_RATIONALE = (

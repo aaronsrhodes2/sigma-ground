@@ -4,7 +4,7 @@ TPSX (tpsx.arc.nasa.gov) publishes thermal-protection material property sheets
 as server-rendered pages, one per Material?id=N — each a proper cited table
 (Property / Value / Units / Uncertainty / Source / Reference). US-government
 work, freely retrievable. No list API exists, so we sweep ids politely
-(1 request/s, raw HTML cached under D:/Aaron/datasets/tpsx/ so a re-run costs
+(1 request/s, raw HTML cached under D:/datasets/tpsx/ so a re-run costs
 nothing) and stop after a run of consecutive misses.
 
 Distilled output: sigma_ground/inventory/data/tpsx_materials.json — per
@@ -21,7 +21,7 @@ import time
 import urllib.request
 
 _BASE = "https://tpsx.arc.nasa.gov/Material?id="
-_CACHE = "D:/Aaron/datasets/tpsx"
+_CACHE = "D:/datasets/tpsx"
 _OUT = os.path.join(os.path.dirname(__file__), "..", "sigma_ground",
                     "inventory", "data", "tpsx_materials.json")
 _MISS_RUN_STOP = 40                      # consecutive empty ids → end of catalog

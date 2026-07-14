@@ -13,7 +13,7 @@ from __future__ import annotations
 import pathlib
 
 _ENV = pathlib.Path("D:/Aaron/development/.env")
-_DEST = pathlib.Path("D:/Aaron/datasets/shapenet")
+_DEST = pathlib.Path("D:/datasets/shapenet")
 
 # (repo, filename) in download priority order; None filename = whole repo snapshot
 _FILES = [

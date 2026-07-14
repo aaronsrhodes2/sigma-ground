@@ -24,7 +24,7 @@ from __future__ import annotations
 import json
 import pathlib
 
-_DATA = pathlib.Path("D:/Aaron/datasets/shapenet/PartNet/data_v0")
+_DATA = pathlib.Path("D:/datasets/shapenet/PartNet/data_v0")
 
 # grouping-noise labels that are wrappers, not parts
 _NOISE = {"containing_things", "other", "others", "other_leaf", ""}

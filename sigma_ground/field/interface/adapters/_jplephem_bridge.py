@@ -13,7 +13,10 @@ from pathlib import Path
 import numpy as np
 
 _KERNEL_CACHE: dict = {}
-_KERNEL_DIR   = Path.home() / ".materia" / "ephemeris"
+# Golden rule: external-provider datasets live under D:/datasets/, not a
+# per-user profile directory -- a fresh machine/clone can find every kernel
+# in one place instead of each project re-fetching to its own cache.
+_KERNEL_DIR   = Path("D:/datasets/jpl")
 
 # NAIF body codes for JPL DE440
 _NAIF_CODES: dict[str, int] = {

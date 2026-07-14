@@ -13,7 +13,7 @@ from __future__ import annotations
 import pathlib
 
 # The locally-extracted PartNet data (per tools/distill_partnet.py).
-_DATA = pathlib.Path("D:/Aaron/datasets/shapenet/PartNet/data_v0")
+_DATA = pathlib.Path("D:/datasets/shapenet/PartNet/data_v0")
 
 
 def data_available(anno_id=None) -> bool:

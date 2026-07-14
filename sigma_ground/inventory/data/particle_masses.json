@@ -1,0 +1,122 @@
+{
+  "_source": "Particle Data Group (PDG), Review of Particle Physics",
+  "_source_url": "https://pdg.lbl.gov/",
+  "_edition": "2026",
+  "_license_note": "PDG data -- freely usable with citation; see https://pdg.lbl.gov/2025/reviews/rpp2024-rev-intro.pdf \u00a7 'Citing the Review'",
+  "_units": "MeV/c^2 (mass, mass_error_positive, mass_error_negative)",
+  "_note": "Quark masses are MS-bar current (Lagrangian) masses, NOT constituent (QCD-dressed) masses -- matches the 'bare_mass_mev' field in inventory/models/quark.py.",
+  "particles": {
+    "up": {
+      "category": "quark",
+      "pdg_name": "u",
+      "pdgid": "Q002/2026",
+      "mass_mev": 2.16,
+      "mass_error_positive_mev": 0.07,
+      "mass_error_negative_mev": 0.07
+    },
+    "down": {
+      "category": "quark",
+      "pdg_name": "d",
+      "pdgid": "Q001/2026",
+      "mass_mev": 4.7,
+      "mass_error_positive_mev": 0.07,
+      "mass_error_negative_mev": 0.07
+    },
+    "strange": {
+      "category": "quark",
+      "pdg_name": "s",
+      "pdgid": "Q003/2026",
+      "mass_mev": 92.9,
+      "mass_error_positive_mev": 0.7,
+      "mass_error_negative_mev": 0.7
+    },
+    "charm": {
+      "category": "quark",
+      "pdg_name": "c",
+      "pdgid": "Q004/2026",
+      "mass_mev": 1272.8999999999999,
+      "mass_error_positive_mev": 4.5,
+      "mass_error_negative_mev": 4.5
+    },
+    "bottom": {
+      "category": "quark",
+      "pdg_name": "b",
+      "pdgid": "Q005/2026",
+      "mass_mev": 4186.0,
+      "mass_error_positive_mev": 6.0,
+      "mass_error_negative_mev": 6.0
+    },
+    "top": {
+      "category": "quark",
+      "pdg_name": "t",
+      "pdgid": "Q007/2026",
+      "mass_mev": 172603.5595874743,
+      "mass_error_positive_mev": 271.3750020275726,
+      "mass_error_negative_mev": 273.04780674185605
+    },
+    "electron": {
+      "category": "lepton",
+      "pdg_name": "e-",
+      "pdgid": "S003/2026",
+      "mass_mev": 0.51099895069,
+      "mass_error_positive_mev": 1.6e-10,
+      "mass_error_negative_mev": 1.6e-10
+    },
+    "muon": {
+      "category": "lepton",
+      "pdg_name": "mu-",
+      "pdgid": "S004/2026",
+      "mass_mev": 105.6583755,
+      "mass_error_positive_mev": 2.3e-06,
+      "mass_error_negative_mev": 2.3e-06
+    },
+    "tau": {
+      "category": "lepton",
+      "pdg_name": "tau-",
+      "pdgid": "S035/2026",
+      "mass_mev": 1776.93246513409,
+      "mass_error_positive_mev": 0.08491495391323055,
+      "mass_error_negative_mev": 0.08758019173411406
+    },
+    "W_boson": {
+      "category": "boson",
+      "pdg_name": "W+",
+      "pdgid": "S043/2026",
+      "mass_mev": 80362.5,
+      "mass_error_positive_mev": 7.7,
+      "mass_error_negative_mev": 7.7
+    },
+    "Z_boson": {
+      "category": "boson",
+      "pdg_name": "Z0",
+      "pdgid": "S044/2026",
+      "mass_mev": 91187.87329722135,
+      "mass_error_positive_mev": 1.96689903262915,
+      "mass_error_negative_mev": 1.96689903262915
+    },
+    "Higgs": {
+      "category": "boson",
+      "pdg_name": "H",
+      "pdgid": "S126/2026",
+      "mass_mev": 125130.9438281615,
+      "mass_error_positive_mev": 111.721447765488,
+      "mass_error_negative_mev": 111.721447765488
+    },
+    "proton": {
+      "category": "nucleon",
+      "pdg_name": "p",
+      "pdgid": "S016/2026",
+      "mass_mev": 938.27208943,
+      "mass_error_positive_mev": 2.9e-07,
+      "mass_error_negative_mev": 2.9e-07
+    },
+    "neutron": {
+      "category": "nucleon",
+      "pdg_name": "n",
+      "pdgid": "S017/2026",
+      "mass_mev": 939.56542194,
+      "mass_error_positive_mev": 4.8e-07,
+      "mass_error_negative_mev": 4.8e-07
+    }
+  }
+}

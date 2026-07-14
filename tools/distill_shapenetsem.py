@@ -41,7 +41,7 @@ import sys
 _REPO = "datasets/ShapeNet/ShapeNetSem-archive"
 _ZIP = "ShapeNetSem.zip"
 _ENV = pathlib.Path("D:/Aaron/development/.env")
-_RAW_DIR = pathlib.Path("D:/Aaron/datasets/shapenetsem")      # outside any git repo
+_RAW_DIR = pathlib.Path("D:/datasets/shapenetsem")      # outside any git repo
 _OUT = (pathlib.Path(__file__).resolve().parents[1]
         / "sigma_ground" / "inventory" / "data" / "shapenetsem_sizes.json")
 

@@ -13,13 +13,13 @@ sidestepping our fragile per-part-fill workaround entirely for these objects.
 We extract .obj (+ .mtl + texture images) AND .solid.binvox per sampled model.
 
 Source: the per-synset zips already on disk at
-D:/Aaron/datasets/shapenet/ShapeNetCore/<synsetId>.zip (smaller/faster than
+D:/datasets/shapenet/ShapeNetCore/<synsetId>.zip (smaller/faster than
 opening the full ShapeNetCore.v2.zip). Selective two-phase extraction (S1.1
 pattern): list members first, then extract only a bounded SAMPLE of models
 per synset (not the full ~500-4000 instances) — kept small deliberately;
 this is shape-breadth seeding, not a bulk pull.
 
-Output: models land under D:/Aaron/datasets/shapenet/ShapeNetCore/<synsetId>/
+Output: models land under D:/datasets/shapenet/ShapeNetCore/<synsetId>/
 (local, gitignored). A census JSON (synset -> name -> sampled model ids ->
 member counts) is the committable distilled artifact.
 
@@ -29,7 +29,7 @@ import json
 import os
 import zipfile
 
-_ROOT = "D:/Aaron/datasets/shapenet/ShapeNetCore"
+_ROOT = "D:/datasets/shapenet/ShapeNetCore"
 _OUT = os.path.join(os.path.dirname(__file__), "..", "sigma_ground",
                     "inventory", "data", "shapenetcore_synset_census.json")
 

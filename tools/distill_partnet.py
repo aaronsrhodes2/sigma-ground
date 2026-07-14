@@ -8,7 +8,7 @@ Two data tiers, two subcommands plus helpers:
               anno_ids) from the locally extracted data_v0 JSONs and write a
               7-Zip listfile for extracting just those models' objs/ meshes.
   geometry  — the real shaping prior, from the locally extracted gated data
-              (D:/Aaron/datasets/shapenet/PartNet/data_v0): per category and
+              (D:/datasets/shapenet/PartNet/data_v0): per category and
               part label, aggregate over models —
                 freq      fraction of models containing the part   (ALL models)
                 count     median instances per containing model    (ALL models)
@@ -45,7 +45,7 @@ _RAW = ("https://raw.githubusercontent.com/daerduoCarey/partnet_dataset/master/"
         "stats/after_merging_label_ids/{cat}-level-1.txt")
 _OUT = (pathlib.Path(__file__).resolve().parents[1]
         / "sigma_ground" / "inventory" / "data" / "compositions.json")
-_DATA = pathlib.Path("D:/Aaron/datasets/shapenet/PartNet/data_v0")
+_DATA = pathlib.Path("D:/datasets/shapenet/PartNet/data_v0")
 _LISTFILE = _DATA.parent / "objs_sample.txt"
 
 _N_SAMPLE = 150            # geometry models per category (deterministic stride)
@@ -479,7 +479,7 @@ def cmd_exemplar() -> None:
     runners-up are ``{name}__{anno_id}.json`` (same category → one pool).
     Optional argv: category name(s) to (re)distill only those (faster)."""
     only = {a.strip().lower() for a in sys.argv[2:]}
-    K = 4                                              # real models kept per category
+    K = 8                                              # real models kept per category
     try:
         census = {e["object"]: e for e in json.loads(_OUT.read_text(encoding="utf-8"))}
     except Exception:

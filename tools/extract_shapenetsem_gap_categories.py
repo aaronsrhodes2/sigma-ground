@@ -37,10 +37,10 @@ import json
 import os
 import zipfile
 
-_META = "D:/Aaron/datasets/shapenetsem/metadata.csv"
-_ZIP = "D:/Aaron/datasets/shapenet/ShapeNetSem-archive/ShapeNetSem.zip"
+_META = "D:/datasets/shapenetsem/metadata.csv"
+_ZIP = "D:/datasets/shapenet/ShapeNetSem-archive/ShapeNetSem.zip"
 _ZIP_PREFIX = "ShapeNetSem-backup/"
-_DEST = "D:/Aaron/datasets/shapenetsem/gap_categories"
+_DEST = "D:/datasets/shapenetsem/gap_categories"
 _OUT = os.path.join(os.path.dirname(__file__), "..", "sigma_ground",
                     "inventory", "data", "shapenetsem_gap_models.json")
 

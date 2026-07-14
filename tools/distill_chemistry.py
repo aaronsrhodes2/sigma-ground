@@ -1,6 +1,6 @@
 """Distill the chemistry datasets into cited JSON aggregates.
 
-Three public-domain / open sources fetched to D:/Aaron/datasets/chemistry/:
+Three public-domain / open sources fetched to D:/datasets/chemistry/:
 
   nist_atomic_weights.txt — NIST "Atomic Weights and Isotopic Compositions"
       (linearized blocks inside the CGI page): per-isotope relative atomic mass
@@ -25,7 +25,7 @@ import json
 import os
 import re
 
-_SRC = "D:/Aaron/datasets/chemistry"
+_SRC = "D:/datasets/chemistry"
 _OUT = os.path.join(os.path.dirname(__file__), "..", "sigma_ground",
                     "inventory", "data")
 _R = 8.31446261815324          # J/(mol K), CODATA exact-adjacent
