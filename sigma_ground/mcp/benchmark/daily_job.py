@@ -312,8 +312,25 @@ def catalog_failures(questions: list[dict], ground_truth: dict,
 
     library_gaps: list[dict] = []
     discoverability: list[dict] = []
+    wrong_value_right_tool: list[dict] = []
+    silent_non_response: list[dict] = []
     wolfram_phrasing: list[dict] = []
     gemini_halluc: list[dict] = []
+
+    # Dict keys the 13 fast-path regex classifiers in run_sigma_ground.py
+    # stash their tool choice under -- they bypass tool_calls entirely
+    # (elapsed_s~0.1s, turns=0) but DO record which tool answered. Without
+    # folding these in, every classifier-path answer looks like "no tool
+    # called" and gets mislabeled a discoverability gap even when the real
+    # defect is a wrong value or a ground-truth bug. refusal/conversion hits
+    # aren't a tool NAME (they're a type string / True), so they're excluded.
+    _CLASSIFIER_HIT_KEYS = (
+        "frontier_router_hit", "new_tools_router_hit", "gr_classifier_hit",
+        "cosmology_classifier_hit", "math_classifier_hit",
+        "thermo_classifier_hit", "modern_classifier_hit",
+        "optics_classifier_hit", "astro_classifier_hit",
+        "classical_intro_hit",
+    )
 
     for qid, q in qmap.items():
         truth = ground_truth.get(qid)
@@ -340,6 +357,10 @@ def catalog_failures(questions: list[dict], ground_truth: dict,
                 tcs = sg.get("tool_calls", []) or []
                 expected_tool = q.get("primary_tool_expected")
                 tool_names = [tc.get("name") for tc in tcs]
+                for k in _CLASSIFIER_HIT_KEYS:
+                    v = sg.get(k)
+                    if v:
+                        tool_names.append(v)
                 if expected_tool and expected_tool not in tool_names:
                     discoverability.append({
                         "id": qid, "domain": q.get("domain"),
@@ -347,13 +368,42 @@ def catalog_failures(questions: list[dict], ground_truth: dict,
                         "expected_tool": expected_tool,
                         "tools_qwen_tried": list(dict.fromkeys(tool_names))[:5],
                     })
+                elif expected_tool:
+                    # right tool, wrong final value -- e.g. a unit/reference-
+                    # point bug, or a tool-call loop that never converges
+                    wrong_value_right_tool.append({
+                        "id": qid, "domain": q.get("domain"),
+                        "question": q["question"],
+                        "expected": truth.get("expected_value"),
+                        "sigma_ground_extracted": sg_val,
+                        "tool_used": expected_tool,
+                    })
+        elif sg_val is None:
+            # zero tool calls, no classifier hit, no final text -- Qwen
+            # refused to engage even after the harness's nudges. Invisible
+            # to every other bucket until now (falls through the `elif
+            # sg_val is not None` above by construction).
+            silent_non_response.append({
+                "id": qid, "domain": q.get("domain"),
+                "question": q["question"],
+                "expected_tool": q.get("primary_tool_expected"),
+                "turns": sg.get("turns"),
+                "nudges_sent": sg.get("nudges_sent"),
+                "answer_text": sg_ans[:120],
+            })
 
-        # Wolfram analysis
-        if wf.get("extracted_value") is None and wf.get("answer_text"):
+        # Wolfram analysis -- a question with NO Wolfram record at all (never
+        # attempted, e.g. cut off by the daily pace cap) is `wf == {}`, same
+        # symptom as one that was attempted and returned no parseable value:
+        # both mean "no Wolfram answer we can score." The prior truthy-
+        # answer_text requirement only caught the second case, hiding every
+        # never-attempted question from the phrasing backlog.
+        if wf.get("extracted_value") is None:
             wolfram_phrasing.append({
                 "id": qid, "domain": q.get("domain"),
                 "question": q["question"],
-                "wolfram_variants_tried": wf.get("wolfram_variants_tried", 1),
+                "wolfram_variants_tried": wf.get("wolfram_variants_tried", 0),
+                "attempted": bool(wf),
             })
 
         # Gemini analysis: only count CONFIDENT wrong (had a value, was wrong)
@@ -372,6 +422,8 @@ def catalog_failures(questions: list[dict], ground_truth: dict,
     section: list[str] = [f"## {today}", ""]
     section.append(f"- LIBRARY GAP count:        {len(library_gaps)}")
     section.append(f"- DISCOVERABILITY GAP count: {len(discoverability)}")
+    section.append(f"- WRONG VALUE (right tool) count: {len(wrong_value_right_tool)}")
+    section.append(f"- SILENT NON-RESPONSE count: {len(silent_non_response)}")
     section.append(f"- WOLFRAM PHRASING count:    {len(wolfram_phrasing)}")
     section.append(f"- GEMINI HALLUCINATION count:{len(gemini_halluc)}")
     section.append("")
@@ -392,6 +444,27 @@ def catalog_failures(questions: list[dict], ground_truth: dict,
             section.append(f"    expected: `{g['expected_tool']}` ; Qwen tried: {g['tools_qwen_tried']}")
         if len(discoverability) > 20:
             section.append(f"- ... +{len(discoverability) - 20} more")
+        section.append("")
+
+    if wrong_value_right_tool:
+        section.append("### WRONG VALUE (right tool called) — units/loop/formula bug")
+        for g in wrong_value_right_tool[:20]:
+            section.append(f"- `{g['id']}` ({g['domain']}): {g['question'][:90]}")
+            section.append(f"    tool: `{g['tool_used']}` ; expected {g['expected']}, "
+                              f"got {g['sigma_ground_extracted']}")
+        if len(wrong_value_right_tool) > 20:
+            section.append(f"- ... +{len(wrong_value_right_tool) - 20} more")
+        section.append("")
+
+    if silent_non_response:
+        section.append("### SILENT NON-RESPONSE — Qwen made no tool call, no answer text")
+        for g in silent_non_response[:20]:
+            section.append(f"- `{g['id']}` ({g['domain']}): {g['question'][:90]}")
+            section.append(f"    expected tool: `{g['expected_tool']}` ; "
+                              f"turns={g['turns']} nudges={g['nudges_sent']} "
+                              f"said: {g['answer_text']!r}")
+        if len(silent_non_response) > 20:
+            section.append(f"- ... +{len(silent_non_response) - 20} more")
         section.append("")
 
     if wolfram_phrasing:
@@ -422,6 +495,8 @@ def catalog_failures(questions: list[dict], ground_truth: dict,
     return {
         "library_gaps": len(library_gaps),
         "discoverability": len(discoverability),
+        "wrong_value_right_tool": len(wrong_value_right_tool),
+        "silent_non_response": len(silent_non_response),
         "wolfram_phrasing": len(wolfram_phrasing),
         "gemini_halluc": len(gemini_halluc),
     }
