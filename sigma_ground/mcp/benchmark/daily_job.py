@@ -178,11 +178,19 @@ def _ids_needing_query(run_records: list[dict], all_qids: list[str]) -> list[str
 
 def run_wolfram_step(questions: list[dict], existing_records: list[dict],
                        app_id: str, pace_per_day: int, pause_s: float,
-                       output_path: Path) -> dict:
-    """Query Wolfram for unanswered questions, with reformulation."""
+                       output_path: Path, sg_records: list[dict] | None = None) -> dict:
+    """Query Wolfram for unanswered questions, with reformulation.
+
+    `sg_records` (this corpus's own sigma_ground run, if available) feeds
+    the tool-call-synthesis phrasing variant -- see wolfram_phrasing.py.
+    Optional so callers that only care about the Wolfram side (e.g.
+    run_wolfram.py standalone) can omit it; synthesis is then just skipped.
+    """
     from sigma_ground.mcp.benchmark.run_wolfram import _query_wolfram_raw, _extract_value
+    from sigma_ground.mcp.benchmark.wolfram_phrasing import phrasing_variants
     all_qids = [q["id"] for q in questions]
     by_id = {q["id"]: q for q in questions}
+    sg_by_id = {r["id"]: r for r in (sg_records or [])}
     needed = _ids_needing_query(existing_records, all_qids)
     print(f"  [Wolfram] {len(needed)} unanswered; will attempt up to "
           f"{pace_per_day} today")
@@ -195,7 +203,7 @@ def run_wolfram_step(questions: list[dict], existing_records: list[dict],
             print(f"  [Wolfram] daily cap {pace_per_day} reached; stopping")
             break
         q = by_id[qid]
-        variants = reformulate_for_wolfram(q["question"])
+        variants = phrasing_variants(q["question"], qid, sg_by_id.get(qid))
         success = False
         for variant_idx, variant in enumerate(variants):
             try:
@@ -356,7 +364,11 @@ def catalog_failures(questions: list[dict], ground_truth: dict,
             if not correct:
                 tcs = sg.get("tool_calls", []) or []
                 expected_tool = q.get("primary_tool_expected")
-                tool_names = [tc.get("name") for tc in tcs]
+                # tool_calls entries are USUALLY {"name":..., "args":...}
+                # dicts, but some fast-path recording sites store the bare
+                # tool-name string instead -- accept both shapes.
+                tool_names = [tc.get("name") if isinstance(tc, dict) else tc
+                             for tc in tcs]
                 for k in _CLASSIFIER_HIT_KEYS:
                     v = sg.get(k)
                     if v:
@@ -558,6 +570,11 @@ def main() -> int:
     print(f"\n=== Daily job: corpus={args.corpus} ({len(questions)} questions) ===")
     print(f"  plan file: {plan_path}")
 
+    # Loaded early (not just at Step 4) so the Wolfram step's tool-call-
+    # synthesis phrasing variant can use sigma_ground's own successful
+    # tool calls -- see wolfram_phrasing.py.
+    sg_records_for_wolfram = _load_run(sg_path)
+
     # Step 1: Wolfram
     if args.skip_wolfram:
         print("  [Wolfram] skipped")
@@ -569,7 +586,7 @@ def main() -> int:
             existing = _load_run(wf_path)
             stats = run_wolfram_step(questions, existing, app_id,
                                        args.wolfram_pace, args.wolfram_pause,
-                                       wf_path)
+                                       wf_path, sg_records=sg_records_for_wolfram)
             print(f"  [Wolfram] {stats}")
 
     # Step 2: Gemini (prefer free-tier key over paid key -- the paid

@@ -1,0 +1,3 @@
+{
+  "_comment": "Per-question Wolfram-phrasing overrides, keyed by question id. Tried as the FIRST variant, ahead of the tool-call-synthesis and regex-reformulation variants -- reserved for cases where neither generalizable mechanism resolves a Wolfram parse failure. See wolfram_phrasing.py for how this is consumed."
+}

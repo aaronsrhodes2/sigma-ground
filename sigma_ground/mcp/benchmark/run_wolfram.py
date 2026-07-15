@@ -194,6 +194,13 @@ def main() -> int:
     if args.limit:
         questions = questions[:args.limit]
 
+    from sigma_ground.mcp.benchmark.wolfram_phrasing import phrasing_variants
+    sg_run_path = Path(__file__).parent / "results" / "sigma_ground_run.json"
+    sg_by_id: dict = {}
+    if sg_run_path.exists():
+        with sg_run_path.open(encoding="utf-8") as f:
+            sg_by_id = {r["id"]: r for r in json.load(f)}
+
     args.output.parent.mkdir(parents=True, exist_ok=True)
     existing: dict[str, dict] = {}
     if args.resume and args.output.exists():
@@ -216,12 +223,27 @@ def main() -> int:
                   f"Run again tomorrow to resume.")
             break
         print(f"[{i+1}/{len(questions)}] {q['id']}: {q['question'][:60]}...")
-        result = run_question(app_id, q["question"])
+        variants = phrasing_variants(q["question"], q["id"], sg_by_id.get(q["id"]))
+        result = None
+        for v_idx, variant in enumerate(variants):
+            if queries_today >= args.pace_per_day:
+                break
+            result = run_question(app_id, variant)
+            queries_today += 1
+            if result.get("extracted_value") is not None:
+                if v_idx > 0:
+                    print(f"    OK via variant {v_idx}: {variant[:60]!r}")
+                break
+            if queries_today < args.pace_per_day and v_idx < len(variants) - 1:
+                time.sleep(args.pause_s)
         rec = {"id": q["id"], "system": "wolfram", **result}
         out.append(rec)
         with args.output.open("w", encoding="utf-8") as f:
             json.dump(out, f, indent=2, default=str)
-        queries_today += 1
+        if queries_today >= args.pace_per_day:
+            print(f"\nReached daily limit of {args.pace_per_day}. "
+                  f"Run again tomorrow to resume.")
+            break
         time.sleep(args.pause_s)
     print(f"\nWrote {args.output}. Queried {queries_today} this session.")
     return 0
