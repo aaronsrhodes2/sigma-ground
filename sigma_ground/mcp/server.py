@@ -740,7 +740,11 @@ def main() -> int:
     def parallel_plate_capacitance(area_m2: float, separation_m: float,
                                      dielectric_constant: float = 1.0
                                      ) -> dict[str, Any]:
-        """C = eps_0 eps_r A / d."""
+        """C = eps_0 eps_r A / d. FORWARD direction only -- if the question
+        gives the target capacitance and asks for area/separation/
+        dielectric instead (an inverse/design problem), this tool cannot
+        solve for that; use solve_equation with '1e-6 = 8.854e-12*eps_r*A/d'
+        (numbers filled in, solve for the unknown) instead."""
         return t_circ.parallel_plate_capacitance(area_m2, separation_m,
                                                     dielectric_constant).to_dict()
 
