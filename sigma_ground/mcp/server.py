@@ -397,7 +397,10 @@ def main() -> int:
     @server.tool()
     def gravitational_potential_energy(mass_kg: float, height_m: float,
                                          g_m_s2: float = 9.80665) -> dict[str, Any]:
-        """Uniform gravity U = m g h."""
+        """Uniform gravity U = m g h. ONLY valid for height_m << planet
+        radius (a few km at most). For raising something to orbital or
+        geosynchronous altitude (thousands of km), use orbital_raise_energy
+        instead -- uniform-g is wrong there by a large factor."""
         return t_kin.gravitational_potential_energy(mass_kg, height_m,
                                                        g_m_s2).to_dict()
 
@@ -1840,6 +1843,10 @@ def main() -> int:
         rendering. e.g. wind_wave_analysis(5.0)."""
         return t_fluidsurf.wind_wave_analysis(wind_speed_m_s, temperature_k, wavelength_m)
 
+    # Run via stdio transport (standard MCP). Dropped during the E0
+    # claude/mentat-mcp merge (5ec18a3) -- the server has registered its
+    # 226 tools and returned without ever starting since then; restored.
+    server.run()
     return 0
 
 
