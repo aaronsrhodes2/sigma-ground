@@ -9,15 +9,15 @@ trace back to (a) a measurement of reality, (b) a mathematical
 derivation from such measurements, or (c) a definitional standard
 (SI unit definitions). No guesses.
 
-**Total quantities: 87**
+**Total quantities: 89**
 
 | Category | Count | Fraction |
 |---|---:|---:|
-| Measured (`[VERIFIED]`) | 50 | 57.5% |
-| Derived (`[DERIVED]`) | 30 | 34.5% |
+| Measured (`[VERIFIED]`) | 52 | 58.4% |
+| Derived (`[DERIVED]`) | 30 | 33.7% |
 | Free input (`[EMPIRICAL-INPUT]`) | 1 | 1.1% |
 | Mathematical (π, φ, e -- pure math) | 1 | 1.1% |
-| Speculative pending (`[SPECULATIVE-PENDING]`) | 4 | 4.6% |
+| Speculative pending (`[SPECULATIVE-PENDING]`) | 4 | 4.5% |
 | Rejected (`[REJECTED ...]`) | 1 | 1.1% |
 | Unclassified | 0 | 0.0% |
 
@@ -220,6 +220,8 @@ the `derived` section computes downstream of these.
 - **`K_SAT_MEV`** = `230.0` -- MeV (nuclear incompressibility)
 - **`J_SYM_MEV`** = `32.0` -- MeV (symmetry energy at saturation)
 - **`H0`** = `67.4e3 / 3.086e22` -- Hubble constant in s⁻¹ (67.4 km/s/Mpc)
+- **`OMEGA_M`** = `0.315` -- matter density fraction (baryons + CDM)
+- **`OMEGA_LAMBDA`** = `0.685` -- dark-energy density fraction (flat: 1 - Omega_m)
 - **`M_SUN_KG`** = `1.989e30` -- Solar mass
 - **`L_SUN_W`** = `3.828e26` -- Solar luminosity (W) — IAU 2015 nominal solar luminosity
 - **`AU_M`** = `1.495978707e11` -- 1 Astronomical Unit in metres (IAU 2012 exact)
