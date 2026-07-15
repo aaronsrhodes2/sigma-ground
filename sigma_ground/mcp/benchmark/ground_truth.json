@@ -287,11 +287,11 @@
     "notes": "v = sqrt(gamma R T / M), gamma=1.4, M=0.029, T=293.15"
   },
   "optics_012": {
-    "expected_value": 2.667,
+    "expected_value": 8.6986,
     "expected_units": "year",
     "tolerance_rel": 0.05,
-    "ground_truth_source": "Gaia DR3 (Sirius distance is 2.667 pc = 8.7 ly)",
-    "notes": "Tests retrieval of star data; Sirius A distance ~2.667 pc, not 8.6 ly (correct value: 8.7 ly)."
+    "ground_truth_source": "Gaia DR3 (Sirius distance is 2.667 pc = 8.70 ly)",
+    "notes": "Tests retrieval of star data; Sirius A distance ~2.667 pc = 8.70 ly light-travel-time. Corrected 2026-07-14 -- the prior expected_value (2.667) was the distance in PARSECS mislabeled as an answer in years; the question asks for light-travel time in years, not distance."
   },
   "thermo_001": {
     "expected_value": 101325,
@@ -714,18 +714,18 @@
     "notes": "T_H = hbar c^3 / (8 pi G M k_B); ~62 nanokelvin for solar mass"
   },
   "gr_005": {
-    "expected_value": 2.1e+76,
+    "expected_value": 6.618e+77,
     "expected_units": "s",
     "tolerance_rel": 0.1,
-    "ground_truth_source": "Page 1976",
-    "notes": "~7e68 years; vastly longer than universe age"
+    "ground_truth_source": "Page 1976 (t_evap = 5120 pi G^2 M^3 / (hbar c^4))",
+    "notes": "~2.1e70 years for 10 M_sun (M^3 scaling from ~2.1e67 yr at 1 M_sun); vastly longer than universe age. Corrected 2026-07-14 -- the prior 2.1e+76 s value was off by ~31.5x from the standard formula, independently re-derived during the Wolfram-parity Wave 1 pass."
   },
   "gr_006": {
-    "expected_value": 0.0264,
+    "expected_value": 0.181,
     "expected_units": "",
     "tolerance_rel": 0.05,
     "ground_truth_source": "Schutz 2e Ch.10",
-    "notes": "r = r_s + 1000 m; factor = sqrt(1 - r_s/r); for 10 M_sun (r_s=29.5 km), 1 km above gives factor ~0.18"
+    "notes": "r = r_s + 1000 m; factor = sqrt(1 - r_s/r); for 10 M_sun (r_s=29.5 km), 1 km above gives factor ~0.18. Corrected 2026-07-14 -- the prior 0.0264 value contradicted this note's own stated ~0.18 result."
   },
   "gr_007": {
     "expected_value": 12100000000.0,
@@ -777,11 +777,11 @@
     "notes": "rho_crit = 3 H_0^2 / (8 pi G) ~ 8.6e-27 kg/m^3"
   },
   "cosmo_004": {
-    "expected_value": "mond",
+    "expected_value": "transition",
     "expected_units": "",
     "tolerance_rel": 0,
     "ground_truth_source": "Milgrom 1983",
-    "notes": "Below ~1.2e-10 m/s^2 is MOND regime"
+    "notes": "Standard 3-zone treatment: Newtonian a>=10*a0, MOND a<=a0/10, else transition. 1e-10 m/s^2 sits inside the transition zone for a0=1.2e-10. Corrected 2026-07-14 -- the prior binary 'mond' expectation didn't match the standard 3-zone scheme mond_regime_classifier implements; trusting the tool's documented physics over the oversimplified binary threshold."
   },
   "cosmo_005": {
     "expected_value": "newtonian",

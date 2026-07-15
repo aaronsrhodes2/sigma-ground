@@ -133,7 +133,16 @@ def thin_lens_image_distance(object_distance_m: float,
 
 def lens_magnification(object_distance_m: float,
                          image_distance_m: float) -> ToolResult:
-    """Magnification m = -d_i / d_o. Negative = inverted image."""
+    """Magnification m = -d_i / d_o. Negative = inverted image.
+
+    Sign convention (same as thin_lens_equation): image_distance_m is
+    POSITIVE for a REAL image on the opposite side of the lens from the
+    object -- e.g. an image that forms "behind" a converging lens as light
+    exits it. It is NEGATIVE for a VIRTUAL image on the SAME side as the
+    object ("in front of" the lens). A real image behind the lens uses a
+    POSITIVE image_distance_m and correctly comes out inverted (m<0) --
+    do not negate image_distance_m just because the question says "behind".
+    """
     if object_distance_m == 0:
         return ToolResult(value=None, source="invalid input",
                            inputs={"object_distance_m": object_distance_m,

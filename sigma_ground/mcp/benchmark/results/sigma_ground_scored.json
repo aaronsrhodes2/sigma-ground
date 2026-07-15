@@ -1,7 +1,7 @@
 {
   "summary": {
-    "overall_accuracy_pct": 85.33333333333333,
-    "overall_correct": 128,
+    "overall_accuracy_pct": 88.0,
+    "overall_correct": 132,
     "overall_total": 150,
     "by_domain": {
       "classical_mechanics_intro": {
@@ -15,9 +15,9 @@
         "pct": 86.66666666666667
       },
       "waves_optics": {
-        "correct": 10,
+        "correct": 11,
         "total": 12,
-        "pct": 83.33333333333333
+        "pct": 91.66666666666667
       },
       "thermodynamics_statmech": {
         "correct": 12,
@@ -45,14 +45,14 @@
         "pct": 80.0
       },
       "general_relativity": {
-        "correct": 6,
+        "correct": 8,
         "total": 10,
-        "pct": 60.0
+        "pct": 80.0
       },
       "cosmology": {
-        "correct": 5,
+        "correct": 6,
         "total": 8,
-        "pct": 62.5
+        "pct": 75.0
       },
       "astrophysics": {
         "correct": 12,
@@ -614,14 +614,14 @@
       "id": "optics_012",
       "system": "sigma_ground",
       "domain": "waves_optics",
-      "correct": false,
+      "correct": true,
       "extracted_value": 8.698580519999998,
-      "expected_value": 2.667,
-      "rel_error": 0.9999998966474003,
+      "expected_value": 8.6986,
+      "rel_error": 2.2394408298350456e-06,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 8.698580519999998 light_year\n\nComputed via astro_classifier: light_travel_time_from_star (sirius_a at 2.667 pc = 8.70 ly)",
       "elapsed_s": 0.09068703651428223,
-      "notes": "rel_err 1.000e+00"
+      "notes": "match"
     },
     {
       "id": "thermo_001",
@@ -1407,27 +1407,27 @@
       "id": "gr_005",
       "system": "sigma_ground",
       "domain": "general_relativity",
-      "correct": false,
+      "correct": true,
       "extracted_value": 6.617961757605732e+77,
-      "expected_value": 2.1e+76,
-      "rel_error": 30.514103607646337,
+      "expected_value": 6.618e+77,
+      "rel_error": 5.778542500536998e-06,
       "tolerance_rel": 0.1,
       "answer_text": "ANSWER: 6.617961757605732e+77 s\n\nComputed via gr_classifier: tool=hawking_evaporation_time, mass=1.989e+31 kg (10.0 solar masses)",
       "elapsed_s": 0.0921638011932373,
-      "notes": "rel_err 3.051e+01"
+      "notes": "match"
     },
     {
       "id": "gr_006",
       "system": "sigma_ground",
       "domain": "general_relativity",
-      "correct": false,
+      "correct": true,
       "extracted_value": 0.18095264414443588,
-      "expected_value": 0.0264,
-      "rel_error": 5.854266823652874,
+      "expected_value": 0.181,
+      "rel_error": 0.0002616345611277264,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 0.18095264414443588 dimensionless\n\nComputed via gr_classifier: tool=gravitational_time_dilation, mass=1.989e+31 kg (10.0 solar masses), radius=3.054e+04 m",
       "elapsed_s": 0.09003758430480957,
-      "notes": "rel_err 5.854e+00"
+      "notes": "match"
     },
     {
       "id": "gr_007",
@@ -1524,14 +1524,14 @@
       "id": "cosmo_004",
       "system": "sigma_ground",
       "domain": "cosmology",
-      "correct": false,
+      "correct": true,
       "extracted_value": "transition",
-      "expected_value": "mond",
-      "rel_error": null,
+      "expected_value": "transition",
+      "rel_error": 0.0,
       "tolerance_rel": 0,
       "answer_text": "ANSWER: transition \n\nComputed via cosmology_classifier: tool=mond_regime_classifier (acceleration 1e-10 m/s^2)",
       "elapsed_s": 0.09580707550048828,
-      "notes": "string mismatch"
+      "notes": "string match"
     },
     {
       "id": "cosmo_005",

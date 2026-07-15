@@ -93,7 +93,7 @@ def classify_for_astro(question: str) -> AstroMatch | None:
                         args={"star_name": star},
                         rationale=f"{star} at {pc} pc = {years:.2f} ly",
                         result_override=years,
-                        result_units="light_year",
+                        result_units="year",  # a TIME duration, not a length
                     )
 
     # ── Star property: 'X's luminosity / mass / distance' ──

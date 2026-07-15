@@ -1,7 +1,7 @@
 {
   "summary": {
-    "overall_accuracy_pct": 60.0,
-    "overall_correct": 90,
+    "overall_accuracy_pct": 61.333333333333336,
+    "overall_correct": 92,
     "overall_total": 150,
     "by_domain": {
       "classical_mechanics_intro": {
@@ -15,9 +15,9 @@
         "pct": 80.0
       },
       "waves_optics": {
-        "correct": 9,
+        "correct": 10,
         "total": 12,
-        "pct": 75.0
+        "pct": 83.33333333333333
       },
       "thermodynamics_statmech": {
         "correct": 7,
@@ -45,9 +45,9 @@
         "pct": 80.0
       },
       "general_relativity": {
-        "correct": 4,
+        "correct": 5,
         "total": 10,
-        "pct": 40.0
+        "pct": 50.0
       },
       "cosmology": {
         "correct": 2,
@@ -614,14 +614,14 @@
       "id": "optics_012",
       "system": "gemini",
       "domain": "waves_optics",
-      "correct": false,
+      "correct": true,
       "extracted_value": 8.6,
-      "expected_value": 2.667,
-      "rel_error": 0.9999998978186896,
+      "expected_value": 8.6986,
+      "rel_error": 0.01133515738164775,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 8.6 years",
       "elapsed_s": 1.5064973831176758,
-      "notes": "rel_err 1.000e+00"
+      "notes": "match"
     },
     {
       "id": "thermo_001",
@@ -1409,7 +1409,7 @@
       "domain": "general_relativity",
       "correct": false,
       "extracted_value": 6.62,
-      "expected_value": 2.1e+76,
+      "expected_value": 6.618e+77,
       "rel_error": 1.0,
       "tolerance_rel": 0.1,
       "answer_text": "ANSWER: 6.62 x 10^77 s\n\nTo calculate the time it would take a black hole to evaporate via Hawking radiation, we use the formula for a black hole's lifetime:\n\n$t = \\frac{5120 \\pi G^2 M^3}{\\hbar c^4}$\n\nWhere:\n*   $t$ is the evaporation time\n*   $G$ is the gravitational constant ($6.67430 \\times 10^{-11} \\text{ m}^3 \\text{ kg}^{-1} \\text{ s}^{-2}$)\n*   $M$ is the mass of the black hole\n*   $\\hbar$ is the reduced Planck constant ($1.054571817 \\times 10^{-34} \\text{ J s}$)\n*   $c$ is the speed of light ($2.99792458 \\times 10^8 \\text{ m s}^{-1}$)\n*   $\\pi \\approx 3.14159$\n\nGiven:\n*   Mass of the black hole $M = 10$ solar masses.\n*   One solar mass $M_{\\odot} = 1.98847 \\times 10^{30} \\text{ kg}$.\n*   So, $M = 10 \\times 1.98847 \\times 10^{30} \\text{ kg} = 1.98847 \\times 10^{31} \\text{ kg}$.\n\nNow, we calculate $M^3$:\n$M^3 = (1.98847 \\times 10^{31} \\text{ kg})^3 = 7.86590 \\times 10^{93} \\text{ kg}^3$\n\nNext, we calculate the constant factor $\\frac{5120 \\pi G^2}{\\hbar c^4}$:\nNumerator: $5120 \\times \\pi \\times G^2 = 5120 \\times 3.14159265 \\times (6.67430 \\times 10^{-11})^2$\n$= 5120 \\times 3.14159265 \\times 4.45463 \\times 10^{-21} = 7.164997 \\times 10^{-17} \\text{ m}^6 \\text{ kg}^{-2} \\text{ s}^{-4}$\n\nDenominator: $\\hbar c^4 = (1.054571817 \\times 10^{-34} \\text{ J s}) \\times (2.99792458 \\times 10^8 \\text{ m s}^{-1})^4$\n$= 1.054571817 \\times 10^{-34} \\times 8.08242 \\times 10^{33} = 8.52536 \\times 10^{-1} \\text{ kg m}^6 \\text{ s}^{-5}$\n\nThe constant factor is $\\frac{7.164997 \\times 10^{-17}}{8.52536 \\times 10^{-1}} = 8.40411 \\times 10^{-17} \\text{ s/kg}^3$.\n\nFinally, multiply by $M^3$:\n$t = (8.40411 \\times 10^{-17} \\text{ s/kg}^3) \\times (7.86590 \\times 10^{93} \\text{ kg}^3)$\n$t = (8.40411 \\times 7.86590) \\times 10^{(-17+93)} \\text{ s}$\n$t = 66.0790 \\times 10^{76} \\text{ s}$\n$t = 6.60790 \\times 10^{77} \\text{ s}$\n\nRounding to two decimal places for the leading coefficient:\n$t \\approx 6.61 \\times 10^{77} \\text{ s}$",
@@ -1420,14 +1420,14 @@
       "id": "gr_006",
       "system": "gemini",
       "domain": "general_relativity",
-      "correct": false,
+      "correct": true,
       "extracted_value": 0.18105,
-      "expected_value": 0.0264,
-      "rel_error": 5.857954545454545,
+      "expected_value": 0.181,
+      "rel_error": 0.00027624309392262154,
       "tolerance_rel": 0.05,
       "answer_text": "To determine how slow the clock runs, we need to calculate the gravitational time dilation factor. This factor is the ratio of the time elapsed on the clock near the black hole to the time elapsed on a clock at an infinite distance (where gravity is negligible).\n\nThe formula for gravitational time dilation is given by:\n$\\frac{\\Delta t_{\\text{local}}}{\\Delta t_{\\text{infinity}}} = \\sqrt{1 - \\frac{R_s}{r}}$\n\nWhere:\n*   $\\Delta t_{\\text{local}}$ is the time elapsed on the clock near the black hole.\n*   $\\Delta t_{\\text{infinity}}$ is the time elapsed on the clock at infinity.\n*   $R_s$ is the Schwarzschild radius of the black hole.\n*   $r$ is the radial distance of the clock from the black hole's center.\n\nFirst, calculate the Schwarzschild radius ($R_s$) for a 10 solar mass black hole:\n$R_s = \\frac{2GM}{c^2}$\nWhere:\n*   $G = 6.67430 \\times 10^{-11} \\text{ N m}^2/\\text{kg}^2$ (gravitational constant)\n*   $M = 10 \\times 1.98847 \\times 10^{30} \\text{ kg} = 1.98847 \\times 10^{31} \\text{ kg}$ (mass of the black hole)\n*   $c = 2.99792458 \\times 10^8 \\text{ m/s}$ (speed of light)\n\n$R_s = \\frac{2 \\times (6.67430 \\times 10^{-11} \\text{ m}^3 \\text{ kg}^{-1} \\text{ s}^{-2}) \\times (1.98847 \\times 10^{31} \\text{ kg})}{(2.99792458 \\times 10^8 \\text{ m/s})^2}$\n$R_s \\approx 29509.32 \\text{ m}$\n\nThe clock is dropped 1 km (1000 m) *above* the event horizon. The event horizon is located at $r = R_s$.\nSo, the radial distance of the clock from the black hole's center is:\n$r = R_s + 1000 \\text{ m} = 29509.32 \\text{ m} + 1000 \\text{ m} = 30509.32 \\text{ m}$\n\nNow, substitute $R_s$ and $r$ into the time dilation formula:\n$\\frac{\\Delta t_{\\text{local}}}{\\Delta t_{\\text{infinity}}} = \\sqrt{1 - \\frac{29509.32 \\text{ m}}{30509.32 \\text{ m}}}$\n$\\frac{\\Delta t_{\\text{local}}}{\\Delta t_{\\text{infinity}}} = \\sqrt{1 - 0.967220556}$\n$\\frac{\\Delta t_{\\text{local}}}{\\Delta t_{\\text{infinity}}} = \\sqrt{0.032779444}$\n$\\frac{\\Delta t_{\\text{local}}}{\\Delta t_{\\text{infinity}}} \\approx 0.1810509$\n\nThis ratio means that for every second that passes on a clock at infinity, approximately 0.18105 seconds pass on the clock near the black hole. Therefore, the clock near the black hole runs at about 18.1% of the speed of a clock at infinity.\n\nANSWER: 0.18105 (dimensionless ratio)",
       "elapsed_s": 128.16408514976501,
-      "notes": "rel_err 5.858e+00"
+      "notes": "match"
     },
     {
       "id": "gr_007",
@@ -1526,7 +1526,7 @@
       "domain": "cosmology",
       "correct": false,
       "extracted_value": "MOND regime",
-      "expected_value": "mond",
+      "expected_value": "transition",
       "rel_error": null,
       "tolerance_rel": 0,
       "answer_text": "ANSWER: MOND regime",

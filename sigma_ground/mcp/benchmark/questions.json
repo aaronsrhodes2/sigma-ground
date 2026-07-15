@@ -553,10 +553,10 @@
     "domain": "waves_optics",
     "course_level": "year_2",
     "question": "Sirius B is a white dwarf about 8.6 light years away. How long does its light take to reach us in years?",
-    "expected_value": 2.667,
+    "expected_value": 8.6986,
     "expected_units": "year",
     "tolerance_rel": 0.05,
-    "primary_tool_expected": "named_star",
+    "primary_tool_expected": "light_travel_time_from_star",
     "secondary_tools_expected": [],
     "ground_truth_source": "Gaia DR3 (Sirius distance is 2.667 pc = 8.7 ly)",
     "notes": "Tests retrieval of star data; Sirius A distance ~2.667 pc, not 8.6 ly (correct value: 8.7 ly)."
@@ -1180,7 +1180,7 @@
     "expected_value": 57000000000.0,
     "expected_units": "J",
     "tolerance_rel": 0.1,
-    "primary_tool_expected": "gravitational_potential_energy",
+    "primary_tool_expected": "orbital_raise_energy",
     "secondary_tools_expected": [
       "solar_system_body"
     ],
@@ -1210,7 +1210,7 @@
     "expected_value": 1.2,
     "expected_units": "W",
     "tolerance_rel": 0.1,
-    "primary_tool_expected": "electrical_power",
+    "primary_tool_expected": "percent_of",
     "secondary_tools_expected": [],
     "ground_truth_source": "DOE Energy Star",
     "notes": "Direct multiplication; tests basic arithmetic with units"

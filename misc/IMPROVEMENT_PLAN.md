@@ -5343,3 +5343,220 @@ Categories:
 
 ---
 
+## 2026-07-14
+
+- LIBRARY GAP count:        0
+- DISCOVERABILITY GAP count: 7
+- WOLFRAM PHRASING count:    111
+- GEMINI HALLUCINATION count:60
+
+### DISCOVERABILITY GAP — keywords or pattern hint needed
+- `mech_intro_003` (classical_mechanics_intro): I shoot a cannonball at 100 meters per second from ground level at 45 degrees. How far doe
+    expected: `projectile_range` ; Qwen tried: ['double_slit_fringe_spacing']
+- `mech_intro_015` (classical_mechanics_intro): If I am in orbit 35,786 kilometers above Earth (geostationary altitude), how fast am I mov
+    expected: `circular_orbit_velocity` ; Qwen tried: ['orbital_velocity']
+- `em_intro_012` (electromagnetism_intro): If I want a capacitor with 1 microfarad capacitance using 1 mm separation between plates i
+    expected: `solve_equation` ; Qwen tried: ['parallel_plate_capacitance']
+- `optics_012` (waves_optics): Sirius B is a white dwarf about 8.6 light years away. How long does its light take to reac
+    expected: `named_star` ; Qwen tried: ['light_travel_time_from_star']
+- `em_adv_004` (electrodynamics_advanced): I want a 100 microfarad capacitor with 0.1 mm plates separation and a dielectric of relati
+    expected: `solve_equation` ; Qwen tried: ['parallel_plate_capacitance']
+- `gr_009` (general_relativity): If I'm right at the event horizon of a black hole, what's the redshift of light I emit, as
+    expected: `gravitational_redshift` ; Qwen tried: []
+- `nuc_003` (nuclear_physics): How much energy in eV does an alpha particle (4 amu) carry at 5 MeV?
+    expected: `eV_to_joules` ; Qwen tried: ['photon_energy_from_frequency', 'kinetic_energy']
+
+### WOLFRAM PHRASING — add manual `wolfram_phrasing` to question
+- `mech_intro_001` (classical_mechanics_intro): If I drop a copper ball from 10 meters at sea level, how many seconds before it hits the g
+- `mech_intro_002` (classical_mechanics_intro): I drop a steel ball from 50 meters. How fast is it moving when it hits the ground?
+- `mech_intro_003` (classical_mechanics_intro): I shoot a cannonball at 100 meters per second from ground level at 45 degrees. How far doe
+- `mech_intro_004` (classical_mechanics_intro): I shoot a ball at 50 m/s straight up. How high does it go?
+- `mech_intro_005` (classical_mechanics_intro): What is the kinetic energy of a 70 kg person running at 5 m/s?
+- `mech_intro_006` (classical_mechanics_intro): If I push a coffee cup with mass 0.2 kg across a table at 1 meter per second and the frict
+- `mech_intro_007` (classical_mechanics_intro): How fast does a satellite need to orbit at 400 km altitude above Earth's surface?
+- `mech_intro_009` (classical_mechanics_intro): What's the momentum of a 1500 kg car going 25 m/s?
+- `mech_intro_010` (classical_mechanics_intro): How much potential energy does a 70 kg climber have at the top of a 100 m cliff?
+- `mech_intro_011` (classical_mechanics_intro): I drop a ball from 10 meters on the Moon. How long does it take to land? Moon gravity is a
+- ... +101 more
+
+### GEMINI HALLUCINATION (Gemini confident, wrong)
+- `mech_intro_015` (classical_mechanics_intro): expected 0.0, gemini said 3074.0
+- `em_intro_003` (electromagnetism_intro): expected 8.854e-09, gemini said $8.854 \times 10^{-9} \text{ F}$
+- `em_intro_007` (electromagnetism_intro): expected 545100000000000.0, gemini said $5.45 \times 10^{14}$ Hz
+- `em_intro_014` (electromagnetism_intro): expected 3e+18, gemini said 3.0
+- `optics_004` (waves_optics): expected 6.563e-07, gemini said 6.5647
+- `optics_009` (waves_optics): expected 1.216e-07, gemini said 1.2150242
+- `optics_012` (waves_optics): expected 2.667, gemini said 8.6
+- `thermo_001` (thermodynamics_statmech): expected 101325, gemini said 1.01
+- `thermo_002` (thermodynamics_statmech): expected 4.83e-07, gemini said $4.83 \times 10^{-7}$ m
+- `thermo_003` (thermodynamics_statmech): expected 459.0, gemini said 4.59
+- ... +50 more
+
+---
+
+## 2026-07-14
+
+- LIBRARY GAP count:        0
+- DISCOVERABILITY GAP count: 7
+- WRONG VALUE (right tool) count: 9
+- SILENT NON-RESPONSE count: 6
+- WOLFRAM PHRASING count:    111
+- GEMINI HALLUCINATION count:60
+
+### DISCOVERABILITY GAP — keywords or pattern hint needed
+- `mech_intro_003` (classical_mechanics_intro): I shoot a cannonball at 100 meters per second from ground level at 45 degrees. How far doe
+    expected: `projectile_range` ; Qwen tried: ['double_slit_fringe_spacing']
+- `mech_intro_015` (classical_mechanics_intro): If I am in orbit 35,786 kilometers above Earth (geostationary altitude), how fast am I mov
+    expected: `circular_orbit_velocity` ; Qwen tried: ['orbital_velocity']
+- `em_intro_012` (electromagnetism_intro): If I want a capacitor with 1 microfarad capacitance using 1 mm separation between plates i
+    expected: `solve_equation` ; Qwen tried: ['parallel_plate_capacitance']
+- `optics_012` (waves_optics): Sirius B is a white dwarf about 8.6 light years away. How long does its light take to reac
+    expected: `named_star` ; Qwen tried: ['light_travel_time_from_star']
+- `em_adv_004` (electrodynamics_advanced): I want a 100 microfarad capacitor with 0.1 mm plates separation and a dielectric of relati
+    expected: `solve_equation` ; Qwen tried: ['parallel_plate_capacitance']
+- `gr_009` (general_relativity): If I'm right at the event horizon of a black hole, what's the redshift of light I emit, as
+    expected: `gravitational_redshift` ; Qwen tried: []
+- `nuc_003` (nuclear_physics): How much energy in eV does an alpha particle (4 amu) carry at 5 MeV?
+    expected: `eV_to_joules` ; Qwen tried: ['photon_energy_from_frequency', 'kinetic_energy']
+
+### WRONG VALUE (right tool called) — units/loop/formula bug
+- `em_intro_015` (electromagnetism_intro): A cosmic-ray gamma ray has frequency 1e22 Hz. What's its wavelength?
+    tool: `em_wave_wavelength` ; expected 3e-14, got 2.99792458e-06
+- `optics_010` (waves_optics): An object is placed 20 cm in front of a lens; the image forms 10 cm behind. What's the mag
+    tool: `lens_magnification` ; expected -0.5, got 0.5
+- `mech_adv_010` (classical_mechanics_advanced): How much energy would it take to lift a 1000 kg satellite to geosynchronous orbit (35,786 
+    tool: `gravitational_potential_energy` ; expected 57000000000.0, got 350940776900.0
+- `em_adv_002` (electrodynamics_advanced): A 60 watt incandescent bulb has efficiency about 2 percent for visible light. How many wat
+    tool: `electrical_power` ; expected 1.2, got 60.0
+- `gr_005` (general_relativity): How long would it take a stellar-mass (10 solar mass) black hole to evaporate via Hawking 
+    tool: `hawking_evaporation_time` ; expected 2.1e+76, got 6.617961757605732e+77
+- `gr_006` (general_relativity): If I drop a clock 1 km above a 10 solar mass black hole's event horizon, how slow does it 
+    tool: `gravitational_time_dilation` ; expected 0.0264, got 0.18095264414443588
+- `cosmo_002` (cosmology): What's the Hubble time (approximate age of the universe)?
+    tool: `age_of_universe` ; expected 13700000000.0, got 4.5786350148367955e+17
+- `cosmo_004` (cosmology): Galaxy rotation curves probe accelerations of about 1e-10 m/s squared. Which regime is tha
+    tool: `mond_regime_classifier` ; expected mond, got transition
+- `cosmo_008` (cosmology): How old is the universe in seconds, approximately?
+    tool: `age_of_universe` ; expected 4.35e+17, got 4.5786350148367955e+17
+
+### SILENT NON-RESPONSE — Qwen made no tool call, no answer text
+- `mech_adv_005` (classical_mechanics_advanced): What's the surface gravity of Mars?
+    expected tool: `solar_system_body` ; turns=3 nudges=2 said: ''
+- `mech_adv_009` (classical_mechanics_advanced): How fast is the International Space Station going? It orbits at about 408 km altitude.
+    expected tool: `circular_orbit_velocity` ; turns=3 nudges=2 said: ''
+- `gr_008` (general_relativity): At what altitude above Earth do GPS satellite clocks run faster by about 38 microseconds p
+    expected tool: `gravitational_time_dilation` ; turns=3 nudges=2 said: ''
+- `atom_004` (atomic_molecular): What's the highest noble gas first ionization energy?
+    expected tool: `first_ionization_energy` ; turns=8 nudges=7 said: '<exceeded max turns>'
+- `nuc_005` (nuclear_physics): 1 kg of U-235 fully fissioned releases how many megatons TNT?
+    expected tool: `joules_to_TNT` ; turns=3 nudges=2 said: ''
+- `nuc_007` (nuclear_physics): How much mass is converted to energy in a 1-megaton thermonuclear explosion?
+    expected tool: `energy_to_mass` ; turns=0 nudges=None said: '<ERROR: >'
+
+### WOLFRAM PHRASING — add manual `wolfram_phrasing` to question
+- `mech_intro_001` (classical_mechanics_intro): If I drop a copper ball from 10 meters at sea level, how many seconds before it hits the g
+- `mech_intro_002` (classical_mechanics_intro): I drop a steel ball from 50 meters. How fast is it moving when it hits the ground?
+- `mech_intro_003` (classical_mechanics_intro): I shoot a cannonball at 100 meters per second from ground level at 45 degrees. How far doe
+- `mech_intro_004` (classical_mechanics_intro): I shoot a ball at 50 m/s straight up. How high does it go?
+- `mech_intro_005` (classical_mechanics_intro): What is the kinetic energy of a 70 kg person running at 5 m/s?
+- `mech_intro_006` (classical_mechanics_intro): If I push a coffee cup with mass 0.2 kg across a table at 1 meter per second and the frict
+- `mech_intro_007` (classical_mechanics_intro): How fast does a satellite need to orbit at 400 km altitude above Earth's surface?
+- `mech_intro_009` (classical_mechanics_intro): What's the momentum of a 1500 kg car going 25 m/s?
+- `mech_intro_010` (classical_mechanics_intro): How much potential energy does a 70 kg climber have at the top of a 100 m cliff?
+- `mech_intro_011` (classical_mechanics_intro): I drop a ball from 10 meters on the Moon. How long does it take to land? Moon gravity is a
+- ... +101 more
+
+### GEMINI HALLUCINATION (Gemini confident, wrong)
+- `mech_intro_015` (classical_mechanics_intro): expected 0.0, gemini said 3074.0
+- `em_intro_003` (electromagnetism_intro): expected 8.854e-09, gemini said $8.854 \times 10^{-9} \text{ F}$
+- `em_intro_007` (electromagnetism_intro): expected 545100000000000.0, gemini said $5.45 \times 10^{14}$ Hz
+- `em_intro_014` (electromagnetism_intro): expected 3e+18, gemini said 3.0
+- `optics_004` (waves_optics): expected 6.563e-07, gemini said 6.5647
+- `optics_009` (waves_optics): expected 1.216e-07, gemini said 1.2150242
+- `optics_012` (waves_optics): expected 2.667, gemini said 8.6
+- `thermo_001` (thermodynamics_statmech): expected 101325, gemini said 1.01
+- `thermo_002` (thermodynamics_statmech): expected 4.83e-07, gemini said $4.83 \times 10^{-7}$ m
+- `thermo_003` (thermodynamics_statmech): expected 459.0, gemini said 4.59
+- ... +50 more
+
+---
+
+## 2026-07-14
+
+- LIBRARY GAP count:        0
+- DISCOVERABILITY GAP count: 8
+- WRONG VALUE (right tool) count: 4
+- SILENT NON-RESPONSE count: 6
+- WOLFRAM PHRASING count:    111
+- GEMINI HALLUCINATION count:58
+
+### DISCOVERABILITY GAP — keywords or pattern hint needed
+- `mech_intro_003` (classical_mechanics_intro): I shoot a cannonball at 100 meters per second from ground level at 45 degrees. How far doe
+    expected: `projectile_range` ; Qwen tried: ['double_slit_fringe_spacing']
+- `mech_intro_015` (classical_mechanics_intro): If I am in orbit 35,786 kilometers above Earth (geostationary altitude), how fast am I mov
+    expected: `circular_orbit_velocity` ; Qwen tried: ['orbital_velocity']
+- `em_intro_012` (electromagnetism_intro): If I want a capacitor with 1 microfarad capacitance using 1 mm separation between plates i
+    expected: `solve_equation` ; Qwen tried: ['parallel_plate_capacitance']
+- `mech_adv_010` (classical_mechanics_advanced): How much energy would it take to lift a 1000 kg satellite to geosynchronous orbit (35,786 
+    expected: `orbital_raise_energy` ; Qwen tried: ['gravitational_potential_energy']
+- `em_adv_002` (electrodynamics_advanced): A 60 watt incandescent bulb has efficiency about 2 percent for visible light. How many wat
+    expected: `percent_of` ; Qwen tried: ['electrical_power', 'ohms_law_voltage', 'ohms_law_current']
+- `em_adv_004` (electrodynamics_advanced): I want a 100 microfarad capacitor with 0.1 mm plates separation and a dielectric of relati
+    expected: `solve_equation` ; Qwen tried: ['parallel_plate_capacitance']
+- `gr_009` (general_relativity): If I'm right at the event horizon of a black hole, what's the redshift of light I emit, as
+    expected: `gravitational_redshift` ; Qwen tried: []
+- `nuc_003` (nuclear_physics): How much energy in eV does an alpha particle (4 amu) carry at 5 MeV?
+    expected: `eV_to_joules` ; Qwen tried: ['photon_energy_from_frequency', 'kinetic_energy']
+
+### WRONG VALUE (right tool called) — units/loop/formula bug
+- `em_intro_015` (electromagnetism_intro): A cosmic-ray gamma ray has frequency 1e22 Hz. What's its wavelength?
+    tool: `em_wave_wavelength` ; expected 3e-14, got 2.99792458e-06
+- `optics_010` (waves_optics): An object is placed 20 cm in front of a lens; the image forms 10 cm behind. What's the mag
+    tool: `lens_magnification` ; expected -0.5, got 0.5
+- `cosmo_002` (cosmology): What's the Hubble time (approximate age of the universe)?
+    tool: `age_of_universe` ; expected 13700000000.0, got 4.5786350148367955e+17
+- `cosmo_008` (cosmology): How old is the universe in seconds, approximately?
+    tool: `age_of_universe` ; expected 4.35e+17, got 4.5786350148367955e+17
+
+### SILENT NON-RESPONSE — Qwen made no tool call, no answer text
+- `mech_adv_005` (classical_mechanics_advanced): What's the surface gravity of Mars?
+    expected tool: `solar_system_body` ; turns=3 nudges=2 said: ''
+- `mech_adv_009` (classical_mechanics_advanced): How fast is the International Space Station going? It orbits at about 408 km altitude.
+    expected tool: `circular_orbit_velocity` ; turns=3 nudges=2 said: ''
+- `gr_008` (general_relativity): At what altitude above Earth do GPS satellite clocks run faster by about 38 microseconds p
+    expected tool: `gravitational_time_dilation` ; turns=3 nudges=2 said: ''
+- `atom_004` (atomic_molecular): What's the highest noble gas first ionization energy?
+    expected tool: `first_ionization_energy` ; turns=8 nudges=7 said: '<exceeded max turns>'
+- `nuc_005` (nuclear_physics): 1 kg of U-235 fully fissioned releases how many megatons TNT?
+    expected tool: `joules_to_TNT` ; turns=3 nudges=2 said: ''
+- `nuc_007` (nuclear_physics): How much mass is converted to energy in a 1-megaton thermonuclear explosion?
+    expected tool: `energy_to_mass` ; turns=0 nudges=None said: '<ERROR: >'
+
+### WOLFRAM PHRASING — add manual `wolfram_phrasing` to question
+- `mech_intro_001` (classical_mechanics_intro): If I drop a copper ball from 10 meters at sea level, how many seconds before it hits the g
+- `mech_intro_002` (classical_mechanics_intro): I drop a steel ball from 50 meters. How fast is it moving when it hits the ground?
+- `mech_intro_003` (classical_mechanics_intro): I shoot a cannonball at 100 meters per second from ground level at 45 degrees. How far doe
+- `mech_intro_004` (classical_mechanics_intro): I shoot a ball at 50 m/s straight up. How high does it go?
+- `mech_intro_005` (classical_mechanics_intro): What is the kinetic energy of a 70 kg person running at 5 m/s?
+- `mech_intro_006` (classical_mechanics_intro): If I push a coffee cup with mass 0.2 kg across a table at 1 meter per second and the frict
+- `mech_intro_007` (classical_mechanics_intro): How fast does a satellite need to orbit at 400 km altitude above Earth's surface?
+- `mech_intro_009` (classical_mechanics_intro): What's the momentum of a 1500 kg car going 25 m/s?
+- `mech_intro_010` (classical_mechanics_intro): How much potential energy does a 70 kg climber have at the top of a 100 m cliff?
+- `mech_intro_011` (classical_mechanics_intro): I drop a ball from 10 meters on the Moon. How long does it take to land? Moon gravity is a
+- ... +101 more
+
+### GEMINI HALLUCINATION (Gemini confident, wrong)
+- `mech_intro_015` (classical_mechanics_intro): expected 0.0, gemini said 3074.0
+- `em_intro_003` (electromagnetism_intro): expected 8.854e-09, gemini said $8.854 \times 10^{-9} \text{ F}$
+- `em_intro_007` (electromagnetism_intro): expected 545100000000000.0, gemini said $5.45 \times 10^{14}$ Hz
+- `em_intro_014` (electromagnetism_intro): expected 3e+18, gemini said 3.0
+- `optics_004` (waves_optics): expected 6.563e-07, gemini said 6.5647
+- `optics_009` (waves_optics): expected 1.216e-07, gemini said 1.2150242
+- `thermo_001` (thermodynamics_statmech): expected 101325, gemini said 1.01
+- `thermo_002` (thermodynamics_statmech): expected 4.83e-07, gemini said $4.83 \times 10^{-7}$ m
+- `thermo_003` (thermodynamics_statmech): expected 459.0, gemini said 4.59
+- `thermo_005` (thermodynamics_statmech): expected 6.213e-21, gemini said 6.21
+- ... +48 more
+
+---
+

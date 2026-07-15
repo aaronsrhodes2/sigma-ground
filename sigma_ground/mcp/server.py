@@ -631,7 +631,10 @@ def main() -> int:
     @server.tool()
     def lens_magnification(object_distance_m: float,
                              image_distance_m: float) -> dict[str, Any]:
-        """m = -d_i / d_o."""
+        """m = -d_i / d_o. image_distance_m is POSITIVE for a real image on
+        the opposite side of the lens from the object (e.g. forms "behind"
+        a converging lens) -- do NOT negate it just because the question
+        says "behind"; that phrasing IS the positive-d_i case."""
         return t_opt.lens_magnification(object_distance_m,
                                             image_distance_m).to_dict()
 

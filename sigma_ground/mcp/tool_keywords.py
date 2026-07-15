@@ -35,6 +35,11 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "light year to meters", "parsec to meter",
     ],
     "parse_quantity": ["parse a quantity string", "value with units"],
+    "percent_of": [
+        "N percent of", "percentage of a value", "X% of Y",
+        "efficiency of", "what fraction is", "how much is N percent of",
+        "efficiency for", "N percent efficient",
+    ],
     "solve_equation": [
         "symbolic solve", "algebra", "polynomial root",
         "quadratic formula", "cubic equation", "find x such that",
