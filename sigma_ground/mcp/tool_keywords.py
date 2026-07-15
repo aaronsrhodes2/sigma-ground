@@ -742,6 +742,10 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "1 ton TNT = 4.184e9 J", "explosive yield",
         "nuclear yield",
     ],
+    "tnt_to_joules": [
+        "megatons to joules", "TNT to joules", "energy of a megaton explosion",
+        "how many joules in N tons of TNT", "convert TNT yield to energy",
+    ],
     "eV_to_joules": [
         "electronvolt", "eV to J", "1 eV = 1.602e-19 J",
         "MeV", "GeV", "TeV", "particle physics energy",

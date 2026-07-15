@@ -181,6 +181,14 @@ ABSOLUTE RULES:
                             variable='A')                       (1 call)
          -> ANSWER: 113 m^2
 
+         Q: "How much mass is converted to energy in a 1-megaton
+             thermonuclear explosion?" -- a TWO-hop chain: TNT yield ->
+             joules -> mass (E=mc^2). Use tnt_to_joules (NOT
+             joules_to_TNT, which runs the other direction).
+         -> tnt_to_joules(tnt_amount=1, unit='MT')     (1 call, gives 4.184e15 J)
+         -> energy_to_mass(energy_j=4.184e15)          (1 call)
+         -> ANSWER: 0.0465 kg
+
    (c2) COPY NUMBERS EXACTLY. If the question says "1e22 Hz" or
         "5 MeV", pass frequency_hz=1e22 / energy=5 verbatim -- do not
         re-estimate, round, or guess a "more familiar" magnitude. A

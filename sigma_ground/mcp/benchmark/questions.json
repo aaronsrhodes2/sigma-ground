@@ -1937,7 +1937,7 @@
     "tolerance_rel": 0.02,
     "primary_tool_expected": "energy_to_mass",
     "secondary_tools_expected": [
-      "joules_to_TNT"
+      "tnt_to_joules"
     ],
     "ground_truth_source": "Glasstone & Dolan Effects of Nuclear Weapons",
     "notes": "1 MT = 4.184e15 J / c^2 = 46.5 g of mass converted"

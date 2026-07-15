@@ -209,6 +209,10 @@ _PRIMARY_TOOLS = [
      "summary": "Joule -> tons/kt/MT TNT equivalent.",
      "inputs": {"energy_joules": "float", "unit": "str (ton/kt/MT)"},
      "returns": "tons TNT"},
+    {"name": "tnt_to_joules", "tier": "PRIMARY", "domain": "energy",
+     "summary": "tons/kt/MT TNT equivalent -> Joule (inverse of joules_to_TNT).",
+     "inputs": {"tnt_amount": "float", "unit": "str (ton/kt/MT)"},
+     "returns": "energy in joules"},
     # ── special relativity (Phase 1.3) ──
     {"name": "lorentz_factor", "tier": "PRIMARY", "domain": "relativity",
      "summary": "gamma = 1/sqrt(1 - v^2/c^2).",

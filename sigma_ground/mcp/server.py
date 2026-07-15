@@ -455,6 +455,14 @@ def main() -> int:
         """Convert joules to TNT equivalent. unit: 'ton', 'kt', 'MT'."""
         return t_econv.joules_to_TNT(energy_joules, unit).to_dict()
 
+    @server.tool()
+    def tnt_to_joules(tnt_amount: float, unit: str = "ton") -> dict[str, Any]:
+        """Convert a TNT-equivalent amount to joules (inverse of
+        joules_to_TNT). unit: 'ton', 'kt', 'MT'. e.g. "how much mass is
+        converted to energy in a 1-megaton explosion" -> tnt_to_joules(1,
+        'MT') then energy_to_mass(...)."""
+        return t_econv.tnt_to_joules(tnt_amount, unit).to_dict()
+
     # ── special relativity ─────────────────────────────────────────
     @server.tool()
     def lorentz_factor(velocity_m_s: float) -> dict[str, Any]:

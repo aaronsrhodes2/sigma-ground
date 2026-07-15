@@ -155,3 +155,42 @@ def joules_to_TNT(energy_joules: float, unit: str = "ton") -> ToolResult:
                 "energy density is ~4.6e6 J/kg; the 4.184e9 J/ton "
                 "value rounds for convention."),
     )
+
+
+def tnt_to_joules(tnt_amount: float, unit: str = "ton") -> ToolResult:
+    """Convert a TNT-equivalent amount to joules -- the inverse of
+    joules_to_TNT. Standard: 1 ton TNT = 4.184e9 J (defined; IUPAC).
+
+    Parameters
+    ----------
+    tnt_amount : float
+        Amount of TNT equivalent (in the given unit).
+    unit : str
+        "ton", "kiloton" (= "kt"), or "megaton" (= "MT"). Default "ton".
+    """
+    TON_TNT_J = 4.184e9  # IUPAC convention, exact by definition
+    scale = {
+        "ton": 1.0,
+        "kiloton": 1e3,
+        "kt": 1e3,
+        "megaton": 1e6,
+        "MT": 1e6,
+    }
+    factor = scale.get(unit)
+    if factor is None:
+        return ToolResult(
+            value=None, source="invalid input",
+            notes=f"unit must be one of {sorted(scale.keys())}",
+            inputs={"tnt_amount": tnt_amount, "unit": unit},
+        )
+    energy_j = tnt_amount * TON_TNT_J * factor
+    return ToolResult(
+        value=energy_j,
+        units="J",
+        source="sigma-ground via IUPAC TNT-equivalence (1 ton = 4.184e9 J)",
+        formula="E_J = E_TNT * 4.184e9 * scale",
+        inputs={"tnt_amount": tnt_amount, "unit": unit},
+        notes=("1 ton TNT = 4.184e9 J by IUPAC convention. Real TNT "
+                "energy density is ~4.6e6 J/kg; the 4.184e9 J/ton "
+                "value rounds for convention."),
+    )
