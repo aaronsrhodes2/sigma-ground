@@ -530,9 +530,13 @@ def main() -> int:
         return t_cos.critical_density().to_dict()
 
     @server.tool()
-    def age_of_universe() -> dict[str, Any]:
-        """Hubble time t_H = 1/H_0 (approx 13.8 Gyr in LambdaCDM)."""
-        return t_cos.age_of_universe().to_dict()
+    def age_of_universe(mode: str = "lcdm") -> dict[str, Any]:
+        """Age of the universe. mode="lcdm" (default): the TRUE flat-LambdaCDM
+        age (~13.80 Gyr, Planck 2018) -- use this for "how old is the
+        universe". mode="hubble": the Hubble time t_H=1/H_0, a DIFFERENT,
+        cruder estimate -- only use if the question specifically asks for
+        "Hubble time" as distinct from the universe's actual age."""
+        return t_cos.age_of_universe(mode).to_dict()
 
     @server.tool()
     def eta_value_report() -> dict[str, Any]:

@@ -1326,11 +1326,24 @@ _EXTENDED_TOOLS: list[dict] = [
 # match 'event horizon of the Sun' -> schwarzschild_radius.
 try:
     from sigma_ground.mcp.tool_keywords import TOOL_KEYWORDS as _TK
+    from sigma_ground.mcp.tool_keywords import _COLLOQUIAL as _TK_COLLOQ
     for _t in _PRIMARY_TOOLS:
-        _t["keywords"] = _TK.get(_t["name"], [])
+        _merged = _TK.get(_t["name"], [])
+        _t["keywords"] = _merged
+        # _TK is TOOL_KEYWORDS[name] = formal entries + _COLLOQUIAL[name]
+        # appended (tool_keywords.py's own module-level merge). Keep the
+        # two pools separately addressable so the benchmark's AKA-line
+        # selector can guarantee BOTH are represented -- a naive kws[:6]
+        # on the flat list means any tool with >=6 formal entries never
+        # shows its colloquial phrasing at all, even when it exists.
+        _colloq = _TK_COLLOQ.get(_t["name"], [])
+        _t["keywords_colloquial"] = _colloq
+        _t["keywords_formal"] = [k for k in _merged if k not in _colloq]
 except ImportError:
     for _t in _PRIMARY_TOOLS:
         _t.setdefault("keywords", [])
+        _t.setdefault("keywords_formal", [])
+        _t.setdefault("keywords_colloquial", [])
 
 
 def get_manifest() -> ToolResult:

@@ -412,6 +412,12 @@ J_SYM_MEV = 32.0            # MeV (symmetry energy at saturation)
 
 # ── Cosmological ──────────────────────────────────────────────────────
 H0 = 67.4e3 / 3.086e22  # Hubble constant in s⁻¹ (67.4 km/s/Mpc)
+# Flat-LambdaCDM density parameters (Planck 2018, Planck Collaboration VI
+# 2020, A&A 641, A6): Omega_m + Omega_Lambda = 1. Used for the TRUE age of
+# the universe, which differs from the pure Hubble time t_H=1/H0 by an
+# O(1) factor -- see age_of_universe() in mcp/tools/cosmology.py.
+OMEGA_M = 0.315         # matter density fraction (baryons + CDM)
+OMEGA_LAMBDA = 0.685    # dark-energy density fraction (flat: 1 - Omega_m)
 M_HUBBLE_KG = C**3 / (2 * G * H0)  # Hubble mass ≈ 9.3e52 kg
 M_PLANCK_KG = math.sqrt(HBAR * C / G)  # Planck mass ≈ 2.18e-8 kg
 L_PLANCK    = HBAR / (M_PLANCK_KG * C) # Planck length √(ℏG/c³) ≈ 1.616e-35 m

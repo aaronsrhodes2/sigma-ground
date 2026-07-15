@@ -184,8 +184,6 @@ def classify_for_gr(question: str) -> GRMatch | None:
        photon_sphere > ISCO > event_horizon_SIZE > event_horizon (bare).
     """
     mass_kg, rationale = _extract_mass_kg(question)
-    if mass_kg is None:
-        return None
 
     pat = tool = needs_radius = None
     for p, t, nr in _CONCEPT_PATTERNS:
@@ -194,6 +192,21 @@ def classify_for_gr(question: str) -> GRMatch | None:
             break
     if tool is None:
         return None
+
+    if mass_kg is None:
+        # Redshift/time-dilation evaluated EXACTLY AT the event horizon are
+        # mass-INDEPENDENT: gravitational_redshift returns inf whenever
+        # radius_m <= r_s(mass), for ANY mass -- r_s cancels out. A question
+        # with no specific mass ("a black hole", not "10 solar masses") but
+        # explicit "right at the event horizon" phrasing is still answerable;
+        # only bail for real if there's neither a mass NOR this special case.
+        if tool in ("gravitational_redshift", "gravitational_time_dilation") \
+                and re.search(r"\bright\s+at\s+the\s+event\s+horizon\b",
+                              question, re.IGNORECASE):
+            mass_kg = _M_SUN_KG
+            rationale = "arbitrary placeholder mass (answer is mass-independent at r=r_s)"
+        else:
+            return None
 
     if True:
             radius_m = None

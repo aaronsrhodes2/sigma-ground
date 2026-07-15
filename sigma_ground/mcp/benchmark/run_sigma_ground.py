@@ -129,6 +129,66 @@ ABSOLUTE RULES:
          -> joules_to_eV(joules=1)                            (1 call)
          -> ANSWER: 6.242e18 eV
 
+         Q: "I shoot a cannonball at 100 m/s from ground level at 45
+             degrees. How far does it travel?" -- this is projectile
+             RANGE, not diffraction/interference; ignore surface-level
+             word similarity to unrelated formulas.
+         -> projectile_range(initial_speed_m_s=100, launch_angle_deg=45)  (1 call)
+         -> ANSWER: 1020 m
+
+         Q: "An object is placed 20 cm in front of a lens; the image
+             forms 10 cm behind. What's the magnification?" -- a REAL
+             image "behind" a converging lens is the POSITIVE
+             image_distance_m case (light actually converges there);
+             do not negate it just because the question says "behind".
+         -> lens_magnification(object_distance_m=0.2, image_distance_m=0.1)  (1 call)
+         -> ANSWER: -0.5
+
+         Q: "What's the surface gravity of Mars?" -- this is a direct
+             planetary-data lookup, not a density/composition question.
+         -> solar_system_body(body_name='mars')                (1 call)
+         -> read surface_g_ms2 from the result
+         -> ANSWER: 3.71 m/s^2
+
+         Q: "A 60 watt bulb has 2 percent efficiency for visible light.
+             How many watts of visible light does it produce?" -- pure
+             arithmetic (2% of 60), NOT a circuit/Ohm's-law problem --
+             there is no voltage or current given, so do not invent any.
+         -> percent_of(percent=2, value=60)                    (1 call)
+         -> ANSWER: 1.2 W
+
+         Q: "How much energy in eV does a particle carry at 5 MeV?" --
+             a unit RELABELING (MeV -> eV), not a from-scratch energy
+             derivation. Ignore distractor details (particle mass, etc.)
+             that the given energy already makes irrelevant.
+         -> convert_units(value=5, from_units='MeV', to_units='eV')  (1 call)
+         -> ANSWER: 5000000 eV
+
+         Q: "Energy to lift a 1000 kg satellite to geosynchronous orbit
+             (35786 km)?" -- altitude is thousands of km, so uniform
+             gravity (U=mgh) is WRONG by a large factor; this needs the
+             inverse-square form.
+         -> orbital_raise_energy(mass_kg=1000, central_body='earth',
+                                  from_altitude_km=0, to_altitude_km=35786)  (1 call)
+         -> ANSWER: 5.3e10 J
+
+         Q: "I want a capacitor with 1 microfarad using 1 mm plate
+             separation in vacuum. How big do the plates need to be?"
+             -- an INVERSE problem (solve for area), not a forward
+             capacitance lookup: parallel_plate_capacitance only
+             computes C from a known area, it cannot solve for area.
+         -> solve_equation(equation='1e-6 = 8.854e-12*1.0*A/1e-3',
+                            variable='A')                       (1 call)
+         -> ANSWER: 113 m^2
+
+   (c2) COPY NUMBERS EXACTLY. If the question says "1e22 Hz" or
+        "5 MeV", pass frequency_hz=1e22 / energy=5 verbatim -- do not
+        re-estimate, round, or guess a "more familiar" magnitude. A
+        wrong tool call from a mis-typed exponent looks like a routing
+        failure but is a transcription error; re-read the literal
+        number in the question before your NEXT call rather than
+        retrying with a different guess.
+
    (d) Do NOT enter exploratory mode: 5 different tools, none of which
        answer the question. If you can't find the tool in the first
        2 tries, the answer is "Fitted due to incompetence", not
@@ -485,11 +545,14 @@ def _build_tool_index(tools_for_ollama: list[dict]) -> str:
         from sigma_ground.mcp.manifest import _PRIMARY_TOOLS
         domain_by_name = {t["name"]: t.get("domain", "other")
                             for t in _PRIMARY_TOOLS}
-        keywords_by_name = {t["name"]: t.get("keywords", [])
-                              for t in _PRIMARY_TOOLS}
+        formal_by_name = {t["name"]: t.get("keywords_formal", t.get("keywords", []))
+                            for t in _PRIMARY_TOOLS}
+        colloq_by_name = {t["name"]: t.get("keywords_colloquial", [])
+                            for t in _PRIMARY_TOOLS}
     except Exception:
         domain_by_name = {}
-        keywords_by_name = {}
+        formal_by_name = {}
+        colloq_by_name = {}
 
     # Group tools by domain.
     by_domain: dict[str, list[dict]] = {}
@@ -538,12 +601,19 @@ def _build_tool_index(tools_for_ollama: list[dict]) -> str:
             lines.append(f"  {name}({', '.join(param_strs)})")
             if desc:
                 lines.append(f"      {desc}")
-            kws = keywords_by_name.get(name, [])
-            if kws:
-                # Show up to 6 keywords per tool; that's enough to catch
-                # common phrasings without bloating the prompt.
-                shown = " | ".join(kws[:6])
-                lines.append(f"      AKA: {shown}")
+            formal = formal_by_name.get(name, [])
+            colloq = colloq_by_name.get(name, [])
+            if formal or colloq:
+                # 6 keywords per tool, token-budget-neutral -- but
+                # guarantee BOTH pools are represented (3+3) instead of a
+                # naive first-6-of-the-flat-list slice, which silently
+                # hid every tool's colloquial phrasing whenever it already
+                # had >=6 formal entries (formal is always listed first).
+                shown = formal[:3] + colloq[:3]
+                if len(shown) < 6:
+                    # a tool with <3 of one pool gets more of the other
+                    shown = (formal + colloq)[:6]
+                lines.append(f"      AKA: {' | '.join(shown)}")
         lines.append("")
     return "\n".join(lines)
 

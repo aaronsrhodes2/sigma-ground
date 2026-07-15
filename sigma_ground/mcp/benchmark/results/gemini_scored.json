@@ -1,7 +1,7 @@
 {
   "summary": {
-    "overall_accuracy_pct": 61.333333333333336,
-    "overall_correct": 92,
+    "overall_accuracy_pct": 62.0,
+    "overall_correct": 93,
     "overall_total": 150,
     "by_domain": {
       "classical_mechanics_intro": {
@@ -65,9 +65,9 @@
         "pct": 50.0
       },
       "nuclear_physics": {
-        "correct": 3,
+        "correct": 4,
         "total": 7,
-        "pct": 42.857142857142854
+        "pct": 57.142857142857146
       },
       "mathematical_methods": {
         "correct": 3,
@@ -1901,14 +1901,14 @@
       "id": "nuc_005",
       "system": "gemini",
       "domain": "nuclear_physics",
-      "correct": false,
+      "correct": true,
       "extracted_value": 0.02,
-      "expected_value": 19.6,
-      "rel_error": 0.9989795918367347,
+      "expected_value": 0.0196,
+      "rel_error": 0.020408163265306176,
       "tolerance_rel": 0.1,
       "answer_text": "ANSWER: 0.020 megatons TNT\n\nTo calculate this, we use the following steps:\n1.  **Energy per U-235 fission:** The fission of one U-235 atom releases approximately 200 MeV (mega-electron Volts) of energy.\n2.  **Convert MeV to Joules:** 1 eV = 1.602 x 10^-19 J, so 1 MeV = 1.602 x 10^-13 J.\n    Therefore, 200 MeV = 200 * 1.602 x 10^-13 J = 3.204 x 10^-11 J per fission.\n3.  **Number of U-235 atoms in 1 kg:** The molar mass of U-235 is 235 g/mol. Avogadro's number is 6.022 x 10^23 atoms/mol.\n    Number of moles in 1 kg (1000 g) = 1000 g / 235 g/mol = 4.2553 mol.\n    Number of atoms = 4.2553 mol * 6.022 x 10^23 atoms/mol = 2.563 x 10^24 atoms.\n4.  **Total energy released:** Multiply the number of atoms by the energy per fission.\n    Total energy = (2.563 x 10^24 atoms) * (3.204 x 10^-11 J/atom) = 8.21 x 10^13 J.\n5.  **Convert Joules to megatons TNT:** 1 megaton of TNT is defined as 4.184 x 10^15 J.\n    Energy in megatons TNT = (8.21 x 10^13 J) / (4.184 x 10^15 J/megaton) = 0.01962 megatons TNT.\n\nRounding to two significant figures (as 200 MeV is typically an approximation to two or three significant figures), the value is 0.020 megatons TNT (which is equivalent to 20 kilotons of TNT).",
       "elapsed_s": 62.54939937591553,
-      "notes": "rel_err 9.990e-01"
+      "notes": "match"
     },
     {
       "id": "nuc_006",

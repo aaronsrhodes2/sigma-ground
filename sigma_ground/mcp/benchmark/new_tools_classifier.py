@@ -77,8 +77,18 @@ def classify_for_new_tools(question: str) -> NewToolMatch | None:
                                       {"central_body": "earth",
                                        "orbital_radius_m": _num(m_r.group(1)) * 1000.0},
                                       f"Moon orbit radius {m_r.group(1)} km")
-        # Any "N km" altitude above Earth (ISS, geostationary, etc.)
-        if re.search(r"\bEarth\b", q, re.IGNORECASE):
+        # Any "N km" altitude above Earth (ISS, geostationary, etc.) -- the
+        # word "Earth" itself is often implicit: "the ISS orbits at 408 km
+        # altitude" never says Earth, but ISS/satellite/geostationary/
+        # geosynchronous with no OTHER body named means Earth by default.
+        mentions_earth = re.search(r"\bEarth\b", q, re.IGNORECASE)
+        mentions_other_body = re.search(
+            r"\b(moon|sun|mars|venus|jupiter|saturn|mercury|neptune|uranus)\b",
+            q, re.IGNORECASE)
+        implies_earth = re.search(
+            r"\b(ISS|International\s+Space\s+Station|geostationary|"
+            r"geosynchronous)\b", q, re.IGNORECASE)
+        if mentions_earth or (implies_earth and not mentions_other_body):
             m_alt = re.search(r"\b([0-9][0-9,]*(?:\.[0-9]+)?)\s*(?:km|kilomet)",
                                 q, re.IGNORECASE)
             if m_alt:

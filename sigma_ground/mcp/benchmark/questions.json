@@ -1879,7 +1879,7 @@
     "expected_value": 5000000.0,
     "expected_units": "eV",
     "tolerance_rel": 0.001,
-    "primary_tool_expected": "eV_to_joules",
+    "primary_tool_expected": "convert_units",
     "secondary_tools_expected": [
       "joules_to_eV"
     ],
@@ -1904,7 +1904,7 @@
     "domain": "nuclear_physics",
     "course_level": "year_3",
     "question": "1 kg of U-235 fully fissioned releases how many megatons TNT?",
-    "expected_value": 19.6,
+    "expected_value": 0.0196,
     "expected_units": "MT_TNT",
     "tolerance_rel": 0.1,
     "primary_tool_expected": "joules_to_TNT",

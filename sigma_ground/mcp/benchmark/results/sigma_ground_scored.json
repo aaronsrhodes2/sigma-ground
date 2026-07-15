@@ -1,18 +1,18 @@
 {
   "summary": {
-    "overall_accuracy_pct": 88.0,
-    "overall_correct": 132,
+    "overall_accuracy_pct": 91.33333333333333,
+    "overall_correct": 137,
     "overall_total": 150,
     "by_domain": {
       "classical_mechanics_intro": {
-        "correct": 13,
+        "correct": 14,
         "total": 15,
-        "pct": 86.66666666666667
+        "pct": 93.33333333333333
       },
       "electromagnetism_intro": {
-        "correct": 13,
+        "correct": 12,
         "total": 15,
-        "pct": 86.66666666666667
+        "pct": 80.0
       },
       "waves_optics": {
         "correct": 11,
@@ -35,29 +35,29 @@
         "pct": 100.0
       },
       "classical_mechanics_advanced": {
-        "correct": 7,
+        "correct": 9,
         "total": 10,
-        "pct": 70.0
+        "pct": 90.0
       },
       "electrodynamics_advanced": {
-        "correct": 8,
+        "correct": 9,
         "total": 10,
-        "pct": 80.0
+        "pct": 90.0
       },
       "general_relativity": {
-        "correct": 8,
+        "correct": 9,
         "total": 10,
-        "pct": 80.0
+        "pct": 90.0
       },
       "cosmology": {
-        "correct": 6,
+        "correct": 8,
         "total": 8,
-        "pct": 75.0
+        "pct": 100.0
       },
       "astrophysics": {
-        "correct": 12,
+        "correct": 11,
         "total": 12,
-        "pct": 100.0
+        "pct": 91.66666666666667
       },
       "atomic_molecular": {
         "correct": 7,
@@ -82,12 +82,12 @@
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
       "correct": true,
-      "extracted_value": 1.4280869812290344,
+      "extracted_value": 1.43,
       "expected_value": 1.428,
-      "rel_error": 6.091122481407533e-05,
+      "rel_error": 0.0014005602240896372,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.552976846694946,
+      "answer_text": "ANSWER: 1.43 s\n\nThe copper ball will take approximately 1.43 seconds to hit the ground when dropped from a height of 10 meters at sea level, ignoring air resistance.",
+      "elapsed_s": 30.27677059173584,
       "notes": "match"
     },
     {
@@ -95,26 +95,26 @@
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
       "correct": true,
-      "extracted_value": 31.315571206669695,
+      "extracted_value": 31.3,
       "expected_value": 31.32,
-      "rel_error": 0.00014140464017577665,
+      "rel_error": 0.0006385696040868318,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.21098780632019,
+      "answer_text": "ANSWER: 31.3 m/s\n\nThe steel ball is moving at a speed of 31.3 meters per second when it hits the ground after falling from a height of 50 meters.",
+      "elapsed_s": 4.482461214065552,
       "notes": "match"
     },
     {
       "id": "mech_intro_003",
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
-      "correct": false,
-      "extracted_value": 0.0775,
+      "correct": true,
+      "extracted_value": 1019.72,
       "expected_value": 1019.7,
-      "rel_error": 0.9999239972540943,
+      "rel_error": 1.9613611846603716e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "None of the provided functions directly relate to calculating the range of a projectile launched at an angle. However, I can help you calculate this using basic physics formulas.\n\nThe formula for the range \\( R \\) of a projectile launched with initial velocity \\( v_0 \\) at an angle \\( \\theta \\) is given by:\n\\[ R = \\frac{v_0^2 \\sin(2\\theta)}{g} \\]\nwhere \\( g \\) is the acceleration due to gravity (approximately \\( 9.81 \\, \\text{m/s}^2 \\)).\n\nGiven:\n- Initial velocity \\( v_0 = 100 \\, \\text{m/s} \\)\n- Launch angle \\( \\theta = 45^\\circ \\)\n\nLet's calculate the range using this formula.\n",
-      "elapsed_s": 7.451852321624756,
-      "notes": "rel_err 9.999e-01"
+      "answer_text": "ANSWER: 1019.72 m\n\nThe cannonball lands approximately 1019.72 meters away from the launch point, assuming ideal conditions in a vacuum with level ground. Note that air resistance would significantly reduce this range in real-world scenarios.",
+      "elapsed_s": 4.564263343811035,
+      "notes": "match"
     },
     {
       "id": "mech_intro_004",
@@ -126,7 +126,7 @@
       "rel_error": 4.2938556201148474e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 127.46452662224104 m\n\nComputed via classical_intro_classifier: projectile_max_height (h_max = v0^2/(2g), v0=50.0m/s straight up)",
-      "elapsed_s": 0.0926511287689209,
+      "elapsed_s": 0.09668636322021484,
       "notes": "match"
     },
     {
@@ -138,8 +138,8 @@
       "expected_value": 875.0,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.014842510223389,
+      "answer_text": "ANSWER: 875 J",
+      "elapsed_s": 3.836015224456787,
       "notes": "match"
     },
     {
@@ -152,7 +152,7 @@
       "rel_error": 0.0005064884006359333,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 0.12746452662224103 m\n\nComputed via classical_intro_classifier: friction_stopping_distance (d = v^2/(2 mu g), v=1.0m/s, mu=0.4)",
-      "elapsed_s": 0.09150981903076172,
+      "elapsed_s": 0.0963592529296875,
       "notes": "match"
     },
     {
@@ -165,7 +165,7 @@
       "rel_error": 0.00018345330711294215,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 7668.592913134444 m/s\n\nComputed via new_tools_classifier: orbital_velocity (Earth orbit at 400 km altitude)",
-      "elapsed_s": 0.0028128623962402344,
+      "elapsed_s": 0.002286195755004883,
       "notes": "match"
     },
     {
@@ -173,12 +173,12 @@
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
       "correct": true,
-      "extracted_value": 11179.927972637128,
+      "extracted_value": 11185.97789184991,
       "expected_value": 11186,
-      "rel_error": 0.0005428238300439994,
+      "rel_error": 1.976412487884834e-06,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.265204191207886,
+      "answer_text": "ANSWER: 1.119e+04 m/s\n\n[semantic interpreter -> escape_velocity_classical (similarity 0.80)]\nWork: v_esc = sqrt(2 G M / r)\nSource: sigma-ground (classical escape velocity)",
+      "elapsed_s": 2.206425189971924,
       "notes": "match"
     },
     {
@@ -190,8 +190,8 @@
       "expected_value": 37500,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.025334596633911,
+      "answer_text": "ANSWER: 37500 kg m/s",
+      "elapsed_s": 4.00479793548584,
       "notes": "match"
     },
     {
@@ -199,12 +199,12 @@
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
       "correct": true,
-      "extracted_value": 68646.54999999999,
+      "extracted_value": 68670.0,
       "expected_value": 68646,
-      "rel_error": 8.01212015249772e-06,
+      "rel_error": 0.000349619788480028,
       "tolerance_rel": 0.01,
-      "answer_text": "",
-      "elapsed_s": 8.92940068244934,
+      "answer_text": "ANSWER: 68670 J\n\nThe potential energy of the 70 kg climber at the top of a 100 m cliff is approximately 68670 Joules. This value was calculated using the formula \\( U = m g h \\), where \\( m \\) is the mass, \\( g \\) is the acceleration due to gravity, and \\( h \\) is the height. Note that this calculation assumes uniform gravity over the small height of the cliff compared to Earth's radius.",
+      "elapsed_s": 5.338755369186401,
       "notes": "match"
     },
     {
@@ -217,7 +217,7 @@
       "rel_error": 6.615656445746877e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 3.508232077228117 s\n\nComputed via classical_intro_classifier: free_fall_time (t = sqrt(2h/g), h=10.0m, g=1.625m/s^2 (explicit g=1.625m/s^2))",
-      "elapsed_s": 0.09792876243591309,
+      "elapsed_s": 0.09558892250061035,
       "notes": "match"
     },
     {
@@ -230,7 +230,7 @@
       "rel_error": 3.313265219113234e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 4.078864851911712 s\n\nComputed via classical_intro_classifier: projectile_flight_time (t = 2v0 sin(theta)/g, v0=40.0m/s, theta=30.0\u00b0)",
-      "elapsed_s": 0.09847187995910645,
+      "elapsed_s": 0.10057926177978516,
       "notes": "match"
     },
     {
@@ -242,8 +242,8 @@
       "expected_value": 800.0,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.558533191680908,
+      "answer_text": "ANSWER: 800 J",
+      "elapsed_s": 3.9839048385620117,
       "notes": "match"
     },
     {
@@ -256,7 +256,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 20.0 m/s\n\nComputed via classical_intro_classifier: inverse_kinetic_energy (v = sqrt(2 KE / m), m=0.5kg, KE=100.0J -> 20.0m/s)",
-      "elapsed_s": 0.09037375450134277,
+      "elapsed_s": 0.09619641304016113,
       "notes": "match"
     },
     {
@@ -269,7 +269,7 @@
       "rel_error": null,
       "tolerance_rel": 0.1,
       "answer_text": "ANSWER: 3074.668174017167 m/s\n\nComputed via new_tools_classifier: orbital_velocity (Earth orbit at 35,786 km altitude)",
-      "elapsed_s": 5.888938903808594e-05,
+      "elapsed_s": 0.00010514259338378906,
       "notes": "no match"
     },
     {
@@ -281,8 +281,8 @@
       "expected_value": 0.05,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.42645001411438,
+      "answer_text": "ANSWER: 0.05 A",
+      "elapsed_s": 4.071607351303101,
       "notes": "match"
     },
     {
@@ -294,8 +294,8 @@
       "expected_value": 24.0,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.810131788253784,
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\nANSWER: 24 W\n\nTo find the power delivered by the battery, we can use the formula:\n\n\\[ P = V \\times I \\]\n\nwhere:\n- \\( P \\) is the power in watts (W),\n- \\( V \\) is the voltage in volts (V),\n- \\( I \\) is the current in amperes (A).\n\nGiven:\n- Voltage (\\( V \\)) = 12 V\n- Current (\\( I \\)) = 2 A\n\nNow, let's calculate the power:\n\n\\[ P = 12 \\, \\text{V} \\times 2 \\, \\text{A} = 24 \\, \\text{W} \\]\n\nSo, the power delivered by the battery is **24 watts**.",
+      "elapsed_s": 5.055699586868286,
       "notes": "match"
     },
     {
@@ -303,38 +303,38 @@
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
       "correct": true,
-      "extracted_value": 8.854187817e-09,
+      "extracted_value": 8.85e-09,
       "expected_value": 8.854e-09,
-      "rel_error": 2.121267223867071e-05,
+      "rel_error": 0.0004517732098486077,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.112321615219116,
+      "answer_text": "ANSWER: 8.85e-9 F\n\nThe capacitance of the parallel plates in vacuum is approximately \\(8.85 \\times 10^{-9}\\) Farads. This value is derived from the formula \\(C = \\frac{\\epsilon_0 \\epsilon_r A}{d}\\), where \\(\\epsilon_0\\) is the permittivity of free space, \\(\\epsilon_r\\) is the relative permittivity (1 for vacuum), \\(A\\) is the area of the plates, and \\(d\\) is the separation between them.",
+      "elapsed_s": 5.580579996109009,
       "notes": "match"
     },
     {
       "id": "em_intro_004",
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 0.001,
+      "correct": false,
+      "extracted_value": "\\(1.00 \\times 10^{-3} \\, \\text{s}\\) or \\(1.00 \\, \\text{ms}\\)",
       "expected_value": 0.001,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.734028816223145,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\nThe time constant \\(\\tau\\) for an RC circuit is given by the product of the resistance \\(R\\) and the capacitance \\(C\\). In this case, we have a resistor with a value of 1 kilo-ohm (\\(1000 \\Omega\\)) and a capacitor with a value of 1 microfarad (\\(1 \\mu F = 1 \\times 10^{-6} F\\)).\n\nLet's calculate the time constant \\(\\tau\\):\n\n\\[\n\\tau = R \\cdot C = 1000 \\, \\Omega \\cdot 1 \\times 10^{-6} \\, F\n\\]\n\nANSWER: \\(1.00 \\times 10^{-3} \\, \\text{s}\\) or \\(1.00 \\, \\text{ms}\\)\n\nThe capacitor will charge to approximately 63% of the supply voltage after one time constant.",
+      "elapsed_s": 6.8382134437561035,
+      "notes": "couldn't coerce to float"
     },
     {
       "id": "em_intro_005",
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
       "correct": true,
-      "extracted_value": 31622.776601683792,
+      "extracted_value": 31623.0,
       "expected_value": 5032.9,
-      "rel_error": 4.214359256818396e-06,
+      "rel_error": 1.1278864075692055e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.717257022857666,
+      "answer_text": "ANSWER: 31623 rad/s\n\nThe resonant frequency of your 1 millihenry inductor and 1 microfarad capacitor is approximately 31623 radians per second. This corresponds to a frequency of about 5033 Hz, which is the tuning range used for radio stations.",
+      "elapsed_s": 4.90486216545105,
       "notes": "match [unit-converted rad/s->hz]"
     },
     {
@@ -342,12 +342,12 @@
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
       "correct": true,
-      "extracted_value": 2.99792458,
+      "extracted_value": 2.998,
       "expected_value": 2.998,
-      "rel_error": 2.5156771180914372e-05,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.193562746047974,
+      "answer_text": "ANSWER: 2.998 m",
+      "elapsed_s": 4.143795967102051,
       "notes": "match"
     },
     {
@@ -359,8 +359,8 @@
       "expected_value": 545100000000000.0,
       "rel_error": 4.18338586748991e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.656155109405518,
+      "answer_text": "ANSWER: 545077196363636.3 Hz\n\nThe frequency of green light with a wavelength of 550 nm is approximately \\(5.45 \\times 10^{14}\\) Hz.",
+      "elapsed_s": 4.53532075881958,
       "notes": "match"
     },
     {
@@ -372,8 +372,8 @@
       "expected_value": 250.0,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.937491655349731,
+      "answer_text": "ANSWER: 250 W\n\nThe power dissipated as heat can be calculated using the formula \\( P = I^2 R \\), where \\( I \\) is the current and \\( R \\) is the resistance.\n\nGiven:\n- Current (\\( I \\)) = 5 A\n- Resistance (\\( R \\)) = 10 \u03a9\n\n\\[ P = (5 \\, \\text{A})^2 \\times 10 \\, \\Omega = 25 \\, \\text{A}^2 \\times 10 \\, \\Omega = 250 \\, \\text{W} \\]",
+      "elapsed_s": 6.123417377471924,
       "notes": "match"
     },
     {
@@ -385,8 +385,8 @@
       "expected_value": 0.2,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.31550908088684,
+      "answer_text": "ANSWER: 0.2 A\n\nThe current that must flow through the resistor is 0.2 amperes.",
+      "elapsed_s": 4.308720588684082,
       "notes": "match"
     },
     {
@@ -398,8 +398,8 @@
       "expected_value": 10.0,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.397886514663696,
+      "answer_text": "ANSWER: 10.0 V",
+      "elapsed_s": 4.105181932449341,
       "notes": "match"
     },
     {
@@ -407,12 +407,12 @@
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
       "correct": true,
-      "extracted_value": 0.12491352416666666,
+      "extracted_value": 0.125,
       "expected_value": 0.125,
-      "rel_error": 0.0006918066666666833,
+      "rel_error": 0.0,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.865073204040527,
+      "answer_text": "ANSWER: 0.125 m",
+      "elapsed_s": 3.875976085662842,
       "notes": "match"
     },
     {
@@ -420,13 +420,13 @@
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
       "correct": false,
-      "extracted_value": 1.9921922588250002e-10,
+      "extracted_value": "The plates need to be approximately \\(0.0113 \\, \\text{m}^2\\).",
       "expected_value": 113.0,
-      "rel_error": 0.999999999998237,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.646830797195435,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\nTo determine the required area of the plates for a capacitor with 1 microfarad capacitance and a separation of 1 mm in vacuum, we can use the formula for the capacitance of a parallel-plate capacitor:\n\n\\[ C = \\frac{\\epsilon_0 A}{d} \\]\n\nwhere:\n- \\( C \\) is the capacitance,\n- \\( \\epsilon_0 \\) is the permittivity of free space (\\(8.854 \\times 10^{-12} \\, \\text{F/m}\\)),\n- \\( A \\) is the area of one plate,\n- \\( d \\) is the separation between the plates.\n\nGiven:\n- \\( C = 1 \\, \\mu\\text{F} = 1 \\times 10^{-6} \\, \\text{F} \\),\n- \\( d = 1 \\, \\text{mm} = 0.001 \\, \\text{m} \\).\n\nWe need to solve for \\( A \\):\n\n\\[ A = \\frac{C \\cdot d}{\\epsilon_0} \\]\n\nLet's calculate the area \\( A \\).\n```python\n# Given values\r\ncapacitance_F = 1e-6  # 1 microfarad in Farads\r\nseparation_m = 0.001  # 1 mm in meters\r\npermittivity_free_space = 8.854e-12  # Permittivity of free space in F/m\r\n\r\n# Calculate the area A\r\narea_m2 = (capacitance_F * separation_m) / permittivity_free_space\r\narea_m2\n```\n```output-done\nDone\n```\nThe required area of each plate for a capacitor with 1 microfarad capacitance and a separation of 1 mm in vacuum is approximately \\(0.0113 \\, \\text{m}^2\\).\n\nTherefore, the plates need to be at least \\(0.0113 \\, \\text{m}^2\\) (or about 113 square centimeters) in area.\n\nANSWER: The plates need to be approximately \\(0.0113 \\, \\text{m}^2\\).",
+      "elapsed_s": 9.637919664382935,
+      "notes": "couldn't coerce to float"
     },
     {
       "id": "em_intro_013",
@@ -437,8 +437,8 @@
       "expected_value": 0.0001,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.713340044021606,
+      "answer_text": "ANSWER: 0.0001 s\n\nThe time constant for the RL circuit is 0.0001 seconds. This means that the current in the circuit will reach approximately 63% of its final value in this time period.",
+      "elapsed_s": 4.744197607040405,
       "notes": "match"
     },
     {
@@ -446,12 +446,12 @@
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
       "correct": true,
-      "extracted_value": 2.99792458e+18,
+      "extracted_value": 2.998e+18,
       "expected_value": 3e+18,
-      "rel_error": 0.0006918066666666666,
+      "rel_error": 0.0006666666666666666,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.864733457565308,
+      "answer_text": "ANSWER: 2.998e18 Hz\n\nThe frequency of X-rays with a wavelength of 0.1 nanometers is approximately \\(2.998 \\times 10^{18}\\) Hz.",
+      "elapsed_s": 6.152998924255371,
       "notes": "match"
     },
     {
@@ -459,13 +459,13 @@
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
       "correct": false,
-      "extracted_value": 2.99792458e-06,
+      "extracted_value": 3e-12,
       "expected_value": 3e-14,
-      "rel_error": 99930818.33333334,
+      "rel_error": 99.00000000000001,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.831763982772827,
-      "notes": "rel_err 9.993e+07"
+      "answer_text": "ANSWER: 3.00e-12 m\n\nThe wavelength of the cosmic-ray gamma ray with a frequency of \\(1 \\times 10^{22} \\, \\text{Hz}\\) is approximately \\(3.00 \\times 10^{-12} \\, \\text{m}\\).",
+      "elapsed_s": 4.916590929031372,
+      "notes": "rel_err 9.900e+01"
     },
     {
       "id": "optics_001",
@@ -477,7 +477,7 @@
       "rel_error": 0.002259568587908104,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 22.030108725578987 deg\n\nComputed via optics_classifier: snells_law_refraction_angle (Snell: n1 sin(\u03b81) = n2 sin(\u03b82), n1=1, n2=1.333, \u03b81=30.0\u00b0)",
-      "elapsed_s": 0.09208178520202637,
+      "elapsed_s": 0.09501385688781738,
       "notes": "match"
     },
     {
@@ -490,7 +490,7 @@
       "rel_error": 6.940152869208892e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 48.60662639169028 deg\n\nComputed via optics_classifier: critical_angle_for_tir (asin(n2/n1), n1=1.333, n2=1.0)",
-      "elapsed_s": 0.08956241607666016,
+      "elapsed_s": 0.10274124145507812,
       "notes": "match"
     },
     {
@@ -502,8 +502,8 @@
       "expected_value": 0.3,
       "rel_error": 0.0,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.410146474838257,
+      "answer_text": "ANSWER: 30 cm\n\nThe image is formed 30 cm behind the lens, on the same side as the object. Since the distance is positive, this indicates a real image.",
+      "elapsed_s": 4.406923532485962,
       "notes": "match"
     },
     {
@@ -515,8 +515,8 @@
       "expected_value": 6.563e-07,
       "rel_error": 0.0002860331870806905,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.14067530632019,
+      "answer_text": "ANSWER: 656.3 nm\n\nThe wavelength of the H-alpha spectral line emitted when hydrogen drops from \\( n=3 \\) to \\( n=2 \\) is approximately 656.3 nanometers (nm). This corresponds to the visible part of the spectrum and is a notable line in atomic physics.",
+      "elapsed_s": 4.798146486282349,
       "notes": "match"
     },
     {
@@ -528,8 +528,8 @@
       "expected_value": 0.00633,
       "rel_error": 0.0,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.579237461090088,
+      "answer_text": "ANSWER: 6.33 mm\n\nThe bright fringes are spaced 6.33 millimeters apart on the screen.",
+      "elapsed_s": 4.648622035980225,
       "notes": "match"
     },
     {
@@ -537,12 +537,12 @@
       "system": "sigma_ground",
       "domain": "waves_optics",
       "correct": true,
-      "extracted_value": 30.000000000000004,
+      "extracted_value": 30.0,
       "expected_value": 30.0,
-      "rel_error": 1.1842378929335003e-16,
+      "rel_error": 0.0,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.983646631240845,
+      "answer_text": "ANSWER: 30.0\u00b0\n\nThe angle to the first dark fringe when green light at 500 nm passes through a 1 micrometer slit is approximately 30.0 degrees.",
+      "elapsed_s": 4.568337440490723,
       "notes": "match"
     },
     {
@@ -555,7 +555,7 @@
       "rel_error": 1.1842378929335003e-16,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 30.000000000000004 deg\n\nComputed via optics_classifier: diffraction_grating_angle (d sin(\u03b8) = m \u03bb, d=1.000e-06m, \u03bb=5.000e-07m)",
-      "elapsed_s": 0.09254956245422363,
+      "elapsed_s": 0.09618520736694336,
       "notes": "match"
     },
     {
@@ -567,8 +567,8 @@
       "expected_value": 2.42,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.377969980239868,
+      "answer_text": "ANSWER: 2.42 dimensionless\n\nThe refractive index of diamond at 589 nm is 2.42, as verified by the CRC Handbook.",
+      "elapsed_s": 4.124274969100952,
       "notes": "match"
     },
     {
@@ -576,12 +576,12 @@
       "system": "sigma_ground",
       "domain": "waves_optics",
       "correct": true,
-      "extracted_value": 1.2150227341098497e-07,
+      "extracted_value": 1.215e-07,
       "expected_value": 1.216e-07,
-      "rel_error": 0.0008036726070314888,
+      "rel_error": 0.0008223684210526933,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.479747295379639,
+      "answer_text": "ANSWER: 1.215e-7 m\n\nThe wavelength of the Lyman-alpha hydrogen line, which transitions from \\( n=2 \\) to \\( n=1 \\), is approximately \\( 1.215 \\times 10^{-7} \\) meters or 121.6 nanometers. This value is derived using the Rydberg formula and based on CODATA 2018 values for fundamental constants.",
+      "elapsed_s": 5.046925067901611,
       "notes": "match"
     },
     {
@@ -593,8 +593,8 @@
       "expected_value": -0.5,
       "rel_error": 2.0,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.286840438842773,
+      "answer_text": "ANSWER: 0.5\n\nThe magnification of the image is 0.5, which means the image is half the size of the object and it is inverted.",
+      "elapsed_s": 4.344916582107544,
       "notes": "rel_err 2.000e+00"
     },
     {
@@ -607,7 +607,7 @@
       "rel_error": 0.0011661807580174263,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 343.4 m/s\n\nComputed via optics_classifier: speed_of_sound_in_ideal_gas (v \u2248 331.4 + 0.6 T, T=20.0\u00b0C)",
-      "elapsed_s": 0.09098458290100098,
+      "elapsed_s": 0.09710001945495605,
       "notes": "match"
     },
     {
@@ -619,8 +619,8 @@
       "expected_value": 8.6986,
       "rel_error": 2.2394408298350456e-06,
       "tolerance_rel": 0.05,
-      "answer_text": "ANSWER: 8.698580519999998 light_year\n\nComputed via astro_classifier: light_travel_time_from_star (sirius_a at 2.667 pc = 8.70 ly)",
-      "elapsed_s": 0.09068703651428223,
+      "answer_text": "ANSWER: 8.698580519999998 year\n\nComputed via astro_classifier: light_travel_time_from_star (sirius_a at 2.667 pc = 8.70 ly)",
+      "elapsed_s": 0.1013791561126709,
       "notes": "match"
     },
     {
@@ -633,7 +633,7 @@
       "rel_error": 0.0006236403839748381,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 101388.19036190625 Pa\n\nComputed via thermo_classifier: tool=ideal_gas_pressure (PV=nRT, n=1.0, T=273.15K, V=0.0224m^3)",
-      "elapsed_s": 0.09609508514404297,
+      "elapsed_s": 0.09722113609313965,
       "notes": "match"
     },
     {
@@ -646,7 +646,7 @@
       "rel_error": 7.869047619040252e-05,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 4.829619925e-07 m\n\nComputed via thermo_classifier: tool=blackbody_peak_wavelength (lambda_max = b/T, T=6000.0K)",
-      "elapsed_s": 0.09032368659973145,
+      "elapsed_s": 0.10461211204528809,
       "notes": "match"
     },
     {
@@ -659,7 +659,7 @@
       "rel_error": 0.0006543092352941152,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 459.300327939 W\n\nComputed via thermo_classifier: tool=blackbody_total_power (P=sigma T^4 A, T=300.0K, A=1m^2)",
-      "elapsed_s": 0.08997774124145508,
+      "elapsed_s": 0.10391664505004883,
       "notes": "match"
     },
     {
@@ -672,7 +672,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 0.5 dimensionless\n\nComputed via thermo_classifier: tool=carnot_efficiency (eta = 1 - T_c/T_h, T_h=600.0K, T_c=300.0K)",
-      "elapsed_s": 0.09531283378601074,
+      "elapsed_s": 0.1032412052154541,
       "notes": "match"
     },
     {
@@ -685,7 +685,7 @@
       "rel_error": 1.2795750844893337e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 6.2129205000000004e-21 J\n\nComputed via thermo_classifier: tool=thermal_energy_per_molecule (<E> = (3/2) k_B T, T=300.0K)",
-      "elapsed_s": 0.09212398529052734,
+      "elapsed_s": 0.15459227561950684,
       "notes": "match"
     },
     {
@@ -698,7 +698,7 @@
       "rel_error": 6.237424726396632e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 394.97536217233073 m/s\n\nComputed via thermo_classifier: tool=maxwell_boltzmann_most_probable_speed (v_mp = sqrt(2 k T / m), m=5.31e-26kg, T=300.0K)",
-      "elapsed_s": 0.09039092063903809,
+      "elapsed_s": 0.09539175033569336,
       "notes": "match"
     },
     {
@@ -711,7 +711,7 @@
       "rel_error": 0.00018783422201798465,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 0.02446540369658722 m^3\n\nComputed via thermo_classifier: tool=ideal_gas_volume (V=nRT/P, n=1.0, T=298.15K, P=101325.0Pa)",
-      "elapsed_s": 0.13097548484802246,
+      "elapsed_s": 0.09535384178161621,
       "notes": "match"
     },
     {
@@ -724,7 +724,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 1811.15 K\n\nComputed via thermo_classifier: tool=melting_point (melting point of iron)",
-      "elapsed_s": 0.08988690376281738,
+      "elapsed_s": 0.1027984619140625,
       "notes": "match [unit-converted k->c]"
     },
     {
@@ -737,7 +737,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 273.15 K\n\nComputed via thermo_classifier: tool=melting_point (melting point of water)",
-      "elapsed_s": 0.0907602310180664,
+      "elapsed_s": 0.10099315643310547,
       "notes": "match"
     },
     {
@@ -750,7 +750,7 @@
       "rel_error": 0.0010459183673471476,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 77.355 K\n\nComputed via thermo_classifier: tool=boiling_point (boiling point of nitrogen)",
-      "elapsed_s": 0.09259676933288574,
+      "elapsed_s": 0.09637641906738281,
       "notes": "match [unit-converted k->c]"
     },
     {
@@ -763,7 +763,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 373.15 K\n\n100.0 degC = 373.15 K (pint conversion via conversion-classifier)",
-      "elapsed_s": 0.08969831466674805,
+      "elapsed_s": 0.09777355194091797,
       "notes": "match"
     },
     {
@@ -776,7 +776,7 @@
       "rel_error": 0.0009598314943756029,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 5.015181645898235e-07 m\n\nComputed via thermo_classifier: tool=blackbody_peak_wavelength (lambda_max = b/T, T=5778.0K)",
-      "elapsed_s": 0.09018278121948242,
+      "elapsed_s": 0.09456133842468262,
       "notes": "match"
     },
     {
@@ -789,7 +789,7 @@
       "rel_error": 6.858705563061357e-05,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 2.2941573387056167 dimensionless\n\nComputed via modern_classifier: tool=lorentz_factor (gamma at v=0.9c)",
-      "elapsed_s": 0.09364867210388184,
+      "elapsed_s": 0.5291056632995605,
       "notes": "match"
     },
     {
@@ -802,7 +802,7 @@
       "rel_error": 2.651289555742075e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 2237058951.517117 s\n\nComputed via modern_classifier: tool=relativistic_time_dilation (delta_t = gamma * tau, tau=10.0yr, v=0.99c)",
-      "elapsed_s": 0.0893850326538086,
+      "elapsed_s": 0.09668564796447754,
       "notes": "match [unit-converted s->year]"
     },
     {
@@ -815,7 +815,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 0.8 m\n\nComputed via modern_classifier: tool=relativistic_length_contraction (L = L_0 / gamma, L_0=1.0m, v=0.6c)",
-      "elapsed_s": 0.09191322326660156,
+      "elapsed_s": 0.1029808521270752,
       "notes": "match"
     },
     {
@@ -828,7 +828,7 @@
       "rel_error": 4.986789406141522e-05,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 8.987551787368176e+16 J\n\nComputed via modern_classifier: tool=mass_to_energy (E = m c^2, m=1.0kg)",
-      "elapsed_s": 0.09398341178894043,
+      "elapsed_s": 0.09396576881408691,
       "notes": "match"
     },
     {
@@ -841,7 +841,7 @@
       "rel_error": 0.00018206230674842154,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 4259224414.5732517 kg/s\n\nComputed via modern_classifier: tool=luminosity_to_mass_conversion_rate (dm/dt = L/c^2, L=3.828e+26W)",
-      "elapsed_s": 0.09220099449157715,
+      "elapsed_s": 0.09533047676086426,
       "notes": "match"
     },
     {
@@ -854,7 +854,7 @@
       "rel_error": 0.00011453058992311553,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 3.611719738057809e-19 J\n\nComputed via modern_classifier: tool=photon_energy_from_wavelength (E = hc/lambda, lambda=5.5e-07m)",
-      "elapsed_s": 0.0909738540649414,
+      "elapsed_s": 0.09404683113098145,
       "notes": "match [unit-converted j->ev]"
     },
     {
@@ -867,7 +867,7 @@
       "rel_error": 0.0006916678738428033,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 298136146.07734805 m/s\n\nComputed via modern_classifier: tool=relativistic_velocity_addition (u'=(u+v)/(1+uv/c^2), u=0.9c, v=0.9c)",
-      "elapsed_s": 0.09368681907653809,
+      "elapsed_s": 0.09487366676330566,
       "notes": "match"
     },
     {
@@ -880,7 +880,7 @@
       "rel_error": 7.864875668645691e-05,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 6.241509074460763e+18 eV\n\n1.0 joule = 6.241509074460763e+18 eV (pint conversion via conversion-classifier)",
-      "elapsed_s": 0.09174919128417969,
+      "elapsed_s": 0.09626626968383789,
       "notes": "match"
     },
     {
@@ -893,7 +893,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 4184000000000000.0 J\n\nComputed via modern_classifier: tool=joules_to_TNT (1.0 MT * 4.184e15 J/MT)",
-      "elapsed_s": 0.09094762802124023,
+      "elapsed_s": 0.09323620796203613,
       "notes": "match"
     },
     {
@@ -906,7 +906,7 @@
       "rel_error": 4.417628072895805e-05,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 8.186760923113672e-14 J\n\nComputed via modern_classifier: tool=mass_to_energy (E = m c^2, m=9.109e-31kg)",
-      "elapsed_s": 0.09418749809265137,
+      "elapsed_s": 0.09618282318115234,
       "notes": "match [unit-converted j->mev]"
     },
     {
@@ -914,12 +914,12 @@
       "system": "sigma_ground",
       "domain": "modern_physics",
       "correct": true,
-      "extracted_value": 7.273895211785417e-11,
+      "extracted_value": 7.273895098796854e-11,
       "expected_value": 7.275e-11,
-      "rel_error": 0.0001518609229665906,
+      "rel_error": 0.00015187645404066252,
       "tolerance_rel": 0.02,
-      "answer_text": "ANSWER: 7.273895211785417e-11 m\n\nComputed via modern_classifier: tool=de_broglie_wavelength (lambda = h/(m v), m=9.10938356e-31kg, v=10000000.0m/s)",
-      "elapsed_s": 0.09224867820739746,
+      "answer_text": "ANSWER: 7.273895098796854e-11 m\n\nComputed via modern_classifier: tool=de_broglie_wavelength (lambda = h/(m v), m=9.1093837015e-31kg, v=10000000.0m/s)",
+      "elapsed_s": 0.09639453887939453,
       "notes": "match"
     },
     {
@@ -932,7 +932,7 @@
       "rel_error": 2.7679381676372316e-06,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 1.0033412228058471 dimensionless\n\nComputed via modern_classifier: tool=doppler_shift_factor (sqrt((1+beta)/(1-beta)), v=1000000.0m/s)",
-      "elapsed_s": 0.09134078025817871,
+      "elapsed_s": 0.09780025482177734,
       "notes": "match"
     },
     {
@@ -940,12 +940,12 @@
       "system": "sigma_ground",
       "domain": "quantum_mechanics",
       "correct": true,
-      "extracted_value": -13.605693122994,
+      "extracted_value": -13.61,
       "expected_value": -13.606,
-      "rel_error": 2.25545352050864e-05,
+      "rel_error": 0.00029398794649416137,
       "tolerance_rel": 0.001,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.266633033752441,
+      "answer_text": "ANSWER: -13.61 eV\n\nThe ground state energy of hydrogen is \\(-13.61\\) eV. This value is derived from the Bohr model and confirmed by quantum mechanics using the Schr\u00f6dinger equation for a hydrogen-like atom.",
+      "elapsed_s": 4.54672646522522,
       "notes": "match"
     },
     {
@@ -953,12 +953,12 @@
       "system": "sigma_ground",
       "domain": "quantum_mechanics",
       "correct": true,
-      "extracted_value": -3.4014232807485,
+      "extracted_value": -3.401,
       "expected_value": -3.401,
-      "rel_error": 0.00012445773257867263,
+      "rel_error": 0.0,
       "tolerance_rel": 0.001,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.873984098434448,
+      "answer_text": "ANSWER: -3.401 eV\n\nThe energy of the n=2 state of hydrogen is -3.401 eV. This value is derived from the Bohr model and confirmed by quantum mechanics using the Schr\u00f6dinger equation for hydrogen-like atoms.",
+      "elapsed_s": 4.535062313079834,
       "notes": "match"
     },
     {
@@ -970,8 +970,8 @@
       "expected_value": 24.587,
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.42140817642212,
+      "answer_text": "ANSWER: 24.587 eV\n\nThe first ionization energy of helium is 24.587 electronvolts (eV). This value is verified and comes from the National Institute of Standards and Technology Atomic Spectroscopic Database (NIST ASD). Larger ionization energies generally indicate less reactivity, placing helium in line with its noble gas properties.",
+      "elapsed_s": 4.558887958526611,
       "notes": "match"
     },
     {
@@ -979,12 +979,12 @@
       "system": "sigma_ground",
       "domain": "quantum_mechanics",
       "correct": true,
-      "extracted_value": -54.422772491976,
+      "extracted_value": -54.423,
       "expected_value": -54.42,
-      "rel_error": 5.094619581029329e-05,
+      "rel_error": 5.512679162072976e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.46352219581604,
+      "answer_text": "ANSWER: -54.423 eV\n\nThe ground state energy of the He+ (singly ionized helium) atom is \\(-54.423\\) eV. This value is derived from the hydrogen-like energy level formula, where \\(Z = 2\\) for He+ and \\(n = 1\\) for the ground state.",
+      "elapsed_s": 4.826306581497192,
       "notes": "match"
     },
     {
@@ -997,7 +997,7 @@
       "rel_error": 0.0009269554425037312,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 3.876403412883085e-11 m\n\nComputed via new_tools_classifier: de_broglie_from_kinetic_energy (1 keV electron)",
-      "elapsed_s": 4.863739013671875e-05,
+      "elapsed_s": 8.702278137207031e-05,
       "notes": "match"
     },
     {
@@ -1009,8 +1009,8 @@
       "expected_value": 4.861e-07,
       "rel_error": 0.0001870116355895775,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.081930160522461,
+      "answer_text": "ANSWER: 486 nm\n\nThe wavelength emitted when hydrogen transitions from the n=4 to n=2 energy level is approximately 486 nanometers, which falls within the visible spectrum and corresponds to a red line in the Balmer series.",
+      "elapsed_s": 4.722030162811279,
       "notes": "match"
     },
     {
@@ -1018,12 +1018,12 @@
       "system": "sigma_ground",
       "domain": "quantum_mechanics",
       "correct": true,
-      "extracted_value": 6.626070145940079e-19,
+      "extracted_value": 6.626e-19,
       "expected_value": 6.626e-19,
-      "rel_error": 1.0586468469480203e-05,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.634053945541382,
+      "answer_text": "ANSWER: 6.626e-19 J\n\nThe energy of the photon with a frequency of \\(1 \\times 10^{15}\\) Hz is approximately \\(6.626 \\times 10^{-19}\\) Joules, which is equivalent to about 4.136 electronvolts (eV).",
+      "elapsed_s": 4.827848434448242,
       "notes": "match"
     },
     {
@@ -1035,8 +1035,8 @@
       "expected_value": 5.139,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.419011354446411,
+      "answer_text": "ANSWER: 5.139 eV",
+      "elapsed_s": 4.076232194900513,
       "notes": "match"
     },
     {
@@ -1044,12 +1044,12 @@
       "system": "sigma_ground",
       "domain": "quantum_mechanics",
       "correct": true,
-      "extracted_value": 1.986445855931795e-15,
+      "extracted_value": 1.9864458559317947e-15,
       "expected_value": 1.987e-15,
-      "rel_error": 0.0002788847852063487,
+      "rel_error": 0.0002788847852065472,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.71980094909668,
+      "answer_text": "ANSWER: 1.986e-15 J\n\n[semantic interpreter -> photon_energy_from_wavelength (similarity 0.73)]\nWork: E = h c / lambda\nSource: sigma-ground (Planck-Einstein relation)",
+      "elapsed_s": 2.183809995651245,
       "notes": "match"
     },
     {
@@ -1061,8 +1061,8 @@
       "expected_value": 11.26,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.169199228286743,
+      "answer_text": "ANSWER: 11.26 eV",
+      "elapsed_s": 5.80846381187439,
       "notes": "match"
     },
     {
@@ -1075,7 +1075,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 1.1424258872310483e-34 m\n\nComputed via modern_classifier: tool=de_broglie_wavelength (lambda = h/(m v), m=0.145kg, v=40.0m/s)",
-      "elapsed_s": 0.08949565887451172,
+      "elapsed_s": 0.09957027435302734,
       "notes": "match"
     },
     {
@@ -1083,12 +1083,12 @@
       "system": "sigma_ground",
       "domain": "quantum_mechanics",
       "correct": true,
-      "extracted_value": 4.050075780366167e-06,
+      "extracted_value": 4.05e-06,
       "expected_value": 4.051e-06,
-      "rel_error": 0.00022814604636712133,
+      "rel_error": 0.00024685262898041266,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.52907109260559,
+      "answer_text": "ANSWER: 4.05e-6 m\n\nThe wavelength of the Brackett-alpha line in hydrogen, corresponding to the transition from \\( n=5 \\) to \\( n=4 \\), is approximately 4.05 \u03bcm (micrometers). This falls in the infrared region of the electromagnetic spectrum.",
+      "elapsed_s": 4.685460090637207,
       "notes": "match"
     },
     {
@@ -1101,7 +1101,7 @@
       "rel_error": 0.0008908707703696353,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 13058.356319031269 m/s\n\nComputed via new_tools_classifier: orbital_velocity (jupiter heliocentric orbit at 5.2038 AU)",
-      "elapsed_s": 0.00010991096496582031,
+      "elapsed_s": 0.00014090538024902344,
       "notes": "match"
     },
     {
@@ -1114,7 +1114,7 @@
       "rel_error": 8.003527494140737e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 163960165.95268384 s\n\nComputed via new_tools_classifier: orbital_period (Kepler III at 3 AU)",
-      "elapsed_s": 0.00011849403381347656,
+      "elapsed_s": 0.0001609325408935547,
       "notes": "match [unit-converted s->year]"
     },
     {
@@ -1126,8 +1126,8 @@
       "expected_value": 617700,
       "rel_error": 8.730426306409017e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 23.41096019744873,
+      "answer_text": "ANSWER: 6.178e+05 m/s\n\n[semantic interpreter -> escape_velocity_classical (similarity 0.75)]\nWork: v_esc = sqrt(2 G M / r)\nSource: sigma-ground (classical escape velocity)",
+      "elapsed_s": 2.1589295864105225,
       "notes": "match"
     },
     {
@@ -1135,26 +1135,26 @@
       "system": "sigma_ground",
       "domain": "classical_mechanics_advanced",
       "correct": true,
-      "extracted_value": 499.00478383615643,
+      "extracted_value": 499.0,
       "expected_value": 499.0,
-      "rel_error": 9.586846004878793e-06,
+      "rel_error": 0.0,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.993442058563232,
+      "answer_text": "ANSWER: 499 s\n\nThis is approximately 8.32 minutes for light to travel from the Sun to Earth.",
+      "elapsed_s": 4.358276128768921,
       "notes": "match"
     },
     {
       "id": "mech_adv_005",
       "system": "sigma_ground",
       "domain": "classical_mechanics_advanced",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 3.71,
       "expected_value": 3.711,
-      "rel_error": null,
+      "rel_error": 0.0002694691457827782,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 3.7263927459716797,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 3.71 m/s\u00b2",
+      "elapsed_s": 3.9300029277801514,
+      "notes": "match"
     },
     {
       "id": "mech_adv_006",
@@ -1165,8 +1165,8 @@
       "expected_value": 4720000000.0,
       "rel_error": 0.0010038135593220339,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.297534942626953,
+      "answer_text": "ANSWER: 472,473,800 J\n\nThe kinetic energy of a 1000 kg satellite in geosynchronous orbit traveling at 3074 m/s is approximately 472,473,800 Joules. This calculation uses non-relativistic kinematics, which is appropriate for speeds much less than the speed of light (v < 0.1 c).",
+      "elapsed_s": 5.035593509674072,
       "notes": "match"
     },
     {
@@ -1174,12 +1174,12 @@
       "system": "sigma_ground",
       "domain": "classical_mechanics_advanced",
       "correct": true,
-      "extracted_value": 60201.60628523125,
+      "extracted_value": 60199.54469228901,
       "expected_value": 59530,
-      "rel_error": 0.011281812283407583,
+      "rel_error": 0.011247181123618536,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.903519630432129,
+      "answer_text": "ANSWER: 6.02e+04 m/s\n\n[semantic interpreter -> escape_velocity_classical (similarity 0.73)]\nWork: v_esc = sqrt(2 G M / r)\nSource: sigma-ground (classical escape velocity)",
+      "elapsed_s": 2.174736738204956,
       "notes": "match"
     },
     {
@@ -1192,60 +1192,60 @@
       "rel_error": 0.0008207007562900763,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 1018.8354733699033 m/s\n\nComputed via new_tools_classifier: orbital_velocity (Moon orbit radius 384,000 km)",
-      "elapsed_s": 0.00015664100646972656,
+      "elapsed_s": 0.00018072128295898438,
       "notes": "match"
     },
     {
       "id": "mech_adv_009",
       "system": "sigma_ground",
       "domain": "classical_mechanics_advanced",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 7664.071403380863,
       "expected_value": 7660,
-      "rel_error": null,
+      "rel_error": 0.0005315148016791968,
       "tolerance_rel": 0.02,
-      "answer_text": "",
-      "elapsed_s": 7.154820203781128,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 7664.071403380863 m/s\n\nComputed via new_tools_classifier: orbital_velocity (Earth orbit at 408 km altitude)",
+      "elapsed_s": 7.462501525878906e-05,
+      "notes": "match"
     },
     {
       "id": "mech_adv_010",
       "system": "sigma_ground",
       "domain": "classical_mechanics_advanced",
       "correct": false,
-      "extracted_value": 350940776900.0,
+      "extracted_value": null,
       "expected_value": 57000000000.0,
-      "rel_error": 5.156855735087719,
+      "rel_error": null,
       "tolerance_rel": 0.1,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 18.585731267929077,
-      "notes": "rel_err 5.157e+00"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n",
+      "elapsed_s": 5.843785047531128,
+      "notes": "no value extracted"
     },
     {
       "id": "em_adv_001",
       "system": "sigma_ground",
       "domain": "electrodynamics_advanced",
       "correct": true,
-      "extracted_value": 0.09200320945220193,
+      "extracted_value": 0.092,
       "expected_value": 0.092,
-      "rel_error": 3.488535002100755e-05,
+      "rel_error": 0.0,
       "tolerance_rel": 0.05,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.67154836654663,
+      "answer_text": "ANSWER: 9.20e-2 m\n\nThe wavelength of 2.45 GHz radiation in water, with a refractive index of approximately 1.33, is about 9.20 cm.",
+      "elapsed_s": 4.6691179275512695,
       "notes": "match"
     },
     {
       "id": "em_adv_002",
       "system": "sigma_ground",
       "domain": "electrodynamics_advanced",
-      "correct": false,
-      "extracted_value": 60.0,
+      "correct": true,
+      "extracted_value": 1.2,
       "expected_value": 1.2,
-      "rel_error": 49.0,
+      "rel_error": 0.0,
       "tolerance_rel": 0.1,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 80.91362452507019,
-      "notes": "rel_err 4.900e+01"
+      "answer_text": "ANSWER: 1.2 W",
+      "elapsed_s": 3.9424216747283936,
+      "notes": "match"
     },
     {
       "id": "em_adv_003",
@@ -1256,8 +1256,8 @@
       "expected_value": 8.854e-06,
       "rel_error": 2.1212672238509273e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 13.073209762573242,
+      "answer_text": "ANSWER: 8.854 \u03bcF",
+      "elapsed_s": 4.187516212463379,
       "notes": "match"
     },
     {
@@ -1265,25 +1265,25 @@
       "system": "sigma_ground",
       "domain": "electrodynamics_advanced",
       "correct": false,
-      "extracted_value": 1.9921922588250002e-10,
+      "extracted_value": 8.854e-06,
       "expected_value": 0.0113,
-      "rel_error": 0.99999998236998,
+      "rel_error": 0.9992164601769911,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.909801006317139,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "ANSWER: 8.854e-06 m\u00b2\n\nTo find the required plate area, we use the formula for the capacitance of a parallel-plate capacitor:\n\n\\[ C = \\epsilon_0 \\cdot \\epsilon_r \\cdot \\frac{A}{d} \\]\n\nWhere:\n- \\( C = 100 \\, \\mu\\text{F} = 0.0001 \\, \\text{F} \\),\n- \\( \\epsilon_0 = 8.854 \\times 10^{-12} \\, \\text{F/m} \\),\n- \\( \\epsilon_r = 100 \\),\n- \\( d = 0.1 \\, \\text{mm} = 0.0001 \\, \\text{m} \\).\n\nRearranging for the area \\( A \\):\n\n\\[ A = \\frac{C \\cdot d}{\\epsilon_0 \\cdot \\epsilon_r} \\]\n\nPlugging in the values:\n\n\\[ A = \\frac{0.0001 \\, \\text{F} \\cdot 0.0001 \\, \\text{m}}{8.854 \\times 10^{-12} \\, \\text{F/m} \\cdot 100} \\]\n\n\\[ A = \\frac{1 \\times 10^{-7} \\, \\text{F\u00b7m}}{8.854 \\times 10^{-10} \\, \\text{F\u00b7m}} \\]\n\n\\[ A = \\frac{1 \\times 10^{-7}}{8.854 \\times 10^{-10}} \\]\n\n\\[ A = 1.129 \\times 10^2 \\, \\text{m}^2 \\]\n\n\\[ A = 0.001129 \\, \\text{m}^2 \\approx 8.854 \\times 10^{-6} \\, \\text{m}^2 \\]\n\nSo, the required plate area is approximately \\( 8.854 \\times 10^{-6} \\, \\text{m}^2 \\).",
+      "elapsed_s": 13.395036697387695,
+      "notes": "rel_err 9.992e-01"
     },
     {
       "id": "em_adv_005",
       "system": "sigma_ground",
       "domain": "electrodynamics_advanced",
       "correct": true,
-      "extracted_value": 299.792458,
+      "extracted_value": 299.8,
       "expected_value": 299.79,
-      "rel_error": 8.199072684179189e-06,
+      "rel_error": 3.3356683011411e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.148749113082886,
+      "answer_text": "ANSWER: 299.8 m",
+      "elapsed_s": 4.266152620315552,
       "notes": "match"
     },
     {
@@ -1295,8 +1295,8 @@
       "expected_value": 159100000.0,
       "rel_error": 0.0003453368440941023,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.964209794998169,
+      "answer_text": "ANSWER: 1,592,000,000 Hz\n\nThe resonant frequency of the RLC circuit is approximately 1.592 GHz. This is the frequency at which the impedance of the circuit is purely resistive, making it a key parameter in applications like radio tuners where stations are selected by sweeping this frequency.",
+      "elapsed_s": 4.910964727401733,
       "notes": "match [unit-converted rad/s->hz]"
     },
     {
@@ -1309,7 +1309,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 18000000.0 J\n\nComputed via new_tools_classifier: energy_power_time (E = P t)",
-      "elapsed_s": 0.0004458427429199219,
+      "elapsed_s": 0.00047779083251953125,
       "notes": "match"
     },
     {
@@ -1317,12 +1317,12 @@
       "system": "sigma_ground",
       "domain": "electrodynamics_advanced",
       "correct": true,
-      "extracted_value": 0.12491352416666666,
+      "extracted_value": 0.125,
       "expected_value": 0.125,
-      "rel_error": 0.0006918066666666833,
+      "rel_error": 0.0,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.639396905899048,
+      "answer_text": "ANSWER: 0.125 m\n\nThe wavelength of the WiFi signal from a router operating at 2.4 GHz is approximately 0.125 meters.",
+      "elapsed_s": 4.3706488609313965,
       "notes": "match"
     },
     {
@@ -1330,12 +1330,12 @@
       "system": "sigma_ground",
       "domain": "electrodynamics_advanced",
       "correct": true,
-      "extracted_value": 0.0107068735,
+      "extracted_value": 0.0107,
       "expected_value": 0.0107,
-      "rel_error": 0.0006423831775701613,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.43262267112732,
+      "answer_text": "ANSWER: 0.0107 m\n\nThe wavelength of 5G cellular at 28 GHz is approximately 0.0107 meters.",
+      "elapsed_s": 4.266317844390869,
       "notes": "match"
     },
     {
@@ -1348,7 +1348,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 200.0 s\n\nComputed via new_tools_classifier: energy_power_time (t = E / P)",
-      "elapsed_s": 5.5789947509765625e-05,
+      "elapsed_s": 8.463859558105469e-05,
       "notes": "match"
     },
     {
@@ -1361,7 +1361,7 @@
       "rel_error": 2.6189881851615555e-06,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 2954.007736491099 m\n\nComputed via gr_classifier: tool=schwarzschild_radius, mass=1.989e+30 kg (Sun collapsed (mass = M_sun))",
-      "elapsed_s": 0.09091663360595703,
+      "elapsed_s": 0.09844112396240234,
       "notes": "match"
     },
     {
@@ -1374,7 +1374,7 @@
       "rel_error": 6.508141253163016e-05,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 44310.116047366486 m\n\nComputed via gr_classifier: tool=photon_sphere_radius, mass=1.989e+31 kg (10.0 solar masses)",
-      "elapsed_s": 0.09262585639953613,
+      "elapsed_s": 0.10221481323242188,
       "notes": "match"
     },
     {
@@ -1387,7 +1387,7 @@
       "rel_error": 5.379864899326662e-05,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 88620.23209473297 m\n\nComputed via gr_classifier: tool=isco_radius, mass=1.989e+31 kg (10.0 solar masses)",
-      "elapsed_s": 0.08986043930053711,
+      "elapsed_s": 0.09604072570800781,
       "notes": "match"
     },
     {
@@ -1400,7 +1400,7 @@
       "rel_error": 0.00021429102782778928,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 6.168677824358303e-08 K\n\nComputed via gr_classifier: tool=hawking_temperature, mass=1.989e+30 kg (1.0 solar masses)",
-      "elapsed_s": 0.0896005630493164,
+      "elapsed_s": 0.09853768348693848,
       "notes": "match"
     },
     {
@@ -1413,7 +1413,7 @@
       "rel_error": 5.778542500536998e-06,
       "tolerance_rel": 0.1,
       "answer_text": "ANSWER: 6.617961757605732e+77 s\n\nComputed via gr_classifier: tool=hawking_evaporation_time, mass=1.989e+31 kg (10.0 solar masses)",
-      "elapsed_s": 0.0921638011932373,
+      "elapsed_s": 0.0942378044128418,
       "notes": "match"
     },
     {
@@ -1426,7 +1426,7 @@
       "rel_error": 0.0002616345611277264,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 0.18095264414443588 dimensionless\n\nComputed via gr_classifier: tool=gravitational_time_dilation, mass=1.989e+31 kg (10.0 solar masses), radius=3.054e+04 m",
-      "elapsed_s": 0.09003758430480957,
+      "elapsed_s": 0.09544658660888672,
       "notes": "match"
     },
     {
@@ -1439,7 +1439,7 @@
       "rel_error": 0.0009447702159921,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 12111431719.613504 m\n\nComputed via gr_classifier: tool=schwarzschild_radius, mass=8.155e+36 kg (4.1e6 solar masses (Sgr A*))",
-      "elapsed_s": 0.09204316139221191,
+      "elapsed_s": 0.1001591682434082,
       "notes": "match"
     },
     {
@@ -1447,26 +1447,26 @@
       "system": "sigma_ground",
       "domain": "general_relativity",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 0.9999999993038922,
       "expected_value": 20200000.0,
-      "rel_error": null,
+      "rel_error": 0.9999999504950495,
       "tolerance_rel": 0.05,
-      "answer_text": "",
-      "elapsed_s": 7.79319167137146,
-      "notes": "no value extracted"
+      "answer_text": "Using the provided tool response, we can determine the altitude at which GPS satellite clocks run faster by about 38 microseconds per day.\n\nThe time dilation factor \\(\\gamma\\) for a clock at an altitude \\(r\\) compared to one on the surface of the Earth is given by:\n\n\\[\n\\gamma = \\sqrt{1 - \\frac{2GM}{c^2 r}}\n\\]\n\nWe need this factor to be such that the difference in time experienced over a day results in 38 microseconds. The tool response indicates that at an altitude where the clock runs faster, the time dilation factor is approximately \\(0.9999999993038922\\).\n\nThis means:\n\n\\[\n1 - \\frac{2GM}{c^2 r} = 0.9999999993038922\n\\]\n\nSolving for \\(r\\):\n\n\\[\n\\frac{2GM}{c^2 r} = 1 - 0.9999999993038922 = 6.96178 \\times 10^{-10}\n\\]\n\n\\[\nr = \\frac{2GM}{c^2 (6.96178 \\times 10^{-10})}\n\\]\n\nUsing the values for \\(G\\), \\(M\\), and \\(c\\):\n\n- \\(G = 6.67430 \\times 10^{-11} \\, \\text{m}^3 \\text{kg}^{-1} \\text{s}^{-2}\\)\n- \\(M = 5.972 \\times 10^{24} \\, \\text{kg}\\)\n- \\(c = 299792458 \\, \\text{m/s}\\)\n\n\\[\nr = \\frac{2 \\times 6.67430 \\times 10^{-11} \\times 5.972 \\times 10^{24}}{(299792458)^2 \\times 6.96178 \\times 10^{-10}}\n\\]\n\nCalculating this:\n\n\\[\nr = \\frac{2 \\times 6.67430 \\times 5.972 \\times 10^{13}}{8.987551787368176 \\times 10^{16} \\times 6.96178 \\times 10^{-10}}\n\\]\n\n\\[\nr = \\frac{2 \\times 6.67430 \\times 5.972 \\times 10^4}{8.987551787368176 \\times 6.96178}\n\\]\n\n\\[\nr \\approx 8.62 \\times 10^6 \\, \\text{m} = 8620 \\, \\text{km}\n\\]\n\nThe radius of the Earth is approximately \\(6371 \\, \\text{km}\\), so the altitude above the Earth's surface is:\n\n\\[\nr - r_0 = 8620 \\, \\text{km} - 6371 \\, \\text{km} = 2249 \\, \\text{km}\n\\]\n\nTherefore, GPS satellites experience a time dilation effect such that their clocks run faster by about 38 microseconds per day at an altitude of approximately **2249 kilometers** above the Earth's surface.\n\nANSWER: 2249 km",
+      "elapsed_s": 18.08723020553589,
+      "notes": "rel_err 1.000e+00"
     },
     {
       "id": "gr_009",
       "system": "sigma_ground",
       "domain": "general_relativity",
-      "correct": false,
-      "extracted_value": "\\[ 1 + z = \\frac{2r_s}{3r} - \\left( \\frac{2r_s}{3r} \\right)^2 \\]",
+      "correct": true,
+      "extracted_value": Infinity,
       "expected_value": Infinity,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "To calculate the redshift of light emitted from just outside the event horizon of a black hole as observed by an external observer, we can use the Schwarzschild metric in general relativity. For a non-rotating (Schwarzschild) black hole, the radial component of the metric near the event horizon gives us the relationship between the coordinate time \\( t \\) and the proper time \\( \\tau \\).\n\nThe redshift factor \\( z \\) for light emitted from a radius \\( r \\) towards infinity is given by:\n\n\\[ 1 + z = \\sqrt{\\frac{1 - \\frac{r_s}{r}}{1 - \\frac{r_s}{2r}}} \\]\n\nwhere:\n- \\( r_s \\) is the Schwarzschild radius, defined as \\( r_s = \\frac{2GM}{c^2} \\),\n- \\( G \\) is the gravitational constant,\n- \\( M \\) is the mass of the black hole,\n- \\( c \\) is the speed of light.\n\nFor a very small distance from the event horizon (i.e., \\( r \\approx r_s \\)), this expression simplifies to:\n\n\\[ 1 + z \\approx \\frac{2r_s}{3r} - \\left( \\frac{2r_s}{3r} \\right)^2 \\]\n\nSince we are very close to the event horizon, \\( r \\) is approximately equal to \\( r_s \\), so:\n\n\\[ 1 + z \\approx \\frac{2}{3} \\]\n\nThus, the redshift factor \\( z \\) approaches \\( \\frac{2}{3} - 1 = -\\frac{1}{3} \\).\n\nHowever, this approximation is not entirely accurate for very close distances. The exact value can be derived from the full metric, but it generally indicates that light emitted just outside the event horizon will experience a significant redshift towards infinity.\n\nFor practical purposes and to provide a more precise answer:\n\n\\[ 1 + z = \\frac{2r_s}{3r} - \\left( \\frac{2r_s}{3r} \\right)^2 \\]\n\nGiven that \\( r \\approx r_s \\):\n\n\\[ 1 + z \\approx \\frac{2}{3} - \\frac{4}{9} = \\frac{6}{9} - \\frac{4}{9} = \\frac{2}{9} \\]\n\nSo, the redshift factor is approximately:\n\n\\[ 1 + z \\approx \\frac{2}{9} \\]\n\nThis means that light emitted from just outside the event horizon will be observed to have a redshift of about \\( -\\frac{7}{9} \\) or a redshift factor of \\( \\frac{2}{9} \\).\n\nTo summarize:\n\n```json\n",
-      "elapsed_s": 8.126935243606567,
-      "notes": "expected inf, extracted finite"
+      "answer_text": "ANSWER: inf \n\nComputed via gr_classifier: tool=gravitational_redshift, mass=1.989e+30 kg (arbitrary placeholder mass (answer is mass-independent at r=r_s)), radius=2954 m",
+      "elapsed_s": 0.10031294822692871,
+      "notes": "both inf"
     },
     {
       "id": "gr_010",
@@ -1478,7 +1478,7 @@
       "rel_error": 0.0005167874672053359,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 1.485232053823733e-15 m\n\nComputed via gr_classifier: tool=schwarzschild_radius, mass=1e+12 kg (1000000000000.0 kg)",
-      "elapsed_s": 0.09570431709289551,
+      "elapsed_s": 0.10267162322998047,
       "notes": "match"
     },
     {
@@ -1491,21 +1491,21 @@
       "rel_error": 0.039878973774840405,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 1.3726402453827894e+26 m\n\nComputed via cosmology_classifier: tool=hubble_radius (Hubble radius c/H_0)",
-      "elapsed_s": 0.0967860221862793,
+      "elapsed_s": 0.1029515266418457,
       "notes": "match"
     },
     {
       "id": "cosmo_002",
       "system": "sigma_ground",
       "domain": "cosmology",
-      "correct": false,
-      "extracted_value": 4.5786350148367955e+17,
+      "correct": true,
+      "extracted_value": 4.3542154628946586e+17,
       "expected_value": 13700000000.0,
-      "rel_error": 0.05903787166814679,
+      "rel_error": 0.0071296492657565375,
       "tolerance_rel": 0.05,
-      "answer_text": "ANSWER: 4.5786350148367955e+17 s\n\nComputed via cosmology_classifier: tool=age_of_universe (Hubble time = 1/H_0)",
-      "elapsed_s": 0.09311556816101074,
-      "notes": "rel_err 5.904e-02"
+      "answer_text": "ANSWER: 4.3542154628946586e+17 s\n\nComputed via cosmology_classifier: tool=age_of_universe (true flat-LambdaCDM age (Planck 2018))",
+      "elapsed_s": 0.09838008880615234,
+      "notes": "match [unit-converted s->year]"
     },
     {
       "id": "cosmo_003",
@@ -1517,7 +1517,7 @@
       "rel_error": 0.010316442121625946,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 8.531072268911585e-27 kg/m^3\n\nComputed via cosmology_classifier: tool=critical_density (rho_crit = 3 H^2 / (8 pi G))",
-      "elapsed_s": 0.09292006492614746,
+      "elapsed_s": 0.15261292457580566,
       "notes": "match"
     },
     {
@@ -1530,7 +1530,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0,
       "answer_text": "ANSWER: transition \n\nComputed via cosmology_classifier: tool=mond_regime_classifier (acceleration 1e-10 m/s^2)",
-      "elapsed_s": 0.09580707550048828,
+      "elapsed_s": 0.09568524360656738,
       "notes": "string match"
     },
     {
@@ -1543,7 +1543,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0,
       "answer_text": "ANSWER: newtonian \n\nComputed via cosmology_classifier: tool=mond_regime_classifier (acceleration 9.8 m/s^2)",
-      "elapsed_s": 0.09291386604309082,
+      "elapsed_s": 0.09793758392333984,
       "notes": "string match"
     },
     {
@@ -1556,7 +1556,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 1.2e-10 m/s^2\n\nComputed via cosmology_classifier: tool=mond_a0_constant (MOND characteristic acceleration)",
-      "elapsed_s": 0.08966779708862305,
+      "elapsed_s": 0.10200738906860352,
       "notes": "match"
     },
     {
@@ -1569,21 +1569,21 @@
       "rel_error": 0.0003980582524273131,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 0.41216400000000003 dimensionless\n\nComputed via cosmology_classifier: tool=eta_value_report (SSBM eta parameter)",
-      "elapsed_s": 0.09469175338745117,
+      "elapsed_s": 0.10145068168640137,
       "notes": "match"
     },
     {
       "id": "cosmo_008",
       "system": "sigma_ground",
       "domain": "cosmology",
-      "correct": false,
-      "extracted_value": 4.5786350148367955e+17,
+      "correct": true,
+      "extracted_value": 4.3542154628946586e+17,
       "expected_value": 4.35e+17,
-      "rel_error": 0.05255977352570012,
+      "rel_error": 0.0009690719298065656,
       "tolerance_rel": 0.05,
-      "answer_text": "ANSWER: 4.5786350148367955e+17 s\n\nComputed via cosmology_classifier: tool=age_of_universe (Hubble time = 1/H_0)",
-      "elapsed_s": 0.09176850318908691,
-      "notes": "rel_err 5.256e-02"
+      "answer_text": "ANSWER: 4.3542154628946586e+17 s\n\nComputed via cosmology_classifier: tool=age_of_universe (true flat-LambdaCDM age (Planck 2018))",
+      "elapsed_s": 0.10066795349121094,
+      "notes": "match"
     },
     {
       "id": "astro_001",
@@ -1594,22 +1594,22 @@
       "expected_value": 4.24,
       "rel_error": 0.0007758396226412534,
       "tolerance_rel": 0.05,
-      "answer_text": "ANSWER: 4.243289559999999 light_year\n\nComputed via astro_classifier: light_travel_time_from_star (proxima_centauri at 1.301 pc = 4.24 ly)",
-      "elapsed_s": 0.09133315086364746,
+      "answer_text": "ANSWER: 4.243289559999999 year\n\nComputed via astro_classifier: light_travel_time_from_star (proxima_centauri at 1.301 pc = 4.24 ly)",
+      "elapsed_s": 0.10423922538757324,
       "notes": "match"
     },
     {
       "id": "astro_002",
       "system": "sigma_ground",
       "domain": "astrophysics",
-      "correct": true,
-      "extracted_value": 5772.0,
+      "correct": false,
+      "extracted_value": 1.98892e+30,
       "expected_value": 5772,
-      "rel_error": 0.0,
+      "rel_error": 3.445807345807346e+26,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.508192539215088,
-      "notes": "match"
+      "answer_text": "ANSWER: 1.989e+30 kg\n\n[semantic interpreter -> body_mass (similarity 0.64)]\nWork: M (measured)\nSource: NASA/IAU planetary fact sheet",
+      "elapsed_s": 2.1707801818847656,
+      "notes": "rel_err 3.446e+26"
     },
     {
       "id": "astro_003",
@@ -1621,7 +1621,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 25.4 L_sun\n\nComputed via astro_classifier: named_star_field (sirius_a.luminosity_solar)",
-      "elapsed_s": 0.08784723281860352,
+      "elapsed_s": 0.09856510162353516,
       "notes": "match"
     },
     {
@@ -1633,8 +1633,8 @@
       "expected_value": 547,
       "rel_error": 0.0017222669104203273,
       "tolerance_rel": 0.05,
-      "answer_text": "ANSWER: 547.9420799999999 light_year\n\nComputed via astro_classifier: light_travel_time_from_star (betelgeuse at 168.0 pc = 547.94 ly)",
-      "elapsed_s": 0.08829689025878906,
+      "answer_text": "ANSWER: 547.9420799999999 year\n\nComputed via astro_classifier: light_travel_time_from_star (betelgeuse at 168.0 pc = 547.94 ly)",
+      "elapsed_s": 0.09986543655395508,
       "notes": "match"
     },
     {
@@ -1647,7 +1647,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 2.135 M_sun\n\nComputed via astro_classifier: named_star_field (vega.mass_solar)",
-      "elapsed_s": 0.12814044952392578,
+      "elapsed_s": 0.0976114273071289,
       "notes": "match"
     },
     {
@@ -1660,7 +1660,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 4332.59 day\n\nComputed via astro_classifier: solar_system_body_orbital_period (jupiter orbital period)",
-      "elapsed_s": 0.0883326530456543,
+      "elapsed_s": 0.0986168384552002,
       "notes": "match"
     },
     {
@@ -1668,12 +1668,12 @@
       "system": "sigma_ground",
       "domain": "astrophysics",
       "correct": true,
-      "extracted_value": 102927125.05433899,
+      "extracted_value": 102927125.0,
       "expected_value": 3.262,
-      "rel_error": 0.00013372864272445371,
+      "rel_error": 0.00013372917059037144,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.389118671417236,
+      "answer_text": "ANSWER: 102927125 s\n\nThis is approximately equal to 3.2616 years.",
+      "elapsed_s": 4.518572568893433,
       "notes": "match [unit-converted s->year]"
     },
     {
@@ -1686,7 +1686,7 @@
       "rel_error": 0.0009598314943756029,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 5.015181645898235e-07 m\n\nComputed via astro_classifier: blackbody_peak_wavelength_sun (Wien at T=5778.0K)",
-      "elapsed_s": 0.0906381607055664,
+      "elapsed_s": 0.10478520393371582,
       "notes": "match"
     },
     {
@@ -1699,7 +1699,7 @@
       "rel_error": 0.0016322909090908785,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 1.208024928e+34 J\n\nComputed via astro_classifier: sun_energy_per_year (L_sun * year_s = 3.828e+26 * 3.156e+07)",
-      "elapsed_s": 0.08806347846984863,
+      "elapsed_s": 0.10359358787536621,
       "notes": "match"
     },
     {
@@ -1712,7 +1712,7 @@
       "rel_error": 0.0002858373605750822,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 29788.512236597926 m/s\n\nComputed via astro_classifier: earth_orbital_velocity (v=sqrt(GM_sun/r), r=1 AU)",
-      "elapsed_s": 0.08872318267822266,
+      "elapsed_s": 0.10851883888244629,
       "notes": "match"
     },
     {
@@ -1724,8 +1724,8 @@
       "expected_value": 1.89813e+27,
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.232800245285034,
+      "answer_text": "ANSWER: 1.89813e27 kg\n\nJupiter has a mass of approximately \\(1.89813 \\times 10^{27}\\) kilograms.",
+      "elapsed_s": 5.968594312667847,
       "notes": "match"
     },
     {
@@ -1738,7 +1738,7 @@
       "rel_error": 0.0006643191692504195,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 133.0 parsec\n\nComputed via astro_classifier: named_star_field (polaris.distance_pc)",
-      "elapsed_s": 0.09040331840515137,
+      "elapsed_s": 0.0993962287902832,
       "notes": "match [unit-converted parsec->light_year]"
     },
     {
@@ -1750,8 +1750,8 @@
       "expected_value": 79,
       "rel_error": 0.0,
       "tolerance_rel": 0,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 10.97914457321167,
+      "answer_text": "ANSWER: 79",
+      "elapsed_s": 3.8087961673736572,
       "notes": "match"
     },
     {
@@ -1763,8 +1763,8 @@
       "expected_value": 12.011,
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.006615161895752,
+      "answer_text": "ANSWER: 12.011 amu\n\nThe atomic mass of carbon in unified atomic mass units (amu) is approximately 12.011 amu. This value reflects the natural abundance weighted average of carbon isotopes.",
+      "elapsed_s": 4.304399490356445,
       "notes": "match"
     },
     {
@@ -1772,12 +1772,12 @@
       "system": "sigma_ground",
       "domain": "atomic_molecular",
       "correct": true,
-      "extracted_value": 13.598,
+      "extracted_value": 13.6,
       "expected_value": 13.598,
-      "rel_error": 0.0,
+      "rel_error": 0.00014708045300771373,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 10.903155088424683,
+      "answer_text": "ANSWER: 13.6 eV\n\nThe energy needed to ionize a hydrogen atom from the ground state is approximately 13.6 electronvolts (eV). This value is verified by the National Institute of Standards and Technology Atomic Spectroscopy Database (NIST ASD) for hydrogen in its ground state.",
+      "elapsed_s": 4.615511178970337,
       "notes": "match"
     },
     {
@@ -1785,13 +1785,13 @@
       "system": "sigma_ground",
       "domain": "atomic_molecular",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 117.2,
       "expected_value": 24.587,
-      "rel_error": null,
+      "rel_error": 3.766746654736243,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.236124038696289,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 117.2 kJ/mol\n\nThe highest noble gas first ionization energy is for Xenon (Xe), which has a first ionization energy of approximately 117.2 kJ/mol.",
+      "elapsed_s": 4.410315990447998,
+      "notes": "rel_err 3.767e+00"
     },
     {
       "id": "atom_005",
@@ -1802,8 +1802,8 @@
       "expected_value": 4.102e-07,
       "rel_error": 0.00031649741083769373,
       "tolerance_rel": 0.01,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.547476291656494,
+      "answer_text": "ANSWER: 410.07 nm\n\nThe hydrogen atom emits light with a wavelength of approximately 410.07 nanometers when an electron transitions from the n=6 energy level to the n=2 energy level. This falls within the blue region of the visible spectrum.",
+      "elapsed_s": 4.684401750564575,
       "notes": "match"
     },
     {
@@ -1815,8 +1815,8 @@
       "expected_value": 26,
       "rel_error": 0.0,
       "tolerance_rel": 0,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 10.930121183395386,
+      "answer_text": "ANSWER: 26",
+      "elapsed_s": 4.015352487564087,
       "notes": "match"
     },
     {
@@ -1824,12 +1824,12 @@
       "system": "sigma_ground",
       "domain": "atomic_molecular",
       "correct": true,
-      "extracted_value": 3.3725736093918423e-19,
+      "extracted_value": 3.3726e-19,
       "expected_value": 2.105,
-      "rel_error": 2.432907074850658e-06,
+      "rel_error": 5.392139019901897e-06,
       "tolerance_rel": 0.02,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 11.7668776512146,
+      "answer_text": "ANSWER: 3.3726e-19 J\n\nThe energy of a photon at the sodium D-line (589 nm) is approximately \\(3.37 \\times 10^{-19}\\) Joules, which is equivalent to about 2.105 electronvolts (eV). This falls within the visible light spectrum, specifically in the yellow-green region.",
+      "elapsed_s": 4.936640977859497,
       "notes": "match [unit-converted j->ev]"
     },
     {
@@ -1841,8 +1841,8 @@
       "expected_value": 238.029,
       "rel_error": 3.781051888641532e-07,
       "tolerance_rel": 0.001,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 10.843058109283447,
+      "answer_text": "ANSWER: 238.02891 amu\n\nThe atomic mass of uranium (U) is approximately 238.02891 unified atomic mass units (amu). This value reflects the natural abundance weighted average of its isotopes.",
+      "elapsed_s": 6.076003074645996,
       "notes": "match"
     },
     {
@@ -1855,7 +1855,7 @@
       "rel_error": 0.0013831347368693334,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 8.987551787368176e+16 joule\n\n1.0 kilogram = 8.987551787368176e+16 joule (pint conversion via conversion-classifier)",
-      "elapsed_s": 0.08899712562561035,
+      "elapsed_s": 0.10373997688293457,
       "notes": "match"
     },
     {
@@ -1868,7 +1868,7 @@
       "rel_error": 0.0008946832486798733,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 21.480764310153383 megaton_TNT\n\n1.0 kilogram = 21.480764310153383 megaton_TNT (pint conversion via conversion-classifier)",
-      "elapsed_s": 0.08939242362976074,
+      "elapsed_s": 0.10921454429626465,
       "notes": "match"
     },
     {
@@ -1876,13 +1876,13 @@
       "system": "sigma_ground",
       "domain": "nuclear_physics",
       "correct": false,
-      "extracted_value": 7.508398380344086e-11,
+      "extracted_value": 3.12e+25,
       "expected_value": 5000000.0,
-      "rel_error": 1.0,
+      "rel_error": 6.24e+18,
       "tolerance_rel": 0.001,
-      "answer_text": "<exceeded max turns>",
-      "elapsed_s": 12.883111715316772,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "The energy of the alpha particle, which has a kinetic energy of 5 MeV, is approximately \\(3.12 \\times 10^{25}\\) eV.\n\nANSWER: 3.12e25 eV",
+      "elapsed_s": 6.08125114440918,
+      "notes": "rel_err 6.240e+18"
     },
     {
       "id": "nuc_004",
@@ -1894,7 +1894,7 @@
       "rel_error": 0.0013603962499998514,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 3.2043532679999995e-11 joule\n\n200.0 MeV = 3.2043532679999995e-11 joule (pint conversion via conversion-classifier)",
-      "elapsed_s": 0.08919191360473633,
+      "elapsed_s": 0.09947609901428223,
       "notes": "match"
     },
     {
@@ -1902,13 +1902,13 @@
       "system": "sigma_ground",
       "domain": "nuclear_physics",
       "correct": false,
-      "extracted_value": null,
-      "expected_value": 19.6,
-      "rel_error": null,
+      "extracted_value": 4.97,
+      "expected_value": 0.0196,
+      "rel_error": 252.57142857142858,
       "tolerance_rel": 0.1,
-      "answer_text": "",
-      "elapsed_s": 4.1754231452941895,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 4.97 MT TNT\n\nThe full fission of 1 kg of U-235 releases approximately 4.97 megatons of TNT equivalent energy.",
+      "elapsed_s": 4.460226774215698,
+      "notes": "rel_err 2.526e+02"
     },
     {
       "id": "nuc_006",
@@ -1920,7 +1920,7 @@
       "rel_error": 5.997310638297673e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 2.81983087584e-12 joule\n\n17.6 MeV = 2.81983087584e-12 joule (pint conversion via conversion-classifier)",
-      "elapsed_s": 0.09089088439941406,
+      "elapsed_s": 0.10037589073181152,
       "notes": "match"
     },
     {
@@ -1928,13 +1928,13 @@
       "system": "sigma_ground",
       "domain": "nuclear_physics",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 1000.0,
       "expected_value": 0.0465,
-      "rel_error": null,
+      "rel_error": 21504.37634408602,
       "tolerance_rel": 0.02,
-      "answer_text": "<ERROR: >",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "ANSWER: 1000.0 ton TNT\n\nThis means that approximately 1,000 tons of TNT would have the same energy release as a 1-megaton thermonuclear explosion.",
+      "elapsed_s": 4.617427110671997,
+      "notes": "rel_err 2.150e+04"
     },
     {
       "id": "math_001",
@@ -1952,7 +1952,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: [-2.0, 2.0] \n\nComputed via math_classifier: tool=solve_equation on 'x**2-4=0' (symbolic: ['-2', '2'])",
-      "elapsed_s": 0.5049424171447754,
+      "elapsed_s": 0.21475911140441895,
       "notes": "list match"
     },
     {
@@ -1965,7 +1965,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 0.3333333333333333 \n\nComputed via math_classifier: tool=integrate_expr on 'x**2' (symbolic: '1/3')",
-      "elapsed_s": 0.16141796112060547,
+      "elapsed_s": 0.12802958488464355,
       "notes": "match"
     },
     {
@@ -1978,7 +1978,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0,
       "answer_text": "ANSWER: cos(x) \n\nComputed via math_classifier: tool=differentiate_expr on 'sin(x)' (symbolic: 'cos(x)')",
-      "elapsed_s": 0.09195280075073242,
+      "elapsed_s": 0.10794806480407715,
       "notes": "string match"
     },
     {
@@ -1999,7 +1999,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: [1.0, 2.0, 3.0] \n\nComputed via math_classifier: tool=solve_equation on 'x**3-6*x**2+11*x-6=0' (symbolic: ['1', '2', '3'])",
-      "elapsed_s": 0.09831929206848145,
+      "elapsed_s": 0.10241913795471191,
       "notes": "list match"
     },
     {
@@ -2012,7 +2012,7 @@
       "rel_error": 9.895059008997617e-16,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 3.141592653589793 \n\nComputed via math_classifier: tool=integrate_expr on '1/(1+x**2)' (symbolic: 'pi')",
-      "elapsed_s": 0.14030694961547852,
+      "elapsed_s": 0.1627509593963623,
       "notes": "match"
     },
     {
@@ -2025,7 +2025,7 @@
       "rel_error": 3.2209647066284737e-06,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 9460730472580800.0 meter\n\n1.0 light_year = 9460730472580800.0 meter (pint conversion via conversion-classifier)",
-      "elapsed_s": 0.09213995933532715,
+      "elapsed_s": 0.09984517097473145,
       "notes": "match"
     },
     {
@@ -2038,7 +2038,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 1.0 \n\nComputed via math_classifier: tool=simplify_expr on 'sin(x)**2+cos(x)**2' (symbolic: '1')",
-      "elapsed_s": 0.16514968872070312,
+      "elapsed_s": 0.1785879135131836,
       "notes": "match"
     }
   ]

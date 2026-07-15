@@ -980,11 +980,11 @@
     "notes": "200e6 eV * 1.6e-19 J/eV"
   },
   "nuc_005": {
-    "expected_value": 19.6,
+    "expected_value": 0.0196,
     "expected_units": "MT_TNT",
     "tolerance_rel": 0.1,
     "ground_truth_source": "Nuclear weapons reference",
-    "notes": "200 MeV/fission * N_A/235 * 1 kg ~ 8.2e13 J -> 19.6 kt. Actually order of magnitude: 1 kg gives ~17 kt (Hiroshima used 64 kg)."
+    "notes": "200 MeV/fission * N_A/235 * 1 kg ~ 8.2e13 J -> 19.6 kt = 0.0196 MT. Corrected 2026-07-14 -- the question asks for megatons, but the prior expected_value (19.6) was the kiloton figure; 19.6 kt = 0.0196 MT."
   },
   "nuc_006": {
     "expected_value": 2.82e-12,

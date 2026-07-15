@@ -33,6 +33,8 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "unit conversion", "convert between units", "pint",
         "meters to feet", "joules to electronvolts", "kelvin to celsius",
         "light year to meters", "parsec to meter",
+        "MeV to eV", "how much energy in eV", "express in electronvolts",
+        "amu to kg", "MeV to joules",
     ],
     "parse_quantity": ["parse a quantity string", "value with units"],
     "percent_of": [
@@ -44,6 +46,12 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "symbolic solve", "algebra", "polynomial root",
         "quadratic formula", "cubic equation", "find x such that",
         "sympy solve",
+        # inverse-design: "given a target result, find the unknown input" --
+        # deliberately scoped to this framing (not general capacitor/circuit
+        # vocabulary) so plain forward lookups stay on their own tool.
+        "what area do I need for a capacitor with", "design a capacitor with",
+        "what plate area do I need", "solve for the plate area given",
+        "how big do the plates need to be", "what value of X gives",
     ],
     "integrate_expr": [
         "integral", "indefinite integral", "definite integral",
@@ -835,6 +843,127 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "wind-driven waves", "capillary waves", "surface waves", "wind stress",
         "breeze ruffling the water", "how fast do ripples move", "wavelength of ripples",
     ],
+
+    # ============ COVERAGE SWEEP: previously zero-keyword tools ============
+    "projectile_flight_time": [
+        "time of flight", "how long is it in the air", "hang time",
+        "flight time of a projectile",
+    ],
+    "friction_stopping_distance": [
+        "stopping distance", "how far to stop with friction", "skid distance",
+        "distance to stop sliding",
+    ],
+    "eta_desi_band_check": [
+        "DESI band check", "within 1 sigma", "eta consistency check",
+    ],
+    "thin_lens_focal_length": [
+        "focal length", "1/f = 1/do + 1/di", "lens equation solve for f",
+        "what's the focal length",
+    ],
+    "power_dissipation_resistor": [
+        "power dissipated in a resistor", "P = I^2 R", "heat in a resistor",
+        "resistor power loss",
+    ],
+    "hydrogen_emission_wavelength": [
+        "hydrogen spectral line", "Rydberg transition", "Balmer series",
+        "Lyman series", "hydrogen emission line wavelength",
+    ],
+    "procedure_black_hole_profile": [
+        "full black hole profile", "black hole thermodynamics cascade",
+        "everything about this black hole", "horizon temperature entropy evaporation",
+    ],
+    "procedure_photon_spectrum": [
+        "everything about this photon", "photon cascade", "wavelength frequency energy momentum",
+    ],
+    "procedure_relativistic_particle": [
+        "relativistic particle cascade", "gamma factor and momentum from kinetic energy",
+        "everything about this relativistic particle",
+    ],
+    "procedure_projectile_trajectory": [
+        "full projectile trajectory", "range height and time of flight",
+        "everything about this projectile",
+    ],
+    "procedure_stellar_blackbody": [
+        "star as a blackbody", "Wien peak and Stefan-Boltzmann flux",
+        "everything about this star's radiation",
+    ],
+    "run_simulation": [
+        "run this simulation verb directly", "call a simulation verb with params",
+    ],
+    "list_simulation_scenarios": [
+        "what simulations are available", "list simulation verbs",
+        "available scenario types",
+    ],
+    "bond_energy": [
+        "bond dissociation energy", "how strong is this bond", "bond strength kJ/mol",
+    ],
+    "bond_angle": [
+        "VSEPR angle", "molecular geometry angle", "bond angle from steric number",
+        "tetrahedral angle", "109.5 degrees",
+    ],
+    "reaction_enthalpy": [
+        "heat of reaction", "delta H of reaction", "standard enthalpy of reaction",
+        "is this reaction exothermic",
+    ],
+    "weak_acid_ph": [
+        "pH of a weak acid", "pH from Ka", "acid dissociation pH",
+    ],
+    "buffer_ph": [
+        "buffer pH", "Henderson-Hasselbalch", "pH of a buffer solution",
+    ],
+    "cell_potential": [
+        "galvanic cell voltage", "EMF of a battery", "cell potential",
+        "Daniell cell voltage", "Nernst equation cell",
+    ],
+    "electrolysis_mass": [
+        "mass deposited by electrolysis", "Faraday's law of electrolysis",
+        "electroplating mass",
+    ],
+    "boiling_point_elevation": [
+        "boiling point elevation", "how much does salt raise the boiling point",
+        "colligative boiling point",
+    ],
+    "freezing_point_depression": [
+        "freezing point depression", "how much does salt lower the freezing point",
+        "colligative freezing point", "why do we salt roads",
+    ],
+    "osmotic_pressure": [
+        "osmotic pressure", "van't Hoff pressure", "pressure across a membrane",
+    ],
+    "molar_solubility": [
+        "molar solubility", "solubility from Ksp", "how much dissolves",
+    ],
+    "electrical_resistivity": [
+        "resistivity of a metal", "electrical resistivity", "how resistive is copper",
+    ],
+    "carrier_mobility": [
+        "electron drift mobility", "carrier mobility in a metal",
+    ],
+    "hall_coefficient": [
+        "Hall coefficient", "Hall effect constant",
+    ],
+    "electron_mean_free_path": [
+        "electron mean free path", "how far does an electron travel before scattering",
+    ],
+    "free_electron_density": [
+        "free electron density", "conduction electron density", "electron number density",
+    ],
+    "semiconductor_band_gap": [
+        "band gap of a semiconductor", "silicon band gap at temperature",
+        "Varshni band gap",
+    ],
+    "intrinsic_carrier_density": [
+        "intrinsic carrier density", "n_i of a semiconductor",
+    ],
+    "pn_built_in_voltage": [
+        "built-in voltage of a diode", "p-n junction voltage", "junction built-in potential",
+    ],
+    "depletion_width": [
+        "depletion region width", "depletion width of a p-n junction",
+    ],
+    "diode_current": [
+        "Shockley diode equation", "diode current from voltage", "I-V curve of a diode",
+    ],
 }
 
 
@@ -882,7 +1011,9 @@ _COLLOQUIAL: dict[str, list[str]] = {
     "gravitational_force": ["pull between two things", "how strong is gravity between",
                             "how hard do they attract"],
     "solar_system_body": ["tell me about mars", "facts about jupiter", "how big is earth",
-                          "planet info", "how heavy is the sun"],
+                          "planet info", "how heavy is the sun",
+                          "surface gravity of", "how strong is gravity on",
+                          "gravity on the surface of", "how much would I weigh on"],
     "asteroid_analysis": ["jump off an asteroid", "gravity on an asteroid",
                           "how heavy on ceres", "tiny world gravity"],
     "light_travel_time": ["how long for light to get there", "how far in light years",

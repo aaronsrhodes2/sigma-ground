@@ -161,25 +161,53 @@ def critical_density() -> ToolResult:
     )
 
 
-def age_of_universe() -> ToolResult:
-    """Hubble time t_H = 1/H_0, approximation for the age of the universe.
+def age_of_universe(mode: str = "lcdm") -> ToolResult:
+    """Age of the universe -- two DISTINCT, both-legitimate quantities:
 
-    The actual age depends on the matter+dark-energy content; t_H is the
-    'Hubble time' which differs from the true age by an O(1) factor.
-    For Planck 2018 LambdaCDM, age = 13.787 +/- 0.020 Gyr.
+    mode="lcdm" (default): the TRUE flat-LambdaCDM age, integrating the
+      Friedmann equation with matter + dark energy:
+        t(a=1) = (2 / (3 H0 sqrt(OmegaLambda))) * asinh(sqrt(OmegaLambda/Omega_m))
+      Planck 2018 parameters give ~13.80 Gyr, matching the standard
+      "13.787 Gyr" figure to <0.1%. This is what "how old is the universe"
+      means in standard cosmology.
+    mode="hubble": the Hubble time t_H = 1/H_0 -- a DIFFERENT quantity (the
+      age a universe with NO deceleration/acceleration would have), used
+      as a quick order-of-magnitude estimate. Differs from the true age by
+      an O(1) factor; kept available under its own mode since some
+      questions genuinely ask for it by name ("Hubble time").
     """
     from sigma_ground.field.constants import H0
     tH_sec = 1.0 / H0
     tH_gyr = tH_sec / (1e9 * 365.25 * 86400.0)
+
+    if mode == "hubble":
+        return ToolResult(
+            value=tH_sec,
+            units="s",
+            source="sigma-ground (Planck 2018 H_0)",
+            formula="t_H = 1 / H_0",
+            inputs={"mode": mode},
+            notes=(f"Hubble time = {tH_gyr:.2f} Gyr. The TRUE age of the "
+                    f"universe in LambdaCDM is ~13.80 Gyr (Planck 2018) -- "
+                    f"call age_of_universe(mode='lcdm') for that."),
+        )
+
+    import math
+    from sigma_ground.field.constants import OMEGA_M, OMEGA_LAMBDA
+    t_sec = ((2.0 / (3.0 * H0 * math.sqrt(OMEGA_LAMBDA)))
+             * math.asinh(math.sqrt(OMEGA_LAMBDA / OMEGA_M)))
+    t_gyr = t_sec / (1e9 * 365.25 * 86400.0)
     return ToolResult(
-        value=tH_sec,
+        value=t_sec,
         units="s",
-        source="sigma-ground (Planck 2018 H_0)",
-        formula="t_H = 1 / H_0",
-        inputs={},
-        notes=(f"Hubble time = {tH_gyr:.2f} Gyr. The true age of the "
-                f"universe in LambdaCDM is 13.787 Gyr (Planck 2018), "
-                f"differing from t_H by an O(1) factor."),
+        source="sigma-ground (Planck 2018 flat LambdaCDM)",
+        formula="t = (2/(3 H0 sqrt(OL))) asinh(sqrt(OL/Om))",
+        inputs={"mode": mode},
+        notes=(f"True LambdaCDM age = {t_gyr:.3f} Gyr (Planck 2018: "
+                f"Omega_m={OMEGA_M}, Omega_Lambda={OMEGA_LAMBDA}). "
+                f"The pure Hubble time t_H=1/H0 = {tH_gyr:.2f} Gyr is a "
+                f"DIFFERENT quantity -- call age_of_universe(mode='hubble') "
+                f"for that."),
     )
 
 

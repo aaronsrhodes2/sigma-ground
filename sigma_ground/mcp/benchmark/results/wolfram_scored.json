@@ -1903,7 +1903,7 @@
       "domain": "nuclear_physics",
       "correct": false,
       "extracted_value": null,
-      "expected_value": 19.6,
+      "expected_value": 0.0196,
       "rel_error": null,
       "tolerance_rel": 0.1,
       "answer_text": "",

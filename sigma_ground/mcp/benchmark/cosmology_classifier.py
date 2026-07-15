@@ -84,7 +84,7 @@ def classify_for_cosmology(question: str) -> CosmologyMatch | None:
     ):
         return CosmologyMatch(
             tool="age_of_universe", arg=None,
-            rationale="Hubble time = 1/H_0",
+            rationale="true flat-LambdaCDM age (Planck 2018)",
             matched_pattern="age_of_universe",
         )
 
