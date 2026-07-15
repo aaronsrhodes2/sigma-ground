@@ -82,7 +82,7 @@ def build_audit():
     formulas.append({
         'module': 'constants',
         'name': 'Quark masses (m_u, m_d)',
-        'equation': 'm_u = 2.16 MeV, m_d = 4.67 MeV',
+        'equation': 'm_u = 2.16 MeV, m_d = 4.70 MeV',
         'origin': MEASURED,
         'note': 'PDG 2020. Higgs-origin masses, σ-INVARIANT.',
         'eject': False,
@@ -90,7 +90,7 @@ def build_audit():
     formulas.append({
         'module': 'constants',
         'name': 'Nucleon mass decomposition',
-        'equation': 'm_p = m_bare + m_QCD = 8.99 + 929.28 MeV',
+        'equation': 'm_p = m_bare + m_QCD = 9.02 + 929.25 MeV',
         'origin': MEASURED,
         'note': 'BMW lattice QCD collaboration. 99.04% is QCD.',
         'eject': False,

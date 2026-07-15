@@ -4,8 +4,8 @@ Nucleon mass at arbitrary σ.
 The key insight: 99% of nucleon mass is QCD energy, not Higgs mass.
 Shifting Λ_QCD shifts that 99%.
 
-    m_p(σ) = 8.99 MeV (bare, Higgs) + 929.28 MeV (QCD) × e^σ
-    m_n(σ) = 11.50 MeV (bare, Higgs) + 928.07 MeV (QCD) × e^σ
+    m_p(σ) = 9.02 MeV (bare, Higgs) + 929.25 MeV (QCD) × e^σ
+    m_n(σ) = 11.56 MeV (bare, Higgs) + 928.01 MeV (QCD) × e^σ
 """
 
 from .constants import (

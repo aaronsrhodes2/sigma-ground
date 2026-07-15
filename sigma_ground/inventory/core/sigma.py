@@ -15,7 +15,7 @@ WHAT SCALES (QCD-dependent):
     Gluon field energy                                   → ×e^σ
 
 WHAT DOES NOT SCALE (Higgs / EM):
-    Quark bare masses (u=2.16, d=4.67 MeV from Higgs)   → invariant
+    Quark bare masses (u=2.16, d=4.70 MeV from Higgs)   → invariant
     Electron mass (0.511 MeV, Higgs + EM)               → invariant
     Coulomb energy in nuclei                              → invariant
     Chemical bond energies (EM)                           → invariant
@@ -135,8 +135,8 @@ def proton_mass_kg(sigma: float) -> float:
     m_p(σ) = bare_quarks + QCD_binding × e^σ
 
     At σ=0: returns CONSTANTS.m_p exactly.
-    bare_quarks = 2×m_u + m_d = 8.99 MeV  (Higgs, σ-invariant)
-    QCD_binding = 938.27 − 8.99 = 929.28 MeV  (scales with e^σ)
+    bare_quarks = 2×m_u + m_d = 9.02 MeV  (Higgs, σ-invariant)
+    QCD_binding = 938.27 − 9.02 = 929.25 MeV  (scales with e^σ)
     """
     if sigma == SIGMA_HERE:
         return CONSTANTS.m_p
@@ -149,8 +149,8 @@ def neutron_mass_kg(sigma: float) -> float:
     m_n(σ) = bare_quarks + QCD_binding × e^σ
 
     At σ=0: returns CONSTANTS.m_n exactly.
-    bare_quarks = m_u + 2×m_d = 11.50 MeV  (Higgs, σ-invariant)
-    QCD_binding = 939.57 − 11.50 = 928.07 MeV  (scales with e^σ)
+    bare_quarks = m_u + 2×m_d = 11.56 MeV  (Higgs, σ-invariant)
+    QCD_binding = 939.57 − 11.56 = 928.01 MeV  (scales with e^σ)
     """
     if sigma == SIGMA_HERE:
         return CONSTANTS.m_n

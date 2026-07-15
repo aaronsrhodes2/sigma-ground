@@ -9,15 +9,15 @@ trace back to (a) a measurement of reality, (b) a mathematical
 derivation from such measurements, or (c) a definitional standard
 (SI unit definitions). No guesses.
 
-**Total quantities: 92**
+**Total quantities: 87**
 
 | Category | Count | Fraction |
 |---|---:|---:|
-| Measured (`[VERIFIED]`) | 51 | 55.4% |
-| Derived (`[DERIVED]`) | 33 | 35.9% |
-| Free input (`[EMPIRICAL-INPUT]`) | 2 | 2.2% |
+| Measured (`[VERIFIED]`) | 50 | 57.5% |
+| Derived (`[DERIVED]`) | 30 | 34.5% |
+| Free input (`[EMPIRICAL-INPUT]`) | 1 | 1.1% |
 | Mathematical (π, φ, e -- pure math) | 1 | 1.1% |
-| Speculative pending (`[SPECULATIVE-PENDING]`) | 4 | 4.3% |
+| Speculative pending (`[SPECULATIVE-PENDING]`) | 4 | 4.6% |
 | Rejected (`[REJECTED ...]`) | 1 | 1.1% |
 | Unclassified | 0 | 0.0% |
 
@@ -52,7 +52,6 @@ graph LR
     DELTA_NP_QCD_MEV["DELTA_NP_QCD_MEV"]:::derived
     DELTA_NP_TOTAL_MEV["DELTA_NP_TOTAL_MEV"]:::measured
     EPS_0["EPS_0"]:::measured
-    ETA["ETA"]:::freeinput
     ETA_HDE_DESY5["ETA_HDE_DESY5"]:::derived
     ETA_HDE_UNION3["ETA_HDE_UNION3"]:::derived
     ETA_UNCERTAINTY_1SIGMA["ETA_UNCERTAINTY_1SIGMA"]:::derived
@@ -86,16 +85,11 @@ graph LR
     R0_FM["R0_FM"]:::measured
     R_GAS["R_GAS"]:::derived
     SIGMA_0["SIGMA_0"]:::derived
-    SIGMA_CONV["SIGMA_CONV"]:::derived
-    SIGMA_CONV_KOBAKHIDZE["SIGMA_CONV_KOBAKHIDZE"]:::derived
     SIGMA_FLOOR["SIGMA_FLOOR"]:::derived
     SIGMA_HERE["SIGMA_HERE"]:::derived
     STEFAN_BOLTZMANN["STEFAN_BOLTZMANN"]:::derived
-    THETA_ENTANGLEMENT_PER_DIM["THETA_ENTANGLEMENT_PER_DIM"]:::derived
-    XI["XI"]:::freeinput
     XI_IDE_CENTRAL["XI_IDE_CENTRAL"]:::derived
     XI_IDE_UPPER_95CL["XI_IDE_UPPER_95CL"]:::measured
-    XI_KOBAKHIDZE["XI_KOBAKHIDZE"]:::measured
 
     EPS_0 --> ALPHA
     E_CHARGE --> ALPHA
@@ -142,14 +136,11 @@ graph LR
     K_B --> R_GAS
     N_AVOGADRO --> R_GAS
     SIGMA_HERE --> SIGMA_0
-    XI --> SIGMA_CONV
-    XI_KOBAKHIDZE --> SIGMA_CONV_KOBAKHIDZE
     H0 --> SIGMA_FLOOR
     L_PLANCK --> SIGMA_FLOOR
     SIGMA_FLOOR --> SIGMA_HERE
     HBAR --> STEFAN_BOLTZMANN
     K_B --> STEFAN_BOLTZMANN
-    ETA --> THETA_ENTANGLEMENT_PER_DIM
     XI_IDE_UPPER_95CL --> XI_IDE_CENTRAL
 ```
 
@@ -160,7 +151,6 @@ graph LR
 These are quantities SSBM takes as INPUT from observation. The whole
 point of the framework is to minimize this list.
 
-- **`XI`** = `0.1582` -- [EMPIRICAL-INPUT] Planck 2018 cosmology; the single free parameter SSBM introduces
 - **`ETA`** = `ETA_HDE_UNION3` -- [EMPIRICAL-INPUT] cosmic entanglement fraction (DESI Union3) deps: ETA_HDE_UNION3
 
 ---
@@ -184,7 +174,6 @@ peer-reviewed papers cited in constants.py). These are the
 irreducible empirical inputs of the library -- everything in
 the `derived` section computes downstream of these.
 
-- **`XI_KOBAKHIDZE`** = `3.0 / 19.0` -- exact: ξ = 3/(3+16), N=8 unique
 - **`C_HDE_UNION3`** = `0.642` -- HDE c from CMB+DESI+Union3 (DESI 2024)
 - **`C_HDE_DESY5`** = `0.701` -- HDE c from CMB+DESI+DESY5
 - **`F_EDE_UPPER_95CL`** = `0.113` -- [VERIFIED] arXiv:2505.23382 Table 2, mixed EDE+iDEDM model, P18+DESI+DES+PP+H0 (95% C.L. upper bound)
@@ -211,8 +200,8 @@ the `derived` section computes downstream of these.
 - **`G`** = `6.67430e-11` -- m³ kg⁻¹ s⁻²  (gravitational constant)
 - **`C`** = `2.99792458e8` -- m/s            (speed of light)
 - **`HBAR`** = `1.054571817e-34` -- J·s          (reduced Planck constant)
-- **`M_UP_MEV`** = `2.16` -- MeV (PDG 2020)
-- **`M_DOWN_MEV`** = `4.67` -- MeV (PDG 2020)
+- **`M_UP_MEV`** = `2.16` -- MeV (PDG 2026)
+- **`M_DOWN_MEV`** = `4.7` -- MeV (PDG 2026)
 - **`PROTON_TOTAL_MEV`** = `938.272` -- MeV (measured)
 - **`NEUTRON_TOTAL_MEV`** = `939.565` -- MeV (measured)
 - **`DELTA_NP_TOTAL_MEV`** = `1.29333236` -- MeV (MEASURED, PDG 2020)
@@ -244,20 +233,18 @@ Computed from upstream measured constants. Each row shows the
 formula and the upstream dependencies. A perfect library has all
 non-input values here.
 
-- **`SIGMA_CONV_KOBAKHIDZE`** = `-math.log(XI_KOBAKHIDZE)` -- ≈ 1.8458 deps: XI_KOBAKHIDZE
 - **`ETA_HDE_UNION3`** = `C_HDE_UNION3 ** 2` -- ≈ 0.412164 -- ADOPTED as ETA (2026-05-15) deps: C_HDE_UNION3
 - **`ETA_HDE_DESY5`** = `C_HDE_DESY5  ** 2` -- ≈ 0.491   -- shown for comparison only deps: C_HDE_DESY5
 - **`F_EDE_CENTRAL`** = `F_EDE_UPPER_95CL` -- alias: upper bound treated as conservative "best fit" deps: F_EDE_UPPER_95CL
 - **`XI_IDE_CENTRAL`** = `XI_IDE_UPPER_95CL` -- alias: same deps: XI_IDE_UPPER_95CL
-- **`SIGMA_CONV`** = `-math.log(XI)` -- ≈ 1.849... but using exact XI deps: XI
-- **`PROTON_BARE_MEV`** = `2 * M_UP_MEV + M_DOWN_MEV` -- = 8.99 MeV deps: M_DOWN_MEV, M_UP_MEV
-- **`PROTON_QCD_MEV`** = `PROTON_TOTAL_MEV - PROTON_BARE_MEV` -- = 929.282 MeV deps: PROTON_BARE_MEV, PROTON_TOTAL_MEV
-- **`NEUTRON_BARE_MEV`** = `M_UP_MEV + 2 * M_DOWN_MEV` -- = 11.50 MeV deps: M_DOWN_MEV, M_UP_MEV
-- **`NEUTRON_QCD_MEV`** = `NEUTRON_TOTAL_MEV - NEUTRON_BARE_MEV` -- = 928.065 MeV deps: NEUTRON_BARE_MEV, NEUTRON_TOTAL_MEV
+- **`PROTON_BARE_MEV`** = `2 * M_UP_MEV + M_DOWN_MEV` -- = 9.02 MeV deps: M_DOWN_MEV, M_UP_MEV
+- **`PROTON_QCD_MEV`** = `PROTON_TOTAL_MEV - PROTON_BARE_MEV` -- = 929.252 MeV deps: PROTON_BARE_MEV, PROTON_TOTAL_MEV
+- **`NEUTRON_BARE_MEV`** = `M_UP_MEV + 2 * M_DOWN_MEV` -- = 11.56 MeV deps: M_DOWN_MEV, M_UP_MEV
+- **`NEUTRON_QCD_MEV`** = `NEUTRON_TOTAL_MEV - NEUTRON_BARE_MEV` -- = 928.005 MeV deps: NEUTRON_BARE_MEV, NEUTRON_TOTAL_MEV
 - **`PROTON_QCD_FRACTION`** = `PROTON_QCD_MEV / PROTON_TOTAL_MEV` -- ≈ 0.9904 deps: PROTON_QCD_MEV, PROTON_TOTAL_MEV
 - **`NEUTRON_QCD_FRACTION`** = `NEUTRON_QCD_MEV / NEUTRON_TOTAL_MEV` -- ≈ 0.9878 deps: NEUTRON_QCD_MEV, NEUTRON_TOTAL_MEV
-- **`DELTA_NP_BARE_MEV`** = `M_DOWN_MEV - M_UP_MEV` -- = 2.51 MeV (Higgs, σ-INVARIANT) deps: M_DOWN_MEV, M_UP_MEV
-- **`DELTA_NP_QCD_MEV`** = `DELTA_NP_TOTAL_MEV - DELTA_NP_BARE_MEV` -- ≈ -1.217 MeV deps: DELTA_NP_BARE_MEV, DELTA_NP_TOTAL_MEV
+- **`DELTA_NP_BARE_MEV`** = `M_DOWN_MEV - M_UP_MEV` -- = 2.54 MeV (Higgs, σ-INVARIANT) deps: M_DOWN_MEV, M_UP_MEV
+- **`DELTA_NP_QCD_MEV`** = `DELTA_NP_TOTAL_MEV - DELTA_NP_BARE_MEV` -- ≈ -1.247 MeV deps: DELTA_NP_BARE_MEV, DELTA_NP_TOTAL_MEV
 - **`ALPHA`** = `E_CHARGE**2 / (4 * math.pi * EPS_0 * HBAR * C)` deps: EPS_0, E_CHARGE, HBAR
 - **`R_GAS`** = `K_B * N_AVOGADRO` -- J/(mol·K) — DERIVED, not stored deps: K_B, N_AVOGADRO
 - **`EV_TO_J`** = `E_CHARGE` -- J/eV  (= 1.602176634e-19) deps: E_CHARGE
@@ -270,7 +257,6 @@ non-input values here.
 - **`KE_E2_MEV_FM`** = `E_CHARGE**2 / (4 * math.pi * EPS_0) / MEV_TO_J * 1e15` deps: EPS_0, E_CHARGE, MEV_TO_J
 - **`A_C_MEV`** = `(3.0 / 5.0) * KE_E2_MEV_FM / R0_FM` -- ≈ 0.7111 MeV (σ-INVARIANT) deps: KE_E2_MEV_FM, R0_FM
 - **`ETA_UNCERTAINTY_1SIGMA`** = `2.0 * C_HDE_UNION3 * 0.028` -- ≈ 0.0360 deps: C_HDE_UNION3
-- **`THETA_ENTANGLEMENT_PER_DIM`** = `ETA ** (1.0 / 3.0)` -- ≈ 0.7463 deps: ETA
 - **`M_HUBBLE_KG`** = `C**3 / (2 * G * H0)` -- Hubble mass ≈ 9.3e52 kg deps: H0
 - **`M_PLANCK_KG`** = `math.sqrt(HBAR * C / G)` -- Planck mass ≈ 2.18e-8 kg deps: HBAR
 - **`L_PLANCK`** = `HBAR / (M_PLANCK_KG * C)` -- Planck length √(ℏG/c³) ≈ 1.616e-35 m deps: HBAR, M_PLANCK_KG

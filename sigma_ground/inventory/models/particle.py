@@ -16,6 +16,17 @@ from sigma_ground.inventory.models.quark import Quark
 from sigma_ground.inventory.models.gluon import Gluon
 
 
+# QCD confinement energies, DERIVED at import from the single constants root
+# (m − Σ bare valence quarks). These were hand-transcribed literals until the
+# PDG-2026 reconciliation; computing them here makes drift impossible by
+# construction — the same idiom inventory/core/sigma.py has used since day
+# one (git archaeology confirmed the "heavy calculation" was one subtraction).
+_PROTON_QCD_MEV = (CONSTANTS.m_p / CONSTANTS.MeV_to_kg
+                   - (2.0 * CONSTANTS.m_up_mev + CONSTANTS.m_down_mev))
+_NEUTRON_QCD_MEV = (CONSTANTS.m_n / CONSTANTS.MeV_to_kg
+                    - (CONSTANTS.m_up_mev + 2.0 * CONSTANTS.m_down_mev))
+
+
 class ParticleType(Enum):
     ELECTRON = "electron"
     PROTON = "proton"
@@ -136,7 +147,7 @@ class Proton(Particle):
     )
     qcd_binding_energy_mev: float = constant(
         description="QCD confinement energy: m_p − (2m_u + m_d)",
-        unit="MeV", default=929.282088,
+        unit="MeV", default=_PROTON_QCD_MEV,
     )
 
     @classmethod
@@ -169,7 +180,7 @@ class Neutron(Particle):
     )
     qcd_binding_energy_mev: float = constant(
         description="QCD confinement energy: m_n − (m_u + 2m_d)",
-        unit="MeV", default=928.065421,
+        unit="MeV", default=_NEUTRON_QCD_MEV,
     )
 
     @classmethod

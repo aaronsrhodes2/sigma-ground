@@ -22,17 +22,17 @@ if TYPE_CHECKING:
 # Constants
 # ---------------------------------------------------------------------------
 
-_ALPHA_S_MZ = 0.1179          # PDG 2024 world average at M_Z
-_M_Z_GEV = 91.1876            # Z boson mass (GeV)
+_ALPHA_S_MZ = 0.1179          # PDG world average at M_Z
+_M_Z_GEV = 91.18787329722135  # Z boson mass (GeV, PDG 2026 — drift-gated)
 _STRING_TENSION = 0.18         # GeV^2 (Cornell potential string tension)
 _ALPHA_S_HADRONIC = 0.39       # alpha_s at ~1 GeV hadronic scale
 _FM_TO_GEV_INV = 5.068        # 1 fm = 5.068 GeV^-1
 _QCD_SCALE_MEV = 217           # Lambda_QCD approximate (MeV)
 
-# Flavor mass thresholds for nf counting (GeV)
-_M_CHARM_GEV = 1.27
-_M_BOTTOM_GEV = 4.18
-_M_TOP_GEV = 172.5
+# Flavor mass thresholds for nf counting (GeV, PDG 2026 — drift-gated)
+_M_CHARM_GEV = 1.2729
+_M_BOTTOM_GEV = 4.186
+_M_TOP_GEV = 172.6035595874743
 
 # CKM matrix magnitudes |V_ij| — PDG 2024
 # Rows: up-type (u, c, t); Columns: down-type (d, s, b)

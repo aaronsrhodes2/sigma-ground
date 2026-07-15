@@ -166,18 +166,21 @@ HBAR = 1.054571817e-34  # J·s          (reduced Planck constant)
 # This is the KEY FACT: ~99% of nucleon mass is QCD binding, not Higgs.
 
 # Quark bare masses (Higgs origin — σ-INVARIANT)
-M_UP_MEV = 2.16       # MeV (PDG 2020)
-M_DOWN_MEV = 4.67     # MeV (PDG 2020)
+# PDG 2026 (MS-bar), matched to inventory/data/particle_masses.json — the
+# drift gate tests/test_pdg_drift_gate.py holds this file and
+# inventory/core/constants.py to the same snapshot.
+M_UP_MEV = 2.16       # MeV (PDG 2026)
+M_DOWN_MEV = 4.7      # MeV (PDG 2026)
 
 # Proton (uud): bare = 2×m_u + m_d
-PROTON_BARE_MEV = 2 * M_UP_MEV + M_DOWN_MEV  # = 8.99 MeV
+PROTON_BARE_MEV = 2 * M_UP_MEV + M_DOWN_MEV  # = 9.02 MeV
 PROTON_TOTAL_MEV = 938.272          # MeV (measured)
-PROTON_QCD_MEV = PROTON_TOTAL_MEV - PROTON_BARE_MEV  # = 929.282 MeV
+PROTON_QCD_MEV = PROTON_TOTAL_MEV - PROTON_BARE_MEV  # = 929.252 MeV
 
 # Neutron (udd): bare = m_u + 2×m_d
-NEUTRON_BARE_MEV = M_UP_MEV + 2 * M_DOWN_MEV  # = 11.50 MeV
+NEUTRON_BARE_MEV = M_UP_MEV + 2 * M_DOWN_MEV  # = 11.56 MeV
 NEUTRON_TOTAL_MEV = 939.565         # MeV (measured)
-NEUTRON_QCD_MEV = NEUTRON_TOTAL_MEV - NEUTRON_BARE_MEV  # = 928.065 MeV
+NEUTRON_QCD_MEV = NEUTRON_TOTAL_MEV - NEUTRON_BARE_MEV  # = 928.005 MeV
 
 # QCD fractions
 PROTON_QCD_FRACTION = PROTON_QCD_MEV / PROTON_TOTAL_MEV   # ≈ 0.9904
@@ -188,9 +191,9 @@ NEUTRON_QCD_FRACTION = NEUTRON_QCD_MEV / NEUTRON_TOTAL_MEV  # ≈ 0.9878
 # PDG 2020: m_n - m_p = 1.29333236 ± 0.00000046 MeV
 DELTA_NP_TOTAL_MEV = 1.29333236     # MeV (MEASURED, PDG 2020)
 # Bare mass difference: (m_u + 2m_d) - (2m_u + m_d) = m_d - m_u
-DELTA_NP_BARE_MEV = M_DOWN_MEV - M_UP_MEV  # = 2.51 MeV (Higgs, σ-INVARIANT)
+DELTA_NP_BARE_MEV = M_DOWN_MEV - M_UP_MEV  # = 2.54 MeV (Higgs, σ-INVARIANT)
 # QCD contribution to n-p mass difference
-DELTA_NP_QCD_MEV = DELTA_NP_TOTAL_MEV - DELTA_NP_BARE_MEV  # ≈ -1.217 MeV
+DELTA_NP_QCD_MEV = DELTA_NP_TOTAL_MEV - DELTA_NP_BARE_MEV  # ≈ -1.247 MeV
 
 # Electron mass (Higgs origin — σ-INVARIANT)
 M_ELECTRON_MEV = 0.51100            # MeV

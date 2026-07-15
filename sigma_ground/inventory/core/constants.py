@@ -6,7 +6,12 @@ Provenance:
   - Defined constants (c, h, e, k_B, N_A): exact by 2019 SI redefinition.
   - Nucleon masses (m_p, m_n): derived from AME2020 mass excesses.
   - Electron mass (m_e): CODATA 2018 Penning-trap measurement.
-  - Quark masses: PDG 2024 current (MS-bar) central values.
+  - Quark, lepton and boson masses: PDG 2026 central values (quarks are
+    MS-bar current masses), adopted from the vendored snapshot
+    inventory/data/particle_masses.json (distilled by tools/distill_pdg.py).
+    THE ADOPTION CONTRACT: this file is the single Python root for these
+    numbers; tests/test_pdg_drift_gate.py asserts it matches the JSON, so a
+    future PDG edition bump fails loudly here instead of drifting silently.
   - Bohr magneton, vacuum permittivity, Bohr radius: CODATA 2018.
   - Rydberg energy: CODATA 2018.
 """
@@ -39,23 +44,24 @@ class PhysicalConstants:
     # Atomic energy scale (CODATA 2018)
     E_rydberg_ev: float = 13.605693122994
 
-    # Lepton masses (PDG 2024, kg)
-    m_muon: float = 1.883531627e-28
-    m_tau: float = 3.16754e-27
+    # Lepton masses (PDG 2026, kg — MeV values converted via e·1e6/c²)
+    m_muon: float = 1.8835316270491e-28   # 105.6583755 MeV
+    m_tau: float = 3.1676698428989e-27    # 1776.93246513409 MeV
 
-    # Gauge boson masses (PDG 2024, kg)
-    m_W: float = 1.43297e-25
-    m_Z: float = 1.62551e-25
-    m_higgs: float = 2.2286e-25
+    # Gauge boson masses (PDG 2026, kg)
+    m_W: float = 1.4325916867682e-25      # 80362.5 MeV
+    m_Z: float = 1.6255714944119e-25      # 91187.87329722135 MeV
+    m_higgs: float = 2.2306616877982e-25  # 125130.9438281615 MeV
 
-    # Light quark masses — MS-bar scheme (PDG 2024, MeV/c²)
+    # Light quark masses — MS-bar scheme (PDG 2026, MeV/c²)
     m_up_mev: float = 2.16
-    m_down_mev: float = 4.67
+    m_down_mev: float = 4.7
+    m_strange_mev: float = 92.9
 
-    # Heavy quark masses — MS-bar scheme (PDG 2024, MeV/c²)
-    m_charm_mev: float = 1270.0
-    m_bottom_mev: float = 4180.0
-    m_top_mev: float = 172500.0
+    # Heavy quark masses — MS-bar scheme (PDG 2026, MeV/c²)
+    m_charm_mev: float = 1272.9
+    m_bottom_mev: float = 4186.0
+    m_top_mev: float = 172603.5595874743
 
     @property
     def hbar(self) -> float:

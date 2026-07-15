@@ -41,7 +41,7 @@ Electrons (Higgs mass, σ-INVARIANT):
    λ_e(σ) = constant → fringe spacing unchanged by σ
 
 Neutrons (QCD mass, σ-DEPENDENT):
-   m_n(σ) = 11.50 MeV (bare) + 928.065 MeV × e^σ (QCD)
+   m_n(σ) = 11.56 MeV (bare) + 928.005 MeV × e^σ (QCD)
    λ_n(σ) = h/√(2·m_n(σ)·E) — shifts with σ
    Δy_n(σ)/Δy_n(0) = √(m_n(0)/m_n(σ))   [SSBM testable prediction]
 

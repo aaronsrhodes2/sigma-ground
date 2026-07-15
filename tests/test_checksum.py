@@ -248,20 +248,20 @@ class TestRestoredModels:
     def test_charm_quark_has_correct_mass(self):
         from sigma_ground.inventory.models.quark import Quark
         c = Quark.charm()
-        assert c.bare_mass_mev == pytest.approx(1270.0, rel=1e-3)
+        assert c.bare_mass_mev == pytest.approx(1272.9, rel=1e-3)   # PDG 2026
         assert c.flavor == "charm"
         assert c.generation == 2
 
     def test_bottom_quark_has_correct_mass(self):
         from sigma_ground.inventory.models.quark import Quark
         b = Quark.bottom()
-        assert b.bare_mass_mev == pytest.approx(4180.0, rel=1e-3)
+        assert b.bare_mass_mev == pytest.approx(4186.0, rel=1e-3)   # PDG 2026
         assert b.generation == 3
 
     def test_top_quark_has_correct_mass(self):
         from sigma_ground.inventory.models.quark import Quark
         t = Quark.top()
-        assert t.bare_mass_mev == pytest.approx(172500.0, rel=1e-3)
+        assert t.bare_mass_mev == pytest.approx(172603.56, rel=1e-3)  # PDG 2026
         assert t.generation == 3
 
     def test_anti_charm_is_antimatter(self):
@@ -280,7 +280,7 @@ class TestRestoredModels:
     def test_tau_has_correct_mass(self):
         from sigma_ground.inventory.models.particle import Tau
         t = Tau.create()
-        assert t.rest_mass_kg == pytest.approx(3.16754e-27, rel=1e-3)
+        assert t.rest_mass_kg == pytest.approx(3.1676698e-27, rel=1e-3)  # PDG 2026
 
     def test_neutrinos_are_massless(self):
         from sigma_ground.inventory.models.particle import ElectronNeutrino, MuonNeutrino, TauNeutrino
@@ -527,7 +527,7 @@ class TestParticleBehaviors:
         p = Proton.create()
         result = compute_particle_behaviors(p)
         assert result["intrinsic"]["qcd_binding_energy_mev"]["value"] == pytest.approx(
-            929.282088, rel=1e-3,
+            929.252088, rel=1e-3,   # m_p − (2m_u + m_d), PDG 2026 inputs
         )
 
     def test_proton_has_quark_children_summary(self):

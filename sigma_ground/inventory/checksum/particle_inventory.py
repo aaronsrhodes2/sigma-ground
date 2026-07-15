@@ -137,8 +137,7 @@ def compute_particle_inventory(structure) -> dict:
     # Sea quark bare masses — every flavor computed individually
     m_up_kg = CONSTANTS.m_up_mev * CONSTANTS.MeV_to_kg
     m_down_kg = CONSTANTS.m_down_mev * CONSTANTS.MeV_to_kg
-    m_strange_mev = 93.4  # PDG 2024, MS-bar
-    m_strange_kg = m_strange_mev * CONSTANTS.MeV_to_kg
+    m_strange_kg = CONSTANTS.m_strange_mev * CONSTANTS.MeV_to_kg
     # Anti-quarks have identical mass (CPT theorem)
     sea_up_mass = sea_up * m_up_kg
     sea_anti_up_mass = sea_anti_up * m_up_kg         # CPT: m(ū) = m(u)

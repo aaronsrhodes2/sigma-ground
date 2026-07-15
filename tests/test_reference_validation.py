@@ -556,7 +556,7 @@ class TestConstantConsolidation:
         assert CONSTANTS.m_up_kg == pytest.approx(expected, rel=1e-10)
 
     def test_m_down_kg_derived_correctly(self):
-        expected = 4.67 * CONSTANTS.MeV_to_kg
+        expected = 4.7 * CONSTANTS.MeV_to_kg     # PDG 2026
         assert CONSTANTS.m_down_kg == pytest.approx(expected, rel=1e-10)
 
 
@@ -573,12 +573,11 @@ class TestReferenceReport:
             f"Electron mass:  {sci(CONSTANTS.m_e)} kg  (CODATA 2018)",
             f"Proton mass:    {sci(CONSTANTS.m_p)} kg  (AME2020)",
             f"Neutron mass:   {sci(CONSTANTS.m_n)} kg  (AME2020)",
-            f"Quark u/d/s:    2.16 / 4.67 / 93.4 MeV  (PDG ~2023)",
-            f"Quark c/b/t:    1270 / 4180 / 172500 MeV  (PDG 2024)",
-            "--- Known deltas from PDG 2024 central values ---",
-            "  down quark: 4.67 vs 4.70 MeV (Δ=0.03, within 0.5σ)",
-            "  strange:    93.4 vs 93.5 MeV (Δ=0.1, within 0.1σ)",
-            "  charm:      1270 vs 1273 MeV (Δ=3, within 0.7σ)",
+            f"Quark u/d/s:    2.16 / 4.70 / 92.9 MeV  (PDG 2026)",
+            f"Quark c/b/t:    1272.9 / 4186 / 172603.6 MeV  (PDG 2026)",
+            "--- Adoption ---",
+            "  Matched to inventory/data/particle_masses.json (PDG 2026);",
+            "  drift-gated by tests/test_pdg_drift_gate.py",
             "--- Proton charge radius ---",
             "  Our value: 0.8414 fm (muonic H, CODATA 2018)",
             "  PRad 2019: 0.831(12) fm (e-p scattering)",

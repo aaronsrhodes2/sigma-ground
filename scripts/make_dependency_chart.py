@@ -154,17 +154,17 @@ NODES = [
 
     # ── Layer 5: Quark & Nucleon ───────────────────────────────────────
     ("M_UP_MEV",        "m_u",     5, "higgs",
-     "Up quark bare mass = 2.16 MeV  (PDG 2020)\n"
+     "Up quark bare mass = 2.16 MeV  (PDG 2026)\n"
      "Higgs origin — σ-INVARIANT\n"
      "Only ~0.2% of proton mass.",
      "Up Quark Bare Mass", ""),
     ("M_DOWN_MEV",      "m_d",     5, "higgs",
-     "Down quark bare mass = 4.67 MeV  (PDG 2020)\n"
+     "Down quark bare mass = 4.70 MeV  (PDG 2026)\n"
      "Higgs origin — σ-INVARIANT",
      "Down Quark Bare Mass", ""),
     ("PROTON_BARE_MEV", "p_bare",  5, "derived",
      "Proton Higgs-origin mass\n"
-     "= 2m_u + m_d = 8.99 MeV\n"
+     "= 2m_u + m_d = 9.02 MeV\n"
      "Only ~1% of total proton mass!\n"
      "σ-INVARIANT — set entirely by Higgs.",
      "Proton Higgs Mass", ""),
@@ -175,7 +175,7 @@ NODES = [
      "Proton Total Mass", ""),
     ("PROTON_QCD_MEV",  "p_QCD",   5, "qcd",
      "Proton QCD binding mass\n"
-     "= p_total − p_bare = 929.28 MeV\n"
+     "= p_total − p_bare = 929.25 MeV\n"
      "~99% of proton mass — sets by gluon dynamics.\n"
      "σ-DEPENDENT: scales with Λ_QCD × e^σ",
      "Proton QCD Mass", ""),

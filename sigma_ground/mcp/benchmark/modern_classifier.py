@@ -278,11 +278,11 @@ def classify_for_modern(question: str) -> ModernMatch | None:
                 try:
                     mass_kg = float(m_kg_match.group(1))
                 except ValueError:
-                    mass_kg = 9.10938356e-31
+                    mass_kg = 9.1093837015e-31
             elif re.search(r"\bproton\b", q, re.IGNORECASE):
                 mass_kg = 1.67262192e-27
             elif re.search(r"\belectron\b", q, re.IGNORECASE):
-                mass_kg = 9.10938356e-31
+                mass_kg = 9.1093837015e-31
             else:
                 # Don't dispatch -- defer to LLM if mass is unclear
                 return None
