@@ -494,6 +494,14 @@ def _classify_verbs(q: str):
     # ("how far") is the longer literal match.
     if best_verb == "projectile_motion" and "supersonic_projectile" in matched:
         best_verb = "supersonic_projectile"
+    # A material actively corroding/rusting is corrosion_attack, even when a
+    # generic acid/base cue ("alkaline soil") is a longer literal match than
+    # "corrode" -- the corrosion cue is decisive (bug found live: "zinc rod
+    # ... alkaline soil ... corrode" was routing to chemistry_lab's default
+    # acetic-acid demo instead of corrosion_attack, on an 8-vs-7-char
+    # tiebreak with no topical relevance to the actual match length).
+    if best_verb == "chemistry_lab" and "corrosion_attack" in matched:
+        best_verb = "corrosion_attack"
     if best_verb:
         return [best_verb]
     # 3. A family we don't model yet → decline regardless.

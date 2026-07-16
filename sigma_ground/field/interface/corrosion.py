@@ -191,6 +191,26 @@ CORROSION_DATA = {
         'k_parabolic_m2_s': 1.0e-22,
         'Q_oxidation_eV': 1.1,
     },
+    'zinc': {
+        # Zn²⁺ + 2e⁻ → Zn, E° (MEASURED, IUPAC/Bard) — the galvanization
+        # metal: anodic to iron (-0.762 < -0.44), which is why zinc coatings
+        # sacrificially protect steel.
+        'E_standard_V': -0.762,
+        # ZnO (zincite), density (MEASURED, CRC)
+        'oxide_density_kg_m3': 5610,
+        # Molar mass of ZnO: 65.38 + 15.999 = 81.379 g/mol
+        'oxide_molar_mass_g': 81.38,
+        # Molar mass of Zn (MEASURED, IUPAC 2021)
+        'metal_molar_mass_g': 65.38,
+        'n_oxide_metal_atoms': 1,
+        'oxide_name': 'ZnO',
+        # Native ZnO film grows to only ~a few nm/year at 300 K (protective,
+        # n-type — the classic Wagner-oxidation case study); x²=kt with
+        # x~5 nm at 1 yr gives k~1e-24 (order-of-magnitude, same convention
+        # as the other entries; Birks et al. / Kofstad regime data)
+        'k_parabolic_m2_s': 1.0e-24,
+        'Q_oxidation_eV': 1.0,
+    },
     'nickel': {
         # Ni²⁺ + 2e⁻ → Ni, E° (MEASURED, IUPAC)
         'E_standard_V': -0.26,

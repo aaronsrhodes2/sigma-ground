@@ -199,6 +199,17 @@ MATERIALS = {
         'preferred_face': '111',
         'composition': 'Ag',
     },
+    'zinc': {
+        'name': 'Zinc',
+        'material_type': 'metal',
+        'Z': 30, 'A': 65,
+        'density_kg_m3': 7140,       # CRC (7.14 g/cm3 at 25 C)
+        'cohesive_energy_ev': 1.35,  # Kittel, Intro. to Solid State Physics
+        'crystal_structure': 'hcp',
+        'lattice_param_angstrom': 2.665,   # a-axis (c = 4.947)
+        'preferred_face': '0001',
+        'composition': 'Zn',
+    },
     'platinum': {
         'name': 'Platinum',
         'material_type': 'metal',
