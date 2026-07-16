@@ -183,9 +183,10 @@ def rl_time_constant(resistance_ohm: float, inductance_h: float) -> ToolResult:
 
 def rlc_resonant_frequency(inductance_h: float,
                              capacitance_f: float) -> ToolResult:
-    """omega_0 = 1 / sqrt(L C). RLC undamped resonance.
+    """f = 1 / (2 pi sqrt(L C)). RLC undamped resonance.
 
-    Returns the angular frequency. f = omega / (2 pi) is the Hz value.
+    Returns the frequency in Hz (what "resonant frequency" means in
+    ordinary usage). Angular frequency omega_0 = 2 pi f is in notes.
     """
     if inductance_h <= 0 or capacitance_f <= 0:
         return ToolResult(value=None, source="invalid input",
@@ -194,13 +195,13 @@ def rlc_resonant_frequency(inductance_h: float,
     omega = 1.0 / math.sqrt(inductance_h * capacitance_f)
     freq_hz = omega / (2.0 * math.pi)
     return ToolResult(
-        value=omega,
-        units="rad/s",
+        value=freq_hz,
+        units="Hz",
         source="sigma-ground (RLC series circuit resonance)",
-        formula="omega_0 = 1 / sqrt(L C)",
+        formula="f = 1 / (2 pi sqrt(L C))",
         inputs={"inductance_h": inductance_h,
                 "capacitance_f": capacitance_f},
-        notes=(f"Equivalent frequency: f = {freq_hz:.3e} Hz. Resonant "
+        notes=(f"Angular frequency: omega_0 = {omega:.3e} rad/s. Resonant "
                 f"frequency where impedance is purely resistive. Tuner "
                 f"circuits select stations by sweeping this."),
     )

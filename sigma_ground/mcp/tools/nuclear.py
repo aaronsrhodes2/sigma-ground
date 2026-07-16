@@ -118,3 +118,50 @@ def coulomb_force(charge1_c: float, charge2_c: float,
                 "separation_m": separation_m},
         notes="Positive = repulsive (like charges); negative = attractive.",
     )
+
+
+# Molar mass (g/mol) of common fissile isotopes, and the typical total
+# recoverable energy per fission event (prompt + delayed, thermal
+# fission). 200 MeV/fission is the standard textbook figure for U-235
+# and Pu-239 (e.g. Glasstone & Dolan, Krane "Introductory Nuclear
+# Physics"); U-233 is close enough to use the same figure.
+_FISSILE_MOLAR_MASS_G_MOL = {"U235": 235.0439, "PU239": 239.0521, "U233": 233.0396}
+_MEV_PER_FISSION = 200.0
+
+
+def fission_energy_release(mass_kg: float, isotope: str = "U235") -> ToolResult:
+    """Total energy released if `mass_kg` of a fissile isotope is fully fissioned.
+
+    Uses ~200 MeV recoverable energy per fission event and the isotope's
+    molar mass to get the number of fission events per kg via Avogadro's
+    number. isotope: "U235" (default), "Pu239", or "U233".
+
+    Example: 1 kg of U-235 fully fissioned releases ~8.2e13 J
+    (fission_energy_release(1.0, "U235")) -- chain into joules_to_TNT
+    for a TNT-equivalent yield.
+    """
+    key = isotope.strip().upper().replace("-", "")
+    if key not in _FISSILE_MOLAR_MASS_G_MOL:
+        return ToolResult(
+            value=None, source="invalid input",
+            notes=(f"Unknown isotope '{isotope}'. Available: "
+                    f"{sorted(_FISSILE_MOLAR_MASS_G_MOL)}"),
+            inputs={"mass_kg": mass_kg, "isotope": isotope})
+    if mass_kg < 0:
+        return ToolResult(value=None, source="invalid input",
+                           notes="mass_kg must be non-negative",
+                           inputs={"mass_kg": mass_kg, "isotope": isotope})
+    from sigma_ground.field.constants import N_AVOGADRO, MEV_TO_J
+    molar_mass_g_mol = _FISSILE_MOLAR_MASS_G_MOL[key]
+    n_fissions = (mass_kg * 1000.0 / molar_mass_g_mol) * N_AVOGADRO
+    energy_j = n_fissions * _MEV_PER_FISSION * MEV_TO_J
+    return ToolResult(
+        value=energy_j,
+        units="J",
+        source="sigma-ground (fission energy release, 200 MeV/fission)",
+        formula="E = (mass_kg * 1000 / M) * N_A * 200 MeV",
+        inputs={"mass_kg": mass_kg, "isotope": isotope},
+        notes=(f"n_fissions={n_fissions:.4e}. Chain into joules_to_TNT for "
+                f"a TNT-equivalent yield, or energy_to_mass to see how "
+                f"much rest mass that energy corresponds to."),
+    )

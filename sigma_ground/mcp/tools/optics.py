@@ -132,7 +132,8 @@ def thin_lens_image_distance(object_distance_m: float,
 
 
 def lens_magnification(object_distance_m: float,
-                         image_distance_m: float) -> ToolResult:
+                         image_distance_m: float,
+                         image_side: str = None) -> ToolResult:
     """Magnification m = -d_i / d_o. Negative = inverted image.
 
     Sign convention (same as thin_lens_equation): image_distance_m is
@@ -142,19 +143,34 @@ def lens_magnification(object_distance_m: float,
     object ("in front of" the lens). A real image behind the lens uses a
     POSITIVE image_distance_m and correctly comes out inverted (m<0) --
     do not negate image_distance_m just because the question says "behind".
+
+    If reasoning about the sign yourself is error-prone, pass the
+    unsigned distance magnitude plus image_side instead and the sign is
+    applied for you: image_side="behind"/"opposite"/"far"/"real" forces
+    positive (real image); "front"/"same"/"near"/"virtual" forces
+    negative (virtual image). image_side overrides whatever sign
+    image_distance_m already had.
     """
     if object_distance_m == 0:
         return ToolResult(value=None, source="invalid input",
                            inputs={"object_distance_m": object_distance_m,
                                    "image_distance_m": image_distance_m})
-    m = -image_distance_m / object_distance_m
+    d_i = image_distance_m
+    if image_side is not None:
+        side = image_side.strip().lower()
+        if side in ("behind", "opposite", "far", "real"):
+            d_i = abs(image_distance_m)
+        elif side in ("front", "same", "near", "virtual"):
+            d_i = -abs(image_distance_m)
+    m = -d_i / object_distance_m
     return ToolResult(
         value=m,
         units="dimensionless",
         source="sigma-ground (thin lens magnification)",
         formula="m = -d_i / d_o",
         inputs={"object_distance_m": object_distance_m,
-                "image_distance_m": image_distance_m},
+                "image_distance_m": image_distance_m,
+                "image_side": image_side},
         notes=("|m|>1: enlarged. |m|<1: reduced. m<0: inverted. m>0: upright."),
     )
 

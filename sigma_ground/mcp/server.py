@@ -645,13 +645,17 @@ def main() -> int:
 
     @server.tool()
     def lens_magnification(object_distance_m: float,
-                             image_distance_m: float) -> dict[str, Any]:
-        """m = -d_i / d_o. image_distance_m is POSITIVE for a real image on
-        the opposite side of the lens from the object (e.g. forms "behind"
-        a converging lens) -- do NOT negate it just because the question
-        says "behind"; that phrasing IS the positive-d_i case."""
+                             image_distance_m: float,
+                             image_side: str = None) -> dict[str, Any]:
+        """m = -d_i / d_o. If you're unsure about the sign of
+        image_distance_m, pass the unsigned distance and set image_side
+        instead: "behind"/"real" for an image that forms on the far side
+        of the lens (opposite the object) -- e.g. "the image forms 10 cm
+        behind the lens" -- or "front"/"virtual" for an image on the same
+        side as the object. image_side overrides the sign for you."""
         return t_opt.lens_magnification(object_distance_m,
-                                            image_distance_m).to_dict()
+                                            image_distance_m,
+                                            image_side).to_dict()
 
     @server.tool()
     def rydberg_hydrogen_wavelength(n_initial: int, n_final: int) -> dict[str, Any]:
@@ -771,7 +775,7 @@ def main() -> int:
     @server.tool()
     def rlc_resonant_frequency(inductance_h: float,
                                  capacitance_f: float) -> dict[str, Any]:
-        """omega_0 = 1 / sqrt(L C). Returns angular frequency in rad/s."""
+        """f = 1 / (2 pi sqrt(L C)). Returns frequency in Hz."""
         return t_circ.rlc_resonant_frequency(inductance_h, capacitance_f).to_dict()
 
     @server.tool()
@@ -916,6 +920,16 @@ def main() -> int:
         """Coulomb's law F = q1 q2 / (4π ε0 r²). +repulsive / −attractive."""
         return t_nuc.coulomb_force(charge1_c, charge2_c,
                                      separation_m).to_dict()
+
+    @server.tool()
+    def fission_energy_release(mass_kg: float, isotope: str = "U235"
+                                 ) -> dict[str, Any]:
+        """Total energy (J) released if mass_kg of a fissile isotope
+        (U235/Pu239/U233) is fully fissioned, using ~200 MeV/fission.
+        e.g. "1 kg of U-235 fully fissioned releases how many megatons
+        TNT" -> fission_energy_release(1.0, 'U235') then joules_to_TNT(...,
+        unit='MT')."""
+        return t_nuc.fission_energy_release(mass_kg, isotope).to_dict()
 
     # ── extra atomic / circuits multi-step ─────────────────────────
     @server.tool()

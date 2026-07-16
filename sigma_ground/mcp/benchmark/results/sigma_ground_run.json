@@ -3,15 +3,15 @@
     "id": "mech_intro_001",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 1.43 s\n\nThe copper ball will take approximately 1.43 seconds to hit the ground when dropped from a height of 10 meters at sea level, ignoring air resistance.",
+    "answer_text": "ANSWER: 1.43 s\n\nThe time it takes for an object to fall from a height of 10 meters in a vacuum, under the acceleration due to gravity \\( g = 9.81 \\, \\text{m/s}^2 \\), is approximately 1.43 seconds. This calculation assumes no air resistance and uses the standard kinematic equation for free fall.",
     "extracted_value": 1.43,
     "extracted_units": "s",
     "tool_calls": [
       {
         "name": "free_fall_time",
         "args": {
-          "height_m": 10,
-          "g_m_s2": 9.81
+          "g_m_s2": 9.81,
+          "height_m": 10
         },
         "result_text": "{\n  \"value\": 1.4278431229270645,\n  \"units\": \"s\",\n  \"source\": \"sigma-ground (standard kinematics, vacuum approximation)\",\n  \"uncertainty\": null,\n  \"formula\": \"t = sqrt(2 h / g)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.\",\n  \"inputs\": {\n    \"height_m\": 10.0,\n    \"g_m_s2\": 9.81\n  }\n}",
         "renames_applied": [],
@@ -19,7 +19,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 30.27677059173584,
+    "elapsed_s": 30.793397426605225,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -45,7 +45,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.482461214065552,
+    "elapsed_s": 12.081773042678833,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -55,15 +55,15 @@
     "id": "mech_intro_003",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 1019.72 m\n\nThe cannonball lands approximately 1019.72 meters away from the launch point, assuming ideal conditions in a vacuum with level ground. Note that air resistance would significantly reduce this range in real-world scenarios.",
-    "extracted_value": 1019.72,
+    "answer_text": "ANSWER: 1020 m\n\nThe projectile range for an initial speed of 100 m/s and a launch angle of 45 degrees, assuming vacuum conditions and level ground, is approximately 1020 meters. Note that this value is derived under idealized conditions; in reality, air resistance would significantly reduce the actual range.",
+    "extracted_value": 1020.0,
     "extracted_units": "m",
     "tool_calls": [
       {
         "name": "projectile_range",
         "args": {
-          "initial_speed_m_s": 100,
-          "launch_angle_deg": 45
+          "launch_angle_deg": 45,
+          "initial_speed_m_s": 100
         },
         "result_text": "{\n  \"value\": 1019.7162129779283,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (standard kinematics, vacuum, level ground)\",\n  \"uncertainty\": null,\n  \"formula\": \"R = v^2 sin(2 theta) / g\",\n  \"provenance_tag\": null,\n  \"notes\": \"Vacuum, level ground. Air resistance reduces real range substantially for fast/small projectiles.\",\n  \"inputs\": {\n    \"initial_speed_m_s\": 100.0,\n    \"launch_angle_deg\": 45.0,\n    \"g_m_s2\": 9.80665\n  }\n}",
         "renames_applied": [],
@@ -71,7 +71,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.564263343811035,
+    "elapsed_s": 12.644832849502563,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -86,7 +86,7 @@
     "extracted_units": "m",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09668636322021484,
+    "elapsed_s": 0.09106874465942383,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "classical_intro_hit": "projectile_max_height",
@@ -113,7 +113,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 3.836015224456787,
+    "elapsed_s": 11.793261289596558,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -128,7 +128,7 @@
     "extracted_units": "m",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.0963592529296875,
+    "elapsed_s": 0.09139752388000488,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "classical_intro_hit": "friction_stopping_distance",
@@ -144,7 +144,7 @@
     "extracted_units": "m/s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.002286195755004883,
+    "elapsed_s": 0.003720998764038086,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "new_tools_router_hit": "orbital_velocity",
@@ -162,7 +162,7 @@
       "escape_velocity_classical"
     ],
     "turns": 0,
-    "elapsed_s": 2.206425189971924,
+    "elapsed_s": 2.193510055541992,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "semantic_router_hit": "escape_velocity_classical",
@@ -189,7 +189,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.00479793548584,
+    "elapsed_s": 4.062277317047119,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -199,7 +199,7 @@
     "id": "mech_intro_010",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 68670 J\n\nThe potential energy of the 70 kg climber at the top of a 100 m cliff is approximately 68670 Joules. This value was calculated using the formula \\( U = m g h \\), where \\( m \\) is the mass, \\( g \\) is the acceleration due to gravity, and \\( h \\) is the height. Note that this calculation assumes uniform gravity over the small height of the cliff compared to Earth's radius.",
+    "answer_text": "ANSWER: 68670 J\n\nThe gravitational potential energy of a 70 kg mass at a height of 100 meters above the surface of the Earth is approximately 68,670 Joules. This calculation uses the uniform gravity approximation, which is valid for heights much smaller than the radius of the Earth (approximately 6.371 million meters). For more accurate calculations involving tall orbits or large distances from the center of the Earth, the inverse-square form of the potential energy should be used.",
     "extracted_value": 68670.0,
     "extracted_units": "J",
     "tool_calls": [
@@ -216,7 +216,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 5.338755369186401,
+    "elapsed_s": 5.385260820388794,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -231,7 +231,7 @@
     "extracted_units": "s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09558892250061035,
+    "elapsed_s": 0.09354877471923828,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "classical_intro_hit": "free_fall_time",
@@ -247,7 +247,7 @@
     "extracted_units": "s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10057926177978516,
+    "elapsed_s": 0.09544062614440918,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "classical_intro_hit": "projectile_flight_time",
@@ -258,7 +258,7 @@
     "id": "mech_intro_013",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 800 J",
+    "answer_text": "ANSWER: 800.0 J",
     "extracted_value": 800.0,
     "extracted_units": "J",
     "tool_calls": [
@@ -274,7 +274,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 3.9839048385620117,
+    "elapsed_s": 11.74190616607666,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -289,7 +289,7 @@
     "extracted_units": "m/s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09619641304016113,
+    "elapsed_s": 0.09174585342407227,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "classical_intro_hit": "inverse_kinetic_energy",
@@ -305,7 +305,7 @@
     "extracted_units": "m/s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.00010514259338378906,
+    "elapsed_s": 0.00010061264038085938,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "new_tools_router_hit": "orbital_velocity",
@@ -332,7 +332,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.071607351303101,
+    "elapsed_s": 11.850819110870361,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -342,23 +342,34 @@
     "id": "em_intro_002",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\nANSWER: 24 W\n\nTo find the power delivered by the battery, we can use the formula:\n\n\\[ P = V \\times I \\]\n\nwhere:\n- \\( P \\) is the power in watts (W),\n- \\( V \\) is the voltage in volts (V),\n- \\( I \\) is the current in amperes (A).\n\nGiven:\n- Voltage (\\( V \\)) = 12 V\n- Current (\\( I \\)) = 2 A\n\nNow, let's calculate the power:\n\n\\[ P = 12 \\, \\text{V} \\times 2 \\, \\text{A} = 24 \\, \\text{W} \\]\n\nSo, the power delivered by the battery is **24 watts**.",
+    "answer_text": "ANSWER: 24 W",
     "extracted_value": 24.0,
     "extracted_units": "W",
-    "tool_calls": [],
-    "turns": 1,
-    "elapsed_s": 5.055699586868286,
+    "tool_calls": [
+      {
+        "name": "electrical_power",
+        "args": {
+          "voltage_v": 12,
+          "current_a": 2
+        },
+        "result_text": "{\n  \"value\": 24.0,\n  \"units\": \"W\",\n  \"source\": \"sigma-ground (electrical power)\",\n  \"uncertainty\": null,\n  \"formula\": \"P = V I\",\n  \"provenance_tag\": null,\n  \"notes\": \"Equivalent forms: P = I^2 R = V^2 / R.\",\n  \"inputs\": {\n    \"voltage_v\": 12.0,\n    \"current_a\": 2.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 2,
+    "elapsed_s": 3.9240634441375732,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
-    "grounded": false,
-    "groundedness_reason": "LLM answered with no tool call"
+    "grounded": true,
+    "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
   },
   {
     "id": "em_intro_003",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 8.85e-9 F\n\nThe capacitance of the parallel plates in vacuum is approximately \\(8.85 \\times 10^{-9}\\) Farads. This value is derived from the formula \\(C = \\frac{\\epsilon_0 \\epsilon_r A}{d}\\), where \\(\\epsilon_0\\) is the permittivity of free space, \\(\\epsilon_r\\) is the relative permittivity (1 for vacuum), \\(A\\) is the area of the plates, and \\(d\\) is the separation between them.",
-    "extracted_value": 8.85e-09,
+    "answer_text": "ANSWER: 8.854e-9 F\n\nThe parallel-plate capacitor with an area of 1 m\u00b2, a separation distance of 1 mm (0.001 m), and a dielectric constant of 1 (vacuum) has a capacitance of \\(8.854 \\times 10^{-9} \\, \\text{F}\\). This value is derived from the formula \\(C = \\epsilon_0 \\epsilon_r \\frac{A}{d}\\), where \\(\\epsilon_0\\) is the vacuum permittivity, \\(\\epsilon_r\\) is the dielectric constant, \\(A\\) is the area of one plate, and \\(d\\) is the separation distance between the plates.",
+    "extracted_value": 8.854e-09,
     "extracted_units": "F",
     "tool_calls": [
       {
@@ -374,7 +385,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 5.580579996109009,
+    "elapsed_s": 6.075909852981567,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -384,53 +395,123 @@
     "id": "em_intro_004",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\nThe time constant \\(\\tau\\) for an RC circuit is given by the product of the resistance \\(R\\) and the capacitance \\(C\\). In this case, we have a resistor with a value of 1 kilo-ohm (\\(1000 \\Omega\\)) and a capacitor with a value of 1 microfarad (\\(1 \\mu F = 1 \\times 10^{-6} F\\)).\n\nLet's calculate the time constant \\(\\tau\\):\n\n\\[\n\\tau = R \\cdot C = 1000 \\, \\Omega \\cdot 1 \\times 10^{-6} \\, F\n\\]\n\nANSWER: \\(1.00 \\times 10^{-3} \\, \\text{s}\\) or \\(1.00 \\, \\text{ms}\\)\n\nThe capacitor will charge to approximately 63% of the supply voltage after one time constant.",
-    "extracted_value": "\\(1.00 \\times 10^{-3} \\, \\text{s}\\) or \\(1.00 \\, \\text{ms}\\)",
-    "extracted_units": "",
+    "answer_text": "ANSWER: 0.994 s\n\nThe time \\( t \\) when the system reaches approximately 63% of its final value is about 0.994 seconds, given the resistance \\( R \\) and capacitance \\( C \\).",
+    "extracted_value": 0.994,
+    "extracted_units": "s",
     "tool_calls": [
       {
         "name": "solve_equation",
         "args": {
-          "equation": "tau = R * C",
-          "variable": "tau"
+          "variable": "t",
+          "equation": "0.63 = 1 - exp(-t / (R * C))"
         },
-        "result_text": "{\n  \"value\": [\n    \"C*R\"\n  ],\n  \"units\": \"\",\n  \"source\": \"sympy.solve\",\n  \"uncertainty\": null,\n  \"formula\": \"solve(tau = R * C, tau)\",\n  \"provenance_tag\": null,\n  \"notes\": \"1 solution(s)\",\n  \"inputs\": {\n    \"equation\": \"tau = R * C\",\n    \"variable\": \"tau\"\n  }\n}",
+        "result_text": "{\n  \"value\": [\n    \"0.994252273343867*C*R\"\n  ],\n  \"units\": \"\",\n  \"source\": \"sympy.solve\",\n  \"uncertainty\": null,\n  \"formula\": \"solve(0.63 = 1 - exp(-t / (R * C)), t)\",\n  \"provenance_tag\": null,\n  \"notes\": \"1 solution(s)\",\n  \"inputs\": {\n    \"equation\": \"0.63 = 1 - exp(-t / (R * C))\",\n    \"variable\": \"t\"\n  }\n}",
         "renames_applied": [],
         "chain_log": []
       }
     ],
     "turns": 2,
-    "elapsed_s": 6.8382134437561035,
+    "elapsed_s": 13.125231742858887,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
-    "grounded": false,
-    "groundedness_reason": "tool ran but value not grounded (non-grounded / flagged string)"
+    "grounded": true,
+    "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
   },
   {
     "id": "em_intro_005",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 31623 rad/s\n\nThe resonant frequency of your 1 millihenry inductor and 1 microfarad capacitor is approximately 31623 radians per second. This corresponds to a frequency of about 5033 Hz, which is the tuning range used for radio stations.",
-    "extracted_value": 31623.0,
-    "extracted_units": "rad/s",
+    "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
+    "extracted_value": 5032.921210448703,
+    "extracted_units": "Hz",
     "tool_calls": [
+      {
+        "name": "rlc_resonant_frequency",
+        "args": {
+          "capacitance_f": 1e-06,
+          "inductance_h": 0.001
+        },
+        "result_text": "{\n  \"value\": 5032.921210448703,\n  \"units\": \"Hz\",\n  \"source\": \"sigma-ground (RLC series circuit resonance)\",\n  \"uncertainty\": null,\n  \"formula\": \"f = 1 / (2 pi sqrt(L C))\",\n  \"provenance_tag\": null,\n  \"notes\": \"Angular frequency: omega_0 = 3.162e+04 rad/s. Resonant frequency where impedance is purely resistive. Tuner circuits select stations by sweeping this.\",\n  \"inputs\": {\n    \"inductance_h\": 0.001,\n    \"capacitance_f\": 1e-6\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
       {
         "name": "rlc_resonant_frequency",
         "args": {
           "inductance_h": 0.001,
           "capacitance_f": 1e-06
         },
-        "result_text": "{\n  \"value\": 31622.776601683792,\n  \"units\": \"rad/s\",\n  \"source\": \"sigma-ground (RLC series circuit resonance)\",\n  \"uncertainty\": null,\n  \"formula\": \"omega_0 = 1 / sqrt(L C)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Equivalent frequency: f = 5.033e+03 Hz. Resonant frequency where impedance is purely resistive. Tuner circuits select stations by sweeping this.\",\n  \"inputs\": {\n    \"inductance_h\": 0.001,\n    \"capacitance_f\": 1e-6\n  }\n}",
+        "result_text": "{\n  \"value\": 5032.921210448703,\n  \"units\": \"Hz\",\n  \"source\": \"sigma-ground (RLC series circuit resonance)\",\n  \"uncertainty\": null,\n  \"formula\": \"f = 1 / (2 pi sqrt(L C))\",\n  \"provenance_tag\": null,\n  \"notes\": \"Angular frequency: omega_0 = 3.162e+04 rad/s. Resonant frequency where impedance is purely resistive. Tuner circuits select stations by sweeping this.\",\n  \"inputs\": {\n    \"inductance_h\": 0.001,\n    \"capacitance_f\": 1e-6\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "rlc_resonant_frequency",
+        "args": {
+          "capacitance_f": 1e-06,
+          "inductance_h": 0.001
+        },
+        "result_text": "{\n  \"value\": 5032.921210448703,\n  \"units\": \"Hz\",\n  \"source\": \"sigma-ground (RLC series circuit resonance)\",\n  \"uncertainty\": null,\n  \"formula\": \"f = 1 / (2 pi sqrt(L C))\",\n  \"provenance_tag\": null,\n  \"notes\": \"Angular frequency: omega_0 = 3.162e+04 rad/s. Resonant frequency where impedance is purely resistive. Tuner circuits select stations by sweeping this.\",\n  \"inputs\": {\n    \"inductance_h\": 0.001,\n    \"capacitance_f\": 1e-6\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "rlc_resonant_frequency",
+        "args": {
+          "inductance_h": 0.001,
+          "capacitance_f": 1e-06
+        },
+        "result_text": "{\n  \"value\": 5032.921210448703,\n  \"units\": \"Hz\",\n  \"source\": \"sigma-ground (RLC series circuit resonance)\",\n  \"uncertainty\": null,\n  \"formula\": \"f = 1 / (2 pi sqrt(L C))\",\n  \"provenance_tag\": null,\n  \"notes\": \"Angular frequency: omega_0 = 3.162e+04 rad/s. Resonant frequency where impedance is purely resistive. Tuner circuits select stations by sweeping this.\",\n  \"inputs\": {\n    \"inductance_h\": 0.001,\n    \"capacitance_f\": 1e-6\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "rlc_resonant_frequency",
+        "args": {
+          "inductance_h": 0.001,
+          "capacitance_f": 1e-06
+        },
+        "result_text": "{\n  \"value\": 5032.921210448703,\n  \"units\": \"Hz\",\n  \"source\": \"sigma-ground (RLC series circuit resonance)\",\n  \"uncertainty\": null,\n  \"formula\": \"f = 1 / (2 pi sqrt(L C))\",\n  \"provenance_tag\": null,\n  \"notes\": \"Angular frequency: omega_0 = 3.162e+04 rad/s. Resonant frequency where impedance is purely resistive. Tuner circuits select stations by sweeping this.\",\n  \"inputs\": {\n    \"inductance_h\": 0.001,\n    \"capacitance_f\": 1e-6\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "rlc_resonant_frequency",
+        "args": {
+          "capacitance_f": 1e-06,
+          "inductance_h": 0.001
+        },
+        "result_text": "{\n  \"value\": 5032.921210448703,\n  \"units\": \"Hz\",\n  \"source\": \"sigma-ground (RLC series circuit resonance)\",\n  \"uncertainty\": null,\n  \"formula\": \"f = 1 / (2 pi sqrt(L C))\",\n  \"provenance_tag\": null,\n  \"notes\": \"Angular frequency: omega_0 = 3.162e+04 rad/s. Resonant frequency where impedance is purely resistive. Tuner circuits select stations by sweeping this.\",\n  \"inputs\": {\n    \"inductance_h\": 0.001,\n    \"capacitance_f\": 1e-6\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "rlc_resonant_frequency",
+        "args": {
+          "inductance_h": 0.001,
+          "capacitance_f": 1e-06
+        },
+        "result_text": "{\n  \"value\": 5032.921210448703,\n  \"units\": \"Hz\",\n  \"source\": \"sigma-ground (RLC series circuit resonance)\",\n  \"uncertainty\": null,\n  \"formula\": \"f = 1 / (2 pi sqrt(L C))\",\n  \"provenance_tag\": null,\n  \"notes\": \"Angular frequency: omega_0 = 3.162e+04 rad/s. Resonant frequency where impedance is purely resistive. Tuner circuits select stations by sweeping this.\",\n  \"inputs\": {\n    \"inductance_h\": 0.001,\n    \"capacitance_f\": 1e-6\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "rlc_resonant_frequency",
+        "args": {
+          "inductance_h": 0.001,
+          "capacitance_f": 1e-06
+        },
+        "result_text": "{\n  \"value\": 5032.921210448703,\n  \"units\": \"Hz\",\n  \"source\": \"sigma-ground (RLC series circuit resonance)\",\n  \"uncertainty\": null,\n  \"formula\": \"f = 1 / (2 pi sqrt(L C))\",\n  \"provenance_tag\": null,\n  \"notes\": \"Angular frequency: omega_0 = 3.162e+04 rad/s. Resonant frequency where impedance is purely resistive. Tuner circuits select stations by sweeping this.\",\n  \"inputs\": {\n    \"inductance_h\": 0.001,\n    \"capacitance_f\": 1e-6\n  }\n}",
         "renames_applied": [],
         "chain_log": []
       }
     ],
-    "turns": 2,
-    "elapsed_s": 4.90486216545105,
-    "extracted_via_fallback": false,
-    "nudges_sent": 0,
-    "grounded": true,
-    "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
+    "turns": 8,
+    "elapsed_s": 23.854626655578613,
+    "extracted_via_fallback": true,
+    "nudges_sent": 7,
+    "grounded": false,
+    "groundedness_reason": "LLM failed to converge (max turns / error)"
   },
   {
     "id": "em_intro_006",
@@ -443,9 +524,7 @@
       {
         "name": "em_wave_wavelength",
         "args": {
-          "wavelength_m": null,
-          "frequency_hz": 100000000,
-          "refractive_index": 1
+          "frequency_hz": 100000000
         },
         "result_text": "{\n  \"value\": 2.99792458,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 100000000.0,\n    \"refractive_index\": 1.0\n  }\n}",
         "renames_applied": [],
@@ -453,7 +532,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.143795967102051,
+    "elapsed_s": 3.8472483158111572,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -478,7 +557,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.53532075881958,
+    "elapsed_s": 4.465846300125122,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -488,37 +567,27 @@
     "id": "em_intro_008",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 250 W\n\nThe power dissipated as heat can be calculated using the formula \\( P = I^2 R \\), where \\( I \\) is the current and \\( R \\) is the resistance.\n\nGiven:\n- Current (\\( I \\)) = 5 A\n- Resistance (\\( R \\)) = 10 \u03a9\n\n\\[ P = (5 \\, \\text{A})^2 \\times 10 \\, \\Omega = 25 \\, \\text{A}^2 \\times 10 \\, \\Omega = 250 \\, \\text{W} \\]",
+    "answer_text": "ANSWER: 250 W",
     "extracted_value": 250.0,
     "extracted_units": "W",
     "tool_calls": [
       {
-        "name": "electrical_power",
-        "args": {
-          "voltage_v": null,
-          "current_a": 5
-        },
-        "result_text": "Error executing tool electrical_power: 1 validation error for electrical_powerArguments\nvoltage_v\n  Input should be a valid number [type=float_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/float_type",
-        "renames_applied": [],
-        "chain_log": []
-      },
-      {
-        "name": "electrical_power",
+        "name": "power_dissipation_resistor",
         "args": {
           "current_a": 5,
-          "voltage_v": null
+          "resistance_ohm": 10
         },
-        "result_text": "Error executing tool electrical_power: 1 validation error for electrical_powerArguments\nvoltage_v\n  Input should be a valid number [type=float_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/float_type",
+        "result_text": "{\n  \"value\": 250.0,\n  \"units\": \"W\",\n  \"source\": \"sigma-ground (Joule heating)\",\n  \"uncertainty\": null,\n  \"formula\": \"P = I^2 R\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"current_a\": 5.0,\n    \"resistance_ohm\": 10.0\n  }\n}",
         "renames_applied": [],
         "chain_log": []
       }
     ],
-    "turns": 3,
-    "elapsed_s": 6.123417377471924,
+    "turns": 2,
+    "elapsed_s": 4.350624084472656,
     "extracted_via_fallback": false,
-    "nudges_sent": 1,
+    "nudges_sent": 0,
     "grounded": true,
-    "groundedness_reason": "LLM tool-grounded (2 tool call(s))"
+    "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
   },
   {
     "id": "em_intro_009",
@@ -540,7 +609,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.308720588684082,
+    "elapsed_s": 4.169691562652588,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -566,7 +635,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.105181932449341,
+    "elapsed_s": 4.016278266906738,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -576,14 +645,15 @@
     "id": "em_intro_011",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 0.125 m",
+    "answer_text": "ANSWER: 0.125 m\n\nThe wavelength of a 2.4 GHz WiFi signal in free space is approximately 0.125 meters.",
     "extracted_value": 0.125,
     "extracted_units": "m",
     "tool_calls": [
       {
         "name": "em_wave_wavelength",
         "args": {
-          "frequency_hz": "2.4e9"
+          "refractive_index": 1,
+          "frequency_hz": 2400000000
         },
         "result_text": "{\n  \"value\": 0.12491352416666666,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 2400000000.0,\n    \"refractive_index\": 1.0\n  }\n}",
         "renames_applied": [],
@@ -591,7 +661,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 3.875976085662842,
+    "elapsed_s": 4.405912399291992,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -601,26 +671,37 @@
     "id": "em_intro_012",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\nTo determine the required area of the plates for a capacitor with 1 microfarad capacitance and a separation of 1 mm in vacuum, we can use the formula for the capacitance of a parallel-plate capacitor:\n\n\\[ C = \\frac{\\epsilon_0 A}{d} \\]\n\nwhere:\n- \\( C \\) is the capacitance,\n- \\( \\epsilon_0 \\) is the permittivity of free space (\\(8.854 \\times 10^{-12} \\, \\text{F/m}\\)),\n- \\( A \\) is the area of one plate,\n- \\( d \\) is the separation between the plates.\n\nGiven:\n- \\( C = 1 \\, \\mu\\text{F} = 1 \\times 10^{-6} \\, \\text{F} \\),\n- \\( d = 1 \\, \\text{mm} = 0.001 \\, \\text{m} \\).\n\nWe need to solve for \\( A \\):\n\n\\[ A = \\frac{C \\cdot d}{\\epsilon_0} \\]\n\nLet's calculate the area \\( A \\).\n```python\n# Given values\r\ncapacitance_F = 1e-6  # 1 microfarad in Farads\r\nseparation_m = 0.001  # 1 mm in meters\r\npermittivity_free_space = 8.854e-12  # Permittivity of free space in F/m\r\n\r\n# Calculate the area A\r\narea_m2 = (capacitance_F * separation_m) / permittivity_free_space\r\narea_m2\n```\n```output-done\nDone\n```\nThe required area of each plate for a capacitor with 1 microfarad capacitance and a separation of 1 mm in vacuum is approximately \\(0.0113 \\, \\text{m}^2\\).\n\nTherefore, the plates need to be at least \\(0.0113 \\, \\text{m}^2\\) (or about 113 square centimeters) in area.\n\nANSWER: The plates need to be approximately \\(0.0113 \\, \\text{m}^2\\).",
-    "extracted_value": "The plates need to be approximately \\(0.0113 \\, \\text{m}^2\\).",
+    "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\nANSWER: [SOURCE: Fitted due to incompetence, as the required dimensions cannot be determined from the given tools.]",
+    "extracted_value": "[SOURCE: Fitted due to incompetence, as the required dimensions cannot be determined from the given tools.]",
     "extracted_units": "",
     "tool_calls": [
       {
         "name": "parallel_plate_capacitance",
         "args": {
-          "separation_m": 0.001,
+          "area_m2": null,
           "dielectric_constant": 1,
-          "area_m2": null
+          "separation_m": 0.001
+        },
+        "result_text": "Error executing tool parallel_plate_capacitance: 1 validation error for parallel_plate_capacitanceArguments\narea_m2\n  Input should be a valid number [type=float_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/float_type",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "parallel_plate_capacitance",
+        "args": {
+          "separation_m": 0.001,
+          "area_m2": null,
+          "dielectric_constant": 1
         },
         "result_text": "Error executing tool parallel_plate_capacitance: 1 validation error for parallel_plate_capacitanceArguments\narea_m2\n  Input should be a valid number [type=float_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/float_type",
         "renames_applied": [],
         "chain_log": []
       }
     ],
-    "turns": 2,
-    "elapsed_s": 9.637919664382935,
+    "turns": 4,
+    "elapsed_s": 25.767079830169678,
     "extracted_via_fallback": false,
-    "nudges_sent": 0,
+    "nudges_sent": 2,
     "grounded": false,
     "groundedness_reason": "tool ran but value not grounded (non-grounded / flagged string)"
   },
@@ -644,7 +725,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.744197607040405,
+    "elapsed_s": 12.410354614257812,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -654,24 +735,13 @@
     "id": "em_intro_014",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 2.998e18 Hz\n\nThe frequency of X-rays with a wavelength of 0.1 nanometers is approximately \\(2.998 \\times 10^{18}\\) Hz.",
+    "answer_text": "ANSWER: 2.998e18 Hz",
     "extracted_value": 2.998e+18,
     "extracted_units": "Hz",
     "tool_calls": [
       {
         "name": "em_wave_frequency",
         "args": {
-          "refractive_index": null,
-          "wavelength_m": 1e-10
-        },
-        "result_text": "Error executing tool em_wave_frequency: 1 validation error for em_wave_frequencyArguments\nrefractive_index\n  Input should be a valid number [type=float_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/float_type",
-        "renames_applied": [],
-        "chain_log": []
-      },
-      {
-        "name": "em_wave_frequency",
-        "args": {
-          "refractive_index": 1,
           "wavelength_m": 1e-10
         },
         "result_text": "{\n  \"value\": 2.99792458e18,\n  \"units\": \"Hz\",\n  \"source\": \"sigma-ground (EM wave dispersion)\",\n  \"uncertainty\": null,\n  \"formula\": \"f = c / (n lambda)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"wavelength_m\": 1e-10,\n    \"refractive_index\": 1.0\n  }\n}",
@@ -679,35 +749,35 @@
         "chain_log": []
       }
     ],
-    "turns": 3,
-    "elapsed_s": 6.152998924255371,
+    "turns": 2,
+    "elapsed_s": 11.720383644104004,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
-    "groundedness_reason": "LLM tool-grounded (2 tool call(s))"
+    "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
   },
   {
     "id": "em_intro_015",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 3.00e-12 m\n\nThe wavelength of the cosmic-ray gamma ray with a frequency of \\(1 \\times 10^{22} \\, \\text{Hz}\\) is approximately \\(3.00 \\times 10^{-12} \\, \\text{m}\\).",
-    "extracted_value": 3e-12,
+    "answer_text": "ANSWER: 3.00 \u00d7 10^-13 m\n\nThe wavelength of the cosmic-ray gamma ray with a frequency of \\(1 \\times 10^{21}\\) Hz is approximately \\(3.00 \\times 10^{-13}\\) meters.",
+    "extracted_value": 2.99792458e-13,
     "extracted_units": "m",
     "tool_calls": [
       {
         "name": "em_wave_wavelength",
         "args": {
-          "frequency_hz": 100000000000000000000,
+          "frequency_hz": 1e+21,
           "refractive_index": 1
         },
-        "result_text": "{\n  \"value\": 2.99792458e-12,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 1e20,\n    \"refractive_index\": 1.0\n  }\n}",
+        "result_text": "{\n  \"value\": 2.99792458e-13,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 1e21,\n    \"refractive_index\": 1.0\n  }\n}",
         "renames_applied": [],
         "chain_log": []
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.916590929031372,
-    "extracted_via_fallback": false,
+    "elapsed_s": 4.825456857681274,
+    "extracted_via_fallback": true,
     "nudges_sent": 0,
     "grounded": true,
     "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
@@ -721,7 +791,7 @@
     "extracted_units": "deg",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09501385688781738,
+    "elapsed_s": 0.09206700325012207,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "optics_classifier_hit": "snells_law_refraction_angle",
@@ -737,7 +807,7 @@
     "extracted_units": "deg",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10274124145507812,
+    "elapsed_s": 0.09639310836791992,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "optics_classifier_hit": "critical_angle_for_tir",
@@ -748,7 +818,7 @@
     "id": "optics_003",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 30 cm\n\nThe image is formed 30 cm behind the lens, on the same side as the object. Since the distance is positive, this indicates a real image.",
+    "answer_text": "ANSWER: 0.3 m\n\nThe image is formed 30 cm behind the lens, on the same side as the object. Since the distance is positive, the image is a real image and forms on the opposite side of the lens from where the object is placed.",
     "extracted_value": 0.3,
     "extracted_units": "m",
     "tool_calls": [
@@ -764,8 +834,8 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.406923532485962,
-    "extracted_via_fallback": true,
+    "elapsed_s": 12.485777139663696,
+    "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
     "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
@@ -774,23 +844,24 @@
     "id": "optics_004",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 656.3 nm\n\nThe wavelength of the H-alpha spectral line emitted when hydrogen drops from \\( n=3 \\) to \\( n=2 \\) is approximately 656.3 nanometers (nm). This corresponds to the visible part of the spectrum and is a notable line in atomic physics.",
+    "answer_text": "ANSWER: 656.112 nm",
     "extracted_value": 6.561122764193189e-07,
     "extracted_units": "m",
     "tool_calls": [
       {
-        "name": "rydberg_hydrogen_wavelength",
+        "name": "hydrogen_emission_wavelength",
         "args": {
-          "n_initial": 3,
-          "n_final": 2
+          "n_final": 2,
+          "atomic_number": 1,
+          "n_initial": 3
         },
-        "result_text": "{\n  \"value\": 6.561122764193189e-7,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (Rydberg formula, CODATA 2018 R_inf)\",\n  \"uncertainty\": null,\n  \"formula\": \"1/lambda = R_inf |1/n_f^2 - 1/n_i^2|\",\n  \"provenance_tag\": null,\n  \"notes\": \"Balmer (visible) series. Notable lines: H-alpha (n=3->2) = 656.3 nm; Lyman-alpha (n=2->1) = 121.6 nm. For hydrogen-like ions (He+, Li2+), multiply 1/lambda by Z^2.\",\n  \"inputs\": {\n    \"n_initial\": 3,\n    \"n_final\": 2\n  }\n}",
+        "result_text": "{\n  \"value\": 6.561122764193189e-7,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (Rydberg formula, CODATA 2018 R_inf)\",\n  \"uncertainty\": null,\n  \"formula\": \"1/lambda = R_inf Z^2 |1/n_f^2 - 1/n_i^2|\",\n  \"provenance_tag\": null,\n  \"notes\": \"Balmer (visible) series for Z=1. Notable H lines: H-alpha (3->2)=656 nm, Lyman-alpha (2->1)=121.6 nm.\",\n  \"inputs\": {\n    \"n_initial\": 3,\n    \"n_final\": 2,\n    \"atomic_number\": 1\n  }\n}",
         "renames_applied": [],
         "chain_log": []
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.798146486282349,
+    "elapsed_s": 11.98777723312378,
     "extracted_via_fallback": true,
     "nudges_sent": 0,
     "grounded": true,
@@ -800,7 +871,7 @@
     "id": "optics_005",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 6.33 mm\n\nThe bright fringes are spaced 6.33 millimeters apart on the screen.",
+    "answer_text": "ANSWER: 6.33 mm",
     "extracted_value": 0.00633,
     "extracted_units": "m",
     "tool_calls": [
@@ -817,7 +888,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.648622035980225,
+    "elapsed_s": 4.277883768081665,
     "extracted_via_fallback": true,
     "nudges_sent": 0,
     "grounded": true,
@@ -827,9 +898,9 @@
     "id": "optics_006",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 30.0\u00b0\n\nThe angle to the first dark fringe when green light at 500 nm passes through a 1 micrometer slit is approximately 30.0 degrees.",
-    "extracted_value": 30.0,
-    "extracted_units": "\u00b0",
+    "answer_text": "ANSWER: 30.000000000000004 deg\n\nThis is the angle for the first minimum in the diffraction pattern of light passing through a single slit with a width of \\(1 \\mu m\\) when the wavelength of the light is \\(500 \\text{ nm}\\). This value represents the half-width of the central diffraction maximum.",
+    "extracted_value": 30.000000000000004,
+    "extracted_units": "deg",
     "tool_calls": [
       {
         "name": "single_slit_first_minimum_angle",
@@ -843,7 +914,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.568337440490723,
+    "elapsed_s": 5.142256736755371,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -858,7 +929,7 @@
     "extracted_units": "deg",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09618520736694336,
+    "elapsed_s": 0.0936288833618164,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "optics_classifier_hit": "diffraction_grating_angle",
@@ -869,7 +940,7 @@
     "id": "optics_008",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 2.42 dimensionless\n\nThe refractive index of diamond at 589 nm is 2.42, as verified by the CRC Handbook.",
+    "answer_text": "ANSWER: 2.42 dimensionless",
     "extracted_value": 2.42,
     "extracted_units": "dimensionless",
     "tool_calls": [
@@ -884,7 +955,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.124274969100952,
+    "elapsed_s": 11.541395425796509,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -894,24 +965,24 @@
     "id": "optics_009",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 1.215e-7 m\n\nThe wavelength of the Lyman-alpha hydrogen line, which transitions from \\( n=2 \\) to \\( n=1 \\), is approximately \\( 1.215 \\times 10^{-7} \\) meters or 121.6 nanometers. This value is derived using the Rydberg formula and based on CODATA 2018 values for fundamental constants.",
-    "extracted_value": 1.215e-07,
+    "answer_text": "ANSWER: 759340.86 m\u207b\u00b9",
+    "extracted_value": 1.2150227341098497e-07,
     "extracted_units": "m",
     "tool_calls": [
       {
-        "name": "rydberg_hydrogen_wavelength",
+        "name": "hydrogen_emission_wavelength",
         "args": {
-          "n_final": 1,
-          "n_initial": 2
+          "n_initial": 2,
+          "n_final": 1
         },
-        "result_text": "{\n  \"value\": 1.2150227341098497e-7,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (Rydberg formula, CODATA 2018 R_inf)\",\n  \"uncertainty\": null,\n  \"formula\": \"1/lambda = R_inf |1/n_f^2 - 1/n_i^2|\",\n  \"provenance_tag\": null,\n  \"notes\": \"Lyman (UV) series. Notable lines: H-alpha (n=3->2) = 656.3 nm; Lyman-alpha (n=2->1) = 121.6 nm. For hydrogen-like ions (He+, Li2+), multiply 1/lambda by Z^2.\",\n  \"inputs\": {\n    \"n_initial\": 2,\n    \"n_final\": 1\n  }\n}",
+        "result_text": "{\n  \"value\": 1.2150227341098497e-7,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (Rydberg formula, CODATA 2018 R_inf)\",\n  \"uncertainty\": null,\n  \"formula\": \"1/lambda = R_inf Z^2 |1/n_f^2 - 1/n_i^2|\",\n  \"provenance_tag\": null,\n  \"notes\": \"Lyman (UV) series for Z=1. Notable H lines: H-alpha (3->2)=656 nm, Lyman-alpha (2->1)=121.6 nm.\",\n  \"inputs\": {\n    \"n_initial\": 2,\n    \"n_final\": 1,\n    \"atomic_number\": 1\n  }\n}",
         "renames_applied": [],
         "chain_log": []
       }
     ],
     "turns": 2,
-    "elapsed_s": 5.046925067901611,
-    "extracted_via_fallback": false,
+    "elapsed_s": 4.208650588989258,
+    "extracted_via_fallback": true,
     "nudges_sent": 0,
     "grounded": true,
     "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
@@ -920,23 +991,24 @@
     "id": "optics_010",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 0.5\n\nThe magnification of the image is 0.5, which means the image is half the size of the object and it is inverted.",
-    "extracted_value": 0.5,
-    "extracted_units": "The magnification of the image is 0.5, which means the image is half the size of the object and it is inverted.",
+    "answer_text": "ANSWER: -0.5\n\nThe magnification of the lens is -0.5, indicating that the image formed is inverted and reduced in size compared to the object.",
+    "extracted_value": -0.5,
+    "extracted_units": "The magnification of the lens is -0.5, indicating that the image formed is inverted and reduced in size compared to the object.",
     "tool_calls": [
       {
         "name": "lens_magnification",
         "args": {
           "object_distance_m": 0.2,
+          "image_side": "behind",
           "image_distance_m": -0.1
         },
-        "result_text": "{\n  \"value\": 0.5,\n  \"units\": \"dimensionless\",\n  \"source\": \"sigma-ground (thin lens magnification)\",\n  \"uncertainty\": null,\n  \"formula\": \"m = -d_i / d_o\",\n  \"provenance_tag\": null,\n  \"notes\": \"|m|>1: enlarged. |m|<1: reduced. m<0: inverted. m>0: upright.\",\n  \"inputs\": {\n    \"object_distance_m\": 0.2,\n    \"image_distance_m\": -0.1\n  }\n}",
+        "result_text": "{\n  \"value\": -0.5,\n  \"units\": \"dimensionless\",\n  \"source\": \"sigma-ground (thin lens magnification)\",\n  \"uncertainty\": null,\n  \"formula\": \"m = -d_i / d_o\",\n  \"provenance_tag\": null,\n  \"notes\": \"|m|>1: enlarged. |m|<1: reduced. m<0: inverted. m>0: upright.\",\n  \"inputs\": {\n    \"object_distance_m\": 0.2,\n    \"image_distance_m\": -0.1,\n    \"image_side\": \"behind\"\n  }\n}",
         "renames_applied": [],
         "chain_log": []
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.344916582107544,
+    "elapsed_s": 4.4699790477752686,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -951,7 +1023,7 @@
     "extracted_units": "m/s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09710001945495605,
+    "elapsed_s": 0.09386467933654785,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "optics_classifier_hit": "speed_of_sound_in_ideal_gas",
@@ -967,7 +1039,7 @@
     "extracted_units": "year",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.1013791561126709,
+    "elapsed_s": 0.09306979179382324,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "astro_classifier_hit": "light_travel_time_from_star",
@@ -983,7 +1055,7 @@
     "extracted_units": "Pa",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09722113609313965,
+    "elapsed_s": 0.0926816463470459,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "thermo_classifier_hit": "ideal_gas_pressure",
@@ -999,7 +1071,7 @@
     "extracted_units": "m",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10461211204528809,
+    "elapsed_s": 0.0934751033782959,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "thermo_classifier_hit": "blackbody_peak_wavelength",
@@ -1015,7 +1087,7 @@
     "extracted_units": "W",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10391664505004883,
+    "elapsed_s": 0.0928049087524414,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "thermo_classifier_hit": "blackbody_total_power",
@@ -1031,7 +1103,7 @@
     "extracted_units": "dimensionless",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.1032412052154541,
+    "elapsed_s": 0.09176111221313477,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "thermo_classifier_hit": "carnot_efficiency",
@@ -1047,7 +1119,7 @@
     "extracted_units": "J",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.15459227561950684,
+    "elapsed_s": 0.13305449485778809,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "thermo_classifier_hit": "thermal_energy_per_molecule",
@@ -1063,7 +1135,7 @@
     "extracted_units": "m/s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09539175033569336,
+    "elapsed_s": 0.09052133560180664,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "thermo_classifier_hit": "maxwell_boltzmann_most_probable_speed",
@@ -1079,7 +1151,7 @@
     "extracted_units": "m^3",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09535384178161621,
+    "elapsed_s": 0.09340763092041016,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "thermo_classifier_hit": "ideal_gas_volume",
@@ -1095,7 +1167,7 @@
     "extracted_units": "K",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.1027984619140625,
+    "elapsed_s": 0.09649205207824707,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "thermo_classifier_hit": "melting_point",
@@ -1111,7 +1183,7 @@
     "extracted_units": "K",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10099315643310547,
+    "elapsed_s": 0.09293532371520996,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "thermo_classifier_hit": "melting_point",
@@ -1127,7 +1199,7 @@
     "extracted_units": "K",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09637641906738281,
+    "elapsed_s": 0.09153509140014648,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "thermo_classifier_hit": "boiling_point",
@@ -1143,7 +1215,7 @@
     "extracted_units": "K",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09777355194091797,
+    "elapsed_s": 0.09504365921020508,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "conversion_classifier_hit": true,
@@ -1159,7 +1231,7 @@
     "extracted_units": "m",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09456133842468262,
+    "elapsed_s": 0.09167051315307617,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "thermo_classifier_hit": "blackbody_peak_wavelength",
@@ -1175,7 +1247,7 @@
     "extracted_units": "dimensionless",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.5291056632995605,
+    "elapsed_s": 0.4944877624511719,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "modern_classifier_hit": "lorentz_factor",
@@ -1191,7 +1263,7 @@
     "extracted_units": "s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09668564796447754,
+    "elapsed_s": 0.09354257583618164,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "modern_classifier_hit": "relativistic_time_dilation",
@@ -1207,7 +1279,7 @@
     "extracted_units": "m",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.1029808521270752,
+    "elapsed_s": 0.09214520454406738,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "modern_classifier_hit": "relativistic_length_contraction",
@@ -1223,7 +1295,7 @@
     "extracted_units": "J",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09396576881408691,
+    "elapsed_s": 0.0908818244934082,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "modern_classifier_hit": "mass_to_energy",
@@ -1239,7 +1311,7 @@
     "extracted_units": "kg/s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09533047676086426,
+    "elapsed_s": 0.09363675117492676,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "modern_classifier_hit": "luminosity_to_mass_conversion_rate",
@@ -1255,7 +1327,7 @@
     "extracted_units": "J",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09404683113098145,
+    "elapsed_s": 0.09117984771728516,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "modern_classifier_hit": "photon_energy_from_wavelength",
@@ -1271,7 +1343,7 @@
     "extracted_units": "m/s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09487366676330566,
+    "elapsed_s": 0.09146475791931152,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "modern_classifier_hit": "relativistic_velocity_addition",
@@ -1287,7 +1359,7 @@
     "extracted_units": "eV",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09626626968383789,
+    "elapsed_s": 0.09345364570617676,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "conversion_classifier_hit": true,
@@ -1303,7 +1375,7 @@
     "extracted_units": "J",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09323620796203613,
+    "elapsed_s": 0.09120488166809082,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "modern_classifier_hit": "joules_to_TNT",
@@ -1319,7 +1391,7 @@
     "extracted_units": "J",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09618282318115234,
+    "elapsed_s": 0.09188318252563477,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "modern_classifier_hit": "mass_to_energy",
@@ -1335,7 +1407,7 @@
     "extracted_units": "m",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09639453887939453,
+    "elapsed_s": 0.0932607650756836,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "modern_classifier_hit": "de_broglie_wavelength",
@@ -1351,7 +1423,7 @@
     "extracted_units": "dimensionless",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09780025482177734,
+    "elapsed_s": 0.0934896469116211,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "modern_classifier_hit": "doppler_shift_factor",
@@ -1362,15 +1434,15 @@
     "id": "qm_001",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: -13.61 eV\n\nThe ground state energy of hydrogen is \\(-13.61\\) eV. This value is derived from the Bohr model and confirmed by quantum mechanics using the Schr\u00f6dinger equation for a hydrogen-like atom.",
-    "extracted_value": -13.61,
+    "answer_text": "ANSWER: -13.606 eV",
+    "extracted_value": -13.606,
     "extracted_units": "eV",
     "tool_calls": [
       {
         "name": "hydrogen_like_energy_level",
         "args": {
-          "n": 1,
-          "atomic_number": 1
+          "atomic_number": 1,
+          "n": 1
         },
         "result_text": "{\n  \"value\": -13.605693122994,\n  \"units\": \"eV\",\n  \"source\": \"sigma-ground (Bohr model / Schrodinger hydrogen-like)\",\n  \"uncertainty\": null,\n  \"formula\": \"E_n = -Ry Z^2 / n^2\",\n  \"provenance_tag\": null,\n  \"notes\": \"Ground state of hydrogen (n=1, Z=1): -13.606 eV. Bound states are negative. Ionization energy from level n is |E_n|.\",\n  \"inputs\": {\n    \"n\": 1,\n    \"atomic_number\": 1\n  }\n}",
         "renames_applied": [],
@@ -1378,7 +1450,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.54672646522522,
+    "elapsed_s": 11.82747483253479,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -1388,15 +1460,15 @@
     "id": "qm_002",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: -3.401 eV\n\nThe energy of the n=2 state of hydrogen is -3.401 eV. This value is derived from the Bohr model and confirmed by quantum mechanics using the Schr\u00f6dinger equation for hydrogen-like atoms.",
+    "answer_text": "ANSWER: -3.401 eV\n\nThe energy of the \\( n=2 \\) state of hydrogen is \\(-3.401\\) eV. This value is derived from the Bohr model and confirmed by the Schr\u00f6dinger equation for hydrogen-like atoms. Bound states, like the one we calculated here, are negative, indicating that the electron is bound to the nucleus. The ionization energy required to remove an electron from this state would be \\(3.401\\) eV.",
     "extracted_value": -3.401,
     "extracted_units": "eV",
     "tool_calls": [
       {
         "name": "hydrogen_like_energy_level",
         "args": {
-          "n": 2,
-          "atomic_number": 1
+          "atomic_number": 1,
+          "n": 2
         },
         "result_text": "{\n  \"value\": -3.4014232807485,\n  \"units\": \"eV\",\n  \"source\": \"sigma-ground (Bohr model / Schrodinger hydrogen-like)\",\n  \"uncertainty\": null,\n  \"formula\": \"E_n = -Ry Z^2 / n^2\",\n  \"provenance_tag\": null,\n  \"notes\": \"Ground state of hydrogen (n=1, Z=1): -13.606 eV. Bound states are negative. Ionization energy from level n is |E_n|.\",\n  \"inputs\": {\n    \"n\": 2,\n    \"atomic_number\": 1\n  }\n}",
         "renames_applied": [],
@@ -1404,7 +1476,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.535062313079834,
+    "elapsed_s": 12.976990699768066,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -1414,7 +1486,7 @@
     "id": "qm_003",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 24.587 eV\n\nThe first ionization energy of helium is 24.587 electronvolts (eV). This value is verified and comes from the National Institute of Standards and Technology Atomic Spectroscopic Database (NIST ASD). Larger ionization energies generally indicate less reactivity, placing helium in line with its noble gas properties.",
+    "answer_text": "ANSWER: 24.587 eV",
     "extracted_value": 24.587,
     "extracted_units": "eV",
     "tool_calls": [
@@ -1429,7 +1501,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.558887958526611,
+    "elapsed_s": 11.648557901382446,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -1439,7 +1511,7 @@
     "id": "qm_004",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: -54.423 eV\n\nThe ground state energy of the He+ (singly ionized helium) atom is \\(-54.423\\) eV. This value is derived from the hydrogen-like energy level formula, where \\(Z = 2\\) for He+ and \\(n = 1\\) for the ground state.",
+    "answer_text": "ANSWER: -54.423 eV\n\nThe ground state energy of He+ (singly ionized helium) is approximately \\(-54.423\\) eV. This value is derived using the Bohr model and Schr\u00f6dinger equation for hydrogen-like atoms, where \\(Z\\) is the atomic number (for He+, \\(Z=2\\)) and \\(n\\) is the principal quantum number (for the ground state, \\(n=1\\)).",
     "extracted_value": -54.423,
     "extracted_units": "eV",
     "tool_calls": [
@@ -1455,7 +1527,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.826306581497192,
+    "elapsed_s": 5.090183258056641,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -1470,7 +1542,7 @@
     "extracted_units": "m",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 8.702278137207031e-05,
+    "elapsed_s": 7.05718994140625e-05,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "new_tools_router_hit": "de_broglie_from_kinetic_energy",
@@ -1481,16 +1553,16 @@
     "id": "qm_006",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 486 nm\n\nThe wavelength emitted when hydrogen transitions from the n=4 to n=2 energy level is approximately 486 nanometers, which falls within the visible spectrum and corresponds to a red line in the Balmer series.",
-    "extracted_value": 4.860090936439399e-07,
+    "answer_text": "ANSWER: 4.86e-7 m",
+    "extracted_value": 4.86e-07,
     "extracted_units": "m",
     "tool_calls": [
       {
         "name": "hydrogen_emission_wavelength",
         "args": {
+          "n_initial": 4,
           "n_final": 2,
-          "atomic_number": 1,
-          "n_initial": 4
+          "atomic_number": 1
         },
         "result_text": "{\n  \"value\": 4.860090936439399e-7,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (Rydberg formula, CODATA 2018 R_inf)\",\n  \"uncertainty\": null,\n  \"formula\": \"1/lambda = R_inf Z^2 |1/n_f^2 - 1/n_i^2|\",\n  \"provenance_tag\": null,\n  \"notes\": \"Balmer (visible) series for Z=1. Notable H lines: H-alpha (3->2)=656 nm, Lyman-alpha (2->1)=121.6 nm.\",\n  \"inputs\": {\n    \"n_initial\": 4,\n    \"n_final\": 2,\n    \"atomic_number\": 1\n  }\n}",
         "renames_applied": [],
@@ -1498,8 +1570,8 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.722030162811279,
-    "extracted_via_fallback": true,
+    "elapsed_s": 12.189161539077759,
+    "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
     "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
@@ -1508,7 +1580,7 @@
     "id": "qm_007",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 6.626e-19 J\n\nThe energy of the photon with a frequency of \\(1 \\times 10^{15}\\) Hz is approximately \\(6.626 \\times 10^{-19}\\) Joules, which is equivalent to about 4.136 electronvolts (eV).",
+    "answer_text": "ANSWER: 6.626e-19 J\n\nThis is equivalent to approximately 4.136 eV.",
     "extracted_value": 6.626e-19,
     "extracted_units": "J",
     "tool_calls": [
@@ -1523,7 +1595,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.827848434448242,
+    "elapsed_s": 4.246244192123413,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -1548,7 +1620,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.076232194900513,
+    "elapsed_s": 11.734251022338867,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -1565,7 +1637,7 @@
       "photon_energy_from_wavelength"
     ],
     "turns": 0,
-    "elapsed_s": 2.183809995651245,
+    "elapsed_s": 2.196489095687866,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "semantic_router_hit": "photon_energy_from_wavelength",
@@ -1591,7 +1663,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 5.80846381187439,
+    "elapsed_s": 3.876676321029663,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -1606,7 +1678,7 @@
     "extracted_units": "m",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09957027435302734,
+    "elapsed_s": 0.09188985824584961,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "modern_classifier_hit": "de_broglie_wavelength",
@@ -1617,23 +1689,24 @@
     "id": "qm_012",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 4.05e-6 m\n\nThe wavelength of the Brackett-alpha line in hydrogen, corresponding to the transition from \\( n=5 \\) to \\( n=4 \\), is approximately 4.05 \u03bcm (micrometers). This falls in the infrared region of the electromagnetic spectrum.",
+    "answer_text": "ANSWER: 4.05e-6 m",
     "extracted_value": 4.05e-06,
     "extracted_units": "m",
     "tool_calls": [
       {
-        "name": "rydberg_hydrogen_wavelength",
+        "name": "hydrogen_emission_wavelength",
         "args": {
+          "atomic_number": 1,
           "n_initial": 5,
           "n_final": 4
         },
-        "result_text": "{\n  \"value\": 4.050075780366167e-6,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (Rydberg formula, CODATA 2018 R_inf)\",\n  \"uncertainty\": null,\n  \"formula\": \"1/lambda = R_inf |1/n_f^2 - 1/n_i^2|\",\n  \"provenance_tag\": null,\n  \"notes\": \"Brackett (IR) series. Notable lines: H-alpha (n=3->2) = 656.3 nm; Lyman-alpha (n=2->1) = 121.6 nm. For hydrogen-like ions (He+, Li2+), multiply 1/lambda by Z^2.\",\n  \"inputs\": {\n    \"n_initial\": 5,\n    \"n_final\": 4\n  }\n}",
+        "result_text": "{\n  \"value\": 4.050075780366167e-6,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (Rydberg formula, CODATA 2018 R_inf)\",\n  \"uncertainty\": null,\n  \"formula\": \"1/lambda = R_inf Z^2 |1/n_f^2 - 1/n_i^2|\",\n  \"provenance_tag\": null,\n  \"notes\": \"Brackett (IR) series for Z=1. Notable H lines: H-alpha (3->2)=656 nm, Lyman-alpha (2->1)=121.6 nm.\",\n  \"inputs\": {\n    \"n_initial\": 5,\n    \"n_final\": 4,\n    \"atomic_number\": 1\n  }\n}",
         "renames_applied": [],
         "chain_log": []
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.685460090637207,
+    "elapsed_s": 4.185763120651245,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -1648,7 +1721,7 @@
     "extracted_units": "m/s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.00014090538024902344,
+    "elapsed_s": 0.00015234947204589844,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "new_tools_router_hit": "orbital_velocity",
@@ -1664,7 +1737,7 @@
     "extracted_units": "s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.0001609325408935547,
+    "elapsed_s": 0.0001633167266845703,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "new_tools_router_hit": "orbital_period",
@@ -1682,7 +1755,7 @@
       "escape_velocity_classical"
     ],
     "turns": 0,
-    "elapsed_s": 2.1589295864105225,
+    "elapsed_s": 2.1889889240264893,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "semantic_router_hit": "escape_velocity_classical",
@@ -1693,7 +1766,7 @@
     "id": "mech_adv_004",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 499 s\n\nThis is approximately 8.32 minutes for light to travel from the Sun to Earth.",
+    "answer_text": "ANSWER: 499.00 s",
     "extracted_value": 499.0,
     "extracted_units": "s",
     "tool_calls": [
@@ -1708,7 +1781,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.358276128768921,
+    "elapsed_s": 4.171911716461182,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -1733,7 +1806,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 3.9300029277801514,
+    "elapsed_s": 3.992328405380249,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -1743,8 +1816,8 @@
     "id": "mech_adv_006",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 472,473,800 J\n\nThe kinetic energy of a 1000 kg satellite in geosynchronous orbit traveling at 3074 m/s is approximately 472,473,800 Joules. This calculation uses non-relativistic kinematics, which is appropriate for speeds much less than the speed of light (v < 0.1 c).",
-    "extracted_value": 4724738000.0,
+    "answer_text": "ANSWER: 4.72e9 J",
+    "extracted_value": 4720000000.0,
     "extracted_units": "J",
     "tool_calls": [
       {
@@ -1759,8 +1832,8 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 5.035593509674072,
-    "extracted_via_fallback": true,
+    "elapsed_s": 4.130988359451294,
+    "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
     "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
@@ -1776,7 +1849,7 @@
       "escape_velocity_classical"
     ],
     "turns": 0,
-    "elapsed_s": 2.174736738204956,
+    "elapsed_s": 2.1542751789093018,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "semantic_router_hit": "escape_velocity_classical",
@@ -1792,7 +1865,7 @@
     "extracted_units": "m/s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.00018072128295898438,
+    "elapsed_s": 0.0001850128173828125,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "new_tools_router_hit": "orbital_velocity",
@@ -1808,7 +1881,7 @@
     "extracted_units": "m/s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 7.462501525878906e-05,
+    "elapsed_s": 7.653236389160156e-05,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "new_tools_router_hit": "orbital_velocity",
@@ -1824,7 +1897,7 @@
     "extracted_units": "",
     "tool_calls": [],
     "turns": 3,
-    "elapsed_s": 5.843785047531128,
+    "elapsed_s": 13.736119985580444,
     "extracted_via_fallback": false,
     "nudges_sent": 2,
     "grounded": false,
@@ -1834,16 +1907,16 @@
     "id": "em_adv_001",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 9.20e-2 m\n\nThe wavelength of 2.45 GHz radiation in water, with a refractive index of approximately 1.33, is about 9.20 cm.",
-    "extracted_value": 0.092,
+    "answer_text": "ANSWER: 9.20 cm",
+    "extracted_value": 0.09200320945220193,
     "extracted_units": "m",
     "tool_calls": [
       {
         "name": "em_wave_wavelength",
         "args": {
+          "refractive_index": 1.33,
           "wavelength_m": null,
-          "frequency_hz": 2450000000,
-          "refractive_index": 1.33
+          "frequency_hz": 2450000000
         },
         "result_text": "{\n  \"value\": 0.09200320945220193,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 2450000000.0,\n    \"refractive_index\": 1.33\n  }\n}",
         "renames_applied": [],
@@ -1851,8 +1924,8 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.6691179275512695,
-    "extracted_via_fallback": false,
+    "elapsed_s": 4.204258441925049,
+    "extracted_via_fallback": true,
     "nudges_sent": 0,
     "grounded": true,
     "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
@@ -1877,7 +1950,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 3.9424216747283936,
+    "elapsed_s": 11.631303310394287,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -1887,8 +1960,8 @@
     "id": "em_adv_003",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 8.854 \u03bcF",
-    "extracted_value": 8.854187817e-06,
+    "answer_text": "ANSWER: 8.854e-6 F\n\nThe capacitance of a parallel-plate capacitor with an area of 1 m\u00b2, a separation distance of 1 \u03bcm, and a dielectric constant of 1 (vacuum) is approximately 8.854 \u00b5F. This value is derived from the formula \\( C = \\epsilon_0 \\epsilon_r \\frac{A}{d} \\), where \\( \\epsilon_0 \\) is the vacuum permittivity, \\( \\epsilon_r \\) is the relative dielectric constant of the material between the plates, \\( A \\) is the area of one plate, and \\( d \\) is the separation distance between the plates.",
+    "extracted_value": 8.854e-06,
     "extracted_units": "F",
     "tool_calls": [
       {
@@ -1904,8 +1977,8 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.187516212463379,
-    "extracted_via_fallback": true,
+    "elapsed_s": 5.838688850402832,
+    "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
     "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
@@ -1914,17 +1987,17 @@
     "id": "em_adv_004",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 8.854e-06 m\u00b2\n\nTo find the required plate area, we use the formula for the capacitance of a parallel-plate capacitor:\n\n\\[ C = \\epsilon_0 \\cdot \\epsilon_r \\cdot \\frac{A}{d} \\]\n\nWhere:\n- \\( C = 100 \\, \\mu\\text{F} = 0.0001 \\, \\text{F} \\),\n- \\( \\epsilon_0 = 8.854 \\times 10^{-12} \\, \\text{F/m} \\),\n- \\( \\epsilon_r = 100 \\),\n- \\( d = 0.1 \\, \\text{mm} = 0.0001 \\, \\text{m} \\).\n\nRearranging for the area \\( A \\):\n\n\\[ A = \\frac{C \\cdot d}{\\epsilon_0 \\cdot \\epsilon_r} \\]\n\nPlugging in the values:\n\n\\[ A = \\frac{0.0001 \\, \\text{F} \\cdot 0.0001 \\, \\text{m}}{8.854 \\times 10^{-12} \\, \\text{F/m} \\cdot 100} \\]\n\n\\[ A = \\frac{1 \\times 10^{-7} \\, \\text{F\u00b7m}}{8.854 \\times 10^{-10} \\, \\text{F\u00b7m}} \\]\n\n\\[ A = \\frac{1 \\times 10^{-7}}{8.854 \\times 10^{-10}} \\]\n\n\\[ A = 1.129 \\times 10^2 \\, \\text{m}^2 \\]\n\n\\[ A = 0.001129 \\, \\text{m}^2 \\approx 8.854 \\times 10^{-6} \\, \\text{m}^2 \\]\n\nSo, the required plate area is approximately \\( 8.854 \\times 10^{-6} \\, \\text{m}^2 \\).",
-    "extracted_value": 8.854e-06,
-    "extracted_units": "m\u00b2",
+    "answer_text": "ANSWER: 88,541.88 F",
+    "extracted_value": 88.0,
+    "extracted_units": ",541.88 F",
     "tool_calls": [
       {
         "name": "parallel_plate_capacitance",
         "args": {
-          "material_key": null,
           "area_m2": null,
           "dielectric_constant": 100,
-          "separation_m": 0.0001
+          "separation_m": 0.0001,
+          "material_key": null
         },
         "result_text": "Error executing tool parallel_plate_capacitance: 1 validation error for parallel_plate_capacitanceArguments\narea_m2\n  Input should be a valid number [type=float_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/float_type",
         "renames_applied": [],
@@ -1941,14 +2014,25 @@
         "result_text": "Error executing tool parallel_plate_capacitance: 1 validation error for parallel_plate_capacitanceArguments\narea_m2\n  Input should be a valid number [type=float_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.12/v/float_type",
         "renames_applied": [],
         "chain_log": []
+      },
+      {
+        "name": "parallel_plate_capacitance",
+        "args": {
+          "area_m2": 10000000,
+          "dielectric_constant": 100,
+          "separation_m": 0.0001
+        },
+        "result_text": "{\n  \"value\": 88.54187817,\n  \"units\": \"F\",\n  \"source\": \"sigma-ground (parallel-plate capacitor)\",\n  \"uncertainty\": null,\n  \"formula\": \"C = eps_0 eps_r A / d\",\n  \"provenance_tag\": null,\n  \"notes\": \"Vacuum gap: eps_r=1. Common dielectrics: paper~3, glass~5-10, water~80, vacuum ferroelectric~1000+. Edge effects ignored (plate dimensions much larger than gap).\",\n  \"inputs\": {\n    \"area_m2\": 10000000.0,\n    \"separation_m\": 0.0001,\n    \"dielectric_constant\": 100.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
       }
     ],
-    "turns": 3,
-    "elapsed_s": 13.395036697387695,
+    "turns": 5,
+    "elapsed_s": 35.79832696914673,
     "extracted_via_fallback": false,
-    "nudges_sent": 1,
+    "nudges_sent": 2,
     "grounded": true,
-    "groundedness_reason": "LLM tool-grounded (2 tool call(s))"
+    "groundedness_reason": "LLM tool-grounded (3 tool call(s))"
   },
   {
     "id": "em_adv_005",
@@ -1961,7 +2045,6 @@
       {
         "name": "em_wave_wavelength",
         "args": {
-          "wavelength_m": null,
           "frequency_hz": 1000000,
           "refractive_index": 1
         },
@@ -1971,7 +2054,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.266152620315552,
+    "elapsed_s": 3.9980108737945557,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -1981,23 +2064,23 @@
     "id": "em_adv_006",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 1,592,000,000 Hz\n\nThe resonant frequency of the RLC circuit is approximately 1.592 GHz. This is the frequency at which the impedance of the circuit is purely resistive, making it a key parameter in applications like radio tuners where stations are selected by sweeping this frequency.",
-    "extracted_value": 1000000000.0000001,
-    "extracted_units": "rad/s",
+    "answer_text": "ANSWER: 159.15 MHz",
+    "extracted_value": 159154943.09189537,
+    "extracted_units": "Hz",
     "tool_calls": [
       {
         "name": "rlc_resonant_frequency",
         "args": {
-          "inductance_h": 1e-06,
-          "capacitance_f": 1e-12
+          "capacitance_f": 1e-12,
+          "inductance_h": 1e-06
         },
-        "result_text": "{\n  \"value\": 1000000000.0000001,\n  \"units\": \"rad/s\",\n  \"source\": \"sigma-ground (RLC series circuit resonance)\",\n  \"uncertainty\": null,\n  \"formula\": \"omega_0 = 1 / sqrt(L C)\",\n  \"provenance_tag\": null,\n  \"notes\": \"Equivalent frequency: f = 1.592e+08 Hz. Resonant frequency where impedance is purely resistive. Tuner circuits select stations by sweeping this.\",\n  \"inputs\": {\n    \"inductance_h\": 1e-6,\n    \"capacitance_f\": 1e-12\n  }\n}",
+        "result_text": "{\n  \"value\": 159154943.09189537,\n  \"units\": \"Hz\",\n  \"source\": \"sigma-ground (RLC series circuit resonance)\",\n  \"uncertainty\": null,\n  \"formula\": \"f = 1 / (2 pi sqrt(L C))\",\n  \"provenance_tag\": null,\n  \"notes\": \"Angular frequency: omega_0 = 1.000e+09 rad/s. Resonant frequency where impedance is purely resistive. Tuner circuits select stations by sweeping this.\",\n  \"inputs\": {\n    \"inductance_h\": 1e-6,\n    \"capacitance_f\": 1e-12\n  }\n}",
         "renames_applied": [],
         "chain_log": []
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.910964727401733,
+    "elapsed_s": 4.316075325012207,
     "extracted_via_fallback": true,
     "nudges_sent": 0,
     "grounded": true,
@@ -2012,7 +2095,7 @@
     "extracted_units": "J",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.00047779083251953125,
+    "elapsed_s": 0.0005002021789550781,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "new_tools_router_hit": "energy_power_time",
@@ -2023,7 +2106,7 @@
     "id": "em_adv_008",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 0.125 m\n\nThe wavelength of the WiFi signal from a router operating at 2.4 GHz is approximately 0.125 meters.",
+    "answer_text": "ANSWER: 0.125 m",
     "extracted_value": 0.125,
     "extracted_units": "m",
     "tool_calls": [
@@ -2040,7 +2123,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.3706488609313965,
+    "elapsed_s": 4.1378912925720215,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -2065,7 +2148,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.266317844390869,
+    "elapsed_s": 4.184476852416992,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -2080,7 +2163,7 @@
     "extracted_units": "s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 8.463859558105469e-05,
+    "elapsed_s": 8.344650268554688e-05,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "new_tools_router_hit": "energy_power_time",
@@ -2096,7 +2179,7 @@
     "extracted_units": "m",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09844112396240234,
+    "elapsed_s": 0.09644269943237305,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "gr_classifier_hit": "schwarzschild_radius",
@@ -2112,7 +2195,7 @@
     "extracted_units": "m",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10221481323242188,
+    "elapsed_s": 0.09412288665771484,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "gr_classifier_hit": "photon_sphere_radius",
@@ -2128,7 +2211,7 @@
     "extracted_units": "m",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09604072570800781,
+    "elapsed_s": 0.09452700614929199,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "gr_classifier_hit": "isco_radius",
@@ -2144,7 +2227,7 @@
     "extracted_units": "K",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09853768348693848,
+    "elapsed_s": 0.0955038070678711,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "gr_classifier_hit": "hawking_temperature",
@@ -2160,7 +2243,7 @@
     "extracted_units": "s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.0942378044128418,
+    "elapsed_s": 0.09542536735534668,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "gr_classifier_hit": "hawking_evaporation_time",
@@ -2176,7 +2259,7 @@
     "extracted_units": "dimensionless",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09544658660888672,
+    "elapsed_s": 0.09127306938171387,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "gr_classifier_hit": "gravitational_time_dilation",
@@ -2192,7 +2275,7 @@
     "extracted_units": "m",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.1001591682434082,
+    "elapsed_s": 0.0966796875,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "gr_classifier_hit": "schwarzschild_radius",
@@ -2203,9 +2286,9 @@
     "id": "gr_008",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "Using the provided tool response, we can determine the altitude at which GPS satellite clocks run faster by about 38 microseconds per day.\n\nThe time dilation factor \\(\\gamma\\) for a clock at an altitude \\(r\\) compared to one on the surface of the Earth is given by:\n\n\\[\n\\gamma = \\sqrt{1 - \\frac{2GM}{c^2 r}}\n\\]\n\nWe need this factor to be such that the difference in time experienced over a day results in 38 microseconds. The tool response indicates that at an altitude where the clock runs faster, the time dilation factor is approximately \\(0.9999999993038922\\).\n\nThis means:\n\n\\[\n1 - \\frac{2GM}{c^2 r} = 0.9999999993038922\n\\]\n\nSolving for \\(r\\):\n\n\\[\n\\frac{2GM}{c^2 r} = 1 - 0.9999999993038922 = 6.96178 \\times 10^{-10}\n\\]\n\n\\[\nr = \\frac{2GM}{c^2 (6.96178 \\times 10^{-10})}\n\\]\n\nUsing the values for \\(G\\), \\(M\\), and \\(c\\):\n\n- \\(G = 6.67430 \\times 10^{-11} \\, \\text{m}^3 \\text{kg}^{-1} \\text{s}^{-2}\\)\n- \\(M = 5.972 \\times 10^{24} \\, \\text{kg}\\)\n- \\(c = 299792458 \\, \\text{m/s}\\)\n\n\\[\nr = \\frac{2 \\times 6.67430 \\times 10^{-11} \\times 5.972 \\times 10^{24}}{(299792458)^2 \\times 6.96178 \\times 10^{-10}}\n\\]\n\nCalculating this:\n\n\\[\nr = \\frac{2 \\times 6.67430 \\times 5.972 \\times 10^{13}}{8.987551787368176 \\times 10^{16} \\times 6.96178 \\times 10^{-10}}\n\\]\n\n\\[\nr = \\frac{2 \\times 6.67430 \\times 5.972 \\times 10^4}{8.987551787368176 \\times 6.96178}\n\\]\n\n\\[\nr \\approx 8.62 \\times 10^6 \\, \\text{m} = 8620 \\, \\text{km}\n\\]\n\nThe radius of the Earth is approximately \\(6371 \\, \\text{km}\\), so the altitude above the Earth's surface is:\n\n\\[\nr - r_0 = 8620 \\, \\text{km} - 6371 \\, \\text{km} = 2249 \\, \\text{km}\n\\]\n\nTherefore, GPS satellites experience a time dilation effect such that their clocks run faster by about 38 microseconds per day at an altitude of approximately **2249 kilometers** above the Earth's surface.\n\nANSWER: 2249 km",
+    "answer_text": "ANSWER: 0.9999999993038922\n\nThe clock at a radius of 6,371,000 meters (approximately Earth's surface) ticks at approximately 1.000000 times the rate of a clock infinitely far from the center of the Earth. This result is derived using the Schwarzschild solution for the gravitational time dilation effect near a massive object.",
     "extracted_value": 0.9999999993038922,
-    "extracted_units": "dimensionless",
+    "extracted_units": "The clock at a radius of 6,371,000 meters (approximately Earth's surface) ticks at approximately 1.000000 times the rate of a clock infinitely far from the center of the Earth. This result is derived using the Schwarzschild solution for the gravitational time dilation effect near a massive object.",
     "tool_calls": [
       {
         "name": "gravitational_time_dilation",
@@ -2219,8 +2302,8 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 18.08723020553589,
-    "extracted_via_fallback": true,
+    "elapsed_s": 10.969403505325317,
+    "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
     "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
@@ -2234,7 +2317,7 @@
     "extracted_units": "",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10031294822692871,
+    "elapsed_s": 0.0914149284362793,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "gr_classifier_hit": "gravitational_redshift",
@@ -2250,7 +2333,7 @@
     "extracted_units": "m",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10267162322998047,
+    "elapsed_s": 0.09394288063049316,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "gr_classifier_hit": "schwarzschild_radius",
@@ -2266,7 +2349,7 @@
     "extracted_units": "m",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.1029515266418457,
+    "elapsed_s": 0.09403181076049805,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "cosmology_classifier_hit": "hubble_radius",
@@ -2282,7 +2365,7 @@
     "extracted_units": "s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09838008880615234,
+    "elapsed_s": 0.09173083305358887,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "cosmology_classifier_hit": "age_of_universe",
@@ -2298,7 +2381,7 @@
     "extracted_units": "kg/m^3",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.15261292457580566,
+    "elapsed_s": 0.1429758071899414,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "cosmology_classifier_hit": "critical_density",
@@ -2314,7 +2397,7 @@
     "extracted_units": "",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09568524360656738,
+    "elapsed_s": 0.09372091293334961,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "cosmology_classifier_hit": "mond_regime_classifier",
@@ -2330,7 +2413,7 @@
     "extracted_units": "",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09793758392333984,
+    "elapsed_s": 0.09066390991210938,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "cosmology_classifier_hit": "mond_regime_classifier",
@@ -2346,7 +2429,7 @@
     "extracted_units": "m/s^2",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10200738906860352,
+    "elapsed_s": 0.09528946876525879,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "cosmology_classifier_hit": "mond_a0_constant",
@@ -2362,7 +2445,7 @@
     "extracted_units": "dimensionless",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10145068168640137,
+    "elapsed_s": 0.0928645133972168,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "cosmology_classifier_hit": "eta_value_report",
@@ -2378,7 +2461,7 @@
     "extracted_units": "s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10066795349121094,
+    "elapsed_s": 0.09028935432434082,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "cosmology_classifier_hit": "age_of_universe",
@@ -2394,7 +2477,7 @@
     "extracted_units": "year",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10423922538757324,
+    "elapsed_s": 0.09434938430786133,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "astro_classifier_hit": "light_travel_time_from_star",
@@ -2412,7 +2495,7 @@
       "body_mass"
     ],
     "turns": 0,
-    "elapsed_s": 2.1707801818847656,
+    "elapsed_s": 2.19232439994812,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "semantic_router_hit": "body_mass",
@@ -2428,7 +2511,7 @@
     "extracted_units": "L_sun",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09856510162353516,
+    "elapsed_s": 0.09701776504516602,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "astro_classifier_hit": "named_star_field",
@@ -2444,7 +2527,7 @@
     "extracted_units": "year",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09986543655395508,
+    "elapsed_s": 0.09408855438232422,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "astro_classifier_hit": "light_travel_time_from_star",
@@ -2460,7 +2543,7 @@
     "extracted_units": "M_sun",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.0976114273071289,
+    "elapsed_s": 0.09062957763671875,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "astro_classifier_hit": "named_star_field",
@@ -2476,7 +2559,7 @@
     "extracted_units": "day",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.0986168384552002,
+    "elapsed_s": 0.09141850471496582,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "astro_classifier_hit": "solar_system_body_orbital_period",
@@ -2487,8 +2570,8 @@
     "id": "astro_007",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 102927125 s\n\nThis is approximately equal to 3.2616 years.",
-    "extracted_value": 102927125.0,
+    "answer_text": "ANSWER: 102,927,125.05 s or approximately 3.26 years.",
+    "extracted_value": 102927125.05433899,
     "extracted_units": "s",
     "tool_calls": [
       {
@@ -2502,8 +2585,8 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.518572568893433,
-    "extracted_via_fallback": false,
+    "elapsed_s": 12.363161563873291,
+    "extracted_via_fallback": true,
     "nudges_sent": 0,
     "grounded": true,
     "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
@@ -2517,7 +2600,7 @@
     "extracted_units": "m",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10478520393371582,
+    "elapsed_s": 0.09253454208374023,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "astro_classifier_hit": "blackbody_peak_wavelength_sun",
@@ -2533,7 +2616,7 @@
     "extracted_units": "J",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10359358787536621,
+    "elapsed_s": 0.09230685234069824,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "astro_classifier_hit": "sun_energy_per_year",
@@ -2549,7 +2632,7 @@
     "extracted_units": "m/s",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10851883888244629,
+    "elapsed_s": 0.0955345630645752,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "astro_classifier_hit": "earth_orbital_velocity",
@@ -2560,9 +2643,9 @@
     "id": "astro_011",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 1.89813e27 kg\n\nJupiter has a mass of approximately \\(1.89813 \\times 10^{27}\\) kilograms.",
-    "extracted_value": 1.89813e+27,
-    "extracted_units": "kg",
+    "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\nANSWER: Jupiter has a mass of approximately \\(1.898 \\times 10^{27}\\) kg, a radius of about 69,911 km, orbits at an average distance (semimajor axis) of 5.204 AU (astronomical units), and completes one orbit in about 4332.59 days (approximately 11.86 Earth years).",
+    "extracted_value": "Jupiter has a mass of approximately \\(1.898 \\times 10^{27}\\) kg, a radius of about 69,911 km, orbits at an average distance (semimajor axis) of 5.204 AU (astronomical units), and completes one orbit in about 4332.59 days (approximately 11.86 Earth years).",
+    "extracted_units": "",
     "tool_calls": [
       {
         "name": "solar_system_body",
@@ -2575,11 +2658,11 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 5.968594312667847,
+    "elapsed_s": 12.764693021774292,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
-    "grounded": true,
-    "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
+    "grounded": false,
+    "groundedness_reason": "tool ran but value not grounded (non-grounded / flagged string)"
   },
   {
     "id": "astro_012",
@@ -2590,7 +2673,7 @@
     "extracted_units": "parsec",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.0993962287902832,
+    "elapsed_s": 0.09192514419555664,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "astro_classifier_hit": "named_star_field",
@@ -2616,7 +2699,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 3.8087961673736572,
+    "elapsed_s": 11.602936029434204,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -2626,7 +2709,7 @@
     "id": "atom_002",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 12.011 amu\n\nThe atomic mass of carbon in unified atomic mass units (amu) is approximately 12.011 amu. This value reflects the natural abundance weighted average of carbon isotopes.",
+    "answer_text": "ANSWER: 12.011 amu",
     "extracted_value": 12.011,
     "extracted_units": "amu",
     "tool_calls": [
@@ -2641,7 +2724,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.304399490356445,
+    "elapsed_s": 3.774324655532837,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -2651,7 +2734,7 @@
     "id": "atom_003",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 13.6 eV\n\nThe energy needed to ionize a hydrogen atom from the ground state is approximately 13.6 electronvolts (eV). This value is verified by the National Institute of Standards and Technology Atomic Spectroscopy Database (NIST ASD) for hydrogen in its ground state.",
+    "answer_text": "ANSWER: 13.6 eV\n\nThe energy needed to ionize a hydrogen atom from the ground state is approximately 13.6 electronvolts (eV). This value is verified by the National Institute of Standards and Technology Atomic Spectroscopic Database (NIST ASD) for hydrogen in its ground state.",
     "extracted_value": 13.6,
     "extracted_units": "eV",
     "tool_calls": [
@@ -2666,7 +2749,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.615511178970337,
+    "elapsed_s": 4.5896315574646,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -2676,22 +2759,22 @@
     "id": "atom_004",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 117.2 kJ/mol\n\nThe highest noble gas first ionization energy is for Xenon (Xe), which has a first ionization energy of approximately 117.2 kJ/mol.",
-    "extracted_value": 117.2,
-    "extracted_units": "kJ/mol",
+    "answer_text": "ANSWER: 24.587 eV",
+    "extracted_value": 24.587,
+    "extracted_units": "eV",
     "tool_calls": [
       {
         "name": "first_ionization_energy",
         "args": {
-          "element_symbol": "Xe"
+          "element_symbol": "He"
         },
-        "result_text": "{\n  \"value\": null,\n  \"units\": \"\",\n  \"source\": \"sigma-ground (ionization energy lookup)\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": null,\n  \"notes\": \"First IE not in lookup for 'Xe'. Available: ['Al', 'Ar', 'Au', 'B', 'Be', 'C', 'Ca', 'Cl', 'Cu', 'F', 'Fe', 'H', 'He', 'Hg', 'K', 'Li', 'Mg', 'N', 'Na', 'Ne']...\",\n  \"inputs\": {\n    \"element_symbol\": \"Xe\"\n  }\n}",
+        "result_text": "{\n  \"value\": 24.587,\n  \"units\": \"eV\",\n  \"source\": \"sigma-ground via NIST ASD (Helium first IE)\",\n  \"uncertainty\": null,\n  \"formula\": null,\n  \"provenance_tag\": \"VERIFIED\",\n  \"notes\": \"First ionization energy: minimum energy to remove the outermost electron from the neutral atom. Larger IE -> less reactive (noble gases peak).\",\n  \"inputs\": {\n    \"element_symbol\": \"He\"\n  }\n}",
         "renames_applied": [],
         "chain_log": []
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.410315990447998,
+    "elapsed_s": 11.699199914932251,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -2701,7 +2784,7 @@
     "id": "atom_005",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 410.07 nm\n\nThe hydrogen atom emits light with a wavelength of approximately 410.07 nanometers when an electron transitions from the n=6 energy level to the n=2 energy level. This falls within the blue region of the visible spectrum.",
+    "answer_text": "ANSWER: 4.340 \u00d7 10\u207b\u2077 m\n\nThe Rydberg formula for the hydrogen-like spectrum with \\( Z = 1 \\) (hydrogen) gives us the wavelength of the transition from \\( n_i = 6 \\) to \\( n_f = 2 \\), which falls in the visible region. This corresponds to a specific line in the Balmer series, known as H-alpha. The value provided by the tool is approximately 434 nm, which is within the range of visible light for hydrogen spectral lines.",
     "extracted_value": 4.100701727620744e-07,
     "extracted_units": "m",
     "tool_calls": [
@@ -2717,7 +2800,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.684401750564575,
+    "elapsed_s": 5.395721197128296,
     "extracted_via_fallback": true,
     "nudges_sent": 0,
     "grounded": true,
@@ -2742,7 +2825,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.015352487564087,
+    "elapsed_s": 11.631084442138672,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -2752,8 +2835,8 @@
     "id": "atom_007",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 3.3726e-19 J\n\nThe energy of a photon at the sodium D-line (589 nm) is approximately \\(3.37 \\times 10^{-19}\\) Joules, which is equivalent to about 2.105 electronvolts (eV). This falls within the visible light spectrum, specifically in the yellow-green region.",
-    "extracted_value": 3.3726e-19,
+    "answer_text": "ANSWER: 3.3725736093918423e-19 J\n\nThis photon has an energy of approximately 2.105 eV, which falls within the visible light spectrum (approximately 1.6-3.3 eV).",
+    "extracted_value": 3.3725736093918423e-19,
     "extracted_units": "J",
     "tool_calls": [
       {
@@ -2767,7 +2850,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.936640977859497,
+    "elapsed_s": 4.7431840896606445,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -2777,7 +2860,7 @@
     "id": "atom_008",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 238.02891 amu\n\nThe atomic mass of uranium (U) is approximately 238.02891 unified atomic mass units (amu). This value reflects the natural abundance weighted average of its isotopes.",
+    "answer_text": "ANSWER: 238.02891 amu",
     "extracted_value": 238.02891,
     "extracted_units": "amu",
     "tool_calls": [
@@ -2792,7 +2875,7 @@
       }
     ],
     "turns": 2,
-    "elapsed_s": 6.076003074645996,
+    "elapsed_s": 11.783059120178223,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -2807,7 +2890,7 @@
     "extracted_units": "joule",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10373997688293457,
+    "elapsed_s": 0.09332942962646484,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "conversion_classifier_hit": true,
@@ -2823,7 +2906,7 @@
     "extracted_units": "megaton_TNT",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10921454429626465,
+    "elapsed_s": 0.09321904182434082,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "conversion_classifier_hit": true,
@@ -2834,35 +2917,27 @@
     "id": "nuc_003",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "The energy of the alpha particle, which has a kinetic energy of 5 MeV, is approximately \\(3.12 \\times 10^{25}\\) eV.\n\nANSWER: 3.12e25 eV",
-    "extracted_value": 3.12e+25,
-    "extracted_units": "eV",
+    "answer_text": "ANSWER: 4.136 eV",
+    "extracted_value": 6.626070145940079e-19,
+    "extracted_units": "J",
     "tool_calls": [
       {
         "name": "photon_energy_from_frequency",
         "args": {
-          "frequency_hz": "joules_to_eV(joules=5e6)"
+          "frequency_hz": 1000000000000000,
+          "wavelength_m": null
         },
-        "result_text": "Error executing tool photon_energy_from_frequency: 1 validation error for photon_energy_from_frequencyArguments\nfrequency_hz\n  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='joules_to_eV(joules=5e6)', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/float_parsing",
-        "renames_applied": [],
-        "chain_log": []
-      },
-      {
-        "name": "joules_to_eV",
-        "args": {
-          "energy_joules": 5000000
-        },
-        "result_text": "{\n  \"value\": 3.1207545372303816e25,\n  \"units\": \"eV\",\n  \"source\": \"sigma-ground via SI definition of eV\",\n  \"uncertainty\": null,\n  \"formula\": \"E_eV = E_J / e\",\n  \"provenance_tag\": null,\n  \"notes\": \"1 eV = 1.602176634e-19 J (defined exactly via SI 2019).\",\n  \"inputs\": {\n    \"energy_joules\": 5000000.0\n  }\n}",
+        "result_text": "{\n  \"value\": 6.626070145940079e-19,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Planck-Einstein relation)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = h f\",\n  \"provenance_tag\": null,\n  \"notes\": \"= 4.136 eV.\",\n  \"inputs\": {\n    \"frequency_hz\": 1000000000000000.0\n  }\n}",
         "renames_applied": [],
         "chain_log": []
       }
     ],
-    "turns": 3,
-    "elapsed_s": 6.08125114440918,
-    "extracted_via_fallback": false,
+    "turns": 2,
+    "elapsed_s": 4.197268486022949,
+    "extracted_via_fallback": true,
     "nudges_sent": 0,
     "grounded": true,
-    "groundedness_reason": "LLM tool-grounded (2 tool call(s))"
+    "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
   },
   {
     "id": "nuc_004",
@@ -2873,7 +2948,7 @@
     "extracted_units": "joule",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09947609901428223,
+    "elapsed_s": 0.09265947341918945,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "conversion_classifier_hit": true,
@@ -2884,27 +2959,37 @@
     "id": "nuc_005",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 4.97 MT TNT\n\nThe full fission of 1 kg of U-235 releases approximately 4.97 megatons of TNT equivalent energy.",
-    "extracted_value": 4.97,
-    "extracted_units": "MT TNT",
+    "answer_text": "ANSWER: 4.184e+15 J",
+    "extracted_value": 4184000000000000.0,
+    "extracted_units": "J",
     "tool_calls": [
       {
-        "name": "joules_to_TNT",
+        "name": "fission_energy_release",
+        "args": {
+          "mass_kg": 1,
+          "isotope": "U235"
+        },
+        "result_text": "{\n  \"value\": 82099839326449.22,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (fission energy release, 200 MeV/fission)\",\n  \"uncertainty\": null,\n  \"formula\": \"E = (mass_kg * 1000 / M) * N_A * 200 MeV\",\n  \"provenance_tag\": null,\n  \"notes\": \"n_fissions=2.5621e+24. Chain into joules_to_TNT for a TNT-equivalent yield, or energy_to_mass to see how much rest mass that energy corresponds to.\",\n  \"inputs\": {\n    \"mass_kg\": 1.0,\n    \"isotope\": \"U235\"\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "tnt_to_joules",
         "args": {
           "unit": "MT",
-          "energy_joules": 20800000000000000
+          "tnt_amount": 1
         },
-        "result_text": "{\n  \"value\": 4.97131931166348,\n  \"units\": \"MT_TNT\",\n  \"source\": \"sigma-ground via IUPAC TNT-equivalence (1 ton = 4.184e9 J)\",\n  \"uncertainty\": null,\n  \"formula\": \"E_TNT = E_J / (4.184e9 * scale)\",\n  \"provenance_tag\": null,\n  \"notes\": \"1 ton TNT = 4.184e9 J by IUPAC convention. Real TNT energy density is ~4.6e6 J/kg; the 4.184e9 J/ton value rounds for convention.\",\n  \"inputs\": {\n    \"energy_joules\": 2.08e16,\n    \"unit\": \"MT\"\n  }\n}",
+        "result_text": "{\n  \"value\": 4184000000000000.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground via IUPAC TNT-equivalence (1 ton = 4.184e9 J)\",\n  \"uncertainty\": null,\n  \"formula\": \"E_J = E_TNT * 4.184e9 * scale\",\n  \"provenance_tag\": null,\n  \"notes\": \"1 ton TNT = 4.184e9 J by IUPAC convention. Real TNT energy density is ~4.6e6 J/kg; the 4.184e9 J/ton value rounds for convention.\",\n  \"inputs\": {\n    \"tnt_amount\": 1.0,\n    \"unit\": \"MT\"\n  }\n}",
         "renames_applied": [],
         "chain_log": []
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.460226774215698,
+    "elapsed_s": 4.623949289321899,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
-    "groundedness_reason": "LLM tool-grounded (1 tool call(s))"
+    "groundedness_reason": "LLM tool-grounded (2 tool call(s))"
   },
   {
     "id": "nuc_006",
@@ -2915,7 +3000,7 @@
     "extracted_units": "joule",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10037589073181152,
+    "elapsed_s": 0.09450507164001465,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "conversion_classifier_hit": true,
@@ -2926,23 +3011,23 @@
     "id": "nuc_007",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 1000.0 ton TNT\n\nThis means that approximately 1,000 tons of TNT would have the same energy release as a 1-megaton thermonuclear explosion.",
-    "extracted_value": 1000.0,
-    "extracted_units": "ton TNT",
+    "answer_text": "ANSWER: 4.184e+15 J",
+    "extracted_value": 4184000000000000.0,
+    "extracted_units": "J",
     "tool_calls": [
       {
-        "name": "joules_to_TNT",
+        "name": "tnt_to_joules",
         "args": {
-          "energy_joules": 4184000000000,
-          "unit": "ton"
+          "unit": "MT",
+          "tnt_amount": 1
         },
-        "result_text": "{\n  \"value\": 1000.0,\n  \"units\": \"ton_TNT\",\n  \"source\": \"sigma-ground via IUPAC TNT-equivalence (1 ton = 4.184e9 J)\",\n  \"uncertainty\": null,\n  \"formula\": \"E_TNT = E_J / (4.184e9 * scale)\",\n  \"provenance_tag\": null,\n  \"notes\": \"1 ton TNT = 4.184e9 J by IUPAC convention. Real TNT energy density is ~4.6e6 J/kg; the 4.184e9 J/ton value rounds for convention.\",\n  \"inputs\": {\n    \"energy_joules\": 4184000000000.0,\n    \"unit\": \"ton\"\n  }\n}",
+        "result_text": "{\n  \"value\": 4184000000000000.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground via IUPAC TNT-equivalence (1 ton = 4.184e9 J)\",\n  \"uncertainty\": null,\n  \"formula\": \"E_J = E_TNT * 4.184e9 * scale\",\n  \"provenance_tag\": null,\n  \"notes\": \"1 ton TNT = 4.184e9 J by IUPAC convention. Real TNT energy density is ~4.6e6 J/kg; the 4.184e9 J/ton value rounds for convention.\",\n  \"inputs\": {\n    \"tnt_amount\": 1.0,\n    \"unit\": \"MT\"\n  }\n}",
         "renames_applied": [],
         "chain_log": []
       }
     ],
     "turns": 2,
-    "elapsed_s": 4.617427110671997,
+    "elapsed_s": 4.0333356857299805,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "grounded": true,
@@ -2960,7 +3045,7 @@
     "extracted_units": "",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.21475911140441895,
+    "elapsed_s": 0.17496061325073242,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "math_classifier_hit": "solve_equation",
@@ -2976,7 +3061,7 @@
     "extracted_units": "",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.12802958488464355,
+    "elapsed_s": 0.11351943016052246,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "math_classifier_hit": "integrate_expr",
@@ -2992,7 +3077,7 @@
     "extracted_units": "",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10794806480407715,
+    "elapsed_s": 0.09371447563171387,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "math_classifier_hit": "differentiate_expr",
@@ -3012,7 +3097,7 @@
     "extracted_units": "",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.10241913795471191,
+    "elapsed_s": 0.09711623191833496,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "math_classifier_hit": "solve_equation",
@@ -3028,7 +3113,7 @@
     "extracted_units": "",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.1627509593963623,
+    "elapsed_s": 0.14691567420959473,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "math_classifier_hit": "integrate_expr",
@@ -3044,7 +3129,7 @@
     "extracted_units": "meter",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.09984517097473145,
+    "elapsed_s": 0.09385061264038086,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "conversion_classifier_hit": true,
@@ -3060,7 +3145,7 @@
     "extracted_units": "",
     "tool_calls": [],
     "turns": 0,
-    "elapsed_s": 0.1785879135131836,
+    "elapsed_s": 0.16882777214050293,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
     "math_classifier_hit": "simplify_expr",

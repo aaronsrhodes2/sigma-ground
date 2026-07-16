@@ -318,6 +318,11 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "Coulomb force", "Coulomb's law", "F = k q1 q2 / r^2",
         "electrostatic force", "force between two charges",
     ],
+    "fission_energy_release": [
+        "fission energy release", "energy from fissioning", "U-235 fissioned",
+        "kg of uranium fissioned", "fully fissioned releases",
+        "200 MeV per fission", "atomic bomb energy release",
+    ],
     "energy_power_time": [
         "energy = power times time", "E = P t",
         "how much energy in X hours", "how long to dissipate",
@@ -1017,7 +1022,9 @@ _COLLOQUIAL: dict[str, list[str]] = {
     "solar_system_body": ["tell me about mars", "facts about jupiter", "how big is earth",
                           "planet info", "how heavy is the sun",
                           "surface gravity of", "how strong is gravity on",
-                          "gravity on the surface of", "how much would I weigh on"],
+                          "gravity on the surface of", "how much would I weigh on",
+                          "surface temperature of the sun", "how hot is the sun",
+                          "temperature of the sun", "how hot is a planet"],
     "asteroid_analysis": ["jump off an asteroid", "gravity on an asteroid",
                           "how heavy on ceres", "tiny world gravity"],
     "light_travel_time": ["how long for light to get there", "how far in light years",
@@ -1073,6 +1080,8 @@ _COLLOQUIAL: dict[str, list[str]] = {
     "joules_to_TNT": ["how big a bang", "how many tons of TNT", "explosion size",
                       "how big an explosion"],
     "nuclear_binding_energy": ["what holds the nucleus together", "nuclear glue"],
+    "fission_energy_release": ["how much bang from a kg of uranium",
+                               "energy from splitting atoms", "atom bomb yield from fuel mass"],
     "radioactivity_analysis": ["how radioactive", "how hot is the radiation", "how fast does it decay",
                                "is it dangerous radioactive"],
     # ---- relativity / black holes ----

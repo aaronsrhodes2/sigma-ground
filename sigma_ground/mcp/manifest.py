@@ -483,6 +483,12 @@ _PRIMARY_TOOLS = [
      "summary": "Coulomb's law F = q1 q2 / (4π ε0 r²). +repulsive/−attractive.",
      "inputs": {"charge1_c": "float", "charge2_c": "float",
                 "separation_m": "float"}, "returns": "force in N"},
+    {"name": "fission_energy_release", "tier": "PRIMARY", "domain": "nuclear",
+     "summary": "Total energy (J) released fully fissioning mass_kg of a "
+                "fissile isotope (U235/Pu239/U233), ~200 MeV/fission. "
+                "Chain into joules_to_TNT for a TNT-equivalent yield.",
+     "inputs": {"mass_kg": "float", "isotope": "str (U235/Pu239/U233)"},
+     "returns": "energy in joules"},
 
     # ── multi-step atomic / circuits ──
     {"name": "de_broglie_from_kinetic_energy", "tier": "PRIMARY",

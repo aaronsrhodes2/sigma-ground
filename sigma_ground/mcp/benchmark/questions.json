@@ -1909,7 +1909,7 @@
     "tolerance_rel": 0.1,
     "primary_tool_expected": "joules_to_TNT",
     "secondary_tools_expected": [
-      "solve_equation"
+      "fission_energy_release"
     ],
     "ground_truth_source": "Nuclear weapons reference",
     "notes": "200 MeV/fission * N_A/235 * 1 kg ~ 8.2e13 J -> 19.6 kt. Actually order of magnitude: 1 kg gives ~17 kt (Hiroshima used 64 kg)."

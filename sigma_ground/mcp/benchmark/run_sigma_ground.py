@@ -137,11 +137,11 @@ ABSOLUTE RULES:
          -> ANSWER: 1020 m
 
          Q: "An object is placed 20 cm in front of a lens; the image
-             forms 10 cm behind. What's the magnification?" -- a REAL
-             image "behind" a converging lens is the POSITIVE
-             image_distance_m case (light actually converges there);
-             do not negate it just because the question says "behind".
-         -> lens_magnification(object_distance_m=0.2, image_distance_m=0.1)  (1 call)
+             forms 10 cm behind. What's the magnification?" -- if you are
+             not 100% certain about the sign of image_distance_m, do NOT
+             guess it -- pass the unsigned distance plus image_side
+             instead and let the tool apply the sign for you.
+         -> lens_magnification(object_distance_m=0.2, image_distance_m=0.1, image_side="behind")  (1 call)
          -> ANSWER: -0.5
 
          Q: "What's the surface gravity of Mars?" -- this is a direct
@@ -157,12 +157,23 @@ ABSOLUTE RULES:
          -> percent_of(percent=2, value=60)                    (1 call)
          -> ANSWER: 1.2 W
 
-         Q: "How much energy in eV does a particle carry at 5 MeV?" --
-             a unit RELABELING (MeV -> eV), not a from-scratch energy
-             derivation. Ignore distractor details (particle mass, etc.)
-             that the given energy already makes irrelevant.
+         Q: "How much energy in eV does an alpha particle (4 amu) carry
+             at 5 MeV?" -- a unit RELABELING (MeV -> eV), not a
+             from-scratch energy derivation. The particle's mass (4 amu)
+             is a DISTRACTOR the question already made irrelevant by
+             giving the energy directly -- do not reach for
+             kinetic-energy or photon-energy-from-frequency formulas.
          -> convert_units(value=5, from_units='MeV', to_units='eV')  (1 call)
          -> ANSWER: 5000000 eV
+
+         Q: "What's the highest first ionization energy among the noble
+             gases?" -- first ionization energy DECREASES going DOWN a
+             group (bigger atom, outer electron held less tightly); do
+             not guess the heaviest/largest noble gas. Among the noble
+             gases the SMALLEST one, helium, has the highest first
+             ionization energy of any element in the periodic table.
+         -> first_ionization_energy(element_symbol='He')        (1 call)
+         -> ANSWER: 24.587 eV
 
          Q: "Energy to lift a 1000 kg satellite to geosynchronous orbit
              (35786 km)?" -- altitude is thousands of km, so uniform
@@ -189,6 +200,14 @@ ABSOLUTE RULES:
          -> energy_to_mass(energy_j=4.184e15)          (1 call)
          -> ANSWER: 0.0465 kg
 
+         Q: "1 kg of U-235 fully fissioned releases how many megatons
+             TNT?" -- a TWO-hop chain the OTHER direction: fission yield
+             -> joules -> TNT. Use fission_energy_release (not
+             tnt_to_joules -- no TNT amount is given here, a MASS is).
+         -> fission_energy_release(mass_kg=1.0, isotope='U235')  (1 call, gives 8.21e13 J)
+         -> joules_to_TNT(energy_joules=8.21e13, unit='MT')      (1 call)
+         -> ANSWER: 0.0196 MT
+
    (c2) COPY NUMBERS EXACTLY. If the question says "1e22 Hz" or
         "5 MeV", pass frequency_hz=1e22 / energy=5 verbatim -- do not
         re-estimate, round, or guess a "more familiar" magnitude. A
@@ -196,6 +215,12 @@ ABSOLUTE RULES:
         failure but is a transcription error; re-read the literal
         number in the question before your NEXT call rather than
         retrying with a different guess.
+
+   (c3) INVERSE-DESIGN QUESTIONS ("what area do I need for", "how long
+        until", "at what altitude does") ask you to solve for an
+        unknown INPUT, not compute a forward output. If the obvious
+        tool only accepts that unknown as an input parameter, use
+        solve_equation instead of guessing at the tool's forward mode.
 
    (d) Do NOT enter exploratory mode: 5 different tools, none of which
        answer the question. If you can't find the tool in the first
