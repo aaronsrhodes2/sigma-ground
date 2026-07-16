@@ -3784,3 +3784,49 @@ Loaded env vars from D:\Aaron\development\.env
   +--------------------------------------------------------------+
  
 Daily benchmark job finished Tue 07/14/2026  6:14:45.40 
+ 
+============================================================ 
+Daily benchmark job started Wed 07/15/2026  6:00:01.57 
+============================================================ 
+Loaded env vars from D:\Aaron\development\.env
+
+=== Daily job: corpus=main (150 questions) ===
+  plan file: D:\Aaron\development\sigma-ground\misc\IMPROVEMENT_PLAN.md
+  [Wolfram] 111 unanswered; will attempt up to 85 today
+    mech_intro_001: OK via variant 0: 'free fall time g 9.81 m/s^2 height 10 m'
+    mech_intro_005: OK via variant 0: 'kinetic energy mass 70 kg velocity 5 m/s'
+    mech_intro_009: OK via variant 0: 'momentum mass 1500 kg velocity 25 m/s'
+    mech_intro_013: OK via variant 0: 'kinetic energy mass 0.01 kg velocity 400 m/s'
+    em_intro_001: OK via variant 0: 'ohms law current voltage 5 v resistance 100 ohm'
+    em_intro_002: OK via variant 0: 'electrical power voltage 12 v current 2 a'
+    em_intro_003: OK via variant 0: 'parallel plate capacitance area 1 m2 separation 0.001 m diel'
+    em_intro_006: OK via variant 0: 'em wave wavelength frequency 100000000 hz'
+    em_intro_009: OK via variant 0: 'ohms law current voltage 10 v resistance 50 ohm'
+    em_intro_012: OK via variant 0: 'parallel plate capacitance separation 0.001 m dielectric con'
+    em_intro_014: OK via variant 0: 'em wave frequency wavelength 1e-10 m'
+    optics_003: OK via variant 0: 'thin lens image distance object distance 0.3 m focal length '
+  [Wolfram] daily cap 85 reached; stopping
+  [Wolfram] {'new_attempted': 41, 'new_ok': 12, 'queries_consumed': 85, 'remaining': 70}
+  [Gemini] using FREE-tier key
+  [Gemini] {'error': 'gemini removed from this build', 'new_attempted': 0, 'new_ok': 0}
+  [Score]
+    sigma_ground : 138/150 =  92.0%
+    wolfram      :  29/150 =  19.3%
+    gemini       :  93/150 =  62.0%
+  [Catalog] {'library_gaps': 1, 'discoverability': 7, 'wrong_value_right_tool': 3, 'silent_non_response': 1, 'wolfram_phrasing': 99, 'gemini_halluc': 57}
+  [Plan]    appended to D:\Aaron\development\sigma-ground\misc\IMPROVEMENT_PLAN.md
+
+  +--------------------------------------------------------------+
+  | TARGET DASHBOARD (PROJECT_GOAL.md)                           |
+  +--------------------------------------------------------------+
+  | [X] PASS sg overall >= WA overall     sg=92.0% WA=19.3%         |
+  | [ ] .... sg matches WA-correct >=98%  27/29 = 93%               |
+  | [X] PASS sg overall >= 80%            92.0%                     |
+  | [ ] .... all 14 domains >= 80%        1 below                   |
+  | [X] PASS median latency <= 30s        0.1s                      |
+  | [X] PASS library-gap rate <= 5%       0.7% (1/150)              |
+  | [X] PASS adversarial refusal >= 50%   6/6 = 100%                |
+  | [ ] .... conversation mode built      roadmap                   |
+  +--------------------------------------------------------------+
+ 
+Daily benchmark job finished Wed 07/15/2026  6:13:15.41 
