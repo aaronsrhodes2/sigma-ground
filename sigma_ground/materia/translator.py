@@ -270,6 +270,80 @@ def _extract_energy_j(q: str):
     return None
 
 
+_TIME_UNIT_S = {  # → seconds. day/week are exact; a "year" is the project's
+    # 3.15e7 s ≈ 1 yr convention (matches corrosion's default exposure) and a
+    # month is year/12.
+    "second": 1.0, "sec": 1.0,
+    "minute": 60.0, "min": 60.0,
+    "hour": 3600.0, "hr": 3600.0,
+    "day": 86400.0,
+    "week": 604800.0,
+    "month": 3.15e7 / 12.0,
+    "year": 3.15e7, "yr": 3.15e7,
+    "decade": 3.15e8,
+    "century": 3.15e9, "centuries": 3.15e9,
+}
+# Longest-first so "months" can't half-match "min"/"mon" style prefixes.
+_TIME_UNIT_RE = re.compile(
+    r"(\d+(?:\.\d+)?)\s*(" +
+    "|".join(sorted(_TIME_UNIT_S, key=len, reverse=True)) + r")s?\b")
+_TIME_WORD_RE = re.compile(
+    r"\b(?:a|an|one)\s+(" +
+    "|".join(sorted(_TIME_UNIT_S, key=len, reverse=True)) + r")\b")
+
+
+def _extract_duration_s(q: str):
+    """A duration phrase → seconds: "over 5 years", "for 10 days", "after 3
+    months", "in 2 weeks", also "a year"/"an hour". None when the question
+    names no duration — the verb's default then applies."""
+    low = q.lower()
+    m = _TIME_UNIT_RE.search(low)
+    if m:
+        return float(m.group(1)) * _TIME_UNIT_S[m.group(2)]
+    m = _TIME_WORD_RE.search(low)
+    if m:
+        return _TIME_UNIT_S[m.group(1)]
+    return None
+
+
+# Environment cues (for verbs declaring an "environment" slot — corrosion).
+# Word-boundary regexes: "ground" must not fire on "background", "acid" not
+# on "acidity of the joke"… well, it will — but the slot only exists on
+# corrosion verbs, so a stray match can't hijack routing, only annotate it.
+_ENV_CUES = (
+    ("acidic", r"\bacid(ic|ified)?\b"),
+    ("alkaline", r"\b(alkaline|alkali|caustic|lye)\b"),
+    ("soil", r"\b(soil|buried|underground|dirt|ground)\b"),
+    ("seawater", r"\b(seawater|sea\s+water|saltwater|salt\s+water|marine|"
+                 r"ocean|brine)\b"),
+    ("immersed", r"\b(immersed|submerged|underwater|in\s+water)\b"),
+    ("aerated", r"\b(aerated|oxygenated|oxidizing|oxidising)\b"),
+    ("deaerated", r"\b(deaerated|de-aerated|anaerobic|oxygen-free|"
+                  r"waterlogged|stagnant)\b"),
+)
+
+
+def _extract_environment(q: str):
+    """Corrosion-environment words → a compact label ("alkaline soil, "
+    "aerated"). None when the question names no environment."""
+    low = q.lower()
+    found = [name for name, pat in _ENV_CUES if re.search(pat, low)]
+    if "deaerated" in found and "aerated" in found:
+        found.remove("aerated")        # "deaerated" contains "aerated"
+    if not found:
+        return None
+    # Readable ordering: pH word, then medium, then aeration.
+    order = ("acidic", "alkaline", "soil", "seawater", "immersed",
+             "aerated", "deaerated")
+    found.sort(key=order.index)
+    medium_ph = [f for f in found if f not in ("aerated", "deaerated")]
+    aeration = [f for f in found if f in ("aerated", "deaerated")]
+    label = " ".join(medium_ph)
+    if aeration:
+        label = (label + ", " + aeration[0]) if label else aeration[0]
+    return label
+
+
 def _params_for(verb: str, q: str) -> dict:
     """Fill ONLY the slots the chosen verb declares (verb-aware extraction)."""
     slots = VERB_MANIFEST[verb]["slots"]
@@ -314,6 +388,14 @@ def _params_for(verb: str, q: str) -> dict:
         spd = _extract_speed(q)
         if spd is not None:
             p["launch_speed_m_s"] = spd
+    if "duration_s" in slots:
+        dur = _extract_duration_s(q)
+        if dur is not None:
+            p["duration_s"] = dur
+    if "environment" in slots:
+        envl = _extract_environment(q)
+        if envl:
+            p["environment"] = envl
     return p
 
 
@@ -576,6 +658,12 @@ def _qwen_translate(question: str) -> SimulationSpec | None:
                 continue
             if slot == "material_key":
                 params[slot] = _coerce_material(p_in[slot])
+            elif declared[slot].get("unit") in ("object", "body", "environment"):
+                # STRING slots survive (manifest-driven) — same rule as
+                # _qwen_plan: float("alkaline soil") must not delete the slot.
+                v = str(p_in[slot]).strip()
+                if v:
+                    params[slot] = v
             else:
                 try:
                     params[slot] = float(p_in[slot])
@@ -675,7 +763,8 @@ def _qwen_plan(question: str) -> SimulationSpec | None:
                 if slot in p_in and p_in[slot] is not None:
                     if slot == "material_key":
                         params[slot] = _coerce_material(p_in[slot])
-                    elif declared[slot].get("unit") in ("object", "body"):
+                    elif declared[slot].get("unit") in ("object", "body",
+                                                        "environment"):
                         # STRING slots survive (manifest-driven): float("wine
                         # glass") used to silently delete drop_object's
                         # object_name, orphaning the verb qwen chose.

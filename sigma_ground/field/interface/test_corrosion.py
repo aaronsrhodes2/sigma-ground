@@ -9,7 +9,7 @@ Test structure:
   5. TestGalvanicPotential — galvanic couple signs
   6. TestCorrosionRate     — relative rates, temperature dependence
   7. TestSigma             — σ-field shifts activation energy and rate
-  8. TestRule9             — all 8 materials carry all fields
+  8. TestRule9             — all materials carry all fields
   9. TestNagatha           — export completeness
 """
 
@@ -18,6 +18,8 @@ import unittest
 
 from .corrosion import (
     CORROSION_DATA,
+    PH_RESPONSE,
+    SOIL_RESISTIVITY_RATING,
     pilling_bedworth_ratio,
     oxide_classification,
     parabolic_oxide_thickness,
@@ -26,6 +28,8 @@ from .corrosion import (
     corrosion_rate_estimate,
     sigma_corrosion_shift,
     corrosion_properties,
+    soil_corrosivity_class,
+    environment_assessment,
 )
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -33,6 +37,7 @@ from .corrosion import (
 _ALL_MATERIALS = [
     'iron', 'copper', 'aluminum', 'gold',
     'silicon', 'tungsten', 'nickel', 'titanium',
+    'zinc',            # added e471021 — the galvanization metal
 ]
 
 _REQUIRED_CORROSION_FIELDS = [
@@ -216,7 +221,7 @@ class TestGalvanicSeries(unittest.TestCase):
         self.assertLess(al_idx, cu_idx)
 
     def test_gold_most_noble(self):
-        """Gold has the highest (most positive) E° among the 8 materials."""
+        """Gold has the highest (most positive) E° among the tabulated materials."""
         series = galvanic_series_rank()
         # Last entry has highest E°
         self.assertEqual(series[-1][0], 'gold')
@@ -234,7 +239,7 @@ class TestGalvanicSeries(unittest.TestCase):
         self.assertEqual(potentials, sorted(potentials))
 
     def test_series_contains_all_materials(self):
-        """Galvanic series includes all 8 materials."""
+        """Galvanic series includes all tabulated materials."""
         series = galvanic_series_rank()
         keys = {k for k, _ in series}
         self.assertEqual(keys, set(_ALL_MATERIALS))
@@ -386,7 +391,7 @@ class TestRule9(unittest.TestCase):
     """Golden Rule 9: every material gets every field."""
 
     def test_all_8_materials_present(self):
-        """CORROSION_DATA has entries for all 8 expected materials."""
+        """CORROSION_DATA has entries for all expected materials."""
         for mat in _ALL_MATERIALS:
             with self.subTest(material=mat):
                 self.assertIn(mat, CORROSION_DATA)
@@ -446,6 +451,112 @@ class TestNagatha(unittest.TestCase):
                         key, result,
                         msg=f"Missing key {key!r} in export for {mat!r}"
                     )
+
+
+# ── TestEnvironment ───────────────────────────────────────────────────────────
+
+class TestEnvironment(unittest.TestCase):
+    """Environment (electrolyte/soil) regime layer — qualitative, cited.
+
+    Regression sentinel for the KNOWN_GAPS entry 'electrolyte/soil corrosion
+    kinetics not modeled': the assessment must always state its scope
+    explicitly rather than silently reporting dry-air numbers.
+    """
+
+    # soil_corrosivity_class — the ASTM G57 literature scale (Ω·m)
+    def test_resistivity_class_boundaries(self):
+        self.assertEqual(soil_corrosivity_class(5.0), 'extremely corrosive')
+        self.assertEqual(soil_corrosivity_class(10.0), 'highly corrosive')
+        self.assertEqual(soil_corrosivity_class(30.0), 'highly corrosive')
+        self.assertEqual(soil_corrosivity_class(40.0), 'corrosive')
+        self.assertEqual(soil_corrosivity_class(100.0), 'moderately corrosive')
+        self.assertEqual(soil_corrosivity_class(150.0), 'mildly corrosive')
+        self.assertEqual(soil_corrosivity_class(201.0),
+                         'essentially non-corrosive')
+
+    def test_resistivity_class_rejects_nonpositive(self):
+        with self.assertRaises(ValueError):
+            soil_corrosivity_class(0.0)
+        with self.assertRaises(ValueError):
+            soil_corrosivity_class(-5.0)
+
+    def test_rating_table_covers_all_ratings(self):
+        ratings = [r for _, r in SOIL_RESISTIVITY_RATING]
+        self.assertEqual(len(ratings), 6)
+        self.assertEqual(ratings[0], 'extremely corrosive')
+        self.assertEqual(ratings[-1], 'essentially non-corrosive')
+
+    # PH_RESPONSE registry — only cited curves, windows sane
+    def test_ph_response_windows_sane(self):
+        for mat, resp in PH_RESPONSE.items():
+            with self.subTest(material=mat):
+                self.assertIn(mat, CORROSION_DATA)
+                lo, hi = resp['low_corrosion_ph']
+                self.assertLess(lo, hi)
+                self.assertGreater(lo, 0.0)
+                self.assertLessEqual(hi, 14.0)
+                self.assertIn('source', resp)
+
+    # environment_assessment — the honest-scope contract
+    def test_zinc_alkaline_soil_aerated(self):
+        """The live Captain's question regime: zinc + alkaline soil + aerated."""
+        rep = environment_assessment('zinc', 'alkaline soil, aerated')
+        self.assertEqual(rep['ph_regime'], 'alkaline')
+        self.assertTrue(rep['amphoteric'])
+        self.assertEqual(rep['medium'], 'soil')
+        self.assertIn('O2', rep['aeration'])
+        # zinc's window reaches past soil pH — assessment says INSIDE
+        self.assertIn('INSIDE', rep['note'])
+        # and the scope statement is always present
+        self.assertIn('dry-air', rep['not_modeled'])
+        self.assertIn('DRY-AIR', rep['note'])
+
+    def test_aluminum_alkaline_soil_exceeds_ceiling(self):
+        """Al's passive ceiling (~8.5) is below soil alkalinity — attack."""
+        rep = environment_assessment('aluminum', 'alkaline soil')
+        self.assertIn('aluminate', rep['note'])
+        self.assertNotIn('INSIDE', rep['note'])
+
+    def test_iron_alkaline_passivates(self):
+        """Iron is not amphoteric — alkaline favors passivation."""
+        rep = environment_assessment('iron', 'alkaline soil')
+        self.assertFalse(rep['amphoteric'])
+        self.assertIn('passivates', rep['note'])
+
+    def test_zinc_acidic_attack(self):
+        rep = environment_assessment('zinc', 'acidic solution')
+        self.assertEqual(rep['ph_regime'], 'acidic')
+        self.assertIn('H2 evolution', rep['note'])
+
+    def test_no_cited_ph_data_is_said_not_guessed(self):
+        """Copper has no cited pH curve — the assessment SAYS so."""
+        rep = environment_assessment('copper', 'acidic soil')
+        self.assertIn('no cited pH-rate data for copper', rep['ph_data'])
+        self.assertIn('not assessed', rep['note'])
+
+    def test_deaerated_wins_substring_overlap(self):
+        """'aerated' is a substring of 'deaerated' — deaerated must win."""
+        rep = environment_assessment('iron', 'deaerated soil')
+        self.assertIn('deaerated', rep['aeration'])
+        self.assertIn('sulfate-reducing', rep['note'])
+
+    def test_seawater_medium(self):
+        rep = environment_assessment('iron', 'immersed in seawater')
+        self.assertIn('chloride', rep['medium'])
+        self.assertIn('pitting', rep['note'])
+
+    def test_unknown_material_raises(self):
+        with self.assertRaises(KeyError):
+            environment_assessment('unobtanium', 'alkaline soil')
+
+    def test_scope_statement_always_present(self):
+        """Whatever the environment, the dry-air scope is stated."""
+        for env in ('alkaline soil', 'acidic brine, deaerated', 'buried',
+                    'oxygenated seawater'):
+            with self.subTest(environment=env):
+                rep = environment_assessment('zinc', env)
+                self.assertIn('not_modeled', rep)
+                self.assertIn('DRY-AIR', rep['note'])
 
     def test_material_key_matches(self):
         """Export 'material' field matches input key."""

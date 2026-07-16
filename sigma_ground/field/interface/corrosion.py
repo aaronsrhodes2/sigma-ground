@@ -85,6 +85,13 @@ Origin tags:
   - Q_oxidation: MEASURED (Birks et al. 2006, Kofstad 1988)
   - Oxide densities / molar masses: MEASURED (CRC Handbook)
   - Standard electrode potentials: MEASURED (IUPAC, Bard et al. 1985)
+  - pH low-corrosion windows: MEASURED (Roetheli, Cox & Littreal 1932 for Zn;
+    Whitman, Russell & Altieri 1924 for Fe; Pourbaix 1966 Atlas for Al)
+  - Soil corrosivity vs resistivity: STANDARD (literature scale around the
+    ASTM G57 Wenner method; Nandi & Vipulanandan, CIGMAT-2020 compilation)
+  - Electrolyte/soil KINETICS: NOT MODELED — PHYSICS_GAP, see
+    environment_assessment(). Field-data reference for a future quantitative
+    layer: Romanoff, "Underground Corrosion", NBS Circular 579 (1957).
   - σ-dependence: CORE (through □σ = −ξR via cohesive energy / nuclear mass)
 """
 
@@ -579,6 +586,214 @@ def sigma_corrosion_shift(material_key, sigma):
 
     dxdt = math.sqrt(k_sigma_ref) / 2.0
     return rho_ox * dxdt
+
+
+# ── Environment (electrolyte / soil) regime layer ───────────────────────────
+# The quantitative kinetics above (parabolic growth, rate estimate) are
+# DRY-AIR oxidation. Corrosion in an electrolyte — soil, seawater, acid or
+# caustic service — is a different, electrochemical problem whose rate is set
+# by pH, dissolved oxygen and (for soil) resistivity.
+# PHYSICS_GAP: electrolyte corrosion kinetics are not modeled quantitatively
+# (no pH-rate curves, no soil-cell model, no O2 mass transport). The layer
+# below places a metal in its CITED regime and states the scope honestly, so
+# a soil/pH question gets an explicit answer instead of silently receiving
+# dry-air numbers. Field data for a future quantitative layer: Romanoff,
+# "Underground Corrosion", NBS Circular 579 (1957). Tracked in KNOWN_GAPS.md.
+
+# pH response of the metals with a canonical rate-vs-pH study (MEASURED).
+# Deliberately NOT new fields on CORROSION_DATA — Platinum §10 ("if one, then
+# all") governs that table, and only these three metals have a citable curve.
+# environment_assessment() SAYS "no cited data" for the rest instead of
+# guessing (honest denominator).
+PH_RESPONSE = {
+    'zinc': {
+        # Low-corrosion window of the classic amphoteric U-curve: protective
+        # ZnO/Zn(OH)₂/basic-carbonate film between ~pH 5.5 and 12 (MEASURED:
+        # Roetheli, Cox & Littreal 1932, Metals & Alloys 3, 73; practical
+        # window as drawn on the American Galvanizers Association pH curve).
+        'low_corrosion_ph': (5.5, 12.0),
+        'amphoteric': True,
+        'acid_side': 'rapid attack (H2 evolution) below ~pH 5.5',
+        'caustic_side': 'zincate dissolution above ~pH 12',
+        'source': 'Roetheli, Cox & Littreal 1932; AGA pH curve',
+    },
+    'aluminum': {
+        # Al₂O₃ passive film stable ~pH 4–8.5 at 25 °C (MEASURED /
+        # FIRST_PRINCIPLES: Pourbaix 1966, Atlas of Electrochemical
+        # Equilibria, aluminium diagram).
+        'low_corrosion_ph': (4.0, 8.5),
+        'amphoteric': True,
+        'acid_side': 'Al3+ dissolution below ~pH 4',
+        'caustic_side': 'aluminate (AlO2-) dissolution above ~pH 8.5',
+        'source': 'Pourbaix 1966 (Atlas), Al diagram',
+    },
+    'iron': {
+        # In aerated water the rate is ~pH-independent from 4 to 10 (O2
+        # diffusion control), accelerates below 4 (H2 evolution) and falls
+        # above ~10 (passivation). MEASURED: Whitman, Russell & Altieri 1924,
+        # Ind. Eng. Chem. 16, 665. Not amphoteric in ordinary service.
+        'low_corrosion_ph': (10.0, 13.0),
+        'amphoteric': False,
+        'acid_side': 'H2-evolution attack below ~pH 4; O2-limited plateau 4-10',
+        'caustic_side': 'passivates above ~pH 10 (aerated)',
+        'source': 'Whitman, Russell & Altieri 1924',
+    },
+}
+
+# Field soils rarely exceed this pH — the USDA NRCS soil-pH classes top out at
+# "very strongly alkaline" (> 9.0), with sodic extremes near 10.5. Lets the
+# assessment distinguish "alkaline SOIL" from strong caustic service.
+_SOIL_PH_CEILING = 10.5
+
+# Soil corrosivity rating vs electrical resistivity (Ω·m) — the literature
+# scale used with the ASTM G57 Wenner four-pin measurement (STANDARD; table as
+# compiled by Nandi & Vipulanandan, CIGMAT-2020, Univ. of Houston — the same
+# scale as the classic Ω·cm tables, e.g. Roberge, Handbook of Corrosion
+# Engineering). Typical field values: clay 5–20 Ω·m, loam 30–200, sand
+# 100–5000 (Oyinkanola et al. 2016).
+SOIL_RESISTIVITY_RATING = (
+    (10.0, 'extremely corrosive'),
+    (30.0, 'highly corrosive'),
+    (50.0, 'corrosive'),
+    (100.0, 'moderately corrosive'),
+    (200.0, 'mildly corrosive'),
+    (float('inf'), 'essentially non-corrosive'),
+)
+
+
+def soil_corrosivity_class(resistivity_ohm_m):
+    """Soil corrosivity rating from electrical resistivity (Ω·m).
+
+    STANDARD: the literature classification used with ASTM G57 Wenner
+    four-pin field measurements (see SOIL_RESISTIVITY_RATING for the table
+    and sources). Low resistivity = wet, salty, fine-grained soil = strong
+    electrolyte = corrosive.
+
+    Boundary convention: '< 10' is extreme; each named band includes its
+    upper bound ('10 to 30' → 30 is still 'highly corrosive').
+
+    Args:
+        resistivity_ohm_m: soil electrical resistivity (Ω·m), > 0
+
+    Returns:
+        str: 'extremely corrosive' … 'essentially non-corrosive'
+
+    Raises:
+        ValueError: resistivity_ohm_m ≤ 0
+    """
+    if resistivity_ohm_m <= 0:
+        raise ValueError(
+            f"resistivity_ohm_m must be positive, got {resistivity_ohm_m}")
+    if resistivity_ohm_m < 10.0:
+        return 'extremely corrosive'
+    for ceiling, rating in SOIL_RESISTIVITY_RATING[1:]:
+        if resistivity_ohm_m <= ceiling:
+            return rating
+    return SOIL_RESISTIVITY_RATING[-1][1]
+
+
+def environment_assessment(material_key, environment):
+    """Qualitative, CITED regime assessment of a corrosion environment.
+
+    The quantitative kinetics in this module are dry-air Wagner oxidation.
+    This function does NOT compute an environment-corrected rate — no citable
+    general model of electrolyte/soil kinetics is wired in (PHYSICS_GAP, see
+    section header). It reads a free-text environment label ("alkaline soil,
+    aerated") and reports, with sources:
+
+      * the metal's cited low-corrosion pH window and whether the named
+        regime (acidic / alkaline) threatens it,
+      * what aeration means (O2 reduction is the cathodic reaction in
+        near-neutral electrolytes),
+      * how soil corrosivity is classified (resistivity scale), and
+      * an explicit `not_modeled` field plus a prose `note` a caller can
+        surface verbatim.
+
+    Args:
+        material_key: key in CORROSION_DATA
+        environment: free-text label, e.g. "alkaline soil, aerated"
+
+    Returns:
+        dict of short render-ready fields + 'note' (long prose summary).
+
+    Raises:
+        KeyError: unknown material
+    """
+    if material_key not in CORROSION_DATA:
+        raise KeyError(f"Unknown material: {material_key!r}")
+    env = str(environment).lower()
+
+    is_soil = any(w in env for w in ('soil', 'buried', 'underground'))
+    is_marine = any(w in env for w in ('seawater', 'salt', 'marine', 'brine',
+                                       'ocean'))
+    alkaline = any(w in env for w in ('alkaline', 'alkali', 'caustic'))
+    acidic = 'acid' in env
+    aerated = any(w in env for w in ('aerated', 'oxygenated', 'oxidizing',
+                                     'oxidising'))
+    deaerated = any(w in env for w in ('deaerated', 'de-aerated', 'anaerobic',
+                                       'oxygen-free', 'waterlogged'))
+    if deaerated:          # 'aerated' is a SUBSTRING of 'deaerated' — the
+        aerated = False    # explicit deaerated cue wins the overlap
+
+    out = {'environment': environment,
+           'not_modeled': 'electrolyte kinetics — dry-air only'}
+    bits = []
+
+    resp = PH_RESPONSE.get(material_key)
+    if (alkaline or acidic) and resp:
+        lo, hi = resp['low_corrosion_ph']
+        out['ph_regime'] = 'alkaline' if alkaline else 'acidic'
+        out['low_corrosion_ph'] = f"{lo:g}-{hi:g}"
+        out['amphoteric'] = resp['amphoteric']
+        side = resp['caustic_side'] if alkaline else resp['acid_side']
+        if alkaline and resp['amphoteric']:
+            if hi >= _SOIL_PH_CEILING and is_soil:
+                bits.append(
+                    f"{material_key} low-corrosion window pH {lo:g}-{hi:g} "
+                    f"({resp['source']}): ordinary alkaline soil (pH ≲ "
+                    f"{_SOIL_PH_CEILING:g}, USDA classes) stays INSIDE it — "
+                    f"{side} only in strong caustic")
+            elif hi >= _SOIL_PH_CEILING:
+                bits.append(
+                    f"{material_key} low-corrosion window pH {lo:g}-{hi:g} "
+                    f"({resp['source']}); {side}")
+            else:
+                bits.append(
+                    f"alkaline can exceed {material_key}'s passive ceiling "
+                    f"(~pH {hi:g}, {resp['source']}) — {side}")
+        else:
+            bits.append(f"{side} ({resp['source']})")
+    elif alkaline or acidic:
+        out['ph_data'] = f"no cited pH-rate data for {material_key}"
+        bits.append(f"no cited pH-rate curve for {material_key} in the "
+                    f"database — pH effect not assessed")
+
+    if aerated:
+        out['aeration'] = 'aerated — O2-reduction controlled'
+        bits.append("aerated: O2 reduction is the cathodic reaction — attack "
+                    "is O2-transport limited (Whitman 1924)")
+    elif deaerated:
+        out['aeration'] = 'deaerated — cathodic O2 starved'
+        bits.append("deaerated: cathodic O2 starved — slower attack near "
+                    "neutral pH, but anaerobic soil brings sulfate-reducing-"
+                    "bacteria risk (Romanoff, NBS 579)")
+
+    if is_soil:
+        out['medium'] = 'soil'
+        bits.append("soil aggressiveness is set by resistivity (clay 5-20 "
+                    "Ω·m corrosive, sand 100-5000 mild — ASTM G57 scale, "
+                    "soil_corrosivity_class(); field data: Romanoff NBS "
+                    "Circ. 579)")
+    elif is_marine:
+        out['medium'] = 'seawater/chloride'
+        bits.append("chloride electrolyte — pitting/crevice attack on "
+                    "passive films; not modeled")
+
+    bits.append("quantitative oxide growth reported is DRY-AIR Wagner "
+                "kinetics — the environment changes this assessment, not "
+                "the numbers")
+    out['note'] = "; ".join(bits)
+    return out
 
 
 # ── Nagatha Export ──────────────────────────────────────────────────────────

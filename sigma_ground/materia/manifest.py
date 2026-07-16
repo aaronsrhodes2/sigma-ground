@@ -570,12 +570,21 @@ _ROUTABLE_NEW = {
         "slots": {}},
     "corrosion_attack": {
         "description": "Corrosion & oxidation — corrosion rate, galvanic "
-                       "potential & series, oxide growth, Pilling-Bedworth ratio.",
+                       "potential & series, oxide growth over a duration, "
+                       "Pilling-Bedworth ratio; cited soil/pH environment "
+                       "regime (qualitative).",
         "triggers": ["corrosion", "corrode", "rust", "galvanic",
                      "pilling-bedworth", "oxidation rate", "oxide growth"],
         "examples": ["corrosion rate of iron",
-                     "galvanic potential between zinc and copper"],
-        "slots": _MAT},
+                     "zinc rod in alkaline soil corroding over 5 years"],
+        "slots": {**_MAT,
+                  "duration_s": {"unit": "s", "default": 3.15e7,
+                                 "aliases": ["over", "for", "after", "years",
+                                             "months", "weeks", "days"]},
+                  "environment": {"unit": "environment", "default": None,
+                                  "aliases": ["soil", "buried", "alkaline",
+                                              "acidic", "seawater",
+                                              "aerated"]}}},
     "combustion_flow": {
         "description": "Combustion with porous flow — heat of combustion & flame "
                        "temperature, soot, Darcy flow, Kozeny-Carman "

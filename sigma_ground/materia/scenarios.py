@@ -2531,25 +2531,71 @@ def magnetic_hysteresis(material_key: str = "iron") -> MateriaResult:
                           {"material_key": material_key}, headline, H)
 
 
-def corrosion_attack(material_key: str = "iron") -> MateriaResult:
+def _fmt_duration_s(t_s: float) -> str:
+    """Human units for a duration; a year is the project's 3.15e7 s ≈ 1 yr."""
+    if t_s >= 3.15e7:
+        return f"{t_s / 3.15e7:.3g} yr"
+    if t_s >= 86400.0:
+        return f"{t_s / 86400.0:.3g} d"
+    if t_s >= 3600.0:
+        return f"{t_s / 3600.0:.3g} h"
+    return f"{t_s:.3g} s"
+
+
+def _fmt_thickness_m(x_m: float) -> str:
+    if x_m >= 1e-3:
+        return f"{x_m * 1e3:.3g} mm"
+    if x_m >= 1e-6:
+        return f"{x_m * 1e6:.3g} µm"
+    return f"{x_m * 1e9:.3g} nm"
+
+
+def corrosion_attack(material_key: str = "iron", duration_s: float = 3.15e7,
+                     environment: str = "") -> MateriaResult:
     """Corrosion and oxidation: corrosion-rate estimate, galvanic potential and
-    series rank between metals, oxide classification, parabolic oxide growth and
-    the Pilling-Bedworth ratio. Sweeps the corrosion module."""
+    series rank between metals, oxide classification, parabolic oxide growth
+    over `duration_s` (default 3.15e7 s ≈ 1 year) and the Pilling-Bedworth
+    ratio. `environment` is a qualitative label from the question ("alkaline
+    soil, aerated"): it adds the corrosion module's CITED regime assessment —
+    the quantitative oxide growth itself is dry-air Wagner kinetics, and the
+    summary says so explicitly instead of silently ignoring the environment.
+    Sweeps the corrosion module."""
     C = "sigma_ground.field.interface.corrosion"
-    vals = _sweep_calls([
-        (C, "corrosion_properties", (material_key,), {}),
+    t = max(float(duration_s), 1.0)     # parabolic law needs t > 0
+    calls = [
+        (C, "corrosion_properties", (material_key,), {"time_s": t}),
         (C, "corrosion_rate_estimate", (material_key,), {}),
         (C, "galvanic_potential", (material_key, "copper"), {}),
         (C, "galvanic_series_rank", (), {}),
         (C, "oxide_classification", (material_key,), {}),
-        (C, "parabolic_oxide_thickness", (material_key, 3.15e7), {}),
+        (C, "parabolic_oxide_thickness", (material_key, t), {}),
         (C, "pilling_bedworth_ratio", (material_key,), {}),
-    ])
-    pbr = _pick(vals, "pilling_bedworth_ratio")
-    headline = (f"{material_key} Pilling-Bedworth {pbr:.3g}"
-                if isinstance(pbr, (int, float)) else f"{material_key} corrosion")
-    return _domain_result("corrosion_attack", "Corrosion", vals,
-                          {"material_key": material_key}, headline, C)
+    ]
+    if environment:
+        calls.append((C, "environment_assessment",
+                      (material_key, str(environment)), {}))
+    vals = _sweep_calls(calls)
+    x = _pick(vals, "parabolic_oxide_thickness")
+    cp = _pick(vals, "corrosion_properties")
+    oxide = cp.get("oxide_name", "oxide") if isinstance(cp, dict) else "oxide"
+    dur = _fmt_duration_s(t)
+    if isinstance(x, (int, float)):
+        headline = (f"{material_key} grows {_fmt_thickness_m(x)} of {oxide} "
+                    f"in {dur} — dry-air Wagner kinetics, 300 K")
+    else:
+        headline = f"{material_key} corrosion over {dur} (dry air)"
+    env_rep = _pick(vals, "environment_assessment")
+    if isinstance(env_rep, dict) and env_rep.get("note"):
+        headline += f". Environment '{environment}': {env_rep['note']}"
+    elif environment:
+        # The assessment call failed — still never silently ignore the words.
+        headline += (f". Environment '{environment}' recognized but NOT "
+                     f"modeled — dry-air oxidation kinetics only")
+    inputs = {"material_key": material_key, "duration_s": t}
+    if environment:
+        inputs["environment"] = environment
+    return _domain_result("corrosion_attack", "Corrosion", vals, inputs,
+                          headline, C)
 
 
 def quantum_tunneling(barrier_eV: float = 2.0, energy_eV: float = 1.0,

@@ -2010,3 +2010,32 @@ distill spot-checked against a known physical value before being trusted.
   the contact-patch-PCA joint-inference heuristic once real URDF data lands.
 - Wikidata electrical resistivity coverage is thin (only copper) — a denser
   table would need a non-CC0 source (e.g. CRC Handbook).
+
+## Session 26 — 2026-07-15 — Corrosion verb: duration slot + cited soil/pH environment layer
+
+**Time:** ~21:30 to 22:15 (45 min)
+**Status:** ✅ Complete
+
+### Changes
+- `sigma_ground/materia/manifest.py` — corrosion_attack gains `duration_s` (default 3.15e7 s ≈ 1 yr) and `environment` (string) slots
+- `sigma_ground/materia/translator.py` — `_extract_duration_s` ("over 5 years", "for 10 days", "after 3 months", "a year") + `_extract_environment` (pH/medium/aeration cues → "alkaline soil, aerated"); string slots survive both qwen paths via unit "environment"
+- `sigma_ground/materia/scenarios.py` — corrosion_attack threads duration into `parabolic_oxide_thickness`/`corrosion_properties`; headline states thickness + duration + "dry-air Wagner kinetics" + the environment assessment
+- `sigma_ground/field/interface/corrosion.py` — new cited environment layer: `PH_RESPONSE` (Zn 5.5–12 Roetheli 1932/AGA; Al 4–8.5 Pourbaix 1966; Fe Whitman 1924), `SOIL_RESISTIVITY_RATING` + `soil_corrosivity_class()` (ASTM G57 literature scale, CIGMAT-2020), `environment_assessment()` — qualitative regimes with sources, explicit `not_modeled` scope
+- `KNOWN_GAPS.md` — PHYSICS_GAP: electrolyte/soil corrosion kinetics not modeled (Romanoff NBS 579 named as the future data source)
+- Tests: `test_corrosion.py` TestEnvironment (12 tests; also fixed stale 8-material list — zinc from e471021 was missing), `materia/tests/test_translator.py` duration/environment extraction, `test_routing.py` the Captain's live zinc question
+
+### Why
+Follow-up to e471021's flagged gaps: the Captain's live question ("zinc rod in oxidizing alkaline soil, corrode over 5 years") routed correctly but silently ignored "5 years" (hardcoded 1 yr) and "alkaline soil" (no environment model). Doctrine: never silently drop the user's words; never invent constants — so duration is now a real slot, and the environment gets a CITED regime assessment plus an explicit "dry-air kinetics" scope statement instead of a fake soil model.
+
+### Verification
+- ✅ `pytest sigma_ground/field/interface/test_corrosion.py` — 65 passed
+- ✅ `pytest sigma_ground/materia/tests/` — 52 passed, 1 pre-existing failure (drag_heating, fails on stashed tree too — belongs to the in-flight mechanisms lane)
+- ✅ `pytest tests/ -k "corrosion or materia"` — 33 passed
+- ✅ Live probe: POST /chat → `corrosion_attack(material_key=zinc, duration_s=1.575e8, environment=alkaline soil, aerated)`; answer: "zinc grows 12.5 nm of ZnO in 5 yr — dry-air Wagner kinetics, 300 K. Environment ... stays INSIDE it ..." (killed a stale 9:23 PM server instance that was shadowing :8765 with old code)
+
+### Next Steps
+- Quantitative electrolyte layer: digitize Romanoff NBS Circ. 579 zinc/steel soil mass-loss data and/or the Roetheli 1932 rate-vs-pH curve (KNOWN_GAPS entry)
+- pH windows exist only for Zn/Al/Fe — other metals honestly report "no cited data"
+- The physics surprise worth remembering: alkaline soil is NOT a threat to zinc — its amphoteric window (5.5–12) covers ordinary soil pH; only strong caustic (>12) attacks
+
+---

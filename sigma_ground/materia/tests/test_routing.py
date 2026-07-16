@@ -35,6 +35,9 @@ POSITIVE = [
     ("solution_chemistry", "boiling point elevation of salt water"),
     ("molecular_bond", "C-O bond energy"),
     ("corrosion_attack", "corrosion rate of iron"),
+    # the Captain's live question — the alkaline/corrode tiebreak (e471021)
+    ("corrosion_attack", "simulate a zinc rod stuck in a layer of oxidizing, "
+                         "alkaline soil and see it corrode over 5 years"),
     ("combustion_flow", "adiabatic flame temperature of burning carbon"),
     ("projectile_motion", "range of a projectile launched at 45 degrees"),
     ("collision_dynamics", "elastic collision of two balls"),

@@ -108,3 +108,45 @@ def test_routes_supersonic_and_extracts_mach():
                      "and breaks the sound barrier?", use_qwen=False)
     assert spec.steps[0].verb == "supersonic_projectile"
     assert abs(spec.steps[0].params["launch_mach"] - 3.0) < 1e-9
+
+
+# ── Corrosion slots: duration + environment ─────────────────────────────
+def test_corrosion_extracts_duration_and_environment():
+    """The Captain's live question: '5 years' and 'alkaline soil' must land
+    in the params, not be silently ignored (the pre-fix behavior)."""
+    spec = translate("simulate a zinc rod stuck in a layer of oxidizing, "
+                     "alkaline soil and see it corrode over 5 years",
+                     use_qwen=False)
+    assert [s.verb for s in spec.steps] == ["corrosion_attack"]
+    p = spec.steps[0].params
+    assert p["material_key"] == "zinc"
+    assert abs(p["duration_s"] - 5 * 3.15e7) < 1e-3
+    assert p["environment"] == "alkaline soil, aerated"
+
+
+def test_duration_phrases():
+    from sigma_ground.materia.translator import _extract_duration_s
+    assert abs(_extract_duration_s("for 10 days") - 864000.0) < 1e-6
+    assert abs(_extract_duration_s("after 3 months") - 3 * 3.15e7 / 12) < 1e-3
+    assert abs(_extract_duration_s("in 2 weeks") - 1209600.0) < 1e-6
+    assert abs(_extract_duration_s("over 1.5 hours") - 5400.0) < 1e-6
+    assert abs(_extract_duration_s("rusting for a year") - 3.15e7) < 1e-3
+    assert _extract_duration_s("corrosion rate of iron") is None
+    # a rate ("m/s") or a temperature ("300 K") must not read as a duration
+    assert _extract_duration_s("moving at 5 m/s at 300 K") is None
+
+
+def test_corrosion_duration_defaults_when_unstated():
+    """No duration named → slot omitted → the verb's 1-year default applies."""
+    spec = translate("corrosion rate of iron", use_qwen=False)
+    assert [s.verb for s in spec.steps] == ["corrosion_attack"]
+    assert "duration_s" not in spec.steps[0].params
+    assert "environment" not in spec.steps[0].params
+
+
+def test_environment_label_composition():
+    from sigma_ground.materia.translator import _extract_environment
+    assert (_extract_environment("buried in waterlogged acidic clay")
+            == "acidic soil, deaerated")
+    assert _extract_environment("submerged in seawater") == "seawater immersed"
+    assert _extract_environment("what rusts faster") is None
