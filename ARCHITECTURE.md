@@ -12,18 +12,27 @@ zero-dependency AST guard:
 
 ```
 tier 0   kernel/       geometry + math primitives: shapes, csg, parts, vec (the single Vec3)
+                       + gear.py (gear-tooth geometry)
              ▲
 tier 1   field/        σ-field physics + authoritative constants     (Sigma Ground)
          inventory/    particle inventory & mass closure             (Quarksum)
          dynamics/     N-body, SPH, Barnes-Hut, integrators (shared sim engine)
+                       + dynamics/mechanisms/ (kinematics for gear trains, escapements, etc.)
              ▲
 tier 2   deckard/      matter compiler: a name → a validated Construct
+         blueprint/    mechanism compiler: a name → a validated mechanism spec
              ▲
 tier 3   materia/      physics / movement engine (+ materia.labs)
          radiance/     renderer: SDF ray-march + entangler push renderer
              ▲
 tier 4   mcp/          the Mentat face — MCP tools over every service
 ```
+
+`blueprint/` and `deckard/catalog` look similar at a glance — they're
+deliberately separate tier-2 roles. `deckard` compiles *any* named object
+into a general `Construct`; `blueprint` compiles *kinematic assemblies*
+specifically (gear trains, clocks, escapements) into a validated mechanism
+spec that `dynamics/mechanisms/` consumes.
 
 `field.constants` is the authoritative constants source and is importable from
 any tier (a universal foundation, exempt from the tier rule).
@@ -36,6 +45,7 @@ any tier (a universal foundation, exempt from the tier rule).
 | **Quarksum** | `inventory/` | materials → molecules → atoms → particles → quarks; CLI `mentat` |
 | **Materia** | `materia/` (+ `materia/labs/`) | drag / orbital / scenario engine; `dynamics/` is the shared kernel-tier sim engine |
 | **Deckard** | `deckard/` | fits primitives → SDF `Construct` with a mass/CoM/inertia self-check |
+| **Blueprint** | `blueprint/` | mechanism-specific: a name → a validated mechanism spec (gear trains, clocks, escapements) consumed by `dynamics/mechanisms/` |
 | **Radiance** | `radiance/` (+ `radiance/entangler/`, `radiance/materials/`) | SDF renderer plus the MatterShaper push/entangler renderer, folded in |
 | **Mentat MCP** | `mcp/` | `FastMCP("mentat")` server + tools; `mcp/benchmark/` is a dev-only eval harness |
 

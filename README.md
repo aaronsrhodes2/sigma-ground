@@ -174,7 +174,12 @@ sigma_ground/
 ## What's not here yet
 
 - **Organic science** — biochemistry, amino acids, organic molecules. Planned as a separate library (`sigma-ground-organic`).
-- **Rendering** — 3D visualization lives in [matter-shaper](https://github.com/aaronsrhodes2/matter-shaper) (separate project).
+
+Note: this section covers the pip-installable core (`inventory`/`field`/
+`dynamics`). Rendering, the natural-language dispatcher, shape assembly, and
+the MCP server all ship in this same repo but live outside the packaged
+subset shown above — see [ARCHITECTURE.md](ARCHITECTURE.md) for the full
+package map.
 
 ---
 
