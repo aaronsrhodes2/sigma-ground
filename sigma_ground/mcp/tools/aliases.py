@@ -324,126 +324,47 @@ BODY_ALIASES: dict[str, str] = {
 # ============================================================
 # atomic.py keys its data tables by symbol (Capitalized). This dict
 # maps every other form a user might type to that symbol.
+#
+# Base coverage (symbol, full name, bare Z, "z=N") is generated from
+# periodictable for all 118 elements -- If One Then All (Platinum §10):
+# a hand-typed subset silently failed to resolve full names/Z for the
+# 91 elements past the first ~27 (caught 2026-07-18 audit). Hand-curated
+# Latin/alchemical/disambiguation aliases layer on top and win on
+# collision, since periodictable can't know those.
+def _build_element_aliases() -> dict[str, str]:
+    import periodictable as _pt
+
+    base: dict[str, str] = {}
+    for _el in _pt.elements:
+        if not _el.symbol or _el.symbol == "n":  # skip the neutron pseudo-entry
+            continue
+        base[_el.symbol.lower()] = _el.symbol
+        base[str(_el.number)] = _el.symbol
+        base[f"z={_el.number}"] = _el.symbol
+        name = _el.name.lower()
+        if name == "mercury":
+            continue  # ambiguous with the planet; "mercury_element" below disambiguates
+        base[name] = _el.symbol
+    return base
+
+
 ELEMENT_ALIASES: dict[str, str] = {
-    # Hydrogen (H, Z=1)
-    "h": "H",
-    "hydrogen": "H",
-    "1": "H",
-    "z=1": "H",
+    **_build_element_aliases(),
+    # Hand-curated Latin/alchemical names and disambiguations periodictable
+    # doesn't carry -- these win over (identical) programmatic entries above.
     "protium": "H",
-    # Helium (He, Z=2)
-    "he": "He",
-    "helium": "He",
-    "2": "He",
-    "z=2": "He",
-    # Lithium (Li, Z=3)
-    "li": "Li",
-    "lithium": "Li",
-    "3": "Li",
-    # Beryllium (Be, Z=4)
-    "be": "Be",
-    "beryllium": "Be",
-    "4": "Be",
-    # Boron (B, Z=5)
-    "boron": "B",
-    "5": "B",
-    # Carbon (C, Z=6)
-    "carbon": "C",
-    "6": "C",
-    "z=6": "C",
-    # Nitrogen (N, Z=7)
-    "nitrogen": "N",
-    "7": "N",
-    "z=7": "N",
-    # Oxygen (O, Z=8)
-    "oxygen": "O",
-    "8": "O",
-    "z=8": "O",
-    # Fluorine (F, Z=9)
-    "f": "F",
-    "fluorine": "F",
-    "9": "F",
-    # Neon (Ne, Z=10)
-    "ne": "Ne",
-    "neon": "Ne",
-    "10": "Ne",
-    # Sodium (Na, Natrium, Z=11)
-    "na": "Na",
-    "sodium": "Na",
-    "natrium": "Na",
-    "11": "Na",
-    # Magnesium (Mg, Z=12)
-    "mg": "Mg",
-    "magnesium": "Mg",
-    "12": "Mg",
-    # Aluminum (Al, Z=13)
-    "al": "Al",
-    "aluminum": "Al",
-    "aluminium": "Al",
-    "13": "Al",
-    # Silicon (Si, Z=14)
-    "si": "Si",
-    "silicon": "Si",
-    "14": "Si",
-    # Phosphorus (P, Z=15)
-    "phosphorus": "P",
-    "15": "P",
-    # Sulfur (S, Z=16)
-    "sulfur": "S",
-    "sulphur": "S",
-    "16": "S",
-    # Chlorine (Cl, Z=17)
-    "cl": "Cl",
-    "chlorine": "Cl",
-    "17": "Cl",
-    # Argon (Ar, Z=18)
-    "ar": "Ar",
-    "argon": "Ar",
-    "18": "Ar",
-    # Potassium (K, Kalium, Z=19)
-    "potassium": "K",
-    "kalium": "K",
-    "19": "K",
-    # Calcium (Ca, Z=20)
-    "ca": "Ca",
-    "calcium": "Ca",
-    "20": "Ca",
-    # Iron (Fe, Ferrum, Z=26)
-    "fe": "Fe",
-    "iron": "Fe",
-    "ferrum": "Fe",
-    "26": "Fe",
-    "z=26": "Fe",
-    # Copper (Cu, Cuprum, Z=29)
-    "cu": "Cu",
-    "copper": "Cu",
-    "cuprum": "Cu",
-    "29": "Cu",
-    # Silver (Ag, Argentum, Z=47)
-    "ag": "Ag",
-    "silver": "Ag",
-    "argentum": "Ag",
-    "47": "Ag",
-    # Gold (Au, Aurum, Z=79)
-    "au": "Au",
-    "gold": "Au",
-    "aurum": "Au",
-    "79": "Au",
-    # Mercury element (Hg, Hydrargyrum, Z=80) -- distinct from planet
-    "hg": "Hg",
-    "mercury_element": "Hg",
+    "natrium": "Na",       # Sodium
+    "aluminium": "Al",     # British spelling
+    "sulphur": "S",        # British spelling
+    "kalium": "K",         # Potassium
+    "ferrum": "Fe",        # Iron
+    "cuprum": "Cu",        # Copper
+    "argentum": "Ag",      # Silver
+    "aurum": "Au",         # Gold
+    "mercury_element": "Hg",   # disambiguate from the planet
     "hydrargyrum": "Hg",
     "quicksilver": "Hg",
-    "80": "Hg",
-    # Lead (Pb, Plumbum, Z=82)
-    "pb": "Pb",
-    "lead": "Pb",
-    "plumbum": "Pb",
-    "82": "Pb",
-    # Uranium (U, Z=92)
-    "u": "U",
-    "uranium": "U",
-    "92": "U",
+    "plumbum": "Pb",       # Lead
 }
 
 
