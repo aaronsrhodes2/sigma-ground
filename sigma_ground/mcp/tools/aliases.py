@@ -325,12 +325,17 @@ BODY_ALIASES: dict[str, str] = {
 # atomic.py keys its data tables by symbol (Capitalized). This dict
 # maps every other form a user might type to that symbol.
 #
-# Base coverage (symbol, full name, bare Z, "z=N") is generated from
+# Base coverage (symbol, full name, bare Z, "z=N", "eN") is generated from
 # periodictable for all 118 elements -- If One Then All (Platinum §10):
 # a hand-typed subset silently failed to resolve full names/Z for the
-# 91 elements past the first ~27 (caught 2026-07-18 audit). Hand-curated
-# Latin/alchemical/disambiguation aliases layer on top and win on
-# collision, since periodictable can't know those.
+# 91 elements past the first ~27 (caught 2026-07-18 audit), and the "eN"
+# form (Captain's example: "E13" for aluminum) was missing for all 118,
+# not just one. Hand-curated Latin/alchemical/disambiguation/common-name
+# aliases layer on top and win on collision, since periodictable can't
+# know those -- and are necessarily per-element (there's no systematic
+# way to generate "alum" for aluminum the way there is for "Z=13"), so
+# each addition there is a proactive-suggestion opportunity, not a table
+# that's ever "done."
 def _build_element_aliases() -> dict[str, str]:
     import periodictable as _pt
 
@@ -341,6 +346,7 @@ def _build_element_aliases() -> dict[str, str]:
         base[_el.symbol.lower()] = _el.symbol
         base[str(_el.number)] = _el.symbol
         base[f"z={_el.number}"] = _el.symbol
+        base[f"e{_el.number}"] = _el.symbol
         name = _el.name.lower()
         if name == "mercury":
             continue  # ambiguous with the planet; "mercury_element" below disambiguates
@@ -355,6 +361,7 @@ ELEMENT_ALIASES: dict[str, str] = {
     "protium": "H",
     "natrium": "Na",       # Sodium
     "aluminium": "Al",     # British spelling
+    "alum": "Al",          # historical: aluminum is named FROM alum (alumen)
     "sulphur": "S",        # British spelling
     "kalium": "K",         # Potassium
     "ferrum": "Fe",        # Iron
@@ -365,6 +372,10 @@ ELEMENT_ALIASES: dict[str, str] = {
     "hydrargyrum": "Hg",
     "quicksilver": "Hg",
     "plumbum": "Pb",       # Lead
+    "stannum": "Sn",       # Tin -- same Latin-symbol pattern as Fe/Cu/Ag/Au/Pb, missed first pass
+    "stibium": "Sb",       # Antimony -- ditto
+    "wolfram": "W",        # Tungsten's common name in most languages besides English --
+                           # literally where the symbol "W" comes from
 }
 
 
