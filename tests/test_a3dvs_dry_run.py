@@ -189,7 +189,9 @@ class TestA3DVSPrimitiveShapes(unittest.TestCase):
 
 
 class TestA3DVSMatterShaperShapes(unittest.TestCase):
-    """Load .shape.json from matter-shaper and verify primitive efficiency.
+    """Load .shape.json fixtures (from the former matter-shaper repo, now
+    archived -- copied into tests/fixtures/a3dvs_shapes/) and verify
+    primitive efficiency.
 
     These shapes are ALREADY in sigma_v1 format (analytic primitives).
     The .shape.json files ARE our compressed representation — the 1/5
@@ -204,12 +206,10 @@ class TestA3DVSMatterShaperShapes(unittest.TestCase):
     """
 
     _SHAPE_DIR = os.path.join(
-        os.path.dirname(__file__), '..', '..', 'matter-shaper',
-        'MatterShaper', 'harvest', 'test_data', 'output')
+        os.path.dirname(__file__), 'fixtures', 'a3dvs_shapes', 'harvest_output')
 
     _OBJECT_DIR = os.path.join(
-        os.path.dirname(__file__), '..', '..', 'matter-shaper',
-        'MatterShaper', 'object_maps')
+        os.path.dirname(__file__), 'fixtures', 'a3dvs_shapes', 'object_maps')
 
     def _check_shape_file(self, path):
         """Load a .shape.json and measure primitive efficiency."""
@@ -234,7 +234,7 @@ class TestA3DVSMatterShaperShapes(unittest.TestCase):
     def test_harvest_shapes(self):
         """All harvested shapes load and our binary repr is smaller than JSON."""
         if not os.path.isdir(self._SHAPE_DIR):
-            self.skipTest("matter-shaper harvest dir not found")
+            self.skipTest("a3dvs_shapes/harvest_output fixture dir not found")
 
         results = []
         for fname in os.listdir(self._SHAPE_DIR):
@@ -259,7 +259,7 @@ class TestA3DVSMatterShaperShapes(unittest.TestCase):
     def test_object_map_shapes(self):
         """All object map shapes load and binary repr is smaller than JSON."""
         if not os.path.isdir(self._OBJECT_DIR):
-            self.skipTest("matter-shaper object_maps dir not found")
+            self.skipTest("a3dvs_shapes/object_maps fixture dir not found")
 
         results = []
         for fname in os.listdir(self._OBJECT_DIR):
