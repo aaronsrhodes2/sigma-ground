@@ -17,10 +17,18 @@ def _safe(fn, *a, **k):
         return None
 
 
-# fuel -> (bonds_broken, bonds_formed, n_O2) for complete combustion
+# fuel -> (bonds_broken, bonds_formed, n_O2) for complete combustion.
+# bonds_broken excludes O=O (n_O2 accounts for that separately, per
+# combustion_enthalpy_kJ_mol's signature).
 _FUELS = {
     "methane": ({"C-H": 4}, {"C=O": 2, "O-H": 4}, 2),
     "propane": ({"C-H": 8, "C-C": 2}, {"C=O": 6, "O-H": 8}, 5),
+    # Cross-checked against field.interface.chemical_reactions.REACTIONS
+    # ['ethanol_combustion'] (measured dH_comb = -1367.0 kJ/mol) -- same
+    # underlying data, just re-shaped to this function's (broken, formed,
+    # n_O2) convention rather than duplicated by hand.
+    "ethanol": ({"C-C": 1, "C-H": 5, "C-O": 1, "O-H": 1},
+                {"C=O": 4, "O-H": 6}, 3),
 }
 
 
@@ -80,11 +88,19 @@ def molecular_dipole_analysis(bond_dipoles_debye: list[float] | None = None,
 
 def combustion_enthalpy_analysis(fuel: str = "methane") -> dict[str, Any]:
     """Combustion enthalpy of a hydrocarbon fuel from a bond-energy inventory
-    (Hess's law). Fuels: methane, propane. NOTE: the bond-energy method is
-    approximate (typically 10-25% from experiment, which is -890 kJ/mol for
-    methane). e.g. combustion_enthalpy_analysis('methane')."""
+    (Hess's law). Fuels: methane, propane, ethanol. NOTE: the bond-energy
+    method is approximate (typically 10-25% from experiment, which is -890
+    kJ/mol for methane). e.g. combustion_enthalpy_analysis('methane')."""
     from sigma_ground.field.interface import organic_materials as OM
-    broken, formed, n_o2 = _FUELS.get(fuel, _FUELS["methane"])
+    key = fuel.strip().lower()
+    if key not in _FUELS:
+        return ToolResult(
+            value=None,
+            source="sigma_ground.mcp.tools.materials_micro",
+            notes=(f"'{fuel}' not in lookup. Available: {sorted(_FUELS.keys())}."),
+            inputs={"fuel": fuel},
+        ).to_dict()
+    broken, formed, n_o2 = _FUELS[key]
     released = _safe(OM.combustion_enthalpy_kJ_mol, broken, formed, n_o2)
     results = {
         "energy_released_kJ_mol": released,
