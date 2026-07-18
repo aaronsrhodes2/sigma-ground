@@ -135,6 +135,13 @@ EXPANSION_DATA = {
         'gruneisen_gamma':     2.4,
         'C_v_J_mol_K':         25.4,
     },
+    'zinc': {
+        # HCP c/a anisotropy gives zinc one of the highest expansion
+        # coefficients of any common metal (MEASURED, CRC)
+        'alpha_linear_per_K': 30.2e-6,
+        'gruneisen_gamma':     2.0,      # MEASURED (CRC) — anomalously high, same HCP anisotropy
+        'C_v_J_mol_K':         25.2,     # MEASURED (CRC), near Dulong-Petit
+    },
     'platinum': {
         'alpha_linear_per_K': 8.8e-6,    # MEASURED (CRC)
         'gruneisen_gamma':     2.6,

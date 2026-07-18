@@ -212,6 +212,21 @@ STRESS_DATA = {
         'n_creep': 4.0,
         'A_creep': 5.0e7,
     },
+    'zinc': {
+        'sigma_UTS_Pa': 120e6,          # Annealed Zn (MEASURED, CRC)
+        # Paris-law fatigue constants below are ESTIMATED -- interpolated
+        # from comparable soft/moderately-ductile metals (lead, silver) in
+        # this table, not independently fitted for zinc from a literature
+        # source. Flag for refinement if precise fatigue-life prediction
+        # for zinc components is ever needed.
+        'b_fatigue': -0.10,
+        'C_paris': 4.0e-11,
+        'm_paris': 3.2,
+        'K_Ic_measured': 45e6,          # ESTIMATED, ductile HCP tier
+        'Q_creep_eV': 1.0,              # ESTIMATED — low T_melt (693 K), creeps readily like lead
+        'n_creep': 4.0,
+        'A_creep': 5.0e9,               # ESTIMATED
+    },
     'platinum': {
         'sigma_UTS_Pa': 140e6,          # Annealed Pt (MEASURED)
         'b_fatigue': -0.09,

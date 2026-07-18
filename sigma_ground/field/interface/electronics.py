@@ -209,6 +209,14 @@ METAL_TRANSPORT = {
         'rho_kg_m3': 10490,
         'M_g': 107.868,
     },
+    'zinc': {
+        'rho_300': 5.90e-8,     # MEASURED (CRC)
+        'rho_0': 2.0e-10,
+        'theta_D': 327,         # MEASURED (CRC)
+        'Z_val': 2,             # [Ar]3d¹⁰4s²
+        'rho_kg_m3': 7140,      # matches surface.py/corrosion.py's zinc entry
+        'M_g': 65.38,
+    },
     'platinum': {
         'rho_300': 1.06e-7,     # MEASURED (CRC)
         'rho_0': 5.0e-10,

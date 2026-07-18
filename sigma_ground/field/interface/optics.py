@@ -90,6 +90,7 @@ VALENCE_ELECTRONS = {
     'steel_mild':       2,   # same as iron (Fe-dominated)
     'lead':             4,   # [Xe]4f¹⁴5d¹⁰6s²6p² → 4
     'silver':           1,   # [Kr]4d¹⁰5s¹ → 1
+    'zinc':             2,   # [Ar]3d¹⁰4s² → 2
     'platinum':         2,   # [Xe]4f¹⁴5d⁹6s¹ → ~2 effective
     'depleted_uranium': 3,   # [Rn]5f³6d¹7s² → ~3 effective
 }
@@ -112,6 +113,7 @@ RESISTIVITY = {
     'steel_mild':       1.43e-7,
     'lead':             2.07e-7,
     'silver':           1.59e-8,
+    'zinc':             5.90e-8,   # harmonized with electronics.py METAL_TRANSPORT
     'platinum':         1.06e-7,
     'depleted_uranium': 2.80e-7,
 }

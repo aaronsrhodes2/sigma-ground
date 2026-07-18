@@ -53,6 +53,7 @@ MEASURED_HV = {
     'lead':            (3, 20),       # Very soft metal
     'silver':          (20, 100),     # Soft noble metal
     'platinum':        (35, 100),     # Soft noble metal
+    'zinc':            (30, 60),      # Pure Zn annealed/cast, soft HCP metal
     'depleted_uranium': (200, 450),   # Hard dense metal
     'rubber':          (0.1, 120),    # Elastomer — Tabor unreliable, model may overshoot
     'plastic_abs':     (5, 50),       # Thermoplastic polymer

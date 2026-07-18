@@ -132,6 +132,10 @@ MECHANICAL_DATA = {
         'poisson_ratio': 0.37,           # MEASURED
         'structure_factor': 3.0,          # FCC
     },
+    'zinc': {
+        'poisson_ratio': 0.249,          # MEASURED (CRC) — notably low, HCP anisotropy
+        'structure_factor': 3.0,          # HCP (close-packed, same as titanium's entry)
+    },
     'platinum': {
         'poisson_ratio': 0.38,           # MEASURED
         'structure_factor': 3.0,          # FCC

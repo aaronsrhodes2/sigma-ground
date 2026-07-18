@@ -213,6 +213,15 @@ GRAIN_DATA = {
         'd_inverse_HP_m': 10e-9,       # ~10 nm
         'burgers_m': 2.89e-10,         # a/√2 for FCC (a=4.086Å)
     },
+    'zinc': {
+        'sigma_0_Pa': 20e6,            # ESTIMATED — soft HCP metal, comparable to lead/silver tier
+        'k_HP_Pa_sqrtm': 0.12e6,      # ESTIMATED — HCP metals run higher than FCC (fewer slip systems)
+        'd_typical_m': 30e-6,          # 30 μm annealed (typical wrought zinc)
+        'Q_gg_eV': 0.6,               # ESTIMATED — low (T_melt=693 K, between lead's 600 K and silver's 1235 K)
+        'K0_gg_m2_s': 4.0e-3,         # ESTIMATED — fast grain growth, low-melt metal
+        'd_inverse_HP_m': 9e-9,        # ESTIMATED, ~9 nm
+        'burgers_m': 2.665e-10,        # MEASURED — HCP a-axis lattice parameter (matches surface.py's zinc entry)
+    },
     'platinum': {
         'sigma_0_Pa': 30e6,            # FCC, moderate friction stress
         'k_HP_Pa_sqrtm': 0.12e6,      # 0.12 MPa√m

@@ -113,6 +113,7 @@ STANDARD_POTENTIALS = {
     'iron':       {'E0_V': -0.447, 'n': 2, 'reaction': 'Fe²⁺ + 2e⁻ → Fe'},
     'nickel':     {'E0_V': -0.257, 'n': 2, 'reaction': 'Ni²⁺ + 2e⁻ → Ni'},
     'tin':        {'E0_V': -0.138, 'n': 2, 'reaction': 'Sn²⁺ + 2e⁻ → Sn'},
+    'lead':       {'E0_V': -0.126, 'n': 2, 'reaction': 'Pb²⁺ + 2e⁻ → Pb'},  # MEASURED (IUPAC/Bard)
     'hydrogen':   {'E0_V':  0.000, 'n': 2, 'reaction': '2H⁺ + 2e⁻ → H₂'},
     'copper':     {'E0_V': +0.342, 'n': 2, 'reaction': 'Cu²⁺ + 2e⁻ → Cu'},
     'silver':     {'E0_V': +0.800, 'n': 1, 'reaction': 'Ag⁺ + e⁻ → Ag'},

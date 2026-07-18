@@ -309,6 +309,7 @@ WORK_FUNCTIONS_EV = {
     'silicon':   4.85,   # MEASURED (intrinsic)
     'platinum':  5.65,   # MEASURED
     'silver':    4.26,   # MEASURED
+    'zinc':      4.33,   # MEASURED (CRC Handbook)
 }
 
 

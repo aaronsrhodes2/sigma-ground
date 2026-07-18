@@ -217,6 +217,14 @@ PHASE_DATA = {
         'delta_V_fus':      0.038,      # ~3.8% volume increase
         'dT_dP_melt_K_GPa': 4.6,       # ESTIMATED
     },
+    'zinc': {
+        'T_melt_K':         692.68,     # MEASURED (CRC), 419.53 C
+        'T_boil_K':         1180.0,     # MEASURED (CRC), 907 C
+        'L_fus_J_mol':      7322.0,     # MEASURED (CRC), 7.32 kJ/mol
+        'L_vap_J_mol':      115300.0,   # MEASURED (CRC), 115.3 kJ/mol
+        'delta_V_fus':      0.042,      # ESTIMATED, ~4.2% volume increase
+        'dT_dP_melt_K_GPa': 4.0,       # ESTIMATED
+    },
     'platinum': {
         'T_melt_K':         2041.4,
         'T_boil_K':         4098.0,

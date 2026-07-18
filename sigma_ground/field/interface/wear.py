@@ -154,6 +154,11 @@ WEAR_DATA = {
         'K_abrasive': 3.5e-2,       # Soft noble metal
         'K_lubricated': 6.0e-6,     # Lubricated
     },
+    'zinc': {
+        'K_adhesive': 1.8e-2,       # ESTIMATED — soft HCP metal, comparable tier to silver/lead
+        'K_abrasive': 4.0e-2,       # ESTIMATED — soft, moderately easy to abrade
+        'K_lubricated': 7.0e-6,     # ESTIMATED — lubricated
+    },
     'platinum': {
         'K_adhesive': 1.2e-2,       # Moderately hard noble metal
         'K_abrasive': 2.5e-2,       # Harder than gold/silver

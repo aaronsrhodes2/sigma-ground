@@ -262,6 +262,19 @@ PLASTICITY_DATA = {
         'jc_T_melt': 1234.9,
         'jc_edot_0': 1.0,
     },
+    'zinc': {
+        'sigma_y_Pa': 50e6,            # Pure Zn, annealed (MEASURED, CRC)
+        'n_hardening': 0.25,           # ESTIMATED — lower than FCC peers, HCP limited slip systems
+        'elongation_pct': 40.0,        # MEASURED (CRC), annealed pure zinc
+        'is_ductile': True,
+        'jc_A': 50e6,                  # ESTIMATED — Johnson-Cook constants not independently
+        'jc_B': 150e6,                 #   fitted for zinc; interpolated from comparable soft/
+        'jc_n': 0.30,                  #   moderate-ductility metals (lead, silver) in this table,
+        'jc_C': 0.020,                 #   not a literature-measured fit -- flag for refinement
+        'jc_m': 1.0,                   #   if precise dynamic-loading behavior is ever needed.
+        'jc_T_melt': 692.68,           # MEASURED (matches phase_transition.py's zinc entry)
+        'jc_edot_0': 1.0,
+    },
     'platinum': {
         'sigma_y_Pa': 50e6,            # Pure Pt, annealed (MEASURED)
         'n_hardening': 0.38,
