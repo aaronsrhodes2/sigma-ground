@@ -75,6 +75,14 @@ benchmark = [
     "httpx>=0.27",             # async HTTP client for Ollama tool loop
     "python-dotenv>=1.0",      # auto-load env vars from dev-root .env
 ]
+# Materials Project API client (elastic/dielectric DFT-computed properties;
+# see sigma_ground/field/interface/materials_project_client.py). Requires
+# a free API key -- see .env.reference.md for MATERIALS_PROJECT_API_KEY.
+# Not needed for the core sigma_ground library or the MCP server.
+materials_project = [
+    "mp-api>=0.41",            # official Materials Project Python client (MPRester)
+    "python-dotenv>=1.0",      # auto-load env vars from dev-root .env
+]
 
 [tool.setuptools.packages.find]
 include = ["sigma_ground*"]
