@@ -76,16 +76,25 @@ Authentication:
   `.env`. See `elastic_properties`/`dielectric_properties` for the exact
   error message and instructions if the key is missing.
 
-Status: this module has NOT been exercised against the live API (no key
-was available while writing it -- see PLATINUM_RULES.md sec8: registering
-an account is the Captain's action, not an agent's). Every code path that
-touches the network is covered only by offline/mocked tests
-(test_materials_project_client.py). Field names for the elasticity and
-dielectric documents were confirmed against the live OpenAPI schema at
-https://api.materialsproject.org/openapi.json, but exact units per field
-(e.g. GPa vs Pa for young_modulus) were NOT independently re-verified
-against a live response and should be spot-checked the first time this
-runs for real.
+Status: verified live 2026-07-19 (key registered and added to the dev-root
+.env by the Captain, per PLATINUM_RULES.md sec8). elastic_properties() and
+dielectric_properties() were confirmed against real responses for Si, Cu,
+Fe, Al, and Zn. That pass also caught two real bugs, both fixed:
+  - Neither ElasticityRester.search() nor DielectricRester.search() accepts
+    a `formula` kwarg in the mp-api client actually installed here -- only
+    `material_ids`. A formula query now resolves candidate material_ids via
+    the summary endpoint first (see `_material_ids_for_formula`).
+  - The lowest-energy polymorph for a formula does not always have a
+    mechanically-valid elastic tensor: Zn's canonical entry (mp-79) reports
+    shear_modulus_vrh = -2781.21 GPa, an obviously corrupted DFT relaxation
+    result (nothing real exceeds ~500 GPa). `_pick_mechanically_stable` now
+    requires bulk_modulus_vrh > 0 and shear_modulus_vrh > 0, trying
+    candidates in energy_above_hull order, and raises MaterialsProjectNotFound
+    honestly if every polymorph fails that check -- never hands back
+    unphysical numbers as if they were a citation.
+Units (GPa for bulk/shear modulus) were confirmed against live responses
+for the materials above; young_modulus was consistently None in every
+response checked so far and remains unverified.
 """
 
 from __future__ import annotations
@@ -239,6 +248,47 @@ def _get_field(doc: Any, *names: str, default: Any = None) -> Any:
     return default
 
 
+# ── Formula -> material_id resolution ────────────────────────────────
+# Neither ElasticityRester.search() nor DielectricRester.search() accepts a
+# `formula` kwarg in the currently-supported mp-api client (only
+# `material_ids` -- confirmed via inspect.signature against the installed
+# version, 2026-07-19). A formula can match several polymorphs, so this
+# resolves ALL matching material_ids via the summary endpoint (the one
+# route that does take `formula`), ordered by energy_above_hull ascending
+# so the most thermodynamically stable polymorph is tried first -- the
+# elasticity/dielectric search below then returns docs[0] from whichever
+# of those ids actually has data.
+
+def _material_ids_for_formula(mpr: Any, formula: str) -> list[str]:
+    docs = mpr.materials.summary.search(
+        formula=formula, fields=["material_id", "energy_above_hull"])
+    ranked = sorted(
+        docs, key=lambda d: _get_field(d, "energy_above_hull", default=1e9))
+    return [str(_get_field(d, "material_id")) for d in ranked
+            if _get_field(d, "material_id") is not None]
+
+
+def _pick_mechanically_stable(docs: list, id_rank: dict[str, int]) -> Any | None:
+    """The lowest-energy polymorph for a formula does not always have a
+    mechanically-valid elastic tensor in Materials Project (a VRH-averaged
+    bulk/shear modulus must both be positive for a real stable solid --
+    negative values are a DFT relaxation artifact, not a citable material
+    property). Return the first doc, in energy_above_hull order, that
+    passes that check -- never the raw lowest-energy match unchecked."""
+    def rank(d: Any) -> int:
+        mid = _get_field(d, "material_id", "task_id")
+        return id_rank.get(str(mid), len(id_rank))
+    for doc in sorted(docs, key=rank):
+        bulk = _get_field(doc, "bulk_modulus")
+        shear = _get_field(doc, "shear_modulus")
+        bulk_vrh = _get_field(bulk, "vrh") if bulk is not None else None
+        shear_vrh = _get_field(shear, "vrh") if shear is not None else None
+        if bulk_vrh is not None and shear_vrh is not None \
+                and bulk_vrh > 0 and shear_vrh > 0:
+            return doc
+    return None
+
+
 # ── Elastic / mechanical properties ──────────────────────────────────
 
 def elastic_properties(formula_or_mp_id: str) -> dict[str, Any]:
@@ -294,12 +344,15 @@ def elastic_properties(formula_or_mp_id: str) -> dict[str, Any]:
     MPRester = _import_mprester()
     is_mp_id = query.lower().startswith("mp-")
 
+    id_rank: dict[str, int] = {}
     try:
         with MPRester(api_key) as mpr:
             if is_mp_id:
                 docs = mpr.materials.elasticity.search(material_ids=[query])
             else:
-                docs = mpr.materials.elasticity.search(formula=query)
+                ids = _material_ids_for_formula(mpr, query)
+                id_rank = {mid: i for i, mid in enumerate(ids)}
+                docs = mpr.materials.elasticity.search(material_ids=ids) if ids else []
     except MaterialsProjectError:
         raise
     except Exception as exc:  # mp-api's own exception hierarchy varies by version
@@ -318,7 +371,18 @@ def elastic_properties(formula_or_mp_id: str) -> dict[str, Any]:
             "directly to confirm coverage before assuming this is a bug."
         )
 
-    return _parse_elasticity_doc(docs[0], query)
+    chosen = docs[0] if is_mp_id else _pick_mechanically_stable(docs, id_rank)
+    if chosen is None:
+        raise MaterialsProjectNotFound(
+            f"Materials Project has {len(docs)} elasticity record(s) for "
+            f"'{query}', but none has a mechanically-valid VRH-averaged "
+            "elastic tensor (bulk_modulus_vrh and shear_modulus_vrh both "
+            "positive) -- every candidate is a DFT-unstable polymorph for "
+            "this formula. Try a specific Materials Project ID if you know "
+            "which stable phase you want, or confirm coverage at "
+            "next-gen.materialsproject.org."
+        )
+    return _parse_elasticity_doc(chosen, query)
 
 
 def _parse_elasticity_doc(doc: Any, query: str) -> dict[str, Any]:
@@ -406,7 +470,8 @@ def dielectric_properties(formula_or_mp_id: str) -> dict[str, Any]:
             if is_mp_id:
                 docs = mpr.materials.dielectric.search(material_ids=[query])
             else:
-                docs = mpr.materials.dielectric.search(formula=query)
+                ids = _material_ids_for_formula(mpr, query)
+                docs = mpr.materials.dielectric.search(material_ids=ids) if ids else []
     except MaterialsProjectError:
         raise
     except Exception as exc:

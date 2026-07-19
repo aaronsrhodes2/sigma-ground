@@ -41,15 +41,24 @@ class _AttrDoc:
             setattr(self, k, v)
 
 
+def _mid(doc):
+    """material_id from either a dict-shaped or attribute-shaped doc."""
+    return doc["material_id"] if isinstance(doc, dict) else doc.material_id
+
+
 class TestNotConfigured(unittest.TestCase):
-    """MATERIALS_PROJECT_API_KEY is genuinely absent from this environment
-    (confirmed: not in D:\\Aaron\\development\\.env, not in os.environ) --
-    this exercises the real refusal path, not a simulated one."""
+    """MATERIALS_PROJECT_API_KEY absent from os.environ, with dev-root .env
+    loading stubbed out -- isolated from whatever is actually on disk (a
+    real key IS present in D:\\Aaron\\development\\.env as of 2026-07-19,
+    so this must not depend on the real file's absence anymore)."""
 
     def setUp(self):
         self._saved = os.environ.pop(mpc.MATERIALS_PROJECT_API_KEY_ENV, None)
+        self._patch = mock.patch.object(mpc, "_load_dev_root_env", return_value=None)
+        self._patch.start()
 
     def tearDown(self):
+        self._patch.stop()
         if self._saved is not None:
             os.environ[mpc.MATERIALS_PROJECT_API_KEY_ENV] = self._saved
 
@@ -74,13 +83,18 @@ class TestNotConfigured(unittest.TestCase):
 
 
 class TestMpApiNotInstalled(unittest.TestCase):
-    """mp-api is genuinely not installed in this environment -- confirmed
-    via `python -c "import mp_api"` failing with ModuleNotFoundError."""
+    """mp-api's absence is forced via sys.modules, not relied on as a real
+    environment condition -- mp-api IS installed in this dev tree as of
+    2026-07-19 (needed to exercise the live client), so this must not
+    depend on the package's real absence anymore."""
 
     def setUp(self):
         os.environ[mpc.MATERIALS_PROJECT_API_KEY_ENV] = "fake-key-for-test"
+        self._patch = mock.patch.dict(sys.modules, {"mp_api": None, "mp_api.client": None})
+        self._patch.start()
 
     def tearDown(self):
+        self._patch.stop()
         os.environ.pop(mpc.MATERIALS_PROJECT_API_KEY_ENV, None)
 
     def test_import_mprester_raises_clear_error(self):
@@ -100,12 +114,20 @@ class TestElasticityParsing(unittest.TestCase):
     """Parse a hand-constructed payload shaped like the documented
     ElasticityDoc response, via a mocked MPRester -- no network call."""
 
-    def _fake_mprester_module(self, docs):
+    def _fake_mprester_module(self, docs, summary_docs=None):
         """Build a fake `mp_api.client` module exposing a MPRester whose
-        `.materials.elasticity.search(...)` returns `docs`."""
+        `.materials.elasticity.search(...)` returns `docs`, and whose
+        `.materials.summary.search(...)` (the formula -> material_id
+        resolution step) returns `summary_docs` -- one entry per `docs`
+        material_id by default, so a formula-routed call resolves straight
+        back to the same candidates."""
+        if summary_docs is None:
+            summary_docs = [{"material_id": _mid(d), "energy_above_hull": 0.0}
+                            for d in docs]
         fake_mpr_instance = mock.MagicMock()
         fake_mpr_instance.__enter__ = mock.Mock(return_value=fake_mpr_instance)
         fake_mpr_instance.__exit__ = mock.Mock(return_value=False)
+        fake_mpr_instance.materials.summary.search = mock.Mock(return_value=summary_docs)
         fake_mpr_instance.materials.elasticity.search = mock.Mock(return_value=docs)
         fake_mpr_instance.materials.dielectric.search = mock.Mock(return_value=docs)
 
@@ -181,6 +203,42 @@ class TestElasticityParsing(unittest.TestCase):
         self.assertIn("unobtainium", msg)
         self.assertIn("formula", msg)
 
+    def test_skips_mechanically_unstable_polymorph_for_a_stable_one(self):
+        # Regression case for the real live-API finding (2026-07-19): the
+        # lowest-energy polymorph for a formula can have a negative VRH
+        # shear/bulk modulus (a DFT relaxation artifact, mechanically
+        # impossible for a real stable solid) -- the picker must skip it
+        # in favor of the next candidate, never hand back unphysical data.
+        unstable = _AttrDoc(
+            material_id="mp-unstable", formula_pretty="Si",
+            bulk_modulus=_AttrDoc(vrh=82.3), shear_modulus=_AttrDoc(vrh=-14.4),
+            young_modulus=None, homogeneous_poisson=0.59, universal_anisotropy=-7.1)
+        stable = _AttrDoc(
+            material_id="mp-149", formula_pretty="Si",
+            bulk_modulus=_AttrDoc(vrh=88.9), shear_modulus=_AttrDoc(vrh=62.4),
+            young_modulus=None, homogeneous_poisson=0.215, universal_anisotropy=0.23)
+        summary_docs = [
+            {"material_id": "mp-unstable", "energy_above_hull": 0.0},   # lowest energy
+            {"material_id": "mp-149", "energy_above_hull": 0.01},
+        ]
+        fake_mp_api, fake_client, _ = self._fake_mprester_module(
+            [unstable, stable], summary_docs=summary_docs)
+        with mock.patch.dict(sys.modules, {"mp_api": fake_mp_api, "mp_api.client": fake_client}):
+            result = mpc.elastic_properties("Si")
+        self.assertEqual(result["material_id"], "mp-149")
+        self.assertEqual(result["shear_modulus_vrh"], 62.4)
+
+    def test_all_polymorphs_unstable_raises_not_found(self):
+        unstable = _AttrDoc(
+            material_id="mp-unstable", formula_pretty="Si",
+            bulk_modulus=_AttrDoc(vrh=82.3), shear_modulus=_AttrDoc(vrh=-14.4),
+            young_modulus=None, homogeneous_poisson=0.59, universal_anisotropy=-7.1)
+        fake_mp_api, fake_client, _ = self._fake_mprester_module([unstable])
+        with mock.patch.dict(sys.modules, {"mp_api": fake_mp_api, "mp_api.client": fake_client}):
+            with self.assertRaises(mpc.MaterialsProjectNotFound) as ctx:
+                mpc.elastic_properties("Si")
+        self.assertIn("mechanically-valid", str(ctx.exception))
+
     def test_mp_id_routes_to_material_ids_search(self):
         doc = _AttrDoc(material_id="mp-79", formula_pretty="Zn")
         fake_mp_api, fake_client, mprester_cls = self._fake_mprester_module([doc])
@@ -190,17 +248,26 @@ class TestElasticityParsing(unittest.TestCase):
         instance.materials.elasticity.search.assert_called_once_with(material_ids=["mp-79"])
 
     def test_formula_routes_to_formula_search(self):
-        doc = _AttrDoc(material_id="mp-79", formula_pretty="Zn")
+        # ElasticityRester.search() has no `formula` kwarg in the mp-api
+        # client (confirmed against the installed version, 2026-07-19) --
+        # a formula query resolves material_id(s) via the summary endpoint
+        # first, then queries elasticity by material_ids.
+        doc = _AttrDoc(material_id="mp-79", formula_pretty="Zn",
+                      bulk_modulus=_AttrDoc(vrh=67.6), shear_modulus=_AttrDoc(vrh=41.6))
         fake_mp_api, fake_client, mprester_cls = self._fake_mprester_module([doc])
         with mock.patch.dict(sys.modules, {"mp_api": fake_mp_api, "mp_api.client": fake_client}):
             mpc.elastic_properties("Zn")
         instance = mprester_cls.return_value
-        instance.materials.elasticity.search.assert_called_once_with(formula="Zn")
+        instance.materials.summary.search.assert_called_once_with(
+            formula="Zn", fields=["material_id", "energy_above_hull"])
+        instance.materials.elasticity.search.assert_called_once_with(material_ids=["mp-79"])
 
     def test_api_exception_wrapped_in_materials_project_error(self):
         fake_mpr_instance = mock.MagicMock()
         fake_mpr_instance.__enter__ = mock.Mock(return_value=fake_mpr_instance)
         fake_mpr_instance.__exit__ = mock.Mock(return_value=False)
+        fake_mpr_instance.materials.summary.search = mock.Mock(
+            return_value=[{"material_id": "mp-79", "energy_above_hull": 0.0}])
         fake_mpr_instance.materials.elasticity.search = mock.Mock(
             side_effect=RuntimeError("simulated network failure")
         )
@@ -220,10 +287,14 @@ class TestDielectricParsing(unittest.TestCase):
     """Parse a hand-constructed payload shaped like the documented
     DielectricDoc response, via a mocked MPRester -- no network call."""
 
-    def _fake_mprester_module(self, docs):
+    def _fake_mprester_module(self, docs, summary_docs=None):
+        if summary_docs is None:
+            summary_docs = [{"material_id": _mid(d), "energy_above_hull": 0.0}
+                            for d in docs]
         fake_mpr_instance = mock.MagicMock()
         fake_mpr_instance.__enter__ = mock.Mock(return_value=fake_mpr_instance)
         fake_mpr_instance.__exit__ = mock.Mock(return_value=False)
+        fake_mpr_instance.materials.summary.search = mock.Mock(return_value=summary_docs)
         fake_mpr_instance.materials.dielectric.search = mock.Mock(return_value=docs)
         fake_mprester_cls = mock.Mock(return_value=fake_mpr_instance)
         fake_client_module = types.ModuleType("mp_api.client")
