@@ -2039,3 +2039,253 @@ Follow-up to e471021's flagged gaps: the Captain's live question ("zinc rod in o
 - The physics surprise worth remembering: alkaline soil is NOT a threat to zinc — its amphoteric window (5.5–12) covers ordinary soil pH; only strong caustic (>12) attacks
 
 ---
+
+## Session 27 — 2026-07-16..18 — Windmill theater + Choice doctrine + Dodoxel arc (FCC voxels, fragmentation, AO)
+
+**Time:** multi-day session (2026-07-16 through 2026-07-18)
+**Status:** ✅ Complete — 1069 passed, 1 xfailed (known sentinel), zero regressions
+
+### Changes
+- **Windmill theater (Arc A, Phases 0–5)** — the vision statement's second worked
+  example finished end-to-end: `record_windmill_theater()` in
+  `radiance/trajectory.py` — wind → RigidBearing rotor → BearingGearCoupling
+  (new, `dynamics/mechanisms/bearing_gear_coupling.py`, load-blind and flagged
+  as such in KNOWN_GAPS.md) → 2-stage InvoluteGear spur train →
+  slider-crank (RevoluteJoint×3 + unmotored PrismaticJoint, gated against
+  s(θ)=r·cosθ+√(l²−r²sin²θ)) → `ReciprocatingPumpState` (new,
+  `dynamics/mechanisms/pump.py`, stroke-reversal valve bookkeeping) →
+  cosmetic reservoir slab riding the tracked volume. PrismaticJoint's first
+  production/chain use anywhere in the repo.
+- **Choice doctrine (Captain correction 2026-07-16)** — third provenance leg:
+  `dynamics/mechanisms/choice.py` (`Choice`, sibling of Fact/Plug) for every
+  assistant-invented variable. Triggered by the clock-dial material miss
+  (aluminum picked without checking MATERIALS — ceramic_alumina existed).
+  7-agent audit found 140 candidates; all HIGH+MEDIUM (~45) retrofitted across
+  all 7 recorders; two real bugs fixed (hardcoded concrete density 2400 vs the
+  table's 2300 in three functions). scene_spec gains a "choices" list.
+- **Teardown/NVIDIA research** — Teardown: software DDA ray-march, no real GI
+  (2 cosine rays/pixel AO), connectivity-severing → new rigid body. NVIDIA
+  (RT cores/OptiX/NanoVDB): incompatible with zero-dependency doctrine, dead
+  end — documented, dropped.
+- **Dodoxel arc (Phases 0–3, Captain chose TRUE rhombic-dodecahedral cells)** —
+  `kernel/rhombic_dodecahedron.py` (closed-form SDF/volume=pitch³/√2/
+  inertia=pitch²/8, all triple-verified; 12 face normals ≡ FCC neighbor
+  directions ≡ bulk_coordination('fcc')); `deckard/dodoxelize.py`
+  (`DodoxelField` on the even-parity sublattice, exact analytic min-SDF field,
+  `find_disconnected()` 12-neighbor fragmentation via scipy.ndimage.label with
+  custom structure, `dodoxel_field_to_parcel()` — first real consumer of
+  PhysicsParcel.sdf_local; severed fragments free-fall in the live solver,
+  gated). Discrete angle vocabulary between neighbor directions verified:
+  exactly {60°, 90°, 120°, 180°} — the Captain's cold-welding/rolly-hinge
+  intuition's geometric basis, reserved for future joint inference.
+- **Teardown Phase 4** — (1) dodoxel far-field SDF rebuilt as a certified
+  two-band construction (exact-clamped near band + EDT-derived far band);
+  found and fixed a LATENT TUNNELING BUG in the original flat 4·pitch cap
+  (overestimated near-window-edge distances by up to ~1 pitch); empty-space
+  marching now takes true-distance steps (gated: same hit, fewer steps).
+  (2) Secondary-ray AO in `radiance/shade.py` (`ambient_occlusion()`,
+  deterministic Fibonacci cosine hemisphere, attenuates the ambient term
+  only; opt-in via RadianceScene(ao_rays=N), 0 = byte-identical output).
+  Corner gate: converges to the closed-form 0.5 from above. Pixel-diff
+  verification: 19% changed, ALL darker, max = full ambient term.
+- Render-plates artifact published (dodoxel sphere hero + AO comparison +
+  clock/windmill context plates).
+
+### Why
+Captain's directives in order: finish the windmill theater; expose every
+assistant-invented variable (Choice); learn from Teardown/NVIDIA without
+breaking the physics-chain goal; convert voxel→dodoxel format (12 interfaces
+per voxel, true cell geometry) keeping parts as the rigid dynamical unit,
+with discrete parts as collidable voxel fragments.
+
+### Verification
+- ✅ Full suite after each phase; final: 1069 passed, 1 xfailed, 37 subtests
+- ✅ Every new physics/geometry piece gated against a closed form or an
+  independent cross-check (ConvexHull + Monte Carlo for Phase 0; brute-force
+  band certification for the far-field rebuild; scipy-convention check before
+  trusting the 12-neighbor label structure)
+- ✅ Visual: offline renders (dodoxel faceting unmistakable; AO comparison)
+
+### Hinge arc (2026-07-18..19) — Phases A-D, closes the dormant infer_joints→solver gap
+Built directly on top of the above, same session's Captain-approved follow-on:
+- **Phase A** `dodoxelize_parts()`: multi-part `DodoxelField` (parts/part_grid/
+  part_interfaces tables, mirroring VoxelField's own multi-part convention).
+- **Phase B** `_scan_dodoxel_part_interfaces()`: 12-neighbor part-adjacency
+  scan with EXACT discrete FCC contact normals (not PCA-estimated); gate
+  confirmed individual diagonal normals area-weight-average to the true
+  macroscopic interface normal on a planar slab fixture.
+- **Phase C** `dodoxel_articulate.py::infer_dodoxel_joints()`: geometry-driven
+  weld/revolute typing (line-like contact patch → revolute, broad patch →
+  weld), hinge axis lattice-snapped to the verified {60,90,120,180}° FCC
+  angle vocabulary and carried as cited joint metadata; elongation threshold
+  exposed as a `Choice` per doctrine.
+- **Phase D** `dodoxel_field_to_parcel`+`part_subfield`+
+  `dodoxel_parts_to_scene()`: the capstone — inferred joints become REAL
+  `WeldJoint`/`RevoluteJoint` constraints in a live `PhysicsScene`, closing
+  the gap `infer_joints()` (the cubic twin) never closed either. Gates:
+  welded pair free-falls as one rigid body (rel. velocity ~1e-6, offset
+  preserved to 1e-6); hinged pair spins freely about the inferred axis with
+  zero measurable spin decay; the same relative spin forced onto a welded
+  pair gets killed — joint TYPE has real dynamical consequences.
+
+Two real bugs caught and fixed during Phase D, both diagnosed rather than
+tolerance-bumped:
+- **Wrong hinge reference frame** (test bug, not a solver bug): the first
+  draft measured a spinning hinged part's orbit against the anchor's
+  ORIGINAL world position while leaving the other part free-floating — but
+  centripetal constraint force through the anchor reacts on the "fixed"
+  part too, so a free-floating assembly's hinge line legitimately drifts.
+  Fixed by world-pinning the reference part with a `WeldJoint(part, None,
+  ...)`, exposing that `WeldJoint`'s `b=None` already means "weld to world"
+  (an existing, previously-undocumented-in-this-arc capability).
+- **Contact braking** (a real production bug): jointed parts touch by
+  construction, so their full collision-sphere radii were generating
+  narrow-phase contact rows against the very motion their joint permits —
+  measured as an 11%/0.5s spin decay, independent of solver iteration
+  count, vanishing exactly when the spheres stopped pairing. Fixed in
+  `dodoxel_parts_to_scene()` by shrinking each jointed member's collision
+  radius well below inter-part spacing, the same resolution `record_clock`
+  already uses for its own fully-jointed arbors — scoped honestly in-code
+  (fragments spun off by `find_disconnected` keep full radius/normal
+  collision; only members of one still-jointed assembly are shrunk).
+
+Deliberately deferred, flagged in `dodoxel_articulate.py`'s own docstring:
+enforcing the FCC angle vocabulary as live `RevoluteJoint` angle LIMITS —
+today it's cited metadata on every inferred joint, not yet a physical
+constraint. A physical claim needing its own gated phase, not a metadata
+note.
+
+**Verification:** full suite green throughout — 1084 passed, 1 xfailed
+(known sentinel), 37 subtests, zero regressions after Phase D.
+
+### Demo arc (2026-07-19) — Mentat/Deckard text-to-scene: pliers + bell, gap-fixed in the MCP
+Captain's ask: prove the hinge-arc capability isn't just a pytest fixture —
+demonstrate it through Mentat's actual single-text entry point
+(`mcp/front_door.py::dispatch()`), on the Captain's own unmodified prompts,
+with any gaps fixed IN THE MCP (broadest-impact fix) and the SAME prompt
+re-tried, never a Claude-tailored one. Two prompts: *"Simulate a pair of
+pliers that are being open and closed over time."* and *"Simulate a
+hanging bell being struck by a stone, simulate the noise in an earth
+atmosphere."*
+
+**Gap found (research pass, `sigma_ground/mcp/front_door.py` +
+`materia/{translator,scenarios,manifest}.py`):** Materia's sim-verb
+compiler had ~69 verbs, none for an articulated/actuated mechanism or an
+impact-acoustics scenario; `deckard/articulate.py`'s cubic joint inference
+(the "cousin" of this session's dodoxel work) had NEVER been wired past a
+read-only JSON round-trip into a live solver constraint for a REAL
+catalog object — confirmed dormant by an Explore pass, not assumed. No
+pliers/tongs/bell mesh exists in ShapeNet/PartNet either.
+
+**Fix, built directly on this session's own hinge-arc machinery (not a
+one-off hack for two prompts):**
+- `dynamics/mechanisms/actuator.py::OscillatingRevoluteActuator` — general
+  limit-reversal motor orchestrator (any RevoluteJoint with real `limits`),
+  gated standalone first (4 tests) including a closed-form half-period
+  check.
+- `deckard/hand_tools.py` — a small Choice-flagged catalog of two-jaw
+  pivoting tools (pliers/tongs/scissors/tweezers/nutcracker/shears/wire
+  cutters), each built as two straight-bar dodoxel levers crossing at one
+  pivot. The pivot is DISCOVERED, not declared: geometry is empirically
+  tuned (narrow in-plane, deep along the rotation axis) so
+  `infer_dodoxel_joints` genuinely reads it as a revolute from real contact
+  geometry (elongation 11–41, well past the 8.0 default threshold, verified
+  per catalog entry) — the FIRST real (non-synthetic-fixture) consumer of
+  the hinge-arc's discovery pipeline.
+- `radiance/trajectory.py::record_hand_tool_actuation` — bridges the
+  discovered joint into `dodoxel_parts_to_scene` (hinge arc Phase D reused
+  directly), world-pins one handle (`WeldJoint(lever_a, None, ...)`, "held
+  as if by a hand"), sets Choice-cited swing limits, drives with the new
+  actuator. Gated: jaw genuinely oscillates between the set limits across
+  multiple cycles; held handle stays fixed to 1e-6 m; energy ledger holds.
+- `field.interface.acoustics.ring_frequency`/`atmosphere.speed_of_sound`
+  (both PRE-EXISTING, cited, first-principles — zero new physics needed for
+  the bell's tone or air propagation) + new `radiance/bell_acoustics.py`
+  (pure-stdlib `wave` WAV synthesis, no numpy — a decaying sinusoid at the
+  real ring frequency; inverse-square air propagation) + new
+  `radiance/trajectory.py::record_bell_strike` (bell as a world-welded
+  `Cone`, stone as a `Sphere`, impact resolved by the ENGINE'S OWN pairwise
+  contact solver — not scripted — merely detected and reported).
+- Both wired as real Materia verbs (`actuate_hand_tool`, `strike_bell`) —
+  `scenarios.py` (physics-only, Deckard-style grounding at simulate time,
+  mirroring `drop_object`'s own pattern) + `manifest.py` + `translator.py`
+  step-0-style deterministic routing (checked before `drop_object`'s own
+  step 0, so "pliers"/"bell" never misread as a fall) + `front_door.py`
+  new `kind` dispatch branches — and a real, previously-unexamined
+  `front_door.py` gate bug found and fixed: `is_sim`'s object-context check
+  only recognized `drop_object`/`contact_conduction` as "the verb itself IS
+  the object" — "pliers" isn't in the generic falling-object noun list, so
+  the unforced auto-classify path would have silently dropped the pliers
+  request to the Q&A switchboard. Fixed by extending the same exception to
+  both new verbs.
+
+**A real bug found and fixed mid-build, not just flagged:** a small/stiff
+bell's `ring_frequency` can exceed 22050 Hz's default 11025 Hz Nyquist
+(measured: a 150 mm iron bell rings at ~12.6 kHz) — undersampling would
+have ALIASED the WAV to the wrong audible pitch, a real correctness bug,
+not a quality tradeoff. Fixed by sizing the sample rate to the actual tone
+with margin; regression-gated (`test_bell_strike.py::
+test_audio_artifact_is_a_valid_wav_above_the_nyquist_safe_margin`).
+
+**Verification — the actual capability, not a proxy:**
+`front_door.dispatch()` called directly with the Captain's TWO PROMPTS,
+character-for-character unmodified, in THREE modes each (forced `mode=
+"render"`, unforced auto-classify + offer, and the two-step "yes"
+conversational confirm) — all six calls produced a real saved,
+viewer-playable scene bundle; the bell prompt additionally produced a
+valid WAV and a text report of strike time/frequency/arrival time. 43 new
+tests across 7 new test files, all green; two new `KNOWN_GAPS.md` entries
+(hand-tool dims uncited, bell acoustics single-mode/uncited-decay) — same
+honesty discipline as the gear-module-size gap.
+
+**Follow-up correction (same day) — Captain, verbatim intent:** "notice
+that the prompts are relying on Mentat to fill in a lot of details, and
+artificial forces" + "I don't even know if our simulations are considering
+sound already." Two real findings from the audit this prompted, both
+fixed, not just noted:
+- **A genuine Choice-doctrine gap**: `record_bell_strike`'s bell material/
+  diameter, stone mass/material, and observer distance — every one of
+  which the Captain's own prompt leaves unspecified — were plain Python
+  defaults, never wrapped in a `Choice`. Fixed with one `scenario_choice`
+  covering all five, same incident class as the clock-dial aluminum
+  finding (`feedback_choice_doctrine.md`).
+- **Unused existing physics**: `field.interface.impact.py` already has a
+  real Johnson-Thornton/Hertz impact-sound model (`impact_energy_
+  partition`, `impact_sound_frequency`, `hertz_contact_duration` — the
+  SAME machinery `record_fall`'s own bounce restitution already
+  consumes) that NO recorder, including the first cut of this bell demo,
+  had ever used for its stated purpose. Fixed: the WAV's loudness now
+  scales from the real `E_dissipated_J` (Johnson-Thornton energy
+  conservation), not raw kinetic energy, and the Hertzian impact "click"
+  frequency/contact duration are now reported as their own real numbers
+  distinct from the sustained `ring_frequency`. KNOWN_GAPS.md's bell entry
+  revised in place to record both the fix and what's still honestly
+  unmodeled (decay-time/loudness-scale calibration, self-contact-only
+  material model, single-mode synthesis).
+- **A real architecture-layering bug**, caught by the FULL suite's own
+  `test_layering.py`, not anticipated: `deckard/hand_tools.py`'s density
+  fallback imported `materia.engine` — tier 2 importing tier 3, violating
+  the same rule "Materia never imports Radiance" protects on the other
+  side of the stack. Fixed by mirroring `deckard/voxelize.py`'s own
+  `_default_density` (tier-1-only, `field.interface.resolve.
+  material_profile`), the established precedent for exactly this need.
+
+### Why
+Captain's directive, verbatim intent: demonstrate the hinge-arc
+"awesomeness" through Mentat+Deckard's OWN text understanding, not a
+Claude-hand-tailored scene — gaps found must be fixed at the broadest
+applicable layer (the MCP's verb/routing surface) and proven by re-running
+the SAME prompt, not a rephrased one; then, on the Captain's own follow-up
+audit, every Mentat-invented detail must be an exposed Choice and every
+existing relevant physics capability (sound included) must actually be
+used, not left dormant beside a re-invented approximation.
+
+### Next Steps
+- Real-mesh dodoxelization dispatched per material via bulk_coordination()
+  (FCC/HCP metals → dodoxel; amorphous → cubic VoxelField)
+- Energy-honest BearingGearCoupling reaction torque (KNOWN_GAPS entry)
+- Enforce the FCC angle vocabulary as live RevoluteJoint angle limits
+  (currently metadata-only, deliberately deferred — see above)
+- A real per-material bell Q-factor/decay-time table (currently
+  Choice-flagged, KNOWN_GAPS entry)
+- Arc B (generative tree pipeline) — queued, not yet started

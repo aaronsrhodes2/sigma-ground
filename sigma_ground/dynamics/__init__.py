@@ -14,7 +14,7 @@ from .parcel     import PhysicsParcel
 from .scene      import PhysicsScene
 from .stepper    import step, step_to
 from .collision  import resolve_sphere_sphere, resolve_sphere_plane
-from .joints     import WeldJoint, RevoluteJoint, PrismaticJoint
+from .joints     import WeldJoint, RevoluteJoint, PrismaticJoint, GearCouplingJoint
 from . import quat
 from .continuum  import (ContinuumParcel, ContinuumScene,
                          continuum_step, continuum_step_to,
@@ -31,6 +31,7 @@ __all__ = [
     'WeldJoint',
     'RevoluteJoint',
     'PrismaticJoint',
+    'GearCouplingJoint',
     'quat',
     'ContinuumParcel',
     'ContinuumScene',

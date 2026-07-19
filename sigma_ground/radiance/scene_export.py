@@ -74,7 +74,7 @@ def _canonical_substance(label: str) -> str:
 # as the single source of truth.
 SUPPORTED_SHAPE_TYPES = {"Sphere", "HollowSphere", "Cylinder", "Cone", "Box",
                          "Ellipsoid", "Torus", "Water", "Outline", "Voxel",
-                         "Rotated", "Clipped", "Subtracted"}
+                         "Gear", "Rotated", "Clipped", "Subtracted"}
 
 # Voxel SDF grids are clamped to a narrow band of this many cells and quantized
 # to signed int8 (R8_SNORM in the viewer): band/127 ≈ 0.05·voxel sub-cell
@@ -126,6 +126,21 @@ def _shape_to_dict(shape) -> dict:
         d["rx"], d["ry"], d["rz"] = shape.rx, shape.ry, shape.rz
     elif t == "Torus":
         d["major_radius"], d["minor_radius"] = shape.major_radius, shape.minor_radius
+    elif t == "InvoluteGear":
+        # Serialize the RAW constructor params, not the derived radii/angles —
+        # the viewer (glslLeafCall/_gearParams) re-derives r_b/r_a/r_f/beta/
+        # theta_rb itself, exactly mirroring kernel/gear.py's __init__ math, so
+        # there is one derivation, not two copies that could drift apart.
+        d["type"] = "Gear"
+        d["module"] = shape.module
+        d["teeth"] = shape.teeth
+        d["pressure_angle"] = shape.pressure_angle
+        d["addendum_coeff"] = shape.addendum_coeff
+        d["dedendum_coeff"] = shape.dedendum_coeff
+        d["fillet_coeff"] = shape.fillet_coeff
+        d["face_width"] = shape.face_width
+        if getattr(shape, "source", ""):
+            d["source"] = shape.source
     elif t == "Voxel":
         # A real voxelized solid: ship the signed-distance grid itself, narrow-band
         # int8-quantized + base64, so the WebGL2 viewer can raymarch it as a 3-D
@@ -257,6 +272,17 @@ def _shape_from_dict(d):
         return Ellipsoid(d["rx"], d["ry"], d["rz"], center=c)
     if t == "Torus":
         return Torus(d["major_radius"], d["minor_radius"], center=c)
+    if t == "Gear":
+        from ..kernel.gear import InvoluteGear
+        g = InvoluteGear(d["module"], d["teeth"], d["pressure_angle"],
+                          addendum_coeff=d.get("addendum_coeff", 1.0),
+                          dedendum_coeff=d.get("dedendum_coeff", 1.25),
+                          fillet_coeff=d.get("fillet_coeff", 0.35),
+                          face_width=d.get("face_width", 1.0),
+                          center=c)
+        if d.get("source"):
+            g.source = d["source"]
+        return g
     if t == "Voxel":
         import base64
         import numpy as np

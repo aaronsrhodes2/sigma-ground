@@ -14,7 +14,11 @@ import sys
 sys.path.insert(0, r"D:\Aaron\development\sigma-ground")
 
 from sigma_ground import deckard
-from sigma_ground.radiance import construct_to_scene, record_fall, record_object_fall
+from sigma_ground.radiance import (construct_to_scene, record_fall,
+                                  record_object_fall, record_motor_spin,
+                                  record_gear_train_spin, record_escapement_clock,
+                                  record_gear_mesh_spin, record_clock,
+                                  record_windmill_spinup, record_windmill_theater)
 from sigma_ground.radiance.scene_export import (sdf_samples, _bake_material,
                                                _default_lighting)
 
@@ -380,6 +384,131 @@ def _build_windward():
           f"T in [{f['t_min']:.0f}, {f['t_max']:.0f}] K "
           f"(deposited {out['trajectory']['validation']['windward_deposited_J']:.0f} J)")
 _bundle("windward_iron_ball.json", _build_windward)
+
+# ── 9) MOTOR SPIN — the clock demo's Phase 0: SOLVED rotation, not scripted ──
+def _build_motor_spin():
+    """A bare disc, spun by dynamics/joints.py's torque-capped RevoluteJoint
+    motor — the first trajectory bundle whose `quat` per frame comes from the
+    constraint solver itself rather than a scripted angle (contrast the
+    "chair tip" bundle above, explicitly labeled kinematic). No gear teeth,
+    no blueprint data yet: this proves only the render/dynamics bridge that
+    the clock demo's gear train will run through."""
+    out = record_motor_spin(motor_speed_rad_s=-4.0, motor_max_torque=1.5,
+                            t_max=6.0, frame_dt=0.02, target_watch_s=6.0)
+    _write("motor_spin.json", out)
+    val = out["trajectory"]["validation"]
+    print(f"  motor spin: {len(out['trajectory']['frames'])} frames · "
+          f"motor_work={val['motor_work_j']:.4f} J · "
+          f"energy_ledger_ok={val['energy_ledger_ok']}")
+_bundle("motor_spin.json", _build_motor_spin)
+
+# ── 10) GEAR TRAIN — the clock demo's Phase 1: coupled multi-body rotation ──
+def _build_gear_train():
+    """Three wheels: wheel 0 motor-driven, wheels 1-2 chained through
+    dynamics/joints.py's GearCouplingJoint at fixed ratios — a kinematic
+    rate constraint, not simulated tooth contact. Still placeholder wheels
+    (no real tooth geometry/ratios — those arrive with blueprint
+    extraction); this proves multi-body SOLVED rotation renders correctly."""
+    out = record_gear_train_spin(ratios=(1.8, -1.5), motor_speed_rad_s=-4.0,
+                                 motor_max_torque=1.5, t_max=6.0,
+                                 frame_dt=0.02, target_watch_s=6.0)
+    _write("gear_train.json", out)
+    val = out["trajectory"]["validation"]
+    print(f"  gear train: {len(out['trajectory']['frames'])} frames · "
+          f"{len(out['scene']['bodies'])} wheels · "
+          f"motor_work={val['motor_work_j']:.4f} J · "
+          f"energy_ledger_ok={val['energy_ledger_ok']}")
+_bundle("gear_train.json", _build_gear_train)
+
+# ── 11) ESCAPEMENT CLOCK — the clock demo's Phase 3: spring + escapement ──
+def _build_escapement_clock():
+    """The Phase 3 capstone: dynamics/mechanisms/spring.py's MainspringState
+    driving an escape wheel through dynamics/mechanisms/escapement.py's
+    Escapement, gated by a real pendulum's own half-period — both pieces
+    independently gated against closed forms before being wired together
+    here. Still placeholder shapes and no real gear train yet; proves the
+    highest-risk phase's physics alone, watchably."""
+    out = record_escapement_clock(t_max=14.0, target_watch_s=14.0)
+    _write("escapement_clock.json", out)
+    val = out["trajectory"]["validation"]
+    print(f"  escapement clock: {len(out['trajectory']['frames'])} frames · "
+          f"{val['ticks']} ticks · "
+          f"spring_wound_out={val['spring_wound_out']} · "
+          f"energy_ledger_ok={val['energy_ledger_ok']}")
+_bundle("escapement_clock.json", _build_escapement_clock)
+
+# ── 12) MESHING GEARS — the clock demo's Phase 4: real involute teeth ──
+def _build_gear_mesh():
+    """Two real InvoluteGear shapes (kernel/gear.py, adversarially verified)
+    meshing at the standard center distance, counter-rotating at the exact
+    tooth ratio via GearCouplingJoint. Module is [estimated] — the Kelly
+    catalog source cites tooth counts but no module (flagged gap)."""
+    out = record_gear_mesh_spin(t_max=12.0, target_watch_s=12.0)
+    _write("gear_mesh.json", out)
+    val = out["trajectory"]["validation"]
+    print(f"  gear mesh: {len(out['trajectory']['frames'])} frames · "
+          f"ratio={val['ratio_commanded']:.3f} · "
+          f"center_distance={val['center_distance_m'] * 1000:.1f}mm · "
+          f"energy_ledger_ok={val['energy_ledger_ok']}")
+_bundle("gear_mesh.json", _build_gear_mesh)
+
+# ── 13) THE CLOCK — Phase 5: the full assembly, keeping real time ──
+def _build_clock():
+    """Kelly (1944) cited going train + spring + pendulum-gated escapement +
+    real involute teeth + hands. The minute hand turns 2pi per 3600
+    simulated seconds, DERIVED from the cited ratios (observed 0.07%
+    accuracy in the gates), not tuned."""
+    out = record_clock(t_max=60.0, target_watch_s=20.0)
+    _write("clock.json", out)
+    val = out["trajectory"]["validation"]
+    print(f"  clock: {len(out['trajectory']['frames'])} frames · "
+          f"{val['ticks']} ticks · pendulum L={val['pendulum_length_m']:.4f} m · "
+          f"energy_ledger_ok={val['energy_ledger_ok']}")
+_bundle("clock.json", _build_clock)
+
+# ── 14) WINDMILL — the first fully NATURAL drive (nothing plugged) ──
+def _build_windmill(wind_speed, slug):
+    """Wind on pitched blades spins the rotor to its emergent terminal tip
+    speed — flat-plate model (flagged), RigidBearing mount (KNOWN_GAPS.md).
+    Two wind speeds recorded: 'adjustable wind' as a parameter sweep of
+    frozen runs, per the renderer-plays-frozen-output doctrine."""
+    out = record_windmill_spinup(wind_speed_m_s=wind_speed, t_max=40.0,
+                                 target_watch_s=15.0)
+    _write(slug, out)
+    val = out["trajectory"]["validation"]
+    print(f"  windmill {wind_speed:g} m/s: {len(out['trajectory']['frames'])} "
+          f"frames · omega(end)={val['final_omega_rad_s']:.2f} of "
+          f"omega*={val['terminal_omega_expected_rad_s']:.2f} rad/s · "
+          f"plugs={out['scene']['plugs']}")
+_bundle("windmill_10ms.json", lambda: _build_windmill(10.0, "windmill_10ms.json"))
+_bundle("windmill_5ms.json", lambda: _build_windmill(5.0, "windmill_5ms.json"))
+
+# ── 15) WINDMILL THEATER — Arc A capstone: gearset + slider-crank + pump ──
+def _build_windmill_theater(wind_speed, slug):
+    """The vision statement's second worked example, finished: wind spins a
+    rotor -> BearingGearCoupling (load-blind, KNOWN_GAPS.md) -> real 2-stage
+    InvoluteGear spur train -> a slider-crank (gated against the closed
+    form s(theta)=r*cos(theta)+sqrt(l^2-r^2*sin(theta)^2)) -> a
+    ReciprocatingPumpState (SIMPLIFIED_MODEL) filling a cosmetic reservoir.
+    Two wind speeds recorded as a frozen parameter sweep, same doctrine as
+    the plain windmill demo."""
+    out = record_windmill_theater(wind_speed_m_s=wind_speed, t_max=40.0,
+                                  target_watch_s=15.0)
+    _write(slug, out)
+    val = out["trajectory"]["validation"]
+    print(f"  windmill theater {wind_speed:g} m/s: "
+          f"{len(out['trajectory']['frames'])} frames · "
+          f"omega(end)={val['final_omega_rad_s']:.2f} of "
+          f"omega*={val['terminal_omega_expected_rad_s']:.2f} rad/s · "
+          f"pump_strokes={val['pump_strokes']} · "
+          f"pump_volume_m3={val['pump_volume_m3']:.6f} of "
+          f"tank_capacity_m3={val['tank_capacity_m3']:.6f} · "
+          f"plugs={len(out['scene']['plugs'])} · "
+          f"choices={len(out['scene']['choices'])}")
+_bundle("windmill_theater_10ms.json",
+       lambda: _build_windmill_theater(10.0, "windmill_theater_10ms.json"))
+_bundle("windmill_theater_5ms.json",
+       lambda: _build_windmill_theater(5.0, "windmill_theater_5ms.json"))
 
 if _FAILED:
     print(f"\n!! {len(_FAILED)} bundle(s) skipped: " + ", ".join(n for n, _ in _FAILED)

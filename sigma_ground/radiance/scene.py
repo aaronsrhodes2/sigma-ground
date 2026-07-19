@@ -17,7 +17,8 @@ class RadianceScene:
     def __init__(self, sdf, material_at, light_dir: Vec3 = None,
                  light_color: Vec3 = None, ambient: float = 0.12,
                  background: Vec3 = None, max_dist: float = 50.0,
-                 albedo=None, temperature_at=None, emissivity_of=None):
+                 albedo=None, temperature_at=None, emissivity_of=None,
+                 ao_rays: int = 0, ao_reach: float = None):
         self.sdf = sdf
         self.material_at = material_at
         # Optional label→Vec3 albedo (e.g. BAKED emergent colors from a
@@ -35,6 +36,11 @@ class RadianceScene:
         self.ambient = float(ambient)
         self.background = background if background is not None else Vec3(0, 0, 0)
         self.max_dist = float(max_dist)
+        # Opt-in secondary-ray ambient occlusion (shade.ambient_occlusion):
+        # 0 rays = off (default, output identical to pre-AO renders).
+        # ao_reach None -> shade() defaults it to 0.1 * max_dist.
+        self.ao_rays = int(ao_rays)
+        self.ao_reach = float(ao_reach) if ao_reach is not None else None
 
     @classmethod
     def from_shape(cls, shape, material_key: str, **kw):

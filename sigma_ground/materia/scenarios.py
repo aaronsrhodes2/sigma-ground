@@ -2974,6 +2974,118 @@ def drop_object(object_name: str | None = None,
                  "can_render": True, "render_handle": render_handle})
 
 
+def actuate_hand_tool(tool_name: str | None = None,
+                      n_cycles: float = 3.0) -> MateriaResult:
+    """Discover a two-jaw hand tool's pivot from real geometry and report its
+    open/close cycle. Materia stays pure physics here -- the render (dodoxel
+    field build -> RevoluteJoint -> actuator) is deferred to
+    radiance.record_hand_tool_actuation on render confirmation; this verb
+    only GROUNDS the object and its discovered joint (mirrors drop_object's
+    own Deckard-grounding-at-simulate-time pattern)."""
+    if not tool_name or not str(tool_name).strip():
+        return MateriaResult(
+            "actuate_hand_tool", {"tool_name": tool_name}, [],
+            summary="No tool named — say which two-jaw tool to actuate "
+                    "(pliers, tongs, scissors, tweezers, nutcracker, ...).",
+            validation={"passed": False,
+                       "note": "no tool named — refusing rather than "
+                               "defaulting to a stand-in tool"},
+            outputs={})
+    from ..deckard.hand_tools import build_hand_tool_field
+    try:
+        field, joint_info, meta = build_hand_tool_field(tool_name)
+    except ValueError as e:
+        return MateriaResult(
+            "actuate_hand_tool", {"tool_name": tool_name}, [],
+            summary=f"Couldn't ground {tool_name!r} as a two-jaw tool: {e}",
+            validation={"passed": False, "note": str(e)},
+            outputs={})
+    total_mass = sum(p["mass_kg"] for p in field.parts)
+    steps = [
+        MateriaStep("Tool", meta["tool"], "", "small procedural mechanism "
+                    "catalog (no blueprint on file for a real product)",
+                    "deckard.hand_tools"),
+        MateriaStep("Pivot type (discovered)", joint_info["type"], "",
+                    "infer_dodoxel_joints from real contact geometry, not "
+                    "declared", "deckard.dodoxel_articulate"),
+        MateriaStep("Pivot axis", str(joint_info["axis"]), "",
+                    f"lattice-snapped, {joint_info['axis_family']} family, "
+                    f"{joint_info['snap_error_deg']:.3g}° snap error",
+                    "deckard.dodoxel_articulate"),
+        MateriaStep("Total mass", total_mass, "kg", "sum of both lever "
+                    "parts' dodoxel-integrated mass", "deckard.dodoxelize"),
+    ]
+    summary = (f"A {meta['tool']} (m={total_mass:.4g} kg) has a real "
+              f"DISCOVERED {joint_info['type']} pivot (axis snap error "
+              f"{joint_info['snap_error_deg']:.2g}°); it can open and close "
+              f"about it.")
+    render_handle = {"kind": "hand_tool_actuation", "tool": meta["tool"],
+                     "n_cycles": n_cycles}
+    return MateriaResult(
+        "actuate_hand_tool", {"tool_name": tool_name, "n_cycles": n_cycles},
+        steps, summary=summary,
+        validation={"passed": joint_info["type"] == "revolute",
+                   "note": "pivot geometry discovered from contact "
+                           "geometry, not declared"},
+        outputs={"pivot_type": joint_info["type"], "total_mass_kg": total_mass,
+                 "can_render": True, "render_handle": render_handle})
+
+
+def strike_bell(bell_material: str = "iron", bell_diameter_m: float = 0.15,
+                stone_mass_kg: float = 0.2,
+                observer_distance_m: float = 50.0) -> MateriaResult:
+    """A hanging bell struck by a thrown stone: ground the collision energy
+    and the bell's real ring frequency (field.interface.acoustics.
+    ring_frequency -- exact same first-principles formula the acoustics()
+    verb already cites for bells), and the propagated arrival time/loudness
+    in earth atmosphere. Materia computes the numbers; the render (impact
+    physics -> audible WAV) is deferred to radiance.record_bell_strike."""
+    from ..field.interface.acoustics import ring_frequency
+    from ..field.interface.atmosphere import speed_of_sound
+    from ..field.interface.surface import MATERIALS
+    if bell_material not in MATERIALS:
+        return MateriaResult(
+            "strike_bell", {"bell_material": bell_material}, [],
+            summary=f"Unknown bell material {bell_material!r}.",
+            validation={"passed": False, "note": "material not in "
+                       "field.interface.surface.MATERIALS"},
+            outputs={})
+    f_ring = ring_frequency(bell_material, bell_diameter_m)
+    v_sound = speed_of_sound(288.15)
+    t_arrival = observer_distance_m / v_sound
+    steps = [
+        MateriaStep("Bell material", bell_material, "", "(input)",
+                    "field.interface.surface.MATERIALS"),
+        MateriaStep("Ring frequency", f_ring, "Hz", "f_ring = v_L / (pi*d)",
+                    "field.interface.acoustics.ring_frequency"),
+        MateriaStep("Speed of sound in air", v_sound, "m/s",
+                    "Newton-Laplace: v = sqrt(gamma*R*T/M)",
+                    "field.interface.atmosphere.speed_of_sound"),
+        MateriaStep("Arrival time at observer", t_arrival, "s",
+                    f"distance/v_sound at {observer_distance_m:g} m",
+                    "materia.scenarios.strike_bell"),
+    ]
+    summary = (f"A {bell_diameter_m:g} m {bell_material} bell struck by a "
+              f"{stone_mass_kg:g} kg stone rings at ≈{f_ring:.0f} Hz; the "
+              f"sound reaches an observer {observer_distance_m:g} m away "
+              f"after {t_arrival:.3g} s.")
+    render_handle = {"kind": "bell_strike", "bell_material": bell_material,
+                     "bell_diameter_m": bell_diameter_m,
+                     "stone_mass_kg": stone_mass_kg,
+                     "observer_distance_m": observer_distance_m}
+    return MateriaResult(
+        "strike_bell", {"bell_material": bell_material,
+                        "bell_diameter_m": bell_diameter_m,
+                        "stone_mass_kg": stone_mass_kg,
+                        "observer_distance_m": observer_distance_m},
+        steps, summary=summary,
+        validation={"passed": f_ring > 0, "note": "ring frequency from the "
+                   "same first-principles formula the acoustics() verb "
+                   "already cites for bells"},
+        outputs={"ring_frequency_hz": f_ring, "arrival_time_s": t_arrival,
+                 "can_render": True, "render_handle": render_handle})
+
+
 def planetary_surface(body: str = "earth") -> MateriaResult:
     """Surface conditions of a solar-system body: surface gravity, escape
     velocity, mass and radius — "how strong is gravity on Mars", "escape
@@ -3038,6 +3150,8 @@ SCENARIOS = {
     "planetary_surface": planetary_surface,
     "mass_energy": mass_energy,
     "drop_object": drop_object,
+    "actuate_hand_tool": actuate_hand_tool,
+    "strike_bell": strike_bell,
     "terminal_velocity_drop": terminal_velocity_drop,
     "drag_heating_drop": drag_heating_drop,
     "contact_conduction": contact_conduction,

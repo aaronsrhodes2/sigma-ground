@@ -3582,5 +3582,68 @@
     "modern_classifier_hit": "de_broglie_wavelength",
     "grounded": true,
     "groundedness_reason": "deterministic dispatch (de_broglie_wavelength)"
+  },
+  {
+    "id": "qm_012",
+    "system": "sigma_ground",
+    "model": "qwen3:8b",
+    "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<timed out after 180s>",
+    "extracted_value": null,
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 180.0,
+    "grounded": false,
+    "groundedness_reason": "no value produced (error/empty)"
+  },
+  {
+    "id": "mech_adv_001",
+    "system": "sigma_ground",
+    "model": "qwen3:8b",
+    "answer_text": "ANSWER: 13058.356319031269 m/s\n\nComputed via new_tools_classifier: orbital_velocity (jupiter heliocentric orbit at 5.2038 AU)",
+    "extracted_value": 13058.356319031269,
+    "extracted_units": "m/s",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.0002307891845703125,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "new_tools_router_hit": "orbital_velocity",
+    "grounded": true,
+    "groundedness_reason": "deterministic dispatch (orbital_velocity)"
+  },
+  {
+    "id": "mech_adv_002",
+    "system": "sigma_ground",
+    "model": "qwen3:8b",
+    "answer_text": "ANSWER: 163960165.95268384 s\n\nComputed via new_tools_classifier: orbital_period (Kepler III at 3 AU)",
+    "extracted_value": 163960165.95268384,
+    "extracted_units": "s",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.00021910667419433594,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "new_tools_router_hit": "orbital_period",
+    "grounded": true,
+    "groundedness_reason": "deterministic dispatch (orbital_period)"
+  },
+  {
+    "id": "mech_adv_003",
+    "system": "sigma_ground",
+    "model": "qwen3:8b",
+    "answer_text": "ANSWER: 6.178e+05 m/s\n\n[semantic interpreter -> escape_velocity_classical (similarity 0.75)]\nWork: v_esc = sqrt(2 G M / r)\nSource: sigma-ground (classical escape velocity)",
+    "extracted_value": 617753.9278432947,
+    "extracted_units": "m/s",
+    "tool_calls": [
+      "escape_velocity_classical"
+    ],
+    "turns": 0,
+    "elapsed_s": 2.1946399211883545,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "semantic_router_hit": "escape_velocity_classical",
+    "grounded": true,
+    "groundedness_reason": "deterministic dispatch (escape_velocity_classical)"
   }
 ]

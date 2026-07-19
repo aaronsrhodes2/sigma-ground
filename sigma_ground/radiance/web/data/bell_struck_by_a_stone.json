@@ -1,0 +1,8891 @@
+{
+ "scene": {
+  "name": "iron bell struck by a granite stone",
+  "bodies": [
+   {
+    "pivot": [
+     0,
+     0,
+     0
+    ],
+    "label": "bell (hung)"
+   },
+   {
+    "pivot": [
+     0,
+     0,
+     0
+    ],
+    "label": "stone"
+   }
+  ],
+  "csg_leaves": [
+   {
+    "op": "add",
+    "material": "iron",
+    "body": 0,
+    "shape": {
+     "type": "Cone",
+     "center": [
+      0,
+      0,
+      0
+     ],
+     "radius": 0.075,
+     "height": 0.1275
+    }
+   },
+   {
+    "op": "add",
+    "material": "granite",
+    "body": 1,
+    "shape": {
+     "type": "Sphere",
+     "center": [
+      0,
+      0,
+      0
+     ],
+     "radius": 0.026053088059892406
+    }
+   }
+  ],
+  "materials": {
+   "iron": {
+    "color_rgb": [
+     0.5436,
+     0.5544,
+     0.5671
+    ],
+    "emergent": true,
+    "metal": true,
+    "mechanism": "Drude-Fresnel (free electrons)",
+    "density_kg_m3": 7874.0,
+    "density_derived_kg_m3": 7891.9,
+    "density_pct_vs_supplied": 0.23,
+    "density_method": "crystallographic (bcc cell, a=2.867 A, A=56)",
+    "youngs_modulus_gpa": 212.2,
+    "sound_speed_m_s": 5942.0,
+    "restitution_ref": 0.19,
+    "ring_frequency_hz": 13072.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "emissivity_rgb": [
+     0.456,
+     0.446,
+     0.433
+    ]
+   },
+   "granite": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "density_kg_m3": 2700.0,
+    "density_derived_kg_m3": 2700,
+    "density_pct_vs_supplied": 0.0,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 93.3,
+    "sound_speed_m_s": 6438.0,
+    "restitution_ref": 0.22,
+    "ring_frequency_hz": 9322.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+   }
+  },
+  "physics": {
+   "mass_kg": 6.113665288778129,
+   "com_m": [
+    0,
+    0,
+    0
+   ],
+   "inertia_kgm2": [
+    0,
+    0,
+    0
+   ]
+  },
+  "bbox": [
+   [
+    -0.3,
+    0.3
+   ],
+   [
+    -1.0,
+    0.33
+   ],
+   [
+    -0.3,
+    0.3
+   ]
+  ],
+  "camera": {
+   "target": [
+    0.0,
+    0.159375,
+    0.0
+   ],
+   "orbit_radius": 0.44999999999999996,
+   "fov_deg": 45.0,
+   "up": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "az0": 0.6,
+   "el0": 0.3
+  },
+  "identified": true,
+  "plugs": [
+   {
+    "kind": "support",
+    "description": "iron bell hung from a fixed point, without the chain/rope modeled",
+    "adjustable": false,
+    "variables": {}
+   }
+  ],
+  "choices": [
+   {
+    "description": "bell material/size, stone mass/material, and observer distance",
+    "value": {
+     "bell_material": "iron",
+     "bell_diameter_m": 0.15,
+     "stone_mass_kg": 0.2,
+     "stone_material": "granite",
+     "observer_distance_m": 50.0
+    },
+    "reason": "the request named neither a bell size/material, a stone mass, nor an observer distance, so these are this function's own defaults, not measured/cited values",
+    "checked": "materia/translator.py strike_bell routing (no slot extraction yet for tool/stone size or observer distance from free text)",
+    "alternatives": [],
+    "adjustable": true
+   },
+   {
+    "description": "bell height-to-diameter proportion",
+    "value": 0.85,
+    "reason": "a typical bell silhouette is somewhat taller than its rim radius; picked for a legible shape, not measured",
+    "checked": "no cited casting on file for a specific bell",
+    "alternatives": [],
+    "adjustable": true
+   },
+   {
+    "description": "stone start offset from the bell rim and drop height",
+    "value": {
+     "rim_frac": 0.7,
+     "drop_height_over_stone_r": 4.0
+    },
+    "reason": "a short drop near the rim gives a real nonzero impact velocity without a long empty-fall simulation window",
+    "checked": "no cited throw trajectory for this demo",
+    "alternatives": [],
+    "adjustable": true
+   },
+   {
+    "description": "bell ring decay time constant",
+    "value": 2.5,
+    "reason": "a several-second ring-down is typical for a struck metal bell; not measured from field.interface data (SIMPLIFIED_MODEL -- real decay is material- and mode-dependent)",
+    "checked": "no material Q-factor table on file for bell decay",
+    "alternatives": [],
+    "adjustable": true
+   },
+   {
+    "description": "bell strike amplitude vs. reference DISSIPATED impact energy (impact_energy_partition's E_dissipated_J, not raw kinetic energy)",
+    "value": {
+     "reference_dissipated_energy_j": 0.1,
+     "min_amplitude": 0.05
+    },
+    "reason": "amplitude scales monotonically with the real dissipated energy but the absolute loudness scale itself is not measured (SIMPLIFIED_MODEL)",
+    "checked": "field.interface.impact.impact_energy_partition (real Johnson-Thornton energy conservation) for the ENERGY input; no cited energy-to-SPL/radiation-efficiency curve on file for the SCALE",
+    "alternatives": [],
+    "adjustable": true
+   }
+  ],
+  "source": "bell ring frequency from field.interface.acoustics.ring_frequency (f=v_L/(pi*d), the same formula the acoustics() Materia verb cites for bells); impact energy partition and click frequency from field.interface.impact (Johnson-Thornton/Hertz contact mechanics, the SAME model record_fall's bounce restitution already uses) -- not invented from raw kinetic energy; stone impact resolved by the engine's own pairwise contact solver (dynamics/collision.py), not scripted. PLUGGED SUPPORT: iron bell hung from a fixed point, without the chain/rope modeled. CHOSEN: bell material/size, stone mass/material, and observer distance = {'bell_material': 'iron', 'bell_diameter_m': 0.15, 'stone_mass_kg': 0.2, 'stone_material': 'granite', 'observer_distance_m': 50.0} (checked: materia/translator.py strike_bell routing (no slot extraction yet for tool/stone size or observer distance from free text); the request named neither a bell size/material, a stone mass, nor an observer distance, so these are this function's own defaults, not measured/cited values). CHOSEN: bell height-to-diameter proportion = 0.85 (checked: no cited casting on file for a specific bell; a typical bell silhouette is somewhat taller than its rim radius; picked for a legible shape, not measured). CHOSEN: stone start offset from the bell rim and drop height = {'rim_frac': 0.7, 'drop_height_over_stone_r': 4.0} (checked: no cited throw trajectory for this demo; a short drop near the rim gives a real nonzero impact velocity without a long empty-fall simulation window). CHOSEN: bell ring decay time constant = 2.5 (checked: no material Q-factor table on file for bell decay; a several-second ring-down is typical for a struck metal bell; not measured from field.interface data (SIMPLIFIED_MODEL -- real decay is material- and mode-dependent)). CHOSEN: bell strike amplitude vs. reference DISSIPATED impact energy (impact_energy_partition's E_dissipated_J, not raw kinetic energy) = {'reference_dissipated_energy_j': 0.1, 'min_amplitude': 0.05} (checked: field.interface.impact.impact_energy_partition (real Johnson-Thornton energy conservation) for the ENERGY input; no cited energy-to-SPL/radiation-efficiency curve on file for the SCALE; amplitude scales monotonically with the real dissipated energy but the absolute loudness scale itself is not measured (SIMPLIFIED_MODEL)). SIMPLIFIED_MODEL: single sustained vibrational mode synthesized (the impact click is reported as a number, not a second audio layer), sphere-approximated bell collision envelope, inverse-square-only atmospheric propagation."
+ },
+ "trajectory": {
+  "frames": [
+   {
+    "t_sim": 0.0,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.385265440299462,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0021,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.38524415850692734,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0042,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.38518031312932316,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0062,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.38507390416664955,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0083,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3849249316189065,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0104,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.384733395486094,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0125,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.38449929576821207,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0146,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.38422263246526067,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0167,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.38390340557723984,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0187,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3835416151041496,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0208,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.38313726104598983,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0229,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3826903434027607,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.025,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3822008621744621,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.026,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.38194016021591176,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0281,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.38138683361000897,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0302,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.38079094341903674,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0323,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3801524896429951,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0344,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.37947147228188394,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0365,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3787478913357034,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0385,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3779817468044534,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0406,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.37717303868813395,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0427,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3763217669867451,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0448,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3754279317002867,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0469,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.37449153282875897,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.049,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.37351257037216173,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.05,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3730071277994621,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0521,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3719643199652607,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0542,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.37087894854598985,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0563,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3697510135416496,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0583,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.36858051495223987,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0604,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.36736745277776073,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0625,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3661118270182121,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0646,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.36481363767359404,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0667,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.36347288474390654,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0688,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.36208956822914956,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0708,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3606636881293232,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0729,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.35919524444442735,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.075,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.35768423717446207,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.076,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3569127721950784,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0781,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.35533791954750893,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0802,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.35372050331487004,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0823,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3520605234971617,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0844,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.35035798009438396,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0865,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3486128731065367,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0885,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.34682520253362004,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0906,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3449949683756339,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0927,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3431221706325783,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0948,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.34120680930445335,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.0969,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3392488843912589,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.099,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.337248395892995,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.101,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.33520534380966166,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1021,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3341678564235939,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1042,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3320609589626564,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1062,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3299114979166495,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1083,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3277194732855731,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1104,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.32548488506942724,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1125,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.32320773326821195,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1146,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3208880178819272,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1167,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.31852573891057306,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1187,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.31612089635414947,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1208,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3136734902126564,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1229,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3111835204860939,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.125,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.30865098717446193,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.126,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.30736875917424494,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1281,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.3047723804850088,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1302,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.30213343821070326,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1323,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.2994519323513283,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1344,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.2967278629068838,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1365,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.29396122987736995,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1385,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.2911520332627866,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1406,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.2883002730631338,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1427,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.2854059492784116,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1448,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.2824690619086199,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1469,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.27948961095375885,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.149,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.2764675964138283,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.151,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.2734030182888283,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1521,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.27185476788192725,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1542,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0525,
+       0.2687263443793231,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1562,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.054337152259139786,
+       0.2693819300414866,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1583,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.05617430451827957,
+       0.2699949521185806,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1604,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.05801145677741936,
+       0.2705654106106052,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1625,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.05984860903655915,
+       0.27109330551756033,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1646,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.061685761295698936,
+       0.271578636839446,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1667,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.06352291355483873,
+       0.2720214045762623,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1687,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.06536006581397853,
+       0.2724216087280091,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1708,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.06719721807311833,
+       0.27277924929468644,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1729,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.06903437033225814,
+       0.2730943262762944,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.175,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.07087152259139794,
+       0.2733668396728328,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.176,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.07179009872096784,
+       0.273487135026701,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1781,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.07362725098010764,
+       0.27369580304563534,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1802,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.07546440323924744,
+       0.27386190747950023,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1823,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.07730155549838724,
+       0.27398544832829563,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1844,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.07913870775752704,
+       0.2740664255920216,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1865,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.08097586001666685,
+       0.27410483927067814,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1885,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.08281301227580665,
+       0.27410068936426524,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1906,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.08465016453494645,
+       0.2740539758727829,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1927,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.08648731679408625,
+       0.2739646987962311,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1948,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.08832446905322605,
+       0.27383285813460984,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.1969,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.09016162131236585,
+       0.27365845388791915,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.199,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.09199877357150565,
+       0.27344148605615903,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.201,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.09383592583064546,
+       0.2731819546393295,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2021,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.09475450196021536,
+       0.27303622758651364,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2042,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.09659165421935516,
+       0.2727128507920799,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2062,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.09842880647849496,
+       0.2723469104125767,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2083,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.10026595873763476,
+       0.27193840644800404,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2104,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.10210311099677456,
+       0.27148733889836196,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2125,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.10394026325591436,
+       0.27099370776365045,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2146,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.10577741551505417,
+       0.2704575130438695,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2167,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.10761456777419397,
+       0.26987875473901907,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2187,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.10945172003333377,
+       0.2692574328490992,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2208,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.11128887229247357,
+       0.2685935473741099,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2229,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.11312602455161337,
+       0.26788709831405116,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.225,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.11496317681075317,
+       0.267138085668923,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.226,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.11588175294032307,
+       0.26674761800195784,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2281,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.11771890519946288,
+       0.2659347599792255,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2302,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.11955605745860268,
+       0.26507933837142367,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2323,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.12139320971774248,
+       0.26418135317855246,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2344,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.12323036197688228,
+       0.26324080440061176,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2365,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.12506751423602208,
+       0.26225769203760163,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2385,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.12690466649516186,
+       0.26123201608952207,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2406,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.12874181875430163,
+       0.260163776556373,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2427,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.1305789710134414,
+       0.2590529734381546,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2448,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.13241612327258118,
+       0.25789960673486667,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2469,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.13425327553172095,
+       0.2567036764465093,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.249,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.13609042779086072,
+       0.25546518257308254,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.251,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.1379275800500005,
+       0.25418412511458627,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2521,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.13884615617957038,
+       0.2535276350409371,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2542,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.14068330843871016,
+       0.25218273220483667,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2562,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.14252046069784993,
+       0.25079526578366684,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2583,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.1443576129569897,
+       0.24936523577742753,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2604,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.14619476521612948,
+       0.24789264218611878,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2625,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.14803191747526925,
+       0.24637748500974058,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2646,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.14986906973440903,
+       0.24481976424829294,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2667,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.1517062219935488,
+       0.24321947990177586,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2687,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.15354337425268857,
+       0.24157663197018933,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2708,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.15538052651182835,
+       0.23989122045353337,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2729,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.15721767877096812,
+       0.23816324535180794,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.275,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.1590548310301079,
+       0.23639270666501308,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.276,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.15997340715967778,
+       0.23549147597721462,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2781,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.16181055941881756,
+       0.23365709191281558,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2802,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.16364771167795733,
+       0.23178014426334712,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2823,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.1654848639370971,
+       0.2298606330288092,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2844,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.16732201619623688,
+       0.22789855820920185,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2865,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.16915916845537665,
+       0.22589391980452503,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2885,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.17099632071451643,
+       0.22384671781477877,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2906,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.1728334729736562,
+       0.22175695223996308,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2927,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.17467062523279597,
+       0.21962462308007794,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2948,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.17650777749193575,
+       0.21744973033512335,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.2969,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.17834492975107552,
+       0.2152322740050993,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.299,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.1801820820102153,
+       0.21297225409000584,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.301,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.18201923426935507,
+       0.21066967058984293,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3021,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.18293781039892495,
+       0.20950241749536042,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3042,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.18477496265806473,
+       0.20713598861759333,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3062,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.1866121149172045,
+       0.2047269961547568,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3083,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.18844926717634428,
+       0.20227544010685083,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3104,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.19028641943548405,
+       0.19978132047387542,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3125,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.19212357169462382,
+       0.19724463725583055,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3146,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.1939607239537636,
+       0.19466539045271625,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3167,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.19579787621290337,
+       0.1920435800645325,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3187,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.19763502847204314,
+       0.1893792060912793,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3208,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.19947218073118292,
+       0.18667226853295668,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3229,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2013093329903227,
+       0.1839227673895646,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.325,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.20314648524946247,
+       0.18113070266110307,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.326,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.20406506137903235,
+       0.17971870895247127,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3281,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.20590221363817213,
+       0.17686279884640557,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3302,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2077393658973119,
+       0.17396432515527044,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3323,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.20957651815645167,
+       0.17102328787906587,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3344,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.21141367041559145,
+       0.16803968701779184,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3365,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.21325082267473122,
+       0.16501352257144838,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3385,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.215087974933871,
+       0.16194479454003546,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3406,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.21692512719301077,
+       0.1588335029235531,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3427,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.21876227945215054,
+       0.15567964772200132,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3448,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.22059943171129032,
+       0.15248322893538008,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3469,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2224365839704301,
+       0.1492442465636894,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.349,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.22427373622956986,
+       0.14596270060692926,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.351,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.22611088848870964,
+       0.14263859106509968,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3521,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.22702946461827953,
+       0.14096057494978387,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3542,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2288666168774193,
+       0.13757262003035012,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3562,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.23070376913655907,
+       0.13414210152584694,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3583,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.23254092139569885,
+       0.13066901943627432,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3604,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.23437807365483862,
+       0.12715337376163224,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3625,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2362152259139784,
+       0.12359516450192072,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3646,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.23805237817311817,
+       0.11999439165713977,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3667,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.23988953043225794,
+       0.11635105522728938,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3687,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.24172668269139772,
+       0.11266515521236953,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3708,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2435638349505375,
+       0.10893669161238025,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3729,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.24540098720967726,
+       0.10516566442732152,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.375,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.24723813946881704,
+       0.10135207365719334,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.376,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.24815671559838692,
+       0.09942931692772822,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3781,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2499938678575267,
+       0.09555188077999588,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3802,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2518310201166665,
+       0.0916318810471941,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3823,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.25366817237580636,
+       0.08766931772932288,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3844,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2555053246349462,
+       0.0836641908263822,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3865,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.257342476894086,
+       0.07961650033837209,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3885,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.25917962915322584,
+       0.07552624626529253,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3906,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2610167814123657,
+       0.07139342860714352,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3927,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2628539336715055,
+       0.06721804736392509,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3948,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.26469108593064533,
+       0.06300010253563719,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.3969,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.26652823818978516,
+       0.05873959412227985,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.399,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.268365390448925,
+       0.054436522123853075,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.401,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2702025427080648,
+       0.05009088654035685,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4021,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.27112111883763473,
+       0.047902107404207694,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4042,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.27295827109677456,
+       0.04349262644310731,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4062,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2747954233559144,
+       0.039040581896937473,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4083,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2766325756150542,
+       0.03454597376569819,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4104,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.27846972787419405,
+       0.030008802049389473,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4125,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2803068801333339,
+       0.02542906674801131,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4146,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2821440323924737,
+       0.0208067678615637,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4167,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.28398118465161354,
+       0.016141905390046646,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4187,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.28581833691075337,
+       0.01143447933346015,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4208,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2876554891698932,
+       0.006684489691804208,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4229,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.289492641429033,
+       0.0018919364650788221,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.425,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.29132979368817286,
+       -0.0029431803467160067,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.426,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.29224836981774277,
+       -0.005376700097014462,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4281,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2940855220768826,
+       -0.010275662286413457,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4302,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.29592267433602243,
+       -0.015217188060881896,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4323,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.29775982659516226,
+       -0.02020127742041978,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4344,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.2995969788543021,
+       -0.025227930365027105,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4365,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3014341311134419,
+       -0.030297146894703877,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4385,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.30327128337258175,
+       -0.03540892700945009,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4406,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3051084356317216,
+       -0.04056327070926575,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4427,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3069455878908614,
+       -0.04576017799415085,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4448,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.30878274015000123,
+       -0.0509996488641054,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4469,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.31061989240914106,
+       -0.05628168331912939,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.449,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3124570446682809,
+       -0.061606281359222824,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.451,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3142941969274207,
+       -0.0669734429843857,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4521,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.31521277305699064,
+       -0.06967298514136819,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4542,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.31704992531613047,
+       -0.07510399214413523,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4562,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3188870775752703,
+       -0.08057756273197171,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4583,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3207242298344101,
+       -0.08609369690487764,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4604,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.32256138209354995,
+       -0.09165239466285302,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4625,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3243985343526898,
+       -0.09725365600589785,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4646,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3262356866118296,
+       -0.1028974809340121,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4667,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.32807283887096944,
+       -0.10858386944719582,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4687,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.32990999113010927,
+       -0.11431282154544897,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4708,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3317471433892491,
+       -0.12008433722877157,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4729,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.33358429564838893,
+       -0.1258984164971636,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.475,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.33542144790752876,
+       -0.1317550593506251,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.476,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3363400240370987,
+       -0.13469934212175688,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4781,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3381771762962385,
+       -0.14061983035282252,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4802,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.34001432855537833,
+       -0.14658288216895762,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4823,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.34185148081451816,
+       -0.15258849757016216,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4844,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.343688633073658,
+       -0.15863667655643615,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4865,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3455257853327978,
+       -0.16472741912777958,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4885,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.34736293759193765,
+       -0.17086072528419244,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4906,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3492000898510775,
+       -0.17703659502567476,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4927,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3510372421102173,
+       -0.1832550283522265,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4948,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.35287439436935714,
+       -0.18951602526384773,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.4969,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.35471154662849697,
+       -0.19581958576053837,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.499,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3565486988876368,
+       -0.20216570984229845,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.501,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3583858511467766,
+       -0.208554397509128,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5021,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.35930442727634654,
+       -0.2117647026869438,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5042,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.36114157953548637,
+       -0.2182172357313775,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5062,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3629787317946262,
+       -0.22471233236088065,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5083,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.364815884053766,
+       -0.23124999257545323,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5104,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.36665303631290586,
+       -0.23783021637509527,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5125,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3684901885720457,
+       -0.24445300375980675,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5146,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3703273408311855,
+       -0.25111835472958766,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5167,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.37216449309032534,
+       -0.257826269284438,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5187,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3740016453494652,
+       -0.2645767474243578,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5208,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.375838797608605,
+       -0.27136978914934706,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5229,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.37767594986774483,
+       -0.27820539445940573,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.525,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.37951310212688466,
+       -0.2850835633545339,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.526,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3804316782564546,
+       -0.288538609146499,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5281,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3822688305155944,
+       -0.2954806234192313,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5302,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.38410598277473423,
+       -0.302465201277033,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5323,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.38594313503387406,
+       -0.3094923427199042,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5344,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3877802872930139,
+       -0.31656204774784485,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5365,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3896174395521537,
+       -0.3236743163608549,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5385,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.39145459181129355,
+       -0.33082914855893447,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5406,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3932917440704334,
+       -0.3380265443420834,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5427,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.3951288963295732,
+       -0.3452665037103018,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5448,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.39696604858871304,
+       -0.35254902666358967,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5469,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.39880320084785287,
+       -0.35987411320194695,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.549,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.4006403531069927,
+       -0.3672417633253737,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.55,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.4015589292365626,
+       -0.37094154973148813,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5521,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.40339608149570244,
+       -0.378373045232519,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5542,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.40523323375484227,
+       -0.38584710431861935,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   },
+   {
+    "t_sim": 0.5542,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.159375,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.40523323375484227,
+       -0.38584710431861935,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       -0.0,
+       1.0
+      ]
+     }
+    ]
+   }
+  ],
+  "t_end_s": 0.5541666666666679,
+  "natural_timescale_s": 0.5541666666666679,
+  "suggested_rate": 0.09236111111111132,
+  "body_labels": [
+   "bell (hung)",
+   "stone"
+  ],
+  "validation": {
+   "struck": true,
+   "struck_at_s": 0.15416666666666642,
+   "v_impact_m_s": 1.5016432812499978,
+   "impact_energy_j": 0.22549325441232607,
+   "dissipated_energy_j": 0.21887130762892304,
+   "ring_frequency_hz": 12609.891010560155,
+   "impact_click_frequency_hz": 4510.420655867979,
+   "contact_duration_s": 0.00011085440541992656
+  }
+ },
+ "kind": "trajectory",
+ "audio_path": "D:\\Aaron\\development\\sigma-ground\\sigma_ground\\radiance\\web\\data\\bell_strike_iron_150mm.wav",
+ "acoustics": {
+  "ring_frequency_hz": 12609.891010560155,
+  "impact_click_frequency_hz": 4510.420655867979,
+  "contact_duration_s": 0.00011085440541992656,
+  "dissipated_energy_j": 0.21887130762892304,
+  "decay_tau_s": 2.5,
+  "amplitude": 1.0,
+  "speed_of_sound_m_s": 340.33626077687416,
+  "arrival_time_s": 0.14691352571679162,
+  "attenuated_amplitude": 0.0004,
+  "model": "inverse-square (spherical spreading) from a 1 m reference only; frequency-dependent atmospheric absorption NOT modeled (SIMPLIFIED_MODEL)"
+ }
+}

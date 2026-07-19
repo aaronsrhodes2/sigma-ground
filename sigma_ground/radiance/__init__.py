@@ -27,7 +27,10 @@ from .image import write_png
 from .scene_export import (construct_to_scene, scene_spec_to_sdf,
                            scene_from_spec)
 from .trajectory import (record_fall, record_object_fall, record_descent,
-                         record_horizontal_run)
+                         record_horizontal_run, record_motor_spin,
+                         record_gear_train_spin, record_escapement_clock,
+                         record_gear_mesh_spin, record_clock,
+                         record_windmill_spinup, record_windmill_theater)
 from .thermal_record import record_fall_thermal, record_thermal_field
 
 __all__ = [
@@ -40,6 +43,13 @@ __all__ = [
     "record_object_fall",
     "record_descent",
     "record_horizontal_run",
+    "record_motor_spin",
+    "record_gear_train_spin",
+    "record_escapement_clock",
+    "record_gear_mesh_spin",
+    "record_clock",
+    "record_windmill_spinup",
+    "record_windmill_theater",
     "RadianceScene",
     "Camera",
     "orbit_eye",

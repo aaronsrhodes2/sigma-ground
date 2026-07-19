@@ -529,6 +529,83 @@ class RevoluteJoint(_JointBase):
                         _rotate(b, n * (d * wb_s / tot))
 
 
+# ── gear coupling (kinematic rate constraint between two hinges) ─────────────
+
+class GearCouplingJoint:
+    """A rigid gear-mesh RATIO between two RevoluteJoints' hinge rates:
+    s_a + ratio·s_b = 0, where s = dθ/dt in each joint's OWN convention
+    (see RevoluteJoint / module docstring — with b=None the world plays the
+    child, so a wheel's own world-frame spin and its joint's s carry a
+    built-in sign flip).
+
+    NOT a simulated tooth mesh: real gear teeth transmit force through
+    contact geometry this constraint does not model at all — it enforces
+    the RATIO directly, the way a real mesh's ratio is a kinematic fact
+    once teeth engage, not a force computed from tooth profiles. Involute
+    geometry (when it arrives) is for RENDERING and mass properties; this
+    row is what actually keeps two rendered wheels turning in lockstep.
+
+    ratio is SIGNED and must be discovered empirically for a given axis/
+    construction convention (tests/test_joints.py does this the same way
+    Phase 0 discovered the motor's own sign convention) — do not assume
+    ratio = +teeth_a/teeth_b without checking against the actual axes.
+
+    Scope limit (NOT_PHYSICS): the effective mass assumes joint_a and
+    joint_b do not share a body (independent shafts, the Phase 1 case —
+    each wheel hinged directly to the world). Two joints sharing a body
+    would need cross inertia terms this scalar row does not carry.
+
+    No project(): this is a rate constraint like RevoluteJoint's own motor
+    row (which also has no position-domain component) — re-solved fresh
+    every substep, so the two hinges' RATE ratio never drifts, though the
+    absolute PHASE could accumulate slow error under stress a position
+    pass would correct. Acceptable for a kinematic coupling; skip until a
+    scene actually needs it (e.g. a geared train also resting on a table).
+    """
+
+    def __init__(self, joint_a, joint_b, ratio):
+        self.ja = joint_a
+        self.jb = joint_b
+        self.ratio = float(ratio)
+
+    def _solve(self, dt):
+        ja, jb, ratio = self.ja, self.jb, self.ratio
+        na, nb = ja._n, jb._n
+        ka, kb = ja._k_axis, jb._k_axis
+        if ka <= 1e-30 or kb <= 1e-30:
+            return
+        k = ka + ratio * ratio * kb
+        if k <= 1e-30:
+            return
+        sa = (_ang_vel(ja.b) - _ang_vel(ja.a)).dot(na)
+        sb = (_ang_vel(jb.b) - _ang_vel(jb.a)).dot(nb)
+        lam = -(sa + ratio * sb) / k
+        _apply_ang(ja.a, ja.b, na * lam)
+        _apply_ang(jb.a, jb.b, nb * (ratio * lam))
+
+    def solve_velocity(self, dt):
+        # begin() on ja/jb (called by solver.solve_velocity before ANY
+        # joint's solve_velocity/solve_shake, this joint included) has
+        # already cached ja._n/._k_axis and jb._n/._k_axis for this pass.
+        self._solve(dt)
+
+    def solve_shake(self, dt):
+        # A pure rate constraint, like the motor row: no predicted-pose
+        # error to solve against, so SHAKE and the live-velocity pass are
+        # the same math (mirrors RevoluteJoint's own motor row, which is
+        # identical in solve_velocity and solve_shake).
+        self._solve(dt)
+
+    def project(self):
+        # Deliberate no-op, but the METHOD must exist: the stepper's
+        # contact path calls project() on EVERY joint whenever any contact
+        # exists anywhere in the scene (solver.project_positions), so a
+        # missing method is a crash the moment a coupled scene also touches
+        # something. The rate constraint has no position-domain component
+        # to project (see class docstring).
+        pass
+
+
 # ── prismatic (slider) ───────────────────────────────────────────────────────
 
 class PrismaticJoint(_JointBase):

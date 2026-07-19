@@ -866,6 +866,38 @@ _ROUTABLE_NEW = {
         "slots": {"object_name": {"unit": "object", "default": None,
                                   "aliases": ["drop a", "drop an", "drop the"]},
                   "drop_altitude_m": {"unit": "m", "default": 1000.0}}},
+    "actuate_hand_tool": {
+        "description": "Open and close a two-jaw hand tool (pliers, tongs, "
+                       "scissors, tweezers, nutcracker…) — the pivot is "
+                       "DISCOVERED from real dodoxel contact geometry "
+                       "(deckard.hand_tools + infer_dodoxel_joints), not "
+                       "declared, then driven by a SOLVED RevoluteJoint.",
+        "triggers": [],          # custom-routed in the translator (named tool)
+        "examples": ["simulate a pair of pliers being opened and closed",
+                     "open and close a pair of tongs over time"],
+        "exclusive": True,
+        "answers": ["simulate a pair of pliers being opened and closed",
+                    "open and close a pair of tongs over time"],
+        "outputs": ["pivot_type", "total_mass_kg"],
+        "slots": {"tool_name": {"unit": "object", "default": None,
+                                "aliases": ["open and close", "actuate"]},
+                  "n_cycles": {"unit": "count", "default": 3.0}}},
+    "strike_bell": {
+        "description": "A hanging bell struck by a thrown stone: ring "
+                       "frequency from field.interface.acoustics."
+                       "ring_frequency, propagated through earth "
+                       "atmosphere at the real speed of sound.",
+        "triggers": [],          # custom-routed in the translator
+        "examples": ["simulate a hanging bell being struck by a stone",
+                     "strike a bronze bell with a rock, what does it sound "
+                     "like"],
+        "exclusive": True,
+        "answers": ["simulate a hanging bell being struck by a stone"],
+        "outputs": ["ring_frequency_hz", "arrival_time_s"],
+        "slots": {"bell_material": {"unit": "material", "default": "iron"},
+                  "bell_diameter_m": {"unit": "m", "default": 0.15},
+                  "stone_mass_kg": {"unit": "kg", "default": 0.2},
+                  "observer_distance_m": {"unit": "m", "default": 50.0}}},
 }
 for _v, _e in _ROUTABLE_NEW.items():
     _e["exclusive"] = True

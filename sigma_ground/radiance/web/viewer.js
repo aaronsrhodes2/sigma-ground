@@ -75,6 +75,54 @@ float sdConeZ(vec3 p, vec3 c, float R, float H){ vec3 q=p-c;
   return (rho<=rAtZ) ? max(dLat,-lz) : dLat; }
 vec3 qrotInv(vec4 q, vec3 v){ vec3 u=-q.xyz; vec3 t=2.0*cross(u,v); return v+q.w*t+cross(u,t); }
 float sdTorus(vec3 p, vec3 c, float R, float r){ vec3 q=p-c; return length(vec2(length(q.xy)-R, q.z))-r; }
+// Quilez polynomial smooth-min union, blend radius k (k<=0 -> exact min). Mirrors
+// kernel/csg.py's sdf_smooth_union exactly (used by InvoluteGear's root fillet).
+float sdSmoothUnion(float a, float b, float k){
+  if(k<=0.0) return min(a,b);
+  float h=max(k-abs(a-b),0.0)/k;
+  return min(a,b)-h*h*k*0.25; }
+// Involute spur gear (axis +z), extruded to face width. Mirrors kernel/gear.py's
+// InvoluteGear._gear_sdf_2d + _local_surface_distance EXACTLY, including both
+// CRITICAL clamps in the nearest-involute-t calc (rho<=r_b -> t*=0; the max(0,.)
+// floor on t*). r_b/r_a/r_f/beta/thetaRb/filletR/halfW are DERIVED constants
+// baked in by the JS caller (glslLeafCall) via the same _gearParams() used by
+// jsGearSDF, so the two mirrors can never disagree on the derivation step.
+float sdInvoluteGear(vec3 p, vec3 c, float r_b, float r_a, float r_f, float beta,
+                      float thetaRb, float filletR, float halfW){
+  vec3 q = p - c;
+  float rho = length(q.xy);
+  float phi = atan(q.y, q.x);
+  float twoBeta = 2.0*beta;
+  float phiFoldedSigned = mod(phi+beta, twoBeta) - beta;
+  float phiFolded = abs(phiFoldedSigned);
+  // gear frame -> involute frame is a REFLECTION (flank curls CW, involute
+  // CCW): phiInv = thetaRb - phiFolded, and the query point is rebuilt with
+  // the SAME reflected angle (isometry) — see kernel/gear.py _gear_sdf_2d
+  float phiInv = thetaRb - phiFolded;
+  float tStar;
+  if(rho <= r_b){
+    tStar = 0.0;
+  } else {
+    float arc = acos(clamp(r_b/rho, -1.0, 1.0));
+    tStar = max(0.0, phiInv + arc);              // CRITICAL clamp: floor at 0
+  }
+  float cosT = cos(tStar), sinT = sin(tStar);
+  float cxT = r_b*(cosT + tStar*sinT);
+  float cyT = r_b*(sinT - tStar*cosT);
+  vec2 qFlank = vec2(rho*cos(phiInv), rho*sin(phiInv));
+  float dFlankMag = length(qFlank - vec2(cxT, cyT));
+  float ratio = rho > 1e-15 ? (r_b/rho) : 1.0;
+  float alphaRho = acos(clamp(ratio, -1.0, 1.0));
+  float thetaRho = thetaRb - (tan(alphaRho) - alphaRho);   // theta(rho) = thetaRb - inv(alpha_rho)
+  float dFlank = (phiFolded < thetaRho) ? -dFlankMag : dFlankMag;
+  float dAddendum = rho - r_a;
+  float dRootDisk = rho - r_f;
+  float dToothWedge = max(dFlank, dAddendum);
+  float dGear2d = sdSmoothUnion(dToothWedge, dRootDisk, filletR);
+  float dExtrude = abs(q.z) - halfW;
+  if(dGear2d<=0.0 && dExtrude<=0.0) return max(dGear2d, dExtrude);
+  if(dGear2d>0.0 && dExtrude>0.0) return length(vec2(dGear2d, dExtrude));
+  return max(dGear2d, dExtrude); }
 vec3 leafRot(vec4 rot, vec3 p, vec3 c){ return qrotInv(rot, p-c)+c; }
 // Transparency test-card environment (debug toggle): the universal grey/white
 // checker meaning "nothing here". A transparent thing shows it refracted, a
@@ -87,8 +135,75 @@ vec3 checkerEnv(vec3 rd){ vec3 a=abs(rd); vec2 uv;
   float c=mod(floor(uv.x*8.0)+floor(uv.y*8.0),2.0);
   return mix(vec3(0.16),vec3(0.86),c); }                  // tiles sized in the [-1,1] cube-face uv
 `;
+// Euclidean modulo (always same sign as n, for n>0) — matches Python's `%`
+// on floats and GLSL's `mod()` builtin, which JS's native `%` does NOT.
+function emod(a,n){ return a-n*Math.floor(a/n); }
+// Quilez smooth-min union, JS mirror of csg.py's sdf_smooth_union / GLSL's sdSmoothUnion.
+function sdfSmoothUnionJS(a,b,k){
+  if(k<=0.0) return Math.min(a,b);
+  const h=Math.max(k-Math.abs(a-b),0.0)/k;
+  return Math.min(a,b)-h*h*k*0.25;
+}
+// Derives InvoluteGear's radii/angles from the serialized raw params (module,
+// teeth, pressure_angle, addendum_coeff, dedendum_coeff, fillet_coeff,
+// face_width) EXACTLY as kernel/gear.py's __init__ does. Single source used by
+// both jsGearSDF (JS self-check) and glslLeafCall (GLSL constant baking) so the
+// two mirrors can never diverge on the derivation step.
+function _gearParams(s){
+  const m=s.module, N=s.teeth, alpha=s.pressure_angle;
+  const addC=s.addendum_coeff!==undefined?s.addendum_coeff:1.0;
+  const dedC=s.dedendum_coeff!==undefined?s.dedendum_coeff:1.25;
+  const filC=s.fillet_coeff!==undefined?s.fillet_coeff:0.35;
+  const rP=m*N/2.0, rB=rP*Math.cos(alpha);
+  const rA=rP+addC*m, rF=rP-dedC*m;
+  const psi=Math.PI/(2.0*N), beta=Math.PI/N;
+  const inv=(x)=>Math.tan(x)-x;
+  const thetaRb=psi+inv(alpha);
+  const filletR=filC*m;
+  const halfW=s.face_width*0.5;
+  return {rB,rA,rF,beta,thetaRb,filletR,halfW};
+}
+// JS mirror of InvoluteGear._gear_sdf_2d + _local_surface_distance (gear.py),
+// including both CRITICAL clamps on the nearest-involute-t (see that file's
+// docstring) — statement-for-statement with sdInvoluteGear in PRIMS_GLSL.
+function jsGearSDF(s,q){
+  const c=s.center, P=_gearParams(s);
+  const dx=q[0]-c[0], dy=q[1]-c[1], dz=q[2]-c[2];
+  const rho=Math.hypot(dx,dy);
+  const phi=Math.atan2(dy,dx);
+  const twoBeta=2.0*P.beta;
+  const phiFoldedSigned=emod(phi+P.beta, twoBeta)-P.beta;
+  const phiFolded=Math.abs(phiFoldedSigned);
+  // gear frame -> involute frame is a REFLECTION: phiInv = thetaRb - phiFolded,
+  // query point rebuilt with the same reflected angle (see kernel/gear.py)
+  const phiInv=P.thetaRb-phiFolded;
+  let tStar;
+  if(rho<=P.rB){
+    tStar=0.0;
+  } else {
+    const arc=Math.acos(_clamp1(P.rB/rho));
+    tStar=Math.max(0.0, phiInv+arc);              // CRITICAL clamp: floor at 0
+  }
+  const cosT=Math.cos(tStar), sinT=Math.sin(tStar);
+  const cxT=P.rB*(cosT+tStar*sinT), cyT=P.rB*(sinT-tStar*cosT);
+  const qx=rho*Math.cos(phiInv), qy=rho*Math.sin(phiInv);
+  const dFlankMag=Math.hypot(qx-cxT, qy-cyT);
+  const ratio = rho>1e-15 ? (P.rB/rho) : 1.0;
+  const alphaRho=Math.acos(_clamp1(ratio));
+  const thetaRho=P.thetaRb-(Math.tan(alphaRho)-alphaRho);
+  const dFlank = phiFolded<thetaRho ? -dFlankMag : dFlankMag;
+  const dAddendum=rho-P.rA, dRootDisk=rho-P.rF;
+  const dToothWedge=Math.max(dFlank,dAddendum);
+  const dGear2d=sdfSmoothUnionJS(dToothWedge,dRootDisk,P.filletR);
+  const dExtrude=Math.abs(dz)-P.halfW;
+  if(dGear2d<=0.0 && dExtrude<=0.0) return Math.max(dGear2d,dExtrude);
+  if(dGear2d>0.0 && dExtrude>0.0) return Math.hypot(dGear2d,dExtrude);
+  return Math.max(dGear2d,dExtrude);
+}
+function _clamp1(x){ return x<-1.0?-1.0:(x>1.0?1.0:x); }
 function jsLeafSDF(leaf, q){
   const s=leaf.shape, c=s.center;
+  if(s.type==="Gear") return jsGearSDF(s, q);
   if(s.type==="Sphere"||s.type==="HollowSphere") return len(sub(q,c))-s.radius;
   if(s.type==="Cylinder"){ const d=sub(q,c), dr=Math.hypot(d[0],d[1])-s.radius, da=Math.abs(d[2])-s.height*0.5;
     return Math.min(Math.max(dr,da),0)+Math.hypot(Math.max(dr,0),Math.max(da,0)); }
@@ -109,6 +224,9 @@ function jsLeafSDF(leaf, q){
 }
 function glslLeafCall(leaf, qvar){
   const s=leaf.shape, c=s.center, ctr=`vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])})`;
+  if(s.type==="Gear"){ const P=_gearParams(s);
+    return `sdInvoluteGear(${qvar},${ctr},${glf(P.rB)},${glf(P.rA)},${glf(P.rF)},`
+         + `${glf(P.beta)},${glf(P.thetaRb)},${glf(P.filletR)},${glf(P.halfW)})`; }
   if(s.type==="Sphere"||s.type==="HollowSphere") return `sdSphere(${qvar},${ctr},${glf(s.radius)})`;
   if(s.type==="Cylinder") return `sdCyl(${qvar},${ctr},${glf(s.radius)},${glf(s.height)})`;
   if(s.type==="Cone") return `sdConeZ(${qvar},${ctr},${glf(s.radius)},${glf(s.height)})`;
@@ -1089,6 +1207,15 @@ function applyObj(obj, title, preserve){
   sceneId++;                                         // new scene → PT accumulation resets
   selfCheck();
   $("title").textContent=scene.name||title||""; $("src").textContent=scene.source||"";
+  // force provenance: show every declared plug (artificial drives/supports)
+  // right in the HUD — a scene with none shows nothing, never a fake "clean"
+  const plugsEl=$("plugs");
+  if(plugsEl){ const ps=scene.plugs||[];
+    plugsEl.textContent=ps.map(p=>{
+      const tag=(p.kind==="support")?"⚓ plugged support":"⚡ plugged drive";
+      const vs=Object.entries(p.variables||{}).map(([k,v])=>`${k}=${v}`).join(", ");
+      return `${tag}: ${p.description}${vs?` (${vs})`:""}`; }).join("  ·  "); }
+  showVariants(scene);
   const hasTraj=!!(traj&&traj.frames&&traj.frames.length>1);
   tEnd=hasTraj?traj.t_end_s:0;
   if(!preserve){ simTime=0; playing=false; $("play").textContent="▶ play";
@@ -1098,6 +1225,32 @@ function applyObj(obj, title, preserve){
   bodyPoses=posesAt(simTime); drewOnce=false;
   return true;
 }
+// ── variants: a scene's declared parameter sweep (frozen recorded runs) ──
+// Adjustable-by-default for cited artificial/explicit variables: the slider
+// swaps between SIBLING BUNDLES (each a real recorded sim) — playback
+// reconstruction, never live physics in the renderer.
+let _variants=null;
+function showVariants(sc){
+  const grp=$("vargrp"), sep=$("varsep");
+  if(!grp) return;
+  const vs=sc.variants||[];
+  _variants=vs.length>1?vs:null;
+  grp.style.display=sep.style.display=_variants?"":"none";
+  if(!_variants) return;
+  const slider=$("variant");
+  slider.min=0; slider.max=vs.length-1; slider.step=1;
+  // the scene declares which variant IT IS (variant_current), no guessing
+  const cur=Math.max(0, vs.findIndex(v=>v.slug===sc.variant_current));
+  slider.value=String(cur);
+  $("varlbl").textContent="variant";
+  $("varval").textContent=vs[cur].label;
+}
+(function(){ const s=$("variant"); if(!s) return;
+  s.addEventListener("input",()=>{ if(!_variants) return;
+    const v=_variants[parseInt(s.value,10)||0]; if(!v) return;
+    $("varval").textContent=v.label;
+    load(`data/${v.slug}.json`, v.label).catch(e=>setErr("variant: "+e)); });
+})();
 async function load(url, title){
   try{
     const resp=await fetch(url); if(!resp.ok) throw new Error(`fetch ${url} → ${resp.status}`);

@@ -157,6 +157,29 @@ def step_to(scene, t_end, dt_max=0.01, sub_steps=4, callback=None,
     return history
 
 
+def _apply_external(p, external_forces, half_dt):
+    """One half-kick of the external-force callback on parcel ``p``.
+
+    The callback may return either a Vec3 FORCE (the original contract —
+    drag, buoyancy: applied at the CoM, no torque) or a (force, torque)
+    TUPLE for distributed loads whose resultant does not pass through the
+    CoM (wind on pitched blades, paddle drag): the torque is applied as an
+    angular impulse tau*dt/2 through the parcel's real inverse inertia,
+    keeping the same half-kick placement (and thus the same symplectic
+    structure) as the linear part. Before this, the stepper had NO path
+    from an external force to a torque — a body could be pushed but never
+    externally spun, which is exactly what natural drives (wind against a
+    windmill's blades) need."""
+    out = external_forces(p)
+    if isinstance(out, tuple):
+        F_ext, tau_ext = out
+    else:
+        F_ext, tau_ext = out, None
+    p.velocity = p.velocity + F_ext * (half_dt / p.mass)
+    if tau_ext is not None and (tau_ext.x or tau_ext.y or tau_ext.z):
+        p.apply_angular_impulse(tau_ext * half_dt)
+
+
 def _leapfrog_sub_step(scene, dt, external_forces=None):
     """Single leapfrog substep.
 
@@ -173,10 +196,8 @@ def _leapfrog_sub_step(scene, dt, external_forces=None):
 
     External forces (drag, buoyancy, etc.) are applied as accelerations
     a_ext = F_ext(parcel) / m during both half-steps, maintaining the
-    symplectic structure of the integrator.
-
-    This is the "velocity Verlet" form of leapfrog, which is algebraically
-    equivalent to the position-Verlet form.
+    symplectic structure of the integrator. A callback may also return
+    (force, torque) — see _apply_external.
     """
     g = scene.gravity
 
@@ -187,11 +208,8 @@ def _leapfrog_sub_step(scene, dt, external_forces=None):
         half_dv = g * (dt * 0.5)
         p.velocity = p.velocity + half_dv
 
-        # External forces: a_ext = F/m, applied as half-step
         if external_forces is not None and p.mass > 0 and p.mass != float('inf'):
-            F_ext = external_forces(p)
-            a_ext = F_ext * (1.0 / p.mass)
-            p.velocity = p.velocity + a_ext * (dt * 0.5)
+            _apply_external(p, external_forces, dt * 0.5)
 
     # ── Step 1.5: pre-drift constraint solve (manifold contacts + joints) ────
     # The drift-then-solve order (legacy, kept for bit-parity) leaks the
@@ -279,9 +297,7 @@ def _leapfrog_sub_step(scene, dt, external_forces=None):
         p.velocity = p.velocity + half_dv
 
         if external_forces is not None and p.mass > 0 and p.mass != float('inf'):
-            F_ext = external_forces(p)
-            a_ext = F_ext * (1.0 / p.mass)
-            p.velocity = p.velocity + a_ext * (dt * 0.5)
+            _apply_external(p, external_forces, dt * 0.5)
 
     # ── Step 5: RATTLE velocity projection (joints only) ─────────────────────
     # The second half of the constrained leapfrog: remove the constraint-

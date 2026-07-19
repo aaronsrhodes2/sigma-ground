@@ -61,16 +61,17 @@
  "materials": {
   "glaze": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.9291,
+    0.9283,
+    0.9269
    ],
-   "emergent": false,
+   "emergent": true,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "dielectric Fresnel + Beer-Lambert",
    "density_kg_m3": 2400.0,
-   "density_method": "unknown material"
+   "density_method": "unknown material",
+   "reflect_r0": 0.0362,
+   "refractive_index": 1.4697
   },
   "ceramic": {
    "color_rgb": [
@@ -98,16 +99,17 @@
   },
   "water": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.9469,
+    0.9551,
+    0.9559
    ],
-   "emergent": false,
+   "emergent": true,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "dielectric Fresnel + Beer-Lambert",
    "density_kg_m3": 998.0,
-   "density_method": "unknown material"
+   "density_method": "unknown material",
+   "reflect_r0": 0.0214,
+   "refractive_index": 1.3422
   }
  },
  "physics": {

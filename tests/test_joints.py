@@ -20,7 +20,7 @@ from sigma_ground.dynamics.parcel import PhysicsParcel
 from sigma_ground.dynamics.scene import PhysicsScene
 from sigma_ground.dynamics.stepper import step
 from sigma_ground.dynamics.joints import (WeldJoint, RevoluteJoint,
-                                          PrismaticJoint)
+                                          PrismaticJoint, GearCouplingJoint)
 from sigma_ground.dynamics.quat import qrot, quat_from_axis_angle, quat_mul
 
 _G = 9.80665
@@ -245,3 +245,56 @@ def test_hinge_limit_settles_within_half_degree():
     lim = math.radians(15.0)
     tol = math.radians(0.5)
     assert all(abs(th - lim) < tol for th in tail)
+
+
+# ── gear coupling: two hinges held at a fixed rate ratio (Phase 1) ──────────
+# Placeholder wheels (bare spheres, isotropic inertia) — no gear-tooth
+# geometry, no blueprint data. This gate proves the CONSTRAINT (a rigid,
+# re-solved-every-substep ratio), not any rendered shape.
+
+def _wheel(mass, radius, pos):
+    return PhysicsParcel(radius, _Mat(), position=pos, mass=mass)
+
+
+def test_gear_coupling_holds_the_commanded_ratio():
+    wheel_a = _wheel(1.0, 0.05, Vec3(0.0, 0.0, 0.0))
+    wheel_b = _wheel(1.0, 0.05, Vec3(0.3, 0.0, 0.0))
+    axis = Vec3(0.0, 0.0, 1.0)
+    ja = RevoluteJoint(wheel_a, None, wheel_a.position, axis,
+                       motor_speed=-3.0, motor_max_torque=2.0)
+    jb = RevoluteJoint(wheel_b, None, wheel_b.position, axis)
+    ratio = 2.0
+    coupling = GearCouplingJoint(ja, jb, ratio)
+    scene = PhysicsScene([wheel_a, wheel_b], ground=False,
+                         constraints=[ja, jb, coupling])
+
+    e0 = _energy(scene)
+    dt = 1.0 / 960.0
+    for k in range(int(2.0 / dt)):
+        step(scene, dt=dt, sub_steps=1)
+        if k == int(1.0 / dt):
+            # mid-run: the RATE ratio holds at an arbitrary instant, not just
+            # at the end (s = -angular_velocity.z here since both joints
+            # share world axis +z and b=None — see module docstring)
+            assert wheel_b.angular_velocity.z == pytest.approx(
+                -wheel_a.angular_velocity.z / ratio, rel=1e-3)
+
+    # RATE ratio still holds at the end
+    assert wheel_b.angular_velocity.z == pytest.approx(
+        -wheel_a.angular_velocity.z / ratio, rel=1e-3)
+
+    # the integral relationship (angle_a + ratio*angle_b = 0, both start at
+    # 0) holds too — the coupling doesn't let the two hinges' PHASE drift.
+    # angle() wraps to (-pi, pi], so compare modulo 2*pi rather than raw sum
+    # (over 2s at ~3 rad/s ja's raw angle crosses the wrap boundary).
+    phase = ja.angle() + ratio * jb.angle()
+    phase -= 2.0 * math.pi * round(phase / (2.0 * math.pi))
+    assert abs(phase) < 1e-3
+
+    # the coupling is WORKLESS (transmits power losslessly): total energy
+    # gain is still bounded by the motor's OWN logged work, same ledger gate
+    # as test_motor_ledger_bounds_energy_gain — the second wheel's motion
+    # comes entirely through the coupling, not from any energy of its own
+    de = _energy(scene) - e0
+    assert de > 0.0
+    assert de <= ja.motor_work_j + 1e-6

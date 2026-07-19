@@ -201,6 +201,9 @@
       <div id="check" class="lbl">geometry self-check: …</div>
       <div class="lbl">drag = orbit · wheel = zoom</div>
       <div id="dbg" class="lbl" style="color:#FFAA00"></div>
+      <!-- force provenance: drive/support plugs declared by the scene spec
+           (artificial stand-ins for absent machinery, stated plainly) -->
+      <div id="plugs" class="lbl" style="color:#818CF8"></div>
     </div>
     <div id="editor">
       <div class="ehead"><b>behind the simulation</b> &nbsp;<span class="lbl">the seed Radiance renders from — edit anything and it re-renders. physics isn't enforced; the picture is just its consequence.</span></div>
@@ -232,6 +235,14 @@
     <div class="grp"><span class="lbl">heat</span>
       <input id="temp" type="range" min="0" max="2900" step="10" value="0">
       <span id="tempval" class="lbl">293 K (cold)</span></div>
+    <!-- variants: a scene's declared parameter sweep (frozen recorded runs —
+         adjustable-by-default for cited artificial/explicit variables) -->
+    <div class="sep" id="varsep" style="display:none"></div>
+    <div class="grp" id="vargrp" style="display:none">
+      <span class="lbl" id="varlbl"></span>
+      <input id="variant" type="range" min="0" max="1" step="1" value="0">
+      <span id="varval" class="lbl"></span>
+    </div>
     <div class="sep"></div>
     <div class="grp"><button id="b-pt" title="Radiance always path-traces. STILL pools converge to pristine; LIVE ripples deny it those frames.">≈ Ripples: live</button></div>
     <div class="grp"><button id="b-checker" title="Transparency checker — swap the environment for the &quot;nothing here&quot; grid.">⊞ checker</button></div>

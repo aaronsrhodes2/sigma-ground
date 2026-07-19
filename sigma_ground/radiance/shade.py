@@ -65,6 +65,54 @@ def material_albedo(material_key: str) -> Vec3:
     return _DIELECTRIC_STUB
 
 
+def _cosine_hemisphere_dirs(n: int):
+    """n DETERMINISTIC cosine-weighted directions on the +z hemisphere
+    (Fibonacci spiral in azimuth, sqrt-stratified in altitude so sample
+    density ∝ cos θ — a plain average of per-ray visibility then
+    approximates the cosine-weighted occlusion integral). Deterministic on
+    purpose: no RNG means renders and tests are exactly reproducible,
+    matching this renderer's precompute-once-replay doctrine."""
+    import math
+    ga = math.pi * (3.0 - math.sqrt(5.0))            # golden angle
+    dirs = []
+    for i in range(n):
+        u = (i + 0.5) / n
+        st = math.sqrt(u)                             # sin(theta)
+        ct = math.sqrt(1.0 - u)                       # cos(theta)
+        phi = ga * i
+        dirs.append((st * math.cos(phi), st * math.sin(phi), ct))
+    return dirs
+
+
+def ambient_occlusion(sdf, point: Vec3, normal: Vec3, rays: int,
+                      reach: float) -> float:
+    """Teardown-style ambient occlusion: march a few cosine-weighted
+    secondary rays from the hit point; each ray's hit DISTANCE sets its
+    darkening (near hit = strongly occluded, hit at the reach limit = not
+    occluded at all) — the verified real mechanism behind Teardown's
+    lighting, which has no global illumination either (research finding,
+    2026-07-18: ~2 cosine-weighted rays/pixel, hit distance sets AO).
+
+    Returns a visibility factor in [0, 1]: 1 = fully open hemisphere.
+    A ray that runs out of march steps without a verdict counts as open —
+    a v1 simplification, noted here rather than hidden."""
+    from .raymarch import march
+
+    # tangent basis around the normal (same deterministic construction
+    # dynamics/joints.py uses for its constraint tangents)
+    ref = Vec3(1.0, 0.0, 0.0) if abs(normal.x) < 0.9 else Vec3(0.0, 1.0, 0.0)
+    t1 = normal.cross(ref).normalized()
+    t2 = normal.cross(t1)
+
+    origin = point + normal * 4.0e-4      # hop off the surface (> march eps)
+    total = 0.0
+    for (dx, dy, dz) in _cosine_hemisphere_dirs(rays):
+        d = (t1 * dx + t2 * dy + normal * dz).normalized()
+        t = march(sdf, origin, d, max_dist=reach, max_steps=32)
+        total += 1.0 if t is None else min(1.0, t / reach)
+    return total / rays
+
+
 def shade(scene, point: Vec3, normal: Vec3, view_dir: Vec3) -> Vec3:
     """Lambert diffuse + ambient, tinted by the emergent material albedo."""
     # The ray halts a hair OUTSIDE the surface (sdf ≈ +eps), where no leaf is
@@ -79,7 +127,18 @@ def shade(scene, point: Vec3, normal: Vec3, view_dir: Vec3) -> Vec3:
         albedo = material_albedo(label)
     to_light = -scene.light_dir                      # surface is lit from -travel
     diffuse = max(0.0, normal.dot(to_light))
-    intensity = scene.ambient + (1.0 - scene.ambient) * diffuse
+    ambient = scene.ambient
+    # Opt-in secondary-ray AO (scene.ao_rays > 0): occlusion attenuates the
+    # ISOTROPIC ambient term only — ambient is this v1 pipeline's stand-in
+    # for indirect sky/bounce light, which is exactly what nearby geometry
+    # blocks. The directional term is left alone: shadowing the light
+    # itself is a separate (future) transport rung, not conflated here.
+    ao_rays = getattr(scene, "ao_rays", 0)
+    if ao_rays:
+        reach = getattr(scene, "ao_reach", None) or 0.1 * scene.max_dist
+        ambient = ambient * ambient_occlusion(scene.sdf, point, normal,
+                                              ao_rays, reach)
+    intensity = ambient + (1.0 - scene.ambient) * diffuse
     col = albedo * (scene.light_color * intensity)
     # Thermal hooks (scene_from_spec wires them): each point glows at ITS
     # temperature — Planck × Kirchhoff, sampled at the same inside point the
