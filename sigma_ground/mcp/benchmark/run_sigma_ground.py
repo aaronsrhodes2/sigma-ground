@@ -1073,6 +1073,16 @@ async def _run_one_question(session, ollama_url: str, model: str,
                 # default context, which silently TRUNCATES the input -> the model
                 # sees a mangled prompt and returns an empty reply with no tool
                 # call. That was the 85%->53% regression (30 "0-call empty" Qs).
+                # think:false is harmless on non-reasoning models (confirmed:
+                # qwen2.5 ignores it with no error) and required on reasoning
+                # models like qwen3 -- without it, extended <think> reasoning
+                # eats into num_ctx/response time and can starve out the
+                # actual tool call, the same "empty reply, no tool call"
+                # failure mode as the num_ctx truncation bug above, just
+                # triggered by generation budget instead of input truncation.
+                # Agnosticize the layer (per Captain, 2026-07-19): don't tune
+                # this harness to one model family's response style.
+                "think":    False,
                 "options":  {"temperature": 0.1, "num_ctx": 32768},
             })
             response.raise_for_status()
@@ -1323,7 +1333,7 @@ async def _run_conversation(session, ollama_url: str, model: str,
             for _ in range(8):                       # inner tool-loop
                 force_finalize = len(turn_tools) >= tool_budget
                 payload: dict = {"model": model, "messages": messages,
-                                 "stream": False,
+                                 "stream": False, "think": False,
                                  "options": {"temperature": 0.2, "num_ctx": 32768}}
                 if not force_finalize:
                     payload["tools"] = active_tools
