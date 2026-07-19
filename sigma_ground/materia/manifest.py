@@ -117,6 +117,10 @@ VERB_MANIFEST = {
                        "heat, conductivity, the elastic moduli, restitution.",
         "answers": ["properties of", "young's modulus of", "how stiff",
                     "material properties", "characterize"],
+        # The material IS the answer (same reasoning as acoustics) — with none
+        # named the verb would silently default to steel_mild. Require a named
+        # material.
+        "material_required": True,
         "slots": {
             "material_key": {"unit": "material", "default": "steel_mild",
                              "aliases": ["of", "for"]},
@@ -129,6 +133,10 @@ VERB_MANIFEST = {
                        "moduli, fracture toughness, fatigue life, plastic flow.",
         "answers": ["fracture toughness", "fatigue life", "yield strength",
                     "stress-strain"],
+        # The material IS the answer (same reasoning as acoustics) — with none
+        # named the verb would silently default to steel_mild. Require a named
+        # material.
+        "material_required": True,
         "slots": {
             "material_key": {"unit": "material", "default": "steel_mild",
                              "aliases": ["of", "for"]},
@@ -139,6 +147,10 @@ VERB_MANIFEST = {
                        "melting/phase data, radiated power.",
         "answers": ["thermal expansion", "melting point of", "how much does it "
                     "expand", "latent heat"],
+        # The material IS the answer (same reasoning as acoustics) — with none
+        # named the verb would silently default to steel_mild. Require a named
+        # material.
+        "material_required": True,
         "slots": {
             "material_key": {"unit": "material", "default": "steel_mild",
                              "aliases": ["of", "for"]},
@@ -178,6 +190,10 @@ VERB_MANIFEST = {
                        "acoustic, electrochemical, surface, …).",
         "answers": ["all properties of", "full profile of",
                     "everything about the material"],
+        # The material IS the answer (same reasoning as acoustics) — with none
+        # named the verb would silently default to steel_mild and report a
+        # confidently-wrong full property suite. Require a named material.
+        "material_required": True,
         "slots": {
             "material_key": {"unit": "material", "default": "steel_mild",
                              "aliases": ["of", "for"]},
@@ -330,6 +346,10 @@ _ROUTABLE_NEW = {
                      "optical dispersion", "cauchy", "metal colour",
                      "metal color"],
         "examples": ["reflectance of copper", "refractive index of glass"],
+        # The material IS the answer (same reasoning as acoustics) — with none
+        # named the verb would silently default to iron/steel_mild and report a
+        # confidently-wrong refractive index. Require a named material.
+        "material_required": True,
         "slots": _MAT},
     "semiconductor_device": {
         "description": "Semiconductor device physics — band gap, carrier "
@@ -441,6 +461,10 @@ _ROUTABLE_NEW = {
                      "strain energy", "elastic modulus of", "shear modulus of",
                      "poisson ratio"],
         "examples": ["shear modulus of steel", "Lamé parameters of aluminum"],
+        # The material IS the answer here (same reasoning as acoustics) — with
+        # none named the verb would default to steel_mild/iron and report
+        # confidently-wrong moduli. Require a named material; else decline.
+        "material_required": True,
         "slots": _MAT},
     "acoustics": {
         "description": "Acoustic waves in and across materials — longitudinal / "
@@ -462,6 +486,10 @@ _ROUTABLE_NEW = {
                      "work of adhesion", "tribolog", "abrasion"],
         "examples": ["wear rate of steel sliding on iron",
                      "work of adhesion between two metals"],
+        # The material pair IS the answer (same reasoning as acoustics) — with
+        # none named the verb would silently default to steel/iron. Require a
+        # named material; else decline.
+        "material_required": True,
         "slots": _MAT},
     "composite_material": {
         "description": "Composite-material mechanics — stiffness & density by "
@@ -495,6 +523,10 @@ _ROUTABLE_NEW = {
                      "storage modulus"],
         "examples": ["creep of a polymer under load",
                      "stress relaxation of a viscoelastic material"],
+        # The material IS the answer (same reasoning as acoustics) — with none
+        # named the verb would silently default to iron/steel_mild. Require a
+        # named material (or class word: "polymer", "material", ...).
+        "material_required": True,
         "slots": _MAT},
     "fluid_flow": {
         "description": "Viscous fluid flow — pipe (Poiseuille) flow, Stokes drag "
@@ -573,10 +605,15 @@ _ROUTABLE_NEW = {
                        "potential & series, oxide growth over a duration, "
                        "Pilling-Bedworth ratio; cited soil/pH environment "
                        "regime (qualitative).",
-        "triggers": ["corrosion", "corrode", "rust", "galvanic",
-                     "pilling-bedworth", "oxidation rate", "oxide growth"],
+        "triggers": ["corrosion", "corrode", "corroding", "corroded", "rust",
+                     "galvanic", "pilling-bedworth", "oxidation rate",
+                     "oxide growth"],
         "examples": ["corrosion rate of iron",
                      "zinc rod in alkaline soil corroding over 5 years"],
+        # The material IS the answer (same reasoning as acoustics) — with none
+        # named the verb would silently default to iron and report confidently
+        # wrong electrochemistry. Require a named material.
+        "material_required": True,
         "slots": {**_MAT,
                   "duration_s": {"unit": "s", "default": 3.15e7,
                                  "aliases": ["over", "for", "after", "years",
@@ -708,6 +745,10 @@ _ROUTABLE_NEW = {
         "triggers": ["fermi energy", "hubbard", "mott", "correlated electron",
                      "metal-insulator", "metal insulator transition"],
         "examples": ["Fermi energy of a metal", "Mott metal-insulator transition"],
+        # The material IS the answer (same reasoning as acoustics) — with none
+        # named the verb would silently default to iron/steel_mild. Require a
+        # named material (or class word: "metal", ...).
+        "material_required": True,
         "slots": _MAT},
     # ── other domains ──
     "plasma_physics": {
