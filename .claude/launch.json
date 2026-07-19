@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "radiance-viewer",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "sigma_ground.radiance.web.serve"],
+      "port": 8765
+    }
+  ]
+}

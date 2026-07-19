@@ -3645,5 +3645,550 @@
     "semantic_router_hit": "escape_velocity_classical",
     "grounded": true,
     "groundedness_reason": "deterministic dispatch (escape_velocity_classical)"
+  },
+  {
+    "id": "mech_adv_004",
+    "system": "sigma_ground",
+    "model": "qwen3:8b",
+    "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
+    "extracted_value": 499.01188641643546,
+    "extracted_units": "s",
+    "tool_calls": [
+      {
+        "name": "light_travel_time",
+        "args": {
+          "distance_m": 149600000000
+        },
+        "result_text": "{\n  \"value\": 499.01188641643546,\n  \"units\": \"s\",\n  \"source\": \"sigma-ground (light travel time)\",\n  \"uncertainty\": null,\n  \"formula\": \"t = d / c\",\n  \"provenance_tag\": null,\n  \"notes\": \"~0.0000 years. Sun-Earth (1 AU): 8.32 min. Earth-Moon: 1.28 s. Alpha Centauri (4.24 ly): 4.24 yr.\",\n  \"inputs\": {\n    \"distance_m\": 149600000000.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "light_travel_time",
+        "args": {
+          "distance_m": 149600000000
+        },
+        "result_text": "{\n  \"value\": 499.01188641643546,\n  \"units\": \"s\",\n  \"source\": \"sigma-ground (light travel time)\",\n  \"uncertainty\": null,\n  \"formula\": \"t = d / c\",\n  \"provenance_tag\": null,\n  \"notes\": \"~0.0000 years. Sun-Earth (1 AU): 8.32 min. Earth-Moon: 1.28 s. Alpha Centauri (4.24 ly): 4.24 yr.\",\n  \"inputs\": {\n    \"distance_m\": 149600000000.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "light_travel_time",
+        "args": {
+          "distance_m": 149600000000
+        },
+        "result_text": "{\n  \"value\": 499.01188641643546,\n  \"units\": \"s\",\n  \"source\": \"sigma-ground (light travel time)\",\n  \"uncertainty\": null,\n  \"formula\": \"t = d / c\",\n  \"provenance_tag\": null,\n  \"notes\": \"~0.0000 years. Sun-Earth (1 AU): 8.32 min. Earth-Moon: 1.28 s. Alpha Centauri (4.24 ly): 4.24 yr.\",\n  \"inputs\": {\n    \"distance_m\": 149600000000.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "light_travel_time",
+        "args": {
+          "distance_m": 149600000000
+        },
+        "result_text": "{\n  \"value\": 499.01188641643546,\n  \"units\": \"s\",\n  \"source\": \"sigma-ground (light travel time)\",\n  \"uncertainty\": null,\n  \"formula\": \"t = d / c\",\n  \"provenance_tag\": null,\n  \"notes\": \"~0.0000 years. Sun-Earth (1 AU): 8.32 min. Earth-Moon: 1.28 s. Alpha Centauri (4.24 ly): 4.24 yr.\",\n  \"inputs\": {\n    \"distance_m\": 149600000000.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "light_travel_time",
+        "args": {
+          "distance_m": 149600000000
+        },
+        "result_text": "{\n  \"value\": 499.01188641643546,\n  \"units\": \"s\",\n  \"source\": \"sigma-ground (light travel time)\",\n  \"uncertainty\": null,\n  \"formula\": \"t = d / c\",\n  \"provenance_tag\": null,\n  \"notes\": \"~0.0000 years. Sun-Earth (1 AU): 8.32 min. Earth-Moon: 1.28 s. Alpha Centauri (4.24 ly): 4.24 yr.\",\n  \"inputs\": {\n    \"distance_m\": 149600000000.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "light_travel_time",
+        "args": {
+          "distance_m": 149600000000
+        },
+        "result_text": "{\n  \"value\": 499.01188641643546,\n  \"units\": \"s\",\n  \"source\": \"sigma-ground (light travel time)\",\n  \"uncertainty\": null,\n  \"formula\": \"t = d / c\",\n  \"provenance_tag\": null,\n  \"notes\": \"~0.0000 years. Sun-Earth (1 AU): 8.32 min. Earth-Moon: 1.28 s. Alpha Centauri (4.24 ly): 4.24 yr.\",\n  \"inputs\": {\n    \"distance_m\": 149600000000.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "light_travel_time",
+        "args": {
+          "distance_m": 149600000000
+        },
+        "result_text": "{\n  \"value\": 499.01188641643546,\n  \"units\": \"s\",\n  \"source\": \"sigma-ground (light travel time)\",\n  \"uncertainty\": null,\n  \"formula\": \"t = d / c\",\n  \"provenance_tag\": null,\n  \"notes\": \"~0.0000 years. Sun-Earth (1 AU): 8.32 min. Earth-Moon: 1.28 s. Alpha Centauri (4.24 ly): 4.24 yr.\",\n  \"inputs\": {\n    \"distance_m\": 149600000000.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "light_travel_time",
+        "args": {
+          "distance_m": 149600000000
+        },
+        "result_text": "{\n  \"value\": 499.01188641643546,\n  \"units\": \"s\",\n  \"source\": \"sigma-ground (light travel time)\",\n  \"uncertainty\": null,\n  \"formula\": \"t = d / c\",\n  \"provenance_tag\": null,\n  \"notes\": \"~0.0000 years. Sun-Earth (1 AU): 8.32 min. Earth-Moon: 1.28 s. Alpha Centauri (4.24 ly): 4.24 yr.\",\n  \"inputs\": {\n    \"distance_m\": 149600000000.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 8,
+    "elapsed_s": 91.88042306900024,
+    "extracted_via_fallback": true,
+    "nudges_sent": 7,
+    "grounded": false,
+    "groundedness_reason": "LLM failed to converge (max turns / error)"
+  },
+  {
+    "id": "mech_adv_005",
+    "system": "sigma_ground",
+    "model": "qwen3:8b",
+    "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n",
+    "extracted_value": null,
+    "extracted_units": "",
+    "tool_calls": [],
+    "turns": 3,
+    "elapsed_s": 35.219950914382935,
+    "extracted_via_fallback": false,
+    "nudges_sent": 2,
+    "grounded": false,
+    "groundedness_reason": "no value produced (error/empty)"
+  },
+  {
+    "id": "mech_adv_006",
+    "system": "sigma_ground",
+    "model": "qwen3:8b",
+    "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
+    "extracted_value": 4724738000.0,
+    "extracted_units": "J",
+    "tool_calls": [
+      {
+        "name": "kinetic_energy",
+        "args": {
+          "mass_kg": 1000,
+          "velocity_m_s": 3074
+        },
+        "result_text": "{\n  \"value\": 4724738000.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Newtonian kinematics)\",\n  \"uncertainty\": null,\n  \"formula\": \"KE = (1/2) m v^2\",\n  \"provenance_tag\": null,\n  \"notes\": \"Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.\",\n  \"inputs\": {\n    \"mass_kg\": 1000.0,\n    \"velocity_m_s\": 3074.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "kinetic_energy",
+        "args": {
+          "mass_kg": 1000,
+          "velocity_m_s": 3074
+        },
+        "result_text": "{\n  \"value\": 4724738000.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Newtonian kinematics)\",\n  \"uncertainty\": null,\n  \"formula\": \"KE = (1/2) m v^2\",\n  \"provenance_tag\": null,\n  \"notes\": \"Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.\",\n  \"inputs\": {\n    \"mass_kg\": 1000.0,\n    \"velocity_m_s\": 3074.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "kinetic_energy",
+        "args": {
+          "velocity_m_s": 3074,
+          "mass_kg": 1000
+        },
+        "result_text": "{\n  \"value\": 4724738000.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Newtonian kinematics)\",\n  \"uncertainty\": null,\n  \"formula\": \"KE = (1/2) m v^2\",\n  \"provenance_tag\": null,\n  \"notes\": \"Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.\",\n  \"inputs\": {\n    \"mass_kg\": 1000.0,\n    \"velocity_m_s\": 3074.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "kinetic_energy",
+        "args": {
+          "mass_kg": 1000,
+          "velocity_m_s": 3074
+        },
+        "result_text": "{\n  \"value\": 4724738000.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Newtonian kinematics)\",\n  \"uncertainty\": null,\n  \"formula\": \"KE = (1/2) m v^2\",\n  \"provenance_tag\": null,\n  \"notes\": \"Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.\",\n  \"inputs\": {\n    \"mass_kg\": 1000.0,\n    \"velocity_m_s\": 3074.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "kinetic_energy",
+        "args": {
+          "mass_kg": 1000,
+          "velocity_m_s": 3074
+        },
+        "result_text": "{\n  \"value\": 4724738000.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Newtonian kinematics)\",\n  \"uncertainty\": null,\n  \"formula\": \"KE = (1/2) m v^2\",\n  \"provenance_tag\": null,\n  \"notes\": \"Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.\",\n  \"inputs\": {\n    \"mass_kg\": 1000.0,\n    \"velocity_m_s\": 3074.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "kinetic_energy",
+        "args": {
+          "mass_kg": 1000,
+          "velocity_m_s": 3074
+        },
+        "result_text": "{\n  \"value\": 4724738000.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Newtonian kinematics)\",\n  \"uncertainty\": null,\n  \"formula\": \"KE = (1/2) m v^2\",\n  \"provenance_tag\": null,\n  \"notes\": \"Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.\",\n  \"inputs\": {\n    \"mass_kg\": 1000.0,\n    \"velocity_m_s\": 3074.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "kinetic_energy",
+        "args": {
+          "mass_kg": 1000,
+          "velocity_m_s": 3074
+        },
+        "result_text": "{\n  \"value\": 4724738000.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Newtonian kinematics)\",\n  \"uncertainty\": null,\n  \"formula\": \"KE = (1/2) m v^2\",\n  \"provenance_tag\": null,\n  \"notes\": \"Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.\",\n  \"inputs\": {\n    \"mass_kg\": 1000.0,\n    \"velocity_m_s\": 3074.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "kinetic_energy",
+        "args": {
+          "mass_kg": 1000,
+          "velocity_m_s": 3074
+        },
+        "result_text": "{\n  \"value\": 4724738000.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (Newtonian kinematics)\",\n  \"uncertainty\": null,\n  \"formula\": \"KE = (1/2) m v^2\",\n  \"provenance_tag\": null,\n  \"notes\": \"Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.\",\n  \"inputs\": {\n    \"mass_kg\": 1000.0,\n    \"velocity_m_s\": 3074.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 8,
+    "elapsed_s": 107.01244282722473,
+    "extracted_via_fallback": true,
+    "nudges_sent": 7,
+    "grounded": false,
+    "groundedness_reason": "LLM failed to converge (max turns / error)"
+  },
+  {
+    "id": "mech_adv_007",
+    "system": "sigma_ground",
+    "model": "qwen3:8b",
+    "answer_text": "ANSWER: 6.02e+04 m/s\n\n[semantic interpreter -> escape_velocity_classical (similarity 0.73)]\nWork: v_esc = sqrt(2 G M / r)\nSource: sigma-ground (classical escape velocity)",
+    "extracted_value": 60199.54469228901,
+    "extracted_units": "m/s",
+    "tool_calls": [
+      "escape_velocity_classical"
+    ],
+    "turns": 0,
+    "elapsed_s": 2.1678411960601807,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "semantic_router_hit": "escape_velocity_classical",
+    "grounded": true,
+    "groundedness_reason": "deterministic dispatch (escape_velocity_classical)"
+  },
+  {
+    "id": "mech_adv_008",
+    "system": "sigma_ground",
+    "model": "qwen3:8b",
+    "answer_text": "ANSWER: 1018.8354733699033 m/s\n\nComputed via new_tools_classifier: orbital_velocity (Moon orbit radius 384,000 km)",
+    "extracted_value": 1018.8354733699033,
+    "extracted_units": "m/s",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 0.0002353191375732422,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "new_tools_router_hit": "orbital_velocity",
+    "grounded": true,
+    "groundedness_reason": "deterministic dispatch (orbital_velocity)"
+  },
+  {
+    "id": "mech_adv_009",
+    "system": "sigma_ground",
+    "model": "qwen3:8b",
+    "answer_text": "ANSWER: 7664.071403380863 m/s\n\nComputed via new_tools_classifier: orbital_velocity (Earth orbit at 408 km altitude)",
+    "extracted_value": 7664.071403380863,
+    "extracted_units": "m/s",
+    "tool_calls": [],
+    "turns": 0,
+    "elapsed_s": 8.654594421386719e-05,
+    "extracted_via_fallback": false,
+    "nudges_sent": 0,
+    "new_tools_router_hit": "orbital_velocity",
+    "grounded": true,
+    "groundedness_reason": "deterministic dispatch (orbital_velocity)"
+  },
+  {
+    "id": "mech_adv_010",
+    "system": "sigma_ground",
+    "model": "qwen3:8b",
+    "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
+    "extracted_value": 350940776900.0,
+    "extracted_units": "J",
+    "tool_calls": [
+      {
+        "name": "gravitational_potential_energy",
+        "args": {
+          "g_m_s2": 9.80665,
+          "height_m": 35786000,
+          "mass_kg": 1000
+        },
+        "result_text": "{\n  \"value\": 350940776900.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (uniform gravity approximation)\",\n  \"uncertainty\": null,\n  \"formula\": \"U = m g h\",\n  \"provenance_tag\": null,\n  \"notes\": \"Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.\",\n  \"inputs\": {\n    \"mass_kg\": 1000.0,\n    \"height_m\": 35786000.0,\n    \"g_m_s2\": 9.80665\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "gravitational_potential_energy",
+        "args": {
+          "g_m_s2": 9.80665,
+          "mass_kg": 1000,
+          "height_m": 35786000
+        },
+        "result_text": "{\n  \"value\": 350940776900.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (uniform gravity approximation)\",\n  \"uncertainty\": null,\n  \"formula\": \"U = m g h\",\n  \"provenance_tag\": null,\n  \"notes\": \"Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.\",\n  \"inputs\": {\n    \"mass_kg\": 1000.0,\n    \"height_m\": 35786000.0,\n    \"g_m_s2\": 9.80665\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "gravitational_potential_energy",
+        "args": {
+          "mass_kg": 1000,
+          "g_m_s2": 9.80665,
+          "height_m": 35786000
+        },
+        "result_text": "{\n  \"value\": 350940776900.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (uniform gravity approximation)\",\n  \"uncertainty\": null,\n  \"formula\": \"U = m g h\",\n  \"provenance_tag\": null,\n  \"notes\": \"Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.\",\n  \"inputs\": {\n    \"mass_kg\": 1000.0,\n    \"height_m\": 35786000.0,\n    \"g_m_s2\": 9.80665\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "gravitational_potential_energy",
+        "args": {
+          "g_m_s2": 9.80665,
+          "height_m": 35786000,
+          "mass_kg": 1000
+        },
+        "result_text": "{\n  \"value\": 350940776900.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (uniform gravity approximation)\",\n  \"uncertainty\": null,\n  \"formula\": \"U = m g h\",\n  \"provenance_tag\": null,\n  \"notes\": \"Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.\",\n  \"inputs\": {\n    \"mass_kg\": 1000.0,\n    \"height_m\": 35786000.0,\n    \"g_m_s2\": 9.80665\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "gravitational_potential_energy",
+        "args": {
+          "g_m_s2": 9.80665,
+          "height_m": 35786000,
+          "mass_kg": 1000
+        },
+        "result_text": "{\n  \"value\": 350940776900.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (uniform gravity approximation)\",\n  \"uncertainty\": null,\n  \"formula\": \"U = m g h\",\n  \"provenance_tag\": null,\n  \"notes\": \"Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.\",\n  \"inputs\": {\n    \"mass_kg\": 1000.0,\n    \"height_m\": 35786000.0,\n    \"g_m_s2\": 9.80665\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "gravitational_potential_energy",
+        "args": {
+          "g_m_s2": 9.80665,
+          "height_m": 35786000,
+          "mass_kg": 1000
+        },
+        "result_text": "{\n  \"value\": 350940776900.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (uniform gravity approximation)\",\n  \"uncertainty\": null,\n  \"formula\": \"U = m g h\",\n  \"provenance_tag\": null,\n  \"notes\": \"Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.\",\n  \"inputs\": {\n    \"mass_kg\": 1000.0,\n    \"height_m\": 35786000.0,\n    \"g_m_s2\": 9.80665\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "gravitational_potential_energy",
+        "args": {
+          "g_m_s2": 9.80665,
+          "height_m": 35786000,
+          "mass_kg": 1000
+        },
+        "result_text": "{\n  \"value\": 350940776900.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (uniform gravity approximation)\",\n  \"uncertainty\": null,\n  \"formula\": \"U = m g h\",\n  \"provenance_tag\": null,\n  \"notes\": \"Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.\",\n  \"inputs\": {\n    \"mass_kg\": 1000.0,\n    \"height_m\": 35786000.0,\n    \"g_m_s2\": 9.80665\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "gravitational_potential_energy",
+        "args": {
+          "g_m_s2": 9.80665,
+          "height_m": 35786000,
+          "mass_kg": 1000
+        },
+        "result_text": "{\n  \"value\": 350940776900.0,\n  \"units\": \"J\",\n  \"source\": \"sigma-ground (uniform gravity approximation)\",\n  \"uncertainty\": null,\n  \"formula\": \"U = m g h\",\n  \"provenance_tag\": null,\n  \"notes\": \"Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.\",\n  \"inputs\": {\n    \"mass_kg\": 1000.0,\n    \"height_m\": 35786000.0,\n    \"g_m_s2\": 9.80665\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 8,
+    "elapsed_s": 139.786936044693,
+    "extracted_via_fallback": true,
+    "nudges_sent": 7,
+    "grounded": false,
+    "groundedness_reason": "LLM failed to converge (max turns / error)"
+  },
+  {
+    "id": "em_adv_001",
+    "system": "sigma_ground",
+    "model": "qwen3:8b",
+    "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
+    "extracted_value": 9.200320945220193e-05,
+    "extracted_units": "m",
+    "tool_calls": [
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 2450000000000,
+          "refractive_index": 1.33
+        },
+        "result_text": "{\n  \"value\": 0.00009200320945220193,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 2450000000000.0,\n    \"refractive_index\": 1.33\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 2450000000000,
+          "refractive_index": 1.33
+        },
+        "result_text": "{\n  \"value\": 0.00009200320945220193,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 2450000000000.0,\n    \"refractive_index\": 1.33\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 2450000000000,
+          "refractive_index": 1.33
+        },
+        "result_text": "{\n  \"value\": 0.00009200320945220193,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 2450000000000.0,\n    \"refractive_index\": 1.33\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 2450000000000,
+          "refractive_index": 1.33
+        },
+        "result_text": "{\n  \"value\": 0.00009200320945220193,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 2450000000000.0,\n    \"refractive_index\": 1.33\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 2450000000000,
+          "refractive_index": 1.33
+        },
+        "result_text": "{\n  \"value\": 0.00009200320945220193,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 2450000000000.0,\n    \"refractive_index\": 1.33\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 2450000000000,
+          "refractive_index": 1.33
+        },
+        "result_text": "{\n  \"value\": 0.00009200320945220193,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 2450000000000.0,\n    \"refractive_index\": 1.33\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 2450000000000,
+          "refractive_index": 1.33
+        },
+        "result_text": "{\n  \"value\": 0.00009200320945220193,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 2450000000000.0,\n    \"refractive_index\": 1.33\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "em_wave_wavelength",
+        "args": {
+          "frequency_hz": 2450000000000,
+          "refractive_index": 1.33
+        },
+        "result_text": "{\n  \"value\": 0.00009200320945220193,\n  \"units\": \"m\",\n  \"source\": \"sigma-ground (EM wave dispersion in medium)\",\n  \"uncertainty\": null,\n  \"formula\": \"lambda = c / (n f)\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"frequency_hz\": 2450000000000.0,\n    \"refractive_index\": 1.33\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 8,
+    "elapsed_s": 112.65644931793213,
+    "extracted_via_fallback": true,
+    "nudges_sent": 7,
+    "grounded": false,
+    "groundedness_reason": "LLM failed to converge (max turns / error)"
+  },
+  {
+    "id": "em_adv_002",
+    "system": "sigma_ground",
+    "model": "qwen3:8b",
+    "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
+    "extracted_value": 1.2,
+    "extracted_units": "",
+    "tool_calls": [
+      {
+        "name": "percent_of",
+        "args": {
+          "percent": 2,
+          "value": 60
+        },
+        "result_text": "{\n  \"value\": 1.2,\n  \"units\": \"\",\n  \"source\": \"sigma-ground (arithmetic)\",\n  \"uncertainty\": null,\n  \"formula\": \"(percent/100) * value\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"percent\": 2.0,\n    \"value\": 60.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "percent_of",
+        "args": {
+          "percent": 2,
+          "value": 60
+        },
+        "result_text": "{\n  \"value\": 1.2,\n  \"units\": \"\",\n  \"source\": \"sigma-ground (arithmetic)\",\n  \"uncertainty\": null,\n  \"formula\": \"(percent/100) * value\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"percent\": 2.0,\n    \"value\": 60.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "percent_of",
+        "args": {
+          "value": 60,
+          "percent": 2
+        },
+        "result_text": "{\n  \"value\": 1.2,\n  \"units\": \"\",\n  \"source\": \"sigma-ground (arithmetic)\",\n  \"uncertainty\": null,\n  \"formula\": \"(percent/100) * value\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"percent\": 2.0,\n    \"value\": 60.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "percent_of",
+        "args": {
+          "value": 60,
+          "percent": 2
+        },
+        "result_text": "{\n  \"value\": 1.2,\n  \"units\": \"\",\n  \"source\": \"sigma-ground (arithmetic)\",\n  \"uncertainty\": null,\n  \"formula\": \"(percent/100) * value\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"percent\": 2.0,\n    \"value\": 60.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "percent_of",
+        "args": {
+          "percent": 2,
+          "value": 60
+        },
+        "result_text": "{\n  \"value\": 1.2,\n  \"units\": \"\",\n  \"source\": \"sigma-ground (arithmetic)\",\n  \"uncertainty\": null,\n  \"formula\": \"(percent/100) * value\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"percent\": 2.0,\n    \"value\": 60.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "percent_of",
+        "args": {
+          "percent": 2,
+          "value": 60
+        },
+        "result_text": "{\n  \"value\": 1.2,\n  \"units\": \"\",\n  \"source\": \"sigma-ground (arithmetic)\",\n  \"uncertainty\": null,\n  \"formula\": \"(percent/100) * value\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"percent\": 2.0,\n    \"value\": 60.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "percent_of",
+        "args": {
+          "percent": 2,
+          "value": 60
+        },
+        "result_text": "{\n  \"value\": 1.2,\n  \"units\": \"\",\n  \"source\": \"sigma-ground (arithmetic)\",\n  \"uncertainty\": null,\n  \"formula\": \"(percent/100) * value\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"percent\": 2.0,\n    \"value\": 60.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      },
+      {
+        "name": "percent_of",
+        "args": {
+          "percent": 2,
+          "value": 60
+        },
+        "result_text": "{\n  \"value\": 1.2,\n  \"units\": \"\",\n  \"source\": \"sigma-ground (arithmetic)\",\n  \"uncertainty\": null,\n  \"formula\": \"(percent/100) * value\",\n  \"provenance_tag\": null,\n  \"notes\": \"\",\n  \"inputs\": {\n    \"percent\": 2.0,\n    \"value\": 60.0\n  }\n}",
+        "renames_applied": [],
+        "chain_log": []
+      }
+    ],
+    "turns": 8,
+    "elapsed_s": 91.5169472694397,
+    "extracted_via_fallback": true,
+    "nudges_sent": 7,
+    "grounded": false,
+    "groundedness_reason": "LLM failed to converge (max turns / error)"
   }
 ]
