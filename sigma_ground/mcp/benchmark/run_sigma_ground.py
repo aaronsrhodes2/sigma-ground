@@ -313,15 +313,73 @@ _TOOL_VALUE_RE = re.compile(
 )
 _TOOL_UNITS_RE = re.compile(r'"units"\s*:\s*"([^"]*)"')
 
+# Bare numeric token (int/float/sci-notation), used to hunt for a value
+# inside prose that didn't follow the strict "ANSWER: <number>" format.
+_NUM_TOKEN_RE = re.compile(r'[\-+]?[0-9]+(?:\.[0-9]+)?(?:[eE][\-+]?[0-9]+)?')
+# LaTeX scientific notation: "3 \times 10^{-14}" -> "3e-14". Written by
+# any model that reaches for math-mode formatting in its final answer,
+# not one model family specifically.
+_LATEX_TIMES_POW10_RE = re.compile(
+    r'([0-9]+(?:\.[0-9]+)?)\s*\\times\s*10\s*\^\s*\{?\s*([\-+]?[0-9]+)\s*\}?'
+)
+
+
+def _clean_prose_answer(text: str) -> str:
+    """Strip common LaTeX/markdown wrapping so a numeric token in a
+    prose "ANSWER:" line can be found regardless of formatting style
+    (any model may wrap its final number in markdown bold, LaTeX math
+    delimiters, or \\text{...} units -- this is not model-specific).
+    """
+    text = _LATEX_TIMES_POW10_RE.sub(lambda m: f"{m.group(1)}e{m.group(2)}", text)
+    text = text.replace("$", " ").replace("\\,", " ").replace("\\;", " ")
+    text = re.sub(r'\\text\{([^}]*)\}', r'\1', text)   # \text{seconds} -> seconds
+    text = text.replace("**", "").replace("__", "")
+    return text
+
 
 def _extract_value(answer: str) -> tuple[Any, str]:
-    """Extract numeric value from an LLM 'ANSWER:' line."""
+    """Extract numeric value from an LLM 'ANSWER:' line.
+
+    Two tiers:
+      1. Strict: "ANSWER:" immediately followed by a bare number -- the
+         documented, requested format. No ambiguity.
+      2. Loose: "ANSWER:" followed by explanatory prose that still
+         states the number somewhere, e.g. "The power delivered by the
+         battery is 24 watts." or a LaTeX-wrapped
+         "$ 0.0001 \\, \\text{seconds} $". This is a pure formatting
+         slip, not a physics error -- the tool call already returned
+         the right number, the model just narrated it instead of
+         emitting the bare value. If the captured text has no digits
+         at all, it's a genuine non-numeric answer (a refusal like
+         "false" / "undefined" / "not a physical quantity", or an
+         explicit "[SOURCE: Fitted due to incompetence ...]" punt) --
+         return the raw string unchanged so refusal-type scoring
+         (which matches keywords in the raw text, not this value)
+         still works. If digits ARE present, pull out the LAST numeric
+         token: these sentences consistently state the result at the
+         end ("... is X units."), after any input values the prose
+         echoes earlier in the sentence. A caller-side cross-check
+         against actual tool-call results (see _value_matches_any_tool)
+         catches the rare case where this heuristic grabs the wrong
+         number.
+    """
     m = _VALUE_RE.search(answer)
     if not m:
         m2 = re.search(r"ANSWER:\s*([^\n]+)", answer, re.IGNORECASE)
-        if m2:
-            return m2.group(1).strip(), ""
-        return None, ""
+        if not m2:
+            return None, ""
+        raw = m2.group(1).strip()
+        cleaned = _clean_prose_answer(raw)
+        nums = _NUM_TOKEN_RE.findall(cleaned)
+        if not nums:
+            return raw, ""   # genuine non-numeric answer -- unchanged
+        val_str = nums[-1]
+        tail = cleaned[cleaned.rfind(val_str) + len(val_str):]
+        units = re.split(r'[.\n]', tail, maxsplit=1)[0].strip(" -:,")
+        try:
+            return float(val_str), units
+        except ValueError:
+            return raw, ""
     val_str = m.group(1)
     units = (m.group(2) or "").strip()
     try:
@@ -1123,18 +1181,39 @@ async def _run_one_question(session, ollama_url: str, model: str,
                     nudges_sent += 1
                     continue
                 fallback_used = False
+                # "Hallucinated incompetence": the model already has a
+                # valid grounded tool result but discards it in favor of
+                # the harness's own suggested escape-hatch phrasing (the
+                # nudge text above literally offers this exact tag) after
+                # repeated correction pressure. If a tool was already
+                # called, prefer its value over the punt -- the model HAD
+                # the answer, it just didn't trust/report it. Matched on
+                # the harness's own verbatim phrase, so this applies to
+                # any model that gets nudged into using it, not one
+                # family's phrasing.
+                if isinstance(val, str) and "incompetence" in val.lower() \
+                        and tool_calls_made:
+                    tv, tu = _extract_value_from_tool_calls(
+                        tool_calls_made,
+                        primary_tool_expected=primary_tool_expected,
+                        question=question)
+                    if tv is not None:
+                        val, units = tv, tu
+                        fallback_used = True
                 # Distrust text values that don't match any tool result --
                 # catches 'Qwen quoted the wrong tool's value' (e.g.
                 # mech_intro_009 reported 8.0 V when momentum tool gave 37500).
-                if isinstance(val, (int, float)) and tool_calls_made:
+                if isinstance(val, (int, float)) and tool_calls_made and not fallback_used:
                     tool_values = _all_tool_values(tool_calls_made)
                     if tool_values and not _value_matches_any_tool(
                             float(val), tool_values):
                         # Text value diverges from all tool results -- bin it
                         val = None
                         units = ""
-                # Fallback: if the LLM forgot the ANSWER: line but did call
-                # tools, pull value/units from the appropriate tool result.
+                # Fallback: if the LLM forgot the ANSWER: line, gave a
+                # value that didn't survive the checks above, or wrote
+                # non-numeric prose with no salvageable number, pull
+                # value/units from the appropriate tool result directly.
                 # Prefer the expected primary tool's result if available.
                 if val is None and tool_calls_made:
                     val, units = _extract_value_from_tool_calls(
