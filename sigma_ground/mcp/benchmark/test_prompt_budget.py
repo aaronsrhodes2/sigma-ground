@@ -46,5 +46,8 @@ def test_aka_line_cap_is_six_per_tool():
     for line in tool_index.splitlines():
         line = line.strip()
         if line.startswith("AKA:"):
-            n = line[len("AKA:"):].count("|") + 1
+            # Split on the exact " | " join delimiter, not bare "|" -- a
+            # keyword can itself contain a literal pipe (e.g. matrix_determinant's
+            # "|A|"), which would inflate a raw character count.
+            n = len(line[len("AKA:"):].strip().split(" | "))
             assert n <= 6, f"AKA line exceeds the 6-keyword cap: {line[:120]!r}"

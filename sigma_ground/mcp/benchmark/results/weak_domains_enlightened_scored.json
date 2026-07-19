@@ -77,7 +77,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "It seems there was a misunderstanding in the previous interaction, as the provided response does not match any of the functions listed for calling. The data appears to be related to calculating the Hawking temperature (\\(T_H\\)) of a black hole given its mass.\n\nGiven that we have the result and it's associated with the function `de_broglie_wavelength` was not applicable here, I will infer that you might want to calculate or understand the Hawking temperature for a different mass. If so, please provide the new mass in kilograms (kg) for which you would like to compute the Hawking temperature.\n\nIf your intention is something else, could you clarify what you're looking to achieve with this information?",
       "elapsed_s": 228.09870219230652,
-      "notes": "rel_err 1.197e-05"
+      "notes": "match"
     },
     {
       "id": "gr_005",
@@ -85,7 +85,7 @@
       "domain": "general_relativity",
       "correct": false,
       "extracted_value": null,
-      "expected_value": 2.1e+76,
+      "expected_value": 6.618e+77,
       "rel_error": null,
       "tolerance_rel": 0.1,
       "answer_text": "",
@@ -98,7 +98,7 @@
       "domain": "general_relativity",
       "correct": false,
       "extracted_value": null,
-      "expected_value": 0.0264,
+      "expected_value": 0.181,
       "rel_error": null,
       "tolerance_rel": 0.05,
       "answer_text": "<ERROR: >",
@@ -177,11 +177,11 @@
       "correct": false,
       "extracted_value": 0.2,
       "expected_value": 13700000000.0,
-      "rel_error": 1.0,
+      "rel_error": 0.9999999999854015,
       "tolerance_rel": 0.05,
       "answer_text": "It seems there was an error because the function `rlc_resonant_frequency` requires both inductance (L) and capacitance (C) values to be provided, but none were given.\n\nIf you want to calculate the resonant frequency of an RLC circuit, please provide the inductance in Henrys (H) and capacitance in Farads (F).\n\nWould you like to proceed with providing these values? If so, what are the inductance and capacitance for your specific case?",
       "elapsed_s": 132.29271912574768,
-      "notes": "rel_err 1.000e+00 [unit-converted 's'->'year']"
+      "notes": "rel_err 1.000e+00"
     },
     {
       "id": "cosmo_003",
@@ -202,7 +202,7 @@
       "domain": "cosmology",
       "correct": false,
       "extracted_value": -13.605693122994,
-      "expected_value": "mond",
+      "expected_value": "transition",
       "rel_error": null,
       "tolerance_rel": 0,
       "answer_text": "\u0e04\u0e13\u0e30\u0e01\u0e23\u0e23\u0e21\u0e01\u0e32\u0e23\u0e17\u0e33\u0e04\u0e27\u0e32\u0e21\u0e40\u0e02\u0e49\u0e32\u0e43\u0e08\u0e27\u0e48\u0e32\u0e04\u0e38\u0e13\u0e2d\u0e32\u0e08\u0e15\u0e49\u0e2d\u0e07\u0e01\u0e32\u0e23\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e40\u0e01\u0e35\u0e48\u0e22\u0e27\u0e01\u0e31\u0e1a\u0e18\u0e32\u0e15\u0e38\u0e44\u0e2e\u0e42\u0e14\u0e23\u0e40\u0e08\u0e19 (Hydrogen) \u0e42\u0e14\u0e22\u0e17\u0e35\u0e48\u0e1f\u0e31\u0e07\u0e01\u0e4c\u0e0a\u0e31\u0e19 `element_atomic_data` \u0e44\u0e14\u0e49\u0e2a\u0e48\u0e07\u0e01\u0e25\u0e31\u0e1a\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e14\u0e31\u0e07\u0e19\u0e35\u0e49:\n\n{\n  \"name\": \"hydrogen\",\n  \"symbol\": \"H\",\n  \"atomic_number\": 1,\n  \"atomic_mass_amu\": 1.008,\n  \"covalent_radius_angstrom\": 0.31\n}\n\n\u0e2b\u0e32\u0e01\u0e04\u0e38\u0e13\u0e15\u0e49\u0e2d\u0e07\u0e01\u0e32\u0e23\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e40\u0e15\u0e34\u0e21\u0e2b\u0e23\u0e37\u0e2d\u0e1f\u0e31\u0e07\u0e01\u0e4c\u0e0a\u0e31\u0e19\u0e2d\u0e37\u0e48\u0e19 \u0e46 \u0e40\u0e01\u0e35\u0e48\u0e22\u0e27\u0e01\u0e31\u0e1a\u0e18\u0e32\u0e15\u0e38\u0e44\u0e2e\u0e42\u0e14\u0e23\u0e40\u0e08\u0e19 \u0e01\u0e23\u0e38\u0e13\u0e32\u0e1a\u0e2d\u0e01\u0e43\u0e2b\u0e49\u0e17\u0e23\u0e32\u0e1a\u0e14\u0e49\u0e27\u0e22\u0e04\u0e23\u0e31\u0e1a/\u0e04\u0e48\u0e30",
@@ -319,7 +319,7 @@
       "domain": "nuclear_physics",
       "correct": false,
       "extracted_value": null,
-      "expected_value": 19.6,
+      "expected_value": 0.0196,
       "rel_error": null,
       "tolerance_rel": 0.1,
       "answer_text": "<ERROR: >",

@@ -42,7 +42,7 @@ def test_colloquial_coverage_floor():
     registered = {t["name"] for t in M._PRIMARY_TOOLS}
     covered = sum(1 for name in registered if tk._COLLOQUIAL.get(name))
     pct = 100.0 * covered / len(registered)
-    floor = 31.5   # 2026-07-14 baseline: 72/226 (31.9%) -- raise as coverage grows
+    floor = 99.0   # 2026-07-15: Wave 5 swept to 228/228 (100%) -- small margin for drift
     assert pct >= floor, (
         f"colloquial (layman-phrasing) coverage dropped to {pct:.1f}% "
         f"({covered}/{len(registered)}), below the {floor}% floor"

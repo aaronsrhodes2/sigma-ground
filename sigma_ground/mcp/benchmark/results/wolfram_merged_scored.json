@@ -1,18 +1,18 @@
 {
   "summary": {
-    "overall_accuracy_pct": 20.0,
-    "overall_correct": 30,
+    "overall_accuracy_pct": 37.333333333333336,
+    "overall_correct": 56,
     "overall_total": 150,
     "by_domain": {
       "classical_mechanics_intro": {
-        "correct": 4,
+        "correct": 11,
         "total": 15,
-        "pct": 26.666666666666668
+        "pct": 73.33333333333333
       },
       "electromagnetism_intro": {
-        "correct": 5,
+        "correct": 1,
         "total": 15,
-        "pct": 33.333333333333336
+        "pct": 6.666666666666667
       },
       "waves_optics": {
         "correct": 2,
@@ -20,54 +20,54 @@
         "pct": 16.666666666666668
       },
       "thermodynamics_statmech": {
-        "correct": 3,
-        "total": 12,
-        "pct": 25.0
-      },
-      "modern_physics": {
-        "correct": 1,
-        "total": 12,
-        "pct": 8.333333333333334
-      },
-      "quantum_mechanics": {
-        "correct": 2,
-        "total": 12,
-        "pct": 16.666666666666668
-      },
-      "classical_mechanics_advanced": {
-        "correct": 1,
-        "total": 10,
-        "pct": 10.0
-      },
-      "electrodynamics_advanced": {
-        "correct": 0,
-        "total": 10,
-        "pct": 0.0
-      },
-      "general_relativity": {
-        "correct": 0,
-        "total": 10,
-        "pct": 0.0
-      },
-      "cosmology": {
-        "correct": 1,
-        "total": 8,
-        "pct": 12.5
-      },
-      "astrophysics": {
         "correct": 5,
         "total": 12,
         "pct": 41.666666666666664
       },
-      "atomic_molecular": {
+      "modern_physics": {
         "correct": 4,
+        "total": 12,
+        "pct": 33.333333333333336
+      },
+      "quantum_mechanics": {
+        "correct": 5,
+        "total": 12,
+        "pct": 41.666666666666664
+      },
+      "classical_mechanics_advanced": {
+        "correct": 3,
+        "total": 10,
+        "pct": 30.0
+      },
+      "electrodynamics_advanced": {
+        "correct": 3,
+        "total": 10,
+        "pct": 30.0
+      },
+      "general_relativity": {
+        "correct": 2,
+        "total": 10,
+        "pct": 20.0
+      },
+      "cosmology": {
+        "correct": 2,
         "total": 8,
-        "pct": 50.0
+        "pct": 25.0
+      },
+      "astrophysics": {
+        "correct": 7,
+        "total": 12,
+        "pct": 58.333333333333336
+      },
+      "atomic_molecular": {
+        "correct": 5,
+        "total": 8,
+        "pct": 62.5
       },
       "nuclear_physics": {
-        "correct": 0,
+        "correct": 4,
         "total": 7,
-        "pct": 0.0
+        "pct": 57.142857142857146
       },
       "mathematical_methods": {
         "correct": 2,
@@ -81,66 +81,66 @@
       "id": "mech_intro_001",
       "system": "wolfram",
       "domain": "classical_mechanics_intro",
-      "correct": false,
-      "extracted_value": 31.333,
+      "correct": true,
+      "extracted_value": 1.4,
       "expected_value": 1.428,
-      "rel_error": 20.941876750700278,
+      "rel_error": 0.01960784313725492,
       "tolerance_rel": 0.02,
-      "answer_text": "[Input information] free fall | \nfall distance | 10 meters\ngravitational acceleration | 9.81 m/s^2 (meters per second squared)\nmass | g (gluon) (mass): 0 MeV/c^2\n[Results] time | 1.4278 seconds\nspeed | 14.007 m/s (meters per second)\n= 31.333 mph (miles per hour)\n= 45.955 ft/s (feet per second)\n[Equations] v = g t | t = sqrt((2 z)/g) | \nt | time\nz | fall distance\ng | gravitational acceleration\nv | speed\n(assuming no drag and no dependence on altitude)\n(result does not depend on mass)",
-      "elapsed_s": 0.0,
-      "notes": "rel_err 2.094e+01"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "mech_intro_002",
       "system": "wolfram",
       "domain": "classical_mechanics_intro",
       "correct": false,
-      "extracted_value": 9.81,
+      "extracted_value": null,
       "expected_value": 31.32,
-      "rel_error": 0.6867816091954022,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Input interpretation] Free Fall | maximum speed | gram | 9.81 m/s^2 (meters per second squared) | 50 meters (height)\n[Result] {(data not available), gram, 9.81 m/s^2 (meters per second squared), 50 meters}",
-      "elapsed_s": 0.0,
-      "notes": "rel_err 6.868e-01"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "no value extracted"
     },
     {
       "id": "mech_intro_003",
       "system": "wolfram",
       "domain": "classical_mechanics_intro",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 1020.0,
       "expected_value": 1019.7,
-      "rel_error": null,
+      "rel_error": 0.00029420417769927874,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "mech_intro_004",
       "system": "wolfram",
       "domain": "classical_mechanics_intro",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 130.0,
       "expected_value": 127.47,
-      "rel_error": null,
+      "rel_error": 0.019847807327214254,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "mech_intro_005",
       "system": "wolfram",
       "domain": "classical_mechanics_intro",
       "correct": true,
-      "extracted_value": 5461000000000.0,
+      "extracted_value": 875.0,
       "expected_value": 875.0,
-      "rel_error": 5.867448297158262e-05,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "[Input information] kinetic energy | \nmass | 70 kg (kilograms)\nvelocity | 5 m/s (meters per second)\n[Result] kinetic energy | 875 J (joules)\n= 0.2431 W h (watt hours)\n= 5.461 \u00d7 10^12 GeV (gigaelectronvolts)\n[Equation] K = (m v^2)/2 | \nK | kinetic energy\nm | mass\nv | velocity\n(the energy of an object due to its motion)",
-      "elapsed_s": 0.0,
-      "notes": "match [unit-converted gev->j]"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "mech_intro_006",
@@ -151,22 +151,22 @@
       "expected_value": 0.1274,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
       "id": "mech_intro_007",
       "system": "wolfram",
       "domain": "classical_mechanics_intro",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 7673.0,
       "expected_value": 7670,
-      "rel_error": null,
+      "rel_error": 0.0003911342894393742,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "mech_intro_008",
@@ -186,130 +186,130 @@
       "system": "wolfram",
       "domain": "classical_mechanics_intro",
       "correct": true,
-      "extracted_value": 8430.0,
+      "extracted_value": 37500.0,
       "expected_value": 37500,
-      "rel_error": 3.978088943947417e-05,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "[Input information] nonrelativistic momentum | \nmass | 1500 kg (kilograms)\nvelocity | 25 m/s (meters per second)\n[Result] momentum | 37500 kg m/s (kilogram meters per second)\n= 8430 lbf s (pound-force seconds)\n= 37500 J s/m (joule seconds per meter)\n[Equation] p = m v | \np | momentum\nm | mass\nv | velocity",
-      "elapsed_s": 0.0,
-      "notes": "match [unit-converted lbf s->kg m/s]"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "mech_intro_010",
       "system": "wolfram",
       "domain": "classical_mechanics_intro",
       "correct": true,
-      "extracted_value": 19.07,
+      "extracted_value": 68650.0,
       "expected_value": 68646,
-      "rel_error": 8.7404947120007e-05,
+      "rel_error": 5.826996474667133e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "[Input information] gravitational potential energy | \nmass | 70 kg (kilograms)\nheight | 100 meters\ngravitational acceleration | 1 g (standard acceleration due to gravity on the surface of the earth)\n[Result] gravitational potential energy | 68.65 kJ (kilojoules)\n= 19.07 W h (watt hours)\n= 0.01907 kW h (kilowatt hours)\n[Equation] U = m g h | \nU | gravitational potential energy\nm | mass\nh | height\ng | gravitational acceleration\n(energy of an object due to gravity near the surface of a gravitating body)",
-      "elapsed_s": 0.0,
-      "notes": "match [unit-converted w h->j]"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "mech_intro_011",
       "system": "wolfram",
       "domain": "classical_mechanics_intro",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 3.5082,
       "expected_value": 3.508,
-      "rel_error": null,
+      "rel_error": 5.701254275940079e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "mech_intro_012",
       "system": "wolfram",
       "domain": "classical_mechanics_intro",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 4.079,
       "expected_value": 4.079,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "mech_intro_013",
       "system": "wolfram",
       "domain": "classical_mechanics_intro",
       "correct": true,
-      "extracted_value": 4993000000000.0,
+      "extracted_value": 800.0,
       "expected_value": 800.0,
-      "rel_error": 4.1508304750124126e-05,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "[Input information] kinetic energy | \nmass | 0.01 kg (kilograms)\nvelocity | 400 m/s (meters per second)\n[Result] kinetic energy | 800 J (joules)\n= 0.2222 W h (watt hours)\n= 4.993 \u00d7 10^12 GeV (gigaelectronvolts)\n[Equation] K = (m v^2)/2 | \nK | kinetic energy\nm | mass\nv | velocity\n(the energy of an object due to its motion)",
-      "elapsed_s": 0.0,
-      "notes": "match [unit-converted gev->j]"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "mech_intro_014",
       "system": "wolfram",
       "domain": "classical_mechanics_intro",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 20.0,
       "expected_value": 20.0,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "mech_intro_015",
       "system": "wolfram",
       "domain": "classical_mechanics_intro",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 3074.0,
       "expected_value": 0.0,
       "rel_error": null,
       "tolerance_rel": 0.1,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "no match"
     },
     {
       "id": "em_intro_001",
       "system": "wolfram",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 0.05,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 0.05,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Input information] Ohm's law | \nvoltage | 5 V (volts)\nelectric resistance | 100 \u03a9 (ohms)\n[Result] electric current | 50 mA (milliamperes)\n= 0.05 A (amperes)\n[Equation] V = I R | \nI | electric current\nV | voltage\nR | electric resistance",
-      "elapsed_s": 0.0,
-      "notes": "match"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_002",
       "system": "wolfram",
       "domain": "electromagnetism_intro",
-      "correct": false,
-      "extracted_value": 21530000000000.0,
+      "correct": true,
+      "extracted_value": 24.0,
       "expected_value": 24.0,
-      "rel_error": 102336679594.4065,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "[Input interpretation] all countries, dependencies, and territories | electricity generation (12 V (volts) (electric potential)) \u00d7 2 a\n[Result] a 24 V (volts) 2.153 \u00d7 10^13 kW h/yr (kilowatt hours per year) (Jan 1, 2012 and Jan 1, 2024)",
-      "elapsed_s": 0.0,
-      "notes": "rel_err 1.023e+11"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "em_intro_003",
       "system": "wolfram",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 0.008854,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 8.854e-09,
-      "rel_error": 1.868490202288294e-16,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Input information] capacitance of parallel plates | \narea of overlap of the two plates | 1 m^2 (square meter)\ndistance | 0.001 meters\npermittivity | \u03b5_0 (electric constant)\n[Result] electric capacitance | 8.854 nF (nanofarads)\n= 0.008854 \u03bcF (microfarads)\n= 8854 pF (picofarads)\n[Equation] C = (\u03f5 A)/d | \nC | electric capacitance\nA | area of overlap of the two plates\nd | distance\n\u03f5 | permittivity\n(capacitance of two parallel plates, given the geometry)",
-      "elapsed_s": 0.0,
-      "notes": "match [unit-converted \u03bcf->f]"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_004",
@@ -320,8 +320,8 @@
       "expected_value": 0.001,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -333,22 +333,22 @@
       "expected_value": 5032.9,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
       "id": "em_intro_006",
       "system": "wolfram",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 9.836,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 2.998,
-      "rel_error": 4.2695130084989635e-06,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Input information] photon wavelength | \nfrequency | 1 \u00d7 10^8 Hz (hertz)\n[Result] wavelength | 2.998 meters\n= 9.836 feet\n= 9' 10.03\"\n[Equation] \u03bd = c/\u03bb | \n\u03bb | wavelength\n\u03bd | frequency\nc | speed of light (\u2248 2.998 \u00d7 10^8 m/s)",
-      "elapsed_s": 0.0,
-      "notes": "match [unit-converted feet->m]"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_007",
@@ -368,26 +368,26 @@
       "system": "wolfram",
       "domain": "electromagnetism_intro",
       "correct": false,
-      "extracted_value": 21530000000000.0,
+      "extracted_value": null,
       "expected_value": 250.0,
-      "rel_error": 9824321240.159023,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Input interpretation] all countries, dependencies, and territories | electricity generation \u00d7 5 a (10 \u03a9 (ohms) (electric resistance))\n[Result] a 50 \u03a9 (ohms) 2.153 \u00d7 10^13 kW h/yr (kilowatt hours per year) (Jan 1, 2012 and Jan 1, 2024)",
-      "elapsed_s": 0.0,
-      "notes": "rel_err 9.824e+09"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_009",
       "system": "wolfram",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 0.2,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 0.2,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Input information] Ohm's law | \nvoltage | 10 V (volts)\nelectric resistance | 50 \u03a9 (ohms)\n[Result] electric current | 200 mA (milliamperes)\n= 0.2 A (amperes)\n[Equation] V = I R | \nI | electric current\nV | voltage\nR | electric resistance",
-      "elapsed_s": 0.0,
-      "notes": "match"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_010",
@@ -398,8 +398,8 @@
       "expected_value": 10.0,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -407,26 +407,26 @@
       "system": "wolfram",
       "domain": "electromagnetism_intro",
       "correct": false,
-      "extracted_value": 0.5996,
+      "extracted_value": 2.4,
       "expected_value": 0.125,
-      "rel_error": 3.7968,
+      "rel_error": 18.2,
       "tolerance_rel": 0.02,
-      "answer_text": "[Input information] photon wavelength | \nwavelength | 500 meters\n[Result] frequency | 599.6 kHz (kilohertz)\n= 0.5996 MHz (megahertz)\n= 599585 Hz (hertz)\n[Equation] \u03bd = c/\u03bb | \n\u03bd | frequency\n\u03bb | wavelength\nc | speed of light (\u2248 2.998 \u00d7 10^8 m/s)",
-      "elapsed_s": 0.0,
-      "notes": "rel_err 3.797e+00"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "rel_err 1.820e+01"
     },
     {
       "id": "em_intro_012",
       "system": "wolfram",
       "domain": "electromagnetism_intro",
       "correct": false,
-      "extracted_value": 0.0008853999999999999,
+      "extracted_value": null,
       "expected_value": 113.0,
-      "rel_error": 0.9999921646017699,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Input information] capacitance of parallel plates | \ndistance | 0.001 meters\npermittivity | \u03b5_0 (electric constant)\narea of overlap of the two plates | 1 cm^2 (square centimeter)\n[Result] electric capacitance | 885.4 fF (femtofarads)\n= 0.8854 pF (picofarads)\n= 8.854 \u00d7 10^-4 nF (nanofarads)\n[Equation] C = (\u03f5 A)/d | \nC | electric capacitance\nd | distance\n\u03f5 | permittivity\nA | area of overlap of the two plates\n(capacitance of two parallel plates, given the geometry)",
-      "elapsed_s": 0.0,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_013",
@@ -437,35 +437,35 @@
       "expected_value": 0.0001,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
       "id": "em_intro_014",
       "system": "wolfram",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 2.998e+18,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 3e+18,
-      "rel_error": 0.0006666666666666666,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Input information] photon wavelength | \nwavelength | 1 \u00d7 10^-10 meters\n[Result] frequency | 2.998 \u00d7 10^18 Hz (hertz)\n[Equation] \u03bd = c/\u03bb | \n\u03bd | frequency\n\u03bb | wavelength\nc | speed of light (\u2248 2.998 \u00d7 10^8 m/s)",
-      "elapsed_s": 0.0,
-      "notes": "match"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_015",
       "system": "wolfram",
       "domain": "electromagnetism_intro",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 1e+22,
       "expected_value": 3e-14,
-      "rel_error": null,
+      "rel_error": 3.333333333333333e+35,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "rel_err 3.333e+35"
     },
     {
       "id": "optics_001",
@@ -476,8 +476,8 @@
       "expected_value": 22.08,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -485,26 +485,26 @@
       "system": "wolfram",
       "domain": "waves_optics",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 50.28,
       "expected_value": 48.61,
-      "rel_error": null,
+      "rel_error": 0.03435507097305085,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "rel_err 3.436e-02"
     },
     {
       "id": "optics_003",
       "system": "wolfram",
       "domain": "waves_optics",
-      "correct": true,
-      "extracted_value": 11.81,
+      "correct": false,
+      "extracted_value": 2.0,
       "expected_value": 0.3,
-      "rel_error": 8.66666666665683e-05,
+      "rel_error": 5.666666666666667,
       "tolerance_rel": 0.02,
-      "answer_text": "[Input information] thin lens equation | \ndistance between object and lens | 0.3 meters\nfocal length | 0.15 meters\n[Result] distance between image and lens | 30 cm (centimeters)\n= 11.81 inches\n= 0.9843 feet\n[Equation] 1/i + 1/o = 1/f | \ni | distance between image and lens\no | distance between object and lens\nf | focal length",
-      "elapsed_s": 0.0,
-      "notes": "match [unit-converted inches->m]"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "rel_err 5.667e+00"
     },
     {
       "id": "optics_004",
@@ -515,8 +515,8 @@
       "expected_value": 6.563e-07,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -528,8 +528,8 @@
       "expected_value": 0.00633,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -541,8 +541,8 @@
       "expected_value": 30.0,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -554,8 +554,8 @@
       "expected_value": 30.0,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -580,8 +580,8 @@
       "expected_value": 1.216e-07,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -593,8 +593,8 @@
       "expected_value": -0.5,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -614,27 +614,27 @@
       "id": "optics_012",
       "system": "wolfram",
       "domain": "waves_optics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 448.0,
       "expected_value": 8.6986,
-      "rel_error": null,
+      "rel_error": 0.012956100010775427,
       "tolerance_rel": 0.05,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "match [unit-converted weeks->year]"
     },
     {
       "id": "thermo_001",
       "system": "wolfram",
       "domain": "thermodynamics_statmech",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 1.0006,
       "expected_value": 101325,
-      "rel_error": null,
+      "rel_error": 0.0005999999999999828,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "match [unit-converted atm->pa]"
     },
     {
       "id": "thermo_002",
@@ -645,22 +645,22 @@
       "expected_value": 4.83e-07,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
       "id": "thermo_003",
       "system": "wolfram",
       "domain": "thermodynamics_statmech",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 459.3,
       "expected_value": 459.0,
-      "rel_error": null,
+      "rel_error": 0.0006535947712418548,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "thermo_004",
@@ -671,8 +671,8 @@
       "expected_value": 0.5,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -684,8 +684,8 @@
       "expected_value": 6.213e-21,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -697,8 +697,8 @@
       "expected_value": 395.0,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -710,8 +710,8 @@
       "expected_value": 0.02447,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -775,8 +775,8 @@
       "expected_value": 5.02e-07,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -784,52 +784,52 @@
       "system": "wolfram",
       "domain": "modern_physics",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 1.11111,
       "expected_value": 2.294,
-      "rel_error": null,
+      "rel_error": 0.5156451612903226,
       "tolerance_rel": 0.01,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "rel_err 5.156e-01"
     },
     {
       "id": "modern_002",
       "system": "wolfram",
       "domain": "modern_physics",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 315.4,
       "expected_value": 70.89,
-      "rel_error": null,
+      "rel_error": 0.999999859015053,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "rel_err 1.000e+00"
     },
     {
       "id": "modern_003",
       "system": "wolfram",
       "domain": "modern_physics",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 125.0,
       "expected_value": 0.8,
-      "rel_error": null,
+      "rel_error": 0.5624999999999999,
       "tolerance_rel": 0.01,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "rel_err 5.625e-01"
     },
     {
       "id": "modern_004",
       "system": "wolfram",
       "domain": "modern_physics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 8.988e+16,
       "expected_value": 8.988e+16,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
-      "notes": "no value extracted"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "modern_005",
@@ -840,8 +840,8 @@
       "expected_value": 4260000000.0,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "<no parseable result after reformulation>",
-      "elapsed_s": 0.0,
+      "answer_text": "",
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -849,26 +849,26 @@
       "system": "wolfram",
       "domain": "modern_physics",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 0.0,
       "expected_value": 2.254,
-      "rel_error": null,
+      "rel_error": 1.0,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 6.1753621101379395,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "rel_err 1.000e+00"
     },
     {
       "id": "modern_007",
       "system": "wolfram",
       "domain": "modern_physics",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 1.8,
       "expected_value": 298342500.0,
-      "rel_error": null,
+      "rel_error": 0.9999999939666658,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 8.286870956420898,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "rel_err 1.000e+00"
     },
     {
       "id": "modern_008",
@@ -887,27 +887,27 @@
       "id": "modern_009",
       "system": "wolfram",
       "domain": "modern_physics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 4184000000000000.0,
       "expected_value": 4184000000000000.0,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 5.24504017829895,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "modern_010",
       "system": "wolfram",
       "domain": "modern_physics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 0.511,
       "expected_value": 0.511,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 5.974247694015503,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "modern_011",
@@ -932,7 +932,7 @@
       "rel_error": null,
       "tolerance_rel": 0.001,
       "answer_text": "",
-      "elapsed_s": 16.177406787872314,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -945,7 +945,7 @@
       "rel_error": null,
       "tolerance_rel": 0.001,
       "answer_text": "",
-      "elapsed_s": 5.429022789001465,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -958,7 +958,7 @@
       "rel_error": null,
       "tolerance_rel": 0.001,
       "answer_text": "",
-      "elapsed_s": 5.509363889694214,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -984,7 +984,7 @@
       "rel_error": null,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 5.818254709243774,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1010,47 +1010,47 @@
       "rel_error": null,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 5.350975751876831,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
       "id": "qm_007",
       "system": "wolfram",
       "domain": "quantum_mechanics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 6.626e-19,
       "expected_value": 6.626e-19,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 5.659349203109741,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "qm_008",
       "system": "wolfram",
       "domain": "quantum_mechanics",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 495.8,
       "expected_value": 5.139,
-      "rel_error": null,
+      "rel_error": 95.47791399104884,
       "tolerance_rel": 0.01,
-      "answer_text": "[Input interpretation] sodium | first ionization energy",
-      "elapsed_s": 5.798641204833984,
-      "notes": "no value extracted"
+      "answer_text": "",
+      "elapsed_s": null,
+      "notes": "rel_err 9.548e+01"
     },
     {
       "id": "qm_009",
       "system": "wolfram",
       "domain": "quantum_mechanics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 1.9860000000000003e-15,
       "expected_value": 1.987e-15,
-      "rel_error": null,
+      "rel_error": 0.0005032712632107796,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 5.3903114795684814,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "qm_010",
@@ -1069,14 +1069,14 @@
       "id": "qm_011",
       "system": "wolfram",
       "domain": "quantum_mechanics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 1.1419999999999999e-34,
       "expected_value": 1.142e-34,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.05,
       "answer_text": "",
-      "elapsed_s": 16.16744828224182,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "qm_012",
@@ -1088,21 +1088,21 @@
       "rel_error": null,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 6.467898368835449,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
       "id": "mech_adv_001",
       "system": "wolfram",
       "domain": "classical_mechanics_advanced",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 13.49,
       "expected_value": 13070,
-      "rel_error": null,
+      "rel_error": 0.032134659525631215,
       "tolerance_rel": 0.05,
       "answer_text": "",
-      "elapsed_s": 6.522623300552368,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match [unit-converted km/s->m/s]"
     },
     {
       "id": "mech_adv_002",
@@ -1114,7 +1114,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 5.702758312225342,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1160,14 +1160,14 @@
       "id": "mech_adv_006",
       "system": "wolfram",
       "domain": "classical_mechanics_advanced",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 4.725,
       "expected_value": 4720000000.0,
-      "rel_error": null,
+      "rel_error": 0.001059322033898305,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 9.260508060455322,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match [unit-converted gj->j]"
     },
     {
       "id": "mech_adv_007",
@@ -1205,7 +1205,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 5.695664644241333,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1213,13 +1213,13 @@
       "system": "wolfram",
       "domain": "classical_mechanics_advanced",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 350.9,
       "expected_value": 57000000000.0,
-      "rel_error": null,
+      "rel_error": 0.9999999938438596,
       "tolerance_rel": 0.1,
       "answer_text": "",
-      "elapsed_s": 6.603601694107056,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "rel_err 1.000e+00"
     },
     {
       "id": "em_adv_001",
@@ -1231,21 +1231,21 @@
       "rel_error": null,
       "tolerance_rel": 0.05,
       "answer_text": "",
-      "elapsed_s": 6.671862602233887,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
       "id": "em_adv_002",
       "system": "wolfram",
       "domain": "electrodynamics_advanced",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 1.2,
       "expected_value": 1.2,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.1,
       "answer_text": "",
-      "elapsed_s": 6.670389890670776,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "em_adv_003",
@@ -1257,7 +1257,7 @@
       "rel_error": null,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 6.102131128311157,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1265,52 +1265,52 @@
       "system": "wolfram",
       "domain": "electrodynamics_advanced",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 11.294,
       "expected_value": 0.0113,
-      "rel_error": null,
+      "rel_error": 998.4690265486727,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 6.213468313217163,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "rel_err 9.985e+02"
     },
     {
       "id": "em_adv_005",
       "system": "wolfram",
       "domain": "electrodynamics_advanced",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 1.0,
       "expected_value": 299.79,
-      "rel_error": null,
+      "rel_error": 0.9966643316988558,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 4.922337532043457,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "rel_err 9.967e-01"
     },
     {
       "id": "em_adv_006",
       "system": "wolfram",
       "domain": "electrodynamics_advanced",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 159.2,
       "expected_value": 159100000.0,
-      "rel_error": null,
+      "rel_error": 0.0006285355122564425,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 5.4004316329956055,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match [unit-converted mhz->hz]"
     },
     {
       "id": "em_adv_007",
       "system": "wolfram",
       "domain": "electrodynamics_advanced",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 5.0,
       "expected_value": 18000000.0,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 5.86033821105957,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match [unit-converted kw h->j]"
     },
     {
       "id": "em_adv_008",
@@ -1322,7 +1322,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 6.2075793743133545,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1330,13 +1330,13 @@
       "system": "wolfram",
       "domain": "electrodynamics_advanced",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 28.0,
       "expected_value": 0.0107,
-      "rel_error": null,
+      "rel_error": 2615.8224299065423,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 4.381037950515747,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "rel_err 2.616e+03"
     },
     {
       "id": "em_adv_010",
@@ -1348,7 +1348,7 @@
       "rel_error": null,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 5.413731813430786,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1356,13 +1356,13 @@
       "system": "wolfram",
       "domain": "general_relativity",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 1.2250000000000002e+32,
       "expected_value": 2954,
-      "rel_error": null,
+      "rel_error": 4.146919431279622e+28,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 5.633074045181274,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "rel_err 4.147e+28"
     },
     {
       "id": "gr_002",
@@ -1374,7 +1374,7 @@
       "rel_error": null,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 6.189622402191162,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1387,21 +1387,21 @@
       "rel_error": null,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 6.006171941757202,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
       "id": "gr_004",
       "system": "wolfram",
       "domain": "general_relativity",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 6.170000000000001e-05,
       "expected_value": 6.17e-08,
-      "rel_error": null,
+      "rel_error": 2.1450388656156308e-16,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 12.171074867248535,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match [unit-converted mk->k]"
     },
     {
       "id": "gr_005",
@@ -1413,7 +1413,7 @@
       "rel_error": null,
       "tolerance_rel": 0.1,
       "answer_text": "",
-      "elapsed_s": 7.900921821594238,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1426,21 +1426,21 @@
       "rel_error": null,
       "tolerance_rel": 0.05,
       "answer_text": "",
-      "elapsed_s": 7.499469041824341,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
       "id": "gr_007",
       "system": "wolfram",
       "domain": "general_relativity",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 12110000000.0,
       "expected_value": 12100000000.0,
-      "rel_error": null,
+      "rel_error": 0.0008264462809917355,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 7.566336154937744,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "gr_008",
@@ -1452,7 +1452,7 @@
       "rel_error": null,
       "tolerance_rel": 0.05,
       "answer_text": "",
-      "elapsed_s": 6.21065354347229,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1465,7 +1465,7 @@
       "rel_error": null,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 6.938366413116455,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1478,7 +1478,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 9.493970394134521,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1491,7 +1491,7 @@
       "rel_error": null,
       "tolerance_rel": 0.05,
       "answer_text": "",
-      "elapsed_s": 4.95474100112915,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1530,7 +1530,7 @@
       "rel_error": null,
       "tolerance_rel": 0,
       "answer_text": "",
-      "elapsed_s": 6.3604700565338135,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1543,7 +1543,7 @@
       "rel_error": null,
       "tolerance_rel": 0,
       "answer_text": "",
-      "elapsed_s": 6.689044952392578,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1556,7 +1556,7 @@
       "rel_error": null,
       "tolerance_rel": 0.05,
       "answer_text": "",
-      "elapsed_s": 4.461163759231567,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1569,34 +1569,34 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 5.696248531341553,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
       "id": "cosmo_008",
       "system": "wolfram",
       "domain": "cosmology",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 4.3e+17,
       "expected_value": 4.35e+17,
-      "rel_error": null,
+      "rel_error": 0.011494252873563218,
       "tolerance_rel": 0.05,
       "answer_text": "",
-      "elapsed_s": 4.8832783699035645,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "astro_001",
       "system": "wolfram",
       "domain": "astrophysics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 4.247,
       "expected_value": 4.24,
-      "rel_error": null,
+      "rel_error": 0.001650943396226338,
       "tolerance_rel": 0.05,
       "answer_text": "",
-      "elapsed_s": 6.673376083374023,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "astro_002",
@@ -1621,7 +1621,7 @@
       "rel_error": null,
       "tolerance_rel": 0.05,
       "answer_text": "",
-      "elapsed_s": 6.23591685295105,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1634,7 +1634,7 @@
       "rel_error": null,
       "tolerance_rel": 0.05,
       "answer_text": "",
-      "elapsed_s": 5.943283796310425,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1686,7 +1686,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 5.30078387260437,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1706,14 +1706,14 @@
       "id": "astro_010",
       "system": "wolfram",
       "domain": "astrophysics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 65654.0,
       "expected_value": 29780,
-      "rel_error": null,
+      "rel_error": 0.014440424445936887,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 5.992135763168335,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match [unit-converted mph->m/s]"
     },
     {
       "id": "astro_011",
@@ -1777,7 +1777,7 @@
       "rel_error": null,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 5.709814786911011,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1803,7 +1803,7 @@
       "rel_error": null,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 5.0352702140808105,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
@@ -1823,14 +1823,14 @@
       "id": "atom_007",
       "system": "wolfram",
       "domain": "atomic_molecular",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 3.3730000000000003e-19,
       "expected_value": 2.105,
-      "rel_error": null,
+      "rel_error": 0.00012399563687201,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 6.164984941482544,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match [unit-converted j->ev]"
     },
     {
       "id": "atom_008",
@@ -1855,47 +1855,47 @@
       "rel_error": null,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 7.097568035125732,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
       "id": "nuc_002",
       "system": "wolfram",
       "domain": "nuclear_physics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 21.48,
       "expected_value": 21.5,
-      "rel_error": null,
+      "rel_error": 0.0009302325581395151,
       "tolerance_rel": 0.01,
       "answer_text": "",
-      "elapsed_s": 5.7036004066467285,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "nuc_003",
       "system": "wolfram",
       "domain": "nuclear_physics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 5000000.0,
       "expected_value": 5000000.0,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "",
-      "elapsed_s": 6.536313056945801,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "nuc_004",
       "system": "wolfram",
       "domain": "nuclear_physics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 3.204e-11,
       "expected_value": 3.2e-11,
-      "rel_error": null,
+      "rel_error": 0.00125000000000002,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 5.088061094284058,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "nuc_005",
@@ -1907,21 +1907,21 @@
       "rel_error": null,
       "tolerance_rel": 0.1,
       "answer_text": "",
-      "elapsed_s": 5.314922094345093,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {
       "id": "nuc_006",
       "system": "wolfram",
       "domain": "nuclear_physics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 2.8199999999999997e-12,
       "expected_value": 2.82e-12,
-      "rel_error": null,
+      "rel_error": 1.4322580974225462e-16,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 4.9401819705963135,
-      "notes": "no value extracted"
+      "elapsed_s": null,
+      "notes": "match"
     },
     {
       "id": "nuc_007",
@@ -1933,7 +1933,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "",
-      "elapsed_s": 5.957149267196655,
+      "elapsed_s": null,
       "notes": "no value extracted"
     },
     {

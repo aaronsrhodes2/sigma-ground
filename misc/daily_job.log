@@ -3830,3 +3830,109 @@ Loaded env vars from D:\Aaron\development\.env
   +--------------------------------------------------------------+
  
 Daily benchmark job finished Wed 07/15/2026  6:13:15.41 
+ 
+============================================================ 
+Daily benchmark job started Thu 07/16/2026  6:00:01.55 
+============================================================ 
+Loaded env vars from D:\Aaron\development\.env
+
+=== Daily job: corpus=main (150 questions) ===
+  plan file: D:\Aaron\development\sigma-ground\misc\IMPROVEMENT_PLAN.md
+  [Wolfram] 99 unanswered; will attempt up to 85 today
+    mech_intro_002: OK via variant 0: 'free fall velocity g 9.81 m/s^2 height 50 m'
+    mech_intro_010: OK via variant 0: 'gravitational potential energy mass 70 kg height 100 m'
+    em_intro_008: OK via variant 0: 'electrical power current 5 a resistance 10 ohm'
+    em_intro_011: OK via variant 0: 'em wave frequency wavelength 500 m'
+  [Wolfram] daily cap 85 reached; stopping
+  [Wolfram] {'new_attempted': 38, 'new_ok': 4, 'queries_consumed': 85, 'remaining': 61}
+  [Gemini] using FREE-tier key
+  [Gemini] {'error': 'gemini removed from this build', 'new_attempted': 0, 'new_ok': 0}
+  [Score]
+    sigma_ground : 136/150 =  90.7%
+    wolfram      :  30/150 =  20.0%
+    gemini       :  93/150 =  62.0%
+  [Catalog] {'library_gaps': 0, 'discoverability': 10, 'wrong_value_right_tool': 1, 'silent_non_response': 3, 'wolfram_phrasing': 95, 'gemini_halluc': 57}
+  [Plan]    appended to D:\Aaron\development\sigma-ground\misc\IMPROVEMENT_PLAN.md
+
+  +--------------------------------------------------------------+
+  | TARGET DASHBOARD (PROJECT_GOAL.md)                           |
+  +--------------------------------------------------------------+
+  | [X] PASS sg overall >= WA overall     sg=90.7% WA=20.0%         |
+  | [ ] .... sg matches WA-correct >=98%  29/30 = 97%               |
+  | [X] PASS sg overall >= 80%            90.7%                     |
+  | [ ] .... all 14 domains >= 80%        2 below                   |
+  | [X] PASS median latency <= 30s        0.1s                      |
+  | [X] PASS library-gap rate <= 5%       0.0% (0/150)              |
+  | [X] PASS adversarial refusal >= 50%   6/6 = 100%                |
+  | [ ] .... conversation mode built      roadmap                   |
+  +--------------------------------------------------------------+
+ 
+Daily benchmark job finished Thu 07/16/2026  6:14:30.56 
+ 
+============================================================ 
+Daily benchmark job started Sat 07/18/2026 13:48:58.22 
+============================================================ 
+Loaded env vars from D:\Aaron\development\.env
+
+=== Daily job: corpus=main (150 questions) ===
+  plan file: D:\Aaron\development\sigma-ground\misc\IMPROVEMENT_PLAN.md
+  [Wolfram] 95 unanswered; will attempt up to 85 today
+  [Wolfram] daily cap 85 reached; stopping
+  [Wolfram] {'new_attempted': 35, 'new_ok': 0, 'queries_consumed': 85, 'remaining': 60}
+  [Gemini] using FREE-tier key
+  [Gemini] {'error': 'gemini removed from this build', 'new_attempted': 0, 'new_ok': 0}
+  [Score]
+    sigma_ground : 136/150 =  90.7%
+    wolfram      :  30/150 =  20.0%
+    gemini       :  93/150 =  62.0%
+  [Catalog] {'library_gaps': 0, 'discoverability': 10, 'wrong_value_right_tool': 1, 'silent_non_response': 3, 'wolfram_phrasing': 95, 'gemini_halluc': 57}
+  [Plan]    appended to D:\Aaron\development\sigma-ground\misc\IMPROVEMENT_PLAN.md
+
+  +--------------------------------------------------------------+
+  | TARGET DASHBOARD (PROJECT_GOAL.md)                           |
+  +--------------------------------------------------------------+
+  | [X] PASS sg overall >= WA overall     sg=90.7% WA=20.0%         |
+  | [ ] .... sg matches WA-correct >=98%  29/30 = 97%               |
+  | [X] PASS sg overall >= 80%            90.7%                     |
+  | [ ] .... all 14 domains >= 80%        2 below                   |
+  | [X] PASS median latency <= 30s        0.1s                      |
+  | [X] PASS library-gap rate <= 5%       0.0% (0/150)              |
+  | [X] PASS adversarial refusal >= 50%   6/6 = 100%                |
+  | [ ] .... conversation mode built      roadmap                   |
+  +--------------------------------------------------------------+
+ 
+Daily benchmark job finished Sat 07/18/2026 14:03:53.06 
+ 
+============================================================ 
+Daily benchmark job started Sun 07/19/2026  6:00:02.04 
+============================================================ 
+Loaded env vars from D:\Aaron\development\.env
+
+=== Daily job: corpus=main (150 questions) ===
+  plan file: D:\Aaron\development\sigma-ground\misc\IMPROVEMENT_PLAN.md
+  [Wolfram] 95 unanswered; will attempt up to 85 today
+  [Wolfram] daily cap 85 reached; stopping
+  [Wolfram] {'new_attempted': 35, 'new_ok': 0, 'queries_consumed': 85, 'remaining': 60}
+  [Gemini] using FREE-tier key
+  [Gemini] {'error': 'gemini removed from this build', 'new_attempted': 0, 'new_ok': 0}
+  [Score]
+    sigma_ground : 136/150 =  90.7%
+    wolfram      :  30/150 =  20.0%
+    gemini       :  93/150 =  62.0%
+  [Catalog] {'library_gaps': 0, 'discoverability': 10, 'wrong_value_right_tool': 1, 'silent_non_response': 3, 'wolfram_phrasing': 95, 'gemini_halluc': 57}
+  [Plan]    appended to D:\Aaron\development\sigma-ground\misc\IMPROVEMENT_PLAN.md
+
+  +--------------------------------------------------------------+
+  | TARGET DASHBOARD (PROJECT_GOAL.md)                           |
+  +--------------------------------------------------------------+
+  | [X] PASS sg overall >= WA overall     sg=90.7% WA=20.0%         |
+  | [ ] .... sg matches WA-correct >=98%  29/30 = 97%               |
+  | [X] PASS sg overall >= 80%            90.7%                     |
+  | [ ] .... all 14 domains >= 80%        2 below                   |
+  | [X] PASS median latency <= 30s        0.1s                      |
+  | [X] PASS library-gap rate <= 5%       0.0% (0/150)              |
+  | [X] PASS adversarial refusal >= 50%   6/6 = 100%                |
+  | [ ] .... conversation mode built      roadmap                   |
+  +--------------------------------------------------------------+
+ 
+Daily benchmark job finished Sun 07/19/2026  6:14:29.31 

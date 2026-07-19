@@ -1,0 +1,68 @@
+{
+  "summary": {
+    "overall_accuracy_pct": 25.0,
+    "overall_correct": 1,
+    "overall_total": 4,
+    "by_domain": {
+      "classical_mechanics_intro": {
+        "correct": 1,
+        "total": 4,
+        "pct": 25.0
+      }
+    }
+  },
+  "rows": [
+    {
+      "id": "mech_intro_001",
+      "system": "sigma_ground",
+      "domain": "classical_mechanics_intro",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": 1.428,
+      "rel_error": null,
+      "tolerance_rel": 0.02,
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<ERROR: >",
+      "elapsed_s": 0.0,
+      "notes": "no value extracted"
+    },
+    {
+      "id": "mech_intro_002",
+      "system": "sigma_ground",
+      "domain": "classical_mechanics_intro",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": 31.32,
+      "rel_error": null,
+      "tolerance_rel": 0.02,
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<ERROR: >",
+      "elapsed_s": 0.0,
+      "notes": "no value extracted"
+    },
+    {
+      "id": "mech_intro_003",
+      "system": "sigma_ground",
+      "domain": "classical_mechanics_intro",
+      "correct": false,
+      "extracted_value": null,
+      "expected_value": 1019.7,
+      "rel_error": null,
+      "tolerance_rel": 0.02,
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<timed out after 180s>",
+      "elapsed_s": 180.0,
+      "notes": "no value extracted"
+    },
+    {
+      "id": "mech_intro_004",
+      "system": "sigma_ground",
+      "domain": "classical_mechanics_intro",
+      "correct": true,
+      "extracted_value": 127.46452662224104,
+      "expected_value": 127.47,
+      "rel_error": 4.2938556201148474e-05,
+      "tolerance_rel": 0.02,
+      "answer_text": "ANSWER: 127.46452662224104 m\n\nComputed via classical_intro_classifier: projectile_max_height (h_max = v0^2/(2g), v0=50.0m/s straight up)",
+      "elapsed_s": 0.11341714859008789,
+      "notes": "match"
+    }
+  ]
+}

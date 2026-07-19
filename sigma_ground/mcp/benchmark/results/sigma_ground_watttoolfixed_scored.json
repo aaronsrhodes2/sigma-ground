@@ -1,23 +1,23 @@
 {
   "summary": {
-    "overall_accuracy_pct": 90.66666666666667,
-    "overall_correct": 136,
+    "overall_accuracy_pct": 56.0,
+    "overall_correct": 84,
     "overall_total": 150,
     "by_domain": {
       "classical_mechanics_intro": {
-        "correct": 14,
+        "correct": 7,
         "total": 15,
-        "pct": 93.33333333333333
+        "pct": 46.666666666666664
       },
       "electromagnetism_intro": {
-        "correct": 13,
+        "correct": 0,
         "total": 15,
-        "pct": 86.66666666666667
+        "pct": 0.0
       },
       "waves_optics": {
-        "correct": 12,
+        "correct": 5,
         "total": 12,
-        "pct": 100.0
+        "pct": 41.666666666666664
       },
       "thermodynamics_statmech": {
         "correct": 12,
@@ -30,19 +30,19 @@
         "pct": 100.0
       },
       "quantum_mechanics": {
-        "correct": 12,
+        "correct": 3,
         "total": 12,
-        "pct": 100.0
+        "pct": 25.0
       },
       "classical_mechanics_advanced": {
-        "correct": 8,
+        "correct": 6,
         "total": 10,
-        "pct": 80.0
+        "pct": 60.0
       },
       "electrodynamics_advanced": {
-        "correct": 8,
+        "correct": 2,
         "total": 10,
-        "pct": 80.0
+        "pct": 20.0
       },
       "general_relativity": {
         "correct": 9,
@@ -55,14 +55,14 @@
         "pct": 100.0
       },
       "astrophysics": {
-        "correct": 11,
+        "correct": 9,
         "total": 12,
-        "pct": 91.66666666666667
+        "pct": 75.0
       },
       "atomic_molecular": {
-        "correct": 6,
+        "correct": 0,
         "total": 8,
-        "pct": 75.0
+        "pct": 0.0
       },
       "nuclear_physics": {
         "correct": 4,
@@ -81,40 +81,40 @@
       "id": "mech_intro_001",
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
-      "correct": true,
-      "extracted_value": 1.4278431229270645,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 1.428,
-      "rel_error": 0.00010985789421248962,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 57.92975068092346,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[free_fall_time(height_m=10)]",
+      "elapsed_s": 77.25349760055542,
+      "notes": "no value extracted"
     },
     {
       "id": "mech_intro_002",
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
-      "correct": true,
-      "extracted_value": 31.32091952673165,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 31.32,
-      "rel_error": 2.9359091048849512e-05,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 31.514862537384033,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[free_fall_velocity(height_m=50)]",
+      "elapsed_s": 29.628010272979736,
+      "notes": "no value extracted"
     },
     {
       "id": "mech_intro_003",
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
-      "correct": true,
-      "extracted_value": 1019.7162129779283,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 1019.7,
-      "rel_error": 1.5899752798138924e-05,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 29.861495971679688,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[projectile_analysis(speed_m_s=100, angle_deg=45)]",
+      "elapsed_s": 30.894665479660034,
+      "notes": "no value extracted"
     },
     {
       "id": "mech_intro_004",
@@ -126,21 +126,21 @@
       "rel_error": 4.2938556201148474e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 127.46452662224104 m\n\nComputed via classical_intro_classifier: projectile_max_height (h_max = v0^2/(2g), v0=50.0m/s straight up)",
-      "elapsed_s": 0.13984155654907227,
+      "elapsed_s": 0.1275637149810791,
       "notes": "match"
     },
     {
       "id": "mech_intro_005",
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
-      "correct": true,
-      "extracted_value": 875.0,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 875.0,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 21.437618017196655,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[kinetic_energy(mass_kg=70, velocity_m_s=5)]",
+      "elapsed_s": 33.07202386856079,
+      "notes": "no value extracted"
     },
     {
       "id": "mech_intro_006",
@@ -152,7 +152,7 @@
       "rel_error": 0.0005064884006359333,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 0.12746452662224103 m\n\nComputed via classical_intro_classifier: friction_stopping_distance (d = v^2/(2 mu g), v=1.0m/s, mu=0.4)",
-      "elapsed_s": 0.09825277328491211,
+      "elapsed_s": 0.11978721618652344,
       "notes": "match"
     },
     {
@@ -165,7 +165,7 @@
       "rel_error": 0.00018345330711294215,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 7668.592913134444 m/s\n\nComputed via new_tools_classifier: orbital_velocity (Earth orbit at 400 km altitude)",
-      "elapsed_s": 0.06357145309448242,
+      "elapsed_s": 0.078460693359375,
       "notes": "match"
     },
     {
@@ -178,34 +178,34 @@
       "rel_error": 1.976412487884834e-06,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 1.119e+04 m/s\n\n[semantic interpreter -> escape_velocity_classical (similarity 0.80)]\nWork: v_esc = sqrt(2 G M / r)\nSource: sigma-ground (classical escape velocity)",
-      "elapsed_s": 2.1970086097717285,
+      "elapsed_s": 2.143270492553711,
       "notes": "match"
     },
     {
       "id": "mech_intro_009",
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
-      "correct": true,
-      "extracted_value": 37500.0,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 37500,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 18.657511949539185,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\nmomentum(mass_kg=1500, velocity_m_s=25)",
+      "elapsed_s": 30.3726966381073,
+      "notes": "no value extracted"
     },
     {
       "id": "mech_intro_010",
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
-      "correct": true,
-      "extracted_value": 68646.54999999999,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 68646,
-      "rel_error": 8.01212015249772e-06,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 28.818585872650146,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\ngravitational_potential_energy(mass_kg=70, height_m=100)",
+      "elapsed_s": 33.17960572242737,
+      "notes": "no value extracted"
     },
     {
       "id": "mech_intro_011",
@@ -217,7 +217,7 @@
       "rel_error": 6.615656445746877e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 3.508232077228117 s\n\nComputed via classical_intro_classifier: free_fall_time (t = sqrt(2h/g), h=10.0m, g=1.625m/s^2 (explicit g=1.625m/s^2))",
-      "elapsed_s": 0.10819268226623535,
+      "elapsed_s": 0.10321044921875,
       "notes": "match"
     },
     {
@@ -230,21 +230,21 @@
       "rel_error": 3.313265219113234e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 4.078864851911712 s\n\nComputed via classical_intro_classifier: projectile_flight_time (t = 2v0 sin(theta)/g, v0=40.0m/s, theta=30.0\u00b0)",
-      "elapsed_s": 0.0953216552734375,
+      "elapsed_s": 0.12924647331237793,
       "notes": "match"
     },
     {
       "id": "mech_intro_013",
       "system": "sigma_ground",
       "domain": "classical_mechanics_intro",
-      "correct": true,
-      "extracted_value": 800.0,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 800.0,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 18.611896753311157,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[kinetic_energy(mass_kg=0.01, velocity_m_s=400)]",
+      "elapsed_s": 24.783491849899292,
+      "notes": "no value extracted"
     },
     {
       "id": "mech_intro_014",
@@ -256,7 +256,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 20.0 m/s\n\nComputed via classical_intro_classifier: inverse_kinetic_energy (v = sqrt(2 KE / m), m=0.5kg, KE=100.0J -> 20.0m/s)",
-      "elapsed_s": 0.09504914283752441,
+      "elapsed_s": 0.10151004791259766,
       "notes": "match"
     },
     {
@@ -269,151 +269,151 @@
       "rel_error": null,
       "tolerance_rel": 0.1,
       "answer_text": "ANSWER: 3074.668174017167 m/s\n\nComputed via new_tools_classifier: orbital_velocity (Earth orbit at 35,786 km altitude)",
-      "elapsed_s": 0.0001163482666015625,
+      "elapsed_s": 0.00010919570922851562,
       "notes": "no match"
     },
     {
       "id": "em_intro_001",
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 0.05,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 0.05,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 18.609216928482056,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[ohms_law_current(voltage_v=5.0,resistance_ohm=100)]",
+      "elapsed_s": 35.81691646575928,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_002",
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 24.0,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 24.0,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 15.198439836502075,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[electrical_power(voltage_v=12.0, current_a=2.0)]",
+      "elapsed_s": 30.7431218624115,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_003",
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 8.854187817e-09,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 8.854e-09,
-      "rel_error": 2.121267223867071e-05,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 22.747490882873535,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[parallel_plate_capacitance(area_m2=1.0, separation_m=0.001)]",
+      "elapsed_s": 35.08904790878296,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_004",
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 0.001,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 0.001,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 22.388015508651733,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[rc_time_constant(resistance_ohm=1000, capacitance_f=1e-6)]",
+      "elapsed_s": 56.08388161659241,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_005",
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 5032.921210448703,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 5032.9,
-      "rel_error": 4.214359256818396e-06,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 22.63080072402954,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n\"rlc_resonant_frequency(inductance_h=1e-3, capacitance_f=1e-6)\"",
+      "elapsed_s": 38.77645421028137,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_006",
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 2.99792458,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 2.998,
-      "rel_error": 2.5156771180914372e-05,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 25.46688985824585,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[em_wave_wavelength(frequency_hz=100e6)]",
+      "elapsed_s": 30.445950031280518,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_007",
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 545077196363636.3,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 545100000000000.0,
-      "rel_error": 4.18338586748991e-05,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 25.625901699066162,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[em_wave_frequency(wavelength_m=550e-9)]",
+      "elapsed_s": 32.719430446624756,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_008",
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 250.0,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 250.0,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 35.6196072101593,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[ohms_law_power(5, 10)]",
+      "elapsed_s": 28.961977005004883,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_009",
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 0.2,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 0.2,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 25.09519362449646,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[ohms_law_current(voltage_v=10.0,resistance_ohm=50.0)]",
+      "elapsed_s": 35.49117183685303,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_010",
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 10.0,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 10.0,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 15.30586314201355,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[ohms_law_voltage(current_a=0.1, resistance_ohm=100)]",
+      "elapsed_s": 23.78327226638794,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_011",
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 0.12491352416666666,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 0.125,
-      "rel_error": 0.0006918066666666833,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 30.81556248664856,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[em_wave_frequency(wavelength_m=0.125, refractive_index=1.0)]",
+      "elapsed_s": 37.173346519470215,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_012",
@@ -424,48 +424,48 @@
       "expected_value": 113.0,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 34.806774377822876,
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[parallel_plate_capacitance(area_m2=1e-6, separation_m=0.001)]",
+      "elapsed_s": 37.21094846725464,
       "notes": "no value extracted"
     },
     {
       "id": "em_intro_013",
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 0.0001,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 0.0001,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 21.62154197692871,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n\"rl_time_constant(resistance_ohm=100, inductance_h=10)\"",
+      "elapsed_s": 33.177725076675415,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_014",
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
-      "correct": true,
-      "extracted_value": 2.99792458e+18,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 3e+18,
-      "rel_error": 0.0006918066666666666,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 25.255960702896118,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[em_wave_frequency(wavelength_m=0.1e-9)]",
+      "elapsed_s": 32.99434447288513,
+      "notes": "no value extracted"
     },
     {
       "id": "em_intro_015",
       "system": "sigma_ground",
       "domain": "electromagnetism_intro",
       "correct": false,
-      "extracted_value": 2.99792458e-06,
+      "extracted_value": null,
       "expected_value": 3e-14,
-      "rel_error": 99930818.33333334,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 31.544992446899414,
-      "notes": "rel_err 9.993e+07"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[em_wave_frequency(wavelength_m=1e-15, frequency_hz=1e22)]",
+      "elapsed_s": 34.80948615074158,
+      "notes": "no value extracted"
     },
     {
       "id": "optics_001",
@@ -477,7 +477,7 @@
       "rel_error": 0.002259568587908104,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 22.030108725578987 deg\n\nComputed via optics_classifier: snells_law_refraction_angle (Snell: n1 sin(\u03b81) = n2 sin(\u03b82), n1=1, n2=1.333, \u03b81=30.0\u00b0)",
-      "elapsed_s": 0.1139225959777832,
+      "elapsed_s": 0.12742972373962402,
       "notes": "match"
     },
     {
@@ -490,60 +490,60 @@
       "rel_error": 6.940152869208892e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 48.60662639169028 deg\n\nComputed via optics_classifier: critical_angle_for_tir (asin(n2/n1), n1=1.333, n2=1.0)",
-      "elapsed_s": 0.10402154922485352,
+      "elapsed_s": 0.11571764945983887,
       "notes": "match"
     },
     {
       "id": "optics_003",
       "system": "sigma_ground",
       "domain": "waves_optics",
-      "correct": true,
-      "extracted_value": 0.3,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 0.3,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 21.823442697525024,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[lens_magnification(object_distance_m=30, image_distance_m=15)]",
+      "elapsed_s": 34.383624792099,
+      "notes": "no value extracted"
     },
     {
       "id": "optics_004",
       "system": "sigma_ground",
       "domain": "waves_optics",
-      "correct": true,
-      "extracted_value": 6.561122764193189e-07,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 6.563e-07,
-      "rel_error": 0.0002860331870806905,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 18.24788761138916,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[hydrogen_emission_wavelength(n_initial=3, n_final=2)]",
+      "elapsed_s": 31.835638761520386,
+      "notes": "no value extracted"
     },
     {
       "id": "optics_005",
       "system": "sigma_ground",
       "domain": "waves_optics",
-      "correct": true,
-      "extracted_value": 0.00633,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 0.00633,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 19.947500705718994,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\ndouble_slit_fringe_spacing(wavelength_m=633e-9, slit_separation_m=0.1e-3, screen_distance_m=1)",
+      "elapsed_s": 42.865149974823,
+      "notes": "no value extracted"
     },
     {
       "id": "optics_006",
       "system": "sigma_ground",
       "domain": "waves_optics",
-      "correct": true,
-      "extracted_value": 30.000000000000004,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 30.0,
-      "rel_error": 1.1842378929335003e-16,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 22.00413203239441,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[single_slit_first_minimum_angle(wavelength_m=500e-9, slit_width_m=1e-6)]",
+      "elapsed_s": 35.48156929016113,
+      "notes": "no value extracted"
     },
     {
       "id": "optics_007",
@@ -555,47 +555,47 @@
       "rel_error": 1.1842378929335003e-16,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 30.000000000000004 deg\n\nComputed via optics_classifier: diffraction_grating_angle (d sin(\u03b8) = m \u03bb, d=1.000e-06m, \u03bb=5.000e-07m)",
-      "elapsed_s": 0.09503340721130371,
+      "elapsed_s": 0.11292195320129395,
       "notes": "match"
     },
     {
       "id": "optics_008",
       "system": "sigma_ground",
       "domain": "waves_optics",
-      "correct": true,
-      "extracted_value": 2.42,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 2.42,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 20.37984323501587,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[refractive_index(material=\"diamond\")]",
+      "elapsed_s": 30.730522394180298,
+      "notes": "no value extracted"
     },
     {
       "id": "optics_009",
       "system": "sigma_ground",
       "domain": "waves_optics",
-      "correct": true,
-      "extracted_value": 1.2150227341098497e-07,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 1.216e-07,
-      "rel_error": 0.0008036726070314888,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 21.382920265197754,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\nhydrogen_emission_wavelength(n_initial=2, n_final=1)",
+      "elapsed_s": 32.04589605331421,
+      "notes": "no value extracted"
     },
     {
       "id": "optics_010",
       "system": "sigma_ground",
       "domain": "waves_optics",
-      "correct": true,
-      "extracted_value": -0.5,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": -0.5,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 31.06824231147766,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[lens_magnification(object_distance_m=0.2, image_distance_m=0.1)]",
+      "elapsed_s": 35.82438850402832,
+      "notes": "no value extracted"
     },
     {
       "id": "optics_011",
@@ -607,7 +607,7 @@
       "rel_error": 0.0011661807580174263,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 343.4 m/s\n\nComputed via optics_classifier: speed_of_sound_in_ideal_gas (v \u2248 331.4 + 0.6 T, T=20.0\u00b0C)",
-      "elapsed_s": 0.09824037551879883,
+      "elapsed_s": 0.09488129615783691,
       "notes": "match"
     },
     {
@@ -620,7 +620,7 @@
       "rel_error": 2.2394408298350456e-06,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 8.698580519999998 year\n\nComputed via astro_classifier: light_travel_time_from_star (sirius_a at 2.667 pc = 8.70 ly)",
-      "elapsed_s": 0.09460806846618652,
+      "elapsed_s": 0.09670305252075195,
       "notes": "match"
     },
     {
@@ -633,7 +633,7 @@
       "rel_error": 0.0006236403839748381,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 101388.19036190625 Pa\n\nComputed via thermo_classifier: tool=ideal_gas_pressure (PV=nRT, n=1.0, T=273.15K, V=0.0224m^3)",
-      "elapsed_s": 0.11240792274475098,
+      "elapsed_s": 0.11475181579589844,
       "notes": "match"
     },
     {
@@ -646,7 +646,7 @@
       "rel_error": 7.869047619040252e-05,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 4.829619925e-07 m\n\nComputed via thermo_classifier: tool=blackbody_peak_wavelength (lambda_max = b/T, T=6000.0K)",
-      "elapsed_s": 0.09679627418518066,
+      "elapsed_s": 0.09143185615539551,
       "notes": "match"
     },
     {
@@ -659,7 +659,7 @@
       "rel_error": 0.0006543092352941152,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 459.300327939 W\n\nComputed via thermo_classifier: tool=blackbody_total_power (P=sigma T^4 A, T=300.0K, A=1m^2)",
-      "elapsed_s": 0.0953373908996582,
+      "elapsed_s": 0.09120059013366699,
       "notes": "match"
     },
     {
@@ -672,7 +672,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 0.5 dimensionless\n\nComputed via thermo_classifier: tool=carnot_efficiency (eta = 1 - T_c/T_h, T_h=600.0K, T_c=300.0K)",
-      "elapsed_s": 0.09460234642028809,
+      "elapsed_s": 0.13505220413208008,
       "notes": "match"
     },
     {
@@ -685,7 +685,7 @@
       "rel_error": 1.2795750844893337e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 6.2129205000000004e-21 J\n\nComputed via thermo_classifier: tool=thermal_energy_per_molecule (<E> = (3/2) k_B T, T=300.0K)",
-      "elapsed_s": 0.13943910598754883,
+      "elapsed_s": 0.08902883529663086,
       "notes": "match"
     },
     {
@@ -698,7 +698,7 @@
       "rel_error": 6.237424726396632e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 394.97536217233073 m/s\n\nComputed via thermo_classifier: tool=maxwell_boltzmann_most_probable_speed (v_mp = sqrt(2 k T / m), m=5.31e-26kg, T=300.0K)",
-      "elapsed_s": 0.09420156478881836,
+      "elapsed_s": 0.09126830101013184,
       "notes": "match"
     },
     {
@@ -711,7 +711,7 @@
       "rel_error": 0.00018783422201798465,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 0.02446540369658722 m^3\n\nComputed via thermo_classifier: tool=ideal_gas_volume (V=nRT/P, n=1.0, T=298.15K, P=101325.0Pa)",
-      "elapsed_s": 0.09342789649963379,
+      "elapsed_s": 0.09429454803466797,
       "notes": "match"
     },
     {
@@ -724,7 +724,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 1811.15 K\n\nComputed via thermo_classifier: tool=melting_point (melting point of iron)",
-      "elapsed_s": 0.09590673446655273,
+      "elapsed_s": 0.09048271179199219,
       "notes": "match [unit-converted k->c]"
     },
     {
@@ -737,7 +737,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 273.15 K\n\nComputed via thermo_classifier: tool=melting_point (melting point of water)",
-      "elapsed_s": 0.09274148941040039,
+      "elapsed_s": 0.10870504379272461,
       "notes": "match"
     },
     {
@@ -750,7 +750,7 @@
       "rel_error": 0.0010459183673471476,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 77.355 K\n\nComputed via thermo_classifier: tool=boiling_point (boiling point of nitrogen)",
-      "elapsed_s": 0.09368348121643066,
+      "elapsed_s": 0.0938119888305664,
       "notes": "match [unit-converted k->c]"
     },
     {
@@ -763,7 +763,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 373.15 K\n\n100.0 degC = 373.15 K (pint conversion via conversion-classifier)",
-      "elapsed_s": 0.09528231620788574,
+      "elapsed_s": 0.09132623672485352,
       "notes": "match"
     },
     {
@@ -776,7 +776,7 @@
       "rel_error": 0.0009598314943756029,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 5.015181645898235e-07 m\n\nComputed via thermo_classifier: tool=blackbody_peak_wavelength (lambda_max = b/T, T=5778.0K)",
-      "elapsed_s": 0.0929718017578125,
+      "elapsed_s": 0.09041452407836914,
       "notes": "match"
     },
     {
@@ -789,7 +789,7 @@
       "rel_error": 6.858705563061357e-05,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 2.2941573387056167 dimensionless\n\nComputed via modern_classifier: tool=lorentz_factor (gamma at v=0.9c)",
-      "elapsed_s": 0.8083155155181885,
+      "elapsed_s": 0.8594036102294922,
       "notes": "match"
     },
     {
@@ -802,7 +802,7 @@
       "rel_error": 2.651289555742075e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 2237058951.517117 s\n\nComputed via modern_classifier: tool=relativistic_time_dilation (delta_t = gamma * tau, tau=10.0yr, v=0.99c)",
-      "elapsed_s": 0.09954500198364258,
+      "elapsed_s": 0.08977222442626953,
       "notes": "match [unit-converted s->year]"
     },
     {
@@ -815,7 +815,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 0.8 m\n\nComputed via modern_classifier: tool=relativistic_length_contraction (L = L_0 / gamma, L_0=1.0m, v=0.6c)",
-      "elapsed_s": 0.09488892555236816,
+      "elapsed_s": 0.09215664863586426,
       "notes": "match"
     },
     {
@@ -828,7 +828,7 @@
       "rel_error": 4.986789406141522e-05,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 8.987551787368176e+16 J\n\nComputed via modern_classifier: tool=mass_to_energy (E = m c^2, m=1.0kg)",
-      "elapsed_s": 0.094451904296875,
+      "elapsed_s": 0.10038280487060547,
       "notes": "match"
     },
     {
@@ -841,7 +841,7 @@
       "rel_error": 0.00018206230674842154,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 4259224414.5732517 kg/s\n\nComputed via modern_classifier: tool=luminosity_to_mass_conversion_rate (dm/dt = L/c^2, L=3.828e+26W)",
-      "elapsed_s": 0.09654712677001953,
+      "elapsed_s": 0.09437966346740723,
       "notes": "match"
     },
     {
@@ -854,7 +854,7 @@
       "rel_error": 0.00011453058992311553,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 3.611719738057809e-19 J\n\nComputed via modern_classifier: tool=photon_energy_from_wavelength (E = hc/lambda, lambda=5.5e-07m)",
-      "elapsed_s": 0.09318065643310547,
+      "elapsed_s": 0.09555721282958984,
       "notes": "match [unit-converted j->ev]"
     },
     {
@@ -867,7 +867,7 @@
       "rel_error": 0.0006916678738428033,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 298136146.07734805 m/s\n\nComputed via modern_classifier: tool=relativistic_velocity_addition (u'=(u+v)/(1+uv/c^2), u=0.9c, v=0.9c)",
-      "elapsed_s": 0.0955953598022461,
+      "elapsed_s": 0.09326386451721191,
       "notes": "match"
     },
     {
@@ -880,7 +880,7 @@
       "rel_error": 7.864875668645691e-05,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 6.241509074460763e+18 eV\n\n1.0 joule = 6.241509074460763e+18 eV (pint conversion via conversion-classifier)",
-      "elapsed_s": 0.09737968444824219,
+      "elapsed_s": 0.09007072448730469,
       "notes": "match"
     },
     {
@@ -893,7 +893,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 4184000000000000.0 J\n\nComputed via modern_classifier: tool=joules_to_TNT (1.0 MT * 4.184e15 J/MT)",
-      "elapsed_s": 0.09425997734069824,
+      "elapsed_s": 0.09312701225280762,
       "notes": "match"
     },
     {
@@ -906,7 +906,7 @@
       "rel_error": 4.417628072895805e-05,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 8.186760923113672e-14 J\n\nComputed via modern_classifier: tool=mass_to_energy (E = m c^2, m=9.109e-31kg)",
-      "elapsed_s": 0.10039448738098145,
+      "elapsed_s": 0.09630513191223145,
       "notes": "match [unit-converted j->mev]"
     },
     {
@@ -919,7 +919,7 @@
       "rel_error": 0.00015187645404066252,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 7.273895098796854e-11 m\n\nComputed via modern_classifier: tool=de_broglie_wavelength (lambda = h/(m v), m=9.1093837015e-31kg, v=10000000.0m/s)",
-      "elapsed_s": 0.10088777542114258,
+      "elapsed_s": 0.09272027015686035,
       "notes": "match"
     },
     {
@@ -932,60 +932,60 @@
       "rel_error": 2.7679381676372316e-06,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 1.0033412228058471 dimensionless\n\nComputed via modern_classifier: tool=doppler_shift_factor (sqrt((1+beta)/(1-beta)), v=1000000.0m/s)",
-      "elapsed_s": 0.09948897361755371,
+      "elapsed_s": 0.09478902816772461,
       "notes": "match"
     },
     {
       "id": "qm_001",
       "system": "sigma_ground",
       "domain": "quantum_mechanics",
-      "correct": true,
-      "extracted_value": -13.605693122994,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": -13.606,
-      "rel_error": 2.25545352050864e-05,
+      "rel_error": null,
       "tolerance_rel": 0.001,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 20.815574645996094,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[hydrogen_like_energy_level(n=1)]",
+      "elapsed_s": 30.548516273498535,
+      "notes": "no value extracted"
     },
     {
       "id": "qm_002",
       "system": "sigma_ground",
       "domain": "quantum_mechanics",
-      "correct": true,
-      "extracted_value": -3.4014232807485,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": -3.401,
-      "rel_error": 0.00012445773257867263,
+      "rel_error": null,
       "tolerance_rel": 0.001,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 18.07103395462036,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[hydrogen_like_energy_level(atomic_number=1, n=2)]",
+      "elapsed_s": 30.363113403320312,
+      "notes": "no value extracted"
     },
     {
       "id": "qm_003",
       "system": "sigma_ground",
       "domain": "quantum_mechanics",
-      "correct": true,
-      "extracted_value": 24.587,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 24.587,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.001,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 20.470096588134766,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[first_ionization_energy(element_symbol=\"He\")]",
+      "elapsed_s": 27.613887548446655,
+      "notes": "no value extracted"
     },
     {
       "id": "qm_004",
       "system": "sigma_ground",
       "domain": "quantum_mechanics",
-      "correct": true,
-      "extracted_value": -54.422772491976,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": -54.42,
-      "rel_error": 5.094619581029329e-05,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 17.998530864715576,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[hydrogen_like_energy_level(atomic_number=2, n=1)]",
+      "elapsed_s": 32.780834913253784,
+      "notes": "no value extracted"
     },
     {
       "id": "qm_005",
@@ -997,47 +997,47 @@
       "rel_error": 0.0009269554425037312,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 3.876403412883085e-11 m\n\nComputed via new_tools_classifier: de_broglie_from_kinetic_energy (1 keV electron)",
-      "elapsed_s": 8.511543273925781e-05,
+      "elapsed_s": 7.367134094238281e-05,
       "notes": "match"
     },
     {
       "id": "qm_006",
       "system": "sigma_ground",
       "domain": "quantum_mechanics",
-      "correct": true,
-      "extracted_value": 4.860090936439399e-07,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 4.861e-07,
-      "rel_error": 0.0001870116355895775,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 27.744588375091553,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\nhydrogen_emission_wavelength(n_initial=4, n_final=2)",
+      "elapsed_s": 31.585973262786865,
+      "notes": "no value extracted"
     },
     {
       "id": "qm_007",
       "system": "sigma_ground",
       "domain": "quantum_mechanics",
-      "correct": true,
-      "extracted_value": 6.626070145940079e-19,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 6.626e-19,
-      "rel_error": 1.0586468469480203e-05,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 21.124004364013672,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[photon_energy_from_frequency(frequency_hz=1e15)]",
+      "elapsed_s": 31.50003480911255,
+      "notes": "no value extracted"
     },
     {
       "id": "qm_008",
       "system": "sigma_ground",
       "domain": "quantum_mechanics",
-      "correct": true,
-      "extracted_value": 5.139,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 5.139,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 20.219452619552612,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[first_ionization_energy(element_symbol=\"Na\")]",
+      "elapsed_s": 27.40069055557251,
+      "notes": "no value extracted"
     },
     {
       "id": "qm_009",
@@ -1049,21 +1049,21 @@
       "rel_error": 0.0002788847852065472,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 1.986e-15 J\n\n[semantic interpreter -> photon_energy_from_wavelength (similarity 0.73)]\nWork: E = h c / lambda\nSource: sigma-ground (Planck-Einstein relation)",
-      "elapsed_s": 2.163736581802368,
+      "elapsed_s": 2.1827518939971924,
       "notes": "match"
     },
     {
       "id": "qm_010",
       "system": "sigma_ground",
       "domain": "quantum_mechanics",
-      "correct": true,
-      "extracted_value": 11.26,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 11.26,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 17.41325616836548,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[first_ionization_energy(element_symbol=\"C\")]",
+      "elapsed_s": 31.44175148010254,
+      "notes": "no value extracted"
     },
     {
       "id": "qm_011",
@@ -1075,21 +1075,21 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 1.1424258872310483e-34 m\n\nComputed via modern_classifier: tool=de_broglie_wavelength (lambda = h/(m v), m=0.145kg, v=40.0m/s)",
-      "elapsed_s": 0.09533166885375977,
+      "elapsed_s": 0.11880111694335938,
       "notes": "match"
     },
     {
       "id": "qm_012",
       "system": "sigma_ground",
       "domain": "quantum_mechanics",
-      "correct": true,
-      "extracted_value": 4.050075780366167e-06,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 4.051e-06,
-      "rel_error": 0.00022814604636712133,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 21.124903202056885,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\nhydrogen_emission_wavelength(n_initial=5, n_final=4)",
+      "elapsed_s": 32.53581190109253,
+      "notes": "no value extracted"
     },
     {
       "id": "mech_adv_001",
@@ -1101,7 +1101,7 @@
       "rel_error": 0.0008908707703696353,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 13058.356319031269 m/s\n\nComputed via new_tools_classifier: orbital_velocity (jupiter heliocentric orbit at 5.2038 AU)",
-      "elapsed_s": 0.00017499923706054688,
+      "elapsed_s": 0.0002243518829345703,
       "notes": "match"
     },
     {
@@ -1114,7 +1114,7 @@
       "rel_error": 8.003527494140737e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 163960165.95268384 s\n\nComputed via new_tools_classifier: orbital_period (Kepler III at 3 AU)",
-      "elapsed_s": 0.00015020370483398438,
+      "elapsed_s": 0.00025773048400878906,
       "notes": "match [unit-converted s->year]"
     },
     {
@@ -1127,21 +1127,21 @@
       "rel_error": 8.730426306409017e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 6.178e+05 m/s\n\n[semantic interpreter -> escape_velocity_classical (similarity 0.75)]\nWork: v_esc = sqrt(2 G M / r)\nSource: sigma-ground (classical escape velocity)",
-      "elapsed_s": 2.1804842948913574,
+      "elapsed_s": 2.204585075378418,
       "notes": "match"
     },
     {
       "id": "mech_adv_004",
       "system": "sigma_ground",
       "domain": "classical_mechanics_advanced",
-      "correct": true,
-      "extracted_value": 499.00478383615643,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 499.0,
-      "rel_error": 9.586846004878793e-06,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 21.38883137702942,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[light_travel_time(distance_m=149.6e9)]",
+      "elapsed_s": 31.51276159286499,
+      "notes": "no value extracted"
     },
     {
       "id": "mech_adv_005",
@@ -1152,22 +1152,22 @@
       "expected_value": 3.711,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 17.4023334980011,
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[solar_system_body(body_name=\"Mars\")]",
+      "elapsed_s": 30.10379934310913,
       "notes": "no value extracted"
     },
     {
       "id": "mech_adv_006",
       "system": "sigma_ground",
       "domain": "classical_mechanics_advanced",
-      "correct": true,
-      "extracted_value": 4724738000.0,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 4720000000.0,
-      "rel_error": 0.0010038135593220339,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 21.486318349838257,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n\"kinetic_energy(mass_kg=1000, velocity_m_s=3074)\"",
+      "elapsed_s": 35.08295488357544,
+      "notes": "no value extracted"
     },
     {
       "id": "mech_adv_007",
@@ -1179,7 +1179,7 @@
       "rel_error": 0.011247181123618536,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 6.02e+04 m/s\n\n[semantic interpreter -> escape_velocity_classical (similarity 0.73)]\nWork: v_esc = sqrt(2 G M / r)\nSource: sigma-ground (classical escape velocity)",
-      "elapsed_s": 2.208505392074585,
+      "elapsed_s": 2.2277543544769287,
       "notes": "match"
     },
     {
@@ -1192,7 +1192,7 @@
       "rel_error": 0.0008207007562900763,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 1018.8354733699033 m/s\n\nComputed via new_tools_classifier: orbital_velocity (Moon orbit radius 384,000 km)",
-      "elapsed_s": 0.00019669532775878906,
+      "elapsed_s": 0.00020575523376464844,
       "notes": "match"
     },
     {
@@ -1205,7 +1205,7 @@
       "rel_error": 0.0005315148016791968,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 7664.071403380863 m/s\n\nComputed via new_tools_classifier: orbital_velocity (Earth orbit at 408 km altitude)",
-      "elapsed_s": 8.034706115722656e-05,
+      "elapsed_s": 7.510185241699219e-05,
       "notes": "match"
     },
     {
@@ -1213,91 +1213,91 @@
       "system": "sigma_ground",
       "domain": "classical_mechanics_advanced",
       "correct": false,
-      "extracted_value": 350940776900.0,
+      "extracted_value": null,
       "expected_value": 57000000000.0,
-      "rel_error": 5.156855735087719,
+      "rel_error": null,
       "tolerance_rel": 0.1,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 29.25454354286194,
-      "notes": "rel_err 5.157e+00"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\ngravitational_potential_energy(mass_kg=1000, height_m=35786)",
+      "elapsed_s": 34.65668058395386,
+      "notes": "no value extracted"
     },
     {
       "id": "em_adv_001",
       "system": "sigma_ground",
       "domain": "electrodynamics_advanced",
-      "correct": true,
-      "extracted_value": 0.09200320945220193,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 0.092,
-      "rel_error": 3.488535002100755e-05,
+      "rel_error": null,
       "tolerance_rel": 0.05,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 21.530181407928467,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[em_wave_wavelength(frequency_hz=2.45e9, refractive_index=1.33)]",
+      "elapsed_s": 36.08789372444153,
+      "notes": "no value extracted"
     },
     {
       "id": "em_adv_002",
       "system": "sigma_ground",
       "domain": "electrodynamics_advanced",
       "correct": false,
-      "extracted_value": 5.0,
+      "extracted_value": null,
       "expected_value": 1.2,
-      "rel_error": 3.1666666666666665,
+      "rel_error": null,
       "tolerance_rel": 0.1,
-      "answer_text": "",
-      "elapsed_s": 93.42757630348206,
-      "notes": "rel_err 3.167e+00"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[electrical_power(voltage_v=60, current_a=0.02)]",
+      "elapsed_s": 17.786009311676025,
+      "notes": "no value extracted"
     },
     {
       "id": "em_adv_003",
       "system": "sigma_ground",
       "domain": "electrodynamics_advanced",
-      "correct": true,
-      "extracted_value": 8.854187817e-06,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 8.854e-06,
-      "rel_error": 2.1212672238509273e-05,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 22.094669103622437,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[parallel_plate_capacitance(area_m2=1.0, separation_m=1e-6)]",
+      "elapsed_s": 38.316418170928955,
+      "notes": "no value extracted"
     },
     {
       "id": "em_adv_004",
       "system": "sigma_ground",
       "domain": "electrodynamics_advanced",
       "correct": false,
-      "extracted_value": 8.854187817000001e-13,
+      "extracted_value": null,
       "expected_value": 0.0113,
-      "rel_error": 0.9999999999216443,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 33.67673110961914,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[parallel_plate_capacitance(area_m2=0.1, separation_m=0.0001, dielectric_constant=100)]",
+      "elapsed_s": 41.49415850639343,
+      "notes": "no value extracted"
     },
     {
       "id": "em_adv_005",
       "system": "sigma_ground",
       "domain": "electrodynamics_advanced",
-      "correct": true,
-      "extracted_value": 299.792458,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 299.79,
-      "rel_error": 8.199072684179189e-06,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 21.258732795715332,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[em_wave_wavelength(frequency_hz=1000000.0)]",
+      "elapsed_s": 33.576610803604126,
+      "notes": "no value extracted"
     },
     {
       "id": "em_adv_006",
       "system": "sigma_ground",
       "domain": "electrodynamics_advanced",
-      "correct": true,
-      "extracted_value": 159154943.09189537,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 159100000.0,
-      "rel_error": 0.0003453368440941023,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 22.136778354644775,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\nrlc_resonant_frequency(inductance_h=1e-6, capacitance_f=1e-12)",
+      "elapsed_s": 35.53400683403015,
+      "notes": "no value extracted"
     },
     {
       "id": "em_adv_007",
@@ -1309,34 +1309,34 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 18000000.0 J\n\nComputed via new_tools_classifier: energy_power_time (E = P t)",
-      "elapsed_s": 0.00046896934509277344,
+      "elapsed_s": 0.000457763671875,
       "notes": "match"
     },
     {
       "id": "em_adv_008",
       "system": "sigma_ground",
       "domain": "electrodynamics_advanced",
-      "correct": true,
-      "extracted_value": 0.12491352416666666,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 0.125,
-      "rel_error": 0.0006918066666666833,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 24.703186511993408,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[em_wave_wavelength(frequency_hz=2400e6, refractive_index=1.0)]",
+      "elapsed_s": 35.01635026931763,
+      "notes": "no value extracted"
     },
     {
       "id": "em_adv_009",
       "system": "sigma_ground",
       "domain": "electrodynamics_advanced",
-      "correct": true,
-      "extracted_value": 0.0107068735,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 0.0107,
-      "rel_error": 0.0006423831775701613,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 21.792001724243164,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[em_wave_frequency(wavelength_m=0.0107)]",
+      "elapsed_s": 32.14136481285095,
+      "notes": "no value extracted"
     },
     {
       "id": "em_adv_010",
@@ -1348,7 +1348,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 200.0 s\n\nComputed via new_tools_classifier: energy_power_time (t = E / P)",
-      "elapsed_s": 8.535385131835938e-05,
+      "elapsed_s": 9.655952453613281e-05,
       "notes": "match"
     },
     {
@@ -1361,7 +1361,7 @@
       "rel_error": 2.6189881851615555e-06,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 2954.007736491099 m\n\nComputed via gr_classifier: tool=schwarzschild_radius, mass=1.989e+30 kg (Sun collapsed (mass = M_sun))",
-      "elapsed_s": 0.10559773445129395,
+      "elapsed_s": 0.10857892036437988,
       "notes": "match"
     },
     {
@@ -1374,7 +1374,7 @@
       "rel_error": 6.508141253163016e-05,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 44310.116047366486 m\n\nComputed via gr_classifier: tool=photon_sphere_radius, mass=1.989e+31 kg (10.0 solar masses)",
-      "elapsed_s": 0.10196876525878906,
+      "elapsed_s": 0.10074830055236816,
       "notes": "match"
     },
     {
@@ -1387,7 +1387,7 @@
       "rel_error": 5.379864899326662e-05,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 88620.23209473297 m\n\nComputed via gr_classifier: tool=isco_radius, mass=1.989e+31 kg (10.0 solar masses)",
-      "elapsed_s": 0.10339093208312988,
+      "elapsed_s": 0.10142827033996582,
       "notes": "match"
     },
     {
@@ -1400,7 +1400,7 @@
       "rel_error": 0.00021429102782778928,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 6.168677824358303e-08 K\n\nComputed via gr_classifier: tool=hawking_temperature, mass=1.989e+30 kg (1.0 solar masses)",
-      "elapsed_s": 0.1051778793334961,
+      "elapsed_s": 0.10933136940002441,
       "notes": "match"
     },
     {
@@ -1413,7 +1413,7 @@
       "rel_error": 5.778542500536998e-06,
       "tolerance_rel": 0.1,
       "answer_text": "ANSWER: 6.617961757605732e+77 s\n\nComputed via gr_classifier: tool=hawking_evaporation_time, mass=1.989e+31 kg (10.0 solar masses)",
-      "elapsed_s": 0.1018073558807373,
+      "elapsed_s": 0.10046625137329102,
       "notes": "match"
     },
     {
@@ -1426,7 +1426,7 @@
       "rel_error": 0.0002616345611277264,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 0.18095264414443588 dimensionless\n\nComputed via gr_classifier: tool=gravitational_time_dilation, mass=1.989e+31 kg (10.0 solar masses), radius=3.054e+04 m",
-      "elapsed_s": 0.1027669906616211,
+      "elapsed_s": 0.10845279693603516,
       "notes": "match"
     },
     {
@@ -1439,7 +1439,7 @@
       "rel_error": 0.0009447702159921,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 12111431719.613504 m\n\nComputed via gr_classifier: tool=schwarzschild_radius, mass=8.155e+36 kg (4.1e6 solar masses (Sgr A*))",
-      "elapsed_s": 0.10663151741027832,
+      "elapsed_s": 0.1049203872680664,
       "notes": "match"
     },
     {
@@ -1447,13 +1447,13 @@
       "system": "sigma_ground",
       "domain": "general_relativity",
       "correct": false,
-      "extracted_value": 86400.00000721525,
+      "extracted_value": null,
       "expected_value": 20200000.0,
-      "rel_error": 0.9957227722768704,
+      "rel_error": null,
       "tolerance_rel": 0.05,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 33.843578577041626,
-      "notes": "rel_err 9.957e-01"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[gravitational_time_dilation(mass_kg=5.972e24, radius_m=6371000)]",
+      "elapsed_s": 36.83348345756531,
+      "notes": "no value extracted"
     },
     {
       "id": "gr_009",
@@ -1465,7 +1465,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: inf \n\nComputed via gr_classifier: tool=gravitational_redshift, mass=1.989e+30 kg (arbitrary placeholder mass (answer is mass-independent at r=r_s)), radius=2954 m",
-      "elapsed_s": 0.09702348709106445,
+      "elapsed_s": 0.12240982055664062,
       "notes": "both inf"
     },
     {
@@ -1478,7 +1478,7 @@
       "rel_error": 0.0005167874672053359,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 1.485232053823733e-15 m\n\nComputed via gr_classifier: tool=schwarzschild_radius, mass=1e+12 kg (1000000000000.0 kg)",
-      "elapsed_s": 0.09967231750488281,
+      "elapsed_s": 0.09695291519165039,
       "notes": "match"
     },
     {
@@ -1491,7 +1491,7 @@
       "rel_error": 0.039878973774840405,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 1.3726402453827894e+26 m\n\nComputed via cosmology_classifier: tool=hubble_radius (Hubble radius c/H_0)",
-      "elapsed_s": 0.12592697143554688,
+      "elapsed_s": 0.10851168632507324,
       "notes": "match"
     },
     {
@@ -1504,7 +1504,7 @@
       "rel_error": 0.0071296492657565375,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 4.3542154628946586e+17 s\n\nComputed via cosmology_classifier: tool=age_of_universe (true flat-LambdaCDM age (Planck 2018))",
-      "elapsed_s": 0.09821081161499023,
+      "elapsed_s": 0.09834885597229004,
       "notes": "match [unit-converted s->year]"
     },
     {
@@ -1517,7 +1517,7 @@
       "rel_error": 0.010316442121625946,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 8.531072268911585e-27 kg/m^3\n\nComputed via cosmology_classifier: tool=critical_density (rho_crit = 3 H^2 / (8 pi G))",
-      "elapsed_s": 0.16295886039733887,
+      "elapsed_s": 0.15403366088867188,
       "notes": "match"
     },
     {
@@ -1530,7 +1530,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0,
       "answer_text": "ANSWER: transition \n\nComputed via cosmology_classifier: tool=mond_regime_classifier (acceleration 1e-10 m/s^2)",
-      "elapsed_s": 0.09595251083374023,
+      "elapsed_s": 0.09485578536987305,
       "notes": "string match"
     },
     {
@@ -1543,7 +1543,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0,
       "answer_text": "ANSWER: newtonian \n\nComputed via cosmology_classifier: tool=mond_regime_classifier (acceleration 9.8 m/s^2)",
-      "elapsed_s": 0.0979619026184082,
+      "elapsed_s": 0.09519577026367188,
       "notes": "string match"
     },
     {
@@ -1556,7 +1556,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 1.2e-10 m/s^2\n\nComputed via cosmology_classifier: tool=mond_a0_constant (MOND characteristic acceleration)",
-      "elapsed_s": 0.09863686561584473,
+      "elapsed_s": 0.09748148918151855,
       "notes": "match"
     },
     {
@@ -1569,7 +1569,7 @@
       "rel_error": 0.0003980582524273131,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 0.41216400000000003 dimensionless\n\nComputed via cosmology_classifier: tool=eta_value_report (SSBM eta parameter)",
-      "elapsed_s": 0.09689998626708984,
+      "elapsed_s": 0.0947866439819336,
       "notes": "match"
     },
     {
@@ -1582,7 +1582,7 @@
       "rel_error": 0.0009690719298065656,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 4.3542154628946586e+17 s\n\nComputed via cosmology_classifier: tool=age_of_universe (true flat-LambdaCDM age (Planck 2018))",
-      "elapsed_s": 0.10073280334472656,
+      "elapsed_s": 0.0972433090209961,
       "notes": "match"
     },
     {
@@ -1595,7 +1595,7 @@
       "rel_error": 0.0007758396226412534,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 4.243289559999999 year\n\nComputed via astro_classifier: light_travel_time_from_star (proxima_centauri at 1.301 pc = 4.24 ly)",
-      "elapsed_s": 0.09776663780212402,
+      "elapsed_s": 0.09811663627624512,
       "notes": "match"
     },
     {
@@ -1608,7 +1608,7 @@
       "rel_error": 3.445807345807346e+26,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 1.989e+30 kg\n\n[semantic interpreter -> body_mass (similarity 0.64)]\nWork: M (measured)\nSource: NASA/IAU planetary fact sheet",
-      "elapsed_s": 2.1859612464904785,
+      "elapsed_s": 2.195117235183716,
       "notes": "rel_err 3.446e+26"
     },
     {
@@ -1621,7 +1621,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 25.4 L_sun\n\nComputed via astro_classifier: named_star_field (sirius_a.luminosity_solar)",
-      "elapsed_s": 0.09633612632751465,
+      "elapsed_s": 0.09432125091552734,
       "notes": "match"
     },
     {
@@ -1634,7 +1634,7 @@
       "rel_error": 0.0017222669104203273,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 547.9420799999999 year\n\nComputed via astro_classifier: light_travel_time_from_star (betelgeuse at 168.0 pc = 547.94 ly)",
-      "elapsed_s": 0.09993767738342285,
+      "elapsed_s": 0.09673428535461426,
       "notes": "match"
     },
     {
@@ -1647,7 +1647,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 2.135 M_sun\n\nComputed via astro_classifier: named_star_field (vega.mass_solar)",
-      "elapsed_s": 0.09589505195617676,
+      "elapsed_s": 0.0945591926574707,
       "notes": "match"
     },
     {
@@ -1660,21 +1660,21 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 4332.59 day\n\nComputed via astro_classifier: solar_system_body_orbital_period (jupiter orbital period)",
-      "elapsed_s": 0.09692525863647461,
+      "elapsed_s": 0.09385013580322266,
       "notes": "match"
     },
     {
       "id": "astro_007",
       "system": "sigma_ground",
       "domain": "astrophysics",
-      "correct": true,
-      "extracted_value": 102927125.05433899,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 3.262,
-      "rel_error": 0.00013372864272445371,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 24.79049587249756,
-      "notes": "match [unit-converted s->year]"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[hubble_radius()]",
+      "elapsed_s": 27.323282480239868,
+      "notes": "no value extracted"
     },
     {
       "id": "astro_008",
@@ -1686,7 +1686,7 @@
       "rel_error": 0.0009598314943756029,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 5.015181645898235e-07 m\n\nComputed via astro_classifier: blackbody_peak_wavelength_sun (Wien at T=5778.0K)",
-      "elapsed_s": 0.09511041641235352,
+      "elapsed_s": 0.10420846939086914,
       "notes": "match"
     },
     {
@@ -1699,7 +1699,7 @@
       "rel_error": 0.0016322909090908785,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 1.208024928e+34 J\n\nComputed via astro_classifier: sun_energy_per_year (L_sun * year_s = 3.828e+26 * 3.156e+07)",
-      "elapsed_s": 0.09456610679626465,
+      "elapsed_s": 0.10640239715576172,
       "notes": "match"
     },
     {
@@ -1712,21 +1712,21 @@
       "rel_error": 0.0002858373605750822,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 29788.512236597926 m/s\n\nComputed via astro_classifier: earth_orbital_velocity (v=sqrt(GM_sun/r), r=1 AU)",
-      "elapsed_s": 0.10123372077941895,
+      "elapsed_s": 0.1086273193359375,
       "notes": "match"
     },
     {
       "id": "astro_011",
       "system": "sigma_ground",
       "domain": "astrophysics",
-      "correct": true,
-      "extracted_value": 1.89813e+27,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 1.89813e+27,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.001,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 23.548430681228638,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[solar_system_body(body_name=\"Jupiter\")]",
+      "elapsed_s": 30.95289707183838,
+      "notes": "no value extracted"
     },
     {
       "id": "astro_012",
@@ -1738,47 +1738,47 @@
       "rel_error": 0.0006643191692504195,
       "tolerance_rel": 0.05,
       "answer_text": "ANSWER: 133.0 parsec\n\nComputed via astro_classifier: named_star_field (polaris.distance_pc)",
-      "elapsed_s": 0.09629154205322266,
+      "elapsed_s": 0.10111570358276367,
       "notes": "match [unit-converted parsec->light_year]"
     },
     {
       "id": "atom_001",
       "system": "sigma_ground",
       "domain": "atomic_molecular",
-      "correct": true,
-      "extracted_value": 79.0,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 79,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 20.240950345993042,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[element_atomic_data(element_symbol=\"Au\")]",
+      "elapsed_s": 27.062307357788086,
+      "notes": "no value extracted"
     },
     {
       "id": "atom_002",
       "system": "sigma_ground",
       "domain": "atomic_molecular",
-      "correct": true,
-      "extracted_value": 12.011,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 12.011,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0.001,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 14.415611505508423,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[element_atomic_data(element_symbol=\"C\")]",
+      "elapsed_s": 28.444473266601562,
+      "notes": "no value extracted"
     },
     {
       "id": "atom_003",
       "system": "sigma_ground",
       "domain": "atomic_molecular",
       "correct": false,
-      "extracted_value": -13.605693122994,
+      "extracted_value": null,
       "expected_value": 13.598,
-      "rel_error": 2.000565754007501,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 17.861884117126465,
-      "notes": "rel_err 2.001e+00"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[hydrogen_like_energy_level(n=1)]",
+      "elapsed_s": 28.21495223045349,
+      "notes": "no value extracted"
     },
     {
       "id": "atom_004",
@@ -1789,61 +1789,61 @@
       "expected_value": 24.587,
       "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 17.493515729904175,
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[first_ionization_energy(element_symbol=\"He\")]",
+      "elapsed_s": 32.75360870361328,
       "notes": "no value extracted"
     },
     {
       "id": "atom_005",
       "system": "sigma_ground",
       "domain": "atomic_molecular",
-      "correct": true,
-      "extracted_value": 4.100701727620744e-07,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 4.102e-07,
-      "rel_error": 0.00031649741083769373,
+      "rel_error": null,
       "tolerance_rel": 0.01,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 27.4833881855011,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\nhydrogen_emission_wavelength(n_initial=6, n_final=2)",
+      "elapsed_s": 31.745853900909424,
+      "notes": "no value extracted"
     },
     {
       "id": "atom_006",
       "system": "sigma_ground",
       "domain": "atomic_molecular",
-      "correct": true,
-      "extracted_value": 26.0,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 26,
-      "rel_error": 0.0,
+      "rel_error": null,
       "tolerance_rel": 0,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 19.775847911834717,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[element_atomic_data(element_symbol=\"Fe\")]",
+      "elapsed_s": 28.120269775390625,
+      "notes": "no value extracted"
     },
     {
       "id": "atom_007",
       "system": "sigma_ground",
       "domain": "atomic_molecular",
-      "correct": true,
-      "extracted_value": 3.3725736093918423e-19,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 2.105,
-      "rel_error": 2.432907074850658e-06,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 21.070797443389893,
-      "notes": "match [unit-converted j->ev]"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[photon_energy_from_wavelength(wavelength_m=589e-9)]",
+      "elapsed_s": 30.966080904006958,
+      "notes": "no value extracted"
     },
     {
       "id": "atom_008",
       "system": "sigma_ground",
       "domain": "atomic_molecular",
-      "correct": true,
-      "extracted_value": 238.02891,
+      "correct": false,
+      "extracted_value": null,
       "expected_value": 238.029,
-      "rel_error": 3.781051888641532e-07,
+      "rel_error": null,
       "tolerance_rel": 0.001,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 21.154736518859863,
-      "notes": "match"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[element_atomic_data(element_symbol=\"U\")]",
+      "elapsed_s": 19.17050290107727,
+      "notes": "no value extracted"
     },
     {
       "id": "nuc_001",
@@ -1855,7 +1855,7 @@
       "rel_error": 0.0013831347368693334,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 8.987551787368176e+16 joule\n\n1.0 kilogram = 8.987551787368176e+16 joule (pint conversion via conversion-classifier)",
-      "elapsed_s": 0.10532808303833008,
+      "elapsed_s": 0.14911460876464844,
       "notes": "match"
     },
     {
@@ -1868,7 +1868,7 @@
       "rel_error": 0.0008946832486798733,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 21.480764310153383 megaton_TNT\n\n1.0 kilogram = 21.480764310153383 megaton_TNT (pint conversion via conversion-classifier)",
-      "elapsed_s": 0.10884690284729004,
+      "elapsed_s": 0.10336828231811523,
       "notes": "match"
     },
     {
@@ -1876,13 +1876,13 @@
       "system": "sigma_ground",
       "domain": "nuclear_physics",
       "correct": false,
-      "extracted_value": 7.507885339013708e-11,
+      "extracted_value": null,
       "expected_value": 5000000.0,
-      "rel_error": 1.0,
+      "rel_error": null,
       "tolerance_rel": 0.001,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 20.844894647598267,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[procedure_relativistic_particle(kinetic_energy_eV=5, particle=\"alpha\")]",
+      "elapsed_s": 33.45459270477295,
+      "notes": "no value extracted"
     },
     {
       "id": "nuc_004",
@@ -1894,7 +1894,7 @@
       "rel_error": 0.0013603962499998514,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 3.2043532679999995e-11 joule\n\n200.0 MeV = 3.2043532679999995e-11 joule (pint conversion via conversion-classifier)",
-      "elapsed_s": 0.09395480155944824,
+      "elapsed_s": 0.1685338020324707,
       "notes": "match"
     },
     {
@@ -1902,13 +1902,13 @@
       "system": "sigma_ground",
       "domain": "nuclear_physics",
       "correct": false,
-      "extracted_value": 82099839326449.22,
+      "extracted_value": null,
       "expected_value": 0.0196,
-      "rel_error": 4188767312573939.0,
+      "rel_error": null,
       "tolerance_rel": 0.1,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 18.13983178138733,
-      "notes": "rel_err 4.189e+15"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[fission_energy_release(mass_kg=1.0, isotope=\"U235\")]",
+      "elapsed_s": 34.72938418388367,
+      "notes": "no value extracted"
     },
     {
       "id": "nuc_006",
@@ -1920,7 +1920,7 @@
       "rel_error": 5.997310638297673e-05,
       "tolerance_rel": 0.02,
       "answer_text": "ANSWER: 2.81983087584e-12 joule\n\n17.6 MeV = 2.81983087584e-12 joule (pint conversion via conversion-classifier)",
-      "elapsed_s": 0.09597229957580566,
+      "elapsed_s": 0.16289019584655762,
       "notes": "match"
     },
     {
@@ -1928,13 +1928,13 @@
       "system": "sigma_ground",
       "domain": "nuclear_physics",
       "correct": false,
-      "extracted_value": 1e-06,
+      "extracted_value": null,
       "expected_value": 0.0465,
-      "rel_error": 0.9999784946236558,
+      "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n<exceeded max turns>",
-      "elapsed_s": 28.166505575180054,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "[Fitted due to incompetence \u2014 no grounded library tool answered this; the following is the model's unverified best guess, NOT computed by sigma-ground. Treat with caution.]\n\n[tnt_to_joules(tnt_amount=1.0, unit='MT')]",
+      "elapsed_s": 22.561399936676025,
+      "notes": "no value extracted"
     },
     {
       "id": "math_001",
@@ -1952,7 +1952,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: [-2.0, 2.0] \n\nComputed via math_classifier: tool=solve_equation on 'x**2-4=0' (symbolic: ['-2', '2'])",
-      "elapsed_s": 0.20448017120361328,
+      "elapsed_s": 0.25597357749938965,
       "notes": "list match"
     },
     {
@@ -1965,7 +1965,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 0.3333333333333333 \n\nComputed via math_classifier: tool=integrate_expr on 'x**2' (symbolic: '1/3')",
-      "elapsed_s": 0.12271308898925781,
+      "elapsed_s": 0.11966109275817871,
       "notes": "match"
     },
     {
@@ -1978,7 +1978,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0,
       "answer_text": "ANSWER: cos(x) \n\nComputed via math_classifier: tool=differentiate_expr on 'sin(x)' (symbolic: 'cos(x)')",
-      "elapsed_s": 0.10161042213439941,
+      "elapsed_s": 0.10048317909240723,
       "notes": "string match"
     },
     {
@@ -1999,7 +1999,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: [1.0, 2.0, 3.0] \n\nComputed via math_classifier: tool=solve_equation on 'x**3-6*x**2+11*x-6=0' (symbolic: ['1', '2', '3'])",
-      "elapsed_s": 0.10347366333007812,
+      "elapsed_s": 0.09957408905029297,
       "notes": "list match"
     },
     {
@@ -2012,7 +2012,7 @@
       "rel_error": 9.895059008997617e-16,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 3.141592653589793 \n\nComputed via math_classifier: tool=integrate_expr on '1/(1+x**2)' (symbolic: 'pi')",
-      "elapsed_s": 0.15001869201660156,
+      "elapsed_s": 0.15545916557312012,
       "notes": "match"
     },
     {
@@ -2025,7 +2025,7 @@
       "rel_error": 3.2209647066284737e-06,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 9460730472580800.0 meter\n\n1.0 light_year = 9460730472580800.0 meter (pint conversion via conversion-classifier)",
-      "elapsed_s": 0.10233664512634277,
+      "elapsed_s": 0.0995337963104248,
       "notes": "match"
     },
     {
@@ -2038,7 +2038,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "ANSWER: 1.0 \n\nComputed via math_classifier: tool=simplify_expr on 'sin(x)**2+cos(x)**2' (symbolic: '1')",
-      "elapsed_s": 0.18947458267211914,
+      "elapsed_s": 0.18793940544128418,
       "notes": "match"
     }
   ]

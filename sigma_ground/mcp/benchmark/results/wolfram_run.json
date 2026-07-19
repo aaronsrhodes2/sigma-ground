@@ -2,22 +2,24 @@
   {
     "id": "mech_intro_001",
     "system": "wolfram",
-    "answer_text": "<no parseable result after reformulation>",
-    "primary_result_pod": "",
-    "extracted_value": null,
-    "extracted_units": "",
+    "answer_text": "[Input information] free fall | \nfall distance | 10 meters\ngravitational acceleration | 9.81 m/s^2 (meters per second squared)\nmass | g (gluon) (mass): 0 MeV/c^2\n[Results] time | 1.4278 seconds\nspeed | 14.007 m/s (meters per second)\n= 31.333 mph (miles per hour)\n= 45.955 ft/s (feet per second)\n[Equations] v = g t | t = sqrt((2 z)/g) | \nt | time\nz | fall distance\ng | gravitational acceleration\nv | speed\n(assuming no drag and no dependence on altitude)\n(result does not depend on mass)",
+    "primary_result_pod": "time | 1.4278 seconds\nspeed | 14.007 m/s (meters per second)\n= 31.333 mph (miles per hour)\n= 45.955 ft/s (feet per second)",
+    "extracted_value": 31.333,
+    "extracted_units": "mph (miles per hour)",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 3
+    "wolfram_variant_used": 0,
+    "wolfram_variant_text": "free fall time g 9.81 m/s^2 height 10 m"
   },
   {
     "id": "mech_intro_002",
     "system": "wolfram",
-    "answer_text": "<no parseable result after reformulation>",
-    "primary_result_pod": "",
-    "extracted_value": null,
+    "answer_text": "[Input interpretation] Free Fall | maximum speed | gram | 9.81 m/s^2 (meters per second squared) | 50 meters (height)\n[Result] {(data not available), gram, 9.81 m/s^2 (meters per second squared), 50 meters}",
+    "primary_result_pod": "{(data not available), gram, 9.81 m/s^2 (meters per second squared), 50 meters}",
+    "extracted_value": 9.81,
     "extracted_units": "",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variant_used": 0,
+    "wolfram_variant_text": "free fall velocity g 9.81 m/s^2 height 50 m"
   },
   {
     "id": "mech_intro_003",
@@ -27,7 +29,7 @@
     "extracted_value": null,
     "extracted_units": "",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variants_tried": 3
   },
   {
     "id": "mech_intro_004",
@@ -42,12 +44,13 @@
   {
     "id": "mech_intro_005",
     "system": "wolfram",
-    "answer_text": "<no parseable result after reformulation>",
-    "primary_result_pod": "",
-    "extracted_value": null,
-    "extracted_units": "",
+    "answer_text": "[Input information] kinetic energy | \nmass | 70 kg (kilograms)\nvelocity | 5 m/s (meters per second)\n[Result] kinetic energy | 875 J (joules)\n= 0.2431 W h (watt hours)\n= 5.461 \u00d7 10^12 GeV (gigaelectronvolts)\n[Equation] K = (m v^2)/2 | \nK | kinetic energy\nm | mass\nv | velocity\n(the energy of an object due to its motion)",
+    "primary_result_pod": "kinetic energy | 875 J (joules)\n= 0.2431 W h (watt hours)\n= 5.461 \u00d7 10^12 GeV (gigaelectronvolts)",
+    "extracted_value": 5461000000000.0,
+    "extracted_units": "GeV (gigaelectronvolts)",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variant_used": 0,
+    "wolfram_variant_text": "kinetic energy mass 70 kg velocity 5 m/s"
   },
   {
     "id": "mech_intro_006",
@@ -81,22 +84,24 @@
   {
     "id": "mech_intro_009",
     "system": "wolfram",
-    "answer_text": "<no parseable result after reformulation>",
-    "primary_result_pod": "",
-    "extracted_value": null,
-    "extracted_units": "",
+    "answer_text": "[Input information] nonrelativistic momentum | \nmass | 1500 kg (kilograms)\nvelocity | 25 m/s (meters per second)\n[Result] momentum | 37500 kg m/s (kilogram meters per second)\n= 8430 lbf s (pound-force seconds)\n= 37500 J s/m (joule seconds per meter)\n[Equation] p = m v | \np | momentum\nm | mass\nv | velocity",
+    "primary_result_pod": "momentum | 37500 kg m/s (kilogram meters per second)\n= 8430 lbf s (pound-force seconds)\n= 37500 J s/m (joule seconds per meter)",
+    "extracted_value": 8430.0,
+    "extracted_units": "lbf s (pound-force seconds)",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variant_used": 0,
+    "wolfram_variant_text": "momentum mass 1500 kg velocity 25 m/s"
   },
   {
     "id": "mech_intro_010",
     "system": "wolfram",
-    "answer_text": "<no parseable result after reformulation>",
-    "primary_result_pod": "",
-    "extracted_value": null,
-    "extracted_units": "",
+    "answer_text": "[Input information] gravitational potential energy | \nmass | 70 kg (kilograms)\nheight | 100 meters\ngravitational acceleration | 1 g (standard acceleration due to gravity on the surface of the earth)\n[Result] gravitational potential energy | 68.65 kJ (kilojoules)\n= 19.07 W h (watt hours)\n= 0.01907 kW h (kilowatt hours)\n[Equation] U = m g h | \nU | gravitational potential energy\nm | mass\nh | height\ng | gravitational acceleration\n(energy of an object due to gravity near the surface of a gravitating body)",
+    "primary_result_pod": "gravitational potential energy | 68.65 kJ (kilojoules)\n= 19.07 W h (watt hours)\n= 0.01907 kW h (kilowatt hours)",
+    "extracted_value": 19.07,
+    "extracted_units": "W h (watt hours)",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variant_used": 0,
+    "wolfram_variant_text": "gravitational potential energy mass 70 kg height 100 m"
   },
   {
     "id": "mech_intro_011",
@@ -121,12 +126,13 @@
   {
     "id": "mech_intro_013",
     "system": "wolfram",
-    "answer_text": "<no parseable result after reformulation>",
-    "primary_result_pod": "",
-    "extracted_value": null,
-    "extracted_units": "",
+    "answer_text": "[Input information] kinetic energy | \nmass | 0.01 kg (kilograms)\nvelocity | 400 m/s (meters per second)\n[Result] kinetic energy | 800 J (joules)\n= 0.2222 W h (watt hours)\n= 4.993 \u00d7 10^12 GeV (gigaelectronvolts)\n[Equation] K = (m v^2)/2 | \nK | kinetic energy\nm | mass\nv | velocity\n(the energy of an object due to its motion)",
+    "primary_result_pod": "kinetic energy | 800 J (joules)\n= 0.2222 W h (watt hours)\n= 4.993 \u00d7 10^12 GeV (gigaelectronvolts)",
+    "extracted_value": 4993000000000.0,
+    "extracted_units": "GeV (gigaelectronvolts)",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variant_used": 0,
+    "wolfram_variant_text": "kinetic energy mass 0.01 kg velocity 400 m/s"
   },
   {
     "id": "mech_intro_014",
@@ -151,32 +157,35 @@
   {
     "id": "em_intro_001",
     "system": "wolfram",
-    "answer_text": "<no parseable result after reformulation>",
-    "primary_result_pod": "",
-    "extracted_value": null,
-    "extracted_units": "",
+    "answer_text": "[Input information] Ohm's law | \nvoltage | 5 V (volts)\nelectric resistance | 100 \u03a9 (ohms)\n[Result] electric current | 50 mA (milliamperes)\n= 0.05 A (amperes)\n[Equation] V = I R | \nI | electric current\nV | voltage\nR | electric resistance",
+    "primary_result_pod": "electric current | 50 mA (milliamperes)\n= 0.05 A (amperes)",
+    "extracted_value": 0.05,
+    "extracted_units": "A (amperes)",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variant_used": 0,
+    "wolfram_variant_text": "ohms law current voltage 5 v resistance 100 ohm"
   },
   {
     "id": "em_intro_002",
     "system": "wolfram",
-    "answer_text": "<no parseable result after reformulation>",
-    "primary_result_pod": "",
-    "extracted_value": null,
-    "extracted_units": "",
+    "answer_text": "[Input interpretation] all countries, dependencies, and territories | electricity generation (12 V (volts) (electric potential)) \u00d7 2 a\n[Result] a 24 V (volts) 2.153 \u00d7 10^13 kW h/yr (kilowatt hours per year) (Jan 1, 2012 and Jan 1, 2024)",
+    "primary_result_pod": "a 24 V (volts) 2.153 \u00d7 10^13 kW h/yr (kilowatt hours per year) (Jan 1, 2012 and Jan 1, 2024)",
+    "extracted_value": 21530000000000.0,
+    "extracted_units": "kW h/yr (kilowatt hours per year) (Jan",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variant_used": 0,
+    "wolfram_variant_text": "electrical power voltage 12 v current 2 a"
   },
   {
     "id": "em_intro_003",
     "system": "wolfram",
-    "answer_text": "<no parseable result after reformulation>",
-    "primary_result_pod": "",
-    "extracted_value": null,
-    "extracted_units": "",
+    "answer_text": "[Input information] capacitance of parallel plates | \narea of overlap of the two plates | 1 m^2 (square meter)\ndistance | 0.001 meters\npermittivity | \u03b5_0 (electric constant)\n[Result] electric capacitance | 8.854 nF (nanofarads)\n= 0.008854 \u03bcF (microfarads)\n= 8854 pF (picofarads)\n[Equation] C = (\u03f5 A)/d | \nC | electric capacitance\nA | area of overlap of the two plates\nd | distance\n\u03f5 | permittivity\n(capacitance of two parallel plates, given the geometry)",
+    "primary_result_pod": "electric capacitance | 8.854 nF (nanofarads)\n= 0.008854 \u03bcF (microfarads)\n= 8854 pF (picofarads)",
+    "extracted_value": 0.008854,
+    "extracted_units": "\u03bcF (microfarads)",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variant_used": 0,
+    "wolfram_variant_text": "parallel plate capacitance area 1 m2 separation 0.001 m dielectric constant 1"
   },
   {
     "id": "em_intro_004",
@@ -186,7 +195,7 @@
     "extracted_value": null,
     "extracted_units": "",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variants_tried": 3
   },
   {
     "id": "em_intro_005",
@@ -196,17 +205,18 @@
     "extracted_value": null,
     "extracted_units": "",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variants_tried": 3
   },
   {
     "id": "em_intro_006",
     "system": "wolfram",
-    "answer_text": "<no parseable result after reformulation>",
-    "primary_result_pod": "",
-    "extracted_value": null,
-    "extracted_units": "",
+    "answer_text": "[Input information] photon wavelength | \nfrequency | 1 \u00d7 10^8 Hz (hertz)\n[Result] wavelength | 2.998 meters\n= 9.836 feet\n= 9' 10.03\"\n[Equation] \u03bd = c/\u03bb | \n\u03bb | wavelength\n\u03bd | frequency\nc | speed of light (\u2248 2.998 \u00d7 10^8 m/s)",
+    "primary_result_pod": "wavelength | 2.998 meters\n= 9.836 feet\n= 9' 10.03\"",
+    "extracted_value": 9.836,
+    "extracted_units": "feet",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variant_used": 0,
+    "wolfram_variant_text": "em wave wavelength frequency 100000000 hz"
   },
   {
     "id": "em_intro_007",
@@ -220,22 +230,24 @@
   {
     "id": "em_intro_008",
     "system": "wolfram",
-    "answer_text": "<no parseable result after reformulation>",
-    "primary_result_pod": "",
-    "extracted_value": null,
-    "extracted_units": "",
+    "answer_text": "[Input interpretation] all countries, dependencies, and territories | electricity generation \u00d7 5 a (10 \u03a9 (ohms) (electric resistance))\n[Result] a 50 \u03a9 (ohms) 2.153 \u00d7 10^13 kW h/yr (kilowatt hours per year) (Jan 1, 2012 and Jan 1, 2024)",
+    "primary_result_pod": "a 50 \u03a9 (ohms) 2.153 \u00d7 10^13 kW h/yr (kilowatt hours per year) (Jan 1, 2012 and Jan 1, 2024)",
+    "extracted_value": 21530000000000.0,
+    "extracted_units": "kW h/yr (kilowatt hours per year) (Jan",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 3
+    "wolfram_variant_used": 0,
+    "wolfram_variant_text": "electrical power current 5 a resistance 10 ohm"
   },
   {
     "id": "em_intro_009",
     "system": "wolfram",
-    "answer_text": "<no parseable result after reformulation>",
-    "primary_result_pod": "",
-    "extracted_value": null,
-    "extracted_units": "",
+    "answer_text": "[Input information] Ohm's law | \nvoltage | 10 V (volts)\nelectric resistance | 50 \u03a9 (ohms)\n[Result] electric current | 200 mA (milliamperes)\n= 0.2 A (amperes)\n[Equation] V = I R | \nI | electric current\nV | voltage\nR | electric resistance",
+    "primary_result_pod": "electric current | 200 mA (milliamperes)\n= 0.2 A (amperes)",
+    "extracted_value": 0.2,
+    "extracted_units": "A (amperes)",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variant_used": 0,
+    "wolfram_variant_text": "ohms law current voltage 10 v resistance 50 ohm"
   },
   {
     "id": "em_intro_010",
@@ -245,27 +257,29 @@
     "extracted_value": null,
     "extracted_units": "",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variants_tried": 3
   },
   {
     "id": "em_intro_011",
     "system": "wolfram",
-    "answer_text": "<no parseable result after reformulation>",
-    "primary_result_pod": "",
-    "extracted_value": null,
-    "extracted_units": "",
+    "answer_text": "[Input information] photon wavelength | \nwavelength | 500 meters\n[Result] frequency | 599.6 kHz (kilohertz)\n= 0.5996 MHz (megahertz)\n= 599585 Hz (hertz)\n[Equation] \u03bd = c/\u03bb | \n\u03bd | frequency\n\u03bb | wavelength\nc | speed of light (\u2248 2.998 \u00d7 10^8 m/s)",
+    "primary_result_pod": "frequency | 599.6 kHz (kilohertz)\n= 0.5996 MHz (megahertz)\n= 599585 Hz (hertz)",
+    "extracted_value": 0.5996,
+    "extracted_units": "MHz (megahertz)",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variant_used": 0,
+    "wolfram_variant_text": "em wave frequency wavelength 500 m"
   },
   {
     "id": "em_intro_012",
     "system": "wolfram",
-    "answer_text": "<no parseable result after reformulation>",
-    "primary_result_pod": "",
-    "extracted_value": null,
-    "extracted_units": "",
+    "answer_text": "[Input information] capacitance of parallel plates | \ndistance | 0.001 meters\npermittivity | \u03b5_0 (electric constant)\narea of overlap of the two plates | 1 cm^2 (square centimeter)\n[Result] electric capacitance | 885.4 fF (femtofarads)\n= 0.8854 pF (picofarads)\n= 8.854 \u00d7 10^-4 nF (nanofarads)\n[Equation] C = (\u03f5 A)/d | \nC | electric capacitance\nd | distance\n\u03f5 | permittivity\nA | area of overlap of the two plates\n(capacitance of two parallel plates, given the geometry)",
+    "primary_result_pod": "electric capacitance | 885.4 fF (femtofarads)\n= 0.8854 pF (picofarads)\n= 8.854 \u00d7 10^-4 nF (nanofarads)",
+    "extracted_value": 0.0008853999999999999,
+    "extracted_units": "nF (nanofarads)",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variant_used": 0,
+    "wolfram_variant_text": "parallel plate capacitance separation 0.001 m dielectric constant 1"
   },
   {
     "id": "em_intro_013",
@@ -275,17 +289,18 @@
     "extracted_value": null,
     "extracted_units": "",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variants_tried": 3
   },
   {
     "id": "em_intro_014",
     "system": "wolfram",
-    "answer_text": "<no parseable result after reformulation>",
-    "primary_result_pod": "",
-    "extracted_value": null,
-    "extracted_units": "",
+    "answer_text": "[Input information] photon wavelength | \nwavelength | 1 \u00d7 10^-10 meters\n[Result] frequency | 2.998 \u00d7 10^18 Hz (hertz)\n[Equation] \u03bd = c/\u03bb | \n\u03bd | frequency\n\u03bb | wavelength\nc | speed of light (\u2248 2.998 \u00d7 10^8 m/s)",
+    "primary_result_pod": "frequency | 2.998 \u00d7 10^18 Hz (hertz)",
+    "extracted_value": 2.998e+18,
+    "extracted_units": "Hz (hertz)",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variant_used": 0,
+    "wolfram_variant_text": "em wave frequency wavelength 1e-10 m"
   },
   {
     "id": "em_intro_015",
@@ -295,7 +310,7 @@
     "extracted_value": null,
     "extracted_units": "",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variants_tried": 3
   },
   {
     "id": "optics_001",
@@ -320,12 +335,13 @@
   {
     "id": "optics_003",
     "system": "wolfram",
-    "answer_text": "<no parseable result after reformulation>",
-    "primary_result_pod": "",
-    "extracted_value": null,
-    "extracted_units": "",
+    "answer_text": "[Input information] thin lens equation | \ndistance between object and lens | 0.3 meters\nfocal length | 0.15 meters\n[Result] distance between image and lens | 30 cm (centimeters)\n= 11.81 inches\n= 0.9843 feet\n[Equation] 1/i + 1/o = 1/f | \ni | distance between image and lens\no | distance between object and lens\nf | focal length",
+    "primary_result_pod": "distance between image and lens | 30 cm (centimeters)\n= 11.81 inches\n= 0.9843 feet",
+    "extracted_value": 11.81,
+    "extracted_units": "inches",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 3
+    "wolfram_variant_used": 0,
+    "wolfram_variant_text": "thin lens image distance object distance 0.3 m focal length 0.15 m"
   },
   {
     "id": "optics_004",
@@ -335,7 +351,7 @@
     "extracted_value": null,
     "extracted_units": "",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variants_tried": 3
   },
   {
     "id": "optics_005",
@@ -345,7 +361,7 @@
     "extracted_value": null,
     "extracted_units": "",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variants_tried": 3
   },
   {
     "id": "optics_006",
@@ -355,7 +371,7 @@
     "extracted_value": null,
     "extracted_units": "",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variants_tried": 3
   },
   {
     "id": "optics_007",
@@ -384,7 +400,7 @@
     "extracted_value": null,
     "extracted_units": "",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variants_tried": 3
   },
   {
     "id": "optics_010",
@@ -394,7 +410,7 @@
     "extracted_value": null,
     "extracted_units": "",
     "elapsed_s": 0.0,
-    "wolfram_variants_tried": 2
+    "wolfram_variants_tried": 3
   },
   {
     "id": "optics_011",
@@ -448,38 +464,42 @@
   {
     "id": "thermo_004",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 5.815345525741577
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "thermo_005",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 5.811091184616089
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "thermo_006",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 7.124145746231079
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 3
   },
   {
     "id": "thermo_007",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.196713209152222
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "thermo_008",
@@ -520,56 +540,62 @@
   {
     "id": "thermo_012",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.170639991760254
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 3
   },
   {
     "id": "modern_001",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 5.755059480667114
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "modern_002",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 7.175801753997803
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "modern_003",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.501951217651367
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "modern_004",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.0085999965667725
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 2
   },
   {
     "id": "modern_005",
     "system": "wolfram",
-    "answer_text": "",
+    "answer_text": "<no parseable result after reformulation>",
     "primary_result_pod": "",
     "extracted_value": null,
     "extracted_units": "",
-    "elapsed_s": 6.191805362701416
+    "elapsed_s": 0.0,
+    "wolfram_variants_tried": 3
   },
   {
     "id": "modern_006",

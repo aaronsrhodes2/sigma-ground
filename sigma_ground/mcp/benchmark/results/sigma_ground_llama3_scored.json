@@ -1,7 +1,7 @@
 {
   "summary": {
-    "overall_accuracy_pct": 2.6666666666666665,
-    "overall_correct": 4,
+    "overall_accuracy_pct": 3.3333333333333335,
+    "overall_correct": 5,
     "overall_total": 150,
     "by_domain": {
       "classical_mechanics_intro": {
@@ -25,9 +25,9 @@
         "pct": 0.0
       },
       "modern_physics": {
-        "correct": 1,
+        "correct": 2,
         "total": 12,
-        "pct": 8.333333333333334
+        "pct": 16.666666666666668
       },
       "quantum_mechanics": {
         "correct": 1,
@@ -616,7 +616,7 @@
       "domain": "waves_optics",
       "correct": false,
       "extracted_value": null,
-      "expected_value": 2.667,
+      "expected_value": 8.6986,
       "rel_error": null,
       "tolerance_rel": 0.05,
       "answer_text": "light_travel_time(d=8.6)",
@@ -874,14 +874,14 @@
       "id": "modern_008",
       "system": "sigma_ground",
       "domain": "modern_physics",
-      "correct": false,
+      "correct": true,
       "extracted_value": 1.0,
       "expected_value": 6.242e+18,
-      "rel_error": 1.0,
+      "rel_error": 7.864875668655758e-05,
       "tolerance_rel": 0.01,
       "answer_text": "ANSWER: 1 joule equals 6.242e+18 electronvolts. [SOURCE: Fitted due to incompetence ...]",
       "elapsed_s": 3.4319708347320557,
-      "notes": "rel_err 1.000e+00"
+      "notes": "match [matched in SI base kilogram * meter ** 2 / second ** 2]"
     },
     {
       "id": "modern_009",
@@ -920,7 +920,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "{tool: de_broglie_wavelength, params: {mass_kg: 9.109e-31, velocity_m_s: 1e7}}",
       "elapsed_s": 5.158413887023926,
-      "notes": "rel_err 1.519e-04"
+      "notes": "match"
     },
     {
       "id": "modern_012",
@@ -1050,7 +1050,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "photon_energy_from_wavelength(wavelength_m=0.0000001)",
       "elapsed_s": 4.9813714027404785,
-      "notes": "rel_err 2.789e-04"
+      "notes": "match"
     },
     {
       "id": "qm_010",
@@ -1409,7 +1409,7 @@
       "domain": "general_relativity",
       "correct": false,
       "extracted_value": null,
-      "expected_value": 2.1e+76,
+      "expected_value": 6.618e+77,
       "rel_error": null,
       "tolerance_rel": 0.1,
       "answer_text": "{tool: hawking_radiation_timescale, mass=10*msun}",
@@ -1422,7 +1422,7 @@
       "domain": "general_relativity",
       "correct": false,
       "extracted_value": null,
-      "expected_value": 0.0264,
+      "expected_value": 0.181,
       "rel_error": null,
       "tolerance_rel": 0.05,
       "answer_text": "{tool: gravitational_redshift, params: {'M': 10 * 1.989e30, 'h': 1000}}",
@@ -1526,7 +1526,7 @@
       "domain": "cosmology",
       "correct": false,
       "extracted_value": null,
-      "expected_value": "mond",
+      "expected_value": "transition",
       "rel_error": null,
       "tolerance_rel": 0,
       "answer_text": "{tool: 'mond', params: {a: 1e-10}}",
@@ -1674,7 +1674,7 @@
       "tolerance_rel": 0.01,
       "answer_text": "{tool: light_travel_time, params: {distance_m: 3.085677581491367e+16}}",
       "elapsed_s": 4.9195990562438965,
-      "notes": "rel_err 1.337e-04 [unit-converted 's'->'year']"
+      "notes": "match [unit-converted s->year]"
     },
     {
       "id": "astro_008",
@@ -1830,7 +1830,7 @@
       "tolerance_rel": 0.02,
       "answer_text": "photon_energy_from_wavelength(wavelength_m=589)",
       "elapsed_s": 4.610011339187622,
-      "notes": "rel_err 2.433e-06 [unit-converted 'J'->'eV']"
+      "notes": "match [unit-converted j->ev]"
     },
     {
       "id": "atom_008",
@@ -1903,7 +1903,7 @@
       "domain": "nuclear_physics",
       "correct": false,
       "extracted_value": null,
-      "expected_value": 19.6,
+      "expected_value": 0.0196,
       "rel_error": null,
       "tolerance_rel": 0.1,
       "answer_text": "{tool: jupyter-toolbox, function: energy_release_from_fission, parameters: {mass_kg: 1, fissionable_material: 'U-235', unit_energy: 'megatons TNT'}}",

@@ -28,6 +28,24 @@ aggregates are committed** (`sigma_ground/inventory/data/*`). Updated
 | NASA TPSX materials database | `D:/datasets/tpsx/` (cached HTML) | — | `inventory/data/tpsx_materials.json` — **700 named, cited materials**, 2,685 property rows (value/units/uncertainty/source/reference, page id cited). Caught + fixed a real title-extraction bug before shipping (everything landed "(unnamed)" while values were already correct). Verified: gold density 19,300 kg/m³ (exact), k=318 W/(m·K) (real ≈317) | US gov work, freely retrievable |
 | JPL DE440s ephemeris kernel | `~/.materia/ephemeris/de440s.bsp` | 31.2 MB | (consumed directly by `field/interface/adapters/_jplephem_bridge.py`; verified: EMB at J2000 = 1.469×10⁸ km from SSB) | public domain (NAIF/JPL) |
 
+## Mechanism blueprint sources (gear trains, springs, escapements)
+
+Sibling lane to the shape oracles above, for MECHANISM data (tooth counts,
+ratios, spring/escapement specs) rather than shape geometry — no dataset on
+disk covers this (see "Confirmed absent" below: gear, engine). Doctrine is
+identical: raw sources stay external/uncommitted, only cited, quoted,
+validated `MechanismSpec` catalog entries land in
+`sigma_ground/blueprint/catalog/*.md` (mirrors `deckard/catalog/`, see
+`sigma_ground/blueprint/__init__.py`).
+
+| Source | Access | Status | License |
+|---|---|---|---|
+| Harold C. Kelly, *A Practical Course in Horology* (1944) | archive.org full-text OCR (djvu.txt), also mirrored at survivorlibrary.com — fetched and read as RAW text, not through a summarizing tool (one did, and fabricated a page citation not present in the actual book — caught by reading the source directly) | **1 catalog entry**: `kelly_1944_watch_going_train_18000bph` — a full going train (barrel through escape wheel, 9 gears/pinions, 4 meshes) + escapement type, every value quoted verbatim, cross-checked against the book's own two independently-stated results (3,600 turns/barrel-turn; 18,000 beats/hour) via `tools/distill_kelly_watch_train.py`. No module/pitch/center-distance is cited anywhere near this example — an honest, flagged gap (`validate()` reports 14 `# GEOMETRY_GAP:` entries, zero errors), not filled with a plausible guess | public scan, freely accessible |
+| Expired US patents (claim text) | Google Patents (`patents.google.com`), full text | Explored (US1825382A magnetic clock escapement, US2781630A watch dial train, US3685282A leaf-spring escapement) — none yielded a full CITED going train with explicit tooth counts; Kelly's textbook proved far richer for this purpose. Worth revisiting for spring torque curves / escapement lift-angle data, which Kelly's excerpted passages don't cover | public domain (expired) |
+| KHK Gears free technical reference (involute geometry, standard module tables) | Not yet fetched | Planned — needed to attach a real, cited module to the Kelly train (or a future mechanism) before Phase 4 geometry can be generated | free technical reference |
+| USPTO Open Data Portal / PatentsView (bulk API) | Not yet used | Planned — programmatic alternative to one-off Google Patents fetches once a specific patent target is identified | public domain |
+| MIT OCW 2.72 / 2.007 (worked gear-train examples) | Not yet fetched | Planned | CC BY-NC-SA |
+
 ## Voxel bake cache (local, gitignored, regenerable)
 
 `sigma_ground/deckard/voxel_cache.py` caches finished `VoxelField`s under
@@ -49,6 +67,7 @@ free to regenerate.
 - `tools/distill_chemistry.py` — atomic weights + Burcat NASA-7 + CODATA
 - `tools/distill_electronics.py` — Wikidata P5679/P2068 (polite, 429-backoff)
 - `tools/fetch_tpsx.py` — TPSX id sweep (1 req/s, HTML cached) + property distill
+- `tools/distill_kelly_watch_train.py` — Kelly (1944) going-train example → cited `MechanismSpec` (`sigma_ground/blueprint/catalog/`)
 - `tools/extract_shapenetcore_synsets.py` — selective per-synset extraction + census
 - `tools/extract_shapenetsem_gap_categories.py` — Hammer/ScrewDriver/Motorcycle from ShapeNetSem
 
