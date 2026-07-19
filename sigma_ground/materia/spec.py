@@ -29,6 +29,15 @@ class SimulationSpec:
     steps: list                       # list[SpecStep]
     source: str = "deterministic"     # "deterministic" | "qwen" | "clarify"
     note: str = ""
+    # Set only when source == "clarify" AND the decline is a specific,
+    # nameable missing variable (e.g. a material_required verb whose trigger
+    # matched but no material was named) rather than a generic "I don't
+    # understand this at all". Lets the caller ask a targeted follow-up
+    # instead of a generic capability blurb, and re-resolve against the
+    # SAME verb once the answer comes back (see front_door.Session
+    # .pending_clarification).
+    missing_slot: str = ""
+    missing_verb: str = ""
 
     def is_runnable(self) -> bool:
         return bool(self.steps) and all(s.verb in SCENARIOS for s in self.steps)
