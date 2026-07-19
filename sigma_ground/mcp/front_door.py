@@ -30,12 +30,16 @@ from dataclasses import dataclass
 @dataclass
 class Session:
     """The thread of one conversation. State kept: the pending render offer
-    (``render_handle``, consumed by the next "yes") and the most recent
+    (``render_handle``, consumed by the next "yes"), the most recent
     renderable (``last_renderable``, sticky — so "render that" still works after
-    intervening turns)."""
+    intervening turns), and a pending clarification (``pending_clarification``,
+    consumed by the next turn's reply — the same "remember something across a
+    turn boundary" pattern as render_handle, just for "which material?"
+    instead of "render it?")."""
     render_handle: dict | None = None
     last_renderable: dict | None = None
     last_intent: str | None = None
+    pending_clarification: dict | None = None
 
 
 # Cue words for the deterministic classifier. Materia's own router is the real
@@ -149,6 +153,19 @@ def dispatch(text: str, *, use_llm: bool = True,
         session.last_intent = env["intent"]
         return env
 
+    # 1c. A pending clarification ("which material?") — this turn's reply answers
+    #     it. Concatenate with the ORIGINAL question and re-dispatch: whatever
+    #     extraction failed the first time (_extract_material, etc.) gets another
+    #     pass over the combined text, so no per-slot patching logic is needed
+    #     here — it reuses the exact same routing/extraction path as a fresh
+    #     question. Same "remember across a turn" shape as 1/1b above, for a
+    #     targeted follow-up instead of a render offer.
+    if session.pending_clarification and mode != "ask":
+        pending = session.pending_clarification
+        session.pending_clarification = None
+        combined = f"{pending['question']} {text.strip()}"
+        return dispatch(combined, use_llm=use_llm, session=session, mode=mode)
+
     # Explicit ASK — force the Q&A switchboard; never attempt a sim.
     if mode == "ask":
         env = _ask(text)
@@ -184,8 +201,12 @@ def dispatch(text: str, *, use_llm: bool = True,
     # a sim); auto requires object context before it calls something a simulation.
     # contact_conduction is objects-in-contact by definition (a hot block ON a
     # cold slab) — like drop_object, the verb itself IS the object context.
+    # actuate_hand_tool/strike_bell are the same: a named pliers/bell/tongs IS
+    # the object, even though it's not in the generic falling-object noun list.
     is_sim = spec.is_runnable() and (forced or "drop_object" in verbs
                                      or "contact_conduction" in verbs
+                                     or "actuate_hand_tool" in verbs
+                                     or "strike_bell" in verbs
                                      or _t._has_object_context(text.lower()))
     if is_sim:
         env = _run_simulation(text, spec, use_llm=use_llm, session=session)
@@ -208,12 +229,14 @@ def dispatch(text: str, *, use_llm: bool = True,
         msg = (getattr(spec, "note", "") or
                "I couldn't compile that into a simulation. Name an object and a "
                "height — e.g. 'drop a feather from 8 feet'.")
+        if getattr(spec, "missing_slot", ""):
+            session.pending_clarification = {"question": text}
         env = _envelope("simulate", text=msg, can_render=False, source=spec.source)
         session.last_intent = env["intent"]
         return env
 
     # 3. Auto mode, not a sim → the Q&A switchboard.
-    env = _ask(text)
+    env = _ask(text, session=session)
     session.last_intent = env["intent"]
     return env
 
@@ -321,6 +344,19 @@ def _render_from_handle(handle: dict) -> dict:
             diameter_m=handle.get("diameter_m", 0.01),
             launch_mach=handle.get("launch_mach", 2.5))
         return _announce_render(handle.get("label", "supersonic projectile"), bundle)
+    if kind == "hand_tool_actuation":         # a DISCOVERED pivot, opened/closed
+        from sigma_ground.radiance.trajectory import record_hand_tool_actuation
+        tool = handle.get("tool", "pliers")
+        bundle = record_hand_tool_actuation(tool, n_cycles=handle.get("n_cycles", 3.0))
+        return _announce_render(f"{tool} opening and closing", bundle)
+    if kind == "bell_strike":                # a hanging bell struck by a stone
+        from sigma_ground.radiance.trajectory import record_bell_strike
+        bundle = record_bell_strike(
+            bell_material=handle.get("bell_material", "iron"),
+            bell_diameter_m=handle.get("bell_diameter_m", 0.15),
+            stone_mass_kg=handle.get("stone_mass_kg", 0.2),
+            observer_distance_m=handle.get("observer_distance_m", 50.0))
+        return _announce_render("bell struck by a stone", bundle)
 
     from sigma_ground import deckard
     from sigma_ground.radiance import record_object_fall
@@ -367,6 +403,23 @@ def _announce_render(title: str, bundle: dict) -> dict:
                      f"{(v.get('thermal_residual') or 0.0) * 100:.2f}%.")
         except Exception:
             pass                              # the announce line never blocks a render
+    ac = bundle.get("acoustics")
+    if ac and bundle.get("audio_path"):
+        struck = v.get("struck")
+        if struck:
+            text += (f"\nStruck at t={v.get('struck_at_s', 0.0):.3f} s "
+                     f"(v_impact={v.get('v_impact_m_s', 0.0):.2f} m/s, "
+                     f"{v.get('dissipated_energy_j', 0.0):.3g} J dissipated "
+                     f"into deformation/heat/sound — Johnson-Thornton "
+                     f"energy partition, not raw KE) — an initial "
+                     f"~{ac.get('impact_click_frequency_hz', 0.0):.0f} Hz "
+                     f"Hertzian click, then rings at "
+                     f"{ac['ring_frequency_hz']:.0f} Hz, decaying over "
+                     f"~{ac['decay_tau_s']:.1f} s; reaches an observer in "
+                     f"{ac['arrival_time_s']:.2f} s. Audio saved to "
+                     f"{bundle['audio_path']}")
+        else:
+            text += "\n(No contact registered — the stone missed the bell.)"
     return _envelope("render", text=text, can_render=False,
                      saved={"slug": slug, "path": path, "url": url, "title": title},
                      source="radiance")
@@ -380,7 +433,7 @@ def _save_bundle(slug: str, bundle: dict) -> str:
     return path
 
 
-def _ask(text: str) -> dict:
+def _ask(text: str, *, session: Session | None = None) -> dict:
     """A physics/math question → the Q&A switchboard: the semantic interpreter
     first (grounded, conservative — None when unsure), then Materia. Honest
     refusal over fabrication."""
@@ -401,6 +454,15 @@ def _ask(text: str) -> dict:
         if txt and txt.strip():
             return _envelope("ask", text=txt, value=val, source="semantic-interpreter")
     from sigma_ground import materia
+    # A separate, cheap, side-effect-free translate() call (deterministic
+    # path only) purely to recover the structured missing_slot metadata that
+    # materia.answer()'s plain-string return discards -- lets a targeted
+    # clarify set session.pending_clarification for next-turn resume even
+    # though the display text comes from answer()'s own formatting.
+    if session is not None:
+        spec = materia.translate(text, use_qwen=False)
+        if spec.missing_slot:
+            session.pending_clarification = {"question": text}
     a2 = materia.answer(text, use_qwen=False)     # clarifies if it isn't a sim
     return _envelope("ask", text=a2, value=None, source="materia")
 

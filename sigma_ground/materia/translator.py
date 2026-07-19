@@ -121,6 +121,45 @@ def _named_shape_object(low: str):
     return None
 
 
+# Two-jaw pivoting hand tools -- a request to open/close/actuate one of
+# these routes to actuate_hand_tool (the hinge-arc demo: a DISCOVERED
+# dodoxel pivot driven by a solved RevoluteJoint), not drop_object.
+_ACTUATE_CUES = ("open and close", "opening and closing", "opened and "
+                 "closed", "open and shut", "opening and shutting",
+                 "squeeze", "squeezing", "actuate", "actuating",
+                 "work the handles", "clamp shut", "clamping")
+
+
+def _hand_tool_aliases() -> dict:
+    from ..deckard.hand_tools import TOOL_ALIASES
+    return TOOL_ALIASES
+
+
+def _named_hand_tool(low: str):
+    """The named two-jaw hand tool (longest alias match), or None."""
+    aliases = _hand_tool_aliases()
+    for phrase in sorted(aliases, key=len, reverse=True):
+        if re.search(r"\b" + re.escape(phrase) + r"\b", low):
+            return aliases[phrase]
+    return None
+
+
+def _is_actuate(low: str) -> bool:
+    return any(c in low for c in _ACTUATE_CUES)
+
+
+# A hanging bell struck by something -- routes to strike_bell (impact +
+# real ring_frequency + earth-atmosphere propagation), not drop_object.
+_BELL_NOUNS = ("bell", "chime", "gong")
+_STRIKE_CUES = ("struck", "strike", "strikes", "striking", "hit by", "hit "
+               "with", "rings", "ringing", "chimes", "chiming")
+
+
+def _is_bell_strike(low: str) -> bool:
+    return (any(n in low for n in _BELL_NOUNS)
+            and any(c in low for c in _STRIKE_CUES))
+
+
 def _candidate_object(low: str):
     """The object-ish word the user named that we could NOT ground to a shape
     (longest match over the known object nouns). Used ONLY to name it honestly in
@@ -205,6 +244,24 @@ def _named_material(low: str) -> bool:
     at sea level" would route to acoustics and report "iron 5942 m/s". No material
     named ⇒ the verb must DECLINE, not guess iron (dial-1: never confidently
     wrong). A named material ("in steel", "of a metal") routes as before.
+
+    ── Choice vs. ask policy (2026-07-19) ──────────────────────────────
+    A verb's ``material_required`` flag IS the Choice-vs-ask decision,
+    already made at verb-registration time, not a separate mechanism:
+      - material_required=True  → the missing value determines the PRIMARY
+        answer (acoustics, corrosion_attack, material_profile, ...). A
+        silent default would be confidently wrong, so the verb declines —
+        surfaced as a targeted clarify (see _near_miss_material_verb /
+        Session.pending_clarification) that asks and resumes, rather than
+        a flat refusal.
+      - material_required unset  → the value affects a SECONDARY/cosmetic
+        property (a falling ball's material barely changes its impact
+        speed). A default is reasonable IF disclosed — that's the Choice
+        system's lane (dynamics/mechanisms/choice.py), not this one's.
+    Deciding which a NEW verb needs: does the missing material change the
+    number the user actually asked for, or just a property riding along
+    with it? Primary → material_required=True. Secondary → leave it
+    unset and make sure the default gets Choice-disclosed downstream.
     """
     syn = _material_synonyms()
     for phrase in syn:
@@ -372,6 +429,14 @@ def _params_for(verb: str, q: str) -> dict:
         obj = _named_shape_object(q.lower())
         if obj:
             p["object_name"] = obj
+    if "tool_name" in slots:                  # actuate_hand_tool
+        tool = _named_hand_tool(q.lower())
+        if tool:
+            p["tool_name"] = tool
+    if "bell_material" in slots:              # strike_bell
+        mat = _extract_material(q)
+        if mat:
+            p["bell_material"] = mat
     if "mass_kg" in slots:
         mm = re.search(r"(\d+(?:\.\d+)?)\s*(?:kg|kilograms?)\b", q.lower())
         if mm:
@@ -502,6 +567,17 @@ def _classify_verbs(q: str):
     low = q.lower()
     ctx = _has_object_context(low)
     is_drop = ctx and _is_drop(low)
+    # -1a. A hanging bell struck by something → strike_bell (real impact +
+    #      ring_frequency + earth-atmosphere propagation), checked FIRST so
+    #      "hit" doesn't fall through to a generic collision/drop reading.
+    if _is_bell_strike(low):
+        return ["strike_bell"]
+    # -1b. A two-jaw hand tool being opened/closed/actuated → actuate_hand_tool
+    #      (the hinge-arc demo: a DISCOVERED dodoxel pivot, solved joint),
+    #      checked before drop_object so "pliers" never reads as a fall.
+    tool = _named_hand_tool(low)
+    if tool and _is_actuate(low):
+        return ["actuate_hand_tool"]
     # 0. A drop/fall of a NAMED non-sphere object → ask Deckard for its real
     #    shape (Materia carries only spheres natively). Spheres fall through.
     obj = _named_shape_object(low)
@@ -791,6 +867,31 @@ def _qwen_plan(question: str) -> SimulationSpec | None:
         return None
 
 
+def _near_miss_material_verb(low: str):
+    """If a material_required verb's own trigger matched but no material was
+    named, return (verb, description) so the clarify message can name the
+    actual missing thing instead of a generic capability blurb.
+
+    Only reports a near-miss when a material genuinely wasn't named ANYWHERE
+    in the text (if _named_material is True, whatever declined wasn't a
+    missing material, so this returns None and translate() falls through to
+    the generic clarify -- don't mis-blame the material slot for an
+    unrelated routing miss).
+    """
+    if _named_material(low):
+        return None
+    best_verb, best_len = None, 0
+    for verb, m in VERB_MANIFEST.items():
+        if not m.get("material_required"):
+            continue
+        ml = _match_len(low, m.get("triggers", []))
+        if ml > best_len:
+            best_verb, best_len = verb, ml
+    if best_verb is None:
+        return None
+    return best_verb, VERB_MANIFEST[best_verb].get("description", "")
+
+
 # ── Public API ──────────────────────────────────────────────────────────
 def translate(question: str, use_qwen: bool = True) -> SimulationSpec:
     """Natural language → SimulationSpec (deterministic, else qwen, else clarify)."""
@@ -804,6 +905,15 @@ def translate(question: str, use_qwen: bool = True) -> SimulationSpec:
         spec = _qwen_plan(question)
         if spec and spec.is_runnable():
             return spec
+
+    near_miss = _near_miss_material_verb(question.lower())
+    if near_miss:
+        verb, desc = near_miss
+        headline = desc.split("—")[0].split("-")[0].strip() or verb.replace("_", " ")
+        note = (f"That sounds like a {headline} question, but I can't tell "
+                f"which material you mean. Which one?")
+        return SimulationSpec(question, [], source="clarify", note=note,
+                              missing_slot="material_key", missing_verb=verb)
 
     return SimulationSpec(question, [], source="clarify", note=_CLARIFY)
 
