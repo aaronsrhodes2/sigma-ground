@@ -49,11 +49,13 @@ class TestRule9MoleculeData(unittest.TestCase):
             for key in self.REQUIRED_KEYS:
                 self.assertIn(key, data, f"{mol} missing {key}")
 
-    def test_six_molecules(self):
-        """Six molecules in the database."""
-        self.assertEqual(len(MOLECULES), 6)
-        for mol in ('water', 'methanol', 'ammonia',
-                     'hydrogen_fluoride', 'ethanol', 'methane'):
+    def test_nine_molecules(self):
+        """Nine molecules in the database (2026-07-19: added carbon_dioxide,
+        oxygen, nitrogen -- nonpolar, London-dispersion-only gases, same
+        shape as methane's entry)."""
+        self.assertEqual(len(MOLECULES), 9)
+        for mol in ('water', 'methanol', 'ammonia', 'hydrogen_fluoride',
+                     'ethanol', 'methane', 'carbon_dioxide', 'oxygen', 'nitrogen'):
             self.assertIn(mol, MOLECULES)
 
     def test_masses_positive(self):
@@ -280,14 +282,18 @@ class TestBoilingPoint(unittest.TestCase):
         self.assertGreater(T, 373.0 / 2.0)  # > 186 K
         self.assertLess(T, 373.0 * 2.0)      # < 746 K
 
-    def test_methane_lowest(self):
-        """Methane has the lowest boiling point (weakest interactions)."""
+    def test_methane_lower_than_hbonding(self):
+        """Methane boils lower than every H-bonding molecule (weakest
+        interactions among molecules capable of London dispersion but not
+        H-bonding). Not a claim about methane vs. the OTHER nonpolar gases
+        (carbon_dioxide/oxygen/nitrogen) added 2026-07-19 -- nitrogen and
+        oxygen are legitimately colder than methane; see TestOrdering for
+        the group-level nonpolar-vs-H-bonding claim."""
         T_ch4 = estimated_boiling_point('methane')
-        for mol in MOLECULES:
-            if mol != 'methane':
-                T_other = estimated_boiling_point(mol)
-                self.assertLess(T_ch4, T_other,
-                                f"Methane should boil lower than {mol}")
+        for mol in ('water', 'methanol', 'ammonia', 'hydrogen_fluoride', 'ethanol'):
+            T_other = estimated_boiling_point(mol)
+            self.assertLess(T_ch4, T_other,
+                            f"Methane should boil lower than {mol}")
 
     def test_water_much_higher_than_methane(self):
         """Water boils far above methane (H-bonds vs dispersion only)."""
@@ -315,39 +321,58 @@ class TestBoilingPoint(unittest.TestCase):
         self.assertLess(dH_kJ, 80.0)     # < 80 kJ/mol
 
 
+_H_BONDING_MOLECULES = ('hydrogen_fluoride', 'water', 'methanol', 'ethanol', 'ammonia')
+_NONPOLAR_MOLECULES = ('methane', 'carbon_dioxide', 'oxygen', 'nitrogen')
+
+
 class TestOrdering(unittest.TestCase):
     """Physical ordering tests — the real proof."""
 
     def test_hb_energy_ordering(self):
-        """H-bond ordering: HF > water > methanol/ethanol > ammonia > methane=0."""
+        """H-bond ordering: HF > water > methanol/ethanol > ammonia > the
+        nonpolar, dispersion-only group, all tied at hb_energy_ev=0
+        (methane, carbon_dioxide, oxygen, nitrogen -- none can H-bond, so
+        their relative order within the zero-energy group is not a
+        physical prediction this model makes)."""
         order = hb_energy_ordering()
         names = [k for k, _ in order]
         # HF should be first
         self.assertEqual(names[0], 'hydrogen_fluoride')
         # Water should be second
         self.assertEqual(names[1], 'water')
-        # Methane should be last
-        self.assertEqual(names[-1], 'methane')
+        # The zero-H-bond-energy group should be exactly the trailing
+        # entries, in any relative order among themselves
+        self.assertEqual(set(names[-len(_NONPOLAR_MOLECULES):]),
+                          set(_NONPOLAR_MOLECULES))
 
     def test_boiling_point_hbond_above_nonpolar(self):
-        """All H-bonding molecules boil above methane.
+        """All H-bonding molecules boil above every nonpolar,
+        dispersion-only molecule (methane, carbon_dioxide, oxygen, nitrogen).
 
         The exact ordering among H-bonding liquids (water vs methanol vs HF)
         is beyond the resolution of Trouton-level models — their real boiling
         points differ by only ~35-80 K.  The clear prediction is that ALL
-        H-bonding molecules boil far above dispersion-only methane.
+        H-bonding molecules boil far above the dispersion-only group.
         """
-        T_ch4 = estimated_boiling_point('methane')
-        for mol in MOLECULES:
-            if mol != 'methane':
+        for nonpolar in _NONPOLAR_MOLECULES:
+            T_nonpolar = estimated_boiling_point(nonpolar)
+            for mol in _H_BONDING_MOLECULES:
                 T = estimated_boiling_point(mol)
-                self.assertGreater(T, T_ch4,
-                                   f"{mol} should boil above methane")
+                self.assertGreater(T, T_nonpolar,
+                                   f"{mol} should boil above {nonpolar}")
 
-    def test_boiling_point_ordering_methane_bottom(self):
-        """Methane has the lowest estimated boiling point."""
+    def test_boiling_point_ordering_nonpolar_bottom(self):
+        """The nonpolar, dispersion-only group occupies the bottom of the
+        estimated-boiling-point ordering (2026-07-19: previously asserted
+        methane specifically was last, but nitrogen (T_boil=77.4 K) and
+        oxygen (90.2 K) are both legitimately colder than methane
+        (111.7 K) -- the physical claim this test makes is "dispersion-
+        only sits below H-bonding," not "methane is the coldest substance
+        in the table.")"""
         order = boiling_point_ordering()
-        self.assertEqual(order[-1][0], 'methane')
+        names = [k for k, _ in order]
+        self.assertEqual(set(names[-len(_NONPOLAR_MOLECULES):]),
+                          set(_NONPOLAR_MOLECULES))
 
 
 class TestNagathaExport(unittest.TestCase):

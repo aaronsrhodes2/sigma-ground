@@ -220,7 +220,99 @@ MOLECULES = {
         'n_neighbors': 12.0,         # MEASURED: close-packed
         'T_boil_K': 111.7,           # MEASURED
     },
+    # ── Nonpolar, London-dispersion-only gases ──────────────────
+    # 2026-07-19 molecule-resolvability audit: these three were flagged
+    # as a small, well-sourced gap (they're already in gas.py's own
+    # MOLECULES table with mass/geometry/bond data -- this table needs
+    # them for intermolecular/H-bonding coverage specifically, since
+    # it's a different property set). Zero dipole by symmetry (all three
+    # are homonuclear diatomics or centrosymmetric linear), so zero
+    # H-bonding and zero Keesom (dipole-dipole) contribution -- London
+    # dispersion is the only intermolecular term that applies.
+    'carbon_dioxide': {
+        'formula': 'CO₂',
+        'atoms': {'C': 1, 'O': 2},
+        'donor_bond': None,          # no H atoms at all
+        'acceptor_atom': None,
+        'n_donor_bonds': 0,
+        'n_acceptor_lps': 0,
+        'n_hb_liquid': 0,            # ZERO: no H-bonding
+        'hb_energy_ev': 0.0,         # ZERO: no H-bonding
+        'molecular_mass_amu': 44.009, # matches gas.py's CO2 entry
+        'dipole_debye': 0.0,         # ZERO by symmetry (linear, centrosymmetric)
+        'polarizability_A3': 2.91,   # MEASURED: CRC Handbook / NIST WebBook
+        'IE_mol_eV': 13.77,          # MEASURED: NIST WebBook
+        # CO2 has no normal liquid at 1 atm (triple point at 5.1 atm) --
+        # sublimes directly at 194.65 K. r_intermol_pm/n_neighbors here
+        # are ESTIMATED from solid dry-ice (FCC molecular crystal)
+        # packing, not a measured liquid structure like the other
+        # entries in this table.
+        'r_intermol_pm': 400,        # ESTIMATED: dry-ice lattice spacing
+        'n_neighbors': 12.0,         # ESTIMATED: FCC molecular packing
+        'T_boil_K': 194.65,          # MEASURED (sublimation point, not a true boiling point)
+    },
+    'oxygen': {
+        'formula': 'O₂',
+        'atoms': {'O': 2},
+        'donor_bond': None,
+        'acceptor_atom': None,
+        'n_donor_bonds': 0,
+        'n_acceptor_lps': 0,
+        'n_hb_liquid': 0,            # ZERO: no H-bonding
+        'hb_energy_ev': 0.0,         # ZERO: no H-bonding
+        'molecular_mass_amu': 31.998, # matches gas.py's O2 entry
+        'dipole_debye': 0.0,         # ZERO by symmetry (homonuclear diatomic)
+        'polarizability_A3': 1.58,   # MEASURED: CRC Handbook
+        'IE_mol_eV': 12.07,          # MEASURED: NIST WebBook
+        'r_intermol_pm': 350,        # ESTIMATED: liquid O2 nearest-neighbor
+        'n_neighbors': 10.0,         # ESTIMATED: liquid packing
+        'T_boil_K': 90.2,            # MEASURED
+    },
+    'nitrogen': {
+        'formula': 'N₂',
+        'atoms': {'N': 2},
+        'donor_bond': None,
+        'acceptor_atom': None,
+        'n_donor_bonds': 0,
+        'n_acceptor_lps': 0,
+        'n_hb_liquid': 0,            # ZERO: no H-bonding
+        'hb_energy_ev': 0.0,         # ZERO: no H-bonding
+        'molecular_mass_amu': 28.014, # matches gas.py's N2 entry
+        'dipole_debye': 0.0,         # ZERO by symmetry (homonuclear diatomic)
+        'polarizability_A3': 1.74,   # MEASURED: CRC Handbook
+        'IE_mol_eV': 15.58,          # MEASURED: NIST WebBook
+        'r_intermol_pm': 400,        # ESTIMATED: liquid N2 nearest-neighbor
+        'n_neighbors': 12.0,         # ESTIMATED: close-packed liquid
+        'T_boil_K': 77.4,            # MEASURED
+    },
 }
+
+# Common-name/formula variants -> this table's canonical keys. Unlike
+# gas.py's formula-keyed table, this one is keyed by descriptive name
+# ('water', 'methane') -- these three new entries need both directions
+# covered ('co2'/'CO2' -> 'carbon_dioxide') since a caller reasonably
+# might use either convention.
+_MOLECULE_NAME_ALIASES = {
+    'co2': 'carbon_dioxide', 'CO2': 'carbon_dioxide',
+    'o2': 'oxygen', 'O2': 'oxygen', 'dioxygen': 'oxygen',
+    'n2': 'nitrogen', 'N2': 'nitrogen', 'dinitrogen': 'nitrogen',
+}
+
+
+def _resolve_molecule_name(mol_key: str) -> str:
+    """Resolve a user-typed key to this table's canonical MOLECULES key.
+
+    Mirrors gas.py's _resolve_molecule -- accepts the canonical name
+    as-is or a formula/common-name alias. Raises KeyError with the full
+    available list on a genuine miss.
+    """
+    if mol_key in MOLECULES:
+        return mol_key
+    resolved = _MOLECULE_NAME_ALIASES.get(mol_key) or _MOLECULE_NAME_ALIASES.get(mol_key.lower())
+    if resolved is not None:
+        return resolved
+    raise KeyError(
+        f"Unknown molecule: {mol_key!r}. Available: {sorted(MOLECULES.keys())}")
 
 
 # ── Hydrogen Bond Energy ───────────────────────────────────────
@@ -276,7 +368,7 @@ def hydrogen_bond_energy_molecule(mol_key):
     Returns:
         Predicted H-bond energy in eV.
     """
-    mol = MOLECULES[mol_key]
+    mol = MOLECULES[_resolve_molecule_name(mol_key)]
     donor_bond = mol['donor_bond']
     acceptor = mol['acceptor_atom']
 
@@ -304,7 +396,7 @@ def _polarizability_SI(mol_key):
     Returns:
         Polarizability in SI units (F·m² = C²·s²/(kg·m³)).
     """
-    alpha_A3 = MOLECULES[mol_key]['polarizability_A3']  # in 10⁻³⁰ m³
+    alpha_A3 = MOLECULES[_resolve_molecule_name(mol_key)]['polarizability_A3']  # in 10⁻³⁰ m³
     return 4.0 * math.pi * _EPS_0 * alpha_A3 * 1e-30
 
 
@@ -332,11 +424,11 @@ def london_dispersion_energy(mol_A_key, mol_B_key=None, r_pm=None):
 
     alpha_A = _polarizability_SI(mol_A_key)
     alpha_B = _polarizability_SI(mol_B_key)
-    IE_A = MOLECULES[mol_A_key]['IE_mol_eV'] * _EV_J
-    IE_B = MOLECULES[mol_B_key]['IE_mol_eV'] * _EV_J
+    IE_A = MOLECULES[_resolve_molecule_name(mol_A_key)]['IE_mol_eV'] * _EV_J
+    IE_B = MOLECULES[_resolve_molecule_name(mol_B_key)]['IE_mol_eV'] * _EV_J
 
     if r_pm is None:
-        r_pm = MOLECULES[mol_A_key]['r_intermol_pm']
+        r_pm = MOLECULES[_resolve_molecule_name(mol_A_key)]['r_intermol_pm']
 
     r_m = r_pm * _PM_M
 
@@ -373,14 +465,14 @@ def keesom_dipole_energy(mol_A_key, mol_B_key=None, r_pm=None, T_K=300.0):
     if mol_B_key is None:
         mol_B_key = mol_A_key
 
-    mu_A = MOLECULES[mol_A_key]['dipole_debye'] * _DEBYE_CM  # C·m
-    mu_B = MOLECULES[mol_B_key]['dipole_debye'] * _DEBYE_CM
+    mu_A = MOLECULES[_resolve_molecule_name(mol_A_key)]['dipole_debye'] * _DEBYE_CM  # C·m
+    mu_B = MOLECULES[_resolve_molecule_name(mol_B_key)]['dipole_debye'] * _DEBYE_CM
 
     if mu_A == 0 or mu_B == 0:
         return 0.0
 
     if r_pm is None:
-        r_pm = MOLECULES[mol_A_key]['r_intermol_pm']
+        r_pm = MOLECULES[_resolve_molecule_name(mol_A_key)]['r_intermol_pm']
 
     r_m = r_pm * _PM_M
 
@@ -418,7 +510,7 @@ def total_intermolecular_energy(mol_key, T_K=300.0):
     Returns:
         Total intermolecular energy in eV per molecule (positive = cohesive).
     """
-    mol = MOLECULES[mol_key]
+    mol = MOLECULES[_resolve_molecule_name(mol_key)]
 
     # H-bond contribution (already per-molecule average)
     n_hb = mol['n_hb_liquid']
@@ -450,7 +542,7 @@ def intermolecular_breakdown(mol_key, T_K=300.0):
     Returns:
         Dict with hb_ev, london_ev, keesom_ev, total_ev, dominant.
     """
-    mol = MOLECULES[mol_key]
+    mol = MOLECULES[_resolve_molecule_name(mol_key)]
 
     n_hb = mol['n_hb_liquid']
     E_hb = hydrogen_bond_energy_molecule(mol_key)
@@ -528,7 +620,7 @@ def estimated_boiling_point(mol_key, T_K=300.0):
     dH_vap = estimated_vaporization_enthalpy(mol_key, T_K)
 
     # For strongly H-bonded liquids, use higher ΔS_vap
-    mol = MOLECULES[mol_key]
+    mol = MOLECULES[_resolve_molecule_name(mol_key)]
     if mol['n_hb_liquid'] >= 3.0:
         # Water-like: ΔS_vap ≈ 109 J/(mol·K)
         dS_vap = 109.0
@@ -580,7 +672,7 @@ def intermolecular_properties(mol_key, T_K=300.0, sigma=SIGMA_HERE):
     Returns:
         Dict with all properties and origin tags.
     """
-    mol = MOLECULES[mol_key]
+    mol = MOLECULES[_resolve_molecule_name(mol_key)]
     breakdown = intermolecular_breakdown(mol_key, T_K)
     T_boil = estimated_boiling_point(mol_key, T_K)
     dH_vap = estimated_vaporization_enthalpy(mol_key, T_K)

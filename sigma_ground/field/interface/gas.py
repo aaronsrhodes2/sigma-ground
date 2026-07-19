@@ -210,6 +210,43 @@ MOLECULES = {
     },
 }
 
+# Common-name/lowercase-formula -> canonical MOLECULES key. Every direct
+# MOLECULES[...] access in this file went through no resolution at all: a
+# lowercase "co2" or a common name like "carbon dioxide" raised a bare
+# KeyError, which callers wrap in _safe() and silently turn into a null
+# field with no indication why (found in the 2026-07-19 molecule-
+# resolvability audit). This does NOT fix _safe()'s swallowing at the
+# call sites (that's a separate, wider pattern across ~20 mcp/tools files)
+# but it means legitimate common-name/case variations actually resolve
+# instead of needlessly failing, and a genuine miss now raises an
+# informative KeyError instead of a bare one.
+_MOLECULE_ALIASES = {
+    'n2': 'N2', 'nitrogen': 'N2', 'nitrogen gas': 'N2', 'dinitrogen': 'N2',
+    'o2': 'O2', 'oxygen': 'O2', 'oxygen gas': 'O2', 'dioxygen': 'O2',
+    'co2': 'CO2', 'carbon dioxide': 'CO2',
+    'h2o': 'H2O', 'water': 'H2O', 'water vapor': 'H2O', 'water vapour': 'H2O',
+    'ch4': 'CH4', 'methane': 'CH4',
+    'co': 'CO', 'carbon monoxide': 'CO',
+}
+
+
+def _resolve_molecule(mol_key: str) -> str:
+    """Resolve a user-typed molecule key to its canonical MOLECULES key.
+
+    Accepts the canonical formula as-is, any case variant of it, or a
+    common name from _MOLECULE_ALIASES. Raises KeyError with the full
+    list of available molecules on a genuine miss -- never silently
+    substitutes a different molecule.
+    """
+    if mol_key in MOLECULES:
+        return mol_key
+    resolved = _MOLECULE_ALIASES.get(mol_key.strip().lower())
+    if resolved is not None:
+        return resolved
+    raise KeyError(
+        f"Unknown molecule: {mol_key!r}. Available: {sorted(MOLECULES.keys())}")
+
+
 # ── Bond Dissociation Energies (MEASURED) ────────────────────────
 # Energy to break a specific bond type, in eV.
 # Source: CRC Handbook, NIST JANAF Tables.
@@ -270,7 +307,7 @@ def molecular_mass_kg(mol_key, sigma=SIGMA_HERE):
     Returns:
         Molecular mass in kg.
     """
-    mol = MOLECULES[mol_key]
+    mol = MOLECULES[_resolve_molecule(mol_key)]
     f_qcd = PROTON_QCD_FRACTION
     mass_factor = (1.0 - f_qcd) + f_qcd * scale_ratio(sigma)
     return mol['molecular_mass_amu'] * _AMU_KG * mass_factor
@@ -387,7 +424,7 @@ def molecule_vibrational_spectrum(mol_key, sigma=SIGMA_HERE):
     Returns:
         List of mode dicts.
     """
-    mol = MOLECULES[mol_key]
+    mol = MOLECULES[_resolve_molecule(mol_key)]
     spectrum = []
     for bond in mol['bonds']:
         k = bond['force_constant_N_m']
@@ -511,7 +548,7 @@ def gas_cv_molar(mol_key, T=300.0, sigma=SIGMA_HERE):
     Returns:
         C_v in J/(mol·K).
     """
-    mol = MOLECULES[mol_key]
+    mol = MOLECULES[_resolve_molecule(mol_key)]
 
     # Translation: always (3/2)R
     cv = 1.5 * _R_GAS
@@ -608,7 +645,7 @@ def gas_viscosity(mol_key, T=300.0, sigma=SIGMA_HERE):
     if T <= 0:
         return 0.0
 
-    mol = MOLECULES[mol_key]
+    mol = MOLECULES[_resolve_molecule(mol_key)]
     m = molecular_mass_kg(mol_key, sigma)
     d = mol['collision_diameter_angstrom'] * 1e-10  # meters
 
@@ -695,8 +732,8 @@ def gas_diffusivity(mol_A, mol_B, T=300.0, P=101325.0, sigma=SIGMA_HERE):
     # Reduced mass for the pair
     mu_pair = m_A * m_B / (m_A + m_B)
 
-    d_A = MOLECULES[mol_A]['collision_diameter_angstrom'] * 1e-10
-    d_B = MOLECULES[mol_B]['collision_diameter_angstrom'] * 1e-10
+    d_A = MOLECULES[_resolve_molecule(mol_A)]['collision_diameter_angstrom'] * 1e-10
+    d_B = MOLECULES[_resolve_molecule(mol_B)]['collision_diameter_angstrom'] * 1e-10
     d_AB = (d_A + d_B) / 2.0
 
     n = number_density_gas(T, P)  # molecules/m³
@@ -801,7 +838,7 @@ def molecule_gas_properties(mol_key, T=300.0, P=101325.0, sigma=SIGMA_HERE):
     Returns:
         Dict with all gas-phase properties.
     """
-    mol = MOLECULES[mol_key]
+    mol = MOLECULES[_resolve_molecule(mol_key)]
     rho = ideal_gas_density(mol_key, T, P, sigma)
     eta = gas_viscosity(mol_key, T, sigma)
     kappa = gas_thermal_conductivity(mol_key, T, sigma)
