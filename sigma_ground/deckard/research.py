@@ -496,15 +496,202 @@ def _furniture_spec(name: str) -> ConstructSpec | None:
     )
 
 
+# ── generative tree archetype ───────────────────────────────────────────────
+# A tree has no attach-anchor "outline" mate to lean on (construct.py's
+# _local_anchor has no case for it) -- so, like furniture, it's a flat
+# world-space parts list: one Cylinder trunk (radius = DBH/2, cited height)
+# plus one Outline canopy (revolve profile, cited crown radius). DBH is the
+# ONE free parameter; everything else derives from it via cited equations
+# (sources.allometry) or a documented shape convention (flagged estimate).
+
+_CROWN_BASE_FRAC = 0.55   # trunk clear-bole fraction of total height
+_CROWN_BASE_FRAC_NOTE = (
+    "crown-base height = 55% of total tree height (clear-bole fraction) -- "
+    "an ESTIMATED typical stand-grown loblolly pine live-crown ratio "
+    "(~0.35-0.55 per general USFS silvics descriptions); NEITHER verified "
+    "source paper (Bechtold 2003 crown-diameter, Bragg 2008 height) "
+    "publishes a crown-base/live-crown-ratio model -- flagged, not cited."
+)
+
+_CANOPY_FOLIAGE_DENSITY = Fact(
+    0.12,
+    "estimated -- stand-in for canopy bulk density (CBD), the fire-science "
+    "term for foliage+twig mass per unit CROWN VOLUME (mostly air): real "
+    "literature reports CBD ~0.05-0.30 kg/m3 for planted pine stands (e.g. "
+    "the Scott & Reinhardt 2001 standard fuel models); the loblolly-specific "
+    "figure is NOT fetched/verified this session -- do not treat as cited.",
+    "", 0.2,
+)
+
+# alias -> canonical species; matched by whole-word containment against name
+_TREE_SPECIES_ALIASES = {
+    "loblolly pine": "loblolly pine",
+    "loblolly": "loblolly pine",
+    "pinus taeda": "loblolly pine",
+    "loblolly pine tree": "loblolly pine",
+}
+# bare trigger words -> the ONE curated species, as a flagged (identified=
+# False) stand-in. NOTE (scope decision, flag for the Captain if it should
+# change): this makes "pine"/"tree"/"conifer" alone ALWAYS build a full
+# timber-scale generative tree, pre-empting the old LLM/ShapeNetSem path --
+# including ShapeNetSem's own "pine"/"pine tree" entries in
+# shapenetsem_sizes.json, which are small POTTED/decorative plants (median
+# ~1.5x2.8x1.5m, n=14), not timber trees. If "a potted pine" should still
+# resolve to that small decorative object, narrow this set (e.g. drop
+# "pine"/"tree"/"conifer", require "loblolly"/"pinus taeda" explicitly) --
+# one-line change, no other code affected.
+_TREE_TRIGGER_WORDS = {"tree", "conifer", "evergreen", "pine"}
+
+
+def _tree_archetype(name: str):
+    """(species, identified) for a tree-shaped name, or None if the name
+    isn't tree-shaped at all. A curated species-alias match is
+    identified=True; a bare tree/conifer/pine trigger word with no specific
+    species match falls back to the ONE curated species (loblolly pine) as
+    the nearest available real allometry, flagged identified=False (a
+    stand-in, not a claim that THIS tree IS a loblolly pine) -- the
+    Deckard-Cain discipline: a partial ID is allowed, a confident fake is
+    not."""
+    qw = {w for w in __import__("re").split(r"[^a-z0-9]+", name.lower()) if w}
+    best, best_len = None, 0
+    for alias, species in _TREE_SPECIES_ALIASES.items():
+        kw = set(alias.split())
+        if kw <= qw and len(kw) > best_len:
+            best, best_len = species, len(kw)
+    if best:
+        return best, True
+    if qw & _TREE_TRIGGER_WORDS:
+        return "loblolly pine", False
+    return None
+
+
+def _tree_spec(name: str, dbh_cm: float | None = None) -> ConstructSpec | None:
+    """Build a generative tree construct: an allometrically-sized trunk
+    cylinder + a canopy revolve-profile, from ONE free parameter (DBH). See
+    sources.allometry for the cited equations (loblolly pine, the only
+    curated species). v1: no branch topology -- a single trunk + one canopy
+    volume; see the module notes on the returned spec for the v2 roadmap."""
+    from . import sources
+    from .schema import Part
+    from ..dynamics.mechanisms.choice import Choice
+
+    arch = _tree_archetype(name)
+    if arch is None:
+        return None
+    species, identified = arch
+
+    sources_list = []
+    dbh_was_default = dbh_cm is None
+    if dbh_was_default:
+        default_cm = sources.allometry.species_default_dbh_cm(species)
+        if default_cm is None:
+            return None
+        dbh_choice = Choice(
+            f"trunk diameter-at-breast-height (DBH, cm) for {species} -- no "
+            "caller-supplied size",
+            default_cm,
+            checked="sigma_ground/deckard/sources/allometry.py species table "
+                    "(fitted DBH ranges: 0.3-108.2cm height / 12.7-87.9cm crown)",
+            reason="midpoint chosen to sit inside BOTH papers' fitted ranges "
+                  "(interpolation, not extrapolation) -- NOT a measurement "
+                  "of any specific tree",
+            alternatives=["pass dbh_cm explicitly to size a specific tree"],
+        )
+        dbh_cm = default_cm
+        sources_list.append({"name": dbh_choice.cite(), "license": ""})
+    dbh_cm = max(0.5, float(dbh_cm))
+
+    height = sources.allometry.height_of(species, dbh_cm)
+    crown_r = sources.allometry.crown_radius_of(species, dbh_cm)
+    if height is None or crown_r is None:
+        return None
+    sources_list.append({"name": height.source, "license": height.license})
+    sources_list.append({"name": crown_r.source, "license": crown_r.license})
+
+    H, R = height.value, crown_r.value
+    dbh_m = dbh_cm / 100.0
+    trunk_r_m = dbh_m / 2.0
+
+    wood = _density_fact("wood_pine")             # cited: 420 kg/m3, WoodHandbook
+    sources_list.append({"name": wood.source, "license": wood.license})
+
+    trunk_r_source = ("estimated (defaulted DBH -- see Choice note above)"
+                      if dbh_was_default else "caller-specified DBH")
+    trunk_r_conf = 0.35 if dbh_was_default else 0.9
+    trunk = Part(
+        "trunk", "cylinder",
+        {"radius_m": Fact(round(trunk_r_m, 5), trunk_r_source, "", trunk_r_conf),
+         "height_m": Fact(round(H, 3), height.source, height.license, height.confidence)},
+        "wood_pine", wood, (0.0, 0.0, round(H / 2.0, 5)),
+    )
+
+    crown_base_h = _CROWN_BASE_FRAC * H
+    crown_depth = max(H - crown_base_h, 0.5)
+    crown_mid_z = crown_base_h + crown_depth / 2.0
+    d = crown_depth
+    # half-profile (z, r), z ascending, LOCAL to the canopy part's center:
+    # a flat-bottom disk (0.35R) where it meets the bole, widest (R) low-
+    # third, tapering to a point (r=0) at the treetop -- a documented SHAPE
+    # CONVENTION (crown WIDTH is cited; crown vertical PROFILE is not).
+    profile = [
+        (-d / 2.0,               0.35 * R),
+        (-d / 2.0 + 0.30 * d,    R),
+        ( d / 2.0 - 0.30 * d,    0.5 * R),
+        ( d / 2.0,               0.0),
+    ]
+    canopy = Part(
+        "canopy", "outline", {}, "pine_foliage", _CANOPY_FOLIAGE_DENSITY,
+        (0.0, 0.0, round(crown_mid_z, 5)), (0.0, 0.0, 0.0), "add", None,
+        outline={"profile": [[round(z, 5), round(r, 5)] for z, r in profile],
+                "mode": "revolve"},
+    )
+    sources_list.append({"name": _CANOPY_FOLIAGE_DENSITY.source, "license": ""})
+    sources_list.append({"name": _CROWN_BASE_FRAC_NOTE, "license": ""})
+    sources_list.append({
+        "name": "canopy vertical silhouette (widest-point/base/apex taper "
+                "fractions: 0.35/0.30/0.30 of crown radius/depth) is a "
+                "documented shape CONVENTION, not measured -- crown WIDTH "
+                "is cited (Bechtold), crown vertical PROFILE is not.",
+        "license": "",
+    })
+
+    id_note = (f"identified as {species.title()} (Pinus taeda)" if identified
+              else f"species not identified; using {species}'s curated "
+                   "allometry as the nearest available real stand-in")
+    return ConstructSpec(
+        name=name, kind="composite", identified=identified,
+        parts=[trunk, canopy], sources=sources_list,
+        notes=(f"Generative tree ({id_note}): DBH={dbh_cm:.1f} cm -> "
+              f"height={H:.2f} m (Chapman-Richards, Bragg 2008), crown "
+              f"radius={R:.2f} m (linear model, Bechtold 2003). v1: a "
+              f"single untapered trunk cylinder (radius=DBH/2, full height "
+              f"-- a geometric UPPER BOUND on real tapered stem volume) "
+              f"plus one canopy revolve-volume (foliage bulk density, "
+              f"estimated, not measured); no branch topology. See "
+              f"sources.allometry.validate_tree_mass for a self-consistency "
+              f"check (NOT an independent biomass citation -- see its own "
+              f"note). v2 roadmap: a tapered trunk (swap Cylinder for a "
+              f"Cone/frustum once a taper coefficient is cited), a "
+              f"scaffold-branch graph (3-6 primary branches placed by a "
+              f"pipe-model-theory or per-species branch allometry -- a "
+              f"THIRD citable source, not yet researched), and a cited "
+              f"canopy bulk-density figure in place of the current "
+              f"estimate."),
+    )
+
+
 def research(name: str, *, allow_llm: bool = True,
-             material_hint: str | None = None, exclude=None) -> ConstructSpec:
+             material_hint: str | None = None, exclude=None,
+             dbh_cm: float | None = None) -> ConstructSpec:
     """Resolve a named object to a cited ConstructSpec; flag if unidentified.
 
     A catalog hit is returned verbatim (deterministic). A PartNet category gets
     the real-exemplar assembler with per-part materials (``material_hint`` such
     as "wooden" biases the frame material — it SELECTS, it does not invent).
     ``exclude`` (anno_ids) skips already-used models so a "different" request
-    grabs a fresh real model from the category's variant pool. On a miss the
+    grabs a fresh real model from the category's variant pool. A tree name gets
+    the generative allometry-driven trunk+canopy assembler (``dbh_cm`` sizes it;
+    unset defaults via a cited ``Choice``, see ``_tree_spec``). On a miss the
     Researcher is consulted if available; failing that, a flagged best-guess is
     returned — never a confident fake.
     """
@@ -513,7 +700,8 @@ def research(name: str, *, allow_llm: bool = True,
         return hit
 
     structured = (_exemplar_spec(name, material_hint=material_hint, exclude=exclude)
-                  or _furniture_spec(name))         # real layout, else archetype
+                  or _furniture_spec(name)          # real layout, then archetypes
+                  or _tree_spec(name, dbh_cm=dbh_cm))
     if structured is not None:
         return structured
 
