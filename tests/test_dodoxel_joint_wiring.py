@@ -117,7 +117,13 @@ def test_hinged_pair_spins_freely_about_the_inferred_axis():
     # characteristic); 20 is the repo's own established remedy
     # (record_clock uses exactly this for its constraint chains)
     out["scene"].solver_iterations = 20
-    omega = 3.0
+    # z is a cube <100> axis (axis_family "axis"): its new lattice-period
+    # limit window is +-90 deg (+-1.5708 rad, see dodoxel_articulate.
+    # _hinge_period_deg). omega=1.0 rad/s over this test's 0.5s run only
+    # covers 0.5 rad (~28.6 deg) -- safely inside the window with >3x
+    # margin, so the limit rows never engage and "spins freely, zero
+    # decay" stays the honest claim under test.
+    omega = 1.0
     r = pb.position - anchor
     pb.angular_velocity = axis * omega
     pb.velocity = (axis * omega).cross(r)
@@ -164,3 +170,78 @@ def test_weld_contrast_kills_the_same_relative_spin():
 
     rel_spin = (pa.angular_velocity - pb.angular_velocity).length()
     assert rel_spin < 0.05                          # locked back together
+
+
+def test_dodoxel_hinge_carries_the_lattice_period_as_its_limit_window():
+    """The line pair's z-axis hinge is a cube <100> axis (axis_family
+    "axis"): the FCC lattice's rotational-symmetry period about a <100>
+    axis is 90 deg (4-fold symmetry -- verified independently in
+    dodoxel_articulate._hinge_period_deg's own numeric check, not assumed
+    here). infer_dodoxel_joints must report that as hinge_period_deg/
+    limits_rad, and dodoxel_parts_to_scene must wire that exact window
+    onto the LIVE RevoluteJoint's .limits (not leave it None)."""
+    field = _line_pair_field()
+    out = dodoxel_parts_to_scene(field, _mat_of, _density_of)
+    (jinfo,) = out["inference"]["joints"]
+    assert jinfo["type"] == "revolute"
+    assert jinfo["axis_family"] == "axis"
+    assert jinfo["hinge_period_deg"] == pytest.approx(90.0)
+    lo, hi = jinfo["limits_rad"]
+    assert lo == pytest.approx(-math.radians(90.0))
+    assert hi == pytest.approx(math.radians(90.0))
+
+    (live_joint,) = out["joints"]
+    assert live_joint.limits is not None
+    live_lo, live_hi = live_joint.limits
+    assert live_lo == pytest.approx(lo)
+    assert live_hi == pytest.approx(hi)
+
+
+def test_dodoxel_hinge_settles_at_the_lattice_period_boundary():
+    """A dodoxel-bridged hinge, spun fast enough to reach its +-90 deg
+    lattice-period window, must settle AT the +90 deg boundary and stay
+    there (RevoluteJoint's limit rows are brake-only/inelastic -- same
+    physical claim as test_joints.py::
+    test_hinge_limit_settles_within_half_degree, now proven for a joint
+    that was WIRED from dodoxel inference, not hand-built)."""
+    from sigma_ground.dynamics.joints import WeldJoint
+
+    field = _line_pair_field()
+    out = dodoxel_parts_to_scene(field, _mat_of, _density_of,
+                                 gravity=Vec3(0.0, 0.0, 0.0))
+    (jinfo,) = out["inference"]["joints"]
+    axis = Vec3(*jinfo["axis"])
+    anchor = Vec3(*jinfo["anchor_m"])
+    (live_joint,) = out["joints"]
+
+    pa, pb = out["parcels"]
+    out["scene"].constraints.append(WeldJoint(pa, None, pa.position))
+    # 20 iterations (the free-spin test's remedy) only has to hold an
+    # ALREADY-tolerable spin steady between GS sweeps; arresting a hard
+    # 6 rad/s impact against the limit in a single substep is a different
+    # convergence regime -- measured directly (not guessed): at 20 the
+    # brake-only rows only partially cancel the impact velocity and the
+    # leftover ~0.2 rad/s residual coasts the hinge back off the boundary
+    # with nothing left to re-arrest it (no gravity/motor here to drive it
+    # back in, unlike test_joints.py's gravity-held rod), so the settle
+    # claim needs enough sweeps to actually converge; 100 measured to
+    # settle within ~0.001 deg of the boundary, two orders of magnitude
+    # inside the 0.5 deg tolerance below.
+    out["scene"].solver_iterations = 100
+
+    omega = 6.0                         # reaches the 90 deg (1.5708 rad)
+    r = pb.position - anchor            # boundary at ~0.26s, well inside
+    pb.angular_velocity = axis * omega  # this test's 1.0s run
+    pb.velocity = (axis * omega).cross(r)
+
+    dt = 1.0 / 960.0
+    tail = []
+    n = int(1.0 / dt)
+    for k in range(n):
+        step(out["scene"], dt=dt, sub_steps=1)
+        if k >= n - int(0.3 / dt):
+            tail.append(live_joint.angle())
+
+    hi = math.radians(90.0)
+    tol = math.radians(0.5)
+    assert all(abs(th - hi) < tol for th in tail)

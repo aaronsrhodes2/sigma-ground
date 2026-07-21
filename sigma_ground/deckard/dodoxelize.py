@@ -685,7 +685,8 @@ def dodoxel_parts_to_scene(field, material_obj_of, density_of, *,
     narrow-phase SDF) connected by real dynamics/joints.py constraints
     typed by ``infer_dodoxel_joints``'s contact-geometry reasoning:
     weld -> WeldJoint, revolute -> RevoluteJoint about the lattice-snapped
-    hinge axis through the interface centroid. This is the first time
+    hinge axis through the interface centroid, limited to the lattice's
+    own rotational-symmetry window about that axis. This is the first time
     ANYTHING in the repo turns an inferred articulation into live solver
     constraints (deckard/articulate.py's cubic Joint graph has only ever
     round-tripped to scene_export for inspection).
@@ -738,7 +739,8 @@ def dodoxel_parts_to_scene(field, material_obj_of, density_of, *,
         b = parcels[name_to_pid[j["part_b"]]]
         anchor = Vec3(*j["anchor_m"])
         if j["type"] == "revolute":
-            live_joints.append(RevoluteJoint(a, b, anchor, Vec3(*j["axis"])))
+            live_joints.append(RevoluteJoint(a, b, anchor, Vec3(*j["axis"]),
+                                             limits=j["limits_rad"]))
         else:
             live_joints.append(WeldJoint(a, b, anchor))
 

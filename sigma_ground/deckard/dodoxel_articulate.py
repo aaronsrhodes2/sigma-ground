@@ -16,10 +16,13 @@ can only re-orient between a small set of exact surface-flush angles --
 surfaces meet face-to-face at one of these angles or not at all, which is
 both why the lattice supports clean re-welding and why a hinge inferred
 here carries an honest CANDIDATE ANGLE SET instead of a made-up limit
-range. This module attaches that vocabulary as machine-readable metadata
-on every inferred joint; actually enforcing vocabulary-snapped angle
-LIMITS on a live RevoluteJoint is deliberately NOT done yet (a physical
-claim needing its own gated phase, not a metadata note).
+range. This module derives the actual limit window from that vocabulary
+(see _hinge_period_deg): the FCC lattice's own rotational-symmetry period
+about the SPECIFIC hinge axis -- how far the joint can swing from its
+flush construction pose before the two parts would cold-weld flush again
+on the other side. dodoxelize.py wires that window onto the live
+RevoluteJoint's `limits`, so the physical claim is enforced by the
+solver, not just noted as metadata.
 """
 from __future__ import annotations
 
@@ -63,6 +66,68 @@ def _snap_to_lattice_direction(raw_dir):
     return best, best_family, err_deg
 
 
+def _rotate_about_axis(v, axis, theta_rad):
+    """Rodrigues' rotation formula: v rotated by theta_rad about the unit
+    vector axis (both plain (x,y,z) tuples)."""
+    vx, vy, vz = v
+    ax, ay, az = axis
+    c, s = math.cos(theta_rad), math.sin(theta_rad)
+    dot = ax * vx + ay * vy + az * vz
+    cx = ay * vz - az * vy
+    cy = az * vx - ax * vz
+    cz = ax * vy - ay * vx
+    return (vx * c + cx * s + ax * dot * (1.0 - c),
+           vy * c + cy * s + ay * dot * (1.0 - c),
+           vz * c + cz * s + az * dot * (1.0 - c))
+
+
+def _maps_neighbor_star_onto_itself(axis, theta_deg, tol=1e-6):
+    """True iff rotating the full 12-direction FCC neighbor star about
+    ``axis`` (unit vector) by theta_deg maps the star back onto itself AS A
+    SET -- the exact condition for theta_deg to be a rotational-symmetry
+    period of the FCC lattice about this specific axis (verified for both
+    axis families this module snaps to: 90deg for a <100> cube axis, 180deg
+    for a <110> FCC-neighbor axis -- standard cuboctahedral/point-group-O
+    facts, reconfirmed numerically here rather than assumed)."""
+    theta = math.radians(theta_deg)
+    for v in FCC_NEIGHBOR_UNIT_DIRECTIONS:
+        rv = _rotate_about_axis(v, axis, theta)
+        if not any(math.sqrt(sum((p - q) ** 2 for p, q in zip(rv, ov))) < tol
+                  for ov in FCC_NEIGHBOR_UNIT_DIRECTIONS):
+            return False
+    return True
+
+
+def _hinge_period_deg(axis):
+    """The smallest FCC_ANGLE_VOCABULARY_DEG angle that is a rotational-
+    symmetry period of the lattice about ``axis`` -- the angular spacing
+    between consecutive mutually-flush (re-weldable) registrations of two
+    dodoxel parts hinged about this axis. Starting from the construction
+    pose (a flush registration, angle()==0), the two NEAREST other flush
+    registrations reachable by pivoting about axis sit at +-this period,
+    so a joint window of (-period, +period) lets the hinge swing freely
+    through the one open interval where the parts are never flush, and
+    stops it (inelastically, via RevoluteJoint's existing brake-only
+    limit rows) exactly where they would cold-weld flush again.
+
+    Computed fresh from the lattice geometry every call (not hardcoded by
+    axis_family) so it stays correct if a third axis family (e.g. a <111>
+    3-fold axis) is ever added to _SNAP_CANDIDATES. Every axis this module
+    ever passes in comes verbatim from _SNAP_CANDIDATES (FCC_NEIGHBOR_
+    UNIT_DIRECTIONS or _AXIS_DIRECTIONS), both of which are, by
+    construction, exact symmetry axes of the cubic point group -- so the
+    ValueError below is defensive/unreachable in current usage, not a
+    real runtime path.
+    """
+    for theta_deg in FCC_ANGLE_VOCABULARY_DEG:   # ascending: smallest first
+        if _maps_neighbor_star_onto_itself(axis, theta_deg):
+            return theta_deg
+    raise ValueError(
+        f"axis {axis} is not a rotational symmetry axis of the FCC "
+        "lattice at any FCC_ANGLE_VOCABULARY_DEG angle -- "
+        "_snap_to_lattice_direction should never produce this")
+
+
 def infer_dodoxel_joints(field, elongation_threshold=None):
     """Infer a typed joint proposal for every touching part pair of a
     multi-part DodoxelField (Phase A/B tables required).
@@ -72,8 +137,10 @@ def infer_dodoxel_joints(field, elongation_threshold=None):
       (contact centroid), area_m2, and for revolute: axis_raw, axis
       (lattice-snapped), axis_family ("fcc"|"axis"), snap_error_deg,
       angle_vocabulary_deg + angle_vocabulary_note (the FCC set, as
-      metadata -- see module docstring for why limits are NOT set from it
-      yet).
+      metadata), hinge_period_deg (the ONE vocabulary angle that is this
+      axis's actual lattice rotational-symmetry period) and limits_rad
+      (the (-period, +period) radian window derived from it -- see
+      module docstring for the physical claim this encodes).
 
     Type decision, mirroring articulate.py's own conservatism: weld by
     default (confidence 0.8 -- the same value its cubic twin assigns an
@@ -113,6 +180,13 @@ def infer_dodoxel_joints(field, elongation_threshold=None):
         if is_line:
             snapped, family, err = _snap_to_lattice_direction(
                 iface["principal_dir"])
+            if snapped is not None:
+                period_deg = _hinge_period_deg(snapped)
+                limit_rad = math.radians(period_deg)
+                limits_rad = (-limit_rad, limit_rad)
+            else:
+                period_deg = None
+                limits_rad = None
             base.update({
                 "type": "revolute",
                 "confidence": 0.5,
@@ -122,6 +196,8 @@ def infer_dodoxel_joints(field, elongation_threshold=None):
                 "snap_error_deg": round(err, 3),
                 "angle_vocabulary_deg": list(FCC_ANGLE_VOCABULARY_DEG),
                 "angle_vocabulary_note": _ANGLE_PROVENANCE,
+                "hinge_period_deg": period_deg,
+                "limits_rad": limits_rad,
             })
         else:
             base.update({"type": "weld", "confidence": 0.8})
