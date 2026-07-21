@@ -13,11 +13,46 @@ from sigma_ground.mcp.provenance import ToolResult
 _SRC = "sigma_ground.field (interface.plasma, electrodynamics)"
 
 
-def _safe(fn, *a, **k):
+def _safe_call(fn, *a, **k):
+    """Call a leaf function, returning (value, error_note) instead of a bare
+    value-or-None. On success: (value, None). On failure: (None, note) where
+    `note` is the exception's type and message (e.g. "KeyError:
+    'unobtainium'") -- deliberately NOT fn-name-specific, so that two
+    different leaf calls failing on the SAME underlying bad input (e.g. the
+    same bad material_key) produce byte-identical notes and can be
+    deduplicated by _notes_from_errors() below.
+
+    Like _safe() above, this never raises -- one bad sub-call only ever
+    poisons its own (key, value) pair in the caller's results dict, so the
+    caller always goes on to make the rest of the cascade's calls. The
+    difference from _safe() is purely that the reason for a failure is
+    handed back instead of swallowed, so it can be threaded into
+    ToolResult(notes=...) rather than surfacing a bare `None` with nothing
+    explaining why."""
     try:
-        return fn(*a, **k)
-    except Exception:
-        return None
+        return fn(*a, **k), None
+    except Exception as e:
+        return None, f"{type(e).__name__}: {e}"
+
+
+def _notes_from_errors(errors: dict[str, str]) -> str:
+    """Fold a {result_key: error_note} map (only the FAILED keys) into one
+    ToolResult.notes string.
+
+    Groups result keys whose error_note is byte-identical -- the signature
+    of a shared root cause, e.g. N calls in one cascade that all take the
+    same bad material_key -- so the explanation is stated once per DISTINCT
+    cause (naming every result key it took down), not once per affected
+    key. Keys with distinct causes each keep their own clause. Returns ""
+    when `errors` is empty (the all-success case), matching ToolResult's
+    default notes="".
+    """
+    if not errors:
+        return ""
+    groups: dict[str, list[str]] = {}
+    for key, note in errors.items():
+        groups.setdefault(note, []).append(key)
+    return " | ".join(f"{', '.join(keys)}: {note}" for note, keys in groups.items())
 
 
 def _mag(v):
@@ -45,17 +80,20 @@ def plasma_parameters_analysis(electron_density_m3: float = 1.0e19,
     ln(Lambda) for the resistivity uses electron_density_m3, matching the
     coulomb_logarithm reported here."""
     from sigma_ground.field.interface import plasma as P
-    results = {
-        "debye_length_m": _safe(P.debye_length, electron_density_m3, electron_temperature_k),
-        "debye_number": _safe(P.debye_number, electron_density_m3, electron_temperature_k),
-        "coulomb_logarithm": _safe(P.coulomb_logarithm, electron_density_m3, electron_temperature_k),
-        "cyclotron_radius_m": _safe(P.cyclotron_radius, ion_mass_kg, perp_velocity_m_s, magnetic_field_t),
-        "spitzer_resistivity_ohm_m": _safe(P.spitzer_resistivity, electron_temperature_k, z_eff, electron_density_m3),
+    _raw = {
+        "debye_length_m": _safe_call(P.debye_length, electron_density_m3, electron_temperature_k),
+        "debye_number": _safe_call(P.debye_number, electron_density_m3, electron_temperature_k),
+        "coulomb_logarithm": _safe_call(P.coulomb_logarithm, electron_density_m3, electron_temperature_k),
+        "cyclotron_radius_m": _safe_call(P.cyclotron_radius, ion_mass_kg, perp_velocity_m_s, magnetic_field_t),
+        "spitzer_resistivity_ohm_m": _safe_call(P.spitzer_resistivity, electron_temperature_k, z_eff, electron_density_m3),
     }
+    results = {k: v for k, (v, e) in _raw.items()}
+    errors = {k: e for k, (v, e) in _raw.items() if e}
     return ToolResult(value=results, units="m, dimensionless, dimensionless, m, ohm.m", source=_SRC,
                       provenance_tag="DERIVED",
                       formula="lambda_D=sqrt(eps0 kT/n e^2); N_D=(4/3)pi n lambda_D^3; ln Lambda; "
                               "r_c=mv/qB; eta_par=0.51*(4 sqrt(2 pi)/3) sqrt(m_e) Z e^2 lnLambda/((4 pi eps0)^2 (k_B T_e)^1.5)",
+                      notes=_notes_from_errors(errors),
                       inputs={"electron_density_m3": electron_density_m3,
                               "electron_temperature_k": electron_temperature_k,
                               "magnetic_field_t": magnetic_field_t,
@@ -76,16 +114,21 @@ def electromagnetic_force_analysis(charge_c: float = 1.602176634e-19,
     v_vec = (velocity_m_s, 0.0, 0.0)
     b_vec = (0.0, 0.0, b_field_t)
     e_vec = (e_field_v_m, 0.0, 0.0)
-    results = {
-        "coulomb_force_N": _safe(E.coulomb_force, charge_c, charge2_c, separation_m),
-        "magnetic_force_N": _mag(_safe(E.magnetic_force, charge_c, v_vec, b_vec)),
-        "lorentz_force_N": _mag(_safe(E.lorentz_force, charge_c, e_vec, v_vec, b_vec)),
-        "em_energy_density_J_m3": _safe(E.em_wave_energy_density, e_field_v_m),
-        "em_intensity_W_m2": _safe(E.em_wave_intensity, e_field_v_m),
+    magnetic_force, err_magnetic_force = _safe_call(E.magnetic_force, charge_c, v_vec, b_vec)
+    lorentz_force, err_lorentz_force = _safe_call(E.lorentz_force, charge_c, e_vec, v_vec, b_vec)
+    _raw = {
+        "coulomb_force_N": _safe_call(E.coulomb_force, charge_c, charge2_c, separation_m),
+        "magnetic_force_N": (_mag(magnetic_force), err_magnetic_force),
+        "lorentz_force_N": (_mag(lorentz_force), err_lorentz_force),
+        "em_energy_density_J_m3": _safe_call(E.em_wave_energy_density, e_field_v_m),
+        "em_intensity_W_m2": _safe_call(E.em_wave_intensity, e_field_v_m),
     }
+    results = {k: v for k, (v, e) in _raw.items()}
+    errors = {k: e for k, (v, e) in _raw.items() if e}
     return ToolResult(value=results, units="N, J/m^3, W/m^2", source=_SRC,
                       provenance_tag="DERIVED",
                       formula="F=k q1 q2/r^2; F=q v x B; F=q(E+v x B); <u>=eps0 E0^2/2; I=eps0 c E0^2/2",
+                      notes=_notes_from_errors(errors),
                       inputs={"charge_c": charge_c, "charge2_c": charge2_c,
                               "separation_m": separation_m, "e_field_v_m": e_field_v_m,
                               "velocity_m_s": velocity_m_s, "b_field_t": b_field_t}).to_dict()

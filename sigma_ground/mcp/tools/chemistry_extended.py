@@ -12,11 +12,45 @@ from sigma_ground.mcp.provenance import ToolResult
 _SRC = "sigma_ground.field.interface (acid_base, solution, electrochemistry, chemical_reactions, radioactive_decay)"
 
 
-def _safe(fn, *a, **k):
+def _safe_call(fn, *a, **k):
+    """Call a leaf function, returning (value, error_note) instead of a bare
+    value-or-None. On success: (value, None). On failure: (None, note) where
+    `note` is the exception's type and message (e.g. "KeyError:
+    'unobtainium'") -- deliberately NOT fn-name-specific, so that two
+    different leaf calls failing on the SAME underlying bad input (e.g. the
+    same bad isotope_key) produce byte-identical notes and can be
+    deduplicated by _notes_from_errors() below.
+
+    This never raises -- one bad sub-call only ever poisons its own (key,
+    value) pair in the caller's results dict, so the caller always goes on
+    to make the rest of the cascade's calls. The reason for a failure is
+    handed back instead of swallowed, so it can be threaded into
+    ToolResult(notes=...) rather than surfacing a bare `None` with nothing
+    explaining why."""
     try:
-        return fn(*a, **k)
-    except Exception:
-        return None
+        return fn(*a, **k), None
+    except Exception as e:
+        return None, f"{type(e).__name__}: {e}"
+
+
+def _notes_from_errors(errors: dict[str, str]) -> str:
+    """Fold a {result_key: error_note} map (only the FAILED keys) into one
+    ToolResult.notes string.
+
+    Groups result keys whose error_note is byte-identical -- the signature
+    of a shared root cause, e.g. N calls in one cascade that all take the
+    same bad input -- so the explanation is stated once per DISTINCT
+    cause (naming every result key it took down), not once per affected
+    key. Keys with distinct causes each keep their own clause. Returns ""
+    when `errors` is empty (the all-success case), matching ToolResult's
+    default notes="".
+    """
+    if not errors:
+        return ""
+    groups: dict[str, list[str]] = {}
+    for key, note in errors.items():
+        groups.setdefault(note, []).append(key)
+    return " | ".join(f"{', '.join(keys)}: {note}" for note, keys in groups.items())
 
 
 def titration_analysis(acid_concentration_M: float = 0.1,
@@ -29,17 +63,20 @@ def titration_analysis(acid_concentration_M: float = 0.1,
     strong base. Weak-acid keys: acetic_acid, formic_acid, hydrofluoric_acid, etc.
     e.g. titration_analysis(0.1, 25, 0.1, 10, 'acetic_acid')."""
     from sigma_ground.field.interface import acid_base as AB
-    results = {
-        "strong_acid_pH": _safe(AB.titration_strong_acid_strong_base,
+    _raw = {
+        "strong_acid_pH": _safe_call(AB.titration_strong_acid_strong_base,
                                 acid_concentration_M, acid_volume_mL,
                                 base_concentration_M, base_volume_mL),
-        "weak_acid_pH": _safe(AB.titration_weak_acid_strong_base, weak_acid_key,
+        "weak_acid_pH": _safe_call(AB.titration_weak_acid_strong_base, weak_acid_key,
                               acid_concentration_M, acid_volume_mL,
                               base_concentration_M, base_volume_mL),
     }
+    results = {k: v for k, (v, e) in _raw.items()}
+    errors = {k: e for k, (v, e) in _raw.items() if e}
     return ToolResult(value=results, units="pH", source=_SRC,
                       provenance_tag="DERIVED",
                       formula="strong: pH=-log[H+] from net mol; weak: Henderson-Hasselbalch",
+                      notes=_notes_from_errors(errors),
                       inputs={"acid_concentration_M": acid_concentration_M,
                               "acid_volume_mL": acid_volume_mL,
                               "base_concentration_M": base_concentration_M,
@@ -55,12 +92,14 @@ def acid_speciation_analysis(ph: float = 7.0,
     from sigma_ground.field.interface import acid_base as AB
     if pka_list is None:
         pka_list = [2.15, 7.20, 12.35]
-    alphas = _safe(AB.polyprotic_alpha, pka_list, ph)
+    alphas, err = _safe_call(AB.polyprotic_alpha, pka_list, ph)
     results = {"species_fractions": alphas}
+    errors = {"species_fractions": err} if err else {}
     return ToolResult(value=results, units="dimensionless (fractions sum to 1)",
                       source="sigma_ground.field.interface.acid_base",
                       provenance_tag="DERIVED",
                       formula="alpha_i from stepwise Ka and [H+]",
+                      notes=_notes_from_errors(errors),
                       inputs={"ph": ph, "pka_list": pka_list}).to_dict()
 
 
@@ -77,18 +116,21 @@ def solution_analysis(initial_concentration_M: float = 1.0,
     precipitates (ion product vs Ksp). Salt keys: silver_chloride, barium_sulfate,
     lead_chloride, etc. e.g. solution_analysis(1.0, 10, 100)."""
     from sigma_ground.field.interface import solution as SOL
-    results = {
-        "diluted_concentration_M": _safe(SOL.dilution, initial_concentration_M,
+    _raw = {
+        "diluted_concentration_M": _safe_call(SOL.dilution, initial_concentration_M,
                                          initial_volume_mL, final_volume_mL),
-        "mixed_concentration_M": _safe(SOL.mixing_concentration, initial_concentration_M,
+        "mixed_concentration_M": _safe_call(SOL.mixing_concentration, initial_concentration_M,
                                       initial_volume_mL, second_concentration_M,
                                       second_volume_mL),
-        "will_precipitate": _safe(SOL.will_precipitate, salt_key,
+        "will_precipitate": _safe_call(SOL.will_precipitate, salt_key,
                                  cation_concentration_M, anion_concentration_M),
     }
+    results = {k: v for k, (v, e) in _raw.items()}
+    errors = {k: e for k, (v, e) in _raw.items() if e}
     return ToolResult(value=results, units="mol/L, mol/L, bool", source=_SRC,
                       provenance_tag="DERIVED",
                       formula="C1 V1 = C2 V2; c_mix=(C1V1+C2V2)/(V1+V2); Q vs Ksp",
+                      notes=_notes_from_errors(errors),
                       inputs={"initial_concentration_M": initial_concentration_M,
                               "initial_volume_mL": initial_volume_mL,
                               "final_volume_mL": final_volume_mL,
@@ -105,15 +147,20 @@ def electrochemistry_analysis(current_density: float = 10.0,
     conductivity at a concentration. Default ions ~ KCl.
     e.g. electrochemistry_analysis(10, 1e-3, 73.5, 76.3, 0.1)."""
     from sigma_ground.field.interface import electrochemistry as EC
-    Lm = _safe(EC.molar_conductivity_dilute, lambda_cation, lambda_anion)
-    results = {
-        "tafel_overpotential_V": _safe(EC.tafel_overpotential, current_density, exchange_current_density),
-        "molar_conductivity": Lm,
-        "solution_conductivity": (_safe(EC.solution_conductivity, concentration_M, Lm) if Lm is not None else None),
+    Lm, err_Lm = _safe_call(EC.molar_conductivity_dilute, lambda_cation, lambda_anion)
+    kappa, err_kappa = (_safe_call(EC.solution_conductivity, concentration_M, Lm)
+                        if Lm is not None else (None, err_Lm))
+    _raw = {
+        "tafel_overpotential_V": _safe_call(EC.tafel_overpotential, current_density, exchange_current_density),
+        "molar_conductivity": (Lm, err_Lm),
+        "solution_conductivity": (kappa, err_kappa),
     }
+    results = {k: v for k, (v, e) in _raw.items()}
+    errors = {k: e for k, (v, e) in _raw.items() if e}
     return ToolResult(value=results, units="V, S.cm^2/mol, mS/cm (dilute-limit)", source=_SRC,
                       provenance_tag="DERIVED",
                       formula="eta=(RT/alpha n F)ln(j/j0); Lambda_m=lambda+ + lambda-; kappa=c Lambda_m",
+                      notes=_notes_from_errors(errors),
                       inputs={"current_density": current_density,
                               "exchange_current_density": exchange_current_density,
                               "lambda_cation": lambda_cation, "lambda_anion": lambda_anion,
@@ -131,14 +178,17 @@ def reaction_kinetics_analysis(rate_constant: float = 0.01,
     target rate constant (Arrhenius inversion).
     e.g. reaction_kinetics_analysis(0.01, 0.5, 1e13)."""
     from sigma_ground.field.interface import chemical_reactions as CR
-    results = {
-        "collision_prefactor": _safe(CR.collision_prefactor, m_a_amu, m_b_amu, r_a_pm, r_b_pm),
-        "half_life_s": _safe(CR.half_life, rate_constant),
-        "temperature_for_target_rate_K": _safe(CR.temperature_for_rate, target_rate, prefactor, activation_energy_eV),
+    _raw = {
+        "collision_prefactor": _safe_call(CR.collision_prefactor, m_a_amu, m_b_amu, r_a_pm, r_b_pm),
+        "half_life_s": _safe_call(CR.half_life, rate_constant),
+        "temperature_for_target_rate_K": _safe_call(CR.temperature_for_rate, target_rate, prefactor, activation_energy_eV),
     }
+    results = {k: v for k, (v, e) in _raw.items()}
+    errors = {k: e for k, (v, e) in _raw.items() if e}
     return ToolResult(value=results, units="varies, s, K", source=_SRC,
                       provenance_tag="DERIVED",
                       formula="A from collision theory; t_half=ln2/k; T from k=A exp(-Ea/kT)",
+                      notes=_notes_from_errors(errors),
                       inputs={"rate_constant": rate_constant,
                               "activation_energy_eV": activation_energy_eV,
                               "prefactor": prefactor, "target_rate": target_rate}).to_dict()
@@ -150,10 +200,12 @@ def radioactivity_analysis(isotope_key: str = "C14",
     U238, Ra226, Po210, C14, Co60, K40, free_neutron.
     e.g. radioactivity_analysis('C14', 6.022e23) -> activity of 1 mole of C-14."""
     from sigma_ground.field.interface import radioactive_decay as RD
-    A = _safe(RD.activity_becquerel, isotope_key, n_atoms)
+    A, err = _safe_call(RD.activity_becquerel, isotope_key, n_atoms)
     results = {"activity_Bq": A, "activity_Ci": (A / 3.7e10 if A is not None else None)}
+    errors = {"activity_Bq": err, "activity_Ci": err} if err else {}
     return ToolResult(value=results, units="Bq, Ci",
                       source="sigma_ground.field.interface.radioactive_decay",
                       provenance_tag="DERIVED",
                       formula="A = lambda N = (ln2 / t_half) N",
+                      notes=_notes_from_errors(errors),
                       inputs={"isotope_key": isotope_key, "n_atoms": n_atoms}).to_dict()

@@ -15,11 +15,46 @@ _SRC = "sigma_ground.field.interface (superconductivity, tunneling, quantum_well
 _MU_0 = 1.25663706212e-6
 
 
-def _safe(fn, *a, **k):
+def _safe_call(fn, *a, **k):
+    """Call a leaf function, returning (value, error_note) instead of a bare
+    value-or-None. On success: (value, None). On failure: (None, note) where
+    `note` is the exception's type and message (e.g. "KeyError:
+    'unobtainium'") -- deliberately NOT fn-name-specific, so that two
+    different leaf calls failing on the SAME underlying bad input (e.g. the
+    same bad material_key) produce byte-identical notes and can be
+    deduplicated by _notes_from_errors() below.
+
+    Like _safe() above, this never raises -- one bad sub-call only ever
+    poisons its own (key, value) pair in the caller's results dict, so the
+    caller always goes on to make the rest of the cascade's calls. The
+    difference from _safe() is purely that the reason for a failure is
+    handed back instead of swallowed, so it can be threaded into
+    ToolResult(notes=...) rather than surfacing a bare `None` with nothing
+    explaining why."""
     try:
-        return fn(*a, **k)
-    except Exception:
-        return None
+        return fn(*a, **k), None
+    except Exception as e:
+        return None, f"{type(e).__name__}: {e}"
+
+
+def _notes_from_errors(errors: dict[str, str]) -> str:
+    """Fold a {result_key: error_note} map (only the FAILED keys) into one
+    ToolResult.notes string.
+
+    Groups result keys whose error_note is byte-identical -- the signature
+    of a shared root cause, e.g. N calls in one cascade that all take the
+    same bad material_key -- so the explanation is stated once per DISTINCT
+    cause (naming every result key it took down), not once per affected
+    key. Keys with distinct causes each keep their own clause. Returns ""
+    when `errors` is empty (the all-success case), matching ToolResult's
+    default notes="".
+    """
+    if not errors:
+        return ""
+    groups: dict[str, list[str]] = {}
+    for key, note in errors.items():
+        groups.setdefault(note, []).append(key)
+    return " | ".join(f"{', '.join(keys)}: {note}" for note, keys in groups.items())
 
 
 def _resolve_sc_key(material: str):
@@ -50,11 +85,14 @@ def superconducting_gap_analysis(critical_temp_k: float = 9.2) -> dict[str, Any]
     (For the Ginzburg-Landau parameter kappa and the Hc1/Hc2 critical fields,
     see superconductor_critical_field_analysis.)"""
     from sigma_ground.field.interface import superconductivity as SC
-    results = {"gap_frequency_Hz": _safe(SC.gap_frequency, critical_temp_k)}
+    f_gap, err = _safe_call(SC.gap_frequency, critical_temp_k)
+    results = {"gap_frequency_Hz": f_gap}
+    errors = {"gap_frequency_Hz": err} if err else {}
     return ToolResult(value=results, units="Hz",
                       source="sigma_ground.field.interface.superconductivity",
                       provenance_tag="DERIVED",
                       formula="f = 2*Delta/h, Delta = 1.764 k_B Tc (BCS weak coupling)",
+                      notes=_notes_from_errors(errors),
                       inputs={"critical_temp_k": critical_temp_k}).to_dict()
 
 
@@ -93,10 +131,12 @@ def superconductor_critical_field_analysis(material: str = "niobium") -> dict[st
     # gl_parameter_effective returns the MEASURED (dirty-limit) kappa where the
     # DB has it — essential for alloys/compounds (the clean-limit free-electron
     # gl_parameter badly underestimates kappa, e.g. Nb 0.11 vs measured 1.05).
-    kappa = _safe(SC.gl_parameter_effective, key)
-    H_c = _safe(SC.thermodynamic_critical_field, n_e, T_c, 0.0)
-    H_c1 = _safe(SC.lower_critical_field, n_e, v_F, T_c, 0.0, key) if is_type_II else None
-    H_c2 = _safe(SC.upper_critical_field, n_e, v_F, T_c, 0.0, key) if is_type_II else None
+    kappa, err_kappa = _safe_call(SC.gl_parameter_effective, key)
+    H_c, err_Hc = _safe_call(SC.thermodynamic_critical_field, n_e, T_c, 0.0)
+    H_c1, err_Hc1 = (_safe_call(SC.lower_critical_field, n_e, v_F, T_c, 0.0, key)
+                     if is_type_II else (None, None))
+    H_c2, err_Hc2 = (_safe_call(SC.upper_critical_field, n_e, v_F, T_c, 0.0, key)
+                     if is_type_II else (None, None))
 
     results = {
         "name": data["name"],
@@ -110,6 +150,12 @@ def superconductor_critical_field_analysis(material: str = "niobium") -> dict[st
         "Hc2_upper_A_per_m": H_c2,
         "Hc2_upper_T": (H_c2 * _MU_0) if H_c2 is not None else None,
     }
+    errors = {k: v for k, v in {
+        "gl_parameter_kappa": err_kappa,
+        "Hc_thermodynamic_A_per_m": err_Hc,
+        "Hc1_lower_A_per_m": err_Hc1,
+        "Hc2_upper_A_per_m": err_Hc2,
+    }.items() if v}
     note = ("Type-II: Hc1 < Hc < Hc2 (Abrikosov vortex/mixed state between them)."
             if is_type_II else
             "Type-I: a single critical field Hc; no mixed state, so Hc1/Hc2 "
@@ -124,7 +170,7 @@ def superconductor_critical_field_analysis(material: str = "niobium") -> dict[st
         provenance_tag="DERIVED",
         formula=("Hc = Delta*sqrt(N(0)/mu0), Delta=1.764 k_B Tc, N(0)=3 n_e/(4 E_F); "
                  "Hc1 = Hc*(ln k + 0.5)/(sqrt2*k); Hc2 = sqrt2*k*Hc (Abrikosov)"),
-        notes=note,
+        notes=" | ".join(filter(None, [note, _notes_from_errors(errors)])),
         inputs={"material": material}).to_dict()
 
 
@@ -141,12 +187,14 @@ def quantum_tunneling_analysis(barrier_height_eV: float = 1.0,
         return height
 
     width_m = barrier_width_nm * 1.0e-9
-    prob = _safe(T.wkb_transmission, _barrier, particle_energy_eV, 0.0, width_m)
+    prob, err = _safe_call(T.wkb_transmission, _barrier, particle_energy_eV, 0.0, width_m)
     results = {"transmission_probability": prob}
+    errors = {"transmission_probability": err} if err else {}
     return ToolResult(value=results, units="dimensionless",
                       source="sigma_ground.field.interface.tunneling",
                       provenance_tag="DERIVED",
                       formula="T = exp(-2 int kappa dx), kappa=sqrt(2m(V-E))/hbar (WKB)",
+                      notes=_notes_from_errors(errors),
                       inputs={"barrier_height_eV": barrier_height_eV,
                               "particle_energy_eV": particle_energy_eV,
                               "barrier_width_nm": barrier_width_nm}).to_dict()
@@ -159,12 +207,14 @@ def quantum_box_energy_analysis(n1: int = 1, n2: int = 1, n3: int = 1,
     state of an electron in a 1 nm box."""
     from sigma_ground.field.interface import quantum_wells as QW
     L = box_size_nm * 1.0e-9
-    E = _safe(QW.box_energy_3d_eV, n1, n2, n3, L)
+    E, err = _safe_call(QW.box_energy_3d_eV, n1, n2, n3, L)
     results = {"energy_eV": E}
+    errors = {"energy_eV": err} if err else {}
     return ToolResult(value=results, units="eV",
                       source="sigma_ground.field.interface.quantum_wells",
                       provenance_tag="DERIVED",
                       formula="E = (hbar^2 pi^2 / 2m)(n1^2/L1^2 + n2^2/L2^2 + n3^2/L3^2)",
+                      notes=_notes_from_errors(errors),
                       inputs={"n1": n1, "n2": n2, "n3": n3,
                               "box_size_nm": box_size_nm}).to_dict()
 
@@ -175,12 +225,14 @@ def band_dos_shape_analysis(structure: str = "bcc",
     transition metal (van Hove peak > 1, pseudogap < 1). structure in
     bcc/fcc/hcp, d-count 1-9. e.g. band_dos_shape_analysis('bcc', 5)."""
     from sigma_ground.field.interface import band_structure as BS
-    g = _safe(BS.dos_shape_factor, structure, d_electron_count)
+    g, err = _safe_call(BS.dos_shape_factor, structure, d_electron_count)
     results = {"dos_shape_factor": g}
+    errors = {"dos_shape_factor": err} if err else {}
     return ToolResult(value=results, units="dimensionless",
                       source="sigma_ground.field.interface.band_structure",
                       provenance_tag="DERIVED",
                       formula="g_dos = TB DOS(E_F) / rectangular DOS (avg-normalized)",
+                      notes=_notes_from_errors(errors),
                       inputs={"structure": structure,
                               "d_electron_count": d_electron_count}).to_dict()
 
@@ -192,8 +244,8 @@ def magnetic_exchange_analysis(atomic_number: int = 24, oxidation_state: int = 3
     the resulting spin state (singlet/triplet). Defaults: Cr3+ octahedral oxide.
     e.g. magnetic_exchange_analysis(24, 3, 'oxide_oct')."""
     from sigma_ground.field.interface import quantum_matter as QM
-    r = _safe(QM.two_site_spin_hamiltonian_from_crystal_field,
-              atomic_number, oxidation_state, coord_key)
+    r, err = _safe_call(QM.two_site_spin_hamiltonian_from_crystal_field,
+                        atomic_number, oxidation_state, coord_key)
     if isinstance(r, dict):
         results = {
             "J_exchange_eV": r.get("J_exchange_eV"),
@@ -206,9 +258,14 @@ def magnetic_exchange_analysis(atomic_number: int = 24, oxidation_state: int = 3
         results = {"J_exchange_eV": None, "vqe_ground_energy_eV": None,
                    "exact_ground_energy_eV": None, "spin_state": None,
                    "is_high_spin": None}
+    # One underlying call feeds all five keys, so a failure poisons all five --
+    # attribute `err` to every key rather than just one, so _notes_from_errors
+    # names the whole set in its single shared-cause clause.
+    errors = {k: err for k in results} if err else {}
     return ToolResult(value=results, units="eV", source=_SRC,
                       provenance_tag="DERIVED",
                       formula="H = J(X1X2+Y1Y2+Z1Z2); J from crystal field; VQE vs exact",
+                      notes=_notes_from_errors(errors),
                       inputs={"atomic_number": atomic_number,
                               "oxidation_state": oxidation_state,
                               "coord_key": coord_key}).to_dict()

@@ -1,0 +1,44 @@
+==============================================================================
+mcp/tools _safe() baseline -- smoke test of every public function
+across the 19 sigma_ground/mcp/tools/*.py files that use _safe()
+==============================================================================
+sigma_ground resolved from: D:\Aaron\development\sigma-ground\sigma_ground\__init__.py
+
+TOTAL functions tried: 70
+  OK   : 69
+  ERR  : 0
+  SKIP : 1
+
+------------------------------------------------------------------------------
+Per-file breakdown
+------------------------------------------------------------------------------
+  materials_micro           OK=  4  ERR=  0  SKIP=  0
+  transport                 OK=  3  ERR=  0  SKIP=  0
+  tribology                 OK=  3  ERR=  0  SKIP=  0
+  thermal_systems           OK=  3  ERR=  0  SKIP=  0
+  rotation                  OK=  2  ERR=  0  SKIP=  0
+  quantum_solids            OK=  6  ERR=  0  SKIP=  0
+  relativity_spectra        OK=  2  ERR=  0  SKIP=  0
+  playground                OK=  9  ERR=  0  SKIP=  1
+  qcomputing                OK=  4  ERR=  0  SKIP=  0
+  plasma_em                 OK=  2  ERR=  0  SKIP=  0
+  photonics                 OK=  5  ERR=  0  SKIP=  0
+  misc_physics              OK=  4  ERR=  0  SKIP=  0
+  mechanical_response       OK=  2  ERR=  0  SKIP=  0
+  materials_strength        OK=  4  ERR=  0  SKIP=  0
+  inventory_tools           OK=  3  ERR=  0  SKIP=  0
+  fluid_surface             OK=  2  ERR=  0  SKIP=  0
+  electroceramics           OK=  2  ERR=  0  SKIP=  0
+  devices                   OK=  3  ERR=  0  SKIP=  0
+  chemistry_extended        OK=  6  ERR=  0  SKIP=  0
+
+------------------------------------------------------------------------------
+ERR entries (0) -- file / function / exception
+------------------------------------------------------------------------------
+  (none)
+
+------------------------------------------------------------------------------
+SKIP entries (1) -- file / function (couldn't infer required args)
+------------------------------------------------------------------------------
+  playground.request_clarification
+

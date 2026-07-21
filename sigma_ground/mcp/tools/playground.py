@@ -41,6 +41,49 @@ def _safe(fn, *a, **k):
         return None
 
 
+def _safe_call(fn, *a, **k):
+    """Call a leaf function, returning (value, error_note) instead of a bare
+    value-or-None. On success: (value, None). On failure: (None, note) where
+    `note` is the exception's type and message (e.g. "KeyError:
+    'unobtainium'") -- deliberately NOT fn-name-specific, so that two
+    different leaf calls failing on the SAME underlying bad input produce
+    byte-identical notes and can be deduplicated by _notes_from_errors()
+    below. Redirects stdout the same as _safe() above, so a leaf function's
+    own print()s don't leak into the tool's output either way.
+
+    Like _safe() above, this never raises -- one bad sub-call only ever
+    poisons its own (key, value) pair in the caller's results dict, so the
+    caller always goes on to make the rest of the cascade's calls. The
+    difference from _safe() is purely that the reason for a failure is
+    handed back instead of swallowed, so it can be threaded into
+    ToolResult(notes=...) rather than surfacing a bare `None` with nothing
+    explaining why."""
+    try:
+        with contextlib.redirect_stdout(io.StringIO()):
+            return fn(*a, **k), None
+    except Exception as e:
+        return None, f"{type(e).__name__}: {e}"
+
+
+def _notes_from_errors(errors: dict[str, str]) -> str:
+    """Fold a {result_key: error_note} map (only the FAILED keys) into one
+    ToolResult.notes string.
+
+    Groups result keys whose error_note is byte-identical -- the signature
+    of a shared root cause -- so the explanation is stated once per DISTINCT
+    cause (naming every result key it took down), not once per affected
+    key. Keys with distinct causes each keep their own clause. Returns ""
+    when `errors` is empty (the all-success case), matching ToolResult's
+    default notes="".
+    """
+    if not errors:
+        return ""
+    groups: dict[str, list[str]] = {}
+    for key, note in errors.items():
+        groups.setdefault(note, []).append(key)
+    return " | ".join(f"{', '.join(keys)}: {note}" for note, keys in groups.items())
+
+
 def _build(material: str):
     """material name -> a freshly resolved inventory Structure (or None)."""
     from sigma_ground.inventory.builder import load_structure_spec, build_structure_from_spec
@@ -240,15 +283,16 @@ def playground_inspect(handle: str = "scene",
                        handle, units="kg, m",
                        notes=f"bulk object: {sc['object']}")
     st = sc["structure"]
+    errors: dict[str, str] = {}
     if scope == "matter":
         val = {"operable_fields": _snapshot(st),
                "applied_history": sc["history"]}
     elif scope == "constituents":
         from sigma_ground.inventory.behaviors import behaviors
         mol, part, quark = _find_constituents(st)
-        bm = _safe(behaviors, mol) if mol else None
-        bp = _safe(behaviors, part) if part else None
-        bq = _safe(behaviors, quark) if quark else None
+        bm, err_bm = _safe_call(behaviors, mol) if mol else (None, None)
+        bp, err_bp = _safe_call(behaviors, part) if part else (None, None)
+        bq, err_bq = _safe_call(behaviors, quark) if quark else (None, None)
         val = {
             "quark": ({k: bq.get(k) for k in ("flavor", "color", "spin_projection",
                                               "constituent_mass_mev")}
@@ -259,9 +303,13 @@ def playground_inspect(handle: str = "scene",
             "molecule": ({k: bm.get(k) for k in ("formula", "bond_summary")}
                          if isinstance(bm, dict) else None),
         }
+        errors = {k: e for k, e in (("molecule", err_bm), ("particle", err_bp),
+                                    ("quark", err_bq)) if e}
     else:
         val = {**_summary(st), "applied_history": sc["history"]}
-    return _result(val, handle, notes=f"scene {handle!r} ({sc['material']}), scope={scope}")
+    return _result(val, handle, notes=" | ".join(filter(None, [
+        f"scene {handle!r} ({sc['material']}), scope={scope}",
+        _notes_from_errors(errors)])))
 
 
 def playground_apply(handle: str = "scene",
@@ -292,7 +340,7 @@ def playground_apply(handle: str = "scene",
     from sigma_ground.inventory.behaviors import apply_env
     st = sc["structure"]
     before = _snapshot(st)
-    log = _safe(apply_env, st, environment, mode)
+    log, err = _safe_call(apply_env, st, environment, mode)
     after = _snapshot(st)
     diff = _diff(before, after)
     sc["history"].append({"environment": environment, "mode": mode,
@@ -301,9 +349,9 @@ def playground_apply(handle: str = "scene",
            "n_fields_changed": len(diff)}
     note = (f"applied {environment} ({mode}) to {handle!r}; {len(diff)} field(s) "
             f"changed and persist.")
-    if log is None:
-        note = "[apply_env raised] " + note
-    return _result(val, handle, notes=note,
+    errors = {"apply_env": err} if err else {}
+    return _result(val, handle,
+                   notes=" | ".join(filter(None, [note, _notes_from_errors(errors)])),
                    formula="apply_env cascade: thermal/pressure bond change, "
                            "ionization, spin flips")
 
@@ -397,11 +445,12 @@ def playground_render(handle: str = "scene", mode: str = "ascii",
             radius = 1.0  # illustrative unit sphere (e.g. single molecule)
         key = _material_key(st)
         label = sc.get("material", "object")
-    scene = _safe(RadianceScene.from_shape, Sphere(radius), key)
+    scene, err = _safe_call(RadianceScene.from_shape, Sphere(radius), key)
     if scene is None:
         return ToolResult(value=None, source="sigma_ground.radiance",
                           provenance_tag="SPECULATIVE-PENDING",
-                          notes=f"could not build a scene for {handle!r}",
+                          notes=" | ".join(filter(None, [
+                              f"could not build a scene for {handle!r}", err])),
                           inputs={"handle": handle}).to_dict()
     target = Vec3(0.0, 0.0, 0.0)
     eye = orbit_eye(target, 3.0 * radius, 35.0, 20.0)
@@ -410,11 +459,16 @@ def playground_render(handle: str = "scene", mode: str = "ascii",
             f"(r={radius:.3g} m); illustrative, not atomic geometry.")
     if mode == "png":
         cam = Camera(eye, target, width=4 * w, height=4 * h)
-        path = _safe(render_to_png, scene, cam, f".mentat_render_{handle}.png")
-        return _result(path, handle, units="png path", notes=note)
+        path, err = _safe_call(render_to_png, scene, cam, f".mentat_render_{handle}.png")
+        errors = {"png_path": err} if err else {}
+        return _result(path, handle, units="png path",
+                       notes=" | ".join(filter(None, [note, _notes_from_errors(errors)])))
     cam = Camera(eye, target, width=w, height=h)
-    art = _safe(render_ascii, scene, cam) or ""
-    return _result(art, handle, units="ascii", notes=note)
+    art, err = _safe_call(render_ascii, scene, cam)
+    art = art or ""
+    errors = {"ascii_art": err} if err else {}
+    return _result(art, handle, units="ascii",
+                   notes=" | ".join(filter(None, [note, _notes_from_errors(errors)])))
 
 
 def playground_reset(handle: str = "scene") -> dict[str, Any]:

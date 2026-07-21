@@ -18,11 +18,42 @@ from sigma_ground.mcp.provenance import ToolResult
 _SRC = "sigma_ground.field.interface (friction, wear, adhesion)"
 
 
-def _safe(fn, *a, **k):
+def _safe_call(fn, *a, **k):
+    """Call a leaf function, returning (value, error_note) instead of a bare
+    value-or-None. On success: (value, None). On failure: (None, note) where
+    `note` is the exception's type and message (e.g. "KeyError:
+    'unobtainium'") -- deliberately NOT fn-name-specific, so that two
+    different leaf calls failing on the SAME underlying bad input (e.g. the
+    same bad material_key) produce byte-identical notes and can be
+    deduplicated by _notes_from_errors() below.
+
+    Never raises -- one bad sub-call only ever poisons its own (key, value)
+    pair in the caller's results dict, so the caller always goes on to make
+    the rest of the cascade's calls."""
     try:
-        return fn(*a, **k)
-    except Exception:
-        return None
+        return fn(*a, **k), None
+    except Exception as e:
+        return None, f"{type(e).__name__}: {e}"
+
+
+def _notes_from_errors(errors: dict[str, str]) -> str:
+    """Fold a {result_key: error_note} map (only the FAILED keys) into one
+    ToolResult.notes string.
+
+    Groups result keys whose error_note is byte-identical -- the signature
+    of a shared root cause, e.g. N calls in one cascade that all take the
+    same bad material_key -- so the explanation is stated once per DISTINCT
+    cause (naming every result key it took down), not once per affected
+    key. Keys with distinct causes each keep their own clause. Returns ""
+    when `errors` is empty (the all-success case), matching ToolResult's
+    default notes="".
+    """
+    if not errors:
+        return ""
+    groups: dict[str, list[str]] = {}
+    for key, note in errors.items():
+        groups.setdefault(note, []).append(key)
+    return " | ".join(f"{', '.join(keys)}: {note}" for note, keys in groups.items())
 
 
 def friction_analysis(material_key_1: str = "copper",
@@ -33,17 +64,25 @@ def friction_analysis(material_key_1: str = "copper",
     force at a given normal load. e.g. friction_analysis('copper', 'steel_mild', 10)."""
     from sigma_ground.field.interface import friction as F
     # ploughing is harder-on-softer; try both orders and take the real (nonzero) one
-    plough = max(_safe(F.ploughing_friction, material_key_1, material_key_2) or 0.0,
-                 _safe(F.ploughing_friction, material_key_2, material_key_1) or 0.0)
-    results = {
-        "interfacial_shear_strength_Pa": _safe(F.interfacial_shear_strength, material_key_1, material_key_2),
-        "adhesive_friction_coefficient": _safe(F.friction_coefficient, material_key_1, material_key_2),
-        "ploughing_coefficient": plough,
-        "friction_force_N": _safe(F.friction_force, material_key_1, material_key_2, normal_force_n),
+    plough_ab, err_plough_ab = _safe_call(F.ploughing_friction, material_key_1, material_key_2)
+    plough_ba, err_plough_ba = _safe_call(F.ploughing_friction, material_key_2, material_key_1)
+    plough = max(plough_ab or 0.0, plough_ba or 0.0)
+    # both orders failing is the real "no ploughing result" case; one order
+    # failing and the other succeeding is exactly the fallback resilience
+    # this max() already provides, so it's not an error worth surfacing.
+    err_plough = err_plough_ab if (err_plough_ab and err_plough_ba) else None
+    _raw = {
+        "interfacial_shear_strength_Pa": _safe_call(F.interfacial_shear_strength, material_key_1, material_key_2),
+        "adhesive_friction_coefficient": _safe_call(F.friction_coefficient, material_key_1, material_key_2),
+        "ploughing_coefficient": (plough, err_plough),
+        "friction_force_N": _safe_call(F.friction_force, material_key_1, material_key_2, normal_force_n),
     }
+    results = {k: v for k, (v, e) in _raw.items()}
+    errors = {k: e for k, (v, e) in _raw.items() if e}
     return ToolResult(value=results, units="Pa, dimensionless, N", source=_SRC,
                       provenance_tag="DERIVED",
                       formula="mu_adh = tau_i / H_soft; F = (mu_adh + mu_plough) N (Bowden-Tabor)",
+                      notes=_notes_from_errors(errors),
                       inputs={"material_key_1": material_key_1,
                               "material_key_2": material_key_2,
                               "normal_force_n": normal_force_n}).to_dict()
@@ -58,15 +97,18 @@ def wear_analysis(material_key: str = "copper",
     distance, sliding wear rate, and the wear regime (mild/severe, adhesive/
     abrasive). e.g. wear_analysis('copper', 10, 100, 1.0, 'steel_mild')."""
     from sigma_ground.field.interface import wear as W
-    results = {
-        "archard_wear_volume_m3": _safe(W.archard_wear_volume, material_key, normal_force_n, sliding_distance_m),
-        "wear_mass_loss_kg": _safe(W.wear_mass_loss, material_key, normal_force_n, sliding_distance_m),
-        "sliding_wear_rate": _safe(W.sliding_wear_rate, material_key, normal_force_n, velocity_m_s),
-        "wear_regime": _safe(W.wear_regime, material_key, counter_material),
+    _raw = {
+        "archard_wear_volume_m3": _safe_call(W.archard_wear_volume, material_key, normal_force_n, sliding_distance_m),
+        "wear_mass_loss_kg": _safe_call(W.wear_mass_loss, material_key, normal_force_n, sliding_distance_m),
+        "sliding_wear_rate": _safe_call(W.sliding_wear_rate, material_key, normal_force_n, velocity_m_s),
+        "wear_regime": _safe_call(W.wear_regime, material_key, counter_material),
     }
+    results = {k: v for k, (v, e) in _raw.items()}
+    errors = {k: e for k, (v, e) in _raw.items() if e}
     return ToolResult(value=results, units="m^3, kg, varies, label", source=_SRC,
                       provenance_tag="DERIVED",
                       formula="V = K F d / H (Archard); m = rho V; regime from K, pressure",
+                      notes=_notes_from_errors(errors),
                       inputs={"material_key": material_key, "normal_force_n": normal_force_n,
                               "sliding_distance_m": sliding_distance_m,
                               "velocity_m_s": velocity_m_s,

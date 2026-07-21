@@ -185,6 +185,22 @@ EXCLUDE_SET = frozenset(
        _INV + "checksum.quark_chain.compute_quark_chain_checksum",
        _INV + "checksum.quark_chain.walk_quark_chain",
        _INV + "checksum.stoq_checksum.compute_stoq_checksum"]
+    # Qualitative corrosion-environment assessment: already wired and
+    # user-reachable via materia/scenarios.py's corrosion scenario chain
+    # (called when an `environment` string is supplied), just not via THIS
+    # sweep's mcp/tools/*.py auto-arg-inference path -- a tracer blind
+    # spot, not an actual gap.
+    + [_P + "corrosion.environment_assessment"]
+    # Materials Project API client: a LIVE external network call (DFT-
+    # computed elastic/dielectric properties, optional API key). Not
+    # exercised by this sweep on purpose -- wiring it in would make every
+    # pytest run make a real network request, and fail outright in any
+    # environment without MATERIALS_PROJECT_API_KEY set. Not yet exposed
+    # as an MCP Q&A tool either (verified live 2026-07-19, see the
+    # module's own docstring) -- a real, tracked gap, just not one this
+    # automated sweep can honestly close.
+    + [_P + "materials_project_client.elastic_properties",
+       _P + "materials_project_client.dielectric_properties"]
 )
 
 

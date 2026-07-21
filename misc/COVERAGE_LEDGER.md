@@ -203,6 +203,22 @@ honest denominator can subtract them while keeping them visible as TODO.
 
 ---
 
+### 2026-07-19 additions
+- `field.interface.corrosion.environment_assessment` — already wired and
+  user-reachable via `materia/scenarios.py`'s corrosion scenario chain
+  (invoked when a caller supplies an `environment` string); just not
+  reached by this sweep's mcp/tools/*.py auto-arg-inference path. A tracer
+  blind spot, not an actual capability gap.
+- `field.interface.materials_project_client.{elastic_properties,
+  dielectric_properties}` — a live external network call (Materials
+  Project REST API, optional `MATERIALS_PROJECT_API_KEY`). Verified
+  working live 2026-07-19 (real DFT elastic/dielectric data for Si/Cu/Fe/
+  Al) but deliberately excluded from this automated sweep: wiring it in
+  would make every `pytest` run issue a real network request and fail
+  outright wherever the key isn't set. Not yet exposed as an MCP Q&A tool
+  either — a real, tracked gap (would need its own careful wrapper +
+  offline-safe test design), not one this sweep can honestly close.
+
 ## Pending EXCLUDE candidates (to confirm against uncovered.txt in later batches)
 
 Categories flagged during Phase-0 triage, to be enumerated function-by-function

@@ -17,6 +17,48 @@ def _safe(fn, *a, **k):
         return None
 
 
+def _safe_call(fn, *a, **k):
+    """Call a leaf function, returning (value, error_note) instead of a bare
+    value-or-None. On success: (value, None). On failure: (None, note) where
+    `note` is the exception's type and message (e.g. "KeyError:
+    'unobtainium'") -- deliberately NOT fn-name-specific, so that two
+    different leaf calls failing on the SAME underlying bad input (e.g. the
+    same bad material_key) produce byte-identical notes and can be
+    deduplicated by _notes_from_errors() below.
+
+    Like _safe() above, this never raises -- one bad sub-call only ever
+    poisons its own (key, value) pair in the caller's results dict, so the
+    caller always goes on to make the rest of the cascade's calls. The
+    difference from _safe() is purely that the reason for a failure is
+    handed back instead of swallowed, so it can be threaded into
+    ToolResult(notes=...) rather than surfacing a bare `None` with nothing
+    explaining why."""
+    try:
+        return fn(*a, **k), None
+    except Exception as e:
+        return None, f"{type(e).__name__}: {e}"
+
+
+def _notes_from_errors(errors: dict[str, str]) -> str:
+    """Fold a {result_key: error_note} map (only the FAILED keys) into one
+    ToolResult.notes string.
+
+    Groups result keys whose error_note is byte-identical -- the signature
+    of a shared root cause, e.g. N calls in one cascade that all take the
+    same bad material_key -- so the explanation is stated once per DISTINCT
+    cause (naming every result key it took down), not once per affected
+    key. Keys with distinct causes each keep their own clause. Returns ""
+    when `errors` is empty (the all-success case), matching ToolResult's
+    default notes="".
+    """
+    if not errors:
+        return ""
+    groups: dict[str, list[str]] = {}
+    for key, note in errors.items():
+        groups.setdefault(note, []).append(key)
+    return " | ".join(f"{', '.join(keys)}: {note}" for note, keys in groups.items())
+
+
 # fuel -> (bonds_broken, bonds_formed, n_O2) for complete combustion.
 # bonds_broken excludes O=O (n_O2 accounts for that separately, per
 # combustion_enthalpy_kJ_mol's signature).
@@ -38,12 +80,14 @@ def dislocation_strengthening_analysis(material_key: str = "copper",
     dislocations, tau = alpha G b sqrt(rho). e.g.
     dislocation_strengthening_analysis('copper', 1e14)."""
     from sigma_ground.field.interface import grain_structure as GS
-    tau = _safe(GS.taylor_hardening_stress, material_key, dislocation_density)
+    tau, err = _safe_call(GS.taylor_hardening_stress, material_key, dislocation_density)
     results = {"taylor_flow_stress_Pa": tau}
+    errors = {"taylor_flow_stress_Pa": err} if err else {}
     return ToolResult(value=results, units="Pa",
                       source="sigma_ground.field.interface.grain_structure",
                       provenance_tag="DERIVED",
                       formula="tau = alpha G b sqrt(rho_dislocation) (Taylor)",
+                      notes=_notes_from_errors(errors),
                       inputs={"material_key": material_key,
                               "dislocation_density": dislocation_density}).to_dict()
 
@@ -55,13 +99,15 @@ def alloy_resistivity_analysis(metal_a: str = "copper", metal_b: str = "nickel",
     'copper', 'nickel', 0.3) -> Cu-30%Ni."""
     from sigma_ground.field.interface import alloys as AL
     comp = {metal_a: 1.0 - fraction_b, metal_b: fraction_b}
-    r = _safe(AL.alloy_Nordheim_resistivity, comp)
+    r, err = _safe_call(AL.alloy_Nordheim_resistivity, comp)
     rho = r.get("rho_residual_uOhm_cm") if isinstance(r, dict) else None
     results = {"residual_resistivity_uOhm_cm": rho}
+    errors = {"residual_resistivity_uOhm_cm": err} if err else {}
     return ToolResult(value=results, units="uOhm.cm",
                       source="sigma_ground.field.interface.alloys",
                       provenance_tag="DERIVED",
                       formula="delta-rho = A_Nordheim x(1-x)",
+                      notes=_notes_from_errors(errors),
                       inputs={"metal_a": metal_a, "metal_b": metal_b,
                               "fraction_b": fraction_b}).to_dict()
 
@@ -76,12 +122,14 @@ def molecular_dipole_analysis(bond_dipoles_debye: list[float] | None = None,
         bond_dipoles_debye = [1.5, 1.5]
     if bond_angles_deg is None:
         bond_angles_deg = [52.25, -52.25]
-    mu = _safe(MB.molecular_dipole_moment, bond_dipoles_debye, bond_angles_deg)
+    mu, err = _safe_call(MB.molecular_dipole_moment, bond_dipoles_debye, bond_angles_deg)
     results = {"dipole_moment_debye": mu}
+    errors = {"dipole_moment_debye": err} if err else {}
     return ToolResult(value=results, units="D (debye)",
                       source="sigma_ground.field.interface.molecular_bonds",
                       provenance_tag="DERIVED",
                       formula="mu = |sum of bond-dipole vectors|",
+                      notes=_notes_from_errors(errors),
                       inputs={"bond_dipoles_debye": bond_dipoles_debye,
                               "bond_angles_deg": bond_angles_deg}).to_dict()
 

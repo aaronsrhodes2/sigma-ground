@@ -16,11 +16,45 @@ from sigma_ground.mcp.provenance import ToolResult
 _SRC = "sigma_ground.field.interface.fluid_surface"
 
 
-def _safe(fn, *a, **k):
+def _safe_call(fn, *a, **k):
+    """Call a leaf function, returning (value, error_note) instead of a bare
+    value-or-None. On success: (value, None). On failure: (None, note) where
+    `note` is the exception's type and message (e.g. "KeyError:
+    'unobtainium'") -- deliberately NOT fn-name-specific, so that two
+    different leaf calls failing on the SAME underlying bad input (e.g. the
+    same bad material_key) produce byte-identical notes and can be
+    deduplicated by _notes_from_errors() below.
+
+    Never raises -- one bad sub-call only ever poisons its own (key, value)
+    pair in the caller's results dict, so the caller always goes on to make
+    the rest of the cascade's calls. The difference from a bare try/except
+    swallow is purely that the reason for a failure is handed back instead
+    of swallowed, so it can be threaded into ToolResult(notes=...) rather
+    than surfacing a bare `None` with nothing explaining why."""
     try:
-        return fn(*a, **k)
-    except Exception:
-        return None
+        return fn(*a, **k), None
+    except Exception as e:
+        return None, f"{type(e).__name__}: {e}"
+
+
+def _notes_from_errors(errors: dict[str, str]) -> str:
+    """Fold a {result_key: error_note} map (only the FAILED keys) into one
+    ToolResult.notes string.
+
+    Groups result keys whose error_note is byte-identical -- the signature
+    of a shared root cause, e.g. two calls in one cascade that both take the
+    same bad input -- so the explanation is stated once per DISTINCT cause
+    (naming every result key it took down), not once per affected key. Keys
+    with distinct causes each keep their own clause. Returns "" when
+    `errors` is empty (the all-success case), matching ToolResult's default
+    notes="".
+    """
+    if not errors:
+        return ""
+    groups: dict[str, list[str]] = {}
+    for key, note in errors.items():
+        groups.setdefault(note, []).append(key)
+    return " | ".join(f"{', '.join(keys)}: {note}" for note, keys in groups.items())
 
 
 def _water_seeds(temperature_k: float):
@@ -41,8 +75,12 @@ def buoyancy_analysis(material_key: str = "copper", temperature_k: float = 293.1
     body = (S.MATERIALS.get(material_key) or {}).get("density_kg_m3")
     if fluid_density_kg_m3 is None:
         _, fluid_density_kg_m3 = _water_seeds(temperature_k)
-    frac = _safe(FS.submerged_fraction, body, fluid_density_kg_m3) if body else None
-    fl = _safe(FS.floats, body, fluid_density_kg_m3) if body else None
+    _raw = {
+        "submerged_fraction": _safe_call(FS.submerged_fraction, body, fluid_density_kg_m3) if body else (None, None),
+        "floats": _safe_call(FS.floats, body, fluid_density_kg_m3) if body else (None, None),
+    }
+    errors = {k: e for k, (v, e) in _raw.items() if e}
+    frac, fl = _raw["submerged_fraction"][0], _raw["floats"][0]
     results = {
         "body_density_kg_m3": body,
         "fluid_density_kg_m3": fluid_density_kg_m3,
@@ -60,7 +98,7 @@ def buoyancy_analysis(material_key: str = "copper", temperature_k: float = 293.1
     return ToolResult(value=results, units="kg/m^3, dimensionless", source=_SRC,
                       provenance_tag="DERIVED",
                       formula="f_submerged = rho_body / rho_fluid (Archimedes)",
-                      notes=note,
+                      notes=" | ".join(filter(None, [note, _notes_from_errors(errors)])),
                       inputs={"material_key": material_key,
                               "temperature_k": temperature_k}).to_dict()
 
@@ -77,17 +115,27 @@ def wind_wave_analysis(wind_speed_m_s: float = 5.0, temperature_k: float = 293.1
     e.g. wind_wave_analysis(5.0)."""
     from sigma_ground.field.interface import fluid_surface as FS
     sigma, rho = _water_seeds(temperature_k)
-    tau = _safe(FS.wind_shear_stress, wind_speed_m_s)
-    ustar = _safe(FS.friction_velocity, tau, rho) if tau is not None else None
-    cl = _safe(FS.capillary_gravity_min_phase_speed, sigma, rho)
+    tau, err_tau = _safe_call(FS.wind_shear_stress, wind_speed_m_s)
+    ustar, err_ustar = _safe_call(FS.friction_velocity, tau, rho) if tau is not None else (None, None)
+    cl, err_cl = _safe_call(FS.capillary_gravity_min_phase_speed, sigma, rho)
     c_min, lam_min = cl if cl else (None, None)
     # A wind first excites waves near lambda_min (the easiest scale to raise).
     lam = wavelength_m if wavelength_m else lam_min
-    c = _safe(FS.capillary_gravity_phase_speed, lam, sigma, rho) if lam else None
-    omega = _safe(FS.capillary_gravity_angular_frequency, lam, sigma, rho) if lam else None
-    cg = _safe(FS.capillary_gravity_group_speed, lam, sigma, rho) if lam else None
+    c, err_c = _safe_call(FS.capillary_gravity_phase_speed, lam, sigma, rho) if lam else (None, None)
+    omega, err_omega = _safe_call(FS.capillary_gravity_angular_frequency, lam, sigma, rho) if lam else (None, None)
+    cg, err_cg = _safe_call(FS.capillary_gravity_group_speed, lam, sigma, rho) if lam else (None, None)
     amp = (0.1 * lam / (2.0 * math.pi)) if lam else None   # gentle-ripple estimate
     raises = bool(c_min is not None and wind_speed_m_s > c_min)
+    _raw = {
+        "wind_shear_stress_Pa": (tau, err_tau),
+        "friction_velocity_m_s": (ustar, err_ustar),
+        "min_phase_speed_m_s": (c_min, err_cl),
+        "min_wavelength_m": (lam_min, err_cl),
+        "ripple_phase_speed_m_s": (c, err_c),
+        "ripple_angular_freq_rad_s": (omega, err_omega),
+        "ripple_group_speed_m_s": (cg, err_cg),
+    }
+    errors = {k: e for k, (v, e) in _raw.items() if e}
     results = {
         "wind_shear_stress_Pa": tau,
         "friction_velocity_m_s": ustar,
@@ -112,7 +160,7 @@ def wind_wave_analysis(wind_speed_m_s: float = 5.0, temperature_k: float = 293.1
                       provenance_tag="DERIVED",
                       formula="tau=C_d rho_air U^2; c=sqrt(g/k + sigma k/rho); "
                               "c_min=sqrt(2)(g sigma/rho)^(1/4)",
-                      notes=note,
+                      notes=" | ".join(filter(None, [note, _notes_from_errors(errors)])),
                       inputs={"wind_speed_m_s": wind_speed_m_s,
                               "temperature_k": temperature_k,
                               "wavelength_m": wavelength_m}).to_dict()
