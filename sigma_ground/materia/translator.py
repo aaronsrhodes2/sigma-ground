@@ -18,6 +18,7 @@ the finite, validated verbs do the physics.
 from __future__ import annotations
 
 import json
+import os
 import re
 import urllib.request
 
@@ -26,7 +27,14 @@ from .manifest import (VERB_MANIFEST, manifest_for_prompt,
 from .spec import SimulationSpec, SpecStep, run_spec
 
 OLLAMA_URL = "http://localhost:11434"
-OLLAMA_MODEL = "qwen2.5:7b"
+# qwen3:8b promoted 2026-07-19: post-extraction-bug-fix, 134/150 (89.3%) vs
+# qwen2.5:7b's 136/150 (90.7%) on the sigma-ground MCP benchmark -- within 2
+# questions, both remaining gaps confirmed genuine (not qwen3-specific), plus
+# qwen3's explicit thinking-mode toggle (unavailable on qwen2.5) gives
+# headroom for harder questions later. MATERIA_OLLAMA_MODEL overrides
+# per-environment (own name, not the shared dev-root OLLAMA_MODEL var, so
+# this doesn't affect other Skippy-ecosystem projects that read that var).
+OLLAMA_MODEL = os.environ.get("MATERIA_OLLAMA_MODEL", "qwen3:8b")
 
 # Intent trigger words now live in the manifest (SPEED_TRIGGERS / HEAT_TRIGGERS)
 # so routing is manifest-driven — a new verb is routable purely by its entry.
@@ -751,7 +759,7 @@ def _qwen_translate(question: str) -> SimulationSpec | None:
                 any(k in low for k in _OUT_OF_SCOPE) or not _is_drop(low)):
             return None
         return SimulationSpec(question, [SpecStep(verb, params)], source="qwen",
-                              note="routed by qwen2.5:7b")
+                              note=f"routed by {OLLAMA_MODEL}")
     except Exception:
         return None
 
@@ -862,7 +870,7 @@ def _qwen_plan(question: str) -> SimulationSpec | None:
             return None
         n = len(steps)
         return SimulationSpec(question, steps, source="qwen",
-                              note=f"planned by qwen2.5:7b ({n} step{'s' * (n != 1)})")
+                              note=f"planned by {OLLAMA_MODEL} ({n} step{'s' * (n != 1)})")
     except Exception:
         return None
 

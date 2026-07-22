@@ -24,7 +24,9 @@ from .schema import ConstructSpec, Fact, SpecLayer, Part
 from . import sources as _sources
 
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
-OLLAMA_MODEL = os.environ.get("DECKARD_OLLAMA_MODEL", "qwen2.5:7b")
+# qwen3:8b promoted 2026-07-19 -- see materia/translator.py's OLLAMA_MODEL
+# comment for the benchmark evidence.
+OLLAMA_MODEL = os.environ.get("DECKARD_OLLAMA_MODEL", "qwen3:8b")
 
 _SYS = (
     "You are Deckard, a shape researcher for a physics compiler. Given an "
