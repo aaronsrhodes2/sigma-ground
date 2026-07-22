@@ -102,6 +102,11 @@ class Part:
     objects, as opposed to the layered-vessel representation. ``dims`` are the
     shape's parameters as Facts (e.g. sphere ``{radius_m}``; cylinder
     ``{radius_m, height_m}``; box ``{x_m, y_m, z_m}``).
+
+    Every Part still carries exactly ONE material/color — that invariant is
+    never broken. ``scatter`` does not add a second material to a Part; it
+    tells the compiler to multiply this ONE Part's shape/size into many
+    single-material siblings (see the convention doc below).
     """
     name: str
     shape: str                          # sphere | cylinder | cone | box | torus | ellipsoid
@@ -115,6 +120,50 @@ class Part:
     fill: dict | None = None            # fluid fill: {"of": <cavity>, "fraction": 0..1, "gas": <material>}
     conform: str | None = None          # name of the solid this part yields to (carved to mate)
     outline: dict | None = None         # swept profile: {"profile":[[u,v],...],"mode":"extrude|revolve","thickness":t}
+    scatter: dict | None = None         # multiply this part across a host's surface — see below
+
+    # ── the SCATTER convention ────────────────────────────────────────────
+    # Rationale: a Part is (and stays) exactly one shape + one material. Some
+    # real objects (sprinkles on a doughnut, rivets on a hull, gravel on a
+    # path) are dozens-to-hundreds of small pieces that are the SAME rough
+    # size/shape but DIFFERENT materials, resting on another part's surface.
+    # Modelling each one as a hand-positioned Part would be unreadable and
+    # non-reusable. Instead: THIS Part is a TEMPLATE — its own shape/dims are
+    # "one representative instance" — and ``scatter`` is instructions for
+    # multiplying that template across a host part's surface at seeded
+    # (reproducible) random positions, one material drawn per instance from a
+    # palette. The template Part itself never becomes geometry; only its
+    # expanded instances do (construct.py: ``_expand_scatter``).
+    #
+    #   scatter = {
+    #       "on":            <host part name>,        # required
+    #       "count":         <int N>,                  # required
+    #       "materials":     [<name>, ...],             # palette; default [self.material]
+    #       "seed":          <int>,                     # RNG seed, default 0 (deterministic)
+    #       "region":        "top" | "all",              # default "top" (gravity-dusted look)
+    #       "region_up":     [x, y, z],                  # "up" for region="top", default +z
+    #       "embed_frac":    0.0..1.0,                   # how deep into the host surface the
+    #                                                     # instance's centre sits; 0 = resting
+    #                                                     # entirely outside (tangent), 1 =
+    #                                                     # centred ON the surface. Default 0.35.
+    #       "size_jitter":   0.0..1.0,                   # +/- fractional per-instance size
+    #                                                     # variation about the template dims;
+    #                                                     # default 0.0 (uniform size).
+    #   }
+    #
+    # Same generality as ``conform``/``attach``: any Part on any host shape,
+    # since it only ever calls the host's ``surface_distance``/kernel Shape
+    # interface that every primitive already implements — no per-shape-family
+    # special-casing (a scatter over a torus, a box, a sphere all "just work").
+    #
+    # Density note: every expanded instance uses the TEMPLATE Part's OWN
+    # ``density`` Fact, regardless of which ``materials`` label it draws — the
+    # palette is for identity/cosmetic (colour) variation of one physically-
+    # similar substance (e.g. sugar candy dyed different colours), not a
+    # per-label density re-lookup. If two scattered pieces are meant to be
+    # PHYSICALLY different materials (different density), give them separate
+    # scatter groups (two Parts, each with its own ``scatter``), not one
+    # palette — this keeps "one Fact = one physical claim" honest.
 
     def to_dict(self) -> dict:
         d = {
@@ -139,6 +188,8 @@ class Part:
                 "mode": self.outline.get("mode", "extrude"),
                 "thickness": self.outline.get("thickness"),
             }
+        if self.scatter:
+            d["scatter"] = dict(self.scatter)
         return d
 
     @classmethod
@@ -156,6 +207,7 @@ class Part:
             fill=d.get("fill"),
             conform=d.get("conform"),
             outline=d.get("outline"),
+            scatter=d.get("scatter"),
         )
 
 
@@ -274,6 +326,11 @@ def emit_markdown(spec: ConstructSpec) -> str:
                            f"{p.fill.get('fraction', 1.0)} (gas on top: {p.fill.get('gas', 'air')})")
             if p.conform:
                 out.append(f"    - conforms to: {p.conform} (yields the overlap; carved to mate)")
+            if p.scatter:
+                sc = p.scatter
+                out.append(f"    - scattered: {sc.get('count', '?')}x on {sc.get('on', '?')} "
+                           f"(materials: {', '.join(sc.get('materials') or [p.material])}; "
+                           f"seed={sc.get('seed', 0)}; region={sc.get('region', 'top')})")
         out.append("")
 
     if spec.notes:

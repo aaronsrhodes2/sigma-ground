@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from dataclasses import dataclass
 
 
@@ -58,6 +59,84 @@ _UNMODELED_INTENTS = ("shatter", "fracture", "smash", "crack", "explode",
                       "bounce", "splash", "spill", "melt", "burn")
 _RENDER_REF_WORDS = (" that", " it", " this", " last", " previous", " again",
                      "that sim", "the sim", "the fall", "the drop", "the run")
+
+# Cue phrases for an OBJECT/SCENE build request — "show me a coffee cup",
+# "build a rocking chair", "I want a simulation of a doughnut, with frosting
+# and rainbow sprinkles" — routed to the Deckard SHAPE seam
+# (radiance.ask_deckard.request_shape_scene), never Materia's physics verbs.
+# Same convention as _RENDER_CUES/_SIM_CUES just above: a plain lowercase
+# substring, checked with _has(). Checked only in dispatch() step 2b, AFTER
+# Materia's own verb router has had first refusal on the sentence — so an
+# existing physics phrasing that already compiles (a fall, a bell strike, a
+# pliers actuation…) is never pre-empted; see the note at that call site.
+_SCENE_CUES = (
+    "i want a simulation of", "i want a model of", "i want a scene of",
+    "i want a render of", "simulation of",
+    "show me", "build me", "build a", "build an",
+    "render me", "render a", "render an",
+    "make me", "generate a", "generate an", "generate me",
+    "create a", "create an", "create me",
+    "what does", "what would",
+    "visualize a", "visualize an", "visualise a", "visualise an",
+)
+# The object NAME ends at the first clause boundary — ", with" / ", which" /
+# ". I want" / or the sentence just ends. Deliberately simple (no parser): cut
+# the name off at the first of these, then drop a trailing "look(s) like"
+# ("what does X look like") and a leading article.
+_SCENE_BOUNDARY = re.compile(
+    r",\s*(?:with|which|that|sitting|resting|standing|placed|showing)\b"
+    r"|\.\s*(?:i\ want|it\ should|please)\b"
+    r"|[.!?]",
+    re.IGNORECASE)
+_SCENE_TRAILING_FILLER = re.compile(r"\s*(?:looks?\s+like)\s*$", re.IGNORECASE)
+_SCENE_LEADING_ARTICLE = re.compile(r"^(?:a|an|the)\s+", re.IGNORECASE)
+
+# A multi-OBJECT stack: "X sitting on Y, which is on top of Z" — each clause
+# names one SUPPORT object underneath the one before it. First clause is
+# introduced by a stacking verb ("sitting/resting/standing/placed on");
+# every subsequent clause is chained by ", which/that is (flat) on (top of) …".
+# Deliberately simple (no parser), same discipline as _SCENE_BOUNDARY —
+# only recognizes THIS specific "A sitting on B, which is on C" shape, not
+# arbitrary prepositional nesting.
+_STACK_FIRST_RE = re.compile(
+    r"\b(?:sitting|resting|standing|placed|sits|rests|stands)\s+on\s+"
+    r"(?:top\s+of\s+)?(?:a|an|the)?\s*([^,.!?]+)", re.IGNORECASE)
+_STACK_CHAIN_RE = re.compile(
+    r",\s*(?:which|that)\s+is\s+(?:flat\s+)?(?:on\s+top\s+of|on)\s+"
+    r"(?:a|an|the)?\s*([^,.!?]+)", re.IGNORECASE)
+
+
+def _extract_scene_stack(text: str) -> list[str] | None:
+    """A bottom-to-top list of object names for a multi-object stack request
+    ("a doughnut … sitting on a plate, which is flat on top of a 1700s
+    table"), or None if the text doesn't match this specific shape.
+
+    The TOP of the stack is extracted from the text BEFORE the stacking verb
+    (not the whole sentence) — _extract_scene_name's own boundary only cuts
+    at a COMMA-prefixed "sitting"/"resting"/etc. ("...Doughnut, with icing...
+    sitting on..." — the Captain's actual phrasing), so a comma-less variant
+    ("a mug sitting on a table") would otherwise swallow the stacking verb
+    into the base name. Slicing at the verb's start sidesteps that instead
+    of tightening the comma rule (which stays correct for its own job:
+    cutting at ", with"/", which"/etc. in front-loaded decoration clauses).
+    Each _STACK_*_RE match names one SUPPORT underneath the top, in sentence
+    order (nearest support first) — reversed here so the return value is
+    bottom-to-top, matching deckard.scene.compose_scene's contract."""
+    m = _STACK_FIRST_RE.search(text)
+    if m is None:
+        return None
+    top = _extract_scene_name(text[:m.start()])
+    if top is None:
+        return None
+    supports = [m.group(1).strip(" .,!?")]
+    rest = text[m.end():]
+    while True:
+        m2 = _STACK_CHAIN_RE.search(rest)
+        if m2 is None:
+            break
+        supports.append(m2.group(1).strip(" .,!?"))
+        rest = rest[m2.end():]
+    return list(reversed(supports)) + [top]
 
 _DATA_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "radiance", "web", "data"))
@@ -107,6 +186,90 @@ def _is_render_reference(text: str) -> bool:
     return (any(w in low for w in _RENDER_REF_WORDS)
             or low.rstrip("!. ") in ("render", "replay", "play", "show me",
                                      "render please", "render the simulation"))
+
+
+def _extract_scene_name(text: str) -> str | None:
+    """The object NAME in a scene-build request: everything after the matched
+    _SCENE_CUES trigger phrase, cut at the first clause boundary (", with" /
+    ", which" / ". I want" / a sentence end) and any trailing "look(s) like".
+    Simple and testable on purpose — not a full NLP parser. Returns None when
+    no cue matched (the caller then falls through to the Q&A switchboard, same
+    as before this route existed)."""
+    low = text.lower()
+    best_idx, best_len = None, 0
+    for cue in _SCENE_CUES:
+        idx = low.find(cue)
+        if idx != -1 and (best_idx is None or idx < best_idx
+                          or (idx == best_idx and len(cue) > best_len)):
+            best_idx, best_len = idx, len(cue)
+    if best_idx is None:
+        return None
+    tail = text[best_idx + best_len:]
+    m = _SCENE_BOUNDARY.search(tail)
+    piece = tail[:m.start()] if m else tail
+    piece = _SCENE_TRAILING_FILLER.sub("", piece)
+    piece = piece.strip(" .,!?")
+    piece = _SCENE_LEADING_ARTICLE.sub("", piece).strip()
+    return piece or None
+
+
+def _render_scene(name: str, *, use_llm: bool) -> dict:
+    """Ask Deckard to compile ``name`` into grounded matter and stage a
+    watchable render of it — the Radiance⇄Deckard shape seam
+    (ask_deckard.request_shape_scene), invoked directly. Unlike a Materia
+    simulation this never runs physics: a "build/show me X" request wants to
+    SEE the object, not watch it fall, so it renders in one shot (no "reply
+    yes" round-trip). Infallibility: a name Deckard can't ground is an honest
+    refusal, never a fabricated silhouette (ask_deckard's own contract)."""
+    from sigma_ground.radiance.ask_deckard import request_shape_scene
+    from sigma_ground.radiance.theaters import stage
+    scene = request_shape_scene(name, allow_llm=use_llm)
+    if scene is None:
+        text = (f"I couldn't ground the shape of {name!r} — Deckard can only "
+                f"build objects it can research and cite. Try a more common "
+                f"name, or describe it differently.")
+        return _envelope("simulate", text=text, can_render=False, source="deckard")
+    staged = stage(scene, "room")
+    return _announce_scene_render(name, staged)
+
+
+def _render_scene_stack(items: list[str], *, use_llm: bool) -> dict:
+    """Ask Deckard to compile and stack MULTIPLE independently-researched
+    objects into one scene (deckard.scene.compose_scene) — the multi-object
+    counterpart of _render_scene. ``items`` is bottom-to-top (base first).
+    Same infallibility contract: any object in the chain that doesn't
+    ground refuses the WHOLE stack rather than silently dropping it."""
+    from sigma_ground.deckard.scene import compose_scene
+    from sigma_ground.radiance.theaters import stage
+    scene = compose_scene(items, allow_llm=use_llm)
+    if scene is None:
+        chain = " -> ".join(items)
+        text = (f"I couldn't ground the full stack ({chain}) — at least one "
+                f"of these objects didn't research/compile cleanly. Deckard "
+                f"refuses the whole scene rather than silently dropping the "
+                f"piece it couldn't ground.")
+        return _envelope("simulate", text=text, can_render=False, source="deckard")
+    staged = stage(scene, "room")
+    title = " on ".join(reversed(items))
+    return _announce_scene_render(title, staged)
+
+
+def _announce_scene_render(name: str, scene: dict) -> dict:
+    """Save a staged SceneSpec (a bare scene dict, no trajectory — the same
+    on-disk shape as the curated obj_*/theater_*.json gallery entries) to the
+    viewer's data dir; return the render envelope."""
+    from sigma_ground.deckard import catalog
+    slug = "scene_" + catalog.slugify(name)
+    path = _save_bundle(slug, scene)
+    url = f"{_VIEWER}/?scene={slug}"
+    n_parts = len(scene.get("csg_leaves", []))
+    text = (f"Built the scene for “{name}” — {n_parts} part"
+            f"{'s' if n_parts != 1 else ''}, staged and lit; saved for "
+            f"viewing. Serve with `python -m sigma_ground.radiance.web.serve`, "
+            f"then open {url}.")
+    return _envelope("render", text=text, can_render=False,
+                     saved={"slug": slug, "path": path, "url": url, "title": name},
+                     source="radiance")
 
 
 def dispatch(text: str, *, use_llm: bool = True,
@@ -234,6 +397,28 @@ def dispatch(text: str, *, use_llm: bool = True,
         env = _envelope("simulate", text=msg, can_render=False, source=spec.source)
         session.last_intent = env["intent"]
         return env
+
+    # 2b. Not a physics simulation — is it an OBJECT/SCENE build request?
+    #     ("show me a coffee cup", "build a rocking chair", "I want a
+    #     simulation of a doughnut, with frosting and rainbow sprinkles…").
+    #     Checked ONLY here — after Materia's own verb router (steps 1-2 above)
+    #     has had first refusal on the sentence, and only in auto mode (an
+    #     explicit mode="simulate"/"render" already refused honestly just
+    #     above and keeps that contract unchanged) — so an existing physics
+    #     phrasing that already compiles (a fall, a bell strike, a pliers
+    #     actuation…) is NEVER pre-empted by this route; it only catches the
+    #     residual Materia declines.
+    if mode is None:
+        stack = _extract_scene_stack(text)
+        if stack:
+            env = _render_scene_stack(stack, use_llm=use_llm)
+            session.last_intent = env["intent"]
+            return env
+        name = _extract_scene_name(text)
+        if name:
+            env = _render_scene(name, use_llm=use_llm)
+            session.last_intent = env["intent"]
+            return env
 
     # 3. Auto mode, not a sim → the Q&A switchboard.
     env = _ask(text, session=session)

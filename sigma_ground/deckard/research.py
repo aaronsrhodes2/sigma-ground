@@ -680,6 +680,102 @@ def _tree_spec(name: str, dbh_cm: float | None = None) -> ConstructSpec | None:
     )
 
 
+# ── decorated doughnut archetype ────────────────────────────────────────────
+# The LLM researcher (researcher.py) has no vocabulary for the SCATTER
+# convention (schema.Part.scatter / construct._expand_scatter, added this
+# session) -- it can only emit sphere/cylinder/box/cone/torus/ellipsoid/
+# outline parts, so even a fresh "doughnut with sprinkles" research call
+# would come back a plain torus. This is a hand-curated archetype (same
+# tier as _tree_archetype/_furniture_archetype: a documented, deterministic
+# recipe, not an LLM guess) so "doughnut" reliably gets its decoration.
+# v2 roadmap: teach researcher.py's system prompt the scatter/conform-shell
+# grammar generally, so ANY object with a coating + scattered decoration
+# (not just doughnuts) can be LLM-composed -- not built this session.
+_DOUGHNUT_TRIGGER_WORDS = {"doughnut", "donut"}
+
+_SPRINKLE_SIZE_NOTE = (
+    "estimated -- no citable confectionery-sprinkle dimension exists in "
+    "sources/ this session; ~3mm length x ~1mm diameter is a commonly-cited "
+    "'jimmies' size (candy-supplier descriptions), NOT independently "
+    "verified against a primary source here -- treat as an approximation."
+)
+_ICING_DENSITY_NOTE = (
+    "approximated as cited crystalline sucrose density (inventory/data/"
+    "materials.json 'Sucrose', 1550 kg/m3) -- icing/glaze is mostly sucrose "
+    "in a thin water paste; real icing bulk density is somewhat lower "
+    "(entrained water/air), not independently measured this session."
+)
+_RAINBOW_SPRINKLE_MATERIALS = ["sprinkle_red", "sprinkle_orange", "sprinkle_yellow",
+                              "sprinkle_green", "sprinkle_blue", "sprinkle_violet"]
+
+
+def _doughnut_archetype(name: str) -> bool:
+    qw = {w for w in __import__("re").split(r"[^a-z0-9]+", name.lower()) if w}
+    return bool(qw & _DOUGHNUT_TRIGGER_WORDS)
+
+
+def _decorated_doughnut_spec(name: str, *, sprinkles: bool = True,
+                             sprinkle_count: int = 24) -> ConstructSpec | None:
+    """A torus dough body + a conforming frosting shell + a scatter of
+    rainbow sprinkles. Dimensions are ESTIMATED (no cited doughnut-geometry
+    source) -- flagged throughout, not claimed as measured. Simplification,
+    flagged: the frosting coats the WHOLE torus (not just the top, as a real
+    dipped doughnut would) -- a directional partial coat needs a
+    _Clipped-style half-space cut, a v2 extension not built this session."""
+    from . import sources
+    from .schema import Part, ESTIMATED
+
+    if not _doughnut_archetype(name):
+        return None
+
+    major_r, minor_r = 0.03763, 0.007526   # ESTIMATED typical doughnut proportions
+    dough = Part(
+        "dough", "torus",
+        {"major_radius_m": Fact(major_r, ESTIMATED, "", 0.55),
+         "minor_radius_m": Fact(minor_r, ESTIMATED, "", 0.55)},
+        "leavened dough", Fact(1000.0, ESTIMATED, "", 0.2),
+    )
+    parts = [dough]
+    sources_list = [
+        {"name": _SPRINKLE_SIZE_NOTE, "license": ""},
+        {"name": _ICING_DENSITY_NOTE, "license": ""},
+    ]
+
+    coat_m = 0.0015   # 1.5mm icing coat -- ESTIMATE, no cited source
+    icing_dens = sources.density_of("sucrose") or Fact(1550.0, ESTIMATED, _ICING_DENSITY_NOTE, 0.3)
+    frosting = Part(
+        "frosting", "torus",
+        {"major_radius_m": Fact(major_r, ESTIMATED, "", 0.55),
+         "minor_radius_m": Fact(minor_r + coat_m, ESTIMATED, "1.5mm coat, ESTIMATE", 0.3)},
+        "icing", icing_dens, conform="dough",
+    )
+    parts.append(frosting)
+
+    if sprinkles:
+        sprinkle = Part(
+            "sprinkle", "ellipsoid",
+            {"rx_m": Fact(0.0005, ESTIMATED, _SPRINKLE_SIZE_NOTE, 0.2),
+             "ry_m": Fact(0.0005, ESTIMATED, _SPRINKLE_SIZE_NOTE, 0.2),
+             "rz_m": Fact(0.0015, ESTIMATED, _SPRINKLE_SIZE_NOTE, 0.2)},
+            _RAINBOW_SPRINKLE_MATERIALS[0], sources.density_of("sucrose"),
+            scatter=dict(on="frosting", count=sprinkle_count,
+                        materials=_RAINBOW_SPRINKLE_MATERIALS,
+                        seed=7, region="top", embed_frac=0.4, size_jitter=0.15),
+        )
+        parts.append(sprinkle)
+
+    return ConstructSpec(
+        name=name, kind="composite", identified=True, parts=parts,
+        sources=sources_list,
+        notes=("Frosting is a full uniform coat (all the way around the "
+              "torus, not just the top) -- a documented simplification. "
+              "Sprinkles are a SCATTER of one template ellipsoid across "
+              "the frosting's top-facing region, materials cycling a "
+              "6-colour rainbow palette. See schema.Part.scatter's "
+              "convention doc for the placement mechanism."),
+    )
+
+
 def research(name: str, *, allow_llm: bool = True,
              material_hint: str | None = None, exclude=None,
              dbh_cm: float | None = None) -> ConstructSpec:
@@ -701,7 +797,8 @@ def research(name: str, *, allow_llm: bool = True,
 
     structured = (_exemplar_spec(name, material_hint=material_hint, exclude=exclude)
                   or _furniture_spec(name)          # real layout, then archetypes
-                  or _tree_spec(name, dbh_cm=dbh_cm))
+                  or _tree_spec(name, dbh_cm=dbh_cm)
+                  or _decorated_doughnut_spec(name))
     if structured is not None:
         return structured
 

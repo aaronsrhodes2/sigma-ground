@@ -1,0 +1,1343 @@
+{
+ "name": "Doughnut on table",
+ "csg_leaves": [
+  {
+   "op": "add",
+   "material": "table0__board_0",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.0,
+     0.0,
+     1.0441
+    ],
+    "x": 0.8247,
+    "y": 0.652,
+    "z": 0.04381
+   }
+  },
+  {
+   "op": "add",
+   "material": "table0__bar_stretcher_1",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.29747,
+     0.0002,
+     0.87451
+    ],
+    "x": 0.02548,
+    "y": 0.52577,
+    "z": 0.10222
+   }
+  },
+  {
+   "op": "add",
+   "material": "table0__bar_stretcher_2",
+   "shape": {
+    "type": "Box",
+    "center": [
+     -0.27174,
+     0.0002,
+     0.87451
+    ],
+    "x": 0.02548,
+    "y": 0.52577,
+    "z": 0.10222
+   }
+  },
+  {
+   "op": "add",
+   "material": "table0__runner_3",
+   "shape": {
+    "type": "Box",
+    "center": [
+     -0.27174,
+     0.0002,
+     0.0365
+    ],
+    "x": 0.02548,
+    "y": 0.62957,
+    "z": 0.07301
+   }
+  },
+  {
+   "op": "add",
+   "material": "table0__runner_4",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.29722,
+     0.0002,
+     0.0365
+    ],
+    "x": 0.02548,
+    "y": 0.62957,
+    "z": 0.07301
+   }
+  },
+  {
+   "op": "add",
+   "material": "table0__leg_5",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.29722,
+     0.26308,
+     0.52575
+    ],
+    "x": 0.02548,
+    "y": 0.04153,
+    "z": 0.99289
+   }
+  },
+  {
+   "op": "add",
+   "material": "table0__leg_6",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.29722,
+     -0.26269,
+     0.52852
+    ],
+    "x": 0.02548,
+    "y": 0.04153,
+    "z": 0.99875
+   }
+  },
+  {
+   "op": "add",
+   "material": "table0__leg_7",
+   "shape": {
+    "type": "Box",
+    "center": [
+     -0.27174,
+     -0.26269,
+     0.52852
+    ],
+    "x": 0.02548,
+    "y": 0.04153,
+    "z": 0.99875
+   }
+  },
+  {
+   "op": "add",
+   "material": "table0__leg_8",
+   "shape": {
+    "type": "Box",
+    "center": [
+     -0.27174,
+     0.26308,
+     0.52575
+    ],
+    "x": 0.02548,
+    "y": 0.04153,
+    "z": 0.99289
+   }
+  },
+  {
+   "op": "add",
+   "material": "table0__tabletop_connector_9",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.0127,
+     -0.26269,
+     0.99134
+    ],
+    "x": 0.56896,
+    "y": 0.02073,
+    "z": 0.07301
+   }
+  },
+  {
+   "op": "add",
+   "material": "table0__tabletop_connector_10",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.0127,
+     0.26308,
+     0.98569
+    ],
+    "x": 0.56896,
+    "y": 0.02073,
+    "z": 0.07301
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__dough",
+   "shape": {
+    "type": "Torus",
+    "center": [
+     0.0,
+     0.0,
+     1.09821744
+    ],
+    "major_radius": 0.03763,
+    "minor_radius": 0.007526
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__frosting",
+   "shape": {
+    "type": "Subtracted",
+    "center": [
+     -2.98438209374209e-18,
+     -1.330502760800537e-18,
+     1.09821744
+    ],
+    "shape": {
+     "type": "Torus",
+     "center": [
+      0.0,
+      0.0,
+      1.09821744
+     ],
+     "major_radius": 0.03763,
+     "minor_radius": 0.009026
+    },
+    "cut": {
+     "type": "Torus",
+     "center": [
+      0.0,
+      0.0,
+      1.09821744
+     ],
+     "major_radius": 0.03763,
+     "minor_radius": 0.007526
+    }
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_0",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.0019334473139932913,
+     -0.04135346308699846,
+     1.1074001875334096
+    ],
+    "rx": 0.000431,
+    "ry": 0.000431,
+    "rz": 0.001292
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_1",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.021060337223897,
+     -0.03533615364619967,
+     1.1075035854682527
+    ],
+    "rx": 0.000432,
+    "ry": 0.000432,
+    "rz": 0.001297
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_2",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.03270489111603145,
+     0.02652991390728965,
+     1.1070737607075747
+    ],
+    "rx": 0.000468,
+    "ry": 0.000468,
+    "rz": 0.001405
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_3",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.01584044626212751,
+     -0.03301188453174112,
+     1.108091472934376
+    ],
+    "rx": 0.000453,
+    "ry": 0.000453,
+    "rz": 0.00136
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_4",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.03972034623548855,
+     0.011280829966974262,
+     1.107443550033045
+    ],
+    "rx": 0.000527,
+    "ry": 0.000527,
+    "rz": 0.001581
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_5",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.014244187592788147,
+     -0.03728760437880625,
+     1.1078766892812935
+    ],
+    "rx": 0.000543,
+    "ry": 0.000543,
+    "rz": 0.00163
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_6",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.022542852209419144,
+     0.033808517847671526,
+     1.107677671542964
+    ],
+    "rx": 0.000465,
+    "ry": 0.000465,
+    "rz": 0.001396
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_7",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.024585332133064387,
+     0.03363083273591658,
+     1.1072889731734896
+    ],
+    "rx": 0.000542,
+    "ry": 0.000542,
+    "rz": 0.001626
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_8",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.03938150617805618,
+     0.010438338193954639,
+     1.107643183788818
+    ],
+    "rx": 0.000449,
+    "ry": 0.000449,
+    "rz": 0.001348
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_9",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.039109906146651933,
+     0.010579799938536387,
+     1.1077147327085581
+    ],
+    "rx": 0.000481,
+    "ry": 0.000481,
+    "rz": 0.001444
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_10",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.02343638828648272,
+     0.03134226192689558,
+     1.1080285762320485
+    ],
+    "rx": 0.000476,
+    "ry": 0.000476,
+    "rz": 0.001429
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_11",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.023741192777061954,
+     0.031762563300802425,
+     1.1079347227360832
+    ],
+    "rx": 0.000496,
+    "ry": 0.000496,
+    "rz": 0.001487
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_12",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.007959590185291679,
+     0.043031818449010335,
+     1.1060230072085797
+    ],
+    "rx": 0.000522,
+    "ry": 0.000522,
+    "rz": 0.001567
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_13",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.04111972485064791,
+     -0.0026072575208836075,
+     1.1074783333868925
+    ],
+    "rx": 0.00056,
+    "ry": 0.00056,
+    "rz": 0.001679
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_14",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.042106720650407714,
+     0.013439085897346242,
+     1.1056584585759515
+    ],
+    "rx": 0.000451,
+    "ry": 0.000451,
+    "rz": 0.001353
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_15",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.03748039586244701,
+     -0.01697089613549033,
+     1.1075007836356783
+    ],
+    "rx": 0.000505,
+    "ry": 0.000505,
+    "rz": 0.001514
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_16",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.01449887717932251,
+     -0.04103889836876464,
+     1.1062034749986547
+    ],
+    "rx": 0.000491,
+    "ry": 0.000491,
+    "rz": 0.001473
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_17",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.03894712270423163,
+     -0.005398383392922608,
+     1.107998603439605
+    ],
+    "rx": 0.000561,
+    "ry": 0.000561,
+    "rz": 0.001683
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_18",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.013703226887887051,
+     0.03624624660163261,
+     1.1080800407564024
+    ],
+    "rx": 0.000528,
+    "ry": 0.000528,
+    "rz": 0.001585
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_19",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.023053703910699313,
+     0.037060752602249,
+     1.10611258489739
+    ],
+    "rx": 0.000464,
+    "ry": 0.000464,
+    "rz": 0.001392
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_20",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.04358528264255655,
+     -0.00012289435998871196,
+     1.1061583480551103
+    ],
+    "rx": 0.000427,
+    "ry": 0.000427,
+    "rz": 0.001282
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_21",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.03875795350455767,
+     0.016670397899822723,
+     1.107033486964923
+    ],
+    "rx": 0.000465,
+    "ry": 0.000465,
+    "rz": 0.001396
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_22",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.0300036834140285,
+     -0.03261227822318724,
+     1.1055551447931058
+    ],
+    "rx": 0.000496,
+    "ry": 0.000496,
+    "rz": 0.001489
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_23",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.010331669459811047,
+     0.03789448236555584,
+     1.108005732326431
+    ],
+    "rx": 0.000553,
+    "ry": 0.000553,
+    "rz": 0.001659
+   }
+  },
+  {
+   "op": "add",
+   "material": "floor",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.0,
+     0.0,
+     -0.04513
+    ],
+    "x": 3.33246,
+    "y": 3.33246,
+    "z": 0.04761
+   }
+  },
+  {
+   "op": "add",
+   "material": "wall",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.0,
+     0.0,
+     2.5415
+    ],
+    "x": 3.33246,
+    "y": 3.33246,
+    "z": 0.04761
+   }
+  },
+  {
+   "op": "add",
+   "material": "wall",
+   "shape": {
+    "type": "Box",
+    "center": [
+     -1.66623,
+     0.0,
+     1.24818
+    ],
+    "x": 0.04761,
+    "y": 3.33246,
+    "z": 2.53902
+   }
+  },
+  {
+   "op": "add",
+   "material": "wall",
+   "shape": {
+    "type": "Box",
+    "center": [
+     1.66623,
+     0.0,
+     1.24818
+    ],
+    "x": 0.04761,
+    "y": 3.33246,
+    "z": 2.53902
+   }
+  },
+  {
+   "op": "add",
+   "material": "wall",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.0,
+     -1.66623,
+     1.24818
+    ],
+    "x": 3.33246,
+    "y": 0.04761,
+    "z": 2.53902
+   }
+  },
+  {
+   "op": "add",
+   "material": "wall",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.0,
+     1.66623,
+     1.24818
+    ],
+    "x": 3.33246,
+    "y": 0.04761,
+    "z": 2.53902
+   }
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -1.29966,
+     -1.29966,
+     2.16223
+    ],
+    "radius": 0.47607
+   },
+   "temperature_k": 5000
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -1.29966,
+     1.29966,
+     2.16223
+    ],
+    "radius": 0.47607
+   },
+   "temperature_k": 5000
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     1.29966,
+     -1.29966,
+     2.16223
+    ],
+    "radius": 0.47607
+   },
+   "temperature_k": 5000
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     1.29966,
+     1.29966,
+     2.16223
+    ],
+    "radius": 0.47607
+   },
+   "temperature_k": 5000
+  }
+ ],
+ "materials": {
+  "table0__board_0": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 700.0,
+   "density_method": "unknown material"
+  },
+  "table0__bar_stretcher_1": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 700.0,
+   "density_method": "unknown material"
+  },
+  "table0__bar_stretcher_2": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 700.0,
+   "density_method": "unknown material"
+  },
+  "table0__runner_3": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 700.0,
+   "density_method": "unknown material"
+  },
+  "table0__runner_4": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 700.0,
+   "density_method": "unknown material"
+  },
+  "table0__leg_5": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 700.0,
+   "density_method": "unknown material"
+  },
+  "table0__leg_6": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 700.0,
+   "density_method": "unknown material"
+  },
+  "table0__leg_7": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 700.0,
+   "density_method": "unknown material"
+  },
+  "table0__leg_8": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 700.0,
+   "density_method": "unknown material"
+  },
+  "table0__tabletop_connector_9": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 700.0,
+   "density_method": "unknown material"
+  },
+  "table0__tabletop_connector_10": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 700.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__dough": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1000.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__frosting": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_0": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_1": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_2": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_3": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_4": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_5": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_6": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_7": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_8": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_9": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_10": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_11": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_12": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_13": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_14": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_15": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_16": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_17": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_18": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_19": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_20": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_21": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_22": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_23": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "floor": {
+   "color_rgb": [
+    0.55,
+    0.54,
+    0.52
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "weakly-absorbing aggregate -> grey",
+   "density_kg_m3": 2400.0,
+   "density_derived_kg_m3": 2300,
+   "density_pct_vs_supplied": -4.17,
+   "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+   "youngs_modulus_gpa": 33.3,
+   "sound_speed_m_s": 4010.0,
+   "restitution_ref": 0.152,
+   "ring_frequency_hz": 6115.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+  },
+  "wall": {
+   "color_rgb": [
+    0.9,
+    0.9,
+    0.9
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "wide-gap insulator: no visible absorber -> white",
+   "density_kg_m3": 2300.0,
+   "density_method": "unknown material"
+  },
+  "studio_light": {
+   "color_rgb": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emergent": true,
+   "metal": false,
+   "emissivity_rgb": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "mechanism": "artificial light (blackbody radiator)"
+  }
+ },
+ "physics": {
+  "mass_kg": 23.855563387885137,
+  "com_m": [
+   0.012413139859674625,
+   0.0012623766028961665,
+   0.9178516370228638
+  ],
+  "inertia_kgm2": [
+   2.84661851067506,
+   3.363444926604542,
+   2.392429528231897
+  ]
+ },
+ "bbox": [
+  [
+   -1.7138364751717754,
+   1.7138364751717754
+  ],
+  [
+   -1.7138364751717754,
+   1.7138364751717754
+  ],
+  [
+   -0.06893176875477156,
+   2.5652983690092537
+  ]
+ ],
+ "camera": {
+  "target": [
+   0.0,
+   0.0,
+   0.5451113217198025
+  ],
+  "orbit_radius": 1.3488527813851936,
+  "fov_deg": 52.0,
+  "up": [
+   0.0,
+   0.0,
+   1.0
+  ],
+  "az0": 0.7,
+  "el0": 0.16
+ },
+ "lights": [
+  {
+   "dir": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "color": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "intensity": 0.0,
+   "temperature_k": 0.0
+  }
+ ],
+ "ambient": {
+  "sky": [
+   0.04,
+   0.04,
+   0.05
+  ],
+  "ground": [
+   0.03,
+   0.03,
+   0.03
+  ],
+  "up": [
+   0.0,
+   0.0,
+   1.0
+  ]
+ },
+ "identified": true,
+ "source": "table: table (composite) \u2014 assembled from a representative real model \u2014 its actual part layout (no hand-authored template), representative real model \u2014 PartNet anno_id 21445, PartNet (Mo et al. 2019) \u2014 representative model 21445 (real assembled part layout), ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 460 models), material composition (ShapeNetSem): glass 7%, metal 3%, wood 87%, per-part material by role-convention (frame=wood) \u2014 PartNet carries no per-part material; materials cited to ShapeNetSem category ratios; Doughnut: Doughnut (composite) \u2014 estimated -- no citable confectionery-sprinkle dimension exists in sources/ this session; ~3mm length x ~1mm diameter is a commonly-cited 'jimmies' size (candy-supplier descriptions), NOT independently verified against a primary source here -- treat as an approximation., approximated as cited crystalline sucrose density (inventory/data/materials.json 'Sucrose', 1550 kg/m3) -- icing/glaze is mostly sucrose in a thin water paste; real icing bulk density is somewhat lower (entrained water/air), not independently measured this session.",
+ "pt_env": 0.0,
+ "physics_env": {
+  "gravity_m_s2": 9.81,
+  "gravity_dir": [
+   0,
+   0,
+   -1
+  ],
+  "atmosphere": "IRT",
+  "medium": "air",
+  "pressure_pa": 101325.0,
+  "temperature_k": 293.15
+ },
+ "theater": "room"
+}

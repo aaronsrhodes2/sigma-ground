@@ -18,12 +18,14 @@ implemented today, and new primitive kits plug in behind the same gate.
 from __future__ import annotations
 
 import math
+import random
 from dataclasses import dataclass, field
 
 from ..kernel.shapes import Cylinder, Sphere, Box, Cone, Torus, Ellipsoid
 from ..kernel.outline import Outline
 from ..kernel.csg import ComposedSDF
 from .sources import density_of as _density_of
+from .schema import Part, Fact
 
 
 @dataclass
@@ -544,6 +546,117 @@ def _seat_conforming(parts, centers, by_name):
                                centers[p.name][2] + s * seat_dir[2])
 
 
+# ── scatter: multiply a template part into N surface-scattered instances ──
+# See the convention doc on ``schema.Part.scatter``. Placement reuses this
+# file's own ray-march technique (``_march_gap``, already built for conform
+# auto-seating) rather than 3D-volume rejection sampling: pick a seeded
+# random direction from the host's centre, march INWARD from just outside
+# the host's bounding sphere until the first outside->inside crossing. Every
+# direction that actually reaches the host lands exactly ON its surface in
+# one shot (no near-miss rejection loop over a thin shell); a direction that
+# never reaches solid (e.g. straight through a torus's hole) is simply
+# retried with a fresh direction. This is shape-agnostic — it only calls the
+# host's ``surface_distance``/``bounding_radius``, which every kernel shape
+# already implements — so a scatter over a torus, box, sphere, cylinder, ...
+# all "just work" with zero per-shape-family code.
+def _sphere_dir(rng, up=(0.0, 0.0, 1.0), min_dot=None):
+    """A seeded-random unit direction, optionally restricted to the cap
+    around ``up`` where dot(dir, up) >= min_dot (None = the whole sphere).
+    Builds an ``up``-aligned orthonormal frame with the same ``_cross``/
+    ``_unit`` technique ``_seat_depth`` already uses, then samples the polar
+    angle uniformly in cos-space (area-uniform over the cap, not angle-
+    uniform) and the azimuth uniformly.
+    """
+    ref = (1.0, 0.0, 0.0) if abs(up[0]) < 0.9 else (0.0, 1.0, 0.0)
+    u = _unit(_cross(up, ref))
+    v = _unit(_cross(up, u))
+    lo = -1.0 if min_dot is None else max(-1.0, min(1.0, min_dot))
+    z = rng.uniform(lo, 1.0)                       # cos(angle from `up`)
+    r = math.sqrt(max(0.0, 1.0 - z * z))
+    theta = rng.uniform(0.0, 2.0 * math.pi)
+    cx, cy = r * math.cos(theta), r * math.sin(theta)
+    return (cx * u[0] + cy * v[0] + z * up[0],
+            cx * u[1] + cy * v[1] + z * up[1],
+            cx * u[2] + cy * v[2] + z * up[2])
+
+
+def _expand_scatter(sp, by_name, centers):
+    """Expand a ``scatter`` template part into N concrete build-item dicts
+    (same dict shape the main solids loop / ``_expand_fill`` produce), at
+    seeded-deterministic positions across the host part's surface. Raises if
+    the host is unknown or if placement can't reach the requested count
+    within a generous try budget (never silently under-delivers). Every
+    instance shares the TEMPLATE part's own density Fact — see the density
+    note on ``schema.Part.scatter`` — only the material LABEL varies per
+    instance (drawn from ``materials``)."""
+    cfg = sp.scatter or {}
+    host_name = cfg.get("on")
+    host = by_name.get(host_name)
+    if host is None:
+        raise ValueError(f"scatter part '{sp.name}' references unknown host '{host_name}'")
+    count = int(cfg.get("count", 0))
+    if count <= 0:
+        return []
+    materials = list(cfg.get("materials") or [sp.material])
+    seed = int(cfg.get("seed", 0))
+    region = (cfg.get("region") or "top").lower()
+    up = tuple(cfg.get("region_up", (0.0, 0.0, 1.0)))
+    embed = max(0.0, min(1.0, float(cfg.get("embed_frac", 0.35))))
+    jitter = max(0.0, float(cfg.get("size_jitter", 0.0)))
+    min_dot = 0.15 if region == "top" else None    # None => region "all" (the whole surface)
+
+    hshape = _shape_from(host, centers[host.name])
+    heuler = getattr(host, "euler_deg", (0.0, 0.0, 0.0))
+    if any(heuler):
+        hshape = _Rotated(hshape, _rotation(heuler))
+    R_hit = hshape.bounding_radius() * 2.0 + 1e-3
+    origin_c = hshape.center
+
+    grain_he = _half_extent(sp)
+    grain_r = max(grain_he) if grain_he else 1e-4
+    h = max(grain_r * 0.1, 1e-6)                   # central-difference step for the normal
+
+    rng = random.Random(seed)
+    items = []
+    max_tries = count * 400 + 1000
+    tries = 0
+    while len(items) < count and tries < max_tries:
+        tries += 1
+        d = _sphere_dir(rng, up, min_dot)
+        p0 = (origin_c[0] + d[0] * R_hit, origin_c[1] + d[1] * R_hit, origin_c[2] + d[2] * R_hit)
+        inward = (-d[0], -d[1], -d[2])
+        t = _march_gap(hshape, p0, inward, 2.0 * R_hit)
+        if t is None:
+            continue                                # this direction misses the host entirely
+        hit = (p0[0] + inward[0] * t, p0[1] + inward[1] * t, p0[2] + inward[2] * t)
+        nx = hshape.surface_distance(hit[0] + h, hit[1], hit[2]) - hshape.surface_distance(hit[0] - h, hit[1], hit[2])
+        ny = hshape.surface_distance(hit[0], hit[1] + h, hit[2]) - hshape.surface_distance(hit[0], hit[1] - h, hit[2])
+        nz = hshape.surface_distance(hit[0], hit[1], hit[2] + h) - hshape.surface_distance(hit[0], hit[1], hit[2] - h)
+        nmag = math.sqrt(nx * nx + ny * ny + nz * nz)
+        n = (nx / nmag, ny / nmag, nz / nmag) if nmag > 1e-9 else d
+        push = grain_r * (1.0 - embed)
+        gc = (hit[0] + n[0] * push, hit[1] + n[1] * push, hit[2] + n[2] * push)
+        scale = 1.0 + (rng.uniform(-jitter, jitter) if jitter else 0.0)
+        dims = {k: Fact(round(f.value * scale, 6), f.source, f.license, f.confidence)
+                for k, f in sp.dims.items()}
+        mat = materials[rng.randrange(len(materials))]
+        gp = Part(f"{sp.name}_{len(items)}", sp.shape, dims, mat, sp.density, gc, sp.euler_deg)
+        shp = _shape_from(gp, gp.center_m)
+        ghe = _half_extent(gp)
+        if any(sp.euler_deg):                          # honour the template's own orientation
+            gR = _rotation(sp.euler_deg)
+            shp = _Rotated(shp, gR)
+            ghe = _rotated_half_extent(ghe, gR)
+        items.append(dict(name=gp.name, shape=shp, material=mat, rho=sp.density.value,
+                          op="add", he=ghe,
+                          cite=f"{sp.density.cite()} (scattered on {host_name}, seed={seed})"))
+    if len(items) < count:
+        raise ValueError(f"scatter '{sp.name}' placed only {len(items)}/{count} instances on "
+                         f"'{host_name}' within {max_tries} tries -- host too small for this "
+                         f"grain size, or 'region' too restrictive")
+    return items
+
+
 # ── attachment: parts mate at anchors (touch at an interface, no overlap) ──
 def _local_anchor(part, name):
     """A named anchor point in the part's LOCAL frame (before rotate/translate)."""
@@ -700,11 +813,14 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
     _seat_conforming(spec.parts, centers, by_name)   # attach+conform: seat into the target
 
     # normalise parts into build items: solids/carves first, then expand fluid
-    # fills into liquid (+ gas) that flood the named cavity bottom-up.
+    # fills into liquid (+ gas) that flood the named cavity bottom-up, then
+    # expand scatter templates into their N surface-placed instances (need the
+    # OTHER real parts' resolved centers as scatter hosts, so — like fills —
+    # they're expanded in a second pass, after every real part has a center).
     items = []
     for part in spec.parts:
-        if getattr(part, "fill", None):
-            continue                              # fills expanded after the solids
+        if getattr(part, "fill", None) or getattr(part, "scatter", None):
+            continue                              # expanded after the solids (below)
         carve = getattr(part, "op", "add") == "subtract"
         shp = _shape_from(part, centers[part.name])
         he = _half_extent(part)
@@ -732,6 +848,9 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
     for part in spec.parts:
         if getattr(part, "fill", None):
             items += _expand_fill(part, by_name, centers)
+    for part in spec.parts:
+        if getattr(part, "scatter", None):
+            items += _expand_scatter(part, by_name, centers)
 
     stack = _LayerStack()
     density = {}
