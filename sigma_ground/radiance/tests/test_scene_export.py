@@ -233,8 +233,10 @@ def test_record_fall_emits_rigid_body_schema():
 def test_record_object_fall_renders_real_shape_falling():
     """record_object_fall drops Deckard's ACTUAL construct — a feather's
     cone+ellipsoid, not a sphere: the real shapes are body 0, a static floor is
-    untagged, the fall descends to the ground, and the body is laid flat by a
-    constant (non-fluttering) orientation that points its thinnest axis up."""
+    untagged, the fall reaches the ground (bouncing on the way, per the
+    material's emergent restitution, with every contact dissipating energy —
+    never a strict monotonic slide), and the body is laid flat by a constant
+    (non-fluttering) orientation that points its thinnest axis up."""
     from sigma_ground import deckard
     from sigma_ground.radiance.trajectory import record_object_fall
 
@@ -260,22 +262,47 @@ def test_record_object_fall_renders_real_shape_falling():
     # passthrough), and Deckard returns no floor, so we never fake one.
     assert all(l.get("body") == 0 for l in sc["csg_leaves"])
     assert sc["bodies"] and len(sc["bodies"][0]["pivot"]) == 3
-    # the fall: starts at the release height, descends monotonically to the floor
+    # the fall: starts at the release height and reaches the floor. Ground
+    # contact is a REAL rebound (record_object_fall's Johnson-Thornton
+    # restitution model, e in [0.02, 0.98]) so y is not strictly non-increasing
+    # frame-to-frame -- a settling object visibly bounces. What must hold is
+    # the physical envelope: it never tunnels through the floor, and every
+    # bounce is lower than the last (each contact dissipates energy).
     ys = [fr["bodies"][0]["pos"][1] for fr in tr["frames"]]
     assert len(ys) >= 3
     assert abs(ys[0] - 2.4384) < 0.05
     assert ys[-1] <= 0.5                                  # reaches the ground
-    assert all(a >= b - 1e-6 for a, b in zip(ys, ys[1:]))  # never rises
+    assert min(ys) >= -0.05                               # never overshoots the ground
+    contacts = tr["validation"]["contacts"]
+    if contacts:
+        assert tr["validation"]["energy_monotone"]         # E_after < E_before, every hit
+        assert all(0.0 < c["e"] < 1.0 for c in contacts)   # real (dissipative) restitution
+    # bounce apexes (local maxima between two lower neighbours) decay -- the
+    # object settles instead of bouncing back higher than its last rebound
+    peaks = [ys[i] for i in range(1, len(ys) - 1)
+             if ys[i - 1] < ys[i] >= ys[i + 1]]
+    assert all(a >= b - 1e-6 for a, b in zip(peaks, peaks[1:]))
     assert tr["suggested_rate"] > 0
-    # laid flat by a CONSTANT orientation (same quat every frame), and that quat
-    # really points the thinnest axis up (+y) — flat-plate rest pose, no flutter
-    quats = {tuple(fr["bodies"][0]["quat"]) for fr in tr["frames"]}
-    assert len(quats) == 1
+    # orientation is CONSTANT and thin-axis-up during the pre-contact free
+    # fall (no aerodynamic flutter modeled). record_object_fall's own
+    # docstring documents what happens after: the off-CoM contact impulse
+    # spins the body up through its real inertia -- a genuine torque-driven
+    # tumble, not scripted -- and it "freezes in its final contact
+    # orientation (no roll-to-stable-face)", so quats need not stay constant
+    # once bouncing starts. What must hold throughout is that rotation
+    # integration stays sane (every quat a unit quaternion).
     (x0, x1), (y0, y1), (z0, z1) = feather.bbox
     thin = min((x1-x0, "x"), (y1-y0, "y"), (z1-z0, "z"))[1]
     thin_axis = {"x": (1.0, 0.0, 0.0), "y": (0.0, 1.0, 0.0),
                  "z": (0.0, 0.0, 1.0)}[thin]
-    assert _rotate(next(iter(quats)), thin_axis)[1] > 0.99   # thin axis → +y
+    assert _rotate(tr["frames"][0]["bodies"][0]["quat"], thin_axis)[1] > 0.99
+    first_contact_t = contacts[0]["t"] if contacts else None
+    prefall_quats = {tuple(fr["bodies"][0]["quat"]) for fr in tr["frames"]
+                     if first_contact_t is None or fr["t_sim"] < first_contact_t}
+    assert len(prefall_quats) == 1                         # no flutter before contact
+    for fr in tr["frames"]:
+        q = fr["bodies"][0]["quat"]
+        assert abs(sum(v * v for v in q) - 1.0) < 1e-4      # always a unit quaternion
 
 
 def test_metal_flag_split_from_emergent():
@@ -415,3 +442,71 @@ def test_band_gap_color_is_emergent_yellow():
     r, g, b = cds["color_rgb"]
     assert all(0.0 <= v <= 1.0 for v in (r, g, b))
     assert r > b and g > b                              # blue eaten by the 2.4 eV gap → yellow
+
+
+def test_render_opacity_defaults_to_opaque_and_never_touches_physics():
+    """Every material bakes `opacity: 1.0` (fully opaque) unless a caller asks
+    for something else -- so every scene exported today with no knowledge of
+    this feature renders byte-identically to before it existed."""
+    from sigma_ground.radiance.scene_export import _bake_material
+    b = _bake_material("copper", 8960.0)
+    assert b["opacity"] == 1.0
+
+
+def test_material_opacity_override_isolated_from_physics():
+    """CRITICAL isolation guarantee: toggling a material's render-only opacity
+    must never perturb ANY physics-bearing field on the Construct it came
+    from, and the two scene bakes (opaque vs. transparent) must be identical
+    everywhere except the one material's `opacity` key.
+
+    construct_to_scene() only ever READS `construct` -- density_by_label,
+    Layer.mass_kg, construct.mass_kg/com_m/inertia_kgm2 are all finalized
+    upstream in deckard/construct.py, before scene_export ever runs. This
+    test proves that by snapshotting every one of those fields, baking a
+    scene with an opacity override, and asserting the Construct is untouched.
+    """
+    from sigma_ground import deckard
+    from sigma_ground.radiance.scene_export import construct_to_scene
+
+    c = deckard.identify("coffee cup")
+
+    # snapshot every physics-relevant Construct field BEFORE any opacity bake
+    density_before = dict(c.density_by_label)
+    layer_mass_before = [L.mass_kg for L in c.layers]
+    mass_before = c.mass_kg
+    com_before = tuple(c.com_m)
+    inertia_before = tuple(c.inertia_kgm2)
+
+    spec_plain = construct_to_scene(c)                       # no opacity touched
+    label = next(iter(spec_plain["materials"]))
+    spec_transparent = construct_to_scene(c, opacity={label: 0.2})   # toggle ONE material
+
+    # 1) the Construct itself is byte-identical -- construct_to_scene never
+    #    writes back into it, with or without an opacity override.
+    assert dict(c.density_by_label) == density_before
+    assert [L.mass_kg for L in c.layers] == layer_mass_before
+    assert c.mass_kg == mass_before
+    assert tuple(c.com_m) == com_before
+    assert tuple(c.inertia_kgm2) == inertia_before
+
+    # 2) the exported PHYSICS block (mass/com/inertia) is identical between
+    #    the plain and the opacity-overridden bake, and matches the construct.
+    assert spec_plain["physics"] == spec_transparent["physics"]
+    assert spec_transparent["physics"]["mass_kg"] == c.mass_kg
+    assert spec_transparent["physics"]["com_m"] == list(c.com_m)
+    assert spec_transparent["physics"]["inertia_kgm2"] == list(c.inertia_kgm2)
+
+    # 3) the override landed EXACTLY where asked, defaulted everywhere else,
+    #    and touched nothing but the `opacity` key on that one material dict.
+    assert spec_plain["materials"][label]["opacity"] == 1.0
+    assert spec_transparent["materials"][label]["opacity"] == 0.2
+    other_keys = set(spec_plain["materials"][label]) - {"opacity"}
+    for k in other_keys:
+        assert spec_transparent["materials"][label][k] == spec_plain["materials"][label][k], k
+    for other_label, m in spec_transparent["materials"].items():
+        if other_label != label:
+            assert m["opacity"] == 1.0                        # untouched materials stay opaque
+
+    # 4) the geometry (csg_leaves) is untouched too -- opacity is purely a
+    #    materials-dict concern, never routed through shape serialization.
+    assert spec_plain["csg_leaves"] == spec_transparent["csg_leaves"]

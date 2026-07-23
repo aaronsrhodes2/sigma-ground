@@ -568,9 +568,19 @@ def _emergent_mechanics(label: str) -> dict:
     return out
 
 
-def _bake_material(label: str, density=None) -> dict:
+def _bake_material(label: str, density=None, opacity: float = 1.0) -> dict:
     label = _canonical_substance(label)                  # canonical optical key
     info = _emergent_color(label)
+    # RENDER-ONLY alpha override — completely ORTHOGONAL to the color/mechanism
+    # tiers above: it never routes through _emergent_color, never influences
+    # WHICH tier picks the hue, and is never read by density/mass/inertia code
+    # (density_by_label, Layer.mass_kg, Construct.mass_kg/com_m/inertia_kgm2 are
+    # all finalized upstream in deckard/construct.py before this function ever
+    # runs — see construct_to_scene()). 1.0 = fully opaque, the default for
+    # every material that doesn't ask for anything else, i.e. every existing
+    # scene's current behavior is byte-for-byte unchanged. Consumed only by the
+    # viewer's path-tracer shader (buildPathShader's opacityOf(), viewer.js).
+    info["opacity"] = max(0.0, min(1.0, float(opacity)))
     # Density is emergent too: derive it from the crystal cell (see
     # inventory.density). If the caller supplied one (e.g. Deckard), keep it as
     # authoritative but attach the derivation as a cross-check; if not, use the
@@ -711,8 +721,21 @@ def _default_lighting(up):
 
 
 # ── Construct → SceneSpec ────────────────────────────────────────────────
-def construct_to_scene(construct) -> dict:
-    """Serialize a Deckard Construct into a JSON-able SceneSpec."""
+def construct_to_scene(construct, opacity=None) -> dict:
+    """Serialize a Deckard Construct into a JSON-able SceneSpec.
+
+    `opacity` (optional): {material_label: alpha in [0,1]} — a RENDER-ONLY
+    override, keyed by the same label a leaf carries (`leaf.material`, the key
+    under which it lands in `spec["materials"]`) so a caller (or a UI reading
+    `spec["materials"].keys()`) can name a part exactly as it appears in the
+    exported scene. Any label not present defaults to fully opaque (1.0) —
+    every construct exported without this argument renders exactly as before.
+    This is purely a `_bake_material()` pass-through (see its docstring): it
+    never touches `construct.density_by_label`, `Layer.mass_kg`,
+    `construct.mass_kg`, `com_m`, or `inertia_kgm2`, all of which are already
+    finalized on `construct` by the time this function runs.
+    """
+    opacity = opacity or {}
     leaves = construct.composed._leaves
     # A leaf's label may be a PART name (rachis/vane) or a material (ceramic);
     # the substance to derive COLOUR from lives on the layer. Map label→material
@@ -727,7 +750,8 @@ def construct_to_scene(construct) -> dict:
         if label not in materials:
             substance = label_material.get(label, label)   # what it's MADE of
             mat_info = _bake_material(
-                substance, construct.density_by_label.get(label))
+                substance, construct.density_by_label.get(label),
+                opacity=float(opacity.get(label, 1.0)))
             # tier-8 coating pick (if any) is disclosed at the SCENE level,
             # not buried inside a material dict — same shape trajectory.py's
             # "choices": [Choice.to_dict(), ...] convention already uses.
