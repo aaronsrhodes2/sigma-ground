@@ -315,6 +315,95 @@ def test_chromophore_color_emerges_from_crystal_field():
     assert red[0] > green[0] and green[1] > red[1]          # same ion, color swaps with host
 
 
+def test_named_sprinkle_colors_are_distinct_and_nongrey():
+    """Each rainbow-sprinkle label carries an explicit color word ("sprinkle_red",
+    "sprinkle_blue", ...) — tier 7 reads it, doesn't invent it. Every one of the
+    six must be a real, DISTINCT, non-grey colour (the bug this design fixes:
+    all six used to collapse to the same flat grey stub)."""
+    from sigma_ground.radiance.scene_export import _emergent_color
+    labels = ["sprinkle_red", "sprinkle_orange", "sprinkle_yellow",
+              "sprinkle_green", "sprinkle_blue", "sprinkle_violet"]
+    rgbs = []
+    for label in labels:
+        m = _emergent_color(label)
+        assert m["emergent"] is False                  # parsed text, not physics
+        assert m["mechanism"] == "named pigment (explicit color in material label)"
+        rgb = tuple(m["color_rgb"])
+        assert rgb != (0.72, 0.72, 0.72), f"{label} fell through to grey"
+        # non-grey: channels must not all be within 0.05 of each other
+        assert max(rgb) - min(rgb) > 0.05, f"{label} came out flat/grey: {rgb}"
+        rgbs.append(rgb)
+    assert len(set(rgbs)) == len(rgbs), f"sprinkle colours not all distinct: {rgbs}"
+
+
+def test_unqualified_coating_label_gets_deterministic_nongrey_color():
+    """An applied coating with NO color word in its label ("icing", "paint") has
+    no physically derivable hue — tier 8 picks one from a curated palette and
+    DISCLOSES the pick as a Choice. The pick must be non-grey and, crucially,
+    deterministic: the SAME label must resolve to the SAME colour every call
+    (stable hash, not Python's per-process salted hash())."""
+    from sigma_ground.radiance.scene_export import _emergent_color
+    for label in ("icing", "paint"):
+        m1 = _emergent_color(label)
+        m2 = _emergent_color(label)
+        assert m1["emergent"] is False
+        assert m1["color_rgb"] == m2["color_rgb"], "tier-8 pick isn't deterministic"
+        rgb = tuple(m1["color_rgb"])
+        assert rgb != (0.72, 0.72, 0.72), f"{label} fell through to grey"
+        assert max(rgb) - min(rgb) > 0.05, f"{label} came out flat/grey: {rgb}"
+        assert "choice" in m1 and m1["choice"].description.startswith(
+            "coating/pigment color for material")
+
+
+def test_cobalt_glaze_chromophore_unchanged_by_new_tiers():
+    """Regression guard: cobalt_glaze must still resolve at tier 3 (crystal-field
+    chromophore), never fall through to the new tier 7/8 label-parsing tiers —
+    exact-dict-key match short-circuits before tokenization ever runs."""
+    from sigma_ground.radiance.scene_export import _emergent_color
+    m = _emergent_color("cobalt_glaze")
+    assert m["emergent"] is True
+    assert m["mechanism"].startswith("crystal-field d-d")
+    assert "choice" not in m
+    rgb = m["color_rgb"]
+    assert rgb[2] > rgb[0]                              # cobalt blue: B > R
+
+
+def test_unknown_nonsense_label_still_falls_through_to_grey_stub():
+    """A genuinely unknown, non-coating label has no colour word AND no coating
+    category word to match — it must still land on the honest grey stub (now
+    tier 9, the true last resort), not get swept into tier 7/8 by accident."""
+    from sigma_ground.radiance.scene_export import _emergent_color
+    m = _emergent_color("zzqx_unobtainium_nonsense")
+    assert m["color_rgb"] == [0.72, 0.72, 0.72]
+    assert m["emergent"] is False
+    assert m["mechanism"] == "no model yet"
+    assert "choice" not in m
+
+
+def test_coating_choice_reaches_the_scene_bundle():
+    """The tier-8 Choice isn't just computed and discarded — it rides the
+    material dict up through construct_to_scene() and lands in the scene-level
+    spec["choices"] list (Choice.to_dict() form), the same shape trajectory.py's
+    ~20 existing "choices" sites already use."""
+    from sigma_ground import deckard
+    from sigma_ground.radiance.scene_export import construct_to_scene
+
+    c = deckard.identify("doughnut", allow_llm=False)   # frozen catalog entry
+    spec = construct_to_scene(c)
+    # "frosting" is the PART label; its substance ("icing") is what the Choice
+    # description names -- see label_material's part-label -> substance map.
+    assert "frosting" in spec["materials"]
+    assert "choice" not in spec["materials"]["frosting"]  # popped before spec assembly
+    assert spec["materials"]["frosting"]["color_rgb"] != [0.72, 0.72, 0.72]
+    assert "choices" in spec, "tier-8 Choice never reached spec['choices']"
+    icing_choices = [ch for ch in spec["choices"]
+                     if "icing" in ch["description"]]
+    assert icing_choices, "no Choice found for the icing coating pick"
+    ch = icing_choices[0]
+    assert ch["value"], "Choice.value should name the chosen colour"
+    assert ch["adjustable"] is True
+
+
 def test_band_gap_color_is_emergent_yellow():
     """A semiconductor's color is FORCED by its band gap — nobody picks it.
     CdS (Eg≈2.4 eV) absorbs blue, so it must come out yellow (R,G > B). It is

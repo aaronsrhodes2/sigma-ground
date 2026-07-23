@@ -981,326 +981,301 @@
   },
   "doughnut2__frosting": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.3,
+    0.2,
+    0.55
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "unconstrained coating pigment -- chosen for contrast, not physically derived",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_0": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.16,
+    0.55,
+    0.22
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_1": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.9,
+    0.45,
+    0.1
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_2": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.9,
+    0.45,
+    0.1
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_3": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.8,
+    0.11,
+    0.09
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_4": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.16,
+    0.55,
+    0.22
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_5": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.95,
+    0.8,
+    0.15
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_6": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.45,
+    0.24,
+    0.65
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_7": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.45,
+    0.24,
+    0.65
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_8": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.95,
+    0.8,
+    0.15
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_9": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.45,
+    0.24,
+    0.65
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_10": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.95,
+    0.8,
+    0.15
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_11": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.95,
+    0.8,
+    0.15
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_12": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.12,
+    0.35,
+    0.75
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_13": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.45,
+    0.24,
+    0.65
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_14": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.16,
+    0.55,
+    0.22
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_15": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.16,
+    0.55,
+    0.22
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_16": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.8,
+    0.11,
+    0.09
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_17": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.9,
+    0.45,
+    0.1
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_18": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.16,
+    0.55,
+    0.22
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_19": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.12,
+    0.35,
+    0.75
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_20": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.45,
+    0.24,
+    0.65
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_21": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.8,
+    0.11,
+    0.09
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_22": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.12,
+    0.35,
+    0.75
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
   "doughnut2__sprinkle_23": {
    "color_rgb": [
-    0.72,
-    0.72,
-    0.72
+    0.9,
+    0.45,
+    0.1
    ],
    "emergent": false,
    "metal": false,
-   "mechanism": "no model yet",
-   "note": "awaiting composition",
+   "mechanism": "named pigment (explicit color in material label)",
    "density_kg_m3": 1550.0,
    "density_method": "unknown material"
   },
@@ -1429,6 +1404,26 @@
  },
  "identified": true,
  "source": "1700s table: 1700s table (composite) \u2014 assembled from a representative real model \u2014 its actual part layout (no hand-authored template), representative real model \u2014 PartNet anno_id 21445, PartNet (Mo et al. 2019) \u2014 representative model 21445 (real assembled part layout), ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 460 models), material composition (ShapeNetSem): glass 7%, metal 3%, wood 87%, per-part material by role-convention (frame=wood_oak); material_hint 'oak' applied \u2014 PartNet carries no per-part material; materials cited to ShapeNetSem category ratios; plate: plate (composite) \u2014 qwen3:8b \u2014 researched proportions (estimates), field.interface.surface.MATERIALS, ShapeNetSem (Savva et al. 2015) \u2014 aspect ratio corrected to median proportions (n=28), ShapeNetSem (Savva et al. 2015), median of 28 models \u2014 overall size (construct scaled to it); Doughnut: Doughnut (composite) \u2014 estimated -- no citable confectionery-sprinkle dimension exists in sources/ this session; ~3mm length x ~1mm diameter is a commonly-cited 'jimmies' size (candy-supplier descriptions), NOT independently verified against a primary source here -- treat as an approximation., approximated as cited crystalline sucrose density (inventory/data/materials.json 'Sucrose', 1550 kg/m3) -- icing/glaze is mostly sucrose in a thin water paste; real icing bulk density is somewhat lower (entrained water/air), not independently measured this session.",
+ "choices": [
+  {
+   "description": "coating/pigment color for material 'icing'",
+   "value": "indigo (#4c338c)",
+   "reason": "unconstrained pigment -- no physical derivation exists for an applied coating color; chosen for visibility/contrast",
+   "checked": "metal Drude-Fresnel, semiconductor band-gap, chromophore crystal-field glaze, dielectric Fresnel+Beer-Lambert, wide-gap-insulator/concrete, measured organic reflectance, named-pigment label parse -- none apply: an applied coating with no stated color has no physical color to derive",
+   "alternatives": [
+    "crimson",
+    "amber",
+    "goldenrod",
+    "moss_green",
+    "teal",
+    "cobalt_blue",
+    "orchid",
+    "rose",
+    "charcoal"
+   ],
+   "adjustable": true
+  }
+ ],
  "pt_env": 0.0,
  "physics_env": {
   "gravity_m_s2": 9.81,

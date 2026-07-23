@@ -13,6 +13,10 @@ to feed Radiance-core (the ground-truth renderer).
 """
 from __future__ import annotations
 
+import hashlib
+import re
+
+from ..dynamics.mechanisms.choice import Choice
 from ..dynamics.vec import Vec3
 
 # ── Emergent-color routing tables ──────────────────────────────────────
@@ -45,6 +49,87 @@ _CHROMOPHORE = {
 # Wide-gap insulators with no visible chromophore: no absorber -> diffuse white.
 _WHITE_INSULATOR = {"ceramic", "ceramic_alumina", "porcelain", "stoneware",
                     "bone", "gypsum", "salt"}
+
+# ── Non-physics color tiers (tiers 7-8 in _emergent_color) ────────────────
+# Everything above this line derives a color from real optical physics.
+# These two tables back the two tiers that DON'T: one reads a color the
+# label already states outright, the other picks one for an applied coating
+# whose label states no color at all. Neither is physics; both say so
+# honestly via `emergent: False`. The second discloses its pick as a Choice.
+
+# Tokenizer shared by both non-physics tiers — split on anything that isn't
+# a letter/digit so "sprinkle_red", "lead glaze", "cast-iron enamel" all
+# yield clean word tokens to match against.
+_WORD_RE = re.compile(r"[a-z0-9]+")
+
+
+def _label_words(label: str) -> list:
+    return _WORD_RE.findall(label.lower())
+
+
+# Tier 7 — curated color word -> real, sensible pigment RGB (0..1). Matched
+# by exact TOKEN equality against _label_words(label), so "sprinkle_red" ->
+# tokens ["sprinkle","red"] -> hits "red". "cobalt_glaze" never reaches this
+# tier: tier 3 (_CHROMOPHORE, exact full-label dict match) already returned
+# for it, well before dispatch gets here.
+_NAMED_COLORS = {
+    "red":     (0.80, 0.11, 0.09),
+    "orange":  (0.90, 0.45, 0.10),
+    "yellow":  (0.95, 0.80, 0.15),
+    "green":   (0.16, 0.55, 0.22),
+    "blue":    (0.12, 0.35, 0.75),
+    "violet":  (0.45, 0.24, 0.65),
+    "purple":  (0.45, 0.24, 0.65),
+    "pink":    (0.90, 0.55, 0.65),
+    "white":   (0.92, 0.92, 0.90),
+    "black":   (0.05, 0.05, 0.05),
+    "brown":   (0.40, 0.24, 0.14),
+    "gray":    (0.55, 0.55, 0.55),
+    "grey":    (0.55, 0.55, 0.55),
+    "tan":     (0.72, 0.58, 0.40),
+    "gold":    (0.78, 0.62, 0.20),
+    "silver":  (0.75, 0.76, 0.78),
+    "cyan":    (0.20, 0.65, 0.75),
+    "magenta": (0.75, 0.20, 0.55),
+}
+
+# Tier 8 — coating/pigment CATEGORY words with NO color stated. "glaze" is
+# included: a BARE "glaze" already resolves at tier 4 (_DIELECTRIC["glaze"],
+# clear coat) and a chromophore-named glaze ("cobalt_glaze") already
+# resolves at tier 3 — both return before dispatch ever reaches tier 8 — so
+# this only ever fires for a QUALIFIED, non-chromophore, opaque glaze label
+# such as "lead glaze" or "salt glaze".
+_COATING_WORDS = {"paint", "ink", "dye", "icing", "frosting", "glaze", "enamel"}
+
+# 10 well-separated hues for the tier-8 pick — a small curated palette, not
+# a random RGB cube (which risks muddy/low-saturation colors). Mirrors the
+# rainbow-sprinkle palette's contrast philosophy (research.py's
+# _RAINBOW_SPRINKLE_MATERIALS) at roughly double the size, so different
+# coating labels collide less often.
+_COATING_PALETTE = [
+    ("crimson",     (0.75, 0.10, 0.18)),
+    ("amber",       (0.90, 0.55, 0.10)),
+    ("goldenrod",   (0.80, 0.65, 0.15)),
+    ("moss_green",  (0.30, 0.50, 0.20)),
+    ("teal",        (0.10, 0.55, 0.55)),
+    ("cobalt_blue", (0.15, 0.30, 0.70)),
+    ("indigo",      (0.30, 0.20, 0.55)),
+    ("orchid",      (0.65, 0.30, 0.60)),
+    ("rose",        (0.80, 0.35, 0.45)),
+    ("charcoal",    (0.18, 0.18, 0.20)),
+]
+
+
+def _stable_hash(s: str) -> int:
+    """Deterministic across processes AND sessions -- unlike builtin hash(),
+    which is salted per-process by PYTHONHASHSEED. Same material label ->
+    same tier-8 coating color, every render, forever (mirrors the discipline
+    of construct._expand_scatter's random.Random(seed))."""
+    return int.from_bytes(hashlib.sha256(s.encode("utf-8")).digest()[:8], "big")
+
+
+def _rgb_hex(rgb) -> str:
+    return "#" + "".join(f"{max(0, min(255, round(v * 255))):02x}" for v in rgb)
 
 # Phase-qualified fill labels — the shape researcher emits "liquid water" /
 # "liquid mercury", but every optics table here is keyed by the BARE substance.
@@ -405,7 +490,44 @@ def _emergent_color(label: str) -> dict:
                                   else "measured organic reflectance (not derived)")}
     except Exception:
         pass
-    # 7) Unknown — neutral default, flagged honestly.
+    # 7) Explicit color word already IN the label ("sprinkle_red", "red
+    #    enamel") — read it, don't invent it. emergent=False: this isn't
+    #    derived from physics, it's parsed from text the researcher/LLM
+    #    already wrote. First token (left to right) that matches wins.
+    for tok in _label_words(label):
+        rgb = _NAMED_COLORS.get(tok)
+        if rgb:
+            return {"color_rgb": [round(v, 4) for v in rgb], "emergent": False,
+                    "metal": False,
+                    "mechanism": "named pigment (explicit color in material label)"}
+    # 8) Known coating/pigment CATEGORY, no color stated — nothing constrains
+    #    the hue, so pick one deterministically (stable hash of the label —
+    #    same label -> same color, every render) from a small curated,
+    #    contrasting palette, and DISCLOSE the pick as a Choice. The Choice
+    #    rides the material dict up to construct_to_scene(), which lifts it
+    #    into the scene-level "choices" list — the same Choice.to_dict()
+    #    convention trajectory.py already uses.
+    if any(tok in _COATING_WORDS for tok in _label_words(label)):
+        idx = _stable_hash(label) % len(_COATING_PALETTE)
+        name, rgb = _COATING_PALETTE[idx]
+        choice = Choice(
+            f"coating/pigment color for material '{label}'",
+            f"{name} ({_rgb_hex(rgb)})",
+            checked="metal Drude-Fresnel, semiconductor band-gap, chromophore "
+                    "crystal-field glaze, dielectric Fresnel+Beer-Lambert, "
+                    "wide-gap-insulator/concrete, measured organic reflectance, "
+                    "named-pigment label parse -- none apply: an applied coating "
+                    "with no stated color has no physical color to derive",
+            alternatives=[n for n, _ in _COATING_PALETTE if n != name],
+            reason="unconstrained pigment -- no physical derivation exists for an "
+                   "applied coating color; chosen for visibility/contrast",
+            adjustable=True)
+        return {"color_rgb": [round(v, 4) for v in rgb], "emergent": False,
+                "metal": False,
+                "mechanism": "unconstrained coating pigment -- chosen for contrast, "
+                             "not physically derived",
+                "choice": choice}
+    # 9) Unknown — neutral default, flagged honestly.
     return {"color_rgb": [0.72, 0.72, 0.72], "emergent": False, "metal": False,
             "mechanism": "no model yet", "note": "awaiting composition"}
 
@@ -597,15 +719,22 @@ def construct_to_scene(construct) -> dict:
     # so an anatomically-named part (both feather parts are keratin) still colours
     # by what it IS, not falls through to grey.
     label_material = {L.name: L.material for L in getattr(construct, "layers", [])}
-    csg_leaves, materials = [], {}
+    csg_leaves, materials, choices = [], {}, []
     for leaf, op in leaves:
         label = leaf.material                       # the leaf's identity label
         csg_leaves.append({"op": op, "material": label,
                            "shape": _shape_to_dict(leaf.shape)})
         if label not in materials:
             substance = label_material.get(label, label)   # what it's MADE of
-            materials[label] = _bake_material(
+            mat_info = _bake_material(
                 substance, construct.density_by_label.get(label))
+            # tier-8 coating pick (if any) is disclosed at the SCENE level,
+            # not buried inside a material dict — same shape trajectory.py's
+            # "choices": [Choice.to_dict(), ...] convention already uses.
+            choice = mat_info.pop("choice", None)
+            if choice is not None:
+                choices.append(choice.to_dict())
+            materials[label] = mat_info
     cam = _suggest_camera(construct.bbox)
     lighting = _default_lighting(cam["up"])
     spec = {
@@ -621,6 +750,8 @@ def construct_to_scene(construct) -> dict:
         "identified": construct.identified,
         "source": construct.source,
     }
+    if choices:
+        spec["choices"] = choices
     # the A-graph rides the bundle additively (old viewers ignore unknown keys —
     # the proven fields-registry precedent); the mechanism recorder reads it
     art = getattr(construct, "articulation", None)
