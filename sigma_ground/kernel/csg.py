@@ -97,6 +97,51 @@ def sdf_smooth_intersect(a, b, k):
     return max(a, b) + h * h * k * 0.25
 
 
+# ── Vectorized SDF composition functions ────────────────────────────
+# Siblings of the scalar functions above, operating elementwise on numpy
+# ndarrays instead of Python floats. Lazy numpy import (matches
+# deckard/voxelize.py's convention) — the kernel stays importable with
+# zero required dependencies unless a batch method is actually called.
+
+def sdf_union_batch(a, b):
+    import numpy as np
+    return np.minimum(a, b)
+
+
+def sdf_subtract_batch(a, b):
+    import numpy as np
+    return np.maximum(a, -b)
+
+
+def sdf_intersect_batch(a, b):
+    import numpy as np
+    return np.maximum(a, b)
+
+
+def sdf_smooth_union_batch(a, b, k):
+    import numpy as np
+    if k <= 0.0:
+        return np.minimum(a, b)
+    h = np.maximum(k - np.abs(a - b), 0.0) / k
+    return np.minimum(a, b) - h * h * k * 0.25
+
+
+def sdf_smooth_subtract_batch(a, b, k):
+    import numpy as np
+    if k <= 0.0:
+        return np.maximum(a, -b)
+    h = np.maximum(k - np.abs(-b - a), 0.0) / k
+    return np.maximum(a, -b) + h * h * k * 0.25
+
+
+def sdf_smooth_intersect_batch(a, b, k):
+    import numpy as np
+    if k <= 0.0:
+        return np.maximum(a, b)
+    h = np.maximum(k - np.abs(a - b), 0.0) / k
+    return np.maximum(a, b) + h * h * k * 0.25
+
+
 # ── Operation dispatch ───────────────────────────────────────────────
 
 # Maps operation name → (function, needs_k)
@@ -121,6 +166,26 @@ def _apply_op(op_name, a, b, k=None):
     return func(a, b)
 
 
+# Maps operation name → (batch function, needs_k) — mirrors _OPS exactly.
+_OPS_BATCH = {
+    'add':              (sdf_union_batch, False),
+    'union':            (sdf_union_batch, False),
+    'subtract':         (sdf_subtract_batch, False),
+    'intersect':        (sdf_intersect_batch, False),
+    'smooth_union':     (sdf_smooth_union_batch, True),
+    'smooth_subtract':  (sdf_smooth_subtract_batch, True),
+    'smooth_intersect': (sdf_smooth_intersect_batch, True),
+}
+
+
+def _apply_op_batch(op_name, a, b, k=None):
+    """Apply a named SDF operation, vectorized."""
+    func, needs_k = _OPS_BATCH[op_name]
+    if needs_k:
+        return func(a, b, k if k is not None else _DEFAULT_SMOOTH_K)
+    return func(a, b)
+
+
 # ── CSG Node hierarchy ──────────────────────────────────────────────
 
 class CSGNode:
@@ -130,9 +195,18 @@ class CSGNode:
         """Signed distance from point to composed surface."""
         raise NotImplementedError
 
+    def sdf_batch(self, points):
+        """Vectorized signed distance for many points. points: (N,3) float64
+        ndarray. Returns (N,) float64 ndarray."""
+        raise NotImplementedError
+
     def point_inside(self, px, py, pz):
         """Is the point inside the composed solid?"""
         return self.sdf(px, py, pz) < 0.0
+
+    def point_inside_batch(self, points):
+        """Vectorized point_inside — (N,3) points in, (N,) bool ndarray out."""
+        return self.sdf_batch(points) < 0.0
 
     def bounding_radius(self):
         """Conservative bounding sphere radius from origin."""
@@ -151,6 +225,9 @@ class CSGLeaf(CSGNode):
 
     def sdf(self, px, py, pz):
         return self.shape.surface_distance(px, py, pz)
+
+    def sdf_batch(self, points):
+        return self.shape.surface_distance_batch(points)
 
     def bounding_radius(self):
         cx, cy, cz = self.shape.center
@@ -187,6 +264,11 @@ class CSGBranch(CSGNode):
         a = self.left.sdf(px, py, pz)
         b = self.right.sdf(px, py, pz)
         return _apply_op(self.operation, a, b, self.k)
+
+    def sdf_batch(self, points):
+        a = self.left.sdf_batch(points)
+        b = self.right.sdf_batch(points)
+        return _apply_op_batch(self.operation, a, b, self.k)
 
     def bounding_radius(self):
         # Conservative: max of children
@@ -258,6 +340,28 @@ class ComposedSDF:
         if self._root is None:
             return float('inf')
         return self._root.sdf(px, py, pz)
+
+    def sdf_batch(self, points):
+        """Vectorized signed distance for many points at once.
+
+        Args:
+            points: array-like coercible to an (N,3) float64 ndarray — each
+                row is (px, py, pz) in the same frame the scalar sdf()
+                expects. This is the only method in the batch path that
+                coerces/validates; everything it calls assumes points is
+                already a proper (N,3) float64 ndarray.
+
+        Returns:
+            (N,) float64 ndarray. inf-filled if the structure is empty,
+            matching sdf()'s float('inf') for an empty root.
+        """
+        import numpy as np
+        points = np.asarray(points, dtype=np.float64)
+        if points.ndim != 2 or points.shape[1] != 3:
+            raise ValueError(f"sdf_batch expects an (N,3) array, got shape {points.shape}")
+        if self._root is None:
+            return np.full(points.shape[0], np.inf, dtype=np.float64)
+        return self._root.sdf_batch(points)
 
     def point_inside(self, px, py, pz):
         """Is the point inside the composed solid?

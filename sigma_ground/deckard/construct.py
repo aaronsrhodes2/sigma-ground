@@ -271,6 +271,16 @@ class _Rotated:
         lz = R[0][2] * dx + R[1][2] * dy + R[2][2] * dz
         return self._base.surface_distance(cx + lx, cy + ly, cz + lz)
 
+    def surface_distance_batch(self, points):
+        import numpy as np
+        c = np.asarray(self.center, dtype=np.float64)
+        d = points - c
+        R = np.asarray(self._R, dtype=np.float64)
+        # scalar form is R^T · d (lx = R[0][0]*dx + R[1][0]*dy + R[2][0]*dz, a
+        # dot with column 0 of R) — for a batch of row-vectors that's d @ R.
+        local = d @ R
+        return self._base.surface_distance_batch(local + c)
+
     def volume(self):
         return self._base.volume()
 
@@ -311,6 +321,12 @@ class _Clipped:
         d = self._base.surface_distance(px, py, pz)
         half = self._sign * ((px, py, pz)[self._axis] - self._level)
         return half if half > d else d          # max(d_base, d_halfspace) = ∩
+
+    def surface_distance_batch(self, points):
+        import numpy as np
+        d = self._base.surface_distance_batch(points)
+        half = self._sign * (points[:, self._axis] - self._level)
+        return np.maximum(d, half)
 
     def volume(self):
         return self._volume
@@ -423,6 +439,12 @@ class _Subtracted:
         d = self._base.surface_distance(px, py, pz)
         dc = -self._cut.surface_distance(px, py, pz)     # ¬B  (outside the cut)
         return dc if dc > d else d                        # max(d_A, ¬d_B) = A ∩ ¬B
+
+    def surface_distance_batch(self, points):
+        import numpy as np
+        d = self._base.surface_distance_batch(points)
+        dc = -self._cut.surface_distance_batch(points)
+        return np.maximum(d, dc)
 
     def volume(self):
         return self._volume

@@ -166,6 +166,29 @@ class Shape:
         dist = math.sqrt(dx * dx + dy * dy + dz * dz)
         return dist - self.bounding_radius()
 
+    def surface_distance_batch(self, points):
+        """Vectorized sibling of surface_distance(). Default implementation:
+        calls this instance's own surface_distance() once per point (which
+        correctly dispatches to whatever override the subclass provides,
+        or this base-class bounding-sphere fallback if none). ALWAYS
+        correct; subclasses below override this for real numpy speed.
+
+        Args:
+            points: (N,3) float64 ndarray. Callers below ComposedSDF.sdf_batch
+                may assume this is already a validated ndarray (see
+                ComposedSDF.sdf_batch, the sole coercion point).
+
+        Returns:
+            (N,) float64 ndarray, elementwise identical to calling
+            surface_distance(px, py, pz) in a Python loop over `points`.
+        """
+        import numpy as np
+        return np.fromiter(
+            (self.surface_distance(float(p[0]), float(p[1]), float(p[2]))
+             for p in points),
+            dtype=np.float64, count=len(points),
+        )
+
     @classmethod
     def from_sigma_signature(cls, layer):
         """Create a Shape from a Sigma Signature .shape.json layer.
@@ -260,6 +283,13 @@ class Sphere(Shape):
         dist = math.sqrt(dx * dx + dy * dy + dz * dz)
         return dist - self.radius
 
+    def surface_distance_batch(self, points):
+        import numpy as np
+        c = np.asarray(self.center, dtype=np.float64)
+        d = points - c
+        dist = np.sqrt(np.einsum('ij,ij->i', d, d))
+        return dist - self.radius
+
     def __repr__(self):
         return f"Sphere(r={self.radius:.4g}m)"
 
@@ -301,6 +331,13 @@ class HollowSphere(Shape):
         cx, cy, cz = self.center
         dx, dy, dz = px - cx, py - cy, pz - cz
         dist = math.sqrt(dx * dx + dy * dy + dz * dz)
+        return dist - self.radius
+
+    def surface_distance_batch(self, points):
+        import numpy as np
+        c = np.asarray(self.center, dtype=np.float64)
+        d = points - c
+        dist = np.sqrt(np.einsum('ij,ij->i', d, d))
         return dist - self.radius
 
     def __repr__(self):
@@ -375,6 +412,20 @@ class Cylinder(Shape):
             # Outside one, inside the other
             return max(d_radial, d_axial)
 
+    def surface_distance_batch(self, points):
+        import numpy as np
+        cx, cy, cz = self.center
+        dx = points[:, 0] - cx
+        dy = points[:, 1] - cy
+        dz = points[:, 2] - cz
+        rho = np.sqrt(dx * dx + dy * dy)
+        d_radial = rho - self.radius
+        half_h = self.height / 2.0
+        d_axial = np.abs(dz) - half_h
+        outside_both = (d_radial > 0.0) & (d_axial > 0.0)
+        edge = np.sqrt(d_radial ** 2 + d_axial ** 2)   # NOT np.hypot — match math.sqrt(a**2+b**2) exactly
+        return np.where(outside_both, edge, np.maximum(d_radial, d_axial))
+
     def __repr__(self):
         return f"Cylinder(r={self.radius:.4g}m, h={self.height:.4g}m)"
 
@@ -437,6 +488,19 @@ class Box(Shape):
         else:
             # Outside: Euclidean distance to nearest corner/edge/face
             return math.sqrt(max(dx, 0) ** 2 + max(dy, 0) ** 2 + max(dz, 0) ** 2)
+
+    def surface_distance_batch(self, points):
+        import numpy as np
+        cx, cy, cz = self.center
+        dx = np.abs(points[:, 0] - cx) - self.x / 2.0
+        dy = np.abs(points[:, 1] - cy) - self.y / 2.0
+        dz = np.abs(points[:, 2] - cz) - self.z / 2.0
+        inside = (dx <= 0.0) & (dy <= 0.0) & (dz <= 0.0)
+        inside_val = np.maximum(np.maximum(dx, dy), dz)
+        outside_val = np.sqrt(np.maximum(dx, 0.0) ** 2 +
+                               np.maximum(dy, 0.0) ** 2 +
+                               np.maximum(dz, 0.0) ** 2)
+        return np.where(inside, inside_val, outside_val)
 
     def __repr__(self):
         if not _is_real(self.z):
@@ -508,6 +572,17 @@ class Ellipsoid(Shape):
         nz = (pz - cz) / self.rz if self.rz > 0 else 0
         dist_norm = math.sqrt(nx * nx + ny * ny + nz * nz)
         # Scale back by average radius for distance estimate
+        avg_r = (self.rx + self.ry + self.rz) / 3.0
+        return (dist_norm - 1.0) * avg_r
+
+    def surface_distance_batch(self, points):
+        import numpy as np
+        cx, cy, cz = self.center
+        n = points.shape[0]
+        nx = (points[:, 0] - cx) / self.rx if self.rx > 0 else np.zeros(n)
+        ny = (points[:, 1] - cy) / self.ry if self.ry > 0 else np.zeros(n)
+        nz = (points[:, 2] - cz) / self.rz if self.rz > 0 else np.zeros(n)
+        dist_norm = np.sqrt(nx * nx + ny * ny + nz * nz)
         avg_r = (self.rx + self.ry + self.rz) / 3.0
         return (dist_norm - 1.0) * avg_r
 
@@ -600,6 +675,38 @@ class Cone(Shape):
             else:
                 return d_lateral
 
+    def surface_distance_batch(self, points):
+        import numpy as np
+        cx, cy, cz = self.center
+        base_z = cz - self.height / 4.0
+        dx = points[:, 0] - cx
+        dy = points[:, 1] - cy
+        local_z = points[:, 2] - base_z
+        rho = np.sqrt(dx * dx + dy * dy)
+
+        below = local_z < 0.0
+        above = local_z > self.height
+
+        # region: below base
+        d_base_below = -local_z
+        d_radial_below = rho - self.radius
+        val_below = np.where(
+            d_radial_below <= 0.0, d_base_below,
+            np.sqrt(d_base_below ** 2 + d_radial_below ** 2),
+        )
+
+        # region: above apex
+        val_above = np.sqrt(rho ** 2 + (local_z - self.height) ** 2)
+
+        # region: alongside (0 <= local_z <= height)
+        r_at_z = self.radius * (1.0 - local_z / self.height)
+        slant = math.sqrt(self.radius ** 2 + self.height ** 2)   # shape-level scalar
+        d_lateral = (rho - r_at_z) * self.height / slant
+        val_alongside = np.where(rho <= r_at_z,
+                                  np.maximum(d_lateral, -local_z), d_lateral)
+
+        return np.where(below, val_below, np.where(above, val_above, val_alongside))
+
     def __repr__(self):
         return f"Cone(r={self.radius:.4g}m, h={self.height:.4g}m)"
 
@@ -678,6 +785,17 @@ class Torus(Shape):
         # Distance from point to nearest point on the center ring
         d_ring = math.sqrt((rho_xy - R) ** 2 + dz * dz)
         # Signed distance to torus surface
+        return d_ring - r
+
+    def surface_distance_batch(self, points):
+        import numpy as np
+        cx, cy, cz = self.center
+        dx = points[:, 0] - cx
+        dy = points[:, 1] - cy
+        dz = points[:, 2] - cz
+        R, r = self.major_radius, self.minor_radius
+        rho_xy = np.sqrt(dx * dx + dy * dy)
+        d_ring = np.sqrt((rho_xy - R) ** 2 + dz * dz)
         return d_ring - r
 
     def __repr__(self):
