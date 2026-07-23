@@ -8,7 +8,7 @@ which has no PhysicsParcel/PhysicsScene in scope at all). Covers a
 representative sample of the 11 recorders: record_fall (single-parcel),
 record_gear_train_spin (a multi-body PhysicsScene recorder), record_
 object_fall (the manual-arithmetic outlier), and record_bell_strike (a
-second multi-body scene: a struck bell + stone).
+second multi-body scene, now a hanging chain + struck bell + stone).
 
 A second class of tests is a REGRESSION check: trajectory.validation.
 energy_gain_j (the existing start/end summary some recorders already
@@ -23,6 +23,7 @@ from sigma_ground.deckard.construct import compile as deckard_compile
 from sigma_ground.deckard.schema import ConstructSpec, Fact, Part
 from sigma_ground.radiance.trajectory import (record_fall, record_object_fall,
                                               record_gear_train_spin,
+                                              record_bell_strike,
                                               record_motor_spin,
                                               record_hand_tool_actuation)
 
@@ -144,6 +145,26 @@ def test_object_fall_tumbling_shape_shows_nonzero_angular_momentum():
     _assert_every_frame_has_the_fields(frames)
     Lmags = [math.sqrt(sum(v * v for v in f["angular_momentum"])) for f in frames]
     assert max(Lmags) > 1e-8                        # it really did pick up spin
+
+
+# ── (d) record_bell_strike — a second multi-body scene (chain + bell + stone) ─
+
+def test_bell_strike_frames_carry_sane_energy_momentum():
+    out = record_bell_strike(bell_material="iron", bell_diameter_m=0.15,
+                             stone_mass_kg=0.2, observer_distance_m=50.0)
+    frames = out["trajectory"]["frames"]
+    _assert_every_frame_has_the_fields(frames)
+
+    # released at rest
+    assert frames[0]["energy_j"] == 0.0
+    assert frames[0]["momentum"] == [0.0, 0.0, 0.0]
+    # after the stone is dropped and strikes, SOMETHING in the scene
+    # (chain + bell + stone) carries real kinetic energy and, since the
+    # bell can swing off a hinge, real angular momentum too
+    assert max(f["energy_j"] for f in frames) > 0.0
+    assert any(any(abs(c) > 1e-9 for c in f["angular_momentum"]) for f in frames)
+    val = out["trajectory"]["validation"]
+    assert val["struck"] is True
 
 
 # ── regression: trajectory.validation.energy_gain_j is UNCHANGED ───────────

@@ -2594,11 +2594,26 @@ def record_bell_strike(bell_material: str = "iron", bell_diameter_m: float = 0.1
                        dt: float = 1.0 / 960.0, frame_dt: float = 0.002,
                        target_watch_s: float = 6.0) -> dict:
     """A hanging bell struck by a thrown stone. The bell (a solid Cone, apex
-    at the crown where it hangs, rim at the base where it's struck) is
-    world-welded in place ("hung", without a real chain modeled — a Plug
-    support). A stone free-falls under gravity onto the rim; the ENGINE's
-    own pairwise contact solver (dynamics/collision.py, already exercised
-    by every bounce in this file) resolves the impact -- this function only
+    at the crown where it hangs, rim at the base where it's struck) hangs
+    from a REAL modeled suspension chain -- a short run of small rigid-link
+    PhysicsParcels (dynamics/parcel.py) connected by RevoluteJoints
+    (dynamics/joints.py), the same hinge machinery the pliers/hand-tool
+    demo and the clock's arbor train already exercise -- with only the
+    TOP link WeldJoint-anchored to a fixed world point. That top weld is
+    the standard rigid-body idealization every physics engine uses for an
+    immovable world anchor -- the same kind of idealization as an
+    unmodeled floor/ground plane, NOT a physically modeled ceiling or room
+    structure (this scene has no walls/ceiling geometry at all; see the
+    chain Choice below). It is not a hand-wave in the OTHER sense that
+    mattered here, though: the chain itself (mass, inertia, hinges, and
+    the swing they permit) is real, present structure between the bell and
+    that anchor, replacing the prior version's bare world-weld directly at
+    the bell's own center of mass (which could not swing at all, and was
+    flagged with a support Plug precisely because nothing between the bell
+    and "fixed in space" was modeled). A stone
+    free-falls under gravity onto the rim; the ENGINE's own pairwise
+    contact solver (dynamics/collision.py, already exercised by every
+    bounce in this file) resolves the impact -- this function only
     DETECTS it (for the v_impact report) and does not hand-roll the
     response. On impact: ring_frequency (field.interface.acoustics -- the
     SAME formula the acoustics() Materia verb cites for bells) gives the
@@ -2635,13 +2650,13 @@ def record_bell_strike(bell_material: str = "iron", bell_diameter_m: float = 0.1
                                           impact_sound_frequency,
                                           hertz_contact_duration)
     from ..materia.engine import _material_density, _DensityMaterial
-    from ..kernel.shapes import Cone, Sphere
+    from ..kernel.shapes import Cone, Sphere, Cylinder, Box
     from ..dynamics.vec import Vec3
     from ..dynamics.parcel import PhysicsParcel
     from ..dynamics.scene import PhysicsScene
-    from ..dynamics.joints import WeldJoint
+    from ..dynamics.joints import WeldJoint, RevoluteJoint
     from ..dynamics.stepper import step
-    from ..dynamics.mechanisms.plug import Plug
+    from ..dynamics.quat import quat_from_axis_angle
     from ..dynamics.mechanisms.choice import Choice
     from .bell_acoustics import synthesize_bell_tone, propagate_in_air
 
@@ -2686,17 +2701,163 @@ def record_bell_strike(bell_material: str = "iron", bell_diameter_m: float = 0.1
     stone = PhysicsParcel(Sphere(stone_r), _DensityMaterial(density_stone),
                           position=Vec3(x0, stone_y0, 0.0), label=stone_material)
 
-    world_pin = WeldJoint(bell, None, bell.position)
-    support = Plug.support(f"{bell_name.lower()} bell hung from a fixed "
-                           "point, without the chain/rope modeled")
-    scene = PhysicsScene([bell, stone], ground=False, constraints=[world_pin])
+    # ── suspension chain: the bell hangs by REAL rigid links, not a bare
+    # world-weld. Phase B doctrine: "what if the floor/ceiling were there
+    # for a reason" -- the prior version welded the bell directly to ITS
+    # OWN center of mass (a zero-length hand-wave, flagged by a support
+    # Plug because nothing between "bell" and "fixed in space" was
+    # modeled, and the bell could not swing at all). A real bell hangs by
+    # a chain from a point above its crown: a short run of small
+    # rigid-link PhysicsParcels, hinged to each other and to the bell
+    # (RevoluteJoint -- the same hinge machinery the pliers demo and the
+    # clock's arbor train already exercise), weld-anchored only at the
+    # very top to a fixed world point. No wall/ceiling geometry is staged
+    # for this scene (no theaters.room()), so that top point is an
+    # idealized anchor in space -- the same category of idealization as an
+    # unmodeled floor/ground plane -- not a physically modeled ceiling.
+    chain_choice = Choice(
+        "suspension chain: link count, total length, and per-link wire "
+        "radius (replaces the prior bare world-weld at the bell's own "
+        "center of mass)",
+        {"n_links": 3, "chain_length_m": round(0.6 * bell_diameter_m, 5),
+         "link_wire_radius_m": round(0.05 * bell_r, 5)},
+        checked="no cited casting/mounting hardware exists for a specific "
+        "bell of this size; radiance/theaters.py's room() ceiling "
+        "proportion (H = max(3.2*r, 0.65)) checked for an ORDER-OF-"
+        "MAGNITUDE sense of 'how far above the content a ceiling sits', "
+        "but not applied directly -- theaters.py stages z-up static "
+        "Deckard scenes, this trajectory scene is the dynamics engine's "
+        "own y-up convention",
+        reason="chain length picked short (a hand-bell hung close to its "
+              "mount, not a long drop) so the assembly still reads as "
+              "'a bell on a chain' on screen; wire radius kept thin "
+              "relative to the bell so chain mass stays a small fraction "
+              "of the bell's own, as a real suspension chain would")
+    n_links = chain_choice.value["n_links"]
+    chain_length = chain_choice.value["chain_length_m"]
+    link_wire_r = chain_choice.value["link_wire_radius_m"]
+    link_len = chain_length / n_links
+    ceiling_y = crown_y + chain_length
+
+    # restitution=0.0, NOT the bell's own 0.5: dynamics/collision.py's
+    # collect_pair_contacts tests EVERY parcel pair by bounding sphere with
+    # no joint awareness at all (confirmed by reading it) -- adjacent
+    # chain links are joint-connected AND geometrically touching by
+    # construction, so the legacy sphere-sphere row fires alongside the
+    # RevoluteJoint every substep regardless. Zero restitution makes that
+    # redundant row degenerate into a plain inelastic no-penetration
+    # damper that AGREES with the joint (removes closing velocity, no
+    # bounce) instead of injecting a spurious elastic kick on top of it.
+    # min(e_bell, e_link)=0 also covers the bell<->link0 pair without
+    # touching the bell's own restitution, which the real stone-bell
+    # impact physics still needs at its default 0.5.
+    chain_material = _DensityMaterial(density_bell, restitution=0.0)
+    # kernel/shapes.py's Cylinder has its long axis along LOCAL z by
+    # convention (viewer.js's sdCyl matches this exactly -- both read
+    # abs(local_z)-h*0.5 for the axial term, see PRIMS_GLSL); the links are
+    # stacked along WORLD y (the vertical chain direction), so each link
+    # needs its local z rotated onto world y -- the same "wrap the default
+    # z-axis primitive to lie along another world axis" move the windmill
+    # hub above uses (quat_from_axis_angle((0,1,0), pi/2) there, to lay a
+    # cylinder on its side along +x). Rotating -90 deg about world x maps
+    # local z (0,0,1) onto world y (0,1,0) (verified: qrot of that quat
+    # against (0,0,1) gives (0,1,0)). Without this, identity orientation
+    # left each link's solid spanning only +-radius around its own center
+    # along world y, leaving ~2*radius-wide empty gaps at every junction
+    # between consecutive links (and between the end links and the
+    # bell/ceiling anchors) -- confirmed by evaluating Cylinder.
+    # surface_distance at every junction: before this fix it was
+    # +0.01125 m (a ~22.5 mm open gap) at each of the 4 junctions; after,
+    # it is 0 (to float precision) at all 4, i.e. the links now truly
+    # touch end-to-end.
+    link_orientation = list(quat_from_axis_angle((1.0, 0.0, 0.0), -math.pi / 2.0))
+    links = []
+    for i in range(n_links):
+        y_lo = crown_y + i * link_len
+        y_hi = y_lo + link_len
+        link = PhysicsParcel(Cylinder(link_wire_r, link_len), chain_material,
+                             position=Vec3(0.0, 0.5 * (y_lo + y_hi), 0.0),
+                             orientation=link_orientation,
+                             label=f"chain link {i + 1}")
+        # Collision-radius override: Cylinder.bounding_radius() =
+        # sqrt(wire_r^2 + (link_len/2)^2) is strictly > link_len/2 for any
+        # wire_r > 0, so two links stacked end to end ALWAYS overlap by
+        # bounding sphere, however thin the wire -- not a tunable amount,
+        # a structural property of puffing a sphere around a cylinder.
+        # tests/test_joints.py's own _rod helper sidesteps exactly this by
+        # giving a jointed rod a bare-radius Sphere proxy of radius =
+        # 0.5*length; the same trick, applied here without giving up the
+        # real Cylinder shape the renderer needs (mass/inertia above are
+        # already computed from the true wire volume -- only the broad-
+        # phase collision test is retargeted).
+        link.radius = 0.5 * link_len
+        links.append(link)
+
+    # all hinges share ONE axis (world z): the plane the stone strikes in,
+    # since the stone's drop offset (x0 below) is along x. SIMPLIFIED_MODEL:
+    # a real chain link pivots on two alternating perpendicular axes (each
+    # link twisted 90 deg from its neighbor); sharing one axis here means
+    # the chain can only swing in the x-y (impact) plane, not sideways --
+    # sufficient for a bell struck from one direction.
+    swing_axis = Vec3(0.0, 0.0, 1.0)
+    chain_joints = [RevoluteJoint(links[0], bell, Vec3(0.0, crown_y, 0.0),
+                                  swing_axis)]
+    for i in range(n_links - 1):
+        y_mid = crown_y + (i + 1) * link_len
+        chain_joints.append(RevoluteJoint(links[i + 1], links[i],
+                                          Vec3(0.0, y_mid, 0.0), swing_axis))
+    # top link -> fixed world point. b=None IS the world (dynamics/
+    # joints.py's own documented convention, the same one the pliers/clock
+    # scenes already use for "held/mounted in place") -- a world-anchored
+    # weld is the standard rigid-body idealization every engine uses for an
+    # immovable mount, not a Plug: nothing is left unmodeled here, the top
+    # link really is fixed by hypothesis, the same way a ground plane needs
+    # no force-provenance disclosure of its own. This scene has no wall/
+    # ceiling geometry (no theaters.room() staging), so the anchor is
+    # honestly a fixed point in space -- an idealization of the SAME kind
+    # as an unmodeled floor, not a claim that a real ceiling/building is
+    # present here.
+    world_pin = WeldJoint(links[-1], None, Vec3(0.0, ceiling_y, 0.0))
+
+    all_dynamic = [bell, stone] + links
+    scene = PhysicsScene(all_dynamic, ground=False,
+                         constraints=[world_pin] + chain_joints)
+    # 4 chained hinges (3 links + the bell's own attachment) is a stiffer
+    # coupling than this file's single/double-joint scenes. tests/
+    # test_joints.py's own double-pendulum gate names this directly: a
+    # Gauss-Seidel velocity solver does not hold a joint CHAIN's anchors
+    # exactly coincident at practical iteration counts ("the GS chain-
+    # coupling limit", measured there at 0.11 mm for a 2-joint chain at
+    # the 10-iteration default). This chain is twice as deep, so its
+    # residual is proportionally worse -- measured live (isolated,
+    # pre-strike, no stone): 3.0 mm @ 10 iters, 1.4 mm @ 20, 0.9 mm @ 30,
+    # 0.65 mm @ 40 (~halving per doubling, the expected GS convergence
+    # rate; diminishing returns past this -- 0.41 mm @ 60 for 50% more
+    # work). 40 keeps the pre-strike "hanging still" pose within 0.65 mm
+    # on a 150 mm bell (<0.5% of its own diameter, not the old rigid
+    # weld's exact stillness, but visually indistinguishable from it).
+    scene.solver_iterations = 40
+
+    # a small decorative ceiling-mount plate at the top of the chain: NOT
+    # a PhysicsParcel (no dynamics, no collision -- it never moves and
+    # nothing needs to be tested against it; Box.bounding_radius() would
+    # puff out below the plate's true bottom face the same way the
+    # Cylinder links did above, and it buys nothing since nothing should
+    # ever touch it). Purely a rendered anchor so the chain doesn't
+    # visually terminate in mid-air -- sized only to look like a modest
+    # mounting bracket, not derived from real hardware.
+    plate_w = 6.0 * link_wire_r
+    plate_t = 2.0 * link_wire_r
+    ceiling_plate_pos = (0.0, ceiling_y + plate_t / 2.0, 0.0)
 
     def _poses():
         out = []
-        for p in (bell, stone):
+        for p in all_dynamic:
             pos = p.position
             out.append({"pos": [pos.x, pos.y, pos.z],
                         "quat": [round(v, 6) for v in p.orientation]})
+        out.append({"pos": list(ceiling_plate_pos),
+                    "quat": [0.0, 0.0, 0.0, 1.0]})
         return out
 
     contact_r = bell.radius + stone.radius
@@ -2719,7 +2880,7 @@ def record_bell_strike(bell_material: str = "iron", bell_diameter_m: float = 0.1
         if struck_at is not None and scene.time >= struck_at + 0.4:
             break
     frames.append({"t_sim": round(scene.time, 4), "bodies": _poses(),
-                           **_energy_fields(scene)})
+                   **_energy_fields(scene)})
     t_end = scene.time
 
     f_ring = ring_frequency(bell_material, bell_diameter_m)
@@ -2794,23 +2955,36 @@ def record_bell_strike(bell_material: str = "iron", bell_diameter_m: float = 0.1
         {"op": "add", "material": stone_material, "body": 1,
          "shape": {"type": "Sphere", "center": [0, 0, 0], "radius": stone_r}},
     ]
+    chain_labels = [f"chain link {i + 1}" for i in range(n_links)]
+    for i, link in enumerate(links):
+        leaves.append({"op": "add", "material": bell_material, "body": 2 + i,
+                       "shape": {"type": "Cylinder", "center": [0, 0, 0],
+                                "radius": link_wire_r, "height": link_len}})
+    ceiling_body = 2 + n_links
+    leaves.append({"op": "add", "material": bell_material, "body": ceiling_body,
+                   "shape": {"type": "Box", "center": [0, 0, 0],
+                            "x": plate_w, "y": plate_t, "z": plate_w}})
+    body_labels = (["bell (hung)", "stone"] + chain_labels
+                  + ["ceiling mount"])
+    bodies_spec = [{"pivot": [0, 0, 0], "label": lbl} for lbl in body_labels]
+    top_y = max(crown_y + r, ceiling_y + plate_t)
     scene_spec = {
         "name": f"{bell_name.lower()} bell struck by a {stone_name.lower()} stone",
-        "bodies": [{"pivot": [0, 0, 0], "label": "bell (hung)"},
-                  {"pivot": [0, 0, 0], "label": "stone"}],
+        "bodies": bodies_spec,
         "csg_leaves": leaves,
         "materials": materials,
-        "physics": {"mass_kg": bell.mass + stone.mass, "com_m": [0, 0, 0],
-                    "inertia_kgm2": [0, 0, 0]},
-        "bbox": [[-4 * r, 4 * r], [-1.0, crown_y + r], [-4 * r, 4 * r]],
-        "camera": {"target": [0.0, bell.position.y, 0.0],
-                   "orbit_radius": max(6 * r, 0.3), "fov_deg": 45.0,
+        "physics": {"mass_kg": bell.mass + stone.mass
+                              + sum(l.mass for l in links),
+                    "com_m": [0, 0, 0], "inertia_kgm2": [0, 0, 0]},
+        "bbox": [[-4 * r, 4 * r], [-1.0, top_y], [-4 * r, 4 * r]],
+        "camera": {"target": [0.0, 0.5 * (bell.position.y + ceiling_y), 0.0],
+                   "orbit_radius": max(7 * r, 0.35), "fov_deg": 45.0,
                    "up": [0.0, 1.0, 0.0], "az0": 0.6, "el0": 0.3},
         "identified": True,
-        "plugs": [support.to_dict()],
+        "plugs": [],
         "choices": [scenario_choice.to_dict(), height_choice.to_dict(),
-                   drop_choice.to_dict(), tau_choice.to_dict(),
-                   amp_choice.to_dict()],
+                   drop_choice.to_dict(), chain_choice.to_dict(),
+                   tau_choice.to_dict(), amp_choice.to_dict()],
         "source": (f"bell ring frequency from field.interface.acoustics."
                   "ring_frequency (f=v_L/(pi*d), the same formula the "
                   "acoustics() Materia verb cites for bells); impact "
@@ -2820,15 +2994,26 @@ def record_bell_strike(bell_material: str = "iron", bell_diameter_m: float = 0.1
                   "restitution already uses) -- not invented from raw "
                   "kinetic energy; stone impact resolved by the engine's "
                   "own pairwise contact solver (dynamics/collision.py), "
-                  "not scripted. "
-                  + support.cite() + ". " + scenario_choice.cite() + ". "
+                  "not scripted. The bell hangs from a REAL modeled "
+                  f"{n_links}-link suspension chain (RevoluteJoint hinges, "
+                  "dynamics/joints.py), weld-anchored only at the top to a "
+                  "fixed world point -- a standard rigid-body world anchor "
+                  "idealization, the same kind as an unmodeled floor/"
+                  "ground plane (this scene stages no wall/ceiling "
+                  "geometry, so the anchor is not a physically modeled "
+                  "ceiling or room structure), not a Plug (no support "
+                  "disclosure needed: the chain itself, not a hand-wave, "
+                  "is what holds the bell up). "
+                  + scenario_choice.cite() + ". "
                   + height_choice.cite() + ". " + drop_choice.cite() + ". "
+                  + chain_choice.cite() + ". "
                   + tau_choice.cite() + ". " + amp_choice.cite() + ". "
                   "SIMPLIFIED_MODEL: single sustained vibrational mode "
                   "synthesized (the impact click is reported as a number, "
                   "not a second audio layer), sphere-approximated bell "
                   "collision envelope, inverse-square-only atmospheric "
-                  "propagation."),
+                  "propagation, chain hinges share one swing axis (planar "
+                  "swing only, not a full universal-joint chain)."),
     }
     suggested_rate = max(1e-6, t_end / target_watch_s)
 
@@ -2839,7 +3024,7 @@ def record_bell_strike(bell_material: str = "iron", bell_diameter_m: float = 0.1
             "t_end_s": t_end,
             "natural_timescale_s": t_end,
             "suggested_rate": suggested_rate,
-            "body_labels": ["bell (hung)", "stone"],
+            "body_labels": body_labels,
             "validation": {
                 "struck": struck_at is not None,
                 "struck_at_s": struck_at,
@@ -2864,6 +3049,7 @@ def record_bell_strike(bell_material: str = "iron", bell_diameter_m: float = 0.1
             **propagation,
         },
     }
+
 
 def record_hand_tool_actuation(tool: str = "pliers",
                                swing_amplitude_deg: float = 15.0,

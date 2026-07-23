@@ -48,14 +48,33 @@ def test_bigger_bell_rings_lower():
     assert big["acoustics"]["ring_frequency_hz"] < small["acoustics"]["ring_frequency_hz"]
 
 
-def test_held_bell_stays_essentially_fixed_while_stone_falls():
+def test_bell_hangs_still_before_the_strike_then_swings_after():
+    """The bell now hangs from a REAL modeled suspension chain (rigid
+    links + RevoluteJoint hinges, not a bare world-weld at its own CoM) --
+    it should stay essentially fixed BEFORE the stone strikes (a chain
+    hanging plumb has zero net torque at every hinge), then visibly swing
+    AFTER impact, which the old rigid weld could never do at all (it was
+    welded directly to its own center of mass -- literally rigid, zero
+    DOF). A Gauss-Seidel joint-chain solver does not hold a 4-deep hinge
+    chain's anchors to the bit-for-bit stillness a single WeldJoint gave
+    for free (tests/test_joints.py's own double-pendulum gate names this
+    "the GS chain-coupling limit" for even a 2-joint chain) -- the
+    pre-strike tolerance here is loosened accordingly, but still tight
+    relative to the bell's own 150 mm scale."""
     bundle = record_bell_strike("iron", bell_diameter_m=0.15)
     frames = bundle["trajectory"]["frames"]
+    struck_at = bundle["trajectory"]["validation"]["struck_at_s"]
+    assert struck_at is not None
     p0 = frames[0]["bodies"][0]["pos"]
-    for f in frames:
-        p = f["bodies"][0]["pos"]
-        d = math.dist(p0, p)
-        assert d < 1e-6, f"welded bell moved {d} m"
+    pre = [f for f in frames if f["t_sim"] < struck_at]
+    assert pre
+    for f in pre:
+        d = math.dist(p0, f["bodies"][0]["pos"])
+        assert d < 2e-3, f"bell moved {d} m before being struck"
+    post = [f for f in frames if f["t_sim"] > struck_at + 0.1]
+    assert post, "no frames recorded after the strike settled"
+    moved = max(math.dist(p0, f["bodies"][0]["pos"]) for f in post)
+    assert moved > 1e-4, "bell never swung after being struck"
 
 
 def test_propagation_report_present_and_consistent():
@@ -71,7 +90,13 @@ def test_provenance_cites_the_solver_not_a_scripted_impact():
     assert "pairwise contact solver" in src
     assert "SIMPLIFIED_MODEL" in src
     assert bundle["scene"]["choices"]
-    assert bundle["scene"]["plugs"]
+    # the bell now hangs from a REAL modeled chain (rigid links + hinges,
+    # dynamics/joints.py) -- no support Plug is needed any more (Phase B:
+    # real structure retires the hand-wave disclosure it used to require;
+    # the top link's world-anchor weld is a standard rigid-body
+    # idealization, not an unmodeled force/holder)
+    assert bundle["scene"]["plugs"] == []
+    assert "suspension chain" in src
 
 
 def test_dissipated_energy_matches_the_real_impact_partition_model():

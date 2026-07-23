@@ -86,6 +86,26 @@ class Plug:
         self.equivalent = str(equivalent)
         self.adjustable = bool(adjustable)
         self.variables = {}
+        # WHERE (and along what axis) the plugged drive applies its
+        # artificial torque, snapshotted from the joint's own anchor/axis
+        # geometry at construction time -- feeds the renderer's "ghost
+        # tether" visual (viewer.js), a violet marker at the plug's
+        # location so the disclosure is visible IN the scene, not just in
+        # HUD text. A point-constrained joint holds this anchor coincident
+        # across the whole sim (that IS what the constraint enforces), so
+        # a construction-time snapshot stays valid throughout for every
+        # current call site (a fixed-axis spin-in-place disc/wheel/handle
+        # -- the anchor never translates and the axis never turns, since
+        # it rides on body a's orientation and a is exactly the body the
+        # axis was defined against).
+        _, wa, _, _ = joint._geom()
+        self.at = [round(wa.x, 6), round(wa.y, 6), round(wa.z, 6)]
+        get_axis = getattr(joint, "_axis_world", None)
+        if get_axis is not None:
+            ax = get_axis()
+            self.axis = [round(ax.x, 6), round(ax.y, 6), round(ax.z, 6)]
+        else:
+            self.axis = None
         if torque_nm is not None:
             sign = 1.0 if direction >= 0 else -1.0
             joint.motor_speed = sign * HUGE_SPEED
@@ -103,10 +123,21 @@ class Plug:
 
     def to_dict(self) -> dict:
         """The scene-spec entry: goes into scene_spec["plugs"] so the flag
-        travels with the render bundle, machine-readably."""
-        return {"kind": self.kind, "description": self.description,
-                "adjustable": self.adjustable,
-                "variables": dict(self.variables)}
+        travels with the render bundle, machine-readably. Drive plugs carry
+        an ``at`` [x,y,z] world point and an ``axis`` [x,y,z] unit vector
+        (the joint's own anchor/axis -- see __init__) for the renderer's
+        ghost-tether visual; support plugs have no single force-application
+        point to mark (the constraint they annotate already spans the
+        anchor the joint itself renders at), so they carry neither."""
+        d = {"kind": self.kind, "description": self.description,
+             "adjustable": self.adjustable, "variables": dict(self.variables)}
+        at = getattr(self, "at", None)
+        if at is not None:
+            d["at"] = list(at)
+        axis = getattr(self, "axis", None)
+        if axis is not None:
+            d["axis"] = list(axis)
+        return d
 
     def cite(self) -> str:
         """Human-readable one-liner for source strings."""
