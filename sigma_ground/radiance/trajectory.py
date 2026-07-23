@@ -106,6 +106,31 @@ def bake_frame_temperatures(bundle: dict, t_sim: float) -> dict:
     return scene
 
 
+def _energy_fields(scene) -> dict:
+    """The three scene-level dynamics aggregates for ONE frame, packed as
+    TOP-LEVEL (not per-body) frame keys: ``energy_j`` (translational +
+    rotational kinetic energy, scene.total_kinetic_energy()), ``momentum``
+    ([px,py,pz], scene.total_momentum()) and ``angular_momentum``
+    ([lx,ly,lz], scene.total_angular_momentum() about the world origin).
+    One scalar/vector triple per frame keeps JSON payload growth modest even
+    for multi-body scenes (the clock's 7 bodies/frame, say) — per-body
+    values would multiply that growth by body count for no viewer payoff,
+    since nothing in the render path is per-body-energy-aware.
+
+    Static parcels contribute exactly 0 to every term (PhysicsParcel.
+    kinetic_energy/momentum/angular_momentum all early-return 0 for
+    is_static, dynamics/parcel.py), so a scene with a welded/world-pinned
+    body (the bell, the clock's arbors) never needs special-casing here.
+    """
+    p = scene.total_momentum()
+    L = scene.total_angular_momentum()
+    return {
+        "energy_j": scene.total_kinetic_energy(),
+        "momentum": [p.x, p.y, p.z],
+        "angular_momentum": [L.x, L.y, L.z],
+    }
+
+
 def record_fall(material_key: str = "copper", radius_m: float = 0.05,
                 start_altitude_m: float = 10_000.0, T: float = 288.15,
                 dt_max: float = 0.02, t_max: float = 600.0,
@@ -141,7 +166,7 @@ def record_fall(material_key: str = "copper", radius_m: float = 0.05,
     except Exception:
         _cor = None
 
-    frames = [{"t_sim": 0.0, "bodies": [_pose()]}]
+    frames = [{"t_sim": 0.0, "bodies": [_pose()], **_energy_fields(scene)}]
     next_rec = frame_dt
     contacts = []
     apex_m = parcel.position.y
@@ -168,9 +193,10 @@ def record_fall(material_key: str = "copper", radius_m: float = 0.05,
                 parcel.velocity = Vec3(0.0, 0.0, 0.0)
                 break
         if scene.time >= next_rec:
-            frames.append({"t_sim": scene.time, "bodies": [_pose()]})
+            frames.append({"t_sim": scene.time, "bodies": [_pose()],
+                           **_energy_fields(scene)})
             next_rec += frame_dt
-    frames.append({"t_sim": scene.time, "bodies": [_pose()]})
+    frames.append({"t_sim": scene.time, "bodies": [_pose()], **_energy_fields(scene)})
     t_end = scene.time
 
     r = radius_m
@@ -316,15 +342,17 @@ def record_motor_spin(radius_m: float = 0.05, height_m: float = 0.01,
         p = disc.position
         return {"pos": [p.x, p.y, p.z], "quat": [round(x, 6) for x in disc.orientation]}
 
-    frames = [{"t_sim": 0.0, "bodies": [_pose()]}]
+    frames = [{"t_sim": 0.0, "bodies": [_pose()], **_energy_fields(scene)}]
     next_rec = frame_dt
     e0 = scene.total_kinetic_energy()
     while scene.time < t_max:
         step(scene, dt=dt, sub_steps=1)
         if scene.time >= next_rec:
-            frames.append({"t_sim": round(scene.time, 4), "bodies": [_pose()]})
+            frames.append({"t_sim": round(scene.time, 4), "bodies": [_pose()],
+                           **_energy_fields(scene)})
             next_rec += frame_dt
-    frames.append({"t_sim": round(scene.time, 4), "bodies": [_pose()]})
+    frames.append({"t_sim": round(scene.time, 4), "bodies": [_pose()],
+                   **_energy_fields(scene)})
     t_end = scene.time
     de = scene.total_kinetic_energy() - e0
 
@@ -475,15 +503,17 @@ def record_gear_train_spin(radii_m=(0.05, 0.09, 0.045),
         return [{"pos": [w.position.x, w.position.y, w.position.z],
                  "quat": [round(v, 6) for v in w.orientation]} for w in wheels]
 
-    frames = [{"t_sim": 0.0, "bodies": _poses()}]
+    frames = [{"t_sim": 0.0, "bodies": _poses(), **_energy_fields(scene)}]
     next_rec = frame_dt
     e0 = scene.total_kinetic_energy()
     while scene.time < t_max:
         step(scene, dt=dt, sub_steps=1)
         if scene.time >= next_rec:
-            frames.append({"t_sim": round(scene.time, 4), "bodies": _poses()})
+            frames.append({"t_sim": round(scene.time, 4), "bodies": _poses(),
+                           **_energy_fields(scene)})
             next_rec += frame_dt
-    frames.append({"t_sim": round(scene.time, 4), "bodies": _poses()})
+    frames.append({"t_sim": round(scene.time, 4), "bodies": _poses(),
+                   **_energy_fields(scene)})
     t_end = scene.time
     de = scene.total_kinetic_energy() - e0
 
@@ -676,15 +706,17 @@ def record_gear_mesh_spin(module_m: float = 0.004, teeth_a: int = 20,
                  "quat": [round(v, 6) for v in w.orientation]}
                 for w in (wheel_a, wheel_b)]
 
-    frames = [{"t_sim": 0.0, "bodies": _poses()}]
+    frames = [{"t_sim": 0.0, "bodies": _poses(), **_energy_fields(scene)}]
     next_rec = frame_dt
     e0 = scene.total_kinetic_energy()
     while scene.time < t_max:
         step(scene, dt=dt, sub_steps=1)
         if scene.time >= next_rec:
-            frames.append({"t_sim": round(scene.time, 4), "bodies": _poses()})
+            frames.append({"t_sim": round(scene.time, 4), "bodies": _poses(),
+                           **_energy_fields(scene)})
             next_rec += frame_dt
-    frames.append({"t_sim": round(scene.time, 4), "bodies": _poses()})
+    frames.append({"t_sim": round(scene.time, 4), "bodies": _poses(),
+                   **_energy_fields(scene)})
     t_end = scene.time
     de = scene.total_kinetic_energy() - e0
 
@@ -873,7 +905,7 @@ def record_windmill_spinup(wind_speed_m_s: float = 10.0,
         return [{"pos": [rotor.position.x, rotor.position.y, rotor.position.z],
                  "quat": [round(v, 6) for v in rotor.orientation]}]
 
-    frames = [{"t_sim": 0.0, "bodies": _pose()}]
+    frames = [{"t_sim": 0.0, "bodies": _pose(), **_energy_fields(scene)}]
     next_rec = frame_dt
     t = 0.0
     omega_trace = [0.0]
@@ -882,10 +914,11 @@ def record_windmill_spinup(wind_speed_m_s: float = 10.0,
         bearing.project()
         t += dt
         if t >= next_rec:
-            frames.append({"t_sim": round(t, 4), "bodies": _pose()})
+            frames.append({"t_sim": round(t, 4), "bodies": _pose(),
+                           **_energy_fields(scene)})
             next_rec += frame_dt
             omega_trace.append(round(bearing.omega(), 5))
-    frames.append({"t_sim": round(t, 4), "bodies": _pose()})
+    frames.append({"t_sim": round(t, 4), "bodies": _pose(), **_energy_fields(scene)})
     t_end = t
 
     # ── render: blades from the SAME azimuth+pitch construction ──
@@ -1226,7 +1259,7 @@ def record_windmill_theater(wind_speed_m_s: float = 10.0,
                        "quat": [0.0, 0.0, 0.0, 1.0]})
         return bodies
 
-    frames = [{"t_sim": 0.0, "bodies": _poses()}]
+    frames = [{"t_sim": 0.0, "bodies": _poses(), **_energy_fields(scene)}]
     next_rec = frame_dt
     t = 0.0
     omega_trace = [0.0]
@@ -1237,10 +1270,11 @@ def record_windmill_theater(wind_speed_m_s: float = 10.0,
         pump.step()
         t += dt
         if t >= next_rec:
-            frames.append({"t_sim": round(t, 4), "bodies": _poses()})
+            frames.append({"t_sim": round(t, 4), "bodies": _poses(),
+                           **_energy_fields(scene)})
             next_rec += frame_dt
             omega_trace.append(round(bearing.omega(), 5))
-    frames.append({"t_sim": round(t, 4), "bodies": _poses()})
+    frames.append({"t_sim": round(t, 4), "bodies": _poses(), **_energy_fields(scene)})
     t_end = t
     water_body = len(all_parcels)                # index of the cosmetic body
 
@@ -1580,7 +1614,7 @@ def record_escapement_clock(pendulum_length_m: float = 0.4,
                 {"pos": [wheel.position.x, wheel.position.y, wheel.position.z],
                  "quat": [round(v, 6) for v in wheel.orientation]}]
 
-    frames = [{"t_sim": 0.0, "bodies": _poses()}]
+    frames = [{"t_sim": 0.0, "bodies": _poses(), **_energy_fields(scene)}]
     next_rec = frame_dt
     e0 = scene.total_kinetic_energy()
     t = 0.0
@@ -1592,9 +1626,10 @@ def record_escapement_clock(pendulum_length_m: float = 0.4,
         if escapement.step(t):
             tick_frames.append(round(t, 4))
         if t >= next_rec:
-            frames.append({"t_sim": round(t, 4), "bodies": _poses()})
+            frames.append({"t_sim": round(t, 4), "bodies": _poses(),
+                           **_energy_fields(scene)})
             next_rec += frame_dt
-    frames.append({"t_sim": round(t, 4), "bodies": _poses()})
+    frames.append({"t_sim": round(t, 4), "bodies": _poses(), **_energy_fields(scene)})
     t_end = t
     de = scene.total_kinetic_energy() - e0
 
@@ -1928,7 +1963,7 @@ def record_clock(module_m: float = 0.002, face_width_m: float = 0.006,
                  "quat": [round(v, 6) for v in p.orientation]}
                 for p in all_parcels]
 
-    frames = [{"t_sim": 0.0, "bodies": _poses()}]
+    frames = [{"t_sim": 0.0, "bodies": _poses(), **_energy_fields(scene)}]
     next_rec = frame_dt
     e0 = scene.total_kinetic_energy()
     t = 0.0
@@ -1939,10 +1974,11 @@ def record_clock(module_m: float = 0.002, face_width_m: float = 0.006,
         t += dt
         escapement.step(t)
         if t >= next_rec:
-            frames.append({"t_sim": round(t, 4), "bodies": _poses()})
+            frames.append({"t_sim": round(t, 4), "bodies": _poses(),
+                           **_energy_fields(scene)})
             next_rec += frame_dt
             winding_trace.append(spring.theta_wound())
-    frames.append({"t_sim": round(t, 4), "bodies": _poses()})
+    frames.append({"t_sim": round(t, 4), "bodies": _poses(), **_energy_fields(scene)})
     t_end = t
     de = scene.total_kinetic_energy() - e0
 
@@ -2256,9 +2292,16 @@ def record_object_fall(construct, start_altitude_m: float = 2.4384, *,
     Il = [max(v, 1e-12) for v in construct.inertia_kgm2]
     r_char = max(0.5 * min(dx, dy, dz), 1e-3)
 
+    # pre-bounce free fall: NO PhysicsParcel/PhysicsScene here (this recorder
+    # integrates bare scalars — see docstring), so energy/momentum/angular_
+    # momentum are computed manually: purely vertical motion (v = hist's
+    # signed-magnitude speed, falling → -y), no rotation yet (w=[0,0,0]).
     frames = [{"t_sim": round(s["t"], 4),
                "bodies": [{"pos": [0.0, round(s["altitude_m"], 5), 0.0],
-                           "quat": list(q)}]}
+                           "quat": list(q)}],
+               "energy_j": 0.5 * m * s["speed_m_s"] ** 2,
+               "momentum": [0.0, -m * s["speed_m_s"], 0.0],
+               "angular_momentum": [0.0, 0.0, 0.0]}
               for s in hist if s["altitude_m"] > support0]
     if frames:
         t = frames[-1]["t_sim"]
@@ -2266,9 +2309,13 @@ def record_object_fall(construct, start_altitude_m: float = 2.4384, *,
                  or math.sqrt(max(0.0, 2.0 * g * start_altitude_m)))
     else:
         t, v_imp = 0.0, math.sqrt(max(0.0, 2.0 * g * max(start_altitude_m, 0.0)))
+        # this single frame is the RELEASE point (t=0, not yet falling): at
+        # rest, so energy/momentum/angular_momentum are all exactly zero
         frames = [{"t_sim": 0.0,
                    "bodies": [{"pos": [0.0, max(start_altitude_m, support0), 0.0],
-                               "quat": list(q)}]}]
+                               "quat": list(q)}],
+                   "energy_j": 0.0, "momentum": [0.0, 0.0, 0.0],
+                   "angular_momentum": [0.0, 0.0, 0.0]}]
 
     try:
         from ..field.interface.impact import coefficient_of_restitution
@@ -2279,6 +2326,16 @@ def record_object_fall(construct, start_altitude_m: float = 2.4384, *,
     def _erot(w):
         wl = _qrot_inv(q, w)
         return 0.5 * (Il[0] * wl[0] ** 2 + Il[1] * wl[1] ** 2 + Il[2] * wl[2] ** 2)
+
+    def _Lworld(w):
+        """World-frame angular momentum I·ω — the same body-frame-diagonal
+        rotate/scale/rotate-back idiom as _erot, mirroring PhysicsParcel.
+        angular_momentum() (dynamics/parcel.py) since there's no parcel
+        object here to call it on."""
+        wl = _qrot_inv(q, w)
+        Ll = (Il[0] * wl[0], Il[1] * wl[1], Il[2] * wl[2])
+        Lw = _qrot(q, Ll)
+        return list(Lw)
 
     contacts = []
     y, v, w = support0, -abs(v_imp), [0.0, 0.0, 0.0]
@@ -2329,14 +2386,20 @@ def record_object_fall(construct, start_altitude_m: float = 2.4384, *,
         if t >= next_rec:
             frames.append({"t_sim": round(t, 4),
                            "bodies": [{"pos": [0.0, round(y, 5), 0.0],
-                                       "quat": [round(x, 6) for x in q]}]})
+                                       "quat": [round(x, 6) for x in q]}],
+                           "energy_j": 0.5 * m * v * v + _erot(w),
+                           "momentum": [0.0, m * v, 0.0],
+                           "angular_momentum": _Lworld(w)})
             next_rec += frame_dt
     rest_y, _ = _support(q, offsets)
     for _k in range(3):                                    # a beat at rest
         t += frame_dt
         frames.append({"t_sim": round(t, 4),
                        "bodies": [{"pos": [0.0, round(rest_y, 5), 0.0],
-                                   "quat": [round(x, 6) for x in q]}]})
+                                   "quat": [round(x, 6) for x in q]}],
+                       "energy_j": 0.5 * m * v * v + _erot(w),
+                       "momentum": [0.0, m * v, 0.0],
+                       "angular_momentum": _Lworld(w)})
 
     # The construct's leaves become ONE dynamic body (body 0), rotated about its
     # centre of mass and translated by the per-frame pose.
@@ -2637,7 +2700,7 @@ def record_bell_strike(bell_material: str = "iron", bell_diameter_m: float = 0.1
         return out
 
     contact_r = bell.radius + stone.radius
-    frames = [{"t_sim": 0.0, "bodies": _poses()}]
+    frames = [{"t_sim": 0.0, "bodies": _poses(), **_energy_fields(scene)}]
     next_rec = frame_dt
     t_max = 3.0
     struck_at, v_impact = None, None
@@ -2650,11 +2713,13 @@ def record_bell_strike(bell_material: str = "iron", bell_diameter_m: float = 0.1
             struck_at = scene.time
             v_impact = pre_v
         if scene.time >= next_rec:
-            frames.append({"t_sim": round(scene.time, 4), "bodies": _poses()})
+            frames.append({"t_sim": round(scene.time, 4), "bodies": _poses(),
+                           **_energy_fields(scene)})
             next_rec += frame_dt
         if struck_at is not None and scene.time >= struck_at + 0.4:
             break
-    frames.append({"t_sim": round(scene.time, 4), "bodies": _poses()})
+    frames.append({"t_sim": round(scene.time, 4), "bodies": _poses(),
+                           **_energy_fields(scene)})
     t_end = scene.time
 
     f_ring = ring_frequency(bell_material, bell_diameter_m)
@@ -2800,7 +2865,6 @@ def record_bell_strike(bell_material: str = "iron", bell_diameter_m: float = 0.1
         },
     }
 
-
 def record_hand_tool_actuation(tool: str = "pliers",
                                swing_amplitude_deg: float = 15.0,
                                speed_rad_s: float = 4.0,
@@ -2874,7 +2938,7 @@ def record_hand_tool_actuation(tool: str = "pliers",
                         "quat": [round(v, 6) for v in p.orientation]})
         return out
 
-    frames = [{"t_sim": 0.0, "bodies": _poses()}]
+    frames = [{"t_sim": 0.0, "bodies": _poses(), **_energy_fields(scene)}]
     next_rec = frame_dt
     e0 = scene.total_kinetic_energy()
     half_period = (2.0 * amplitude) / speed_rad_s
@@ -2887,9 +2951,11 @@ def record_hand_tool_actuation(tool: str = "pliers",
         th = joint.angle()
         seen_min, seen_max = min(seen_min, th), max(seen_max, th)
         if scene.time >= next_rec:
-            frames.append({"t_sim": round(scene.time, 4), "bodies": _poses()})
+            frames.append({"t_sim": round(scene.time, 4), "bodies": _poses(),
+                           **_energy_fields(scene)})
             next_rec += frame_dt
-    frames.append({"t_sim": round(scene.time, 4), "bodies": _poses()})
+    frames.append({"t_sim": round(scene.time, 4), "bodies": _poses(),
+                   **_energy_fields(scene)})
     t_end = scene.time
     de = scene.total_kinetic_energy() - e0
 
