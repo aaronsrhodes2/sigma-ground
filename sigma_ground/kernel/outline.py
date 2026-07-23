@@ -153,7 +153,14 @@ class Outline(Shape):
     def bounding_radius(self):
         if self.mode == "extrude":
             return math.hypot(self._rmax, 0.5 * self.thickness)
-        return math.hypot(self._rmax, 0.5 * (self._zmax - self._zmin))
+        # revolve: the profile's local z-origin is self.center (surface_distance
+        # tests pz-cz against the raw profile z's, unshifted) — NOT necessarily
+        # the midpoint of [zmin, zmax] (e.g. a cone profile [(0,0),(H,R)] has
+        # zmin=0). max(|zmin|,|zmax|) bounds |z| for every point of the solid
+        # (a filled polygon's z-extent is within its vertices' z-extent); using
+        # the half-span 0.5*(zmax-zmin) instead would UNDER-count whenever the
+        # profile isn't z-symmetric about center, which is not conservative.
+        return math.hypot(self._rmax, max(abs(self._zmin), abs(self._zmax)))
 
     # -- kernel-analysis surface (approximate; Deckard uses the integrator) ---
     def _defining_dims(self):

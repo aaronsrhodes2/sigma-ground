@@ -32,7 +32,8 @@ import copy
 import math
 
 from ..field.interface.atmosphere import atmosphere_preset
-from .scene_export import _bake_material, _light_color, _perp_frame
+from .scene_export import (_bake_material, _light_color, _perp_frame,
+                           _BOUNDS_MARGIN_M, _BOUNDS_MIN_RADIUS_M)
 
 
 # ── building blocks ──────────────────────────────────────────────────────
@@ -59,16 +60,24 @@ def _light_material():
 
 
 def _light_leaf(center, radius, temp_k):
-    return {"op": "add", "material": "studio_light",
+    leaf = {"op": "add", "material": "studio_light",
             "shape": {"type": "Sphere", "center": _r(center), "radius": round(radius, 5)},
             "temperature_k": temp_k}
+    if radius >= _BOUNDS_MIN_RADIUS_M:            # see scene_export._BOUNDS_MIN_RADIUS_M
+        leaf["bounds"] = {"center": _r(center), "radius": round(radius + _BOUNDS_MARGIN_M, 5)}
+    return leaf
 
 
 def _box_leaf(material, center, ext):
     """A Box leaf; ``ext`` is the FULL (x, y, z) extents (the viewer halves them)."""
-    return {"op": "add", "material": material,
+    r = 0.5 * math.sqrt(ext[0] ** 2 + ext[1] ** 2 + ext[2] ** 2)   # half-diagonal —
+    # matches kernel/shapes.py Box.bounding_radius() exactly (same FULL-extent convention)
+    leaf = {"op": "add", "material": material,
             "shape": {"type": "Box", "center": _r(center),
                       "x": round(ext[0], 5), "y": round(ext[1], 5), "z": round(ext[2], 5)}}
+    if r >= _BOUNDS_MIN_RADIUS_M:                  # see scene_export._BOUNDS_MIN_RADIUS_M
+        leaf["bounds"] = {"center": _r(center), "radius": round(r + _BOUNDS_MARGIN_M, 5)}
+    return leaf
 
 
 def _no_sun():

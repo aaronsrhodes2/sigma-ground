@@ -276,6 +276,69 @@ def _shape_to_dict(shape) -> dict:
     return d
 
 
+_BOUNDS_MARGIN_M = 0.01  # 1 cm conservative slack on every exported bounding sphere.
+# Must exceed the largest hit-epsilon buildPathShader's mapD-consumers use
+# (march(): 0.0008 at viewer.js:779; sunShadow()/visRay(): 0.001 at 781/783;
+# calcN()'s finite-difference offset h=2e-4 at 767 only ever probes points
+# already within march's 0.0008, so it's covered too) — 0.01 gives >10x
+# headroom over all of them, absorbing float roundoff and any primitive whose
+# surface_distance() is an approximate (non-exact) distance estimator.
+
+# A leaf whose TRUE bounding_radius() is small relative to _BOUNDS_MARGIN_M
+# gets a bounding sphere heavily inflated in RELATIVE terms (e.g. a 1.3mm
+# doughnut sprinkle padded out to an 11.3mm sphere — an ~8.7x radius, ~770%
+# blow-up). That is NOT merely a missed-optimization corner case: empirically
+# replaying mapD's exact compose chain plus march()'s own sphere-tracing loop
+# (viewer.js:778-779) against an isolated small leaf shows the ray can
+# terminate on the PADDED sphere's own (invisible-in-principle) boundary
+# before ever reaching the leaf's true surface — a real, visible phantom-hit
+# artifact (measured worst-case position error: exactly _BOUNDS_MARGIN_M for
+# an isolated leaf, i.e. up to ~770% of a 1.3mm sprinkle's own radius; worse,
+# ~2.5cm, when it sits flush against other geometry). The fix is not a
+# smaller/relative margin (that reopens the same trade at a different scale)
+# but simply not gating leaves too small for a fixed-size margin to stay
+# proportionate: below this radius, omit "bounds" entirely so the leaf always
+# evaluates exactly (buildPathShader's `if(bvhCull && bnd)` already degrades
+# gracefully to always-exact when bnd is absent). 4x keeps the padded radius
+# within 25% of the true radius at the cutoff (shrinking further above it);
+# empirically this excludes exactly the sprinkle leaves in the doughnut/
+# plate/table scene and nothing else — every macroscopic leaf (torus,
+# cylinder, boxes, walls) still gets the full early-rejection speedup.
+_BOUNDS_MIN_RADIUS_M = 4.0 * _BOUNDS_MARGIN_M
+
+
+def _bounding_sphere(shape):
+    """Conservative (center, radius) bounding sphere for an exported leaf's
+    shape, in the shape's own local/rest frame (the same frame shape.center
+    and the exported "shape" dict's geometry live in) — or None if the
+    shape's true bounding_radius() is too small relative to _BOUNDS_MARGIN_M
+    for early-rejection to be safe (see _BOUNDS_MIN_RADIUS_M above); callers
+    must omit the leaf's "bounds" key entirely when this returns None.
+
+    shape.bounding_radius() already delegates correctly through every CSG
+    wrapper (_Rotated/_Clipped/_Subtracted all forward to
+    self._base.bounding_radius() — construct.py:277-278/318-319/430-431), so
+    calling it directly on `shape` is always correct.
+
+    shape.center is NOT safe to pair with that radius for _Clipped/_Subtracted:
+    those two wrappers override .center to a measured centroid of the actual
+    remaining/clipped material (construct.py _Clipped.__init__:308,
+    _Subtracted.__init__:420), a different point than the one
+    bounding_radius() was measured about (the wrapped primitive's own
+    .center). Walk down the ._base chain to the innermost primitive's own
+    .center to keep the (center, radius) pair self-consistent and
+    conservative. (_Rotated.center already equals its base's center —
+    construct.py:263 — so walking through it changes nothing.)
+    """
+    r = shape.bounding_radius()
+    if r < _BOUNDS_MIN_RADIUS_M:
+        return None
+    base = shape
+    while hasattr(base, "_base"):
+        base = base._base
+    return tuple(base.center), r + _BOUNDS_MARGIN_M
+
+
 def _qrot_inv(q, v):
     """Inverse-rotate v by quaternion q=(x,y,z,w) — same form as the viewer's
     qrotInv: v + 2w(u x v) + 2 u x (u x v) with u = -q.xyz."""
@@ -745,8 +808,12 @@ def construct_to_scene(construct, opacity=None) -> dict:
     csg_leaves, materials, choices = [], {}, []
     for leaf, op in leaves:
         label = leaf.material                       # the leaf's identity label
-        csg_leaves.append({"op": op, "material": label,
-                           "shape": _shape_to_dict(leaf.shape)})
+        leaf_dict = {"op": op, "material": label, "shape": _shape_to_dict(leaf.shape)}
+        bsphere = _bounding_sphere(leaf.shape)        # None: too small to safely gate
+        if bsphere is not None:
+            bcenter, bradius = bsphere
+            leaf_dict["bounds"] = {"center": list(bcenter), "radius": bradius}
+        csg_leaves.append(leaf_dict)
         if label not in materials:
             substance = label_material.get(label, label)   # what it's MADE of
             mat_info = _bake_material(

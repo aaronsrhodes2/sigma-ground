@@ -48,6 +48,25 @@ def test_revolved_cone_profile_matches_cone_volume():
     assert abs(o.volume() - (1.0 / 3.0) * math.pi * R * R * H) < 1e-9
 
 
+def test_revolved_asymmetric_profile_bounding_radius_is_conservative():
+    # A revolve profile's local z-origin is self.center (surface_distance
+    # tests pz-cz against the raw profile z's, unshifted) -- it need NOT be
+    # z-symmetric about center. This cone profile spans z in [0, H], so the
+    # true farthest point (the base rim) is H away from center, not H/2.
+    # bounding_radius() must bound that true extent, not the half-span
+    # (a prior bug used 0.5*(zmax-zmin), which undercounts here).
+    R, H = 0.03, 0.09
+    o = Outline([(0.0, 0.0), (H, R)], mode="revolve")
+    true_max_extent = math.hypot(R, H)          # the base-rim point (z=H, r=R)
+    assert o.bounding_radius() >= true_max_extent - 1e-9
+
+    # Sanity: a z-symmetric revolve profile is unaffected by the fix (both
+    # the half-span and max(|zmin|,|zmax|) agree when zmin == -zmax).
+    Rc, Hc = 0.02, 0.10
+    oc = Outline([(-Hc / 2, Rc), (Hc / 2, Rc)], mode="revolve")
+    assert abs(oc.bounding_radius() - math.hypot(Rc, Hc / 2)) < 1e-12
+
+
 def test_extruded_outline_holds_an_organic_shape():
     # a non-convex leaf-ish polygon (a point at each end, bulge in the middle):
     # primitives can't express it, Outline can, and it integrates to real matter.
