@@ -124,6 +124,17 @@ float sdInvoluteGear(vec3 p, vec3 c, float r_b, float r_a, float r_f, float beta
   if(dGear2d>0.0 && dExtrude>0.0) return length(vec2(dGear2d, dExtrude));
   return max(dGear2d, dExtrude); }
 vec3 leafRot(vec4 rot, vec3 p, vec3 c){ return qrotInv(rot, p-c)+c; }
+// Exact SDF for a capped cylinder between two arbitrary world points a→b
+// (Quilez's closed form) — used only by the ghost-tether Plug-disclosure
+// marker (see buildPathShader), which needs an axis that is NOT
+// necessarily x/y/z-aligned: a RevoluteJoint's motor axis is an arbitrary
+// world direction, unlike every other leaf's local-frame shape.
+float sdCapsuleCyl(vec3 p, vec3 a, vec3 b, float r){
+  vec3 ba=b-a, pa=p-a; float baba=dot(ba,ba), paba=dot(pa,ba);
+  float x=length(pa*baba-ba*paba)-r*baba, y=abs(paba-baba*0.5)-baba*0.5;
+  float x2=x*x, y2=y*y*baba;
+  float dd=(max(x,y)<0.0)?-min(x2,y2):(((x>0.0)?x2:0.0)+((y>0.0)?y2:0.0));
+  return sign(dd)*sqrt(abs(dd))/baba; }
 // Transparency test-card environment (debug toggle): the universal grey/white
 // checker meaning "nothing here". A transparent thing shows it refracted, a
 // mirror shows it reflected — so you can SEE what's see-through. Cube-map
@@ -299,6 +310,45 @@ function jsShapeSDF(s,q){
 // per-build registry of generated GLSL outline functions (profiles baked as consts)
 let EXTRA_GLSL="", outlineN=0, outlineKeys=new Map(), voxelKeys=new Set();
 let envChecker=false;        // debug: swap the environment for a transparency checker (view-only; never the glasses output)
+// PERF: bvhCull gates each leaf's mapD() term behind its (center,radius)
+// bounding sphere: outside it, the leaf substitutes bd_i=|q-c|-r (a safe
+// lower bound on its true distance — never overshoots) instead of its exact
+// SDF. A bare "bd_i>0.0" gate is NOT enough: "never overshoots" only means
+// mapD's output never claims a leaf is FARTHER than it truly is — it does
+// NOT mean a small bd_i implies we're near that leaf's real surface. bd_i is
+// smoothly near-zero anywhere close to the PADDED SPHERE's own boundary,
+// which for a large/thin/elongated leaf (a room wall: true half-thickness
+// ~0.02m, bounding_radius ~2m+) sits deep in otherwise-empty space; if that
+// near-zero bd_i wins mapD()'s min/max chain where no other leaf is close,
+// march()/sunShadow()/visRay() terminate on the invisible bounding sphere
+// instead of real geometry. Measured on the shipped 48-leaf doughnut/plate/
+// table/room scene (replaying mapD()+march() in Python for a full camera-ray
+// sweep) with a bare ">0.0" gate: 99.9% of rays diverged from exact-eval by
+// >10cm, worst case ~3.3m — a real, visible defect, not sub-pixel noise.
+// Fix (below, GATE_BUFFER in the decls-loop comment): only substitute bd_i
+// once it exceeds a buffer comfortably above every hit epsilon mapD's
+// consumers use, so a substituted term can never itself register as a hit —
+// any composed d that DOES drop below hit-epsilon must be won by a genuine
+// exact evaluation. Re-verified after that fix with the same camera-ray
+// sweep: 0 hit/miss or material divergences, >99.9% of rays within 1mm of
+// the exact-eval hit point (the tiny remainder traced to sphere-tracing's
+// own pre-existing grazing-angle sensitivity on thin geometry, independent
+// of this gate — reproduces with bvhCull off vs a jittered ray too).
+let bvhCull=true;    // debug/A-B toggle: per-leaf bounding-sphere early-rejection in mapD()
+                     // (buildPathShader only). false = always exact-evaluate every leaf,
+                     // i.e. byte-identical to pre-optimization codegen — for pixel-diff
+                     // verification, or if a future scene's geometry needs re-checking
+                     // with tools/ 's camera-ray sweep before trusting bvhCull=true on it.
+// Render-only, client-side opacity OVERRIDE — {material_label: alpha in [0,1]}.
+// Same pattern as envChecker: consulted only at shader-BUILD time (buildPathShader),
+// mutated ONLY through window.Radiance.setMaterialOpacity (never poked directly by
+// UI code), which rebuilds+relinks the program. A label absent here renders at its
+// scene-baked `materials[label].opacity` (default 1.0 — every scene not touching
+// this feature is unaffected). Never round-tripped into the scene JSON; a fresh
+// load()/reset starts clean. Purely a VIEW toggle — the physics (mass/density/
+// inertia) this scene renders is computed entirely upstream in Python and never
+// reads this map.
+let materialOpacity={};
 function resetExtraGLSL(){ EXTRA_GLSL=""; outlineN=0; outlineKeys=new Map(); voxelKeys=new Set(); }
 // A real voxel solid: sample its signed-distance grid (uploaded as a 3-D texture)
 // trilinearly in GLSL — the kernel Voxel's _trilinear, in hardware. uvw =
@@ -434,8 +484,54 @@ function jsEvalSDF(scene, p, poses){
   }
   return d;
 }
+// Which leaf's material owns world point p — the JS twin of Python's
+// scene_spec_to_sdf().material_at(): walk leaves in REVERSE (later leaves win,
+// same convention mapD's `matsel` and Python's `material_at` both use) and
+// return the first one whose own local shape actually contains p. Used only
+// by click-to-pick (a VIEW affordance); never consulted by geometry/physics.
+function jsMaterialAt(scene, p, poses){
+  const ls=scene.csg_leaves||[], bodies=scene.bodies||[];
+  for(let i=ls.length-1;i>=0;i--){
+    let q=p; const bi=ls[i].body;
+    if(bi!=null && poses && poses[bi]){
+      const piv=(bodies[bi]&&bodies[bi].pivot)||[0,0,0];
+      q=add(qrotInvJS(poses[bi].quat, sub(p,poses[bi].pos)), piv);
+    }
+    if(jsShapeSDF(ls[i].shape, q) < 0.0) return ls[i].material;
+  }
+  return null;
+}
+// Cheap CPU sphere-trace of a single camera ray — click-to-pick only (the GPU
+// path tracer never runs this; it's not on the render hot path at all).
+function jsMarchPick(scene, ro, rd, poses, maxDist){
+  let t=0;
+  for(let i=0;i<300;i++){
+    const p=add(ro, mul(rd,t));
+    const d=jsEvalSDF(scene, p, poses);
+    if(Math.abs(d) < 0.002) return p;
+    t += Math.max(Math.abs(d), 0.0008);
+    if(t > maxDist) return null;
+  }
+  return null;
+}
+// Finite-difference normal of the COMPOSED sdf at p — the JS twin of calcN()
+// in both shaders, used only to nudge a marched hit point safely INSIDE the
+// surface before asking jsMaterialAt "whose material is this": jsMarchPick
+// stops within an epsilon SHELL of the surface (it can land on either side),
+// exactly the ambiguity mapD(p-n*0.0008,mat) resolves on the GPU.
+function jsCalcN(scene, p, poses){
+  const h=1e-4;
+  const d=(o)=>jsEvalSDF(scene, add(p,o), poses);
+  return norm([d([h,0,0])-d([-h,0,0]), d([0,h,0])-d([0,-h,0]), d([0,0,h])-d([0,0,-h])]);
+}
 
 // ── build the fragment shader (colors BAKED as constants) ──────────────
+// NOTE: this is the no-float-target compatibility shim only (single-hit
+// raymarch, no bounce/transmission of any kind — see the module-level comment
+// at the top of the file). It does NOT read materials[label].opacity or
+// materialOpacity: a GPU too old to path-trace shows every material at its
+// normal opacity. The render-only transparency toggle lives entirely in
+// buildPathShader()/trace() below, the one real renderer.
 function buildFragmentShader(scene){
   resetExtraGLSL();
   const ls=scene.csg_leaves, bodies=scene.bodies||[];
@@ -675,11 +771,67 @@ function buildPathShader(scene){
   let bodyDecls="";
   used.forEach(k=>{ const piv=(bodies[k]&&bodies[k].pivot)||[0,0,0];
     bodyDecls += `  vec3 bdy${k}=qrotInv(uBodyQuat[${k}], p-uBodyPos[${k}])+vec3(${glf(piv[0])},${glf(piv[1])},${glf(piv[2])});\n`; });
-  let decls="", compose="  float d=s0;\n", matsel="  mat=-1;\n", colorfn="", metalfn="", reflfn="", emisfn="", tempfn="", iorfn="", bodyTempFn="";
+  let decls="", compose="  float d=s0;\n", matsel="  mat=-1;\n", colorfn="", metalfn="", reflfn="", emisfn="", tempfn="", iorfn="", alphafn="", bodyTempFn="";
   const envT=(scene.physics_env&&scene.physics_env.temperature_k!==undefined)?scene.physics_env.temperature_k:293.15;
   for(let i=0;i<ls.length;i++){
     const q = ls[i].body!=null ? `bdy${ls[i].body}` : "(p)";
-    decls += `  float s${i}=${glslShapeCall(ls[i].shape, q)};\n`;
+    const bnd = ls[i].bounds;
+    if(bvhCull && bnd){
+      const bc=bnd.center, br=glf(bnd.radius);
+      // bd{i} (signed distance to the padded bounding sphere) is the correct far-leaf
+      // substitute for EVERY op, subtract included -- there is no separate "1e9 no-op"
+      // case. Correctness (re-derived, not just asserted): this branch only fires when
+      // bd{i}>GATE_BUFFER>0, and the bounding-sphere property gives 0<bd{i}<=s{i}_exact
+      // (the leaf's true SDF) whenever that holds, so -bd{i}>=-s{i}_exact. compose's
+      // subtract branch does d=max(d,-s{i}); by monotonicity of max() in its second
+      // argument, max(d_prev,-bd{i}) >= max(d_prev,-s{i}_exact) = d_exact, for ANY
+      // d_prev. Two cases: if d_exact>=0 (point already outside via prior leaves), the
+      // -s{i}_exact term never wins that max (it's <=0), so the substitute changes
+      // nothing and d_approx=d_exact=d_prev exactly -- no error. If d_exact<0 (point
+      // still inside after this leaf -- e.g. deep in a large solid, near a buried
+      // subtract cavity whose bounding sphere is gated far), both d_exact and d_approx
+      // are <=0, so d_exact<=d_approx<=0 means |d_approx|<=|d_exact|: the substituted
+      // step can only be SMALLER than the true distance, never larger -- exactly the
+      // non-overshoot property sphere tracing needs. (A prior version of this code used
+      // a 1e9 sentinel here instead, reasoning that compose's -s{i} consumption flips a
+      // lower bound on s{i} into an unsafe upper bound on -s{i} -- true in isolation,
+      // but the 1e9 "no-op" is *worse*: max(d_prev,-1e9)=d_prev unclamped, and d_prev
+      // can have far larger magnitude than the true -s{i}_exact clip, so the ray steps
+      // straight past a nearby-but-gated-far cavity wall. Reproduced: 0.55m position
+      // divergence marching toward a buried r=0.05 subtract cavity 0.5m inside a r=2.0
+      // solid sphere, fixed by this change -- see tools/verify_bvh_cull_subtract.py.)
+      // i===0 needs no special case either way: leaf 0 is compose's unconditional base
+      // `d=s0`, never routed through the subtract branch regardless of its own op
+      // field, and bd0 is what it would want anyway.
+      //
+      // GATE_BUFFER (not just ">0.0"): bd{i} alone is a safe lower bound (never
+      // overshoots), but "safe" only means mapD's OUTPUT never claims a leaf is
+      // farther than it truly is — it does NOT mean a small bd{i} implies we're
+      // near that leaf's REAL surface. bd{i} is the signed distance to the
+      // PADDED SPHERE's own boundary, which for a leaf whose true shape is
+      // large/thin/elongated relative to its bounding radius (a room wall: real
+      // half-thickness ~0.02m, bounding_radius ~2m+) sits deep in otherwise-empty
+      // space. march()/sunShadow()/visRay() terminate whenever the COMPOSED d
+      // drops below their hit epsilon (0.0008/0.001) -- if a substituted bd{i}
+      // is what's small, that termination is a phantom hit on the invisible
+      // bounding sphere, not real geometry (confirmed empirically: replaying
+      // mapD()+march() for a full camera-ray sweep against this codegen with a
+      // bare ">0.0" gate showed 99.9% of rays landing >10cm from the exact-eval
+      // hit point, worst case ~3.3m). Fix: only ever substitute bd{i} when it is
+      // > GATE_BUFFER, a constant comfortably larger than every hit epsilon
+      // those three functions use. That guarantees a SUBSTITUTED term can never
+      // itself be < hit-epsilon, so a composed d that DOES drop below hit-epsilon
+      // can only be won by a genuine exact evaluation -- the property the design
+      // needed but a bare ">0.0" gate didn't provide. Re-verified after this fix:
+      // the same camera-ray sweep drops to 0 hit/miss or material divergences
+      // and >99.9% of rays within 1mm of the exact-eval hit point (the tiny
+      // remainder traced to sphere-tracing's own pre-existing grazing-angle
+      // sensitivity on thin geometry, not to this gate).
+      decls += `  float bd${i}=length(${q}-vec3(${glf(bc[0])},${glf(bc[1])},${glf(bc[2])}))-${br};\n`;
+      decls += `  float s${i}; if(bd${i}>GATE_BUFFER){ s${i}=bd${i}; } else { s${i}=${glslShapeCall(ls[i].shape, q)}; }\n`;
+    } else {
+      decls += `  float s${i}=${glslShapeCall(ls[i].shape, q)};\n`;
+    }
     const mat=scene.materials[ls[i].material]||{}, c=mat.color_rgb||[0.72,0.72,0.72];
     colorfn += `  if(m==${i}) return vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])});\n`;
     const isMetal=(mat.metal!==undefined?mat.metal:mat.emergent);
@@ -690,6 +842,13 @@ function buildPathShader(scene){
                  : `  if(m==${i}) return clamp(vec3(1.0)-vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])}),0.0,1.0);\n`;
     tempfn += `  if(m==${i}) return ${glf(ls[i].temperature_k!==undefined?ls[i].temperature_k:envT)};\n`;
     iorfn += `  if(m==${i}) return ${glf(mat.refractive_index!==undefined?mat.refractive_index:-1.0)};\n`;
+    // Render-only opacity: the scene's baked default (mat.opacity, 1.0 if the
+    // export never set it), overridden per-label by the client-side toggle map
+    // if one is active. Independent of ior/reflect_r0 — see opacityOf()/trace().
+    { const baseOp=(mat.opacity!==undefined)?mat.opacity:1.0;
+      const ov=materialOpacity[ls[i].material];
+      const op=(ov!==undefined)?ov:baseOp;
+      alphafn += `  if(m==${i}) return ${glf(op)};\n`; }
     bodyTempFn += `  if(m==${i}) return ${ls[i].body!=null?`uBodyTemp[${ls[i].body}]`:"-1.0"};\n`;
   }
   for(let i=1;i<ls.length;i++){ const op=ls[i].op;
@@ -698,6 +857,40 @@ function buildPathShader(scene){
   const fieldSel=glslFieldFns(scene);               // per-cell field samplers → EXTRA_GLSL + switch
   const bb=scene.bbox||[[-1,1],[-1,1],[-1,1]];
   const diag=len(sub([bb[0][1],bb[1][1],bb[2][1]],[bb[0][0],bb[1][0],bb[2][0]]))||1;
+  // ── ghost tethers: violet, translucent markers at each DRIVE plug's own
+  // joint anchor (Plug.at/.axis, dynamics/mechanisms/plug.py) — the
+  // artificial motor/actuator the scene's HUD panel already discloses in
+  // TEXT (violet #818CF8, same color, see the "plugs" HUD block below),
+  // made visible IN the render too. Appended as synthetic leaves AFTER
+  // every real one (indices ls.length..) so they never touch
+  // scene.csg_leaves/jsEvalSDF — the Python ground-truth self-check stays
+  // exact, unaware ghosts exist. Real translucency (opacityOf/trace's
+  // stochastic alpha gate) only lives in THIS shader — the old-GPU
+  // compatibility shim (buildFragmentShader) skips ghosts entirely and
+  // renders the scene exactly as it always has.
+  const ghosts=(scene.plugs||[]).filter(pg=>pg.kind==="drive"&&Array.isArray(pg.at));
+  const GHOST_RGB=[0.5059,0.5490,0.9725];             // #818CF8 — the HUD's own Plug violet
+  const gR=Math.max(0.004,diag*0.006), gHalf=Math.max(0.02,diag*0.045);
+  ghosts.forEach((pg,gi)=>{
+    const at=pg.at, axRaw=Array.isArray(pg.axis)?pg.axis:null;
+    const ax=(axRaw&&len(axRaw)>1e-9)?norm(axRaw):[0,1,0];   // fall back to world-up if no axis shipped
+    const A=sub(at,mul(ax,gHalf)), B=add(at,mul(ax,gHalf));
+    const gidx=ls.length+gi;
+    decls += `  float s${gidx}=sdCapsuleCyl(p,vec3(${glf(A[0])},${glf(A[1])},${glf(A[2])}),`
+           + `vec3(${glf(B[0])},${glf(B[1])},${glf(B[2])}),${glf(gR)});\n`;
+    compose += `  d=min(d,s${gidx});\n`;
+    matsel += `  ${(gi===0&&ls.length===0)?"if":"else if"}(s${gidx}<0.0) mat=${gidx};\n`;
+    colorfn += `  if(m==${gidx}) return vec3(${glf(GHOST_RGB[0])},${glf(GHOST_RGB[1])},${glf(GHOST_RGB[2])});\n`;
+    metalfn += `  if(m==${gidx}) return 0.0;\n`;
+    reflfn  += `  if(m==${gidx}) return -1.0;\n`;
+    // dim self-glow (not a real blackbody -- a HUD-like indicator that
+    // reads clearly regardless of which way the scene's lights point)
+    emisfn  += `  if(m==${gidx}) return vec3(${glf(GHOST_RGB[0]*0.5)},${glf(GHOST_RGB[1]*0.5)},${glf(GHOST_RGB[2]*0.5)});\n`;
+    tempfn  += `  if(m==${gidx}) return ${glf(envT)};\n`;
+    iorfn   += `  if(m==${gidx}) return -1.0;\n`;
+    alphafn += `  if(m==${gidx}) return 0.35;\n`;      // low-opacity: an artificial marker, not real matter
+    bodyTempFn += `  if(m==${gidx}) return -1.0;\n`;
+  });
   const SHMIN=glf(Math.max(0.004,diag*0.004)), SHMAX=glf(Math.max(0.05,diag*0.06)),
         SMAXT=glf(Math.max(0.5,diag*1.2)), EPS=glf(Math.max(0.002,diag*0.0015));
   const amb=scene.ambient||{up:[0,0,1]}, au=amb.up||[0,0,1];
@@ -742,6 +935,12 @@ precision highp float; precision highp int;
 #define EMISSION_SCALE 2400000000.0
 #define EPS ${EPS}
 #define PT_ENV ${glf(scene.pt_env!==undefined?scene.pt_env:1.0)}
+// bvhCull's per-leaf gate buffer: a bd{i} bounding-sphere substitute is only
+// ever used when it exceeds this, comfortably above every hit epsilon mapD's
+// consumers use below (march() 0.0008, sunShadow()/visRay() 0.001) — see the
+// decls-loop comment in buildPathShader for why this specific property (a
+// substituted term can never itself register as a hit) is load-bearing.
+#define GATE_BUFFER 0.004
 out vec4 frag;
 uniform vec2 uRes; uniform vec3 uEye,uFwd,uRight,uUp;
 uniform float uTanHalf,uAspect,uMaxDist,uTime,uTemp,uFrame,uReset;
@@ -764,6 +963,7 @@ float fieldTempK(int m, vec3 p){ ${fieldSel}  return -1.0; }   // per-cell field
 float effTempK(int m, vec3 p){ float ft=fieldTempK(m,p); if(ft>=0.0) return ft+uTemp;   // field > frame body T > leaf T > ambient
   float bt=bodyTempK(m); return (bt>=0.0?bt:matTempK(m))+uTemp; }
 float iorOf(int m){ ${iorfn}  return -1.0; }              // refractive index (water/glass), else -1
+float opacityOf(int m){ ${alphafn}  return 1.0; }         // render-only alpha (1=opaque); NOT ior — see trace()
 vec3 calcN(vec3 p){ float h=2e-4; vec2 e=vec2(1.0,-1.0);
   return normalize( e.xyy*mapOnly(p+e.xyy*h)+e.yyx*mapOnly(p+e.yyx*h)+e.yxy*mapOnly(p+e.yxy*h)+e.xxx*mapOnly(p+e.xxx*h) ); }
 vec3 incandescence(float T, vec3 emis){ if(T<700.0) return vec3(0.0);
@@ -793,6 +993,18 @@ vec3 trace(vec3 ro, vec3 rd, inout uint seed){
   for(int b=0;b<8;b++){                                  // bounce depth: nested dielectrics (a glass of water) need >3 to cross every interface and reach the bright far side instead of dying black inside
     vec3 p; if(!march(ro,rd,p)){ L+=thr*skyEmit(rd); break; }
     vec3 n=calcN(p); int mat; mapD(p-n*0.0008,mat);
+    // RENDER-ONLY opacity gate — an artificial "make X see-through" toggle, not
+    // real transmission physics: independent of ior/Fresnel (the dielectric
+    // branch below is untouched and still does the real glass/water optics).
+    // Stochastic alpha test: with probability (1-op) this sample treats the
+    // surface as ABSENT — no shading, no glow, no albedo tint, ray continues
+    // straight through unbent — so across many accumulated samples the pixel
+    // converges to an honest opacity BLEND of "material" and "whatever is
+    // behind it", the alpha-compositing result, never a fake-refracted ghost.
+    float op=opacityOf(mat);
+    if(op<1.0 && rnd(seed)>=op){
+      vec3 nf=n; if(dot(rd,n)>=0.0) nf=-n; ro=p-nf*EPS*2.0; continue;   // pass through, direction unchanged
+    }
     if(spec) L += thr*incandescence(effTempK(mat, p), emissivityOf(mat)); // own glow at the POINT's temperature — only on specular arrival (NEE counts it otherwise; NEE cast light stays bulk-T — flagged: the gradient shows on the emitter's own surface, not yet in its cast light)
     vec3 alb=matColor(mat); float metal=metalness(mat);
     float ior=iorOf(mat); bool diffuse=(metal<0.5 && ior<=0.0);
@@ -997,6 +1209,13 @@ let animateRipples=true;                             // live wind ripples by def
 let ptEmitters=[];                                   // glowing-sphere emitters for next-event estimation
 let scene=null, traj=null, sceneDiag=1.0;
 let bodyPoses=[], simTime=0, tEnd=0, playing=false, rate=1.0, drewOnce=false;
+// scene-level dynamics readout (trajectory.py's _energy_fields, one triple PER
+// FRAME — not per body): kept as module state alongside bodyPoses rather than
+// folded into posesAt()'s return array, since every existing bodyPoses[k] call
+// site expects a per-body list. posesAt() still does the pack/interpolate/
+// expose job for these — same lerp-when-both/hold-when-one pattern as
+// temperature_k — it just writes the result here instead of returning it.
+let frameEnergyJ=0, frameMomentum=[0,0,0], frameAngularMomentum=[0,0,0];
 
 function frameBasis(up){
   const U2=norm(up), H=Math.abs(U2[0])<0.9?[1,0,0]:[0,0,1];
@@ -1007,15 +1226,31 @@ function eyePos(){
   const planar=add(mul(A,Math.cos(cam.az)*ce), mul(B,Math.sin(cam.az)*ce));
   return add(cam.target, mul(add(planar, mul(Up,se)), cam.radius));
 }
+// lerp-when-both-endpoints-have-it, hold-when-only-one-does — the same
+// missing-data policy posesAt uses for temperature_k, applied to the three
+// scene-level scalars/vectors (absent on a frame → this trajectory predates
+// the energy/momentum fields, or the frame is one of record_object_fall's
+// pre-bounce/rest-beat entries that legitimately carries zeros already).
+function _setFrameDynamics(f,u,f2){
+  const A=f.energy_j, B=f2?f2.energy_j:undefined;
+  frameEnergyJ = (A!==undefined&&B!==undefined) ? A+(B-A)*u : (A!==undefined?A:(B!==undefined?B:0));
+  const Am=f.momentum, Bm=f2?f2.momentum:undefined;
+  frameMomentum = (Am&&Bm) ? [Am[0]+(Bm[0]-Am[0])*u, Am[1]+(Bm[1]-Am[1])*u, Am[2]+(Bm[2]-Am[2])*u]
+                : (Am||Bm||[0,0,0]).slice();
+  const Al=f.angular_momentum, Bl=f2?f2.angular_momentum:undefined;
+  frameAngularMomentum = (Al&&Bl) ? [Al[0]+(Bl[0]-Al[0])*u, Al[1]+(Bl[1]-Al[1])*u, Al[2]+(Bl[2]-Al[2])*u]
+                       : (Al||Bl||[0,0,0]).slice();
+}
 function posesAt(t){     // → [{pos,quat}] for every body, interpolated
-  if(!traj||!traj.frames.length) return [];
+  if(!traj||!traj.frames.length){ frameEnergyJ=0; frameMomentum=[0,0,0]; frameAngularMomentum=[0,0,0]; return []; }
   const F=traj.frames, pack=(arr)=>arr.map(b=>({pos:b.pos.slice(),quat:(b.quat||[0,0,0,1]).slice(),
     tempK:(b.temperature_k!==undefined?b.temperature_k:undefined)}));
-  if(t<=F[0].t_sim) return pack(F[0].bodies);
-  if(t>=F[F.length-1].t_sim) return pack(F[F.length-1].bodies);
+  if(t<=F[0].t_sim){ _setFrameDynamics(F[0],0); return pack(F[0].bodies); }
+  if(t>=F[F.length-1].t_sim){ _setFrameDynamics(F[F.length-1],0); return pack(F[F.length-1].bodies); }
   let lo=0,hi=F.length-1;
   while(hi-lo>1){ const m=(lo+hi)>>1; if(F[m].t_sim<=t) lo=m; else hi=m; }
   const a=F[lo],b=F[hi], u=(t-a.t_sim)/Math.max(1e-9,b.t_sim-a.t_sim);
+  _setFrameDynamics(a,u,b);
   return a.bodies.map((ba,k)=>{ const bb=b.bodies[k]||ba, pa=ba.pos, pb=bb.pos;
     const Ta=ba.temperature_k, Tb=bb.temperature_k;
     return {pos:[pa[0]+(pb[0]-pa[0])*u, pa[1]+(pb[1]-pa[1])*u, pa[2]+(pb[2]-pa[2])*u],
@@ -1185,6 +1420,12 @@ function applyObj(obj, title, preserve){
   const newScene = obj.kind==="trajectory" ? obj.scene : obj;
   const newTraj  = obj.kind==="trajectory" ? obj.trajectory : (obj.trajectory||null);
   if(!newScene||!newScene.csg_leaves||!newScene.csg_leaves.length) throw new Error("scene has no csg_leaves");
+  // A genuinely NEW scene (not a live re-render of the one already showing)
+  // starts with a clean opacity slate — a material label from the PREVIOUS
+  // scene shouldn't silently haunt an unrelated one that happens to reuse it.
+  // Editing the current scene's JSON (preserve=true) keeps overrides, same as
+  // it keeps the camera/playhead.
+  if(!preserve) materialOpacity={};
   // Per-body MAX temperature over the whole trajectory, computed BEFORE the
   // compile: NEE emitter registration is compile-time, so a body that crosses
   // the 700 K Draper point at any frame must be an emitter for the program's
@@ -1216,6 +1457,7 @@ function applyObj(obj, title, preserve){
       const vs=Object.entries(p.variables||{}).map(([k,v])=>`${k}=${v}`).join(", ");
       return `${tag}: ${p.description}${vs?` (${vs})`:""}`; }).join("  ·  "); }
   showVariants(scene);
+  buildMaterialPanel(scene);
   const hasTraj=!!(traj&&traj.frames&&traj.frames.length>1);
   tEnd=hasTraj?traj.t_end_s:0;
   if(!preserve){ simTime=0; playing=false; $("play").textContent="▶ play";
@@ -1251,6 +1493,88 @@ function showVariants(sc){
     $("varval").textContent=v.label;
     load(`data/${v.slug}.json`, v.label).catch(e=>setErr("variant: "+e)); });
 })();
+
+// ── render-only material opacity: named-material list + click-to-pick ─────
+// The scene's baked opacity (materials[label].opacity, 1.0 if never set) with
+// the live client-side override applied on top — the SAME precedence
+// buildPathShader's per-leaf alphafn bakes into the shader.
+function effectiveOpacity(label){
+  const m=(scene&&scene.materials&&scene.materials[label])||{};
+  const base=(m.opacity!==undefined)?m.opacity:1.0;
+  const ov=materialOpacity[label];
+  return (ov!==undefined)?ov:base;
+}
+// Rebuild the "◐ opacity" drawer from the CURRENT scene's material list — one
+// row per label as it appears in spec["materials"], so a Captain can dial any
+// part by NAME without ever clicking geometry (build_demo/deckard-authored
+// labels like "engine_block" show up here verbatim).
+function buildMaterialPanel(sc){
+  const list=$("matlist"); if(!list) return;
+  list.innerHTML="";
+  const labels=Object.keys(sc.materials||{});
+  if(!labels.length){ list.innerHTML=`<div class="lbl" style="padding:8px">no materials</div>`; return; }
+  for(const label of labels){
+    const row=document.createElement("div"); row.className="matrow"; row.dataset.label=label;
+    const head=document.createElement("div"); head.className="t"; head.textContent=label;
+    const ctl=document.createElement("div"); ctl.className="matctl";
+    const slider=document.createElement("input");
+    slider.type="range"; slider.min="0"; slider.max="100"; slider.step="1";
+    slider.value=String(Math.round(effectiveOpacity(label)*100));
+    const val=document.createElement("span"); val.className="lbl matval";
+    val.textContent=slider.value+"%";
+    slider.addEventListener("input",()=>{
+      val.textContent=slider.value+"%";
+      window.Radiance.setMaterialOpacity(label, parseInt(slider.value,10)/100);
+    });
+    ctl.append(slider,val);
+    row.append(head,ctl);
+    list.appendChild(row);
+  }
+}
+// Reflect the CURRENT effective opacity of `label` into its drawer row (if the
+// drawer has been built) — called by window.Radiance.setMaterialOpacity so the
+// slider stays truthful no matter which path changed the value (drawer drag,
+// click-to-pick toggle, or a chat/API call).
+function syncMatRow(label){
+  const list=$("matlist"); if(!list) return;
+  const row=list.querySelector(`.matrow[data-label="${CSS.escape(label)}"]`); if(!row) return;
+  const slider=row.querySelector("input[type=range]"), val=row.querySelector(".matval");
+  const pct=Math.round(effectiveOpacity(label)*100);
+  if(slider) slider.value=String(pct);
+  if(val) val.textContent=pct+"%";
+}
+// Click-to-pick: cast the clicked pixel's camera ray (CPU, one-shot — not on
+// the render hot path) through the SAME SDF the shader draws, find which
+// leaf's material owns the hit point, and TOGGLE it opaque <-> mostly
+// see-through. A quick click on the engine block makes it see-through; click
+// it again to put it back. Ignored if the mouse actually dragged (orbiting).
+function pickMaterialAt(clientX, clientY){
+  if(!scene) return;
+  const rect=canvas.getBoundingClientRect();
+  if(rect.width<=0||rect.height<=0) return;
+  const nx=((clientX-rect.left)/rect.width)*2-1;
+  const ny=-(((clientY-rect.top)/rect.height)*2-1);
+  let up=cam.up; const eye=eyePos(); const fwd=norm(sub(cam.target,eye));
+  if(Math.abs(dot(fwd,norm(up)))>0.999) up=[0,1,0];
+  const right=norm(cross(fwd,up)); const camUp=cross(right,fwd);
+  const aspect=rect.width/rect.height;
+  const tanHalf=Math.tan(((scene.camera&&scene.camera.fov_deg)||40)*Math.PI/360);
+  const dir=norm(add(add(fwd, mul(right, nx*aspect*tanHalf)), mul(camUp, ny*tanHalf)));
+  const maxDist=len(sub(eye,cam.target))+sceneDiag*3+0.5;
+  const hitP=jsMarchPick(scene, eye, dir, bodyPoses, maxDist);
+  if(!hitP) return;
+  // nudge inward along the surface normal — jsMarchPick's stopping epsilon can
+  // land the point on EITHER side of the surface; jsMaterialAt needs to be
+  // confidently inside (mirrors the shader's mapD(p-n*0.0008,mat) convention).
+  const pn=jsCalcN(scene, hitP, bodyPoses);
+  const inP=sub(hitP, mul(pn, Math.max(0.003, sceneDiag*0.004)));
+  const label=jsMaterialAt(scene, inP, bodyPoses);
+  if(!label) return;
+  const cur=effectiveOpacity(label);
+  const next = cur>0.5 ? 0.15 : 1.0;              // toggle: mostly-transparent <-> opaque
+  window.Radiance.setMaterialOpacity(label, next);
+  const dd=$("dbg"); if(dd) dd.textContent = `${label}: opacity → ${Math.round(next*100)}%`;
+}
 async function load(url, title){
   try{
     const resp=await fetch(url); if(!resp.ok) throw new Error(`fetch ${url} → ${resp.status}`);
@@ -1290,21 +1614,33 @@ $("play").addEventListener("click",()=>{ if(tEnd<=0) return; playing=!playing;
   if(playing&&simTime>=tEnd) simTime=0; $("play").textContent=playing?"⏸ pause":"▶ play"; });
 
 // ── orbit controls ────────────────────────────────────────────────────
-let drag=false,lx=0,ly=0;
-canvas.addEventListener("mousedown",e=>{drag=true;lx=e.clientX;ly=e.clientY;});
+let drag=false,lx=0,ly=0,dragDist=0;
+canvas.addEventListener("mousedown",e=>{drag=true;lx=e.clientX;ly=e.clientY;dragDist=0;});
 window.addEventListener("mouseup",()=>drag=false);
 window.addEventListener("mousemove",e=>{ if(!drag) return;
+  dragDist+=Math.hypot(e.clientX-lx,e.clientY-ly);
   cam.az-=(e.clientX-lx)*0.01; cam.el=Math.max(-1.5,Math.min(1.5,cam.el+(e.clientY-ly)*0.01));
   lx=e.clientX; ly=e.clientY; });
 canvas.addEventListener("wheel",e=>{ e.preventDefault(); cam.radius*=Math.exp(e.deltaY*0.0012); },{passive:false});
+// A real click (not the tail of an orbit drag) picks the material under the
+// cursor and toggles its render-only opacity — "click the engine block to
+// make it see-through". See pickMaterialAt() for the raymarch + toggle.
+canvas.addEventListener("click",e=>{ if(dragDist>4) return; pickMaterialAt(e.clientX,e.clientY); });
 // Scene selection lives in the ⊞ Library gallery now (built from data/scenes.json) — no hardcoded buttons.
 // "behind the simulation" flip + the live JSON editor
 $("b-edit").addEventListener("click",()=>{ const open=$("editor").classList.toggle("open");
   $("b-edit").classList.toggle("on",open); if(open && !$("json").value) syncEditor();
-  if(open){ $("library").classList.remove("open"); $("b-lib").classList.remove("on"); } });
+  if(open){ $("library").classList.remove("open"); $("b-lib").classList.remove("on");
+    $("matpanel").classList.remove("open"); $("b-mat").classList.remove("on"); } });
 $("rerender").addEventListener("click",reRender);
 $("b-checker").addEventListener("click",()=>{                 // toolbar → the public render API (the seam: UI never pokes internals)
   window.Radiance.setEnvChecker(!envChecker); $("b-checker").classList.toggle("on",envChecker); });
+// "◐ opacity" drawer — dial any material's render-only opacity BY NAME (no
+// need to click geometry). Same one-drawer-at-a-time coordination as editor/library.
+$("b-mat").addEventListener("click",()=>{
+  const open=$("matpanel").classList.toggle("open"); $("b-mat").classList.toggle("on",open);
+  if(open){ $("editor").classList.remove("open"); $("b-edit").classList.remove("on");
+    $("library").classList.remove("open"); $("b-lib").classList.remove("on"); } });
 $("editreset").addEventListener("click",()=>{ syncEditor(); reRender(); });
 $("json").addEventListener("keydown",e=>{
   if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){ e.preventDefault(); reRender(); return; }
@@ -1354,7 +1690,8 @@ else { $("b-pt").textContent="≈ no float targets"; }
 })();
 $("b-lib").addEventListener("click",()=>{
   const open=$("library").classList.toggle("open"); $("b-lib").classList.toggle("on",open);
-  if(open){ $("editor").classList.remove("open"); $("b-edit").classList.remove("on"); } });  // one drawer at a time
+  if(open){ $("editor").classList.remove("open"); $("b-edit").classList.remove("on");
+    $("matpanel").classList.remove("open"); $("b-mat").classList.remove("on"); } });  // one drawer at a time
 
 // ── main loop ─────────────────────────────────────────────────────────
 let last=performance.now(), fpsT=last, fpsN=0;
@@ -1366,7 +1703,18 @@ function loop(now){
     // follow camera: long falls opt in via scene.camera.follow (the body would
     // leave the frame for most of the drop otherwise)
     if(scene&&scene.camera&&scene.camera.follow&&bodyPoses[0]) cam.target=p0.slice();
-    $("tval").textContent=`t=${simTime.toFixed(2)}s  y=${p0[1].toFixed(2)}m`; }
+    $("tval").textContent=`t=${simTime.toFixed(2)}s  y=${p0[1].toFixed(2)}m`;
+    // live energy/momentum readout — frameEnergyJ/frameMomentum were just set
+    // by the posesAt() call above (the same interpolated-at-simTime values,
+    // not merely the nearest frame's)
+    const eEl=$("energy");
+    if(eEl){
+      const pMag=Math.hypot(frameMomentum[0],frameMomentum[1],frameMomentum[2]);
+      const fmt=(x)=>{ const ax=Math.abs(x);
+        return ax>=100?x.toFixed(0):ax>=1?x.toFixed(2):x.toExponential(2); };
+      eEl.textContent=`KE: ${fmt(frameEnergyJ)} J   |p|: ${fmt(pMag)} kg·m/s`;
+    }
+  }
   frameCount++;
   if(prog){ try{ draw(); }catch(e){ setErr("draw: "+e); } }
   if(PROBE && !probeSent && scene && prog){
@@ -1418,7 +1766,28 @@ window.Radiance = {
   // is the SceneSpec (the JSON load() takes); these toggles are how it's shown.
   setEnvChecker: (on) => { envChecker = !!on; if (scene) { buildProgram(scene); sceneId++; } },
   setRipples:    (on) => { animateRipples = !!on; sceneId++; },
-  options:       () => ({ envChecker, animateRipples }),
+  setBvhCull:    (on) => { bvhCull = !!on; if (scene) { buildProgram(scene); sceneId++; } },
+  // ── render-only material opacity — a pure VIEW toggle, byte-isolated from
+  // physics (the scene's mass/com/inertia were computed in Python, upstream of
+  // and untouched by anything here). Pick a material by the exact label it
+  // carries in scene.materials (e.g. "engine_block") — window.Radiance.materials()
+  // lists them. alpha=1 (or null/undefined) clears any override, reverting to
+  // the scene's baked default. This is the ONE place materialOpacity is
+  // mutated — the UI (drawer slider, click-to-pick) and any external caller
+  // (Mentat chat) both go through here, same seam as setEnvChecker.
+  setMaterialOpacity: (label, alpha) => {
+    if (alpha === null || alpha === undefined) delete materialOpacity[label];
+    else materialOpacity[label] = Math.max(0.0, Math.min(1.0, +alpha));
+    if (scene) { buildProgram(scene); sceneId++; }
+    syncMatRow(label);
+  },
+  getMaterialOpacity: (label) => effectiveOpacity(label),
+  materials:          () => scene ? Object.keys(scene.materials || {}) : [],
+  // Programmatic click-to-pick (the same raymarch canvas clicks use) — lets an
+  // external driver (Mentat chat, a test harness) say "toggle whatever's at
+  // this pixel" without synthesizing DOM mouse events.
+  pickMaterialAt: (clientX, clientY) => pickMaterialAt(clientX, clientY),
+  options:       () => ({ envChecker, animateRipples, bvhCull, materialOpacity: { ...materialOpacity } }),
 };
 window.dispatchEvent(new Event("radiance-ready"));
 

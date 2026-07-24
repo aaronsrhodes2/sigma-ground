@@ -131,14 +131,21 @@
   #rateval { color:var(--accent); min-width:148px; font-size:12px; }
   #tval { color:var(--fg); min-width:120px; font-size:12px; }
   .sep { width:1px; height:20px; background:var(--line2); }
-  /* editor + library drawers (over the canvas, as before) */
-  #editor, #library { position:absolute; top:0; right:0; height:100%; background:rgba(8,8,10,0.95);
+  /* editor + library + material-opacity drawers (over the canvas, as before) */
+  #editor, #library, #matpanel { position:absolute; top:0; right:0; height:100%; background:rgba(8,8,10,0.95);
                       border-left:1px solid var(--line2); transform:translateX(101%);
                       transition:transform .18s ease; display:flex; flex-direction:column; }
   #editor { width:min(46%,560px); z-index:5; } #library { width:min(48%,470px); z-index:6; }
-  #editor.open, #library.open { transform:translateX(0); }
-  .ehead, .libhead { padding:9px 12px; border-bottom:1px solid var(--line); color:var(--fg); font-size:12px; }
-  .ehead .lbl, .libhead .lbl { color:var(--dim); }
+  #matpanel { width:min(38%,380px); z-index:7; }
+  #editor.open, #library.open, #matpanel.open { transform:translateX(0); }
+  .ehead, .libhead, .mathead { padding:9px 12px; border-bottom:1px solid var(--line); color:var(--fg); font-size:12px; }
+  .ehead .lbl, .libhead .lbl, .mathead .lbl { color:var(--dim); }
+  #matlist { flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:2px; }
+  .matrow { padding:8px 11px; border-bottom:1px solid var(--line); }
+  .matrow .t { color:var(--ok); font-size:12px; margin-bottom:6px; }
+  .matctl { display:flex; align-items:center; gap:9px; }
+  .matctl input[type=range] { flex:1; }
+  .matval { min-width:38px; text-align:right; font-size:11px; }
   #json { flex:1; width:100%; resize:none; border:0; outline:none; background:transparent;
           color:#bfe3d2; font:12px/1.55 ui-monospace,Menlo,Consolas,monospace; padding:10px 12px;
           white-space:pre; overflow:auto; tab-size:2; }
@@ -201,6 +208,10 @@
       <div id="check" class="lbl">geometry self-check: …</div>
       <div class="lbl">drag = orbit · wheel = zoom</div>
       <div id="dbg" class="lbl" style="color:#FFAA00"></div>
+      <!-- live dynamics readout: the current frame's scene-level kinetic
+           energy + momentum magnitude (trajectory.py's per-frame energy_j/
+           momentum, interpolated by posesAt — see viewer.js's loop()) -->
+      <div id="energy" class="lbl" style="color:#FFD54A">—</div>
       <!-- force provenance: drive/support plugs declared by the scene spec
            (artificial stand-ins for absent machinery, stated plainly) -->
       <div id="plugs" class="lbl" style="color:#818CF8"></div>
@@ -217,6 +228,10 @@
     <div id="library">
       <div class="libhead"><b>simulation library</b> &nbsp;<span class="lbl">Materia's renderable questions — click to load &amp; play</span></div>
       <div id="liblist"></div>
+    </div>
+    <div id="matpanel">
+      <div class="mathead"><b>material opacity</b> &nbsp;<span class="lbl">render-only — dials a material's see-through-ness; mass/density/inertia never change. Click any surface in the view to toggle it directly.</span></div>
+      <div id="matlist"></div>
     </div>
   </div>
   <div id="bar">
@@ -246,6 +261,7 @@
     <div class="sep"></div>
     <div class="grp"><button id="b-pt" title="Radiance always path-traces. STILL pools converge to pristine; LIVE ripples deny it those frames.">≈ Ripples: live</button></div>
     <div class="grp"><button id="b-checker" title="Transparency checker — swap the environment for the &quot;nothing here&quot; grid.">⊞ checker</button></div>
+    <div class="grp"><button id="b-mat" title="Dial any material see-through by name — render-only, physics unchanged. Or click a surface in the view to toggle it.">◐ opacity</button></div>
     <div class="grp"><button id="b-edit" title="Behind the simulation — the JSON Radiance renders from.">⟨ / ⟩ behind</button></div>
   </div>
 </div>
