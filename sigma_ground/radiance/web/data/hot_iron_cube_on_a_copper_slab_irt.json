@@ -159,6 +159,14 @@
      "x": 0.84,
      "y": 0.84,
      "z": 0.04
+    },
+    "bounds": {
+     "center": [
+      0.0,
+      0.0,
+      -0.02
+     ],
+     "radius": 0.60431
     }
    },
    {
@@ -174,6 +182,14 @@
      "x": 0.84,
      "y": 0.84,
      "z": 0.04
+    },
+    "bounds": {
+     "center": [
+      0.0,
+      0.0,
+      0.67
+     ],
+     "radius": 0.60431
     }
    },
    {
@@ -189,6 +205,14 @@
      "x": 0.04,
      "y": 0.84,
      "z": 0.65
+    },
+    "bounds": {
+     "center": [
+      -0.42,
+      0.0,
+      0.325
+     ],
+     "radius": 0.54144
     }
    },
    {
@@ -204,6 +228,14 @@
      "x": 0.04,
      "y": 0.84,
      "z": 0.65
+    },
+    "bounds": {
+     "center": [
+      0.42,
+      0.0,
+      0.325
+     ],
+     "radius": 0.54144
     }
    },
    {
@@ -219,6 +251,14 @@
      "x": 0.84,
      "y": 0.04,
      "z": 0.65
+    },
+    "bounds": {
+     "center": [
+      0.0,
+      -0.42,
+      0.325
+     ],
+     "radius": 0.54144
     }
    },
    {
@@ -234,6 +274,14 @@
      "x": 0.84,
      "y": 0.04,
      "z": 0.65
+    },
+    "bounds": {
+     "center": [
+      0.0,
+      0.42,
+      0.325
+     ],
+     "radius": 0.54144
     }
    },
    {
@@ -248,7 +296,15 @@
      ],
      "radius": 0.07548
     },
-    "temperature_k": 5000
+    "temperature_k": 5000,
+    "bounds": {
+     "center": [
+      -0.3276,
+      -0.3276,
+      0.559
+     ],
+     "radius": 0.08548
+    }
    },
    {
     "op": "add",
@@ -262,7 +318,15 @@
      ],
      "radius": 0.07548
     },
-    "temperature_k": 5000
+    "temperature_k": 5000,
+    "bounds": {
+     "center": [
+      -0.3276,
+      0.3276,
+      0.559
+     ],
+     "radius": 0.08548
+    }
    },
    {
     "op": "add",
@@ -276,7 +340,15 @@
      ],
      "radius": 0.07548
     },
-    "temperature_k": 5000
+    "temperature_k": 5000,
+    "bounds": {
+     "center": [
+      0.3276,
+      -0.3276,
+      0.559
+     ],
+     "radius": 0.08548
+    }
    },
    {
     "op": "add",
@@ -290,7 +362,15 @@
      ],
      "radius": 0.07548
     },
-    "temperature_k": 5000
+    "temperature_k": 5000,
+    "bounds": {
+     "center": [
+      0.3276,
+      0.3276,
+      0.559
+     ],
+     "radius": 0.08548
+    }
    }
   ],
   "materials": {
@@ -303,6 +383,7 @@
     "emergent": true,
     "metal": true,
     "mechanism": "Drude-Fresnel (free electrons)",
+    "opacity": 1.0,
     "density_kg_m3": 7891.9,
     "density_method": "crystallographic (bcc cell, a=2.867 A, A=56)",
     "youngs_modulus_gpa": 212.2,
@@ -325,6 +406,7 @@
     "emergent": true,
     "metal": true,
     "mechanism": "Drude-Fresnel (free electrons)",
+    "opacity": 1.0,
     "density_kg_m3": 8998.4,
     "density_method": "crystallographic (fcc cell, a=3.615 A, A=64)",
     "youngs_modulus_gpa": 135.8,
@@ -347,6 +429,7 @@
     "emergent": true,
     "metal": false,
     "mechanism": "weakly-absorbing aggregate -> grey",
+    "opacity": 1.0,
     "density_kg_m3": 2400.0,
     "density_derived_kg_m3": 2300,
     "density_pct_vs_supplied": -4.17,
@@ -366,6 +449,7 @@
     "emergent": true,
     "metal": false,
     "mechanism": "wide-gap insulator: no visible absorber -> white",
+    "opacity": 1.0,
     "density_kg_m3": 2300.0,
     "density_method": "unknown material"
    },

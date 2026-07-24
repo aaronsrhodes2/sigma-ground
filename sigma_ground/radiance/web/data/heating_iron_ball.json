@@ -94,6 +94,7 @@
     "emergent": true,
     "metal": true,
     "mechanism": "Drude-Fresnel (free electrons)",
+    "opacity": 1.0,
     "density_kg_m3": 7874.0,
     "density_derived_kg_m3": 7891.9,
     "density_pct_vs_supplied": 0.23,
