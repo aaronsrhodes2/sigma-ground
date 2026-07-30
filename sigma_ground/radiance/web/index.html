@@ -90,21 +90,19 @@
   #composer { border-top:1px solid var(--line); }
   #cwrap { max-width:var(--col); margin:0 auto; padding:11px 20px 14px; }
   #lanes { display:flex; gap:6px; margin-bottom:8px; align-items:center; }
-  #lanes .lhint { color:var(--dim); font-size:11px; margin-right:2px; }
-  .lane { padding:3px 11px; font-size:12px; background:transparent; color:var(--dim);
-          border:1px solid var(--line2); border-radius:20px; cursor:pointer; font:inherit; }
-  .lane:hover { border-color:var(--accent); }
-  .lane.on { color:var(--accent); border-color:var(--accent); }
+  #lane { background:transparent; color:var(--dim); border:1px solid var(--line2);
+          border-radius:20px; padding:3px 10px; font:inherit; font-size:12px; cursor:pointer; }
+  #lane:hover, #lane:focus { border-color:var(--accent); color:var(--fg); outline:none; }
+  #lane option { background:#0c0c0e; color:var(--fg); }
   #inrow { display:flex; gap:8px; align-items:flex-end; }
   #chatinput { flex:1; background:#08080a; color:var(--fg); border:1px solid var(--line2);
                border-radius:12px; padding:11px 14px; font:inherit; font-size:14.5px; outline:none;
                resize:none; min-height:46px; max-height:160px; line-height:1.45; }
   #chatinput:focus { border-color:var(--accent); }
   #chatinput:disabled { opacity:.5; }
-  #mic, #chatsend { border:1px solid var(--line2); background:#0c0c0e; color:var(--fg);
-                    border-radius:12px; padding:0 14px; height:46px; cursor:pointer; font:inherit; }
-  #chatsend { color:var(--accent); } #chatsend:hover, #mic:hover { border-color:var(--accent); }
-  #mic.rec { border-color:var(--bad); color:var(--bad); }
+  #chatsend { border:1px solid var(--line2); background:#0c0c0e; color:var(--accent);
+              border-radius:12px; padding:0 14px; height:46px; cursor:pointer; font:inherit; }
+  #chatsend:hover { border-color:var(--accent); }
   #chatstatus { max-width:var(--col); margin:0 auto; padding:0 20px 9px; min-height:14px;
                 color:var(--dim); font-size:11px; }
 
@@ -179,16 +177,18 @@
   <div id="composer">
     <div id="cwrap">
       <div id="lanes">
-        <span class="lhint">lane</span>
-        <button class="lane on" data-mode="auto" title="Let Mentat pick">auto</button>
-        <button class="lane" data-mode="ask" title="Q&amp;A — a grounded answer">ask</button>
-        <button class="lane" data-mode="simulate" title="Compute the physics (numbers + provenance)">simulate</button>
-        <button class="lane" data-mode="render" title="Build a watchable 3D sim and load it">render</button>
+        <!-- Mentat routes on its own; this is an override for the rare case you
+             want to force a lane, not a mode you must choose before every ask. -->
+        <select id="lane" title="Mentat picks the lane automatically. Override only if needed.">
+          <option value="auto" selected>auto</option>
+          <option value="ask">ask &mdash; grounded answer</option>
+          <option value="simulate">simulate &mdash; numbers + provenance</option>
+          <option value="render">render &mdash; watchable 3D sim</option>
+        </select>
       </div>
       <div id="inrow">
         <textarea id="chatinput" rows="1" autocomplete="off" spellcheck="false"
                   placeholder="Ask a physics question, or describe a simulation…"></textarea>
-        <button id="mic" title="Voice input">🎤</button>
         <button id="chatsend" title="Send (Enter)">Send</button>
       </div>
     </div>
@@ -248,10 +248,6 @@
       <input id="rate" type="range" min="-6" max="6" step="0.01" value="0">
       <span id="rateval">1.0 sim-s / wall-s</span>
     </div>
-    <div class="sep"></div>
-    <div class="grp"><span class="lbl">heat</span>
-      <input id="temp" type="range" min="0" max="2900" step="10" value="0">
-      <span id="tempval" class="lbl">293 K (cold)</span></div>
     <!-- variants: a scene's declared parameter sweep (frozen recorded runs —
          adjustable-by-default for cited artificial/explicit variables) -->
     <div class="sep" id="varsep" style="display:none"></div>
@@ -261,8 +257,6 @@
       <span id="varval" class="lbl"></span>
     </div>
     <div class="sep"></div>
-    <div class="grp"><button id="b-pt" title="Radiance always path-traces. STILL pools converge to pristine; LIVE ripples deny it those frames.">≈ Ripples: live</button></div>
-    <div class="grp"><button id="b-checker" title="Transparency checker — swap the environment for the &quot;nothing here&quot; grid.">⊞ checker</button></div>
     <div class="grp"><button id="b-mat" title="Dial any material see-through by name — render-only, physics unchanged. Or click a surface in the view to toggle it.">◐ opacity</button></div>
     <div class="grp"><button id="b-edit" title="Behind the simulation — the JSON Radiance renders from.">⟨ / ⟩ behind</button></div>
   </div>

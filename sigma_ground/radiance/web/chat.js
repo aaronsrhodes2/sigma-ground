@@ -1,7 +1,7 @@
 /* Mentat — the agent view.
  *
  * One input → the front door (POST /chat → ASK / SIMULATE / RENDER). Auto-routed
- * by default; a quiet lane override (or a leading /ask /simulate /render) forces
+ * by default; a quiet lane selector (or a leading /ask /simulate /render) forces
  * it. Answers render as structured turns: a grounded value, the worked provenance
  * tucked behind a disclosure, and — when a sim is renderable — a "▶ Render this"
  * action (no "type yes" dance) or an inline render card that loads the watchable
@@ -12,7 +12,7 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const thread = $("thread"), input = $("chatinput"), sendBtn = $("chatsend"),
-        mic = $("mic"), statusEl = $("chatstatus"), scroller = $("scroll"),
+        statusEl = $("chatstatus"), scroller = $("scroll"),
         viewer = $("viewer"), openV = $("open-viewer"), closeV = $("close-viewer"),
         bLib = $("b-lib");
   if (!thread || !input) return;                      // not the agent page
@@ -26,10 +26,9 @@
   let mode = "auto";
   const SLASH = { ask:"ask", question:"ask", simulate:"simulate", sim:"simulate",
                   render:"render", draw:"render", auto:"auto" };
-  const laneBtns = [...document.querySelectorAll(".lane")];
-  function setMode(m) { mode = m;
-    laneBtns.forEach((b) => b.classList.toggle("on", b.dataset.mode === m)); }
-  laneBtns.forEach((b) => b.addEventListener("click", () => { setMode(b.dataset.mode); input.focus(); }));
+  const laneSel = $("lane");
+  function setMode(m) { mode = m; if (laneSel) laneSel.value = m; }
+  if (laneSel) laneSel.addEventListener("change", () => { setMode(laneSel.value); input.focus(); });
 
   // ── viewer overlay ──
   const showViewer = () => viewer.classList.add("open");
@@ -165,22 +164,6 @@
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input.value); } });
   sendBtn.addEventListener("click", () => send(input.value));
 
-  // ── speech-to-text (browser Web Speech API; swap for /stt + Whisper to stay local) ──
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let rec = null, listening = false;
-  const status = (m) => { statusEl.textContent = m || ""; };
-  if (SR) {
-    rec = new SR(); rec.lang = "en-US"; rec.interimResults = false; rec.maxAlternatives = 1;
-    rec.onresult = (e) => { const txt = e.results[0][0].transcript; status(""); if (txt) send(txt); };
-    rec.onerror = (e) => status("mic: " + (e.error || "error"));
-    rec.onend = () => { listening = false; mic.classList.remove("rec");
-      if (statusEl.textContent === "● listening…") status(""); };
-    mic.addEventListener("click", () => {
-      if (listening) { rec.stop(); return; }
-      if (busy) return;
-      try { rec.start(); listening = true; mic.classList.add("rec"); status("● listening…"); }
-      catch (e) { status("mic: " + e.message); } });
-  } else { mic.disabled = true; mic.title = "Voice input not supported in this browser"; }
 
   // ── welcome: skill callouts (fill the input) + suggestions (send on click) ──
   function welcome() {

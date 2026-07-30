@@ -135,16 +135,6 @@ float sdCapsuleCyl(vec3 p, vec3 a, vec3 b, float r){
   float x2=x*x, y2=y*y*baba;
   float dd=(max(x,y)<0.0)?-min(x2,y2):(((x>0.0)?x2:0.0)+((y>0.0)?y2:0.0));
   return sign(dd)*sqrt(abs(dd))/baba; }
-// Transparency test-card environment (debug toggle): the universal grey/white
-// checker meaning "nothing here". A transparent thing shows it refracted, a
-// mirror shows it reflected — so you can SEE what's see-through. Cube-map
-// projection keeps the tiles stable as the camera orbits. NOT physics — a view
-// affordance; the glasses passthrough always keeps black = transparent.
-vec3 checkerEnv(vec3 rd){ vec3 a=abs(rd); vec2 uv;
-  if(a.x>=a.y&&a.x>=a.z) uv=rd.yz/max(a.x,1e-6);
-  else if(a.y>=a.z) uv=rd.xz/max(a.y,1e-6); else uv=rd.xy/max(a.z,1e-6);
-  float c=mod(floor(uv.x*8.0)+floor(uv.y*8.0),2.0);
-  return mix(vec3(0.16),vec3(0.86),c); }                  // tiles sized in the [-1,1] cube-face uv
 `;
 // Euclidean modulo (always same sign as n, for n>0) — matches Python's `%`
 // on floats and GLSL's `mod()` builtin, which JS's native `%` does NOT.
@@ -309,7 +299,6 @@ function jsShapeSDF(s,q){
 }
 // per-build registry of generated GLSL outline functions (profiles baked as consts)
 let EXTRA_GLSL="", outlineN=0, outlineKeys=new Map(), voxelKeys=new Set();
-let envChecker=false;        // debug: swap the environment for a transparency checker (view-only; never the glasses output)
 // PERF: bvhCull gates each leaf's mapD() term behind its (center,radius)
 // bounding sphere: outside it, the leaf substitutes bd_i=|q-c|-r (a safe
 // lower bound on its true distance — never overshoots) instead of its exact
@@ -340,7 +329,7 @@ let bvhCull=true;    // debug/A-B toggle: per-leaf bounding-sphere early-rejecti
                      // verification, or if a future scene's geometry needs re-checking
                      // with tools/ 's camera-ray sweep before trusting bvhCull=true on it.
 // Render-only, client-side opacity OVERRIDE — {material_label: alpha in [0,1]}.
-// Same pattern as envChecker: consulted only at shader-BUILD time (buildPathShader),
+// Consulted only at shader-BUILD time (buildPathShader),
 // mutated ONLY through window.Radiance.setMaterialOpacity (never poked directly by
 // UI code), which rebuilds+relinks the program. A label absent here renders at its
 // scene-baked `materials[label].opacity` (default 1.0 — every scene not touching
@@ -981,7 +970,7 @@ float sunShadow(vec3 ro, vec3 rd){ float t=EPS;
   for(int i=0;i<64;i++){ float d=mapOnly(ro+rd*t); if(d<0.001) return 0.0; t+=clamp(d,${SHMIN},${SHMAX}); if(t>${SMAXT}) break; } return 1.0; }
 float visRay(vec3 ro, vec3 rd, float maxt){ float t=EPS;   // unoccluded toward an emitter up to maxt?
   for(int i=0;i<64;i++){ if(t>maxt) return 1.0; float d=mapOnly(ro+rd*t); if(d<0.001) return 0.0; t+=clamp(d,${SHMIN},${SHMAX}); } return 1.0; }
-vec3 skyEmit(vec3 rd){ ${envChecker?"return checkerEnv(rd);":""} vec3 AUP=normalize(vec3(${glf(au[0])},${glf(au[1])},${glf(au[2])}));
+vec3 skyEmit(vec3 rd){ vec3 AUP=normalize(vec3(${glf(au[0])},${glf(au[1])},${glf(au[2])}));
   float u=clamp(0.5+0.5*dot(rd,AUP),0.0,1.0);
   // NON-DERIVED (audit): these sky RGBs are hand-picked, not Rayleigh/Mie from a
   // real atmosphere — the largest remaining physics-to-screen gap in the PT path.
@@ -1201,11 +1190,11 @@ function ensureAccum(w,h){ if(accW===w&&accH===h&&accumA) return;
 const cam={az:0.8,el:0.45,radius:0.3,target:[0,0,0],up:[0,0,1]};
 const T0=performance.now();                        // wall-clock origin for live ripples
 const STP_K=293.15;                                 // standard ambient — the sim layer's default temperature
-let heatDeltaK=0;                                    // global heat added on top of each object's own temperature
 let ptMode=!!extF, frameCount=0, sceneId=0;          // path tracing is THE renderer (whenever float targets exist)
 let liveSPP=2;                                       // photons/frame for a LIVE exposure (cheap — quality comes from INTEGRATING frames, not brute force)
 let liveScale=1.0;                                   // resolution of a live exposure — full res (a capable GPU handles it; lower ONLY if a weak GPU can't keep up)
-let animateRipples=true;                             // live wind ripples by default — transparent AND animated. The bounded-shutter exposure stays clean at whatever frame rate the GPU delivers; toggle to a frozen still for a fully-converged showpiece.
+const animateRipples=true;                           // water ripples always animate. Was a UI toggle; the
+// still-pool alternative only ever affected the one water showcase, so the default is now the behaviour.
 let ptEmitters=[];                                   // glowing-sphere emitters for next-event estimation
 let scene=null, traj=null, sceneDiag=1.0;
 let bodyPoses=[], simTime=0, tEnd=0, playing=false, rate=1.0, drewOnce=false;
@@ -1293,7 +1282,7 @@ function draw(){
     gl.uniform2f(UU.uRes,w,h);
     gl.uniform3fv(UU.uEye,eye); gl.uniform3fv(UU.uFwd,fwd); gl.uniform3fv(UU.uRight,right); gl.uniform3fv(UU.uUp,camUp);
     gl.uniform1f(UU.uTanHalf,tanHalf); gl.uniform1f(UU.uAspect,w/h); gl.uniform1f(UU.uMaxDist,md);
-    gl.uniform1f(UU.uTime,timeVal); gl.uniform1f(UU.uTemp,heatDeltaK);
+    gl.uniform1f(UU.uTime,timeVal); gl.uniform1f(UU.uTemp,0.0);   // no manual heat override; objects use their own temperature_k
     if(UU.uFrame!=null) gl.uniform1f(UU.uFrame,frameSeed);
     if(NB){ gl.uniform3fv(UU.uBodyPos,fp); gl.uniform4fv(UU.uBodyQuat,fq);
       if(UU.uBodyTemp!=null) gl.uniform1fv(UU.uBodyTemp,ft); }
@@ -1319,7 +1308,7 @@ function draw(){
       if(loc.u!=null) gl.uniform1f(loc.u, u);
     }); };
   if(ptMode && extF && !dispProg) initDisplay();
-  const key=`${eye.map(x=>x.toFixed(3))}|${cam.target.map(x=>x.toFixed(3))}|${simTime.toFixed(3)}|${heatDeltaK}|${w}x${h}|${sceneId}`;
+  const key=`${eye.map(x=>x.toFixed(3))}|${cam.target.map(x=>x.toFixed(3))}|${simTime.toFixed(3)}|${w}x${h}|${sceneId}`;
   const moving = key!==ptKey; ptKey=key;                     // is the view changing this frame?
   if(moving) accN=0;                                         // view changed → restart accumulation
   // ── Radiance has ONE renderer: the path tracer. Appearance is light transport,
@@ -1605,10 +1594,6 @@ function updRate(){ rate=Math.pow(10,parseFloat($("rate").value));
   $("rateval").textContent = rate>=1 ? `${rate.toFixed(rate<10?2:0)} sim-s / wall-s`
     : `1 wall-s = ${rate.toPrecision(2)} sim-s (slow-mo)`; }
 $("rate").addEventListener("input",updRate);
-$("temp").addEventListener("input",()=>{ heatDeltaK=parseFloat($("temp").value);
-  const eff=STP_K+heatDeltaK;                            // effective T for a room-temperature object
-  const name=eff<700?"cold":eff<1000?"dull red":eff<1300?"red-orange":eff<1700?"orange":eff<2200?"yellow":eff<2800?"yellow-white":"white-hot";
-  $("tempval").textContent=`${eff|0} K (${name})`; });
 $("scrub").addEventListener("input",()=>{ simTime=parseFloat($("scrub").value)/1000*tEnd; playing=false; $("play").textContent="▶ play"; });
 $("play").addEventListener("click",()=>{ if(tEnd<=0) return; playing=!playing;
   if(playing&&simTime>=tEnd) simTime=0; $("play").textContent=playing?"⏸ pause":"▶ play"; });
@@ -1633,8 +1618,6 @@ $("b-edit").addEventListener("click",()=>{ const open=$("editor").classList.togg
   if(open){ $("library").classList.remove("open"); $("b-lib").classList.remove("on");
     $("matpanel").classList.remove("open"); $("b-mat").classList.remove("on"); } });
 $("rerender").addEventListener("click",reRender);
-$("b-checker").addEventListener("click",()=>{                 // toolbar → the public render API (the seam: UI never pokes internals)
-  window.Radiance.setEnvChecker(!envChecker); $("b-checker").classList.toggle("on",envChecker); });
 // "◐ opacity" drawer — dial any material's render-only opacity BY NAME (no
 // need to click geometry). Same one-drawer-at-a-time coordination as editor/library.
 $("b-mat").addEventListener("click",()=>{
@@ -1648,16 +1631,10 @@ $("json").addEventListener("keydown",e=>{
     t.value=t.value.slice(0,a)+"  "+t.value.slice(b); t.selectionStart=t.selectionEnd=a+2; } });
 let _editTmr=0; $("json").addEventListener("input",()=>{ clearTimeout(_editTmr); _editTmr=setTimeout(reRender,650); });
 // Radiance is ALWAYS the path tracer — there is no "drop to fast" anymore. A clean
-// image is built by INTEGRATING many frames, so a STILL pool converges to pristine;
-// LIVE ripples deny the tracer those frames → it can only manage a rough, low-res
-// exposure. This button lets the Captain pick which physics tradeoff to watch.
-$("b-pt").addEventListener("click",()=>{
-  if(!extF){ $("b-pt").textContent="≈ no float targets"; return; }      // this GPU can't path-trace at all
-  animateRipples=!animateRipples; accN=0;                              // restart the exposure on the mode switch
-  $("b-pt").classList.toggle("on",animateRipples);
-  $("b-pt").textContent = animateRipples ? "≈ Ripples: live" : "≈ Ripples: still"; });
-if(extF){ $("b-pt").textContent=animateRipples?"≈ Ripples: live":"≈ Ripples: still"; $("b-pt").classList.toggle("on",animateRipples); }
-else { $("b-pt").textContent="≈ no float targets"; }
+// image is built by INTEGRATING many frames. Without float render targets this GPU
+// cannot accumulate at all and falls back to the single-hit shim; the HUD's own
+// render-mode line (see loop()) already says which path is live, so there is no
+// separate indicator to keep in sync here.
 
 // ── simulation library — a gallery built from data/scenes.json (build_library.py) ──
 (async function buildLibrary(){
@@ -1786,8 +1763,6 @@ window.Radiance = {
   // The app's UI drives these THROUGH the API, so it never reaches into renderer
   // internals. Each applies the change and resets the exposure. The data contract
   // is the SceneSpec (the JSON load() takes); these toggles are how it's shown.
-  setEnvChecker: (on) => { envChecker = !!on; if (scene) { buildProgram(scene); sceneId++; } },
-  setRipples:    (on) => { animateRipples = !!on; sceneId++; },
   setBvhCull:    (on) => { bvhCull = !!on; if (scene) { buildProgram(scene); sceneId++; } },
   // ── render-only material opacity — a pure VIEW toggle, byte-isolated from
   // physics (the scene's mass/com/inertia were computed in Python, upstream of
@@ -1809,7 +1784,7 @@ window.Radiance = {
   // external driver (Mentat chat, a test harness) say "toggle whatever's at
   // this pixel" without synthesizing DOM mouse events.
   pickMaterialAt: (clientX, clientY) => pickMaterialAt(clientX, clientY),
-  options:       () => ({ envChecker, animateRipples, bvhCull, materialOpacity: { ...materialOpacity } }),
+  options:       () => ({ bvhCull, materialOpacity: { ...materialOpacity } }),
 };
 window.dispatchEvent(new Event("radiance-ready"));
 
