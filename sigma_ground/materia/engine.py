@@ -113,6 +113,84 @@ def _material_density(material_key: str, T: float) -> tuple[float, str]:
     return float(m["density_kg_m3"]), m.get("name", material_key)
 
 
+# ── Contact: material-resolved Coulomb friction callback ────────────────
+# Why this lives HERE and not in dynamics/: dynamics stays material-name-free
+# by design (see PhysicsScene's own note) — the orchestrator builds callbacks
+# over material names, the same tier-crossing idiom make_atmospheric_drag uses.
+#
+# READ THIS BEFORE PASSING derived=True. The solver's Coulomb machinery is
+# complete and correct (accumulated tangential impulse, proper friction cone,
+# solver.py). The gap has never been the solver — it is that no scene supplied
+# a mu, so every simulation to date has run FRICTIONLESS, which
+# PhysicsScene flags as NOT_PHYSICS.
+#
+# The obvious fix — call field.interface.friction.friction_coefficient — does
+# not work, and quietly shipping it would be worse than the frictionless
+# default because it would LOOK derived. That function returns ~1.000 for
+# every pair we can form (verified: steel/steel, iron/oak, ceramic/oak,
+# rubber/concrete, copper/steel, glass/glass all give exactly 1.000). That is
+# not a bug in it: it is the Bowden-Tabor adhesive model for CLEAN METALS IN
+# VACUUM, and its own docstring says so and even reasons out why the terms
+# cancel to a constant. In that regime it is right. For a plate on a wooden
+# table in air it is the wrong regime — real engineering mu spans ~0.03 (ice)
+# to ~1.0 (rubber on concrete), and the oxide films and adsorbed layers that
+# produce that spread are exactly what the model dismisses as second-order.
+# Wiring it would make everything grip like rubber and nothing ever slide.
+#
+# There is no measured friction dataset on disk (checked: TPSX carries shear
+# moduli and shear strengths, no friction coefficients; materials_engineering
+# .json has no friction field). So an applied mu is an INVENTED number, which
+# is precisely what the Choice doctrine exists for: supply it explicitly, and
+# it gets disclosed rather than dressed up as physics.
+def make_material_friction(material_of, *, mu_table=None, default_mu=None,
+                           derived=False, ground_material=None):
+    """Build ``friction_fn(parcel_a, parcel_b|None) -> mu`` over material names.
+
+    ``material_of``   dict {id(parcel): key} or callable(parcel) -> key|None.
+    ``mu_table``      {(a, b): mu} of CITED/chosen values; order-insensitive.
+    ``default_mu``    used when a pair resolves to nothing. None => 0.0
+                      (frictionless, the existing behaviour) rather than a
+                      silently invented number.
+    ``derived``       opt in to the vacuum-regime Bowden-Tabor value. Off by
+                      default, and see the module note above before enabling.
+    ``ground_material`` material key for the static environment (b is None).
+
+    The returned callback carries ``.unresolved`` — the set of material pairs
+    that fell through to ``default_mu``. A caller that wants to be honest
+    should read it and emit a Choice for each, exactly as the scene recorders
+    already do for every other invented value.
+    """
+    get = (material_of if callable(material_of)
+           else (lambda p: material_of.get(id(p))))
+    table = {}
+    for (a, b), v in (mu_table or {}).items():
+        table[(a, b)] = float(v)
+        table[(b, a)] = float(v)
+    cache, unresolved = {}, set()
+
+    def callback(pa, pb):
+        ma = get(pa)
+        mb = get(pb) if pb is not None else ground_material
+        key = (ma, mb)
+        if key in cache:
+            return cache[key]
+        mu = table.get(key)
+        if mu is None and derived and ma and mb:
+            try:
+                from ..field.interface.friction import friction_coefficient
+                mu = float(friction_coefficient(ma, mb))
+            except Exception:
+                mu = None
+        if mu is None:
+            unresolved.add(key)
+            mu = 0.0 if default_mu is None else float(default_mu)
+        cache[key] = mu
+        return mu
+
+    callback.unresolved = unresolved
+    return callback
+
+
 # ── Energy: altitude-aware drag + buoyancy callback ─────────────────────
 def make_atmospheric_drag(gravity_vec, T: float = 288.15,
                           uniform_density: float | None = None):
