@@ -510,3 +510,41 @@ def test_material_opacity_override_isolated_from_physics():
     # 4) the geometry (csg_leaves) is untouched too -- opacity is purely a
     #    materials-dict concern, never routed through shape serialization.
     assert spec_plain["csg_leaves"] == spec_transparent["csg_leaves"]
+
+
+def test_emergent_matter_prefers_measured_and_stays_silent_when_untrustworthy():
+    """The enrichment sources through resolve.material_profile, so a MEASURED
+    value beats a derived one and an untrustworthy property is OMITTED.
+
+    The concrete case that motivated sourcing it this way: the raw derivation
+    for glass's thermal conductivity returns ~78 W/m-K against a real ~1 (a
+    crystalline phonon/electron model applied to an amorphous solid). Copper
+    resolves to TPSX's measured 406 W/m-K rather than the derived 454."""
+    from sigma_ground.radiance.scene_export import _emergent_matter
+    cu = _emergent_matter("copper")
+    assert cu["thermal_conductivity_w_mk"] == 406.0        # TPSX measured, not 454
+    # glass has no trustworthy conductivity anywhere -> the key is absent, not wrong
+    assert "thermal_conductivity_w_mk" not in _emergent_matter("glass")
+
+
+def test_emergent_matter_roughness_distinguishes_crystalline_from_amorphous():
+    """Roughness is a real per-material property now, not a guess keyed off
+    metalness. Polished crystalline metals derive a low Beckmann alpha from
+    thermal RMS height over the lattice correlation length; amorphous solids
+    take texture.py's documented 0.4 class constant. The origin string says
+    which branch produced the number, because they carry different weight."""
+    from sigma_ground.radiance.scene_export import _emergent_matter
+    metal = _emergent_matter("copper")
+    amorph = _emergent_matter("glass")
+    assert metal["roughness"] < 0.2 and amorph["roughness"] == 0.4
+    assert "derived" in metal["roughness_origin"]
+    assert "class constant" in amorph["roughness_origin"]
+
+
+def test_emergent_matter_omits_everything_for_a_non_material():
+    """Staging pseudo-materials and part names ('studio_light', 'handle') are
+    not substances; they must yield nothing rather than a fabricated default."""
+    from sigma_ground.radiance.scene_export import _emergent_matter
+    for label in ("studio_light", "stage_dark", "handle"):
+        got = _emergent_matter(label)
+        assert not [k for k in got if not k.endswith("_origin")], label

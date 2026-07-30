@@ -55,13 +55,21 @@ class VoxelField:
     part_of_label: list = None  # label id → part id (index 0 → -1 = void)
     part_interfaces: dict = None  # {(pid_a, pid_b): {area_m2, centroid_m,
                                   #   principal_dir, elongation}} — the A-graph substrate
+    # ── per-cell scalar STATE (as opposed to per-cell material IDENTITY) ──
+    # {quantity_name: ndarray (nx,ny,nz)}. label_grid says what each cell is
+    # MADE of; this says what each cell currently IS — temperature, stress,
+    # damage, phase fraction. Before this slot existed those could only be
+    # whole-body constants, which is why a conduction solver could produce a
+    # temperature grid but no voxel body could carry one. Empty dict = nothing
+    # simulated per-cell yet, which is the honest default, not "all zero".
+    scalar_fields: dict = None
 
     def to_voxel(self):
         """Build the kernel `Voxel` shape (centred on this field)."""
         from ..kernel.voxel import Voxel
         return Voxel(self.sdf_grid, self.voxel_size, center=self.center,
                      volume_m3=self.volume_m3, label_grid=self.label_grid,
-                     source=self.notes)
+                     source=self.notes, scalar_fields=self.scalar_fields)
 
 
 def _default_density(name):

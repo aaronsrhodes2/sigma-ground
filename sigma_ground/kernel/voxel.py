@@ -44,12 +44,21 @@ class Voxel(Shape):
     """
 
     def __init__(self, sdf_grid, voxel_size_m, center=None, volume_m3=None,
-                 label_grid=None, source=""):
+                 label_grid=None, source="", scalar_fields=None):
         self._g = sdf_grid
         self._nx, self._ny, self._nz = (int(n) for n in sdf_grid.shape)
         self.voxel_size = float(voxel_size_m)
         self._labels = label_grid
         self.source = source
+        # Per-cell SCALAR state: {quantity_name: ndarray same dims as sdf_grid}.
+        # Until this existed a cell could only say "which material am I" and
+        # "how far am I from the surface" — there was nowhere to put a number
+        # that VARIES across the body (temperature, stress, damage, phase
+        # fraction), so every such quantity had to stay a whole-body constant.
+        # Names are free-form; the renderer only knows how to DRAW some of them
+        # (temperature_k → blackbody emission), but physics can carry any of
+        # them regardless of whether anything visualizes it yet.
+        self.scalar_fields = dict(scalar_fields or {})
         self.__init_center__(center)
         if volume_m3 is not None:
             self._volume = float(volume_m3)
@@ -163,6 +172,29 @@ class Voxel(Shape):
         if not (0 <= i < nx and 0 <= j < ny and 0 <= k < nz):
             return None
         return self._labels[i, j, k]
+
+    def field_at(self, quantity, px, py, pz, default=None):
+        """Per-cell value of a named scalar field at a point.
+
+        Nearest-cell, matching material_at's convention rather than the
+        renderer's trilinear read — a physics query wants the cell's own
+        value, not a blend across a boundary it may be sitting on. Returns
+        ``default`` when the field isn't carried or the point is outside the
+        grid: an absent field is an honest "not simulated", never a zero that
+        would read as "measured cold / unstressed".
+        """
+        grid = self.scalar_fields.get(quantity)
+        if grid is None:
+            return default
+        nx, ny, nz = self._nx, self._ny, self._nz
+        vs = self.voxel_size
+        cx, cy, cz = self.center
+        i = int(round((px - cx) / vs + (nx - 1) * 0.5))
+        j = int(round((py - cy) / vs + (ny - 1) * 0.5))
+        k = int(round((pz - cz) / vs + (nz - 1) * 0.5))
+        if not (0 <= i < nx and 0 <= j < ny and 0 <= k < nz):
+            return default
+        return grid[i, j, k]
 
     def _count_inside(self):
         """Occupied-cell count (fallback when volume isn't supplied)."""

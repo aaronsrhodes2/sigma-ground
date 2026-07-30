@@ -631,6 +631,73 @@ def _emergent_mechanics(label: str) -> dict:
     return out
 
 
+def _emergent_matter(label: str) -> dict:
+    """The material's SIMULATION signature — the properties a solver needs to
+    answer "what happens to this?" rather than "what colour is it?".
+
+    Everything here is sourced through ``resolve.material_profile()`` rather
+    than by calling the derivation functions directly, so each value gets that
+    module's whole priority chain: a real MEASURED number (NASA TPSX) wins over
+    a derived estimate, and a property simply DOESN'T APPEAR when neither is
+    trustworthy. That last part is the point, not a shortfall — the raw
+    derivation for e.g. glass's thermal conductivity returns ~78 W/m·K against
+    a real ~1 (a crystalline phonon/electron model applied to an amorphous
+    solid), so omitting the key is far better than baking a number 78x wrong.
+    Copper resolves to TPSX's measured 406 W/m·K instead of the derived 454;
+    iron to 71.1 instead of 108.
+
+    ``roughness`` is the one value not from material_profile (it isn't
+    resolved there): the Beckmann microfacet parameter from texture.py, which
+    for CRYSTALLINE solids is genuinely derived (thermal RMS height over the
+    lattice correlation length, ~0.11 for polished metals) but for AMORPHOUS
+    ones is a documented class constant of 0.4 — "rougher than polished
+    crystal but not fully diffuse", stated in texture.py itself. Flagged here
+    because the two branches carry different evidential weight even though
+    they come out of one call.
+    """
+    out = {}
+    try:
+        from ..field.interface.resolve import material_profile
+        prof = material_profile(label)
+    except Exception:
+        prof = {}
+    # (profile key, exported key, scale) — scale converts to the unit the
+    # exported name advertises, so a consumer never has to guess.
+    for src, dst, scale in (
+            ("thermal_conductivity_w_mk", "thermal_conductivity_w_mk", 1.0),
+            ("specific_heat_j_kgk", "specific_heat_j_kg_k", 1.0),
+            ("melt_temperature_k", "melt_temperature_k", 1.0),
+            ("sigma_UTS", "tensile_strength_mpa", 1e-6),
+            ("K_Ic", "fracture_toughness_mpa_m05", 1e-6),
+            ("poisson_ratio", "poisson_ratio", 1.0),
+            ("G", "shear_modulus_gpa", 1e-9),
+            ("K", "bulk_modulus_gpa", 1e-9)):
+        fact = prof.get(src)
+        val = getattr(fact, "value", None)
+        if val is None:
+            continue
+        try:
+            out[dst] = round(float(val) * scale, 6)
+        except (TypeError, ValueError):
+            continue
+    try:
+        from ..field.interface.texture import microfacet_roughness, specular_fraction
+        from ..field.interface.surface import MATERIALS
+        out["roughness"] = round(float(microfacet_roughness(label)), 4)
+        out["specular_fraction"] = round(float(specular_fraction(label)), 4)
+        amorphous = MATERIALS.get(label, {}).get("crystal_structure") == "amorphous"
+        out["roughness_origin"] = ("amorphous class constant (texture.py: 0.4, "
+                                   "rougher than polished crystal, not fully diffuse)"
+                                   if amorphous else
+                                   "derived: thermal RMS height / lattice correlation length")
+    except Exception:
+        pass
+    if out:
+        out["matter_origin"] = ("resolved via field.interface.resolve.material_profile "
+                                "(measured TPSX beats derived; absent = not trustworthy)")
+    return out
+
+
 def _bake_material(label: str, density=None, opacity: float = 1.0) -> dict:
     label = _canonical_substance(label)                  # canonical optical key
     info = _emergent_color(label)
@@ -664,6 +731,7 @@ def _bake_material(label: str, density=None, opacity: float = 1.0) -> dict:
     if d.get("method"):
         info["density_method"] = d["method"]
     info.update(_emergent_mechanics(label))           # E, sound speed, restitution, ring pitch
+    info.update(_emergent_matter(label))              # thermal/strength/roughness — what a SOLVER needs
     # Reflective clear dielectrics (liquid water, glass, ice) carry a Fresnel R0
     # from their refractive index, so the renderer casts a real reflection ray —
     # near-transparent looking straight down, mirror-bright at grazing angles.

@@ -585,7 +585,7 @@ function buildFragmentShader(scene){
   used.forEach(k=>{ const piv=(bodies[k]&&bodies[k].pivot)||[0,0,0];
     bodyDecls += `  vec3 bdy${k}=qrotInv(uBodyQuat[${k}], p-uBodyPos[${k}])`
               +  `+vec3(${glf(piv[0])},${glf(piv[1])},${glf(piv[2])});\n`; });
-  let decls="", compose="  float d=s0;\n", matsel="  mat=-1;\n", colorfn="", metalfn="", reflfn="", emisfn="", tempfn="", bodyTempFn="";
+  let decls="", compose="  float d=s0;\n", matsel="  mat=-1;\n", colorfn="", metalfn="", reflfn="", emisfn="", tempfn="", roughfn="", bodyTempFn="";
   // the theater's ambient datum (physics_env, from the STP/IRT/ISM presets) is
   // the temperature a leaf falls back to — deep_space stops pretending 293 K
   const envT=(scene.physics_env&&scene.physics_env.temperature_k!==undefined)?scene.physics_env.temperature_k:293.15;
@@ -606,6 +606,19 @@ function buildFragmentShader(scene){
     const em = mat.emissivity_rgb;
     emisfn += em ? `  if(m==${i}) return vec3(${glf(em[0])},${glf(em[1])},${glf(em[2])});\n`
                  : `  if(m==${i}) return clamp(vec3(1.0)-vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])}),0.0,1.0);\n`;
+    // Surface roughness, now a real material property rather than a guess from
+    // metalness. Beckmann alpha (field/interface/texture.py) -> Blinn-Phong
+    // exponent by the standard n = 2/alpha^2 - 2, clamped to [8,256]. Polished
+    // metals land near alpha 0.11 (n~160, tight highlight); amorphous solids at
+    // texture.py's documented 0.4 class constant (n~10, broad sheen). Absent =>
+    // fall back to the old metal-keyed guess so pre-enrichment scenes are
+    // unchanged.
+    const rg = mat.roughness;
+    const specExp = (rg!==undefined && rg>0)
+      ? Math.min(256, Math.max(8, 2/(rg*rg) - 2))
+      : (isMetal ? 64.0 : 24.0);
+    roughfn += `  if(m==${i}) return ${glf(specExp)};
+`;
     // per-object initial temperature from the sim layer (default = the theater's ambient)
     tempfn += `  if(m==${i}) return ${glf(ls[i].temperature_k!==undefined?ls[i].temperature_k:envT)};\n`;
     // a body-bound leaf can carry a PER-FRAME temperature (uBodyTemp; -1 = none)
@@ -634,7 +647,7 @@ function buildFragmentShader(scene){
              +  `    vec3 Li=-Ld; float ndl=max(0.0,dot(n,Li));\n`
              +  `    float sh = ndl>0.0 ? softShadow(p+n*SHEPS, Li) : 1.0;   // cast toward the light\n`
              +  `    diff+=Lc*ndl*sh;\n`
-             +  `    vec3 hh=normalize(Li+v); spec+=Lc*pow(max(0.0,dot(n,hh)),mix(24.0,64.0,metal))*ndl*sh; }\n`; });
+             +  `    vec3 hh=normalize(Li+v); spec+=Lc*pow(max(0.0,dot(n,hh)),specExp)*ndl*sh; }\n`; });
   const sky=amb.sky,gr=amb.ground,au=amb.up||[0,0,1];
   // ── water: a rippling SDF height field from real gravity-capillary waves ──
   const hasWater = ls.some(l=>l.shape && l.shape.type==="Water");
@@ -695,6 +708,9 @@ ${metalfn}  return 0.0;
 float reflR0(int m){         // Schlick R0: clear dielectric from Fresnel, metals strong, else -1
 ${reflfn}  return -1.0;
 }
+float specExpOf(int m){      // Blinn-Phong exponent from the material's real roughness
+${roughfn}  return 32.0;
+}
 vec3 emissivityOf(int m){    // Kirchhoff ε(λ): measured (1−R from n+k) where available
 ${emisfn}  return vec3(0.5);
 }
@@ -733,7 +749,7 @@ float calcAO(vec3 p, vec3 n){                 // 5-tap SDF ambient occlusion (cr
 vec3 calcN(vec3 p){ float h=2e-4; vec2 e=vec2(1.0,-1.0);
   return normalize( e.xyy*mapOnly(p+e.xyy*h)+e.yyx*mapOnly(p+e.yyx*h)
                   + e.yxy*mapOnly(p+e.yxy*h)+e.xxx*mapOnly(p+e.xxx*h) ); }
-vec3 shade(vec3 albedo, vec3 p, vec3 n, vec3 v, float metal){
+vec3 shade(vec3 albedo, vec3 p, vec3 n, vec3 v, float metal, float specExp){
   float ao=calcAO(p,n);
   vec3 AUP=normalize(vec3(${glf(au[0])},${glf(au[1])},${glf(au[2])}));
   float hemi=0.5+0.5*dot(n,AUP);
@@ -787,7 +803,7 @@ void main(){
     vec3 n=calcN(p);
     int mat; mapD(p-n*0.0008, mat);               // material just INSIDE the surface
     float metal=metalness(mat);
-    col=shade(matColor(mat), p, n, -dir, metal);
+    col=shade(matColor(mat), p, n, -dir, metal, specExpOf(mat));
     float r0=reflR0(mat);
     if(r0>=0.0){                                  // reflective surface → cast a real reflection ray
       float cosi=max(0.0,dot(n,-dir));
