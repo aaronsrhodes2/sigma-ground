@@ -67,3 +67,25 @@ def request_shape_scene(name: str, material_hint: str | None = None, *,
 
     _CACHE[key] = scene
     return scene
+
+
+def compose_scene(items, *, allow_llm: bool = True, resolution: int = 64) -> dict | None:
+    """The one-call MULTI-object seam: research + stack + compile + bake -> a
+    render-ready SceneSpec dict — the multi-object counterpart of
+    :func:`request_shape_scene`. Returns ``None`` on an honest refusal
+    (mirrors that function's contract) instead of raising to the chat layer.
+
+    ``items`` is bottom-to-top (base first) — ``SceneItem`` objects, plain
+    name strings, or ``(name, material_hint, stack)`` tuples; see
+    ``deckard.scene.stack_constructs``, which does all the matter work. This
+    wrapper lives on the Radiance side of the seam because only the final
+    bake (``scene_export.construct_to_scene``) is render-tier: Radiance calls
+    down into Deckard, never the reverse.
+    """
+    from sigma_ground.deckard.scene import stack_constructs
+    from .scene_export import construct_to_scene
+    try:
+        construct = stack_constructs(items, allow_llm=allow_llm, resolution=resolution)
+    except Exception:
+        return None
+    return construct_to_scene(construct)

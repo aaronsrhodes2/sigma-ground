@@ -121,7 +121,7 @@ def _extract_scene_stack(text: str) -> list[str] | None:
     cutting at ", with"/", which"/etc. in front-loaded decoration clauses).
     Each _STACK_*_RE match names one SUPPORT underneath the top, in sentence
     order (nearest support first) — reversed here so the return value is
-    bottom-to-top, matching deckard.scene.compose_scene's contract."""
+    bottom-to-top, matching radiance.ask_deckard.compose_scene's contract."""
     m = _STACK_FIRST_RE.search(text)
     if m is None:
         return None
@@ -235,11 +235,11 @@ def _render_scene(name: str, *, use_llm: bool) -> dict:
 
 def _render_scene_stack(items: list[str], *, use_llm: bool) -> dict:
     """Ask Deckard to compile and stack MULTIPLE independently-researched
-    objects into one scene (deckard.scene.compose_scene) — the multi-object
-    counterpart of _render_scene. ``items`` is bottom-to-top (base first).
-    Same infallibility contract: any object in the chain that doesn't
-    ground refuses the WHOLE stack rather than silently dropping it."""
-    from sigma_ground.deckard.scene import compose_scene
+    objects into one scene (radiance.ask_deckard.compose_scene) — the
+    multi-object counterpart of _render_scene. ``items`` is bottom-to-top
+    (base first). Same infallibility contract: any object in the chain that
+    doesn't ground refuses the WHOLE stack rather than silently dropping it."""
+    from sigma_ground.radiance.ask_deckard import compose_scene
     from sigma_ground.radiance.theaters import stage
     scene = compose_scene(items, allow_llm=use_llm)
     if scene is None:

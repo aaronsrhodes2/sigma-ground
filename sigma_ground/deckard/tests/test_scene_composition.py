@@ -3,7 +3,8 @@
 The Captain's target prompt needs THREE independently-researched objects
 stacked with an explicit spatial relationship ("a doughnut ... sitting on a
 plate, which is flat on top of a ... table"), not one Deckard shape. These
-tests prove the stacking primitive (``stack_constructs``/``compose_scene``)
+tests prove the stacking primitive (``stack_constructs``, plus its render-side
+one-call wrapper ``radiance.ask_deckard.compose_scene``)
 places each object's bottom flush on the previous object's top — reusing
 construct.py's own whole-object anchor semantics — for both of Deckard's
 construct kinds (a ``layered_vessel`` cup and a ``parts``-kit table), and
@@ -19,8 +20,9 @@ if os.path.isdir(_CANON) and _CANON not in sys.path:
 import pytest
 
 from sigma_ground.deckard.scene import (
-    SceneItem, stack_constructs, compose_scene, _object_anchor, _style_hint,
+    SceneItem, stack_constructs, _object_anchor, _style_hint,
 )
+from sigma_ground.radiance.ask_deckard import compose_scene
 from sigma_ground.radiance.scene_export import scene_spec_to_sdf
 from sigma_ground.dynamics.vec import Vec3
 

@@ -7,8 +7,11 @@ plate, which is flat on top of a ... table" is THREE independently-researched
 objects with an explicit spatial relationship (bottom-of-one on top-of-the-
 next). This module is the multi-object counterpart: research each object on
 its own (exactly as ``ask_deckard`` does for one), then STACK the compiled
-Constructs and merge them into a single Construct that
-``scene_export.construct_to_scene()`` can export as one SceneSpec.
+Constructs and merge them into a single Construct. Deckard stops at matter:
+the bake to a render-ready SceneSpec is Radiance's side of the seam —
+``radiance.ask_deckard.compose_scene()`` calls ``stack_constructs`` here and
+hands the merged Construct to ``scene_export.construct_to_scene()`` (same
+tier direction as the single-object ``request_shape_scene``).
 
 Stacking reuses construct.py's OWN whole-object anchor semantics rather than
 inventing a second positioning system:
@@ -295,19 +298,4 @@ def stack_constructs(items, *, allow_llm: bool = True, resolution: int = 64) -> 
     return _merge_constructs(built)
 
 
-def compose_scene(items, *, allow_llm: bool = True, resolution: int = 64) -> dict | None:
-    """The one-call seam: research + stack + compile + bake -> a render-ready
-    SceneSpec dict — the multi-object counterpart of
-    ``ask_deckard.request_shape_scene()``. Returns ``None`` on an honest
-    refusal (mirrors that function's contract) instead of raising to the
-    chat layer.
-    """
-    from ..radiance.scene_export import construct_to_scene
-    try:
-        construct = stack_constructs(items, allow_llm=allow_llm, resolution=resolution)
-    except Exception:
-        return None
-    return construct_to_scene(construct)
-
-
-__all__ = ["SceneItem", "stack_constructs", "compose_scene"]
+__all__ = ["SceneItem", "stack_constructs"]
