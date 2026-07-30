@@ -91,8 +91,20 @@ def run_static(slug: str, prompt: str) -> dict:
 def run_sim(slug: str, question: str) -> dict:
     """The question goes through Mentat's REAL front door — the same
     `dispatch(text, mode="render")` the chat box calls. Mentat classifies,
-    compiles, runs, gates, renders, and saves; the gauntlet only re-files the
-    saved bundle under its own slug and records the verdict."""
+    compiles, runs, gates, renders, and saves under its OWN descriptive slug;
+    the gauntlet records the verdict and points at that canonical file.
+
+    It deliberately does NOT re-file a copy under `slug`. It used to, and the
+    cost was real: a full bundle (up to 858 KB) was cloned to carry two small
+    annotations, ~1.8 MB of pure duplication across the 12 sims — and the
+    clones then went stale independently. sim_hot_cube still had no `opacity`
+    fields long after its canonical `hot_iron_cube_on_a_copper_slab_irt` had
+    been re-rendered with them, so the gallery showed the same simulation
+    twice at two different renderer generations. The prompt/response
+    provenance the clone existed to carry now rides in this verdict row (and
+    from there into the gallery index's own `question` field), which is where
+    a prompt→render record belongs — the scene bundle is a render artifact,
+    not a transcript."""
     from sigma_ground.mcp.front_door import Session, dispatch
 
     t0 = time.time()
@@ -110,12 +122,13 @@ def run_sim(slug: str, question: str) -> dict:
             return {"status": "error", "kind": "trajectory",
                     "why": f"saved bundle unreadable: {e}",
                     "secs": round(time.time() - t0, 1)}
-        bundle.setdefault("scene", {})["prompt"] = question
-        bundle["mentat_text"] = (env.get("text") or "")[:400]
-        _save(slug, bundle)
         frames = len((bundle.get("trajectory") or {}).get("frames") or [])
+        # the canonical file Mentat itself already wrote — pointed at, not cloned
+        canonical = os.path.splitext(os.path.basename(saved["path"]))[0]
         return {"status": "rendered", "kind": "trajectory",
                 "verb": saved.get("title", "")[:40], "frames": frames,
+                "canonical_slug": canonical, "prompt": question,
+                "mentat_text": (env.get("text") or "")[:400],
                 "secs": round(time.time() - t0, 1)}
     # honest non-render outcomes, verbatim from Mentat
     return {"status": {"simulate": "computed_not_rendered",
@@ -136,7 +149,13 @@ def _merge_scenes(rows: dict) -> None:
     for slug, r in rows.items():
         if r.get("status") != "rendered":
             continue
-        idx.append({"slug": slug, "title": prompts[slug][:64],
+        # Point at the file Mentat actually wrote. Statics still save under
+        # the gauntlet's own slug (run_static writes it); sims now reuse the
+        # canonical bundle instead of cloning it, so their entry carries the
+        # canonical slug. `.get` with a fallback keeps rows cached by an
+        # older gauntlet run (which predate canonical_slug) working.
+        target = r.get("canonical_slug") or slug
+        idx.append({"slug": target, "title": prompts[slug][:64],
                     "question": prompts[slug], "verb": r.get("verb", "deckard"),
                     "group": "gauntlet", "kind": r["kind"],
                     **({"frames": r["frames"]} if "frames" in r else {})})

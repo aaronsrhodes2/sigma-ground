@@ -428,47 +428,6 @@
   "has_energy": false
  },
  {
-  "slug": "hot_iron_cube_on_a_copper_slab_irt",
-  "title": "hot iron cube on a copper slab (IRT)",
-  "question": "",
-  "verb": "",
-  "group": "thermal",
-  "kind": "trajectory",
-  "leaves": 12,
-  "frames": 8,
-  "has_bounds": true,
-  "has_opacity": true,
-  "has_energy": false
- },
- {
-  "slug": "heating_iron_ball",
-  "title": "iron sphere",
-  "question": "",
-  "verb": "",
-  "group": "thermal",
-  "kind": "trajectory",
-  "leaves": 1,
-  "frames": 617,
-  "bodies": 1,
-  "has_bounds": false,
-  "has_opacity": true,
-  "has_energy": false
- },
- {
-  "slug": "heating_mild_steel_ball",
-  "title": "mild steel sphere",
-  "question": "",
-  "verb": "",
-  "group": "thermal",
-  "kind": "trajectory",
-  "leaves": 1,
-  "frames": 222,
-  "bodies": 1,
-  "has_bounds": false,
-  "has_opacity": false,
-  "has_energy": false
- },
- {
   "slug": "fall_sphere_aluminum",
   "title": "Aluminum ball — 15 cm, from 4 m",
   "question": "drop a 15 cm aluminum ball from 4 m",
@@ -497,20 +456,6 @@
   "has_energy": false
  },
  {
-  "slug": "falling_anvil",
-  "title": "anvil",
-  "question": "",
-  "verb": "",
-  "group": "drop",
-  "kind": "trajectory",
-  "leaves": 3,
-  "frames": 184,
-  "bodies": 1,
-  "has_bounds": false,
-  "has_opacity": false,
-  "has_energy": false
- },
- {
   "slug": "fall_skillet",
   "title": "Cast Iron Skillet — dropped from 3 m",
   "question": "drop a cast iron skillet from 3 m",
@@ -519,20 +464,6 @@
   "kind": "trajectory",
   "leaves": 5,
   "frames": 16,
-  "bodies": 1,
-  "has_bounds": false,
-  "has_opacity": false,
-  "has_energy": false
- },
- {
-  "slug": "falling_coffee_cup",
-  "title": "coffee cup",
-  "question": "",
-  "verb": "",
-  "group": "drop",
-  "kind": "trajectory",
-  "leaves": 4,
-  "frames": 40,
   "bodies": 1,
   "has_bounds": false,
   "has_opacity": false,
@@ -607,34 +538,6 @@
   "has_energy": false
  },
  {
-  "slug": "falling_feather",
-  "title": "feather",
-  "question": "",
-  "verb": "",
-  "group": "drop",
-  "kind": "trajectory",
-  "leaves": 2,
-  "frames": 35,
-  "bodies": 1,
-  "has_bounds": true,
-  "has_opacity": true,
-  "has_energy": true
- },
- {
-  "slug": "feather",
-  "title": "feather",
-  "question": "",
-  "verb": "",
-  "group": "drop",
-  "kind": "trajectory",
-  "leaves": 2,
-  "frames": 35,
-  "bodies": 1,
-  "has_bounds": false,
-  "has_opacity": false,
-  "has_energy": false
- },
- {
   "slug": "fall_feather",
   "title": "Feather — dropped from 2.4384 m",
   "question": "drop a feather from 2.4384 m",
@@ -663,20 +566,6 @@
   "has_energy": false
  },
  {
-  "slug": "falling_hammer",
-  "title": "hammer",
-  "question": "",
-  "verb": "",
-  "group": "drop",
-  "kind": "trajectory",
-  "leaves": 2,
-  "frames": 45,
-  "bodies": 1,
-  "has_bounds": false,
-  "has_opacity": false,
-  "has_energy": false
- },
- {
   "slug": "fall_sphere_iron",
   "title": "Iron ball — 15 cm, from 4 m",
   "question": "drop a 15 cm iron ball from 4 m",
@@ -685,20 +574,6 @@
   "kind": "trajectory",
   "leaves": 2,
   "frames": 47,
-  "bodies": 1,
-  "has_bounds": false,
-  "has_opacity": false,
-  "has_energy": false
- },
- {
-  "slug": "iron_ball_thrown_up",
-  "title": "iron sphere",
-  "question": "",
-  "verb": "",
-  "group": "drop",
-  "kind": "trajectory",
-  "leaves": 1,
-  "frames": 167,
   "bodies": 1,
   "has_bounds": false,
   "has_opacity": false,
@@ -761,20 +636,6 @@
   "has_energy": false
  },
  {
-  "slug": "high_altitude_payload",
-  "title": "payload",
-  "question": "",
-  "verb": "",
-  "group": "drop",
-  "kind": "trajectory",
-  "leaves": 1,
-  "frames": 703,
-  "bodies": 1,
-  "has_bounds": false,
-  "has_opacity": false,
-  "has_energy": false
- },
- {
   "slug": "falling_portland_concrete_ball",
   "title": "portland concrete sphere",
   "question": "",
@@ -803,20 +664,6 @@
   "has_energy": false
  },
  {
-  "slug": "mach_2_projectile",
-  "title": "supersonic slug",
-  "question": "",
-  "verb": "",
-  "group": "drop",
-  "kind": "trajectory",
-  "leaves": 1,
-  "frames": 280,
-  "bodies": 1,
-  "has_bounds": false,
-  "has_opacity": false,
-  "has_energy": false
- },
- {
   "slug": "fall_sphere_titanium",
   "title": "Titanium ball — 15 cm, from 4 m",
   "question": "drop a 15 cm titanium ball from 4 m",
@@ -839,20 +686,6 @@
   "kind": "trajectory",
   "leaves": 2,
   "frames": 47,
-  "bodies": 1,
-  "has_bounds": false,
-  "has_opacity": false,
-  "has_energy": false
- },
- {
-  "slug": "falling_wine_glass",
-  "title": "wine glass",
-  "question": "",
-  "verb": "",
-  "group": "drop",
-  "kind": "trajectory",
-  "leaves": 4,
-  "frames": 26,
   "bodies": 1,
   "has_bounds": false,
   "has_opacity": false,
@@ -943,7 +776,7 @@
   "has_energy": false
  },
  {
-  "slug": "sim_skydiver",
+  "slug": "high_altitude_payload",
   "title": "A skydiver jumps from 40 km up — does she break the sound barrie",
   "question": "A skydiver jumps from 40 km up — does she break the sound barrier?",
   "verb": "high-altitude payload",
@@ -993,7 +826,7 @@
   "has_energy": false
  },
  {
-  "slug": "sim_iron_glow",
+  "slug": "heating_iron_ball",
   "title": "Does an iron sphere heat up falling from 30 km? Show me.",
   "question": "Does an iron sphere heat up falling from 30 km? Show me.",
   "verb": "heating iron ball",
@@ -1003,11 +836,11 @@
   "frames": 617,
   "bodies": 1,
   "has_bounds": false,
-  "has_opacity": false,
+  "has_opacity": true,
   "has_energy": false
  },
  {
-  "slug": "sim_cup_bounce",
+  "slug": "falling_coffee_cup",
   "title": "Drop a coffee cup from 2 meters and show me the bounce and tumbl",
   "question": "Drop a coffee cup from 2 meters and show me the bounce and tumble.",
   "verb": "falling coffee cup",
@@ -1021,7 +854,7 @@
   "has_energy": false
  },
  {
-  "slug": "sim_feather",
+  "slug": "falling_feather",
   "title": "Drop a feather from 8 feet.",
   "question": "Drop a feather from 8 feet.",
   "verb": "falling feather",
@@ -1030,12 +863,12 @@
   "leaves": 2,
   "frames": 35,
   "bodies": 1,
-  "has_bounds": false,
-  "has_opacity": false,
-  "has_energy": false
+  "has_bounds": true,
+  "has_opacity": true,
+  "has_energy": true
  },
  {
-  "slug": "sim_hammer_drop",
+  "slug": "falling_hammer",
   "title": "Drop a hammer from 3 meters.",
   "question": "Drop a hammer from 3 meters.",
   "verb": "falling hammer",
@@ -1049,7 +882,7 @@
   "has_energy": false
  },
  {
-  "slug": "sim_wineglass_drop",
+  "slug": "falling_wine_glass",
   "title": "Drop a wine glass from a 75 cm table.",
   "question": "Drop a wine glass from a 75 cm table.",
   "verb": "falling wine glass",
@@ -1063,7 +896,7 @@
   "has_energy": false
  },
  {
-  "slug": "sim_anvil",
+  "slug": "falling_anvil",
   "title": "Drop an anvil from 50 meters.",
   "question": "Drop an anvil from 50 meters.",
   "verb": "falling anvil",
@@ -1077,7 +910,7 @@
   "has_energy": false
  },
  {
-  "slug": "sim_mach2_slug",
+  "slug": "mach_2_projectile",
   "title": "Fire a 2 cm tungsten slug at Mach 2 — how far does it travel bef",
   "question": "Fire a 2 cm tungsten slug at Mach 2 — how far does it travel before it slows below the speed of sound?",
   "verb": "Mach 2 projectile",
@@ -1105,7 +938,7 @@
   "has_energy": false
  },
  {
-  "slug": "sim_steel_heat",
+  "slug": "heating_mild_steel_ball",
   "title": "How hot does a steel ball get falling from 5 km?",
   "question": "How hot does a steel ball get falling from 5 km?",
   "verb": "heating mild steel ball",
@@ -1119,7 +952,7 @@
   "has_energy": false
  },
  {
-  "slug": "sim_hot_cube",
+  "slug": "hot_iron_cube_on_a_copper_slab_irt",
   "title": "Put a hot iron cube on a cold copper slab in a room.",
   "question": "Put a hot iron cube on a cold copper slab in a room.",
   "verb": "hot iron cube on a copper slab (IRT)",
@@ -1127,12 +960,12 @@
   "kind": "trajectory",
   "leaves": 12,
   "frames": 8,
-  "has_bounds": false,
-  "has_opacity": false,
+  "has_bounds": true,
+  "has_opacity": true,
   "has_energy": false
  },
  {
-  "slug": "sim_baseball_up",
+  "slug": "iron_ball_thrown_up",
   "title": "Throw a baseball straight up at 30 m/s — how high does it go and",
   "question": "Throw a baseball straight up at 30 m/s — how high does it go and how fast is it moving when it lands?",
   "verb": "iron ball thrown up",
