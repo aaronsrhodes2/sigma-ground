@@ -440,6 +440,60 @@ float sdOutline${k}(vec3 p){
   }
   return `sdOutline${outlineKeys.get(key)}(${qvar})`;
 }
+// ── bounding sphere, derived client-side when the scene didn't ship one ──
+// Only leaves compiled through construct_to_scene() carry a Python-baked
+// `bounds`. Trajectory recorders hand-build their csg_leaves, so the clock,
+// gear, bell and motor scenes — the heaviest ones — shipped without any, and
+// silently lost the bvhCull early-rejection entirely. A bounding sphere is a
+// pure function of the shape dict, so the viewer can derive its own and every
+// already-saved scene gets the speedup with no re-render.
+//
+// Mirrors scene_export.py exactly: the same radius formulas as
+// kernel/shapes.py's bounding_radius(), the same 1 cm margin, and the same
+// "skip leaves smaller than 4x the margin" rule (below that the fixed margin
+// dominates the true size and the padded sphere can register a phantom hit).
+// Anything not confidently computable returns null -> no bounds -> the leaf is
+// always evaluated exactly, which is the pre-existing behaviour.
+const BOUNDS_MARGIN_M = 0.01, BOUNDS_MIN_RADIUS_M = 0.04;
+function shapeBoundRadius(s){
+  if(!s) return null;
+  switch(s.type){
+    case "Sphere": case "HollowSphere": return s.radius;
+    case "Cylinder": return Math.sqrt(s.radius*s.radius + (s.height/2)*(s.height/2));
+    case "Box": return 0.5*Math.sqrt(s.x*s.x + s.y*s.y + s.z*s.z);
+    case "Ellipsoid": return Math.max(s.rx,s.ry,s.rz);
+    case "Torus": return s.major_radius + s.minor_radius;
+    case "Cone": {                       // measured about the CoM (h/4 above base)
+      const apex = 3*s.height/4;
+      const baseEdge = Math.sqrt(s.radius*s.radius + (s.height/4)*(s.height/4));
+      return Math.max(apex, baseEdge); }
+    case "Voxel": {                      // half-diagonal of the grid's own box
+      const d=s.dims, v=s.voxel_size;
+      if(!d || !(v>0)) return null;
+      return 0.5*Math.sqrt(d.reduce((a,n)=>a+(n*v)*(n*v),0)); }
+    case "Gear": {                       // hypot(tip radius, half face width)
+      const m=s.module, N=s.teeth;       // r_a = m*N/2 + addendum_coeff*m
+      if(!(m>0) || !(N>0)) return null;
+      const ac = s.addendum_coeff!==undefined ? s.addendum_coeff : 1.0;
+      return Math.hypot(m*N/2 + ac*m, (s.face_width||0)/2); }
+    // wrappers delegate, exactly as the Python CSG wrappers forward to _base
+    case "Rotated": case "Clipped": case "Subtracted": return shapeBoundRadius(s.shape);
+    default: return null;                // Outline/Gear/Water — not gated
+  }
+}
+// the innermost primitive's OWN centre: _Clipped/_Subtracted override .center to
+// a measured centroid, which is NOT the point the radius was measured about.
+function shapeBoundCenter(s){
+  while(s && (s.type==="Rotated"||s.type==="Clipped"||s.type==="Subtracted")) s=s.shape;
+  return (s && s.center) || null;
+}
+function deriveBounds(s){
+  const r = shapeBoundRadius(s); if(r===null || !(r>0)) return null;
+  if(r < BOUNDS_MIN_RADIUS_M) return null;          // too small to gate safely
+  const c = shapeBoundCenter(s); if(!c) return null;
+  return {center:c, radius:r + BOUNDS_MARGIN_M};
+}
+
 function glslShapeCall(s,qvar){
   if(!s) return "1e9";
   if(s.type==="Torus"){ const c=s.center;
@@ -764,7 +818,7 @@ function buildPathShader(scene){
   const envT=(scene.physics_env&&scene.physics_env.temperature_k!==undefined)?scene.physics_env.temperature_k:293.15;
   for(let i=0;i<ls.length;i++){
     const q = ls[i].body!=null ? `bdy${ls[i].body}` : "(p)";
-    const bnd = ls[i].bounds;
+    const bnd = ls[i].bounds || deriveBounds(ls[i].shape);   // baked, else derived
     if(bvhCull && bnd){
       const bc=bnd.center, br=glf(bnd.radius);
       // bd{i} (signed distance to the padded bounding sphere) is the correct far-leaf
