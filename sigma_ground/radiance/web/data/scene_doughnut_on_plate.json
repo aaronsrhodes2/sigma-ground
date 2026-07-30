@@ -1,0 +1,1201 @@
+{
+ "name": "Doughnut on plate",
+ "csg_leaves": [
+  {
+   "op": "add",
+   "material": "plate0__plate",
+   "shape": {
+    "type": "Cylinder",
+    "center": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "radius": 0.20625,
+    "height": 0.0132
+   },
+   "bounds": {
+    "center": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "radius": 0.21635557298023234
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__dough",
+   "shape": {
+    "type": "Torus",
+    "center": [
+     0.0,
+     0.0,
+     0.02574224
+    ],
+    "major_radius": 0.03763,
+    "minor_radius": 0.007526
+   },
+   "bounds": {
+    "center": [
+     0.0,
+     0.0,
+     0.02574224
+    ],
+    "radius": 0.055156
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__frosting",
+   "shape": {
+    "type": "Subtracted",
+    "center": [
+     -2.98438209374209e-18,
+     -1.330502760800537e-18,
+     0.02574224
+    ],
+    "shape": {
+     "type": "Torus",
+     "center": [
+      0.0,
+      0.0,
+      0.02574224
+     ],
+     "major_radius": 0.03763,
+     "minor_radius": 0.009026
+    },
+    "cut": {
+     "type": "Torus",
+     "center": [
+      0.0,
+      0.0,
+      0.02574224
+     ],
+     "major_radius": 0.03763,
+     "minor_radius": 0.007526
+    }
+   },
+   "bounds": {
+    "center": [
+     0.0,
+     0.0,
+     0.02574224
+    ],
+    "radius": 0.056656
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_0",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.0019334473139932913,
+     -0.04135346308699846,
+     0.03492498753340973
+    ],
+    "rx": 0.000431,
+    "ry": 0.000431,
+    "rz": 0.001292
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_1",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.021060337223897,
+     -0.03533615364619967,
+     0.03502838546825279
+    ],
+    "rx": 0.000432,
+    "ry": 0.000432,
+    "rz": 0.001297
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_2",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.03270489111603145,
+     0.02652991390728965,
+     0.034598560707574805
+    ],
+    "rx": 0.000468,
+    "ry": 0.000468,
+    "rz": 0.001405
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_3",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.01584044626212751,
+     -0.03301188453174112,
+     0.03561627293437597
+    ],
+    "rx": 0.000453,
+    "ry": 0.000453,
+    "rz": 0.00136
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_4",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.03972034623548855,
+     0.011280829966974262,
+     0.034968350033045166
+    ],
+    "rx": 0.000527,
+    "ry": 0.000527,
+    "rz": 0.001581
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_5",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.014244187592788147,
+     -0.03728760437880625,
+     0.03540148928129351
+    ],
+    "rx": 0.000543,
+    "ry": 0.000543,
+    "rz": 0.00163
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_6",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.022542852209419144,
+     0.033808517847671526,
+     0.03520247154296391
+    ],
+    "rx": 0.000465,
+    "ry": 0.000465,
+    "rz": 0.001396
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_7",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.024585332133064387,
+     0.03363083273591658,
+     0.03481377317348954
+    ],
+    "rx": 0.000542,
+    "ry": 0.000542,
+    "rz": 0.001626
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_8",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.03938150617805618,
+     0.010438338193954639,
+     0.035167983788818205
+    ],
+    "rx": 0.000449,
+    "ry": 0.000449,
+    "rz": 0.001348
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_9",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.039109906146651933,
+     0.010579799938536387,
+     0.03523953270855814
+    ],
+    "rx": 0.000481,
+    "ry": 0.000481,
+    "rz": 0.001444
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_10",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.02343638828648272,
+     0.03134226192689558,
+     0.03555337623204864
+    ],
+    "rx": 0.000476,
+    "ry": 0.000476,
+    "rz": 0.001429
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_11",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.023741192777061954,
+     0.031762563300802425,
+     0.03545952273608321
+    ],
+    "rx": 0.000496,
+    "ry": 0.000496,
+    "rz": 0.001487
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_12",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.007959590185291679,
+     0.043031818449010335,
+     0.0335478072085798
+    ],
+    "rx": 0.000522,
+    "ry": 0.000522,
+    "rz": 0.001567
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_13",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.04111972485064791,
+     -0.0026072575208836075,
+     0.03500313338689244
+    ],
+    "rx": 0.00056,
+    "ry": 0.00056,
+    "rz": 0.001679
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_14",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.042106720650407714,
+     0.013439085897346242,
+     0.03318325857595143
+    ],
+    "rx": 0.000451,
+    "ry": 0.000451,
+    "rz": 0.001353
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_15",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.03748039586244701,
+     -0.01697089613549033,
+     0.0350255836356782
+    ],
+    "rx": 0.000505,
+    "ry": 0.000505,
+    "rz": 0.001514
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_16",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.01449887717932251,
+     -0.04103889836876464,
+     0.03372827499865477
+    ],
+    "rx": 0.000491,
+    "ry": 0.000491,
+    "rz": 0.001473
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_17",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.03894712270423163,
+     -0.005398383392922608,
+     0.035523403439605056
+    ],
+    "rx": 0.000561,
+    "ry": 0.000561,
+    "rz": 0.001683
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_18",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.013703226887887051,
+     0.03624624660163261,
+     0.03560484075640254
+    ],
+    "rx": 0.000528,
+    "ry": 0.000528,
+    "rz": 0.001585
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_19",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.023053703910699313,
+     0.037060752602249,
+     0.03363738489739013
+    ],
+    "rx": 0.000464,
+    "ry": 0.000464,
+    "rz": 0.001392
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_20",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.04358528264255655,
+     -0.00012289435998871196,
+     0.033683148055110176
+    ],
+    "rx": 0.000427,
+    "ry": 0.000427,
+    "rz": 0.001282
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_21",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.03875795350455767,
+     0.016670397899822723,
+     0.03455828696492307
+    ],
+    "rx": 0.000465,
+    "ry": 0.000465,
+    "rz": 0.001396
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_22",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     -0.0300036834140285,
+     -0.03261227822318724,
+     0.033079944793105824
+    ],
+    "rx": 0.000496,
+    "ry": 0.000496,
+    "rz": 0.001489
+   }
+  },
+  {
+   "op": "add",
+   "material": "doughnut1__sprinkle_23",
+   "shape": {
+    "type": "Ellipsoid",
+    "center": [
+     0.010331669459811047,
+     0.03789448236555584,
+     0.0355305323264309
+    ],
+    "rx": 0.000553,
+    "ry": 0.000553,
+    "rz": 0.001659
+   }
+  },
+  {
+   "op": "add",
+   "material": "floor",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.0,
+     0.0,
+     -0.03485
+    ],
+    "x": 1.27909,
+    "y": 1.27909,
+    "z": 0.04
+   },
+   "bounds": {
+    "center": [
+     0.0,
+     0.0,
+     -0.03485
+    ],
+    "radius": 0.91467
+   }
+  },
+  {
+   "op": "add",
+   "material": "wall",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.0,
+     0.0,
+     0.97969
+    ],
+    "x": 1.27909,
+    "y": 1.27909,
+    "z": 0.04
+   },
+   "bounds": {
+    "center": [
+     0.0,
+     0.0,
+     0.97969
+    ],
+    "radius": 0.91467
+   }
+  },
+  {
+   "op": "add",
+   "material": "wall",
+   "shape": {
+    "type": "Box",
+    "center": [
+     -0.63954,
+     0.0,
+     0.47242
+    ],
+    "x": 0.04,
+    "y": 1.27909,
+    "z": 0.97454
+   },
+   "bounds": {
+    "center": [
+     -0.63954,
+     0.0,
+     0.47242
+    ],
+    "radius": 0.81427
+   }
+  },
+  {
+   "op": "add",
+   "material": "wall",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.63954,
+     0.0,
+     0.47242
+    ],
+    "x": 0.04,
+    "y": 1.27909,
+    "z": 0.97454
+   },
+   "bounds": {
+    "center": [
+     0.63954,
+     0.0,
+     0.47242
+    ],
+    "radius": 0.81427
+   }
+  },
+  {
+   "op": "add",
+   "material": "wall",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.0,
+     -0.63954,
+     0.47242
+    ],
+    "x": 1.27909,
+    "y": 0.04,
+    "z": 0.97454
+   },
+   "bounds": {
+    "center": [
+     0.0,
+     -0.63954,
+     0.47242
+    ],
+    "radius": 0.81427
+   }
+  },
+  {
+   "op": "add",
+   "material": "wall",
+   "shape": {
+    "type": "Box",
+    "center": [
+     0.0,
+     0.63954,
+     0.47242
+    ],
+    "x": 1.27909,
+    "y": 0.04,
+    "z": 0.97454
+   },
+   "bounds": {
+    "center": [
+     0.0,
+     0.63954,
+     0.47242
+    ],
+    "radius": 0.81427
+   }
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.49884,
+     -0.49884,
+     0.82326
+    ],
+    "radius": 0.18273
+   },
+   "temperature_k": 5000,
+   "bounds": {
+    "center": [
+     -0.49884,
+     -0.49884,
+     0.82326
+    ],
+    "radius": 0.19273
+   }
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     -0.49884,
+     0.49884,
+     0.82326
+    ],
+    "radius": 0.18273
+   },
+   "temperature_k": 5000,
+   "bounds": {
+    "center": [
+     -0.49884,
+     0.49884,
+     0.82326
+    ],
+    "radius": 0.19273
+   }
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.49884,
+     -0.49884,
+     0.82326
+    ],
+    "radius": 0.18273
+   },
+   "temperature_k": 5000,
+   "bounds": {
+    "center": [
+     0.49884,
+     -0.49884,
+     0.82326
+    ],
+    "radius": 0.19273
+   }
+  },
+  {
+   "op": "add",
+   "material": "studio_light",
+   "shape": {
+    "type": "Sphere",
+    "center": [
+     0.49884,
+     0.49884,
+     0.82326
+    ],
+    "radius": 0.18273
+   },
+   "temperature_k": 5000,
+   "bounds": {
+    "center": [
+     0.49884,
+     0.49884,
+     0.82326
+    ],
+    "radius": 0.19273
+   }
+  }
+ ],
+ "materials": {
+  "plate0__plate": {
+   "color_rgb": [
+    0.9,
+    0.9,
+    0.9
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "wide-gap insulator: no visible absorber -> white",
+   "opacity": 1.0,
+   "density_kg_m3": 3950.0,
+   "density_method": "unknown material",
+   "tensile_strength_mpa": 50.0,
+   "fracture_toughness_mpa_m05": 1.0,
+   "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
+  },
+  "doughnut1__dough": {
+   "color_rgb": [
+    0.72,
+    0.72,
+    0.72
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "no model yet",
+   "note": "awaiting composition",
+   "opacity": 1.0,
+   "density_kg_m3": 1000.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__frosting": {
+   "color_rgb": [
+    0.3,
+    0.2,
+    0.55
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "unconstrained coating pigment -- chosen for contrast, not physically derived",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_0": {
+   "color_rgb": [
+    0.16,
+    0.55,
+    0.22
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_1": {
+   "color_rgb": [
+    0.9,
+    0.45,
+    0.1
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_2": {
+   "color_rgb": [
+    0.9,
+    0.45,
+    0.1
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_3": {
+   "color_rgb": [
+    0.8,
+    0.11,
+    0.09
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_4": {
+   "color_rgb": [
+    0.16,
+    0.55,
+    0.22
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_5": {
+   "color_rgb": [
+    0.95,
+    0.8,
+    0.15
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_6": {
+   "color_rgb": [
+    0.45,
+    0.24,
+    0.65
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_7": {
+   "color_rgb": [
+    0.45,
+    0.24,
+    0.65
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_8": {
+   "color_rgb": [
+    0.95,
+    0.8,
+    0.15
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_9": {
+   "color_rgb": [
+    0.45,
+    0.24,
+    0.65
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_10": {
+   "color_rgb": [
+    0.95,
+    0.8,
+    0.15
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_11": {
+   "color_rgb": [
+    0.95,
+    0.8,
+    0.15
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_12": {
+   "color_rgb": [
+    0.12,
+    0.35,
+    0.75
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_13": {
+   "color_rgb": [
+    0.45,
+    0.24,
+    0.65
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_14": {
+   "color_rgb": [
+    0.16,
+    0.55,
+    0.22
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_15": {
+   "color_rgb": [
+    0.16,
+    0.55,
+    0.22
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_16": {
+   "color_rgb": [
+    0.8,
+    0.11,
+    0.09
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_17": {
+   "color_rgb": [
+    0.9,
+    0.45,
+    0.1
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_18": {
+   "color_rgb": [
+    0.16,
+    0.55,
+    0.22
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_19": {
+   "color_rgb": [
+    0.12,
+    0.35,
+    0.75
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_20": {
+   "color_rgb": [
+    0.45,
+    0.24,
+    0.65
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_21": {
+   "color_rgb": [
+    0.8,
+    0.11,
+    0.09
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_22": {
+   "color_rgb": [
+    0.12,
+    0.35,
+    0.75
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "doughnut1__sprinkle_23": {
+   "color_rgb": [
+    0.9,
+    0.45,
+    0.1
+   ],
+   "emergent": false,
+   "metal": false,
+   "mechanism": "named pigment (explicit color in material label)",
+   "opacity": 1.0,
+   "density_kg_m3": 1550.0,
+   "density_method": "unknown material"
+  },
+  "floor": {
+   "color_rgb": [
+    0.55,
+    0.54,
+    0.52
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "weakly-absorbing aggregate -> grey",
+   "opacity": 1.0,
+   "density_kg_m3": 2400.0,
+   "density_derived_kg_m3": 2300,
+   "density_pct_vs_supplied": -4.17,
+   "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+   "youngs_modulus_gpa": 33.3,
+   "sound_speed_m_s": 4010.0,
+   "restitution_ref": 0.152,
+   "ring_frequency_hz": 6115.0,
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "tensile_strength_mpa": 3.0,
+   "fracture_toughness_mpa_m05": 1.0,
+   "poisson_ratio": 0.2,
+   "shear_modulus_gpa": 13.869766,
+   "bulk_modulus_gpa": 18.493022,
+   "roughness": 0.4,
+   "specular_fraction": 0.15,
+   "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+   "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
+  },
+  "wall": {
+   "color_rgb": [
+    0.9,
+    0.9,
+    0.9
+   ],
+   "emergent": true,
+   "metal": false,
+   "mechanism": "wide-gap insulator: no visible absorber -> white",
+   "opacity": 1.0,
+   "density_kg_m3": 2300.0,
+   "density_method": "unknown material"
+  },
+  "studio_light": {
+   "color_rgb": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "emergent": true,
+   "metal": false,
+   "emissivity_rgb": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "mechanism": "artificial light (blackbody radiator)"
+  }
+ },
+ "physics": {
+  "mass_kg": 7.038802379433362,
+  "com_m": [
+   -3.3806276309472216e-08,
+   1.0514957249385668e-07,
+   0.00025901564343170193
+  ],
+  "inertia_kgm2": [
+   0.07401221446799991,
+   0.07401221609184837,
+   0.14773437653395163
+  ]
+ },
+ "bbox": [
+  [
+   -0.6795436582061893,
+   0.6795436582061893
+  ],
+  [
+   -0.6795436582061893,
+   0.6795436582061893
+  ],
+  [
+   -0.05485,
+   0.9996927172665742
+  ]
+ ],
+ "camera": {
+  "target": [
+   0.0,
+   0.0,
+   0.01211132171980253
+  ],
+  "orbit_radius": 0.5177258185478675,
+  "fov_deg": 52.0,
+  "up": [
+   0.0,
+   0.0,
+   1.0
+  ],
+  "az0": 0.7,
+  "el0": 0.16
+ },
+ "lights": [
+  {
+   "dir": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "color": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "intensity": 0.0,
+   "temperature_k": 0.0
+  }
+ ],
+ "ambient": {
+  "sky": [
+   0.04,
+   0.04,
+   0.05
+  ],
+  "ground": [
+   0.03,
+   0.03,
+   0.03
+  ],
+  "up": [
+   0.0,
+   0.0,
+   1.0
+  ]
+ },
+ "identified": true,
+ "source": "plate: plate (composite) \u2014 qwen3:8b \u2014 researched proportions (estimates), field.interface.surface.MATERIALS, ShapeNetSem (Savva et al. 2015) \u2014 aspect ratio corrected to median proportions (n=28), ShapeNetSem (Savva et al. 2015), median of 28 models \u2014 overall size (construct scaled to it); Doughnut: Doughnut (composite) \u2014 estimated -- no citable confectionery-sprinkle dimension exists in sources/ this session; ~3mm length x ~1mm diameter is a commonly-cited 'jimmies' size (candy-supplier descriptions), NOT independently verified against a primary source here -- treat as an approximation., approximated as cited crystalline sucrose density (inventory/data/materials.json 'Sucrose', 1550 kg/m3) -- icing/glaze is mostly sucrose in a thin water paste; real icing bulk density is somewhat lower (entrained water/air), not independently measured this session.",
+ "choices": [
+  {
+   "description": "coating/pigment color for material 'icing'",
+   "value": "indigo (#4c338c)",
+   "reason": "unconstrained pigment -- no physical derivation exists for an applied coating color; chosen for visibility/contrast",
+   "checked": "metal Drude-Fresnel, semiconductor band-gap, chromophore crystal-field glaze, dielectric Fresnel+Beer-Lambert, wide-gap-insulator/concrete, measured organic reflectance, named-pigment label parse -- none apply: an applied coating with no stated color has no physical color to derive",
+   "alternatives": [
+    "crimson",
+    "amber",
+    "goldenrod",
+    "moss_green",
+    "teal",
+    "cobalt_blue",
+    "orchid",
+    "rose",
+    "charcoal"
+   ],
+   "adjustable": true
+  }
+ ],
+ "pt_env": 0.0,
+ "physics_env": {
+  "gravity_m_s2": 9.81,
+  "gravity_dir": [
+   0,
+   0,
+   -1
+  ],
+  "atmosphere": "IRT",
+  "medium": "air",
+  "pressure_pa": 101325.0,
+  "temperature_k": 293.15
+ },
+ "theater": "room"
+}

@@ -945,7 +945,16 @@
    "sound_speed_m_s": 706.0,
    "restitution_ref": 1.0,
    "ring_frequency_hz": 847.0,
-   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "tensile_strength_mpa": 100.0,
+   "fracture_toughness_mpa_m05": 5.0,
+   "poisson_ratio": 0.35,
+   "shear_modulus_gpa": 0.080404,
+   "bulk_modulus_gpa": 0.241213,
+   "roughness": 0.4,
+   "specular_fraction": 0.15,
+   "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+   "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
   },
   "1700s_table0__bar_stretcher_1": {
    "color_rgb": [
@@ -966,7 +975,16 @@
    "sound_speed_m_s": 706.0,
    "restitution_ref": 1.0,
    "ring_frequency_hz": 847.0,
-   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "tensile_strength_mpa": 100.0,
+   "fracture_toughness_mpa_m05": 5.0,
+   "poisson_ratio": 0.35,
+   "shear_modulus_gpa": 0.080404,
+   "bulk_modulus_gpa": 0.241213,
+   "roughness": 0.4,
+   "specular_fraction": 0.15,
+   "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+   "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
   },
   "1700s_table0__bar_stretcher_2": {
    "color_rgb": [
@@ -987,7 +1005,16 @@
    "sound_speed_m_s": 706.0,
    "restitution_ref": 1.0,
    "ring_frequency_hz": 847.0,
-   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "tensile_strength_mpa": 100.0,
+   "fracture_toughness_mpa_m05": 5.0,
+   "poisson_ratio": 0.35,
+   "shear_modulus_gpa": 0.080404,
+   "bulk_modulus_gpa": 0.241213,
+   "roughness": 0.4,
+   "specular_fraction": 0.15,
+   "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+   "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
   },
   "1700s_table0__runner_3": {
    "color_rgb": [
@@ -1008,7 +1035,16 @@
    "sound_speed_m_s": 706.0,
    "restitution_ref": 1.0,
    "ring_frequency_hz": 847.0,
-   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "tensile_strength_mpa": 100.0,
+   "fracture_toughness_mpa_m05": 5.0,
+   "poisson_ratio": 0.35,
+   "shear_modulus_gpa": 0.080404,
+   "bulk_modulus_gpa": 0.241213,
+   "roughness": 0.4,
+   "specular_fraction": 0.15,
+   "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+   "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
   },
   "1700s_table0__runner_4": {
    "color_rgb": [
@@ -1029,7 +1065,16 @@
    "sound_speed_m_s": 706.0,
    "restitution_ref": 1.0,
    "ring_frequency_hz": 847.0,
-   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "tensile_strength_mpa": 100.0,
+   "fracture_toughness_mpa_m05": 5.0,
+   "poisson_ratio": 0.35,
+   "shear_modulus_gpa": 0.080404,
+   "bulk_modulus_gpa": 0.241213,
+   "roughness": 0.4,
+   "specular_fraction": 0.15,
+   "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+   "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
   },
   "1700s_table0__leg_5": {
    "color_rgb": [
@@ -1050,7 +1095,16 @@
    "sound_speed_m_s": 706.0,
    "restitution_ref": 1.0,
    "ring_frequency_hz": 847.0,
-   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "tensile_strength_mpa": 100.0,
+   "fracture_toughness_mpa_m05": 5.0,
+   "poisson_ratio": 0.35,
+   "shear_modulus_gpa": 0.080404,
+   "bulk_modulus_gpa": 0.241213,
+   "roughness": 0.4,
+   "specular_fraction": 0.15,
+   "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+   "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
   },
   "1700s_table0__leg_6": {
    "color_rgb": [
@@ -1071,7 +1125,16 @@
    "sound_speed_m_s": 706.0,
    "restitution_ref": 1.0,
    "ring_frequency_hz": 847.0,
-   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "tensile_strength_mpa": 100.0,
+   "fracture_toughness_mpa_m05": 5.0,
+   "poisson_ratio": 0.35,
+   "shear_modulus_gpa": 0.080404,
+   "bulk_modulus_gpa": 0.241213,
+   "roughness": 0.4,
+   "specular_fraction": 0.15,
+   "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+   "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
   },
   "1700s_table0__leg_7": {
    "color_rgb": [
@@ -1092,7 +1155,16 @@
    "sound_speed_m_s": 706.0,
    "restitution_ref": 1.0,
    "ring_frequency_hz": 847.0,
-   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "tensile_strength_mpa": 100.0,
+   "fracture_toughness_mpa_m05": 5.0,
+   "poisson_ratio": 0.35,
+   "shear_modulus_gpa": 0.080404,
+   "bulk_modulus_gpa": 0.241213,
+   "roughness": 0.4,
+   "specular_fraction": 0.15,
+   "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+   "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
   },
   "1700s_table0__leg_8": {
    "color_rgb": [
@@ -1113,7 +1185,16 @@
    "sound_speed_m_s": 706.0,
    "restitution_ref": 1.0,
    "ring_frequency_hz": 847.0,
-   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "tensile_strength_mpa": 100.0,
+   "fracture_toughness_mpa_m05": 5.0,
+   "poisson_ratio": 0.35,
+   "shear_modulus_gpa": 0.080404,
+   "bulk_modulus_gpa": 0.241213,
+   "roughness": 0.4,
+   "specular_fraction": 0.15,
+   "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+   "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
   },
   "1700s_table0__tabletop_connector_9": {
    "color_rgb": [
@@ -1134,7 +1215,16 @@
    "sound_speed_m_s": 706.0,
    "restitution_ref": 1.0,
    "ring_frequency_hz": 847.0,
-   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "tensile_strength_mpa": 100.0,
+   "fracture_toughness_mpa_m05": 5.0,
+   "poisson_ratio": 0.35,
+   "shear_modulus_gpa": 0.080404,
+   "bulk_modulus_gpa": 0.241213,
+   "roughness": 0.4,
+   "specular_fraction": 0.15,
+   "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+   "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
   },
   "1700s_table0__tabletop_connector_10": {
    "color_rgb": [
@@ -1155,7 +1245,16 @@
    "sound_speed_m_s": 706.0,
    "restitution_ref": 1.0,
    "ring_frequency_hz": 847.0,
-   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "tensile_strength_mpa": 100.0,
+   "fracture_toughness_mpa_m05": 5.0,
+   "poisson_ratio": 0.35,
+   "shear_modulus_gpa": 0.080404,
+   "bulk_modulus_gpa": 0.241213,
+   "roughness": 0.4,
+   "specular_fraction": 0.15,
+   "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+   "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
   },
   "plate1__plate": {
    "color_rgb": [
@@ -1168,7 +1267,10 @@
    "mechanism": "wide-gap insulator: no visible absorber -> white",
    "opacity": 1.0,
    "density_kg_m3": 3950.0,
-   "density_method": "unknown material"
+   "density_method": "unknown material",
+   "tensile_strength_mpa": 50.0,
+   "fracture_toughness_mpa_m05": 1.0,
+   "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
   },
   "doughnut2__dough": {
    "color_rgb": [
@@ -1527,7 +1629,16 @@
    "sound_speed_m_s": 4010.0,
    "restitution_ref": 0.152,
    "ring_frequency_hz": 6115.0,
-   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+   "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+   "tensile_strength_mpa": 3.0,
+   "fracture_toughness_mpa_m05": 1.0,
+   "poisson_ratio": 0.2,
+   "shear_modulus_gpa": 13.869766,
+   "bulk_modulus_gpa": 18.493022,
+   "roughness": 0.4,
+   "specular_fraction": 0.15,
+   "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+   "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
   },
   "wall": {
    "color_rgb": [

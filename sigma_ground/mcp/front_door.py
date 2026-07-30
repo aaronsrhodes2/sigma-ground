@@ -316,6 +316,29 @@ def dispatch(text: str, *, use_llm: bool = True,
         session.last_intent = env["intent"]
         return env
 
+    # 1d. A push/shove follow-up against the stack the conversation just built:
+    #     "now push it off the table", "push the plate off". Requires the
+    #     memory from the scene-stack route above — the verb alone matches no
+    #     Materia trigger, so before that memory existed this fell through to
+    #     the canned physics clarify (confirmed live before building this).
+    if session.last_renderable             and session.last_renderable.get("kind") == "scene_stack"             and _PUSH_RE.search(text) and mode != "ask":
+        items = session.last_renderable["items"]
+        idx = _resolve_push_target(text, items)
+        if idx is not None:
+            env = _render_push(items, idx, use_llm=use_llm)
+            session.last_intent = env["intent"]
+            return env
+        # push verb + a remembered stack, but the target didn't resolve (or
+        # names the base): an honest, specific clarify beats the generic one
+        pushable = ", ".join(items[1:]) or "nothing"
+        session.last_intent = "clarify"
+        return {"intent": "clarify", "source": "mentat", "can_render": False,
+                "saved": None, "value": None,
+                "text": (f"❓ I can push {pushable} off the {items[0]} — the "
+                         f"{items[0]} is the base of the stack, so pushing IT "
+                         f"is a different simulation (tipping) I don't claim "
+                         f"yet. Which one should I push?")}
+
     # 1c. A pending clarification ("which material?") — this turn's reply answers
     #     it. Concatenate with the ORIGINAL question and re-dispatch: whatever
     #     extraction failed the first time (_extract_material, etc.) gets another
@@ -413,6 +436,13 @@ def dispatch(text: str, *, use_llm: bool = True,
         if stack:
             env = _render_scene_stack(stack, use_llm=use_llm)
             session.last_intent = env["intent"]
+            if env.get("saved"):
+                # the conversation now REMEMBERS what it built — the missing
+                # half of "now push it off the table" (tested live 2026-07-30:
+                # this was None after a successful stack render, so the
+                # follow-up had nothing to bind "it" against)
+                session.last_renderable = {"kind": "scene_stack",
+                                           "items": list(stack)}
             return env
         name = _extract_scene_name(text)
         if name:
@@ -472,6 +502,40 @@ def _run_simulation(text, spec, *, use_llm, session) -> dict:
                      render_handle=handle, source=spec.source)
 
 
+_PUSH_RE = re.compile(r"\b(push|shove|knock|slide|tip)(?:es|ed|s)?\b", re.I)
+
+
+def _resolve_push_target(text: str, items: list) -> int | None:
+    """Which stacked object is being pushed? A named match wins ("push the
+    PLATE off"); a bare pronoun ("push it off") takes the object directly on
+    the base — the natural referent of a stack. The base itself can't be
+    pushed (index 0 is what everything stands on); pushing it is a different
+    simulation (tipping the table) this route honestly doesn't claim."""
+    low = text.lower()
+    for i in range(len(items) - 1, 0, -1):            # topmost named match wins
+        words = [w for w in re.split(r"[^a-z]+", items[i].lower()) if len(w) > 2]
+        if any(re.search(r"\b" + re.escape(w) + r"\b", low) for w in words):
+            return i
+    if re.search(r"\bit\b", low) and len(items) >= 2:
+        return 1
+    return None
+
+
+def _render_push(items: list, pushed_index: int, *, use_llm: bool) -> dict:
+    """The follow-up simulation: re-research the SAME stack (same citations),
+    push one object, record what friction decides. Refusal contract matches
+    the stack route — an ungroundable item refuses the whole follow-up."""
+    from sigma_ground.radiance.push_off import record_push_off
+    try:
+        bundle = record_push_off(items, pushed_index, allow_llm=use_llm)
+    except ValueError as e:
+        return {"intent": "simulate", "source": "deckard", "can_render": False,
+                "saved": None, "value": None,
+                "text": f"⚠ couldn't run the push: {e}"}
+    title = f"{items[pushed_index]} pushed off the {items[pushed_index - 1]}"
+    return _announce_render(title, bundle)
+
+
 def _render_from_handle(handle: dict) -> dict:
     """Turn a Materia render-handle into a watchable, saved Radiance fall.
 
@@ -480,6 +544,8 @@ def _render_from_handle(handle: dict) -> dict:
     real shape, then record_object_fall drops it. Either way we never fake a shape.
     """
     kind = handle.get("kind")
+    if kind == "scene_stack":                # re-render the remembered stack
+        return _render_scene_stack(handle["items"], use_llm=True)
     if kind == "conduction_field":           # per-cell heat flow between solids
         from sigma_ground.radiance import record_thermal_field
         bundle = record_thermal_field(handle)

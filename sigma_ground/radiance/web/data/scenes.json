@@ -114,6 +114,18 @@
   "has_energy": false
  },
  {
+  "slug": "scene_doughnut_on_plate",
+  "title": "Doughnut on plate",
+  "question": "",
+  "verb": "",
+  "group": "composition",
+  "kind": "static",
+  "leaves": 37,
+  "has_bounds": true,
+  "has_opacity": true,
+  "has_energy": false
+ },
+ {
   "slug": "scene_doughnut_on_plate_on_1700s_table",
   "title": "Doughnut on plate on 1700s table",
   "question": "",
@@ -634,6 +646,20 @@
   "has_bounds": false,
   "has_opacity": false,
   "has_energy": false
+ },
+ {
+  "slug": "plate_pushed_off_the_1700s_table",
+  "title": "plate pushed off the 1700s table",
+  "question": "",
+  "verb": "",
+  "group": "drop",
+  "kind": "trajectory",
+  "leaves": 39,
+  "frames": 132,
+  "bodies": 3,
+  "has_bounds": true,
+  "has_opacity": true,
+  "has_energy": true
  },
  {
   "slug": "falling_portland_concrete_ball",

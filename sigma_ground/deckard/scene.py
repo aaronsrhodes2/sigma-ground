@@ -263,9 +263,26 @@ def stack_constructs(items, *, allow_llm: bool = True, resolution: int = 64) -> 
     SAME infallibility contract as ``ask_deckard.request_shape_scene``
     (ungroundable -> refuse, never render a partial fake).
     """
+    built = build_stack(items, allow_llm=allow_llm, resolution=resolution)
+    return _merge_constructs([(c, f"{_slug(name)}{i}__")
+                              for i, (name, c) in enumerate(built)])
+
+
+def build_stack(items, *, allow_llm: bool = True, resolution: int = 64) -> list:
+    """The per-object half of ``stack_constructs``: research + compile each
+    item and translate it into its stacked position, WITHOUT merging.
+
+    Returns ``[(name, Construct), ...]`` bottom-to-top, each Construct already
+    sitting at its final stacked pose. ``stack_constructs`` is now literally
+    this plus a merge — extracted so a DYNAMICS consumer (pushing one object
+    of the stack, dropping another onto it) can get each object's own mass /
+    inertia / bbox / leaves at its composed position instead of one fused
+    solid. Same infallibility contract: any item that doesn't ground refuses
+    the whole stack.
+    """
     norm = _normalize_items(items)
     if not norm:
-        raise ValueError("stack_constructs: no items given")
+        raise ValueError("build_stack: no items given")
 
     built: list = []
     prev_bbox = None
@@ -275,13 +292,13 @@ def stack_constructs(items, *, allow_llm: bool = True, resolution: int = 64) -> 
         if not spec.identified:
             names = ", ".join(s.get("name", "?") for s in spec.sources)
             raise ValueError(
-                f"stack_constructs: '{item.name}' did not ground to a real "
+                f"build_stack: '{item.name}' did not ground to a real "
                 f"object (best-guess only) — refusing rather than faking the "
                 f"stack. Sources tried: {names}")
         construct = _compile_construct(spec, resolution=resolution)
         if not construct.identified:
             raise ValueError(
-                f"stack_constructs: '{item.name}' compiled but lost its "
+                f"build_stack: '{item.name}' compiled but lost its "
                 "identified flag — refusing")
 
         if i > 0 and item.stack and prev_bbox is not None:
@@ -292,10 +309,10 @@ def stack_constructs(items, *, allow_llm: bool = True, resolution: int = 64) -> 
                      top[2] - bottom[2])
             _translate_construct(construct, offset)
 
-        built.append((construct, f"{_slug(item.name)}{i}__"))
+        built.append((item.name, construct))
         prev_bbox = construct.bbox
 
-    return _merge_constructs(built)
+    return built
 
 
-__all__ = ["SceneItem", "stack_constructs"]
+__all__ = ["SceneItem", "stack_constructs", "build_stack"]

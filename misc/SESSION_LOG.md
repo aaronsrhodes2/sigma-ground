@@ -2365,3 +2365,119 @@ landing), and honest disclosure beats dressed-up idealization (the bell's
   that exercises everything above at once
 - Pre-existing tier-layering violation to fix: deckard.scene imports
   radiance.scene_export (test_layering red since the scene-stack work)
+  — DONE in Session 29 (compose_scene moved to radiance.ask_deckard)
+
+---
+
+## Session 29 — 2026-07-29 — Layering fix: compose_scene moves to the Radiance side of the seam
+
+**Status:** ✅ Complete
+
+### Changes
+- `sigma_ground/radiance/ask_deckard.py` — `compose_scene()` moved here from
+  deckard/scene.py: the one-call multi-object seam now lives beside its
+  single-object counterpart `request_shape_scene()`. Same contract (None on
+  honest refusal); imports `deckard.scene.stack_constructs` (tier 3 -> 2,
+  allowed) + `.scene_export.construct_to_scene` (same tier).
+- `sigma_ground/deckard/scene.py` — dropped `compose_scene` and its lazy
+  `..radiance.scene_export` import (the tier-2-imports-tier-3 violation);
+  module docstring now points at the render-side wrapper. `stack_constructs`
+  (pure matter work) stays put, unchanged.
+- `sigma_ground/mcp/front_door.py` — `_render_scene_stack` imports
+  `compose_scene` from its new home; two docstring path mentions updated.
+- `sigma_ground/deckard/tests/test_scene_composition.py` — import updated.
+
+### Why
+`test_layering.py::test_role_layering` was red: "sigma_ground.deckard.scene
+(tier 2) imports sigma_ground.radiance.scene_export (tier 3)" — introduced by
+the Session 28 scene-stack work and flagged in its Next Steps. Fixed by the
+Session 27 hand_tools precedent (invert the dependency, don't ALLOW-list it):
+only the final bake to SceneSpec is render-tier, so the wrapper moves up to
+Radiance and Deckard stops at matter. No new ALLOW entry.
+
+### Verification
+- ✅ `pytest tests/test_layering.py` — 1 passed (no ALLOW entry added)
+- ✅ `pytest sigma_ground/deckard sigma_ground/radiance` — 181 passed, 3
+  skipped (pre-existing environment-gated skips)
+- ✅ `pytest sigma_ground/deckard/tests/test_scene_composition.py
+  sigma_ground/mcp/test_scene_route.py` — 24 passed (doughnut/plate/table
+  route through front_door still green)
+
+### Next Steps
+- (carried from Session 28) Phase D4 scene grid; Phase E fluid/gravity
+  residual; 4-cylinder engine demo
+- The two remaining grandfathered ALLOW edges in test_layering.py
+  (materia.scenarios -> mcp.tools.orbital; radiance.web.serve ->
+  mcp.front_door) are still open — retire per the notes in the test file
+
+
+## Session 29 — 2026-07-30 — Standing audits + the "push it off the table" follow-up
+
+### What happened
+- **Materials Project actually fixed** (was never broken at the code level:
+  the mp-api package was simply never installed, so every call failed while
+  is_configured() said True). Installed, live-verified, cached locally, and
+  registered in the dataset-refresh cron alongside TPSX.
+- **Gallery consolidated + deduped**: 89 scene files, only 42 reachable in
+  the UI (four index files, one ever read). Index now derived FROM THE DISK
+  (build_scene_index.py) with orphaning structurally prevented by test.
+  Gauntlet clone dedup: 12 whole-bundle copies (~1.8 MB) removed after
+  verifying each against its canonical on identical matter AND physics;
+  three near-misses correctly kept (2 km vs 1 km copper ball; wind-speed
+  sweeps; the opacity demo's deliberate transparency).
+- **UI simplified to its two jobs** (chat + viewer): checker/ripples/heat
+  dials and voice input removed, lane row collapsed to one auto-default
+  selector. Notable negative finding: NO dead code existed — all 78
+  viewer.js functions and 9 chat.js functions are live; the premise
+  "old UI attempts to prune" was false and is recorded as such.
+- **Voxels enriched**: per-cell scalar_fields registry on Voxel/VoxelField
+  (temperature/stress/damage CAN now live per cell; nothing writes them
+  yet) + _emergent_matter() baking the solver signature (conductivity,
+  strength, moduli, roughness) via material_profile so MEASURED beats
+  derived: copper 406 W/m-K (TPSX) not 454 (derived); glass gets NO
+  conductivity key rather than one 78x wrong. Roughness now drives the
+  shader's specular exponent instead of a hardcoded metal-keyed guess.
+- **The friction incident and the standing audits**: friction_coefficient
+  returns exactly 1.000 for every material pair — a correct Bowden-Tabor
+  vacuum-regime model that code review cannot flag. Built the seam
+  (make_material_friction, mu as disclosed Choice, derived=False by
+  default) and, per the Captain's "if one, then all", two standing audit
+  tests: a DEGENERACY PROBE (16 derived properties x 25 materials; caught
+  a NEW defect on first run — thermal.emissivity is binary, 18/25
+  materials at 0.01) and an EXPORT-CONNECTIVITY RATCHET (every baked key
+  consumed or disclosed; dead list only shrinks).
+- **THE MILESTONE — the canonical two-turn conversation works offline**:
+  turn 1 (the exact doughnut/plate/table prompt) renders and now REMEMBERS
+  the stack (Session.last_renderable — confirmed live it was None before);
+  turn 2 "Now push the plate off the table and see what happens." routes
+  through a new push verb + pronoun binding to record_push_off
+  (radiance/push_off.py): per-object rebuild via deckard.scene.build_stack
+  (extracted from stack_constructs), stacked-block Coulomb friction with
+  disclosed-Choice mu, edge detection, ballistic fall, landing bounces.
+  THE OUTCOME IS EMERGENT: the plate slides out from under the doughnut
+  (tablecloth trick — icing friction can't supply the demanded
+  acceleration, relative slip 0.29 m > plate radius 0.21 m), doughnut
+  drops 3 cm to the table and stays, plate goes over the edge to the
+  floor. Sticky-icing mu override flips it (doughnut rides) — sensitivity
+  pinned by test. Push disclosed as a drive plug; verified in the live
+  viewer (bodies, HUD plug line, energy readout).
+- Layering-fix session's work reviewed + landed (compose_scene moved
+  deckard→radiance, tier arrow now points down).
+- Real bugs caught by EXECUTION during the build: tunneling in the landing
+  predicate (doughnut fell through the table — post-step qualification),
+  and a shell-escaping mangle that turned regex  into backspace bytes.
+
+### Why
+Captain's arc: audit before proceeding ("if one, then all" on the audit
+classes), then "let's go until we can do the follow-up push it off the
+table prompt with the doughnut simulation." Also settled: follow-up
+prompts are the near-term simulation layer; Interactive Simulation is a
+separate later phase (websocket streaming of the real solver — measured
+6-240x real-time headroom — NOT Godot, which would swap authored game
+physics in at exactly the moment interaction matters).
+
+### Next Steps
+- Re-render the 69 stale scenes once quiet (task #30)
+- label_grid -> thermal solver -> per-cell temperature (task #31)
+- emissivity degeneracy fix (chip filed)
+- Phase E fluid/gravity + Interactive Simulation Phase I (websocket loop)
