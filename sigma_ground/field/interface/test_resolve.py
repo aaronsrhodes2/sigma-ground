@@ -4,6 +4,9 @@ unknown must come back flagged; every shipped catalog material must be cited.
 """
 import json
 
+import pytest
+
+from sigma_ground.field.interface import resolve
 from sigma_ground.field.interface.resolve import material_profile, MaterialFact, _JSON_PATH
 
 
@@ -82,3 +85,139 @@ def test_every_catalog_material_is_cited_and_complete():
             if isinstance(cell, dict) and "v" in cell:
                 assert cell.get("src") and cell.get("src") != "estimated", f"{key}.{prop} uncited"
                 assert "c" in cell, f"{key}.{prop} no confidence"
+
+
+# ── TPSX tier (0a) ───────────────────────────────────────────────────────
+
+def test_tpsx_tier_overrides_density_for_aliased_metals():
+    p = material_profile("gold")
+    assert p["density"].value == pytest.approx(19300)
+    assert "TPSX" in p["density"].source
+    assert not p["density"].estimated
+    # thermal properties are new, TPSX-only additions
+    assert p["specific_heat_j_kgk"].value == pytest.approx(128.0)
+    assert p["thermal_conductivity_w_mk"].value == pytest.approx(318.0)
+
+
+def test_materials_without_tpsx_entry_unchanged():
+    # silicon is explicitly excluded from the TPSX alias table (the
+    # "Silicone A/B" false-friend) -- density must still come from
+    # surface.MATERIALS, exactly as before this feature existed.
+    p = material_profile("silicon")
+    assert p["density"].source == "surface.MATERIALS"
+    assert "thermal_conductivity_w_mk" not in p
+    assert "specific_heat_j_kgk" not in p
+
+
+def test_tpsx_mechanical_properties_stay_inert_for_aliased_metals():
+    # documented, verified fact: TPSX's E/G/sigma_UTS data belongs to
+    # aerospace TPS composites, not our metal alias set -- gold's E must
+    # still come from mechanical.py, not TPSX.
+    p = material_profile("gold")
+    assert "mechanical.youngs_modulus" in p["E"].source
+    assert "TPSX" not in p["E"].source
+
+
+# ── Materials Project tier (2b) ──────────────────────────────────────────
+
+def test_mp_elastic_pa_derives_E_via_isotropic_identity():
+    entry = {"bulk_modulus_vrh": 140.0, "shear_modulus_vrh": 48.0}
+    out = resolve._mp_elastic_pa(entry)
+    assert out["K"] == pytest.approx(140.0e9)
+    assert out["G"] == pytest.approx(48.0e9)
+    expected_E = 9.0 * 140e9 * 48e9 / (3.0 * 140e9 + 48e9)
+    assert out["E"] == pytest.approx(expected_E)
+
+
+def test_mp_elastic_pa_skips_missing_or_nonpositive_moduli():
+    assert resolve._mp_elastic_pa({}) == {}
+    # a negative K (the documented MP-artifact case, e.g. Zn's canonical
+    # entry) is dropped, but a valid positive G alone is still kept -- E is
+    # only derived when BOTH K and G are present and positive
+    out = resolve._mp_elastic_pa({"bulk_modulus_vrh": -5.0, "shear_modulus_vrh": 10.0})
+    assert out == {"G": 10.0e9}
+    assert resolve._mp_elastic_pa({"bulk_modulus_vrh": 10.0, "shear_modulus_vrh": None}) == {"K": 10.0e9}
+
+
+def test_mp_tier_does_not_override_mechanicals_own_E_for_covered_metals(monkeypatch):
+    # Deliberate design correction (see resolve.py's 2b) comment): MP's
+    # automatic lowest-energy-polymorph selection was live-verified to
+    # return physically unrepresentative elastic tensors for several of our
+    # metals (aluminum +68% vs textbook E, gold -53%). So for any canon
+    # mechanical.py already covers, a synthetic MP cache entry must NOT
+    # win -- mechanical.py's measured-Poisson-anchored E stays authoritative.
+    fake_cache = {"copper": {"bulk_modulus_vrh": 999.0, "shear_modulus_vrh": 999.0,
+                             "poisson_ratio": 0.999, "source": "fake-mp-entry"}}
+    monkeypatch.setattr(resolve, "_MP_CACHE", fake_cache)
+    p = material_profile("copper")
+    assert "fake-mp-entry" not in p["E"].source
+    assert p["poisson_ratio"].value != pytest.approx(0.999)
+    assert "mechanical.MECHANICAL_DATA" in p["poisson_ratio"].source
+    # sigma_UTS / K_Ic are untouched either way -- MP has no fracture data
+    assert "stress.STRESS_DATA" in p["sigma_UTS"].source
+
+
+def test_mp_tier_fills_a_genuine_gap_when_mechanical_data_lacks_the_material(monkeypatch):
+    # For a canon NOT in MECHANICAL_DATA/MATERIALS, the MP tier is the ONLY
+    # source of E/G/K/poisson_ratio -- prove it actually fires end-to-end.
+    fake_cache = {"unobtainium_test_alloy": {
+        "bulk_modulus_vrh": 140.0, "shear_modulus_vrh": 48.0, "poisson_ratio": 0.34,
+        "source": "Materials Project (DFT-computed elastic tensor, mp-fake)"}}
+    monkeypatch.setattr(resolve, "_MP_CACHE", fake_cache)
+    p = material_profile("unobtainium_test_alloy")
+    assert p["K"].value == pytest.approx(140.0e9)
+    assert p["G"].value == pytest.approx(48.0e9)
+    assert p["E"].value == pytest.approx(9.0 * 140e9 * 48e9 / (3.0 * 140e9 + 48e9))
+    assert p["poisson_ratio"].value == pytest.approx(0.34)
+    assert "Materials Project" in p["E"].source
+
+
+def test_mp_cache_loaded_from_real_fetched_file_has_expected_shape():
+    # Not a mock -- sigma_ground/inventory/data/materials_project_cache.json
+    # is the output of a real fetch_materials_project.py run against the
+    # live API. Confirms the loader + resolve._MP_CACHE actually see it.
+    assert "copper" in resolve._MP_CACHE
+    assert resolve._MP_CACHE["copper"]["bulk_modulus_vrh"] > 0
+    assert resolve._MP_CACHE["copper"]["provenance_tag"] == "DFT-COMPUTED"
+
+
+# ── byte-identical-additive guarantee (real regression check) ────────────
+# Materials with no TPSX alias and no MP cache entry -- section 0a/2b are
+# verified no-ops for these; only a possible new `poisson_ratio` key (a
+# pure addition, sourced from mechanical.py's own already-measured table,
+# unrelated to either new external database) may appear.
+_UNTOUCHED_BY_NEW_TIERS = ("silicon", "steel_mild", "mercury", "glass",
+                          "flarbleglomp", "balsa", "concrete", "kevlar")
+
+
+@pytest.mark.parametrize("name", _UNTOUCHED_BY_NEW_TIERS)
+def test_materials_outside_both_new_tiers_keep_every_existing_value(name):
+    p = material_profile(name)
+    for key, fact in p.items():
+        if not isinstance(fact, MaterialFact):
+            continue
+        assert "TPSX" not in fact.source, f"{name}.{key} unexpectedly TPSX-sourced"
+        assert "Materials Project" not in fact.source, f"{name}.{key} unexpectedly MP-sourced"
+    # and no TPSX-only keys leaked in
+    for tpsx_only_key in ("thermal_conductivity_w_mk", "specific_heat_j_kgk", "melt_temperature_k"):
+        assert tpsx_only_key not in p, f"{name} unexpectedly gained {tpsx_only_key}"
+
+
+def test_the_13_aliased_metals_are_exactly_the_ones_with_changed_density_source():
+    # Locks in the design's own accounting: exactly 13 canon tokens should
+    # have a TPSX-sourced density; everything else in MATERIALS keeps
+    # surface.MATERIALS as the density source.
+    from sigma_ground.field.interface.surface import MATERIALS
+    from sigma_ground.field.interface.tpsx_lookup import _MATERIAL_ALIAS
+    tpsx_sourced = []
+    unchanged = []
+    for canon in MATERIALS:
+        p = material_profile(canon)
+        if "TPSX" in p["density"].source:
+            tpsx_sourced.append(canon)
+        else:
+            assert p["density"].source == "surface.MATERIALS"
+            unchanged.append(canon)
+    assert set(tpsx_sourced) == set(_MATERIAL_ALIAS.keys())
+    assert len(tpsx_sourced) == 13
+    assert len(unchanged) == len(MATERIALS) - 13

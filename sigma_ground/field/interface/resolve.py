@@ -7,6 +7,16 @@ ever invents material data. The rule: prefer the DERIVED first-principles value
 (inventory/data/materials_engineering.json), and only then a flagged estimate —
 never a fabricated number.
 
+Two real external material-property databases are wired in ahead of that
+chain: NASA TPSX (tier 0a, real per-material citations, see tpsx_lookup.py
+— highest priority, only fires for its curated ~13-material alias set) and
+Materials Project (tier 2b, cached DFT elastic moduli — deliberately placed
+BELOW mechanical.py's own measured-Poisson-anchored E/G/K, not above, after
+live verification (2026-07-29) found MP's automatic lowest-energy-polymorph
+selection returns physically unrepresentative elastic tensors for several
+of our metals, e.g. aluminum +68% vs textbook E, gold -53% — see the 2b)
+block's own comment for the full story and the numbers).
+
 Tiering: this lives in field/interface (tier 1) and imports only its tier-1
 siblings + stdlib. It deliberately does NOT import deckard's ``Fact`` (tier 2);
 that would be an upward import and break the layering contract. Instead it
@@ -14,10 +24,12 @@ returns ``MaterialFact`` — the same ``value/source/license/confidence/.estimat
 shape, so a caller can consume it identically or convert to a ``Fact``.
 
 Property keys (those that apply to the material): ``density`` (kg/m³), ``E``,
-``G``, ``K`` (Pa), ``K_Ic`` (Pa√m), ``sigma_UTS`` (Pa), ``is_ductile`` (bool),
-``n_refractive``, ``reflectance`` (0..1), ``emissivity`` (0..1), ``viscosity``
-(Pa·s), ``surface_tension`` (N/m), ``color`` ((r,g,b)). Plus meta: ``name``,
-``canonical``, ``material_class``, ``identified``.
+``G``, ``K``, ``poisson_ratio`` (unitless) (Pa for E/G/K), ``K_Ic`` (Pa√m),
+``sigma_UTS`` (Pa), ``is_ductile`` (bool), ``n_refractive``, ``reflectance``
+(0..1), ``emissivity`` (0..1), ``viscosity`` (Pa·s), ``surface_tension``
+(N/m), ``color`` ((r,g,b)), plus TPSX-sourced ``melt_temperature_k`` (K),
+``thermal_conductivity_w_mk`` (W/m·K), ``specific_heat_j_kgk`` (J/kg·K).
+Plus meta: ``name``, ``canonical``, ``material_class``, ``identified``.
 """
 from __future__ import annotations
 
@@ -35,6 +47,7 @@ from .optics import (
     dielectric_color_rgb, organic_rgb, LAMBDA_G,
 )
 from .thermal_emission import THERMAL_EMISSION_MATERIALS, emissivity
+from .tpsx_lookup import tpsx_property, TPSX_RESOLVE_KEYS
 
 _ESTIMATED = "estimated"
 
@@ -131,6 +144,39 @@ def _normalize(name: str) -> str:
 
 _CATALOG, _JSON_ALIAS, _CAT_META = _load_catalog()
 
+# ── Materials Project cache (DFT-computed elastic moduli, cited) ───────────
+_MP_JSON_PATH = Path(__file__).resolve().parents[2] / "inventory" / "data" / "materials_project_cache.json"
+
+
+def _load_mp_cache() -> dict:
+    try:
+        doc = json.loads(_MP_JSON_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    doc.pop("_meta", None)
+    return doc
+
+
+_MP_CACHE = _load_mp_cache()
+
+
+def _mp_elastic_pa(entry: dict) -> dict:
+    """K, G in Pa from the cached GPa values; E is DERIVED via the isotropic
+    identity E = 9KG/(3K+G) rather than trusting entry['young_modulus'] --
+    that field was empirically None in every live MP response checked this
+    session (see materials_project_client.py's own docstring caveat), so
+    deriving E from K+G (both consistently populated) is the path that
+    actually fires in practice."""
+    K_gpa, G_gpa = entry.get("bulk_modulus_vrh"), entry.get("shear_modulus_vrh")
+    out: dict[str, float] = {}
+    if K_gpa is not None and K_gpa > 0:
+        out["K"] = K_gpa * 1e9
+    if G_gpa is not None and G_gpa > 0:
+        out["G"] = G_gpa * 1e9
+    if "K" in out and "G" in out and (3 * out["K"] + out["G"]) > 0:
+        out["E"] = 9.0 * out["K"] * out["G"] / (3.0 * out["K"] + out["G"])
+    return out
+
 
 def _cat_source(code: str) -> str:
     return _CAT_META.get("_sources", {}).get(code, code)
@@ -160,6 +206,30 @@ def material_profile(name: str) -> dict:
 
     _CRYSTAL_LIC = "CRC Handbook (crystal density), facts cited by reference"
 
+    # 0a) NASA TPSX -- real measured/predicted materials data (tier 1, the
+    # highest-priority tier). Only fires for the curated ~13-material alias
+    # set in tpsx_lookup.py -- tpsx_property() returns None for every other
+    # canon token, so this section is a pure no-op for every material NOT
+    # in that table, and for every liquid/catalog-only material. Verified
+    # 2026-07-29: for the 13 aliased metals this supplies density + thermal
+    # properties only (its mechanical rows belong to aerospace TPS
+    # composites not in this alias set) -- sigma_UTS/E/G/poisson_ratio stay
+    # inert today but are kept wired for forward compatibility.
+    for _rkey in TPSX_RESOLVE_KEYS:
+        # NOTE: deliberately named _tpsx_fact, not _fact -- the module-level
+        # _fact() helper (see below) is called later in this same function
+        # (props["density"] = _fact(...), props["is_ductile"] = _fact(...)).
+        # A same-named loop variable here would shadow it for the REST of
+        # material_profile()'s scope (Python locals are whole-function, not
+        # per-block) and break every one of those later call sites with a
+        # "'NoneType'/'TPSXFact' object is not callable" TypeError -- this
+        # was caught by a real test run against an unaliased material
+        # ("flarbleglomp") during implementation, not just reasoned about.
+        _tpsx_fact = tpsx_property(canon, _rkey)
+        if _tpsx_fact is not None:
+            _add(props, _rkey, _tpsx_fact.value, _tpsx_fact.source,
+                _tpsx_fact.license, _tpsx_fact.confidence)
+
     # 1) Liquids — fluid.py (density, viscosity, surface tension, bulk modulus)
     from .fluid import KNOWN_LIQUIDS, liquid_properties
     if canon in KNOWN_LIQUIDS:
@@ -177,6 +247,45 @@ def material_profile(name: str) -> dict:
         _add(props, "G", shear_modulus(canon), "mechanical.shear_modulus (derived)", "", 0.7)
         _add(props, "K", bulk_modulus(canon), "mechanical.bulk_modulus (harmonic approx, ±50%)", "", 0.6)
         _add(props, "density", MATERIALS[canon].get("density_kg_m3"), "surface.MATERIALS", _CRYSTAL_LIC, 0.9)
+        _add(props, "poisson_ratio", MECHANICAL_DATA[canon].get("poisson_ratio"),
+             "mechanical.MECHANICAL_DATA (poisson_ratio, measured)", "", 0.8)
+
+    # 2b) Materials Project — cached DFT elastic moduli (E/G/K/poisson_ratio).
+    # DELIBERATELY placed AFTER mechanical.py's own tier above, not before it
+    # (a deviation from the original wiring design -- see note). _add()'s
+    # "not already in props" guard means this only ever fills a genuine gap:
+    # a CURATED_FORMULAS material with MP cache data but no MECHANICAL_DATA
+    # entry. For all 14 materials currently in CURATED_FORMULAS that gap
+    # doesn't exist (all 14 already have MECHANICAL_DATA coverage), so this
+    # section is a verified no-op today -- same "inert but forward-compatible"
+    # shape as the TPSX mechanical properties above.
+    #
+    # WHY the reorder: MP's elasticity search picks a formula's lowest-
+    # energy_above_hull polymorph that has a POSITIVE VRH bulk+shear tensor
+    # (materials_project_client.py::_pick_mechanically_stable). That filter
+    # catches obviously-corrupted negative moduli (its own documented Zn
+    # case) but not "positive but physically unrepresentative polymorph."
+    # Live-verified 2026-07-29 against textbook E: aluminum's ground-state
+    # entry (mp-134) has a NEGATIVE shear modulus in MP today and gets
+    # skipped in favor of mp-998860, whose derived E (9KG/(3K+G)) comes out
+    # ~118 GPa vs aluminum's real ~70 GPa (+68%); gold similarly falls
+    # through to a polymorph giving E ~37 GPa vs real ~79 GPa (-53%); lead
+    # +92%; titanium +36%. mechanical.py's own poisson-ratio-based E/G
+    # (added above) is measured-Poisson-anchored and, while itself only a
+    # ±25-30% approximation, is not subject to this per-material polymorph
+    # lottery. Overriding it with MP's DFT numbers (as originally designed)
+    # would have made material_profile()'s default E answer WORSE for
+    # several of our highest-value metals. MP's numbers remain fully
+    # available (cited, cached, dataset_minder-tracked) as the fallback tier
+    # here and directly via resolve._MP_CACHE for any caller that wants the
+    # raw DFT record regardless of this ordering.
+    _mp = _MP_CACHE.get(canon)
+    if _mp:
+        for _key, _val in _mp_elastic_pa(_mp).items():
+            _add(props, _key, _val, _mp.get("source", "Materials Project (DFT)"), "", 0.75)
+        if _mp.get("poisson_ratio") is not None:
+            _add(props, "poisson_ratio", _mp["poisson_ratio"],
+                _mp.get("source", "Materials Project (DFT)"), "", 0.75)
 
     # 3) Fracture — stress.py (σ_UTS, K_Ic, ductility)
     if canon in STRESS_DATA:

@@ -208,6 +208,15 @@ SOURCES = [
           "US gov work, freely retrievable",
           lambda: _check_http_head("https://tpsx.arc.nasa.gov/"),
           "HTTP HEAD ETag/Last-Modified", lambda: _sync_tool("fetch_tpsx.py")),
+    Source("materials_project", "materialsproject.org (DFT elastic moduli)", 180,
+          "MP ToU -- DFT-computed, freely usable with citation; requires a free API key",
+          lambda: _check_http_head("https://next-gen.materialsproject.org"),
+          "HTTP HEAD ETag/Last-Modified (weak proxy -- a DFT relaxation "
+          "changing behind the API isn't reflected by this landing page's "
+          "ETag; real cadence is justify-by-time, ~180d, since stable-phase "
+          "elastic tensors rarely change) -- fetch_materials_project.py "
+          "itself no-ops gracefully if MATERIALS_PROJECT_API_KEY is unset",
+          lambda: _sync_tool("fetch_materials_project.py")),
     Source("kicad_packages3d", "gitlab.com/kicad/libraries/kicad-packages3D", 14,
           "CC-BY-SA 4.0 (with KiCad libraries exception)",
           lambda: _check_git_remote("D:/datasets/electronics/kicad-packages3D"),
