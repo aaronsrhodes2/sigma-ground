@@ -1,0 +1,32 @@
+[
+ {
+  "slug": "voxsdf_doughnut",
+  "title": "doughnut \u2014 direct-SDF voxel bridge (236x236x65 @ 0.427mm)",
+  "question": "show doughnut as SDF-sampled voxels",
+  "verb": "voxel_sdf",
+  "group": "voxel_sdf",
+  "kind": "static",
+  "shape": "voxel",
+  "dims": [
+   236,
+   236,
+   65
+  ],
+  "material": "dough"
+ },
+ {
+  "slug": "voxsdf_coffee_cup",
+  "title": "coffee cup \u2014 direct-SDF voxel bridge (46x46x53 @ 2.111mm)",
+  "question": "show coffee cup as SDF-sampled voxels",
+  "verb": "voxel_sdf",
+  "group": "voxel_sdf",
+  "kind": "static",
+  "shape": "voxel",
+  "dims": [
+   46,
+   46,
+   53
+  ],
+  "material": "water"
+ }
+]

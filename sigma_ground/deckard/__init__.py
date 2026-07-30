@@ -104,6 +104,11 @@ def identify(name: str, resolution: int = 64, *, allow_llm: bool = True,
       • ``"voxel"`` / ``"auto"`` — load the REAL ShapeNet/PartNet mesh and
         voxelize it (a real chair, not a rod+box), falling back to primitives
         when no mesh/extra is available. Opt-in so existing callers are untouched.
+      • ``"voxel_sdf"`` — compile at "primitive" fidelity as usual, then SAMPLE
+        the resulting analytic SDF onto a regular grid (deckard.sdf_voxelize) --
+        a real dense voxel Construct with mass/CoM/inertia carried over
+        VERBATIM from the primitive compile (never recomputed from the grid).
+        For consumers that want a single dense SDF instead of a CSG tree.
 
     ``allow_llm=False`` forces the deterministic path (catalog hit else flagged
     best-guess) — no network. ``material_hint`` SELECTS the material (never
@@ -115,8 +120,12 @@ def identify(name: str, resolution: int = 64, *, allow_llm: bool = True,
         if vc is not None:
             return vc                                 # real mesh, voxelized
         # else: fall through to the primitive path (honest fallback)
-    return compile(research(name, allow_llm=allow_llm, material_hint=material_hint,
-                            exclude=exclude), resolution=resolution)
+    construct = compile(research(name, allow_llm=allow_llm, material_hint=material_hint,
+                                 exclude=exclude), resolution=resolution)
+    if fidelity == "voxel_sdf":
+        from .sdf_voxelize import construct_to_voxel_fidelity
+        construct = construct_to_voxel_fidelity(construct)
+    return construct
 
 
 __all__ = [

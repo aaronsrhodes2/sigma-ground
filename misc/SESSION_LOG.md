@@ -2289,3 +2289,79 @@ used, not left dormant beside a re-invented approximation.
 - A real per-material bell Q-factor/decay-time table (currently
   Choice-flagged, KNOWN_GAPS entry)
 - Arc B (generative tree pipeline) — queued, not yet started
+
+## Session 28 — 2026-07-22..29 — Doughnut challenge + "Teardown, but all the physics" (Phases A-D3)
+
+### What happened
+- **Patrick's doughnut challenge answered end-to-end**: the exact Captain
+  prompt ("a Doughnut, with frosting and rainbow sprinkles... sitting on a
+  plate, which is flat on top of a 1700s table") now routes through
+  front_door's new multi-object SCENE stack parser to deckard/scene.py's
+  compose_scene(), producing a geometrically-exact 48-leaf render (table-top
+  == plate-bottom to float precision). New scatter Part convention (24
+  individually-placed, jittered sprinkles), new doughnut archetype.
+- **Coating-color doctrine**: materials with an applied coating (paint/ink/
+  icing/glaze...) and no stated color now get a real, deterministic,
+  contrasting pigment pick — disclosed as a Choice in the scene bundle, never
+  a silent grey. Explicit color words in a label parse directly.
+- **Phase A — energy/momentum tracing**: all 11 trajectory recorders emit
+  per-frame energy_j / momentum / angular_momentum (scene totals; manual
+  scalar arithmetic for record_object_fall, the recorder with no
+  PhysicsScene); viewer HUD shows a live gold readout, lerped like
+  temperature_k. Cross-checked exactly against validation.energy_gain_j.
+- **Phase B — real structure over Plug**: the bell now hangs from a real
+  3-link rigid chain (RevoluteJoints, world-weld only at the top — honestly
+  described as an idealized anchor, NOT a fake ceiling). Its verify pass
+  caught 2 real bugs pre-landing: chain links rendered as disconnected pucks
+  (missing cylinder orientation quats) and an overclaimed "bolted to the
+  building" docstring. Remaining drive Plugs (motor sources) now render as
+  translucent violet ghost tethers in-scene, not just HUD text.
+- **Phase C — raymarcher speedup**: per-leaf bounding-sphere early-rejection
+  in the path tracer. Its verify pass caught a REAL missed-geometry bug
+  (subtract-leaf gating could skip a buried cavity by 0.55m); fixed by using
+  the same bd_i substitute for all ops — proven safe by sign-case analysis
+  and re-verified to sub-mm divergence. Also fixed a latent Outline
+  bounding_radius conservativeness bug (revolve-mode z-asymmetry).
+- **Render-only opacity**: materials can be dialed transparent (engine-block
+  use case) with proven zero physics impact; stochastic alpha gate in the
+  tracer (deliberately NOT the ior/Fresnel branch), click-to-pick + opacity
+  drawer + setMaterialOpacity() API.
+- **Phase D1 — vectorized SDF**: sdf_batch()/surface_distance_batch() across
+  the CSG tree + all 7 analytic primitives + the 3 construct wrappers;
+  15-25x measured; universal correct fallback for unvectorized shapes.
+- **Phase D2/D3 — direct-SDF voxel bridge** (deckard/sdf_voxelize.py):
+  compiled Constructs sample their own analytic SDF onto a real
+  kernel.voxel.Voxel via sdf_batch — no mesh ever exists. Adaptive pitch tied
+  to the smallest REALIZED leaf (doughnut: 0.4273mm vs the mesh path's 3.5mm
+  floor where a sprinkle spans 0.73 cells); all 24 sprinkles resolve at 12-30
+  cells each. Opt-in via identify(fidelity="voxel_sdf"); physics carried
+  verbatim, never recomputed from the grid; renders through the UNMODIFIED
+  scene_export/viewer path. Demo scenes: voxsdf_doughnut (236x236x65),
+  voxsdf_coffee_cup.
+- **Architecture decision (Eulerian vs Lagrangian)**: rigid solids stay
+  body-local/Lagrangian (Teardown-style per-object grids); a fixed-world
+  Eulerian grid is reserved for genuinely flowing matter via the SPH bridge
+  (later); camera-zoom-tied simulation resolution explicitly rejected
+  (rendering LOD fine, sim fidelity never a function of the viewer).
+
+### Why
+Captain's arc: "Everything Mentat renders should be physics-to-screen...
+follow Teardown's goals except tracing ALL physics — and energy/momentum."
+Plus the standing doctrine made concrete twice: verify passes are not
+rubber stamps (2 of 5 background workflows came back with real bugs their
+implementers' own testing missed — both fixed and re-verified before
+landing), and honest disclosure beats dressed-up idealization (the bell's
+"ceiling" language was corrected rather than shipped).
+
+### Next Steps
+- Phase D4: scene-level unified voxel grid (multi-material per cell shader
+  path + payload strategy) — the true Teardown-equivalent end state
+- Phase E (future goal, recorded in plan): side-by-side fluid/gravity
+  correlation experiment — statistical residual between SPH-fluid and
+  n-body runs of the same mass distribution; needs pairwise self-gravity
+  for SPH parcels first; honestly scoped as insight, not a Millennium-proof
+- 4-cylinder engine demo (crank-slider + cam-follower on existing joints,
+  drive Plug, transparent block via the opacity feature) — the showcase
+  that exercises everything above at once
+- Pre-existing tier-layering violation to fix: deckard.scene imports
+  radiance.scene_export (test_layering red since the scene-stack work)
