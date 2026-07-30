@@ -1668,7 +1668,14 @@ else { $("b-pt").textContent="≈ no float targets"; }
     listEl.innerHTML="";
     let lastGroup=null;
     const GROUP={showcase:"Showcases — emergent physics", drop:"Drops — Materia's questions",
-                 gauntlet:"Gauntlet — 20 minimal prompts, fully local"};
+                 gauntlet:"Gauntlet — 20 minimal prompts, fully local",
+                 composition:"Compositions — multi-object scenes",
+                 voxel_sdf:"Voxel (SDF-sampled) — direct from the analytic SDF",
+                 voxel:"Voxel (real mesh) — ShapeNet/PartNet shapes",
+                 mechanism:"Mechanisms — joints, gears, escapements",
+                 thermal:"Thermal — conduction and glow",
+                 object:"Objects — Deckard-grounded shapes",
+                 theater:"Theaters — staging backdrops", demo:"Demos"};
     for(const s of scenes){
       const g=s.group||"drop";
       if(g!==lastGroup){ lastGroup=g;
@@ -1677,9 +1684,24 @@ else { $("b-pt").textContent="≈ no float targets"; }
       const card=document.createElement("div"); card.className="libcard";
       const t=document.createElement("div"); t.className="t"; t.textContent=s.title||s.slug;
       const q=document.createElement("div"); q.className="q";
-      const meta=(s.verb&&s.verb!=="showcase"?"  ·  "+s.verb:"")+(s.frames?"  ·  "+s.frames+"f":"");
+      const meta=(s.verb&&s.verb!=="showcase"?"  ·  "+s.verb:"")+(s.frames?"  ·  "+s.frames+"f":"")
+        +(s.leaves?"  ·  "+s.leaves+" leaves":"");
       q.textContent=(s.question||"")+meta;
       card.append(t,q);
+      // baked-with badge, BELOW the title/meta: which of the current
+      // renderer's features this file actually carries. A scene saved before
+      // a feature shipped still loads and renders correctly (every consumer
+      // degrades gracefully) — the badge says "re-render me to pick this up",
+      // it does not mean "broken".
+      if(!(s.has_bounds&&s.has_opacity)){
+        const b=document.createElement("span"); b.className="libstale";
+        const missing=[!s.has_bounds&&"bounds",!s.has_opacity&&"opacity",
+                       s.frames&&!s.has_energy&&"energy"].filter(Boolean);
+        b.textContent="stale: "+missing.join(", ");
+        b.title="Saved before these renderer features shipped — still renders, "
+               +"but re-render to pick them up.";
+        card.appendChild(b);
+      }
       card.addEventListener("click",()=>{
         load("data/"+s.slug+".json", s.title||s.slug).catch(e=>setErr("library: "+e));
         $("library").classList.remove("open"); $("b-lib").classList.remove("on"); });
