@@ -397,6 +397,15 @@ def _pressure_from_eos(parcel):
     P = K × (ρ/ρ₀ − 1)
 
     K comes from the interface cascade (mechanical.py → bulk_modulus).
+
+    REGIME LIMIT (found live, Phase E 2026-07-30): this EOS assumes parcels
+    sample a packed continuum near ρ₀. A DILUTE swarm (ring/cloud particles
+    whose kernel density is orders below the material's ρ₀) lands at
+    P ≈ −K — e.g. −1.7e11 Pa of spurious tension for iron — which ejects
+    any pair that drifts inside the kernel radius. Dilute astrophysical
+    scenarios need a velocity-dispersion EOS (P = ρ·c_s², the standard
+    ring/disk treatment), not condensed-matter Tait; that is Phase E3
+    design work, deliberately not patched here with a clamp.
     """
     K = parcel.bulk_modulus
     rho_0 = parcel.props['density_kg_m3']
