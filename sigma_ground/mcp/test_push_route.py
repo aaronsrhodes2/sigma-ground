@@ -116,3 +116,67 @@ def test_tablecloth_outcome_and_choice_sensitivity():
     mu_disclosed = next(c for c in b2["scene"]["choices"]
                         if "friction" in c["description"])
     assert mu_disclosed["value"]["topper_on_plate"] == 3.0
+
+
+# ── Golden Rule 7: the artificial force is the one during-sim knob ─────────
+def test_push_speed_parses_adverbs_and_explicit_rates():
+    from sigma_ground.mcp.front_door import _parse_push_speed
+    assert _parse_push_speed("push it at 1.5 m/s") == 1.5
+    assert _parse_push_speed("push it gently") == 1.2
+    assert _parse_push_speed("shove it off") == 3.0
+    assert _parse_push_speed("push it as hard as you can") == 3.0
+    assert _parse_push_speed("push the plate off") is None   # recorder's Choice
+
+
+def test_push_bundle_declares_the_speed_variant_sweep():
+    """The viewer's variant slider walks PUSH SPEED — the scene's one
+    artificial force — per Golden Rule 7 (matter is fact; only artificial
+    forces are adjustable during a simulation). Each variant is a real frozen
+    recorded run, and every declared slug resolves to a saved file."""
+    s = Session()
+    dispatch("show me a Doughnut sitting on a plate, which is flat on top of "
+             "a 1700s table", use_llm=False, session=s)
+    env = dispatch("push the plate off the table", use_llm=False, session=s)
+    assert env["intent"] == "render"
+    bundle = json.load(open(env["saved"]["path"], encoding="utf-8"))
+    sc = bundle["scene"]
+    labels = [v["label"] for v in sc["variants"]]
+    assert labels == ["push 1.2 m/s", "push 1.7 m/s", "push 2.2 m/s",
+                      "push 3 m/s"]
+    assert sc["variant_current"] in {v["slug"] for v in sc["variants"]}
+    data_dir = os.path.dirname(env["saved"]["path"])
+    for v in sc["variants"]:
+        assert os.path.exists(os.path.join(data_dir, v["slug"] + ".json")), v
+
+
+def test_gentle_push_keeps_everything_on_the_table():
+    """The speed knob spans the regimes the friction dictates: gently (1.2
+    m/s) the plate stops short of the edge and the doughnut never leaves it.
+    Same matter as the tablecloth run — only the artificial force changed."""
+    from sigma_ground.radiance.push_off import record_push_off
+    b = record_push_off(["1700s table", "plate", "Doughnut"], pushed_index=1,
+                        push_speed_m_s=1.2)
+    fs = b["trajectory"]["validation"]["final_support"]
+    assert fs["plate"] == "on 1700s table"
+    assert fs["Doughnut"] == "on plate"
+
+
+def test_dough_bottom_is_why_there_is_no_ride_along_window():
+    """The Captain's anatomy correction changed the physics: with a fried-
+    dough bottom (mu ~0.38, barely above plate-table 0.35) the doughnut can
+    never lock onto the plate in time AND still reach the edge — probed
+    across speeds, the outcome goes straight from stays to tablecloth. A
+    sticky full-coat icing bottom (the OLD wrong model) restores a ride
+    window — mu_overrides here is the BETWEEN-runs correction surface
+    demonstrating the counterfactual, not a live knob."""
+    from sigma_ground.radiance.push_off import record_push_off
+    # the default push: dough bottom → tablecloth (left behind on the table)
+    b = record_push_off(["1700s table", "plate", "Doughnut"], pushed_index=1,
+                        push_speed_m_s=2.2)
+    assert b["trajectory"]["validation"]["final_support"]["Doughnut"] == "on 1700s table"
+    # counterfactual old model at the SAME speed: sticky icing locks the
+    # doughnut to the plate within the plate's radius → it rides along off
+    b2 = record_push_off(["1700s table", "plate", "Doughnut"], pushed_index=1,
+                         push_speed_m_s=2.2,
+                         mu_overrides={"topper_on_plate": 0.9})
+    assert b2["trajectory"]["validation"]["final_support"]["Doughnut"] != "on 1700s table"

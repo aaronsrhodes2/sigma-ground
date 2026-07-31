@@ -1,0 +1,8335 @@
+{
+ "scene": {
+  "name": "plate pushed off the 1700s table",
+  "bodies": [
+   {
+    "pivot": [
+     0,
+     0,
+     0
+    ],
+    "label": "1700s table"
+   },
+   {
+    "pivot": [
+     0,
+     0,
+     0
+    ],
+    "label": "plate"
+   },
+   {
+    "pivot": [
+     0,
+     0,
+     0
+    ],
+    "label": "Doughnut"
+   }
+  ],
+  "csg_leaves": [
+   {
+    "op": "add",
+    "material": "1700s_table0__board_0",
+    "body": 0,
+    "shape": {
+     "type": "Box",
+     "center": [
+      0.0,
+      0.0,
+      1.0441
+     ],
+     "x": 0.8247,
+     "y": 0.652,
+     "z": 0.04381
+    },
+    "bounds": {
+     "center": [
+      0.0,
+      0.0,
+      1.0441
+     ],
+     "radius": 0.5361067871877344
+    }
+   },
+   {
+    "op": "add",
+    "material": "1700s_table0__bar_stretcher_1",
+    "body": 0,
+    "shape": {
+     "type": "Box",
+     "center": [
+      0.29747,
+      0.0002,
+      0.87451
+     ],
+     "x": 0.02548,
+     "y": 0.52577,
+     "z": 0.10222
+    },
+    "bounds": {
+     "center": [
+      0.29747,
+      0.0002,
+      0.87451
+     ],
+     "radius": 0.2781101693800517
+    }
+   },
+   {
+    "op": "add",
+    "material": "1700s_table0__bar_stretcher_2",
+    "body": 0,
+    "shape": {
+     "type": "Box",
+     "center": [
+      -0.27174,
+      0.0002,
+      0.87451
+     ],
+     "x": 0.02548,
+     "y": 0.52577,
+     "z": 0.10222
+    },
+    "bounds": {
+     "center": [
+      -0.27174,
+      0.0002,
+      0.87451
+     ],
+     "radius": 0.2781101693800517
+    }
+   },
+   {
+    "op": "add",
+    "material": "1700s_table0__runner_3",
+    "body": 0,
+    "shape": {
+     "type": "Box",
+     "center": [
+      -0.27174,
+      0.0002,
+      0.0365
+     ],
+     "x": 0.02548,
+     "y": 0.62957,
+     "z": 0.07301
+    },
+    "bounds": {
+     "center": [
+      -0.27174,
+      0.0002,
+      0.0365
+     ],
+     "radius": 0.3271506248614371
+    }
+   },
+   {
+    "op": "add",
+    "material": "1700s_table0__runner_4",
+    "body": 0,
+    "shape": {
+     "type": "Box",
+     "center": [
+      0.29722,
+      0.0002,
+      0.0365
+     ],
+     "x": 0.02548,
+     "y": 0.62957,
+     "z": 0.07301
+    },
+    "bounds": {
+     "center": [
+      0.29722,
+      0.0002,
+      0.0365
+     ],
+     "radius": 0.3271506248614371
+    }
+   },
+   {
+    "op": "add",
+    "material": "1700s_table0__leg_5",
+    "body": 0,
+    "shape": {
+     "type": "Box",
+     "center": [
+      0.29722,
+      0.26308,
+      0.52575
+     ],
+     "x": 0.02548,
+     "y": 0.04153,
+     "z": 0.99289
+    },
+    "bounds": {
+     "center": [
+      0.29722,
+      0.26308,
+      0.52575
+     ],
+     "radius": 0.5070423833537739
+    }
+   },
+   {
+    "op": "add",
+    "material": "1700s_table0__leg_6",
+    "body": 0,
+    "shape": {
+     "type": "Box",
+     "center": [
+      0.29722,
+      -0.26269,
+      0.52852
+     ],
+     "x": 0.02548,
+     "y": 0.04153,
+     "z": 0.99875
+    },
+    "bounds": {
+     "center": [
+      0.29722,
+      -0.26269,
+      0.52852
+     ],
+     "radius": 0.5099688824817
+    }
+   },
+   {
+    "op": "add",
+    "material": "1700s_table0__leg_7",
+    "body": 0,
+    "shape": {
+     "type": "Box",
+     "center": [
+      -0.27174,
+      -0.26269,
+      0.52852
+     ],
+     "x": 0.02548,
+     "y": 0.04153,
+     "z": 0.99875
+    },
+    "bounds": {
+     "center": [
+      -0.27174,
+      -0.26269,
+      0.52852
+     ],
+     "radius": 0.5099688824817
+    }
+   },
+   {
+    "op": "add",
+    "material": "1700s_table0__leg_8",
+    "body": 0,
+    "shape": {
+     "type": "Box",
+     "center": [
+      -0.27174,
+      0.26308,
+      0.52575
+     ],
+     "x": 0.02548,
+     "y": 0.04153,
+     "z": 0.99289
+    },
+    "bounds": {
+     "center": [
+      -0.27174,
+      0.26308,
+      0.52575
+     ],
+     "radius": 0.5070423833537739
+    }
+   },
+   {
+    "op": "add",
+    "material": "1700s_table0__tabletop_connector_9",
+    "body": 0,
+    "shape": {
+     "type": "Box",
+     "center": [
+      0.0127,
+      -0.26269,
+      0.99134
+     ],
+     "x": 0.56896,
+     "y": 0.02073,
+     "z": 0.07301
+    },
+    "bounds": {
+     "center": [
+      0.0127,
+      -0.26269,
+      0.99134
+     ],
+     "radius": 0.29699985827522635
+    }
+   },
+   {
+    "op": "add",
+    "material": "1700s_table0__tabletop_connector_10",
+    "body": 0,
+    "shape": {
+     "type": "Box",
+     "center": [
+      0.0127,
+      0.26308,
+      0.98569
+     ],
+     "x": 0.56896,
+     "y": 0.02073,
+     "z": 0.07301
+    },
+    "bounds": {
+     "center": [
+      0.0127,
+      0.26308,
+      0.98569
+     ],
+     "radius": 0.29699985827522635
+    }
+   },
+   {
+    "op": "add",
+    "material": "plate1__plate",
+    "body": 1,
+    "shape": {
+     "type": "Cylinder",
+     "center": [
+      0.0,
+      0.0,
+      1.1021752
+     ],
+     "radius": 0.20625,
+     "height": 0.0132
+    },
+    "bounds": {
+     "center": [
+      0.0,
+      0.0,
+      1.1021752
+     ],
+     "radius": 0.21635557298023234
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__dough",
+    "body": 2,
+    "shape": {
+     "type": "Torus",
+     "center": [
+      0.0,
+      0.0,
+      1.12641744
+     ],
+     "major_radius": 0.03763,
+     "minor_radius": 0.007526
+    },
+    "bounds": {
+     "center": [
+      0.0,
+      0.0,
+      1.12641744
+     ],
+     "radius": 0.055156
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__frosting",
+    "body": 2,
+    "shape": {
+     "type": "Clipped",
+     "center": [
+      -2.9871225731670137e-18,
+      -1.2578800560400545e-18,
+      1.1316796900359039
+     ],
+     "axis": 2,
+     "sign": -1.0,
+     "level": 1.12641744,
+     "shape": {
+      "type": "Subtracted",
+      "center": [
+       -2.98438209374209e-18,
+       -1.330502760800537e-18,
+       1.12641744
+      ],
+      "shape": {
+       "type": "Torus",
+       "center": [
+        0.0,
+        0.0,
+        1.12641744
+       ],
+       "major_radius": 0.03763,
+       "minor_radius": 0.009026
+      },
+      "cut": {
+       "type": "Torus",
+       "center": [
+        0.0,
+        0.0,
+        1.12641744
+       ],
+       "major_radius": 0.03763,
+       "minor_radius": 0.007526
+      }
+     }
+    },
+    "bounds": {
+     "center": [
+      0.0,
+      0.0,
+      1.12641744
+     ],
+     "radius": 0.056656
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_0",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      0.0019334473139932913,
+      -0.04135346308699846,
+      1.1356001875334096
+     ],
+     "rx": 0.000431,
+     "ry": 0.000431,
+     "rz": 0.001292
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_1",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      0.021060337223897,
+      -0.03533615364619967,
+      1.1357035854682527
+     ],
+     "rx": 0.000432,
+     "ry": 0.000432,
+     "rz": 0.001297
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_2",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      0.03270489111603145,
+      0.02652991390728965,
+      1.1352737607075747
+     ],
+     "rx": 0.000468,
+     "ry": 0.000468,
+     "rz": 0.001405
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_3",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      0.01584044626212751,
+      -0.03301188453174112,
+      1.136291472934376
+     ],
+     "rx": 0.000453,
+     "ry": 0.000453,
+     "rz": 0.00136
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_4",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      -0.03972034623548855,
+      0.011280829966974262,
+      1.135643550033045
+     ],
+     "rx": 0.000527,
+     "ry": 0.000527,
+     "rz": 0.001581
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_5",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      0.014244187592788147,
+      -0.03728760437880625,
+      1.1360766892812935
+     ],
+     "rx": 0.000543,
+     "ry": 0.000543,
+     "rz": 0.00163
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_6",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      -0.022542852209419144,
+      0.033808517847671526,
+      1.135877671542964
+     ],
+     "rx": 0.000465,
+     "ry": 0.000465,
+     "rz": 0.001396
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_7",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      0.024585332133064387,
+      0.03363083273591658,
+      1.1354889731734896
+     ],
+     "rx": 0.000542,
+     "ry": 0.000542,
+     "rz": 0.001626
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_8",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      -0.03938150617805618,
+      0.010438338193954639,
+      1.135843183788818
+     ],
+     "rx": 0.000449,
+     "ry": 0.000449,
+     "rz": 0.001348
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_9",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      -0.039109906146651933,
+      0.010579799938536387,
+      1.1359147327085581
+     ],
+     "rx": 0.000481,
+     "ry": 0.000481,
+     "rz": 0.001444
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_10",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      -0.02343638828648272,
+      0.03134226192689558,
+      1.1362285762320485
+     ],
+     "rx": 0.000476,
+     "ry": 0.000476,
+     "rz": 0.001429
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_11",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      -0.023741192777061954,
+      0.031762563300802425,
+      1.1361347227360832
+     ],
+     "rx": 0.000496,
+     "ry": 0.000496,
+     "rz": 0.001487
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_12",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      0.007959590185291679,
+      0.043031818449010335,
+      1.1342230072085797
+     ],
+     "rx": 0.000522,
+     "ry": 0.000522,
+     "rz": 0.001567
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_13",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      0.04111972485064791,
+      -0.0026072575208836075,
+      1.1356783333868925
+     ],
+     "rx": 0.00056,
+     "ry": 0.00056,
+     "rz": 0.001679
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_14",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      0.042106720650407714,
+      0.013439085897346242,
+      1.1338584585759515
+     ],
+     "rx": 0.000451,
+     "ry": 0.000451,
+     "rz": 0.001353
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_15",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      0.03748039586244701,
+      -0.01697089613549033,
+      1.1357007836356783
+     ],
+     "rx": 0.000505,
+     "ry": 0.000505,
+     "rz": 0.001514
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_16",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      0.01449887717932251,
+      -0.04103889836876464,
+      1.1344034749986547
+     ],
+     "rx": 0.000491,
+     "ry": 0.000491,
+     "rz": 0.001473
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_17",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      -0.03894712270423163,
+      -0.005398383392922608,
+      1.136198603439605
+     ],
+     "rx": 0.000561,
+     "ry": 0.000561,
+     "rz": 0.001683
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_18",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      -0.013703226887887051,
+      0.03624624660163261,
+      1.1362800407564024
+     ],
+     "rx": 0.000528,
+     "ry": 0.000528,
+     "rz": 0.001585
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_19",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      -0.023053703910699313,
+      0.037060752602249,
+      1.13431258489739
+     ],
+     "rx": 0.000464,
+     "ry": 0.000464,
+     "rz": 0.001392
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_20",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      -0.04358528264255655,
+      -0.00012289435998871196,
+      1.1343583480551103
+     ],
+     "rx": 0.000427,
+     "ry": 0.000427,
+     "rz": 0.001282
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_21",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      -0.03875795350455767,
+      0.016670397899822723,
+      1.135233486964923
+     ],
+     "rx": 0.000465,
+     "ry": 0.000465,
+     "rz": 0.001396
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_22",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      -0.0300036834140285,
+      -0.03261227822318724,
+      1.1337551447931058
+     ],
+     "rx": 0.000496,
+     "ry": 0.000496,
+     "rz": 0.001489
+    }
+   },
+   {
+    "op": "add",
+    "material": "doughnut2__sprinkle_23",
+    "body": 2,
+    "shape": {
+     "type": "Ellipsoid",
+     "center": [
+      0.010331669459811047,
+      0.03789448236555584,
+      1.136205732326431
+     ],
+     "rx": 0.000553,
+     "ry": 0.000553,
+     "rz": 0.001659
+    }
+   },
+   {
+    "op": "add",
+    "material": "floor",
+    "shape": {
+     "type": "Box",
+     "center": [
+      0.44999999999999996,
+      0.0,
+      -0.03232520000000001
+     ],
+     "x": 3.0,
+     "y": 2.0,
+     "z": 0.02
+    }
+   }
+  ],
+  "materials": {
+   "1700s_table0__board_0": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "opacity": 1.0,
+    "density_kg_m3": 700.0,
+    "density_derived_kg_m3": 700,
+    "density_pct_vs_supplied": 0.0,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 0.2,
+    "sound_speed_m_s": 706.0,
+    "restitution_ref": 1.0,
+    "ring_frequency_hz": 847.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "tensile_strength_mpa": 100.0,
+    "fracture_toughness_mpa_m05": 5.0,
+    "poisson_ratio": 0.35,
+    "shear_modulus_gpa": 0.080404,
+    "bulk_modulus_gpa": 0.241213,
+    "roughness": 0.4,
+    "specular_fraction": 0.15,
+    "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+    "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
+   },
+   "1700s_table0__bar_stretcher_1": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "opacity": 1.0,
+    "density_kg_m3": 700.0,
+    "density_derived_kg_m3": 700,
+    "density_pct_vs_supplied": 0.0,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 0.2,
+    "sound_speed_m_s": 706.0,
+    "restitution_ref": 1.0,
+    "ring_frequency_hz": 847.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "tensile_strength_mpa": 100.0,
+    "fracture_toughness_mpa_m05": 5.0,
+    "poisson_ratio": 0.35,
+    "shear_modulus_gpa": 0.080404,
+    "bulk_modulus_gpa": 0.241213,
+    "roughness": 0.4,
+    "specular_fraction": 0.15,
+    "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+    "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
+   },
+   "1700s_table0__bar_stretcher_2": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "opacity": 1.0,
+    "density_kg_m3": 700.0,
+    "density_derived_kg_m3": 700,
+    "density_pct_vs_supplied": 0.0,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 0.2,
+    "sound_speed_m_s": 706.0,
+    "restitution_ref": 1.0,
+    "ring_frequency_hz": 847.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "tensile_strength_mpa": 100.0,
+    "fracture_toughness_mpa_m05": 5.0,
+    "poisson_ratio": 0.35,
+    "shear_modulus_gpa": 0.080404,
+    "bulk_modulus_gpa": 0.241213,
+    "roughness": 0.4,
+    "specular_fraction": 0.15,
+    "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+    "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
+   },
+   "1700s_table0__runner_3": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "opacity": 1.0,
+    "density_kg_m3": 700.0,
+    "density_derived_kg_m3": 700,
+    "density_pct_vs_supplied": 0.0,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 0.2,
+    "sound_speed_m_s": 706.0,
+    "restitution_ref": 1.0,
+    "ring_frequency_hz": 847.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "tensile_strength_mpa": 100.0,
+    "fracture_toughness_mpa_m05": 5.0,
+    "poisson_ratio": 0.35,
+    "shear_modulus_gpa": 0.080404,
+    "bulk_modulus_gpa": 0.241213,
+    "roughness": 0.4,
+    "specular_fraction": 0.15,
+    "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+    "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
+   },
+   "1700s_table0__runner_4": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "opacity": 1.0,
+    "density_kg_m3": 700.0,
+    "density_derived_kg_m3": 700,
+    "density_pct_vs_supplied": 0.0,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 0.2,
+    "sound_speed_m_s": 706.0,
+    "restitution_ref": 1.0,
+    "ring_frequency_hz": 847.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "tensile_strength_mpa": 100.0,
+    "fracture_toughness_mpa_m05": 5.0,
+    "poisson_ratio": 0.35,
+    "shear_modulus_gpa": 0.080404,
+    "bulk_modulus_gpa": 0.241213,
+    "roughness": 0.4,
+    "specular_fraction": 0.15,
+    "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+    "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
+   },
+   "1700s_table0__leg_5": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "opacity": 1.0,
+    "density_kg_m3": 700.0,
+    "density_derived_kg_m3": 700,
+    "density_pct_vs_supplied": 0.0,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 0.2,
+    "sound_speed_m_s": 706.0,
+    "restitution_ref": 1.0,
+    "ring_frequency_hz": 847.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "tensile_strength_mpa": 100.0,
+    "fracture_toughness_mpa_m05": 5.0,
+    "poisson_ratio": 0.35,
+    "shear_modulus_gpa": 0.080404,
+    "bulk_modulus_gpa": 0.241213,
+    "roughness": 0.4,
+    "specular_fraction": 0.15,
+    "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+    "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
+   },
+   "1700s_table0__leg_6": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "opacity": 1.0,
+    "density_kg_m3": 700.0,
+    "density_derived_kg_m3": 700,
+    "density_pct_vs_supplied": 0.0,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 0.2,
+    "sound_speed_m_s": 706.0,
+    "restitution_ref": 1.0,
+    "ring_frequency_hz": 847.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "tensile_strength_mpa": 100.0,
+    "fracture_toughness_mpa_m05": 5.0,
+    "poisson_ratio": 0.35,
+    "shear_modulus_gpa": 0.080404,
+    "bulk_modulus_gpa": 0.241213,
+    "roughness": 0.4,
+    "specular_fraction": 0.15,
+    "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+    "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
+   },
+   "1700s_table0__leg_7": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "opacity": 1.0,
+    "density_kg_m3": 700.0,
+    "density_derived_kg_m3": 700,
+    "density_pct_vs_supplied": 0.0,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 0.2,
+    "sound_speed_m_s": 706.0,
+    "restitution_ref": 1.0,
+    "ring_frequency_hz": 847.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "tensile_strength_mpa": 100.0,
+    "fracture_toughness_mpa_m05": 5.0,
+    "poisson_ratio": 0.35,
+    "shear_modulus_gpa": 0.080404,
+    "bulk_modulus_gpa": 0.241213,
+    "roughness": 0.4,
+    "specular_fraction": 0.15,
+    "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+    "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
+   },
+   "1700s_table0__leg_8": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "opacity": 1.0,
+    "density_kg_m3": 700.0,
+    "density_derived_kg_m3": 700,
+    "density_pct_vs_supplied": 0.0,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 0.2,
+    "sound_speed_m_s": 706.0,
+    "restitution_ref": 1.0,
+    "ring_frequency_hz": 847.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "tensile_strength_mpa": 100.0,
+    "fracture_toughness_mpa_m05": 5.0,
+    "poisson_ratio": 0.35,
+    "shear_modulus_gpa": 0.080404,
+    "bulk_modulus_gpa": 0.241213,
+    "roughness": 0.4,
+    "specular_fraction": 0.15,
+    "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+    "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
+   },
+   "1700s_table0__tabletop_connector_9": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "opacity": 1.0,
+    "density_kg_m3": 700.0,
+    "density_derived_kg_m3": 700,
+    "density_pct_vs_supplied": 0.0,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 0.2,
+    "sound_speed_m_s": 706.0,
+    "restitution_ref": 1.0,
+    "ring_frequency_hz": 847.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "tensile_strength_mpa": 100.0,
+    "fracture_toughness_mpa_m05": 5.0,
+    "poisson_ratio": 0.35,
+    "shear_modulus_gpa": 0.080404,
+    "bulk_modulus_gpa": 0.241213,
+    "roughness": 0.4,
+    "specular_fraction": 0.15,
+    "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+    "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
+   },
+   "1700s_table0__tabletop_connector_10": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "opacity": 1.0,
+    "density_kg_m3": 700.0,
+    "density_derived_kg_m3": 700,
+    "density_pct_vs_supplied": 0.0,
+    "density_method": "tabulated (no derivable cell: amorphous / complex / missing)",
+    "youngs_modulus_gpa": 0.2,
+    "sound_speed_m_s": 706.0,
+    "restitution_ref": 1.0,
+    "ring_frequency_hz": 847.0,
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "tensile_strength_mpa": 100.0,
+    "fracture_toughness_mpa_m05": 5.0,
+    "poisson_ratio": 0.35,
+    "shear_modulus_gpa": 0.080404,
+    "bulk_modulus_gpa": 0.241213,
+    "roughness": 0.4,
+    "specular_fraction": 0.15,
+    "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+    "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
+   },
+   "plate1__plate": {
+    "color_rgb": [
+     0.9,
+     0.9,
+     0.9
+    ],
+    "emergent": true,
+    "metal": false,
+    "mechanism": "wide-gap insulator: no visible absorber -> white",
+    "opacity": 1.0,
+    "density_kg_m3": 3950.0,
+    "density_method": "unknown material",
+    "tensile_strength_mpa": 50.0,
+    "fracture_toughness_mpa_m05": 1.0,
+    "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
+   },
+   "doughnut2__dough": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "opacity": 1.0,
+    "density_kg_m3": 1000.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__frosting": {
+    "color_rgb": [
+     0.3,
+     0.2,
+     0.55
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "unconstrained coating pigment -- chosen for contrast, not physically derived",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_0": {
+    "color_rgb": [
+     0.16,
+     0.55,
+     0.22
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_1": {
+    "color_rgb": [
+     0.9,
+     0.45,
+     0.1
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_2": {
+    "color_rgb": [
+     0.9,
+     0.45,
+     0.1
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_3": {
+    "color_rgb": [
+     0.8,
+     0.11,
+     0.09
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_4": {
+    "color_rgb": [
+     0.16,
+     0.55,
+     0.22
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_5": {
+    "color_rgb": [
+     0.95,
+     0.8,
+     0.15
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_6": {
+    "color_rgb": [
+     0.45,
+     0.24,
+     0.65
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_7": {
+    "color_rgb": [
+     0.45,
+     0.24,
+     0.65
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_8": {
+    "color_rgb": [
+     0.95,
+     0.8,
+     0.15
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_9": {
+    "color_rgb": [
+     0.45,
+     0.24,
+     0.65
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_10": {
+    "color_rgb": [
+     0.95,
+     0.8,
+     0.15
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_11": {
+    "color_rgb": [
+     0.95,
+     0.8,
+     0.15
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_12": {
+    "color_rgb": [
+     0.12,
+     0.35,
+     0.75
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_13": {
+    "color_rgb": [
+     0.45,
+     0.24,
+     0.65
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_14": {
+    "color_rgb": [
+     0.16,
+     0.55,
+     0.22
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_15": {
+    "color_rgb": [
+     0.16,
+     0.55,
+     0.22
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_16": {
+    "color_rgb": [
+     0.8,
+     0.11,
+     0.09
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_17": {
+    "color_rgb": [
+     0.9,
+     0.45,
+     0.1
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_18": {
+    "color_rgb": [
+     0.16,
+     0.55,
+     0.22
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_19": {
+    "color_rgb": [
+     0.12,
+     0.35,
+     0.75
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_20": {
+    "color_rgb": [
+     0.45,
+     0.24,
+     0.65
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_21": {
+    "color_rgb": [
+     0.8,
+     0.11,
+     0.09
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_22": {
+    "color_rgb": [
+     0.12,
+     0.35,
+     0.75
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "doughnut2__sprinkle_23": {
+    "color_rgb": [
+     0.9,
+     0.45,
+     0.1
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "named pigment (explicit color in material label)",
+    "opacity": 1.0,
+    "density_kg_m3": 1550.0,
+    "density_method": "unknown material"
+   },
+   "floor": {
+    "color_rgb": [
+     0.72,
+     0.72,
+     0.72
+    ],
+    "emergent": false,
+    "metal": false,
+    "mechanism": "no model yet",
+    "note": "awaiting composition",
+    "opacity": 1.0,
+    "density_kg_m3": null,
+    "density_method": "unknown material"
+   }
+  },
+  "physics": {
+   "mass_kg": 30.809317580792136,
+   "com_m": [
+    0,
+    0,
+    0
+   ],
+   "inertia_kgm2": [
+    0,
+    0,
+    0
+   ]
+  },
+  "bbox": [
+   [
+    -1.5,
+    1.5
+   ],
+   [
+    -1.0,
+    1.0
+   ],
+   [
+    -0.0713252,
+    1.442571930035904
+   ]
+  ],
+  "camera": {
+   "target": [
+    0.44999999999999996,
+    0.0,
+    0.5712859650179519
+   ],
+   "orbit_radius": 2.2,
+   "fov_deg": 45.0,
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "az0": 0.5,
+   "el0": 0.25
+  },
+  "identified": true,
+  "plugs": [
+   {
+    "kind": "drive",
+    "description": "the push \u2014 an applied impulse on the plate (no hand modeled)",
+    "variables": {
+     "push_speed_m_s": 3.0
+    },
+    "adjustable": true
+   }
+  ],
+  "choices": [
+   {
+    "description": "push speed applied to the plate",
+    "value": 3.0,
+    "reason": "the request says 'push', not how hard; picked hard enough that the outcome is decided by friction, not by a feeble tap",
+    "checked": "table half-width 0.43 m and plate-table mu below: the shove must beat sqrt(2*mu*g*d) ~ 1.7 m/s to reach the edge at all",
+    "alternatives": [],
+    "adjustable": true
+   },
+   {
+    "description": "kinetic friction coefficients (pairwise)",
+    "value": {
+     "plate_on_table": 0.35,
+     "topper_on_plate": 0.38,
+     "topper_on_table": 0.45,
+     "anything_on_floor": 0.4
+    },
+    "reason": "typical engineering ranges: glazed ceramic on finished wood ~0.3-0.4. topper_on_plate is FRIED DOUGH on glaze \u2014 the doughnut is iced on top only (Captain's anatomy correction, 2026-07-30; the archetype's coat is clipped to the upper half), so the bottom contact is dough, slightly greasy, taken ~0.38 \u2014 NOT the old sticky-icing 0.5, which assumed a full-coat doughnut sliding on its icing. Values remain adjustable, but per the design rule the PREFERRED knob is the artificial force (push speed): matter is fact, the plug is already supernatural",
+    "checked": "no measured friction data on disk (TPSX has none; materials_engineering.json has no friction field); the derived Bowden-Tabor value is a vacuum-regime constant ~1.0 (degeneracy probe) and would make nothing ever slide",
+    "alternatives": [],
+    "adjustable": true
+   },
+   {
+    "description": "restitution at landings",
+    "value": {
+     "plate": 0.3,
+     "topper": 0.05
+    },
+    "reason": "stiff ceramic bounces a little; a doughnut lands like a doughnut",
+    "checked": "impact.coefficient_of_restitution needs a MATERIALS-table key; 'stoneware'/'leavened dough' are Deckard vocabulary, not in that table \u2014 honest Choice instead of a bad alias",
+    "alternatives": [],
+    "adjustable": true
+   }
+  ],
+  "source": "Each object re-researched and re-compiled at its composed stack pose (deckard.scene.build_stack \u2014 same citations as the static scene). Push, friction and restitution are disclosed Choices; whether the topper rides or is left behind follows from the stacked-block friction inequality, not a script. CHOSEN: push speed applied to the plate = 3.0 (checked: table half-width 0.43 m and plate-table mu below: the shove must beat sqrt(2*mu*g*d) ~ 1.7 m/s to reach the edge at all; the request says 'push', not how hard; picked hard enough that the outcome is decided by friction, not by a feeble tap). CHOSEN: kinetic friction coefficients (pairwise) = {'plate_on_table': 0.35, 'topper_on_plate': 0.38, 'topper_on_table': 0.45, 'anything_on_floor': 0.4} (checked: no measured friction data on disk (TPSX has none; materials_engineering.json has no friction field); the derived Bowden-Tabor value is a vacuum-regime constant ~1.0 (degeneracy probe) and would make nothing ever slide; typical engineering ranges: glazed ceramic on finished wood ~0.3-0.4. topper_on_plate is FRIED DOUGH on glaze \u2014 the doughnut is iced on top only (Captain's anatomy correction, 2026-07-30; the archetype's coat is clipped to the upper half), so the bottom contact is dough, slightly greasy, taken ~0.38 \u2014 NOT the old sticky-icing 0.5, which assumed a full-coat doughnut sliding on its icing. Values remain adjustable, but per the design rule the PREFERRED knob is the artificial force (push speed): matter is fact, the plug is already supernatural). CHOSEN: restitution at landings = {'plate': 0.3, 'topper': 0.05} (checked: impact.coefficient_of_restitution needs a MATERIALS-table key; 'stoneware'/'leavened dough' are Deckard vocabulary, not in that table \u2014 honest Choice instead of a bad alias; stiff ceramic bounces a little; a doughnut lands like a doughnut). SIMPLIFIED_MODEL: planar +x motion, no tipping/rolling/rotation, bbox-rectangle support areas, no mid-air recontact, no deformation.",
+  "variants": [
+   {
+    "slug": "plate_pushed_off_the_1700s_table_v12",
+    "label": "push 1.2 m/s"
+   },
+   {
+    "slug": "plate_pushed_off_the_1700s_table_v17",
+    "label": "push 1.7 m/s"
+   },
+   {
+    "slug": "plate_pushed_off_the_1700s_table",
+    "label": "push 2.2 m/s"
+   },
+   {
+    "slug": "plate_pushed_off_the_1700s_table_v30",
+    "label": "push 3 m/s"
+   }
+  ],
+  "variant_current": "plate_pushed_off_the_1700s_table_v30"
+ },
+ "trajectory": {
+  "frames": [
+   {
+    "t_sim": 0.0,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 31.35604851623128,
+    "momentum": [
+     20.90403234415419,
+     0.0,
+     0.0
+    ],
+    "angular_momentum": [
+     0.0,
+     23.03990602972461,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.0083,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.02486,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.00015,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 30.75099285947239,
+    "momentum": [
+     20.703111163376633,
+     0.0,
+     0.0
+    ],
+    "angular_momentum": [
+     0.0,
+     22.818500610066334,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.0167,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.04948,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.00055,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 30.15188693584161,
+    "momentum": [
+     20.502189982599077,
+     0.0,
+     0.0
+    ],
+    "angular_momentum": [
+     0.0,
+     22.597095190408055,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.026,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.07689,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.00131,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 29.485004562136673,
+    "momentum": [
+     20.276153654224327,
+     0.0,
+     0.0
+    ],
+    "angular_momentum": [
+     0.0,
+     22.34801409329249,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.0333,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.098,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.00213,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 28.971524287964364,
+    "momentum": [
+     20.10034762104397,
+     0.0,
+     0.0
+    ],
+    "angular_momentum": [
+     0.0,
+     22.154284351091498,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.0417,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.12189,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.00332,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 28.39026756371791,
+    "momentum": [
+     19.899426440266414,
+     0.0,
+     0.0
+    ],
+    "angular_momentum": [
+     0.0,
+     21.932878931433226,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.05,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.14555,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.00476,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 27.814960572599563,
+    "momentum": [
+     19.698505259488854,
+     0.0,
+     0.0
+    ],
+    "angular_momentum": [
+     0.0,
+     21.711473511774944,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.0583,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.16896,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.00645,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 27.245603314609323,
+    "momentum": [
+     19.4975840787113,
+     0.0,
+     0.0
+    ],
+    "angular_momentum": [
+     0.0,
+     21.490068092116665,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.0667,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.19212,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.00841,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 26.682195789747194,
+    "momentum": [
+     19.296662897933746,
+     0.0,
+     0.0
+    ],
+    "angular_momentum": [
+     0.0,
+     21.268662672458394,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.075,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.21505,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.01063,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 26.124737998013178,
+    "momentum": [
+     19.09574171715619,
+     0.0,
+     0.0
+    ],
+    "angular_momentum": [
+     0.0,
+     21.047257252800115,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.0833,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.23773,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.01309,
+       0.0,
+       -3e-05
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 25.575939103922604,
+    "momentum": [
+     18.89542693221633,
+     0.0,
+     -0.001155039690851014
+    ],
+    "angular_momentum": [
+     0.0,
+     20.82652352309482,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.0927,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.26296,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.01593,
+       0.0,
+       -0.0007
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 24.972424100813637,
+    "momentum": [
+     18.671209791354666,
+     0.0,
+     -0.006352718299680576
+    ],
+    "angular_momentum": [
+     0.0,
+     20.579471515390612,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.101,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.28514,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.01845,
+       0.0,
+       -0.00202
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 24.442424419369168,
+    "momentum": [
+     18.4719056661443,
+     0.0,
+     -0.010972877063084635
+    ],
+    "angular_momentum": [
+     0.0,
+     20.359882116797685,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.1094,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.30707,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.02097,
+       0.0,
+       -0.00402
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 23.918502948839368,
+    "momentum": [
+     18.27260154093393,
+     0.0,
+     -0.015593035826488692
+    ],
+    "angular_momentum": [
+     0.0,
+     20.14030437564762,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.1177,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.32877,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.0235,
+       0.0,
+       -0.0067
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 23.400659689224238,
+    "momentum": [
+     18.073297415723562,
+     0.0,
+     -0.02021319458989274
+    ],
+    "angular_momentum": [
+     0.0,
+     19.92073829194041,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.126,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.35023,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.02602,
+       0.0,
+       -0.01007
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 22.888894640523773,
+    "momentum": [
+     17.873993290513194,
+     0.0,
+     -0.02483335335329679
+    ],
+    "angular_momentum": [
+     0.0,
+     19.70118386567606,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.1344,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.37145,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.02854,
+       0.0,
+       -0.01411
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 22.383207802737978,
+    "momentum": [
+     17.674689165302826,
+     0.0,
+     -0.02945351211670084
+    ],
+    "angular_momentum": [
+     0.0,
+     19.48164109685457,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.1427,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.39244,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03107,
+       0.0,
+       -0.01883
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 21.883599175866845,
+    "momentum": [
+     17.47538504009246,
+     0.0,
+     -0.034073670880104885
+    ],
+    "angular_momentum": [
+     0.0,
+     19.26210998547594,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.151,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.41318,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03359,
+       0.0,
+       -0.02424
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 21.390068759910385,
+    "momentum": [
+     17.27608091488209,
+     0.0,
+     -0.03869382964350894
+    ],
+    "angular_momentum": [
+     0.0,
+     19.042590531540167,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.1594,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.43369,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 20.883432717648788,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     0.0
+    ],
+    "angular_momentum": [
+     0.0,
+     18.80273318207612,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.1677,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.45409,
+       0.0,
+       -0.00038
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 20.906700643833243,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -0.5694403577438878
+    ],
+    "angular_momentum": [
+     0.0,
+     19.054775635806056,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.176,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.47449,
+       0.0,
+       -0.00145
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 20.976504422386608,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -1.1388807154877758
+    ],
+    "angular_momentum": [
+     0.0,
+     19.31843601355872,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.1844,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.4949,
+       0.0,
+       -0.00319
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 21.09284405330888,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -1.7083210732316645
+    ],
+    "angular_momentum": [
+     0.0,
+     19.593714315334104,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.1927,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.5153,
+       0.0,
+       -0.00562
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 21.255719536600065,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -2.277761430975551
+    ],
+    "angular_momentum": [
+     0.0,
+     19.88061054113222,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.201,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.5357,
+       0.0,
+       -0.00873
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 21.465130872260154,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -2.8472017887194383
+    ],
+    "angular_momentum": [
+     0.0,
+     20.179124690953063,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.2094,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.5561,
+       0.0,
+       -0.01251
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 21.721078060289152,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -3.4166421464633254
+    ],
+    "angular_momentum": [
+     0.0,
+     20.489256764796632,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.2177,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.5765,
+       0.0,
+       -0.01698
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 22.02356110068706,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -3.9860825042072126
+    ],
+    "angular_momentum": [
+     0.0,
+     20.811006762662927,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.226,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.59691,
+       0.0,
+       -0.02213
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 22.37257999345388,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -4.5555228619511
+    ],
+    "angular_momentum": [
+     0.0,
+     21.14437468455195,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.2344,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.61731,
+       0.0,
+       -0.02796
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 22.768134738589605,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -5.124963219694987
+    ],
+    "angular_momentum": [
+     0.0,
+     21.489360530463692,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.2427,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.63771,
+       0.0,
+       -0.03448
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 23.210225336094243,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -5.694403577438874
+    ],
+    "angular_momentum": [
+     0.0,
+     21.845964300398172,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.251,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.65811,
+       0.0,
+       -0.04167
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 23.698851785967786,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -6.26384393518276
+    ],
+    "angular_momentum": [
+     0.0,
+     22.214185994355375,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.2594,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.67852,
+       0.0,
+       -0.04954
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 24.23401408821024,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -6.833284292926647
+    ],
+    "angular_momentum": [
+     0.0,
+     22.5940256123353,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.2677,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.69892,
+       0.0,
+       -0.0581
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 24.815712242821608,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -7.40272465067054
+    ],
+    "angular_momentum": [
+     0.0,
+     22.985483154337956,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.276,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.71932,
+       0.0,
+       -0.06734
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 25.44394624980189,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -7.972165008414433
+    ],
+    "angular_momentum": [
+     0.0,
+     23.388558620363344,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.2844,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.73972,
+       0.0,
+       -0.07725
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 26.118716109151077,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -8.541605366158326
+    ],
+    "angular_momentum": [
+     0.0,
+     23.803252010411455,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.2927,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.76013,
+       0.0,
+       -0.08785
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 26.840021820869175,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -9.111045723902219
+    ],
+    "angular_momentum": [
+     0.0,
+     24.229563324482296,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.301,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.78053,
+       0.0,
+       -0.09913
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 27.607863384956186,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -9.680486081646112
+    ],
+    "angular_momentum": [
+     0.0,
+     24.667492562575863,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.3094,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.80093,
+       0.0,
+       -0.11109
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 28.42224080141211,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -10.249926439390006
+    ],
+    "angular_momentum": [
+     0.0,
+     25.117039724692155,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.3177,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.82133,
+       0.0,
+       -0.12373
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 29.283154070236936,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -10.819366797133899
+    ],
+    "angular_momentum": [
+     0.0,
+     25.578204810831174,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.326,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.84174,
+       0.0,
+       -0.13705
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 30.190603191430675,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -11.388807154877792
+    ],
+    "angular_momentum": [
+     0.0,
+     26.050987820992923,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.3344,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.86214,
+       0.0,
+       -0.15106
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 31.144588164993323,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -11.958247512621686
+    ],
+    "angular_momentum": [
+     0.0,
+     26.535388755177394,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.3427,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.88254,
+       0.0,
+       -0.16574
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 32.14510899092488,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -12.527687870365579
+    ],
+    "angular_momentum": [
+     0.0,
+     27.03140761338459,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.351,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.90294,
+       0.0,
+       -0.18111
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 33.19216566922535,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -13.097128228109472
+    ],
+    "angular_momentum": [
+     0.0,
+     27.539044395614518,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.3594,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.92334,
+       0.0,
+       -0.19715
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 34.28575819989473,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -13.666568585853364
+    ],
+    "angular_momentum": [
+     0.0,
+     28.058299101867174,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.3677,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.94375,
+       0.0,
+       -0.21388
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 35.42588658293301,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -14.236008943597252
+    ],
+    "angular_momentum": [
+     0.0,
+     28.589171732142546,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.376,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.96415,
+       0.0,
+       -0.23129
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 36.61255081834018,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -14.805449301341133
+    ],
+    "angular_momentum": [
+     0.0,
+     29.131662286440644,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.3844,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.98455,
+       0.0,
+       -0.24938
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 37.845750906116265,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -15.374889659085014
+    ],
+    "angular_momentum": [
+     0.0,
+     29.68577076476146,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.3927,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.00495,
+       0.0,
+       -0.26815
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 39.125486846261246,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -15.944330016828895
+    ],
+    "angular_momentum": [
+     0.0,
+     30.251497167105015,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.401,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.02536,
+       0.0,
+       -0.2876
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 40.451758638775146,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -16.513770374572776
+    ],
+    "angular_momentum": [
+     0.0,
+     30.828841493471305,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.4094,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.04576,
+       0.0,
+       -0.30773
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 41.82456628365795,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -17.083210732316655
+    ],
+    "angular_momentum": [
+     0.0,
+     31.41780374386032,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.4177,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.06616,
+       0.0,
+       -0.32855
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 43.24390978090967,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -17.652651090060537
+    ],
+    "angular_momentum": [
+     0.0,
+     32.018383918272065,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.426,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.08656,
+       0.0,
+       -0.35004
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 44.70978913053028,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -18.222091447804416
+    ],
+    "angular_momentum": [
+     0.0,
+     32.63058201670653,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.4344,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.10697,
+       0.0,
+       -0.37222
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 46.222204332519816,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -18.7915318055483
+    ],
+    "angular_momentum": [
+     0.0,
+     33.25439803916373,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.4427,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.12737,
+       0.0,
+       -0.39508
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 47.781155386878254,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -19.36097216329218
+    ],
+    "angular_momentum": [
+     0.0,
+     33.88983198564366,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.451,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.14777,
+       0.0,
+       -0.41861
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 49.3866422936056,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -19.93041252103606
+    ],
+    "angular_momentum": [
+     0.0,
+     34.53688385614631,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.4594,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.16817,
+       0.0,
+       -0.44283
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 51.038665052701845,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -20.49985287877994
+    ],
+    "angular_momentum": [
+     0.0,
+     35.1955536506717,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.4677,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.18858,
+       0.0,
+       -0.46773
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 52.73722366416701,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -21.069293236523823
+    ],
+    "angular_momentum": [
+     0.0,
+     35.86584136921981,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.476,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.20898,
+       0.0,
+       -0.49331
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 54.482318128001076,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -21.638733594267702
+    ],
+    "angular_momentum": [
+     0.0,
+     36.54774701179064,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.4844,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.22938,
+       0.0,
+       -0.51957
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 56.27394844420405,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -22.20817395201158
+    ],
+    "angular_momentum": [
+     0.0,
+     37.24127057838421,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.4927,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.24978,
+       0.0,
+       -0.54652
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 58.11211461277595,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -22.777614309755464
+    ],
+    "angular_momentum": [
+     0.0,
+     37.946412069000495,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.501,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.27018,
+       0.0,
+       -0.57414
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 59.996816633716726,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -23.347054667499343
+    ],
+    "angular_momentum": [
+     0.0,
+     38.663171483639516,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.5094,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.29059,
+       0.0,
+       -0.60244
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 61.92805450702644,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -23.916495025243226
+    ],
+    "angular_momentum": [
+     0.0,
+     39.39154882230127,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.5177,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.31099,
+       0.0,
+       -0.63143
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 63.90582823270503,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -24.485935382987105
+    ],
+    "angular_momentum": [
+     0.0,
+     40.13154408498574,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.526,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.33139,
+       0.0,
+       -0.6611
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 65.93013781075256,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -25.055375740730987
+    ],
+    "angular_momentum": [
+     0.0,
+     40.88315727169294,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.5344,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.35179,
+       0.0,
+       -0.69145
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 68.00098324116897,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -25.624816098474867
+    ],
+    "angular_momentum": [
+     0.0,
+     41.64638838242288,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.5417,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.36965,
+       0.0,
+       -0.71856
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 69.85114693417972,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -26.12307641150076
+    ],
+    "angular_momentum": [
+     0.0,
+     42.32374593261145,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.55,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.39005,
+       0.0,
+       -0.75018
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 72.00924708778784,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -26.692516769244644
+    ],
+    "angular_momentum": [
+     0.0,
+     43.108760650883994,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.5583,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.41045,
+       0.0,
+       -0.78249
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 74.21388309376488,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -27.261957126988523
+    ],
+    "angular_momentum": [
+     0.0,
+     43.90539329317927,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.5667,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.43085,
+       0.0,
+       -0.81548
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 76.46505495211083,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -27.831397484732406
+    ],
+    "angular_momentum": [
+     0.0,
+     44.71364385949727,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.575,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.45126,
+       0.0,
+       -0.84914
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 78.7627626628257,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -28.40083784247629
+    ],
+    "angular_momentum": [
+     0.0,
+     45.533512349838,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.5833,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.47166,
+       0.0,
+       -0.88349
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 81.10700622590944,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -28.97027820022017
+    ],
+    "angular_momentum": [
+     0.0,
+     46.364998764201445,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.5917,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.49206,
+       0.0,
+       -0.91852
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 83.49778564136211,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -29.53971855796405
+    ],
+    "angular_momentum": [
+     0.0,
+     47.20810310258763,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.6,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.51246,
+       0.0,
+       -0.95423
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 85.9351009091837,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -30.109158915707933
+    ],
+    "angular_momentum": [
+     0.0,
+     48.06282536499654,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.6083,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.53287,
+       0.0,
+       -0.99062
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 88.41895202937417,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -30.678599273451812
+    ],
+    "angular_momentum": [
+     0.0,
+     48.92916555142818,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.6167,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.55327,
+       0.0,
+       -1.0277
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 90.94933900193355,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -31.24803963119569
+    ],
+    "angular_momentum": [
+     0.0,
+     49.80712366188254,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.625,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.57367,
+       0.0,
+       -1.06545
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 93.52626182686187,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -31.817479988939574
+    ],
+    "angular_momentum": [
+     0.0,
+     50.69669969635964,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.6333,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.59407,
+       0.0,
+       -1.10389
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 96.14972050415906,
+    "momentum": [
+     17.05965910145331,
+     0.0,
+     -32.38692034668345
+    ],
+    "angular_momentum": [
+     0.0,
+     51.59789365485945,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.6417,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.59681,
+       0.0,
+       -1.09876
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 6.1276585477836845,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     9.239169804394525
+    ],
+    "angular_momentum": [
+     0.0,
+     -14.752600647575013,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.65,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.59703,
+       0.0,
+       -1.08809
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 5.395882269282587,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     8.669729446650631
+    ],
+    "angular_momentum": [
+     0.0,
+     -13.843257182669596,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.6583,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.59725,
+       0.0,
+       -1.07811
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 4.710641843150398,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     8.100289088906738
+    ],
+    "angular_momentum": [
+     0.0,
+     -12.933790149276572,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.6667,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.59746,
+       0.0,
+       -1.0688
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 4.071937269387119,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     7.530848731162846
+    ],
+    "angular_momentum": [
+     0.0,
+     -12.024199547395938,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.675,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.59768,
+       0.0,
+       -1.06018
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 3.4797685479927525,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     6.961408373418953
+    ],
+    "angular_momentum": [
+     0.0,
+     -11.114485377027702,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.6833,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.5979,
+       0.0,
+       -1.05224
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 2.9341356789672997,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     6.391968015675066
+    ],
+    "angular_momentum": [
+     0.0,
+     -10.204647638171862,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.6917,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.59811,
+       0.0,
+       -1.04498
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 2.435038662310756,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     5.822527657931179
+    ],
+    "angular_momentum": [
+     0.0,
+     -9.294686330828418,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.7,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.59833,
+       0.0,
+       -1.03839
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 1.982477498023121,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     5.253087300187293
+    ],
+    "angular_momentum": [
+     0.0,
+     -8.384601454997366,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.7083,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.59855,
+       0.0,
+       -1.0325
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 1.5764521861043954,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     4.6836469424434055
+    ],
+    "angular_momentum": [
+     0.0,
+     -7.474393010678707,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.7167,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.59877,
+       0.0,
+       -1.02728
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 1.2169627265545786,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     4.114206584699518
+    ],
+    "angular_momentum": [
+     0.0,
+     -6.564060997872439,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.725,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.59898,
+       0.0,
+       -1.02274
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.904009119373671,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     3.5447662269556313
+    ],
+    "angular_momentum": [
+     0.0,
+     -5.653605416578566,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.7333,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.5992,
+       0.0,
+       -1.01888
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.6375913645616723,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     2.9753258692117446
+    ],
+    "angular_momentum": [
+     0.0,
+     -4.743026266797084,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.7417,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.59942,
+       0.0,
+       -1.01571
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.4177094621185827,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     2.4058855114678575
+    ],
+    "angular_momentum": [
+     0.0,
+     -3.832323548527995,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.75,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.59963,
+       0.0,
+       -1.01321
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.24436341204440196,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     1.8364451537239705
+    ],
+    "angular_momentum": [
+     0.0,
+     -2.921497261771299,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.7583,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.59985,
+       0.0,
+       -1.0114
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.11755321433912998,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     1.267004795980082
+    ],
+    "angular_momentum": [
+     0.0,
+     -2.010547406526993,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.7667,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60007,
+       0.0,
+       -1.01027
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.037278869002767244,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     0.697564438236194
+    ],
+    "angular_momentum": [
+     0.0,
+     -1.0994739827950801,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.775,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60028,
+       0.0,
+       -1.00982
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.0035403760353137355,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     0.12812408049230614
+    ],
+    "angular_momentum": [
+     0.0,
+     -0.18827699057556033,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.7833,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.6005,
+       0.0,
+       -1.01005
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.01633773543676936,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     -0.44131627725158173
+    ],
+    "angular_momentum": [
+     0.0,
+     0.723043570131567,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.7917,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60072,
+       0.0,
+       -1.01096
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.07567094720713412,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     -1.0107566349954695
+    ],
+    "angular_momentum": [
+     0.0,
+     1.6344876993263016,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.8,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60094,
+       0.0,
+       -1.01255
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.18154001134640818,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     -1.5801969927393582
+    ],
+    "angular_momentum": [
+     0.0,
+     2.5460553970086446,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.8083,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60115,
+       0.0,
+       -1.01482
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.3339449278545912,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     -2.149637350483246
+    ],
+    "angular_momentum": [
+     0.0,
+     3.457746663178593,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.8167,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60137,
+       0.0,
+       -1.01778
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.5328856967316831,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     -2.7190777082271325
+    ],
+    "angular_momentum": [
+     0.0,
+     4.369561497836149,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.825,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60159,
+       0.0,
+       -1.02141
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.778362317977684,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     -3.2885180659710196
+    ],
+    "angular_momentum": [
+     0.0,
+     5.281499900981311,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.8333,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.6018,
+       0.0,
+       -1.02573
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 1.0703747915925939,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     -3.857958423714907
+    ],
+    "angular_momentum": [
+     0.0,
+     6.193561872614082,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.8417,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60202,
+       0.0,
+       -1.03072
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 1.408923117576413,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     -4.427398781458794
+    ],
+    "angular_momentum": [
+     0.0,
+     7.105747412734459,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.85,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60224,
+       0.0,
+       -1.0364
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 1.7940072959291409,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     -4.996839139202681
+    ],
+    "angular_momentum": [
+     0.0,
+     8.018056521342444,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.8583,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60245,
+       0.0,
+       -1.04276
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 2.225627326650778,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     -5.566279496946568
+    ],
+    "angular_momentum": [
+     0.0,
+     8.930489198438037,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.8667,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60267,
+       0.0,
+       -1.0498
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 2.703783209741324,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     -6.135719854690455
+    ],
+    "angular_momentum": [
+     0.0,
+     9.843045444021236,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.875,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60289,
+       0.0,
+       -1.05752
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 3.2284749452007784,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     -6.7051602124343415
+    ],
+    "angular_momentum": [
+     0.0,
+     10.755725258092044,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.8833,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60311,
+       0.0,
+       -1.06593
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 3.7997025330291465,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     -7.274600570178233
+    ],
+    "angular_momentum": [
+     0.0,
+     11.668528640650464,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.8917,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60332,
+       0.0,
+       -1.07501
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 4.4174659732264265,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     -7.8440409279221255
+    ],
+    "angular_momentum": [
+     0.0,
+     12.581455591696496,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.9,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60354,
+       0.0,
+       -1.08477
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 5.081765265792616,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     -8.41348128566602
+    ],
+    "angular_momentum": [
+     0.0,
+     13.494506111230134,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.9083,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60376,
+       0.0,
+       -1.09522
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 5.792600410727717,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     -8.982921643409911
+    ],
+    "angular_momentum": [
+     0.0,
+     14.40768019925138,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.9167,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60397,
+       0.0,
+       -1.10634
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 6.549971408031727,
+    "momentum": [
+     0.18144689792455948,
+     0.0,
+     -9.552362001153805
+    ],
+    "angular_momentum": [
+     0.0,
+     15.320977855760233,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.925,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60403,
+       0.0,
+       -1.10627
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.44180687422973475,
+    "momentum": [
+     0.0,
+     0.0,
+     2.4813363588690183
+    ],
+    "angular_momentum": [
+     0.0,
+     -3.980132028606158,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.9333,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60403,
+       0.0,
+       -1.10368
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.2622948237166658,
+    "momentum": [
+     0.0,
+     0.0,
+     1.9118960011251314
+    ],
+    "angular_momentum": [
+     0.0,
+     -3.066733972701142,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.9417,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60403,
+       0.0,
+       -1.10178
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.1293186255725056,
+    "momentum": [
+     0.0,
+     0.0,
+     1.3424556433812433
+    ],
+    "angular_momentum": [
+     0.0,
+     -2.1533359167961237,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.95,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60403,
+       0.0,
+       -1.10055
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.042878279797254545,
+    "momentum": [
+     0.0,
+     0.0,
+     0.7730152856373549
+    ],
+    "angular_momentum": [
+     0.0,
+     -1.2399378608911051,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.9583,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60403,
+       0.0,
+       -1.10001
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.002973786390912743,
+    "momentum": [
+     0.0,
+     0.0,
+     0.20357492789346715
+    ],
+    "angular_momentum": [
+     0.0,
+     -0.32653980498608753,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.9667,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60403,
+       0.0,
+       -1.10015
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.009605145353480072,
+    "momentum": [
+     0.0,
+     0.0,
+     -0.36586542985042075
+    ],
+    "angular_momentum": [
+     0.0,
+     0.5868582509189303,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.975,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60403,
+       0.0,
+       -1.10097
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.06277235668495654,
+    "momentum": [
+     0.0,
+     0.0,
+     -0.9353057875943085
+    ],
+    "angular_momentum": [
+     0.0,
+     1.5002563068239478,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.9833,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60403,
+       0.0,
+       -1.10248
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.1624754203853423,
+    "momentum": [
+     0.0,
+     0.0,
+     -1.504746145338197
+    ],
+    "angular_momentum": [
+     0.0,
+     2.4136543627289666,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 0.9917,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60403,
+       0.0,
+       -1.10466
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.30871433645463703,
+    "momentum": [
+     0.0,
+     0.0,
+     -2.074186503082085
+    ],
+    "angular_momentum": [
+     0.0,
+     3.327052418633984,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 1.0,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60403,
+       0.0,
+       -1.10752
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.5014891048928406,
+    "momentum": [
+     0.0,
+     0.0,
+     -2.6436268608259716
+    ],
+    "angular_momentum": [
+     0.0,
+     4.240450474539001,
+     0.0
+    ]
+   },
+   {
+    "t_sim": 1.0031,
+    "bodies": [
+     {
+      "pos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       1.60403,
+       0.0,
+       -1.10865
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     },
+     {
+      "pos": [
+       0.03611,
+       0.0,
+       -0.0297
+      ],
+      "quat": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     }
+    ],
+    "energy_j": 0.0,
+    "momentum": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "angular_momentum": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  ],
+  "t_end_s": 1.0031250000000231,
+  "natural_timescale_s": 1.0031250000000231,
+  "suggested_rate": 0.20062500000000463,
+  "body_labels": [
+   "1700s table",
+   "plate",
+   "Doughnut"
+  ],
+  "validation": {
+   "pushed": "plate",
+   "push_speed_m_s": 3.0,
+   "final_support": {
+    "plate": "floor",
+    "Doughnut": "on 1700s table"
+   },
+   "pushed_left_base": true
+  }
+ },
+ "kind": "trajectory"
+}

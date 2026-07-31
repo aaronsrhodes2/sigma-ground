@@ -215,6 +215,42 @@ the compression is the physics itself."*
 
 ---
 
+## Rule 7 — Only Artificial Forces Are Adjustable During a Simulation
+
+**Hard rule (Captain, 2026-07-30).** A simulation contains two kinds of
+quantity. MATTER — density, moduli, friction, restitution, dimensions — is
+FACT: researched, cited, or an honestly-disclosed Choice standing in for a
+missing measurement. ARTIFICIAL FORCES — a push, a plugged motor torque, an
+idealized support — are already supernatural: they are the operator's hand
+reaching into the world, disclosed as plugs precisely because nature didn't
+put them there.
+
+Only the second kind may be adjusted *during* a simulation (sliders,
+variants, live input). Matter may only change *between* simulations, as a
+correction to the world — a re-research, a better citation, a fixed model —
+never as a tuning knob to reach a wanted outcome.
+
+Why it matters, from the incident that minted the rule: the doughnut-push
+demo's first sensitivity test flipped the outcome by making icing grip like
+rubber. Wrong knob — that treats matter as adjustable until the picture
+looks right, which is Rule 6's sin wearing dynamics clothing. The right knob
+was the push speed: the ONE artificial force in the scene. And when the
+Captain's anatomy correction landed (a doughnut is iced on top, fried dough
+underneath), the honest friction pair changed the physics — the ride-along
+window vanished — which is exactly how matter should change: by the world
+being corrected, not by a slider.
+
+```
+# Wrong — matter as a knob, during the sim
+outcome looks off  →  drag friction up until the doughnut rides
+
+# Correct — the artificial force is the knob
+variants sweep the PUSH SPEED; friction stays what the world says it is.
+If friction is wrong, fix the WORLD (cite it, re-research it) and re-run.
+```
+
+---
+
 ## Audit Log
 
 **2026-07-01** — Golden rules audit, done alongside a Platinum Rules audit:

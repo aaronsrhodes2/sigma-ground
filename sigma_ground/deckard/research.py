@@ -716,12 +716,15 @@ def _doughnut_archetype(name: str) -> bool:
 
 def _decorated_doughnut_spec(name: str, *, sprinkles: bool = True,
                              sprinkle_count: int = 24) -> ConstructSpec | None:
-    """A torus dough body + a conforming frosting shell + a scatter of
-    rainbow sprinkles. Dimensions are ESTIMATED (no cited doughnut-geometry
-    source) -- flagged throughout, not claimed as measured. Simplification,
-    flagged: the frosting coats the WHOLE torus (not just the top, as a real
-    dipped doughnut would) -- a directional partial coat needs a
-    _Clipped-style half-space cut, a v2 extension not built this session."""
+    """A torus dough body + a conforming TOP-HALF frosting shell + a scatter
+    of rainbow sprinkles. Dimensions are ESTIMATED (no cited doughnut-geometry
+    source) -- flagged throughout, not claimed as measured. The frosting is
+    clipped to the torus's upper half (conform_region="top") because a dipped
+    doughnut is iced on top with fried dough underneath -- the Captain's own
+    correction (2026-07-30), and exactly the v2 extension this docstring
+    previously promised. Physically consequential, not cosmetic: the
+    doughnut's BOTTOM contact surface (what it slides on when a plate is
+    pushed out from under it) is now dough, not icing."""
     from . import sources
     from .schema import Part, ESTIMATED
 
@@ -747,7 +750,7 @@ def _decorated_doughnut_spec(name: str, *, sprinkles: bool = True,
         "frosting", "torus",
         {"major_radius_m": Fact(major_r, ESTIMATED, "", 0.55),
          "minor_radius_m": Fact(minor_r + coat_m, ESTIMATED, "1.5mm coat, ESTIMATE", 0.3)},
-        "icing", icing_dens, conform="dough",
+        "icing", icing_dens, conform="dough", conform_region="top",
     )
     parts.append(frosting)
 
@@ -767,8 +770,9 @@ def _decorated_doughnut_spec(name: str, *, sprinkles: bool = True,
     return ConstructSpec(
         name=name, kind="composite", identified=True, parts=parts,
         sources=sources_list,
-        notes=("Frosting is a full uniform coat (all the way around the "
-              "torus, not just the top) -- a documented simplification. "
+        notes=("Frosting coats the TOP half of the torus only (a dipped "
+              "doughnut: iced above, fried dough below -- so the bottom "
+              "contact surface is dough). "
               "Sprinkles are a SCATTER of one template ellipsoid across "
               "the frosting's top-facing region, materials cycling a "
               "6-colour rainbow palette. See schema.Part.scatter's "

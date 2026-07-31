@@ -453,15 +453,26 @@ class _Subtracted:
         return self._base.bounding_radius()
 
 
-def _make_conform(base, cut, aabb, n=44):
+def _make_conform(base, cut, aabb, n=44, region=None):
     """Carve ``cut`` out of ``base`` (base − cut); sample the result's volume and
     centroid over ``aabb`` so the conforming part reports the matter it actually
-    keeps after yielding the overlap."""
+    keeps after yielding the overlap.
+
+    ``region="top"`` additionally clips the conforming coat to the half-space
+    ABOVE the host's equatorial plane (z >= cut.center.z) — a dipped doughnut
+    is iced on top, fried dough underneath (Captain's correction, 2026-07-30;
+    this was the archetype's own documented "v2 extension"). The clip changes
+    which matter EXISTS, so mass/CoM shift with it: the sampling pass counts
+    the clipped region, and both the raw subtraction and the clipped result
+    carry their own honest volume/centroid.
+    """
     (x0, x1), (y0, y1), (z0, z1) = aabb
     dx, dy, dz = (x1 - x0) / n, (y1 - y0) / n, (z1 - z0) / n
     cell = dx * dy * dz
-    cnt = 0
+    level = cut.center[2] if region == "top" else None
+    cnt = ccnt = 0
     sx = sy = sz = 0.0
+    cx_ = cy_ = cz_ = 0.0
     for iz in range(n):
         z = z0 + (iz + 0.5) * dz
         for iy in range(n):
@@ -471,9 +482,18 @@ def _make_conform(base, cut, aabb, n=44):
                 if base.surface_distance(x, y, z) < 0.0 and cut.surface_distance(x, y, z) >= 0.0:
                     cnt += 1
                     sx += x; sy += y; sz += z
+                    if level is None or z >= level:
+                        ccnt += 1
+                        cx_ += x; cy_ += y; cz_ += z
     if cnt == 0:
         return _Subtracted(base, cut, 0.0, base.center)
-    return _Subtracted(base, cut, cnt * cell, (sx / cnt, sy / cnt, sz / cnt))
+    carved = _Subtracted(base, cut, cnt * cell, (sx / cnt, sy / cnt, sz / cnt))
+    if level is None:
+        return carved
+    if ccnt == 0:
+        return _Clipped(carved, 2, -1.0, level, 0.0, carved.center)
+    return _Clipped(carved, 2, -1.0, level, ccnt * cell,
+                    (cx_ / ccnt, cy_ / ccnt, cz_ / ccnt))
 
 
 # ── auto-seat: push a conforming part into its target until its face seats ──
@@ -862,8 +882,10 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
             c = shp.center
             aabb = ((c[0] - he[0], c[0] + he[0]), (c[1] - he[1], c[1] + he[1]),
                     (c[2] - he[2], c[2] + he[2]))
-            shp = _make_conform(shp, tshape, aabb)        # base − target: yield the overlap
-            cite = f"{part.density.cite()} (conforms to {conform_to})"
+            region = getattr(part, "conform_region", None)
+            shp = _make_conform(shp, tshape, aabb, region=region)  # base − target: yield the overlap
+            cite = f"{part.density.cite()} (conforms to {conform_to}" + (
+                f", {region} half only)" if region else ")")
         items.append(dict(name=part.name, shape=shp, material=part.material,
                           rho=0.0 if carve else part.density.value,
                           op="subtract" if carve else "add", he=he, cite=cite))

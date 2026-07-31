@@ -46,7 +46,16 @@
     "sound_speed_m_s": 4010.0,
     "restitution_ref": 0.152,
     "ring_frequency_hz": 6115.0,
-    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)"
+    "mechanics_origin": "derived from cohesive energy (mechanical/acoustics/impact)",
+    "tensile_strength_mpa": 3.0,
+    "fracture_toughness_mpa_m05": 1.0,
+    "poisson_ratio": 0.2,
+    "shear_modulus_gpa": 13.869766,
+    "bulk_modulus_gpa": 18.493022,
+    "roughness": 0.4,
+    "specular_fraction": 0.15,
+    "roughness_origin": "amorphous class constant (texture.py: 0.4, rougher than polished crystal, not fully diffuse)",
+    "matter_origin": "resolved via field.interface.resolve.material_profile (measured TPSX beats derived; absent = not trustworthy)"
    }
   },
   "physics": {

@@ -6,11 +6,23 @@ bottom-to-top list the SCENE stack route composed ("1700s table", "plate",
 body keeps its own real mass/bbox at its composed pose. The pushed body gets
 an initial horizontal velocity (+x); everything above it rides on friction —
 and whether it rides, slips, or is left behind is DECIDED by the mu values,
-not scripted. With the default numbers the plate slides out from under the
-doughnut exactly like the tablecloth trick: the icing-on-glaze friction
-cannot supply the acceleration the escaping plate demands, the relative slip
-exceeds the plate's own radius, and the doughnut drops to the table while the
-plate carries on over the edge.
+not scripted. With the default hard push the plate slides out from under the
+doughnut exactly like the tablecloth trick: the dough-on-glaze friction (the
+doughnut is iced on TOP only — its bottom is fried dough) cannot supply the
+acceleration the escaping plate demands, the relative slip exceeds the
+plate's own radius, and the doughnut drops to the table while the plate
+carries on over the edge. Vary the PUSH SPEED — the one artificial force in
+the scene, and per the design rule the preferred knob precisely because it
+is already supernatural — and the same friction yields different endings:
+below ~1.7 m/s everything stays on the table (the plate stops short of the
+edge); above it, the tablecloth trick. Probed empirically: there is NO
+mid-speed window where the doughnut rides the plate off — and the anatomy
+correction is exactly why. Dough-on-glaze (~0.38) barely exceeds
+plate-on-table (~0.35), so the doughnut can never lock onto the plate in
+time AND still reach the edge; a full-coat sticky-icing doughnut (the old
+wrong model, mu ~0.5+) WOULD have had a ride-along window. The Captain's
+"it's fried dough underneath" is the reason the doughnut always gets left
+behind.
 
 Simulated in the stack's own z-up frame (bodies translate, camera up is +z) —
 no axis juggling between the composed statics and the dynamics.
@@ -32,14 +44,18 @@ G = 9.80665
 
 
 def record_push_off(items, pushed_index: int = 1, push_speed_m_s=None, *,
-                    mu_overrides: dict | None = None,
+                    mu_overrides: dict | None = None, prebuilt=None,
                     allow_llm: bool = False, dt: float = 1.0 / 960.0,
                     frame_dt: float = 1.0 / 120.0, t_max: float = 6.0) -> dict:
     from ..deckard.scene import build_stack, _slug
     from ..dynamics.mechanisms.choice import Choice
     from .scene_export import _bake_material, _shape_to_dict, _bounding_sphere
 
-    built = build_stack(items, allow_llm=allow_llm)
+    # ``prebuilt``: the [(name, Construct), ...] from a prior build_stack call.
+    # A push-speed VARIANT SWEEP (Golden Rule 7: the artificial force is the
+    # one legitimate during-sim knob) re-simulates the same matter at several
+    # speeds — research once, push many times.
+    built = prebuilt if prebuilt is not None else build_stack(items, allow_llm=allow_llm)
     n = len(built)
     if not (1 <= pushed_index < n):
         raise ValueError(f"pushed_index {pushed_index} out of range for "
@@ -68,16 +84,22 @@ def record_push_off(items, pushed_index: int = 1, push_speed_m_s=None, *,
 
     mu_choice = Choice(
         "kinetic friction coefficients (pairwise)",
-        {"plate_on_table": 0.35, "topper_on_plate": 0.50,
+        {"plate_on_table": 0.35, "topper_on_plate": 0.38,
          "topper_on_table": 0.45, "anything_on_floor": 0.40},
         checked="no measured friction data on disk (TPSX has none; "
                 "materials_engineering.json has no friction field); the "
                 "derived Bowden-Tabor value is a vacuum-regime constant ~1.0 "
                 "(degeneracy probe) and would make nothing ever slide",
         reason="typical engineering ranges: glazed ceramic on finished wood "
-               "~0.3-0.4; tacky icing on glaze taken sticky ~0.5. Adjustable, "
-               "and the OUTCOME (rides vs left behind) flips with them — that "
-               "sensitivity is the physics, not a bug",
+               "~0.3-0.4. topper_on_plate is FRIED DOUGH on glaze — the "
+               "doughnut is iced on top only (Captain's anatomy correction, "
+               "2026-07-30; the archetype's coat is clipped to the upper "
+               "half), so the bottom contact is dough, slightly greasy, taken "
+               "~0.38 — NOT the old sticky-icing 0.5, which assumed a "
+               "full-coat doughnut sliding on its icing. Values remain "
+               "adjustable, but per the design rule the PREFERRED knob is "
+               "the artificial force (push speed): matter is fact, the plug "
+               "is already supernatural",
         adjustable=True)
     MU = dict(mu_choice.value)
     # the Choice says adjustable=True — this is the adjustment surface. An
@@ -176,6 +198,12 @@ def record_push_off(items, pushed_index: int = 1, push_speed_m_s=None, *,
             next_rec += frame_dt
         for i in range(n - 1, 0, -1):                      # riders first
             s = support[i]
+            # a support in free fall exerts NO normal force — its rider falls
+            # with it. Without this, a rider serenely hovered at its old
+            # height while the plate dropped away beneath it (caught by
+            # probing the ride-along regime the first tests never entered).
+            if isinstance(s, int) and s != 0 and support[s] is None:
+                support[i] = s = None
             if s is None:                                  # ballistic
                 z_bottom_prev = com[i][2] + dz[i] - bot_off[i]
                 vz[i] -= G * dt

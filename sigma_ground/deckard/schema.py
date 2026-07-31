@@ -119,6 +119,9 @@ class Part:
     attach: dict | None = None          # {"to": <part>, "my": <anchor>, "their": <anchor>}
     fill: dict | None = None            # fluid fill: {"of": <cavity>, "fraction": 0..1, "gas": <material>}
     conform: str | None = None          # name of the solid this part yields to (carved to mate)
+    conform_region: str | None = None   # "top": keep only the coat ABOVE the host's
+                                        # equator — a dipped doughnut is iced on top,
+                                        # fried dough underneath (Captain, 2026-07-30)
     outline: dict | None = None         # swept profile: {"profile":[[u,v],...],"mode":"extrude|revolve","thickness":t}
     scatter: dict | None = None         # multiply this part across a host's surface — see below
 
@@ -182,6 +185,8 @@ class Part:
             d["fill"] = dict(self.fill)
         if self.conform:
             d["conform"] = self.conform
+        if self.conform_region:
+            d["conform_region"] = self.conform_region
         if self.outline:
             d["outline"] = {
                 "profile": [[float(u), float(v)] for u, v in self.outline.get("profile", [])],
@@ -206,6 +211,7 @@ class Part:
             attach=d.get("attach"),
             fill=d.get("fill"),
             conform=d.get("conform"),
+            conform_region=d.get("conform_region"),
             outline=d.get("outline"),
             scatter=d.get("scatter"),
         )

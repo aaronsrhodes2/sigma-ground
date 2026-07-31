@@ -325,7 +325,8 @@ def dispatch(text: str, *, use_llm: bool = True,
         items = session.last_renderable["items"]
         idx = _resolve_push_target(text, items)
         if idx is not None:
-            env = _render_push(items, idx, use_llm=use_llm)
+            env = _render_push(items, idx, use_llm=use_llm,
+                               push_speed=_parse_push_speed(text))
             session.last_intent = env["intent"]
             return env
         # push verb + a remembered stack, but the target didn't resolve (or
@@ -521,19 +522,77 @@ def _resolve_push_target(text: str, items: list) -> int | None:
     return None
 
 
-def _render_push(items: list, pushed_index: int, *, use_llm: bool) -> dict:
+# how hard is "push"? Verbal intensities map onto the ONE artificial force in
+# the scene. Golden Rule 7 (Captain, 2026-07-30): only artificial forces are
+# adjustable DURING a simulation — matter is fact. So the exposed knob (these
+# words, and the viewer's variant slider) is the push speed, never a mu.
+_PUSH_SPEEDS = (1.2, 1.7, 2.2, 3.0)                  # the variant sweep, m/s
+_PUSH_WORDS = (("gently", 1.2), ("softly", 1.2), ("lightly", 1.2),
+               ("slowly", 1.2), ("nudge", 1.2), ("barely", 1.2),
+               ("firmly", 1.7),
+               ("very hard", 3.0), ("as hard", 3.0), ("harder", 3.0),
+               ("hard", 3.0), ("shove", 3.0), ("violently", 3.0))
+_PUSH_AT_RE = re.compile(r"\bat\s+(\d+(?:\.\d+)?)\s*m\s*/\s*s\b", re.I)
+
+
+def _parse_push_speed(text: str):
+    m = _PUSH_AT_RE.search(text)
+    if m:
+        return float(m.group(1))
+    low = text.lower()
+    for word, v in _PUSH_WORDS:
+        if word in low:
+            return v
+    return None                                       # the recorder's Choice default
+
+
+def _render_push(items: list, pushed_index: int, *, use_llm: bool,
+                 push_speed=None) -> dict:
     """The follow-up simulation: re-research the SAME stack (same citations),
     push one object, record what friction decides. Refusal contract matches
-    the stack route — an ungroundable item refuses the whole follow-up."""
+    the stack route — an ungroundable item refuses the whole follow-up.
+
+    Also records the push-speed VARIANT SWEEP: the same matter re-simulated at
+    each _PUSH_SPEEDS value (research once via prebuilt, push many times), so
+    the viewer's variant slider walks the one legitimate during-sim knob.
+    Each sibling is a full recorded bundle — frozen runs, never live physics
+    in the renderer."""
+    from sigma_ground.deckard import catalog
+    from sigma_ground.deckard.scene import build_stack
     from sigma_ground.radiance.push_off import record_push_off
     try:
-        bundle = record_push_off(items, pushed_index, allow_llm=use_llm)
+        prebuilt = build_stack(items, allow_llm=use_llm)
     except ValueError as e:
         return {"intent": "simulate", "source": "deckard", "can_render": False,
                 "saved": None, "value": None,
                 "text": f"⚠ couldn't run the push: {e}"}
     title = f"{items[pushed_index]} pushed off the {items[pushed_index - 1]}"
-    return _announce_render(title, bundle)
+    base_slug = catalog.slugify(title)
+    chosen = push_speed if push_speed is not None else 2.2
+    speeds = sorted(set(_PUSH_SPEEDS) | {chosen})
+    variants = [{"slug": (base_slug if v == chosen
+                          else f"{base_slug}_v{int(round(v * 10)):02d}"),
+                 "label": f"push {v:g} m/s"} for v in speeds]
+    chosen_bundle = None
+    for v in speeds:
+        bundle = record_push_off(items, pushed_index, push_speed_m_s=v,
+                                 prebuilt=prebuilt)
+        bundle["scene"]["variants"] = variants
+        bundle["scene"]["variant_current"] = (
+            base_slug if v == chosen else f"{base_slug}_v{int(round(v * 10)):02d}")
+        if v == chosen:
+            chosen_bundle = bundle                    # saved by _announce_render
+        else:
+            _save_bundle(f"{base_slug}_v{int(round(v * 10)):02d}", bundle)
+    env = _announce_render(title, chosen_bundle)
+    outcome = chosen_bundle["trajectory"]["validation"]["final_support"]
+    ends = "; ".join(f"{k} → {v}" for k, v in outcome.items())
+    env["text"] += (f" Outcome at {chosen:g} m/s: {ends}. The viewer's variant "
+                    f"slider re-runs the SAME matter at "
+                    f"{', '.join(f'{s:g}' for s in speeds)} m/s — the push is "
+                    f"the one artificial force here, so it is the one knob "
+                    f"(matter stays fact).")
+    return env
 
 
 def _render_from_handle(handle: dict) -> dict:
