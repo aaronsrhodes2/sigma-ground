@@ -20,7 +20,8 @@ Design:
     1. SPH density sum (ρ from kernel)
     2. Property lookup (K, η, κ, cp from interface cascade via material_key + T)
     3. Pressure from EOS (Tait or Birch-Murnaghan)
-    4. Force accumulation (gravity + buoyancy + pressure gradient + viscosity)
+    4. Force accumulation (gravity + buoyancy + pressure gradient + viscosity
+       + optional pairwise Newtonian self-gravity, Phase E)
     5. Leapfrog advance (position + velocity)
     6. Heat equation (conduction + compression + sources)
     7. Phase check (T vs T_melt(P))
@@ -270,20 +271,34 @@ class ContinuumScene(PhysicsScene):
       - Smoothing length h
       - Reference density ρ₀ and temperature T₀
       - SPH neighbor search
-      - Periodic boundary option
+      - Optional Newtonian self-gravity (Phase E — the fluid side of the
+        fluid-vs-gravity comparison needs the fluid to gravitate)
+
+    (An earlier docstring claimed a "periodic boundary option" — no such
+    code ever existed; the claim was aspirational and is removed rather
+    than relied on.)
 
     Args:
         parcels: list of ContinuumParcel
-        gravity: Vec3 gravitational acceleration
+        gravity: Vec3 UNIFORM gravitational acceleration (a background
+            field, e.g. Earth surface g — independent of self_gravity_G)
         ground: GroundPlane or False
         smoothing_h: SPH smoothing length (m). None → auto from particle spacing.
         reference_density: ρ₀ for buoyancy (kg/m³). None → from first parcel.
         reference_temperature: T₀ for Boussinesq (K). Default 300.
+        self_gravity_G: gravitational constant for pairwise MUTUAL
+            attraction between parcels. None (default) → off, byte-identical
+            behavior to before Phase E. Pass scipy-free CODATA 6.674e-11 for
+            real matter, or a scaled value for scaled scenarios (a Choice to
+            disclose either way).
+        gravity_softening_m: Plummer softening ε (m). None → 0.5·h — close
+            pairs stay finite; standard numerical regularization.
     """
 
     def __init__(self, parcels, gravity=None, ground=None,
                  smoothing_h=None, reference_density=None,
-                 reference_temperature=300.0):
+                 reference_temperature=300.0, self_gravity_G=None,
+                 gravity_softening_m=None):
         super().__init__(parcels, gravity=gravity, ground=ground)
 
         if smoothing_h is not None:
@@ -304,6 +319,10 @@ class ContinuumScene(PhysicsScene):
             self.rho_0 = 1000.0
 
         self.T_0 = reference_temperature
+        self.self_gravity_G = self_gravity_G
+        self.gravity_softening_m = (gravity_softening_m
+                                    if gravity_softening_m is not None
+                                    else 0.5 * self.h)
 
     def continuum_parcels(self):
         """Return only ContinuumParcel instances."""
@@ -315,18 +334,35 @@ class ContinuumScene(PhysicsScene):
 # SPH OPERATORS — density, pressure gradient, viscosity, heat
 # ══════════════════════════════════════════════════════════════════════
 
-def _sph_density_sum(parcels, h):
+def _sph_density_sum(parcels, h, gravity_G=None, softening=None):
     """Compute SPH density for each parcel.
 
     ρᵢ = Σⱼ mⱼ W(|xᵢ − xⱼ|, h)
 
     Also builds neighbor lists for force computation.
+
+    Self-gravity (Phase E): when ``gravity_G`` is set, the same pair loop
+    accumulates the Newtonian mutual acceleration
+
+        aᵢ += G mⱼ (xⱼ − xᵢ) / (r² + ε²)^(3/2)
+
+    as a SEPARATE, UNCUTOFF accumulator — gravity has no 2h horizon, so it
+    must not reuse the kernel-radius-filtered neighbor list. The distances
+    are already computed for every pair here, which is why the accumulator
+    piggybacks on this loop instead of adding a second O(N²) pass.
+    ``softening`` ε (Plummer) keeps close pairs finite — a standard
+    numerical regularization, disclosed by the caller, not physics.
+
+    Returns dict {index: Vec3 acceleration} when gravity_G is set, else None.
     """
     n = len(parcels)
+    grav = {} if gravity_G is not None else None
+    eps2 = (softening * softening) if softening else 0.0
     for i in range(n):
         pi = parcels[i]
         rho_i = pi.mass * W(0.0, h)  # self-contribution
         pi.neighbors = []
+        gx = gy = gz = 0.0
 
         for j in range(n):
             if i == j:
@@ -335,13 +371,24 @@ def _sph_density_sum(parcels, h):
             dx = pi.position.x - pj.position.x
             dy = pi.position.y - pj.position.y
             dz = pi.position.z - pj.position.z
-            r = math.sqrt(dx * dx + dy * dy + dz * dz)
+            r2 = dx * dx + dy * dy + dz * dz
+            r = math.sqrt(r2)
 
             if r < 2.0 * h:
                 rho_i += pj.mass * W(r, h)
                 pi.neighbors.append(j)
 
+            if grav is not None:
+                inv_r3 = (r2 + eps2) ** -1.5
+                c = gravity_G * pj.mass * inv_r3
+                gx -= c * dx          # (xⱼ − xᵢ) = −(dx, dy, dz)
+                gy -= c * dy
+                gz -= c * dz
+
         pi.sph_density = max(rho_i, 1e-10)
+        if grav is not None:
+            grav[i] = Vec3(gx, gy, gz)
+    return grav
 
 
 def _pressure_from_eos(parcel):
@@ -554,49 +601,61 @@ def continuum_step(scene, dt, alpha_visc=1.0):
     for p in parcels:
         p.update_properties()
 
-    # ── 2. SPH density sum ──
-    _sph_density_sum(parcels, h)
+    def _forces():
+        """One full force evaluation at the parcels' CURRENT positions:
+        SPH density (+ optional pairwise self-gravity, Phase E), EOS
+        pressure, pressure gradient, artificial viscosity, buoyancy,
+        uniform g. Returns a list of Vec3 accelerations, parcel-ordered."""
+        a_grav = _sph_density_sum(
+            parcels, h,
+            gravity_G=getattr(scene, "self_gravity_G", None),
+            softening=getattr(scene, "gravity_softening_m", None))
+        for p in parcels:
+            _pressure_from_eos(p)
+        a_pressure = _sph_pressure_force(parcels, h)
+        a_viscous = _sph_viscous_force(parcels, h, alpha_visc)
+        out = []
+        for i, p in enumerate(parcels):
+            a_p = a_pressure.get(i, Vec3(0, 0, 0))
+            a_v = a_viscous.get(i, Vec3(0, 0, 0))
+            a_b = _buoyancy_force(p, scene.rho_0, scene.T_0, g)
+            a_g = (a_grav or {}).get(i, Vec3(0, 0, 0))
+            out.append(Vec3(
+                g.x + a_p.x + a_v.x + a_b.x + a_g.x,
+                g.y + a_p.y + a_v.y + a_b.y + a_g.y,
+                g.z + a_p.z + a_v.z + a_b.z + a_g.z,
+            ))
+        return out
 
-    # ── 3. Pressure from EOS ──
-    for p in parcels:
-        _pressure_from_eos(p)
-
-    # ── 4-6. Force accumulation ──
-    a_pressure = _sph_pressure_force(parcels, h)
-    a_viscous = _sph_viscous_force(parcels, h, alpha_visc)
-
-    # ── 7-8. Leapfrog advance ──
+    # ── 2-8. Velocity-Verlet advance ──
+    # TRUE velocity Verlet: drift with a(x_n), re-evaluate forces at x_{n+1},
+    # kick with the average. The previous scheme applied a(x_n) in BOTH
+    # half-kicks — first-order Euler in disguise — and drifted a bound
+    # two-body orbit's energy ~13% over three periods (caught by
+    # test_continuum_self_gravity when Phase E made orbits possible).
+    # End-of-step accelerations are cached on the scene so this stays ONE
+    # force evaluation per step (viscosity is velocity-dependent, so the
+    # scheme is the standard SPH approximation, exact for conservative
+    # forces). The cache is invalidated if the parcel list changes.
+    acc0 = getattr(scene, "_vv_accel", None)
+    if acc0 is None or len(acc0) != len(parcels):
+        acc0 = _forces()
     for i, p in enumerate(parcels):
-        # Total acceleration
-        a_p = a_pressure.get(i, Vec3(0, 0, 0))
-        a_v = a_viscous.get(i, Vec3(0, 0, 0))
-        a_b = _buoyancy_force(p, scene.rho_0, scene.T_0, g)
-
-        a_total = Vec3(
-            g.x + a_p.x + a_v.x + a_b.x,
-            g.y + a_p.y + a_v.y + a_b.y,
-            g.z + a_p.z + a_v.z + a_b.z,
-        )
-
-        # Leapfrog: kick-drift-kick
-        # Half kick
-        p.velocity = Vec3(
-            p.velocity.x + a_total.x * dt * 0.5,
-            p.velocity.y + a_total.y * dt * 0.5,
-            p.velocity.z + a_total.z * dt * 0.5,
-        )
-        # Drift
+        a0 = acc0[i]
         p.position = Vec3(
-            p.position.x + p.velocity.x * dt,
-            p.position.y + p.velocity.y * dt,
-            p.position.z + p.velocity.z * dt,
+            p.position.x + p.velocity.x * dt + 0.5 * a0.x * dt * dt,
+            p.position.y + p.velocity.y * dt + 0.5 * a0.y * dt * dt,
+            p.position.z + p.velocity.z * dt + 0.5 * a0.z * dt * dt,
         )
-        # Second half kick
+    acc1 = _forces()
+    for i, p in enumerate(parcels):
+        a0, a1 = acc0[i], acc1[i]
         p.velocity = Vec3(
-            p.velocity.x + a_total.x * dt * 0.5,
-            p.velocity.y + a_total.y * dt * 0.5,
-            p.velocity.z + a_total.z * dt * 0.5,
+            p.velocity.x + 0.5 * (a0.x + a1.x) * dt,
+            p.velocity.y + 0.5 * (a0.y + a1.y) * dt,
+            p.velocity.z + 0.5 * (a0.z + a1.z) * dt,
         )
+    scene._vv_accel = acc1
 
     # ── 9. Heat equation ──
     dTdt = _heat_conduction(parcels, h)
