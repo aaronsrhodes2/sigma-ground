@@ -293,13 +293,28 @@ class ContinuumScene(PhysicsScene):
             disclose either way).
         gravity_softening_m: Plummer softening ε (m). None → 0.5·h — close
             pairs stay finite; standard numerical regularization.
+        eos: "tait" (default — packed condensed matter, P = K(ρ/ρ₀−1)) or
+            "isothermal" (dilute swarm, P = ρ·c_s² — the ring/disk regime;
+            see _pressure_isothermal for why Tait cannot serve there).
+        sound_speed_m_s: effective sound speed for eos="isothermal" —
+            physically the velocity dispersion; REQUIRED for that EOS and
+            also replaces the material sound speed in the artificial
+            viscosity (a km/s condensed-matter c̄ would be just as wrong
+            for a dilute swarm as the Tait pressure was).
     """
 
     def __init__(self, parcels, gravity=None, ground=None,
                  smoothing_h=None, reference_density=None,
                  reference_temperature=300.0, self_gravity_G=None,
-                 gravity_softening_m=None):
+                 gravity_softening_m=None, eos="tait", sound_speed_m_s=None):
         super().__init__(parcels, gravity=gravity, ground=ground)
+        if eos not in ("tait", "isothermal"):
+            raise ValueError(f"unknown eos {eos!r} — 'tait' or 'isothermal'")
+        if eos == "isothermal" and not sound_speed_m_s:
+            raise ValueError("eos='isothermal' needs sound_speed_m_s (the "
+                             "velocity dispersion — a disclosed Choice)")
+        self.eos = eos
+        self.sound_speed_m_s = sound_speed_m_s
 
         if smoothing_h is not None:
             self.h = smoothing_h
@@ -403,14 +418,30 @@ def _pressure_from_eos(parcel):
     whose kernel density is orders below the material's ρ₀) lands at
     P ≈ −K — e.g. −1.7e11 Pa of spurious tension for iron — which ejects
     any pair that drifts inside the kernel radius. Dilute astrophysical
-    scenarios need a velocity-dispersion EOS (P = ρ·c_s², the standard
-    ring/disk treatment), not condensed-matter Tait; that is Phase E3
-    design work, deliberately not patched here with a clamp.
+    scenarios use the isothermal EOS instead (eos="isothermal" on the
+    scene — see _pressure_isothermal), never a clamp on this one.
     """
     K = parcel.bulk_modulus
     rho_0 = parcel.props['density_kg_m3']
     rho = parcel.sph_density
     P = pressure_tait(rho, rho_0, K)
+    parcel.pressure = P
+    return P
+
+
+def _pressure_isothermal(parcel, sound_speed_m_s):
+    """Isothermal / velocity-dispersion EOS:  P = ρ_sph · c_s².
+
+    The standard dilute-regime closure (Phase E3): in ring/disk fluid
+    theory the effective sound speed IS the particles' velocity dispersion
+    (Goldreich & Tremaine 1978 viscous-disk treatment) — pressure comes
+    from random motions, not from compressing condensed matter. Always
+    non-negative, so a dilute swarm can never manufacture the spurious
+    ~ −K tension the Tait EOS extrapolates to (the failure mode found live
+    2026-07-30). c_s is a caller-disclosed Choice, typically set from the
+    seeded velocity dispersion.
+    """
+    P = parcel.sph_density * sound_speed_m_s * sound_speed_m_s
     parcel.pressure = P
     return P
 
@@ -453,11 +484,16 @@ def _sph_pressure_force(parcels, h):
     return accel
 
 
-def _sph_viscous_force(parcels, h, alpha_visc=1.0):
+def _sph_viscous_force(parcels, h, alpha_visc=1.0, c_override=None):
     """SPH artificial viscosity (Monaghan 1992).
 
     Πᵢⱼ = −α h c̄ μᵢⱼ / ρ̄   when vᵢⱼ · rᵢⱼ < 0
     μᵢⱼ = h (vᵢⱼ · rᵢⱼ) / (rᵢⱼ² + 0.01h²)
+
+    ``c_override``: use this sound speed for c̄ instead of the parcels'
+    material sound speed — set by the isothermal EOS path, where the
+    dispersion c_s is the physical signal speed (iron's ~5 km/s would be
+    the condensed-matter regime error all over again).
 
     Returns dict of {parcel_index: Vec3 acceleration}.
     """
@@ -489,7 +525,8 @@ def _sph_viscous_force(parcels, h, alpha_visc=1.0):
                 continue  # particles separating, no viscosity
 
             mu_ij = h * vr / (r2 + eta2)
-            c_bar = 0.5 * (pi.sound_speed + pj.sound_speed)
+            c_bar = (c_override if c_override is not None
+                     else 0.5 * (pi.sound_speed + pj.sound_speed))
             rho_bar = 0.5 * (rho_i + rho_j)
 
             Pi_ij = -alpha_visc * c_bar * mu_ij / rho_bar
@@ -619,10 +656,16 @@ def continuum_step(scene, dt, alpha_visc=1.0):
             parcels, h,
             gravity_G=getattr(scene, "self_gravity_G", None),
             softening=getattr(scene, "gravity_softening_m", None))
+        iso_cs = (scene.sound_speed_m_s
+                  if getattr(scene, "eos", "tait") == "isothermal" else None)
         for p in parcels:
-            _pressure_from_eos(p)
+            if iso_cs is not None:
+                _pressure_isothermal(p, iso_cs)
+            else:
+                _pressure_from_eos(p)
         a_pressure = _sph_pressure_force(parcels, h)
-        a_viscous = _sph_viscous_force(parcels, h, alpha_visc)
+        a_viscous = _sph_viscous_force(parcels, h, alpha_visc,
+                                       c_override=iso_cs)
         out = []
         for i, p in enumerate(parcels):
             a_p = a_pressure.get(i, Vec3(0, 0, 0))

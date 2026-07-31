@@ -164,7 +164,8 @@ def to_nbody(bodies, *, softening_m=0.0):
 
 
 def to_continuum(bodies, *, material_key, G=G_CODATA, smoothing_h=None,
-                 gravity_softening_m=None, temperature_K=300.0):
+                 gravity_softening_m=None, temperature_K=300.0,
+                 eos="tait", sound_speed_m_s=None):
     """SeedBody list → ContinuumScene with self-gravity (fluid side).
 
     Parcel radius is re-derived from each body's MASS and the material's
@@ -192,7 +193,8 @@ def to_continuum(bodies, *, material_key, G=G_CODATA, smoothing_h=None,
             label=b.label))
     return ContinuumScene(parcels, gravity=Vec3(0.0, 0.0, 0.0), ground=False,
                           smoothing_h=smoothing_h, self_gravity_G=G,
-                          gravity_softening_m=gravity_softening_m)
+                          gravity_softening_m=gravity_softening_m,
+                          eos=eos, sound_speed_m_s=sound_speed_m_s)
 
 
 __all__ = ["SeedBody", "seed_ring_annulus", "seed_rotating_cloud",
