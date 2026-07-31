@@ -298,10 +298,10 @@ def record_push_off(items, pushed_index: int = 1, push_speed_m_s=None, *,
                    "orbit_radius": max(2.2, 2.8 * half_w), "fov_deg": 45.0,
                    "up": [0.0, 0.0, 1.0], "az0": 0.5, "el0": 0.25},
         "identified": True,
-        "plugs": [{"kind": "drive",
-                   "description": f"the push — an applied impulse on the "
-                                  f"{names[pushed_index]} (no hand modeled)",
-                   "variables": {"push_speed_m_s": v0}, "adjustable": True}],
+        # the push, disclosed through the closed artificial-force taxonomy
+        # (dynamics.mechanisms.applied): an IMPULSE at the CoM, J = m*v0.
+        # Spec and disclosure are the same object — Golden Rule 7's vocabulary.
+        "plugs": [_push_af(names[pushed_index], mass[pushed_index], v0).to_plug()],
         "choices": [push_choice.to_dict(), mu_choice.to_dict(),
                     e_choice.to_dict()],
         "source": ("Each object re-researched and re-compiled at its composed "
@@ -321,6 +321,12 @@ def record_push_off(items, pushed_index: int = 1, push_speed_m_s=None, *,
                 for i in range(1, n)}
     return {
         "scene": scene_spec,
+        # sim provenance: enough for the viewer/server to re-run this same
+        # matter with a DIFFERENT artificial force (the /apply endpoint) —
+        # research is re-done from the names, so nothing here is a cache of
+        # physics, only of what the scene IS.
+        "sim": {"builder": "push_off", "items": list(items),
+                "pushed": names[pushed_index], "pushed_index": pushed_index},
         "trajectory": {
             "frames": frames,
             "t_end_s": t,
@@ -336,3 +342,13 @@ def record_push_off(items, pushed_index: int = 1, push_speed_m_s=None, *,
         },
         "kind": "trajectory",
     }
+
+
+def _push_af(target: str, target_mass_kg: float, v0: float):
+    """The push as a member of the closed artificial-force set."""
+    from ..dynamics.mechanisms.applied import AppliedForce
+    return AppliedForce(
+        "impulse", target,
+        label=f"the push — an applied impulse on the {target} (no hand modeled)",
+        vector=[round(target_mass_kg * v0, 4), 0.0, 0.0],
+        variables={"push_speed_m_s": v0})

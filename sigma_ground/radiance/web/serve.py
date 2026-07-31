@@ -109,6 +109,21 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
             cid = body.get("id") or uuid.uuid4().hex
             self._send_json(200, library.upsert_conversation(cid, title=body.get("title")))
             return
+        # ── POST /apply : an artificial force from the closed taxonomy ──
+        # The viewer's apply drawer posts {sim: <bundle.sim provenance>,
+        # force: <AppliedForce dict>}. The force is validated through the
+        # closed set (Golden Rule 7 — only artificial forces are adjustable
+        # during a simulation); kinds without a landed solver get an honest
+        # refusal JSON, never a fake run.
+        if self.path.split("?")[0] == "/apply":
+            try:
+                n = int(self.headers.get("Content-Length", 0))
+                req = json.loads(self.rfile.read(n) or b"{}")
+            except Exception as e:
+                self._send_json(400, {"error": f"bad request: {e}"})
+                return
+            self._send_json(200, _apply_force(req))
+            return
         if self.path.split("?")[0] != "/chat":
             self.send_error(404, "only /chat accepts POST")
             return
@@ -149,6 +164,60 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
             except Exception:
                 pass
         self._send_json(200, env)
+
+
+def _apply_force(req: dict) -> dict:
+    """Run one AppliedForce against a bundle's sim provenance.
+
+    Returns a /chat-shaped envelope so the viewer handles both identically.
+    Validation is the taxonomy's own (__post_init__) — the closed set is
+    enforced in exactly one place, and an out-of-set kind or a kind whose
+    solver hasn't landed refuses with the same honesty as the chat route.
+    """
+    from sigma_ground.dynamics.mechanisms.applied import KINDS
+    from sigma_ground.mcp.front_door import _render_push, _IMPLEMENTED_KINDS
+    sim = req.get("sim") or {}
+    # The drawer posts a force REQUEST (kind + target + variables), not the
+    # finished AppliedForce — the viewer can't know J = m*v0 because matter
+    # (the mass) lives server-side. The recorder constructs the real,
+    # disclosed AppliedForce from the actual mass; here we validate the
+    # request against the same closed set.
+    force = req.get("force") or {}
+    kind = force.get("kind")
+    if kind not in KINDS:
+        return {"intent": "clarify", "error": True, "can_render": False,
+                "text": (f"❓ unknown artificial-force kind {kind!r} — the "
+                         f"set is CLOSED: {sorted(KINDS)}. A new kind is a "
+                         f"Golden Rule 7 doctrine amendment, not a "
+                         f"parameter.")}
+    if kind not in _IMPLEMENTED_KINDS:
+        return {"intent": "clarify", "can_render": False,
+                "text": (f"❓ '{kind}' is a defined member of the closed "
+                         f"artificial-force set {sorted(KINDS)} (Golden Rule "
+                         f"7), but its solver hasn't landed yet — today only "
+                         f"'impulse' runs.")}
+    if sim.get("builder") != "push_off" or not sim.get("items"):
+        return {"intent": "clarify", "can_render": False,
+                "text": "❓ this scene carries no sim provenance to re-run — "
+                        "apply works on simulations built by the push route."}
+    items = list(sim["items"])
+    target = force.get("target")
+    if target not in items:
+        return {"intent": "clarify", "can_render": False,
+                "text": f"❓ '{target}' isn't in this scene "
+                        f"({', '.join(items)})."}
+    idx = items.index(target)
+    if idx == 0:
+        return {"intent": "clarify", "can_render": False,
+                "text": f"❓ the {items[0]} is the base everything stands on — "
+                        f"pushing it is a tipping simulation this route "
+                        f"honestly doesn't model yet."}
+    v = (force.get("variables") or {}).get("push_speed_m_s")
+    if not isinstance(v, (int, float)) or not 0 < v <= 20:
+        return {"intent": "clarify", "can_render": False,
+                "text": "❓ an impulse needs variables.push_speed_m_s in "
+                        "(0, 20] — the one during-sim knob."}
+    return _render_push(items, idx, use_llm=False, push_speed=float(v))
 
 
 def _warm():

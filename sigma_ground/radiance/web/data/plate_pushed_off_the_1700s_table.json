@@ -1537,10 +1537,16 @@
   "identified": true,
   "plugs": [
    {
-    "kind": "drive",
+    "kind": "impulse",
+    "target": "plate",
     "description": "the push \u2014 an applied impulse on the plate (no hand modeled)",
     "variables": {
-     "push_speed_m_s": 2.2
+     "push_speed_m_s": 2.2,
+     "vector": [
+      15.3296,
+      0.0,
+      0.0
+     ]
     },
     "adjustable": true
    }
@@ -1599,6 +1605,16 @@
    }
   ],
   "variant_current": "plate_pushed_off_the_1700s_table"
+ },
+ "sim": {
+  "builder": "push_off",
+  "items": [
+   "1700s table",
+   "plate",
+   "Doughnut"
+  ],
+  "pushed": "plate",
+  "pushed_index": 1
  },
  "trajectory": {
   "frames": [

@@ -321,7 +321,24 @@ def dispatch(text: str, *, use_llm: bool = True,
     #     memory from the scene-stack route above — the verb alone matches no
     #     Materia trigger, so before that memory existed this fell through to
     #     the canned physics clarify (confirmed live before building this).
-    if session.last_renderable             and session.last_renderable.get("kind") == "scene_stack"             and _PUSH_RE.search(text) and mode != "ask":
+    if session.last_renderable \
+            and session.last_renderable.get("kind") == "scene_stack" \
+            and _match_applied_kind(text) and mode != "ask":
+        akind = _match_applied_kind(text)
+        if akind not in _IMPLEMENTED_KINDS:
+            pretty = {"impulse_twist": "an impulse-with-twist (tip/spin)",
+                      "force": "a sustained force (press/drag)",
+                      "tilt": "a tilt (re-orienting the scene vs gravity)",
+                      "hold": "a hold (an artificial pin)",
+                      "source": "a heat source"}.get(akind, akind)
+            session.last_intent = "clarify"
+            return {"intent": "clarify", "source": "mentat",
+                    "can_render": False, "saved": None, "value": None,
+                    "text": (f"\u2753 that's {pretty} \u2014 a defined member "
+                             f"of the closed artificial-force set (Golden "
+                             f"Rule 7), but its solver hasn't landed yet. "
+                             f"Today I can apply an IMPULSE: push, shove, "
+                             f"knock or slide an object off its support.")}
         items = session.last_renderable["items"]
         idx = _resolve_push_target(text, items)
         if idx is not None:
@@ -503,7 +520,31 @@ def _run_simulation(text, spec, *, use_llm, session) -> dict:
                      render_handle=handle, source=spec.source)
 
 
-_PUSH_RE = re.compile(r"\b(push|shove|knock|slide|tip)(?:es|ed|s)?\b", re.I)
+# verb -> artificial-force kind (dynamics.mechanisms.applied.KINDS — the
+# CLOSED set; Golden Rule 7's whole vocabulary). One table, not one handler
+# per verb: a new phrasing is a new ROW; a new KIND is a doctrine amendment.
+# Kinds whose solver hasn't landed refuse honestly, naming themselves.
+_VERB_KINDS = (
+    # order = specificity: the generic impulse verbs go LAST, so "tilt the
+    # table until the plate slides" reads as a TILT (the commanded action),
+    # not an impulse (the hoped-for consequence).
+    (re.compile(r"\btilt(?:s|ed)?\b", re.I), "tilt"),
+    (re.compile(r"\b(hold|pin|freeze)\b.*\bin place\b", re.I), "hold"),
+    (re.compile(r"\b(heat|torch|warm)\s+(it|the)\b", re.I), "source"),
+    (re.compile(r"\b(tip|topple|flip)(?:s|ped)?\b", re.I), "impulse_twist"),
+    (re.compile(r"\b(spin|twist|rotate)(?:s|ted|d)?\b", re.I), "impulse_twist"),
+    (re.compile(r"\b(press|squeeze|drag)(?:es|ed|s)?\b", re.I), "force"),
+    (re.compile(r"\b(push|shove|knock|slide)(?:es|ed|s)?\b", re.I), "impulse"),
+)
+_IMPLEMENTED_KINDS = {"impulse"}         # the stack solver's current reach
+_PUSH_RE = _VERB_KINDS[-1][0]            # back-compat alias: the impulse verbs
+
+
+def _match_applied_kind(text: str):
+    for rx, kind in _VERB_KINDS:
+        if rx.search(text):
+            return kind
+    return None
 
 
 def _resolve_push_target(text: str, items: list) -> int | None:

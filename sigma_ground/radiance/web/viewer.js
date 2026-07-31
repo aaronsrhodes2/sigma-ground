@@ -1516,6 +1516,7 @@ function applyObj(obj, title, preserve){
       const vs=Object.entries(p.variables||{}).map(([k,v])=>`${k}=${v}`).join(", ");
       return `${tag}: ${p.description}${vs?` (${vs})`:""}`; }).join("  ·  "); }
   showVariants(scene);
+  showApply(obj);
   buildMaterialPanel(scene);
   const hasTraj=!!(traj&&traj.frames&&traj.frames.length>1);
   tEnd=hasTraj?traj.t_end_s:0;
@@ -1552,6 +1553,63 @@ function showVariants(sc){
     $("varval").textContent=v.label;
     load(`data/${v.slug}.json`, v.label).catch(e=>setErr("variant: "+e)); });
 })();
+
+// ── apply: an artificial force from the CLOSED taxonomy (Golden Rule 7) ──
+// The drawer is data-driven from _APPLY_KINDS — mirroring the server's
+// dynamics.mechanisms.applied.KINDS. Adding a kind here is UI only; the
+// doctrine (and its solver) lives server-side. Kinds whose solver hasn't
+// landed render disabled, honestly labeled — never silently absent.
+// Every run POSTs /apply: the REAL solver re-simulates this scene's matter
+// server-side and the viewer loads the recording. No viewer physics.
+const _APPLY_KINDS=[
+  ["impulse","impulse — push / shove / knock",true],
+  ["force","force — sustained press / drag (solver pending)",false],
+  ["drive","drive — a motor at a joint (solver pending)",false],
+  ["hold","hold — an artificial pin (solver pending)",false],
+  ["source","source — heat into a body (solver pending)",false],
+  ["tilt","tilt — re-orient gravity (solver pending)",false]];
+let _sim=null;                       // the loaded bundle's sim provenance
+function showApply(obj){
+  const grp=$("applygrp"); if(!grp) return;
+  _sim=(obj&&obj.sim&&obj.sim.builder==="push_off"&&Array.isArray(obj.sim.items))?obj.sim:null;
+  grp.style.display=_sim?"":"none";
+  if(!_sim){ $("applypanel").classList.remove("open"); $("b-apply").classList.remove("on"); return; }
+  const kindSel=$("applykind");
+  if(!kindSel.options.length)
+    for(const [v,label,on] of _APPLY_KINDS){
+      const o=document.createElement("option");
+      o.value=v; o.textContent=label; o.disabled=!on; kindSel.appendChild(o); }
+  kindSel.value="impulse";
+  const tgt=$("applytarget"); tgt.innerHTML="";
+  _sim.items.forEach((name,i)=>{
+    const o=document.createElement("option");
+    o.value=name; o.textContent=i===0?`${name} (the base — not pushable)`:name;
+    o.disabled=(i===0); tgt.appendChild(o); });
+  tgt.value=_sim.pushed&&_sim.items.indexOf(_sim.pushed)>0?_sim.pushed:_sim.items[1];
+  $("applymsg").textContent="";
+}
+$("b-apply").addEventListener("click",()=>{
+  const open=$("applypanel").classList.toggle("open"); $("b-apply").classList.toggle("on",open);
+  if(open){ for(const [p,b] of [["editor","b-edit"],["library","b-lib"],["matpanel","b-mat"]]){
+    $(p).classList.remove("open"); $(b).classList.remove("on"); } } });
+$("applyrun").addEventListener("click",async ()=>{
+  if(!_sim) return;
+  const msg=$("applymsg"), v=parseFloat($("applyspeed").value);
+  const force={kind:$("applykind").value, target:$("applytarget").value,
+               variables:{push_speed_m_s:v}};
+  msg.textContent="running the real solver…";
+  try{
+    const r=await fetch("/apply",{method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({sim:_sim, force})});
+    const env=await r.json();
+    if(env.saved&&env.saved.slug){
+      msg.textContent="";
+      $("applypanel").classList.remove("open"); $("b-apply").classList.remove("on");
+      await load(`data/${env.saved.slug}.json`, env.saved.title);
+    } else msg.textContent=env.text||env.error||"no result";
+  }catch(e){ msg.textContent="apply: "+e; }
+});
 
 // ── render-only material opacity: named-material list + click-to-pick ─────
 // The scene's baked opacity (materials[label].opacity, 1.0 if never set) with
