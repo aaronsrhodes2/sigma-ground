@@ -30,11 +30,12 @@ bodies = seed_ring_annulus(N, seed=SEED, **RING)
 r_mid = 0.5 * (RING["r_inner_m"] + RING["r_outer_m"])
 T = 2 * math.pi * math.sqrt(r_mid ** 3 / (G_CODATA * RING["central_mass_kg"]))
 v_kep = math.sqrt(G_CODATA * RING["central_mass_kg"] / r_mid)
+ORBITS = float(sys.argv[1]) if len(sys.argv) > 1 else 2.0
 dt = T / 400.0
-n_steps = 800                                  # two mid-ring orbits
+n_steps = int(round(ORBITS * 400))
 
 print(f"ring: {N} particles, mid-ring period {T/3600:.2f} h, "
-      f"dt {dt:.1f} s, {n_steps} steps = 2 orbits")
+      f"dt {dt:.1f} s, {n_steps} steps = {ORBITS:g} orbits")
 t0 = time.perf_counter()
 report = run_comparison(
     bodies, dt=dt, n_steps=n_steps, sample_every=20,

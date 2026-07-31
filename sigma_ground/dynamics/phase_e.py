@@ -120,13 +120,17 @@ def _residual(a, b):
 
 def run_comparison(bodies, *, dt, n_steps, sample_every=10,
                    material_key, sound_speed_m_s,
-                   softening_m, G=G_CODATA, label=""):
+                   softening_m, G=G_CODATA, label="", record_frames=False):
     """Run the SAME seed through both engines, sampling ensemble
     diagnostics as they go. Returns the report dict (JSON-ready).
 
     Choices disclosed in the report: dt, n_steps, softening, c_s (the
     dispersion closure), material_key (sets SPH packing radii — masses are
     identical either way). Facts: G (CODATA), the seed bodies' masses.
+
+    record_frames=True additionally stores every sampled position for BOTH
+    engines (sample["nbody_pos"/"sph_pos"]) so the viewer exporter can
+    replay each side — positions only, diagnostics stay the comparison.
     """
     sysnb = to_nbody(bodies, softening_m=softening_m)
     scene = to_continuum(bodies, material_key=material_key, G=G,
@@ -136,10 +140,16 @@ def run_comparison(bodies, *, dt, n_steps, sample_every=10,
     samples = []
 
     def sample(t):
-        d_nb = diagnostics(*_nbody_state(sysnb), G)
-        d_sp = diagnostics(*_sph_state(scene), G)
-        samples.append({"t_s": t, "nbody": d_nb, "sph": d_sp,
-                        "residual": _residual(d_nb, d_sp)})
+        nb = _nbody_state(sysnb)
+        sp = _sph_state(scene)
+        d_nb = diagnostics(*nb, G)
+        d_sp = diagnostics(*sp, G)
+        entry = {"t_s": t, "nbody": d_nb, "sph": d_sp,
+                 "residual": _residual(d_nb, d_sp)}
+        if record_frames:
+            entry["nbody_pos"] = nb[1]
+            entry["sph_pos"] = sp[1]
+        samples.append(entry)
 
     sample(0.0)
     for k in range(1, n_steps + 1):
