@@ -251,7 +251,10 @@
         <div><label for="applytarget">target</label><select id="applytarget"></select></div>
         <div id="applyspeedrow"><label for="applyspeed">push speed (m/s) — the one during-sim knob</label>
           <input id="applyspeed" type="number" min="0.1" max="20" step="0.1" value="2.2"></div>
-        <div><button id="applyrun">⚡ run</button></div>
+        <div style="display:flex; gap:8px;">
+          <button id="applyrun">⚡ run</button>
+          <button id="applylive" title="God-hand mode: the real solver steps server-side in real time over a websocket; forces apply mid-run without re-recording.">🔴 go live</button>
+        </div>
         <div id="applymsg"></div>
       </div>
     </div>

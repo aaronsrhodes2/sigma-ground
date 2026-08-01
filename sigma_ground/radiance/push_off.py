@@ -42,6 +42,222 @@ import math
 
 G = 9.80665
 
+# The recorder's disclosed Choice VALUES, shared with the live loop so both
+# run the same matter (the Choice objects with their full checked/reason
+# text are still built in record_push_off — these are the numbers).
+DEFAULT_MU = {"plate_on_table": 0.35, "topper_on_plate": 0.38,
+              "topper_on_table": 0.45, "anything_on_floor": 0.40}
+DEFAULT_E = {"plate": 0.30, "topper": 0.05}
+
+
+def make_lookups(pushed_index, mu=None, e=None):
+    """(mu_lookup, e_lookup) for StackSim from the pairwise Choice dicts."""
+    MU = dict(DEFAULT_MU if mu is None else mu)
+    E = dict(DEFAULT_E if e is None else e)
+
+    def _mu(body, support):
+        if support == "floor":
+            return MU["anything_on_floor"]
+        if body == pushed_index and support == 0:
+            return MU["plate_on_table"]
+        if body > pushed_index and support == pushed_index:
+            return MU["topper_on_plate"]
+        return MU["topper_on_table"]
+
+    def _e(body):
+        return E["plate" if body == pushed_index else "topper"]
+    return _mu, _e
+
+
+class StackSim:
+    """The stacked-block integrator, step-callable — physics in ONE place.
+
+    record_push_off() bakes frames through this exact object; the live
+    god-hand loop (radiance.web.serve /live websocket) steps the same
+    object in real time. There is no second integrator to diverge.
+
+    Live artificial-force entry points (the closed taxonomy,
+    dynamics.mechanisms.applied — Golden Rule 7's vocabulary):
+      impulse — instantaneous Δv on one body
+      force   — sustained horizontal acceleration over a window
+      tilt    — re-aim gravity relative to the scene (the tray in the
+                operator's hands); ramps to angle_deg over duration
+      hold    — pin one body against the world (an artificial bracket)
+    SOURCE (heat) and DRIVE (joints) have no state in this planar stack
+    model — the live loop refuses them honestly rather than faking.
+
+    SIMPLIFIED_MODEL scope is record_push_off's docstring, unchanged:
+    planar +x motion, no tipping/rotation, bbox support rectangles.
+    """
+
+    def __init__(self, built, *, mu_lookup, e_lookup):
+        self.names = [name for name, _c in built]
+        cons = [c for _n, c in built]
+        n = self.n = len(built)
+        self.bbox = [c.bbox for c in cons]
+        self.mass = [c.mass_kg for c in cons]
+        self.com = [list(c.com_m) for c in cons]
+        self.bot_off = [self.com[i][2] - self.bbox[i][2][0] for i in range(n)]
+        self.floor_z = self.bbox[0][2][0]
+        self._mu = mu_lookup
+        self._e = e_lookup
+        self.dx = [0.0] * n
+        self.dz = [0.0] * n
+        self.vx = [0.0] * n
+        self.vz = [0.0] * n
+        self.support = [None] + [i - 1 for i in range(1, n)]
+        self.t = 0.0
+        self.EPS_V = 0.02
+        # god-hand state
+        self.gx, self.gz = 0.0, G           # gravity vector (tilt re-aims it)
+        self._forces = []                   # [(body, ax_m_s2, t_end), ...]
+        self._holds = set()                 # pinned body indices
+        self._tilt = None                   # (angle_rad_target, t0, t1)
+
+    # ── the closed taxonomy's live entry points ────────────────────────────
+    def apply_impulse(self, body, dv_x):
+        self.vx[body] += dv_x
+        self.support[body] = self.support[body]     # (state unchanged)
+
+    def apply_force(self, body, fx_n, duration_s):
+        self._forces.append((body, fx_n / self.mass[body],
+                             self.t + duration_s))
+
+    def apply_tilt(self, angle_deg, duration_s):
+        self._tilt = (math.radians(angle_deg), self.t,
+                      self.t + max(duration_s, 1e-6))
+
+    def hold(self, body, on=True):
+        (self._holds.add if on else self._holds.discard)(body)
+
+    # ── geometry helpers (verbatim physics from the recorder) ──────────────
+    def _rect(self, i):
+        (x0, x1), _yy, _zz = self.bbox[i]
+        return x0 + self.dx[i], x1 + self.dx[i]
+
+    def _on(self, i, s):
+        if s == "floor":
+            return True
+        x = self.com[i][0] + self.dx[i]
+        x0, x1 = self._rect(s)
+        return x0 <= x <= x1
+
+    def _contact_dz(self, i, s):
+        top = self.floor_z if s == "floor" else self.bbox[s][2][1] + self.dz[s]
+        return top + self.bot_off[i] - self.com[i][2]
+
+    def _land_surface(self, i, z_bottom_prev):
+        """Highest shelf under body i, qualified against the PRE-step bottom.
+        Qualifying against the post-step position tunnels (caught live: the
+        doughnut fell straight through the table top to the floor)."""
+        x = self.com[i][0] + self.dx[i]
+        best, best_z = "floor", self.floor_z
+        for j in range(self.n):
+            if j == i:
+                continue
+            if j != 0 and self.support[j] is None:
+                continue                               # a falling body is no shelf
+            x0, x1 = self._rect(j)
+            top = self.bbox[j][2][1] + self.dz[j]
+            if x0 <= x <= x1 and best_z < top <= z_bottom_prev + 1e-9:
+                best, best_z = j, top
+        return best
+
+    def step(self, dt):
+        """One substep — the recorder's loop body, verbatim physics, plus
+        the god-hand inputs (sustained forces, gravity tilt, holds)."""
+        n, dx, dz, vx, vz = self.n, self.dx, self.dz, self.vx, self.vz
+        support, mass, com = self.support, self.mass, self.com
+        if self._tilt is not None:
+            ang, t0, t1 = self._tilt
+            frac = min(1.0, max(0.0, (self.t - t0) / (t1 - t0)))
+            self.gx = G * math.sin(ang * frac)
+            self.gz = G * math.cos(ang * frac)
+        self._forces = [f for f in self._forces if f[2] > self.t]
+        for i in range(n - 1, 0, -1):                  # riders first
+            if i in self._holds:
+                vx[i] = vz[i] = 0.0                    # the artificial bracket
+                continue
+            s = support[i]
+            # a support in free fall exerts NO normal force — its rider falls
+            # with it (caught by probing the ride-along regime).
+            if isinstance(s, int) and s != 0 and support[s] is None:
+                support[i] = s = None
+            # god-hand inputs enter as accelerations BEFORE the contact
+            # logic, so friction reacts to them like to any other motion
+            a_ext = self.gx + sum(a for b, a, _te in self._forces if b == i)
+            if s is None:                              # ballistic
+                z_bottom_prev = com[i][2] + dz[i] - self.bot_off[i]
+                vx[i] += a_ext * dt
+                vz[i] -= self.gz * dt
+                dx[i] += vx[i] * dt
+                dz[i] += vz[i] * dt
+                land = self._land_surface(i, z_bottom_prev)
+                cdz = self._contact_dz(i, land)
+                if dz[i] <= cdz:
+                    dz[i] = cdz
+                    e = self._e(i)
+                    vimp = abs(vz[i])
+                    vz[i] = e * vimp
+                    mu = self._mu(i, land)
+                    if vx[i]:
+                        dvx = min(abs(vx[i]), mu * (1 + e) * vimp)
+                        vx[i] -= math.copysign(dvx, vx[i])
+                    if vz[i] < 0.25:                   # too slow to bounce visibly
+                        vz[i] = 0.0
+                        support[i] = land
+                continue
+            # supported: one Coulomb branch covers rider-on-moving-support and
+            # pushed-body-on-static-surface. Normal load = own weight + riders;
+            # under tilt the normal uses the gz component.
+            vx[i] += a_ext * dt
+            sv = vx[s] if isinstance(s, int) and s != 0 else 0.0
+            vrel = vx[i] - sv
+            load = mass[i] + sum(mass[j] for j in range(1, n)
+                                 if support[j] == i)
+            mu = self._mu(i, s)
+            if abs(vrel) > self.EPS_V:
+                a_i = mu * self.gz * (load / mass[i])
+                dv = min(abs(vrel), a_i * dt)          # never overshoot to reverse slip
+                vx[i] += -math.copysign(dv, vrel)
+                if isinstance(s, int) and s != 0:
+                    vx[s] += math.copysign(mu * self.gz * load / mass[s] * dt,
+                                           vrel)
+            else:
+                # locked to the support UNLESS a live input pushes past
+                # static grip this substep (mu_s ~ mu_k, SIMPLIFIED_MODEL)
+                if abs(a_ext) <= mu * self.gz * (load / mass[i]) + 1e-12:
+                    vx[i] = sv
+            dx[i] += vx[i] * dt
+            if not self._on(i, s):
+                support[i] = None                      # over the edge
+        self.t += dt
+
+    def settled(self):
+        return all(self.support[i] is not None
+                   and abs(self.vx[i]) < self.EPS_V and self.vz[i] == 0.0
+                   for i in range(1, self.n)) and not self._forces \
+            and self._tilt is None
+
+    def energy(self):
+        n, mass, vx, vz = self.n, self.mass, self.vx, self.vz
+        com, dx, dz = self.com, self.dx, self.dz
+        ke = sum(0.5 * mass[i] * (vx[i] ** 2 + vz[i] ** 2) for i in range(1, n))
+        px = sum(mass[i] * vx[i] for i in range(1, n))
+        pz = sum(mass[i] * vz[i] for i in range(1, n))
+        ly = sum(mass[i] * ((com[i][2] + dz[i]) * vx[i]
+                            - (com[i][0] + dx[i]) * vz[i]) for i in range(1, n))
+        return {"energy_j": ke, "momentum": [px, 0.0, pz],
+                "angular_momentum": [0.0, ly, 0.0]}
+
+    def frame(self):
+        return {"t_sim": round(self.t, 4),
+                "bodies": [{"pos": [round(self.dx[i], 5), 0.0,
+                                    round(self.dz[i], 5)],
+                            "quat": [0.0, 0.0, 0.0, 1.0]}
+                           for i in range(self.n)],
+                **self.energy()}
+
 
 def record_push_off(items, pushed_index: int = 1, push_speed_m_s=None, *,
                     mu_overrides: dict | None = None, prebuilt=None,
@@ -84,8 +300,7 @@ def record_push_off(items, pushed_index: int = 1, push_speed_m_s=None, *,
 
     mu_choice = Choice(
         "kinetic friction coefficients (pairwise)",
-        {"plate_on_table": 0.35, "topper_on_plate": 0.38,
-         "topper_on_table": 0.45, "anything_on_floor": 0.40},
+        dict(DEFAULT_MU),
         checked="no measured friction data on disk (TPSX has none; "
                 "materials_engineering.json has no friction field); the "
                 "derived Bowden-Tabor value is a vacuum-regime constant ~1.0 "
@@ -113,147 +328,31 @@ def record_push_off(items, pushed_index: int = 1, push_speed_m_s=None, *,
         mu_choice.value.update(MU)                 # the disclosure shows what RAN
     e_choice = Choice(
         "restitution at landings",
-        {"plate": 0.30, "topper": 0.05},
+        dict(DEFAULT_E),
         checked="impact.coefficient_of_restitution needs a MATERIALS-table "
                 "key; 'stoneware'/'leavened dough' are Deckard vocabulary, "
                 "not in that table — honest Choice instead of a bad alias",
         reason="stiff ceramic bounces a little; a doughnut lands like a "
                "doughnut", adjustable=True)
 
-    def _mu(body, support):
-        if support == "floor":
-            return MU["anything_on_floor"]
-        if body == pushed_index and support == 0:
-            return MU["plate_on_table"]
-        if body > pushed_index and support == pushed_index:
-            return MU["topper_on_plate"]
-        return MU["topper_on_table"]
+    _mu, _e = make_lookups(pushed_index, MU, e_choice.value)
 
-    def _e(body):
-        return e_choice.value["plate" if body == pushed_index else "topper"]
-
-    # per-body state; support is "floor", a body index, or None while falling.
-    dx = [0.0] * n
-    dz = [0.0] * n
-    vx = [0.0] * n
-    vz = [0.0] * n
-    support = [None] + [i - 1 for i in range(1, n)]
-    vx[pushed_index] = v0
-
-    def _rect(i):
-        (x0, x1), _yy, _zz = bbox[i]
-        return x0 + dx[i], x1 + dx[i]
-
-    def _on(i, s):
-        if s == "floor":
-            return True
-        x = com[i][0] + dx[i]
-        x0, x1 = _rect(s)
-        return x0 <= x <= x1
-
-    def _contact_dz(i, s):
-        top = floor_z if s == "floor" else bbox[s][2][1] + dz[s]
-        return top + bot_off[i] - com[i][2]
-
-    def _land_surface(i, z_bottom_prev):
-        """Highest shelf under body i, qualified against the PRE-step bottom.
-        Qualifying against the post-step position tunnels: a substep that
-        carries the bottom 1 mm past a surface disqualifies that surface as
-        "below" in the same breath it should have landed on it (caught live:
-        the doughnut fell straight through the table top to the floor)."""
-        x = com[i][0] + dx[i]
-        best, best_z = "floor", floor_z
-        for j in range(n):
-            if j == i:
-                continue
-            if j != 0 and support[j] is None:
-                continue                                   # a falling body is no shelf
-            x0, x1 = _rect(j)
-            top = bbox[j][2][1] + dz[j]
-            if x0 <= x <= x1 and best_z < top <= z_bottom_prev + 1e-9:
-                best, best_z = j, top
-        return best
-
-    def _energy():
-        ke = sum(0.5 * mass[i] * (vx[i] ** 2 + vz[i] ** 2) for i in range(1, n))
-        px = sum(mass[i] * vx[i] for i in range(1, n))
-        pz = sum(mass[i] * vz[i] for i in range(1, n))
-        ly = sum(mass[i] * ((com[i][2] + dz[i]) * vx[i]
-                            - (com[i][0] + dx[i]) * vz[i]) for i in range(1, n))
-        return {"energy_j": ke, "momentum": [px, 0.0, pz],
-                "angular_momentum": [0.0, ly, 0.0]}
-
-    def _frame(t):
-        return {"t_sim": round(t, 4),
-                "bodies": [{"pos": [round(dx[i], 5), 0.0, round(dz[i], 5)],
-                            "quat": [0.0, 0.0, 0.0, 1.0]} for i in range(n)],
-                **_energy()}
+    # the integrator lives in StackSim — the SAME object the live god-hand
+    # loop steps; the recorder just bakes its frames.
+    sim = StackSim(built, mu_lookup=_mu, e_lookup=_e)
+    sim.vx[pushed_index] = v0                # the impulse, as initial condition
 
     frames = []
-    t, next_rec = 0.0, 0.0
-    EPS_V = 0.02
-    while t < t_max:
-        if t >= next_rec:
-            frames.append(_frame(t))
+    next_rec = 0.0
+    while sim.t < t_max:
+        if sim.t >= next_rec:
+            frames.append(sim.frame())
             next_rec += frame_dt
-        for i in range(n - 1, 0, -1):                      # riders first
-            s = support[i]
-            # a support in free fall exerts NO normal force — its rider falls
-            # with it. Without this, a rider serenely hovered at its old
-            # height while the plate dropped away beneath it (caught by
-            # probing the ride-along regime the first tests never entered).
-            if isinstance(s, int) and s != 0 and support[s] is None:
-                support[i] = s = None
-            if s is None:                                  # ballistic
-                z_bottom_prev = com[i][2] + dz[i] - bot_off[i]
-                vz[i] -= G * dt
-                dx[i] += vx[i] * dt
-                dz[i] += vz[i] * dt
-                land = _land_surface(i, z_bottom_prev)
-                cdz = _contact_dz(i, land)
-                if dz[i] <= cdz:
-                    dz[i] = cdz
-                    e = _e(i)
-                    vimp = abs(vz[i])
-                    vz[i] = e * vimp
-                    mu = _mu(i, land)
-                    if vx[i]:
-                        dvx = min(abs(vx[i]), mu * (1 + e) * vimp)
-                        vx[i] -= math.copysign(dvx, vx[i])
-                    if vz[i] < 0.25:                       # too slow to bounce visibly
-                        vz[i] = 0.0
-                        support[i] = land
-                continue
-            # supported: one Coulomb branch covers both cases — a rider on a
-            # moving support (doughnut on the escaping plate) and the pushed
-            # body on a static surface (plate on the table). The normal load
-            # is the body's own weight PLUS everything resting on it, so the
-            # plate's table-friction feels the doughnut pressing down.
-            sv = vx[s] if isinstance(s, int) and s != 0 else 0.0
-            vrel = vx[i] - sv
-            load = mass[i] + sum(mass[j] for j in range(1, n) if support[j] == i)
-            mu = _mu(i, s)
-            if abs(vrel) > EPS_V:
-                # friction force mu*N opposes the RELATIVE slide; N = load*g
-                a_i = mu * G * (load / mass[i])
-                dv = min(abs(vrel), a_i * dt)              # never overshoot to reverse slip
-                vx[i] += -math.copysign(dv, vrel)
-                if isinstance(s, int) and s != 0:
-                    # equal-and-opposite reaction drags the moving support
-                    vx[s] += math.copysign(mu * G * load / mass[s] * dt, vrel)
-            else:
-                vx[i] = sv                                 # locked to the support
-                # static-adequacy is NOT checked (SIMPLIFIED_MODEL: mu_s ~ mu_k
-                # and a support decelerating harder than mu*g would re-slip;
-                # with the default numbers that regime is never entered)
-            dx[i] += vx[i] * dt
-            if not _on(i, s):
-                support[i] = None                          # over the edge
-        t += dt
-        if all(support[i] is not None and abs(vx[i]) < EPS_V and vz[i] == 0.0
-               for i in range(1, n)):
+        sim.step(dt)
+        if sim.settled():
             break
-    frames.append(_frame(t))
+    frames.append(sim.frame())
+    t, support = sim.t, sim.support
 
     # ── scene spec: every construct's own leaves, tagged with its body ──
     csg_leaves, materials = [], {}

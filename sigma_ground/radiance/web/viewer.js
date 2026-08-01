@@ -1563,12 +1563,23 @@ function showVariants(sc){
 // server-side and the viewer loads the recording. No viewer physics.
 const _APPLY_KINDS=[
   ["impulse","impulse — push / shove / knock",true],
-  ["force","force — sustained press / drag (solver pending)",false],
+  ["force","force — sustained press / drag (live only)",false],
   ["drive","drive — a motor at a joint (solver pending)",false],
-  ["hold","hold — an artificial pin (solver pending)",false],
+  ["hold","hold — an artificial pin (live only)",false],
   ["source","source — heat into a body (solver pending)",false],
-  ["tilt","tilt — re-orient gravity (solver pending)",false]];
+  ["tilt","tilt — re-orient gravity (live only)",false]];
+// per-kind meaning of the one magnitude input (label, default, unit key)
+const _APPLY_MAG={
+  impulse:["push speed (m/s)",2.2,"push_speed_m_s"],
+  force:["force (N) — applied for 1 s",5.0,"force_n"],
+  tilt:["tilt angle (deg) — 2 s ramp, whole scene",10.0,"angle_deg"],
+  hold:["hold: 1 = pin, 0 = release",1.0,"on"]};
 let _sim=null;                       // the loaded bundle's sim provenance
+// ── god-hand live mode: the /live websocket streams the REAL solver ──
+let liveMode=false, liveWS=null, _liveFrame=null, _liveKinds=null;
+// debug/automation handle (script-scoped lets are invisible to console eval)
+window._live={get mode(){return liveMode;}, get frame(){return _liveFrame;},
+              get ws(){return liveWS&&liveWS.readyState;}, nframes:0};
 function showApply(obj){
   const grp=$("applygrp"); if(!grp) return;
   _sim=(obj&&obj.sim&&obj.sim.builder==="push_off"&&Array.isArray(obj.sim.items))?obj.sim:null;
@@ -1592,11 +1603,60 @@ $("b-apply").addEventListener("click",()=>{
   const open=$("applypanel").classList.toggle("open"); $("b-apply").classList.toggle("on",open);
   if(open){ for(const [p,b] of [["editor","b-edit"],["library","b-lib"],["matpanel","b-mat"]]){
     $(p).classList.remove("open"); $(b).classList.remove("on"); } } });
+$("applykind").addEventListener("change",()=>{
+  const m=_APPLY_MAG[$("applykind").value];
+  if(m){ $("applyspeedrow").querySelector("label").textContent=m[0];
+    $("applyspeed").value=String(m[1]); }
+});
+function _applyForce(){
+  const kind=$("applykind").value, v=parseFloat($("applyspeed").value);
+  const m=_APPLY_MAG[kind]||_APPLY_MAG.impulse;
+  const vars={}; vars[m[2]]=(m[2]==="on")?(v>=0.5):v;
+  return {kind, target:$("applytarget").value, variables:vars};
+}
+function _setLive(on){
+  liveMode=on; _liveFrame=null;
+  $("applylive").textContent=on?"⏹ stop live":"🔴 go live";
+  $("applylive").classList.toggle("on",on);
+  // live kinds come from the server's ready message; recorded mode is
+  // impulse-only (the /apply endpoint re-records)
+  for(const o of $("applykind").options)
+    o.disabled = on ? !( _liveKinds||[] ).includes(o.value)
+                    : (o.value!=="impulse");
+  if(!on&&liveWS){ try{ liveWS.close(); }catch(_e){} liveWS=null;
+    if(tEnd>0){ bodyPoses=posesAt(simTime); } }
+}
+$("applylive").addEventListener("click",()=>{
+  if(liveMode){ _setLive(false); return; }
+  if(!_sim) return;
+  const msg=$("applymsg");
+  msg.textContent="connecting…";
+  const ws=new WebSocket(`ws://${location.host}/live`);
+  liveWS=ws;
+  ws.onopen=()=>ws.send(JSON.stringify({type:"start", sim:_sim}));
+  ws.onmessage=(ev)=>{
+    const m=JSON.parse(ev.data);
+    if(m.type==="building"){ msg.textContent=m.text; }
+    else if(m.type==="ready"){ _liveKinds=m.live_kinds; _setLive(true);
+      msg.textContent="LIVE — the real solver is stepping server-side; "
+        +"forces apply mid-run"; playing=false; }
+    else if(m.type==="frame"){ _liveFrame=m; window._live.nframes++;
+      bodyPoses=m.bodies.map(b=>({pos:b.pos, quat:b.quat})); }
+    else if(m.type==="refusal"){ msg.textContent=m.text; }
+    else if(m.type==="applied"){ msg.textContent=
+      `applied ${m.kind} on ${m.target||"the scene"}`; }
+  };
+  ws.onclose=()=>{ if(liveMode) _setLive(false); msg.textContent="live ended"; };
+  ws.onerror=()=>{ msg.textContent="live: connection failed"; };
+});
 $("applyrun").addEventListener("click",async ()=>{
   if(!_sim) return;
-  const msg=$("applymsg"), v=parseFloat($("applyspeed").value);
-  const force={kind:$("applykind").value, target:$("applytarget").value,
-               variables:{push_speed_m_s:v}};
+  const msg=$("applymsg");
+  const force=_applyForce();
+  if(liveMode&&liveWS&&liveWS.readyState===1){
+    liveWS.send(JSON.stringify({type:"apply", force}));   // mid-run, no reload
+    return;
+  }
   msg.textContent="running the real solver…";
   try{
     const r=await fetch("/apply",{method:"POST",
@@ -1824,8 +1884,15 @@ $("b-lib").addEventListener("click",()=>{
 let last=performance.now(), fpsT=last, fpsN=0;
 function loop(now){
   const dt=(now-last)/1000; last=now;
-  if(playing&&tEnd>0){ simTime+=dt*rate; if(simTime>=tEnd){ simTime=tEnd; playing=false; $("play").textContent="▶ play"; } }
-  if(tEnd>0){ bodyPoses=posesAt(simTime); $("scrub").value=String(simTime/tEnd*1000);
+  if(!liveMode&&playing&&tEnd>0){ simTime+=dt*rate; if(simTime>=tEnd){ simTime=tEnd; playing=false; $("play").textContent="▶ play"; } }
+  if(liveMode){
+    // poses arrive from the /live websocket — the REAL solver stepping in
+    // real time server-side; nothing here recomputes physics
+    if(_liveFrame){ $("tval").textContent=`t=${_liveFrame.t_sim.toFixed(2)}s  LIVE`;
+      const eEl=$("energy");
+      if(eEl){ const p=_liveFrame.momentum||[0,0,0];
+        eEl.textContent=`KE: ${(_liveFrame.energy_j||0).toFixed(2)} J   |p|: ${Math.hypot(p[0],p[1],p[2]).toFixed(2)} kg·m/s`; } }
+  } else if(tEnd>0){ bodyPoses=posesAt(simTime); $("scrub").value=String(simTime/tEnd*1000);
     const p0=(bodyPoses[0]&&bodyPoses[0].pos)||[0,0,0];
     // follow camera: long falls opt in via scene.camera.follow (the body would
     // leave the frame for most of the drop otherwise)
