@@ -115,7 +115,7 @@ SIM = {"builder": "push_off",
 
 
 def _apply(force, sim=SIM):
-    from sigma_ground.radiance.web.serve import _apply_force
+    from sigma_ground.mcp.cockpit import _apply_force
     return _apply_force({"sim": sim, "force": force})
 
 

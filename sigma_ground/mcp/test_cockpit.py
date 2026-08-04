@@ -1,0 +1,450 @@
+"""Tests for cockpit.py — the tier-4 composed entry point (engine E2).
+
+Covers the E2 gates at the SOCKET level plus the moved-route parity:
+  * GATE 1 (socket form): two real websocket clients on one world name see
+    frames from the SAME authoritative world — an impulse applied through
+    client A is visible in the frames client B receives.
+  * Save over the wire round-trips through WorldHost.load to the exact
+    wire hash (the socket form of GATE 2).
+  * /chat and /apply answer through the cockpit with envelopes byte-equal
+    to the front door's own (the moved-verbatim identity).
+  * The OLD /live protocol still answers (inherited from serve untouched).
+  * serve.py still boots standalone as the pure-static dev server.
+
+Port doctrine (project memory: stale servers shadow :8765): every server
+here binds port 0 and reads the real port back; every socket is closed in
+a finally; teardown order is clients → shutdown_worlds() → httpd.shutdown.
+
+The websocket client reuses serve._WebSocket over a hand-rolled HTTP
+upgrade — viable because our server's recv_json zero-masks when the mask
+bit is absent, so unmasked client frames are tolerated by our own server.
+Every receive is deadline-bounded; never a bare blocking recv.
+
+NO happy-path /apply render test here (it would write real render bundles
+via _render_push's sweep — slow and polluting; front_door's own green
+tests cover that path). Disclosed.
+"""
+import base64
+import http.client
+import json
+import socket
+import threading
+import time
+import uuid
+
+import pytest
+
+from sigma_ground.engine.host import WorldHost
+from sigma_ground.mcp import cockpit
+from sigma_ground.radiance.web import library, serve
+
+ITEMS = ["1700s table", "plate", "Doughnut"]
+SIM = {"builder": "push_off", "items": ITEMS,
+       "pushed": "plate", "pushed_index": 1}
+IMPULSE = {"kind": "impulse", "target": "plate",
+           "vector": [1.0, 0.0, 0.0],
+           "variables": {"push_speed_m_s": 2.2}}
+
+
+@pytest.fixture(autouse=True)
+def _library_in_tmp(tmp_path, monkeypatch):
+    """/chat's record_turn must never touch the real store — the documented
+    seam: repoint the module-level _LIB_DIR at a tmp dir."""
+    monkeypatch.setattr(library, "_LIB_DIR", str(tmp_path / "library"))
+
+
+@pytest.fixture()
+def port():
+    httpd = cockpit.make_server(0)                  # ephemeral — NEVER 8765
+    p = httpd.server_address[1]
+    t = threading.Thread(target=httpd.serve_forever, daemon=True)
+    t.start()
+    try:
+        yield p
+    finally:
+        # client sockets are already closed by each test's own finally;
+        # then worlds, then the server (the documented teardown order)
+        cockpit.shutdown_worlds()
+        httpd.shutdown()
+        httpd.server_close()
+
+
+def _wname():
+    return "w-" + uuid.uuid4().hex[:12]
+
+
+class _Client:
+    """A minimal /world (or /live) websocket client over serve._WebSocket."""
+
+    def __init__(self, port, path="/world"):
+        self.sock = socket.create_connection(("127.0.0.1", port),
+                                             timeout=10.0)
+        key = base64.b64encode(b"0123456789abcdef").decode()
+        req = (f"GET {path} HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\n"
+               f"Upgrade: websocket\r\nConnection: Upgrade\r\n"
+               f"Sec-WebSocket-Key: {key}\r\n"
+               f"Sec-WebSocket-Version: 13\r\n\r\n")
+        self.sock.sendall(req.encode())
+        buf = b""
+        while b"\r\n\r\n" not in buf:
+            chunk = self.sock.recv(4096)
+            if not chunk:
+                raise ConnectionError("websocket handshake failed")
+            buf += chunk
+        status, rest = buf.split(b"\r\n", 1)
+        assert b"101" in status, status
+        self.ws = serve._WebSocket(self.sock)
+        self.ws._buf = rest.split(b"\r\n\r\n", 1)[1]   # early frames, if any
+        self.frames = []            # every {"type":"frame"} seen, in order
+
+    def send(self, obj):
+        self.ws.send_json(obj)
+
+    def recv(self, timeout=0.2):
+        msg = self.ws.recv_json(timeout=timeout)
+        if msg and msg.get("type") == "frame":
+            self.frames.append(msg)
+        return msg
+
+    def expect(self, mtype, timeout=10.0):
+        """Bounded wait for one message of the given type (frames seen on
+        the way are still captured into self.frames)."""
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            msg = self.recv(timeout=0.2)
+            if msg and msg.get("type") == mtype:
+                return msg
+        raise AssertionError(f"timed out waiting for {mtype!r}")
+
+    def collect_frames(self, n, timeout=15.0):
+        deadline = time.monotonic() + timeout
+        while len(self.frames) < n and time.monotonic() < deadline:
+            self.recv(timeout=0.2)
+        assert len(self.frames) >= n, \
+            f"only {len(self.frames)} frames within {timeout}s"
+        return self.frames
+
+    def close(self):
+        try:
+            self.sock.close()
+        except OSError:
+            pass
+
+
+def _post(port, path, obj, timeout=60.0):
+    conn = http.client.HTTPConnection("127.0.0.1", port, timeout=timeout)
+    try:
+        conn.request("POST", path, body=json.dumps(obj),
+                     headers={"Content-Type": "application/json"})
+        resp = conn.getresponse()
+        body = resp.read()
+        return resp.status, json.loads(body)
+    finally:
+        conn.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# § 1. GATE 1 (socket form) — two clients, ONE authoritative world
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_gate1_two_sockets_observe_one_world(port):
+    w = _wname()
+    a = _Client(port)
+    b = None
+    try:
+        a.send({"type": "attach", "world": w, "items": ITEMS})
+        ready_a = a.expect("ready", timeout=120.0)  # first attach pays build_stack
+        assert ready_a["created"] is True
+        assert ready_a["labels"] == ITEMS
+
+        b = _Client(port)
+        b.send({"type": "attach", "world": w})
+        ready_b = b.expect("ready", timeout=10.0)
+        assert ready_b["created"] is False          # JOINED, not rebuilt
+        assert ready_b["labels"] == ready_a["labels"]
+
+        a.collect_frames(6)
+        b.collect_frames(6)
+        x0 = b.frames[-1]["bodies"][1]["pos"][0]
+
+        # the impulse goes in through A ...
+        a.send({"type": "apply", "id": 1, "target": "plate",
+                "force": dict(IMPULSE)})
+        applied = a.expect("applied", timeout=10.0)
+        assert applied["id"] == 1
+        assert applied["target"] == "plate"
+        assert isinstance(applied["step_index"], int)
+
+        # ... and becomes visible in the frames B receives: ONE world,
+        # not one sim per socket (which is what the old /live does)
+        deadline = time.monotonic() + 15.0
+        moved = False
+        while time.monotonic() < deadline and not moved:
+            b.recv(timeout=0.2)
+            if b.frames and b.frames[-1]["bodies"][1]["pos"][0] > x0 + 1e-6:
+                moved = True
+        assert moved, "A's impulse never showed up in B's frames"
+
+        # soak up A's queued frames for the comparison window
+        deadline = time.monotonic() + 3.0
+        while time.monotonic() < deadline:
+            a.recv(timeout=0.1)
+
+        # frames matched by step must be IDENTICAL across A and B. The
+        # hello frame (frames[0]) is per-client — never naive-zip streams.
+        map_a = {f["step"]: f for f in a.frames[1:]}
+        map_b = {f["step"]: f for f in b.frames[1:]}
+        common = sorted(set(map_a) & set(map_b))
+        assert len(common) >= 3, (len(map_a), len(map_b))
+        for step in common:
+            assert map_a[step] == map_b[step]
+        # sim time is monotonic per client (hello included)
+        for cl in (a, b):
+            ts = [f["t"] for f in cl.frames]
+            assert ts == sorted(ts)
+    finally:
+        a.close()
+        if b is not None:
+            b.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# § 2. persistence across disconnects + join refusals
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_world_persists_across_disconnect_and_refuses_mismatch(port):
+    w = _wname()
+    c1 = _Client(port)
+    try:
+        c1.send({"type": "attach", "world": w, "items": ITEMS})
+        r1 = c1.expect("ready", timeout=120.0)
+        assert r1["created"] is True
+        step0 = r1["step"]
+    finally:
+        c1.close()
+
+    time.sleep(0.3)                     # the world keeps running unobserved
+
+    c2 = _Client(port)
+    try:
+        c2.send({"type": "attach", "world": w})
+        r2 = c2.expect("ready", timeout=10.0)
+        assert r2["created"] is False
+        assert r2["step"] > step0       # it LIVED across the disconnect
+
+        c3 = _Client(port)
+        try:
+            c3.send({"type": "attach", "world": w,
+                     "items": ["plate", "Doughnut"]})
+            ref = c3.expect("refusal", timeout=10.0)
+            assert "refused" in ref["text"] or "exists" in ref["text"]
+        finally:
+            c3.close()
+    finally:
+        c2.close()
+
+
+def test_attach_with_load_onto_existing_world_refused(port):
+    """A load naming an EXISTING world is refused — restoring a save can
+    neither replace the live world nor be silently ignored (the join would
+    hand the client a different state than it asked to restore)."""
+    w = _wname()
+    c1 = _Client(port)
+    try:
+        c1.send({"type": "attach", "world": w, "items": ITEMS})
+        c1.expect("ready", timeout=120.0)
+        c1.send({"type": "save", "id": 1})
+        data = c1.expect("save", timeout=10.0)["data"]
+
+        c2 = _Client(port)
+        try:
+            c2.send({"type": "attach", "world": w,
+                     "load": json.loads(json.dumps(data))})
+            ref = c2.expect("refusal", timeout=10.0)
+            assert "already exists" in ref["text"]
+            assert "load" in ref["text"]
+        finally:
+            c2.close()
+
+        # the live world is untouched by the refused load: still joinable
+        c3 = _Client(port)
+        try:
+            c3.send({"type": "attach", "world": w})
+            r3 = c3.expect("ready", timeout=10.0)
+            assert r3["created"] is False
+        finally:
+            c3.close()
+    finally:
+        c1.close()
+
+
+def test_attach_unknown_world_without_items_refused(port):
+    c = _Client(port)
+    try:
+        c.send({"type": "attach", "world": "nope-" + uuid.uuid4().hex[:8]})
+        ref = c.expect("refusal", timeout=10.0)
+        assert "no world named" in ref["text"]
+    finally:
+        c.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# § 3. GATE 2 (socket form) — save over the wire round-trips exactly
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_save_over_socket_round_trips_to_wire_hash(port):
+    w = _wname()
+    c = _Client(port)
+    try:
+        c.send({"type": "attach", "world": w, "items": ITEMS})
+        c.expect("ready", timeout=120.0)
+        c.send({"type": "apply", "id": 1, "target": "plate",
+                "force": dict(IMPULSE)})
+        c.expect("applied", timeout=10.0)
+        c.send({"type": "pause"})
+        c.expect("paused", timeout=10.0)
+        c.send({"type": "hash", "id": 7})
+        hv = c.expect("hash", timeout=10.0)
+        assert hv["id"] == 7
+        c.send({"type": "save", "id": 8})
+        sv = c.expect("save", timeout=10.0)
+        assert sv["id"] == 8
+        data = sv["data"]
+    finally:
+        c.close()
+    assert data["state_hash"] == hv["value"]        # paused: same boundary
+    assert [e for e in data["command_log"]]         # the impulse is in the log
+    # the wire save restores to the EXACT wire hash (real rebuild + replay;
+    # load() also self-verifies against the embedded checksum)
+    loaded = WorldHost.load(json.loads(json.dumps(data)))
+    assert loaded.state_hash() == hv["value"]
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# § 4. refusal correlation over the wire
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_refusals_forwarded_honestly_with_ids(port):
+    w = _wname()
+    c = _Client(port)
+    try:
+        c.send({"type": "attach", "world": w, "items": ITEMS})
+        c.expect("ready", timeout=120.0)
+        c.send({"type": "apply", "id": 3, "target": "plate",
+                "force": {"kind": "source", "target": "plate",
+                          "power_w": 50.0, "duration": 1.0}})
+        ref = c.expect("refusal", timeout=10.0)
+        assert ref["id"] == 3
+        assert "thermal" in ref["text"]
+        c.send({"type": "no-such-verb"})
+        ref2 = c.expect("refusal", timeout=10.0)
+        assert "unknown message type" in ref2["text"]
+    finally:
+        c.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# § 5. moved-route envelope parity (/chat, /apply)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_chat_envelope_parity(port):
+    front_door = pytest.importorskip("sigma_ground.mcp.front_door")
+    text = "what is the speed of light"
+    expected = dict(front_door.dispatch(text, use_llm=False,
+                                        session=front_door.Session(),
+                                        mode=None))
+    expected["session_id"] = "PARITY"
+    status, resp = _post(port, "/chat", {"text": text, "use_llm": False,
+                                         "session_id": "PARITY"})
+    assert status == 200
+    assert json.dumps(resp, sort_keys=True) == \
+        json.dumps(expected, sort_keys=True)
+
+    # the empty-text clarify envelope (skips record_turn) — byte-exact too
+    expected2 = dict(front_door.dispatch("", use_llm=False,
+                                         session=front_door.Session(),
+                                         mode=None))
+    expected2["session_id"] = "PARITY2"
+    status2, resp2 = _post(port, "/chat", {"text": "", "use_llm": False,
+                                           "session_id": "PARITY2"})
+    assert status2 == 200
+    assert json.dumps(resp2, sort_keys=True) == \
+        json.dumps(expected2, sort_keys=True)
+
+
+def test_apply_envelope_parity_on_deterministic_refusals(port):
+    pytest.importorskip("sigma_ground.mcp.front_door")
+    reqs = [
+        # unknown kind
+        {"sim": SIM, "force": {"kind": "yeet", "target": "plate"}},
+        # in the closed set, solver not landed
+        {"sim": SIM, "force": {"kind": "force", "target": "plate",
+                               "vector": [1.0, 0.0, 0.0], "duration": 1.0}},
+        # missing sim provenance
+        {"sim": {}, "force": {"kind": "impulse", "target": "plate",
+                              "variables": {"push_speed_m_s": 2.0}}},
+        # target not in the scene
+        {"sim": SIM, "force": {"kind": "impulse", "target": "spoon",
+                               "variables": {"push_speed_m_s": 2.0}}},
+        # the base is never a force target
+        {"sim": SIM, "force": {"kind": "impulse", "target": "1700s table",
+                               "variables": {"push_speed_m_s": 2.0}}},
+        # push_speed outside (0, 20]
+        {"sim": SIM, "force": {"kind": "impulse", "target": "plate",
+                               "variables": {"push_speed_m_s": 25.0}}},
+    ]
+    for req in reqs:
+        direct = cockpit._apply_force(json.loads(json.dumps(req)))
+        status, via = _post(port, "/apply", req)
+        assert status == 200
+        assert json.dumps(via, sort_keys=True) == \
+            json.dumps(direct, sort_keys=True), req
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# § 6. the OLD /live still answers through the cockpit; serve stays static
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_old_live_protocol_still_answers_through_cockpit(port):
+    c = _Client(port, path="/live")
+    try:
+        c.send({"type": "start",
+                "sim": {"items": ITEMS, "pushed_index": 1}})
+        c.expect("building", timeout=30.0)
+        r = c.expect("ready", timeout=120.0)
+        assert r["labels"] == ITEMS
+        fr = c.expect("frame", timeout=10.0)
+        assert "bodies" in fr and len(fr["bodies"]) == 3
+    finally:
+        c.close()
+
+
+def test_serve_still_boots_standalone_pure_static():
+    import functools
+    import http.server
+    import os
+    web_dir = os.path.dirname(os.path.abspath(serve.__file__))
+    httpd = http.server.ThreadingHTTPServer(
+        ("127.0.0.1", 0), functools.partial(serve._Handler,
+                                            directory=web_dir))
+    p = httpd.server_address[1]
+    t = threading.Thread(target=httpd.serve_forever, daemon=True)
+    t.start()
+    try:
+        conn = http.client.HTTPConnection("127.0.0.1", p, timeout=10)
+        conn.request("GET", "/")
+        r = conn.getresponse()
+        assert r.status == 200
+        r.read()
+        conn.close()
+        # the front-door routes are honestly GONE from the static server
+        conn = http.client.HTTPConnection("127.0.0.1", p, timeout=10)
+        conn.request("POST", "/chat", body="{}",
+                     headers={"Content-Type": "application/json"})
+        r = conn.getresponse()
+        assert r.status == 404
+        r.read()
+        conn.close()
+    finally:
+        httpd.shutdown()
+        httpd.server_close()

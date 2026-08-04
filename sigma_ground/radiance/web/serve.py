@@ -20,19 +20,13 @@ import time
 import urllib.parse
 import uuid
 
-# Make `sigma_ground` importable no matter where the server is launched from, so
-# the /chat endpoint can reach the Mentat front door. web_dir is
-# .../sigma_ground/radiance/web → the repo root is three levels up.
+# Make `sigma_ground` importable no matter where the server is launched from.
+# web_dir is .../sigma_ground/radiance/web → the repo root is three levels up.
 _ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
 from sigma_ground.radiance.web import library    # durable conversation store (Phase 0)
-
-# One front-door Session per browser tab (the client posts a stable session_id).
-# In-process and ephemeral — a restart clears them. This threads multi-turn state
-# so a bare "yes" renders the simulation the previous turn set up.
-_SESSIONS = {}
 
 
 class _Handler(http.server.SimpleHTTPRequestHandler):
@@ -117,61 +111,9 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
             cid = body.get("id") or uuid.uuid4().hex
             self._send_json(200, library.upsert_conversation(cid, title=body.get("title")))
             return
-        # ── POST /apply : an artificial force from the closed taxonomy ──
-        # The viewer's apply drawer posts {sim: <bundle.sim provenance>,
-        # force: <AppliedForce dict>}. The force is validated through the
-        # closed set (Golden Rule 7 — only artificial forces are adjustable
-        # during a simulation); kinds without a landed solver get an honest
-        # refusal JSON, never a fake run.
-        if self.path.split("?")[0] == "/apply":
-            try:
-                n = int(self.headers.get("Content-Length", 0))
-                req = json.loads(self.rfile.read(n) or b"{}")
-            except Exception as e:
-                self._send_json(400, {"error": f"bad request: {e}"})
-                return
-            self._send_json(200, _apply_force(req))
-            return
-        if self.path.split("?")[0] != "/chat":
-            self.send_error(404, "only /chat accepts POST")
-            return
-        try:
-            n = int(self.headers.get("Content-Length", 0))
-            req = json.loads(self.rfile.read(n) or b"{}")
-        except Exception as e:
-            self._send_json(400, {"error": f"bad request: {e}"})
-            return
-        text = (req.get("text") or "").strip()
-        sid = req.get("session_id") or uuid.uuid4().hex
-        use_llm = bool(req.get("use_llm", True))
-        mode = req.get("mode")                       # None/auto | ask | simulate | render
-        # Lazy import: the static server still boots if Mentat/ollama aren't ready;
-        # the first chat request surfaces any problem instead of crashing launch.
-        from sigma_ground.mcp.front_door import dispatch, Session
-        sess = _SESSIONS.setdefault(sid, Session())
-        try:
-            env = dispatch(text, use_llm=use_llm, session=sess, mode=mode)
-        except Exception as e:
-            # ollama down / model missing → retry the deterministic path and flag it,
-            # so ASK/SIM and catalogued RENDER still work, just without the qwen residual.
-            try:
-                env = dict(dispatch(text, use_llm=False, session=sess, mode=mode))
-                env["degraded"], env["degraded_reason"] = True, str(e)[:200]
-            except Exception as e2:
-                self._send_json(200, {"intent": "error", "error": True,
-                                      "text": f"Mentat backend error: {e2}",
-                                      "session_id": sid})
-                return
-        env = dict(env)
-        env["session_id"] = sid
-        # Phase 0: append this exchange to the durable store so the thread
-        # survives a reload. Persistence must never break the reply.
-        if text:
-            try:
-                library.record_turn(sid, user_text=text, mode=mode, envelope=env)
-            except Exception:
-                pass
-        self._send_json(200, env)
+        self.send_error(404, "POST here is /probe or /conversation; /chat "
+                             "and /apply live on the cockpit "
+                             "(python -m sigma_ground.mcp.cockpit)")
 
 
     # ── GET /live : the god-hand websocket (Interactive Simulation Phase I/II)
@@ -375,68 +317,6 @@ def _live_session(ws):
         time.sleep(0.002)
 
 
-def _apply_force(req: dict) -> dict:
-    """Run one AppliedForce against a bundle's sim provenance.
-
-    Returns a /chat-shaped envelope so the viewer handles both identically.
-    Validation is the taxonomy's own (__post_init__) — the closed set is
-    enforced in exactly one place, and an out-of-set kind or a kind whose
-    solver hasn't landed refuses with the same honesty as the chat route.
-    """
-    from sigma_ground.dynamics.mechanisms.applied import KINDS
-    from sigma_ground.mcp.front_door import _render_push, _IMPLEMENTED_KINDS
-    sim = req.get("sim") or {}
-    # The drawer posts a force REQUEST (kind + target + variables), not the
-    # finished AppliedForce — the viewer can't know J = m*v0 because matter
-    # (the mass) lives server-side. The recorder constructs the real,
-    # disclosed AppliedForce from the actual mass; here we validate the
-    # request against the same closed set.
-    force = req.get("force") or {}
-    kind = force.get("kind")
-    if kind not in KINDS:
-        return {"intent": "clarify", "error": True, "can_render": False,
-                "text": (f"❓ unknown artificial-force kind {kind!r} — the "
-                         f"set is CLOSED: {sorted(KINDS)}. A new kind is a "
-                         f"Golden Rule 7 doctrine amendment, not a "
-                         f"parameter.")}
-    if kind not in _IMPLEMENTED_KINDS:
-        return {"intent": "clarify", "can_render": False,
-                "text": (f"❓ '{kind}' is a defined member of the closed "
-                         f"artificial-force set {sorted(KINDS)} (Golden Rule "
-                         f"7), but its solver hasn't landed yet — today only "
-                         f"'impulse' runs.")}
-    if sim.get("builder") != "push_off" or not sim.get("items"):
-        return {"intent": "clarify", "can_render": False,
-                "text": "❓ this scene carries no sim provenance to re-run — "
-                        "apply works on simulations built by the push route."}
-    items = list(sim["items"])
-    target = force.get("target")
-    if target not in items:
-        return {"intent": "clarify", "can_render": False,
-                "text": f"❓ '{target}' isn't in this scene "
-                        f"({', '.join(items)})."}
-    idx = items.index(target)
-    if idx == 0:
-        return {"intent": "clarify", "can_render": False,
-                "text": f"❓ the {items[0]} is the base everything stands on — "
-                        f"pushing it is a tipping simulation this route "
-                        f"honestly doesn't model yet."}
-    v = (force.get("variables") or {}).get("push_speed_m_s")
-    if not isinstance(v, (int, float)) or not 0 < v <= 20:
-        return {"intent": "clarify", "can_render": False,
-                "text": "❓ an impulse needs variables.push_speed_m_s in "
-                        "(0, 20] — the one during-sim knob."}
-    return _render_push(items, idx, use_llm=False, push_speed=float(v))
-
-
-def _warm():
-    """Pre-import the Mentat front door so the first /chat isn't a cold-import wait."""
-    try:
-        import sigma_ground.mcp.front_door  # noqa: F401
-    except Exception:
-        pass
-
-
 def main(port: int = 8765):
     web_dir = os.path.dirname(os.path.abspath(__file__))
     handler = functools.partial(_Handler, directory=web_dir)
@@ -444,8 +324,7 @@ def main(port: int = 8765):
     # NOT block the browser from fetching the page, chat.js, or the freshly-rendered
     # data JSON. ThreadingHTTPServer also sets allow_reuse_address + daemon threads.
     httpd = http.server.ThreadingHTTPServer(("127.0.0.1", port), handler)
-    threading.Thread(target=_warm, daemon=True).start()
-    print(f"Radiance viewer  ->  http://127.0.0.1:{port}/   (no-cache, /chat live)")
+    print(f"Radiance viewer  ->  http://127.0.0.1:{port}/   (no-cache)")
     print("Ctrl-C to stop.")
     try:
         httpd.serve_forever()
