@@ -32,7 +32,7 @@ TIER = {
     "kernel": 0,
     "field": 1, "inventory": 1, "dynamics": 1,
     "deckard": 2,
-    "materia": 3, "radiance": 3, "labs": 3,
+    "materia": 3, "radiance": 3, "labs": 3, "engine": 3,
     "mcp": 4,
 }
 
