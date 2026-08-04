@@ -201,6 +201,27 @@ EXCLUDE_SET = frozenset(
     # automated sweep can honestly close.
     + [_P + "materials_project_client.elastic_properties",
        _P + "materials_project_client.dielectric_properties"]
+    # Game-engine phase P0 modules (propulsion / ore_abundance / detection,
+    # landed 2026-08-04): real, cited physics built for the engine arc, with
+    # strict input validation (typed PropulsionSystem args, spectral-class
+    # string enums, positive-flux guards) that this sweep's auto-arg
+    # inference cannot satisfy. The scalar-Q&A-worthy subset
+    # (ore_grade_estimate, total_recoverable_mass, detection ranges,
+    # mass_flow_rate) is a REAL, tracked wiring gap -- MCP tool wiring is
+    # follow-up work (5 edit sites + qwen_context regen), not silently
+    # fake-covered here. The burn adapters return AppliedForce objects
+    # (simulation-pipeline plumbing, not scalar Q&A) and stay excluded
+    # regardless.
+    + [_P + "propulsion." + n for n in (
+        "impulse_burn_applied_force", "sustained_burn_applied_force",
+        "mass_flow_rate",
+    )]
+    + [_P + "ore_abundance." + n for n in (
+        "ore_grade_estimate", "total_recoverable_mass",
+    )]
+    + [_P + "detection." + n for n in (
+        "detection_range_thermal", "detection_range_reflected",
+    )]
 )
 
 

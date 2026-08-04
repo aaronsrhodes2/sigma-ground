@@ -219,6 +219,35 @@ honest denominator can subtract them while keeping them visible as TODO.
   either — a real, tracked gap (would need its own careful wrapper +
   offline-safe test design), not one this sweep can honestly close.
 
+### Game-engine phase P0 modules (2026-08-04)
+
+Landed for the game-engine arc (propulsion.py, ore_abundance.py,
+detection.py — real, cited physics, adversarially verified), with strict
+input validation this sweep's auto-arg inference cannot satisfy (typed
+`PropulsionSystem` arguments, spectral-class string enums that reject
+arbitrary strings, positive-flux guards). Split honestly into two
+sub-categories:
+
+- `field.interface.propulsion.{impulse_burn_applied_force,
+  sustained_burn_applied_force}` — return `AppliedForce` objects
+  (simulation-pipeline plumbing into the engine's closed force taxonomy,
+  Golden Rule 7), not scalar Q&A. EXCLUDE, same category as the other
+  simulation-pipeline entries above.
+- `field.interface.propulsion.mass_flow_rate`,
+  `field.interface.ore_abundance.{ore_grade_estimate,
+  total_recoverable_mass}`,
+  `field.interface.detection.{detection_range_thermal,
+  detection_range_reflected}` — genuinely scalar-Q&A-worthy capabilities
+  ("what is a C-type asteroid made of," "how far away could WISE see this
+  body," "what mass flow does an RS-25 need") that are NOT yet wired to
+  MCP tools. A real, tracked wiring gap (5 edit sites + qwen_context
+  regeneration per tool, per the established registration procedure), not
+  silently fake-covered. Note the same modules' sibling functions
+  (`tsiolkovsky_delta_v`, `extraction_energy_per_kg`,
+  `combined_detection_report`, `incident_solar_flux_w_m2`, etc.) already
+  execute under the sweep's auto-arg path, so the modules are partially
+  covered today even before wiring.
+
 ## Pending EXCLUDE candidates (to confirm against uncovered.txt in later batches)
 
 Categories flagged during Phase-0 triage, to be enumerated function-by-function
