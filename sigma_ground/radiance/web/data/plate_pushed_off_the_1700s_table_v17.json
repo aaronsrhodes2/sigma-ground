@@ -1588,7 +1588,7 @@
   "source": "Each object re-researched and re-compiled at its composed stack pose (deckard.scene.build_stack \u2014 same citations as the static scene). Push, friction and restitution are disclosed Choices; whether the topper rides or is left behind follows from the stacked-block friction inequality, not a script. CHOSEN: push speed applied to the plate = 1.7 (checked: table half-width 0.43 m and plate-table mu below: the shove must beat sqrt(2*mu*g*d) ~ 1.7 m/s to reach the edge at all; the request says 'push', not how hard; picked hard enough that the outcome is decided by friction, not by a feeble tap). CHOSEN: kinetic friction coefficients (pairwise) = {'plate_on_table': 0.35, 'topper_on_plate': 0.38, 'topper_on_table': 0.45, 'anything_on_floor': 0.4} (checked: no measured friction data on disk (TPSX has none; materials_engineering.json has no friction field); the derived Bowden-Tabor value is a vacuum-regime constant ~1.0 (degeneracy probe) and would make nothing ever slide; typical engineering ranges: glazed ceramic on finished wood ~0.3-0.4. topper_on_plate is FRIED DOUGH on glaze \u2014 the doughnut is iced on top only (Captain's anatomy correction, 2026-07-30; the archetype's coat is clipped to the upper half), so the bottom contact is dough, slightly greasy, taken ~0.38 \u2014 NOT the old sticky-icing 0.5, which assumed a full-coat doughnut sliding on its icing. Values remain adjustable, but per the design rule the PREFERRED knob is the artificial force (push speed): matter is fact, the plug is already supernatural). CHOSEN: restitution at landings = {'plate': 0.3, 'topper': 0.05} (checked: impact.coefficient_of_restitution needs a MATERIALS-table key; 'stoneware'/'leavened dough' are Deckard vocabulary, not in that table \u2014 honest Choice instead of a bad alias; stiff ceramic bounces a little; a doughnut lands like a doughnut). SIMPLIFIED_MODEL: planar +x motion, no tipping/rolling/rotation, bbox-rectangle support areas, no mid-air recontact, no deformation.",
   "variants": [
    {
-    "slug": "plate_pushed_off_the_1700s_table",
+    "slug": "plate_pushed_off_the_1700s_table_v12",
     "label": "push 1.2 m/s"
    },
    {
@@ -1596,7 +1596,7 @@
     "label": "push 1.7 m/s"
    },
    {
-    "slug": "plate_pushed_off_the_1700s_table_v22",
+    "slug": "plate_pushed_off_the_1700s_table",
     "label": "push 2.2 m/s"
    },
    {
