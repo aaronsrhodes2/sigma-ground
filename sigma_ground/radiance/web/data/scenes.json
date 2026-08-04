@@ -788,6 +788,20 @@
   "has_energy": true
  },
  {
+  "slug": "solar_system_theater",
+  "title": "Solar System Theater",
+  "question": "",
+  "verb": "",
+  "group": "drop",
+  "kind": "trajectory",
+  "leaves": 30,
+  "frames": 1,
+  "bodies": 30,
+  "has_bounds": true,
+  "has_opacity": true,
+  "has_energy": true
+ },
+ {
   "slug": "fall_sphere_steel",
   "title": "Steel ball — 15 cm, from 4 m",
   "question": "drop a 15 cm steel ball from 4 m",
