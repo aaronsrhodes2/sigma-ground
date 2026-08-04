@@ -369,7 +369,14 @@ float sdVox${vid}(vec3 p){
 // body for fieldTempK. Called by BOTH shader builders after their leaf loop.
 // The grid is LEAF-LOCAL; a body-bound leaf inverse-transforms the world point
 // first (same expression as mapD's bdy decls), so the hot rind rides the body.
-function glslFieldFns(scene){
+function glslFieldFns(scene, worldOffset){
+  // worldOffset: "" (buildFragmentShader — p IS world-space) or "+uEyeWorld"
+  // (buildPathShader — p is camera-relative after the R1-lite rebase; a
+  // non-body leaf's field grid is baked from ABSOLUTE world coordinates,
+  // so it must reconstruct world-space before sampling). Body-bound leaves
+  // never need this — their own p-uBodyPos[k] subtraction is already
+  // eye-consistent (see draw()'s bindScene rebase comment).
+  worldOffset = worldOffset || "";
   let sel="";
   for(const f of (scene._fields||[])){
     const g=f.spec.grid, c=g.center;
@@ -393,7 +400,7 @@ float fldT${f.fid}(vec3 p){                          // leaf-LOCAL point -> kelv
       sel += `  if(m==${f.leaf}) return fldT${f.fid}(qrotInv(uBodyQuat[${leaf.body}], `
           +  `p-uBodyPos[${leaf.body}])+vec3(${glf(piv[0])},${glf(piv[1])},${glf(piv[2])}));\n`;
     } else {
-      sel += `  if(m==${f.leaf}) return fldT${f.fid}(p);\n`;
+      sel += `  if(m==${f.leaf}) return fldT${f.fid}(p${worldOffset});\n`;
     }
   }
   return sel;
@@ -833,7 +840,11 @@ function buildPathShader(scene){
   let decls="", compose="  float d=s0;\n", matsel="  mat=-1;\n", colorfn="", metalfn="", reflfn="", emisfn="", tempfn="", iorfn="", alphafn="", bodyTempFn="";
   const envT=(scene.physics_env&&scene.physics_env.temperature_k!==undefined)?scene.physics_env.temperature_k:293.15;
   for(let i=0;i<ls.length;i++){
-    const q = ls[i].body!=null ? `bdy${ls[i].body}` : "(p)";
+    // non-body leaves (floor/walls/lights — static theater dressing) are
+    // baked as ABSOLUTE world-space literals; p is camera-relative here
+    // (R1-lite), so reconstruct world-space via uEyeWorld before querying.
+    // Body-bound leaves need no such fix — see bindScene's rebase comment.
+    const q = ls[i].body!=null ? `bdy${ls[i].body}` : "(p+uEyeWorld)";
     const bnd = ls[i].bounds || deriveBounds(ls[i].shape);   // baked, else derived
     if(bvhCull && bnd){
       const bc=bnd.center, br=glf(bnd.radius);
@@ -887,7 +898,7 @@ function buildPathShader(scene){
       // remainder traced to sphere-tracing's own pre-existing grazing-angle
       // sensitivity on thin geometry, not to this gate).
       decls += `  float bd${i}=length(${q}-vec3(${glf(bc[0])},${glf(bc[1])},${glf(bc[2])}))-${br};\n`;
-      decls += `  float s${i}; if(bd${i}>GATE_BUFFER){ s${i}=bd${i}; } else { s${i}=${glslShapeCall(ls[i].shape, q)}; }\n`;
+      decls += `  float s${i}; if(bd${i}>uGateBuffer){ s${i}=bd${i}; } else { s${i}=${glslShapeCall(ls[i].shape, q)}; }\n`;
     } else {
       decls += `  float s${i}=${glslShapeCall(ls[i].shape, q)};\n`;
     }
@@ -913,7 +924,7 @@ function buildPathShader(scene){
   for(let i=1;i<ls.length;i++){ const op=ls[i].op;
     compose += (op==="subtract")?`  d=max(d,-s${i});\n`:(op==="intersect")?`  d=max(d,s${i});\n`:`  d=min(d,s${i});\n`; }
   for(let i=ls.length-1;i>=0;i--) matsel += `  ${i===ls.length-1?"if":"else if"}(s${i}<0.0) mat=${i};\n`;
-  const fieldSel=glslFieldFns(scene);               // per-cell field samplers → EXTRA_GLSL + switch
+  const fieldSel=glslFieldFns(scene,"+uEyeWorld");  // per-cell field samplers → EXTRA_GLSL + switch (PT: p is camera-relative)
   const bb=scene.bbox||[[-1,1],[-1,1],[-1,1]];
   const diag=len(sub([bb[0][1],bb[1][1],bb[2][1]],[bb[0][0],bb[1][0],bb[2][0]]))||1;
   // ── ghost tethers: violet, translucent markers at each DRIVE plug's own
@@ -935,7 +946,7 @@ function buildPathShader(scene){
     const ax=(axRaw&&len(axRaw)>1e-9)?norm(axRaw):[0,1,0];   // fall back to world-up if no axis shipped
     const A=sub(at,mul(ax,gHalf)), B=add(at,mul(ax,gHalf));
     const gidx=ls.length+gi;
-    decls += `  float s${gidx}=sdCapsuleCyl(p,vec3(${glf(A[0])},${glf(A[1])},${glf(A[2])}),`
+    decls += `  float s${gidx}=sdCapsuleCyl(p+uEyeWorld,vec3(${glf(A[0])},${glf(A[1])},${glf(A[2])}),`
            + `vec3(${glf(B[0])},${glf(B[1])},${glf(B[2])}),${glf(gR)});\n`;
     compose += `  d=min(d,s${gidx});\n`;
     matsel += `  ${(gi===0&&ls.length===0)?"if":"else if"}(s${gidx}<0.0) mat=${gidx};\n`;
@@ -950,8 +961,18 @@ function buildPathShader(scene){
     alphafn += `  if(m==${gidx}) return 0.35;\n`;      // low-opacity: an artificial marker, not real matter
     bodyTempFn += `  if(m==${gidx}) return -1.0;\n`;
   });
-  const SHMIN=glf(Math.max(0.004,diag*0.004)), SHMAX=glf(Math.max(0.05,diag*0.06)),
-        SMAXT=glf(Math.max(0.5,diag*1.2)), EPS=glf(Math.max(0.002,diag*0.0015));
+  // SHMIN/SHMAX/SMAXT/EPS/GATE_BUFFER/calcN's h used to be baked from the
+  // scene's whole-scene bbox diagonal ONCE at shader-build time — fine for a
+  // tabletop scene, but wrong for a scene spanning solar-system distances:
+  // zooming into one planet within a huge bbox still used shadow/hit
+  // epsilons sized for the WHOLE system. They are now real uniform floats
+  // (uEPS/uSHMIN/uSHMAX/uSMAXT/uGateBuffer/uCalcNH, declared below),
+  // recomputed every frame in JS from the CURRENT camera-to-target distance
+  // (cam.radius) — see draw()'s bindScene. This is rendering-only LOD (the
+  // physics never changes), and it is deliberately the CURRENT-VIEW scale,
+  // not a per-march-step pixel-footprint term — a coarser first cut than the
+  // full per-sample scaling the render-at-scale plan calls for, noted as
+  // such rather than presented as the finished version.
   const amb=scene.ambient||{up:[0,0,1]}, au=amb.up||[0,0,1];
   const hasWater=ls.some(l=>l.shape&&l.shape.type==="Water");
   let waterGLSL=""; if(hasWater){ const comps=(scene.water&&scene.water.components)||[]; let hsum="",gsum="";
@@ -972,37 +993,64 @@ function buildPathShader(scene){
   ls.forEach((l,i)=>{ const Ts=l.temperature_k;
     const Tdyn=(l.body!=null&&scene._bodyTempMax)?(scene._bodyTempMax[l.body]??-1):-1;
     const Tmax=Math.max(Ts!==undefined?Ts:-1, Tdyn);
-    if(l.shape&&l.shape.type==="Sphere"&&Tmax>700){
+    // NEE needs a sphere to sample a solid angle toward — Sphere leaves give
+    // this exactly; a Voxel leaf (e.g. a body rendered as a real voxel grid,
+    // not an analytic primitive) has no closed-form radius, so its baked
+    // bvhCull `bounds` (a real, if slightly conservative, bounding sphere —
+    // see scene_export.py's _bounding_sphere) stands in. Anything else
+    // (Box, Torus, a CSG composite with no bounds) still can't be an
+    // emitter — an honest scope limit, not silently wrong geometry.
+    const emitCenter = l.shape&&l.shape.type==="Sphere" ? l.shape.center
+                      : (l.bounds ? l.bounds.center : null);
+    const emitRadius = l.shape&&l.shape.type==="Sphere" ? l.shape.radius
+                      : (l.bounds ? l.bounds.radius : null);
+    if(emitCenter&&emitRadius&&Tmax>700){
       const m=scene.materials[l.material]||{}, e=m.emissivity_rgb||[0.5,0.5,0.5];
-      emitters.push({leaf:i, center:l.shape.center.slice(), radius:l.shape.radius,
+      emitters.push({leaf:i, center:emitCenter.slice(), radius:emitRadius,
                      body:(l.body!=null?l.body:-1),
                      temp:(Ts!==undefined?Ts:envT), emis:e}); }});
   ptEmitters=emitters; const NE=emitters.length;
+  // NEE exposure: `2.0*(1.0-cosTm)` is the real geometric solid-angle
+  // falloff (correct: a sun-sized emitter at AU-scale distance subtends
+  // ~1e-5 of the solid angle a bell-scale demo emitter does a few metres
+  // away, which is what EMISSION_SCALE was tuned against) — the physics is
+  // right, the EXPOSURE isn't, at this distance regime. `nee_exposure`
+  // (scene-level, default 1.0 — every existing scene's calibration is
+  // untouched) is a disclosed render-only Choice, exactly the same kind of
+  // NON-DERIVED audit-flagged knob as incandescence()'s own tone-map gain.
+  const neeExp=glf(scene.nee_exposure!==undefined?scene.nee_exposure:1.0);
   let neeBlk="";
   emitters.forEach((e,k)=>{ neeBlk += `
     if(mat!=${e.leaf}){ vec3 C=uEmitterPos[${k}]; float R=${glf(e.radius)}; vec3 wc=C-p; float dc=length(wc);
-      if(dc>R+EPS){ vec3 wcn=wc/dc; float sinT=R/dc; float cosTm=sqrt(max(0.0,1.0-sinT*sinT));
+      if(dc>R+uEPS){ vec3 wcn=wc/dc; float sinT=R/dc; float cosTm=sqrt(max(0.0,1.0-sinT*sinT));
         float cT=1.0-rnd(seed)*(1.0-cosTm); float sTs=sqrt(max(0.0,1.0-cT*cT)); float ph=6.2831853*rnd(seed);
         vec3 tt=normalize(cross(wcn, abs(wcn.y)<0.9?vec3(0.0,1.0,0.0):vec3(1.0,0.0,0.0))); vec3 bb=cross(wcn,tt);
         vec3 wl=normalize(tt*(sTs*cos(ph))+bb*(sTs*sin(ph))+wcn*cT); float ndl2=max(0.0,dot(n,wl));
-        if(ndl2>0.0){ float vis=visRay(p+n*EPS, wl, dc-R-2.0*EPS);
+        if(ndl2>0.0){ float vis=visRay(p+n*uEPS, wl, dc-R-2.0*uEPS);
           vec3 Le=incandescence(uEmitterTemp[${k}]+uTemp, vec3(${glf(e.emis[0])},${glf(e.emis[1])},${glf(e.emis[2])}));
-          L += thr*alb*Le*ndl2*2.0*(1.0-cosTm)*vis; } } }`; });
+          L += thr*alb*Le*ndl2*2.0*(1.0-cosTm)*vis*${neeExp}; } } }`; });
   return `#version 300 es
 precision highp float; precision highp int;
 #define MAXB ${Math.max(1,bodies.length)}
 #define EMISSION_SCALE 2400000000.0
-#define EPS ${EPS}
 #define PT_ENV ${glf(scene.pt_env!==undefined?scene.pt_env:1.0)}
-// bvhCull's per-leaf gate buffer: a bd{i} bounding-sphere substitute is only
-// ever used when it exceeds this, comfortably above every hit epsilon mapD's
-// consumers use below (march() 0.0008, sunShadow()/visRay() 0.001) — see the
-// decls-loop comment in buildPathShader for why this specific property (a
-// substituted term can never itself register as a hit) is load-bearing.
-#define GATE_BUFFER 0.004
 out vec4 frag;
 uniform vec2 uRes; uniform vec3 uEye,uFwd,uRight,uUp;
 uniform float uTanHalf,uAspect,uMaxDist,uTime,uTemp,uFrame,uReset;
+// uEye is always vec3(0) post-rebase (the camera IS the origin in this
+// shader's coordinate space — see bindScene). uEyeWorld carries the real
+// absolute camera position, needed only to reconstruct world-space for
+// geometry baked as absolute literals (non-body leaves, field grids,
+// ghost tethers) that a per-frame body transform never touches.
+uniform vec3 uEyeWorld;
+// view-scale-adaptive epsilons (JS: draw()'s bindScene, from cam.radius) —
+// bvhCull's per-leaf gate buffer (uGateBuffer): a bd{i} bounding-sphere
+// substitute is only ever used when it exceeds this, comfortably above
+// every hit epsilon mapD's consumers use below (march() ~0.4*uEPS,
+// sunShadow()/visRay() ~0.5*uEPS) — see the decls-loop comment in
+// buildPathShader for why this specific property (a substituted term can
+// never itself register as a hit) is load-bearing.
+uniform float uEPS,uSHMIN,uSHMAX,uSMAXT,uGateBuffer,uCalcNH;
 uniform int uSPP;             // samples THIS frame — the photon budget for this single exposure
 uniform float uPrevScale;     // fraction of the PRIOR exposure to keep: 1=integrate (long exposure), (N-1)/N=bounded shutter hold
 uniform vec3 uBodyPos[MAXB]; uniform vec4 uBodyQuat[MAXB];
@@ -1023,7 +1071,7 @@ float effTempK(int m, vec3 p){ float ft=fieldTempK(m,p); if(ft>=0.0) return ft+u
   float bt=bodyTempK(m); return (bt>=0.0?bt:matTempK(m))+uTemp; }
 float iorOf(int m){ ${iorfn}  return -1.0; }              // refractive index (water/glass), else -1
 float opacityOf(int m){ ${alphafn}  return 1.0; }         // render-only alpha (1=opaque); NOT ior — see trace()
-vec3 calcN(vec3 p){ float h=2e-4; vec2 e=vec2(1.0,-1.0);
+vec3 calcN(vec3 p){ float h=uCalcNH; vec2 e=vec2(1.0,-1.0);
   return normalize( e.xyy*mapOnly(p+e.xyy*h)+e.yyx*mapOnly(p+e.yyx*h)+e.yxy*mapOnly(p+e.yxy*h)+e.xxx*mapOnly(p+e.xxx*h) ); }
 vec3 incandescence(float T, vec3 emis){ if(T<700.0) return vec3(0.0);
   vec3 lam=vec3(650e-9,550e-9,450e-9); vec3 x=1.4388e-2/(lam*T);
@@ -1034,12 +1082,12 @@ float rnd(inout uint s){ s=hashu(s); return float(s)*(1.0/4294967296.0); }
 vec3 cosHemi(vec3 n, float u1, float u2){ float r=sqrt(u1), phi=6.2831853*u2;
   vec3 t=normalize(cross(n, abs(n.y)<0.9?vec3(0.0,1.0,0.0):vec3(1.0,0.0,0.0))); vec3 b=cross(n,t);
   return normalize(t*(r*cos(phi))+b*(r*sin(phi))+n*sqrt(max(0.0,1.0-u1))); }
-bool march(vec3 ro, vec3 rd, out vec3 p){ float t=EPS;   // |d| sphere-trace → works inside a medium too (refraction)
-  for(int i=0;i<220;i++){ p=ro+rd*t; float d=mapOnly(p); if(abs(d)<0.0008) return true; t+=max(abs(d),0.0005); if(t>uMaxDist) return false; } return false; }
-float sunShadow(vec3 ro, vec3 rd){ float t=EPS;
-  for(int i=0;i<64;i++){ float d=mapOnly(ro+rd*t); if(d<0.001) return 0.0; t+=clamp(d,${SHMIN},${SHMAX}); if(t>${SMAXT}) break; } return 1.0; }
-float visRay(vec3 ro, vec3 rd, float maxt){ float t=EPS;   // unoccluded toward an emitter up to maxt?
-  for(int i=0;i<64;i++){ if(t>maxt) return 1.0; float d=mapOnly(ro+rd*t); if(d<0.001) return 0.0; t+=clamp(d,${SHMIN},${SHMAX}); } return 1.0; }
+bool march(vec3 ro, vec3 rd, out vec3 p){ float t=uEPS;   // |d| sphere-trace → works inside a medium too (refraction)
+  for(int i=0;i<220;i++){ p=ro+rd*t; float d=mapOnly(p); if(abs(d)<uEPS*0.4) return true; t+=max(abs(d),uEPS*0.25); if(t>uMaxDist) return false; } return false; }
+float sunShadow(vec3 ro, vec3 rd){ float t=uEPS;
+  for(int i=0;i<64;i++){ float d=mapOnly(ro+rd*t); if(d<uEPS*0.5) return 0.0; t+=clamp(d,uSHMIN,uSHMAX); if(t>uSMAXT) break; } return 1.0; }
+float visRay(vec3 ro, vec3 rd, float maxt){ float t=uEPS;   // unoccluded toward an emitter up to maxt?
+  for(int i=0;i<64;i++){ if(t>maxt) return 1.0; float d=mapOnly(ro+rd*t); if(d<uEPS*0.5) return 0.0; t+=clamp(d,uSHMIN,uSHMAX); } return 1.0; }
 vec3 skyEmit(vec3 rd){ vec3 AUP=normalize(vec3(${glf(au[0])},${glf(au[1])},${glf(au[2])}));
   float u=clamp(0.5+0.5*dot(rd,AUP),0.0,1.0);
   // NON-DERIVED (audit): these sky RGBs are hand-picked, not Rayleigh/Mie from a
@@ -1062,14 +1110,14 @@ vec3 trace(vec3 ro, vec3 rd, inout uint seed){
     // behind it", the alpha-compositing result, never a fake-refracted ghost.
     float op=opacityOf(mat);
     if(op<1.0 && rnd(seed)>=op){
-      vec3 nf=n; if(dot(rd,n)>=0.0) nf=-n; ro=p-nf*EPS*2.0; continue;   // pass through, direction unchanged
+      vec3 nf=n; if(dot(rd,n)>=0.0) nf=-n; ro=p-nf*uEPS*2.0; continue;   // pass through, direction unchanged
     }
     if(spec) L += thr*incandescence(effTempK(mat, p), emissivityOf(mat)); // own glow at the POINT's temperature — only on specular arrival (NEE counts it otherwise; NEE cast light stays bulk-T — flagged: the gradient shows on the emitter's own surface, not yet in its cast light)
     vec3 alb=matColor(mat); float metal=metalness(mat);
     float ior=iorOf(mat); bool diffuse=(metal<0.5 && ior<=0.0);
     if(diffuse){                                                           // direct lighting — diffuse surfaces only
       vec3 Li=-normalize(${Sd}); float ndl=max(0.0,dot(n,Li));             // direct sun (next-event)
-      if(ndl>0.0){ float sh=sunShadow(p+n*EPS, Li); L += thr*alb*${Sc}*${Si}*PT_ENV*ndl*sh; }
+      if(ndl>0.0){ float sh=sunShadow(p+n*uEPS, Li); L += thr*alb*${Sc}*${Si}*PT_ENV*ndl*sh; }
       ${neeBlk}                                                            // direct light from glowing objects (NEE)
     }
     if(ior>0.0){                                                           // DIELECTRIC: Fresnel reflect / Snell refract
@@ -1077,11 +1125,11 @@ vec3 trace(vec3 ro, vec3 rd, inout uint seed){
       float ci=clamp(-dot(rd,nf),0.0,1.0); float r0=pow((ior-1.0)/(ior+1.0),2.0);
       float fres=r0+(1.0-r0)*pow(1.0-ci,5.0); vec3 rt=refract(rd,nf,eta);
       if(dot(rt,rt)<1e-6) fres=1.0;                                        // total internal reflection
-      if(rnd(seed)<fres){ rd=reflect(rd,nf); ro=p+nf*EPS*2.0; }            // reflect (same side)
-      else { rd=rt; ro=p-nf*EPS*2.0; }                                     // transmit (cross the interface)
+      if(rnd(seed)<fres){ rd=reflect(rd,nf); ro=p+nf*uEPS*2.0; }            // reflect (same side)
+      else { rd=rt; ro=p-nf*uEPS*2.0; }                                     // transmit (cross the interface)
       spec=true;
-    } else if(metal>0.5){ rd=reflect(rd,n); thr*=alb; ro=p+n*EPS; spec=true; }   // metal: tinted specular
-    else { rd=cosHemi(n, rnd(seed), rnd(seed)); thr*=alb; ro=p+n*EPS; spec=false; }   // diffuse: cosine bounce
+    } else if(metal>0.5){ rd=reflect(rd,n); thr*=alb; ro=p+n*uEPS; spec=true; }   // metal: tinted specular
+    else { rd=cosHemi(n, rnd(seed), rnd(seed)); thr*=alb; ro=p+n*uEPS; spec=false; }   // diffuse: cosine bounce
     if(max(thr.r,max(thr.g,thr.b))<0.02) break;
   }
   return L;
@@ -1109,7 +1157,7 @@ void main(){ vec2 p=vec2(float((gl_VertexID<<1)&2),float(gl_VertexID&2));
 function compile(type,src){ const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s);
   if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){ const log=gl.getShaderInfoLog(s); console.error(log,"\n",src); throw new Error(log); } return s; }
 let prog=null, progPT=null, U={}, Upt={};
-const UNIFORMS=["uRes","uEye","uFwd","uRight","uUp","uTanHalf","uAspect","uMaxDist","uTime","uTemp","uBodyPos","uBodyQuat","uBodyTemp","uFrame","uPrev","uReset","uEmitterPos","uEmitterTemp","uSPP","uPrevScale"];
+const UNIFORMS=["uRes","uEye","uEyeWorld","uFwd","uRight","uUp","uTanHalf","uAspect","uMaxDist","uTime","uTemp","uBodyPos","uBodyQuat","uBodyTemp","uFrame","uPrev","uReset","uEmitterPos","uEmitterTemp","uSPP","uPrevScale","uEPS","uSHMIN","uSHMAX","uSMAXT","uGateBuffer","uCalcNH"];
 function linkProg(fragSrc){
   const p=gl.createProgram();
   gl.attachShader(p,compile(gl.VERTEX_SHADER,VS));
@@ -1285,6 +1333,46 @@ function eyePos(){
   const planar=add(mul(A,Math.cos(cam.az)*ce), mul(B,Math.sin(cam.az)*ce));
   return add(cam.target, mul(add(planar, mul(Up,se)), cam.radius));
 }
+// ── locate: jump the camera to a named body, framed to its own size, from
+// the sun-facing side (so the lit hemisphere — where the color is — faces
+// the camera, not the terminator or the dark side). "Real scale, easy
+// navigation" per the Captain (2026-08-03): distances stay real and
+// un-distorted; what changes is where you're LOOKING, not how big
+// anything pretends to be.
+function _bodyIndexByLabel(name){
+  const bs=(scene&&scene.bodies)||[];
+  for(let i=0;i<bs.length;i++) if(bs[i].label===name) return i;
+  return -1;
+}
+function locateBody(name){
+  const i=_bodyIndexByLabel(name); if(i<0){ setErr(`locate: no body named "${name}"`); return false; }
+  const poses=bodyPoses.length?bodyPoses:posesAt(simTime);
+  const tgt=(poses[i]&&poses[i].pos)||[0,0,0];
+  const sunI=_bodyIndexByLabel("Sun");
+  const sunPos=(sunI>=0 && poses[sunI]) ? poses[sunI].pos : null;
+  cam.target=tgt.slice();
+  const rM=(scene.bodies[i]&&scene.bodies[i].radius_m)
+         || (bnd=>bnd?bnd.radius:null)((scene.csg_leaves.find(l=>l.body===i)||{}).bounds)
+         || 1.0;
+  cam.radius=Math.max(rM*3.2, 1e-6);
+  if(sunPos && i!==sunI){
+    // aim the eye on the target-to-sun side: solve az/el so eyePos()'s own
+    // orbit basis reproduces this direction (frameBasis/eyePos, unchanged)
+    const [A,B,Up]=frameBasis(cam.up);
+    const dirToSun=norm(sub(sunPos,tgt));
+    const se=Math.max(-1,Math.min(1,dot(dirToSun,Up)));
+    cam.el=Math.asin(se);
+    const ce=Math.cos(cam.el);
+    const az=Math.atan2(dot(dirToSun,B), dot(dirToSun,A));
+    cam.az=(Math.abs(ce)>1e-6)?az:cam.az;   // near a pole: keep the existing az, el alone frames it
+  }
+  sceneId++;                     // forces the PT accumulation key to reset (see draw()'s `key`)
+  return true;
+}
+window.locateBody=locateBody;    // console/UI hook
+window._cam=cam;                 // debug hooks (module-scoped vars are otherwise invisible to console eval)
+window._dbg=()=>({cam:{az:cam.az,el:cam.el,radius:cam.radius,target:cam.target.slice()},
+                  bodyPoses:bodyPoses.map(p=>p.pos), eye:eyePos()});
 // lerp-when-both-endpoints-have-it, hold-when-only-one-does — the same
 // missing-data policy posesAt uses for temperature_k, applied to the three
 // scene-level scalars/vectors (absent on a frame → this trajectory predates
@@ -1342,18 +1430,51 @@ function draw(){
   const md=len(sub(eye,cam.target))+sceneDiag*1.5+0.1;       // dynamic — survives zoom
   const tanHalf=Math.tan((scene.camera.fov_deg||40)*Math.PI/360);
   const NB=(scene.bodies||[]).length;
+  // ── camera-anchored rebase (R1-lite, 2026-08-03) ──────────────────────
+  // Every position handed to the GPU below is expressed relative to `eye`,
+  // computed here in JS float64 BEFORE the Float32Array cast. Precision is
+  // governed by DISTANCE FROM THE CAMERA, not by how far a coordinate is
+  // from an arbitrary world origin — so uEye becomes exactly [0,0,0] (a
+  // subtraction of a value from itself is exact) and mapD's own
+  // `p-uBodyPos[k]` (viewer.js's per-body transform) stays a small-minus-
+  // small operation even when the body is genuinely 1e12 m from the solar
+  // system's barycenter. This is what makes a real DE440-scale scene
+  // renderable at all: without it, float32 can't represent a body's own
+  // few-km surface detail once its coordinate exceeds roughly 1e11 m.
+  // Bodies far from the CURRENT camera position still lose precision (this
+  // rebases relative to the eye, not per-object) — expected and harmless,
+  // since a body that far is visually tiny regardless; the real fix for
+  // that regime is the splat far-field (R3), not this.
   let fp=null,fq=null,ft=null;
   if(NB){ fp=new Float32Array(NB*3); fq=new Float32Array(NB*4); ft=new Float32Array(NB);
     for(let k=0;k<NB;k++){ const Pp=bodyPoses[k]||{pos:[0,0,0],quat:[0,0,0,1]};
-      fp[k*3]=Pp.pos[0]; fp[k*3+1]=Pp.pos[1]; fp[k*3+2]=Pp.pos[2];
+      fp[k*3]=Pp.pos[0]-eye[0]; fp[k*3+1]=Pp.pos[1]-eye[1]; fp[k*3+2]=Pp.pos[2]-eye[2];
       fq[k*4]=Pp.quat[0]; fq[k*4+1]=Pp.quat[1]; fq[k*4+2]=Pp.quat[2]; fq[k*4+3]=Pp.quat[3];
       ft[k]=(Pp.tempK!==undefined)?Pp.tempK:-1.0; } }         // -1 = no frame temperature
+  // ── view-scale-adaptive epsilons (R1-lite) — current cam.radius, not the
+  // whole scene's bbox diagonal, so zooming into one planet inside a
+  // solar-system-scale scene gets fine steps, and zooming out to see the
+  // whole system gets coarse ones instead of an unresolvable fixed size.
+  // NOT_PHYSICS numerical tuning (same doctrine as stepper.py's CFL
+  // coefficient) — ratios carried over from the previous diag-derived
+  // constants; only the driving quantity (radius vs. diagonal) changed.
+  const R=Math.max(cam.radius,1e-9);
+  const vEPS=Math.max(5e-7,R*0.0015), vSHMIN=Math.max(1e-6,R*0.004),
+        vSHMAX=Math.max(1e-5,R*0.06), vSMAXT=Math.max(1e-4,R*1.2),
+        vCalcNH=Math.max(2e-7,R*1e-4);
   const bindScene=(UU,timeVal,frameSeed)=>{
     gl.uniform2f(UU.uRes,w,h);
-    gl.uniform3fv(UU.uEye,eye); gl.uniform3fv(UU.uFwd,fwd); gl.uniform3fv(UU.uRight,right); gl.uniform3fv(UU.uUp,camUp);
+    gl.uniform3fv(UU.uEye,[0,0,0]); gl.uniform3fv(UU.uFwd,fwd); gl.uniform3fv(UU.uRight,right); gl.uniform3fv(UU.uUp,camUp);
+    if(UU.uEyeWorld!=null) gl.uniform3fv(UU.uEyeWorld,eye);
     gl.uniform1f(UU.uTanHalf,tanHalf); gl.uniform1f(UU.uAspect,w/h); gl.uniform1f(UU.uMaxDist,md);
     gl.uniform1f(UU.uTime,timeVal); gl.uniform1f(UU.uTemp,0.0);   // no manual heat override; objects use their own temperature_k
     if(UU.uFrame!=null) gl.uniform1f(UU.uFrame,frameSeed);
+    if(UU.uEPS!=null) gl.uniform1f(UU.uEPS,vEPS);
+    if(UU.uSHMIN!=null) gl.uniform1f(UU.uSHMIN,vSHMIN);
+    if(UU.uSHMAX!=null) gl.uniform1f(UU.uSHMAX,vSHMAX);
+    if(UU.uSMAXT!=null) gl.uniform1f(UU.uSMAXT,vSMAXT);
+    if(UU.uGateBuffer!=null) gl.uniform1f(UU.uGateBuffer,vEPS*5.0);
+    if(UU.uCalcNH!=null) gl.uniform1f(UU.uCalcNH,vCalcNH);
     if(NB){ gl.uniform3fv(UU.uBodyPos,fp); gl.uniform4fv(UU.uBodyQuat,fq);
       if(UU.uBodyTemp!=null) gl.uniform1fv(UU.uBodyTemp,ft); }
     // voxel 3-D textures on units ≥1 (TEXTURE0 is the PT accumulation buffer)
@@ -1419,7 +1540,7 @@ function draw(){
         if(e.body>=0 && bodyPoses[e.body]){ const Po=bodyPoses[e.body];
           const piv=((scene.bodies[e.body]||{}).pivot)||[0,0,0];
           c=add(Po.pos, qrotJS(Po.quat, sub(e.center, piv))); }
-        ep[k*3]=c[0]; ep[k*3+1]=c[1]; ep[k*3+2]=c[2];
+        ep[k*3]=c[0]-eye[0]; ep[k*3+1]=c[1]-eye[1]; ep[k*3+2]=c[2]-eye[2];   // same eye-anchored rebase as uBodyPos
         const Tf=(e.body>=0 && bodyPoses[e.body] && bodyPoses[e.body].tempK!==undefined)
           ? bodyPoses[e.body].tempK : undefined;
         et[k]=(Tf!==undefined)?Tf:e.temp; });      // frame T > the leaf's static bake
@@ -1517,6 +1638,7 @@ function applyObj(obj, title, preserve){
       return `${tag}: ${p.description}${vs?` (${vs})`:""}`; }).join("  ·  "); }
   showVariants(scene);
   showApply(obj);
+  showLocate(scene);
   buildMaterialPanel(scene);
   const hasTraj=!!(traj&&traj.frames&&traj.frames.length>1);
   tEnd=hasTraj?traj.t_end_s:0;
@@ -1599,6 +1721,20 @@ function showApply(obj){
   tgt.value=_sim.pushed&&_sim.items.indexOf(_sim.pushed)>0?_sim.pushed:_sim.items[1];
   $("applymsg").textContent="";
 }
+// ── locate: populate the body dropdown (only shown when the scene names
+// enough bodies for it to be worth having — a 2-body doughnut/plate scene
+// doesn't need this, a 30-body ephemeris does).
+function showLocate(sc){
+  const grp=$("locategrp"), sel=$("locate"); if(!grp||!sel) return;
+  const bs=sc.bodies||[];
+  grp.style.display=(bs.length>3)?"":"none";
+  sel.innerHTML='<option value="">— body —</option>';
+  bs.forEach(b=>{ const o=document.createElement("option");
+    o.value=b.label; o.textContent=b.label; sel.appendChild(o); });
+}
+(function(){ const sel=$("locate"); if(!sel) return;
+  sel.addEventListener("change",()=>{ if(sel.value) locateBody(sel.value); });
+})();
 $("b-apply").addEventListener("click",()=>{
   const open=$("applypanel").classList.toggle("open"); $("b-apply").classList.toggle("on",open);
   if(open){ for(const [p,b] of [["editor","b-edit"],["library","b-lib"],["matpanel","b-mat"]]){
