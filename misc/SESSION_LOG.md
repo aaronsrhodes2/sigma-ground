@@ -2481,3 +2481,103 @@ physics in at exactly the moment interaction matters).
 - label_grid -> thermal solver -> per-cell temperature (task #31)
 - emissivity degeneracy fix (chip filed)
 - Phase E fluid/gravity + Interactive Simulation Phase I (websocket loop)
+
+## Session 30 — 2026-08-03..04 — The game-engine pivot: P0 physics closed, E1-E3 engine core landed
+
+### What Landed (all adversarially verified via multi-agent workflows, then re-verified by hand before each commit)
+- **The pivot**: sigma-ground becomes a homegrown, open-source,
+  physics-total GAME ENGINE (Bobiverse-inspired solar-system game to
+  follow; engine only this arc). Full approved plan:
+  expressive-whistling-squid.md. No Unity/Unreal/Godot — the browser is
+  the window. Renderer subsystem named MPDR (Multi-Physics Dodoxel
+  Renderer). "Deduce, don't infer" restated as hard law.
+- `6216f03` **E0**: engine/bench/ timing harness (median-of-5 ms/step,
+  4 backends — first timing numbers ever recorded in this repo) +
+  determinism harness (double-run SHA-256 state hash).
+- `eae812a` **R1-lite**: camera-anchored coordinate rebase in viewer.js
+  (float64 subtract before the Float32Array cast; uEye always [0,0,0]) —
+  bodies at REAL ~1.5e11 m positions render cleanly (precision cliff was
+  ~1.7 km). Real bug found+fixed during verification: non-body leaves
+  read camera-relative p as absolute (ring artifact) → uEyeWorld uniform
+  at 3 sites. Also: view-scale-adaptive epsilons, locateBody() jump-to-
+  body framed to real size aimed from the sun side, nee_exposure Choice.
+- `1d0e844` **Solar system voxel theater**: the real J2026 DE440
+  ephemeris (30 bodies) as the base theater; Sun+8 planets real Voxel
+  bodies, 21 moons analytic spheres; cited NASA/IAU radii; the Sun is
+  the sole NEE light source (emitter detection extended to Voxel
+  leaves). Confirmed real gap, researched not guessed: no planetary
+  texture/shape data exists on this machine; real sources exist (USGS
+  Astrogeology, LOLA/MOLA DEMs, DAMIT) — future asset-fetch task.
+- `4177566` **P0a propulsion**: field/interface/propulsion.py —
+  Tsiolkovsky + inverses (Deductions), 10-engine cited catalog (RS-25,
+  SRB, AJ10-137, NSTAR, NEXT-C, PPS-1350, 3×NERVA, VASIMR), thin
+  adapters into the closed AppliedForce taxonomy always disclosing
+  propellant mass. Adversarial pass caught 4 real citation defects
+  pre-landing (the "real document cited for a number it doesn't
+  contain" failure mode, now named and hunted on every cited-data task).
+- `f6d749e` **P0b ore abundance**: Bus-DeMeo taxonomy → 4 meteorite-
+  analog assemblages (CI/CM/S/M), every fraction a Fact or disclosed
+  Choice, sum-to-1.0 hard-validated, every mineral resolves or carries a
+  gap_note (import-time enforced); extraction_energy_per_kg deduced from
+  existing cohesive-energy physics with the honest 2x-20x
+  SIMPLIFIED_MODEL gap disclosed. Adversarial pass checked 54 figures,
+  dropped 13 — including ALL FOUR industrial-energy sanity anchors
+  (worldsteel numbers contradicted by worldsteel's own report; DOE
+  thermodynamic MINIMUM mislabeled as achieved Kroll energy; etc.).
+  Survived 2 mid-run session crashes via workflow resume.
+- `4d3d14e` **P0c detection**: thermal (Stefan-Boltzmann via thermal.py)
+  + reflected-sunlight channels, inverse-square range inversion, cited
+  sensor catalog (naked eye/8" telescope/WISE W1) with shown unit-
+  conversion chains, cited albedo catalog (planets + C/S/M taxonomy
+  medians). Smoke test reproduces the real WISE-finds-dark-KBOs effect
+  (500 km 40 K C-type at 90 AU: thermal range 308 AU vs reflected 42).
+  P0 fully closed — all three audit gaps.
+- `04a15bb` coverage-ledger honesty fix (P0's 7 unwired functions
+  documented; my miss — hadn't run the mcp suite after P0). Wolfram-
+  parity 29/30 failure confirmed PRE-EXISTING (astro_002 Sun-temperature
+  routed to body_mass); both follow-ups filed as task chips.
+- `807467c` **E1 ECS + Region**: generational EntityId (stale handles
+  die loudly), Matter mandatory with type-level provenance enforcement,
+  StackSimRegion wrapping StackSim VERBATIM, closed AppliedForce routing
+  with honest refusals. Golden replay byte-identical (exact ==, 1920
+  steps); refuter's own 2400-step/17-command replay also byte-identical
+  and proved its comparator by poisoning a run.
+- `4ba06ea` **E2 WorldHost + cockpit**: single-writer world authority,
+  commands drain only at step boundaries, THE LOG IS THE STATE (save =
+  scenario + exact-float command log; load = replay, self-verifying
+  hash), per-observer queues; mcp/cockpit.py (tier 4) absorbs serve.py's
+  three front_door touch points and hosts GET /world (named persistent
+  multi-observer worlds); the grandfathered serve→front_door layering
+  exception RETIRED. Refuter caught: load-onto-existing-world silently
+  ignored → honest refusal.
+- `4d64f03` **E3 input layer**: engine/intents.py CLOSED 11-verb
+  registry, server-side reduction (impulse honesty J=m·v REQUIRES
+  server-side mass — a client-side reduction cannot be honest);
+  EngineVerb structurally cannot produce forces; PRESS_TICK_S=1/60 s=16
+  sim steps (analog-stick doctrine); input.js device layer + JSON
+  bindings + generated registry mirror; cockpit "intent" route. Refuter
+  caught 2 (400-digit-int OverflowError socket kill; bare-else silently
+  RESUMING a paused world) — fixed + regression-tested.
+- `96c2d16` **E2 hardening** (refuter findings in the older layer): a
+  malformed raw apply KILLED the world loop thread permanently (widened
+  catch + isinstance + last-resort refusal); non-object JSON killed the
+  connection; NaN vectors poisoned the command log/save (finite-floats
+  walk at the one boundary).
+
+### Why
+Captain (voice-only, broken keyboard): "You already have exact
+specifications of the entire solar system… use that as your base
+simulation theater. But make it out of voxels." / real-scale zoom, sun
+as sole light, "we prefer the real over the faked" / "continue on to
+the goal." Ultracode on: every substantive task ran as a design-panel
+or research+adversarial-verify Workflow; the refuters have now caught
+real defects in EVERY phase they attacked — the process, not luck.
+
+### Next Steps
+- R2: camera as engine citizen (fly/orbit/follow, Gamepad camera,
+  distance-proportional fly speed) — consumes E3's engine channel
+- E4: HUD + audio; wire the viewer's /world socket (world intents are
+  currently PARKED on window._input.lastWorldIntent by design)
+- E5 multi-rate Regions; E6 LLM/dev API; E7 numpy perf (E0 baselines
+  ready); R3-R6 renderer phases; A1 small-body data fetch
+- Chips filed: wire P0 physics as MCP Q&A tools; fix astro_002 routing
