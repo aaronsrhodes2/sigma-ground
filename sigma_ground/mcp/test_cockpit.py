@@ -644,3 +644,39 @@ def test_intent_driven_save_round_trips_to_wire_hash(port):
     assert len(data["command_log"]) == 49           # 1 shove + 48 presses
     loaded = WorldHost.load(json.loads(json.dumps(data)))
     assert loaded.state_hash() == data["state_hash"]
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# § E3-refutation hardening (R4): valid NON-OBJECT JSON frames must refuse,
+#   never AttributeError the connection dead
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_non_object_json_frames_refused_not_fatal(port):
+    name = _wname()
+    c = _Client(port)
+    try:
+        c.send({"type": "attach", "world": name,
+                "items": ["1700s table", "plate", "Doughnut"]})
+        c.expect("ready", timeout=120.0)   # first attach pays build_stack
+        # valid JSON, not an object — used to be AttributeError → dead socket
+        c.send([1, 2, 3])
+        r1 = c.expect("refusal")
+        assert "JSON object" in r1["text"]
+        c.send(42)
+        r2 = c.expect("refusal")
+        assert "JSON object" in r2["text"]
+        # the connection genuinely survived: a real op still answers
+        c.send({"type": "pause"})
+        c.expect("paused")
+    finally:
+        c.close()
+
+
+def test_non_object_json_attach_refused_not_fatal(port):
+    c = _Client(port)
+    try:
+        c.send(42)                      # pre-attach: same hole, same guard
+        r = c.expect("refusal")
+        assert "attach" in r["text"]
+    finally:
+        c.close()

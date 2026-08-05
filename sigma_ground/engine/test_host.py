@@ -273,3 +273,68 @@ def test_pace_clamps_to_the_documented_range(built):
     assert h.set_pace(1000.0) == 10.0
     assert h.set_pace(0.0) == 0.01
     assert h.set_pace(2.5) == 2.5
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# § E3-refutation hardening — hostile raw wire dicts must never kill the
+#   world loop or poison the save format (findings R3/R5, fixed post-E3)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_malformed_raw_force_dicts_refuse_instead_of_killing_the_loop(built):
+    """R3: force='impulse' (str), force=[1,2,3] (list), and a JSON integer
+    too large for a double all used to raise AttributeError/OverflowError
+    THROUGH _apply_at_boundary — on the loop thread that kills the world
+    permanently. Every one must now be an honest refusal, threaded AND
+    headless, with the loop verifiably alive afterwards."""
+    hostile = [
+        "impulse",                                      # str, no .get
+        [1, 2, 3],                                      # list, no .get
+        42,                                             # int, no .get
+        None,                                           # NoneType
+        {"kind": "force", "target": "plate", "vector": [1.0, 0.0, 0.0],
+         "duration": int("9" * 400)},                   # OverflowError bait
+    ]
+    # headless: direct boundary path
+    h = WorldHost.from_built(built, items=ITEMS)
+    for force in hostile:
+        res = h.apply("plate", force)
+        assert res["ok"] is False and res["refusal"], force
+    assert h.command_log == []
+    # threaded: the loop thread must survive every one
+    h2 = WorldHost.from_built(built, items=ITEMS)
+    h2.start(pace=10.0)
+    try:
+        for force in hostile:
+            res = h2.submit("plate", force).wait()
+            assert res["ok"] is False and res["refusal"], force
+        assert h2._loop_running(), "world loop died on hostile data"
+        ok = h2.submit("plate", {"kind": "hold", "target": "plate",
+                                 "variables": {"on": True}}).wait()
+        assert ok["ok"] is True         # still fully functional after
+    finally:
+        h2.stop()
+
+
+def test_non_finite_floats_refused_and_saves_stay_strict_json(built):
+    """R5: a NaN/Infinity vector used to be accepted AND logged, making
+    every later save non-strict-JSON (json.dumps(..., allow_nan=False)
+    raised; a browser JSON.parse could never restore it). Now refused at
+    the ONE boundary, so the log's restorability invariant holds."""
+    h = WorldHost.from_built(built, items=ITEMS)
+    for v in (float("nan"), float("inf"), float("-inf")):
+        res = h.apply("plate", {"kind": "impulse", "target": "plate",
+                                "vector": [v, 0.0, 0.0]})
+        assert res["ok"] is False
+        assert "non-finite" in res["refusal"]
+        res2 = h.apply("plate", {"kind": "force", "target": "plate",
+                                 "vector": [1.0, 0.0, 0.0], "duration": 0.5,
+                                 "variables": {"sneaky": v}})
+        assert res2["ok"] is False, "non-finite smuggled via variables"
+    assert h.command_log == []
+    # a legitimate command still works, and the save is strict-JSON
+    ok = h.apply("plate", {"kind": "impulse", "target": "plate",
+                           "vector": [1.1, 0.0, 0.0],
+                           "variables": {"push_speed_m_s": 2.2}})
+    assert ok["ok"] is True
+    h.advance(50)
+    json.dumps(h.save(), allow_nan=False)   # raises if the invariant broke

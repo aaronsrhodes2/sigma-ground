@@ -40,6 +40,7 @@ DISCLOSED couplings and deferrals:
 from __future__ import annotations
 
 import collections
+import math
 import queue
 import threading
 import time
@@ -66,6 +67,39 @@ class HostBusy(RuntimeError):
 
 class WorldReplayError(RuntimeError):
     """load() replayed the command log but the hash mismatched the save."""
+
+
+def _non_finite_path(obj, _path="force", _depth=0) -> "str | None":
+    """First path inside a wire dict holding a non-finite/overflowing number,
+    or None if every number is a finite double. Guards the command log's
+    strict-JSON restorability invariant (json.dumps(save, allow_nan=False)
+    must always succeed — a logged NaN/Infinity makes every later save
+    unreadable by a browser's JSON.parse). Arbitrary-precision JSON ints
+    beyond double range count as overflowing (float() would raise
+    OverflowError on the loop thread otherwise). Depth-capped: deeper
+    nesting than any legitimate wire dict is itself refused."""
+    if _depth > 6:
+        return _path + " (nesting too deep for a wire dict)"
+    if isinstance(obj, bool):
+        return None
+    if isinstance(obj, (int, float)):
+        try:
+            return None if math.isfinite(float(obj)) else _path
+        except OverflowError:
+            return _path
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            bad = _non_finite_path(v, f"{_path}.{k}", _depth + 1)
+            if bad is not None:
+                return bad
+        return None
+    if isinstance(obj, (list, tuple)):
+        for i, v in enumerate(obj):
+            bad = _non_finite_path(v, f"{_path}[{i}]", _depth + 1)
+            if bad is not None:
+                return bad
+        return None
+    return None                     # strings/None: not numbers, not ours
 
 
 def _canonical(af: AppliedForce) -> dict:
@@ -182,7 +216,31 @@ class WorldHost:
 
     # ── the ONE apply path (owning thread, at a step boundary only) ───────
     def _apply_at_boundary(self, target, force_dict) -> dict:
+        """Validate + route one raw force dict; refuse EVERYTHING invalid.
+
+        This runs on the loop thread when the paced loop is live — an
+        exception escaping here KILLS the world (the loop thread dies, the
+        world stays a corpse in any registry holding it, every observer's
+        frames stop). Adversarially proven, not hypothetical: a raw
+        force="impulse" string (AttributeError inside from_dict) and a
+        400-digit JSON-integer duration (OverflowError from float()) both
+        did exactly that before the guards below existed. Hence: (a) the
+        dict/finite pre-checks, (b) the widened except tuple, (c) the
+        last-resort Exception arm — hostile DATA must never become an
+        escaped exception on the authoritative thread.
+        """
         try:
+            if not isinstance(force_dict, dict):
+                return {"ok": False, "refusal":
+                        f"force must be a JSON object (an AppliedForce wire "
+                        f"dict), got {type(force_dict).__name__}"}
+            bad = _non_finite_path(force_dict)
+            if bad is not None:
+                return {"ok": False, "refusal":
+                        f"non-finite or overflowing number at {bad} — the "
+                        f"command log must stay strict-JSON restorable "
+                        f"(NaN/Infinity would poison every later save), so "
+                        f"non-finite floats are refused at the boundary"}
             af = AppliedForce.from_dict(force_dict)     # ValueError = refusal
             if target is None:
                 eid = None                              # scene-scoped (tilt)
@@ -192,9 +250,18 @@ class WorldHost:
                 raise KeyError(f"unknown target {target!r} — bodies here: "
                                f"{sorted(self._labels)}")
             self.region.apply(eid, af)
-        except (ValueError, TypeError, KeyError, RegionRefusal,
-                StaleEntityError) as e:
+        except (ValueError, TypeError, KeyError, AttributeError,
+                ArithmeticError, RegionRefusal, StaleEntityError) as e:
             return {"ok": False, "refusal": str(e)}     # honest; NEVER logged
+        except Exception as e:                          # pragma: no cover
+            # Last resort: an UNANTICIPATED shape of hostile data. Refusing
+            # is strictly better than killing the world's loop thread; the
+            # exception type is named so a real engine bug still surfaces
+            # loudly in the refusal text instead of being classified away.
+            return {"ok": False, "refusal":
+                    f"internal: unhandled {type(e).__name__} validating "
+                    f"this force ({e}) — refused rather than killing the "
+                    f"world loop; report this shape"}
         canon = _canonical(af)
         self.command_log.append((self.step_count, target, canon))
         return {"ok": True, "step_index": self.step_count,

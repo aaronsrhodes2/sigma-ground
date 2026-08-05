@@ -202,7 +202,12 @@ def _world_session(ws):
     compared by "step", never by naive position.
     """
     attach = ws.recv_json(timeout=30.0)
-    if not attach or attach.get("type") != "attach" or not attach.get("world"):
+    # isinstance FIRST: recv_json returns whatever json.loads produced, and
+    # VALID non-object JSON (a bare 42, [1,2,3]) has no .get — before this
+    # guard it raised AttributeError and killed the connection
+    # (adversarially proven, E3's refutation pass, finding R4).
+    if not isinstance(attach, dict) or attach.get("type") != "attach" \
+            or not attach.get("world"):
         ws.send_json({"type": "refusal",
                       "text": "expected an attach message naming a world: "
                               '{"type":"attach","world":...,"items":[...]?}'})
@@ -256,6 +261,14 @@ def _world_session(ws):
                 continue        # timeout (or a close frame; a real close
                 #                 surfaces as ConnectionError on the next
                 #                 recv/send and unwinds through finally)
+            if not isinstance(msg, dict):
+                # valid non-object JSON (42, [1,2,3]) has no .get —
+                # refuse honestly instead of AttributeError killing the
+                # connection (E3 refutation finding R4)
+                ws.send_json({"type": "refusal",
+                              "text": f"messages must be JSON objects, got "
+                                      f"{type(msg).__name__}"})
+                continue
             mtype = msg.get("type")
             if mtype == "apply":
                 pending.append(host.submit(msg.get("target"),
