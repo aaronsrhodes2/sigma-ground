@@ -2020,6 +2020,7 @@ $("b-lib").addEventListener("click",()=>{
 let last=performance.now(), fpsT=last, fpsN=0;
 function loop(now){
   const dt=(now-last)/1000; last=now;
+  if(window._input&&window._input.poll) window._input.poll(dt);   // E3 device layer (input.js)
   if(!liveMode&&playing&&tEnd>0){ simTime+=dt*rate; if(simTime>=tEnd){ simTime=tEnd; playing=false; $("play").textContent="▶ play"; } }
   if(liveMode){
     // poses arrive from the /live websocket — the REAL solver stepping in
@@ -2118,6 +2119,35 @@ window.Radiance = {
   options:       () => ({ bvhCull, materialOpacity: { ...materialOpacity } }),
 };
 window.dispatchEvent(new Event("radiance-ready"));
+
+// ── E3 input layer: device chords → game verbs (input.js) ─────────────
+// ENGINE channel only in E3 — orbit/zoom keys drive the SAME cam object the
+// mouse drag does (no second camera path). WORLD intents are PARKED on the
+// instance (inp.lastWorldIntent): the /world socket wiring is E4/R2, and
+// faking an apply here would be a silent drop wearing a mask. The reduction
+// to AppliedForce lives server-side (engine/intents.py) — input.js never
+// constructs force dicts.
+if (window.SGInput) {
+  SGInput.load().then(({bindings, verbs}) => {
+    const inp = new SGInput({bindings, verbs,
+      // target = the apply drawer's select when a live sim has built it
+      getTarget: () => { const el = $("applytarget"); return (el && el.value) || null; },
+      onWorldIntent: (i) => { inp.lastWorldIntent = i; },   // parked in E3
+      onEngineIntent: (i) => {
+        if (i.op === "cam_orbit") {
+          cam.az += (i.args.daz || 0);
+          cam.el = Math.max(-1.5, Math.min(1.5, cam.el + (i.args.delv || 0)));  // same clamp as the mousemove handler
+        } else if (i.op === "cam_zoom") {
+          cam.radius *= (i.args.factor || 1);
+        } else {
+          inp.lastEngineIntent = i;     // pace/pause/resume/cam_pan parked in
+          //                              E3 (honest: no host in the static viewer)
+        }
+      }});
+    inp.attach(canvas);
+    window._input = inp;                // debug surface: window._input.state()
+  }).catch(e => console.warn("input:", e));
+}
 
 requestAnimationFrame(loop);
 })();

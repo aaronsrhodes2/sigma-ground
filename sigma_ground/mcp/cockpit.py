@@ -21,6 +21,14 @@ old /live vocabulary — that endpoint still exists and still speaks it):
        "load":{save-dict}?}
   C→S {"type":"apply","id"?,"target":str|null,"force":{AppliedForce wire
        dict}}     # target null ONLY for tilt (force dict targets "world")
+  C→S {"type":"intent","id"?,"verb":str,"params":{...}?,"target":str|null?}
+       # E3: game verbs (engine.intents' closed set). World verbs reduce
+       # SERVER-SIDE to AppliedForce and answer with the EXISTING
+       # "applied"/"refusal" ticket envelopes; pace/pause/resume answer
+       # with their existing replies (+"id" echoed additively when the
+       # intent carried one); cam_* verbs are refused — the server has no
+       # camera (camera state is client-local, input.js's engine channel).
+       # Raw "apply" stays byte-untouched: the wire-level escape hatch.
   C→S {"type":"pace","factor":float} | {"type":"pause"} | {"type":"resume"}
   C→S {"type":"save","id"?} | {"type":"hash","id"?} | {"type":"detach"}
   S→C {"type":"ready",...} → one hello frame → broadcast frames
@@ -49,6 +57,7 @@ import urllib.parse
 import uuid
 
 from ..dynamics.mechanisms.applied import KINDS
+from ..engine import intents
 from ..engine.host import WorldHost
 from ..engine.region import STACK_LIVE_KINDS
 from ..radiance.web import library, serve
@@ -212,6 +221,14 @@ def _world_session(ws):
                   "dt": host.dt, "step": host.step_count,
                   "paused": host.paused, "pace": host.pace})
     ws.send_json(host.snapshot())               # the hello / catch-up frame
+    # E3: the game-verb reduction needs the mass table (an impulse's vector
+    # discloses J = m·v — the client can't know it; matter lives
+    # server-side). Construction-fixed floats, the same read class as the
+    # ready message's sim.names read; the SEAM RULE (handler threads never
+    # MUTATE physics) is intact. If an E5 backend ever mutates mass mid-run
+    # this must move behind a host accessor.
+    sim = host.region.sim
+    masses = {sim.names[i]: float(sim.mass[i]) for i in range(sim.n)}
     q = host.subscribe()
     pending = []
     try:
@@ -244,6 +261,65 @@ def _world_session(ws):
                 pending.append(host.submit(msg.get("target"),
                                            msg.get("force") or {},
                                            id=msg.get("id")))
+            elif mtype == "intent":
+                # intents.reduce owns ALL message validation, so this one
+                # IntentRefusal arm keeps the connection and the host loop
+                # unkillable by any malformed intent.
+                try:
+                    red = intents.reduce(msg.get("verb"), msg.get("params"),
+                                         target=msg.get("target"),
+                                         masses=masses)
+                except intents.IntentRefusal as e:
+                    ws.send_json({"type": "refusal", "id": msg.get("id"),
+                                  "text": str(e)})
+                else:
+                    if red["channel"] == "world":
+                        pending.append(host.submit(red["target"],
+                                                   red["force"],
+                                                   id=msg.get("id")))
+                    elif not red["server_side"]:
+                        ws.send_json({
+                            "type": "refusal", "id": msg.get("id"),
+                            "text": (f"{red['verb']!r} is a camera verb — "
+                                     f"the server has no camera; camera "
+                                     f"state is client-local (route it "
+                                     f"through input.js's engine channel). "
+                                     f"Nothing was applied.")})
+                    elif red["op"] == "pace":
+                        out = {"type": "pace",
+                               "factor": host.set_pace(
+                                   red["args"]["factor"])}
+                        if msg.get("id") is not None:
+                            out["id"] = msg["id"]
+                        ws.send_json(out)
+                    elif red["op"] == "pause":
+                        host.pause()
+                        out = {"type": "paused"}
+                        if msg.get("id") is not None:
+                            out["id"] = msg["id"]
+                        ws.send_json(out)
+                    elif red["op"] == "resume":
+                        host.resume()
+                        out = {"type": "resumed"}
+                        if msg.get("id") is not None:
+                            out["id"] = msg["id"]
+                        ws.send_json(out)
+                    else:
+                        # An op this server has no handler for. Previously
+                        # this arm was a bare else commented "resume — the
+                        # only op left": a registry gaining a seventh
+                        # server-side engine verb would have been silently
+                        # RESUMED (a wrong action reported as success), the
+                        # exact silent no-op the closed-set doctrine
+                        # forbids. Mismatches refuse LOUDLY.
+                        ws.send_json({
+                            "type": "refusal", "id": msg.get("id"),
+                            "text": (f"{red['verb']!r} reduced to engine op "
+                                     f"{red['op']!r}, which this server has "
+                                     f"no handler for — refusing rather than "
+                                     f"guessing which command you meant. "
+                                     f"Nothing was applied and nothing "
+                                     f"changed.")})
             elif mtype == "pace":
                 ws.send_json({"type": "pace",
                               "factor": host.set_pace(msg.get("factor", 1.0))})
@@ -266,8 +342,8 @@ def _world_session(ws):
             else:
                 ws.send_json({"type": "refusal", "id": msg.get("id"),
                               "text": f"unknown message type {mtype!r} — "
-                                      f"apply / pace / pause / resume / "
-                                      f"save / hash / detach"})
+                                      f"apply / intent / pace / pause / "
+                                      f"resume / save / hash / detach"})
     finally:
         host.unsubscribe(q)
 

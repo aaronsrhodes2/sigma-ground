@@ -448,3 +448,199 @@ def test_serve_still_boots_standalone_pure_static():
     finally:
         httpd.shutdown()
         httpd.server_close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# § 7. the intent channel (E3) — game verbs over the real /world socket
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_intent_world_verb_applies_over_socket(port):
+    """A shove intent reduces SERVER-SIDE (engine.intents) and answers with
+    the EXISTING applied envelope — same ticket path as raw apply."""
+    w = _wname()
+    c = _Client(port)
+    try:
+        c.send({"type": "attach", "world": w, "items": ITEMS})
+        c.expect("ready", timeout=120.0)
+        c.send({"type": "intent", "id": 11, "verb": "shove",
+                "params": {"speed_m_s": 2.2}, "target": "plate"})
+        ap = c.expect("applied", timeout=10.0)
+        assert ap["id"] == 11
+        assert ap["target"] == "plate"
+        assert ap["force"]["kind"] == "impulse"
+        assert ap["force"]["variables"]["push_speed_m_s"] == 2.2
+        assert isinstance(ap["step_index"], int)
+    finally:
+        c.close()
+
+
+def test_intent_engine_ops_and_camera_refusal(port):
+    """pace/pause/resume intents run the EXISTING protocol ops (+id echoed
+    additively); cam_* intents are refused honestly — the server has no
+    camera. The connection and host loop survive all of it."""
+    w = _wname()
+    c = _Client(port)
+    try:
+        c.send({"type": "attach", "world": w, "items": ITEMS})
+        c.expect("ready", timeout=120.0)
+        c.send({"type": "intent", "id": 1, "verb": "pause"})
+        m = c.expect("paused", timeout=10.0)
+        assert m.get("id") == 1
+        c.send({"type": "intent", "id": 2, "verb": "pace",
+                "params": {"factor": 2.0}})
+        m = c.expect("pace", timeout=10.0)
+        assert m["factor"] == 2.0 and m.get("id") == 2
+        c.send({"type": "intent", "id": 3, "verb": "resume"})
+        m = c.expect("resumed", timeout=10.0)
+        assert m.get("id") == 3
+        c.send({"type": "intent", "id": 4, "verb": "cam_orbit",
+                "params": {"daz": 0.1}})
+        ref = c.expect("refusal", timeout=10.0)
+        assert ref["id"] == 4
+        assert "client-local" in ref["text"]
+        # liveness: the connection + host loop still answer
+        c.send({"type": "hash", "id": 5})
+        assert c.expect("hash", timeout=10.0)["id"] == 5
+    finally:
+        c.close()
+
+
+def test_malformed_intents_never_kill_connection_or_host(port):
+    """Every malformed intent gets a refusal envelope carrying its id; the
+    NaN case crosses the wire as a REAL bare-NaN JSON payload (Python's
+    json emits and parses it). Then a valid shove still applies — the
+    liveness proof."""
+    w = _wname()
+    c = _Client(port)
+    try:
+        c.send({"type": "attach", "world": w, "items": ITEMS})
+        c.expect("ready", timeout=120.0)
+        bads = [
+            {"type": "intent", "id": 1},                        # no verb
+            {"type": "intent", "id": 2, "verb": "yeet"},
+            {"type": "intent", "id": 3, "verb": "shove",
+             "params": "fast", "target": "plate"},
+            {"type": "intent", "id": 4, "verb": "shove",
+             "params": {"speed_m_s": 25.0}, "target": "plate"},
+            {"type": "intent", "id": 5, "verb": "shove",
+             "params": {"speed_m_s": float("nan")}, "target": "plate"},
+            {"type": "intent", "id": 6, "verb": "shove",
+             "target": None},
+            {"type": "intent", "id": 7, "verb": "tilt",
+             "target": "plate"},
+        ]
+        for msg in bads:
+            c.send(msg)
+            ref = c.expect("refusal", timeout=10.0)
+            assert ref["id"] == msg["id"], (msg, ref)
+            assert ref["text"], msg
+            if msg["id"] == 2:                      # names the closed set
+                assert "shove" in ref["text"] and "cam_orbit" in ref["text"]
+        c.send({"type": "intent", "id": 99, "verb": "shove",
+                "target": "plate"})
+        ap = c.expect("applied", timeout=10.0)      # liveness
+        assert ap["id"] == 99
+    finally:
+        c.close()
+
+
+def test_oversized_json_integer_intent_refuses_instead_of_killing_the_socket(port):
+    """ADVERSARIAL REGRESSION. json.dumps writes a Python big int as a bare
+    JSON integer literal, so ``{"speed_m_s": 10**400}`` crosses the wire as
+    400 digits and reaches intents.reduce as an arbitrary-precision int.
+    float() on one raises OverflowError — not an IntentRefusal — so it used
+    to escape cockpit's single IntentRefusal arm and tear the /world
+    connection down mid-frame instead of answering with a refusal."""
+    w = _wname()
+    c = _Client(port)
+    try:
+        c.send({"type": "attach", "world": w, "items": ITEMS})
+        c.expect("ready", timeout=120.0)
+        for i, msg in enumerate((
+                {"verb": "shove", "target": "plate",
+                 "params": {"speed_m_s": 10 ** 400}},
+                {"verb": "press", "target": "plate",
+                 "params": {"force_n": -(10 ** 400)}},
+                {"verb": "pace", "params": {"factor": 10 ** 400}},
+                {"verb": "tilt", "params": {"angle_deg": 10 ** 400,
+                                            "duration_s": 2.0}})):
+            c.send(dict(msg, type="intent", id=700 + i))
+            ref = c.expect("refusal", timeout=10.0)
+            assert ref["id"] == 700 + i, (msg, ref)
+            assert "finite number" in ref["text"], ref
+        # the SAME connection and the SAME world still work afterwards
+        c.send({"type": "intent", "id": 799, "verb": "shove",
+                "target": "plate"})
+        assert c.expect("applied", timeout=10.0)["id"] == 799
+    finally:
+        c.close()
+
+
+def test_unhandled_engine_op_refuses_loudly_and_changes_nothing(port,
+                                                                monkeypatch):
+    """A registry verb this server has no handler for must REFUSE, never
+    silently do something else. The intent arm used to end in a bare
+    ``else`` commented "resume — the only op left", so a seventh
+    server-side engine verb would have been answered {"type":"resumed"} —
+    a wrong action reported as success, and one that restarts a paused
+    world. The fake verb is the E4-seam stand-in."""
+    from sigma_ground.engine import intents
+    monkeypatch.setitem(
+        intents.ENGINE_VERBS, "teleport",
+        intents.EngineVerb("teleport",
+                           (intents.Param("x", default=0.0, lo=-1e3, hi=1e3),),
+                           "an unhandled server-side engine verb",
+                           continuous=False, op="teleport", server_side=True))
+    w = _wname()
+    c = _Client(port)
+    try:
+        c.send({"type": "attach", "world": w, "items": ITEMS})
+        c.expect("ready", timeout=120.0)
+        c.send({"type": "intent", "id": 1, "verb": "pause"})
+        c.expect("paused", timeout=10.0)
+        c.send({"type": "save", "id": 2})
+        before = c.expect("save", timeout=10.0)["data"]
+        c.send({"type": "intent", "id": 3, "verb": "teleport",
+                "params": {"x": 500.0}})
+        ref = c.expect("refusal", timeout=10.0)
+        assert ref["id"] == 3, ref
+        assert "teleport" in ref["text"] and "no handler" in ref["text"], ref
+        c.send({"type": "save", "id": 4})
+        after = c.expect("save", timeout=10.0)["data"]
+        # still paused (not silently resumed) and physics untouched
+        assert after["step_count"] == before["step_count"], (before, after)
+        assert after["state_hash"] == before["state_hash"]
+        assert after["command_log"] == before["command_log"]
+    finally:
+        c.close()
+
+
+def test_intent_driven_save_round_trips_to_wire_hash(port):
+    """An uncapped press flood (the 60 Hz cap is CLIENT politeness — the
+    server takes the flood raw) cannot corrupt physics: every window is
+    logged honestly, and the wire save replays to its embedded hash."""
+    w = _wname()
+    c = _Client(port)
+    try:
+        c.send({"type": "attach", "world": w, "items": ITEMS})
+        c.expect("ready", timeout=120.0)
+        c.send({"type": "intent", "id": 1, "verb": "shove",
+                "target": "plate"})
+        c.expect("applied", timeout=10.0)
+        n = 0
+        for _burst in range(4):                     # 48 presses, bursts of 12
+            for _ in range(12):
+                n += 1
+                c.send({"type": "intent", "id": 100 + n, "verb": "press",
+                        "params": {"force_n": 5.0}, "target": "plate"})
+            for _ in range(12):
+                c.expect("applied", timeout=10.0)
+        c.send({"type": "pause"})
+        c.expect("paused", timeout=10.0)
+        c.send({"type": "save", "id": 9})
+        data = c.expect("save", timeout=10.0)["data"]
+    finally:
+        c.close()
+    assert len(data["command_log"]) == 49           # 1 shove + 48 presses
+    loaded = WorldHost.load(json.loads(json.dumps(data)))
+    assert loaded.state_hash() == data["state_hash"]

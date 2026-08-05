@@ -1,0 +1,204 @@
+{
+  "_generated_by": "python -m sigma_ground.engine.intents",
+  "format": "sg-intent-verbs",
+  "verbs": {
+    "cam_orbit": {
+      "channel": "engine",
+      "continuous": true,
+      "doc": "orbit the client camera by daz/delv radians per emission",
+      "op": "cam_orbit",
+      "params": [
+        {
+          "choices": null,
+          "default": 0.0,
+          "hi": 0.5,
+          "lo": -0.5,
+          "lo_open": false,
+          "name": "daz",
+          "nonzero": false
+        },
+        {
+          "choices": null,
+          "default": 0.0,
+          "hi": 0.5,
+          "lo": -0.5,
+          "lo_open": false,
+          "name": "delv",
+          "nonzero": false
+        }
+      ],
+      "server_side": false
+    },
+    "cam_pan": {
+      "channel": "engine",
+      "continuous": true,
+      "doc": "pan the client camera target in the view plane (registry member only in E3: no default binding and not wired in the viewer \u2014 the view-plane math duplicates pickMaterialAt's frame math, deferred)",
+      "op": "cam_pan",
+      "params": [
+        {
+          "choices": null,
+          "default": 0.0,
+          "hi": 1.0,
+          "lo": -1.0,
+          "lo_open": false,
+          "name": "dx",
+          "nonzero": false
+        },
+        {
+          "choices": null,
+          "default": 0.0,
+          "hi": 1.0,
+          "lo": -1.0,
+          "lo_open": false,
+          "name": "dy",
+          "nonzero": false
+        }
+      ],
+      "server_side": false
+    },
+    "cam_zoom": {
+      "channel": "engine",
+      "continuous": true,
+      "doc": "multiply the client camera radius per emission",
+      "op": "cam_zoom",
+      "params": [
+        {
+          "choices": null,
+          "default": 1.0,
+          "hi": 2.0,
+          "lo": 0.5,
+          "lo_open": false,
+          "name": "factor",
+          "nonzero": false
+        }
+      ],
+      "server_side": false
+    },
+    "grab": {
+      "channel": "world",
+      "continuous": false,
+      "doc": "hold on: pin the body against the world (the hold plug)",
+      "needs_mass": false,
+      "needs_target": true,
+      "params": []
+    },
+    "pace": {
+      "channel": "engine",
+      "continuous": false,
+      "doc": "set the host's wall-time pace factor",
+      "op": "pace",
+      "params": [
+        {
+          "choices": null,
+          "default": 1.0,
+          "hi": 10.0,
+          "lo": 0.01,
+          "lo_open": false,
+          "name": "factor",
+          "nonzero": false
+        }
+      ],
+      "server_side": true
+    },
+    "pause": {
+      "channel": "engine",
+      "continuous": false,
+      "doc": "freeze wall-time consumption (sim.t untouched)",
+      "op": "pause",
+      "params": [],
+      "server_side": true
+    },
+    "press": {
+      "channel": "world",
+      "continuous": true,
+      "doc": "sustained-force-class: force_n newtons for one input tick \u2014 re-issued at the cap while held (the analog-stick doctrine)",
+      "needs_mass": false,
+      "needs_target": true,
+      "params": [
+        {
+          "choices": null,
+          "default": 5.0,
+          "hi": 50.0,
+          "lo": -50.0,
+          "lo_open": false,
+          "name": "force_n",
+          "nonzero": true
+        }
+      ]
+    },
+    "release": {
+      "channel": "world",
+      "continuous": false,
+      "doc": "hold off: release a grabbed body",
+      "needs_mass": false,
+      "needs_target": true,
+      "params": []
+    },
+    "resume": {
+      "channel": "engine",
+      "continuous": false,
+      "doc": "resume the paced loop",
+      "op": "resume",
+      "params": [],
+      "server_side": true
+    },
+    "shove": {
+      "channel": "world",
+      "continuous": false,
+      "doc": "impulse-class: an instantaneous push at speed_m_s (m/s of dv)",
+      "needs_mass": true,
+      "needs_target": true,
+      "params": [
+        {
+          "choices": null,
+          "default": 2.2,
+          "hi": 20.0,
+          "lo": 0.0,
+          "lo_open": true,
+          "name": "speed_m_s",
+          "nonzero": false
+        },
+        {
+          "choices": [
+            "+x",
+            "-x"
+          ],
+          "default": "+x",
+          "hi": null,
+          "lo": null,
+          "lo_open": false,
+          "name": "direction",
+          "nonzero": false
+        }
+      ]
+    },
+    "tilt": {
+      "channel": "world",
+      "continuous": false,
+      "doc": "scene-scoped: tilt the whole tray by angle_deg over duration_s (the sign is the direction \u2014 one verb, not two)",
+      "needs_mass": false,
+      "needs_target": false,
+      "params": [
+        {
+          "choices": null,
+          "default": 6.0,
+          "hi": 45.0,
+          "lo": -45.0,
+          "lo_open": false,
+          "name": "angle_deg",
+          "nonzero": true
+        },
+        {
+          "choices": null,
+          "default": 2.0,
+          "hi": 10.0,
+          "lo": 0.0,
+          "lo_open": true,
+          "name": "duration_s",
+          "nonzero": false
+        }
+      ]
+    }
+  },
+  "version": 1
+}
