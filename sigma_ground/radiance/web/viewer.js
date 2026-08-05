@@ -27,6 +27,73 @@ if (PROBE) {
     body: JSON.stringify({slug: "__boot_" + (new URLSearchParams(location.search).get("scene") || "x")})}).catch(() => {});
 }
 
+// ── capture mode (?probe=1&capture=<id>): R0 pixel-regression hook ──────
+// Renders one PINNED, deterministic exposure and POSTs the raw framebuffer
+// to /capture (tools/render_regression.py drives this; serve.py is the sink).
+// EVERY pin below is gated behind CAP being non-null, so plain ?probe=1 (the
+// gauntlet) and normal viewing stay byte-identical — no render-behavior
+// change outside capture mode. The nondeterminism sources and their pins:
+// (a) uFrame seed → accN, the accumulation index; (b) ptTime wall
+// clock → virtual accN/60 shutter clock; (c) backing-store size → exact
+// px=WxH early-return in resize(); (d) camera/simTime → explicit floats
+// applied AFTER load() resolves (so applyObj's camera reset can't undo
+// them), with the legacy scene.camera.follow write guarded in loop();
+// (e) device input → input.js polling frozen in capture mode (measured:
+// a resting DualSense's stick drift walked az by +1.8 rad mid-capture);
+// (f) chat.js's ?scene= deep-link auto-load is suppressed on capture tabs
+// AND applyObj re-applies the pins when armed — a second load's
+// preserve=false camera/playhead reset must never race the pins. Finished
+// capture tabs also release their GL context (capReleaseGL) so a runner's
+// tab pile can't starve the next tab's context/GPU memory.
+const _capQ = new URLSearchParams(location.search);
+const CAP = (PROBE && _capQ.get("capture")) ? {
+  id: _capQ.get("capture"),
+  size: (_capQ.get("px") || "").match(/^(\d+)x(\d+)$/),      // exact backing-store pixels
+  frames: parseInt(_capQ.get("frames") || "64", 10),         // accumulation length (water: <=24, the shutter plateau)
+  cam: (_capQ.get("cam") || "").split(",").map(parseFloat),  // az,el,radius,tx,ty,tz — EXPLICIT floats, never locateBody
+  t: _capQ.get("t"),                                         // absolute sim seconds (trajectory scenes)
+} : null;
+let capSent = false, capArmed = false;
+function applyCapturePins(){
+  // Runs after the dispatcher's load() resolves — load is async, and
+  // applyObj resets the camera from scene.camera on a fresh load, so the
+  // pins must land after that reset to win.
+  if(CAP.cam.length === 6 && CAP.cam.every(isFinite)){
+    cam.az = CAP.cam[0]; cam.el = CAP.cam[1]; cam.radius = CAP.cam[2];
+    cam.target = CAP.cam.slice(3, 6);
+  }
+  if(CAP.t != null){ simTime = parseFloat(CAP.t); playing = false; bodyPoses = posesAt(simTime); }
+  sceneId++;                 // restart accumulation under the pinned exposure key
+  capArmed = true;
+}
+function captureAndPost(w, h){
+  // MUST run in the same rAF tick as draw(): preserveDrawingBuffer stays
+  // false, so the default framebuffer is only readable before compositing.
+  const px = new Uint8Array(w * h * 4);
+  gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px);  // display-pass output: post-gamma 8-bit — exactly what a human sees
+  let b64 = "";
+  for(let i = 0; i < px.length; i += 8190){                  // 8190 = 3*2730 bytes → every btoa chunk is padding-free except the last
+    b64 += btoa(String.fromCharCode.apply(null, px.subarray(i, Math.min(i + 8190, px.length))));
+  }
+  const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+  fetch("/capture", {method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      id: CAP.id, slug: _scene, w, h, frames: CAP.frames,
+      renderer: dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : String(gl.getParameter(gl.RENDERER)),
+      ua: navigator.userAgent,
+      cam: {az: cam.az, el: cam.el, radius: cam.radius, target: cam.target.slice()}, t: simTime,
+      selfcheck_pass: window.__probeSelfcheck, console_errors: probeErrors.slice(0, 10),
+      rgba_b64: b64})}).catch(() => {});
+}
+function capReleaseGL(){
+  // A finished capture tab must not HOLD a WebGL context: the browser caps
+  // live contexts per origin (~16 in Chromium) and a runner's pile of done
+  // tabs would evict/starve the NEXT capture tab's context. The payload is
+  // already a JS string by the time this runs, so losing the context is
+  // side-effect-free for the POST. Capture-mode only.
+  try{ const lc = gl.getExtension("WEBGL_lose_context"); if(lc) lc.loseContext(); }catch(_e){}
+}
+
 const gl = canvas.getContext("webgl2", { antialias: false, preserveDrawingBuffer: false });
 if (!gl) { setErr("WebGL2 not available in this browser"); return; }
 gl.bindVertexArray(gl.createVertexArray());      // some drivers require a bound VAO
@@ -1434,7 +1501,12 @@ function posesAt(t){     // → [{pos,quat}] for every body, interpolated
 }
 
 // ── render ────────────────────────────────────────────────────────────
-function resize(){ const dpr=Math.min(2,window.devicePixelRatio||1);
+function resize(){
+  // R0 capture: EXACT backing-store pixels — immune to window size, DPR and
+  // liveScale, so the accumulation key's WxH term is a committed constant.
+  if(CAP && CAP.size){ const W=+CAP.size[1], H=+CAP.size[2];
+    if(canvas.width!==W||canvas.height!==H){ canvas.width=W; canvas.height=H; } return; }
+  const dpr=Math.min(2,window.devicePixelRatio||1);
   // An ANIMATED scene can't converge a still frame — it lives on a fresh shutter
   // exposure EVERY frame, so at full resolution the path tracer stalls. Render it at
   // a reduced backing-store resolution (fewer pixels, full physics per pixel — an
@@ -1553,10 +1625,15 @@ function draw(){
     } else {                                                // still + static → converge to pristine (freeze the ripples)
       reset=(accN===0); prevScale=1.0; spp=3; advanceTime=reset; accN++; frames=accN;
     }
-    if(advanceTime) ptTime=(performance.now()-T0)*0.001;
+    // R0 capture: virtual shutter clock + accumulation-index seed — every RNG
+    // draw becomes a pure function of committed inputs (accN), not of page-load
+    // timing. Water keeps REAL motion blur: the clock advances per accumulated
+    // frame (accN/60 ≈ one 60 Hz frame per exposure step) instead of freezing
+    // a wave phase. Outside capture mode both lines are byte-equivalent to E4.
+    if(advanceTime) ptTime = CAP ? (accN/60) : (performance.now()-T0)*0.001;
     const src=pingA?accumA:accumB, dst=pingA?accumB:accumA;
     gl.bindFramebuffer(gl.FRAMEBUFFER,dst.fbo); gl.viewport(0,0,w,h);
-    gl.useProgram(progPT); bindScene(Upt, ptTime, frameCount);
+    gl.useProgram(progPT); bindScene(Upt, ptTime, CAP ? accN : frameCount);   // THE seed pin
     gl.uniform1i(Upt.uSPP, spp); gl.uniform1f(Upt.uPrevScale, prevScale);
     if(ptEmitters.length && Upt.uEmitterPos){      // emitter world centres + live temps (body motion carries the light; heating brightens it)
       const ep=new Float32Array(ptEmitters.length*3), et=new Float32Array(ptEmitters.length);
@@ -1676,6 +1753,11 @@ function applyObj(obj, title, preserve){
   else if(simTime>tEnd){ simTime=tEnd>0?tEnd:0; }
   $("playgrp").style.opacity=$("rategrp").style.opacity=hasTraj?"1":"0.35";
   bodyPoses=posesAt(simTime); drewOnce=false;
+  // R0: once armed, the pins survive ANY later load — chat.js's deep-link
+  // auto-load re-loads the same slug on capture tabs (suppressed there now,
+  // but belt-and-suspenders: any future re-loader would silently reset the
+  // camera/playhead the same way, and a capture must never race a loader).
+  if(CAP && capArmed) applyCapturePins();
   return true;
 }
 // ── variants: a scene's declared parameter sweep (frozen recorded runs) ──
@@ -2252,7 +2334,12 @@ $("b-lib").addEventListener("click",()=>{
 let last=performance.now(), fpsT=last, fpsN=0;
 function loop(now){
   const dt=(now-last)/1000; last=now;
-  if(window._input&&window._input.poll) window._input.poll(dt);   // E3 device layer (input.js)
+  // R0 capture: device input is FROZEN — a resting gamepad's stick drift
+  // (measured: a connected DualSense walked az by +1.8 rad between two
+  // otherwise-pinned captures) emits cam_orbit intents that break the pinned
+  // camera. The fifth nondeterminism source, found empirically; outside
+  // capture mode polling is untouched.
+  if(window._input&&window._input.poll&&!CAP) window._input.poll(dt);   // E3 device layer (input.js)
   if(!liveMode&&playing&&tEnd>0){ simTime+=dt*rate; if(simTime>=tEnd){ simTime=tEnd; playing=false; $("play").textContent="▶ play"; } }
   if(liveMode){
     // poses arrive from the /live websocket — the REAL solver stepping in
@@ -2286,7 +2373,8 @@ function loop(now){
     const p0=(bodyPoses[0]&&bodyPoses[0].pos)||[0,0,0];
     // follow camera: long falls opt in via scene.camera.follow (the body would
     // leave the frame for most of the drop otherwise)
-    if(scene&&scene.camera&&scene.camera.follow&&bodyPoses[0]) cam.target=p0.slice();
+    if(scene&&scene.camera&&scene.camera.follow&&bodyPoses[0]
+       && !(CAP&&CAP.cam.length===6)) cam.target=p0.slice();   // R0: explicit capture pins beat the legacy follow write
     $("tval").textContent=`t=${simTime.toFixed(2)}s  y=${p0[1].toFixed(2)}m`;
     // live energy/momentum readout — frameEnergyJ/frameMomentum were just set
     // by the posesAt() call above (the same interpolated-at-simTime values,
@@ -2306,7 +2394,7 @@ function loop(now){
   // follow/fly the controller's later write wins).
   if(camctl) camctl.tick(dt);
   frameCount++;
-  if(prog){ try{ draw(); }catch(e){ setErr("draw: "+e); } }
+  if(prog && !(CAP && capSent)){ try{ draw(); }catch(e){ setErr("draw: "+e); } }   // R0: a finished capture tab idles (its GL context is released)
   if(PROBE && !probeSent && scene && prog){
     probeSent=true;
     let pass=null, maxd=0, fpass=null, fmaxd=0;
@@ -2316,12 +2404,28 @@ function loop(now){
     }catch(e){ probeErrors.push("selfcheck: "+e); pass=false; }
     try{ [fpass,fmaxd]=fieldSelfCheck(); }        // the per-cell field twin
     catch(e){ probeErrors.push("fieldcheck: "+e); fpass=false; }
+    window.__probeSelfcheck = pass;               // R0: the capture payload re-reports this (probe-mode-only stash)
     fetch("/probe",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({slug:(_scene||"?"), selfcheck_pass:pass,
         max_delta:maxd, shader_ok:!!prog,
         field_selfcheck_pass:fpass, field_max_delta_k:fmaxd,
         console_errors:probeErrors.slice(0,10), kind:scene.kind||"static",
         animated:tEnd>0})}).catch(()=>{});
+  }
+  // R0 capture trigger — after draw(), SAME rAF tick (readback validity with
+  // preserveDrawingBuffer:false). capArmed means the pins have been applied,
+  // so a slow async load can never capture an unpinned exposure.
+  if(CAP && !capSent && capArmed && scene){
+    if(!ptMode || !extF || !progPT){
+      capSent = true;   // refuse honestly — a shim capture would baseline the wrong renderer
+      fetch("/capture",{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({id:CAP.id, slug:_scene,
+          error:"no float render targets — PT path unavailable"})}).catch(()=>{});
+      capReleaseGL();
+    } else if(accN >= CAP.frames){
+      capSent = true; captureAndPost(canvas.width, canvas.height);
+      capReleaseGL();   // free this tab's context slot — see capReleaseGL()
+    }
   }
   fpsN++; if(now-fpsT>500){ $("fps").textContent=`${Math.round(fpsN*1000/(now-fpsT))} fps`; fpsT=now; fpsN=0; }
   requestAnimationFrame(loop);
@@ -2332,6 +2436,7 @@ function loop(now){
 const _scene=new URLSearchParams(location.search).get("scene");
 if(_scene && /^[a-z0-9_]+$/i.test(_scene)){
   load(`data/${_scene}.json`,_scene.replace(/_/g," "))
+    .then(()=>{ if(CAP) applyCapturePins(); })    // R0: pins land AFTER the async load's camera reset
     .catch((e)=>{
       if(PROBE && !probeSent){ probeSent=true;      // report the LOAD FAILURE itself —
         fetch("/probe",{method:"POST",headers:{"Content-Type":"application/json"},  // a silent no-report is undebuggable

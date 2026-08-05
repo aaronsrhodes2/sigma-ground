@@ -1,0 +1,261 @@
+{
+ "format": 1,
+ "px": [
+  640,
+  360
+ ],
+ "default_frames": 64,
+ "env": {
+  "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Ti SUPER (0x00002705) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+  "os": "win32",
+  "captured_at": "2026-08-05T02:39:55",
+  "note": "baselines are PER-(GPU, driver, browser/ANGLE) artifacts; a driver or browser update legitimately breaks exact hashes"
+ },
+ "tolerances": {
+  "changed_frac": 0.002,
+  "mean_abs": 0.1,
+  "p99_abs": 3,
+  "justification": "MEASURED on the capture machine (per blueprint's mandatory empirical check; pairwise across repeated captures 2026-08-05): opacity_cup 4 reps, solar_earth 3 reps, flagship_glass 2 reps differ only at LSB level (worst pair: changed>4 = 0.0304%, mean|d| = 0.0101, p99 = 0, max = 18); clock_mid 3 reps and ring_sph_mid/solar_wide 3 reps bit-identical; water_shutter demoted after a Tier-1 catch (worst pair changed>4 = 0.0004%, mean 0.0005, p99 0, max 6). Gates sit >= 6x (changed_frac), ~10x (mean_abs), and inf (p99, measured 0) above the worst observed noise \u2014 still comfortably over the >=3x rule. TIGHTENED from the blueprint's a-priori defaults (0.01/2.0/12) by the R0 review 2026-08-05: an independent perturbation drill (skyEmit zenith blue 0.75->0.78) produced a REAL renderer change of mean|d| 0.12-1.20 with every |d| <= 4, which the a-priori gates missed on all eight Tier-2 entries \u2014 only the three Tier-1 exact entries caught it. Same-env noise is ~100x below these gates, so Tier-2 must gate near the noise floor to have discrimination power. Foreign-env runs (advisory by definition) may WARN more often under these gates; the banner already directs a recapture on that machine for the authoritative exact gate."
+ },
+ "recaptures": [
+  {
+   "date": "2026-08-05T00:19:06",
+   "reason": "gamepad-drift pin added (input.poll frozen in capture mode)",
+   "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Ti SUPER (0x00002705) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  {
+   "date": "2026-08-05T00:35:33",
+   "reason": "retry post context-release fix",
+   "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Ti SUPER (0x00002705) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  {
+   "date": "2026-08-05T00:37:31",
+   "reason": "initial R0 baseline set",
+   "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Ti SUPER (0x00002705) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  {
+   "date": "2026-08-05T00:46:25",
+   "reason": "pin-wipe fix (chat.js deep-link double load)",
+   "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Ti SUPER (0x00002705) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  {
+   "date": "2026-08-05T00:47:53",
+   "reason": "recapture ALL under final pin regime (pin-wipe fix; correct mid-trajectory t)",
+   "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Ti SUPER (0x00002705) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  {
+   "date": "2026-08-05T01:10:07",
+   "reason": "re-baseline on Chrome 151 (browser auto-updated 150->151 mid-session; foreign-env advisory caught it)",
+   "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Ti SUPER (0x00002705) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  {
+   "date": "2026-08-05T02:38:43",
+   "reason": "R0 review: validate 3-render determinism proof (no pixel change expected)",
+   "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Ti SUPER (0x00002705) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  }
+ ],
+ "baselines": {
+  "opacity_cup": {
+   "slug": "opacity_demo_coffee_cup",
+   "cam": [
+    0.8,
+    0.45,
+    0.19205272713502405,
+    0.0,
+    0.0,
+    0.0475
+   ],
+   "t": null,
+   "frames": 64,
+   "sha256_rgb": "a732f68dbfecfc6690564841e726c02fe09285d8f4fb9842269305f0546d08ce",
+   "png": "opacity_cup.png",
+   "deterministic": false,
+   "scene_sha256": "e7d737e282dae003729e3cceca679bcc3d2739cf4b6324f6745bd18809a3a55c",
+   "reason": "stochastic alpha gate \u2014 a distinct rnd() consumer"
+  },
+  "solar_wide": {
+   "slug": "solar_system_theater",
+   "cam": [
+    0.6,
+    0.5,
+    329115315540.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "t": null,
+   "frames": 64,
+   "sha256_rgb": "4c899a48c41fe808da049cf69056eefdd186595601daa294affeb8e3b55896ed",
+   "png": "solar_wide.png",
+   "deterministic": true,
+   "scene_sha256": "26a37511c3d3d49efbea1fac3eb4e40b43f97a4c1e30132926e47580df415325",
+   "reason": "far-scale anchor: DE440 scale, R1-lite rebase, 30 bodies (9 Voxel + 21 Sphere), Sun NEE \u2014 gates R3/R4/R5 far-field"
+  },
+  "solar_earth": {
+   "slug": "solar_system_theater",
+   "cam": [
+    -2.947777057667831,
+    -0.40217876364702315,
+    20387200.0,
+    -26531002415.56548,
+    132064399546.2592,
+    57268703374.95859
+   ],
+   "t": null,
+   "frames": 64,
+   "sha256_rgb": "e9ecd9abb965dcd06a4f1e6555d6758eb4715852feb16fb8e9c92fa141027459",
+   "png": "solar_earth.png",
+   "deterministic": false,
+   "scene_sha256": "26a37511c3d3d49efbea1fac3eb4e40b43f97a4c1e30132926e47580df415325",
+   "reason": "near-field precision inside far scale (the regime R1-lite exists for); the most sensitive R4 brick-grid tripwire"
+  },
+  "table_stack": {
+   "slug": "scene_doughnut_on_plate_on_1700s_table",
+   "cam": [
+    0.7,
+    0.16,
+    1.3678032407861598,
+    0.0,
+    0.0,
+    0.5606233650179518
+   ],
+   "t": null,
+   "frames": 64,
+   "sha256_rgb": "11851c358375b6580a46fc0ba2b0976ecd549f49cd3b43c504389293696ad0d7",
+   "png": "table_stack.png",
+   "deterministic": false,
+   "scene_sha256": "1f937ea8fd74970cd47a5aaa58ce81e4717d11591a615c5021564f8d4209065e",
+   "reason": "48 csg_leaves (repo maximum): deep CSG chains + the bvhCull thin-leaf history"
+  },
+  "clock_mid": {
+   "slug": "clock",
+   "cam": [
+    0.15,
+    0.12,
+    0.5592,
+    0.149,
+    -0.06854271422008813,
+    0.0
+   ],
+   "t": 30.0005,
+   "frames": 64,
+   "sha256_rgb": "e64d83f2d210acec20712a3dd8516964eb340d448d7f36b28744d92f1ce1d286",
+   "png": "clock_mid.png",
+   "deterministic": false,
+   "determinism_note": "demoted 2026-08-05 (R0 review): capture double-render and a 3-rep noise campaign matched, but a later Tier-1 check + 4-rep noise campaign caught a 1-pixel |d|=1 flicker (4 reps -> 2 hashes, worst pair changed>4 = 0%, mean 7e-6, p99 0, max 1) - borderline per-page-load LSB noise, same class as water_shutter's demotion",
+   "scene_sha256": "12eda14a457c29a5ce308a7e8cc56c3d06e2dce276f7b8947245494ce9a44aa2",
+   "reason": "involute-gear GLSL (x9, heaviest analytic SDF), Clipped wrappers, trajectory interpolation + quaternion nlerp"
+  },
+  "iron_cube_irt_mid": {
+   "slug": "hot_iron_cube_on_a_copper_slab_irt",
+   "cam": [
+    0.7,
+    0.16,
+    0.24,
+    0.0,
+    0.0,
+    0.05500000000000001
+   ],
+   "t": 60.0,
+   "frames": 64,
+   "sha256_rgb": "8b93dc0440939a50f63e80e8ba009b079bd3981944d3ca00c975f9d6351de8c1",
+   "png": "iron_cube_irt_mid.png",
+   "deterministic": false,
+   "scene_sha256": "e14e45d7276767d69dfc1b0c9b82b5efed10ae181ea471fa548386d2eb713dcd",
+   "reason": "the ONLY per-cell field scene (uFldA/B/U 3-D texture path) + >700 K incandescence + NEE; animated mid-scrub representative"
+  },
+  "water_shutter": {
+   "slug": "water",
+   "cam": [
+    0.6,
+    0.1,
+    2.4,
+    0.0,
+    0.02,
+    0.0
+   ],
+   "t": null,
+   "frames": 24,
+   "sha256_rgb": "d0993a44d643040f7718caac3a6eeb7574c459701ac2c4036306c0b5b87260a3",
+   "png": "water_shutter.png",
+   "deterministic": false,
+   "scene_sha256": "4a469c0e8ce677467884f154c20aff4b3f17b0b6467799a17ba85ecbfb7ec039",
+   "reason": "waveH/waveGrad + deterministic motion blur under the virtual clock + the bounded-shutter integration branch itself",
+   "determinism_note": "demoted 2026-08-05: the 2-render capture proof matched, but a 3rd render differed (max|d|=6, changed>4 = 0.0004%) - measured borderline per-page-load LSB noise, same class as the other non-deterministic entries"
+  },
+  "flagship_glass": {
+   "slug": "flagship_glass",
+   "cam": [
+    0.6,
+    0.28,
+    0.2856,
+    0.0,
+    0.0,
+    0.06
+   ],
+   "t": null,
+   "frames": 64,
+   "sha256_rgb": "d7412c22cb0dccc6487f8da098abd67d1f68c9a78b7bdbc3d6d5670fa9a895bf",
+   "png": "flagship_glass.png",
+   "deterministic": false,
+   "scene_sha256": "2c42f6c3f7574d02b802d619435bda1a9cb5c88c48dd224a9b0b003831b590e5",
+   "reason": "dielectric Fresnel/Snell/TIR incl. the rnd() roulette draw (10 leaves, pt_env key)"
+  },
+  "vox_chair": {
+   "slug": "vox_chair",
+   "cam": [
+    0.35,
+    0.22,
+    4.0,
+    0.0,
+    1.25,
+    0.0
+   ],
+   "t": 0.0,
+   "frames": 64,
+   "sha256_rgb": "13774db365299a9ec5b2eb8e8016d46c0f871f767e0ae0a9e88af0ad4250ff06",
+   "png": "vox_chair.png",
+   "deterministic": false,
+   "scene_sha256": "5acdf716e64018c5bb6072cdeec0000d372d17e517619cdaa8d8348ad97b030a",
+   "reason": "ShapeNet real-mesh Voxel leaf (int8 SDF 3-D texture) + a 32-frame trajectory, at t=0"
+  },
+  "ring_sph_mid": {
+   "slug": "phase_e_ring_sph",
+   "cam": [
+    0.5,
+    0.55,
+    32703.475171255293,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "t": 9286.57923384884,
+   "frames": 64,
+   "sha256_rgb": "382e0b430c13987f1f94f5beea0a6c411d913259f7c8e03700f97447178fbc51",
+   "png": "ring_sph_mid.png",
+   "deterministic": false,
+   "determinism_note": "demoted 2026-08-05 (R0 review): capture double-render and a 3-rep noise campaign matched, but a later Tier-1 check + 4-rep noise campaign caught a 1-pixel |d|=1 flicker (4 reps -> 2 hashes, worst pair changed>4 = 0%, mean 7e-6, p99 0, max 1) - borderline per-page-load LSB noise, same class as water_shutter/clock_mid",
+   "scene_sha256": "05e377db84f98a19c242855b3b2f512f21b9faddda7b12394910dbfe9f190b74",
+   "reason": "32-body pose-array stress (MAXB), drop-family representative"
+  },
+  "plate_push_mid": {
+   "slug": "plate_pushed_off_the_1700s_table_v30",
+   "cam": [
+    0.5,
+    0.25,
+    2.2,
+    0.44999999999999996,
+    0.0,
+    0.5712859650179519
+   ],
+   "t": 0.50155,
+   "frames": 64,
+   "sha256_rgb": "b2b5663381553599e48c68d3abdfc20c2d0b02b2a0c7681a762386e8dd765466",
+   "png": "plate_push_mid.png",
+   "deterministic": false,
+   "scene_sha256": "0dba37f6dc72af48c745d9d2ba6b984eb6b09d142548cdbc1a7053bd248014e0",
+   "reason": "39 leaves incl. Torus/Clipped/Ellipsoid x24 (shapes no other pick covers), 122 frames, follow-up-prompt flagship family"
+  }
+ }
+}

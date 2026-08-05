@@ -11,6 +11,7 @@ import hashlib
 import http.server
 import json
 import os
+import re
 import select
 import socketserver
 import struct
@@ -26,6 +27,7 @@ _ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
+from sigma_ground.radiance import png_io         # stdlib PNG codec (R0 capture sink)
 from sigma_ground.radiance.web import library    # durable conversation store (Phase 0)
 
 
@@ -100,6 +102,70 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
                     json.dump(cur, f, indent=1)
             self._send_json(200, {"ok": True, "count": len(cur)})
             return
+        # ── POST /capture : the R0 pixel-regression sink (viewer.js capture
+        # mode → tools/render_regression.py). Mirrors /probe's defensive
+        # parse: exact Content-Length, 400 on malformed/oversized, id
+        # sanitized to the slug charset, and the pixel payload NEVER logged
+        # or forwarded into BROWSER_REPORT.json — it lands only as
+        # misc/render_captures/<id>.png + <id>.json (metadata + sha256). ──
+        if self.path.split("?")[0] == "/capture":
+            try:
+                n = int(self.headers.get("Content-Length", 0))
+                # 64 MB cap: 640x360 RGBA base64 is ~1.2 MB; the cap leaves
+                # headroom for a future high-res baseline without letting a
+                # runaway client exhaust memory.
+                if n <= 0 or n > 64 * 1024 * 1024:
+                    self._send_json(400, {"error": f"bad capture size {n}"})
+                    return
+                rep = json.loads(self.rfile.read(n) or b"{}")
+            except Exception:
+                self._send_json(400, {"error": "malformed capture body"})
+                return
+            cid = str(rep.get("id") or "")
+            if not re.fullmatch(r"[a-z0-9_]+", cid):    # slug-sanitization precedent
+                self._send_json(400, {"error": "bad capture id"})
+                return
+            out_dir = os.path.join(_ROOT, "misc", "render_captures")
+            os.makedirs(out_dir, exist_ok=True)
+            if rep.get("error"):
+                # the viewer refused honestly (e.g. no float render targets) —
+                # record the refusal so the runner reports infrastructure, not
+                # a silent timeout
+                meta = {k: rep.get(k) for k in
+                        ("id", "slug", "error", "renderer", "ua")}
+                with open(os.path.join(out_dir, cid + ".json"), "w",
+                          encoding="utf-8") as f:
+                    json.dump(meta, f, indent=1)
+                self._send_json(200, {"ok": True, "error_recorded": True})
+                return
+            try:
+                w, h = int(rep["w"]), int(rep["h"])
+                raw = base64.b64decode(rep.pop("rgba_b64"))
+                if w <= 0 or h <= 0 or len(raw) != w * h * 4:
+                    raise ValueError(f"rgba is {len(raw)} bytes, "
+                                     f"expected {w}x{h}x4")
+            except Exception as e:
+                self._send_json(400, {"error": f"bad capture payload: {e}"})
+                return
+            # CANONICALIZE server-side: GL readPixels rows are bottom-up →
+            # flip top-down and strip alpha. The canonical top-down RGB
+            # stream is THE artifact (its sha256 is what the manifest pins);
+            # the PNG is a filter-0 wrapper around exactly these bytes, so
+            # every committed baseline is self-verifying.
+            rows = []
+            for row in range(h - 1, -1, -1):
+                line = bytearray(raw[row * w * 4:(row + 1) * w * 4])
+                del line[3::4]                       # strip alpha
+                rows.append(bytes(line))
+            rgb = b"".join(rows)
+            png_io.write_rgb_png(os.path.join(out_dir, cid + ".png"), w, h, rgb)
+            meta = dict(rep)
+            meta["sha256_rgb"] = hashlib.sha256(rgb).hexdigest()
+            with open(os.path.join(out_dir, cid + ".json"), "w",
+                      encoding="utf-8") as f:
+                json.dump(meta, f, indent=1)
+            self._send_json(200, {"ok": True, "bytes": len(rgb)})
+            return
         # ── POST /conversation : create (the rail's "+ New") or rename ──
         if self.path.split("?")[0] == "/conversation":
             try:
@@ -111,8 +177,8 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
             cid = body.get("id") or uuid.uuid4().hex
             self._send_json(200, library.upsert_conversation(cid, title=body.get("title")))
             return
-        self.send_error(404, "POST here is /probe or /conversation; /chat "
-                             "and /apply live on the cockpit "
+        self.send_error(404, "POST here is /probe, /capture or /conversation; "
+                             "/chat and /apply live on the cockpit "
                              "(python -m sigma_ground.mcp.cockpit)")
 
 

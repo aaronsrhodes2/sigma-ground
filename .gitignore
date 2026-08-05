@@ -53,3 +53,9 @@ sigma_ground/mcp/benchmark/holodeck_out/
 
 # Local operational state (regenerable: voxel bake cache, Dataset Minder status)
 local-cache/
+
+# R0 render-regression scratch sinks (regenerable; tools/render_regression.py)
+misc/render_captures/
+misc/render_regression/
+# ...but the COMMITTED pixel baselines override the global *.png ignore above
+!sigma_ground/radiance/web/baselines/*.png

@@ -194,7 +194,15 @@
 
   // ── init: deep-link (?scene=) opens the viewer on that scene; else the welcome ──
   const deep = new URLSearchParams(location.search).get("scene");
-  if (deep) {
+  // R0 capture tabs (?probe=1&capture=): the viewer's own dispatcher already
+  // loaded this slug and pinned the camera/playhead AFTER its load resolved.
+  // This deep-link load would be a SECOND load of the same scene whose
+  // preserve=false camera/playhead reset races in later and silently wipes
+  // those pins (measured: every capture echoed scene-default az/el and t=0).
+  // Outside capture mode nothing changes.
+  const _q0 = new URLSearchParams(location.search);
+  const capTab = _q0.get("probe") === "1" && !!_q0.get("capture");
+  if (deep && !capTab) {
     body(turn("mentat"), "Loading “" + deep + "” in the viewer…");
     ensureRadiance().then(() => window.Radiance.load("data/" + deep + ".json", deep)
       .then(showViewer).catch((e) => body(turn("error"), "couldn't load that scene: " + e)));
