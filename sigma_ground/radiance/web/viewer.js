@@ -96,9 +96,19 @@ function capReleaseGL(){
 
 const gl = canvas.getContext("webgl2", { antialias: false, preserveDrawingBuffer: false });
 if (!gl) { setErr("WebGL2 not available in this browser"); return; }
-gl.bindVertexArray(gl.createVertexArray());      // some drivers require a bound VAO
+const VAO0 = gl.createVertexArray();             // some drivers require a bound VAO
+gl.bindVertexArray(VAO0);                        // (R3 keeps a ref: the splat pass binds its own VAO, then restores this one)
 gl.clearColor(0, 0, 0, 1);
 const extF = gl.getExtension("EXT_color_buffer_float");   // float render targets → progressive PT accumulation
+// R3 capability log (informational — the splat target is RGBA16F, whose
+// blending is core WITH extF; EXT_float_blend would only matter for 32F
+// blending, which R3 deliberately avoids touching the accumulation buffer).
+const extFB = gl.getExtension("EXT_float_blend");
+const _ptRange = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE);
+console.log(`R3 caps: EXT_float_blend=${!!extFB} ALIASED_POINT_SIZE_RANGE=[${_ptRange[0]},${_ptRange[1]}]`);
+if (_ptRange[1] < 3) console.warn(
+  `R3: max point size ${_ptRange[1]} < 3 — splat sprites capped; near the 3 px seam a capped sprite `
+  + `under-delivers up to (3/max)^2 of its flux (the flux clamp binds). Disclosed, not silent.`);
 
 // ── vec3 helpers ──────────────────────────────────────────────────────
 const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
@@ -203,6 +213,23 @@ float sdCapsuleCyl(vec3 p, vec3 a, vec3 b, float r){
   float dd=(max(x,y)<0.0)?-min(x2,y2):(((x>0.0)?x2:0.0)+((y>0.0)?y2:0.0));
   return sign(dd)*sqrt(abs(dd))/baba; }
 `;
+// ── the ONE incandescence chunk (R3) ─────────────────────────────────────
+// Planck × Kirchhoff blackbody glow, extracted from the two shader builders
+// so the PT, the fast shim AND the R3 splat vertex shader consume the SAME
+// text — physics claims derive from one shared derivation, never parallel
+// math that can drift. Consumers must #define EMISSION_SCALE before it.
+const INCANDESCENCE_GLSL = `
+vec3 incandescence(float T, vec3 emis){   // Planck's law × Kirchhoff emissivity — nature's glow, no colour table
+  if(T < 700.0) return vec3(0.0);          // Draper point: below ~700 K emission is entirely IR
+  vec3 lam=vec3(650e-9,550e-9,450e-9);
+  vec3 x=1.4388e-2/(lam*T);                // c2/(lambda T), c2 = hc/k = 1.4388e-2 m*K
+  vec3 L=emis/(pow(lam/650e-9,vec3(5.0))*(exp(x)-vec3(1.0)));   // ε(λ)·B(λ,T), spectral radiance
+  vec3 e=L*EMISSION_SCALE;
+  // NON-DERIVED (audit): the Planck×Kirchhoff spectrum above IS physics; this
+  // Reinhard tone-map + 1.7 gain (and EMISSION_SCALE) is a camera/exposure
+  // choice — the error term between the real glow and the pixel, not the glow.
+  return e/(1.0+max(e.r,max(e.g,e.b)))*1.7;   // tone-map: compress brightness, preserve the Planck hue
+}`;
 // Euclidean modulo (always same sign as n, for n>0) — matches Python's `%`
 // on floats and GLSL's `mod()` builtin, which JS's native `%` does NOT.
 function emod(a,n){ return a-n*Math.floor(a/n); }
@@ -855,17 +882,7 @@ vec3 traceReflect(vec3 ro, vec3 rd){   // one reflection bounce: hit geometry, o
     t+=clamp(d,SHMIN,SHMAX); if(t>SMAXT) break; }
   return envColor(rd);
 }
-vec3 incandescence(float T, vec3 emis){   // Planck's law × Kirchhoff emissivity — nature's glow, no colour table
-  if(T < 700.0) return vec3(0.0);          // Draper point: below ~700 K emission is entirely IR
-  vec3 lam=vec3(650e-9,550e-9,450e-9);
-  vec3 x=1.4388e-2/(lam*T);                // c2/(lambda T), c2 = hc/k = 1.4388e-2 m*K
-  vec3 L=emis/(pow(lam/650e-9,vec3(5.0))*(exp(x)-vec3(1.0)));   // ε(λ)·B(λ,T), spectral radiance
-  vec3 e=L*EMISSION_SCALE;
-  // NON-DERIVED (audit): the Planck×Kirchhoff spectrum above IS physics; this
-  // Reinhard tone-map + 1.7 gain (and EMISSION_SCALE) is a camera/exposure
-  // choice — the error term between the real glow and the pixel, not the glow.
-  return e/(1.0+max(e.r,max(e.g,e.b)))*1.7;   // tone-map: compress brightness, preserve the Planck hue
-}
+${INCANDESCENCE_GLSL}
 void main(){
   vec2 uv=(gl_FragCoord.xy/uRes)*2.0-1.0;
   vec3 dir=normalize(uFwd + uRight*(uv.x*uAspect*uTanHalf) + uUp*(uv.y*uTanHalf));
@@ -893,6 +910,54 @@ void main(){
 }`;
 }
 
+// ── R3 anti-drift keystone: ONE generator emits BOTH NEE blocks ──────────
+// (i) the surface neeBlk (visMode = visRay) — whose output is asserted
+// byte-identical to the pre-R3 shipped template below, so the near-field
+// emitter baselines (iron cube, solar_earth surfaces) can never drift; and
+// (ii) the impostor twin (visMode = analytic spheres) — the SAME
+// cone-sampling estimator, same Le/G/neeExp, same uEmitterPos/uEmitterTemp
+// uniforms, only the hit-context variables and the visibility test differ.
+// visRay is REJECTED for the impostor twin: its 64 × uSHMAX(0.06·R) step
+// budget cannot span AU-scale body→emitter distances and silently returns
+// lit — the analytic ray-vs-sphere test is exact at any distance.
+function emitNEEBlock(e, k, neeExp, o){
+  // o = {guard, hitVar, normalVar, albVar, visExpr}
+  return `
+    if(${o.guard}){ vec3 C=uEmitterPos[${k}]; float R=${glf(e.radius)}; vec3 wc=C-${o.hitVar}; float dc=length(wc);
+      if(dc>R+uEPS){ vec3 wcn=wc/dc; float sinT=R/dc; float cosTm=sqrt(max(0.0,1.0-sinT*sinT));
+        float cT=1.0-rnd(seed)*(1.0-cosTm); float sTs=sqrt(max(0.0,1.0-cT*cT)); float ph=6.2831853*rnd(seed);
+        vec3 tt=normalize(cross(wcn, abs(wcn.y)<0.9?vec3(0.0,1.0,0.0):vec3(1.0,0.0,0.0))); vec3 bb=cross(wcn,tt);
+        vec3 wl=normalize(tt*(sTs*cos(ph))+bb*(sTs*sin(ph))+wcn*cT); float ndl2=max(0.0,dot(${o.normalVar},wl));
+        if(ndl2>0.0){ float vis=${o.visExpr};
+          vec3 Le=incandescence(uEmitterTemp[${k}]+uTemp, vec3(${glf(e.emis[0])},${glf(e.emis[1])},${glf(e.emis[2])}));
+          L += thr*${o.albVar}*Le*ndl2*2.0*(1.0-cosTm)*vis*${neeExp}; } } }`;
+}
+function neeSurfaceOpts(e){
+  return {guard:`mat!=${e.leaf}`, hitVar:"p", normalVar:"n", albVar:"alb",
+          visExpr:"visRay(p+n*uEPS, wl, dc-R-2.0*uEPS)"};
+}
+function neeImpostorOpts(e){
+  return {guard:`bi!=${e.body}`, hitVar:"q", normalVar:"nI", albVar:"aI",
+          visExpr:`impVis(q+nI*uEPS, wl, dc-R-2.0*uEPS, bi, ${e.body})`};
+}
+// build-time assertion: the surface variant must reproduce the pre-R3
+// shipped template CHARACTER-FOR-CHARACTER (the frozen reference below is
+// that template verbatim, values substituted) — throw loudly on any drift.
+(function _assertNEETemplate(){
+  const e={leaf:7, radius:2.5, emis:[0.5,0.25,0.125]};
+  const got=emitNEEBlock(e, 3, "6000.00000000", neeSurfaceOpts(e));
+  const want=`
+    if(mat!=7){ vec3 C=uEmitterPos[3]; float R=${glf(2.5)}; vec3 wc=C-p; float dc=length(wc);
+      if(dc>R+uEPS){ vec3 wcn=wc/dc; float sinT=R/dc; float cosTm=sqrt(max(0.0,1.0-sinT*sinT));
+        float cT=1.0-rnd(seed)*(1.0-cosTm); float sTs=sqrt(max(0.0,1.0-cT*cT)); float ph=6.2831853*rnd(seed);
+        vec3 tt=normalize(cross(wcn, abs(wcn.y)<0.9?vec3(0.0,1.0,0.0):vec3(1.0,0.0,0.0))); vec3 bb=cross(wcn,tt);
+        vec3 wl=normalize(tt*(sTs*cos(ph))+bb*(sTs*sin(ph))+wcn*cT); float ndl2=max(0.0,dot(n,wl));
+        if(ndl2>0.0){ float vis=visRay(p+n*uEPS, wl, dc-R-2.0*uEPS);
+          vec3 Le=incandescence(uEmitterTemp[3]+uTemp, vec3(${glf(0.5)},${glf(0.25)},${glf(0.125)}));
+          L += thr*alb*Le*ndl2*2.0*(1.0-cosTm)*vis*6000.00000000; } } }`;
+  if(got!==want) throw new Error("R3: emitNEEBlock drifted from the shipped surface NEE template");
+})();
+
 // ── path-traced renderer (toggle): real light transport — no headlight/ambient/AO.
 // Rays bounce off the derived BRDFs; the sky is an area light; and every object
 // EMITS its own incandescence, so a hot object lights its cold neighbours. Noisy
@@ -900,6 +965,11 @@ void main(){
 function buildPathShader(scene){
   resetExtraGLSL();
   const ls=scene.csg_leaves, bodies=scene.bodies||[];
+  // R3 compile gate: banding exists ONLY for scenes whose bodies carry a
+  // real radius_m (verified census: only the solar theater today) AND when
+  // splats.js loaded. Every other scene compiles byte-identical pre-R3
+  // shader text and uploads nothing new — those baselines hold ARITHMETICALLY.
+  const banding = !!splatsCtl && bodies.some(b=>b && b.radius_m>0);
   const used=[...new Set(ls.map(l=>l.body).filter(b=>b!=null))].sort((a,b)=>a-b);
   let bodyDecls="";
   used.forEach(k=>{ const piv=(bodies[k]&&bodies[k].pivot)||[0,0,0];
@@ -964,10 +1034,34 @@ function buildPathShader(scene){
       // and >99.9% of rays within 1mm of the exact-eval hit point (the tiny
       // remainder traced to sphere-tracing's own pre-existing grazing-angle
       // sensitivity on thin geometry, not to this gate).
-      decls += `  float bd${i}=length(${q}-vec3(${glf(bc[0])},${glf(bc[1])},${glf(bc[2])}))-${br};\n`;
-      decls += `  float s${i}; if(bd${i}>uGateBuffer){ s${i}=bd${i}; } else { s${i}=${glslShapeCall(ls[i].shape, q)}; }\n`;
+      // R3 band gate: a body-bound UNION leaf whose body has left band 0 is
+      // removed from the SDF entirely — s{i}=1e9 is EXACT under op:add
+      // (min(d,1e9)=d). REFUSED for subtract/intersect leaves (the
+      // verify_bvh_cull_subtract lesson: a substituted -s is an unsafe upper
+      // bound) — none exist in any banding scene today (all 30 theater
+      // leaves are op:add, verified); a future one warns and stays ungated.
+      const gateK = (banding && ls[i].body!=null && bodies[ls[i].body]
+                     && bodies[ls[i].body].radius_m>0
+                     && (i===0 || !ls[i].op || ls[i].op==="add")) ? ls[i].body : null;
+      if(banding && ls[i].body!=null && bodies[ls[i].body] && bodies[ls[i].body].radius_m>0
+         && gateK===null)
+        console.warn(`R3: leaf ${i} (op=${ls[i].op}) is body-bound but NOT band-gated — subtract/intersect gating is unsafe`);
+      if(gateK!=null){
+        decls += `  float s${i}; if(uBand[${gateK}]!=0){ s${i}=1e9; } else { `
+              +  `float bd${i}=length(${q}-vec3(${glf(bc[0])},${glf(bc[1])},${glf(bc[2])}))-${br}; `
+              +  `if(bd${i}>uGateBuffer){ s${i}=bd${i}; } else { s${i}=${glslShapeCall(ls[i].shape, q)}; } }\n`;
+      } else {
+        decls += `  float bd${i}=length(${q}-vec3(${glf(bc[0])},${glf(bc[1])},${glf(bc[2])}))-${br};\n`;
+        decls += `  float s${i}; if(bd${i}>uGateBuffer){ s${i}=bd${i}; } else { s${i}=${glslShapeCall(ls[i].shape, q)}; }\n`;
+      }
     } else {
-      decls += `  float s${i}=${glslShapeCall(ls[i].shape, q)};\n`;
+      const gateK = (banding && ls[i].body!=null && bodies[ls[i].body]
+                     && bodies[ls[i].body].radius_m>0
+                     && (i===0 || !ls[i].op || ls[i].op==="add")) ? ls[i].body : null;
+      if(gateK!=null)
+        decls += `  float s${i}; if(uBand[${gateK}]!=0){ s${i}=1e9; } else { s${i}=${glslShapeCall(ls[i].shape, q)}; }\n`;
+      else
+        decls += `  float s${i}=${glslShapeCall(ls[i].shape, q)};\n`;
     }
     const mat=scene.materials[ls[i].material]||{}, c=mat.color_rgb||[0.72,0.72,0.72];
     colorfn += `  if(m==${i}) return vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])});\n`;
@@ -1086,16 +1180,109 @@ function buildPathShader(scene){
   // untouched) is a disclosed render-only Choice, exactly the same kind of
   // NON-DERIVED audit-flagged knob as incandescence()'s own tone-map gain.
   const neeExp=glf(scene.nee_exposure!==undefined?scene.nee_exposure:1.0);
-  let neeBlk="";
-  emitters.forEach((e,k)=>{ neeBlk += `
-    if(mat!=${e.leaf}){ vec3 C=uEmitterPos[${k}]; float R=${glf(e.radius)}; vec3 wc=C-p; float dc=length(wc);
-      if(dc>R+uEPS){ vec3 wcn=wc/dc; float sinT=R/dc; float cosTm=sqrt(max(0.0,1.0-sinT*sinT));
-        float cT=1.0-rnd(seed)*(1.0-cosTm); float sTs=sqrt(max(0.0,1.0-cT*cT)); float ph=6.2831853*rnd(seed);
-        vec3 tt=normalize(cross(wcn, abs(wcn.y)<0.9?vec3(0.0,1.0,0.0):vec3(1.0,0.0,0.0))); vec3 bb=cross(wcn,tt);
-        vec3 wl=normalize(tt*(sTs*cos(ph))+bb*(sTs*sin(ph))+wcn*cT); float ndl2=max(0.0,dot(n,wl));
-        if(ndl2>0.0){ float vis=visRay(p+n*uEPS, wl, dc-R-2.0*uEPS);
-          vec3 Le=incandescence(uEmitterTemp[${k}]+uTemp, vec3(${glf(e.emis[0])},${glf(e.emis[1])},${glf(e.emis[2])}));
-          L += thr*alb*Le*ndl2*2.0*(1.0-cosTm)*vis*${neeExp}; } } }`; });
+  // surface NEE blocks (visRay) + R3 impostor twins (analytic spheres) from
+  // the ONE generator — see emitNEEBlock's header; the surface variant is
+  // byte-asserted against the pre-R3 template at module load.
+  let neeBlk="", neeTwin="";
+  emitters.forEach((e,k)=>{
+    neeBlk  += emitNEEBlock(e, k, neeExp, neeSurfaceOpts(e));
+    if(banding) neeTwin += emitNEEBlock(e, k, neeExp, neeImpostorOpts(e));
+  });
+  // ── R3 module state (house precedent: ptEmitters is set the same way) ──
+  bandingEnabled = banding;
+  _r3EmitterBodies = new Set(emitters.filter(e=>e.body>=0).map(e=>e.body));
+  // per-body render-param table: the JOIN of scene.bodies × csg_leaves ×
+  // materials (bodies carry only {label,pivot,radius_m}; albedo/temp come
+  // from the leaf's material and temperature_k — one param definition
+  // consumed by BOTH the impostor const arrays and the splat static buffer).
+  let bandHdr="";
+  if(banding){
+    const NBod=bodies.length;
+    const rad=[], albA=[], emisA=[], tmpA=[];
+    const stat=new Float32Array(NBod*8);
+    const radJS=new Array(NBod);
+    for(let k=0;k<NBod;k++){
+      const leaf=ls.find(l=>l.body===k);
+      const m=leaf?(scene.materials[leaf.material]||{}):{};
+      const c=m.color_rgb||[0.72,0.72,0.72];
+      const em=m.emissivity_rgb
+        || [Math.min(Math.max(1-c[0],0),1),Math.min(Math.max(1-c[1],0),1),Math.min(Math.max(1-c[2],0),1)];  // the emisfn rule
+      const rM=(bodies[k]&&bodies[k].radius_m>0)?bodies[k].radius_m:0;
+      const T=(leaf&&leaf.temperature_k!==undefined)?leaf.temperature_k:envT;
+      rad.push(glf(rM)); albA.push(`vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])})`);
+      emisA.push(`vec3(${glf(em[0])},${glf(em[1])},${glf(em[2])})`); tmpA.push(glf(T));
+      radJS[k]=rM;
+      stat[k*8]=rM; stat[k*8+1]=c[0]; stat[k*8+2]=c[1]; stat[k*8+3]=c[2];
+      stat[k*8+4]=T; stat[k*8+5]=em[0]; stat[k*8+6]=em[1]; stat[k*8+7]=em[2];
+    }
+    _r3Params={radius:radJS, staticArr:stat};
+    // UNROLLED, CONSTANT-INDEX codegen (the house style: bdy0..bdyN, the
+    // matsel/colorfn if-chains — the whole shader avoids dynamic indexing
+    // except uBodyPos[CONST]). A first cut used a `for(k<MAXB)` loop with
+    // dynamically-indexed tables here and it MISCOMPILED on ANGLE/D3D11:
+    // its mere presence in trace()'s miss branch blacked out every
+    // RAYMARCHED surface at solar_earth (measured this session — with
+    // uBand all zero, i.e. the loop dormant, and in both const-array and
+    // uniform-array forms). Constant-index unrolling matches what this
+    // driver stack demonstrably compiles correctly.
+    bandHdr=`uniform int uBand[MAXB];   // R3: 0 raymarch · 1 impostor · 2 splat (splats.js classifier; default 0 = pre-R3)
+// analytic emitter visibility for impostor hits — exact at ANY distance
+// (visRay's 64×uSHMAX step budget cannot span AU and silently returns lit);
+// skips the impostor body itself (skipA) and the emitter's own body (skipB).
+float impVis(vec3 ro, vec3 rd, float maxt, int skipA, int skipB){
+  float v=1.0;
+${bodies.map((b,k)=>{ const r=radJS[k]; if(!(r>0)) return "";
+  return `  if(${k}!=skipA && ${k}!=skipB){ vec3 oc=uBodyPos[${k}]-ro; float tca=dot(oc,rd);
+    if(tca>0.0 && tca<maxt && dot(oc,oc)-tca*tca < ${glf(r)}*${glf(r)}) v=0.0; }\n`; }).join("")}  return v;
+}
+`;
+  } else { _r3Params=null; }
+  // trace()'s miss branch: the R3 impostor band composites HERE (3–24 px
+  // analytic spheres, terminal), splats (<2.4–3 px) render in a separate
+  // GL_POINTS pass — the plan's split. Non-banding scenes keep the pre-R3
+  // line verbatim. Per-body radii/albedo/emissivity/temps are inline
+  // LITERALS in each unrolled block (baked like colorfn — zero traffic);
+  // only NON-emitter bodies get a block (the emitter rule: emitters never
+  // enter band 1), so no NEE double-count is possible here by construction.
+  const missDefault=`vec3 p; if(!march(ro,rd,p)){ L+=thr*skyEmit(rd); break; }`;
+  let impBlocks="";
+  if(banding){
+    const emBodies=new Set(emitters.filter(e=>e.body>=0).map(e=>e.body));
+    bodies.forEach((b,k)=>{
+      const r=(b&&b.radius_m>0)?b.radius_m:0;
+      if(!(r>0) || emBodies.has(k)) return;
+      const leaf=ls.find(l=>l.body===k);
+      const m=leaf?(scene.materials[leaf.material]||{}):{};
+      const c=m.color_rgb||[0.72,0.72,0.72];
+      const em=m.emissivity_rgb
+        || [Math.min(Math.max(1-c[0],0),1),Math.min(Math.max(1-c[1],0),1),Math.min(Math.max(1-c[2],0),1)];
+      const T=(leaf&&leaf.temperature_k!==undefined)?leaf.temperature_k:envT;
+      impBlocks += `
+      if(uBand[${k}]==1){ vec3 oc=ro-uBodyPos[${k}]; float b2=dot(oc,rd); float c2=dot(oc,oc)-${glf(r)}*${glf(r)};
+        float h2=b2*b2-c2; if(h2>=0.0){ float tI=-b2-sqrt(h2);
+          if(tI>uEPS && tI<bT){ bT=tI; bi=${k}; bC=uBodyPos[${k}]; bR=${glf(r)};
+            bAl=vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])}); bEm=vec3(${glf(em[0])},${glf(em[1])},${glf(em[2])});
+            bTs=${glf(T)}; bBt=uBodyTemp[${k}]; } } }`;
+    });
+  }
+  const missBlk = !banding ? missDefault : `vec3 p; if(!march(ro,rd,p)){
+      // R3 impostors, ALL bounces (bounce rays keep seeing distant bodies).
+      // float32 note: at rebased AU-scale |oc|~1e11 the b2*b2-c2
+      // cancellation is ~1e-4 relative on the disc radius — sub-pixel at
+      // 3–24 px. Unrolled constant-index blocks — see the bandHdr note.
+      float bT=1e30; int bi=-1; vec3 bC=vec3(0.0); float bR=1.0;
+      vec3 bAl=vec3(0.0); vec3 bEm=vec3(0.0); float bTs=0.0; float bBt=-1.0;${impBlocks}
+      if(bi>=0){ vec3 q=ro+rd*bT; vec3 nI=(q-bC)/bR; vec3 aI=bAl;
+        // self-glow: provably vec3(0) today — every >700 K body-bound leaf
+        // auto-registers as an NEE emitter (it has bounds) and emitters never
+        // enter band 1, so bTs/bBt < 700 K (Draper) for every possible
+        // impostor. Kept for structural identity with surface shading.
+        L += thr*incandescence(bBt>=0.0?bBt:bTs, bEm);
+        // direct-sun/sky L0 terms omitted: the one banding scene ships
+        // PT_ENV=0.0 (all its light is NEE) — a disclosed residual for any
+        // future banding scene with PT_ENV>0.${neeTwin}
+        break; }
+      L+=thr*skyEmit(rd); break; }`;
   return `#version 300 es
 precision highp float; precision highp int;
 #define MAXB ${Math.max(1,bodies.length)}
@@ -1125,7 +1312,7 @@ uniform float uBodyTemp[MAXB];                           // per-frame body tempe
 uniform sampler2D uPrev;                                 // previous accumulation (ping-pong)
 uniform vec3 uEmitterPos[${Math.max(1,NE)}];             // world centres of glowing-sphere emitters (NEE)
 uniform float uEmitterTemp[${Math.max(1,NE)}];           // their live temperatures — a heating fall brightens
-${PRIMS_GLSL}${waterGLSL}${EXTRA_GLSL}
+${bandHdr}${PRIMS_GLSL}${waterGLSL}${EXTRA_GLSL}
 float mapD(vec3 p, out int mat){ ${bodyDecls}${decls}${compose}${matsel}  return d; }
 float mapOnly(vec3 p){ int m; return mapD(p,m); }
 vec3 matColor(int m){ ${colorfn}  return vec3(0.72); }
@@ -1140,10 +1327,7 @@ float iorOf(int m){ ${iorfn}  return -1.0; }              // refractive index (w
 float opacityOf(int m){ ${alphafn}  return 1.0; }         // render-only alpha (1=opaque); NOT ior — see trace()
 vec3 calcN(vec3 p){ float h=uCalcNH; vec2 e=vec2(1.0,-1.0);
   return normalize( e.xyy*mapOnly(p+e.xyy*h)+e.yyx*mapOnly(p+e.yyx*h)+e.yxy*mapOnly(p+e.yxy*h)+e.xxx*mapOnly(p+e.xxx*h) ); }
-vec3 incandescence(float T, vec3 emis){ if(T<700.0) return vec3(0.0);
-  vec3 lam=vec3(650e-9,550e-9,450e-9); vec3 x=1.4388e-2/(lam*T);
-  vec3 L=emis/(pow(lam/650e-9,vec3(5.0))*(exp(x)-vec3(1.0))); vec3 e=L*EMISSION_SCALE;
-  return e/(1.0+max(e.r,max(e.g,e.b)))*1.7; }   // NON-DERIVED (audit): the 1.7 gain + Reinhard is an exposure choice atop the derived Planck×Kirchhoff spectrum (twin of the fast-shader incandescence)
+${INCANDESCENCE_GLSL}
 uint hashu(uint x){ x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;x^=x>>16;return x; }
 float rnd(inout uint s){ s=hashu(s); return float(s)*(1.0/4294967296.0); }
 vec3 cosHemi(vec3 n, float u1, float u2){ float r=sqrt(u1), phi=6.2831853*u2;
@@ -1165,7 +1349,7 @@ vec3 skyEmit(vec3 rd){ vec3 AUP=normalize(vec3(${glf(au[0])},${glf(au[1])},${glf
 vec3 trace(vec3 ro, vec3 rd, inout uint seed){
   vec3 L=vec3(0.0), thr=vec3(1.0); bool spec=true;       // primary ray counts as a specular arrival
   for(int b=0;b<8;b++){                                  // bounce depth: nested dielectrics (a glass of water) need >3 to cross every interface and reach the bright far side instead of dying black inside
-    vec3 p; if(!march(ro,rd,p)){ L+=thr*skyEmit(rd); break; }
+    ${missBlk}
     vec3 n=calcN(p); int mat; mapD(p-n*0.0008,mat);
     // RENDER-ONLY opacity gate — an artificial "make X see-through" toggle, not
     // real transmission physics: independent of ior/Fresnel (the dielectric
@@ -1224,7 +1408,7 @@ void main(){ vec2 p=vec2(float((gl_VertexID<<1)&2),float(gl_VertexID&2));
 function compile(type,src){ const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s);
   if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){ const log=gl.getShaderInfoLog(s); console.error(log,"\n",src); throw new Error(log); } return s; }
 let prog=null, progPT=null, U={}, Upt={};
-const UNIFORMS=["uRes","uEye","uEyeWorld","uFwd","uRight","uUp","uTanHalf","uAspect","uMaxDist","uTime","uTemp","uBodyPos","uBodyQuat","uBodyTemp","uFrame","uPrev","uReset","uEmitterPos","uEmitterTemp","uSPP","uPrevScale","uEPS","uSHMIN","uSHMAX","uSMAXT","uGateBuffer","uCalcNH"];
+const UNIFORMS=["uRes","uEye","uEyeWorld","uFwd","uRight","uUp","uTanHalf","uAspect","uMaxDist","uTime","uTemp","uBodyPos","uBodyQuat","uBodyTemp","uFrame","uPrev","uReset","uEmitterPos","uEmitterTemp","uSPP","uPrevScale","uEPS","uSHMIN","uSHMAX","uSMAXT","uGateBuffer","uCalcNH","uBand"];
 function linkProg(fragSrc){
   const p=gl.createProgram();
   gl.attachShader(p,compile(gl.VERTEX_SHADER,VS));
@@ -1343,23 +1527,183 @@ function buildProgram(scene){
   prog=t; progPT=pt; U=fetchU(t); Upt=pt?fetchU(pt):{};
   U.vox=fetchVoxU(t,scene); Upt.vox=pt?fetchVoxU(pt,scene):{};
   U.fld=fetchFieldU(t,scene); Upt.fld=pt?fetchFieldU(pt,scene):{};
+  buildSplatPipeline(scene);                         // R3: GL_POINTS far-field (no-op unless bandingEnabled)
+}
+
+// ── R3 splat pass: GL_POINTS far field into an RGBA16F offscreen target ──
+// CHOICE separate RGBA16F target, NOT the RGBA32F accumulation buffer:
+// 32F blending needs EXT_float_blend (unqueried at R0-baseline time,
+// unverified on the capture machine); 16F blending is core with the
+// already-required EXT_color_buffer_float. Splat radiance is closed-form
+// deterministic per frame, so accumulating it buys nothing — and R0's most
+// sacred buffer stays untouched. 16F precision: the faintest relevant splat
+// (~3e-8 linear) sits below the half-float subnormal floor and renders 0 —
+// post-gamma error << 1/255, honestly invisible, matching the physics.
+const SPLAT_FS=`#version 300 es
+precision highp float;
+in vec3 vCol; out vec4 frag;
+void main(){ frag=vec4(vCol,1.0); }`;
+function buildSplatPipeline(scene){
+  if(splatProg){ gl.deleteProgram(splatProg); splatProg=null; }
+  if(!bandingEnabled || !_r3Params) return;
+  const NBod=(scene.bodies||[]).length;
+  const NE=Math.max(1,ptEmitters.length);
+  const emRad=ptEmitters.length?ptEmitters.map(e=>glf(e.radius)).join(","):glf(0);
+  const emEmis=ptEmitters.length
+    ? ptEmitters.map(e=>`vec3(${glf(e.emis[0])},${glf(e.emis[1])},${glf(e.emis[2])})`).join(",")
+    : "vec3(0.0,0.0,0.0)";
+  const neeExp=glf(scene.nee_exposure!==undefined?scene.nee_exposure:1.0);
+  // The splat vertex shader computes the body's closed-form radiance:
+  //   L_refl = Σ_k alb ⊙ Le_k · G_k · nee_exposure · f(α_k) · vis_k
+  // — the closed-form disc-average EXPECTATION of the path tracer's own NEE
+  // cone estimator (same Le = incandescence(emitter T, registration emis),
+  // same G = 2(1−cosTm), same nee_exposure, same uEmitterTemp source), with
+  // f(α) = (2/(3π))(sin α + (π−α)cos α), the Lambert-sphere phase function
+  // (verified against numerical integration in test_splats.node.js §4).
+  //   L_th = incandescence(T_body, emisSelf) — the SAME shared chunk the PT
+  // uses (INCANDESCENCE_GLSL), so a receding hot body keeps its exact hue.
+  // Flux conservation (deliverable-B honesty): total sprite flux =
+  // disc radiance × (π/4)P² spread over the n×n sprite, clamped at the PT's
+  // own 16.0 firefly clamp — dimming is exact inverse-square, no band pop.
+  // Derivation-chain precedent: field/interface/detection.py (flux at
+  // observer falls as 1/d²); the NEE comment at the emitter-registration
+  // block (viewer.js buildPathShader).
+  const vs=`#version 300 es
+precision highp float; precision highp int;
+#define EMISSION_SCALE 2400000000.0
+#define MAXB ${Math.max(1,NBod)}
+#define NE ${NE}
+in vec3 aPos; in float aRadius; in vec3 aAlb; in float aTemp; in vec3 aEmis; in float aVis;
+uniform vec3 uFwd,uRight,uUp;
+uniform float uTanHalf,uAspect,uPxPerRad,uTemp,uPointCap;
+uniform vec3 uEmPos[NE];            // rebased emitter centres — the SAME values the NEE upload builds
+uniform float uEmTemp[NE];          // live emitter temperatures — same source as uEmitterTemp
+uniform float uSplTemp[MAXB];       // per-frame body T override (-1 = none) — mirrors effTempK's frame-T precedence
+const float EMRAD[NE]=float[NE](${emRad});     // NEE registration radii (bounds.radius — never radius_m)
+const vec3 EMEMIS[NE]=vec3[NE](${emEmis});     // NEE registration emissivities (the [0.5,0.5,0.5] rule)
+out vec3 vCol;
+${INCANDESCENCE_GLSL}
+void main(){
+  int flags=int(aVis+0.5);          // bit0 draw · bit(k+1) emitter k visible (splats.js pack loop)
+  float dist=length(aPos);
+  float zf=dot(aPos,uFwd);
+  if((flags&1)==0 || dist<=0.0 || zf<=0.0){    // not splat-band / eye-occluded / behind camera
+    gl_Position=vec4(0.0,0.0,2.0,1.0); gl_PointSize=0.0; vCol=vec3(0.0); return; }
+  float P=(2.0*aRadius/max(dist,1e-9))*uPxPerRad;      // apparent pixel diameter (same formula as splats.js)
+  float n=min(uPointCap,max(1.0,ceil(P)));     // integer sprite (deterministic under R0's 3-render proof); ceil ⇒ sprite ≥ disc so the clamp never truncates in-band
+  vec3 Lr=vec3(0.0);
+  vec3 dirCam=-aPos/dist;
+  for(int k=0;k<NE;k++){
+    vec3 wc=uEmPos[k]-aPos; float dbe=length(wc);
+    if(dbe<=EMRAD[k]*1.001) continue;          // self: an emitter's own splat skips its own L_refl (no sunlight reflecting off the sun) and keeps L_th
+    float sinT=EMRAD[k]/dbe; float cosTm=sqrt(max(0.0,1.0-sinT*sinT));
+    float G=2.0*(1.0-cosTm);                   // the NEE block's own solid-angle factor
+    vec3 Le=incandescence(uEmTemp[k]+uTemp, EMEMIS[k]);
+    float ca=clamp(dot(wc/dbe,dirCam),-1.0,1.0);
+    float alpha=acos(ca);                      // phase angle: dir-to-emitter vs dir-to-camera
+    float f=(2.0/(3.0*3.14159265358979))*(sin(alpha)+(3.14159265358979-alpha)*cos(alpha));
+    float visE=float((flags>>(k+1))&1);        // eclipse test (CPU pack loop, analytic spheres)
+    Lr+=aAlb*Le*G*${neeExp}*f*visE;
+  }
+  float Tk=uSplTemp[gl_VertexID]>=0.0?uSplTemp[gl_VertexID]:aTemp;
+  vec3 Lth=incandescence(Tk+uTemp, aEmis);
+  vCol=min((Lr+Lth)*min(1.0,0.78539816339745*P*P/(n*n)), vec3(16.0));   // flux-conserving spread + the PT firefly clamp
+  vec2 ndc=vec2(dot(aPos,uRight)/(zf*uTanHalf*uAspect), dot(aPos,uUp)/(zf*uTanHalf));
+  gl_Position=vec4(ndc,0.0,1.0);
+  gl_PointSize=n;
+}`;
+  try{
+    const p=gl.createProgram();
+    gl.attachShader(p,compile(gl.VERTEX_SHADER,vs));
+    gl.attachShader(p,compile(gl.FRAGMENT_SHADER,SPLAT_FS));
+    gl.linkProgram(p);
+    if(!gl.getProgramParameter(p,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    splatProg=p; splatU={};
+    for(const nm of ["uFwd","uRight","uUp","uTanHalf","uAspect","uPxPerRad","uTemp","uPointCap","uEmPos","uEmTemp","uSplTemp"])
+      splatU[nm]=gl.getUniformLocation(p,nm);
+    // attribute state on a dedicated VAO (the shared VAO0 carries none):
+    // STATIC per-scene buffer [radius, alb.rgb, temp, emis.rgb] = 32 B/body
+    // uploaded ONCE; DYNAMIC per-frame position buffer 12 B/body (the
+    // envelope's 72 MB/s @100k×60Hz projection) + 1 B/body visibility flags.
+    if(!splatVAO) splatVAO=gl.createVertexArray();
+    gl.bindVertexArray(splatVAO);
+    const loc=(nm)=>gl.getAttribLocation(p,nm);
+    if(splatBufStatic) gl.deleteBuffer(splatBufStatic);
+    if(splatBufDyn) gl.deleteBuffer(splatBufDyn);
+    if(splatBufVis) gl.deleteBuffer(splatBufVis);
+    splatBufStatic=gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER,splatBufStatic);
+    gl.bufferData(gl.ARRAY_BUFFER,_r3Params.staticArr,gl.STATIC_DRAW);
+    const lR=loc("aRadius"), lA=loc("aAlb"), lT=loc("aTemp"), lE=loc("aEmis");
+    if(lR>=0){ gl.enableVertexAttribArray(lR); gl.vertexAttribPointer(lR,1,gl.FLOAT,false,32,0); }
+    if(lA>=0){ gl.enableVertexAttribArray(lA); gl.vertexAttribPointer(lA,3,gl.FLOAT,false,32,4); }
+    if(lT>=0){ gl.enableVertexAttribArray(lT); gl.vertexAttribPointer(lT,1,gl.FLOAT,false,32,16); }
+    if(lE>=0){ gl.enableVertexAttribArray(lE); gl.vertexAttribPointer(lE,3,gl.FLOAT,false,32,20); }
+    splatBufDyn=gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER,splatBufDyn);
+    gl.bufferData(gl.ARRAY_BUFFER,NBod*12,gl.DYNAMIC_DRAW);
+    const lP=loc("aPos");
+    if(lP>=0){ gl.enableVertexAttribArray(lP); gl.vertexAttribPointer(lP,3,gl.FLOAT,false,12,0); }
+    splatBufVis=gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER,splatBufVis);
+    gl.bufferData(gl.ARRAY_BUFFER,NBod,gl.DYNAMIC_DRAW);
+    const lV=loc("aVis");
+    if(lV>=0){ gl.enableVertexAttribArray(lV); gl.vertexAttribPointer(lV,1,gl.UNSIGNED_BYTE,false,1,0); }
+    gl.bindVertexArray(VAO0);
+    gl.bindBuffer(gl.ARRAY_BUFFER,null);
+  }catch(e){ console.error("R3 splat shader failed:",e); splatProg=null; }
+}
+function ensureSplatTarget(w,h){
+  if(splatTarget && splatTW===w && splatTH===h) return;
+  const tex=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,tex);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA16F,w,h,0,gl.RGBA,gl.FLOAT,null);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  const fbo=gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER,fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,tex,0);
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+  splatTarget={tex,fbo}; splatTW=w; splatTH=h;
 }
 
 // ── progressive-accumulation buffers (ping-pong float targets) ─────────
 // Each PT frame ADDS its samples to a float buffer; the display pass divides by
 // the sample count. Stand still and the image gathers light and converges — the
 // physical analogue of a long exposure filling in (samples ≈ photons, var ∝ 1/N).
+// R3: the display pass composites the splat far-field target ADDITIVELY,
+// pre-clamp/pre-gamma, so splat radiance passes through the SAME tone
+// mapping as PT radiance — structurally, and decoupled from uInvN/frames
+// (splat radiance is closed-form per frame, not Monte-Carlo accumulated).
+// Non-banding scenes bind a 1×1 black texture: c + 0.0 == c exactly for
+// every c >= 0 (IEEE), so the nine non-solar baselines hold arithmetically.
 const DISPLAY_FS=`#version 300 es
 precision highp float;
-uniform sampler2D uAccum; uniform float uInvN;
+uniform sampler2D uAccum; uniform sampler2D uSplat; uniform float uInvN;
 out vec4 frag;
 void main(){ vec3 c=texelFetch(uAccum, ivec2(gl_FragCoord.xy),0).rgb*uInvN;
+  c += texelFetch(uSplat, ivec2(gl_FragCoord.xy),0).rgb;
   frag=vec4(pow(clamp(c,0.0,1.0),vec3(0.4545)),1.0); }`;
 let dispProg=null, dispU={};
 let accumA=null, accumB=null, pingA=true, accN=0, accW=0, accH=0, ptKey="", ptTime=0;
+let splatBlackTex=null;                        // 1×1 black — the exact-zero splat source for non-banding scenes
+// R3 band/splat state (all null/false until a banding scene loads — every
+// other scene takes the byte-identical pre-R3 code paths):
+let bandingEnabled=false;                      // scene.bodies carries a real radius_m (today: solar theater only)
+let splatTarget=null, splatTW=0, splatTH=0;    // RGBA16F offscreen target for the GL_POINTS far field
+let splatProg=null, splatU={}, splatVAO=null;  // the GL_POINTS program + its attribute state
+let splatBufDyn=null, splatBufVis=null, splatBufStatic=null;
+const splatsCtl = (typeof window!=="undefined" && window.SGSplats)
+  ? new window.SGSplats.SGSplats() : null;     // band classifier/pack (splats.js); 404 → banding stays off
+let _r3Params=null;                            // per-body render-param table {radius, staticArr} (built per banding scene)
+let _r3EmitterBodies=new Set();                // NEE-registered body indices (the emitter rule)
+let _r3SceneId=-1;                             // detects sceneId bumps → memoryless band reset
 function initDisplay(){ if(dispProg||!extF) return;
   try{ dispProg=linkProg(DISPLAY_FS);
-    dispU={uAccum:gl.getUniformLocation(dispProg,"uAccum"), uInvN:gl.getUniformLocation(dispProg,"uInvN")}; }
+    dispU={uAccum:gl.getUniformLocation(dispProg,"uAccum"), uInvN:gl.getUniformLocation(dispProg,"uInvN"),
+           uSplat:gl.getUniformLocation(dispProg,"uSplat")};
+    splatBlackTex=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,splatBlackTex);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA8,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([0,0,0,0]));
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
+    gl.bindTexture(gl.TEXTURE_2D,null); }
   catch(e){ console.error("display shader:",e); } }
 function makeTarget(w,h){ const tex=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,tex);
   gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,w,h,0,gl.RGBA,gl.FLOAT,null);
@@ -1464,6 +1808,15 @@ const camctl = window.SGCamera ? new SGCamera(cam, {
   sceneDiag: () => sceneDiag,
 }) : null;
 window._camctl = camctl;         // debug surface (window._cam/_dbg precedent)
+// ── R3 debug/measurement surface (window._cam/_dbg precedent): live band
+// stats (written by draw() on banding scenes) + the deliverable-C CPU-loop
+// microbench — a FRESH SGSplats instance, so bench never clobbers the live
+// hysteresis state.
+window._r3 = {
+  stats: {packMs: 0, counts: [0, 0, 0], transitions: 0, transitionsByBody: []},
+  bench: (n, reps) => window.SGSplats
+    ? new window.SGSplats.SGSplats().bench(n, reps) : null,
+};
 // lerp-when-both-endpoints-have-it, hold-when-only-one-does — the same
 // missing-data policy posesAt uses for temperature_k, applied to the three
 // scene-level scalars/vectors (absent on a frame → this trajectory predates
@@ -1558,6 +1911,42 @@ function draw(){
   const vEPS=Math.max(5e-7,R*0.0015), vSHMIN=Math.max(1e-6,R*0.004),
         vSHMAX=Math.max(1e-5,R*0.06), vSMAXT=Math.max(1e-4,R*1.2),
         vCalcNH=Math.max(2e-7,R*1e-4);
+  // ── R3: emitter world centres + live temps + rebased upload, hoisted so
+  // the NEE upload and the splat/band pass share ONE computation (same
+  // floats, same order — non-banding scenes get byte-identical uploads).
+  let emWC=null, emT=null, emEP=null;
+  if(ptEmitters.length){
+    emWC=new Array(ptEmitters.length); emT=new Float32Array(ptEmitters.length);
+    emEP=new Float32Array(ptEmitters.length*3);
+    ptEmitters.forEach((e,k)=>{ let c=e.center;
+      if(e.body>=0 && bodyPoses[e.body]){ const Po=bodyPoses[e.body];
+        const piv=((scene.bodies[e.body]||{}).pivot)||[0,0,0];
+        c=add(Po.pos, qrotJS(Po.quat, sub(e.center, piv))); }
+      emWC[k]=c;
+      emEP[k*3]=c[0]-eye[0]; emEP[k*3+1]=c[1]-eye[1]; emEP[k*3+2]=c[2]-eye[2];   // same eye-anchored rebase as uBodyPos
+      const Tf=(e.body>=0 && bodyPoses[e.body] && bodyPoses[e.body].tempK!==undefined)
+        ? bodyPoses[e.body].tempK : undefined;
+      emT[k]=(Tf!==undefined)?Tf:e.temp; });     // frame T > the leaf's static bake
+  }
+  // ── R3: per-frame band classification + splat pack (splats.js — pure,
+  // no RNG, no wall clock in anything that feeds rendering; state resets
+  // memorylessly on EVERY sceneId bump, so R0 capture pins classify from
+  // the pinned camera with no history).
+  let bandOut=null, bandI32=null;
+  if(bandingEnabled && splatsCtl && _r3Params && NB){
+    if(_r3SceneId!==sceneId){ splatsCtl.reset(); _r3SceneId=sceneId; }
+    const posArr=new Array(NB);
+    for(let k=0;k<NB;k++) posArr[k]=(bodyPoses[k]||{pos:[0,0,0]}).pos;
+    bandOut=splatsCtl.frame({
+      eye, poses:posArr, radius:_r3Params.radius,
+      emitterBody:_r3EmitterBodies,
+      emitters:ptEmitters.map((e,k)=>({body:e.body, center:emWC[k], radius:e.radius})),
+      tanHalf, h});
+    bandI32=Int32Array.from(bandOut.bands);
+    if(window._r3) window._r3.stats={packMs:bandOut.ms, counts:bandOut.counts.slice(),
+      transitions:splatsCtl.transitions,
+      transitionsByBody:Array.from(splatsCtl.transitionsByBody||[])};
+  }
   const bindScene=(UU,timeVal,frameSeed)=>{
     gl.uniform2f(UU.uRes,w,h);
     gl.uniform3fv(UU.uEye,[0,0,0]); gl.uniform3fv(UU.uFwd,fwd); gl.uniform3fv(UU.uRight,right); gl.uniform3fv(UU.uUp,camUp);
@@ -1573,6 +1962,7 @@ function draw(){
     if(UU.uCalcNH!=null) gl.uniform1f(UU.uCalcNH,vCalcNH);
     if(NB){ gl.uniform3fv(UU.uBodyPos,fp); gl.uniform4fv(UU.uBodyQuat,fq);
       if(UU.uBodyTemp!=null) gl.uniform1fv(UU.uBodyTemp,ft); }
+    if(UU.uBand!=null && bandI32) gl.uniform1iv(UU.uBand,bandI32);   // R3 band ids (banding scenes only)
     // voxel 3-D textures on units ≥1 (TEXTURE0 is the PT accumulation buffer)
     (scene._voxels||[]).forEach((vx,u)=>{ gl.activeTexture(gl.TEXTURE0+1+u);
       gl.bindTexture(gl.TEXTURE_3D, vx.tex);
@@ -1595,7 +1985,11 @@ function draw(){
       if(loc.u!=null) gl.uniform1f(loc.u, u);
     }); };
   if(ptMode && extF && !dispProg) initDisplay();
-  const key=`${eye.map(x=>x.toFixed(3))}|${cam.target.map(x=>x.toFixed(3))}|${simTime.toFixed(3)}|${w}x${h}|${sceneId}`;
+  // R3 belt-and-braces: bands can only change when eye/simTime change, which
+  // already change the key — the |b: term defends future refactors of that
+  // coupling. Non-banding scenes keep the key string byte-identical.
+  const key=`${eye.map(x=>x.toFixed(3))}|${cam.target.map(x=>x.toFixed(3))}|${simTime.toFixed(3)}|${w}x${h}|${sceneId}`
+    +(bandOut?`|b:${Array.from(bandOut.bands).join("")}`:"");
   const moving = key!==ptKey; ptKey=key;                     // is the view changing this frame?
   if(moving) accN=0;                                         // view changed → restart accumulation
   // ── Radiance has ONE renderer: the path tracer. Appearance is light transport,
@@ -1635,34 +2029,62 @@ function draw(){
     gl.bindFramebuffer(gl.FRAMEBUFFER,dst.fbo); gl.viewport(0,0,w,h);
     gl.useProgram(progPT); bindScene(Upt, ptTime, CAP ? accN : frameCount);   // THE seed pin
     gl.uniform1i(Upt.uSPP, spp); gl.uniform1f(Upt.uPrevScale, prevScale);
-    if(ptEmitters.length && Upt.uEmitterPos){      // emitter world centres + live temps (body motion carries the light; heating brightens it)
-      const ep=new Float32Array(ptEmitters.length*3), et=new Float32Array(ptEmitters.length);
-      ptEmitters.forEach((e,k)=>{ let c=e.center;
-        if(e.body>=0 && bodyPoses[e.body]){ const Po=bodyPoses[e.body];
-          const piv=((scene.bodies[e.body]||{}).pivot)||[0,0,0];
-          c=add(Po.pos, qrotJS(Po.quat, sub(e.center, piv))); }
-        ep[k*3]=c[0]-eye[0]; ep[k*3+1]=c[1]-eye[1]; ep[k*3+2]=c[2]-eye[2];   // same eye-anchored rebase as uBodyPos
-        const Tf=(e.body>=0 && bodyPoses[e.body] && bodyPoses[e.body].tempK!==undefined)
-          ? bodyPoses[e.body].tempK : undefined;
-        et[k]=(Tf!==undefined)?Tf:e.temp; });      // frame T > the leaf's static bake
-      gl.uniform3fv(Upt.uEmitterPos, ep);
-      if(Upt.uEmitterTemp!=null) gl.uniform1fv(Upt.uEmitterTemp, et); }
+    if(ptEmitters.length && Upt.uEmitterPos){      // emitter world centres + live temps (hoisted above — the R3 splat pass shares them)
+      gl.uniform3fv(Upt.uEmitterPos, emEP);
+      if(Upt.uEmitterTemp!=null) gl.uniform1fv(Upt.uEmitterTemp, emT); }
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,src.tex);
     gl.uniform1i(Upt.uPrev,0); gl.uniform1f(Upt.uReset, reset?1.0:0.0);
     gl.drawArrays(gl.TRIANGLES,0,3);
-    gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.viewport(0,0,w,h);
+    // ── R3 splat pass: sub-3px far field as GL_POINTS into the RGBA16F
+    // target (cleared each frame — splat radiance is closed-form per frame,
+    // never accumulated), additive blend, composited by the display pass.
+    if(bandOut && splatProg){
+      ensureSplatTarget(w,h);
+      gl.bindFramebuffer(gl.FRAMEBUFFER,splatTarget.fbo); gl.viewport(0,0,w,h);
+      gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT); gl.clearColor(0,0,0,1);
+      gl.useProgram(splatProg);
+      gl.uniform3fv(splatU.uFwd,fwd); gl.uniform3fv(splatU.uRight,right); gl.uniform3fv(splatU.uUp,camUp);
+      gl.uniform1f(splatU.uTanHalf,tanHalf); gl.uniform1f(splatU.uAspect,w/h);
+      gl.uniform1f(splatU.uPxPerRad,h/(2*tanHalf));
+      gl.uniform1f(splatU.uTemp,0.0);                       // same pin as bindScene's uTemp
+      gl.uniform1f(splatU.uPointCap,Math.min(3,_ptRange[1]));
+      if(emEP && splatU.uEmPos!=null){ gl.uniform3fv(splatU.uEmPos,emEP);
+        if(splatU.uEmTemp!=null) gl.uniform1fv(splatU.uEmTemp,emT); }
+      if(splatU.uSplTemp!=null && ft) gl.uniform1fv(splatU.uSplTemp,ft);   // frame body T override (-1 = none)
+      gl.bindBuffer(gl.ARRAY_BUFFER,splatBufDyn);
+      gl.bufferSubData(gl.ARRAY_BUFFER,0,bandOut.dyn);      // 12 B/body/frame — the envelope's traffic row
+      gl.bindBuffer(gl.ARRAY_BUFFER,splatBufVis);
+      gl.bufferSubData(gl.ARRAY_BUFFER,0,bandOut.vis);      // +1 B/body/frame visibility flags
+      gl.bindBuffer(gl.ARRAY_BUFFER,null);
+      gl.enable(gl.BLEND); gl.blendFunc(gl.ONE,gl.ONE);     // 16F additive blending — core with EXT_color_buffer_float
+      gl.bindVertexArray(splatVAO);
+      gl.drawArrays(gl.POINTS,0,NB);
+      gl.bindVertexArray(VAO0);
+      gl.disable(gl.BLEND);
+      gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.viewport(0,0,w,h);
+    } else {
+      gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.viewport(0,0,w,h);
+    }
     gl.useProgram(dispProg);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,dst.tex);
+    // unit 1: the splat far-field target (R3) — or the 1×1 black texture,
+    // an exact +0.0 in the composite, for every non-banding scene.
+    gl.activeTexture(gl.TEXTURE0+1);
+    gl.bindTexture(gl.TEXTURE_2D, (bandingEnabled&&splatTarget)?splatTarget.tex:splatBlackTex);
+    if(dispU.uSplat!=null) gl.uniform1i(dispU.uSplat,1);
     gl.uniform1i(dispU.uAccum,0); gl.uniform1f(dispU.uInvN,1.0/frames);
     gl.drawArrays(gl.TRIANGLES,0,3); pingA=!pingA;
     // R2: hudSuffix() is "" in orbit mode, so today's strings stay
     // byte-identical until a new camera mode is entered (a dbg tweak,
     // not an E4 HUD panel).
     const camSfx=camctl?camctl.hudSuffix():"";
+    // R3 band-status dbg (banding scenes only — every other scene's string
+    // stays byte-identical): raymarch/impostor/splat counts + pack-loop ms.
+    const bandSfx=bandOut?` · bands ${bandOut.counts[0]}/${bandOut.counts[1]}/${bandOut.counts[2]} · pack ${bandOut.ms.toFixed(2)}ms`:"";
     const dd=$("dbg"); if(dd) dd.textContent =
-        moving   ? `path-traced · live · ${spp} spp/frame · orbiting (clears when you stop) · ${w}x${h}${camSfx}`
-      : animated ? `path-traced · ${Math.min(accN,NMAX)}-frame exposure · ${frames*spp} photons/px · ripples live · ${w}x${h}${camSfx}`
-      :            `path-traced · ${frames*spp} samples/px · converging… · ${w}x${h}${camSfx}`;
+        moving   ? `path-traced · live · ${spp} spp/frame · orbiting (clears when you stop) · ${w}x${h}${camSfx}${bandSfx}`
+      : animated ? `path-traced · ${Math.min(accN,NMAX)}-frame exposure · ${frames*spp} photons/px · ripples live · ${w}x${h}${camSfx}${bandSfx}`
+      :            `path-traced · ${frames*spp} samples/px · converging… · ${w}x${h}${camSfx}${bandSfx}`;
   } else {                                                   // ── compatibility shim: GPU lacks float render targets ──
     gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.viewport(0,0,w,h); gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(prog); bindScene(U,(performance.now()-T0)*0.001, frameCount);

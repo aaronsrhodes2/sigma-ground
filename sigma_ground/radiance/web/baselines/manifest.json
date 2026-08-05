@@ -9,7 +9,7 @@
   "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Ti SUPER (0x00002705) Direct3D11 vs_5_0 ps_5_0, D3D11)",
   "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
   "os": "win32",
-  "captured_at": "2026-08-05T02:39:55",
+  "captured_at": "2026-08-05T05:12:56",
   "note": "baselines are PER-(GPU, driver, browser/ANGLE) artifacts; a driver or browser update legitimately breaks exact hashes"
  },
  "tolerances": {
@@ -53,6 +53,16 @@
    "date": "2026-08-05T02:38:43",
    "reason": "R0 review: validate 3-render determinism proof (no pixel change expected)",
    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Ti SUPER (0x00002705) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  {
+   "date": "2026-08-05T04:38:02",
+   "reason": "R3: sub-3px splat far field + Moon 3-24px impostor migration (2026-08-05)",
+   "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Ti SUPER (0x00002705) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  {
+   "date": "2026-08-05T05:09:31",
+   "reason": "R3 review: 3-render splat determinism re-proof",
+   "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Ti SUPER (0x00002705) Direct3D11 vs_5_0 ps_5_0, D3D11)"
   }
  ],
  "baselines": {
@@ -86,7 +96,7 @@
    ],
    "t": null,
    "frames": 64,
-   "sha256_rgb": "4c899a48c41fe808da049cf69056eefdd186595601daa294affeb8e3b55896ed",
+   "sha256_rgb": "ba1708cf5151f64151e13b4b4043495df1b4cd92d5407a37b0290a52975c2e92",
    "png": "solar_wide.png",
    "deterministic": true,
    "scene_sha256": "26a37511c3d3d49efbea1fac3eb4e40b43f97a4c1e30132926e47580df415325",
@@ -104,7 +114,7 @@
    ],
    "t": null,
    "frames": 64,
-   "sha256_rgb": "e9ecd9abb965dcd06a4f1e6555d6758eb4715852feb16fb8e9c92fa141027459",
+   "sha256_rgb": "af4414923f6562f264a9170b313f9f5c2298b1ee23b3cc7887c512acd3648c1a",
    "png": "solar_earth.png",
    "deterministic": false,
    "scene_sha256": "26a37511c3d3d49efbea1fac3eb4e40b43f97a4c1e30132926e47580df415325",

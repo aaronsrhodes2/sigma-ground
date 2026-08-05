@@ -211,6 +211,25 @@ no number is claimed for it here. Verdict: thousands to tens of thousands of
 splat bodies at 60 fps is plausible on this arithmetic, pending the CPU-loop
 measurement.
 
+**[MEASURED 2026-08-05] R3 CPU loop (classify + occlude + pack), as shipped
+in splats.js, in-browser on the measurement environment (§ header):**
+
+| Population | median ms/frame | p95 ms/frame | Procedure |
+|---|---|---|---|
+| 30 bodies (live solar theater) | 0.10 (mean 0.070) | 0.20 | `window._r3.stats.packMs` sampled over 600 rAF frames at 60 fps (max 0.30; browser timer quantum 0.1 ms) |
+| 10,000 (synthetic) | 0.5 | 0.7 | `window._r3.bench(10000, 100)` — index-derived golden-spiral positions, no RNG, medians over 100 reps |
+| 100,000 (synthetic) | 4.8 | 6.1 | `window._r3.bench(100000, 100)` (max 8.2) |
+
+At 100k the pack loop consumes ~29% of a 16.7 ms frame — the §3.1 verdict
+("thousands to tens of thousands at 60 fps") is CONFIRMED, and 100k itself
+fits with headroom in the loop alone (draw/upload not included in these
+numbers). Measured traffic arithmetic as shipped (split buffers): DYNAMIC
+12 B/body/frame float32 rebased positions — at 100k × 60 Hz exactly the
+projected **72 MB/s** — plus 1 B/body/frame visibility flags (+6 MB/s at
+100k; eye-occlusion and per-emitter eclipse bits, a disclosed addition to
+the original 12 B projection) and a STATIC 32 B/body buffer uploaded once
+per scene (radius, albedo.rgb, static temp, emissivity.rgb).
+
 ### 3.2 R4 unified brick grid: the leaf ceilings die; VRAM becomes the cap
 
 Shader size becomes leaf-count-independent — the §2.2 compile-hang mechanism
@@ -450,7 +469,7 @@ reproducible procedure:
 | CSG compile-hang threshold between 48 and 101 leaves | leaf-count sweep in the render-perf probe (generated scenes, compile-time timer) |
 | fps with physics playback running (all §1 rows are paused at t=0) | same probe, play/pause axis |
 | fps vs canvas size (backing height varied 206–609 px across scenes) | same probe, pinned full-window canvas |
-| R3 per-frame CPU upload loop cost (the splat bound, §3.1) | microbench when R3 lands: rebase+pack loop at 10k/100k points |
+| ~~R3 per-frame CPU upload loop cost (the splat bound, §3.1)~~ **RESOLVED [MEASURED 2026-08-05]** — see the §3.1 measured table (30-body live 0.10 ms median; 10k 0.5 ms; 100k 4.8 ms) | `window._r3.bench(n)` + live `window._r3.stats.packMs` (shipped instruments) |
 | R4 brick atlas actuals (upload, sampling cost) | R4's own bench rows |
 | R5 sustained streaming throughput under a VRAM budget | R5 flight-path bench |
 | E7 numpy rows replacing the §3.4 projections | E0 harness re-run on the numpy backends |
