@@ -1344,6 +1344,14 @@ function _bodyIndexByLabel(name){
   for(let i=0;i<bs.length;i++) if(bs[i].label===name) return i;
   return -1;
 }
+// body radius fallback chain (radius_m || csg-leaf bounds radius || 1.0) —
+// extracted from locateBody so the camera controller's clearance scan
+// (camera.js, R2) shares the ONE definition.
+function _bodyRadius(i){
+  return (scene.bodies[i]&&scene.bodies[i].radius_m)
+       || (bnd=>bnd?bnd.radius:null)((scene.csg_leaves.find(l=>l.body===i)||{}).bounds)
+       || 1.0;
+}
 function locateBody(name){
   const i=_bodyIndexByLabel(name); if(i<0){ setErr(`locate: no body named "${name}"`); return false; }
   const poses=bodyPoses.length?bodyPoses:posesAt(simTime);
@@ -1351,9 +1359,7 @@ function locateBody(name){
   const sunI=_bodyIndexByLabel("Sun");
   const sunPos=(sunI>=0 && poses[sunI]) ? poses[sunI].pos : null;
   cam.target=tgt.slice();
-  const rM=(scene.bodies[i]&&scene.bodies[i].radius_m)
-         || (bnd=>bnd?bnd.radius:null)((scene.csg_leaves.find(l=>l.body===i)||{}).bounds)
-         || 1.0;
+  const rM=_bodyRadius(i);
   cam.radius=Math.max(rM*3.2, 1e-6);
   if(sunPos && i!==sunI){
     // aim the eye on the target-to-sun side: solve az/el so eyePos()'s own
@@ -1367,12 +1373,30 @@ function locateBody(name){
     cam.az=(Math.abs(ce)>1e-6)?az:cam.az;   // near a pole: keep the existing az, el alone frames it
   }
   sceneId++;                     // forces the PT accumulation key to reset (see draw()'s `key`)
+  // locate AUTO-ENTERS follow (R2, disclosed): locate IS the one sanctioned
+  // camera jump — the controller ADOPTS the framing it just set (no
+  // re-solve). Static scenes stay byte-equivalent to today (tick re-writes
+  // the same target values); animated scenes strictly better: jump-then-track.
+  if(camctl) camctl.followAdopt(name);
   return true;
 }
 window.locateBody=locateBody;    // console/UI hook
 window._cam=cam;                 // debug hooks (module-scoped vars are otherwise invisible to console eval)
 window._dbg=()=>({cam:{az:cam.az,el:cam.el,radius:cam.radius,target:cam.target.slice()},
                   bodyPoses:bodyPoses.map(p=>p.pos), eye:eyePos()});
+// ── R2 camera controller (camera.js) — orbit/follow/fly modes over the ONE
+// cam object above. DOM handlers stay HERE and call controller methods
+// (input.js's attach pattern); env closures hand it live viewer state
+// lazily. A 404'd camera.js leaves camctl null and every call site below
+// degrades to the E3 behavior — belt-and-suspenders, disclosed.
+const camctl = window.SGCamera ? new SGCamera(cam, {
+  poses: () => bodyPoses.length ? bodyPoses : posesAt(simTime),
+  bodies: () => (scene && scene.bodies) || [],
+  bodyIndexByLabel: _bodyIndexByLabel,
+  bodyRadius: _bodyRadius,
+  sceneDiag: () => sceneDiag,
+}) : null;
+window._camctl = camctl;         // debug surface (window._cam/_dbg precedent)
 // lerp-when-both-endpoints-have-it, hold-when-only-one-does — the same
 // missing-data policy posesAt uses for temperature_k, applied to the three
 // scene-level scalars/vectors (absent on a frame → this trajectory predates
@@ -1554,15 +1578,19 @@ function draw(){
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,dst.tex);
     gl.uniform1i(dispU.uAccum,0); gl.uniform1f(dispU.uInvN,1.0/frames);
     gl.drawArrays(gl.TRIANGLES,0,3); pingA=!pingA;
+    // R2: hudSuffix() is "" in orbit mode, so today's strings stay
+    // byte-identical until a new camera mode is entered (a dbg tweak,
+    // not an E4 HUD panel).
+    const camSfx=camctl?camctl.hudSuffix():"";
     const dd=$("dbg"); if(dd) dd.textContent =
-        moving   ? `path-traced · live · ${spp} spp/frame · orbiting (clears when you stop) · ${w}x${h}`
-      : animated ? `path-traced · ${Math.min(accN,NMAX)}-frame exposure · ${frames*spp} photons/px · ripples live · ${w}x${h}`
-      :            `path-traced · ${frames*spp} samples/px · converging… · ${w}x${h}`;
+        moving   ? `path-traced · live · ${spp} spp/frame · orbiting (clears when you stop) · ${w}x${h}${camSfx}`
+      : animated ? `path-traced · ${Math.min(accN,NMAX)}-frame exposure · ${frames*spp} photons/px · ripples live · ${w}x${h}${camSfx}`
+      :            `path-traced · ${frames*spp} samples/px · converging… · ${w}x${h}${camSfx}`;
   } else {                                                   // ── compatibility shim: GPU lacks float render targets ──
     gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.viewport(0,0,w,h); gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(prog); bindScene(U,(performance.now()-T0)*0.001, frameCount);
     gl.drawArrays(gl.TRIANGLES,0,3);
-    const dd=$("dbg"); if(dd) dd.textContent=`compatibility view — this GPU can't path-trace (no float render targets) · ${w}x${h}`;
+    const dd=$("dbg"); if(dd) dd.textContent=`compatibility view — this GPU can't path-trace (no float render targets) · ${w}x${h}${camctl?camctl.hudSuffix():""}`;
   }
   drewOnce=true;
 }
@@ -1622,7 +1650,8 @@ function applyObj(obj, title, preserve){
   if(!preserve){ const cm=scene.camera||{};
     cam.target=(cm.target||[0,0,0]).slice(); cam.up=(cm.up||[0,0,1]).slice();
     cam.radius=cm.orbit_radius||0.3;                 // a scene may suggest its opening angle (flat grids want face-on)
-    cam.az=(cm.az0!==undefined?cm.az0:0.8); cam.el=(cm.el0!==undefined?cm.el0:0.45); }
+    cam.az=(cm.az0!==undefined?cm.az0:0.8); cam.el=(cm.el0!==undefined?cm.el0:0.45);
+    if(camctl) camctl.resetToOrbit(); }              // fresh scene = fresh nav (R2; preserve=true keeps mode+follow)
   const bb=scene.bbox||[[-1,1],[-1,1],[-1,1]];
   sceneDiag=len(sub([bb[0][1],bb[1][1],bb[2][1]],[bb[0][0],bb[1][0],bb[2][0]]));
   sceneId++;                                         // new scene → PT accumulation resets
@@ -1928,9 +1957,15 @@ canvas.addEventListener("mousedown",e=>{drag=true;lx=e.clientX;ly=e.clientY;drag
 window.addEventListener("mouseup",()=>drag=false);
 window.addEventListener("mousemove",e=>{ if(!drag) return;
   dragDist+=Math.hypot(e.clientX-lx,e.clientY-ly);
-  cam.az-=(e.clientX-lx)*0.01; cam.el=Math.max(-1.5,Math.min(1.5,cam.el+(e.clientY-ly)*0.01));
+  // R2: the controller owns the drag/wheel MEANING per camera mode
+  // (orbit/follow: legacy formulas verbatim inside camera.js; fly: look /
+  // throttle). camctl-null falls back to the shipped E3 lines, verbatim.
+  if(camctl) camctl.drag(e.clientX-lx, e.clientY-ly);
+  else { cam.az-=(e.clientX-lx)*0.01; cam.el=Math.max(-1.5,Math.min(1.5,cam.el+(e.clientY-ly)*0.01)); }
   lx=e.clientX; ly=e.clientY; });
-canvas.addEventListener("wheel",e=>{ e.preventDefault(); cam.radius*=Math.exp(e.deltaY*0.0012); },{passive:false});
+canvas.addEventListener("wheel",e=>{ e.preventDefault();
+  if(camctl) camctl.wheel(e.deltaY);
+  else cam.radius*=Math.exp(e.deltaY*0.0012); },{passive:false});
 // A real click (not the tail of an orbit drag) picks the material under the
 // cursor and toggles its render-only opacity — "click the engine block to
 // make it see-through". See pickMaterialAt() for the raymarch + toggle.
@@ -2046,6 +2081,12 @@ function loop(now){
       eEl.textContent=`KE: ${fmt(frameEnergyJ)} J   |p|: ${fmt(pMag)} kg·m/s`;
     }
   }
+  // R2 camera tick — ORDERING MATTERS: after bodyPoses=posesAt(simTime)
+  // above (follow tracks THIS frame's pose) and after the legacy
+  // scene.camera.follow write (in orbit mode the controller never touches
+  // cam.target, so opted-in legacy scenes are pixel-identical; in
+  // follow/fly the controller's later write wins).
+  if(camctl) camctl.tick(dt);
   frameCount++;
   if(prog){ try{ draw(); }catch(e){ setErr("draw: "+e); } }
   if(PROBE && !probeSent && scene && prog){
@@ -2134,14 +2175,20 @@ if (window.SGInput) {
       getTarget: () => { const el = $("applytarget"); return (el && el.value) || null; },
       onWorldIntent: (i) => { inp.lastWorldIntent = i; },   // parked in E3
       onEngineIntent: (i) => {
-        if (i.op === "cam_orbit") {
+        // R2: the controller owns every camera verb (cam_orbit/cam_zoom/
+        // cam_move/cam_mode/follow, mode-aware). The legacy inline
+        // branches survive as the camctl-null fallback — a 404'd
+        // camera.js degrades to E3 behavior instead of dead controls.
+        if (camctl && camctl.handles(i.op)) {
+          camctl.handleIntent(i);
+        } else if (i.op === "cam_orbit") {
           cam.az += (i.args.daz || 0);
           cam.el = Math.max(-1.5, Math.min(1.5, cam.el + (i.args.delv || 0)));  // same clamp as the mousemove handler
         } else if (i.op === "cam_zoom") {
           cam.radius *= (i.args.factor || 1);
         } else {
-          inp.lastEngineIntent = i;     // pace/pause/resume/cam_pan parked in
-          //                              E3 (honest: no host in the static viewer)
+          inp.lastEngineIntent = i;     // pace/pause/resume/cam_pan parked
+          //                              (honest: no host in the static viewer)
         }
       }});
     inp.attach(canvas);

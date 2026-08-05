@@ -17,7 +17,7 @@ from sigma_ground.radiance.web import build_scene_index as bsi
 
 def _slugs_on_disk():
     return {os.path.basename(p)[:-5] for p in glob.glob(os.path.join(bsi.DATA, "*.json"))
-            } - set(n[:-5] for n in bsi.LEGACY_INDEXES)
+            } - set(n[:-5] for n in bsi.LEGACY_INDEXES + bsi.NON_SCENES)
 
 
 def test_every_scene_on_disk_is_indexed():

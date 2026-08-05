@@ -493,14 +493,24 @@ def test_intent_engine_ops_and_camera_refusal(port):
         c.send({"type": "intent", "id": 3, "verb": "resume"})
         m = c.expect("resumed", timeout=10.0)
         assert m.get("id") == 3
-        c.send({"type": "intent", "id": 4, "verb": "cam_orbit",
-                "params": {"daz": 0.1}})
-        ref = c.expect("refusal", timeout=10.0)
-        assert ref["id"] == 4
-        assert "client-local" in ref["text"]
+        # EVERY client-local verb (E3's cam_orbit + R2's cam_move/cam_mode/
+        # follow) is refused via the ONE generic server_side=False arm —
+        # pins that new camera verbs need ZERO cockpit source changes.
+        cam_verbs = [
+            ("cam_orbit", {"daz": 0.1}),
+            ("cam_move", {"dz": 1.0}),
+            ("cam_mode", {}),
+            ("follow", {}),
+        ]
+        for k, (verb, params) in enumerate(cam_verbs):
+            c.send({"type": "intent", "id": 4 + k, "verb": verb,
+                    "params": params})
+            ref = c.expect("refusal", timeout=10.0)
+            assert ref["id"] == 4 + k, (verb, ref)
+            assert "client-local" in ref["text"], (verb, ref)
         # liveness: the connection + host loop still answer
-        c.send({"type": "hash", "id": 5})
-        assert c.expect("hash", timeout=10.0)["id"] == 5
+        c.send({"type": "hash", "id": 99})
+        assert c.expect("hash", timeout=10.0)["id"] == 99
     finally:
         c.close()
 

@@ -116,7 +116,8 @@ def test_engine_verbs_structurally_cannot_produce_forces():
     assert not (set(WORLD_VERBS) & set(ENGINE_VERBS))
     # the force path is ABSENT from the type, not merely untested
     assert "reduce" not in {f.name for f in dataclasses.fields(EngineVerb)}
-    ops = {"pace", "pause", "resume", "cam_orbit", "cam_zoom", "cam_pan"}
+    ops = {"pace", "pause", "resume", "cam_orbit", "cam_zoom", "cam_pan",
+           "cam_move", "cam_mode", "follow"}
     for name in ENGINE_VERBS:
         r = reduce(name)                            # defaults fill
         assert r["channel"] == "engine"

@@ -34,6 +34,10 @@ DATA = os.path.join(os.path.dirname(__file__), "data")
 INDEX = os.path.join(DATA, "scenes.json")
 # read for curated titles; no longer read by the viewer itself
 LEGACY_INDEXES = ("scenes.json", "voxel_scenes.json", "voxel_sdf_scenes.json")
+# E3's input-layer data files live in data/ beside the scenes but are NOT
+# scenes — the binding table and the generated verb-registry mirror
+# (input.js fetches both; neither could ever render in the gallery).
+NON_SCENES = ("input_bindings.json", "intent_verbs.json")
 
 # slug prefix → group, longest prefix wins. Groups the viewer doesn't know a
 # label for fall back to the raw group name, so a new prefix degrades to
@@ -133,7 +137,7 @@ def build() -> list:
     curated = _curated()
     entries = []
     for path in sorted(glob.glob(os.path.join(DATA, "*.json"))):
-        if os.path.basename(path) in LEGACY_INDEXES:
+        if os.path.basename(path) in LEGACY_INDEXES + NON_SCENES:
             continue
         try:
             entry = _scan_one(path)

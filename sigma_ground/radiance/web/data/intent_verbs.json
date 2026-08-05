@@ -2,6 +2,65 @@
   "_generated_by": "python -m sigma_ground.engine.intents",
   "format": "sg-intent-verbs",
   "verbs": {
+    "cam_mode": {
+      "channel": "engine",
+      "continuous": false,
+      "doc": "set or cycle the client camera mode; every transition preserves the exact eye position (no teleports)",
+      "op": "cam_mode",
+      "params": [
+        {
+          "choices": [
+            "cycle",
+            "orbit",
+            "follow",
+            "fly"
+          ],
+          "default": "cycle",
+          "hi": null,
+          "lo": null,
+          "lo_open": false,
+          "name": "mode",
+          "nonzero": false
+        }
+      ],
+      "server_side": false
+    },
+    "cam_move": {
+      "channel": "engine",
+      "continuous": true,
+      "doc": "translate the client fly camera along its look basis (dx=right, dy=up, dz=forward), normalized stick deflection in [-1,1]; the client controller scales by its distance-proportional speed law (camera.js's disclosed Choices) \u2014 ignored outside fly mode",
+      "op": "cam_move",
+      "params": [
+        {
+          "choices": null,
+          "default": 0.0,
+          "hi": 1.0,
+          "lo": -1.0,
+          "lo_open": false,
+          "name": "dx",
+          "nonzero": false
+        },
+        {
+          "choices": null,
+          "default": 0.0,
+          "hi": 1.0,
+          "lo": -1.0,
+          "lo_open": false,
+          "name": "dy",
+          "nonzero": false
+        },
+        {
+          "choices": null,
+          "default": 0.0,
+          "hi": 1.0,
+          "lo": -1.0,
+          "lo_open": false,
+          "name": "dz",
+          "nonzero": false
+        }
+      ],
+      "server_side": false
+    },
     "cam_orbit": {
       "channel": "engine",
       "continuous": true,
@@ -72,6 +131,14 @@
           "nonzero": false
         }
       ],
+      "server_side": false
+    },
+    "follow": {
+      "channel": "engine",
+      "continuous": false,
+      "doc": "lock the client camera target to the nearest body's live pose \u2014 choosing what to look at never touches physics; named follow is the controller API (window._camctl.follow(label)), since a static bindings table cannot name scene-dependent bodies",
+      "op": "follow",
+      "params": [],
       "server_side": false
     },
     "grab": {

@@ -48,8 +48,19 @@ DISCLOSED Choices (design calls, each honest and revisable):
 * Server-side rate limiting is deliberately ABSENT: the 60 Hz cap is
   client politeness (input.js), and the log records what actually applied
   — an uncapped flood applies more honest, logged force. E4's lane.
+* cam_move / cam_mode / follow (R2) are client-local engine verbs
+  (server_side=False — cockpit's generic not-server_side arm refuses
+  them with the existing "client-local" message, zero cockpit edits).
+  Their tuning constants (speed scale k, distance floor, step cap, hold
+  window) live as disclosed Choices in radiance/web/camera.js, not here
+  — the server has no camera. follow is deliberately PARAM-LESS: Param's
+  validator is numeric-or-choices only, a free-string body name can't be
+  expressed (and no static chord could usefully carry a scene-dependent
+  body anyway) — named follow is the controller API
+  (window._camctl.follow(label)); a string-Param extension is the
+  documented E4 path if verb-level named follow is ever wanted.
 
-The verb set is CLOSED (the applied.KINDS pattern): 11 members, and
+The verb set is CLOSED (the applied.KINDS pattern): 14 members, and
 magnitude/sign variants are binding DATA (input_bindings.json), never new
 members. Adding a verb is a doctrine decision, not a parameter.
 
@@ -243,6 +254,30 @@ ENGINE_VERBS = {
         "only in E3: no default binding and not wired in the viewer — the "
         "view-plane math duplicates pickMaterialAt's frame math, deferred)",
         continuous=True, op="cam_pan", server_side=False),
+    "cam_move": EngineVerb(
+        "cam_move",
+        (Param("dx", default=0.0, lo=-1.0, hi=1.0),
+         Param("dy", default=0.0, lo=-1.0, hi=1.0),
+         Param("dz", default=0.0, lo=-1.0, hi=1.0)),
+        "translate the client fly camera along its look basis (dx=right, "
+        "dy=up, dz=forward), normalized stick deflection in [-1,1]; the "
+        "client controller scales by its distance-proportional speed law "
+        "(camera.js's disclosed Choices) — ignored outside fly mode",
+        continuous=True, op="cam_move", server_side=False),
+    "cam_mode": EngineVerb(
+        "cam_mode",
+        (Param("mode", default="cycle",
+               choices=("cycle", "orbit", "follow", "fly")),),
+        "set or cycle the client camera mode; every transition preserves "
+        "the exact eye position (no teleports)",
+        continuous=False, op="cam_mode", server_side=False),
+    "follow": EngineVerb(
+        "follow", (),
+        "lock the client camera target to the nearest body's live pose — "
+        "choosing what to look at never touches physics; named follow is "
+        "the controller API (window._camctl.follow(label)), since a static "
+        "bindings table cannot name scene-dependent bodies",
+        continuous=False, op="follow", server_side=False),
 }
 
 # Route-table doctrine (region.py's construction-assert pattern): the two
