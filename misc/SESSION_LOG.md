@@ -2581,3 +2581,60 @@ real defects in EVERY phase they attacked — the process, not luck.
 - E5 multi-rate Regions; E6 LLM/dev API; E7 numpy perf (E0 baselines
   ready); R3-R6 renderer phases; A1 small-body data fetch
 - Chips filed: wire P0 physics as MCP Q&A tools; fix astro_002 routing
+
+## Session 31 — 2026-08-04..05 — MPDR lane: E4 connector, R0 net, R3 far field; capability envelope; lane split
+
+### What Landed
+- **Lane naming**: this session lane = MPDR (renderer); engine track
+  (E5-E8) = the "Von Neumann" lane (separate session). Both chips
+  (P0-physics MCP wiring; astro_002 routing fix) launched by the
+  Captain in their own worktree sessions.
+- `80a277c` **E4**: browser drives persistent worlds (net.js /world
+  wiring, deterministic world names = reload rejoins), data-driven
+  hud.js (composability PROVEN by console-injecting a novel panel),
+  audio end to end: StackSim records impact events RECORDING-ONLY at
+  the physics line (golden replay stayed byte-identical), server
+  derives synthesis params via acoustics.py (reviewer hand-recomputed
+  the ceramic plate's 9077.75 Hz bit-exact), vacuum silence honored.
+  Paid two old debts: E2's observer backpressure, E3's pace-duration.
+- `ce48057` **Capability envelope** (misc/MPDR_CAPABILITY_ENVELOPE.md)
+  for the game-design thread — every number [MEASURED]/[CODE-VERIFIED]/
+  [PROJECTED+arithmetic], adversarially audited (zero fabrications).
+  Headlines: 48-leaf scene 2-5 fps w/ 10 s compile stall (the 101-hang
+  mechanism measured live); static convergence = fps×3 spp/s; followed
+  bodies never converge; R4 dense floor ~12k objects/4 GB at 48³.
+- `31e7aad` **R0 pixel-regression net**: 11 baselines (0.98 MB),
+  3-render determinism proofs, Tier-1 exact SHA-256 + honest ADVISORY
+  Tier-2 (tolerances tightened 100-200x → 6-10x above measured noise
+  after a drill proved a real sky change passed), BASELINE-MISSING/
+  INPUT-CHANGED/INFRA verdicts. Two discovered nondeterminism sources:
+  DualSense stick drift via input polling; chat.js deep-link double-
+  load wiping capture pins.
+- `a9a0427` **R3 splat far field**: three bands w/ hysteresis, splat
+  brightness = closed-form expectation of the PT's own NEE estimator
+  (Russell phase law) + the shared incandescence chunk; exact inverse-
+  square measured; solar_earth's re-baseline diff confined 27/27 to
+  pixels PREDICTED before implementation from real DE440 positions.
+  ANGLE/D3D11 lesson: runtime-indexed uniform arrays in the miss
+  branch miscompile — unrolled constant-index codegen is the law.
+  Measured: 100k-splat pack loop 4.8 ms.
+- **Captain directives recorded**: R4 = SVO (hierarchical-sparse;
+  solar-system→single-satellite zoom); dodoxel KILL-SWITCH (cut to
+  cubic-everywhere if FCC becomes a friction point — burden of proof
+  on dodoxel).
+
+### Pre-existing defects flagged (not fixed, honestly excluded)
+- Voxel raymarch ~1.6x/px brighter than true Lambert (normal faceting)
+  → the ×1.72 seam step at the 24 px band edge
+- Theater interactive-tab freeze (stash-bisect proven pre-R3)
+- Sun cyan self-glow vs warm-white NEE cast (emissivity rule mismatch)
+- falling_feather probe selfcheck (Ellipsoid.surface_distance
+  Python-vs-GLSL divergence)
+- Wolfram-parity 29/30 (astro_002 → Captain's chip session)
+
+### Next Steps
+- R4 SVO voxel grid (design panel next: SVO vs octree-of-bricks under
+  WebGL2's no-storage-buffer constraint; dodoxel kill-switch is an
+  explicit evaluation criterion)
+- R5 streaming; A1 small-body fetch (10k-asteroid belt now renderable
+  at 0.5 ms pack cost); texture/shape assets; Captain's audio listen
