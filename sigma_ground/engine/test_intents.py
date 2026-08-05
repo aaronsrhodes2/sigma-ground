@@ -362,3 +362,77 @@ def test_intent_driven_run_replays_hash_identical(built):
     host.advance(500)
     h2.advance(500)
     assert h2.state_hash() == host.state_hash()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# § 7. E4 — the pace-scaled press window (the E3 disclosed deferral, fixed)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_press_duration_scales_by_pace_exactly():
+    for pace in (0.01, 0.5, 1.0, 10.0):
+        f = reduce("press", {"force_n": 5.0}, target="plate",
+                   pace=pace)["force"]
+        assert f["duration"] == PRESS_TICK_S * pace     # EXACT floats
+    # pace=None (headless/no-host callers) → the unscaled tick
+    f = reduce("press", {"force_n": 5.0}, target="plate")["force"]
+    assert f["duration"] == PRESS_TICK_S
+
+
+def test_tick_scaled_is_press_only_and_not_exported():
+    assert WORLD_VERBS["press"].tick_scaled is True
+    for name, spec in WORLD_VERBS.items():
+        if name != "press":
+            assert spec.tick_scaled is False, name
+    # NOT a client parameter: verbs_json (the mirror) never mentions it
+    assert "tick_scaled" not in json.dumps(verbs_json())
+
+
+def test_shove_and_tilt_ignore_pace():
+    masses = {"plate": 0.5}
+    a = reduce("shove", {"speed_m_s": 2.2}, target="plate", masses=masses)
+    b = reduce("shove", {"speed_m_s": 2.2}, target="plate", masses=masses,
+               pace=0.25)
+    assert a["force"] == b["force"]                     # no duration at all
+    ta = reduce("tilt", {"angle_deg": 6.0, "duration_s": 2.0})
+    tb = reduce("tilt", {"angle_deg": 6.0, "duration_s": 2.0}, pace=0.25)
+    assert ta["force"] == tb["force"]
+    assert ta["force"]["duration"] == 2.0               # USER sim-time ramp
+
+
+def test_hostile_pace_values_refuse_and_only_refuse():
+    """Totality extends to the new kwarg: every hostile pace dies as
+    IntentRefusal — never TypeError/OverflowError — for world AND engine
+    verbs alike (validation runs before verb dispatch)."""
+    hostile = [True, False, "fast", float("nan"), float("inf"),
+               -float("inf"), 0.0, 0.0099, 10.01, -1.0, 10 ** 400,
+               [1.0], {"pace": 1.0}]
+    for bad in hostile:
+        with pytest.raises(IntentRefusal):
+            reduce("press", {"force_n": 5.0}, target="plate", pace=bad)
+        with pytest.raises(IntentRefusal):
+            reduce("pause", pace=bad)
+    # the bounds are the host's own PACE_MIN/PACE_MAX — edges accepted
+    from sigma_ground.engine.host import PACE_MAX, PACE_MIN
+    for edge in (PACE_MIN, PACE_MAX):
+        f = reduce("press", {"force_n": 5.0}, target="plate",
+                   pace=edge)["force"]
+        assert f["duration"] == PRESS_TICK_S * edge
+
+
+def test_pace_scaled_press_replays_hash_identical(built):
+    """The command log records the ACTUAL scaled duration — replay stays
+    exact by construction (the log is the state)."""
+    host = WorldHost.from_built(built, items=ITEMS)
+    masses = _mass_table(host.region.sim)
+    for k in range(300):
+        if k in (0, 16, 32):
+            red = reduce("press", {"force_n": 5.0}, target="plate",
+                         masses=masses, pace=0.5)
+            assert red["force"]["duration"] == PRESS_TICK_S * 0.5
+            assert host.apply(red["target"], red["force"])["ok"]
+        host.advance(1)
+    saved = host.save()
+    for (_k, _t, force) in saved["command_log"]:
+        assert force["duration"] == PRESS_TICK_S * 0.5  # logged as applied
+    h2 = WorldHost.load(json.loads(json.dumps(saved)), prebuilt=built)
+    assert h2.state_hash() == host.state_hash()

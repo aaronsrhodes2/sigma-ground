@@ -32,10 +32,25 @@ DISCLOSED couplings and deferrals:
 * live multi-submitter ordering is FIFO-by-arrival (inherently
   nondeterministic in advance), but the log records whatever order actually
   applied, so replay is still exact.
-* observer queues are UNBOUNDED: a stuck observer accumulates memory and
-  never blocks physics. Backpressure/eviction is E4's lane.
+* observer queues are BOUNDED at OBSERVER_QUEUE_CAP frames (E2 shipped
+  them unbounded and deferred backpressure to E4; this is that fix,
+  adversarially forced: a subscribed-but-stalled observer accumulated
+  frames — events riding them included — without limit). A full queue
+  evicts its OWN oldest frame (drop-oldest) and counts it on the queue's
+  ``dropped`` attribute — frames are display-only presentation, so
+  eviction touches no physics/log/save state, and the gap is disclosed by
+  the counter, never silent. Observers that keep up still see identical
+  sequences; physics never blocks either way.
 * snapshot() may be called from any thread (the cockpit's per-client hello
   frame); it is a display read only — the hash never reads frame().
+* E4 audio events are PRESENTATION derived from physics: they ride
+  emitted frames only (additive "events"/"events_dropped"/"events_error"
+  keys attached in _emit, BEFORE fan-out), and never enter the command
+  log, _full_state_floats, or any save — saves replay hash-identical and
+  deterministically regenerate the same events. snapshot() itself never
+  carries events (hello frames are event-free by construction). load()
+  discards replay-regenerated events: they are state RECONSTRUCTION, not
+  presentation.
 """
 from __future__ import annotations
 
@@ -59,6 +74,10 @@ MAX_CATCHUP = 4000              # bounded catch-up: max steps per iteration
 PACE_MIN, PACE_MAX = 0.01, 10.0
 SAVE_FORMAT = "sg-world-save"
 SAVE_VERSION = 1
+# Per-observer frame-queue bound (E4): ~68 s of backlog at the 30 Hz send
+# rate, ~7 s at pace 10. A stalled observer evicts its own oldest frames
+# (drop-oldest, counted on q.dropped) — see the module docstring.
+OBSERVER_QUEUE_CAP = 2048
 
 
 class HostBusy(RuntimeError):
@@ -190,6 +209,15 @@ class WorldHost:
         self._rebase = False
         self._thread = None
         self._stop = threading.Event()
+        # E4 audio: synthesis profiles (set by from_built; None on a bare
+        # host — annotate falls back to honest all-thud) + the label→mass
+        # table the annotator's energy Deduction reads. One-shot breaker:
+        # a tap bug must NEVER kill the loop thread (the E2 adversarial
+        # lesson) — first failure disables the tap and discloses it once.
+        self._audio_profiles = None
+        self._masses = {sim.names[i]: float(sim.mass[i])
+                        for i in range(sim.n)}
+        self._events_broken = False
 
     # ── construction ──────────────────────────────────────────────────────
     @classmethod
@@ -212,7 +240,13 @@ class WorldHost:
         region = StackSimRegion(World(), built, mu_lookup=mu, e_lookup=e)
         scenario = {"builder": "stacksim", "items": list(items),
                     "pushed_index": int(pushed_index)}
-        return cls(region, scenario=scenario, dt=dt)
+        host = cls(region, scenario=scenario, dt=dt)
+        # E4 audio: lazy import keeps bare-engine imports light; every
+        # /world world routes through from_built (from_items and load()
+        # both call it), so every world gets synthesis profiles.
+        from . import audio_events
+        host._audio_profiles = audio_events.build_profiles(built)
+        return host
 
     # ── the ONE apply path (owning thread, at a step boundary only) ───────
     def _apply_at_boundary(self, target, force_dict) -> dict:
@@ -413,7 +447,11 @@ class WorldHost:
 
     # ── observers ─────────────────────────────────────────────────────────
     def subscribe(self) -> queue.Queue:
-        q = queue.Queue()               # unbounded — see module docstring
+        """A bounded frame queue (OBSERVER_QUEUE_CAP, drop-oldest — see the
+        module docstring). Evictions are counted on ``q.dropped``: a
+        stalled observer's gap is disclosed, never silent."""
+        q = queue.Queue(maxsize=OBSERVER_QUEUE_CAP)
+        q.dropped = 0                   # eviction disclosure counter
         with self._olock:
             self._observers.append(q)
         return q
@@ -445,12 +483,65 @@ class WorldHost:
 
     def _emit(self):
         """ONE snapshot dict handed to EVERY observer queue — identical
-        sequences by construction (same object, same order, no filtering;
-        read-only by documented convention)."""
+        sequences by construction for observers that keep up (same object,
+        same order, no filtering; read-only by documented convention; a
+        FULL queue evicts its own oldest frame, counted on q.dropped —
+        module docstring). E4: drains the sim's
+        recording-only event buffer and attaches annotated audio events as
+        ADDITIVE keys BEFORE the fan-out — the dict is never mutated
+        after. Owner thread only (the paced loop or emit_snapshot), same
+        thread class as _step_once."""
         snap = self.snapshot()
+        buf = getattr(self.region.sim, "events", None)
+        if buf:
+            ev = list(buf)
+            buf.clear()
+            if not self._events_broken:
+                try:
+                    from . import audio_events
+                    names = self.region.sim.names
+                    wire, dropped = [], 0
+                    for raw in ev:
+                        if len(wire) >= audio_events.MAX_EVENTS_PER_EMIT:
+                            dropped += 1        # flood honesty — counted
+                            continue
+                        w = audio_events.annotate(
+                            raw, names, self._masses,
+                            self._audio_profiles, self.step_count)
+                        if w is not None:
+                            wire.append(w)
+                        elif not (isinstance(raw.get("impact_speed_m_s"),
+                                             (int, float))
+                                  and math.isfinite(raw["impact_speed_m_s"])
+                                  and raw["impact_speed_m_s"]
+                                  < audio_events.MIN_IMPACT_SPEED):
+                            dropped += 1        # non-floor drop — counted
+                    if wire:
+                        snap["events"] = wire
+                    if dropped:
+                        snap["events_dropped"] = dropped
+                except Exception as e:          # the one-shot breaker
+                    # One-shot disable: a tap bug must NEVER kill the loop
+                    # thread (the E2 adversarial lesson). Disclosed once.
+                    self._events_broken = True
+                    snap["events_error"] = str(e)
         with self._olock:
             for q in self._observers:
-                q.put(snap)
+                try:
+                    q.put_nowait(snap)
+                except queue.Full:
+                    # drop-oldest eviction, counted (display-only frames;
+                    # physics/log/saves are untouched). Single producer:
+                    # after one eviction the put cannot race full again.
+                    try:
+                        q.get_nowait()
+                    except queue.Empty:     # pragma: no cover — racing consumer
+                        pass
+                    q.dropped = getattr(q, "dropped", 0) + 1
+                    try:
+                        q.put_nowait(snap)
+                    except queue.Full:      # pragma: no cover — unreachable
+                        pass
 
     # ── persistence: the log IS the state ─────────────────────────────────
     def _save_dict(self) -> dict:
@@ -529,6 +620,13 @@ class WorldHost:
                     f"{res['refusal']}")
         while host.step_count < int(saved["step_count"]):
             host._step_once()
+        # E4: replay-regenerated events are state RECONSTRUCTION, not
+        # presentation — discard them so a post-load first emit carries no
+        # stale impact burst (touches no floats; the hash below is blind
+        # to events by construction).
+        buf = getattr(host.region.sim, "events", None)
+        if buf is not None:
+            buf.clear()
         if verify and saved.get("state_hash"):
             got = host._hash_now()
             if got != saved["state_hash"]:
@@ -540,5 +638,5 @@ class WorldHost:
 
 
 __all__ = ["SIM_DT", "SEND_DT", "MAX_CATCHUP", "PACE_MIN", "PACE_MAX",
-           "SAVE_FORMAT", "SAVE_VERSION", "HostBusy", "WorldReplayError",
-           "WorldHost"]
+           "OBSERVER_QUEUE_CAP", "SAVE_FORMAT", "SAVE_VERSION", "HostBusy",
+           "WorldReplayError", "WorldHost"]

@@ -690,3 +690,141 @@ def test_non_object_json_attach_refused_not_fatal(port):
         assert "attach" in r["text"]
     finally:
         c.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# § 8. E4 — audio events over the wire + the pace-scaled press window
+# ═══════════════════════════════════════════════════════════════════════════
+
+def _collect_events(c, timeout=40.0, want=1):
+    """Frames ride wall-clock stepping — generous deadline (CI-flake
+    doctrine); returns every wire event seen."""
+    out = []
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline and len(out) < want:
+        c.recv(timeout=0.2)
+        for f in c.frames:
+            for ev in f.get("events", []):
+                if ev not in out:
+                    out.append(ev)
+    return out
+
+
+def test_ready_audio_block_and_impact_events_over_socket(port):
+    """attach → ready carries the audio disclosure; a hard shove sends the
+    plate off the table; impact events arrive on the frame stream with
+    server-computed physics: energy == 0.5*m*v² (m from the disclosed
+    profile — server-side mass) and ring frequency matching an INDEPENDENT
+    acoustics call on the profile's OWN mapped_key/size (never a
+    hard-coded material)."""
+    from sigma_ground.field.interface import acoustics
+    w = _wname()
+    c = _Client(port)
+    try:
+        c.send({"type": "attach", "world": w, "items": ITEMS})
+        ready = c.expect("ready", timeout=120.0)
+        audio = ready.get("audio")
+        assert audio, "ready carries no audio block"
+        profiles = audio["profiles"]
+        assert set(profiles) == set(ITEMS)
+        assert profiles["plate"]["synth"] == "ring"
+        assert profiles["Doughnut"]["synth"] == "thud"      # honest gap
+        assert profiles["Doughnut"]["frequency_hz"] is None
+        assert "choices" in audio and "eta_acoustic" in audio["choices"]
+        # the hard shove: plate leaves the table, falls, lands
+        c.send({"type": "intent", "id": 1, "verb": "shove",
+                "params": {"speed_m_s": 8.0}, "target": "plate"})
+        c.expect("applied", timeout=10.0)
+        events = _collect_events(c, timeout=40.0, want=1)
+        assert events, "no impact events arrived on the stream"
+        for ev in events:
+            prof = profiles[ev["body"]]
+            # energy: the server's Deduction, exact same op order
+            assert ev["energy_j"] == \
+                0.5 * prof["mass_kg"] * ev["impact_speed_m_s"] ** 2
+            assert ev["acoustic_energy_j"] < ev["energy_j"]
+            if ev["synth"]["kind"] == "ring":
+                assert ev["synth"]["frequency_hz"] == \
+                    acoustics.ring_frequency(prof["mapped_key"],
+                                             prof["size_m"])
+                assert ev["synth"]["q"] == prof["q"]
+            else:
+                assert ev["synth"]["frequency_hz"] is None
+        # every frame that carried events is strict JSON
+        for f in c.frames:
+            json.dumps(f, allow_nan=False)
+    finally:
+        c.close()
+
+
+def test_refused_intent_produces_no_events(port):
+    """A refusal must leave the world untouched: zero events across a
+    settled observation window after the refusal."""
+    w = _wname()
+    c = _Client(port)
+    try:
+        c.send({"type": "attach", "world": w, "items": ITEMS})
+        c.expect("ready", timeout=120.0)
+        c.send({"type": "intent", "id": 5, "verb": "yeet"})
+        ref = c.expect("refusal", timeout=10.0)
+        assert ref["id"] == 5
+        deadline = time.monotonic() + 2.0
+        while time.monotonic() < deadline:
+            c.recv(timeout=0.2)
+        assert len(c.frames) >= 2, "no observation window"
+        for f in c.frames:
+            assert "events" not in f, f
+    finally:
+        c.close()
+
+
+def test_save_after_events_replays_hash_equal_and_log_event_free(port):
+    w = _wname()
+    c = _Client(port)
+    try:
+        c.send({"type": "attach", "world": w, "items": ITEMS})
+        c.expect("ready", timeout=120.0)
+        c.send({"type": "intent", "id": 1, "verb": "shove",
+                "params": {"speed_m_s": 8.0}, "target": "plate"})
+        c.expect("applied", timeout=10.0)
+        assert _collect_events(c, timeout=40.0, want=1), "no events"
+        c.send({"type": "pause"})
+        c.expect("paused", timeout=10.0)
+        c.send({"type": "hash", "id": 7})
+        hv = c.expect("hash", timeout=10.0)
+        c.send({"type": "save", "id": 8})
+        data = c.expect("save", timeout=10.0)["data"]
+    finally:
+        c.close()
+    # events never entered the log or the save
+    assert "events" not in json.dumps(data["command_log"])
+    loaded = WorldHost.load(json.loads(json.dumps(data)))
+    assert loaded.state_hash() == hv["value"] == data["state_hash"]
+
+
+def test_press_duration_scales_by_wire_pace(port):
+    """{"type":"pace",factor:0.5} then a press intent → the applied
+    ticket's force.duration == PRESS_TICK_S*0.5 EXACTLY (the E3 deferral
+    fixed at reduce time; the log records what actually applied)."""
+    from sigma_ground.engine.intents import PRESS_TICK_S
+    w = _wname()
+    c = _Client(port)
+    try:
+        c.send({"type": "attach", "world": w, "items": ITEMS})
+        c.expect("ready", timeout=120.0)
+        c.send({"type": "pace", "factor": 0.5})
+        m = c.expect("pace", timeout=10.0)
+        assert m["factor"] == 0.5
+        c.send({"type": "intent", "id": 21, "verb": "press",
+                "params": {"force_n": 5.0}, "target": "plate"})
+        ap = c.expect("applied", timeout=10.0)
+        assert ap["id"] == 21
+        assert ap["force"]["duration"] == PRESS_TICK_S * 0.5
+        # and the save's log carries the SAME scaled duration
+        c.send({"type": "save", "id": 22})
+        data = c.expect("save", timeout=10.0)["data"]
+        press = [f for (_k, _t, f) in data["command_log"]
+                 if f["kind"] == "force"]
+        assert press and press[-1]["duration"] == PRESS_TICK_S * 0.5
+    finally:
+        c.close()

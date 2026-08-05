@@ -32,6 +32,16 @@ old /live vocabulary — that endpoint still exists and still speaks it):
   C→S {"type":"pace","factor":float} | {"type":"pause"} | {"type":"resume"}
   C→S {"type":"save","id"?} | {"type":"hash","id"?} | {"type":"detach"}
   S→C {"type":"ready",...} → one hello frame → broadcast frames
+       # E4: ready carries an ADDITIVE "audio" block (per-body synthesis
+       # profiles + every tuning Choice with its reason — engine/
+       # audio_events.audio_disclosure). Broadcast frames gain ADDITIVE
+       # keys when audio events occurred since the last emit:
+       #   "events": [wire event dicts]   (impact/bounce; server-computed
+       #             energy/frequency/Q — the client is a dumb synth)
+       #   "events_dropped": int          (flood-capped excess, counted)
+       #   "events_error": str            (one-shot tap breaker, disclosed)
+       # Quiet frames are byte-identical to R2's. Events never enter the
+       # command log or any save. The cockpit relays frames VERBATIM.
   S→C {"type":"applied","id","step_index","target","force"}
   S→C {"type":"refusal","id"?,"text"} | {"type":"pace","factor"}
   S→C {"type":"paused"} | {"type":"resumed"}
@@ -219,12 +229,18 @@ def _world_session(ws):
     if err:
         ws.send_json({"type": "refusal", "text": err})
         return
-    ws.send_json({"type": "ready", "world": name, "created": created,
-                  "labels": list(host.region.sim.names),
-                  "live_kinds": sorted(STACK_LIVE_KINDS),
-                  "all_kinds": sorted(KINDS),
-                  "dt": host.dt, "step": host.step_count,
-                  "paused": host.paused, "pace": host.pace})
+    ready = {"type": "ready", "world": name, "created": created,
+             "labels": list(host.region.sim.names),
+             "live_kinds": sorted(STACK_LIVE_KINDS),
+             "all_kinds": sorted(KINDS),
+             "dt": host.dt, "step": host.step_count,
+             "paused": host.paused, "pace": host.pace}
+    if getattr(host, "_audio_profiles", None) is not None:
+        # E4 additive: the server-side synthesis disclosure (profiles +
+        # Choices). A host without profiles simply omits the block.
+        from ..engine import audio_events
+        ready["audio"] = audio_events.audio_disclosure(host._audio_profiles)
+    ws.send_json(ready)
     ws.send_json(host.snapshot())               # the hello / catch-up frame
     # E3: the game-verb reduction needs the mass table (an impulse's vector
     # discloses J = m·v — the client can't know it; matter lives
@@ -279,9 +295,16 @@ def _world_session(ws):
                 # IntentRefusal arm keeps the connection and the host loop
                 # unkillable by any malformed intent.
                 try:
+                    # pace=host.pace (the _ctl-locked property, same
+                    # handler-thread read class as ready's host.paused):
+                    # E4's press-window fix — tick_scaled verbs get
+                    # duration = PRESS_TICK_S * pace. Disclosed: a pace
+                    # change racing between reduce and boundary-apply
+                    # scales by the reduce-time value; the log records
+                    # what actually applied.
                     red = intents.reduce(msg.get("verb"), msg.get("params"),
                                          target=msg.get("target"),
-                                         masses=masses)
+                                         masses=masses, pace=host.pace)
                 except intents.IntentRefusal as e:
                     ws.send_json({"type": "refusal", "id": msg.get("id"),
                                   "text": str(e)})

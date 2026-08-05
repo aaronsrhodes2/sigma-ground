@@ -224,6 +224,11 @@
            (artificial stand-ins for absent machinery, stated plainly) -->
       <div id="plugs" class="lbl" style="color:#818CF8"></div>
     </div>
+    <!-- E4: SGHud's dockable data-driven panels mount here on world
+         attach and unmount on detach; empty (and invisible) otherwise.
+         The legacy #hud overlays above stay untouched — the world-mode
+         overlap is the disclosed parity-proving duplication. -->
+    <div id="hudroot"></div>
     <div id="editor">
       <div class="ehead"><b>behind the simulation</b> &nbsp;<span class="lbl">the seed Radiance renders from — edit anything and it re-renders. physics isn't enforced; the picture is just its consequence.</span></div>
       <textarea id="json" spellcheck="false" autocomplete="off"></textarea>
@@ -254,6 +259,24 @@
         <div style="display:flex; gap:8px;">
           <button id="applyrun">⚡ run</button>
           <button id="applylive" title="God-hand mode: the real solver steps server-side in real time over a websocket; forces apply mid-run without re-recording.">🔴 go live</button>
+        </div>
+        <!-- E4 world mode: attach to a PERSISTENT named /world (cockpit).
+             Needs the cockpit server — the pure-static server fails
+             honestly. The world survives detach; 🌐 rejoins it. -->
+        <div style="display:flex; flex-direction:column; gap:6px; border-top:1px solid var(--line); padding-top:10px;">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button id="worldbtn" title="World mode: attach to a persistent server-side world over /world (cockpit only). Keyboard verbs and this drawer both act on it live; the world survives disconnects.">🌐 world</button>
+            <input id="worldname" type="text" spellcheck="false" autocomplete="off"
+                   placeholder="world name (default: from the scene)"
+                   style="flex:1; background:#111; color:var(--fg); border:1px solid var(--line2); padding:6px 8px; font:inherit;">
+          </div>
+          <div id="worldctl" style="display:none; align-items:center; gap:8px; flex-wrap:wrap;">
+            <button id="worldpause" title="Pause/resume the world (server echo shows in the HUD)">⏸/▶</button>
+            <span class="lbl">pace</span>
+            <input id="worldpace" type="range" min="-1" max="1" step="0.01" value="0" style="flex:1; min-width:80px;">
+            <span id="worldpaceval" class="lbl">1.00×</span>
+            <button id="worldsave" title="Download the world save (the command log IS the state; replays hash-identical)">💾 save</button>
+          </div>
         </div>
         <div id="applymsg"></div>
       </div>
@@ -295,6 +318,9 @@
 
 <script src="input.js"></script>
 <script src="camera.js"></script>
+<script src="net.js"></script>
+<script src="audio.js"></script>
+<script src="hud.js"></script>
 <script src="viewer.js"></script>
 <script src="chat.js"></script>
 </body>

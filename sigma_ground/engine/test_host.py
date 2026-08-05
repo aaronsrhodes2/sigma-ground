@@ -338,3 +338,161 @@ def test_non_finite_floats_refused_and_saves_stay_strict_json(built):
     assert ok["ok"] is True
     h.advance(50)
     json.dumps(h.save(), allow_nan=False)   # raises if the invariant broke
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# § E4 — audio events on the observer stream: presentation, never state
+# ═══════════════════════════════════════════════════════════════════════════
+
+SHOVE_HARD = {"kind": "impulse", "target": "plate",
+              "vector": [8.0, 0.0, 0.0],
+              "variables": {"push_speed_m_s": 8.0}}
+
+
+def _drive_to_events(built, n_steps=4200):
+    """A hard shove sends the plate off the table; advance far enough for
+    the fall + landing chain (≈4.4 s at 960 Hz covers it)."""
+    h = WorldHost.from_built(built, items=ITEMS)
+    assert h.apply("plate", dict(SHOVE_HARD))["ok"]
+    h.advance(n_steps)
+    return h
+
+
+def test_emit_carries_annotated_events_with_sane_fields(built):
+    h = _drive_to_events(built)
+    assert h.region.sim.events                      # raw events recorded
+    q = h.subscribe()
+    h.emit_snapshot()
+    frame = q.get_nowait()
+    evs = frame.get("events")
+    assert evs, "the emit after a landing chain carried no events"
+    for ev in evs:
+        assert ev["kind"] in ("impact", "bounce")
+        assert ev["body"] in ITEMS and (ev["surface"] in ITEMS
+                                        or ev["surface"] == "floor")
+        assert ev["impact_speed_m_s"] > 0
+        assert ev["energy_j"] > 0
+        assert ev["acoustic_energy_j"] < ev["energy_j"]
+        assert isinstance(ev["synth"]["provenance"], str)
+    json.dumps(frame, allow_nan=False)              # strict-JSON clean
+    # the drained buffer means the NEXT emit is event-free
+    h.emit_snapshot()
+    assert "events" not in q.get_nowait()
+
+
+def test_hello_snapshot_never_carries_events(built):
+    h = _drive_to_events(built)
+    assert h.region.sim.events                      # events ARE pending
+    snap = h.snapshot()                             # the hello-frame read
+    assert "events" not in snap and "events_dropped" not in snap
+
+
+def test_events_never_in_log_and_hash_blind_to_emission(built):
+    h = _drive_to_events(built)
+    before = h.state_hash()
+    for (_k, _target, force) in h.command_log:
+        assert "events" not in force
+        assert "events" not in json.dumps(force)
+    h.subscribe()
+    h.emit_snapshot()                               # drains + annotates
+    assert h.state_hash() == before                 # hash blind to the tap
+    for (_k, _target, force) in h.command_log:
+        assert "events" not in json.dumps(force)
+
+
+def test_save_after_events_replays_hash_equal_and_post_load_emit_clean(built):
+    h = _drive_to_events(built)
+    saved = h.save()
+    json.dumps(saved, allow_nan=False)
+    assert "events" not in json.dumps(saved["command_log"])
+    h2 = WorldHost.load(json.loads(json.dumps(saved)), prebuilt=built,
+                        verify=True)
+    assert h2.state_hash() == h.state_hash()        # string ==
+    # load() discarded replay-regenerated events: the first post-load emit
+    # carries none (they are state reconstruction, not presentation)
+    q = h2.subscribe()
+    h2.emit_snapshot()
+    assert "events" not in q.get_nowait()
+
+
+def test_identical_runs_regenerate_identical_event_sequences(built):
+    """Determinism of PRESENTATION: two identical runs record the exact
+    same raw event list (bit-for-bit floats)."""
+    h1 = _drive_to_events(built)
+    h2 = _drive_to_events(built)
+    e1, e2 = list(h1.region.sim.events), list(h2.region.sim.events)
+    assert e1 and e1 == e2
+
+
+def test_tap_exception_disables_tap_but_never_kills_the_loop(built,
+                                                            monkeypatch):
+    """The one-shot breaker: a raising annotate must produce ONE disclosed
+    events_error frame and then a silently-disabled tap — never a dead
+    loop thread (the E2 adversarial lesson)."""
+    from sigma_ground.engine import audio_events
+
+    def _boom(*a, **k):
+        raise RuntimeError("synthetic tap bug")
+
+    monkeypatch.setattr(audio_events, "annotate", _boom)
+    h = _drive_to_events(built)
+    q = h.subscribe()
+    h.emit_snapshot()
+    frame = q.get_nowait()
+    assert "events" not in frame
+    assert "synthetic tap bug" in frame.get("events_error", "")
+    # the tap is now disabled: further emits are clean, headless API alive
+    h.advance(10)
+    h.emit_snapshot()
+    f2 = q.get_nowait()
+    assert "events" not in f2 and "events_error" not in f2
+    assert h.apply("Doughnut", HOLD_ON)["ok"]
+    # threaded form: the paced loop survives a broken tap end to end
+    h3 = WorldHost.from_built(built, items=ITEMS)
+    h3.start(pace=10.0)
+    try:
+        assert h3.submit("plate", dict(SHOVE_HARD)).wait()["ok"]
+        time.sleep(0.6)
+        assert h3._loop_running(), "loop died on a broken audio tap"
+    finally:
+        h3.stop()
+
+
+def test_stalled_observer_queue_bounded_drop_oldest_counted(built):
+    """ADVERSARIAL REGRESSION (E4 refutation pass). E2 shipped observer
+    queues UNBOUNDED with backpressure deferred to E4; a subscribed-but-
+    never-drained observer accumulated frames (audio events riding them)
+    without limit — proven live at 5000 frames and climbing. The fix:
+    OBSERVER_QUEUE_CAP with drop-oldest eviction COUNTED on q.dropped —
+    presentation-only, physics/log/saves untouched, never silent."""
+    import queue as _queue
+
+    from sigma_ground.engine.host import OBSERVER_QUEUE_CAP
+
+    h = WorldHost.from_built(built, items=ITEMS)
+    q = h.subscribe()
+    extra = 25
+    for _ in range(OBSERVER_QUEUE_CAP + extra):
+        h.advance(1)
+        h.emit_snapshot()
+    assert q.qsize() == OBSERVER_QUEUE_CAP          # bounded, exactly
+    assert q.dropped == extra                        # counted, exactly
+    frames = []
+    while True:
+        try:
+            frames.append(q.get_nowait())
+        except _queue.Empty:
+            break
+    # drop-OLDEST: the survivors are the newest cap-many frames, in order
+    assert frames[0]["step"] == extra + 1
+    assert frames[-1]["step"] == h.step_count
+    steps = [f["step"] for f in frames]
+    assert steps == sorted(steps)
+    # eviction is presentation-only: the host still applies and hashes
+    assert h.apply("Doughnut", HOLD_ON)["ok"]
+    assert isinstance(h.state_hash(), str)
+    # a KEEPING-UP observer still sees an identical gap-free sequence
+    q2 = h.subscribe()
+    h.advance(1)
+    h.emit_snapshot()
+    assert q2.get_nowait()["step"] == h.step_count and q2.dropped == 0

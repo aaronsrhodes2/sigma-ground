@@ -33,12 +33,15 @@ DISCLOSED Choices (design calls, each honest and revisable):
   tile without overlap-summing (StackSim._forces SUMS overlapping
   windows). Duration is deliberately NOT a client parameter: a client
   could otherwise claim longer windows than it actually held.
-* SIMPLIFIED_MODEL — press windows are SIM-time but the client re-issue
-  cadence is WALL-time, so at pace != 1 the duty cycle scales (pace 0.1 →
-  ~10x overlap-sum; pace 10 → ~10% duty) and sub-60fps clients emit at
-  frame rate. The E2 command log records what ACTUALLY applied, so replay
-  is exact regardless; scaling duration by pace at reduce time is E4's
-  fix, not built here.
+* pace-scaled press windows — FIXED IN E4: reduce(pace=host.pace) scales
+  the press window (duration = PRESS_TICK_S * pace) so held re-issues tile
+  in wall time at any pace — one 60 Hz wall tick advances pace/60 sim-s
+  and the window now covers exactly that. The command log records the
+  ACTUAL scaled duration, so replay is unaffected either way — the fix is
+  FEEL, not physics. Residual (disclosed): sub-60fps clients re-issue at
+  frame rate and still overlap-sum slightly; a pace change racing between
+  reduce and boundary-apply scales by the reduce-time value (the log
+  records what actually applied).
 * shove speed range (0, 20] m/s — disclosed reuse of the frozen /apply
   route's knob (cockpit._apply_force's "in (0, 20]" check); the two ranges
   cross-reference each other and must move together.
@@ -130,6 +133,14 @@ class WorldVerb:
     needs_target: bool
     needs_mass: bool
     reduce: Callable                # (validated_params, target, mass_kg) -> dict
+    tick_scaled: bool = False       # True: the per-tick window scales by the
+    #                                 host pace at reduce time (press only —
+    #                                 shove has no duration; tilt's duration
+    #                                 is a USER-chosen sim-time ramp and
+    #                                 deliberately does NOT scale). Declarative
+    #                                 server-side data: NOT exported by
+    #                                 verbs_json (duration was never a client
+    #                                 parameter).
 
 
 @dataclass(frozen=True)
@@ -204,7 +215,7 @@ WORLD_VERBS = {
         "sustained-force-class: force_n newtons for one input tick — "
         "re-issued at the cap while held (the analog-stick doctrine)",
         continuous=True, needs_target=True, needs_mass=False,
-        reduce=_reduce_press),
+        reduce=_reduce_press, tick_scaled=True),
     "grab": WorldVerb(
         "grab", (),
         "hold on: pin the body against the world (the hold plug)",
@@ -375,15 +386,46 @@ def _validated(verb_name, param_specs, params) -> dict:
     return out
 
 
-def reduce(verb, params=None, *, target=None, masses=None) -> dict:
+def _validated_pace(pace) -> float:
+    """The reduce-time pace factor (E4's press-window fix). None → 1.0
+    (headless/no-host callers). Anything else must be a finite number
+    within [PACE_MIN, PACE_MAX] — IntentRefusal otherwise (totality: the
+    fuzz contract covers hostile pace values too)."""
+    if pace is None:
+        return 1.0
+    if isinstance(pace, bool) or not isinstance(pace, (int, float)):
+        raise IntentRefusal(
+            f"pace must be a finite number in [{PACE_MIN}, {PACE_MAX}], "
+            f"got {_show(pace)}")
+    try:
+        f = float(pace)
+    except OverflowError:
+        raise IntentRefusal(
+            f"pace is not a finite number: a {pace.bit_length()}-bit "
+            f"integer does not fit a double") from None
+    if not math.isfinite(f) or not (PACE_MIN <= f <= PACE_MAX):
+        raise IntentRefusal(
+            f"pace must be a finite number in [{PACE_MIN}, {PACE_MAX}], "
+            f"got {_show(pace)}")
+    return f
+
+
+def reduce(verb, params=None, *, target=None, masses=None,
+           pace=None) -> dict:
     """Reduce one {verb, params, target} game intent to its channel form.
 
     Returns {"channel": "world", "verb", "target", "force": {wire dict}}
     or {"channel": "engine", "verb", "op", "server_side", "args": {...}}.
     Raises IntentRefusal — and ONLY IntentRefusal — for every invalid
     input. ``masses`` is the server-side label→mass_kg table (needed only
-    by needs_mass verbs: the impulse vector discloses J = m·v).
+    by needs_mass verbs: the impulse vector discloses J = m·v). ``pace``
+    is the host's current pace factor at reduce time (the cockpit passes
+    host.pace): tick_scaled verbs (press) get duration = PRESS_TICK_S *
+    pace so held re-issues tile in WALL time at any pace — the E3
+    deferral, fixed here. The command log records the ACTUAL scaled
+    duration, so replay stays exact.
     """
+    pace_f = _validated_pace(pace)      # validation FIRST — totality
     if not isinstance(verb, str) or (verb not in WORLD_VERBS
                                      and verb not in ENGINE_VERBS):
         raise IntentRefusal(
@@ -423,6 +465,10 @@ def reduce(verb, params=None, *, target=None, masses=None) -> dict:
                     f"for {target!r} is not a number "
                     f"({_show(masses[target])})") from None
         force = spec.reduce(p, target, mass)
+        if spec.tick_scaled:
+            # E4: one wall tick at the cap advances pace/60 sim-s; the
+            # window covers exactly that → duty cycle 1 at every pace.
+            force["duration"] = PRESS_TICK_S * pace_f
         AppliedForce.from_dict(force)   # SELF-CHECK: a registry bug dies
         #                                 here, not at the region
         return {"channel": "world", "verb": verb,

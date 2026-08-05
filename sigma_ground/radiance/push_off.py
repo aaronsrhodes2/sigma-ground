@@ -38,6 +38,7 @@ coefficients) and the derived Bowden-Tabor coefficient is the wrong regime
 (clean metals in vacuum, ~1.0 for every pair — see
 materia.engine.make_material_friction and tests/test_degeneracy_probe.py).
 """
+import collections
 import math
 
 G = 9.80665
@@ -113,6 +114,11 @@ class StackSim:
         self._forces = []                   # [(body, ax_m_s2, t_end), ...]
         self._holds = set()                 # pinned body indices
         self._tilt = None                   # (angle_rad_target, t0, t1)
+        # self.events is a RECORDING-ONLY presentation buffer (E4 audio):
+        # physics never reads it (the golden replay is the gate). Bounded,
+        # disclosed drop-oldest — the old /live loop and record_push_off
+        # step this sim and never drain; WorldHost._emit is the drainer.
+        self.events = collections.deque(maxlen=256)
 
     # ── the closed taxonomy's live entry points ────────────────────────────
     def apply_impulse(self, body, dv_x):
@@ -206,6 +212,16 @@ class StackSim:
                     if vz[i] < 0.25:                   # too slow to bounce visibly
                         vz[i] = 0.0
                         support[i] = land
+                    # RECORDING-ONLY (E4 audio): sits AFTER every float
+                    # write in the landing branch; nothing physics reads.
+                    # t is the step-START time (pre-increment) — disclosed.
+                    self.events.append({
+                        "kind": "impact" if vz[i] == 0.0 else "bounce",
+                        "body": i, "surface": land,     # int index | "floor"
+                        "impact_speed_m_s": vimp, "e": e, "mu": mu,
+                        "v_out_m_s": vz[i],
+                        "x": com[i][0] + dx[i], "z": com[i][2] + dz[i],
+                        "t": self.t})
                 continue
             # supported: one Coulomb branch covers rider-on-moving-support and
             # pushed-body-on-static-surface. Normal load = own weight + riders;

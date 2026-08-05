@@ -1793,6 +1793,7 @@ function _setLive(on){
 }
 $("applylive").addEventListener("click",()=>{
   if(liveMode){ _setLive(false); return; }
+  if(worldMode) _setWorld(false);   // mutual exclusion (E4) — one streamer
   if(!_sim) return;
   const msg=$("applymsg");
   msg.textContent="connecting…";
@@ -1816,6 +1817,31 @@ $("applylive").addEventListener("click",()=>{
 });
 $("applyrun").addEventListener("click",async ()=>{
   if(!_sim) return;
+  // E4 world mode: the drawer routes through /world. Two channels, both
+  // live: mass-needing impulse goes as a shove INTENT (server-side
+  // reduction — the client cannot honestly build J = m·v), everything
+  // else as a RAW apply with the client's own values; kinds with no
+  // solver go through raw apply and come back as an HONEST server
+  // refusal into the tickets panel.
+  if(worldMode && worldNet && worldNet.live){
+    const kind=$("applykind").value, v=parseFloat($("applyspeed").value),
+          tgt=$("applytarget").value;
+    if(kind==="impulse")
+      worldNet.intent("shove", {speed_m_s:Math.abs(v),
+                                direction:v<0?"-x":"+x"}, tgt);
+    else if(kind==="force")
+      worldNet.apply(tgt, {kind:"force", target:tgt,
+                           vector:[v,0,0], duration:1.0});
+    else if(kind==="tilt")
+      worldNet.apply(null, {kind:"tilt", target:"world",
+                            variables:{angle_deg:v}, duration:2.0});
+    else if(kind==="hold")
+      worldNet.apply(tgt, {kind:"hold", target:tgt,
+                           variables:{on:v>=0.5}});
+    else
+      worldNet.apply(tgt, {kind, target:tgt, variables:{}});
+    return;
+  }
   const msg=$("applymsg");
   const force=_applyForce();
   if(liveMode&&liveWS&&liveWS.readyState===1){
@@ -1835,6 +1861,177 @@ $("applyrun").addEventListener("click",async ()=>{
     } else msg.textContent=env.text||env.error||"no result";
   }catch(e){ msg.textContent="apply: "+e; }
 });
+
+// ── E4 world mode: the persistent /world protocol (net.js) ────────────────
+// ALONGSIDE the old /live (which stays byte-untouched and working — it
+// retires only after this replacement proves parity; proving parity is
+// E4, retiring is not). Mutual exclusion BOTH directions with liveMode:
+// poses must never double-write. Honest failure on the pure-static
+// server: net.js closes pre-ready and the reason names the cockpit.
+let worldMode=false, worldNet=null, _worldFrame=null;
+const _worldEvents=[];                       // ring, cap 32
+window._world={get mode(){return worldMode;}, get frame(){return _worldFrame;},
+               nframes:0, events:_worldEvents};
+function _defaultWorldName(){
+  // deterministic from the scene's items — reload REJOINS the persistent
+  // world by default (mismatch refusal can't fire on the default path);
+  // the #worldname input is the join/fresh override surface.
+  if(!_sim||!Array.isArray(_sim.items)) return "w-world";
+  return "w-"+_sim.items.map(s=>String(s).toLowerCase()
+    .replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"")).join("-");
+}
+function _worldBag(){ return window._hudState=(window._hudState||{}); }
+function _worldActions(){
+  return {
+    "world.pausetoggle": ()=>{ if(!worldNet) return;
+      (_worldFrame&&_worldFrame.paused)?worldNet.resume():worldNet.pause(); },
+    "world.pace": (v)=>{ if(worldNet) worldNet.pace(v); },
+    "world.save": ()=>_worldSave(),
+    "audio.mute": ()=>{ if(window.SGAudio) SGAudio.setMuted(!SGAudio.state().muted); },
+    "audio.volume": (v)=>{ if(window.SGAudio) SGAudio.setVolume(v); },
+  };
+}
+function _worldSave(){
+  if(!worldNet) return;
+  worldNet.save().then((data)=>{
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download=`${worldNet.world}-step${data.step_count}.save.json`;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+    $("applymsg").textContent=`saved ${a.download} (the log IS the state)`;
+  }).catch((e)=>{ $("applymsg").textContent="save: "+e.message; });
+}
+function _setWorld(on){
+  if(!on){
+    worldMode=false; _worldFrame=null;
+    const net=worldNet; worldNet=null;
+    if(net){ try{ net.detach(); }catch(_e){} }     // the world PERSISTS
+    const btn=$("worldbtn");
+    if(btn){ btn.textContent="🌐 world"; btn.classList.remove("on"); }
+    const ctl=$("worldctl"); if(ctl) ctl.style.display="none";
+    if(window.SGHud&&SGHud._mounted) SGHud.unmount();
+    const bag=window._hudState;
+    if(bag&&bag.world&&bag.world.mode==="live") bag.world.mode="off";
+    // the _setLive restore idiom: recorded playback poses come back
+    if(tEnd>0) bodyPoses=posesAt(simTime);
+    // drawer kind options back to recorded-mode defaults
+    for(const o of $("applykind").options){
+      if(o.dataset.baselabel) o.textContent=o.dataset.baselabel;
+      o.disabled=(o.value!=="impulse");
+    }
+    return;
+  }
+  // entering: connect (worldMode flips true only on the server's ready)
+  if(liveMode) _setLive(false);                    // mutual exclusion
+  if(!_sim||!window.SGWorldNet){
+    $("applymsg").textContent="world mode needs a push-route scene (sim provenance)";
+    return;
+  }
+  const wn=$("worldname");
+  if(wn&&!wn.value) wn.value=_defaultWorldName();
+  const name=(wn&&wn.value.trim())||_defaultWorldName();
+  $("applymsg").textContent="connecting to /world…";
+  const bag=_worldBag();
+  bag.world={mode:"connecting", name, err:null};
+  bag.tickets=bag.tickets||[]; bag.events=bag.events||[];
+  const net=new SGWorldNet({
+    world:name, items:_sim.items, pushedIndex:_sim.pushed_index,
+    onReady:(ready)=>{
+      worldMode=true; playing=false; $("play").textContent="▶ play";
+      bag.world={mode:"live", name:ready.world, err:null};
+      if(ready.audio) bag.audio_server=ready.audio;   // server disclosure
+      // target dropdown from the SERVER's labels (index 0 = the base)
+      const tgt=$("applytarget"); tgt.innerHTML="";
+      ready.labels.forEach((label,i)=>{
+        const o=document.createElement("option");
+        o.value=label; o.textContent=i===0?`${label} (the base — not pushable)`:label;
+        o.disabled=(i===0); tgt.appendChild(o); });
+      tgt.value=ready.labels[1]||ready.labels[0];
+      // DESIGN CALL (disclosed): in world mode ALL kinds are enabled —
+      // the server's honest refusal into the tickets panel IS the honesty
+      // surface (this is what lets a source-kind show a real refusal);
+      // recorded and /live modes keep the disabled-option idiom untouched.
+      for(const o of $("applykind").options){
+        if(!o.dataset.baselabel) o.dataset.baselabel=o.textContent;
+        const isLive=(ready.live_kinds||[]).includes(o.value);
+        o.disabled=false;
+        o.textContent=isLive?o.dataset.baselabel
+                            :o.dataset.baselabel+" — server will refuse (no solver)";
+      }
+      const btn=$("worldbtn");
+      if(btn){ btn.textContent="⏹ leave world"; btn.classList.add("on"); }
+      const ctl=$("worldctl"); if(ctl) ctl.style.display="";
+      $("applymsg").textContent=
+        `WORLD "${ready.world}" — persistent server-side world (step ${ready.step}); `
+        +`keyboard verbs and the drawer both apply live`;
+      if(window.SGHud) SGHud.mount($("hudroot"), SGHud.PANELS,
+                                   {actions:_worldActions()});
+      if(window.SGAudio&&SGAudio.musicState)
+        SGAudio.musicState({event:"attach", world:ready.world});
+      if(window._hud) window._hud.touch();
+    },
+    onFrame:(m)=>{
+      _worldFrame=m; window._world.nframes++;
+      // the same pathway liveMode uses: streamed poses ARE the poses
+      bodyPoses=m.bodies.map(b=>({pos:b.pos, quat:b.quat}));
+    },
+    onEvent:(ev)=>{
+      const v=window.SGAudio?SGAudio.handleEvent(ev, eyePos(), scene)
+                            :{play:false, reason:"audio.js not loaded"};
+      const entry=Object.assign({}, ev,
+        {heard:!!v.play, silenced_reason:v.play?null:v.reason});
+      _worldEvents.push(entry);
+      if(_worldEvents.length>32) _worldEvents.shift();
+      bag.events.push(entry);
+      if(bag.events.length>32) bag.events.shift();
+      if(window._hud) window._hud.touch();
+    },
+    onTicket:(t)=>{
+      bag.tickets.push(t);
+      if(bag.tickets.length>50) bag.tickets.shift();
+      const msg=$("applymsg");
+      if(msg) msg.textContent=(t.ok?"✓ ":"✗ ")+(t.text||"");
+      if(window._hud) window._hud.touch();
+    },
+    onProto:(_m)=>{ if(window._hud) window._hud.touch(); },
+    onClose:(info)=>{
+      if(bag.world) { bag.world.mode=info.everReady?"off":"failed";
+                      bag.world.err=info.reason; }
+      $("applymsg").textContent=info.everReady?"world detached — the world "
+        +"persists server-side; 🌐 to rejoin":info.reason;
+      if(worldMode||worldNet) _setWorld(false);
+    },
+  });
+  worldNet=net; window._worldnet=net;
+  net.connect();
+}
+(function(){
+  const btn=$("worldbtn"); if(!btn) return;
+  btn.addEventListener("click",()=>{
+    if(worldMode||worldNet){ _setWorld(false); return; }
+    _setWorld(true);
+  });
+  // prefill the deterministic default name whenever the drawer opens
+  $("b-apply").addEventListener("click",()=>{
+    const wn=$("worldname");
+    if(wn&&!wn.value&&_sim) wn.value=_defaultWorldName();
+  });
+  const wp=$("worldpause");
+  if(wp) wp.addEventListener("click",()=>{
+    if(!worldNet) return;
+    (_worldFrame&&_worldFrame.paused)?worldNet.resume():worldNet.pause();
+  });
+  const ps=$("worldpace");
+  if(ps) ps.addEventListener("input",()=>{
+    // log slider 0.1–10 sends the BARE pace op; the display is updated
+    // from FRAMES (server echo authoritative, never slider position)
+    if(worldNet) worldNet.pace(Math.pow(10,parseFloat(ps.value)));
+  });
+  const sv=$("worldsave");
+  if(sv) sv.addEventListener("click",_worldSave);
+})();
 
 // ── render-only material opacity: named-material list + click-to-pick ─────
 // The scene's baked opacity (materials[label].opacity, 1.0 if never set) with
@@ -2064,6 +2261,27 @@ function loop(now){
       const eEl=$("energy");
       if(eEl){ const p=_liveFrame.momentum||[0,0,0];
         eEl.textContent=`KE: ${(_liveFrame.energy_j||0).toFixed(2)} J   |p|: ${Math.hypot(p[0],p[1],p[2]).toFixed(2)} kg·m/s`; } }
+  } else if(worldMode){
+    // E4: streamed /world poses — this branch MUST sit between liveMode
+    // and the tEnd playback arm, or posesAt(simTime) clobbers streamed
+    // poses every rAF (the exact bug liveMode's short-circuit prevents).
+    if(_worldFrame){ const m=_worldFrame;
+      $("tval").textContent=`t=${(m.t||0).toFixed(2)}s  step ${m.step}  WORLD${m.paused?" ⏸":""}`;
+      const eEl=$("energy");
+      if(eEl){ const p=m.momentum||[0,0,0];
+        eEl.textContent=`KE: ${(m.energy_j||0).toFixed(2)} J   |p|: ${Math.hypot(p[0],p[1],p[2]).toFixed(2)} kg·m/s`; }
+      const pv=$("worldpaceval");
+      if(pv) pv.textContent=`${(m.pace||1).toFixed(2)}×${m.paused?" ⏸":""}`;   // server echo, never slider position
+      const bag=window._hudState;
+      if(bag){
+        bag.frame={step:m.step, t:m.t, pace:m.pace, paused:m.paused,
+                   settled:m.settled, energy_j:m.energy_j,
+                   momentum:m.momentum, angular_momentum:m.angular_momentum};
+        bag.camera=camctl?camctl.state():null;   // STRUCTURED fields — never hudSuffix parsing
+        bag.playback={simTime, tEnd, playing};
+      }
+    }
+    if(window._hud) window._hud.touch();
   } else if(tEnd>0){ bodyPoses=posesAt(simTime); $("scrub").value=String(simTime/tEnd*1000);
     const p0=(bodyPoses[0]&&bodyPoses[0].pos)||[0,0,0];
     // follow camera: long falls opt in via scene.camera.follow (the body would
@@ -2173,7 +2391,13 @@ if (window.SGInput) {
     const inp = new SGInput({bindings, verbs,
       // target = the apply drawer's select when a live sim has built it
       getTarget: () => { const el = $("applytarget"); return (el && el.value) || null; },
-      onWorldIntent: (i) => { inp.lastWorldIntent = i; },   // parked in E3
+      onWorldIntent: (i) => {
+        inp.lastWorldIntent = i;          // debug surface stays truthful
+        // E4: UN-PARKED — a keyboard shove genuinely pushes a body in
+        // the persistent world. Reduction stays SERVER-side (intents.py).
+        if (worldNet && worldNet.live) worldNet.intent(i.verb, i.params, i.target);
+        // else: parked (honest — the static server has nothing to push against)
+      },
       onEngineIntent: (i) => {
         // R2: the controller owns every camera verb (cam_orbit/cam_zoom/
         // cam_move/cam_mode/follow, mode-aware). The legacy inline
@@ -2186,9 +2410,15 @@ if (window.SGInput) {
           cam.el = Math.max(-1.5, Math.min(1.5, cam.el + (i.args.delv || 0)));  // same clamp as the mousemove handler
         } else if (i.op === "cam_zoom") {
           cam.radius *= (i.args.factor || 1);
+        } else if ((i.op === "pace" || i.op === "pause" || i.op === "resume")
+                   && worldNet && worldNet.live) {
+          // E4: host protocol ops ride the INTENT form so KeyP/bracket
+          // chords get ticketed id echoes in the HUD log
+          worldNet.intent(i.verb, i.args, null);
         } else {
-          inp.lastEngineIntent = i;     // pace/pause/resume/cam_pan parked
-          //                              (honest: no host in the static viewer)
+          inp.lastEngineIntent = i;     // cam_pan (and no-host pace/pause/
+          //                              resume) parked — honest: the
+          //                              static viewer has no host
         }
       }});
     inp.attach(canvas);
