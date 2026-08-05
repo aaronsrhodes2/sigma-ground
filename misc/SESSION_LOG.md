@@ -2638,3 +2638,76 @@ real defects in EVERY phase they attacked — the process, not luck.
   explicit evaluation criterion)
 - R5 streaming; A1 small-body fetch (10k-asteroid belt now renderable
   at 0.5 ms pack cost); texture/shape assets; Captain's audio listen
+
+## Session 32 — 2026-08-05 — R4 SVO: probe GO, builder+parity landed, viewer wired behind the gate; theater draw pathology isolated
+
+### R4.0 ANGLE probe (svo_probe.html) — GO on all four
+- (a) RGBA32UI node texelFetch 0/4096 bad; (b) usampler3D R8UI NEAREST exact
+  (R8-UNORM fallback also exact, unneeded); (c) uniform-int-bounded
+  texelFetch loop exact at 1/7/30/299/300; (d) 8-level restart descent
+  BIT-EXACT on 1000 pts (1538 nodes/976 bricks); hardware trilinear
+  max|d| 4.3e-3 vs 2-LSB tol 7.8e-3 — the parity tool's filter tolerance,
+  now MEASURED.
+
+### R4.1 svo.js + test_svo.node.js + tools/verify_svo_parity.py — landed
+- Builder: 18^3 cell-centered bricks (V4, shipped bytes verbatim at the
+  finest level), per-level band (V5), contiguous 8-child blocks, root-brick
+  invariant, uniform collapse, content-hash tree dedupe, 256-palette refusal.
+- DESIGN ADDITION (disclosed): uniform-fallback conservative step correction
+  — an ancestor brick's point-sampled cells can exceed true distance by ~one
+  ancestor cell; on uniform-class breaks svoDist subtracts one ancestor cell,
+  floored at the classification guarantee (band_f − 0.87·vs_f). Sphere-trace-
+  safe at ANY depth; fuzz-verified (49k pts, 0 violations, 0 overshoot).
+- Parity (tools/verify_svo_parity.py, replaying mapD+march over the REAL
+  builder output via tools/dump_svo.node.js): vox_chair + solar_earth +
+  solar_wide — 0 HARD field divergences, 0 material divergences; vox_chair's
+  10 outcome flips all FIELD-VERIFIED as the (unchanged) marcher's own
+  thin-slat step-over / ε-shell tangency (fields agree to 1e-11); LOD-seam
+  magnitudes documented per level. test_svo.node.js 39/39.
+
+### R4.2 viewer wiring (svoEnabled default FALSE) — landed, gated
+- Compile gate (R3 banding precedent): eligible Voxel leaves (top-level,
+  body-bound, op:add) route OUT of per-leaf codegen; zero-Voxel scenes
+  byte-identical (load-time _assertSVOGate string assert, both builders).
+- One svoDist + RGBA32F body table + 256x4 material LUT + ONE R8 atlas +
+  RGBA32UI node pool; fixed units 11-14; band-0-only row packing; NEE
+  guard extended for SVO-routed emitters; capture arm waits on svoReady;
+  window.Radiance.setSVO A/B; ?svo=/?svodry=/?svotrace= debug params.
+- Byte-identity PROVEN empirically: --check 11/11 after wiring (svo off).
+- A/B vox_chair (svo=1 vs committed baseline, same pins): changed 1.331%,
+  mean|d| 0.270, p99 8 — evidence misc/render_regression/svoab_vox_chair_*.
+
+### Measured findings (the budgeted live-bisect, run with new instruments)
+- tools/gen_shader.node.js: OFFLINE shader-text generator (DOM/GL-stubbed
+  viewer.js, ?svodry=1) — no browser needed for codegen inspection.
+- svo_bisect.html: isolated link/draw prober (fresh Chrome instance per
+  variant; watchdog = instance kill).
+- ANGLE LINK COST (fresh profile, cold fxc): legacy theater PT = 95.9 s(!);
+  SVO theater PT = 71.9 s (26% FASTER, and leaf-count-independent);
+  MAX_SVO_BODIES 64 vs 512 = no difference (loop stays rolled); vox_chair
+  SVO = 2.2 s. compileShader alone measures ≤34 ms — ANGLE defers fxc to
+  LINK. Chrome's shader disk cache makes warm loads ~1 s.
+- textureLod (not texture) in sampleBrick: implicit-LOD is a gradient op
+  inside nested dynamic loops — kept as hygiene (node-test enforced).
+- A wedged/long link or draw POISONS the shared GPU process AND same-site
+  tabs share one renderer main thread — bisect isolation must be per
+  Chrome instance (documented in svo_bisect.html header).
+
+### OPEN — theater (9-body) SVO first draw pathologically slow
+- vox_chair SVO renders end-to-end (probe posts, A/B captured). The
+  theater with svo=1 links fine but its first PT frame does not complete
+  in 400 s even at a 64x36 capture (2304 fragments); isolated draw probes
+  of the same shader complete (bounded, no infinite loop) but at ~ms-per-
+  pixel-class cost with synthetic uniforms. Not fragment-count scaling;
+  possibly interacts with the KNOWN pre-existing theater interactive-tab
+  freeze (Session 31 defect list). BLOCKS R4.4's baseline flip; R4.3-R4.6
+  remain open. Next instrument: real-data isolated draw (dump_svo payloads
+  + solar_wide uniforms) in svo_bisect.html; suspects = per-iteration
+  driver cost in the descent under the theater's banding/NEE shader
+  surroundings, RGBA32F accumulation target interaction.
+
+### Suites at session end
+- test_svo 39/39 · splats 67/67 · camera 108/108 · e4 72/72 · pytest
+  radiance+layering 153 passed/4 skipped · engine-family 12 passed ·
+  E0 determinism 4/4 · verify_svo_parity PARITY HOLDS · R0 --check 11/11
+  at R4.0, R4.1, and R4.2 (final run this session).

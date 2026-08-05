@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html><!-- svo_bisect.html — R4 compile-bisect probe: fetch ?f=<file>, compile
+     it as a WebGL2 fragment shader with wall timing, beacon the result to
+     /probe as slug "svobisect_<id>". Run ONE variant per fresh Chrome
+     instance: a wedged ANGLE compile poisons the whole GPU process AND the
+     shared same-site renderer main thread (measured this session), so
+     isolation is per-instance, watchdog is instance-kill. -->
+<head><meta charset="utf-8"><title>svo bisect</title></head>
+<body style="background:#000;color:#0f8;font:13px monospace"><pre id="o">…</pre>
+<script>
+"use strict";
+(async () => {
+  const q = new URLSearchParams(location.search);
+  const f = q.get("f"), id = q.get("id") || "x";
+  const out = document.getElementById("o");
+  const post = (obj) => { obj.slug = "svobisect_" + id;
+    navigator.sendBeacon("/probe", JSON.stringify(obj)); out.textContent = JSON.stringify(obj); };
+  try {
+    const src = await (await fetch(f)).text();
+    const c = document.createElement("canvas");
+    const gl = c.getContext("webgl2");
+    if (!gl) { post({ ok: false, ms: -1, log: "no webgl2" }); return; }
+    // (single beacon only — two rapid POSTs race serve.py's /probe write)
+    // FULL LINK, not just compileShader: ANGLE defers the real HLSL/fxc
+    // codegen to glLinkProgram — compileShader alone measured ≤34 ms on a
+    // shader whose link wedges for minutes (this session's bisect lesson).
+    const VS = "#version 300 es\nvoid main(){ vec2 p=vec2(float((gl_VertexID<<1)&2),float(gl_VertexID&2)); gl_Position=vec4(p*2.0-1.0,0.0,1.0); }";
+    const t0 = performance.now();
+    const vs = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vs, VS); gl.compileShader(vs);
+    const s = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    const cok = gl.getShaderParameter(s, gl.COMPILE_STATUS);
+    const p = gl.createProgram();
+    gl.attachShader(p, vs); gl.attachShader(p, s);
+    gl.linkProgram(p);
+    const ok = cok && gl.getProgramParameter(p, gl.LINK_STATUS);    // forces fxc
+    const ms = Math.round(performance.now() - t0);
+    if (!ok || q.get("draw") !== "1") {
+      post({ ok, ms, len: src.length,
+             log: ok ? "" : ((cok ? gl.getProgramInfoLog(p) : gl.getShaderInfoLog(s)) || "").slice(0, 400) });
+      return;
+    }
+    // ── DRAW probe: minimal synthetic SVO residency, 8x8 viewport, readPixels
+    // forces completion — finds constructs that link fine but wedge at draw.
+    c.width = 8; c.height = 8;
+    gl.viewport(0, 0, 8, 8);
+    gl.useProgram(p);
+    const U = (n) => gl.getUniformLocation(p, n);
+    // node pool: node1 = MIXED root w/ brick0, no children
+    const pool = new Uint32Array(4096 * 1 * 4);
+    pool[1 * 4] = 0; pool[1 * 4 + 1] = 0; pool[1 * 4 + 2] = (2 << 16); pool[1 * 4 + 3] = 0;
+    const nt = gl.createTexture(); gl.activeTexture(gl.TEXTURE11); gl.bindTexture(gl.TEXTURE_2D, nt);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32UI, 4096, 1, 0, gl.RGBA_INTEGER, gl.UNSIGNED_INT, pool);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    if (U("uSVONodes")) gl.uniform1i(U("uSVONodes"), 11);
+    const atlas = new Uint8Array(18 * 18 * 18).fill(200);
+    const at = gl.createTexture(); gl.activeTexture(gl.TEXTURE12); gl.bindTexture(gl.TEXTURE_3D, at);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texImage3D(gl.TEXTURE_3D, 0, gl.R8, 18, 18, 18, 0, gl.RED, gl.UNSIGNED_BYTE, atlas);
+    gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    if (U("uSdfAtlas")) gl.uniform1i(U("uSdfAtlas"), 12);
+    const lut = new Float32Array(256 * 4 * 4).fill(0.5);
+    const lt = gl.createTexture(); gl.activeTexture(gl.TEXTURE13); gl.bindTexture(gl.TEXTURE_2D, lt);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, 256, 4, 0, gl.RGBA, gl.FLOAT, lut);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    if (U("uMatLUT")) gl.uniform1i(U("uMatLUT"), 13);
+    const body = new Float32Array(16);
+    body.set([0, 0, 5, 2,  0, 0, 0, 1,  -1, -1, -1, 2,  1, 2 | 0, -1, 0.12]);
+    const bt = gl.createTexture(); gl.activeTexture(gl.TEXTURE14); gl.bindTexture(gl.TEXTURE_2D, bt);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, 4, 1, 0, gl.RGBA, gl.FLOAT, body);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    if (U("uSVOBody")) gl.uniform1i(U("uSVOBody"), 14);
+    if (U("uNumSvoBodies")) gl.uniform1i(U("uNumSvoBodies"), parseInt(q.get("nb") || "1", 10));
+    if (U("uAtlasDim")) gl.uniform1f(U("uAtlasDim"), 18);
+    if (U("uAtlasBpa")) gl.uniform1i(U("uAtlasBpa"), 1);
+    // camera + epsilon uniforms (plausible small-scene values)
+    const u3 = (n, x, y, z) => { const l = U(n); if (l) gl.uniform3f(l, x, y, z); };
+    const u1 = (n, v) => { const l = U(n); if (l) gl.uniform1f(l, v); };
+    u3("uEye", 0, 0, 0); u3("uEyeWorld", 0, 0, 0); u3("uFwd", 0, 0, 1);
+    u3("uRight", 1, 0, 0); u3("uUp", 0, 1, 0);
+    const l2 = U("uRes"); if (l2) gl.uniform2f(l2, 8, 8);
+    u1("uTanHalf", 0.4); u1("uAspect", 1); u1("uMaxDist", 100); u1("uTime", 0);
+    u1("uTemp", 0); u1("uFrame", 1); u1("uReset", 1); u1("uPrevScale", 0);
+    u1("uEPS", 1e-3); u1("uSHMIN", 4e-3); u1("uSHMAX", 6e-2); u1("uSMAXT", 5);
+    u1("uGateBuffer", 5e-3); u1("uCalcNH", 2e-4);
+    const li = U("uSPP"); if (li) gl.uniform1i(li, 1);
+    const t1 = performance.now();
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    const px = new Uint8Array(8 * 8 * 4);
+    gl.readPixels(0, 0, 8, 8, gl.RGBA, gl.UNSIGNED_BYTE, px);   // forces completion
+    const dms = Math.round(performance.now() - t1);
+    post({ ok: true, ms, draw_ms: dms, err: gl.getError(), px0: [px[0], px[1], px[2]] });
+  } catch (e) { post({ ok: false, ms: -2, log: String(e).slice(0, 300) }); }
+})();
+</script></body></html>

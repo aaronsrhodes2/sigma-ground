@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+<!-- svo_probe.html — R4.0 ANGLE GO/NO-GO probe (blueprint Sec 6, V9).
+
+     Proves, on THIS driver stack, the four constructs the R4 SVO path rides
+     BEFORE any pipeline code exists:
+       (a) RGBA32UI 2D texelFetch node reads (the 128-bit node pool);
+       (b) usampler3D R8UI NEAREST round-trip (material atlas) — with the
+           R8-UNORM-NEAREST fallback decode probed alongside (Sec 1 hedge);
+       (c) a dynamic loop bounded by a UNIFORM int whose texelFetch coords
+           derive from the loop variable — the exact mapD body-loop pattern
+           (the proven-dangerous construct class is uniform ARRAYS indexed
+           dynamically; this is the texelFetch replacement being proven);
+       (d) an 8-level synthetic-tree restart descent, bit-exact vs a JS
+           float32-emulating mirror on 1000 points, running the SAME
+           traversal text viewer.js will emit (svoDist, Sec 2).
+
+     Standalone: no viewer.js, no scene, zero dependencies. Results render
+     into the page AND POST to /probe as slug "svo_probe" (the gauntlet
+     sink), so a headless driver can poll misc/BROWSER_REPORT.json.
+     Deterministic throughout: LCG-seeded patterns, no Math.random, no
+     wall-clock in any probed value. -->
+<head><meta charset="utf-8"><title>R4.0 SVO ANGLE probe</title>
+<style>body{background:#000;color:#00FF88;font:13px monospace;padding:12px}
+.bad{color:#FF4444}.warn{color:#FFAA00}</style></head>
+<body><h3>R4.0 SVO ANGLE probe</h3><pre id="out">running…</pre>
+<canvas id="gl" width="64" height="64" style="display:none"></canvas>
+<script>
+"use strict";
+(() => {
+const out = [];
+const log = (s) => { out.push(s); document.getElementById("out").textContent = out.join("\n"); };
+const result = { slug: "svo_probe", probes: {}, console_errors: [] };
+window.__svoProbe = result;
+const _ce = console.error.bind(console);
+console.error = (...a) => { result.console_errors.push(a.map(String).join(" ").slice(0, 300)); _ce(...a); };
+
+// deterministic LCG (no Math.random anywhere in this page)
+let _seed = 0x2545F491 >>> 0;
+function lcg() { _seed = (Math.imul(_seed, 1664525) + 1013904223) >>> 0; return _seed; }
+const f32 = Math.fround;
+
+function post() {
+  result.ok = Object.values(result.probes).every(p => p.pass === true || p.pass === "fallback");
+  fetch("/probe", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(result) }).catch(() => {});
+  log(result.ok ? "\nVERDICT: GO" : "\nVERDICT: NO-GO (see failures above)");
+}
+
+const canvas = document.getElementById("gl");
+const gl = canvas.getContext("webgl2", { antialias: false });
+if (!gl) { result.probes.context = { pass: false, note: "no WebGL2" }; log("no WebGL2"); post(); return; }
+const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+result.renderer = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : String(gl.getParameter(gl.RENDERER));
+result.ua = navigator.userAgent;
+log("renderer: " + result.renderer);
+
+const VS = `#version 300 es
+void main(){ vec2 p=vec2(float((gl_VertexID<<1)&2),float(gl_VertexID&2));
+  gl_Position=vec4(p*2.0-1.0,0.0,1.0); }`;
+function compile(type, src) {
+  const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s) + "\n" + src);
+  return s;
+}
+function prog(fs) {
+  const p = gl.createProgram();
+  gl.attachShader(p, compile(gl.VERTEX_SHADER, VS));
+  gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  return p;
+}
+// RGBA32UI offscreen target: exact integer readback, no gamma/blend in the path
+function uintTarget(w, h) {
+  const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32UI, w, h, 0, gl.RGBA_INTEGER, gl.UNSIGNED_INT, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  const fbo = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  const st = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+  if (st !== gl.FRAMEBUFFER_COMPLETE) throw new Error("RGBA32UI FBO incomplete: " + st);
+  return { tex, fbo };
+}
+function runReadU32(program, w, h, bind) {
+  const t = uintTarget(w, h);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, t.fbo); gl.viewport(0, 0, w, h);
+  gl.useProgram(program); bind();
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  const px = new Uint32Array(w * h * 4);
+  gl.readPixels(0, 0, w, h, gl.RGBA_INTEGER, gl.UNSIGNED_INT, px);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  return px;
+}
+const VAO = gl.createVertexArray(); gl.bindVertexArray(VAO);
+
+// ── probe (a): RGBA32UI node-pool texelFetch, 4096-wide addressing ────────
+try {
+  const W = 4096, H = 2, N = W * H;
+  const data = new Uint32Array(N * 4);
+  for (let i = 0; i < N; i++) {
+    data[i * 4] = (Math.imul(i, 2654435761) >>> 0);
+    data[i * 4 + 1] = (i * 3 + 7) >>> 0;
+    data[i * 4 + 2] = (0xFFFFFFFF - i) >>> 0;
+    data[i * 4 + 3] = (i & 0xFFFF) >>> 0;
+  }
+  const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32UI, W, H, 0, gl.RGBA_INTEGER, gl.UNSIGNED_INT, data);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  // one output pixel per probed node index (64x64 grid = 4096 probes across both rows)
+  const FS = `#version 300 es
+precision highp float; precision highp int;
+uniform highp usampler2D uNodes;
+out uvec4 frag;
+void main(){
+  uint i = uint(gl_FragCoord.x) + uint(gl_FragCoord.y)*64u;
+  i = (i*3u + 1u) % ${N}u;                      // strided coverage incl. row 2
+  frag = texelFetch(uNodes, ivec2(int(i & 4095u), int(i >> 12)), 0);
+}`;
+  const p = prog(FS);
+  const px = runReadU32(p, 64, 64, () => {
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.uniform1i(gl.getUniformLocation(p, "uNodes"), 0);
+  });
+  let bad = 0;
+  for (let o = 0; o < 64 * 64; o++) {
+    const i = (o * 3 + 1) % N;
+    for (let c = 0; c < 4; c++) if (px[o * 4 + c] !== data[i * 4 + c]) { bad++; break; }
+  }
+  result.probes.a_rgba32ui = { pass: bad === 0, bad, probed: 64 * 64 };
+  log(`(a) RGBA32UI node texelFetch: ${bad === 0 ? "PASS" : "FAIL (" + bad + " bad)"}`);
+} catch (e) { result.probes.a_rgba32ui = { pass: false, err: String(e).slice(0, 300) }; log("(a) FAIL " + e); }
+
+// ── probe (b): usampler3D R8UI NEAREST round-trip + R8 UNORM fallback ────
+try {
+  const D = 8, N = D * D * D;
+  const vals = new Uint8Array(N);
+  for (let i = 0; i < N; i++) vals[i] = lcg() & 255;
+  // primary: R8UI + usampler3D texelFetch
+  const t1 = gl.createTexture(); gl.bindTexture(gl.TEXTURE_3D, t1);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+  gl.texImage3D(gl.TEXTURE_3D, 0, gl.R8UI, D, D, D, 0, gl.RED_INTEGER, gl.UNSIGNED_BYTE, vals);
+  gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  const FS1 = `#version 300 es
+precision highp float; precision highp int;
+uniform highp usampler3D uMat;
+out uvec4 frag;
+void main(){
+  int i = int(gl_FragCoord.x) + int(gl_FragCoord.y)*32;    // 32x16 = 512 cells
+  ivec3 c = ivec3(i & 7, (i >> 3) & 7, i >> 6);
+  frag = uvec4(texelFetch(uMat, c, 0).r, 0u, 0u, 0u);
+}`;
+  const p1 = prog(FS1);
+  const px1 = runReadU32(p1, 32, 16, () => {
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_3D, t1);
+    gl.uniform1i(gl.getUniformLocation(p1, "uMat"), 0);
+  });
+  let bad1 = 0;
+  for (let i = 0; i < N; i++) if (px1[i * 4] !== vals[i]) bad1++;
+  // fallback: R8 UNORM NEAREST, matId = int(floor(r*255.0+0.5))
+  const t2 = gl.createTexture(); gl.bindTexture(gl.TEXTURE_3D, t2);
+  gl.texImage3D(gl.TEXTURE_3D, 0, gl.R8, D, D, D, 0, gl.RED, gl.UNSIGNED_BYTE, vals);
+  gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  const FS2 = `#version 300 es
+precision highp float; precision highp int;
+uniform highp sampler3D uMat;
+out uvec4 frag;
+void main(){
+  int i = int(gl_FragCoord.x) + int(gl_FragCoord.y)*32;
+  ivec3 c = ivec3(i & 7, (i >> 3) & 7, i >> 6);
+  frag = uvec4(uint(floor(texelFetch(uMat, c, 0).r*255.0+0.5)), 0u, 0u, 0u);
+}`;
+  const p2 = prog(FS2);
+  const px2 = runReadU32(p2, 32, 16, () => {
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_3D, t2);
+    gl.uniform1i(gl.getUniformLocation(p2, "uMat"), 0);
+  });
+  let bad2 = 0;
+  for (let i = 0; i < N; i++) if (px2[i * 4] !== vals[i]) bad2++;
+  const pass = bad1 === 0 ? true : (bad2 === 0 ? "fallback" : false);
+  result.probes.b_r8ui_3d = { pass, bad_r8ui: bad1, bad_r8unorm_fallback: bad2, probed: N };
+  log(`(b) usampler3D R8UI NEAREST: ${bad1 === 0 ? "PASS" : "FAIL (" + bad1 + ")"}; ` +
+      `R8-UNORM fallback: ${bad2 === 0 ? "exact" : "FAIL (" + bad2 + ")"}`);
+} catch (e) { result.probes.b_r8ui_3d = { pass: false, err: String(e).slice(0, 300) }; log("(b) FAIL " + e); }
+
+// ── probe (c): uniform-int-bounded loop, texelFetch coords from the loop var
+// (the exact mapD SVO body-loop pattern; the R3 bandHdr incident class is
+// dynamically-indexed ARRAYS — this proves the texelFetch replacement) ─────
+try {
+  const NB = 300;                                   // yard-scale body count
+  const rows = new Float32Array(NB * 4 * 4);        // 4 texels per body row
+  for (let k = 0; k < NB; k++)
+    for (let t = 0; t < 4; t++)
+      for (let c = 0; c < 4; c++)
+        rows[(k * 4 + t) * 4 + c] = f32(((lcg() & 0xFFFF) - 32768) / 256.0);
+  const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, 4, NB, 0, gl.RGBA, gl.FLOAT, rows);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  const FS = `#version 300 es
+precision highp float; precision highp int;
+uniform highp sampler2D uBody;
+uniform int uNum;
+out uvec4 frag;
+void main(){
+  float acc = 0.0; int visited = 0;
+  for(int k = 0; k < 512; k++){                     // compile-time bound, break-driven
+    if(k >= uNum) break;
+    vec4 t0 = texelFetch(uBody, ivec2(0, k), 0);
+    vec4 t3 = texelFetch(uBody, ivec2(3, k), 0);
+    acc += t0.x + t3.w;
+    visited++;
+  }
+  frag = uvec4(floatBitsToUint(acc), uint(visited), 0u, 0u);
+}`;
+  const p = prog(FS);
+  const trials = [1, 7, 30, 299, 300];
+  let pass = true; const deltas = [];
+  for (const nUse of trials) {
+    const px = runReadU32(p, 1, 1, () => {
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.uniform1i(gl.getUniformLocation(p, "uBody"), 0);
+      gl.uniform1i(gl.getUniformLocation(p, "uNum"), nUse);
+    });
+    const buf = new ArrayBuffer(4); new Uint32Array(buf)[0] = px[0];
+    const got = new Float32Array(buf)[0], visited = px[1];
+    let want = f32(0);
+    for (let k = 0; k < nUse; k++)
+      want = f32(want + f32(f32(rows[(k * 4) * 4]) + f32(rows[(k * 4 + 3) * 4 + 3])));
+    // sum order is fixed; allow tiny fp slack for driver-side fma contraction
+    const d = Math.abs(got - want);
+    deltas.push(d);
+    if (visited !== nUse || !(d <= Math.abs(want) * 1e-6 + 1e-6)) pass = false;
+  }
+  result.probes.c_uniform_loop = { pass, trials, max_delta: Math.max(...deltas) };
+  log(`(c) uniform-bounded texelFetch loop: ${pass ? "PASS" : "FAIL"} (max fp delta ${Math.max(...deltas).toExponential(1)})`);
+} catch (e) { result.probes.c_uniform_loop = { pass: false, err: String(e).slice(0, 300) }; log("(c) FAIL " + e); }
+
+// ── probe (d): 8-level synthetic-tree descent, bit-exact vs the JS mirror ──
+// Runs the SAME node layout + traversal viewer.js will emit (Sec 1/2):
+// 128-bit RGBA32UI nodes, contiguous 8-child blocks, restart point descent,
+// deepest-resident-brick fallback, 18^3 cell-centered bricks in one R8 atlas.
+try {
+  const LMAX = 7;                                   // levels 0..7 = 8 levels
+  // build a deterministic sparse tree: node list in BFS order
+  const nodes = [{ level: 0, path: [0, 0, 0] }];    // node 1 = root (0 reserved)
+  const nodeRec = [null, nodes[0]];                 // index → record
+  const R = []; const G = []; const B = [];         // channel arrays (1-based)
+  const bricks = [];                                // brick slot → {nodeIdx}
+  // decide subdivision: MIXED with prob ~0.5 at shallow levels, thinning deeper
+  function classOf(level, path) {
+    if (level >= LMAX) return 2;                    // finest: MIXED leaf (brick)
+    const h = (Math.imul(path[0] * 73856093 ^ path[1] * 19349663 ^ path[2] * 83492791, 2654435761) >>> 0);
+    const p = (h % 100);
+    if (p < (level < 2 ? 70 : 25)) return 2;        // MIXED → subdivide
+    return (p & 1) ? 1 : 0;                         // uniform SOLID / EMPTY
+  }
+  const NO_BRICK = 0xFFFFFFFF;
+  // BFS allocate
+  const queue = [1];
+  const nodeData = [];                              // per index: {child,brick,b}
+  nodeData[0] = { child: 0, brick: 0, b: 0 };       // reserved node 0
+  nodeData[1] = { child: 0, brick: NO_BRICK, b: (2 << 16), level: 0, path: [0, 0, 0] };
+  nodeRec[1] = nodeData[1];
+  let nextFree = 2;
+  while (queue.length) {
+    const idx = queue.shift();
+    const nd = nodeData[idx];
+    const cls = (nd.b >> 16) & 3;
+    if (cls !== 2) continue;
+    // every MIXED node gets a brick (LOD residency; root invariant included)
+    nd.brick = bricks.length; bricks.push({ node: idx });
+    if (nd.level >= LMAX) { nd.child = 0; continue; }  // finest leaf
+    nd.child = nextFree; nextFree += 8;
+    for (let o = 0; o < 8; o++) {
+      const cp = [nd.path[0] * 2 + (o & 1), nd.path[1] * 2 + ((o >> 1) & 1), nd.path[2] * 2 + ((o >> 2) & 1)];
+      const cl = nd.level + 1;
+      const cc = classOf(cl, cp);
+      nodeData[nd.child + o] = { child: 0, brick: NO_BRICK, b: (cc << 16), level: cl, path: cp };
+      if (cc === 2) queue.push(nd.child + o);
+    }
+  }
+  const NN = nextFree;
+  const pool = new Uint32Array(4096 * Math.ceil(NN / 4096) * 4);
+  for (let i = 0; i < NN; i++) {
+    const nd = nodeData[i] || { child: 0, brick: 0, b: 0 };
+    pool[i * 4] = nd.child >>> 0; pool[i * 4 + 1] = nd.brick >>> 0;
+    pool[i * 4 + 2] = nd.b >>> 0; pool[i * 4 + 3] = 0;
+  }
+  const poolH = Math.ceil(NN / 4096);
+  const nodeTex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, nodeTex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32UI, 4096, poolH, 0, gl.RGBA_INTEGER, gl.UNSIGNED_INT, pool);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  // brick atlas: 18^3 bricks, deterministic per-cell u8 pattern
+  const NBk = bricks.length;
+  const bpa = Math.ceil(Math.cbrt(NBk));
+  const dim = 18 * bpa;
+  const atlas = new Uint8Array(dim * dim * dim);
+  function brickVal(slot, x, y, z) {                // any (x,y,z) in 0..17
+    return (Math.imul(slot * 5851 + x + y * 31 + z * 977, 48271) >>> 16) & 255;
+  }
+  for (let s = 0; s < NBk; s++) {
+    const ox = 18 * (s % bpa), oy = 18 * (Math.floor(s / bpa) % bpa), oz = 18 * Math.floor(s / (bpa * bpa));
+    for (let z = 0; z < 18; z++) for (let y = 0; y < 18; y++) for (let x = 0; x < 18; x++)
+      atlas[(oz + z) * dim * dim + (oy + y) * dim + (ox + x)] = brickVal(s, x, y, z);
+  }
+  const atlasTex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_3D, atlasTex);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+  gl.texImage3D(gl.TEXTURE_3D, 0, gl.R8, dim, dim, dim, 0, gl.RED, gl.UNSIGNED_BYTE, atlas);
+  gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
+  // 1000 probe points in [0,1)^3, LCG-derived, avoiding exact octant planes
+  const NP = 1000;
+  const pts = new Float32Array(NP * 3);
+  for (let i = 0; i < NP * 3; i++) pts[i] = f32(((lcg() >>> 8) / 16777216) * 0.998 + 0.001);
+  const ptsTex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, ptsTex);
+  const ptsRGBA = new Float32Array(NP * 4);
+  for (let i = 0; i < NP; i++) { ptsRGBA[i*4]=pts[i*3]; ptsRGBA[i*4+1]=pts[i*3+1]; ptsRGBA[i*4+2]=pts[i*3+2]; }
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, NP, 1, 0, gl.RGBA, gl.FLOAT, ptsRGBA);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  // the descent — the EXACT loop shape viewer.js emits (Sec 2), band math
+  // stubbed to 1.0 so the raw filtered texel value comes back for comparison
+  const FS = `#version 300 es
+precision highp float; precision highp int;
+uniform highp usampler2D uSVONodes;
+uniform highp sampler3D uSdfAtlas;
+uniform highp sampler2D uPts;
+uniform float uAtlasDim;
+uniform int uBpa;
+out uvec4 frag;
+#define NO_BRICK 0xFFFFFFFFu
+#define MAX_SVO_LEVELS 12
+uvec4 nodeAt(uint i){ return texelFetch(uSVONodes, ivec2(int(i & 4095u), int(i >> 12)), 0); }
+vec3 brickOrigin(uint s){
+  int b = uBpa; int si = int(s);
+  return vec3(18 * (si % b), 18 * ((si / b) % b), 18 * (si / (b*b)));
+}
+void main(){
+  int pi = int(gl_FragCoord.x);
+  vec3 u = texelFetch(uPts, ivec2(pi, 0), 0).xyz;
+  vec3 cl = clamp(u, 0.0, 1.0);
+  uint node = 1u; uint brick = NO_BRICK; int blvl = 0; uint nb = 0u;
+  int cap = 12;
+  for(int l = 0; l < MAX_SVO_LEVELS; l++){
+    uvec4 nd = nodeAt(node);
+    if(nd.g != NO_BRICK){ brick = nd.g; blvl = l; nb = nd.b; }
+    uint cls = (nd.b >> 16) & 3u;
+    if(cls != 2u || l >= cap || nd.r == 0u) break;
+    ivec3 c = ivec3(floor(cl * exp2(float(l+1)))) & 1;
+    node = nd.r + uint(c.x | (c.y << 1) | (c.z << 2));
+  }
+  float side = exp2(float(blvl));
+  vec3 f = fract(u * side);
+  vec3 tc = (brickOrigin(brick) + 1.0 + f*16.0) / uAtlasDim;
+  float raw = texture(uSdfAtlas, tc).r;
+  frag = uvec4(node, brick, uint(blvl), floatBitsToUint(raw));
+}`;
+  const p = prog(FS);
+  const px = runReadU32(p, NP, 1, () => {
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, nodeTex);
+    gl.uniform1i(gl.getUniformLocation(p, "uSVONodes"), 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_3D, atlasTex);
+    gl.uniform1i(gl.getUniformLocation(p, "uSdfAtlas"), 1);
+    gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, ptsTex);
+    gl.uniform1i(gl.getUniformLocation(p, "uPts"), 2);
+    gl.uniform1f(gl.getUniformLocation(p, "uAtlasDim"), dim);
+    gl.uniform1i(gl.getUniformLocation(p, "uBpa"), bpa);
+  });
+  // JS float32-emulating mirror of the SAME descent
+  let idxBad = 0, valMax = 0, edgePts = 0;
+  for (let i = 0; i < NP; i++) {
+    const u = [pts[i * 3], pts[i * 3 + 1], pts[i * 3 + 2]];
+    let node = 1, brick = NO_BRICK, blvl = 0;
+    for (let l = 0; l < 12; l++) {
+      const nd = nodeData[node];
+      if (nd.brick !== NO_BRICK) { brick = nd.brick; blvl = l; }
+      const cls = (nd.b >> 16) & 3;
+      if (cls !== 2 || nd.child === 0) break;
+      const s = f32(Math.pow(2, l + 1));
+      const cx = Math.floor(f32(u[0] * s)) & 1, cy = Math.floor(f32(u[1] * s)) & 1, cz = Math.floor(f32(u[2] * s)) & 1;
+      node = nd.child + (cx | (cy << 1) | (cz << 2));
+    }
+    if (px[i * 4] !== node || px[i * 4 + 1] !== (brick >>> 0) || px[i * 4 + 2] !== blvl) { idxBad++; continue; }
+    // trilinear mirror of the atlas read at the same texel coords
+    const side = Math.pow(2, blvl);
+    const fx = f32(u[0] * side) % 1, fy = f32(u[1] * side) % 1, fz = f32(u[2] * side) % 1;
+    const sx = 1 + fx * 16, sy = 1 + fy * 16, sz = 1 + fz * 16;   // unnormalized in-brick texel coords
+    const ix = Math.min(16, Math.max(0, Math.floor(sx - 0.5))), wx = sx - 0.5 - ix;
+    const iy = Math.min(16, Math.max(0, Math.floor(sy - 0.5))), wy = sy - 0.5 - iy;
+    const iz = Math.min(16, Math.max(0, Math.floor(sz - 0.5))), wz = sz - 0.5 - iz;
+    const at = (x, y, z) => brickVal(brick, x, y, z) / 255;
+    let v = 0;
+    for (let dz = 0; dz < 2; dz++) for (let dy = 0; dy < 2; dy++) for (let dx = 0; dx < 2; dx++)
+      v += at(ix + dx, iy + dy, iz + dz) *
+           (dx ? wx : 1 - wx) * (dy ? wy : 1 - wy) * (dz ? wz : 1 - wz);
+    const buf = new ArrayBuffer(4); new Uint32Array(buf)[0] = px[i * 4 + 3];
+    const got = new Float32Array(buf)[0];
+    const d = Math.abs(got - v);
+    if (d > valMax) valMax = d;
+    if (d > 2 / 255) edgePts++;
+  }
+  // hardware trilinear weights are quantized (typ. 8-bit) — 2 LSB is the
+  // documented tolerance the parity tool inherits; descent indices are exact.
+  const pass = idxBad === 0 && edgePts === 0;
+  result.probes.d_descent = { pass, points: NP, idx_mismatches: idxBad,
+    filter_max_abs: valMax, filter_tol: 2 / 255, nodes: NN, bricks: NBk, atlas_dim: dim };
+  log(`(d) 8-level descent: ${idxBad === 0 ? "indices BIT-EXACT" : "FAIL (" + idxBad + " idx)"}; ` +
+      `filter max|d| ${valMax.toExponential(2)} (tol ${(2 / 255).toExponential(2)}) → ${pass ? "PASS" : "FAIL"}`);
+} catch (e) { result.probes.d_descent = { pass: false, err: String(e).slice(0, 300) }; log("(d) FAIL " + e); }
+
+post();
+})();
+</script></body></html>

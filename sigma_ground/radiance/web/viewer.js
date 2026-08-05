@@ -432,6 +432,27 @@ let bvhCull=true;    // debug/A-B toggle: per-leaf bounding-sphere early-rejecti
 // inertia) this scene renders is computed entirely upstream in Python and never
 // reads this map.
 let materialOpacity={};
+// ── R4 SVO state (svo.js — octree-of-bricks; svoEnabled default false until
+// R4.4 flips the voxel scenes). The compile gate is svoActive = svoEnabled
+// AND svo.js loaded AND the scene has ELIGIBLE Voxel leaves (top-level Voxel
+// shape, body-bound, op:add — subtract/intersect Voxel leaves refuse the SVO
+// path and stay per-leaf codegen, the R3 band-gate honesty rule). ?svo=0/1
+// presets the toggle at boot (the A/B capture surface); setSVO() flips live.
+const svoCtl = (typeof window!=="undefined" && window.SGSVO) ? window.SGSVO : null;
+let svoEnabled = new URLSearchParams(location.search).get("svo")==="1";
+let svoGL = null;          // GL residency {nodeTex,atlasTex,lutTex,bodyTex,packed,rowBuf}
+let svoActiveNow = false;  // set per buildProgram; read by draw()/loop()'s capture arm
+let svoReady = false;      // uploads done — capture pins wait on this (blueprint Sec 5)
+function svoEligible(scene){
+  const ls=scene.csg_leaves||[], bodies=scene.bodies||[], out=[];
+  ls.forEach((l,i)=>{ const s=l.shape;
+    if(s && s.type==="Voxel" && l.body!=null && (i===0 || !l.op || l.op==="add"))
+      out.push({leaf:i, body:l.body, shape:s, material:l.material,
+                pivot:(bodies[l.body]&&bodies[l.body].pivot)||[0,0,0],
+                bounds:l.bounds||deriveBounds(s)||null});
+  });
+  return out;
+}
 function resetExtraGLSL(){ EXTRA_GLSL=""; outlineN=0; outlineKeys=new Map(); voxelKeys=new Set(); }
 // A real voxel solid: sample its signed-distance grid (uploaded as a 3-D texture)
 // trilinearly in GLSL — the kernel Voxel's _trilinear, in hardware. uvw =
@@ -679,18 +700,30 @@ function jsCalcN(scene, p, poses){
 function buildFragmentShader(scene){
   resetExtraGLSL();
   const ls=scene.csg_leaves, bodies=scene.bodies||[];
+  // R4: the no-float shim keeps DENSE voxels for every scene it can compile
+  // (legacy glslVoxel survives here permanently) — but past the measured
+  // ~48-leaf compile wall (yard-class scenes) it must route SVO-eligible
+  // leaves OUT or it re-hits the 101-leaf hang the SVO path exists to kill.
+  // Disclosed limitation: on a no-float GPU such a scene shows no voxel
+  // matter (the PT path is required); captures already refuse there.
+  const shimSet = new Set((scene._svoShimRouted && scene._svoEligible)
+                          ? scene._svoEligible.map(e=>e.leaf) : []);
+  if(shimSet.size)
+    console.warn(`R4: no-float shim omits ${shimSet.size} voxel bodies (leaf-count wall) — PT path required for this scene's voxel matter`);
+  const legacyIdx = ls.map((_,i)=>i).filter(i=>!shimSet.has(i));
   // Per-body rigid transform (world→rest): inverse-rotate about the pose, then
   // re-add the body's pivot. A leaf with no `body` is static world geometry.
-  const used=[...new Set(ls.map(l=>l.body).filter(b=>b!=null))].sort((a,b)=>a-b);
+  const used=[...new Set(legacyIdx.map(i=>ls[i].body).filter(b=>b!=null))].sort((a,b)=>a-b);
   let bodyDecls="";
   used.forEach(k=>{ const piv=(bodies[k]&&bodies[k].pivot)||[0,0,0];
     bodyDecls += `  vec3 bdy${k}=qrotInv(uBodyQuat[${k}], p-uBodyPos[${k}])`
               +  `+vec3(${glf(piv[0])},${glf(piv[1])},${glf(piv[2])});\n`; });
-  let decls="", compose="  float d=s0;\n", matsel="  mat=-1;\n", colorfn="", metalfn="", reflfn="", emisfn="", tempfn="", roughfn="", bodyTempFn="";
+  let decls="", compose=legacyIdx.length?`  float d=s${legacyIdx[0]};\n`:"  float d=1e9;\n", matsel="  mat=-1;\n", colorfn="", metalfn="", reflfn="", emisfn="", tempfn="", roughfn="", bodyTempFn="";
   // the theater's ambient datum (physics_env, from the STP/IRT/ISM presets) is
   // the temperature a leaf falls back to — deep_space stops pretending 293 K
   const envT=(scene.physics_env&&scene.physics_env.temperature_k!==undefined)?scene.physics_env.temperature_k:293.15;
   for(let i=0;i<ls.length;i++){
+    if(shimSet.has(i)) continue;                   // routed past the leaf wall
     const q = ls[i].body!=null ? `bdy${ls[i].body}` : "(p)";
     decls += `  float s${i}=${glslShapeCall(ls[i].shape, q)};\n`;
     const mat=scene.materials[ls[i].material]||{};
@@ -725,14 +758,14 @@ function buildFragmentShader(scene){
     // a body-bound leaf can carry a PER-FRAME temperature (uBodyTemp; -1 = none)
     bodyTempFn += `  if(m==${i}) return ${ls[i].body!=null?`uBodyTemp[${ls[i].body}]`:"-1.0"};\n`;
   }
-  for(let i=1;i<ls.length;i++){
-    const op=ls[i].op;
+  for(let n=1;n<legacyIdx.length;n++){
+    const i=legacyIdx[n]; const op=ls[i].op;
     compose += (op==="subtract") ? `  d=max(d,-s${i});\n`
              : (op==="intersect") ? `  d=max(d,s${i});\n`
              : `  d=min(d,s${i});\n`;
   }
-  for(let i=ls.length-1;i>=0;i--)
-    matsel += `  ${i===ls.length-1?"if":"else if"}(s${i}<0.0) mat=${i};\n`;
+  for(let n=legacyIdx.length-1;n>=0;n--){ const i=legacyIdx[n];
+    matsel += `  ${n===legacyIdx.length-1?"if":"else if"}(s${i}<0.0) mat=${i};\n`; }
   const fieldSel=glslFieldFns(scene);               // per-cell field samplers → EXTRA_GLSL + switch
   // contact shadows + AO scale with the scene, so a 0.2 m cup and a 3 m chair both read right
   const bb=scene.bbox||[[-1,1],[-1,1],[-1,1]];
@@ -932,8 +965,15 @@ function emitNEEBlock(e, k, neeExp, o){
           vec3 Le=incandescence(uEmitterTemp[${k}]+uTemp, vec3(${glf(e.emis[0])},${glf(e.emis[1])},${glf(e.emis[2])}));
           L += thr*${o.albVar}*Le*ndl2*2.0*(1.0-cosTm)*vis*${neeExp}; } } }`;
 }
-function neeSurfaceOpts(e){
-  return {guard:`mat!=${e.leaf}`, hitVar:"p", normalVar:"n", albVar:"alb",
+function neeSurfaceOpts(e, svoRow){
+  // svoRow (R4): when the emitter's own leaf is SVO-routed its hits carry
+  // mat = SVO_MAT_BASE+(row<<8)+gid where row is the STABLE body-table row
+  // (index in packed.bodies — rows are never compacted, see the draw()
+  // packing note), so `mat!=leaf` alone no longer skips NEE on the emitter's
+  // own surface — extend the guard by the row id. Omitted (undefined)
+  // everywhere else, so the frozen template assert below stays byte-exact.
+  return {guard:`mat!=${e.leaf}`+(svoRow!==undefined?`&&(mat>>8)!=${1+svoRow}`:""),
+          hitVar:"p", normalVar:"n", albVar:"alb",
           visExpr:"visRay(p+n*uEPS, wl, dc-R-2.0*uEPS)"};
 }
 function neeImpostorOpts(e){
@@ -970,13 +1010,22 @@ function buildPathShader(scene){
   // splats.js loaded. Every other scene compiles byte-identical pre-R3
   // shader text and uploads nothing new — those baselines hold ARITHMETICALLY.
   const banding = !!splatsCtl && bodies.some(b=>b && b.radius_m>0);
-  const used=[...new Set(ls.map(l=>l.body).filter(b=>b!=null))].sort((a,b)=>a-b);
+  // ── R4 compile gate (R3 banding-flag precedent): eligible Voxel leaves are
+  // routed OUT of the per-leaf codegen entirely — the shader becomes leaf-
+  // count-independent for voxel matter; a zero-Voxel scene (or svoEnabled
+  // false) compiles BYTE-IDENTICAL text (string-asserted at module load).
+  const svoLeaves = svoCtl ? svoEligible(scene) : [];
+  const svoActive = svoEnabled && svoLeaves.length>0;
+  const svoSet = new Set(svoActive ? svoLeaves.map(e=>e.leaf) : []);
+  const legacyIdx = ls.map((_,i)=>i).filter(i=>!svoSet.has(i));
+  const used=[...new Set(legacyIdx.map(i=>ls[i].body).filter(b=>b!=null))].sort((a,b)=>a-b);
   let bodyDecls="";
   used.forEach(k=>{ const piv=(bodies[k]&&bodies[k].pivot)||[0,0,0];
     bodyDecls += `  vec3 bdy${k}=qrotInv(uBodyQuat[${k}], p-uBodyPos[${k}])+vec3(${glf(piv[0])},${glf(piv[1])},${glf(piv[2])});\n`; });
-  let decls="", compose="  float d=s0;\n", matsel="  mat=-1;\n", colorfn="", metalfn="", reflfn="", emisfn="", tempfn="", iorfn="", alphafn="", bodyTempFn="";
+  let decls="", compose=legacyIdx.length?`  float d=s${legacyIdx[0]};\n`:"  float d=1e9;\n", matsel="  mat=-1;\n", colorfn="", metalfn="", reflfn="", emisfn="", tempfn="", iorfn="", alphafn="", bodyTempFn="";
   const envT=(scene.physics_env&&scene.physics_env.temperature_k!==undefined)?scene.physics_env.temperature_k:293.15;
   for(let i=0;i<ls.length;i++){
+    if(svoSet.has(i)) continue;                    // SVO-routed: zero shader text
     // non-body leaves (floor/walls/lights — static theater dressing) are
     // baked as ABSOLUTE world-space literals; p is camera-relative here
     // (R1-lite), so reconstruct world-space via uEyeWorld before querying.
@@ -1082,9 +1131,10 @@ function buildPathShader(scene){
       alphafn += `  if(m==${i}) return ${glf(op)};\n`; }
     bodyTempFn += `  if(m==${i}) return ${ls[i].body!=null?`uBodyTemp[${ls[i].body}]`:"-1.0"};\n`;
   }
-  for(let i=1;i<ls.length;i++){ const op=ls[i].op;
+  for(let n=1;n<legacyIdx.length;n++){ const i=legacyIdx[n]; const op=ls[i].op;
     compose += (op==="subtract")?`  d=max(d,-s${i});\n`:(op==="intersect")?`  d=max(d,s${i});\n`:`  d=min(d,s${i});\n`; }
-  for(let i=ls.length-1;i>=0;i--) matsel += `  ${i===ls.length-1?"if":"else if"}(s${i}<0.0) mat=${i};\n`;
+  for(let n=legacyIdx.length-1;n>=0;n--){ const i=legacyIdx[n];
+    matsel += `  ${n===legacyIdx.length-1?"if":"else if"}(s${i}<0.0) mat=${i};\n`; }
   const fieldSel=glslFieldFns(scene,"+uEyeWorld");  // per-cell field samplers → EXTRA_GLSL + switch (PT: p is camera-relative)
   const bb=scene.bbox||[[-1,1],[-1,1],[-1,1]];
   const diag=len(sub([bb[0][1],bb[1][1],bb[2][1]],[bb[0][0],bb[1][0],bb[2][0]]))||1;
@@ -1110,7 +1160,7 @@ function buildPathShader(scene){
     decls += `  float s${gidx}=sdCapsuleCyl(p+uEyeWorld,vec3(${glf(A[0])},${glf(A[1])},${glf(A[2])}),`
            + `vec3(${glf(B[0])},${glf(B[1])},${glf(B[2])}),${glf(gR)});\n`;
     compose += `  d=min(d,s${gidx});\n`;
-    matsel += `  ${(gi===0&&ls.length===0)?"if":"else if"}(s${gidx}<0.0) mat=${gidx};\n`;
+    matsel += `  ${(gi===0&&legacyIdx.length===0)?"if":"else if"}(s${gidx}<0.0) mat=${gidx};\n`;
     colorfn += `  if(m==${gidx}) return vec3(${glf(GHOST_RGB[0])},${glf(GHOST_RGB[1])},${glf(GHOST_RGB[2])});\n`;
     metalfn += `  if(m==${gidx}) return 0.0;\n`;
     reflfn  += `  if(m==${gidx}) return -1.0;\n`;
@@ -1122,6 +1172,22 @@ function buildPathShader(scene){
     alphafn += `  if(m==${gidx}) return 0.35;\n`;      // low-opacity: an artificial marker, not real matter
     bodyTempFn += `  if(m==${gidx}) return -1.0;\n`;
   });
+  // ── R4: the SVO traversal chunk + material-LUT heads (svoActive only —
+  // every string below is "" otherwise, keeping zero-Voxel scenes byte-
+  // identical). Material property functions gain ONE guarded head line each;
+  // analytic leaves keep their codegen chains untouched (hybrid composition).
+  let svoGlsl="", svoMapTerm="";
+  if(svoActive){
+    svoGlsl = svoCtl.glslSVO();
+    svoMapTerm = svoCtl.glslSVOMapTerm();
+    colorfn    = `  if(m>=SVO_MAT_BASE) return texelFetch(uMatLUT, ivec2(m & 255, 0), 0).rgb;\n` + colorfn;
+    metalfn    = `  if(m>=SVO_MAT_BASE) return texelFetch(uMatLUT, ivec2(m & 255, 0), 0).a;\n` + metalfn;
+    emisfn     = `  if(m>=SVO_MAT_BASE) return texelFetch(uMatLUT, ivec2(m & 255, 1), 0).rgb;\n` + emisfn;
+    iorfn      = `  if(m>=SVO_MAT_BASE) return texelFetch(uMatLUT, ivec2(m & 255, 1), 0).a;\n` + iorfn;
+    alphafn    = `  if(m>=SVO_MAT_BASE) return texelFetch(uMatLUT, ivec2(m & 255, 2), 0).x;\n` + alphafn;
+    tempfn     = `  if(m>=SVO_MAT_BASE) return texelFetch(uMatLUT, ivec2(m & 255, 2), 0).w;\n` + tempfn;
+    bodyTempFn = `  if(m>=SVO_MAT_BASE) return BT((m >> 8) - 1, 3).z;\n` + bodyTempFn;
+  }
   // SHMIN/SHMAX/SMAXT/EPS/GATE_BUFFER/calcN's h used to be baked from the
   // scene's whole-scene bbox diagonal ONCE at shader-build time — fine for a
   // tabletop scene, but wrong for a scene spanning solar-system distances:
@@ -1185,7 +1251,11 @@ function buildPathShader(scene){
   // byte-asserted against the pre-R3 template at module load.
   let neeBlk="", neeTwin="";
   emitters.forEach((e,k)=>{
-    neeBlk  += emitNEEBlock(e, k, neeExp, neeSurfaceOpts(e));
+    // svoLeaves order == packScene's bodies order, so the packed (stable) row
+    // of an SVO-routed emitter is its index in svoLeaves
+    const svoRow = svoSet.has(e.leaf)
+      ? svoLeaves.findIndex(x=>x.leaf===e.leaf) : undefined;
+    neeBlk  += emitNEEBlock(e, k, neeExp, neeSurfaceOpts(e, svoRow>=0?svoRow:undefined));
     if(banding) neeTwin += emitNEEBlock(e, k, neeExp, neeImpostorOpts(e));
   });
   // ── R3 module state (house precedent: ptEmitters is set the same way) ──
@@ -1312,8 +1382,8 @@ uniform float uBodyTemp[MAXB];                           // per-frame body tempe
 uniform sampler2D uPrev;                                 // previous accumulation (ping-pong)
 uniform vec3 uEmitterPos[${Math.max(1,NE)}];             // world centres of glowing-sphere emitters (NEE)
 uniform float uEmitterTemp[${Math.max(1,NE)}];           // their live temperatures — a heating fall brightens
-${bandHdr}${PRIMS_GLSL}${waterGLSL}${EXTRA_GLSL}
-float mapD(vec3 p, out int mat){ ${bodyDecls}${decls}${compose}${matsel}  return d; }
+${bandHdr}${PRIMS_GLSL}${waterGLSL}${EXTRA_GLSL}${svoGlsl}
+float mapD(vec3 p, out int mat){ ${bodyDecls}${decls}${compose}${matsel}${svoMapTerm}  return d; }
 float mapOnly(vec3 p){ int m; return mapD(p,m); }
 vec3 matColor(int m){ ${colorfn}  return vec3(0.72); }
 float metalness(int m){ ${metalfn}  return 0.0; }
@@ -1408,7 +1478,8 @@ void main(){ vec2 p=vec2(float((gl_VertexID<<1)&2),float(gl_VertexID&2));
 function compile(type,src){ const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s);
   if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){ const log=gl.getShaderInfoLog(s); console.error(log,"\n",src); throw new Error(log); } return s; }
 let prog=null, progPT=null, U={}, Upt={};
-const UNIFORMS=["uRes","uEye","uEyeWorld","uFwd","uRight","uUp","uTanHalf","uAspect","uMaxDist","uTime","uTemp","uBodyPos","uBodyQuat","uBodyTemp","uFrame","uPrev","uReset","uEmitterPos","uEmitterTemp","uSPP","uPrevScale","uEPS","uSHMIN","uSHMAX","uSMAXT","uGateBuffer","uCalcNH","uBand"];
+const UNIFORMS=["uRes","uEye","uEyeWorld","uFwd","uRight","uUp","uTanHalf","uAspect","uMaxDist","uTime","uTemp","uBodyPos","uBodyQuat","uBodyTemp","uFrame","uPrev","uReset","uEmitterPos","uEmitterTemp","uSPP","uPrevScale","uEPS","uSHMIN","uSHMAX","uSMAXT","uGateBuffer","uCalcNH","uBand",
+  "uSVONodes","uSdfAtlas","uMatLUT","uSVOBody","uNumSvoBodies","uAtlasDim","uAtlasBpa"];   // R4 (null on non-SVO programs — every bind is guarded)
 function linkProg(fragSrc){
   const p=gl.createProgram();
   gl.attachShader(p,compile(gl.VERTEX_SHADER,VS));
@@ -1440,8 +1511,16 @@ function makeVoxTex(grid, dims){
 }
 function prepareVoxels(scene){     // decode + upload each Voxel leaf once; tag it with a stable sampler id
   const list=[]; let vid=0;
-  for(const l of (scene.csg_leaves||[])){ const s=l.shape;
+  const leaves=scene.csg_leaves||[];
+  for(let i=0;i<leaves.length;i++){ const l=leaves[i]; const s=l.shape;
     if(s && s.type==="Voxel"){
+      // R4: leaves the shim routed out (yard-class scenes) upload no dense
+      // texture — the SVO atlas is their sole residency; every other scene
+      // keeps the dense upload (shim + A/B legacy path) unchanged.
+      if(scene._svoSkipVox && scene._svoSkipVox.has(i)){
+        if(s._grid===undefined) s._grid=b64ToI8(s.sdf_b64);   // self-check still needs bytes
+        continue;
+      }
       if(s._tex===undefined){ s._vid=vid; s._grid=b64ToI8(s.sdf_b64); s._tex=makeVoxTex(s._grid,s.dims); }
       list.push({vid:s._vid, tex:s._tex}); vid++;
     } }
@@ -1517,17 +1596,128 @@ function jsFieldSampleAt(scene, rec){
   const q=(c00*(1-dj)+c10*dj)*(1-dk)+(c01*(1-dj)+c11*dj)*dk;
   return f.t_min + q*(f.t_max-f.t_min)/255.0;
 }
+// ── R4: SVO GL residency (one node pool + ONE brick atlas + LUT + body table)
+function releaseSVO(){
+  if(!svoGL) return;
+  for(const t of [svoGL.nodeTex,svoGL.atlasTex,svoGL.lutTex,svoGL.bodyTex])
+    try{ gl.deleteTexture(t); }catch(_e){}
+  svoGL=null;
+}
+// svodry tracing: stage beacons dispatch off-thread even when the NEXT call
+// wedges the main thread — the bisect instrument's breadcrumb trail.
+const _svoTrace = ["1"].includes(new URLSearchParams(location.search).get("svodry")) || new URLSearchParams(location.search).get("svotrace")==="1";
+function _svoBeacon(stage){
+  if(!_svoTrace) return;
+  try{  // SYNCHRONOUS XHR on purpose: strictly ordered single-flight POSTs —
+        // concurrent sendBeacons race /probe's read-modify-write (measured:
+        // corrupted misc/BROWSER_REPORT.json twice this session)
+    const x=new XMLHttpRequest(); x.open("POST","/probe",false);
+    x.send(JSON.stringify({slug:"svotrace_"+stage, t: performance.now()|0}));
+  }catch(_e){}
+}
+function prepareSVO(scene){
+  _svoBeacon("prepareSVO-enter");
+  if(!scene._svoPacked){
+    const t0=performance.now();
+    scene._svoPacked = svoCtl.packScene(scene._svoEligible);
+    const st=scene._svoPacked&&scene._svoPacked.stats;
+    if(st) console.log(`R4 svo build ${(performance.now()-t0).toFixed(0)} ms: `
+      +`${st.trees} trees, ${st.nodes} nodes, ${st.bricks} bricks, atlas ${st.atlas_dim}^3 `
+      +`(${(st.atlas_bytes/1048576).toFixed(1)} MB) vs dense ${(st.dense_bytes/1048576).toFixed(2)} MB`);
+  }
+  _svoBeacon("packScene-done");
+  const P=scene._svoPacked;
+  if(!P){ svoActiveNow=false; return; }
+  releaseSVO();
+  const H=Math.max(1,Math.ceil(P.pool.length/4/4096));
+  const poolPadded=new Uint32Array(4096*H*4); poolPadded.set(P.pool);
+  const nt=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,nt);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32UI,4096,H,0,gl.RGBA_INTEGER,gl.UNSIGNED_INT,poolPadded);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
+  _svoBeacon("pool-uploaded");
+  const at=gl.createTexture(); gl.bindTexture(gl.TEXTURE_3D,at);   // makeVoxTex params (R8 UNORM LINEAR — the ANGLE law)
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);
+  gl.texImage3D(gl.TEXTURE_3D,0,gl.R8,P.atlasDim,P.atlasDim,P.atlasDim,0,gl.RED,gl.UNSIGNED_BYTE,P.atlas);
+  gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_3D,gl.TEXTURE_WRAP_R,gl.CLAMP_TO_EDGE);
+  gl.bindTexture(gl.TEXTURE_3D,null);
+  _svoBeacon("atlas-uploaded");
+  // material LUT (256x4 RGBA32F) — rebuilt every build so materialOpacity rides row 2
+  const envT=(scene.physics_env&&scene.physics_env.temperature_k!==undefined)?scene.physics_env.temperature_k:293.15;
+  const lut=new Float32Array(256*4*4);
+  P.palette.forEach((label,id)=>{
+    const m=scene.materials[label]||{};
+    const c=m.color_rgb||[0.72,0.72,0.72];
+    const isMetal=(m.metal!==undefined?m.metal:m.emergent)?1:0;
+    const em=m.emissivity_rgb
+      || [Math.min(Math.max(1-c[0],0),1),Math.min(Math.max(1-c[1],0),1),Math.min(Math.max(1-c[2],0),1)];
+    const ior=(m.refractive_index!==undefined)?m.refractive_index:-1;
+    const baseOp=(m.opacity!==undefined)?m.opacity:1;
+    const ov=materialOpacity[label];
+    const op=(ov!==undefined)?ov:baseOp;
+    const r0=(m.reflect_r0!==undefined)?m.reflect_r0:-1;
+    const rg=m.roughness;
+    const specExp=(rg!==undefined&&rg>0)?Math.min(256,Math.max(8,2/(rg*rg)-2)):(isMetal?64:24);
+    const lf=scene._svoEligible.find(e=>e.material===label);
+    const leaf=lf?scene.csg_leaves[lf.leaf]:null;
+    const T=(leaf&&leaf.temperature_k!==undefined)?leaf.temperature_k:envT;
+    lut[(0*256+id)*4]=c[0]; lut[(0*256+id)*4+1]=c[1]; lut[(0*256+id)*4+2]=c[2]; lut[(0*256+id)*4+3]=isMetal;
+    lut[(1*256+id)*4]=em[0]; lut[(1*256+id)*4+1]=em[1]; lut[(1*256+id)*4+2]=em[2]; lut[(1*256+id)*4+3]=ior;
+    lut[(2*256+id)*4]=op; lut[(2*256+id)*4+1]=r0; lut[(2*256+id)*4+2]=specExp; lut[(2*256+id)*4+3]=T;
+  });
+  const lt=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,lt);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,256,4,0,gl.RGBA,gl.FLOAT,lut);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
+  const bt=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,bt);   // body table, per-frame texSubImage2D
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,4,svoCtl.MAX_SVO_BODIES,0,gl.RGBA,gl.FLOAT,null);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
+  gl.bindTexture(gl.TEXTURE_2D,null);
+  svoGL={nodeTex:nt,atlasTex:at,lutTex:lt,bodyTex:bt,packed:P,
+         rowBuf:new Float32Array(16*P.bodies.length)};
+  svoReady=true;
+  _svoBeacon("prepareSVO-done");
+}
 function buildProgram(scene){
+  // R4: eligibility + residency decided BEFORE the shaders are generated
+  scene._svoEligible = svoCtl ? svoEligible(scene) : [];
+  const _svoOn = svoEnabled && scene._svoEligible.length>0;
+  scene._svoShimRouted = _svoOn && scene._svoEligible.length>48;   // the measured-good analytic bound
+  scene._svoSkipVox = new Set(scene._svoShimRouted ? scene._svoEligible.map(e=>e.leaf) : []);
+  svoActiveNow = _svoOn; svoReady = false;
+  if(_svoOn) prepareSVO(scene); else releaseSVO();
+  // debug-only DRY mode (?svodry=1): stash the generated shader texts and
+  // SKIP compilation — the compile-bisect instrument (a wedged ANGLE compile
+  // blocks the main thread, so variants get compiled in a Worker instead).
+  if(new URLSearchParams(location.search).get("svodry")==="1"){
+    _svoBeacon("dry-prevoxels");
+    prepareVoxels(scene); prepareFields(scene);
+    _svoBeacon("dry-gentext");
+    window.__shaders = {pt: buildPathShader(scene), fast: buildFragmentShader(scene)};
+    _svoBeacon("dry-stashed");
+    console.log("svodry: shader texts stashed on window.__shaders — nothing compiled");
+    return;
+  }
   prepareVoxels(scene);                              // decode/upload voxel grids before the shaders reference them
   prepareFields(scene);                              // …and the per-cell field keyframes
+  _svoBeacon("shim-link-start");
   const t=linkProg(buildFragmentShader(scene));      // fast renderer (always)
-  let pt=null; try{ pt=linkProg(buildPathShader(scene)); }   // path tracer (graceful if it fails)
+  _svoBeacon("shim-linked");
+  let pt=null; try{ _svoBeacon("pt-link-start"); pt=linkProg(buildPathShader(scene)); }   // path tracer (graceful if it fails)
   catch(e){ console.error("path-trace shader failed:",e); }
+  _svoBeacon("pt-linked");
   if(prog) gl.deleteProgram(prog); if(progPT) gl.deleteProgram(progPT);
   prog=t; progPT=pt; U=fetchU(t); Upt=pt?fetchU(pt):{};
   U.vox=fetchVoxU(t,scene); Upt.vox=pt?fetchVoxU(pt,scene):{};
   U.fld=fetchFieldU(t,scene); Upt.fld=pt?fetchFieldU(pt,scene):{};
   buildSplatPipeline(scene);                         // R3: GL_POINTS far-field (no-op unless bandingEnabled)
+  _svoBeacon("splat-built");
 }
 
 // ── R3 splat pass: GL_POINTS far field into an RGBA16F offscreen target ──
@@ -1734,6 +1924,24 @@ let bodyPoses=[], simTime=0, tEnd=0, playing=false, rate=1.0, drewOnce=false;
 // expose job for these — same lerp-when-both/hold-when-one pattern as
 // temperature_k — it just writes the result here instead of returning it.
 let frameEnergyJ=0, frameMomentum=[0,0,0], frameAngularMomentum=[0,0,0];
+
+// ── R4 build-time assertion (the _assertNEETemplate discipline): on a scene
+// with ZERO Voxel leaves, svoEnabled must not change ONE BYTE of either
+// shader — the 8 zero-Voxel R0 baselines hold ARITHMETICALLY because of
+// exactly this property, so it is enforced loudly at every page load.
+(function _assertSVOGate(){
+  const mini={csg_leaves:[{shape:{type:"Sphere",center:[0,0,0],radius:1},
+                           material:"m",op:"add"}],
+              materials:{m:{}}, bodies:[]};
+  const was=svoEnabled;
+  svoEnabled=false;
+  const a1=buildPathShader(mini), a2=buildFragmentShader(mini);
+  svoEnabled=true;
+  const b1=buildPathShader(mini), b2=buildFragmentShader(mini);
+  svoEnabled=was;
+  if(a1!==b1 || a2!==b2)
+    throw new Error("R4: svo compile gate leaks into a zero-Voxel scene's shader text");
+})();
 
 function frameBasis(up){
   const U2=norm(up), H=Math.abs(U2[0])<0.9?[1,0,0]:[0,0,1];
@@ -1947,6 +2155,42 @@ function draw(){
       transitions:splatsCtl.transitions,
       transitionsByBody:Array.from(splatsCtl.transitionsByBody||[])};
   }
+  // ── R4: pack the per-frame body-table rows (band-0 SVO bodies ONLY — an
+  // impostor/splat body costs zero traversal; uBand never enters the SVO
+  // path). Same R1-lite float64-subtract-then-f32 rebase as fp above.
+  let svoRowCount=0;
+  if(svoActiveNow && svoGL){
+    const P=svoGL.packed, buf=svoGL.rowBuf;
+    // STABLE rows: body k always rides row = its index in P.bodies, so the
+    // shader-visible identity mat>>8 (= 1 + row) names the same BODY on every
+    // frame. A banded body (R3 splat/impostor territory) keeps its row and
+    // gets a POISONED gate radius instead of being compacted out — the old
+    // compaction shifted every later row, so the compile-time NEE self-guard
+    // (and any mat-keyed identity) pointed at the WRONG body the moment one
+    // body crossed a band edge (adversarial R4 refutation finding).
+    for(let row=0; row<P.bodies.length; row++){
+      const r=P.bodies[row];
+      const k=r.body;
+      const banded=!!(bandI32 && bandI32[k]!==0);
+      const Pp=bodyPoses[k]||{pos:[0,0,0],quat:[0,0,0,1]};
+      const o=row*16;
+      buf[o]=Pp.pos[0]-eye[0]; buf[o+1]=Pp.pos[1]-eye[1]; buf[o+2]=Pp.pos[2]-eye[2];
+      buf[o+3]=banded?-1e30:r.gateRadius;        // poisoned gate: never traversed
+      buf[o+4]=Pp.quat[0]; buf[o+5]=Pp.quat[1]; buf[o+6]=Pp.quat[2]; buf[o+7]=Pp.quat[3];
+      buf[o+8]=r.lo[0]; buf[o+9]=r.lo[1]; buf[o+10]=r.lo[2]; buf[o+11]=r.rootSpan;
+      buf[o+12]=r.rootNode;
+      buf[o+13]=r.L + 256*r.matId + 65536*r.L;   // lodCap | matId<<8 | L<<16 (cap==L until R4.4 pins)
+      buf[o+14]=(Pp.tempK!==undefined)?Pp.tempK:-1.0; buf[o+15]=r.band0;
+    }
+    svoRowCount=P.bodies.length;
+    if(frameCount<3) _svoBeacon("f"+frameCount+"-rows-"+svoRowCount);
+    gl.bindTexture(gl.TEXTURE_2D,svoGL.bodyTex);
+    if(svoRowCount)
+      gl.texSubImage2D(gl.TEXTURE_2D,0,0,0,4,svoRowCount,gl.RGBA,gl.FLOAT,
+                       svoGL.rowBuf.subarray(0,svoRowCount*16));
+    gl.bindTexture(gl.TEXTURE_2D,null);
+    if(frameCount<3) _svoBeacon("f"+frameCount+"-rows-up");
+  }
   const bindScene=(UU,timeVal,frameSeed)=>{
     gl.uniform2f(UU.uRes,w,h);
     gl.uniform3fv(UU.uEye,[0,0,0]); gl.uniform3fv(UU.uFwd,fwd); gl.uniform3fv(UU.uRight,right); gl.uniform3fv(UU.uUp,camUp);
@@ -1983,7 +2227,24 @@ function draw(){
       gl.activeTexture(gl.TEXTURE0+vbase+fi*2+1); gl.bindTexture(gl.TEXTURE_3D, f.texs[hi]);
       if(loc.b!=null) gl.uniform1i(loc.b, vbase+fi*2+1);
       if(loc.u!=null) gl.uniform1f(loc.u, u);
-    }); };
+    });
+    // R4: the four SVO textures ride FIXED units 11–14 (legacy voxels/fields
+    // top out at unit 10 in every shipped scene; guarded loudly if not)
+    if(svoActiveNow && svoGL && UU.uNumSvoBodies!=null){
+      if(vbase+((scene._fields||[]).length)*2 > 11)
+        console.error("R4: texture-unit collision — voxel/field units reached the SVO block (11-14)");
+      gl.activeTexture(gl.TEXTURE0+11); gl.bindTexture(gl.TEXTURE_2D,svoGL.nodeTex);
+      if(UU.uSVONodes!=null) gl.uniform1i(UU.uSVONodes,11);
+      gl.activeTexture(gl.TEXTURE0+12); gl.bindTexture(gl.TEXTURE_3D,svoGL.atlasTex);
+      if(UU.uSdfAtlas!=null) gl.uniform1i(UU.uSdfAtlas,12);
+      gl.activeTexture(gl.TEXTURE0+13); gl.bindTexture(gl.TEXTURE_2D,svoGL.lutTex);
+      if(UU.uMatLUT!=null) gl.uniform1i(UU.uMatLUT,13);
+      gl.activeTexture(gl.TEXTURE0+14); gl.bindTexture(gl.TEXTURE_2D,svoGL.bodyTex);
+      if(UU.uSVOBody!=null) gl.uniform1i(UU.uSVOBody,14);
+      gl.uniform1i(UU.uNumSvoBodies, svoRowCount);
+      if(UU.uAtlasDim!=null) gl.uniform1f(UU.uAtlasDim, svoGL.packed.atlasDim);
+      if(UU.uAtlasBpa!=null) gl.uniform1i(UU.uAtlasBpa, svoGL.packed.bpa);
+    } };
   if(ptMode && extF && !dispProg) initDisplay();
   // R3 belt-and-braces: bands can only change when eye/simTime change, which
   // already change the key — the |b: term defends future refactors of that
@@ -2034,7 +2295,9 @@ function draw(){
       if(Upt.uEmitterTemp!=null) gl.uniform1fv(Upt.uEmitterTemp, emT); }
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,src.tex);
     gl.uniform1i(Upt.uPrev,0); gl.uniform1f(Upt.uReset, reset?1.0:0.0);
+    if(svoActiveNow&&frameCount<3) _svoBeacon("f"+frameCount+"-pt-draw-start");
     gl.drawArrays(gl.TRIANGLES,0,3);
+    if(svoActiveNow&&frameCount<3) _svoBeacon("f"+frameCount+"-pt-draw-queued");
     // ── R3 splat pass: sub-3px far field as GL_POINTS into the RGBA16F
     // target (cleared each frame — splat radiance is closed-form per frame,
     // never accumulated), additive blend, composited by the display pass.
@@ -2074,6 +2337,7 @@ function draw(){
     if(dispU.uSplat!=null) gl.uniform1i(dispU.uSplat,1);
     gl.uniform1i(dispU.uAccum,0); gl.uniform1f(dispU.uInvN,1.0/frames);
     gl.drawArrays(gl.TRIANGLES,0,3); pingA=!pingA;
+    if(svoActiveNow&&frameCount<3) _svoBeacon("f"+frameCount+"-display-done");
     // R2: hudSuffix() is "" in orbit mode, so today's strings stay
     // byte-identical until a new camera mode is entered (a dbg tweak,
     // not an E4 HUD panel).
@@ -2844,7 +3108,8 @@ function loop(now){
         body:JSON.stringify({id:CAP.id, slug:_scene,
           error:"no float render targets — PT path unavailable"})}).catch(()=>{});
       capReleaseGL();
-    } else if(accN >= CAP.frames){
+    } else if(accN >= CAP.frames && (svoReady || !svoActiveNow)){
+      // R4 capture readiness: a pinned exposure never races SVO residency
       capSent = true; captureAndPost(canvas.width, canvas.height);
       capReleaseGL();   // free this tab's context slot — see capReleaseGL()
     }
@@ -2882,6 +3147,10 @@ window.Radiance = {
   // internals. Each applies the change and resets the exposure. The data contract
   // is the SceneSpec (the JSON load() takes); these toggles are how it's shown.
   setBvhCull:    (on) => { bvhCull = !!on; if (scene) { buildProgram(scene); sceneId++; } },
+  // R4 A/B toggle (bvhCull precedent): flip the SVO path live; rebuilds the
+  // program (compile gate re-evaluates) and restarts the exposure.
+  setSVO:        (on) => { svoEnabled = !!on; if (scene) { buildProgram(scene); sceneId++; } },
+  svoStats:      () => (svoGL && svoGL.packed) ? svoGL.packed.stats : null,
   // ── render-only material opacity — a pure VIEW toggle, byte-isolated from
   // physics (the scene's mass/com/inertia were computed in Python, upstream of
   // and untouched by anything here). Pick a material by the exact label it
@@ -2902,7 +3171,7 @@ window.Radiance = {
   // external driver (Mentat chat, a test harness) say "toggle whatever's at
   // this pixel" without synthesizing DOM mouse events.
   pickMaterialAt: (clientX, clientY) => pickMaterialAt(clientX, clientY),
-  options:       () => ({ bvhCull, materialOpacity: { ...materialOpacity } }),
+  options:       () => ({ bvhCull, svoEnabled, materialOpacity: { ...materialOpacity } }),
 };
 window.dispatchEvent(new Event("radiance-ready"));
 
