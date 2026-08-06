@@ -1,7 +1,18 @@
 """Build the solar-system voxel theater — the real DE440 ephemeris as the
 base simulation theater, rendered natively voxel.
 
-    python tools/build_solar_system_theater.py
+    python tools/build_solar_system_theater.py [--tier {48,192,768}]
+
+R4.4 zoom-ladder tiers (--tier, default 48): cells-per-diameter for the 9
+voxel bodies. 48 is the shipped scene and writes the canonical
+solar_system_theater.json byte-layout (same code path as always); other
+tiers write solar_system_theater_t<tier>.json EVIDENCE scenes for the
+R4.4 zoom ladder — the committed baselines never move with this flag.
+768 dense is REFUSED here: 770^3 = 456M cells/body (~4.1 GB raw, ~5.5 GB
+b64 JSON) can never ship as a dense sdf_b64 payload — that tier is
+exactly what R4.6's tools/bake_svo.py type:SVO payload exists for
+(blueprint Sec 5/V8; risk (5) sanctions pulling the bake forward, never
+the dense JSON).
 
 Ground truth, not invented: body positions/velocities are the real J2026
 epoch DE440 state vectors already on disk
@@ -74,11 +85,23 @@ def _shape_to_dict_sphere(radius_m):
     return {"type": "Sphere", "center": [0.0, 0.0, 0.0], "radius": radius_m}
 
 
-def main():
+def main(tier=VOXEL_CELLS_PER_DIAMETER):
+    if tier not in (48, 192, 768):
+        raise SystemExit(f"--tier {tier}: ladder tiers are 48/192/768 (blueprint R4.4)")
+    if tier == 768:
+        raise SystemExit(
+            "--tier 768 REFUSED as a dense export: 770^3 = 456M cells/body "
+            "(~5.5 GB of b64 JSON) must never exist densely — use R4.6's "
+            "tools/bake_svo.py type:SVO payload for the 768 tier "
+            "(blueprint Sec 5/V8, risk (5)).")
+    out_path = OUT_PATH if tier == VOXEL_CELLS_PER_DIAMETER else \
+        OUT_PATH.replace("solar_system_theater.json",
+                         f"solar_system_theater_t{tier}.json")
     de440 = json.load(open(DE440_PATH, encoding="utf-8"))
     params = json.load(open(PARAMS_PATH, encoding="utf-8"))["bodies"]
     snap = de440["snapshots"][EPOCH]
-    print(f"epoch: {snap['epoch']['iso']} (JD {snap['epoch']['jd_tdb']})")
+    print(f"epoch: {snap['epoch']['iso']} (JD {snap['epoch']['jd_tdb']})  "
+          f"tier: {tier} cells/diameter")
 
     bodies_meta, csg_leaves, materials = [], [], {}
     frame_bodies = []
@@ -100,7 +123,7 @@ def main():
         mat_label = f"body_{name}"
         is_voxel = name in VOXEL_PLANETS
         if is_voxel:
-            vox = _voxel_sphere(r_m)
+            vox = _voxel_sphere(r_m, cells=tier)
             from sigma_ground.radiance.scene_export import _shape_to_dict
             shape_dict = _shape_to_dict(vox)
             voxel_count += 1
@@ -128,8 +151,9 @@ def main():
     # in view); R1-lite's camera-anchored rebase + view-scale epsilons make
     # zooming out to the outer planets precision-safe, not just possible
     au = 1.495978707e11
+    tier_tag = "" if tier == VOXEL_CELLS_PER_DIAMETER else f" [tier {tier}]"
     scene_spec = {
-        "name": f"Solar System Theater — real DE440 ephemeris @ {snap['epoch']['iso']}",
+        "name": f"Solar System Theater — real DE440 ephemeris @ {snap['epoch']['iso']}{tier_tag}",
         "bodies": bodies_meta,
         "csg_leaves": csg_leaves,
         "materials": materials,
@@ -168,7 +192,7 @@ def main():
                       "latitude/season/diurnal model",
              "adjustable": False},
             {"description": "voxel fidelity scope",
-             "value": f"Sun + 8 planets voxelized ({VOXEL_CELLS_PER_DIAMETER} "
+             "value": f"Sun + 8 planets voxelized ({tier} "
                       f"cells/diameter); 21 moons render as analytic spheres — "
                       f"texture-unit budget, not a physics limitation",
              "adjustable": False},
@@ -202,12 +226,17 @@ def main():
     bundle = {"kind": "trajectory", "scene": scene_spec,
              "trajectory": trajectory, "sim": None}
 
-    os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
-    with open(OUT_PATH, "w", encoding="utf-8") as f:
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, "w", encoding="utf-8") as f:
         json.dump(bundle, f)
-    size_mb = os.path.getsize(OUT_PATH) / 1e6
-    print(f"\n-> {os.path.normpath(OUT_PATH)}  ({size_mb:.2f} MB)")
+    size_mb = os.path.getsize(out_path) / 1e6
+    print(f"\n-> {os.path.normpath(out_path)}  ({size_mb:.2f} MB)")
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--tier", type=int, default=VOXEL_CELLS_PER_DIAMETER,
+                    help="cells per body diameter (48 = shipped scene; "
+                         "192 = zoom-ladder evidence; 768 refuses → bake_svo)")
+    main(tier=ap.parse_args().tier)

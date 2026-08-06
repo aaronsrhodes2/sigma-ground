@@ -315,5 +315,24 @@ function denseD(sh, g, q) {
   }
 }
 
+// ── 8. R4.4 calcN level-pin GLSL invariants (Sec 2) ──────────────────────
+{
+  const glsl = S.glslSVO();
+  const term = S.glslSVOMapTerm();
+  ok("pin: gSvoPin declared and consumed in the descent",
+     /int gSvoPin = -1;/.test(glsl)
+     && /if\(gSvoPin >= 0\) cap = min\(cap, gSvoPin\);/.test(glsl));
+  ok("pin: svoDist latches level + cell size for the winner latch",
+     /gSvoLvl = blvl;/.test(glsl) && /gSvoVs = /.test(glsl));
+  ok("pin: mapD term RESETS the winner latch before the body loop",
+     /gSvoHit = 0\.0; gSvoHitLvl = -1;\n\s*for\(int k=0;/.test(term));
+  ok("pin: mapD term latches winner only on min-win",
+     /if\(sk < d\)\{ d = sk; mat = mk; gSvoHit = gSvoVs; gSvoHitLvl = gSvoLvl; \}/.test(term));
+  // the ANGLE law still holds after the pin edits: no uniform arrays, no
+  // dynamically-indexed local arrays anywhere in the SVO chunk
+  ok("pin: still zero uniform arrays in the SVO chunk",
+     !/uniform[^;]*\[/.test(glsl) && !/uniform[^;]*\[/.test(term));
+}
+
 console.log(`\n${checks - fails}/${checks} checks pass`);
 process.exit(fails ? 1 : 0);

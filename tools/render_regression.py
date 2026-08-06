@@ -231,6 +231,8 @@ def _capture_once(port: int, bid: str, spec: dict, frames: int | None = None,
            f"&cam={','.join(_f(v) for v in spec['cam'])}")
     if spec.get("t") is not None:
         url += f"&t={_f(spec['t'])}"
+    if spec.get("extra"):                          # R4.4: e.g. "svo=0" A/B evidence
+        url += "&" + spec["extra"]
     webbrowser.open(url)
     t0 = time.time()
     while time.time() - t0 < timeout:

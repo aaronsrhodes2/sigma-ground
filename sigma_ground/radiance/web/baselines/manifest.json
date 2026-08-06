@@ -9,7 +9,7 @@
   "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Ti SUPER (0x00002705) Direct3D11 vs_5_0 ps_5_0, D3D11)",
   "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
   "os": "win32",
-  "captured_at": "2026-08-05T05:12:56",
+  "captured_at": "2026-08-05T18:40:17",
   "note": "baselines are PER-(GPU, driver, browser/ANGLE) artifacts; a driver or browser update legitimately breaks exact hashes"
  },
  "tolerances": {
@@ -63,6 +63,16 @@
    "date": "2026-08-05T05:09:31",
    "reason": "R3 review: 3-render splat determinism re-proof",
    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Ti SUPER (0x00002705) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  {
+   "date": "2026-08-05T18:36:17",
+   "reason": "R4.4 flip: svoEnabled default-on (octree-of-bricks path for eligible Voxel leaves). Mechanism: calcN level pin (h=max(uCalcNH,0.5*vs_hit) + tap pin at the hit's level) kills the pre-existing Lambert faceting bias \u2014 measured seam step at the 24px band edge x1.521 (legacy) -> x1.003 (svo), tools/measure_faceting.py, evidence misc/render_regression/r44_faceting_*. Geometry parity clean (verify_svo_parity 0 hit/miss, 0 material). solar_wide NOT recaptured: svo=1 render byte-identical to its committed baseline (sha ba1708cf...). Before/after/diff: misc/render_regression/r44_flip_*",
+   "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Ti SUPER (0x00002705) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  {
+   "date": "2026-08-05T18:40:02",
+   "reason": "INPUT-CHANGED bookkeeping only: routine test-harness bundle regeneration rotated variant slugs in plate_pushed_off_the_1700s_table_v30.json; renderer untouched (R4.4 flip does not affect zero-Voxel scenes \u2014 gate-asserted). Recapture refreshes scene_sha256.",
+   "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Ti SUPER (0x00002705) Direct3D11 vs_5_0 ps_5_0, D3D11)"
   }
  ],
  "baselines": {
@@ -114,9 +124,9 @@
    ],
    "t": null,
    "frames": 64,
-   "sha256_rgb": "af4414923f6562f264a9170b313f9f5c2298b1ee23b3cc7887c512acd3648c1a",
+   "sha256_rgb": "7b5f49a40e6ce01ebf9bca4d1919cba9be7d8a64c313a5048d57dc9456c0240f",
    "png": "solar_earth.png",
-   "deterministic": false,
+   "deterministic": true,
    "scene_sha256": "26a37511c3d3d49efbea1fac3eb4e40b43f97a4c1e30132926e47580df415325",
    "reason": "near-field precision inside far scale (the regime R1-lite exists for); the most sensitive R4 brick-grid tripwire"
   },
@@ -224,9 +234,9 @@
    ],
    "t": 0.0,
    "frames": 64,
-   "sha256_rgb": "13774db365299a9ec5b2eb8e8016d46c0f871f767e0ae0a9e88af0ad4250ff06",
+   "sha256_rgb": "24b85a0fbc79ccf87351f0176b5f5c9413184f3d61462c1440a3784c1bfbcc9f",
    "png": "vox_chair.png",
-   "deterministic": false,
+   "deterministic": true,
    "scene_sha256": "5acdf716e64018c5bb6072cdeec0000d372d17e517619cdaa8d8348ad97b030a",
    "reason": "ShapeNet real-mesh Voxel leaf (int8 SDF 3-D texture) + a 32-frame trajectory, at t=0"
   },
@@ -261,10 +271,10 @@
    ],
    "t": 0.50155,
    "frames": 64,
-   "sha256_rgb": "b2b5663381553599e48c68d3abdfc20c2d0b02b2a0c7681a762386e8dd765466",
+   "sha256_rgb": "c86febc146643ba46640d52ebfc7d7bf2548fd20c38ab8aab40abbc1c6dc41a5",
    "png": "plate_push_mid.png",
-   "deterministic": false,
-   "scene_sha256": "0dba37f6dc72af48c745d9d2ba6b984eb6b09d142548cdbc1a7053bd248014e0",
+   "deterministic": true,
+   "scene_sha256": "c0bae8a1ef893915f04ce9e146873c0b3205f2548b49b1ecdb5fd668ced7059d",
    "reason": "39 leaves incl. Torus/Clipped/Ellipsoid x24 (shapes no other pick covers), 122 frames, follow-up-prompt flagship family"
   }
  }

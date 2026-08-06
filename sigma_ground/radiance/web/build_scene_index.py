@@ -38,6 +38,18 @@ LEGACY_INDEXES = ("scenes.json", "voxel_scenes.json", "voxel_sdf_scenes.json")
 # scenes — the binding table and the generated verb-registry mirror
 # (input.js fetches both; neither could ever render in the gallery).
 NON_SCENES = ("input_bindings.json", "intent_verbs.json")
+# R4.4 zoom-ladder EVIDENCE scenes (solar_system_theater_t192 etc.): huge
+# regenerable artifacts (tools/build_solar_system_theater.py --tier N),
+# deliberately gitignored and deliberately NOT gallery citizens — an
+# accidental gallery click on an ~88 MB bundle wedges the editor textarea
+# for ~20 s (the session-33 layout-wedge class, at data size rather than
+# cache size). Loadable directly via ?scene=<slug> for ladder captures.
+import re as _re
+_EVIDENCE_SCENE = _re.compile(r"^solar_system_theater_t\d+\.json$")
+
+
+def _is_evidence_scene(basename: str) -> bool:
+    return bool(_EVIDENCE_SCENE.match(basename))
 
 # slug prefix → group, longest prefix wins. Groups the viewer doesn't know a
 # label for fall back to the raw group name, so a new prefix degrades to
@@ -139,6 +151,8 @@ def build() -> list:
     for path in sorted(glob.glob(os.path.join(DATA, "*.json"))):
         if os.path.basename(path) in LEGACY_INDEXES + NON_SCENES:
             continue
+        if _is_evidence_scene(os.path.basename(path)):
+            continue                                 # ladder evidence, not gallery
         try:
             entry = _scan_one(path)
         except Exception as e:                       # a malformed file is

@@ -432,14 +432,19 @@ let bvhCull=true;    // debug/A-B toggle: per-leaf bounding-sphere early-rejecti
 // inertia) this scene renders is computed entirely upstream in Python and never
 // reads this map.
 let materialOpacity={};
-// ── R4 SVO state (svo.js — octree-of-bricks; svoEnabled default false until
-// R4.4 flips the voxel scenes). The compile gate is svoActive = svoEnabled
+// ── R4 SVO state (svo.js — octree-of-bricks; svoEnabled DEFAULT TRUE since
+// the R4.4 flip — ?svo=0 forces the legacy dense path, the A/B surface).
+// The compile gate is svoActive = svoEnabled
 // AND svo.js loaded AND the scene has ELIGIBLE Voxel leaves (top-level Voxel
 // shape, body-bound, op:add — subtract/intersect Voxel leaves refuse the SVO
 // path and stay per-leaf codegen, the R3 band-gate honesty rule). ?svo=0/1
 // presets the toggle at boot (the A/B capture surface); setSVO() flips live.
+// R4.4 flip evidence: solar_wide svo=1 byte-identical to its committed
+// baseline; solar_earth/vox_chair re-baselined with the faceting-checkpoint
+// measurement (legacy seam step x1.521 -> x1.003 with the calcN level pin);
+// zero-Voxel scenes byte-identical by _assertSVOGate below.
 const svoCtl = (typeof window!=="undefined" && window.SGSVO) ? window.SGSVO : null;
-let svoEnabled = new URLSearchParams(location.search).get("svo")==="1";
+let svoEnabled = new URLSearchParams(location.search).get("svo")!=="0";
 let svoGL = null;          // GL residency {nodeTex,atlasTex,lutTex,bodyTex,packed,rowBuf}
 let svoActiveNow = false;  // set per buildProgram; read by draw()/loop()'s capture arm
 let svoReady = false;      // uploads done — capture pins wait on this (blueprint Sec 5)
@@ -1188,6 +1193,25 @@ function buildPathShader(scene){
     tempfn     = `  if(m>=SVO_MAT_BASE) return texelFetch(uMatLUT, ivec2(m & 255, 2), 0).w;\n` + tempfn;
     bodyTempFn = `  if(m>=SVO_MAT_BASE) return BT((m >> 8) - 1, 3).z;\n` + bodyTempFn;
   }
+  // R4.4 calcN LEVEL PIN (Sec 2, emitted ONLY when svoActive — the else
+  // branch is the pre-R4 line verbatim, so zero-Voxel scenes stay byte-
+  // identical and _assertSVOGate keeps proving it). Mechanism: march()'s
+  // final mapOnly at the accepted hit leaves gSvoHit/gSvoHitLvl describing
+  // the WINNING SVO body's brick level at the hit (0.0/-1 for a non-SVO
+  // winner — h and pin then degrade to exactly the legacy behaviour).
+  //   h   = max(uCalcNH, 0.5·vs_hit): the finite-difference step spans half
+  //         the sampled cell, so per-cell facets in the trilinear field
+  //         average out instead of aliasing against the Lambert term (the
+  //         measured ~1.6×/px brightness bias, Sec 7 mechanism #3);
+  //   pin = all four taps descend to AT MOST the hit's level — no tap can
+  //         sample a different LOD than the hit did (cross-LOD normal seams
+  //         die structurally, not statistically).
+  const calcNPT = svoActive
+    ? `vec3 calcN(vec3 p){ float h=max(uCalcNH, 0.5*gSvoHit); gSvoPin=gSvoHitLvl; vec2 e=vec2(1.0,-1.0);
+  vec3 nv = e.xyy*mapOnly(p+e.xyy*h)+e.yyx*mapOnly(p+e.yyx*h)+e.yxy*mapOnly(p+e.yxy*h)+e.xxx*mapOnly(p+e.xxx*h);
+  gSvoPin=-1; return normalize(nv); }`
+    : `vec3 calcN(vec3 p){ float h=uCalcNH; vec2 e=vec2(1.0,-1.0);
+  return normalize( e.xyy*mapOnly(p+e.xyy*h)+e.yyx*mapOnly(p+e.yyx*h)+e.yxy*mapOnly(p+e.yxy*h)+e.xxx*mapOnly(p+e.xxx*h) ); }`;
   // SHMIN/SHMAX/SMAXT/EPS/GATE_BUFFER/calcN's h used to be baked from the
   // scene's whole-scene bbox diagonal ONCE at shader-build time — fine for a
   // tabletop scene, but wrong for a scene spanning solar-system distances:
@@ -1395,8 +1419,7 @@ float effTempK(int m, vec3 p){ float ft=fieldTempK(m,p); if(ft>=0.0) return ft+u
   float bt=bodyTempK(m); return (bt>=0.0?bt:matTempK(m))+uTemp; }
 float iorOf(int m){ ${iorfn}  return -1.0; }              // refractive index (water/glass), else -1
 float opacityOf(int m){ ${alphafn}  return 1.0; }         // render-only alpha (1=opaque); NOT ior — see trace()
-vec3 calcN(vec3 p){ float h=uCalcNH; vec2 e=vec2(1.0,-1.0);
-  return normalize( e.xyy*mapOnly(p+e.xyy*h)+e.yyx*mapOnly(p+e.yyx*h)+e.yxy*mapOnly(p+e.yxy*h)+e.xxx*mapOnly(p+e.xxx*h) ); }
+${calcNPT}
 ${INCANDESCENCE_GLSL}
 uint hashu(uint x){ x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;x^=x>>16;return x; }
 float rnd(inout uint s){ s=hashu(s); return float(s)*(1.0/4294967296.0); }

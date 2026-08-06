@@ -57,5 +57,9 @@ local-cache/
 # R0 render-regression scratch sinks (regenerable; tools/render_regression.py)
 misc/render_captures/
 misc/render_regression/
+# R4.4 zoom-ladder evidence scenes (regenerable:
+# tools/build_solar_system_theater.py --tier N; ~88 MB at t192 — deliberately
+# neither committed nor gallery-indexed, see build_scene_index._is_evidence_scene)
+sigma_ground/radiance/web/data/solar_system_theater_t*.json
 # ...but the COMMITTED pixel baselines override the global *.png ignore above
 !sigma_ground/radiance/web/baselines/*.png

@@ -342,6 +342,11 @@ uniform int uNumSvoBodies;
 uniform float uAtlasDim;
 uniform int uAtlasBpa;
 float gSvoVs = 0.0;                   // deepest-brick cell size at the last SVO sample
+int gSvoLvl = 0;                      // level of that sample (R4.4 calcN pin)
+float gSvoHit = 0.0;                  // WINNING body's cell size at the last mapD (0 = non-SVO winner)
+int gSvoHitLvl = -1;                  // its level (-1 = non-SVO winner)
+int gSvoPin = -1;                     // >=0: cap every descent at this level (calcN's 4 taps —
+                                      // Sec 2's level pin: kills cross-LOD normal seams)
 #define NO_BRICK 0xFFFFFFFFu
 #define MAX_SVO_LEVELS ${MAX_SVO_LEVELS}
 #define SVO_MAT_BASE ${SVO_MAT_BASE}
@@ -370,6 +375,7 @@ float svoDist(int k, vec3 p, out int matOut){
                                                    // into the wrong octant
   uint node = uint(t3.x); uint brick = NO_BRICK; int blvl = 0; uint nb = 0u;
   int cap = int(t3.y) & 255;                  // t3.y packs lodCap | matId<<8 | L<<16
+  if(gSvoPin >= 0) cap = min(cap, gSvoPin);   // calcN tap pin (R4.4, Sec 2)
   int Lf  = (int(t3.y) >> 16) & 255;          // FINEST level (guarantee lives there)
   uint lastCls = 2u;
   for(int l = 0; l < MAX_SVO_LEVELS; l++){         // break-driven — the R4.0-
@@ -383,6 +389,7 @@ float svoDist(int k, vec3 p, out int matOut){
   float d = sampleBrick(brick, cl, blvl, t3.w);    // deepest RESIDENT brick —
                                                    // always exists (root invariant)
   gSvoVs = t2.w / (16.0 * exp2(float(blvl)));      // cell size at the sampled level
+  gSvoLvl = blvl;
   if(lastCls != 2u){
     // uniform-node fallback: the ancestor brick's point-sampled cells can
     // exceed true distance by ~one ancestor cell (trilinear-of-centers
@@ -407,14 +414,20 @@ float svoDist(int k, vec3 p, out int matOut){
 }
 `;
 }
-// the mapD() SVO term — appended after the legacy compose/matsel chains
+// the mapD() SVO term — appended after the legacy compose/matsel chains.
+// gSvoHit/gSvoHitLvl latch the WINNER of this mapD call (reset first, so a
+// non-SVO winner reads 0.0/-1): march()'s final mapOnly at the accepted hit
+// point leaves them describing the hit's level, which the svoActive calcN
+// variant (viewer.js) consumes for h = max(uCalcNH, 0.5·vs_hit) + the tap
+// pin — the R4.4 faceting mechanism (Sec 2/Sec 7).
 function glslSVOMapTerm() {
-  return `  for(int k=0;k<MAX_SVO_BODIES;k++){ if(k>=uNumSvoBodies) break;
+  return `  gSvoHit = 0.0; gSvoHitLvl = -1;
+  for(int k=0;k<MAX_SVO_BODIES;k++){ if(k>=uNumSvoBodies) break;
     vec4 gt0=BT(k,0);
     float gbd = length(p - gt0.xyz) - gt0.w;       // SAME bounding-sphere gate as bd{i}
     if(gbd > uGateBuffer){ d = min(d, gbd); continue; }   // the GATE_BUFFER lesson
     int mk; float sk = svoDist(k, p, mk);
-    if(sk < d){ d = sk; mat = mk; } }
+    if(sk < d){ d = sk; mat = mk; gSvoHit = gSvoVs; gSvoHitLvl = gSvoLvl; } }
 `;
 }
 
