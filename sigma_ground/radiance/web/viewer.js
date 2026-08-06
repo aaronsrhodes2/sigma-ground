@@ -1518,10 +1518,10 @@ function prepareVoxels(scene){     // decode + upload each Voxel leaf once; tag 
       // texture — the SVO atlas is their sole residency; every other scene
       // keeps the dense upload (shim + A/B legacy path) unchanged.
       if(scene._svoSkipVox && scene._svoSkipVox.has(i)){
-        if(s._grid===undefined) s._grid=b64ToI8(s.sdf_b64);   // self-check still needs bytes
+        if(s._grid===undefined) stashPrivate(s,"_grid",b64ToI8(s.sdf_b64));   // self-check still needs bytes
         continue;
       }
-      if(s._tex===undefined){ s._vid=vid; s._grid=b64ToI8(s.sdf_b64); s._tex=makeVoxTex(s._grid,s.dims); }
+      if(s._tex===undefined){ stashPrivate(s,"_vid",vid); stashPrivate(s,"_grid",b64ToI8(s.sdf_b64)); stashPrivate(s,"_tex",makeVoxTex(s._grid,s.dims)); }
       list.push({vid:s._vid, tex:s._tex}); vid++;
     } }
   scene._voxels=list;
@@ -1562,8 +1562,8 @@ function prepareFields(scene){    // decode + upload each leaf's temperature fie
       continue;
     }
     if(f._texs===undefined){
-      f._grids=f.keyframes.map(k=>b64ToU8(k.values_b64));
-      f._texs=f._grids.map(g=>makeFieldTex(g,f.grid.dims));
+      stashPrivate(f,"_grids",f.keyframes.map(k=>b64ToU8(k.values_b64)));
+      stashPrivate(f,"_texs",f._grids.map(g=>makeFieldTex(g,f.grid.dims)));
     }
     f._fid=fid; l._fid=fid;
     list.push({fid, leaf:i, times:f.keyframes.map(k=>k.t_sim), texs:f._texs, spec:f});
@@ -1615,11 +1615,67 @@ function _svoBeacon(stage){
     x.send(JSON.stringify({slug:"svotrace_"+stage, t: performance.now()|0}));
   }catch(_e){}
 }
+// Session-33 blocker instrument: the f0/f1/f2 draw beacons above can never
+// fire in real page flow (frameCount is in the thousands by the time the
+// ~30-90 s ANGLE link returns), so a "no beacon" there proves nothing about
+// draw(). This one posts a rate-limited FRAME-STATE summary from the live
+// loop instead: draw/exception counts, the exposure-key oscillation stats,
+// and the last key transition — enough to tell "wedged draw" from "exposure
+// never accumulates" in one run.
+let _svoDbg={draws:0,ok:0,mov:0,lastKey:"",prevKey:"",err:""};
+function _svoBeaconObj(stage,obj){
+  if(!_svoTrace) return;
+  try{
+    const x=new XMLHttpRequest(); x.open("POST","/probe",false);
+    x.send(JSON.stringify(Object.assign({slug:"svotrace_"+stage,
+                                         t: performance.now()|0}, obj)));
+  }catch(_e){}
+}
+// catch the rAF-chain killer wherever it hides: ONE uncaught exception
+// anywhere in loop() before its tail requestAnimationFrame re-arm kills
+// the render loop forever, silently (measured session 33: theater svo=1
+// posts splat-built then never ticks again)
+if(_svoTrace){
+  window.addEventListener("error",(ev)=>{ _svoBeaconObj("uncaught",
+    {msg:String(ev.message||"").slice(0,300),
+     src:(ev.filename||"").split("/").pop()+":"+(ev.lineno||0)+":"+(ev.colno||0)}); });
+  window.addEventListener("unhandledrejection",(ev)=>{ _svoBeaconObj("unhandled-rejection",
+    {msg:String(ev.reason&&ev.reason.message||ev.reason||"").slice(0,300),
+     stack:String(ev.reason&&ev.reason.stack||"").slice(0,400)}); });
+  // rAF-independent heartbeat: setInterval keeps firing (>=1 Hz throttled)
+  // when rAF is occlusion-paused — separates "main thread blocked" /
+  // "rAF throttled" / "rAF chain dead" in one signal
+  setInterval(()=>{ _svoBeaconObj("hb",
+    {ticks:_svoDbg.ticks||0, draws:_svoDbg.draws, ok:_svoDbg.ok,
+     vis:document.visibilityState,
+     focus:document.hasFocus?document.hasFocus():false}); },5000);   // hasFocus guarded: gen_shader's DOM stub lacks it
+}
+// Decoded/packed caches ride scene OBJECTS but must never ride the scene
+// JSON: JSON.stringify serializes a typed array as one numbered key per
+// element, and syncEditor stringifies the loaded object into the editor
+// <textarea>. Two measured instances of the same mechanism (session 33):
+//   (1) R4's scene._svoPacked (4.25 MB atlas) inflated the theater's editor
+//       JSON 1.5 MB -> 152.6 MB and Blink's LAYOUT of that textarea wedged
+//       the renderer main thread for minutes with the GPU idle — rAF and
+//       timers both starve; presented as "theater svo=1 first PT frame never
+//       completes" (the R4 blocker).
+//   (2) PRE-EXISTING (pre-R3, matches Session 31's stash-bisect): each Voxel
+//       shape's decoded s._grid (Int8Array, ~0.8 MB of JSON per 48^3 leaf)
+//       put the LEGACY theater editor JSON at 29.3 MB -> the known ~6.5 s
+//       interactive-tab freeze on every theater load, svo-independent.
+// Non-enumerable properties are invisible to JSON.stringify/Object.keys but
+// read/write exactly like plain fields everywhere else, so every consumer
+// (direct property reads, grep-verified) is untouched.
+function stashPrivate(o, k, v){
+  Object.defineProperty(o, k, {value: v, writable: true,
+                               configurable: true, enumerable: false});
+  return v;
+}
 function prepareSVO(scene){
   _svoBeacon("prepareSVO-enter");
   if(!scene._svoPacked){
     const t0=performance.now();
-    scene._svoPacked = svoCtl.packScene(scene._svoEligible);
+    stashPrivate(scene, "_svoPacked", svoCtl.packScene(scene._svoEligible));
     const st=scene._svoPacked&&scene._svoPacked.stats;
     if(st) console.log(`R4 svo build ${(performance.now()-t0).toFixed(0)} ms: `
       +`${st.trees} trees, ${st.nodes} nodes, ${st.bricks} bricks, atlas ${st.atlas_dim}^3 `
@@ -1686,10 +1742,10 @@ function prepareSVO(scene){
 }
 function buildProgram(scene){
   // R4: eligibility + residency decided BEFORE the shaders are generated
-  scene._svoEligible = svoCtl ? svoEligible(scene) : [];
+  stashPrivate(scene, "_svoEligible", svoCtl ? svoEligible(scene) : []);   // holds shape REFS (sdf_b64) — enumerable, it would DUPLICATE them into the editor JSON
   const _svoOn = svoEnabled && scene._svoEligible.length>0;
-  scene._svoShimRouted = _svoOn && scene._svoEligible.length>48;   // the measured-good analytic bound
-  scene._svoSkipVox = new Set(scene._svoShimRouted ? scene._svoEligible.map(e=>e.leaf) : []);
+  stashPrivate(scene, "_svoShimRouted", _svoOn && scene._svoEligible.length>48);   // the measured-good analytic bound
+  stashPrivate(scene, "_svoSkipVox", new Set(scene._svoShimRouted ? scene._svoEligible.map(e=>e.leaf) : []));
   svoActiveNow = _svoOn; svoReady = false;
   if(_svoOn) prepareSVO(scene); else releaseSVO();
   // debug-only DRY mode (?svodry=1): stash the generated shader texts and
@@ -2183,13 +2239,13 @@ function draw(){
       buf[o+14]=(Pp.tempK!==undefined)?Pp.tempK:-1.0; buf[o+15]=r.band0;
     }
     svoRowCount=P.bodies.length;
-    if(frameCount<3) _svoBeacon("f"+frameCount+"-rows-"+svoRowCount);
+    if(_svoDbg.draws<=3) _svoBeacon("d"+_svoDbg.draws+"-rows-"+svoRowCount);
     gl.bindTexture(gl.TEXTURE_2D,svoGL.bodyTex);
     if(svoRowCount)
       gl.texSubImage2D(gl.TEXTURE_2D,0,0,0,4,svoRowCount,gl.RGBA,gl.FLOAT,
                        svoGL.rowBuf.subarray(0,svoRowCount*16));
     gl.bindTexture(gl.TEXTURE_2D,null);
-    if(frameCount<3) _svoBeacon("f"+frameCount+"-rows-up");
+    if(_svoDbg.draws<=3) _svoBeacon("d"+_svoDbg.draws+"-rows-up");
   }
   const bindScene=(UU,timeVal,frameSeed)=>{
     gl.uniform2f(UU.uRes,w,h);
@@ -2251,6 +2307,8 @@ function draw(){
   // coupling. Non-banding scenes keep the key string byte-identical.
   const key=`${eye.map(x=>x.toFixed(3))}|${cam.target.map(x=>x.toFixed(3))}|${simTime.toFixed(3)}|${w}x${h}|${sceneId}`
     +(bandOut?`|b:${Array.from(bandOut.bands).join("")}`:"");
+  if(_svoTrace && key!==ptKey){ _svoDbg.mov++;               // blocker instrument: record the key transition
+    _svoDbg.prevKey=ptKey; _svoDbg.lastKey=key; }
   const moving = key!==ptKey; ptKey=key;                     // is the view changing this frame?
   if(moving) accN=0;                                         // view changed → restart accumulation
   // ── Radiance has ONE renderer: the path tracer. Appearance is light transport,
@@ -2295,9 +2353,9 @@ function draw(){
       if(Upt.uEmitterTemp!=null) gl.uniform1fv(Upt.uEmitterTemp, emT); }
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,src.tex);
     gl.uniform1i(Upt.uPrev,0); gl.uniform1f(Upt.uReset, reset?1.0:0.0);
-    if(svoActiveNow&&frameCount<3) _svoBeacon("f"+frameCount+"-pt-draw-start");
+    if(svoActiveNow&&_svoDbg.draws<=3) _svoBeacon("d"+_svoDbg.draws+"-pt-draw-start");
     gl.drawArrays(gl.TRIANGLES,0,3);
-    if(svoActiveNow&&frameCount<3) _svoBeacon("f"+frameCount+"-pt-draw-queued");
+    if(svoActiveNow&&_svoDbg.draws<=3) _svoBeacon("d"+_svoDbg.draws+"-pt-draw-queued");
     // ── R3 splat pass: sub-3px far field as GL_POINTS into the RGBA16F
     // target (cleared each frame — splat radiance is closed-form per frame,
     // never accumulated), additive blend, composited by the display pass.
@@ -2337,7 +2395,7 @@ function draw(){
     if(dispU.uSplat!=null) gl.uniform1i(dispU.uSplat,1);
     gl.uniform1i(dispU.uAccum,0); gl.uniform1f(dispU.uInvN,1.0/frames);
     gl.drawArrays(gl.TRIANGLES,0,3); pingA=!pingA;
-    if(svoActiveNow&&frameCount<3) _svoBeacon("f"+frameCount+"-display-done");
+    if(svoActiveNow&&_svoDbg.draws<=3) _svoBeacon("d"+_svoDbg.draws+"-display-done");
     // R2: hudSuffix() is "" in orbit mode, so today's strings stay
     // byte-identical until a new camera mode is entered (a dbg tweak,
     // not an E4 HUD panel).
@@ -2444,6 +2502,7 @@ function applyObj(obj, title, preserve){
   // but belt-and-suspenders: any future re-loader would silently reset the
   // camera/playhead the same way, and a capture must never race a loader).
   if(CAP && capArmed) applyCapturePins();
+  _svoBeacon("applyObj-done");
   return true;
 }
 // ── variants: a scene's declared parameter sweep (frozen recorded runs) ──
@@ -2898,7 +2957,24 @@ async function load(url, title){
 // world. Nothing is validated — type an impossible seed and you see the
 // impossible thing it implies. A bad parse / bad shader keeps the last render.
 function editMsg(m,bad){ const el=$("editmsg"); if(el){ el.textContent=m||""; el.style.color=bad?"#FF4444":"#00FF88"; } }
-function syncEditor(){ const ta=$("json"); if(ta&&loadedObj){ ta.value=JSON.stringify(loadedObj,null,2); } editMsg(""); }
+function syncEditor(){ const ta=$("json"); if(ta&&loadedObj){
+  _svoBeacon("syncEditor-enter");
+  // tripwire (cheap: Object.keys only) — an ENUMERABLE _svo* cache on the
+  // scene object rides JSON.stringify into this textarea; the packed-atlas
+  // instance inflated it to 152.6 MB and Blink's layout of that wedged the
+  // renderer for minutes (the R4 theater blocker). console.error feeds
+  // probeErrors, so the gauntlet + every probe report see a regression.
+  const _sc=loadedObj.scene||loadedObj;
+  const _leak=Object.keys(_sc).filter(k=>k.startsWith("_svo"));
+  const _vx=(_sc.csg_leaves||[]).find(l=>l.shape&&l.shape.type==="Voxel");   // finding-2 class: decode caches on shapes
+  if(_vx) _leak.push(...Object.keys(_vx.shape).filter(k=>k[0]==="_").map(k=>"shape."+k));
+  if(_leak.length) console.error("enumerable "+_leak.join(",")+" leaked into "
+    +"the editor JSON — stashPrivate them (the 152.6 MB textarea-layout wedge class)");
+  const s=JSON.stringify(loadedObj,null,2);
+  _svoBeaconObj("syncEditor-stringified",{mb:+(s.length/1048576).toFixed(1)});
+  ta.value=s;
+  _svoBeacon("syncEditor-done");
+} editMsg(""); }
 function reRender(){ const ta=$("json"); if(!ta) return;
   let parsed; try{ parsed=JSON.parse(ta.value); }
   catch(e){ editMsg("JSON: "+e.message, true); return; }            // bad JSON → keep last render
@@ -3019,6 +3095,9 @@ $("b-lib").addEventListener("click",()=>{
 // ── main loop ─────────────────────────────────────────────────────────
 let last=performance.now(), fpsT=last, fpsN=0;
 function loop(now){
+  if(_svoTrace){ _svoDbg.ticks=(_svoDbg.ticks||0)+1;
+    if(_svoDbg.ticks<=8 || _svoDbg.ticks===60 || _svoDbg.ticks===600)
+      _svoBeacon("loop-tick-"+_svoDbg.ticks); }
   const dt=(now-last)/1000; last=now;
   // R0 capture: device input is FROZEN — a resting gamepad's stick drift
   // (measured: a connected DualSense walked az by +1.8 rad between two
@@ -3080,7 +3159,19 @@ function loop(now){
   // follow/fly the controller's later write wins).
   if(camctl) camctl.tick(dt);
   frameCount++;
-  if(prog && !(CAP && capSent)){ try{ draw(); }catch(e){ setErr("draw: "+e); } }   // R0: a finished capture tab idles (its GL context is released)
+  if(prog && !(CAP && capSent)){
+    if(_svoTrace){ _svoDbg.draws++;
+      if(_svoDbg.draws<=3) _svoBeacon("draw-enter-"+_svoDbg.draws); }
+    try{ draw(); if(_svoTrace){ _svoDbg.ok++;
+      if(_svoDbg.ok<=3) _svoBeacon("draw-done-"+_svoDbg.ok); } }
+    catch(e){ if(_svoTrace){ _svoDbg.err=String(e).slice(0,200);
+      _svoBeaconObj("draw-threw",{err:_svoDbg.err}); } setErr("draw: "+e); } }   // R0: a finished capture tab idles (its GL context is released)
+  if(_svoTrace && _svoDbg.draws>0 && _svoDbg.draws%120===0)
+    _svoBeaconObj("state",{draws:_svoDbg.draws, ok:_svoDbg.ok, mov:_svoDbg.mov,
+      accN, capArmed, capSent, svoReady, svoActive:svoActiveNow,
+      ptOn: !!(ptMode && extF && dispProg && progPT),
+      err:_svoDbg.err, errBox:($("err")&&$("err").textContent||"").slice(0,200),
+      prevKey:_svoDbg.prevKey.slice(0,220), lastKey:_svoDbg.lastKey.slice(0,220)});
   if(PROBE && !probeSent && scene && prog){
     probeSent=true;
     let pass=null, maxd=0, fpass=null, fmaxd=0;

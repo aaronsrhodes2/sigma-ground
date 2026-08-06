@@ -2711,3 +2711,86 @@ real defects in EVERY phase they attacked — the process, not luck.
   radiance+layering 153 passed/4 skipped · engine-family 12 passed ·
   E0 determinism 4/4 · verify_svo_parity PARITY HOLDS · R0 --check 11/11
   at R4.0, R4.1, and R4.2 (final run this session).
+
+## Session 33 — 2026-08-05 — R4 blocker felled: the "slow first draw" was never a draw — enumerable scene caches wedged Blink's layout of the editor textarea
+
+### The bisect (isolated-Chrome driver, scratchpad probe_run.py; every step evidenced)
+- Reproduced first: theater svo=1, solar_wide pin, 64x36, frames=1 — no capture
+  in 240 s, GPU IDLE the whole time (12-13% util / 12 W sampled via nvidia-smi).
+  Killed the "GPU mega-draw" theory in one run.
+- Instrument defect found and fixed: the f0/f1/f2 draw beacons were gated on
+  frameCount<3, but frameCount is in the THOUSANDS by the time the 30-90 s
+  ANGLE link returns — they can never fire in real page flow. Session 32's
+  "first PT frame does not complete" was read through dead instrumentation.
+  Re-gated on the first 3 DRAW CALLS (_svoDbg.draws), + draw-enter/done
+  brackets, + loop-tick beacons, + rAF-independent setInterval heartbeat,
+  + window error/unhandledrejection hooks (all _svoTrace-gated).
+- The trail then showed: boot ticks 1-3 fire, links complete (warm ~1 s),
+  applyObj-done posts... and the rAF loop NEVER ticks again; heartbeat dead
+  too; no exception; renderer process burning ~2.5 CPU-cores (Win32_Process
+  sampling) with the GPU process idle. Main thread wedged in ONE task.
+- syncEditor bracket beacons landed the kill: JSON.stringify(loadedObj,null,2)
+  = **152.6 MB** with svo=1 (vs 29.3 MB legacy), stringify 0.8 s, textarea
+  value-set 2.3 s — then Blink's LAYOUT of that textarea runs on the main
+  thread for MINUTES (rAF and timers both starve; layout is not interruptible).
+  Node census: scene._svoPacked alone inflates the theater editor JSON
+  1.5 MB -> 95.5 MB (a Uint8Array stringifies as one numbered key per cell).
+
+### ROOT CAUSE (named mechanism)
+prepareSVO cached the packed pyramid (4.25 MB atlas + pool) as an ENUMERABLE
+property of the scene object (scene._svoPacked, plus _svoEligible duplicating
+the 9 sdf_b64 payloads); load() -> syncEditor() stringifies that object into
+the editor <textarea>; Blink's layout of the ~150 MB text wedges the renderer
+main thread with the GPU idle. Never a shader, never a draw, never ANGLE.
+
+### FIX (minimal, two findings, one helper)
+- stashPrivate(o,k,v): Object.defineProperty enumerable:false — invisible to
+  JSON.stringify/Object.keys, reads/writes exactly like a plain field. Applied
+  to the R4 caches (_svoPacked/_svoEligible/_svoShimRouted/_svoSkipVox).
+- FINDING 2 (pre-existing, disentangled and FIXED as its own item): the
+  PRE-R3 voxel decode caches did the same at smaller mass — s._grid
+  (Int8Array per Voxel leaf, viewer.js prepareVoxels) put the LEGACY theater
+  editor JSON at 29.3 MB -> the ~6.5 s per-load main-thread wedge, i.e. the
+  Session-31 "theater interactive-tab freeze" (stash-bisect said pre-R3;
+  mechanism now named: same textarea-layout class, svo-independent — proven
+  by A/B: 29.3 MB and 6.5 s gap IDENTICAL at svo=0 and svo=1 post-R4-fix).
+  Fixed with the same helper on s._grid/_tex/_vid and field f._grids/_texs.
+- Standing tripwire in syncEditor (cheap Object.keys, console.error feeds
+  probeErrors -> gauntlet + every probe report): any future enumerable _svo*
+  scene key or _-prefixed Voxel-shape key screams before it wedges anyone.
+
+### Proof after the fix (isolated driver, fresh instances)
+- Theater svo=1 64x36: capture in 2.6 s wall (was: never in 400+ s). Editor
+  JSON 152.6 -> 1.5 MB; syncEditor-done -> tick-4 gap 6.5 s -> 175 ms.
+- Theater svo=0: capture 2.1 s (was ~9 s), same 1.5 MB — finding-2 payoff.
+- FULL 640x360 x 64-frame pinned captures, svo=1: solar_wide 3.1 s,
+  solar_earth 3.6 s wall including load+link. 3-way determinism: solar_wide
+  svo=1 re-render sha256 IDENTICAL across two fresh Chrome instances.
+- A/B vs committed legacy baselines (EVIDENCE ONLY — svoEnabled still
+  defaults false, zero re-baselines; the flip stays R4.4's job):
+  solar_wide svo=1 is BYTE-IDENTICAL to the baseline (all bodies banded ->
+  band-0 rows poisoned -> svoDist never sampled: the SVO path provably free
+  when nothing is in band 0). solar_earth svo=1: changed 28.117%,
+  mean|d| 5.895, p99 45 — geometry-clean (parity: 0 hit/miss, 0 material
+  divergences at matched LOD), so this is the SHADING class (calcN over the
+  brick interpolant + 2-LSB hardware-filter tolerance + NEE row guards) that
+  R4.4's Lambert-faceting checkpoint exists to measure and adjudicate.
+  Artifacts: misc/render_regression/svoab_solar_earth_{got,diff}.png (diff
+  x4), svoab_solar_wide_got.png.
+- Generated shader text: byte-identical 6/6 (theater svo/legacy + chair svo,
+  PT+fast) vs pre-edit HEAD via gen_shader.node.js + cmp — the fix touches
+  no codegen.
+
+### Suites at session end
+- test_svo 39/39 · splats 67/67 · camera 108/108 · e4 72/72 · pytest
+  radiance+layering 153 passed/4 skipped · engine 77 passed · E0 determinism
+  4/4 · verify_svo_parity PARITY HOLDS · R0 --check 11/11 zero re-baselines ·
+  gauntlet 21/22 (known feather).
+
+### Carried forward
+- R4.3-R4.6 now unblocked. solar_earth svo-vs-legacy 28% shading delta is
+  R4.4's checkpoint input, not a defect filed here (geometry parity clean).
+- Session-32's "isolated draw probes ~ms-per-pixel-class" measurement was
+  real but IRRELEVANT to the blocker (different mechanism entirely); the
+  svo_bisect real-data draw instrument was never needed once the beacons
+  were draw-gated. Kept committed for R4.4+ perf work anyway.
