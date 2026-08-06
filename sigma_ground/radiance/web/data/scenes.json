@@ -1013,7 +1013,7 @@
   "group": "gauntlet",
   "kind": "trajectory",
   "leaves": 2,
-  "frames": 35,
+  "frames": 31,
   "bodies": 1,
   "has_bounds": true,
   "has_opacity": true,
