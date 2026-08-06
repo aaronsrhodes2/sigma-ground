@@ -2794,3 +2794,60 @@ main thread with the GPU idle. Never a shader, never a draw, never ANGLE.
   real but IRRELEVANT to the blocker (different mechanism entirely); the
   svo_bisect real-data draw instrument was never needed once the beacons
   were draw-gated. Kept committed for R4.4+ perf work anyway.
+
+---
+
+## Session 34 — 2026-08-05 — Ellipsoid SDF twins reunified: Python spoke scaled-sphere, JS/GLSL spoke Quilez
+
+**Time:** ~17:50 to ~18:55 (65 min)
+**Status:** ✅ Complete
+
+### Changes
+- `sigma_ground/kernel/shapes.py:561-592` — Ellipsoid.surface_distance +
+  surface_distance_batch switched from the scaled-sphere approximation
+  ((dist_norm−1)·avg_r) to Inigo Quilez's 2nd-order bound
+  k0·(k0−1)/max(k1,1e-9), statement-for-statement with viewer.js
+  sdEllip/jsLeafSDF (which were already IQ and are unchanged). IQ is
+  canonical: it never overshoots (sphere tracing can't skip a thin vane)
+  and its zero set is the exact (x/rx)²+(y/ry)²+(z/rz)²=1.
+- `data/falling_feather.json` — regenerated via the offline deterministic
+  front-door flow (dispatch feather → "yes"). New sdf_samples bake matches
+  the browser; corrected physics lands the feather at t=1.52 s / 31 frames
+  (was 1.73 s / 35). NOTE: this regeneration was swept into the OTHER
+  lane's commit 2f670e8 ("Data refresh … routine") because test_front_door
+  rewrites the file on every pytest run — the 340-line falling_feather diff
+  in that commit is THIS session's ellipsoid-SDF fix, not slug rotation.
+- R0 capture machinery untouched (per directive). No pixel change possible:
+  the browser formulas didn't change, only Python joined them.
+
+### Why
+The browser gauntlet's one standing red: falling_feather ?probe=1
+selfcheck_pass=false, max_delta=0.0189. Root cause: the mirrors' "matches
+shapes.py exactly" contract was false for Ellipsoid — two different
+functions with the same zero set. Replaying the JS formula in Python
+reproduced the browser's 0.018910124894945… to 15 significant digits.
+falling_feather was the ONLY baked scene containing an ellipsoid leaf, so
+no other scene could see the bug.
+
+### Verification
+- ✅ Offline: new Python kernel vs old baked samples = 0.018910124894945569
+  (exactly the browser's delta) → new bake vs new kernel = 0.
+- ✅ Stale-bake sweep: all 16 baked scenes vs current kernel ≤ 2.8e-17.
+- ✅ Targeted pytest: test_csg, test_csg_batch, test_composites,
+  test_scatter, test_scene_export, test_front_door — 127 passed.
+- ✅ FULL suite: 5023 passed / 6 skipped / 3 xfailed / 2508 subtests,
+  1 failed = benchmark test_qa_matches_wolfram_on_subset_wa_got_right
+  (29/30; astro_002 Sun-temperature question routed to body_mass by the
+  semantic interpreter). PRE-EXISTING: scored data written by the 06:14
+  daily job, hours before this session's first edit. Unrelated to
+  geometry; flagged as a spawn-task for the Q&A lane.
+- ✅ Browser gauntlet (tools/browser_gauntlet.py): 22/22 browser-verified,
+  falling_feather selfcheck PASS, max_delta 4.34e-19 (was 9 orders above
+  the 1e-6 tolerance, now 13 below).
+- ✅ Operatic scene: OPERATIC_PLAY_SCENE24_THE_TWIN_THAT_SPOKE_A_DIFFERENT_TONGUE.txt
+
+### Next Steps
+- [ ] Q&A lane: astro_002 routing miss (spawn-task filed) to restore 30/30.
+- [ ] Doctrine candidate: every kernel primitive should appear in ≥1 baked
+  gauntlet scene — the mirror contract is only enforced for shapes that
+  ship sdf_samples (this bug hid because exactly one scene had an ellipsoid).

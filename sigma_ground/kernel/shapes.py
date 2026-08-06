@@ -561,30 +561,35 @@ class Ellipsoid(Shape):
     def surface_distance(self, px, py, pz):
         """Approximate signed distance to ellipsoid surface.
 
-        Exact SDF for an ellipsoid requires solving a quartic.
-        This uses the scaled-sphere approximation: transform to
-        unit sphere space, measure, scale back. Accurate near surface.
+        Exact SDF for an ellipsoid requires solving a quartic. This is
+        Inigo Quilez's 2nd-order bound: k0*(k0-1)/|∇k0|. Its zero set is
+        the exact surface (x/rx)²+(y/ry)²+(z/rz)²=1, and it never
+        overshoots the true distance, so sphere tracing cannot step
+        through a thin or eccentric ellipsoid. CANONICAL for this shape —
+        viewer.js (sdEllip / jsLeafSDF) mirrors it statement-for-statement,
+        and baked sdf_samples are checked against it in-page.
         """
         cx, cy, cz = self.center
-        # Normalize to unit sphere
-        nx = (px - cx) / self.rx if self.rx > 0 else 0
-        ny = (py - cy) / self.ry if self.ry > 0 else 0
-        nz = (pz - cz) / self.rz if self.rz > 0 else 0
-        dist_norm = math.sqrt(nx * nx + ny * ny + nz * nz)
-        # Scale back by average radius for distance estimate
-        avg_r = (self.rx + self.ry + self.rz) / 3.0
-        return (dist_norm - 1.0) * avg_r
+        qx = px - cx
+        qy = py - cy
+        qz = pz - cz
+        k0 = math.sqrt((qx / self.rx) ** 2 + (qy / self.ry) ** 2
+                       + (qz / self.rz) ** 2)
+        k1 = math.sqrt((qx / self.rx ** 2) ** 2 + (qy / self.ry ** 2) ** 2
+                       + (qz / self.rz ** 2) ** 2)
+        return k0 * (k0 - 1.0) / max(k1, 1e-9)
 
     def surface_distance_batch(self, points):
         import numpy as np
         cx, cy, cz = self.center
-        n = points.shape[0]
-        nx = (points[:, 0] - cx) / self.rx if self.rx > 0 else np.zeros(n)
-        ny = (points[:, 1] - cy) / self.ry if self.ry > 0 else np.zeros(n)
-        nz = (points[:, 2] - cz) / self.rz if self.rz > 0 else np.zeros(n)
-        dist_norm = np.sqrt(nx * nx + ny * ny + nz * nz)
-        avg_r = (self.rx + self.ry + self.rz) / 3.0
-        return (dist_norm - 1.0) * avg_r
+        qx = points[:, 0] - cx
+        qy = points[:, 1] - cy
+        qz = points[:, 2] - cz
+        k0 = np.sqrt((qx / self.rx) ** 2 + (qy / self.ry) ** 2
+                     + (qz / self.rz) ** 2)
+        k1 = np.sqrt((qx / self.rx ** 2) ** 2 + (qy / self.ry ** 2) ** 2
+                     + (qz / self.rz ** 2) ** 2)
+        return k0 * (k0 - 1.0) / np.maximum(k1, 1e-9)
 
     def __repr__(self):
         return f"Ellipsoid({self.rx:.4g}x{self.ry:.4g}x{self.rz:.4g}m)"
