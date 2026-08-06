@@ -268,5 +268,62 @@ function near(a, b, tol) { return Math.abs(a - b) <= tol; }
      JSON.stringify(Array.from(a._bands)) === JSON.stringify(Array.from(b._bands)));
 }
 
+// ── 11. R4.3 lodCapFor: SVO per-body LOD cap (pure, hysteretic) ───────────
+{
+  const f = S.lodCapFor, L = 5;
+  // no-history nominal: cap = ceil(L + log2(pxCell)), clamped
+  ok("lodCap: 1px cell → full depth", f(1.0, L, -1) === L);
+  ok("lodCap: 0.51px cell → full depth (fine bias)", f(0.51, L, -1) === L);
+  ok("lodCap: 0.49px cell → one level up", f(0.49, L, -1) === L - 1);
+  ok("lodCap: 4px cell clamps at L", f(4.0, L, -1) === L);
+  ok("lodCap: vanishing cell clamps at 0", f(1e-9, L, -1) === 0);
+  ok("lodCap: undefined prev = init", f(0.49, L, undefined) === L - 1);
+  // effective footprint law: cell at the chosen cap always covers (0.5,1] px
+  for (const px of [0.9, 0.45, 0.2, 0.11, 0.06, 0.031]) {
+    const c = f(px, L, -1);
+    const eff = px * Math.pow(2, L - c);
+    ok(`lodCap: footprint (0.5,1] at px=${px}`,
+       c === 0 || (eff > 0.5 && eff <= 1.0 + 1e-12), `cap=${c} eff=${eff}`);
+  }
+  // monotone non-decreasing in pxCell (no history)
+  let last = -1, mono = true;
+  for (let px = 0.01; px <= 2.0; px *= 1.07) {
+    const c = f(px, L, -1);
+    if (c < last) mono = false;
+    last = c;
+  }
+  ok("lodCap: monotone in pxCell", mono);
+  // hysteresis: sticky window is capF ∈ [prev-1.5, prev+0.5]
+  // prev=L-1 nominal window is capF ∈ (L-2, L-1]; widened both ways:
+  ok("lodCap: sticky above (capF=prev+0.4 holds)",
+     f(Math.pow(2, -0.6), L, L - 1) === L - 1);      // capF = L-0.6
+  ok("lodCap: releases above (capF=prev+0.6 → finer)",
+     f(Math.pow(2, -0.4), L, L - 1) === L);          // capF = L-0.4 → ceil = L
+  ok("lodCap: sticky below (capF=prev-1.4 holds)",
+     f(Math.pow(2, -2.4), L, L - 1) === L - 1);      // capF = L-2.4
+  ok("lodCap: releases below (capF=prev-1.6 → coarser)",
+     f(Math.pow(2, -2.6), L, L - 1) === L - 2);      // capF = L-2.6 → ceil = L-2
+  // slow drift can never oscillate: on a monotone px sweep the cap sequence
+  // is monotone (each boundary crossed at most once per direction, no
+  // flicker) — the property the ±0.5-level dead zone exists to guarantee
+  {
+    let prev = -1, upOK = true, downOK = true, lastCap = -1;
+    for (let s = 0; s <= 200; s++) {                 // ascend, +1% steps
+      prev = f(0.2 * Math.pow(1.01, s), L, prev);
+      if (lastCap >= 0 && prev < lastCap) upOK = false;
+      lastCap = prev;
+    }
+    for (let s = 200; s >= 0; s--) {                 // descend the same path
+      prev = f(0.2 * Math.pow(1.01, s), L, prev);
+      if (prev > lastCap) downOK = false;
+      lastCap = prev;
+    }
+    ok("lodCap: monotone caps on monotone sweep (no oscillation)",
+       upOK && downOK);
+  }
+  // deterministic: same inputs, same output (pure function, no state)
+  ok("lodCap: pure", f(0.37, 7, 3) === f(0.37, 7, 3));
+}
+
 console.log(`splats.js node checks: ${checks - fails}/${checks} passed`);
 process.exit(fails ? 1 : 0);

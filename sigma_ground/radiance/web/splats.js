@@ -73,6 +73,31 @@ function bandForEmitter(px, prev) {
   return prev === B_SPL ? B_SPL : B_RAY;                        // [2.4,3) sticky
 }
 
+// ── R4.3/R4.4: per-body SVO LOD cap (rendering-only LOD, same doctrine as
+// the bands above — SIMULATION resolution never couples to camera zoom).
+// pxCell = apparent pixel size of ONE FINEST-LEVEL cell (vs_finest/d ·
+// pxPerRad, the same paraxial px-per-radian apparentPx uses); L = the
+// body's finest tree level; prev = previous cap (-1/undefined = no history).
+//
+// capF = L + log2(pxCell) is the CONTINUOUS level at which a cell covers
+// exactly 1 px. Nominal cap = ceil(capF), clamped to [0, L]: the marched
+// cell footprint then always lands in (0.5, 1] px — never coarser than a
+// pixel (Choice, fine-biased: blueprint risk (6) says silhouette wobble at
+// the impostor→raymarch seam is fixed by sampling FINER, never coarser; and
+// Sec 7's mechanism #1 needs facet period ≲ 1 px to integrate out).
+// Hysteresis (the band dead-zone precedent): the natural window where
+// ceil(capF)==prev is (prev-1, prev]; it is widened by ±0.5 level to
+// [prev-1.5, prev+0.5], so R2's ~1.7%/frame apparent-size drift (~0.024
+// levels/frame) can never oscillate a cap, while a deliberate zoom crosses
+// each level exactly once. Pure function — no RNG, no clock; capture pins
+// reset prev to -1 (memoryless, deterministic under R0).
+function lodCapFor(pxCell, L, prev) {
+  const capF = L + Math.log2(Math.max(pxCell, 1e-12));
+  if (prev !== undefined && prev !== null && prev >= 0 && prev <= L
+      && capF >= prev - 1.5 && capF <= prev + 0.5) return prev;
+  return Math.min(L, Math.max(0, Math.ceil(capF)));
+}
+
 // Lambert-sphere disc-averaged reflectance phase function:
 //   f(α) = (2/(3π))·(sin α + (π − α)·cos α),  f(0) = 2/3.
 // This is the CLOSED-FORM EXPECTATION of the path tracer's own NEE cone
@@ -301,7 +326,8 @@ class SGSplats {
   }
 }
 
-const api = { SGSplats, apparentPx, bandFor, bandForEmitter, lambertPhase,
+const api = { SGSplats, apparentPx, bandFor, bandForEmitter, lodCapFor,
+              lambertPhase,
               incandescenceJS, splatFluxJS, spriteSize, segOccluded,
               RAY_ENTER, RAY_EXIT, SPL_EXIT, SPL_ENTER, EMISSION_SCALE };
 if (typeof window !== "undefined") window.SGSplats = api;

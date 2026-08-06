@@ -1736,7 +1736,9 @@ function prepareSVO(scene){
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
   gl.bindTexture(gl.TEXTURE_2D,null);
   svoGL={nodeTex:nt,atlasTex:at,lutTex:lt,bodyTex:bt,packed:P,
-         rowBuf:new Float32Array(16*P.bodies.length)};
+         rowBuf:new Float32Array(16*P.bodies.length),
+         lodPrev:new Int32Array(P.bodies.length).fill(-1),   // R4.3 lodCap hysteresis
+         lodSceneId:-1};                                     // reset detector (memoryless under pins)
   svoReady=true;
   _svoBeacon("prepareSVO-done");
 }
@@ -2217,6 +2219,13 @@ function draw(){
   let svoRowCount=0;
   if(svoActiveNow && svoGL){
     const P=svoGL.packed, buf=svoGL.rowBuf;
+    // R4.3: per-body LOD cap (splats.js lodCapFor — pure, hysteretic).
+    // Same memoryless-reset rule as the band classifier: any sceneId bump
+    // (scene load, capture-pin application, opacity rebuild) clears the
+    // hysteresis so R0 captures compute caps from the pinned camera alone.
+    if(svoGL.lodSceneId!==sceneId){ svoGL.lodPrev.fill(-1); svoGL.lodSceneId=sceneId; }
+    const svoPxPerRad = h/(2.0*tanHalf);
+    const splatsApi = (typeof window!=="undefined" && window.SGSplats) || null;
     // STABLE rows: body k always rides row = its index in P.bodies, so the
     // shader-visible identity mat>>8 (= 1 + row) names the same BODY on every
     // frame. A banded body (R3 splat/impostor territory) keeps its row and
@@ -2235,7 +2244,20 @@ function draw(){
       buf[o+4]=Pp.quat[0]; buf[o+5]=Pp.quat[1]; buf[o+6]=Pp.quat[2]; buf[o+7]=Pp.quat[3];
       buf[o+8]=r.lo[0]; buf[o+9]=r.lo[1]; buf[o+10]=r.lo[2]; buf[o+11]=r.rootSpan;
       buf[o+12]=r.rootNode;
-      buf[o+13]=r.L + 256*r.matId + 65536*r.L;   // lodCap | matId<<8 | L<<16 (cap==L until R4.4 pins)
+      // R4.3: cap from the body's pixel footprint — pxCell = apparent px of
+      // ONE finest cell (float64 distance, the same rebase subtraction as
+      // buf[o..o+2] above). Banded bodies keep their cap warm (harmless —
+      // the poisoned gate means the tree is never traversed anyway).
+      let svoCap=r.L;
+      if(splatsApi){
+        const ddx=Pp.pos[0]-eye[0], ddy=Pp.pos[1]-eye[1], ddz=Pp.pos[2]-eye[2];
+        const dist=Math.sqrt(ddx*ddx+ddy*ddy+ddz*ddz);
+        const vsf=r.rootSpan/(16*Math.pow(2,r.L));
+        svoCap=splatsApi.lodCapFor((vsf/Math.max(dist,1e-9))*svoPxPerRad,
+                                   r.L, svoGL.lodPrev[row]);
+      }
+      svoGL.lodPrev[row]=svoCap;
+      buf[o+13]=svoCap + 256*r.matId + 65536*r.L;   // lodCap | matId<<8 | L<<16
       buf[o+14]=(Pp.tempK!==undefined)?Pp.tempK:-1.0; buf[o+15]=r.band0;
     }
     svoRowCount=P.bodies.length;
@@ -3241,7 +3263,9 @@ window.Radiance = {
   // R4 A/B toggle (bvhCull precedent): flip the SVO path live; rebuilds the
   // program (compile gate re-evaluates) and restarts the exposure.
   setSVO:        (on) => { svoEnabled = !!on; if (scene) { buildProgram(scene); sceneId++; } },
-  svoStats:      () => (svoGL && svoGL.packed) ? svoGL.packed.stats : null,
+  svoStats:      () => (svoGL && svoGL.packed)
+    ? Object.assign({}, svoGL.packed.stats,
+        {lodCaps: Array.from(svoGL.lodPrev||[])}) : null,   // R4.3: live per-row caps
   // ── render-only material opacity — a pure VIEW toggle, byte-isolated from
   // physics (the scene's mass/com/inertia were computed in Python, upstream of
   // and untouched by anything here). Pick a material by the exact label it
