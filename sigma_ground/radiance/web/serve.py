@@ -102,6 +102,38 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
                     json.dump(cur, f, indent=1)
             self._send_json(200, {"ok": True, "count": len(cur)})
             return
+        # ── POST /perf : the dev-environment performance spigot (Captain,
+        # 2026-08-06 — "add a performance monitoring spigot so you can read
+        # that real-time"). viewer.js POSTs a compact sample roughly every
+        # 500ms (fps + draw()'s own real, uncapped JS-side wall-clock cost —
+        # NOT the vsync-gated presentation rate fps alone would give);
+        # this sink keeps a short rolling history (last 60 samples, ~30s at
+        # the default cadence) in misc/PERF_REPORT.json — a plain file, no
+        # HTTP GET route needed, readable directly. Dev-environment only:
+        # never shipped with the game, mirrors /probe's pattern exactly.
+        if self.path.split("?")[0] == "/perf":
+            try:
+                n = int(self.headers.get("Content-Length", 0))
+                if n > 8192:                        # a perf sample is tiny; refuse the rest
+                    self._send_json(400, {"error": "payload too large"})
+                    return
+                rep = json.loads(self.rfile.read(n) or b"{}")
+            except Exception:
+                rep = {}
+            path = os.path.join(_ROOT, "misc", "PERF_REPORT.json")
+            try:
+                hist = json.load(open(path, encoding="utf-8"))
+                if not isinstance(hist, list):
+                    hist = []
+            except Exception:
+                hist = []
+            hist.append(rep)
+            hist = hist[-60:]
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(hist, f, indent=1)
+            self._send_json(200, {"ok": True, "count": len(hist)})
+            return
         # ── POST /capture : the R0 pixel-regression sink (viewer.js capture
         # mode → tools/render_regression.py). Mirrors /probe's defensive
         # parse: exact Content-Length, 400 on malformed/oversized, id

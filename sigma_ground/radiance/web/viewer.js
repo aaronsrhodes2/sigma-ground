@@ -3139,6 +3139,15 @@ $("b-lib").addEventListener("click",()=>{
 
 // ── main loop ─────────────────────────────────────────────────────────
 let last=performance.now(), fpsT=last, fpsN=0;
+// ── perf spigot (dev-environment only — never shipped with the game):
+// a real, UNCAPPED measurement of draw()'s own wall-clock JS-side cost,
+// distinct from the fps counter below (which is the vsync-gated rAF
+// callback RATE and says nothing once a scene is comfortably under the
+// frame budget). Rolling window, flushed on the same ~500ms cadence as
+// fps; POSTed to /perf (serve.py sink, mirrors /probe) so it's readable
+// as a plain JSON file (misc/PERF_REPORT.json) with no browser session
+// needed to read it — only to be RUNNING one to produce it.
+let _drawMs=[], _perfSent=0;
 function loop(now){
   if(_svoTrace){ _svoDbg.ticks=(_svoDbg.ticks||0)+1;
     if(_svoDbg.ticks<=8 || _svoDbg.ticks===60 || _svoDbg.ticks===600)
@@ -3207,10 +3216,12 @@ function loop(now){
   if(prog && !(CAP && capSent)){
     if(_svoTrace){ _svoDbg.draws++;
       if(_svoDbg.draws<=3) _svoBeacon("draw-enter-"+_svoDbg.draws); }
+    const _dt0=performance.now();
     try{ draw(); if(_svoTrace){ _svoDbg.ok++;
       if(_svoDbg.ok<=3) _svoBeacon("draw-done-"+_svoDbg.ok); } }
     catch(e){ if(_svoTrace){ _svoDbg.err=String(e).slice(0,200);
-      _svoBeaconObj("draw-threw",{err:_svoDbg.err}); } setErr("draw: "+e); } }   // R0: a finished capture tab idles (its GL context is released)
+      _svoBeaconObj("draw-threw",{err:_svoDbg.err}); } setErr("draw: "+e); }   // R0: a finished capture tab idles (its GL context is released)
+    _drawMs.push(performance.now()-_dt0); }
   if(_svoTrace && _svoDbg.draws>0 && _svoDbg.draws%120===0)
     _svoBeaconObj("state",{draws:_svoDbg.draws, ok:_svoDbg.ok, mov:_svoDbg.mov,
       accN, capArmed, capSent, svoReady, svoActive:svoActiveNow,
@@ -3250,7 +3261,27 @@ function loop(now){
       capReleaseGL();   // free this tab's context slot — see capReleaseGL()
     }
   }
-  fpsN++; if(now-fpsT>500){ $("fps").textContent=`${Math.round(fpsN*1000/(now-fpsT))} fps`; fpsT=now; fpsN=0; }
+  fpsN++; if(now-fpsT>500){
+    const fps=Math.round(fpsN*1000/(now-fpsT));
+    $("fps").textContent=`${fps} fps`;
+    // perf spigot (dev-environment only, see the module-level comment near
+    // _drawMs): real draw()-only JS-side cost, mean/p95/max over whatever
+    // frames drew this window. Skipped during CAP — a pinned capture run is
+    // short-lived and self-contained; no visibility loss that matters.
+    if(!CAP && _drawMs.length){
+      const s=_drawMs.slice().sort((a,b)=>a-b);
+      const mean=s.reduce((a,b)=>a+b,0)/s.length;
+      const p95=s[Math.min(s.length-1,Math.floor(s.length*0.95))];
+      fetch("/perf",{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({t:Date.now()/1000, scene:(_scene||"?"), fps,
+          draw_ms_mean:+mean.toFixed(3), draw_ms_p95:+p95.toFixed(3),
+          draw_ms_max:+s[s.length-1].toFixed(3), n_draws:s.length, accN,
+          svoActive:!!svoActiveNow, ptMode:!!ptMode,
+          mode: liveMode?"live":worldMode?"world":(tEnd>0?"playback":"static"),
+          r3: (window._r3&&window._r3.stats)||null})}).catch(()=>{});
+    }
+    _drawMs=[]; fpsT=now; fpsN=0;
+  }
   requestAnimationFrame(loop);
 }
 // A SAVED simulation opens directly by slug:  .../?scene=falling_feather
