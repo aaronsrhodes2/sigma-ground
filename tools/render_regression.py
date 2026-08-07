@@ -1,13 +1,28 @@
 """R0 — the pixel-regression net for the Radiance web viewer.
 
 Extends the house ?probe=1 idiom (browser_gauntlet.py pattern: spawn serve.py,
-drive the REAL default browser via webbrowser.open, wait per scene): capture
-mode (?probe=1&capture=<id>) renders one PINNED deterministic exposure and
-POSTs the framebuffer to serve.py's /capture sink, which canonicalizes it
-(top-down rows, alpha stripped) into misc/render_captures/<id>.png + <id>.json.
-Playwright/puppeteer were REJECTED: absent from the zero-dependency repo, and
-a headless GPU context is a different renderer fingerprint than the pipeline
-the Captain actually looks at.
+wait per scene): capture mode (?probe=1&capture=<id>) renders one PINNED
+deterministic exposure and POSTs the framebuffer to serve.py's /capture sink,
+which canonicalizes it (top-down rows, alpha stripped) into
+misc/render_captures/<id>.png + <id>.json. Playwright/puppeteer were
+REJECTED: absent from the zero-dependency repo, and a headless GPU context is
+a different renderer fingerprint than the pipeline the Captain actually looks
+at (this is also why the browser here is NEVER launched with --headless: a
+software/SwiftShader GPU path would silently invalidate every baseline's
+ANGLE/driver fingerprint).
+
+BROWSER (2026-08-06 rewrite — see the tab-pollution incident this replaces):
+a DEDICATED, throwaway-profile Chrome instance driven over the DevTools
+Protocol (_CDPBrowser, stdlib-only WebSocket client — the same hand-rolled
+RFC 6455 technique already proven in mcp/test_cockpit.py's _Client, adapted
+for the CLIENT side which must mask outgoing frames per the RFC, unlike our
+own server's lenient _WebSocket). One Chrome process + one tab, launched
+fresh per command invocation, reused across every capture in that run, and
+terminated in the same finally block that tears down the render server —
+NEVER the Captain's real browser, NEVER a tab left behind. Still visible
+(not --headless, per the fingerprint reasoning above) and still needs to
+stay un-minimized for requestAnimationFrame to run at full rate — but it is
+a window this tool owns and closes itself, not something to babysit.
 
     python tools/render_regression.py --capture [--only id,..] [--force] [--reason txt]
     python tools/render_regression.py --check   [--only id,..] [--allow-foreign-env]
@@ -39,11 +54,11 @@ tone-map gain (`return e/(1.0+max(e.r,max(e.g,e.b)))*1.7;`) — then --check
 must FAIL loudly naming the scenes, with diff artifacts under
 misc/render_regression/; `git restore` viewer.js; --check must pass again.
 
-Ergonomics (accepted, the gauntlet's): webbrowser.open accumulates tabs —
-close them afterwards; keep the browser window VISIBLE (a minimized window
-throttles requestAnimationFrame and the run times out with exit 2, never a
-false FAIL). Note: capture tabs also POST ?probe=1 reports, so
-misc/BROWSER_REPORT.json gets touched — the gauntlet resets it per run.
+Ergonomics: the dedicated _CDPBrowser window must stay VISIBLE (a minimized
+window throttles requestAnimationFrame and the run times out with exit 2,
+never a false FAIL) — it closes itself when the command finishes, so there
+is nothing to clean up afterward. Note: captures also POST ?probe=1 reports,
+so misc/BROWSER_REPORT.json gets touched — the gauntlet resets it per run.
 Baselines are PER-(GPU, driver, browser/ANGLE) artifacts: a driver or browser
 update legitimately breaks exact hashes — eyeball the diffs, recapture with
 --force + a dated reason.
@@ -51,18 +66,22 @@ update legitimately breaks exact hashes — eyeball the diffs, recapture with
 from __future__ import annotations
 
 import argparse
+import base64
 import datetime
 import hashlib
 import json
 import math
 import os
 import pathlib
+import select
+import shutil
 import socket
+import struct
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.request
-import webbrowser
 
 _ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(_ROOT))
@@ -213,10 +232,170 @@ def _start_server(port: int) -> subprocess.Popen:
     raise Infra("serve.py did not come up within 15 s")
 
 
-def _capture_once(port: int, bid: str, spec: dict, frames: int | None = None,
-                  timeout: float = 120.0, proc: subprocess.Popen | None = None
-                  ) -> tuple:
-    """Open one capture tab, wait for the sink files → (meta, png_bytes)."""
+# ── the dedicated CDP-driven browser (2026-08-06 rewrite) ───────────────────
+_CHROME_CANDIDATES = (
+    r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+    r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+)
+
+
+def _chrome_binary() -> str:
+    for p in _CHROME_CANDIDATES:
+        if os.path.exists(p):
+            return p
+    local = os.environ.get("LOCALAPPDATA")
+    if local:
+        p = os.path.join(local, "Google", "Chrome", "Application", "chrome.exe")
+        if os.path.exists(p):
+            return p
+    raise Infra("Chrome not found in any standard Windows install location")
+
+
+class _CDPBrowser:
+    """One dedicated, throwaway-profile Chrome process + one tab, driven over
+    the DevTools Protocol — the replacement for webbrowser.open(). Never the
+    Captain's real browser: a fresh --user-data-dir under a tempdir, closed
+    (process killed, profile left for the OS to reap) by close(), always
+    called from the SAME finally block that tears down the render server.
+
+    Non-headless on purpose (see the module docstring) — real ANGLE/GPU path,
+    just a separate window the Captain never has to touch or clean up.
+
+    CDP speaks plain RFC 6455 WebSocket. This client masks every outgoing
+    frame (the RFC's client requirement — our own server's _WebSocket is
+    server-side and does NOT mask, so it cannot be reused verbatim here).
+    """
+
+    def __init__(self, timeout: float = 20.0):
+        self.proc: subprocess.Popen | None = None
+        self.sock: socket.socket | None = None
+        self._profile_dir = tempfile.mkdtemp(prefix="sg_r0_chrome_")
+        self._msg_id = 0
+        port = _free_port()
+        self.proc = subprocess.Popen(
+            [_chrome_binary(),
+             f"--remote-debugging-port={port}",
+             f"--user-data-dir={self._profile_dir}",
+             "--no-first-run", "--no-default-browser-check",
+             "--window-size=1280,800", "--window-position=0,0",
+             "about:blank"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        t0 = time.time()
+        tabs = None
+        while time.time() - t0 < timeout:
+            if self.proc.poll() is not None:
+                raise Infra("dedicated Chrome exited immediately "
+                            f"(code {self.proc.returncode})")
+            try:
+                with urllib.request.urlopen(
+                        f"http://127.0.0.1:{port}/json/list", timeout=2) as r:
+                    tabs = json.loads(r.read())
+                break
+            except Exception:
+                time.sleep(0.25)
+        if tabs is None:
+            self.close()
+            raise Infra("dedicated Chrome's DevTools port never answered "
+                        f"within {timeout:.0f}s")
+        page = next((t for t in tabs if t.get("type") == "page"), None)
+        if page is None:
+            with urllib.request.urlopen(
+                    f"http://127.0.0.1:{port}/json/new", timeout=5) as r:
+                page = json.loads(r.read())
+        self._connect(page["webSocketDebuggerUrl"])
+
+    def _connect(self, ws_url: str) -> None:
+        host_port, _slash, path = ws_url.split("://", 1)[1].partition("/")
+        host, port_s = host_port.split(":")
+        sock = socket.create_connection((host, int(port_s)), timeout=10.0)
+        key = base64.b64encode(os.urandom(16)).decode()
+        req = (f"GET /{path} HTTP/1.1\r\nHost: {host}:{port_s}\r\n"
+               f"Upgrade: websocket\r\nConnection: Upgrade\r\n"
+               f"Sec-WebSocket-Key: {key}\r\nSec-WebSocket-Version: 13\r\n\r\n")
+        sock.sendall(req.encode())
+        buf = b""
+        while b"\r\n\r\n" not in buf:
+            chunk = sock.recv(4096)
+            if not chunk:
+                raise Infra("CDP websocket handshake failed (closed)")
+            buf += chunk
+        if b"101" not in buf.split(b"\r\n", 1)[0]:
+            raise Infra(f"CDP websocket handshake refused: {buf[:200]!r}")
+        sock.settimeout(2.0)
+        self.sock = sock
+
+    def _send_masked_json(self, obj: dict) -> None:
+        data = json.dumps(obj).encode("utf-8")
+        n = len(data)
+        mask = os.urandom(4)
+        masked = bytes(b ^ mask[i % 4] for i, b in enumerate(data))
+        if n < 126:
+            head = struct.pack("!BB", 0x81, 0x80 | n)
+        elif n < 1 << 16:
+            head = struct.pack("!BBH", 0x81, 0x80 | 126, n)
+        else:
+            head = struct.pack("!BBQ", 0x81, 0x80 | 127, n)
+        self.sock.sendall(head + mask + masked)
+
+    def _drain(self, budget: float = 0.3) -> None:
+        """Best-effort read+discard of CDP's response/event traffic so the
+        socket buffer never grows across a long --check run. We don't need
+        the responses: capture completion is already signaled by the sink
+        file (_capture_once's own polling), not by any CDP event."""
+        t0 = time.time()
+        while time.time() - t0 < budget:
+            r, _w, _x = select.select([self.sock], [], [], 0.05)
+            if not r:
+                continue
+            try:
+                if not self.sock.recv(65536):
+                    return
+            except (socket.timeout, OSError):
+                return
+
+    def navigate(self, url: str) -> None:
+        self._msg_id += 1
+        self._send_masked_json({"id": self._msg_id, "method": "Page.navigate",
+                                "params": {"url": url}})
+        self._drain()
+
+    def close(self) -> None:
+        if self.sock is not None:
+            try:
+                self.sock.close()
+            except OSError:
+                pass
+            self.sock = None
+        if self.proc is not None:
+            self.proc.terminate()
+            try:
+                self.proc.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                self.proc.kill()
+                self.proc.wait(timeout=5)
+            self.proc = None
+        if self._profile_dir is not None:
+            # Windows sometimes holds a brief file-lock on the just-exited
+            # process's profile files; a couple of retries clears it without
+            # making cleanup failure fatal to the whole command (the OS temp
+            # dir gets reaped eventually either way, but we don't LEAVE it
+            # for that — silent accumulation is exactly the failure class
+            # this rewrite exists to close out).
+            for _ in range(5):
+                try:
+                    shutil.rmtree(self._profile_dir, ignore_errors=False)
+                    break
+                except OSError:
+                    time.sleep(0.3)
+            else:
+                shutil.rmtree(self._profile_dir, ignore_errors=True)
+            self._profile_dir = None
+
+
+def _capture_once(port: int, bid: str, spec: dict, cdp: "_CDPBrowser",
+                  frames: int | None = None, timeout: float = 120.0,
+                  proc: subprocess.Popen | None = None) -> tuple:
+    """Navigate the dedicated tab, wait for the sink files → (meta, png_bytes)."""
     frames = spec["frames"] if frames is None else frames
     if _has_water(spec["slug"]) and frames > _NMAX_WATER:
         raise Infra(f"{bid}: frames={frames} > NMAX={_NMAX_WATER} for a Water "
@@ -233,7 +412,7 @@ def _capture_once(port: int, bid: str, spec: dict, frames: int | None = None,
         url += f"&t={_f(spec['t'])}"
     if spec.get("extra"):                          # R4.4: e.g. "svo=0" A/B evidence
         url += "&" + spec["extra"]
-    webbrowser.open(url)
+    cdp.navigate(url)
     t0 = time.time()
     while time.time() - t0 < timeout:
         if proc is not None and proc.poll() is not None:
@@ -254,18 +433,18 @@ def _capture_once(port: int, bid: str, spec: dict, frames: int | None = None,
                 f"minimized? scene failed to load? see misc/BROWSER_REPORT.json)")
 
 
-def _capture_retry(port, bid, spec, frames=None, timeout=120.0, proc=None):
+def _capture_retry(port, bid, spec, cdp, frames=None, timeout=120.0, proc=None):
     """_capture_once with ONE retry on a no-report timeout (a cold shader
-    compile or tab-open hiccup), never on an explicit viewer refusal."""
+    compile or navigation hiccup), never on an explicit viewer refusal."""
     try:
-        return _capture_once(port, bid, spec, frames=frames,
+        return _capture_once(port, bid, spec, cdp, frames=frames,
                              timeout=timeout, proc=proc)
     except Infra as e:
         if "no capture report" not in str(e):
             raise
-        print(f"  {bid}: timed out once - retrying with a fresh tab ...",
+        print(f"  {bid}: timed out once - retrying with a fresh navigation ...",
               flush=True)
-        return _capture_once(port, bid, spec, frames=frames,
+        return _capture_once(port, bid, spec, cdp, frames=frames,
                              timeout=timeout, proc=proc)
 
 
@@ -332,10 +511,13 @@ def cmd_capture(args) -> int:
         if clash:
             raise SystemExit(f"baselines already exist for {clash} — pass "
                              f"--force (appends a dated recapture reason)")
-    print("Keep the browser window VISIBLE - a minimized window throttles "
-          "rAF and the run times out. Do not touch the capture tabs.\nClose the accumulated tabs afterwards.")
+    print("A dedicated capture-only Chrome window will open — keep it "
+          "un-minimized (a minimized window throttles rAF and the run times "
+          "out). It's a throwaway profile this tool owns; it closes itself "
+          "when the run finishes.")
     port = args.port or _free_port()
     proc = _start_server(port)
+    cdp = _CDPBrowser()
     entries, env = {}, None
     if manifest is None:
         manifest = {"format": 1, "px": list(_PX), "default_frames": 64,
@@ -354,14 +536,14 @@ def cmd_capture(args) -> int:
             # (Tier-1 FAIL hints + --noise remain the backstop), just a
             # cheaper-than-demotion first filter.
             print(f"  {bid}: render 1/3 ...", flush=True)
-            meta1, png1 = _capture_retry(port, bid, spec,
+            meta1, png1 = _capture_retry(port, bid, spec, cdp,
                                         timeout=args.timeout, proc=proc)
             _healthy(bid, meta1)
             det = True
             for rep in (2, 3):
                 print(f"  {bid}: render {rep}/3 (determinism proof) ...",
                       flush=True)
-                meta2, _png2 = _capture_retry(port, bid, spec,
+                meta2, _png2 = _capture_retry(port, bid, spec, cdp,
                                              timeout=args.timeout, proc=proc)
                 _healthy(bid, meta2)
                 if meta1["sha256_rgb"] != meta2["sha256_rgb"]:
@@ -402,6 +584,7 @@ def cmd_capture(args) -> int:
                   f"  sha256={meta1['sha256_rgb'][:16]}...  "
                   f"{len(png1)/1024:.0f} KB")
     finally:
+        cdp.close()
         proc.terminate()
     ndet = sum(1 for e in entries.values() if e["deterministic"])
     print(f"\n{len(entries)} baseline(s) written to {_BASE}  "
@@ -439,10 +622,13 @@ def cmd_check(args) -> int:
                          "no committed baseline — run --capture"))
         any_fail = True
     todo = {i: s for i, s in sel.items() if i in baselines}
-    print("Keep the browser window VISIBLE - a minimized window throttles "
-          "rAF and the run times out. Do not touch the capture tabs.\nClose the accumulated tabs afterwards.")
+    print("A dedicated capture-only Chrome window will open — keep it "
+          "un-minimized (a minimized window throttles rAF and the run times "
+          "out). It's a throwaway profile this tool owns; it closes itself "
+          "when the run finishes.")
     port = args.port or _free_port()
     proc = _start_server(port)
+    cdp = _CDPBrowser()
     env_banner_shown = False
     try:
         for bid, spec in todo.items():
@@ -456,7 +642,7 @@ def cmd_check(args) -> int:
                                  "re-baseline (NOT a renderer regression)"))
                     any_fail = True
                     continue
-                meta, _png = _capture_retry(port, bid, espec,
+                meta, _png = _capture_retry(port, bid, espec, cdp,
                                            timeout=args.timeout, proc=proc)
                 _healthy(bid, meta)
             except Infra as e:
@@ -530,6 +716,7 @@ def cmd_check(args) -> int:
                                  "misc/render_regression/"))
                     any_fail = True
     finally:
+        cdp.close()
         proc.terminate()
     print(f"\n{'id':18s} {'tier':9s} {'result':14s} {'changed%':>9s} "
           f"{'mean|d|':>8s} {'p99|d|':>7s}  note")
@@ -572,12 +759,13 @@ def cmd_selftest(args) -> int:
     _bw, _bh, base_rgb = png_io.read_rgb_png(str(_BASE / entry["png"]))
     port = args.port or _free_port()
     proc = _start_server(port)
+    cdp = _CDPBrowser()
     try:
         if entry.get("deterministic"):
             neg_frames = max(1, entry["frames"] - 16)      # 64 -> 48
             print(f"negative control: {bid} at frames={neg_frames} "
                   f"(baseline is {entry['frames']}) - MUST mismatch ...")
-            meta_n, _ = _capture_once(port, bid, spec, frames=neg_frames,
+            meta_n, _ = _capture_once(port, bid, spec, cdp, frames=neg_frames,
                                       timeout=args.timeout, proc=proc)
             _healthy(bid, meta_n)
             if _fingerprint(meta_n)[0] != (manifest["env"].get("renderer") or "?"):
@@ -588,7 +776,7 @@ def cmd_selftest(args) -> int:
                                     "MATCHED - the comparator cannot discriminate!"))
             print(f"positive control: {bid} at frames={entry['frames']} - "
                   f"MUST match ...")
-            meta_p, _ = _capture_once(port, bid, spec, timeout=args.timeout,
+            meta_p, _ = _capture_once(port, bid, spec, cdp, timeout=args.timeout,
                                       proc=proc)
             _healthy(bid, meta_p)
             pos_ok = meta_p["sha256_rgb"] == entry["sha256_rgb"]
@@ -603,7 +791,7 @@ def cmd_selftest(args) -> int:
             nudged["cam"] = [spec["cam"][0] + 0.05] + list(spec["cam"][1:])
             print(f"negative control: {bid} with az nudged +0.05 rad "
                   f"(a REAL image change) - Tier-2 gates MUST trip ...")
-            meta_n, _ = _capture_once(port, bid, nudged,
+            meta_n, _ = _capture_once(port, bid, nudged, cdp,
                                       timeout=args.timeout, proc=proc)
             _healthy(bid, meta_n)
             if _fingerprint(meta_n)[0] != (manifest["env"].get("renderer") or "?"):
@@ -618,7 +806,7 @@ def cmd_selftest(args) -> int:
                      "PASSED - the statistical gate cannot discriminate!"))
             print(f"positive control: {bid} recaptured as-committed - "
                   f"Tier-2 gates MUST pass ...")
-            meta_p, _ = _capture_once(port, bid, spec, timeout=args.timeout,
+            meta_p, _ = _capture_once(port, bid, spec, cdp, timeout=args.timeout,
                                       proc=proc)
             _healthy(bid, meta_p)
             _w, _h, got = png_io.read_rgb_png(str(_SINK / f"{bid}.png"))
@@ -629,6 +817,7 @@ def cmd_selftest(args) -> int:
                   + ("gates pass (good)" if pos_ok else
                      "FAILED - noise exceeds the committed tolerances!"))
     finally:
+        cdp.close()
         proc.terminate()
     if neg_ok and pos_ok:
         print("selftest PASSED - the gate discriminates and still accepts")
@@ -642,13 +831,14 @@ def cmd_noise(args) -> int:
     sel = _select(args.only)
     port = args.port or _free_port()
     proc = _start_server(port)
+    cdp = _CDPBrowser()
     worst = {"changed_frac": 0.0, "mean_abs": 0.0, "p99_abs": 0}
     try:
         for bid, spec in sel.items():
             caps = []
             try:
                 for rep in range(args.reps):
-                    meta, _ = _capture_retry(port, bid, spec,
+                    meta, _ = _capture_retry(port, bid, spec, cdp,
                                              timeout=args.timeout, proc=proc)
                     _healthy(bid, meta)
                     _w, _h, rgb = png_io.read_rgb_png(str(_SINK / f"{bid}.png"))
@@ -671,6 +861,7 @@ def cmd_noise(args) -> int:
                     for k in worst:
                         worst[k] = max(worst[k], m[k])
     finally:
+        cdp.close()
         proc.terminate()
     print(f"\nworst pairwise: {worst}")
     print("threshold rule: any non-deterministic entry must gate at >= 3x "
