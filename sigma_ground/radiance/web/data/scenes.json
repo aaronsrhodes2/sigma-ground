@@ -1167,20 +1167,6 @@
   "has_energy": false
  },
  {
-  "slug": "orbital_yard",
-  "title": "Orbital yard",
-  "question": "",
-  "verb": "",
-  "group": "theater",
-  "kind": "trajectory",
-  "leaves": 301,
-  "frames": 1,
-  "bodies": 300,
-  "has_bounds": false,
-  "has_opacity": true,
-  "has_energy": true
- },
- {
   "slug": "opacity_demo_coffee_cup",
   "title": "coffee cup",
   "question": "",
