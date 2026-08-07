@@ -146,7 +146,13 @@
    "png": "table_stack.png",
    "deterministic": false,
    "scene_sha256": "1f937ea8fd74970cd47a5aaa58ce81e4717d11591a615c5021564f8d4209065e",
-   "reason": "48 csg_leaves (repo maximum): deep CSG chains + the bvhCull thin-leaf history"
+   "reason": "48 csg_leaves (repo maximum): deep CSG chains + the bvhCull thin-leaf history",
+   "tolerances": {
+    "changed_frac": 0.01,
+    "mean_abs": 0.35,
+    "p99_abs": 3,
+    "justification": "table_stack: measured its OWN noise floor with --noise --reps 5 (2026-08-06) rather than reusing the shared default -- worst pairwise on unmodified code: changed_frac=0.0017%, mean_abs=0.116, p99_abs=1 -- exceeding the shared mean_abs=0.10 gate on a scene the SVO compile gate proves is byte-identical shader text (zero Voxel leaves; not R4-related). Root cause: 48 deep CSG leaves means more silhouette edges, hence more discrete hit/miss pixel flips per render than the scenes the shared tolerance was calibrated against. Per-entry override (>=3x the measured worst pairwise, matching the shared tolerance's own stated rule) added rather than loosening the shared gate for every other (much quieter) scene."
+   }
   },
   "clock_mid": {
    "slug": "clock",
@@ -236,9 +242,10 @@
    "frames": 64,
    "sha256_rgb": "24b85a0fbc79ccf87351f0176b5f5c9413184f3d61462c1440a3784c1bfbcc9f",
    "png": "vox_chair.png",
-   "deterministic": true,
+   "deterministic": false,
    "scene_sha256": "5acdf716e64018c5bb6072cdeec0000d372d17e517619cdaa8d8348ad97b030a",
-   "reason": "ShapeNet real-mesh Voxel leaf (int8 SDF 3-D texture) + a 32-frame trajectory, at t=0"
+   "reason": "ShapeNet real-mesh Voxel leaf (int8 SDF 3-D texture) + a 32-frame trajectory, at t=0",
+   "note_demoted": "demoted from a lucky exact-tier determinism proof after --noise --reps 5 (2026-08-06) showed real (tiny) run-to-run variance: mean_abs=0.00036, max|d|=1, 3 reps -> 3 distinct hashes -- comfortably inside the shared Tier-2 tolerance, just not bit-identical."
   },
   "ring_sph_mid": {
    "slug": "phase_e_ring_sph",
@@ -273,9 +280,10 @@
    "frames": 64,
    "sha256_rgb": "c86febc146643ba46640d52ebfc7d7bf2548fd20c38ab8aab40abbc1c6dc41a5",
    "png": "plate_push_mid.png",
-   "deterministic": true,
+   "deterministic": false,
    "scene_sha256": "c0bae8a1ef893915f04ce9e146873c0b3205f2548b49b1ecdb5fd668ced7059d",
-   "reason": "39 leaves incl. Torus/Clipped/Ellipsoid x24 (shapes no other pick covers), 122 frames, follow-up-prompt flagship family"
+   "reason": "39 leaves incl. Torus/Clipped/Ellipsoid x24 (shapes no other pick covers), 122 frames, follow-up-prompt flagship family",
+   "note_demoted": "demoted from a lucky exact-tier determinism proof after --noise --reps 5 (2026-08-06) showed real (tiny) run-to-run variance: mean_abs=0.000068, max|d|=1, 5 reps -> 3 distinct hashes -- comfortably inside the shared Tier-2 tolerance, just not bit-identical."
   }
  }
 }

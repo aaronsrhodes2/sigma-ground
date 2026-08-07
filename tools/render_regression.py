@@ -409,10 +409,26 @@ def cmd_capture(args) -> int:
     return 0
 
 
+def _tol_for(entry: dict, manifest: dict) -> dict:
+    """Per-baseline tolerance, falling back to the shared manifest default.
+
+    Some scenes have a genuinely higher noise floor than others (e.g. a
+    deep-CSG scene has more silhouette edges, hence more discrete hit/miss
+    pixel flips per render, than a simple one) — a single global tolerance
+    either starves the noisy scenes of headroom (false FAILs on unchanged
+    code) or gives up discrimination power everywhere to cover them. An
+    entry MAY carry its own "tolerances" dict (same shape as the manifest
+    default); measure it with --noise and record the same >=3x-observed
+    justification style the global default uses.
+    """
+    base = dict(manifest.get("tolerances", _TOL))
+    base.update(entry.get("tolerances") or {})
+    return base
+
+
 # ── --check ─────────────────────────────────────────────────────────────────
 def cmd_check(args) -> int:
     manifest = _load_manifest()
-    tol = manifest.get("tolerances", _TOL)
     baselines = manifest.get("baselines", {})
     sel = _select(args.only)
     missing = [i for i in sel if i not in baselines]
@@ -477,6 +493,7 @@ def cmd_check(args) -> int:
             if tier1 and hashlib.sha256(got).hexdigest() == entry["sha256_rgb"]:
                 rows.append((bid, "exact", "PASS", "0.000%", "0.00", "0", ""))
                 continue
+            tol = _tol_for(entry, manifest)
             m = _metrics(got, exp)
             fmt = (f"{m['changed_frac']*100:.3f}%", f"{m['mean_abs']:.2f}",
                    f"{m['p99_abs']:d}")
@@ -545,11 +562,11 @@ def cmd_selftest(args) -> int:
     (carrying only the measured per-page-load GPU noise) MUST pass them.
     """
     manifest = _load_manifest()
-    tol = manifest.get("tolerances", _TOL)
     bid = args.id or "opacity_cup"
     entry = manifest["baselines"].get(bid)
     if not entry:
         raise Infra(f"--selftest needs a committed baseline for {bid!r}")
+    tol = _tol_for(entry, manifest)
     spec = {"slug": entry["slug"], "cam": entry["cam"], "t": entry["t"],
             "frames": entry["frames"]}
     _bw, _bh, base_rgb = png_io.read_rgb_png(str(_BASE / entry["png"]))
