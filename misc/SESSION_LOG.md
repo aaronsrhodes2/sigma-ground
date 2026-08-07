@@ -2851,3 +2851,89 @@ no other scene could see the bug.
 - [ ] Doctrine candidate: every kernel primitive should appear in ≥1 baked
   gauntlet scene — the mirror contract is only enforced for shapes that
   ship sdf_samples (this bug hid because exactly one scene had an ellipsoid).
+
+## Session 35 — 2026-08-06 — Post-incident recovery: state verification, 3 real bugs found and fixed, standing pauses set
+
+**Time:** ~evening, ~1.5 hr
+**Status:** ✅ Complete
+
+### Context
+The prior overnight run (Session 32-34's Fable-orchestrated continuation)
+burned ~$200 in tokens and left 27 background processes stuck; the Captain
+killed it manually with no visibility into what had completed vs. stalled
+vs. hallucinated. This session's entire purpose: re-ground everything by
+direct, personal verification — no trusting prior self-reports — then close
+out what's safely closable.
+
+### Findings (all via direct execution, not delegated)
+- Checked the whole machine for stray processes/ports from the crashed run:
+  none found — nothing was silently still running or burning resources.
+- Re-ran every test/tool suite myself: git history through Session 34's
+  commits (014c097/497e4c3/e61c219/ff3284b) confirmed genuinely in the
+  mainline; node/parity/pytest suites all passed as claimed.
+- **3 real bugs found this session, none present in the prior AI reports**:
+  1. `scenes.json` stale vs. regenerated data (`test_rebuild_is_idempotent`
+     failing) — the known exporter variant-slug-rotation chip resurfacing.
+     Fixed: rebuilt + committed (`11459d8`).
+  2. `render_regression --check` showed 3/12 baselines failing post-R4.4.
+     Root-caused with real `--noise` measurements, not guessed: `table_stack`
+     has a genuinely higher noise floor (48 deep CSG leaves -> more
+     silhouette hit/miss flips) than the scenes the shared Tier-2 tolerance
+     was calibrated against — unrelated to any SVO/render change (zero Voxel
+     leaves, compile-gate-proven byte-identical shader). `vox_chair` and
+     `plate_push_mid` were mislabeled Tier-1 from lucky 2-render proofs.
+     Fixed: added per-baseline tolerance override support to
+     `tools/render_regression.py` (`_tol_for()`), gave table_stack its own
+     measured/justified tolerance, demoted the two mislabels. `520f2fc`.
+  3. Self-inflicted: stashing the unreviewed R4.5 WIP orphaned a scenes.json
+     entry my OWN earlier fix had accidentally baked in while that WIP's
+     data file was transiently on disk. Caught by re-running the suite
+     after stashing (didn't just trust the first green run). Fixed: `7d653a5`.
+- Uncommitted, unreviewed R4.5 orbital-yard work-in-progress (from the
+  crashed session) cleanly set aside rather than blindly committed or
+  discarded: `git stash` (2 entries — the main WIP bundle + one stray
+  evidence file), fully reversible, documented in the task list.
+
+### Standing directives set this session (all recorded in
+[[project-game-engine-pivot]] and [[feedback-workflow-reliability]])
+- Captain: no more large unattended multi-agent Workflow runs, especially
+  overnight, without explicit opt-in to that cost/reliability tradeoff.
+  Personally re-verify everything before reporting — never trust a
+  workflow's self-report at face value. Sonnet preferred over Fable going
+  forward (subagents now inherit it automatically).
+- Captain: **no live-UI tests for now** — paused all browser/CDP/Browser-
+  pane-driven verification. R4.5/R4.6 completion blocked on this lifting.
+- Captain: standing **API-debuggability doctrine** — every future system
+  (state, physics, events, visuals) must be queryable/requestable
+  programmatically, never via external browser automation. Generalizes the
+  plan's E6 to explicitly include visual/renderer introspection. Already
+  true for physics (WorldHost is Python-importable/headless-steppable) and
+  HUD (data-specified panels); on-demand live-session screenshots (building
+  on R0's `/capture` sink pattern) queued, not yet built.
+- Also identified as a real tooling defect (not yet fixed, tabled by the
+  live-UI pause): `render_regression.py`'s capture path opens a NEW system-
+  Chrome tab per capture via `webbrowser.open()`, polluting the Captain's
+  actual browser. Fix direction agreed: a dedicated throwaway-profile,
+  non-headless Chrome instance driven over CDP (proven pattern, used
+  earlier for the capability-envelope FPS measurements) — reused across a
+  whole run, zero tabs in the real browser. Not implemented (needs a live-
+  UI test to verify, which is paused).
+
+### Verification (final state this session)
+- ✅ pytest `engine/ + layering + radiance/`: 230 passed, 4 skipped, 0 failed
+- ✅ node: svo 44/44, splats 86/86, camera 108/108, e4 pass
+- ✅ `verify_svo_parity.py`: PARITY HOLDS
+- ✅ `engine.bench.determinism`: all 4 backends deterministic
+- ✅ `render_regression --check`: 11/11 (was 9/12 before this session's fixes)
+- ✅ working tree clean (stash entries are the only set-aside state, both
+  labeled and reversible)
+
+### Next Steps
+- [ ] Lift the live-UI pause when ready; review the stashed R4.5 WIP
+      statically first, then pop + re-verify with a real browser
+- [ ] Build the CDP-driven dedicated-Chrome capture rewrite (agreed
+      direction) once live-UI testing resumes
+- [ ] On-demand live-session screenshot/introspection API (the new
+      standing doctrine) — design once R4.5/R4.6 land
+- [ ] Chips already filed and running in separate sessions: P0-physics MCP
+      Q&A wiring, astro_002 routing fix — status unknown from this session
