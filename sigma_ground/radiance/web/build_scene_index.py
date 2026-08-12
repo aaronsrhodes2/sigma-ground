@@ -44,8 +44,18 @@ NON_SCENES = ("input_bindings.json", "intent_verbs.json")
 # accidental gallery click on an ~88 MB bundle wedges the editor textarea
 # for ~20 s (the session-33 layout-wedge class, at data size rather than
 # cache size). Loadable directly via ?scene=<slug> for ladder captures.
+# R4.7: the same treatment for CSG leaf-count-sweep evidence scenes — Von
+# Neumann's own leaf_stress(2)_Nx.json probes (regenerable, source-cited as
+# a "synthetic replication for a leaf-count budget curve", not a real game
+# layout) and this fix's own tools/gen_leaf_stress_scene.py output
+# (mpdr_leafsweep_n<N>.json) — regenerable, deliberately not gallery
+# citizens, loadable directly via ?scene=<slug> for sweep/probe runs.
 import re as _re
-_EVIDENCE_SCENE = _re.compile(r"^solar_system_theater_t\d+\.json$")
+_EVIDENCE_SCENE = _re.compile(
+    r"^solar_system_theater_t\d+\.json$"
+    r"|^leaf_stress2?_\d+x\.json$"
+    r"|^mpdr_leafsweep_n\d+\.json$"
+)
 
 
 def _is_evidence_scene(basename: str) -> bool:

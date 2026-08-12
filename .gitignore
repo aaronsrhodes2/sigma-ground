@@ -61,5 +61,11 @@ misc/render_regression/
 # tools/build_solar_system_theater.py --tier N; ~88 MB at t192 — deliberately
 # neither committed nor gallery-indexed, see build_scene_index._is_evidence_scene)
 sigma_ground/radiance/web/data/solar_system_theater_t*.json
+# R4.7 CSG leaf-count-sweep evidence scenes (regenerable:
+# tools/gen_leaf_stress_scene.py; deliberately neither committed nor
+# gallery-indexed, same build_scene_index._is_evidence_scene mechanism)
+sigma_ground/radiance/web/data/mpdr_leafsweep_n*.json
+# R4.7 compile-time-probe scratch shader text (regenerable: tools/measure_compile_time.py)
+sigma_ground/radiance/web/_compile_scratch/
 # ...but the COMMITTED pixel baselines override the global *.png ignore above
 !sigma_ground/radiance/web/baselines/*.png

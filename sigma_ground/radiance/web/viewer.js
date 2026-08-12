@@ -448,6 +448,20 @@ let svoEnabled = new URLSearchParams(location.search).get("svo")!=="0";
 let svoGL = null;          // GL residency {nodeTex,atlasTex,lutTex,bodyTex,packed,rowBuf}
 let svoActiveNow = false;  // set per buildProgram; read by draw()/loop()'s capture arm
 let svoReady = false;      // uploads done — capture pins wait on this (blueprint Sec 5)
+// ── R4.7 Phase 1: legacy-leaf material LUT (svoEnabled precedent, INVERTED
+// default — this is a new, unproven-at-scale codegen path, so it opts IN via
+// ?matlut=1 rather than opting OUT like svo's ?svo=0; setMatLut() flips it
+// live the same way setSVO() does). Independent of svoActive: routes the 5
+// genuinely material-scoped chains (color/metal/emis/ior/alpha) for LEGACY
+// (non-SVO) leaves through their OWN 256-slot palette + LUT texture — see
+// buildPathShader's matLutActive block for the id-space proof and the
+// separate-vs-unified-palette decision writeup. Zero-leaf-diversity is NOT
+// the "off" case here (unlike svoActive, which needs zero ELIGIBLE Voxel
+// leaves) — matLutEnabled=false is the only byte-identical case, enforced by
+// _assertMatLutGate below.
+let matLutEnabled = new URLSearchParams(location.search).get("matlut")==="1";
+let matLutGL = null;       // GL residency {tex, palette} — independent of svoGL
+let matLutActiveNow = false;  // set per buildProgram; read by draw()'s bindScene
 function svoEligible(scene){
   const ls=scene.csg_leaves||[], bodies=scene.bodies||[], out=[];
   ls.forEach((l,i)=>{ const s=l.shape;
@@ -489,7 +503,7 @@ float sdVox${vid}(vec3 p){
 // body for fieldTempK. Called by BOTH shader builders after their leaf loop.
 // The grid is LEAF-LOCAL; a body-bound leaf inverse-transforms the world point
 // first (same expression as mapD's bdy decls), so the hot rind rides the body.
-function glslFieldFns(scene, worldOffset){
+function glslFieldFns(scene, worldOffset, leafKey){
   // worldOffset: "" (buildFragmentShader — p IS world-space) or "+uEyeWorld"
   // (buildPathShader — p is camera-relative after the R1-lite rebase; a
   // non-body leaf's field grid is baked from ABSOLUTE world coordinates,
@@ -497,6 +511,17 @@ function glslFieldFns(scene, worldOffset){
   // never need this — their own p-uBodyPos[k] subtraction is already
   // eye-consistent (see draw()'s bindScene rebase comment).
   worldOffset = worldOffset || "";
+  // leafKey (R4.7): the GLSL identifier this chain compares against f.leaf —
+  // "m" (mat) by default, matching every call site before this parameter
+  // existed (buildFragmentShader never passes it; buildPathShader's default
+  // path doesn't either — both stay byte-identical). buildPathShader passes
+  // "leafId" instead when matLutEnabled, because under that toggle a legacy
+  // leaf's `mat` no longer reliably equals its own leaf index (palette-
+  // routed leaves carry a negative LUT id) — the SAME leaf-identity-vs-
+  // material-identity split that forced tempfn/bodyTempFn to switch, and
+  // this per-cell-field selector is exactly the same shape of chain
+  // (`if(m==f.leaf) return ...`), so it has the identical latent bug.
+  leafKey = leafKey || "m";
   let sel="";
   for(const f of (scene._fields||[])){
     const g=f.spec.grid, c=g.center;
@@ -517,10 +542,10 @@ float fldT${f.fid}(vec3 p){                          // leaf-LOCAL point -> kelv
     const leaf=scene.csg_leaves[f.leaf];
     if(leaf.body!=null){
       const piv=((scene.bodies||[])[leaf.body]||{}).pivot||[0,0,0];
-      sel += `  if(m==${f.leaf}) return fldT${f.fid}(qrotInv(uBodyQuat[${leaf.body}], `
+      sel += `  if(${leafKey}==${f.leaf}) return fldT${f.fid}(qrotInv(uBodyQuat[${leaf.body}], `
           +  `p-uBodyPos[${leaf.body}])+vec3(${glf(piv[0])},${glf(piv[1])},${glf(piv[2])}));\n`;
     } else {
-      sel += `  if(m==${f.leaf}) return fldT${f.fid}(p${worldOffset});\n`;
+      sel += `  if(${leafKey}==${f.leaf}) return fldT${f.fid}(p${worldOffset});\n`;
     }
   }
   return sel;
@@ -970,14 +995,18 @@ function emitNEEBlock(e, k, neeExp, o){
           vec3 Le=incandescence(uEmitterTemp[${k}]+uTemp, vec3(${glf(e.emis[0])},${glf(e.emis[1])},${glf(e.emis[2])}));
           L += thr*${o.albVar}*Le*ndl2*2.0*(1.0-cosTm)*vis*${neeExp}; } } }`;
 }
-function neeSurfaceOpts(e, svoRow){
+function neeSurfaceOpts(e, svoRow, rowOffset=1){
   // svoRow (R4): when the emitter's own leaf is SVO-routed its hits carry
   // mat = SVO_MAT_BASE+(row<<8)+gid where row is the STABLE body-table row
   // (index in packed.bodies — rows are never compacted, see the draw()
   // packing note), so `mat!=leaf` alone no longer skips NEE on the emitter's
   // own surface — extend the guard by the row id. Omitted (undefined)
   // everywhere else, so the frozen template assert below stays byte-exact.
-  return {guard:`mat!=${e.leaf}`+(svoRow!==undefined?`&&(mat>>8)!=${1+svoRow}`:""),
+  // rowOffset = SVO_MAT_BASE>>8 (R4.7: SVO_MAT_BASE is now scene-relative,
+  // not always the historic 256 — see buildPathShader's svoMatBase comment;
+  // default 1 matches the old fixed-256 behavior for the module-load
+  // self-test below, which never sets svoRow so this branch never fires).
+  return {guard:`mat!=${e.leaf}`+(svoRow!==undefined?`&&(mat>>8)!=${rowOffset+svoRow}`:""),
           hitVar:"p", normalVar:"n", albVar:"alb",
           visExpr:"visRay(p+n*uEPS, wl, dc-R-2.0*uEPS)"};
 }
@@ -1027,7 +1056,49 @@ function buildPathShader(scene){
   let bodyDecls="";
   used.forEach(k=>{ const piv=(bodies[k]&&bodies[k].pivot)||[0,0,0];
     bodyDecls += `  vec3 bdy${k}=qrotInv(uBodyQuat[${k}], p-uBodyPos[${k}])+vec3(${glf(piv[0])},${glf(piv[1])},${glf(piv[2])});\n`; });
-  let decls="", compose=legacyIdx.length?`  float d=s${legacyIdx[0]};\n`:"  float d=1e9;\n", matsel="  mat=-1;\n", colorfn="", metalfn="", reflfn="", emisfn="", tempfn="", iorfn="", alphafn="", bodyTempFn="";
+  // R4.7: reflfn was accumulated here but never spliced into this shader's
+  // (buildPathShader's) own returned template -- reflect_r0 only ever
+  // reached GLSL via buildFragmentShader (the old raster shim, its own
+  // separate reflfn a few hundred lines up). Dead per-leaf text, deleted;
+  // reflR0/Schlick-mirror BRDF support for the path tracer is real, future,
+  // undesigned work, not a regression from this deletion.
+  // ── R4.7 Phase 1: legacy-leaf material LUT compile gate (svoActive's own
+  // gate is the direct precedent — matLutActive=false must leave EVERY
+  // string below untouched, so a matLutEnabled=false scene compiles BYTE-
+  // IDENTICAL text; _assertMatLutGate proves it at module load). Palette
+  // built from EVERY leaf's material label (ls.map, SVO-routed leaves
+  // included) — see prepareMatLut's sibling call in buildProgram for why
+  // recomputing here (rather than threading a stash) is safe: pure function,
+  // identical input, identical order, so both calls agree on every id.
+  // Materials among leaves that svoSet already routes elsewhere still
+  // consume a palette slot under this call — a deliberate simplicity
+  // trade-off (one canonical palette-build expression, matching the task's
+  // own `ls.map(l=>l.material)` framing) at the cost of slightly earlier
+  // overflow on a scene mixing many distinct SVO-only and legacy-only
+  // materials; the overflow PATH (warn + per-leaf fallback, below) makes
+  // that cost a graceful degradation, never a correctness bug.
+  const matLutActive = matLutEnabled && !!svoCtl;
+  const matPal = matLutActive ? svoCtl.buildMaterialPalette(ls.map(l=>l.material)) : null;
+  if(matLutActive && matPal.overflow.length)
+    console.warn(`R4.7: legacy material LUT palette overflow — ${matPal.overflow.length} `
+      +`label(s) exceeded the 256-slot cap, falling back to per-leaf codegen for: `
+      +`${matPal.overflow.join(", ")}`);
+  // leafKey: the GLSL identifier tempfn/bodyTempFn/fieldTempK's PER-LEAF
+  // (and per-ghost) chain lines compare against. Off: "m" — matTempK/
+  // bodyTempK/fieldTempK keep their single `int m` parameter verbatim, m IS
+  // the raw leaf index for every legacy leaf (unchanged pre-R4.7 text). On:
+  // "leafId" — these three functions gain a SECOND `int leafId` parameter
+  // (m/mat itself is untouched and still flows to any svoActive guard line
+  // those chains carry, which decodes SVO_MAT_BASE-range mat values and
+  // must keep reading `m` regardless of matLutActive — see the svoActive
+  // block below). leafId is needed because matLutActive reassigns `mat` to
+  // a NEGATIVE palette id for any leaf whose material fit the new LUT (see
+  // the matsel/id-space comment below), so `mat` no longer identifies the
+  // LEAF for these three genuinely leaf-scoped (not material-scoped) chains.
+  const leafKey = matLutActive ? "leafId" : "m";
+  let decls="", compose=legacyIdx.length?`  float d=s${legacyIdx[0]};\n`:"  float d=1e9;\n",
+      matsel=matLutActive?"  mat=-1; leafId=-1;\n":"  mat=-1;\n",
+      colorfn="", metalfn="", emisfn="", tempfn="", iorfn="", alphafn="", bodyTempFn="";
   const envT=(scene.physics_env&&scene.physics_env.temperature_k!==undefined)?scene.physics_env.temperature_k:293.15;
   for(let i=0;i<ls.length;i++){
     if(svoSet.has(i)) continue;                    // SVO-routed: zero shader text
@@ -1118,29 +1189,55 @@ function buildPathShader(scene){
         decls += `  float s${i}=${glslShapeCall(ls[i].shape, q)};\n`;
     }
     const mat=scene.materials[ls[i].material]||{}, c=mat.color_rgb||[0.72,0.72,0.72];
-    colorfn += `  if(m==${i}) return vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])});\n`;
+    // R4.7: the 5 genuinely material-scoped chains (color/metal/emis/ior/
+    // alpha) skip their per-leaf line entirely when matLutActive AND this
+    // leaf's material fit the palette — the LUT's guarded head line (below,
+    // matLutActive block) answers for them instead. A leaf whose material
+    // OVERFLOWED the 256-slot cap keeps its per-leaf line (mat is STILL its
+    // raw index `i` for an overflow leaf — see the matsel comment below) —
+    // the fallback the overflow warning above promises.
+    const inPalette = matLutActive && matPal.palIdx.has(ls[i].material);
+    if(!inPalette) colorfn += `  if(m==${i}) return vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])});\n`;
     const isMetal=(mat.metal!==undefined?mat.metal:mat.emergent);
-    metalfn += `  if(m==${i}) return ${glf(isMetal?1.0:0.0)};\n`;
-    reflfn += `  if(m==${i}) return ${glf((mat.reflect_r0!==undefined)?mat.reflect_r0:-1.0)};\n`;
+    if(!inPalette) metalfn += `  if(m==${i}) return ${glf(isMetal?1.0:0.0)};\n`;
     const em=mat.emissivity_rgb;
-    emisfn += em ? `  if(m==${i}) return vec3(${glf(em[0])},${glf(em[1])},${glf(em[2])});\n`
+    if(!inPalette) emisfn += em ? `  if(m==${i}) return vec3(${glf(em[0])},${glf(em[1])},${glf(em[2])});\n`
                  : `  if(m==${i}) return clamp(vec3(1.0)-vec3(${glf(c[0])},${glf(c[1])},${glf(c[2])}),0.0,1.0);\n`;
-    tempfn += `  if(m==${i}) return ${glf(ls[i].temperature_k!==undefined?ls[i].temperature_k:envT)};\n`;
-    iorfn += `  if(m==${i}) return ${glf(mat.refractive_index!==undefined?mat.refractive_index:-1.0)};\n`;
+    // tempfn/bodyTempFn: NEVER deduped (leaf/instance-scoped, not material-
+    // scoped — many bodies legitimately share one material label but carry
+    // different live temperatures; see buildPathShader's header note on
+    // why these two are excluded from the palette). Only the comparison
+    // variable changes (leafKey), never the per-leaf structure.
+    tempfn += `  if(${leafKey}==${i}) return ${glf(ls[i].temperature_k!==undefined?ls[i].temperature_k:envT)};\n`;
+    if(!inPalette) iorfn += `  if(m==${i}) return ${glf(mat.refractive_index!==undefined?mat.refractive_index:-1.0)};\n`;
     // Render-only opacity: the scene's baked default (mat.opacity, 1.0 if the
     // export never set it), overridden per-label by the client-side toggle map
     // if one is active. Independent of ior/reflect_r0 — see opacityOf()/trace().
     { const baseOp=(mat.opacity!==undefined)?mat.opacity:1.0;
       const ov=materialOpacity[ls[i].material];
       const op=(ov!==undefined)?ov:baseOp;
-      alphafn += `  if(m==${i}) return ${glf(op)};\n`; }
-    bodyTempFn += `  if(m==${i}) return ${ls[i].body!=null?`uBodyTemp[${ls[i].body}]`:"-1.0"};\n`;
+      if(!inPalette) alphafn += `  if(m==${i}) return ${glf(op)};\n`; }
+    bodyTempFn += `  if(${leafKey}==${i}) return ${ls[i].body!=null?`uBodyTemp[${ls[i].body}]`:"-1.0"};\n`;
   }
   for(let n=1;n<legacyIdx.length;n++){ const i=legacyIdx[n]; const op=ls[i].op;
     compose += (op==="subtract")?`  d=max(d,-s${i});\n`:(op==="intersect")?`  d=max(d,s${i});\n`:`  d=min(d,s${i});\n`; }
   for(let n=legacyIdx.length-1;n>=0;n--){ const i=legacyIdx[n];
-    matsel += `  ${n===legacyIdx.length-1?"if":"else if"}(s${i}<0.0) mat=${i};\n`; }
-  const fieldSel=glslFieldFns(scene,"+uEyeWorld");  // per-cell field samplers → EXTRA_GLSL + switch (PT: p is camera-relative)
+    if(matLutActive){
+      // id-space (R4.7 Phase 1, see the full proof at the matLutActive GLSL
+      // block below): a leaf whose material made the 256-slot cut gets a
+      // NEGATIVE mat = -1-paletteId (paletteId in [0,255] -> mat in
+      // [-256,-1]); an overflow leaf keeps mat=i (its raw, non-negative
+      // index) unchanged, exactly like matLutActive=false. leafId is ALWAYS
+      // the raw index, regardless of palette membership — the one identity
+      // tempfn/bodyTempFn need and the palette-routed mat can no longer supply.
+      const palId=matPal.palIdx.get(ls[i].material);
+      const matExpr = palId!==undefined ? `${-1-palId}` : `${i}`;
+      matsel += `  ${n===legacyIdx.length-1?"if":"else if"}(s${i}<0.0){ mat=${matExpr}; leafId=${i}; }\n`;
+    } else {
+      matsel += `  ${n===legacyIdx.length-1?"if":"else if"}(s${i}<0.0) mat=${i};\n`;
+    }
+  }
+  const fieldSel=glslFieldFns(scene,"+uEyeWorld",leafKey);  // per-cell field samplers → EXTRA_GLSL + switch (PT: p is camera-relative)
   const bb=scene.bbox||[[-1,1],[-1,1],[-1,1]];
   const diag=len(sub([bb[0][1],bb[1][1],bb[2][1]],[bb[0][0],bb[1][0],bb[2][0]]))||1;
   // ── ghost tethers: violet, translucent markers at each DRIVE plug's own
@@ -1165,25 +1262,45 @@ function buildPathShader(scene){
     decls += `  float s${gidx}=sdCapsuleCyl(p+uEyeWorld,vec3(${glf(A[0])},${glf(A[1])},${glf(A[2])}),`
            + `vec3(${glf(B[0])},${glf(B[1])},${glf(B[2])}),${glf(gR)});\n`;
     compose += `  d=min(d,s${gidx});\n`;
-    matsel += `  ${(gi===0&&legacyIdx.length===0)?"if":"else if"}(s${gidx}<0.0) mat=${gidx};\n`;
+    // Ghosts are NEVER palette-routed (they carry no scene.materials label
+    // at all — GHOST_RGB is a fixed HUD literal) — mat stays the raw gidx
+    // always, matLutActive or not; only leafId is new, and it always equals
+    // mat here, so tempfn/bodyTempFn's leafKey-keyed lines below stay correct.
+    matsel += matLutActive
+      ? `  ${(gi===0&&legacyIdx.length===0)?"if":"else if"}(s${gidx}<0.0){ mat=${gidx}; leafId=${gidx}; }\n`
+      : `  ${(gi===0&&legacyIdx.length===0)?"if":"else if"}(s${gidx}<0.0) mat=${gidx};\n`;
     colorfn += `  if(m==${gidx}) return vec3(${glf(GHOST_RGB[0])},${glf(GHOST_RGB[1])},${glf(GHOST_RGB[2])});\n`;
     metalfn += `  if(m==${gidx}) return 0.0;\n`;
-    reflfn  += `  if(m==${gidx}) return -1.0;\n`;
     // dim self-glow (not a real blackbody -- a HUD-like indicator that
     // reads clearly regardless of which way the scene's lights point)
     emisfn  += `  if(m==${gidx}) return vec3(${glf(GHOST_RGB[0]*0.5)},${glf(GHOST_RGB[1]*0.5)},${glf(GHOST_RGB[2]*0.5)});\n`;
-    tempfn  += `  if(m==${gidx}) return ${glf(envT)};\n`;
+    tempfn  += `  if(${leafKey}==${gidx}) return ${glf(envT)};\n`;
     iorfn   += `  if(m==${gidx}) return -1.0;\n`;
     alphafn += `  if(m==${gidx}) return 0.35;\n`;      // low-opacity: an artificial marker, not real matter
-    bodyTempFn += `  if(m==${gidx}) return -1.0;\n`;
+    bodyTempFn += `  if(${leafKey}==${gidx}) return -1.0;\n`;
   });
   // ── R4: the SVO traversal chunk + material-LUT heads (svoActive only —
   // every string below is "" otherwise, keeping zero-Voxel scenes byte-
   // identical). Material property functions gain ONE guarded head line each;
   // analytic leaves keep their codegen chains untouched (hybrid composition).
-  let svoGlsl="", svoMapTerm="";
+  let svoGlsl="", svoMapTerm="", svoMatBase=256;
   if(svoActive){
-    svoGlsl = svoCtl.glslSVO();
+    // R4.7: SVO_MAT_BASE is scene-relative, not a fixed 256 — legacy leaf
+    // ids (0..ls.length-1) and ghost-tether ids (ls.length..) are raw,
+    // unbounded array indices; SVO_MAT_BASE must exceed every one of them
+    // for THIS scene or a legacy/ghost leaf's material lookup can be
+    // silently hijacked by the `m>=SVO_MAT_BASE` guard below (found dormant
+    // — unexercised by any shipped scene, since none reach 256 legacy ids
+    // while SVO-active — but real once leaf counts scale toward hundreds).
+    // Kept a MULTIPLE of 256 so the existing k<<8+paletteId packing (and
+    // its mat>>8/mat&255 decoders — bodyTempFn's BT() row lookup and
+    // neeSurfaceOpts' NEE self-guard, both below) still decomposes
+    // correctly; for any scene at/under the historic 256-leaf+ghost budget
+    // this is exactly 256, so every existing baseline's shader text is
+    // byte-for-byte unaffected.
+    const totalLegacyIds = ls.length + ghosts.length;
+    svoMatBase = totalLegacyIds<=256 ? 256 : Math.ceil(totalLegacyIds/256)*256;
+    svoGlsl = svoCtl.glslSVO(svoMatBase);
     svoMapTerm = svoCtl.glslSVOMapTerm();
     colorfn    = `  if(m>=SVO_MAT_BASE) return texelFetch(uMatLUT, ivec2(m & 255, 0), 0).rgb;\n` + colorfn;
     metalfn    = `  if(m>=SVO_MAT_BASE) return texelFetch(uMatLUT, ivec2(m & 255, 0), 0).a;\n` + metalfn;
@@ -1191,8 +1308,100 @@ function buildPathShader(scene){
     iorfn      = `  if(m>=SVO_MAT_BASE) return texelFetch(uMatLUT, ivec2(m & 255, 1), 0).a;\n` + iorfn;
     alphafn    = `  if(m>=SVO_MAT_BASE) return texelFetch(uMatLUT, ivec2(m & 255, 2), 0).x;\n` + alphafn;
     tempfn     = `  if(m>=SVO_MAT_BASE) return texelFetch(uMatLUT, ivec2(m & 255, 2), 0).w;\n` + tempfn;
-    bodyTempFn = `  if(m>=SVO_MAT_BASE) return BT((m >> 8) - 1, 3).z;\n` + bodyTempFn;
+    bodyTempFn = `  if(m>=SVO_MAT_BASE) return BT((m >> 8) - ${svoMatBase>>8}, 3).z;\n` + bodyTempFn;
   }
+  // ── R4.7 Phase 1: the LEGACY (non-SVO) material LUT heads (matLutActive
+  // only — every string below is "" otherwise, keeping matLutEnabled=false
+  // scenes byte-identical; _assertMatLutGate proves it). Routes exactly the
+  // SAME 5 material-scoped chains SVO already routes (color/metal/emis/ior/
+  // alpha) — NOT tempfn/bodyTempFn, which stay per-leaf (see the per-leaf-
+  // loop comment above): those two are leaf/instance-scoped, and collapsing
+  // them by material would silently merge different bodies' live
+  // temperatures onto one shared value, a real correctness bug (confirmed
+  // against leaf_stress_16x.json: 176 leaves / 80 bodies / 11 materials).
+  //
+  // SEPARATE PALETTE, NOT UNIFIED WITH SVO's uMatLUT (the decision item 3
+  // asked for, written down here): packScene()/prepareSVO build their own
+  // palette+texture at SVO-eligibility time, keyed to the SVO body table's
+  // own row layout (bodyTempFn's SVO branch above literally decodes a body
+  // ROW out of `mat`, via BT()) — folding legacy leaves into that same
+  // mechanism would mean either (a) legacy leaves get FAKE SVO body rows
+  // just to reuse uMatLUT's texelFetch path, entangling two independently-
+  // evolving subsystems (R4.6's future material-brick bake path touches
+  // packScene; this Phase 1 doesn't touch SVO at all today) for a texture-
+  // upload dedup that saves one small 256-row RGBA32F allocation, or (b)
+  // uMatLUT's indexing scheme grows a second, incompatible id meaning
+  // alongside SVO_MAT_BASE. Both are more invasive than standing up ONE
+  // independent 256x3 texture (uMatLUT2, prepareMatLut in viewer.js) with
+  // its OWN palette (buildMaterialPalette, extracted to svo.js so both
+  // palettes run the identical dedup algorithm without duplicating it).
+  //
+  // ID-SPACE PROOF (item 7's rigor, mirrored): mat's value space now has
+  // FOUR disjoint ranges for any scene, proven non-overlapping by
+  // CONSTRUCTION, not by a magnitude margin that could erode at scale:
+  //   1. raw leaf indices        [0, ls.length)              — non-negative
+  //   2. raw ghost-tether indices [ls.length, ls.length+ghosts.length) — non-negative
+  //   3. SVO ids                 [svoMatBase, ...)            — svoMatBase
+  //      is ALWAYS > ls.length+ghosts.length (the existing R4.7 svoMatBase
+  //      fix above) — non-negative, strictly above ranges 1 & 2
+  //   4. legacy-LUT ids           [-256, -1]                  — NEGATIVE
+  // Ranges 1-3 are all >=0 by construction (array indices / an explicitly-
+  // grown positive base); range 4 is the ONLY negative range, produced by
+  // exactly one expression (`-1-paletteId`, paletteId in [0,255]) at exactly
+  // one call site (the matsel loop above). No magnitude threshold to prove
+  // correct "for scenes at today's scale" — the sign bit alone separates
+  // range 4 from 1-3 for ANY scene, of any leaf/ghost/body count, forever.
+  // (Overflow leaves — material didn't fit the 256-slot cap — fall back to
+  // mat=i, i.e. they simply stay IN range 1, never entering range 4 at all.)
+  let matLutGlsl="";
+  if(matLutActive){
+    matLutGlsl = "uniform highp sampler2D uMatLUT2;\n";
+    colorfn = `  if(m<0) return texelFetch(uMatLUT2, ivec2((-m)-1, 0), 0).rgb;\n` + colorfn;
+    metalfn = `  if(m<0) return texelFetch(uMatLUT2, ivec2((-m)-1, 0), 0).a;\n` + metalfn;
+    emisfn  = `  if(m<0) return texelFetch(uMatLUT2, ivec2((-m)-1, 1), 0).rgb;\n` + emisfn;
+    iorfn   = `  if(m<0) return texelFetch(uMatLUT2, ivec2((-m)-1, 1), 0).a;\n` + iorfn;
+    alphafn = `  if(m<0) return texelFetch(uMatLUT2, ivec2((-m)-1, 2), 0).x;\n` + alphafn;
+  }
+  // mapD()'s signature (and matTempK/bodyTempK/fieldTempK/effTempK's) grows
+  // a SECOND out/in parameter — leafId, always the winning leaf's raw index
+  // — ONLY when matLutActive (item 8's byte-identity gate: the "off" branch
+  // below is the pre-R4.7 text verbatim, unchanged char-for-char). mat/`m`
+  // itself is UNTOUCHED either way — it still flows to any svoActive guard
+  // line those chains carry (those decode SVO_MAT_BASE-range values off `m`
+  // regardless of matLutActive, see the svoActive block above) — leafId is
+  // ADDITIVE, never a replacement for mat/m in the function signature.
+  const mapDBlock = matLutActive
+    ? `float mapD(vec3 p, out int mat, out int leafId){ ${bodyDecls}${decls}${compose}${matsel}${svoMapTerm}  return d; }
+float mapOnly(vec3 p){ int m; int lf; return mapD(p,m,lf); }`
+    : `float mapD(vec3 p, out int mat){ ${bodyDecls}${decls}${compose}${matsel}${svoMapTerm}  return d; }
+float mapOnly(vec3 p){ int m; return mapD(p,m); }`;
+  const tempFnsBlock = matLutActive
+    ? `float matTempK(int m, int leafId){ ${tempfn}  return ${glf(envT)}; }
+float bodyTempK(int m, int leafId){ ${bodyTempFn}  return -1.0; }
+float fieldTempK(int m, int leafId, vec3 p){ ${fieldSel}  return -1.0; }   // per-cell field, leaf-local; -1 = none
+float effTempK(int m, int leafId, vec3 p){ float ft=fieldTempK(m,leafId,p); if(ft>=0.0) return ft+uTemp;   // field > frame body T > leaf T > ambient
+  float bt=bodyTempK(m,leafId); return (bt>=0.0?bt:matTempK(m,leafId))+uTemp; }`
+    : `float matTempK(int m){ ${tempfn}  return ${glf(envT)}; }
+float bodyTempK(int m){ ${bodyTempFn}  return -1.0; }
+float fieldTempK(int m, vec3 p){ ${fieldSel}  return -1.0; }   // per-cell field, leaf-local; -1 = none
+float effTempK(int m, vec3 p){ float ft=fieldTempK(m,p); if(ft>=0.0) return ft+uTemp;   // field > frame body T > leaf T > ambient
+  float bt=bodyTempK(m); return (bt>=0.0?bt:matTempK(m))+uTemp; }`;
+  // trace()'s own body is literal GLSL text below (not templated line-by-
+  // line) — it calls mapD() once (to get the material AT the hit point) and
+  // effTempK() once (for that point's own glow). Both functions' ARITY grows
+  // by one (leafId) when matLutActive (mapDBlock/tempFnsBlock above) — a
+  // GLSL function call must match its definition's parameter count exactly
+  // (unlike JS, an arity mismatch here is a hard compile error, not a silent
+  // wrong-value bug) — so these two call sites need the same on/off split,
+  // found by direct call-site audit (grepped every mapD(/effTempK(/
+  // matTempK(/bodyTempK(/fieldTempK( in this file — trace() is the ONLY
+  // other GLSL caller of either function; march()/sunShadow()/visRay() only
+  // ever call mapOnly(), whose own arity is already handled inside
+  // mapDBlock above).
+  const traceMatDecl = matLutActive
+    ? "int mat; int leafId; mapD(p-n*0.0008,mat,leafId);"
+    : "int mat; mapD(p-n*0.0008,mat);";
+  const traceEffTempKCall = matLutActive ? "effTempK(mat,leafId,p)" : "effTempK(mat, p)";
   // R4.4 calcN LEVEL PIN (Sec 2, emitted ONLY when svoActive — the else
   // branch is the pre-R4 line verbatim, so zero-Voxel scenes stay byte-
   // identical and _assertSVOGate keeps proving it). Mechanism: march()'s
@@ -1279,7 +1488,7 @@ function buildPathShader(scene){
     // of an SVO-routed emitter is its index in svoLeaves
     const svoRow = svoSet.has(e.leaf)
       ? svoLeaves.findIndex(x=>x.leaf===e.leaf) : undefined;
-    neeBlk  += emitNEEBlock(e, k, neeExp, neeSurfaceOpts(e, svoRow>=0?svoRow:undefined));
+    neeBlk  += emitNEEBlock(e, k, neeExp, neeSurfaceOpts(e, svoRow>=0?svoRow:undefined, svoMatBase>>8));
     if(banding) neeTwin += emitNEEBlock(e, k, neeExp, neeImpostorOpts(e));
   });
   // ── R3 module state (house precedent: ptEmitters is set the same way) ──
@@ -1406,17 +1615,12 @@ uniform float uBodyTemp[MAXB];                           // per-frame body tempe
 uniform sampler2D uPrev;                                 // previous accumulation (ping-pong)
 uniform vec3 uEmitterPos[${Math.max(1,NE)}];             // world centres of glowing-sphere emitters (NEE)
 uniform float uEmitterTemp[${Math.max(1,NE)}];           // their live temperatures — a heating fall brightens
-${bandHdr}${PRIMS_GLSL}${waterGLSL}${EXTRA_GLSL}${svoGlsl}
-float mapD(vec3 p, out int mat){ ${bodyDecls}${decls}${compose}${matsel}${svoMapTerm}  return d; }
-float mapOnly(vec3 p){ int m; return mapD(p,m); }
+${bandHdr}${PRIMS_GLSL}${waterGLSL}${EXTRA_GLSL}${svoGlsl}${matLutGlsl}
+${mapDBlock}
 vec3 matColor(int m){ ${colorfn}  return vec3(0.72); }
 float metalness(int m){ ${metalfn}  return 0.0; }
 vec3 emissivityOf(int m){ ${emisfn}  return vec3(0.5); }
-float matTempK(int m){ ${tempfn}  return ${glf(envT)}; }
-float bodyTempK(int m){ ${bodyTempFn}  return -1.0; }
-float fieldTempK(int m, vec3 p){ ${fieldSel}  return -1.0; }   // per-cell field, leaf-local; -1 = none
-float effTempK(int m, vec3 p){ float ft=fieldTempK(m,p); if(ft>=0.0) return ft+uTemp;   // field > frame body T > leaf T > ambient
-  float bt=bodyTempK(m); return (bt>=0.0?bt:matTempK(m))+uTemp; }
+${tempFnsBlock}
 float iorOf(int m){ ${iorfn}  return -1.0; }              // refractive index (water/glass), else -1
 float opacityOf(int m){ ${alphafn}  return 1.0; }         // render-only alpha (1=opaque); NOT ior — see trace()
 ${calcNPT}
@@ -1443,7 +1647,7 @@ vec3 trace(vec3 ro, vec3 rd, inout uint seed){
   vec3 L=vec3(0.0), thr=vec3(1.0); bool spec=true;       // primary ray counts as a specular arrival
   for(int b=0;b<8;b++){                                  // bounce depth: nested dielectrics (a glass of water) need >3 to cross every interface and reach the bright far side instead of dying black inside
     ${missBlk}
-    vec3 n=calcN(p); int mat; mapD(p-n*0.0008,mat);
+    vec3 n=calcN(p); ${traceMatDecl}
     // RENDER-ONLY opacity gate — an artificial "make X see-through" toggle, not
     // real transmission physics: independent of ior/Fresnel (the dielectric
     // branch below is untouched and still does the real glass/water optics).
@@ -1456,7 +1660,7 @@ vec3 trace(vec3 ro, vec3 rd, inout uint seed){
     if(op<1.0 && rnd(seed)>=op){
       vec3 nf=n; if(dot(rd,n)>=0.0) nf=-n; ro=p-nf*uEPS*2.0; continue;   // pass through, direction unchanged
     }
-    if(spec) L += thr*incandescence(effTempK(mat, p), emissivityOf(mat)); // own glow at the POINT's temperature — only on specular arrival (NEE counts it otherwise; NEE cast light stays bulk-T — flagged: the gradient shows on the emitter's own surface, not yet in its cast light)
+    if(spec) L += thr*incandescence(${traceEffTempKCall}, emissivityOf(mat)); // own glow at the POINT's temperature — only on specular arrival (NEE counts it otherwise; NEE cast light stays bulk-T — flagged: the gradient shows on the emitter's own surface, not yet in its cast light)
     vec3 alb=matColor(mat); float metal=metalness(mat);
     float ior=iorOf(mat); bool diffuse=(metal<0.5 && ior<=0.0);
     if(diffuse){                                                           // direct lighting — diffuse surfaces only
@@ -1502,7 +1706,8 @@ function compile(type,src){ const s=gl.createShader(type); gl.shaderSource(s,src
   if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){ const log=gl.getShaderInfoLog(s); console.error(log,"\n",src); throw new Error(log); } return s; }
 let prog=null, progPT=null, U={}, Upt={};
 const UNIFORMS=["uRes","uEye","uEyeWorld","uFwd","uRight","uUp","uTanHalf","uAspect","uMaxDist","uTime","uTemp","uBodyPos","uBodyQuat","uBodyTemp","uFrame","uPrev","uReset","uEmitterPos","uEmitterTemp","uSPP","uPrevScale","uEPS","uSHMIN","uSHMAX","uSMAXT","uGateBuffer","uCalcNH","uBand",
-  "uSVONodes","uSdfAtlas","uMatLUT","uSVOBody","uNumSvoBodies","uAtlasDim","uAtlasBpa"];   // R4 (null on non-SVO programs — every bind is guarded)
+  "uSVONodes","uSdfAtlas","uMatLUT","uSVOBody","uNumSvoBodies","uAtlasDim","uAtlasBpa",
+  "uMatLUT2"];   // R4 (null on non-SVO programs — every bind is guarded); uMatLUT2 is R4.7's INDEPENDENT legacy-leaf LUT (null unless matLutEnabled)
 function linkProg(fragSrc){
   const p=gl.createProgram();
   gl.attachShader(p,compile(gl.VERTEX_SHADER,VS));
@@ -1625,6 +1830,53 @@ function releaseSVO(){
   for(const t of [svoGL.nodeTex,svoGL.atlasTex,svoGL.lutTex,svoGL.bodyTex])
     try{ gl.deleteTexture(t); }catch(_e){}
   svoGL=null;
+}
+// ── R4.7 Phase 1: legacy-leaf material LUT GL residency — ONE 256x3 RGBA32F
+// texture, entirely separate from svoGL.lutTex (see buildPathShader's
+// matLutActive comment for why the two palettes are independent). Rebuilt
+// every buildProgram call (materialOpacity/palette-membership precedent set
+// by prepareSVO's own LUT, "rebuilt every build so materialOpacity rides
+// row 2" — same reasoning applies here for row 2's alpha).
+function releaseMatLut(){
+  if(!matLutGL) return;
+  try{ gl.deleteTexture(matLutGL.tex); }catch(_e){}
+  matLutGL=null;
+}
+// R4.7: pure array-building math, extracted from prepareMatLut so a
+// headless test can assert exact LUT float values with no GL context at
+// all (the gap this session's own research flagged: verify_svo_parity.py
+// only checks WHICH material wins, never the numeric LUT payload itself).
+// row0: color.rgb, isMetal.a — row1: emissivity.rgb, ior.a — row2: alpha.x
+// (.yzw unused) — the exact subset of svoGL's LUT rows this mechanism
+// routes (colorfn/metalfn/emisfn/iorfn/alphafn only; tempfn/bodyTempFn
+// stay per-leaf, see buildPathShader, so no temperature row is needed).
+function buildMatLutArray(scene, palette){
+  const lut=new Float32Array(256*3*4);
+  palette.forEach((label,id)=>{
+    const m=scene.materials[label]||{};
+    const c=m.color_rgb||[0.72,0.72,0.72];
+    const isMetal=(m.metal!==undefined?m.metal:m.emergent)?1:0;
+    const em=m.emissivity_rgb
+      || [Math.min(Math.max(1-c[0],0),1),Math.min(Math.max(1-c[1],0),1),Math.min(Math.max(1-c[2],0),1)];
+    const ior=(m.refractive_index!==undefined)?m.refractive_index:-1;
+    const baseOp=(m.opacity!==undefined)?m.opacity:1;
+    const ov=materialOpacity[label];
+    const op=(ov!==undefined)?ov:baseOp;
+    lut[(0*256+id)*4]=c[0]; lut[(0*256+id)*4+1]=c[1]; lut[(0*256+id)*4+2]=c[2]; lut[(0*256+id)*4+3]=isMetal;
+    lut[(1*256+id)*4]=em[0]; lut[(1*256+id)*4+1]=em[1]; lut[(1*256+id)*4+2]=em[2]; lut[(1*256+id)*4+3]=ior;
+    lut[(2*256+id)*4]=op;
+  });
+  return lut;
+}
+function prepareMatLut(scene, palette){
+  releaseMatLut();
+  const lut=buildMatLutArray(scene, palette);
+  const t=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,t);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA32F,256,3,0,gl.RGBA,gl.FLOAT,lut);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
+  gl.bindTexture(gl.TEXTURE_2D,null);
+  matLutGL={tex:t, palette};
 }
 // svodry tracing: stage beacons dispatch off-thread even when the NEXT call
 // wedges the main thread — the bisect instrument's breadcrumb trail.
@@ -1765,6 +2017,12 @@ function prepareSVO(scene){
   svoReady=true;
   _svoBeacon("prepareSVO-done");
 }
+// R4.7: one-shot compile-time evidence, consumed and cleared by the next
+// /perf tick (see loop()) — passive, free: every normal dev session now
+// silently accumulates real compile-time data for whatever scenes people
+// actually load, no deliberate sweep required. Closes the same gap
+// tools/measure_compile_time.py's deliberate sweep does, at zero cost.
+let _compileEvent=null;
 function buildProgram(scene){
   // R4: eligibility + residency decided BEFORE the shaders are generated
   stashPrivate(scene, "_svoEligible", svoCtl ? svoEligible(scene) : []);   // holds shape REFS (sdf_b64) — enumerable, it would DUPLICATE them into the editor JSON
@@ -1773,6 +2031,18 @@ function buildProgram(scene){
   stashPrivate(scene, "_svoSkipVox", new Set(scene._svoShimRouted ? scene._svoEligible.map(e=>e.leaf) : []));
   svoActiveNow = _svoOn; svoReady = false;
   if(_svoOn) prepareSVO(scene); else releaseSVO();
+  // R4.7 Phase 1: legacy-leaf material LUT — palette computed HERE (JS side,
+  // for the GL upload) and INDEPENDENTLY RE-COMPUTED inside buildPathShader
+  // (codegen side) from the exact same input list in the exact same order;
+  // buildMaterialPalette is pure, so the two calls are guaranteed to agree
+  // on every id without threading a stash between them (same "recompute,
+  // don't thread" precedent buildPathShader already uses for svoLeaves).
+  const _matLutOn = matLutEnabled && !!svoCtl;
+  matLutActiveNow = _matLutOn;
+  if(_matLutOn){
+    const _pal = svoCtl.buildMaterialPalette((scene.csg_leaves||[]).map(l=>l.material));
+    prepareMatLut(scene, _pal.palette);
+  } else releaseMatLut();
   // debug-only DRY mode (?svodry=1): stash the generated shader texts and
   // SKIP compilation — the compile-bisect instrument (a wedged ANGLE compile
   // blocks the main thread, so variants get compiled in a Worker instead).
@@ -1788,11 +2058,17 @@ function buildProgram(scene){
   prepareVoxels(scene);                              // decode/upload voxel grids before the shaders reference them
   prepareFields(scene);                              // …and the per-cell field keyframes
   _svoBeacon("shim-link-start");
+  const _shimT0=performance.now();
   const t=linkProg(buildFragmentShader(scene));      // fast renderer (always)
+  const _shimMs=performance.now()-_shimT0;
   _svoBeacon("shim-linked");
-  let pt=null; try{ _svoBeacon("pt-link-start"); pt=linkProg(buildPathShader(scene)); }   // path tracer (graceful if it fails)
+  let pt=null; const _ptT0=performance.now();
+  try{ _svoBeacon("pt-link-start"); pt=linkProg(buildPathShader(scene)); }   // path tracer (graceful if it fails)
   catch(e){ console.error("path-trace shader failed:",e); }
+  const _ptMs=performance.now()-_ptT0;
   _svoBeacon("pt-linked");
+  _compileEvent={shim_ms:+_shimMs.toFixed(1), pt_ms:+_ptMs.toFixed(1),
+                 leaf_count:(scene.csg_leaves||[]).length, pt_ok:!!pt};
   if(prog) gl.deleteProgram(prog); if(progPT) gl.deleteProgram(progPT);
   prog=t; progPT=pt; U=fetchU(t); Upt=pt?fetchU(pt):{};
   U.vox=fetchVoxU(t,scene); Upt.vox=pt?fetchVoxU(pt,scene):{};
@@ -2022,6 +2298,35 @@ let frameEnergyJ=0, frameMomentum=[0,0,0], frameAngularMomentum=[0,0,0];
   svoEnabled=was;
   if(a1!==b1 || a2!==b2)
     throw new Error("R4: svo compile gate leaks into a zero-Voxel scene's shader text");
+})();
+
+// ── R4.7 Phase 1 build-time assertion (the _assertSVOGate/_assertNEETemplate
+// discipline): matLutEnabled=false must leave the generated shader text
+// completely uncontaminated by Phase 1's new codegen. Unlike svoActive
+// (content-gated: zero Voxel leaves means always-inactive regardless of the
+// flag, so _assertSVOGate can diff false-vs-true text on one scene), matLut
+// is gated purely by the FLAG (matLutActive = matLutEnabled && !!svoCtl) --
+// any ordinary scene activates it the instant the toggle is on, so there is
+// no zero-eligible-content scene to exploit the same way. This checks
+// absence-of-contamination on the off path (never emits uMatLUT2, never
+// introduces a leafId token) plus a basic on-path sanity check (the toggle
+// actually changes something) -- weaker than a byte-for-byte oracle diff,
+// but it directly targets the failure class this gate exists to catch: the
+// toggle leaking into a scene that never asked for it.
+(function _assertMatLutGate(){
+  const mini={csg_leaves:[{shape:{type:"Sphere",center:[0,0,0],radius:1},
+                           material:"m",op:"add"}],
+              materials:{m:{color_rgb:[0.5,0.5,0.5]}}, bodies:[]};
+  const was=matLutEnabled;
+  matLutEnabled=false;
+  const off=buildPathShader(mini);
+  matLutEnabled=true;
+  const on=buildPathShader(mini);
+  matLutEnabled=was;
+  if(off.indexOf("uMatLUT2")>=0 || off.indexOf("leafId")>=0)
+    throw new Error("R4.7: matLut compile gate leaks into a matLutEnabled=false scene's shader text");
+  if(on===off || on.indexOf("uMatLUT2")<0)
+    throw new Error("R4.7: matLutEnabled=true did not actually change this scene's shader text");
 })();
 
 function frameBasis(up){
@@ -2345,6 +2650,16 @@ function draw(){
       gl.uniform1i(UU.uNumSvoBodies, svoRowCount);
       if(UU.uAtlasDim!=null) gl.uniform1f(UU.uAtlasDim, svoGL.packed.atlasDim);
       if(UU.uAtlasBpa!=null) gl.uniform1i(UU.uAtlasBpa, svoGL.packed.bpa);
+    }
+    // R4.7 Phase 1: uMatLUT2 rides unit 15 — ONE past the SVO block (11-14),
+    // independent of svoActiveNow (matLutEnabled is an orthogonal toggle;
+    // see buildPathShader's matLutActive comment). Guarded the same way
+    // every other optional uniform here is: a program that didn't compile
+    // this branch (matLutEnabled was off at BUILD time) has UU.uMatLUT2
+    // permanently null, so this bind is simply skipped, never a GL error.
+    if(matLutActiveNow && matLutGL && UU.uMatLUT2!=null){
+      gl.activeTexture(gl.TEXTURE0+15); gl.bindTexture(gl.TEXTURE_2D,matLutGL.tex);
+      gl.uniform1i(UU.uMatLUT2,15);
     } };
   if(ptMode && extF && !dispProg) initDisplay();
   // R3 belt-and-braces: bands can only change when eye/simTime change, which
@@ -3278,7 +3593,9 @@ function loop(now){
           draw_ms_max:+s[s.length-1].toFixed(3), n_draws:s.length, accN,
           svoActive:!!svoActiveNow, ptMode:!!ptMode,
           mode: liveMode?"live":worldMode?"world":(tEnd>0?"playback":"static"),
-          r3: (window._r3&&window._r3.stats)||null})}).catch(()=>{});
+          r3: (window._r3&&window._r3.stats)||null,
+          compile: _compileEvent})}).catch(()=>{});
+      _compileEvent=null;   // one-shot: reported exactly once, on the tick after it happened
     }
     _drawMs=[]; fpsT=now; fpsN=0;
   }
@@ -3320,6 +3637,18 @@ window.Radiance = {
   svoStats:      () => (svoGL && svoGL.packed)
     ? Object.assign({}, svoGL.packed.stats,
         {lodCaps: Array.from(svoGL.lodPrev||[])}) : null,   // R4.3: live per-row caps
+  // R4.7 Phase 1 A/B toggle (setSVO precedent): flip the legacy material-LUT
+  // path live; rebuilds the program (matLutActive re-evaluates) and restarts
+  // the exposure. Independent of setSVO — either, both, or neither may be on.
+  setMatLut:     (on) => { matLutEnabled = !!on; if (scene) { buildProgram(scene); sceneId++; } },
+  matLutStats:   () => matLutGL ? { paletteSize: matLutGL.palette.length,
+                                     palette: matLutGL.palette.slice() } : null,
+  // headless-testable: no GL context needed (test_matlut.node.js) — direct
+  // access to the pure codegen/array-building functions, bypassing applyObj's
+  // full trajectory-wrapper contract, the exact pattern _assertMatLutGate/
+  // _assertSVOGate already use internally to call buildPathShader directly.
+  buildMatLutArray: (scene, palette) => buildMatLutArray(scene, palette),
+  buildPathShaderFor: (scene) => buildPathShader(scene),
   // ── render-only material opacity — a pure VIEW toggle, byte-isolated from
   // physics (the scene's mass/com/inertia were computed in Python, upstream of
   // and untouched by anything here). Pick a material by the exact label it
@@ -3340,7 +3669,7 @@ window.Radiance = {
   // external driver (Mentat chat, a test harness) say "toggle whatever's at
   // this pixel" without synthesizing DOM mouse events.
   pickMaterialAt: (clientX, clientY) => pickMaterialAt(clientX, clientY),
-  options:       () => ({ bvhCull, svoEnabled, materialOpacity: { ...materialOpacity } }),
+  options:       () => ({ bvhCull, svoEnabled, matLutEnabled, materialOpacity: { ...materialOpacity } }),
 };
 window.dispatchEvent(new Event("radiance-ready"));
 

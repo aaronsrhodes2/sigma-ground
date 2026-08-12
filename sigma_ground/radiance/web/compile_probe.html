@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html><!-- compile_probe.html — R4.7 CSG leaf-count compile-time probe: fetch
+     ?f=<file>, compile+link it as a WebGL2 fragment shader with SPLIT
+     compile_ms/link_ms wall timing, beacon the result to /probe as slug
+     "compileprobe_<id>". Direct sibling of svo_bisect.html (same fetch/
+     compile/beacon skeleton, same isolation discipline) -- extended with
+     split timing (svo_bisect.html measured compileShader+linkProgram
+     together; this probe answers "which one" per-shader, since that
+     session's finding — link dominates — was measured on the SVO shader,
+     not this bug's leaf-count-varying one) and a KHR_parallel_shader_
+     compile presence check (orthogonal: a possible compile-responsiveness
+     UX improvement, independent of any codegen fix).
+
+     Run ONE variant per fresh Chrome instance: a wedged ANGLE compile
+     poisons the whole GPU process AND the shared same-site renderer main
+     thread (svo_bisect.html's own measured lesson) -- isolation is
+     per-instance, watchdog is instance-kill. tools/measure_compile_time.py
+     is the only intended caller; it never reuses one _CDPBrowser across
+     variants, unlike render_regression.py's own usage pattern. -->
+<head><meta charset="utf-8"><title>compile probe</title></head>
+<body style="background:#000;color:#0f8;font:13px monospace"><pre id="o">…</pre>
+<script>
+"use strict";
+(async () => {
+  const q = new URLSearchParams(location.search);
+  const f = q.get("f"), id = q.get("id") || "x";
+  const out = document.getElementById("o");
+  const post = (obj) => { obj.slug = "compileprobe_" + id;
+    navigator.sendBeacon("/probe", JSON.stringify(obj)); out.textContent = JSON.stringify(obj); };
+  try {
+    const src = await (await fetch(f)).text();
+    const c = document.createElement("canvas");
+    const gl = c.getContext("webgl2");
+    if (!gl) { post({ ok: false, compile_ms: -1, link_ms: -1, log: "no webgl2" }); return; }
+    const ext = gl.getExtension("KHR_parallel_shader_compile");
+    const khrMaxThreads = ext ? gl.getParameter(ext.MAX_SHADER_COMPILER_THREADS_KHR) : null;
+
+    const VS = "#version 300 es\nvoid main(){ vec2 p=vec2(float((gl_VertexID<<1)&2),float(gl_VertexID&2)); gl_Position=vec4(p*2.0-1.0,0.0,1.0); }";
+    const vs = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vs, VS); gl.compileShader(vs);
+
+    // (single beacon only — two rapid POSTs race serve.py's /probe write)
+    // SPLIT timing: compileShader vs linkProgram measured separately —
+    // svo_bisect.html found link dominates for the SVO shader (95.9s cold
+    // vs compileShader's ≤34ms); confirm (don't assume) the same split
+    // holds for THIS bug's leaf-count-varying shader family.
+    const t0 = performance.now();
+    const s = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    const cok = gl.getShaderParameter(s, gl.COMPILE_STATUS);
+    const t1 = performance.now();
+    const p = gl.createProgram();
+    gl.attachShader(p, vs); gl.attachShader(p, s);
+    gl.linkProgram(p);
+    const ok = cok && gl.getProgramParameter(p, gl.LINK_STATUS);    // forces fxc
+    const t2 = performance.now();
+    post({ ok, compile_ms: Math.round(t1 - t0), link_ms: Math.round(t2 - t1),
+           total_ms: Math.round(t2 - t0), len: src.length,
+           khr_parallel_ext: !!ext, khr_max_threads: khrMaxThreads,
+           log: ok ? "" : ((cok ? gl.getProgramInfoLog(p) : gl.getShaderInfoLog(s)) || "").slice(0, 400) });
+  } catch (e) { post({ ok: false, compile_ms: -2, link_ms: -2, log: String(e).slice(0, 300) }); }
+})();
+</script></body></html>

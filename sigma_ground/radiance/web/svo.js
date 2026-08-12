@@ -218,6 +218,34 @@ function buildTree(shape) {
   };
 }
 
+/* Deduplicate a list of material-label strings into a stable-order palette
+ * (first-seen order, id = insertion index) — the dedup core packScene() has
+ * always done for its own SVO-only material set, extracted here (R4.7 Phase
+ * 1) so viewer.js's buildPathShader can run the IDENTICAL algorithm over the
+ * full legacy-leaf material list (a completely separate call, separate
+ * palette — see buildPathShader's svoMatBase/matLutEnabled comments for why
+ * the two stay two independent palettes rather than one unified one).
+ * Pure: no throw, no GL, no scene coupling — labels may repeat (every leaf's
+ * raw material string, duplicates and all) and order is exactly first-seen.
+ * Overflow past 256 distinct labels does NOT throw here, unlike packScene's
+ * own hard-throw-on-overflow (an SVO scene that can't fit its materials is a
+ * genuine builder-contract violation, V6/V8's original rule — packScene
+ * keeps that behaviour verbatim, below). This function is general-purpose:
+ * an otherwise-valid scene must never fail to COMPILE just because an
+ * internal LUT optimization ran out of palette slots, so it caps
+ * registration at 256 and reports the rest via `overflow` (deduped, first-
+ * seen order too) for the caller to fall back on — buildPathShader's rule is
+ * to warn once via console.warn and leave that leaf's material on its
+ * unmodified legacy per-leaf codegen chain. */
+function buildMaterialPalette(labels){
+  const palette=[], palIdx=new Map(), overflowSeen=new Set(), overflow=[];
+  for(const label of labels){
+    if(palIdx.has(label) || overflowSeen.has(label)) continue;   // already placed either way
+    if(palette.length<256){ palIdx.set(label, palette.length); palette.push(label); }
+    else{ overflowSeen.add(label); overflow.push(label); }
+  }
+  return {palette, palIdx, overflow};
+}
 /* Pack deduped trees + per-body rows into the scene-level GPU payload.
  * eligible: [{leaf, body, shape, material, pivot:[3], bounds}] — the
  * viewer's svo-routed leaves. Returns null when none.
@@ -232,8 +260,14 @@ function packScene(eligible) {
     throw new Error(`svo: ${eligible.length} SVO bodies exceed MAX_SVO_BODIES=`
       + `${MAX_SVO_BODIES} — REFUSING (mapD loop + body-table height bound)`);
   const byHash = new Map();
-  const palette = [];
-  const palIdx = new Map();
+  // R4.7: dedup core delegated to buildMaterialPalette (same first-seen-
+  // order algorithm this loop always ran inline) — packScene keeps its OWN
+  // hard-throw-on-overflow (a real builder-contract violation for the SVO
+  // path, V6/V8's original rule), unlike buildMaterialPalette's general-
+  // purpose caller-decides overflow contract.
+  const { palette, palIdx, overflow } = buildMaterialPalette(eligible.map(e => e.material));
+  if (overflow.length)
+    throw new Error(`svo: material palette overflow (>256 labels) — REFUSING (builder rule, V6/V8)`);
   const bodies = [];
   let totNodes = 0, totBricks = 0;
   for (const e of eligible) {
@@ -285,12 +319,10 @@ function packScene(eligible) {
       c[1] - ny * vs * 0.5 - t.pad[1] * vs - piv[1],
       c[2] - nz * vs * 0.5 - t.pad[2] * vs - piv[2],
     ];
-    let matId = palIdx.get(e.material);
-    if (matId === undefined) {
-      if (palette.length >= 256)
-        throw new Error(`svo: material palette overflow (>256 labels) — REFUSING (builder rule, V6/V8)`);
-      matId = palette.length; palIdx.set(e.material, matId); palette.push(e.material);
-    }
+    // matId always defined: palIdx was built above from this SAME
+    // eligible.map(e=>e.material) list, and the overflow throw already
+    // returned before this loop if any label didn't fit.
+    const matId = palIdx.get(e.material);
     // stamp the palette id into every node of this tree's b bits 0-7 is per
     // NODE, but trees are SHARED across bodies with possibly different
     // materials (yard instancing). The node-resident id therefore stays 0
@@ -332,7 +364,8 @@ function packScene(eligible) {
 // Everything texelFetch-driven; the descent loop is the R4.0-probed pattern
 // (uniform-int-bounded, break-driven, computed texel coords). gSvoVs latches
 // the deepest-brick cell size for calcN's level pin (R4.4, Sec 2).
-function glslSVO() {
+function glslSVO(matBase) {
+  const base = matBase!==undefined ? matBase : SVO_MAT_BASE;
   return `
 uniform highp usampler2D uSVONodes;   // 128-bit nodes: R=child G=brick B=meta A=rsvd
 uniform highp sampler3D uSdfAtlas;    // ONE R8 UNORM LINEAR atlas of 18^3 bricks
@@ -349,7 +382,7 @@ int gSvoPin = -1;                     // >=0: cap every descent at this level (c
                                       // Sec 2's level pin: kills cross-LOD normal seams)
 #define NO_BRICK 0xFFFFFFFFu
 #define MAX_SVO_LEVELS ${MAX_SVO_LEVELS}
-#define SVO_MAT_BASE ${SVO_MAT_BASE}
+#define SVO_MAT_BASE ${base}
 #define MAX_SVO_BODIES ${MAX_SVO_BODIES}
 uvec4 nodeAt(uint i){ return texelFetch(uSVONodes, ivec2(int(i & 4095u), int(i >> 12)), 0); }
 vec4 BT(int k, int t){ return texelFetch(uSVOBody, ivec2(t, k), 0); }
@@ -495,7 +528,7 @@ function jsSVODist(packed, row, q, lodCap) {
 }
 
 const api = { b64ToI8, contentHash, buildTree, packScene, jsSVODist,
-              glslSVO, glslSVOMapTerm, kernelI8,
+              glslSVO, glslSVOMapTerm, kernelI8, buildMaterialPalette,
               NO_BRICK, MAX_SVO_LEVELS, SVO_MAT_BASE, MAX_SVO_BODIES,
               BRICK, STORED, BRICK_BYTES };
 if (typeof window !== "undefined") window.SGSVO = api;

@@ -36,7 +36,7 @@ Anything that cannot carry a tag is omitted or listed in §7 under
 | Object class | TODAY | R3 (splats) | R4 (unified brick grid) | R5 (streaming) |
 |---|---|---|---|---|
 | Voxel-textured bodies per scene | **15** [CODE-VERIFIED §2.1] | 15 (unchanged) | **~12,000** at today's planet resolution under a 4 GB atlas budget [PROJECTED §3.2] | same count; zoom floor becomes per-view, not per-bake [PROJECTED mechanism §3.3] |
-| Analytic CSG leaves per scene | **48 works** (at 2–5 fps, ~10.5 s compile stall [MEASURED §1]); **one live hang at 101** [CODE-VERIFIED §2.2]; threshold between is unmeasured | unchanged | ceiling **dies** — shader becomes leaf-count-independent [PROJECTED §3.2] | n/a |
+| Analytic CSG leaves per scene | **44 completes in ~59 s, 64-88 hang (>90s), 128+ HARD FAILS to compile** ("Expression too complex") [MEASURED §2.2]; growth exponent b≈1.74, isolated to the SDF/compose axis, not material lookups | unchanged (Phase 1's material-LUT fix buys ~2.4x constant factor, confirmed NOT to fix the exponent [MEASURED §2.2]) | ceiling **dies** — shader becomes leaf-count-independent [PROJECTED §3.2; R4.7 Phase 2 targets this axis specifically] | n/a |
 | Tiny/distant bodies (sub-3-px) | each costs a full leaf (see above) | **tens of thousands** as GL_POINTS; real bound = per-frame CPU upload loop, not GPU [PROJECTED §3.1] | absorbed into grid | streamed |
 | Animated field leaves (e.g. water) | **≤ 7** at 0 voxel bodies; F ≤ floor((15−V)/2) [CODE-VERIFIED §2.1] | unchanged | re-architected with the grid (no committed design number) | — |
 | Rigid bodies at 960 Hz real time | **≤ 50** (0.789 ms/step at n=50 vs 1.042 ms budget) [MEASURED+CODE-VERIFIED §6] | — | — | E7: **~220–290** real-time; **~500** at 3.2–5.3 ms/step [PROJECTED §3.4] |
@@ -112,23 +112,84 @@ and undefined. The solar builder avoids it by policy
 (build_solar_system_theater.py:13-16: "binds one 3-D texture per Voxel leaf,
 and the browser's texture-unit budget caps that at roughly 15").
 
-### 2.2 CSG-leaf shader growth: 48 leaves works, 101 hung once, in between unmeasured
+### 2.2 CSG-leaf shader growth: [MEASURED 2026-08-06] real curve, root cause isolated
 
-Mechanism: `buildPathShader` (viewer.js:833) emits per-leaf GLSL — a
-`float s{i}` declaration per leaf (viewer.js:901-903), a min/max compose
-chain (:924-925), an else-if material-select chain (:926), and 8 per-leaf
-material-lookup branches (colorfn/metalfn/reflfn/emisfn/tempfn/iorfn/alphafn/
-bodyTempFn, :905-922). Shader source grows O(leaves); the failure is
-ANGLE/D3D11 **compile time**, not a hard API limit. Documented incident:
-phase_e_export.py:41-46 — "the raymarcher unrolls one SDF branch per CSG
-leaf, and a 101-leaf scene hangs the shader compile (found live 2026-07-30 —
-the tab wedged)". Honest characterization: mechanism-implied O(leaf-count)
-shader growth with a **single measured hang point at 101**; 48 leaves
-compiles (with a ~10.5 s main-thread stall, §1 [MEASURED]); the true
-threshold between 48 and 101 is unmeasured. Mitigation in code:
+**[MEASURED 2026-08-06]** — the gap this section used to flag as "in between
+unmeasured" is closed. `tools/measure_compile_time.py` (R4.7) drove
+`tools/gen_leaf_stress_scene.py`-generated scenes (analytic Sphere/Cylinder/
+Cone/Box only, op:add, one shared material) through `compile_probe.html`'s
+isolated compile+link timing, one fresh dedicated-Chrome instance per data
+point, on this same machine/driver stack. Full campaign in
+`misc/COMPILE_TIME_REPORT.json`.
+
+| leaves | total compile+link (median of 3) | outcome |
+|---|---|---|
+| 4 | 842 ms | ok |
+| 8 | 2,626 ms | ok |
+| 11 | 4,067 ms | ok |
+| 16 | 6,728 ms | ok |
+| 22 | 12,059 ms | ok |
+| 32 | 29,618 ms | ok |
+| 44 | 58,951 ms | ok |
+| 64 | — | **TIMEOUT** (>90 s) |
+| 88 | — | **TIMEOUT** (>90 s), all 3 reps |
+| 128 | — | **hard FAIL: "ERROR: Expression too complex."** |
+| 176 | — | **hard FAIL: "ERROR: Expression too complex."** |
+
+A power-law fit (`ms ≈ a·n^b`) on the leaves-that-completed gives **b≈1.74**
+(r²=0.989) — confirmed worse-than-linear, not just suspected. New finding
+this measurement surfaces: the failure mode changes character between 88 and
+128 leaves — 64–88 is a slow **hang** (ANGLE/D3D11 eventually would finish,
+just past any reasonable timeout, matching the pre-existing 101-leaf "tab
+wedged" incident), but 128+ is a hard, **immediate** compiler rejection
+("Expression too complex") — a real ceiling the compiler itself enforces,
+not merely a patience problem.
+
+**Root cause, isolated (not assumed):** the same campaign built two stubbed
+shader variants from the real generated text — `stub_matchains` (the 8
+per-leaf material-lookup branches collapsed to a constant, SDF/compose/
+material-select left at full leaf count) and `stub_sdf` (the inverse: SDF/
+compose/material-select collapsed, material chains left full) — isolating
+which half of the per-leaf codegen actually drives the growth:
+
+| variant | exponent b | r² |
+|---|---|---|
+| full (unmodified) | 1.741 | 0.989 |
+| stub_matchains (material chains removed) | 1.743 | 0.998 |
+| stub_sdf (SDF/compose/matsel removed) | 1.193 | 0.989 |
+
+**The material-lookup chains are NOT the driver of the superlinear growth**
+— removing them (`stub_matchains`) leaves the exponent essentially
+unchanged (1.743 vs 1.741). Removing the SDF-evaluation/CSG-composition
+code instead (`stub_sdf`) drops the exponent to near-linear (1.193). The
+SDF/compose/material-select axis is unambiguously what's driving both the
+worse-than-linear scaling and the hard 128-leaf ceiling. `stub_matchains`
+DOES buy a real, useful constant-factor win regardless — e.g. at n=44,
+24,820 ms vs full's 58,951 ms, roughly 2.4x — and even survives to n=88
+(2,736 ms) where `full` and `stub_matchains` both time out; only the
+SDF-heavy axis remains genuinely un-fixed by a material-side change alone.
+
+This is the empirical justification for R4.7's phased plan
+(`C:\Users\aaron\.claude\plans\expressive-whistling-squid.md`, "R4.7"
+section): Phase 1 (material-LUT generalization to legacy leaves) is real,
+validated, worthwhile relief — but this data confirms in advance that it
+will not, by itself, meaningfully raise the ~88-128 leaf ceiling. The
+deeper fix (Phase 2, a texture-based "Analytic Primitive Table" making the
+SDF/compose axis itself leaf-count-independent, mirroring how SVO already
+achieves this for voxel geometry) is what actually targets the dominant
+driver this measurement isolated — gated on Phase 1 landing first and its
+own ANGLE probe spike, not started until then.
+
+Mechanism (unchanged from the original diagnosis): `buildPathShader`
+(viewer.js, `buildPathShader` function) emits per-leaf GLSL — a `float s{i}`
+SDF declaration per leaf, a min/max compose chain, an else-if material-
+select chain, and (pre-R4.7) 8 per-leaf material-lookup branches (one, 
+`reflfn`, was confirmed dead code in the path tracer and deleted this
+session — never reached 8 live chains here, only 7). Mitigation in code:
 `display_max_particles=32` evenly-spaced render-only subsample
-(phase_e_export.py:33, 59-65). This ceiling **dies at R4** (leaf-count-
-independent unified grid, §3.2).
+(phase_e_export.py:33, 59-65) — a workaround for the render, not a fix for
+compile time. This ceiling **dies at R4/R4.7-Phase-2** (leaf-count-
+independent codegen, §3.2).
 
 ### 2.3 Rigid stepper: all-pairs O(n²), documented intent < 50
 
@@ -466,7 +527,7 @@ reproducible procedure:
 | Gap | Instrument |
 |---|---|
 | Uncapped GPU headroom for the 60 fps scenes (vsync hides it) | the **render-perf probe** — the follow-up instrument to be hosted on the R0 probe infrastructure — with an uncapped/offscreen mode |
-| CSG compile-hang threshold between 48 and 101 leaves | leaf-count sweep in the render-perf probe (generated scenes, compile-time timer) |
+| ~~CSG compile-hang threshold between 48 and 101 leaves~~ **RESOLVED [MEASURED 2026-08-06]** — see §2.2's real curve (b≈1.74 fit), the 64-88 hang / 128+ hard-fail split, and the SDF-axis-not-material-axis root-cause isolation | `tools/measure_compile_time.py` + `tools/gen_leaf_stress_scene.py` + `compile_probe.html` (R4.7, shipped instruments — `misc/COMPILE_TIME_REPORT.json` holds the raw campaign) |
 | fps with physics playback running (all §1 rows are paused at t=0) | same probe, play/pause axis |
 | fps vs canvas size (backing height varied 206–609 px across scenes) | same probe, pinned full-window canvas |
 | ~~R3 per-frame CPU upload loop cost (the splat bound, §3.1)~~ **RESOLVED [MEASURED 2026-08-05]** — see the §3.1 measured table (30-body live 0.10 ms median; 10k 0.5 ms; 100k 4.8 ms) | `window._r3.bench(n)` + live `window._r3.stats.packMs` (shipped instruments) |
