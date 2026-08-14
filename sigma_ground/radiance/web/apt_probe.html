@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<!-- apt_probe.html — R4.7 Phase 2 "Analytic Primitive Table" (APT) ANGLE
+     GO/NO-GO probe (APT.0, plan file's "R4.7" section).
+
+     Direct sibling of svo_probe.html — same WebGL plumbing (compile/prog/
+     uintTarget/runReadU32/LCG/f32), same bit-exact-vs-JS-mirror discipline,
+     same POST-to-/probe verdict mechanism. What's actually under test here
+     is DIFFERENT from anything svo_probe.html already proved:
+
+     Production SVO code (svo.js's glslSVOMapTerm, spliced into mapD(),
+     itself called every march() step, itself called every trace() bounce)
+     ALREADY ships a texelFetch-bounded loop at this exact nesting depth —
+     that's proven, R0-regression-gated, shipped since R4.2. What's NEVER
+     been shipped: that construct compiled IN but sitting DORMANT (zero
+     trip count) at runtime, inside a large program, at this nesting depth.
+     That's exactly the shape of the one confirmed silent-miscompile this
+     project has on this driver stack (R3: a dynamically-indexed-uniform-
+     ARRAY loop's mere PRESENCE in trace()'s miss branch corrupted
+     unrelated, always-reached surfaces elsewhere in the SAME program, even
+     though the loop body itself never executed — uBand all zero). APT also
+     adds one thing SVO's precedent doesn't have: a 4-way type-dispatch
+     if-chain INSIDE the loop body (SVO's per-iteration body is
+     homogeneous — always the same svoDist() call).
+
+     So this probe tests two things, both on ONE compiled program (only
+     uAptNum changes between the two draws — isolating dormancy as the
+     only variable):
+       apt_active  — 5 real primitives; hit-point/region/distance must
+                     match a JS mirror (bit-exact int fields, tolerance on
+                     the accumulated march distance).
+       apt_dormant — uAptNum=0 (construct present, loop body never runs):
+                     every pixel that hit the 5 UNRELATED, always-present
+                     legacy leaves under apt_active must render BYTE-
+                     IDENTICAL here — the direct R3-symptom reproduction,
+                     needs no JS mirror at all, can't be invalidated by one.
+
+     NOT tested here (out of scope, already characterized elsewhere):
+     trip-count scaling (svo_probe.html probe (c) + this session's own
+     compile-time campaign already cover that axis) and CSG-subtract
+     algebra (a Phase-2-later concern, unrelated to ANGLE codegen safety).
+
+     Standalone: no viewer.js, no scene, zero dependencies. Deterministic
+     throughout (LCG-seeded, no Math.random, no wall-clock in any probed
+     value). Results render into the page AND POST to /probe as slug
+     "apt_probe", so tools/run_apt_probe.py can poll misc/BROWSER_REPORT.json. -->
+<head><meta charset="utf-8"><title>R4.7 APT ANGLE probe</title>
+<style>body{background:#000;color:#00FF88;font:13px monospace;padding:12px}
+.bad{color:#FF4444}.warn{color:#FFAA00}</style></head>
+<body><h3>R4.7 APT.0 ANGLE probe</h3><pre id="out">running…</pre>
+<canvas id="gl" width="64" height="64" style="display:none"></canvas>
+<script>
+"use strict";
+(() => {
+const out = [];
+const log = (s) => { out.push(s); document.getElementById("out").textContent = out.join("\n"); };
+const result = { slug: "apt_probe", probes: {}, console_errors: [] };
+window.__aptProbe = result;
+const _ce = console.error.bind(console);
+console.error = (...a) => { result.console_errors.push(a.map(String).join(" ").slice(0, 300)); _ce(...a); };
+
+// deterministic LCG (no Math.random anywhere in this page) — unused by the
+// probe's own geometry (which is hardcoded for reproducibility across runs)
+// but kept for parity with svo_probe.html's discipline / future extension.
+let _seed = 0x2545F491 >>> 0;
+function lcg() { _seed = (Math.imul(_seed, 1664525) + 1013904223) >>> 0; return _seed; }
+const f32 = Math.fround;
+
+function post() {
+  result.ok = Object.values(result.probes).every(p => p.pass === true);
+  fetch("/probe", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(result) }).catch(() => {});
+  log(result.ok ? "\nVERDICT: GO" : "\nVERDICT: NO-GO (see failures above)");
+}
+
+const canvas = document.getElementById("gl");
+const gl = canvas.getContext("webgl2", { antialias: false });
+if (!gl) { result.probes.context = { pass: false, note: "no WebGL2" }; log("no WebGL2"); post(); return; }
+const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+result.renderer = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : String(gl.getParameter(gl.RENDERER));
+result.ua = navigator.userAgent;
+log("renderer: " + result.renderer);
+
+const VS = `#version 300 es
+void main(){ vec2 p=vec2(float((gl_VertexID<<1)&2),float(gl_VertexID&2));
+  gl_Position=vec4(p*2.0-1.0,0.0,1.0); }`;
+function compile(type, src) {
+  const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s) + "\n" + src);
+  return s;
+}
+function prog(fs) {
+  const p = gl.createProgram();
+  gl.attachShader(p, compile(gl.VERTEX_SHADER, VS));
+  gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  return p;
+}
+function uintTarget(w, h) {
+  const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32UI, w, h, 0, gl.RGBA_INTEGER, gl.UNSIGNED_INT, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  const fbo = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  const st = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+  if (st !== gl.FRAMEBUFFER_COMPLETE) throw new Error("RGBA32UI FBO incomplete: " + st);
+  return { tex, fbo };
+}
+function runReadU32(program, w, h, bind) {
+  const t = uintTarget(w, h);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, t.fbo); gl.viewport(0, 0, w, h);
+  gl.useProgram(program); bind();
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  const px = new Uint32Array(w * h * 4);
+  gl.readPixels(0, 0, w, h, gl.RGBA_INTEGER, gl.UNSIGNED_INT, px);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  return px;
+}
+const VAO = gl.createVertexArray(); gl.bindVertexArray(VAO);
+function u32ToF32(u) { const b = new ArrayBuffer(4); new Uint32Array(b)[0] = u; return new Float32Array(b)[0]; }
+
+// ── probe: nested-loop dormancy + type-dispatch, at real nesting depth ────
+try {
+  const W = 64, H = 64;
+
+  // ── 5 real APT primitives (type: 0=sphere,1=cyl,2=box,3=cone), placed at
+  // x∈[7,10] so they sit clearly past the 5 UNRELATED legacy leaves below
+  // (x∈[-3,3]) in the same 64x64 frame — one draw call exercises both. ──
+  const APT_PRIMS = [
+    { type: 0, c: [7, 0, 0],  p: [1.0, 0, 0, 0] },       // sphere r=1.0
+    { type: 1, c: [7, 3, 0],  p: [0.7, 1.8, 0, 0] },     // cyl r=0.7 h=1.8
+    { type: 2, c: [7, -3, 0], p: [2.0, 2.0, 2.0, 0] },   // box ext=(2,2,2)
+    { type: 3, c: [10, 0, 0], p: [0.9, 1.6, 0, 0] },     // cone R=0.9 H=1.6
+    { type: 0, c: [10, 3, 0], p: [0.6, 0, 0, 0] },       // sphere r=0.6
+  ];
+  const aptRows = new Float32Array(512 * 2 * 4);
+  APT_PRIMS.forEach((prim, k) => {
+    aptRows[(k * 2 + 0) * 4 + 0] = prim.type;
+    aptRows[(k * 2 + 0) * 4 + 1] = prim.c[0];
+    aptRows[(k * 2 + 0) * 4 + 2] = prim.c[1];
+    aptRows[(k * 2 + 0) * 4 + 3] = prim.c[2];
+    aptRows[(k * 2 + 1) * 4 + 0] = prim.p[0];
+    aptRows[(k * 2 + 1) * 4 + 1] = prim.p[1];
+    aptRows[(k * 2 + 1) * 4 + 2] = prim.p[2];
+    aptRows[(k * 2 + 1) * 4 + 3] = prim.p[3];
+  });
+  const aptTex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, aptTex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, 2, 512, 0, gl.RGBA, gl.FLOAT, aptRows);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+  const FS = `#version 300 es
+precision highp float; precision highp int;
+#define MAX_APT_PRIMS 512
+#define APT_EPS 0.0015
+#define APT_MAXDIST 60.0
+out uvec4 frag;
+uniform highp sampler2D uAptTable;   // 2 texels/prim: t0=(type,cx,cy,cz) t1=(p0,p1,p2,p3)
+uniform int uAptNum;                 // 0 = DORMANT (construct present in the compiled program, 0 iterations)
+
+// ── copied verbatim from viewer.js's PRIMS_GLSL (buildPathShader, ~line 133-152) —
+// keep byte-identical to the real functions APT will call. ──
+float sdSphere(vec3 p, vec3 c, float r){ return length(p-c)-r; }
+float sdCyl(vec3 p, vec3 c, float r, float h){ vec3 q=p-c;
+  float dr=length(q.xy)-r, da=abs(q.z)-h*0.5;
+  return min(max(dr,da),0.0)+length(max(vec2(dr,da),0.0)); }
+float sdBox(vec3 p, vec3 c, vec3 b){ vec3 d=abs(p-c)-b*0.5;
+  return min(max(d.x,max(d.y,d.z)),0.0)+length(max(d,0.0)); }
+float sdConeZ(vec3 p, vec3 c, float R, float H){ vec3 q=p-c;
+  float lz=q.z+H*0.25; float rho=length(q.xy);
+  if(lz<0.0){ float dr=max(rho-R,0.0); return length(vec2(dr,-lz)); }
+  if(lz>H){ return length(vec2(rho,lz-H)); }
+  float rAtZ=R*(1.0-lz/H); float slant=sqrt(R*R+H*H);
+  float dLat=(rho-rAtZ)*H/slant;
+  return (rho<=rAtZ) ? max(dLat,-lz) : dLat; }
+
+// ── UNRELATED, always-reached legacy geometry — the R3 bug's shape needs
+// code elsewhere in the SAME program that has nothing to do with the
+// construct under test, so dormancy-corruption (if any) has something
+// real to corrupt. 5 hardcoded analytic leaves, near-origin. ──
+float mapD(vec3 p, out int region){
+  float d = sdSphere(p, vec3(0.0,0.0,0.0), 1.0); region = 0;
+  { float dk = sdBox(p, vec3(3.0,0.0,0.0), vec3(2.4,2.4,2.4)); if(dk<d){d=dk; region=1;} }
+  { float dk = sdCyl(p, vec3(-3.0,0.0,0.0), 0.8, 2.0);         if(dk<d){d=dk; region=2;} }
+  { float dk = sdConeZ(p, vec3(0.0,3.0,0.0), 1.0, 2.0);        if(dk<d){d=dk; region=3;} }
+  { float dk = sdSphere(p, vec3(0.0,-3.0,0.0), 1.2);           if(dk<d){d=dk; region=4;} }
+
+  // ── APT: the construct under test. Bounded loop (uniform-int-bounded,
+  // break-driven — the R4.0-probed-safe pattern), texelFetch coords from
+  // the loop variable, a 4-way type-dispatch if-chain in the body (the ONE
+  // thing beyond SVO's already-shipped precedent). DORMANT (uAptNum==0):
+  // this text is PRESENT in the compiled program; the loop body executes
+  // zero times. ──
+  for(int k=0;k<MAX_APT_PRIMS;k++){
+    if(k>=uAptNum) break;
+    vec4 t0=texelFetch(uAptTable, ivec2(0,k), 0);
+    vec4 t1=texelFetch(uAptTable, ivec2(1,k), 0);
+    int type=int(t0.x+0.5); vec3 c=t0.yzw; float dk;
+    if(type==0)      dk=sdSphere(p,c,t1.x);
+    else if(type==1) dk=sdCyl(p,c,t1.x,t1.y);
+    else if(type==2) dk=sdBox(p,c,vec3(t1.x,t1.y,t1.z));
+    else             dk=sdConeZ(p,c,t1.x,t1.y);
+    if(dk<d){ d=dk; region=100+k; }
+  }
+  return d;
+}
+
+bool marchD(vec3 ro, vec3 rd, out vec3 hitP, out float hitT, out int hitRegion){
+  float t = APT_EPS;
+  for(int i=0;i<220;i++){                        // == real march()'s 220 iterations
+    vec3 p = ro+rd*t; int r; float d = mapD(p, r);
+    if(abs(d) < APT_EPS*0.4){ hitP=p; hitT=t; hitRegion=r; return true; }
+    t += max(abs(d), APT_EPS*0.25);
+    if(t > APT_MAXDIST) return false;
+  }
+  return false;
+}
+vec3 calcNormalD(vec3 p){                          // == real calcN's 4-tap pattern
+  vec2 e=vec2(1.0,-1.0)*0.5773*APT_EPS; int r;
+  return normalize(e.xyy*mapD(p+e.xyy,r)+e.yyx*mapD(p+e.yyx,r)
+                   +e.yxy*mapD(p+e.yxy,r)+e.xxx*mapD(p+e.xxx,r));
+}
+void main(){
+  ivec2 fc = ivec2(gl_FragCoord.xy);
+  vec3 ro = vec3(0.0, 0.0, -16.0);
+  vec2 uv = (vec2(fc)+0.5)/vec2(64.0,64.0)*2.0-1.0;
+  vec3 rd = normalize(vec3(uv.x*16.0, uv.y*16.0, 16.0));
+  vec3 p = ro, dir = rd; int hits = 0; float t0 = -1.0; int region0 = -1;
+  for(int b=0; b<8; b++){                          // == real trace()'s 8-bounce loop
+    vec3 hp; float ht; int hr;
+    if(!marchD(p, dir, hp, ht, hr)) break;
+    if(b==0){ t0 = ht; region0 = hr; }
+    hits++;
+    vec3 n = calcNormalD(hp);
+    dir = reflect(dir, n); p = hp + n*APT_EPS*2.0;
+  }
+  frag = uvec4(floatBitsToUint(t0), uint(hits), uint(region0+1), 0u);
+}`;
+  const p = prog(FS);
+  const draw = (aptNum) => runReadU32(p, W, H, () => {
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, aptTex);
+    gl.uniform1i(gl.getUniformLocation(p, "uAptTable"), 0);
+    gl.uniform1i(gl.getUniformLocation(p, "uAptNum"), aptNum);
+  });
+  const pxActive = draw(5);
+  const pxDormant = draw(0);
+
+  // ── JS mirror (bounce-0 only — that's what apt_active checks; further
+  // bounces add no new evidence about the construct under test, see the
+  // probe's own header comment) ──
+  function sdSphereJS(px,py,pz, c,r){ return Math.hypot(px-c[0],py-c[1],pz-c[2])-r; }
+  function sdCylJS(px,py,pz, c,r,h){ const qx=px-c[0],qy=py-c[1],qz=pz-c[2];
+    const dr=Math.hypot(qx,qy)-r, da=Math.abs(qz)-h*0.5;
+    return Math.min(Math.max(dr,da),0.0)+Math.hypot(Math.max(dr,0.0),Math.max(da,0.0)); }
+  function sdBoxJS(px,py,pz, c,b){ const dx=Math.abs(px-c[0])-b[0]*0.5,dy=Math.abs(py-c[1])-b[1]*0.5,dz=Math.abs(pz-c[2])-b[2]*0.5;
+    return Math.min(Math.max(dx,Math.max(dy,dz)),0.0)+Math.hypot(Math.max(dx,0),Math.max(dy,0),Math.max(dz,0)); }
+  function sdConeZJS(px,py,pz, c,R,H){ const qx=px-c[0],qy=py-c[1],qz=pz-c[2];
+    const lz=qz+H*0.25, rho=Math.hypot(qx,qy);
+    if(lz<0.0){ const dr=Math.max(rho-R,0.0); return Math.hypot(dr,-lz); }
+    if(lz>H){ return Math.hypot(rho,lz-H); }
+    const rAtZ=R*(1.0-lz/H), slant=Math.sqrt(R*R+H*H);
+    const dLat=(rho-rAtZ)*H/slant;
+    return (rho<=rAtZ) ? Math.max(dLat,-lz) : dLat; }
+  function mapDJS(px,py,pz, aptNum){
+    let d = sdSphereJS(px,py,pz, [0,0,0], 1.0), region = 0;
+    let dk = sdBoxJS(px,py,pz, [3,0,0], [2.4,2.4,2.4]);      if(dk<d){d=dk; region=1;}
+    dk = sdCylJS(px,py,pz, [-3,0,0], 0.8, 2.0);               if(dk<d){d=dk; region=2;}
+    dk = sdConeZJS(px,py,pz, [0,3,0], 1.0, 2.0);              if(dk<d){d=dk; region=3;}
+    dk = sdSphereJS(px,py,pz, [0,-3,0], 1.2);                 if(dk<d){d=dk; region=4;}
+    for(let k=0;k<aptNum;k++){
+      const prim = APT_PRIMS[k];
+      let v;
+      if(prim.type===0) v=sdSphereJS(px,py,pz, prim.c, prim.p[0]);
+      else if(prim.type===1) v=sdCylJS(px,py,pz, prim.c, prim.p[0], prim.p[1]);
+      else if(prim.type===2) v=sdBoxJS(px,py,pz, prim.c, prim.p);
+      else v=sdConeZJS(px,py,pz, prim.c, prim.p[0], prim.p[1]);
+      if(v<d){ d=v; region=100+k; }
+    }
+    return [d, region];
+  }
+  function marchJS(rox,roy,roz, rdx,rdy,rdz, aptNum){
+    let t = 0.0015;
+    for(let i=0;i<220;i++){
+      const px=rox+rdx*t, py=roy+rdy*t, pz=roz+rdz*t;
+      const [d, region] = mapDJS(px,py,pz, aptNum);
+      if(Math.abs(d) < 0.0015*0.4) return { hit:true, t, region };
+      t += Math.max(Math.abs(d), 0.0015*0.25);
+      if(t > 60.0) return { hit:false };
+    }
+    return { hit:false };
+  }
+
+  let badActive = 0, badDormantDiff = 0, badDormantAbs = 0, badDormantLeak = 0;
+  const T_TOL = 0.02;   // march-accumulation tolerance over 220 steps, well above float32 noise
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const o = (y * W + x) * 4;
+    const uvx = ((x + 0.5) / 64) * 2 - 1, uvy = ((y + 0.5) / 64) * 2 - 1;
+    const dx0 = uvx * 16, dy0 = uvy * 16, dz0 = 16;
+    const len = Math.hypot(dx0, dy0, dz0);
+    const rdx = dx0 / len, rdy = dy0 / len, rdz = dz0 / len;
+
+    // apt_active vs JS mirror (bounce 0 only)
+    const m = marchJS(0, 0, -16, rdx, rdy, rdz, 5);
+    const gotT = u32ToF32(pxActive[o]), gotHits = pxActive[o + 1], gotRegion = pxActive[o + 2] - 1;
+    if (m.hit) {
+      if (gotRegion !== m.region || gotHits < 1 || Math.abs(gotT - m.t) > T_TOL) badActive++;
+    } else if (gotHits >= 1) { badActive++; }
+
+    // apt_dormant: for pixels whose FIRST hit under active was a legacy
+    // leaf (region 0-4), the dormant draw must be byte-identical — the
+    // direct R3-symptom reproduction, no JS mirror involved.
+    if (gotRegion >= 0 && gotRegion <= 4) {
+      const dT = pxDormant[o], dHits = pxDormant[o + 1], dRegion = pxDormant[o + 2];
+      if (dT !== pxActive[o] || dHits !== pxActive[o + 1] || dRegion !== pxActive[o + 2]) badDormantDiff++;
+      const md = marchJS(0, 0, -16, rdx, rdy, rdz, 0);
+      const dGotT = u32ToF32(pxDormant[o]), dGotRegion = pxDormant[o + 2] - 1;
+      if (md.hit && (dGotRegion !== md.region || Math.abs(dGotT - md.t) > T_TOL)) badDormantAbs++;
+    }
+    // sanity: an APT-hit pixel under active must never report an APT
+    // region under dormant (confirms the loop is genuinely non-executing)
+    if (gotRegion >= 100 && (pxDormant[o + 2] - 1) >= 100) badDormantLeak++;
+  }
+
+  result.probes.apt_active = { pass: badActive === 0, bad: badActive, checked: W * H };
+  result.probes.apt_dormant = { pass: badDormantDiff === 0 && badDormantAbs === 0 && badDormantLeak === 0,
+    diff_bad: badDormantDiff, abs_bad: badDormantAbs, leak_bad: badDormantLeak, checked: W * H };
+  log(`apt_active: ${badActive === 0 ? "PASS" : "FAIL (" + badActive + " bad)"}`);
+  log(`apt_dormant: diff=${badDormantDiff} abs=${badDormantAbs} leak=${badDormantLeak} → ` +
+      `${(badDormantDiff === 0 && badDormantAbs === 0 && badDormantLeak === 0) ? "PASS" : "FAIL"}`);
+} catch (e) {
+  result.probes.apt_active = { pass: false, err: String(e).slice(0, 500) };
+  result.probes.apt_dormant = { pass: false, err: "see apt_active" };
+  log("FAIL " + e);
+}
+
+post();
+})();
+</script></body></html>
