@@ -151,7 +151,8 @@ def main(argv=None) -> int:
         print(f"{label} out of scale by kind:", {k: v for k, v in sorted(s[f'{label}_out_by_kind'].items())})
     print("\nper scenario (entries where it is the primary / any listed scenario):")
     for sid, d in s["per_scenario"].items():
-        print(f"  {sid} {d['name']:34s} {d['kind']:9s} primary {d['primary']:3d}  any {d['any']:3d}  ~{d['effort_days']} d")
+        st = L.SCENARIOS[sid].get("status")
+        print(f"  {sid} {d['name']:34s} {d['kind']:9s} primary {d['primary']:3d}  any {d['any']:3d}  ~{d['effort_days']} d" + (f"   [{st}]" if st else ""))
     print(f"\ngreedy build order over {s['in_scope_entries']} in-scope entries (new coverage, cumulative %):")
     for sid, name, gain, cum in s["greedy_order"]:
         print(f"  {sid} {name:34s} +{gain:3d}  -> {cum}%")

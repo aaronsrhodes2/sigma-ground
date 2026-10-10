@@ -75,6 +75,15 @@ if SERVER then
     if not IsValid(phys) then return fail(self, "no physics object") end
     local mass = math.Clamp(def.mass_kg or (g.volume_m3 * 1000), MASS_MIN, MASS_MAX)
     phys:SetMass(mass)
+    phys:SetMaterial(surf)                                   -- PhysicsInit* alone left dynamic bodies on "default" (measured)
+    if def.inertia_si then
+      -- The engine computes a convex body's inertia from its hull and comes out 2 to 30 % below the textbook value
+      -- (measured; only the sphere is exact). When the spec carries the principal moments (kg m^2, from Mentat) set
+      -- them. GetInertia/SetInertia work in kg * (0.0254 m)^2 per HU^2 (the engine's own length unit), so convert.
+      local k = (1 / Mentat.HU / 0.0254) ^ 2
+      local I = def.inertia_si
+      phys:SetInertia(Vector(I[1] / k, I[2] / k, I[3] / k))
+    end
     phys:EnableDrag(false)                                  -- Source's air drag is not physics (measured)
     local _, ang = phys:GetDamping()
     local lin = def.damping_linear or 0                      -- the engine's own 0.1/s is removed unless asked for

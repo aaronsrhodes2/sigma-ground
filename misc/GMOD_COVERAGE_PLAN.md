@@ -1,7 +1,9 @@
 # Testing Mentat's toolbelt in Garry's Mod: scenarios, limits, and what a physics mod could add
 
-**Status:** design plus a machine-checked ledger, 2026-10-10. No scenario beyond `fall_skillet`
-and `motor_spin` is built yet. The ledger lives in `stage/gmod/coverage/` and is tested.
+**Status:** 2026-10-10. The ledger (`stage/gmod/coverage/`) is machine-checked. Engine scenarios **S01 to S06 are
+built and pass** against Mentat on the dedicated server (`stage/gmod/experiments/`; results and findings in
+`stage/gmod/README.md`). S05's gear train and hand tool are deferred. **S07 cannot be an engine test** (no installed
+map has water) and is reclassified PORT. Nothing past S07 is built.
 
 ## 1. The answer in numbers
 
@@ -10,8 +12,8 @@ Mentat's toolbelt is two layers: **221 MCP tools** and **68 simulation verbs** b
 
 | Class | Entries | Meaning |
 |---|---|---|
-| ENGINE | 22 (8 %) | Garry's Mod's own solver independently produces the observable. The only class that is a test of Mentat by an outside oracle |
-| PORT | 66 | GMod has no such physics; the scenario implements the law in Lua at 1:1. Verified by parity against Mentat, not by an independent engine |
+| ENGINE | 21 (7 %) | Garry's Mod's own solver independently produces the observable. The only class that is a test of Mentat by an outside oracle |
+| PORT | 67 | GMod has no such physics; the scenario implements the law in Lua at 1:1. Verified by parity against Mentat, not by an independent engine |
 | SHOW | 45 | A bench instrument displaying a value Mentat computes |
 | PREDICT | 35 | Math, unit or parameter tool that builds the prediction another scenario checks |
 | LOOKUP, GENERATOR | 18 | Reference data and the verbs that generate the scenario data |
@@ -19,10 +21,10 @@ Mentat's toolbelt is two layers: **221 MCP tools** and **68 simulation verbs** b
 | OUT | 100 (35 %) | Cannot be observed at 1:1 room scale (section 4) |
 
 **It takes 16 experiment scenarios plus a console, 17 to build, plus 1 that is blocked.**
-Estimated effort is about 33 working days for all 17, dominated by the Lua ports. Two scenarios
-exist in embryo today (`fall_skillet`, `motor_spin`), run through the real game and graded.
+Estimated effort is about 33 working days for all 17, dominated by the Lua ports. Six engine scenarios (S01 to
+S06) are built and graded; two replay scenarios (`fall_skillet`, `motor_spin`) also run through the real game.
 
-Read the table honestly: **22 of 289 entries (8 %) can be validated against an independent physics
+Read the table honestly: **21 of 289 entries (7 %) can be validated against an independent physics
 engine.** The 168 buildable entries are mostly demonstrations. That is still worth building, because a
 demonstration with a parity test catches regressions and makes the physics operable and visible, but it
 is not 168 independent checks.
@@ -133,7 +135,7 @@ the test chain, and they are not needed for the GMod work.
 
 You asked whether we could build a GMod mod that integrates the physics GMod lacks, with uniform downward
 gravity as an acceptable simplification. **Yes for the room-scale subset, no for "all", and "seamless" needs
-care.** The 22 + 66 + 45 ENGINE, PORT and SHOW entries are the realistic ceiling: 133 of 289.
+care.** The 21 + 67 + 45 ENGINE, PORT and SHOW entries are the realistic ceiling: 133 of 289.
 
 The mod would be a layer on top of Havok, not a replacement. Proposed layers, each with its own scenario
 as acceptance test:

@@ -70,6 +70,7 @@ def main(argv=None) -> int:
     ap.add_argument("--keep-open", action="store_true", help="leave the game or server running afterwards")
     ap.add_argument("--client", action="store_true", help="use the game instead of the dedicated server")
     ap.add_argument("--visible", action="store_true", help="use the game with its window shown (default game mode is minimized, muted, no mouse capture)")
+    ap.add_argument("--no-grade", action="store_true", help="run and keep the raw result file, but do not grade it")
     ap.add_argument("--map", default="gm_flatgrass",
                     help="gm_flatgrass (an empty plain: no walls or ledges to disturb a fall) or gm_construct")
     args = ap.parse_args(argv)
@@ -119,6 +120,9 @@ def main(argv=None) -> int:
         print(ctl("stop", server=server).stdout.strip())
     if not got:
         return 1
+    if args.no_grade:
+        print(f"raw result: {result}")
+        return 0
     return grade.main([sid, "--run-id", run_id, "--data", str(data)])
 
 
