@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "mentat": {
+      "comment": "PLATINUM_RULES §21 — Mentat does the physics. sigma-ground's MCP server, run over stdio inside SkippyTel's skippytel-mentat container (the copy with Qwen for the `simulate` front door). Needs Docker Desktop up; tools appear as mcp__mentat__*. Shell equivalent: tools/mentat_call.sh.",
+      "command": "docker",
+      "args": ["exec", "-i", "skippytel-mentat", "python", "-m", "sigma_ground.mcp.server"],
+      "env": {"MSYS_NO_PATHCONV": "1"}
+    }
+  }
+}
