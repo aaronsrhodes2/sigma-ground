@@ -156,4 +156,42 @@ Until 1–3 are decided, P6/P7 numbers are quoted only as "under the stated read
 reused. Also recorded: the two cheap lens-disagreement reruns (P7 at 1× stable_dt; P1 fixed-region convergence at ≥ 16τ)
 are Stage 3 follow-ups; the Stage 3 figure already uses the 1× kick (32³: 1.62e-3 at 12τ_eff vs 1.74e-3 at 20× and 8τ).
 
+### 3.4 What σ is not — the Captain's idea made mathematical and cut against measurement (S9a, run 2026-10-10)
+
+**The idea** (Captain): "σ times the density of baryonic energy configures the speed of light and the scale of matter."
+**The mathematical form**, using only what the repo already states — script `scripts/unification/sigma_exclusion.py`,
+figure `fig09a_sigma_exclusion.png`, numbers `sigma_exclusion.json`:
+
+    scale of matter   m_i(σ) = m_i⁰ [1 + f_i σ + O(σ²)],   f_i = ∂ln m_i/∂σ |₀    (QCD part ∝ e^σ; Higgs + EM invariant)
+    field             (□ − λ⁻²) σ = −(8πGξ/c⁴)(ε_b − 3P),   ε_b = ρc²,   λ = ħ/(m_σ c)
+    static            σ(x) = (2Gξ/c²) ∫ ρ(x′) e^{−|x−x′|/λ} / |x−x′| d³x′
+                        λ → ∞ : σ = −2ξΦ/c²            (σ follows the potential — the field-equation reading)
+                        λ → 0 : σ = 8πGξλ²ρ/c²         (σ follows the LOCAL baryonic energy density — the Captain's picture)
+
+One parameter, the range λ, interpolates between "σ is set by where you are in a gravitational well" and "σ is set by the
+density of the matter you are in". **The speed-of-light clause**: a σ that rescales c, ħ and every mass together is a change
+of units (Duff 2002, hep-th/0208093; disputed by Moffat, hep-th/0208109); only dimensionless ratios are measurable. The
+repo's σ moves μ = m_p/m_e (f_μ = 0.9904 from `inventory/core/sigma.py`) and leaves α fixed, so μ is the observable.
+A σ that also moved α would face (c²/α)dα/dΦ = 14(11)×10⁻⁹ (Lange et al. 2021).
+
+**Three measurements, three cuts** (2σ, two-sided, conservative; leaf values from Mentat):
+
+| measurement | observable | σ-bridge prediction (λ → ∞, field reading) | measured | verdict |
+|---|---|---|---|---|
+| Yb⁺/Cs clocks over Earth's orbit — Lange et al. 2021, PRL 126, 011102 | (c²/μ) dμ/dΦ | −2ξ f_μ = −0.313 | 7(45) × 10⁻⁸ | **excluded × 3.2 × 10⁵**; long-range ξ < 4.9 × 10⁻⁷ |
+| MICROSCOPE free fall, Ti vs Pt alloys — Touboul et al. 2022, PRL 129, 121102 | η = 2ξ(f_TA6V − f_PtRh10) | 6.6 × 10⁻⁴ (Δf = 2.08 × 10⁻³ from the repo's own mass decomposition) | (−1.5 ± 2.3 ± 1.5) × 10⁻¹⁵ | **excluded × 9.4 × 10¹⁰**; long-range ξ < 1.7 × 10⁻¹² |
+| H₂ lines in white-dwarf photospheres — Bagdonaite et al. 2014, PRL 113, 123002 | Δμ/μ at φ = 1.2 / 1.9 × 10⁻⁴ | +3.8 / +6.0 × 10⁻⁵ | (−2.7 ± 4.7) / (−5.8 ± 3.8) × 10⁻⁵ | 1.4σ / 3.1σ tension; long-range ξ < 0.36 |
+
+**What survives.** The only open corner is short range. The repo's own paper puts it there — m_σ ≈ Λ_QCD = 217 MeV, so
+λ = ħc/Λ_QCD = 0.909 fm — and in that corner every one of the three tests is blind (σ is exponentially suppressed beyond a
+femtometre of the source). The price: σ = 8πGξλ²ρ/c² is 6.5 × 10⁻⁴⁰ at nuclear saturation density, and reaches
+σ = 0.34–0.41 (e^σ = 1.4–1.5) only at ρ ≈ 1.4–1.7 × 10⁵⁶ kg/m³ — about 5 × 10³⁸ times nuclear density, 10⁴⁰ below the
+Planck density. **So σ is not a long-range field with ξ ≈ 0.16 (excluded by 10⁵–10¹¹), and in the one place it may live it
+is invisible to every experiment ever done.** That is the chip-away result; it does not refute σ, it locates it.
+
+**On "σ ≈ 1.4–1.5".** No result in the repo's research gives σ in that range. The landmarks are the conversion wall
+σ_conv = −ln ξ ≈ 1.84 (`PAPER_sigma_moduli_stabilization.txt`; an alternative candidate in `ssbm-theory/theory/bridge_equations.md`
+gives 1.086), the inventory ansatz σ_Earth ≈ 1.1 × 10⁻¹⁰, and `SIGMA_HERE` = 1.2 × 10⁻⁶¹. e^σ = 1.4–1.5 corresponds to
+σ = 0.34–0.41; under the field-equation reading (σ = ξ r_s/r) that would require r < r_s — inside a horizon.
+
 *(Stages 3–12 follow.)*

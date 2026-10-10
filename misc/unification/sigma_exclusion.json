@@ -1,0 +1,88 @@
+{
+ "sources": {
+  "G": "sigma_ground.field.constants",
+  "c": "sigma_ground.field.constants",
+  "hbar": "sigma_ground.field.constants",
+  "eV": "scipy.constants (CODATA)",
+  "au": "scipy.constants (CODATA)",
+  "sun": "sigma-ground via IAU 2015 nominal solar values",
+  "earth": "sigma-ground via NASA Planetary Fact Sheet 2024",
+  "BE Z=22 A=48": "sigma-ground nuclear (exact (measured nuclide mass))",
+  "BE Z=13 A=27": "sigma-ground nuclear (exact (measured nuclide mass))",
+  "BE Z=23 A=51": "sigma-ground nuclear (exact (measured nuclide mass))",
+  "BE Z=78 A=195": "sigma-ground nuclear (exact (measured nuclide mass))",
+  "BE Z=45 A=103": "sigma-ground nuclear (exact (measured nuclide mass))"
+ },
+ "xi": 0.1582,
+ "f_mu": 0.9903865851867977,
+ "f_atoms": {
+  "Z=22,A=48": {
+   "f": 0.9865518180163235,
+   "BE_MeV": 418.7045883332539
+  },
+  "Z=13,A=27": {
+   "f": 0.9871595878507833,
+   "BE_MeV": 224.95194254976377
+  },
+  "Z=23,A=51": {
+   "f": 0.9865149657173333,
+   "BE_MeV": 445.8463487574336
+  },
+  "Z=78,A=195": {
+   "f": 0.9844036625850094,
+   "BE_MeV": 1545.677844843187
+  },
+  "Z=45,A=103": {
+   "f": 0.9853974738405213,
+   "BE_MeV": 884.171857623398
+  }
+ },
+ "f_TA6V": 0.9865868101144315,
+ "f_PtRh10": 0.9845030437105606,
+ "delta_f": 0.002083766403870868,
+ "predictions_long_range": {
+  "k_mu_field_reading": -0.3133583155531028,
+  "k_mu_inventory_reading": -0.1566791577765514,
+  "k_mu_bound_2sigma": 9.7e-07,
+  "clock_exclusion_factor_field": 323049.80984855955,
+  "eta_field_reading": 0.0006593036901847427,
+  "eta_bound_2sigma": 6.991812087098392e-15,
+  "ep_exclusion_factor_field": 94296540291.93944,
+  "wd_predicted_dmu_field": {
+   "GD133": 3.760299786637233e-05,
+   "G29-38": 5.953807995508953e-05
+  },
+  "wd_measured": {
+   "GD133": [
+    -2.7e-05,
+    4.70425339453563e-05
+   ],
+   "G29-38": [
+    -5.8e-05,
+    3.811823710509184e-05
+   ]
+  },
+  "xi_max_long_range": {
+   "clock": 4.897077638713409e-07,
+   "ep": 1.6776861538102804e-12,
+   "wd": 0.35668281940011926
+  }
+ },
+ "paper_point": {
+  "lambda_m": 9.093409232184167e-16,
+  "lambda_fm": 0.9093409232184168,
+  "sigma_at_nuclear_density": 6.543048270265708e-40,
+  "rho_nuclear": 2.6798839968547197e+17,
+  "rho_planck": 5.154848506403409e+96,
+  "rho_for_sigma": {
+   "0.336": 1.376179703633181e+56,
+   "0.405": 1.6587880356292807e+56,
+   "1.0": 4.095772927479705e+56,
+   "1.844": 7.552605278272577e+56
+  },
+  "xi_max_at_paper_lambda": {
+   "clock": Infinity,
+   "ep": Infinity
+  }
+ }
+}
