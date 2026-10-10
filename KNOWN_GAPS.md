@@ -4,6 +4,9 @@ Per GOLDEN_RULES: every `# PHYSICS_GAP:` / `# GEOMETRY_GAP:` tag worth
 tracking above file level lands here, so gaps get reviewed instead of
 quietly accumulating.
 
+Cross-index: the unification program's full gap census (engine defects, missing capabilities such as the
+nuclear-matter EOS, and open decisions) is [misc/MENTAT_GAPS_UNIFICATION.md](misc/MENTAT_GAPS_UNIFICATION.md).
+
 ## PHYSICS_GAP: electrolyte/soil corrosion kinetics not modeled (2026-07-15)
 
 `sigma_ground/field/interface/corrosion.py` computes DRY-AIR Wagner oxidation
@@ -293,4 +296,18 @@ Found by unification Stage 7 (`scripts/unification/stage7_maxwell_crossover.py`)
 - Fix direction: read T_melt from the same CRC table the `melting_point` tool uses;
   cite or derive the 0.7 cap; align the docstring with the SLS code.
 - Regression sentinel to add: `_relaxation_ratio('aluminum', 900)` must use 933.47 K.
+
+## PHYSICS_GAP: Eyring liquid-metal viscosity is 10³–10⁶× too high (2026-10-10)
+
+`sigma_ground/field/interface/fluid.py::eyring_viscosity` (η = (h N_A/V_m)·exp(0.408·E_coh/RT)) returns, at each
+metal's melting point, aluminum 1170 Pa·s, copper 10.8 Pa·s, iron 4.06 Pa·s. Measured liquid-metal viscosities near
+melting are a few mPa·s (order of magnitude; Assael et al. 2006, J. Phys. Chem. Ref. Data 35, 285 give the Al and Fe
+reference correlations — exact values not re-fetched in this session). The docstring claims ±30 %. Any caller using
+liquid-metal viscosity (Reynolds numbers, drag in melts, η/s comparisons) inherits the error. Found by unification
+Stage 9b while placing matter on the η/s axis.
+
+- Fix direction: re-derive the activation energy for viscous flow of metals (it is a small fraction of E_coh, not
+  0.408 of it) or fall back to the measured reference correlations with a `PHYSICS_GAP` tag; add a regression test
+  against Assael 2006 at T_melt.
+- Decision for the Captain: derived-with-error vs measured-with-citation.
 

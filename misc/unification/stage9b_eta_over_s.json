@@ -1,0 +1,20 @@
+{
+ "KSS_K_s": 6.078312356035156e-13,
+ "sources": {
+  "hbar": "sigma_ground.field.constants",
+  "k_B": "sigma_ground.field.constants"
+ },
+ "water": {
+  "T": 298.15,
+  "eta": 0.0008904389816146542,
+  "rho": 997.0448954179155,
+  "s_volumetric": 3871401.078794515,
+  "eta_over_s": 2.3000432233487955e-10,
+  "over_KSS": 378.40161686739947
+ },
+ "horizon_over_KSS": 1.0,
+ "qgp_over_KSS_band_LIT": [
+  1.0,
+  3.0
+ ]
+}

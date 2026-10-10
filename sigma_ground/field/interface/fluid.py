@@ -209,6 +209,14 @@ def eyring_viscosity(material_key, T=1000.0, sigma=SIGMA_HERE):
         Dynamic viscosity in Pa·s.
 
     Accuracy: ±30% for simple metallic melts near T_melt.
+
+    PHYSICS_GAP (2026-10-10): the claimed ±30 % does not hold. At their melting
+    points this returns Al 1170 Pa·s, Cu 10.8 Pa·s, Fe 4.06 Pa·s, while measured
+    liquid metals are a few mPa·s (order of magnitude; e.g. the Assael et al.
+    2006 J. Phys. Chem. Ref. Data 35, 285 Al/Fe reference correlations — values
+    not re-fetched here) — 10³–10⁶× too viscous. The prefactor h·N_A/V_m alone is
+    ~0.04 Pa·s and _F_EYRING·E_coh makes the exponent large. Filed in
+    KNOWN_GAPS.md; Mentat flags, never fixes.
     """
     mat = MATERIALS[material_key]
     A_kg = mat['A'] * _AMU_KG
