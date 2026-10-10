@@ -5,6 +5,7 @@ field.interface.atomic_spectra.
 """
 from __future__ import annotations
 
+import math
 from typing import Any
 
 from sigma_ground.mcp.provenance import ToolResult
@@ -94,12 +95,23 @@ def zeeman_effect_analysis(total_angular_momentum_j: float = 1.0) -> dict[str, A
     into in a magnetic field (2j+1 values of m_j).
     e.g. zeeman_effect_analysis(1.0) -> 3 sublevels."""
     from sigma_ground.field.interface import atomic_spectra as A
-    n, err = _safe_call(A.zeeman_splitting_count, total_angular_momentum_j)
-    results = {"zeeman_sublevels": n}
-    errors = {"zeeman_sublevels": err} if err else {}
-    return ToolResult(value=results, units="dimensionless",
+    j = total_angular_momentum_j
+    n, err = _safe_call(A.zeeman_splitting_count, j)
+    try:
+        echo = j if math.isfinite(float(j)) else repr(j)     # nan/inf aren't JSON
+    except (TypeError, ValueError):
+        echo = repr(j)
+    if err:
+        # j must be 0, 1/2, 1, 3/2, ...; it used to be int(2j + 1) of anything
+        # (j = 1.3 -> "3 sublevels", j = -2 -> "-3")
+        return ToolResult(value=None, units="dimensionless",
+                          source="sigma_ground.field.interface.atomic_spectra",
+                          provenance_tag="DERIVED",
+                          notes=f"total_angular_momentum_j must be a non-negative integer "
+                                f"or half-integer (0, 1/2, 1, 3/2, ...): {err}",
+                          inputs={"total_angular_momentum_j": echo}).to_dict()
+    return ToolResult(value={"zeeman_sublevels": n}, units="dimensionless",
                       source="sigma_ground.field.interface.atomic_spectra",
                       provenance_tag="DERIVED",
                       formula="number of m_j values = 2j + 1",
-                      notes=_notes_from_errors(errors),
-                      inputs={"total_angular_momentum_j": total_angular_momentum_j}).to_dict()
+                      inputs={"total_angular_momentum_j": echo}).to_dict()

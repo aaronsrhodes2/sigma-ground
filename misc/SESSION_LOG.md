@@ -3442,3 +3442,30 @@ depended on test order.
   `verify_artifacts` / `D:\` viewer.js tests plus known-red `test_targets.py`), 36.5 min. Sentinel silent, tree
   clean afterwards: nothing in the whole suite writes into `radiance/web/data/` any more. Merged master (GMod
   holodeck work, 51 files under `stage/gmod/`, no overlap); layering + output-dir + front-door tests re-run green.
+
+## Session 37 (continued) — 2026-10-10 — Zeeman count and pattern fixed (finding 8)
+
+### Cause
+`field/interface/atomic_spectra.py`:
+- `zeeman_splitting_count(j)` was `int(2j + 1)` of anything (j = 1.3 → 3 sublevels, j = −2 → −3).
+- `zeeman_pattern(l, s, j, B)` had the same unbounded `while m_j <= j` loop that OOM-killed the server through
+  `atomic_angular_momentum`: j = 1.3 gave m_j = −1.3, −0.3, 0.7, and an infinite j never ended. It also accepted
+  states that don't exist (|l=1, s=½, j=7/2⟩).
+- The MCP tool `zeeman_effect_analysis` passed j straight through.
+
+### Fix
+- Both functions use last round's `angular_momentum.check_quantum_number` (same tier, no import cycle).
+- `zeeman_pattern` also requires an integer l and j reachable from l and s (|l−s| ≤ j ≤ l+s in integer steps),
+  and builds m_j by index via `angular_momentum_z_values` (exact). J = 0 still gives one level with no shift.
+- The tool declines a non-physical j (value None, reason in notes) and echoes nan/inf as text so the reply stays
+  valid JSON.
+
+### Guard
+- `test_atomic_spectra`:
+  - the count rejects 1.3 / −2 / −0.5 / nan / inf and snaps float noise;
+  - the pattern rejects impossible states, including infinite j, which now raises instead of looping;
+  - m_j values are exact, and J = 0 gives no splitting.
+- New `mcp/test_spectra_tools.py`: sublevels for physical j; non-physical j declines with strict-JSON replies.
+- Safe pre-fix runs failed as intended; the infinite-j case was not run against the old code. Real server:
+  2.5 → 6 sublevels; 1.3 and −2 decline.
+- 292 passed (+ known-red `test_targets.py`); Materia 52 passed; tree clean.

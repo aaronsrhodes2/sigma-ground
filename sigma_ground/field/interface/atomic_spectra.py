@@ -421,9 +421,12 @@ def zeeman_splitting_count(j):
 
     Count = 2j + 1 (from m_j = −j to +j in integer steps).
 
-    FIRST_PRINCIPLES: angular momentum quantization.
+    FIRST_PRINCIPLES: angular momentum quantization. j must be a non-negative
+    integer or half-integer (it used to be int(2j + 1) of anything:
+    j = 1.3 -> 3 sublevels, j = -2 -> -3).
     """
-    return int(2 * j + 1)
+    from .angular_momentum import check_quantum_number
+    return int(2 * check_quantum_number(j)) + 1
 
 
 def zeeman_pattern(l, s, j, B_tesla):
@@ -436,16 +439,24 @@ def zeeman_pattern(l, s, j, B_tesla):
         s: spin quantum number
         j: total angular momentum quantum number
         B_tesla: magnetic field (T)
+
+    The state must exist: l a non-negative integer, s and j non-negative
+    integers or half-integers, and j reachable from l and s
+    (|l−s| ≤ j ≤ l+s in integer steps). The old `while m_j <= j` loop ran
+    for any j -- 1.3 gave m_j = −1.3, −0.3, 0.7 and an infinite j never ended.
+    The list has 2j+1 entries.
     """
-    g_J = lande_g_factor(l, s, j)
-    pattern = []
-    # m_j goes from -j to +j in steps of 1
-    m_j = -j
-    while m_j <= j + 0.01:
-        dE = zeeman_shift_eV(m_j, g_J, B_tesla)
-        pattern.append((m_j, dE))
-        m_j += 1.0
-    return pattern
+    from .angular_momentum import angular_momentum_z_values, check_quantum_number
+    l_, s_, j_ = (check_quantum_number(l), check_quantum_number(s),
+                  check_quantum_number(j))
+    if l_ != int(l_):
+        raise ValueError(f"l must be a non-negative integer, got {l}")
+    if not (abs(l_ - s_) <= j_ <= l_ + s_ and (j_ - abs(l_ - s_)) == int(j_ - abs(l_ - s_))):
+        raise ValueError(f"j = {j_:g} is not reachable from l = {l_:g}, s = {s_:g} "
+                         f"(|l−s| ≤ j ≤ l+s in integer steps)")
+    g_J = lande_g_factor(l_, s_, j_)
+    return [(m_j, zeeman_shift_eV(m_j, g_J, B_tesla))
+            for m_j in angular_momentum_z_values(j_)]
 
 
 # ══════════════════════════════════════════════════════════════════════
