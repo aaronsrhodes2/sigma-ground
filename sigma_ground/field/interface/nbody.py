@@ -1121,7 +1121,17 @@ class NBodySystem:
     # ── conserved quantities ────────────────────────────────────────────────
 
     def total_energy(self) -> float:
-        """Total mechanical energy (kinetic + gravitational potential) in J."""
+        """Total mechanical energy (kinetic + gravitational potential) in J.
+
+        PHYSICS_GAP (2026-10-10): this sums the UNSOFTENED 1/r pair potential,
+        while ``compute_accelerations`` integrates Plummer-softened forces when
+        ``softening_m > 0``. The conserved quantity of the integrated system is
+        K + U_soft with U_soft = -Σ G m_i m_j / sqrt(r² + ε²); the number
+        returned here drifts even when the integrator is exact (unification
+        pilot P5: 0.96 % "drift" vs 2.4e-5 for the softened Hamiltonian).
+        Filed in KNOWN_GAPS.md. Mentat flags, never fixes — a fix needs a
+        Captain decision on which energy the API should report.
+        """
         ke = sum(b.kinetic_energy() for b in self.bodies)
         pe = 0.0
         for i, bi in enumerate(self.bodies):

@@ -1,7 +1,7 @@
 # Unification pilots — fluid / thermodynamics / gravity in sigma-ground
 
 **Date:** 2026-10-09/10 · **Status:** ✅ v2 — CORRECTED after adversarial verification (21 verdicts, 3 lenses × 7 pilots, 2026-10-10) ·
-**Program:** [UNIFICATION_PROGRAM.md](UNIFICATION_PROGRAM.md) (being written) · **Scripts:** `scripts/unification/`
+**Program:** [UNIFICATION_PROGRAM.md](UNIFICATION_PROGRAM.md) — Stages 1–2 written 2026-10-10; later stages pending · **Scripts:** `scripts/unification/`
 **Leaf quantities:** Mentat (PLATINUM §21) via `tools/mentat_call.sh` / `tools/mentat_client.py` / `mcp__mentat__*`; the engines
 driven directly are Mentat's own (`dynamics.fields.heat`, `dynamics.continuum`, `field.interface.nbody`). Where a script still
 imports a constant directly, the verification confirmed it equals Mentat's (`lookup_constant`, source `sigma_ground.field.constants`).
@@ -11,7 +11,9 @@ scored seven pilots as "same". The verification kept every number and rejected m
 seven ways: **a statement that is true for any linear field, any force law, or any choice of constants is not evidence
 about gravity.** What follows is the corrected record. Tags: [VERIFIED] established physics reproduced by an engine;
 [DERIVED] follows algebraically from stated inputs; [CONSISTENCY] true by construction (not evidence); [RESIDUAL] a measured
-gap that is itself a finding; [LIT] imported from the literature, not tested here; [SPECULATIVE] fenced, never a pass/fail input.
+gap that is itself a finding; [INCONCLUSIVE] the record holds conflicting measurements or an untested alternative; [LIT] imported from the literature, not tested here; [SPECULATIVE] fenced, never a pass/fail input.
+
+**Could any of these tests have failed?** No. Any static linear field is Poisson's equation (P1, P6, P7); the virial identity holds for any force law (P2b); P3 and P4 are identities evaluated from one constants module; P5 reduces to Q ≈ 1, which the initial conditions set. A test that cannot fail is engine validation, not a test of the thesis — the referee's one-line summary of this round, adopted here as the file's own verdict.
 
 ---
 
@@ -23,7 +25,7 @@ gap that is itself a finding; [LIT] imported from the literature, not tested her
 | P2/P2b | one equation confirmed [VERIFIED] | the engine satisfies the Lagrange–Jacobi virial identity: gravity term to 0.4 %, pressure term at x = 0.72–0.81 [RESIDUAL] | the identity holds for ANY forces (a spring and a magnet share it); "converging to the continuum" is an extrapolation a persistent-deficit model fits equally; "surface layer" is wrong — the whole cloud is sub-resolved |
 | P3 | exact dictionary c → c_s [DERIVED] | κ = 2c_s³/GM and the Bondi inflow slope −1 [DERIVED]; Hawking's form T = ħκ/2πk_B is universal [LIT] | it is NOT the c → c_s dictionary (r_sonic = r_s(c→c_s)/4); the 8(c_s/c)³ column is an identity by construction; nothing was simulated |
 | P4 | complete thermodynamic structure [VERIFIED] | first law + Smarr hold for Mentat's T_H, S_BH formulas [CONSISTENCY] | four rows are two identities; Verlinde closes by convention (N = A/4l_P² gives 4); "thermo" here is horizon thermodynamics, not gas thermodynamics; nothing fluid was tested |
-| P5 | C_grav = −C_gas to 3 % [VERIFIED] | the SIGN: E = −K for a bound system [DERIVED]; the engine holds the virial ratio Q ≈ 1 ± 0.05 [VERIFIED] | the magnitude is the identity C/C_gas = 1 − 2/Q with Q ≈ 1 by construction; the two rows were one run rescaled; "3 %" is seed-specific (−0.96/−1.30/−1.12) |
+| P5 | C_grav = −C_gas to 3 % [VERIFIED] | the SIGN: E = −K for a bound system [DERIVED]; dT/dE < 0 in every fixed-seed, fixed-R pair; cloud at Q = 0.93 ± 0.06 | the magnitude is the identity C/C_gas = 1 − 2/Q with Q ≈ 1 by construction; the two rows were one run rescaled; "3 %" is seed-specific (−0.96/−1.30/−1.12) |
 | P6 | σ sourced by the fluid's thermodynamic state [DERIVED] | the trace R ∝ ρc² − 3P and its sign flip at 3P = ρc² [DERIVED]; the 3P/ρc² magnitude table | "same operator" is automatic for any static scalar; Φ is sourced by ρ + 3P/c² at the same order (Tolman), so the "three sources" sentence was inconsistent; the horizon row is outside validity; □σ = −ξR is a [SPECULATIVE] postulate ("Candidate A") with R undefined in the live repo |
 | P7 | three fields of one operator, monopole to 5e-5 [VERIFIED] | the n = 1 polytrope identities and the two-source linear solve [DERIVED]; central σ reduced by 0.609·w_c [DERIVED] | the 5e-5 columns are source quadrature, never touched the solver; no T field was solved; the weak-field truncation drops a metric term (8/3)w_c that is 4.4× the retained pressure term; the w_c = 0.5 row is invalid |
 
@@ -49,8 +51,8 @@ stable_dt; walls Dirichlet-pinned to the exact Newtonian values; comparison in t
 | grid | exterior max rel. err (as run) | fixed-region ratio | interior max rel. err (splitting) | note |
 |---|---|---|---|---|
 | 16³ | 4.15e-3 (median 9.6e-4) | — | 12.4 % | 4.5 % at 1× stable_dt |
-| 32³ | 1.74e-3 (median 2.9e-4) | 2.75 vs 16³ | 4.1 % | median falls to 2.2e-4 at 16τ (not time-converged at 8τ) |
-| 64³ | 1.51e-3 (verification run) | 2.49 vs 32³ | 1.1 % | staircase floor; order ≈ 1.3–1.5 |
+| 32³ | 1.74e-3 (median 2.9e-4); 1.62e-3 at 1× stable_dt and 12 τ_eff (Stage 3 rerun) | 2.75 vs 16³ (fixed region) | 4.1 % | median falls to 2.2e-4 at 16τ (not time-converged at 8τ) |
+| 64³ | 1.51e-3 as run (ratio 1.15 vs 32³ as run: the staircase floor); 6.06e-4 on the fixed region | 2.49 vs 32³ (fixed region) | 1.1 % | fixed-region order ≈ 1.3–1.5; 8τ is 7–25 % short of time convergence |
 
 **Boundary caveat (the number that was missing).** With walls pinned to a constant instead of the exact exterior values the
 same solver gives 20–29 % exterior error; with q₀ = 0 and exact walls alone, 47–58 %. The 0.17 % figure therefore measures
@@ -71,7 +73,7 @@ lattice is ~8 % off 1/(4πr) at r = dx (lattice Green's function G(0) = 0.2527/d
 
 ---
 
-## P2 / P2b — The virial identity in SPH: gravity term exact to 0.4 %, pressure term at 72–81 % [DERIVED + RESIDUAL]
+## P2 / P2b — The virial identity in SPH: gravity term to 0.4 %, pressure term at 72–86 % [DERIVED + RESIDUAL]
 
 **Claim tested.** The Lagrange–Jacobi identity `½ d²I/dt² = 2K + Σ r·F` holds for *any* particle system with *any* forces;
 for an isothermal self-gravitating gas its continuum form is `½Ï = 2K + 3∫P dV + U`, and a cold uniform sphere starts to
@@ -91,12 +93,13 @@ the two. The crossover's existence is the only P2 claim.
 **P2b (direct measurement of Ï at t → 0).** Define the pressure-virial efficiency x = Σ m r·a_press / (3Mc_s²). Exact t = 0
 sums from the engine's own accelerations (verification), and the pilot's quadratic-fit values for comparison:
 
-| N | 2h/R | kernel neighbours | gravity term −Σ m r·a_grav / |U₀| | x exact (seed 7) | x ensemble (4–6 seeds) | x fit (pilot) |
+| N | 2h/R | kernel neighbours | gravity term −Σ m r·a_grav / |U₀| | x exact (seed 7) | x ensemble (6/6/4/2 seeds) | x fit (pilot) |
 |---|---|---|---|---|---|---|
 | 64 | 1.21 | 43 | 0.9966 | 0.720 | 0.711 ± 0.021 | 0.734 |
 | 128 | 0.96 | 56 | 0.9967 | 0.770 | 0.760 ± 0.010 | 0.781 |
 | 256 | 0.76 | 67 | 0.9956 | 0.793 | 0.789 ± 0.013 | 0.804 |
-| 512 | 0.60 | 76 | 0.9953 | 0.814 | 0.822 | 0.822 |
+| 512 | 0.60 | 76 | 0.9953 | 0.814 | 0.822 (2 seeds) | 0.822 |
+| 1024 / 2048 | — | — | — | 0.849 / 0.863 (verification, direct sums) | — | — |
 
 - Gravity term: 0.995–0.997 of the **unsoftened** |U₀| — the Plummer factor r²/(r²+ε²), 0.1 % at ε = 0.0025R. Not "exact".
 - x is c_s-independent **by construction** (the isothermal SPH force is linear in c_s² at fixed positions; exact sums agree
@@ -105,14 +108,15 @@ sums from the engine's own accelerations (verification), and the pilot's quadrat
   pure power law with x → 1 (rms 0.0054) and a persistent-deficit model with x_∞ ≈ 0.92 (rms 0.0055) fit equally.
   **"Converging to the continuum" is not shown.** There is no "surface layer": 2h/R = 0.6–1.2, no particle has full kernel
   support at N ≤ 128, and x is non-monotonic in h at fixed N (0.64 / 0.73 / 0.69 / 0.60 at 1.0× / 1.5× / 2.0× / 2.5×).
-  The deficit is a kernel-resolution artefact of a sub-resolved cloud.
+  The deficit is most plausibly a kernel-resolution artefact of a sub-resolved cloud [INCONCLUSIVE — a persistent closure
+  deficit x_∞ ≈ 0.92 fits the same data]; the decisive discriminator is a periodic uniform box with no free surface.
 - f* = 0.447/√x matches the r_median crossover at N = 64 only (0.523 vs 0.521); at N = 128 it predicts 0.506 vs 0.527
   observed. "I'' crosses zero at exactly 3Mc_s²·x = |U₀|" was a tautology (it is the definition of x).
 
-**Verdict.** [VERIFIED] the engine's virial sign structure and gravity term; [RESIDUAL] the pressure term at 72–81 %, not yet
+**Verdict.** [VERIFIED] the engine's virial sign structure and gravity term; [RESIDUAL] the pressure term at 72–86 % (N = 64–2048), not yet
 shown to reach 100 %. As evidence for the thesis: none — the identity is a theorem of mechanics for any force law.
-As engine validation: the SPH closure under-delivers pressure in dilute, sub-resolved clouds; a Wendland kernel or a
-density-corrected free surface is the lever, and the default packing-radius h in `to_continuum` makes such clouds
+As engine validation: the SPH closure under-delivers pressure in dilute, sub-resolved clouds; a Wendland kernel (not in the
+repo — `dynamics/fluid/kernel.py` implements the cubic spline only) or a density-corrected free surface is the lever, and the default packing-radius h in `to_continuum` makes such clouds
 pressureless (every run collapsed until h was set by hand).
 
 ---
@@ -125,8 +129,10 @@ reproduces Bondi 1952's γ = 1 eigenvalue λ_c = e^{3/2}/4 = 1.120; the second-o
 du/dx, not L'Hôpital) gives du/dx = ±1 and the inflow branch is −1 (confirmed independently by a brentq root trace).
 Hence κ = |dv/dr| = c_s/r_sonic = 2c_s³/GM (a Killing-vector computation shows κ² = v'² for any conformal factor, which is
 what licenses the (t, r) wave-equation form) and T_analog = ħκ/2πk_B — the universal Hawking form [LIT: Unruh 1981;
-Visser 1998]. Mentat leaves: T_H = 6.1684e-8 K, r_s = 2954.13 m (`gr_basics`); ħ, k_B, G, c (`lookup_constant`);
-cross-check T_analog via `unruh_temperature` at a = κc.
+Visser 1998]. Mentat leaves in the script: T_H = 6.1684e-8 K, r_s = 2954.13 m, S_BH (`gr_basics`); r_sonic, κ and T_analog
+are computed in-script from `sigma_ground.field.constants` (equal to Mentat `lookup_constant`). In verification, not in the
+script, T_analog was cross-checked via Mentat `unruh_temperature` at a = κc = 4.5166e-3 m/s² → 1.83149e-23 K
+(source "sigma-ground (Unruh 1976)").
 
 | c_s (m/s) | r_sonic (m), 1 M☉ | κ (1/s) | T_analog (K) | T_analog/T_H |
 |---|---|---|---|---|
@@ -168,10 +174,15 @@ R = 5000 m run under exact Newtonian similarity (E, T halved to 13 digits), not 
 −1.30 and −1.12 (Q = 0.868, 0.944); the window alone moves it by ±4 %; the cloud is still expanding at 2–4 t_ff
 (I grows 1.4–1.8×), so "virialised" was not demonstrated. The v1 attribution "virial excess from softening, squared" was
 wrong twice: the deviation is 2(Q−1), first order, and softening lowers Q rather than raising it.
-Mentat leaves: k_B = 1.380649e-23 J/K, G (`lookup_constant`); t_ff computed in-script (no Mentat tool).
+Genuine fixed-R energy sweeps run in verification (initial Q₀ = 0.5–1.5, seed 11) give C/C_gas = −1.24 (all particles) /
+−1.11 (bound only) / −1.03 (linear fit over Q₀ = 0.6–1.4), with pairwise finite differences from −0.8 to −4.2 and one
+cross-seed pair at +0.55: the sign holds in every non-homologous pair at fixed seed; the magnitude is [INCONCLUSIVE].
+Leaf constants k_B = 1.380649e-23 J/K and G = 6.6743e-11 m³ kg⁻¹ s⁻² are imported from `sigma_ground.field.constants` in
+the script (verification confirmed them equal to Mentat `lookup_constant`); t_ff is computed in-script (no Mentat tool).
 
-**Verdict.** The engine keeps Q ≈ 1 ± 0.05, so its bound systems have negative kinetic heat capacity of magnitude
-~(3/2)Nk_B within the virial scatter of a 64-body cloud. A measured C needs relaxed equilibria (Plummer/King), ≥ 10 t_ff,
+**Verdict.** The engine's 64-body cloud sits at Q = 0.93 ± 0.06 across seeds 11–14 (1.016 / 0.868 / 0.944 / 0.894), with
+±5–11 % oscillation inside one run, so its bound systems have negative kinetic heat capacity of magnitude ~(3/2)Nk_B
+within that scatter. A measured C needs relaxed equilibria (Plummer/King), ≥ 10 t_ff,
 several seeds, energies differing by more than the scatter, and a fit — program item.
 
 ---
@@ -220,7 +231,9 @@ below 10⁻⁵ of ρ for everything short of degenerate matter.
 identities, sympy-confirmed). The solver-dependent result: Ψ_c/Φ_c = 1 − (I/2)w_c with I = ∫₀^π sin²x/x dx = 1.21883
 (Mentat sympy), i.e. central σ reduced by 0.609 w_c (6.1 % at w_c = 0.1), and interior reshaping 1.1e-4 / 1.2 % / 7.4 %
 matching the analytic 0.109 w_c; the solver's own error against the exact n = 1 potential is 0.70 % max at the centre,
-0.16 % median, 0.04 % exterior (+0.45 % centre bias from the 20× split).
+0.16 % median, 0.04 % exterior. The cause of the +0.45 % centre bias is [INCONCLUSIVE] between lenses (splitting at 20×
+stable_dt, measured +2.0 % on a 24³ grid, vs discretisation). Stage 3 rerun at 1× stable_dt on 28³: Ψ_c/Φ_c =
+0.99939 / 0.93868 / 0.69339 for w_c = 1e-3 / 0.1 / 0.5 against the closed form 1 − 0.609·w_c = 0.99939 / 0.93906 / 0.6953.
 
 | w_c | ρ_c (kg/m³) | M | r_s/R | σ_c | σ_c, ρ only | status |
 |---|---|---|---|---|---|---|
@@ -230,8 +243,9 @@ matching the analytic 0.109 w_c; the solver's own error against the exact n = 1 
 
 **The order problem (found in verification).** The covariant □σ on the weak-field metric reduces to
 (1 + 2Φ/c²)∇²σ = −(8πGξ/c²)(ρ − 3P/c²) + …; for any hydrostatic body 3P/ρc² ~ Φ/c² (virial), and on this polytrope the
-dropped metric term is (8/3)w_c at the centre — **4.4× the retained pressure term**. The 6 % / 31 % reshaping figures are
-therefore the leading term of an expansion whose other same-order terms were dropped. Either the metric factor is carried
+dropped metric term is (8/3)w_c at the centre — **4.4× the retained pressure term and opposite in sign**. The 6 % (w_c = 0.1)
+reshaping figure is therefore the leading term of an expansion whose other same-order terms were dropped; the 31 %
+(w_c = 0.5) figure is withdrawn with its row. Either the metric factor is carried
 (the same solver can do it by rescaling the source with Φ from the same run) or the quantitative P-term claims are
 confined to the exactly trace-free statements.
 
@@ -242,8 +256,9 @@ confined to the exactly trace-free statements.
 1. **SPH has no first law** — `continuum_step` books conduction and the external source only; no PdV, no viscous heating
    (Phase E cloud −387 % "mechanical energy loss"). Tagged `# PHYSICS_GAP`, filed in `KNOWN_GAPS.md`. Fix in the program (S8).
 2. **`NBodySystem.total_energy()` ignores softening** — it sums the unsoftened 1/r potential while `step()` integrates
-   Plummer-softened forces (`nbody.py:1123` vs `:407`); the "0.96 % drift" is the drift of a non-conserved quantity
-   (the softened Hamiltonian drifts 2.4e-5).
+   Plummer-softened forces (`nbody.py` `total_energy` vs `compute_accelerations`); the "0.96 % drift" is the drift of a
+   non-conserved quantity (the softened Hamiltonian drifts 2.4e-5). Filed in `KNOWN_GAPS.md` (2026-10-10) with a
+   `PHYSICS_GAP` note in the method's docstring.
 3. **σ normalisation is ambiguous by a factor 2** — field-equation reading σ = 2ξGM/rc² vs `inventory.sigma_from_potential`
    and `field/audit.py:143-161` (ξGM/rc²), plus a docstring value (7e-10) that is the bare compactness.
 4. **ξ = 0.1582 does not match its own docstring** — Ω_b h² = 0.02237, Ω_c h² = 0.1200 give 0.1571; 0.1582 is the Planck +BAO column.
@@ -254,15 +269,15 @@ confined to the exactly trace-free statements.
 
 ## Scoreboard (corrected)
 
-| pilot | bridge | evidential weight for "one phenomenon" | engine validation value |
-|---|---|---|---|
-| P1 | heat ↔ gravity | none (any static linear field is Poisson) | FVM is a correct Poisson solver; splitting and boundary caveats quantified |
-| P2/P2b | fluid ↔ thermo ↔ gravity | none (virial identity holds for any forces) | gravity term 0.4 %; pressure closure 72–81 %, sub-resolved regime characterised |
-| P3 | fluid → gravity | analogy [LIT]; nothing simulated | Bondi slope and surface gravity derived; a transonic run is the real test |
-| P4 | horizon thermo → gravity | none (identities by construction, convention-dependent) | Mentat BH tools mutually consistent; l_P lookup gap |
-| P5 | gravity ↔ gas thermo | the SIGN is a real difference [DERIVED] | N-body holds Q ≈ 1 ± 0.05; `total_energy` softening gap |
-| P6 | σ ↔ fluid state | conditional on a [SPECULATIVE] postulate; the trace's sign structure is real | factor-2 and ξ inconsistencies found |
-| P7 | σ polytrope | incomplete at its own order; weak-field rows only | solver error 0.7 %; metric term must be carried |
+| pilot | bridge | evidential weight for "one phenomenon" | engine validation value | could it have failed? |
+|---|---|---|---|---|
+| P1 | heat ↔ gravity | none (any static linear field is Poisson) | FVM is a correct Poisson solver; splitting and boundary caveats quantified | no — any static linear field is Poisson |
+| P2/P2b | fluid ↔ thermo ↔ gravity | none (virial identity holds for any forces) | gravity term 0.3–0.5 % (Plummer); pressure closure 72–86 % (N = 64–2048), sub-resolved; free-surface vs estimator cause untested | no — the identity holds for any force law |
+| P3 | fluid → gravity | analogy [LIT]; nothing simulated | Bondi slope and surface gravity derived; a transonic run is the real test | no — algebra in one constants module |
+| P4 | horizon thermo → gravity | none (identities by construction, convention-dependent) | Mentat BH tools mutually consistent; l_P lookup gap | no — identities by construction |
+| P5 | gravity ↔ gas thermo | the SIGN is a real difference [DERIVED; holds in every fixed-R pair]; magnitude [INCONCLUSIVE] | N-body cloud at Q = 0.93 ± 0.06; `total_energy` softening gap filed | no at t = 0 (Q ≈ 1 set by the ICs); the fixed-R sweeps could, and gave the sign |
+| P6 | σ ↔ fluid state | conditional on a [SPECULATIVE] postulate; the trace's sign structure is real | factor-2 and ξ inconsistencies found | no — automatic for any static linear scalar |
+| P7 | σ polytrope | incomplete at its own order; weak-field rows only | solver error 0.7 % (centre-bias cause [INCONCLUSIVE]); metric term must be carried | no — quadrature columns; the solver rows are superposition |
 
 > **[SPECULATIVE — the Captain's wider thesis, filed at his request, never a pass/fail input]:** that this one force also
 > underlies black holes, dark energy, dark matter and holography; that light's speed is not fundamentally finite but

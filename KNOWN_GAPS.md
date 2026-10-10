@@ -246,3 +246,20 @@ dissipation is booked.
   (K + U_grav + U_int) to `phase_e.diagnostics` and gate on conservation.
 - Regression sentinel to add: an isolated viscous collision of two parcels must
   conserve K + U_int to integrator tolerance.
+
+## PHYSICS_GAP: NBodySystem.total_energy() ignores Plummer softening (2026-10-10)
+
+`sigma_ground/field/interface/nbody.py::NBodySystem.total_energy` sums the
+unsoftened pair potential −G m_i m_j / r while `compute_accelerations` applies
+Plummer softening r² → r² + ε² whenever `softening_m > 0`. The integrator then
+conserves K + U_soft, not the reported quantity: in unification pilot P5
+(N = 64, ε = 0.02R, 4 t_ff) the reported "energy drift" was 0.96 % while the
+softened Hamiltonian drifted 2.4e-5. Every N-body energy-conservation claim in
+the repo that used softening is a statement about a non-conserved bookkeeping
+number. Found by the adversarial verification of the unification pilots.
+
+- Fix direction: give `total_energy()` a `softened=True` path that uses
+  `sqrt(r² + softening_m²)`, and make `phase_e.diagnostics` report both.
+- Regression sentinel to add: a softened two-body orbit must conserve the
+  softened energy to integrator tolerance over many periods.
+- Decision for the Captain: which energy the public API reports by default.

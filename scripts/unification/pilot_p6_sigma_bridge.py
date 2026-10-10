@@ -42,7 +42,7 @@ rs_E, src_rs = mentat('schwarzschild_radius', {'mass_kg': M_E})
 rs_S, _ = mentat('schwarzschild_radius', {'mass_kg': M_S})
 
 states = [  # (label, rho kg/m³, P Pa, provenance)
-    ('air, 288.15 K, 1 atm', rho_air, P_air, src_air),
+    ('air, 293.15 K (20 C), 1 atm', rho_air, P_air, src_air),
     ('water, 1 atm', rho_w, P_air, src_w),
     ('iron, 1 atm', rho_fe, P_air, src_fe),
     ('Sun core', 1.5e5, 2.5e16, '[LIT] Bahcall et al. 2005 standard solar model (not a Mentat tool)'),
