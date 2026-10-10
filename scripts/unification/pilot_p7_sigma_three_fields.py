@@ -1,4 +1,7 @@
-"""Pilot P7 — the σ-bridge as three fields of one operator, on a Lane–Emden n = 1 polytrope.
+"""Pilot P7 — two sources (ρ and ρ − 3P/c²) through the P1 Poisson solver on a Lane–Emden n = 1 polytrope.
+VERIFICATION NOTE (2026-10-10): Q_Ψ/Q_Φ and r_s/R are source quadrature (consistency by construction); the solver-dependent
+result is Ψ_c/Φ_c = 1 − (I/2) w_c with I = ∫₀^π sin²x/x dx = 1.21883; the weak-field σ equation drops a (1 + 2Φ/c²) metric
+factor that is (8/3) w_c at the centre — 4.4× the retained pressure term — so w_c = 0.5 is outside validity and w_c = 0.1 marginal.
 
 ∇²Φ = 4πG ρ            (Newtonian potential)
 ∇²Ψ = 4πG (ρ − 3P/c²)  (σ-potential: σ = −(2ξ/c²) Ψ, from □σ = −ξR, static weak field)
@@ -45,7 +48,8 @@ for w_c in (1e-3, 1e-1, 5e-1):
     # interior shape test: pressure term is more centrally concentrated than ρ → Ψ/(1−w_c/2) ≠ Φ inside
     ratio_mono = Q_psi / Q_phi
     shape_dev = float(np.max(np.abs(Psi / ratio_mono - Phi)[inside]) / np.max(np.abs(Phi)))
-    rows.append(dict(w_c=w_c, rho_c_kg_m3=rho_c, M_kg=M, R_m=R, compactness_rs_over_R=r_s / R, predicted_compactness=4 * w_c / 3,
+    M_J = 1.89813e27   # Mentat solar_system_body('jupiter'), NASA Planetary Fact Sheet 2024
+    rows.append(dict(w_c=w_c, rho_c_kg_m3=rho_c, M_kg=M, M_over_M_jupiter=M / M_J, R_m=R, compactness_rs_over_R=r_s / R, predicted_compactness=4 * w_c / 3,
                      Q_psi_over_Q_phi=ratio_mono, predicted_1_minus_wc_over_2=1 - w_c / 2,
                      interior_shape_deviation_frac=shape_dev,
                      sigma_centre=float(sigma[inside].min() if sigma[inside].min() < 0 else sigma[inside].max()),
