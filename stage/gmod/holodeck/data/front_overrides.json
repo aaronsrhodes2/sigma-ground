@@ -1,0 +1,21 @@
+{
+ "models/props/cs_office/sofa.mdl": 0,
+ "models/props/cs_office/sofa_chair.mdl": 0,
+ "models/props/cs_office/bookshelf1.mdl": 0,
+ "models/props/cs_office/bookshelf2.mdl": 0,
+ "models/props/cs_office/bookshelf3.mdl": 0,
+ "models/props_interiors/furniture_shelf01a.mdl": 0,
+ "models/props/cs_office/file_cabinet1.mdl": 0,
+ "models/props/cs_office/file_cabinet2.mdl": 0,
+ "models/props/cs_office/file_cabinet3.mdl": 0,
+ "models/props_lab/filecabinet02.mdl": 0,
+ "models/props/cs_militia/microwave01.mdl": 0,
+ "models/props/cs_office/vending_machine.mdl": 270,
+ "models/props/cs_militia/wood_bench.mdl": 90,
+ "models/props/de_inferno/bench_wood.mdl": 0,
+ "models/props_c17/lockers001a.mdl": 0,
+ "models/props/de_train/lockers001a.mdl": 0,
+ "models/props_wasteland/kitchen_fridge001a.mdl": 0,
+ "models/props_c17/furniturestove001a.mdl": 0,
+ "models/props_wasteland/kitchen_stove001a.mdl": 270
+}

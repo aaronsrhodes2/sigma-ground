@@ -1,0 +1,3666 @@
+{
+ "source": "16 independent agents (8 writers, 8 auditors), 2026-10-10; labels follow the semantics table in the writer prompt",
+ "cases": [
+  {
+   "utterance": "add a couch",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "spawn two armchairs",
+   "action": "add",
+   "items": [
+    {
+     "noun": "armchair",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "sofa please",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "give me a dozen chairs",
+   "action": "add",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 12,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "a few stools",
+   "action": "add",
+   "items": [
+    {
+     "noun": "stool",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "can you bring in several benches",
+   "action": "add",
+   "items": [
+    {
+     "noun": "bench",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "chairs please",
+   "action": "add",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "i want a handful of office chairs",
+   "action": "add",
+   "items": [
+    {
+     "noun": "office chair",
+     "count": 5,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "throw in a bunch of bar stools",
+   "action": "add",
+   "items": [
+    {
+     "noun": "stool",
+     "count": 6,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "a pair of recliners",
+   "action": "add",
+   "items": [
+    {
+     "noun": "armchair",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "make me 4 swivel chairs",
+   "action": "add",
+   "items": [
+    {
+     "noun": "office chair",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put a big red leather sofa in here",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [
+      "big",
+      "red",
+      "leather"
+     ]
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "computer, i need lots of dining chairs",
+   "action": "add",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 6,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add some settees",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "give me a loveseat",
+   "action": "add",
+   "items": [
+    {
+     "noun": "loveseat",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "corrected",
+   "note": "'loveseat' is not among the listed names for couch (couch, sofa, settee, davenport, sectional) or any other library kind, so under the strict vocabulary it is UNKNOWN:loveseat. Two readings exist (couch vs unknown); if a couch is wanted, rewrite the request with a listed alias such as 'settee'.",
+   "original": {
+    "utterance": "give me a loveseat",
+    "action": "add",
+    "items": [
+     {
+      "noun": "couch",
+      "count": 1,
+      "adjectives": []
+     }
+    ],
+    "arrangement": "unspecified",
+    "target": "",
+    "scene": ""
+   },
+   "relabel": "catalog decision"
+  },
+  {
+   "utterance": "set up six chairs in a circle",
+   "action": "add",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 6,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "circle",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "line up 4 kitchen chairs side by side",
+   "action": "add",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "row",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "two couches facing each other",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "facing_each_other",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "three sofas in a u shape",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "u_shape",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put five stools against the wall",
+   "action": "add",
+   "items": [
+    {
+     "noun": "stool",
+     "count": 5,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "against_wall",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "make three armchairs face me",
+   "action": "add",
+   "items": [
+    {
+     "noun": "armchair",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "facing_me",
+   "target": "me",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "spawn a bench in front of the desk",
+   "action": "add",
+   "items": [
+    {
+     "noun": "bench",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "in_front_of",
+   "target": "desk",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add four chairs around the table",
+   "action": "add",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "around",
+   "target": "table",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put two stools beside the couch",
+   "action": "add",
+   "items": [
+    {
+     "noun": "stool",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "beside",
+   "target": "couch",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add three hammocks",
+   "action": "add",
+   "items": [
+    {
+     "noun": "UNKNOWN:hammock",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "get rid of every stool",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "stool",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add a couch and two armchairs facing the tv",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "armchair",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "facing_me",
+   "target": "tv",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "move the couch against the wall",
+   "action": "move",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "against_wall",
+   "target": "",
+   "scene": "",
+   "slice": "seating",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add a table",
+   "action": "add",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "spawn two beds",
+   "action": "add",
+   "items": [
+    {
+     "noun": "bed",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "i'd like a cocktail table",
+   "action": "add",
+   "items": [
+    {
+     "noun": "coffee table",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "three mattresses please",
+   "action": "add",
+   "items": [
+    {
+     "noun": "mattress",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "bring in a stretcher bed",
+   "action": "add",
+   "items": [
+    {
+     "noun": "hospital bed",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "make a pair of bunk beds",
+   "action": "add",
+   "items": [
+    {
+     "noun": "bunk bed",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put in 5 desks",
+   "action": "add",
+   "items": [
+    {
+     "noun": "desk",
+     "count": 5,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "throw in some tables",
+   "action": "add",
+   "items": [
+    {
+     "noun": "table",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "can you add a big old wooden desk",
+   "action": "add",
+   "items": [
+    {
+     "noun": "desk",
+     "count": 1,
+     "adjectives": [
+      "big",
+      "old",
+      "wooden"
+     ]
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "a dozen mattresses",
+   "action": "add",
+   "items": [
+    {
+     "noun": "mattress",
+     "count": 12,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "computer, add a conference table",
+   "action": "add",
+   "items": [
+    {
+     "noun": "meeting table",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "spawn a picnic table",
+   "action": "add",
+   "items": [
+    {
+     "noun": "patio table",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "remove the coffee table",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "coffee table",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "get rid of all the beds",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "bed",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "undo that",
+   "action": "undo",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "set up four desks in a row",
+   "action": "add",
+   "items": [
+    {
+     "noun": "desk",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "row",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "lay out 9 meeting tables in a grid",
+   "action": "add",
+   "items": [
+    {
+     "noun": "meeting table",
+     "count": 9,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "grid",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put a table in front of me",
+   "action": "add",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "in_front_of",
+   "target": "me",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add a bed against the wall",
+   "action": "add",
+   "items": [
+    {
+     "noun": "bed",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "against_wall",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put a desk next to the bed",
+   "action": "add",
+   "items": [
+    {
+     "noun": "desk",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "beside",
+   "target": "bed",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add a table and put four chairs around it",
+   "action": "add",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "chair",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "around",
+   "target": "table",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "give me two coffee tables facing each other",
+   "action": "add",
+   "items": [
+    {
+     "noun": "coffee table",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "facing_each_other",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put patio tables in a circle",
+   "action": "add",
+   "items": [
+    {
+     "noun": "patio table",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "circle",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "bring in six hospital beds side by side",
+   "action": "add",
+   "items": [
+    {
+     "noun": "hospital bed",
+     "count": 6,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "row",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put in a bed, a desk and a hammock",
+   "action": "add",
+   "items": [
+    {
+     "noun": "bed",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "desk",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "UNKNOWN:hammock",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "push the bed into the corner",
+   "action": "move",
+   "items": [
+    {
+     "noun": "bed",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "corner",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "rearrange all the desks into a u shape",
+   "action": "rearrange",
+   "items": [
+    {
+     "noun": "desk",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "u_shape",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add a crib",
+   "action": "add",
+   "items": [
+    {
+     "noun": "UNKNOWN:crib",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "tables_beds",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add a bookshelf",
+   "action": "add",
+   "items": [
+    {
+     "noun": "bookshelf",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "spawn three barrels",
+   "action": "add",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "computer, i want two filing cabinets",
+   "action": "add",
+   "items": [
+    {
+     "noun": "filing cabinet",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "give me an old crate",
+   "action": "add",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 1,
+     "adjectives": [
+      "old"
+     ]
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "can you bring in lockers",
+   "action": "add",
+   "items": [
+    {
+     "noun": "locker",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "throw in a big chest",
+   "action": "add",
+   "items": [
+    {
+     "noun": "chest",
+     "count": 1,
+     "adjectives": [
+      "big"
+     ]
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "several boxes please",
+   "action": "add",
+   "items": [
+    {
+     "noun": "box",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "make a dozen crates",
+   "action": "add",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 12,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "spawn 5 metal lockers",
+   "action": "add",
+   "items": [
+    {
+     "noun": "locker",
+     "count": 5,
+     "adjectives": [
+      "metal"
+     ]
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "i'd like loads of barrels",
+   "action": "add",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 6,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "summon a tall dresser",
+   "action": "add",
+   "items": [
+    {
+     "noun": "dresser",
+     "count": 1,
+     "adjectives": [
+      "tall"
+     ]
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "get me a couple of shelves",
+   "action": "add",
+   "items": [
+    {
+     "noun": "shelf",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "get rid of all the barrels",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "undo that",
+   "action": "undo",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "clear the room",
+   "action": "clear",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put four crates in a row",
+   "action": "add",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "row",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "stack up a few boxes",
+   "action": "add",
+   "items": [
+    {
+     "noun": "box",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "stacked",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "two bookshelves against the wall please",
+   "action": "add",
+   "items": [
+    {
+     "noun": "bookshelf",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "against_wall",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "place three barrels in the corner",
+   "action": "add",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "corner",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put a dresser next to the bookshelf",
+   "action": "add",
+   "items": [
+    {
+     "noun": "dresser",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "beside",
+   "target": "bookshelf",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "set a filing cabinet behind the desk",
+   "action": "add",
+   "items": [
+    {
+     "noun": "filing cabinet",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "behind",
+   "target": "desk",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "lay out 9 crates in a grid",
+   "action": "add",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 9,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "grid",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "move the chest to the corner",
+   "action": "move",
+   "items": [
+    {
+     "noun": "chest",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "corner",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "rearrange all the lockers into a row",
+   "action": "rearrange",
+   "items": [
+    {
+     "noun": "locker",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "row",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "one safe please",
+   "action": "add",
+   "items": [
+    {
+     "noun": "UNKNOWN:safe",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "can i get a pallet and two crates",
+   "action": "add",
+   "items": [
+    {
+     "noun": "UNKNOWN:pallet",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "crate",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "stack two crates and a box",
+   "action": "add",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 2,
+     "adjectives": []
+    },
+    {
+     "noun": "box",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "stacked",
+   "target": "",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "turn the filing cabinet to face me",
+   "action": "rotate",
+   "items": [
+    {
+     "noun": "filing cabinet",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "facing_me",
+   "target": "me",
+   "scene": "",
+   "slice": "storage",
+   "audited": "ok"
+  },
+  {
+   "utterance": "give me a small black fridge",
+   "action": "add",
+   "items": [
+    {
+     "noun": "fridge",
+     "count": 1,
+     "adjectives": [
+      "small",
+      "black"
+     ]
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "spawn three microwaves",
+   "action": "add",
+   "items": [
+    {
+     "noun": "microwave",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "i want an oven",
+   "action": "add",
+   "items": [
+    {
+     "noun": "stove",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "bring in a loo",
+   "action": "add",
+   "items": [
+    {
+     "noun": "toilet",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "a big old bathtub please",
+   "action": "add",
+   "items": [
+    {
+     "noun": "bathtub",
+     "count": 1,
+     "adjectives": [
+      "big",
+      "old"
+     ]
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "throw in a bunch of washers",
+   "action": "add",
+   "items": [
+    {
+     "noun": "UNKNOWN:washer",
+     "count": 6,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok",
+   "relabel": "catalog decision"
+  },
+  {
+   "utterance": "computer, add a television",
+   "action": "add",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put in a snack machine",
+   "action": "add",
+   "items": [
+    {
+     "noun": "vending machine",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "can you add a couple of radiators",
+   "action": "add",
+   "items": [
+    {
+     "noun": "radiator",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "a fireplace please",
+   "action": "add",
+   "items": [
+    {
+     "noun": "wood stove",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok",
+   "relabel": "catalog decision"
+  },
+  {
+   "utterance": "add 4 sinks",
+   "action": "add",
+   "items": [
+    {
+     "noun": "sink",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "get me a telephone",
+   "action": "add",
+   "items": [
+    {
+     "noun": "phone",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "get rid of the microwave",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "microwave",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "remove all the tvs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "end program",
+   "action": "clear",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "set up a kitchen",
+   "action": "add",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "kitchen",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "make a bathroom",
+   "action": "add",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "bathroom",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put a tv in front of the couch",
+   "action": "add",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "in_front_of",
+   "target": "couch",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add a fridge right next to the stove",
+   "action": "add",
+   "items": [
+    {
+     "noun": "fridge",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "beside",
+   "target": "stove",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put a phone on the desk",
+   "action": "add",
+   "items": [
+    {
+     "noun": "phone",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "on",
+   "target": "desk",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok",
+   "relabel": "arrangement vocabulary: on"
+  },
+  {
+   "utterance": "line four radiators up against the wall",
+   "action": "add",
+   "items": [
+    {
+     "noun": "radiator",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "against_wall",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add two vending machines facing each other",
+   "action": "add",
+   "items": [
+    {
+     "noun": "vending machine",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "facing_each_other",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "a handful of clocks in a circle",
+   "action": "add",
+   "items": [
+    {
+     "noun": "UNKNOWN:clock",
+     "count": 5,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "circle",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok",
+   "relabel": "catalog decision"
+  },
+  {
+   "utterance": "a dozen computers in a grid",
+   "action": "add",
+   "items": [
+    {
+     "noun": "computer",
+     "count": 12,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "grid",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "turn all the tvs toward me",
+   "action": "rotate",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "facing_me",
+   "target": "me",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "i want a washer and a dryer",
+   "action": "add",
+   "items": [
+    {
+     "noun": "UNKNOWN:washer",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "UNKNOWN:dryer",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok",
+   "relabel": "catalog decision"
+  },
+  {
+   "utterance": "put a toaster next to the microwave",
+   "action": "add",
+   "items": [
+    {
+     "noun": "UNKNOWN:toaster",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "beside",
+   "target": "microwave",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "spawn a jukebox",
+   "action": "add",
+   "items": [
+    {
+     "noun": "UNKNOWN:jukebox",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "kitchen_bath_electronics",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add a floor lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "give me three plants",
+   "action": "add",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "spawn a dumpster",
+   "action": "add",
+   "items": [
+    {
+     "noun": "dumpster",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "water cooler please",
+   "action": "add",
+   "items": [
+    {
+     "noun": "display case",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok",
+   "relabel": "catalog decision (nearest: display case)"
+  },
+  {
+   "utterance": "make 2 trash cans",
+   "action": "add",
+   "items": [
+    {
+     "noun": "trash can",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "computer, i need a reading lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "desk lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "can you bring in a few mugs",
+   "action": "add",
+   "items": [
+    {
+     "noun": "mug",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "throw in some ferns",
+   "action": "add",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "set out four white mugs",
+   "action": "add",
+   "items": [
+    {
+     "noun": "mug",
+     "count": 4,
+     "adjectives": [
+      "white"
+     ]
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add a big leafy plant",
+   "action": "add",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 1,
+     "adjectives": [
+      "big",
+      "leafy"
+     ]
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "give me a dozen coffee mugs",
+   "action": "add",
+   "items": [
+    {
+     "noun": "mug",
+     "count": 12,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "bring in loads of bins",
+   "action": "add",
+   "items": [
+    {
+     "noun": "trash can",
+     "count": 6,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "ditch the plant",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "ok that's enough, clear it all out",
+   "action": "clear",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "undo that",
+   "action": "undo",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put a lamp next to the couch",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "beside",
+   "target": "couch",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add a plant in the corner",
+   "action": "add",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "corner",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "scatter some trash cans about",
+   "action": "add",
+   "items": [
+    {
+     "noun": "trash can",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "scattered",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "i want 2 plants in front of the tv",
+   "action": "add",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "in_front_of",
+   "target": "tv",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put a dumpster against the wall",
+   "action": "add",
+   "items": [
+    {
+     "noun": "dumpster",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "against_wall",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put a few plants around the coffee table",
+   "action": "add",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "around",
+   "target": "coffee table",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "a floor lamp and a plant in the corner",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "plant",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "corner",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "move the floor lamp next to the tv",
+   "action": "move",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "beside",
+   "target": "tv",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add a chandelier",
+   "action": "add",
+   "items": [
+    {
+     "noun": "UNKNOWN:chandelier",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "spawn two lava lamps",
+   "action": "add",
+   "items": [
+    {
+     "noun": "UNKNOWN:lava lamp",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok",
+   "known_miss": "needs a dictionary of things the library lacks"
+  },
+  {
+   "utterance": "turn the desk lamp to face me",
+   "action": "rotate",
+   "items": [
+    {
+     "noun": "desk lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "facing_me",
+   "target": "me",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "line up all the plants in a row",
+   "action": "rearrange",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "row",
+   "target": "",
+   "scene": "",
+   "slice": "lighting_decor",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add a table and four chairs",
+   "action": "add",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "chair",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "could you add a desk with an office chair and a computer",
+   "action": "add",
+   "items": [
+    {
+     "noun": "desk",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "office chair",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "computer",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "two couches and a coffee table please",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 2,
+     "adjectives": []
+    },
+    {
+     "noun": "coffee table",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "throw in three lamps and a plant",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 3,
+     "adjectives": []
+    },
+    {
+     "noun": "plant",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "make me a bed, a dresser and a desk lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "bed",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "dresser",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "desk lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "I'd like 3 couches, 2 armchairs and a coffee table",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 3,
+     "adjectives": []
+    },
+    {
+     "noun": "armchair",
+     "count": 2,
+     "adjectives": []
+    },
+    {
+     "noun": "coffee table",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "i need a big red couch and two small coffee tables",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [
+      "big",
+      "red"
+     ]
+    },
+    {
+     "noun": "coffee table",
+     "count": 2,
+     "adjectives": [
+      "small"
+     ]
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "get me a dozen barrels and a dumpster",
+   "action": "add",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 12,
+     "adjectives": []
+    },
+    {
+     "noun": "dumpster",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "set up a living room",
+   "action": "add",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "living room",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "computer, give me an office",
+   "action": "add",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "office",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "i want a dining room",
+   "action": "add",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "dining room",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "can you make a kitchen?",
+   "action": "add",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "kitchen",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "bedroom please",
+   "action": "add",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "bedroom",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "throw together a waiting room",
+   "action": "add",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "waiting room",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put in a bathroom",
+   "action": "add",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "bathroom",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add a coffee table with four armchairs around it",
+   "action": "add",
+   "items": [
+    {
+     "noun": "coffee table",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "armchair",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "around",
+   "target": "coffee table",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "give me two couches facing each other and a coffee table",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 2,
+     "adjectives": []
+    },
+    {
+     "noun": "coffee table",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "facing_each_other",
+   "target": "",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "set out a desk and a filing cabinet against the wall",
+   "action": "add",
+   "items": [
+    {
+     "noun": "desk",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "filing cabinet",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "against_wall",
+   "target": "",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "drop a floor lamp and a plant beside the couch",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "plant",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "beside",
+   "target": "couch",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "scatter a handful of boxes and a couple of crates",
+   "action": "add",
+   "items": [
+    {
+     "noun": "box",
+     "count": 5,
+     "adjectives": []
+    },
+    {
+     "noun": "crate",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "scattered",
+   "target": "",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "bring in two couches and an armchair in an l shape",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 2,
+     "adjectives": []
+    },
+    {
+     "noun": "armchair",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "l_shape",
+   "target": "",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "spawn six desks and six office chairs in a grid",
+   "action": "add",
+   "items": [
+    {
+     "noun": "desk",
+     "count": 6,
+     "adjectives": []
+    },
+    {
+     "noun": "office chair",
+     "count": 6,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "grid",
+   "target": "",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put three benches and two stools in a row",
+   "action": "add",
+   "items": [
+    {
+     "noun": "bench",
+     "count": 3,
+     "adjectives": []
+    },
+    {
+     "noun": "stool",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "row",
+   "target": "",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "add a dragon and a treasure chest",
+   "action": "add",
+   "items": [
+    {
+     "noun": "UNKNOWN:dragon",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "chest",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "we need a piano and two armchairs",
+   "action": "add",
+   "items": [
+    {
+     "noun": "UNKNOWN:piano",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "armchair",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "arrange all the chairs around the meeting table",
+   "action": "rearrange",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "around",
+   "target": "meeting table",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "get rid of the tv and the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "build me a bathroom and a plant too",
+   "action": "add",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "bathroom",
+   "slice": "compound_scenes",
+   "audited": "ok"
+  },
+  {
+   "utterance": "get rid of the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "remove 2 chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "delete the tv",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "take away every plant",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "can you get rid of both leather armchairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "armchair",
+     "count": 2,
+     "adjectives": [
+      "leather"
+     ]
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "ditch the old bookcase and take out three stools",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "bookshelf",
+     "count": 1,
+     "adjectives": [
+      "old"
+     ]
+    },
+    {
+     "noun": "stool",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "get rid of the dragon",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "UNKNOWN:dragon",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "clear the room",
+   "action": "clear",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "end program",
+   "action": "clear",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "computer, wipe everything and start over",
+   "action": "clear",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "undo",
+   "action": "undo",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "oops, put them back",
+   "action": "undo",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "turn the armchair around",
+   "action": "rotate",
+   "items": [
+    {
+     "noun": "armchair",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "spin the red couch around",
+   "action": "rotate",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [
+      "red"
+     ]
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "turn all the couches to face the window",
+   "action": "rotate",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "facing_me",
+   "target": "window",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "make every chair face the tv",
+   "action": "rotate",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "facing_me",
+   "target": "tv",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "rotate the tv to face me",
+   "action": "rotate",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "facing_me",
+   "target": "me",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "bring the table over next to the couch",
+   "action": "move",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "beside",
+   "target": "couch",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "push the bookshelf into the corner",
+   "action": "move",
+   "items": [
+    {
+     "noun": "bookshelf",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "corner",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "move the desk against the wall",
+   "action": "move",
+   "items": [
+    {
+     "noun": "desk",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "against_wall",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "shift the couch behind the coffee table",
+   "action": "move",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "behind",
+   "target": "coffee table",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "move all the crates in front of me",
+   "action": "move",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "in_front_of",
+   "target": "me",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "move the piano next to the window",
+   "action": "move",
+   "items": [
+    {
+     "noun": "UNKNOWN:piano",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "beside",
+   "target": "window",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "rearrange both couches to face each other",
+   "action": "rearrange",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "facing_each_other",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "line up all the benches in a row",
+   "action": "rearrange",
+   "items": [
+    {
+     "noun": "bench",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "row",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "arrange every armchair around the coffee table",
+   "action": "rearrange",
+   "items": [
+    {
+     "noun": "armchair",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "around",
+   "target": "coffee table",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "rearrange everything into a grid",
+   "action": "rearrange",
+   "items": [],
+   "arrangement": "grid",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "stack all the crates up",
+   "action": "rearrange",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "stacked",
+   "target": "",
+   "scene": "",
+   "slice": "management",
+   "audited": "ok"
+  },
+  {
+   "utterance": "computer, uh, can you add a couple sofas please",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "can u set up a livingroom",
+   "action": "add",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "living room",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "gimme a bunch of crates",
+   "action": "add",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 6,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "spawn lots of barrles",
+   "action": "add",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 6,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "throw in a dozen mugs",
+   "action": "add",
+   "items": [
+    {
+     "noun": "mug",
+     "count": 12,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "can you maybe put a few plants in here",
+   "action": "add",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "computer, couches please",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "make me a settee",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "uh several bookcases i guess",
+   "action": "add",
+   "items": [
+    {
+     "noun": "bookshelf",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "bring in loads of shelves",
+   "action": "add",
+   "items": [
+    {
+     "noun": "shelf",
+     "count": 6,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "get me 2 chests of drawers",
+   "action": "add",
+   "items": [
+    {
+     "noun": "dresser",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "ok so a big leather sofa and like 2 lamps",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [
+      "big",
+      "leather"
+     ]
+    },
+    {
+     "noun": "floor lamp",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "ditch the tv",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "pls remove every chair",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "wipe it all, start over",
+   "action": "clear",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "oops undo that",
+   "action": "undo",
+   "items": [],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "stick a standing lamp next to the sofa",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "beside",
+   "target": "couch",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "uh i want a low table and 4 arm chairs around it",
+   "action": "add",
+   "items": [
+    {
+     "noun": "coffee table",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "armchair",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "around",
+   "target": "coffee table",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "gimme 3 fridges in a row",
+   "action": "add",
+   "items": [
+    {
+     "noun": "fridge",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "row",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "put two telly's facing me",
+   "action": "add",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "facing_me",
+   "target": "me",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "stick four stools against the wall",
+   "action": "add",
+   "items": [
+    {
+     "noun": "stool",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "against_wall",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "scatter a handful of boxs everywhere",
+   "action": "add",
+   "items": [
+    {
+     "noun": "box",
+     "count": 5,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "scattered",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "a circle of 8 red chairs pls",
+   "action": "add",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 8,
+     "adjectives": [
+      "red"
+     ]
+    }
+   ],
+   "arrangement": "circle",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "uh put 2 sofas facing each other plz",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "facing_each_other",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "scoot the sofa in front of the telly",
+   "action": "move",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "in_front_of",
+   "target": "tv",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "spin the recliner to face me",
+   "action": "rotate",
+   "items": [
+    {
+     "noun": "armchair",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "facing_me",
+   "target": "me",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "can u spawn a dragon lol",
+   "action": "add",
+   "items": [
+    {
+     "noun": "UNKNOWN:dragon",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok"
+  },
+  {
+   "utterance": "i want a pianno and a couple of cars",
+   "action": "add",
+   "items": [
+    {
+     "noun": "UNKNOWN:piano",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "UNKNOWN:car",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "unspecified",
+   "target": "",
+   "scene": "",
+   "slice": "messy_language",
+   "audited": "ok",
+   "known_miss": "needs a dictionary of things the library lacks"
+  }
+ ]
+}
