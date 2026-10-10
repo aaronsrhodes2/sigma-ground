@@ -427,7 +427,7 @@ class NBodySystem:
                     # │ Form with vec_ij = x_j - x_i:                        │
                     # │   a_i = Σ_j (μ_j vec_ij / r_ij³) × (1 + A_ij)        │
                     # │        + Σ_j (μ_j / (c² r_ij³)) ×                    │
-                    # │           (vec_ij·(4v_i - 3v_j)) × (v_i - v_j)       │
+                    # │           (-vec_ij·(4v_i - 3v_j)) × (v_i - v_j)      │
                     # │        + (7/(2c²)) Σ_j (μ_j a_j^N / r_ij)            │
                     # │ where                                                │
                     # │   A_ij = -(4/c²) Φ_i  -(1/c²) Φ_j                    │
@@ -454,28 +454,22 @@ class NBodySystem:
                     )
                     acc[i] += gm_j * r_ij * A_ij / (r_sq * r)
 
-                    # PHYSICS_GAP (2026-10-10, unification round 2, U9; KNOWN_GAPS.md):
-                    # EIH uses n_ij = (x_i - x_j)/r in [n_ij.(4v_i - 3v_j)](v_i - v_j);
-                    # dotting r_ij = x_j - x_i reverses this cross-term (the A_ij
-                    # bracket above is correct). Mercury then precesses -71.66"/cy and
-                    # the precession changes under a boost; with this sign flipped back
-                    # it gives +6 pi GM/(c^2 p) in every frame. Live in the jpl_de440
-                    # predictor (rolling_shootout.py, eih_cross=True). Flagged, not fixed.
+                    # FIXED 2026-10-10 (unification round 2, U9; KNOWN_GAPS.md): EIH dots
+                    # (x_i - x_j) into (4v_i - 3v_j). The earlier code dotted r_ij = x_j - x_i,
+                    # which reversed this term (Mercury -71.66"/cy, boost-dependent).
                     B_ij = 4.0 * vi - 3.0 * vj
-                    cross = float(np.dot(r_ij, B_ij)) / _c2
+                    cross = float(np.dot(-r_ij, B_ij)) / _c2
                     acc[i] += (gm_j / (r_sq * r)) * cross * (vi - vj)
 
                     acc[i] += (7.0 / (2.0 * _c2)) * gm_j * a_newton[j] / r
 
                 elif t.gr_1pn:
-                    # PHYSICS_GAP (2026-10-10, unification round 2, U9; KNOWN_GAPS.md):
-                    # SIGN REVERSED. r_hat = r_ij/r points from body i TOWARD the
-                    # attractor (r_ij = x_j - x_i), but the textbook bracket
-                    # (4GM/r - v^2) n + 4 (n.v) v uses the OUTWARD n = (x_i - x_j)/r.
-                    # The whole correction is minus GR: Mercury's perihelion moves
-                    # -42.997"/cy instead of +42.98"/cy (three independent integrators).
-                    # It also uses absolute v_i, so it is valid only in the attractor's
-                    # rest frame. Flagged, not fixed; fix direction: n = -r_ij/r.
+                    # FIXED 2026-10-10 (unification round 2, U9; KNOWN_GAPS.md): the bracket
+                    # (4GM/r - v^2) n + 4 (n.v) v needs the OUTWARD unit vector
+                    # n = (x_i - x_j)/r. The earlier code used r_ij/r (toward the attractor),
+                    # which reversed the whole correction (Mercury precessed -43"/cy).
+                    # Still a single-body approximation: it uses body i's absolute velocity,
+                    # so it is valid in the attractor's rest frame (use eih_cross otherwise).
                     # ┌──────────────────────────────────────────────────────┐
                     # │ BORROWED FROM TEXTBOOK -- PENDING SSBM DERIVATION    │
                     # │ Source: Soffel et al. 2003, eq. 10.12                │
@@ -484,11 +478,11 @@ class NBodySystem:
                     # │ metric. Replace this block when σ-field-derived 1PN  │
                     # │ is available in sigma_ground.field.gr_basics.        │
                     # └──────────────────────────────────────────────────────┘
-                    r_hat  = r_ij / r
-                    rdotv  = float(np.dot(r_hat, vi))
+                    n_out  = -r_ij / r            # outward: attractor j -> body i
+                    ndotv  = float(np.dot(n_out, vi))
                     factor = gm_j / (r_sq * _c2)
                     acc[i] += factor * (
-                        (4.0 * gm_j / r - vi2) * r_hat + 4.0 * rdotv * vi
+                        (4.0 * gm_j / r - vi2) * n_out + 4.0 * ndotv * vi
                     )
 
                 if t.gr_2pn:
