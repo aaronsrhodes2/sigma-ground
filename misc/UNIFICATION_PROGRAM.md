@@ -156,6 +156,62 @@ Until 1–3 are decided, P6/P7 numbers are quoted only as "under the stated read
 reused. Also recorded: the two cheap lens-disagreement reruns (P7 at 1× stable_dt; P1 fixed-region convergence at ≥ 16τ)
 are Stage 3 follow-ups; the Stage 3 figure already uses the 1× kick (32³: 1.62e-3 at 12τ_eff vs 1.74e-3 at 20× and 8τ).
 
+## 4. Stage 3 — L1, same operator (Fig. 3)
+
+`scripts/unification/fig03_same_operator.py`, rerun with the verification's corrections (split kick at 1× stable_dt;
+the corrected box mode τ_eff = ((n−1)/n)² L²/3π²α):
+
+- **(a)** The repo's FVM heat law, driven to steady state, reproduces the analytic Newtonian potential of a uniform sphere
+  (G from Mentat): max exterior relative error 1.62 × 10⁻³ at 32³ and 12 τ_eff; the radial residual peaks at 0.27 % of the
+  central value at the staircase sphere edge. [VERIFIED numerics, given exact wall data.]
+- **(b)** The same run, plotted in time: the approach to the Poisson solution decays as the box's fundamental Dirichlet
+  mode and needs ~8 τ_eff. Gravity's field is there instantly. One spatial operator, two clocks (a third, the hyperbolic
+  one, is the three-clocks experiment). [DERIVED — the definition of the equation classes, shown on the engine.]
+- **(c)** Two sources through one solver on an n = 1 polytrope (28³, a = 3.5 km): Ψ_c/Φ_c = 0.99939 / 0.93868 / 0.69339 for
+  w_c = 10⁻³ / 0.1 / 0.5, against the closed form 1 − 0.609·w_c = 0.99939 / 0.93906 / 0.6953 (0.04 % at w_c = 0.1).
+  [DERIVED; conditional on the σ postulate; w_c = 0.5 outside validity; the (1 + 2Φ/c²) metric term still to be carried.]
+
+The honest caption is in the figure title: L1 is true, and true of every static linear field. What it buys the program
+is a validated Poisson solver that every later σ-bridge computation can stand on.
+
+## 5. Stage 4 — L2, same equation, and the missing pressure found (Fig. 4)
+
+`scripts/unification/stage4_virial.py` → `misc/unification/stage4_virial.json`; `fig04_same_equation.py`.
+
+**An exact identity on the engine [DERIVED; verified to 10⁻¹⁶].** With the symmetric Monaghan pressure force and pair
+antisymmetry of ∇W, Σᵢ mᵢ rᵢ·aᵢ = Σᵢ mᵢ (Pᵢ/ρᵢ²) Dᵢ with Dᵢ := −Σ_{j≠i} mⱼ rᵢⱼ·∇ᵢWᵢⱼ. For the isothermal closure the
+pressure-virial efficiency is therefore exactly x = Σᵢ mᵢDᵢ/ρᵢ / 3M — measured x and this sum agree to 1–2 × 10⁻¹⁶ in every
+run (23 clouds, N = 64–2048). It also shows why x cannot depend on c_s: c_s cancels identically.
+
+**Two causes of the deficit, separated.** In the continuum D = 3ρ. On particles: (i) the free surface — a particle within
+2h of the edge has an incomplete kernel; (ii) the **self-term** — the SPH density sum counts the particle itself,
+ρᵢ = mᵢW(0,h) + Σ_{j≠i}…, while Dᵢ has no j = i term. For a uniform interior this predicts, with no free parameter,
+x_interior = 1/(1 + 32/(3N_nb)) for the cubic spline (W(0) = 1/πh³), N_nb the full-support neighbour count.
+
+| N (h = 1.5 × spacing) | 2h/R | x, whole cloud (± seed sd) | interior particles | x, interior | gravity / |U_soft| |
+|---|---|---|---|---|---|
+| 64 | 1.21 | 0.711 ± 0.021 | 0 | — | 0.995 |
+| 128 | 0.96 | 0.760 ± 0.010 | 0 | — | 0.997 |
+| 256 | 0.76 | 0.789 ± 0.013 | 3 | 0.993 | 0.997 |
+| 512 | 0.60 | 0.823 ± 0.001 | 26 | 0.956 | 0.997 |
+| 1024 | 0.48 | 0.844 ± 0.004 | 132 | 0.942 | 0.997 |
+| 2048 | 0.38 | 0.869 | 467 | 0.930 | 0.997 |
+| prediction, interior | | | | **0.914** (N_nb = 113) | |
+
+h-scan at N = 512: where the interior sample is large (h = 1.0×, 85 interior particles) the prediction holds to 1.4 %
+(0.769 measured vs 0.759 predicted); with few interior particles the measured value scatters high (21 → 0.99; 3 → 1.10).
+The mean-field prediction neglects the correlation between the fluctuations of Dᵢ and ρᵢ (both are sums over the same
+neighbours), the plausible source of the 1.4–1.7 % excess [RESIDUAL].
+
+**Verdict.** Gravity's term of the virial identity arrives whole (0.995–0.997 of the softened potential energy). The
+pressure term's shortfall is two known SPH estimator effects, a free surface that shrinks with N and a self-term that does
+not: at fixed h/spacing = 1.5 the whole-cloud x converges toward 0.914, not 1 — the "persistent deficit x_∞ ≈ 0.92" model
+the verification could not rule out is the right one, and it now has a cause. This resolves P2b's [INCONCLUSIVE]. It is an
+engine fact, not physics: the self-contribution bias of the SPH density sum is a known topic (Dehnen & Aly 2012, MNRAS 425,
+1068, propose subtracting part of the self-contribution [LIT; section not re-read here]). Fix direction for the engine:
+a Wendland kernel at larger N_nb, or the self-contribution correction — a Captain's call, filed in the gap ledger (S11).
+**For the thesis:** none, as before — the identity holds for any force law.
+
 ### 3.4 What σ is not — the Captain's idea made mathematical and cut against measurement (S9a, run 2026-10-10)
 
 **The idea** (Captain): "σ times the density of baryonic energy configures the speed of light and the scale of matter."
@@ -188,6 +244,20 @@ femtometre of the source). The price: σ = 8πGξλ²ρ/c² is 6.5 × 10⁻⁴�
 σ = 0.34–0.41 (e^σ = 1.4–1.5) only at ρ ≈ 1.4–1.7 × 10⁵⁶ kg/m³ — about 5 × 10³⁸ times nuclear density, 10⁴⁰ below the
 Planck density. **So σ is not a long-range field with ξ ≈ 0.16 (excluded by 10⁵–10¹¹), and in the one place it may live it
 is invisible to every experiment ever done.** That is the chip-away result; it does not refute σ, it locates it.
+
+**The Captain's bet: ξ = 0.13–0.17** (2026-10-10). That is the coupling, and Planck already measures it as the baryon
+fraction (0.1582, or 0.1571 from the docstring's own Ω values). Taking the bet as given, the data fix the *range* instead:
+
+| coupling ξ | MICROSCOPE alone | clocks alone | white dwarfs |
+|---|---|---|---|
+| 0.13 | λ < 34.9 km | λ < 9.8 × 10⁹ m | no limit |
+| 0.1571 / 0.1582 | λ < 34.5 km | λ < 9.7 × 10⁹ m | no limit |
+| 0.17 | λ < 34.4 km | λ < 9.6 × 10⁹ m | no limit |
+
+So **if ξ lands at 0.13–0.17, σ's range is shorter than ~35 km** — it cannot reach from Earth to MICROSCOPE's orbit.
+Laboratory torsion balances (Eöt-Wash) probe the 1 cm – 35 km window directly; mapping their bounds onto σ's charge
+fᵢ (which differs from the baryon-number charge those papers quote) is the next cut, not yet made. The repo's own paper
+(λ = 0.909 fm) sits 19 orders of magnitude inside the allowed side.
 
 **On "σ ≈ 1.4–1.5".** No result in the repo's research gives σ in that range. The landmarks are the conversion wall
 σ_conv = −ln ξ ≈ 1.84 (`PAPER_sigma_moduli_stabilization.txt`; an alternative candidate in `ssbm-theory/theory/bridge_equations.md`
