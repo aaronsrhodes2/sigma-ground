@@ -225,3 +225,24 @@ run and an isolated bearing-alone run produce identical `omega()` traces to
   (all three tests hold the CURRENT load-blind behavior; an energy-honest
   fix should make `test_coupling_is_load_blind_matching_the_flagged_gap`
   fail, which is the intended trigger to review/rewrite this entry).
+
+## PHYSICS_GAP: SPH continuum bridge books no viscous heating and no PdV work (2026-10-10)
+
+`sigma_ground/dynamics/continuum.py::continuum_step` step 9 updates parcel temperature
+from conduction (`_heat_conduction`) and `heat_source_W_kg` only. Two terms the
+module docstring promises are missing: the adiabatic compression term
+`(P/ρ²)(dρ/dt)/cp`, and the conversion of artificial-viscosity dissipation
+(`_sph_viscous_force`, Monaghan Π_ij) into internal energy. Consequence: the
+SPH side has no first law — mechanical energy removed by viscosity vanishes from
+the ledger (Phase E cloud report: SPH mechanical energy −387% with nothing
+booked as heat), and compression never warms a parcel. Found while building the
+fluid→thermo bridge of the unification program (misc/UNIFICATION_PROGRAM.md):
+the entropy-production test σ_s = (Φ_visc + q²/κT²)/T ≥ 0 cannot be run until
+dissipation is booked.
+
+- Fix direction: per-pair viscous heating `du_i/dt = ½ Σ_j m_j Π_ij v_ij·∇W_ij`
+  (Monaghan 1992 eq. 2.30-style) and `du/dt = −(P/ρ²) dρ/dt` with
+  `dρ/dt` from the SPH continuity sum; then `dT = du/cp`. Add an energy ledger
+  (K + U_grav + U_int) to `phase_e.diagnostics` and gate on conservation.
+- Regression sentinel to add: an isolated viscous collision of two parcels must
+  conserve K + U_int to integrator tolerance.

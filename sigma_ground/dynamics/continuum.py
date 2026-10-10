@@ -710,6 +710,13 @@ def continuum_step(scene, dt, alpha_visc=1.0):
     scene._vv_accel = acc1
 
     # ── 9. Heat equation ──
+    # PHYSICS_GAP: only conduction + the external heat source are booked here.
+    # The module docstring's adiabatic-compression term (P/ρ²)(dρ/dt)/cp is NOT
+    # implemented, and the artificial-viscosity dissipation (step 5) is never
+    # converted to internal energy — mechanical energy lost to Π_ij leaves the
+    # ledger instead of heating the parcels. Phase E's cloud run showed this as a
+    # −387% 'mechanical energy loss'. Filed 2026-10-10 in KNOWN_GAPS.md (the
+    # fluid→thermo bridge of the unification program depends on closing it).
     dTdt = _heat_conduction(parcels, h)
     for i, p in enumerate(parcels):
         # Conduction
