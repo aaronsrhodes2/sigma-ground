@@ -10,6 +10,7 @@ cell 1.10 V; AgCl solubility 1.33e-5 M; etc.).
 """
 from __future__ import annotations
 
+import math
 from typing import Any
 
 from sigma_ground.mcp.provenance import ToolResult
@@ -109,9 +110,10 @@ def weak_acid_ph(acid_key: str, concentration_mol_l: float) -> dict[str, Any]:
         return _decline(f"Unknown acid {acid_key!r}. Available: {sorted(ACID_BASE_DATA)}",
                         acid_key=acid_key).to_dict()
     conc = float(concentration_mol_l)
-    if conc < 0:
-        return _decline(f"concentration must be >= 0 mol/L; got {conc}",
-                        acid_key=acid_key, concentration_mol_l=conc).to_dict()
+    if not (conc >= 0 and math.isfinite(conc)):
+        return _decline(f"concentration must be a finite value >= 0 mol/L; got {conc}",
+                        acid_key=acid_key,
+                        concentration_mol_l=repr(conc)).to_dict()   # nan/inf aren't JSON
     kind = ACID_BASE_DATA[acid_key]["type"]
     try:
         ph = pH_solution(acid_key, conc)
@@ -126,20 +128,53 @@ def weak_acid_ph(acid_key: str, concentration_mol_l: float) -> dict[str, Any]:
 
 
 def buffer_ph(acid_key: str, ratio_base_over_acid: float = 1.0) -> dict[str, Any]:
-    """Buffer pH via Henderson–Hasselbalch: pH = pKa + log10([A⁻]/[HA])."""
-    from sigma_ground.field.interface.acid_base import henderson_hasselbalch, ACID_BASE_DATA
+    """Buffer pH via Henderson–Hasselbalch: pH = pKa + log10([A⁻]/[HA]).
+
+    A buffer is a WEAK acid or base with its conjugate. For a weak base the
+    pair is base / conjugate acid (NH3/NH4+) and pKa is the conjugate acid's.
+    Strong acids and bases dissociate completely and form no buffer; they
+    used to come back as pKa + log(ratio) anyway (HCl "pH -6.30", NaOH
+    "pH 14.55"), and a ratio <= 0 came back as -inf, which isn't JSON.
+    """
+    from sigma_ground.field.interface.acid_base import (
+        henderson_hasselbalch, pKa, water_ion_product, ACID_BASE_DATA)
+    inputs = {"acid_key": acid_key, "ratio_base_over_acid": ratio_base_over_acid}
     if acid_key not in ACID_BASE_DATA:
         return _decline(f"Unknown acid {acid_key!r}. Available: {sorted(ACID_BASE_DATA)}",
                         acid_key=acid_key).to_dict()
+    kind = ACID_BASE_DATA[acid_key]["type"]
+    if kind.startswith("strong"):
+        weak = sorted(k for k, d in ACID_BASE_DATA.items() if d["type"].startswith("weak"))
+        return _decline(f"{acid_key} is a {kind.replace('_', ' ')}: it dissociates "
+                        f"completely, so it forms no buffer (weak_acid_ph gives its pH). "
+                        f"Buffers need a weak acid or base: {weak}", **inputs).to_dict()
+    ratio = float(ratio_base_over_acid)
+    if not (ratio > 0 and math.isfinite(ratio)):
+        return _decline(f"ratio_base_over_acid must be a positive, finite "
+                        f"[base]/[acid] ratio; got {ratio}", acid_key=acid_key,
+                        ratio_base_over_acid=repr(ratio)).to_dict()   # nan/inf aren't JSON
     try:
-        ph = henderson_hasselbalch(acid_key, float(ratio_base_over_acid))
+        ph = henderson_hasselbalch(acid_key, ratio)
+        pka = pKa(acid_key)
+        pkw = -math.log10(water_ion_product())
     except Exception as e:
         return _decline(f"buffer_ph failed: {e}", acid_key=acid_key).to_dict()
+    if not 0.0 <= ph <= pkw:
+        return _decline(f"Henderson–Hasselbalch gives pH {ph:.2f} at a ratio of "
+                        f"{ratio:g}, outside 0–{pkw:.1f}: this far from pKa ± 1 the "
+                        f"mixture is not a buffer and its pH depends on the "
+                        f"concentrations, which this tool doesn't take", **inputs).to_dict()
+    pair = (f"{acid_key} / its conjugate acid, pKa {pka:.2f} of the conjugate acid"
+            if kind == "weak_base" else f"{acid_key} / its conjugate base, pKa {pka:.2f}")
+    notes = pair + "."
+    if not 0.1 <= ratio <= 10:
+        notes += (" Ratio outside 0.1–10 (pKa ± 1): Henderson–Hasselbalch is only "
+                  "approximate here, and the true pH also depends on the concentrations.")
     return ToolResult(
         value=ph, units="pH",
         source="sigma_ground.field.interface.acid_base (Henderson–Hasselbalch)",
         provenance_tag="DERIVED", formula="pH = pKa + log10([A⁻]/[HA])",
-        inputs={"acid_key": acid_key, "ratio_base_over_acid": ratio_base_over_acid}).to_dict()
+        notes=notes, inputs=inputs).to_dict()
 
 
 # ── Electrochemistry ────────────────────────────────────────────────────

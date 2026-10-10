@@ -1092,7 +1092,9 @@ def main() -> int:
     @server.tool()
     def buffer_ph(acid_key: str,
                   ratio_base_over_acid: float = 1.0) -> dict[str, Any]:
-        """Buffer pH (Henderson-Hasselbalch): pH = pKa + log([base]/[acid])."""
+        """Buffer pH (Henderson-Hasselbalch): pH = pKa + log([base]/[acid]),
+        for a WEAK acid or base with its conjugate (e.g. acetic acid/acetate,
+        ammonia/ammonium). Strong acids and bases form no buffer."""
         return t_chem.buffer_ph(acid_key, ratio_base_over_acid)
 
     @server.tool()

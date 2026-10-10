@@ -3286,3 +3286,34 @@ Both failed before the fix and pass after it. MCP + benchmark + layering: 163 pa
 - 7. `materia/tests/test_materia.py::test_drag_heating_scenario_self_validates` fails here (last step's units
   are '' not 'K'). It fails identically on this session's base 339c4f4 and on master, so it predates this
   session. Possibly environment-dependent, since it is not in ARCHITECTURE.md's known-red list.
+
+## Session 37 (continued) — 2026-10-10 — buffer_ph fixed (finding 6)
+
+### Cause
+`mcp/tools/chemistry.py::buffer_ph` applied Henderson–Hasselbalch to any key, with no checks:
+- **Strong acids/bases** got a "buffer pH" (HCl −6.30, H₂SO₄ −3.0, NaOH 14.55), though they dissociate
+  completely and form no buffer.
+- **Ratio ≤ 0** returned `-inf`, which is not valid JSON.
+- **Far-off ratios** gave impossible numbers (acetic acid at 1e-6 → pH −1.24).
+
+### Fix (tool level)
+- Strong species decline, naming the weak species that do buffer and pointing to `weak_acid_ph` for their pH.
+- Non-positive or non-finite ratios decline (bad input is echoed as text, so the reply stays valid JSON).
+- If the result would fall outside 0–pKw, it declines: the mixture isn't a buffer there, and its pH depends on
+  concentrations this tool doesn't take.
+- Ratios outside 0.1–10 still answer, with an "only approximate" caveat.
+- Notes name the conjugate pair; for a weak base, pKa is the conjugate acid's (NH3/NH4+ → 9.24).
+- The library `henderson_hasselbalch` is unchanged: it stays a bare formula for the titration code and the
+  Materia scenario.
+- Same pass: last round's `weak_acid_ph` guard only caught negative concentrations. NaN/inf leaked out as
+  invalid JSON; now it declines them too.
+- Server docstring updated; name and schema unchanged, so the router surface hash is unchanged.
+
+### Guard
+`test_chemistry_mcp`:
+- every strong species declines;
+- weak acid and weak base pairs;
+- 0 / negative / NaN / inf declines, each reply strict-JSON serialisable (`allow_nan=False`);
+- the out-of-range decline, and the caveat case.
+All 3 new tests failed before the fix. Verified through the real stdio server. 284 passed (+ known-red
+`test_targets.py`), Materia 52 passed (the drag-heating test is excluded; see finding 7).
