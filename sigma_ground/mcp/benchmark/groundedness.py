@@ -76,8 +76,11 @@ def assess(record: dict) -> Groundedness:
         if not vq.grounded:
             return Groundedness(False, f"tool ran but value not grounded "
                                 f"({vq.detail})", "ungrounded")
-        return Groundedness(True,
-                             f"LLM tool-grounded ({len(tool_calls)} tool call(s))",
+        # The harness, not the model, may have ended the run on a tool result
+        # (run_sigma_ground finalize="chain") -- say so, for the audit trail.
+        how = (f"harness-finalized from `{record['finalized_from_tool']}`"
+               if record.get("finalized_from_tool") else "LLM tool-grounded")
+        return Groundedness(True, f"{how} ({len(tool_calls)} tool call(s))",
                              "tool_call")
 
     # 3. Otherwise the LLM answered from its head -> a guess.

@@ -568,6 +568,88 @@ def _value_matches_any_tool(text_val: float, tool_values: list[float],
     return False
 
 
+# ── Harness-side finalization: the model picks the call, Mentat reports it ──
+# Replaying the logged runs (2026-10-10) showed the LLM path almost never ends
+# on its own. qwen2.5:7b hit max turns on 63/64 questions: it called the right
+# tool first, then re-called it until the budget ran out, so every "correct"
+# answer was a max-turns fallback extraction that the groundedness gate
+# (rightly) refused to trust (1/64 grounded). qwen3:8b instead wanders into an
+# unrelated tool after the right one (density after element_atomic_data) and
+# loops on THAT. So once a call succeeds, the model may only extend it as a
+# data-flow chain: a DIFFERENT tool that takes a value the chain produced
+# (solar_system_body -> its mass_kg -> schwarzschild_radius). Anything else
+# (text, a re-call, an unrelated call, a failed step) ends the question on the
+# chain's last result, reported verbatim. Replay vs the logged runs: correct
+# 50->51 (qwen2.5) / 48->48 (qwen3: two won, two lost), grounded 1->61 /
+# 27->61. Grounded still means "a tool produced it", not "the right tool".
+_MAX_CHAIN_STEPS = 3
+_CHAIN_MATCH_TOL_REL = 1e-2     # a model re-typing 1.98892e30 as 1.989e30 still links
+
+
+def _tool_call_value(tc: dict, question: str = "") -> tuple[Any, str] | None:
+    """(value, units) from ONE tool call that succeeded, else None."""
+    if (tc.get("result_text") or "").startswith("<TOOL"):
+        return None
+    val, units = _extract_value_from_tool_calls([tc], question=question)
+    return None if val is None else (val, units)
+
+
+def _result_scalars(tc: dict) -> list[float]:
+    """Every numeric scalar in a call's `value` (top level, or one dict deep)."""
+    try:
+        v = json.loads(tc.get("result_text") or "").get("value")
+    except (ValueError, AttributeError):
+        return []
+    items = v.values() if isinstance(v, dict) else [v]
+    return [float(x) for x in items
+            if isinstance(x, (int, float)) and not isinstance(x, bool)]
+
+
+def _is_chain_step(name: str, args: dict, chain: list[dict]) -> bool:
+    """Does this call extend the chain? It must be a different tool from the
+    chain's last step AND take one of the chain's results as an input -- a
+    lookup feeding a computation, not a re-call or a wander."""
+    if not chain or name == chain[-1]["name"]:
+        return False
+    produced = [v for tc in chain for v in _result_scalars(tc) if v != 0.0]
+    for a in (args or {}).values():
+        if isinstance(a, bool):
+            continue
+        try:
+            a = float(a)
+        except (TypeError, ValueError):
+            continue
+        if a != 0.0 and any(abs(a - v) <= _CHAIN_MATCH_TOL_REL * abs(v)
+                            for v in produced):
+            return True
+    return False
+
+
+def _chain_answer_text(chain: list[dict], reason: str,
+                       model_text: str = "") -> str:
+    """The reply Mentat writes for a finalized chain: the last step's value,
+    its source/provenance, and the call path -- not the model's paraphrase."""
+    last = chain[-1]
+    val, units = last["value"]
+    try:
+        res = json.loads(last["result_text"])
+    except ValueError:
+        res = {}
+    if not isinstance(res, dict):
+        res = {}
+    src = res.get("source") or last["name"]
+    tag = res.get("provenance_tag")
+    path = " -> ".join(
+        f"{c['name']}({json.dumps(c['args'], sort_keys=True, default=str)})"
+        for c in chain)
+    text = (f"ANSWER: {val} {units}".rstrip() + "\n\n"
+            f"[SOURCE: {src}" + (f"; provenance {tag}" if tag else "") + "]\n"
+            f"[harness-finalized ({reason}) from {path}]")
+    if model_text.strip():
+        text += f"\n\nModel note (not used for the value): {model_text.strip()}"
+    return text
+
+
 # Question-pattern -> domain hints. When a question matches a phrase
 # in `_PATTERN_HINTS`, point Qwen at the relevant section of the index.
 # Surfaced at the TOP of the system prompt so Qwen sees them before
@@ -784,8 +866,15 @@ async def _run_one_question(session, ollama_url: str, model: str,
                               system_prompt: str,
                               real_params_by_tool: dict[str, set[str]] | None = None,
                               primary_tool_expected: str | None = None,
-                              tool_category: str = "auto") -> dict:
-    """Multi-turn tool loop for a single question."""
+                              tool_category: str = "auto",
+                              finalize: str = "chain") -> dict:
+    """Multi-turn tool loop for a single question.
+
+    finalize="chain" (default): after the first successful tool call the
+    harness ends the question itself unless the model extends a data-flow
+    chain (see _is_chain_step). finalize="model": the legacy loop, where the
+    model must write its own ANSWER: line (kept for A/B against old runs).
+    """
     import httpx
 
     t0 = time.time()
@@ -1118,6 +1207,25 @@ async def _run_one_question(session, ollama_url: str, model: str,
     max_tool_calls = 5           # hard cap per question -- forces purposeful tool use
     nudges_sent = 0
     max_nudges = 2
+    # Successful calls in data-flow order (finalize == "chain"); each entry
+    # keeps the FULL result text, since tool_calls_made truncates it.
+    chain: list[dict] = []
+
+    def _finish(reason: str, turn: int, model_text: str = "") -> dict:
+        val, units = chain[-1]["value"]
+        return {
+            "answer_text":            _chain_answer_text(chain, reason, model_text),
+            "extracted_value":        val,
+            "extracted_units":        units,
+            "tool_calls":             tool_calls_made,
+            "turns":                  turn + 1,
+            "elapsed_s":              time.time() - t0,
+            "extracted_via_fallback": False,
+            "nudges_sent":            nudges_sent,
+            "finalized_from_tool":    chain[-1]["name"],
+            "finalize_reason":        reason,
+            "chain_length":           len(chain),
+        }
 
     async with httpx.AsyncClient(timeout=timeout_s) as http:
         for turn in range(max_turns):
@@ -1151,6 +1259,8 @@ async def _run_one_question(session, ollama_url: str, model: str,
             tcs = msg.get("tool_calls") or []
             if not tcs:
                 final = msg.get("content", "") or ""
+                if chain:
+                    return _finish("model answered", turn, final)
                 val, units = _extract_value(final)
                 # If the model produced no tool call AND no ANSWER: line,
                 # it has either reasoned in prose without calling a tool
@@ -1256,6 +1366,12 @@ async def _run_one_question(session, ollama_url: str, model: str,
                     # for tools that want mass_kg / radius_m but were given a body name.
                     args, chain_log = await resolve_body_name_chain(
                         session, args, real_params_by_tool[name])
+                # Past the first success, only a data-flow chain step runs;
+                # anything else ends the question on what the chain has.
+                if chain and not _is_chain_step(name, args, chain):
+                    why = ("re-called" if name == chain[-1]["name"]
+                           else "unrelated call, not run:")
+                    return _finish(f"model moved on: {why} {name}", turn)
                 try:
                     result = await asyncio.wait_for(
                         session.call_tool(name, args), _TOOL_CALL_TIMEOUT_S)
@@ -1282,6 +1398,23 @@ async def _run_one_question(session, ollama_url: str, model: str,
                     "role":    "tool",
                     "content": tool_text[:4000],
                 })
+
+                if finalize == "chain":
+                    step = {"name": name, "args": args, "result_text": tool_text}
+                    got = _tool_call_value(step, question)
+                    if got is not None:
+                        step["value"] = got
+                        chain.append(step)   # the first success, or a vetted step
+                        if len(chain) >= _MAX_CHAIN_STEPS:
+                            return _finish("chain cap", turn)
+                    elif chain:
+                        return _finish(f"chain step {name} returned no value", turn)
+
+            # A live chain goes straight back to the model: its next move either
+            # extends the chain or ends the question (the warnings below are
+            # for a model still hunting for its first good call).
+            if chain:
+                continue
 
             # Hard cap: 5 tool calls per question. After that, force
             # the LLM to finalize with whatever it has (or refuse).
@@ -1326,6 +1459,8 @@ async def _run_one_question(session, ollama_url: str, model: str,
                     messages.append({"role": "user", "content": loop_warning})
                     nudges_sent += 1
 
+        if chain:
+            return _finish("max turns", max_turns - 1)
         # Hit max turns -- try fallback before giving up
         val, units = _extract_value_from_tool_calls(
             tool_calls_made, primary_tool_expected=primary_tool_expected,
@@ -1612,6 +1747,7 @@ async def _amain(args) -> int:
                             real_params_by_tool=real_params_by_tool,
                             primary_tool_expected=q.get("primary_tool_expected"),
                             tool_category=args.tools,
+                            finalize=args.finalize,
                         ),
                         _QUESTION_TIMEOUT_S,
                     )
@@ -1683,6 +1819,12 @@ def main() -> int:
                         help="pin the visible tool category so routing is "
                              "deterministic in functional tests (also per-prompt "
                              "via a leading /simulation /question /render flag).")
+    parser.add_argument("--finalize", default="chain", choices=["chain", "model"],
+                        help="qa mode: 'chain' (default) ends each question on the "
+                             "first successful tool call, or the data-flow chain "
+                             "it starts, and reports that result itself; 'model' "
+                             "is the legacy loop where the model must write its "
+                             "own ANSWER: line (for A/B against older runs).")
     args = parser.parse_args()
     return asyncio.run(_amain(args))
 

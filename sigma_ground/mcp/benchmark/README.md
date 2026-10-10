@@ -89,6 +89,22 @@ python -m sigma_ground.mcp.benchmark.run_gemini \
 
 All runners are **resumable** — they skip questions already in their output file. Safe to ctrl-C and restart.
 
+**How a Qwen-path question ends (`--finalize`, since 2026-10-10).** By default
+(`chain`) the harness, not the model, ends each question. The first tool call
+that returns a value ends it, unless the model's next call is a *different*
+tool that takes that value as an input (a lookup feeding a computation, such
+as `solar_system_body` → `schwarzschild_radius`). Anything else the model does
+next (a re-call, an unrelated tool, a text answer) ends the question on the
+last result. The harness writes the `ANSWER:` line from that tool result,
+with its source and the call path. The record gets `finalized_from_tool`,
+`finalize_reason` and `chain_length`. `--finalize model` restores the old loop
+for A/B against earlier runs. Why: replaying the logged runs showed qwen2.5:7b
+reached max turns on 63/64 Qwen-path questions by re-calling the right tool.
+Under `chain` it scores 50→51 correct with 1→61 grounded, and qwen3:8b scores
+48→48 with 27→61. Caveat: grounded means a tool produced the number, not that
+it was the right tool. Two open-ended adversarial questions now get a
+confident wrong-tool number where the old loop timed out and was flagged.
+
 ### 4. Score all three
 
 ```bash

@@ -3048,3 +3048,49 @@ inline, a Mentat gap census and Quarksum explained; mid-run he added his σ gues
 - [ ] Nuclear / degenerate-matter plan (Fermi-gas EOS, nuclear EOS, TOV, layers) — separate effort.
 - [ ] σ action (scalar–tensor Lagrangian) → σ-wave solver → the one L4 test the repo can run.
 - [ ] SPARC download OK → a₀ test; torsion-balance mapping for λ < 35 km; Jacobson sympy reproduction.
+
+## Session 37 — 2026-10-10 — Qwen harness: the model picks the call, the harness ends the question
+
+### What shipped
+- `sigma_ground/mcp/benchmark/run_sigma_ground.py`: `--finalize chain` (new default). After the first tool call
+  that returns a value, the harness ends the question unless the model's next call is a *different* tool that
+  takes a value the chain produced (`_is_chain_step`, 1% match, at most 3 steps). Otherwise (re-call, unrelated
+  call, text, failed step) it ends on the chain's last result. The harness writes the `ANSWER:` line, `[SOURCE: …]`
+  and the call path. The model's own prose is kept as a labelled note and never used for the value. Records gain
+  `finalized_from_tool`, `finalize_reason`, `chain_length`. `--finalize model` is the old loop, for A/B.
+- `groundedness.py`: the reason says "harness-finalized from `tool`" when the harness ended the run.
+- `test_finalize_chain.py` (7 tests): drives the real `_run_one_question` with a scripted model and fake MCP session.
+
+### Why
+The Captain asked whether Qwen could be trained into a physics specialist. Pulling apart the logged runs first:
+classifiers answer 84/86 correctly, but on the Qwen path qwen2.5:7b hit max turns on 63/64 questions (56 re-calling
+the same tool), and every one of its 52 "correct" answers was a max-turns fallback extraction (1/64 grounded).
+qwen3:8b instead wanders into an unrelated tool after the right one and loops on that. The off-the-shelf
+tool-calling fine-tune watt-tool-8B scored 0/64. Fix the harness before spending GPU time on fine-tuning.
+
+### Findings (logged turns + logged tool results replayed through the real harness, scored against today's ground truth)
+| Run | correct | grounded |
+|---|---|---|
+| qwen2.5:7b main (64 Qwen-path) | 50 → 51 | 1 → 61 |
+| qwen3:8b main (64) | 48 → 48 | 27 → 61 |
+| robustness (16) | 7 → 8 | 14 → 14 |
+| adversarial (9) | 1 → 1 | 2 newly grounded, both wrong (see below) |
+- A strict "stop at first success" breaks lookup→compute chains (`solar_system_body` → `schwarzschild_radius`), which is
+  why the chain rule exists. The replay's chain cases now go through classifiers, so the unit tests cover the chain.
+- **Grounded ≠ right tool.** `adv_open_001` (space-elevator material → Young's modulus of steel) and `adv_open_002`
+  (terraforming energy → Mars's mass) used to be flagged because they looped. They are now served as confident
+  tool numbers. The opt-in `route_consistent` gate is the existing answer to the wrong-tool class.
+- The text and max-turns fallback paths still pick among tool results using the corpus's `primary_tool_expected`
+  (the answer key). The new chain path does not use it.
+
+### Verification
+- ✅ 7/7 new tests. Benchmark folder: 27 passed, 2 xfailed, 1 failed (known-red `test_targets.py`; fails identically
+  on the untouched base). `tests/test_layering.py` passes.
+- ⚠️ Not yet run live against Ollama (no GPU in this container). Numbers above come from replays.
+
+### Next Steps
+- [ ] Captain: live rerun on the 4070 Ti, e.g. `python -m sigma_ground.mcp.benchmark.run_sigma_ground --model qwen3:8b
+      --output …/results/sigma_ground_qwen3_8b_chain_run.json`, then score. Expect ~1–2 turns per Qwen-path question, not 8.
+- [ ] Decide whether harness-finalized answers to open-ended questions need a relevance gate (`route_consistent`).
+- [ ] Remove the `primary_tool_expected` dependence from the fallback paths (answer-key leak).
+- [ ] Then: `tools/build_router_dataset.py` for a router fine-tune, with the replay as its baseline.
