@@ -64,6 +64,7 @@ from .parcel import PhysicsParcel
 from .scene import PhysicsScene
 from .fluid.kernel import W, grad_W, smoothing_length
 from .fluid.eos import pressure_tait
+from ..field.constants import R_GAS as _R_GAS   # R = k_B·N_A (derived, CODATA-exact) — authoritative constants
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -305,20 +306,34 @@ class ContinuumScene(PhysicsScene):
             also replaces the material sound speed in the artificial
             viscosity (a km/s condensed-matter c̄ would be just as wrong
             for a dilute swarm as the Tait pressure was).
+        eos="ideal" (2026-10-10): an ideal gas, P = ρ (R/M) T, with the parcel
+            temperature evolved by the first law at constant c_v = R/(M(γ−1)).
+            Needs ``ideal_molar_mass_kg_mol`` and ``ideal_gamma`` (e.g. from
+            field.interface.gas: molecular mass and heat_capacity_ratio).
+            The viscosity's signal speed is the hottest parcel's √(γRT/M)
+            (one global c̄ — stated approximation). Heat conduction still uses
+            the parcel material's cascade κ; set ``scene.heat_conduction =
+            False`` for an adiabatic gas experiment.
     """
 
     def __init__(self, parcels, gravity=None, ground=None,
                  smoothing_h=None, reference_density=None,
                  reference_temperature=300.0, self_gravity_G=None,
-                 gravity_softening_m=None, eos="tait", sound_speed_m_s=None):
+                 gravity_softening_m=None, eos="tait", sound_speed_m_s=None,
+                 ideal_molar_mass_kg_mol=None, ideal_gamma=None):
         super().__init__(parcels, gravity=gravity, ground=ground)
-        if eos not in ("tait", "isothermal"):
-            raise ValueError(f"unknown eos {eos!r} — 'tait' or 'isothermal'")
+        if eos not in ("tait", "isothermal", "ideal"):
+            raise ValueError(f"unknown eos {eos!r} — 'tait', 'isothermal' or 'ideal'")
         if eos == "isothermal" and not sound_speed_m_s:
             raise ValueError("eos='isothermal' needs sound_speed_m_s (the "
                              "velocity dispersion — a disclosed Choice)")
+        if eos == "ideal" and not (ideal_molar_mass_kg_mol and ideal_gamma and ideal_gamma > 1.0):
+            raise ValueError("eos='ideal' needs ideal_molar_mass_kg_mol and ideal_gamma > 1")
         self.eos = eos
         self.sound_speed_m_s = sound_speed_m_s
+        self.ideal_molar_mass_kg_mol = ideal_molar_mass_kg_mol
+        self.ideal_gamma = ideal_gamma
+        self.heat_conduction = True
 
         if smoothing_h is not None:
             self.h = smoothing_h
@@ -489,20 +504,18 @@ def _pressure_isothermal(parcel, sound_speed_m_s):
     return P
 
 
-def _sph_pressure_force(parcels, h, dudt=None):
-    """SPH pressure gradient force (and, optionally, its PdV work).
+def _sph_pressure_force(parcels, h, pairs=None):
+    """SPH pressure gradient force (and, optionally, its pair forces for the energy ledger).
 
-    aᵢ = −Σⱼ mⱼ (Pᵢ/ρᵢ² + Pⱼ/ρⱼ²) ∇ᵢWᵢⱼ
+    aᵢ = −Σⱼ gᵢⱼ,   gᵢⱼ = mⱼ (Pᵢ/ρᵢ² + Pⱼ/ρⱼ²) ∇ᵢWᵢⱼ
 
-    If ``dudt`` (a dict) is given, the matching energy-conserving PdV rate
-    is accumulated into it (J/kg/s, per parcel index):
-
-        duᵢ/dt += ½ Σⱼ mⱼ (Pᵢ/ρᵢ² + Pⱼ/ρⱼ²) vᵢⱼ·∇ᵢWᵢⱼ
-
-    This is the companion of the symmetric force: with pair antisymmetry
-    ∇ⱼWⱼᵢ = −∇ᵢWᵢⱼ, d/dt Σ mᵢ(½vᵢ² + uᵢ) = 0 exactly for the pressure part
-    (Monaghan 1992, Ann. Rev. Astron. Astrophys. 30:543, §2.7 energy equation).
-    Fused into this loop so the energy equation adds no second pair sweep.
+    If ``pairs`` (a list of per-parcel lists) is given, each pair term is
+    recorded as ``pairs[i].append((j, gx, gy, gz))``. continuum_step books the
+    first law from them with the step-averaged velocities,
+        Δuᵢ = ½ Δt Σⱼ ḡᵢⱼ·(v̄ᵢ − v̄ⱼ),
+    which is the energy-conserving SPH energy equation (Monaghan 1992, Ann.
+    Rev. Astron. Astrophys. 30:543) made EXACT in discrete time: since
+    mᵢgᵢⱼ = −mⱼgⱼᵢ, Σmᵢ Δuᵢ = −Σmᵢ v̄ᵢ·āᵢ Δt = −ΔK for these forces, to roundoff.
 
     Returns dict of {parcel_index: Vec3 acceleration}.
     """
@@ -511,11 +524,10 @@ def _sph_pressure_force(parcels, h, dudt=None):
 
     for i in range(n):
         ax, ay, az = 0.0, 0.0, 0.0
-        du = 0.0
         pi = parcels[i]
         rho_i = pi.sph_density
         P_i = pi.pressure
-        vix, viy, viz = pi.velocity.x, pi.velocity.y, pi.velocity.z
+        rec = pairs[i].append if pairs is not None else None
 
         for j in pi.neighbors:
             pj = parcels[j]
@@ -529,24 +541,19 @@ def _sph_pressure_force(parcels, h, dudt=None):
             gx, gy, gz = grad_W(dx, dy, dz, h)
 
             # Symmetric pressure term (Monaghan 1992)
-            A = P_i / (rho_i ** 2) + P_j / (rho_j ** 2)
-            coeff = -pj.mass * A
+            coeff = -pj.mass * (P_i / (rho_i ** 2) + P_j / (rho_j ** 2))
             ax += coeff * gx
             ay += coeff * gy
             az += coeff * gz
-            if dudt is not None:
-                du += 0.5 * pj.mass * A * ((vix - pj.velocity.x) * gx
-                                           + (viy - pj.velocity.y) * gy
-                                           + (viz - pj.velocity.z) * gz)
+            if rec is not None:
+                rec((j, -coeff * gx, -coeff * gy, -coeff * gz))
 
         accel[i] = Vec3(ax, ay, az)
-        if dudt is not None:
-            dudt[i] = dudt.get(i, 0.0) + du
 
     return accel
 
 
-def _sph_viscous_force(parcels, h, alpha_visc=1.0, c_override=None, dudt=None):
+def _sph_viscous_force(parcels, h, alpha_visc=1.0, c_override=None, pairs=None):
     """SPH artificial viscosity (Monaghan 1992).
 
     Πᵢⱼ = −α h c̄ μᵢⱼ / ρ̄   when vᵢⱼ · rᵢⱼ < 0
@@ -557,10 +564,9 @@ def _sph_viscous_force(parcels, h, alpha_visc=1.0, c_override=None, dudt=None):
     dispersion c_s is the physical signal speed (iron's ~5 km/s would be
     the condensed-matter regime error all over again).
 
-    If ``dudt`` (a dict) is given, the viscous dissipation is accumulated
-    into it — the mechanical energy Πᵢⱼ removes becomes internal energy:
-
-        duᵢ/dt += ½ Σⱼ mⱼ Πᵢⱼ vᵢⱼ·∇ᵢWᵢⱼ   (≥ 0 for approaching pairs)
+    If ``pairs`` is given, each pair term gᵢⱼ = mⱼ Πᵢⱼ ∇ᵢWᵢⱼ is recorded as in
+    _sph_pressure_force, so the mechanical energy Πᵢⱼ removes is booked as
+    internal energy (dissipation ≥ 0 for approaching pairs).
 
     Returns dict of {parcel_index: Vec3 acceleration}.
     """
@@ -570,9 +576,9 @@ def _sph_viscous_force(parcels, h, alpha_visc=1.0, c_override=None, dudt=None):
 
     for i in range(n):
         ax, ay, az = 0.0, 0.0, 0.0
-        du = 0.0
         pi = parcels[i]
         rho_i = pi.sph_density
+        rec = pairs[i].append if pairs is not None else None
 
         for j in pi.neighbors:
             pj = parcels[j]
@@ -604,12 +610,10 @@ def _sph_viscous_force(parcels, h, alpha_visc=1.0, c_override=None, dudt=None):
             ax += coeff * gx
             ay += coeff * gy
             az += coeff * gz
-            if dudt is not None:
-                du += 0.5 * pj.mass * Pi_ij * (dvx * gx + dvy * gy + dvz * gz)
+            if rec is not None:
+                rec((j, -coeff * gx, -coeff * gy, -coeff * gz))
 
         accel[i] = Vec3(ax, ay, az)
-        if dudt is not None:
-            dudt[i] = dudt.get(i, 0.0) + du
 
     return accel
 
@@ -725,25 +729,33 @@ def continuum_step(scene, dt, alpha_visc=1.0):
         """One full force evaluation at the parcels' CURRENT positions:
         SPH density (+ optional pairwise self-gravity, Phase E), EOS
         pressure, pressure gradient, artificial viscosity, buoyancy,
-        uniform g. Returns (accelerations, dudt): a list of Vec3
-        accelerations and a list of specific internal-energy rates
-        (J/kg/s; PdV work + viscous dissipation), both parcel-ordered."""
+        uniform g. Returns (accelerations, pairs): a list of Vec3
+        accelerations and, when the energy equation is on, the per-parcel
+        lists of internal pair forces (j, gx, gy, gz) the first law is
+        booked from (None otherwise), both parcel-ordered."""
         a_grav = _sph_density_sum(
             parcels, h,
             gravity_G=getattr(scene, "self_gravity_G", None),
             softening=getattr(scene, "gravity_softening_m", None))
-        iso_cs = (scene.sound_speed_m_s
-                  if getattr(scene, "eos", "tait") == "isothermal" else None)
-        for p in parcels:
-            if iso_cs is not None:
-                _pressure_isothermal(p, iso_cs)
-            else:
-                _pressure_from_eos(p)
-        dudt = {} if energy_on else None
-        a_pressure = _sph_pressure_force(parcels, h, dudt=dudt)
+        eos = getattr(scene, "eos", "tait")
+        iso_cs = scene.sound_speed_m_s if eos == "isothermal" else None
+        if eos == "ideal":
+            r_spec = _R_GAS / scene.ideal_molar_mass_kg_mol          # J/(kg·K)
+            t_max = 0.0
+            for p in parcels:
+                p.pressure = p.sph_density * r_spec * p.temperature
+                t_max = max(t_max, p.temperature)
+            iso_cs = math.sqrt(scene.ideal_gamma * r_spec * t_max)   # viscosity's c̄ (global)
+        else:
+            for p in parcels:
+                if iso_cs is not None:
+                    _pressure_isothermal(p, iso_cs)
+                else:
+                    _pressure_from_eos(p)
+        pairs = [[] for _ in parcels] if energy_on else None
+        a_pressure = _sph_pressure_force(parcels, h, pairs=pairs)
         a_viscous = _sph_viscous_force(parcels, h, alpha_visc,
-                                       c_override=iso_cs, dudt=dudt)
-        rates = [((dudt or {}).get(i, 0.0)) for i in range(len(parcels))]
+                                       c_override=iso_cs, pairs=pairs)
         out = []
         for i, p in enumerate(parcels):
             a_p = a_pressure.get(i, Vec3(0, 0, 0))
@@ -755,7 +767,7 @@ def continuum_step(scene, dt, alpha_visc=1.0):
                 g.y + a_p.y + a_v.y + a_b.y + a_g.y,
                 g.z + a_p.z + a_v.z + a_b.z + a_g.z,
             ))
-        return out, rates
+        return out, pairs
 
     # ── 2-8. Velocity-Verlet advance ──
     # TRUE velocity Verlet: drift with a(x_n), re-evaluate forces at x_{n+1},
@@ -768,10 +780,10 @@ def continuum_step(scene, dt, alpha_visc=1.0):
     # scheme is the standard SPH approximation, exact for conservative
     # forces). The cache is invalidated if the parcel list changes.
     cached = getattr(scene, "_vv_accel", None)
-    rates0 = getattr(scene, "_vv_dudt", None)
+    pairs0 = getattr(scene, "_vv_pairs", None)
     if (cached is None or len(cached) != len(parcels)
-            or rates0 is None or len(rates0) != len(parcels)):
-        acc0, rates0 = _forces()
+            or (energy_on and (pairs0 is None or len(pairs0) != len(parcels)))):
+        acc0, pairs0 = _forces()
     else:
         acc0 = cached
     for i, p in enumerate(parcels):
@@ -781,7 +793,8 @@ def continuum_step(scene, dt, alpha_visc=1.0):
             p.position.y + p.velocity.y * dt + 0.5 * a0.y * dt * dt,
             p.position.z + p.velocity.z * dt + 0.5 * a0.z * dt * dt,
         )
-    acc1, rates1 = _forces()
+    acc1, pairs1 = _forces()
+    v_old = [(p.velocity.x, p.velocity.y, p.velocity.z) for p in parcels] if energy_on else None
     for i, p in enumerate(parcels):
         a0, a1 = acc0[i], acc1[i]
         p.velocity = Vec3(
@@ -790,31 +803,52 @@ def continuum_step(scene, dt, alpha_visc=1.0):
             p.velocity.z + 0.5 * (a0.z + a1.z) * dt,
         )
     scene._vv_accel = acc1
-    scene._vv_dudt = rates1
+    scene._vv_pairs = pairs1
 
     # ── 9. First law: PdV work + viscous dissipation, then conduction ──
-    # The internal-energy rate du/dt = ½Σⱼ mⱼ(Pᵢ/ρᵢ² + Pⱼ/ρⱼ² + Πᵢⱼ) vᵢⱼ·∇ᵢWᵢⱼ
-    # (accumulated inside the force loops) is integrated with the same
-    # trapezoid as the velocity kick, so K + U_int (+ U_grav) is conserved to
-    # the integrator's O(dt²). Closes the 2026-10-10 KNOWN_GAPS entry "SPH
-    # continuum bridge books no viscous heating and no PdV work".
+    # The work the internal SPH forces (pressure + artificial viscosity) do on
+    # the parcels over this step is booked as internal energy, pair by pair:
+    #     Δuᵢ = ¼ Δt Σ_{evaluations 0,1} Σⱼ gᵢⱼ·(v̄ᵢ − v̄ⱼ),   v̄ = (vₙ + vₙ₊₁)/2,
+    # with the SAME pair forces gᵢⱼ the kick applied. Because mᵢgᵢⱼ = −mⱼgⱼᵢ,
+    # Σ mᵢΔuᵢ = −ΔK from these forces exactly (to roundoff): the discrete form of
+    # duᵢ/dt = ½Σⱼ mⱼ(Pᵢ/ρᵢ² + Pⱼ/ρⱼ² + Πᵢⱼ) vᵢⱼ·∇ᵢWᵢⱼ (Monaghan 1992). Gravity and
+    # uniform g stay in the potential ledger (velocity-Verlet, O(dt²)). Closes the
+    # 2026-10-10 KNOWN_GAPS entry "SPH continuum bridge books no viscous heating
+    # and no PdV work".
     #   eos="tait"       : the energy heats the parcel, dT = du / c_p
     #                      (c_p ≈ c_v for condensed matter — stated approximation).
     #   eos="isothermal" : T is held by definition (a dispersion closure in
     #                      contact with a bath); the same energy is booked to
     #                      scene.energy_bath_J so the ledger still closes.
+    #   eos="ideal"      : u = c_v T with constant c_v = R/(M(γ−1)).
     # scene.energy_equation = False restores the pre-2026-10-10 behaviour.
-    isothermal = getattr(scene, "eos", "tait") == "isothermal"
+    eos_now = getattr(scene, "eos", "tait")
     if energy_on:
+        c_v_ideal = (_R_GAS / (scene.ideal_molar_mass_kg_mol * (scene.ideal_gamma - 1.0))
+                     if eos_now == "ideal" else None)
+        vbar = [(0.5 * (vo[0] + p.velocity.x), 0.5 * (vo[1] + p.velocity.y), 0.5 * (vo[2] + p.velocity.z))
+                for vo, p in zip(v_old, parcels)]
         for i, p in enumerate(parcels):
-            du = 0.5 * (rates0[i] + rates1[i]) * dt          # J/kg
-            if isothermal:
+            bix, biy, biz = vbar[i]
+            w = 0.0
+            for lst in (pairs0[i], pairs1[i]):
+                for (j, gx, gy, gz) in lst:
+                    bj = vbar[j]
+                    w += gx * (bix - bj[0]) + gy * (biy - bj[1]) + gz * (biz - bj[2])
+            du = 0.25 * dt * w                                # J/kg
+            if eos_now == "isothermal":
                 scene.energy_bath_J = getattr(scene, "energy_bath_J", 0.0) + p.mass * du
+            elif eos_now == "ideal":
+                p.internal_energy += p.mass * du
+                p.temperature += du / c_v_ideal              # u = c_v T for an ideal gas
             else:
                 p.internal_energy += p.mass * du
                 p.temperature += du / max(p.specific_heat, 1.0)
 
-    dTdt = _heat_conduction(parcels, h)
+    if not getattr(scene, "heat_conduction", True):
+        dTdt = {}
+    else:
+        dTdt = _heat_conduction(parcels, h)
     for i, p in enumerate(parcels):
         # Conduction
         dT_cond = dTdt.get(i, 0.0) * dt

@@ -1,0 +1,11 @@
+{
+ "lambda_c_bernoulli": 1.1203561058515128,
+ "lambda_c_bondi": 1.1204222675845161,
+ "lambda_rel_err": -5.90507123229278e-05,
+ "rho_inf_spread": 6.80460512260715e-05,
+ "r_sonic_num_over_bondi": 0.9981083260852862,
+ "inside_pulse_max_r_above_floor": 0.4987180618533247,
+ "inside_crossed_horizon": false,
+ "outside_pulse_max_r_above_floor": 6.617259856114101,
+ "outside_escaped_past_4": true
+}

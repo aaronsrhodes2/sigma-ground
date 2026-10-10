@@ -1,34 +1,32 @@
 """The SPH continuum bridge has a first law (KNOWN_GAPS 2026-10-10, closed the same day).
 
-continuum_step now books the energy-conserving SPH energy equation
-    duᵢ/dt = ½ Σⱼ mⱼ (Pᵢ/ρᵢ² + Pⱼ/ρⱼ² + Πᵢⱼ) vᵢⱼ·∇ᵢWᵢⱼ
-(PdV work + artificial-viscosity dissipation) with the same trapezoid as the
-velocity kick. These tests pin:
+continuum_step books the work of the internal SPH forces (pressure + artificial
+viscosity) as internal energy pair by pair, with the same pair forces the kick
+applied and the step-averaged velocities:
+    Δuᵢ = ¼ Δt Σ_{evaluations} Σⱼ gᵢⱼ·(v̄ᵢ − v̄ⱼ)
+Since mᵢgᵢⱼ = −mⱼgⱼᵢ this conserves K + U_int EXACTLY (to roundoff) for those
+forces. (A first implementation used the end-of-step rate with the pre-kick
+velocity; a free-expanding gas then gained 24 % more kinetic energy than it lost
+in heat — these tests would have caught it.)
 
-  1. Ledger closure that CONVERGES — isothermal pair collision: K + bath is
-     conserved up to an error that falls with dt (first order: the viscous
-     force sees the step's lagged velocities), and the viscous loss is booked
-     to the bath instead of vanishing (the Phase E "−387 % mechanical energy"
-     symptom).
-  2. Ledger closure with self-gravity — a collapsing isothermal cloud:
-     K + U_grav(softened) + bath is conserved to integrator tolerance.
-  3. The energy equation never changes the dynamics (positions and velocities
-     are bit-identical with the switch on or off), and the heat it adds to a
-     Tait parcel is exactly the booked internal energy over c_p.
-  4. energy_equation = False restores the pre-fix behaviour (no heating, no bath).
-
-Note on test 3's setup: two isolated Tait parcels sit below ρ₀, so the EOS puts
-them in strong tension (the "dilute Tait" regime limit documented in
-_pressure_from_eos) and they accelerate together; the PdV term converts that
-work to (negative) heat correctly. Short runs only — the regime is unphysical
-for long ones, which is the documented limit, not this feature.
+  1. Isothermal pair collision: K + bath conserved to roundoff; viscous loss
+     booked to the bath, not lost.
+  2. Tait pair (strong tension — the dilute-Tait regime limit): K + U_int to
+     roundoff; dynamics bit-identical with the switch on or off; ΔT bracketed
+     by Δu/c_p(start..end).
+  3. Ideal gas (eos="ideal"): K + U_int to roundoff and T = T₀ + u/c_v exactly.
+  4. Self-gravitating isothermal cloud: K + U_grav(softened) + bath conserved
+     to the velocity-Verlet tolerance (gravity is in the potential ledger).
+  5. energy_equation = False restores the pre-fix behaviour.
 """
 import math
+import random
 import unittest
 
 from sigma_ground.dynamics.vec import Vec3
 from sigma_ground.dynamics.continuum import ContinuumParcel, ContinuumScene, continuum_step
 from sigma_ground.dynamics.seeding import seed_rotating_cloud, to_continuum, G_CODATA
+from sigma_ground.field.constants import R_GAS
 
 ZERO = Vec3(0.0, 0.0, 0.0)
 
@@ -39,35 +37,92 @@ def _pair(material, sep, v, radius=0.01, T=300.0):
     return [a, b]
 
 
-def _iso_pair_run(dt, t_end=0.08):
-    scene = ContinuumScene(_pair("water_ice", 0.08, 0.5), gravity=ZERO, ground=False,
-                           smoothing_h=0.05, eos="isothermal", sound_speed_m_s=1.0)
-    e0 = scene.energy_ledger()
-    for _ in range(int(round(t_end / dt))):
-        continuum_step(scene, dt)
-    return scene, e0, scene.energy_ledger()
+def _rel(e0, e1, scale):
+    return abs(e1["total"] - e0["total"]) / scale
 
 
 class TestIsothermalPairLedger(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.coarse = _iso_pair_run(2e-4)
-        cls.fine = _iso_pair_run(5e-5)
+        cls.scene = ContinuumScene(_pair("water_ice", 0.08, 0.5), gravity=ZERO, ground=False,
+                                   smoothing_h=0.05, eos="isothermal", sound_speed_m_s=1.0)
+        cls.e0 = cls.scene.energy_ledger()
+        for _ in range(400):
+            continuum_step(cls.scene, 2e-4)
+        cls.e1 = cls.scene.energy_ledger()
+
+    def test_ledger_exact(self):
+        self.assertLess(_rel(self.e0, self.e1, self.e0["kinetic"]), 1e-10)
 
     def test_dissipation_is_booked_not_lost(self):
-        _, e0, e1 = self.fine
-        self.assertLess(e1["kinetic"], e0["kinetic"])                  # the collision dissipated
-        self.assertGreater(e1["bath"], 0.0)                            # ...into the bath
-        self.assertLess(abs(e1["total"] - e0["total"]), 1e-2 * e0["kinetic"])
-
-    def test_ledger_error_converges_with_dt(self):
-        err_c = abs(self.coarse[2]["total"] - self.coarse[1]["total"])
-        err_f = abs(self.fine[2]["total"] - self.fine[1]["total"])
-        self.assertGreater(err_c / err_f, 3.0)                         # 4× smaller dt → ≥ 3× smaller error
+        self.assertLess(self.e1["kinetic"], self.e0["kinetic"])
+        self.assertGreater(self.e1["bath"], 0.0)
 
     def test_isothermal_temperature_is_held(self):
-        scene = self.fine[0]
-        self.assertEqual([p.temperature for p in scene.parcels], [300.0, 300.0])
+        self.assertEqual([p.temperature for p in self.scene.parcels], [300.0, 300.0])
+
+
+class TestTaitPair(unittest.TestCase):
+    def _run(self, on, steps=20, dt=1e-7):
+        scene = ContinuumScene(_pair("iron", 0.018, 0.0), gravity=ZERO, ground=False, smoothing_h=0.012)
+        scene.energy_equation = on
+        e0 = scene.energy_ledger()
+        for _ in range(steps):
+            continuum_step(scene, dt)
+        return scene, e0
+
+    def test_ledger_exact(self):
+        on, e0 = self._run(True)
+        e1 = on.energy_ledger()
+        self.assertGreater(abs(e1["internal"]), 0.0)
+        self.assertLess(_rel(e0, e1, abs(e1["internal"])), 1e-10)
+
+    def test_positions_velocities_bit_identical(self):
+        on, _ = self._run(True)
+        off, _ = self._run(False)
+        self.assertEqual([(p.position.x, p.velocity.x) for p in on.parcels],
+                         [(p.position.x, p.velocity.x) for p in off.parcels])
+
+    def test_heat_bracketed_by_booked_internal_energy(self):
+        probe = _pair("iron", 0.018, 0.0)[0]
+        probe.update_properties()
+        cp_start = probe.specific_heat
+        on, _ = self._run(True)
+        off, _ = self._run(False)
+        for p_on, p_off in zip(on.parcels, off.parcels):
+            dT = p_on.temperature - p_off.temperature
+            u = p_on.internal_energy / p_on.mass
+            lo, hi = sorted((u / cp_start, u / p_on.specific_heat))
+            self.assertTrue(lo - 1e-9 * abs(dT) <= dT <= hi + 1e-9 * abs(dT), (lo, dT, hi))
+
+
+class TestIdealGas(unittest.TestCase):
+    def test_free_expansion_ledger_exact_and_T_is_u_over_cv(self):
+        M, gam = 0.028014, 1.4
+        rng = random.Random(2); ps = []
+        while len(ps) < 40:
+            x, y, z = [rng.uniform(-1, 1) for _ in range(3)]
+            if x * x + y * y + z * z <= 1:
+                ps.append(ContinuumParcel("water_ice", 0.05, temperature=300.0, position=Vec3(x, y, z), velocity=ZERO))
+        h = 1.5 * (4 / 3 * math.pi / 40) ** (1 / 3)
+        scene = ContinuumScene(ps, gravity=ZERO, ground=False, smoothing_h=h, eos="ideal",
+                               ideal_molar_mass_kg_mol=M, ideal_gamma=gam)
+        scene.heat_conduction = False
+        cs = math.sqrt(gam * R_GAS * 300.0 / M)
+        e0 = scene.energy_ledger()
+        for _ in range(60):
+            continuum_step(scene, 0.15 * h / cs)
+        e1 = scene.energy_ledger()
+        self.assertGreater(e1["kinetic"], 0.0)                         # it expanded
+        self.assertLess(e1["internal"], 0.0)                            # ...and cooled
+        self.assertLess(_rel(e0, e1, e1["kinetic"]), 1e-10)
+        cv = R_GAS / (M * (gam - 1.0))
+        for p in ps:
+            self.assertAlmostEqual(p.temperature, 300.0 + p.internal_energy / (p.mass * cv), delta=1e-9)
+
+    def test_ideal_requires_parameters(self):
+        with self.assertRaises(ValueError):
+            ContinuumScene(_pair("water_ice", 0.08, 0.0), gravity=ZERO, ground=False, eos="ideal")
 
 
 class TestSelfGravityLedger(unittest.TestCase):
@@ -84,45 +139,8 @@ class TestSelfGravityLedger(unittest.TestCase):
         for _ in range(120):
             continuum_step(scene, t_ff / 400)
         e1 = scene.energy_ledger()
-        self.assertGreater(e1["kinetic"], 0.0)                          # it fell
-        self.assertLess(abs(e1["total"] - e0["total"]), 2e-3 * abs(e0["self_gravity"]))
-
-
-class TestDynamicsUnchangedHeatConsistent(unittest.TestCase):
-    def _run(self, on, steps=20, dt=1e-7):
-        ps = _pair("iron", 0.018, 0.0)
-        scene = ContinuumScene(ps, gravity=ZERO, ground=False, smoothing_h=0.012)
-        scene.energy_equation = on
-        e0 = scene.energy_ledger()
-        for _ in range(steps):
-            continuum_step(scene, dt)
-        return scene, e0
-
-    def test_positions_velocities_bit_identical(self):
-        on, _ = self._run(True)
-        off, _ = self._run(False)
-        self.assertEqual([(p.position.x, p.velocity.x) for p in on.parcels],
-                         [(p.position.x, p.velocity.x) for p in off.parcels])
-
-    def test_heat_equals_booked_internal_energy(self):
-        probe = _pair("iron", 0.018, 0.0)[0]
-        probe.update_properties()
-        cp_start = probe.specific_heat                                   # c_p at 300 K
-        on, e0 = self._run(True)
-        off, _ = self._run(False)
-        for p_on, p_off in zip(on.parcels, off.parcels):
-            dT = p_on.temperature - p_off.temperature
-            self.assertNotEqual(dT, 0.0)
-            u = p_on.internal_energy / p_on.mass                          # J/kg booked by the first law
-            cp_end = p_on.specific_heat
-            lo, hi = sorted((u / cp_start, u / cp_end))
-            # each step heats by du/c_p(T_step); c_p moves monotonically over the run, so ΔT is bracketed
-            self.assertTrue(lo - 1e-9 * abs(dT) <= dT <= hi + 1e-9 * abs(dT), (lo, dT, hi))
-        # ledger: first-order in dt (the end-of-step rate sees the pre-kick velocity) — so test convergence
-        err_c = abs(on.energy_ledger()["total"] - e0["total"])
-        fine, e0f = self._run(True, steps=80, dt=2.5e-8)
-        err_f = abs(fine.energy_ledger()["total"] - e0f["total"])
-        self.assertGreater(err_c / err_f, 3.0)
+        self.assertGreater(e1["kinetic"], 0.0)
+        self.assertLess(_rel(e0, e1, abs(e0["self_gravity"])), 2e-3)
 
 
 class TestSwitchOff(unittest.TestCase):

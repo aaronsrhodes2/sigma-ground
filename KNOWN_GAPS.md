@@ -228,14 +228,16 @@ run and an isolated bearing-alone run produce identical `omega()` traces to
 
 ## ✅ CLOSED 2026-10-10 — PHYSICS_GAP: SPH continuum bridge books no viscous heating and no PdV work (2026-10-10)
 
-**Closed the same day** (unification Stage 8): `continuum_step` now integrates the energy-conserving SPH energy
-equation duᵢ/dt = ½Σⱼ mⱼ(Pᵢ/ρᵢ² + Pⱼ/ρⱼ² + Πᵢⱼ) vᵢⱼ·∇ᵢWᵢⱼ, fused into the existing pressure and viscosity
-loops (no extra pair sweep; on/off timing within load noise). eos="tait" heats the parcel (dT = du/c_p);
-eos="isothermal" holds T and books the work to `scene.energy_bath_J`. `scene.energy_ledger()` reports
-kinetic + internal + bath + softened self-gravity + uniform g. Sentinels: `dynamics/test_continuum_energy.py`
-(7 tests). Remaining limitation, stated: the energy update is first order in dt (the end-of-step rate sees the
-pre-kick velocity); exact pairwise conservation is possible by caching both evaluations' pair forces and
-booking −f̄ᵢⱼ·v̄ᵢⱼ dt — a future improvement. `scene.energy_equation = False` restores the old behaviour.
+**Closed the same day** (unification Stage 8): `continuum_step` books the work of the internal SPH forces
+(pressure + artificial viscosity) as internal energy pair by pair — Δuᵢ = ¼Δt Σ_{both evaluations} Σⱼ gᵢⱼ·(v̄ᵢ − v̄ⱼ),
+using the same pair forces gᵢⱼ the kick applied and the step-averaged velocities. Since mᵢgᵢⱼ = −mⱼgⱼᵢ this conserves
+K + U_int **exactly** (to roundoff) for those forces; gravity and uniform g stay in the velocity-Verlet potential ledger
+(O(dt²)). Pair forces are recorded inside the existing loops (no extra sweep). eos="tait" heats the parcel
+(dT = du/c_p); eos="isothermal" holds T and books the work to `scene.energy_bath_J`; new eos="ideal" (P = ρRT/M,
+u = c_vT) makes gas expansion testable. `scene.energy_ledger()` reports kinetic + internal + bath + softened
+self-gravity + uniform g. Sentinels: `dynamics/test_continuum_energy.py` (10 tests). A first, simpler version used the
+end-of-step rate with the pre-kick velocity; a free-expanding gas then gained 24 % more K than it lost in heat — caught
+by Stage 8 before release. `scene.energy_equation = False` restores the old behaviour.
 
 Original entry:
 
