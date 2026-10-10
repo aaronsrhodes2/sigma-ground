@@ -45,7 +45,7 @@ from typing import Any
 
 
 # Reference physical values used to build canonical inputs (CODATA-ish).
-_M_SUN = 1.98892e30
+from sigma_ground.field.constants import M_SUN_KG as _M_SUN
 _M_EARTH = 5.972e24
 _R_EARTH = 6.371e6
 _C = 299792458.0

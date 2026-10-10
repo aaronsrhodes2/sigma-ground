@@ -45,6 +45,7 @@ from sigma_ground.field.interface import liquid_water as W
 from sigma_ground.field.interface import fluid_surface as FS
 from sigma_ground.field import relativity as R
 from sigma_ground.field import scale as SC
+from sigma_ground.field.constants import M_SUN_KG
 from sigma_ground.field.interface import surface as S
 from sigma_ground.mcp.tools import thermodynamics as TH
 from sigma_ground.field.interface import thermoelectric as TE
@@ -84,7 +85,7 @@ CASES = [
        "dimensionless", 2.294, 0.01, "nl", "Lorentz factor at 0.9 c"),
     _C("electron_rest_energy_MeV", "particle", lambda: R.rest_energy(M_E) / EV / 1e6,
        "MeV", 0.5109989461, 0.01, "nl", "electron rest energy in MeV"),
-    _C("schwarzschild_radius_sun", "gr", lambda: SC.schwarzschild_radius(1.98892e30),
+    _C("schwarzschild_radius_sun", "gr", lambda: SC.schwarzschild_radius(M_SUN_KG),
        "m", 2953.25, 0.01, "nl", "Schwarzschild radius of the Sun"),
     _C("copper_density", "materials", lambda: S.MATERIALS["copper"]["density_kg_m3"],
        "kg/m^3", 8960.0, 0.02, "nl", "density of copper"),

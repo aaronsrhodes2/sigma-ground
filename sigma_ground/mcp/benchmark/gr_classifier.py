@@ -27,9 +27,9 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from sigma_ground.field.constants import M_SUN_KG as _M_SUN_KG
 
 # Standard astronomy constants (CODATA / IAU)
-_M_SUN_KG = 1.98892e30
 _M_EARTH_KG = 5.97219e24
 _R_EARTH_M = 6.378e6
 # Sgr A*: about 4.1 million solar masses (Event Horizon Telescope, 2022)

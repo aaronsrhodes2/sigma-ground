@@ -23,7 +23,7 @@ _C = 299792458.0
 _PC_M = 3.0857e16
 _AU_M = 1.495978707e11
 _YEAR_S = 365.25 * 86400.0
-_M_SUN = 1.98892e30
+from sigma_ground.field.constants import M_SUN_KG as _M_SUN
 _L_SUN = 3.828e26
 _T_SUN_K = 5778.0
 _G = 6.6743e-11

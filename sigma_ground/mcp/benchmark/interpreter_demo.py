@@ -12,11 +12,13 @@ from __future__ import annotations
 import math, re, json, html
 import requests
 
+from sigma_ground.field.constants import M_SUN_KG
+
 OLLAMA = "http://localhost:11434"
 
 # ── body data (kg, m) ───────────────────────────────────────────────────
 _BODIES = {
-    "sun": (1.98892e30, 6.957e8), "earth": (5.972e24, 6.371e6),
+    "sun": (M_SUN_KG, 6.957e8), "earth": (5.972e24, 6.371e6),
     "moon": (7.342e22, 1.7374e6), "jupiter": (1.898e27, 6.9911e7),
     "mars": (6.39e23, 3.3895e6), "venus": (4.867e24, 6.0518e6),
 }

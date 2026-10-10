@@ -388,7 +388,16 @@ Found by unification round 2, item U14G, which replaced the blocked Rayleigh–B
 - Regression sentinels to add: lone-parcel buoyancy = 3α_L ΔT g; two-parcel conduction rate against
   Fourier's law and exactly antisymmetric for unequal densities.
 
-## DATA_GAP: Mentat's Sun mass pairs an IAU GM with an obsolete G (2026-10-10)
+## ✅ FIXED 2026-10-10 (Session 37) — DATA_GAP: Mentat's Sun mass pairs an IAU GM with an obsolete G (2026-10-10)
+
+**Fixed as the fix direction below says:** `field/constants.py` now stores `GM_SUN_M3_S2 = 1.3271244e20` (IAU 2015
+nominal, exact) and derives `M_SUN_KG = GM_SUN_M3_S2 / G` (≈ 1.98841e30 kg). It is the library's only solar mass.
+Materia's `bodies`, the pint `solar_mass` unit, `solar_system_body('sun')`, `orbital`, and the benchmark classifiers
+(`gr`, `astro`, `frontier`, `audit_library`, `interpreter_demo`, `param_aliases`, the Wolfram parity case) all
+import it. GM☉ products are now the IAU value exactly, and the Sun's Schwarzschild radius is 2953.2501 m against
+Wolfram's 2953.25. Test fixtures that set their own Sun mass (`test_nbody.py`, `test_gr_precession.py`) were left as
+they are: they are inputs, not library constants.
+
 
 `sigma_ground/mcp/tools/astronomy.py`, `solar_system_body('sun')` returns 1.98892e30 kg, labelled "IAU
 2015 nominal". It equals the IAU 2015 nominal GM☉ = 1.3271244e20 m³/s² (IAU 2015 Resolution B3,
@@ -487,7 +496,7 @@ free-fall violation, law (2) gives S9a's Δf = 2.08 × 10⁻³. This is decision
 - `inventory/core/sigma.py` docstrings: "σ ~ 7 × 10⁻¹⁰ at Earth's surface" (the function returns 1.10 × 10⁻¹⁰; 7 × 10⁻¹⁰ has no ξ);
   "σ_horizon = ξ/2" is the weak-field formula evaluated outside its domain (the only static, horizon-regular solution of □σ = −ξR
   is σ = σ_∞); ξ = 0.1582 is attributed to Planck 2018 values that give 0.1571; G hard-coded. (U4, U5)
-- Two solar masses: `constants.M_SUN_KG = 1.989e30` vs `solar_system_body('sun') = 1.98892e30` (see the DATA_GAP above). (J6)
+- ✅ Fixed (Session 37): two solar masses, `constants.M_SUN_KG = 1.989e30` vs `solar_system_body('sun') = 1.98892e30`. Now one, derived from GM☉ (see the DATA_GAP above). (J6)
 - `test_physics_stability.py`, `test_nbody.py`: GR and GW tests assert only "nonzero" or "decreasing", so neither sign nor size is
   tested (see the GR and GW entries above).
 - Outside this repo (SkippyTel `mentat/app.py`, recorded only): the gateway's `_UNSAFE` regex refuses the apostrophe, so

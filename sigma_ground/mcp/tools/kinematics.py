@@ -252,7 +252,7 @@ def circular_orbit_velocity(central_mass_kg: float, radius_m: float) -> ToolResu
     Parameters
     ----------
     central_mass_kg : float
-        Mass of the central body (Earth ~5.972e24, Sun ~1.989e30).
+        Mass of the central body (Earth ~5.972e24, Sun ~1.988e30).
     radius_m : float
         Orbital radius from the center of the central body.
     """

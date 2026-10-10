@@ -18,7 +18,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-from ..field.constants import G  # tier 1 — the single gravitational constant
+from ..field.constants import G, M_SUN_KG  # tier 1 — the single G and solar mass
 
 
 @dataclass(frozen=True)
@@ -43,7 +43,7 @@ class Body:
 # Values match mcp.tools.astronomy._SOLAR_SYSTEM_BODIES to the digit so orbital
 # numbers are identical whether routed through Materia or the MCP tools.
 _BODIES: dict[str, Body] = {
-    "sun":     Body("sun", "the Sun", 1.98892e30, 695_700_000.0),
+    "sun":     Body("sun", "the Sun", M_SUN_KG, 695_700_000.0),
     "mercury": Body("mercury", "Mercury", 3.3011e23, 2_439_700.0),
     "venus":   Body("venus", "Venus", 4.8675e24, 6_051_800.0),
     "earth":   Body("earth", "Earth", 5.97219e24, 6_378_100.0),

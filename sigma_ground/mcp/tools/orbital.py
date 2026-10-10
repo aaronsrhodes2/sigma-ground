@@ -22,10 +22,10 @@ from __future__ import annotations
 
 import math
 
+from sigma_ground.field.constants import M_SUN_KG as _M_SUN
 from sigma_ground.mcp.provenance import ToolResult
 
 _AU_M = 1.495978707e11
-_M_SUN = 1.98892e30
 
 
 def _resolve_central(central_body: str | None,
