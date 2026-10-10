@@ -23,11 +23,17 @@ if SERVER then
   end
   AddCSLuaFile("mentat/client.lua")
   AddCSLuaFile("mentat/holodeck_client.lua")
+  AddCSLuaFile("mentat/voice/core.lua")
+  AddCSLuaFile("mentat/voice_client.lua")
+  AddCSLuaFile("mentat/skippy_client.lua")
   include("mentat/server.lua")
   include("mentat/autotest.lua")
   include("mentat/experiments.lua")
   include("mentat/holodeck.lua")
+  include("mentat/voice.lua")
 else
   include("mentat/client.lua")
   include("mentat/holodeck_client.lua")
+  include("mentat/voice_client.lua")
+  include("mentat/skippy_client.lua")
 end

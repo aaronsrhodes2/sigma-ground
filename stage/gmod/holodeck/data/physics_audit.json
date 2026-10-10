@@ -1,0 +1,4290 @@
+[
+ {
+  "kind": "couch",
+  "category": "seating",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "seat",
+    "leg_1",
+    "leg_2",
+    "leg_3",
+    "leg_4",
+    "back"
+   ],
+   "materials": [
+    "oak"
+   ],
+   "sources": [
+    "{'name': 'structural archetype \u2014 legged furniture (seat/top + corner legs + vert",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 414 models)'"
+   ],
+   "mass_kg": 86.59087825920003,
+   "size_m": [
+    2.1322080000000003,
+    1.061708,
+    0.893108
+   ],
+   "com_m": [
+    0.0,
+    -0.19757318873859422,
+    1.0931592140600885
+   ],
+   "inertia_kgm2": [
+    24.80838594244416,
+    26.137296569399624,
+    13.836890441341879
+   ],
+   "seconds": 1.7
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/furniturecouch001a.mdl",
+     "mass_kg": 300,
+     "size_m": [
+      1.474,
+      0.863,
+      0.628
+     ],
+     "hull_volume_m3": 0.6061,
+     "convexes": 4,
+     "material": "dirt",
+     "surface_density": 1600,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 494.9
+    },
+    {
+     "model": "props_interiors/furniture_couch01a.mdl",
+     "mass_kg": 251,
+     "size_m": [
+      1.488,
+      0.825,
+      0.76
+     ],
+     "hull_volume_m3": 0.3433,
+     "convexes": 6,
+     "material": "dirt",
+     "surface_density": 1600,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 731.1
+    },
+    {
+     "model": "props/cs_office/sofa.mdl",
+     "mass_kg": 50,
+     "size_m": [
+      2.003,
+      0.864,
+      0.861
+     ],
+     "hull_volume_m3": 0.9009,
+     "convexes": 4,
+     "material": "ceiling_tile",
+     "surface_density": 500,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 55.5
+    },
+    {
+     "model": "props/cs_militia/couch.mdl",
+     "mass_kg": 500.0000305175781,
+     "size_m": [
+      2.026,
+      0.804,
+      0.673
+     ],
+     "hull_volume_m3": 0.6485,
+     "convexes": 4,
+     "material": "carpet",
+     "surface_density": 500,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 771.1
+    }
+   ],
+   "median_mass_kg": 300,
+   "median_size_m": [
+    2.003,
+    0.864,
+    0.861
+   ]
+  },
+  "flags": []
+ },
+ {
+  "kind": "loveseat",
+  "category": "seating",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "seat",
+    "leg_1",
+    "leg_2",
+    "leg_3",
+    "leg_4",
+    "back"
+   ],
+   "materials": [
+    "oak"
+   ],
+   "sources": [
+    "{'name': 'structural archetype \u2014 legged furniture (seat/top + corner legs + vert",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 23 models)',"
+   ],
+   "mass_kg": 82.55277320683429,
+   "size_m": [
+    1.8626399999999999,
+    1.04874,
+    0.98804
+   ],
+   "com_m": [
+    -6.6652225135768235e-18,
+    -0.20342000000025598,
+    0.9560009142629444
+   ],
+   "inertia_kgm2": [
+    19.57018532008945,
+    18.701557950863958,
+    14.44234146453094
+   ],
+   "seconds": 4.2
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/furniturecouch002a.mdl",
+     "mass_kg": 700,
+     "size_m": [
+      1.093,
+      0.719,
+      0.616
+     ],
+     "hull_volume_m3": 0.2373,
+     "convexes": 8,
+     "material": "dirt",
+     "surface_density": 1600,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 2949.4
+    }
+   ],
+   "median_mass_kg": 700,
+   "median_size_m": [
+    1.093,
+    0.719,
+    0.616
+   ]
+  },
+  "flags": [
+   "engine mass 700 kg vs Deckard 82.6 kg (x8.5)"
+  ]
+ },
+ {
+  "kind": "armchair",
+  "category": "seating",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "seat",
+    "leg_1",
+    "leg_2",
+    "leg_3",
+    "leg_4",
+    "back"
+   ],
+   "materials": [
+    "oak"
+   ],
+   "sources": [
+    "{'name': 'structural archetype \u2014 legged furniture (seat/top + corner legs + vert",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 64 models)',"
+   ],
+   "mass_kg": 53.43641046581529,
+   "size_m": [
+    1.0475971999999998,
+    0.9526922,
+    0.8813922
+   ],
+   "com_m": [
+    -7.956659125205445e-17,
+    -0.14877575860897715,
+    0.5231996379849642
+   ],
+   "inertia_kgm2": [
+    6.3017137113762836,
+    5.91012348022034,
+    7.987066339425847
+   ],
+   "seconds": 4.0
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/furniturearmchair001a.mdl",
+     "mass_kg": 399.9999694824219,
+     "size_m": [
+      0.853,
+      0.845,
+      0.817
+     ],
+     "hull_volume_m3": 0.1051,
+     "convexes": 8,
+     "material": "dirt",
+     "surface_density": 1600,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 3806.8
+    },
+    {
+     "model": "props/cs_office/sofa_chair.mdl",
+     "mass_kg": 25,
+     "size_m": [
+      1.102,
+      0.854,
+      0.847
+     ],
+     "hull_volume_m3": 0.4858,
+     "convexes": 4,
+     "material": "ceiling_tile",
+     "surface_density": 500,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 51.5
+    },
+    {
+     "model": "props_interiors/furniture_couch02a.mdl",
+     "mass_kg": 180,
+     "size_m": [
+      0.89,
+      0.832,
+      0.716
+     ],
+     "hull_volume_m3": 0.1254,
+     "convexes": 12,
+     "material": "dirt",
+     "surface_density": 1600,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 1435.4
+    }
+   ],
+   "median_mass_kg": 180,
+   "median_size_m": [
+    1.102,
+    0.854,
+    0.847
+   ]
+  },
+  "flags": [
+   "props_c17/furniturearmchair001a.mdl: 400 kg in a 0.11 m3 body is 3807 kg/m3"
+  ]
+ },
+ {
+  "kind": "chair",
+  "category": "seating",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "back_single_surface_0",
+    "back_support_1",
+    "arm_near_vertical_bar_2",
+    "arm_near_vertical_bar_3",
+    "seat_single_surface_4",
+    "seat_support_5",
+    "leg_6",
+    "leg_7",
+    "leg_8",
+    "leg_9"
+   ],
+   "materials": [
+    "fabric",
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 44164', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 44164 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 697 models)'",
+    "{'name': 'material composition (ShapeNetSem): fabric 42%, leather 12%, plastic 4",
+    "{'name': 'per-part material by role-convention (frame=wood, upholstery=fabric) \u2014"
+   ],
+   "mass_kg": 123.11807502059398,
+   "size_m": [
+    1.0417732,
+    0.8222082,
+    0.7698932
+   ],
+   "com_m": [
+    -0.001159528709066293,
+    -0.03741458367015247,
+    0.43250754590859297
+   ],
+   "inertia_kgm2": [
+    13.2009027893581,
+    13.9473726871196,
+    14.397828893676772
+   ],
+   "seconds": 5.8
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/furniturechair001a.mdl",
+     "mass_kg": 10,
+     "size_m": [
+      0.659,
+      0.391,
+      0.377
+     ],
+     "hull_volume_m3": 0.0058,
+     "convexes": 15,
+     "material": "wood",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 1726.6
+    },
+    {
+     "model": "props_c17/chair02a.mdl",
+     "mass_kg": 20,
+     "size_m": [
+      0.764,
+      0.538,
+      0.424
+     ],
+     "hull_volume_m3": 0.0031,
+     "convexes": 12,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 6443.7
+    },
+    {
+     "model": "props_interiors/furniture_chair01a.mdl",
+     "mass_kg": 16,
+     "size_m": [
+      0.809,
+      0.397,
+      0.394
+     ],
+     "hull_volume_m3": 0.0043,
+     "convexes": 7,
+     "material": "wood",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 3694.4
+    },
+    {
+     "model": "props_interiors/furniture_chair03a.mdl",
+     "mass_kg": 15,
+     "size_m": [
+      0.744,
+      0.374,
+      0.374
+     ],
+     "hull_volume_m3": 0.0157,
+     "convexes": 4,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 954.8
+    },
+    {
+     "model": "props/de_inferno/chairantique.mdl",
+     "mass_kg": 20,
+     "size_m": [
+      0.742,
+      0.483,
+      0.477
+     ],
+     "hull_volume_m3": 0.0183,
+     "convexes": 10,
+     "material": "wood",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 1091.6
+    },
+    {
+     "model": "props/de_tides/patio_chair.mdl",
+     "mass_kg": 30.000001907348633,
+     "size_m": [
+      1.116,
+      0.545,
+      0.504
+     ],
+     "hull_volume_m3": 0.1031,
+     "convexes": 2,
+     "material": "wood_furniture",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 290.9
+    },
+    {
+     "model": "props/de_tides/patio_chair2.mdl",
+     "mass_kg": 30,
+     "size_m": [
+      0.891,
+      0.732,
+      0.564
+     ],
+     "hull_volume_m3": 0.0081,
+     "convexes": 17,
+     "material": "metalgrate",
+     "surface_density": 1600,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 3685.8
+    }
+   ],
+   "median_mass_kg": 20,
+   "median_size_m": [
+    0.744,
+    0.374,
+    0.374
+   ]
+  },
+  "flags": [
+   "engine mass 20 kg vs Deckard 123.1 kg (x0.2)",
+   "props_c17/furniturechair001a.mdl: 10 kg in a 0.01 m3 body is 1727 kg/m3",
+   "props_c17/chair02a.mdl: 20 kg in a 0.00 m3 body is 6444 kg/m3",
+   "props_interiors/furniture_chair01a.mdl: 16 kg in a 0.00 m3 body is 3694 kg/m3",
+   "props/de_tides/patio_chair2.mdl: 30 kg in a 0.01 m3 body is 3686 kg/m3",
+   "Deckard's own density looks wrong: 123 kg for a body Deckard sizes at 1.04 m"
+  ]
+ },
+ {
+  "kind": "office chair",
+  "category": "seating",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "back_single_surface_0",
+    "back_support_1",
+    "arm_near_vertical_bar_2",
+    "arm_near_vertical_bar_3",
+    "seat_single_surface_4",
+    "seat_support_5",
+    "leg_6",
+    "leg_7",
+    "leg_8",
+    "leg_9"
+   ],
+   "materials": [
+    "fabric",
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 44164', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 44164 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 697 models)'",
+    "{'name': 'material composition (ShapeNetSem): fabric 42%, leather 12%, plastic 4",
+    "{'name': 'per-part material by role-convention (frame=wood, upholstery=fabric) \u2014"
+   ],
+   "mass_kg": 123.11807502059398,
+   "size_m": [
+    1.0417732,
+    0.8222082,
+    0.7698932
+   ],
+   "com_m": [
+    -0.001159528709066293,
+    -0.03741458367015247,
+    0.43250754590859297
+   ],
+   "inertia_kgm2": [
+    13.2009027893581,
+    13.9473726871196,
+    14.397828893676772
+   ],
+   "seconds": 6.0
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props/cs_office/chair_office.mdl",
+     "mass_kg": 15,
+     "size_m": [
+      0.916,
+      0.512,
+      0.487
+     ],
+     "hull_volume_m3": 0.1419,
+     "convexes": 1,
+     "material": "plastic_box",
+     "surface_density": 500,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 105.7
+    },
+    {
+     "model": "props_c17/chair_office01a.mdl",
+     "mass_kg": 50,
+     "size_m": [
+      0.814,
+      0.51,
+      0.471
+     ],
+     "hull_volume_m3": 0.0182,
+     "convexes": 4,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 2750.6
+    },
+    {
+     "model": "props_combine/breenchair.mdl",
+     "mass_kg": 20,
+     "size_m": [
+      1.051,
+      0.637,
+      0.569
+     ],
+     "hull_volume_m3": 0.1137,
+     "convexes": 6,
+     "material": "default",
+     "surface_density": 2000,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 175.9
+    }
+   ],
+   "median_mass_kg": 20,
+   "median_size_m": [
+    0.814,
+    0.51,
+    0.471
+   ]
+  },
+  "flags": [
+   "engine mass 20 kg vs Deckard 123.1 kg (x0.2)",
+   "props_c17/chair_office01a.mdl: 50 kg in a 0.02 m3 body is 2751 kg/m3"
+  ]
+ },
+ {
+  "kind": "stool",
+  "category": "seating",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "top",
+    "leg_1",
+    "leg_2",
+    "leg_3",
+    "leg_4"
+   ],
+   "materials": [
+    "oak"
+   ],
+   "sources": [
+    "{'name': 'structural archetype \u2014 legged furniture (seat/top + corner legs + vert",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 140 models)'"
+   ],
+   "mass_kg": 19.565554979771196,
+   "size_m": [
+    0.9951604000000001,
+    0.5979753999999999,
+    0.5884754
+   ],
+   "com_m": [
+    1.1975619513145731e-17,
+    1.0958083214643153e-18,
+    0.7755292888620934
+   ],
+   "inertia_kgm2": [
+    2.0541051662078758,
+    2.076606423246039,
+    1.4051761065561978
+   ],
+   "seconds": 3.1
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/chair_stool01a.mdl",
+     "mass_kg": 50,
+     "size_m": [
+      0.688,
+      0.43,
+      0.41
+     ],
+     "hull_volume_m3": 0.0042,
+     "convexes": 7,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 11808.2
+    },
+    {
+     "model": "props/cs_militia/barstool01.mdl",
+     "mass_kg": 10,
+     "size_m": [
+      0.682,
+      0.369,
+      0.364
+     ],
+     "hull_volume_m3": 0.019,
+     "convexes": 7,
+     "material": "wood",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 525.5
+    }
+   ],
+   "median_mass_kg": 50,
+   "median_size_m": [
+    0.682,
+    0.369,
+    0.364
+   ]
+  },
+  "flags": [
+   "props_c17/chair_stool01a.mdl: 50 kg in a 0.00 m3 body is 11808 kg/m3"
+  ]
+ },
+ {
+  "kind": "bench",
+  "category": "seating",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "seat",
+    "leg_1",
+    "leg_2",
+    "leg_3",
+    "leg_4",
+    "back"
+   ],
+   "materials": [
+    "oak"
+   ],
+   "sources": [
+    "{'name': 'structural archetype \u2014 legged furniture (seat/top + corner legs + vert",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 85 models)',"
+   ],
+   "mass_kg": 23.83083607051121,
+   "size_m": [
+    1.3500240000000001,
+    0.533724,
+    0.506924
+   ],
+   "com_m": [
+    -1.9362429866808123e-17,
+    -0.08447343772733433,
+    0.7773779230035213
+   ],
+   "inertia_kgm2": [
+    2.1582168853083807,
+    2.1217259849745105,
+    1.0217972062432044
+   ],
+   "seconds": 4.0
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/bench01a.mdl",
+     "mass_kg": 20,
+     "size_m": [
+      1.45,
+      0.757,
+      0.451
+     ],
+     "hull_volume_m3": 0.0404,
+     "convexes": 15,
+     "material": "wood_furniture",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 495.4
+    },
+    {
+     "model": "props_trainstation/bench_indoor001a.mdl",
+     "mass_kg": 1,
+     "size_m": [
+      1.668,
+      0.7,
+      0.622
+     ],
+     "hull_volume_m3": 0.1115,
+     "convexes": 4,
+     "material": "wood_crate",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 9.0
+    },
+    {
+     "model": "props/de_inferno/bench_wood.mdl",
+     "mass_kg": 150,
+     "size_m": [
+      1.902,
+      0.818,
+      0.724
+     ],
+     "hull_volume_m3": 0.3854,
+     "convexes": 6,
+     "material": "wood_plank",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 389.2
+    },
+    {
+     "model": "props/cs_militia/wood_bench.mdl",
+     "mass_kg": 500.0000305175781,
+     "size_m": [
+      1.458,
+      0.35,
+      0.319
+     ],
+     "hull_volume_m3": 0.0207,
+     "convexes": 6,
+     "material": "wood_plank",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 24128.3
+    },
+    {
+     "model": "props_wasteland/cafeteria_bench001a.mdl",
+     "mass_kg": 15,
+     "size_m": [
+      2.127,
+      0.385,
+      0.284
+     ],
+     "hull_volume_m3": 0.0464,
+     "convexes": 4,
+     "material": "wood",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 323.4
+    }
+   ],
+   "median_mass_kg": 20,
+   "median_size_m": [
+    1.902,
+    0.818,
+    0.724
+   ]
+  },
+  "flags": []
+ },
+ {
+  "kind": "table",
+  "category": "table",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "board_0",
+    "bar_stretcher_1",
+    "bar_stretcher_2",
+    "runner_3",
+    "runner_4",
+    "leg_5",
+    "leg_6",
+    "leg_7",
+    "leg_8",
+    "tabletop_connector_9",
+    "tabletop_connector_10"
+   ],
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 21445', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 21445 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 460 models)'",
+    "{'name': 'material composition (ShapeNetSem): glass 7%, metal 3%, wood 87%', 'li",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 23.784771789836505,
+   "size_m": [
+    1.1086504,
+    0.8673404,
+    0.6946404
+   ],
+   "com_m": [
+    0.01245009560475944,
+    0.0012661027488007923,
+    0.9173147721263135
+   ],
+   "inertia_kgm2": [
+    2.8442541873474916,
+    3.3610697665397495,
+    2.3923134872165277
+   ],
+   "seconds": 7.5
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/furnituretable001a.mdl",
+     "mass_kg": 60,
+     "size_m": [
+      0.945,
+      0.936,
+      0.705
+     ],
+     "hull_volume_m3": 0.0621,
+     "convexes": 6,
+     "material": "wood_furniture",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 965.6
+    },
+    {
+     "model": "props_c17/furnituretable002a.mdl",
+     "mass_kg": 45,
+     "size_m": [
+      1.299,
+      0.763,
+      0.712
+     ],
+     "hull_volume_m3": 0.118,
+     "convexes": 5,
+     "material": "wood_furniture",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 381.5
+    },
+    {
+     "model": "props/cs_militia/table_kitchen.mdl",
+     "mass_kg": 500,
+     "size_m": [
+      1.373,
+      0.694,
+      0.676
+     ],
+     "hull_volume_m3": 0.1242,
+     "convexes": 7,
+     "material": "wood",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 4027.2
+    },
+    {
+     "model": "props/de_inferno/tableantique.mdl",
+     "mass_kg": 100,
+     "size_m": [
+      0.868,
+      0.602,
+      0.579
+     ],
+     "hull_volume_m3": 0.0158,
+     "convexes": 9,
+     "material": "wood",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 6315.4
+    },
+    {
+     "model": "props/de_tides/restaurant_table.mdl",
+     "mass_kg": 300,
+     "size_m": [
+      1.166,
+      1.166,
+      0.626
+     ],
+     "hull_volume_m3": 0.0647,
+     "convexes": 3,
+     "material": "wood_solid",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 4635.8
+    },
+    {
+     "model": "props_wasteland/cafeteria_table001a.mdl",
+     "mass_kg": 65,
+     "size_m": [
+      2.473,
+      0.737,
+      0.593
+     ],
+     "hull_volume_m3": 0.1381,
+     "convexes": 5,
+     "material": "wood",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 470.6
+    }
+   ],
+   "median_mass_kg": 100,
+   "median_size_m": [
+    0.868,
+    0.602,
+    0.579
+   ]
+  },
+  "flags": [
+   "engine mass 100 kg vs Deckard 23.8 kg (x4.2)"
+  ]
+ },
+ {
+  "kind": "coffee table",
+  "category": "table",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "board_0",
+    "bar_stretcher_1",
+    "bar_stretcher_2",
+    "runner_3",
+    "runner_4",
+    "leg_5",
+    "leg_6",
+    "leg_7",
+    "leg_8",
+    "tabletop_connector_9",
+    "tabletop_connector_10"
+   ],
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 21445', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 21445 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 94 models)',",
+    "{'name': 'material composition (ShapeNetSem): glass 7%, metal 3%, wood 87%', 'li",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 18.279265867879484,
+   "size_m": [
+    1.2556075999999998,
+    0.8342926,
+    0.4907926
+   ],
+   "com_m": [
+    0.0040546027181801465,
+    -0.0006544542988649742,
+    1.0119093424811594
+   ],
+   "inertia_kgm2": [
+    2.461270831663647,
+    3.1521700888812667,
+    1.3544669792326323
+   ],
+   "seconds": 7.0
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props/cs_office/table_coffee.mdl",
+     "mass_kg": 15,
+     "size_m": [
+      1.249,
+      0.631,
+      0.47
+     ],
+     "hull_volume_m3": 0.0873,
+     "convexes": 5,
+     "material": "wood_plank",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 171.7
+    },
+    {
+     "model": "props/de_inferno/tablecoffee.mdl",
+     "mass_kg": 20,
+     "size_m": [
+      1.154,
+      0.584,
+      0.396
+     ],
+     "hull_volume_m3": 0.0245,
+     "convexes": 12,
+     "material": "wood",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 817.9
+    },
+    {
+     "model": "props_c17/furnituretable003a.mdl",
+     "mass_kg": 40,
+     "size_m": [
+      1.031,
+      0.587,
+      0.415
+     ],
+     "hull_volume_m3": 0.0155,
+     "convexes": 9,
+     "material": "wood_furniture",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 2579.5
+    }
+   ],
+   "median_mass_kg": 20,
+   "median_size_m": [
+    1.154,
+    0.584,
+    0.396
+   ]
+  },
+  "flags": []
+ },
+ {
+  "kind": "side table",
+  "category": "table",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "board_0",
+    "bar_stretcher_1",
+    "bar_stretcher_2",
+    "runner_3",
+    "runner_4",
+    "leg_5",
+    "leg_6",
+    "leg_7",
+    "leg_8",
+    "tabletop_connector_9",
+    "tabletop_connector_10"
+   ],
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 21445', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 21445 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 460 models)'",
+    "{'name': 'material composition (ShapeNetSem): glass 7%, metal 3%, wood 87%', 'li",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 23.784771789836505,
+   "size_m": [
+    1.1086504,
+    0.8673404,
+    0.6946404
+   ],
+   "com_m": [
+    0.01245009560475944,
+    0.0012661027488007923,
+    0.9173147721263135
+   ],
+   "inertia_kgm2": [
+    2.8442541873474916,
+    3.3610697665397495,
+    2.3923134872165277
+   ],
+   "seconds": 6.8
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/furnituredrawer002a.mdl",
+     "mass_kg": 15,
+     "size_m": [
+      0.643,
+      0.611,
+      0.365
+     ],
+     "hull_volume_m3": 0.0295,
+     "convexes": 6,
+     "material": "wood_furniture",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 508.5
+    }
+   ],
+   "median_mass_kg": 15,
+   "median_size_m": [
+    0.643,
+    0.611,
+    0.365
+   ]
+  },
+  "flags": []
+ },
+ {
+  "kind": "desk",
+  "category": "table",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "board_0",
+    "bar_stretcher_1",
+    "bar_stretcher_2",
+    "runner_3",
+    "runner_4",
+    "leg_5",
+    "leg_6",
+    "leg_7",
+    "leg_8",
+    "tabletop_connector_9",
+    "tabletop_connector_10"
+   ],
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 21445', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 21445 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 194 models)'",
+    "{'name': 'material composition (ShapeNetSem): wood 100%', 'license': 'ShapeNet T",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 28.792524770788948,
+   "size_m": [
+    1.3252044,
+    0.8186694000000001,
+    0.7250694
+   ],
+   "com_m": [
+    0.0038329228169139236,
+    0.0006935351033238345,
+    1.0710981314148666
+   ],
+   "inertia_kgm2": [
+    4.923969555498317,
+    5.256594384195083,
+    2.776661620455841
+   ],
+   "seconds": 6.8
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_interiors/furniture_desk01a.mdl",
+     "mass_kg": 100,
+     "size_m": [
+      1.291,
+      0.754,
+      0.694
+     ],
+     "hull_volume_m3": 0.2309,
+     "convexes": 7,
+     "material": "wood",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 433.2
+    },
+    {
+     "model": "props_combine/breendesk.mdl",
+     "mass_kg": 1000,
+     "size_m": [
+      1.765,
+      0.907,
+      0.602
+     ],
+     "hull_volume_m3": 0.5592,
+     "convexes": 4,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 1788.4
+    },
+    {
+     "model": "props_wasteland/controlroom_desk001a.mdl",
+     "mass_kg": 95,
+     "size_m": [
+      2.607,
+      0.79,
+      0.65
+     ],
+     "hull_volume_m3": 0.1782,
+     "convexes": 4,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 533.1
+    },
+    {
+     "model": "props_wasteland/controlroom_desk001b.mdl",
+     "mass_kg": 95,
+     "size_m": [
+      2.13,
+      0.799,
+      0.645
+     ],
+     "hull_volume_m3": 0.3225,
+     "convexes": 4,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 294.6
+    }
+   ],
+   "median_mass_kg": 100,
+   "median_size_m": [
+    2.607,
+    0.79,
+    0.65
+   ]
+  },
+  "flags": []
+ },
+ {
+  "kind": "meeting table",
+  "category": "table",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "board_0",
+    "bar_stretcher_1",
+    "bar_stretcher_2",
+    "runner_3",
+    "runner_4",
+    "leg_5",
+    "leg_6",
+    "leg_7",
+    "leg_8",
+    "tabletop_connector_9",
+    "tabletop_connector_10"
+   ],
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 21445', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 21445 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 460 models)'",
+    "{'name': 'material composition (ShapeNetSem): glass 7%, metal 3%, wood 87%', 'li",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 23.784771789836505,
+   "size_m": [
+    1.1086504,
+    0.8673404,
+    0.6946404
+   ],
+   "com_m": [
+    0.01245009560475944,
+    0.0012661027488007923,
+    0.9173147721263135
+   ],
+   "inertia_kgm2": [
+    2.8442541873474916,
+    3.3610697665397495,
+    2.3923134872165277
+   ],
+   "seconds": 6.5
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props/cs_office/table_meeting.mdl",
+     "mass_kg": 200,
+     "size_m": [
+      5.834,
+      2.473,
+      0.583
+     ],
+     "hull_volume_m3": 8.2,
+     "convexes": 1,
+     "material": "wood_plank",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 24.4
+    }
+   ],
+   "median_mass_kg": 200,
+   "median_size_m": [
+    5.834,
+    2.473,
+    0.583
+   ]
+  },
+  "flags": [
+   "engine mass 200 kg vs Deckard 23.8 kg (x8.4)",
+   "size differs a lot: engine 5.83 x 2.47 x 0.58 m vs Deckard 1.11 x 0.87 x 0.69 m"
+  ]
+ },
+ {
+  "kind": "patio table",
+  "category": "table",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "board_0",
+    "bar_stretcher_1",
+    "bar_stretcher_2",
+    "runner_3",
+    "runner_4",
+    "leg_5",
+    "leg_6",
+    "leg_7",
+    "leg_8",
+    "tabletop_connector_9",
+    "tabletop_connector_10"
+   ],
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 21445', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 21445 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 460 models)'",
+    "{'name': 'material composition (ShapeNetSem): glass 7%, metal 3%, wood 87%', 'li",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 23.784771789836505,
+   "size_m": [
+    1.1086504,
+    0.8673404,
+    0.6946404
+   ],
+   "com_m": [
+    0.01245009560475944,
+    0.0012661027488007923,
+    0.9173147721263135
+   ],
+   "inertia_kgm2": [
+    2.8442541873474916,
+    3.3610697665397495,
+    2.3923134872165277
+   ],
+   "seconds": 6.5
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props/de_tides/patio_table.mdl",
+     "mass_kg": 300,
+     "size_m": [
+      2.226,
+      1.883,
+      1.622
+     ],
+     "hull_volume_m3": 0.7652,
+     "convexes": 5,
+     "material": "wood_solid",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 392.1
+    },
+    {
+     "model": "props/de_tides/patio_table2.mdl",
+     "mass_kg": 300,
+     "size_m": [
+      2.225,
+      1.883,
+      1.622
+     ],
+     "hull_volume_m3": 0.7442,
+     "convexes": 19,
+     "material": "metalgrate",
+     "surface_density": 1600,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 403.1
+    }
+   ],
+   "median_mass_kg": 300,
+   "median_size_m": [
+    2.225,
+    1.883,
+    1.622
+   ]
+  },
+  "flags": [
+   "engine mass 300 kg vs Deckard 23.8 kg (x12.6)"
+  ]
+ },
+ {
+  "kind": "bed",
+  "category": "bed",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "mattress_0",
+    "headboard_1",
+    "leg_2",
+    "leg_3",
+    "leg_4",
+    "leg_5",
+    "bar_stretcher_6",
+    "bar_stretcher_7",
+    "bar_stretcher_8",
+    "bar_stretcher_9"
+   ],
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 12524', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 12524 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 223 models)'",
+    "{'name': 'material composition (ShapeNetSem): wood 99%', 'license': 'ShapeNet Te",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 856.3193377493712,
+   "size_m": [
+    2.319408,
+    1.983408,
+    1.2685080000000002
+   ],
+   "com_m": [
+    9.966888665900803e-19,
+    -0.042364432933148406,
+    1.0878881081043654
+   ],
+   "inertia_kgm2": [
+    163.90207949247304,
+    286.7430610544859,
+    347.31808668161386
+   ],
+   "seconds": 6.0
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/furniturebed001a.mdl",
+     "mass_kg": 150,
+     "size_m": [
+      1.531,
+      0.811,
+      0.699
+     ],
+     "hull_volume_m3": 0.054,
+     "convexes": 5,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 2777.5
+    },
+    {
+     "model": "props/de_inferno/bed.mdl",
+     "mass_kg": 100,
+     "size_m": [
+      1.755,
+      0.926,
+      0.781
+     ],
+     "hull_volume_m3": 0.1638,
+     "convexes": 9,
+     "material": "ceiling_tile",
+     "surface_density": 500,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 610.6
+    },
+    {
+     "model": "props_wasteland/prison_bedframe001a.mdl",
+     "mass_kg": 35,
+     "size_m": [
+      1.745,
+      0.754,
+      0.579
+     ],
+     "hull_volume_m3": 0.1875,
+     "convexes": 7,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 186.6
+    }
+   ],
+   "median_mass_kg": 100,
+   "median_size_m": [
+    1.755,
+    0.926,
+    0.781
+   ]
+  },
+  "flags": [
+   "engine mass 100 kg vs Deckard 856.3 kg (x0.1)",
+   "Deckard's own density looks wrong: 856 kg for a body Deckard sizes at 2.32 m"
+  ]
+ },
+ {
+  "kind": "mattress",
+  "category": "bed",
+  "deckard": {
+   "ok": true,
+   "asked": "a mattress",
+   "tried": [
+    "a mattress"
+   ],
+   "identified": false,
+   "kind": "layered_vessel",
+   "parts": [],
+   "materials": [],
+   "sources": [
+    "{'name': 'no catalog/DB entry \u2014 defaulted to a generic small vessel', 'license':"
+   ],
+   "note": "Deckard could not ground this name"
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/furnituremattress001a.mdl",
+     "mass_kg": 3.1430740356445312,
+     "size_m": [
+      1.431,
+      0.718,
+      0.333
+     ],
+     "hull_volume_m3": 0.019,
+     "convexes": 1,
+     "material": "carpet",
+     "surface_density": 500,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 165.5
+    }
+   ],
+   "median_mass_kg": 3.1430740356445312,
+   "median_size_m": [
+    1.431,
+    0.718,
+    0.333
+   ]
+  },
+  "flags": [
+   "Deckard cannot ground this name (no mass or size to compare)"
+  ]
+ },
+ {
+  "kind": "bunk bed",
+  "category": "bed",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "mattress_0",
+    "headboard_1",
+    "leg_2",
+    "leg_3",
+    "leg_4",
+    "leg_5",
+    "bar_stretcher_6",
+    "bar_stretcher_7",
+    "bar_stretcher_8",
+    "bar_stretcher_9"
+   ],
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 12524', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 12524 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 26 models)',",
+    "{'name': 'material composition (ShapeNetSem): wood 100%', 'license': 'ShapeNet T",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 956.4872015202907,
+   "size_m": [
+    2.244216,
+    1.926426,
+    1.562821
+   ],
+   "com_m": [
+    -1.7041868533219758e-17,
+    -0.028198544029044065,
+    1.0513735100145118
+   ],
+   "inertia_kgm2": [
+    220.40771470834807,
+    285.30185112644176,
+    428.1883431023599
+   ],
+   "seconds": 6.5
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props/cs_militia/bunkbed.mdl",
+     "mass_kg": 500.0000305175781,
+     "size_m": [
+      1.844,
+      1.381,
+      0.977
+     ],
+     "hull_volume_m3": 0.0849,
+     "convexes": 8,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 5886.7
+    }
+   ],
+   "median_mass_kg": 500.0000305175781,
+   "median_size_m": [
+    1.844,
+    1.381,
+    0.977
+   ]
+  },
+  "flags": [
+   "Deckard's own density looks wrong: 956 kg for a body Deckard sizes at 2.24 m"
+  ]
+ },
+ {
+  "kind": "hospital bed",
+  "category": "bed",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "mattress_0",
+    "headboard_1",
+    "leg_2",
+    "leg_3",
+    "leg_4",
+    "leg_5",
+    "bar_stretcher_6",
+    "bar_stretcher_7",
+    "bar_stretcher_8",
+    "bar_stretcher_9"
+   ],
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 12524', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 12524 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 223 models)'",
+    "{'name': 'material composition (ShapeNetSem): wood 99%', 'license': 'ShapeNet Te",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 856.3193377493712,
+   "size_m": [
+    2.319408,
+    1.983408,
+    1.2685080000000002
+   ],
+   "com_m": [
+    9.966888665900803e-19,
+    -0.042364432933148406,
+    1.0878881081043654
+   ],
+   "inertia_kgm2": [
+    163.90207949247304,
+    286.7430610544859,
+    347.31808668161386
+   ],
+   "seconds": 6.1
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/hospital_bed01.mdl",
+     "mass_kg": 500,
+     "size_m": [
+      1.657,
+      0.81,
+      0.543
+     ],
+     "hull_volume_m3": 0.2815,
+     "convexes": 6,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 1776.4
+    }
+   ],
+   "median_mass_kg": 500,
+   "median_size_m": [
+    1.657,
+    0.81,
+    0.543
+   ]
+  },
+  "flags": []
+ },
+ {
+  "kind": "bookshelf",
+  "category": "storage",
+  "deckard": {
+   "ok": true,
+   "asked": "a bookcase",
+   "tried": [
+    "a bookshelf",
+    "a bookcase",
+    "a book shelf"
+   ],
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "shelf_1",
+    "shelf_2",
+    "shelf_3",
+    "shelf_4",
+    "shelf_5",
+    "frame",
+    "back_panel",
+    "glass_front"
+   ],
+   "materials": [
+    "glass",
+    "oak"
+   ],
+   "sources": [
+    "{'name': 'qwen2.5:7b \u2014 researched proportions (estimates)', 'license': ''}",
+    "{'name': 'field.interface.surface.MATERIALS', 'license': ''}",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 aspect ratio corrected to median pro",
+    "{'name': 'ShapeNetSem (Savva et al. 2015), median of 91 models \u2014 overall size (c",
+    "{'name': 'modeled hollow - bulk density from a thin-wall shell estimate (applian"
+   ],
+   "mass_kg": 4.075672665549665,
+   "size_m": [
+    1.2994800729272329,
+    0.41748000670057905,
+    0.07858600280489357
+   ],
+   "com_m": [
+    -0.01245866082286136,
+    0.528895819001539,
+    0.007151566466658477
+   ],
+   "inertia_kgm2": [
+    0.2028425729116472,
+    0.03113077198754303,
+    0.23344759649500446
+   ],
+   "seconds": 4.7
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props/cs_office/bookshelf1.mdl",
+     "mass_kg": 100,
+     "size_m": [
+      1.615,
+      1.013,
+      0.264
+     ],
+     "hull_volume_m3": 0.408,
+     "convexes": 1,
+     "material": "wood_plank",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 245.1
+    },
+    {
+     "model": "props/cs_office/bookshelf2.mdl",
+     "mass_kg": 100,
+     "size_m": [
+      1.615,
+      1.013,
+      0.272
+     ],
+     "hull_volume_m3": 0.408,
+     "convexes": 1,
+     "material": "wood_plank",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 245.1
+    },
+    {
+     "model": "props/cs_office/bookshelf3.mdl",
+     "mass_kg": 100,
+     "size_m": [
+      1.615,
+      1.013,
+      0.297
+     ],
+     "hull_volume_m3": 0.408,
+     "convexes": 1,
+     "material": "wood_plank",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 245.1
+    },
+    {
+     "model": "props/cs_havana/bookcase_small.mdl",
+     "mass_kg": 50,
+     "size_m": [
+      1.306,
+      1.233,
+      0.313
+     ],
+     "hull_volume_m3": 0.4785,
+     "convexes": 1,
+     "material": "default",
+     "surface_density": 2000,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 104.5
+    }
+   ],
+   "median_mass_kg": 100,
+   "median_size_m": [
+    1.615,
+    1.013,
+    0.297
+   ]
+  },
+  "flags": [
+   "engine mass 100 kg vs Deckard 4.1 kg (x24.5)",
+   "size differs a lot: engine 1.61 x 1.01 x 0.30 m vs Deckard 1.30 x 0.42 x 0.08 m"
+  ]
+ },
+ {
+  "kind": "shelf",
+  "category": "storage",
+  "deckard": {
+   "ok": true,
+   "asked": "a rack",
+   "tried": [
+    "a shelf",
+    "a shelving unit",
+    "a rack"
+   ],
+   "identified": false,
+   "kind": "layered_vessel",
+   "parts": [],
+   "materials": [],
+   "sources": [
+    "{'name': 'no catalog/DB entry \u2014 defaulted to a generic small vessel', 'license':"
+   ],
+   "note": "Deckard could not ground this name"
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/shelfunit01a.mdl",
+     "mass_kg": 90,
+     "size_m": [
+      1.774,
+      1.504,
+      0.4
+     ],
+     "hull_volume_m3": 0.9718,
+     "convexes": 1,
+     "material": "wood",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 92.6
+    },
+    {
+     "model": "props_c17/furnitureshelf001a.mdl",
+     "mass_kg": 399.9999694824219,
+     "size_m": [
+      1.658,
+      0.882,
+      0.328
+     ],
+     "hull_volume_m3": 0.0472,
+     "convexes": 6,
+     "material": "wood_crate",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 8467.2
+    },
+    {
+     "model": "props_interiors/furniture_shelf01a.mdl",
+     "mass_kg": 251,
+     "size_m": [
+      1.664,
+      0.932,
+      0.361
+     ],
+     "hull_volume_m3": 0.1203,
+     "convexes": 10,
+     "material": "wood_crate",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 2086.4
+    },
+    {
+     "model": "props_wasteland/kitchen_shelf001a.mdl",
+     "mass_kg": 50,
+     "size_m": [
+      1.848,
+      1.214,
+      0.605
+     ],
+     "hull_volume_m3": 0.0535,
+     "convexes": 8,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 934.0
+    }
+   ],
+   "median_mass_kg": 251,
+   "median_size_m": [
+    1.664,
+    0.932,
+    0.361
+   ]
+  },
+  "flags": [
+   "Deckard cannot ground this name (no mass or size to compare)"
+  ]
+ },
+ {
+  "kind": "dresser",
+  "category": "storage",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "vertical_side_panel_0",
+    "vertical_side_panel_1",
+    "back_panel_2",
+    "bottom_panel_3",
+    "top_panel_4",
+    "frame_vertical_bar_5",
+    "frame_vertical_bar_6",
+    "frame_horizontal_bar_7",
+    "frame_horizontal_bar_8",
+    "frame_horizontal_bar_9",
+    "frame_horizontal_bar_10",
+    "shelf_11",
+    "door_surface_12"
+   ],
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 44851', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 44851 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 525 models)'",
+    "{'name': 'material composition (ShapeNetSem): wood 97%', 'license': 'ShapeNet Te",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 115.62933861544148,
+   "size_m": [
+    1.2109291999999998,
+    1.1781142,
+    0.6540792
+   ],
+   "com_m": [
+    -8.907705225978704e-21,
+    0.06255750061275323,
+    0.5821775000010729
+   ],
+   "inertia_kgm2": [
+    21.749607011439736,
+    34.90774156816532,
+    23.86058163111079
+   ],
+   "seconds": 7.1
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/furnituredrawer001a.mdl",
+     "mass_kg": 20,
+     "size_m": [
+      0.899,
+      0.769,
+      0.534
+     ],
+     "hull_volume_m3": 0.2793,
+     "convexes": 3,
+     "material": "wood",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 71.6
+    },
+    {
+     "model": "props_c17/furnituredrawer003a.mdl",
+     "mass_kg": 30,
+     "size_m": [
+      0.856,
+      0.275,
+      0.253
+     ],
+     "hull_volume_m3": 0.0466,
+     "convexes": 2,
+     "material": "wood_crate",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 643.5
+    },
+    {
+     "model": "props_interiors/furniture_cabinetdrawer01a.mdl",
+     "mass_kg": 251,
+     "size_m": [
+      1.116,
+      1.09,
+      0.442
+     ],
+     "hull_volume_m3": 0.2767,
+     "convexes": 5,
+     "material": "wood_crate",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 907.1
+    },
+    {
+     "model": "props_interiors/furniture_cabinetdrawer02a.mdl",
+     "mass_kg": 400,
+     "size_m": [
+      1.498,
+      0.814,
+      0.402
+     ],
+     "hull_volume_m3": 0.333,
+     "convexes": 2,
+     "material": "wood_crate",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 1201.1
+    }
+   ],
+   "median_mass_kg": 251,
+   "median_size_m": [
+    1.116,
+    1.09,
+    0.442
+   ]
+  },
+  "flags": []
+ },
+ {
+  "kind": "wardrobe",
+  "category": "storage",
+  "deckard": {
+   "ok": true,
+   "asked": "a clothes cupboard",
+   "tried": [
+    "a wardrobe",
+    "an armoire",
+    "a closet",
+    "a clothes cupboard"
+   ],
+   "identified": true,
+   "kind": "layered_vessel",
+   "parts": [],
+   "materials": [],
+   "sources": [
+    "{'name': 'typical stoneware coffee mug (approx.)', 'license': ''}",
+    "{'name': 'liquid water at 20C = 998 kg/m^3', 'license': 'public-domain'}"
+   ],
+   "mass_kg": 0.5991574167378529,
+   "size_m": [
+    0.095,
+    0.08,
+    0.08
+   ],
+   "com_m": [
+    0.0,
+    0.0,
+    0.04067657103705865
+   ],
+   "inertia_kgm2": [
+    0.0007059607286235992,
+    0.000705960728623591,
+    0.0005829675582153917
+   ],
+   "seconds": 0.3
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/furnituredresser001a.mdl",
+     "mass_kg": 150,
+     "size_m": [
+      1.559,
+      1.129,
+      0.666
+     ],
+     "hull_volume_m3": 0.7813,
+     "convexes": 6,
+     "material": "wood_crate",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 192.0
+    }
+   ],
+   "median_mass_kg": 150,
+   "median_size_m": [
+    1.559,
+    1.129,
+    0.666
+   ]
+  },
+  "flags": [
+   "engine mass 150 kg vs Deckard 0.6 kg (x250.4)",
+   "size differs a lot: engine 1.56 x 1.13 x 0.67 m vs Deckard 0.10 x 0.08 x 0.08 m"
+  ]
+ },
+ {
+  "kind": "filing cabinet",
+  "category": "storage",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "vertical_side_panel_0",
+    "vertical_side_panel_1",
+    "back_panel_2",
+    "bottom_panel_3",
+    "top_panel_4",
+    "frame_vertical_bar_5",
+    "frame_vertical_bar_6",
+    "frame_horizontal_bar_7",
+    "frame_horizontal_bar_8",
+    "frame_horizontal_bar_9",
+    "frame_horizontal_bar_10",
+    "shelf_11",
+    "door_surface_12"
+   ],
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 44851', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 44851 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 19 models)',",
+    "{'name': 'material composition (ShapeNetSem): metal 2%, wood 96%', 'license': 'S",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 27.937210370388428,
+   "size_m": [
+    0.7863856,
+    0.6477455999999999,
+    0.4410456
+   ],
+   "com_m": [
+    -1.8870649552392894e-19,
+    0.04265445548490255,
+    0.3780700000013114
+   ],
+   "inertia_kgm2": [
+    2.257078835219276,
+    3.0237460504019595,
+    1.9417373359462613
+   ],
+   "seconds": 7.1
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props/cs_office/file_cabinet1.mdl",
+     "mass_kg": 50,
+     "size_m": [
+      1.211,
+      0.528,
+      0.412
+     ],
+     "hull_volume_m3": 0.2418,
+     "convexes": 1,
+     "material": "metalvent",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 206.8
+    },
+    {
+     "model": "props/cs_office/file_cabinet2.mdl",
+     "mass_kg": 50,
+     "size_m": [
+      1.214,
+      0.392,
+      0.317
+     ],
+     "hull_volume_m3": 0.1375,
+     "convexes": 1,
+     "material": "metalvent",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 363.6
+    },
+    {
+     "model": "props/cs_office/file_cabinet3.mdl",
+     "mass_kg": 50,
+     "size_m": [
+      0.899,
+      0.406,
+      0.392
+     ],
+     "hull_volume_m3": 0.1295,
+     "convexes": 1,
+     "material": "metalvent",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 386.2
+    },
+    {
+     "model": "props_wasteland/controlroom_filecabinet001a.mdl",
+     "mass_kg": 60,
+     "size_m": [
+      0.526,
+      0.463,
+      0.362
+     ],
+     "hull_volume_m3": 0.0795,
+     "convexes": 1,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 755.2
+    },
+    {
+     "model": "props_wasteland/controlroom_filecabinet002a.mdl",
+     "mass_kg": 60,
+     "size_m": [
+      1.339,
+      0.577,
+      0.445
+     ],
+     "hull_volume_m3": 0.3168,
+     "convexes": 1,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 189.4
+    },
+    {
+     "model": "props_lab/filecabinet02.mdl",
+     "mass_kg": 75,
+     "size_m": [
+      0.632,
+      0.579,
+      0.421
+     ],
+     "hull_volume_m3": 0.1409,
+     "convexes": 1,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 532.1
+    }
+   ],
+   "median_mass_kg": 60,
+   "median_size_m": [
+    0.526,
+    0.463,
+    0.362
+   ]
+  },
+  "flags": []
+ },
+ {
+  "kind": "locker",
+  "category": "storage",
+  "deckard": {
+   "ok": true,
+   "asked": "a gym locker",
+   "tried": [
+    "a locker",
+    "a gym locker"
+   ],
+   "identified": false,
+   "kind": "layered_vessel",
+   "parts": [],
+   "materials": [],
+   "sources": [
+    "{'name': 'no catalog/DB entry \u2014 defaulted to a generic small vessel', 'license':"
+   ],
+   "note": "Deckard could not ground this name"
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/lockers001a.mdl",
+     "mass_kg": 1999.9998779296875,
+     "size_m": [
+      1.362,
+      0.934,
+      0.333
+     ],
+     "hull_volume_m3": 0.3582,
+     "convexes": 11,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 5583.7
+    },
+    {
+     "model": "props/de_train/lockers001a.mdl",
+     "mass_kg": 1999.9998779296875,
+     "size_m": [
+      1.362,
+      0.934,
+      0.333
+     ],
+     "hull_volume_m3": 0.3582,
+     "convexes": 11,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 5583.7
+    },
+    {
+     "model": "props_lab/lockers.mdl",
+     "mass_kg": 50,
+     "size_m": [
+      1.344,
+      0.925,
+      0.43
+     ],
+     "hull_volume_m3": 0.1209,
+     "convexes": 7,
+     "material": "metalpanel",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 413.5
+    }
+   ],
+   "median_mass_kg": 1999.9998779296875,
+   "median_size_m": [
+    1.362,
+    0.934,
+    0.333
+   ]
+  },
+  "flags": [
+   "Deckard cannot ground this name (no mass or size to compare)"
+  ]
+ },
+ {
+  "kind": "crate",
+  "category": "container",
+  "deckard": {
+   "ok": true,
+   "asked": "a shipping crate",
+   "tried": [
+    "a crate",
+    "a wooden crate",
+    "a shipping crate"
+   ],
+   "identified": false,
+   "kind": "layered_vessel",
+   "parts": [],
+   "materials": [],
+   "sources": [
+    "{'name': 'no catalog/DB entry \u2014 defaulted to a generic small vessel', 'license':"
+   ],
+   "note": "Deckard could not ground this name"
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_junk/wood_crate001a.mdl",
+     "mass_kg": 30,
+     "size_m": [
+      0.772,
+      0.768,
+      0.767
+     ],
+     "hull_volume_m3": 0.4354,
+     "convexes": 1,
+     "material": "wood_crate",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 68.9
+    },
+    {
+     "model": "props_junk/wood_crate002a.mdl",
+     "mass_kg": 59.999996185302734,
+     "size_m": [
+      1.31,
+      0.774,
+      0.771
+     ],
+     "hull_volume_m3": 0.7542,
+     "convexes": 1,
+     "material": "wood_crate",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 79.6
+    },
+    {
+     "model": "props_junk/plasticcrate01a.mdl",
+     "mass_kg": 10,
+     "size_m": [
+      0.5,
+      0.347,
+      0.294
+     ],
+     "hull_volume_m3": 0.0079,
+     "convexes": 5,
+     "material": "plastic",
+     "surface_density": 500,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 1264.3
+    },
+    {
+     "model": "props/de_dust/du_crate_64x64.mdl",
+     "mass_kg": 400,
+     "size_m": [
+      1.23,
+      1.23,
+      1.23
+     ],
+     "hull_volume_m3": 1.8123,
+     "convexes": 1,
+     "material": "wood",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 220.7
+    },
+    {
+     "model": "props/de_nuke/crate_small.mdl",
+     "mass_kg": 500,
+     "size_m": [
+      1.262,
+      1.262,
+      1.251
+     ],
+     "hull_volume_m3": 1.8333,
+     "convexes": 1,
+     "material": "wood_crate",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 272.7
+    },
+    {
+     "model": "props/de_nuke/crate_large.mdl",
+     "mass_kg": 500,
+     "size_m": [
+      1.833,
+      1.829,
+      1.829
+     ],
+     "hull_volume_m3": 5.793,
+     "convexes": 1,
+     "material": "wood_crate",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 86.3
+    }
+   ],
+   "median_mass_kg": 400,
+   "median_size_m": [
+    1.23,
+    1.23,
+    1.23
+   ]
+  },
+  "flags": [
+   "Deckard cannot ground this name (no mass or size to compare)"
+  ]
+ },
+ {
+  "kind": "box",
+  "category": "container",
+  "deckard": {
+   "ok": true,
+   "asked": "a carton",
+   "tried": [
+    "a box",
+    "a cardboard box",
+    "a carton"
+   ],
+   "identified": false,
+   "kind": "layered_vessel",
+   "parts": [],
+   "materials": [],
+   "sources": [
+    "{'name': 'no catalog/DB entry \u2014 defaulted to a generic small vessel', 'license':"
+   ],
+   "note": "Deckard could not ground this name"
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props/cs_office/cardboard_box01.mdl",
+     "mass_kg": 3,
+     "size_m": [
+      0.485,
+      0.452,
+      0.373
+     ],
+     "hull_volume_m3": 0.0663,
+     "convexes": 1,
+     "material": "cardboard",
+     "surface_density": 500,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 45.3
+    },
+    {
+     "model": "props/cs_office/cardboard_box02.mdl",
+     "mass_kg": 3,
+     "size_m": [
+      0.275,
+      0.25,
+      0.206
+     ],
+     "hull_volume_m3": 0.0108,
+     "convexes": 1,
+     "material": "cardboard",
+     "surface_density": 500,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 277.6
+    },
+    {
+     "model": "props/cs_office/cardboard_box03.mdl",
+     "mass_kg": 3,
+     "size_m": [
+      0.484,
+      0.27,
+      0.251
+     ],
+     "hull_volume_m3": 0.0265,
+     "convexes": 1,
+     "material": "cardboard",
+     "surface_density": 500,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 113.2
+    },
+    {
+     "model": "props/cs_office/file_box.mdl",
+     "mass_kg": 25,
+     "size_m": [
+      0.51,
+      0.318,
+      0.273
+     ],
+     "hull_volume_m3": 0.032,
+     "convexes": 1,
+     "material": "cardboard",
+     "surface_density": 500,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 780.1
+    }
+   ],
+   "median_mass_kg": 3,
+   "median_size_m": [
+    0.484,
+    0.27,
+    0.251
+   ]
+  },
+  "flags": [
+   "Deckard cannot ground this name (no mass or size to compare)"
+  ]
+ },
+ {
+  "kind": "barrel",
+  "category": "container",
+  "deckard": {
+   "ok": true,
+   "asked": "a keg",
+   "tried": [
+    "a barrel",
+    "a drum",
+    "an oil drum",
+    "a keg"
+   ],
+   "identified": false,
+   "kind": "layered_vessel",
+   "parts": [],
+   "materials": [],
+   "sources": [
+    "{'name': 'no catalog/DB entry \u2014 defaulted to a generic small vessel', 'license':"
+   ],
+   "note": "Deckard could not ground this name"
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/woodbarrel001.mdl",
+     "mass_kg": 50,
+     "size_m": [
+      0.773,
+      0.551,
+      0.551
+     ],
+     "hull_volume_m3": 0.1377,
+     "convexes": 1,
+     "material": "default",
+     "surface_density": 2000,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 363.1
+    },
+    {
+     "model": "props_borealis/bluebarrel001.mdl",
+     "mass_kg": 59.999996185302734,
+     "size_m": [
+      0.989,
+      0.549,
+      0.549
+     ],
+     "hull_volume_m3": 0.2002,
+     "convexes": 1,
+     "material": "plastic_barrel",
+     "surface_density": 500,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 299.8
+    },
+    {
+     "model": "props_c17/oildrum001.mdl",
+     "mass_kg": 30,
+     "size_m": [
+      0.868,
+      0.552,
+      0.552
+     ],
+     "hull_volume_m3": 0.1867,
+     "convexes": 1,
+     "material": "metal_barrel",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 160.7
+    },
+    {
+     "model": "props/de_train/barrel.mdl",
+     "mass_kg": 30,
+     "size_m": [
+      0.868,
+      0.552,
+      0.552
+     ],
+     "hull_volume_m3": 0.1867,
+     "convexes": 1,
+     "material": "metal_barrel",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 160.7
+    }
+   ],
+   "median_mass_kg": 50,
+   "median_size_m": [
+    0.868,
+    0.552,
+    0.552
+   ]
+  },
+  "flags": [
+   "Deckard cannot ground this name (no mass or size to compare)"
+  ]
+ },
+ {
+  "kind": "chest",
+  "category": "container",
+  "deckard": {
+   "ok": true,
+   "asked": "a treasure chest",
+   "tried": [
+    "a chest",
+    "a footlocker",
+    "a trunk",
+    "a treasure chest"
+   ],
+   "identified": false,
+   "kind": "layered_vessel",
+   "parts": [],
+   "materials": [],
+   "sources": [
+    "{'name': 'no catalog/DB entry \u2014 defaulted to a generic small vessel', 'license':"
+   ],
+   "note": "Deckard could not ground this name"
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props/cs_militia/footlocker01_closed.mdl",
+     "mass_kg": 50,
+     "size_m": [
+      0.924,
+      0.498,
+      0.468
+     ],
+     "hull_volume_m3": 0.192,
+     "convexes": 1,
+     "material": "wood",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 260.4
+    }
+   ],
+   "median_mass_kg": 50,
+   "median_size_m": [
+    0.924,
+    0.498,
+    0.468
+   ]
+  },
+  "flags": [
+   "Deckard cannot ground this name (no mass or size to compare)"
+  ]
+ },
+ {
+  "kind": "floor lamp",
+  "category": "lighting",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "base_part_0",
+    "body_1",
+    "shade_2",
+    "light_bulb_3"
+   ],
+   "materials": [
+    "glass"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 14982', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 14982 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 202 models)'",
+    "{'name': 'material composition (ShapeNetSem): ceramic 4%, fabric 40%, glass 39%,",
+    "{'name': 'per-part material by role-convention (frame=glass, upholstery=fabric) "
+   ],
+   "mass_kg": 178.6348011634983,
+   "size_m": [
+    1.684774,
+    0.551499,
+    0.508804
+   ],
+   "com_m": [
+    1.0613825171718266e-17,
+    0.007241276789737099,
+    0.7835214419622132
+   ],
+   "inertia_kgm2": [
+    43.687914485366136,
+    41.38375500843675,
+    3.0079534216603476
+   ],
+   "seconds": 2.5
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_interiors/furniture_lamp01a.mdl",
+     "mass_kg": 15,
+     "size_m": [
+      1.285,
+      0.362,
+      0.362
+     ],
+     "hull_volume_m3": 0.0145,
+     "convexes": 3,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 1033.5
+    }
+   ],
+   "median_mass_kg": 15,
+   "median_size_m": [
+    1.285,
+    0.362,
+    0.362
+   ]
+  },
+  "flags": [
+   "engine mass 15 kg vs Deckard 178.6 kg (x0.1)",
+   "Deckard's own density looks wrong: 179 kg for a body Deckard sizes at 1.68 m"
+  ]
+ },
+ {
+  "kind": "desk lamp",
+  "category": "lighting",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "base_part_0",
+    "body_1",
+    "shade_2",
+    "light_bulb_3"
+   ],
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 14982', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 14982 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 194 models)'",
+    "{'name': 'material composition (ShapeNetSem): wood 100%', 'license': 'ShapeNet T",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 99.30717634973234,
+   "size_m": [
+    1.3251264,
+    0.8186664,
+    0.7250713999999999
+   ],
+   "com_m": [
+    -3.0514796686609996e-17,
+    0.010099885464275819,
+    0.6178930404412117
+   ],
+   "inertia_kgm2": [
+    17.51960048221237,
+    14.552478974256324,
+    3.964887705194902
+   ],
+   "seconds": 2.4
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_lab/desklamp01.mdl",
+     "mass_kg": 8,
+     "size_m": [
+      0.393,
+      0.336,
+      0.234
+     ],
+     "hull_volume_m3": 0.0039,
+     "convexes": 4,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 2060.6
+    },
+    {
+     "model": "props_c17/lamp001a.mdl",
+     "mass_kg": 10,
+     "size_m": [
+      0.422,
+      0.17,
+      0.161
+     ],
+     "hull_volume_m3": 0.0031,
+     "convexes": 2,
+     "material": "porcelain",
+     "surface_density": 2400,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 3218.6
+    }
+   ],
+   "median_mass_kg": 10,
+   "median_size_m": [
+    0.422,
+    0.17,
+    0.161
+   ]
+  },
+  "flags": [
+   "engine mass 10 kg vs Deckard 99.3 kg (x0.1)",
+   "size differs a lot: engine 0.42 x 0.17 x 0.16 m vs Deckard 1.33 x 0.82 x 0.73 m",
+   "Deckard's own density looks wrong: 99 kg for a body Deckard sizes at 1.33 m"
+  ]
+ },
+ {
+  "kind": "fridge",
+  "category": "appliance",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "frame_0",
+    "door_frame_1",
+    "handle_2",
+    "door_frame_3",
+    "handle_4",
+    "foot_5",
+    "foot_6",
+    "foot_7",
+    "foot_8"
+   ],
+   "materials": [
+    "metal"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 11585', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 11585 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 68 models)',",
+    "{'name': 'material composition (ShapeNetSem): metal 97%', 'license': 'ShapeNet T",
+    "{'name': 'per-part material by role-convention (frame=metal) \u2014 PartNet carries n"
+   ],
+   "mass_kg": 7750.090719073607,
+   "size_m": [
+    1.6701619999999997,
+    0.882837,
+    0.840907
+   ],
+   "com_m": [
+    -0.00035089309440500244,
+    -0.012791521555422491,
+    0.8027998418257682
+   ],
+   "inertia_kgm2": [
+    2011.9357339816788,
+    2096.1417459373006,
+    801.6747408220206
+   ],
+   "seconds": 4.1
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/furniturefridge001a.mdl",
+     "mass_kg": 250,
+     "size_m": [
+      1.155,
+      0.58,
+      0.545
+     ],
+     "hull_volume_m3": 0.3329,
+     "convexes": 3,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 751.0
+    },
+    {
+     "model": "props/cs_militia/refrigerator01.mdl",
+     "mass_kg": 5000,
+     "size_m": [
+      1.454,
+      0.963,
+      0.584
+     ],
+     "hull_volume_m3": 0.7282,
+     "convexes": 1,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 6865.8
+    },
+    {
+     "model": "props_wasteland/kitchen_fridge001a.mdl",
+     "mass_kg": 203.76559448242188,
+     "size_m": [
+      2.145,
+      1.275,
+      0.932
+     ],
+     "hull_volume_m3": 2.3754,
+     "convexes": 3,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 85.8
+    }
+   ],
+   "median_mass_kg": 250,
+   "median_size_m": [
+    1.454,
+    0.963,
+    0.584
+   ]
+  },
+  "flags": [
+   "engine mass 250 kg vs Deckard 7750.1 kg (x0.0)",
+   "Deckard's own density looks wrong: 7750 kg for a body Deckard sizes at 1.67 m"
+  ]
+ },
+ {
+  "kind": "stove",
+  "category": "appliance",
+  "deckard": {
+   "ok": true,
+   "asked": "a cooktop",
+   "tried": [
+    "a stove",
+    "an oven",
+    "a cooker",
+    "a range",
+    "a cooktop"
+   ],
+   "identified": false,
+   "kind": "layered_vessel",
+   "parts": [],
+   "materials": [],
+   "sources": [
+    "{'name': 'no catalog/DB entry \u2014 defaulted to a generic small vessel', 'license':"
+   ],
+   "note": "Deckard could not ground this name"
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/furniturestove001a.mdl",
+     "mass_kg": 1500,
+     "size_m": [
+      1.014,
+      0.773,
+      0.675
+     ],
+     "hull_volume_m3": 0.4466,
+     "convexes": 2,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 3358.6
+    },
+    {
+     "model": "props/cs_militia/stove01.mdl",
+     "mass_kg": 5000,
+     "size_m": [
+      0.887,
+      0.699,
+      0.548
+     ],
+     "hull_volume_m3": 0.2786,
+     "convexes": 1,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 17944.2
+    },
+    {
+     "model": "props_wasteland/kitchen_stove001a.mdl",
+     "mass_kg": 85,
+     "size_m": [
+      1.247,
+      0.902,
+      0.697
+     ],
+     "hull_volume_m3": 0.6101,
+     "convexes": 2,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 139.3
+    }
+   ],
+   "median_mass_kg": 1500,
+   "median_size_m": [
+    0.887,
+    0.699,
+    0.548
+   ]
+  },
+  "flags": [
+   "Deckard cannot ground this name (no mass or size to compare)"
+  ]
+ },
+ {
+  "kind": "microwave",
+  "category": "appliance",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "frame_0",
+    "glass_1",
+    "handle_2",
+    "foot_3",
+    "foot_4",
+    "foot_5",
+    "foot_6"
+   ],
+   "materials": [
+    "glass"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 7333', 'license': 'ShapeNe",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 7333 (real assembled p",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 23 models)',",
+    "{'name': 'material composition (ShapeNetSem): glass 55%, metal 42%, plastic 3%',",
+    "{'name': 'per-part material by role-convention (frame=glass) \u2014 PartNet carries n"
+   ],
+   "mass_kg": 404.53372442622214,
+   "size_m": [
+    0.7730059999999999,
+    0.5976309999999999,
+    0.450006
+   ],
+   "com_m": [
+    0.0004024285262804247,
+    -0.016770845801628485,
+    0.37559865014136357
+   ],
+   "inertia_kgm2": [
+    23.086451758909085,
+    29.11728101415229,
+    16.068894448829294
+   ],
+   "seconds": 4.2
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props/cs_office/microwave.mdl",
+     "mass_kg": 20,
+     "size_m": [
+      0.603,
+      0.455,
+      0.325
+     ],
+     "hull_volume_m3": 0.0787,
+     "convexes": 1,
+     "material": "computer",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 254.2
+    },
+    {
+     "model": "props/cs_militia/microwave01.mdl",
+     "mass_kg": 25,
+     "size_m": [
+      0.673,
+      0.478,
+      0.431
+     ],
+     "hull_volume_m3": 0.1239,
+     "convexes": 1,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 201.8
+    }
+   ],
+   "median_mass_kg": 25,
+   "median_size_m": [
+    0.673,
+    0.478,
+    0.431
+   ]
+  },
+  "flags": [
+   "engine mass 25 kg vs Deckard 404.5 kg (x0.1)",
+   "Deckard's own density looks wrong: 405 kg for a body Deckard sizes at 0.77 m"
+  ]
+ },
+ {
+  "kind": "sink",
+  "category": "appliance",
+  "deckard": {
+   "ok": true,
+   "asked": "a washbasin",
+   "tried": [
+    "a sink",
+    "a kitchen sink",
+    "a basin",
+    "a washbasin"
+   ],
+   "identified": false,
+   "kind": "layered_vessel",
+   "parts": [],
+   "materials": [],
+   "sources": [
+    "{'name': 'no catalog/DB entry \u2014 defaulted to a generic small vessel', 'license':"
+   ],
+   "note": "Deckard could not ground this name"
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/furnituresink001a.mdl",
+     "mass_kg": 100,
+     "size_m": [
+      0.859,
+      0.53,
+      0.432
+     ],
+     "hull_volume_m3": 0.0324,
+     "convexes": 2,
+     "material": "concrete",
+     "surface_density": 2400,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 3083.1
+    },
+    {
+     "model": "props_interiors/sinkkitchen01a.mdl",
+     "mass_kg": 35,
+     "size_m": [
+      0.678,
+      0.534,
+      0.455
+     ],
+     "hull_volume_m3": 0.0156,
+     "convexes": 5,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 2239.2
+    },
+    {
+     "model": "props_wasteland/prison_sink001a.mdl",
+     "mass_kg": 150,
+     "size_m": [
+      0.564,
+      0.505,
+      0.485
+     ],
+     "hull_volume_m3": 0.0288,
+     "convexes": 3,
+     "material": "concrete",
+     "surface_density": 2400,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 5204.1
+    }
+   ],
+   "median_mass_kg": 100,
+   "median_size_m": [
+    0.678,
+    0.534,
+    0.455
+   ]
+  },
+  "flags": [
+   "Deckard cannot ground this name (no mass or size to compare)"
+  ]
+ },
+ {
+  "kind": "toilet",
+  "category": "bath",
+  "deckard": {
+   "ok": true,
+   "asked": "a wc",
+   "tried": [
+    "a toilet",
+    "a loo",
+    "a lavatory",
+    "a wc"
+   ],
+   "identified": false,
+   "kind": "layered_vessel",
+   "parts": [],
+   "materials": [],
+   "sources": [
+    "{'name': 'no catalog/DB entry \u2014 defaulted to a generic small vessel', 'license':"
+   ],
+   "note": "Deckard could not ground this name"
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/furnituretoilet001a.mdl",
+     "mass_kg": 100.00000762939453,
+     "size_m": [
+      1.79,
+      0.474,
+      0.43
+     ],
+     "hull_volume_m3": 0.0424,
+     "convexes": 9,
+     "material": "porcelain",
+     "surface_density": 2400,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 2357.7
+    },
+    {
+     "model": "props/cs_militia/toilet.mdl",
+     "mass_kg": 500,
+     "size_m": [
+      0.722,
+      0.571,
+      0.438
+     ],
+     "hull_volume_m3": 0.0443,
+     "convexes": 6,
+     "material": "default",
+     "surface_density": 2000,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 11281.6
+    },
+    {
+     "model": "props_wasteland/prison_toilet01.mdl",
+     "mass_kg": 150,
+     "size_m": [
+      0.561,
+      0.486,
+      0.281
+     ],
+     "hull_volume_m3": 0.0172,
+     "convexes": 3,
+     "material": "porcelain",
+     "surface_density": 2400,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 8730.2
+    }
+   ],
+   "median_mass_kg": 150,
+   "median_size_m": [
+    0.722,
+    0.571,
+    0.438
+   ]
+  },
+  "flags": [
+   "Deckard cannot ground this name (no mass or size to compare)"
+  ]
+ },
+ {
+  "kind": "bathtub",
+  "category": "bath",
+  "deckard": {
+   "ok": true,
+   "asked": "a tub",
+   "tried": [
+    "a bathtub",
+    "a bath tub",
+    "a bath",
+    "a tub"
+   ],
+   "identified": false,
+   "kind": "layered_vessel",
+   "parts": [],
+   "materials": [],
+   "sources": [
+    "{'name': 'no catalog/DB entry \u2014 defaulted to a generic small vessel', 'license':"
+   ],
+   "note": "Deckard could not ground this name"
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/furniturebathtub001a.mdl",
+     "mass_kg": 900,
+     "size_m": [
+      1.453,
+      0.6,
+      0.449
+     ],
+     "hull_volume_m3": 0.0607,
+     "convexes": 10,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 14827.4
+    },
+    {
+     "model": "props_interiors/bathtub01a.mdl",
+     "mass_kg": 200,
+     "size_m": [
+      1.877,
+      0.753,
+      0.735
+     ],
+     "hull_volume_m3": 0.1749,
+     "convexes": 5,
+     "material": "metalpanel",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 1143.6
+    }
+   ],
+   "median_mass_kg": 900,
+   "median_size_m": [
+    1.877,
+    0.753,
+    0.735
+   ]
+  },
+  "flags": [
+   "Deckard cannot ground this name (no mass or size to compare)"
+  ]
+ },
+ {
+  "kind": "radiator",
+  "category": "appliance",
+  "deckard": {
+   "ok": true,
+   "asked": "a baseboard heater",
+   "tried": [
+    "a radiator",
+    "a heater",
+    "a baseboard heater"
+   ],
+   "identified": false,
+   "kind": "layered_vessel",
+   "parts": [],
+   "materials": [],
+   "sources": [
+    "{'name': 'no catalog/DB entry \u2014 defaulted to a generic small vessel', 'license':"
+   ],
+   "note": "Deckard could not ground this name"
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/furnitureradiator001a.mdl",
+     "mass_kg": 200,
+     "size_m": [
+      0.964,
+      0.7,
+      0.21
+     ],
+     "hull_volume_m3": 0.0996,
+     "convexes": 6,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 2008.0
+    },
+    {
+     "model": "props_interiors/radiator01a.mdl",
+     "mass_kg": 60,
+     "size_m": [
+      0.958,
+      0.7,
+      0.2
+     ],
+     "hull_volume_m3": 0.0931,
+     "convexes": 1,
+     "material": "canister",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 644.6
+    }
+   ],
+   "median_mass_kg": 200,
+   "median_size_m": [
+    0.958,
+    0.7,
+    0.2
+   ]
+  },
+  "flags": [
+   "Deckard cannot ground this name (no mass or size to compare)"
+  ]
+ },
+ {
+  "kind": "wood stove",
+  "category": "appliance",
+  "deckard": {
+   "ok": true,
+   "asked": "a pot belly stove",
+   "tried": [
+    "a wood stove",
+    "a woodstove",
+    "a potbelly stove",
+    "a pot belly stove",
+    "a log burner",
+    "a fireplace",
+    "a hearth",
+    "a fire"
+   ],
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "container_0",
+    "plant_1"
+   ],
+   "materials": [
+    "ceramic"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 4262', 'license': 'ShapeNe",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 4262 (real assembled p",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 48 models)',",
+    "{'name': 'material composition (ShapeNetSem): ceramic 54%, paper 10%, plastic 33",
+    "{'name': 'per-part material by role-convention (frame=ceramic) \u2014 PartNet carries"
+   ],
+   "mass_kg": 2189.077903567237,
+   "size_m": [
+    1.222624,
+    1.131124,
+    0.7660239999999999
+   ],
+   "com_m": [
+    -1.1886672510489246e-21,
+    -9.311226799883242e-21,
+    0.5878000000030106
+   ],
+   "inertia_kgm2": [
+    344.4782444572435,
+    464.7373628150109,
+    308.4002070920064
+   ],
+   "seconds": 1.0
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/furniturefireplace001a.mdl",
+     "mass_kg": 800,
+     "size_m": [
+      1.581,
+      0.76,
+      0.554
+     ],
+     "hull_volume_m3": 0.1257,
+     "convexes": 7,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 6363.5
+    }
+   ],
+   "median_mass_kg": 800,
+   "median_size_m": [
+    1.581,
+    0.76,
+    0.554
+   ]
+  },
+  "flags": [
+   "Deckard's own density looks wrong: 2189 kg for a body Deckard sizes at 1.22 m"
+  ]
+ },
+ {
+  "kind": "vending machine",
+  "category": "appliance",
+  "deckard": {
+   "ok": true,
+   "asked": "a drinks machine",
+   "tried": [
+    "a vending machine",
+    "a soda machine",
+    "a snack machine",
+    "a drinks machine"
+   ],
+   "identified": false,
+   "kind": "layered_vessel",
+   "parts": [],
+   "materials": [],
+   "sources": [
+    "{'name': 'no catalog/DB entry \u2014 defaulted to a generic small vessel', 'license':"
+   ],
+   "note": "Deckard could not ground this name"
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_interiors/vendingmachinesoda01a.mdl",
+     "mass_kg": 600,
+     "size_m": [
+      1.84,
+      1.004,
+      0.821
+     ],
+     "hull_volume_m3": 1.3643,
+     "convexes": 1,
+     "material": "plastic_barrel",
+     "surface_density": 500,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 439.8
+    },
+    {
+     "model": "props/cs_office/vending_machine.mdl",
+     "mass_kg": 100,
+     "size_m": [
+      1.616,
+      0.922,
+      0.779
+     ],
+     "hull_volume_m3": 1.0516,
+     "convexes": 7,
+     "material": "metal_box",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 95.1
+    }
+   ],
+   "median_mass_kg": 600,
+   "median_size_m": [
+    1.616,
+    0.922,
+    0.779
+   ]
+  },
+  "flags": [
+   "Deckard cannot ground this name (no mass or size to compare)"
+  ]
+ },
+ {
+  "kind": "display case",
+  "category": "storage",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "frame_0",
+    "screen_1",
+    "base_support_2",
+    "surface_3"
+   ],
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 4911', 'license': 'ShapeNe",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 4911 (real assembled p",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 6 models)', ",
+    "{'name': 'material composition (ShapeNetSem): glass 6%, paper 11%, wood 79%', 'l",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 50.326942441529475,
+   "size_m": [
+    1.0613148,
+    0.9652198,
+    0.3086048
+   ],
+   "com_m": [
+    -0.0012206493532658383,
+    -0.006639679341934754,
+    0.5468228558527014
+   ],
+   "inertia_kgm2": [
+    3.7052829944651293,
+    6.380218188414457,
+    2.888829873004731
+   ],
+   "seconds": 2.5
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_c17/display_cooler01a.mdl",
+     "mass_kg": 131.58682250976562,
+     "size_m": [
+      1.984,
+      0.966,
+      0.66
+     ],
+     "hull_volume_m3": 0.4267,
+     "convexes": 9,
+     "material": "metal",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 308.4
+    }
+   ],
+   "median_mass_kg": 131.58682250976562,
+   "median_size_m": [
+    1.984,
+    0.966,
+    0.66
+   ]
+  },
+  "flags": []
+ },
+ {
+  "kind": "tv",
+  "category": "electronics",
+  "deckard": {
+   "ok": true,
+   "asked": "a flat screen",
+   "tried": [
+    "a tv",
+    "a television",
+    "a telly",
+    "a flat screen",
+    "a tv set"
+   ],
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "frame_0",
+    "screen_1",
+    "base_support_2",
+    "surface_3"
+   ],
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 4911', 'license': 'ShapeNe",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 4911 (real assembled p",
+    "{'name': 'typical overall size (scale estimate)', 'license': ''}",
+    "{'name': 'material composition (ShapeNetSem): wood', 'license': ''}",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 2.0414686066680723,
+   "size_m": [
+    0.312,
+    0.198,
+    0.19798500000000002
+   ],
+   "com_m": [
+    -5.351219763654304e-05,
+    -0.00444033258312762,
+    0.16159573064944976
+   ],
+   "inertia_kgm2": [
+    0.014543606134796216,
+    0.017145673462038123,
+    0.0065924268355436275
+   ],
+   "seconds": 3.0
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props/cs_office/tv_plasma.mdl",
+     "mass_kg": 100.00000762939453,
+     "size_m": [
+      1.152,
+      0.73,
+      0.135
+     ],
+     "hull_volume_m3": 0.102,
+     "convexes": 1,
+     "material": "computer",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 980.4
+    },
+    {
+     "model": "props_c17/tv_monitor01.mdl",
+     "mass_kg": 15,
+     "size_m": [
+      0.427,
+      0.316,
+      0.277
+     ],
+     "hull_volume_m3": 0.03,
+     "convexes": 1,
+     "material": "computer",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 499.4
+    },
+    {
+     "model": "props/cs_militia/television_console01.mdl",
+     "mass_kg": 5000,
+     "size_m": [
+      1.736,
+      1.194,
+      0.935
+     ],
+     "hull_volume_m3": 1.7106,
+     "convexes": 1,
+     "material": "wood",
+     "surface_density": 700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 2923.0
+    }
+   ],
+   "median_mass_kg": 100.00000762939453,
+   "median_size_m": [
+    0.427,
+    0.316,
+    0.277
+   ]
+  },
+  "flags": [
+   "engine mass 100 kg vs Deckard 2.0 kg (x49.0)"
+  ]
+ },
+ {
+  "kind": "computer",
+  "category": "electronics",
+  "deckard": {
+   "ok": true,
+   "asked": "a monitor",
+   "tried": [
+    "a computer",
+    "a pc",
+    "a desktop computer",
+    "a monitor"
+   ],
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "frame_0",
+    "screen_1",
+    "base_support_2",
+    "surface_3"
+   ],
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 4911', 'license': 'ShapeNe",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 4911 (real assembled p",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 127 models)'",
+    "{'name': 'material composition (ShapeNetSem): wood', 'license': ''}",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 21.58993014673349,
+   "size_m": [
+    0.7290452,
+    0.6238402,
+    0.2879302
+   ],
+   "com_m": [
+    -0.0007703086848259864,
+    -0.007372907410574952,
+    0.37639143199138875
+   ],
+   "inertia_kgm2": [
+    0.7691211869195183,
+    1.2302378259558324,
+    0.5429029697295786
+   ],
+   "seconds": 2.9
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props/cs_office/computer.mdl",
+     "mass_kg": 10,
+     "size_m": [
+      0.721,
+      0.616,
+      0.511
+     ],
+     "hull_volume_m3": 0.0218,
+     "convexes": 1,
+     "material": "computer",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 458.2
+    }
+   ],
+   "median_mass_kg": 10,
+   "median_size_m": [
+    0.721,
+    0.616,
+    0.511
+   ]
+  },
+  "flags": []
+ },
+ {
+  "kind": "phone",
+  "category": "electronics",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "top_band_0",
+    "earcup_frame_1",
+    "earcup_pad_2",
+    "earcup_connector_3",
+    "earcup_frame_4",
+    "earcup_pad_5",
+    "earcup_connector_6",
+    "connector_wire_7"
+   ],
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 11447', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 11447 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 68 models)',",
+    "{'name': 'material composition (ShapeNetSem): wood', 'license': ''}",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 1.4316982947265617,
+   "size_m": [
+    0.217022,
+    0.195357,
+    0.193547
+   ],
+   "com_m": [
+    9.523343687623452e-06,
+    -1.2572097204733749e-20,
+    0.08709446528834806
+   ],
+   "inertia_kgm2": [
+    0.007552655835908599,
+    0.011726266529474946,
+    0.00940094909499426
+   ],
+   "seconds": 4.4
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props/cs_office/phone.mdl",
+     "mass_kg": 6,
+     "size_m": [
+      0.213,
+      0.157,
+      0.088
+     ],
+     "hull_volume_m3": 0.0017,
+     "convexes": 2,
+     "material": "computer",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 3447.2
+    }
+   ],
+   "median_mass_kg": 6,
+   "median_size_m": [
+    0.213,
+    0.157,
+    0.088
+   ]
+  },
+  "flags": [
+   "engine mass 6 kg vs Deckard 1.4 kg (x4.2)"
+  ]
+ },
+ {
+  "kind": "plant",
+  "category": "decor",
+  "deckard": {
+   "ok": true,
+   "asked": "a pot plant",
+   "tried": [
+    "a plant",
+    "a potted plant",
+    "a houseplant",
+    "a pot plant",
+    "a fern",
+    "a flower pot",
+    "a tree",
+    "a shrub"
+   ],
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "container_0",
+    "plant_1"
+   ],
+   "materials": [
+    "ceramic"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 4262', 'license': 'ShapeNe",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 4262 (real assembled p",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 282 models)'",
+    "{'name': 'material composition (ShapeNetSem): ceramic 40%, foliage 13%, plastic ",
+    "{'name': 'per-part material by role-convention (frame=ceramic) \u2014 PartNet carries"
+   ],
+   "mass_kg": 1457.243196907674,
+   "size_m": [
+    1.1531416,
+    0.8268516,
+    0.7560516
+   ],
+   "com_m": [
+    -1.97118510067528e-17,
+    -1.2350550753265688e-20,
+    0.5543949999906618
+   ],
+   "inertia_kgm2": [
+    209.2870394887609,
+    221.246933696905,
+    133.96347928909722
+   ],
+   "seconds": 1.1
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props/cs_office/plant01.mdl",
+     "mass_kg": 60,
+     "size_m": [
+      1.366,
+      0.97,
+      0.821
+     ],
+     "hull_volume_m3": 0.0097,
+     "convexes": 1,
+     "material": "pottery",
+     "surface_density": 2700,
+     "friction": 0.4000000059604645,
+     "hull_density_kg_m3": 6190.9
+    },
+    {
+     "model": "props/de_inferno/potted_plant1.mdl",
+     "mass_kg": 40,
+     "size_m": [
+      0.93,
+      0.859,
+      0.669
+     ],
+     "hull_volume_m3": 0.0156,
+     "convexes": 1,
+     "material": "tile",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 2571.6
+    },
+    {
+     "model": "props/de_inferno/potted_plant2.mdl",
+     "mass_kg": 40,
+     "size_m": [
+      1.021,
+      0.943,
+      0.851
+     ],
+     "hull_volume_m3": 0.0156,
+     "convexes": 1,
+     "material": "tile",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 2571.6
+    },
+    {
+     "model": "props/de_inferno/potted_plant3.mdl",
+     "mass_kg": 40,
+     "size_m": [
+      0.859,
+      0.838,
+      0.57
+     ],
+     "hull_volume_m3": 0.0156,
+     "convexes": 1,
+     "material": "tile",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 2571.6
+    }
+   ],
+   "median_mass_kg": 40,
+   "median_size_m": [
+    1.021,
+    0.943,
+    0.851
+   ]
+  },
+  "flags": [
+   "engine mass 40 kg vs Deckard 1457.2 kg (x0.0)",
+   "Deckard's own density looks wrong: 1457 kg for a body Deckard sizes at 1.15 m"
+  ]
+ },
+ {
+  "kind": "trash can",
+  "category": "container",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "container_bottom_0",
+    "container_neck_1"
+   ],
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 11882', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 11882 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 119 models)'",
+    "{'name': 'material composition (ShapeNetSem): wood', 'license': ''}",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 8.20831334596,
+   "size_m": [
+    0.6852872000000001,
+    0.5245572,
+    0.5217572
+   ],
+   "com_m": [
+    0.0,
+    1.8933652487632185e-05,
+    0.25495988891909693
+   ],
+   "inertia_kgm2": [
+    1.013821447395934,
+    1.015657200045914,
+    0.3429978906793959
+   ],
+   "seconds": 0.6
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props/cs_office/trash_can.mdl",
+     "mass_kg": 15,
+     "size_m": [
+      0.435,
+      0.424,
+      0.298
+     ],
+     "hull_volume_m3": 0.0314,
+     "convexes": 5,
+     "material": "plastic_barrel",
+     "surface_density": 500,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 477.8
+    },
+    {
+     "model": "props_trainstation/trashcan_indoor001a.mdl",
+     "mass_kg": 95,
+     "size_m": [
+      1.063,
+      0.688,
+      0.688
+     ],
+     "hull_volume_m3": 0.1586,
+     "convexes": 4,
+     "material": "metalpanel",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 599.0
+    },
+    {
+     "model": "props_junk/trashbin01a.mdl",
+     "mass_kg": 20,
+     "size_m": [
+      0.775,
+      0.505,
+      0.459
+     ],
+     "hull_volume_m3": 0.1234,
+     "convexes": 3,
+     "material": "plastic",
+     "surface_density": 500,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 162.1
+    }
+   ],
+   "median_mass_kg": 20,
+   "median_size_m": [
+    1.063,
+    0.688,
+    0.688
+   ]
+  },
+  "flags": []
+ },
+ {
+  "kind": "dumpster",
+  "category": "container",
+  "deckard": {
+   "ok": true,
+   "asked": "a skip",
+   "tried": [
+    "a dumpster",
+    "a skip"
+   ],
+   "identified": false,
+   "kind": "layered_vessel",
+   "parts": [],
+   "materials": [],
+   "sources": [
+    "{'name': 'no catalog/DB entry \u2014 defaulted to a generic small vessel', 'license':"
+   ],
+   "note": "Deckard could not ground this name"
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props_junk/trashdumpster01a.mdl",
+     "mass_kg": 450,
+     "size_m": [
+      1.411,
+      1.023,
+      0.999
+     ],
+     "hull_volume_m3": 1.0281,
+     "convexes": 2,
+     "material": "metalpanel",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 437.7
+    },
+    {
+     "model": "props_junk/trashdumpster02.mdl",
+     "mass_kg": 999.9999389648438,
+     "size_m": [
+      3.479,
+      2.469,
+      2.409
+     ],
+     "hull_volume_m3": 5.2248,
+     "convexes": 11,
+     "material": "metalpanel",
+     "surface_density": 2700,
+     "friction": 0.800000011920929,
+     "hull_density_kg_m3": 191.4
+    }
+   ],
+   "median_mass_kg": 999.9999389648438,
+   "median_size_m": [
+    3.479,
+    2.469,
+    2.409
+   ]
+  },
+  "flags": [
+   "Deckard cannot ground this name (no mass or size to compare)"
+  ]
+ },
+ {
+  "kind": "mug",
+  "category": "decor",
+  "deckard": {
+   "ok": true,
+   "identified": true,
+   "kind": "layered_vessel",
+   "parts": [],
+   "materials": [],
+   "sources": [
+    "{'name': 'typical stoneware coffee mug (approx.)', 'license': ''}",
+    "{'name': 'liquid water at 20C = 998 kg/m^3', 'license': 'public-domain'}"
+   ],
+   "mass_kg": 0.5991574167378529,
+   "size_m": [
+    0.095,
+    0.08,
+    0.08
+   ],
+   "com_m": [
+    0.0,
+    0.0,
+    0.04067657103705865
+   ],
+   "inertia_kgm2": [
+    0.0007059607286235992,
+    0.000705960728623591,
+    0.0005829675582153917
+   ],
+   "seconds": 0.3
+  },
+  "engine": {
+   "variants": [
+    {
+     "model": "props/cs_office/coffee_mug.mdl",
+     "mass_kg": 4,
+     "size_m": [
+      0.129,
+      0.109,
+      0.087
+     ],
+     "hull_volume_m3": 0.0005,
+     "convexes": 2,
+     "material": "pottery",
+     "surface_density": 2700,
+     "friction": 0.4000000059604645,
+     "hull_density_kg_m3": 7550.3
+    },
+    {
+     "model": "props/cs_office/coffee_mug2.mdl",
+     "mass_kg": 1,
+     "size_m": [
+      0.129,
+      0.109,
+      0.087
+     ],
+     "hull_volume_m3": 0.0005,
+     "convexes": 2,
+     "material": "pottery",
+     "surface_density": 2700,
+     "friction": 0.4000000059604645,
+     "hull_density_kg_m3": 1887.6
+    },
+    {
+     "model": "props/cs_office/coffee_mug3.mdl",
+     "mass_kg": 1,
+     "size_m": [
+      0.129,
+      0.109,
+      0.087
+     ],
+     "hull_volume_m3": 0.0005,
+     "convexes": 2,
+     "material": "pottery",
+     "surface_density": 2700,
+     "friction": 0.4000000059604645,
+     "hull_density_kg_m3": 1887.6
+    }
+   ],
+   "median_mass_kg": 1,
+   "median_size_m": [
+    0.129,
+    0.109,
+    0.087
+   ]
+  },
+  "flags": []
+ }
+]

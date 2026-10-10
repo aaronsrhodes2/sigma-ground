@@ -87,16 +87,48 @@ def main(argv=None) -> int:
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--settle", type=float, default=7.0)
     ap.add_argument("--out", default="")
+    ap.add_argument("--start-bridge", action="store_true", help="run the Skippy bridge for this run (agent, persona, voice)")
+    ap.add_argument("--bridge", default="", help="URL of a running Skippy bridge")
+    ap.add_argument("--persona", action="store_true")
+    ap.add_argument("--voice", action="store_true")
+    ap.add_argument("--agent", type=int, default=1)
+    ap.add_argument("--content", default="", help="all | hl2 (only the models every player has)")
     a = ap.parse_args(argv)
     x, y = (float(v) for v in a.pos.split(","))
-    res = run_tool.run_tool("holodeck_run", {"requests": a.requests, "pos": {"x": x, "y": y}, "yaw": a.yaw, "seed": a.seed,
-                                             "settle": a.settle}, map_name=a.map, timeout=240)
+    targs = {"requests": a.requests, "pos": {"x": x, "y": y}, "yaw": a.yaw, "seed": a.seed, "settle": a.settle}
+    srv = None
+    if a.start_bridge:
+        import secrets
+        import skippy_bridge
+        skippy_bridge.TOKEN = secrets.token_hex(8)
+        srv = skippy_bridge.serve("127.0.0.1", 8777)
+        a.bridge = "http://127.0.0.1:8777"
+        targs["token"] = skippy_bridge.TOKEN
+    if a.content:
+        targs["content"] = a.content
+    if a.bridge:
+        targs.update({"bridge": a.bridge, "persona": a.persona, "voice": a.voice, "agent": a.agent})
+        targs["timeout_note"] = "bridge on"
+    try:
+        res = run_tool.run_tool("holodeck_run", targs, map_name=a.map, timeout=300)
+    finally:
+        if srv:
+            srv.shutdown()
     if a.out:
         Path(a.out).write_text(json.dumps(res, indent=1), encoding="utf-8")
     floor_z = res["pos"]["z"]
     print(f"floor at z={floor_z:.1f}; {res['count']} props standing")
+    if res.get("library"):
+        lib = res["library"]
+        print(f"  library: {lib['kept']} of {lib['total']} models, {lib['kinds']} kinds" + (f", no model for {lib['lost_kinds']}" if lib["lost_kinds"] else ""))
     for s in res["steps"]:
-        print(f"  {s['text']!r}: {s['action']} x{s['placed']}: {s['say']}")
+        print(f"  {s['text']!r}: {s.get('action')} x{s.get('placed')}{' [agent]' if s.get('by_agent') else ''}: {s.get('say')}"
+              + (f"  | said: {s['said']}" if s.get('said') else ""))
+    if res.get("last_audio"):
+        print(f"  last voice: {res['last_audio']['bytes']} bytes in {res['last_audio']['chunks']} chunk(s), made by {res.get('last_voice')}")
+    for k in ("agent_error", "speak_error"):
+        if res.get(k):
+            print(f"  {k}: {res[k]}")
     problems = grade(res, floor_z=floor_z)
     asleep = sum(1 for e in res["entities"] if e.get("asleep"))
     print(f"{asleep}/{res['count']} asleep after settling")

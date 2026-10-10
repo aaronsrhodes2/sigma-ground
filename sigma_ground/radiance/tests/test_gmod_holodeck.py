@@ -399,3 +399,200 @@ def test_a_registry_row_is_never_overlapped_by_a_move(lab):
     r1 = lab.Layout.rect(m["x"], m["y"], couch["w"], couch["d"], m["theta"])
     r2 = lab.Layout.rect(shelf["x"], shelf["y"], shelf["w"], shelf["d"], shelf["theta"])
     assert not lab.Layout.overlap(r1, r2, 0)
+
+
+# --------------------------------------------------------------------------------------------- proximity voice (the numbers)
+@pytest.fixture(scope="module")
+def voice(lab):
+    return lab.load((ROOT / "stage" / "gmod" / "addon" / "lua" / "mentat" / "voice" / "core.lua").as_posix())
+
+
+def test_voice_is_full_then_fades_smoothly_to_silence(voice):
+    rng = 1100
+    assert voice.gain(0, rng) == 1 and voice.gain(0.6 * rng, rng) == 1
+    assert voice.gain(rng, rng) == 0 and voice.gain(5 * rng, rng) == 0
+    samples = [voice.gain(d, rng) for d in range(int(0.6 * rng), rng + 1, 20)]
+    assert all(a >= b for a, b in zip(samples, samples[1:])), "never gets louder with distance"
+    assert 0.45 < voice.gain(0.8 * rng, rng) < 0.55, "half loudness half way through the fade"
+
+
+def test_a_whisper_a_shout_and_a_wall_change_the_reach(voice, lab):
+    o = lab.lua_table({"range": 1000})
+    normal = voice.effective_range(o, None)
+    whisper = voice.effective_range(o, lab.lua_table({"crouching": True}))
+    shout = voice.effective_range(o, lab.lua_table({"shouting": True}))
+    assert whisper < 0.5 * normal < normal < shout
+    assert voice.effective_range(o, lab.lua_table({"shouting": True, "crouching": True})) == shout
+    heard_open, _ = voice.decide(500, normal, False, o)
+    heard_wall, _ = voice.decide(700, normal, True, o)
+    assert heard_open and not heard_wall, "a wall shortens how far a voice carries"
+    heard_near_wall, g = voice.decide(200, normal, True, o)
+    assert heard_near_wall and g == 1
+
+
+# --------------------------------------------------------------------------------------------- what this server can show
+def test_library_keeps_only_models_the_server_has(lab):
+    lib = lab.load((ROOT / "stage" / "gmod" / "addon" / "lua" / "mentat" / "holodeck" / "library.lua").as_posix())
+    cat = lab.catalog_lua
+    gone = {"models/props_c17/furniturecouch001a.mdl", "models/props_interiors/furniture_couch01a.mdl"}
+    is_valid = lab.rt.eval("function(set) return function(m) return not set[m] end end")(lab.lua_table({m: True for m in gone}))
+    filtered, report = lib.filter(cat, is_valid, lab.lua_table({}))
+    assert report.kept == report.total - 2
+    couch = filtered.kinds["couch"]
+    assert len(couch.variants) == len(CATALOG["kinds"]["couch"]["variants"]) - 2
+    # nothing is left of a kind with no model, and rooms that lost their furniture go with it
+    nothing = lab.rt.eval("function(m) return false end")
+    filtered, report = lib.filter(cat, nothing, lab.lua_table({}))
+    assert len(filtered.order) == 0 and report.kept == 0
+
+
+def test_hl2_only_mode_drops_the_css_models(lab):
+    lib = lab.load((ROOT / "stage" / "gmod" / "addon" / "lua" / "mentat" / "holodeck" / "library.lua").as_posix())
+    filtered, report = lib.filter(lab.catalog_lua, None, lab.lua_table({"hl2_only": True}))
+    for kid in filtered.order.values():
+        for i in range(1, len(filtered.kinds[kid].variants) + 1):
+            assert not filtered.kinds[kid].variants[i].model.startswith("models/props/"), kid
+    assert 0 < len(filtered.order) < len(CATALOG["order"]) or len(filtered.order) == len(CATALOG["order"])
+    # a parser built on the thinner library says so instead of inventing the missing thing
+    thin_parser = lab.Parse.new(filtered)
+    from eval_parse import to_py
+    req = to_py(lab.mod, thin_parser.parse(thin_parser, "add a plant"))
+    assert any(str(i["kind"]).startswith("UNKNOWN") for i in req["items"]) or any(i["kind"] == "plant" for i in req["items"])
+
+
+def test_relations_to_standing_things_never_overlap_them(lab):
+    fresh(lab)
+    for text in ["add a coffee table", "put three red couches around the coffee table"]:
+        res = lab.run(text, pos=(64, 0, 0))
+        assert res["placements"], text
+        assert not lab.grade(res), (text, lab.grade(res))
+        lab.commit(res)
+    for text in ["eight chairs in front of the coffee table", "an armchair and a floor lamp beside the coffee table",
+                 "two armchairs around the coffee table", "a bookshelf behind the couch"]:
+        res = lab.run(text, pos=(64, 0, 0))
+        assert res["placements"], (text, res["say"])
+        assert not lab.grade(res), (text, lab.grade(res))
+
+
+def test_a_player_changes_only_their_own_things(lab):
+    fresh(lab)
+    a = lab.run("two couches", owner="alice")
+    lab.commit(a, owner="alice")
+    b = lab.run("a couch", owner="bob")
+    lab.commit(b, owner="bob")
+    assert len(lab.registry) == 3
+    res = lab.run("get rid of all the couches", owner="alice")
+    mine = {e["id"] for e in lab.registry if e["owner"] == "alice"}
+    assert set(res["removals"]) == mine and len(mine) == 2, "bob's couch is not alice's to remove"
+    res = lab.run("turn the couch around", owner="bob")
+    bobs = [e["id"] for e in lab.registry if e["owner"] == "bob"]
+    assert [m["id"] for m in res["moves"]] == bobs
+    # a request that names something that is only someone else's finds nothing of theirs
+    fresh(lab)
+    lab.commit(lab.run("a lamp"), owner="alice")
+    res = lab.run("remove the lamp", owner="bob")
+    assert not res["removals"] and "no floor lamp" in res["say"]
+    # an admin (no restriction) can
+    assert len(lab.run("remove the lamp")["removals"]) == 1
+
+
+# --------------------------------------------------------------------------------------------- Skippy: agent, voice, ears
+import skippy_bridge  # noqa: E402
+import skippy_ears  # noqa: E402
+
+
+@pytest.mark.parametrize("text,woke,rest", [
+    ("Skippy, add three couches", True, "add three couches"),
+    ("Skipy add a lamp", True, "add a lamp"),
+    ("skip e put a table here", True, "put a table here"),
+    ("Hey Skippy. Clear the room", True, "Clear the room"),
+    ("skipping stones", False, "skipping stones"),
+    ("Skippers", False, "Skippers"),
+    ("can you pass the salt", False, "can you pass the salt"),
+])
+def test_the_ears_only_wake_for_skippy(text, woke, rest):
+    ok, got = skippy_ears.strip_wake(text)
+    assert ok == woke and got == rest
+
+
+def test_the_ears_keep_only_requests_for_skippy(tmp_path, monkeypatch):
+    monkeypatch.setattr(skippy_ears, "transcribe", lambda wav, api, timeout=60: "Skippy, add two lamps")
+    assert skippy_ears.handle_speech(b"x", "http://none", tmp_path, False, log=lambda *_: None) == "add two lamps"
+    data = json.loads((tmp_path / "voice_in.json").read_text(encoding="utf-8"))
+    assert data["text"] == "add two lamps" and data["heard"] == "Skippy, add two lamps" and data["direct"] is False
+    (tmp_path / "voice_in.json").unlink()
+    monkeypatch.setattr(skippy_ears, "transcribe", lambda wav, api, timeout=60: "what did you have for lunch")
+    assert skippy_ears.handle_speech(b"x", "http://none", tmp_path, False, log=lambda *_: None) is None
+    assert not (tmp_path / "voice_in.json").exists(), "talk between players is dropped, never handed on"
+    # the +skippy key needs no wake word
+    assert skippy_ears.handle_speech(b"x", "http://none", tmp_path, True, log=lambda *_: None) == "what did you have for lunch"
+
+
+def test_the_agent_can_only_ask_for_things_in_the_library():
+    req, notes = skippy_bridge.validate_request({
+        "action": "add", "scene": "dining room", "arrangement": "bogus", "target": "Coffee Table",
+        "items": [{"kind": "table", "count": 1}, {"kind": "chair", "count": 4}, {"kind": "side table", "count": 9999},
+                  {"kind": "dragon", "count": 2}, {"kind": "sofa", "count": 2, "adjectives": ["Red"]}],
+    })
+    assert req["scene"] == "dining room" and req["arrangement"] == "unspecified" and req["target"] == "coffee table"
+    kinds = {i["kind"]: i for i in req["items"]}
+    assert "dragon" not in kinds and "table" not in kinds and "chair" not in kinds, "the room already brings its own table and chairs"
+    assert kinds["side table"]["count"] == 40, "counts are clamped"
+    assert kinds["couch"]["count"] == 2 and kinds["couch"]["adjectives"] == ["red"], "a sofa is a couch"
+    assert any("dragon" in n for n in notes)
+    empty, _ = skippy_bridge.validate_request({"action": "add", "items": [{"kind": "dragon", "count": 1}]})
+    assert empty["action"] == "none", "nothing buildable means nothing to do"
+
+
+def test_the_agent_plans_through_the_model_it_is_given(monkeypatch):
+    seen = {}
+
+    def fake_chat(messages, schema, model=None, timeout=0, temperature=0):
+        seen["system"] = messages[0]["content"]
+        seen["user"] = messages[-1]["content"]
+        return json.dumps({"action": "add", "items": [{"kind": "armchair", "count": 2}, {"kind": "floor lamp", "count": 1}],
+                           "arrangement": "unspecified", "target": "", "scene": "", "say": "Snug."})
+
+    monkeypatch.setattr(skippy_bridge, "chat", fake_chat)
+    out = skippy_bridge.plan("make it cozy", ["couch"])
+    assert [(i["kind"], i["count"]) for i in out["request"]["items"]] == [("armchair", 2), ("floor lamp", 1)]
+    assert "armchair" in seen["system"] and "bookshelf" in seen["system"], "the agent is shown the whole library"
+    assert "already standing nearby: couch" in seen["user"]
+    monkeypatch.setattr(skippy_bridge, "chat", lambda *a, **k: "I think you should add some chairs {oops")
+    assert skippy_bridge.plan("anything")["request"]["action"] == "none", "a model that rambles builds nothing"
+
+
+def test_the_bridge_is_authenticated_and_answers_in_fixed_ways(monkeypatch):
+    import urllib.error
+    import urllib.request
+    monkeypatch.setattr(skippy_bridge, "chat", lambda *a, **k: json.dumps({"action": "none", "say": "Nothing to do."}))
+    monkeypatch.setattr(skippy_bridge, "TOKEN", "sekrit")
+    srv = skippy_bridge.Server(("127.0.0.1", 0), skippy_bridge.Handler)
+    import threading
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    try:
+        def post(path, body, token="sekrit"):
+            req = urllib.request.Request(base + path, data=json.dumps(body).encode(),
+                                         headers={"content-type": "application/json", "X-Skippy-Token": token})
+            try:
+                with urllib.request.urlopen(req, timeout=10) as r:
+                    return r.status, json.loads(r.read())
+            except urllib.error.HTTPError as e:
+                return e.code, json.loads(e.read())
+        assert post("/plan", {"text": "hello"}, token="wrong")[0] == 401
+        code, body = post("/plan", {"text": "do something"})
+        assert code == 200 and body["request"]["action"] == "none"
+        assert post("/plan", {"text": ""})[0] == 400
+        assert post("/rm-rf", {})[0] == 404, "there is no way to ask it to do anything else"
+        assert post("/plan", {"text": "x" * 50000})[0] in (400, 413)
+    finally:
+        srv.shutdown()
+
+
+@pytest.mark.skipif(not (__import__("shutil").which("powershell.exe") and __import__("shutil").which("ffmpeg")),
+                    reason="needs Windows speech (PowerShell) and ffmpeg")
+def test_skippy_can_speak_with_the_local_voice():
+    data, voice = skippy_bridge.speak("Three couches, in a U shape.", mode="sapi")
+    assert voice == "sapi" and len(data) > 4000
+    assert data[:3] == b"ID3" or data[0] == 0xFF, "an mp3"

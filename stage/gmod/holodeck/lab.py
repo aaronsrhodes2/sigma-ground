@@ -112,7 +112,7 @@ class Lab:
         return obj
 
     # ---- run
-    def run(self, text: str, world="open", pos=(0.0, 0.0, 0.0), yaw=0.0, aim=None, seed=None, wake=False):
+    def run(self, text: str, world="open", pos=(0.0, 0.0, 0.0), yaw=0.0, aim=None, seed=None, wake=False, owner=None):
         env = self.world(world) if isinstance(world, str) else world
         if wake:
             ok, rest = self.Parse.strip_wake(text)
@@ -130,19 +130,21 @@ class Lab:
         if getattr(self, "debug", None):
             ctx["debug"] = self.debug
         ctx["registry"] = self.lua_table(self.registry)
+        if owner is not None:                    # a player who may change only their own things
+            ctx["mine"] = self.lua_table([e for e in self.registry if e.get("owner") == owner])
         res = self.planner.run(self.planner, req, ctx)
         out = to_py(self.mod, res)
         out["request"] = to_py(self.mod, req)
         return out
 
-    def commit(self, res: dict) -> None:
+    def commit(self, res: dict, owner=None) -> None:
         """Apply a plan to the registry the way the game does, so a following utterance sees it."""
         for p in res.get("placements", []):
             self.seq += 1
             self.registry.append({
                 "id": self.next_id, "kind": p["kind"], "vi": p["vi"], "x": p["x"], "y": p["y"], "z": p["z"], "theta": p["theta"],
                 "w": p["w"], "d": p["d"], "h": p["h"], "color_name": p.get("color_name"), "group": p.get("group", 0) + self.seq,
-                "seq": self.seq,
+                "seq": self.seq, "owner": owner,
             })
             self.next_id += 1
         removed = set(res.get("removals", []))

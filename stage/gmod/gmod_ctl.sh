@@ -85,9 +85,9 @@ start() {
   fi
   if [ "$quiet" -eq 1 ]; then
     # `start /min` launches it already minimized so it never takes focus; the flags stop it grabbing the mouse
-    ( cd "$GMOD_DIR" && cmd //c start "" //min "$GMOD_EXE" -console -condebug -novid -nosound -nomouse -nojoy -windowed -w 640 -h 360 +map "$map" >/dev/null 2>&1 )
+    ( cd "$GMOD_DIR" && cmd //c start "" //min "$GMOD_EXE" -console -condebug -novid -allowlocalhttp -nosound -nomouse -nojoy -windowed -w 640 -h 360 +map "$map" >/dev/null 2>&1 )
   else
-    ( cd "$GMOD_DIR" && ./"$GMOD_EXE" -console -condebug -novid -windowed -w 1280 -h 720 +map "$map" >/dev/null 2>&1 & )
+    ( cd "$GMOD_DIR" && ./"$GMOD_EXE" -console -condebug -novid -allowlocalhttp -windowed -w 1280 -h 720 +map "$map" >/dev/null 2>&1 & )
   fi
   if [ "$quiet" -eq 1 ]; then
     # keep the window minimized and unfocused while it loads (see gmod_hide.ps1); detached, ends on its own

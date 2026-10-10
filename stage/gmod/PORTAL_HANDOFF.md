@@ -1,5 +1,10 @@
 # Handoff: put the Garry's Mod dedicated server on the makernet.live portal
 
+> **Superseded (2026-10-10).** The portal chat chose a different route: a public server on the pop-up games VM, wired in like Valheim.
+> That is now our live mod server; see [CLOUD_SERVER.md](CLOUD_SERVER.md). This file only matters if you also want the home-PC
+> dedicated server (`D:\Aaron\servers\gmod-ds`) on the portal. For that, note SkippyTel's own service-registration protocol
+> (`POST /services/register`, `X-Skippy-Token`, heartbeats; `services/flask-api/app/routes/service_registration.py`).
+
 Paste the prompt below into a Claude Code session opened in the portal's codebase. `D:\Aaron\development\SkippyTel` has a `portal/` folder and is the likely home, but a search of the dev tree found no file that names makernet.live, so if the portal is somewhere else, open that instead.
 Everything in "Facts" was read from the files and the running machine on 2026-10-10, not remembered.
 

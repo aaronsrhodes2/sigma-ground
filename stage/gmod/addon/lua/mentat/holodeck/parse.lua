@@ -20,7 +20,8 @@ Parse.__index = Parse
 local NUMBER_WORDS = {
   zero = 0, one = 1, two = 2, three = 3, four = 4, five = 5, six = 6, seven = 7, eight = 8, nine = 9, ten = 10,
   eleven = 11, twelve = 12, thirteen = 13, fourteen = 14, fifteen = 15, sixteen = 16, seventeen = 17, eighteen = 18,
-  nineteen = 19, twenty = 20, thirty = 30, forty = 40, fifty = 50,
+  nineteen = 19, twenty = 20, thirty = 30, forty = 40, fifty = 50, sixty = 60, seventy = 70, eighty = 80, ninety = 90,
+  hundred = 100,
 }
 
 -- Quantity phrases (matched on the words BEFORE a noun, longest first). count = integer; 0 = everything that exists.
@@ -29,7 +30,7 @@ local QUANT_PHRASES = {
   { "a pair of", 2 }, { "a pair", 2 }, { "a duo of", 2 }, { "a few", 3 }, { "a handful of", 5 }, { "a handful", 5 },
   { "a bunch of", 6 }, { "a bunch", 6 }, { "a lot of", 6 }, { "lots of", 6 }, { "loads of", 6 }, { "a load of", 6 },
   { "plenty of", 6 }, { "a ton of", 6 }, { "tons of", 6 }, { "a dozen of", 12 }, { "a dozen", 12 }, { "dozens of", 12 },
-  { "a number of", 4 }, { "several", 4 }, { "some", 3 }, { "both of the", 2 }, { "both the", 2 }, { "both", 2 }, { "many", 6 },
+  { "a hundred", 100 }, { "one hundred", 100 }, { "a number of", 4 }, { "several", 4 }, { "some", 3 }, { "both of the", 2 }, { "both the", 2 }, { "both", 2 }, { "many", 6 },
   { "numerous", 6 }, { "all of the", 0 }, { "all the", 0 }, { "every single", 0 }, { "every", 0 }, { "each of the", 0 },
   { "each", 0 }, { "all of them", 0 }, { "all", 0 },
   { "another", 1 }, { "one more", 1 }, { "two more", 2 }, { "three more", 3 }, { "an extra", 1 }, { "one extra", 1 },
@@ -721,6 +722,17 @@ function Parse:parse(text)
   -- a relation target that is also an item in the same sentence: the item IS the target
   for _, it in ipairs(req.items) do
     if it.kind == req.target then it.is_target = true end
+  end
+
+  -- ---- words that carried meaning but that nothing above explained ("somewhere to relax"): the caller may want help
+  req.leftover = {}
+  for i = start, #tokens do
+    local tok = tokens[i]
+    if not mask[i] and tok ~= "," and not STOP[tok] and not number_of(tok) and not ARTICLES[tok] and not VERB_ADD[tok]
+       and not SCENE_NOUNS[tok] and not SCENE_NOUNS[singular_guess(tok)] and not quant_at(i) and not WORLD_TARGETS[tok]
+       and not PRONOUN_TARGETS[tok] and not SPEAKER_WORDS[tok] and tok ~= "x" then
+      req.leftover[#req.leftover + 1] = tok
+    end
   end
 
   -- ---- settle the action from the whole sentence

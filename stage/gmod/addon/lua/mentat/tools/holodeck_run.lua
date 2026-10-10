@@ -21,6 +21,13 @@ return function(args, done)
   local pos = args.pos or { x = 0, y = 0 }
   if pos.z == nil then pos = { x = pos.x, y = pos.y, z = floor_below(pos.x, pos.y) } end
   local steps, i = {}, 0
+  if args.bridge then
+    RunConsoleCommand("holodeck_bridge", args.bridge)
+    RunConsoleCommand("holodeck_bridge_token", args.token or "")
+    RunConsoleCommand("holodeck_agent", tostring(args.agent or 1))
+    RunConsoleCommand("holodeck_persona", args.persona and "1" or "0")
+    RunConsoleCommand("holodeck_voice_out", args.voice and "1" or "0")
+  end
 
   local function report()
     local ents = {}
@@ -50,11 +57,19 @@ return function(args, done)
       end
       ents[#ents + 1] = row
     end
-    done({ pos = pos, steps = steps, entities = ents, count = #ents })
+    done({ pos = pos, steps = steps, entities = ents, count = #ents, library = H.library_report and { kept = H.library_report.kept, total = H.library_report.total,
+           kinds = #H.catalog.order, lost_kinds = H.library_report.lost_kinds }, last_audio = H.last_audio, last_voice = H.last_voice,
+           agent_error = H.last_agent_error, speak_error = H.last_speak_error })
   end
 
   local function wait_idle(cb)
     if H.Busy() then timer.Simple(0.2, function() wait_idle(cb) end) else cb() end
+  end
+
+  local function fill(step, r)
+    step.say, step.action = r and r.say or "", r and r.action or "none"
+    step.placed = r and r.placements and #r.placements or 0
+    step.notes, step.ids, step.by_agent, step.said = r and r.notes or {}, r and r.ids or {}, r and r.by_agent, r and r.said
   end
 
   local function nextreq()
@@ -63,11 +78,23 @@ return function(args, done)
     if not text then
       return timer.Simple(args.settle or 7, report)
     end
-    local res = H.Handle(nil, text, { pos = pos, yaw = args.yaw or 0, seed = args.seed, aim = args.aim })
-    local step = { text = text, say = res and res.say or "", action = res and res.action or "none",
-                   placed = res and res.placements and #res.placements or 0, notes = res and res.notes or {}, ids = res and res.ids or {} }
+    local step = { text = text }
     steps[#steps + 1] = step
-    wait_idle(function() timer.Simple(args.gap or 1.2, nextreq) end)
+    local res = H.Handle(nil, text, { pos = pos, yaw = args.yaw or 0, seed = args.seed, aim = args.aim, done = function(r) fill(step, r) end })
+    if res then fill(step, res) end
+    -- an agent or voice answer arrives later: wait for the bridge before the next request
+    local waited = 0
+    local function settle_step()
+      if H.Busy() and waited < 90 then waited = waited + 0.2; return timer.Simple(0.2, settle_step) end
+      step.last_say = H.last_say
+      timer.Simple(args.gap or 1.2, nextreq)
+    end
+    settle_step()
   end
-  nextreq()
+  if args.content then RunConsoleCommand("holodeck_content", args.content) end
+  -- console variables set by RunConsoleCommand take effect on the next frame: let them land before the first request
+  timer.Simple((args.bridge or args.content) and 0.5 or 0, function()
+    if args.content then H.BuildLibrary() end
+    nextreq()
+  end)
 end
