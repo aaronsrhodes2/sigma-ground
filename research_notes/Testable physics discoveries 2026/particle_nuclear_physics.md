@@ -243,8 +243,9 @@ KATRIN released no new mass bound; m_β < 0.45 eV still stands and the final dat
 - **[IN WINDOW, journal: Nature 654, 343–348, published 10 Jun 2026; DOI 10.1038/s41586-026-10538-z] JUNO Collaboration, "Measurement of reactor neutrino oscillation with the first JUNO data".**
   - 59.1 days of data. sin²θ₁₂ = 0.3092 ± 0.0087 and Δm²₂₁ = (7.50 ± 0.12)×10⁻⁵ eV² for normal ordering.
   - This is a factor-1.6 precision gain over all previous measurements combined: 1.55% on Δm²₂₁ (KamLAND had 2.5%) and 2.81% on sin²θ₁₂ (SK+SNO had 4.6%).
-  - Detector: 20 kt liquid scintillator at a 52.5 km baseline, energy resolution about 3% at 1 MeV.
+  - Detector: 20 kt liquid scintillator at a 52.5 km baseline.
   - Sources: [Nature](https://www.nature.com/articles/s41586-026-10538-z); [arXiv:2511.14593](https://arxiv.org/html/2511.14593v1); [CAS news](https://english.cas.cn/newsroom/headlines/202606/t20260611_1161560.shtml)
+  - Energy resolution of about 3% at the MeV scale, per a search-result summary of the JINR news item (not fetched): [JINR](https://www.jinr.ru/posts/nature-presented-first-juno-experiment-results/)
 - **[IN WINDOW, preprint, 29 Sep 2026; first shown at Neutrino 2026] JUNO, "Measurement of Neutrino Oscillation Parameters at JUNO and Indication of the Neutrino Mass Ordering", arXiv:2609.37895.**
   - Data: 207.2 live days (30 Aug 2025 – 18 May 2026), 8,294 IBD candidates.
   - **Δm²₃₁ = +2.509^{+0.027}_{-0.025}×10⁻³ eV² (NO) and −2.482^{+0.025}_{-0.026}×10⁻³ eV² (IO)**, about 1%. The Daya Bay constraint is used only to select the correct local minimum.
@@ -389,7 +390,7 @@ I did not find new quasar (ESPRESSO) α or μ results in the window.
 
 ### Inferences
 - **Direct σ-field hook (derived).** For a field that shifts α by δα/α, the Th-229 clock frequency shifts by δν ≈ K f₀ (δα/α) ≈ 5900 × 2.02×10¹⁵ Hz × (δα/α) ≈ 1.2×10¹⁹ Hz × (δα/α).
-  - So δα/α = 10⁻¹⁸ gives about 12 Hz. With the current reproducibility of about 5×10⁻¹³ (about 1 kHz), the clock already tests δα/α at about 10⁻¹⁷-equivalent per run, before systematics, within about 2.5× (K uncertainty).
+  - So δα/α = 10⁻¹⁸ gives about 12 Hz. With the current run-to-run reproducibility of about 5×10⁻¹³ (about 1 kHz), one run resolves δα/α ≈ 5×10⁻¹³/5900 ≈ 1×10⁻¹⁶. This is before any analysis of systematics, and K itself is uncertain by about 40%.
   - Because the isomer energy (about 8.36 eV) is a difference of MeV-scale Coulomb and nuclear terms, a σ-field that shifts hadron masses through Λ_QCD or m_q is also strongly amplified. Th-229 is the single most sensitive laboratory probe of "scale-transition" scalar fields.
 - **Ratio test hook.** Any σ-field that changes α or μ must leave the Yb⁺(E3)/Sr, Hg/Yb⁺ and Al⁺/Yb ratios fixed at 10⁻¹⁷–10⁻¹⁸ over months. The pre-window drift limits (|α̇/α| ≲ 2×10⁻¹⁷/yr, |μ̇/μ| ≲ 10⁻¹⁶/yr) should be hard-coded as constraints.
 - **Scalar–matter coupling convention.** The dark-matter clock literature parameterises a scalar φ by d_e (photon), d_g (gluon/Λ_QCD), d_mq (quark mass) and d_me (electron mass). A σ field that "shifts particle/hadron masses" maps onto d_g and d_mq. These are exactly the couplings the TU Wien result says it constrains "beyond previous measurements".
