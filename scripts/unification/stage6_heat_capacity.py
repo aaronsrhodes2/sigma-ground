@@ -62,11 +62,27 @@ def run(Q0, seed, t_relax=10.0, t_avg=10.0, steps_per_tff=200):
                 K_mean=float(np.mean(Ks)), K_bound_mean=float(np.mean(Kb)), escapers_mean=float(np.mean(nesc)),
                 virial_Q=float(2 * np.mean(Ks) / abs(np.mean(Es) - np.mean(Ks))))
 
+GRID = [(Q0, seed) for Q0 in (0.3, 0.5, 0.7, 0.9, 1.1) for seed in (11, 12, 13, 14)]
+
 if __name__ == "__main__":
+    # Usage:  (no args)               run the whole grid serially, then fit
+    #         --one Q0 SEED           run one cell, print its JSON row (for parallel runs)
+    #         --resume ROWS.jsonl     reuse rows already printed (one JSON object per line), run the missing cells, fit
+    if len(sys.argv) >= 4 and sys.argv[1] == "--one":
+        r = run(float(sys.argv[2]), int(sys.argv[3]))
+        print(json.dumps({k: (round(v, 6) if isinstance(v, float) else v) for k, v in r.items()}), flush=True)
+        sys.exit(0)
+    done = {}
+    if len(sys.argv) >= 3 and sys.argv[1] == "--resume":
+        for line in open(sys.argv[2], encoding="utf-8"):
+            line = line.strip()
+            if line.startswith("{") and '"Q0"' in line:
+                r = json.loads(line); done[(r["Q0"], r["seed"])] = r
     rows = []
-    for Q0 in (0.3, 0.5, 0.7, 0.9, 1.1):
-        for seed in (11, 12, 13, 14):
-            r = run(Q0, seed); rows.append(r); print(json.dumps({k: (round(v, 6) if isinstance(v, float) else v) for k, v in r.items()}), flush=True)
+    for Q0, seed in GRID:
+        if (Q0, seed) in done:
+            rows.append(done[(Q0, seed)]); continue
+        r = run(Q0, seed); rows.append(r); print(json.dumps({k: (round(v, 6) if isinstance(v, float) else v) for k, v in r.items()}), flush=True)
     E = np.array([r["E0"] for r in rows]); K = np.array([r["K_mean"] for r in rows]); Kb = np.array([r["K_bound_mean"] for r in rows])
     def fit(x, y):
         A = np.vstack([x, np.ones_like(x)]).T; coef, res, *_ = np.linalg.lstsq(A, y, rcond=None)

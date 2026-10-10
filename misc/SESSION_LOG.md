@@ -2937,3 +2937,110 @@ out what's safely closable.
       standing doctrine) — design once R4.5/R4.6 land
 - [ ] Chips already filed and running in separate sessions: P0-physics MCP
       Q&A wiring, astro_002 routing fix — status unknown from this session
+
+## Session 36 — 2026-10-09/10 — Unification program: are fluid dynamics, thermodynamics and gravity one phenomenon? (σ-bridge framework)
+
+**Time:** 2026-10-09 evening → 2026-10-10 early (~5 hr, one session restart mid-run)
+**Status:** 🔄 In Progress — pilots P1–P7 run and recorded; design workflow (critic → 3 designers → 3 judges → synthesis) and adversarial verification workflow (3 lenses × 7 pilots → critic → referee) running in the background
+
+### Context
+The Captain's thesis (Grok in the Tesla, 2026-07-30 + today): fluid dynamics, thermodynamics and gravitational
+dynamics are ONE phenomenon; find the similarities and differences mathematically and build a method to test it.
+Mid-session he added: (1) his wider ideas (BH/dark energy/dark matter/holography; medium-set light speed;
+coherence/decoherence) filed as [SPECULATIVE] at his request; (2) a new Platinum rule — Mentat does the physics;
+(3) "Continue toward the σ-bridge framework."
+
+### Changes
+- `../PLATINUM_RULES.md` — new **§21 Mentat Does the Physics** (+ quick-reference row + audit-log entry);
+  `../CLAUDE.md` — one-line pointer in the universal nudges.
+- `.mcp.json` — `mentat` MCP server over stdio inside `skippytel-mentat` (`docker exec -i … python -m
+  sigma_ground.mcp.server`); confirmed live next session as `mcp__mentat__*` (221 tools).
+- `tools/mentat_call.sh`, `tools/mentat_client.py` — shell + Python clients for the container's HTTP JSON API.
+- `sigma_ground/dynamics/continuum.py:~712` — `# PHYSICS_GAP` tag; `KNOWN_GAPS.md` — entry: the SPH bridge books
+  no viscous heating and no PdV work (Phase E's −387 % "mechanical energy loss").
+- `scripts/unification/pilot_p{1,2,2b,3_p4,5,6,7}_*.py` — the pilots; `misc/UNIFICATION_PILOT_RESULTS.md` — numbers,
+  limits, scoreboard, diagnostics flagged to the Captain.
+- Commits: 164b9bb (§21 tooling), 47cb243 (gap), ec71d36 (P1–P6), 264f3e6 (P7). Pushed to master (solo repo, §17).
+
+### Why
+A "same phenomenon" claim is only testable as a mathematical statement. The pilots test the sharpest ones the repo's
+engines can reach: same operator (P1, P6, P7), same equation (P2/P2b), same dictionary (P3), same thermodynamic
+structure (P4), and the sharpest difference (P5). The σ-bridge — □σ = −ξR with the perfect-fluid trace,
+∇²σ = −(8πGξ/c²)(ρ − 3P/c²) in the weak field — turned out to be the organizing statement: gravity, the EOS and the
+field in one elliptic operator, with fluid dynamics entering when the static limit is lifted.
+
+### Findings (numbers in misc/UNIFICATION_PILOT_RESULTS.md)
+- P1 steady heat ≡ Newtonian potential: 0.17 % exterior error at 32³, converging; transient is the difference.
+- P2b virial identity in SPH: gravity term exact; pressure-virial efficiency x = 0.73/0.78/0.80/0.82 (N = 64…512),
+  deficit ~N^−0.2 — a free-surface closure term, not new physics; explains the earlier f* = 0.52 vs 0.447.
+- P3 Bondi sonic horizon: T_analog/T_H = 8(c_s/c)³ exactly (sympy + Mentat); kinematics only, no dynamics.
+- P4 BH first law / Smarr / Verlinde chain: identities to 1e-11…1e-16 — by construction, not evidence.
+- P5 negative heat capacity: C_grav = −1.284e-21 J/K vs C_gas = +1.325e-21 J/K (ratio −0.97) — the decisive difference.
+- P6 σ-bridge table: 3P/ρc² = 2.8e-12 (air) … 0.67 (NS core), 0 for radiation; σ_field = 2 × inventory ansatz.
+- P7 n = 1 polytrope: Q_Ψ/Q_Φ = 1 − w_c/2 to 5e-5; P reshapes σ by 1e-4 / 1.2 % / 7.4 % for w_c = 1e-3 / 0.1 / 0.5.
+- Diagnostics to the Captain: (1) SPH has no first law (gap filed); (2) `inventory.sigma_from_potential` is ½ the
+  field-equation σ and its docstring quotes a third value; (3) SSBM constants quarantined since e66615b — only
+  `inventory/core/sigma.py` keeps ξ; (4) `to_continuum`'s packing-radius h makes dilute clouds pressureless.
+
+### Verification
+- ✅ Every pilot script re-run from the repo root; numbers in the results doc are from those runs.
+- ✅ Mentat reachable: `tools/mentat_call.sh schwarzschild_radius '{"mass_kg":1.989e30}'` → 2954.13 m, cited.
+- ✅ `python -c "import sigma_ground.dynamics.continuum"` after the gap tag.
+- 🔄 Adversarial verification (21 verdicts) and the design synthesis running; corrections land in the results doc
+  and `misc/UNIFICATION_PROGRAM.md` when they return.
+- ⚠️ Operatic scene pending (end of session).
+
+### Next Steps
+- [ ] Land `misc/UNIFICATION_PROGRAM.md` from the synthesis; apply referee corrections to the pilot write-up.
+- [ ] Captain decisions: where SSBM constants live (ξ in `field/` again, or stays in inventory?); the factor-2 σ
+      normalization; whether to close the SPH energy gap now (needed for the entropy-production test).
+- [ ] Next round from the program (≤5 experiments, no external data), then the data-anchored follow-ups
+      (SPARC a₀, η/s, Steinhauer spectra, DE440).
+- [ ] N = 512+ or a Wendland kernel to pin P2b's convergence exponent.
+
+## Session 36 (continued) — 2026-10-10 — The story run: verification, σ exclusion, an exact first law, the verdict
+
+**Time:** 2026-10-10, ~01:00 → morning (Opus 5.5 after the Captain's /model switch; Fable 5.1 ran S0–S2)
+**Status:** ✅ Complete (pending only: the Captain's decisions C1–C6, the SPARC download OK, the nuclear-matter plan)
+
+### Changes
+- `misc/UNIFICATION_PILOT_RESULTS.md` v2 — corrected after 21 adversarial verdicts (every number reproduced; most labels
+  rejected: "a test that cannot fail is engine validation").
+- `misc/UNIFICATION_PROGRAM.md` — the program: question + four levels, verified literature map, five-column matrix,
+  σ-bridge with time, discriminator table, speculation register (the Captain's explore-then-audit method), Stages 3–12, verdict.
+- `misc/MENTAT_GAPS_UNIFICATION.md` — gap census: 8 engine defects, 10 missing capabilities, 6 open decisions.
+- `sigma_ground/dynamics/continuum.py` — exact first law (pairwise work booking), `eos="ideal"`, `energy_ledger()`,
+  `heat_conduction` switch; `test_continuum_energy.py` (10 tests). KNOWN_GAPS entry closed.
+- PHYSICS_GAP notes + KNOWN_GAPS entries: `nbody.total_energy` ignores softening; viscoelastic melting point silently 1800 K;
+  Eyring liquid-metal viscosity 10³–10⁶× too high.
+- `scripts/unification/` — fig01–fig10 scripts, stage4/5/6/7/8/9b/10 experiments, sigma_exclusion.py;
+  `misc/unification/` — figures + JSON. Commits fdfb95c, c2ecf55, 5562822, 9d5f320, 91818fb, ce8a453 (+ final), pushed (§17).
+- Memory: `feedback_explore_then_audit.md`.
+
+### Why
+The Captain asked for the framework finalized and executed as a story, procedurally, with external verification, figures
+inline, a Mentat gap census and Quarksum explained; mid-run he added his σ guesses and asked to chip away at what σ is not.
+
+### Findings (numbers in the program doc)
+- L1/L2 true and generic; L3 run on a solver (Bondi to 6 × 10⁻⁵, sound cannot escape the sonic horizon); L4 not reachable.
+- Differences measured: three clocks; negative heat capacity (Fig. 6a: d⟨K⟩/dE = −0.91 ± 0.03 over 20 relaxed N = 64 clusters,
+  negative at 32σ; the 9 % shortfall from −1 is reproduced exactly by each run's measured virial ratio); crystals melt by
+  phase transition; entropy only in the shock.
+- Design synthesis harvested (`misc/unification/design_synthesis.json`): 14 ranked kill-tests, none run; its honest
+  expectation matches the verdict.
+- σ as a long-range field with ξ ≈ 0.16 excluded (clocks ×3 × 10⁵, MICROSCOPE ×10¹¹, Cassini ×10⁴, LLR, Eöt-Wash, pulsars);
+  the repo's own femtometre range is allowed and invisible; ξ = 0.13–0.17 ⇒ λ < ~35 km.
+- The SPH virial's missing pressure = the self-density term, x → 1/(1+32/3N_nb) = 0.914 (exact identity to 10⁻¹⁶).
+- Quarksum: σ would scale 98.85–98.99 % of every structure; the 1.4 × 10⁻³ spread is what free fall measures.
+
+### Verification
+- ✅ 64/64 continuum tests (10 new); determinism gate: all backends deterministic.
+- ⏳ full suite: running at the final commit (started 01:49); result recorded in the follow-up commit.
+- ✅ every literature reference in the program web-verified this session (or marked [LIT, not re-fetched]).
+- ⚠️ perf gate: inconclusive under load; same-process on/off timing within noise — rerun on an idle machine.
+
+### Next Steps
+- [ ] Captain decisions C1–C6 (SSBM constants home, σ normalisation, ξ value, which □, σ's range, engine defaults).
+- [ ] Nuclear / degenerate-matter plan (Fermi-gas EOS, nuclear EOS, TOV, layers) — separate effort.
+- [ ] σ action (scalar–tensor Lagrangian) → σ-wave solver → the one L4 test the repo can run.
+- [ ] SPARC download OK → a₀ test; torsion-balance mapping for λ < 35 km; Jacobson sympy reproduction.

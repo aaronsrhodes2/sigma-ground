@@ -1,8 +1,28 @@
 # Unification program — are fluid dynamics, thermodynamics and gravity one phenomenon?
 
-**Status:** 🔄 being written stage by stage (Session 36, 2026-10-10) · **Results:** [UNIFICATION_PILOT_RESULTS.md](UNIFICATION_PILOT_RESULTS.md) ·
+**Status:** ✅ complete — Stages 0–12 run (Session 36, 2026-10-10) · **Results:** [UNIFICATION_PILOT_RESULTS.md](UNIFICATION_PILOT_RESULTS.md) ·
 **Figures:** `misc/unification/` · **Scripts:** `scripts/unification/` · **Plan:** the four-level framework below.
 Rules in force: PLATINUM §21 (Mentat computes every physical number), Golden Rules 1–7, [SPECULATIVE] fence.
+
+## The verdict in one page (details in §14)
+
+**Same mathematics, not one force.** Fluid dynamics, thermodynamics and gravity share one static operator (the
+Laplacian), one bookkeeping identity (the virial), and a kinematic dictionary: on the repo's own solver, a fluid falling
+onto a mass grows a horizon that sound cannot cross (Bondi's eigenvalue to 6 × 10⁻⁵). Each of those holds for any linear
+field or any force law, so none of them is evidence that gravity *is* a fluid or a heat flow.
+
+**The differences are measured, and they are the real content.** One operator gives three clocks (gravity instant, sound
+at a wavefront, heat by diffusion). Gravity's heat capacity is negative: the measured slope of kinetic energy against total energy is −0.91 ± 0.03, against the virial −1 and the gas's +1. Crystals melt by a phase
+transition, not by a change of time scale. The fluid engine now has an exact first law and makes entropy only where the
+flow is irreversible.
+
+**The σ-bridge, the repo's own concrete version of the thesis, is excluded as a long-range field** by clocks, free fall,
+Cassini, lunar ranging, torsion balances and pulsars, by 3 to 11 orders of magnitude. It survives only at a short range;
+the Captain's ξ = 0.13–0.17 forces that range below ~35 km, and the repo's paper puts it inside a proton.
+
+**The honest home of the intuition is Jacobson's programme**: Einstein's equation as an equation of state of spacetime's
+own microscopic degrees of freedom. It is live research, not settled, and it is the one route from thermodynamics to
+gravity's *dynamics*. The ranked next experiments (§14) start there, with nuclear matter in Mentat and an action for σ.
 
 ## 1. The question, made testable
 
@@ -14,9 +34,9 @@ the verdict must *explain*:
 |---|---|---|---|
 | L1 same operator | the governing PDEs share an operator and Green's function | a static linear field — true of *all* of them | true, and therefore not evidence (P1, P6, P7) |
 | L2 same equation | one identity contains all domains as terms | the virial identity — true for *any* force law | true, and therefore not evidence (P2b) |
-| L3 same dictionary | an exact map fluid-object ↔ gravity-object | analogue gravity: the wave equation only | analogy [LIT]; not yet simulated here (P3) |
+| L3 same dictionary | an exact map fluid-object ↔ gravity-object | analogue gravity: the wave equation only | kinematic dictionary run on a solver (§7, Fig. 5); dynamics not |
 | L4 same dynamics | the fluid's stress-energy *sources* the geometry (Einstein's equation), or gravity's dynamics *is* a fluid's | fluid/gravity duality (AdS, near-horizon), Jacobson's thermodynamic derivation | out of reach of the repo's engines; literature status only |
-| differences | causal structure (elliptic / parabolic / hyperbolic); C_grav = −C_gas; non-extensivity; attractive-only, unscreened | derivations and one engine measurement (P5) | real; any one-phenomenon theory must *produce* them |
+| differences | causal structure (elliptic / parabolic / hyperbolic); C_grav = −C_gas; non-extensivity; attractive-only, unscreened | measured on the engines (§8–§10, Figs. 6a, 6b, 7, 8) | real; any one-phenomenon theory must *produce* them |
 
 The verification of the pilots (Stage 0) established the governing rule for the rest of the program: **a statement that
 holds for any linear field, any force law, or any choice of constants is not evidence about gravity.** Evidence lives at
@@ -174,6 +194,29 @@ the corrected box mode τ_eff = ((n−1)/n)² L²/3π²α):
 The honest caption is in the figure title: L1 is true, and true of every static linear field. What it buys the program
 is a validated Poisson solver that every later σ-bridge computation can stand on.
 
+## 4b. The speculation register (exploration phase — the Captain's method)
+
+> "We are intentionally delving into numerology. We do this for creative exploration, we allow speculation in this
+> phase, we can audit out the provably false afterwards." — the Captain, 2026-10-10
+
+Every guess is logged here with its mathematical form, the measurement that could kill it, and its audit status.
+Speculation never feeds a pass/fail criterion until it has been formalized and audited.
+
+| # | guess (Captain's words) | formalized as | killing measurement | audit status |
+|---|---|---|---|---|
+| S1 | "σ × the density of baryonic energy configures the speed of light and the scale of matter" | (□ − λ⁻²)σ = −(8πGξ/c⁴)(ε_b − 3P); mᵢ ∝ 1 + fᵢσ (§6) | clocks, free fall, white-dwarf H₂ | **long range excluded** (×3 × 10⁵ clocks, ×9 × 10¹⁰ free fall); **short range open** (λ ≲ 35 km) |
+| S2 | "the speed of light" part of S1 | c alone is unmeasurable (Duff 2002; Moffat disputes); its observable is α = e²/4πε₀ħc | (c²/α)dα/dΦ = 14(11) × 10⁻⁹ (Lange 2021); `relativity.effective_liv_scale_gev` LIV gate | open as stated; any α-coupling must be < ~4 × 10⁻⁸ per unit potential |
+| S3 | "σ ends up some factor between 0.13 and 0.17" | the coupling ξ; Planck's baryon fraction is 0.157–0.158 | — (ξ is measured) | **consistent with Planck**; implies range λ < ~35 km (MICROSCOPE) |
+| S4 | "between 1.4 and 1.5" (as e^σ) | σ = 0.34–0.41 somewhere in nature | where can σ reach 0.34? | field reading: only inside a horizon; PAPER reading: only at ρ ≈ 1.4 × 10⁵⁶ kg/m³ |
+| S5 | gravity, fluids and heat are one phenomenon | L1–L4 levels (§1) | L4: does stress-energy source the geometry? | L1–L3 shared mathematics (not evidence); L4 untested; differences measured (S6) |
+| S6 | black holes, dark energy, dark matter, holography all tied to this force | not yet formalized | — | open — needs a formal statement first |
+| S7 | light's speed is not fundamentally finite; set by the medium | not yet formalized beyond S2 | Lorentz-invariance tests (KM3-230213A gate in the repo) | open — S2 is its only formal piece |
+| S8 | decoherence and coherence of matter linked by the same force | not yet formalized | — | open |
+
+**A coincidence noted, not claimed (numerology bin).** The Chandrasekhar mass ≈ 1.4 M☉, and a parallel session's
+n = 1 polytrope sequence peaks at 1.39 M☉ (`tov_sigma_pair_results.json`, untracked, not from this session). Both are
+masses, not σ, and the n = 1 maximum depends on the chosen K. Logged so it is not rediscovered as evidence.
+
 ## 5. Stage 4 — L2, same equation, and the missing pressure found (Fig. 4)
 
 `scripts/unification/stage4_virial.py` → `misc/unification/stage4_virial.json`; `fig04_same_equation.py`.
@@ -212,7 +255,7 @@ engine fact, not physics: the self-contribution bias of the SPH density sum is a
 a Wendland kernel at larger N_nb, or the self-contribution correction — a Captain's call, filed in the gap ledger (S11).
 **For the thesis:** none, as before — the identity holds for any force law.
 
-### 3.4 What σ is not — the Captain's idea made mathematical and cut against measurement (S9a, run 2026-10-10)
+## 6. What σ is not — the Captain's idea made mathematical and cut against measurement (S9a, Fig. 9a)
 
 **The idea** (Captain): "σ times the density of baryonic energy configures the speed of light and the scale of matter."
 **The mathematical form**, using only what the repo already states — script `scripts/unification/sigma_exclusion.py`,
@@ -237,6 +280,26 @@ A σ that also moved α would face (c²/α)dα/dΦ = 14(11)×10⁻⁹ (Lange et 
 | Yb⁺/Cs clocks over Earth's orbit — Lange et al. 2021, PRL 126, 011102 | (c²/μ) dμ/dΦ | −2ξ f_μ = −0.313 | 7(45) × 10⁻⁸ | **excluded × 3.2 × 10⁵**; long-range ξ < 4.9 × 10⁻⁷ |
 | MICROSCOPE free fall, Ti vs Pt alloys — Touboul et al. 2022, PRL 129, 121102 | η = 2ξ(f_TA6V − f_PtRh10) | 6.6 × 10⁻⁴ (Δf = 2.08 × 10⁻³ from the repo's own mass decomposition) | (−1.5 ± 2.3 ± 1.5) × 10⁻¹⁵ | **excluded × 9.4 × 10¹⁰**; long-range ξ < 1.7 × 10⁻¹² |
 | H₂ lines in white-dwarf photospheres — Bagdonaite et al. 2014, PRL 113, 123002 | Δμ/μ at φ = 1.2 / 1.9 × 10⁻⁴ | +3.8 / +6.0 × 10⁻⁵ | (−2.7 ± 4.7) / (−5.8 ± 3.8) × 10⁻⁵ | 1.4σ / 3.1σ tension; long-range ξ < 0.36 |
+
+**The literature home of the idea: scalar–tensor gravity.** An independent gap-filling agent in the design workflow
+(2026-10-10) identified the σ-bridge's theory class and widened the cut. One metric plus one scalar sourced by the matter
+trace and coupled to masses *is* a scalar–tensor theory (Brans–Dicke; Damour & Esposito-Farèse 1992, CQG 9, 2093); a scalar
+coupled to the QCD scale is a "dilaton" with d_g ≠ 0 (Damour & Donoghue 2010, arXiv:1007.2792 — verified). In that
+language the repo's σ has α_eff² = 2ξf = 0.313, i.e. Brans–Dicke ω = 0.096. Its additional cuts (bounds verified where
+marked; the rest as reported by the agent, [high] confidence in its own audit):
+
+| observable | prediction (massless σ, ξ = 0.1582) | measured | excluded by |
+|---|---|---|---|
+| light bending / time delay, PPN γ − 1 | −0.48 (attractive sign) or +0.91 (the repo's repulsive sign) | (2.1 ± 2.3) × 10⁻⁵, Cassini — Bertotti, Iess & Tortora 2003, Nature 425, 374 (verified; a 2006 reanalysis argues for a ~10⁻⁴ systematic, irrelevant here) | ~10⁴ |
+| Brans–Dicke ω | 0.096 | > 40 000 (Will 2014, Living Rev. Rel. 17, 4) | ~10⁵ |
+| Nordtvedt effect (lunar laser ranging) | 0.48 | (−0.2 ± 1.1) × 10⁻⁴ (Hofmann & Müller 2018) | ~10³·⁶ |
+| torsion balance η(Be, Ti) | 4.9 × 10⁻⁴ | (0.3 ± 1.8) × 10⁻¹³ (Eöt-Wash; Schlamminger et al. 2008) | ~10⁹·⁴ |
+| pulsar–white-dwarf dipole radiation (PSR J1738+0333, J0348+0432) | orbit decays 10²–10³ × too fast | consistent with GR (Freire et al. 2012; Antoniadis et al. 2013) | ≥ 10³ |
+
+The agent also flags a consistency problem worth the Captain's attention: in the repo σ rises toward mass *and* masses
+rise with σ, so the σ force on matter is **repulsive** (∝ 2ξf × Newton) — which a canonical scalar with a positive kinetic
+term cannot do. Either σ is a ghost or the field equation has no action behind it (it was never derived from a Lagrangian —
+"Candidate A"). Scalar–tensor theory is the natural place to write that action.
 
 **What survives.** The only open corner is short range. The repo's own paper puts it there — m_σ ≈ Λ_QCD = 217 MeV, so
 λ = ħc/Λ_QCD = 0.909 fm — and in that corner every one of the three tests is blind (σ is exponentially suppressed beyond a
@@ -264,4 +327,187 @@ fᵢ (which differs from the baryon-number charge those papers quote) is the nex
 gives 1.086), the inventory ansatz σ_Earth ≈ 1.1 × 10⁻¹⁰, and `SIGMA_HERE` = 1.2 × 10⁻⁶¹. e^σ = 1.4–1.5 corresponds to
 σ = 0.34–0.41; under the field-equation reading (σ = ξ r_s/r) that would require r < r_s — inside a horizon.
 
-*(Stages 3–12 follow.)*
+## 7. Stage 5 — L3, same dictionary, run rather than assumed (Fig. 5)
+
+`scripts/unification/stage5_sonic_horizon.py` (NEW UTILITY, labelled: a 1-D spherical isothermal finite-volume Euler solver
+with point-mass gravity — the SPH engine cannot resolve a transonic radial profile at affordable N) → `fig05_sonic_horizon.py`.
+Gas at rest at 12 r_sonic falls onto one solar mass (Mentat G, M☉) at c_s = 10 km/s and relaxes from rest.
+
+| quantity | measured | Bondi 1952 | pass criterion (fixed before the run) |
+|---|---|---|---|
+| sonic radius | 0.998 r_sonic | GM/2c_s² = 6.64 × 10¹¹ m | < 3 % ✅ |
+| accretion eigenvalue λ_c (ρ_∞ from Bernoulli) | 1.12036 | e^{3/2}/4 = 1.12042 | < 3 % ✅ (−6 × 10⁻⁵) |
+| sound launched outward at 0.5 r_sonic | swept inward; max 0.499 r_sonic, then out through the inner boundary | must not cross r_sonic | ✅ |
+| sound launched outward at 2 r_sonic | escapes to 6.6 r_sonic | must reach 4 r_sonic | ✅ |
+| analog surface gravity / temperature | κ = 1.51 × 10⁻⁸ s⁻¹; T = 1.8 × 10⁻²⁰ K (Mentat `unruh_temperature` at a = κc) | — | — |
+
+Two corrections found on reading the run, both recorded in the script: the first pulse tracker followed 10⁻¹⁴-level noise
+after the inside pulse left the grid (an amplitude floor fixes it), and the raw accretion eigenvalue (0.925) used the
+pinned outer density, which sits e^{1/6} above the Bondi density at infinity. **Verdict [VERIFIED on a solver]:** a falling
+fluid makes a horizon sound cannot cross — the kinematic half of analogue gravity, now a run, not a citation. What it is
+not: dynamics. The acoustic metric is set by the flow; it is not sourced through G by the fluid's stress-energy (L4).
+
+## 8. Stage 6 — the differences, measured (Figs. 6a, 6b)
+
+**6b — three clocks** (`stage6_three_clocks.py`). One switched-on source, one steady field Q/4πkr, three ways to arrive:
+instantly (elliptic — Newtonian gravity), at t = r/c (hyperbolic — sound, and gravity in GR), or by diffusion
+erfc(r/2√αt) (parabolic — heat). The repo's FVM heat law follows the erfc law to 0.013 before the box walls are felt.
+[DERIVED, shown on the engine.] A one-phenomenon theory must produce three causal structures from one source.
+
+**6a — the sign of the heat capacity, measured properly** (`stage6_heat_capacity.py`; the verification showed pilot P5
+measured nothing). Fixed radius, five genuinely different energies (initial virial ratio 0.3–1.1), four seeds each,
+10 t_ff relaxation + 10 t_ff averaging, energy = the softened Hamiltonian the integrator conserves.
+
+| Q₀ = 2K₀/(−U₀) | seeds | E (10⁹ J) | ⟨K⟩ all (10⁹ J) | ⟨K⟩ bound | relaxed 2⟨K⟩/(−⟨U⟩) | escapers (of 64) | max E drift |
+|---|---|---|---|---|---|---|---|
+| 0.3 | 4 | -6.772 ± 0.223 | 6.577 ± 0.142 | 6.462 | 0.985 | 1.9 | 9e-04 |
+| 0.5 | 4 | -5.975 ± 0.196 | 5.726 ± 0.270 | 5.655 | 0.978 | 0.9 | 4e-03 |
+| 0.7 | 4 | -5.179 ± 0.170 | 4.946 ± 0.225 | 4.920 | 0.977 | 0.5 | 1e-03 |
+| 0.9 | 4 | -4.382 ± 0.144 | 4.282 ± 0.134 | 4.251 | 0.989 | 0.5 | 2e-04 |
+| 1.1 | 4 | -3.585 ± 0.118 | 3.683 ± 0.143 | 3.626 | 1.013 | 1.0 | 7e-04 |
+
+| fit over all 20 runs | d⟨K⟩/dE | C / C_gas = dE/d⟨K⟩ | slope below zero |
+|---|---|---|---|
+| all bodies | **-0.906 ± 0.029** | **-1.10** | 32σ |
+| bound bodies only | -0.887 ± 0.024 | -1.13 | 36σ |
+| virial prediction | −1 | −1 | — |
+| ideal gas | +1 | +1 | — |
+
+**Verdict [MEASURED on the engine]:** the slope is negative at 32σ — its magnitude is 0.91, 3.3σ short of the virial −1, and the shortfall is fully explained: inserting each run's own relaxed virial ratio Q = 2⟨K⟩/(−⟨U⟩) into ⟨K⟩ = −E·Q/(2 − Q) reproduces the fitted slope (−0.904 vs −0.906). Q drifts from 0.98 for the most bound clusters to 1.01 for the least bound (escapers, finite relaxation at N = 64). Incomplete virialisation, not a different law. Take energy out of a self-gravitating cluster and its kinetic temperature rises; an ideal gas cools. The C_gas = (3/2)Nk_B scale uses Mentat k_B (sigma_ground.field.constants). Pilot P5's two-point sign is now a measurement.
+
+![Fig. 6a](unification/fig06a_heat_capacity.png)
+
+
+## 9. Stage 7 — the fourth column: solids (Fig. 7)
+
+`stage7_maxwell_crossover.py`, on the repo's `field/interface/viscoelasticity.py`. (a) Every material and temperature —
+Al, Cu, Fe, Ti, Au at 300–900 K, watched for 1 s or 1 year — collapses onto one curve in the Deborah number De = ωτ
+(max deviation 1.0 × 10⁻¹⁵): elastic versus viscous is one dimensionless number, the material's relaxation clock against
+the observer's. (b) But the repo's model is the standard linear solid, with a relaxed modulus floor E_R ≥ 0.3 E_U below
+melting: a crystal never reaches the fluid end — for crystals, solid → liquid is a first-order phase transition (latent
+heat, a thermodynamic boundary), not a Deborah crossover; the Maxwell limit E_R → 0 is amorphous matter's. Found on the
+way: `_relaxation_ratio` reads a melting-point key that does not exist, so every metal gets a silent 1800 K (filed, A3).
+
+## 10. Stage 8 — gas expansion and the first law on the engine (Fig. 8)
+
+The one engine change of the program (Captain-approved): `continuum_step` now books the work of the internal SPH forces as
+internal energy pair by pair, Δuᵢ = ¼Δt Σ Σⱼ gᵢⱼ·(v̄ᵢ − v̄ⱼ), with the same pair forces the kick applied — exact in discrete
+time because mᵢgᵢⱼ = −mⱼgⱼᵢ — plus `eos="ideal"` (P = ρRT/M, u = c_vT). A first version used the end-of-step rate with the
+pre-kick velocity; a free-expanding gas then gained 24 % more kinetic energy than it lost in heat. This stage's experiment
+caught it; the pairwise booking made it exact. 10 new tests; 64/64 continuum tests pass.
+
+| run (N₂, γ = 1.400 from the repo's gas.py) | result |
+|---|---|
+| free expansion into vacuum, 400 parcels | heat → motion, 2.0 × 10⁷ J; ledger drift **0.0** |
+| same, adiabat T/T₀ = (ρ/ρ₀)^{γ−1} | followed on average: mass-weighted Δs = −0.025 c_v (scatter = SPH density estimate) |
+| two clouds collide head-on at Mach 1.5 | shock-heats to 587 K; entropy **+0.27 c_v** per unit mass; ledger drift 0.0 |
+
+**Verdict.** The repo's fluid now has a first law (exact) and shows a second law (entropy appears in the shock, not in the
+reversible expansion). This is the fluid → thermodynamics bridge — kinetic theory's, a theorem — on the engine.
+
+## 11. Stage 9 — data anchors
+
+**9a — what σ is not** (§6 above; `sigma_exclusion.py`, Fig. 9a): long-range σ with ξ ≈ 0.16 excluded by 10⁵ (clocks),
+10¹¹ (MICROSCOPE), and by the scalar–tensor battery (Cassini, lunar laser ranging, Eöt-Wash, pulsars); the short-range corner
+(the repo's own paper, λ = 0.91 fm) is open and invisible.
+
+**9b — η/s** (`stage9b_eta_over_s.py`, Fig. 9b): in units of the KSS bound ħ/4πk_B = 6.08 × 10⁻¹³ K·s (Mentat ħ, k_B), a
+black-hole horizon sits exactly on 1 (membrane paradigm), the quark–gluon plasma within ~1–3 [LIT], water at 25 °C at 378
+(repo viscosity, NIST-anchored; standard molar entropy [LIT]). Liquid metals were left off: the repo's Eyring viscosity is
+10³–10⁶× too high (filed, A5). This is where the fluid/gravity duality touches measured matter.
+
+**9c — still to run (needs the Captain's OK to download):** the SPARC rotation-curve table (~1 MB, astroweb.case.edu) to test
+a₀ = cH₀/2π (Mentat: 1.04 × 10⁻¹⁰ m/s² vs Milgrom's 1.2 × 10⁻¹⁰) against the radial acceleration relation
+(McGaugh, Lelli & Schombert 2016: g† = 1.20 × 10⁻¹⁰ m/s²).
+
+## 12. Stage 10 — Quarksum, the storage fixture (Fig. 10)
+
+Quarksum (`sigma_ground/inventory`) stores matter as a Structure tree — material → molecule → atom → nucleon → quark /
+gluon / electron — with a resolved mass at every node (the anchor-anywhere resolver), measured seeds in `inventory/data/*.json`
+(isotopes, particle masses, materials), and four checksums that prove the books close at every level (`stoq`,
+`quark_chain`, `particle_inventory`, `sigma_chain`). Its `quark_chain` rebuilds each structure's mass from bare quarks,
+electrons, and the QCD, nuclear and chemical binding energies — which is exactly the split the σ-bridge needs, because only
+the QCD-generated part scales with e^σ. Run on all 16 built-in structures (`stage10_quarksum.py`): σ would scale
+98.85–98.99 % of every one, from a hydrogen atom to the observable universe; the 1.4 × 10⁻³ spread across compositions is the
+quantity free-fall experiments measure (MICROSCOPE: Δf(Ti, Pt) = 2.08 × 10⁻³ → η = 6.6 × 10⁻⁴ predicted vs 10⁻¹⁵ measured).
+Mass closure ≤ 0.15 % for most structures; the gold ring, bronze cube and seawater close only to 0.6–1.4 % (filed, A8).
+**The inventory is the ledger the σ equation acts on** — and it is what turned a field equation into a number that could
+be checked against a satellite.
+
+## 13. Stage 11 — gaps
+
+The full census is [MENTAT_GAPS_UNIFICATION.md](MENTAT_GAPS_UNIFICATION.md): 8 engine defects (A1 closed this session), 10
+missing capabilities (the nuclear / degenerate-matter EOS + TOV first — a separate plan), 6 open decisions for the Captain.
+
+## 14. Stage 12 — the verdict
+
+### The scoreboard
+
+| level | statement | instrument | result | can it fail? |
+|---|---|---|---|---|
+| L1 same operator | steady heat, Newtonian gravity and the static σ field share the Laplacian and its Green's function | P1 → Fig. 3 | ✅ 1.6 × 10⁻³ (exact walls) | no — true of every static linear field |
+| L2 same equation | pressure, motion and gravity are three terms of one virial identity | P2b → Fig. 4 | ✅ exact SPH identity to 10⁻¹⁶; gravity term whole; pressure term short by a known estimator bias (→ 0.914) | no — true for any force law |
+| L3 same dictionary | a falling fluid makes a horizon with a surface gravity and a temperature | S5 → Fig. 5 | ✅ horizon formed (Bondi to 6 × 10⁻⁵); sound cannot cross it | yes — and it passed. Kinematics only |
+| L4 same dynamics | the fluid's stress-energy sources the geometry (or gravity's dynamics *is* a fluid's) | literature; σ-bridge | ⚪ not reachable by the repo's engines. The literature's routes: Jacobson 1995 (Einstein eq. as an equation of state — a derivation inside a framework), fluid/gravity duality (exact, but in AdS / near-horizon), Verlinde (contested). The σ-bridge's own L4 candidate (pressure-sourced σ radiation) is untested, and its long-range form is excluded | — |
+
+| difference | instrument | result |
+|---|---|---|
+| three causal structures (instant / wavefront / diffusion) from one operator | Fig. 6b | ✅ shown on the engine (erfc to 0.013) |
+| gravity's heat capacity is negative | Fig. 6a | ✅ d⟨K⟩/dE = −0.91 ± 0.03 (prediction −1; gas +1); negative at 32σ |
+| for crystals, solid → liquid is a phase transition, not a Deborah crossover | Fig. 7 | ✅ in the repo's model |
+| heat ↔ motion exactly; entropy only where irreversible | Fig. 8 | ✅ ledger 0.0; collision +0.27 c_v |
+| the σ force on matter is repulsive in the repo's sign (ghost or no action) | scalar–tensor mapping | ⚠ open — needs an action |
+
+| data anchor | result |
+|---|---|
+| σ as a long-range field with ξ ≈ 0.16 | **excluded**: clocks ×3 × 10⁵, free fall ×10¹¹, Cassini ×10⁴, lunar ranging ×10³·⁶, Eöt-Wash ×10⁹·⁴, pulsars ×10³ |
+| σ with the repo's own range λ = 0.91 fm (m_σ ≈ Λ_QCD) | **allowed and invisible**; σ = 0.34 needs ρ ≈ 1.4 × 10⁵⁶ kg/m³ |
+| ξ = 0.13–0.17 (the Captain's bet) | consistent with Planck's baryon fraction; forces σ's range below ~35 km |
+| η/s: horizon = KSS bound; QGP ≈ 1–3; water 378 | the one place the fluid/gravity duality meets measured matter |
+
+### The answer, plainly
+
+**Fluid dynamics, thermodynamics and gravity share their mathematics, and the program can say exactly how.** They share
+one static operator, one bookkeeping identity, and a kinematic dictionary that a simulation reproduces: a falling fluid
+grows a real horizon for sound. The reason is not mysterious. All three are continuum descriptions of conserved quantities,
+closed by a constitutive law at long wavelength, so the same partial differential equations keep reappearing. Every one
+of those "same" results would hold for any long-range linear field and any force law. That is why the first night's pilots
+could not have come out against the thesis.
+
+**They are not one force in the sense that one could stand in for another, and the program measured why.** Gravity's
+thermodynamics runs backwards: a self-gravitating cluster gets hotter as it loses energy, a gas cooler. Heat diffuses, sound
+travels, and Newtonian gravity simply is; one operator gives three clocks. Gravity couples to all energy universally and,
+in general relativity, is geometry rather than a field living on top of it. And the repo's own concrete form of the
+thesis, the σ-bridge, does not survive as a long-range field. Six independent experiments exclude it by three to eleven
+orders of magnitude. It survives only at the femtometre range its own paper proposes, where no experiment can see it.
+
+**The strongest version of the thesis that every number here allows is Jacobson's.** Einstein's equation can be derived as
+an equation of state, the thermodynamics of local horizons. Gravity is then not a third thing beside heat and flow; it is
+what the thermodynamics of spacetime's own microscopic degrees of freedom looks like at large scale, exactly as
+hydrodynamics is what molecules look like at large scale. That is a live, respected research programme (Jacobson 1995;
+Padmanabhan 2010; the fluid/gravity duality makes it exact in AdS). It is neither established nor refuted, and it is the
+honest home of the Captain's intuition. The protein-folding analogy holds in one specific way: progress came from a ground
+truth to score against. Here the ground truth is the scalar–tensor test battery and the analogue-gravity laboratories, and
+the program now has both wired to Mentat.
+
+### Next experiments, ranked
+
+1. **Nuclear / degenerate matter in Mentat** (separate plan): Fermi-gas EOS, nuclear EOS, TOV, layers. Then 3P/ρc² is
+   computed rather than borrowed, and the σ-bridge's pressure term can be scored where it is O(1).
+2. **Give σ an action.** Write the σ-bridge as a scalar–tensor Lagrangian, fixing the sign (ghost or not), the □
+   (covariant or flat) and the ξ normalisation (decisions C1–C4). Without an action, no prediction is unambiguous.
+3. **The σ-wave solver** (1-D, sourced by a pulsating polytrope): the only L4 candidate the repo can run — pressure
+   radiates σ, mass redistribution does not.
+4. **SPARC a₀ = cH₀/2π test**, once the Captain approves the ~1 MB download.
+5. **Torsion-balance mapping** for λ between 1 cm and 35 km, completing the σ exclusion plot.
+6. **A Jacobson reproduction in sympy** [LIT]: δQ = TdS on local Rindler horizons plus Raychaudhuri gives G_μν = 8πG T_μν,
+   with every assumption listed. This is the one thermo → gravity *dynamics* derivation, and it belongs in the repo as a
+   checked derivation.
+7. **Cheap kill-tests already designed** (design synthesis, 14 ranked; each ≤ 10 min, none run yet): the repo's own
+   N-body σ hook (GM e^σ with σ = ξ r_s/r) on Mercury's perihelion, predicted excess ≈ ξ/3 of GR's 43″/cy against a
+   bound of < 0.05″/cy; PSR J1738+0333 dipole radiation on `nbody` with `gw_damping`; a Loschmidt echo across the N-body,
+   inviscid-SPH and viscous-SPH engines (where the irreversibility line actually runs: between Euler and viscosity, not
+   between the domains); arrival-time exponents 0 / 1 / 2 in the three solvers; a Galilean boost that only the 1PN term
+   feels. Full designs, pass/fail and sketches: the synthesis JSON harvested into `misc/unification/design_synthesis.json`.
+8. **Engine follow-ups:** Wendland kernel or self-contribution correction (A7); adaptive h (B7); Eyring fix (A5);
+   `total_energy` softening (A2); melting-point key (A3).
