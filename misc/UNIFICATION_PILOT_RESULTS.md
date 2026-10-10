@@ -220,6 +220,29 @@ enter the σ equation only through 3P/ρc², which is below 10⁻⁵ for everyth
 reaches O(1) only in neutron-star cores; for radiation the source vanishes exactly. **Diagnostic:** the
 field-equation σ is exactly 2× the inventory ansatz everywhere (and 7× below the ansatz's own docstring).
 
+## P7 — Three fields of one operator on a Lane–Emden n = 1 polytrope [VERIFIED + DERIVED]
+
+**Claim tested.** The σ-bridge says Φ, σ and T_steady are three solutions of one operator with three sources.
+Make the pressure term *matter*: an n = 1 polytrope (ρ = ρ_c sin(r/a)/(r/a), P = Kρ², R = πa) with central
+w_c = 3P_c/ρ_c c² chosen at 10⁻³, 0.1, 0.5. Exact n = 1 predictions: ∫P dV = ½Kρ_c M ⇒ **Q_Ψ/Q_Φ = 1 − w_c/2**
+(monopole of the σ-source vs the mass), and compactness r_s/R = (4/3)w_c. The repo's FVM heat law is the
+Poisson solver (P1); ξ from `inventory.core.sigma`. Script: `pilot_p7_sigma_three_fields.py` (40³ grid, a = 5 km).
+
+| w_c | ρ_c (kg/m³) | M | r_s/R (pred. 4w_c/3) | Q_Ψ/Q_Φ (pred. 1 − w_c/2) | interior reshaping by P | σ_centre | σ_centre, ρ only | σ_surface = ξ r_s/R |
+|---|---|---|---|---|---|---|---|---|
+| 10⁻³ | 2.9e15 | 7 M_Jupiter·10³ (1.4e28 kg) | 1.333e-3 (1.333e-3) | 0.99950 (0.9995) | 1.1e-4 | 4.24e-4 | 4.24e-4 | 2.1e-4 |
+| 0.1 | 2.9e17 | 0.71 M☉ | 0.1333 (0.1333) | 0.94999 (0.95) | 1.2 % | 0.0398 | 0.0424 | 0.0211 |
+| 0.5 | 1.4e18 | 3.5 M☉ | 0.667 (0.667) | 0.74998 (0.75) | 7.4 % | 0.147 | 0.212 | 0.105 |
+
+**Verdict:** the operator identity holds with the pressure term switched on (monopole to 5e-5, shape to
+discretization), and the thermodynamic state reshapes σ — the P term is more centrally concentrated than ρ, so a
+stiff core lowers central σ by 6 % (w_c = 0.1) to 31 % (w_c = 0.5) relative to the ρ-only field. The w_c = 0.5 row
+is beyond the weak field (r_s/R = 0.67) and stands as an operator test only; w_c = 0.1 is marginal. **This is the
+σ-bridge framework in one picture: gravity (G, Φ), thermodynamics (P(ρ) through the trace) and the field all sit
+in ∇²Ψ = 4πG(ρ − 3P/c²); fluid dynamics enters when the static limit is lifted (□ instead of ∇²).** What it does
+NOT claim: that e^σ ≈ 1.04–1.16 inside a neutron star is observed — that is the next, data-anchored question
+(nuclear masses, Debye temperatures, cooling curves through `field/interface`'s `sigma=` hooks).
+
 ## Diagnostics flagged to the Captain (Mentat flags, never fixes)
 
 1. **SPH has no first law** — `dynamics/continuum.py::continuum_step` step 9 books conduction and the external
@@ -257,6 +280,7 @@ field-equation σ is exactly 2× the inventory ansatz everywhere (and 7× below 
 | P4 | thermo → gravity | **complete thermodynamic structure** | identities by construction, not evidence |
 | P5 | gravity ↔ thermo | same magnitude (3/2)Nk_B | **opposite sign** — the decisive difference |
 | P6 | σ ↔ fluid state | **same operator again** (∇²σ with source ρ − 3P/c²) | pressure matters only where 3P/ρc² ~ 1 (neutron stars); inventory σ ansatz is 2× off the field equation |
+| P7 | σ ↔ Φ ↔ T, polytrope | **three fields, one operator**, monopole 1 − w_c/2 to 5e-5 | P reshapes σ 1–7 % only in degenerate cores |
 
 > **[SPECULATIVE — the Captain's wider thesis, filed at his request, never a pass/fail input]:** that this one
 > force also underlies black holes, dark energy, dark matter and holography; that light's speed is not
