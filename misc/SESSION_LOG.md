@@ -3218,3 +3218,30 @@ tool-calling fine-tune watt-tool-8B scored 0/64. Fix the harness before spending
 - [ ] Captain: stock baseline on the 4070 Ti: `--router --router-index --model qwen3:8b`, own `--output`.
       Compare against the `--finalize chain` run on the 64 Qwen-path questions.
 - [ ] Dataset → teacher pass → QLoRA → `ollama create mentat-router` → `--router` (no index).
+
+## Session 37 (continued) — 2026-10-10 — procedure_black_hole_profile fixed (finding 1)
+
+### Cause
+In `mcp/server.py` the frontier tools (`baryon_vs_disc` … `unruh_temperature`) sat *between*
+`procedure_black_hole_profile`'s docstring and its `return`. The wrapper body was empty, so it returned None and
+FastMCP rejected every call ("validation error for DictModel"). The orphaned `return` was unreachable code after
+`unruh_temperature`'s own return. The damage predates the repo's history (root commit 6216f03). No test saw it,
+because every test called `procedures.black_hole_profile` directly and never the server wrapper.
+
+### Fix
+- The function is reunited with its return at the head of the procedures section.
+- The frontier block gets its own heading.
+- The stranded procedures comment and the dead line are gone.
+- 232 tools / 217 visible, surface hash unchanged (`762bbee3725389bf`).
+
+### Guard
+`mcp/test_server_wrappers.py`:
+- (1) An AST sweep of all 232 `@server.tool()` wrappers: every one returns something, and nothing follows a
+  `return`. Before the fix it flagged exactly this bug.
+- (2) The tool called through the real stdio server, with its result matching `procedures.black_hole_profile`.
+Both failed before the fix and pass after it. MCP + benchmark + layering: 163 passed, plus the known-red
+`test_targets.py`.
+
+### Next
+- [ ] Regenerate the router dataset to pick up the tool (previously a gap).
+- [ ] Findings 2–5 still open.

@@ -950,13 +950,7 @@ def main() -> int:
         energy_power_time(power_w=5000, time_s=3600) -> energy in joules."""
         return t_circ.energy_power_time(power_w, time_s, energy_j).to_dict()
 
-    # ── procedures: canonical multi-step scientific routines ───────
-    @server.tool()
-    def procedure_black_hole_profile(mass_kg: float) -> dict[str, Any]:
-        """Full black-hole thermodynamics cascade: Schwarzschild radius →
-        Hawking temperature → Bekenstein-Hawking entropy → evaporation time.
-        One mass in, the whole profile out, in the only correct order."""
-
+    # ── frontier: black-hole thermodynamics / holography ───────────
     @server.tool()
     def baryon_vs_disc(mass_kg: float) -> dict[str, Any]:
         """Compare a BH's baryon count to its horizon pixel count; returns
@@ -976,8 +970,6 @@ def main() -> int:
         (no-communication theorem), shared secret key (QKD), CHSH≤2√2."""
         return t_front.entanglement_channel(scenario).to_dict()
 
-    # ── procedures: canonical multi-step routines (the sequence lives in code,
-    #    so the LLM can never mis-order or mis-chain it) ──
     @server.tool()
     def entanglements_to_pop_bubble(radius_m: float) -> dict[str, Any]:
         """Threads to saturate (pop) a bubble of radius R: N=πR²/L_p².
@@ -1003,6 +995,14 @@ def main() -> int:
     def unruh_temperature(acceleration_m_s2: float) -> dict[str, Any]:
         """Unruh temperature of an accelerated observer T=ħa/(2πck_B)."""
         return t_front.unruh_temperature(acceleration_m_s2).to_dict()
+
+    # ── procedures: canonical multi-step routines (the sequence lives in code,
+    #    so the LLM can never mis-order or mis-chain it) ──
+    @server.tool()
+    def procedure_black_hole_profile(mass_kg: float) -> dict[str, Any]:
+        """Full black-hole thermodynamics cascade: Schwarzschild radius →
+        Hawking temperature → Bekenstein-Hawking entropy → evaporation time.
+        One mass in, the whole profile out, in the only correct order."""
         return t_proc.black_hole_profile(mass_kg).to_dict()
 
     @server.tool()

@@ -262,9 +262,9 @@ covering 207 of the 217 tools the model sees. `manifest.json` gives the reason
 for each of the 9 missing tools:
 - **Free-text input** the generator can't invent: `parse_quantity`,
   `simulate`, `solve_ode`.
-- **Every call fails**: `procedure_black_hole_profile` (see Session 37 in the
-  session log), and `playground_apply` / `playground_simulate`, which need an
-  open scene.
+- **Every call fails**: `playground_apply` / `playground_simulate`, which
+  need an open scene. `procedure_black_hole_profile` was on this list until its
+  server wrapper was fixed (Session 37); the next run covers it.
 - **Fixed answer that equals a benchmark question's**, dropped by the guard:
   `age_of_universe`, `eta_value_report`, `mond_a0_constant`.
 
