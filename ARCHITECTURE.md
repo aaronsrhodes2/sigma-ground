@@ -99,6 +99,10 @@ it never imports its consumers, which keeps the pipeline one-directional.
 - Failures in `mcp/benchmark/test_targets.py` (QA-threshold tests that depend on
   benchmark result data; 1 today, up to 6 historically) are known-red, not a regression signal.
 - `tests/test_layering.py` enforces the tier contract on every run.
+- Tests never write into the source tree. Radiance's run-time output (viewer bundles,
+  bell-strike audio) goes to `radiance.output_dir.radiance_data_dir()`, which the repo-root
+  `conftest.py` points at a temp folder via `SIGMA_GROUND_RADIANCE_DATA_DIR`. The same conftest
+  fails the session, naming the files, if anything writes into `radiance/web/data/` anyway.
 - The folded-in entangler ships its own tests under `radiance/entangler/`
   (run explicitly: `pytest sigma_ground/radiance/entangler/`).
 - Permanently red (expected, EXTREME): `test_jpl_ephemeris` (network-gated),

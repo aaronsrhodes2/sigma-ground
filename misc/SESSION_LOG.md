@@ -3400,3 +3400,41 @@ called it.
   Captain's machine (ARCHITECTURE baseline: 1 failure).
 - No regression from moving M☉ by −2.6e-4 / −3.0e-4.
 - The run rewrote seven tracked `radiance/web/data/*.json` files again (finding 5); restored.
+
+## Session 37 (continued) — 2026-10-10 — Tests stop writing into radiance/web/data (finding 5)
+
+### Cause
+Two run-time writers aimed at the tracked folder the viewer serves:
+- `mcp/front_door._save_bundle` (scene, fall and push bundles);
+- the bell-strike WAV writer in `radiance/trajectory.py`.
+Measured per test file by modification time, so identical-byte rewrites count too. Seven test files wrote there:
+
+| Test file | Files written |
+|---|---|
+| `mcp/test_scene_route` | 3 |
+| `mcp/test_front_door` | 2 |
+| `mcp/test_push_route` | 6 |
+| `tests/test_bell_strike` | 3 WAVs |
+| `tests/test_front_door_hinge_arc_demos` | 3 |
+| `tests/test_trajectory_energy_fields` | 1 WAV |
+| `tests/test_contact_conduction` | 1 |
+
+It wasn't only noise in `git status`. `test_push_route` rewrote `plate_pushed_off_the_1700s_table.json` with
+132 frames over the committed 42, so `test_scene_index` then failed ("scenes.json is out of date"): results
+depended on test order.
+
+### Fix
+- `radiance/output_dir.py::radiance_data_dir()`: default `radiance/web/data/` (viewer and production
+  unchanged); `SIGMA_GROUND_RADIANCE_DATA_DIR` overrides it. Both writers use it.
+- New repo-root `conftest.py`:
+  - points the variable at a temp folder for every session (subprocesses inherit it) and removes it afterwards;
+  - a sentinel snapshots the data folder's modification times and fails the session, naming the files, if
+    anything writes there anyway.
+- ARCHITECTURE.md Testing section documents the rule.
+
+### Guard
+- Re-measured: all seven writer files leave the folder untouched.
+- `test_push_route` then `test_scene_index` (the order that failed): 15/15 pass, tree clean.
+- A probe test that only bumps one bundle's modification time makes pytest exit 1 with the file named.
+- `tests/test_radiance_output_dir.py`: temp folder in tests; default = the viewer folder; `_save_bundle` writes
+  to the output dir.
