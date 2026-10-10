@@ -233,3 +233,12 @@ a faithful synthetic run and fails the broken ones, including a wrong spin rate,
 - No thermal colouring (Phase 3), no scaled stages (Phase 4), no live bridge (Phase 5).
 - Deformation does not exist in sigma-ground's trajectory contract (poses and temperature
   only), so no scenario can show a dent or a break.
+
+## The holodeck, proximity voice and Skippy
+
+Ask for things in plain words ("Skippy, add three couches", "Skippy, a living room") and real Half-Life 2 / Counter-Strike: Source models appear,
+arranged sensibly; players hear each other by distance; Skippy can answer in his own voice and be spoken to. Full guide:
+[`holodeck/README.md`](holodeck/README.md). The cloud server that runs it for real players, and how the addon gets there:
+[`CLOUD_SERVER.md`](CLOUD_SERVER.md). Packaging as a `.gma`: `package_addon.sh`. The props set beside Deckard's compiled objects:
+[`misc/HOLODECK_PHYSICS_AUDIT.md`](../../misc/HOLODECK_PHYSICS_AUDIT.md).
+
