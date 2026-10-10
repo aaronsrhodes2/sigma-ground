@@ -32,8 +32,9 @@ def _get_registry():
     # Add astronomy / astrophysics units missing from the default registry.
     # Pint already has: light_year, parsec, astronomical_unit ("au"), atomic_mass_unit, eV.
     # We add solar_*, jupiter_*, earth_*. Values from NASA fact sheets.
+    from sigma_ground.field.constants import M_SUN_KG
     extra_defs = [
-        "solar_mass = 1.98892e30 * kilogram = M_sun",
+        f"solar_mass = {M_SUN_KG!r} * kilogram = M_sun",   # GM☉/G, field.constants
         "solar_radius = 6.957e8 * meter = R_sun",
         "solar_luminosity = 3.828e26 * watt = L_sun",
         "jupiter_mass = 1.89813e27 * kilogram = M_jup",
@@ -70,7 +71,7 @@ def convert(value: float, from_units: str, to_units: str) -> ToolResult:
     Examples
     --------
         convert(5, "eV", "joule")              -> 8.011e-19 J
-        convert(1, "solar_mass", "kg")         -> 1.989e30 kg
+        convert(1, "solar_mass", "kg")         -> 1.988e30 kg
         convert(1.496e11, "m", "AU")           -> 1.0 AU
     """
     ureg = _get_registry()

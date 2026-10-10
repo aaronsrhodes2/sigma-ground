@@ -200,7 +200,8 @@ async def resolve_body_name_chain(session, kwargs: dict,
                 body_data = parsed["value"]
                 # named_star gives mass_solar, convert to kg
                 if "mass_solar" in body_data and "mass_kg" not in body_data:
-                    body_data["mass_kg"] = body_data["mass_solar"] * 1.989e30
+                    from sigma_ground.field.constants import M_SUN_KG
+                    body_data["mass_kg"] = body_data["mass_solar"] * M_SUN_KG
             chain.append(f"chained named_star({name_value!r})")
         except Exception as e:
             chain.append(f"named_star chain failed: {e}")

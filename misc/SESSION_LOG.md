@@ -3143,3 +3143,37 @@ for the Captain: `SIGMA_GROUND_REF` in SkippyTel's `mentat/Dockerfile` (local) a
   adapter, fit_orbit, asteroid axes, the forecast fixture without the Moon) await the Captain's priority.
 - [ ] SSBM: the Captain asked for evidence against; answered in chat (every testable claim contradicted). A falsification
   ledger in ssbm-theory was offered, not written.
+- [ ] Captain: live rerun on the 4070 Ti, e.g. `python -m sigma_ground.mcp.benchmark.run_sigma_ground --model qwen3:8b
+      --output …/results/sigma_ground_qwen3_8b_chain_run.json`, then score. Expect ~1–2 turns per Qwen-path question, not 8.
+- [ ] Decide whether harness-finalized answers to open-ended questions need a relevance gate (`route_consistent`).
+- [ ] Remove the `primary_tool_expected` dependence from the fallback paths (answer-key leak).
+- [ ] Then: `tools/build_router_dataset.py` for a router fine-tune, with the replay as its baseline.
+
+## Session 37 (continued) — 2026-10-10 — One solar mass, derived from GM☉ (finding 4 / KNOWN_GAPS DATA_GAP J6)
+
+### Cause
+The Sun's mass was defined nine times:
+- `field/constants.M_SUN_KG = 1.989e30`, plus `param_aliases` (×1.989e30);
+- 1.98892e30 in `materia/bodies`, the pint `solar_mass` unit (`mcp/tools/units`), `solar_system_body('sun')`
+  (`mcp/tools/astronomy`), `mcp/tools/orbital`, and the benchmark's `gr` / `astro` / `frontier` classifiers,
+  `audit_library`, `interpreter_demo` and the Wolfram parity case.
+1.98892e30 is the IAU 2015 nominal GM☉ over the obsolete G = 6.67259e-11, so with the library's G = 6.67430e-11
+every GM☉ product was 2.57e-4 high. Unification round 2 (the other thread) diagnosed this in KNOWN_GAPS with the
+fix direction "store GM☉ as the primary quantity and derive M☉ = GM☉/G", left for the Captain's call. The Captain
+called it.
+
+### Fix
+- `field/constants.py`: `GM_SUN_M3_S2 = 1.3271244e20` (IAU 2015 nominal, exact) and
+  `M_SUN_KG = GM_SUN_M3_S2 / G` = 1.988410e30 kg.
+- All eight other sites import it.
+- Literal values remain only in comments, docstring examples and the `mentat_client` sample call.
+- Test fixtures that choose their own Sun mass (`test_nbody`, `test_gr_precession`) are inputs, not library
+  constants, and were left alone.
+- KNOWN_GAPS: the DATA_GAP and the J6 bullet are marked fixed.
+
+### Check
+- G·M☉ = 1.3271244e20 exactly. The Sun's Schwarzschild radius is 2953.2501 m against Wolfram's frozen 2953.25
+  (it was 2953.88 with 1.98892e30, and 2954.00 with 1.989e30).
+- Targeted suites (GR basics, frontier/MCP tools, Wolfram parity, coverage ledger, server wrappers, N-body
+  adapters, benchmark, layering): 278 passed (+ known-red `test_targets.py`). Full-suite result follows in the
+  next entry.

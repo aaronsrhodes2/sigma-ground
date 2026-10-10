@@ -12,7 +12,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-_M_SUN = 1.98892e30
+from sigma_ground.field.constants import M_SUN_KG as _M_SUN
 
 
 @dataclass
