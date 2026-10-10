@@ -94,10 +94,10 @@ it; **Radiance** consumes it to render it. Deckard depends only on the kernel â€
 it never imports its consumers, which keeps the pipeline one-directional.
 
 ## Testing
-- `pytest` from the repo root. Baseline on this branch: **4429 passed, 6 failed,
-  6 skipped, 2 xfailed** plus ~2440 subtests.
-- The 6 failures are all in `mcp/benchmark/test_targets.py` (QA-threshold tests
-  that depend on benchmark result data) â€” known-red, not a regression signal.
+- `pytest` from the repo root. Baseline on this branch (2026-10-10, 7f4c0be): **5026 passed,
+  1 failed, 6 skipped, 3 xfailed** plus ~2510 subtests, ~38 min.
+- Failures in `mcp/benchmark/test_targets.py` (QA-threshold tests that depend on
+  benchmark result data; 1 today, up to 6 historically) are known-red, not a regression signal.
 - `tests/test_layering.py` enforces the tier contract on every run.
 - The folded-in entangler ships its own tests under `radiance/entangler/`
   (run explicitly: `pytest sigma_ground/radiance/entangler/`).

@@ -3035,9 +3035,13 @@ inline, a Mentat gap census and Quarksum explained; mid-run he added his σ gues
 
 ### Verification
 - ✅ 64/64 continuum tests (10 new); determinism gate: all backends deterministic.
-- ⏳ full suite: running at the final commit (started 01:49); result recorded in the follow-up commit.
+- ✅ full suite (after 7f4c0be): 5026 passed, 1 failed, 6 skipped, 3 xfailed, 2508 subtests (38 min). The one failure is
+  the known-red `mcp/benchmark/test_targets.py` QA target (29/30 vs Wolfram, target ≥ 98 %); baseline had 6 there.
 - ✅ every literature reference in the program web-verified this session (or marked [LIT, not re-fetched]).
-- ⚠️ perf gate: inconclusive under load; same-process on/off timing within noise — rerun on an idle machine.
+- ✅ perf: the harness gate still reads 1.3–1.7× on every backend, including rigid_stepper and nbody that this session
+  never touched (machine busy: GMod + other sessions), so it was settled by an interleaved A/B in one process —
+  pre-change continuum.py (47cb243) vs current, same harness scene, 7 reps: median ratio 1.00 / 1.03 / 1.06 / 1.06 at
+  n = 11 / 26 / 51 / 101. The first law costs ≤ 6 %, inside the 19 % gate.
 
 ### Next Steps
 - [ ] Captain decisions C1–C6 (SSBM constants home, σ normalisation, ξ value, which □, σ's range, engine defaults).
