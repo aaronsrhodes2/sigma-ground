@@ -15,6 +15,8 @@ return {
   natural_timescale = 0.8000000000000005,
   suggested_rate = 0.1600000000000001,
   stride = 7,
+  bbox_m = {{0.0, 0.24024, 0.0}, {0.0, 2.99951, 0.0}},
+  max_body_radius_m = 0.220454076850486,
   times = {0.01, 0.06, 0.11, 0.16, 0.21, 0.26, 0.31, 0.36, 0.41, 0.46, 0.51, 0.56, 0.61, 0.66, 0.71, 0.76},
   bodies = {
     {
@@ -49,5 +51,6 @@ return {
     "body 0 (cast iron skillet): subtract leaf 2 (Cylinder, material air) not modelled; the cavity is filled in",
     "body 0 (cast iron skillet): leaf 3 (Cylinder, water) has zero size; dropped",
     "body 0 (cast iron skillet): leaf 1 (Cylinder, ceramic) is inside leaf 0 (glaze); dropped as a coincident layer",
+    "body 0 (cast iron skillet): the exported SOLID hull has principal moments [0.01387, 0.01387, 0.02205] kg m^2 but the bundle says [0.02175, 0.02175, 0.03738] (41% off): the bundle is a hollow/layered object that Havok will treat as solid, so a released body will rotate with the wrong inertia",
   },
 }

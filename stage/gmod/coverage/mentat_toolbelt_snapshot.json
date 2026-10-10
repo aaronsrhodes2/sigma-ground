@@ -1,0 +1,1556 @@
+{
+ "_comment": "Frozen from the live Mentat HTTP API (tools/mentat_call.sh list; list_simulation_scenarios) on 2026-10-10. Regenerate with stage/gmod/coverage/check_coverage.py --refresh.",
+ "tools": [
+  {
+   "name": "acid_speciation_analysis",
+   "domain": "Analysis",
+   "summary": "Fractional abundance (alpha) of each protonation state of a polyprotic acid at a given pH."
+  },
+  {
+   "name": "acoustic_interface_analysis",
+   "domain": "Analysis",
+   "summary": "Sound at a planar interface:"
+  },
+  {
+   "name": "alloy_resistivity_analysis",
+   "domain": "Analysis",
+   "summary": "Residual resistivity of a binary solid-solution alloy from Nordheim's rule (delta-rho ~ x(1-x))."
+  },
+  {
+   "name": "asteroid_analysis",
+   "domain": "Analysis",
+   "summary": "Small-body geophysics:"
+  },
+  {
+   "name": "band_dos_shape_analysis",
+   "domain": "Analysis",
+   "summary": "Tight-binding density-of-states shape factor at the Fermi level for a transition metal (van Hove peak > 1, pseudogap < 1)."
+  },
+  {
+   "name": "buoyancy_analysis",
+   "domain": "Analysis",
+   "summary": "Will it float, and how deep does it sit? Archimedes:"
+  },
+  {
+   "name": "capacitor_analysis",
+   "domain": "Analysis",
+   "summary": "Capacitance of parallel-plate, coaxial, and concentric-sphere geometries, plus energy stored on the parallel-plate cap at a voltage."
+  },
+  {
+   "name": "collision_analysis",
+   "domain": "Analysis",
+   "summary": "1D two-body collision:"
+  },
+  {
+   "name": "combustion_enthalpy_analysis",
+   "domain": "Analysis",
+   "summary": "Combustion enthalpy of a hydrocarbon (methane/propane) from a bond- energy inventory (Hess's law;"
+  },
+  {
+   "name": "composite_bounds_analysis",
+   "domain": "Analysis",
+   "summary": "Two-phase composite property bounds:"
+  },
+  {
+   "name": "constituent_behaviors_analysis",
+   "domain": "Analysis",
+   "summary": "Physical behaviors of a structure's constituents:"
+  },
+  {
+   "name": "dielectric_polarization_analysis",
+   "domain": "Analysis",
+   "summary": "Relative permittivity from the Clausius-Mossotti relation given molecular polarizability (F.m^2) and number density."
+  },
+  {
+   "name": "diffusion_analysis",
+   "domain": "Analysis",
+   "summary": "Diffusion: Einstein-Stokes diffusivity, Fick's first & second laws, penetration time, Darken interdiffusion."
+  },
+  {
+   "name": "dislocation_strengthening_analysis",
+   "domain": "Analysis",
+   "summary": "Taylor work-hardening:"
+  },
+  {
+   "name": "elastic_analysis",
+   "domain": "Analysis",
+   "summary": "Elastic response: uniaxial/shear/hydrostatic stress, strain-energy densities, transverse strain, volume change, von Mises yield, and moduli from Lame parameters."
+  },
+  {
+   "name": "electrochemistry_analysis",
+   "domain": "Analysis",
+   "summary": "Electrochemistry: Tafel activation overpotential, limiting molar conductivity (Kohlrausch), and solution conductivity."
+  },
+  {
+   "name": "electromagnetic_force_analysis",
+   "domain": "Analysis",
+   "summary": "Electromagnetic forces & wave energetics:"
+  },
+  {
+   "name": "friction_analysis",
+   "domain": "Analysis",
+   "summary": "Dry sliding friction:"
+  },
+  {
+   "name": "hall_effect_analysis",
+   "domain": "Analysis",
+   "summary": "Hall voltage of a current-carrying conductor in a transverse magnetic field (negative for electron carriers)."
+  },
+  {
+   "name": "hertzian_impact_analysis",
+   "domain": "Analysis",
+   "summary": "Hertzian contact impact:"
+  },
+  {
+   "name": "holographic_dark_energy_analysis",
+   "domain": "Analysis",
+   "summary": "Holographic dark-energy parameter c^2 implied by an observed dark- energy density with the Hubble-radius IR cutoff."
+  },
+  {
+   "name": "incline_analysis",
+   "domain": "Analysis",
+   "summary": "Inclined plane: critical sliding angle, distance slid up before stopping, and slide speed at the bottom."
+  },
+  {
+   "name": "interference_visibility_analysis",
+   "domain": "Analysis",
+   "summary": "Fringe visibility (contrast) of an interference pattern, V = (I_max - I_min)/(I_max + I_min)."
+  },
+  {
+   "name": "magnetic_exchange_analysis",
+   "domain": "Analysis",
+   "summary": "Two-site Heisenberg model for a magnetic ion:"
+  },
+  {
+   "name": "material_color_analysis",
+   "domain": "Analysis",
+   "summary": "Physically-derived sRGB color of a material (metal/organic/dye)."
+  },
+  {
+   "name": "material_inventory_analysis",
+   "domain": "Analysis",
+   "summary": "Quarksum particle inventory & mass closure:"
+  },
+  {
+   "name": "mobius_bimetallic_analysis",
+   "domain": "Analysis",
+   "summary": "Bimetallic strip / Mobius loop:"
+  },
+  {
+   "name": "molecular_dipole_analysis",
+   "domain": "Analysis",
+   "summary": "Net molecular dipole moment from the vector sum of bond dipoles (D)."
+  },
+  {
+   "name": "natural_convection_analysis",
+   "domain": "Analysis",
+   "summary": "Buoyancy-driven natural convection of a gas:"
+  },
+  {
+   "name": "nonlinear_optics_analysis",
+   "domain": "Analysis",
+   "summary": "Nonlinear optics: Kerr index, B-integral, self-focusing critical power, and an SHG efficiency factor."
+  },
+  {
+   "name": "optical_waveguide_analysis",
+   "domain": "Analysis",
+   "summary": "Symmetric slab dielectric waveguide:"
+  },
+  {
+   "name": "phosphor_decay_analysis",
+   "domain": "Analysis",
+   "summary": "Phosphor/luminescence afterglow I(t)=I0 exp(-t/tau) and surviving fraction at time t."
+  },
+  {
+   "name": "photonic_bandgap_analysis",
+   "domain": "Analysis",
+   "summary": "Quarter-wave Bragg mirror (1D photonic bandgap):"
+  },
+  {
+   "name": "piezoelectric_actuator_analysis",
+   "domain": "Analysis",
+   "summary": "Converse piezoelectric effect:"
+  },
+  {
+   "name": "planet_moment_of_inertia_analysis",
+   "domain": "Analysis",
+   "summary": "Moment-of-inertia factor C/MR^2 of a layered planet, derived from the inventory composition of its shells."
+  },
+  {
+   "name": "plasma_parameters_analysis",
+   "domain": "Analysis",
+   "summary": "Core plasma parameters:"
+  },
+  {
+   "name": "plasticity_analysis",
+   "domain": "Analysis",
+   "summary": "Plastic flow stress: Johnson-Cook, Ludwik hardening, and the work-hardening rate."
+  },
+  {
+   "name": "quantum_algorithm_analysis",
+   "domain": "Analysis",
+   "summary": "Run three canonical quantum algorithms:"
+  },
+  {
+   "name": "quantum_box_energy_analysis",
+   "domain": "Analysis",
+   "summary": "Energy of state (n1,n2,n3) for a particle in a 3D cubic infinite well."
+  },
+  {
+   "name": "quantum_state_analysis",
+   "domain": "Analysis",
+   "summary": "Qubit-state diagnostics on canonical states:"
+  },
+  {
+   "name": "quantum_tunneling_analysis",
+   "domain": "Analysis",
+   "summary": "WKB transmission probability through a rectangular potential barrier (e.g."
+  },
+  {
+   "name": "qubit_hardware_analysis",
+   "domain": "Analysis",
+   "summary": "Physical-qubit operating parameters:"
+  },
+  {
+   "name": "radioactivity_analysis",
+   "domain": "Analysis",
+   "summary": "Radioactive activity A = lambda N (becquerel, curie)."
+  },
+  {
+   "name": "reaction_kinetics_analysis",
+   "domain": "Analysis",
+   "summary": "Chemical kinetics: collision-theory pre-exponential factor, first-order half-life (ln2/k), and the temperature for a target rate (Arrhenius)."
+  },
+  {
+   "name": "relativistic_energy_analysis",
+   "domain": "Analysis",
+   "summary": "Relativistic energy of a moving particle:"
+  },
+  {
+   "name": "semiconductor_junction_analysis",
+   "domain": "Analysis",
+   "summary": "p-n junction: depletion (junction) capacitance and reverse saturation current."
+  },
+  {
+   "name": "solution_analysis",
+   "domain": "Analysis",
+   "summary": "Solution concentration & solubility:"
+  },
+  {
+   "name": "stress_failure_analysis",
+   "domain": "Analysis",
+   "summary": "Fracture/fatigue/creep:"
+  },
+  {
+   "name": "superconducting_gap_analysis",
+   "domain": "Analysis",
+   "summary": "BCS spectroscopic gap frequency f = 2*Delta/h from critical temperature (Delta = 1.764 k_B Tc)."
+  },
+  {
+   "name": "superconductor_critical_field_analysis",
+   "domain": "Analysis",
+   "summary": "Critical magnetic fields of a named superconductor:"
+  },
+  {
+   "name": "thermal_contact_analysis",
+   "domain": "Analysis",
+   "summary": "Engineering thermal contact (joint) conductance of two pressed metal surfaces via the Cooper-Mikic-Yovanovich plastic model h_c=1.25 k_s (m/sigma)(P/H_c)^0.95:"
+  },
+  {
+   "name": "thermoelectric_generator_analysis",
+   "domain": "Analysis",
+   "summary": "Thermoelectric generator:"
+  },
+  {
+   "name": "titration_analysis",
+   "domain": "Analysis",
+   "summary": "pH at a point in an acid-base titration, for a strong acid and a weak acid (buffer region) titrated with a strong base."
+  },
+  {
+   "name": "viscoelastic_creep_analysis",
+   "domain": "Analysis",
+   "summary": "Viscoelastic creep & relaxation:"
+  },
+  {
+   "name": "viscous_flow_analysis",
+   "domain": "Analysis",
+   "summary": "Viscous flow: Reynolds number, Stokes drag + terminal velocity, drag coefficient, Poiseuille pipe flow, boundary layer, wall shear, viscous heating."
+  },
+  {
+   "name": "wear_analysis",
+   "domain": "Analysis",
+   "summary": "Sliding wear (Archard):"
+  },
+  {
+   "name": "wetting_analysis",
+   "domain": "Analysis",
+   "summary": "Liquid wetting on a solid (Young-Dupre + Owens-Wendt):"
+  },
+  {
+   "name": "wind_wave_analysis",
+   "domain": "Analysis",
+   "summary": "Wind blowing across water:"
+  },
+  {
+   "name": "work_energy_analysis",
+   "domain": "Analysis",
+   "summary": "Work, mechanical power, friction loss, gravitational PE, rotational KE, impulse, and total mechanical energy of a moving body."
+  },
+  {
+   "name": "zeeman_effect_analysis",
+   "domain": "Analysis",
+   "summary": "Number of Zeeman sublevels a state of total angular momentum j splits into in a magnetic field (2j+1 values of m_j)."
+  },
+  {
+   "name": "list_constants",
+   "domain": "Constants",
+   "summary": "List available constants, optionally filtered."
+  },
+  {
+   "name": "lookup_constant",
+   "domain": "Constants",
+   "summary": "Look up a physical constant by name with units and provenance."
+  },
+  {
+   "name": "age_of_universe",
+   "domain": "Cosmology",
+   "summary": "Age of the universe. mode=\"lcdm\" (default):"
+  },
+  {
+   "name": "critical_density",
+   "domain": "Cosmology",
+   "summary": "Cosmological critical density 3 H_0^2 / (8 pi G)."
+  },
+  {
+   "name": "hubble_radius",
+   "domain": "Cosmology",
+   "summary": "R_H = c / H_0 (~14 Gpc)."
+  },
+  {
+   "name": "differentiate_expr",
+   "domain": "Math",
+   "summary": "Symbolic differentiation."
+  },
+  {
+   "name": "expand_expression",
+   "domain": "Math",
+   "summary": "Expand an expression."
+  },
+  {
+   "name": "factor_expression",
+   "domain": "Math",
+   "summary": "Factor a polynomial / expression."
+  },
+  {
+   "name": "integrate_expr",
+   "domain": "Math",
+   "summary": "Symbolic integration."
+  },
+  {
+   "name": "matrix_determinant",
+   "domain": "Math",
+   "summary": "Determinant of a square matrix, e.g."
+  },
+  {
+   "name": "matrix_eigenvalues",
+   "domain": "Math",
+   "summary": "Eigenvalues of a square matrix (with multiplicity)."
+  },
+  {
+   "name": "matrix_inverse",
+   "domain": "Math",
+   "summary": "Inverse of a square matrix."
+  },
+  {
+   "name": "matrix_multiply",
+   "domain": "Math",
+   "summary": "Matrix product A·B."
+  },
+  {
+   "name": "series_expansion",
+   "domain": "Math",
+   "summary": "Taylor/Maclaurin series about point, to given order."
+  },
+  {
+   "name": "simplify_expr",
+   "domain": "Math",
+   "summary": "Apply sympy.simplify to an expression."
+  },
+  {
+   "name": "solve_equation",
+   "domain": "Math",
+   "summary": "Symbolic solve via sympy."
+  },
+  {
+   "name": "solve_linear_system",
+   "domain": "Math",
+   "summary": "Solve A x = b, e.g. matrix_a='[[2,1],[1,3]]', vector_b='[1,2]'."
+  },
+  {
+   "name": "solve_ode",
+   "domain": "Math",
+   "summary": "Solve an ODE. Use y, y', y'' notation, e.g."
+  },
+  {
+   "name": "free_fall_time",
+   "domain": "Mechanics",
+   "summary": "Time to fall from rest:"
+  },
+  {
+   "name": "free_fall_velocity",
+   "domain": "Mechanics",
+   "summary": "Impact speed: v = sqrt(2gh)."
+  },
+  {
+   "name": "projectile_analysis",
+   "domain": "Mechanics",
+   "summary": "Projectile from a launch speed + angle (degrees):"
+  },
+  {
+   "name": "projectile_flight_time",
+   "domain": "Mechanics",
+   "summary": "Flight time = 2 v sin(theta) / g."
+  },
+  {
+   "name": "projectile_max_height",
+   "domain": "Mechanics",
+   "summary": "Max height = (v sin theta)^2 / (2g)."
+  },
+  {
+   "name": "projectile_range",
+   "domain": "Mechanics",
+   "summary": "Range R = v^2 sin(2 theta) / g (level ground, vacuum)."
+  },
+  {
+   "name": "double_slit_fringe_spacing",
+   "domain": "Optics",
+   "summary": "Young's double-slit y = lambda L / d."
+  },
+  {
+   "name": "lens_magnification",
+   "domain": "Optics",
+   "summary": "m = -d_i / d_o. If you're unsure about the sign of image_distance_m, pass the unsigned distance and set image_side instead:"
+  },
+  {
+   "name": "single_slit_first_minimum_angle",
+   "domain": "Optics",
+   "summary": "sin(theta) = lambda / a."
+  },
+  {
+   "name": "snells_law_refraction_angle",
+   "domain": "Optics",
+   "summary": "n1 sin(theta1) = n2 sin(theta2)."
+  },
+  {
+   "name": "escape_velocity",
+   "domain": "Orbital",
+   "summary": "Classical escape velocity v_esc = sqrt(2 G M / r)."
+  },
+  {
+   "name": "orbital_period",
+   "domain": "Orbital",
+   "summary": "Kepler's third law T = 2π sqrt(a³/GM)."
+  },
+  {
+   "name": "orbital_raise_energy",
+   "domain": "Orbital",
+   "summary": "Gravitational PE to raise a mass between two orbits:"
+  },
+  {
+   "name": "orbital_velocity",
+   "domain": "Orbital",
+   "summary": "Circular orbital speed, body-aware."
+  },
+  {
+   "name": "atomic_angular_momentum",
+   "domain": "Physics",
+   "summary": "Atomic angular momentum:"
+  },
+  {
+   "name": "band_gap_ev",
+   "domain": "Physics",
+   "summary": "Semiconductor band gap at 300 K in eV."
+  },
+  {
+   "name": "baryon_vs_disc",
+   "domain": "Physics",
+   "summary": "Compare a BH's baryon count to its horizon pixel count;"
+  },
+  {
+   "name": "bekenstein_hawking_entropy",
+   "domain": "Physics",
+   "summary": "BH entropy S=A/4L_p² (= max entanglement threads), Hawking temp, horizon area & radius."
+  },
+  {
+   "name": "blackbody_peak_wavelength",
+   "domain": "Physics",
+   "summary": "Wien's law: lambda_max = b / T."
+  },
+  {
+   "name": "blackbody_total_power",
+   "domain": "Physics",
+   "summary": "Stefan-Boltzmann: P = epsilon sigma A T^4."
+  },
+  {
+   "name": "boiling_point",
+   "domain": "Physics",
+   "summary": "Boiling point at 1 atm in K."
+  },
+  {
+   "name": "boiling_point_elevation",
+   "domain": "Physics",
+   "summary": "Boiling-point elevation ΔTb (K) = i·Kb·molality (colligative)."
+  },
+  {
+   "name": "bond_angle",
+   "domain": "Physics",
+   "summary": "VSEPR bond angle (degrees) from steric number, e.g."
+  },
+  {
+   "name": "bond_energy",
+   "domain": "Physics",
+   "summary": "Bond dissociation energy (kJ/mol) for a diatomic bond, e.g."
+  },
+  {
+   "name": "buffer_ph",
+   "domain": "Physics",
+   "summary": "Buffer pH (Henderson-Hasselbalch):"
+  },
+  {
+   "name": "carnot_efficiency",
+   "domain": "Physics",
+   "summary": "eta = 1 - T_cold/T_hot."
+  },
+  {
+   "name": "carrier_mobility",
+   "domain": "Physics",
+   "summary": "Electron drift mobility (m²/V·s) of a metal (metals only)."
+  },
+  {
+   "name": "cell_potential",
+   "domain": "Physics",
+   "summary": "Galvanic cell EMF (V), Nernst-corrected, e.g."
+  },
+  {
+   "name": "circular_orbit_velocity",
+   "domain": "Physics",
+   "summary": "Keplerian circular orbit v = sqrt(G M / r)."
+  },
+  {
+   "name": "compute_limit",
+   "domain": "Physics",
+   "summary": "Limit of expression as variable -> point ('+', '-', or '+-')."
+  },
+  {
+   "name": "coulomb_force",
+   "domain": "Physics",
+   "summary": "Coulomb's law F = q1 q2 / (4π ε0 r²)."
+  },
+  {
+   "name": "critical_angle_for_tir",
+   "domain": "Physics",
+   "summary": "Total internal reflection critical angle."
+  },
+  {
+   "name": "curl",
+   "domain": "Physics",
+   "summary": "Curl ∇×F for a 3-component field."
+  },
+  {
+   "name": "de_broglie_from_kinetic_energy",
+   "domain": "Physics",
+   "summary": "de Broglie wavelength from KINETIC ENERGY (relativistically exact)."
+  },
+  {
+   "name": "de_broglie_wavelength",
+   "domain": "Physics",
+   "summary": "lambda = h / (m v)."
+  },
+  {
+   "name": "density",
+   "domain": "Physics",
+   "summary": "Density of a material in kg/m^3 (e.g."
+  },
+  {
+   "name": "depletion_width",
+   "domain": "Physics",
+   "summary": "Depletion-region width of a p-n junction (m)."
+  },
+  {
+   "name": "diffraction_grating_angle",
+   "domain": "Physics",
+   "summary": "d sin(theta) = m lambda."
+  },
+  {
+   "name": "diode_current",
+   "domain": "Physics",
+   "summary": "Shockley diode current (A):"
+  },
+  {
+   "name": "divergence",
+   "domain": "Physics",
+   "summary": "Divergence ∇·F. components comma-separated, e.g."
+  },
+  {
+   "name": "doppler_shift_factor",
+   "domain": "Physics",
+   "summary": "Relativistic Doppler factor lambda_obs / lambda_emit."
+  },
+  {
+   "name": "eV_to_joules",
+   "domain": "Physics",
+   "summary": "Convert eV to J."
+  },
+  {
+   "name": "electrical_power",
+   "domain": "Physics",
+   "summary": "P = V I."
+  },
+  {
+   "name": "electrical_resistivity",
+   "domain": "Physics",
+   "summary": "Electrical resistivity (Ω·m) of a metal, e.g."
+  },
+  {
+   "name": "electrolysis_mass",
+   "domain": "Physics",
+   "summary": "Mass deposited by electrolysis (kg) — Faraday's first law:"
+  },
+  {
+   "name": "electron_mean_free_path",
+   "domain": "Physics",
+   "summary": "Electron mean free path (m) in a metal, e.g."
+  },
+  {
+   "name": "element_atomic_data",
+   "domain": "Physics",
+   "summary": "Atomic Z, name, mass via periodictable (e.g."
+  },
+  {
+   "name": "em_wave_frequency",
+   "domain": "Physics",
+   "summary": "f = c / (n lambda)."
+  },
+  {
+   "name": "em_wave_wavelength",
+   "domain": "Physics",
+   "summary": "lambda = c / (n f)."
+  },
+  {
+   "name": "energy_power_time",
+   "domain": "Physics",
+   "summary": "Solve E = P·t for the missing one."
+  },
+  {
+   "name": "energy_to_mass",
+   "domain": "Physics",
+   "summary": "m = E / c^2."
+  },
+  {
+   "name": "entanglement_channel",
+   "domain": "Physics",
+   "summary": "What entanglement can/can't do:"
+  },
+  {
+   "name": "entanglements_to_pop_bubble",
+   "domain": "Physics",
+   "summary": "Threads to saturate (pop) a bubble of radius R:"
+  },
+  {
+   "name": "eta_desi_band_check",
+   "domain": "Physics",
+   "summary": "Is the adopted HDE c^2 within the DESI Union3 1-sigma band?"
+  },
+  {
+   "name": "eta_value_report",
+   "domain": "Physics",
+   "summary": "Adopted HDE c^2 = DESI Union3 fit ~ 0.4122 (with provenance)."
+  },
+  {
+   "name": "first_ionization_energy",
+   "domain": "Physics",
+   "summary": "First IE in eV (e.g. H=13.6, Na=5.1)."
+  },
+  {
+   "name": "fission_energy_release",
+   "domain": "Physics",
+   "summary": "Total energy (J) released if mass_kg of a fissile isotope (U235/Pu239/U233) is fully fissioned, using ~200 MeV/fission."
+  },
+  {
+   "name": "fourier_transform",
+   "domain": "Physics",
+   "summary": "Fourier transform of expression."
+  },
+  {
+   "name": "free_electron_density",
+   "domain": "Physics",
+   "summary": "Free-electron (conduction) number density (m⁻³) of a metal."
+  },
+  {
+   "name": "freezing_point_depression",
+   "domain": "Physics",
+   "summary": "Freezing-point depression ΔTf (K) = i·Kf·molality (colligative)."
+  },
+  {
+   "name": "friction_stopping_distance",
+   "domain": "Physics",
+   "summary": "Sliding stopping distance d = v^2 / (2 mu g)."
+  },
+  {
+   "name": "get_manifest",
+   "domain": "Physics",
+   "summary": "List all available physics tools, grouped by domain and tier."
+  },
+  {
+   "name": "gradient",
+   "domain": "Physics",
+   "summary": "Gradient ∇f of a scalar field."
+  },
+  {
+   "name": "gravitational_binding_energy",
+   "domain": "Physics",
+   "summary": "Self-gravity binding energy of a uniform sphere U=(3/5)GM²/R."
+  },
+  {
+   "name": "gravitational_force",
+   "domain": "Physics",
+   "summary": "Newton's law F = G m1 m2 / r²."
+  },
+  {
+   "name": "gravitational_potential_energy",
+   "domain": "Physics",
+   "summary": "Uniform gravity U = m g h."
+  },
+  {
+   "name": "gravitational_redshift",
+   "domain": "Physics",
+   "summary": "Schwarzschild gravitational redshift z = (1 - r_s/r)^(-1/2) - 1."
+  },
+  {
+   "name": "gravitational_time_dilation",
+   "domain": "Physics",
+   "summary": "Clock rate at r relative to infinity:"
+  },
+  {
+   "name": "hall_coefficient",
+   "domain": "Physics",
+   "summary": "Hall coefficient (m³/C) of a metal:"
+  },
+  {
+   "name": "hde_dark_energy_density",
+   "domain": "Physics",
+   "summary": "Holographic dark energy density."
+  },
+  {
+   "name": "holographic_matching_mass",
+   "domain": "Physics",
+   "summary": "The BH mass where baryon count == horizon pixel count:"
+  },
+  {
+   "name": "hydrogen_emission_wavelength",
+   "domain": "Physics",
+   "summary": "Rydberg wavelength for hydrogen-like transitions."
+  },
+  {
+   "name": "hydrogen_like_energy_level",
+   "domain": "Physics",
+   "summary": "E_n = -13.606 Z^2 / n^2 eV."
+  },
+  {
+   "name": "ideal_gas_pressure",
+   "domain": "Physics",
+   "summary": "P = n R T / V."
+  },
+  {
+   "name": "ideal_gas_volume",
+   "domain": "Physics",
+   "summary": "V = n R T / P."
+  },
+  {
+   "name": "intrinsic_carrier_density",
+   "domain": "Physics",
+   "summary": "Intrinsic carrier density n_i (m⁻³) of a semiconductor."
+  },
+  {
+   "name": "joules_to_TNT",
+   "domain": "Physics",
+   "summary": "Convert joules to TNT equivalent."
+  },
+  {
+   "name": "joules_to_eV",
+   "domain": "Physics",
+   "summary": "Convert J to eV (1 eV = 1.602176634e-19 J)."
+  },
+  {
+   "name": "kinetic_energy",
+   "domain": "Physics",
+   "summary": "Non-relativistic KE = 0.5 m v^2."
+  },
+  {
+   "name": "laplace_transform",
+   "domain": "Physics",
+   "summary": "Laplace transform F(s) = L{f(t)}."
+  },
+  {
+   "name": "light_travel_time",
+   "domain": "Physics",
+   "summary": "t = d / c."
+  },
+  {
+   "name": "list_bodies",
+   "domain": "Physics",
+   "summary": "List all solar-system bodies and named stars available."
+  },
+  {
+   "name": "list_materials",
+   "domain": "Physics",
+   "summary": "List all materials available in lookup tables."
+  },
+  {
+   "name": "luminosity_to_mass_conversion_rate",
+   "domain": "Physics",
+   "summary": "dm/dt = L / c^2 (e.g."
+  },
+  {
+   "name": "mass_to_energy",
+   "domain": "Physics",
+   "summary": "E = m c^2."
+  },
+  {
+   "name": "maxwell_boltzmann_most_probable_speed",
+   "domain": "Physics",
+   "summary": "v_p = sqrt(2 k_B T / m)."
+  },
+  {
+   "name": "melting_point",
+   "domain": "Physics",
+   "summary": "Melting point at 1 atm in K."
+  },
+  {
+   "name": "molar_solubility",
+   "domain": "Physics",
+   "summary": "Molar solubility (mol/L) of a sparingly-soluble salt from its Ksp, e.g."
+  },
+  {
+   "name": "momentum",
+   "domain": "Physics",
+   "summary": "Non-relativistic momentum p = m v."
+  },
+  {
+   "name": "mond_a0_constant",
+   "domain": "Physics",
+   "summary": "Milgrom's a_0 ~ 1.2e-10 m/s^2."
+  },
+  {
+   "name": "mond_regime_classifier",
+   "domain": "Physics",
+   "summary": "Classify acceleration as newtonian / mond / transition."
+  },
+  {
+   "name": "named_star",
+   "domain": "Physics",
+   "summary": "Named bright star data (e.g."
+  },
+  {
+   "name": "nuclear_binding_energy",
+   "domain": "Physics",
+   "summary": "Nuclear binding energy + mass defect."
+  },
+  {
+   "name": "ohms_law_current",
+   "domain": "Physics",
+   "summary": "I = V / R."
+  },
+  {
+   "name": "ohms_law_voltage",
+   "domain": "Physics",
+   "summary": "V = I R."
+  },
+  {
+   "name": "osmotic_pressure",
+   "domain": "Physics",
+   "summary": "Osmotic pressure π (Pa) = i·M·R·T (van't Hoff)."
+  },
+  {
+   "name": "parallel_plate_capacitance",
+   "domain": "Physics",
+   "summary": "C = eps_0 eps_r A / d."
+  },
+  {
+   "name": "percent_of",
+   "domain": "Physics",
+   "summary": "X percent of a value:"
+  },
+  {
+   "name": "photon_energy_from_frequency",
+   "domain": "Physics",
+   "summary": "E = h f."
+  },
+  {
+   "name": "photon_energy_from_wavelength",
+   "domain": "Physics",
+   "summary": "E = h c / lambda."
+  },
+  {
+   "name": "pn_built_in_voltage",
+   "domain": "Physics",
+   "summary": "Built-in voltage of a p-n junction (V):"
+  },
+  {
+   "name": "power_dissipation_resistor",
+   "domain": "Physics",
+   "summary": "P = I^2 R."
+  },
+  {
+   "name": "procedure_black_hole_profile",
+   "domain": "Physics",
+   "summary": "Full black-hole thermodynamics cascade:"
+  },
+  {
+   "name": "procedure_photon_spectrum",
+   "domain": "Physics",
+   "summary": "Full photon cascade from one wavelength:"
+  },
+  {
+   "name": "procedure_projectile_trajectory",
+   "domain": "Physics",
+   "summary": "Intro-mechanics cascade (no air resistance):"
+  },
+  {
+   "name": "procedure_relativistic_particle",
+   "domain": "Physics",
+   "summary": "Relativistic-kinematics cascade:"
+  },
+  {
+   "name": "procedure_stellar_blackbody",
+   "domain": "Physics",
+   "summary": "Blackbody/star-surface cascade:"
+  },
+  {
+   "name": "rc_time_constant",
+   "domain": "Physics",
+   "summary": "tau = R C."
+  },
+  {
+   "name": "reaction_enthalpy",
+   "domain": "Physics",
+   "summary": "Standard reaction enthalpy ΔH° (kJ/mol) from formation enthalpies, e.g."
+  },
+  {
+   "name": "refractive_index",
+   "domain": "Physics",
+   "summary": "Refractive index at 589 nm (e.g."
+  },
+  {
+   "name": "relativistic_energy",
+   "domain": "Physics",
+   "summary": "Total energy E = gamma m c^2."
+  },
+  {
+   "name": "relativistic_length_contraction",
+   "domain": "Physics",
+   "summary": "L = L0 / gamma."
+  },
+  {
+   "name": "relativistic_momentum",
+   "domain": "Physics",
+   "summary": "p = gamma m v."
+  },
+  {
+   "name": "relativistic_time_dilation",
+   "domain": "Physics",
+   "summary": "t = gamma t0 (moving clock ticks slower)."
+  },
+  {
+   "name": "relativistic_velocity_addition",
+   "domain": "Physics",
+   "summary": "Einstein velocity addition w = (u+v)/(1+uv/c^2)."
+  },
+  {
+   "name": "rl_time_constant",
+   "domain": "Physics",
+   "summary": "tau = L / R."
+  },
+  {
+   "name": "rlc_resonant_frequency",
+   "domain": "Physics",
+   "summary": "f = 1 / (2 pi sqrt(L C))."
+  },
+  {
+   "name": "rotational_dynamics",
+   "domain": "Physics",
+   "summary": "Rotational dynamics: moment of inertia (rod + shape geometry), parallel-axis, angular momentum, torque, angular acceleration, and rolling down a ramp (speed/distance/time)."
+  },
+  {
+   "name": "rydberg_hydrogen_wavelength",
+   "domain": "Physics",
+   "summary": "Rydberg formula for hydrogen transitions."
+  },
+  {
+   "name": "semiconductor_band_gap",
+   "domain": "Physics",
+   "summary": "Temperature-dependent band gap (eV) of a semiconductor (Varshni), e.g."
+  },
+  {
+   "name": "solar_system_body",
+   "domain": "Physics",
+   "summary": "Look up planet/moon/sun parameters (e.g."
+  },
+  {
+   "name": "speed_of_sound_in_ideal_gas",
+   "domain": "Physics",
+   "summary": "v_sound = sqrt(gamma R T / M)."
+  },
+  {
+   "name": "statistical_distribution",
+   "domain": "Physics",
+   "summary": "Statistical mechanics:"
+  },
+  {
+   "name": "summation",
+   "domain": "Physics",
+   "summary": "Symbolic sum over variable from lower to upper."
+  },
+  {
+   "name": "temperature_celsius_to_kelvin",
+   "domain": "Physics",
+   "summary": "T_K = T_C + 273.15."
+  },
+  {
+   "name": "temperature_kelvin_to_celsius",
+   "domain": "Physics",
+   "summary": "T_C = T_K - 273.15."
+  },
+  {
+   "name": "thermal_energy_per_molecule",
+   "domain": "Physics",
+   "summary": "E = (f/2) k_B T per molecule via equipartition."
+  },
+  {
+   "name": "thin_lens_focal_length",
+   "domain": "Physics",
+   "summary": "1/f = 1/d_o + 1/d_i."
+  },
+  {
+   "name": "thin_lens_image_distance",
+   "domain": "Physics",
+   "summary": "d_i = 1/(1/f - 1/d_o)."
+  },
+  {
+   "name": "tnt_to_joules",
+   "domain": "Physics",
+   "summary": "Convert a TNT-equivalent amount to joules (inverse of joules_to_TNT)."
+  },
+  {
+   "name": "unruh_temperature",
+   "domain": "Physics",
+   "summary": "Unruh temperature of an accelerated observer T=ħa/(2πck_B)."
+  },
+  {
+   "name": "weak_acid_ph",
+   "domain": "Physics",
+   "summary": "pH of a weak-acid solution from its Ka, e.g."
+  },
+  {
+   "name": "youngs_modulus",
+   "domain": "Physics",
+   "summary": "Young's modulus in Pa."
+  },
+  {
+   "name": "hawking_evaporation_time",
+   "domain": "Relativity",
+   "summary": "Black-hole evaporation timescale in seconds."
+  },
+  {
+   "name": "hawking_temperature",
+   "domain": "Relativity",
+   "summary": "Hawking temperature T_H = hbar c^3 / (8 pi G M k_B)."
+  },
+  {
+   "name": "isco_radius",
+   "domain": "Relativity",
+   "summary": "Innermost stable circular orbit r_ISCO = 6 G M / c^2."
+  },
+  {
+   "name": "lorentz_factor",
+   "domain": "Relativity",
+   "summary": "gamma = 1 / sqrt(1 - v^2/c^2)."
+  },
+  {
+   "name": "photon_sphere_radius",
+   "domain": "Relativity",
+   "summary": "Photon sphere r_ph = 3 G M / c^2."
+  },
+  {
+   "name": "schwarzschild_radius",
+   "domain": "Relativity",
+   "summary": "Schwarzschild radius r_s = 2 G M / c^2 (meters)."
+  },
+  {
+   "name": "list_simulation_scenarios",
+   "domain": "Simulation",
+   "summary": "List the Materia simulation verbs with their inputs and named outputs — discovery for the simulator."
+  },
+  {
+   "name": "run_simulation",
+   "domain": "Simulation",
+   "summary": "Run one Materia simulation verb directly with explicit parameters (deterministic, no LLM)."
+  },
+  {
+   "name": "convert_units",
+   "domain": "Units",
+   "summary": "Convert a value between unit systems (pint)."
+  },
+  {
+   "name": "parse_quantity",
+   "domain": "Units",
+   "summary": "Parse '5.6 light_year' into magnitude + units."
+  }
+ ],
+ "verbs": [
+  {
+   "name": "acoustics",
+   "summary": "Acoustic waves in and across materials — longitudinal / transverse sound speed, acoustic impedance, reflection / transmission, resonance.",
+   "slots": [
+    "material_key"
+   ]
+  },
+  {
+   "name": "actuate_hand_tool",
+   "summary": "Open and close a two-jaw hand tool (pliers, tongs, scissors, tweezers, nutcracker…) — the pivot is DISCOVERED from real dodoxel contact geometry (deckard.hand_tools + infer_dodoxel_joints), not declar",
+   "slots": [
+    "tool_name",
+    "n_cycles"
+   ]
+  },
+  {
+   "name": "asteroid_shape",
+   "summary": "Shape & surface gravity of a small body — triaxial ellipsoid volume & mean radius, axis ratios, surface gravity, escape velocity.",
+   "slots": []
+  },
+  {
+   "name": "atmospheric_profile",
+   "summary": "Standard-atmosphere state & transport — density / pressure vs altitude, humidity & dew point, specific heats.",
+   "slots": []
+  },
+  {
+   "name": "atomic_coupling",
+   "summary": "Angular-momentum coupling in atoms — term symbols, Hund's-rule ground state, allowed J, Clebsch-Gordan, spin-orbit.",
+   "slots": []
+  },
+  {
+   "name": "black_hole",
+   "summary": "Black-hole thermodynamics — Schwarzschild radius, Hawking temperature / luminosity / lifetime, entropy, ISCO, photon sphere, tidal force.",
+   "slots": [
+    "solar_masses"
+   ]
+  },
+  {
+   "name": "charged_particle",
+   "summary": "Electric & magnetic forces on a charged particle — Coulomb's law, point fields, cyclotron motion, Lorentz force, EM-wave energy.",
+   "slots": []
+  },
+  {
+   "name": "chemical_reaction",
+   "summary": "Reaction kinetics & thermodynamics — Arrhenius rate, equilibrium constant & Gibbs energy, activation energy.",
+   "slots": []
+  },
+  {
+   "name": "chemistry_lab",
+   "summary": "Acid-base & solution chemistry — pH, Ka/Kb, buffers, titration, plus ideal-gas transport and galvanic cells.",
+   "slots": []
+  },
+  {
+   "name": "collision_dynamics",
+   "summary": "Energy, momentum & collisions — kinetic / potential / rotational energy, elastic and inelastic collision outcomes, energy dissipated.",
+   "slots": []
+  },
+  {
+   "name": "combustion_flow",
+   "summary": "Combustion with porous flow — heat of combustion & flame temperature, soot, Darcy flow, Kozeny-Carman permeability.",
+   "slots": []
+  },
+  {
+   "name": "composite_material",
+   "summary": "Composite-material mechanics — stiffness & density by rule-of-mixtures and Halpin-Tsai, foam scaling, thermal expansion.",
+   "slots": [
+    "composite_key"
+   ]
+  },
+  {
+   "name": "condensed_matter",
+   "summary": "Strongly-correlated electron matter — Fermi energy, Hubbard parameters & ground state, Mott metal-insulator transition.",
+   "slots": [
+    "material_key"
+   ]
+  },
+  {
+   "name": "contact_conduction",
+   "summary": "A hot block set on a cold slab:",
+   "slots": [
+    "hot_material",
+    "cold_material",
+    "T_hot",
+    "environment"
+   ]
+  },
+  {
+   "name": "corrosion_attack",
+   "summary": "Corrosion & oxidation — corrosion rate, galvanic potential & series, oxide growth over a duration, Pilling-Bedworth ratio;",
+   "slots": [
+    "material_key",
+    "duration_s",
+    "environment"
+   ]
+  },
+  {
+   "name": "diffusion_transport",
+   "summary": "Mass diffusion & transport — Einstein-Stokes diffusivity, Fick's first and second laws, interdiffusion.",
+   "slots": []
+  },
+  {
+   "name": "drag_heating_drop",
+   "summary": "How much a falling body heats up from air drag — the temperature rise as drag dissipates its energy.",
+   "slots": [
+    "material_key",
+    "radius_m",
+    "drop_altitude_m"
+   ]
+  },
+  {
+   "name": "drop_object",
+   "summary": "Drop a NAMED real object (anvil, piano, frying pan…) — asks the Deckard shape researcher for its real mass/shape, then simulates the fall.",
+   "slots": [
+    "object_name",
+    "drop_altitude_m"
+   ]
+  },
+  {
+   "name": "elastic_solid",
+   "summary": "Linear elasticity of a solid — Lamé parameters, elastic moduli, P-wave modulus, strain energy, yield check.",
+   "slots": [
+    "material_key"
+   ]
+  },
+  {
+   "name": "fluid_dynamics",
+   "summary": "Liquid-phase fluid properties — dynamic & kinematic viscosity, surface tension.",
+   "slots": [
+    "liquid_key"
+   ]
+  },
+  {
+   "name": "fluid_flow",
+   "summary": "Viscous fluid flow — pipe (Poiseuille) flow, Stokes drag & settling, Reynolds number, boundary layer.",
+   "slots": []
+  },
+  {
+   "name": "fuel_ignition",
+   "summary": "Combustion-ignition properties of a fuel — adiabatic flame temperature, autoignition, flash point, ignition delay, flammability.",
+   "slots": []
+  },
+  {
+   "name": "high_altitude_descent",
+   "summary": "A body dropped from the stratosphere/space:",
+   "slots": [
+    "start_altitude_m",
+    "payload_mass_kg",
+    "drag_area_m2",
+    "cd"
+   ]
+  },
+  {
+   "name": "hydrogen_spectrum",
+   "summary": "Hydrogen-like atomic spectra — energy levels, Balmer / Lyman / Paschen series, transitions, fine structure.",
+   "slots": [
+    "element_Z"
+   ]
+  },
+  {
+   "name": "intermolecular_forces",
+   "summary": "Hydrogen bonding & intermolecular forces — H-bond energy, estimated boiling point & vaporization enthalpy.",
+   "slots": []
+  },
+  {
+   "name": "magnetic_hysteresis",
+   "summary": "Ferromagnetic hysteresis — the B-H loop, coercivity, anhysteretic magnetization, Curie-Weiss susceptibility, energy lost per cycle.",
+   "slots": [
+    "material_key"
+   ]
+  },
+  {
+   "name": "magnetic_material",
+   "summary": "Magnetic & dielectric response of a material — ferromagnetism, susceptibility, saturation magnetization;",
+   "slots": [
+    "material_key"
+   ]
+  },
+  {
+   "name": "mass_energy",
+   "summary": "Mass-energy equivalence E=mc² — rest energy of a mass, or the energy released by converting mass.",
+   "slots": [
+    "mass_kg",
+    "energy_j"
+   ]
+  },
+  {
+   "name": "material_full_profile",
+   "summary": "Exhaustively characterize a material — every property suite sigma-ground exposes (thermal, elastic, magnetic, acoustic, electrochemical, surface, …).",
+   "slots": [
+    "material_key"
+   ]
+  },
+  {
+   "name": "material_profile",
+   "summary": "Characterize a material — density, sound speed, specific heat, conductivity, the elastic moduli, restitution.",
+   "slots": [
+    "material_key",
+    "temperature_k"
+   ]
+  },
+  {
+   "name": "matter_wave",
+   "summary": "Quantum matter waves — de Broglie wavelength, double-slit interference, diffraction, which-path bounds.",
+   "slots": []
+  },
+  {
+   "name": "metallurgy",
+   "summary": "Microstructure-dependent strength — Hall-Petch yield vs grain size, polycrystal & Taylor hardening, grain growth, alloy prediction.",
+   "slots": [
+    "material_key"
+   ]
+  },
+  {
+   "name": "molecular_bond",
+   "summary": "Chemical-bond properties — bond energy (Pauling), length, force constant, dipole, hybridization, reduced mass.",
+   "slots": []
+  },
+  {
+   "name": "nuclear_decay",
+   "summary": "Nuclear & radioactive properties — alpha/beta half-lives & decay constants, Q-values, activity, plus the parent element's structure.",
+   "slots": [
+    "element_Z"
+   ]
+  },
+  {
+   "name": "nucleon_masses",
+   "summary": "Nucleon & nuclear masses — proton and neutron rest masses, the QCD scale, QCD/Higgs mass fractions, nuclear binding.",
+   "slots": []
+  },
+  {
+   "name": "optical_dispersion",
+   "summary": "Optical dispersion & colour of a material — refractive index, metal reflectance, Drude scattering, plasma frequency, dielectric colour.",
+   "slots": [
+    "material_key"
+   ]
+  },
+  {
+   "name": "optical_fiber",
+   "summary": "Fiber-optic & nonlinear photonics — numerical aperture, mode count, single-mode cutoff, Bragg stacks, Kerr / second-harmonic.",
+   "slots": []
+  },
+  {
+   "name": "orbital_velocity",
+   "summary": "Orbital speed and period of a circular orbit at a given altitude around a body (Earth, Moon, Mars, …).",
+   "slots": [
+    "central_body",
+    "altitude_m",
+    "semimajor_axis_au"
+   ]
+  },
+  {
+   "name": "organic_material",
+   "summary": "Organic & biological materials — alkane boiling points and combustion enthalpy, anisotropic bone and wood mechanics.",
+   "slots": []
+  },
+  {
+   "name": "piezoelectric_material",
+   "summary": "Piezoelectric response — charge/voltage from stress, strain from field, electromechanical coupling, harvested energy.",
+   "slots": [
+    "material_key"
+   ]
+  },
+  {
+   "name": "planetary_surface",
+   "summary": "Surface conditions of a solar-system body:",
+   "slots": [
+    "body"
+   ]
+  },
+  {
+   "name": "plasma_physics",
+   "summary": "Plasma parameters — plasma & cyclotron frequencies, Debye length & number, Alfvén speed, Coulomb logarithm, plasma beta.",
+   "slots": []
+  },
+  {
+   "name": "projectile_motion",
+   "summary": "Projectile & inclined-plane kinematics — range, max height, time of flight, launch at an angle, motion on a ramp.",
+   "slots": []
+  },
+  {
+   "name": "quantum_algorithms_demo",
+   "summary": "Quantum algorithms — Deutsch-Jozsa, Bernstein-Vazirani, Grover, QFT, phase estimation, Shor, VQE, Ising/Heisenberg ground states.",
+   "slots": []
+  },
+  {
+   "name": "quantum_dot",
+   "summary": "Quantum confinement — particle-in-a-box levels, the Brus quantum-dot gap, confinement energy, density of states.",
+   "slots": []
+  },
+  {
+   "name": "quantum_gates",
+   "summary": "Quantum computing — build a multi-qubit circuit, apply gates (Hadamard, CNOT, Toffoli…), measure probabilities and entanglement.",
+   "slots": []
+  },
+  {
+   "name": "quantum_report",
+   "summary": "Quantum & atomic physics:",
+   "slots": [
+    "element_Z"
+   ]
+  },
+  {
+   "name": "quantum_tunneling",
+   "summary": "Quantum tunneling — barrier transmission & WKB, decay constant, resonant levels, field emission, STM, Gamow.",
+   "slots": []
+  },
+  {
+   "name": "relativistic_motion",
+   "summary": "Special relativity — Lorentz factor, time dilation, length contraction, relativistic energy / momentum, relativistic Doppler.",
+   "slots": []
+  },
+  {
+   "name": "rolling_object",
+   "summary": "A body rolling without slipping — moments of inertia, rolling acceleration down an incline, speed from a height, rolling distance.",
+   "slots": []
+  },
+  {
+   "name": "rotational_dynamics",
+   "summary": "Rigid-body rotation: moments of inertia for standard shapes, angular momentum, rotational kinetic energy.",
+   "slots": [
+    "mass_kg",
+    "radius_m"
+   ]
+  },
+  {
+   "name": "semiconductor_device",
+   "summary": "Semiconductor device physics — band gap, carrier concentration & mobility, p-n junction built-in voltage and depletion width, diode current.",
+   "slots": [
+    "sc_key"
+   ]
+  },
+  {
+   "name": "solution_chemistry",
+   "summary": "Electrolyte solutions — Debye-Hückel activity & screening, colligative shifts (boiling-point elevation, freezing-point depression), Faraday electrolysis.",
+   "slots": []
+  },
+  {
+   "name": "stellar_fusion",
+   "summary": "Stellar nucleosynthesis — proton-proton chain & CNO cycle energy rates, crossover temperature, Gamow peak.",
+   "slots": []
+  },
+  {
+   "name": "strike_bell",
+   "summary": "A hanging bell struck by a thrown stone:",
+   "slots": [
+    "bell_material",
+    "bell_diameter_m",
+    "stone_mass_kg",
+    "observer_distance_m"
+   ]
+  },
+  {
+   "name": "structural_response",
+   "summary": "Structural integrity of a material under load:",
+   "slots": [
+    "material_key"
+   ]
+  },
+  {
+   "name": "subsurface_scattering",
+   "summary": "Subsurface light transport in translucent materials — absorption & scattering lengths, diffusion length, diffuse reflectance, BSSRDF.",
+   "slots": [
+    "material_key"
+   ]
+  },
+  {
+   "name": "superconductor",
+   "summary": "Superconductivity — BCS gap & coherence length, Ginzburg-Landau parameter & type, London penetration, critical fields, McMillan Tc.",
+   "slots": [
+    "sc_key"
+   ]
+  },
+  {
+   "name": "supersonic_projectile",
+   "summary": "A projectile fired faster than sound:",
+   "slots": [
+    "launch_mach",
+    "mass_kg",
+    "diameter_m"
+   ]
+  },
+  {
+   "name": "terminal_velocity_drop",
+   "summary": "How fast a solid sphere is moving when it hits the ground, dropped from altitude through the air.",
+   "slots": [
+    "material_key",
+    "radius_m",
+    "drop_altitude_m"
+   ]
+  },
+  {
+   "name": "thermal_response",
+   "summary": "How a material responds to heat:",
+   "slots": [
+    "material_key"
+   ]
+  },
+  {
+   "name": "thermal_statistics",
+   "summary": "Statistical mechanics of a gas — Maxwell-Boltzmann speeds, Boltzmann factors & entropy, partition function, Fermi-Dirac / Bose-Einstein.",
+   "slots": []
+  },
+  {
+   "name": "thermoelectric",
+   "summary": "Thermoelectric transport — Seebeck-derived figure of merit ZT, electrical conductivity, Carnot bound, thermocouple voltage.",
+   "slots": [
+    "material_key"
+   ]
+  },
+  {
+   "name": "transmission_line",
+   "summary": "Transmission-line EM — coaxial / twisted-pair / Möbius conductor inductance, characteristic impedance, skin depth, field cancellation.",
+   "slots": [
+    "material_key"
+   ]
+  },
+  {
+   "name": "tribology",
+   "summary": "Friction, wear & adhesion at a sliding contact — Archard wear, wear rate, work of adhesion, contact angle.",
+   "slots": [
+    "material_key"
+   ]
+  },
+  {
+   "name": "vertical_launch",
+   "summary": "Throw/launch a sphere straight up at a speed;",
+   "slots": [
+    "material_key",
+    "radius_m",
+    "launch_speed_m_s"
+   ]
+  },
+  {
+   "name": "viscoelastic_material",
+   "summary": "Viscoelastic polymer response — Maxwell / Kelvin-Voigt creep and stress relaxation, storage & loss moduli, loss tangent.",
+   "slots": [
+    "material_key"
+   ]
+  },
+  {
+   "name": "water_state",
+   "summary": "Anomalous properties of liquid water vs temperature — density (4 °C max), viscosity, surface tension, heat capacity, ice fraction.",
+   "slots": []
+  }
+ ]
+}

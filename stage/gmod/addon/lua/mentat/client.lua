@@ -30,3 +30,21 @@ hook.Add("HUDPaint", "MentatHUD", function()
   draw.SimpleText("mentat_play  mentat_pause  mentat_scrub <t>  mentat_rate <x>  mentat_release  mentat_reset",
     font, x, y, CYAN)
 end)
+
+-- Screenshot channel for headless verification. The server bumps a counter and names the shot;
+-- the capture must run in PostRender (render.Capture reads the frame just drawn).
+local last_shot = 0
+hook.Add("PostRender", "MentatShot", function()
+  local n = GetGlobal2Int("mentat_shot", 0)
+  if n == last_shot then return end
+  last_shot = n
+  local tag = string.gsub(GetGlobal2String("mentat_shot_tag", "shot" .. n), "[^%w_%-]", "_")
+  local data = render.Capture({ format = "jpeg", quality = 90, x = 0, y = 0, w = ScrW(), h = ScrH() })
+  file.CreateDir("mentat")
+  if data and #data > 0 then
+    file.Write("mentat/shot_" .. tag .. ".jpg", data)
+    print("[mentat] saved data/mentat/shot_" .. tag .. ".jpg (" .. #data .. " bytes)")
+  else
+    print("[mentat] screenshot '" .. tag .. "' failed: render.Capture returned nothing")
+  end
+end)

@@ -35,8 +35,8 @@ DEFAULT_DATA = Path("D:/Steam/steamapps/common/GarrysMod/garrysmod/data/mentat")
 
 POS_TOL_HU = 0.05          # float32 GetPos at ~hundreds of HU
 AXIS_TOL_DEG = 0.1
-LAND_TOL_HU = 1.5          # polygonal hull + contact offset
-FALL_TOL_FRAC = 0.03       # Havok vs analytic vacuum fall, as a fraction of fall distance
+LAND_TOL_HU = 1.0          # measured collision skin is ~0.41 HU; the hull is a 24-gon
+DISC_TOL_HU = 0.01         # Havok vs its own discrete (semi-implicit Euler) vacuum step, air drag off
 
 
 # -- own frame math (deliberately not shared with the Lua) --------------------------------
@@ -214,6 +214,7 @@ def grade(run: dict, bundle: dict, pivot_m: float, landing: str = "cylinder"):
         floor_m = min(tops)
 
     anchor = run["anchor"]
+    floor_z = run.get("floor_z", anchor[2])         # traced floor under the stage (falls back to the anchor)
     traj = bundle["trajectory"]
     samples = run["samples"]
     replay = [s for s in samples if not s["released"] and s.get("pose_t") is not None]
@@ -235,8 +236,17 @@ def grade(run: dict, bundle: dict, pivot_m: float, landing: str = "cylinder"):
         if max(ax_err) > AXIS_TOL_DEG:
             hard_fail.append("replay orientation outside tolerance")
         first = replay[0]
-        rows.append(("cylinder axis in Source (first sample)", f"up={[round(c, 4) for c in first['up']]}",
-                     "expect [0,0,1]: the skillet stands upright"))
+        rows.append(("body up axis in Source (first sample)", f"up={[round(c, 4) for c in first['up']]}",
+                     "graded above against the bundle's own quaternion"))
+        # the PHYSICS object must follow the entity, or a frozen body would snap to a stale pose at release
+        pe = [dist(s["pos"], s["phys_pos"]) for s in replay if "phys_pos" in s]
+        pa = [max(angle_deg(s["fwd"], s["phys_fwd"]), angle_deg(s["up"], s["phys_up"]))
+              for s in replay if "phys_fwd" in s]
+        if pe and pa:
+            rows.append(("physics object vs entity (replay)", f"pos {max(pe):.2e} HU, axes {max(pa):.2e} deg",
+                         "a frozen PhysObj must follow SetPos/SetAngles"))
+            if max(pe) > POS_TOL_HU or max(pa) > AXIS_TOL_DEG:
+                hard_fail.append("the physics object does not follow the entity during replay")
     else:
         hard_fail.append("no replay samples recorded")
 
@@ -248,32 +258,41 @@ def grade(run: dict, bundle: dict, pivot_m: float, landing: str = "cylinder"):
         rows.append(("released at sim t", f"{run['released_sim_t']:.4f} s", f"requested {run.get('release_at')}"))
         rows.append(("gravity in game", f"{g_hu:.2f} HU/s^2 = {g_hu / HU_PER_M:.4f} m/s^2",
                      "bundle assumes 9.80665"))
-        # analytic vacuum fall from the FIRST released sample's recorded state
-        fall = []
-        for s in released:
-            dt = s["ct"] - h0["ct"]
-            if dt <= 0:
-                continue
-            z_pred = h0["pos"][2] + h0["vel"][2] * dt - 0.5 * g_hu * dt * dt
-            fall.append((dt, s["pos"][2], z_pred, s["vel"][2]))
-        # Only the airborne part: both the engine and the prediction are still clear of the
-        # resting height (contact, bounce and settling are not free fall).
+        # Fall from the FIRST released sample's recorded state, two ways:
+        #   continuous vacuum fall  z0 + v0 t - g t^2/2           (the textbook formula)
+        #   the engine's own step   v -= g*tau ; z += v*tau        (semi-implicit Euler at the physics tick)
+        # With air drag off the engine matches the second to ~1e-5 HU (measured 2026-10-10); it differs
+        # from the textbook formula by exactly g*t*tau/2, about 1.4 % over a 0.75 s fall at 66.7 Hz.
+        tau = run.get("tick_interval") or 0.015
+        c_lin = run.get("damping_linear", 0.0) or 0.0
         rest_z = released[-1]["pos"][2]
-        airborne = [r for r in fall if r[1] > rest_z + 1.0 and r[2] > rest_z + 1.0]
+        zs, vs = h0["pos"][2], h0["vel"][2]
+        fall = []
+        for k, s in enumerate(released):
+            t = k * tau
+            if k > 0:
+                vs += (-g_hu - c_lin * vs) * tau       # linear damping c: the engine's measured default is 0.1 per second
+                zs += vs * tau
+            z_cont = h0["pos"][2] + h0["vel"][2] * t - 0.5 * g_hu * t * t
+            fall.append((t, s["pos"][2], z_cont, zs))
+        airborne = [r for r in fall if r[1] > rest_z + 3.0 and r[2] > rest_z + 3.0]
         if airborne:
             drop = h0["pos"][2] - min(r[1] for r in airborne)
-            worst = max(abs(r[1] - r[2]) for r in airborne)
+            worst_cont = max(abs(r[1] - r[2]) for r in airborne)
+            worst_disc = max(abs(r[1] - r[3]) for r in airborne)
             rows.append(("release speed (engine)", f"{h0['vel'][2]:.1f} HU/s = {h0['vel'][2] / HU_PER_M:.3f} m/s", ""))
-            vacuum = run.get("air_density") == 0 and run.get("drag_enabled") is False
-            if vacuum:
-                rows.append(("Havok vs analytic vacuum fall", f"worst {worst:.3f} HU over {drop:.1f} HU drop",
-                             f"air off: tol {FALL_TOL_FRAC * 100:.0f}% of drop"))
-                if worst > FALL_TOL_FRAC * max(drop, 1.0):
-                    hard_fail.append("Havok free fall deviates from analytic vacuum fall with air resistance off")
+            if run.get("drag_enabled") is False:
+                rows.append(("linear damping in force", f"{c_lin:g} per second", "0 = vacuum; Source's own default is 0.1"))
+                rows.append(("Havok vs its discrete vacuum step", f"worst {worst_disc:.2e} HU over {drop:.1f} HU drop",
+                             f"air off: tol {DISC_TOL_HU} HU"))
+                rows.append(("Havok vs textbook vacuum fall", f"worst {worst_cont:.3f} HU = {100 * worst_cont / drop:.2f}% of the drop",
+                             "= the engine's integrator term g*t*tau/2; informational"))
+                if worst_disc > DISC_TOL_HU:
+                    hard_fail.append("Havok free fall departs from its own discrete vacuum step with air resistance off")
             else:
-                # Source applies its own air resistance to physics objects by default; it is
-                # much stronger than the real drag baked into the bundle. Informational only.
-                rows.append(("Havok vs vacuum fall (engine drag ON)", f"worst {worst:.3f} HU over {drop:.1f} HU drop",
+                # Source applies its own air resistance to physics objects by default; it is much
+                # stronger than the real drag baked into the bundle. Informational only.
+                rows.append(("Havok vs vacuum fall (engine drag ON)", f"worst {worst_cont:.3f} HU over {drop:.1f} HU drop",
                              "Source default air resistance; not a handoff error"))
         # bundle (with drag) vs Havok at equal sim time, while the bundle still has data
         gaps = []
@@ -288,18 +307,34 @@ def grade(run: dict, bundle: dict, pivot_m: float, landing: str = "cylinder"):
 
         # LANDING -------------------------------------------------------------------
         last = released[-1]
-        rest_hu = last["pos"][2] - anchor[2]
+        rest_hu = last["pos"][2] - floor_z
         want_hu = pivot_m * HU_PER_M
         rows.append(("settled", str(run.get("settled")), ""))
         if not run.get("settled"):
             hard_fail.append("body never settled")
         if landing == "cylinder":
-            rows.append(("resting pivot height", f"{rest_hu:.3f} HU", f"expect {want_hu:.3f} HU (base on floor), tol {LAND_TOL_HU}"))
-            rows.append(("upright at rest", f"up.z = {last['up'][2]:.4f}", "expect > 0.99"))
-            if abs(rest_hu - want_hu) > LAND_TOL_HU:
-                hard_fail.append("resting height does not match the cylinder resting on its base")
-            if last["up"][2] < 0.99:
-                hard_fail.append("body is not upright at rest")
+            # A landed cylinder may legitimately end on its base, inverted on its top, or on its side (a
+            # 7 m/s flat drop often topples: observed). Which one is chaotic; each has a known pivot height.
+            cyl = next((l["shape"] for l in bundle["scene"]["csg_leaves"]
+                        if l.get("body") == 0 and l["shape"]["type"] == "Cylinder" and l.get("op", "add") == "add"), None)
+            r_hu, h_hu = cyl["radius"] * HU_PER_M, cyl["height"] * HU_PER_M
+            z_up = last["up"][2]
+            if z_up > 0.9:
+                pose, want = "on its base", want_hu
+            elif z_up < -0.9:
+                pose, want = "inverted on its top", h_hu - want_hu
+            elif abs(z_up) < 0.3:
+                pose, want = "on its side", r_hu
+            else:
+                pose, want = "tilted (not a stable pose)", None
+            rows.append(("rest pose", f"{pose}  (up.z = {z_up:.3f})", "any stable pose of a cylinder is acceptable"))
+            if want is None:
+                hard_fail.append("body came to rest tilted, which is not a stable pose of a cylinder")
+            else:
+                rows.append(("resting pivot height", f"{rest_hu:.3f} HU", f"expect {want:.3f} HU for a body {pose} "
+                             f"(+ ~0.4 HU collision skin), tol {LAND_TOL_HU}"))
+                if abs(rest_hu - want) > LAND_TOL_HU:
+                    hard_fail.append(f"resting height does not match a cylinder {pose}")
         else:
             rows.append(("resting pivot height", f"{rest_hu:.3f} HU", "no expectation for this shape (informational)"))
         check_angular(run, up, traj, rows, hard_fail, last["pos"][2])
@@ -312,6 +347,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("scenario")
     ap.add_argument("--data", default=str(DEFAULT_DATA), help="GMod garrysmod/data/mentat directory")
+    ap.add_argument("--run-id", help="the run_id written into autotest.txt; refuses a stale result from an earlier run")
     ap.add_argument("--landing", choices=["cylinder", "none"],
                     help="resting-pose expectation (default: cylinder for fall_skillet, none otherwise)")
     args = ap.parse_args(argv)
@@ -321,6 +357,12 @@ def main(argv=None) -> int:
         print(f"no result file: {path}\nThe game has not written it yet, or it never reached the autotest.")
         return 2
     run = json.loads(path.read_text(encoding="utf-8"))
+    if args.run_id is not None and run.get("run_id") != args.run_id:
+        print(f"STALE RESULT: file has run_id {run.get('run_id')!r}, expected {args.run_id!r}")
+        return 2
+    if not run.get("finished"):
+        print("the result file is not marked finished: the run was interrupted")
+        return 2
     if not run.get("ok", False) or run.get("error"):
         print(f"autotest reported an error: {run.get('error')}")
         return 1

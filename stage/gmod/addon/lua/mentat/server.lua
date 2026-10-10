@@ -42,6 +42,12 @@ local function publish()
   SetGlobal2Int("mentat_bodies", #st.ents)
 end
 
+--- Ask every client to save a screenshot to data/mentat/shot_<tag>.jpg (headless visual verification).
+function Mentat.Shot(tag)
+  SetGlobal2String("mentat_shot_tag", tostring(tag))
+  SetGlobal2Int("mentat_shot", GetGlobal2Int("mentat_shot", 0) + 1)
+end
+
 -- ------------------------------------------------------------------ pose application
 --- World position (Source HU) of a sigma-frame pose.
 function Mentat.WorldPos(pos)
@@ -96,6 +102,27 @@ function Mentat.Load(name, anchor)
   if not scn then return false, err end
   if (scn.stage_scale or 1) ~= 1 then return false, "stage_scale ~= 1 is not supported in Phase 0" end
 
+  -- Refuse what cannot fit inside Source's map at 1:1 (+/-16384 HU) instead of spawning bodies
+  -- the engine will silently discard. The exporter records the extent of every pose.
+  local lo, hi = scn.bbox_m[1], scn.bbox_m[2]
+  local pad = scn.max_body_radius_m or 0
+  local W = U.WORLD[scn.up]
+  for axis = 1, 3 do
+    -- each Source axis is +/- one sigma axis; test both extremes after mapping
+    local a = W[axis][1] * lo[1] + W[axis][2] * lo[2] + W[axis][3] * lo[3]
+    local b = W[axis][1] * hi[1] + W[axis][2] * hi[2] + W[axis][3] * hi[3]
+    local mn, mx = math.min(a, b) - pad, math.max(a, b) + pad
+    local floor = (axis == 3) and (scn.floor_m or 0) or 0
+    local base = (axis == 1 and anchor.x or axis == 2 and anchor.y or anchor.z)
+    if (mn - floor) * U.HU_PER_M + base < -16384 or (mx - floor) * U.HU_PER_M + base > 16384 then
+      return false, string.format("'%s' spans %.0f m along Source axis %d and does not fit the map at 1:1 "
+        .. "(needs Phase 4 scaling)", name, mx - mn, axis)
+    end
+  end
+
+  -- A scenario generated after the map loaded was never offered to clients.
+  AddCSLuaFile(Mentat.ScenarioPath(name))
+
   st.scn, st.name = scn, name
   st.scale = Mentat.Scale(scn)
   st.origin = Vector(anchor.x, anchor.y, anchor.z)
@@ -118,9 +145,12 @@ function Mentat.Load(name, anchor)
     ent:SetPos(st.origin)
     ent:Spawn()
     ent:Activate()
-    if not IsValid(ent) then
+    -- Initialize removes a body it cannot build, but the entity still passes IsValid() until the next
+    -- tick, so success is read from the flag Initialize sets, never from IsValid.
+    if not IsValid(ent) or ent:IsMarkedForDeletion() or not ent.MentatReady then
+      local why = IsValid(ent) and ent.MentatError or nil
       Mentat.Clear()
-      return false, "body " .. i .. " failed to initialise (see console)"
+      return false, "body " .. i .. " failed to initialise: " .. tostring(why or "see console")
     end
     st.ents[i] = ent
   end
@@ -144,7 +174,9 @@ end
 
 function Mentat.SetRate(r)
   r = tonumber(r)
-  if not r or r <= 0 or r > 1000 then return false, "rate must be in (0, 1000]" end
+  -- NaN is the only value not equal to itself; every ordinary comparison with NaN is false and would
+  -- otherwise let it through and poison the clock.
+  if not r or r ~= r or r <= 0 or r > 1000 then return false, "rate must be a number in (0, 1000]" end
   st.rate = r
   publish()
   return true
@@ -153,7 +185,7 @@ end
 function Mentat.Scrub(t)
   if not st.scn then return false, "no scenario loaded" end
   t = tonumber(t)
-  if not t then return false, "t must be a number" end
+  if not t or t ~= t then return false, "t must be a number" end
   st.t = math.Clamp(t, st.t0, st.tend)
   st.ended = st.t >= st.tend
   Mentat.Apply(st.t)
@@ -172,9 +204,10 @@ function Mentat.Reset()
       e:SetReleased(false)
       local phys = e:GetPhysicsObject()
       if IsValid(phys) then
-        phys:EnableMotion(false)
+        -- zero the motion while the object can still take it, THEN freeze it
         phys:SetVelocity(vector_origin)
         phys:SetAngleVelocityInstantaneous(vector_origin)
+        phys:EnableMotion(false)
       end
     end
   end
@@ -184,6 +217,11 @@ function Mentat.Reset()
 end
 
 -- ------------------------------------------------------------------ release
+-- Who may drive the stage: the server console, an admin, or anyone in singleplayer.
+local function admin_only(ply)
+  return not IsValid(ply) or ply:IsAdmin() or game.SinglePlayer()
+end
+
 local function release_entity(ent, i)
   local scn = st.scn
   local body = scn.bodies[i]
@@ -191,12 +229,12 @@ local function release_entity(ent, i)
   local vx, vy, vz = I.velocity(scn, body, st.t)
   local v = U.world_vec(scn.up, { vx, vy, vz })
   local vel = Vector(v[1], v[2], v[3]) * st.scale
-  -- rad/s in the sigma world frame -> Source world deg/s
+  -- rad/s in the sigma world frame -> deg/s about the body's LOCAL forward/left/up, which is what the
+  -- engine's setter takes (measured, not documented: see units.lua local_angvel_deg)
   local wx, wy, wz = I.omega(scn, body, st.t, U.angular_velocity)
-  local w = U.world_vec(scn.up, { wx, wy, wz })
-  local k = 180 / math.pi
-  local angvel = Vector(w[1] * k, w[2] * k, w[3] * k)
-  return ent:MentatRelease(vel, angvel)
+  local quat = I.sample_body(scn, body, st.t).quat
+  local lx, ly, lz = U.local_angvel_deg(scn.up, { wx, wy, wz }, quat)
+  return ent:MentatRelease(vel, Vector(lx, ly, lz))
 end
 
 --- which: nil/"all" = every body; number = body index; string = label substring.
@@ -216,18 +254,23 @@ function Mentat.Release(which)
   return n
 end
 
--- Grabbing a replay body with the physgun hands it to Havok first. Untested until used in-game.
+-- Grabbing a replay body with the physgun hands it to Havok first. Same permission as the console
+-- commands, and it returns nothing so the gamemode and other addons still decide whether the pickup
+-- itself is allowed. Untested until used in-game.
 hook.Add("PhysgunPickup", "MentatPhysgunRelease", function(ply, ent)
   if not (IsValid(ent) and ent:GetClass() == "mentat_body" and st.scn) then return end
-  if ent.MentatReleased then return true end
+  if ent.MentatReleased or not admin_only(ply) then return end
   for i, e in ipairs(st.ents) do
     if e == ent then
       release_entity(ent, i)
       publish()
-      return true
+      return
     end
   end
 end)
+
+-- A sandbox map cleanup deletes the bodies without telling us; put the gravity back.
+hook.Add("PostCleanupMap", "MentatCleanup", function() Mentat.Clear() end)
 
 -- ------------------------------------------------------------------ the replay clock
 hook.Add("Tick", "MentatReplay", function()
@@ -249,10 +292,6 @@ end)
 local function say(ply, ...)
   local msg = table.concat({ ... }, "")
   if IsValid(ply) then ply:PrintMessage(HUD_PRINTCONSOLE, msg .. "\n") else print(msg) end
-end
-
-local function admin_only(ply)
-  return not IsValid(ply) or ply:IsAdmin() or game.SinglePlayer()
 end
 
 local function cmd(name, fn)
@@ -293,7 +332,12 @@ cmd("mentat_play", function(ply) local ok, err = Mentat.Play(); if not ok then s
 cmd("mentat_pause", function() Mentat.Pause() end)
 cmd("mentat_reset", function(ply) local ok, err = Mentat.Reset(); if not ok then say(ply, "[mentat] ", err) end end)
 cmd("mentat_clear", function() Mentat.Clear() end)
-cmd("mentat_reload", function(ply) Mentat.ReloadScenarios(); say(ply, "[mentat] scenario cache cleared") end)
+cmd("mentat_reload", function(ply)
+  Mentat.ReloadScenarios()
+  -- clients watch this counter and drop their own cached scenarios and meshes when it changes
+  SetGlobal2Int("mentat_epoch", GetGlobal2Int("mentat_epoch", 0) + 1)
+  say(ply, "[mentat] scenario cache cleared (a regenerated file that clients never received needs a map restart)")
+end)
 
 cmd("mentat_rate", function(ply, args)
   local ok, err = Mentat.SetRate(args[1])
@@ -308,7 +352,12 @@ end)
 cmd("mentat_release", function(ply, args)
   local n, err = Mentat.Release(args[1])
   if err then return say(ply, "[mentat] ", err) end
-  say(ply, "[mentat] released ", n, " body(ies) to Havok at t=", string.format("%.3f", st.t))
+  say(ply, "[mentat] released ", n, " body(ies) to Havok at t=", string.format("%.3f", st.t),
+    " in VACUUM (engine air drag off)")
+  if math.abs(st.rate - 1) > 1e-6 then
+    say(ply, string.format("[mentat] note: the replay was shown at %.3gx but Havok runs in real time, so the "
+      .. "released body moves at its true speed from here", st.rate))
+  end
 end)
 
 cmd("mentat_status", function(ply)

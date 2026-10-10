@@ -33,23 +33,35 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import lzma
 import math
+import re
 import sys
 from pathlib import Path
 
 FORMAT = "mentat-scenario/1"
 SUPPORTED_SHAPES = ("Sphere", "Box", "Cylinder")
 DEFAULT_GRAVITY = 9.80665
+NAME_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")   # same rule the Lua loader enforces (common.lua)
+CLIENT_LZMA_LIMIT = 60_000        # GMod refuses client Lua files over 64 KB compressed; keep headroom
+MASS_RANGE_KG = (0.1, 50_000.0)   # PhysObj:SetMass clamps to this range
+MAP_HALF_EXTENT_M = 16_384 * 0.01905 * 0.95   # Source map bound (+/-16384 HU) with 5 % margin
 DATA_DIR = Path(__file__).resolve().parent / "web" / "data"
 DEFAULT_OUT = Path(__file__).resolve().parents[2] / "stage" / "gmod" / "addon" / "lua" / "mentat" / "scenarios"
 _EPS = 1e-9
+
+# Surface materials this exporter may emit. Each was confirmed to exist in the real game by the autotest
+# (util.GetSurfaceIndex >= 0, 2026-10-10). "ceramic" is NOT one of them: GMod has no such name, and an
+# unknown name silently degrades to the default material. Ceramics map to "pottery" / "porcelain".
+VERIFIED_SURFACEPROPS = frozenset({"default", "metal", "pottery", "porcelain", "glass", "wood", "concrete", "rubber"})
 
 # First hint hit wins; the label is tried before the material (a "cast iron skillet"
 # built from ceramic-named layers is still iron to a player).
 _SURFACE_HINTS = (
     ("metal", ("iron", "steel", "copper", "alumin", "gold", "lead", "tungsten", "titanium",
                "brass", "bronze", "nickel", "silver", "anvil", "hammer", "skillet", "metal")),
-    ("ceramic", ("ceramic", "stoneware", "porcelain", "glaze", "mug", "cup", "plate", "vase", "bowl")),
+    ("porcelain", ("porcelain", "plate")),
+    ("pottery", ("ceramic", "stoneware", "glaze", "mug", "cup", "vase", "bowl")),
     ("glass", ("glass", "bottle")),
     ("wood", ("wood", "oak", "timber", "chair", "table")),
     ("concrete", ("concrete", "brick", "stone", "rock")),
@@ -103,6 +115,8 @@ def load_bundle(name_or_path: str | Path):
         raise ExportError(f"bundle not found: {p}")
     raw = p.read_bytes()
     bundle = json.loads(raw.decode("utf-8"))
+    if not isinstance(bundle, dict):
+        raise ExportError(f"{p.name}: not a bundle (top-level JSON is a {type(bundle).__name__}, expected an object)")
     return bundle, p.stem, hashlib.sha256(raw).hexdigest(), p
 
 
@@ -201,6 +215,7 @@ def _surfaceprop(label: str, materials) -> str:
     for text in [label.lower()] + [m.lower() for m in materials]:
         for prop, hints in _SURFACE_HINTS:
             if any(h in text for h in hints):
+                assert prop in VERIFIED_SURFACEPROPS, prop
                 return prop
     return "default"
 
@@ -299,9 +314,48 @@ def _dedupe_frames(frames, name, report):
             raise ExportError(f"{name}: frame times decrease ({prev['t_sim']!r} -> {f['t_sim']!r})")
     return out
 
+def _decimate(frames, k, report):
+    """Keep every k-th frame, always including the first and the last."""
+    if k <= 1 or len(frames) <= 2:
+        return frames
+    keep = list(range(0, len(frames), k))
+    if keep[-1] != len(frames) - 1:
+        keep.append(len(frames) - 1)
+    report["notes"].append(f"decimated by {k}: kept {len(keep)} of {len(frames)} frames; interpolation between "
+                           f"kept frames replaces the dropped ones, so fast motion loses fidelity")
+    return [frames[i] for i in keep]
+
+
+def _solid_inertia(shape, mass, pivot):
+    """Principal moments (kg m^2) about the pivot of ONE solid primitive of the given mass, assuming the
+    primitive's axes are the body axes. This is what Havok will derive from the exported hull."""
+    t = shape["type"]
+    if t == "Cylinder":
+        r, h = shape["radius"], shape["height"]
+        i = [mass * (3 * r * r + h * h) / 12, mass * (3 * r * r + h * h) / 12, 0.5 * mass * r * r]
+    elif t == "Box":
+        x, y, z = shape["size"]
+        i = [mass * (y * y + z * z) / 12, mass * (x * x + z * z) / 12, mass * (x * x + y * y) / 12]
+    else:
+        i = [0.4 * mass * shape["radius"] ** 2] * 3
+    ox, oy, oz = (shape["center"][a] - pivot[a] for a in range(3))      # parallel-axis shift to the pivot
+    return [i[0] + mass * (oy * oy + oz * oz), i[1] + mass * (ox * ox + oz * oz), i[2] + mass * (ox * ox + oy * oy)]
+
+
 # --------------------------------------------------------------------------- export
-def export_scenario(bundle: dict, name: str, source_label: str = "", sha256: str = ""):
-    """Return (lua_text, report). Raises ExportError rather than degrade silently."""
+def export_scenario(bundle: dict, name: str, source_label: str = "", sha256: str = "", *,
+                    decimate: int = 1, allow_large: bool = False):
+    """Return (lua_text, report). Raises ExportError rather than degrade silently.
+
+    decimate=K keeps every K-th frame (always the first and last): the knob for a scenario whose
+    compressed size would exceed GMod's 64 KB client-file limit. allow_large exports it anyway
+    (the server can replay it but clients will not be able to load the geometry).
+    """
+    if not isinstance(bundle, dict):
+        raise ExportError(f"{name}: not a bundle (expected a JSON object)")
+    if not NAME_PATTERN.match(str(name)):
+        raise ExportError(f"scenario name {name!r} must match [A-Za-z0-9_-]+ (the Lua loader and AddCSLuaFile "
+                          f"reject anything else); pass a clean name")
     if bundle.get("kind") != "trajectory":
         raise ExportError(f"{name}: kind={bundle.get('kind')!r}; only 'trajectory' bundles replay "
                           f"(static scene displays are a later phase)")
@@ -313,6 +367,7 @@ def export_scenario(bundle: dict, name: str, source_label: str = "", sha256: str
     notes_pre: list[str] = []
     pre = {"notes": notes_pre}
     frames = _dedupe_frames(frames, name, pre)
+    frames = _decimate(frames, int(decimate), pre)
     nbody = len(frames[0]["bodies"])
     labels = traj.get("body_labels") or [b.get("label", f"body{i}") for i, b in enumerate(scene.get("bodies") or [])]
     if len(labels) < nbody:
@@ -365,6 +420,20 @@ def export_scenario(bundle: dict, name: str, source_label: str = "", sha256: str
         if mass is None:
             report["warnings"].append(f"body {k} ({label}): no mass in bundle; Lua will estimate from volume")
         surfaceprop = _surfaceprop(label, {s["material"] for s in shapes if s.get("material")})
+        if mass is not None and not (MASS_RANGE_KG[0] <= mass <= MASS_RANGE_KG[1]):
+            report["notes"].append(f"body {k} ({label}): mass {mass:.6g} kg is outside GMod's PhysObj range "
+                                   f"{MASS_RANGE_KG}; it will be clamped and released motion will be wrong")
+        bundle_inertia = sphys.get("inertia_kgm2") if nbody == 1 else None
+        if mass is not None and bundle_inertia and len(shapes) == 1:
+            solid = _solid_inertia(shapes[0], mass, pivot)
+            ratios = [abs(a / b - 1) for a, b in zip(solid, bundle_inertia) if b]
+            worst = max(ratios) if ratios else 0.0
+            if worst > 0.05:
+                report["notes"].append(
+                    f"body {k} ({label}): the exported SOLID hull has principal moments "
+                    f"{[round(v, 5) for v in solid]} kg m^2 but the bundle says {[round(v, 5) for v in bundle_inertia]} "
+                    f"({worst * 100:.0f}% off): the bundle is a hollow/layered object that Havok will treat as solid, "
+                    f"so a released body will rotate with the wrong inertia")
 
         track = []
         for f in frames:
@@ -374,6 +443,22 @@ def export_scenario(bundle: dict, name: str, source_label: str = "", sha256: str
             if stride == 8:
                 track.append(float(b["temperature_k"]))
         body_blocks.append((label, mass, pivot, surfaceprop, shapes, track))
+
+    # extent of everything the replay can touch, in the sigma frame (metres), so Load can refuse a
+    # scenario that cannot fit inside Source's map at 1:1
+    allpos = [(track[i], track[i + 1], track[i + 2]) for *_, track in body_blocks for i in range(0, len(track), stride)]
+    bbox_lo = [min(p[a] for p in allpos) for a in range(3)]
+    bbox_hi = [max(p[a] for p in allpos) for a in range(3)]
+    max_radius = 0.0
+    for *_, shapes_k, _t in body_blocks:
+        for sh in shapes_k:
+            (lo, hi) = _bounds(sh)
+            max_radius = max(max_radius, max(math.dist(lo, hi) / 2, 0.0))
+    span = max(bbox_hi[a] - bbox_lo[a] for a in range(3))
+    if span + 2 * max_radius > 2 * MAP_HALF_EXTENT_M:
+        report["warnings"].append(f"the scenario spans {span:.4g} m, more than Source's ~{2 * MAP_HALF_EXTENT_M:.0f} m map: "
+                                  f"the stage will refuse to load it at 1:1 (needs Phase 4 scaling)")
+    report["span_m"] = span
 
     # ---- emit
     L = []
@@ -395,6 +480,8 @@ def export_scenario(bundle: dict, name: str, source_label: str = "", sha256: str
     w(f"  natural_timescale = {_num(traj.get('natural_timescale_s', times[-1]))},")
     w(f"  suggested_rate = {_num(traj.get('suggested_rate', 1.0))},")
     w(f"  stride = {stride},")
+    w(f"  bbox_m = {{{_vec(bbox_lo)}, {_vec(bbox_hi)}}},")
+    w(f"  max_body_radius_m = {_num(max_radius)},")
     w("  times = {" + ", ".join(_num(t) for t in times) + "},")
     w("  bodies = {")
     for label, mass, pivot, surfaceprop, shapes, track in body_blocks:
@@ -428,19 +515,29 @@ def export_scenario(bundle: dict, name: str, source_label: str = "", sha256: str
     w("}")
     text = "\n".join(L) + "\n"
 
-    report.update(stride=stride, t_end=traj.get("t_end_s", times[-1]), bytes=len(text.encode("utf-8")),
+    raw = text.encode("utf-8")
+    lz = len(lzma.compress(raw, preset=6))
+    report.update(stride=stride, t_end=traj.get("t_end_s", times[-1]), bytes=len(raw), client_bytes_lzma=lz,
                   shapes=[[s["type"] for s in b[4]] for b in body_blocks])
+    if lz > CLIENT_LZMA_LIMIT:
+        msg = (f"{name}: compresses to {lz} bytes, over GMod's ~64 KB client Lua file limit "
+               f"(headroom limit {CLIENT_LZMA_LIMIT}); the client would silently get no geometry")
+        if not allow_large:
+            raise ExportError(msg + ". Re-export with --decimate K to thin the frames, or --allow-large to "
+                                    "accept an invisible-on-clients scenario")
+        report["warnings"].append(msg + " (exported anyway: --allow-large)")
     return text, report
 
 
-def export_file(name_or_path, out_dir: Path | None = None, write: bool = True):
+def export_file(name_or_path, out_dir: Path | None = None, write: bool = True, *, decimate: int = 1,
+                allow_large: bool = False):
     bundle, name, sha, path = load_bundle(name_or_path)
     try:
         rel = path.relative_to(Path(__file__).resolve().parents[1])
         label = str(rel).replace("\\", "/")
     except ValueError:
         label = path.name
-    text, report = export_scenario(bundle, name, label, sha)
+    text, report = export_scenario(bundle, name, label, sha, decimate=decimate, allow_large=allow_large)
     out_path = None
     if write:
         out_dir = Path(out_dir) if out_dir else DEFAULT_OUT
@@ -456,11 +553,16 @@ def main(argv=None) -> int:
     ap.add_argument("bundles", nargs="+", help="bundle name (in radiance/web/data) or path to a .json")
     ap.add_argument("--out", help=f"output directory (default: {DEFAULT_OUT})")
     ap.add_argument("--report-only", action="store_true", help="dry run: validate and report, write nothing")
+    ap.add_argument("--decimate", type=int, default=1, metavar="K",
+                    help="keep every K-th frame (first and last always kept) to fit GMod's 64 KB client file limit")
+    ap.add_argument("--allow-large", action="store_true",
+                    help="write a scenario even if clients could not load it (server-only replay)")
     args = ap.parse_args(argv)
     rc = 0
     for b in args.bundles:
         try:
-            _, rep = export_file(b, args.out, write=not args.report_only)
+            _, rep = export_file(b, args.out, write=not args.report_only, decimate=args.decimate,
+                                 allow_large=args.allow_large)
         except ExportError as e:
             print(json.dumps({"name": str(b), "error": str(e)}, indent=2))
             rc = 1

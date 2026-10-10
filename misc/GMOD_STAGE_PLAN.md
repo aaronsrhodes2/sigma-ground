@@ -313,7 +313,7 @@ release, HUD, autotest); independent grader `stage/gmod/verify_autotest.py`; 35 
    (`clock`, `escapement_clock`, `gear_mesh`, `gear_train`, `motor_spin`, `windmill_*`). The
    exporter collapses exact duplicates and refuses two different poses at one timestamp.
 
-**Measured exportability (dry run over all 87 trajectory bundles, counted by script)**
+**Measured exportability (dry run over all 86 trajectory bundles, counted by script; 4 of the 48 that export are then refused by the 64 KB client-file guard, leaving 44)**
 
 | Result | Count | Bundles |
 |---|---|---|
@@ -341,3 +341,28 @@ continuum, and `impact.py` returns scalars. A scenario can therefore never show 
 break. GMod has no real deformation either (Deformator-style mesh swaps only), so this is a
 sigma-ground capability to design, with a per-vertex or per-cell displacement channel
 alongside the existing temperature channel, not something the stage will supply.
+
+### Phase 0 closed: verified in the real game (2026-10-10)
+
+The Phase 0 done criterion is met, graded by an independent Python verifier (`stage/gmod/verify_autotest.py`)
+that uses its own frame math, on `fall_skillet` (a falling cylinder) and `motor_spin` (a spinning disc):
+
+- **Replay** matches the bundle to 5e-7 HU and to 1e-5 degrees on a rotating body, and the physics object
+  follows the entity exactly. Screenshots (`render.Capture`, aimed at the body) show it drawn and lit.
+- **Release** hands the body to Havok. With Source's air drag and its 0.1/s linear damping removed, the
+  fall matches the engine's own semi-implicit Euler step to 5e-5 HU. A disc released at 4.006 rad/s keeps
+  spinning at 3.982 rad/s about the same axis.
+- **Review findings fixed**: angular velocity is now projected into the body's local frame (the engine takes
+  local-frame deg/s, measured); a body that fails to build is detected at load; `ceramic` was not a valid
+  surface name (now `pottery`/`porcelain`); scenarios over the 64 KB client limit are refused, with a
+  `--decimate` option; scenarios wider than Source's map are refused at load; the physgun release is
+  admin-gated; NaN rates are rejected; the autotest no longer calls the blocked `quit`.
+- **Correction to section 14, item 3**: the skillet bundle is a *hollow open vessel* (4 mm wall), not a solid
+  cylinder. GMod shows and simulates it as a solid puck of the same mass; the exporter now flags the 41 %
+  inertia mismatch instead of leaving it silent.
+- **Nine of the exportable bundles cannot run at 1:1** (km-scale falls, spans of 1 km to 40 km) and wait for
+  Phase 4 scaling. This corrects the class A/F inventory in section 6.
+- **Shutdown** is solved: `stage/gmod/gmod_ctl.sh stop` posts `SC_CLOSE`, which ends the whole process tree
+  in 1 to 8 s. `quit` from Lua is blocked and a plain window close is ignored.
+
+Next: the scenario set that exercises every Mentat tool is in `misc/GMOD_COVERAGE_PLAN.md`.

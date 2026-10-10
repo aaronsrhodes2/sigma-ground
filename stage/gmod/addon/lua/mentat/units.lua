@@ -140,6 +140,22 @@ function M.sigma_pos(up, x, y, z, scale, floor_m)
          W[1][3] * v[1] + W[2][3] * v[2] + W[3][3] * v[3]
 end
 
+--- The vector PhysObj:SetAngleVelocityInstantaneous wants for a body spinning at `omega`.
+-- MEASURED in the engine (stage/gmod/verify_probe.py, 2026-10-10): the components are degrees per
+-- second about the body's LOCAL forward (+X), left (+Y) and up (+Z) axes, right-hand sign. It is
+-- NOT a world-frame vector, so a world-frame spin must be projected onto the body's own axes.
+--   omega : {wx,wy,wz} rad/s in the SIGMA world frame
+--   q     : the body's sigma orientation {x,y,z,w} at the moment of release
+-- Returns three numbers (deg/s about local forward, left, up).
+function M.local_angvel_deg(up, omega, q)
+  local w = mat_vec(world_matrix(up), omega)           -- Source world, rad/s
+  local f, l, u = M.entity_axes(up, q)
+  local k = 180 / pi
+  return (w[1] * f[1] + w[2] * f[2] + w[3] * f[3]) * k,
+         (w[1] * l[1] + w[2] * l[2] + w[3] * l[3]) * k,
+         (w[1] * u[1] + w[2] * u[2] + w[3] * u[3]) * k
+end
+
 --- World-frame angular velocity (rad/s, SIGMA frame) taking q0 -> q1 over dt seconds.
 function M.angular_velocity(q0, q1, dt)
   if dt <= 0 then return 0, 0, 0 end

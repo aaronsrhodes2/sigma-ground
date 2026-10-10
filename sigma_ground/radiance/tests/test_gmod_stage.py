@@ -370,3 +370,116 @@ def test_duplicate_final_frames_are_collapsed_and_reported():
 def test_generated_lua_strings_never_use_lua51_invalid_escapes():
     s = export_gmod._str('a"b\\c\n\x01 é')
     assert "\\u" not in s and "\\001" in s and "é" in s
+
+
+# ------------------------------------------------- angular velocity handed to the engine (LOCAL frame)
+@pytest.mark.parametrize("up", ["y", "z"])
+def test_local_angvel_is_the_world_spin_projected_on_the_body_axes(up):
+    """The engine takes deg/s about the body's own forward/left/up (measured by the probe). The oracle is
+    local = R^T * omega in the sigma frame, because rotating both vectors into Source preserves dot products."""
+    rt = _rt()
+    U = _mod(rt, "units")
+    rng = random.Random(21)
+    for _ in range(200):
+        q = _rand_quat(rng)
+        w = [rng.uniform(-9, 9) for _ in range(3)]
+        R = _rot(q)
+        want = [math.degrees(sum(R[r][c] * w[r] for r in range(3))) for c in range(3)]
+        got = tuple(U.local_angvel_deg(up, _t(rt, w), _t(rt, q)))
+        assert got == pytest.approx(tuple(want), abs=1e-9)
+
+
+def test_local_angvel_differs_from_the_world_vector_when_the_body_is_tilted():
+    """The bug this guards: passing the WORLD vector. A body tilted 90 deg about x, spinning about
+    the world vertical, must be told to spin about its own (rotated) axis."""
+    rt = _rt()
+    U = _mod(rt, "units")
+    q = [math.sin(math.pi / 4), 0, 0, math.cos(math.pi / 4)]           # +90 deg about sigma x
+    got = tuple(U.local_angvel_deg("z", _t(rt, [0, 0, 1.0]), _t(rt, q)))
+    # rolled +90 deg about x, the body's local +y axis points along world +z, so a world-z spin is a local +y spin
+    assert got == pytest.approx((0, math.degrees(1.0), 0), abs=1e-9)
+    world = tuple(U.world_vec("z", _t(rt, [0, 0, 1.0])).values())
+    assert world == pytest.approx((0, 0, 1.0))                           # what the old code sent
+
+
+# ----------------------------------------------------------------- exporter guards (no Lua needed)
+def test_scenario_names_are_validated():
+    bundle, name, sha, _ = export_gmod.load_bundle("fall_skillet")
+    for bad in ("has space", "dot.name", "../escape", "", "ünï"):
+        with pytest.raises(export_gmod.ExportError, match="must match"):
+            export_gmod.export_scenario(bundle, bad)
+    export_gmod.export_scenario(bundle, "ok_name-1")
+
+
+def test_non_object_json_is_a_clean_error_not_a_traceback(tmp_path):
+    f = tmp_path / "list_bundle.json"
+    f.write_text("[1, 2, 3]", encoding="utf-8")
+    with pytest.raises(export_gmod.ExportError, match="not a bundle"):
+        export_gmod.load_bundle(f)
+    assert export_gmod.main([str(f), "--report-only"]) == 1             # CLI reports it, does not crash
+    with pytest.raises(export_gmod.ExportError, match="not a bundle"):
+        export_gmod.export_scenario([1, 2], "x")
+
+
+def test_a_scenario_too_big_for_clients_is_refused_then_fixable_by_decimation():
+    bundle, name, sha, _ = export_gmod.load_bundle("phase_e_ring_nbody")
+    with pytest.raises(export_gmod.ExportError, match="compresses to"):
+        export_gmod.export_scenario(bundle, name, name, sha)
+    text, rep = export_gmod.export_scenario(bundle, name, name, sha, decimate=2)
+    assert rep["client_bytes_lzma"] <= export_gmod.CLIENT_LZMA_LIMIT
+    assert any("decimated by 2" in n for n in rep["notes"])
+    n_all = len(bundle["trajectory"]["frames"])
+    assert rep["frames"] == (n_all + 1) // 2 + (0 if (n_all - 1) % 2 == 0 else 1) or rep["frames"] < n_all
+    _, rep2 = export_gmod.export_scenario(bundle, name, name, sha, allow_large=True)
+    assert any("exported anyway" in w for w in rep2["warnings"])
+
+
+def test_decimation_always_keeps_the_first_and_last_frame():
+    notes = {"notes": []}
+    frames = [{"t_sim": float(i)} for i in range(10)]
+    assert [f["t_sim"] for f in export_gmod._decimate(frames, 4, notes)] == [0.0, 4.0, 8.0, 9.0]
+    assert export_gmod._decimate(frames, 1, notes) is frames
+
+
+def test_scenarios_that_cannot_fit_the_source_map_are_flagged_and_carry_their_extent():
+    bundle, name, sha, _ = export_gmod.load_bundle("falling_copper_ball")
+    text, rep = export_gmod.export_scenario(bundle, name, name, sha)
+    assert any("spans" in w and "Source" in w for w in rep["warnings"]) and rep["span_m"] > 900
+    assert "bbox_m = {" in text and "max_body_radius_m" in text
+    _, skillet = export_gmod.export_scenario(*_skillet_args())
+    assert not any("spans" in w for w in skillet["warnings"])
+
+
+def _skillet_args():
+    b, n, sha, _ = export_gmod.load_bundle("fall_skillet")
+    return b, n, n, sha
+
+
+def test_mass_outside_the_physobj_range_is_reported():
+    bundle, name, sha, _ = export_gmod.load_bundle("mach_2_projectile")      # a 0.02 kg slug
+    _, rep = export_gmod.export_scenario(bundle, name, name, sha)
+    assert any("outside GMod" in n and "clamped" in n for n in rep["notes"])
+
+
+def test_a_hollow_bundle_exported_as_a_solid_hull_is_called_out():
+    """The skillet bundle is an open vessel (4 mm wall); Havok will treat the hull as solid."""
+    _, rep = export_gmod.export_scenario(*_skillet_args())
+    note = next(n for n in rep["notes"] if "SOLID hull" in n)
+    assert "41% off" in note or "% off" in note
+
+
+def test_every_surface_property_the_exporter_can_emit_is_one_the_game_knows():
+    """util.GetSurfaceIndex confirmed these in the real game; 'ceramic' returned -1 (an unknown name silently
+    degrades to the default material)."""
+    assert "ceramic" not in export_gmod.VERIFIED_SURFACEPROPS
+    emitted = {prop for prop, _ in export_gmod._SURFACE_HINTS} | {"default"}
+    assert emitted <= export_gmod.VERIFIED_SURFACEPROPS
+    assert export_gmod._surfaceprop("coffee cup", {"ceramic", "glaze"}) == "pottery"
+    assert export_gmod._surfaceprop("dinner plate", set()) == "porcelain"
+    assert export_gmod._surfaceprop("cast iron skillet", {"ceramic"}) == "metal"      # label wins over layer names
+    for name in ("fall_cup", "falling_coffee_cup", "fall_glass", "fall_skillet"):
+        bundle, n, sha, _ = export_gmod.load_bundle(name)
+        text, _ = export_gmod.export_scenario(bundle, n, n, sha)
+        for line in text.splitlines():
+            if "surfaceprop" in line:
+                assert line.split('"')[1] in export_gmod.VERIFIED_SURFACEPROPS, (name, line)
