@@ -3317,3 +3317,42 @@ Both failed before the fix and pass after it. MCP + benchmark + layering: 163 pa
 - the out-of-range decline, and the caveat case.
 All 3 new tests failed before the fix. Verified through the real stdio server. 284 passed (+ known-red
 `test_targets.py`), Materia 52 passed (the drag-heating test is excluded; see finding 7).
+
+## Session 37 (continued) — 2026-10-10 — atomic_angular_momentum fixed (finding 3)
+
+### Cause
+- `field/interface/angular_momentum.angular_momentum_z_values(j)` built m_j with `m = -j; while m <= j: m += 1`
+  and never checked j:
+  - j = 1.3 gave m = −1.3, −0.3, 0.7;
+  - a negative j silently gave [];
+  - j = 3e8 enumerated 6e8 floats, and j = inf looped forever. Both OOM-killed the process at ~14 GB.
+    (Writing the tests reproduced this twice in this container, killing pytest each time; no lasting harm.)
+- `multiplicity` truncated non-physical j (`int(2·1.3 + 1)` = 3).
+- The MCP tool passed `total_j` straight through. It also computed a spin-orbit energy for ANY J, although its
+  term is fixed at ²D (L=2, S=½), whose only levels are J = 3/2 and 5/2 (J = 3e8 → "2.25e15 eV").
+
+### Fix
+- Library: `check_quantum_number(j)` accepts only finite non-negative integers or half-integers, snapping float
+  noise; anything else raises ValueError. It is used by `angular_momentum_magnitude`,
+  `angular_momentum_z_values` (now built by index, so exact) and `multiplicity`.
+- Tool (`mcp/tools/rotation.py`):
+  - declines a non-physical `total_j` or a non-finite `spin_orbit_constant_ev`, echoing nan/inf as text so the
+    reply stays valid JSON;
+  - reports `multiplicity`, and lists m_j only up to 101 values, giving the range otherwise;
+  - computes E_SO only for the term's levels, with a note for any other J.
+- Name and schema unchanged, so the router surface hash is unchanged.
+
+### Guard
+- `test_angular_momentum.TestQuantumNumberValidation`: rejection of 1.3 / −0.5 / −1 / nan / inf by all three
+  functions; exact m_j lists for j = 0 … 100.5; float-noise snapping.
+- `mcp/test_rotation_tools.py` (new):
+  - J = 3e8 answers in < 2 s without enumerating;
+  - non-physical J and A decline, with strict-JSON replies;
+  - ²D levels give E_SO = −0.075 / +0.05 eV at A = 0.05;
+  - J = 4.5 gives no E_SO, with a note.
+- Real server: J = 3e8 in 0.02 s. 300 passed (+ known-red `test_targets.py`); Materia 52 passed.
+
+### New finding
+- 8. `zeeman_effect_analysis` uses `atomic_spectra.zeeman_splitting_count`, the same unchecked
+  `int(2j + 1)`: j = 1.3 → 3 sublevels, j = −2 → −3. No memory risk (a count, not a list), and
+  `check_quantum_number` can be reused there.

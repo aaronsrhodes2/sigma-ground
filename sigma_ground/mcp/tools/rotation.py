@@ -95,26 +95,75 @@ def rotational_dynamics(mass_kg: float, radius_m: float, angle_deg: float = 30.0
                               "angular_velocity_rad_s": angular_velocity_rad_s}).to_dict()
 
 
+# m_j is listed up to j = 50 (101 values); beyond that only the count and the
+# range are reported. j = 3e8 used to enumerate 6e8 values and OOM the server.
+_MAX_LISTED_MJ = 101
+
+
+def _echo(x):
+    """An input as JSON can carry it: nan/inf become their repr."""
+    try:
+        return x if math.isfinite(float(x)) else repr(x)
+    except (TypeError, ValueError):
+        return repr(x)
+
+
 def atomic_angular_momentum(total_j: float = 1.5,
                             spin_orbit_constant_ev: float = 0.05) -> dict[str, Any]:
     """Atomic angular momentum: |J| magnitude and allowed m_j values, plus
     spin-orbit coupling energy/splitting and the Lande interval check for a
-    term (L=2, S=1/2). e.g. atomic_angular_momentum(1.5)."""
+    term (L=2, S=1/2). e.g. atomic_angular_momentum(1.5).
+
+    total_j must be a non-negative integer or half-integer. The spin-orbit
+    energy exists only for the term's levels (J = 3/2 or 5/2); for any other J
+    it is left out with a note rather than computed for a level that isn't
+    there.
+    """
     from sigma_ground.field.interface import angular_momentum as AM
     L, S = 2, 0.5
+    inputs = {"total_j": _echo(total_j), "spin_orbit_constant_ev": _echo(spin_orbit_constant_ev)}
+
+    def decline(note):
+        return ToolResult(value=None, units="J.s / eV", source=_SRC,
+                          provenance_tag="DERIVED", notes=note, inputs=inputs).to_dict()
+
+    try:
+        j = AM.check_quantum_number(total_j)
+    except (TypeError, ValueError) as e:
+        return decline(f"total_j must be a non-negative integer or half-integer "
+                       f"(0, 1/2, 1, 3/2, ...): {e}")
+    try:
+        a_ev = float(spin_orbit_constant_ev)
+    except (TypeError, ValueError):
+        a_ev = float("nan")
+    if not math.isfinite(a_ev):
+        return decline(f"spin_orbit_constant_ev must be a finite number; got {spin_orbit_constant_ev!r}")
+
+    n_states = AM.multiplicity(j)
+    levels = AM.allowed_J_values(L, S)
+    is_level = any(abs(j - J) < 1e-9 for J in levels)
     _raw = {
-        "magnitude_J_s": _safe_call(AM.angular_momentum_magnitude, total_j),
-        "m_j_values": _safe_call(AM.angular_momentum_z_values, total_j),
-        "spin_orbit_energy_eV": _safe_call(AM.spin_orbit_energy_eV, spin_orbit_constant_ev, L, S, total_j),
-        "spin_orbit_splitting_eV": _safe_call(AM.spin_orbit_splitting_eV, spin_orbit_constant_ev, L, S),
-        "lande_interval_check": _safe_call(AM.lande_interval_check, spin_orbit_constant_ev, L, S),
+        "magnitude_J_s": _safe_call(AM.angular_momentum_magnitude, j),
+        "m_j_values": (_safe_call(AM.angular_momentum_z_values, j)
+                       if n_states <= _MAX_LISTED_MJ else (None, None)),
+        "spin_orbit_energy_eV": (_safe_call(AM.spin_orbit_energy_eV, a_ev, L, S, j)
+                                 if is_level else (None, None)),
+        "spin_orbit_splitting_eV": _safe_call(AM.spin_orbit_splitting_eV, a_ev, L, S),
+        "lande_interval_check": _safe_call(AM.lande_interval_check, a_ev, L, S),
         "spin_expectation_z": _safe_call(AM.spin_expectation, 0.6, 0.8),
     }
     results = {k: v for k, (v, e) in _raw.items()}
+    results["multiplicity"] = n_states
     errors = {k: e for k, (v, e) in _raw.items() if e}
+    notes = [n for n in [_notes_from_errors(errors)] if n]
+    if n_states > _MAX_LISTED_MJ:
+        notes.append(f"m_j runs from {-j:g} to {j:g} in steps of 1: {n_states} values, "
+                     f"not listed above {_MAX_LISTED_MJ}")
+    if not is_level:
+        notes.append(f"J = {j:g} is not a level of the term (L=2, S=1/2 has J = "
+                     f"{' or '.join(f'{J:g}' for J in levels)}), so spin_orbit_energy_eV "
+                     f"is not computed")
     return ToolResult(value=results, units="J.s / eV", source=_SRC,
                       provenance_tag="DERIVED",
                       formula="|J|=hbar sqrt(j(j+1)); E_SO=(A/2)[J(J+1)-L(L+1)-S(S+1)]",
-                      notes=_notes_from_errors(errors),
-                      inputs={"total_j": total_j,
-                              "spin_orbit_constant_ev": spin_orbit_constant_ev}).to_dict()
+                      notes=" | ".join(notes), inputs=inputs).to_dict()

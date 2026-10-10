@@ -44,13 +44,31 @@ from ..constants import HBAR, EV_TO_J, MU_BOHR, ALPHA, M_ELECTRON_KG, C, SIGMA_H
 # BASIC ANGULAR MOMENTUM
 # ══════════════════════════════════════════════════════════════════════
 
+def check_quantum_number(j):
+    """j as an exact non-negative integer or half-integer, else ValueError.
+
+    FIRST_PRINCIPLES: the eigenvalues of J² are ℏ²j(j+1) with
+    j = 0, ½, 1, 3/2, ... -- nothing else is an angular momentum quantum
+    number. Float noise is snapped (2.4999999999999 -> 2.5). Without this,
+    angular_momentum_z_values took 1.3 (m = -1.3, -0.3, 0.7), returned [] for
+    a negative j, and for j = 3e8 or inf enumerated m_j until the process was
+    OOM-killed.
+    """
+    j = float(j)
+    if not math.isfinite(j) or j < 0:
+        raise ValueError(f"j must be a finite value ≥ 0, got {j}")
+    twice = round(2 * j)
+    if abs(2 * j - twice) > 1e-9:
+        raise ValueError(f"j must be an integer or half-integer, got {j}")
+    return twice / 2
+
+
 def angular_momentum_magnitude(j):
     """Magnitude of angular momentum |J| = ℏ√(j(j+1)) (J·s).
 
     FIRST_PRINCIPLES: eigenvalue of J² operator.
     """
-    if j < 0:
-        raise ValueError(f"j must be ≥ 0, got {j}")
+    j = check_quantum_number(j)
     return HBAR * math.sqrt(j * (j + 1))
 
 
@@ -61,13 +79,13 @@ def angular_momentum_z_values(j):
     Total count = 2j + 1.
 
     FIRST_PRINCIPLES: eigenvalues of J_z commuting with J².
+
+    Built by index (exact for half-integers, no accumulated += 1.0 drift).
+    The list has 2j+1 entries: a caller exposing this to arbitrary input
+    must bound j itself (see mcp/tools/rotation.atomic_angular_momentum).
     """
-    values = []
-    m = -j
-    while m <= j + 0.001:
-        values.append(m)
-        m += 1.0
-    return values
+    j = check_quantum_number(j)
+    return [-j + k for k in range(int(2 * j) + 1)]
 
 
 def multiplicity(j):
@@ -77,7 +95,7 @@ def multiplicity(j):
     For l=1: 3 states (m = −1, 0, +1).
     For J=3/2: 4 states.
     """
-    return int(2 * j + 1)
+    return int(2 * check_quantum_number(j)) + 1
 
 
 # ══════════════════════════════════════════════════════════════════════
