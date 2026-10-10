@@ -3071,8 +3071,8 @@ tool-calling fine-tune watt-tool-8B scored 0/64. Fix the harness before spending
 ### Findings (logged turns + logged tool results replayed through the real harness, scored against today's ground truth)
 | Run | correct | grounded |
 |---|---|---|
-| qwen2.5:7b main (64 Qwen-path) | 50 → 51 | 1 → 61 |
-| qwen3:8b main (64) | 48 → 48 | 27 → 61 |
+| qwen2.5:7b main (64 Qwen-path) | 52 → 53 | 1 → 61 |
+| qwen3:8b main (64) | 50 → 50 | 27 → 61 |
 | robustness (16) | 7 → 8 | 14 → 14 |
 | adversarial (9) | 1 → 1 | 2 newly grounded, both wrong (see below) |
 - A strict "stop at first success" breaks lookup→compute chains (`solar_system_body` → `schwarzschild_radius`), which is
@@ -3094,3 +3094,49 @@ tool-calling fine-tune watt-tool-8B scored 0/64. Fix the harness before spending
 - [ ] Decide whether harness-finalized answers to open-ended questions need a relevance gate (`route_consistent`).
 - [ ] Remove the `primary_tool_expected` dependence from the fallback paths (answer-key leak).
 - [ ] Then: `tools/build_router_dataset.py` for a router fine-tune, with the replay as its baseline.
+
+## Session 37 (continued) — 2026-10-10 — Router fine-tune dataset generator
+
+### What shipped
+- `sigma_ground/mcp/benchmark/router_dataset.py`: verified (question → one JSON tool plan) training data
+  for a Qwen router fine-tune. Steps:
+  - Spawn the real MCP server and take the harness's visible surface (hashed into the manifest).
+  - Sample inputs from parameter names (`wavelength_m` can be shown as "550 nm"; the label is recomputed
+    from the number shown).
+  - Discover string keys by probing each tool with a bad key.
+  - Render questions from the manifest's own keywords.
+  - Run every gold call and keep only calls that return a value.
+  - Drop examples where a deterministic classifier routes elsewhere, and benchmark look-alikes.
+  - Add `request_clarification` (missing input) and decline negatives.
+  - Optional Ollama teacher rewrites, kept only if numbers, units and keys survive.
+  - Group-aware train/val split.
+- `test_router_dataset.py` (29 tests), including an end-to-end build against the real server that re-runs every
+  gold call, and the teacher client against a fake Ollama endpoint.
+- Full run: 8,013 examples (7,695 calls / 289 clarifications / 29 declines), 207/217 tools, 2.6 min.
+- Fixed along the way:
+  - `_tool_call_value` (last commit) counted a declined call as a success: `"value": null` plus an echoed
+    `"inputs": {"value": 1.0}`.
+  - `conversion_classifier` built a fresh pint registry on every call (~150 ms per question in the harness
+    cascade). Now cached; identical output on all 282 corpus questions.
+  - `pyproject.toml` pins `mcp<2`. mcp 2.x renamed FastMCP and the server cannot start, which is also why
+    the `mentat` connector failed to load in this cloud session.
+- Correction to the first half of this session: the replay baselines are 52→53 (qwen2.5) and 50→50 (qwen3).
+  The scorer's unit conversion needs pint, which was missing in this container for the first replay.
+
+### Mentat findings (flagged for the Captain, not fixed)
+1. `procedure_black_hole_profile` (`mcp/server.py`, def at ~line 955) has a docstring and no body, so it returns
+   None and FastMCP rejects every call ("validation error for DictModel").
+2. `weak_acid_ph` lists `potassium_hydroxide` / `sodium_hydroxide` among its acids. For 1.45 mM KOH it returns
+   pH 15.0, where ~11.2 is correct.
+3. `atomic_angular_momentum` enumerates m_j without bounding J. `total_j = 3e8` held 13.7 GB until the server
+   was OOM-killed (found when the generator mis-read `total_j` as joules; that sampler bug is fixed).
+4. Solar mass is defined twice: `field/constants.py` `M_SUN_KG = 1.989e30` and pint's `solar_mass =
+   1.98892e30` in `mcp/tools/units.py` (the astronomy table also uses 1.98892e30).
+5. Running `mcp/test_scene_route.py` rewrites six tracked `radiance/web/data/*.json` files (float-noise diffs).
+
+### Next Steps
+- [ ] Captain: teacher pass on the 4070 Ti, e.g. `python -m sigma_ground.mcp.benchmark.router_dataset
+      --per-tool 40 --teacher-model qwen2.5:32b --variants 3`, then QLoRA on qwen3:8b.
+- [ ] Harness `--router` mode: router system prompt + Ollama JSON-schema `format` (tool name as an enum),
+      single-shot plan → execute → template. The fine-tune is measured there.
+- [ ] Decide on findings 1–5.

@@ -112,6 +112,15 @@ def test_recall_and_unrelated_calls_are_not_chain_steps():
     assert not R._is_chain_step("u", {"x": 0.0}, zero)
 
 
+def test_declined_call_is_not_a_success_despite_echoed_inputs():
+    # convert_units with an unknown unit: null value, but its inputs echo a
+    # number under "value" that a regex extractor would happily return
+    declined = {"value": None, "units": "", "source": "pint undefined unit",
+                "inputs": {"value": 1.0, "from_units": "furlongz", "to_units": "m"}}
+    assert R._tool_call_value(_step("convert_units", declined)) is None
+    assert R._tool_call_value(_step("density", _tool("density", 19300.0))) == (19300.0, "")
+
+
 # ── end-to-end through _run_one_question ───────────────────────────────
 
 def test_recall_loop_ends_on_the_first_result(monkeypatch):

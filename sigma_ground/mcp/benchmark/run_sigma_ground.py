@@ -580,7 +580,7 @@ def _value_matches_any_tool(text_val: float, tool_values: list[float],
 # (solar_system_body -> its mass_kg -> schwarzschild_radius). Anything else
 # (text, a re-call, an unrelated call, a failed step) ends the question on the
 # chain's last result, reported verbatim. Replay vs the logged runs: correct
-# 50->51 (qwen2.5) / 48->48 (qwen3: two won, two lost), grounded 1->61 /
+# 52->53 (qwen2.5) / 50->50 (qwen3: two won, two lost), grounded 1->61 /
 # 27->61. Grounded still means "a tool produced it", not "the right tool".
 _MAX_CHAIN_STEPS = 3
 _CHAIN_MATCH_TOL_REL = 1e-2     # a model re-typing 1.98892e30 as 1.989e30 still links
@@ -588,7 +588,17 @@ _CHAIN_MATCH_TOL_REL = 1e-2     # a model re-typing 1.98892e30 as 1.989e30 still
 
 def _tool_call_value(tc: dict, question: str = "") -> tuple[Any, str] | None:
     """(value, units) from ONE tool call that succeeded, else None."""
-    if (tc.get("result_text") or "").startswith("<TOOL"):
+    text = tc.get("result_text") or ""
+    if text.startswith("<TOOL"):
+        return None
+    try:
+        parsed = json.loads(text)
+    except ValueError:
+        parsed = None
+    # A null top-level value is the tool declining; the regex extractor would
+    # otherwise find the echoed input ("inputs": {"value": 1.0}) and call it a
+    # result -- convert_units with an unknown unit does exactly this.
+    if isinstance(parsed, dict) and parsed.get("value") is None:
         return None
     val, units = _extract_value_from_tool_calls([tc], question=question)
     return None if val is None else (val, units)
