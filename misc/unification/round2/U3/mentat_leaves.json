@@ -1,0 +1,116 @@
+{
+ "G": {
+  "value": 6.6743e-11,
+  "source": "sigma_ground.field.constants",
+  "tool": "lookup_constant",
+  "args": {
+   "name": "G"
+  }
+ },
+ "k_B": {
+  "value": 1.380649e-23,
+  "source": "sigma_ground.field.constants",
+  "tool": "lookup_constant",
+  "args": {
+   "name": "k_B"
+  }
+ },
+ "trelax_over_tcross_N128": {
+  "value": "2.63807093191125",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(0.1*128/log(128))"
+  }
+ },
+ "dE_over_K_formula": {
+  "value": "d*(d + 2)",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "(1+d)^2-1"
+  }
+ },
+ "virial_K_of_E_softened": {
+  "value": [
+   "E*w/(w - 2)"
+  ],
+  "source": "sympy.solve",
+  "tool": "solve_equation",
+  "args": {
+   "equation": "2*K + w*(E-K) = 0",
+   "variable": "K"
+  }
+ },
+ "plummer_W_factor_3pi_32": {
+  "value": "0.294524311274043",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(3*pi/32)"
+  }
+ },
+ "plummer_K_factor_3pi_64": {
+  "value": "0.147262155637022",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(3*pi/64)"
+  }
+ },
+ "t_cr_HM_over_unit": {
+  "value": "6.25631023760420",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N((3*pi/32)^(-3/2))"
+  }
+ },
+ "r_half_over_b": {
+  "value": "1.30476602650411",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(1/sqrt(2^(2/3)-1))"
+  }
+ },
+ "v_rms_over_sqrt_GM_b": {
+  "value": "0.542700940918701",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(sqrt(3*pi/32))"
+  }
+ },
+ "T_orb_at_r_half_s": {
+  "value": 573120.536740412,
+  "source": "sigma-ground (Kepler's third law)",
+  "tool": "orbital_period",
+  "args": {
+   "semimajor_axis_m": 6523.83013252055,
+   "central_mass_kg": 500000000000.0
+  }
+ },
+ "plummer_Menc_frac_at_b": {
+  "value": "0.353553390593274",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(2^(-3/2))"
+  }
+ },
+ "T_orb_at_b_s": {
+  "value": 457303.4836669704,
+  "source": "sigma-ground (Kepler's third law)",
+  "tool": "orbital_period",
+  "args": {
+   "semimajor_axis_m": 5000.0,
+   "central_mass_kg": 353553390593.274
+  }
+ },
+ "C_gas_equipartition_J_per_K": {
+  "value": 2.65084608e-21,
+  "source": "sigma_ground.field.interface.statistical.heat_capacity_equipartition(3, n=128)"
+ },
+ "engine_G_equals_mentat_G": true
+}

@@ -1,0 +1,890 @@
+{
+ "id": "U4",
+ "xi_repo": 0.1582,
+ "xi_source": "sigma_ground.inventory.core.sigma.XI",
+ "lit": {
+  "GPA_bound": {
+   "value": 0.00014,
+   "what": "fractional deviation of the gravitational redshift from GR, Gravity Probe A (1976 flight)",
+   "refs": [
+    "Vessot R.F.C. et al. 1980, PRL 45, 2081, doi:10.1103/PhysRevLett.45.2081",
+    "Delva P. et al. 2018, PRL 121, 231101, doi:10.1103/PhysRevLett.121.231101, arXiv:1812.03711 (states GP-A verified the redshift to 1.4e-4 and improves it by a factor 5.6)"
+   ],
+   "tag": "[LIT]"
+  },
+  "Galileo_2018": {
+   "value": 2.48e-05,
+   "what": "(0.19 +/- 2.48)e-5, 1 sigma, eccentric Galileo satellites (secondary column, not the criterion)",
+   "refs": [
+    "Delva P. et al. 2018, PRL 121, 231101, arXiv:1812.03711"
+   ],
+   "tag": "[LIT]"
+  },
+  "GPA_apogee_m": {
+   "value": 10000000.0,
+   "what": "GP-A maser apogee ~10,000 km (used only to illustrate the differential redshift; ratio is h-independent at leading order)",
+   "refs": [
+    "Vessot et al. 1980 (as summarised in arXiv:1009.2485 and the PRL record)"
+   ],
+   "tag": "[LIT]"
+  }
+ },
+ "lit_crosscheck_5p6_x_galileo": 0.00013888,
+ "field_equation_derivation": {
+  "statement": "static weak field of box sigma = -xi R: lap sigma = -(8 pi G xi/c^2) rho  =>  sigma = K/r outside",
+  "dsigma_dr": "-K/r**2",
+  "K": [
+   "2*G*M*xi/c**2"
+  ],
+  "K_over_inventory_coefficient": "2",
+  "K_over_xi_rs": "1",
+  "reading": "sigma_field = 2 xi G M/(r c^2) = xi r_s/r; sigma_from_potential codes xi G M/(r c^2): factor 2",
+  "tag": "[DERIVED] under the adopted reading (MTW sign, R = 8 pi G rho/c^2 at weak field; design section 2.1)"
+ },
+ "analytic_table": {
+  "parametrisation": "sigma = k r_s/(2r); k = 2 xi (field equation), xi (inventory), 1 (docstring / GR notation)",
+  "series_e_sigma_minus_1": "k**2*x**2/8 + k*x/2",
+  "series_z_GR": "3*x**2/8 + x/2",
+  "series_e_sigma_minus_GR_factor": "x**2*(k**2/8 - 3/8) + x*(k/2 - 1/2)",
+  "leading_order": "extra-dilation ratio (e^sigma-1)/z_GR = k + O(x);  notation residual |e^sigma-(1+z)|/z_GR = |k-1| + O(x)",
+  "k": {
+   "field_eq": 0.3164,
+   "inventory": 0.1582,
+   "docstring": 1.0
+  },
+  "xi_ceiling_extra_dilation_field_eq": [
+   "7.00000000000000e-5"
+  ],
+  "xi_ceiling_extra_dilation_inventory": [
+   "0.000140000000000000"
+  ],
+  "xi_window_notation_field_eq": [
+   [
+    "0.499930000000000"
+   ],
+   [
+    "0.500070000000000"
+   ]
+  ],
+  "xi_window_notation_inventory": [
+   [
+    "0.999860000000000"
+   ],
+   [
+    "1.00014000000000"
+   ]
+  ],
+  "tag": "[DERIVED] (Mentat sympy)"
+ },
+ "leaves": {
+  "earth": {
+   "mass_kg": 5.97219e+24,
+   "radius_m": 6378100.0,
+   "body_source": "sigma-ground via NASA Planetary Fact Sheet 2024",
+   "r_s_m": 0.008870088019525562,
+   "r_s_source": "sigma_ground.field.gr_basics (standard Schwarzschild)",
+   "x_rs_over_R": 1.390710089137135e-09,
+   "R_over_rs": 719057126.1480163,
+   "z_GR_mentat": 6.95355106827833e-10,
+   "z_GR_mentat_source": "sigma_ground.field.gr_basics (Schwarzschild)",
+   "dilation_mentat": 0.9999999993046449,
+   "dilation_mentat_source": "sigma_ground.field.gr_basics (Schwarzschild)",
+   "z_GR_engine": 6.95355106827833e-10,
+   "one_over_dil_engine_minus_1": 6.95355106827833e-10,
+   "z_GR_stable": 6.953550452938454e-10,
+   "z_rel_diff_mentat_vs_stable": 8.849290445387529e-08,
+   "z_rel_diff_engine_vs_stable": 8.849290445387529e-08,
+   "sigma_from_potential_vs_xi_rs_over_2R_reldiff": 0.0
+  },
+  "sun": {
+   "mass_kg": 1.98892e+30,
+   "radius_m": 695700000.0,
+   "body_source": "sigma-ground via IAU 2015 nominal solar values",
+   "r_s_m": 2954.007736491099,
+   "r_s_source": "sigma_ground.field.gr_basics (standard Schwarzschild)",
+   "x_rs_over_R": 4.246094202229552e-06,
+   "R_over_rs": 235510.5544938021,
+   "z_GR_mentat": 2.1230538620464756e-06,
+   "z_GR_mentat_source": "sigma_ground.field.gr_basics (Schwarzschild)",
+   "dilation_mentat": 0.9999978769506452,
+   "dilation_mentat_source": "sigma_ground.field.gr_basics (Schwarzschild)",
+   "z_GR_engine": 2.1230538620464756e-06,
+   "one_over_dil_engine_minus_1": 2.1230538620464756e-06,
+   "z_GR_stable": 2.12305386213219e-06,
+   "z_rel_diff_mentat_vs_stable": -4.037308241529726e-11,
+   "z_rel_diff_engine_vs_stable": -4.037308241529726e-11,
+   "sigma_from_potential_vs_xi_rs_over_2R_reldiff": 1.5762104857963e-16
+  }
+ },
+ "table": [
+  {
+   "body": "earth",
+   "normalisation": "field_eq",
+   "normalisation_label": "sigma = xi r_s/R (field equation)",
+   "interpretation": "extra_dilation",
+   "sigma": 2.200103361014948e-10,
+   "e_sigma_minus_1_engine": 2.2001023225470817e-10,
+   "z_GR": 6.953550452938454e-10,
+   "metric_engine_functions": 0.31639982232730157,
+   "metric_stable": 0.3163999997047902,
+   "status": "excluded",
+   "status_engine_path": "excluded",
+   "orders_vs_GPA": 3.3541084387421924,
+   "orders_vs_Galileo2018": 4.105784793594214,
+   "status_vs_Galileo2018": "excluded",
+   "engine_path_noise_limited": false,
+   "tag": "[VERIFIED numerics] from Mentat leaves + repo clock functions; bound [LIT]"
+  },
+  {
+   "body": "earth",
+   "normalisation": "field_eq",
+   "normalisation_label": "sigma = xi r_s/R (field equation)",
+   "interpretation": "notation",
+   "sigma": 2.200103361014948e-10,
+   "e_sigma_minus_1_engine": 2.2001023225470817e-10,
+   "z_GR": 6.953550452938454e-10,
+   "metric_engine_functions": 0.6836001776726984,
+   "metric_stable": 0.68360000029521,
+   "status": "excluded",
+   "status_engine_path": "excluded",
+   "orders_vs_GPA": 3.6886740185580096,
+   "orders_vs_Galileo2018": 4.440350373410031,
+   "status_vs_Galileo2018": "excluded",
+   "engine_path_noise_limited": false,
+   "tag": "[VERIFIED numerics] from Mentat leaves + repo clock functions; bound [LIT]"
+  },
+  {
+   "body": "earth",
+   "normalisation": "inventory",
+   "normalisation_label": "sigma_from_potential(R,M) = xi GM/Rc^2",
+   "interpretation": "extra_dilation",
+   "sigma": 1.100051680507474e-10,
+   "e_sigma_minus_1_engine": 1.1000511612735409e-10,
+   "z_GR": 6.953550452938454e-10,
+   "metric_engine_functions": 0.15819991116365079,
+   "metric_stable": 0.1581999998436937,
+   "status": "excluded",
+   "status_engine_path": "excluded",
+   "orders_vs_GPA": 3.053078443054324,
+   "orders_vs_Galileo2018": 3.804754797906346,
+   "status_vs_Galileo2018": "excluded",
+   "engine_path_noise_limited": false,
+   "tag": "[VERIFIED numerics] from Mentat leaves + repo clock functions; bound [LIT]"
+  },
+  {
+   "body": "earth",
+   "normalisation": "inventory",
+   "normalisation_label": "sigma_from_potential(R,M) = xi GM/Rc^2",
+   "interpretation": "notation",
+   "sigma": 1.100051680507474e-10,
+   "e_sigma_minus_1_engine": 1.1000511612735409e-10,
+   "z_GR": 6.953550452938454e-10,
+   "metric_engine_functions": 0.8418000888363492,
+   "metric_stable": 0.8418000001563063,
+   "status": "excluded",
+   "status_engine_path": "excluded",
+   "orders_vs_GPA": 3.779080885814406,
+   "orders_vs_Galileo2018": 4.530757240666428,
+   "status_vs_Galileo2018": "excluded",
+   "engine_path_noise_limited": false,
+   "tag": "[VERIFIED numerics] from Mentat leaves + repo clock functions; bound [LIT]"
+  },
+  {
+   "body": "earth",
+   "normalisation": "docstring",
+   "normalisation_label": "sigma = r_s/2R (docstring 7e-10, no xi)",
+   "interpretation": "extra_dilation",
+   "sigma": 6.953550445685676e-10,
+   "e_sigma_minus_1_engine": 6.95355106827833e-10,
+   "z_GR": 6.953550452938454e-10,
+   "metric_engine_functions": 1.0,
+   "metric_stable": 0.9999999993046451,
+   "status": "excluded",
+   "status_engine_path": "excluded",
+   "orders_vs_GPA": 3.853871964019773,
+   "orders_vs_Galileo2018": 4.605548318871795,
+   "status_vs_Galileo2018": "excluded",
+   "engine_path_noise_limited": false,
+   "tag": "[VERIFIED numerics] from Mentat leaves + repo clock functions; bound [LIT]"
+  },
+  {
+   "body": "earth",
+   "normalisation": "docstring",
+   "normalisation_label": "sigma = r_s/2R (docstring 7e-10, no xi)",
+   "interpretation": "notation",
+   "sigma": 6.953550445685676e-10,
+   "e_sigma_minus_1_engine": 6.95355106827833e-10,
+   "z_GR": 6.953550452938454e-10,
+   "metric_engine_functions": 0.0,
+   "metric_stable": 6.953548471520933e-10,
+   "status": "allowed",
+   "status_engine_path": "allowed",
+   "orders_vs_GPA": -5.3039215493156835,
+   "orders_vs_Galileo2018": -4.552245194463661,
+   "status_vs_Galileo2018": "allowed",
+   "engine_path_noise_limited": true,
+   "tag": "[VERIFIED numerics] from Mentat leaves + repo clock functions; bound [LIT]"
+  },
+  {
+   "body": "sun",
+   "normalisation": "field_eq",
+   "normalisation_label": "sigma = xi r_s/R (field equation)",
+   "interpretation": "extra_dilation",
+   "sigma": 6.717321027927151e-07,
+   "e_sigma_minus_1_engine": 6.717323284277654e-07,
+   "z_GR": 2.12305386213219e-06,
+   "metric_engine_functions": 0.3163990986927964,
+   "metric_stable": 0.3163990986691933,
+   "status": "excluded",
+   "status_engine_path": "excluded",
+   "orders_vs_GPA": 3.354107201968029,
+   "orders_vs_Galileo2018": 4.105783556820051,
+   "status_vs_Galileo2018": "excluded",
+   "engine_path_noise_limited": false,
+   "tag": "[VERIFIED numerics] from Mentat leaves + repo clock functions; bound [LIT]"
+  },
+  {
+   "body": "sun",
+   "normalisation": "field_eq",
+   "normalisation_label": "sigma = xi r_s/R (field equation)",
+   "interpretation": "notation",
+   "sigma": 6.717321027927151e-07,
+   "e_sigma_minus_1_engine": 6.717323284277654e-07,
+   "z_GR": 2.12305386213219e-06,
+   "metric_engine_functions": 0.6836009013072036,
+   "metric_stable": 0.6836009013308065,
+   "status": "excluded",
+   "status_engine_path": "excluded",
+   "orders_vs_GPA": 3.6886745909900305,
+   "orders_vs_Galileo2018": 4.440350945842052,
+   "status_vs_Galileo2018": "excluded",
+   "engine_path_noise_limited": false,
+   "tag": "[VERIFIED numerics] from Mentat leaves + repo clock functions; bound [LIT]"
+  },
+  {
+   "body": "sun",
+   "normalisation": "inventory",
+   "normalisation_label": "sigma_from_potential(R,M) = xi GM/Rc^2",
+   "interpretation": "extra_dilation",
+   "sigma": 3.3586605139635755e-07,
+   "e_sigma_minus_1_engine": 3.3586610781455306e-07,
+   "z_GR": 2.12305386213219e-06,
+   "metric_engine_functions": 0.158199522781208,
+   "metric_stable": 0.15819952276766763,
+   "status": "excluded",
+   "status_engine_path": "excluded",
+   "orders_vs_GPA": 3.053077133371655,
+   "orders_vs_Galileo2018": 3.804753488223677,
+   "status_vs_Galileo2018": "excluded",
+   "engine_path_noise_limited": false,
+   "tag": "[VERIFIED numerics] from Mentat leaves + repo clock functions; bound [LIT]"
+  },
+  {
+   "body": "sun",
+   "normalisation": "inventory",
+   "normalisation_label": "sigma_from_potential(R,M) = xi GM/Rc^2",
+   "interpretation": "notation",
+   "sigma": 3.3586605139635755e-07,
+   "e_sigma_minus_1_engine": 3.3586610781455306e-07,
+   "z_GR": 2.12305386213219e-06,
+   "metric_engine_functions": 0.841800477218792,
+   "metric_stable": 0.8418004772323322,
+   "status": "excluded",
+   "status_engine_path": "excluded",
+   "orders_vs_GPA": 3.779081131943447,
+   "orders_vs_Galileo2018": 4.530757486795468,
+   "status_vs_Galileo2018": "excluded",
+   "engine_path_noise_limited": false,
+   "tag": "[VERIFIED numerics] from Mentat leaves + repo clock functions; bound [LIT]"
+  },
+  {
+   "body": "sun",
+   "normalisation": "docstring",
+   "normalisation_label": "sigma = r_s/2R (docstring 7e-10, no xi)",
+   "interpretation": "extra_dilation",
+   "sigma": 2.123047101114776e-06,
+   "e_sigma_minus_1_engine": 2.1230493547630402e-06,
+   "z_GR": 2.12305386213219e-06,
+   "metric_engine_functions": 0.9999978769811186,
+   "metric_stable": 0.9999978769491426,
+   "status": "excluded",
+   "status_engine_path": "excluded",
+   "orders_vs_GPA": 3.853871042291511,
+   "orders_vs_Galileo2018": 4.605547397143533,
+   "status_vs_Galileo2018": "excluded",
+   "engine_path_noise_limited": false,
+   "tag": "[VERIFIED numerics] from Mentat leaves + repo clock functions; bound [LIT]"
+  },
+  {
+   "body": "sun",
+   "normalisation": "docstring",
+   "normalisation_label": "sigma = r_s/2R (docstring 7e-10, no xi)",
+   "interpretation": "notation",
+   "sigma": 2.123047101114776e-06,
+   "e_sigma_minus_1_engine": 2.1230493547630402e-06,
+   "z_GR": 2.12305386213219e-06,
+   "metric_engine_functions": 2.1230188814091153e-06,
+   "metric_stable": 2.1230508572858376e-06,
+   "status": "allowed",
+   "status_engine_path": "allowed",
+   "orders_vs_GPA": -1.8191676379446196,
+   "orders_vs_Galileo2018": -1.067491283092598,
+   "status_vs_Galileo2018": "allowed",
+   "engine_path_noise_limited": false,
+   "tag": "[VERIFIED numerics] from Mentat leaves + repo clock functions; bound [LIT]"
+  }
+ ],
+ "gpa_differential_check": {
+  "h_m": 10000000.0,
+  "dilation_apogee_mentat": 0.9999999997292088,
+  "dilation_apogee_engine": 0.9999999997292088,
+  "gr_shift_ground_to_apogee": 4.2456392718098513e-10,
+  "rows": [
+   {
+    "normalisation": "field_eq",
+    "extra_ratio": 0.31639999958982706,
+    "notation_residual": 0.683600000410173
+   },
+   {
+    "normalisation": "inventory",
+    "extra_ratio": 0.1581999997828236,
+    "notation_residual": 0.8418000002171764
+   },
+   {
+    "normalisation": "docstring",
+    "extra_ratio": 0.9999999990338538,
+    "notation_residual": 9.661461431206706e-10
+   }
+  ],
+  "reading": "ratios equal the surface ratios to O(r_s/R): the surface table is the GP-A observable",
+  "tag": "[VERIFIED numerics]"
+ },
+ "horizon_row": {
+  "schwarzschild_static_operator": "box sigma = (1/r^2) d/dr [ r^2 (1 - r_s/r) dsigma/dr ]  (vacuum: R = 0, so box sigma = 0)",
+  "trial": "sigma = A + B ln(1 - r_s/r)",
+  "dsigma_dr": "B*rs/(r**2*(1 - rs/r))",
+  "r2_g_rr_dsigma_dr": "B*rs",
+  "box_sigma_times_r2": "0",
+  "far_field_limit_r_sigma": "B*rs",
+  "limit_at_horizon": "oo*sign(B)",
+  "B_matching": {
+   "field_eq": "B = -xi (sigma ~ xi r_s/r)",
+   "inventory": "B = -xi/2",
+   "notation": "B = -1/2"
+  },
+  "exact_GR_identity_B_minus_half": "1",
+  "linear_formula_at_r_eq_rs": {
+   "field_eq": 0.1582,
+   "inventory": 0.0791,
+   "inventory_at_half_rs_clamped": 0.0791,
+   "docstring": 0.5
+  },
+  "star_R_over_rs": {
+   "earth": 719057126.1480163,
+   "sun": 235510.5544938021
+  },
+  "reading": "Static vacuum solutions of box sigma = 0 on Schwarzschild are A + B ln(1 - r_s/r) exactly. Regular at the horizon => B = 0 => sigma = const (no scalar hair). B != 0 diverges logarithmically at r_s. For a star R/r_s >> 1 and the horizon is never reached. The values xi, xi/2, 1/2 at r = r_s come only from evaluating the weak-field 1/r formula outside its domain; the inventory's xi/2 is enforced by the compactness clamp at 0.5 (sigma.py:301-302), not derived. 'sigma = xi/2 at any horizon' has no derivation from box sigma = -xi R.",
+  "side_result": "With B = -1/2, e^sigma = (1 - r_s/r)^(-1/2) exactly: the 'notation' reading is an exact vacuum solution and carries no xi.",
+  "tag": "[DERIVED] (Mentat sympy)"
+ },
+ "amplitude_factor_for_U5_U6_U12": {
+  "reference": "U5/U6 code sigma = XI*r_s/r (field-equation reading); U12 uses Delta sigma per km / annual",
+  "factor": {
+   "field_eq (C2 = 2 xi GM/rc^2)": 1.0,
+   "inventory (C2 = xi GM/rc^2, sigma_from_potential)": 0.5,
+   "notation (sigma = GM/rc^2, no xi; route (c))": 3.16055625790139
+  },
+  "note": "Under 'notation' sigma carries no xi, the QCD-mass coupling must be dropped, and sigma is not dynamical."
+ },
+ "C3_sensitivity": {
+  "xi_docstring_omegas": 0.157125798974503,
+  "extra_ratio_field_eq": 0.314251597949006,
+  "extra_ratio_inventory": 0.157125798974503,
+  "reading": "0.7 % change in xi; no row changes status"
+ },
+ "verdict": {
+  "prediction_extra_rows_excluded_ge_3_orders": true,
+  "survivors": [
+   [
+    "docstring",
+    "notation"
+   ]
+  ],
+  "only_notation_survives": true,
+  "min_orders_extra_xi_rows": 3.053077133371655,
+  "code_implements_notation": false,
+  "code_note": "sigma_time_dilation (relativity.py:204-226) multiplies by e^sigma with sigma supplied by the caller; time_dilation_gr (gr_basics.py:64-80) is sqrt(1 - r_s/r); no function maps one to the other and sigma_from_potential carries xi, so the only surviving reading is not coded."
+ },
+ "flag_redshift_precision": {
+  "file": "sigma_ground/field/gr_basics.py",
+  "line": 61,
+  "code": "return 1.0 / math.sqrt(1.0 - rs / r) - 1.0",
+  "surface_z_rel_error_earth": 8.849290445387529e-08,
+  "height_differences": [
+   {
+    "height_m": 1.0,
+    "engine_delta_z": 0.0,
+    "stable_delta_z": 1.0902226928366374e-16,
+    "rel_error": -1.0
+   },
+   {
+    "height_m": 0.01,
+    "engine_delta_z": 0.0,
+    "stable_delta_z": 1.0902228065739716e-18,
+    "rel_error": -1.0
+   }
+  ],
+  "reading": "catastrophic cancellation at weak field: z(Earth surface) carries a 9e-8 relative error, and the clock shift between two heights 1 m or 1 cm apart comes out exactly 0 (true 1.09e-16 / 1.09e-18). Does not affect the U4 table (stable path used for decisions); matters for any optical-clock height comparison (U12 clock row). Mentat flags, never fixes.",
+  "tag": "[VERIFIED numerics]"
+ },
+ "mentat_calls": [
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "5.6*2.48e-5"
+   },
+   "value": "0.000138880000000000",
+   "source": "sympy.simplify"
+  },
+  {
+   "tool": "differentiate_expr",
+   "args": {
+    "expression": "K/r",
+    "variable": "r"
+   },
+   "value": "-K/r**2",
+   "source": "sympy.diff"
+  },
+  {
+   "tool": "solve_equation",
+   "args": {
+    "equation": "4*pi*r**2*(-K/r**2) = -8*pi*G*xi*M/c**2",
+    "variable": "K"
+   },
+   "value": [
+    "2*G*M*xi/c**2"
+   ],
+   "source": "sympy.solve"
+  },
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "(2*G*M*xi/c**2)/(xi*G*M/c**2)"
+   },
+   "value": "2",
+   "source": "sympy.simplify"
+  },
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "(2*G*M*xi/c**2)/(xi*2*G*M/c**2)"
+   },
+   "value": "1",
+   "source": "sympy.simplify"
+  },
+  {
+   "tool": "series_expansion",
+   "args": {
+    "expression": "exp(k*x/2) - 1",
+    "variable": "x",
+    "point": "0",
+    "order": 3
+   },
+   "value": "k**2*x**2/8 + k*x/2",
+   "source": "sympy.series"
+  },
+  {
+   "tool": "series_expansion",
+   "args": {
+    "expression": "1/sqrt(1-x) - 1",
+    "variable": "x",
+    "point": "0",
+    "order": 3
+   },
+   "value": "3*x**2/8 + x/2",
+   "source": "sympy.series"
+  },
+  {
+   "tool": "series_expansion",
+   "args": {
+    "expression": "exp(k*x/2) - 1/sqrt(1-x)",
+    "variable": "x",
+    "point": "0",
+    "order": 3
+   },
+   "value": "x**2*(k**2/8 - 3/8) + x*(k/2 - 1/2)",
+   "source": "sympy.series"
+  },
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "2*0.1582"
+   },
+   "value": "0.316400000000000",
+   "source": "sympy.simplify"
+  },
+  {
+   "tool": "solve_equation",
+   "args": {
+    "equation": "2*xi = 0.00014",
+    "variable": "xi"
+   },
+   "value": [
+    "7.00000000000000e-5"
+   ],
+   "source": "sympy.solve"
+  },
+  {
+   "tool": "solve_equation",
+   "args": {
+    "equation": "xi = 0.00014",
+    "variable": "xi"
+   },
+   "value": [
+    "0.000140000000000000"
+   ],
+   "source": "sympy.solve"
+  },
+  {
+   "tool": "solve_equation",
+   "args": {
+    "equation": "2*xi - 1 = -1*0.00014",
+    "variable": "xi"
+   },
+   "value": [
+    "0.499930000000000"
+   ],
+   "source": "sympy.solve"
+  },
+  {
+   "tool": "solve_equation",
+   "args": {
+    "equation": "2*xi - 1 = 1*0.00014",
+    "variable": "xi"
+   },
+   "value": [
+    "0.500070000000000"
+   ],
+   "source": "sympy.solve"
+  },
+  {
+   "tool": "solve_equation",
+   "args": {
+    "equation": "xi - 1 = -1*0.00014",
+    "variable": "xi"
+   },
+   "value": [
+    "0.999860000000000"
+   ],
+   "source": "sympy.solve"
+  },
+  {
+   "tool": "solve_equation",
+   "args": {
+    "equation": "xi - 1 = 1*0.00014",
+    "variable": "xi"
+   },
+   "value": [
+    "1.00014000000000"
+   ],
+   "source": "sympy.solve"
+  },
+  {
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "earth"
+   },
+   "value": {
+    "mass_kg": 5.97219e+24,
+    "orbital_period_d": 365.256,
+    "radius_m": 6378100.0,
+    "semimajor_axis_au": 1.000001018,
+    "surface_g_ms2": 9.80665
+   },
+   "source": "sigma-ground via NASA Planetary Fact Sheet 2024"
+  },
+  {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 5.97219e+24
+   },
+   "value": 0.008870088019525562,
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)"
+  },
+  {
+   "tool": "gravitational_redshift",
+   "args": {
+    "mass_kg": 5.97219e+24,
+    "radius_m": 6378100.0
+   },
+   "value": 6.95355106827833e-10,
+   "source": "sigma_ground.field.gr_basics (Schwarzschild)"
+  },
+  {
+   "tool": "gravitational_time_dilation",
+   "args": {
+    "mass_kg": 5.97219e+24,
+    "radius_m": 6378100.0
+   },
+   "value": 0.9999999993046449,
+   "source": "sigma_ground.field.gr_basics (Schwarzschild)"
+  },
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "0.1582*0.008870088019525562/6378100.0"
+   },
+   "value": "2.200103361014948e-10",
+   "source": "sympy.simplify"
+  },
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "0.008870088019525562/(2*6378100.0)"
+   },
+   "value": "6.953550445685676e-10",
+   "source": "sympy.simplify"
+  },
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "0.1582*0.008870088019525562/(2*6378100.0)"
+   },
+   "value": "1.100051680507474e-10",
+   "source": "sympy.simplify"
+  },
+  {
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "sun"
+   },
+   "value": {
+    "luminosity_w": 3.828e+26,
+    "mass_kg": 1.98892e+30,
+    "radius_m": 695700000.0,
+    "surface_temp_k": 5772.0
+   },
+   "source": "sigma-ground via IAU 2015 nominal solar values"
+  },
+  {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 1.98892e+30
+   },
+   "value": 2954.007736491099,
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)"
+  },
+  {
+   "tool": "gravitational_redshift",
+   "args": {
+    "mass_kg": 1.98892e+30,
+    "radius_m": 695700000.0
+   },
+   "value": 2.1230538620464756e-06,
+   "source": "sigma_ground.field.gr_basics (Schwarzschild)"
+  },
+  {
+   "tool": "gravitational_time_dilation",
+   "args": {
+    "mass_kg": 1.98892e+30,
+    "radius_m": 695700000.0
+   },
+   "value": 0.9999978769506452,
+   "source": "sigma_ground.field.gr_basics (Schwarzschild)"
+  },
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "0.1582*2954.007736491099/695700000.0"
+   },
+   "value": "6.717321027927151e-7",
+   "source": "sympy.simplify"
+  },
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "2954.007736491099/(2*695700000.0)"
+   },
+   "value": "2.123047101114776e-6",
+   "source": "sympy.simplify"
+  },
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "0.1582*2954.007736491099/(2*695700000.0)"
+   },
+   "value": "3.358660513963575e-7",
+   "source": "sympy.simplify"
+  },
+  {
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "earth"
+   },
+   "value": {
+    "mass_kg": 5.97219e+24,
+    "orbital_period_d": 365.256,
+    "radius_m": 6378100.0,
+    "semimajor_axis_au": 1.000001018,
+    "surface_g_ms2": 9.80665
+   },
+   "source": "sigma-ground via NASA Planetary Fact Sheet 2024"
+  },
+  {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 5.97219e+24
+   },
+   "value": 0.008870088019525562,
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)"
+  },
+  {
+   "tool": "gravitational_time_dilation",
+   "args": {
+    "mass_kg": 5.97219e+24,
+    "radius_m": 16378100.0
+   },
+   "value": 0.9999999997292088,
+   "source": "sigma_ground.field.gr_basics (Schwarzschild)"
+  },
+  {
+   "tool": "differentiate_expr",
+   "args": {
+    "expression": "B*log(1 - rs/r)",
+    "variable": "r"
+   },
+   "value": "B*rs/(r**2*(1 - rs/r))",
+   "source": "sympy.diff"
+  },
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "r**2*(1 - rs/r)*(B*rs/(r**2*(1 - rs/r)))"
+   },
+   "value": "B*rs",
+   "source": "sympy.simplify"
+  },
+  {
+   "tool": "differentiate_expr",
+   "args": {
+    "expression": "B*rs",
+    "variable": "r"
+   },
+   "value": "0",
+   "source": "sympy.diff"
+  },
+  {
+   "tool": "compute_limit",
+   "args": {
+    "expression": "r*(-B*log(1 - rs/r))",
+    "variable": "r",
+    "point": "oo"
+   },
+   "value": "B*rs",
+   "source": "sympy.limit"
+  },
+  {
+   "tool": "compute_limit",
+   "args": {
+    "expression": "-B*log(1 - rs/r)",
+    "variable": "r",
+    "point": "rs",
+    "direction": "+"
+   },
+   "value": "oo*sign(B)",
+   "source": "sympy.limit"
+  },
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "exp(-log(1 - rs/r)/2)*sqrt(1 - rs/r)"
+   },
+   "value": "1",
+   "source": "sympy.simplify"
+  },
+  {
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "sun"
+   },
+   "value": {
+    "luminosity_w": 3.828e+26,
+    "mass_kg": 1.98892e+30,
+    "radius_m": 695700000.0,
+    "surface_temp_k": 5772.0
+   },
+   "source": "sigma-ground via IAU 2015 nominal solar values"
+  },
+  {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 1.98892e+30
+   },
+   "value": 2954.007736491099,
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)"
+  },
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "2954.007736491099/(2*2954.007736491099)"
+   },
+   "value": "0.5000000000000000",
+   "source": "sympy.simplify"
+  },
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "0.02237/(0.02237 + 0.1200)"
+   },
+   "value": "0.157125798974503",
+   "source": "sympy.simplify"
+  },
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "(0.1582/2)/0.1582"
+   },
+   "value": "0.500000000000000",
+   "source": "sympy.simplify"
+  },
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "1/(2*0.1582)"
+   },
+   "value": "3.16055625790139",
+   "source": "sympy.simplify"
+  },
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "2*0.157125798974503"
+   },
+   "value": "0.314251597949006",
+   "source": "sympy.simplify"
+  },
+  {
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "earth"
+   },
+   "value": {
+    "mass_kg": 5.97219e+24,
+    "orbital_period_d": 365.256,
+    "radius_m": 6378100.0,
+    "semimajor_axis_au": 1.000001018,
+    "surface_g_ms2": 9.80665
+   },
+   "source": "sigma-ground via NASA Planetary Fact Sheet 2024"
+  },
+  {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 5.97219e+24
+   },
+   "value": 0.008870088019525562,
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)"
+  }
+ ],
+ "n_mentat_calls": 47
+}

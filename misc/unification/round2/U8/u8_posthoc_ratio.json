@@ -1,0 +1,53 @@
+{
+ "sources": {
+  "G": [
+   6.6743e-11,
+   "sigma_ground.field.constants"
+  ],
+  "rho_iron": [
+   7874.0,
+   "sigma-ground via CRC Handbook (iron at 20 C)"
+  ]
+ },
+ "per_N": {
+  "32": {
+   "mentat_U": [
+    4.1422370082607723e-07,
+    "sigma-ground (uniform-sphere self-gravity)"
+   ],
+   "n_seeds": 200,
+   "mean": 0.9747646430694873,
+   "se": 0.003510844383274373,
+   "median": 0.9722978770940434,
+   "skew": 0.7101312307237229,
+   "expected_(N-1)/N": 0.96875,
+   "z": 1.7131613973381985
+  },
+  "256": {
+   "mentat_U": [
+    1.3255158426434471e-05,
+    "sigma-ground (uniform-sphere self-gravity)"
+   ],
+   "n_seeds": 200,
+   "mean": 0.9972737877983678,
+   "se": 0.0009784944152095947,
+   "median": 0.9960367647802437,
+   "skew": 0.4179653196177728,
+   "expected_(N-1)/N": 0.99609375,
+   "z": 1.2059729519407358
+  },
+  "512": {
+   "mentat_U": [
+    4.208250486025445e-05,
+    "sigma-ground (uniform-sphere self-gravity)"
+   ],
+   "n_seeds": 200,
+   "mean": 0.9987457742793632,
+   "se": 0.0007037480128427106,
+   "median": 0.9978554657855576,
+   "skew": 0.24497159695938256,
+   "expected_(N-1)/N": 0.998046875,
+   "z": 0.9931101283541102
+  }
+ }
+}

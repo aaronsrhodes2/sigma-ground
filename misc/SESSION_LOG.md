@@ -3048,3 +3048,52 @@ inline, a Mentat gap census and Quarksum explained; mid-run he added his σ gues
 - [ ] Nuclear / degenerate-matter plan (Fermi-gas EOS, nuclear EOS, TOV, layers) — separate effort.
 - [ ] σ action (scalar–tensor Lagrangian) → σ-wave solver → the one L4 test the repo can run.
 - [ ] SPARC download OK → a₀ test; torsion-balance mapping for λ < 35 km; Jacobson sympy reproduction.
+
+## Session 36 (round 2) — 2026-10-10 — The verified kill-test battery; a planet that went backwards
+
+**Time:** 2026-10-10, ~02:40 → ~06:00 (Opus 5.5; one workflow, wf_56966593-9d5, after the Captain invoked /workflow-authoring with ultracode on and said "proceed")
+**Status:** ✅ Complete (decisions for the Captain listed below)
+
+### Changes
+- 18 items (13 designed experiments + U14G, T5, J6, A2, N1; U14 itself never ran) run in the session scratchpad, each with one runner, three skeptics (reproduce; physics and literature;
+  could-it-fail and overclaim), one repair and one recheck, then a cross-item critic. U14G checked
+  the two couplings that blocked U14. No agent touched the repo, git or Garry's Mod.
+- Integrated: `scripts/unification/round2/<item>/` (+ README), `misc/unification/round2/<item>/` (results, figures, pre-registrations;
+  logs, npz traces, literature copies and figure overlays excluded); `misc/SIGMA_ACTION_OPTIONS.md`, `misc/JACOBSON_DERIVATION.md`,
+  `misc/NUCLEAR_MATTER_PLAN.md`; program §15 and a round-2 paragraph in the one-page verdict.
+- Defects filed, none fixed (Mentat flags): KNOWN_GAPS.md gains 11 entries; census rows A9–A33; comment-only PHYSICS_GAP notes at
+  `nbody.py` (gr_1pn, eih_cross, forest_ruth_step, _apply_gw_damping), `continuum.py` (_buoyancy_force, _heat_conduction),
+  `element.py` (SEMF), `mcp/tools/symbolic.py`, `mcp/tools/mathx.py`, `mcp/tools/materials_strength.py`,
+  `mcp/tools/astronomy.py`, `adapters/base.py` and `adapters/integrator.py` (the `include_gr=True` defaults).
+- Memory: `feedback_single_agent_flow.md` updated (workflows when the Captain asks; agents never touch GMod or the repo).
+
+### Why
+The Captain said "proceed" on the items waiting on him; the runnable ones were the designed kill-tests and the four items of
+§14's ranked list that need no decision. The SPARC download was not taken as approved by a bare "proceed".
+
+### Findings
+- σ: NO-GO on five weak-field gates (U1); GP-A excludes both ξ normalisations as extra dilation (U4); the engine's σ hook advances
+  Mercury 2.27″/cy = ξ/3 of GR, 45× the budget (U5); torsion balances exclude ξ > 0.1375 from 1 cm to 35 km and inverse-square-law
+  data close the window, leaving λ ≲ 85–99 μm (T5); no action rescues a long-range mass-changing σ, and the postulate as written
+  violates Newton's third law, so no action produces it (A2); a σ that changes no mass (pure σR) survives.
+- Differences: in all 12 kicked branches ⟨K⟩ moved opposite to the energy change (U3; magnitude window-dependent); U ∝ N^1.673 vs pressure ∝ N (U8); three arrival
+  laws (U7); the dissipative arrow runs between Euler and viscosity, by construction, and gravity's own arrow is chaos (U2); barometric law to 0.2 %
+  once the column is confined (U11).
+- L4: Jacobson 1995 closes in 13 sympy steps at leading order; G enters as an identification; next order does not close (J6).
+- Engine defects (the round's most consequential output): N-body 1PN layers reversed (Mercury −43 and −72″/cy, U9/U5); GW damping
+  r⁻⁴ and sub-ulp losses rounded away (U1); orbit adapters default to the wrong-sign GR; SPH buoyancy 1/3 and conduction ÷ρ twice (U14G); SEMF asymmetry 4× small (N1);
+  symbolic and math tools misread E (U1, critic); `elastic_analysis` fixed moduli (U8); cfl_timestep, ideal-EOS T lag, floor contact (U2, U11, U13);
+  five σ-mass laws (U12); plus data and docstring items.
+
+### Verification
+- ✅ every item: three skeptic verdicts (none REFUTED), repair, recheck; rechecks CONFIRMED or minor residual corrections noted.
+- ✅ the critic's cross-item findings folded in: the σ exclusion holds for a mass-changing σ only (a pure σR σ survives); the T5
+  1 cm edge depends on sign, C2 and the Coulomb model; the time-arrow split is by construction; §14 rows revised in §15.4.
+- ✅ defect spot-checks reproduced by hand and live Mentat (GR sign by code reading; r⁴; SEMF /4A; d(E²)/dE = 0; elastic moduli).
+- ✅ tests for every touched module: 401 passed (continuum ×4, nbody, physics_stability, element, mcp, mathx, adapters, layering).
+
+### Next Steps (the Captain's)
+- [ ] Which defects to fix first (A9–A11, A15, A29 the most consequential; each has a fix direction and a sentinel).
+- [ ] Decisions C1–C6 with the σ-action memo; one σ-mass law (A23).
+- [ ] Nuclear-matter build per `misc/NUCLEAR_MATTER_PLAN.md` (~13 days, pending D1 package home).
+- [ ] SPARC download approval for the a₀ test.

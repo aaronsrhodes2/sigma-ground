@@ -1,0 +1,831 @@
+dt_halving_ratio {
+ "nbody_T0.3": 0.7715569424997195,
+ "sph0_T0.3": 0.9931644828734679,
+ "sph1_T0.3": 1.0023246181960401,
+ "nbody_T1.0": 0.7998999532096766,
+ "sph0_T1.0": 0.9254073651567941,
+ "sph1_T1.0": 0.9794937245785579,
+ "ideal0_T1.0": 0.5004812075668211,
+ "ideal1_T1.0": 0.9966579174964052
+}
+growth_rate_post_hoc {
+ "backward_leg_gain_delta_at_reversal_T1_dt600": {
+  "nbody": 122.7637368930219,
+  "sph0": 54.085352156000056
+ },
+ "finite_time_rate_per_tff_ln_gain_over_1tff": {
+  "nbody": 4.810261669928681,
+  "sph0": 3.9905633942194183
+ },
+ "as_reported_before_wrong_factor_2": {
+  "nbody": 2.40513083496434,
+  "sph0": 1.9952816971097092
+ },
+ "A_delta_at_t0_full_echo_gain": 0.9999543260071513,
+ "B_forward_twin_gain": {
+  "0.3": 1.2298594076303542,
+  "0.5": 1.8642420004579536,
+  "1.0": 37.00908350080792,
+  "1.5": 1765.8677116449303,
+  "2.0": 37377.067795795745,
+  "3.0": 46447177.756561674,
+  "4.0": 8828936166.104214
+ },
+ "B_forward_twin_rate_0.5_to_1.0_tff": 6.171953083336021,
+ "B_forward_twin_rate_1.5_to_4.0_tff": 6.577135580275604,
+ "B_r_median_min_R_and_time_tff": [
+  0.15017931401916249,
+  1.18
+ ],
+ "C_backward_leg_gain_end": 122.76345472910448,
+ "C_fraction_of_ln_gain_in_first_0.25_tff_of_backward_leg": 0.26427682725003343,
+ "C_gain_after_0.25_tff_back": 3.5652710611128793,
+ "C_gain_after_0.5_tff_back": 14.042192293747616,
+ "D_backward_leg_gain_after_0.3_tff_leg": 2.2567492328619734,
+ "C6_revised": {
+  "roundoff_echo_ratio_T1_over_T0.3_dt1200": 36.108564764271605,
+  "roundoff_echo_ratio_T1_over_T0.3_dt600": 34.82912296192078,
+  "backward_leg_gain_ratio_T1_over_T0.3": 54.39835890557403
+ }
+}
+roundoff_horizon_post_hoc {
+ "eps_rec_R_by_T_tff": {
+  "0.3": 1.345734224091206e-16,
+  "1.0": 4.687074276493767e-15,
+  "2.0": 8.108902864416613e-12,
+  "3.0": 2.137602303782303e-09,
+  "4.0": 2.3547822850187477e-06,
+  "6.0": 0.26217929678259955,
+  "8.0": 0.8843399506889426
+ },
+ "validation_T1_bitwise_equal_original": true,
+ "first_T_above_1e-8_R": 4.0,
+ "first_T_at_or_above_1e-3_R": 6.0,
+ "order_of_magnitude_T_star_tff": 7.637173004399526,
+ "r_median_forward_to_8tff": [
+  [
+   0.05,
+   0.7487621017696805
+  ],
+  [
+   0.1,
+   0.7454861262487475
+  ],
+  [
+   0.15,
+   0.7402269035246385
+  ],
+  [
+   0.2,
+   0.7330083376149137
+  ],
+  [
+   0.25,
+   0.723855590777824
+  ],
+  [
+   0.3,
+   0.7128000824862712
+  ],
+  [
+   0.35,
+   0.6974745261485316
+  ],
+  [
+   0.4,
+   0.6775929945314269
+  ],
+  [
+   0.45,
+   0.6545777263185386
+  ],
+  [
+   0.5,
+   0.6259135357555515
+  ],
+  [
+   0.55,
+   0.6138039498005508
+  ],
+  [
+   0.6,
+   0.5890342351765372
+  ],
+  [
+   0.65,
+   0.5610745381610385
+  ],
+  [
+   0.7,
+   0.5292259056353952
+  ],
+  [
+   0.75,
+   0.5136384614378707
+  ],
+  [
+   0.8,
+   0.4779677119557035
+  ],
+  [
+   0.85,
+   0.4465280353681306
+  ],
+  [
+   0.9,
+   0.4102191059382776
+  ],
+  [
+   0.95,
+   0.3788239319129612
+  ],
+  [
+   1.0,
+   0.3252137519017159
+  ],
+  [
+   1.05,
+   0.25697113928564463
+  ],
+  [
+   1.1,
+   0.21673526322964926
+  ],
+  [
+   1.15,
+   0.1780394947598969
+  ],
+  [
+   1.2,
+   0.15123588033220503
+  ],
+  [
+   1.25,
+   0.17351313412618716
+  ],
+  [
+   1.3,
+   0.21086034152128522
+  ],
+  [
+   1.35,
+   0.2508946994128913
+  ],
+  [
+   1.4,
+   0.29546999782726036
+  ],
+  [
+   1.45,
+   0.33226458306482626
+  ],
+  [
+   1.5,
+   0.3515315703835385
+  ],
+  [
+   1.55,
+   0.38284178858074375
+  ],
+  [
+   1.6,
+   0.3987887433521259
+  ],
+  [
+   1.65,
+   0.43098902495826524
+  ],
+  [
+   1.7,
+   0.4554673503251123
+  ],
+  [
+   1.75,
+   0.4817614424767107
+  ],
+  [
+   1.8,
+   0.48248189036923167
+  ],
+  [
+   1.85,
+   0.4960785477496903
+  ],
+  [
+   1.9,
+   0.5177358085806872
+  ],
+  [
+   1.95,
+   0.5249128299996191
+  ],
+  [
+   2.0,
+   0.4999815692522776
+  ],
+  [
+   2.05,
+   0.49230812279616565
+  ],
+  [
+   2.1,
+   0.48018159938032456
+  ],
+  [
+   2.15,
+   0.4625727474061832
+  ],
+  [
+   2.2,
+   0.4375809737630494
+  ],
+  [
+   2.25,
+   0.4467832114364912
+  ],
+  [
+   2.3,
+   0.4449374928853225
+  ],
+  [
+   2.35,
+   0.414814363154587
+  ],
+  [
+   2.4,
+   0.4019510839951303
+  ],
+  [
+   2.45,
+   0.41743793089456865
+  ],
+  [
+   2.5,
+   0.4110046315446627
+  ],
+  [
+   2.55,
+   0.38017765456181407
+  ],
+  [
+   2.6,
+   0.38209061946147393
+  ],
+  [
+   2.65,
+   0.398335098401666
+  ],
+  [
+   2.7,
+   0.4221471696744948
+  ],
+  [
+   2.75,
+   0.39200123943160625
+  ],
+  [
+   2.8,
+   0.3752066462709992
+  ],
+  [
+   2.85,
+   0.33310619134891045
+  ],
+  [
+   2.9,
+   0.35015152074567524
+  ],
+  [
+   2.95,
+   0.34466976181801795
+  ],
+  [
+   3.0,
+   0.3755348100176634
+  ],
+  [
+   3.05,
+   0.39662221346979587
+  ],
+  [
+   3.1,
+   0.3880608449901511
+  ],
+  [
+   3.15,
+   0.3565278060336306
+  ],
+  [
+   3.2,
+   0.37469377314591673
+  ],
+  [
+   3.25,
+   0.3929622561597041
+  ],
+  [
+   3.3,
+   0.362985569229856
+  ],
+  [
+   3.35,
+   0.3110485862718253
+  ],
+  [
+   3.4,
+   0.29331050660279445
+  ],
+  [
+   3.45,
+   0.3215091564318309
+  ],
+  [
+   3.5,
+   0.3376286006564113
+  ],
+  [
+   3.55,
+   0.3521114339494819
+  ],
+  [
+   3.6,
+   0.3621130158133617
+  ],
+  [
+   3.65,
+   0.34971391394717205
+  ],
+  [
+   3.7,
+   0.34793431058236496
+  ],
+  [
+   3.75,
+   0.35514151582328213
+  ],
+  [
+   3.8,
+   0.3368924818727198
+  ],
+  [
+   3.85,
+   0.3218053193620152
+  ],
+  [
+   3.9,
+   0.3354501619027335
+  ],
+  [
+   3.95,
+   0.33363418640782316
+  ],
+  [
+   4.0,
+   0.3192099006611755
+  ],
+  [
+   4.05,
+   0.32444129883732636
+  ],
+  [
+   4.1,
+   0.3502319886880058
+  ],
+  [
+   4.15,
+   0.3772231170700738
+  ],
+  [
+   4.2,
+   0.40159739051651794
+  ],
+  [
+   4.25,
+   0.413087077387522
+  ],
+  [
+   4.3,
+   0.432396148642707
+  ],
+  [
+   4.35,
+   0.43253710844434373
+  ],
+  [
+   4.4,
+   0.43028383763277217
+  ],
+  [
+   4.45,
+   0.3943295131403972
+  ],
+  [
+   4.5,
+ 
+sph_cache_invalidation {
+ "isothermal": {
+  "invalidated": 2.025894078765393e-14,
+  "not_invalidated": 2.025894078765393e-14,
+  "bitwise_equal": true,
+  "rel_change": 0.0,
+  "matches_original_run": true
+ },
+ "ideal": {
+  "invalidated": 0.0005349436977475715,
+  "not_invalidated": 0.0005343191208966601,
+  "bitwise_equal": false,
+  "rel_change": 0.0011675562373035418,
+  "matches_original_run": true
+ }
+}
+cloud_size {
+ "isothermal_a0": {
+  "t0": {
+   "t_tff": 0.0,
+   "r_median_R": 0.7500288418106882,
+   "r_rms_mass_R": 0.7619315458315933,
+   "r_p90_R": 0.9628361907910725,
+   "mean_ln_rho_sph": 0.2596442802060923
+  },
+  "T1": {
+   "t_tff": 1.0,
+   "r_median_R": 0.732007264208177,
+   "r_rms_mass_R": 0.806112390234524,
+   "r_p90_R": 1.1645514487612791,
+   "mean_ln_rho_sph": 0.10564282406482728
+  },
+  "r_median_max_over_leg_R": 0.7522028862963782,
+  "r_median_min_over_leg_R": 0.7260825287635951
+ },
+ "isothermal_a1": {
+  "t0": {
+   "t_tff": 0.0,
+   "r_median_R": 0.7500288418106882,
+   "r_rms_mass_R": 0.7619315458315933,
+   "r_p90_R": 0.9628361907910725,
+   "mean_ln_rho_sph": 0.2596442802060923
+  },
+  "T1": {
+   "t_tff": 1.0,
+   "r_median_R": 0.7263132096726204,
+   "r_rms_mass_R": 0.8199703299855442,
+   "r_p90_R": 1.1736284411594944,
+   "mean_ln_rho_sph": 0.06743518114331744
+  },
+  "r_median_max_over_leg_R": 0.7532463746622633,
+  "r_median_min_over_leg_R": 0.7263132096726204
+ },
+ "ideal_a0": {
+  "t0": {
+   "t_tff": 0.0,
+   "r_median_R": 0.7500288418106882,
+   "r_rms_mass_R": 0.7619315458315933,
+   "r_p90_R": 0.9628361907910725,
+   "mean_ln_rho_sph": 0.2596442802060923
+  },
+  "T1": {
+   "t_tff": 1.0,
+   "r_median_R": 0.7338408817209949,
+   "r_rms_mass_R": 0.7993258734400142,
+   "r_p90_R": 1.133296007242637,
+   "mean_ln_rho_sph": 0.12406136258681912
+  },
+  "r_median_max_over_leg_R": 0.752735786780265,
+  "r_median_min_over_leg_R": 0.7266571177801807
+ },
+ "ideal_a1": {
+  "t0": {
+   "t_tff": 0.0,
+   "r_median_R": 0.7500288418106882,
+   "r_rms_mass_R": 0.7619315458315933,
+   "r_p90_R": 0.9628361907910725,
+   "mean_ln_rho_sph": 0.2596442802060923
+  },
+  "T1": {
+   "t_tff": 1.0,
+   "r_median_R": 0.7370099876974624,
+   "r_rms_mass_R": 0.8263066416090528,
+   "r_p90_R": 1.1483212545228971,
+   "mean_ln_rho_sph": 0.04642772201453595
+  },
+  "r_median_max_over_leg_R": 0.7553070073851872,
+  "r_median_min_over_leg_R": 0.7370099876974624
+ },
+ "nbody_r_median_T1_R": 0.3252137519017159
+}
+ideal_gas_entropy {
+ "n600": {
+  "dS_state_forward_leg_J_per_K": 64432.03290721774,
+  "dS_state_end_of_echo_J_per_K": -4131.296191439033
+ },
+ "n1200": {
+  "dS_state_forward_leg_J_per_K": 65393.01974391937,
+  "dS_state_end_of_echo_J_per_K": -2064.7020775675774
+ },
+ "alpha1_n1200": {
+  "dS_state_end": 6266729.6745274365,
+  "booked_sum_q_visc_over_T": 6229542.098515305
+ }
+}
+criteria_original {
+ "readings": {
+  "strict_ratio_lt_1 (addendum_1, fixed AFTER the Hamiltonian ratios were seen)": {
+   "clauses": {
+    "hamiltonian_le_1e-8": true,
+    "viscous_ge_1e-3": true,
+    "min_Sdot_ge_0": true,
+    "ledger_closure_le_1e-3_literal": false,
+    "SAME_all_within_10x": false,
+    "hamiltonian_shrink_under_dt_halving": true,
+    "viscous_does_not_shrink": false
+   },
+   "verdict": "MIXED",
+   "failed": [
+    "viscous_does_not_shrink",
+    "ledger_closure_le_1e-3_literal"
+   ]
+  },
+  "halves_ratio_0.4_to_0.6 (the design's 'halves with dt' language)": {
+   "clauses": {
+    "hamiltonian_le_1e-8": true,
+    "viscous_ge_1e-3": true,
+    "min_Sdot_ge_0": true,
+    "ledger_closure_le_1e-3_literal": false,
+    "SAME_all_within_10x": false,
+    "hamiltonian_shrink_under_dt_halving": false,
+    "viscous_does_not_shrink": true
+   },
+   "verdict": "MIXED",
+   "failed": [
+    "hamiltonian_shrink_under_dt_halving",
+    "ledger_closure_le_1e-3_literal"
+   ]
+  }
+ },
+ "verdict": [
+  "MIXED"
+ ],
+ "S8_sentinel_literal": {
+  "isothermal_sum_m_uint_eq_Qcum": {
+   "internal_at_T": 0.0,
+   "Q_led_at_T": 639487349.6883188,
+   "pass": false
+  },
+  "ideal_sum_m_uint_eq_Qcum_relerr": 0.7516490052091455,
+  "ideal_pass": false,
+  "K_Wsoft_Uint_conserved_1e-4": {
+   "isothermal_a1_T1_n600": {
+    "max_over_run": 0.0002737350603121533,
+    "at_end": 6.0175666312388544e-05
+   },
+   "isothermal_a1_T1_n1200": {
+    "max_over_run": 7.974160889272829e-05,
+    "at_end": 3.05375681885655e-05
+   },
+   "isothermal_a0_T1_n600": {
+    "max_over_run": 8.512820908044086e-05,
+    "at_end": 1.1988917744473954e-15
+   },
+   "isothermal_a0_T1_n1200": {
+    "max_over_run": 2.1593731706898998e-05,
+    "at_end": 8.392242421131767e-16
+   },
+   "ideal_a1_T1_n600": {
+    "max_over_run": 0.000426819768462866,
+    "at_end": 0.0002209254655982439
+   },
+   "ideal_a1_T1_n1200": {
+    "max_over_run": 0.00011260947028305645,
+    "at_end": 7.5072971275983e-05
+   },
+   "ideal_a0_T1_n600": {
+    "max_over_run": 8.533206836454046e-05,
+    "at_end": 1.1296928561956419e-08
+   },
+   "ideal_a0_T1_n1200": {
+    "max_over_run": 2.1218205894761756e-05,
+    "at_end": 1.419208279383915e-09
+   }
+  },
+  "verdict": "FAIL"
+ }
+}
+criteria_corrected {
+ "clauses": {
+  "H1": true,
+  "H2": true,
+  "D1": true,
+  "D2": true,
+  "D3": false
+ },
+ "verdict": "MIXED",
+ "failed": [
+  "D3"
+ ],
+ "separate_if_D3_dropped": true,
+ "S8_sentinel_frozen_C3": {
+  "text": "C3 S8 sentinel 'sum m u_int(T) = Q_cum(T)': for eos='isothermal' u_int == 0 by design (work goes to scene.energy_bath_J); for eos='ideal' Delta U_int = Q_visc + W_PdV, not Q_visc alone. Literal sentinel predicted to FAIL for both EOS for this reason, not for an engine defect. Corrected sentinel: |Delta(K + U_soft + U_int + bath)| / |U_soft(0)| <= 1e-4, and the engine's own viscous share (pair-decomposed) equals the independent ledger Q_led to 1e-3 at dt = t_ff/1200.",
+  "part_a_drift_max_over_run_dt1200": {
+   "isothermal_a1_T1_n1200": 7.974160889272829e-05,
+   "isothermal_a0_T1_n1200": 2.1593731706898998e-05,
+   "ideal_a1_T1_n1200": 0.00011260947028305645,
+   "ideal_a0_T1_n1200": 2.1218205894761756e-05
+  },
+  "part_a_pass_max_reading": false,
+  "part_a_drift_end_dt1200": {
+   "isothermal_a1_T1_n1200": 3.05375681885655e-05,
+   "isothermal_a0_T1_n1200": 8.392242421131767e-16,
+   "ideal_a1_T1_n1200": 7.5072971275983e-05,
+   "ideal_a0_T1_n1200": 1.419208279383915e-09
+  },
+  "part_a_pass_end_reading": true,
+  "part_a_drift_max_over_run_dt600": {
+   "isothermal_a1_T1_n600": 0.0002737350603121533,
+   "isothermal_a0_T1_n600": 8.512820908044086e-05,
+   "ideal_a1_T1_n600": 0.000426819768462866,
+   "ideal_a0_T1_n600": 8.533206836454046e-05
+  },
+  "part_b_engine_viscous_share_vs_Q_led_dt1200": {
+   "isothermal_a1_T1_n1200": 0.006477173856243633,
+   "ideal_a1_T1_n1200": 0.007933727794468272
+  },
+  "part_b_pass": false,
+  "verdict": "FAIL",
+  "not_a_sentinel_by_construction_check": {
+   "what": "the script's pair decomposition of continuum_step's own pair lists sums back to the engine's own internal-energy increment; it reproduces the engine's booking and could not fail",
+   "isothermal_split_max_relerr": 1.6423258752958935e-12,
+   "ideal_uint_vs_engine_split_T": 9.930048742496535e-16
+  }
+ },
+ "could_it_fail": {
+  "D1_delta_clause_gain_needed_to_fail": 15801349.85257425,
+  "D1_delta_clause_measured_viscous_response_gain": 1123.874833502958,
+  "H2_note": "H2 ([0.1, 10]) also passes a first-order dt effect (ideal a=0 ratio 0.5005): it is not a discriminator",
+  "H2_ideal_a0_ratio": 0.5004812075668211
+ }
+}
+wrong_predictions [
+ {
+  "prediction": "dt_halving_hamiltonian_ratio 1..2",
+  "measured": "0.800 (N-body), 0.925 (SPH a=0) at T=1"
+ },
+ {
+  "prediction": "sph_a1_eps_rec_T1 1e-2 .. 1e-1 R",
+  "measured": "0.1580 / 0.1548 R isothermal; 0.1794 / 0.1788 R ideal"
+ },
+ {
+  "prediction": "verdict_corrected SEPARATE",
+  "measured": "MIXED (D3 fails)"
+ },
+ {
+  "prediction": "ideal_sentinel_energy <= 1e-4",
+  "measured": "max over run 1.126e-04 at dt/1200 (ideal a=1); 4.268e-04 at dt/600"
+ },
+ {
+  "prediction": "frozen C1: the original criterion 'cannot return SEPARATE whatever the physics'",
+  "measured": "withdrawn: under the strict reading the Hamiltonian 'shrink' clause PASSES (ratios 0.80, 0.93); the original verdict is MIXED for other clauses"
+ }
+]
+addendum_2_scorecard {
+ "P_A_delta_at_t0_gain_1_within_1e-3": {
+  "measured": 0.9999543260071513,
+  "pass": true
+ },
+ "P_B_post_bounce_rate_1_to_6_per_tff": {
+  "measured_1.5_to_4.0": 6.577135580275604,
+  "pass_numeric_range": false,
+  "chaos_reading_supported_rate_ge_0.5": true
+ },
+ "P_C_more_than_half_of_ln_gain_in_first_0.25_tff_back": {
+  "measured_fraction": 0.26427682725003343,
+  "pass": false
+ },
+ "P_D_gain_after_0.3_leg_about_2.3": {
+  "measured": 2.2567492328619734
+ },
+ "P_E_cross_1e-8_between_3_and_6_tff": {
+  "first_T_above": 4.0,
+  "pass": true
+ },
+ "P_E_eps_T8_ge_1e-3": {
+  "measured": 0.8843399506889426,
+  "pass": true
+ },
+ "P_E_validation_bitwise": {
+  "pass": true
+ },
+ "P_F_cache": {
+  "isothermal_bitwise": true,
+  "ideal_rel_change": 0.0011675562373035418
+ },
+ "P_G_fourier_factor": {
+  "measured": 0.6009630546655129,
+  "rel_err_closed_form": 7.943847743760069e-14,
+  "log10_amp_800": 176.92178099759906,
+  "pass": true
+ }
+}
+{
+ "material_cascade_200K": {
+  "k_W_mK": 29.91162933598881,
+  "rho_kg_m3": 917.0,
+  "cp_J_kgK": 3550.94393766788,
+  "alpha_m2_s": 9.186010109440965e-06,
+  "melting_point_K": 92.1612023859985,
+  "source": "sigma_ground.dynamics.continuum.material_properties('water_ice', 200 K)"
+ },
+ "dt_substep_s": 0.3628706362850052,
+ "lam_12_alpha_dt_over_dx2": 0.4,
+ "per_substep_factor_measured": {
+  "neumann_highest_k31": {
+   "substeps": 1,
+   "factor_mean": 0.6009630546655129,
+   "factor_min": 0.600963054537518,
+   "factor_max": 0.6009630546737214,
+   "factor_interior_mean": 0.6009630546655683,
+   "is_eigenmode_spread": 1.362033819063413e-10
+  },
+  "checkerboard": {
+   "substeps": 1,
+   "factor_mean": 0.6124999999999936,
+   "factor_min": 0.5999999999999943,
+   "factor_max": 0.8000000000000114,
+   "factor_interior_mean": 0.5999999999999943,
+   "is_eigenmode_spread": 0.20000000000001705
+  }
+ },
+ "log10_inverse_amplification_800_from_measured_factor": 176.92178099759906,
+ "mentat": {
+  "factor_neumann_closed_form": {
+   "value": "0.8 - 0.2*cos(pi/32)",
+   "float": 0.6009630546655607,
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "1 - 0.4*sin(31*pi/64)**2"
+   }
+  },
+  "log10_amp_800_neumann": {
+   "value": "-800*log(0.8 - 0.2*cos(pi/32))/log(10)",
+   "float": 176.92178099757146,
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "-800*log(1 - 0.4*sin(31*pi/64)**2, 10)"
+   }
+  },
+  "log10_amp_800_checkerboard": {
+   "value": "408.660499012793/log(10)",
+   "float": 177.4789996930853,
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "-800*log(1 - 0.4, 10)"
+   }
+  }
+ },
+ "factor_rel_err_vs_closed_form": 7.943847743760069e-14,
+ "reversed_requests": {
+  "negative_time": {
+   "substeps": 0,
+   "unchanged": true,
+   "guard": "heat.py:122 'if total_time <= 0 or not solid.any(): return T, info'"
+  },
+  "negative_k": {
+   "substeps": 0,
+   "unchanged": true,
+   "stable_dt_for_negative_alpha": "inf",
+   "guard": "heat.py:32-33 stable_dt returns inf for alpha_max <= 0; heat.py:159 'if not np.isfinite(dt) or dt <= 0: return T, info'"
+  },
+  "tag": "[BY CONSTRUCTION] input guards that silently return T unchanged; not a measurement"
+ }
+}
+{
+ "rate_nbody_per_tff": {
+  "value": "4.810261669928681",
+  "float": 4.810261669928681,
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "log(122.7637368930219)/1"
+  }
+ },
+ "rate_sph0_per_tff": {
+  "value": "3.9905633942194183",
+  "float": 3.9905633942194183,
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "log(54.085352156000056)/1"
+  }
+ },
+ "horizon_tff_ln2pow53_over_rate": {
+  "value": "7.637173004399526",
+  "float": 7.637173004399526,
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "log(2**53)/log(122.7637368930219)"
+  }
+ }
+}

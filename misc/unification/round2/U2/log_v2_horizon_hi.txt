@@ -1,0 +1,3 @@
+{"T_tff": 6.0, "n_per_tff": 600, "steps_each_leg": 3600, "eps_rec_R": 0.26217929678259955, "wall_s_cum": 477.74158477783203}
+{"T_tff": 8.0, "n_per_tff": 600, "steps_each_leg": 4800, "eps_rec_R": 0.8843399506889426, "wall_s_cum": 742.875030040741}
+done horizon_hi

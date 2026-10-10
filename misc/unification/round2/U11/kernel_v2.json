@@ -1,0 +1,1458 @@
+{
+ "int_f_line_half": "1/2",
+ "K_h2_symbolic": "3/(2*pi)",
+ "K_h2_minus_3_over_2pi": "0",
+ "K_h2": 0.477464829275686,
+ "eigen_identity_symbolic": "0",
+ "mgf_minus_closed_form_symbolic": "-(16*sinh(a/2)**4 + 8*cosh(a) - 2*cosh(2*a) - 6)/a**4",
+ "closed_form_series": "a**4/80 + a**2/6 + 1",
+ "hydrostatic_ratio_prediction": {
+  "0.05": {
+   "integral": 1.0004167445586063,
+   "closed_form": 1.0004167448004506,
+   "second_order": 1.0004166666666667,
+   "eigen_identity_residual": -7.275957614183426e-12
+  },
+  "0.1": {
+   "integral": 1.001667917233135,
+   "closed_form": 1.001667917229007,
+   "second_order": 1.0016666666666667,
+   "eigen_identity_residual": -1.8189894035458565e-12
+  },
+  "0.2": {
+   "integral": 1.0066867026882846,
+   "closed_form": 1.0066867026892803,
+   "second_order": 1.0066666666666666,
+   "eigen_identity_residual": -1.1368683772161603e-13
+  },
+  "0.4": {
+   "integral": 1.0269889805489072,
+   "closed_form": 1.0269889805488557,
+   "second_order": 1.0266666666666666,
+   "eigen_identity_residual": 0.0
+  }
+ },
+ "FT1_minus_sinc4_symbolic": "2*(-8*sin(k/2)**4 - 4*cos(k) + cos(2*k) + 3)/k**4",
+ "FT_scan": [
+  {
+   "kh": 0.5,
+   "FT_line": 0.9591058658127594,
+   "FT_slab": 0.9631260772167707
+  },
+  {
+   "kh": 1.0,
+   "FT_line": 0.8452878799605971,
+   "FT_slab": 0.8597200460458296
+  },
+  {
+   "kh": 1.5,
+   "FT_line": 0.6822947937693797,
+   "FT_slab": 0.7093332761653978
+  },
+  {
+   "kh": 2.0,
+   "FT_line": 0.5013679656656197,
+   "FT_slab": 0.5383298911371248
+  },
+  {
+   "kh": 2.5,
+   "FT_line": 0.3321977163597292,
+   "FT_slab": 0.37290648640508534
+  },
+  {
+   "kh": 3.0,
+   "FT_line": 0.19555901908770737,
+   "FT_slab": 0.23300928400244142
+  },
+  {
+   "kh": 3.5,
+   "FT_line": 0.09995473890554256,
+   "FT_slab": 0.12895455429966654
+  },
+  {
+   "kh": 4.0,
+   "FT_line": 0.042727144137858074,
+   "FT_slab": 0.06137695853979088
+  },
+  {
+   "kh": 4.5,
+   "FT_line": 0.01430051729108827,
+   "FT_slab": 0.023868318341536517
+  },
+  {
+   "kh": 5.0,
+   "FT_line": 0.0032840951330260566,
+   "FT_slab": 0.006851863027450231
+  },
+  {
+   "kh": 5.5,
+   "FT_line": 0.00037100547956671977,
+   "FT_slab": 0.0011273542467985266
+  },
+  {
+   "kh": 6.0,
+   "FT_line": 4.89631501701779e-06,
+   "FT_slab": 3.598099142143928e-05
+  },
+  {
+   "kh": 6.5,
+   "FT_line": 1.2282802849790733e-06,
+   "FT_slab": -1.006881138152223e-05
+  },
+  {
+   "kh": 7.0,
+   "FT_line": 0.00010089812647614775,
+   "FT_slab": -0.00020616965623470392
+  },
+  {
+   "kh": 7.5,
+   "FT_line": 0.0005396674786298157,
+   "FT_slab": -0.0005046878288126901
+  },
+  {
+   "kh": 8.0,
+   "FT_line": 0.0012814163354057957,
+   "FT_slab": -0.0005897954026552959
+  },
+  {
+   "kh": 8.5,
+   "FT_line": 0.001966598780258933,
+   "FT_slab": -0.00036527872075906774
+  },
+  {
+   "kh": 9.0,
+   "FT_line": 0.0022267452387693303,
+   "FT_slab": 9.769458275192199e-06
+  },
+  {
+   "kh": 9.5,
+   "FT_line": 0.0019588292276387525,
+   "FT_slab": 0.0003070063730485756
+  },
+  {
+   "kh": 10.0,
+   "FT_line": 0.0013528736356238406,
+   "FT_slab": 0.0004024633329756249
+  },
+  {
+   "kh": 10.5,
+   "FT_line": 0.0007164781673084284,
+   "FT_slab": 0.00032207252357700485
+  },
+  {
+   "kh": 11.0,
+   "FT_line": 0.0002707924843457632,
+   "FT_slab": 0.0001752155950953584
+  },
+  {
+   "kh": 11.5,
+   "FT_line": 6.105729406679696e-05,
+   "FT_slab": 5.9514707592364476e-05
+  },
+  {
+   "kh": 12.0,
+   "FT_line": 4.703238079381614e-06,
+   "FT_slab": 8.47292965834382e-06
+  },
+  {
+   "kh": 12.5,
+   "FT_line": 7.942266184865964e-10,
+   "FT_slab": 1.154465772964749e-08
+  },
+  {
+   "kh": 13.0,
+   "FT_line": 1.1996916444001116e-06,
+   "FT_slab": -2.428483185977611e-06
+  },
+  {
+   "kh": 13.5,
+   "FT_line": 1.9760826162925056e-05,
+   "FT_slab": -1.6125853397670126e-05
+  },
+  {
+   "kh": 14.0,
+   "FT_line": 7.759502607533835e-05,
+   "FT_slab": -3.340992231357046e-05
+  },
+  {
+   "kh": 14.5,
+   "FT_line": 0.0001661185090493117,
+   "FT_slab": -3.794836295884547e-05
+  },
+  {
+   "kh": 15.0,
+   "FT_line": 0.00024466185091645906,
+   "FT_slab": -2.3117014242987397e-05
+  },
+  {
+   "kh": 15.5,
+   "FT_line": 0.00027125945018095115,
+   "FT_slab": 2.5908854762779935e-06
+  },
+  {
+   "kh": 16.0,
+   "FT_line": 0.00023391300298462064,
+   "FT_slab": 2.386483354335969e-05
+  }
+ ],
+ "FT3_sign_changes": [
+  {
+   "sign_change_kh": 6.28314208984375,
+   "from_positive": true
+  },
+  {
+   "sign_change_kh": 8.98687744140625,
+   "from_positive": false
+  },
+  {
+   "sign_change_kh": 12.56634521484375,
+   "from_positive": true
+  },
+  {
+   "sign_change_kh": 15.45050048828125,
+   "from_positive": false
+  }
+ ],
+ "FT3_at_7": -0.00020616965623470408,
+ "FT3_at_8": -0.000589795402655296,
+ "FT_line_min_over_scan": 7.942266184865964e-10,
+ "mentat_leaves": {
+  "int_f_inner": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "(2/3 - q**2 + q**3/2)",
+    "variable": "q",
+    "lower": "0",
+    "upper": "1"
+   },
+   "value": "11/24",
+   "source": "sympy.integrate"
+  },
+  "int_f_outer": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "((2 - q)**3/6)",
+    "variable": "q",
+    "lower": "1",
+    "upper": "2"
+   },
+   "value": "1/24",
+   "source": "sympy.integrate"
+  },
+  "int_f_half": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "(11/24) + (1/24)"
+   },
+   "value": "1/2",
+   "source": "sympy.simplify"
+  },
+  "K_h2": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "2*(3/(2*pi))*((11/24) + (1/24))"
+   },
+   "value": "3/(2*pi)",
+   "source": "sympy.simplify"
+  },
+  "K_h2_check": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "2*(3/(2*pi))*((11/24) + (1/24)) - 3/(2*pi)"
+   },
+   "value": "0",
+   "source": "sympy.simplify"
+  },
+  "K_h2_numeric": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(3/(2*pi), 17)"
+   },
+   "value": "0.47746482927568601",
+   "source": "sympy.simplify"
+  },
+  "mgf_cosh_inner": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "(2/3 - q**2 + q**3/2)*cosh(a*q)",
+    "variable": "q",
+    "lower": "0",
+    "upper": "1"
+   },
+   "value": "Piecewise((sinh(a)/(6*a) + cosh(a)/(2*a**2) + sinh(a)/a**3 - 3*cosh(a)/a**4 + 3/a**4, (a > -oo) & (a < oo) & Ne(a, 0)), (11/24, True))",
+   "source": "sympy.integrate"
+  },
+  "mgf_cosh_outer": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "((2 - q)**3/6)*cosh(a*q)",
+    "variable": "q",
+    "lower": "1",
+    "upper": "2"
+   },
+   "value": "Piecewise((-sinh(a)/(6*a) - cosh(a)/(2*a**2) - sinh(a)/a**3 - cosh(a)/a**4 + cosh(2*a)/a**4, (a > -oo) & (a < oo) & Ne(a, 0)), (1/24, True))",
+   "source": "sympy.integrate"
+  },
+  "dW_sinh_inner": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "(-2*q + 3*q**2/2)*sinh(a*q)",
+    "variable": "q",
+    "lower": "0",
+    "upper": "1"
+   },
+   "value": "Piecewise((-cosh(a)/(2*a) - sinh(a)/a**2 + 3*cosh(a)/a**3 - 3/a**3, (a > -oo) & (a < oo) & Ne(a, 0)), (0, True))",
+   "source": "sympy.integrate"
+  },
+  "dW_sinh_outer": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "(-(2 - q)**2/2)*sinh(a*q)",
+    "variable": "q",
+    "lower": "1",
+    "upper": "2"
+   },
+   "value": "Piecewise((cosh(a)/(2*a) + sinh(a)/a**2 + cosh(a)/a**3 - cosh(2*a)/a**3, (a > -oo) & (a < oo) & Ne(a, 0)), (0, True))",
+   "source": "sympy.integrate"
+  },
+  "eigen_identity": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "2*((-cosh(a)/(2*a) - sinh(a)/a**2 + 3*cosh(a)/a**3 - 3/a**3) + (cosh(a)/(2*a) + sinh(a)/a**2 + cosh(a)/a**3 - cosh(2*a)/a**3)) + a*2*((sinh(a)/(6*a) + cosh(a)/(2*a**2) + sinh(a)/a**3 - 3*cosh(a)/a**4 + 3/a**4) + (-sinh(a)/(6*a) - cosh(a)/(2*a**2) - sinh(a)/a**3 - cosh(a)/a**4 + cosh(2*a)/a**4))"
+   },
+   "value": "0",
+   "source": "sympy.simplify"
+  },
+  "mgf_closed_form": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "((2*((sinh(a)/(6*a) + cosh(a)/(2*a**2) + sinh(a)/a**3 - 3*cosh(a)/a**4 + 3/a**4) + (-sinh(a)/(6*a) - cosh(a)/(2*a**2) - sinh(a)/a**3 - cosh(a)/a**4 + cosh(2*a)/a**4)))/(2*((11/24) + (1/24)))) - (sinh(a/2)/(a/2))**4"
+   },
+   "value": "-(16*sinh(a/2)**4 + 8*cosh(a) - 2*cosh(2*a) - 6)/a**4",
+   "source": "sympy.simplify"
+  },
+  "mgf_series": {
+   "tool": "series_expansion",
+   "args": {
+    "expression": "(sinh(a/2)/(a/2))**4",
+    "variable": "a",
+    "point": "0",
+    "order": 6
+   },
+   "value": "a**4/80 + a**2/6 + 1",
+   "source": "sympy.series"
+  },
+  "mgf_integral_0.05": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((2*((sinh(a)/(6*a) + cosh(a)/(2*a**2) + sinh(a)/a**3 - 3*cosh(a)/a**4 + 3/a**4) + (-sinh(a)/(6*a) - cosh(a)/(2*a**2) - sinh(a)/a**3 - cosh(a)/a**4 + cosh(2*a)/a**4)))/(2*((11/24) + (1/24)))).subs(a, 0.05), 17)"
+   },
+   "value": "1.0004167445586063",
+   "source": "sympy.simplify"
+  },
+  "mgf_closed_0.05": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((sinh(0.05/2)/(0.05/2))**4, 17)"
+   },
+   "value": "1.0004167448004506",
+   "source": "sympy.simplify"
+  },
+  "mgf_second_order_0.05": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(1 + 0.05**2/6, 17)"
+   },
+   "value": "1.0004166666666667",
+   "source": "sympy.simplify"
+  },
+  "eigen_identity_0.05": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((-cosh(a)/(2*a) - sinh(a)/a**2 + 3*cosh(a)/a**3 - 3/a**3) + (cosh(a)/(2*a) + sinh(a)/a**2 + cosh(a)/a**3 - cosh(2*a)/a**3)) + a*2*((sinh(a)/(6*a) + cosh(a)/(2*a**2) + sinh(a)/a**3 - 3*cosh(a)/a**4 + 3/a**4) + (-sinh(a)/(6*a) - cosh(a)/(2*a**2) - sinh(a)/a**3 - cosh(a)/a**4 + cosh(2*a)/a**4))).subs(a, 0.05), 17)"
+   },
+   "value": "-7.2759576141834259e-12",
+   "source": "sympy.simplify"
+  },
+  "mgf_integral_0.1": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((2*((sinh(a)/(6*a) + cosh(a)/(2*a**2) + sinh(a)/a**3 - 3*cosh(a)/a**4 + 3/a**4) + (-sinh(a)/(6*a) - cosh(a)/(2*a**2) - sinh(a)/a**3 - cosh(a)/a**4 + cosh(2*a)/a**4)))/(2*((11/24) + (1/24)))).subs(a, 0.1), 17)"
+   },
+   "value": "1.0016679172331351",
+   "source": "sympy.simplify"
+  },
+  "mgf_closed_0.1": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((sinh(0.1/2)/(0.1/2))**4, 17)"
+   },
+   "value": "1.0016679172290071",
+   "source": "sympy.simplify"
+  },
+  "mgf_second_order_0.1": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(1 + 0.1**2/6, 17)"
+   },
+   "value": "1.0016666666666667",
+   "source": "sympy.simplify"
+  },
+  "eigen_identity_0.1": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((-cosh(a)/(2*a) - sinh(a)/a**2 + 3*cosh(a)/a**3 - 3/a**3) + (cosh(a)/(2*a) + sinh(a)/a**2 + cosh(a)/a**3 - cosh(2*a)/a**3)) + a*2*((sinh(a)/(6*a) + cosh(a)/(2*a**2) + sinh(a)/a**3 - 3*cosh(a)/a**4 + 3/a**4) + (-sinh(a)/(6*a) - cosh(a)/(2*a**2) - sinh(a)/a**3 - cosh(a)/a**4 + cosh(2*a)/a**4))).subs(a, 0.1), 17)"
+   },
+   "value": "-1.8189894035458565e-12",
+   "source": "sympy.simplify"
+  },
+  "mgf_integral_0.2": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((2*((sinh(a)/(6*a) + cosh(a)/(2*a**2) + sinh(a)/a**3 - 3*cosh(a)/a**4 + 3/a**4) + (-sinh(a)/(6*a) - cosh(a)/(2*a**2) - sinh(a)/a**3 - cosh(a)/a**4 + cosh(2*a)/a**4)))/(2*((11/24) + (1/24)))).subs(a, 0.2), 17)"
+   },
+   "value": "1.0066867026882846",
+   "source": "sympy.simplify"
+  },
+  "mgf_closed_0.2": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((sinh(0.2/2)/(0.2/2))**4, 17)"
+   },
+   "value": "1.0066867026892803",
+   "source": "sympy.simplify"
+  },
+  "mgf_second_order_0.2": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(1 + 0.2**2/6, 17)"
+   },
+   "value": "1.0066666666666666",
+   "source": "sympy.simplify"
+  },
+  "eigen_identity_0.2": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((-cosh(a)/(2*a) - sinh(a)/a**2 + 3*cosh(a)/a**3 - 3/a**3) + (cosh(a)/(2*a) + sinh(a)/a**2 + cosh(a)/a**3 - cosh(2*a)/a**3)) + a*2*((sinh(a)/(6*a) + cosh(a)/(2*a**2) + sinh(a)/a**3 - 3*cosh(a)/a**4 + 3/a**4) + (-sinh(a)/(6*a) - cosh(a)/(2*a**2) - sinh(a)/a**3 - cosh(a)/a**4 + cosh(2*a)/a**4))).subs(a, 0.2), 17)"
+   },
+   "value": "-1.1368683772161603e-13",
+   "source": "sympy.simplify"
+  },
+  "mgf_integral_0.4": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((2*((sinh(a)/(6*a) + cosh(a)/(2*a**2) + sinh(a)/a**3 - 3*cosh(a)/a**4 + 3/a**4) + (-sinh(a)/(6*a) - cosh(a)/(2*a**2) - sinh(a)/a**3 - cosh(a)/a**4 + cosh(2*a)/a**4)))/(2*((11/24) + (1/24)))).subs(a, 0.4), 17)"
+   },
+   "value": "1.0269889805489072",
+   "source": "sympy.simplify"
+  },
+  "mgf_closed_0.4": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((sinh(0.4/2)/(0.4/2))**4, 17)"
+   },
+   "value": "1.0269889805488557",
+   "source": "sympy.simplify"
+  },
+  "mgf_second_order_0.4": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(1 + 0.4**2/6, 17)"
+   },
+   "value": "1.0266666666666666",
+   "source": "sympy.simplify"
+  },
+  "eigen_identity_0.4": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((-cosh(a)/(2*a) - sinh(a)/a**2 + 3*cosh(a)/a**3 - 3/a**3) + (cosh(a)/(2*a) + sinh(a)/a**2 + cosh(a)/a**3 - cosh(2*a)/a**3)) + a*2*((sinh(a)/(6*a) + cosh(a)/(2*a**2) + sinh(a)/a**3 - 3*cosh(a)/a**4 + 3/a**4) + (-sinh(a)/(6*a) - cosh(a)/(2*a**2) - sinh(a)/a**3 - cosh(a)/a**4 + cosh(2*a)/a**4))).subs(a, 0.4), 17)"
+   },
+   "value": "0",
+   "source": "sympy.simplify"
+  },
+  "ft1_inner": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "(2/3 - q**2 + q**3/2)*cos(k*q)",
+    "variable": "q",
+    "lower": "0",
+    "upper": "1"
+   },
+   "value": "Piecewise((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4, (k > -oo) & (k < oo) & Ne(k, 0)), (11/24, True))",
+   "source": "sympy.integrate"
+  },
+  "ft1_outer": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "((2 - q)**3/6)*cos(k*q)",
+    "variable": "q",
+    "lower": "1",
+    "upper": "2"
+   },
+   "value": "Piecewise((-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4, (k > -oo) & (k < oo) & Ne(k, 0)), (1/24, True))",
+   "source": "sympy.integrate"
+  },
+  "ft1_identity": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "(2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))) - (sin(k/2)/(k/2))**4"
+   },
+   "value": "2*(-8*sin(k/2)**4 - 4*cos(k) + cos(2*k) + 3)/k**4",
+   "source": "sympy.simplify"
+  },
+  "ft3_inner": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "(2/3 - q**2 + q**3/2)*q*sin(k*q)",
+    "variable": "q",
+    "lower": "0",
+    "upper": "1"
+   },
+   "value": "Piecewise((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5, (k > -oo) & (k < oo) & Ne(k, 0)), (0, True))",
+   "source": "sympy.integrate"
+  },
+  "ft3_outer": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "((2 - q)**3/6)*q*sin(k*q)",
+    "variable": "q",
+    "lower": "1",
+    "upper": "2"
+   },
+   "value": "Piecewise((cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5, (k > -oo) & (k < oo) & Ne(k, 0)), (0, True))",
+   "source": "sympy.integrate"
+  },
+  "ft1_0.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 0.5), 17)"
+   },
+   "value": "0.95910586581275936",
+   "source": "sympy.simplify"
+  },
+  "ft3_0.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 0.5), 17)"
+   },
+   "value": "0.96312607721677068",
+   "source": "sympy.simplify"
+  },
+  "ft1_1.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 1.0), 17)"
+   },
+   "value": "0.84528787996059707",
+   "source": "sympy.simplify"
+  },
+  "ft3_1.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 1.0), 17)"
+   },
+   "value": "0.85972004604582963",
+   "source": "sympy.simplify"
+  },
+  "ft1_1.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 1.5), 17)"
+   },
+   "value": "0.68229479376937974",
+   "source": "sympy.simplify"
+  },
+  "ft3_1.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 1.5), 17)"
+   },
+   "value": "0.70933327616539776",
+   "source": "sympy.simplify"
+  },
+  "ft1_2.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 2.0), 17)"
+   },
+   "value": "0.50136796566561970",
+   "source": "sympy.simplify"
+  },
+  "ft3_2.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 2.0), 17)"
+   },
+   "value": "0.53832989113712482",
+   "source": "sympy.simplify"
+  },
+  "ft1_2.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 2.5), 17)"
+   },
+   "value": "0.33219771635972922",
+   "source": "sympy.simplify"
+  },
+  "ft3_2.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 2.5), 17)"
+   },
+   "value": "0.37290648640508534",
+   "source": "sympy.simplify"
+  },
+  "ft1_3.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 3.0), 17)"
+   },
+   "value": "0.19555901908770737",
+   "source": "sympy.simplify"
+  },
+  "ft3_3.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 3.0), 17)"
+   },
+   "value": "0.23300928400244142",
+   "source": "sympy.simplify"
+  },
+  "ft1_3.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 3.5), 17)"
+   },
+   "value": "0.099954738905542559",
+   "source": "sympy.simplify"
+  },
+  "ft3_3.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 3.5), 17)"
+   },
+   "value": "0.12895455429966654",
+   "source": "sympy.simplify"
+  },
+  "ft1_4.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 4.0), 17)"
+   },
+   "value": "0.042727144137858074",
+   "source": "sympy.simplify"
+  },
+  "ft3_4.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 4.0), 17)"
+   },
+   "value": "0.061376958539790881",
+   "source": "sympy.simplify"
+  },
+  "ft1_4.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 4.5), 17)"
+   },
+   "value": "0.014300517291088270",
+   "source": "sympy.simplify"
+  },
+  "ft3_4.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 4.5), 17)"
+   },
+   "value": "0.023868318341536517",
+   "source": "sympy.simplify"
+  },
+  "ft1_5.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 5.0), 17)"
+   },
+   "value": "0.0032840951330260566",
+   "source": "sympy.simplify"
+  },
+  "ft3_5.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 5.0), 17)"
+   },
+   "value": "0.0068518630274502310",
+   "source": "sympy.simplify"
+  },
+  "ft1_5.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 5.5), 17)"
+   },
+   "value": "0.00037100547956671977",
+   "source": "sympy.simplify"
+  },
+  "ft3_5.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 5.5), 17)"
+   },
+   "value": "0.0011273542467985266",
+   "source": "sympy.simplify"
+  },
+  "ft1_6.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 6.0), 17)"
+   },
+   "value": "4.8963150170177900e-6",
+   "source": "sympy.simplify"
+  },
+  "ft3_6.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 6.0), 17)"
+   },
+   "value": "3.5980991421439280e-5",
+   "source": "sympy.simplify"
+  },
+  "ft1_6.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 6.5), 17)"
+   },
+   "value": "1.2282802849790733e-6",
+   "source": "sympy.simplify"
+  },
+  "ft3_6.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 6.5), 17)"
+   },
+   "value": "-1.0068811381522229e-5",
+   "source": "sympy.simplify"
+  },
+  "ft1_7.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 7.0), 17)"
+   },
+   "value": "0.00010089812647614775",
+   "source": "sympy.simplify"
+  },
+  "ft3_7.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 7.0), 17)"
+   },
+   "value": "-0.00020616965623470392",
+   "source": "sympy.simplify"
+  },
+  "ft1_7.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 7.5), 17)"
+   },
+   "value": "0.00053966747862981565",
+   "source": "sympy.simplify"
+  },
+  "ft3_7.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 7.5), 17)"
+   },
+   "value": "-0.00050468782881269011",
+   "source": "sympy.simplify"
+  },
+  "ft1_8.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 8.0), 17)"
+   },
+   "value": "0.0012814163354057957",
+   "source": "sympy.simplify"
+  },
+  "ft3_8.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 8.0), 17)"
+   },
+   "value": "-0.00058979540265529588",
+   "source": "sympy.simplify"
+  },
+  "ft1_8.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 8.5), 17)"
+   },
+   "value": "0.0019665987802589329",
+   "source": "sympy.simplify"
+  },
+  "ft3_8.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 8.5), 17)"
+   },
+   "value": "-0.00036527872075906774",
+   "source": "sympy.simplify"
+  },
+  "ft1_9.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 9.0), 17)"
+   },
+   "value": "0.0022267452387693303",
+   "source": "sympy.simplify"
+  },
+  "ft3_9.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 9.0), 17)"
+   },
+   "value": "9.7694582751921991e-6",
+   "source": "sympy.simplify"
+  },
+  "ft1_9.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 9.5), 17)"
+   },
+   "value": "0.0019588292276387525",
+   "source": "sympy.simplify"
+  },
+  "ft3_9.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 9.5), 17)"
+   },
+   "value": "0.00030700637304857561",
+   "source": "sympy.simplify"
+  },
+  "ft1_10.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 10.0), 17)"
+   },
+   "value": "0.0013528736356238406",
+   "source": "sympy.simplify"
+  },
+  "ft3_10.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 10.0), 17)"
+   },
+   "value": "0.00040246333297562492",
+   "source": "sympy.simplify"
+  },
+  "ft1_10.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 10.5), 17)"
+   },
+   "value": "0.00071647816730842839",
+   "source": "sympy.simplify"
+  },
+  "ft3_10.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 10.5), 17)"
+   },
+   "value": "0.00032207252357700485",
+   "source": "sympy.simplify"
+  },
+  "ft1_11.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 11.0), 17)"
+   },
+   "value": "0.00027079248434576321",
+   "source": "sympy.simplify"
+  },
+  "ft3_11.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 11.0), 17)"
+   },
+   "value": "0.00017521559509535840",
+   "source": "sympy.simplify"
+  },
+  "ft1_11.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 11.5), 17)"
+   },
+   "value": "6.1057294066796963e-5",
+   "source": "sympy.simplify"
+  },
+  "ft3_11.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 11.5), 17)"
+   },
+   "value": "5.9514707592364476e-5",
+   "source": "sympy.simplify"
+  },
+  "ft1_12.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 12.0), 17)"
+   },
+   "value": "4.7032380793816136e-6",
+   "source": "sympy.simplify"
+  },
+  "ft3_12.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 12.0), 17)"
+   },
+   "value": "8.4729296583438196e-6",
+   "source": "sympy.simplify"
+  },
+  "ft1_12.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 12.5), 17)"
+   },
+   "value": "7.9422661848659645e-10",
+   "source": "sympy.simplify"
+  },
+  "ft3_12.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 12.5), 17)"
+   },
+   "value": "1.1544657729647490e-8",
+   "source": "sympy.simplify"
+  },
+  "ft1_13.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 13.0), 17)"
+   },
+   "value": "1.1996916444001116e-6",
+   "source": "sympy.simplify"
+  },
+  "ft3_13.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 13.0), 17)"
+   },
+   "value": "-2.4284831859776111e-6",
+   "source": "sympy.simplify"
+  },
+  "ft1_13.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 13.5), 17)"
+   },
+   "value": "1.9760826162925056e-5",
+   "source": "sympy.simplify"
+  },
+  "ft3_13.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 13.5), 17)"
+   },
+   "value": "-1.6125853397670126e-5",
+   "source": "sympy.simplify"
+  },
+  "ft1_14.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 14.0), 17)"
+   },
+   "value": "7.7595026075338345e-5",
+   "source": "sympy.simplify"
+  },
+  "ft3_14.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 14.0), 17)"
+   },
+   "value": "-3.3409922313570459e-5",
+   "source": "sympy.simplify"
+  },
+  "ft1_14.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 14.5), 17)"
+   },
+   "value": "0.00016611850904931169",
+   "source": "sympy.simplify"
+  },
+  "ft3_14.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 14.5), 17)"
+   },
+   "value": "-3.7948362958845471e-5",
+   "source": "sympy.simplify"
+  },
+  "ft1_15.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 15.0), 17)"
+   },
+   "value": "0.00024466185091645906",
+   "source": "sympy.simplify"
+  },
+  "ft3_15.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 15.0), 17)"
+   },
+   "value": "-2.3117014242987397e-5",
+   "source": "sympy.simplify"
+  },
+  "ft1_15.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 15.5), 17)"
+   },
+   "value": "0.00027125945018095115",
+   "source": "sympy.simplify"
+  },
+  "ft3_15.5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 15.5), 17)"
+   },
+   "value": "2.5908854762779935e-6",
+   "source": "sympy.simplify"
+  },
+  "ft1_16.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*((sin(k)/(6*k) - cos(k)/(2*k**2) - sin(k)/k**3 - 3*cos(k)/k**4 + 3/k**4) + (-sin(k)/(6*k) + cos(k)/(2*k**2) + sin(k)/k**3 - cos(k)/k**4 + cos(2*k)/k**4))/(2*((11/24) + (1/24)))).subs(k, 16.0), 17)"
+   },
+   "value": "0.00023391300298462064",
+   "source": "sympy.simplify"
+  },
+  "ft3_16.0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 16.0), 17)"
+   },
+   "value": "2.3864833543359688e-5",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_6.0_0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 6.25), 17)"
+   },
+   "value": "4.6216725858236332e-8",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_6.0_1": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 6.375), 17)"
+   },
+   "value": "-8.6755419196463396e-7",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_6.0_2": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 6.3125), 17)"
+   },
+   "value": "-3.0013411368148915e-8",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_6.0_3": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 6.28125), 17)"
+   },
+   "value": "8.8988511832997668e-12",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_6.0_4": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 6.296875), 17)"
+   },
+   "value": "-3.1029260731698329e-9",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_6.0_5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 6.2890625), 17)"
+   },
+   "value": "-2.4737267003611083e-10",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_6.0_6": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 6.28515625), 17)"
+   },
+   "value": "-9.3645368374328734e-12",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_6.0_7": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 6.283203125), 17)"
+   },
+   "value": "-6.8332035708977612e-18",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_6.0_8": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 6.2822265625), 17)"
+   },
+   "value": "1.0809068547731721e-12",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_6.0_9": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 6.28271484375), 17)"
+   },
+   "value": "1.2766003033228491e-13",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_6.0_10": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 6.282958984375), 17)"
+   },
+   "value": "1.4208991041813085e-14",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_6.0_11": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 6.2830810546875), 17)"
+   },
+   "value": "1.3885477468172307e-15",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_8.5_0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 8.75), 17)"
+   },
+   "value": "-0.00018138561777474011",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_8.5_1": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 8.875), 17)"
+   },
+   "value": "-8.4792205461576176e-5",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_8.5_2": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 8.9375), 17)"
+   },
+   "value": "-3.7032208757072339e-5",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_8.5_3": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 8.96875), 17)"
+   },
+   "value": "-1.3484820228107578e-5",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_8.5_4": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 8.984375), 17)"
+   },
+   "value": "-1.8177949782518292e-6",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_8.5_5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 8.9921875), 17)"
+   },
+   "value": "3.9862025824970833e-6",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_8.5_6": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 8.98828125), 17)"
+   },
+   "value": "1.0867469013373066e-6",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_8.5_7": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 8.986328125), 17)"
+   },
+   "value": "-3.6489449393590420e-7",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_8.5_8": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 8.9873046875), 17)"
+   },
+   "value": "3.6108436977104654e-7",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_8.5_9": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 8.98681640625), 17)"
+   },
+   "value": "-1.8656179853167436e-9",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_8.5_10": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 8.987060546875), 17)"
+   },
+   "value": "1.7961924909921254e-7",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_8.5_11": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 8.9869384765625), 17)"
+   },
+   "value": "8.8879282336035032e-8",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_12.5_0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 12.75), 17)"
+   },
+   "value": "-2.1551350187089654e-7",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_12.5_1": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 12.625), 17)"
+   },
+   "value": "-7.4985103500065828e-9",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_12.5_2": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 12.5625), 17)"
+   },
+   "value": "2.2247066088603057e-12",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_12.5_3": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 12.59375), 17)"
+   },
+   "value": "-7.7562241071147887e-10",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_12.5_4": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 12.578125), 17)"
+   },
+   "value": "-6.1841564927304403e-11",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_12.5_5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 12.5703125), 17)"
+   },
+   "value": "-2.3411273448558121e-12",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_12.5_6": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 12.56640625), 17)"
+   },
+   "value": "-1.7352627123697124e-18",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_12.5_7": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 12.564453125), 17)"
+   },
+   "value": "2.7022657239139632e-13",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_12.5_8": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 12.5654296875), 17)"
+   },
+   "value": "3.1914976304929753e-14",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_12.5_9": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 12.56591796875), 17)"
+   },
+   "value": "3.5522251116447255e-15",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_12.5_10": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 12.566162109375), 17)"
+   },
+   "value": "3.4715742808534542e-16",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_12.5_11": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 12.5662841796875), 17)"
+   },
+   "value": "2.4731778169184975e-17",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_15.0_0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 15.25), 17)"
+   },
+   "value": "-1.0671941557996841e-5",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_15.0_1": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 15.375), 17)"
+   },
+   "value": "-4.0113091008968880e-6",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_15.0_2": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 15.4375), 17)"
+   },
+   "value": "-6.8684904235644687e-7",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_15.0_3": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 15.46875), 17)"
+   },
+   "value": "9.5980867501119410e-7",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_15.0_4": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 15.453125), 17)"
+   },
+   "value": "1.3818689625985320e-7",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_15.0_5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 15.4453125), 17)"
+   },
+   "value": "-2.7393466674696268e-7",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_15.0_6": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 15.44921875), 17)"
+   },
+   "value": "-6.7770975528939167e-8",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_15.0_7": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 15.451171875), 17)"
+   },
+   "value": "3.5234162719663162e-8",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_15.0_8": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 15.4501953125), 17)"
+   },
+   "value": "-1.6261915132469338e-8",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_15.0_9": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 15.45068359375), 17)"
+   },
+   "value": "9.4877540292829047e-9",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_15.0_10": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 15.450439453125), 17)"
+   },
+   "value": "-3.3866739196863397e-9",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_15.0_11": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 15.4505615234375), 17)"
+   },
+   "value": "3.0506418286645308e-9",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_k7": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 7), 17)"
+   },
+   "value": "-0.00020616965623470408",
+   "source": "sympy.simplify"
+  },
+  "ft3_bisect_k8": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*pi*(3/(2*pi))*((-cos(k)/(6*k) - sin(k)/(3*k**2) - 6*sin(k)/k**4 - 12*cos(k)/k**5 + 12/k**5) + (cos(k)/(6*k) + sin(k)/(3*k**2) + 2*sin(k)/k**4 + 2*sin(2*k)/k**4 - 4*cos(k)/k**5 + 4*cos(2*k)/k**5))/k).subs(k, 8), 17)"
+   },
+   "value": "-0.00058979540265529595",
+   "source": "sympy.simplify"
+  },
+  "mgf_closed_form_closure": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "expand((-(16*sinh(a/2)**4 + 8*cosh(a) - 2*cosh(2*a) - 6)/a**4).rewrite(exp))"
+   },
+   "value": "0",
+   "source": "sympy.simplify"
+  },
+  "ft1_identity_closure": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "expand((2*(-8*sin(k/2)**4 - 4*cos(k) + cos(2*k) + 3)/k**4).rewrite(exp))"
+   },
+   "value": "0",
+   "source": "sympy.simplify"
+  }
+ },
+ "identity_closures": {
+  "mgf_closed_form_closure": "0",
+  "ft1_identity_closure": "0"
+ }
+}

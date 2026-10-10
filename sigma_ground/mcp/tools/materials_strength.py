@@ -69,6 +69,9 @@ def elastic_analysis(material_key: str, strain: float = 0.001) -> dict[str, Any]
         "strain_energy_uniaxial_J_m3": _safe_call(E.strain_energy_density_uniaxial, material_key, strain),
         "strain_energy_shear_J_m3": _safe_call(E.strain_energy_density_shear, material_key, strain),
         "strain_energy_hydrostatic_J_m3": _safe_call(E.strain_energy_density_hydrostatic, material_key, strain),
+        # PHYSICS_GAP (2026-10-10, unification round 2, U8; KNOWN_GAPS.md): the next two
+        # entries ignore material_key — fixed Lamé parameters and a fixed 250 MPa yield, so
+        # every material reports K = 70 GPa, E = 78.75 GPa, G = 30 GPa. Flagged, not fixed.
         "is_yielded_at_200MPa": _safe_call(E.is_yielded, 200.0e6, 0.0, 0.0, 250.0e6),
         "moduli_from_lame": _safe_call(E.moduli_from_lame, 50.0e9, 30.0e9),
     }

@@ -1,0 +1,25 @@
+ M misc/BROWSER_REPORT.json
+ M misc/DATASETS.md
+ M misc/IMPROVEMENT_PLAN.md
+ M misc/daily_job.log
+ M sigma_ground/radiance/web/data/plate_pushed_off_the_1700s_table.json
+ M sigma_ground/radiance/web/data/plate_pushed_off_the_1700s_table_v17.json
+ M sigma_ground/radiance/web/data/plate_pushed_off_the_1700s_table_v30.json
+?? misc/MPDR_FOR_VN.md
+?? misc/PERF_REPORT.json
+?? sigma_ground/field/interface/fixtures/sbdb_asteroids_54.json
+?? sigma_ground/field/interface/fixtures/sbdb_asteroids_named_mba.json
+?? sigma_ground/field/interface/test_probe_propagation.py
+?? sigma_ground/radiance/web/data/leaf_stress2_16x.json
+?? sigma_ground/radiance/web/data/leaf_stress2_1x.json
+?? sigma_ground/radiance/web/data/leaf_stress2_2x.json
+?? sigma_ground/radiance/web/data/leaf_stress2_4x.json
+?? sigma_ground/radiance/web/data/leaf_stress2_8x.json
+?? sigma_ground/radiance/web/data/leaf_stress_16x.json
+?? sigma_ground/radiance/web/data/leaf_stress_1x.json
+?? sigma_ground/radiance/web/data/leaf_stress_2x.json
+?? sigma_ground/radiance/web/data/leaf_stress_4x.json
+?? sigma_ground/radiance/web/data/leaf_stress_8x.json
+?? sigma_ground/radiance/web/data/mining_stage_swap_test.json
+?? sigma_ground/radiance/web/data/von_neumann_phase0.json
+?? tov_sigma_pair_results.json

@@ -1,0 +1,41 @@
+U14G pre-registration (written before any measurement run), 2026-10-10.
+Engine under test: sigma_ground/dynamics/continuum.py (HEAD 339c4f4, file clean in working tree).
+
+D1 -- _buoyancy_force uses linear alpha_L where volumetric beta = 3 alpha_L is required.
+  Quantity R1 = a_engine / a_exact.
+    a_engine: buoyancy acceleration the engine applies to a parcel at T0+dT (T0 = 300 K):
+      (i) direct call _buoyancy_force(p, rho_0, T0, g);
+      (ii) end-to-end: lone parcel in ContinuumScene, one continuum_step, (dv_hot - dv_neutral)/dt.
+    a_exact: Archimedes on an isotropically expanded parcel in ambient of density rho(T0):
+      a_exact = g (1 - rho(T0)/rho(T)), rho(T)/rho(T0) = exp(-3 * int_T0^T alpha_L(T') dT'),
+      alpha_L(T) from the same cascade the engine uses (expansion_coefficient_at_T).
+    Secondary reference: first-order Boussinesq a_B = -3 alpha_L(T) dT g.
+  Materials: cubic crystals only (beta = 3 alpha_L exact by symmetry): iron, copper, aluminum, gold,
+    silicon, tungsten, nickel, silver, lead, platinum. dT in {+1, +10, -10, +100} K. g from Mentat.
+  Prediction (defect present): R1 = 1/3 within 2 % for |dT| <= 10 K.
+  Criterion: DEFECT-CONFIRMED if every |dT| <= 10 K case has R1 in [0.300, 0.367];
+             DEFECT-REFUTED  if every such case has R1 in [0.9, 1.1]; otherwise INCONCLUSIVE.
+
+D2 -- _heat_conduction carries an extra 1/rho_i.
+  Correct SPH form (Brookshaw 1985 / Monaghan 1992 / Cleary & Monaghan 1999, as written in
+  Jubelgas, Springel & Dolag 2004 eq. 17): du_i/dt = sum_j m_j/(rho_i rho_j) (k_i+k_j)(T_i-T_j) r_ij.gradW/(r^2+eta^2),
+  dT_i/dt = (du_i/dt)/c_p.  Engine divides by rho_i*c_p.
+  (a) Lattice operator test: iron, 16x7x7 cubic lattice, dx = 1 cm, parcel mass = rho*dx^3, h = smoothing_length(dx^3)
+      = 1.2 dx, T = 300 K + 1 K sin(2 pi x / 8dx). Interior parcels (iy = iz = 3, ix in 3..12). Fitted amplitude ratio
+      Q = fit(dT/dt) / (-D k^2 dT sin kx), D = kappa/(rho c_p) with the cascade's kappa(T), c_p(T), rho = m/dx^3.
+      Prediction: Q_engine * rho ~ 1 (Q_engine ~ 1.3e-4), Q_reference (eq. 17 implemented independently) ~ 1.
+      Criterion: CONFIRMED if Q_ref in [0.8, 1.2], Q_engine < 1e-2 and engine/ref = 1/rho_sph,i per parcel to 1e-9 relative.
+                 REFUTED if Q_engine in [0.8, 1.2].
+  (b) Density-scaling exponent: masses x s, s in {0.25, 0.5, 1, 2, 4}, same geometry, T field, kappa, c_p.
+      Slope d ln|A| / d ln rho_sph. Correct physics: -1. Prediction (defect): -2.
+      Criterion: CONFIRMED if engine slope in [-2.05, -1.95]; REFUTED if in [-1.05, -0.95].
+  (c) Two-parcel energy balance with unequal masses (radii 10.0 and 12.5 mm, separation 15 mm, h = 20 mm,
+      T = 1000 K / 300 K). I = |sum m c_p dT/dt| / sum |m c_p dT/dt|.
+      Prediction (defect): I_engine = |rho_1 - rho_2|/(rho_1 + rho_2) (to 1e-6 relative), I_ref <= 1e-12.
+      Criterion: CONFIRMED if I_engine matches and > 1e-3; REFUTED if I_engine < 1e-12.
+  (d) End-to-end: one continuum_step on lattice (a) with eos="isothermal", c_s = 1e-3 m/s (to freeze the lattice),
+      gravity 0, energy_equation False, dt = 0.01 s: (T_after - T_before)/dt equals _heat_conduction on the
+      initial state to 1e-3 relative at the interior parcels (shows the stepper inherits the operator).
+  Overall D2 verdict: CONFIRMED if (a), (b), (c) all confirm; REFUTED if (a) and (b) refute.
+
+Overall outcome: DEFECT-CONFIRMED if both confirm, DEFECT-REFUTED if both refute, MIXED if one each.

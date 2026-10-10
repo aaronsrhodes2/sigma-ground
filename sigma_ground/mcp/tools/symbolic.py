@@ -11,7 +11,15 @@ from sigma_ground.mcp.provenance import ToolResult
 
 
 def _sympify(expr: str):
-    """Parse a string into a sympy expression, raising informatively."""
+    """Parse a string into a sympy expression, raising informatively.
+
+    PHYSICS_GAP (2026-10-10, unification round 2, U1; KNOWN_GAPS.md): parsing
+    happens before the caller creates `sp.Symbol(variable)`, so a variable named
+    E, I, N, S, O or Q is read as a sympy constant and the answer is silently
+    wrong: differentiate_expr('E**2', 'E') returns '0'; solve_equation('E**2 - 4',
+    'E') returns []. Fix direction: sympify with locals={variable: Symbol(variable)}.
+    Flagged, not fixed.
+    """
     import sympy as sp
     try:
         return sp.sympify(expr, convert_xor=True)

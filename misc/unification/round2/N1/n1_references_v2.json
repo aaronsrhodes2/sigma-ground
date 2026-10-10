@@ -1,0 +1,290 @@
+[
+ {
+  "key": "Riley2019",
+  "cite": "Riley T. E. et al. 2019, ApJL 887, L21 — A NICER view of PSR J0030+0451: millisecond pulsar parameter estimation",
+  "id": "arXiv:1912.05702; doi:10.3847/2041-8213/ab481c",
+  "value": "M = 1.34 (+0.15/-0.16) Msun, R_eq = 12.71 (+1.14/-1.19) km (~16-84 %)",
+  "verified": "arXiv abstract fetched",
+  "url": "https://arxiv.org/abs/1912.05702",
+  "status_v2": "revisited: Vinciguerra+2024 report that adding XMM-Newton constraints disfavours the 2019 main solutions; kept only as a soft (reported, not pass/fail) anchor"
+ },
+ {
+  "key": "Miller2019",
+  "cite": "Miller M. C. et al. 2019, ApJL 887, L24 — PSR J0030+0451 mass and radius from NICER data",
+  "id": "arXiv:1912.05705",
+  "value": "M = 1.44 (+0.15/-0.14) Msun, R_e = 13.02 (+1.24/-1.06) km (68 %)",
+  "verified": "arXiv abstract fetched",
+  "url": "https://arxiv.org/abs/1912.05705",
+  "status_v2": "revisited by Vinciguerra+2024 (same data set); soft anchor only"
+ },
+ {
+  "key": "Riley2021",
+  "cite": "Riley T. E. et al. 2021, ApJL 918, L27 — A NICER view of the massive pulsar PSR J0740+6620 informed by radio timing and XMM-Newton spectroscopy",
+  "id": "arXiv:2105.06980",
+  "value": "R_eq = 12.39 (+1.30/-0.98) km, M = 2.072 (+0.067/-0.066) Msun",
+  "verified": "web search (arXiv, UvA DARE, NTRS agree)",
+  "url": "https://arxiv.org/pdf/2105.06980",
+  "status_v2": "superseded by Salmi+2024 (3.6 yr of NICER data); kept for comparison"
+ },
+ {
+  "key": "Fonseca2021",
+  "cite": "Fonseca E. et al. 2021, ApJL 915, L12 — Refined mass and geometric measurements of the high-mass PSR J0740+6620",
+  "id": "arXiv:2104.00880; doi:10.3847/2041-8213/ac03b8",
+  "value": "M = 2.08 +/- 0.07 Msun (68.3 %)",
+  "verified": "web search (ar5iv copy)",
+  "url": "https://ar5iv.arxiv.org/html/2104.00880"
+ },
+ {
+  "key": "Antoniadis2013",
+  "cite": "Antoniadis J. et al. 2013, Science 340, 1233232 — A massive pulsar in a compact relativistic binary",
+  "id": "doi:10.1126/science.1233232; arXiv:1304.6875",
+  "value": "PSR J0348+0432: M = 2.01 +/- 0.04 Msun (SUPERSEDED, see Saffer2025)",
+  "verified": "web search",
+  "url": "https://arxiv.org/pdf/1304.6875.pdf"
+ },
+ {
+  "key": "Saffer2025",
+  "cite": "Saffer A. et al. 2025, ApJL 983, L20 — A Lower Mass Estimate for PSR J0348+0432 Based on CHIME/Pulsar Precision Timing",
+  "id": "arXiv:2412.02850; doi:10.3847/2041-8213/adc25e",
+  "value": "M_p = 1.806(37) Msun; the earlier ~2.01 Msun relied on WD-companion spectroscopy the authors argue was mis-modelled",
+  "verified": "v2: arXiv abstract fetched (comments field: 'Submitted to ApJ Letters'); journal reference ApJL 983, L20 (2025) and DOI confirmed by a Crossref metadata query",
+  "url": "https://arxiv.org/abs/2412.02850",
+  "status_v2": "one 2025 timing analysis revises J0348 below 2 Msun; independent confirmation not yet available"
+ },
+ {
+  "key": "Chandrasekhar1931",
+  "cite": "Chandrasekhar S. 1931, ApJ 74, 81 — The maximum mass of ideal white dwarfs",
+  "id": "1931ApJ....74...81C",
+  "value": "unique limiting mass of a relativistically degenerate polytrope; 1.44 Msun with mu_e = 2 in the modern statement",
+  "verified": "web search",
+  "url": "https://repository.ias.ac.in/70320"
+ },
+ {
+  "key": "Chandrasekhar1935",
+  "cite": "Chandrasekhar S. 1935, MNRAS 95, 207 — The highly collapsed configurations of a stellar mass (second paper)",
+  "id": "1935MNRAS..95..207C",
+  "value": "exact T = 0 relativistic degenerate-gas EOS and the white-dwarf mass-radius relation",
+  "verified": "web search (IAS repository record)",
+  "url": "https://repository.ias.ac.in/70449"
+ },
+ {
+  "key": "LaneEmden_n3",
+  "cite": "Lane-Emden n = 3 constants xi_1 = 6.89685, xi_1^2|theta'(xi_1)| = 2.01824 (Chandrasekhar 1939/1967 Table 4; Shapiro & Teukolsky 1983 eq. 3.3.12)",
+  "id": "book",
+  "value": "omega_3 = 2.01824; M_Ch written 1.14205e34 g / mu_e^2 (= 5.742/mu_e^2 Msun with m_H)",
+  "verified": "web fetch of the Tohline structure page that quotes both books",
+  "url": "https://vistrails.org/index.php/User:Tohline/SSC/Structure/WhiteDwarfs"
+ },
+ {
+  "key": "Bond2017",
+  "cite": "Bond H. E. et al. 2017, ApJ 840, 70 — The Sirius System and its Astrophysical Puzzles",
+  "id": "arXiv:1703.10625; doi:10.3847/1538-4357/aa6af8",
+  "value": "Sirius B dynamical mass 1.018 +/- 0.011 Msun; radius NOT in the abstract (read from the paper before use)",
+  "verified": "v2: arXiv abstract fetched (M_B = 1.018 +/- 0.011 Msun); volume/page from Crossref metadata",
+  "url": "https://arxiv.org/abs/1703.10625"
+ },
+ {
+  "key": "HamadaSalpeter1961",
+  "cite": "Hamada T. & Salpeter E. E. 1961, ApJ 134, 683 — Models for zero-temperature stars",
+  "id": "1961ApJ...134..683H",
+  "value": "zero-T WD mass-radius with composition-dependent Coulomb corrections",
+  "verified": "web search (secondary descriptions)",
+  "url": "https://arxiv.org/pdf/1201.3822"
+ },
+ {
+  "key": "Salpeter1961",
+  "cite": "Salpeter E. E. 1961, ApJ 134, 669 — Energy and pressure of a zero-temperature plasma",
+  "id": "1961ApJ...134..669S",
+  "value": "Coulomb lattice, Thomas-Fermi and exchange corrections to the degenerate electron gas",
+  "verified": "web search (abstract via database)",
+  "url": "https://synapsesocial.com/papers/W1989039387"
+ },
+ {
+  "key": "Tolman1939",
+  "cite": "Tolman R. C. 1939, Phys. Rev. 55, 364 — Static solutions of Einstein's field equations for spheres of fluid",
+  "id": "doi:10.1103/PhysRev.55.364",
+  "value": "TOV equation; exact interior solutions",
+  "verified": "web search (APS DOI record, Caltech)",
+  "url": "https://www.doi.org/10.1103/PHYSREV.55.364"
+ },
+ {
+  "key": "OV1939",
+  "cite": "Oppenheimer J. R. & Volkoff G. M. 1939, Phys. Rev. 55, 374 — On massive neutron cores",
+  "id": "doi:10.1103/PhysRev.55.374",
+  "value": "free neutron gas: no static equilibrium above ~3/4 Msun (abstract); modern statement M_max ~ 0.7 Msun",
+  "verified": "web search (abstract reproduction + Chamel et al. 2013 arXiv:1307.3995)",
+  "url": "https://arxiv.org/pdf/1307.3995",
+  "status_v2": "free-neutron M_max = 0.710 Msun recomputed in scratch numerics (n1_survey_v2 section 12); the Chamel+2013 '~0.7' attribution is not in that abstract and is dropped; the OV abstract (APS) could not be fetched"
+ },
+ {
+  "key": "Tolman1930",
+  "cite": "Tolman R. C. 1930, Phys. Rev. 35, 875 — On the use of the energy-momentum principle in general relativity",
+  "id": "doi:10.1103/PhysRev.35.875",
+  "value": "Tolman mass M = Int (eps + 3P) sqrt(g00) dV0 for static systems",
+  "verified": "web search (APS record + gr-qc/0505040)",
+  "url": "https://link.aps.org/doi/10.1103/PhysRev.35.875"
+ },
+ {
+  "key": "Margueron2018",
+  "cite": "Margueron J., Hoffmann Casali R. & Gulminelli F. 2018, PRC 97, 025805 — Equation of state for dense nucleonic matter from metamodeling. I",
+  "id": "arXiv:1708.06894; doi:10.1103/PhysRevC.97.025805",
+  "value": "Tables 1-2 'present estimation' (from analyses of experimental data): n_sat 0.155 +/- 0.005 fm^-3, E_sat -15.8 +/- 0.3 MeV, K_sat 230 +/- 20 MeV, E_sym 32 +/- 2 MeV, L_sym 60 +/- 15 MeV, K_sym -100 +/- 100 MeV, Q_sat 300 +/- 400 MeV. Table 4 'Total Average' over 50 models (Skyrme, RMF, RHF weighted equally by type): K_sat 251 (29), L_sym 76.6 (29.2) — a model spread, not data.",
+  "verified": "v2: ar5iv full text fetched; Tables 1, 2 and 4 read",
+  "url": "https://ar5iv.arxiv.org/html/1708.06894",
+  "status_v2": "v1 wrongly used the Table 4 model average as 'empirical parameters'"
+ },
+ {
+  "key": "Lattimer2023",
+  "cite": "Lattimer J. M. 2023, Particles 6, 30 — Constraints on nuclear symmetry energy parameters",
+  "id": "doi:10.3390/particles6010003",
+  "value": "neutron-matter theory: S_V = 32.0 +/- 1.1 MeV, L = 51.9 +/- 7.9 MeV (68 %); PREX+CREX jointly L = 53 +/- 13 MeV; R_1.4 = 11.6 +/- 1.0 km",
+  "verified": "web search (MDPI page)",
+  "url": "https://mdpi.com/2571-712X/6/1/3"
+ },
+ {
+  "key": "GargColo2018",
+  "cite": "Garg U. & Colo G. 2018, Prog. Part. Nucl. Phys. 101, 55 — The compression-mode giant resonances and nuclear incompressibility",
+  "id": "arXiv:1801.03672; doi:10.1016/j.ppnp.2018.03.001",
+  "value": "review of K_infinity from ISGMR; abstract gives no number (a talk abstract by Colo: ~240 MeV from magic nuclei; Sn suggests lower). Value to be read from section 6 at implementation",
+  "verified": "web search + arXiv abstract fetch (no value in abstract)",
+  "url": "https://arxiv.org/abs/1801.03672",
+  "status_v2": "no K value in the abstract; the repo's K_SAT_MEV = 230 is cited to Margueron 2018 Table 1 instead"
+ },
+ {
+  "key": "AME2020",
+  "cite": "Wang M., Huang W. J., Kondev F. G., Audi G. & Naimi S. 2021, Chinese Phys. C 45, 030003 — The AME 2020 atomic mass evaluation (II)",
+  "id": "doi:10.1088/1674-1137/abddaf",
+  "value": "measured nuclide masses; the repo's isotopes.json is refreshed from it (145 nuclides)",
+  "verified": "web search (CPC page)",
+  "url": "https://cpc.ihep.ac.cn/article/doi/10.1088/1674-1137/abddaf"
+ },
+ {
+  "key": "BPS1971",
+  "cite": "Baym G., Pethick C. & Sutherland P. 1971, ApJ 170, 299 — The ground state of matter at high densities: equation of state and stellar models",
+  "id": "1971ApJ...170..299B",
+  "value": "outer crust: bcc lattice of 56Fe at low density, increasingly neutron-rich nuclei with depth; valid up to neutron drip ~4.3e11 g/cm^3",
+  "verified": "web search (Haensel lecture notes + reviews)",
+  "url": "https://luth.obspm.fr/IHP06/lectures/haensel/haensel3.pdf"
+ },
+ {
+  "key": "Chabanat1998",
+  "cite": "Chabanat E., Bonche P., Haensel P., Meyer J. & Schaeffer R. 1998, Nucl. Phys. A 635, 231 (with NPA 627, 710 (1997)) — Skyrme parametrization SLy",
+  "id": "doi:10.1016/S0375-9474(98)00180-8",
+  "value": "SLy4 Skyrme force for neutron-rich matter; parameter values to be copied and verified from the paper's table at implementation",
+  "verified": "web search (citations in astro-ph/0006135, 2401.15916)",
+  "url": "https://arxiv.org/pdf/astro-ph/0006135"
+ },
+ {
+  "key": "DouchinHaensel2001",
+  "cite": "Douchin F. & Haensel P. 2001, A&A 380, 151 — A unified equation of state of dense matter and neutron star structure",
+  "id": "arXiv:astro-ph/0111092; doi:10.1051/0004-6361:20011402",
+  "value": "SLy unified crust+core EOS: static NS minimum mass 0.094 Msun and maximum mass 2.05 Msun",
+  "verified": "arXiv abstract fetched",
+  "url": "https://arxiv.org/abs/astro-ph/0111092"
+ },
+ {
+  "key": "Read2009",
+  "cite": "Read J. S., Lackey B. D., Owen B. J. & Friedman J. L. 2009, PRD 79, 124032 — Constraints on a phenomenologically parameterized neutron-star equation of state",
+  "id": "arXiv:0812.2163",
+  "value": "piecewise polytrope, 3 parameters fit candidate EOSs to ~4 % rms below the 1.4 Msun central density",
+  "verified": "web search",
+  "url": "https://ar5iv.arxiv.org/html/0812.2163"
+ },
+ {
+  "key": "Abbott2018",
+  "cite": "Abbott B. P. et al. (LIGO/Virgo) 2018, PRL 121, 161101 — GW170817: measurements of neutron star radii and equation of state",
+  "id": "doi:10.1103/PhysRevLett.121.161101",
+  "value": "P(2 rho_nuc) = 3.5 (+2.7/-1.7) x 10^34 dyn/cm^2 at 90 %; rho_nuc = 2.8 x 10^14 g/cm^3 (Introduction)",
+  "verified": "v2: arXiv abstract and ar5iv full text fetched (rho_nuc definition read from the Introduction)",
+  "url": "https://authors.library.caltech.edu/records/7ns0n-1j457/preview/PhysRevLett.121.161101.pdf"
+ },
+ {
+  "key": "PodkowkaMendesPoisson2018",
+  "cite": "Podkowka D. M., Mendes R. F. P. & Poisson E. 2018, PRD 98, 064057 — Trace of the energy-momentum tensor and macroscopic properties of neutron stars",
+  "id": "arXiv:1807.01565",
+  "value": "C = GM/(R c^2) at which the central trace vanishes: 0.262 (+0.011/-0.017), median and 90 % interval over 20,000 four-parameter piecewise polytropes (Read+2009) with the low-density part fixed to the piecewise fit of Douchin & Haensel 2001 — a model-ensemble spread",
+  "verified": "v2: ar5iv full text fetched (definition in the Introduction, sample size in Sec. III / Fig. 4)",
+  "url": "https://arxiv.org/abs/1807.01565"
+ },
+ {
+  "key": "Fujimoto2022",
+  "cite": "Fujimoto Y., Fukushima K., McLerran L. D. & Praszalowicz M. 2022, PRL 129, 252702 — Trace anomaly as signature of conformality in neutron stars",
+  "id": "arXiv:2207.06753",
+  "value": "the matter part of the trace anomaly 'may be positive definite' (no sign flip) when matched to high-density QCD; it steeply approaches the conformal limit, explaining the sound-speed peak",
+  "verified": "v2: arXiv abstract fetched; the v1 phrase 'Delta near 0 by about 5 n_sat' is not in the abstract and is withdrawn",
+  "url": "https://ar5iv.labs.arxiv.org/html/2207.06753"
+ },
+ {
+  "key": "Mendes2015",
+  "cite": "Mendes R. F. P. 2015, PRD 91, 064024 — Possibility of setting a new constraint to scalar-tensor theories",
+  "id": "arXiv:1412.6789",
+  "value": "compact NS with positive trace are unstable in scalar-tensor theories with beta above a critical value",
+  "verified": "web search (ar5iv + citing papers)",
+  "url": "https://ar5iv.org/html/1412.6789"
+ },
+ {
+  "key": "DEF1993",
+  "cite": "Damour T. & Esposito-Farese G. 1993, PRL 70, 2220 — Nonperturbative strong-field effects in tensor-scalar theories of gravitation",
+  "id": "doi:10.1103/PhysRevLett.70.2220",
+  "value": "spontaneous scalarization of neutron stars; strong-field deviations invisible to weak-field tests (page 2220 not shown in the result, PRL 70 no. 15 confirmed)",
+  "verified": "web search (scanned first page)",
+  "url": "https://omeka.ihes.fr/document/P_93_01.pdf"
+ },
+ {
+  "key": "MIT1974",
+  "cite": "Chodos A., Jaffe R. L., Johnson K., Thorn C. B. & Weisskopf V. F. 1974, PRD 9, 3471 — New extended model of hadrons",
+  "id": "doi:10.1103/PhysRevD.9.3471",
+  "value": "MIT bag model; bag constant B = energy-density difference of perturbative and physical vacua",
+  "verified": "web search (secondary)",
+  "url": "https://arxiv.org/pdf/2212.11107"
+ },
+ {
+  "key": "Witten1984",
+  "cite": "Witten E. 1984, PRD 30, 272 — Cosmic separation of phases",
+  "id": "INSPIRE 200133",
+  "value": "strange quark matter could be absolutely stable (E/A < 938 MeV); bag-model strange stars",
+  "verified": "web search (INSPIRE)",
+  "url": "https://inspirehep.net/literature/200133"
+ },
+ {
+  "key": "FarhiJaffe1984",
+  "cite": "Farhi E. & Jaffe R. L. 1984, PRD 30, 2379 — Strange matter",
+  "id": "doi:10.1103/PhysRevD.30.2379",
+  "value": "stability window for massless quarks, alpha_s = 0: B^(1/4) = 145-164 MeV (lower edge from stability of ordinary nuclei)",
+  "verified": "web search (secondary: astro-ph/9601129, Madsen review)",
+  "url": "https://ar5iv.arxiv.org/html/astro-ph/9601129",
+  "status_v2": "window recomputed [DERIVED, Mentat]: B^1/4 = 144.4-162.8 MeV (massless quarks, alpha_s = 0, E/A(56Fe atom) = 930.41 MeV); the v1 '145-164' was secondary-sourced"
+ },
+ {
+  "key": "Vinciguerra2024",
+  "cite": "Vinciguerra S. et al. 2024, ApJ 961, 62 — An updated mass-radius analysis of the 2017-2018 NICER data set of PSR J0030+0451",
+  "id": "arXiv:2308.09469",
+  "value": "including XMM-Newton constraints disfavours the 2019 main solutions; new solutions ~[1.4 Msun, 11.5 km] or ~[1.7 Msun, 14.5 km] depending on the model",
+  "verified": "v2: arXiv abstract fetched",
+  "url": "https://arxiv.org/abs/2308.09469"
+ },
+ {
+  "key": "Salmi2024",
+  "cite": "Salmi T. et al. 2024, ApJ 974, 294 — The Radius of the High-mass Pulsar PSR J0740+6620 with 3.6 yr of NICER Data",
+  "id": "arXiv:2406.14466",
+  "value": "R_eq = 12.49 (+1.28/-0.88) km, M = 2.073 +/- 0.069 Msun (68 %)",
+  "verified": "v2: arXiv abstract fetched",
+  "url": "https://arxiv.org/abs/2406.14466"
+ },
+ {
+  "key": "Choudhury2024",
+  "cite": "Choudhury D. et al. 2024, ApJL 971, L20 — A NICER View of the Nearest and Brightest Millisecond Pulsar: PSR J0437-4715",
+  "id": "arXiv:2407.06789; doi:10.3847/2041-8213/ad5a6f",
+  "value": "M = 1.418 +/- 0.037 Msun, R_eq = 11.36 (+0.95/-0.63) km (68 %)",
+  "verified": "v2: arXiv abstract fetched; volume/page from Crossref metadata",
+  "url": "https://arxiv.org/abs/2407.06789"
+ },
+ {
+  "key": "HaenselPotekhin2004",
+  "cite": "Haensel P. & Potekhin A. Y. 2004, A&A 428, 191 — Analytical representations of unified equations of state of neutron-star matter",
+  "id": "arXiv:astro-ph/0408324",
+  "value": "analytic fits of the unified FPS and SLy EOS; used here (eq. 14, Table 2 SLy) only for scratch verification of the plan's expected test outcomes",
+  "verified": "v2: arXiv abstract fetched; fit coefficients as transcribed by the skeptic and reproduced DH2001 M_max 2.05 (2.047)",
+  "url": "https://arxiv.org/abs/astro-ph/0408324"
+ }
+]

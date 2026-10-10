@@ -1,0 +1,19 @@
+{
+  "written_before_any_run": "2026-10-10, before a2_sigma_action.py was executed",
+  "conventions": "MTW (-,+,+,+); EH action +(M/2) sqrt(-g) R with M = c^4/(8 pi G); weak static metric ds2 = -(1+2Phi)dt2 + (1-2Psi)dx2; dust L_m = -rho (1 + f sigma) sqrt(1+2Phi)",
+  "family": "L = sqrt(-g)[(M/2)(1+2 zeta sigma) R - (M/2) kappa (d sigma)^2 - (M/2) m2 sigma^2] + L_m[g; m_i(1+f_i sigma)]",
+  "predictions": {
+    "P1_ghost_criterion": "after the linearised Weyl shift Phi = Phi~ - zeta sigma, Psi = Psi~ + zeta sigma the sigma sector decouples with kinetic coefficient kappa_E = kappa + 6 zeta^2; ghost iff kappa_E < 0",
+    "P2_static_sigma": "xi_eff = (zeta - f_A)/kappa_E, i.e. sigma = 2 xi_eff G M/(r c^2)",
+    "P3_fifth_force": "G_AB/G = 1 + alpha_A alpha_B with alpha_A alpha_B = 2 (f_A - zeta)(f_B - zeta)/kappa_E; attractive for like bodies iff kappa_E > 0",
+    "P4_repo_sign": "sigma > 0 near matter with f > 0 (the repo's sign): pure sigma-T (zeta = 0) requires kappa < 0 (ghost, repulsive); with a sigma-R term it is ghost-free iff zeta > f",
+    "P5_PPN_gamma": "gamma - 1 = -2 alpha_A alpha_B/(1 + alpha_A alpha_B); for alpha^2 = 2 xi f = 0.313: -0.477 (healthy), +0.911 (ghost)",
+    "P6_composition_invariance": "clock k_mu = -2 xi_eff f_mu and EP eta = -2 xi_eff Delta f for every (kappa, zeta, sign): no action choice moves the clock, MICROSCOPE, white-dwarf or Eot-Wash exclusions at fixed xi_eff",
+    "P7_massive": "Einstein-frame range lambda^2 = kappa_E/m2; Yukawa e^{-r/lambda}/r iff m2/kappa_E > 0, oscillatory cos(r/lambda)/r otherwise",
+    "P8_covariant_box": "static covariant box = (1 + 2 gamma Phi) Lap sigma + (1 - gamma) grad Phi . grad sigma + O(Phi^2); flat box differs only at this order",
+    "P9_trace_source": "free particle: m dE/dm = E - p^2/E (so the sigma-T source is the trace eps - 3P for any free gas); scale-only EOS eps = Lambda^4 g(n/Lambda^3): Lambda d eps/d Lambda = eps - 3P",
+    "P10_reciprocity": "an action gives equal and opposite scalar forces; the postulate (universal source xi, response f_i) gives F_A + F_B proportional to (f_B - f_A), nonzero",
+    "P11_BD_map": "Brans-Dicke gamma = (1+omega)/(2+omega) equals 1 - 2a/(1+a) with a = 1/(2 omega + 3); pure sigma-R maps to omega = kappa/(4 zeta^2)"
+  },
+  "pass_fail": "each symbolic check passes iff sympy simplifies (derived - predicted) to exactly 0; any nonzero residual is reported as a failed prediction and a design correction, never edited away. The memo is DELIVERED iff every option row has Lagrangian, field equation, frame, ghost status, fifth-force sign and its value for every section-6 bound, each traced to a passed check or a Mentat-sourced number."
+}

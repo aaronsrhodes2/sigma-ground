@@ -1,0 +1,26 @@
+{
+ "material": "iron",
+ "dims": [
+  27,
+  11,
+  11
+ ],
+ "nsteps": 50,
+ "s": 0.01,
+ "h": 0.015,
+ "dt": 7.57286211079593e-07,
+ "dt_factor": 1.0,
+ "alpha_visc": 1.0,
+ "amp_frac": 0.0,
+ "source": "point",
+ "rho0": 7874.0,
+ "K": 168387731661.48694,
+ "G": 82235868950.95874,
+ "c_L_cascade": 5942.271144201563,
+ "c_tait": 4624.422633321724,
+ "m_bulk": 0.007859893806531817,
+ "masses_file": "C:/Users/aaron/AppData/Local/Temp/claude/D--Aaron-development-sigma-ground/c6652910-47a9-478d-9c83-a8a8c8aaa457/scratchpad/round2/U7/masses_bar27_iron.npy",
+ "wall_seconds": 297.17257356643677,
+ "T_max_end": 303.82277146526684,
+ "T_min_end": 292.2036495470281
+}

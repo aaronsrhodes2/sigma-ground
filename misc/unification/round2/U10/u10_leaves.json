@@ -1,0 +1,218 @@
+{
+ "G": {
+  "value": 6.6743e-11,
+  "source": "sigma_ground.field.constants",
+  "tool": "lookup_constant",
+  "args": {
+   "name": "G"
+  }
+ },
+ "c": {
+  "value": 299792458.0,
+  "source": "sigma_ground.field.constants",
+  "tool": "lookup_constant",
+  "args": {
+   "name": "c"
+  }
+ },
+ "engine_constants_equal_mentat": {
+  "G": true,
+  "c": true
+ },
+ "XI": {
+  "value": 0.1582,
+  "source": "sigma_ground.inventory.core.sigma.XI (engine)"
+ },
+ "I1_symbolic": {
+  "value": "pi",
+  "source": "sympy.integrate",
+  "tool": "integrate_expr",
+  "args": {
+   "expression": "x*sin(x)",
+   "variable": "x",
+   "lower": "0",
+   "upper": "pi"
+  }
+ },
+ "I1": {
+  "value": "3.1415926535897932",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(pi, 17)"
+  }
+ },
+ "I2_symbolic": {
+  "value": "pi/2",
+  "source": "sympy.integrate",
+  "tool": "integrate_expr",
+  "args": {
+   "expression": "sin(x)**2",
+   "variable": "x",
+   "lower": "0",
+   "upper": "pi"
+  }
+ },
+ "I2": {
+  "value": "1.5707963267948966",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(pi/2, 17)"
+  }
+ },
+ "I_symbolic": {
+  "value": "-Ci(2*pi)/2 + EulerGamma/2 + log(2)/2 + log(pi)/2",
+  "source": "sympy.integrate",
+  "tool": "integrate_expr",
+  "args": {
+   "expression": "sin(x)**2/x",
+   "variable": "x",
+   "lower": "0",
+   "upper": "pi"
+  }
+ },
+ "I": {
+  "value": "1.2188266965286122",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(-Ci(2*pi)/2 + EulerGamma/2 + log(2)/2 + log(pi)/2, 17)"
+  }
+ },
+ "I3_symbolic": {
+  "value": "-Si(3*pi)/4 + 3*Si(pi)/4",
+  "source": "sympy.integrate",
+  "tool": "integrate_expr",
+  "args": {
+   "expression": "sin(x)**3/x",
+   "variable": "x",
+   "lower": "0",
+   "upper": "pi"
+  }
+ },
+ "I3": {
+  "value": "0.97026233924185931",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(-Si(3*pi)/4 + 3*Si(pi)/4, 17)"
+  }
+ },
+ "J_symbolic": {
+  "value": "-3*Ci(3*pi)/4 + 3*Ci(pi)/4 + 3*log(3)/4",
+  "source": "sympy.integrate",
+  "tool": "integrate_expr",
+  "args": {
+   "expression": "sin(x)**3/x**2",
+   "variable": "x",
+   "lower": "0",
+   "upper": "pi"
+  }
+ },
+ "J": {
+  "value": "0.87124499831196367",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(-3*Ci(3*pi)/4 + 3*Ci(pi)/4 + 3*log(3)/4, 17)"
+  }
+ },
+ "series_pressure_only_ratio": {
+  "value": "w**2/2 - w + 1",
+  "source": "sympy.series",
+  "tool": "series_expansion",
+  "args": {
+   "expression": "(1-w/2)/(1+w/2)",
+   "variable": "w",
+   "point": "0",
+   "order": 3
+  }
+ },
+ "six_P_difference": {
+  "value": "6*P",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "(rho*c**2 + 3*P) - (rho*c**2 - 3*P)"
+  }
+ },
+ "n1_potential_solves_poisson": {
+  "value": "0",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "diff(r**2*diff(a**2*(1+a*sin(r/a)/r), r), r)/r**2 + a*sin(r/a)/r"
+  }
+ },
+ "series_weighted_ratio": {
+  "value": "w**2*(-8*q3/(3*pi) + 7/6) - w + 1",
+  "source": "sympy.series",
+  "tool": "series_expansion",
+  "args": {
+   "expression": "((pi + (4*w/3)*(pi + pi/2))-(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3))))",
+   "variable": "w",
+   "point": "0",
+   "order": 3
+  }
+ },
+ "series_deficit_over_w": {
+  "value": "ii + w*(2*ii*(-7*ii/12 - 2/3) + 4*ii/3 + 4*jj/3)",
+  "source": "sympy.series",
+  "tool": "series_expansion",
+  "args": {
+   "expression": "2*(w*(ii + (4*w/3)*(ii + jj)))/(w*((2 + (4*w/3)*(2 + ii))+(w*(ii + (4*w/3)*(ii + jj)))))",
+   "variable": "w",
+   "point": "0",
+   "order": 2
+  }
+ },
+ "series_QT_over_QN": {
+  "value": "w**2*(4*q3/(3*pi) + 2/3) + 5*w/2 + 1",
+  "source": "sympy.series",
+  "tool": "series_expansion",
+  "args": {
+   "expression": "((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/pi",
+   "variable": "w",
+   "point": "0",
+   "order": 3
+  }
+ },
+ "numeric_integrals": {
+  "I1": 3.141592653589793,
+  "I2": 1.5707963267948966,
+  "I": 1.2188266965286123,
+  "I3": 0.9702623392418593,
+  "J": 0.8712449983119637
+ },
+ "predictions": [
+  {
+   "w": 0.001,
+   "ratio_pressure_only": 0.9990004997501251,
+   "ratio_weighted_exact": 0.9990003433022469,
+   "ratio_weighted_minus_pressure_only": -1.564478782078993e-07,
+   "dQ_over_QN_weighted_exact": 0.00100215691758606,
+   "dQ_over_QN_weighted_rel_offset_from_w": 0.0021569175860599882,
+   "dQ_over_QN_unweighted": 0.001,
+   "QT_over_QN_weighted_exact": 1.002501078458793,
+   "QT_over_QN_design_1p2_5w": 1.0025,
+   "deficit_over_w_weighted_centre_exact": 1.2182551056668711,
+   "deficit_over_w_unweighted_centre_exact": 1.2180843796483423,
+   "compactness_rs_over_R": 0.0013333333333333333
+  },
+  {
+   "w": 0.01,
+   "ratio_pressure_only": 0.9900497512437811,
+   "ratio_weighted_exact": 0.9900345199779021,
+   "ratio_weighted_minus_pressure_only": -1.523126587898993e-05,
+   "dQ_over_QN_weighted_exact": 0.010215691758605998,
+   "dQ_over_QN_weighted_rel_offset_from_w": 0.021569175860599796,
+   "dQ_over_QN_unweighted": 0.01,
+   "QT_over_QN_weighted_exact": 1.025107845879303,
+   "QT_over_QN_design_1p2_5w": 1.025,
+   "deficit_over_w_weighted_centre_exact": 1.2131007495402601,
+   "deficit_over_w_unweighted_centre_exact": 1.2114439951156313,
+   "compactness_rs_over_R": 0.013333333333333334
+  }
+ ]
+}

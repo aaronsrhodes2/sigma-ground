@@ -1,0 +1,1733 @@
+{
+ "id": "U12",
+ "runtime_s": 22.699076414108276,
+ "prereg": {
+  "id": "U12",
+  "written": "2026-10-10, before any engine derivative was evaluated",
+  "design_criterion_verbatim": "Chain PASS if the three identities hold to 1e-6 (predicted FAIL on thermal-vs-acoustics - report, don't fix). Observability: every material effect >= 1e5 below its floor (predicted 5-9 orders); clocks are the only channel and S9a has closed it. No thesis weight.",
+  "identities": {
+   "I1": "d ln rho/d sigma - PROTON_QCD_FRACTION, |.| < 1e-6",
+   "I2": "d ln v_L/d sigma - 0.5*(d ln K/d sigma - d ln rho/d sigma), |.| < 1e-6",
+   "I3_design_sketch": "d ln vD_thermal/d sigma - d ln v_L/d sigma, |.| < 1e-6",
+   "I3_like_for_like": "d ln vD_thermal/d sigma - d ln vD_acoustics/d sigma, |.| < 1e-6 (same quantity, two modules)"
+  },
+  "predictions_from_code_reading": {
+   "dlnrho": "+0.9904 (= f_QCD, by construction); I1 residual ~1e-9 PASS",
+   "dlnK": "about +0.005 (ZPE correction: (9/8) k_B Theta_D/E_coh * f_QCD/2); dlnG = dlnE = dlnK (nu sigma-free)",
+   "dlnvL": "about -0.493; I2 residual ~1e-9 PASS (by construction, G proportional to K)",
+   "dlnvD_thermal": "about +0.0025 (rho frozen at rho_0); I3 residual = 0.5*f_QCD = 0.495 FAIL (both forms)",
+   "dlnThetaD": "about +0.0025 as coded; consistent chain -0.493; the code's sign is opposite to the physics",
+   "dlnTm_Lindemann": "about +0.005 as coded = dlnK; consistent chain also dlnK (frozen M and frozen rho cancel); docstring claims T_m decreases with sigma - contradicted",
+   "dlncp": "about -6e-4 as coded (rho frozen); consistent chain about -0.87",
+   "dlncs_air": "about -0.490 (argon mass sigma-invariant in atmosphere.py); with argon coupled about -0.496"
+  },
+  "observability_floors_fixed_now": {
+   "note": "best demonstrated relative resolution, order of magnitude, all [LIT] verified by web search 2026-10-10; the smallest verified figure is used so that 'below floor' is the conservative claim",
+   "rho": [
+    1.2e-08,
+    "Bartl et al. 2017 Metrologia 54, 693: N_A by XRCD to 1.2e-8 (sphere density/volume limited); NMIJ sphere density 2320.070841(76) kg/m3 = 3.3e-8"
+   ],
+   "K_G_E": [
+    2e-07,
+    "DERIVED from LIT: M = rho v^2 with pulse-echo v precision 1e-7 (Pantea et al. 2005 RSI 76, 114902)"
+   ],
+   "v_L_v_T_v_D": [
+    1e-07,
+    "Pantea et al. 2005 RSI 76, 114902: digital pulse-echo precision exceeds 1 part in 1e7"
+   ],
+   "Theta_D": [
+    1e-07,
+    "DERIVED from LIT: Theta_D proportional to v_D at fixed n; same pulse-echo floor"
+   ],
+   "T_melt": [
+    1.3e-07,
+    "DERIVED from LIT: NIST, 13 Ga melting-point cells span 0.04 mK at 302.9146 K"
+   ],
+   "c_p": [
+    0.001,
+    "LIT: adiabatic calorimetry of Cu agrees with references to 0.1 % (Stevens & Boerio-Goates 2004, J. Chem. Thermodyn., doi 10.1016/j.jct.2004.06.008)"
+   ],
+   "c_s_air": [
+    3.5e-07,
+    "DERIVED from LIT: acoustic gas thermometry k_B to 0.71 ppm (de Podesta et al. 2013 Metrologia 50, 354), k_B proportional to c^2"
+   ]
+  },
+  "sigma_increments": "Delta sigma per km = 2 xi g (1 km)/c^2 and Delta sigma annual amplitude = 2 xi e r_s,sun/(2a); field-equation normalisation sigma = -2 xi Phi/c^2 as headline, inventory normalisation (x1/2) also reported",
+  "my_forecast_against_design_criterion": "FAIL on the annual channel: rho (~2.4 orders below floor), v_L / v_T / consistent v_D and Theta_D (~3.6), air c_s (~4.1) are inside 1e5 of their floors; per-km channel passes everywhere (>= 5.5). Every property-metrology row is still below its floor (unobservable). A frequency-metrology row (acoustic resonator vs atomic clock, Campbell et al. 2021 PRL 126, 071301; Lo et al. 2016 PRX 6, 011018) is NOT below floor and is added as a design correction, not as a change of criterion.",
+  "clock_row": "Lange et al. 2021 PRL 126, 011102: (c^2/mu) d mu/d Phi = 7(45)e-8; sigma-bridge prediction -2 xi f_QCD = -0.313 (field) / -0.157 (inventory); predicted excluded x 3.2e5 / 1.6e5 at |central| + 2 sigma"
+ },
+ "mentat_sources": {
+  "G": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "G"
+   },
+   "value": 6.6743e-11,
+   "source": "sigma_ground.field.constants"
+  },
+  "c": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "c"
+   },
+   "value": 299792458.0,
+   "source": "sigma_ground.field.constants"
+  },
+  "au": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "au"
+   },
+   "value": 149597870700.0,
+   "source": "scipy.constants (CODATA)"
+  },
+  "earth": {
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "earth"
+   },
+   "value": {
+    "mass_kg": 5.97219e+24,
+    "orbital_period_d": 365.256,
+    "radius_m": 6378100.0,
+    "semimajor_axis_au": 1.000001018,
+    "surface_g_ms2": 9.80665
+   },
+   "source": "sigma-ground via NASA Planetary Fact Sheet 2024"
+  },
+  "sun": {
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "sun"
+   },
+   "value": {
+    "luminosity_w": 3.828e+26,
+    "mass_kg": 1.98892e+30,
+    "radius_m": 695700000.0,
+    "surface_temp_k": 5772.0
+   },
+   "source": "sigma-ground via IAU 2015 nominal solar values"
+  },
+  "rs_sun": {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 1.98892e+30
+   },
+   "value": 2954.007736491099,
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)"
+  },
+  "rs_earth": {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 5.97219e+24
+   },
+   "value": 0.008870088019525562,
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)"
+  },
+  "density_iron": {
+   "tool": "density",
+   "args": {
+    "material": "iron"
+   },
+   "value": 7874.0,
+   "source": "sigma-ground via CRC Handbook (iron at 20 C)"
+  },
+  "melting_point_iron": {
+   "tool": "melting_point",
+   "args": {
+    "material": "iron"
+   },
+   "value": 1811.15,
+   "source": "sigma-ground via CRC Handbook"
+  },
+  "youngs_modulus_iron": {
+   "tool": "youngs_modulus",
+   "args": {
+    "material": "iron"
+   },
+   "value": 211000000000.0,
+   "source": "sigma-ground via CRC Handbook"
+  },
+  "cs_air_288K": {
+   "tool": "speed_of_sound_in_ideal_gas",
+   "args": {
+    "temperature_k": 288.15
+   },
+   "value": 340.08809024799785,
+   "source": "sigma-ground (ideal-gas adiabatic sound speed)"
+  },
+  "dlnrho_symbolic": {
+   "tool": "differentiate_expr",
+   "args": {
+    "expression": "log(1 - f + f*exp(s))",
+    "variable": "s"
+   },
+   "value": "f*exp(s)/(f*exp(s) - f + 1)",
+   "source": "sympy.diff"
+  },
+  "dlnv_symbolic": {
+   "tool": "differentiate_expr",
+   "args": {
+    "expression": "log(sqrt(K0*(1 + k*s)/(rho0*(1 - f + f*exp(s)))))",
+    "variable": "s"
+   },
+   "value": "rho0*(-K0*f*(k*s + 1)*exp(s)/(2*rho0*(f*exp(s) - f + 1)**2) + K0*k/(2*rho0*(f*exp(s) - f + 1)))*(f*exp(s) - f + 1)/(K0*(k*s + 1))",
+   "source": "sympy.diff"
+  },
+  "dlnv_symbolic_at_s0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "rho0*(-K0*f*(0 + 1)*1/(2*rho0*(f*1 - f + 1)**2) + K0*k/(2*rho0*(f*1 - f + 1)))*(f*1 - f + 1)/(K0*(0 + 1))"
+   },
+   "value": "-f/2 + k/2",
+   "source": "sympy.simplify"
+  },
+  "dsigma_per_km_field": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "2*0.1582*9.80665*1000/(299792458.0**2)"
+   },
+   "value": "3.45235736428352e-14",
+   "source": "sympy.simplify"
+  },
+  "dPhi_over_c2_annual_amplitude": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "0.01671022*2954.007736491099/(2*149598022990.6324)"
+   },
+   "value": "1.649825250750783e-10",
+   "source": "sympy.simplify"
+  },
+  "dsigma_annual_field": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "2*0.1582*1.649825250750783e-10"
+   },
+   "value": "5.220047093375478e-11",
+   "source": "sympy.simplify"
+  },
+  "sigma_earth_self_field": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "0.1582*0.008870088019525562/6378100.0"
+   },
+   "value": "2.200103361014948e-10",
+   "source": "sympy.simplify"
+  },
+  "sigma_sun_at_earth_field": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "0.1582*2954.007736491099/149598022990.6324"
+   },
+   "value": "3.123864972080246e-9",
+   "source": "sympy.simplify"
+  }
+ },
+ "engine_constants": {
+  "XI": 0.1582,
+  "PROTON_QCD_FRACTION": 0.9903865829951229,
+  "SIGMA_HERE": 1.1774789711763284e-61,
+  "source": "sigma_ground.inventory.core.sigma.XI; sigma_ground.field.constants"
+ },
+ "lit": {
+  "earth_eccentricity": [
+   0.01671022,
+   "NASA Earth fact sheet J2000 mean elements"
+  ],
+  "lange2021": "(c^2/mu) dmu/dPhi = 7(45)e-8, (c^2/alpha) dalpha/dPhi = 14(11)e-9; PRL 126, 011102; arXiv:2010.06620"
+ },
+ "sigma_increments": {
+  "field_eq": {
+   "factor": 1.0,
+   "dsig_km": 3.45235736428352e-14,
+   "dsig_annual": 5.220047093375478e-11,
+   "sigma_earth_self": 2.200103361014948e-10,
+   "sigma_sun_at_1au": 3.123864972080246e-09
+  },
+  "inventory": {
+   "factor": 0.5,
+   "dsig_km": 1.72617868214176e-14,
+   "dsig_annual": 2.610023546687739e-11,
+   "sigma_earth_self": 1.100051680507474e-10,
+   "sigma_sun_at_1au": 1.561932486040123e-09
+  }
+ },
+ "dPhi_over_c2_annual_amplitude": 1.649825250750783e-10,
+ "levels_sigma0": {
+  "rho": 7874.0,
+  "K": 168387731661.48694,
+  "G": 82235868950.95874,
+  "E": 212168541893.47357,
+  "vL": 5942.271144201563,
+  "vT": 3231.7141341282413,
+  "vD_acou": 3605.216173541181,
+  "vD_therm": 3605.216173541181,
+  "ThD": 471.3323869833911,
+  "Tm": 1848.6949745485686,
+  "cp": 385.8856144960194,
+  "Cv_vol": 3038463.328541657,
+  "cs_air": 340.33626077687416,
+  "M_air": 0.028968543572818032,
+  "gamma_air": 1.4005231701427503,
+  "ThD_cons": 471.3323869833911,
+  "Tm_cons": 1848.6949745485686,
+  "cp_cons": 385.8856144960194,
+  "cs_air_cons": 340.33626077687416,
+  "M_air_cons": 0.028968543572818032
+ },
+ "Tm_shift_at_sigma1_iron": 0.004180917275043106,
+ "dlnv_symbolic_at_s0": "-f/2 + k/2",
+ "levels_sigma_here": {
+  "rho": 7874,
+  "K": 168387731661.48694,
+  "vL": 5942.271144201563,
+  "vD_therm": 3605.216173541181,
+  "ThD": 471.3323869833911,
+  "Tm": 1848.6949745485686,
+  "cs_air": 340.33626077687416
+ },
+ "anchors_mentat": {
+  "rho_iron": 7874.0,
+  "Tmelt_iron": 1811.15,
+  "E_iron": 211000000000.0,
+  "cs_air_288K": 340.08809024799785
+ },
+ "dlnX_dsigma": {
+  "rho": 0.9903865846459045,
+  "K": 0.005286687965248131,
+  "G": 0.005286687965593339,
+  "E": 0.005286687965593339,
+  "vL": -0.4925499476909403,
+  "vT": -0.49254994769140376,
+  "vD_acou": -0.49254994769165644,
+  "vD_therm": 0.0026433439829579826,
+  "ThD": 0.002643343982984354,
+  "Tm": 0.005286687966984628,
+  "cp": -0.0007065890886470139,
+  "Cv_vol": -0.0007065890887845173,
+  "cs_air": -0.48987117486484355,
+  "M_air": 0.9776304232560401,
+  "gamma_air": -0.0021119278133752513,
+  "ThD_cons": -0.49254994769172905,
+  "Tm_cons": 0.005286687965139756,
+  "cp_cons": -0.8587236514362854,
+  "cs_air_cons": -0.4962492555810125,
+  "M_air_cons": 0.9903865846467409
+ },
+ "convergence": {
+  "rho": {
+   "h=1e-3": 0.990386748059544,
+   "h=1e-4": 0.9903865846459045,
+   "h=1e-5": 0.9903865830114937,
+   "spread_rel": 1.666501271176742e-07
+  },
+  "K": {
+   "h=1e-3": 0.0052866881577186145,
+   "h=1e-4": 0.005286687965248131,
+   "h=1e-5": 0.005286687963435792,
+   "spread_rel": 3.674944005508119e-08
+  },
+  "G": {
+   "h=1e-3": 0.005286688157636627,
+   "h=1e-4": 0.005286687965593339,
+   "h=1e-5": 0.005286687965593339,
+   "spread_rel": 3.632582245058483e-08
+  },
+  "E": {
+   "h=1e-3": 0.00528668815768697,
+   "h=1e-4": 0.005286687965593339,
+   "h=1e-5": 0.005286687963435791,
+   "spread_rel": 3.674345446047467e-08
+  },
+  "vL": {
+   "h=1e-3": -0.4925499650610833,
+   "h=1e-4": -0.4925499476909403,
+   "h=1e-5": -0.49254994751798814,
+   "spread_rel": 3.5616885608204597e-08
+  },
+  "vT": {
+   "h=1e-3": -0.49254996506106674,
+   "h=1e-4": -0.49254994769140376,
+   "h=1e-5": -0.49254994751691844,
+   "spread_rel": 3.561902378231178e-08
+  },
+  "vD_acou": {
+   "h=1e-3": -0.49254996506108073,
+   "h=1e-4": -0.49254994769165644,
+   "h=1e-5": -0.49254994751948084,
+   "spread_rel": 3.5613849878727655e-08
+  },
+  "vD_therm": {
+   "h=1e-3": 0.002643344080524137,
+   "h=1e-4": 0.0026433439829579826,
+   "h=1e-5": 0.0026433439766511855,
+   "spread_rel": 3.9296040221214436e-08
+  },
+  "ThD": {
+   "h=1e-3": 0.002643344080551012,
+   "h=1e-4": 0.002643343982984354,
+   "h=1e-5": 0.002643343975145253,
+   "spread_rel": 3.9875914707371334e-08
+  },
+  "Tm": {
+   "h=1e-3": 0.0052866881576213755,
+   "h=1e-4": 0.005286687966984628,
+   "h=1e-5": 0.0052866879516106965,
+   "spread_rel": 3.896781506464565e-08
+  },
+  "cp": {
+   "h=1e-3": -0.0007065891153094714,
+   "h=1e-4": -0.0007065890886470139,
+   "h=1e-5": -0.0007065890864374179,
+   "spread_rel": 4.0861165244275065e-08
+  },
+  "Cv_vol": {
+   "h=1e-3": -0.0007065891152977227,
+   "h=1e-4": -0.0007065890887845173,
+   "h=1e-5": -0.0007065890880182396,
+   "spread_rel": 3.860728049143575e-08
+  },
+  "cs_air": {
+   "h=1e-3": -0.4898711901867133,
+   "h=1e-4": -0.48987117486484355,
+   "h=1e-5": -0.4898711747186999,
+   "spread_rel": 3.1575675849748876e-08
+  },
+  "M_air": {
+   "h=1e-3": 0.9776305845641516,
+   "h=1e-4": 0.9776304232560401,
+   "h=1e-5": 0.9776304216517743,
+   "spread_rel": 1.666400446331357e-07
+  },
+  "gamma_air": {
+   "h=1e-3": -0.002111929779717738,
+   "h=1e-4": -0.0021119278133752513,
+   "h=1e-5": -0.002111927796728127,
+   "spread_rel": 9.389476280859135e-07
+  },
+  "ThD_cons": {
+   "h=1e-3": -0.4925499650610665,
+   "h=1e-4": -0.49254994769172905,
+   "h=1e-5": -0.4925499475162538,
+   "spread_rel": 3.562037270735099e-08
+  },
+  "Tm_cons": {
+   "h=1e-3": 0.0052866881575598795,
+   "h=1e-4": 0.005286687965139756,
+   "h=1e-5": 0.005286687963909842,
+   "spread_rel": 3.662974609479811e-08
+  },
+  "cp_cons": {
+   "h=1e-3": -0.8587236907925768,
+   "h=1e-4": -0.8587236514362854,
+   "h=1e-5": -0.8587236510422407,
+   "spread_rel": 4.6290021320953314e-08
+  },
+  "cs_air_cons": {
+   "h=1e-3": -0.4962492740974995,
+   "h=1e-4": -0.4962492555810125,
+   "h=1e-5": -0.4962492554006295,
+   "spread_rel": 3.767636896561434e-08
+  },
+  "M_air_cons": {
+   "h=1e-3": 0.9903867480595605,
+   "h=1e-4": 0.9903865846467409,
+   "h=1e-5": 0.9903865830221149,
+   "spread_rel": 1.6663941955298138e-07
+  }
+ },
+ "analytic_expectation": {
+  "rho": 0.9903865829951229,
+  "K": 0.005286687962561535,
+  "vL": -0.49254994751628073,
+  "vD_therm": 0.0026433439812807674,
+  "vD_acou": -0.49254994751628073
+ },
+ "f_zpe_iron": 0.010676008850147294,
+ "identities": {
+  "I1_dlnrho_minus_fQCD": 1.6507815114863433e-09,
+  "I2_dlnvL_minus_half(dlnK-dlnrho)": 6.493878768054628e-10,
+  "I2b_dlnvL_minus_half(dlnM_long-dlnrho)": 6.489539461362881e-10,
+  "I3_design_sketch_dlnvD_therm_minus_dlnvL": 0.49519329167389825,
+  "I3_like_for_like_dlnvD_therm_minus_dlnvD_acou": 0.4951932916746144
+ },
+ "identity_verdicts": {
+  "I1_dlnrho_minus_fQCD": "PASS",
+  "I2_dlnvL_minus_half(dlnK-dlnrho)": "PASS",
+  "I2b_dlnvL_minus_half(dlnM_long-dlnrho)": "PASS",
+  "I3_design_sketch_dlnvD_therm_minus_dlnvL": "FAIL",
+  "I3_like_for_like_dlnvD_therm_minus_dlnvD_acou": "FAIL"
+ },
+ "chain_PASS_design": false,
+ "extra_identities": {
+  "E1_dlnThD_minus_dlnvD_therm (n frozen)": 2.637126628179942e-14,
+  "E2_dlnTm_minus_2dlnThD (M, n frozen)": 1.0159199870241054e-12,
+  "E3_dlnTm_minus_dlnK (physics: T_m prop. K)": 1.7364963633692554e-12,
+  "E4_dlnTm_cons_minus_dlnK": -1.0837511443817505e-13,
+  "E5_dlnThD_minus_dlnThD_cons": 0.49519329167471343,
+  "E6_dlncp_minus_dlncp_cons": 0.8580170623476384,
+  "E7_dlnM_air_minus_fQCD": -0.01275615973908284,
+  "E8_dlncs_air_minus_dlncs_air_cons": 0.006378080716168966,
+  "E9_dlncs_air_minus(-0.5dlnM+0.5dlngamma)": 6.698641086266832e-10
+ },
+ "sweep_summary": {
+  "n_materials": 25,
+  "n_evaluated": 25,
+  "max_abs_I1": 1.6517417433803416e-09,
+  "max_abs_I2": 6.799260043877098e-10,
+  "min_abs_I3": 0.49519329164240716,
+  "max_abs_I3": 0.49519329168015563,
+  "dlnK_range": [
+   8.626802892295407e-05,
+   0.030517865962714177
+  ],
+  "n_dlnTm_positive": 25
+ },
+ "sweep": {
+  "iron": {
+   "dlnrho": 0.9903865846459045,
+   "dlnK": 0.005286687965248131,
+   "dlnvL": -0.4925499476909403,
+   "dlnvD_acou": -0.49254994769165644,
+   "dlnvD_therm": 0.0026433439829579826,
+   "dlnTm": 0.005286687966984628,
+   "I1": 1.6507815114863433e-09,
+   "I2": 6.493878768054628e-10,
+   "I3": 0.4951932916746144
+  },
+  "copper": {
+   "dlnrho": 0.9903865846457701,
+   "dlnK": 0.004794373782765521,
+   "dlnvL": -0.4927961047827733,
+   "dlnvD_acou": -0.4927961047836185,
+   "dlnvD_therm": 0.002397186891004953,
+   "dlnTm": 0.004794373782806203,
+   "I1": 1.6506471745003637e-09,
+   "I2": 6.48729014951499e-10,
+   "I3": 0.49519329167462345
+  },
+  "aluminum": {
+   "dlnrho": 0.9903865846463641,
+   "dlnK": 0.006466907868644993,
+   "dlnvL": -0.49195983773830704,
+   "dlnvD_acou": -0.4919598377384789,
+   "dlnvD_therm": 0.0032334539347761778,
+   "dlnTm": 0.006466907869155319,
+   "I1": 1.6512411438185381e-09,
+   "I2": 6.505525007582946e-10,
+   "I3": 0.4951932916732551
+  },
+  "gold": {
+   "dlnrho": 0.9903865846467262,
+   "dlnK": 0.0013903430372832447,
+   "dlnvL": -0.4944981201602534,
+   "dlnvD_acou": -0.4944981201610983,
+   "dlnvD_therm": 0.0006951715181842192,
+   "dlnTm": 0.0013903430370013348,
+   "I1": 1.6516032985691709e-09,
+   "I2": 6.444680900052902e-10,
+   "I3": 0.4951932916792825
+  },
+  "silicon": {
+   "dlnrho": 0.9903865846465412,
+   "dlnK": 0.005111365102497799,
+   "dlnvL": -0.49263760912404614,
+   "dlnvD_acou": -0.4926376091225229,
+   "dlnvD_therm": 0.0025556825515564946,
+   "dlnTm": 0.005111365105466663,
+   "I1": 1.6514182243909659e-09,
+   "I2": 6.479755620958372e-10,
+   "I3": 0.4951932916740794
+  },
+  "tungsten": {
+   "dlnrho": 0.9903865846462832,
+   "dlnK": 0.0018808368418407524,
+   "dlnvL": -0.49425287325711986,
+   "dlnvD_acou": -0.4942528732575871,
+   "dlnvD_therm": 0.0009404184212767302,
+   "dlnTm": 0.0018808368422731038,
+   "I1": 1.651160208560043e-09,
+   "I2": 6.451013612185363e-10,
+   "I3": 0.49519329167886383
+  },
+  "nickel": {
+   "dlnrho": 0.9903865846459939,
+   "dlnK": 0.004983991451999967,
+   "dlnvL": -0.492701295948283,
+   "dlnvD_acou": -0.4927012959489457,
+   "dlnvD_therm": 0.0024919957255793903,
+   "dlnTm": 0.0049839914508418015,
+   "I1": 1.6508709954621281e-09,
+   "I2": 6.487139714295154e-10,
+   "I3": 0.4951932916745251
+  },
+  "titanium": {
+   "dlnrho": 0.9903865846463941,
+   "dlnK": 0.004381396992775397,
+   "dlnvL": -0.4930025931793843,
+   "dlnvD_acou": -0.4930025931784916,
+   "dlnvD_therm": 0.0021906984971409313,
+   "dlnTm": 0.004381396994775668,
+   "I1": 1.651271119840203e-09,
+   "I2": 6.474250580090768e-10,
+   "I3": 0.49519329167563253
+  },
+  "steel_mild": {
+   "dlnrho": 0.9903865846458438,
+   "dlnK": 0.005140631087999347,
+   "dlnvL": -0.4926229761304651,
+   "dlnvD_acou": -0.49262297613110645,
+   "dlnvD_therm": 0.0025703155425356493,
+   "dlnTm": 0.005140631085787873,
+   "I1": 1.6507208933091988e-09,
+   "I2": 6.484571768439196e-10,
+   "I3": 0.4951932916736421
+  },
+  "lead": {
+   "dlnrho": 0.9903865846464843,
+   "dlnK": 0.0015308580333339087,
+   "dlnvL": -0.4944278626619858,
+   "dlnvD_acou": -0.4944278626616992,
+   "dlnvD_therm": 0.0007654290179403676,
+   "dlnTm": 0.0015308580371940596,
+   "I1": 1.651361380972105e-09,
+   "I2": 6.445894373818817e-10,
+   "I3": 0.49519329167963955
+  },
+  "silver": {
+   "dlnrho": 0.9903865846456471,
+   "dlnK": 0.003180908232676658,
+   "dlnvL": -0.49360283756077883,
+   "dlnvD_acou": -0.49360283756139295,
+   "dlnvD_therm": 0.0015904541162279232,
+   "dlnTm": 0.003180908231984055,
+   "I1": 1.6505241617892352e-09,
+   "I2": 6.457063772558058e-10,
+   "I3": 0.4951932916776209
+  },
+  "zinc": {
+   "dlnrho": 0.9903865846459889,
+   "dlnK": 0.009048689141918956,
+   "dlnvL": -0.4906689470986911,
+   "dlnvD_acou": -0.4906689470990709,
+   "dlnvD_therm": 0.004524344570684401,
+   "dlnTm": 0.009048689141474829,
+   "I1": 1.6508659994585173e-09,
+   "I2": 6.533439345091097e-10,
+   "I3": 0.4951932916697553
+  },
+  "platinum": {
+   "dlnrho": 0.9903865846468647,
+   "dlnK": 0.0016811190844503879,
+   "dlnvL": -0.4943527321365669,
+   "dlnvD_acou": -0.4943527321370691,
+   "dlnvD_therm": 0.0008405595421381401,
+   "dlnTm": 0.0016811190820075243,
+   "I1": 1.6517417433803416e-09,
+   "I2": 6.446402855964095e-10,
+   "I3": 0.4951932916792072
+  },
+  "depleted_uranium": {
+   "dlnrho": 0.9903865846458922,
+   "dlnK": 0.0021537476757052467,
+   "dlnvL": -0.4941164178399138,
+   "dlnvD_acou": -0.4941164178414614,
+   "dlnvD_therm": 0.0010768738363544615,
+   "dlnTm": 0.0021537476724611724,
+   "I1": 1.6507692990330725e-09,
+   "I2": 6.451797429640749e-10,
+   "I3": 0.49519329167781584
+  },
+  "rubber": {
+   "dlnrho": 0.9903865846461674,
+   "dlnK": 8.626802892295407e-05,
+   "dlnvL": -0.49515015766619513,
+   "dlnvD_acou": -0.49515015766539333,
+   "dlnvD_therm": 4.3134014762285616e-05,
+   "dlnTm": 8.626802868219225e-05,
+   "I1": 1.6510444122985746e-09,
+   "I2": 6.424270559968193e-10,
+   "I3": 0.49519329168015563
+  },
+  "plastic_abs": {
+   "dlnrho": 0.990386584645692,
+   "dlnK": 0.006987584492765855,
+   "dlnvL": -0.49169949942551633,
+   "dlnvD_acou": -0.49169949942510643,
+   "dlnvD_therm": 0.0034937922466457723,
+   "dlnTm": 0.006987584492589705,
+   "I1": 1.65056901479943e-09,
+   "I2": 6.50946740954339e-10,
+   "I3": 0.4951932916717522
+  },
+  "glass": {
+   "dlnrho": 0.990386584645421,
+   "dlnK": 0.008604682112478008,
+   "dlnvL": -0.490890950613267,
+   "dlnvD_acou": -0.4908909506135447,
+   "dlnvD_therm": 0.004302341056818703,
+   "dlnTm": 0.008604682114741063,
+   "I1": 1.650298009359119e-09,
+   "I2": 6.532044904972167e-10,
+   "I3": 0.4951932916703634
+  },
+  "concrete": {
+   "dlnrho": 0.9903865846462908,
+   "dlnK": 0.007486900453414333,
+   "dlnvL": -0.49144984144449433,
+   "dlnvD_acou": -0.49144984144449705,
+   "dlnvD_therm": 0.0037434502267590024,
+   "dlnTm": 0.007486900452033245,
+   "I1": 1.6511678690989129e-09,
+   "I2": 6.519438877639061e-10,
+   "I3": 0.49519329167125603
+  },
+  "granite": {
+   "dlnrho": 0.9903865846463641,
+   "dlnK": 0.007071492570494288,
+   "dlnvL": -0.4916575453866807,
+   "dlnvD_acou": -0.4916575453877414,
+   "dlnvD_therm": 0.0035357462841180726,
+   "dlnTm": 0.007071492568576622,
+   "I1": 1.6512411438185381e-09,
+   "I2": 6.512541617098577e-10,
+   "I3": 0.4951932916718595
+  },
+  "ceramic_alumina": {
+   "dlnrho": 0.9903865846463534,
+   "dlnK": 0.0102963033710411,
+   "dlnvL": -0.4900451399826668,
+   "dlnvD_acou": -0.4900451399828093,
+   "dlnvD_therm": 0.005148151685404625,
+   "dlnTm": 0.010296303372788352,
+   "I1": 1.6512304856775017e-09,
+   "I2": 6.549893405427554e-10,
+   "I3": 0.4951932916682139
+  },
+  "water_ice": {
+   "dlnrho": 0.9903865846461033,
+   "dlnK": 0.030517865962714177,
+   "dlnvL": -0.47993435866176853,
+   "dlnvD_acou": -0.479934358661488,
+   "dlnvD_therm": 0.015258932980919182,
+   "dlnTm": 0.030517865960603463,
+   "I1": 1.6509803524300537e-09,
+   "I2": 6.799260043877098e-10,
+   "I3": 0.49519329164240716
+  },
+  "wood_oak": {
+   "dlnrho": 0.9903865846459731,
+   "dlnK": 0.004269418796346617,
+   "dlnvL": -0.493058582277193,
+   "dlnvD_acou": -0.4930585822775284,
+   "dlnvD_therm": 0.002134709398517606,
+   "dlnTm": 0.004269418795080528,
+   "I1": 1.6508501232692652e-09,
+   "I2": 6.476202352168059e-10,
+   "I3": 0.49519329167604603
+  },
+  "bone": {
+   "dlnrho": 0.9903865846461868,
+   "dlnK": 0.007503367384774025,
+   "dlnvL": -0.4914416079785365,
+   "dlnvD_acou": -0.49144160797891884,
+   "dlnvD_therm": 0.003751683692684655,
+   "dlnTm": 0.007503367385713813,
+   "I1": 1.6510638412015055e-09,
+   "I2": 6.521699291717198e-10,
+   "I3": 0.4951932916716035
+  },
+  "carbon_fiber": {
+   "dlnrho": 0.9903865846460747,
+   "dlnK": 0.00691156405375929,
+   "dlnvL": -0.49173750964608726,
+   "dlnvD_acou": -0.49173750964577456,
+   "dlnvD_therm": 0.0034557820271144263,
+   "dlnTm": 0.0069115640548314365,
+   "I1": 1.6509517086760184e-09,
+   "I2": 6.500704419210024e-10,
+   "I3": 0.495193291672889
+  },
+  "kevlar": {
+   "dlnrho": 0.9903865846459956,
+   "dlnK": 0.009067392679759699,
+   "dlnvL": -0.490659595329143,
+   "dlnvD_acou": -0.4906595953284444,
+   "dlnvD_therm": 0.004533696339883369,
+   "dlnTm": 0.009067392679922157,
+   "I1": 1.650872660796665e-09,
+   "I2": 6.539749852763066e-10,
+   "I3": 0.49519329166832776
+  }
+ },
+ "coupling_conventions_dln_dsigma": {
+  "QCD-fraction mass (acoustics/gas/mechanical/atomic_spectra): m = m0[(1-f)+f e^s]": 0.9903865846460389,
+  "proton mass, atomic_spectra._proton_mass_kg: m_bare + m_QCD e^s": 0.9903865846448499,
+  "universal nbody GM_eff = GM e^s (CelestialBody.gm_m3_s2)": 1.0000000016668416,
+  "e^s clock, relativity.sigma_time_dilation(s, 1) = e^s": 1.0000000016668897,
+  "T e^s, statistical.sigma_partition_shift(s, 300) = T e^s": 1.0000000016664974,
+  "argon mass in atmosphere.py (sigma-invariant constant)": 0.0,
+  "Lindemann atomic mass M = A m_u (sigma-invariant)": 1.0422923855095597e-12,
+  "thermal.sound_velocity density (frozen rho_0)": -7.18739500388647e-13
+ },
+ "observability": [
+  {
+   "property": "rho",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.9903865846459045,
+   "effect": 5.16986461249892e-11,
+   "floor": 1.2e-08,
+   "floor_source": "[LIT] Bartl+2017 Metrologia 54, 693 (XRCD N_A 1.2e-8)",
+   "orders_below_floor": 2.3657020760319276
+  },
+  {
+   "property": "rho",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.9903865846459045,
+   "effect": 3.419168418989892e-14,
+   "floor": 1.2e-08,
+   "floor_source": "[LIT] Bartl+2017 Metrologia 54, 693 (XRCD N_A 1.2e-8)",
+   "orders_below_floor": 5.545260752552433
+  },
+  {
+   "property": "rho",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.9903865846459045,
+   "effect": 2.58493230624946e-11,
+   "floor": 1.2e-08,
+   "floor_source": "[LIT] Bartl+2017 Metrologia 54, 693 (XRCD N_A 1.2e-8)",
+   "orders_below_floor": 2.6667320716959084
+  },
+  {
+   "property": "rho",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.9903865846459045,
+   "effect": 1.709584209494946e-14,
+   "floor": 1.2e-08,
+   "floor_source": "[LIT] Bartl+2017 Metrologia 54, 693 (XRCD N_A 1.2e-8)",
+   "orders_below_floor": 5.846290748216414
+  },
+  {
+   "property": "rho",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.9903865846459045,
+   "effect": 5.16986461249892e-11,
+   "floor": 1.2e-08,
+   "floor_source": "[LIT] Bartl+2017 Metrologia 54, 693 (XRCD N_A 1.2e-8)",
+   "orders_below_floor": 2.3657020760319276
+  },
+  {
+   "property": "rho",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.9903865846459045,
+   "effect": 3.419168418989892e-14,
+   "floor": 1.2e-08,
+   "floor_source": "[LIT] Bartl+2017 Metrologia 54, 693 (XRCD N_A 1.2e-8)",
+   "orders_below_floor": 5.545260752552433
+  },
+  {
+   "property": "rho",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.9903865846459045,
+   "effect": 2.58493230624946e-11,
+   "floor": 1.2e-08,
+   "floor_source": "[LIT] Bartl+2017 Metrologia 54, 693 (XRCD N_A 1.2e-8)",
+   "orders_below_floor": 2.6667320716959084
+  },
+  {
+   "property": "rho",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.9903865846459045,
+   "effect": 1.709584209494946e-14,
+   "floor": 1.2e-08,
+   "floor_source": "[LIT] Bartl+2017 Metrologia 54, 693 (XRCD N_A 1.2e-8)",
+   "orders_below_floor": 5.846290748216414
+  },
+  {
+   "property": "K",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.005286687965248131,
+   "effect": 2.759676014657663e-13,
+   "floor": 2e-07,
+   "floor_source": "[DERIVED from LIT] rho v^2, pulse-echo 1e-7 (Pantea+2005 RSI 76, 114902)",
+   "orders_below_floor": 5.860171896680445
+  },
+  {
+   "property": "K",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.005286687965248131,
+   "effect": 1.8251536129493443e-16,
+   "floor": 2e-07,
+   "floor_source": "[DERIVED from LIT] rho v^2, pulse-echo 1e-7 (Pantea+2005 RSI 76, 114902)",
+   "orders_below_floor": 9.03973057320095
+  },
+  {
+   "property": "K",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.005286687965248131,
+   "effect": 1.3798380073288314e-13,
+   "floor": 2e-07,
+   "floor_source": "[DERIVED from LIT] rho v^2, pulse-echo 1e-7 (Pantea+2005 RSI 76, 114902)",
+   "orders_below_floor": 6.161201892344426
+  },
+  {
+   "property": "K",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.005286687965248131,
+   "effect": 9.125768064746722e-17,
+   "floor": 2e-07,
+   "floor_source": "[DERIVED from LIT] rho v^2, pulse-echo 1e-7 (Pantea+2005 RSI 76, 114902)",
+   "orders_below_floor": 9.340760568864932
+  },
+  {
+   "property": "K",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.005286687965248131,
+   "effect": 2.759676014657663e-13,
+   "floor": 2e-07,
+   "floor_source": "[DERIVED from LIT] rho v^2, pulse-echo 1e-7 (Pantea+2005 RSI 76, 114902)",
+   "orders_below_floor": 5.860171896680445
+  },
+  {
+   "property": "K",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.005286687965248131,
+   "effect": 1.8251536129493443e-16,
+   "floor": 2e-07,
+   "floor_source": "[DERIVED from LIT] rho v^2, pulse-echo 1e-7 (Pantea+2005 RSI 76, 114902)",
+   "orders_below_floor": 9.03973057320095
+  },
+  {
+   "property": "K",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.005286687965248131,
+   "effect": 1.3798380073288314e-13,
+   "floor": 2e-07,
+   "floor_source": "[DERIVED from LIT] rho v^2, pulse-echo 1e-7 (Pantea+2005 RSI 76, 114902)",
+   "orders_below_floor": 6.161201892344426
+  },
+  {
+   "property": "K",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.005286687965248131,
+   "effect": 9.125768064746722e-17,
+   "floor": 2e-07,
+   "floor_source": "[DERIVED from LIT] rho v^2, pulse-echo 1e-7 (Pantea+2005 RSI 76, 114902)",
+   "orders_below_floor": 9.340760568864932
+  },
+  {
+   "property": "G",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.005286687965593339,
+   "effect": 2.759676014837863e-13,
+   "floor": 2e-07,
+   "floor_source": "[DERIVED from LIT] as K",
+   "orders_below_floor": 5.860171896652087
+  },
+  {
+   "property": "G",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.005286687965593339,
+   "effect": 1.8251536130685222e-16,
+   "floor": 2e-07,
+   "floor_source": "[DERIVED from LIT] as K",
+   "orders_below_floor": 9.039730573172593
+  },
+  {
+   "property": "G",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.005286687965593339,
+   "effect": 1.3798380074189314e-13,
+   "floor": 2e-07,
+   "floor_source": "[DERIVED from LIT] as K",
+   "orders_below_floor": 6.161201892316068
+  },
+  {
+   "property": "G",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.005286687965593339,
+   "effect": 9.125768065342611e-17,
+   "floor": 2e-07,
+   "floor_source": "[DERIVED from LIT] as K",
+   "orders_below_floor": 9.340760568836574
+  },
+  {
+   "property": "G",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.005286687965593339,
+   "effect": 2.759676014837863e-13,
+   "floor": 2e-07,
+   "floor_source": "[DERIVED from LIT] as K",
+   "orders_below_floor": 5.860171896652087
+  },
+  {
+   "property": "G",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.005286687965593339,
+   "effect": 1.8251536130685222e-16,
+   "floor": 2e-07,
+   "floor_source": "[DERIVED from LIT] as K",
+   "orders_below_floor": 9.039730573172593
+  },
+  {
+   "property": "G",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.005286687965593339,
+   "effect": 1.3798380074189314e-13,
+   "floor": 2e-07,
+   "floor_source": "[DERIVED from LIT] as K",
+   "orders_below_floor": 6.161201892316068
+  },
+  {
+   "property": "G",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.005286687965593339,
+   "effect": 9.125768065342611e-17,
+   "floor": 2e-07,
+   "floor_source": "[DERIVED from LIT] as K",
+   "orders_below_floor": 9.340760568836574
+  },
+  {
+   "property": "vL",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.4925499476909403,
+   "effect": 2.5711339227863367e-11,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 RSI 76, 114902",
+   "orders_below_floor": 3.5898753016487226
+  },
+  {
+   "property": "vL",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.4925499476909403,
+   "effect": 1.7004584391882803e-14,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 RSI 76, 114902",
+   "orders_below_floor": 6.7694339781692285
+  },
+  {
+   "property": "vL",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.4925499476909403,
+   "effect": 1.2855669613931684e-11,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 RSI 76, 114902",
+   "orders_below_floor": 3.890905297312704
+  },
+  {
+   "property": "vL",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.4925499476909403,
+   "effect": 8.502292195941401e-15,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 RSI 76, 114902",
+   "orders_below_floor": 7.07046397383321
+  },
+  {
+   "property": "vL",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.4925499476909403,
+   "effect": 2.5711339227863367e-11,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 RSI 76, 114902",
+   "orders_below_floor": 3.5898753016487226
+  },
+  {
+   "property": "vL",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.4925499476909403,
+   "effect": 1.7004584391882803e-14,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 RSI 76, 114902",
+   "orders_below_floor": 6.7694339781692285
+  },
+  {
+   "property": "vL",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.4925499476909403,
+   "effect": 1.2855669613931684e-11,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 RSI 76, 114902",
+   "orders_below_floor": 3.890905297312704
+  },
+  {
+   "property": "vL",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.4925499476909403,
+   "effect": 8.502292195941401e-15,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 RSI 76, 114902",
+   "orders_below_floor": 7.07046397383321
+  },
+  {
+   "property": "vT",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.49254994769140376,
+   "effect": 2.571133922788756e-11,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 RSI 76, 114902",
+   "orders_below_floor": 3.589875301648314
+  },
+  {
+   "property": "vT",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.49254994769140376,
+   "effect": 1.7004584391898804e-14,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 RSI 76, 114902",
+   "orders_below_floor": 6.769433978168819
+  },
+  {
+   "property": "vT",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.49254994769140376,
+   "effect": 1.285566961394378e-11,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 RSI 76, 114902",
+   "orders_below_floor": 3.8909052973122953
+  },
+  {
+   "property": "vT",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.49254994769140376,
+   "effect": 8.502292195949402e-15,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 RSI 76, 114902",
+   "orders_below_floor": 7.0704639738328
+  },
+  {
+   "property": "vT",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.49254994769140376,
+   "effect": 2.571133922788756e-11,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 RSI 76, 114902",
+   "orders_below_floor": 3.589875301648314
+  },
+  {
+   "property": "vT",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.49254994769140376,
+   "effect": 1.7004584391898804e-14,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 RSI 76, 114902",
+   "orders_below_floor": 6.769433978168819
+  },
+  {
+   "property": "vT",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.49254994769140376,
+   "effect": 1.285566961394378e-11,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 RSI 76, 114902",
+   "orders_below_floor": 3.8909052973122953
+  },
+  {
+   "property": "vT",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.49254994769140376,
+   "effect": 8.502292195949402e-15,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 RSI 76, 114902",
+   "orders_below_floor": 7.0704639738328
+  },
+  {
+   "property": "vD_therm",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.0026433439829579826,
+   "effect": 1.3798380075031376e-13,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 (v_D from v_L, v_T)",
+   "orders_below_floor": 5.860171896625584
+  },
+  {
+   "property": "vD_therm",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.0026433439829579826,
+   "effect": 9.125768065899522e-17,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 (v_D from v_L, v_T)",
+   "orders_below_floor": 9.03973057314609
+  },
+  {
+   "property": "vD_therm",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.0026433439829579826,
+   "effect": 6.899190037515688e-14,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 (v_D from v_L, v_T)",
+   "orders_below_floor": 6.161201892289565
+  },
+  {
+   "property": "vD_therm",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.0026433439829579826,
+   "effect": 4.562884032949761e-17,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 (v_D from v_L, v_T)",
+   "orders_below_floor": 9.34076056881007
+  },
+  {
+   "property": "vD_therm",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.49254994769165644,
+   "effect": 2.571133922790075e-11,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 (v_D from v_L, v_T)",
+   "orders_below_floor": 3.5898753016480915
+  },
+  {
+   "property": "vD_therm",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.49254994769165644,
+   "effect": 1.7004584391907526e-14,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 (v_D from v_L, v_T)",
+   "orders_below_floor": 6.769433978168597
+  },
+  {
+   "property": "vD_therm",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.49254994769165644,
+   "effect": 1.2855669613950374e-11,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 (v_D from v_L, v_T)",
+   "orders_below_floor": 3.8909052973120724
+  },
+  {
+   "property": "vD_therm",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.49254994769165644,
+   "effect": 8.502292195953763e-15,
+   "floor": 1e-07,
+   "floor_source": "[LIT] Pantea+2005 (v_D from v_L, v_T)",
+   "orders_below_floor": 7.070463973832578
+  },
+  {
+   "property": "ThD",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.002643343982984354,
+   "effect": 1.3798380075169037e-13,
+   "floor": 1e-07,
+   "floor_source": "[DERIVED from LIT] Theta_D prop. v_D",
+   "orders_below_floor": 5.860171896621251
+  },
+  {
+   "property": "ThD",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.002643343982984354,
+   "effect": 9.125768065990565e-17,
+   "floor": 1e-07,
+   "floor_source": "[DERIVED from LIT] Theta_D prop. v_D",
+   "orders_below_floor": 9.039730573141757
+  },
+  {
+   "property": "ThD",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.002643343982984354,
+   "effect": 6.899190037584518e-14,
+   "floor": 1e-07,
+   "floor_source": "[DERIVED from LIT] Theta_D prop. v_D",
+   "orders_below_floor": 6.161201892285232
+  },
+  {
+   "property": "ThD",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.002643343982984354,
+   "effect": 4.562884032995283e-17,
+   "floor": 1e-07,
+   "floor_source": "[DERIVED from LIT] Theta_D prop. v_D",
+   "orders_below_floor": 9.340760568805738
+  },
+  {
+   "property": "ThD",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.49254994769172905,
+   "effect": 2.571133922790454e-11,
+   "floor": 1e-07,
+   "floor_source": "[DERIVED from LIT] Theta_D prop. v_D",
+   "orders_below_floor": 3.589875301648027
+  },
+  {
+   "property": "ThD",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.49254994769172905,
+   "effect": 1.7004584391910034e-14,
+   "floor": 1e-07,
+   "floor_source": "[DERIVED from LIT] Theta_D prop. v_D",
+   "orders_below_floor": 6.769433978168533
+  },
+  {
+   "property": "ThD",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.49254994769172905,
+   "effect": 1.285566961395227e-11,
+   "floor": 1e-07,
+   "floor_source": "[DERIVED from LIT] Theta_D prop. v_D",
+   "orders_below_floor": 3.8909052973120084
+  },
+  {
+   "property": "ThD",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.49254994769172905,
+   "effect": 8.502292195955017e-15,
+   "floor": 1e-07,
+   "floor_source": "[DERIVED from LIT] Theta_D prop. v_D",
+   "orders_below_floor": 7.0704639738325135
+  },
+  {
+   "property": "Tm",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.005286687966984628,
+   "effect": 2.7596760155641223e-13,
+   "floor": 1.3e-07,
+   "floor_source": "[DERIVED from LIT] NIST Ga cells 0.04 mK / 302.9146 K",
+   "orders_below_floor": 5.67308525318065
+  },
+  {
+   "property": "Tm",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.005286687966984628,
+   "effect": 1.825153613548845e-16,
+   "floor": 1.3e-07,
+   "floor_source": "[DERIVED from LIT] NIST Ga cells 0.04 mK / 302.9146 K",
+   "orders_below_floor": 8.852643929701156
+  },
+  {
+   "property": "Tm",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.005286687966984628,
+   "effect": 1.3798380077820611e-13,
+   "floor": 1.3e-07,
+   "floor_source": "[DERIVED from LIT] NIST Ga cells 0.04 mK / 302.9146 K",
+   "orders_below_floor": 5.974115248844631
+  },
+  {
+   "property": "Tm",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.005286687966984628,
+   "effect": 9.125768067744225e-17,
+   "floor": 1.3e-07,
+   "floor_source": "[DERIVED from LIT] NIST Ga cells 0.04 mK / 302.9146 K",
+   "orders_below_floor": 9.153673925365137
+  },
+  {
+   "property": "Tm",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.005286687965139756,
+   "effect": 2.7596760146010905e-13,
+   "floor": 1.3e-07,
+   "floor_source": "[DERIVED from LIT] NIST Ga cells 0.04 mK / 302.9146 K",
+   "orders_below_floor": 5.673085253332204
+  },
+  {
+   "property": "Tm",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.005286687965139756,
+   "effect": 1.8251536129119294e-16,
+   "floor": 1.3e-07,
+   "floor_source": "[DERIVED from LIT] NIST Ga cells 0.04 mK / 302.9146 K",
+   "orders_below_floor": 8.852643929852709
+  },
+  {
+   "property": "Tm",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": 0.005286687965139756,
+   "effect": 1.3798380073005452e-13,
+   "floor": 1.3e-07,
+   "floor_source": "[DERIVED from LIT] NIST Ga cells 0.04 mK / 302.9146 K",
+   "orders_below_floor": 5.974115248996185
+  },
+  {
+   "property": "Tm",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": 0.005286687965139756,
+   "effect": 9.125768064559647e-17,
+   "floor": 1.3e-07,
+   "floor_source": "[DERIVED from LIT] NIST Ga cells 0.04 mK / 302.9146 K",
+   "orders_below_floor": 9.15367392551669
+  },
+  {
+   "property": "cp",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.0007065890886470139,
+   "effect": 3.688428318402673e-14,
+   "floor": 0.001,
+   "floor_source": "[LIT] adiabatic calorimetry 0.1 % (Stevens & Boerio-Goates 2004)",
+   "orders_below_floor": 10.43315865228278
+  },
+  {
+   "property": "cp",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.0007065890886470139,
+   "effect": 2.4393980437128993e-17,
+   "floor": 0.001,
+   "floor_source": "[LIT] adiabatic calorimetry 0.1 % (Stevens & Boerio-Goates 2004)",
+   "orders_below_floor": 13.612717328803285
+  },
+  {
+   "property": "cp",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.0007065890886470139,
+   "effect": 1.8442141592013365e-14,
+   "floor": 0.001,
+   "floor_source": "[LIT] adiabatic calorimetry 0.1 % (Stevens & Boerio-Goates 2004)",
+   "orders_below_floor": 10.73418864794676
+  },
+  {
+   "property": "cp",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.0007065890886470139,
+   "effect": 1.2196990218564497e-17,
+   "floor": 0.001,
+   "floor_source": "[LIT] adiabatic calorimetry 0.1 % (Stevens & Boerio-Goates 2004)",
+   "orders_below_floor": 13.913747324467266
+  },
+  {
+   "property": "cp",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.8587236514362854,
+   "effect": 4.482577900692759e-11,
+   "floor": 0.001,
+   "floor_source": "[LIT] adiabatic calorimetry 0.1 % (Stevens & Boerio-Goates 2004)",
+   "orders_below_floor": 7.348472154292935
+  },
+  {
+   "property": "cp",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.8587236514362854,
+   "effect": 2.9646209219204944e-14,
+   "floor": 0.001,
+   "floor_source": "[LIT] adiabatic calorimetry 0.1 % (Stevens & Boerio-Goates 2004)",
+   "orders_below_floor": 10.52803083081344
+  },
+  {
+   "property": "cp",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.8587236514362854,
+   "effect": 2.2412889503463794e-11,
+   "floor": 0.001,
+   "floor_source": "[LIT] adiabatic calorimetry 0.1 % (Stevens & Boerio-Goates 2004)",
+   "orders_below_floor": 7.649502149956916
+  },
+  {
+   "property": "cp",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.8587236514362854,
+   "effect": 1.4823104609602472e-14,
+   "floor": 0.001,
+   "floor_source": "[LIT] adiabatic calorimetry 0.1 % (Stevens & Boerio-Goates 2004)",
+   "orders_below_floor": 10.829060826477422
+  },
+  {
+   "property": "cs_air",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.48987117486484355,
+   "effect": 2.557150602481657e-11,
+   "floor": 3.5e-07,
+   "floor_source": "[DERIVED from LIT] AGT k_B 0.71 ppm (de Podesta+2013), c_s ~ sqrt(k_B)",
+   "orders_below_floor": 4.136311737950581
+  },
+  {
+   "property": "cs_air",
+   "chain": "as_coded",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.48987117486484355,
+   "effect": 1.6912103580948625e-14,
+   "floor": 3.5e-07,
+   "floor_source": "[DERIVED from LIT] AGT k_B 0.71 ppm (de Podesta+2013), c_s ~ sqrt(k_B)",
+   "orders_below_floor": 7.315870414471086
+  },
+  {
+   "property": "cs_air",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.48987117486484355,
+   "effect": 1.2785753012408285e-11,
+   "floor": 3.5e-07,
+   "floor_source": "[DERIVED from LIT] AGT k_B 0.71 ppm (de Podesta+2013), c_s ~ sqrt(k_B)",
+   "orders_below_floor": 4.437341733614562
+  },
+  {
+   "property": "cs_air",
+   "chain": "as_coded",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.48987117486484355,
+   "effect": 8.456051790474312e-15,
+   "floor": 3.5e-07,
+   "floor_source": "[DERIVED from LIT] AGT k_B 0.71 ppm (de Podesta+2013), c_s ~ sqrt(k_B)",
+   "orders_below_floor": 7.6169004101350675
+  },
+  {
+   "property": "cs_air",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.4962492555810125,
+   "effect": 2.590444484185409e-11,
+   "floor": 3.5e-07,
+   "floor_source": "[DERIVED from LIT] AGT k_B 0.71 ppm (de Podesta+2013), c_s ~ sqrt(k_B)",
+   "orders_below_floor": 4.130693754992253
+  },
+  {
+   "property": "cs_air",
+   "chain": "consistent",
+   "normalisation": "field_eq",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.4962492555810125,
+   "effect": 1.7132297720253232e-14,
+   "floor": 3.5e-07,
+   "floor_source": "[DERIVED from LIT] AGT k_B 0.71 ppm (de Podesta+2013), c_s ~ sqrt(k_B)",
+   "orders_below_floor": 7.310252431512758
+  },
+  {
+   "property": "cs_air",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_annual",
+   "dlnX_dsigma": -0.4962492555810125,
+   "effect": 1.2952222420927046e-11,
+   "floor": 3.5e-07,
+   "floor_source": "[DERIVED from LIT] AGT k_B 0.71 ppm (de Podesta+2013), c_s ~ sqrt(k_B)",
+   "orders_below_floor": 4.431723750656234
+  },
+  {
+   "property": "cs_air",
+   "chain": "consistent",
+   "normalisation": "inventory",
+   "channel": "dsig_km",
+   "dlnX_dsigma": -0.4962492555810125,
+   "effect": 8.566148860126616e-15,
+   "floor": 3.5e-07,
+   "floor_source": "[DERIVED from LIT] AGT k_B 0.71 ppm (de Podesta+2013), c_s ~ sqrt(k_B)",
+   "orders_below_floor": 7.611282427176739
+  }
+ ],
+ "observability_criterion": {
+  "as_coded|field_eq|both_channels": false,
+  "as_coded|field_eq|annual_only": false,
+  "as_coded|field_eq|per_km_only": true,
+  "as_coded|field_eq|min_orders": 2.3657020760319276,
+  "as_coded|field_eq|all_below_floor": true,
+  "as_coded|inventory|both_channels": false,
+  "as_coded|inventory|annual_only": false,
+  "as_coded|inventory|per_km_only": true,
+  "as_coded|inventory|min_orders": 2.6667320716959084,
+  "as_coded|inventory|all_below_floor": true,
+  "consistent|field_eq|both_channels": false,
+  "consistent|field_eq|annual_only": false,
+  "consistent|field_eq|per_km_only": true,
+  "consistent|field_eq|min_orders": 2.3657020760319276,
+  "consistent|field_eq|all_below_floor": true,
+  "consistent|inventory|both_channels": false,
+  "consistent|inventory|annual_only": false,
+  "consistent|inventory|per_km_only": true,
+  "consistent|inventory|min_orders": 2.6667320716959084,
+  "consistent|inventory|all_below_floor": true
+ },
+ "clock_row": {
+  "field_eq": {
+   "prediction_c2_dlnmu_dPhi": -0.31335831485965693,
+   "bound_2sigma": 9.7e-07,
+   "excluded_by": 323049.8091336669,
+   "annual_dlnmu_effect": 5.1698646038817635e-11,
+   "annual_dlnmu_floor": 1.6003304932282597e-16
+  },
+  "inventory": {
+   "prediction_c2_dlnmu_dPhi": -0.15667915742982846,
+   "bound_2sigma": 9.7e-07,
+   "excluded_by": 161524.90456683346,
+   "annual_dlnmu_effect": 2.5849323019408817e-11,
+   "annual_dlnmu_floor": 1.6003304932282597e-16
+  }
+ },
+ "acoustic_resonator_row": {
+  "field_eq": {
+   "effect_annual": 2.571133922790075e-11,
+   "floor_short_term_stability": 2.5e-14,
+   "floor_source": "[LIT] best room-temperature quartz BAW stability 2.5e-14 (cited in Lo+2016 PRX 6, 011018); annual-period aging floor NOT established here",
+   "orders_below_floor": -3.012184689679871,
+   "literature_home": "Campbell+2021 PRL 126, 071301 (quartz BAW vs H-maser and CSO, |d_me - d_g|)"
+  },
+  "inventory": {
+   "effect_annual": 1.2855669613950374e-11,
+   "floor_short_term_stability": 2.5e-14,
+   "floor_source": "[LIT] best room-temperature quartz BAW stability 2.5e-14 (cited in Lo+2016 PRX 6, 011018); annual-period aging floor NOT established here",
+   "orders_below_floor": -2.7111546940158897,
+   "literature_home": "Campbell+2021 PRL 126, 071301 (quartz BAW vs H-maser and CSO, |d_me - d_g|)"
+  }
+ },
+ "lit_refs": [
+  "Lange et al. 2021, PRL 126, 011102, doi:10.1103/PhysRevLett.126.011102, arXiv:2010.06620: (c^2/mu)dmu/dPhi = 7(45)e-8",
+  "Campbell et al. 2021, PRL 126, 071301, arXiv:2010.08107: quartz BAW vs H-maser / CSO, coupling |d_me - d_g|",
+  "Lo et al. 2016, PRX 6, 011018, doi:10.1103/PhysRevX.6.011018, arXiv:1412.2142: 2.4e-15 resolution (modulated, 120 h); cites BAW stability 2.5e-14",
+  "Bartl et al. 2017, Metrologia 54, 693, doi:10.1088/1681-7575/aa7820: N_A by XRCD, 1.2e-8",
+  "Pantea et al. 2005, Rev. Sci. Instrum. 76, 114902: digital pulse-echo precision better than 1e-7",
+  "de Podesta et al. 2013, Metrologia 50, 354: k_B by acoustic gas thermometry, 0.71 ppm",
+  "Stevens & Boerio-Goates 2004, J. Chem. Thermodyn. 36, 857, doi:10.1016/j.jct.2004.06.008: Cu c_p agreement 0.1 %",
+  "NIST gallium triple/melting-point cell comparison (13 cells span 0.04 mK), nist.gov/node/735371",
+  "NASA NSSDC Earth fact sheet: e = 0.01671022 (J2000 mean elements)"
+ ],
+ "findings": {
+  "chain_identities": {
+   "I1": 1.6507815114863433e-09,
+   "I2": 6.493878768054628e-10,
+   "I3": 0.4951932916746144,
+   "I1_equals_truncation_f_h2_over_6": 1.6506443049918716e-09
+  },
+  "TODO_cancellation_claim_ratio_dlnrho_over_dlnK": 187.335925849261,
+  "design_criterion_as_written": "FAIL",
+  "design_criterion_per_km_only": "PASS",
+  "corrected_criterion_all_property_rows_below_floor": "PASS",
+  "min_orders_below_floor_annual_field": 2.3657020760319276
+ }
+}

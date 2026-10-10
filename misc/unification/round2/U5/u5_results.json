@@ -1,0 +1,429 @@
+{
+ "id": "U5",
+ "prereg_file": "C:/Users/aaron/AppData/Local/Temp/claude/D--Aaron-development-sigma-ground/c6652910-47a9-478d-9c83-a8a8c8aaa457/scratchpad/round2/U5\\PREREG.txt",
+ "leaves": {
+  "sun": {
+   "value": {
+    "luminosity_w": 3.828e+26,
+    "mass_kg": 1.98892e+30,
+    "radius_m": 695700000.0,
+    "surface_temp_k": 5772.0
+   },
+   "source": "sigma-ground via IAU 2015 nominal solar values",
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "sun"
+   }
+  },
+  "mercury": {
+   "value": {
+    "mass_kg": 3.3011e+23,
+    "orbital_period_d": 87.969,
+    "radius_m": 2439700.0,
+    "semimajor_axis_au": 0.387098
+   },
+   "source": "sigma-ground via NASA Planetary Fact Sheet 2024",
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "mercury"
+   }
+  },
+  "G": {
+   "value": 6.6743e-11,
+   "source": "sigma_ground.field.constants",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "G"
+   }
+  },
+  "c": {
+   "value": 299792458.0,
+   "source": "sigma_ground.field.constants",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "c"
+   }
+  },
+  "au": {
+   "value": 149597870700.0,
+   "source": "scipy.constants (CODATA)",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "au"
+   }
+  },
+  "r_s_sun": {
+   "value": 2954.007736491099,
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)",
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 1.98892e+30
+   }
+  },
+  "e_mercury": {
+   "value": 0.2056,
+   "source": "[LIT] NASA NSSDC Mercury Fact Sheet, nssdc.gsfc.nasa.gov/planetary/factsheet/mercuryfact.html (orbital eccentricity 0.2056)"
+  },
+  "XI": {
+   "value": 0.1582,
+   "source": "sigma_ground.inventory.core.sigma.XI (repo constant, Omega_b/(Omega_b+Omega_c) Planck 2018)"
+  },
+  "a_mercury_m": {
+   "value": 57909036552.2286,
+   "source": "Mentat semimajor_axis_au x Mentat au"
+  },
+  "xi_over_3": {
+   "value": "0.0527333333333333",
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "0.1582/3"
+   }
+  },
+  "xi_over_6": {
+   "value": "0.0263666666666667",
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "0.1582/6"
+   }
+  },
+  "dV_dr": {
+   "value": "G*M/r**2 + G*M*r_s*xi/r**3",
+   "source": "sympy.diff",
+   "tool": "differentiate_expr",
+   "args": {
+    "expression": "-G*M/r - G*M*xi*r_s/(2*r**2)",
+    "variable": "r"
+   }
+  },
+  "exp_sigma_series": {
+   "value": "1 + r_s*xi/r",
+   "source": "sympy.series",
+   "tool": "series_expansion",
+   "args": {
+    "expression": "exp(xi*r_s/r)",
+    "variable": "xi",
+    "point": "0",
+    "order": 2
+   }
+  },
+  "binet_advance_series": {
+   "value": "2*pi*b/L2",
+   "source": "sympy.series",
+   "tool": "series_expansion",
+   "args": {
+    "expression": "2*pi*(1/sqrt(1 - 2*b/L2) - 1)",
+    "variable": "b",
+    "point": "0",
+    "order": 2
+   }
+  },
+  "ratio_symbolic": {
+   "value": "xi/3",
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "(2*pi*(G*M*xi*(2*G*M/c**2)/2)/(G*M*p)) / (6*pi*G*M/(c**2*p))"
+   }
+  },
+  "dw_GR_rad_per_orbit": {
+   "value": "1.59787966109806e-7*pi",
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "6*pi*6.6743e-11*1.98892e+30/(299792458.0**2*57909036552.2286*(1-0.2056**2))"
+   }
+  },
+  "dw_sigma_rad_per_orbit_pred": {
+   "value": "8.426152079523792e-9*pi",
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "pi*0.1582*2954.007736491099/(57909036552.2286*(1-0.2056**2))"
+   }
+  },
+  "orbits_per_century": {
+   "value": "415.203082904205",
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "36525/87.969"
+   }
+  },
+  "rad_to_arcsec": {
+   "value": "648000/pi",
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "180*3600/pi"
+   }
+  }
+ },
+ "estimators": {
+  "lrl": {
+   "A_newtonian_rad_per_orbit_dt600": -5.288320387947298e-13,
+   "A_newtonian_rad_per_orbit_dt300": -1.2464880603470077e-14,
+   "B_minus_A": {
+    "rad_per_orbit": -5.019904391860137e-07,
+    "fit_se": 9.76934637637844e-13,
+    "arcsec_per_cy": -42.99135648595232,
+    "over_GR_analytic": -1.000003463670379
+   },
+   "C_minus_A": {
+    "rad_per_orbit": 2.6471598952592104e-08,
+    "fit_se": 1.1106267489885877e-13,
+    "arcsec_per_cy": 2.267074945031657,
+    "over_GR_analytic": 0.05273345580925722
+   },
+   "D_minus_A": {
+    "rad_per_orbit": 1.3235793946586836e-08,
+    "fit_se": 5.5764169415222934e-14,
+    "arcsec_per_cy": 1.1335369989416693,
+    "over_GR_analytic": 0.02636671688902366
+   },
+   "E_minus_A": {
+    "rad_per_orbit": -8.366482552824965e-07,
+    "fit_se": 9.84868258273644e-13,
+    "arcsec_per_cy": -71.65204870141281,
+    "over_GR_analytic": -1.6666675056858062
+   },
+   "C_minus_A_dt300": {
+    "rad_per_orbit": 2.6471491946705723e-08,
+    "fit_se": 5.4879293196830095e-14,
+    "arcsec_per_cy": 2.267065780856708,
+    "over_GR_analytic": 0.05273324264532289
+   },
+   "design_ratio_C_over_B": -0.052733273158581,
+   "design_ratio_se": 2.438875624853729e-07,
+   "dt_control_rel_change": -4.042290251224496e-06
+  },
+  "sketch": {
+   "A_newtonian_rad_per_orbit_dt600": 1.8144089264492482e-06,
+   "A_newtonian_rad_per_orbit_dt300": -8.80189295613748e-08,
+   "B_minus_A": {
+    "rad_per_orbit": -4.594477121312117e-06,
+    "fit_se": 3.155457000029333e-06,
+    "arcsec_per_cy": -393.4792146821919,
+    "over_GR_analytic": -9.152550878292583
+   },
+   "C_minus_A": {
+    "rad_per_orbit": -7.837867080692471e-07,
+    "fit_se": 3.1612623436434397e-06,
+    "arcsec_per_cy": -67.12489152222659,
+    "over_GR_analytic": -1.5613632485092337
+   },
+   "D_minus_A": {
+    "rad_per_orbit": -8.905887805350217e-07,
+    "fit_se": 3.1612615234704463e-06,
+    "arcsec_per_cy": -76.2716114841843,
+    "over_GR_analytic": -1.7741211698874406
+   },
+   "E_minus_A": {
+    "rad_per_orbit": -2.483621943976832e-06,
+    "fit_se": 3.168579886493575e-06,
+    "arcsec_per_cy": -212.70181269383988,
+    "over_GR_analytic": -4.947565436608399
+   },
+   "C_minus_A_dt300": {
+    "rad_per_orbit": 2.1348867030872782e-07,
+    "fit_se": 1.5700371800440887e-06,
+    "arcsec_per_cy": 18.283550471273962,
+    "over_GR_analytic": 0.42528580844943625
+   },
+   "design_ratio_C_over_B": 0.17059323343532262,
+   "design_ratio_se": 0.6979609622204109,
+   "dt_control_rel_change": -1.2723810803510924
+  },
+  "interp": {
+   "A_newtonian_rad_per_orbit_dt600": -4.881354506071106e-13,
+   "A_newtonian_rad_per_orbit_dt300": -4.9526650683314694e-15,
+   "B_minus_A": {
+    "rad_per_orbit": -5.019896257497912e-07,
+    "fit_se": 1.7646442699809906e-13,
+    "arcsec_per_cy": -42.991286821823515,
+    "over_GR_analytic": -1.0000018432430233
+   },
+   "C_minus_A": {
+    "rad_per_orbit": 2.6471523009580393e-08,
+    "fit_se": 1.7671331512361998e-13,
+    "arcsec_per_cy": 2.267068441136694,
+    "over_GR_analytic": 0.05273330452495214
+   },
+   "D_minus_A": {
+    "rad_per_orbit": 1.3235761557490616e-08,
+    "fit_se": 1.7973492742692323e-13,
+    "arcsec_per_cy": 1.1335342250817049,
+    "over_GR_analytic": 0.02636665236745935
+   },
+   "E_minus_A": {
+    "rad_per_orbit": -8.366482418324268e-07,
+    "fit_se": 1.7662858224694584e-13,
+    "arcsec_per_cy": -71.65204754952485,
+    "over_GR_analytic": -1.6666674788922355
+   },
+   "C_minus_A_dt300": {
+    "rad_per_orbit": 2.6471463177274332e-08,
+    "fit_se": 3.3808721407348555e-14,
+    "arcsec_per_cy": 2.267063316991295,
+    "over_GR_analytic": 0.05273318533440859
+   },
+   "design_ratio_C_over_B": -0.05273320732483564,
+   "design_ratio_se": 3.5251357044857886e-07,
+   "dt_control_rel_change": -2.260251744456014e-06
+  }
+ },
+ "criteria": {
+  "design_engine_pass": false,
+  "design_ratio": -0.052733273158581,
+  "corrected_engine_pass_C": true,
+  "corrected_ratio_C": 0.05273345580925722,
+  "B_over_GR_analytic": -1.000003463670379,
+  "B_magnitude_within_1pct": true,
+  "B_sign": "retrograde (negative)",
+  "P2_D_ratio": 0.02636671688902366,
+  "P2_D_pass": true,
+  "P3_E_ratio": -1.6666675056858062,
+  "P3_E_pass": true,
+  "P4_dt_control_rel_change": -4.042290251224496e-06,
+  "P4_dt_control_pass": true,
+  "physics_threshold_arcsec_cy": 0.05,
+  "sigma_advance_arcsec_cy": 2.267074945031657,
+  "physics_excluded": true,
+  "excess_over_design_threshold": {
+   "value": 45.34149890063314,
+   "source": "sympy.simplify"
+  },
+  "excess_over_Park2017_beta_1sigma": {
+   "value": 4056.419677635171,
+   "source": "sympy.simplify",
+   "note": "[DERIVED] the sigma hook is an extra attractive 1/r^3 force, i.e. a PPN beta shift of -xi; compared with the 1-sigma of (2+2gamma-beta)/3 implied by Park+2017 beta-1 = (-2.7 +/- 3.9)e-5 [LIT]"
+  }
+ },
+ "GR_analytic_arcsec_cy": {
+  "value": 42.99120757858008,
+  "source": "sympy.simplify"
+ },
+ "probes": {
+  "B": {
+   "engine_da": [
+    -5.627772317606805e-09,
+    0.0,
+    0.0
+   ],
+   "reference_da": [
+    5.627772317658835e-09,
+    0.0,
+    0.0
+   ],
+   "cos_angle": -1.0,
+   "magnitude_ratio": 0.9999999999907548
+  },
+  "C": {
+   "engine_da": [
+    -6.372126853948501e-10,
+    0.0,
+    0.0
+   ],
+   "reference_da": [
+    -6.372126972900283e-10,
+    -0.0,
+    -0.0
+   ],
+   "cos_angle": 1.0,
+   "magnitude_ratio": 0.9999999813324841
+  },
+  "D": {
+   "engine_da": [
+    -3.1860634963631895e-10,
+    0.0,
+    0.0
+   ],
+   "reference_da": [
+    -3.186063486450141e-10,
+    -0.0,
+    -0.0
+   ],
+   "cos_angle": 1.0,
+   "magnitude_ratio": 1.0000000031113783
+  },
+  "E": {
+   "engine_da": [
+    5.627774857241974e-09,
+    0.0,
+    0.0
+   ],
+   "reference_da": [
+    5.627772317658835e-09,
+    0.0,
+    0.0
+   ],
+   "cos_angle": 1.0,
+   "magnitude_ratio": 1.000000451259041
+  }
+ },
+ "anomalistic_period_s": {
+  "A_600": 7599546.176692926,
+  "B_600": 7599542.367418204,
+  "C_600": 7599546.030740509,
+  "D_600": 7599546.103717307,
+  "E_600": 7599545.271570857,
+  "A_300": 7599546.176693337,
+  "C_300": 7599546.030829778
+ },
+ "wall_s": {
+  "A_600": 122.92373752593994,
+  "B_600": 148.94219255447388,
+  "C_600": 128.70989418029785,
+  "D_600": 156.65098309516907,
+  "E_600": 288.7126359939575,
+  "A_300": 327.2372622489929,
+  "C_300": 379.1664152145386
+ },
+ "n_steps": {
+  "A_600": 633298,
+  "B_600": 633297,
+  "C_600": 633298,
+  "D_600": 633298,
+  "E_600": 633297,
+  "A_300": 1266593,
+  "C_300": 1266593
+ },
+ "fit_residual_rms_rad": {
+  "A_600": 1.3843939819816444e-13,
+  "B_600": 9.767382500739582e-11,
+  "C_600": 1.1103182985924072e-11,
+  "D_600": 5.573582498575157e-12,
+  "E_600": 9.846702917325175e-11,
+  "A_300": 1.7011182676640831e-13,
+  "C_300": 5.484193945957978e-12
+ },
+ "prereg_text": "U5 pre-registration (written 2026-10-10 BEFORE any orbit run; not to be moved afterwards)\n\nDESIGN CRITERION (design_synthesis.json, U5, unchanged):\n  Engine pass iff ratio (C-A)/(B-A) = 0.0527 +/- 0.003, i.e. in [0.0497, 0.0557].\n  Physics: sigma hook excluded iff Delta-omega_sigma = (C-A) > 0.05 arcsec/cy. Predicted ~2.3 arcsec/cy.\n  Runs: 50 orbits, Forest-Ruth, dt = 600 s. A Newtonian; B include_gr=True; C Sun.sigma = XI*r_s/r updated every step.\n\nESTIMATOR (fixed before running):\n  Primary  = direction of the osculating Laplace-Runge-Lenz vector (relative coords, mu = G(M_sun+M_mer), unscaled)\n             evaluated at each discrete radial-minimum step; linear fit vs orbit index -> advance per orbit.\n             Reason: the sketch's atan2(position) at the discrete minimum carries a timing term Omega_p*(t_sample - t_peri)\n             that does not cancel in C-A once the anomalistic period changes (estimated ~1e-7 rad/orbit vs signal 2.6e-8).\n  Secondary (reported, not used for pass/fail) = the sketch's own estimator verbatim, and parabola-interpolated\n             position angle at the r minimum.\n\nADDED PREDICTIONS FROM READING THE CODE (made before running):\n  P1  nbody.py gr_1pn branch (lines ~463-477) adds +factor*[(4GM/r - v^2) r_hat + 4 (r_hat.v) v] with r_hat pointing\n      FROM Mercury TO the Sun. The standard harmonic-gauge 1PN test-body EOM is +(GM/c^2 r^3)[(4GM/r - v^2) x + 4 (x.v) v]\n      with x pointing from the Sun to Mercury. The engine term is the overall NEGATIVE of the standard one.\n      => predicted B-A = -1.00 x Delta-omega_GR (retrograde, about -43 arcsec/cy), so the design ratio (C-A)/(B-A) comes\n      out about -0.0527 and the design's engine criterion FAILS on the GR run's sign, not on the sigma hook.\n      Force-level probe: cos(angle) between engine a_1PN and the standard a_1PN at perihelion predicted = -1.\n  Corrected criterion (reported alongside the original): (C-A)/Delta-omega_GR,analytic in [0.0497, 0.0557], with\n      Delta-omega_GR,analytic = 6 pi G M /(c^2 a (1-e^2)) evaluated by Mentat simplify_expr; and |B-A|/Delta-omega_GR,analytic\n      in [0.99, 1.01] with its sign recorded.\n  P2  add-on run D, sigma = sigma_from_potential(r, M_sun) = XI*r_s/(2r) (the inventory normalisation):\n      (D-A)/Delta-omega_GR,analytic = XI/6 = 0.02637 +/- 0.0015.\n  P3  add-on run E, toggles eih_cross=True: radial terms carry the standard sign, the velocity cross term\n      (vec_ij.(4v_i-3v_j))(v_i-v_j) carries the opposite sign of Moyer/Will (they use x_i - x_j). Coefficient bookkeeping\n      Delta-omega = (pi m/p)(-A_coef - 2 B_coef + 2 D_coef) with A=4, B=-1, D=-4 gives -10 pi m/p = -(5/3) Delta-omega_GR.\n      Predicted (E-A)/Delta-omega_GR,analytic = -1.667 +/- 0.03.\n  P4  dt-halving control (A and C at dt = 300 s): (C-A) changes by < 1 %.\n",
+ "engine_defects": [
+  {
+   "file": "sigma_ground/field/interface/nbody.py",
+   "line": 476,
+   "defect": "gr_1pn branch has the overall wrong sign: adds +GM/(r^2 c^2)[(4GM/r - v^2) r_hat + 4 (r_hat.v) v] with r_hat = (x_source - x_body)/r, i.e. the negative of IERS Conventions eq. 10.12 (r from central body to satellite).",
+   "evidence": "force probe at perihelion: cos(engine, IERS 10.12) = -1.0, |ratio| = 1.0000000000; 50-orbit run: (B-A) = -42.991 arcsec/cy = -1.0000035 x 6 pi GM/(c^2 a(1-e^2)); predicted from code reading before the run. The suite's test_mercury_precesses_with_gr_on (test_physics_stability.py:215) only asserts a non-zero position difference, so it cannot see the sign."
+  },
+  {
+   "file": "sigma_ground/field/interface/nbody.py",
+   "line": 459,
+   "defect": "eih_cross branch: velocity cross term (vec_ij.(4v_i-3v_j))(v_i-v_j) uses vec_ij = x_j - x_i where the EIH/Moyer form uses x_i - x_j; the radial A_ij terms (line 455) carry the correct sign.",
+   "evidence": "50-orbit run E: (E-A) = -71.652 arcsec/cy = -1.6666675 x GR, matching the pre-registered coefficient bookkeeping (pi m/p)(-A - 2B + 2D) with D = -4 instead of +4, i.e. -5/3 x GR to 5e-7. Correct EIH would give +1 x GR."
+  }
+ ],
+ "design_corrections": [
+  "The design's engine criterion compares C-A with the engine's own GR run B-A. B-A is retrograde (-1.000 x GR) because of the sign defect, so the design ratio is -0.0527 and the criterion fails for a reason unrelated to the sigma hook. Corrected criterion: (C-A) against the analytic GR advance 6 pi GM/(c^2 a(1-e^2)) evaluated by Mentat: 0.0527335 -> PASS.",
+  "The design sketch's perihelion estimator (atan2 of the position one step after the discrete radial minimum) has sampling jitter of 2.2e-4 rad rms per orbit, four orders above the sigma signal (2.6e-8 rad/orbit); it returns a ratio of 0.171 and C/GR = -1.56, i.e. noise. Primary estimator fixed before running: osculating Laplace-Runge-Lenz direction at the radial minimum (residual rms 1e-11 rad); parabola-interpolated angle agrees to 3e-7 relative.",
+  "Normalisation: the repo has two sigma amplitudes for the same body. Field-equation sigma = xi r_s/r gives xi/3 = 0.0527 (2.27 arcsec/cy); inventory sigma_from_potential = xi r_s/(2r) gives xi/6 = 0.0264 (1.13 arcsec/cy). Both excluded (45x and 23x the 0.05 arcsec/cy budget).",
+  "The 0.05 arcsec/cy threshold (~1e-3 of GR, Will 2014 Living Rev.) is conservative; Park+2017's beta-1 = (-2.7 +/- 3.9)e-5 makes the hook (an effective PPN beta shift of -xi) ~4e3 sigma out."
+ ],
+ "coupling_convention_record": "nbody.CelestialBody.gm_m3_s2 (nbody.py:225-233) multiplies the SOURCE body's whole GM by e^sigma; with sigma set from the test body's distance this is a universal, attractive 1/r^3 addition. inventory.core.sigma.proton_mass_kg scales only the QCD part (929.25/938.27 = 0.99) of the TEST body's mass, which as a field gradient force -grad(m c^2) is repulsive (program section 14, U1). sigma_from_potential uses xi GM/(r c^2) = xi r_s/2r; the field equation gives xi r_s/r. Three conventions, two amplitudes.",
+ "lit_refs": [
+  "[LIT] Mercury e = 0.2056: NASA NSSDC Mercury Fact Sheet https://nssdc.gsfc.nasa.gov/planetary/factsheet/mercuryfact.html",
+  "[LIT] Park, Folkner, Konopliv, Williams, Smith, Zuber 2017, AJ 153, 121, doi:10.3847/1538-3881/aa5be2: beta-1 = (-2.7 +/- 3.9)e-5, J2 = (2.25 +/- 0.09)e-7, total precession 575.3100 +/- 0.0015 arcsec/cy",
+  "[LIT] Will 2014, Living Rev. Relativ. 17, 4, arXiv:1403.7377: GR perihelion 42.98 arcsec/cy; excess known to ~0.1 % from radar",
+  "[LIT] IERS Conventions eq. 10.12 Schwarzschild term GM/(c^2 r^3){[2(beta+gamma)GM/r - gamma v^2] r + 2(1+gamma)(r.v) v}, r from central body to satellite (as quoted in Hugentobler 2008, larochelle.obspm.fr supporting material, which cites IERS Conventions 2003); circular orbit feels an OUTWARD 3(GM)^2/(c^2 a^3)"
+ ]
+}

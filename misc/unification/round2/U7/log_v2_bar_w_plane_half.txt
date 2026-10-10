@@ -1,0 +1,2 @@
+v2_bar_w_plane_half: step 1 in 7.4s
+v2_bar_w_plane_half: done in 233s

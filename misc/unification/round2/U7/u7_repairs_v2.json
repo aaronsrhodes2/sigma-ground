@@ -1,0 +1,234 @@
+{
+ "A_lit7_uniform_mass_t0": {
+  "m_bulk": 0.000915357203529296,
+  "face_centre": -0.2662833599922624,
+  "edge_centre": -0.46310882537889064,
+  "corner": -0.6081825833646226,
+  "centre": -3.3306690738754696e-16,
+  "surface_layer_mean": -0.3448985608163025,
+  "surface_layer_min": -0.6081825833646226,
+  "depth1_mean": -0.037026502416361136,
+  "depth2_mean": -7.344552316751035e-16,
+  "note": "rho/rho0 - 1 = P/K for the engine's linear Tait P = K(rho/rho0 - 1); the 7^3 lattice has one bulk parcel (depth 3) and it reads exactly rho0."
+ },
+ "B_ic_masses": {
+  "bar27_water_ice": {
+   "dims": [
+    27,
+    11,
+    11
+   ],
+   "n": 3267,
+   "min_over_m_bulk": 0.0,
+   "max_over_m_bulk": 7.4106450073879335,
+   "n_exactly_zero": 1,
+   "n_below_1e_6": 432,
+   "n_below_1e_3": 432,
+   "n_below_0p1": 470,
+   "n_above_2": 594,
+   "n_above_5": 32,
+   "res_max": 0.02627216363308138,
+   "uniform_mass_res_max": 0.6081825833646236
+  },
+  "v2_bar27x15_water_ice": {
+   "dims": [
+    27,
+    15,
+    15
+   ],
+   "n": 6075,
+   "min_over_m_bulk": 2.2939405410532703e-77,
+   "max_over_m_bulk": 7.418947452598887,
+   "n_exactly_zero": 0,
+   "n_below_1e_6": 520,
+   "n_below_1e_3": 520,
+   "n_below_0p1": 656,
+   "n_above_2": 828,
+   "n_above_5": 32,
+   "res_max": 0.02425484011391643,
+   "uniform_mass_res_max": 0.6081825833646237
+  },
+  "v2_bar27x21_water_ice": {
+   "dims": [
+    27,
+    21,
+    21
+   ],
+   "n": 11907,
+   "min_over_m_bulk": 0.0,
+   "max_over_m_bulk": 7.41670934682046,
+   "n_exactly_zero": 1,
+   "n_below_1e_6": 624,
+   "n_below_1e_3": 624,
+   "n_below_0p1": 664,
+   "n_above_2": 1200,
+   "n_above_5": 32,
+   "res_max": 0.024066834682484828,
+   "uniform_mass_res_max": 0.6081825833646237
+  }
+ },
+ "C_lindemann_water_ice": {
+  "by_T": {
+   "200K": {
+    "melting_point_K_cascade": 92.1612023859985,
+    "phase_flag": "liquid",
+    "real_phase_at_1atm": "solid (ice)"
+   },
+   "250K": {
+    "melting_point_K_cascade": 92.1612023859985,
+    "phase_flag": "liquid",
+    "real_phase_at_1atm": "solid (ice)"
+   },
+   "300K": {
+    "melting_point_K_cascade": 92.1612023859985,
+    "phase_flag": "liquid",
+    "real_phase_at_1atm": "liquid"
+   }
+  },
+  "PHASE_DATA_T_melt_K": 273.15,
+  "mentat_melting_point_water": {
+   "value": 273.15,
+   "source": "sigma-ground via SI definition (triple point + offset)"
+  },
+  "note": "continuum.material_properties (continuum.py:122) takes T_melt from lindemann_melting_estimate (phase_transition.py:422) although PHASE_DATA (phase_transition.py:306-308) carries the measured 273.15 K"
+ },
+ "D_shear_free_speed": {
+  "water_ice": {
+   "c_tait": 3541.6229585269134,
+   "c_L": 4353.860726696342,
+   "c_tait_over_c_L": 0.8134442465765906,
+   "c_L_over_c_tait": 1.2293405530969528,
+   "c_shear": 2193.115942062321
+  },
+  "iron": {
+   "c_tait": 4624.422633321724,
+   "c_L": 5942.271144201563,
+   "c_tait_over_c_L": 0.7782247765375383,
+   "c_L_over_c_tait": 1.2849757938177957,
+   "c_shear": 3231.7141341282413
+  }
+ },
+ "E_heat_literal": {
+  "continuum_crossings": {
+   "2": {
+    "t_continuum": 0.17452864346334748,
+    "L": 5.729718515860743,
+    "p_local_continuum": 2.709267056129267,
+    "t_measured_slices": 0.06854436021956374,
+    "t_measured_every_substep": 0.06333333333333334
+   },
+   "3": {
+    "t_continuum": 0.5683690702180767,
+    "L": 3.9586953581705298,
+    "p_local_continuum": 3.2201592970965893,
+    "t_measured_slices": 0.3541827202487392,
+    "t_measured_every_substep": 0.31641080030813123
+   },
+   "4": {
+    "t_continuum": 1.7821304295316471,
+    "L": 2.2445046298049127,
+    "p_local_continuum": 6.029524975265914,
+    "t_measured_slices": 1.8301345131964963,
+    "t_measured_every_substep": 1.5622084610328453
+   }
+  },
+  "p_continuum_d2_4": 3.3231782535433783,
+  "p_measured_slices": 4.693592853435882,
+  "p_measured_every_substep": 4.581348924148036,
+  "analyst_expectation_prerun": "p ~ 3.4 from continuum crossings at t ~ 0.18, 0.57, 1.8",
+  "half_peak_d2": {
+   "dx1": 0.16222930034727673,
+   "dx05": 0.22595145696521363,
+   "continuum": 0.2909742428162026
+  },
+  "mentat_derivation": {
+   "F_equals_zero": "log(Am/th) - 3*log(4*pi*Dc*exp(u))/2 - exp(2*v)/(4*Dc*exp(u))",
+   "dF_dv": {
+    "value": "-exp(-u)*exp(2*v)/(2*Dc)",
+    "source": "sympy.diff"
+   },
+   "dF_du": {
+    "value": "-3/2 + exp(-u)*exp(2*v)/(4*Dc)",
+    "source": "sympy.diff"
+   },
+   "p_equals_minus_Fv_over_Fu": {
+    "value": "-2*exp(2*v)/(6*Dc*exp(u) - exp(2*v))",
+    "source": "sympy.simplify"
+   },
+   "p_minus_2_over_1_minus_3_over_2L": {
+    "value": "0",
+    "source": "sympy.simplify"
+   }
+  }
+ },
+ "F_background_27x11x11_a1": {
+  "axis_P_over_K_ref_min": -0.01158789804321625,
+  "axis_P_over_K_ref_max": 0.027654156115309192,
+  "axis_P_over_K_ref_t0": [
+   -1.1102230246251565e-15,
+   -1.1102230246251565e-15,
+   -1.2212453270876722e-15,
+   -1.1102230246251565e-15,
+   -1.1102230246251565e-15,
+   -1.3322676295501878e-15,
+   -1.887379141862766e-15,
+   -1.3322676295501878e-15,
+   -8.881784197001252e-16,
+   0.003669862556253012,
+   0.026272163633080492
+  ],
+  "ref_axis_speed_max": 32.36954837615305,
+  "signal_by_d": {
+   "1": {
+    "plane_first_peak_m_s": 13.650609577311714,
+    "point_first_peak_m_s": 1.2405697386631886,
+    "ref_speed_max_to_plane_peak": 0.03752408788305534
+   },
+   "2": {
+    "plane_first_peak_m_s": 21.100581887118388,
+    "point_first_peak_m_s": 1.8626200107451056,
+    "ref_speed_max_to_plane_peak": 0.037419148596648355
+   },
+   "3": {
+    "plane_first_peak_m_s": 11.690041288861426,
+    "point_first_peak_m_s": 1.1117664836082959,
+    "ref_speed_max_to_plane_peak": 0.07852786582801582
+   },
+   "4": {
+    "plane_first_peak_m_s": 7.595919438138975,
+    "point_first_peak_m_s": 0.292640863268072,
+    "ref_speed_max_to_plane_peak": 0.08113200972904043
+   },
+   "5": {
+    "plane_first_peak_m_s": 7.700636253830863,
+    "point_first_peak_m_s": 0.2555325286313671,
+    "ref_speed_max_to_plane_peak": 0.3934694375065143
+   },
+   "6": {
+    "plane_first_peak_m_s": 5.639327528881798,
+    "point_first_peak_m_s": 0.1665713340759693,
+    "ref_speed_max_to_plane_peak": 0.3964864692071745
+   },
+   "7": {
+    "plane_first_peak_m_s": 4.367033337424792,
+    "point_first_peak_m_s": 0.08774795172402783,
+    "ref_speed_max_to_plane_peak": 5.132494718582452
+   },
+   "8": {
+    "plane_first_peak_m_s": 4.0053435337381575,
+    "point_first_peak_m_s": 0.07596996394911937,
+    "ref_speed_max_to_plane_peak": 7.019044051125635
+   },
+   "9": {
+    "plane_first_peak_m_s": 3.832259367894814,
+    "point_first_peak_m_s": 0.0641367181902428,
+    "ref_speed_max_to_plane_peak": 21.432822937386586
+   },
+   "10": {
+    "plane_first_peak_m_s": 2.8638073639073856,
+    "point_first_peak_m_s": 0.040945621565414925,
+    "ref_speed_max_to_plane_peak": 32.36954837615305
+   }
+  }
+ }
+}

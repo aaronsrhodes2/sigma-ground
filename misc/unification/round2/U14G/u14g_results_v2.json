@@ -1,0 +1,2490 @@
+{
+ "id": "U14G",
+ "version": "v2 (repair run after three skeptic reviews)",
+ "engine_file": "sigma_ground/dynamics/continuum.py",
+ "engine_lines": {
+  "_buoyancy_force": "621-637 (alpha at 630, return 633-637)",
+  "buoyancy applied for every eos": "763 (inside _forces; eos='ideal' pressure at 742-747)",
+  "_heat_conduction": "640-684 (extra 1/rho_i at 682: dTdt[i] = rate / (rho_i * cp_i); docstrings 45 and 643 carry the same extra factor; 646 credits Cleary & Monaghan 1999 for what is the arithmetic-mean Brookshaw/Monaghan form)",
+  "thermal_expansion property": "239-242 (docstring: 'Linear thermal expansion')",
+  "cascade": "field/interface/thermal_expansion.py:74-182 EXPANSION_DATA 'alpha_linear_per_K' (CRC), :513 expansion_coefficient_at_T ('linear'), :326-343 volumetric = 3 x linear"
+ },
+ "mentat_sources": {
+  "g_surface_earth": {
+   "value": 9.80665,
+   "source": "sigma-ground via NASA Planetary Fact Sheet 2024",
+   "tool": "solar_system_body(earth).surface_g_ms2",
+   "note": "9.80665 is standard gravity; the label says NASA fact sheet. Every buoyancy ratio here is independent of g."
+  },
+  "rho_iron_mentat": {
+   "value": 7874.0,
+   "source": "sigma-ground via CRC Handbook (iron at 20 C)",
+   "tool": "density(iron)"
+  },
+  "rho_copper_mentat": {
+   "value": 8960.0,
+   "source": "sigma-ground via CRC Handbook (copper at 20 C)",
+   "tool": "density(copper)"
+  },
+  "Fe_atomic_mass": {
+   "value": 55.845,
+   "source": "sigma-ground via periodictable (NIST atomic data)",
+   "tool": "element_atomic_data(Fe)"
+  },
+  "engine_cascade": {
+   "source": "sigma_ground.dynamics.continuum.material_properties -> field.interface (thermal_expansion.expansion_coefficient_at_T, thermal.thermal_conductivity, thermal.specific_heat_j_kg_K, acoustics.density_at_sigma); field.interface.gas (molecular_mass_kg, heat_capacity_ratio); repo HEAD 339c4f4",
+   "note": "repo engines are Mentat (run rule 3)"
+  }
+ },
+ "literature": {
+  "alpha_L_wikipedia_1e-6_per_K": {
+   "iron": 11.8,
+   "copper": 17,
+   "aluminum": 23.1,
+   "gold": 14,
+   "silicon": 2.56,
+   "tungsten": 4.5,
+   "nickel": 13,
+   "silver": 18,
+   "lead": 29,
+   "platinum": 9
+  },
+  "alpha_V_wikipedia_1e-6_per_K": {
+   "iron": 35.4,
+   "copper": 51,
+   "aluminum": 69,
+   "gold": 42,
+   "silicon": 9,
+   "tungsten": 13.5,
+   "nickel": 39,
+   "silver": 54,
+   "lead": 87,
+   "platinum": 27
+  },
+  "alpha_L_engineeringtoolbox_1e-6_per_K": {
+   "iron": [
+    12.0,
+    12.0
+   ],
+   "copper": [
+    16.0,
+    16.7
+   ],
+   "aluminum": [
+    23.0,
+    23.0
+   ],
+   "gold": [
+    14.2,
+    14.2
+   ],
+   "silicon": [
+    3.0,
+    5.0
+   ],
+   "tungsten": [
+    4.5,
+    4.5
+   ],
+   "nickel": [
+    13.0,
+    13.0
+   ],
+   "silver": [
+    19.0,
+    19.7
+   ],
+   "lead": [
+    29.0,
+    29.0
+   ],
+   "platinum": [
+    9.0,
+    9.0
+   ]
+  },
+  "kappa_iron_300K_W_mK": [
+   80.2,
+   80.4
+  ],
+  "kappa_iron_400K_W_mK_engineeringtoolbox": 70.0,
+  "kappa_iron_300K_W_mK_engineeringtoolbox": 80.0,
+  "D_iron_m2_s": 2.3e-05,
+  "citations": {
+   "alpha": "Wikipedia 'Thermal expansion', table 'Thermal expansion coefficients at 20 C' (linear alpha and volumetric alpha_V columns), https://en.wikipedia.org/wiki/Thermal_expansion, fetched 2026-10-10. Second source: Engineering ToolBox 'Linear Thermal Expansion Coefficients' (mostly 25 C), https://www.engineeringtoolbox.com/linear-expansion-coefficients-d_95.html, fetched 2026-10-10.",
+   "kappa_iron": "Wikipedia 'Thermal conductivities of the elements (data page)', Fe: 0.802 W/(cm K), 80.4 and 80 W/(m K) (CRC / Lange / Ho-Powell-Liley), fetched 2026-10-10; Engineering ToolBox 'Iron - density, specific heats and thermal conductivities vs temperature': 80 W/m/K at 300 K, 70 at 400 K.",
+   "D_iron": "Wikipedia 'Thermal diffusivity' table: iron 23 mm^2/s (citing J. Wilson, 'Materials Data', Electronics Cooling, Aug 2007), fetched 2026-10-10."
+  }
+ },
+ "D1": {
+  "rows_as_coded": [
+   {
+    "cascade": "as-coded",
+    "material": "iron",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 1.180917979369027e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.00011580849302379268,
+    "a_engine_end_to_end_m_s2": 0.00011580849302461615,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0003472967937060816,
+    "a_boussinesq_3x_cascade_m_s2": 0.00034742547907137806,
+    "R1_direct_over_exact": 0.33345684475797893,
+    "R1_e2e_over_exact": 0.33345684476035004,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.33359264954164525,
+    "R_LIT_e2e_over_alphaV_wiki": 0.33359264954164525,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.32803277204928444,
+     0.32803277204928444
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "iron",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 1.1888261421585575e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.0011658401886999218,
+    "a_engine_end_to_end_m_s2": 0.001165840188699363,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.003485346333721951,
+    "a_boussinesq_3x_cascade_m_s2": 0.003497520566099765,
+    "R1_direct_over_exact": 0.3344976587893169,
+    "R1_e2e_over_exact": 0.3344976587891566,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.33582659382994007,
+    "R_LIT_e2e_over_alphaV_wiki": 0.33582659382994007,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.33022948393277435,
+     0.33022948393277435
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "iron",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 1.1703537537785521e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.0011477249639492437,
+    "a_engine_end_to_end_m_s2": -0.00114772496394977,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.0034569677918628193,
+    "a_boussinesq_3x_cascade_m_s2": -0.0034431748918477313,
+    "R1_direct_over_exact": 0.33200337204495084,
+    "R1_e2e_over_exact": 0.33200337204510305,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.33060840502234146,
+    "R_LIT_e2e_over_alphaV_wiki": 0.33060840502234146,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.32509826493863575,
+     0.32509826493863575
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "iron",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 1.242800751264771e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.012187711987390666,
+    "a_engine_end_to_end_m_s2": 0.01218771198739077,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.035825394316116026,
+    "a_boussinesq_3x_cascade_m_s2": 0.036563135962172,
+    "R1_direct_over_exact": 0.3401975671181387,
+    "R1_e2e_over_exact": 0.3401975671181416,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3510736585493733,
+    "R_LIT_e2e_over_alphaV_wiki": 0.3510736585493733,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.34522243090688376,
+     0.34522243090688376
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "copper",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 1.6507181423582063e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.00016188015070757103,
+    "a_engine_end_to_end_m_s2": 0.0001618801507081713,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.00048554699819065497,
+    "a_boussinesq_3x_cascade_m_s2": 0.0004856404521227131,
+    "R1_direct_over_exact": 0.3333974904814614,
+    "R1_e2e_over_exact": 0.3333974904826976,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3236702239930054,
+    "R_LIT_e2e_over_alphaV_wiki": 0.3236702239930054,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.32948465915455644,
+     0.34389961299256816
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 0.9705882352941178,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "copper",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 1.656890233987552e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.0016248542613134026,
+    "a_engine_end_to_end_m_s2": 0.0016248542613137573,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.004865790101522586,
+    "a_boussinesq_3x_cascade_m_s2": 0.004874562783940208,
+    "R1_direct_over_exact": 0.33393431023770603,
+    "R1_e2e_over_exact": 0.333934310237779,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.32488043803684585,
+    "R_LIT_e2e_over_alphaV_wiki": 0.32488043803684585,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3307166135704419,
+     0.3451854654141487
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 0.9705882352941178,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "copper",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 1.642432304153063e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.0016106758755522635,
+    "a_engine_end_to_end_m_s2": -0.0016106758755523032,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.004842140357394191,
+    "a_boussinesq_3x_cascade_m_s2": -0.004832027626656791,
+    "R1_direct_over_exact": 0.33263717213250144,
+    "R1_e2e_over_exact": 0.33263717213250965,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.32204554983394185,
+    "R_LIT_e2e_over_alphaV_wiki": 0.32204554983394185,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3278307992321564,
+     0.3421733966985632
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 0.9705882352941178,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "copper",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 1.6983375666762116e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.01665500209824527,
+    "a_engine_end_to_end_m_s2": 0.01665500209824522,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.04947513024835205,
+    "a_boussinesq_3x_cascade_m_s2": 0.04996500629473581,
+    "R1_direct_over_exact": 0.3366338201565427,
+    "R1_e2e_over_exact": 0.33663382015654164,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.33300736601494246,
+    "R_LIT_e2e_over_alphaV_wiki": 0.33300736601494246,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.33898953426670797,
+     0.3538203263908763
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 0.9705882352941178,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "aluminum",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 2.3116921127979756e-05,
+    "repo_volumetric_over_linear": 3.0000000000000004,
+    "a_engine_direct_m_s2": 0.00022669955457970266,
+    "a_engine_end_to_end_m_s2": 0.00022669955457921276,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0006798736910892454,
+    "a_boussinesq_3x_cascade_m_s2": 0.0006800986637391079,
+    "R1_direct_over_exact": 0.3334436345323213,
+    "R1_e2e_over_exact": 0.33344363453160075,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.33357750545353243,
+    "R_LIT_e2e_over_alphaV_wiki": 0.3350278424337652,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3350278424337652,
+     0.3350278424337652
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "aluminum",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 2.3262646953113313e-05,
+    "repo_volumetric_over_linear": 3.0000000000000004,
+    "a_engine_direct_m_s2": 0.0022812863674274864,
+    "a_engine_end_to_end_m_s2": 0.0022812863674275263,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.006822658225762681,
+    "a_boussinesq_3x_cascade_m_s2": 0.00684385910228246,
+    "R1_direct_over_exact": 0.3343691405811947,
+    "R1_e2e_over_exact": 0.3343691405812006,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3356803312137622,
+    "R_LIT_e2e_over_alphaV_wiki": 0.3371398109146916,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3371398109146916,
+     0.3371398109146916
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "aluminum",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 2.292212397580678e-05,
+    "repo_volumetric_over_linear": 3.0000000000000004,
+    "a_engine_direct_m_s2": -0.0022478924708734557,
+    "a_engine_end_to_end_m_s2": -0.00224789247087287,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.006767901774481813,
+    "a_boussinesq_3x_cascade_m_s2": -0.006743677412620366,
+    "R1_direct_over_exact": 0.3321402327895881,
+    "R1_e2e_over_exact": 0.33214023278950155,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3307665797373854,
+    "R_LIT_e2e_over_alphaV_wiki": 0.332204695301461,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.332204695301461,
+     0.332204695301461
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "aluminum",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 2.4255102297869073e-05,
+    "repo_volumetric_over_linear": 3.0000000000000004,
+    "a_engine_direct_m_s2": 0.023786129894939775,
+    "a_engine_end_to_end_m_s2": 0.023786129894940444,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.07013218562718754,
+    "a_boussinesq_3x_cascade_m_s2": 0.07135838968481932,
+    "R1_direct_over_exact": 0.33916139476079316,
+    "R1_e2e_over_exact": 0.3391613947608027,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3500014761597367,
+    "R_LIT_e2e_over_alphaV_wiki": 0.35152322170825734,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.35152322170825734,
+     0.35152322170825734
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "gold",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 1.4200635341892013e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.0001392606605755653,
+    "a_engine_end_to_end_m_s2": 0.00013926066057479147,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0004177815501968084,
+    "a_boussinesq_3x_cascade_m_s2": 0.0004177819817266959,
+    "R1_direct_over_exact": 0.33333367763598565,
+    "R1_e2e_over_exact": 0.33333367763413346,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.33811036528126437,
+    "R_LIT_e2e_over_alphaV_wiki": 0.33811036528126437,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3333482474604016,
+     0.3333482474604016
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0142857142857142,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "gold",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 1.420608122968875e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.0013931406649112718,
+    "a_engine_end_to_end_m_s2": 0.00139314066491103,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.00417943237049387,
+    "a_boussinesq_3x_cascade_m_s2": 0.004179421994733814,
+    "R1_direct_over_exact": 0.3333325058078757,
+    "R1_e2e_over_exact": 0.33333250580781787,
+    "R1_direct_over_boussinesq3a": 0.3333333333333334,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.338240029278245,
+    "R_LIT_e2e_over_alphaV_wiki": 0.338240029278245,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3334760852039034,
+     0.3334760852039034
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0142857142857142,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "gold",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 1.4193283216085711e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.0013918856085102693,
+    "a_engine_end_to_end_m_s2": -0.00139188560851089,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.004175772202101912,
+    "a_boussinesq_3x_cascade_m_s2": -0.004175656825530808,
+    "R1_direct_over_exact": 0.33332412333451794,
+    "R1_e2e_over_exact": 0.3333241233346666,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3379353146688581,
+    "R_LIT_e2e_over_alphaV_wiki": 0.3379353146688581,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3331756623495784,
+     0.3331756623495784
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0142857142857142,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "gold",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 1.4241990040975237e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.013966621163532979,
+    "a_engine_end_to_end_m_s2": 0.013966621163532977,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.041936289100636535,
+    "a_boussinesq_3x_cascade_m_s2": 0.04189986349059894,
+    "R1_direct_over_exact": 0.3330438019925083,
+    "R1_e2e_over_exact": 0.33304380199250827,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3390950009756008,
+    "R_LIT_e2e_over_alphaV_wiki": 0.3390950009756008,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3343190150463671,
+     0.3343190150463671
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0142857142857142,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "silicon",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 2.6022022993195824e-06,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 2.551888717862238e-05,
+    "a_engine_end_to_end_m_s2": 2.551888717938766e-05,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 7.652461170500456e-05,
+    "a_boussinesq_3x_cascade_m_s2": 7.655666153586715e-05,
+    "R1_direct_over_exact": 0.3334729390982783,
+    "R1_e2e_over_exact": 0.33347293910827874,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.33882842440073163,
+    "R_LIT_e2e_over_alphaV_wiki": 0.28913358882195767,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.17348015329317465,
+     0.28913358882195767
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.015625,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "silicon",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 2.6211835626807683e-06,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.00025705029784963356,
+    "a_engine_end_to_end_m_s2": 0.0002570502978489486,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0007681099353786275,
+    "a_boussinesq_3x_cascade_m_s2": 0.0007711508935489006,
+    "R1_direct_over_exact": 0.3346530047458958,
+    "R1_e2e_over_exact": 0.3346530047450041,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.34129994305648226,
+    "R_LIT_e2e_over_alphaV_wiki": 0.29124261807486485,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.17474557084491893,
+     0.29124261807486485
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.015625,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "silicon",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 2.5768711302139494e-06,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.0002527047326911263,
+    "a_engine_end_to_end_m_s2": -0.00025270473269145555,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.0007615373001848592,
+    "a_boussinesq_3x_cascade_m_s2": -0.0007581141980733788,
+    "R1_direct_over_exact": 0.3318350035248221,
+    "R1_e2e_over_exact": 0.33183500352525447,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3355300950803785,
+    "R_LIT_e2e_over_alphaV_wiki": 0.28631901446858965,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.1717914086811538,
+     0.28631901446858965
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.015625,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "silicon",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 2.751161782214182e-06,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.002697968069155071,
+    "a_engine_end_to_end_m_s2": 0.00269796806915501,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.007903557132397014,
+    "a_boussinesq_3x_cascade_m_s2": 0.00809390420746521,
+    "R1_direct_over_exact": 0.34136124076284413,
+    "R1_e2e_over_exact": 0.3413612407628364,
+    "R1_direct_over_boussinesq3a": 0.3333333333333334,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3582241903924635,
+    "R_LIT_e2e_over_alphaV_wiki": 0.30568464246823557,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.1834107854809414,
+     0.30568464246823557
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.015625,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "tungsten",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 4.501960182451723e-06,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 4.414914782324018e-05,
+    "a_engine_end_to_end_m_s2": 4.414914782380208e-05,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.00013241954824641107,
+    "a_boussinesq_3x_cascade_m_s2": 0.00013244744346972055,
+    "R1_direct_over_exact": 0.33340355263171456,
+    "R1_e2e_over_exact": 0.3334035526359579,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3334785320377053,
+    "R_LIT_e2e_over_alphaV_wiki": 0.3334785320377053,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3334785320377053,
+     0.3334785320377053
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "tungsten",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 4.518807058651759e-06,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.0004431435924172727,
+    "a_engine_end_to_end_m_s2": 0.000443143592416817,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.001326796615483805,
+    "a_boussinesq_3x_cascade_m_s2": 0.001329430777251818,
+    "R1_direct_over_exact": 0.3339951182010546,
+    "R1_e2e_over_exact": 0.33399511820071115,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.33472644878867497,
+    "R_LIT_e2e_over_alphaV_wiki": 0.33472644878867497,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.33472644878867497,
+     0.33472644878867497
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "tungsten",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 4.4793438994896026e-06,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.0004392735785192971,
+    "a_engine_end_to_end_m_s2": -0.00043927357851991644,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.0013208184579836923,
+    "a_boussinesq_3x_cascade_m_s2": -0.001317820735557891,
+    "R1_direct_over_exact": 0.332576801803538,
+    "R1_e2e_over_exact": 0.3325768018040069,
+    "R1_direct_over_boussinesq3a": 0.3333333333333334,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3318032518145125,
+    "R_LIT_e2e_over_alphaV_wiki": 0.3318032518145125,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3318032518145125,
+     0.3318032518145125
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "tungsten",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 4.631940483169769e-06,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.004542381913927682,
+    "a_engine_end_to_end_m_s2": 0.004542381913926974,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.01346871905283101,
+    "a_boussinesq_3x_cascade_m_s2": 0.013627145741783043,
+    "R1_direct_over_exact": 0.33725418847257876,
+    "R1_e2e_over_exact": 0.3372541884725262,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.34310670245696656,
+    "R_LIT_e2e_over_alphaV_wiki": 0.34310670245696656,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.34310670245696656,
+     0.34310670245696656
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "nickel",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 1.3409992289845081e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.00013150710088920926,
+    "a_engine_end_to_end_m_s2": 0.00013150710088893902,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.00039438246478935336,
+    "a_boussinesq_3x_cascade_m_s2": 0.0003945213026676278,
+    "R1_direct_over_exact": 0.33345067955658103,
+    "R1_e2e_over_exact": 0.3334506795558958,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3438459561491673,
+    "R_LIT_e2e_over_alphaV_wiki": 0.3438459561491673,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3438459561491673,
+     0.3438459561491673
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0307692307692309,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "nickel",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 1.3496054307112033e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.001323510809708402,
+    "a_engine_end_to_end_m_s2": 0.0013235108097084947,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.003957408732447382,
+    "a_boussinesq_3x_cascade_m_s2": 0.003970532429125206,
+    "R1_direct_over_exact": 0.3344387449435638,
+    "R1_e2e_over_exact": 0.33443874494358716,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3460526745413584,
+    "R_LIT_e2e_over_alphaV_wiki": 0.3460526745413584,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3460526745413584,
+     0.3460526745413584
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0307692307692309,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "nickel",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 1.329497179541397e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.0013037913515749641,
+    "a_engine_end_to_end_m_s2": -0.0013037913515745458,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.003926270385738499,
+    "a_boussinesq_3x_cascade_m_s2": -0.003911374054724893,
+    "R1_direct_over_exact": 0.33206866147343334,
+    "R1_e2e_over_exact": 0.33206866147332675,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.34089671270281297,
+    "R_LIT_e2e_over_alphaV_wiki": 0.34089671270281297,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.34089671270281297,
+     0.34089671270281297
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0307692307692309,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "nickel",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 1.4082541173136934e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.01381025523955433,
+    "a_engine_end_to_end_m_s2": 0.013810255239555147,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.04064251142391197,
+    "a_boussinesq_3x_cascade_m_s2": 0.04143076571866299,
+    "R1_direct_over_exact": 0.33979827416445246,
+    "R1_e2e_over_exact": 0.33979827416447256,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3610907993112248,
+    "R_LIT_e2e_over_alphaV_wiki": 0.3610907993112248,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3610907993112248,
+     0.3610907993112248
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0307692307692309,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "silver",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 1.8902637463085434e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.00018537154967736676,
+    "a_engine_end_to_end_m_s2": 0.0001853715496782371,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0005560916814334331,
+    "a_boussinesq_3x_cascade_m_s2": 0.0005561146490321002,
+    "R1_direct_over_exact": 0.3333471006067489,
+    "R1_e2e_over_exact": 0.33334710060831396,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.35004884191063307,
+    "R_LIT_e2e_over_alphaV_wiki": 0.35004884191063307,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3198415814411876,
+     0.3316252186521787
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0499999999999998,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "silver",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 1.8925259366292897e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.0018559339476445624,
+    "a_engine_end_to_end_m_s2": 0.0018559339476453829,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0055657247323202255,
+    "a_boussinesq_3x_cascade_m_s2": 0.005567801842933686,
+    "R1_direct_over_exact": 0.33345773226389247,
+    "R1_e2e_over_exact": 0.3334577322640399,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.35046776604261604,
+    "R_LIT_e2e_over_alphaV_wiki": 0.35046776604261604,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3202243547597507,
+     0.3320220941456362
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0499999999999998,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "silver",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 1.887213878966494e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.0018507245986166768,
+    "a_engine_end_to_end_m_s2": -0.001850724598616793,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.005554766414213846,
+    "a_boussinesq_3x_cascade_m_s2": -0.00555217379585003,
+    "R1_direct_over_exact": 0.3331777541321881,
+    "R1_e2e_over_exact": 0.33317775413220896,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3494840516604838,
+    "R_LIT_e2e_over_alphaV_wiki": 0.3494840516604838,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3193255294359751,
+     0.33109015420466886
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0499999999999998,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "silver",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 1.907508206346375e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.018706265351766678,
+    "a_engine_end_to_end_m_s2": 0.018706265351767115,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.05605709865201195,
+    "a_boussinesq_3x_cascade_m_s2": 0.056118796055300034,
+    "R1_direct_over_exact": 0.3337002057115079,
+    "R1_e2e_over_exact": 0.33370020571151565,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3532422604345222,
+    "R_LIT_e2e_over_alphaV_wiki": 0.3532422604345222,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.32275942577773603,
+     0.3346505625169158
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 1.0499999999999998,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "lead",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 2.890044586161577e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.0002834165574088143,
+    "a_engine_end_to_end_m_s2": 0.00028341655740860006,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0008502799838911247,
+    "a_boussinesq_3x_cascade_m_s2": 0.0008502496722264428,
+    "R1_direct_over_exact": 0.33332145032018623,
+    "R1_e2e_over_exact": 0.33332145031993426,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3321890328918842,
+    "R_LIT_e2e_over_alphaV_wiki": 0.3321890328918842,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3321890328918842,
+     0.3321890328918842
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 0.996551724137931,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "lead",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 2.8904266837109537e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.0028345402837814024,
+    "a_engine_end_to_end_m_s2": 0.002834540283782161,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.008506690862191161,
+    "a_boussinesq_3x_cascade_m_s2": 0.008503620851344207,
+    "R1_direct_over_exact": 0.3332130354448168,
+    "R1_e2e_over_exact": 0.33321303544490594,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.33223295215077325,
+    "R_LIT_e2e_over_alphaV_wiki": 0.33223295215077325,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.33223295215077325,
+     0.33223295215077325
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 0.996551724137931,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "lead",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 2.8895285243993295e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.0028336594903800687,
+    "a_engine_end_to_end_m_s2": -0.002833659490379503,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.008497999618884939,
+    "a_boussinesq_3x_cascade_m_s2": -0.008500978471140204,
+    "R1_direct_over_exact": 0.33345017856706916,
+    "R1_e2e_over_exact": 0.33345017856700265,
+    "R1_direct_over_boussinesq3a": 0.3333333333333334,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.3321297154481325,
+    "R_LIT_e2e_over_alphaV_wiki": 0.3321297154481325,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.3321297154481325,
+     0.3321297154481325
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 0.996551724137931,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "lead",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 2.8929427109306304e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.028370076636147865,
+    "a_engine_end_to_end_m_s2": 0.02837007663614699,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.08544319217904156,
+    "a_boussinesq_3x_cascade_m_s2": 0.0851102299084436,
+    "R1_direct_over_exact": 0.33203437175778633,
+    "R1_e2e_over_exact": 0.33203437175777606,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.33252215068167146,
+    "R_LIT_e2e_over_alphaV_wiki": 0.33252215068167146,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.33252215068167146,
+     0.33252215068167146
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 0.996551724137931,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "platinum",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 8.801343127000765e-06,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 8.631169157640204e-05,
+    "a_engine_end_to_end_m_s2": 8.631169157702345e-05,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0002589187674958017,
+    "a_boussinesq_3x_cascade_m_s2": 0.0002589350747292062,
+    "R1_direct_over_exact": 0.3333543273482544,
+    "R1_e2e_over_exact": 0.3333543273506544,
+    "R1_direct_over_boussinesq3a": 0.33333333333333326,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.32597567137274563,
+    "R_LIT_e2e_over_alphaV_wiki": 0.32597567137274563,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.32597567137274563,
+     0.32597567137274563
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 0.9777777777777779,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "platinum",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 8.812864352706267e-06,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.0008642467620446691,
+    "a_engine_end_to_end_m_s2": 0.0008642467620454397,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0025912205870689997,
+    "a_boussinesq_3x_cascade_m_s2": 0.002592740286134007,
+    "R1_direct_over_exact": 0.33352882666860956,
+    "R1_e2e_over_exact": 0.33352882666890693,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.32640238343385647,
+    "R_LIT_e2e_over_alphaV_wiki": 0.32640238343385647,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.32640238343385647,
+     0.32640238343385647
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 0.9777777777777779,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "platinum",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 8.785813223335561e-06,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.0008615939524662368,
+    "a_engine_end_to_end_m_s2": -0.0008615939524663219,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.00258656212729515,
+    "a_boussinesq_3x_cascade_m_s2": -0.0025847818573987106,
+    "R1_direct_over_exact": 0.3331039078374015,
+    "R1_e2e_over_exact": 0.33310390783743443,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.32540048975320107,
+    "R_LIT_e2e_over_alphaV_wiki": 0.32540048975320107,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.32540048975320107,
+     0.32540048975320107
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 0.9777777777777779,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "as-coded",
+    "material": "platinum",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 8.889214871066861e-06,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.008717341901534783,
+    "a_engine_end_to_end_m_s2": 0.008717341901535391,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.02607383093818283,
+    "a_boussinesq_3x_cascade_m_s2": 0.02615202570460435,
+    "R1_direct_over_exact": 0.3343329916575091,
+    "R1_e2e_over_exact": 0.33433299165753244,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.32923018040990676,
+    "R_LIT_e2e_over_alphaV_wiki": 0.32923018040990676,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.32923018040990676,
+     0.32923018040990676
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 0.9777777777777779,
+    "T_after_step_K": 400.0
+   }
+  ],
+  "rows_counterfactual_volumetric_cascade": [
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "iron",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 3.542753938107081e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.00034742547907137806,
+    "a_engine_end_to_end_m_s2": 0.0003474254790720721,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0010419272794955081,
+    "a_boussinesq_3x_cascade_m_s2": 0.0010422764372141342,
+    "R1_direct_over_exact": 0.3334450358566275,
+    "R1_e2e_over_exact": 0.3334450358572936,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.0007779486198187,
+    "R_LIT_e2e_over_alphaV_wiki": 1.0007779486198187,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9840983161428217,
+     0.9840983161428217
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "iron",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 3.566478426475672e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.003497520566099765,
+    "a_engine_end_to_end_m_s2": 0.0034975205660998654,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.010459755584761952,
+    "a_boussinesq_3x_cascade_m_s2": 0.010492561698299296,
+    "R1_direct_over_exact": 0.33437880433793743,
+    "R1_e2e_over_exact": 0.33437880433794703,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.007479781490332,
+    "R_LIT_e2e_over_alphaV_wiki": 1.007479781490332,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9906884517988263,
+     0.9906884517988263
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "iron",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 3.511061261335656e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.0034431748918477313,
+    "a_engine_end_to_end_m_s2": -0.0034431748918475336,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.010367247930944526,
+    "a_boussinesq_3x_cascade_m_s2": -0.010329524675543192,
+    "R1_direct_over_exact": 0.33212043492954596,
+    "R1_e2e_over_exact": 0.33212043492952686,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.9918252150665127,
+    "R_LIT_e2e_over_alphaV_wiki": 0.9918252150665127,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.975294794815404,
+     0.975294794815404
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "iron",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 3.728402253794313e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.036563135962172,
+    "a_engine_end_to_end_m_s2": 0.03656313596217231,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.10786929021043158,
+    "a_boussinesq_3x_cascade_m_s2": 0.10968940788651599,
+    "R1_direct_over_exact": 0.3389577876228218,
+    "R1_e2e_over_exact": 0.3389577876228247,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.05322097564812,
+    "R_LIT_e2e_over_alphaV_wiki": 1.05322097564812,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     1.0356672927206514,
+     1.0356672927206514
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "copper",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 4.952154427074619e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.0004856404521227131,
+    "a_engine_end_to_end_m_s2": 0.00048564045212273754,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0014567131169948156,
+    "a_boussinesq_3x_cascade_m_s2": 0.0014569213563681393,
+    "R1_direct_over_exact": 0.33338098384435805,
+    "R1_e2e_over_exact": 0.3333809838443748,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.9710106719754643,
+    "R_LIT_e2e_over_alphaV_wiki": 0.9710106719754643,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9884539774600538,
+     1.0316988389739308
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 2.9117647058823533,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "copper",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 4.970670701962656e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.004874562783940208,
+    "a_engine_end_to_end_m_s2": 0.004874562783939496,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.014604614316259833,
+    "a_boussinesq_3x_cascade_m_s2": 0.014623688351820626,
+    "R1_direct_over_exact": 0.3337686760076358,
+    "R1_e2e_over_exact": 0.33376867600758703,
+    "R1_direct_over_boussinesq3a": 0.33333333333333326,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.9746413141101823,
+    "R_LIT_e2e_over_alphaV_wiki": 0.9746413141101823,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9921498407109641,
+     1.0355563962420686
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 2.9117647058823533,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "copper",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 4.927296912459189e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.004832027626656791,
+    "a_engine_end_to_end_m_s2": -0.0048320276266569095,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.01451924967391112,
+    "a_boussinesq_3x_cascade_m_s2": -0.014496082879970371,
+    "R1_direct_over_exact": 0.3328014694408905,
+    "R1_e2e_over_exact": 0.33280146944089867,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.9661366495018257,
+    "R_LIT_e2e_over_alphaV_wiki": 0.9661366495018257,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9834923976964692,
+     1.0265201900956897
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 2.9117647058823533,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "copper",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 5.095012700028635e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.04996500629473581,
+    "a_engine_end_to_end_m_s2": 0.04996500629473566,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.14917546490670464,
+    "a_boussinesq_3x_cascade_m_s2": 0.14989501888420745,
+    "R1_direct_over_exact": 0.33494118034748055,
+    "R1_e2e_over_exact": 0.3349411803474795,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.9990220980448273,
+    "R_LIT_e2e_over_alphaV_wiki": 0.9990220980448273,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     1.016968602800124,
+     1.0614609791726288
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 2.9117647058823533,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "aluminum",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 6.935076338393926e-05,
+    "repo_volumetric_over_linear": 3.0000000000000004,
+    "a_engine_direct_m_s2": 0.0006800986637391079,
+    "a_engine_end_to_end_m_s2": 0.0006800986637394146,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0020397624790231376,
+    "a_boussinesq_3x_cascade_m_s2": 0.002040295991217324,
+    "R1_direct_over_exact": 0.3334205186796131,
+    "R1_e2e_over_exact": 0.3334205186797634,
+    "R1_direct_over_boussinesq3a": 0.33333333333333326,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.000732516363211,
+    "R_LIT_e2e_over_alphaV_wiki": 1.005083527303921,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     1.005083527303921,
+     1.005083527303921
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0000000000000004,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "aluminum",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 6.978794085933994e-05,
+    "repo_volumetric_over_linear": 3.0000000000000004,
+    "a_engine_direct_m_s2": 0.00684385910228246,
+    "a_engine_end_to_end_m_s2": 0.006843859102282579,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.02048221790821351,
+    "a_boussinesq_3x_cascade_m_s2": 0.020531577306847376,
+    "R1_direct_over_exact": 0.33413662196895316,
+    "R1_e2e_over_exact": 0.334136621968959,
+    "R1_direct_over_boussinesq3a": 0.3333333333333334,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.0070409936412865,
+    "R_LIT_e2e_over_alphaV_wiki": 1.0114194327440746,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     1.0114194327440746,
+     1.0114194327440746
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0000000000000004,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "aluminum",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 6.876637192742034e-05,
+    "repo_volumetric_over_linear": 3.0000000000000004,
+    "a_engine_direct_m_s2": -0.006743677412620366,
+    "a_engine_end_to_end_m_s2": -0.006743677412620386,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.020289696271218228,
+    "a_boussinesq_3x_cascade_m_s2": -0.0202310322378611,
+    "R1_direct_over_exact": 0.33236955952793396,
+    "R1_e2e_over_exact": 0.3323695595279349,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.9922997392124175,
+    "R_LIT_e2e_over_alphaV_wiki": 0.9966140859046455,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9966140859046455,
+     0.9966140859046455
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0000000000000004,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "aluminum",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 7.276530689360722e-05,
+    "repo_volumetric_over_linear": 3.0000000000000004,
+    "a_engine_direct_m_s2": 0.07135838968481932,
+    "a_engine_end_to_end_m_s2": 0.07135838968481956,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.21190479314644836,
+    "a_boussinesq_3x_cascade_m_s2": 0.21407516905445792,
+    "R1_direct_over_exact": 0.33674740729202485,
+    "R1_e2e_over_exact": 0.33674740729202596,
+    "R1_direct_over_boussinesq3a": 0.3333333333333334,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.050004428479184,
+    "R_LIT_e2e_over_alphaV_wiki": 1.0545696651247458,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     1.0545696651247458,
+     1.0545696651247458
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0000000000000004,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "gold",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 4.260190602567604e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.0004177819817266959,
+    "a_engine_end_to_end_m_s2": 0.0004177819817261508,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.001253398046166603,
+    "a_boussinesq_3x_cascade_m_s2": 0.0012533459451800877,
+    "R1_direct_over_exact": 0.3333194774034009,
+    "R1_e2e_over_exact": 0.33331947740296597,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.014331095848106,
+    "R_LIT_e2e_over_alphaV_wiki": 1.014331095848106,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     1.0000447423854568,
+     1.0000447423854568
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0428571428571427,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "gold",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 4.2618243689066245e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.004179421994733814,
+    "a_engine_end_to_end_m_s2": 0.00417942199473309,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.012543641485883867,
+    "a_boussinesq_3x_cascade_m_s2": 0.012538265984201444,
+    "R1_direct_over_exact": 0.33319048534966306,
+    "R1_e2e_over_exact": 0.3331904853496053,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.0147200878347349,
+    "R_LIT_e2e_over_alphaV_wiki": 1.0147200878347349,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     1.0004282556117103,
+     1.0004282556117103
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0428571428571427,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "gold",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 4.257984964825713e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.004175656825530808,
+    "a_engine_end_to_end_m_s2": -0.0041756568255308935,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.012521983103472823,
+    "a_boussinesq_3x_cascade_m_s2": -0.012526970476592422,
+    "R1_direct_over_exact": 0.333466096466201,
+    "R1_e2e_over_exact": 0.3334660964662079,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.013805944006143,
+    "R_LIT_e2e_over_alphaV_wiki": 1.013805944006143,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.99952698704831,
+     0.99952698704831
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0428571428571427,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "gold",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 4.272597012292571e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.04189986349059894,
+    "a_engine_end_to_end_m_s2": 0.04189986349059893,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.1263476320763922,
+    "a_boussinesq_3x_cascade_m_s2": 0.12569959047179682,
+    "R1_direct_over_exact": 0.33162365453169296,
+    "R1_e2e_over_exact": 0.3316236545316929,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.0172850029268024,
+    "R_LIT_e2e_over_alphaV_wiki": 1.0172850029268024,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     1.0029570451391012,
+     1.0029570451391012
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0428571428571427,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "silicon",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 7.806606897958747e-06,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 7.655666153586715e-05,
+    "a_engine_end_to_end_m_s2": 7.655666153638663e-05,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0002295756265642652,
+    "a_boussinesq_3x_cascade_m_s2": 0.00022966998460760142,
+    "R1_direct_over_exact": 0.33347033690632927,
+    "R1_e2e_over_exact": 0.33347033690859207,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.0164852731786091,
+    "R_LIT_e2e_over_alphaV_wiki": 0.8674007664457466,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.520440459867448,
+     0.8674007664457466
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.046875,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "silicon",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 7.863550688042305e-06,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.0007711508935489006,
+    "a_engine_end_to_end_m_s2": 0.0007711508935486222,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.00230451029843467,
+    "a_boussinesq_3x_cascade_m_s2": 0.0023134526806467023,
+    "R1_direct_over_exact": 0.3346267942793322,
+    "R1_e2e_over_exact": 0.3346267942792113,
+    "R1_direct_over_boussinesq3a": 0.33333333333333326,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.0238998291718053,
+    "R_LIT_e2e_over_alphaV_wiki": 0.8737278542266073,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.5242367125359644,
+     0.8737278542266073
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.046875,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "silicon",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 7.730613390641848e-06,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.0007581141980733788,
+    "a_engine_end_to_end_m_s2": -0.0007581141980725903,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.0022844344931677923,
+    "a_boussinesq_3x_cascade_m_s2": -0.002274342594220136,
+    "R1_direct_over_exact": 0.3318607735703171,
+    "R1_e2e_over_exact": 0.3318607735699719,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.006590285238777,
+    "R_LIT_e2e_over_alphaV_wiki": 0.8589570434037563,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.5153742260422539,
+     0.8589570434037563
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.046875,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "silicon",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 8.253485346642545e-06,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.00809390420746521,
+    "a_engine_end_to_end_m_s2": 0.00809390420746503,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.023729785874605586,
+    "a_boussinesq_3x_cascade_m_s2": 0.024281712622395632,
+    "R1_direct_over_exact": 0.3410862723429332,
+    "R1_e2e_over_exact": 0.3410862723429256,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.0746725711773906,
+    "R_LIT_e2e_over_alphaV_wiki": 0.9170539274047067,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.5502323564428241,
+     0.9170539274047067
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.046875,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "tungsten",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 1.3505880547355168e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.00013244744346972055,
+    "a_engine_end_to_end_m_s2": 0.0001324474434696299,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0003972640089593715,
+    "a_boussinesq_3x_cascade_m_s2": 0.0003973423304091617,
+    "R1_direct_over_exact": 0.33339905071356735,
+    "R1_e2e_over_exact": 0.3333990507133391,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.0004355960996982,
+    "R_LIT_e2e_over_alphaV_wiki": 1.0004355960996982,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     1.0004355960996982,
+     1.0004355960996982
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "tungsten",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 1.3556421175955276e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.001329430777251818,
+    "a_engine_end_to_end_m_s2": 0.0013294307772522274,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.003980928399978985,
+    "a_boussinesq_3x_cascade_m_s2": 0.003988292331755454,
+    "R1_direct_over_exact": 0.3339499342060098,
+    "R1_e2e_over_exact": 0.3339499342061127,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.0041793463673667,
+    "R_LIT_e2e_over_alphaV_wiki": 1.0041793463673667,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     1.0041793463673667,
+     1.0041793463673667
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "tungsten",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 1.3438031698468807e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.001317820735557891,
+    "a_engine_end_to_end_m_s2": -0.001317820735557973,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.003961921710647901,
+    "a_boussinesq_3x_cascade_m_s2": -0.003953462206673674,
+    "R1_direct_over_exact": 0.3326215992648641,
+    "R1_e2e_over_exact": 0.33262159926488477,
+    "R1_direct_over_boussinesq3a": 0.3333333333333332,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.9954097554421957,
+    "R_LIT_e2e_over_alphaV_wiki": 0.9954097554421957,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9954097554421957,
+     0.9954097554421957
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "tungsten",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 1.3895821449509307e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.013627145741783043,
+    "a_engine_end_to_end_m_s2": 0.013627145741782698,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.04046167747656615,
+    "a_boussinesq_3x_cascade_m_s2": 0.04088143722534913,
+    "R1_direct_over_exact": 0.3367914182419986,
+    "R1_e2e_over_exact": 0.33679141824199005,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.0293201073710339,
+    "R_LIT_e2e_over_alphaV_wiki": 1.0293201073710339,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     1.0293201073710339,
+     1.0293201073710339
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "nickel",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 4.0229976869535245e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.0003945213026676278,
+    "a_engine_end_to_end_m_s2": 0.00039452130266681706,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0011831949762460717,
+    "a_boussinesq_3x_cascade_m_s2": 0.0011835639080028835,
+    "R1_direct_over_exact": 0.3334372699242921,
+    "R1_e2e_over_exact": 0.3334372699236069,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.0315378684475018,
+    "R_LIT_e2e_over_alphaV_wiki": 1.0315378684475018,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     1.0315378684475018,
+     1.0315378684475018
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0923076923076924,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "nickel",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 4.04881629213361e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.003970532429125206,
+    "a_engine_end_to_end_m_s2": 0.003970532429125484,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.011877017800138789,
+    "a_boussinesq_3x_cascade_m_s2": 0.01191159728737562,
+    "R1_direct_over_exact": 0.33430382070142295,
+    "R1_e2e_over_exact": 0.3343038207014463,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.0381580236240753,
+    "R_LIT_e2e_over_alphaV_wiki": 1.0381580236240753,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     1.0381580236240753,
+     1.0381580236240753
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0923076923076924,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "nickel",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 3.988491538624191e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.003911374054724893,
+    "a_engine_end_to_end_m_s2": -0.003911374054725414,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.011774095925663102,
+    "a_boussinesq_3x_cascade_m_s2": -0.011734122164174675,
+    "R1_direct_over_exact": 0.3322016466843597,
+    "R1_e2e_over_exact": 0.33220164668440394,
+    "R1_direct_over_boussinesq3a": 0.3333333333333334,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.0226901381089035,
+    "R_LIT_e2e_over_alphaV_wiki": 1.0226901381089035,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     1.0226901381089035,
+     1.0226901381089035
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0923076923076924,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "nickel",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 4.22476235194108e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.04143076571866299,
+    "a_engine_end_to_end_m_s2": 0.041430765718663665,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.12243354671766916,
+    "a_boussinesq_3x_cascade_m_s2": 0.12429229715598898,
+    "R1_direct_over_exact": 0.3383939028916807,
+    "R1_e2e_over_exact": 0.3383939028916862,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.083272397933628,
+    "R_LIT_e2e_over_alphaV_wiki": 1.083272397933628,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     1.083272397933628,
+     1.083272397933628
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.0923076923076924,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "silver",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 5.67079123892563e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.0005561146490321002,
+    "a_engine_end_to_end_m_s2": 0.000556114649032935,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0016683696465756982,
+    "a_boussinesq_3x_cascade_m_s2": 0.0016683439470963008,
+    "R1_direct_over_exact": 0.3333281986839766,
+    "R1_e2e_over_exact": 0.33332819868447694,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.050146525728545,
+    "R_LIT_e2e_over_alphaV_wiki": 1.050146525728545,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9595247443204977,
+     0.9948756559533583
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.15,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "silver",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 5.677577809887869e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.005567801842933686,
+    "a_engine_end_to_end_m_s2": 0.005567801842934372,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.01670665240373057,
+    "a_boussinesq_3x_cascade_m_s2": 0.01670340552880106,
+    "R1_direct_over_exact": 0.33326855125628907,
+    "R1_e2e_over_exact": 0.33326855125633015,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.0514032981275125,
+    "R_LIT_e2e_over_alphaV_wiki": 1.0514032981275125,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9606730642789456,
+     0.9960662824365909
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.15,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "silver",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 5.661641636899482e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.00555217379585003,
+    "a_engine_end_to_end_m_s2": -0.005552173795850379,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.01665486189019906,
+    "a_boussinesq_3x_cascade_m_s2": -0.016656521387550093,
+    "R1_direct_over_exact": 0.33336654680501043,
+    "R1_e2e_over_exact": 0.3333665468050314,
+    "R1_direct_over_boussinesq3a": 0.33333333333333326,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.0484521549814514,
+    "R_LIT_e2e_over_alphaV_wiki": 1.0484521549814514,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9579765883079253,
+     0.9932704626140066
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.15,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "silver",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 5.7225246190391256e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.056118796055300034,
+    "a_engine_end_to_end_m_s2": 0.05611879605529957,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.16913443399089118,
+    "a_boussinesq_3x_cascade_m_s2": 0.1683563881659001,
+    "R1_direct_over_exact": 0.33179994594313267,
+    "R1_e2e_over_exact": 0.33179994594312995,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 1.0597267813035331,
+    "R_LIT_e2e_over_alphaV_wiki": 1.0597267813035331,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9682782773331774,
+     1.0039516875507155
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 3.15,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "lead",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 8.67013375848473e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.0008502496722264428,
+    "a_engine_end_to_end_m_s2": 0.0008502496722258002,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0025510611271861955,
+    "a_boussinesq_3x_cascade_m_s2": 0.0025507490166793286,
+    "R1_direct_over_exact": 0.3332925515447224,
+    "R1_e2e_over_exact": 0.3332925515444705,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.9965670986756526,
+    "R_LIT_e2e_over_alphaV_wiki": 0.9965670986756526,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9965670986756526,
+     0.9965670986756526
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 2.9896551724137934,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "lead",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 8.67128005113286e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.008503620851344207,
+    "a_engine_end_to_end_m_s2": 0.008503620851344706,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.02554221614626462,
+    "a_boussinesq_3x_cascade_m_s2": 0.025510862554032617,
+    "R1_direct_over_exact": 0.33292415985555757,
+    "R1_e2e_over_exact": 0.33292415985557716,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.9966988564521115,
+    "R_LIT_e2e_over_alphaV_wiki": 0.9966988564521115,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9966988564521115,
+     0.9966988564521115
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 2.9896551724137934,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "lead",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 8.668585573197988e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.008500978471140204,
+    "a_engine_end_to_end_m_s2": -0.008500978471140286,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.025471913290894665,
+    "a_boussinesq_3x_cascade_m_s2": -0.025502935413420615,
+    "R1_direct_over_exact": 0.33373929842086153,
+    "R1_e2e_over_exact": 0.33373929842086475,
+    "R1_direct_over_boussinesq3a": 0.3333333333333333,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.9963891463446058,
+    "R_LIT_e2e_over_alphaV_wiki": 0.9963891463446058,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9963891463446058,
+     0.9963891463446058
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 2.9896551724137934,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "lead",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 8.678828132791891e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.0851102299084436,
+    "a_engine_end_to_end_m_s2": 0.08511022990844275,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.25856940616970464,
+    "a_boussinesq_3x_cascade_m_s2": 0.25533068972533074,
+    "R1_direct_over_exact": 0.3291581597731014,
+    "R1_e2e_over_exact": 0.32915815977309815,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.9975664520450351,
+    "R_LIT_e2e_over_alphaV_wiki": 0.9975664520450351,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9975664520450351,
+     0.9975664520450351
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 2.9896551724137934,
+    "T_after_step_K": 400.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "platinum",
+    "dT_K": 1.0,
+    "alpha_at_T_1_K": 2.6404029381002297e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.0002589350747292062,
+    "a_engine_end_to_end_m_s2": 0.000258935074729294,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.0007767768108691096,
+    "a_boussinesq_3x_cascade_m_s2": 0.0007768052241876184,
+    "R1_direct_over_exact": 0.33334552616148827,
+    "R1_e2e_over_exact": 0.33334552616160135,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.977927014111528,
+    "R_LIT_e2e_over_alphaV_wiki": 0.977927014111528,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.977927014111528,
+     0.977927014111528
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 2.9333333333333336,
+    "T_after_step_K": 301.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "platinum",
+    "dT_K": 10.0,
+    "alpha_at_T_1_K": 2.6438593058118802e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.002592740286134007,
+    "a_engine_end_to_end_m_s2": 0.0025927402861345428,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.007775715984263743,
+    "a_boussinesq_3x_cascade_m_s2": 0.007778220858402021,
+    "R1_direct_over_exact": 0.33344071354729465,
+    "R1_e2e_over_exact": 0.33344071354736354,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.9792071503008986,
+    "R_LIT_e2e_over_alphaV_wiki": 0.9792071503008986,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9792071503008986,
+     0.9792071503008986
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 2.9333333333333336,
+    "T_after_step_K": 310.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "platinum",
+    "dT_K": -10.0,
+    "alpha_at_T_1_K": 2.6357439670006686e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": -0.0025847818573987106,
+    "a_engine_end_to_end_m_s2": -0.0025847818573989656,
+    "a_exact_archimedes_from_3x_cascade_m_s2": -0.007757639898500744,
+    "a_boussinesq_3x_cascade_m_s2": -0.00775434557219613,
+    "R1_direct_over_exact": 0.33319178142030675,
+    "R1_e2e_over_exact": 0.33319178142033967,
+    "R1_direct_over_boussinesq3a": 0.3333333333333334,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.9762014692596033,
+    "R_LIT_e2e_over_alphaV_wiki": 0.9762014692596033,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9762014692596033,
+     0.9762014692596033
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 2.9333333333333336,
+    "T_after_step_K": 290.0
+   },
+   {
+    "cascade": "counterfactual-volumetric-cascade(3x, in-process)",
+    "material": "platinum",
+    "dT_K": 100.0,
+    "alpha_at_T_1_K": 2.6667644613200584e-05,
+    "repo_volumetric_over_linear": 3.0,
+    "a_engine_direct_m_s2": 0.02615202570460435,
+    "a_engine_end_to_end_m_s2": 0.026152025704604398,
+    "a_exact_archimedes_from_3x_cascade_m_s2": 0.07842965172142101,
+    "a_boussinesq_3x_cascade_m_s2": 0.07845607711381304,
+    "R1_direct_over_exact": 0.3334456437151513,
+    "R1_e2e_over_exact": 0.3334456437151519,
+    "R1_direct_over_boussinesq3a": 0.33333333333333337,
+    "engine_matches_minus_alpha_dT_g": true,
+    "R_LIT_e2e_over_3alphaL_wiki": 0.9876905412296533,
+    "R_LIT_e2e_over_alphaV_wiki": 0.9876905412296533,
+    "R_LIT_e2e_over_3alphaL_etb_range": [
+     0.9876905412296533,
+     0.9876905412296533
+    ],
+    "cascade_alpha300_over_LIT_alphaL_wiki": 2.9333333333333336,
+    "T_after_step_K": 400.0
+   }
+  ],
+  "ideal_eos_lone_parcel": [
+   {
+    "carrier_material": "water_ice",
+    "gas": "N2 (repo gas module), water_ice carrier as in test_continuum_energy.py",
+    "M_kg_mol": 0.028013999990318963,
+    "gamma": 1.3997490288480767,
+    "dT_K": 10.0,
+    "a_buoyancy_e2e_m_s2": 0.004921789797812437,
+    "carrier_alpha_L_1_K": 5.018828853698201e-05,
+    "ratio_to_alpha_L_dT_g": 1.0000000000001,
+    "ideal_gas_beta_1_over_T0_1_K": 0.0033333333333333335,
+    "ratio_to_ideal_gas_beta_dT_g": 0.015056486561096104
+   },
+   {
+    "carrier_material": "iron",
+    "gas": "Fe atomic mass (Mentat), gamma 5/3 monatomic [DERIVED]",
+    "M_kg_mol": 0.055845,
+    "gamma": 1.6666666666666667,
+    "dT_K": 10.0,
+    "a_buoyancy_e2e_m_s2": 0.001165840188699363,
+    "carrier_alpha_L_1_K": 1.1888261421585575e-05,
+    "ratio_to_alpha_L_dT_g": 0.9999999999995207,
+    "ideal_gas_beta_1_over_T0_1_K": 0.0033333333333333335,
+    "ratio_to_ideal_gas_beta_dT_g": 0.003566478426473963
+   }
+  ],
+  "original_criterion": {
+   "R1_small_dT_range": [
+    0.3318350035248221,
+    0.3346530047458958
+   ],
+   "R1_all_range": [
+    0.3318350035248221,
+    0.34136124076284413
+   ],
+   "verdict": "DEFECT-CONFIRMED",
+   "status": "BY CONSTRUCTION with respect to linear-vs-volumetric: the counterfactual volumetric cascade leaves it at 1/3"
+  },
+  "corrected_criterion": {
+   "definition": "engine end-to-end buoyancy / (3 alpha_L[LIT, Wikipedia 20 C] dT g), all |dT| <= 10 K cases; CONFIRMED if all in [0.300, 0.367], REFUTED if all in [0.9, 1.1] (same windows as the pre-registration; set after the skeptic review)",
+   "range_as_coded": [
+    0.32204554983394185,
+    0.35046776604261604
+   ],
+   "verdict": "DEFECT-CONFIRMED",
+   "range_counterfactual_volumetric_cascade": [
+    0.9661366495018257,
+    1.0514032981275125
+   ],
+   "range_vs_alphaV_wiki_as_coded": [
+    0.28631901446858965,
+    0.35046776604261604
+   ],
+   "range_vs_3alphaL_engineeringtoolbox_as_coded": [
+    0.1717914086811538,
+    0.3460526745413584
+   ],
+   "cascade_alpha300_over_LIT_alphaL_range": [
+    0.9705882352941178,
+    1.0499999999999998
+   ]
+  },
+  "counterfactual_R1_small_dT_range": [
+   0.3318607735699719,
+   0.3346267942793322
+  ]
+ },
+ "D2": {
+  "a_operator_lattice_iron": {
+   "material": "iron",
+   "lambda_over_dx": 8,
+   "kh": 0.9424777960769383,
+   "nx": 16,
+   "mass_scale": 1.0,
+   "Q_engine": 0.00011566526779687639,
+   "rho_sph_interior_mean": 7880.374383774324,
+   "rho_mass_per_volume": 7874.0,
+   "kappa_W_mK": 108.45167999305124,
+   "cp_J_kgK": 385.8856144960194,
+   "D_cascade_m2_s": 3.5692936944249314e-05,
+   "engine_amp_K_s": -2.5466250995737754e-05,
+   "Q_engine_times_rho_sph": 0.9114856134389019,
+   "Q_reference_independent": 0.9114856134389024,
+   "reference_amp_K_s": -0.2006835919975793,
+   "max_rel_dev_engine_times_rho_vs_reference": 2.5224267119483557e-13,
+   "max_rel_dev_density_engine_vs_independent": 4.440892098500626e-16,
+   "rows": [
+    {
+     "ix": 3,
+     "x_m": 0.03,
+     "rho_sph": 7880.374383774324,
+     "engine_dTdt_K_s": -1.7997255917836948e-05,
+     "analytic_dTdt_K_s": -0.15568509988761844,
+     "reference_dTdt_K_s": -0.14182511451315322,
+     "rho_sph_independent": 7880.374383774322,
+     "engine_times_rho_over_reference": 0.9999999999999994
+    },
+    {
+     "ix": 4,
+     "x_m": 0.04,
+     "rho_sph": 7880.374383774322,
+     "engine_dTdt_K_s": 3.334698758346389e-08,
+     "analytic_dTdt_K_s": -2.696329102266218e-17,
+     "reference_dTdt_K_s": 0.00026278674672875423,
+     "rho_sph_independent": 7880.37438377432,
+     "engine_times_rho_over_reference": 1.0000000000000568
+    },
+    {
+     "ix": 5,
+     "x_m": 0.05,
+     "rho_sph": 7880.374383774325,
+     "engine_dTdt_K_s": 1.801994885833747e-05,
+     "analytic_dTdt_K_s": 0.15568509988761847,
+     "reference_dTdt_K_s": 0.14200394338016611,
+     "rho_sph_independent": 7880.374383774323,
+     "engine_times_rho_over_reference": 0.9999999999999992
+    },
+    {
+     "ix": 6,
+     "x_m": 0.06,
+     "rho_sph": 7880.374383774324,
+     "engine_dTdt_K_s": 2.545741024204142e-05,
+     "analytic_dTdt_K_s": 0.22017197972048,
+     "reference_dTdt_K_s": 0.20061392354861743,
+     "rho_sph_independent": 7880.374383774322,
+     "engine_times_rho_over_reference": 0.9999999999999996
+    },
+    {
+     "ix": 7,
+     "x_m": 0.07,
+     "rho_sph": 7880.374383774322,
+     "engine_dTdt_K_s": 1.8019948858337572e-05,
+     "analytic_dTdt_K_s": 0.1556850998876183,
+     "reference_dTdt_K_s": 0.1420039433801668,
+     "rho_sph_independent": 7880.3743837743195,
+     "engine_times_rho_over_reference": 0.9999999999999996
+    },
+    {
+     "ix": 8,
+     "x_m": 0.08,
+     "rho_sph": 7880.374383774328,
+     "engine_dTdt_K_s": 3.334698758345261e-08,
+     "analytic_dTdt_K_s": 5.392658204532436e-17,
+     "reference_dTdt_K_s": 0.00026278674672868874,
+     "rho_sph_independent": 7880.374383774325,
+     "engine_times_rho_over_reference": 0.9999999999999688
+    },
+    {
+     "ix": 9,
+     "x_m": 0.09,
+     "rho_sph": 7880.374383774324,
+     "engine_dTdt_K_s": -1.7997255917837012e-05,
+     "analytic_dTdt_K_s": -0.1556850998876184,
+     "reference_dTdt_K_s": -0.1418251145131538,
+     "rho_sph_independent": 7880.374383774322,
+     "engine_times_rho_over_reference": 0.999999999999999
+    },
+    {
+     "ix": 10,
+     "x_m": 0.1,
+     "rho_sph": 7880.374383774322,
+     "engine_dTdt_K_s": -2.5478718063291227e-05,
+     "analytic_dTdt_K_s": -0.22017197972048,
+     "reference_dTdt_K_s": -0.20078183715736841,
+     "rho_sph_independent": 7880.3743837743195,
+     "engine_times_rho_over_reference": 0.9999999999999994
+    },
+    {
+     "ix": 11,
+     "x_m": 0.11,
+     "rho_sph": 7880.374383774328,
+     "engine_dTdt_K_s": -1.7997255917836965e-05,
+     "analytic_dTdt_K_s": -0.15568509988761833,
+     "reference_dTdt_K_s": -0.14182511451315338,
+     "rho_sph_independent": 7880.374383774325,
+     "engine_times_rho_over_reference": 0.9999999999999998
+    },
+    {
+     "ix": 12,
+     "x_m": 0.12,
+     "rho_sph": 7880.374383774324,
+     "engine_dTdt_K_s": 3.133807864062911e-08,
+     "analytic_dTdt_K_s": -8.088987306798654e-17,
+     "reference_dTdt_K_s": 0.0002469557921563812,
+     "rho_sph_independent": 7880.374383774322,
+     "engine_times_rho_over_reference": 0.9999999999997478
+    }
+   ]
+  },
+  "a_operator_lattice_copper": {
+   "material": "copper",
+   "lambda_over_dx": 8,
+   "kh": 0.9424777960769383,
+   "nx": 16,
+   "mass_scale": 1.0,
+   "Q_engine": 0.00010164881575111302,
+   "rho_sph_interior_mean": 8967.253553291588,
+   "rho_mass_per_volume": 8960.0,
+   "kappa_W_mK": 454.30635154951824,
+   "cp_J_kgK": 359.4188011387724,
+   "D_cascade_m2_s": 0.0001410717350279002,
+   "engine_amp_K_s": -8.845494030744873e-05,
+   "Q_engine_times_rho_sph": 0.9115107042320502,
+   "Q_reference_independent": 0.9115107042320502,
+   "reference_amp_K_s": -0.793197877778165,
+   "max_rel_dev_engine_times_rho_vs_reference": 1.0835776720341528e-13,
+   "max_rel_dev_density_engine_vs_independent": 2.220446049250313e-16
+  },
+  "a_criteria": {
+   "pass_confirm": true,
+   "pass_refute": false
+  },
+  "b_density_scaling": {
+   "points": [
+    {
+     "mass_scale": 0.25,
+     "rho_sph_interior_mean": 1970.093595943581,
+     "engine_amp_K_s": -0.00040746001593180406,
+     "Q_engine": 0.00046266107118750555,
+     "reference_amp_K_s": -0.8027343679903172
+    },
+    {
+     "mass_scale": 0.5,
+     "rho_sph_interior_mean": 3940.187191887162,
+     "engine_amp_K_s": -0.00010186500398295101,
+     "Q_engine": 0.00023133053559375278
+    },
+    {
+     "mass_scale": 1.0,
+     "rho_sph_interior_mean": 7880.374383774324,
+     "engine_amp_K_s": -2.5466250995737754e-05,
+     "Q_engine": 0.00011566526779687639,
+     "reference_amp_K_s": -0.2006835919975793
+    },
+    {
+     "mass_scale": 2.0,
+     "rho_sph_interior_mean": 15760.748767548648,
+     "engine_amp_K_s": -6.366562748934438e-06,
+     "Q_engine": 5.7832633898438194e-05
+    },
+    {
+     "mass_scale": 4.0,
+     "rho_sph_interior_mean": 31521.497535097296,
+     "engine_amp_K_s": -1.5916406872336096e-06,
+     "Q_engine": 2.8916316949219097e-05,
+     "reference_amp_K_s": -0.05017089799939482
+    }
+   ],
+   "slope_engine": -2.0000000000000004,
+   "slope_reference": -1.0,
+   "pass_confirm": true,
+   "pass_refute": false,
+   "status": "VERIFIED numerics: algebraic consequence of the 1/rho_i factor at line 682"
+  },
+  "c_two_parcel": {
+   "hot_less_dense_preregistered": {
+    "T_small_parcel_K": 1000.0,
+    "T_big_parcel_K": 300.0,
+    "m_kg": [
+     0.032982534072488044,
+     0.06441901186032821
+    ],
+    "rho_sph": [
+     2523.8226928710938,
+     3183.43359375
+    ],
+    "dTdt_engine": [
+     -0.24125426632639324,
+     0.11148804249975279
+    ],
+    "dTdt_reference": [
+     -608.8829921065179,
+     354.91477979514076
+    ],
+    "heat_rate_engine_W": [
+     -3.495730080942597,
+     2.7714110084646815
+    ],
+    "heat_rate_reference_W": [
+     -8822.602906435033,
+     8822.602906435033
+    ],
+    "net_heat_engine_W": -0.7243190724779156,
+    "net_heat_reference_W": 0.0,
+    "gain_over_loss_engine": 0.7927989130434784,
+    "gain_over_loss_reference": 1.0,
+    "rho_hot_over_rho_cold": 0.7927989130434783,
+    "I_engine": 0.11557408109132243,
+    "I_predicted": 0.11557408109132247,
+    "I_reference": 0.0,
+    "pass_confirm": true,
+    "pass_refute": false
+   },
+   "hot_denser_new": {
+    "T_small_parcel_K": 300.0,
+    "T_big_parcel_K": 1000.0,
+    "m_kg": [
+     0.032982534072488044,
+     0.06441901186032821
+    ],
+    "rho_sph": [
+     2523.8226928710938,
+     3183.43359375
+    ],
+    "dTdt_engine": [
+     0.2746599161840525,
+     -0.0979282534966612
+    ],
+    "dTdt_reference": [
+     693.1929292873843,
+     -311.74809195853715
+    ],
+    "heat_rate_engine_W": [
+     3.4957300809425975,
+     -2.771411008464682
+    ],
+    "heat_rate_reference_W": [
+     8822.602906435033,
+     -8822.602906435033
+    ],
+    "net_heat_engine_W": 0.7243190724779156,
+    "net_heat_reference_W": 0.0,
+    "gain_over_loss_engine": 1.2613538988860324,
+    "gain_over_loss_reference": 1.0,
+    "rho_hot_over_rho_cold": 1.2613538988860327,
+    "I_engine": 0.11557408109132242,
+    "I_predicted": 0.11557408109132247,
+    "I_reference": 0.0
+   },
+   "end_to_end_continuum_step": {
+    "hot_less_dense": {
+     "dQ_J": [
+      -0.0034957300898190843,
+      0.002771411009335946
+     ],
+     "net_J": -0.0007243190804831381,
+     "net_W": -0.7243190804831381,
+     "gain_over_loss": 0.7927989112796108
+    },
+    "hot_denser": {
+     "dQ_J": [
+      0.0034957300900196205,
+      -0.0027714110108487716
+     ],
+     "net_J": 0.0007243190791708489,
+     "net_W": 0.7243190791708488,
+     "gain_over_loss": 1.2613539010761956
+    }
+   }
+  },
+  "d_end_to_end": {
+   "rows": [
+    {
+     "ix": 3,
+     "measured_dTdt_K_s": -1.7997257373281172e-05,
+     "operator_dTdt_K_s": -1.7997255917836948e-05,
+     "rel_dev": 8.087034109038882e-08
+    },
+    {
+     "ix": 4,
+     "measured_dTdt_K_s": 3.334434950374998e-08,
+     "operator_dTdt_K_s": 3.334698758346389e-08,
+     "rel_dev": 7.910998579119255e-05
+    },
+    {
+     "ix": 5,
+     "measured_dTdt_K_s": 1.8019949266090407e-05,
+     "operator_dTdt_K_s": 1.801994885833747e-05,
+     "rel_dev": 2.2627863138779958e-08
+    },
+    {
+     "ix": 6,
+     "measured_dTdt_K_s": 2.545741040194116e-05,
+     "operator_dTdt_K_s": 2.545741024204142e-05,
+     "rel_dev": 6.281068554159219e-09
+    },
+    {
+     "ix": 7,
+     "measured_dTdt_K_s": 1.8019949266090407e-05,
+     "operator_dTdt_K_s": 1.8019948858337572e-05,
+     "rel_dev": 2.2627857587664835e-08
+    },
+    {
+     "ix": 8,
+     "measured_dTdt_K_s": 3.334434950374998e-08,
+     "operator_dTdt_K_s": 3.334698758345261e-08,
+     "rel_dev": 7.910998545312964e-05
+    },
+    {
+     "ix": 9,
+     "measured_dTdt_K_s": -1.7997257373281172e-05,
+     "operator_dTdt_K_s": -1.7997255917837012e-05,
+     "rel_dev": 8.087033753767514e-08
+    },
+    {
+     "ix": 10,
+     "measured_dTdt_K_s": -2.547871531533019e-05,
+     "operator_dTdt_K_s": -2.5478718063291227e-05,
+     "rel_dev": 1.0785319060069298e-07
+    },
+    {
+     "ix": 11,
+     "measured_dTdt_K_s": -1.7997257373281172e-05,
+     "operator_dTdt_K_s": -1.7997255917836965e-05,
+     "rel_dev": 8.08703402022104e-08
+    },
+    {
+     "ix": 12,
+     "measured_dTdt_K_s": 3.133777681796346e-08,
+     "operator_dTdt_K_s": 3.133807864062911e-08,
+     "rel_dev": 9.63117966201743e-06
+    }
+   ],
+   "max_rel_dev": 7.910998579119255e-05,
+   "max_rel_dev_full_amplitude": 1.0785319060069298e-07,
+   "max_displacement_m": 8.791240680854886e-09,
+   "dt_s": 0.01,
+   "pass": true
+  },
+  "e_convergence_supplementary": {
+   "rows": [
+    {
+     "lambda_over_dx": 8,
+     "kh": 0.9424777960769383,
+     "nx": 16,
+     "Q_engine": 0.00011566526779687639,
+     "Q_reference_independent": 0.9114856134389024,
+     "Q_engine_times_rho_sph": 0.9114856134389019,
+     "rho_sph_interior_mean": 7880.374383774324,
+     "max_rel_dev_engine_times_rho_vs_reference": 2.5224267119483557e-13
+    },
+    {
+     "lambda_over_dx": 12,
+     "kh": 0.6283185307179588,
+     "nx": 20,
+     "Q_engine": 0.00011986600071016915,
+     "Q_reference_independent": 0.9445889614818922,
+     "Q_engine_times_rho_sph": 0.944588961481892,
+     "rho_sph_interior_mean": 7880.374383774324,
+     "max_rel_dev_engine_times_rho_vs_reference": 3.455014052633487e-13
+    },
+    {
+     "lambda_over_dx": 16,
+     "kh": 0.47123889803846913,
+     "nx": 24,
+     "Q_engine": 0.00012137092735143508,
+     "Q_reference_independent": 0.9564483468351839,
+     "Q_engine_times_rho_sph": 0.9564483468351834,
+     "rho_sph_interior_mean": 7880.374383774324,
+     "max_rel_dev_engine_times_rho_vs_reference": 8.529843498195078e-13
+    },
+    {
+     "lambda_over_dx": 24,
+     "kh": 0.3141592653589794,
+     "nx": 32,
+     "Q_engine": 0.00012244343846890278,
+     "Q_reference_independent": 0.9649001359715894,
+     "Q_engine_times_rho_sph": 0.9649001359715891,
+     "rho_sph_interior_mean": 7880.374383774324,
+     "max_rel_dev_engine_times_rho_vs_reference": 3.7403413699621524e-13
+    }
+   ],
+   "lattice_moment_M_independent_kernel": 0.972592591682106,
+   "rho_sph_infinite_lattice": 7880.374383774326,
+   "note": "not pre-registered; v2 computes Q_reference with the independent eq.-17 implementation at every k h (v1 used engine x rho_sph for k h < 0.94)"
+  },
+  "verdict": "DEFECT-CONFIRMED"
+ },
+ "realised_diffusivity_iron": {
+  "D_cascade_kappa_over_rho_cp_m2_s": 3.5692936944249314e-05,
+  "cascade_kappa_iron_300K_W_mK": 108.45167999305124,
+  "cascade_cp_iron_300K_J_kgK": 385.8856144960194,
+  "D_LIT_iron_m2_s": 2.3e-05,
+  "D_engine_at_kh_0.94_m2_s": 4.1284331101136194e-09,
+  "ratio_D_cascade_over_D_engine_at_kh_0.94": 8645.637701337735,
+  "decomposition": "1/Q_engine = rho_sph / Q_ref = 7880.37 / 0.9115",
+  "D_defect_only_D_cascade_over_rho_sph_m2_s": 4.52934533386396e-09,
+  "D_engine_long_wavelength_D_cascade_x_M_over_rho_sph_m2_s": 4.405207716886003e-09,
+  "clean_factor_1_over_rho_sph": 0.0001268975243180068,
+  "D_engine_long_wavelength_over_D_LIT": 0.00019153077029939142
+ },
+ "side_observations": {
+  "cascade_kappa_iron_W_mK": {
+   "300K": 108.45167999305124,
+   "400K": 126.94579233822978
+  },
+  "LIT_kappa_iron_W_mK": {
+   "300K": [
+    80.2,
+    80.4
+   ],
+   "400K_engineeringtoolbox": 70.0
+  },
+  "glass": {
+   "kappa_W_mK": 78.29626564103361,
+   "melting_point_K": 1652.3684459450374
+  },
+  "granite": {
+   "kappa_W_mK": 45.814181453429995,
+   "melting_point_K": 951.4387201857846
+  },
+  "concrete": {
+   "kappa_W_mK": 15.778383086288667,
+   "melting_point_K": 448.0139630734662
+  },
+  "rubber": {
+   "kappa_W_mK": 6.96679999856461e-05,
+   "melting_point_K": 0.00019268587352527764
+  },
+  "plastic_abs": {
+   "kappa_W_mK": 0.6008214503358468,
+   "melting_point_K": 2.602307835735235
+  }
+ },
+ "consequence": {
+  "Ra_note": "Ra = g beta dT d^3/(nu D). As coded beta -> beta/3 and D -> D/rho_sph[SI] (x lattice moment). If Ra is computed from the cascade D, Ra_eff/Ra = rho_sph/3 (about 2.6e3 for iron). If Ra is computed from a MEASURED kappa_eff (as the U14 design sketch does, 1-D bar decay), the conduction defect is absorbed into kappa_eff and the as-coded onset appears about 3x too high in dT, from buoyancy alone.",
+  "Ra_eff_over_Ra_with_cascade_D_iron": 2700.8137669597636
+ },
+ "verdicts": {
+  "D1_original_criterion": "DEFECT-CONFIRMED",
+  "D1_corrected_LIT_criterion": "DEFECT-CONFIRMED",
+  "D2": "DEFECT-CONFIRMED"
+ },
+ "overall": "DEFECT-CONFIRMED",
+ "overall_under_original_criteria": "DEFECT-CONFIRMED",
+ "runtime_s": 25.588731050491333
+}

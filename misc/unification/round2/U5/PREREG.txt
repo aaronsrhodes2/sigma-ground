@@ -1,0 +1,32 @@
+U5 pre-registration (written 2026-10-10 BEFORE any orbit run; not to be moved afterwards)
+
+DESIGN CRITERION (design_synthesis.json, U5, unchanged):
+  Engine pass iff ratio (C-A)/(B-A) = 0.0527 +/- 0.003, i.e. in [0.0497, 0.0557].
+  Physics: sigma hook excluded iff Delta-omega_sigma = (C-A) > 0.05 arcsec/cy. Predicted ~2.3 arcsec/cy.
+  Runs: 50 orbits, Forest-Ruth, dt = 600 s. A Newtonian; B include_gr=True; C Sun.sigma = XI*r_s/r updated every step.
+
+ESTIMATOR (fixed before running):
+  Primary  = direction of the osculating Laplace-Runge-Lenz vector (relative coords, mu = G(M_sun+M_mer), unscaled)
+             evaluated at each discrete radial-minimum step; linear fit vs orbit index -> advance per orbit.
+             Reason: the sketch's atan2(position) at the discrete minimum carries a timing term Omega_p*(t_sample - t_peri)
+             that does not cancel in C-A once the anomalistic period changes (estimated ~1e-7 rad/orbit vs signal 2.6e-8).
+  Secondary (reported, not used for pass/fail) = the sketch's own estimator verbatim, and parabola-interpolated
+             position angle at the r minimum.
+
+ADDED PREDICTIONS FROM READING THE CODE (made before running):
+  P1  nbody.py gr_1pn branch (lines ~463-477) adds +factor*[(4GM/r - v^2) r_hat + 4 (r_hat.v) v] with r_hat pointing
+      FROM Mercury TO the Sun. The standard harmonic-gauge 1PN test-body EOM is +(GM/c^2 r^3)[(4GM/r - v^2) x + 4 (x.v) v]
+      with x pointing from the Sun to Mercury. The engine term is the overall NEGATIVE of the standard one.
+      => predicted B-A = -1.00 x Delta-omega_GR (retrograde, about -43 arcsec/cy), so the design ratio (C-A)/(B-A) comes
+      out about -0.0527 and the design's engine criterion FAILS on the GR run's sign, not on the sigma hook.
+      Force-level probe: cos(angle) between engine a_1PN and the standard a_1PN at perihelion predicted = -1.
+  Corrected criterion (reported alongside the original): (C-A)/Delta-omega_GR,analytic in [0.0497, 0.0557], with
+      Delta-omega_GR,analytic = 6 pi G M /(c^2 a (1-e^2)) evaluated by Mentat simplify_expr; and |B-A|/Delta-omega_GR,analytic
+      in [0.99, 1.01] with its sign recorded.
+  P2  add-on run D, sigma = sigma_from_potential(r, M_sun) = XI*r_s/(2r) (the inventory normalisation):
+      (D-A)/Delta-omega_GR,analytic = XI/6 = 0.02637 +/- 0.0015.
+  P3  add-on run E, toggles eih_cross=True: radial terms carry the standard sign, the velocity cross term
+      (vec_ij.(4v_i-3v_j))(v_i-v_j) carries the opposite sign of Moyer/Will (they use x_i - x_j). Coefficient bookkeeping
+      Delta-omega = (pi m/p)(-A_coef - 2 B_coef + 2 D_coef) with A=4, B=-1, D=-4 gives -10 pi m/p = -(5/3) Delta-omega_GR.
+      Predicted (E-A)/Delta-omega_GR,analytic = -1.667 +/- 0.03.
+  P4  dt-halving control (A and C at dt = 300 s): (C-A) changes by < 1 %.

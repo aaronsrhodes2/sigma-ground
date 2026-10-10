@@ -1,0 +1,311 @@
+{
+ "G": {
+  "value": 6.6743e-11,
+  "source": "sigma_ground.field.constants",
+  "tool": "lookup_constant",
+  "args": {
+   "name": "G"
+  },
+  "note": ""
+ },
+ "k_B": {
+  "value": 1.380649e-23,
+  "source": "sigma_ground.field.constants",
+  "tool": "lookup_constant",
+  "args": {
+   "name": "k_B"
+  },
+  "note": ""
+ },
+ "trelax_over_tcross_N128": {
+  "value": "2.63807093191125",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(0.1*128/log(128))"
+  },
+  "note": ""
+ },
+ "dE_over_K_formula": {
+  "value": "d*(d + 2)",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "(1+d)^2-1"
+  },
+  "note": ""
+ },
+ "virial_K_of_E_softened": {
+  "value": [
+   "E*w/(w - 2)"
+  ],
+  "source": "sympy.solve",
+  "tool": "solve_equation",
+  "args": {
+   "equation": "2*K + w*(E-K) = 0",
+   "variable": "K"
+  },
+  "note": "fixed-w approximation: leaves out E dw/dE"
+ },
+ "t_cr_HM_over_unit": {
+  "value": "6.25631023760420",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N((3*pi/32)^(-3/2))"
+  },
+  "note": "Heggie-Mathieu t_cr = G M^(5/2)/(2|E|)^(3/2) = 2 R_V/v_rms, in design units sqrt(b^3/GM)"
+ },
+ "r_half_over_b": {
+  "value": "1.30476602650411",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(1/sqrt(2^(2/3)-1))"
+  },
+  "note": ""
+ },
+ "v_rms_over_sqrt_GM_b": {
+  "value": "0.542700940918701",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(sqrt(3*pi/32))"
+  },
+  "note": ""
+ },
+ "T_orb_at_r_half_s": {
+  "value": 573120.536740412,
+  "source": "sigma-ground (Kepler's third law)",
+  "tool": "orbital_period",
+  "args": {
+   "semimajor_axis_m": 6523.83013252055,
+   "central_mass_kg": 500000000000.0
+  },
+  "note": ""
+ },
+ "R_V_over_b": {
+  "value": "1.69765272631355",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(16/(3*pi))"
+  },
+  "note": "Plummer virial radius GM^2/(2|W|)"
+ },
+ "R_V_over_v_rms_units": {
+  "value": "3.12815511880210",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N((16/(3*pi))/sqrt(3*pi/32))"
+  },
+  "note": "half-diameter crossing time R/v with R = R_V"
+ },
+ "r_half_over_v_rms_units": {
+  "value": "2.40420815245936",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N((2^(2/3)-1)^(-1/2)/sqrt(3*pi/32))"
+  },
+  "note": "half-diameter crossing time R/v with R = r_half"
+ },
+ "HM_check_2RV_over_vrms": {
+  "value": "6.25631023760420",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(2*(16/(3*pi))/sqrt(3*pi/32))"
+  },
+  "note": "should equal t_cr_HM_over_unit"
+ },
+ "run_3trelax_in_trelax_RV": {
+  "value": "0.959031725111133",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(3/((16/(3*pi))/sqrt(3*pi/32)))"
+  },
+  "note": "design's 3 t_relax run in relaxation times 0.1N/lnN x R_V/v_rms"
+ },
+ "run_3trelax_in_trelax_rh": {
+  "value": "1.24781209020158",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(3/((2^(2/3)-1)^(-1/2)/sqrt(3*pi/32)))"
+  },
+  "note": "design's 3 t_relax run in relaxation times 0.1N/lnN x r_half/v_rms"
+ },
+ "run_3trelax_in_trelax_HM": {
+  "value": "0.479515862555566",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(3/(3*pi/32)^(-3/2))"
+  },
+  "note": "design's 3 t_relax run in relaxation times 0.1N/lnN x Heggie-Mathieu t_cr"
+ },
+ "N_over_8lnN_N128": {
+  "value": "3.29758866488906",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(128/(8*log(128)))"
+  },
+  "note": "textbook derivation t_relax/t_cross = N/(8 lnN) with t_cross = R/v; 0.1N/lnN is its rounded form"
+ },
+ "T_orb_r_half_units": {
+  "value": "13.2432270894964",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(2*pi*sqrt(2*(2^(2/3)-1)^(-3/2)))"
+  },
+  "note": "Kepler period at r_half around M/2, in design units; a proxy, not a measured breathing period"
+ },
+ "ext_window_units": {
+  "value": "4.58000000000000",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N((3749-2375)/300)"
+  },
+  "note": "extended window rows 2375..3749"
+ },
+ "ext_window_over_T_orb": {
+  "value": "0.345837156536607",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(((3749-2375)/300)/(2*pi*sqrt(2*(2^(2/3)-1)^(-3/2))))"
+  },
+  "note": ""
+ },
+ "post_kick_run_over_T_orb": {
+  "value": "0.943627001350611",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N((3749/300)/(2*pi*sqrt(2*(2^(2/3)-1)^(-3/2))))"
+  },
+  "note": ""
+ },
+ "pre_window_over_T_orb": {
+  "value": "0.198843779959185",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(((2374-1584)/300)/(2*pi*sqrt(2*(2^(2/3)-1)^(-3/2))))"
+  },
+  "note": ""
+ },
+ "plummer_I_integrand_large_x": {
+  "value": "1/x",
+  "source": "sympy.series",
+  "tool": "series_expansion",
+  "args": {
+   "expression": "x^4/sqrt(1+x*x)^5",
+   "variable": "x",
+   "point": "oo",
+   "order": 3
+  },
+  "note": "~1/x at large x, so I of an untruncated Plummer sphere diverges logarithmically: halo-dominated"
+ },
+ "plummer_I_partial_integral": {
+  "value": "3*X**4*asinh(X)/(3*X**4 + 6*X**2 + 3) - 4*X**3*sqrt(X**2 + 1)/(3*X**4 + 6*X**2 + 3) + 6*X**2*asinh(X)/(3*X**4 + 6*X**2 + 3) - 3*X*sqrt(X**2 + 1)/(3*X**4 + 6*X**2 + 3) + 3*asinh(X)/(3*X**4 + 6*X**2 + 3)",
+  "source": "sympy.integrate",
+  "tool": "integrate_expr",
+  "args": {
+   "expression": "x^4/sqrt(1+x*x)^5",
+   "variable": "x",
+   "lower": "0",
+   "upper": "X"
+  },
+  "note": ""
+ },
+ "chi2_2dof_q025": {
+  "value": "0.0506356159685798",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(-2*log(0.975))"
+  },
+  "note": "chi-square 2 dof, 2.5 % quantile"
+ },
+ "chi2_2dof_q975": {
+  "value": "7.37775890822787",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N(-2*log(0.025))"
+  },
+  "note": "chi-square 2 dof, 97.5 % quantile"
+ },
+ "F_2_6_survival": {
+  "value": "81/(3*f**3 + 27*f**2 + 81*f + 81)",
+  "source": "sympy.integrate",
+  "tool": "integrate_expr",
+  "args": {
+   "expression": "(1+x/3)^(-4)",
+   "variable": "x",
+   "lower": "f",
+   "upper": "oo"
+  },
+  "note": "F(2,6) pdf is (1+x/3)^(-4); survival = (1+f/3)^(-3)"
+ },
+ "t2_pdf_norm": {
+  "value": "1",
+  "source": "sympy.integrate",
+  "tool": "integrate_expr",
+  "args": {
+   "expression": "1/sqrt(2+x*x)^3",
+   "variable": "x",
+   "lower": "-oo",
+   "upper": "oo"
+  },
+  "note": "Student t with 2 dof: pdf = (2+x^2)^(-3/2)"
+ },
+ "t2_survival": {
+  "value": "-t/(2*sqrt(t**2 + 2)) + 1/2",
+  "source": "sympy.integrate",
+  "tool": "integrate_expr",
+  "args": {
+   "expression": "1/sqrt(2+x*x)^3",
+   "variable": "x",
+   "lower": "t",
+   "upper": "oo"
+  },
+  "note": "one-sided p for the seed-mean t statistic (2 dof)"
+ },
+ "F_2_6_pdf_norm": {
+  "value": "1",
+  "source": "sympy.integrate",
+  "tool": "integrate_expr",
+  "args": {
+   "expression": "(1+x/3)^(-4)",
+   "variable": "x",
+   "lower": "0",
+   "upper": "oo"
+  },
+  "note": ""
+ },
+ "C_gas_equipartition_J_per_K": {
+  "value": 2.65084608e-21,
+  "source": "sigma_ground.field.interface.statistical.heat_capacity_equipartition(3, n=128)"
+ },
+ "engine_G_equals_mentat_G": true,
+ "v1_leaves_identical": {
+  "G": true,
+  "k_B": true,
+  "trelax_over_tcross_N128": true,
+  "dE_over_K_formula": true,
+  "virial_K_of_E_softened": true,
+  "t_cr_HM_over_unit": true,
+  "r_half_over_b": true,
+  "v_rms_over_sqrt_GM_b": true,
+  "T_orb_at_r_half_s": true,
+  "C_gas_equipartition_J_per_K": true
+ }
+}

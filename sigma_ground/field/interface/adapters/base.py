@@ -105,6 +105,9 @@ class SGPhysicsMixin:
         dt_s: float,
         n_steps: int,
         method: str = "forest_ruth",
+        # PHYSICS_GAP (2026-10-10, unification round 2; KNOWN_GAPS.md): this default turns on
+        # nbody gr_1pn, whose 1PN correction has the wrong sign (Mercury precesses −43″/cy).
+        # Every caller that relies on the default inherits it. Flagged, not fixed.
         include_gr: bool = True,
     ) -> list:
         """Propagate N bodies using Forest-Ruth (default) or Verlet.

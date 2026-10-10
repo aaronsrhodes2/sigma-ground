@@ -1,0 +1,25 @@
+{
+ "id": "U6",
+ "written": "2026-10-10, before any solver run and before the Mentat leaves were fetched",
+ "source_of_design": "D:/Aaron/development/sigma-ground/misc/unification/design_synthesis.json, experiments_ranked[id=U6] + markdown sections 2.4 and U6",
+ "equation": "(1/c^2) sigma_tt - lap(sigma) = s,  s = (8 pi G xi / c^4)(rho c^2 - 3P);  v = r sigma:  v_tt = c^2 v_rr + c^2 r s,  v(0)=0, Sommerfeld outer BC, CFL = 1",
+ "setup": "n = 1 polytrope (pilot_p7 profile): a = 5e3 m, R = pi a, w_c = 3P_c/(rho_c c^2) = 1e-3, K = 2 pi G a^2; grid r in [0, 40R], N_r = 8000 (dr = 78.5 m); probe r_p = 30R; eps = 0.05; omega R/c in {0.01, 0.02, 0.04, 0.08}; 6 periods; amplitude over the last 3 periods",
+ "modes": {"mass": "rho(r,t) = rho0(r/lambda)/lambda^3, lambda = 1 + eps sin(omega t), P frozen at P0(r)", "pressure": "rho frozen, P = P0 (1 + eps sin(omega t))"},
+ "predictions_design_unchanged": {
+   "P1_pressure_slope": "d ln A / d ln omega = 0.0 +/- 0.1",
+   "P2_mass_slope": "d ln A / d ln omega = 2.0 +/- 0.1",
+   "P3_amplitude": "A/A_pred = 1.00 +/- 0.10 at omega R/c = 0.01 for both modes; A_press = xi r_s w_c eps / 2; A_mass = xi r_s eps omega^2 I2 / (3 M c^2)",
+   "P4_first_arrival": "first |v(r_p)| > 1e-30 at (r_p - R)/c +/- 2 cells",
+   "P5_grid_halving": "N_r 8000 -> 16000 changes every amplitude by < 2 %",
+   "PASS": "all of P1-P5 hold in the PRIMARY configuration"
+ },
+ "primary_configuration_fixed_before_running": "conservative source: each cell carries the exact integral of r^2 s over the cell (closed form for the n = 1 profile; cell 1 absorbs [0, dr/2]), so the discrete monopole sum_j r_j^2 s_j dr equals the continuum integral and mass conservation is exact on the grid; amplitude = lock-in least-squares fit of const + harmonics 1..4 of omega over the last 3 periods",
+ "design_correction_C1_a_priori": "The design sketch point-samples rho at the nodes and reads amplitude as std*sqrt(2). For the mass mode the n = 1 profile has a kink at R (rho' jumps from -rho_c/(pi a) to 0) that sweeps 20 cells per period; trapezoid error of a kink = (dr^2/2) |f'| B2(frac(lambda R/dr)), rms ~ 9e-6 xi r_s of spurious monopole, vs a mass-mode signal amplitude 6.5e-7 xi r_s at omega R/c = 0.01. A-priori prediction for the design-sketch configuration: pressure mode passes; mass mode at omega R/c = 0.01 reads A/A_pred ~ 20 (order 10-30) -> P2/P3 fail and P5 flags it. Point-sampled + lock-in (tertiary): R/dr = 200 exactly makes the leading aliasing purely even harmonics; residual O(10 %) at 0.01 possible, not predicted precisely.",
+ "secondary_checks_not_in_design_pass_fail": {
+   "S1_phase": "v_osc = -A sin(omega (t - r_p/c)) for both modes (phase pi +/- 0.05 rad): pressure de-sources sigma; the mass-mode far field is +(1/6c^2) d^2/dt^2 of the sigma-weighted second moment",
+   "S2_ramp": "static switch-on (eps = 0): v(r_p) = 0 before (r_p - R)/c, follows the analytic ramp integral r'^2 s0 clip((c tau + r')/(2 r'), 0, 1) dr' to < 1 % of v_static, reaches v_static = xi r_s (1 - w_c/2) (to < 0.1 %) by (r_p + R)/c and stays within 1e-3 of it",
+   "S3_no_cs_feature": "after subtracting the steady-state fit, max |residual| within +/- 20 R/c of t = (r_p - R)/c_s,centre (c_s,centre = c sqrt(2 w_c / 3)) is < 1e-3 A at omega R/c = 0.01, both modes. BY CONSTRUCTION: c_s does not appear in the equation and the pulsation is prescribed globally",
+   "S4_order": "N_r = 4000/8000/16000 convergence order reported, no criterion"
+ },
+ "could_it_fail": "Only through an error in the section 2.4 derivation (factor w_c/2, I2/(3M), sign) or in the new solver. Nothing in it can fail because of nature: the result holds for any massless scalar sourced by any conserved-mass + pressure source. A PASS is [VERIFIED numerics] of a [DERIVED] statement inside the [SPECULATIVE] postulate box sigma = -xi R; it carries no evidential weight for or against the unification thesis."
+}

@@ -1,0 +1,47 @@
+U10 PRE-REGISTRATION (written 2026-10-10 before any solver run of this experiment; not to be edited after the runs start)
+
+Design (design_synthesis.json, experiments_ranked id U10), criteria copied verbatim:
+  |Q_s/Q_T - (1-w/2)/(1+w/2)| < 1e-6 at w_c = 1e-3 and < 1e-4 at 1e-2;
+  |(Q_T - Q_s)/Q_N - w_c|/w_c < 1e-3;  central deficit/w_c = 1.219 +- 0.02;  T leg <= 1 % max;  order >= 1.2.
+Interpretation fixed now:
+  * Q_N, Q_T, Q_s are the poisson_fvm return values = SOURCE QUADRATURE s.sum()*dx^3 (as in the design sketch); Q_T and Q_s are
+    of the metric-weighted sources mf*(rho +- 3P/c^2), mf = 1 - 2 Phi_N/c^2 with Phi_N from the solver; Q_N unweighted (sketch).
+    Supplementary: the same ratios from Gauss-flux monopoles of the SOLVED fields (cube surfaces between source edge and wall).
+  * central deficit = 1 - Psi_s/Phi_T (both metric-weighted) at the innermost 8 cells (grids are even, centre lies between cells).
+  * T leg = steady heat, q = q0 rho/rho_c, k = 1 W/(m K). Design-literal leg = poisson_fvm(rho/rho_c) (kick every 20 stable_dt,
+    n_tau = 8) -- identical call to the Phi_N solve. Second, separate heat-law run in heat units (T_inf = 300 K, q0 = 2e-6 W/m^3,
+    kick every 1 stable_dt, n_tau = 16). "max" = max over non-wall cells |T - T_an| / max(T_an - T_inf). Criterion judged at 40^3.
+  * order: fixed physical box L = 40 km, a = 5 km; n = 32, 40, 48 -> dx = 1.25, 1.0, 0.833 km. Primary order metric = design-literal
+    T-leg max error; least-squares slope of ln(err) vs ln(dx). Secondary: heat-law leg, central-deficit error.
+
+Exact analytic predictions for the n = 1 polytrope (theta = sin(xi)/xi, Phi_N/c^2 = -(2w/3)(1+theta) exactly), [DERIVED]:
+  integrals: I1 = int x sin x = pi; I2 = int sin^2 x = pi/2; I = int sin^2x/x; I3 = int sin^3x/x; J = int sin^3x/x^2 (0..pi)
+  A = I1 + (4w/3)(I1+I2);  B = w [I2 + (4w/3)(I2+I3)]      (Q in units 4 pi a^3 rho_c)
+  Q_s/Q_T (weighted) = (A-B)/(A+B) = (1-w/2)/(1+w/2) - (2w^2/3)(4 I3/pi - 1) + O(w^3)   -> predicted offset ~ -0.157 w^2
+  (Q_T-Q_s)/Q_N (weighted, sketch) = 2B/I1 = w [1 + (4w/3)(1 + 2 I3/pi)]                -> rel. offset ~ 2.16 w
+  (Q_T-Q_s)/Q_N (unweighted)       = w exactly (quadrature)
+  Q_T/Q_N (weighted) = (A+B)/I1 = 1 + 2.5 w + (2w^2/3)(1 + 2 I3/pi)
+  centre (units rho_c a^2): A_c = 2 + (4w/3)(2+I),  B_c = w [I + (4w/3)(I+J)];  deficit = 2 B_c/(A_c+B_c); deficit/w -> I = 1.2188 as w -> 0
+  T leg analytic: T - T_inf = (q0 a^2/k)(1 + theta) inside, (q0/k) pi a^3 / r outside.
+Solver-error predictions (from the split-kick fixed point T* = v + (dt_split/2) s, [DERIVED]):
+  poisson_fvm kicks every dt_split = 20*0.2*dx^2/6 = 0.667 dx^2 (alpha = 1) -> centre bias +0.333 dx^2 / (2 a^2) = +0.67 % at 40^3
+  (1.04 % at 32^3, 0.46 % at 48^3); heat-law leg (1x kick) bias 1/20 of that. T_20x - T_1x at centre ~ (19/20)(dt_20/2) s.
+
+PREDICTIONS / EXPECTED OUTCOMES:
+  C1 |Q_s/Q_T - (1-w/2)/(1+w/2)|: ~2.4e-7 at 1e-3, ~1.6e-5 at 1e-2  -> PASS both (by quadrature + O(w^2) metric term).
+  C2 |(Q_T-Q_s)/Q_N - w|/w as sketched (weighted pair, unweighted Q_N): ~2.2e-3 and ~2.2e-2 -> FAIL both.
+     This is a DESIGN ERROR (the criterion forgets that the metric weight multiplies the pressure integral too).
+     Corrected criterion C2': weighted pair vs 2B/I1, rel. < 1e-3 -> PASS; unweighted pair vs w, rel. < 1e-3 -> PASS.
+  C3 central deficit/w (weighted pair, innermost cells): ~1.22-1.23 at 1e-3, ~1.21-1.225 at 1e-2 -> PASS.
+  C4 T leg at 40^3: design-literal ~0.7 % -> PASS (close; at 32^3 ~1.05 % would FAIL); heat-law leg ~0.05 % -> PASS.
+  C5 order of the primary metric ~2 -> PASS (>= 1.2).
+Evidential weight fixed now: ZERO for the thesis. Every Q-ratio is source quadrature (by construction) except an O(w^2) term that
+tests the solver's Phi_N; the T leg is the same discrete operator as Phi_N (identical call in the design); the opposite-sign
+pressure coupling is put in by hand in the sources [DERIVED, not measured]. This run validates the repo's FVM heat law as a
+Poisson solver and the 1PN bookkeeping; it cannot discriminate one phenomenon from three.
+
+ADDENDUM (same sitting, before any solver run): exact predictions evaluated from the Mentat leaves in u10_leaves.json
+{"w": 0.001, "ratio_pressure_only": 0.9990004997501251, "ratio_weighted_exact": 0.9990003433022469, "ratio_weighted_minus_pressure_only": -1.564478782078993e-07, "dQ_over_QN_weighted_exact": 0.00100215691758606, "dQ_over_QN_weighted_rel_offset_from_w": 0.0021569175860599882, "dQ_over_QN_unweighted": 0.001, "QT_over_QN_weighted_exact": 1.002501078458793, "QT_over_QN_design_1p2_5w": 1.0025, "deficit_over_w_weighted_centre_exact": 1.2182551056668711, "deficit_over_w_unweighted_centre_exact": 1.2180843796483423, "compactness_rs_over_R": 0.0013333333333333333}
+{"w": 0.01, "ratio_pressure_only": 0.9900497512437811, "ratio_weighted_exact": 0.9900345199779021, "ratio_weighted_minus_pressure_only": -1.523126587898993e-05, "dQ_over_QN_weighted_exact": 0.010215691758605998, "dQ_over_QN_weighted_rel_offset_from_w": 0.021569175860599796, "dQ_over_QN_unweighted": 0.01, "QT_over_QN_weighted_exact": 1.025107845879303, "QT_over_QN_design_1p2_5w": 1.025, "deficit_over_w_weighted_centre_exact": 1.2131007495402601, "deficit_over_w_unweighted_centre_exact": 1.2114439951156313, "compactness_rs_over_R": 0.013333333333333334}
+Mentat series: weighted ratio = w**2*(-8*q3/(3*pi) + 7/6) - w + 1 ; deficit/w = ii + w*(2*ii*(-7*ii/12 - 2/3) + 4*ii/3 + 4*jj/3) ; Q_T/Q_N = w**2*(4*q3/(3*pi) + 2/3) + 5*w/2 + 1
+Sat Oct 10 02:56:14 PDT 2026

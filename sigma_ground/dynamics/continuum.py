@@ -626,6 +626,13 @@ def _buoyancy_force(parcel, rho_0, T_0, gravity):
     where α is thermal expansion coefficient from the interface cascade.
 
     FIRST_PRINCIPLES: density perturbation ρ' = −ρ₀ α ΔT drives buoyancy.
+
+    PHYSICS_GAP (2026-10-10, unification round 2, U14G; KNOWN_GAPS.md): the
+    density perturbation needs the VOLUMETRIC coefficient β = 3α_L, but
+    `parcel.thermal_expansion` is the cascade's LINEAR α_L, so buoyancy is 1/3
+    of physical (measured 0.322–0.350 for 10 cubic crystals). The term is also
+    applied under eos="ideal", where the SPH pressure gradient already carries
+    thermal buoyancy, so ideal-gas runs count it twice. Flagged, not fixed.
     """
     alpha = parcel.thermal_expansion
     dT = parcel.temperature - T_0
@@ -644,6 +651,15 @@ def _heat_conduction(parcels, h):
               × (rᵢⱼ · ∇Wᵢⱼ) / (rᵢⱼ² + 0.01h²)
 
     FIRST_PRINCIPLES: Fourier's law discretized via SPH (Cleary & Monaghan 1999).
+
+    PHYSICS_GAP (2026-10-10, unification round 2, U14G; KNOWN_GAPS.md): the
+    pair sum below is already du/dt in W/kg (Brookshaw 1985 / Monaghan 1992;
+    Jubelgas et al. 2004 eq. 17), so dividing by ρᵢcpᵢ divides by ρ a second
+    time. Conduction runs ρ_sph[SI] times too slow (iron: 1.16e-4 of the
+    Fourier rate), scales as ρ⁻² instead of ρ⁻¹, and is not antisymmetric
+    between neighbours of unequal density, so it creates or destroys heat.
+    The κᵢ + κⱼ arithmetic mean is Brookshaw/Monaghan, not Cleary & Monaghan's
+    harmonic mean. Flagged, not fixed.
 
     Returns dict of {parcel_index: dT/dt in K/s}.
     """

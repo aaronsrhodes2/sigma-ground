@@ -1,0 +1,101 @@
+pressure 4000 {"A_lockin": 8.283293618147015e-05, "prereg_window_value": 1.0132788300270072e-09, "n_windows": 1845, "window_max_min": 6.594354290651952e-10, "window_max_median": 9.060535570082763e-10, "window_max_max": 1.2813420125738346e-09, "frac_windows_over_1em3": 0.0, "envelope_period_over_Rc": 184.5, "T_over_Rc": 628.3185307179587, "half_T_over_Rc": 314.1592653589793, "corr_winmax_with_abs_cos_phase": -0.04850960315047025, "abs_cos_phase_at_sonic_window": 0.06387906014624548, "median_winmax_turning_points": 9.006922933573398e-10, "median_winmax_peak_speed": 8.899697660554667e-10}
+pressure 8000 {"A_lockin": 8.28329360875407e-05, "prereg_window_value": 2.1873955720625356e-09, "n_windows": 1845, "window_max_min": 1.3027870686548926e-09, "window_max_median": 1.8818035436126227e-09, "window_max_max": 2.6484642465659132e-09, "frac_windows_over_1em3": 0.0, "envelope_period_over_Rc": 335.45454545454544, "T_over_Rc": 628.3185307179587, "half_T_over_Rc": 314.1592653589793, "corr_winmax_with_abs_cos_phase": -0.21358223056182085, "abs_cos_phase_at_sonic_window": 0.06387906014624548, "median_winmax_turning_points": 2.0426414533231033e-09, "median_winmax_peak_speed": 1.8657197526415744e-09}
+pressure 16000 {"A_lockin": 8.28329360711326e-05, "prereg_window_value": 6.7015795725975166e-09, "n_windows": 1845, "window_max_min": 2.9058049026782834e-09, "window_max_median": 4.578519163998624e-09, "window_max_max": 8.476157843421339e-09, "frac_windows_over_1em3": 0.0, "envelope_period_over_Rc": 307.5, "T_over_Rc": 628.3185307179587, "half_T_over_Rc": 314.1592653589793, "corr_winmax_with_abs_cos_phase": -0.41482609550459815, "abs_cos_phase_at_sonic_window": 0.06387906014624548, "median_winmax_turning_points": 6.251233425318964e-09, "median_winmax_peak_speed": 4.503461472785531e-09}
+mass 4000 {"A_lockin": 2.1651005342724806e-06, "prereg_window_value": 0.00011769027772663235, "n_windows": 1845, "window_max_min": 0.00010576154935193428, "window_max_median": 0.0031422063632536774, "window_max_max": 0.005697868884238082, "frac_windows_over_1em3": 0.8585365853658536, "envelope_period_over_Rc": 307.5, "T_over_Rc": 628.3185307179587, "half_T_over_Rc": 314.1592653589793, "corr_winmax_with_abs_cos_phase": 0.979098421069591, "abs_cos_phase_at_sonic_window": 0.06387906014624548, "median_winmax_turning_points": 0.00020343202543329555, "median_winmax_peak_speed": 0.005647195222750139}
+mass 8000 {"A_lockin": 2.1651019608327843e-06, "prereg_window_value": 0.00016697234591530325, "n_windows": 1845, "window_max_min": 3.4774342188762504e-05, "window_max_median": 0.0016167330867540282, "window_max_max": 0.002549885487886324, "frac_windows_over_1em3": 0.6726287262872629, "envelope_period_over_Rc": 307.5, "T_over_Rc": 628.3185307179587, "half_T_over_Rc": 314.1592653589793, "corr_winmax_with_abs_cos_phase": 0.9898220220072983, "abs_cos_phase_at_sonic_window": 0.06387906014624548, "median_winmax_turning_points": 0.00028323065659265675, "median_winmax_peak_speed": 0.0025326882508531373}
+mass 16000 {"A_lockin": 2.165102108360451e-06, "prereg_window_value": 7.964923284822125e-05, "n_windows": 1845, "window_max_min": 5.3991932457432345e-05, "window_max_median": 0.0007118918883005467, "window_max_max": 0.000991109912434389, "frac_windows_over_1em3": 0.0, "envelope_period_over_Rc": 307.5, "T_over_Rc": 628.3185307179587, "half_T_over_Rc": 314.1592653589793, "corr_winmax_with_abs_cos_phase": 0.9946704017191499, "abs_cos_phase_at_sonic_window": 0.06387906014624548, "median_winmax_turning_points": 7.956288054334615e-05, "median_winmax_peak_speed": 0.0009887180971680028}
+{
+ "repro": {
+  "fields_compared": 312,
+  "fields_differing": 0,
+  "ramp_traces_identical": true,
+  "bit_for_bit": true
+ },
+ "primary": {
+  "P1_pressure_slope": true,
+  "P2_mass_slope": true,
+  "P3_amplitude_at_0p01": true,
+  "P4_first_arrival": true,
+  "P5_grid_halving": true,
+  "PASS": true
+ },
+ "design_sketch": {
+  "P1_pressure_slope": true,
+  "P2_mass_slope": false,
+  "P3_amplitude_at_0p01": false,
+  "P4_first_arrival": true,
+  "P5_grid_halving": false,
+  "PASS": false
+ },
+ "point_lockin": {
+  "P1_pressure_slope": true,
+  "P2_mass_slope": false,
+  "P3_amplitude_at_0p01": false,
+  "P4_first_arrival": true,
+  "P5_grid_halving": false,
+  "PASS": false
+ },
+ "cell_std": {
+  "P1_pressure_slope": true,
+  "P2_mass_slope": true,
+  "P3_amplitude_at_0p01": true,
+  "P4_first_arrival": true,
+  "P5_grid_halving": true,
+  "PASS": true
+ },
+ "S1": true,
+ "S2": true,
+ "S3": true,
+ "D3": {
+  "solver_pressure_LS_N8000": -0.00013660831278853607,
+  "solver_pressure_LS_N16000": -0.0001366166611756467,
+  "solver_mass_LS_N8000": 1.9998477391867173,
+  "solver_mass_LS_N16000": 1.999847724155335,
+  "FF_pressure_LS": -0.0001366194139349126,
+  "FF_pressure_endpoint": -0.00014273683065463633,
+  "FF_mass_linear_LS": 1.9998480099286222,
+  "FF_mass_linear_endpoint": 1.9998412042156979,
+  "EXACT_mass_LS": 1.999847724990568,
+  "EXACT_mass_endpoint": 1.9998409065208569,
+  "note": "v1 table quoted -1.42e-4 for the pressure slope: that was the endpoint slope of the form factor (-1.427e-4), not the pre-registered least-squares slope (-1.366e-4) actually computed by the analysis."
+ },
+ "S4_range": {
+  "pressure": [
+   1.9974228282010855,
+   2.5171694532915385
+  ],
+  "mass": [
+   2.840696586684488,
+   3.736399795108693
+  ]
+ },
+ "smoke": {
+  "lambda_grid": "2001 values in [0.95, 1.05]",
+  "cell_monopole_max_abs_change": 6.661338147750939e-16,
+  "point_monopole_max_abs_change": 3.1894296762091656e-05,
+  "point_monopole_rms_change": 2.2534910673307266e-05,
+  "point_monopole_std_about_mean": 9.248198495874851e-06,
+  "note_point": "lambda = 1 sits at a B2 maximum (R/dr = 200 exactly), so the change relative to lambda = 1 is one-signed; its peak-to-peak (dense scan) is the max |change|, and the fluctuation about its mean (std) is what prereg.json estimated (rms ~ 9e-6)",
+  "prereg_recorded": "rms ~ 9e-6 xi r_s of spurious monopole (prereg.json); the v1 '1.97e-5 a priori' peak figure was NOT pre-registered (label dropped in v2)",
+  "M_grid_kg": 1.4101467154584842e+28,
+  "M_mentat_kg": 1.41014671545848e+28,
+  "sumQ_over_vstatic_minus_1": 3.9968028886505635e-15
+ },
+ "D1": {
+  "4000": {
+   "max_abs_pressure": 9.77802390167426e-08,
+   "max_abs_mass": 7.469784291114223e-07,
+   "max_abs_mass_vs_linear_FF": 1.2850143497056266e-06
+  },
+  "8000": {
+   "max_abs_pressure": 2.4528442166271702e-08,
+   "max_abs_mass": 7.770671928142292e-08,
+   "max_abs_mass_vs_linear_FF": 6.74179908122241e-07
+  },
+  "16000": {
+   "max_abs_pressure": 6.182750311722884e-09,
+   "max_abs_mass": 1.5719244350620443e-08,
+   "max_abs_mass_vs_linear_FF": 6.283493546588304e-07
+  }
+ }
+}
