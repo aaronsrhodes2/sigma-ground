@@ -226,7 +226,18 @@ run and an isolated bearing-alone run produce identical `omega()` traces to
   fix should make `test_coupling_is_load_blind_matching_the_flagged_gap`
   fail, which is the intended trigger to review/rewrite this entry).
 
-## PHYSICS_GAP: SPH continuum bridge books no viscous heating and no PdV work (2026-10-10)
+## ✅ CLOSED 2026-10-10 — PHYSICS_GAP: SPH continuum bridge books no viscous heating and no PdV work (2026-10-10)
+
+**Closed the same day** (unification Stage 8): `continuum_step` now integrates the energy-conserving SPH energy
+equation duᵢ/dt = ½Σⱼ mⱼ(Pᵢ/ρᵢ² + Pⱼ/ρⱼ² + Πᵢⱼ) vᵢⱼ·∇ᵢWᵢⱼ, fused into the existing pressure and viscosity
+loops (no extra pair sweep; on/off timing within load noise). eos="tait" heats the parcel (dT = du/c_p);
+eos="isothermal" holds T and books the work to `scene.energy_bath_J`. `scene.energy_ledger()` reports
+kinetic + internal + bath + softened self-gravity + uniform g. Sentinels: `dynamics/test_continuum_energy.py`
+(7 tests). Remaining limitation, stated: the energy update is first order in dt (the end-of-step rate sees the
+pre-kick velocity); exact pairwise conservation is possible by caching both evaluations' pair forces and
+booking −f̄ᵢⱼ·v̄ᵢⱼ dt — a future improvement. `scene.energy_equation = False` restores the old behaviour.
+
+Original entry:
 
 `sigma_ground/dynamics/continuum.py::continuum_step` step 9 updates parcel temperature
 from conduction (`_heat_conduction`) and `heat_source_W_kg` only. Two terms the
@@ -263,3 +274,21 @@ number. Found by the adversarial verification of the unification pilots.
 - Regression sentinel to add: a softened two-body orbit must conserve the
   softened energy to integrator tolerance over many periods.
 - Decision for the Captain: which energy the public API reports by default.
+
+## PHYSICS_GAP: viscoelastic relaxation ratio uses a silent 1800 K melting point for every metal (2026-10-10)
+
+`sigma_ground/field/interface/viscoelasticity.py::_relaxation_ratio` computes
+E_R/E_U = 1 − 0.7·(T/T_melt)² with `T_melt = MATERIALS[m].get('melting_point_K', 1800)`,
+but `surface.MATERIALS` has no `melting_point_K` key, so every material silently gets
+1800 K. Mentat's own `melting_point` tool (CRC) knows the real values (Al 933.47 K).
+Effect: `storage_modulus`, `loss_modulus`, `loss_tangent` and everything downstream
+are too stiff for low-melting metals (Al at 900 K: E_R/E_U = 0.825 vs ≈ 0.35 with
+its real T_melt). Two further items in the same module: the relaxation-ratio cap
+`_RELAX_RATIO_MAX = 0.7` is an uncited heuristic, and the module docstring's §5
+gives Maxwell-element moduli while the functions implement the standard linear solid.
+Found by unification Stage 7 (`scripts/unification/stage7_maxwell_crossover.py`).
+
+- Fix direction: read T_melt from the same CRC table the `melting_point` tool uses;
+  cite or derive the 0.7 cap; align the docstring with the SLS code.
+- Regression sentinel to add: `_relaxation_ratio('aluminum', 900)` must use 933.47 K.
+

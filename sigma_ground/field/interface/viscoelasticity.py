@@ -155,6 +155,12 @@ _RELAX_RATIO_MAX = 0.7  # Maximum fractional relaxation (at T_melt)
 def _relaxation_ratio(material_key, T):
     """Ratio E_R/E_U from temperature and melting point."""
     from .surface import MATERIALS
+    # PHYSICS_GAP (2026-10-10): surface.MATERIALS has no 'melting_point_K' key,
+    # so this .get() silently returns the 1800 K default for EVERY material
+    # (aluminum melts at 933.47 K per Mentat melting_point / CRC). E_R/E_U is
+    # therefore too stiff for low-melting metals (Al at 900 K: 0.825 here vs
+    # ~0.35 with its real T_melt). Filed in KNOWN_GAPS.md; Mentat flags, never
+    # fixes — the fix (source T_melt from the CRC table) is the Captain's call.
     T_melt = MATERIALS[material_key].get('melting_point_K', 1800)
     if T_melt <= 0:
         return 1.0
