@@ -3385,3 +3385,18 @@ called it.
 - Targeted suites (GR basics, frontier/MCP tools, Wolfram parity, coverage ledger, server wrappers, N-body
   adapters, benchmark, layering): 278 passed (+ known-red `test_targets.py`). Full-suite result follows in the
   next entry.
+
+## Session 37 (continued) — 2026-10-10 — Full suite after the solar-mass change
+
+- Full suite on 63d946f: **5070 passed, 4 failed, 13 skipped, 3 xfailed, 2837 subtests (38.5 min).**
+- The 4 failures, none caused by the change:
+  - the known-red `mcp/benchmark/test_targets.py`;
+  - `test_field_export::test_verify_artifacts_field_rules` and
+    `test_trajectory_thermo::test_verify_artifacts_accepts_and_rejects_frame_temperatures`, which import
+    `verify_artifacts` from `tools/` (not on sys.path in this container);
+  - `test_shade_thermal::test_constants_match_viewer_js`, which hard-codes
+    `D:\Aaron\development\sigma-ground\...\viewer.js`.
+  All three fail identically on the pre-change commit (63d946f~1). They are environment-only, and pass on the
+  Captain's machine (ARCHITECTURE baseline: 1 failure).
+- No regression from moving M☉ by −2.6e-4 / −3.0e-4.
+- The run rewrote seven tracked `radiance/web/data/*.json` files again (finding 5); restored.
