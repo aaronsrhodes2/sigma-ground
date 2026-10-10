@@ -1,0 +1,3611 @@
+{
+ "density {\"material\":\"aluminum\"}": {
+  "formula": null,
+  "inputs": {
+   "material": "aluminum"
+  },
+  "notes": "",
+  "source": "sigma-ground via CRC Handbook (aluminum at 20 C)",
+  "tag": "VERIFIED",
+  "units": "kg/m^3",
+  "value": 2700.0
+ },
+ "density {\"material\":\"copper\"}": {
+  "formula": null,
+  "inputs": {
+   "material": "copper"
+  },
+  "notes": "",
+  "source": "sigma-ground via CRC Handbook (copper at 20 C)",
+  "tag": "VERIFIED",
+  "units": "kg/m^3",
+  "value": 8960.0
+ },
+ "density {\"material\":\"gold\"}": {
+  "formula": null,
+  "inputs": {
+   "material": "gold"
+  },
+  "notes": "",
+  "source": "sigma-ground via CRC Handbook (gold at 20 C)",
+  "tag": "VERIFIED",
+  "units": "kg/m^3",
+  "value": 19300.0
+ },
+ "density {\"material\":\"iron\"}": {
+  "formula": null,
+  "inputs": {
+   "material": "iron"
+  },
+  "notes": "",
+  "source": "sigma-ground via CRC Handbook (iron at 20 C)",
+  "tag": "VERIFIED",
+  "units": "kg/m^3",
+  "value": 7874.0
+ },
+ "density {\"material\":\"lead\"}": {
+  "formula": null,
+  "inputs": {
+   "material": "lead"
+  },
+  "notes": "",
+  "source": "sigma-ground via CRC Handbook (lead at 20 C)",
+  "tag": "VERIFIED",
+  "units": "kg/m^3",
+  "value": 11340.0
+ },
+ "density {\"material\":\"steel_mild\"}": {
+  "formula": null,
+  "inputs": {
+   "material": "steel_mild"
+  },
+  "notes": "'steel_mild' not in lookup table. Some available: air, air_stp, aluminum, copper, glass, gold, helium, hydrogen, ice, iron, lead, mercury, osmium, platinum, seawater, silver, tungsten, uranium, water, water_room.... Total: 35 entries.",
+  "source": "sigma-ground (density table)",
+  "tag": null,
+  "units": "",
+  "value": null
+ },
+ "density {\"material\":\"titanium\"}": {
+  "formula": null,
+  "inputs": {
+   "material": "titanium"
+  },
+  "notes": "'titanium' not in lookup table. Some available: air, air_stp, aluminum, copper, glass, gold, helium, hydrogen, ice, iron, lead, mercury, osmium, platinum, seawater, silver, tungsten, uranium, water, water_room.... Total: 35 entries.",
+  "source": "sigma-ground (density table)",
+  "tag": null,
+  "units": "",
+  "value": null
+ },
+ "density {\"material\":\"tungsten\"}": {
+  "formula": null,
+  "inputs": {
+   "material": "tungsten"
+  },
+  "notes": "",
+  "source": "sigma-ground via CRC Handbook (tungsten at 20 C)",
+  "tag": "VERIFIED",
+  "units": "kg/m^3",
+  "value": 19300.0
+ },
+ "differentiate_expr {\"expression\":\"3.999989*t - 9.80665*t**2/2\",\"variable\":\"t\"}": {
+  "formula": "d^1/dt^1(3.999989*t - 9.80665*t**2/2)",
+  "inputs": {
+   "expression": "3.999989*t - 9.80665*t**2/2",
+   "order": 1,
+   "variable": "t"
+  },
+  "notes": "",
+  "source": "sympy.diff",
+  "tag": null,
+  "units": "",
+  "value": "3.999989 - 9.80665*t"
+ },
+ "differentiate_expr {\"expression\":\"3.9999999999999996*t - 9.80665*t**2/2\",\"variable\":\"t\"}": {
+  "formula": "d^1/dt^1(3.9999999999999996*t - 9.80665*t**2/2)",
+  "inputs": {
+   "expression": "3.9999999999999996*t - 9.80665*t**2/2",
+   "order": 1,
+   "variable": "t"
+  },
+  "notes": "",
+  "source": "sympy.diff",
+  "tag": null,
+  "units": "",
+  "value": "3.9999999999999996 - 9.80665*t"
+ },
+ "differentiate_expr {\"expression\":\"5.656847*t - 9.80665*t**2/2\",\"variable\":\"t\"}": {
+  "formula": "d^1/dt^1(5.656847*t - 9.80665*t**2/2)",
+  "inputs": {
+   "expression": "5.656847*t - 9.80665*t**2/2",
+   "order": 1,
+   "variable": "t"
+  },
+  "notes": "",
+  "source": "sympy.diff",
+  "tag": null,
+  "units": "",
+  "value": "5.656847 - 9.80665*t"
+ },
+ "differentiate_expr {\"expression\":\"5.656854249492381*t - 9.80665*t**2/2\",\"variable\":\"t\"}": {
+  "formula": "d^1/dt^1(5.656854249492381*t - 9.80665*t**2/2)",
+  "inputs": {
+   "expression": "5.656854249492381*t - 9.80665*t**2/2",
+   "order": 1,
+   "variable": "t"
+  },
+  "notes": "",
+  "source": "sympy.diff",
+  "tag": null,
+  "units": "",
+  "value": "5.656854249492381 - 9.80665*t"
+ },
+ "differentiate_expr {\"expression\":\"6.928203230275509*t - 9.80665*t**2/2\",\"variable\":\"t\"}": {
+  "formula": "d^1/dt^1(6.928203230275509*t - 9.80665*t**2/2)",
+  "inputs": {
+   "expression": "6.928203230275509*t - 9.80665*t**2/2",
+   "order": 1,
+   "variable": "t"
+  },
+  "notes": "",
+  "source": "sympy.diff",
+  "tag": null,
+  "units": "",
+  "value": "6.928203230275509 - 9.80665*t"
+ },
+ "differentiate_expr {\"expression\":\"6.928207*t - 9.80665*t**2/2\",\"variable\":\"t\"}": {
+  "formula": "d^1/dt^1(6.928207*t - 9.80665*t**2/2)",
+  "inputs": {
+   "expression": "6.928207*t - 9.80665*t**2/2",
+   "order": 1,
+   "variable": "t"
+  },
+  "notes": "",
+  "source": "sympy.diff",
+  "tag": null,
+  "units": "",
+  "value": "6.928207 - 9.80665*t"
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":0.98475}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.98475
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.4481440707473468
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":0.99684}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99684
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.45088666197724636
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":0.99848}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99848
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.4512574086559027
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":0.99883}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99883
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.4513364919898997
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":0.998}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.998
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.45114892896957487
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":0.99985}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99985
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.45156688442488374
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":0.99991}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99991
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.45158043326051234
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":0.99999}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99999
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.45159849774236377
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":1.01856}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.01856
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.4557723435863125
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":1.0}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.0
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.45160075575178754
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":1.98475}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.98475
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.6362203633503006
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":1.99684}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99684
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.6381551727789796
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":1.99848}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99848
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.6384171766661875
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":1.99883}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99883
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.6384730782087327
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":1.998}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.998
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.638340503732906
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":1.99985}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99985
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.6386359633662843
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":1.99991}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99991
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.6386455435523979
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":1.99999}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99999
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.6386583169103377
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":2.01856}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 2.01856
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.641616452231195
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":2.0}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 2.0
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.6386599135621175
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":3.98475}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.98475
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.9014781394647127
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":3.99684}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99684
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.9028446764176774
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":3.99848}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99848
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.9030298869105038
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":3.99883}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99883
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.903069408621788
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":3.998}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.998
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.9029756828935935
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":3.99985}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99985
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.9031845763164654
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":3.99991}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99991
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.9031913504294142
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":3.99999}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99999
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.9032003825009801
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":4.01856}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 4.01856
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.9052945139372693
+ },
+ "free_fall_time {\"g_m_s2\":9.80665,\"height_m\":4.0}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 4.0
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.9032015115035751
+ },
+ "free_fall_time {\"height_m\":1.0}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.0
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.45160075575178754
+ },
+ "free_fall_time {\"height_m\":2.0}": {
+  "formula": "t = sqrt(2 h / g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 2.0
+  },
+  "notes": "Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "s",
+  "value": 0.6386599135621175
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":0.98475}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.98475
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 4.394792051394468
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":0.99684}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99684
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 4.4216876836791625
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":0.99848}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99848
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 4.425323466595408
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":0.99883}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99883
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 4.42609900917275
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":0.998}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.998
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 4.424259644279481
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":0.99985}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99985
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 4.428358387145286
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":0.99991}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99991
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 4.428491255834203
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":0.99999}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99999
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 4.4286684078851515
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":1.01856}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.01856
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 4.4695998532307115
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":1.0}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.0
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 4.428690551393267
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":1.98475}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.98475
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 6.239190426249226
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":1.99684}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99684
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 6.258164425132979
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":1.99848}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99848
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 6.260733805553468
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":1.99883}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99883
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 6.261282012415668
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":1.998}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.998
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 6.259981900932302
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":1.99985}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99985
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 6.2628793701459715
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":1.99991}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99991
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 6.262973319678123
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":1.99999}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99999
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 6.2630985835287625
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":2.01856}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 2.01856
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 6.292107981273048
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":2.0}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 2.0
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 6.2631142413339385
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":3.98475}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.98475
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 8.840480596381624
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":3.99684}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99684
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 8.853881745991416
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":3.99848}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99848
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 8.855698040470891
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":3.99883}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99883
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 8.856085616060856
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":3.998}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.998
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 8.855166480648458
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":3.99985}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99985
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 8.857215025333867
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":3.99991}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99991
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 8.857281456688614
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":3.99999}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99999
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 8.857370031053236
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":4.01856}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 4.01856
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 8.877906445102921
+ },
+ "free_fall_velocity {\"g_m_s2\":9.80665,\"height_m\":4.0}": {
+  "formula": "v = sqrt(2 g h)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 4.0
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum approximation)",
+  "tag": null,
+  "units": "m/s",
+  "value": 8.857381102786533
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":0.98475,\"mass_kg\":3.0400564670562744}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.98475,
+   "mass_kg": 3.0400564670562744
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 29.35812501392939
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":0.99684,\"mass_kg\":2.11088228225708}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99684,
+   "mass_kg": 2.11088228225708
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 20.635269572699176
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":0.998,\"mass_kg\":2.11088228225708}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.998,
+   "mass_kg": 2.11088228225708
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 20.6592823658298
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":0.99848,\"mass_kg\":2.11088228225708}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99848,
+   "mass_kg": 2.11088228225708
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 20.669218694021783
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":0.99883,\"mass_kg\":2.402019739151001}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99883,
+   "mass_kg": 2.402019739151001
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 23.52820662770148
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":0.99985,\"mass_kg\":0.7238229513168335}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99985,
+   "mass_kg": 0.7238229513168335
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 7.097213603779395
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":0.99991,\"mass_kg\":2.402019739151001}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99991,
+   "mass_kg": 2.402019739151001
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 23.553646855926416
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":0.99999,\"mass_kg\":0.7238229513168335}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99999,
+   "mass_kg": 0.7238229513168335
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 7.09820736274777
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":0.99999,\"mass_kg\":2.11088228225708}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99999,
+   "mass_kg": 2.11088228225708
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 20.700476726459062
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":0.99999,\"mass_kg\":2.402019739151001}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99999,
+   "mass_kg": 2.402019739151001
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 23.555531317276415
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":0.99999,\"mass_kg\":3.0400564670562744}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 0.99999,
+   "mass_kg": 3.0400564670562744
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 29.812471624959887
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.0,\"mass_kg\":0.7238229473870884}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.0,
+   "mass_kg": 0.7238229473870884
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 7.09827830699359
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.0,\"mass_kg\":0.7238229513168335}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.0,
+   "mass_kg": 0.7238229513168335
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 7.098278345531225
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.0,\"mass_kg\":2.110882180639235}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.0,
+   "mass_kg": 2.110882180639235
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 20.70068273676575
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.0,\"mass_kg\":2.402019739151001}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.0,
+   "mass_kg": 2.402019739151001
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 23.555766874945164
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.0,\"mass_kg\":2.4020198550327083}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.0,
+   "mass_kg": 2.4020198550327083
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 23.55576801135651
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.0,\"mass_kg\":3.0400563790257715}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.0,
+   "mass_kg": 3.0400563790257715
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 29.812768889373082
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.0,\"mass_kg\":3.0400564670562744}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.0,
+   "mass_kg": 3.0400564670562744
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 29.812769752657413
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.01856,\"mass_kg\":2.11088228225708}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.01856,
+   "mass_kg": 2.11088228225708
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 21.084888423386374
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.98475,\"mass_kg\":3.0400564670562744}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.98475,
+   "mass_kg": 3.0400564670562744
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 59.1708947665868
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.99684,\"mass_kg\":2.11088228225708}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99684,
+   "mass_kg": 2.11088228225708
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 41.335953305995574
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.998,\"mass_kg\":2.11088228225708}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.998,
+   "mass_kg": 2.11088228225708
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 41.3599660991262
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.99848,\"mass_kg\":2.11088228225708}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99848,
+   "mass_kg": 2.11088228225708
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 41.36990242731818
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.99883,\"mass_kg\":2.402019739151001}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99883,
+   "mass_kg": 2.402019739151001
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 47.08397350264664
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.99985,\"mass_kg\":0.7238229513168335}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99985,
+   "mass_kg": 0.7238229513168335
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 14.195491949310618
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.99991,\"mass_kg\":2.402019739151001}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99991,
+   "mass_kg": 2.402019739151001
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 47.10941373087159
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.99999,\"mass_kg\":0.7238229513168335}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99999,
+   "mass_kg": 0.7238229513168335
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 14.196485708278994
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.99999,\"mass_kg\":2.11088228225708}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99999,
+   "mass_kg": 2.11088228225708
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 41.40116045975545
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.99999,\"mass_kg\":2.402019739151001}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99999,
+   "mass_kg": 2.402019739151001
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 47.111298192221575
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":1.99999,\"mass_kg\":3.0400564670562744}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 1.99999,
+   "mass_kg": 3.0400564670562744
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 59.6252413776173
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":2.0,\"mass_kg\":0.7238229473870884}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 2.0,
+   "mass_kg": 0.7238229473870884
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 14.19655661398718
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":2.0,\"mass_kg\":0.7238229513168335}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 2.0,
+   "mass_kg": 0.7238229513168335
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 14.19655669106245
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":2.0,\"mass_kg\":2.110882180639235}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 2.0,
+   "mass_kg": 2.110882180639235
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 41.4013654735315
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":2.0,\"mass_kg\":2.402019739151001}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 2.0,
+   "mass_kg": 2.402019739151001
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 47.11153374989033
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":2.0,\"mass_kg\":2.4020198550327083}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 2.0,
+   "mass_kg": 2.4020198550327083
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 47.11153602271302
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":2.0,\"mass_kg\":3.0400563790257715}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 2.0,
+   "mass_kg": 3.0400563790257715
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 59.625537778746164
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":2.0,\"mass_kg\":3.0400564670562744}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 2.0,
+   "mass_kg": 3.0400564670562744
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 59.625539505314826
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":2.01856,\"mass_kg\":2.11088228225708}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 2.01856,
+   "mass_kg": 2.11088228225708
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 41.78557215668277
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":3.98475,\"mass_kg\":3.0400564670562744}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.98475,
+   "mass_kg": 3.0400564670562744
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 118.79643427190163
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":3.99684,\"mass_kg\":2.11088228225708}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99684,
+   "mass_kg": 2.11088228225708
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 82.73732077258836
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":3.998,\"mass_kg\":2.11088228225708}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.998,
+   "mass_kg": 2.11088228225708
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 82.76133356571899
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":3.99848,\"mass_kg\":2.11088228225708}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99848,
+   "mass_kg": 2.11088228225708
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 82.77126989391097
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":3.99883,\"mass_kg\":2.402019739151001}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99883,
+   "mass_kg": 2.402019739151001
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 94.19550725253697
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":3.99985,\"mass_kg\":0.7238229513168335}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99985,
+   "mass_kg": 0.7238229513168335
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 28.39204864037307
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":3.99991,\"mass_kg\":2.402019739151001}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99991,
+   "mass_kg": 2.402019739151001
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 94.22094748076191
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":3.99999,\"mass_kg\":0.7238229513168335}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99999,
+   "mass_kg": 0.7238229513168335
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 28.393042399341443
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":3.99999,\"mass_kg\":2.11088228225708}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99999,
+   "mass_kg": 2.11088228225708
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 82.80252792634825
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":3.99999,\"mass_kg\":2.402019739151001}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99999,
+   "mass_kg": 2.402019739151001
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 94.22283194211191
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":3.99999,\"mass_kg\":3.0400564670562744}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 3.99999,
+   "mass_kg": 3.0400564670562744
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 119.25078088293212
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":4.0,\"mass_kg\":0.7238229473870884}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 4.0,
+   "mass_kg": 0.7238229473870884
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 28.39311322797436
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":4.0,\"mass_kg\":0.7238229513168335}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 4.0,
+   "mass_kg": 0.7238229513168335
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 28.3931133821249
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":4.0,\"mass_kg\":2.110882180639235}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 4.0,
+   "mass_kg": 2.110882180639235
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 82.802730947063
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":4.0,\"mass_kg\":2.402019739151001}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 4.0,
+   "mass_kg": 2.402019739151001
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 94.22306749978065
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":4.0,\"mass_kg\":2.4020198550327083}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 4.0,
+   "mass_kg": 2.4020198550327083
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 94.22307204542604
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":4.0,\"mass_kg\":3.0400563790257715}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 4.0,
+   "mass_kg": 3.0400563790257715
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 119.25107555749233
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":4.0,\"mass_kg\":3.0400564670562744}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 4.0,
+   "mass_kg": 3.0400564670562744
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 119.25107901062965
+ },
+ "gravitational_potential_energy {\"g_m_s2\":9.80665,\"height_m\":4.01856,\"mass_kg\":2.11088228225708}": {
+  "formula": "U = m g h",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "height_m": 4.01856,
+   "mass_kg": 2.11088228225708
+  },
+  "notes": "Valid when h is small compared to Earth's radius (6.371e6 m). For tall orbits use the inverse-square form U = -G M m / r.",
+  "source": "sigma-ground (uniform gravity approximation)",
+  "tag": null,
+  "units": "J",
+  "value": 83.18693962327555
+ },
+ "joules_to_TNT {\"energy_joules\":119.2510755574923,\"unit\":\"ton\"}": {
+  "formula": "E_TNT = E_J / (4.184e9 * scale)",
+  "inputs": {
+   "energy_joules": 119.2510755574923,
+   "unit": "ton"
+  },
+  "notes": "1 ton TNT = 4.184e9 J by IUPAC convention. Real TNT energy density is ~4.6e6 J/kg; the 4.184e9 J/ton value rounds for convention.",
+  "source": "sigma-ground via IUPAC TNT-equivalence (1 ton = 4.184e9 J)",
+  "tag": null,
+  "units": "ton_TNT",
+  "value": 2.850169109882703e-08
+ },
+ "kinetic_energy {\"mass_kg\":0.7238229473870884,\"velocity_m_s\":4.428690551393267}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 0.7238229473870884,
+   "velocity_m_s": 4.428690551393267
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 7.098278306993589
+ },
+ "kinetic_energy {\"mass_kg\":0.7238229473870884,\"velocity_m_s\":6.2631142413339385}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 0.7238229473870884,
+   "velocity_m_s": 6.2631142413339385
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 14.19655661398718
+ },
+ "kinetic_energy {\"mass_kg\":0.7238229473870884,\"velocity_m_s\":8.857381102786533}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 0.7238229473870884,
+   "velocity_m_s": 8.857381102786533
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 28.393113227974357
+ },
+ "kinetic_energy {\"mass_kg\":0.7238229513168335,\"velocity_m_s\":4.42834}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 0.7238229513168335,
+   "velocity_m_s": 4.42834
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 7.097154666712733
+ },
+ "kinetic_energy {\"mass_kg\":0.7238229513168335,\"velocity_m_s\":4.42867}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 0.7238229513168335,
+   "velocity_m_s": 4.42867
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 7.09821246638721
+ },
+ "kinetic_energy {\"mass_kg\":0.7238229513168335,\"velocity_m_s\":4.42868}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 0.7238229513168335,
+   "velocity_m_s": 4.42868
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 7.098244522153298
+ },
+ "kinetic_energy {\"mass_kg\":0.7238229513168335,\"velocity_m_s\":6.26286}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 0.7238229513168335,
+   "velocity_m_s": 6.26286
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 14.195404140394073
+ },
+ "kinetic_energy {\"mass_kg\":0.7238229513168335,\"velocity_m_s\":6.2631}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 0.7238229513168335,
+   "velocity_m_s": 6.2631
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 14.196492129674306
+ },
+ "kinetic_energy {\"mass_kg\":0.7238229513168335,\"velocity_m_s\":8.85719}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 0.7238229513168335,
+   "velocity_m_s": 8.85719
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 28.391888201794895
+ },
+ "kinetic_energy {\"mass_kg\":0.7238229513168335,\"velocity_m_s\":8.85736}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 0.7238229513168335,
+   "velocity_m_s": 8.85736
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 28.39297808861319
+ },
+ "kinetic_energy {\"mass_kg\":0.7238229513168335,\"velocity_m_s\":8.85738}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 0.7238229513168335,
+   "velocity_m_s": 8.85738
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 28.39310631196707
+ },
+ "kinetic_energy {\"mass_kg\":2.110882180639235,\"velocity_m_s\":4.428690551393267}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.110882180639235,
+   "velocity_m_s": 4.428690551393267
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 20.700682736765746
+ },
+ "kinetic_energy {\"mass_kg\":2.110882180639235,\"velocity_m_s\":6.2631142413339385}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.110882180639235,
+   "velocity_m_s": 6.2631142413339385
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 41.4013654735315
+ },
+ "kinetic_energy {\"mass_kg\":2.110882180639235,\"velocity_m_s\":8.857381102786533}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.110882180639235,
+   "velocity_m_s": 8.857381102786533
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 82.80273094706298
+ },
+ "kinetic_energy {\"mass_kg\":2.11088228225708,\"velocity_m_s\":4.35623}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 4.35623
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 20.028831923026573
+ },
+ "kinetic_energy {\"mass_kg\":2.11088228225708,\"velocity_m_s\":4.4217}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 4.4217
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 20.63538452923739
+ },
+ "kinetic_energy {\"mass_kg\":2.11088228225708,\"velocity_m_s\":4.42426}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 4.42426
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 20.659285687936343
+ },
+ "kinetic_energy {\"mass_kg\":2.11088228225708,\"velocity_m_s\":4.42532}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 4.42532
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 20.669186311398867
+ },
+ "kinetic_energy {\"mass_kg\":2.11088228225708,\"velocity_m_s\":4.42867}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 4.42867
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 20.700491610184493
+ },
+ "kinetic_energy {\"mass_kg\":2.11088228225708,\"velocity_m_s\":6.13252}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 6.13252
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 39.692820983689856
+ },
+ "kinetic_energy {\"mass_kg\":2.11088228225708,\"velocity_m_s\":6.25819}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 6.25819
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 41.33629115703215
+ },
+ "kinetic_energy {\"mass_kg\":2.11088228225708,\"velocity_m_s\":6.25998}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 6.25998
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 41.35994098004921
+ },
+ "kinetic_energy {\"mass_kg\":2.11088228225708,\"velocity_m_s\":6.26073}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 6.26073
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 41.36985213438682
+ },
+ "kinetic_energy {\"mass_kg\":2.11088228225708,\"velocity_m_s\":6.2631}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 6.2631
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 41.40117918644762
+ },
+ "kinetic_energy {\"mass_kg\":2.11088228225708,\"velocity_m_s\":8.65274}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 8.65274
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 79.02078272689187
+ },
+ "kinetic_energy {\"mass_kg\":2.11088228225708,\"velocity_m_s\":8.85392}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 8.85392
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 82.73803572250691
+ },
+ "kinetic_energy {\"mass_kg\":2.11088228225708,\"velocity_m_s\":8.85516}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 8.85516
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 82.76121242809528
+ },
+ "kinetic_energy {\"mass_kg\":2.11088228225708,\"velocity_m_s\":8.8557}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 8.8557
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 82.77130652405121
+ },
+ "kinetic_energy {\"mass_kg\":2.11088228225708,\"velocity_m_s\":8.85738}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 8.85738
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 82.8027143145096
+ },
+ "kinetic_energy {\"mass_kg\":2.402019739151001,\"velocity_m_s\":4.42608}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 4.42608
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 23.528004530648094
+ },
+ "kinetic_energy {\"mass_kg\":2.402019739151001,\"velocity_m_s\":4.42849}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 4.42849
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 23.55363349721374
+ },
+ "kinetic_energy {\"mass_kg\":2.402019739151001,\"velocity_m_s\":4.42867}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 4.42867
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 23.555548253797497
+ },
+ "kinetic_energy {\"mass_kg\":2.402019739151001,\"velocity_m_s\":4.42868}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 4.42868
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 23.555654631445176
+ },
+ "kinetic_energy {\"mass_kg\":2.402019739151001,\"velocity_m_s\":6.26126}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 6.26126
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 47.08364244259468
+ },
+ "kinetic_energy {\"mass_kg\":2.402019739151001,\"velocity_m_s\":6.26297}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 6.26297
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 47.10936379035909
+ },
+ "kinetic_energy {\"mass_kg\":2.402019739151001,\"velocity_m_s\":6.2631}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 6.2631
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 47.111319501739686
+ },
+ "kinetic_energy {\"mass_kg\":2.402019739151001,\"velocity_m_s\":8.85605}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 8.85605
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 94.19474961167437
+ },
+ "kinetic_energy {\"mass_kg\":2.402019739151001,\"velocity_m_s\":8.85728}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 8.85728
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 94.22091648918261
+ },
+ "kinetic_energy {\"mass_kg\":2.402019739151001,\"velocity_m_s\":8.85736}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 8.85736
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 94.2226185257807
+ },
+ "kinetic_energy {\"mass_kg\":2.402019739151001,\"velocity_m_s\":8.85738}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 8.85738
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 94.22304403733222
+ },
+ "kinetic_energy {\"mass_kg\":2.4020198550327083,\"velocity_m_s\":4.428690551393267}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.4020198550327083,
+   "velocity_m_s": 4.428690551393267
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 23.555768011356502
+ },
+ "kinetic_energy {\"mass_kg\":2.4020198550327083,\"velocity_m_s\":6.2631142413339385}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.4020198550327083,
+   "velocity_m_s": 6.2631142413339385
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 47.11153602271302
+ },
+ "kinetic_energy {\"mass_kg\":2.4020198550327083,\"velocity_m_s\":8.857381102786533}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 2.4020198550327083,
+   "velocity_m_s": 8.857381102786533
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 94.22307204542601
+ },
+ "kinetic_energy {\"mass_kg\":3.0400563790257715,\"velocity_m_s\":4.428690551393267}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 3.0400563790257715,
+   "velocity_m_s": 4.428690551393267
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 29.812768889373075
+ },
+ "kinetic_energy {\"mass_kg\":3.0400563790257715,\"velocity_m_s\":6.2631142413339385}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 3.0400563790257715,
+   "velocity_m_s": 6.2631142413339385
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 59.625537778746164
+ },
+ "kinetic_energy {\"mass_kg\":3.0400563790257715,\"velocity_m_s\":8.857381102786533}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 3.0400563790257715,
+   "velocity_m_s": 8.857381102786533
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 119.2510755574923
+ },
+ "kinetic_energy {\"mass_kg\":3.0400564670562744,\"velocity_m_s\":4.3812}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 3.0400564670562744,
+   "velocity_m_s": 4.3812
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 29.176810368928695
+ },
+ "kinetic_energy {\"mass_kg\":3.0400564670562744,\"velocity_m_s\":4.42867}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 3.0400564670562744,
+   "velocity_m_s": 4.42867
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 29.812493060246037
+ },
+ "kinetic_energy {\"mass_kg\":3.0400564670562744,\"velocity_m_s\":4.42868}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 3.0400564670562744,
+   "velocity_m_s": 4.42868
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 29.812627694466777
+ },
+ "kinetic_energy {\"mass_kg\":3.0400564670562744,\"velocity_m_s\":6.21989}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 3.0400564670562744,
+   "velocity_m_s": 6.21989
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 58.805380321787574
+ },
+ "kinetic_energy {\"mass_kg\":3.0400564670562744,\"velocity_m_s\":6.2631}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 3.0400564670562744,
+   "velocity_m_s": 6.2631
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 59.62526834747824
+ },
+ "kinetic_energy {\"mass_kg\":3.0400564670562744,\"velocity_m_s\":8.81312}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 3.0400564670562744,
+   "velocity_m_s": 8.81312
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 118.06224081302734
+ },
+ "kinetic_energy {\"mass_kg\":3.0400564670562744,\"velocity_m_s\":8.85736}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 3.0400564670562744,
+   "velocity_m_s": 8.85736
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 119.2505107778671
+ },
+ "kinetic_energy {\"mass_kg\":3.0400564670562744,\"velocity_m_s\":8.85738}": {
+  "formula": "KE = (1/2) m v^2",
+  "inputs": {
+   "mass_kg": 3.0400564670562744,
+   "velocity_m_s": 8.85738
+  },
+  "notes": "Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "J",
+  "value": 119.25104931596606
+ },
+ "momentum {\"mass_kg\":0.7238229473870884,\"velocity_m_s\":4.428690551393267}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 0.7238229473870884,
+   "velocity_m_s": 4.428690551393267
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 3.205587847974824
+ },
+ "momentum {\"mass_kg\":0.7238229473870884,\"velocity_m_s\":6.2631142413339385}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 0.7238229473870884,
+   "velocity_m_s": 6.2631142413339385
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 4.533385809984379
+ },
+ "momentum {\"mass_kg\":0.7238229473870884,\"velocity_m_s\":8.857381102786533}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 0.7238229473870884,
+   "velocity_m_s": 8.857381102786533
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 6.411175695949648
+ },
+ "momentum {\"mass_kg\":0.7238229513168335,\"velocity_m_s\":4.42834}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 0.7238229513168335,
+   "velocity_m_s": 4.42834
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 3.205334128234387
+ },
+ "momentum {\"mass_kg\":0.7238229513168335,\"velocity_m_s\":4.42867}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 0.7238229513168335,
+   "velocity_m_s": 4.42867
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 3.205572989808321
+ },
+ "momentum {\"mass_kg\":0.7238229513168335,\"velocity_m_s\":4.42868}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 0.7238229513168335,
+   "velocity_m_s": 4.42868
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 3.2055802280378343
+ },
+ "momentum {\"mass_kg\":0.7238229513168335,\"velocity_m_s\":6.26286}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 0.7238229513168335,
+   "velocity_m_s": 6.26286
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 4.533201808884144
+ },
+ "momentum {\"mass_kg\":0.7238229513168335,\"velocity_m_s\":6.2631}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 0.7238229513168335,
+   "velocity_m_s": 6.2631
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 4.53337552639246
+ },
+ "momentum {\"mass_kg\":0.7238229513168335,\"velocity_m_s\":8.85719}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 0.7238229513168335,
+   "velocity_m_s": 8.85719
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 6.411037406173944
+ },
+ "momentum {\"mass_kg\":0.7238229513168335,\"velocity_m_s\":8.85736}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 0.7238229513168335,
+   "velocity_m_s": 8.85736
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 6.4111604560756685
+ },
+ "momentum {\"mass_kg\":0.7238229513168335,\"velocity_m_s\":8.85738}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 0.7238229513168335,
+   "velocity_m_s": 8.85738
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 6.411174932534694
+ },
+ "momentum {\"mass_kg\":2.110882180639235,\"velocity_m_s\":4.428690551393267}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.110882180639235,
+   "velocity_m_s": 4.428690551393267
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 9.348443968501394
+ },
+ "momentum {\"mass_kg\":2.110882180639235,\"velocity_m_s\":6.2631142413339385}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.110882180639235,
+   "velocity_m_s": 6.2631142413339385
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 13.220696247339632
+ },
+ "momentum {\"mass_kg\":2.110882180639235,\"velocity_m_s\":8.857381102786533}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.110882180639235,
+   "velocity_m_s": 8.857381102786533
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 18.69688793700279
+ },
+ "momentum {\"mass_kg\":2.11088228225708,\"velocity_m_s\":4.35623}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 4.35623
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 9.19548872443676
+ },
+ "momentum {\"mass_kg\":2.11088228225708,\"velocity_m_s\":4.4217}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 4.4217
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 9.333688187456131
+ },
+ "momentum {\"mass_kg\":2.11088228225708,\"velocity_m_s\":4.42426}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 4.42426
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 9.33909204609871
+ },
+ "momentum {\"mass_kg\":2.11088228225708,\"velocity_m_s\":4.42532}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 4.42532
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 9.341329581317902
+ },
+ "momentum {\"mass_kg\":2.11088228225708,\"velocity_m_s\":4.42867}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 4.42867
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 9.348401036963464
+ },
+ "momentum {\"mass_kg\":2.11088228225708,\"velocity_m_s\":6.13252}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 6.13252
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 12.94502781358719
+ },
+ "momentum {\"mass_kg\":2.11088228225708,\"velocity_m_s\":6.25819}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 6.25819
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 13.210302389998436
+ },
+ "momentum {\"mass_kg\":2.11088228225708,\"velocity_m_s\":6.25998}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 6.25998
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 13.214080869283675
+ },
+ "momentum {\"mass_kg\":2.11088228225708,\"velocity_m_s\":6.26073}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 6.26073
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 13.215664030995368
+ },
+ "momentum {\"mass_kg\":2.11088228225708,\"velocity_m_s\":6.2631}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 6.2631
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 13.220666822004318
+ },
+ "momentum {\"mass_kg\":2.11088228225708,\"velocity_m_s\":8.65274}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 8.65274
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 18.264915558977126
+ },
+ "momentum {\"mass_kg\":2.11088228225708,\"velocity_m_s\":8.85392}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 8.85392
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 18.689582856521607
+ },
+ "momentum {\"mass_kg\":2.11088228225708,\"velocity_m_s\":8.85516}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 8.85516
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 18.692200350551605
+ },
+ "momentum {\"mass_kg\":2.11088228225708,\"velocity_m_s\":8.8557}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 8.8557
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 18.693340226984024
+ },
+ "momentum {\"mass_kg\":2.11088228225708,\"velocity_m_s\":8.85738}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.11088228225708,
+   "velocity_m_s": 8.85738
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 18.696886509218213
+ },
+ "momentum {\"mass_kg\":2.402019739151001,\"velocity_m_s\":4.42608}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 4.42608
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 10.631531527061462
+ },
+ "momentum {\"mass_kg\":2.402019739151001,\"velocity_m_s\":4.42849}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 4.42849
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 10.637320394632816
+ },
+ "momentum {\"mass_kg\":2.402019739151001,\"velocity_m_s\":4.42867}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 4.42867
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 10.637752758185865
+ },
+ "momentum {\"mass_kg\":2.402019739151001,\"velocity_m_s\":4.42868}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 4.42868
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 10.637776778383255
+ },
+ "momentum {\"mass_kg\":2.402019739151001,\"velocity_m_s\":6.26126}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 6.26126
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 15.039670111956596
+ },
+ "momentum {\"mass_kg\":2.402019739151001,\"velocity_m_s\":6.26297}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 6.26297
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 15.043777565710545
+ },
+ "momentum {\"mass_kg\":2.402019739151001,\"velocity_m_s\":6.2631}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 6.2631
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 15.044089828276633
+ },
+ "momentum {\"mass_kg\":2.402019739151001,\"velocity_m_s\":8.85605}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 8.85605
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 21.27240691090822
+ },
+ "momentum {\"mass_kg\":2.402019739151001,\"velocity_m_s\":8.85728}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 8.85728
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 21.275361395187378
+ },
+ "momentum {\"mass_kg\":2.402019739151001,\"velocity_m_s\":8.85736}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 8.85736
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 21.27555355676651
+ },
+ "momentum {\"mass_kg\":2.402019739151001,\"velocity_m_s\":8.85738}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.402019739151001,
+   "velocity_m_s": 8.85738
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 21.27560159716129
+ },
+ "momentum {\"mass_kg\":2.4020198550327083,\"velocity_m_s\":4.428690551393267}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.4020198550327083,
+   "velocity_m_s": 4.428690551393267
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 10.637802636242379
+ },
+ "momentum {\"mass_kg\":2.4020198550327083,\"velocity_m_s\":6.2631142413339385}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.4020198550327083,
+   "velocity_m_s": 6.2631142413339385
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 15.044124762022237
+ },
+ "momentum {\"mass_kg\":2.4020198550327083,\"velocity_m_s\":8.857381102786533}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 2.4020198550327083,
+   "velocity_m_s": 8.857381102786533
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 21.275605272484757
+ },
+ "momentum {\"mass_kg\":3.0400563790257715,\"velocity_m_s\":4.428690551393267}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 3.0400563790257715,
+   "velocity_m_s": 4.428690551393267
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 13.46346896149426
+ },
+ "momentum {\"mass_kg\":3.0400563790257715,\"velocity_m_s\":6.2631142413339385}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 3.0400563790257715,
+   "velocity_m_s": 6.2631142413339385
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 19.040220401934395
+ },
+ "momentum {\"mass_kg\":3.0400563790257715,\"velocity_m_s\":8.857381102786533}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 3.0400563790257715,
+   "velocity_m_s": 8.857381102786533
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 26.92693792298852
+ },
+ "momentum {\"mass_kg\":3.0400564670562744,\"velocity_m_s\":4.3812}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 3.0400564670562744,
+   "velocity_m_s": 4.3812
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 13.319095393466949
+ },
+ "momentum {\"mass_kg\":3.0400564670562744,\"velocity_m_s\":4.42867}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 3.0400564670562744,
+   "velocity_m_s": 4.42867
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 13.463406873958112
+ },
+ "momentum {\"mass_kg\":3.0400564670562744,\"velocity_m_s\":4.42868}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 3.0400564670562744,
+   "velocity_m_s": 4.42868
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 13.46343727452278
+ },
+ "momentum {\"mass_kg\":3.0400564670562744,\"velocity_m_s\":6.21989}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 3.0400564670562744,
+   "velocity_m_s": 6.21989
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 18.908816818878652
+ },
+ "momentum {\"mass_kg\":3.0400564670562744,\"velocity_m_s\":6.2631}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 3.0400564670562744,
+   "velocity_m_s": 6.2631
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 19.040177658820152
+ },
+ "momentum {\"mass_kg\":3.0400564670562744,\"velocity_m_s\":8.81312}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 3.0400564670562744,
+   "velocity_m_s": 8.81312
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 26.79238245094299
+ },
+ "momentum {\"mass_kg\":3.0400564670562744,\"velocity_m_s\":8.85736}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 3.0400564670562744,
+   "velocity_m_s": 8.85736
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 26.92687454904556
+ },
+ "momentum {\"mass_kg\":3.0400564670562744,\"velocity_m_s\":8.85738}": {
+  "formula": "p = m v",
+  "inputs": {
+   "mass_kg": 3.0400564670562744,
+   "velocity_m_s": 8.85738
+  },
+  "notes": "",
+  "source": "sigma-ground (Newtonian kinematics)",
+  "tag": null,
+  "units": "kg m/s",
+  "value": 26.9269353501749
+ },
+ "procedure_projectile_trajectory {\"initial_speed_m_s\":8.0,\"launch_angle_deg\":30.0}": {
+  "formula": null,
+  "inputs": {
+   "initial_speed_m_s": 8.0,
+   "launch_angle_deg": 30.0
+  },
+  "notes": null,
+  "procedure": "projectile_trajectory",
+  "result": {
+   "formula": "h_max = (v sin(theta))^2 / (2 g)",
+   "label": "Max height",
+   "source": "sigma-ground (standard kinematics, vacuum)",
+   "units": "m",
+   "value": 0.8157729703823424
+  },
+  "source": null,
+  "steps": [
+   {
+    "formula": "(input)",
+    "label": "Initial speed",
+    "source": "user",
+    "units": "m/s",
+    "value": 8.0
+   },
+   {
+    "formula": "(input)",
+    "label": "Launch angle",
+    "source": "user",
+    "units": "deg",
+    "value": 30.0
+   },
+   {
+    "formula": "t = 2 v sin(theta) / g",
+    "label": "Time of flight",
+    "source": "sigma-ground (standard kinematics, vacuum)",
+    "units": "s",
+    "value": 0.8157729703823425
+   },
+   {
+    "formula": "R = v^2 sin(2 theta) / g",
+    "label": "Range",
+    "source": "sigma-ground (standard kinematics, vacuum, level ground)",
+    "units": "m",
+    "value": 5.651840928574393
+   },
+   {
+    "formula": "h_max = (v sin(theta))^2 / (2 g)",
+    "label": "Max height",
+    "source": "sigma-ground (standard kinematics, vacuum)",
+    "units": "m",
+    "value": 0.8157729703823424
+   }
+  ],
+  "tag": null,
+  "units": null,
+  "value": null
+ },
+ "procedure_projectile_trajectory {\"initial_speed_m_s\":8.0,\"launch_angle_deg\":45.0}": {
+  "formula": null,
+  "inputs": {
+   "initial_speed_m_s": 8.0,
+   "launch_angle_deg": 45.0
+  },
+  "notes": null,
+  "procedure": "projectile_trajectory",
+  "result": {
+   "formula": "h_max = (v sin(theta))^2 / (2 g)",
+   "label": "Max height",
+   "source": "sigma-ground (standard kinematics, vacuum)",
+   "units": "m",
+   "value": 1.6315459407646848
+  },
+  "source": null,
+  "steps": [
+   {
+    "formula": "(input)",
+    "label": "Initial speed",
+    "source": "user",
+    "units": "m/s",
+    "value": 8.0
+   },
+   {
+    "formula": "(input)",
+    "label": "Launch angle",
+    "source": "user",
+    "units": "deg",
+    "value": 45.0
+   },
+   {
+    "formula": "t = 2 v sin(theta) / g",
+    "label": "Time of flight",
+    "source": "sigma-ground (standard kinematics, vacuum)",
+    "units": "s",
+    "value": 1.153677198532094
+   },
+   {
+    "formula": "R = v^2 sin(2 theta) / g",
+    "label": "Range",
+    "source": "sigma-ground (standard kinematics, vacuum, level ground)",
+    "units": "m",
+    "value": 6.526183763058741
+   },
+   {
+    "formula": "h_max = (v sin(theta))^2 / (2 g)",
+    "label": "Max height",
+    "source": "sigma-ground (standard kinematics, vacuum)",
+    "units": "m",
+    "value": 1.6315459407646848
+   }
+  ],
+  "tag": null,
+  "units": null,
+  "value": null
+ },
+ "procedure_projectile_trajectory {\"initial_speed_m_s\":8.0,\"launch_angle_deg\":60.0}": {
+  "formula": null,
+  "inputs": {
+   "initial_speed_m_s": 8.0,
+   "launch_angle_deg": 60.0
+  },
+  "notes": null,
+  "procedure": "projectile_trajectory",
+  "result": {
+   "formula": "h_max = (v sin(theta))^2 / (2 g)",
+   "label": "Max height",
+   "source": "sigma-ground (standard kinematics, vacuum)",
+   "units": "m",
+   "value": 2.4473189111470277
+  },
+  "source": null,
+  "steps": [
+   {
+    "formula": "(input)",
+    "label": "Initial speed",
+    "source": "user",
+    "units": "m/s",
+    "value": 8.0
+   },
+   {
+    "formula": "(input)",
+    "label": "Launch angle",
+    "source": "user",
+    "units": "deg",
+    "value": 60.0
+   },
+   {
+    "formula": "t = 2 v sin(theta) / g",
+    "label": "Time of flight",
+    "source": "sigma-ground (standard kinematics, vacuum)",
+    "units": "s",
+    "value": 1.4129602321435983
+   },
+   {
+    "formula": "R = v^2 sin(2 theta) / g",
+    "label": "Range",
+    "source": "sigma-ground (standard kinematics, vacuum, level ground)",
+    "units": "m",
+    "value": 5.651840928574394
+   },
+   {
+    "formula": "h_max = (v sin(theta))^2 / (2 g)",
+    "label": "Max height",
+    "source": "sigma-ground (standard kinematics, vacuum)",
+    "units": "m",
+    "value": 2.4473189111470277
+   }
+  ],
+  "tag": null,
+  "units": null,
+  "value": null
+ },
+ "projectile_analysis {\"angle_deg\":29.9999,\"speed_m_s\":7.99999}": {
+  "formula": "R=v^2 sin2th/g; H=v^2 sin^2th/2g; T=2v sinth/g; + quadratic drag",
+  "inputs": {
+   "angle_deg": 29.9999,
+   "area_m2": 0.01,
+   "drag_coefficient": 0.47,
+   "mass_kg": 1.0,
+   "speed_m_s": 7.99999
+  },
+  "notes": "",
+  "source": "sigma_ground.field.interface (classical_mechanics, projectile)",
+  "tag": "DERIVED",
+  "units": "m, s, N, m/s",
+  "value": {
+   "drag_force_at_launch_N": 0.1842395394002879,
+   "max_height_m": 0.8157659988068419,
+   "range_m": 5.651815408635522,
+   "terminal_velocity_m_s": 58.36578920518485,
+   "time_of_flight_s": 0.8157694845871448,
+   "trajectory_points": 101
+  }
+ },
+ "projectile_analysis {\"angle_deg\":30.0,\"speed_m_s\":8.0}": {
+  "formula": "R=v^2 sin2th/g; H=v^2 sin^2th/2g; T=2v sinth/g; + quadratic drag",
+  "inputs": {
+   "angle_deg": 30.0,
+   "area_m2": 0.01,
+   "drag_coefficient": 0.47,
+   "mass_kg": 1.0,
+   "speed_m_s": 8.0
+  },
+  "notes": "",
+  "source": "sigma_ground.field.interface (classical_mechanics, projectile)",
+  "tag": "DERIVED",
+  "units": "m, s, N, m/s",
+  "value": {
+   "drag_force_at_launch_N": 0.18424,
+   "max_height_m": 0.8157729703823424,
+   "range_m": 5.651840928574393,
+   "terminal_velocity_m_s": 58.36578920518485,
+   "time_of_flight_s": 0.8157729703823425,
+   "trajectory_points": 101
+  }
+ },
+ "projectile_analysis {\"angle_deg\":45.0,\"speed_m_s\":7.99999}": {
+  "formula": "R=v^2 sin2th/g; H=v^2 sin^2th/2g; T=2v sinth/g; + quadratic drag",
+  "inputs": {
+   "angle_deg": 45.0,
+   "area_m2": 0.01,
+   "drag_coefficient": 0.47,
+   "mass_kg": 1.0,
+   "speed_m_s": 7.99999
+  },
+  "notes": "",
+  "source": "sigma_ground.field.interface (classical_mechanics, projectile)",
+  "tag": "DERIVED",
+  "units": "m, s, N, m/s",
+  "value": {
+   "drag_force_at_launch_N": 0.1842395394002879,
+   "max_height_m": 1.6315418619023825,
+   "range_m": 6.526167447609532,
+   "terminal_velocity_m_s": 58.36578920518485,
+   "time_of_flight_s": 1.153675756435596,
+   "trajectory_points": 101
+  }
+ },
+ "projectile_analysis {\"angle_deg\":45.0,\"speed_m_s\":8.0}": {
+  "formula": "R=v^2 sin2th/g; H=v^2 sin^2th/2g; T=2v sinth/g; + quadratic drag",
+  "inputs": {
+   "angle_deg": 45.0,
+   "area_m2": 0.01,
+   "drag_coefficient": 0.47,
+   "mass_kg": 1.0,
+   "speed_m_s": 8.0
+  },
+  "notes": "",
+  "source": "sigma_ground.field.interface (classical_mechanics, projectile)",
+  "tag": "DERIVED",
+  "units": "m, s, N, m/s",
+  "value": {
+   "drag_force_at_launch_N": 0.18424,
+   "max_height_m": 1.6315459407646848,
+   "range_m": 6.526183763058741,
+   "terminal_velocity_m_s": 58.36578920518485,
+   "time_of_flight_s": 1.153677198532094,
+   "trajectory_points": 101
+  }
+ },
+ "projectile_analysis {\"angle_deg\":60.0,\"speed_m_s\":8.0}": {
+  "formula": "R=v^2 sin2th/g; H=v^2 sin^2th/2g; T=2v sinth/g; + quadratic drag",
+  "inputs": {
+   "angle_deg": 60.0,
+   "area_m2": 0.01,
+   "drag_coefficient": 0.47,
+   "mass_kg": 1.0,
+   "speed_m_s": 8.0
+  },
+  "notes": "",
+  "source": "sigma_ground.field.interface (classical_mechanics, projectile)",
+  "tag": "DERIVED",
+  "units": "m, s, N, m/s",
+  "value": {
+   "drag_force_at_launch_N": 0.18424,
+   "max_height_m": 2.4473189111470277,
+   "range_m": 5.651840928574394,
+   "terminal_velocity_m_s": 58.36578920518485,
+   "time_of_flight_s": 1.4129602321435983,
+   "trajectory_points": 101
+  }
+ },
+ "projectile_flight_time {\"g_m_s2\":9.80665,\"initial_speed_m_s\":7.99999,\"launch_angle_deg\":29.9999}": {
+  "formula": "t = 2 v sin(theta) / g",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "initial_speed_m_s": 7.99999,
+   "launch_angle_deg": 29.9999
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum)",
+  "tag": null,
+  "units": "s",
+  "value": 0.8157694845871448
+ },
+ "projectile_flight_time {\"g_m_s2\":9.80665,\"initial_speed_m_s\":7.99999,\"launch_angle_deg\":45.0}": {
+  "formula": "t = 2 v sin(theta) / g",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "initial_speed_m_s": 7.99999,
+   "launch_angle_deg": 45.0
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum)",
+  "tag": null,
+  "units": "s",
+  "value": 1.153675756435596
+ },
+ "projectile_flight_time {\"g_m_s2\":9.80665,\"initial_speed_m_s\":8.0,\"launch_angle_deg\":30.0}": {
+  "formula": "t = 2 v sin(theta) / g",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "initial_speed_m_s": 8.0,
+   "launch_angle_deg": 30.0
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum)",
+  "tag": null,
+  "units": "s",
+  "value": 0.8157729703823425
+ },
+ "projectile_flight_time {\"g_m_s2\":9.80665,\"initial_speed_m_s\":8.0,\"launch_angle_deg\":45.0}": {
+  "formula": "t = 2 v sin(theta) / g",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "initial_speed_m_s": 8.0,
+   "launch_angle_deg": 45.0
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum)",
+  "tag": null,
+  "units": "s",
+  "value": 1.153677198532094
+ },
+ "projectile_flight_time {\"g_m_s2\":9.80665,\"initial_speed_m_s\":8.0,\"launch_angle_deg\":60.0}": {
+  "formula": "t = 2 v sin(theta) / g",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "initial_speed_m_s": 8.0,
+   "launch_angle_deg": 60.0
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum)",
+  "tag": null,
+  "units": "s",
+  "value": 1.4129602321435983
+ },
+ "projectile_max_height {\"g_m_s2\":9.80665,\"initial_speed_m_s\":7.99999,\"launch_angle_deg\":29.9999}": {
+  "formula": "h_max = (v sin(theta))^2 / (2 g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "initial_speed_m_s": 7.99999,
+   "launch_angle_deg": 29.9999
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum)",
+  "tag": null,
+  "units": "m",
+  "value": 0.8157659988068418
+ },
+ "projectile_max_height {\"g_m_s2\":9.80665,\"initial_speed_m_s\":7.99999,\"launch_angle_deg\":45.0}": {
+  "formula": "h_max = (v sin(theta))^2 / (2 g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "initial_speed_m_s": 7.99999,
+   "launch_angle_deg": 45.0
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum)",
+  "tag": null,
+  "units": "m",
+  "value": 1.6315418619023827
+ },
+ "projectile_max_height {\"g_m_s2\":9.80665,\"initial_speed_m_s\":8.0,\"launch_angle_deg\":30.0}": {
+  "formula": "h_max = (v sin(theta))^2 / (2 g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "initial_speed_m_s": 8.0,
+   "launch_angle_deg": 30.0
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum)",
+  "tag": null,
+  "units": "m",
+  "value": 0.8157729703823424
+ },
+ "projectile_max_height {\"g_m_s2\":9.80665,\"initial_speed_m_s\":8.0,\"launch_angle_deg\":45.0}": {
+  "formula": "h_max = (v sin(theta))^2 / (2 g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "initial_speed_m_s": 8.0,
+   "launch_angle_deg": 45.0
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum)",
+  "tag": null,
+  "units": "m",
+  "value": 1.6315459407646848
+ },
+ "projectile_max_height {\"g_m_s2\":9.80665,\"initial_speed_m_s\":8.0,\"launch_angle_deg\":60.0}": {
+  "formula": "h_max = (v sin(theta))^2 / (2 g)",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "initial_speed_m_s": 8.0,
+   "launch_angle_deg": 60.0
+  },
+  "notes": "",
+  "source": "sigma-ground (standard kinematics, vacuum)",
+  "tag": null,
+  "units": "m",
+  "value": 2.4473189111470277
+ },
+ "projectile_range {\"g_m_s2\":9.80665,\"initial_speed_m_s\":7.99999,\"launch_angle_deg\":29.9999}": {
+  "formula": "R = v^2 sin(2 theta) / g",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "initial_speed_m_s": 7.99999,
+   "launch_angle_deg": 29.9999
+  },
+  "notes": "Vacuum, level ground. Air resistance reduces real range substantially for fast/small projectiles.",
+  "source": "sigma-ground (standard kinematics, vacuum, level ground)",
+  "tag": null,
+  "units": "m",
+  "value": 5.651815408635522
+ },
+ "projectile_range {\"g_m_s2\":9.80665,\"initial_speed_m_s\":7.99999,\"launch_angle_deg\":45.0}": {
+  "formula": "R = v^2 sin(2 theta) / g",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "initial_speed_m_s": 7.99999,
+   "launch_angle_deg": 45.0
+  },
+  "notes": "Vacuum, level ground. Air resistance reduces real range substantially for fast/small projectiles.",
+  "source": "sigma-ground (standard kinematics, vacuum, level ground)",
+  "tag": null,
+  "units": "m",
+  "value": 6.526167447609532
+ },
+ "projectile_range {\"g_m_s2\":9.80665,\"initial_speed_m_s\":8.0,\"launch_angle_deg\":30.0}": {
+  "formula": "R = v^2 sin(2 theta) / g",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "initial_speed_m_s": 8.0,
+   "launch_angle_deg": 30.0
+  },
+  "notes": "Vacuum, level ground. Air resistance reduces real range substantially for fast/small projectiles.",
+  "source": "sigma-ground (standard kinematics, vacuum, level ground)",
+  "tag": null,
+  "units": "m",
+  "value": 5.651840928574393
+ },
+ "projectile_range {\"g_m_s2\":9.80665,\"initial_speed_m_s\":8.0,\"launch_angle_deg\":45.0}": {
+  "formula": "R = v^2 sin(2 theta) / g",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "initial_speed_m_s": 8.0,
+   "launch_angle_deg": 45.0
+  },
+  "notes": "Vacuum, level ground. Air resistance reduces real range substantially for fast/small projectiles.",
+  "source": "sigma-ground (standard kinematics, vacuum, level ground)",
+  "tag": null,
+  "units": "m",
+  "value": 6.526183763058741
+ },
+ "projectile_range {\"g_m_s2\":9.80665,\"initial_speed_m_s\":8.0,\"launch_angle_deg\":60.0}": {
+  "formula": "R = v^2 sin(2 theta) / g",
+  "inputs": {
+   "g_m_s2": 9.80665,
+   "initial_speed_m_s": 8.0,
+   "launch_angle_deg": 60.0
+  },
+  "notes": "Vacuum, level ground. Air resistance reduces real range substantially for fast/small projectiles.",
+  "source": "sigma-ground (standard kinematics, vacuum, level ground)",
+  "tag": null,
+  "units": "m",
+  "value": 5.651840928574394
+ },
+ "solve_equation {\"equation\":\"3.999989 - 9.80665*t\",\"variable\":\"t\"}": {
+  "formula": "solve(3.999989 - 9.80665*t, t)",
+  "inputs": {
+   "equation": "3.999989 - 9.80665*t",
+   "variable": "t"
+  },
+  "notes": "1 solution(s)",
+  "source": "sympy.solve",
+  "tag": null,
+  "units": "",
+  "value": [
+   "0.407885363503337"
+  ]
+ },
+ "solve_equation {\"equation\":\"3.999989*t - 9.80665*t**2/2\",\"variable\":\"t\"}": {
+  "formula": "solve(3.999989*t - 9.80665*t**2/2, t)",
+  "inputs": {
+   "equation": "3.999989*t - 9.80665*t**2/2",
+   "variable": "t"
+  },
+  "notes": "2 solution(s)",
+  "source": "sympy.solve",
+  "tag": null,
+  "units": "",
+  "value": [
+   "0.0",
+   "0.815770727006674"
+  ]
+ },
+ "solve_equation {\"equation\":\"3.9999999999999996 - 9.80665*t\",\"variable\":\"t\"}": {
+  "formula": "solve(3.9999999999999996 - 9.80665*t, t)",
+  "inputs": {
+   "equation": "3.9999999999999996 - 9.80665*t",
+   "variable": "t"
+  },
+  "notes": "1 solution(s)",
+  "source": "sympy.solve",
+  "tag": null,
+  "units": "",
+  "value": [
+   "0.407886485191171"
+  ]
+ },
+ "solve_equation {\"equation\":\"3.9999999999999996*t - 9.80665*t**2/2\",\"variable\":\"t\"}": {
+  "formula": "solve(3.9999999999999996*t - 9.80665*t**2/2, t)",
+  "inputs": {
+   "equation": "3.9999999999999996*t - 9.80665*t**2/2",
+   "variable": "t"
+  },
+  "notes": "2 solution(s)",
+  "source": "sympy.solve",
+  "tag": null,
+  "units": "",
+  "value": [
+   "0.0",
+   "0.815772970382343"
+  ]
+ },
+ "solve_equation {\"equation\":\"5.656847 - 9.80665*t\",\"variable\":\"t\"}": {
+  "formula": "solve(5.656847 - 9.80665*t, t)",
+  "inputs": {
+   "equation": "5.656847 - 9.80665*t",
+   "variable": "t"
+  },
+  "notes": "1 solution(s)",
+  "source": "sympy.solve",
+  "tag": null,
+  "units": "",
+  "value": [
+   "0.576837860023555"
+  ]
+ },
+ "solve_equation {\"equation\":\"5.656847*t - 9.80665*t**2/2\",\"variable\":\"t\"}": {
+  "formula": "solve(5.656847*t - 9.80665*t**2/2, t)",
+  "inputs": {
+   "equation": "5.656847*t - 9.80665*t**2/2",
+   "variable": "t"
+  },
+  "notes": "2 solution(s)",
+  "source": "sympy.solve",
+  "tag": null,
+  "units": "",
+  "value": [
+   "0.0",
+   "1.15367572004711"
+  ]
+ },
+ "solve_equation {\"equation\":\"5.656854249492381 - 9.80665*t\",\"variable\":\"t\"}": {
+  "formula": "solve(5.656854249492381 - 9.80665*t, t)",
+  "inputs": {
+   "equation": "5.656854249492381 - 9.80665*t",
+   "variable": "t"
+  },
+  "notes": "1 solution(s)",
+  "source": "sympy.solve",
+  "tag": null,
+  "units": "",
+  "value": [
+   "0.576838599266047"
+  ]
+ },
+ "solve_equation {\"equation\":\"5.656854249492381*t - 9.80665*t**2/2\",\"variable\":\"t\"}": {
+  "formula": "solve(5.656854249492381*t - 9.80665*t**2/2, t)",
+  "inputs": {
+   "equation": "5.656854249492381*t - 9.80665*t**2/2",
+   "variable": "t"
+  },
+  "notes": "2 solution(s)",
+  "source": "sympy.solve",
+  "tag": null,
+  "units": "",
+  "value": [
+   "0.0",
+   "1.15367719853209"
+  ]
+ },
+ "solve_equation {\"equation\":\"6.928203230275509 - 9.80665*t\",\"variable\":\"t\"}": {
+  "formula": "solve(6.928203230275509 - 9.80665*t, t)",
+  "inputs": {
+   "equation": "6.928203230275509 - 9.80665*t",
+   "variable": "t"
+  },
+  "notes": "1 solution(s)",
+  "source": "sympy.solve",
+  "tag": null,
+  "units": "",
+  "value": [
+   "0.706480116071799"
+  ]
+ },
+ "solve_equation {\"equation\":\"6.928203230275509*t - 9.80665*t**2/2\",\"variable\":\"t\"}": {
+  "formula": "solve(6.928203230275509*t - 9.80665*t**2/2, t)",
+  "inputs": {
+   "equation": "6.928203230275509*t - 9.80665*t**2/2",
+   "variable": "t"
+  },
+  "notes": "2 solution(s)",
+  "source": "sympy.solve",
+  "tag": null,
+  "units": "",
+  "value": [
+   "0.0",
+   "1.41296023214360"
+  ]
+ },
+ "solve_equation {\"equation\":\"6.928207 - 9.80665*t\",\"variable\":\"t\"}": {
+  "formula": "solve(6.928207 - 9.80665*t, t)",
+  "inputs": {
+   "equation": "6.928207 - 9.80665*t",
+   "variable": "t"
+  },
+  "notes": "1 solution(s)",
+  "source": "sympy.solve",
+  "tag": null,
+  "units": "",
+  "value": [
+   "0.706480500476717"
+  ]
+ },
+ "solve_equation {\"equation\":\"6.928207*t - 9.80665*t**2/2\",\"variable\":\"t\"}": {
+  "formula": "solve(6.928207*t - 9.80665*t**2/2, t)",
+  "inputs": {
+   "equation": "6.928207*t - 9.80665*t**2/2",
+   "variable": "t"
+  },
+  "notes": "2 solution(s)",
+  "source": "sympy.solve",
+  "tag": null,
+  "units": "",
+  "value": [
+   "0.0",
+   "1.41296100095343"
+  ]
+ }
+}

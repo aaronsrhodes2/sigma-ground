@@ -126,6 +126,43 @@ function M.sphere(radius, rings, seg)
   return { hull = hull, verts = verts }
 end
 
+--- Thin cylindrical shell (a ring) about +Z: outer radius R, inner radius r, FULL height h, `seg` wall
+-- segments. Concave overall, so the physics side is a LIST of convex hulls (one annular-sector prism per
+-- segment) in `hulls`; `verts` is the closed render surface (outer wall, inner wall, top and bottom annuli).
+function M.ring(R, r, h, seg)
+  seg = seg or 48
+  local hh = h / 2
+  local hulls, verts = {}, {}
+  for i = 0, seg - 1 do
+    local a0, a1 = 2 * pi * i / seg, 2 * pi * (i + 1) / seg
+    local pts = {}
+    for _, a in ipairs({ a0, a1 }) do
+      for _, rad in ipairs({ r, R }) do
+        pts[#pts + 1] = { rad * cos(a), rad * sin(a), -hh }
+        pts[#pts + 1] = { rad * cos(a), rad * sin(a), hh }
+      end
+    end
+    hulls[#hulls + 1] = pts
+    local c0, s0, c1, s1 = cos(a0), sin(a0), cos(a1), sin(a1)
+    local function P(rad, c, s, z, nx, ny, nz) return { rad * c, rad * s, z, nx, ny, nz } end
+    -- outer wall (normals radial outward), same winding as the solid cylinder's side
+    local o0b, o1b = P(R, c0, s0, -hh, c0, s0, 0), P(R, c1, s1, -hh, c1, s1, 0)
+    local o1t, o0t = P(R, c1, s1, hh, c1, s1, 0), P(R, c0, s0, hh, c0, s0, 0)
+    tri(verts, o0b, o1b, o1t); tri(verts, o0b, o1t, o0t)
+    -- inner wall (normals radial INWARD, winding reversed)
+    local i0b, i1b = P(r, c0, s0, -hh, -c0, -s0, 0), P(r, c1, s1, -hh, -c1, -s1, 0)
+    local i1t, i0t = P(r, c1, s1, hh, -c1, -s1, 0), P(r, c0, s0, hh, -c0, -s0, 0)
+    tri(verts, i0b, i1t, i1b); tri(verts, i0b, i0t, i1t)
+    -- top annulus (+Z) and bottom annulus (-Z)
+    local function F(rad, c, s, z, nz) return { rad * c, rad * s, z, 0, 0, nz } end
+    tri(verts, F(R, c0, s0, hh, 1), F(R, c1, s1, hh, 1), F(r, c1, s1, hh, 1))
+    tri(verts, F(R, c0, s0, hh, 1), F(r, c1, s1, hh, 1), F(r, c0, s0, hh, 1))
+    tri(verts, F(R, c0, s0, -hh, -1), F(r, c1, s1, -hh, -1), F(R, c1, s1, -hh, -1))
+    tri(verts, F(R, c0, s0, -hh, -1), F(r, c0, s0, -hh, -1), F(r, c1, s1, -hh, -1))
+  end
+  return { hulls = hulls, verts = verts }
+end
+
 --- Signed volume enclosed by a closed outward-wound triangle list (divergence theorem).
 function M.mesh_volume(verts)
   local v = 0
@@ -186,6 +223,44 @@ function M.build_body(body, scale)
   end
   out.mins, out.maxs = mins, maxs
   return out
+end
+
+--- Geometry of one STANDALONE experiment prop, entity-local HU, origin at its centre.
+--   shape "sphere"   d = {radius}
+--         "box"      d = {size = {x, y, z}}                 (FULL extents)
+--         "cylinder" d = {radius, height, seg}              (axis +Z)
+--         "ring"     d = {outer_radius, inner_radius, height, seg}
+-- scale = HU per metre. Returns { hulls = {{{x,y,z}...}...}, verts = {...}, mins, maxs, volume_m3 }.
+function M.build_prop(shape, d, scale)
+  local prim, vol
+  if shape == "sphere" then
+    prim, vol = M.sphere(d.radius, d.rings or 14, d.seg or 28), 4 / 3 * pi * d.radius ^ 3
+  elseif shape == "box" then
+    prim, vol = M.box(d.size[1], d.size[2], d.size[3]), d.size[1] * d.size[2] * d.size[3]
+  elseif shape == "cylinder" then
+    prim, vol = M.cylinder(d.radius, d.height, d.seg or 48), pi * d.radius ^ 2 * d.height
+  elseif shape == "ring" then
+    prim, vol = M.ring(d.outer_radius, d.inner_radius, d.height, d.seg or 48),
+        pi * (d.outer_radius ^ 2 - d.inner_radius ^ 2) * d.height
+  else
+    error("shapes_core: unknown prop shape '" .. tostring(shape) .. "'", 2)
+  end
+  local hulls, verts = {}, {}
+  local mins = { math.huge, math.huge, math.huge }
+  local maxs = { -math.huge, -math.huge, -math.huge }
+  for _, hull in ipairs(prim.hulls or { prim.hull }) do
+    local out = {}
+    for i, p in ipairs(hull) do
+      local x, y, z = p[1] * scale, p[2] * scale, p[3] * scale
+      out[i] = { x, y, z }
+      if x < mins[1] then mins[1] = x end; if x > maxs[1] then maxs[1] = x end
+      if y < mins[2] then mins[2] = y end; if y > maxs[2] then maxs[2] = y end
+      if z < mins[3] then mins[3] = z end; if z > maxs[3] then maxs[3] = z end
+    end
+    hulls[#hulls + 1] = out
+  end
+  for i, v in ipairs(prim.verts) do verts[i] = { v[1] * scale, v[2] * scale, v[3] * scale, v[4], v[5], v[6] } end
+  return { hulls = hulls, verts = verts, mins = mins, maxs = maxs, volume_m3 = vol }
 end
 
 return M

@@ -483,3 +483,39 @@ def test_every_surface_property_the_exporter_can_emit_is_one_the_game_knows():
         for line in text.splitlines():
             if "surfaceprop" in line:
                 assert line.split('"')[1] in export_gmod.VERIFIED_SURFACEPROPS, (name, line)
+
+
+# --------------------------------------------------------------- experiment prop geometry (ring + build_prop)
+def test_ring_is_a_closed_outward_surface_with_the_polygon_annulus_volume():
+    rt = _rt()
+    S = _mod(rt, "shapes_core")
+    R, r, h, seg = 0.12, 0.10, 0.03, 48
+    ring = S.ring(R, r, h, seg)
+    want = 0.5 * seg * math.sin(2 * math.pi / seg) * (R * R - r * r) * h   # outer minus inner chord polygon, extruded
+    assert S.mesh_volume(ring.verts) == pytest.approx(want, rel=1e-9)
+    hulls = _py(ring.hulls)
+    assert len(hulls) == seg and all(len(hu) == 8 for hu in hulls)          # one convex 8-point prism per segment
+    for v in _py(ring.verts):
+        assert math.sqrt(v[3] ** 2 + v[4] ** 2 + v[5] ** 2) == pytest.approx(1.0, abs=1e-9)
+
+
+def test_build_prop_scales_to_hu_and_reports_the_analytic_volume():
+    rt = _rt()
+    S = _mod(rt, "shapes_core")
+    scale = HU_PER_M
+    cases = (
+        ("sphere", {"radius": 0.04}, 4 / 3 * math.pi * 0.04 ** 3, 0.04),
+        ("cylinder", {"radius": 0.1, "height": 0.05, "seg": 64}, math.pi * 0.1 ** 2 * 0.05, 0.1),
+        ("ring", {"outer_radius": 0.1, "inner_radius": 0.09, "height": 0.05, "seg": 48},
+         math.pi * (0.1 ** 2 - 0.09 ** 2) * 0.05, 0.1),
+    )
+    for shape, dims, vol, extent in cases:
+        d = rt.table_from({k: v for k, v in dims.items()})
+        g = S.build_prop(shape, d, scale)
+        assert g.volume_m3 == pytest.approx(vol)
+        assert max(abs(c) for c in (g.maxs[1], g.maxs[2])) == pytest.approx(extent * scale, rel=0.02)
+    box = S.build_prop("box", rt.table_from({"size": rt.table_from([1.0, 2.0, 0.5])}), scale)
+    assert box.maxs[2] == pytest.approx(1.0 * scale)
+    assert box.volume_m3 == pytest.approx(1.0)
+    with pytest.raises(Exception, match="unknown prop shape"):
+        S.build_prop("blob", rt.table_from({}), scale)

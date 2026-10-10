@@ -11,7 +11,7 @@
 #
 #   stage/gmod/gmod_ctl.sh status
 #   stage/gmod/gmod_ctl.sh stop
-#   stage/gmod/gmod_ctl.sh start [map]      # default gm_construct; refuses if an instance is already running
+#   stage/gmod/gmod_ctl.sh start [map] [--quiet]   # default gm_construct; --quiet = minimized, muted, no mouse capture
 #   stage/gmod/gmod_ctl.sh restart [map]
 #   stage/gmod/gmod_ctl.sh wait-ready       # until the addon announces itself in console.log
 #
@@ -70,7 +70,11 @@ stop() {
 }
 
 start() {
-  local map="${1:-gm_construct}"
+  # start [map] [--quiet]   --quiet: minimized, muted, no mouse or joystick capture (for automated runs)
+  local map="gm_construct" quiet=0 a
+  for a in "$@"; do
+    case "$a" in --quiet) quiet=1 ;; "") ;; *) map="$a" ;; esac
+  done
   if [ "$(count)" -gt 0 ]; then
     echo "gmod: already running (one instance only). Run '$0 stop' first." >&2
     return 1
@@ -79,10 +83,19 @@ start() {
     echo "gmod: console.log is locked by something; refusing to start (a stale instance?)" >&2
     return 1
   fi
-  ( cd "$GMOD_DIR" && ./"$GMOD_EXE" -console -condebug -novid -windowed -w 1280 -h 720 +map "$map" >/dev/null 2>&1 & )
+  if [ "$quiet" -eq 1 ]; then
+    # `start /min` launches it already minimized so it never takes focus; the flags stop it grabbing the mouse
+    ( cd "$GMOD_DIR" && cmd //c start "" //min "$GMOD_EXE" -console -condebug -novid -nosound -nomouse -nojoy -windowed -w 640 -h 360 +map "$map" >/dev/null 2>&1 )
+  else
+    ( cd "$GMOD_DIR" && ./"$GMOD_EXE" -console -condebug -novid -windowed -w 1280 -h 720 +map "$map" >/dev/null 2>&1 & )
+  fi
+  if [ "$quiet" -eq 1 ]; then
+    # keep the window minimized and unfocused while it loads (see gmod_hide.ps1); detached, ends on its own
+    ( powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$(cygpath -w "$HERE/gmod_hide.ps1")" >/dev/null 2>&1 & )
+  fi
   local s=0
   while [ "$(count)" -eq 0 ] && [ "$s" -lt 10 ]; do sleep 1; s=$((s + 1)); done
-  if [ "$(count)" -gt 0 ]; then echo "gmod: started ($GMOD_EXE) on $map"; else echo "gmod: failed to start" >&2; return 1; fi
+  if [ "$(count)" -gt 0 ]; then echo "gmod: started ($GMOD_EXE) on $map$([ "$quiet" -eq 1 ] && echo ' (quiet)')"; else echo "gmod: failed to start" >&2; return 1; fi
 }
 
 wait_ready() {   # the game is interactive once the clientside Lua has started and the map's console banner is written
@@ -94,8 +107,8 @@ wait_ready() {   # the game is interactive once the clientside Lua has started a
 case "${1:-status}" in
   status) status ;;
   stop) stop ;;
-  start) start "${2:-}" ;;
-  restart) stop && start "${2:-}" ;;
+  start) shift; start "$@" ;;
+  restart) shift; stop && start "$@" ;;
   wait-ready) wait_ready ;;
   *) echo "usage: $0 status|stop|start [map]|restart [map]|wait-ready" >&2; exit 2 ;;
 esac

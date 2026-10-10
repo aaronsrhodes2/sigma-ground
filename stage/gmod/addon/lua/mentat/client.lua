@@ -5,6 +5,18 @@ local WHITE = Color(255, 255, 255)
 local AMBER = Color(255, 170, 0)
 local CYAN = Color(0, 204, 255)
 
+-- Engine-experiment readout: Havok's measurement beside Mentat's prediction, up to eight lines.
+hook.Add("HUDPaint", "MentatExpHUD", function()
+  local y = ScrH() * 0.62
+  for i = 1, 8 do
+    local line = GetGlobal2String("mentat_exp_l" .. i, "")
+    if line ~= "" then
+      draw.SimpleText(line, "DermaDefaultBold", 24, y, i == 1 and GREEN or WHITE)
+      y = y + 18
+    end
+  end
+end)
+
 hook.Add("HUDPaint", "MentatHUD", function()
   local name = GetGlobal2String("mentat_name", "")
   if name == "" then return end

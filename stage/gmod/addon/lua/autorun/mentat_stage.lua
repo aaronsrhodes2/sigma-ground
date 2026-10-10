@@ -24,6 +24,7 @@ if SERVER then
   AddCSLuaFile("mentat/client.lua")
   include("mentat/server.lua")
   include("mentat/autotest.lua")
+  include("mentat/experiments.lua")
 else
   include("mentat/client.lua")
 end

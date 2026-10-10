@@ -2,7 +2,8 @@
 Mentat = Mentat or {}
 local U, S = Mentat.units, Mentat.shapes
 
-Mentat.VERSION = "0.1.0-phase0"
+Mentat.VERSION = "0.2.0-engine-experiments"
+Mentat.HU = U.HU_PER_M                       -- Hammer units per metre
 Mentat.scenarios = Mentat.scenarios or {}
 Mentat.geometry = Mentat.geometry or {}
 
