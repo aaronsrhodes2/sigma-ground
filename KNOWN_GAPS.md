@@ -520,3 +520,47 @@ Recorded for the census (A31–A33 in `misc/MENTAT_GAPS_UNIFICATION.md`); none a
   no L_sym; `GOLDEN_RULES.md` Rule 2 points to the deleted `field/bounds.py`.
 - Research scripts: `pilot_p6_sigma_bridge.py`'s neutron-star row is excluded by GW170817 (1.61× the 90 % bound at 2 n_sat) and
   its white-dwarf row is 3.8× the Chandrasekhar pressure; `pilot_p7`'s `poisson_fvm` carries a +0.63 % split-kick bias.
+
+## PHYSICS_GAP: functional audit of the orbital and relativity stack — 124 confirmed defects (2026-10-10)
+
+Full report: [misc/AUDIT_ORBITAL_GR_2026-10-10.md](misc/AUDIT_ORBITAL_GR_2026-10-10.md) (233 public functions run against closed
+forms, conservation laws, independent integrators, the JPL DE440 ephemeris and verified literature; every new finding confirmed
+by two skeptics; 1 refuted, 3 disputed; a few defects were found twice by different auditors). Census rows A34–A50 in `misc/MENTAT_GAPS_UNIFICATION.md`. Nothing was fixed.
+
+**High severity (16 distinct; the Doppler defect was found twice):**
+
+- `field/interface/nbody.py` tidal layers: the `tidal_force` bulge force on the perturber has the wrong sign, half the size and
+  no recoil; `roche_limit` uses the primary's radius with the mass ratio (Earth–Moon 3.7× too large);
+  `compute_tidal_deformation` gives 0.25–0.30× the equilibrium surface amplitude.
+- `mcp/tools/relativity.py::doppler_shift_factor`: wrong at every angle except 0° and 180°; the transverse case reports a
+  blueshift (1/γ instead of γ).
+- `materia/translator.py`, `materia/manifest.py`, `materia/scenarios.py` (Mentat's `simulate` front door): common orbit
+  questions are answered for a 400 km satellite around the wrong body, including the manifest's own example; every
+  black-hole question is answered for 10 M☉; `relativistic_motion` ignores the speed and particle asked about; the mass regex
+  turns "1e-3 kg" into 3 kg; `mass_energy` floors mass at 1e-30 kg (electron rest energy 9.8 % high).
+- `mcp/procedures.py::relativistic_particle`: silently uses the electron mass for "alpha" and unknown particles.
+- `field/interface/adapters/ephemeris.py` (`SGEphemeris`): the Kepler tier freezes the anchor at the latest snapshot for
+  every epoch; `_forecast_position` snaps to the nearest 30.44-day month, ignores the stored date, serves epochs outside the
+  forecast and freezes the Sun; `sg_position_with_uncertainty` returns 0 when the worst tier serves.
+- `field/interface/orbital.py::fit_orbit`: cannot fit moons (μ = GM_anchor instead of G(M+m), and an aliased start point).
+- `field/asteroids.py`: Bennu and Ryugu semi-axes halved (diameter/2 applied to radii), so `asteroid_analysis('bennu')`
+  gravity is 4.8× too high.
+- `test_future_predictions.py` forecast fixture integrates Earth without the Moon: Earth lags 14.8 days after 30 years.
+
+**Promoted by the audit:** A12 (Forest–Ruth, and now also velocity Verlet `step()`, drop to first order when a
+velocity-dependent layer is on). With GR now correct, this integrator error dominates: in the DE440 shoot-out the fixed GR makes
+Mars 14× better but Mercury and Venus worse, because Mercury's along-track error scales with dt. Fixing the integrator should
+come before regenerating the shoot-out scores. Independently integrated (DOP853), the fixed `eih_cross` matches DE440 for
+Mercury to 0.6 km over 5 years, against 620 km for Newton alone.
+
+**Medium (47) and low (60):** listed with expected/got and repro in the report. Notable mediums: `sg_odeint` integrates with
+the output spacing as its step; `sg_solve_ivp`'s default Forest–Ruth freezes time for driven systems (first order) and its `include_gr` does nothing;
+`total_energy()` ignores `sigma_field`; unequal `sigma_field` breaks Newton's third law in the engine; J2/J3/J4 layers apply
+no reaction on the oblate body; `gr_2pn` uses a test-mass coefficient for comparable masses (6.4× too small for equal masses);
+`relativistic_energy_analysis` kinetic energy cancels catastrophically at everyday speeds; the shoot-out applies giant-planet
+J2/J4 about ICRS +z instead of their poles; `run_long_horizon_sweep.py` crashes on every predictor; `run_rolling_shootout`
+overwrites a tracked fixture.
+
+**Fixtures carrying the old GR sign:** `ssbm_future_predictions.json` (SHA-sealed, reproduced bit-for-bit by the pre-fix tree;
+Mercury differs by 3.7 × 10⁶ km at month 360 with the fix), `ssbm_over_physics_predictions.json`, the `rolling_shootout_*`,
+toggle-iteration and long-horizon fixtures. No test fails, because they check only hashes or loose thresholds.

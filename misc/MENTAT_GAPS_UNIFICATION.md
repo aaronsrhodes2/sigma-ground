@@ -50,6 +50,31 @@ All flagged, none fixed. Full text in [KNOWN_GAPS.md](../KNOWN_GAPS.md); evidenc
 | A32 | provenance and docstrings | audit.py claims a derivation C2 contradicts and a TOV that is not here; two unreconciled clock laws; Hawking year; label and hard-coded-c items; contradicting docstring numbers; dead GOLDEN_RULES pointer | U4, J6, U12, N1 | low |
 | A33 | research scripts | P6 dense-matter rows fail GW170817 and Chandrasekhar; P7 `poisson_fvm` +0.63 % split bias | N1, U10 | low (scripts) |
 
+### A, functional audit (2026-10-10): orbital dynamics and relativity stack
+
+After the 1PN fix (e894ec2). Full report: [AUDIT_ORBITAL_GR_2026-10-10.md](AUDIT_ORBITAL_GR_2026-10-10.md). All flagged, none fixed.
+
+| # | where | defect | severity |
+|---|---|---|---|
+| A12 ↑ | `nbody.py` `forest_ruth_step`, and `step()` (velocity Verlet) | first order with velocity-dependent forces; now the dominant error in GR runs (Mercury and Venus get worse in the DE440 shoot-out after the fix) | **high** (promoted) |
+| A34 | `nbody.py` `tidal_force` layer | bulge force on the perturber: wrong sign, half size, no recoil | **high** |
+| A35 | `nbody.py` `roche_limit` | primary's radius with the mass ratio: wrong law (Earth–Moon 3.7×) | **high** |
+| A36 | `nbody.py` `compute_tidal_deformation` | ε₂ = 0.25–0.30× the equilibrium surface amplitude | **high** |
+| A37 | `mcp/tools/relativity.py::doppler_shift_factor` | wrong at every off-axis angle; transverse case a blueshift | **high** |
+| A38 | `materia/translator.py` (`simulate`) | orbit questions answered for a 400 km satellite around the wrong body | **high** |
+| A39 | `materia/translator.py` (`simulate`) | black-hole questions always answered for 10 M☉ | **high** |
+| A40 | `materia/manifest.py` `relativistic_motion` | no slots: speed and particle ignored (0.9c electron always) | **high** |
+| A41 | `materia/translator.py` mass regex | "1e-3 kg" parsed as 3 kg | **high** |
+| A42 | `materia/scenarios.py` `mass_energy` | mass floored at 1e-30 kg (electron rest energy 9.8 % high) | **high** |
+| A43 | `mcp/procedures.py::relativistic_particle` | unknown particles and "alpha" silently use the electron mass | **high** |
+| A44 | `adapters/ephemeris.py` Kepler tier | anchor frozen at the latest snapshot for every epoch | **high** |
+| A45 | `adapters/ephemeris.py::_forecast_position` | snaps to 30.44-day months, ignores the stored date, serves out-of-range epochs, freezes the Sun | **high** |
+| A46 | `adapters/ephemeris.py::sg_position_with_uncertainty` | uncertainty 0 when the worst tier serves | **high** |
+| A47 | `field/interface/orbital.py::fit_orbit` | cannot fit moons (μ = GM_anchor; aliased start) | **high** |
+| A48 | `field/asteroids.py` | Bennu and Ryugu semi-axes halved: surface gravity 4.8× | **high** |
+| A49 | `test_future_predictions.py` fixture | Earth integrated without the Moon (14.8-day lag at 30 years); sealed forecasts also carry the old GR sign | **high** |
+| A50 | 47 medium and 60 low findings | adapters (`sg_odeint` step = output spacing, `sg_solve_ivp` freezes time for driven systems and contract gaps), σ bookkeeping, J2 reaction, 2PN for comparable masses, shoot-out frame and scripts, docs | see report |
+
 ## B. Missing capabilities (the program needed them and Mentat does not have them)
 
 | # | capability | why the program needs it | data anchors when built |

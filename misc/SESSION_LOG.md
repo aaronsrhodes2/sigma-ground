@@ -3098,6 +3098,52 @@ The Captain said "proceed" on the items waiting on him; the runnable ones were t
 - [ ] Nuclear-matter build per `misc/NUCLEAR_MATTER_PLAN.md` (~13 days, pending D1 package home).
 - [ ] SPARC download approval for the a₀ test.
 
+## Session 36 (GR fix and audit) — 2026-10-10 — Mercury goes forward again
+
+**Time:** 2026-10-10, ~10:30 → ~15:15 (Opus 5.5; the Captain: "fix the GR sign bugs and the adapter defaults. Run a functional audit on the code afterwards")
+**Status:** ✅ Complete
+
+### Changes
+- `sigma_ground/field/interface/nbody.py`: `gr_1pn` now uses the outward unit vector n = (xᵢ − xⱼ)/r in
+  (4GM/r − v²)n + 4(n·v)v; the `eih_cross` velocity cross-term now dots (xᵢ − xⱼ) into (4vᵢ − 3vⱼ); the EIH comment box
+  corrected. The defect notes became short "FIXED" records.
+- `adapters/base.py::sg_propagate_orbit` and `adapters/integrator.py::sg_nbody`: `include_gr` default True → False (opt in),
+  matching `sg_solve_ivp` and the scipy propagators they replace; docstrings say what the GR option is and where it is valid.
+- New `sigma_ground/field/interface/test_gr_precession.py` (8 tests); `test_nbody.py`: the zero-velocity test checks the sign,
+  the EIH-vs-1PN test compares correction vectors.
+- KNOWN_GAPS: the GR entry closed (signs, defaults) with what stays open; census A9, A10, A29 marked fixed.
+
+### Why
+Round 2 (U9, U5) found both layers precessing Mercury backwards (−43 and −72″/cy) and the orbit adapters switching the
+wrong-sign layer on by default. The Captain asked for the fix and an audit.
+
+### Verification
+- Mercury after the fix (Mentat G, c, Sun, Mercury; e [LIT]): `gr_1pn` +42.995″/cy, `eih_cross` +42.995″/cy at rest and boosted
+  30 km/s; formula 42.997″/cy (ratio 0.99997). `gr_1pn` boosted: ×5.885 (rest-frame approximation, documented).
+- The 8 new tests pass on the fix and all 8 fail on the pre-fix commit (exported to the scratchpad).
+- N-body, stability, adapter and GR suites: 160 passed. Full suite: 5034 passed, 1 known-red benchmark (baseline 5026 + 8 new).
+- Functional audit: 233 public functions in the orbital and relativity stack run against closed forms, conservation laws, independent
+  integrators, JPL DE440 and verified literature (workflow wf_f7016e99-47b, 244 agents; follow-up wf_8381c244-21f, 24 agents,
+  for 12 findings a reference-field filter bug had routed past verification). 124 confirmed (17 high, 47 medium, 60 low),
+  3 disputed, 1 refuted. The fix itself verified four independent ways, including Mercury's 5-year error against DE440:
+  0.6 km with the fixed eih_cross under DOP853, against 620 km Newton-only and 769–1244 km before the fix. Report:
+  misc/AUDIT_ORBITAL_GR_2026-10-10.md; ledger: KNOWN_GAPS (audit entry), census A12↑ and A34–A50.
+
+### Deploy
+Mentat's container (local `mentat-home`) and the public cloud service both build sigma-ground from a pinned commit (a763071,
+2026-07-19, 87 commits behind) that still has the reversed signs. Bumping the pin ships everything since July, so it is left
+for the Captain: `SIGMA_GROUND_REF` in SkippyTel's `mentat/Dockerfile` (local) and `.github/workflows/deploy.yml` (cloud).
+
+### Next Steps
+- [ ] Captain: bump Mentat's sigma-ground pin (local and cloud) to release the fix.
+- [ ] Regenerate the DE440 shoot-out scores (produced with the reversed EIH cross-term).
+- [ ] Fix the integrators first (A12↑: Forest–Ruth and Verlet are first order with velocity-dependent forces; with GR now
+  correct this error dominates Mercury and Venus in the shoot-out), then regenerate the shoot-out scores and sealed forecasts.
+- [ ] The 16 distinct high audit findings (tidal sign, Roche law, Doppler tool, Mentat `simulate` routing, ephemeris
+  adapter, fit_orbit, asteroid axes, the forecast fixture without the Moon) await the Captain's priority.
+- [ ] SSBM: the Captain asked for evidence against; answered in chat (every testable claim contradicted). A falsification
+  ledger in ssbm-theory was offered, not written.
+
 ## Session 37 — 2026-10-10 — Qwen harness: the model picks the call, the harness ends the question
 
 ### What shipped
