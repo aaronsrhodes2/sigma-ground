@@ -3189,3 +3189,32 @@ tool-calling fine-tune watt-tool-8B scored 0/64. Fix the harness before spending
 - [ ] Harness `--router` mode: router system prompt + Ollama JSON-schema `format` (tool name as an enum),
       single-shot plan → execute → template. The fine-tune is measured there.
 - [ ] Decide on findings 1–5.
+
+## Session 37 (continued) — 2026-10-10 — Router mode in the harness
+
+### What shipped
+- `run_sigma_ground.py --router`: after the deterministic cascade, the model gets ONE call with
+  `router_dataset.ROUTER_SYSTEM_PROMPT` (the training prompt) and Ollama's JSON-schema `format`:
+  `{"tool", "args"}` with the tool name limited to the live catalogue (217 names), or `{"decline"}`. If the
+  Ollama build rejects the schema, the harness retries in plain JSON mode. The plan runs at most once, after
+  alias normalisation and body-name resolution, and the harness writes the answer.
+  - Clarifications and declines run nothing and are recorded (`router_clarify`, `router_decline`).
+  - Bad replies are recorded as `router_error`, never raised.
+- `--router-index` appends the tool index for a stock-model baseline. A fine-tune uses the bare prompt.
+- `_ollama_tools()` factored out of `_amain`, so the tests build exactly the surface the harness shows.
+- `test_router_mode.py` (9 tests). The contract test builds a dataset with `router_dataset`, replays each gold
+  plan as the model's reply through the real server, and gets back exactly the verified values. A 1e-6
+  perturbation of the router's extraction fails it.
+- CLI smoke test with a fake Ollama HTTP server on a 13-question slice:
+  - 5 answered by the cascade;
+  - 8 router requests, all with the router prompt and the 217-name schema;
+  - the planned `element_atomic_data(Au)` came back as a grounded 79.
+
+### Limits
+- Plans are single-step. Body names resolve automatically; other lookup→compute chains don't.
+- Symbolic (non-numeric) tool answers are recorded as `returned no value`.
+
+### Next Steps
+- [ ] Captain: stock baseline on the 4070 Ti: `--router --router-index --model qwen3:8b`, own `--output`.
+      Compare against the `--finalize chain` run on the 64 Qwen-path questions.
+- [ ] Dataset → teacher pass → QLoRA → `ollama create mentat-router` → `--router` (no index).

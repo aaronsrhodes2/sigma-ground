@@ -660,6 +660,131 @@ def _chain_answer_text(chain: list[dict], reason: str,
     return text
 
 
+def _ollama_tools(mcp_tools) -> list[dict]:
+    """MCP tools -> Ollama's tool format, minus HIDDEN_FROM_LLM: the
+    body-aware/multi-step tools are reached deterministically via the
+    new-tools router, not by LLM selection. Keeping the visible surface small
+    is what stops catalog growth from degrading a modest model."""
+    from sigma_ground.mcp.benchmark.new_tools_classifier import HIDDEN_FROM_LLM
+    return [{"type": "function",
+             "function": {"name": t.name,
+                          "description": t.description or "",
+                          "parameters": t.inputSchema or {"type": "object",
+                                                          "properties": {}}}}
+            for t in mcp_tools if t.name not in HIDDEN_FROM_LLM]
+
+
+# ── Router mode: one shot, one JSON plan, Mentat does the rest ──────────────
+# A router (the fine-tune router_dataset.py trains) answers with ONE JSON
+# object -- a tool call, a request_clarification call, or a decline -- never a
+# number. Ollama's structured output pins the tool name to the live catalogue,
+# so a made-up tool can't be emitted; the harness runs the plan once and
+# reports the result itself (the finalize="chain" contract, minus the loop).
+
+def _router_format(tool_names: list[str]) -> dict:
+    """JSON schema for Ollama's `format`: the two shapes a plan can take."""
+    return {"anyOf": [
+        {"type": "object",
+         "properties": {"tool": {"type": "string", "enum": sorted(set(tool_names))},
+                        "args": {"type": "object"}},
+         "required": ["tool", "args"]},
+        {"type": "object",
+         "properties": {"decline": {"type": "string"}},
+         "required": ["decline"]},
+    ]}
+
+
+def _router_system_prompt(tools_for_ollama: list[dict], with_index: bool) -> str:
+    """The exact prompt the router fine-tune is trained on; `with_index` adds
+    the tool index for a stock model, which has no catalogue in its weights."""
+    from sigma_ground.mcp.benchmark.router_dataset import ROUTER_SYSTEM_PROMPT
+    if not with_index:
+        return ROUTER_SYSTEM_PROMPT
+    return ROUTER_SYSTEM_PROMPT + "\n\n" + _build_tool_index(tools_for_ollama)
+
+
+def _parse_plan(content: str) -> dict | None:
+    """The JSON object in the reply (constrained decoding returns only that;
+    an unconstrained model may wrap it in prose or a code fence)."""
+    for text in (content.strip(), (re.search(r"\{.*\}", content, re.S) or [""])[0]):
+        try:
+            plan = json.loads(text)
+        except ValueError:
+            continue
+        if isinstance(plan, dict):
+            return plan
+    return None
+
+
+async def _route_once(session, http, ollama_url: str, model: str, question: str,
+                      system_prompt: str, tools_for_ollama: list[dict],
+                      real_params_by_tool: dict[str, set[str]] | None,
+                      t0: float) -> dict:
+    """One model call -> one plan -> at most one tool call -> the record."""
+    names = [t["function"]["name"] for t in tools_for_ollama]
+    if "request_clarification" not in names:
+        names.append("request_clarification")
+    body = {"model": model, "stream": False, "think": False,
+            "messages": [{"role": "system", "content": system_prompt},
+                         {"role": "user", "content": question}],
+            "options": {"temperature": 0.0,
+                        "num_ctx": 32768 if len(system_prompt) > 6000 else 4096}}
+    response = await http.post(ollama_url, json={**body, "format": _router_format(names)})
+    if response.status_code >= 400:     # an Ollama that can't take a schema
+        response = await http.post(ollama_url, json={**body, "format": "json"})
+    response.raise_for_status()
+    raw = (response.json().get("message") or {}).get("content") or ""
+    plan = _parse_plan(raw)
+
+    def record(answer_text: str, **extra) -> dict:
+        return {"answer_text": answer_text, "extracted_value": None,
+                "extracted_units": "", "tool_calls": [], "turns": 1,
+                "elapsed_s": time.time() - t0, "extracted_via_fallback": False,
+                "nudges_sent": 0, "router_plan": raw, **extra}
+
+    if plan is None:
+        return record("<router: reply was not a JSON plan>", router_error="unparseable plan")
+    if "decline" in plan and "tool" not in plan:
+        return record(f"Declined: {plan['decline']}", router_decline=str(plan["decline"]))
+    name = plan.get("tool")
+    args = plan.get("args") if isinstance(plan.get("args"), dict) else {}
+    if name == "request_clarification":
+        ask = args.get("question") or f"What is the {args.get('variable') or 'missing input'}?"
+        return record(f"CLARIFY: {ask}", router_clarify=args.get("variable"))
+    if name not in names:
+        return record(f"<router: unknown tool {name!r}>", router_error=f"unknown tool {name!r}")
+
+    renames: list[str] = []
+    chain_log: list[str] = []
+    if real_params_by_tool is not None and name in real_params_by_tool:
+        from sigma_ground.mcp.benchmark.param_aliases import (
+            normalize_kwargs, resolve_body_name_chain)
+        args, renames = normalize_kwargs(args, real_params_by_tool[name])
+        args, chain_log = await resolve_body_name_chain(
+            session, args, real_params_by_tool[name])
+    try:
+        result = await asyncio.wait_for(session.call_tool(name, args), _TOOL_CALL_TIMEOUT_S)
+        tool_text = "\n".join(p.text for p in (result.content or [])
+                              if getattr(p, "text", None)) or "(empty)"
+    except asyncio.TimeoutError:
+        tool_text = f"<TOOL TIMEOUT: {name} exceeded {_TOOL_CALL_TIMEOUT_S:.0f}s>"
+    except Exception as e:
+        tool_text = f"<TOOL ERROR: {e}>"
+    call = {"name": name, "args": args, "result_text": tool_text[:2000],
+            "renames_applied": renames, "chain_log": chain_log}
+    step = {"name": name, "args": args, "result_text": tool_text}
+    got = _tool_call_value(step, question)
+    if got is None:
+        return {**record(f"<router: {name} returned no value>",
+                         router_error=f"{name} returned no value"),
+                "tool_calls": [call]}
+    step["value"] = got
+    return {**record(_chain_answer_text([step], "router plan")),
+            "tool_calls": [call], "extracted_value": got[0], "extracted_units": got[1],
+            "finalized_from_tool": name, "finalize_reason": "router plan",
+            "chain_length": 1}
+
+
 # Question-pattern -> domain hints. When a question matches a phrase
 # in `_PATTERN_HINTS`, point Qwen at the relevant section of the index.
 # Surfaced at the TOP of the system prompt so Qwen sees them before
@@ -877,13 +1002,17 @@ async def _run_one_question(session, ollama_url: str, model: str,
                               real_params_by_tool: dict[str, set[str]] | None = None,
                               primary_tool_expected: str | None = None,
                               tool_category: str = "auto",
-                              finalize: str = "chain") -> dict:
+                              finalize: str = "chain",
+                              router: bool = False) -> dict:
     """Multi-turn tool loop for a single question.
 
     finalize="chain" (default): after the first successful tool call the
     harness ends the question itself unless the model extends a data-flow
     chain (see _is_chain_step). finalize="model": the legacy loop, where the
     model must write its own ANSWER: line (kept for A/B against old runs).
+    router=True: no loop at all -- the deterministic cascade, then ONE model
+    call that must return a JSON plan (_route_once); `system_prompt` is then
+    the router prompt (_router_system_prompt).
     """
     import httpx
 
@@ -1206,6 +1335,12 @@ async def _run_one_question(session, ollama_url: str, model: str,
             return sem
     except Exception:
         pass   # router is best-effort; never block the LLM path on its failure
+
+    if router:
+        async with httpx.AsyncClient(timeout=120.0) as http:
+            return await _route_once(session, http, ollama_url, model, question,
+                                     system_prompt, tools_for_ollama,
+                                     real_params_by_tool, t0)
 
     messages = [
         {"role": "system",    "content": system_prompt},
@@ -1676,29 +1811,15 @@ async def _amain(args) -> int:
         async with ClientSession(read, write) as session:
             await session.initialize()
             tools_resp = await session.list_tools()
-            # Convert to Ollama's tool-format
-            # Hide the body-aware/multi-step tools from Qwen's flat list —
-            # they're reached deterministically via the new-tools router,
-            # not by LLM selection. Keeping the visible surface small is
-            # what stops catalog growth from degrading a modest model.
-            from sigma_ground.mcp.benchmark.new_tools_classifier import (
-                HIDDEN_FROM_LLM)
-            tools_for_ollama = [
-                {
-                    "type": "function",
-                    "function": {
-                        "name":        t.name,
-                        "description": t.description or "",
-                        "parameters":  t.inputSchema or {"type": "object",
-                                                            "properties": {}},
-                    },
-                }
-                for t in tools_resp.tools
-                if t.name not in HIDDEN_FROM_LLM
-            ]
+            tools_for_ollama = _ollama_tools(tools_resp.tools)
             tool_index = _build_tool_index(tools_for_ollama)
             real_params_by_tool = _build_real_params_map(tools_for_ollama)
             sys_prompt = _SYSTEM_PROMPT_BASE + "\n\n" + tool_index
+            if args.router:
+                sys_prompt = _router_system_prompt(tools_for_ollama, args.router_index)
+                print("ROUTER MODE: one JSON plan per question"
+                      + (" (tool index in the prompt)" if args.router_index
+                         else " (bare prompt: expects a router fine-tune)"))
             print(f"MCP server has {len(tools_for_ollama)} tools available")
             print(f"System prompt is {len(sys_prompt)} chars "
                   f"(includes full tool index)")
@@ -1758,6 +1879,7 @@ async def _amain(args) -> int:
                             primary_tool_expected=q.get("primary_tool_expected"),
                             tool_category=args.tools,
                             finalize=args.finalize,
+                            router=args.router,
                         ),
                         _QUESTION_TIMEOUT_S,
                     )
@@ -1835,7 +1957,18 @@ def main() -> int:
                              "it starts, and reports that result itself; 'model' "
                              "is the legacy loop where the model must write its "
                              "own ANSWER: line (for A/B against older runs).")
+    parser.add_argument("--router", action="store_true",
+                        help="qa mode: after the deterministic cascade, ask the model "
+                             "ONCE for a JSON plan (tool call / clarification / "
+                             "decline), constrained to real tool names, and run it -- "
+                             "the format router_dataset.py trains. Use its own --output.")
+    parser.add_argument("--router-index", action="store_true",
+                        help="with --router: append the tool index to the router "
+                             "prompt. Needed for a stock model; a router fine-tune "
+                             "was trained on the bare prompt.")
     args = parser.parse_args()
+    if args.router_index and not args.router:
+        parser.error("--router-index needs --router")
     return asyncio.run(_amain(args))
 
 

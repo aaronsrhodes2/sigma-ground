@@ -173,6 +173,45 @@ Comparison-report scaffolding is in `comparison_report_template.md`. Fill in num
 
 The "fitted due to incompetence" rate from sigma_ground is itself a useful output — every flagged answer becomes a library development ticket.
 
+## Router mode (`--router`)
+
+Router mode is how a router fine-tune gets measured, and how it would run in
+production.
+
+1. The deterministic cascade (classifiers, then the semantic router) runs
+   first, unchanged.
+2. Anything it doesn't answer goes to the model in **one** call, with the
+   exact system prompt `router_dataset.py` trains on.
+3. The reply is constrained by Ollama's JSON-schema `format`:
+   `{"tool", "args"}` with the tool name limited to the live catalogue, or
+   `{"decline"}`. An Ollama build without schema support gets plain JSON
+   mode.
+4. The harness runs the plan at most once and writes the answer itself.
+
+```bash
+# baseline: a stock model, which needs the tool index in its prompt
+python -m sigma_ground.mcp.benchmark.run_sigma_ground --router --router-index \
+    --model qwen3:8b --output sigma_ground/mcp/benchmark/results/router_qwen3_8b_stock_run.json
+# the fine-tune: bare prompt, exactly as trained
+python -m sigma_ground.mcp.benchmark.run_sigma_ground --router \
+    --model mentat-router --output sigma_ground/mcp/benchmark/results/router_finetune_run.json
+```
+
+Give each mode its own `--output`, because resume only skips records from
+the same model. Fields a router record can carry:
+- `router_plan`: the raw reply.
+- `router_decline`, `router_clarify` (the variable it asked for) or
+  `router_error`.
+- `finalized_from_tool`, when the plan ran.
+
+A clarification or decline has no value, so the groundedness gate flags it.
+That is correct for this numeric corpus, where every question carries its
+inputs. One known limit: plans are single-step, and a tool whose answer is
+an expression rather than a number (sympy) reports `returned no value`.
+`test_router_mode.py` holds the contract: a router that reproduces its
+training targets gets exactly the verified answers back through the real
+server.
+
 ## Router fine-tune dataset (`router_dataset.py`)
 
 Training data for a Qwen **router** fine-tune. A router reads a question and
