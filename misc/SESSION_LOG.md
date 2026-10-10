@@ -3438,3 +3438,7 @@ depended on test order.
 - A probe test that only bumps one bundle's modification time makes pytest exit 1 with the file named.
 - `tests/test_radiance_output_dir.py`: temp folder in tests; default = the viewer folder; `_save_bundle` writes
   to the output dir.
+- Full suite with the sentinel active (a817000): **5073 passed, 4 failed** (the same three environment-only
+  `verify_artifacts` / `D:\` viewer.js tests plus known-red `test_targets.py`), 36.5 min. Sentinel silent, tree
+  clean afterwards: nothing in the whole suite writes into `radiance/web/data/` any more. Merged master (GMod
+  holodeck work, 51 files under `stage/gmod/`, no overlap); layering + output-dir + front-door tests re-run green.
