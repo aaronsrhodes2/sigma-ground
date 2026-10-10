@@ -1084,8 +1084,9 @@ def main() -> int:
     @server.tool()
     def weak_acid_ph(acid_key: str,
                      concentration_mol_l: float) -> dict[str, Any]:
-        """pH of a weak-acid solution from its Ka, e.g.
-        weak_acid_ph('acetic_acid', 0.1) → ~2.88."""
+        """pH of a solution of any acid or base in the table (weak or strong),
+        e.g. weak_acid_ph('acetic_acid', 0.1) → ~2.88,
+        weak_acid_ph('ammonia', 0.1) → ~11.12."""
         return t_chem.weak_acid_ph(acid_key, concentration_mol_l)
 
     @server.tool()

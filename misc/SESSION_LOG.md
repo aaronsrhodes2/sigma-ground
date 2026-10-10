@@ -3245,3 +3245,44 @@ Both failed before the fix and pass after it. MCP + benchmark + layering: 163 pa
 ### Next
 - [ ] Regenerate the router dataset to pick up the tool (previously a gap).
 - [ ] Findings 2–5 still open.
+
+## Session 37 (continued) — 2026-10-10 — weak_acid_ph fixed (finding 2), plus the solvers under it
+
+### Cause (two bugs, one symptom)
+1. **The MCP wrapper** (`mcp/tools/chemistry.py`) sent every key in `ACID_BASE_DATA`, bases included, through
+   `pH_weak_acid`:
+   - 1.45 mM KOH → pH 15.0;
+   - 0.1 M ammonia → 5.12, silently wrong (11.12 is correct);
+   - 4 mM pyridine → 3.82 (8.41 is correct).
+2. **The library solvers** (`field/interface/acid_base.py`):
+   - `pH_weak_acid`'s Newton iteration diverged wherever water's own H+ matters: its `H <= 0` safeguard drove H
+     toward zero, so the 1e-15 clamp returned pH 15.0 for *genuine* acids (phenol at 1 µM, HS⁻, HPO₄²⁻,
+     HCO₃⁻). The true answer is ~7.
+   - `pH_weak_base` used a Kb-only quadratic with no water term, so dilute bases came out acidic
+     (1e-7 M pyridine → 6.08).
+   - The type-aware `pH_solution` inherited both.
+
+### Fix
+- `_weak_monoprotic_ion(K, C, Kw)`: exact charge balance `x = K·C/(K + x) + Kw/x`. It is strictly increasing
+  in x and bracketed by `[√Kw, C + √Kw]`, so bisection in log space always converges. Both weak solvers use it.
+- The tool dispatches through `pH_solution` (strong/weak acid/base), names the law it used in `formula`, and
+  declines negative concentrations. Its server docstring now says it covers acids and bases.
+- Name and schema unchanged, so the router dataset surface hash is unchanged.
+- Values unchanged where the old code was right: 0.1 M acetic 2.881, 0.1 M ammonia via `pH_weak_base` 11.117,
+  0.01 M HCl 2.000.
+
+### Guard
+- `test_acid_base.TestDiluteAndVeryWeak` checks the physics, not a copy of the solver, for every weak acid and
+  base at 1e-9 … 1 M:
+  - charge balance satisfied to 1e-9;
+  - acids never above neutral, bases never below;
+  - C → 0 is neutral water.
+- `test_chemistry_mcp`: every species type through the tool, plus the negative-concentration decline.
+- 57 sub-checks failed before the fix; all pass after. Also verified through the real stdio server.
+
+### New findings
+- 6. `buffer_ph` has the same blind spot: `henderson_hasselbalch` is applied to strong acids/bases, which form
+  no buffer (NaOH → "pH 14.55", HCl → "pH −6.30"). Weak species are correct.
+- 7. `materia/tests/test_materia.py::test_drag_heating_scenario_self_validates` fails here (last step's units
+  are '' not 'K'). It fails identically on this session's base 339c4f4 and on master, so it predates this
+  session. Possibly environment-dependent, since it is not in ARCHITECTURE.md's known-red list.

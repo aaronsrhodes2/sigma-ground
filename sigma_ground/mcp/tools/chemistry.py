@@ -89,20 +89,39 @@ def reaction_enthalpy(reaction_key: str) -> dict[str, Any]:
 
 
 # ── Acid–base ───────────────────────────────────────────────────────────
+# How pH_solution treats each species type in ACID_BASE_DATA.
+_PH_LAW = {"strong_acid": "strong acid: [H+] = C (+ water)",
+           "weak_acid": "weak acid: Ka equilibrium + charge balance",
+           "strong_base": "strong base: [OH-] = n*C (+ water)",
+           "weak_base": "weak base: Kb equilibrium + charge balance"}
+
+
 def weak_acid_ph(acid_key: str, concentration_mol_l: float) -> dict[str, Any]:
-    """pH of a weak-acid solution at a given molar concentration."""
-    from sigma_ground.field.interface.acid_base import pH_weak_acid, ACID_BASE_DATA
+    """pH of a solution of any species in the acid-base table at a given
+    molar concentration -- weak or strong, acid or base.
+
+    Dispatches on the species' type. It used to run every key, bases
+    included, through the weak-ACID equation: 1.45 mM KOH came back as
+    pH 15.0 and 0.1 M ammonia as an acidic 5.12.
+    """
+    from sigma_ground.field.interface.acid_base import pH_solution, ACID_BASE_DATA
     if acid_key not in ACID_BASE_DATA:
         return _decline(f"Unknown acid {acid_key!r}. Available: {sorted(ACID_BASE_DATA)}",
                         acid_key=acid_key).to_dict()
+    conc = float(concentration_mol_l)
+    if conc < 0:
+        return _decline(f"concentration must be >= 0 mol/L; got {conc}",
+                        acid_key=acid_key, concentration_mol_l=conc).to_dict()
+    kind = ACID_BASE_DATA[acid_key]["type"]
     try:
-        ph = pH_weak_acid(acid_key, float(concentration_mol_l))
+        ph = pH_solution(acid_key, conc)
     except Exception as e:
         return _decline(f"weak_acid_ph failed: {e}", acid_key=acid_key).to_dict()
     return ToolResult(
         value=ph, units="pH",
         source="sigma_ground.field.interface.acid_base",
-        provenance_tag="DERIVED", formula="weak-acid equilibrium (Ka)",
+        provenance_tag="DERIVED", formula=_PH_LAW.get(kind, kind),
+        notes=f"{acid_key} is a {kind.replace('_', ' ')}.",
         inputs={"acid_key": acid_key, "concentration_mol_l": concentration_mol_l}).to_dict()
 
 

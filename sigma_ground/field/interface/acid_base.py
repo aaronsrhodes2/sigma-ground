@@ -389,6 +389,33 @@ def pH_strong_base(concentration, n_oh=1, T=298.15):
     return -math.log10(H)
 
 
+def _weak_monoprotic_ion(K, C, Kw):
+    """[H+] of a weak acid (K=Ka) or [OH-] of a weak base (K=Kb), water included.
+
+    FIRST_PRINCIPLES: charge balance  x = K*C/(K + x) + Kw/x,  with
+    x = [H+] and the conjugate ion [A-] = K*C/(K + x) for an acid (mirror
+    image for a base: x = [OH-], [BH+] = K*C/(K + x)). Equivalent to the cubic
+    x^3 + K*x^2 - (K*C + Kw)*x - K*Kw = 0, which has exactly one positive root.
+
+    g(x) = x - K*C/(K + x) - Kw/x is strictly increasing, negative at
+    sqrt(Kw) (the solute can only push its ion ABOVE water's) and positive at
+    C + sqrt(Kw), so bisection in log space always lands on it. (Newton from
+    sqrt(K*C) diverged whenever water mattered: its x <= 0 safeguard drove x
+    toward zero and the result came back as the 1e-15 clamp, pH 15.0.)
+    """
+    lo = math.sqrt(Kw)
+    hi = C + lo
+    for _ in range(200):
+        mid = math.sqrt(lo * hi)
+        if mid - K * C / (K + mid) - Kw / mid < 0:
+            lo = mid
+        else:
+            hi = mid
+        if hi <= lo * (1 + 1e-15):
+            break
+    return math.sqrt(lo * hi)
+
+
 def pH_weak_acid(acid_key, concentration, T=298.15):
     """pH of a weak acid solution.
 
@@ -398,7 +425,8 @@ def pH_weak_acid(acid_key, concentration, T=298.15):
     Simplified when C >> Kw/Ka (usual case):
       [H+] = sqrt(Ka * C)  (if [H+] << C)
 
-    Uses exact cubic solution for accuracy at all concentrations.
+    Exact at all concentrations, including where water's own H+ dominates
+    (very weak or very dilute acids -> pH 7); see _weak_monoprotic_ion.
 
     Args:
         acid_key: key into ACID_BASE_DATA
@@ -410,36 +438,17 @@ def pH_weak_acid(acid_key, concentration, T=298.15):
     if concentration <= 0:
         return neutral_pH(T)
 
-    Ka_val = Ka(acid_key, T)
-    Kw = water_ion_product(T)
-
-    # Cubic: H^3 + Ka*H^2 - (Ka*C + Kw)*H - Ka*Kw = 0
-    # Newton's method from the simplified estimate
-    H = math.sqrt(Ka_val * concentration)  # initial guess
-    H = min(H, concentration)              # can't exceed total acid
-
-    for _ in range(50):
-        f = H ** 3 + Ka_val * H ** 2 - (Ka_val * concentration + Kw) * H - Ka_val * Kw
-        fp = 3 * H ** 2 + 2 * Ka_val * H - (Ka_val * concentration + Kw)
-        if abs(fp) < 1e-30:
-            break
-        dH = f / fp
-        H_new = H - dH
-        if H_new <= 0:
-            H = H * 0.1  # safeguard
-        else:
-            H = H_new
-        if abs(dH) < H * 1e-12:
-            break
-
-    return -math.log10(max(H, 1e-15))
+    H = _weak_monoprotic_ion(Ka(acid_key, T), concentration, water_ion_product(T))
+    return -math.log10(H)
 
 
 def pH_weak_base(base_key, concentration, T=298.15):
     """pH of a weak base solution.
 
     Solves the mirror problem: Kb = [BH+][OH-] / [B]
-    then pH = pKw - pOH.
+    then pH = pKw - pOH. Water's own OH- is included, so a dilute base can
+    never come out acidic (the old Kb-only quadratic gave 1e-7 M pyridine
+    pH 6.08).
 
     Args:
         base_key: key into ACID_BASE_DATA
@@ -451,16 +460,9 @@ def pH_weak_base(base_key, concentration, T=298.15):
     if concentration <= 0:
         return neutral_pH(T)
 
-    Kb_val = Kb(base_key, T)
     Kw = water_ion_product(T)
-
-    # OH from Kb: OH^2 + Kb*OH - Kb*C = 0
-    disc = Kb_val ** 2 + 4 * Kb_val * concentration
-    OH = 0.5 * (-Kb_val + math.sqrt(disc))
-    OH = max(OH, 1e-15)
-
-    H = Kw / OH
-    return -math.log10(max(H, 1e-15))
+    OH = _weak_monoprotic_ion(Kb(base_key, T), concentration, Kw)
+    return -math.log10(Kw / OH)
 
 
 def pH_solution(acid_key, concentration, T=298.15):

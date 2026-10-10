@@ -34,6 +34,27 @@ def test_weak_acid_ph_matches_textbook():
     assert _close(C.weak_acid_ph("acetic_acid", 0.1)["value"], 2.87, 0.02)
 
 
+def test_weak_acid_ph_handles_every_species_in_its_table():
+    # the tool used to run bases through the weak-ACID equation: 1.45 mM KOH
+    # came back as pH 15.0 and 0.1 M ammonia as an acidic 5.12
+    for key, conc, want in [("potassium_hydroxide", 1.45e-3, 11.156),
+                            ("sodium_hydroxide", 0.01, 11.995),
+                            ("ammonia", 0.1, 11.117),
+                            ("pyridine", 4.01e-3, 8.412),
+                            ("hydrochloric_acid", 0.01, 2.000),
+                            ("acetic_acid", 0.1, 2.881),
+                            ("phenol", 1e-6, 6.995)]:
+        r = C.weak_acid_ph(key, conc)
+        assert abs(r["value"] - want) < 2e-3, (key, r["value"], want)
+    r = C.weak_acid_ph("potassium_hydroxide", 1.45e-3)
+    assert "strong base" in r["formula"]
+
+
+def test_weak_acid_ph_declines_negative_concentration():
+    r = C.weak_acid_ph("acetic_acid", -0.1)
+    assert r["value"] is None
+
+
 def test_buffer_ph_is_pka_at_unit_ratio():
     assert _close(C.buffer_ph("acetic_acid", 1.0)["value"], 4.76, 0.02)
 
