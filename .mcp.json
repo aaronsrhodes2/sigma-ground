@@ -1,10 +1,9 @@
 {
   "mcpServers": {
     "mentat": {
-      "comment": "PLATINUM_RULES §21 — Mentat does the physics. sigma-ground's MCP server, run over stdio inside SkippyTel's skippytel-mentat container (the copy with Qwen for the `simulate` front door). Needs Docker Desktop up; tools appear as mcp__mentat__*. Shell equivalent: tools/mentat_call.sh.",
-      "command": "docker",
-      "args": ["exec", "-i", "skippytel-mentat", "python", "-m", "sigma_ground.mcp.server"],
-      "env": {"MSYS_NO_PATHCONV": "1"}
+      "comment": "PLATINUM_RULES §21 — Mentat does the physics. SkippyTel's public Mentat (Cloud Run: no Qwen, so no GPU) as a remote MCP server: one shared service, nothing spawned per session; tools appear as mcp__mentat__*. Claude Desktop / claude.ai / phone use the same URL as the custom connector `mentat` (skippy-tel CLAUDE.md). The Qwen-backed copy on skippy-pc stays private to the portal chat; shell access to it: tools/mentat_call.sh.",
+      "type": "http",
+      "url": "https://skippy-mentat-1015050363686.us-west1.run.app/mcp"
     }
   }
 }
