@@ -585,7 +585,9 @@ class TestGRCorrection(unittest.TestCase):
         self.assertGreater(diff, 0)
 
     def test_gr_zero_velocity_no_change(self):
-        """At v=0 the 1PN correction vanishes (v² = 0, r̂·v = 0 terms)."""
+        """At v=0 only the 4GM/r term survives, and it points OUTWARD (from the attractor to the body):
+        the harmonic-gauge 1PN attraction on a body at rest is (GM/r²)(1 − 4GM/(rc²)), weaker than Newton.
+        (Before 2026-10-10 this test accepted either sign; see test_gr_precession.py.)"""
         b1 = CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.5)
         b2 = CelestialBody(1e24, np.array([AU / 10, 0, 0.0]),
                            np.zeros(3), 1e6, 0.3)
@@ -593,11 +595,9 @@ class TestGRCorrection(unittest.TestCase):
         acc_n  = NBodySystem([b1, b2], include_gr=False).compute_accelerations()
         acc_gr = NBodySystem([b1, b2], include_gr=True ).compute_accelerations()
 
-        # At v=0: v² = 0 and r̂·v = 0, so the 1PN correction is (4GM/r)r̂
-        # It's non-zero, but the Newtonian dominates by >>factor
         ratio = float(np.linalg.norm(acc_gr[1])) / float(np.linalg.norm(acc_n[1]))
-        # Correction is ~(4GM/rc²) / 1 ≈ very small
-        self.assertAlmostEqual(ratio, 1.0, delta=0.01)
+        x = b1.gm_m3_s2 / ((AU / 10) * 299792458.0**2)
+        self.assertAlmostEqual(ratio - 1.0, -4.0 * x, delta=1e-6 * 4.0 * x)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1615,6 +1615,13 @@ class TestEIH1PN(unittest.TestCase):
         ratio = (float(np.linalg.norm(acc_eih[1]))
                  / float(np.linalg.norm(acc_1pn[1])))
         self.assertAlmostEqual(ratio, 1.0, delta=1e-4)
+        # The 1PN CORRECTIONS themselves must agree (the magnitude ratio above hides them: they are ~1e-7 of
+        # Newton). With the attractor at rest they differ only by O(m/M) terms. Before 2026-10-10 the two
+        # layers had opposite radial signs here and this check would have failed.
+        acc_n = NBodySystem([b1, b2], toggles=PhysicsToggles()).compute_accelerations()
+        corr_1pn = acc_1pn[1] - acc_n[1]
+        corr_eih = acc_eih[1] - acc_n[1]
+        self.assertLess(float(np.linalg.norm(corr_eih - corr_1pn)) / float(np.linalg.norm(corr_1pn)), 1e-4)
 
     def test_eih_includes_a_newton_self_consistency(self):
         """The 7/(2c²) Σ_j μ_j a_j^N / r_ij coupling means each body's

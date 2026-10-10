@@ -312,7 +312,19 @@ Stage 9b while placing matter on the η/s axis.
 - Decision for the Captain: derived-with-error vs measured-with-citation.
 
 
-## PHYSICS_GAP: the N-body engine's 1PN GR corrections have reversed signs — Mercury precesses backwards (2026-10-10)
+## ✅ FIXED 2026-10-10 (signs and adapter defaults) — PHYSICS_GAP: the N-body engine's 1PN GR corrections had reversed signs — Mercury precessed backwards (2026-10-10)
+
+**Closure (same day, at the Captain's request).** `gr_1pn` now builds its bracket on the outward unit vector
+n = (xᵢ − xⱼ)/r, and the `eih_cross` velocity cross-term dots (xᵢ − xⱼ) into (4vᵢ − 3vⱼ). Measured after the fix (Mercury,
+Forest–Ruth, orbit-averaged Laplace–Runge–Lenz angle minus a Newtonian run): `gr_1pn` +42.995″/cy, `eih_cross` +42.995″/cy at
+rest and +42.995″/cy boosted 30 km/s, against the formula's 42.997″/cy (ratio 0.99997). The orbit adapters `sg_nbody` and
+`sg_propagate_orbit` now default to `include_gr=False`, like `sg_solve_ivp`. Sentinels: `test_gr_precession.py` (8 tests: both
+correction vectors against independently written textbook formulas, the static-body sign, Mercury for both layers, EIH boost
+invariance, the adapter defaults); all 8 fail on the pre-fix code. `test_nbody.py`'s zero-velocity test now checks the sign and
+its EIH-vs-1PN test compares the correction vectors. **Still open:** `gr_1pn` remains a rest-frame approximation (absolute
+velocity; a 30 km/s boost gives ×5.9, by construction); Forest–Ruth is first order with velocity-dependent forces; the DE440
+shoot-out scores were produced with the reversed term and should be regenerated.
+
 
 `sigma_ground/field/interface/nbody.py`, `compute_accelerations`:
 

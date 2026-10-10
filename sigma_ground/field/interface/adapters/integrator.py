@@ -202,10 +202,7 @@ def sg_nbody(
     dt_s:   float,
     t_total_s: float,
     method: str = "forest_ruth",
-    # PHYSICS_GAP (2026-10-10, unification round 2; KNOWN_GAPS.md): this default turns on
-    # nbody gr_1pn, whose 1PN correction has the wrong sign (Mercury precesses −43″/cy).
-    # Every caller that relies on the default inherits it. Flagged, not fixed.
-    include_gr: bool = True,
+    include_gr: bool = False,
     record_every: int = 1,
 ) -> tuple[list, list[float]]:
     """Propagate CelestialBody list using Forest-Ruth (or Verlet).
@@ -218,7 +215,10 @@ def sg_nbody(
     dt_s       : fixed timestep (seconds) -- keep fixed for symplecticity
     t_total_s  : total integration time (seconds)
     method     : 'forest_ruth' or 'verlet'
-    include_gr : include 1PN Schwarzschild correction
+    include_gr : opt in to the 1PN Schwarzschild correction (nbody gr_1pn; a
+                 single-body form, valid in the attractor's rest frame).
+                 Default False since 2026-10-10: plain Newtonian, like the
+                 scipy propagators this replaces and like sg_solve_ivp.
     record_every : record state every N steps (1 = every step)
 
     Returns

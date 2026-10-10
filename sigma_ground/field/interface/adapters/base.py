@@ -105,10 +105,7 @@ class SGPhysicsMixin:
         dt_s: float,
         n_steps: int,
         method: str = "forest_ruth",
-        # PHYSICS_GAP (2026-10-10, unification round 2; KNOWN_GAPS.md): this default turns on
-        # nbody gr_1pn, whose 1PN correction has the wrong sign (Mercury precesses −43″/cy).
-        # Every caller that relies on the default inherits it. Flagged, not fixed.
-        include_gr: bool = True,
+        include_gr: bool = False,
     ) -> list:
         """Propagate N bodies using Forest-Ruth (default) or Verlet.
 
@@ -121,7 +118,10 @@ class SGPhysicsMixin:
         dt_s   : fixed timestep (seconds) -- do NOT vary; symplecticity requires fixed dt
         n_steps : number of steps
         method  : 'forest_ruth' (4th-order) or 'verlet' (2nd-order)
-        include_gr : include 1PN Schwarzschild correction
+        include_gr : opt in to the 1PN Schwarzschild correction (nbody gr_1pn; a
+                     single-body form, valid in the attractor's rest frame).
+                     Default False since 2026-10-10: plain Newtonian, like the
+                     scipy propagators this replaces and like sg_solve_ivp.
 
         Returns
         -------

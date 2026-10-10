@@ -24,8 +24,8 @@ All flagged, none fixed. Full text in [KNOWN_GAPS.md](../KNOWN_GAPS.md); evidenc
 
 | # | where | defect | found by | severity |
 |---|---|---|---|---|
-| A9 | `nbody.py` `gr_1pn` | whole 1PN correction has the wrong sign: Mercury −42.997″/cy | U9, U5; three independent integrators | **high**: every `include_gr=True` result |
-| A10 | `nbody.py` `eih_cross` | velocity cross-term sign reversed: Mercury −71.66″/cy, frame-dependent precession | U9, U5 | **high**: live in the DE440 predictor |
+| A9 | `nbody.py` `gr_1pn` | whole 1PN correction has the wrong sign: Mercury −42.997″/cy | U9, U5; three independent integrators | ✅ **FIXED** 2026-10-10 (sign; +42.995″/cy; `test_gr_precession.py`) |
+| A10 | `nbody.py` `eih_cross` | velocity cross-term sign reversed: Mercury −71.66″/cy, frame-dependent precession | U9, U5 | ✅ **FIXED** 2026-10-10 (cross-term; frame-invariant +42.995″/cy) |
 | A11 | `nbody.py` `_apply_gw_damping` | Peters power with r⁻⁴ (W·m), r[m] times too strong; sub-ulp losses round to zero; recompute adds spurious decay | U1 | **high** for compact binaries |
 | A12 | `nbody.py` `forest_ruth_step` | 1st order, not 4th, with velocity-dependent forces | U9 | medium |
 | A13 | GR/GW tests | assert only "nonzero" or "decreasing"; neither sign nor size tested | U9, U1 | **high** (why A9–A11 survived) |
@@ -44,7 +44,7 @@ All flagged, none fixed. Full text in [KNOWN_GAPS.md](../KNOWN_GAPS.md); evidenc
 | A26 | `inventory/data/isotopes.json` | 55 stable isotopes with zero abundance and placeholder spins | T5 | low |
 | A27 | `inventory/core/sigma.py` | Coulomb energy σ-invariant (a model choice carrying ~all of Δf); docstring σ values and ξ provenance | T5, U4, U5 | decision |
 | A28 | SkippyTel `mentat/app.py` (other repo) | gateway refuses `y''` and some ordinary power expressions | N1, U3 | recorded only |
-| A29 | `adapters/base.py`, `adapters/integrator.py` | `include_gr=True` by default: orbit propagation silently uses the reversed 1PN (A9) | U5 recheck, critic | **high** |
+| A29 | `adapters/base.py`, `adapters/integrator.py` | `include_gr=True` by default: orbit propagation silently uses the reversed 1PN (A9) | U5 recheck, critic | ✅ **FIXED** 2026-10-10 (defaults now `include_gr=False`) |
 | A30 | `mcp/tools/mathx.py` | `compute_limit`, `series_expansion`, `summation`: same E/I/N/S/O/Q parsing defect as A20 | critic; reproduced live | **high** under §21 |
 | A31 | cascade material data | iron κ 108 vs ~80 W/m/K (dκ/dT wrong sign); glass κ 78; T_melt rubber 1.9 × 10⁻⁴ K, ABS 2.6 K; ideal-EOS conduction uses the solid's c_p | U14G, U2 | medium |
 | A32 | provenance and docstrings | audit.py claims a derivation C2 contradicts and a TOV that is not here; two unreconciled clock laws; Hawking year; label and hard-coded-c items; contradicting docstring numbers; dead GOLDEN_RULES pointer | U4, J6, U12, N1 | low |
