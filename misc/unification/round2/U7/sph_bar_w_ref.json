@@ -1,0 +1,25 @@
+{
+ "material": "water_ice",
+ "dims": [
+  27,
+  11,
+  11
+ ],
+ "nsteps": 50,
+ "s": 0.01,
+ "h": 0.015,
+ "dt": 1.033565445124963e-06,
+ "dt_factor": 1.0,
+ "alpha_visc": 1.0,
+ "amp_frac": 0.0,
+ "rho0": 917.0,
+ "K": 11502016446.394638,
+ "G": 4410547659.895687,
+ "c_L_cascade": 4353.860726696342,
+ "c_tait": 3541.6229585269134,
+ "m_bulk": 0.000915357203529296,
+ "masses_file": "C:/Users/aaron/AppData/Local/Temp/claude/D--Aaron-development-sigma-ground/c6652910-47a9-478d-9c83-a8a8c8aaa457/scratchpad/round2/U7/masses_bar27_water_ice.npy",
+ "wall_seconds": 274.6030685901642,
+ "T_max_end": 300.231405139065,
+ "T_min_end": 299.5340399812526
+}

@@ -1,0 +1,31 @@
+xi = 0.1582; field-eq K = ['2*G*M*xi/c**2']; K/inventory = 2
+earth  field_eq   extra_dilation  metric=3.1640e-01 (engine 3.1640e-01) orders: GPA +3.354 Will +3.199 V80 +3.655 Gal +4.106 excluded
+earth  field_eq   notation        metric=6.8360e-01 (engine 6.8360e-01) orders: GPA +3.689 Will +3.534 V80 +3.990 Gal +4.440 excluded
+earth  inventory  extra_dilation  metric=1.5820e-01 (engine 1.5820e-01) orders: GPA +3.053 Will +2.898 V80 +3.354 Gal +3.805 excluded
+earth  inventory  notation        metric=8.4180e-01 (engine 8.4180e-01) orders: GPA +3.779 Will +3.624 V80 +4.080 Gal +4.531 excluded
+earth  docstring  extra_dilation  metric=1.0000e+00 (engine 1.0000e+00) orders: GPA +3.854 Will +3.699 V80 +4.155 Gal +4.606 excluded
+earth  docstring  notation        metric=6.9535e-10 (engine 0.0000e+00) orders: GPA -5.304 Will -5.459 V80 -5.003 Gal -4.552 allowed
+sun    field_eq   extra_dilation  metric=3.1640e-01 (engine 3.1640e-01) orders: GPA +3.354 Will +3.199 V80 +3.655 Gal +4.106 excluded
+sun    field_eq   notation        metric=6.8360e-01 (engine 6.8360e-01) orders: GPA +3.689 Will +3.534 V80 +3.990 Gal +4.440 excluded
+sun    inventory  extra_dilation  metric=1.5820e-01 (engine 1.5820e-01) orders: GPA +3.053 Will +2.898 V80 +3.354 Gal +3.805 excluded
+sun    inventory  notation        metric=8.4180e-01 (engine 8.4180e-01) orders: GPA +3.779 Will +3.624 V80 +4.080 Gal +4.531 excluded
+sun    docstring  extra_dilation  metric=1.0000e+00 (engine 1.0000e+00) orders: GPA +3.854 Will +3.699 V80 +4.155 Gal +4.606 excluded
+sun    docstring  notation        metric=2.1231e-06 (engine 2.1230e-06) orders: GPA -1.819 Will -1.974 V80 -1.518 Gal -1.067 allowed
+GP-A differential: [{'normalisation': 'field_eq', 'extra_ratio': 0.31639999958982706, 'notation_residual': 0.683600000410173}, {'normalisation': 'inventory', 'extra_ratio': 0.1581999997828236, 'notation_residual': 0.8418000002171764}, {'normalisation': 'docstring', 'extra_ratio': 0.9999999990338538, 'notation_residual': 9.661461431206706e-10}]
+universal: y*(-k - 1) + 1 | -k*y + 1 | k*y*(-k - 2)/(2*(k**2 + 2*k + 1)) | -y/2 | ['1/(k + 1)'] k/(k + 1)
+   field_eq earth extra res 2.941e-10 1-gamma 0.2404 (+4.02) notation res 6.954e-10
+   field_eq sun extra res 8.979e-07 1-gamma 0.2404 (+4.02) notation res 2.123e-06
+   inventory earth extra res 1.770e-10 1-gamma 0.1366 (+3.77) notation res 6.954e-10
+   inventory sun extra res 5.404e-07 1-gamma 0.1366 (+3.77) notation res 2.123e-06
+   docstring earth extra res 5.215e-10 1-gamma 0.5000 (+4.34) notation res 6.954e-10
+   docstring sun extra res 1.592e-06 1-gamma 0.5000 (+4.34) notation res 2.123e-06
+  diff universal: {'field_eq': 4.08617690458783e-10, 'inventory': 2.459087788590156e-10}
+horizon: B*rs/(r**2*(1 - rs/r)) | B*rs | 0 | -B*rs | {'B = +1': '-oo', 'B = -1': 'oo', 'B = 0 (regular branch)': 'A', 'general': 'lim sigma (r -> r_s+) = -oo * sign(B) for B != 0; = A for B = 0'} | B**2*rs**2/(r**3*(r - rs)) | rs**2/(r**3*(r - rs)) oo*sign(1/rs) | 1
+xi/2 attribution: 1/2 0.5 0.0791 {'1.001': 0.07902097902097903, '1.000001': 0.07909992090007911, '1.0': 0.0791, '0.5': 0.0791, '0.1': 0.0791}
+amplitude: {'route (a)/(b), field equation (C2 = 2 xi GM/rc^2)': 1.0, 'route (a)/(b), inventory (C2 = xi GM/rc^2, sigma_from_potential)': 0.5, 'route (c) as design 2.5-6(c) writes it (sigma = -2 xi Phi/c^2 = xi r_s/r)': 1.0, 'route (c) as xi-free GR notation (design 2.5-2: sigma = GM/rc^2, no xi)': 3.16055625790139}
+C3: 0.02237 0.1200 40 0.157125798974503
+calls: {'sigma_time_dilation': ['sigma_ground/field/relativity.py:12'], 'sigma_from_potential': ['scripts/unification/pilot_p6_sigma_bridge.py:59']}
+verdict: {'prediction_extra_rows_excluded_ge_3_orders': True, 'survivors': [('docstring', 'notation')], 'only_notation_survives': True, 'min_orders_extra_xi_rows': 3.053077133371655, 'margins_extra_xi_rows_by_bound': {'GPA_1p4e-4_prereg': {'field_eq': 3.354107201968029, 'inventory': 3.053077133371655}, 'Will2014_2e-4': {'field_eq': 3.199205241982286, 'inventory': 2.898175173385912}, 'Vessot1980_7e-5': {'field_eq': 3.65513719763201, 'inventory': 3.3541071290356363}, 'Galileo2018_2p48e-5': {'field_eq': 4.105783556820051, 'inventory': 3.804753488223677}}}
+precision: [{'height_m': 1.0, 'engine_delta_z': 0.0, 'stable_delta_z': 1.0902226928366374e-16, 'rel_error': -1.0}, {'height_m': 0.01, 'engine_delta_z': 0.0, 'stable_delta_z': 1.0902228065739716e-18, 'rel_error': -1.0}, {'height_m': 1000.0, 'engine_delta_z': 1.0902390101819037e-13, 'stable_delta_z': 1.0900519603366352e-13, 'rel_error': 0.00017159718258818167}]
+sun flag: 6.67258813828611e-11 1.98840987069805e+30 0.0002565513828246652
+n calls 64

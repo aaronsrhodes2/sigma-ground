@@ -1,0 +1,1852 @@
+{
+ "id": "J6",
+ "version": "v2 (repair)",
+ "mutation": "unruh_x2",
+ "title": "Jacobson 1995 checked derivation",
+ "prereg": {
+  "prediction": "Every algebraic step of Jacobson 1995 closes in sympy: (S1) Raychaudhuri with theta(p)=sigma(p)=0 gives theta = -lambda R_kk + O(lambda^2); (S2) dQ = kappa eps^2 T_kk A/2, dA = eps^2 R_kk A/2; (S3) dQ = T eta dA with T = hbar kappa/2pi gives T_kk = (hbar eta/2pi) R_kk with kappa, eps, A cancelling; (S4) a symmetric M_ab with M_kk = 0 for every null k is f g_ab (solution space of dimension exactly 1); (S5) the contracted Bianchi identity div(G_ab + Lambda g_ab) = 0 holds identically on test metric families with arbitrary functions; (S6) conservation fixes f = -R/2 + Lambda; (S7) G_ab + Lambda g_ab = (2pi/hbar eta) T_ab and 8 pi G = 2pi/(hbar eta) gives eta = 1/(4 hbar G); (S8) the SI restoration is unique: eta = k_B c^3/(4 G hbar) = k_B/(4 l_P^2); (S9) EGJ shear: allowing sigma(p) != 0 gives a shear viscosity eta_s = hbar eta/(4 pi) = 1/(16 pi G), eta_s/s = hbar/(4 pi); (S10) Schwarzschild consistency: kappa = c^2/(2 r_s), T_H = hbar kappa/(2 pi c k_B), d(Mc^2) = T_H dS.",
+  "pass_fail": "DELIVERED if every symbolic residual simplifies to exactly 0 and S4's null space has dimension 1; FAIL if any residual is non-zero; INCONCLUSIVE for any step that cannot be checked symbolically (named). Mentat numbers: N1 eta/k_B from Mentat G, hbar, c equals 1/(4 L_PLANCK^2) from Mentat to rel <= 1e-9; N2 entropy/area from Mentat bekenstein_hawking_entropy equals N1 to rel <= 1e-9 for masses 1e10..1e40 kg; N3 Mentat unruh_temperature(a) equals hbar a/(2 pi c k_B) from Mentat constants to rel <= 1e-9; N4 Mentat hawking_temperature(M) equals Mentat unruh_temperature(c^2/(2 r_s)) with Mentat schwarzschild_radius to rel <= 1e-9; N5 first law (M+ - M-)c^2/(k_B (S+ - S-)) from Mentat entropies equals Mentat T_H to rel <= 1e-8.",
+  "fixed_at": "2026-10-10, before first execution of v1; carried into v2 unchanged",
+  "scope_note_v2": "The prediction concerns the steps of Jacobson 1995, which is a leading-order argument (A8). Diagnostic D1 (next order) is not one of those steps and is reported outside the verdict."
+ },
+ "assumptions": [
+  {
+   "id": "A1",
+   "text": "[geometry input] Spacetime is a smooth 4-D Lorentzian manifold (signature -,+,+,+); at every point p a local inertial frame exists (equivalence principle), so g_ab = diag(-1,1,1,1) at p and local Rindler horizons can be built."
+  },
+  {
+   "id": "A2",
+   "text": "[construction] Local Rindler horizon: through p pick a small spacelike 2-surface P; its past-directed null normals generate a null congruence, affinely parametrised by lambda (lambda = 0 at p, lambda < 0 to the past), tangent k^a, hypersurface-orthogonal so the twist omega vanishes."
+  },
+  {
+   "id": "A3",
+   "text": "[construction, not a restriction on spacetime] P is chosen so that the expansion theta and the shear sigma of the inside congruence vanish at p. Jacobson 1995: 'It is always possible to choose P through p so that the expansion and shear vanish in a first order neighborhood of p.' Jacobson calls such a horizon 'instantaneously stationary (in local equilibrium) at p'; EGJ 2006 remark 4 later withdrew equilibrium as the reason for sigma(p) = 0 ('This is not valid however, since the shear defined with respect to Killing parameter would in any case vanish')."
+  },
+  {
+   "id": "A4",
+   "text": "[physical assumption] Entropy is proportional to horizon area: dS = eta dA with eta a universal constant (motivated by vacuum entanglement across the horizon with a UV cutoff; eta is NOT fixed by the argument). With a non-constant entropy density (f(R)), EGJ show theta(p) != 0 is forced instead (S3b detail)."
+  },
+  {
+   "id": "A5",
+   "text": "[QFT input] Unruh temperature: the vacuum seen by the boost observer is thermal at T = hbar kappa/(2 pi) (c = k_B = 1), kappa the acceleration of the orbit where |chi| = 1 (Unruh 1976; Bisognano-Wichmann)."
+  },
+  {
+   "id": "A6",
+   "text": "[physical assumption] Heat = boost-energy flux of matter across the horizon: dQ = int_H T_ab chi^a dSigma^b with chi^a = -kappa lambda k^a (approximate boost Killing field vanishing at p) and dSigma^b = k^b dlambda dA. T_ab classical and symmetric; its quantum fluctuations are neglected. EGJ 2006 remark 5: the approximate Killing vector is ambiguous at O(x^3) while its lowest-order part is O(x), so the heat flux is fuzzy at relative order (patch size)^2/L_c^2."
+  },
+  {
+   "id": "A7",
+   "text": "[the postulate; carries the physics] The Clausius relation dQ = T dS holds as an EQUALITY (no internal entropy production) for every local Rindler horizon through every point p, i.e. for every null k, on horizons whose expansion and shear vanish at p (A3). theta(p) = 0 is also necessary for the equality (S3b, EGJ remark 4); sigma(p) = 0 is the condition for no internal entropy production (S3c, S9, EGJ remark 4)."
+  },
+  {
+   "id": "A8",
+   "text": "[approximation] Leading order: the horizon patch is small compared with the curvature radius; R_kk and T_kk are evaluated at p and the relation is required only at the leading power of the patch size eps. It does NOT hold at the next order even with Einstein's equation imposed (diagnostic D1)."
+  },
+  {
+   "id": "A9",
+   "text": "[physical assumption] Matter stress-energy is conserved: nabla^a T_ab = 0."
+  },
+  {
+   "id": "A10",
+   "text": "[topology] Spacetime (the domain of f) is connected, so a scalar with vanishing gradient is a constant."
+  },
+  {
+   "id": "A11",
+   "text": "[identification, not a prediction] The coupling 2 pi/(hbar eta) is NAMED 8 pi G with G taken from measurement; identifying the two gives eta = 1/(4 hbar G). eta (horizon entropy density) is not independently measured, so nothing is predicted."
+  },
+  {
+   "id": "GEO1",
+   "text": "[geometric identity] Raychaudhuri equation for an affinely parametrised null congruence: dtheta/dlambda = -theta^2/2 - sigma_ab sigma^ab + omega_ab omega^ab - R_ab k^a k^b."
+  },
+  {
+   "id": "GEO2",
+   "text": "[geometric identity, spot-checked in S5 and used live in S6] contracted Bianchi identity nabla^a (R_ab - R g_ab/2) = 0; metric compatibility nabla g = 0."
+  }
+ ],
+ "steps": [
+  {
+   "id": "S1",
+   "title": "Raychaudhuri with theta(p)=sigma(p)=omega=0 gives theta = -lambda R_kk + O(lambda^2)",
+   "uses": [
+    "GEO1",
+    "A2",
+    "A3",
+    "A8"
+   ],
+   "residual": "0",
+   "status": "CLOSES",
+   "tag": "[VERIFIED numerics]",
+   "live_checks": [
+    "order-by-order solution of Raychaudhuri (general a1 compared with the textbook form)"
+   ],
+   "by_construction_parts": [],
+   "detail": {
+    "theta_general_series": "-R0**2*lambda**3/6 - R0*lambda**3*s0**2/3 - R0*lambda**3*theta0**2/3 + R0*lambda**3*w0**2/3 + R0*lambda**2*theta0/2 - R0*lambda + R1*lambda**3*theta0/6 - R1*lambda**2/2 - R2*lambda**3/3 - lambda**3*s0**4/6 - lambda**3*s0**2*theta0**2/3 + lambda**3*s0**2*w0**2/3 + lambda**3*s0*s1*theta0/3 - lambda**3*s1**2/3 - lambda**3*theta0**4/8 + lambda**3*theta0**2*w0**2/3 - lambda**3*w0**4/6 + lambda**2*s0**2*theta0/2 - lambda**2*s0*s1 + lambda**2*theta0**3/4 - lambda**2*theta0*w0**2/2 - lambda*s0**2 - lambda*theta0**2/2 + lambda*w0**2 + theta0",
+    "a1_general": "-R0 - s0**2 - theta0**2/2 + w0**2",
+    "theta_with_A2_A3": "-R0**2*lambda**3/6 - R0*lambda - R1*lambda**2/2 - R2*lambda**3/3 - lambda**3*s1**2/3"
+   }
+  },
+  {
+   "id": "S1b",
+   "title": "exact focusing solution theta = -sqrt(2R) tan(sqrt(R/2) lambda) solves Raychaudhuri (sigma=0, const R); series agrees with Mentat series_expansion",
+   "uses": [
+    "GEO1",
+    "A2",
+    "A3"
+   ],
+   "residual": "0",
+   "status": "CLOSES",
+   "tag": "[VERIFIED numerics]",
+   "live_checks": [
+    "ODE residual of the closed form",
+    "sympy series vs Mentat series_expansion"
+   ],
+   "by_construction_parts": [],
+   "detail": {
+    "ode_residual": "0",
+    "series_sympy": "-R_c**2*lambda**3/6 - R_c*lambda",
+    "series_mentat": "-R**2*lam**3/6 - R*lam",
+    "mentat_source": "sympy.series",
+    "dA_exact_over_A": "-2*log(cos(sqrt(2)*sqrt(R_c)*epsilon/2))",
+    "dA_exact_over_leading_series": "R_c*epsilon**2/12 + 1"
+   }
+  },
+  {
+   "id": "S2",
+   "title": "dQ = kappa eps^2 T_kk A/2 and dA = eps^2 R_kk A/2 (sympy and Mentat integrate_expr agree)",
+   "uses": [
+    "A6",
+    "A8",
+    "S1"
+   ],
+   "residual": "0",
+   "status": "CLOSES",
+   "tag": "[VERIFIED numerics]",
+   "live_checks": [
+    "dQ vs Jacobson's kappa eps^2 T_kk A/2",
+    "dA vs eps^2 R_kk A/2",
+    "sympy vs Mentat integrate_expr"
+   ],
+   "by_construction_parts": [],
+   "detail": {
+    "dQ": "A*T_kk*epsilon**2*kappa/2",
+    "dA": "A*R_kk*epsilon**2/2",
+    "mentat_dQ_per_A": "Tkk*eps**2*kappa/2",
+    "mentat_dA_per_A": "Rkk*eps**2/2",
+    "mentat_source": [
+     "sympy.integrate",
+     "sympy.integrate"
+    ]
+   }
+  },
+  {
+   "id": "S3",
+   "title": "Clausius => T_kk = (hbar eta / 2 pi) R_kk ; kappa, eps and A cancel",
+   "uses": [
+    "A4",
+    "A5",
+    "A7",
+    "S2"
+   ],
+   "residual": "R_kk*eta*hbar/(2*pi)",
+   "status": "FAILS",
+   "tag": "[VERIFIED numerics]",
+   "live_checks": [
+    "solved T_kk vs Jacobson's (hbar eta/2pi) R_kk",
+    "kappa, eps, A absent"
+   ],
+   "by_construction_parts": [],
+   "detail": {
+    "T_kk": "R_kk*eta*hbar/pi",
+    "free_symbols": [
+     "R_kk",
+     "eta",
+     "hbar"
+    ]
+   }
+  },
+  {
+   "id": "S3b",
+   "title": "theta(p) = 0 is forced (constant eta): with theta(p)=theta0 the Clausius gap has an O(eps) term -T eta theta0 A that nothing in dQ (O(eps^2)) can cancel; with entropy density eta(1 + f1 lambda) the same step forces theta0 = -f1 instead (EGJ eq. 10)",
+   "uses": [
+    "A3",
+    "A4",
+    "A7"
+   ],
+   "residual": "0",
+   "status": "CLOSES",
+   "tag": "[LIT reproduced]",
+   "live_checks": [
+    "O(eps) coefficient solved for theta0 (constant eta -> 0)",
+    "f(R)-type density -> theta0 = -fdot (EGJ eq. 10)"
+   ],
+   "by_construction_parts": [],
+   "detail": {
+    "eps1_coefficient": "-A*eta*hbar*kappa*theta0/pi",
+    "eps2_coefficient_complete": "-A*kappa*(2*R_kk*eta*hbar - 2*pi*T_kk + eta*hbar*theta0**2)/(4*pi)",
+    "eps2_coefficient_matches_full_form": false,
+    "eps2_note": "complete through eps^2: includes the theta0^2/2 Raychaudhuri term (v1 stored a truncated form)",
+    "f_R_variant_theta0_forced": "[-f1]",
+    "credit": "EGJ 2006 remark 4: 'We cannot allow for expansion at p, since without the derivative of f to balance the expansion, there would be a first order term in the entropy change not matched by the heat flux term.' This is a checked reproduction of that remark, not a new finding."
+   }
+  },
+  {
+   "id": "S3c",
+   "title": "with sigma(p)=s0 != 0 the Clausius equality gives T_kk = (hbar eta/2pi)(R_kk + s0^2): shear enters at the SAME order as curvature; two surfaces P with the same k but different s0 cannot both satisfy it, so the equality can be postulated only on one class of P (sigma(p) = 0, A3/A7) or the shear term is booked as entropy production (S9)",
+   "uses": [
+    "A4",
+    "A5",
+    "A7"
+   ],
+   "residual": "eta*hbar*(R_kk + s0**2)/(2*pi) + eta*hbar*(s_a**2 - s_b**2)/(2*pi)",
+   "status": "FAILS",
+   "tag": "[LIT reproduced]",
+   "live_checks": [
+    "solved T_kk with shear vs (hbar eta/2pi)(R_kk + s0^2)",
+    "two-P difference"
+   ],
+   "by_construction_parts": [],
+   "detail": {
+    "T_kk_with_shear": "eta*hbar*(R_kk + s0**2)/pi",
+    "two_P_same_k_difference": "eta*hbar*(s_a**2 - s_b**2)/pi",
+    "credit": "EGJ 2006 remark 4: 'the d k^a part [of the Clausius relation] is satisfied only if the shear vanishes. However, nonzero shear at p is allowed if we include an internal entropy production term'. Checked reproduction; the two-P form of the argument is from the physics skeptic."
+   }
+  },
+  {
+   "id": "S4",
+   "title": "symmetric M_ab with M_kk = 0 for every null k has a 1-D solution space, M_ab = f g_ab (so (2pi/hbar eta) T_ab - R_ab = f g_ab)",
+   "uses": [
+    "A1",
+    "A7",
+    "S3"
+   ],
+   "residual": "Matrix([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])",
+   "status": "CLOSES",
+   "tag": "[VERIFIED numerics]",
+   "live_checks": [
+    "null-space dimension 1 with basis g_ab",
+    "planar negative control has dimension > 1"
+   ],
+   "by_construction_parts": [],
+   "detail": {
+    "n_polynomial_conditions": 13,
+    "rank": 9,
+    "nullspace_dim": 1,
+    "basis": "[-1, 0, 0, 0, 1, 0, 0, 1, 0, 1]",
+    "negative_control_planar_null_k": {
+     "rank": 5,
+     "nullspace_dim": 5,
+     "reading": "with k confined to one plane the solution space is larger than g_ab: the lemma needs ALL null directions (A7 'for every k')"
+    },
+    "note": "polynomial identity in the stereographic coordinates (u,v) of the celestial sphere: exact, not sampled"
+   }
+  },
+  {
+   "id": "S5",
+   "title": "contracted Bianchi + metric compatibility: nabla^a (G_ab + Lambda g_ab) = 0 identically on 3 metric families with arbitrary functions",
+   "uses": [
+    "GEO2"
+   ],
+   "residual": "0",
+   "status": "CLOSES",
+   "tag": "[VERIFIED numerics]",
+   "live_checks": [
+    "divergence computed from Christoffels/Ricci of each family"
+   ],
+   "by_construction_parts": [],
+   "detail": {
+    "families": {
+     "spherical_time_dependent: diag(-e^{2A(t,r)}, e^{2B(t,r)}, r^2, r^2 sin^2 theta)": {
+      "residuals": [
+       "0",
+       "0",
+       "0",
+       "0"
+      ],
+      "zero": true,
+      "seconds": 3.3,
+      "ricci_scalar_ops": 83
+     },
+     "diagonal_2var: diag(-N^2, a^2, b^2, c^2), all functions of (t,x)": {
+      "residuals": [
+       "0",
+       "0",
+       "0",
+       "0"
+      ],
+      "zero": true,
+      "seconds": 5.5,
+      "ricci_scalar_ops": 209
+     },
+     "off_diagonal: g_tt=-F, g_tx=H, g_xx=K, g_yy=g_zz=P, functions of (t,x)": {
+      "residuals": [
+       "0",
+       "0",
+       "0",
+       "0"
+      ],
+      "zero": true,
+      "seconds": 21.4,
+      "ricci_scalar_ops": 498
+     }
+    },
+    "scope": "families, not the general metric: the identity itself is a theorem (Riemann symmetries); this is a symbolic spot check that the code's conventions satisfy it"
+   }
+  },
+  {
+   "id": "S6",
+   "title": "conservation + Bianchi => nabla^a(R_ab + f g_ab) = d_b(f + R/2) = 0 => f = -R/2 + Lambda; the 1/2 is solved for on a metric family, Lambda is an undetermined constant",
+   "uses": [
+    "A9",
+    "A10",
+    "GEO2",
+    "S4"
+   ],
+   "residual": "['0', '0', '0', '0', \"alpha={'t': '1/2', 'r': '1/2'}\"]",
+   "status": "CLOSES",
+   "tag": "[VERIFIED numerics] + [BY CONSTRUCTION]",
+   "live_checks": [
+    "div(R_ab + F g_ab) = d_b(F + R/2) with F an arbitrary function (family 1)",
+    "alpha solved from div(R_ab - alpha R g_ab) = 0 (family 1)"
+   ],
+   "by_construction_parts": [
+    "integration d_b(F + R/2) = 0 => F + R/2 = Lambda (A10, topology), checked by substitution"
+   ],
+   "detail": {
+    "family": "spherical_time_dependent: diag(-e^{2A(t,r)}, e^{2B(t,r)}, r^2, r^2 sin^2 theta)",
+    "div(R_ab + F g_ab) - d_b(F + R/2)": [
+     "0",
+     "0",
+     "0",
+     "0"
+    ],
+    "alpha_solved_per_component": {
+     "t": "1/2",
+     "r": "1/2"
+    },
+    "seconds": 5.4,
+    "note": "Lambda is an integration constant: the argument does not fix it"
+   }
+  },
+  {
+   "id": "S7",
+   "title": "R_ab - R g_ab/2 + Lambda g_ab = (coupling from S3) T_ab ; identifying the coupling with 8 pi G gives eta = 1/(4 hbar G)",
+   "uses": [
+    "S3",
+    "S4",
+    "S6",
+    "A11"
+   ],
+   "residual": "8*pi*G - 1/(8*G*hbar)",
+   "status": "FAILS",
+   "tag": "[VERIFIED numerics] + [BY CONSTRUCTION]",
+   "live_checks": [
+    "eta solved from S3's coupling vs 1/(4 hbar G)",
+    "Mentat simplify of 2pi/(hbar eta) at the solved eta"
+   ],
+   "by_construction_parts": [
+    "Einstein form given S6's alpha (algebraic rearrangement)",
+    "null contraction g_kk = 0 (round trip)",
+    "naming the coupling 8 pi G (A11)"
+   ],
+   "detail": {
+    "coupling_from_S3": "pi/(eta*hbar)",
+    "eta": "1/(8*G*hbar)",
+    "mentat_simplify_2pi_over_hbar_eta": "16*pi*G",
+    "mentat_source": "sympy.simplify",
+    "eta_inverse_sqrt": "2*sqrt(2)*sqrt(G)*sqrt(hbar)",
+    "note": "eta^(-1/2) = 2 sqrt(hbar G) = 2 l_P, as stated in the paper; eta follows from an identification (A11)"
+   }
+  },
+  {
+   "id": "S8",
+   "title": "SI restoration: G^p hbar^q c^s = 1/m^2 has the unique solution (p,q,s) = (-1,-1,3); the SI Clausius coefficient set to 8 pi G/c^4 gives eta' = k_B c^3/(4 G hbar) = k_B/(4 l_P^2); T = hbar a/(2 pi c k_B)",
+   "uses": [
+    "S7",
+    "A5",
+    "A6"
+   ],
+   "residual": "a*hbar_SI/(2*pi*c*k_B) - c**3*k_B/(8*G_SI*hbar_SI)",
+   "status": "FAILS",
+   "tag": "[VERIFIED numerics] + [BY CONSTRUCTION]",
+   "live_checks": [
+    "dimensional exponents unique",
+    "eta' solved from the SI Clausius relation",
+    "T_SI vs hbar a/(2 pi c k_B)"
+   ],
+   "by_construction_parts": [
+    "eta' = k_B/(4 l_P^2) given l_P^2 = G hbar/c^3 (definition)"
+   ],
+   "detail": {
+    "exponents": "[{p: -1, q: -1, s: 3}]",
+    "coupling_SI": "pi*k_B/(c*etap*hbar_SI)",
+    "eta_SI_derived": "c**3*k_B/(8*G_SI*hbar_SI)"
+   }
+  },
+  {
+   "id": "S9",
+   "title": "EGJ 2006 shear: d_iS = (eta/kappa) int sigma_hat^2 dv ; T d_iS = 2 eta_s sigma_hat^2 => eta_s = hbar eta/(4 pi) = 1/(16 pi G) ; eta_s / s = hbar/(4 pi), independent of eta and G",
+   "uses": [
+    "A3 relaxed",
+    "A4",
+    "A5",
+    "A6"
+   ],
+   "residual": "(4*G*hbar*(eta + 1) + 1)/(16*pi*G)",
+   "status": "FAILS",
+   "tag": "[LIT reproduced] + [BY CONSTRUCTION]",
+   "live_checks": [
+    "Killing-time entropy production",
+    "eta_s vs EGJ's hbar eta/4pi"
+   ],
+   "by_construction_parts": [
+    "eta_s/s = hbar/4pi independent of eta and G (fixed by T = hbar kappa/2pi and the convention factor 2)"
+   ],
+   "detail": {
+    "eta_s": "eta*hbar/(2*pi)",
+    "eta_s_in_G": "1/(8*pi*G)",
+    "eta_s_over_s": "hbar/(2*pi)",
+    "eta_s_over_s_free_symbols": [
+     "hbar"
+    ],
+    "convention_input": "dissipation 2 eta_s sigma_ab sigma^ab per unit area per unit Killing time (de Groot-Mazur, EGJ ref. [9]); EGJ remark 4 states eta_s = T alpha/2 = hbar alpha/4pi = 1/16piG",
+    "reading": "eta_s/s = hbar/4pi does not depend on eta or G: it is fixed by the boost temperature hbar/2pi and the factor 2 in the dissipation convention. It equals the KSS number because KSS's number is itself a horizon value (membrane paradigm); the equality is an identity, not contact with measured matter.",
+    "bulk_viscosity": "EGJ: an f(R) entropy density needs a bulk-viscosity entropy-production term fixed by energy-momentum conservation; not reproduced here (cited only)"
+   }
+  },
+  {
+   "id": "S10",
+   "title": "Schwarzschild: kappa = c^2/(2 r_s); hbar kappa/(2 pi c k_B) = hbar c^3/(8 pi G M k_B) = T_H; d(M c^2) = T_H d(eta' A) with eta' from S8",
+   "uses": [
+    "A4",
+    "A5",
+    "S8"
+   ],
+   "residual": "c**3*hbar_SI/(8*pi*G_SI*M*k_B)",
+   "status": "FAILS",
+   "tag": "[VERIFIED numerics]",
+   "live_checks": [
+    "kappa from the metric",
+    "T_H vs Hawking's formula"
+   ],
+   "by_construction_parts": [
+    "first law closes for any Unruh factor used consistently in S8 and S10"
+   ],
+   "detail": {
+    "kappa": "c**2/(2*r_s)",
+    "T_H": "c**3*hbar_SI/(4*pi*G_SI*M*k_B)",
+    "S_BH": "2*pi*G_SI*M**2*k_B/(c*hbar_SI)",
+    "first_law_residual": "0",
+    "hawking_formula_residual": "c**3*hbar_SI/(8*pi*G_SI*M*k_B)",
+    "honesty": "the 1/4 in S_BH was itself obtained inside GR (Hawking 1975 + first law), so this agreement is a consistency check, not independent evidence for eta; the first law alone closes for ANY Unruh factor (it is internal consistency), only the comparison with Hawking's formula can fail"
+   }
+  }
+ ],
+ "symbolic_all_close": false,
+ "n_steps": 13,
+ "n_steps_close": 7,
+ "diagnostic_D1_next_order": {
+  "what": "next-order Clausius bookkeeping with Einstein's equation imposed along the whole generator",
+  "gap_eps2_with_Einstein": "-A*R0*eta*hbar*kappa/(4*pi)",
+  "gap_eps3_with_Einstein": "0",
+  "gap_eps3_matches_skeptic": null,
+  "T1_needed_for_eps3_closure": "[R1*eta*hbar/(2*pi)]",
+  "integrand_gap_lambda1": "R0*eta*hbar*kappa/(2*pi)",
+  "integrand_gap_lambda2": "0",
+  "relative_dA_correction_from_gradient": "-R1*epsilon/(3*R0)",
+  "relative_dA_correction_from_theta2": "R_c*epsilon**2/12",
+  "killing_vector_fuzz": "relative O(eps^2/L_c^2) [LIT, EGJ 2006 remark 5]",
+  "figure_expressions": {
+   "gradient_rel_gap(x,g)": "-1/2",
+   "theta2_rel_gap(x)": "-1 - 4*log(cos(sqrt(2)*x/2))/x**2",
+   "shear_rel_gap(s0,R_kk)": "(R_kk + 2*s0**2)/R_kk"
+  },
+  "reading": "At leading order the gap is 0 (that is S3). At the next order it is -A R1 eta hbar kappa eps^3/(12 pi) even with Einstein's equation imposed along the generator; exact Clausius at O(eps^3) would need T1 = hbar eta R1/(4 pi), contradicting Einstein. Jacobson 1995 and EGJ 2006 claim the relation only at lowest order ('to lowest order in lambda', EGJ eq. 6), so this limits the scope of the statement and is not a defect of the argument. The largest neglected term is the gradient one, relative size eps R1/(3 R0), first order in eps; theta^2/2 is eps^2 R/12 and the Killing-vector fuzz eps^2/L_c^2.",
+  "tag": "[DERIVED] (sympy); credit: could-it-fail skeptic"
+ },
+ "mentat_numbers": {
+  "N1": {
+   "what": "eta/k_B = c^3/(4 G hbar) [Mentat G,hbar,c] vs 1/(4 L_PLANCK^2) [Mentat]",
+   "eta_over_kB_m^-2": 9.570182792894672e+68,
+   "eta_from_LPLANCK_m^-2": 9.570182792894674e+68,
+   "eta_SI_J_per_K_m2": 1.3213063302827237e+46,
+   "l_P_from_G_hbar_c_m": 1.61625502392855e-35,
+   "rel": 2.001653957440188e-16,
+   "tol": 1e-09,
+   "pass": true
+  },
+  "N2": {
+   "what": "S_BH/(k_B A) from Mentat bekenstein_hawking_entropy vs eta/k_B (N1)",
+   "rows": [
+    {
+     "label": "1e10 kg",
+     "M_kg": 10000000000.0,
+     "mass_provenance": "arbitrary round sample input (no physical claim)",
+     "entropy_kB": 2.6528868313218196e+36,
+     "area_m2": 2.7720336055560398e-33,
+     "S_per_area_m^-2": 9.570182792894674e+68,
+     "rel_vs_N1": 2.001653957440188e-16,
+     "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)"
+    },
+    {
+     "label": "1e15 kg",
+     "M_kg": 1000000000000000.0,
+     "mass_provenance": "arbitrary round sample input (no physical claim)",
+     "entropy_kB": 2.6528868313218193e+46,
+     "area_m2": 2.7720336055560394e-23,
+     "S_per_area_m^-2": 9.570182792894676e+68,
+     "rel_vs_N1": 4.003307914880376e-16,
+     "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)"
+    },
+    {
+     "label": "1e20 kg",
+     "M_kg": 1e+20,
+     "mass_provenance": "arbitrary round sample input (no physical claim)",
+     "entropy_kB": 2.6528868313218183e+56,
+     "area_m2": 2.7720336055560387e-13,
+     "S_per_area_m^-2": 9.570182792894674e+68,
+     "rel_vs_N1": 2.001653957440188e-16,
+     "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)"
+    },
+    {
+     "label": "Earth",
+     "M_kg": 5.97219e+24,
+     "mass_provenance": "Mentat solar_system_body earth (sigma-ground via NASA Planetary Fact Sheet 2024)",
+     "entropy_kB": 9.462065626656588e+65,
+     "area_m2": 0.0009887027062515088,
+     "S_per_area_m^-2": 9.570182792894676e+68,
+     "rel_vs_N1": 4.003307914880376e-16,
+     "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)"
+    },
+    {
+     "label": "Sun (lookup_constant M_SUN)",
+     "M_kg": 1.989e+30,
+     "mass_provenance": "Mentat lookup_constant M_SUN (sigma_ground.field.constants)",
+     "entropy_kB": 1.0495141304015705e+77,
+     "area_m2": 109665003.59645963,
+     "S_per_area_m^-2": 9.570182792894676e+68,
+     "rel_vs_N1": 4.003307914880376e-16,
+     "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)"
+    },
+    {
+     "label": "Sun (solar_system_body)",
+     "M_kg": 1.98892e+30,
+     "mass_provenance": "Mentat solar_system_body sun (sigma-ground via IAU 2015 nominal solar values)",
+     "entropy_kB": 1.0494297066288979e+77,
+     "area_m2": 109656182.05412343,
+     "S_per_area_m^-2": 9.570182792894674e+68,
+     "rel_vs_N1": 2.001653957440188e-16,
+     "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)"
+    },
+    {
+     "label": "10 M_SUN",
+     "M_kg": 1.989e+31,
+     "mass_provenance": "10 x Mentat lookup_constant M_SUN",
+     "entropy_kB": 1.0495141304015704e+79,
+     "area_m2": 10966500359.645962,
+     "S_per_area_m^-2": 9.570182792894674e+68,
+     "rel_vs_N1": 2.001653957440188e-16,
+     "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)"
+    },
+    {
+     "label": "1e6 M_SUN",
+     "M_kg": 1.989e+36,
+     "mass_provenance": "1e6 x Mentat lookup_constant M_SUN",
+     "entropy_kB": 1.0495141304015701e+89,
+     "area_m2": 1.0966500359645959e+20,
+     "S_per_area_m^-2": 9.570182792894674e+68,
+     "rel_vs_N1": 2.001653957440188e-16,
+     "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)"
+    },
+    {
+     "label": "1e40 kg",
+     "M_kg": 1e+40,
+     "mass_provenance": "arbitrary round sample input (no physical claim)",
+     "entropy_kB": 2.652886831321819e+96,
+     "area_m2": 2.7720336055560394e+27,
+     "S_per_area_m^-2": 9.570182792894674e+68,
+     "rel_vs_N1": 2.001653957440188e-16,
+     "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)"
+    }
+   ],
+   "max_rel": 4.003307914880376e-16,
+   "tol": 1e-09,
+   "second_code_path": {
+    "rows": [
+     {
+      "M_kg": 10000000000.0,
+      "S_gr_basics_kB": 2.6528868313218178e+36,
+      "S_tool_kB": 2.6528868313218196e+36,
+      "rel": 6.675322181737247e-16
+     },
+     {
+      "M_kg": 1000000000000000.0,
+      "S_gr_basics_kB": 2.652886831321818e+46,
+      "S_tool_kB": 2.6528868313218193e+46,
+      "rel": 3.8227053947766453e-16
+     },
+     {
+      "M_kg": 1e+20,
+      "S_gr_basics_kB": 2.652886831321818e+56,
+      "S_tool_kB": 2.6528868313218183e+56,
+      "rel": 1.6418394652808463e-16
+     },
+     {
+      "M_kg": 5.97219e+24,
+      "S_gr_basics_kB": 9.462065626656582e+65,
+      "S_tool_kB": 9.462065626656588e+65,
+      "rel": 5.931227396626844e-16
+     },
+     {
+      "M_kg": 1.989e+30,
+      "S_gr_basics_kB": 1.0495141304015702e+77,
+      "S_tool_kB": 1.0495141304015705e+77,
+      "rel": 3.6747016495584736e-16
+     },
+     {
+      "M_kg": 1.98892e+30,
+      "S_gr_basics_kB": 1.0494297066288975e+77,
+      "S_tool_kB": 1.0494297066288979e+77,
+      "rel": 3.674997269336285e-16
+     },
+     {
+      "M_kg": 1.989e+31,
+      "S_gr_basics_kB": 1.04951413040157e+79,
+      "S_tool_kB": 1.0495141304015704e+79,
+      "rel": 3.135745407623231e-16
+     },
+     {
+      "M_kg": 1.989e+36,
+      "S_gr_basics_kB": 1.0495141304015699e+89,
+      "S_tool_kB": 1.0495141304015701e+89,
+      "rel": 2.693584794864794e-16
+     },
+     {
+      "M_kg": 1e+40,
+      "S_gr_basics_kB": 2.652886831321818e+96,
+      "S_tool_kB": 2.652886831321819e+96,
+      "rel": 3.5756097238398357e-16
+     }
+    ],
+    "max_rel": 6.675322181737247e-16,
+    "note": "shares G, C, HBAR, K_B with the tool; differs only in algebraic form"
+   },
+   "pass": true
+  },
+  "N3": {
+   "what": "Mentat unruh_temperature(a) vs hbar a/(2 pi c k_B) from Mentat constants",
+   "earth_g_source": "sigma-ground via NASA Planetary Fact Sheet 2024",
+   "g_earth_m_s2": 9.80665,
+   "T_unruh_earth_K": 3.9766098362829506e-20,
+   "rows": [
+    {
+     "a_m_s2": 9.80665,
+     "a_provenance": "Earth surface g, Mentat solar_system_body earth (sigma-ground via NASA Planetary Fact Sheet 2024)",
+     "T_mentat_K": 3.9766098362829506e-20,
+     "T_formula_K": 3.9766098362829506e-20,
+     "rel": 0.0,
+     "source": "sigma-ground (Unruh 1976)"
+    },
+    {
+     "a_m_s2": 10000000000.0,
+     "a_provenance": "arbitrary round sample input (no physical claim)",
+     "T_mentat_K": 4.0550135227452294e-11,
+     "T_formula_K": 4.0550135227452294e-11,
+     "rel": 0.0,
+     "source": "sigma-ground (Unruh 1976)"
+    },
+    {
+     "a_m_s2": 1000000000000000.0,
+     "a_provenance": "arbitrary round sample input (no physical claim)",
+     "T_mentat_K": 4.05501352274523e-06,
+     "T_formula_K": 4.05501352274523e-06,
+     "rel": 0.0,
+     "source": "sigma-ground (Unruh 1976)"
+    },
+    {
+     "a_m_s2": 1e+20,
+     "a_provenance": "arbitrary round sample input (no physical claim)",
+     "T_mentat_K": 0.40550135227452294,
+     "T_formula_K": 0.40550135227452294,
+     "rel": 0.0,
+     "source": "sigma-ground (Unruh 1976)"
+    },
+    {
+     "a_m_s2": 2.5e+20,
+     "a_provenance": "arbitrary round sample input (no physical claim)",
+     "T_mentat_K": 1.0137533806863075,
+     "T_formula_K": 1.0137533806863075,
+     "rel": 0.0,
+     "source": "sigma-ground (Unruh 1976)"
+    },
+    {
+     "a_m_s2": 1e+25,
+     "a_provenance": "arbitrary round sample input (no physical claim)",
+     "T_mentat_K": 40550.135227452294,
+     "T_formula_K": 40550.135227452294,
+     "rel": 0.0,
+     "source": "sigma-ground (Unruh 1976)"
+    },
+    {
+     "a_m_s2": 1e+30,
+     "a_provenance": "arbitrary round sample input (no physical claim)",
+     "T_mentat_K": 4055013522.7452297,
+     "T_formula_K": 4055013522.7452297,
+     "rel": 0.0,
+     "source": "sigma-ground (Unruh 1976)"
+    }
+   ],
+   "max_rel": 0.0,
+   "tol": 1e-09,
+   "pass": true
+  },
+  "N4": {
+   "what": "Mentat hawking_temperature(M) vs Mentat unruh_temperature(c^2/(2 r_s)), r_s from Mentat",
+   "rows": [
+    {
+     "label": "1e12 kg",
+     "M_kg": 1000000000000.0,
+     "mass_provenance": "arbitrary round sample input (no physical claim)",
+     "r_s_m": 1.485232053823733e-15,
+     "kappa_m_s2": 3.025638910845516e+31,
+     "T_unruh_at_kappa_K": 122690066984.22714,
+     "T_hawking_K": 122690066984.22714,
+     "rel": 0.0,
+     "sources": [
+      "sigma_ground.field.gr_basics (standard Schwarzschild)",
+      "sigma-ground (Unruh 1976)",
+      "sigma_ground.field.gr_basics (Hawking 1974)"
+     ]
+    },
+    {
+     "label": "1e20 kg",
+     "M_kg": 1e+20,
+     "mass_provenance": "arbitrary round sample input (no physical claim)",
+     "r_s_m": 1.485232053823733e-07,
+     "kappa_m_s2": 3.025638910845516e+23,
+     "T_unruh_at_kappa_K": 1226.9006698422713,
+     "T_hawking_K": 1226.9006698422716,
+     "rel": 1.8532362157114388e-16,
+     "sources": [
+      "sigma_ground.field.gr_basics (standard Schwarzschild)",
+      "sigma-ground (Unruh 1976)",
+      "sigma_ground.field.gr_basics (Hawking 1974)"
+     ]
+    },
+    {
+     "label": "Earth",
+     "M_kg": 5.97219e+24,
+     "mass_provenance": "Mentat solar_system_body earth (sigma-ground via NASA Planetary Fact Sheet 2024)",
+     "r_s_m": 0.008870088019525562,
+     "kappa_m_s2": 5.066213417264882e+18,
+     "T_unruh_at_kappa_K": 0.020543563916122415,
+     "T_hawking_K": 0.020543563916122422,
+     "rel": 3.37764855807791e-16,
+     "sources": [
+      "sigma_ground.field.gr_basics (standard Schwarzschild)",
+      "sigma-ground (Unruh 1976)",
+      "sigma_ground.field.gr_basics (Hawking 1974)"
+     ]
+    },
+    {
+     "label": "Sun (lookup_constant M_SUN)",
+     "M_kg": 1.989e+30,
+     "mass_provenance": "Mentat lookup_constant M_SUN (sigma_ground.field.constants)",
+     "r_s_m": 2954.126555055405,
+     "kappa_m_s2": 15211859783034.268,
+     "T_unruh_at_kappa_K": 6.168429712630827e-08,
+     "T_hawking_K": 6.168429712630829e-08,
+     "rel": 2.145584924757743e-16,
+     "sources": [
+      "sigma_ground.field.gr_basics (standard Schwarzschild)",
+      "sigma-ground (Unruh 1976)",
+      "sigma_ground.field.gr_basics (Hawking 1974)"
+     ]
+    },
+    {
+     "label": "Sun (solar_system_body)",
+     "M_kg": 1.98892e+30,
+     "mass_provenance": "Mentat solar_system_body sun (sigma-ground via IAU 2015 nominal solar values)",
+     "r_s_m": 2954.007736491099,
+     "kappa_m_s2": 15212471647152.807,
+     "T_unruh_at_kappa_K": 6.168677824358303e-08,
+     "T_hawking_K": 6.168677824358303e-08,
+     "rel": 0.0,
+     "sources": [
+      "sigma_ground.field.gr_basics (standard Schwarzschild)",
+      "sigma-ground (Unruh 1976)",
+      "sigma_ground.field.gr_basics (Hawking 1974)"
+     ]
+    },
+    {
+     "label": "10 M_SUN",
+     "M_kg": 1.989e+31,
+     "mass_provenance": "10 x Mentat lookup_constant M_SUN",
+     "r_s_m": 29541.26555055405,
+     "kappa_m_s2": 1521185978303.4268,
+     "T_unruh_at_kappa_K": 6.168429712630826e-09,
+     "T_hawking_K": 6.168429712630828e-09,
+     "rel": 2.681981155947179e-16,
+     "sources": [
+      "sigma_ground.field.gr_basics (standard Schwarzschild)",
+      "sigma-ground (Unruh 1976)",
+      "sigma_ground.field.gr_basics (Hawking 1974)"
+     ]
+    },
+    {
+     "label": "1e6 M_SUN",
+     "M_kg": 1.989e+36,
+     "mass_provenance": "1e6 x Mentat lookup_constant M_SUN",
+     "r_s_m": 2954126555.0554047,
+     "kappa_m_s2": 15211859.783034269,
+     "T_unruh_at_kappa_K": 6.168429712630827e-14,
+     "T_hawking_K": 6.168429712630828e-14,
+     "rel": 2.046189236409896e-16,
+     "sources": [
+      "sigma_ground.field.gr_basics (standard Schwarzschild)",
+      "sigma-ground (Unruh 1976)",
+      "sigma_ground.field.gr_basics (Hawking 1974)"
+     ]
+    },
+    {
+     "label": "1e10 M_SUN",
+     "M_kg": 1.989e+40,
+     "mass_provenance": "1e10 x Mentat lookup_constant M_SUN",
+     "r_s_m": 29541265550554.047,
+     "kappa_m_s2": 1521.185978303427,
+     "T_unruh_at_kappa_K": 6.168429712630828e-18,
+     "T_hawking_K": 6.168429712630828e-18,
+     "rel": 0.0,
+     "sources": [
+      "sigma_ground.field.gr_basics (standard Schwarzschild)",
+      "sigma-ground (Unruh 1976)",
+      "sigma_ground.field.gr_basics (Hawking 1974)"
+     ]
+    }
+   ],
+   "max_rel": 3.37764855807791e-16,
+   "tol": 1e-09,
+   "pass": true
+  },
+  "solar_mass_note": {
+   "M_SUN_lookup_constant_kg": [
+    1.989e+30,
+    "sigma_ground.field.constants"
+   ],
+   "M_sun_solar_system_body_kg": [
+    1.98892e+30,
+    "sigma-ground via IAU 2015 nominal solar values"
+   ],
+   "relative_difference": 4.022283450314177e-05,
+   "T_H_K": {
+    "Sun (lookup_constant M_SUN)": 6.168429712630829e-08,
+    "Sun (solar_system_body)": 6.168677824358303e-08
+   },
+   "reading": "Mentat holds two solar masses; T_H(1 M_sun) = 6.168e-8 K with M_SUN = 1.989e30 kg and 6.169e-8 K with solar_system_body 1.98892e30 kg; quoted as 6.17e-8 K"
+  },
+  "N5": {
+   "what": "(M+ - M-) c^2 / (k_B (S+ - S-)) from Mentat bekenstein_hawking_entropy vs Mentat T_H",
+   "rows": [
+    {
+     "label": "1e12 kg",
+     "M_kg": 1000000000000.0,
+     "mass_provenance": "arbitrary round sample input (no physical claim)",
+     "T_from_first_law_K": 122690066984.2071,
+     "T_hawking_K": 122690066984.22714,
+     "rel": 1.632959418111504e-13
+    },
+    {
+     "label": "Sun (lookup_constant M_SUN)",
+     "M_kg": 1.989e+30,
+     "mass_provenance": "Mentat lookup_constant M_SUN (sigma_ground.field.constants)",
+     "T_from_first_law_K": 6.168429712627164e-08,
+     "T_hawking_K": 6.168429712630829e-08,
+     "rel": 5.941124656654191e-13
+    },
+    {
+     "label": "Sun (solar_system_body)",
+     "M_kg": 1.98892e+30,
+     "mass_provenance": "Mentat solar_system_body sun (sigma-ground via IAU 2015 nominal solar values)",
+     "T_from_first_law_K": 6.168677824361105e-08,
+     "T_hawking_K": 6.168677824358303e-08,
+     "rel": 4.54202059276953e-13
+    },
+    {
+     "label": "1e6 M_SUN",
+     "M_kg": 1.989e+36,
+     "mass_provenance": "1e6 x Mentat lookup_constant M_SUN",
+     "T_from_first_law_K": 6.168429712627262e-14,
+     "T_hawking_K": 6.168429712630828e-14,
+     "rel": 5.780484592857956e-13
+    }
+   ],
+   "max_rel": 5.941124656654191e-13,
+   "tol": 1e-08,
+   "pass": true
+  },
+  "N6": {
+   "what": "eta_s/s = hbar/(4 pi k_B) from Mentat constants; membrane eta_s = c^3/(16 pi G). [BY CONSTRUCTION]: independent of eta and G; equals the KSS number because KSS's number is itself a horizon value",
+   "eta_s_over_s_K_s": 6.078312356035156e-13,
+   "eta_s_membrane_kg_per_s": 8.031312593464949e+33,
+   "c3_over_16piG_kg_per_s": 8.031312593464947e+33,
+   "rel": 2.871066195443508e-16
+  }
+ },
+ "mentat_numbers_all_pass": true,
+ "not_symbolically_checkable": [
+  {
+   "step": "A5 Unruh effect",
+   "why": "a QFT theorem (Bisognano-Wichmann / Unruh); taken as input; Mentat's tool encodes the formula, it does not derive it"
+  },
+  {
+   "step": "A4 entropy ~ area",
+   "why": "an assumption about microphysics; the derivation runs for ANY constant eta"
+  },
+  {
+   "step": "S5 Bianchi in full generality",
+   "why": "checked on 3 families with arbitrary functions, not on the fully general 4-D metric (a theorem, so not in doubt)"
+  }
+ ],
+ "engine_flags": [
+  {
+   "file": "sigma_ground/field/gr_basics.py",
+   "line": 122,
+   "flag": "citation: hawking_temperature docstring cites 'Hawking 1974, Comm. Math. Phys. 43, 199'; CMP 43, 199 is the 1975 paper (EGJ 2006 reference [3]: 'S. W. Hawking, Commun. Math. Phys. 43, 199 (1975)'). Same pairing in the module header at line 10. The MCP source strings 'Hawking 1974' (gr.py:100, frontier.py:56) propagate it. Citation hygiene, not a numerical defect."
+  },
+  {
+   "file": "sigma_ground/mcp/tools/gr.py",
+   "line": 89,
+   "flag": "provenance label: hawking_temperature (lines 89-106) gives source 'sigma_ground.field.gr_basics (Hawking 1974)' but re-implements the formula inline (line 96) instead of calling gr_basics; value identical. Label issue, not a value defect."
+  },
+  {
+   "file": "sigma_ground/field/constants.py",
+   "line": 427,
+   "flag": "two solar masses: lookup_constant M_SUN = 1.989e+30 kg (constants.py:427) vs solar_system_body sun = 1.98892e+30 kg (materia/bodies.py:46, source label 'sigma-ground via IAU 2015 nominal solar values'); relative difference 4.022e-05. Two sources of truth for one quantity."
+  },
+  {
+   "file": "sigma_ground/mcp/tools/frontier.py",
+   "line": 24,
+   "flag": "hygiene: _consts() hard-codes c = 299792458.0 instead of importing constants.C (value identical)."
+  },
+  {
+   "file": "sigma_ground/field/constants.py",
+   "line": 322,
+   "flag": "naming hazard: ETA = 0.412 (DESI cosmic entanglement fraction) collides with the standard symbol for Jacobson's entropy density."
+  }
+ ],
+ "mentat_calls": [
+  {
+   "tool": "series_expansion",
+   "args": {
+    "expression": "-sqrt(2*R)*tan(sqrt(R/2)*lam)",
+    "variable": "lam",
+    "point": "0",
+    "order": 4
+   },
+   "value": "-R**2*lam**3/6 - R*lam",
+   "units": "",
+   "source": "sympy.series",
+   "formula": "series(-sqrt(2*R)*tan(sqrt(R/2)*lam), lam, 0, 4)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "-1*kappa*lam*Tkk",
+    "variable": "lam",
+    "lower": "-eps",
+    "upper": "0"
+   },
+   "value": "Tkk*eps**2*kappa/2",
+   "units": "",
+   "source": "sympy.integrate",
+   "formula": "integrate(-1*kappa*lam*Tkk, (lam, -eps, 0))",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "-lam*Rkk",
+    "variable": "lam",
+    "lower": "-eps",
+    "upper": "0"
+   },
+   "value": "Rkk*eps**2/2",
+   "units": "",
+   "source": "sympy.integrate",
+   "formula": "integrate(-lam*Rkk, (lam, -eps, 0))",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "2*pi/(hbar*(1/(8*G*hbar)))"
+   },
+   "value": "16*pi*G",
+   "units": "",
+   "source": "sympy.simplify",
+   "formula": "simplify(2*pi/(hbar*(1/(8*G*hbar))))",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "G"
+   },
+   "value": 6.6743e-11,
+   "units": "m^3 / (kg s^2)",
+   "source": "sigma_ground.field.constants",
+   "formula": null,
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "c"
+   },
+   "value": 299792458.0,
+   "units": "m/s",
+   "source": "sigma_ground.field.constants",
+   "formula": null,
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "hbar"
+   },
+   "value": 1.054571817e-34,
+   "units": "J s",
+   "source": "sigma_ground.field.constants",
+   "formula": null,
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "k_B"
+   },
+   "value": 1.380649e-23,
+   "units": "J/K",
+   "source": "sigma_ground.field.constants",
+   "formula": null,
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "L_PLANCK"
+   },
+   "value": 1.6162550239285497e-35,
+   "units": "m",
+   "source": "sigma_ground.field.constants",
+   "formula": null,
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "M_SUN"
+   },
+   "value": 1.989e+30,
+   "units": "kg",
+   "source": "sigma_ground.field.constants",
+   "formula": null,
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "sun"
+   },
+   "value": {
+    "luminosity_w": 3.828e+26,
+    "mass_kg": 1.98892e+30,
+    "radius_m": 695700000.0,
+    "surface_temp_k": 5772.0
+   },
+   "units": "",
+   "source": "sigma-ground via IAU 2015 nominal solar values",
+   "formula": null,
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "earth"
+   },
+   "value": {
+    "mass_kg": 5.97219e+24,
+    "orbital_period_d": 365.256,
+    "radius_m": 6378100.0,
+    "semimajor_axis_au": 1.000001018,
+    "surface_g_ms2": 9.80665
+   },
+   "units": "",
+   "source": "sigma-ground via NASA Planetary Fact Sheet 2024",
+   "formula": null,
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "bekenstein_hawking_entropy",
+   "args": {
+    "mass_kg": 10000000000.0
+   },
+   "value": {
+    "entropy_k_B": 2.6528868313218196e+36,
+    "hawking_temperature_K": 12269006698422.715,
+    "horizon_area_m2": 2.7720336055560398e-33,
+    "schwarzschild_radius_m": 1.4852320538237332e-17,
+    "thread_count": 2.6528868313218196e+36
+   },
+   "units": "",
+   "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)",
+   "formula": "S = A/(4 L_p\u00b2) = k_B c\u00b3 A/(4 G \u0127)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "bekenstein_hawking_entropy",
+   "args": {
+    "mass_kg": 1000000000000000.0
+   },
+   "value": {
+    "entropy_k_B": 2.6528868313218193e+46,
+    "hawking_temperature_K": 122690066.98422717,
+    "horizon_area_m2": 2.7720336055560394e-23,
+    "schwarzschild_radius_m": 1.4852320538237332e-12,
+    "thread_count": 2.6528868313218193e+46
+   },
+   "units": "",
+   "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)",
+   "formula": "S = A/(4 L_p\u00b2) = k_B c\u00b3 A/(4 G \u0127)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "bekenstein_hawking_entropy",
+   "args": {
+    "mass_kg": 1e+20
+   },
+   "value": {
+    "entropy_k_B": 2.6528868313218183e+56,
+    "hawking_temperature_K": 1226.9006698422716,
+    "horizon_area_m2": 2.7720336055560387e-13,
+    "schwarzschild_radius_m": 1.485232053823733e-07,
+    "thread_count": 2.6528868313218183e+56
+   },
+   "units": "",
+   "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)",
+   "formula": "S = A/(4 L_p\u00b2) = k_B c\u00b3 A/(4 G \u0127)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "bekenstein_hawking_entropy",
+   "args": {
+    "mass_kg": 5.97219e+24
+   },
+   "value": {
+    "entropy_k_B": 9.462065626656588e+65,
+    "hawking_temperature_K": 0.020543563916122422,
+    "horizon_area_m2": 0.0009887027062515088,
+    "schwarzschild_radius_m": 0.008870088019525562,
+    "thread_count": 9.462065626656588e+65
+   },
+   "units": "",
+   "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)",
+   "formula": "S = A/(4 L_p\u00b2) = k_B c\u00b3 A/(4 G \u0127)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "bekenstein_hawking_entropy",
+   "args": {
+    "mass_kg": 1.989e+30
+   },
+   "value": {
+    "entropy_k_B": 1.0495141304015705e+77,
+    "hawking_temperature_K": 6.168429712630829e-08,
+    "horizon_area_m2": 109665003.59645963,
+    "schwarzschild_radius_m": 2954.126555055405,
+    "thread_count": 1.0495141304015705e+77
+   },
+   "units": "",
+   "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)",
+   "formula": "S = A/(4 L_p\u00b2) = k_B c\u00b3 A/(4 G \u0127)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "bekenstein_hawking_entropy",
+   "args": {
+    "mass_kg": 1.98892e+30
+   },
+   "value": {
+    "entropy_k_B": 1.0494297066288979e+77,
+    "hawking_temperature_K": 6.168677824358303e-08,
+    "horizon_area_m2": 109656182.05412343,
+    "schwarzschild_radius_m": 2954.007736491099,
+    "thread_count": 1.0494297066288979e+77
+   },
+   "units": "",
+   "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)",
+   "formula": "S = A/(4 L_p\u00b2) = k_B c\u00b3 A/(4 G \u0127)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "bekenstein_hawking_entropy",
+   "args": {
+    "mass_kg": 1.989e+31
+   },
+   "value": {
+    "entropy_k_B": 1.0495141304015704e+79,
+    "hawking_temperature_K": 6.168429712630828e-09,
+    "horizon_area_m2": 10966500359.645962,
+    "schwarzschild_radius_m": 29541.26555055405,
+    "thread_count": 1.0495141304015704e+79
+   },
+   "units": "",
+   "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)",
+   "formula": "S = A/(4 L_p\u00b2) = k_B c\u00b3 A/(4 G \u0127)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "bekenstein_hawking_entropy",
+   "args": {
+    "mass_kg": 1.989e+36
+   },
+   "value": {
+    "entropy_k_B": 1.0495141304015701e+89,
+    "hawking_temperature_K": 6.168429712630828e-14,
+    "horizon_area_m2": 1.0966500359645959e+20,
+    "schwarzschild_radius_m": 2954126555.0554047,
+    "thread_count": 1.0495141304015701e+89
+   },
+   "units": "",
+   "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)",
+   "formula": "S = A/(4 L_p\u00b2) = k_B c\u00b3 A/(4 G \u0127)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "bekenstein_hawking_entropy",
+   "args": {
+    "mass_kg": 1e+40
+   },
+   "value": {
+    "entropy_k_B": 2.652886831321819e+96,
+    "hawking_temperature_K": 1.2269006698422716e-17,
+    "horizon_area_m2": 2.7720336055560394e+27,
+    "schwarzschild_radius_m": 14852320538237.33,
+    "thread_count": 2.652886831321819e+96
+   },
+   "units": "",
+   "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)",
+   "formula": "S = A/(4 L_p\u00b2) = k_B c\u00b3 A/(4 G \u0127)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "sigma_ground.field.gr_basics.bekenstein_hawking_entropy",
+   "kind": "direct_import_record",
+   "args": {
+    "mass_kg": [
+     10000000000.0,
+     1000000000000000.0,
+     1e+20,
+     5.97219e+24,
+     1.989e+30,
+     1.98892e+30,
+     1.989e+31,
+     1.989e+36,
+     1e+40
+    ]
+   },
+   "value": [
+    2.6528868313218178e+36,
+    2.652886831321818e+46,
+    2.652886831321818e+56,
+    9.462065626656582e+65,
+    1.0495141304015702e+77,
+    1.0494297066288975e+77,
+    1.04951413040157e+79,
+    1.0495141304015699e+89,
+    2.652886831321818e+96
+   ],
+   "units": "k_B",
+   "source": "sigma_ground.field.gr_basics (Bekenstein 1973 / Hawking 1975)"
+  },
+  {
+   "tool": "unruh_temperature",
+   "args": {
+    "acceleration_m_s2": 9.80665
+   },
+   "value": 3.9766098362829506e-20,
+   "units": "K",
+   "source": "sigma-ground (Unruh 1976)",
+   "formula": "T = \u0127 a / (2\u03c0 c k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "unruh_temperature",
+   "args": {
+    "acceleration_m_s2": 10000000000.0
+   },
+   "value": 4.0550135227452294e-11,
+   "units": "K",
+   "source": "sigma-ground (Unruh 1976)",
+   "formula": "T = \u0127 a / (2\u03c0 c k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "unruh_temperature",
+   "args": {
+    "acceleration_m_s2": 1000000000000000.0
+   },
+   "value": 4.05501352274523e-06,
+   "units": "K",
+   "source": "sigma-ground (Unruh 1976)",
+   "formula": "T = \u0127 a / (2\u03c0 c k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "unruh_temperature",
+   "args": {
+    "acceleration_m_s2": 1e+20
+   },
+   "value": 0.40550135227452294,
+   "units": "K",
+   "source": "sigma-ground (Unruh 1976)",
+   "formula": "T = \u0127 a / (2\u03c0 c k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "unruh_temperature",
+   "args": {
+    "acceleration_m_s2": 2.5e+20
+   },
+   "value": 1.0137533806863075,
+   "units": "K",
+   "source": "sigma-ground (Unruh 1976)",
+   "formula": "T = \u0127 a / (2\u03c0 c k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "unruh_temperature",
+   "args": {
+    "acceleration_m_s2": 1e+25
+   },
+   "value": 40550.135227452294,
+   "units": "K",
+   "source": "sigma-ground (Unruh 1976)",
+   "formula": "T = \u0127 a / (2\u03c0 c k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "unruh_temperature",
+   "args": {
+    "acceleration_m_s2": 1e+30
+   },
+   "value": 4055013522.7452297,
+   "units": "K",
+   "source": "sigma-ground (Unruh 1976)",
+   "formula": "T = \u0127 a / (2\u03c0 c k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 1000000000000.0
+   },
+   "value": 1.485232053823733e-15,
+   "units": "m",
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)",
+   "formula": "r_s = 2 G M / c^2",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "unruh_temperature",
+   "args": {
+    "acceleration_m_s2": 3.025638910845516e+31
+   },
+   "value": 122690066984.22714,
+   "units": "K",
+   "source": "sigma-ground (Unruh 1976)",
+   "formula": "T = \u0127 a / (2\u03c0 c k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "hawking_temperature",
+   "args": {
+    "mass_kg": 1000000000000.0
+   },
+   "value": 122690066984.22714,
+   "units": "K",
+   "source": "sigma_ground.field.gr_basics (Hawking 1974)",
+   "formula": "T_H = hbar c^3 / (8 pi G M k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 1e+20
+   },
+   "value": 1.485232053823733e-07,
+   "units": "m",
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)",
+   "formula": "r_s = 2 G M / c^2",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "unruh_temperature",
+   "args": {
+    "acceleration_m_s2": 3.025638910845516e+23
+   },
+   "value": 1226.9006698422713,
+   "units": "K",
+   "source": "sigma-ground (Unruh 1976)",
+   "formula": "T = \u0127 a / (2\u03c0 c k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "hawking_temperature",
+   "args": {
+    "mass_kg": 1e+20
+   },
+   "value": 1226.9006698422716,
+   "units": "K",
+   "source": "sigma_ground.field.gr_basics (Hawking 1974)",
+   "formula": "T_H = hbar c^3 / (8 pi G M k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 5.97219e+24
+   },
+   "value": 0.008870088019525562,
+   "units": "m",
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)",
+   "formula": "r_s = 2 G M / c^2",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "unruh_temperature",
+   "args": {
+    "acceleration_m_s2": 5.066213417264882e+18
+   },
+   "value": 0.020543563916122415,
+   "units": "K",
+   "source": "sigma-ground (Unruh 1976)",
+   "formula": "T = \u0127 a / (2\u03c0 c k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "hawking_temperature",
+   "args": {
+    "mass_kg": 5.97219e+24
+   },
+   "value": 0.020543563916122422,
+   "units": "K",
+   "source": "sigma_ground.field.gr_basics (Hawking 1974)",
+   "formula": "T_H = hbar c^3 / (8 pi G M k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 1.989e+30
+   },
+   "value": 2954.126555055405,
+   "units": "m",
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)",
+   "formula": "r_s = 2 G M / c^2",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "unruh_temperature",
+   "args": {
+    "acceleration_m_s2": 15211859783034.268
+   },
+   "value": 6.168429712630827e-08,
+   "units": "K",
+   "source": "sigma-ground (Unruh 1976)",
+   "formula": "T = \u0127 a / (2\u03c0 c k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "hawking_temperature",
+   "args": {
+    "mass_kg": 1.989e+30
+   },
+   "value": 6.168429712630829e-08,
+   "units": "K",
+   "source": "sigma_ground.field.gr_basics (Hawking 1974)",
+   "formula": "T_H = hbar c^3 / (8 pi G M k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 1.98892e+30
+   },
+   "value": 2954.007736491099,
+   "units": "m",
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)",
+   "formula": "r_s = 2 G M / c^2",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "unruh_temperature",
+   "args": {
+    "acceleration_m_s2": 15212471647152.807
+   },
+   "value": 6.168677824358303e-08,
+   "units": "K",
+   "source": "sigma-ground (Unruh 1976)",
+   "formula": "T = \u0127 a / (2\u03c0 c k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "hawking_temperature",
+   "args": {
+    "mass_kg": 1.98892e+30
+   },
+   "value": 6.168677824358303e-08,
+   "units": "K",
+   "source": "sigma_ground.field.gr_basics (Hawking 1974)",
+   "formula": "T_H = hbar c^3 / (8 pi G M k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 1.989e+31
+   },
+   "value": 29541.26555055405,
+   "units": "m",
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)",
+   "formula": "r_s = 2 G M / c^2",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "unruh_temperature",
+   "args": {
+    "acceleration_m_s2": 1521185978303.4268
+   },
+   "value": 6.168429712630826e-09,
+   "units": "K",
+   "source": "sigma-ground (Unruh 1976)",
+   "formula": "T = \u0127 a / (2\u03c0 c k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "hawking_temperature",
+   "args": {
+    "mass_kg": 1.989e+31
+   },
+   "value": 6.168429712630828e-09,
+   "units": "K",
+   "source": "sigma_ground.field.gr_basics (Hawking 1974)",
+   "formula": "T_H = hbar c^3 / (8 pi G M k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 1.989e+36
+   },
+   "value": 2954126555.0554047,
+   "units": "m",
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)",
+   "formula": "r_s = 2 G M / c^2",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "unruh_temperature",
+   "args": {
+    "acceleration_m_s2": 15211859.783034269
+   },
+   "value": 6.168429712630827e-14,
+   "units": "K",
+   "source": "sigma-ground (Unruh 1976)",
+   "formula": "T = \u0127 a / (2\u03c0 c k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "hawking_temperature",
+   "args": {
+    "mass_kg": 1.989e+36
+   },
+   "value": 6.168429712630828e-14,
+   "units": "K",
+   "source": "sigma_ground.field.gr_basics (Hawking 1974)",
+   "formula": "T_H = hbar c^3 / (8 pi G M k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 1.989e+40
+   },
+   "value": 29541265550554.047,
+   "units": "m",
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)",
+   "formula": "r_s = 2 G M / c^2",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "unruh_temperature",
+   "args": {
+    "acceleration_m_s2": 1521.185978303427
+   },
+   "value": 6.168429712630828e-18,
+   "units": "K",
+   "source": "sigma-ground (Unruh 1976)",
+   "formula": "T = \u0127 a / (2\u03c0 c k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "hawking_temperature",
+   "args": {
+    "mass_kg": 1.989e+40
+   },
+   "value": 6.168429712630828e-18,
+   "units": "K",
+   "source": "sigma_ground.field.gr_basics (Hawking 1974)",
+   "formula": "T_H = hbar c^3 / (8 pi G M k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "bekenstein_hawking_entropy",
+   "args": {
+    "mass_kg": 1000100000000.0
+   },
+   "value": {
+    "entropy_k_B": 2.6534174352169515e+40,
+    "hawking_temperature_K": 122677799204.30672,
+    "horizon_area_m2": 2.7725880399974863e-29,
+    "schwarzschild_radius_m": 1.4853805770291155e-15,
+    "thread_count": 2.6534174352169515e+40
+   },
+   "units": "",
+   "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)",
+   "formula": "S = A/(4 L_p\u00b2) = k_B c\u00b3 A/(4 G \u0127)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "bekenstein_hawking_entropy",
+   "args": {
+    "mass_kg": 999900000000.0
+   },
+   "value": {
+    "entropy_k_B": 2.6523562804844226e+40,
+    "hawking_temperature_K": 122702337217.94896,
+    "horizon_area_m2": 2.771479226555264e-29,
+    "schwarzschild_radius_m": 1.4850835306183506e-15,
+    "thread_count": 2.6523562804844226e+40
+   },
+   "units": "",
+   "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)",
+   "formula": "S = A/(4 L_p\u00b2) = k_B c\u00b3 A/(4 G \u0127)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "hawking_temperature",
+   "args": {
+    "mass_kg": 1000000000000.0
+   },
+   "value": 122690066984.22714,
+   "units": "K",
+   "source": "sigma_ground.field.gr_basics (Hawking 1974)",
+   "formula": "T_H = hbar c^3 / (8 pi G M k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "bekenstein_hawking_entropy",
+   "args": {
+    "mass_kg": 1.9891988999999998e+30
+   },
+   "value": {
+    "entropy_k_B": 1.0497240437227922e+77,
+    "hawking_temperature_K": 6.167812931337695e-08,
+    "horizon_area_m2": 109686937.69382896,
+    "schwarzschild_radius_m": 2954.4219677109104,
+    "thread_count": 1.0497240437227922e+77
+   },
+   "units": "",
+   "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)",
+   "formula": "S = A/(4 L_p\u00b2) = k_B c\u00b3 A/(4 G \u0127)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "bekenstein_hawking_entropy",
+   "args": {
+    "mass_kg": 1.9888011e+30
+   },
+   "value": {
+    "entropy_k_B": 1.0493042380706313e+77,
+    "hawking_temperature_K": 6.169046617292556e-08,
+    "horizon_area_m2": 109643071.69239035,
+    "schwarzschild_radius_m": 2953.8311423998994,
+    "thread_count": 1.0493042380706313e+77
+   },
+   "units": "",
+   "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)",
+   "formula": "S = A/(4 L_p\u00b2) = k_B c\u00b3 A/(4 G \u0127)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "hawking_temperature",
+   "args": {
+    "mass_kg": 1.989e+30
+   },
+   "value": 6.168429712630829e-08,
+   "units": "K",
+   "source": "sigma_ground.field.gr_basics (Hawking 1974)",
+   "formula": "T_H = hbar c^3 / (8 pi G M k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "bekenstein_hawking_entropy",
+   "args": {
+    "mass_kg": 1.989118892e+30
+   },
+   "value": {
+    "entropy_k_B": 1.0496396030645207e+77,
+    "hawking_temperature_K": 6.168061018256477e-08,
+    "horizon_area_m2": 109678114.38709608,
+    "schwarzschild_radius_m": 2954.303137264748,
+    "thread_count": 1.0496396030645207e+77
+   },
+   "units": "",
+   "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)",
+   "formula": "S = A/(4 L_p\u00b2) = k_B c\u00b3 A/(4 G \u0127)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "bekenstein_hawking_entropy",
+   "args": {
+    "mass_kg": 1.988721108e+30
+   },
+   "value": {
+    "entropy_k_B": 1.0492198311818693e+77,
+    "hawking_temperature_K": 6.169294753833686e-08,
+    "horizon_area_m2": 109634251.91427445,
+    "schwarzschild_radius_m": 2953.71233571745,
+    "thread_count": 1.0492198311818693e+77
+   },
+   "units": "",
+   "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)",
+   "formula": "S = A/(4 L_p\u00b2) = k_B c\u00b3 A/(4 G \u0127)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "hawking_temperature",
+   "args": {
+    "mass_kg": 1.98892e+30
+   },
+   "value": 6.168677824358303e-08,
+   "units": "K",
+   "source": "sigma_ground.field.gr_basics (Hawking 1974)",
+   "formula": "T_H = hbar c^3 / (8 pi G M k_B)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "bekenstein_hawking_entropy",
+   "args": {
+    "mass_kg": 1.9891989e+36
+   },
+   "value": {
+    "entropy_k_B": 1.049724043722792e+89,
+    "hawking_temperature_K": 6.167812931337694e-14,
+    "horizon_area_m2": 1.0968693769382894e+20,
+    "schwarzschild_radius_m": 2954421967.7109103,
+    "thread_count": 1.049724043722792e+89
+   },
+   "units": "",
+   "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)",
+   "formula": "S = A/(4 L_p\u00b2) = k_B c\u00b3 A/(4 G \u0127)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "bekenstein_hawking_entropy",
+   "args": {
+    "mass_kg": 1.9888010999999997e+36
+   },
+   "value": {
+    "entropy_k_B": 1.0493042380706312e+89,
+    "hawking_temperature_K": 6.169046617292557e-14,
+    "horizon_area_m2": 1.0964307169239033e+20,
+    "schwarzschild_radius_m": 2953831142.399899,
+    "thread_count": 1.0493042380706312e+89
+   },
+   "units": "",
+   "source": "sigma-ground (Bekenstein 1973 / Hawking 1974)",
+   "formula": "S = A/(4 L_p\u00b2) = k_B c\u00b3 A/(4 G \u0127)",
+   "kind": "mcp_tool_call"
+  },
+  {
+   "tool": "hawking_temperature",
+   "args": {
+    "mass_kg": 1.989e+36
+   },
+   "value": 6.168429712630828e-14,
+   "units": "K",
+   "source": "sigma_ground.field.gr_basics (Hawking 1974)",
+   "formula": "T_H = hbar c^3 / (8 pi G M k_B)",
+   "kind": "mcp_tool_call"
+  }
+ ],
+ "mentat_call_counts": {
+  "mcp_tool_calls": 64,
+  "direct_import_records": 1,
+  "total_records": 65
+ },
+ "constants": {
+  "G": [
+   6.6743e-11,
+   "sigma_ground.field.constants"
+  ],
+  "c": [
+   299792458.0,
+   "sigma_ground.field.constants"
+  ],
+  "hbar": [
+   1.054571817e-34,
+   "sigma_ground.field.constants"
+  ],
+  "k_B": [
+   1.380649e-23,
+   "sigma_ground.field.constants"
+  ],
+  "L_PLANCK": [
+   1.6162550239285497e-35,
+   "sigma_ground.field.constants"
+  ],
+  "M_SUN": [
+   1.989e+30,
+   "sigma_ground.field.constants"
+  ],
+  "M_sun_body": [
+   1.98892e+30,
+   "sigma-ground via IAU 2015 nominal solar values"
+  ],
+  "M_earth": [
+   5.97219e+24,
+   "sigma-ground via NASA Planetary Fact Sheet 2024"
+  ],
+  "g_earth": [
+   9.80665,
+   "sigma-ground via NASA Planetary Fact Sheet 2024"
+  ]
+ },
+ "literature": {
+  "Jacobson1995": "T. Jacobson, PRL 75, 1260 (1995), gr-qc/9504004, doi:10.1103/PhysRevLett.75.1260",
+  "EGJ2006": "C. Eling, R. Guedens, T. Jacobson, PRL 96, 121301 (2006), gr-qc/0602001, doi:10.1103/PhysRevLett.96.121301 (remarks 4 and 5 quoted from the arXiv text)",
+  "Unruh1976": "W. G. Unruh, PRD 14, 870 (1976)",
+  "KSS2005": "P. Kovtun, D. T. Son, A. O. Starinets, PRL 94, 111601 (2005), hep-th/0405231",
+  "ChircoLiberati2010": "G. Chirco, S. Liberati, PRD 81, 024016 (2010), arXiv:0909.4194",
+  "Hawking1975": "S. W. Hawking, Commun. Math. Phys. 43, 199 (1975) (as cited in EGJ 2006 ref. [3])"
+ },
+ "runtime_s": 122.2,
+ "symbolic_runtime_s": 43.6,
+ "versions": {
+  "sympy": "1.14.0",
+  "python": "3.13.12"
+ }
+}

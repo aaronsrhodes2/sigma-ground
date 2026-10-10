@@ -1,0 +1,21 @@
+T5 torsion-balance window -- pre-registration (written 2026-10-10 before any bound was looked up or any number computed)
+
+Prediction (from the task design, adopted unchanged):
+  For the Captain's coupling xi = 0.13-0.17, a sigma field of range lambda anywhere in 1 cm <= lambda <= 35 km is
+  excluded by the Eot-Wash composition-dependent (equivalence-principle) Yukawa bounds wherever those bounds exist,
+  leaving lambda below ~1 cm as the only open range.
+
+Pass/fail criterion:
+  PASS  if, at every lambda in [1 cm, 35 km] where a cited published composition-dependent bound exists,
+        xi_max(lambda) < 0.13 after mapping the published charge (B or B-L) onto sigma charge f_i
+        (f_i from the repo inventory, inventory/core/sigma.py three_measures_atom), using the conservative pair mapping.
+  FAIL  if at any such lambda xi_max(lambda) >= 0.13 (an allowed island for xi = 0.13-0.17 inside the window).
+  Coverage: any sub-range of [1 cm, 35 km] with no cited published bound is reported as UNCOVERED, not as excluded.
+            If uncovered sub-ranges exist the outcome is MIXED (excluded where covered, open/unknown where not).
+
+Mapping (fixed now):
+  sigma:  Delta a_AB = 2 xi (f_A - f_B) s  x G x Yukawa geometry,  s = sigma charge per unit source mass
+          (repo field equation: source = rho c^2, so s = 1; action-symmetric alternative s = f_src, ~1.5 % smaller).
+  Yukawa: Delta a_AB = alpha~ [(q/mu)_A - (q/mu)_B] (q/mu)_src x G x same geometry.
+  => xi_max(lambda) = alpha~_max(lambda) |Delta(q/mu)_AB| (q/mu)_src / (2 |Delta f_AB| s).
+  Where a bound combines several pairs, the pair giving the LARGEST (least restrictive) xi_max is used.

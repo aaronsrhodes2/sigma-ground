@@ -1,0 +1,19 @@
+{
+ "id": "U7",
+ "written": "2026-10-10, before any arrival-time measurement was run (only a 3-step SPH timing run and a mass-solve feasibility check preceded it)",
+ "design_pass_fail_verbatim": "SEPARATE: p_heat = 2.0 ± 0.2, p_SPH = 1.0 ± 0.1 with c_s within 10 % of the cascade value, p_Nbody = 0. SAME: all three within ±0.2 of one value. Pre-registered: 2 / 1 / 0.",
+ "prediction": "p_heat = 2, p_SPH = 1 with d/t = c_s, p_Nbody = 0 (SEPARATE)",
+ "operationalisation_fixed_before_running": {
+  "heat_literal": "48^3 insulated grid (dx = 1, alpha = 1, k = rho_cp = 1), one hot cell dT0 = 1 at (24,24,24); diffuse_fvm in 40 log-spaced slices to t in [0.02, 60] dx^2/alpha; arrival = first slice end-time with dT(d) > 1e-3 dT0 at d = 2..10 dx along +x; p = OLS slope of ln t vs ln d over the distances that cross",
+  "heat_corrected": "same grid sampled after every explicit substep; arrival = first time dT(d) >= 0.5 * max_t dT(d) (half-peak, linear interpolation); d = 2..10 dx; p = OLS slope",
+  "sph_literal": "7^3 water_ice lattice (no liquid water in MATERIALS), s = 2h/3, uniform bulk-tuned parcel mass, eos='tait', gravity 0, ground=False, alpha_visc = 1, dt = cfl_timestep; centre parcel displaced 0.05 s along +x; arrival = first step with |v| > 1e-3 * peak |v| of the displaced parcel, raw velocities as sketched; d = s, 2s, 3s on +x",
+  "sph_corrected": "25x11x11 bar, same s, h, EOS, dt rule; response dv = v_pert - v_ref (reference run without displacement); arrival = half-peak of |dv| on the +x axis; p = OLS slope of ln t vs ln d over d = 4..10 s (beyond the kernel support 2h = 3s); speed = slope of d vs t; compared with c_Tait = sqrt(K/rho0) from the cascade (primary: the EOS the solver integrates has no shear), and reported against c_L (cascade longitudinal, used by CFL) and v_D (thermal.sound_velocity)",
+  "nbody": "source M plus 5 test masses at d = 1, 2, 4, 8, 16 L on a line; move the source by delta = 1e-3 L; dA from NBodySystem.compute_accelerations; arrival = first force evaluation with |dA| > 1e-3 |dA_final|; p = OLS slope (t independent of d -> p = 0); control: slope of ln|dA| vs ln d = -3 +/- 0.05; dt-halving: arrival time scales with dt (instantaneous) where SPH and heat arrival times converge",
+  "verdict_rule": "SEPARATE if |p_heat - 2| <= 0.2 AND |p_SPH - 1| <= 0.1 AND |c_meas/c_cascade - 1| <= 0.10 AND p_Nbody = 0 (arrival independent of d); SAME if all three p within +/-0.2 of one value; otherwise MIXED"
+ },
+ "analyst_expectations_before_running_[DERIVED]": {
+  "heat_literal": "peak dT(d)/dT0 of a 3-D point pulse = (3/2pi)^1.5 e^-1.5 (dx/d)^3 = 0.0736 (dx/d)^3, so 1e-3 dT0 is never reached beyond d = 4.19 dx; only d = 2, 3, 4 cross, at t ~ 0.18, 0.57, 1.8 -> p_literal ~ 3.4 (threshold-driven, not the parabolic law); expected literal heat FAIL as a design artefact",
+  "sph_literal": "with s = 2h/3 every probe d = s, 2s, 3s lies inside the kernel support 2h = 3s of the displaced parcel and is pushed in the first force evaluation; the 7^3 lattice has no bulk (every parcel within 3s of a free surface), so raw |v| is dominated by the surface collapse -> expected literal SPH FAIL (p well below 1)",
+  "corrected": "2 / ~1 / 0; SPH speed within 10 % of c_Tait is uncertain (SPH dispersion at kh ~ 1)"
+ }
+}

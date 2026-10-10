@@ -1,0 +1,2 @@
+bar_w_half: step 1 in 8.0s
+bar_w_half: done in 274s

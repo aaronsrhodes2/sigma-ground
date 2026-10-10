@@ -1,0 +1,44 @@
+{
+ "rows": [
+  {
+   "lambda_over_dx": 8,
+   "kh": 0.9424777960769383,
+   "nx": 16,
+   "Q_engine": 0.00011566526779687639,
+   "Q_reference": 0.911485613438902,
+   "rho_sph_mean": 7880.374383774324,
+   "Q_engine_times_rho_sph": 0.9114856134389019
+  },
+  {
+   "lambda_over_dx": 12,
+   "kh": 0.6283185307179588,
+   "nx": 20,
+   "Q_engine": 0.00011986600071016915,
+   "Q_reference": 0.9445889614818919,
+   "rho_sph_mean": 7880.374383774324,
+   "Q_engine_times_rho_sph": 0.944588961481892
+  },
+  {
+   "lambda_over_dx": 16,
+   "kh": 0.47123889803846913,
+   "nx": 24,
+   "Q_engine": 0.00012137092735143508,
+   "Q_reference": 0.9564483468351832,
+   "rho_sph_mean": 7880.374383774324,
+   "Q_engine_times_rho_sph": 0.9564483468351834
+  },
+  {
+   "lambda_over_dx": 24,
+   "kh": 0.3141592653589794,
+   "nx": 32,
+   "Q_engine": 0.00012244343846890278,
+   "Q_reference": 0.964900135971589,
+   "rho_sph_mean": 7880.374383774324,
+   "Q_engine_times_rho_sph": 0.9649001359715891
+  }
+ ],
+ "lattice_moment_M_kh_to_0": 0.9725925916821059,
+ "lattice_moment_M_no_eta": 0.980894485559387,
+ "rho_sph_infinite_lattice": 7880.374383774328,
+ "note": "supplementary, not pre-registered; reference = engine x rho_sph,i (the per-parcel identity established in u14g_results.json D2.a to 2.5e-13)"
+}

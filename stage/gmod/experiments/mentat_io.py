@@ -15,6 +15,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -55,8 +56,24 @@ def call(tool: str, args: dict | None = None) -> dict:
         if extra in res:
             entry[extra] = res[extra]
     cache[key] = entry
-    CACHE.write_text(json.dumps(cache, indent=1, sort_keys=True, ensure_ascii=False), encoding="utf-8", newline="\n")
+    _save(cache)
     return entry
+
+
+def _save(cache: dict) -> None:
+    """Write the cache atomically (temp file, then replace), retrying: on Windows a plain write now and then fails with
+    'Invalid argument' while another process has the file open."""
+    text = json.dumps(cache, indent=1, sort_keys=True, ensure_ascii=False)
+    tmp = CACHE.with_name(CACHE.name + ".tmp")
+    for attempt in range(8):
+        try:
+            tmp.write_text(text, encoding="utf-8", newline="\n")
+            os.replace(tmp, CACHE)
+            return
+        except OSError:
+            if attempt == 7:
+                raise
+            time.sleep(0.25)
 
 
 def provenance(tool: str, args: dict, entry: dict) -> dict:

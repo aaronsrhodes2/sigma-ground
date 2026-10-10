@@ -1,0 +1,14 @@
+{
+ "id": "U11-v2 addendum",
+ "written": "2026-10-10 after R3_dt0.25 stopped and BEFORE the continuation run below was launched",
+ "observation_that_prompted_it": "R3_dt0.25 met the prereg.json stop rule at step 9107 (t = 129 H/c_s) with KE/peak = 9.99e-5, but the free atmosphere was still oscillating (KE above the floor layer swinging between ~2e-5 and ~3e-3 of peak every ~4.5 H/c_s): the stop caught an oscillation node. The floor clump (N_f = 34) held 92 % of the remaining KE.",
+ "R3c_continuation": {
+  "what": "the same configuration (line, N 128, h/H 0.2, seed 3, --cfl 0.075) run to 20000 steps (t = 300 H/c_s) with no early stop (--steps 20000 --max_steps 20000)",
+  "predictions": {
+   "a": "floor-clump vy within 5 % of e N g dt/((1+e) N_f) with the measured N_f",
+   "b": "once the free atmosphere has settled (C2 baseline: stays below 1e-4 from t = 220.6), total KE/peak sits at the floor limit-cycle value 1.578e-3 * 0.0625 * 33/N_f (= 9.6e-5 at N_f = 34): just below the 1e-4 line, so total KE stays below 1e-4 from some time t* <= 300 H/c_s",
+   "c": "final H_fit/H within 0.01 of the C2 value 1.0022"
+  },
+  "status": "post hoc; does not change any pre-registered verdict"
+ }
+}

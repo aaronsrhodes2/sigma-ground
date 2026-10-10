@@ -1,6 +1,6 @@
 # Unification program — are fluid dynamics, thermodynamics and gravity one phenomenon?
 
-**Status:** ✅ complete — Stages 0–12 run (Session 36, 2026-10-10) · **Results:** [UNIFICATION_PILOT_RESULTS.md](UNIFICATION_PILOT_RESULTS.md) ·
+**Status:** ✅ complete — Stages 0–12 run, plus round 2 (§15) (Session 36, 2026-10-10) · **Results:** [UNIFICATION_PILOT_RESULTS.md](UNIFICATION_PILOT_RESULTS.md) ·
 **Figures:** `misc/unification/` · **Scripts:** `scripts/unification/` · **Plan:** the four-level framework below.
 Rules in force: PLATINUM §21 (Mentat computes every physical number), Golden Rules 1–7, [SPECULATIVE] fence.
 
@@ -12,7 +12,7 @@ onto a mass grows a horizon that sound cannot cross (Bondi's eigenvalue to 6 × 
 field or any force law, so none of them is evidence that gravity *is* a fluid or a heat flow.
 
 **The differences are measured, and they are the real content.** One operator gives three clocks (gravity instant, sound
-at a wavefront, heat by diffusion). Gravity's heat capacity is negative: the measured slope of kinetic energy against total energy is −0.91 ± 0.03, against the virial −1 and the gas's +1. Crystals melt by a phase
+at a wavefront, heat by diffusion). Gravity's heat capacity is negative: the measured slope of kinetic energy against total energy is −0.91 ± 0.03, against the virial −1 and the gas's +1 (the sign held again in round 2; the magnitude depends on the averaging window). Crystals melt by a phase
 transition, not by a change of time scale. The fluid engine now has an exact first law and makes entropy only where the
 flow is irreversible.
 
@@ -23,6 +23,13 @@ the Captain's ξ = 0.13–0.17 forces that range below ~35 km, and the repo's pa
 **The honest home of the intuition is Jacobson's programme**: Einstein's equation as an equation of state of spacetime's
 own microscopic degrees of freedom. It is live research, not settled, and it is the one route from thermodynamics to
 gravity's *dynamics*. The ranked next experiments (§14) start there, with nuclear matter in Mentat and an action for σ.
+
+**Round 2 (§15), the same day.** Fourteen designed experiments, a derivation, a memo and a plan ran, each checked by three
+independent skeptics and a final critic. For a σ that changes masses, the last window closed: torsion balances and
+inverse-square-law tests leave the Captain's ξ = 0.13–0.17 a range below about 0.1 mm, and the postulate as written cannot come
+from any action. Jacobson's derivation now stands in the repo, checked at leading order. The heat-capacity sign held under a new
+test. The tests that could fail also found real engine defects, the worst of them general-relativity layers that run Mercury's
+perihelion backwards. All are flagged in the gap ledger for the Captain's decision.
 
 ## 1. The question, made testable
 
@@ -443,6 +450,8 @@ missing capabilities (the nuclear / degenerate-matter EOS + TOV first — a sepa
 
 ### The scoreboard
 
+*Round 2 revised several rows of this scoreboard; the corrections are in §15.4.*
+
 | level | statement | instrument | result | can it fail? |
 |---|---|---|---|---|
 | L1 same operator | steady heat, Newtonian gravity and the static σ field share the Laplacian and its Green's function | P1 → Fig. 3 | ✅ 1.6 × 10⁻³ (exact walls) | no — true of every static linear field |
@@ -511,3 +520,122 @@ the program now has both wired to Mentat.
    feels. Full designs, pass/fail and sketches: the synthesis JSON harvested into `misc/unification/design_synthesis.json`.
 8. **Engine follow-ups:** Wendland kernel or self-contribution correction (A7); adaptive h (B7); Eyring fix (A5);
    `total_energy` softening (A2); melting-point key (A3).
+
+## 15. Round 2 — the designed kill-tests, run and cross-examined (2026-10-10)
+
+**What ran.** Thirteen of the fourteen experiments in the design synthesis ([design_synthesis.json](unification/design_synthesis.json)).
+U14, the Rayleigh–Bénard onset, never ran: it was blocked by two engine couplings, and U14G checked those instead. Four more
+items came from §14's ranked list because they need no decision from the Captain: the torsion-balance window (T5), Jacobson's
+derivation reproduced in sympy (J6), a σ-action options memo for decisions C1–C6 (A2), and the nuclear/degenerate-matter
+implementation plan (N1). That is eighteen items, of which fourteen are experiments, one a derivation, one a memo and one a plan.
+Each item had one runner, then three independent skeptics with different lenses (reproduce the numbers; check the physics and
+every reference by web search; ask whether the test could have failed and whether the headline overclaims), then one repair and
+one recheck; a final critic read all eighteen together. Every number came from Mentat or the repo's engines with its source
+recorded; nothing in the engine was patched. Scripts: `scripts/unification/round2/<item>/`; results, figures and
+pre-registrations: `misc/unification/round2/<item>/`.
+
+**How the cross-examination went.** No item was refuted. Every item was corrected at least once, almost always for the reason
+the first night's pilots were: a headline that said more than the numbers, or a "pass" that could not have failed. The critic
+then found contradictions *between* items, mostly from choices the Captain has not made yet (σ's sign, its normalisation, its
+coupling to Coulomb energy). Those are carried into the text below and into §15.4.
+
+### 15.1 The scoreboard
+
+| item | question | outcome | the number | could it have failed? |
+|---|---|---|---|---|
+| U1 | σ-bridge vs five weak-field gates | **NO-GO** on all five | Cassini ×10⁴·⁰, lunar ranging ×10³·³, MICROSCOPE ×10¹¹·¹, clocks ×10⁵·⁵, PSR J1738+0333 dipole ×10²·⁸–10³·⁵ (dipole charge [SPECULATIVE]) | no: one coupling α² = 2ξf = 0.313 against verified bounds |
+| U4 | σ normalisation vs the Gravity Probe A clock | prediction held | extra dilation 0.316 (field eq.) and 0.158 (inventory) of GR's redshift vs 1.4 × 10⁻⁴ | no, by construction once ξ is fixed |
+| U5 | σ through the N-body engine's own hook, on Mercury | hook excluded | +2.267″/cy = ξ/3 of GR (to 2 × 10⁻⁶), 45× the budget, ~2000× Will 2014's β bound | engine leg yes; exclusion no |
+| T5 | torsion balances, λ = 1 cm–35 km | pre-registered EP criterion **fails** by a tie at 1 cm | EP data exclude ξ > 0.1375 from 1 cm to 35 km (×118 at 2 cm to ×3 × 10⁶ at 1 km); ξ = 0.13 survives on a 0.06 mm sliver at 1 cm that depends on σ's sign, its normalisation and the Coulomb model; a post-hoc inverse-square-law lookup excludes the whole window (≥ ×79) for a mass-changing σ | EP leg yes; ISL leg no |
+| A2 | can any σ action rescue long range? | no, for a σ that changes masses | clocks ×2.5–4.7 × 10⁵, MICROSCOPE ×0.7–1.4 × 10¹¹; the postulate as written violates Newton's third law, so no action produces it; a pure σR coupling that changes no mass survives | structural results [DERIVED] |
+| U6 | σ waves from a pulsating star (flat □) | PASS | pressure radiates σ at zeroth order (slope −1.4 × 10⁻⁴), mass at (ωR/c)² (slope 2.000); solver = exact to 10⁻⁸; for an isolated star the two collapse to one channel | only the algebra and the solver |
+| J6 | Jacobson 1995 in sympy | delivered, at leading order | 13/13 steps close; η = c³/4Għ = 1/4l_P² is an identification, not a prediction; one order further, the relation does not close | yes: mutated reruns close 7/13 and 6/13 |
+| U3 | heat capacity as a response: kick a relaxed Plummer cluster | unresolved under the pre-registered gate | in all 12 kicked branches ⟨K⟩ moved opposite to the energy change: d⟨K⟩/dE = −1.04 ± 0.13 (seed SEM; per seed −0.82, −1.27, −1.03); the gate needed a seed spread ≤ 0.05, measured 0.22; a later window gives −1.36 | yes, and the sign held |
+| U8 | range and extensivity | SEPARATE | gravity's energy ∝ N^1.673 ± 0.012 (5/3 + finite N) vs pressure ∝ N^1 | barely: follows from seeding and 1/r |
+| U2 | Loschmidt echo: where does irreversibility live? | MIXED | after 1 t_ff, N-body 3.7 × 10⁻¹⁵ R and inviscid SPH 1.9 × 10⁻¹⁴ R return; viscous SPH stays 0.155 R away; by 6 t_ff chaos alone carries the gravity echo to 0.26 R | the split is by construction |
+| U7 | arrival laws in the three solvers | MIXED | heat p = 2.13 (refined) and SPH p = 1.95 differ by less than the SAME window; the SPH front is finite-speed (dt halving moves it −0.24 %), N-body instantaneous by construction; the SPH speed excess is a finite-cross-section effect (1.24 → 1.04 c_Tait as the bar widens) | weakly |
+| U11 | hydrostatic column | MIXED | barometric H = c_s²/g to 0.22 % once the column is confined (a resolved offset, unexplained); no pre-registered run settles because floor contact bounces | yes |
+| U9 | Galilean boost and the 1PN terms | **engine defect** | both GR layers precess Mercury backwards (−43 and −72″/cy) | yes, and it failed |
+| U10 | Tolman potential, σ and T from one polytrope | MIXED | every corrected criterion passes; pressure enters Φ and σ with opposite signs (±3P/c²) | mostly by construction |
+| U12 | σ through the material chain | both criteria FAIL | thermal chain misses ρ(σ) by exactly f_QCD/2; the annual σ_Earth signal sits 2.4–7.3 orders below the best property measurements | code audit |
+| U13 | how much of an SPH σ-source is artificial viscosity? | scope rule | 4.5 % at 0.08 t_ff, 43 % by 1 t_ff (29 % at N = 512) → no σ- or Tolman-source from SPH collapse runs | yes |
+| U14G | the two couplings that blocked Rayleigh–Bénard | **both defects confirmed** | buoyancy 1/3 of Archimedes; conduction ρ_sph[SI]× too slow and not energy-conserving | yes |
+| N1 | nuclear/degenerate matter plan | delivered | 9 modules + an adaptive ODE kernel, ~13 days; SEMF asymmetry found 4× too small; P6's neutron-star 3P/ρc² = 0.67 withdrawn (GW170817 gives 0.21 at 2ρ_nuc) | plan |
+
+### 15.2 What changed
+
+**For a σ that changes masses, the window is closed.** Round 1 excluded the long-range field and left λ < ~35 km open. Round 2
+closed that window for the σ the repo actually codes, one that rescales the QCD share of every mass. Torsion-balance
+equivalence-principle data exclude the Captain's ξ above 0.1375 from 1 cm to 35 km (T5). The pre-registered EP criterion itself
+failed by a tie: ξ = 0.13 survives on a 0.06 mm sliver at 1 cm, and that sliver widens or closes with three choices the Captain
+has not made (σ's sign, the factor-2 normalisation C2, and whether nuclear Coulomb energy scales with σ). An inverse-square-law
+lookup, added after pre-registration and unable to fail, excludes the whole window by at least ×79 and leaves a range below
+about 0.1 mm (85–99 μm on the 2009 compilation). The σ-action memo adds the structural results that matter more than any bound:
+**the postulate □σ = −ξR with a non-universal mass response cannot come from any action**, because its scalar forces violate
+Newton's third law (A2, F1), and **no action rescues a long-range σ that changes masses**. The one survivor at long range is a
+σ that couples only to curvature and changes no mass (pure σR); it passes every bound by giving up the "scale of matter" the
+Captain's picture needs. Before σ makes another prediction it needs an action, and the memo lays out the options and their
+prices.
+
+**The differences held.** In every kicked branch of a relaxed cluster, kinetic energy moved opposite to the energy change (U3),
+the sign Stage 6a found; the magnitude depends on the averaging window, so Stage 6a's −0.91 ± 0.03 is one window's number, not
+the law. Gravity's energy grows as N^5/3 while pressure's grows as N (U8). Heat, sound and gravity arrive in three different
+ways (U7), but on these grids the arrival-time exponent alone barely tells heat from sound, and gravity is instantaneous by
+construction in the engine.
+
+**Where the arrow of time lives, shown on the engine.** After one free-fall time, reversing every velocity returns both N-body
+gravity and the inviscid fluid to their start to roundoff, and only the viscous fluid stays away (U2). This is textbook physics
+the engine was built to obey (dissipation exists only where it was coded), not a discovery, and the engine's own ideal-gas path
+is first order in time and slightly irreversible (A17). But it is a useful picture for the Captain's question: the dissipative
+arrow runs through fluid dynamics, between ideal and viscous flow, not along the boundaries between the three subjects. Gravity
+has an arrow of another kind, chaos: roundoff grows until, by six free-fall times, the reversed cluster misses its start by a
+quarter of its radius.
+
+**L4 got its first checked derivation.** Jacobson's 1995 argument closes in sympy at leading order, step by step, with every
+assumption listed (J6). Given that horizon entropy is proportional to area, it derives Einstein's equation as an equation of
+state on local horizons whose expansion and shear vanish. Newton's G enters as an identification (η = 1/4l_P²), not a prediction,
+parts of the closing steps hold by construction, and one order further the relation does not close. That is the status §14 gave
+it, now reproduced rather than cited.
+
+**The engines are less trustworthy than they looked, and that is the round's most useful output.** The tests that could fail
+found real defects, several present since the first release:
+
+- the N-body engine's general-relativity layers run backwards (A9, A10), and the orbit adapters switch the wrong-sign layer on
+  by default (A29); its gravitational-wave damping is wrong by a factor of the separation in metres (A11); the tests that should
+  have caught them check only "nonzero" (A13);
+- the fluid engine's buoyancy is a third of Archimedes and its heat conduction divides by density twice (A14, A15);
+- the nuclear mass formula's asymmetry term is four times too small (A19);
+- Mentat's own symbolic and math tools give silently wrong answers for a variable named E (A20, A30).
+
+All are flagged in [KNOWN_GAPS.md](../KNOWN_GAPS.md) and the census ([MENTAT_GAPS_UNIFICATION.md](MENTAT_GAPS_UNIFICATION.md),
+A9–A33) with evidence and fix direction. None was fixed: Mentat flags, the Captain decides.
+
+### 15.3 The verdict after round 2
+
+Unchanged in shape, sharper at every edge. The three domains share mathematics, and every shared piece the engines can test is a
+property of the mathematics, not evidence of one force. The differences are measured, and their signs held under new tests. The
+repo's σ-bridge is excluded in every form that changes masses at any range from about 0.1 mm to the cosmos, and as written it
+cannot be derived from an action. The arrow of time, on the engine and in textbook physics, does not sit at the domain
+boundaries. And the one route from thermodynamics to gravity's dynamics, Jacobson's, now stands in the repo as a checked
+leading-order derivation with its assumptions visible.
+
+**Next, in order:** the Captain's decisions (C1–C6 with the A2 memo; which defects to fix first, with A9–A11, A15 and A29 the most
+consequential); the nuclear-matter build (N1, ~13 days, [NUCLEAR_MATTER_PLAN.md](NUCLEAR_MATTER_PLAN.md)); the SPARC a₀ test
+when the download is approved. Documents: [SIGMA_ACTION_OPTIONS.md](SIGMA_ACTION_OPTIONS.md),
+[JACOBSON_DERIVATION.md](JACOBSON_DERIVATION.md), [NUCLEAR_MATTER_PLAN.md](NUCLEAR_MATTER_PLAN.md).
+
+### 15.4 Corrections to the §14 scoreboard (from the round's critic)
+
+§14 is kept as written on the first night; these rows supersede it.
+
+| §14 row | was | now |
+|---|---|---|
+| three causal structures | ✅ shown on the engine | ⚠ MIXED (U7): pre-registered bands missed; N-body instantaneous and SPH finite-speed by construction; heat measured parabolic |
+| negative heat capacity | ✅ −0.91 ± 0.03, 32σ | sign ✅ and strengthened (U3: 12 of 12 branches); magnitude window-dependent (−0.83 early, −1.04 pre-registered, −1.36 late) |
+| heat ↔ motion exactly | ✅ ledger 0.0 | ⚠ the ledger is the engine's own booking reproducing itself; an independent ledger differs at O(dt); the ideal EOS is first order (A17); conduction does not conserve heat (A15) |
+| σ force repulsive (⚠ open) | open, needs an action | decided by the action (A2): pure σT is a repulsive ghost; σR with ζ > f is attractive and ghost-free near σ = 0, ghost at σ = 0.091 |
+| ξ = 0.13–0.17 → λ < ~35 km | range below ~35 km | superseded by T5: for a mass-changing σ, λ ≲ 0.1 mm (ISL); the EP edge near 1 cm depends on sign, C2 and the Coulomb model |
+| σ long-range excluded | clocks ×3 × 10⁵ … pulsars ×10³ | holds for a σ that changes masses; ranges per convention: clocks ×2.5–4.7 × 10⁵, free fall ×0.7–1.4 × 10¹¹ (Coulomb-model conditional), Cassini 10³·⁸–10⁴·⁶, Eöt-Wash ×10⁹·¹ at 2σ, pulsars ≥ 10²·⁸ with a speculative charge; a σ that changes no mass passes |
+| η/s: horizon = KSS bound | the one place the duality meets matter | the horizon value equals the KSS number by identity (J6); the QGP and water entries stand |
+| L4 | not reachable | still ⚪; U6 ran the σ-bridge's L4 candidate as flat-□ algebra only, and J6 reproduced Jacobson at leading order |
+| 3P/ρc² in neutron stars | 0.67 (P6, borrowed) | withdrawn: GW170817 gives 0.21 (0.11–0.37) at 2ρ_nuc; SLy gives 0.46 at a 1.4 M☉ centre (N1) |

@@ -1,0 +1,450 @@
+{
+ "note": "POST-HOC resolution diagnostics, v2",
+ "part": "big",
+ "mentat_sources": {
+  "G": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "G"
+   },
+   "value": 6.6743e-11,
+   "source": "sigma_ground.field.constants"
+  },
+  "c": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "c"
+   },
+   "value": 299792458.0,
+   "source": "sigma_ground.field.constants"
+  },
+  "v_ref_sqrt_GM_over_R": {
+   "tool": "circular_orbit_velocity",
+   "args": {
+    "central_mass_kg": 1000000000000.0,
+    "radius_m": 5000.0
+   },
+   "value": 0.11553614153155713,
+   "source": "sigma-ground (Keplerian circular orbit)"
+  },
+  "rho_iron": {
+   "tool": "density",
+   "args": {
+    "material": "iron"
+   },
+   "value": 7874.0,
+   "source": "sigma-ground via CRC Handbook (iron at 20 C)"
+  },
+  "T_melt_iron": {
+   "tool": "melting_point",
+   "args": {
+    "material": "iron"
+   },
+   "value": 1811.15,
+   "source": "sigma-ground via CRC Handbook"
+  },
+  "t_ff": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(sqrt(3*pi/(32*6.6743e-11*(3*1000000000000.0/(4*pi*5000.0**3)))))"
+   },
+   "value": "48068.1075123239",
+   "source": "sympy.simplify"
+  },
+  "eta_iron_eyring_at_Tmelt": {
+   "tool": "sigma_ground.field.interface.fluid.eyring_viscosity",
+   "args": {
+    "material_key": "iron",
+    "T": 1811.15
+   },
+   "value": 4.056685568405233,
+   "source": "repo engine import; PHYSICS_GAP A5 (10^3-10^6 x too high)"
+  },
+  "viscous_flow_analysis_probe": {
+   "inputs_echo": "requires viscosity_pa_s as an INPUT (default 1e-3, water)",
+   "source": "sigma_ground.field.interface (viscosity, fluid, diffusion, statistical)"
+  }
+ },
+ "S2": [
+  {
+   "N": 512,
+   "spacing_m": 1007.4949712602931,
+   "h_m": 1511.2424568904398,
+   "two_h_over_R": 0.6044969827561759,
+   "samples": [
+    {
+     "step": 50,
+     "t_over_tff": 0.08333333333333325,
+     "ratio_alpha1": 0.016210993071698626,
+     "C_kin": 0.22444675436816627,
+     "div_fit_s": -2.2087166008237923e-06,
+     "slopes": {
+      "reading_S_spacing_x_1_1.5_2": 0.5519233899358343,
+      "reading_H_h0_x_1_1.5_2": 0.9409009856624919
+     },
+     "structure": {
+      "frac_outward": 0.16796875,
+      "k_inner_s": 1.9629192531806558e-06,
+      "k_outer_s": 3.222858954787918e-07,
+      "k_fit_s": 7.362388669412641e-07,
+      "v_hom_at_R_over_cs": 0.07965460603729899,
+      "v_hom_at_rmax_over_cs": 0.08192105585043112,
+      "v_rms_over_cs": 0.12964508720712173,
+      "v_residual_rms_over_cs": 0.11416746214528306,
+      "v_tan_rms_over_cs": 0.08017173907042269,
+      "rms_radius_over_R": 0.7712040377716116
+     },
+     "rows": [
+      {
+       "h_over_spacing": 1.0,
+       "h_m": 1007.4949712602931,
+       "ratio": 0.01419891393780677,
+       "V_press_J": 4376117625.00376,
+       "V_visc_J": 62136117.53914776,
+       "div_fit_s": -2.2087166008237923e-06,
+       "div_sph_s": 3.548749844153368e-07,
+       "rms_radius_over_R": 0.7712040377716116,
+       "v_rms_over_cs": 0.12964508720712173,
+       "mean_neighbours": 26.5234375,
+       "frac_pairs_approaching": 0.5160530191458027,
+       "P_mean_V_Pa": 0.004472066944832543,
+       "rho_bar_kg_m3": 2.0938838833438256,
+       "zeta_eff_Pa_s": 28.7490453279993,
+       "C_kin": 0.2948832438702398,
+       "ratio_phys_eyring": 0.0020035632001466942,
+       "zeta_eff_over_eta_eyring": 7.086831070149009
+      },
+      {
+       "h_over_spacing": 1.5,
+       "h_m": 1511.2424568904398,
+       "ratio": 0.016210993071698626,
+       "V_press_J": 5224096251.9419985,
+       "V_visc_J": 84687788.1461185,
+       "div_fit_s": -2.2087166008237923e-06,
+       "div_sph_s": 2.442231632583301e-07,
+       "rms_radius_over_R": 0.7712040377716116,
+       "v_rms_over_cs": 0.12964508720712173,
+       "mean_neighbours": 76.51171875,
+       "frac_pairs_approaching": 0.6119875427579518,
+       "P_mean_V_Pa": 0.0033688197476107176,
+       "rho_bar_kg_m3": 1.5773282158853348,
+       "zeta_eff_Pa_s": 24.72563187506721,
+       "C_kin": 0.22444675436816627,
+       "ratio_phys_eyring": 0.0026597056033092086,
+       "zeta_eff_over_eta_eyring": 6.0950328681222805
+      },
+      {
+       "h_over_spacing": 2.0,
+       "h_m": 2014.9899425205863,
+       "ratio": 0.02104554247336823,
+       "V_press_J": 5337229643.201661,
+       "V_visc_J": 112324893.14612053,
+       "div_fit_s": -2.2087166008237923e-06,
+       "div_sph_s": -5.678269570744355e-07,
+       "rms_radius_over_R": 0.7712040377716116,
+       "v_rms_over_cs": 0.12964508720712173,
+       "mean_neighbours": 152.2578125,
+       "frac_pairs_approaching": 0.6889783980707066,
+       "P_mean_V_Pa": 0.002929754308456945,
+       "rho_bar_kg_m3": 1.3717516764196922,
+       "zeta_eff_Pa_s": 27.91588052182309,
+       "C_kin": 0.21853706067727383,
+       "ratio_phys_eyring": 0.0030583003951543176,
+       "zeta_eff_over_eta_eyring": 6.881450398631068
+      },
+      {
+       "h_over_spacing": 2.25,
+       "h_m": 2266.8636853356597,
+       "ratio": 0.023637923091415276,
+       "V_press_J": 5299637436.984898,
+       "V_visc_J": 125272422.14783418,
+       "div_fit_s": -2.2087166008237923e-06,
+       "div_sph_s": -8.864008323402023e-07,
+       "rms_radius_over_R": 0.7712040377716116,
+       "v_rms_over_cs": 0.12964508720712173,
+       "mean_neighbours": 196.6796875,
+       "frac_pairs_approaching": 0.7192850049652433,
+       "P_mean_V_Pa": 0.0027660200760891984,
+       "rho_bar_kg_m3": 1.2950890337231986,
+       "zeta_eff_Pa_s": 29.60224494329467,
+       "C_kin": 0.2181834304004824,
+       "ratio_phys_eyring": 0.0032393361265574544,
+       "zeta_eff_over_eta_eyring": 7.297150455496586
+      },
+      {
+       "h_over_spacing": 3.0,
+       "h_m": 3022.4849137808797,
+       "ratio": 0.031136899836461673,
+       "V_press_J": 5056369082.054911,
+       "V_visc_J": 157439657.6441254,
+       "div_fit_s": -2.2087166008237923e-06,
+       "div_sph_s": -1.4410316450137988e-06,
+       "rms_radius_over_R": 0.7712040377716116,
+       "v_rms_over_cs": 0.12964508720712173,
+       "mean_neighbours": 340.40234375,
+       "frac_pairs_approaching": 0.7821511768013495,
+       "P_mean_V_Pa": 0.002361844003873479,
+       "rho_bar_kg_m3": 1.10584818064885,
+       "zeta_eff_Pa_s": 33.29557995377382,
+       "C_kin": 0.21555052421746024,
+       "ratio_phys_eyring": 0.0037936750880092924,
+       "zeta_eff_over_eta_eyring": 8.207582123961114
+      }
+     ],
+     "wall_s": 24.38928771018982
+    },
+    {
+     "step": 300,
+     "t_over_tff": 0.5000000000000013,
+     "ratio_alpha1": 0.09612506188715175,
+     "C_kin": 0.2450515004724869,
+     "div_fit_s": -1.1995627499966365e-05,
+     "slopes": {
+      "reading_S_spacing_x_1_1.5_2": 0.6172448159227576,
+      "reading_H_h0_x_1_1.5_2": 0.8644639286883526
+     },
+     "structure": {
+      "frac_outward": 0.169921875,
+      "k_inner_s": 1.2763037393082814e-05,
+      "k_outer_s": 2.0455386778060354e-06,
+      "k_fit_s": 3.998542499988788e-06,
+      "v_hom_at_R_over_cs": 0.4326073260479103,
+      "v_hom_at_rmax_over_cs": 0.46799665198852225,
+      "v_rms_over_cs": 0.6469174058506267,
+      "v_residual_rms_over_cs": 0.5634657902745154,
+      "v_tan_rms_over_cs": 0.32119153548662843,
+      "rms_radius_over_R": 0.734657552211267
+     },
+     "rows": [
+      {
+       "h_over_spacing": 1.0,
+       "h_m": 1007.4949712602931,
+       "ratio": 0.07887592073292296,
+       "V_press_J": 4082436807.1267133,
+       "V_visc_J": 322005961.99609375,
+       "div_fit_s": -1.1995627499966365e-05,
+       "div_sph_s": -4.2653879115925094e-06,
+       "rms_radius_over_R": 0.734657552211267,
+       "v_rms_over_cs": 0.6469174058506267,
+       "mean_neighbours": 29.90234375,
+       "frac_pairs_approaching": 0.6491182233834095,
+       "P_mean_V_Pa": 0.004295985845713183,
+       "rho_bar_kg_m3": 2.0114402660734,
+       "zeta_eff_Pa_s": 28.247779371040167,
+       "C_kin": 0.30161742963728405,
+       "ratio_phys_eyring": 0.01132743233119288,
+       "zeta_eff_over_eta_eyring": 6.963265674579988
+      },
+      {
+       "h_over_spacing": 1.5,
+       "h_m": 1511.2424568904398,
+       "ratio": 0.09612506188715175,
+       "V_press_J": 5477409173.194696,
+       "V_visc_J": 526516295.7545929,
+       "div_fit_s": -1.1995627499966365e-05,
+       "div_sph_s": -3.953599151224328e-06,
+       "rms_radius_over_R": 0.734657552211267,
+       "v_rms_over_cs": 0.6469174058506267,
+       "mean_neighbours": 89.32421875,
+       "frac_pairs_approaching": 0.6954126033148205,
+       "P_mean_V_Pa": 0.003157813420421252,
+       "rho_bar_kg_m3": 1.4785321215432945,
+       "zeta_eff_Pa_s": 25.304637916350963,
+       "C_kin": 0.2450515004724869,
+       "ratio_phys_eyring": 0.015410184986986004,
+       "zeta_eff_over_eta_eyring": 6.2377617120320075
+      },
+      {
+       "h_over_spacing": 2.0,
+       "h_m": 2014.9899425205863,
+       "ratio": 0.12175631479842755,
+       "V_press_J": 5662975485.180071,
+       "V_visc_J": 689503025.8693627,
+       "div_fit_s": -1.1995627499966365e-05,
+       "div_sph_s": -6.19450427416199e-06,
+       "rms_radius_over_R": 0.734657552211267,
+       "v_rms_over_cs": 0.6469174058506267,
+       "mean_neighbours": 176.72265625,
+       "frac_pairs_approaching": 0.7315709201830198,
+       "P_mean_V_Pa": 0.002888096956214886,
+       "rho_bar_kg_m3": 1.3522471252672967,
+       "zeta_eff_Pa_s": 29.314351597718925,
+       "C_kin": 0.23279491618207585,
+       "ratio_phys_eyring": 0.01684932663301412,
+       "zeta_eff_over_eta_eyring": 7.226182829161937
+      },
+      {
+       "h_over_spacing": 2.25,
+       "h_m": 2266.8636853356597,
+       "ratio": 0.13517367991072612,
+       "V_press_J": 5591275876.137819,
+       "V_visc_J": 755793335.5736183,
+       "div_fit_s": -1.1995627499966365e-05,
+       "div_sph_s": -7.1975586628107635e-06,
+       "rms_radius_over_R": 0.734657552211267,
+       "v_rms_over_cs": 0.6469174058506267,
+       "mean_neighbours": 226.1484375,
+       "frac_pairs_approaching": 0.7498013611082323,
+       "P_mean_V_Pa": 0.0027937284084800754,
+       "rho_bar_kg_m3": 1.3080624599583828,
+       "zeta_eff_Pa_s": 31.481350154166332,
+       "C_kin": 0.2297320624902753,
+       "ratio_phys_eyring": 0.017418475187268925,
+       "zeta_eff_over_eta_eyring": 7.760362400121216
+      },
+      {
+       "h_over_spacing": 3.0,
+       "h_m": 3022.4849137808797,
+       "ratio": 0.1752132093493632,
+       "V_press_J": 5199953666.714396,
+       "V_visc_J": 911100570.4130185,
+       "div_fit_s": -1.1995627499966365e-05,
+       "div_sph_s": -9.001051470834413e-06,
+       "rms_radius_over_R": 0.734657552211267,
+       "v_rms_over_cs": 0.6469174058506267,
+       "mean_neighbours": 371.72265625,
+       "frac_pairs_approaching": 0.7922363152972332,
+       "P_mean_V_Pa": 0.002510047608454499,
+       "rho_bar_kg_m3": 1.1752391676161258,
+       "zeta_eff_Pa_s": 36.662817105502796,
+       "C_kin": 0.22333540811691457,
+       "ratio_phys_eyring": 0.019387078077392025,
+       "zeta_eff_over_eta_eyring": 9.037628499246914
+      }
+     ],
+     "wall_s": 137.69253063201904
+    },
+    {
+     "step": 600,
+     "t_over_tff": 1.0000000000000029,
+     "ratio_alpha1": 0.28702794342962706,
+     "C_kin": 0.3615158437935497,
+     "div_fit_s": -2.427954527237944e-05,
+     "slopes": {
+      "reading_S_spacing_x_1_1.5_2": 0.23653265129072018,
+      "reading_H_h0_x_1_1.5_2": 0.4683460826541184
+     },
+     "structure": {
+      "frac_outward": 0.1171875,
+      "k_inner_s": 4.506969289221435e-05,
+      "k_outer_s": 7.731282442059333e-06,
+      "k_fit_s": 8.093181757459815e-06,
+      "v_hom_at_R_over_cs": 0.8756114807643623,
+      "v_hom_at_rmax_over_cs": 1.0996770642506823,
+      "v_rms_over_cs": 1.1897921037067054,
+      "v_residual_rms_over_cs": 1.0505497632281378,
+      "v_tan_rms_over_cs": 0.4559630830156244,
+      "rms_radius_over_R": 0.6378687961954873
+     },
+     "rows": [
+      {
+       "h_over_spacing": 1.0,
+       "h_m": 1007.4949712602931,
+       "ratio": 0.27187202159281276,
+       "V_press_J": 3945660359.9497795,
+       "V_visc_J": 1072714658.5781718,
+       "div_fit_s": -2.427954527237944e-05,
+       "div_sph_s": -4.34029630821916e-05,
+       "rms_radius_over_R": 0.6378687961954873,
+       "v_rms_over_cs": 1.1897921037067054,
+       "mean_neighbours": 70.21875,
+       "frac_pairs_approaching": 0.8921895861148198,
+       "P_mean_V_Pa": 0.004592986042258948,
+       "rho_bar_kg_m3": 2.1504998849406247,
+       "zeta_eff_Pa_s": 51.430304251910606,
+       "C_kin": 0.5136401117374906,
+       "ratio_phys_eyring": 0.02144454174423336,
+       "zeta_eff_over_eta_eyring": 12.677912395396453
+      },
+      {
+       "h_over_spacing": 1.5,
+       "h_m": 1511.2424568904398,
+       "ratio": 0.28702794342962706,
+       "V_press_J": 5321611802.956212,
+       "V_visc_J": 1527451291.5333514,
+       "div_fit_s": -2.427954527237944e-05,
+       "div_sph_s": -3.907377547561161e-05,
+       "rms_radius_over_R": 0.6378687961954873,
+       "v_rms_over_cs": 1.1897921037067054,
+       "mean_neighbours": 161.0078125,
+       "frac_pairs_approaching": 0.8767286137124557,
+       "P_mean_V_Pa": 0.0028228140716978697,
+       "rho_bar_kg_m3": 1.3216807716248657,
+       "zeta_eff_Pa_s": 33.37074515169648,
+       "C_kin": 0.3615158437935497,
+       "ratio_phys_eyring": 0.034892301941325025,
+       "zeta_eff_over_eta_eyring": 8.226110845661427
+      },
+      {
+       "h_over_spacing": 2.0,
+       "h_m": 2014.9899425205863,
+       "ratio": 0.321914456629904,
+       "V_press_J": 5535793957.634756,
+       "V_visc_J": 1782052103.887098,
+       "div_fit_s": -2.427954527237944e-05,
+       "div_sph_s": -3.304610295977579e-05,
+       "rms_radius_over_R": 0.6378687961954873,
+       "v_rms_over_cs": 1.1897921037067054,
+       "mean_neighbours": 262.5078125,
+       "frac_pairs_approaching": 0.8523555846552185,
+       "P_mean_V_Pa": 0.0025876837161669577,
+       "rho_bar_kg_m3": 1.2115894720078122,
+       "zeta_eff_Pa_s": 34.30924212438103,
+       "C_kin": 0.3040919335953999,
+       "ratio_phys_eyring": 0.03806279735755322,
+       "zeta_eff_over_eta_eyring": 8.457456597472676
+      },
+      {
+       "h_over_spacing": 2.25,
+       "h_m": 2266.8636853356597,
+       "ratio": 0.3408970442705277,
+       "V_press_J": 5455595461.793454,
+       "V_visc_J": 1859796367.661093,
+       "div_fit_s": -2.427954527237944e-05,
+       "div_sph_s": -3.03972144530764e-05,
+       "rms_radius_over_R": 0.6378687961954873,
+       "v_rms_over_cs": 1.1897921037067054,
+       "mean_neighbours": 312.8984375,
+       "frac_pairs_approaching": 0.8410027215300492,
+       "P_mean_V_Pa": 0.0026011628812508433,
+       "rho_bar_kg_m3": 1.2179006043943013,
+       "zeta_eff_Pa_s": 36.52163695558871,
+       "C_kin": 0.28624316999389415,
+       "ratio_phys_eyring": 0.037865556833772476,
+       "zeta_eff_over_eta_eyring": 9.002826652386107
+      },
+      {
+       "h_over_spacing": 3.0,
+       "h_m": 3022.4849137808797,
+       "ratio": 0.3979639857089661,
+       "V_press_J": 4927948780.908586,
+       "V_visc_J": 1961146138.220021,
+       "div_fit_s": -2.427954527237944e-05,
+       "div_sph_s": -2.4018629838801332e-05,
+       "rms_radius_over_R": 0.6378687961954873,
+       "v_rms_over_cs": 1.1897921037067054,
+       "mean_neighbours": 431.671875,
+       "frac_pairs_approaching": 0.8241303797010171,
+       "P_mean_V_Pa": 0.002710921589996289,
+       "rho_bar_kg_m3": 1.2692911569360683,
+       "zeta_eff_Pa_s": 44.4344879113826,
+       "C_kin": 0.2506206963230652,
+       "ratio_phys_eyring": 0.03633247131800592,
+       "zeta_eff_over_eta_eyring": 10.95339709280222
+      }
+     ],
+     "wall_s": 288.8994507789612
+    }
+   ],
+   "energy_ledger_end": {
+    "kinetic": 1511707859.257735,
+    "internal": 0.0,
+    "bath": 1688596983.94083,
+    "self_gravity": -11223060501.358294,
+    "uniform_g": -0.0,
+    "total": -8022755658.159729
+   },
+   "wall_s": 288.93098640441895
+  }
+ ]
+}

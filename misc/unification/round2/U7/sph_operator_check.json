@@ -1,0 +1,34 @@
+{
+ "0.2": {
+  "omega2_engine": 4913786432.521494,
+  "omega2_dispersion": 4964292339.788346,
+  "omega2_cTait_k2": 5017237272.145971,
+  "ratio_engine_to_dispersion": 0.989826161754808,
+  "vphase_engine_over_c_tait": 0.9896367593362391,
+  "spread": 0.0007340457373564703
+ },
+ "0.4": {
+  "omega2_engine": 18116470946.339355,
+  "omega2_dispersion": 18298744147.572487,
+  "omega2_cTait_k2": 20068949088.583885,
+  "ratio_engine_to_dispersion": 0.9900390322000697,
+  "vphase_engine_over_c_tait": 0.9501113043167351,
+  "spread": 0.0011521436020248714
+ },
+ "0.8": {
+  "omega2_engine": 52036803670.03695,
+  "omega2_dispersion": 52597434990.802185,
+  "omega2_cTait_k2": 80275796354.33554,
+  "ratio_engine_to_dispersion": 0.989341090095681,
+  "vphase_engine_over_c_tait": 0.8051244118952278,
+  "spread": 0.0016458425745363877
+ },
+ "1.2": {
+  "omega2_engine": 66898110148.207825,
+  "omega2_dispersion": 67363940244.22283,
+  "omega2_cTait_k2": 180620541797.25494,
+  "ratio_engine_to_dispersion": 0.9930848745734562,
+  "vphase_engine_over_c_tait": 0.6085879572632266,
+  "spread": 0.0031840734405368413
+ }
+}

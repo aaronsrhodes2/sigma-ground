@@ -1,0 +1,21 @@
+{
+ "id": "U11",
+ "written": "2026-10-10, before any SPH physics run; only the cost probe (probe_cost.py: cfl_timestep value and step timing) had run",
+ "design_criteria_verbatim": "SPH PASS: |H_fit/H - 1| <= 0.10, rms residual <= 5 %, KE settled (predicted PASS at h/H = 0.1, marginal at 0.2). Formula: isothermal pressure within 5 % to 5 km (predicted PASS, 3.6 % high), FAIL above 8 km and for dry-adiabatic T(z) vs 6.5 K/km - model scope, not an engine defect.",
+ "operational_definitions": {
+  "H_fit": "-1/slope of a least-squares line through ln(rho_sph_i) vs y_i for parcels with 0.8 H < y < 2.8 H, at the end of the run",
+  "rms_residual": "rms of ln(rho_sph_i) minus the fitted line over the same parcels (natural-log units = fractional)",
+  "KE_settled": "total kinetic energy at the end of the run < 1e-4 of the run's peak kinetic energy",
+  "step_budget": "2000 steps as designed; if KE_settled is not met at 2000, the 1-D corrected runs continue to at most 8000 steps and the step where it is first met is reported; the 2000-step state is reported too"
+ },
+ "runs_and_predictions": {
+  "A_literal": "design verbatim: 3-D, N=128 uniform in 1x4x1 H, h=0.1H, GroundPlane, isothermal c_s=1, g=1, dt=cfl_timestep(scene) every step, 2000 steps. My prediction from code reading + probe: FAIL. cfl_timestep uses the MATERIAL sound speed (water_ice 4354 m/s) not scene.sound_speed_m_s, so dt=6.9e-6 and 2000 steps cover 0.014 H/c_s; the gas has fallen ~1e-4 H, KE only rises (never 'settled'), H_fit is the noise of the uniform initial sample.",
+  "B_literal_geometry_cs_cfl": "same geometry, dt = 0.3 h / max(c_s, v_max) (the engine's own CFL formula with the isothermal c_s substituted, driver-side), 2000 steps = 60 H/c_s. Prediction: FAIL. No lateral confinement (the design names no walls) -> the gas spreads sideways; mean neighbour count at h=0.1H is ~1, so rho_sph is dominated by the self-term m W(0); H_fit far from 1.",
+  "C_corrected_1D_line": "the planar-parallel column realised exactly by the unmodified 3-D engine: all parcels on the line x=z=0 (grad_W then has zero lateral components, so the column is confined by symmetry, no walls needed). Same criteria as the design. Runs: h/H=0.1 and 0.2 at N=128 (design N), uniform start on [0,4H], seed 3; plus h/H=0.1 at N=256. Prediction: PASS at both h/H (|H_fit/H-1| < 0.05, rms < 5 %); KE_settled is the uncertain leg (viscous damping of the lowest acoustic mode may need > 2000 steps).",
+  "C_controls": "(i) scaling: g in {0.5, 1, 2} at fixed absolute h=0.1, c_s=1, N=128, column 4H(g): d ln H_fit / d ln g = -1.00 +/- 0.10 and each H_fit/H within 0.10; (ii) dimensional: (c_s, g) = (sqrt2, 2) gives H=1 and must reproduce the baseline H_fit within 2 % [BY CONSTRUCTION if the engine is dimensionally consistent - P = rho c_s^2]; (iii) initial-condition independence: exponential starts with H_init = 0.5 and 2.0 relax to the same H_fit within 0.05; (iv) hydrostatic balance: c_s^2 rho_sph,i vs g K (mass above i + m/2), K = integral of the 3-D kernel along a line (Mentat integrate_expr), rms |ratio-1| <= 0.05 over the window.",
+  "D_3D_periodic_fidelity": "optional if time allows: 3-D, lateral periodicity by a 3x3 image tiling refreshed every step (driver-side), h/H=0.4, N~200. Same criteria, reported as a fidelity cross-check, not the design's resolution.",
+  "formula_side": "atmosphere.pressure_at_altitude(z, 288.15) vs US Standard Atmosphere 1976 [LIT] at geometric z = 0..11 km: within 5 % for z <= 5 km (predicted PASS, +3.6 % at 5 km); > 5 % above 8 km (predicted FAIL, model scope). temperature_at_altitude (dry adiabatic) vs ISA T(z) within 5 % to 11 km: predicted FAIL; dry_adiabatic_lapse_rate within 10 % of 6.5 K/km: predicted FAIL (~9.8 K/km) - model scope.",
+  "sigma_column": "w = P/(rho c^2) ~ 1e-12 and Tolman-Ehrenfest g dz/c^2 ~ 1e-12 over a scale height: inert (reported, no pass/fail)."
+ },
+ "evidential_weight_stated_in_advance": "Engine validation only. H = c_s^2/g follows from dP/dz = -rho g with P = rho c_s^2 for ANY isothermal fluid under ANY uniform force; a PASS shows the SPH engine couples its pressure gradient and the uniform-g term correctly, it is not evidence that fluid, thermodynamics and gravity are one phenomenon."
+}

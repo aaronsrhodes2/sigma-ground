@@ -18,13 +18,23 @@ local Exp = { run = nil }
 Mentat.Exp = Exp
 
 -- ---------------------------------------------------------------- surfaces
+-- MEASURED ENGINE LIMIT: physenv.AddSurfaceData honours only the FIRST surface a session adds. Later calls still hand
+-- out an index, but the surface reads back as the default (friction 0.8, elasticity 0.25) and bodies keep "default".
+-- So a scenario may define ONE custom surface (give it to the part whose friction or bounce is the free parameter) and
+-- use the engine's stock surfaces (util.GetSurfaceData lists them) for everything else. Exp.Run refuses a spec that
+-- asks for more, and the results record what the engine really applied.
 local registered = {}
+local custom_count = 0
 local function surface_name(s)
   if s == nil then return "default" end
   if type(s) == "string" then return s end
   local name = string.format("mentat_s_%d_%d_%d", math.floor(s.friction * 1e4 + 0.5),
     math.floor(s.elasticity * 1e4 + 0.5), math.floor((s.density or 1000) + 0.5))
   if not registered[name] then
+    custom_count = custom_count + 1
+    if custom_count > 1 then
+      error("a second custom surface was requested (" .. name .. "): the engine applies only the first (see surfaces note)")
+    end
     physenv.AddSurfaceData(string.format(
       '"%s" { "base" "default" "density" "%g" "friction" "%.6f" "elasticity" "%.6f" "thickness" "0" "dampening" "0" }',
       name, s.density or 1000, s.friction, s.elasticity))
@@ -106,6 +116,14 @@ local function dims_vector(def)
   error("unknown shape " .. tostring(def.shape))
 end
 
+--- What the engine actually applies for a surface name: friction, elasticity, density (nil if unknown).
+function Exp.surface_data(name)
+  local idx = util.GetSurfaceIndex(name)
+  local sd = idx and idx >= 0 and util.GetSurfaceData(idx)
+  if not sd then return nil end
+  return { friction = sd.friction, elasticity = sd.elasticity, density = sd.density }
+end
+
 local function spawn_prop(fr, def)
   local ent = ents.Create("mentat_prop")
   if not IsValid(ent) then error("ents.Create('mentat_prop') failed: is the addon mounted?") end
@@ -116,7 +134,7 @@ local function spawn_prop(fr, def)
   ent:SetTint(Vector(c[1], c[2], c[3]))
   ent.MentatDef = { surface = surface_name(def.surface), mass_kg = def.mass_kg, gravity = def.gravity,
                     damping_linear = def.damping_linear, damping_angular = def.damping_angular,
-                    static = def.static }
+                    static = def.static, inertia_si = def.inertia_si }
   local p, a = def.pos_m, def.ang_deg or { 0, 0, 0 }
   ent:SetPos(fr.world(p[1], p[2], p[3]))
   ent:SetAngles(fr.wang(a[1], a[2], a[3]))
@@ -133,6 +151,37 @@ end
 -- ---------------------------------------------------------------- HUD lines
 local function hud(lines)
   for i = 1, 8 do SetGlobal2String("mentat_exp_l" .. i, lines[i] or "") end
+end
+
+-- ---------------------------------------------------------------- constraints
+--- Build the spec's constraints once every body exists. A constraint names two bodies by id and the two attachment
+--- points in the stage frame (metres, at the initial pose); the points are converted to each body's own axes.
+---   rope    -> constraint.Rope, rigid (a pendulum string): the length is the distance between the points
+---   elastic -> constraint.Elastic (a spring): rest length is the distance between the points; `constant` and
+---              `damping` are handed over as given (the engine's own units; the grader measures what they became)
+function Exp.build_constraints(r)
+  local list = r.spec.constraints
+  if not list then return end
+  local by_id = {}
+  for _, pr in ipairs(r.props) do by_id[pr.def.id] = pr.ent end
+  r.constraint_info = {}
+  for _, c in ipairs(list) do
+    local ea, eb = by_id[c.a], by_id[c.b]
+    if not (IsValid(ea) and IsValid(eb)) then error("constraint " .. tostring(c.kind) .. ": unknown body " .. tostring(c.a) .. " or " .. tostring(c.b)) end
+    local pa = ea:WorldToLocal(r.fr.world(c.a_point_m[1], c.a_point_m[2], c.a_point_m[3]))
+    local pb = eb:WorldToLocal(r.fr.world(c.b_point_m[1], c.b_point_m[2], c.b_point_m[3]))
+    local ent
+    if c.kind == "rope" then
+      ent = constraint.Rope(ea, eb, 0, 0, pa, pb, 0, 0, 0, c.width or 1, c.material or "cable/cable", true)
+    elseif c.kind == "elastic" then
+      ent = constraint.Elastic(ea, eb, 0, 0, pa, pb, c.constant, c.damping or 0, c.rotation_damping or 0, c.material or "cable/cable",
+                               c.width or 2, c.stretch_only and true or false)
+    else
+      error("unknown constraint kind " .. tostring(c.kind))
+    end
+    if not IsValid(ent) then error("constraint " .. c.kind .. " between " .. c.a .. " and " .. c.b .. " was not created") end
+    r.constraint_info[#r.constraint_info + 1] = { kind = c.kind, a = c.a, b = c.b, class = ent:GetClass(), constant = c.constant, damping = c.damping }
+  end
 end
 
 -- ---------------------------------------------------------------- lifecycle
@@ -167,8 +216,8 @@ local function write_result(r)
   local out = {
     id = r.spec.id, run_id = r.opts.run_id, spec_sha = r.spec.sha, spec_version = r.spec.version,
     tick = TAU, gravity_hu = r.gravity_hu, anchor = { r.fr.anchor.x, r.fr.anchor.y, r.fr.anchor.z },
-    yaw = r.fr.yaw, frame_clear = r.frame_clear, map = game.GetMap(), version = Mentat.VERSION,
-    props = r.prop_info, samples = r.samples, live = r.live, shots = r.shots, error = r.error, finished = true,
+    yaw = r.fr.yaw, frame_clear = r.frame_clear, map = game.GetMap(), version = Mentat.VERSION, dedicated = game.IsDedicated(),
+    props = r.prop_info, constraints = r.constraint_info, samples = r.samples, live = r.live, shots = r.shots, error = r.error, finished = true,
   }
   file.CreateDir("mentat")
   local path = "mentat/experiment_" .. r.spec.id .. ".json"
@@ -183,9 +232,10 @@ local function sample(r)
   for i, pr in ipairs(r.props) do
     local ent = pr.ent
     local phys = ent:GetPhysicsObject()
-    local x, y, z = r.fr.tolocal(ent:GetPos())
+    -- Everything is read from the physics object itself.
+    local x, y, z = r.fr.tolocal(phys:GetPos())
     local vx, vy, vz = r.fr.tolocalvec(phys:GetVelocity())
-    local ang = ent:GetAngles()
+    local ang = phys:GetAngles()
     local fx, fy, fz = r.fr.rot(ang:Forward())
     local ux, uy, uz = r.fr.rot(ang:Up())
     local w = phys:GetAngleVelocity()                     -- deg/s in the body's LOCAL axes (measured semantics)
@@ -204,10 +254,10 @@ local function flags(pr)
 end
 
 --- Release is ONE tick: the bodies are awake (see hold), so the velocity set here is not discarded. Sample k=0 is
---- taken right after it. MEASURED ENGINE FACT: the first physics step after the velocity is set moves nothing (the
---- position update uses the velocity from the end of the previous step), so every body sits still from sample 0
---- to sample 1 and follows the exact trajectory from sample 1 on. With the half-step "kick" below that trajectory is
---- exactly z0 + v0 t' - g t'^2 / 2 with t' = (k - 1) tau. The graders use samples k >= 1 and that clock.
+--- taken right after it. With the half-step "kick" below the engine's positions follow the exact continuous
+--- trajectory z0 + v0 t - g t^2 / 2 to 1e-5 m, from t = k tau in the game client and from t = (k - 1) tau on a dedicated
+--- server (there the engine moves a body with the velocity it had before this hook, so the first tick is empty; the
+--- result records `dedicated` and the grader shifts its clock).
 local function release_go(r)
   local kick = Vector(0, 0, -r.gravity_hu.z * TAU / 2)
   for _, pr in ipairs(r.props) do
@@ -318,12 +368,16 @@ function Exp.Run(id, ply, opts)
   local anchor, yaw, clear = pick_frame(ply, spec.needs)
   r.fr, r.frame_clear = make_frame(anchor, yaw), clear
   local okb, errb = pcall(function()
+    for _, def in ipairs(spec.props) do surface_name(def.surface) end      -- register every surface before any body is built
     for _, def in ipairs(spec.props) do
       local ent = spawn_prop(r.fr, def)
       r.props[#r.props + 1] = { ent = ent, def = def, home_pos = ent:GetPos(), home_ang = ent:GetAngles() }
       local phys = ent:GetPhysicsObject()
       r.prop_info[#r.prop_info + 1] = { id = def.id, mass_kg = phys:GetMass(), static = def.static or false,
-                                        surface = ent.MentatDef.surface, shape = def.shape }
+                                        surface = ent.MentatDef.surface, engine_material = phys:GetMaterial(),
+                                        engine_surface = Exp.surface_data(phys:GetMaterial()), shape = def.shape,
+                                        inertia_raw = { phys:GetInertia().x, phys:GetInertia().y, phys:GetInertia().z },
+                                        mass_center_raw = { phys:GetMassCenter().x, phys:GetMassCenter().y, phys:GetMassCenter().z } }
     end
     if Exp.build_constraints then Exp.build_constraints(r) end
   end)

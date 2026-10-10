@@ -1,0 +1,5 @@
+{"T_tff": 1.0, "n_per_tff": 600, "steps_each_leg": 600, "eps_rec_R": 4.687074276493767e-15, "wall_s_cum": 163.58554005622864}
+{"T_tff": 2.0, "n_per_tff": 600, "steps_each_leg": 1200, "eps_rec_R": 8.108902864416613e-12, "wall_s_cum": 230.71133375167847}
+{"T_tff": 3.0, "n_per_tff": 600, "steps_each_leg": 1800, "eps_rec_R": 2.137602303782303e-09, "wall_s_cum": 336.0376720428467}
+{"T_tff": 4.0, "n_per_tff": 600, "steps_each_leg": 2400, "eps_rec_R": 2.3547822850187477e-06, "wall_s_cum": 471.5095040798187}
+done horizon_lo

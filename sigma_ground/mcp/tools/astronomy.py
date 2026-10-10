@@ -17,6 +17,10 @@ from sigma_ground.mcp.provenance import ToolResult
 #              source}
 _SOLAR_SYSTEM_BODIES: dict[str, dict] = {
     "sun": {
+        # PHYSICS_GAP (2026-10-10, unification round 2; KNOWN_GAPS.md): 1.98892e30 is the
+        # IAU 2015 nominal GM (1.3271244e20 m^3/s^2) divided by the obsolete G = 6.67259e-11.
+        # With Mentat's G = 6.6743e-11 the product GM comes out 2.57e-4 high (Mentat
+        # simplify_expr). Flagged, not fixed; fix direction: store GM and derive M.
         "mass_kg":          1.98892e30,
         "radius_m":         6.957e8,
         "luminosity_w":     3.828e26,

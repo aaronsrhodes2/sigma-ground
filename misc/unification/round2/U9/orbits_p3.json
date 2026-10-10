@@ -1,0 +1,123 @@
+{
+ "sources": {
+  "G": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "G"
+   },
+   "value": 6.6743e-11,
+   "source": "sigma_ground.field.constants"
+  },
+  "c": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "c"
+   },
+   "value": 299792458.0,
+   "source": "sigma_ground.field.constants"
+  },
+  "au": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "au"
+   },
+   "value": 149597870700.0,
+   "source": "scipy.constants (CODATA)"
+  },
+  "sun": {
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "sun"
+   },
+   "value": {
+    "luminosity_w": 3.828e+26,
+    "mass_kg": 1.98892e+30,
+    "radius_m": 695700000.0,
+    "surface_temp_k": 5772.0
+   },
+   "source": "sigma-ground via IAU 2015 nominal solar values"
+  },
+  "mercury": {
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "mercury"
+   },
+   "value": {
+    "mass_kg": 3.3011e+23,
+    "orbital_period_d": 87.969,
+    "radius_m": 2439700.0,
+    "semimajor_axis_au": 0.387098
+   },
+   "source": "sigma-ground via NASA Planetary Fact Sheet 2024"
+  },
+  "e_mercury": {
+   "value": 0.2056,
+   "source": "sigma_ground.field.interface.rolling_analysis._ORBITAL['Mercury'] (JPL fact sheet)"
+  }
+ },
+ "P_kepler_s": 7599549.0480309995,
+ "a_m": 57909036552.2286,
+ "e": 0.2056,
+ "runs": {
+  "eih_rest": {
+   "name": "eih_rest",
+   "physics": "eih",
+   "frame": "rest",
+   "V_m_s": 0.0,
+   "dt_s": 600.0,
+   "n_apocentres": 20,
+   "domega_per_orbit_rad": -8.366487188958707e-07,
+   "domega_fit_rms_rad": 3.2898951120837064e-11,
+   "de_per_orbit": -1.1449580040790583e-09,
+   "e_first": 0.20560013895219584,
+   "ez_max": 0.0,
+   "period_s": 7599536.842105263,
+   "wall_s": 138.00896430015564
+  },
+  "eih_x": {
+   "name": "eih_x",
+   "physics": "eih",
+   "frame": "x",
+   "V_m_s": 30000.0,
+   "dt_s": 600.0,
+   "n_apocentres": 20,
+   "domega_per_orbit_rad": -8.371063517306344e-07,
+   "domega_fit_rms_rad": 4.282734396208427e-11,
+   "de_per_orbit": -2.0635837301605607e-07,
+   "e_first": 0.205600066394212,
+   "ez_max": 0.0,
+   "period_s": 7599536.842105263,
+   "wall_s": 130.1272246837616
+  },
+  "eih_y": {
+   "name": "eih_y",
+   "physics": "eih",
+   "frame": "y",
+   "V_m_s": 30000.0,
+   "dt_s": 600.0,
+   "n_apocentres": 20,
+   "domega_per_orbit_rad": -1.8347707178221448e-06,
+   "domega_fit_rms_rad": 2.4681606329515784e-11,
+   "de_per_orbit": -1.0513039395590495e-09,
+   "e_first": 0.20560017905256325,
+   "ez_max": 0.0,
+   "period_s": 7599536.842105263,
+   "wall_s": 117.48335027694702
+  },
+  "eih_z": {
+   "name": "eih_z",
+   "physics": "eih",
+   "frame": "z",
+   "V_m_s": 30000.0,
+   "dt_s": 600.0,
+   "n_apocentres": 20,
+   "domega_per_orbit_rad": -8.366488146743896e-07,
+   "domega_fit_rms_rad": 3.7794958510360375e-11,
+   "de_per_orbit": -1.1449551623163364e-09,
+   "e_first": 0.20560015897988967,
+   "ez_max": 0.0,
+   "period_s": 7599536.842105263,
+   "wall_s": 112.94377279281616
+  }
+ }
+}

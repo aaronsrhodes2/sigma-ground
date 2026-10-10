@@ -18,6 +18,38 @@ Program: [UNIFICATION_PROGRAM.md](UNIFICATION_PROGRAM.md).
 | A7 | SPH density estimator (cubic spline, self-term) | pressure virial delivered at x → 1/(1 + 32/(3N_nb)) = 0.914 at h = 1.5 × spacing; the self-contribution m W(0) is in ρ but not in the gradient | S4: exact identity x = Σ m D/ρ / 3M to 10⁻¹⁶; prediction confirmed to 1.4 % | engine fact, documented; Wendland kernel at larger N_nb or the Dehnen & Aly 2012 self-contribution correction — Captain's call |
 | A8 | `inventory` (Quarksum) `quark_chain` | mass closure misses by 0.6–1.4 % for the gold ring, bronze cube and seawater (others ≤ 0.15 %) | S10 | open: inspect alloy/solution composition resolution |
 
+### A, round 2 (2026-10-10): found by the verified kill-test battery and its critic (program §15)
+
+All flagged, none fixed. Full text in [KNOWN_GAPS.md](../KNOWN_GAPS.md); evidence in `misc/unification/round2/<item>/`.
+
+| # | where | defect | found by | severity |
+|---|---|---|---|---|
+| A9 | `nbody.py` `gr_1pn` | whole 1PN correction has the wrong sign: Mercury −42.997″/cy | U9, U5; three independent integrators | **high**: every `include_gr=True` result |
+| A10 | `nbody.py` `eih_cross` | velocity cross-term sign reversed: Mercury −71.66″/cy, frame-dependent precession | U9, U5 | **high**: live in the DE440 predictor |
+| A11 | `nbody.py` `_apply_gw_damping` | Peters power with r⁻⁴ (W·m), r[m] times too strong; sub-ulp losses round to zero; recompute adds spurious decay | U1 | **high** for compact binaries |
+| A12 | `nbody.py` `forest_ruth_step` | 1st order, not 4th, with velocity-dependent forces | U9 | medium |
+| A13 | GR/GW tests | assert only "nonzero" or "decreasing"; neither sign nor size tested | U9, U1 | **high** (why A9–A11 survived) |
+| A14 | `continuum.py` `_buoyancy_force` | linear α_L where 3α_L is needed (1/3 of Archimedes); double-counted under `eos="ideal"` | U14G | medium |
+| A15 | `continuum.py` `_heat_conduction` | divides by ρ twice: ρ_sph[SI]× too slow, ρ⁻² scaling, not antisymmetric (creates/destroys heat) | U14G | **high** for any conduction run |
+| A16 | `continuum.py` `cfl_timestep` | uses the cascade c_L (with shear) even for isothermal/ideal EOS; no force criterion | U11, U13, U7 | medium |
+| A17 | `continuum.py` ideal EOS | pre-update T in both force evaluations: first order, not reversible | U2 | medium |
+| A18 | `continuum.py` floor contact; `fluid/kernel.py` | rigid-body resolver on fluid (never settles, coincident parcels); grad_W = 0 below L_Planck | U11 | medium |
+| A19 | `element.py` SEMF | asymmetry 4× too small (rms 6.8 % → 0.8 %); second SEMF copy in `mcp/tools/nuclear.py` | N1 | **high** for nuclear work |
+| A20 | `mcp/tools/symbolic.py` | variables named E, I, N, S, O, Q parsed as sympy constants: silent wrong answers | U1 | **high** under §21 |
+| A21 | `mcp/tools/materials_strength.py` | `elastic_analysis` returns fixed moduli for every material | U8 | medium |
+| A22 | `mcp/tools/astronomy.py` | Sun mass = IAU GM / obsolete G: GM 2.57 × 10⁻⁴ high; a second M☉ in `constants.py` | U9, J6 | low |
+| A23 | σ-mass laws (many modules) | five incompatible conventions; thermal chain freezes ρ, so Θ_D(σ) has the wrong sign | U12 | decision C2, widened |
+| A24 | `gr_basics.gravitational_redshift` | catastrophic cancellation in a weak field | U4 | low |
+| A25 | `lindemann_melting_estimate` | water ice melts at 92 K; no liquid water in `MATERIALS` | U2, U7 | medium |
+| A26 | `inventory/data/isotopes.json` | 55 stable isotopes with zero abundance and placeholder spins | T5 | low |
+| A27 | `inventory/core/sigma.py` | Coulomb energy σ-invariant (a model choice carrying ~all of Δf); docstring σ values and ξ provenance | T5, U4, U5 | decision |
+| A28 | SkippyTel `mentat/app.py` (other repo) | gateway refuses `y''` and some ordinary power expressions | N1, U3 | recorded only |
+| A29 | `adapters/base.py`, `adapters/integrator.py` | `include_gr=True` by default: orbit propagation silently uses the reversed 1PN (A9) | U5 recheck, critic | **high** |
+| A30 | `mcp/tools/mathx.py` | `compute_limit`, `series_expansion`, `summation`: same E/I/N/S/O/Q parsing defect as A20 | critic; reproduced live | **high** under §21 |
+| A31 | cascade material data | iron κ 108 vs ~80 W/m/K (dκ/dT wrong sign); glass κ 78; T_melt rubber 1.9 × 10⁻⁴ K, ABS 2.6 K; ideal-EOS conduction uses the solid's c_p | U14G, U2 | medium |
+| A32 | provenance and docstrings | audit.py claims a derivation C2 contradicts and a TOV that is not here; two unreconciled clock laws; Hawking year; label and hard-coded-c items; contradicting docstring numbers; dead GOLDEN_RULES pointer | U4, J6, U12, N1 | low |
+| A33 | research scripts | P6 dense-matter rows fail GW170817 and Chandrasekhar; P7 `poisson_fvm` +0.63 % split bias | N1, U10 | low (scripts) |
+
 ## B. Missing capabilities (the program needed them and Mentat does not have them)
 
 | # | capability | why the program needs it | data anchors when built |

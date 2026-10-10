@@ -16,6 +16,10 @@ from sigma_ground.mcp.provenance import ToolResult
 
 
 def _sympify(expr: str):
+    # PHYSICS_GAP (2026-10-10, unification round 2; KNOWN_GAPS.md): compute_limit,
+    # series_expansion and summation parse before creating Symbol(variable), so a
+    # variable named E, I, N, S, O or Q becomes a sympy object (compute_limit('S**2',
+    # 'S', '2') fails to parse). Same defect as symbolic._sympify. Flagged, not fixed.
     import sympy as sp
     try:
         return sp.sympify(expr, convert_xor=True)

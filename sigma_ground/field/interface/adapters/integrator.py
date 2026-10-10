@@ -202,6 +202,9 @@ def sg_nbody(
     dt_s:   float,
     t_total_s: float,
     method: str = "forest_ruth",
+    # PHYSICS_GAP (2026-10-10, unification round 2; KNOWN_GAPS.md): this default turns on
+    # nbody gr_1pn, whose 1PN correction has the wrong sign (Mercury precesses −43″/cy).
+    # Every caller that relies on the default inherits it. Flagged, not fixed.
     include_gr: bool = True,
     record_every: int = 1,
 ) -> tuple[list, list[float]]:

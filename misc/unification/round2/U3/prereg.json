@@ -1,0 +1,26 @@
+{
+ "id": "U3",
+ "written": "2026-10-10, before any U3 branch was integrated (only Mentat leaves and a 2-step timing probe had run)",
+ "design_source": "D:/Aaron/development/sigma-ground/misc/unification/design_synthesis.json experiments_ranked[id=U3] (procedure, pass_fail, script_sketch) and markdown section U3",
+ "prediction": {
+  "separate_gravity": "d<K>/dE = -1.00 +- 0.05 after re-virialisation (virial theorem, Lynden-Bell 1999); with Plummer softening the virial value is K = E*w/(w-2), w = <W_soft>/<U_soft> (Mentat solve_equation), i.e. -w/(2-w), about -0.99 for eps = 0.02 b",
+  "same_gas": "d<K>/dE >= 0 (+1 for an ideal gas at fixed volume; C_gas = (3/2) N k_B = 2.65e-21 J/K at N = 128)",
+  "design_quoted_scratch": "P5b at N = 64, 0.9 t_relax: -1.05 +- 0.04 (LJ-corrected), -1.11 +- 0.09 raw"
+ },
+ "protocol_as_designed": "Plummer N = 128, M = 1e12 kg, b = 5 km, eps = 0.02 b, dt = t_cross/300 with t_cross := sqrt(b^3/(G M)) (the sketch's definition), velocity-Verlet NBodySystem.step; seeds 1, 2, 3 with the sketch's sampler; relax 10 t_cross (3000 steps); inject by scaling peculiar velocities by (1+delta), delta in {-0.10, -0.05, 0, +0.05, +0.10}, from the SAME relaxed state; integrate int(3 t_relax/dt) = 2374 steps with t_relax = 2.638 t_cross (Mentat); <K> over samples with k*dt > 2 t_relax (the sketch's window); dE = ((1+delta)^2 - 1) K0.",
+ "primary_statistic": "raw slope per seed = np.polyfit(dE, <K>_delta - <K>_0, 1)[0] over delta in {-0.10, -0.05, +0.05, +0.10}, all particles, pre-registered window; then mean and sample std (ddof = 1) over the 3 seeds",
+ "pass_fail_fixed": {
+  "SEPARATE": "mean raw slope in [-1.10, -0.90] AND seed std <= 0.05 AND softened-energy drift <= 1e-4",
+  "SAME": "mean raw slope >= 0",
+  "UNRESOLVED": "mean slope in (-0.90, 0), or in the band but a std/drift gate fails, or below -1.10 (negative but off the prediction); reported as such, never rounded into a pass",
+  "drift_metric": "end-point |E_soft(end)/E_soft(start) - 1| of every integrated segment (relax and each branch), maximum over segments; the max-over-time excursion is reported alongside"
+ },
+ "gate_before_injection": "over the last 5 t_cross of relax: 2<K>/|<W_soft>| in [0.97, 1.03] AND |<2K + W_soft> - (1/2)[Idot]/T| / |<W_soft>| <= 1e-3 (trapezoid time averages, samples every step)",
+ "secondary_analyses_declared_now": [
+  "LJ-corrected slope: K_LJ = <K> - (1/4)[Idot]/T per window (equals -<W_soft>/2 by the Lagrange-Jacobi identity), slope as above",
+  "bound-only slope: <K_bound> (particles with e_i = v^2/2 + phi_soft,i < 0) vs the same dE",
+  "EXTENDED window, same thresholds: each branch is integrated on to 6 t_relax (int(6 t_relax/dt) = 4749 steps); <K> over k in [2374, 4749). Declared now because the design's t_cross = sqrt(b^3/GM) is 6.26x shorter than the Heggie-Mathieu crossing time (Mentat (3pi/32)^(-3/2)) and the design's post-injection run (7.9 units) is only 0.60 of the orbital period at the half-mass radius (Mentat orbital_period 13.24 units) -- the pre-registered window may sit inside the breathing oscillation. The extended window is the corrected-criterion analysis; the original stays the primary.",
+  "time-resolved slope: running mean of <K> over one design t_relax, slope from the four branches at each time (figure)"
+ ],
+ "could_it_fail": "Yes in the sense of the design's three outcomes: SAME would need the injected energy to stay kinetic (the t = 0+ slope is +1 by construction); UNRESOLVED if the cluster has not re-virialised inside the window or escapers/drift spoil it. But a slope of -1 is the virial theorem for any bound, stationary 1/r system: a pass validates that the engine integrates 1/r gravity and that the window is long enough, and adds no evidence beyond the theorem itself about whether gravity and gas thermodynamics are one phenomenon."
+}

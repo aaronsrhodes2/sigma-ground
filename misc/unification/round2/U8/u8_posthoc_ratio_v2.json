@@ -1,0 +1,83 @@
+{
+ "label": "POST HOC, not pre-registered (v2, skeptic-requested)",
+ "criterion_stated_before_running": "fail if |z| > 3 at any N against (N-1)/N",
+ "pm_is": "standard error of the mean = SD/sqrt(n_seeds)",
+ "seed_range_start": 70001,
+ "mentat_sources": {
+  "G": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "G"
+   },
+   "value": 6.6743e-11,
+   "source": "sigma_ground.field.constants"
+  },
+  "rho_iron": {
+   "tool": "density",
+   "args": {
+    "material": "iron"
+   },
+   "value": 7874.0,
+   "source": "sigma-ground via CRC Handbook (iron at 20 C)"
+  }
+ },
+ "per_N": {
+  "32": {
+   "mentat_U": {
+    "tool": "gravitational_binding_energy",
+    "args": {
+     "mass_kg": 32.0,
+     "radius_m": 0.0989969891105237
+    },
+    "value": 4.1422370082607723e-07,
+    "source": "sigma-ground (uniform-sphere self-gravity)"
+   },
+   "n_seeds": 4000,
+   "mean": 0.9687076401873332,
+   "sd_per_seed": 0.050241430046290135,
+   "se_of_mean": 0.0007943867592514784,
+   "expected_(N-1)/N": 0.96875,
+   "z": -0.053323915804781456,
+   "fails_|z|>3": false
+  },
+  "64": {
+   "mentat_U": {
+    "tool": "gravitational_binding_energy",
+    "args": {
+     "mass_kg": 64.0,
+     "radius_m": 0.12472839045656235
+    },
+    "value": 1.3150782768829513e-06,
+    "source": "sigma-ground (uniform-sphere self-gravity)"
+   },
+   "n_seeds": 2000,
+   "mean": 0.9850289822716987,
+   "sd_per_seed": 0.0319751907530137,
+   "se_of_mean": 0.0007149870011726132,
+   "expected_(N-1)/N": 0.984375,
+   "z": 0.9146771488517952,
+   "fails_|z|>3": false
+  },
+  "256": {
+   "mentat_U": {
+    "tool": "gravitational_binding_energy",
+    "args": {
+     "mass_kg": 256.0,
+     "radius_m": 0.1979939782210474
+    },
+    "value": 1.3255158426434471e-05,
+    "source": "sigma-ground (uniform-sphere self-gravity)"
+   },
+   "n_seeds": 500,
+   "mean": 0.9960372831749432,
+   "sd_per_seed": 0.014733409232857047,
+   "se_of_mean": 0.0006588980916998277,
+   "expected_(N-1)/N": 0.99609375,
+   "z": -0.0856988747851805,
+   "fails_|z|>3": false
+  }
+ },
+ "stouffer_z": 0.4478242525405759,
+ "outcome": "PASS",
+ "runtime_s": 8.519484758377075
+}

@@ -1,0 +1,2 @@
+bar_w_plane_a0: step 1 in 9.5s
+bar_w_plane_a0: done in 297s

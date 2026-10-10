@@ -1,0 +1,75 @@
+{
+ "material_cascade_200K": {
+  "k_W_mK": 29.91162933598881,
+  "rho_kg_m3": 917.0,
+  "cp_J_kgK": 3550.94393766788,
+  "alpha_m2_s": 9.186010109440965e-06,
+  "melting_point_K": 92.1612023859985,
+  "source": "sigma_ground.dynamics.continuum.material_properties('water_ice', 200 K)"
+ },
+ "dt_substep_s": 0.3628706362850052,
+ "lam_12_alpha_dt_over_dx2": 0.4,
+ "per_substep_factor_measured": {
+  "neumann_highest_k31": {
+   "substeps": 1,
+   "factor_mean": 0.6009630546655129,
+   "factor_min": 0.600963054537518,
+   "factor_max": 0.6009630546737214,
+   "factor_interior_mean": 0.6009630546655683,
+   "is_eigenmode_spread": 1.362033819063413e-10
+  },
+  "checkerboard": {
+   "substeps": 1,
+   "factor_mean": 0.6124999999999936,
+   "factor_min": 0.5999999999999943,
+   "factor_max": 0.8000000000000114,
+   "factor_interior_mean": 0.5999999999999943,
+   "is_eigenmode_spread": 0.20000000000001705
+  }
+ },
+ "log10_inverse_amplification_800_from_measured_factor": 176.92178099759906,
+ "mentat": {
+  "factor_neumann_closed_form": {
+   "value": "0.8 - 0.2*cos(pi/32)",
+   "float": 0.6009630546655607,
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "1 - 0.4*sin(31*pi/64)**2"
+   }
+  },
+  "log10_amp_800_neumann": {
+   "value": "-800*log(0.8 - 0.2*cos(pi/32))/log(10)",
+   "float": 176.92178099757146,
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "-800*log(1 - 0.4*sin(31*pi/64)**2, 10)"
+   }
+  },
+  "log10_amp_800_checkerboard": {
+   "value": "408.660499012793/log(10)",
+   "float": 177.4789996930853,
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "-800*log(1 - 0.4, 10)"
+   }
+  }
+ },
+ "factor_rel_err_vs_closed_form": 7.943847743760069e-14,
+ "reversed_requests": {
+  "negative_time": {
+   "substeps": 0,
+   "unchanged": true,
+   "guard": "heat.py:122 'if total_time <= 0 or not solid.any(): return T, info'"
+  },
+  "negative_k": {
+   "substeps": 0,
+   "unchanged": true,
+   "stable_dt_for_negative_alpha": Infinity,
+   "guard": "heat.py:32-33 stable_dt returns inf for alpha_max <= 0; heat.py:159 'if not np.isfinite(dt) or dt <= 0: return T, info'"
+  },
+  "tag": "[BY CONSTRUCTION] input guards that silently return T unchanged; not a measurement"
+ }
+}

@@ -1,0 +1,12 @@
+{
+ "id": "U6 repair round (v2)",
+ "written": "2026-10-10, before the v2 solver re-run, after the three skeptic verdicts",
+ "criterion": "UNCHANGED: P1-P5 and S1-S4 exactly as in prereg.json (written 02:56, before any run). Nothing in v2 moves a threshold.",
+ "v2_reproducibility_expectation": "u6_sigma_wave_v2.py is u6_sigma_wave.py with I/O changes only (leaf file re-fetched with identical values; full-resolution omega R/c = 0.01 traces saved). Expected: every A_lockin, phase, A_std_sqrt2 and S3 number of the v2 re-run equals the v1 value bit for bit.",
+ "post_hoc_diagnostics_requested_by_reviewers_no_pass_fail_role": [
+  "D1 solver vs an EXACT far-field amplitude (Mentat closed form + N(Integral, 30 digits); all orders in omega R/c and in eps) for N_r 4000/8000/16000; expected from the skeptics: <= 1e-7 (N 8000), <= 2e-8 (N 16000); gap of the linear-in-eps form factor to the exact value ~ 6.3e-7 at omega R/c = 0.08 (the eps^2 term)",
+  "D2 S3 window sweep: slide the pre-registered +/- 20 R/c window over the whole steady-state record (omega R/c = 0.01, both modes, N 4000/8000/16000); expected from the skeptics: mass mode N 8000 about 67 % of windows above 1e-3, envelope period about T/2, pre-registered sonic window at a pulsation turning point; N 16000 none above 1e-3",
+  "D3 least-squares log slopes of the all-orders form factors, to compare like with like with the solver's least-squares slopes (pressure about -1.366e-4)",
+  "D4 interpretation numbers [DERIVED, not run, Mentat simplify_expr]: energy/virial identity d int(rho c^2 - 3P) dV = dE - Idd/2; isolated-star far field -(2 G xi/3c^4) Idd; (Gamma - 4/3)/(Gamma - 1) source factor for heating at fixed density; metric-weight zeroth-order mass-mode monopole 2-4 x A_press; homologous breathing frequency; air-sound arrival 29R/c_s,air"
+ ]
+}

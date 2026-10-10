@@ -1,0 +1,571 @@
+{
+ "crossing_5pct": {
+  "z_m": 5814.765930175781,
+  "rel_err_at_crossing": 0.050000026661400326,
+  "bracket": [
+   5814.75830078125,
+   5814.7735595703125
+  ],
+  "probes": [
+   {
+    "z_m": 5500.0,
+    "rel_err": 0.04437333732413271,
+    "p_engine": 52781.91318158752,
+    "p_ISA": 50539.315104332345
+   },
+   {
+    "z_m": 5750.0,
+    "rel_err": 0.04881040308729791,
+    "p_engine": 51240.21810066088,
+    "p_ISA": 48855.558592696274
+   },
+   {
+    "z_m": 5875.0,
+    "rel_err": 0.05112141389149356,
+    "p_engine": 50486.340315204674,
+    "p_ISA": 48030.93120165121
+   },
+   {
+    "z_m": 5812.5,
+    "rel_err": 0.049958124287863476,
+    "p_engine": 50861.88247455334,
+    "p_ISA": 48441.8200097747
+   },
+   {
+    "z_m": 5843.75,
+    "rel_err": 0.05053781711642115,
+    "p_engine": 50673.763504226175,
+    "p_ISA": 48236.02033034712
+   },
+   {
+    "z_m": 5828.125,
+    "rel_err": 0.0502474834519126,
+    "p_engine": 50767.7358555142,
+    "p_ISA": 48338.83123304688
+   },
+   {
+    "z_m": 5820.3125,
+    "rel_err": 0.05010268214997707,
+    "p_engine": 50814.787361380644,
+    "p_ISA": 48390.303372373644
+   },
+   {
+    "z_m": 5816.40625,
+    "rel_err": 0.05003037280050813,
+    "p_engine": 50838.329464528644,
+    "p_ISA": 48416.0561269662
+   },
+   {
+    "z_m": 5814.453125,
+    "rel_err": 0.04999424094102736,
+    "p_engine": 50850.10460586564,
+    "p_ISA": 48428.93667711233
+   },
+   {
+    "z_m": 5815.4296875,
+    "rel_err": 0.05001230496979775,
+    "p_engine": 50844.21669431778,
+    "p_ISA": 48422.49605425362
+   },
+   {
+    "z_m": 5814.94140625,
+    "rel_err": 0.05000327248019279,
+    "p_engine": 50847.16056486693,
+    "p_ISA": 48425.71627873294
+   },
+   {
+    "z_m": 5814.697265625,
+    "rel_err": 0.04999875659180775,
+    "p_engine": 50848.63256405947,
+    "p_ISA": 48427.32645618468
+   },
+   {
+    "z_m": 5814.8193359375,
+    "rel_err": 0.05000101450629943,
+    "p_engine": 50847.89655913658,
+    "p_ISA": 48426.52136202438
+   },
+   {
+    "z_m": 5814.75830078125,
+    "rel_err": 0.04999988554162862,
+    "p_engine": 50848.26456026636,
+    "p_ISA": 48426.923907745906
+   },
+   {
+    "z_m": 5814.788818359375,
+    "rel_err": 0.05000045002210762,
+    "p_engine": 50848.08055936855,
+    "p_ISA": 48426.72263454549
+   },
+   {
+    "z_m": 5814.7735595703125,
+    "rel_err": 0.05000016778140401,
+    "p_engine": 50848.17255973423,
+    "p_ISA": 48426.82327106079
+   }
+  ],
+  "v1_linear_interpolation_m": 5797.7
+ },
+ "sigma_column": {
+  "identity_w_minus_gH_over_c2": "0",
+  "rho_air_ideal_288K": 1.2251533856844192,
+  "rho_air_20C": 1.2041,
+  "w_288K": 9.20205324875728e-13,
+  "w_with_20C_density": 9.362948835614391e-13,
+  "RT_over_Mc2": 9.20205324875728e-13,
+  "tolman_over_scale_height": 9.20205324875728e-13,
+  "rho288_over_rho20C": 1.0174847485129301,
+  "w20C_over_w288": 1.01748474851293,
+  "scale_height_engine_m": 8433.45384237488,
+  "M_air_engine": 0.028968543572818032
+ },
+ "cfl_defect_size": {
+  "material_sound_speed_water_ice": 4353.860726696342,
+  "air_sound_speed_288K": 340.08809024799785,
+  "mismatch_physical_air": 12.802155828278005,
+  "mismatch_scaled_cs1": 4353.860726696342,
+  "direction": "over-conservative: dt is too SMALL by c_material/c_s (stable, slow); unsafe only when the material c is below the EOS c_s"
+ },
+ "mentat_leaves": {
+  "R": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "molar gas constant"
+   },
+   "value": 8.31446261815324,
+   "source": "scipy.constants (CODATA via value())"
+  },
+  "g_standard": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "standard acceleration of gravity"
+   },
+   "value": 9.80665,
+   "source": "scipy.constants (CODATA via value())"
+  },
+  "atm": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "standard atmosphere"
+   },
+   "value": 101325.0,
+   "source": "scipy.constants (CODATA via value())"
+  },
+  "c": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "c"
+   },
+   "value": 299792458.0,
+   "source": "sigma_ground.field.constants"
+  },
+  "rho_air_20C": {
+   "tool": "density",
+   "args": {
+    "material": "air"
+   },
+   "value": 1.2041,
+   "source": "sigma-ground via CRC Handbook (dry air at 20 C, 101.325 kPa)"
+  },
+  "cs_air_288K": {
+   "tool": "speed_of_sound_in_ideal_gas",
+   "args": {
+    "temperature_k": 288.15
+   },
+   "value": 340.08809024799785,
+   "source": "sigma-ground (ideal-gas adiabatic sound speed)"
+  },
+  "ISA_exponent": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(9.80665*0.0289644/(8.31432*0.0065), 17)"
+   },
+   "value": "5.2558761132785179",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_lo": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5000.0/(6356766.0+5000.0)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "54048.286145761398",
+   "source": "sympy.simplify"
+  },
+  "relerr_lo": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(56005.85668905822/54048.2861457614 - 1, 17)"
+   },
+   "value": "0.036218919838040764",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_hi": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*6000.0/(6356766.0+6000.0)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "47217.642475894981",
+   "source": "sympy.simplify"
+  },
+  "relerr_hi": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(49743.55404607042/47217.64247589498 - 1, 17)"
+   },
+   "value": "0.053495080180357174",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_bisect_0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5500.0/(6356766.0+5500.0)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "50539.315104332344",
+   "source": "sympy.simplify"
+  },
+  "relerr_bisect_0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(52781.91318158752/50539.315104332345 - 1, 17)"
+   },
+   "value": "0.044373337324132716",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_bisect_1": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5750.0/(6356766.0+5750.0)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "48855.558592696275",
+   "source": "sympy.simplify"
+  },
+  "relerr_bisect_1": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(51240.21810066088/48855.558592696274 - 1, 17)"
+   },
+   "value": "0.048810403087297904",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_bisect_2": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5875.0/(6356766.0+5875.0)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "48030.931201651212",
+   "source": "sympy.simplify"
+  },
+  "relerr_bisect_2": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(50486.340315204674/48030.93120165121 - 1, 17)"
+   },
+   "value": "0.051121413891493560",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_bisect_3": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5812.5/(6356766.0+5812.5)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "48441.820009774704",
+   "source": "sympy.simplify"
+  },
+  "relerr_bisect_3": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(50861.88247455334/48441.8200097747 - 1, 17)"
+   },
+   "value": "0.049958124287863476",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_bisect_4": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5843.75/(6356766.0+5843.75)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "48236.020330347121",
+   "source": "sympy.simplify"
+  },
+  "relerr_bisect_4": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(50673.763504226175/48236.02033034712 - 1, 17)"
+   },
+   "value": "0.050537817116421148",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_bisect_5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5828.125/(6356766.0+5828.125)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "48338.831233046884",
+   "source": "sympy.simplify"
+  },
+  "relerr_bisect_5": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(50767.7358555142/48338.83123304688 - 1, 17)"
+   },
+   "value": "0.050247483451912600",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_bisect_6": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5820.3125/(6356766.0+5820.3125)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "48390.303372373643",
+   "source": "sympy.simplify"
+  },
+  "relerr_bisect_6": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(50814.787361380644/48390.303372373644 - 1, 17)"
+   },
+   "value": "0.050102682149977066",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_bisect_7": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5816.40625/(6356766.0+5816.40625)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "48416.056126966203",
+   "source": "sympy.simplify"
+  },
+  "relerr_bisect_7": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(50838.329464528644/48416.0561269662 - 1, 17)"
+   },
+   "value": "0.050030372800508127",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_bisect_8": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5814.453125/(6356766.0+5814.453125)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "48428.936677112333",
+   "source": "sympy.simplify"
+  },
+  "relerr_bisect_8": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(50850.10460586564/48428.93667711233 - 1, 17)"
+   },
+   "value": "0.049994240941027362",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_bisect_9": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5815.4296875/(6356766.0+5815.4296875)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "48422.496054253623",
+   "source": "sympy.simplify"
+  },
+  "relerr_bisect_9": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(50844.21669431778/48422.49605425362 - 1, 17)"
+   },
+   "value": "0.050012304969797750",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_bisect_10": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5814.94140625/(6356766.0+5814.94140625)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "48425.716278732947",
+   "source": "sympy.simplify"
+  },
+  "relerr_bisect_10": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(50847.16056486693/48425.71627873294 - 1, 17)"
+   },
+   "value": "0.050003272480192790",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_bisect_11": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5814.697265625/(6356766.0+5814.697265625)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "48427.326456184681",
+   "source": "sympy.simplify"
+  },
+  "relerr_bisect_11": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(50848.63256405947/48427.32645618468 - 1, 17)"
+   },
+   "value": "0.049998756591807747",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_bisect_12": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5814.8193359375/(6356766.0+5814.8193359375)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "48426.521362024380",
+   "source": "sympy.simplify"
+  },
+  "relerr_bisect_12": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(50847.89655913658/48426.52136202438 - 1, 17)"
+   },
+   "value": "0.050001014506299429",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_bisect_13": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5814.75830078125/(6356766.0+5814.75830078125)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "48426.923907745907",
+   "source": "sympy.simplify"
+  },
+  "relerr_bisect_13": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(50848.26456026636/48426.923907745906 - 1, 17)"
+   },
+   "value": "0.049999885541628616",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_bisect_14": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5814.788818359375/(6356766.0+5814.788818359375)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "48426.722634545493",
+   "source": "sympy.simplify"
+  },
+  "relerr_bisect_14": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(50848.08055936855/48426.72263454549 - 1, 17)"
+   },
+   "value": "0.050000450022107623",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_bisect_15": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5814.7735595703125/(6356766.0+5814.7735595703125)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "48426.823271060790",
+   "source": "sympy.simplify"
+  },
+  "relerr_bisect_15": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(50848.17255973423/48426.82327106079 - 1, 17)"
+   },
+   "value": "0.050000167781404009",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_crossing": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*(6356766.0*5814.765930175781/(6356766.0+5814.765930175781)))/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "48426.873589382121",
+   "source": "sympy.simplify"
+  },
+  "relerr_crossing": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(50848.21855997949/48426.87358938212 - 1, 17)"
+   },
+   "value": "0.050000026661400326",
+   "source": "sympy.simplify"
+  },
+  "w_equals_gH_over_c2": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "(P/(P*M/(R*T)))/c**2 - g*(R*T/(M*g))/c**2"
+   },
+   "value": "0",
+   "source": "sympy.simplify"
+  },
+  "rho_air_ideal_288K": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*0.028968543572818032/(8.31446261815324*288.15), 17)"
+   },
+   "value": "1.2251533856844192",
+   "source": "sympy.simplify"
+  },
+  "w_288K": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0/(1.2251533856844192*299792458.0**2), 17)"
+   },
+   "value": "9.2020532487572789e-13",
+   "source": "sympy.simplify"
+  },
+  "w_with_20C_density": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0/(1.2041*299792458.0**2), 17)"
+   },
+   "value": "9.3629488356143912e-13",
+   "source": "sympy.simplify"
+  },
+  "RT_over_Mc2": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(8.31446261815324*288.15/(0.028968543572818032*299792458.0**2), 17)"
+   },
+   "value": "9.2020532487572790e-13",
+   "source": "sympy.simplify"
+  },
+  "tolman_over_scale_height": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(9.80665*8433.45384237488/299792458.0**2, 17)"
+   },
+   "value": "9.2020532487572793e-13",
+   "source": "sympy.simplify"
+  },
+  "rho288_over_rho20C": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(1.2251533856844192/1.2041, 17)"
+   },
+   "value": "1.0174847485129302",
+   "source": "sympy.simplify"
+  },
+  "w20C_over_w288": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(9.362948835614391e-13/9.20205324875728e-13, 17)"
+   },
+   "value": "1.0174847485129300",
+   "source": "sympy.simplify"
+  },
+  "cfl_mismatch_air_288K": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(4353.860726696342/340.08809024799785, 17)"
+   },
+   "value": "12.802155828278005",
+   "source": "sympy.simplify"
+  },
+  "cfl_mismatch_scaled_units": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(4353.860726696342/1, 17)"
+   },
+   "value": "4353.8607266963420",
+   "source": "sympy.simplify"
+  }
+ }
+}

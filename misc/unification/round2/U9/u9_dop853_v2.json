@@ -1,0 +1,423 @@
+{
+ "sources": {
+  "G": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "G"
+   },
+   "value": 6.6743e-11,
+   "source": "sigma_ground.field.constants"
+  },
+  "c": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "c"
+   },
+   "value": 299792458.0,
+   "source": "sigma_ground.field.constants"
+  },
+  "au": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "au"
+   },
+   "value": 149597870700.0,
+   "source": "scipy.constants (CODATA)"
+  },
+  "sun": {
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "sun"
+   },
+   "value": {
+    "luminosity_w": 3.828e+26,
+    "mass_kg": 1.98892e+30,
+    "radius_m": 695700000.0,
+    "surface_temp_k": 5772.0
+   },
+   "source": "sigma-ground via IAU 2015 nominal solar values"
+  },
+  "mercury": {
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "mercury"
+   },
+   "value": {
+    "mass_kg": 3.3011e+23,
+    "orbital_period_d": 87.969,
+    "radius_m": 2439700.0,
+    "semimajor_axis_au": 0.387098
+   },
+   "source": "sigma-ground via NASA Planetary Fact Sheet 2024"
+  },
+  "e_mercury": {
+   "value": 0.2056,
+   "source": "sigma_ground.field.interface.rolling_analysis._ORBITAL['Mercury'] (JPL fact sheet)"
+  },
+  "engine_c2": {
+   "value": 8.987551787368176e+16,
+   "source": "sigma_ground.field.interface.nbody._c2 (engine's own c^2)"
+  }
+ },
+ "u_rad_per_orbit": 8.36647972966576e-08,
+ "P_kepler_s": 7599549.0480309995,
+ "coefficient_fits": {
+  "gr_engine": {
+   "A": -3.9999999995592592,
+   "B": -0.9999999998210919,
+   "C": -3.9999999997664593,
+   "rel_residual": 2.889999833709885e-10
+  },
+  "eih_engine": {
+   "A": 4.000000000648554,
+   "B": 1.0000000001418834,
+   "C": -4.000000001163782,
+   "rel_residual": 5.90960434420068e-10
+  },
+  "gr_ref": {
+   "A": 4.0000000003762395,
+   "B": 0.9999999999412881,
+   "C": 3.999999999798721,
+   "rel_residual": 1.63357605963928e-10
+  },
+  "eih_ref": {
+   "A": 4.0000000005115535,
+   "B": 1.0000000015941217,
+   "C": 4.000000000391589,
+   "rel_residual": 5.628111719681742e-10
+  }
+ },
+ "test_fixture": {
+  "ratio_minus_1": -1.4831148265059824e-07,
+  "test_tolerance": 0.0001,
+  "gr_1pn_radial_corr_over_aN": 7.415573652153709e-08,
+  "eih_cross_radial_corr_over_aN": -7.415575711007921e-08,
+  "note": "n.v = 0 at this state; the cross term vanishes, the radial 1PN terms of the two layers have opposite signs"
+ },
+ "runs": {
+  "newton_rest": {
+   "law": "newton",
+   "frame": "rest",
+   "n_apo": 10,
+   "domega_per_orbit": 2.328234817892523e-12,
+   "de_per_orbit": -8.174134355925893e-14,
+   "nfev": 8456,
+   "wall_s": 0.42568516731262207
+  },
+  "newton_x": {
+   "law": "newton",
+   "frame": "x",
+   "n_apo": 10,
+   "domega_per_orbit": 1.2312283415121329e-11,
+   "de_per_orbit": -4.0363803122802994e-13,
+   "nfev": 8420,
+   "wall_s": 0.3601088523864746
+  },
+  "newton_y": {
+   "law": "newton",
+   "frame": "y",
+   "n_apo": 10,
+   "domega_per_orbit": 7.00283917807481e-12,
+   "de_per_orbit": -3.0378374593878875e-13,
+   "nfev": 8840,
+   "wall_s": 0.45474982261657715
+  },
+  "newton_z": {
+   "law": "newton",
+   "frame": "z",
+   "n_apo": 10,
+   "domega_per_orbit": 2.343971212077329e-12,
+   "de_per_orbit": -8.0810825969864e-14,
+   "nfev": 8432,
+   "wall_s": 0.4340512752532959
+  },
+  "gr_engine_rest": {
+   "law": "gr_engine",
+   "frame": "rest",
+   "n_apo": 10,
+   "domega_per_orbit": -5.019861856003313e-07,
+   "de_per_orbit": -7.985258313252328e-14,
+   "nfev": 8420,
+   "wall_s": 0.5395770072937012
+  },
+  "gr_engine_x": {
+   "law": "gr_engine",
+   "frame": "x",
+   "n_apo": 10,
+   "domega_per_orbit": -5.341245813063553e-07,
+   "de_per_orbit": -5.064825598397829e-07,
+   "nfev": 8408,
+   "wall_s": 0.5916571617126465
+  },
+  "gr_engine_y": {
+   "law": "gr_engine",
+   "frame": "y",
+   "n_apo": 10,
+   "domega_per_orbit": -2.954369328350571e-06,
+   "de_per_orbit": 6.93511694534893e-12,
+   "nfev": 8804,
+   "wall_s": 0.6260442733764648
+  },
+  "gr_engine_z": {
+   "law": "gr_engine",
+   "frame": "z",
+   "n_apo": 10,
+   "domega_per_orbit": -5.019861519640806e-07,
+   "de_per_orbit": -1.9230040145979024e-13,
+   "nfev": 8432,
+   "wall_s": 0.7143959999084473
+  },
+  "eih_engine_rest": {
+   "law": "eih_engine",
+   "frame": "rest",
+   "n_apo": 10,
+   "domega_per_orbit": -8.366453359553732e-07,
+   "de_per_orbit": -8.032711020642535e-14,
+   "nfev": 8420,
+   "wall_s": 1.0571789741516113
+  },
+  "eih_engine_x": {
+   "law": "eih_engine",
+   "frame": "x",
+   "n_apo": 10,
+   "domega_per_orbit": -8.366390156919178e-07,
+   "de_per_orbit": -2.0521446008655007e-07,
+   "nfev": 8408,
+   "wall_s": 1.113292932510376
+  },
+  "eih_engine_y": {
+   "law": "eih_engine",
+   "frame": "y",
+   "n_apo": 10,
+   "domega_per_orbit": -1.8347605048306391e-06,
+   "de_per_orbit": 1.4972269828047857e-12,
+   "nfev": 8828,
+   "wall_s": 1.6669635772705078
+  },
+  "eih_engine_z": {
+   "law": "eih_engine",
+   "frame": "z",
+   "n_apo": 10,
+   "domega_per_orbit": -8.36645328481631e-07,
+   "de_per_orbit": -8.128668161812244e-14,
+   "nfev": 8432,
+   "wall_s": 1.3638758659362793
+  },
+  "eih_ref_rest": {
+   "law": "eih_ref",
+   "frame": "rest",
+   "n_apo": 10,
+   "domega_per_orbit": 5.019910124261082e-07,
+   "de_per_orbit": -7.699852263103587e-14,
+   "nfev": 8468,
+   "wall_s": 1.8477482795715332
+  },
+  "eih_ref_x": {
+   "law": "eih_ref",
+   "frame": "x",
+   "n_apo": 10,
+   "domega_per_orbit": 5.020017838239579e-07,
+   "de_per_orbit": -7.180804249397438e-13,
+   "nfev": 8360,
+   "wall_s": 1.7864739894866943
+  },
+  "eih_ref_y": {
+   "law": "eih_ref",
+   "frame": "y",
+   "n_apo": 10,
+   "domega_per_orbit": 5.019949552980019e-07,
+   "de_per_orbit": -2.4646230524168133e-13,
+   "nfev": 8840,
+   "wall_s": 2.2281365394592285
+  },
+  "eih_ref_z": {
+   "law": "eih_ref",
+   "frame": "z",
+   "n_apo": 10,
+   "domega_per_orbit": 5.019910701509884e-07,
+   "de_per_orbit": -8.098371137492117e-14,
+   "nfev": 8432,
+   "wall_s": 1.9143669605255127
+  },
+  "gr_ref_rest": {
+   "law": "gr_ref",
+   "frame": "rest",
+   "n_apo": 10,
+   "domega_per_orbit": 5.019907337322475e-07,
+   "de_per_orbit": -7.911795194480478e-14,
+   "nfev": 8468,
+   "wall_s": 1.2712907791137695
+  },
+  "gr_ref_x": {
+   "law": "gr_ref",
+   "frame": "x",
+   "n_apo": 10,
+   "domega_per_orbit": 5.34137186117111e-07,
+   "de_per_orbit": 5.06481687915988e-07,
+   "nfev": 8420,
+   "wall_s": 1.2005031108856201
+  },
+  "gr_ref_y": {
+   "law": "gr_ref",
+   "frame": "y",
+   "n_apo": 10,
+   "domega_per_orbit": 2.954377110336542e-06,
+   "de_per_orbit": 7.029080932036303e-12,
+   "nfev": 8816,
+   "wall_s": 1.267317771911621
+  },
+  "gr_ref_z": {
+   "law": "gr_ref",
+   "frame": "z",
+   "n_apo": 10,
+   "domega_per_orbit": 5.019907951152652e-07,
+   "de_per_orbit": -1.89617594993345e-13,
+   "nfev": 8432,
+   "wall_s": 1.1647002696990967
+  }
+ },
+ "precession": {
+  "gr_engine_rest": {
+   "over_u": -5.999996773496081,
+   "de_over_u": 2.257533021969207e-08,
+   "pred_over_u": -6.0,
+   "de_pred_over_u": 0.0,
+   "rel_dev": -5.377506532289189e-07,
+   "de_abs_dev": 2.257533021969207e-08
+  },
+  "gr_engine_x": {
+   "over_u": -6.384248941592896,
+   "de_over_u": -6.053706846451482,
+   "pred_over_u": -6.384181406560678,
+   "de_pred_over_u": -6.053708206269063,
+   "rel_dev": 1.0578495176716274e-05,
+   "de_abs_dev": 1.3598175803153367e-06
+  },
+  "gr_engine_y": {
+   "over_u": -35.3120598704633,
+   "de_over_u": 8.652265857550714e-05,
+   "pred_over_u": -35.31204423741719,
+   "de_pred_over_u": 0.0,
+   "rel_dev": 4.4271144439278487e-07,
+   "de_abs_dev": 8.652265857550714e-05
+  },
+  "gr_engine_z": {
+   "over_u": -5.999996559548792,
+   "de_over_u": -1.3325745007736992e-06,
+   "pred_over_u": -6.0,
+   "de_pred_over_u": 0.0,
+   "rel_dev": -5.734085347652851e-07,
+   "de_abs_dev": -1.3325745007736992e-06
+  },
+  "eih_engine_rest": {
+   "over_u": -9.999996309363139,
+   "de_over_u": 1.690356516156982e-08,
+   "pred_over_u": -10.0,
+   "de_pred_over_u": 0.0,
+   "rel_dev": -3.690636860564922e-07,
+   "de_abs_dev": 1.690356516156982e-08
+  },
+  "eih_engine_x": {
+   "over_u": -10.000040100602229,
+   "de_over_u": -2.452812450150012,
+   "pred_over_u": -10.0,
+   "de_pred_over_u": -2.452811072,
+   "rel_dev": 4.010060222991996e-06,
+   "de_abs_dev": -1.3781500123322132e-06
+  },
+  "eih_engine_y": {
+   "over_u": -21.929982106621512,
+   "de_over_u": 2.1526505614512793e-05,
+   "pred_over_u": -21.93001494163424,
+   "de_pred_over_u": 0.0,
+   "rel_dev": -1.4972635821175473e-06,
+   "de_abs_dev": 2.1526505614512793e-05
+  },
+  "eih_engine_z": {
+   "over_u": -9.999996408122142,
+   "de_over_u": -5.68764478770149e-09,
+   "pred_over_u": -10.0,
+   "de_pred_over_u": 0.0,
+   "rel_dev": -3.591877858477588e-07,
+   "de_abs_dev": -5.68764478770149e-09
+  },
+  "eih_ref_rest": {
+   "over_u": 5.9999988096707515,
+   "de_over_u": 5.668836931984702e-08,
+   "pred_over_u": 6.0,
+   "de_pred_over_u": 0.0,
+   "rel_dev": -1.983882080835997e-07,
+   "de_abs_dev": 5.668836931984702e-08
+  },
+  "eih_ref_x": {
+   "over_u": 6.0000082204298515,
+   "de_over_u": -3.758359595335753e-06,
+   "pred_over_u": 6.0,
+   "de_pred_over_u": 0.0,
+   "rel_dev": 1.3700716419151604e-06,
+   "de_abs_dev": -3.758359595335753e-06
+  },
+  "eih_ref_y": {
+   "over_u": 5.9999900636689665,
+   "de_over_u": 6.851321290346018e-07,
+   "pred_over_u": 6.0,
+   "de_pred_over_u": 0.0,
+   "rel_dev": -1.656055172216675e-06,
+   "de_abs_dev": 6.851321290346018e-07
+  },
+  "eih_ref_z": {
+   "over_u": 5.99999931153638,
+   "de_over_u": -2.0664055928344217e-09,
+   "pred_over_u": 6.0,
+   "de_pred_over_u": 0.0,
+   "rel_dev": -1.1474393668553518e-07,
+   "de_abs_dev": -2.0664055928344217e-09
+  },
+  "gr_ref_rest": {
+   "over_u": 5.999995478594005,
+   "de_over_u": 3.135597884917075e-08,
+   "pred_over_u": 6.0,
+   "de_pred_over_u": 0.0,
+   "rel_dev": -7.535676659342627e-07,
+   "de_abs_dev": 3.135597884917075e-08
+  },
+  "gr_ref_x": {
+   "over_u": 6.384105275959763,
+   "de_over_u": 6.053706073752158,
+   "pred_over_u": 6.384181406560678,
+   "de_pred_over_u": 6.053708206269063,
+   "rel_dev": -1.1924880586322573e-05,
+   "de_abs_dev": -2.1325169043961978e-06
+  },
+  "gr_ref_y": {
+   "over_u": 35.31198548203966,
+   "de_over_u": 8.764575920711683e-05,
+   "pred_over_u": 35.31204423741719,
+   "de_pred_over_u": 0.0,
+   "rel_dev": -1.6638905733223908e-06,
+   "de_abs_dev": 8.764575920711683e-05
+  },
+  "gr_ref_z": {
+   "over_u": 5.99999602418337,
+   "de_over_u": -1.3005083683843195e-06,
+   "pred_over_u": 6.0,
+   "de_pred_over_u": 0.0,
+   "rel_dev": -6.626361049866247e-07,
+   "de_abs_dev": -1.3005083683843195e-06
+  }
+ },
+ "criteria": {
+  "D1_engine_matches_gauss": true,
+  "D2_eih_ref_plus6_all_frames": true,
+  "D3_gr_ref_matches_gauss_textbook": true,
+  "D4_gr_frame_dependence_sign_independent": true,
+  "ratio_y_over_rest": {
+   "gr_engine": 5.885346476592796,
+   "gr_ref": 5.885335348671698,
+   "eih_engine": 2.192999020018453,
+   "eih_ref": 0.9999985423327467
+  },
+  "validation_ref_laws_textbook_4_1_4": true
+ },
+ "integrator": "scipy DOP853, rtol 1e-13, atol 1e-6, apocentre events, 10 orbits, per-frame Newtonian baseline"
+}

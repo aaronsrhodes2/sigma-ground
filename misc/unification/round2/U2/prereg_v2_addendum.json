@@ -1,0 +1,22 @@
+{
+ "written_utc": "2026-10-10T11:00:02.620502+00:00",
+ "status": "POST-HOC diagnostics requested by the skeptic round; predictions frozen before running; not criteria",
+ "criteria_unchanged": "prereg.json original_design_criterion_verbatim and corrected_criterion are evaluated exactly as before",
+ "already_seen_from_verifiers": [
+  "delta at t=0 echo gain 0.99995 (skeptic, N-body, T=1, dt/600)",
+  "forward-twin gain 1.23 / 1.86 / 37.0 at 0.3 / 0.5 / 1.0 t_ff (verifiers)",
+  "delta-at-reversal gain after a 0.3 t_ff leg 2.26 (reproduce verifier)",
+  "no cache invalidation: isothermal a=0 echo bitwise identical; ideal a=0 5.3432e-4 vs 5.3494e-4 R",
+  "median radius 0.750 R at t=0; 0.726 R (isothermal a=1) and 0.737 R (ideal a=1) at T=1"
+ ],
+ "predictions": {
+  "P_A_delta_at_t0": "echo gain = 1 to within 1e-3 (exact reversibility of position-only velocity-Verlet) [DERIVED; already seen]",
+  "P_B_forward_twin_post_bounce": "NEW: ln(gain) keeps growing after the collapse/bounce; mean rate over 1.5-4 t_ff between 1 and 6 per t_ff (chaos). If < 0.5 per t_ff, the 'chaos' reading is NOT supported and the gain is collapse focusing.",
+  "P_C_backward_leg_profile": "NEW: more than half of ln(gain) for delta injected at the reversal (T=1) accrues in the first 0.25 t_ff of the backward leg (the collapsed phase)",
+  "P_D_delta_at_reversal_T0.3": "gain ~ 2.3 (already seen)",
+  "P_E_horizon": "NEW: roundoff-only N-body echo eps_rec(T) at T = 2, 3, 4, 6, 8 t_ff (dt = t_ff/600) rises monotonically; crosses 1e-8 R (the H1 threshold) between T = 3 and 6 t_ff; at T = 8 t_ff eps_rec >= 1e-3 R (the D1 threshold), i.e. by eps_rec alone the Hamiltonian echo is no longer distinguishable from viscous loss. Order-of-magnitude horizon ln(2^53)/4.81 = 7.6 t_ff.",
+  "P_E_validation": "checkpointed forward leg reproduces the original T=1 dt/600 echo 4.687074276493767e-15 R bitwise",
+  "P_F_cache": "isothermal a=0: bitwise identical without invalidation; ideal a=0: differs by ~0.1 % (already seen)",
+  "P_G_fourier_mode": "NEW (on the engine): the highest insulated-grid mode prod cos(31 pi (i+1/2)/32) decays per diffuse_fvm substep by 1 - 0.4 sin^2(31 pi/64) = 0.60096 (uniform over cells to 1e-9 relative); 800-substep inverse amplification 10^176.9, not the 10^177.5 checkerboard bound"
+ }
+}

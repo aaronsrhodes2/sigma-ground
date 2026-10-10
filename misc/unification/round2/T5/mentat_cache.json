@@ -1,0 +1,488 @@
+{
+"nuclear_binding_energy{\"measured_mass_u\": 9.012183065, \"neutrons\": 5, \"protons\": 4}": [
+{
+"binding_energy_MeV": 58.16402190183544,
+"binding_per_nucleon_MeV": 6.462669100203938,
+"mass_defect_fraction": 0.006880906339537436,
+"mass_defect_u": 0.06244164267999837
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 26.98153853, \"neutrons\": 14, \"protons\": 13}": [
+{
+"binding_energy_MeV": 224.951828907484,
+"binding_per_nucleon_MeV": 8.331549218795704,
+"mass_defect_fraction": 0.00887100633631774,
+"mass_defect_u": 0.24149570923000413
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 45.95262772, \"neutrons\": 24, \"protons\": 22}": [
+{
+"binding_energy_MeV": 398.1959993405908,
+"binding_per_nucleon_MeV": 8.656434768273712,
+"mass_defect_fraction": 0.009216903081189925,
+"mass_defect_u": 0.4274809666600002
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 46.95175879, \"neutrons\": 25, \"protons\": 22}": [
+{
+"binding_energy_MeV": 407.07672055118746,
+"binding_per_nucleon_MeV": 8.66120682023803,
+"mass_defect_fraction": 0.009221905935049807,
+"mass_defect_u": 0.4370148125399953
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 47.94794198, \"neutrons\": 26, \"protons\": 22}": [
+{
+"binding_energy_MeV": 418.70337459643633,
+"binding_per_nucleon_MeV": 8.72298697075909,
+"mass_defect_fraction": 0.009287610092193695,
+"mass_defect_u": 0.4494965384200015
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 48.94786568, \"neutrons\": 27, \"protons\": 22}": [
+{
+"binding_energy_MeV": 426.84576563662995,
+"binding_per_nucleon_MeV": 8.711138074216938,
+"mass_defect_fraction": 0.009274921972127533,
+"mass_defect_u": 0.4582377542999946
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 49.94478689, \"neutrons\": 28, \"protons\": 22}": [
+{
+"binding_energy_MeV": 437.7849584044088,
+"binding_per_nucleon_MeV": 8.755699168088176,
+"mass_defect_fraction": 0.009322297325964419,
+"mass_defect_u": 0.46998146017999864
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 62.92959772, \"neutrons\": 34, \"protons\": 29}": [
+{
+"binding_energy_MeV": 551.3842874923503,
+"binding_per_nucleon_MeV": 8.752131547497623,
+"mass_defect_fraction": 0.00931865654593328,
+"mass_defect_u": 0.5919353499500069
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 64.9277897, \"neutrons\": 36, \"protons\": 29}": [
+{
+"binding_energy_MeV": 569.2110835397689,
+"binding_per_nucleon_MeV": 8.75709359291952,
+"mass_defect_fraction": 0.009323829780605681,
+"mass_defect_u": 0.6110732017099966
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 203.973044, \"neutrons\": 122, \"protons\": 82}": [
+{
+"binding_energy_MeV": 1607.5057963325526,
+"binding_per_nucleon_MeV": 7.879930374179179,
+"mass_defect_fraction": 0.008389590016707478,
+"mass_defect_u": 1.7257283671000063
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 205.9744657, \"neutrons\": 124, \"protons\": 82}": [
+{
+"binding_energy_MeV": 1622.3241272474988,
+"binding_per_nucleon_MeV": 7.875359841007276,
+"mass_defect_fraction": 0.008384696614384813,
+"mass_defect_u": 1.7416364988599913
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 206.9758973, \"neutrons\": 125, \"protons\": 82}": [
+{
+"binding_energy_MeV": 1629.0619183306699,
+"binding_per_nucleon_MeV": 7.8698643397616905,
+"mass_defect_fraction": 0.008378832272351344,
+"mass_defect_u": 1.7488698147400021
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 207.9766525, \"neutrons\": 126, \"protons\": 82}": [
+{
+"binding_energy_MeV": 1636.4297720247123,
+"binding_per_nucleon_MeV": 7.867450827041886,
+"mass_defect_fraction": 0.008376249382900129,
+"mass_defect_u": 1.756779530620007
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 189.9599297, \"neutrons\": 112, \"protons\": 78}": [
+{
+"binding_energy_MeV": 1509.8526241402724,
+"binding_per_nucleon_MeV": 7.946592758633012,
+"mass_defect_fraction": 0.008460624367100694,
+"mass_defect_u": 1.6208933800200243
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 191.9610387, \"neutrons\": 114, \"protons\": 78}": [
+{
+"binding_energy_MeV": 1524.9622332610597,
+"binding_per_nucleon_MeV": 7.94251163156802,
+"mass_defect_fraction": 0.00845624912819305,
+"mass_defect_u": 1.6371142117800246
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 193.9626809, \"neutrons\": 116, \"protons\": 78}": [
+{
+"binding_energy_MeV": 1539.5751697264204,
+"binding_per_nucleon_MeV": 7.935954483125879,
+"mass_defect_fraction": 0.008449238374995598,
+"mass_defect_u": 1.6528018435400074
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 194.9647917, \"neutrons\": 117, \"protons\": 78}": [
+{
+"binding_energy_MeV": 1545.6802900152106,
+"binding_per_nucleon_MeV": 7.9265655898215925,
+"mass_defect_fraction": 0.008439227730534054,
+"mass_defect_u": 1.6593559594199998
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 195.96495209, \"neutrons\": 118, \"protons\": 78}": [
+{
+"binding_energy_MeV": 1553.6022057163354,
+"binding_per_nucleon_MeV": 7.9265418658996705,
+"mass_defect_fraction": 0.008439188126539246,
+"mass_defect_u": 1.6678604853000283
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 197.9678949, \"neutrons\": 120, \"protons\": 78}": [
+{
+"binding_energy_MeV": 1567.0036316371115,
+"binding_per_nucleon_MeV": 7.914159755742988,
+"mass_defect_fraction": 0.00842597699544884,
+"mass_defect_u": 1.6822475070599723
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 179.9467108, \"neutrons\": 106, \"protons\": 74}": [
+{
+"binding_energy_MeV": 1444.5821583918296,
+"binding_per_nucleon_MeV": 8.025456435510165,
+"mass_defect_fraction": 0.008544593565135445,
+"mass_defect_u": 1.5508226564600236
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 181.94820394, \"neutrons\": 108, \"protons\": 74}": [
+{
+"binding_energy_MeV": 1459.3339433680812,
+"binding_per_nucleon_MeV": 8.018318370154292,
+"mass_defect_fraction": 0.008536961639774465,
+"mass_defect_u": 1.5666593482199893
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 182.95022275, \"neutrons\": 109, \"protons\": 74}": [
+{
+"binding_energy_MeV": 1465.5247517993557,
+"binding_per_nucleon_MeV": 8.00833197704566,
+"mass_defect_fraction": 0.008526313524418221,
+"mass_defect_u": 1.5733054540999847
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 183.95093092, \"neutrons\": 110, \"protons\": 74}": [
+{
+"binding_energy_MeV": 1472.936413661053,
+"binding_per_nucleon_MeV": 8.005089204679635,
+"mass_defect_fraction": 0.008522845406982485,
+"mass_defect_u": 1.581262199980009
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 185.9543628, \"neutrons\": 112, \"protons\": 74}": [
+{
+"binding_energy_MeV": 1485.8822737612063,
+"binding_per_nucleon_MeV": 7.988614375060249,
+"mass_defect_fraction": 0.00850527437572032,
+"mass_defect_u": 1.5951601517400043
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 91.90680796, \"neutrons\": 50, \"protons\": 42}": [
+{
+"binding_energy_MeV": 796.5105290887586,
+"binding_per_nucleon_MeV": 8.657723142269116,
+"mass_defect_fraction": 0.009218107944049488,
+"mass_defect_u": 0.8550891809400004
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 93.9050849, \"neutrons\": 52, \"protons\": 42}": [
+{
+"binding_energy_MeV": 814.258185397237,
+"binding_per_nucleon_MeV": 8.662321121247201,
+"mass_defect_fraction": 0.009222928911962717,
+"mass_defect_u": 0.8741420726999914
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 94.90583877, \"neutrons\": 53, \"protons\": 42}": [
+{
+"binding_energy_MeV": 821.6272779784485,
+"binding_per_nucleon_MeV": 8.648708189246827,
+"mass_defect_fraction": 0.00920839890292199,
+"mass_defect_u": 0.8820531185800103
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 95.90467612, \"neutrons\": 54, \"protons\": 42}": [
+{
+"binding_energy_MeV": 830.7815976368147,
+"binding_per_nucleon_MeV": 8.653974975383486,
+"mass_defect_fraction": 0.009213971177318966,
+"mass_defect_u": 0.8918806844600127
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 96.90601812, \"neutrons\": 55, \"protons\": 42}": [
+{
+"binding_energy_MeV": 837.6028505915456,
+"binding_per_nucleon_MeV": 8.635080933933459,
+"mass_defect_fraction": 0.00919381996710921,
+"mass_defect_u": 0.8992036003400052
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 97.90540482, \"neutrons\": 56, \"protons\": 42}": [
+{
+"binding_energy_MeV": 846.2454539647442,
+"binding_per_nucleon_MeV": 8.635157693517797,
+"mass_defect_fraction": 0.009193867857506198,
+"mass_defect_u": 0.9084818162200042
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 99.9074718, \"neutrons\": 58, \"protons\": 42}": [
+{
+"binding_energy_MeV": 860.4627103652892,
+"binding_per_nucleon_MeV": 8.604627103652893,
+"mass_defect_fraction": 0.0091612964748208,
+"mass_defect_u": 0.9237446679799981
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 179.9474648, \"neutrons\": 107, \"protons\": 73}": [
+{
+"binding_energy_MeV": 1444.6621586543333,
+"binding_per_nucleon_MeV": 8.025900881412962,
+"mass_defect_fraction": 0.0085450272183013,
+"mass_defect_u": 1.5509085402700185
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 180.9479958, \"neutrons\": 108, \"protons\": 73}": [
+{
+"binding_energy_MeV": 1452.2388533260964,
+"binding_per_nucleon_MeV": 8.023419079149704,
+"mass_defect_fraction": 0.00854236894668057,
+"mass_defect_u": 1.5590424561499785
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 234.0409523, \"neutrons\": 142, \"protons\": 92}": [
+{
+"binding_energy_MeV": 1778.5656884254422,
+"binding_per_nucleon_MeV": 7.600708070194197,
+"mass_defect_fraction": 0.008092248814343998,
+"mass_defect_u": 1.9093687054000341
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 235.0439301, \"neutrons\": 143, \"protons\": 92}": [
+{
+"binding_energy_MeV": 1783.8632033274043,
+"binding_per_nucleon_MeV": 7.59090724820172,
+"mass_defect_fraction": 0.008081802907091247,
+"mass_defect_u": 1.9150558212799944
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 238.0507884, \"neutrons\": 146, \"protons\": 92}": [
+{
+"binding_energy_MeV": 1801.6886914453644,
+"binding_per_nucleon_MeV": 7.570120552291447,
+"mass_defect_fraction": 0.008059638830433364,
+"mass_defect_u": 1.9341922689200277
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 120.903812, \"neutrons\": 70, \"protons\": 51}": [
+{
+"binding_energy_MeV": 1026.3283499836252,
+"binding_per_nucleon_MeV": 8.482052479203514,
+"mass_defect_fraction": 0.009030803174660776,
+"mass_defect_u": 1.1018087471700015
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 122.9042132, \"neutrons\": 72, \"protons\": 51}": [
+{
+"binding_energy_MeV": 1042.0972706301109,
+"binding_per_nucleon_MeV": 8.472335533578137,
+"mass_defect_fraction": 0.00902040609183884,
+"mass_defect_u": 1.1187373789300077
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 111.90482387, \"neutrons\": 62, \"protons\": 50}": [
+{
+"binding_energy_MeV": 953.5262835002795,
+"binding_per_nucleon_MeV": 8.513627531252496,
+"mass_defect_fraction": 0.009064609306711933,
+"mass_defect_u": 1.0236525180600076
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 113.9027827, \"neutrons\": 64, \"protons\": 50}": [
+{
+"binding_energy_MeV": 971.5702573976741,
+"binding_per_nucleon_MeV": 8.522546117523458,
+"mass_defect_fraction": 0.009074045884069376,
+"mass_defect_u": 1.0430235198199937
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 114.903344699, \"neutrons\": 65, \"protons\": 50}": [
+{
+"binding_energy_MeV": 979.1180766837933,
+"binding_per_nucleon_MeV": 8.514070232032985,
+"mass_defect_fraction": 0.009064992720029518,
+"mass_defect_u": 1.0511264366999935
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 115.9017428, \"neutrons\": 66, \"protons\": 50}": [
+{
+"binding_energy_MeV": 988.681554195151,
+"binding_per_nucleon_MeV": 8.523116846509922,
+"mass_defect_fraction": 0.009074596384897935,
+"mass_defect_u": 1.061393251579993
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 116.90295398, \"neutrons\": 67, \"protons\": 50}": [
+{
+"binding_energy_MeV": 995.6246652083646,
+"binding_per_nucleon_MeV": 8.509612523148416,
+"mass_defect_fraction": 0.009060190475135739,
+"mass_defect_u": 1.0688469874599902
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 117.90160657, \"neutrons\": 68, \"protons\": 50}": [
+{
+"binding_energy_MeV": 1004.9510877170978,
+"binding_per_nucleon_MeV": 8.51653464167032,
+"mass_defect_fraction": 0.00906753310579415,
+"mass_defect_u": 1.0788593133399969
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 118.90331117, \"neutrons\": 69, \"protons\": 50}": [
+{
+"binding_energy_MeV": 1011.4345809103106,
+"binding_per_nucleon_MeV": 8.499450259750509,
+"mass_defect_fraction": 0.009049316567155836,
+"mass_defect_u": 1.0858196292200102
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 119.90220163, \"neutrons\": 70, \"protons\": 50}": [
+{
+"binding_energy_MeV": 1020.5394289168908,
+"binding_per_nucleon_MeV": 8.504495240974089,
+"mass_defect_fraction": 0.009054661521931181,
+"mass_defect_u": 1.0955940851000054
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 121.9034438, \"neutrons\": 72, \"protons\": 50}": [
+{
+"binding_energy_MeV": 1035.524990968057,
+"binding_per_nucleon_MeV": 8.487909762033254,
+"mass_defect_fraction": 0.009036951691249807,
+"mass_defect_u": 1.111681746860004
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 123.9052766, \"neutrons\": 74, \"protons\": 50}": [
+{
+"binding_energy_MeV": 1049.9603846575192,
+"binding_per_nucleon_MeV": 8.467422456915477,
+"mass_defect_fraction": 0.00901508952380978,
+"mass_defect_u": 1.1271787786200111
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 39.962590863, \"neutrons\": 20, \"protons\": 20}": [
+{
+"binding_energy_MeV": 342.05217578487645,
+"binding_per_nucleon_MeV": 8.551304394621912,
+"mass_defect_fraction": 0.009105130833240938,
+"mass_defect_u": 0.3672080959999992
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 41.95861783, \"neutrons\": 22, \"protons\": 20}": [
+{
+"binding_energy_MeV": 361.8956686734673,
+"binding_per_nucleon_MeV": 8.61656353984446,
+"mass_defect_fraction": 0.009174434533204314,
+"mass_defect_u": 0.3885109607599992
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 42.95876644, \"neutrons\": 23, \"protons\": 20}": [
+{
+"binding_energy_MeV": 369.8285573750909,
+"binding_per_nucleon_MeV": 8.600664125002114,
+"mass_defect_fraction": 0.009157421250927132,
+"mass_defect_u": 0.39702726663999793
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 43.95548156, \"neutrons\": 24, \"protons\": 20}": [
+{
+"binding_energy_MeV": 380.9597217624323,
+"binding_per_nucleon_MeV": 8.658175494600734,
+"mass_defect_fraction": 0.00921857439983262,
+"mass_defect_u": 0.40897706251999644
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 45.953689, \"neutrons\": 26, \"protons\": 20}": [
+{
+"binding_energy_MeV": 398.7721169110446,
+"binding_per_nucleon_MeV": 8.668959063283578,
+"mass_defect_fraction": 0.009229903989191698,
+"mass_defect_u": 0.42809945428000445
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+],
+"nuclear_binding_energy{\"measured_mass_u\": 47.95252276, \"neutrons\": 28, \"protons\": 20}": [
+{
+"binding_energy_MeV": 416.0010986734269,
+"binding_per_nucleon_MeV": 8.666689555696394,
+"mass_defect_fraction": 0.00922734838681604,
+"mass_defect_u": 0.44659552604001007
+},
+"sigma-ground nuclear (exact (measured nuclide mass))"
+]
+}

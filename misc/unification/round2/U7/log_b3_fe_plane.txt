@@ -1,0 +1,2 @@
+bar_fe_plane: step 1 in 9.3s
+bar_fe_plane: done in 297s

@@ -1,0 +1,335 @@
+{
+ "chandrasekhar_mass_target": {
+  "omega_3_LIT": 2.01824,
+  "omega_3_numeric_scratch": 2.0182359509933576,
+  "xi1_n3_numeric": 6.8968486193766365,
+  "xi1_n1_minus_pi": -3.5926817076870066e-13,
+  "by_baryon_mass_convention": {
+   "m_u (AMU_KG)": {
+    "M_Ch_over_Msun_mu_e_2": 1.4558683947324034
+   },
+   "m_p + m_e (hydrogen atom, unbound)": {
+    "M_Ch_over_Msun_mu_e_2": 1.4333485861652189
+   },
+   "m_n": {
+    "M_Ch_over_Msun_mu_e_2": 1.4309626110805114
+   }
+  },
+  "convention_spread_pct": 1.7404915725286345
+ },
+ "solve_ode_probe": {
+  "results": {
+   "y'' + y": "REFUSED: That input looks like code, not maths; Mentat won't evaluate it.",
+   "x*y'' + 2*y' + x*y": "REFUSED: That input looks like code, not maths; Mentat won't evaluate it.",
+   "x*Derivative(y(x),x,2) + 2*Derivative(y(x),x) + x*y(x)": "Eq(y(x), (C1*besselj(1/2, x) + C2*bessely(1/2, x))/sqrt(x))"
+  },
+  "front_door_regex_line": 178,
+  "front_door_refusal_line": 236,
+  "docstring_example_line": 213,
+  "solve_ode_def_line": 209,
+  "reading": "The apostrophe (prime) syntax that solve_ode documents is refused by the SkippyTel front-door guard, including the docstring's own example. With Derivative() syntax Mentat solves Lane-Emden n = 1 symbolically (spherical Bessel j0 = sin x/x up to constants). Mentat still has no NUMERIC initial-value tool."
+ },
+ "p6_ns_row_check": {
+  "n_over_n_sat_repo": 1.8657523976143318,
+  "P_row_over_GW170817_90pct_upper_at_2nsat": 1.6129032258064513,
+  "reading": "P6's neutron-star row sits below 2 n_sat yet exceeds GW170817's 90 % upper bound AT 2 n_sat; since P rises with density it is excluded by the plan's own anchor. 0.67 is [DERIVED from LIT] of an excluded row and is withdrawn as a headline number."
+ },
+ "gw170817_pressure_share": {
+  "2 rho_nuc (Abbott 2018 convention, rho_nuc = 2.8e14 g/cm3) [LIT]": {
+   "rho_kg_m3": 5.5999999999999994e+17,
+   "3P_over_rho_c2": {
+    "central": 0.2086218855100535,
+    "low_90": 0.10729125540517039,
+    "high_90": 0.36955876861780906
+   }
+  },
+  "2 n_sat (repo N0_FM3 x m_n)": {
+   "rho_kg_m3": 5.359768001792e+17,
+   "3P_over_rho_c2": {
+    "central": 0.21797259852771475,
+    "low_90": 0.11210019352853902,
+    "high_90": 0.3861228888205233
+   }
+  },
+  "2 n_sat (Margueron 2018 n_sat = 0.155 fm^-3 x m_n)": {
+   "rho_kg_m3": 5.192275251736e+17,
+   "3P_over_rho_c2": {
+    "central": 0.22500397267377004,
+    "low_90": 0.11571632880365318,
+    "high_90": 0.39857846587924983
+   }
+  }
+ },
+ "white_dwarf_pressure_share": {
+  "P_chandra_at_1e9_Pa": 2.627275504974837e+21,
+  "x_at_1e9": 0.8007195472117824,
+  "P6_row_over_chandra": 3.806224349545624,
+  "3P_over_rho_c2_chandra_by_rho": {
+   "1e+08": 2.169408735901505e-05,
+   "1e+09": 8.769714713635654e-05,
+   "1e+10": 0.00028239024493464753,
+   "1e+11": 0.0007179476616424314,
+   "1e+12": 0.0016228486923051011,
+   "1e+13": 0.003537080718869803
+  },
+  "tag": "[DERIVED] Mentat integrate_expr closed form + Mentat hbar, c, m_e, AMU_KG; mu_e = 2"
+ },
+ "saturation_anchors": {
+  "Margueron2018_Tables1_2_present_estimation_LIT": {
+   "n_sat_fm3": {
+    "value": 0.155,
+    "sigma": 0.005
+   },
+   "E_sat_MeV": {
+    "value": -15.8,
+    "sigma": 0.3
+   },
+   "K_sat_MeV": {
+    "value": 230.0,
+    "sigma": 20.0
+   },
+   "E_sym_MeV": {
+    "value": 32.0,
+    "sigma": 2.0
+   },
+   "L_sym_MeV": {
+    "value": 60.0,
+    "sigma": 15.0
+   },
+   "K_sym_MeV": {
+    "value": -100.0,
+    "sigma": 100.0
+   },
+   "Q_sat_MeV": {
+    "value": 300.0,
+    "sigma": 400.0
+   }
+  },
+  "Margueron2018_Table4_50_model_average_LIT (model spread, not data)": {
+   "K_sat_MeV": [
+    251,
+    29
+   ],
+   "L_sym_MeV": [
+    76.6,
+    29.2
+   ]
+  },
+  "Lattimer2023_LIT": {
+   "J_MeV": [
+    32.0,
+    1.1
+   ],
+   "L_MeV": [
+    51.9,
+    7.9
+   ]
+  },
+  "repo_vs_Margueron_pulls_sigma": {
+   "n_sat_fm3": 1.0000000000000009,
+   "E_sat_MeV": -0.6666666666666643,
+   "K_sat_MeV": 0.0,
+   "E_sym_MeV": 0.0
+  }
+ },
+ "p7_normalisation": {
+  "int_0^pi sin^2": "pi/2",
+  "int_0^pi x sin x": "pi",
+  "intP_over_int_rho_c2_in_units_of_Pc_over_rhoc_c2": 0.5,
+  "flat_ratio": "1 - w_c/2",
+  "tolman_ratio_first_order": "1 - w_c",
+  "reading": "[DERIVED] For an n = 1 polytrope (rho ~ theta, P ~ theta^2, theta = sin xi/xi) 3 int P dV / int rho c^2 dV = w_c * (pi/2)/pi = w_c/2, so P7's flat ratio is 1 - w_c/2 (normalised to the rest mass). Normalised to the Tolman mass (eps + 3P) the deficit is 6 int P / int eps = w_c at first order. The two differ by normalisation, not by a correction to P7, so the M8 small-w_c slope test is bug-only."
+ },
+ "bag_window": {
+  "k3_expr": "sqrt(2)*3**(3/4)*sqrt(pi)",
+  "k3": 5.713876841183744,
+  "k2_expr": "sqrt(2)*sqrt(pi)*(1 + 2*2**(1/3))**(3/4)",
+  "k2": 6.441430425073436,
+  "E_per_A_56Fe_atom_MeV": 930.4118329406035,
+  "B14_lower_MeV (2-flavour must be unbound)": 144.44180431087963,
+  "B14_upper_MeV (3-flavour bound)": 162.83372197218205,
+  "tag": "[DERIVED] Mentat simplify_expr + Mentat atomic mass unit + AME2020 56Fe mass (isotopes.json)"
+ },
+ "free_neutron_star_scratch": {
+  "M_max_Msun": 0.7096528000291537,
+  "R_at_Mmax_km": 8.974673129081815,
+  "x_c": 0.8554672535565682,
+  "w_c_at_Mmax": 0.29857347001617757,
+  "tag": "[VERIFIED numerics, scratch] OV free-neutron maximum; literature ~0.7 Msun (OV 1939)"
+ }
+}
+{
+ "n_A_ge_12": 136,
+ "n_A_ge_16": 131,
+ "rms_pct_A_ge_12": {
+  "as_written": 6.820450219303961,
+  "consistent": 0.7800227126357988
+ },
+ "rms_pct_A_ge_16": {
+  "as_written": 6.9311102110257075,
+  "consistent": 0.7453305390704983
+ },
+ "spearman_resid_as_written_vs_NmZ_A12": 0.9541908817176601,
+ "pearson_resid_as_written_vs_NmZ2_over_A_A16": 0.9685703312430862,
+ "best_divisor_k_A12": {
+  "k": 1.03,
+  "rms_pct": 0.7353469249040772,
+  "code_uses": 4.0
+ },
+ "refit_4param_A16": {
+  "a_V": 15.689133531384208,
+  "a_S": 17.785445471299685,
+  "a_A": 23.434914284190796,
+  "a_P": 12.674856494822789,
+  "a_C_fixed": 0.7110936035355641,
+  "rms_rel_pct": 0.48962818769407207,
+  "rms_abs_MeV": 3.326021750397062
+ },
+ "tag": "[MEASURED] repo engine element.py vs inventory/data/isotopes.json (AME2020); refit is scratch numpy lstsq"
+}
+{"_binding_energy_MeV_def": 485, "asymmetry_term": 515, "stable_mass_number_def": 530, "stable_mass_number_coeff": 560} {"resid_mcp_SEMF_pct": 1.143931701383647, "resid_element_py_pct": 5.927037823427741, "resid_element_py_consistent_pct": 0.793260675910389}
+{
+ "J0030+0451 Riley+2019": {
+  "C_point": 0.15572500329560357,
+  "C_over_R_68": [
+   0.14290720519040587,
+   0.17181117985131258
+  ]
+ },
+ "J0030+0451 Miller+2019": {
+  "C_point": 0.163361837145921,
+  "C_over_R_68": [
+   0.14915646000279745,
+   0.17784039461872006
+  ]
+ },
+ "J0030+0451 Vinciguerra+2024 mode A (approx)": {
+  "C_point": 0.17981639900337246
+ },
+ "J0030+0451 Vinciguerra+2024 mode B (approx)": {
+  "C_point": 0.17317293598600647
+ },
+ "J0740+6620 Riley+2021": {
+  "C_point": 0.2470117119481355,
+  "C_over_R_68": [
+   0.22355552308527382,
+   0.26822744180871155
+  ]
+ },
+ "J0740+6620 Salmi+2024": {
+  "C_point": 0.24515229578181963,
+  "C_over_R_68": [
+   0.22236399232497656,
+   0.2637340374086931
+  ]
+ },
+ "J0437-4715 Choudhury+2024": {
+  "C_point": 0.1843728633392854,
+  "C_over_R_68": [
+   0.17014425081513262,
+   0.19519811067421086
+  ]
+ }
+}
+{
+ "tag": "[VERIFIED numerics on a LIT fit] scipy RK45 TOV on the Haensel-Potekhin 2004 SLy fit, Mentat G, c, M_sun; not a Mentat engine (Mentat has no TOV: that is the gap)",
+ "M_max_Msun": 2.047422184256367,
+ "R_at_Mmax_km": 9.96311761796645,
+ "C_at_Mmax": 0.3035367279522184,
+ "w_c_at_Mmax": 1.6206891806738812,
+ "DH2001_LIT_M_max": 2.05,
+ "R_km": {
+  "1.0": 11.84269155707039,
+  "1.34": 11.73060563788881,
+  "1.4": 11.69759586848145,
+  "1.418": 11.686739048614893,
+  "1.44": 11.67235090714902,
+  "2.0": 10.616068187345649,
+  "2.072": null
+ },
+ "central_3P_over_eps": {
+  "1.0": 0.2842195781064762,
+  "1.4": 0.4611215482224325,
+  "1.8": 0.7806188194115053,
+  "2.0": 1.1836507746836422
+ },
+ "central_trace_flip": {
+  "C": 0.2621783843969086,
+  "M_Msun": 1.9359606882507556
+ },
+ "P_at_2rho_nuc_Pa": 2.930004603509366e+33,
+ "P_at_2rho_nuc_note": "HP2004 rho is mass-energy density, Abbott's rho_nuc a mass density: ~3 % offset, noted",
+ "scores_68pct": {
+  "J0030+0451 Riley+2019": {
+   "mass_range_reached": [
+    1.1800000000000002,
+    1.49
+   ],
+   "R_range_km": [
+    11.63650709511962,
+    11.795547665102646
+   ],
+   "status": "CONSISTENT at 68 %"
+  },
+  "J0030+0451 Miller+2019": {
+   "mass_range_reached": [
+    1.2999999999999998,
+    1.5899999999999999
+   ],
+   "R_range_km": [
+    11.54842466466874,
+    11.74980140690034
+   ],
+   "status": "TENSION: R below 68 % interval"
+  },
+  "J0740+6620 Riley+2021": {
+   "mass_range_reached": [
+    2.0060000000000002,
+    2.0459
+   ],
+   "R_range_km": [
+    10.102508029022358,
+    10.57820973227833
+   ],
+   "status": "TENSION: R below 68 % interval"
+  },
+  "J0740+6620 Salmi+2024": {
+   "mass_range_reached": [
+    2.004,
+    2.0454
+   ],
+   "R_range_km": [
+    10.120275042965176,
+    10.591017897887754
+   ],
+   "status": "TENSION: R below 68 % interval"
+  },
+  "J0437-4715 Choudhury+2024": {
+   "mass_range_reached": [
+    1.381,
+    1.4549999999999998
+   ],
+   "R_range_km": [
+    11.662116529131035,
+    11.708691698444957
+   ],
+   "status": "CONSISTENT at 68 %"
+  }
+ },
+ "M_max_ge_1p94_J0740_Fonseca2021": true,
+ "GW170817_P_in_90pct_band": true,
+ "PMP_flip_C_in_band": true
+}
+{
+ "count": 8,
+ "files": [
+  "sigma_ground/dynamics/gravity/barnes_hut.py",
+  "sigma_ground/field/interface/adapters/_jplephem_bridge.py",
+  "sigma_ground/field/interface/adapters/ephemeris.py",
+  "sigma_ground/field/interface/adapters/integrator.py",
+  "sigma_ground/field/interface/nbody.py",
+  "sigma_ground/field/interface/orbital.py",
+  "sigma_ground/field/interface/rolling_analysis.py",
+  "sigma_ground/field/interface/rolling_shootout.py"
+ ]
+}

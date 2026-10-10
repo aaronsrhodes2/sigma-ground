@@ -1,0 +1,3 @@
+E0_line_N128_h0.2_kefree --mode line --N 128 --h 0.2
+E1_line_N128_h0.1_kefree --mode line --N 128 --h 0.1
+E2_line_N128_h0.1_alpha5 --mode line --N 128 --h 0.1 --alpha 5

@@ -1,0 +1,182 @@
+{
+ "peters": -2.7474517886244367e-14,
+ "steps_per_orbit": 2000,
+ "n_orbits": 20,
+ "rows": [
+  {
+   "batched": false,
+   "gain": 1.0,
+   "energy_ratio": 8.832297818319683,
+   "timing_ratio": 8.855518869377594
+  },
+  {
+   "batched": false,
+   "gain": 10.0,
+   "energy_ratio": 4.513668233547384,
+   "timing_ratio": 4.515656040790289
+  },
+  {
+   "batched": false,
+   "gain": 100.0,
+   "energy_ratio": 0.9146156824201026,
+   "timing_ratio": 0.9157072934694999
+  },
+  {
+   "batched": false,
+   "gain": 1000.0,
+   "energy_ratio": 0.9928314144138156,
+   "timing_ratio": 0.9934536902464717
+  },
+  {
+   "batched": false,
+   "gain": 10000.0,
+   "energy_ratio": 1.0038014134516011,
+   "timing_ratio": 1.0043569922815414
+  },
+  {
+   "batched": false,
+   "gain": 100000.0,
+   "energy_ratio": 1.0000344148219789,
+   "timing_ratio": 1.0005894409821914
+  },
+  {
+   "batched": true,
+   "gain": 1.0,
+   "energy_ratio": 0.8714443962616212,
+   "timing_ratio": 0.8977207873442338
+  },
+  {
+   "batched": true,
+   "gain": 10.0,
+   "energy_ratio": 1.0181152870410053,
+   "timing_ratio": 1.0179399883857978
+  },
+  {
+   "batched": true,
+   "gain": 100.0,
+   "energy_ratio": 1.008330189873543,
+   "timing_ratio": 1.009107599858142
+  },
+  {
+   "batched": true,
+   "gain": 1000.0,
+   "energy_ratio": 1.0028254717027494,
+   "timing_ratio": 1.0034634835605873
+  },
+  {
+   "batched": true,
+   "gain": 10000.0,
+   "energy_ratio": 1.0038014134516011,
+   "timing_ratio": 1.0043569922815414
+  },
+  {
+   "batched": true,
+   "gain": 100000.0,
+   "energy_ratio": 1.0000344148219789,
+   "timing_ratio": 1.0005894409821914
+  }
+ ],
+ "sources": [
+  {
+   "label": "G",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "G"
+   },
+   "value": 6.6743e-11,
+   "source": "sigma_ground.field.constants"
+  },
+  {
+   "label": "c",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "c"
+   },
+   "value": 299792458.0,
+   "source": "sigma_ground.field.constants"
+  },
+  {
+   "label": "M_sun",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "M_sun"
+   },
+   "value": 1.989e+30,
+   "source": "sigma_ground.field.constants"
+  },
+  {
+   "label": "day",
+   "tool": "convert_units",
+   "args": {
+    "value": 1,
+    "from_units": "day",
+    "to_units": "s"
+   },
+   "value": 86400.0,
+   "source": "pint UnitRegistry"
+  },
+  {
+   "label": "Pb [s] (Freire+2012 [LIT])",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((0.3547907398724*86400.0), 17)"
+   },
+   "value": "30653.919924975362",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "m_p",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((1.46*1.989e+30), 17)"
+   },
+   "value": "2.9039399999999998e+30",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "m_c",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((0.181*1.989e+30), 17)"
+   },
+   "value": "3.6000899999999999e+29",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "M",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2.90394e+30+3.60009e+29), 17)"
+   },
+   "value": "3.2639489999999999e+30",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "a",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((6.6743e-11*3.263949e+30*30653.919924975362**2/(4*pi**2))**(1/3)), 17)"
+   },
+   "value": "1730827537.0422586",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "v_rel",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((sqrt(6.6743e-11*3.263949e+30/1730827537.0422585)), 17)"
+   },
+   "value": "354770.61911241004",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Pbdot Peters",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((-(192*pi/5)*(2*pi*6.6743e-11/(299792458.0**3*30653.919924975362))**(5/3)*2.90394e+30*3.60009e+29*3.263949e+30**(-1/3)), 17)"
+   },
+   "value": "-2.7474517886244366e-14",
+   "source": "sympy.simplify"
+  }
+ ]
+}

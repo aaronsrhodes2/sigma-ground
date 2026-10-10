@@ -1,0 +1,137 @@
+{
+ "headline": "With σ = ξ r_s/r imposed by the U5 harness on the Sun at every step (a long-range field; the engine itself only carries a constant per-body σ), nbody's e^σ GM scaling advances Mercury's perihelion by 0.0527335 ± 2.2e-07 of GR. That matches ξ/3 to 2.3e-06 relative (0.55 SE), and an orbit-averaged Gauss quadrature on the engine forces gives 0.05273332. The advance is 2.267″/cy: 45× the design's conservative 0.05″/cy budget and ~1978× Will 2014's β bound, so this coupling is excluded. That result was [DERIVED] from the fixed ξ before the run; the engine run confirms it. The design's own engine criterion fails (ratio -0.0527) because the engine's gr_1pn term has the wrong overall sign: the 1PN run precesses at -42.99″/cy (-1.0000035 × GR). eih_cross runs at -1.6667 × GR (velocity term flipped). The 2PN static term's sign is correct.",
+ "criteria": {
+  "design_engine_pass": false,
+  "design_ratio": -0.052733273158581,
+  "design_ratio_se": 2.438875624853729e-07,
+  "corrected_engine_pass_C": true,
+  "corrected_ratio_C": 0.05273345580925722,
+  "corrected_ratio_C_fit_se_absolute": 2.2124536826527357e-07,
+  "corrected_ratio_C_fit_se_relative": 4.195540854852045e-06,
+  "C_deviation_from_xi_over_3_relative": 2.322552286715407e-06,
+  "C_deviation_from_xi_over_3_in_fit_se": 0.5535750867184491,
+  "B_over_GR_analytic": -1.000003463670379,
+  "B_magnitude_within_1pct": true,
+  "B_sign": "retrograde (negative)",
+  "P2_D_ratio": 0.02636671688902366,
+  "P2_D_pass": true,
+  "P3_E_ratio": -1.6666675056858062,
+  "P3_E_pass": true,
+  "P4_dt_control_rel_change": -4.042290251224496e-06,
+  "P4_dt_control_pass": true,
+  "physics_threshold_arcsec_cy": 0.05,
+  "physics_threshold_label": "the design's own conservative budget",
+  "sigma_advance_arcsec_cy": 2.267074945031657,
+  "physics_excluded": true
+ },
+ "derived": {
+  "GR_analytic_arcsec_cy": 42.99120757858008,
+  "hook_over_design_budget": 45.34149890063314,
+  "D_over_design_budget": 22.670739978833385,
+  "hook_over_will2014_bound": 1977.504592847145,
+  "D_over_will2014_bound": 988.7518833383871,
+  "hook_over_will2006_bound": 52.73345580925722,
+  "hook_beta_minus_1_equiv": -0.15820036742777172,
+  "hook_z_park2017": 4055.727369942863,
+  "hook_z_will2014": 2027.684197791944,
+  "D_z_park2017": 2027.516683771051,
+  "orbits_per_century_simulated": 415.2563753975745,
+  "period_catalogue_over_simulated_minus_1": 0.0001283528363924258,
+  "hook_arcsec_cy_simulated_period": 2.2673659305311653,
+  "xi_docstring": 0.157125798974503,
+  "hook_arcsec_cy_if_xi_docstring": 2.251681176189485,
+  "hook_over_budget_if_xi_docstring": 45.0336235237897
+ },
+ "two_methods": {
+  "B_minus_A": {
+   "run_over_GR": -1.000003463670379,
+   "gauss_over_GR": -1.0000001106160128,
+   "expected": -1.0,
+   "run_over_gauss_minus_1_ppm": 3.353053995347466,
+   "run_fit_se_ppm": 1.9461220002953854,
+   "run_vs_expected_ppm": 3.4636703789558965,
+   "gauss_vs_expected_ppm": 0.1106160127939404
+  },
+  "C_minus_A": {
+   "run_over_GR": 0.05273345580925722,
+   "gauss_over_GR": 0.05273332464061503,
+   "expected": 0.0527333333333333,
+   "run_over_gauss_minus_1_ppm": 2.4873956474547043,
+   "run_fit_se_ppm": 4.1955408548520445,
+   "run_vs_expected_ppm": 2.322552286715407,
+   "gauss_vs_expected_ppm": -0.1648429507339344
+  },
+  "D_minus_A": {
+   "run_over_GR": 0.02636671688902366,
+   "gauss_over_GR": 0.02636666235954346,
+   "expected": 0.0263666666666667,
+   "run_over_gauss_minus_1_ppm": 2.068122216369872,
+   "run_fit_se_ppm": 4.213133691885786,
+   "run_vs_expected_ppm": 1.9047670147820384,
+   "gauss_vs_expected_ppm": -0.16335486374696728
+  },
+  "E_minus_A": {
+   "run_over_GR": -1.6666675056858062,
+   "gauss_over_GR": -1.6666668879802409,
+   "expected": -1.6666666666666667,
+   "run_over_gauss_minus_1_ppm": 0.370623290057992,
+   "run_fit_se_ppm": 1.1771592805642088,
+   "run_vs_expected_ppm": 0.5034114836099945,
+   "gauss_vs_expected_ppm": 0.13278814448014487
+  },
+  "C_minus_A_dt300": {
+   "run_over_GR": 0.05273324264532289,
+   "gauss_over_GR": 0.05273332464061503,
+   "expected": 0.0527333333333333,
+   "run_over_gauss_minus_1_ppm": -1.5549046584739656,
+   "run_fit_se_ppm": 2.0731469653209182,
+   "run_vs_expected_ppm": -1.7197473528574037,
+   "gauss_vs_expected_ppm": -0.1648429507339344
+  }
+ },
+ "lrl_vs_interp": {
+  "B_minus_A": -1.6204217431203816e-06,
+  "C_minus_A": -2.8688486799488544e-06,
+  "D_minus_A": -2.4470837450829563e-06,
+  "E_minus_A": -1.6076134312648094e-08,
+  "C_minus_A_dt300": -1.0868080819737003e-06
+ },
+ "determinism": {
+  "A_600": {
+   "max_abs_diff_peri_lrl_rad": 0.0,
+   "lrl_slope_identical": true,
+   "interp_slope_identical": true
+  },
+  "B_600": {
+   "max_abs_diff_peri_lrl_rad": 0.0,
+   "lrl_slope_identical": true,
+   "interp_slope_identical": true
+  },
+  "C_600": {
+   "max_abs_diff_peri_lrl_rad": 0.0,
+   "lrl_slope_identical": true,
+   "interp_slope_identical": true
+  },
+  "D_600": {
+   "max_abs_diff_peri_lrl_rad": 0.0,
+   "lrl_slope_identical": true,
+   "interp_slope_identical": true
+  },
+  "E_600": {
+   "max_abs_diff_peri_lrl_rad": 0.0,
+   "lrl_slope_identical": true,
+   "interp_slope_identical": true
+  },
+  "A_300": {
+   "max_abs_diff_peri_lrl_rad": 0.0,
+   "lrl_slope_identical": true,
+   "interp_slope_identical": true
+  },
+  "C_300": {
+   "max_abs_diff_peri_lrl_rad": 0.0,
+   "lrl_slope_identical": true,
+   "interp_slope_identical": true
+  }
+ },
+ "gauss_IERS_ref": 1.0000001106496506
+}

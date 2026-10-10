@@ -1,0 +1,4065 @@
+{
+ "item": "N1",
+ "version": "v2",
+ "kind": "survey for the nuclear/degenerate-matter implementation plan",
+ "mentat_sources": {
+  "const:G": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "G"
+   },
+   "value": 6.6743e-11,
+   "source": "sigma_ground.field.constants"
+  },
+  "const:c": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "c"
+   },
+   "value": 299792458.0,
+   "source": "sigma_ground.field.constants"
+  },
+  "const:hbar": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "hbar"
+   },
+   "value": 1.054571817e-34,
+   "source": "sigma_ground.field.constants"
+  },
+  "const:k_B": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "k_B"
+   },
+   "value": 1.380649e-23,
+   "source": "sigma_ground.field.constants"
+  },
+  "const:m_e": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "m_e"
+   },
+   "value": 9.1093837139e-31,
+   "source": "scipy.constants (CODATA)"
+  },
+  "const:m_p": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "m_p"
+   },
+   "value": 1.67262192595e-27,
+   "source": "scipy.constants (CODATA)"
+  },
+  "const:m_n": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "m_n"
+   },
+   "value": 1.67492750056e-27,
+   "source": "scipy.constants (CODATA)"
+  },
+  "const:M_sun": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "M_sun"
+   },
+   "value": 1.989e+30,
+   "source": "sigma_ground.field.constants"
+  },
+  "const:electron_volt": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "electron_volt"
+   },
+   "value": 1.602176634e-19,
+   "source": "scipy.constants (CODATA)"
+  },
+  "const:AMU_KG": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "AMU_KG"
+   },
+   "value": 1.6605390666e-27,
+   "source": "sigma_ground.field.constants"
+  },
+  "const:N0_FM3": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "N0_FM3"
+   },
+   "value": 0.16,
+   "source": "sigma_ground.field.constants"
+  },
+  "const:E_SAT_MEV": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "E_SAT_MEV"
+   },
+   "value": -16.0,
+   "source": "sigma_ground.field.constants"
+  },
+  "const:K_SAT_MEV": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "K_SAT_MEV"
+   },
+   "value": 230.0,
+   "source": "sigma_ground.field.constants"
+  },
+  "const:J_SYM_MEV": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "J_SYM_MEV"
+   },
+   "value": 32.0,
+   "source": "sigma_ground.field.constants"
+  },
+  "const:R0_FM": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "R0_FM"
+   },
+   "value": 1.215,
+   "source": "sigma_ground.field.constants"
+  },
+  "const:A_C_MEV": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "A_C_MEV"
+   },
+   "value": 0.7110936035355641,
+   "source": "sigma_ground.field.constants"
+  },
+  "const:LAMBDA_QCD_MEV": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "LAMBDA_QCD_MEV"
+   },
+   "value": 217.0,
+   "source": "sigma_ground.field.constants"
+  },
+  "const:muon mass energy equivalent in MeV": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "muon mass energy equivalent in MeV"
+   },
+   "value": 105.6583755,
+   "source": "scipy.constants (CODATA via value())"
+  },
+  "const:neutron mass energy equivalent in MeV": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "neutron mass energy equivalent in MeV"
+   },
+   "value": 939.56542194,
+   "source": "scipy.constants (CODATA via value())"
+  },
+  "const:proton mass energy equivalent in MeV": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "proton mass energy equivalent in MeV"
+   },
+   "value": 938.27208943,
+   "source": "scipy.constants (CODATA via value())"
+  },
+  "const:atomic mass constant energy equivalent in MeV": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "atomic mass constant energy equivalent in MeV"
+   },
+   "value": 931.49410372,
+   "source": "scipy.constants (CODATA via value())"
+  },
+  "sym:P_integral": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "t**4/sqrt(1+t**2)",
+    "variable": "t",
+    "lower": "0",
+    "upper": "x"
+   },
+   "value": "x**3*sqrt(x**2 + 1)/4 - 3*x*sqrt(x**2 + 1)/8 + 3*asinh(x)/8",
+   "source": "sympy.integrate"
+  },
+  "sym:eps_integral": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "t**2*sqrt(1+t**2)",
+    "variable": "t",
+    "lower": "0",
+    "upper": "x"
+   },
+   "value": "x**5/(4*sqrt(x**2 + 1)) + 3*x**3/(8*sqrt(x**2 + 1)) + x/(8*sqrt(x**2 + 1)) - asinh(x)/8",
+   "source": "sympy.integrate"
+  },
+  "sym:trace_integrand": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "t**2*sqrt(1+t**2) - t**4/sqrt(1+t**2)"
+   },
+   "value": "t**2/sqrt(t**2 + 1)",
+   "source": "sympy.simplify"
+  },
+  "sym:trace_integral": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "t**2/sqrt(1+t**2)",
+    "variable": "t",
+    "lower": "0",
+    "upper": "x"
+   },
+   "value": "x*sqrt(x**2 + 1)/2 - asinh(x)/2",
+   "source": "sympy.integrate"
+  },
+  "sym:P_NR_series": {
+   "tool": "series_expansion",
+   "args": {
+    "expression": "x**3*sqrt(x**2 + 1)/4 - 3*x*sqrt(x**2 + 1)/8 + 3*asinh(x)/8",
+    "variable": "x",
+    "point": "0",
+    "order": 8
+   },
+   "value": "-x**7/14 + x**5/5",
+   "source": "sympy.series"
+  },
+  "sym:P_UR_limit": {
+   "tool": "compute_limit",
+   "args": {
+    "expression": "(x**3*sqrt(x**2 + 1)/4 - 3*x*sqrt(x**2 + 1)/8 + 3*asinh(x)/8)/x**4",
+    "variable": "x",
+    "point": "oo",
+    "direction": "-"
+   },
+   "value": "1/4",
+   "source": "sympy.limit"
+  },
+  "sym:3P_over_eps_UR": {
+   "tool": "compute_limit",
+   "args": {
+    "expression": "(x**3*sqrt(x**2 + 1)/4 - 3*x*sqrt(x**2 + 1)/8 + 3*asinh(x)/8)/(x**3*sqrt(x**2+1)/4 + x*sqrt(x**2+1)/8 - asinh(x)/8)",
+    "variable": "x",
+    "point": "oo",
+    "direction": "-"
+   },
+   "value": "1",
+   "source": "sympy.limit"
+  },
+  "sym:d_trace": {
+   "tool": "differentiate_expr",
+   "args": {
+    "expression": "x*sqrt(x**2+1)/2 - asinh(x)/2",
+    "variable": "x"
+   },
+   "value": "x**2/(2*sqrt(x**2 + 1)) + sqrt(x**2 + 1)/2 - 1/(2*sqrt(x**2 + 1))",
+   "source": "sympy.diff"
+  },
+  "solve_ode:y'' + y": {
+   "tool": "solve_ode",
+   "args": {
+    "equation": "y'' + y"
+   },
+   "value": "REFUSED: That input looks like code, not maths; Mentat won't evaluate it.",
+   "source": "SkippyTel/mentat front door (_UNSAFE)"
+  },
+  "solve_ode:x*y'' + 2*y' + x*y": {
+   "tool": "solve_ode",
+   "args": {
+    "equation": "x*y'' + 2*y' + x*y"
+   },
+   "value": "REFUSED: That input looks like code, not maths; Mentat won't evaluate it.",
+   "source": "SkippyTel/mentat front door (_UNSAFE)"
+  },
+  "solve_ode:x*Derivative(y(x),x,2) + 2*Derivative(y(x),x) + x*y(x)": {
+   "tool": "solve_ode",
+   "args": {
+    "equation": "x*Derivative(y(x),x,2) + 2*Derivative(y(x),x) + x*y(x)"
+   },
+   "value": "Eq(y(x), (C1*besselj(1/2, x) + C2*bessely(1/2, x))/sqrt(x))",
+   "source": "sympy.dsolve"
+  },
+  "nbe_semf:2-4": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 2,
+    "neutrons": 2
+   },
+   "value": {
+    "binding_energy_MeV": 22.841006757267255,
+    "binding_per_nucleon_MeV": 5.710251689316814,
+    "mass_defect_fraction": 0.006080076947636643,
+    "mass_defect_u": 0.02452082809534362
+   },
+   "source": "sigma-ground nuclear (SEMF estimate (Bethe-Weizsäcker))"
+  },
+  "nbe_exact:2-4": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 2,
+    "neutrons": 2,
+    "measured_mass_u": 4.00260325413
+   },
+   "value": {
+    "binding_energy_MeV": 28.29566266007987,
+    "binding_per_nucleon_MeV": 7.0739156650199675,
+    "mass_defect_fraction": 0.007532058813603625,
+    "mass_defect_u": 0.030376641769999827
+   },
+   "source": "sigma-ground nuclear (exact (measured nuclide mass))"
+  },
+  "nbe_semf:6-12": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 6,
+    "neutrons": 6
+   },
+   "value": {
+    "binding_energy_MeV": 89.61225871452066,
+    "binding_per_nucleon_MeV": 7.467688226210055,
+    "mass_defect_fraction": 0.00795133411041455,
+    "mass_defect_u": 0.09620271183865739
+   },
+   "source": "sigma-ground nuclear (SEMF estimate (Bethe-Weizsäcker))"
+  },
+  "nbe_exact:6-12": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 6,
+    "neutrons": 6,
+    "measured_mass_u": 12.0
+   },
+   "value": {
+    "binding_energy_MeV": 92.16173558782612,
+    "binding_per_nucleon_MeV": 7.680144632318843,
+    "mass_defect_fraction": 0.008177550285714982,
+    "mass_defect_u": 0.09893968769999946
+   },
+   "source": "sigma-ground nuclear (exact (measured nuclide mass))"
+  },
+  "nbe_semf:8-16": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 8,
+    "neutrons": 8
+   },
+   "value": {
+    "binding_energy_MeV": 125.97105502857275,
+    "binding_per_nucleon_MeV": 7.873190939285797,
+    "mass_defect_fraction": 0.008383099264057224,
+    "mass_defect_u": 0.13523548318910747
+   },
+   "source": "sigma-ground nuclear (SEMF estimate (Bethe-Weizsäcker))"
+  },
+  "nbe_exact:8-16": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 8,
+    "neutrons": 8,
+    "measured_mass_u": 15.99491461926
+   },
+   "value": {
+    "binding_energy_MeV": 127.61931628497405,
+    "binding_per_nucleon_MeV": 7.976207267810878,
+    "mass_defect_fraction": 0.008492787459669925,
+    "mass_defect_u": 0.13700496434000176
+   },
+   "source": "sigma-ground nuclear (exact (measured nuclide mass))"
+  },
+  "nbe_semf:20-40": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 20,
+    "neutrons": 20
+   },
+   "value": {
+    "binding_energy_MeV": 344.57653900024286,
+    "binding_per_nucleon_MeV": 8.61441347500607,
+    "mass_defect_fraction": 0.009172327182142328,
+    "mass_defect_u": 0.36991811124197116
+   },
+   "source": "sigma-ground nuclear (SEMF estimate (Bethe-Weizsäcker))"
+  },
+  "nbe_exact:20-40": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 20,
+    "neutrons": 20,
+    "measured_mass_u": 39.96259085
+   },
+   "value": {
+    "binding_energy_MeV": 342.05218789430364,
+    "binding_per_nucleon_MeV": 8.55130469735759,
+    "mass_defect_fraction": 0.009105131155583337,
+    "mass_defect_u": 0.36720810900000334
+   },
+   "source": "sigma-ground nuclear (exact (measured nuclide mass))"
+  },
+  "nbe_semf:26-56": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 26,
+    "neutrons": 30
+   },
+   "value": {
+    "binding_energy_MeV": 495.38369993957514,
+    "binding_per_nucleon_MeV": 8.846137498920985,
+    "mass_defect_fraction": 0.009418778631323326,
+    "mass_defect_u": 0.5318162494561977
+   },
+   "source": "sigma-ground nuclear (SEMF estimate (Bethe-Weizsäcker))"
+  },
+  "nbe_exact:26-56": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 26,
+    "neutrons": 30,
+    "measured_mass_u": 55.934935537
+   },
+   "value": {
+    "binding_energy_MeV": 492.25995660294575,
+    "binding_per_nucleon_MeV": 8.790356367909746,
+    "mass_defect_fraction": 0.00935938659441872,
+    "mass_defect_u": 0.5284627732199977
+   },
+   "source": "sigma-ground nuclear (exact (measured nuclide mass))"
+  },
+  "nbe_semf:28-62": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 28,
+    "neutrons": 34
+   },
+   "value": {
+    "binding_energy_MeV": 549.5145732712476,
+    "binding_per_nucleon_MeV": 8.86313827856851,
+    "mass_defect_fraction": 0.009436780312526835,
+    "mass_defect_u": 0.5899281292749166
+   },
+   "source": "sigma-ground nuclear (SEMF estimate (Bethe-Weizsäcker))"
+  },
+  "nbe_exact:28-62": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 28,
+    "neutrons": 34,
+    "measured_mass_u": 61.928344753
+   },
+   "value": {
+    "binding_energy_MeV": 545.2624476389174,
+    "binding_per_nucleon_MeV": 8.794555607079312,
+    "mass_defect_fraction": 0.009363758817910782,
+    "mass_defect_u": 0.5853632848799989
+   },
+   "source": "sigma-ground nuclear (exact (measured nuclide mass))"
+  },
+  "nbe_semf:50-120": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 50,
+    "neutrons": 70
+   },
+   "value": {
+    "binding_energy_MeV": 1025.8047487410224,
+    "binding_per_nucleon_MeV": 8.548372906175187,
+    "mass_defect_fraction": 0.00910137768738382,
+    "mass_defect_u": 1.101246638144037
+   },
+   "source": "sigma-ground nuclear (SEMF estimate (Bethe-Weizsäcker))"
+  },
+  "nbe_exact:50-120": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 50,
+    "neutrons": 70,
+    "measured_mass_u": 119.902202557
+   },
+   "value": {
+    "binding_energy_MeV": 1020.5385654218553,
+    "binding_per_nucleon_MeV": 8.504488045182127,
+    "mass_defect_fraction": 0.009054653860634566,
+    "mass_defect_u": 1.095593158100003
+   },
+   "source": "sigma-ground nuclear (exact (measured nuclide mass))"
+  },
+  "nbe_semf:79-197": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 79,
+    "neutrons": 118
+   },
+   "value": {
+    "binding_energy_MeV": 1564.1628069126073,
+    "binding_per_nucleon_MeV": 7.939912725444707,
+    "mass_defect_fraction": 0.008453445260029512,
+    "mass_defect_u": 1.6791977564312621
+   },
+   "source": "sigma-ground nuclear (SEMF estimate (Bethe-Weizsäcker))"
+  },
+  "nbe_exact:79-197": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 79,
+    "neutrons": 118,
+    "measured_mass_u": 196.966570103
+   },
+   "value": {
+    "binding_energy_MeV": 1559.38400737365,
+    "binding_per_nucleon_MeV": 7.915654859764722,
+    "mass_defect_fraction": 0.008427618459818705,
+    "mass_defect_u": 1.6740675043700295
+   },
+   "source": "sigma-ground nuclear (exact (measured nuclide mass))"
+  },
+  "nbe_semf:82-208": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 82,
+    "neutrons": 126
+   },
+   "value": {
+    "binding_energy_MeV": 1634.2633616434543,
+    "binding_per_nucleon_MeV": 7.857035392516607,
+    "mass_defect_fraction": 0.008365160368309095,
+    "mass_defect_u": 1.754453793531992
+   },
+   "source": "sigma-ground nuclear (SEMF estimate (Bethe-Weizsäcker))"
+  },
+  "nbe_exact:82-208": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 82,
+    "neutrons": 126,
+    "measured_mass_u": 207.976652005
+   },
+   "value": {
+    "binding_energy_MeV": 1636.4302331142826,
+    "binding_per_nucleon_MeV": 7.867453043818666,
+    "mass_defect_fraction": 0.008376251743038824,
+    "mass_defect_u": 1.756780025619996
+   },
+   "source": "sigma-ground nuclear (exact (measured nuclide mass))"
+  },
+  "nbe_semf:92-238": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 92,
+    "neutrons": 146
+   },
+   "value": {
+    "binding_energy_MeV": 1814.7256336374674,
+    "binding_per_nucleon_MeV": 7.624897620325493,
+    "mass_defect_fraction": 0.008117958031758427,
+    "mass_defect_u": 1.9481880013226502
+   },
+   "source": "sigma-ground nuclear (SEMF estimate (Bethe-Weizsäcker))"
+  },
+  "nbe_exact:92-238": {
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 92,
+    "neutrons": 146,
+    "measured_mass_u": 238.050786936
+   },
+   "value": {
+    "binding_energy_MeV": 1801.6900551526924,
+    "binding_per_nucleon_MeV": 7.5701262821541695,
+    "mass_defect_fraction": 0.008059644930814958,
+    "mass_defect_u": 1.934193732919987
+   },
+   "source": "sigma-ground nuclear (exact (measured nuclide mass))"
+  },
+  "rs:J0030+0451 Riley+2019": {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 2.66526e+30
+   },
+   "value": 3958.529583774243,
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)"
+  },
+  "rs:J0030+0451 Miller+2019": {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 2.86416e+30
+   },
+   "value": 4253.942239279783,
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)"
+  },
+  "rs:J0030+0451 Vinciguerra+2024 mode A (approx)": {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 2.7846e+30
+   },
+   "value": 4135.777177077566,
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)"
+  },
+  "rs:J0030+0451 Vinciguerra+2024 mode B (approx)": {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 3.3812999999999995e+30
+   },
+   "value": 5022.015143594188,
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)"
+  },
+  "rs:J0740+6620 Riley+2021": {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 4.121208e+30
+   },
+   "value": 6120.950222074798,
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)"
+  },
+  "rs:J0740+6620 Salmi+2024": {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 4.1231969999999997e+30
+   },
+   "value": 6123.904348629854,
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)"
+  },
+  "rs:J0437-4715 Choudhury+2024": {
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 2.820402e+30
+   },
+   "value": 4188.951455068564,
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)"
+  },
+  "conv:gw170817_central": {
+   "tool": "convert_units",
+   "args": {
+    "value": 3.5e+34,
+    "from_units": "dyn/cm**2",
+    "to_units": "Pa"
+   },
+   "value": 3.5e+33,
+   "source": "pint UnitRegistry"
+  },
+  "conv:gw170817_low_90": {
+   "tool": "convert_units",
+   "args": {
+    "value": 1.8e+34,
+    "from_units": "dyn/cm**2",
+    "to_units": "Pa"
+   },
+   "value": 1.8e+33,
+   "source": "pint UnitRegistry"
+  },
+  "conv:gw170817_high_90": {
+   "tool": "convert_units",
+   "args": {
+    "value": 6.2000000000000005e+34,
+    "from_units": "dyn/cm**2",
+    "to_units": "Pa"
+   },
+   "value": 6.200000000000001e+33,
+   "source": "pint UnitRegistry"
+  },
+  "conv:abbott_rho_nuc": {
+   "tool": "convert_units",
+   "args": {
+    "value": 280000000000000.0,
+    "from_units": "g/cm**3",
+    "to_units": "kg/m**3"
+   },
+   "value": 2.7999999999999997e+17,
+   "source": "pint UnitRegistry"
+  },
+  "sym:int_sin2": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "sin(x)**2",
+    "variable": "x",
+    "lower": "0",
+    "upper": "pi"
+   },
+   "value": "pi/2",
+   "source": "sympy.integrate"
+  },
+  "sym:int_xsin": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "x*sin(x)",
+    "variable": "x",
+    "lower": "0",
+    "upper": "pi"
+   },
+   "value": "pi",
+   "source": "sympy.integrate"
+  },
+  "sym:bag_k3": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "12*pi*pi/(3**(1/4)*(4*pi*pi)**(3/4))"
+   },
+   "value": "sqrt(2)*3**(3/4)*sqrt(pi)",
+   "source": "sympy.simplify"
+  },
+  "sym:bag_k2": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "(4*pi*pi)**(1/4)*(1 + 2**(4/3))**(3/4)"
+   },
+   "value": "sqrt(2)*sqrt(pi)*(1 + 2*2**(1/3))**(3/4)",
+   "source": "sympy.simplify"
+  }
+ },
+ "constants": {
+  "G": 6.6743e-11,
+  "c": 299792458.0,
+  "hbar": 1.054571817e-34,
+  "k_B": 1.380649e-23,
+  "m_e": 9.1093837139e-31,
+  "m_p": 1.67262192595e-27,
+  "m_n": 1.67492750056e-27,
+  "M_sun": 1.989e+30,
+  "electron_volt": 1.602176634e-19,
+  "AMU_KG": 1.6605390666e-27,
+  "N0_FM3": 0.16,
+  "E_SAT_MEV": -16.0,
+  "K_SAT_MEV": 230.0,
+  "J_SYM_MEV": 32.0,
+  "R0_FM": 1.215,
+  "A_C_MEV": 0.7110936035355641,
+  "LAMBDA_QCD_MEV": 217.0,
+  "muon mass energy equivalent in MeV": 105.6583755,
+  "neutron mass energy equivalent in MeV": 939.56542194,
+  "proton mass energy equivalent in MeV": 938.27208943,
+  "atomic mass constant energy equivalent in MeV": 931.49410372
+ },
+ "constants_note": {
+  "m_e_lookup_scipy": 9.1093837139e-31,
+  "M_ELECTRON_KG_field": 9.1093837015e-31,
+  "rel_diff": 1.361233582408981e-09,
+  "note": "N0_FM3, E_SAT_MEV, K_SAT_MEV, J_SYM_MEV carry no citation in field/constants.py:399-411; L_sym absent."
+ },
+ "chandrasekhar_functions_symbolic": {
+  "P_integral": "x**3*sqrt(x**2 + 1)/4 - 3*x*sqrt(x**2 + 1)/8 + 3*asinh(x)/8",
+  "eps_integral": "x**5/(4*sqrt(x**2 + 1)) + 3*x**3/(8*sqrt(x**2 + 1)) + x/(8*sqrt(x**2 + 1)) - asinh(x)/8",
+  "trace_integrand_simplified": "t**2/sqrt(t**2 + 1)",
+  "trace_integral": "x*sqrt(x**2 + 1)/2 - asinh(x)/2",
+  "P_NR_series": "-x**7/14 + x**5/5",
+  "P_UR_limit_over_x4": "1/4",
+  "threeP_over_eps_UR_limit": "1",
+  "d_trace_dx": "x**2/(2*sqrt(x**2 + 1)) + sqrt(x**2 + 1)/2 - 1/(2*sqrt(x**2 + 1))"
+ },
+ "solve_ode_probe": {
+  "results": {
+   "y'' + y": "REFUSED: That input looks like code, not maths; Mentat won't evaluate it.",
+   "x*y'' + 2*y' + x*y": "REFUSED: That input looks like code, not maths; Mentat won't evaluate it.",
+   "x*Derivative(y(x),x,2) + 2*Derivative(y(x),x) + x*y(x)": "Eq(y(x), (C1*besselj(1/2, x) + C2*bessely(1/2, x))/sqrt(x))"
+  },
+  "front_door_regex_line": 178,
+  "front_door_refusal_line": 236,
+  "docstring_example_line": 213,
+  "solve_ode_def_line": 209,
+  "reading": "The apostrophe (prime) syntax that solve_ode documents is refused by the SkippyTel front-door guard, including the docstring's own example. With Derivative() syntax Mentat solves Lane-Emden n = 1 symbolically (spherical Bessel j0 = sin x/x up to constants). Mentat still has no NUMERIC initial-value tool."
+ },
+ "chandrasekhar_mass_target": {
+  "omega_3_LIT": 2.01824,
+  "omega_3_numeric_scratch": 2.0182359509933576,
+  "xi1_n3_numeric": 6.8968486193766365,
+  "xi1_n1_minus_pi": -3.5926817076870066e-13,
+  "by_baryon_mass_convention": {
+   "m_u (AMU_KG)": {
+    "M_Ch_over_Msun_mu_e_2": 1.4558683947324034
+   },
+   "m_p + m_e (hydrogen atom, unbound)": {
+    "M_Ch_over_Msun_mu_e_2": 1.4333485861652189
+   },
+   "m_n": {
+    "M_Ch_over_Msun_mu_e_2": 1.4309626110805114
+   }
+  },
+  "convention_spread_pct": 1.7404915725286345
+ },
+ "semf_comparison": {
+  "rows": [
+   {
+    "Z": 2,
+    "A": 4,
+    "BE_AME2020_MeV": 28.2956624,
+    "BE_mcp_exact_MeV": 28.29566266007987,
+    "BE_mcp_SEMF_MeV": 22.841006757267255,
+    "BE_element_py_SEMF_MeV": 23.927198821082612,
+    "BE_element_py_asym_consistent_MeV": 23.927198821082612,
+    "resid_mcp_SEMF_pct": -19.277356245007876,
+    "resid_element_py_pct": -15.438633374836238,
+    "resid_element_py_consistent_pct": -15.438633374836238
+   },
+   {
+    "Z": 6,
+    "A": 12,
+    "BE_AME2020_MeV": 92.1617352,
+    "BE_mcp_exact_MeV": 92.16173558782612,
+    "BE_mcp_SEMF_MeV": 89.61225871452066,
+    "BE_element_py_SEMF_MeV": 90.55539096098506,
+    "BE_element_py_asym_consistent_MeV": 90.55539096098506,
+    "resid_mcp_SEMF_pct": -2.7663069493502026,
+    "resid_element_py_pct": -1.7429622343036468,
+    "resid_element_py_consistent_pct": -1.7429622343036468
+   },
+   {
+    "Z": 8,
+    "A": 16,
+    "BE_AME2020_MeV": 127.6193152,
+    "BE_mcp_exact_MeV": 127.61931628497405,
+    "BE_mcp_SEMF_MeV": 125.97105502857275,
+    "BE_element_py_SEMF_MeV": 126.75324921814874,
+    "BE_element_py_asym_consistent_MeV": 126.75324921814874,
+    "resid_mcp_SEMF_pct": -1.2915444412502641,
+    "resid_element_py_pct": -0.6786323688494954,
+    "resid_element_py_consistent_pct": -0.6786323688494954
+   },
+   {
+    "Z": 20,
+    "A": 40,
+    "BE_AME2020_MeV": 342.052184,
+    "BE_mcp_exact_MeV": 342.05218789430364,
+    "BE_mcp_SEMF_MeV": 344.57653900024286,
+    "BE_element_py_SEMF_MeV": 343.7625522882979,
+    "BE_element_py_asym_consistent_MeV": 343.7625522882979,
+    "resid_mcp_SEMF_pct": 0.7380028891272477,
+    "resid_element_py_pct": 0.5000313894495994,
+    "resid_element_py_consistent_pct": 0.5000313894495994
+   },
+   {
+    "Z": 26,
+    "A": 56,
+    "BE_AME2020_MeV": 492.25995279999995,
+    "BE_mcp_exact_MeV": 492.25995660294575,
+    "BE_mcp_SEMF_MeV": 495.38369993957514,
+    "BE_element_py_SEMF_MeV": 498.2884483126895,
+    "BE_element_py_asym_consistent_MeV": 493.2977340269752,
+    "resid_mcp_SEMF_pct": 0.6345726727935418,
+    "resid_element_py_pct": 1.2246569070669229,
+    "resid_element_py_consistent_pct": 0.21081975510546863
+   },
+   {
+    "Z": 28,
+    "A": 62,
+    "BE_AME2020_MeV": 545.262441,
+    "BE_mcp_exact_MeV": 545.2624476389174,
+    "BE_mcp_SEMF_MeV": 549.5145732712476,
+    "BE_element_py_SEMF_MeV": 557.1303143777217,
+    "BE_element_py_asym_consistent_MeV": 546.987895022883,
+    "resid_mcp_SEMF_pct": 0.7798322333460816,
+    "resid_element_py_pct": 2.1765433459814827,
+    "resid_element_py_consistent_pct": 0.31644468665741343
+   },
+   {
+    "Z": 50,
+    "A": 120,
+    "BE_AME2020_MeV": 1020.53856,
+    "BE_mcp_exact_MeV": 1020.5385654218553,
+    "BE_mcp_SEMF_MeV": 1025.8047487410224,
+    "BE_element_py_SEMF_MeV": 1076.4921972655734,
+    "BE_element_py_asym_consistent_MeV": 1018.2671972655734,
+    "resid_mcp_SEMF_pct": 0.5160205549727059,
+    "resid_element_py_pct": 5.482755817239618,
+    "resid_element_py_consistent_pct": -0.22256510664590556
+   },
+   {
+    "Z": 79,
+    "A": 197,
+    "BE_AME2020_MeV": 1559.3839956,
+    "BE_mcp_exact_MeV": 1559.38400737365,
+    "BE_mcp_SEMF_MeV": 1564.1628069126073,
+    "BE_element_py_SEMF_MeV": 1683.9607976437383,
+    "BE_element_py_asym_consistent_MeV": 1549.0975108417078,
+    "resid_mcp_SEMF_pct": 0.30645506982830106,
+    "resid_element_py_pct": 7.9888470316001445,
+    "resid_element_py_consistent_pct": -0.6596505278569431
+   },
+   {
+    "Z": 82,
+    "A": 208,
+    "BE_AME2020_MeV": 1636.4302240000002,
+    "BE_mcp_exact_MeV": 1636.4302331142826,
+    "BE_mcp_SEMF_MeV": 1634.2633616434543,
+    "BE_element_py_SEMF_MeV": 1781.103709895009,
+    "BE_element_py_asym_consistent_MeV": 1618.5215945103935,
+    "resid_mcp_SEMF_pct": -0.13241397798491372,
+    "resid_element_py_pct": 8.840797717691673,
+    "resid_element_py_consistent_pct": -1.094371713926906
+   },
+   {
+    "Z": 92,
+    "A": 238,
+    "BE_AME2020_MeV": 1801.6900355999999,
+    "BE_mcp_exact_MeV": 1801.6900551526924,
+    "BE_mcp_SEMF_MeV": 1814.7256336374674,
+    "BE_element_py_SEMF_MeV": 2010.359958271244,
+    "BE_element_py_asym_consistent_MeV": 1796.3463868426725,
+    "resid_mcp_SEMF_pct": 0.7235205712355709,
+    "resid_element_py_pct": 11.581899136260295,
+    "resid_element_py_consistent_pct": -0.29659090363719837
+   }
+  ],
+  "element_py_lines": {
+   "_binding_energy_MeV_def": 485,
+   "asymmetry_term": 515,
+   "stable_mass_number_def": 530,
+   "stable_mass_number_coeff": 560
+  },
+  "rms_pct_A_ge_12_ten_set": {
+   "resid_mcp_SEMF_pct": 1.143931701383647,
+   "resid_element_py_pct": 5.927037823427741,
+   "resid_element_py_consistent_pct": 0.793260675910389
+  }
+ },
+ "semf_full_table": {
+  "n_A_ge_12": 136,
+  "n_A_ge_16": 131,
+  "rms_pct_A_ge_12": {
+   "as_written": 6.820450219303961,
+   "consistent": 0.7800227126357988
+  },
+  "rms_pct_A_ge_16": {
+   "as_written": 6.9311102110257075,
+   "consistent": 0.7453305390704983
+  },
+  "spearman_resid_as_written_vs_NmZ_A12": 0.9541908817176601,
+  "pearson_resid_as_written_vs_NmZ2_over_A_A16": 0.9685703312430862,
+  "best_divisor_k_A12": {
+   "k": 1.03,
+   "rms_pct": 0.7353469249040772,
+   "code_uses": 4.0
+  },
+  "refit_4param_A16": {
+   "a_V": 15.689133531384208,
+   "a_S": 17.785445471299685,
+   "a_A": 23.434914284190796,
+   "a_P": 12.674856494822789,
+   "a_C_fixed": 0.7110936035355641,
+   "rms_rel_pct": 0.48962818769407207,
+   "rms_abs_MeV": 3.326021750397062
+  },
+  "points": [
+   {
+    "Z": 6,
+    "A": 12,
+    "NmZ": 0,
+    "r_asis": -1.7429622343036468,
+    "r_cons": -1.7429622343036468
+   },
+   {
+    "Z": 6,
+    "A": 13,
+    "NmZ": 1,
+    "r_asis": 0.4022776818928178,
+    "r_cons": -0.981391268407737
+   },
+   {
+    "Z": 6,
+    "A": 14,
+    "NmZ": 2,
+    "r_asis": 4.90332774930912,
+    "r_cons": 0.1631092304539104
+   },
+   {
+    "Z": 7,
+    "A": 14,
+    "NmZ": 0,
+    "r_asis": -2.391481692285576,
+    "r_cons": -2.391481692285576
+   },
+   {
+    "Z": 7,
+    "A": 15,
+    "NmZ": 1,
+    "r_asis": 0.5312464416983548,
+    "r_cons": -0.4770493388946511
+   },
+   {
+    "Z": 8,
+    "A": 16,
+    "NmZ": 0,
+    "r_asis": -0.6786323688494954,
+    "r_cons": -0.6786323688494954
+   },
+   {
+    "Z": 8,
+    "A": 17,
+    "NmZ": 1,
+    "r_asis": 2.2861043333652638,
+    "r_cons": 1.5062915481320855
+   },
+   {
+    "Z": 8,
+    "A": 18,
+    "NmZ": 2,
+    "r_asis": 5.916385578385008,
+    "r_cons": 3.139954208886176
+   },
+   {
+    "Z": 9,
+    "A": 19,
+    "NmZ": 1,
+    "r_asis": 3.8302855939055536,
+    "r_cons": 3.208273675066253
+   },
+   {
+    "Z": 10,
+    "A": 20,
+    "NmZ": 0,
+    "r_asis": 1.6866469502257668,
+    "r_cons": 1.6866469502257668
+   },
+   {
+    "Z": 11,
+    "A": 23,
+    "NmZ": 1,
+    "r_asis": 2.2558409801078776,
+    "r_cons": 1.8487661502483446
+   },
+   {
+    "Z": 12,
+    "A": 24,
+    "NmZ": 0,
+    "r_asis": 0.8736692349293069,
+    "r_cons": 0.8736692349293069
+   },
+   {
+    "Z": 12,
+    "A": 25,
+    "NmZ": 1,
+    "r_asis": 1.8308228001000997,
+    "r_cons": 1.4909676230580236
+   },
+   {
+    "Z": 12,
+    "A": 26,
+    "NmZ": 2,
+    "r_asis": 2.9701243623839293,
+    "r_cons": 1.7299085380033332
+   },
+   {
+    "Z": 13,
+    "A": 27,
+    "NmZ": 1,
+    "r_asis": 1.2916293940951435,
+    "r_cons": 1.0040370990330187
+   },
+   {
+    "Z": 14,
+    "A": 28,
+    "NmZ": 0,
+    "r_asis": -0.03575198790023511,
+    "r_cons": -0.03575198790023511
+   },
+   {
+    "Z": 14,
+    "A": 29,
+    "NmZ": 1,
+    "r_asis": 0.5176545330331377,
+    "r_cons": 0.271817021274813
+   },
+   {
+    "Z": 14,
+    "A": 30,
+    "NmZ": 2,
+    "r_asis": 1.795709846805274,
+    "r_cons": 0.8845905227104593
+   },
+   {
+    "Z": 15,
+    "A": 31,
+    "NmZ": 1,
+    "r_asis": 0.642536035997448,
+    "r_cons": 0.428221457922163
+   },
+   {
+    "Z": 16,
+    "A": 32,
+    "NmZ": 0,
+    "r_asis": 0.30845947098430593,
+    "r_cons": 0.30845947098430593
+   },
+   {
+    "Z": 16,
+    "A": 34,
+    "NmZ": 2,
+    "r_asis": 1.735138661632378,
+    "r_cons": 1.0309831734426502
+   },
+   {
+    "Z": 17,
+    "A": 35,
+    "NmZ": 1,
+    "r_asis": 0.9172221870202549,
+    "r_cons": 0.7498663566129489
+   },
+   {
+    "Z": 17,
+    "A": 37,
+    "NmZ": 3,
+    "r_asis": 2.4730054924547473,
+    "r_cons": 1.1330982914265708
+   },
+   {
+    "Z": 18,
+    "A": 40,
+    "NmZ": 4,
+    "r_asis": 3.783954613481124,
+    "r_cons": 1.7517297337992015
+   },
+   {
+    "Z": 19,
+    "A": 39,
+    "NmZ": 1,
+    "r_asis": 0.929885479588644,
+    "r_cons": 0.7956773893513027
+   },
+   {
+    "Z": 19,
+    "A": 40,
+    "NmZ": 2,
+    "r_asis": 1.6874651715497189,
+    "r_cons": 1.1760071473335965
+   },
+   {
+    "Z": 20,
+    "A": 40,
+    "NmZ": 0,
+    "r_asis": 0.5000313894495994,
+    "r_cons": 0.5000313894495994
+   },
+   {
+    "Z": 20,
+    "A": 44,
+    "NmZ": 4,
+    "r_asis": 3.172923584771835,
+    "r_cons": 1.5056037113209717
+   },
+   {
+    "Z": 21,
+    "A": 45,
+    "NmZ": 3,
+    "r_asis": 2.380195068692796,
+    "r_cons": 1.4794656944769355
+   },
+   {
+    "Z": 22,
+    "A": 48,
+    "NmZ": 4,
+    "r_asis": 2.388462272028917,
+    "r_cons": 0.99786369722315
+   },
+   {
+    "Z": 23,
+    "A": 51,
+    "NmZ": 5,
+    "r_asis": 2.4400675011723436,
+    "r_cons": 0.519562804389646
+   },
+   {
+    "Z": 24,
+    "A": 52,
+    "NmZ": 4,
+    "r_asis": 1.6292839896697313,
+    "r_cons": 0.45154866875600563
+   },
+   {
+    "Z": 25,
+    "A": 55,
+    "NmZ": 5,
+    "r_asis": 2.011779277350667,
+    "r_cons": 0.36478444193130577
+   },
+   {
+    "Z": 26,
+    "A": 54,
+    "NmZ": 2,
+    "r_asis": 0.26135577239250873,
+    "r_cons": -0.012909915839602786
+   },
+   {
+    "Z": 26,
+    "A": 56,
+    "NmZ": 4,
+    "r_asis": 1.2246569070669229,
+    "r_cons": 0.21081975510546863
+   },
+   {
+    "Z": 26,
+    "A": 57,
+    "NmZ": 5,
+    "r_asis": 1.8334977560243269,
+    "r_cons": 0.300973183350062
+   },
+   {
+    "Z": 26,
+    "A": 58,
+    "NmZ": 6,
+    "r_asis": 2.5325639424570037,
+    "r_cons": 0.40649634195090184
+   },
+   {
+    "Z": 27,
+    "A": 59,
+    "NmZ": 5,
+    "r_asis": 1.7211163152193547,
+    "r_cons": 0.2903644560308722
+   },
+   {
+    "Z": 28,
+    "A": 58,
+    "NmZ": 2,
+    "r_asis": 0.02878121375227213,
+    "r_cons": -0.2090768835436182
+   },
+   {
+    "Z": 28,
+    "A": 60,
+    "NmZ": 4,
+    "r_asis": 1.0174522772170222,
+    "r_cons": 0.13332397948824515
+   },
+   {
+    "Z": 28,
+    "A": 62,
+    "NmZ": 6,
+    "r_asis": 2.1765433459814827,
+    "r_cons": 0.31644468665741343
+   },
+   {
+    "Z": 29,
+    "A": 63,
+    "NmZ": 5,
+    "r_asis": 1.5727805162777775,
+    "r_cons": 0.3156644240621199
+   },
+   {
+    "Z": 29,
+    "A": 65,
+    "NmZ": 7,
+    "r_asis": 2.7489440239103597,
+    "r_cons": 0.43560132889669384
+   },
+   {
+    "Z": 30,
+    "A": 64,
+    "NmZ": 4,
+    "r_asis": 1.1524905896088926,
+    "r_cons": 0.3714333733548412
+   },
+   {
+    "Z": 30,
+    "A": 66,
+    "NmZ": 6,
+    "r_asis": 2.1875471427683983,
+    "r_cons": 0.5395386486660739
+   },
+   {
+    "Z": 31,
+    "A": 69,
+    "NmZ": 7,
+    "r_asis": 2.726982913246992,
+    "r_cons": 0.6664282926208189
+   },
+   {
+    "Z": 32,
+    "A": 74,
+    "NmZ": 10,
+    "r_asis": 4.27238368741942,
+    "r_cons": 0.6165042351333547
+   },
+   {
+    "Z": 33,
+    "A": 75,
+    "NmZ": 9,
+    "r_asis": 3.625402934974374,
+    "r_cons": 0.7345212043235787
+   },
+   {
+    "Z": 34,
+    "A": 80,
+    "NmZ": 12,
+    "r_asis": 4.840794717383082,
+    "r_cons": 0.3289461005224418
+   },
+   {
+    "Z": 35,
+    "A": 79,
+    "NmZ": 9,
+    "r_asis": 3.280107823603308,
+    "r_cons": 0.670579641052786
+   },
+   {
+    "Z": 36,
+    "A": 84,
+    "NmZ": 12,
+    "r_asis": 4.239450184231944,
+    "r_cons": 0.15018437545859256
+   },
+   {
+    "Z": 37,
+    "A": 85,
+    "NmZ": 11,
+    "r_asis": 3.586456028902897,
+    "r_cons": 0.22299229357126743
+   },
+   {
+    "Z": 38,
+    "A": 88,
+    "NmZ": 12,
+    "r_asis": 3.500735357283212,
+    "r_cons": -0.21876445395872235
+   },
+   {
+    "Z": 39,
+    "A": 89,
+    "NmZ": 11,
+    "r_asis": 2.8211144168751794,
+    "r_cons": -0.24097596336498706
+   },
+   {
+    "Z": 40,
+    "A": 90,
+    "NmZ": 10,
+    "r_asis": 2.2621521658601496,
+    "r_cons": -0.21372491091537205
+   },
+   {
+    "Z": 41,
+    "A": 93,
+    "NmZ": 11,
+    "r_asis": 2.8118844327295713,
+    "r_cons": -0.008592247111874124
+   },
+   {
+    "Z": 42,
+    "A": 98,
+    "NmZ": 14,
+    "r_asis": 4.297073719152486,
+    "r_cons": 0.16884429239192233
+   },
+   {
+    "Z": 43,
+    "A": 97,
+    "NmZ": 11,
+    "r_asis": 2.6664287154572865,
+    "r_cons": 0.06160861437340683
+   },
+   {
+    "Z": 44,
+    "A": 102,
+    "NmZ": 14,
+    "r_asis": 3.9946967308739083,
+    "r_cons": 0.17161919172554116
+   },
+   {
+    "Z": 45,
+    "A": 103,
+    "NmZ": 13,
+    "r_asis": 3.392466306148413,
+    "r_cons": 0.15098479416865648
+   },
+   {
+    "Z": 46,
+    "A": 106,
+    "NmZ": 14,
+    "r_asis": 3.6660982321756,
+    "r_cons": 0.11479187344815345
+   },
+   {
+    "Z": 47,
+    "A": 107,
+    "NmZ": 13,
+    "r_asis": 3.09058137405179,
+    "r_cons": 0.07628694117595905
+   },
+   {
+    "Z": 48,
+    "A": 114,
+    "NmZ": 18,
+    "r_asis": 5.128557243272923,
+    "r_cons": 0.024212752284529133
+   },
+   {
+    "Z": 49,
+    "A": 115,
+    "NmZ": 17,
+    "r_asis": 4.490501865102711,
+    "r_cons": 0.008527623289766306
+   },
+   {
+    "Z": 50,
+    "A": 120,
+    "NmZ": 20,
+    "r_asis": 5.482755817239618,
+    "r_cons": -0.22256510664590556
+   },
+   {
+    "Z": 51,
+    "A": 121,
+    "NmZ": 19,
+    "r_asis": 4.963138363882706,
+    "r_cons": -0.11454956700039956
+   },
+   {
+    "Z": 52,
+    "A": 130,
+    "NmZ": 26,
+    "r_asis": 7.592236530323785,
+    "r_cons": -0.6957000760592732
+   },
+   {
+    "Z": 53,
+    "A": 127,
+    "NmZ": 21,
+    "r_asis": 5.417480320484869,
+    "r_cons": -0.23758282682490273
+   },
+   {
+    "Z": 54,
+    "A": 132,
+    "NmZ": 24,
+    "r_asis": 6.357356834691451,
+    "r_cons": -0.49437375862835314
+   },
+   {
+    "Z": 55,
+    "A": 133,
+    "NmZ": 23,
+    "r_asis": 5.821160137010183,
+    "r_cons": -0.3902220368216258
+   },
+   {
+    "Z": 56,
+    "A": 138,
+    "NmZ": 26,
+    "r_asis": 6.694705460808404,
+    "r_cons": -0.6925004691241048
+   },
+   {
+    "Z": 57,
+    "A": 139,
+    "NmZ": 25,
+    "r_asis": 6.148227809428704,
+    "r_cons": -0.5961343048831388
+   },
+   {
+    "Z": 58,
+    "A": 140,
+    "NmZ": 24,
+    "r_asis": 5.5834380655924525,
+    "r_cons": -0.5449281159963227
+   },
+   {
+    "Z": 59,
+    "A": 141,
+    "NmZ": 23,
+    "r_asis": 5.086835703285248,
+    "r_cons": -0.4767463447684319
+   },
+   {
+    "Z": 60,
+    "A": 142,
+    "NmZ": 22,
+    "r_asis": 4.562532991067868,
+    "r_cons": -0.46111766851724284
+   },
+   {
+    "Z": 61,
+    "A": 145,
+    "NmZ": 23,
+    "r_asis": 4.994328335259155,
+    "r_cons": -0.29905389104993524
+   },
+   {
+    "Z": 62,
+    "A": 152,
+    "NmZ": 28,
+    "r_asis": 7.046662748273743,
+    "r_cons": -0.14316122461938732
+   },
+   {
+    "Z": 63,
+    "A": 153,
+    "NmZ": 27,
+    "r_asis": 6.493159130472444,
+    "r_cons": -0.11749037088438506
+   },
+   {
+    "Z": 64,
+    "A": 158,
+    "NmZ": 30,
+    "r_asis": 7.443960156455722,
+    "r_cons": -0.23405031390291287
+   },
+   {
+    "Z": 65,
+    "A": 159,
+    "NmZ": 29,
+    "r_asis": 6.873847905479684,
+    "r_cons": -0.2221275117442324
+   },
+   {
+    "Z": 66,
+    "A": 164,
+    "NmZ": 32,
+    "r_asis": 7.835398911047647,
+    "r_cons": -0.3157975677482923
+   },
+   {
+    "Z": 67,
+    "A": 165,
+    "NmZ": 31,
+    "r_asis": 7.260954843619453,
+    "r_cons": -0.3072123034779646
+   },
+   {
+    "Z": 68,
+    "A": 166,
+    "NmZ": 30,
+    "r_asis": 6.721766127200419,
+    "r_cons": -0.2851798035925846
+   },
+   {
+    "Z": 69,
+    "A": 169,
+    "NmZ": 31,
+    "r_asis": 6.930405991001858,
+    "r_cons": -0.31262862348423515
+   },
+   {
+    "Z": 70,
+    "A": 174,
+    "NmZ": 34,
+    "r_asis": 7.880996420937416,
+    "r_cons": -0.3693454556459633
+   },
+   {
+    "Z": 71,
+    "A": 175,
+    "NmZ": 33,
+    "r_asis": 7.348205317359749,
+    "r_cons": -0.3493925486476867
+   },
+   {
+    "Z": 72,
+    "A": 180,
+    "NmZ": 36,
+    "r_asis": 8.323579967334382,
+    "r_cons": -0.3722000180566496
+   },
+   {
+    "Z": 73,
+    "A": 181,
+    "NmZ": 35,
+    "r_asis": 7.75828974246476,
+    "r_cons": -0.3822082983001075
+   },
+   {
+    "Z": 74,
+    "A": 184,
+    "NmZ": 36,
+    "r_asis": 7.9578053982117405,
+    "r_cons": -0.3950421652559786
+   },
+   {
+    "Z": 75,
+    "A": 187,
+    "NmZ": 37,
+    "r_asis": 8.153207247181598,
+    "r_cons": -0.41834690910963895
+   },
+   {
+    "Z": 76,
+    "A": 192,
+    "NmZ": 40,
+    "r_asis": 9.024334260950766,
+    "r_cons": -0.5137614920647403
+   },
+   {
+    "Z": 77,
+    "A": 193,
+    "NmZ": 39,
+    "r_asis": 8.461188541578991,
+    "r_cons": -0.5239936852088682
+   },
+   {
+    "Z": 78,
+    "A": 195,
+    "NmZ": 39,
+    "r_asis": 8.23073597717464,
+    "r_cons": -0.5839404654101745
+   },
+   {
+    "Z": 79,
+    "A": 197,
+    "NmZ": 39,
+    "r_asis": 7.9888470316001445,
+    "r_cons": -0.6596505278569431
+   },
+   {
+    "Z": 80,
+    "A": 202,
+    "NmZ": 42,
+    "r_asis": 8.703641645153107,
+    "r_cons": -0.8588854258225779
+   },
+   {
+    "Z": 81,
+    "A": 205,
+    "NmZ": 43,
+    "r_asis": 8.773365635323268,
+    "r_cons": -0.981520664165784
+   },
+   {
+    "Z": 82,
+    "A": 206,
+    "NmZ": 42,
+    "r_asis": 8.217262043794397,
+    "r_cons": -1.0025987992653789
+   },
+   {
+    "Z": 82,
+    "A": 207,
+    "NmZ": 43,
+    "r_asis": 8.501411614308507,
+    "r_cons": -1.0762527204202599
+   },
+   {
+    "Z": 82,
+    "A": 208,
+    "NmZ": 44,
+    "r_asis": 8.840797717691673,
+    "r_cons": -1.094371713926906
+   },
+   {
+    "Z": 83,
+    "A": 209,
+    "NmZ": 43,
+    "r_asis": 8.41166020374954,
+    "r_cons": -1.0097697030297343
+   },
+   {
+    "Z": 84,
+    "A": 209,
+    "NmZ": 41,
+    "r_asis": 7.659892642095442,
+    "r_cons": -0.919498349420459
+   },
+   {
+    "Z": 85,
+    "A": 210,
+    "NmZ": 40,
+    "r_asis": 7.256318915013529,
+    "r_cons": -0.8564405793036737
+   },
+   {
+    "Z": 86,
+    "A": 222,
+    "NmZ": 50,
+    "r_asis": 11.192684022864306,
+    "r_cons": -0.32285996222965413
+   },
+   {
+    "Z": 87,
+    "A": 223,
+    "NmZ": 49,
+    "r_asis": 10.666525562511035,
+    "r_cons": -0.3094905481378792
+   },
+   {
+    "Z": 88,
+    "A": 226,
+    "NmZ": 50,
+    "r_asis": 10.87410174841096,
+    "r_cons": -0.28460328954414166
+   },
+   {
+    "Z": 89,
+    "A": 227,
+    "NmZ": 49,
+    "r_asis": 10.346449698698915,
+    "r_cons": -0.2917845261774103
+   },
+   {
+    "Z": 90,
+    "A": 232,
+    "NmZ": 52,
+    "r_asis": 11.244089484600519,
+    "r_cons": -0.2795492332361769
+   },
+   {
+    "Z": 91,
+    "A": 231,
+    "NmZ": 49,
+    "r_asis": 10.009297538777064,
+    "r_cons": -0.30723277942475136
+   },
+   {
+    "Z": 92,
+    "A": 235,
+    "NmZ": 51,
+    "r_asis": 10.507116349604003,
+    "r_cons": -0.33068647400710904
+   },
+   {
+    "Z": 92,
+    "A": 238,
+    "NmZ": 54,
+    "r_asis": 11.581899136260295,
+    "r_cons": -0.29659090363719837
+   },
+   {
+    "Z": 93,
+    "A": 237,
+    "NmZ": 51,
+    "r_asis": 10.33549010228121,
+    "r_cons": -0.3425703917189784
+   },
+   {
+    "Z": 94,
+    "A": 244,
+    "NmZ": 56,
+    "r_asis": 11.923365053111324,
+    "r_cons": -0.30395564551897414
+   },
+   {
+    "Z": 95,
+    "A": 243,
+    "NmZ": 53,
+    "r_asis": 10.678290375341776,
+    "r_cons": -0.35652117575302755
+   },
+   {
+    "Z": 96,
+    "A": 247,
+    "NmZ": 55,
+    "r_asis": 11.178489064425033,
+    "r_cons": -0.3663826843347692
+   },
+   {
+    "Z": 97,
+    "A": 247,
+    "NmZ": 53,
+    "r_asis": 10.322925790867187,
+    "r_cons": -0.40186081126113005
+   },
+   {
+    "Z": 98,
+    "A": 251,
+    "NmZ": 55,
+    "r_asis": 10.831223884090717,
+    "r_cons": -0.3956523888146711
+   },
+   {
+    "Z": 99,
+    "A": 252,
+    "NmZ": 54,
+    "r_asis": 10.328802237893509,
+    "r_cons": -0.42690336462023315
+   },
+   {
+    "Z": 100,
+    "A": 257,
+    "NmZ": 57,
+    "r_asis": 11.22234280247102,
+    "r_cons": -0.35428053829141687
+   },
+   {
+    "Z": 101,
+    "A": 258,
+    "NmZ": 56,
+    "r_asis": 10.713706380340014,
+    "r_cons": -0.39258403966104904
+   },
+   {
+    "Z": 102,
+    "A": 259,
+    "NmZ": 55,
+    "r_asis": 10.23197178588967,
+    "r_cons": -0.4125599595372071
+   },
+   {
+    "Z": 103,
+    "A": 266,
+    "NmZ": 60,
+    "r_asis": 11.781471667130576,
+    "r_cons": -0.31174216274436817
+   },
+   {
+    "Z": 104,
+    "A": 267,
+    "NmZ": 59,
+    "r_asis": 11.270262446550264,
+    "r_cons": -0.3468414196235224
+   },
+   {
+    "Z": 105,
+    "A": 268,
+    "NmZ": 58,
+    "r_asis": 10.781795567606187,
+    "r_cons": -0.3825093751651302
+   },
+   {
+    "Z": 106,
+    "A": 269,
+    "NmZ": 57,
+    "r_asis": 10.299041256571966,
+    "r_cons": -0.418212113129891
+   },
+   {
+    "Z": 107,
+    "A": 270,
+    "NmZ": 56,
+    "r_asis": 9.838980059566568,
+    "r_cons": -0.4529524396739275
+   },
+   {
+    "Z": 108,
+    "A": 269,
+    "NmZ": 53,
+    "r_asis": 8.755689617334381,
+    "r_cons": -0.5406540885129818
+   },
+   {
+    "Z": 109,
+    "A": 278,
+    "NmZ": 60,
+    "r_asis": 10.9458368929594,
+    "r_cons": -0.29257886912467784
+   },
+   {
+    "Z": 110,
+    "A": 281,
+    "NmZ": 61,
+    "r_asis": 11.117276923324514,
+    "r_cons": -0.2836610936585843
+   },
+   {
+    "Z": 111,
+    "A": 282,
+    "NmZ": 60,
+    "r_asis": 10.651605414540263,
+    "r_cons": -0.3248301404768253
+   },
+   {
+    "Z": 112,
+    "A": 285,
+    "NmZ": 61,
+    "r_asis": 10.808411370621268,
+    "r_cons": -0.3287350518205754
+   },
+   {
+    "Z": 113,
+    "A": 286,
+    "NmZ": 60,
+    "r_asis": 10.352444629386342,
+    "r_cons": -0.3727007999221211
+   },
+   {
+    "Z": 114,
+    "A": 289,
+    "NmZ": 61,
+    "r_asis": 10.510053970976491,
+    "r_cons": -0.37547252834074124
+   },
+   {
+    "Z": 115,
+    "A": 290,
+    "NmZ": 60,
+    "r_asis": 10.063985388452519,
+    "r_cons": -0.4214584983400978
+   },
+   {
+    "Z": 116,
+    "A": 293,
+    "NmZ": 61,
+    "r_asis": 10.238005667090238,
+    "r_cons": -0.4089268791741528
+   },
+   {
+    "Z": 117,
+    "A": 294,
+    "NmZ": 60,
+    "r_asis": 9.802007008338482,
+    "r_cons": -0.45616235284845574
+   },
+   {
+    "Z": 118,
+    "A": 294,
+    "NmZ": 58,
+    "r_asis": 9.09309724137979,
+    "r_cons": -0.5101954567604393
+   }
+  ],
+  "tag": "[MEASURED] repo engine element.py vs inventory/data/isotopes.json (AME2020); refit is scratch numpy lstsq"
+ },
+ "nicer_compactness": {
+  "rows": {
+   "J0030+0451 Riley+2019": {
+    "M_Msun_LIT": 1.34,
+    "R_km_LIT": 12.71,
+    "R_68": [
+     11.520000000000001,
+     13.850000000000001
+    ],
+    "M_68": [
+     1.1800000000000002,
+     1.49
+    ],
+    "status": "revisited by Vinciguerra+2024 (2019 solutions disfavoured)",
+    "r_s_m": 3958.529583774243,
+    "C_point": 0.15572500329560357,
+    "C_over_R_68": [
+     0.14290720519040587,
+     0.17181117985131258
+    ]
+   },
+   "J0030+0451 Miller+2019": {
+    "M_Msun_LIT": 1.44,
+    "R_km_LIT": 13.02,
+    "R_68": [
+     11.959999999999999,
+     14.26
+    ],
+    "M_68": [
+     1.2999999999999998,
+     1.5899999999999999
+    ],
+    "status": "revisited by Vinciguerra+2024 (2019 solutions disfavoured)",
+    "r_s_m": 4253.942239279783,
+    "C_point": 0.163361837145921,
+    "C_over_R_68": [
+     0.14915646000279745,
+     0.17784039461872006
+    ]
+   },
+   "J0030+0451 Vinciguerra+2024 mode A (approx)": {
+    "M_Msun_LIT": 1.4,
+    "R_km_LIT": 11.5,
+    "R_68": null,
+    "M_68": null,
+    "status": "abstract gives ~values only, model-dependent",
+    "r_s_m": 4135.777177077566,
+    "C_point": 0.17981639900337246
+   },
+   "J0030+0451 Vinciguerra+2024 mode B (approx)": {
+    "M_Msun_LIT": 1.7,
+    "R_km_LIT": 14.5,
+    "R_68": null,
+    "M_68": null,
+    "status": "abstract gives ~values only, model-dependent",
+    "r_s_m": 5022.015143594188,
+    "C_point": 0.17317293598600647
+   },
+   "J0740+6620 Riley+2021": {
+    "M_Msun_LIT": 2.072,
+    "R_km_LIT": 12.39,
+    "R_68": [
+     11.41,
+     13.690000000000001
+    ],
+    "M_68": [
+     2.0060000000000002,
+     2.1390000000000002
+    ],
+    "status": "superseded by Salmi+2024 (3.6 yr data)",
+    "r_s_m": 6120.950222074798,
+    "C_point": 0.2470117119481355,
+    "C_over_R_68": [
+     0.22355552308527382,
+     0.26822744180871155
+    ]
+   },
+   "J0740+6620 Salmi+2024": {
+    "M_Msun_LIT": 2.073,
+    "R_km_LIT": 12.49,
+    "R_68": [
+     11.61,
+     13.77
+    ],
+    "M_68": [
+     2.004,
+     2.142
+    ],
+    "status": "current",
+    "r_s_m": 6123.904348629854,
+    "C_point": 0.24515229578181963,
+    "C_over_R_68": [
+     0.22236399232497656,
+     0.2637340374086931
+    ]
+   },
+   "J0437-4715 Choudhury+2024": {
+    "M_Msun_LIT": 1.418,
+    "R_km_LIT": 11.36,
+    "R_68": [
+     10.729999999999999,
+     12.309999999999999
+    ],
+    "M_68": [
+     1.381,
+     1.4549999999999998
+    ],
+    "status": "current",
+    "r_s_m": 4188.951455068564,
+    "C_point": 0.1843728633392854,
+    "C_over_R_68": [
+     0.17014425081513262,
+     0.19519811067421086
+    ]
+   }
+  },
+  "definition": "C = GM/(R c^2) = r_s/(2R), as Podkowka-Mendes-Poisson define it",
+  "trace_flip_compactness_LIT": {
+   "C": 0.262,
+   "plus": 0.011,
+   "minus": 0.017,
+   "what_it_is": "median and 90 % spread over 20,000 four-parameter piecewise polytropes (Read+2009 form) with the low-density part fixed to the DH2001 (SLy) fit; a model-ensemble spread, NOT a measurement",
+   "ref": "Podkowka, Mendes & Poisson 2018, PRD 98, 064057"
+  }
+ },
+ "p6_rows_3P_over_rho_c2": {
+  "Sun core": {
+   "rho_kg_m3_LIT": 150000.0,
+   "P_Pa_LIT": 2.5e+16,
+   "3P_over_rho_c2": 5.5632502802680925e-06,
+   "tag": "[DERIVED from LIT rows in scripts/unification/pilot_p6_sigma_bridge.py:48-50]"
+  },
+  "white dwarf centre": {
+   "rho_kg_m3_LIT": 1000000000.0,
+   "P_Pa_LIT": 1e+22,
+   "3P_over_rho_c2": 0.00033379501681608554,
+   "tag": "[DERIVED from LIT rows in scripts/unification/pilot_p6_sigma_bridge.py:48-50]"
+  },
+  "neutron star centre (~2 n0)": {
+   "rho_kg_m3_LIT": 5e+17,
+   "P_Pa_LIT": 1e+34,
+   "3P_over_rho_c2": 0.6675900336321711,
+   "tag": "[DERIVED from LIT rows in scripts/unification/pilot_p6_sigma_bridge.py:48-50]"
+  }
+ },
+ "gw170817_P_2nsat_Pa": {
+  "central": 3.5e+33,
+  "low_90": 1.8e+33,
+  "high_90": 6.200000000000001e+33
+ },
+ "gw170817_pressure_share": {
+  "2 rho_nuc (Abbott 2018 convention, rho_nuc = 2.8e14 g/cm3) [LIT]": {
+   "rho_kg_m3": 5.5999999999999994e+17,
+   "3P_over_rho_c2": {
+    "central": 0.2086218855100535,
+    "low_90": 0.10729125540517039,
+    "high_90": 0.36955876861780906
+   }
+  },
+  "2 n_sat (repo N0_FM3 x m_n)": {
+   "rho_kg_m3": 5.359768001792e+17,
+   "3P_over_rho_c2": {
+    "central": 0.21797259852771475,
+    "low_90": 0.11210019352853902,
+    "high_90": 0.3861228888205233
+   }
+  },
+  "2 n_sat (Margueron 2018 n_sat = 0.155 fm^-3 x m_n)": {
+   "rho_kg_m3": 5.192275251736e+17,
+   "3P_over_rho_c2": {
+    "central": 0.22500397267377004,
+    "low_90": 0.11571632880365318,
+    "high_90": 0.39857846587924983
+   }
+  }
+ },
+ "p6_ns_row_check": {
+  "n_over_n_sat_repo": 1.8657523976143318,
+  "P_row_over_GW170817_90pct_upper_at_2nsat": 1.6129032258064513,
+  "reading": "P6's neutron-star row sits below 2 n_sat yet exceeds GW170817's 90 % upper bound AT 2 n_sat; since P rises with density it is excluded by the plan's own anchor. 0.67 is [DERIVED from LIT] of an excluded row and is withdrawn as a headline number."
+ },
+ "white_dwarf_pressure_share": {
+  "P_chandra_at_1e9_Pa": 2.627275504974837e+21,
+  "x_at_1e9": 0.8007195472117824,
+  "P6_row_over_chandra": 3.806224349545624,
+  "3P_over_rho_c2_chandra_by_rho": {
+   "1e+08": 2.169408735901505e-05,
+   "1e+09": 8.769714713635654e-05,
+   "1e+10": 0.00028239024493464753,
+   "1e+11": 0.0007179476616424314,
+   "1e+12": 0.0016228486923051011,
+   "1e+13": 0.003537080718869803
+  },
+  "tag": "[DERIVED] Mentat integrate_expr closed form + Mentat hbar, c, m_e, AMU_KG; mu_e = 2"
+ },
+ "saturation_anchors": {
+  "Margueron2018_Tables1_2_present_estimation_LIT": {
+   "n_sat_fm3": {
+    "value": 0.155,
+    "sigma": 0.005
+   },
+   "E_sat_MeV": {
+    "value": -15.8,
+    "sigma": 0.3
+   },
+   "K_sat_MeV": {
+    "value": 230.0,
+    "sigma": 20.0
+   },
+   "E_sym_MeV": {
+    "value": 32.0,
+    "sigma": 2.0
+   },
+   "L_sym_MeV": {
+    "value": 60.0,
+    "sigma": 15.0
+   },
+   "K_sym_MeV": {
+    "value": -100.0,
+    "sigma": 100.0
+   },
+   "Q_sat_MeV": {
+    "value": 300.0,
+    "sigma": 400.0
+   }
+  },
+  "Margueron2018_Table4_50_model_average_LIT (model spread, not data)": {
+   "K_sat_MeV": [
+    251,
+    29
+   ],
+   "L_sym_MeV": [
+    76.6,
+    29.2
+   ]
+  },
+  "Lattimer2023_LIT": {
+   "J_MeV": [
+    32.0,
+    1.1
+   ],
+   "L_MeV": [
+    51.9,
+    7.9
+   ]
+  },
+  "repo_vs_Margueron_pulls_sigma": {
+   "n_sat_fm3": 1.0000000000000009,
+   "E_sat_MeV": -0.6666666666666643,
+   "K_sat_MeV": 0.0,
+   "E_sym_MeV": 0.0
+  }
+ },
+ "short_range_sigma_indicator": {
+  "xi_repo": 0.1582,
+  "rho_sat_kg_m3": 2.679884000896e+17,
+  "sigma_at_rho_sat": {
+   "lambda_0.3km": 7.121462012997167e-05,
+   "lambda_1.0km": 0.0007912735569996851,
+   "lambda_3.0km": 0.007121462012997166
+  },
+  "note": "[DERIVED, SPECULATIVE reading] section 6 local formula, valid only for lambda << R"
+ },
+ "p7_normalisation": {
+  "int_0^pi sin^2": "pi/2",
+  "int_0^pi x sin x": "pi",
+  "intP_over_int_rho_c2_in_units_of_Pc_over_rhoc_c2": 0.5,
+  "flat_ratio": "1 - w_c/2",
+  "tolman_ratio_first_order": "1 - w_c",
+  "reading": "[DERIVED] For an n = 1 polytrope (rho ~ theta, P ~ theta^2, theta = sin xi/xi) 3 int P dV / int rho c^2 dV = w_c * (pi/2)/pi = w_c/2, so P7's flat ratio is 1 - w_c/2 (normalised to the rest mass). Normalised to the Tolman mass (eps + 3P) the deficit is 6 int P / int eps = w_c at first order. The two differ by normalisation, not by a correction to P7, so the M8 small-w_c slope test is bug-only."
+ },
+ "prior_scratch_tov_sigma_pair": {
+  "status": "untracked parallel-session file, read not rerun",
+  "benchmark_keys": [
+   "benchmark_uniform_C0.5",
+   "benchmark_newtonian_limit_wc1e-5"
+  ],
+  "rows": [
+   {
+    "w_c": 0.001,
+    "Q_sigma_over_Q_Tolman_exact": 0.9990005621189255,
+    "pred_1PN_1_minus_wc": 0.999,
+    "P7_as_written_1_minus_wc_over_2": 0.9995
+   },
+   {
+    "w_c": 0.01,
+    "Q_sigma_over_Q_Tolman_exact": 0.990055963923765,
+    "pred_1PN_1_minus_wc": 0.99,
+    "P7_as_written_1_minus_wc_over_2": 0.995
+   },
+   {
+    "w_c": 0.1,
+    "Q_sigma_over_Q_Tolman_exact": 0.9053571252732564,
+    "pred_1PN_1_minus_wc": 0.9,
+    "P7_as_written_1_minus_wc_over_2": 0.95
+   },
+   {
+    "w_c": 0.3,
+    "Q_sigma_over_Q_Tolman_exact": 0.7439433626713108,
+    "pred_1PN_1_minus_wc": 0.7,
+    "P7_as_written_1_minus_wc_over_2": 0.85
+   },
+   {
+    "w_c": 0.5,
+    "Q_sigma_over_Q_Tolman_exact": 0.6119664667443455,
+    "pred_1PN_1_minus_wc": 0.5,
+    "P7_as_written_1_minus_wc_over_2": 0.75
+   }
+  ]
+ },
+ "grep_hits": {
+  "Fermi": {
+   "count": 33,
+   "files": [
+    "scripts/make_dependency_chart.py",
+    "scripts/unification/fig02_matrix.py",
+    "sigma_ground/field/audit.py",
+    "sigma_ground/field/constants.py",
+    "sigma_ground/field/electrodynamics.py",
+    "sigma_ground/field/interface/alloys.py",
+    "sigma_ground/field/interface/band_structure.py",
+    "sigma_ground/field/interface/demo_teg.py",
+    "sigma_ground/field/interface/electronics.py",
+    "sigma_ground/field/interface/element.py",
+    "sigma_ground/field/interface/magnetism.py",
+    "sigma_ground/field/interface/mobius.py",
+    "sigma_ground/field/interface/quantum_matter.py",
+    "sigma_ground/field/interface/quantum_wells.py",
+    "sigma_ground/field/interface/radioactive_decay.py",
+    "sigma_ground/field/interface/statistical.py",
+    "sigma_ground/field/interface/superconductivity.py",
+    "sigma_ground/field/interface/test_band_structure.py",
+    "sigma_ground/field/interface/test_electronics.py",
+    "sigma_ground/field/interface/test_magnetism.py",
+    "sigma_ground/field/interface/test_quantum_matter.py",
+    "sigma_ground/field/interface/test_superconductivity.py",
+    "sigma_ground/field/interface/test_thermoelectric.py",
+    "sigma_ground/field/interface/test_unsolved_frontiers.py",
+    "sigma_ground/field/interface/thermal.py",
+    "sigma_ground/field/interface/thermoelectric.py",
+    "sigma_ground/inventory/checksum/particle_inventory.py",
+    "sigma_ground/inventory/models/gluon.py",
+    "sigma_ground/mcp/manifest.py",
+    "sigma_ground/mcp/server.py",
+    "sigma_ground/mcp/tool_keywords.py",
+    "sigma_ground/mcp/tools/quantum_solids.py",
+    "sigma_ground/mcp/tools/transport.py"
+   ]
+  },
+  "degenerate": {
+   "count": 19,
+   "files": [
+    "scripts/unification/fig01_bridge_map.py",
+    "scripts/unification/fig02_matrix.py",
+    "sigma_ground/dynamics/collision.py",
+    "sigma_ground/dynamics/gravity/barnes_hut.py",
+    "sigma_ground/dynamics/mechanisms/plug.py",
+    "sigma_ground/dynamics/mechanisms/spring.py",
+    "sigma_ground/dynamics/quat.py",
+    "sigma_ground/field/audit.py",
+    "sigma_ground/field/constants.py",
+    "sigma_ground/field/interface/gas.py",
+    "sigma_ground/field/interface/nbody.py",
+    "sigma_ground/field/interface/ore_abundance.py",
+    "sigma_ground/field/interface/plasma.py",
+    "sigma_ground/field/interface/quantum_wells.py",
+    "sigma_ground/field/interface/test_band_structure.py",
+    "sigma_ground/field/interface/test_quantum_wells.py",
+    "sigma_ground/kernel/csg.py",
+    "sigma_ground/kernel/shapes.py",
+    "sigma_ground/mcp/tools/simulation.py"
+   ]
+  },
+  "TOV": {
+   "count": 6,
+   "files": [
+    "scripts/unification/fig01_bridge_map.py",
+    "scripts/unification/fig02_matrix.py",
+    "sigma_ground/field/audit.py",
+    "sigma_ground/field/interface/demo_teg.py",
+    "sigma_ground/field/interface/test_unsolved_frontiers.py",
+    "sigma_ground/inventory/patent_candidates.py"
+   ]
+  },
+  "Tolman": {
+   "count": 1,
+   "files": [
+    "scripts/unification/stage2_matrix_checks.py"
+   ]
+  },
+  "polytrope": {
+   "count": 4,
+   "files": [
+    "scripts/unification/fig03_same_operator.py",
+    "scripts/unification/pilot_p7_sigma_three_fields.py",
+    "scripts/unification/stage2_matrix_checks.py",
+    "sigma_ground/dynamics/test_continuum_eos.py"
+   ]
+  },
+  "Lane.Emden": {
+   "count": 2,
+   "files": [
+    "scripts/unification/fig02_matrix.py",
+    "scripts/unification/pilot_p7_sigma_three_fields.py"
+   ]
+  },
+  "binding_energy": {
+   "count": 22,
+   "files": [
+    "scripts/unification/sigma_exclusion.py",
+    "sigma_ground/field/__init__.py",
+    "sigma_ground/field/binding.py",
+    "sigma_ground/field/interface/element.py",
+    "sigma_ground/field/verify.py",
+    "sigma_ground/inventory/checksum/quark_chain.py",
+    "sigma_ground/inventory/checksum/sigma_chain.py",
+    "sigma_ground/inventory/core/sigma.py",
+    "sigma_ground/inventory/data/refresh_isotopes.py",
+    "sigma_ground/inventory/models/atom.py",
+    "sigma_ground/inventory/models/molecule.py",
+    "sigma_ground/inventory/models/particle.py",
+    "sigma_ground/mcp/benchmark/audit_library.py",
+    "sigma_ground/mcp/benchmark/frontier_classifier.py",
+    "sigma_ground/mcp/benchmark/new_tools_classifier.py",
+    "sigma_ground/mcp/benchmark/wolfram_parity_cases.py",
+    "sigma_ground/mcp/manifest.py",
+    "sigma_ground/mcp/server.py",
+    "sigma_ground/mcp/test_frontier_mcp.py",
+    "sigma_ground/mcp/tool_keywords.py",
+    "sigma_ground/mcp/tools/frontier.py",
+    "sigma_ground/mcp/tools/nuclear.py"
+   ]
+  },
+  "nuclear": {
+   "count": 92,
+   "files": [
+    "scripts/make_dependency_chart.py",
+    "scripts/unification/fig01_bridge_map.py",
+    "scripts/unification/fig02_matrix.py",
+    "scripts/unification/sigma_exclusion.py",
+    "scripts/unification/stage10_quarksum.py",
+    "sigma_ground/field/audit.py",
+    "sigma_ground/field/binding.py",
+    "sigma_ground/field/constants.py",
+    "sigma_ground/field/decay.py",
+    "sigma_ground/field/interface/__init__.py",
+    "sigma_ground/field/interface/acid_base.py",
+    "sigma_ground/field/interface/acoustics.py",
+    "sigma_ground/field/interface/adhesion.py",
+    "sigma_ground/field/interface/alloys.py",
+    "sigma_ground/field/interface/atomic_spectra.py",
+    "sigma_ground/field/interface/chemical_reactions.py",
+    "sigma_ground/field/interface/cigar.py",
+    "sigma_ground/field/interface/corrosion.py",
+    "sigma_ground/field/interface/demo_element.py",
+    "sigma_ground/field/interface/demo_teg.py",
+    "sigma_ground/field/interface/dielectric.py",
+    "sigma_ground/field/interface/diffusion.py",
+    "sigma_ground/field/interface/elasticity.py",
+    "sigma_ground/field/interface/electrochemistry.py",
+    "sigma_ground/field/interface/electronics.py",
+    "sigma_ground/field/interface/element.py",
+    "sigma_ground/field/interface/gas.py",
+    "sigma_ground/field/interface/hardness.py",
+    "sigma_ground/field/interface/hydrogen_bonding.py",
+    "sigma_ground/field/interface/hysteresis.py",
+    "sigma_ground/field/interface/magnetism.py",
+    "sigma_ground/field/interface/mechanical.py",
+    "sigma_ground/field/interface/molecular_bonds.py",
+    "sigma_ground/field/interface/nucleosynthesis.py",
+    "sigma_ground/field/interface/optics.py",
+    "sigma_ground/field/interface/organic_materials.py",
+    "sigma_ground/field/interface/phase_transition.py",
+    "sigma_ground/field/interface/phosphor.py",
+    "sigma_ground/field/interface/photonics.py",
+    "sigma_ground/field/interface/piezoelectricity.py",
+    "sigma_ground/field/interface/plasma.py",
+    "sigma_ground/field/interface/propulsion.py",
+    "sigma_ground/field/interface/quantum_wells.py",
+    "sigma_ground/field/interface/radioactive_decay.py",
+    "sigma_ground/field/interface/solution.py",
+    "sigma_ground/field/interface/statistical.py",
+    "sigma_ground/field/interface/superconductivity.py",
+    "sigma_ground/field/interface/surface.py",
+    "sigma_ground/field/interface/test_acoustics.py",
+    "sigma_ground/field/interface/test_chemical_reactions.py",
+    "sigma_ground/field/interface/test_diffusion.py",
+    "sigma_ground/field/interface/test_elasticity.py",
+    "sigma_ground/field/interface/test_element.py",
+    "sigma_ground/field/interface/test_gas.py",
+    "sigma_ground/field/interface/test_magnetism.py",
+    "sigma_ground/field/interface/test_mechanical.py",
+    "sigma_ground/field/interface/test_molecular_bonds.py",
+    "sigma_ground/field/interface/test_nucleosynthesis.py",
+    "sigma_ground/field/interface/test_propulsion.py",
+    "sigma_ground/field/interface/test_radioactive_decay.py",
+    "sigma_ground/field/interface/test_semiconductor_optics.py",
+    "sigma_ground/field/interface/test_superconductivity.py",
+    "sigma_ground/field/interface/test_surface.py",
+    "sigma_ground/field/interface/test_texture.py",
+    "sigma_ground/field/interface/test_thermal.py",
+    "sigma_ground/field/interface/test_unsolved_frontiers.py",
+    "sigma_ground/field/interface/texture.py",
+    "sigma_ground/field/interface/thermal.py",
+    "sigma_ground/field/interface/thermal_expansion.py",
+    "sigma_ground/field/interface/thermoelectric.py",
+    "sigma_ground/field/interface/tunneling.py",
+    "sigma_ground/inventory/behaviors/atom_behaviors.py",
+    "sigma_ground/inventory/checksum/quark_chain.py",
+    "sigma_ground/inventory/checksum/sigma_chain.py",
+    "sigma_ground/inventory/core/sigma.py",
+    "sigma_ground/inventory/models/atom.py",
+    "sigma_ground/inventory/patent_candidates.py",
+    "sigma_ground/inventory/physics.py",
+    "sigma_ground/mcp/benchmark/audit_library.py",
+    "sigma_ground/mcp/benchmark/conversion_classifier.py",
+    "sigma_ground/mcp/benchmark/corpus.py",
+    "sigma_ground/mcp/benchmark/interpreter_demo.py",
+    "sigma_ground/mcp/benchmark/modern_classifier.py",
+    "sigma_ground/mcp/benchmark/new_tools_classifier.py",
+    "sigma_ground/mcp/benchmark/run_sigma_ground.py",
+    "sigma_ground/mcp/benchmark/wolfram_parity_cases.py",
+    "sigma_ground/mcp/build_qwen_context.py",
+    "sigma_ground/mcp/manifest.py",
+    "sigma_ground/mcp/server.py",
+    "sigma_ground/mcp/tool_keywords.py",
+    "sigma_ground/mcp/tools/inventory_tools.py",
+    "sigma_ground/mcp/tools/nuclear.py"
+   ]
+  },
+  "neutron_star": {
+   "count": 3,
+   "files": [
+    "sigma_ground/field/interface/test_cigar.py",
+    "sigma_ground/field/interface/test_hysteresis.py",
+    "sigma_ground/field/planets.py"
+   ]
+  },
+  "white_dwarf": {
+   "count": 0,
+   "files": []
+  },
+  "equation_of_state": {
+   "count": 0,
+   "files": []
+  },
+  "Chandrasekhar": {
+   "count": 3,
+   "files": [
+    "scripts/unification/fig01_bridge_map.py",
+    "scripts/unification/pilot_p6_sigma_bridge.py",
+    "sigma_ground/field/audit.py"
+   ]
+  },
+  "semi.empirical": {
+   "count": 4,
+   "files": [
+    "sigma_ground/field/interface/element.py",
+    "sigma_ground/field/interface/test_element.py",
+    "sigma_ground/inventory/core/sigma.py",
+    "sigma_ground/mcp/tools/nuclear.py"
+   ]
+  },
+  "Weizs": {
+   "count": 4,
+   "files": [
+    "scripts/make_dependency_chart.py",
+    "sigma_ground/field/interface/element.py",
+    "sigma_ground/mcp/tool_keywords.py",
+    "sigma_ground/mcp/tools/nuclear.py"
+   ]
+  },
+  "bag.model": {
+   "count": 0,
+   "files": []
+  },
+  "symmetry_energy": {
+   "count": 0,
+   "files": []
+  },
+  "saturation": {
+   "count": 25,
+   "files": [
+    "scripts/make_dependency_chart.py",
+    "scripts/phase_ix_gamma_purity_check.py",
+    "scripts/unification/sigma_exclusion.py",
+    "sigma_ground/field/audit.py",
+    "sigma_ground/field/constants.py",
+    "sigma_ground/field/interface/atmosphere.py",
+    "sigma_ground/field/interface/electronics.py",
+    "sigma_ground/field/interface/hysteresis.py",
+    "sigma_ground/field/interface/magnetism.py",
+    "sigma_ground/field/interface/quantum.py",
+    "sigma_ground/field/interface/semiconductor_optics.py",
+    "sigma_ground/field/interface/test_atmosphere.py",
+    "sigma_ground/field/interface/test_electronics.py",
+    "sigma_ground/field/interface/test_hysteresis.py",
+    "sigma_ground/field/interface/test_magnetism.py",
+    "sigma_ground/field/interface/test_thermal_expansion.py",
+    "sigma_ground/field/interface/test_tunneling.py",
+    "sigma_ground/field/interface/test_unsolved_frontiers.py",
+    "sigma_ground/field/interface/thermal_emission.py",
+    "sigma_ground/mcp/manifest.py",
+    "sigma_ground/mcp/server.py",
+    "sigma_ground/mcp/tool_keywords.py",
+    "sigma_ground/mcp/tools/devices.py",
+    "sigma_ground/mcp/tools/electronics.py",
+    "sigma_ground/mcp/tools/frontier.py"
+   ]
+  },
+  "solve_ivp|odeint": {
+   "count": 3,
+   "files": [
+    "sigma_ground/field/interface/adapters/__init__.py",
+    "sigma_ground/field/interface/adapters/integrator.py",
+    "sigma_ground/field/interface/adapters/test_adapters.py"
+   ]
+  },
+  "\\brk4\\b|runge.kutta|dopri|dormand": {
+   "count": 2,
+   "files": [
+    "sigma_ground/field/interface/adapters/integrator.py",
+    "sigma_ground/field/interface/adapters/test_adapters.py"
+   ]
+  },
+  "\\beos\\b": {
+   "count": 19,
+   "files": [
+    "scripts/unification/fig02_matrix.py",
+    "scripts/unification/pilot_p2_jeans_virial.py",
+    "scripts/unification/pilot_p2b_virial_curvature.py",
+    "scripts/unification/pilot_p6_sigma_bridge.py",
+    "scripts/unification/stage4_virial.py",
+    "scripts/unification/stage8_gas_expansion.py",
+    "sigma_ground/dynamics/__init__.py",
+    "sigma_ground/dynamics/continuum.py",
+    "sigma_ground/dynamics/fluid/__init__.py",
+    "sigma_ground/dynamics/fluid/eos.py",
+    "sigma_ground/dynamics/phase_e.py",
+    "sigma_ground/dynamics/seeding.py",
+    "sigma_ground/dynamics/test_continuum.py",
+    "sigma_ground/dynamics/test_continuum_energy.py",
+    "sigma_ground/dynamics/test_continuum_eos.py",
+    "sigma_ground/field/audit.py",
+    "sigma_ground/field/interface/adapters/base.py",
+    "sigma_ground/field/interface/fluid.py",
+    "sigma_ground/field/interface/test_unsolved_frontiers.py"
+   ]
+  }
+ },
+ "existing_integrators_and_eos": {
+  "sigma_ground/field/interface/adapters/integrator.py": {
+   "defs": [
+    "41: class SGSolution:",
+    "50: def sg_solve_ivp(",
+    "148: def _fr4_step(",
+    "174: def _verlet_step(",
+    "187: def _rk4_step(",
+    "200: def sg_nbody(",
+    "242: def sg_odeint("
+   ],
+   "what": "sg_solve_ivp / sg_odeint / sg_nbody: FIXED-step Forest-Ruth, Verlet and RK4, numpy-based, aimed at Hamiltonian systems; no adaptive error control, no dense output, no terminal events (a TOV surface needs all three)"
+  },
+  "sigma_ground/dynamics/stepper.py": {
+   "defs": [
+    "69: def _cfl_dt(scene, dt_max):",
+    "91: def step(scene, dt=None, dt_max=0.01, sub_steps=4, external_forces=None):",
+    "128: def step_to(scene, t_end, dt_max=0.01, sub_steps=4, callback=None,",
+    "160: def _apply_external(p, external_forces, half_dt):",
+    "183: def _leapfrog_sub_step(scene, dt, external_forces=None):",
+    "311: def _snapshot(scene):"
+   ],
+   "what": "scene leapfrog sub-stepping with a CFL step for the SPH/continuum engine; not a general ODE solver"
+  },
+  "sigma_ground/dynamics/fluid/eos.py": {
+   "defs": [
+    "52: def pressure_tait(rho, rho_0, K, gamma_tait=7):",
+    "74: def pressure_tait_full(rho, rho_0, K, gamma_tait=7):",
+    "97: def pressure_ideal_gas(rho, T, M_kg_mol=0.02897, gamma=1.4):",
+    "122: def speed_of_sound_liquid(K, rho):"
+   ],
+   "what": "SPH pressure functions of rho (Tait, ideal gas, liquid sound speed); no barotropic EOS object, no energy density, no degenerate or nuclear matter"
+  },
+  "sigma_ground/dynamics/continuum.py": {
+   "what": "eos in {'tait', 'isothermal', 'ideal'} selects among the fluid/eos.py functions"
+  },
+  "numpy_top_level_imports_non_test_field_dynamics_kernel": {
+   "count": 8,
+   "files": [
+    "sigma_ground/dynamics/gravity/barnes_hut.py",
+    "sigma_ground/field/interface/adapters/_jplephem_bridge.py",
+    "sigma_ground/field/interface/adapters/ephemeris.py",
+    "sigma_ground/field/interface/adapters/integrator.py",
+    "sigma_ground/field/interface/nbody.py",
+    "sigma_ground/field/interface/orbital.py",
+    "sigma_ground/field/interface/rolling_analysis.py",
+    "sigma_ground/field/interface/rolling_shootout.py"
+   ]
+  },
+  "pyproject.toml": "dependencies = [] (line 12), yet the files above import numpy at module level, so 'the core is zero-dependency' is true of the declared metadata only"
+ },
+ "existing_relevant_code": {
+  "sigma_ground/field/binding.py": {
+   "defs": [
+    "22: def coulomb_energy_mev(Z, A):",
+    "39: def binding_energy_mev(be_total_mev, Z, A, sigma=SIGMA_HERE):",
+    "59: def binding_decomposition(be_total_mev, Z, A, sigma=SIGMA_HERE):"
+   ]
+  },
+  "sigma_ground/mcp/tools/nuclear.py": {
+   "defs": [
+    "27: def nuclear_binding_energy(protons: int, neutrons: int,",
+    "96: def coulomb_force(charge1_c: float, charge2_c: float,",
+    "132: def fission_energy_release(mass_kg: float, isotope: str = \"U235\") -> ToolResult:"
+   ]
+  },
+  "sigma_ground/field/nucleon.py": {
+   "defs": [
+    "19: def proton_mass_mev(sigma=SIGMA_HERE):",
+    "28: def neutron_mass_mev(sigma=SIGMA_HERE):",
+    "37: def nucleon_decomposition(sigma=SIGMA_HERE):"
+   ]
+  }
+ },
+ "bag_window": {
+  "k3_expr": "sqrt(2)*3**(3/4)*sqrt(pi)",
+  "k3": 5.713876841183744,
+  "k2_expr": "sqrt(2)*sqrt(pi)*(1 + 2*2**(1/3))**(3/4)",
+  "k2": 6.441430425073436,
+  "E_per_A_56Fe_atom_MeV": 930.4118329406035,
+  "B14_lower_MeV (2-flavour must be unbound)": 144.44180431087963,
+  "B14_upper_MeV (3-flavour bound)": 162.83372197218205,
+  "tag": "[DERIVED] Mentat simplify_expr + Mentat atomic mass unit + AME2020 56Fe mass (isotopes.json)"
+ },
+ "sly_expectation_scratch": {
+  "tag": "[VERIFIED numerics on a LIT fit] scipy RK45 TOV on the Haensel-Potekhin 2004 SLy fit, Mentat G, c, M_sun; not a Mentat engine (Mentat has no TOV: that is the gap)",
+  "M_max_Msun": 2.047422184256367,
+  "R_at_Mmax_km": 9.96311761796645,
+  "C_at_Mmax": 0.3035367279522184,
+  "w_c_at_Mmax": 1.6206891806738812,
+  "DH2001_LIT_M_max": 2.05,
+  "R_km": {
+   "1.0": 11.84269155707039,
+   "1.34": 11.73060563788881,
+   "1.4": 11.69759586848145,
+   "1.418": 11.686739048614893,
+   "1.44": 11.67235090714902,
+   "2.0": 10.616068187345649,
+   "2.072": null
+  },
+  "central_3P_over_eps": {
+   "1.0": 0.2842195781064762,
+   "1.4": 0.4611215482224325,
+   "1.8": 0.7806188194115053,
+   "2.0": 1.1836507746836422
+  },
+  "central_trace_flip": {
+   "C": 0.2621783843969086,
+   "M_Msun": 1.9359606882507556
+  },
+  "P_at_2rho_nuc_Pa": 2.930004603509366e+33,
+  "P_at_2rho_nuc_note": "HP2004 rho is mass-energy density, Abbott's rho_nuc a mass density: ~3 % offset, noted",
+  "scores_68pct": {
+   "J0030+0451 Riley+2019": {
+    "mass_range_reached": [
+     1.1800000000000002,
+     1.49
+    ],
+    "R_range_km": [
+     11.63650709511962,
+     11.795547665102646
+    ],
+    "status": "CONSISTENT at 68 %"
+   },
+   "J0030+0451 Miller+2019": {
+    "mass_range_reached": [
+     1.2999999999999998,
+     1.5899999999999999
+    ],
+    "R_range_km": [
+     11.54842466466874,
+     11.74980140690034
+    ],
+    "status": "TENSION: R below 68 % interval"
+   },
+   "J0740+6620 Riley+2021": {
+    "mass_range_reached": [
+     2.0060000000000002,
+     2.0459
+    ],
+    "R_range_km": [
+     10.102508029022358,
+     10.57820973227833
+    ],
+    "status": "TENSION: R below 68 % interval"
+   },
+   "J0740+6620 Salmi+2024": {
+    "mass_range_reached": [
+     2.004,
+     2.0454
+    ],
+    "R_range_km": [
+     10.120275042965176,
+     10.591017897887754
+    ],
+    "status": "TENSION: R below 68 % interval"
+   },
+   "J0437-4715 Choudhury+2024": {
+    "mass_range_reached": [
+     1.381,
+     1.4549999999999998
+    ],
+    "R_range_km": [
+     11.662116529131035,
+     11.708691698444957
+    ],
+    "status": "CONSISTENT at 68 %"
+   }
+  },
+  "M_max_ge_1p94_J0740_Fonseca2021": true,
+  "GW170817_P_in_90pct_band": true,
+  "PMP_flip_C_in_band": true,
+  "sequence": [
+   {
+    "log10_rho_c": 14.2,
+    "R_km": 1000.0,
+    "M_Msun": 0.1248265182379602,
+    "w_c": 0.018052930656905664,
+    "C": 0.00018437666615093304
+   },
+   {
+    "log10_rho_c": 14.209999999999999,
+    "R_km": 742.7314788787062,
+    "M_Msun": 0.1010877310946161,
+    "w_c": 0.01860569847193905,
+    "C": 0.00020103224335377425
+   },
+   {
+    "log10_rho_c": 14.219999999999999,
+    "R_km": 371.0826776285201,
+    "M_Msun": 0.09498780332575912,
+    "w_c": 0.01918983595794764,
+    "C": 0.0003780909338105934
+   },
+   {
+    "log10_rho_c": 14.229999999999999,
+    "R_km": 231.23972646904872,
+    "M_Msun": 0.09375895185015645,
+    "w_c": 0.019807014874136282,
+    "C": 0.0005988932214720062
+   },
+   {
+    "log10_rho_c": 14.239999999999998,
+    "R_km": 162.5583454324417,
+    "M_Msun": 0.09384611195513864,
+    "w_c": 0.02045899146297516,
+    "C": 0.0008527193441772391
+   },
+   {
+    "log10_rho_c": 14.25,
+    "R_km": 122.8754309420092,
+    "M_Msun": 0.09456919336026579,
+    "w_c": 0.021147610572695454,
+    "C": 0.0011367991275960537
+   },
+   {
+    "log10_rho_c": 14.26,
+    "R_km": 97.45795049647818,
+    "M_Msun": 0.09571073699442995,
+    "w_c": 0.021874793482123744,
+    "C": 0.0014505826785747287
+   },
+   {
+    "log10_rho_c": 14.27,
+    "R_km": 79.99422094587251,
+    "M_Msun": 0.09718109036000298,
+    "w_c": 0.02264255728778132,
+    "C": 0.0017944123730886617
+   },
+   {
+    "log10_rho_c": 14.28,
+    "R_km": 67.37369469100673,
+    "M_Msun": 0.09893862386886482,
+    "w_c": 0.023453016966768145,
+    "C": 0.0021690751667406047
+   },
+   {
+    "log10_rho_c": 14.29,
+    "R_km": 57.900559938950835,
+    "M_Msun": 0.1009636594087072,
+    "w_c": 0.02430837736150969,
+    "C": 0.002575617815003085
+   },
+   {
+    "log10_rho_c": 14.299999999999999,
+    "R_km": 50.577462194246614,
+    "M_Msun": 0.10324801578572879,
+    "w_c": 0.02521094469550294,
+    "C": 0.003015253157799769
+   },
+   {
+    "log10_rho_c": 14.309999999999999,
+    "R_km": 44.78216038545554,
+    "M_Msun": 0.10579019707852277,
+    "w_c": 0.026163132488459532,
+    "C": 0.003489309445594646
+   },
+   {
+    "log10_rho_c": 14.319999999999999,
+    "R_km": 40.10766928459771,
+    "M_Msun": 0.10859292792530685,
+    "w_c": 0.02716745946228771,
+    "C": 0.003999200873516731
+   },
+   {
+    "log10_rho_c": 14.33,
+    "R_km": 36.27734027513566,
+    "M_Msun": 0.11166180074468561,
+    "w_c": 0.028226549771504086,
+    "C": 0.004546406768845565
+   },
+   {
+    "log10_rho_c": 14.34,
+    "R_km": 33.09697519852646,
+    "M_Msun": 0.11500447101864242,
+    "w_c": 0.029343144308092314,
+    "C": 0.005132459382593323
+   },
+   {
+    "log10_rho_c": 14.35,
+    "R_km": 30.426508348617908,
+    "M_Msun": 0.11863017095972296,
+    "w_c": 0.03052010384971836,
+    "C": 0.00575893451604017
+   },
+   {
+    "log10_rho_c": 14.36,
+    "R_km": 28.162544620415044,
+    "M_Msun": 0.12254938964286244,
+    "w_c": 0.03176039836587875,
+    "C": 0.006427444876330148
+   },
+   {
+    "log10_rho_c": 14.37,
+    "R_km": 26.22721544594435,
+    "M_Msun": 0.12677366336632084,
+    "w_c": 0.03306712459319576,
+    "C": 0.00713963413698984
+   },
+   {
+    "log10_rho_c": 14.379999999999999,
+    "R_km": 24.560839849975014,
+    "M_Msun": 0.1313154383999807,
+    "w_c": 0.03444350760914419,
+    "C": 0.007897173428019398
+   },
+   {
+    "log10_rho_c": 14.389999999999999,
+    "R_km": 23.11696736615741,
+    "M_Msun": 0.1361879432799866,
+    "w_c": 0.03589289248889756,
+    "C": 0.008701756016465369
+   },
+   {
+    "log10_rho_c": 14.399999999999999,
+    "R_km": 21.858947367338875,
+    "M_Msun": 0.14140513758147827,
+    "w_c": 0.03741875534887191,
+    "C": 0.009555095790542693
+   },
+   {
+    "log10_rho_c": 14.41,
+    "R_km": 20.757507770255216,
+    "M_Msun": 0.1469816192065746,
+    "w_c": 0.03902470731545243,
+    "C": 0.010458921880433554
+   },
+   {
+    "log10_rho_c": 14.42,
+    "R_km": 19.789012321748892,
+    "M_Msun": 0.15293258766661824,
+    "w_c": 0.04071449143274522,
+    "C": 0.01141497642767066
+   },
+   {
+    "log10_rho_c": 14.43,
+    "R_km": 18.934187399608284,
+    "M_Msun": 0.159273784035054,
+    "w_c": 0.042491983153950044,
+    "C": 0.012425009455432103
+   },
+   {
+    "log10_rho_c": 14.44,
+    "R_km": 18.177173701756352,
+    "M_Msun": 0.1660214367984112,
+    "w_c": 0.044361198473197534,
+    "C": 0.013490775386804219
+   },
+   {
+    "log10_rho_c": 14.45,
+    "R_km": 17.504813635226153,
+    "M_Msun": 0.17319221465589096,
+    "w_c": 0.046326294664468366,
+    "C": 0.014614029349453665
+   },
+   {
+    "log10_rho_c": 14.459999999999999,
+    "R_km": 16.90611160949659,
+    "M_Msun": 0.18080317085521855,
+    "w_c": 0.04839156167482706,
+    "C": 0.015796519643274873
+   },
+   {
+    "log10_rho_c": 14.469999999999999,
+    "R_km": 16.3718111732605,
+    "M_Msun": 0.1888716794448428,
+    "w_c": 0.050561434217473306,
+    "C": 0.017039985308931596
+   },
+   {
+    "log10_rho_c": 14.479999999999999,
+    "R_km": 15.894071997443636,
+    "M_Msun": 0.19741536429377085,
+    "w_c": 0.05284049117086539,
+    "C": 0.01834614723432623
+   },
+   {
+    "log10_rho_c": 14.489999999999998,
+    "R_km": 15.466211594542223,
+    "M_Msun": 0.2064520382910828,
+    "w_c": 0.05523344778270645,
+    "C": 0.01971670453791741
+   },
+   {
+    "log10_rho_c": 14.5,
+    "R_km": 15.082504246770963,
+    "M_Msun": 0.21599961390266176,
+    "w_c": 0.0577451626947606,
+    "C": 0.02115332390667742
+   },
+   {
+    "log10_rho_c": 14.51,
+    "R_km": 14.73801576502142,
+    "M_Msun": 0.2260760212683956,
+    "w_c": 0.06038063792533204,
+    "C": 0.02265763548290204
+   },
+   {
+    "log10_rho_c": 14.52,
+    "R_km": 14.428474401808687,
+    "M_Msun": 0.23669911560327977,
+    "w_c": 0.06314501454624925,
+    "C": 0.02423122235550158
+   },
+   {
+    "log10_rho_c": 14.53,
+    "R_km": 14.150163383829135,
+    "M_Msun": 0.2478865675485875,
+    "w_c": 0.06604357185644262,
+    "C": 0.025875612598002928
+   },
+   {
+    "log10_rho_c": 14.54,
+    "R_km": 13.899834371337136,
+    "M_Msun": 0.2596557629819988,
+    "w_c": 0.06908172906979126,
+    "C": 0.027592270674103924
+   },
+   {
+    "log10_rho_c": 14.549999999999999,
+    "R_km": 13.674635933279115,
+    "M_Msun": 0.27202368492721457,
+    "w_c": 0.07226504209480378,
+    "C": 0.02938258814232327
+   },
+   {
+    "log10_rho_c": 14.559999999999999,
+    "R_km": 13.472054790004842,
+    "M_Msun": 0.28500678330038076,
+    "w_c": 0.07559919820466547,
+    "C": 0.031247872727745693
+   },
+   {
+    "log10_rho_c": 14.569999999999999,
+    "R_km": 13.289866900605677,
+    "M_Msun": 0.298620854050305,
+    "w_c": 0.07909001758775584,
+    "C": 0.03318933896934386
+   },
+   {
+    "log10_rho_c": 14.58,
+    "R_km": 13.126096035959064,
+    "M_Msun": 0.3128809015579645,
+    "w_c": 0.08274344839102118,
+    "C": 0.03520809909244753
+   },
+   {
+    "log10_rho_c": 14.59,
+    "R_km": 12.97898054257112,
+    "M_Msun": 0.3278009922351843,
+    "w_c": 0.08656556222557969,
+    "C": 0.03730514938208068
+   },
+   {
+    "log10_rho_c": 14.6,
+    "R_km": 12.846943445483147,
+    "M_Msun": 0.34339411796425645,
+    "w_c": 0.09056255163367465,
+    "C": 0.03948136329208724
+   },
+   {
+    "log10_rho_c": 14.61,
+    "R_km": 12.72856858967508,
+    "M_Msun": 0.3596720436475553,
+    "w_c": 0.09474072401227425,
+    "C": 0.04173747926817796
+   },
+   {
+    "log10_rho_c": 14.62,
+    "R_km": 12.62257992063668,
+    "M_Msun": 0.3766451553960364,
+    "w_c": 0.09910649712813183,
+    "C": 0.0440740903358954
+   },
+   {
+    "log10_rho_c": 14.629999999999999,
+    "R_km": 12.527823996603491,
+    "M_Msun": 0.39432231501215653,
+    "w_c": 0.10366639490400532,
+    "C": 0.04649163423528909
+   },
+   {
+    "log10_rho_c": 14.639999999999999,
+    "R_km": 12.443254677255785,
+    "M_Msun": 0.41271070713332275,
+    "w_c": 0.10842703882218946,
+    "C": 0.04899038439383301
+   },
+   {
+    "log10_rho_c": 14.649999999999999,
+    "R_km": 12.367920622439303,
+    "M_Msun": 0.4318156921405104,
+    "w_c": 0.11339513993010658,
+    "C": 0.05157043944507138
+   },
+   {
+    "log10_rho_c": 14.66,
+    "R_km": 12.300954207847548,
+    "M_Msun": 0.4516406631957857,
+    "w_c": 0.11857749940727577,
+    "C": 0.05423171462740398
+   },
+   {
+    "log10_rho_c": 14.67,
+    "R_km": 12.241561874747621,
+    "M_Msun": 0.4721869071003355,
+    "w_c": 0.12398099324720875,
+    "C": 0.05697393418776224
+   },
+   {
+    "log10_rho_c": 14.68,
+    "R_km": 12.189016126591682,
+    "M_Msun": 0.49345347638385423,
+    "w_c": 0.12961256077112435,
+    "C": 0.05979662358021511
+   },
+   {
+    "log10_rho_c": 14.69,
+    "R_km": 12.142648114167873,
+    "M_Msun": 0.5154370640227286,
+    "w_c": 0.1354792099585811,
+    "C": 0.06269910418110154
+   },
+   {
+    "log10_rho_c": 14.7,
+    "R_km": 12.101842256364877,
+    "M_Msun": 0.5381318975021053,
+    "w_c": 0.14158799732349545,
+    "C": 0.06568048462610006
+   },
+   {
+    "log10_rho_c": 14.709999999999999,
+    "R_km": 12.066030321325794,
+    "M_Msun": 0.5615296398744736,
+    "w_c": 0.14794601464791735,
+    "C": 0.06873965904395356
+   },
+   {
+    "log10_rho_c": 14.719999999999999,
+    "R_km": 12.034686988445388,
+    "M_Msun": 0.5856193084844507,
+    "w_c": 0.15456038826269944,
+    "C": 0.0718753031137445
+   },
+   {
+    "log10_rho_c": 14.729999999999999,
+    "R_km": 12.00732583709553,
+    "M_Msun": 0.6103872023689145,
+    "w_c": 0.16143826907301217,
+    "C": 0.07508587123592864
+   },
+   {
+    "log10_rho_c": 14.74,
+    "R_km": 11.98349607169437,
+    "M_Msun": 0.6358168654073374,
+    "w_c": 0.16858681003121803,
+    "C": 0.07836959577633214
+   },
+   {
+    "log10_rho_c": 14.75,
+    "R_km": 11.96277911179936,
+    "M_Msun": 0.6618890458977046,
+    "w_c": 0.17601315462808034,
+    "C": 0.08172448846180322
+   },
+   {
+    "log10_rho_c": 14.76,
+    "R_km": 11.944786328445836,
+    "M_Msun": 0.6885816956442913,
+    "w_c": 0.18372444824346046,
+    "C": 0.08514834072768836
+   },
+   {
+    "log10_rho_c": 14.77,
+    "R_km": 11.929156362284262,
+    "M_Msun": 0.7158699752150975,
+    "w_c": 0.191727798983093,
+    "C": 0.08863872848695001
+   },
+   {
+    "log10_rho_c": 14.78,
+    "R_km": 11.915553456506096,
+    "M_Msun": 0.7437262973812522,
+    "w_c": 0.20003025817603673,
+    "C": 0.09219301532264777
+   },
+   {
+    "log10_rho_c": 14.79,
+    "R_km": 11.90366525358311,
+    "M_Msun": 0.772120378042282,
+    "w_c": 0.2086388480856382,
+    "C": 0.09580836086547122
+   },
+   {
+    "log10_rho_c": 14.799999999999999,
+    "R_km": 11.893201591303104,
+    "M_Msun": 0.8010193210177678,
+    "w_c": 0.21756051308776353,
+    "C": 0.09948172614266466
+   },
+   {
+    "log10_rho_c": 14.809999999999999,
+    "R_km": 11.883892845439044,
+    "M_Msun": 0.8303877151875985,
+    "w_c": 0.22680210032529985,
+    "C": 0.10320988384580312
+   },
+   {
+    "log10_rho_c": 14.82,
+    "R_km": 11.875488767516934,
+    "M_Msun": 0.8601877697217013,
+    "w_c": 0.23637037130828864,
+    "C": 0.10698942934540305
+   },
+   {
+    "log10_rho_c": 14.83,
+    "R_km": 11.867757372686905,
+    "M_Msun": 0.8903794488979515,
+    "w_c": 0.24627198344083512,
+    "C": 0.11081679088411997
+   },
+   {
+    "log10_rho_c": 14.84,
+    "R_km": 11.860484087488233,
+    "M_Msun": 0.9209206507764914,
+    "w_c": 0.25651345109703055,
+    "C": 0.11468824246506275
+   },
+   {
+    "log10_rho_c": 14.85,
+    "R_km": 11.853470673299714,
+    "M_Msun": 0.9517673902826929,
+    "w_c": 0.267101135376591,
+    "C": 0.11859991893358238
+   },
+   {
+    "log10_rho_c": 14.86,
+    "R_km": 11.846534192386825,
+    "M_Msun": 0.9828739965231934,
+    "w_c": 0.278041273693371,
+    "C": 0.12254783239762036
+   },
+   {
+    "log10_rho_c": 14.87,
+    "R_km": 11.83950693445419,
+    "M_Msun": 1.014193347405125,
+    "w_c": 0.2893399099473857,
+    "C": 0.12652788313384825
+   },
+   {
+    "log10_rho_c": 14.879999999999999,
+    "R_km": 11.832235116922625,
+    "M_Msun": 1.045677095669118,
+    "w_c": 0.3010028666273118,
+    "C": 0.13053588125168897
+   },
+   {
+    "log10_rho_c": 14.889999999999999,
+    "R_km": 11.824578424382695,
+    "M_Msun": 1.0772759088616304,
+    "w_c": 0.31303581536109676,
+    "C": 0.13456756153468225
+   },
+   {
+    "log10_rho_c": 14.899999999999999,
+    "R_km": 11.81640945691819,
+    "M_Msun": 1.1089397253083046,
+    "w_c": 0.325444184249802,
+    "C": 0.1386186007870237
+   },
+   {
+    "log10_rho_c": 14.91,
+    "R_km": 11.807613183092078,
+    "M_Msun": 1.1406180263152232,
+    "w_c": 0.33823313685940876,
+    "C": 0.14268463695684439
+   },
+   {
+    "log10_rho_c": 14.92,
+    "R_km": 11.798086252239152,
+    "M_Msun": 1.1722600796357712,
+    "w_c": 0.3514076105250178,
+    "C": 0.14676128639194147
+   },
+   {
+    "log10_rho_c": 14.93,
+    "R_km": 11.787736601304424,
+    "M_Msun": 1.2038152202415042,
+    "w_c": 0.36497228544147675,
+    "C": 0.1508441624451368
+   },
+   {
+    "log10_rho_c": 14.94,
+    "R_km": 11.776482951412397,
+    "M_Msun": 1.2352331039317275,
+    "w_c": 0.3789315287256213,
+    "C": 0.15492889214307343
+   },
+   {
+    "log10_rho_c": 14.95,
+    "R_km": 11.764254255807739,
+    "M_Msun": 1.2664639603404917,
+    "w_c": 0.3932893945477189,
+    "C": 0.159011133851323
+   },
+   {
+    "log10_rho_c": 14.959999999999999,
+    "R_km": 11.750989076716854,
+    "M_Msun": 1.2974588447778164,
+    "w_c": 0.40804968097221866,
+    "C": 0.16308659647399357
+   },
+   {
+    "log10_rho_c": 14.969999999999999,
+    "R_km": 11.736635531379747,
+    "M_Msun": 1.3281698944172728,
+    "w_c": 0.4232158233440765,
+    "C": 0.16715105211510078
+   },
+   {
+    "log10_rho_c": 14.979999999999999,
+    "R_km": 11.721150292955366,
+    "M_Msun": 1.358550531456631,
+    "w_c": 0.4387908583117693,
+    "C": 0.17120035581203813
+   },
+   {
+    "log10_rho_c": 14.99,
+    "R_km": 11.704498578397901,
+    "M_Msun": 1.3885556931013607,
+    "w_c": 0.4547775659321384,
+    "C": 0.1752304559947055
+   },
+   {
+    "log10_rho_c": 15.0,
+    "R_km": 11.686653384215775,
+    "M_Msun": 1.4181420267816038,
+    "w_c": 0.471178312483641,
+    "C": 0.17923741221819225
+   },
+   {
+    "log10_rho_c": 15.01,
+    "R_km": 11.667595148040457,
+    "M_Msun": 1.4472680595635963,
+    "w_c": 0.487995035675112,
+    "C": 0.1832174048204943
+   },
+   {
+    "log10_rho_c": 15.02,
+    "R_km": 11.64731139313358,
+    "M_Msun": 1.475894395390108,
+    "w_c": 0.5052293296000937,
+    "C": 0.18716674942037229
+   },
+   {
+    "log10_rho_c": 15.03,
+    "R_km": 11.625796089009627,
+    "M_Msun": 1.503983806904113,
+    "w_c": 0.5228823943541839,
+    "C": 0.19108190391146132
+   },
+   {
+    "log10_rho_c": 15.04,
+    "R_km": 11.60304934653444,
+    "M_Msun": 1.531501406959597,
+    "w_c": 0.5409549642185274,
+    "C": 0.1949594817829223
+   },
+   {
+    "log10_rho_c": 15.049999999999999,
+    "R_km": 11.57907697025669,
+    "M_Msun": 1.558414723993383,
+    "w_c": 0.5594473311216144,
+    "C": 0.19879625689352912
+   },
+   {
+    "log10_rho_c": 15.059999999999999,
+    "R_km": 11.553890008013312,
+    "M_Msun": 1.5846937933701983,
+    "w_c": 0.5783594365851433,
+    "C": 0.20258917184513464
+   },
+   {
+    "log10_rho_c": 15.07,
+    "R_km": 11.527504304018096,
+    "M_Msun": 1.6103112136573312,
+    "w_c": 0.5976907229716886,
+    "C": 0.2063353433973765
+   },
+   {
+    "log10_rho_c": 15.08,
+    "R_km": 11.499940175082807,
+    "M_Msun": 1.6352421975073872,
+    "w_c": 0.6174400890058487,
+    "C": 0.21003206651763923
+   },
+   {
+    "log10_rho_c": 15.09,
+    "R_km": 11.471221941115477,
+    "M_Msun": 1.6594645755813358,
+    "w_c": 0.6376061383702815,
+    "C": 0.21367681643085132
+   },
+   {
+    "log10_rho_c": 15.1,
+    "R_km": 11.441377562650567,
+    "M_Msun": 1.6829588276337604,
+    "w_c": 0.6581869303318448,
+    "C": 0.21726725372683361
+   },
+   {
+    "log10_rho_c": 15.11,
+    "R_km": 11.41043828458657,
+    "M_Msun": 1.705708038191582,
+    "w_c": 0.6791799814999965,
+    "C": 0.2208012210012922
+   },
+   {
+    "log10_rho_c": 15.12,
+    "R_km": 11.378438267041387,
+    "M_Msun": 1.727697900519504,
+    "w_c": 0.7005824207755283,
+    "C": 0.22427674726776162
+   },
+   {
+    "log10_rho_c": 15.129999999999999,
+    "R_km": 11.345414214700911,
+    "M_Msun": 1.748916619486997,
+    "w_c": 0.7223909069341606,
+    "C": 0.22769204060922277
+   },
+   {
+    "log10_rho_c": 15.139999999999999,
+    "R_km": 11.311405065062308,
+    "M_Msun": 1.7693549222754865,
+    "w_c": 0.7446015430463984,
+    "C": 0.23104549484114925
+   },
+   {
+    "log10_rho_c": 15.149999999999999,
+    "R_km": 11.276451631356876,
+    "M_Msun": 1.789005905127885,
+    "w_c": 0.7672099382188249,
+    "C": 0.2343356768716653
+   },
+   {
+    "log10_rho_c": 15.16,
+    "R_km": 11.24059639682001,
+    "M_Msun": 1.8078650151613131,
+    "w_c": 0.7902113374953874,
+    "C": 0.23756132951960462
+   },
+   {
+    "log10_rho_c": 15.17,
+    "R_km": 11.203883125749606,
+    "M_Msun": 1.8259299343121116,
+    "w_c": 0.8136004263391472,
+    "C": 0.24072136624778864
+   },
+   {
+    "log10_rho_c": 15.18,
+    "R_km": 11.166356616086507,
+    "M_Msun": 1.8432004494776693,
+    "w_c": 0.8373712746590124,
+    "C": 0.24381486196884408
+   },
+   {
+    "log10_rho_c": 15.19,
+    "R_km": 11.128062538654643,
+    "M_Msun": 1.8596784070505294,
+    "w_c": 0.8615177286807776,
+    "C": 0.24684105373455614
+   },
+   {
+    "log10_rho_c": 15.2,
+    "R_km": 11.089046999368616,
+    "M_Msun": 1.875367532429905,
+    "w_c": 0.8860330346545605,
+    "C": 0.24979933029210488
+   },
+   {
+    "log10_rho_c": 15.209999999999999,
+    "R_km": 11.049356526496938,
+    "M_Msun": 1.8902733529955178,
+    "w_c": 0.9109098682201677,
+    "C": 0.2526892265177025
+   },
+   {
+    "log10_rho_c": 15.219999999999999,
+    "R_km": 11.00903776594545,
+    "M_Msun": 1.904403068718394,
+    "w_c": 0.9361405825176075,
+    "C": 0.2555104177329919
+   },
+   {
+    "log10_rho_c": 15.23,
+    "R_km": 10.968137282290142,
+    "M_Msun": 1.9177654199033463,
+    "w_c": 0.9617170741244653,
+    "C": 0.2582627116844647
+   },
+   {
+    "log10_rho_c": 15.24,
+    "R_km": 10.926701413454369,
+    "M_Msun": 1.9303705910023354,
+    "w_c": 0.9876306860552289,
+    "C": 0.26094604438244584
+   },
+   {
+    "log10_rho_c": 15.25,
+    "R_km": 10.884776095594017,
+    "M_Msun": 1.9422300440619067,
+    "w_c": 1.0138723222179222,
+    "C": 0.2635604673352993
+   },
+   {
+    "log10_rho_c": 15.26,
+    "R_km": 10.84240680119164,
+    "M_Msun": 1.9533564555728273,
+    "w_c": 1.0404326097474068,
+    "C": 0.266106146112429
+   },
+   {
+    "log10_rho_c": 15.27,
+    "R_km": 10.799638223983097,
+    "M_Msun": 1.9637635342408102,
+    "w_c": 1.0673016481946167,
+    "C": 0.26858334899901143
+   },
+   {
+    "log10_rho_c": 15.28,
+    "R_km": 10.756514366482138,
+    "M_Msun": 1.9734659635068625,
+    "w_c": 1.094468961398169,
+    "C": 0.2709924427963299
+   },
+   {
+    "log10_rho_c": 15.29,
+    "R_km": 10.713078291743471,
+    "M_Msun": 1.9824792491626377,
+    "w_c": 1.1219240136812114,
+    "C": 0.2733338838432286
+   },
+   {
+    "log10_rho_c": 15.299999999999999,
+    "R_km": 10.669372147741068,
+    "M_Msun": 1.990819638797539,
+    "w_c": 1.1496557195143735,
+    "C": 0.2756082119856874
+   },
+   {
+    "log10_rho_c": 15.309999999999999,
+    "R_km": 10.625437008994284,
+    "M_Msun": 1.9985039978616799,
+    "w_c": 1.1776524847363552,
+    "C": 0.2778160430234571
+   },
+   {
+    "log10_rho_c": 15.32,
+    "R_km": 10.581312761440365,
+    "M_Msun": 2.0055497044796553,
+    "w_c": 1.2059025721497272,
+    "C": 0.2799580625325163
+   },
+   {
+    "log10_rho_c": 15.33,
+    "R_km": 10.537038230844907,
+    "M_Msun": 2.0119745950467256,
+    "w_c": 1.234393890060652,
+    "C": 0.2820350201409391
+   },
+   {
+    "log10_rho_c": 15.34,
+    "R_km": 10.492650996543182,
+    "M_Msun": 2.017796846851632,
+    "w_c": 1.2631138864408529,
+    "C": 0.2840477230184857
+   },
+   {
+    "log10_rho_c": 15.35,
+    "R_km": 10.448187351436648,
+    "M_Msun": 2.0230348954347965,
+    "w_c": 1.2920497278306264,
+    "C": 0.285997030173177
+   },
+   {
+    "log10_rho_c": 15.36,
+    "R_km": 10.403682275661078,
+    "M_Msun": 2.027707338528316,
+    "w_c": 1.321188479045432,
+    "C": 0.2878838441962411
+   },
+   {
+    "log10_rho_c": 15.37,
+    "R_km": 10.359169493255301,
+    "M_Msun": 2.03183290912404,
+    "w_c": 1.3505167934611013,
+    "C": 0.28970911018430595
+   },
+   {
+    "log10_rho_c": 15.379999999999999,
+    "R_km": 10.314681427595735,
+    "M_Msun": 2.0354303862509022,
+    "w_c": 1.3800208788077248,
+    "C": 0.2914738083380647
+   },
+   {
+    "log10_rho_c": 15.389999999999999,
+    "R_km": 10.270249139864346,
+    "M_Msun": 2.038518532229111,
+    "w_c": 1.409687130032672,
+    "C": 0.2931789505308011
+   },
+   {
+    "log10_rho_c": 15.399999999999999,
+    "R_km": 10.22590234836307,
+    "M_Msun": 2.0411160100511374,
+    "w_c": 1.4395015188928253,
+    "C": 0.2948255714668553
+   },
+   {
+    "log10_rho_c": 15.41,
+    "R_km": 10.181669486467882,
+    "M_Msun": 2.0432413956024726,
+    "w_c": 1.4694496398968788,
+    "C": 0.29641473204173285
+   },
+   {
+    "log10_rho_c": 15.42,
+    "R_km": 10.137577656145742,
+    "M_Msun": 2.044913069184381,
+    "w_c": 1.4995172085497719,
+    "C": 0.29794750804178616
+   },
+   {
+    "log10_rho_c": 15.43,
+    "R_km": 10.093652661692465,
+    "M_Msun": 2.04614920809311,
+    "w_c": 1.529689744521347,
+    "C": 0.29942499082487306
+   },
+   {
+    "log10_rho_c": 15.44,
+    "R_km": 10.049919008797607,
+    "M_Msun": 2.046967722799297,
+    "w_c": 1.5599524606767194,
+    "C": 0.30084828056669927
+   },
+   {
+    "log10_rho_c": 15.45,
+    "R_km": 10.006400001283716,
+    "M_Msun": 2.047386279147926,
+    "w_c": 1.5902905141490609,
+    "C": 0.30221848891264796
+   },
+   {
+    "log10_rho_c": 15.459999999999999,
+    "R_km": 9.96311761796645,
+    "M_Msun": 2.047422184256367,
+    "w_c": 1.6206891806738812,
+    "C": 0.3035367279522184
+   },
+   {
+    "log10_rho_c": 15.469999999999999,
+    "R_km": 9.920092688334984,
+    "M_Msun": 2.047092439460595,
+    "w_c": 1.6511334872093364,
+    "C": 0.30480411454092476
+   },
+   {
+    "log10_rho_c": 15.48,
+    "R_km": 9.87734484550282,
+    "M_Msun": 2.0464136686596563,
+    "w_c": 1.681608197588155,
+    "C": 0.3060217627193766
+   },
+   {
+    "log10_rho_c": 15.49,
+    "R_km": 9.83489254249707,
+    "M_Msun": 2.0454021307608605,
+    "w_c": 1.7120985399651656,
+    "C": 0.3071907864848624
+   },
+   {
+    "log10_rho_c": 15.5,
+    "R_km": 9.792753146227252,
+    "M_Msun": 2.0440736863721263,
+    "w_c": 1.7425894809754328,
+    "C": 0.30831229314343844
+   },
+   {
+    "log10_rho_c": 15.51,
+    "R_km": 9.75094292344086,
+    "M_Msun": 2.042443785775236,
+    "w_c": 1.7730657669104397,
+    "C": 0.3093873829505198
+   },
+   {
+    "log10_rho_c": 15.52,
+    "R_km": 9.709477084883092,
+    "M_Msun": 2.040527479714484,
+    "w_c": 1.8035125609817888,
+    "C": 0.3104171502464294
+   },
+   {
+    "log10_rho_c": 15.53,
+    "R_km": 9.668369819341788,
+    "M_Msun": 2.0383393665122984,
+    "w_c": 1.833914996881209,
+    "C": 0.3114026750808923
+   },
+   {
+    "log10_rho_c": 15.54,
+    "R_km": 9.627634375259717,
+    "M_Msun": 2.0358936553786005,
+    "w_c": 1.8642580685774097,
+    "C": 0.3123450307833537
+   },
+   {
+    "log10_rho_c": 15.549999999999999,
+    "R_km": 9.587282904463617,
+    "M_Msun": 2.033204078101262,
+    "w_c": 1.894526956752192,
+    "C": 0.3132452759983471
+   },
+   {
+    "log10_rho_c": 15.559999999999999,
+    "R_km": 9.547326875872301,
+    "M_Msun": 2.030283985693117,
+    "w_c": 1.9247071716053894,
+    "C": 0.31410445637914636
+   },
+   {
+    "log10_rho_c": 15.57,
+    "R_km": 9.507776692924637,
+    "M_Msun": 2.0271462567672747,
+    "w_c": 1.9547841358916553,
+    "C": 0.31492360314655715
+   },
+   {
+    "log10_rho_c": 15.58,
+    "R_km": 9.468641983891812,
+    "M_Msun": 2.0238033509945565,
+    "w_c": 1.9847431965116908,
+    "C": 0.315703731937165
+   },
+   {
+    "log10_rho_c": 15.59,
+    "R_km": 9.429931571027105,
+    "M_Msun": 2.0202673024635343,
+    "w_c": 2.014570413240952,
+    "C": 0.31644584277018406
+   },
+   {
+    "log10_rho_c": 15.6,
+    "R_km": 9.391653526271007,
+    "M_Msun": 2.016549731216916,
+    "w_c": 2.044251734803668,
+    "C": 0.3171509199053171
+   }
+  ]
+ },
+ "free_neutron_star_scratch": {
+  "M_max_Msun": 0.7096528000291537,
+  "R_at_Mmax_km": 8.974673129081815,
+  "x_c": 0.8554672535565682,
+  "w_c_at_Mmax": 0.29857347001617757,
+  "tag": "[VERIFIED numerics, scratch] OV free-neutron maximum; literature ~0.7 Msun (OV 1939)"
+ },
+ "engine_defects_found": [
+  {
+   "file": "sigma_ground/field/interface/element.py",
+   "line": 515,
+   "defect": "SEMF asymmetry term written a_a (A-2Z)^2/(4A) with a_a = 23.29 MeV, the coefficient of the (A-2Z)^2/A form that the same file's stable_mass_number() (coeff = a_c/(2 a_a), line 560) assumes: the penalty is 4x too small",
+   "evidence": "10 named nuclides: Pb-208 +8.84 % -> -1.09 %, U-238 +11.58 % -> -0.30 %. Whole table, 136 nuclides A >= 12: rms 6.82 % -> 0.78 %; best divisor k = 1.03 (code 4); Spearman(residual, N-Z) = 0.95"
+  },
+  {
+   "file": "sigma_ground/mcp/tools/nuclear.py",
+   "line": 62,
+   "defect": "second, different SEMF coefficient set hardcoded inline, plus private u / m_H / m_n constants (PLATINUM 3 duplicate)",
+   "evidence": "15.75/17.8/0.711/23.7/11.18 vs element.py 15.56/17.23/A_C/23.29/12.0; rms 1.14 % (A >= 12), He-4 -19.3 %"
+  },
+  {
+   "file": "SkippyTel/mentat/app.py",
+   "line": 178,
+   "defect": "the front-door _UNSAFE regex refuses any apostrophe, so solve_ode's documented prime syntax (mathx.py:213, example \"y'' + y\") can never reach the tool; the guard is a deliberate eval() defence, so the mismatch is between the guard and the tool's documented interface",
+   "evidence": "Mentat refused \"y'' + y\" and the prime-form Lane-Emden with the error at app.py:236; Derivative() syntax returns Eq(y(x), (C1*besselj(1/2, x) + C2*bessely(1/2, x))/sqrt(x))"
+  },
+  {
+   "file": "sigma_ground/field/constants.py",
+   "line": 399,
+   "defect": "nuclear-matter anchors N0_FM3, E_SAT_MEV, K_SAT_MEV, J_SYM_MEV carry no citation and no uncertainty; L_sym missing",
+   "evidence": "constants.py:395-411; values match Margueron 2018 Table 1 within 1 sigma (n_sat 0.16 vs 0.155 +/- 0.005)"
+  },
+  {
+   "file": "sigma_ground/field/audit.py",
+   "line": 266,
+   "defect": "audit ledger lists 'TOV integration (full)' and 'M_TOV = 2.071 Msun' as live; the code is only in ../ssbm-theory",
+   "evidence": "no TOV integrator anywhere under sigma_ground/"
+  },
+  {
+   "file": "sigma_ground/field/planets.py",
+   "line": 138,
+   "defect": "NEUTRON_STAR body hand-entered (1.4 Msun, 11 km, four layers with round densities), uncited",
+   "evidence": "planets.py:137-176"
+  },
+  {
+   "file": "scripts/unification/pilot_p6_sigma_bridge.py",
+   "line": 50,
+   "defect": "P6's [LIT] dense-matter rows are inconsistent with checkable physics: the neutron-star row (5e17 kg/m^3, 1e34 Pa) exceeds GW170817's 90 % bound, and the white-dwarf row (1e9 kg/m^3, 1e22 Pa) is several times the Chandrasekhar pressure",
+   "evidence": "NS row P / GW170817 upper bound = 1.61; WD row P / Chandrasekhar P(1e9, mu_e = 2) = 3.81"
+  },
+  {
+   "file": "GOLDEN_RULES.md",
+   "line": 31,
+   "defect": "Rule 2 points to sigma_ground/field/bounds.py, removed in e66615b (SSBM excision); documentation defect",
+   "evidence": "ls sigma_ground/field/bounds.py: no such file"
+  }
+ ],
+ "v2_changes": [
+  "element.py lines computed by grep (asymmetry term, stable_mass_number coeff) instead of typed",
+  "solve_ode probe adds the docstring example and the Derivative() form; refusal attributed to SkippyTel/mentat/app.py",
+  "SEMF check extended to the whole isotope table, with a divisor scan and a 4-parameter refit",
+  "NICER anchors updated: Vinciguerra+2024 (J0030), Salmi+2024 (J0740), Choudhury+2024 (J0437); compactness intervals",
+  "pressure share: GW170817 at Abbott's 2 rho_nuc and at 2 n_sat; Chandrasekhar WD pressures; P6 rows checked and flagged",
+  "Margueron 2018 Tables 1-2 (experiment-based) replace the Table 4 model average as the saturation anchors",
+  "P7 normalisation made analytic with Mentat integrals",
+  "existing integrators and EOS layers surveyed; numpy top-level imports counted",
+  "bag-model window derived with Mentat",
+  "expected outcome of the plan's validation tests for its own reference EOS (SLy, HP2004 fit, scratch TOV)",
+  "free-neutron OV maximum computed (scratch) as the M5 test target"
+ ],
+ "references_verified": [
+  {
+   "key": "Riley2019",
+   "cite": "Riley T. E. et al. 2019, ApJL 887, L21 — A NICER view of PSR J0030+0451: millisecond pulsar parameter estimation",
+   "id": "arXiv:1912.05702; doi:10.3847/2041-8213/ab481c",
+   "value": "M = 1.34 (+0.15/-0.16) Msun, R_eq = 12.71 (+1.14/-1.19) km (~16-84 %)",
+   "verified": "arXiv abstract fetched",
+   "url": "https://arxiv.org/abs/1912.05702",
+   "status_v2": "revisited: Vinciguerra+2024 report that adding XMM-Newton constraints disfavours the 2019 main solutions; kept only as a soft (reported, not pass/fail) anchor"
+  },
+  {
+   "key": "Miller2019",
+   "cite": "Miller M. C. et al. 2019, ApJL 887, L24 — PSR J0030+0451 mass and radius from NICER data",
+   "id": "arXiv:1912.05705",
+   "value": "M = 1.44 (+0.15/-0.14) Msun, R_e = 13.02 (+1.24/-1.06) km (68 %)",
+   "verified": "arXiv abstract fetched",
+   "url": "https://arxiv.org/abs/1912.05705",
+   "status_v2": "revisited by Vinciguerra+2024 (same data set); soft anchor only"
+  },
+  {
+   "key": "Riley2021",
+   "cite": "Riley T. E. et al. 2021, ApJL 918, L27 — A NICER view of the massive pulsar PSR J0740+6620 informed by radio timing and XMM-Newton spectroscopy",
+   "id": "arXiv:2105.06980",
+   "value": "R_eq = 12.39 (+1.30/-0.98) km, M = 2.072 (+0.067/-0.066) Msun",
+   "verified": "web search (arXiv, UvA DARE, NTRS agree)",
+   "url": "https://arxiv.org/pdf/2105.06980",
+   "status_v2": "superseded by Salmi+2024 (3.6 yr of NICER data); kept for comparison"
+  },
+  {
+   "key": "Fonseca2021",
+   "cite": "Fonseca E. et al. 2021, ApJL 915, L12 — Refined mass and geometric measurements of the high-mass PSR J0740+6620",
+   "id": "arXiv:2104.00880; doi:10.3847/2041-8213/ac03b8",
+   "value": "M = 2.08 +/- 0.07 Msun (68.3 %)",
+   "verified": "web search (ar5iv copy)",
+   "url": "https://ar5iv.arxiv.org/html/2104.00880"
+  },
+  {
+   "key": "Antoniadis2013",
+   "cite": "Antoniadis J. et al. 2013, Science 340, 1233232 — A massive pulsar in a compact relativistic binary",
+   "id": "doi:10.1126/science.1233232; arXiv:1304.6875",
+   "value": "PSR J0348+0432: M = 2.01 +/- 0.04 Msun (SUPERSEDED, see Saffer2025)",
+   "verified": "web search",
+   "url": "https://arxiv.org/pdf/1304.6875.pdf"
+  },
+  {
+   "key": "Saffer2025",
+   "cite": "Saffer A. et al. 2025, ApJL 983, L20 — A Lower Mass Estimate for PSR J0348+0432 Based on CHIME/Pulsar Precision Timing",
+   "id": "arXiv:2412.02850; doi:10.3847/2041-8213/adc25e",
+   "value": "M_p = 1.806(37) Msun; the earlier ~2.01 Msun relied on WD-companion spectroscopy the authors argue was mis-modelled",
+   "verified": "v2: arXiv abstract fetched (comments field: 'Submitted to ApJ Letters'); journal reference ApJL 983, L20 (2025) and DOI confirmed by a Crossref metadata query",
+   "url": "https://arxiv.org/abs/2412.02850",
+   "status_v2": "one 2025 timing analysis revises J0348 below 2 Msun; independent confirmation not yet available"
+  },
+  {
+   "key": "Chandrasekhar1931",
+   "cite": "Chandrasekhar S. 1931, ApJ 74, 81 — The maximum mass of ideal white dwarfs",
+   "id": "1931ApJ....74...81C",
+   "value": "unique limiting mass of a relativistically degenerate polytrope; 1.44 Msun with mu_e = 2 in the modern statement",
+   "verified": "web search",
+   "url": "https://repository.ias.ac.in/70320"
+  },
+  {
+   "key": "Chandrasekhar1935",
+   "cite": "Chandrasekhar S. 1935, MNRAS 95, 207 — The highly collapsed configurations of a stellar mass (second paper)",
+   "id": "1935MNRAS..95..207C",
+   "value": "exact T = 0 relativistic degenerate-gas EOS and the white-dwarf mass-radius relation",
+   "verified": "web search (IAS repository record)",
+   "url": "https://repository.ias.ac.in/70449"
+  },
+  {
+   "key": "LaneEmden_n3",
+   "cite": "Lane-Emden n = 3 constants xi_1 = 6.89685, xi_1^2|theta'(xi_1)| = 2.01824 (Chandrasekhar 1939/1967 Table 4; Shapiro & Teukolsky 1983 eq. 3.3.12)",
+   "id": "book",
+   "value": "omega_3 = 2.01824; M_Ch written 1.14205e34 g / mu_e^2 (= 5.742/mu_e^2 Msun with m_H)",
+   "verified": "web fetch of the Tohline structure page that quotes both books",
+   "url": "https://vistrails.org/index.php/User:Tohline/SSC/Structure/WhiteDwarfs"
+  },
+  {
+   "key": "Bond2017",
+   "cite": "Bond H. E. et al. 2017, ApJ 840, 70 — The Sirius System and its Astrophysical Puzzles",
+   "id": "arXiv:1703.10625; doi:10.3847/1538-4357/aa6af8",
+   "value": "Sirius B dynamical mass 1.018 +/- 0.011 Msun; radius NOT in the abstract (read from the paper before use)",
+   "verified": "v2: arXiv abstract fetched (M_B = 1.018 +/- 0.011 Msun); volume/page from Crossref metadata",
+   "url": "https://arxiv.org/abs/1703.10625"
+  },
+  {
+   "key": "HamadaSalpeter1961",
+   "cite": "Hamada T. & Salpeter E. E. 1961, ApJ 134, 683 — Models for zero-temperature stars",
+   "id": "1961ApJ...134..683H",
+   "value": "zero-T WD mass-radius with composition-dependent Coulomb corrections",
+   "verified": "web search (secondary descriptions)",
+   "url": "https://arxiv.org/pdf/1201.3822"
+  },
+  {
+   "key": "Salpeter1961",
+   "cite": "Salpeter E. E. 1961, ApJ 134, 669 — Energy and pressure of a zero-temperature plasma",
+   "id": "1961ApJ...134..669S",
+   "value": "Coulomb lattice, Thomas-Fermi and exchange corrections to the degenerate electron gas",
+   "verified": "web search (abstract via database)",
+   "url": "https://synapsesocial.com/papers/W1989039387"
+  },
+  {
+   "key": "Tolman1939",
+   "cite": "Tolman R. C. 1939, Phys. Rev. 55, 364 — Static solutions of Einstein's field equations for spheres of fluid",
+   "id": "doi:10.1103/PhysRev.55.364",
+   "value": "TOV equation; exact interior solutions",
+   "verified": "web search (APS DOI record, Caltech)",
+   "url": "https://www.doi.org/10.1103/PHYSREV.55.364"
+  },
+  {
+   "key": "OV1939",
+   "cite": "Oppenheimer J. R. & Volkoff G. M. 1939, Phys. Rev. 55, 374 — On massive neutron cores",
+   "id": "doi:10.1103/PhysRev.55.374",
+   "value": "free neutron gas: no static equilibrium above ~3/4 Msun (abstract); modern statement M_max ~ 0.7 Msun",
+   "verified": "web search (abstract reproduction + Chamel et al. 2013 arXiv:1307.3995)",
+   "url": "https://arxiv.org/pdf/1307.3995",
+   "status_v2": "free-neutron M_max = 0.710 Msun recomputed in scratch numerics (n1_survey_v2 section 12); the Chamel+2013 '~0.7' attribution is not in that abstract and is dropped; the OV abstract (APS) could not be fetched"
+  },
+  {
+   "key": "Tolman1930",
+   "cite": "Tolman R. C. 1930, Phys. Rev. 35, 875 — On the use of the energy-momentum principle in general relativity",
+   "id": "doi:10.1103/PhysRev.35.875",
+   "value": "Tolman mass M = Int (eps + 3P) sqrt(g00) dV0 for static systems",
+   "verified": "web search (APS record + gr-qc/0505040)",
+   "url": "https://link.aps.org/doi/10.1103/PhysRev.35.875"
+  },
+  {
+   "key": "Margueron2018",
+   "cite": "Margueron J., Hoffmann Casali R. & Gulminelli F. 2018, PRC 97, 025805 — Equation of state for dense nucleonic matter from metamodeling. I",
+   "id": "arXiv:1708.06894; doi:10.1103/PhysRevC.97.025805",
+   "value": "Tables 1-2 'present estimation' (from analyses of experimental data): n_sat 0.155 +/- 0.005 fm^-3, E_sat -15.8 +/- 0.3 MeV, K_sat 230 +/- 20 MeV, E_sym 32 +/- 2 MeV, L_sym 60 +/- 15 MeV, K_sym -100 +/- 100 MeV, Q_sat 300 +/- 400 MeV. Table 4 'Total Average' over 50 models (Skyrme, RMF, RHF weighted equally by type): K_sat 251 (29), L_sym 76.6 (29.2) — a model spread, not data.",
+   "verified": "v2: ar5iv full text fetched; Tables 1, 2 and 4 read",
+   "url": "https://ar5iv.arxiv.org/html/1708.06894",
+   "status_v2": "v1 wrongly used the Table 4 model average as 'empirical parameters'"
+  },
+  {
+   "key": "Lattimer2023",
+   "cite": "Lattimer J. M. 2023, Particles 6, 30 — Constraints on nuclear symmetry energy parameters",
+   "id": "doi:10.3390/particles6010003",
+   "value": "neutron-matter theory: S_V = 32.0 +/- 1.1 MeV, L = 51.9 +/- 7.9 MeV (68 %); PREX+CREX jointly L = 53 +/- 13 MeV; R_1.4 = 11.6 +/- 1.0 km",
+   "verified": "web search (MDPI page)",
+   "url": "https://mdpi.com/2571-712X/6/1/3"
+  },
+  {
+   "key": "GargColo2018",
+   "cite": "Garg U. & Colo G. 2018, Prog. Part. Nucl. Phys. 101, 55 — The compression-mode giant resonances and nuclear incompressibility",
+   "id": "arXiv:1801.03672; doi:10.1016/j.ppnp.2018.03.001",
+   "value": "review of K_infinity from ISGMR; abstract gives no number (a talk abstract by Colo: ~240 MeV from magic nuclei; Sn suggests lower). Value to be read from section 6 at implementation",
+   "verified": "web search + arXiv abstract fetch (no value in abstract)",
+   "url": "https://arxiv.org/abs/1801.03672",
+   "status_v2": "no K value in the abstract; the repo's K_SAT_MEV = 230 is cited to Margueron 2018 Table 1 instead"
+  },
+  {
+   "key": "AME2020",
+   "cite": "Wang M., Huang W. J., Kondev F. G., Audi G. & Naimi S. 2021, Chinese Phys. C 45, 030003 — The AME 2020 atomic mass evaluation (II)",
+   "id": "doi:10.1088/1674-1137/abddaf",
+   "value": "measured nuclide masses; the repo's isotopes.json is refreshed from it (145 nuclides)",
+   "verified": "web search (CPC page)",
+   "url": "https://cpc.ihep.ac.cn/article/doi/10.1088/1674-1137/abddaf"
+  },
+  {
+   "key": "BPS1971",
+   "cite": "Baym G., Pethick C. & Sutherland P. 1971, ApJ 170, 299 — The ground state of matter at high densities: equation of state and stellar models",
+   "id": "1971ApJ...170..299B",
+   "value": "outer crust: bcc lattice of 56Fe at low density, increasingly neutron-rich nuclei with depth; valid up to neutron drip ~4.3e11 g/cm^3",
+   "verified": "web search (Haensel lecture notes + reviews)",
+   "url": "https://luth.obspm.fr/IHP06/lectures/haensel/haensel3.pdf"
+  },
+  {
+   "key": "Chabanat1998",
+   "cite": "Chabanat E., Bonche P., Haensel P., Meyer J. & Schaeffer R. 1998, Nucl. Phys. A 635, 231 (with NPA 627, 710 (1997)) — Skyrme parametrization SLy",
+   "id": "doi:10.1016/S0375-9474(98)00180-8",
+   "value": "SLy4 Skyrme force for neutron-rich matter; parameter values to be copied and verified from the paper's table at implementation",
+   "verified": "web search (citations in astro-ph/0006135, 2401.15916)",
+   "url": "https://arxiv.org/pdf/astro-ph/0006135"
+  },
+  {
+   "key": "DouchinHaensel2001",
+   "cite": "Douchin F. & Haensel P. 2001, A&A 380, 151 — A unified equation of state of dense matter and neutron star structure",
+   "id": "arXiv:astro-ph/0111092; doi:10.1051/0004-6361:20011402",
+   "value": "SLy unified crust+core EOS: static NS minimum mass 0.094 Msun and maximum mass 2.05 Msun",
+   "verified": "arXiv abstract fetched",
+   "url": "https://arxiv.org/abs/astro-ph/0111092"
+  },
+  {
+   "key": "Read2009",
+   "cite": "Read J. S., Lackey B. D., Owen B. J. & Friedman J. L. 2009, PRD 79, 124032 — Constraints on a phenomenologically parameterized neutron-star equation of state",
+   "id": "arXiv:0812.2163",
+   "value": "piecewise polytrope, 3 parameters fit candidate EOSs to ~4 % rms below the 1.4 Msun central density",
+   "verified": "web search",
+   "url": "https://ar5iv.arxiv.org/html/0812.2163"
+  },
+  {
+   "key": "Abbott2018",
+   "cite": "Abbott B. P. et al. (LIGO/Virgo) 2018, PRL 121, 161101 — GW170817: measurements of neutron star radii and equation of state",
+   "id": "doi:10.1103/PhysRevLett.121.161101",
+   "value": "P(2 rho_nuc) = 3.5 (+2.7/-1.7) x 10^34 dyn/cm^2 at 90 %; rho_nuc = 2.8 x 10^14 g/cm^3 (Introduction)",
+   "verified": "v2: arXiv abstract and ar5iv full text fetched (rho_nuc definition read from the Introduction)",
+   "url": "https://authors.library.caltech.edu/records/7ns0n-1j457/preview/PhysRevLett.121.161101.pdf"
+  },
+  {
+   "key": "PodkowkaMendesPoisson2018",
+   "cite": "Podkowka D. M., Mendes R. F. P. & Poisson E. 2018, PRD 98, 064057 — Trace of the energy-momentum tensor and macroscopic properties of neutron stars",
+   "id": "arXiv:1807.01565",
+   "value": "C = GM/(R c^2) at which the central trace vanishes: 0.262 (+0.011/-0.017), median and 90 % interval over 20,000 four-parameter piecewise polytropes (Read+2009) with the low-density part fixed to the piecewise fit of Douchin & Haensel 2001 — a model-ensemble spread",
+   "verified": "v2: ar5iv full text fetched (definition in the Introduction, sample size in Sec. III / Fig. 4)",
+   "url": "https://arxiv.org/abs/1807.01565"
+  },
+  {
+   "key": "Fujimoto2022",
+   "cite": "Fujimoto Y., Fukushima K., McLerran L. D. & Praszalowicz M. 2022, PRL 129, 252702 — Trace anomaly as signature of conformality in neutron stars",
+   "id": "arXiv:2207.06753",
+   "value": "the matter part of the trace anomaly 'may be positive definite' (no sign flip) when matched to high-density QCD; it steeply approaches the conformal limit, explaining the sound-speed peak",
+   "verified": "v2: arXiv abstract fetched; the v1 phrase 'Delta near 0 by about 5 n_sat' is not in the abstract and is withdrawn",
+   "url": "https://ar5iv.labs.arxiv.org/html/2207.06753"
+  },
+  {
+   "key": "Mendes2015",
+   "cite": "Mendes R. F. P. 2015, PRD 91, 064024 — Possibility of setting a new constraint to scalar-tensor theories",
+   "id": "arXiv:1412.6789",
+   "value": "compact NS with positive trace are unstable in scalar-tensor theories with beta above a critical value",
+   "verified": "web search (ar5iv + citing papers)",
+   "url": "https://ar5iv.org/html/1412.6789"
+  },
+  {
+   "key": "DEF1993",
+   "cite": "Damour T. & Esposito-Farese G. 1993, PRL 70, 2220 — Nonperturbative strong-field effects in tensor-scalar theories of gravitation",
+   "id": "doi:10.1103/PhysRevLett.70.2220",
+   "value": "spontaneous scalarization of neutron stars; strong-field deviations invisible to weak-field tests (page 2220 not shown in the result, PRL 70 no. 15 confirmed)",
+   "verified": "web search (scanned first page)",
+   "url": "https://omeka.ihes.fr/document/P_93_01.pdf"
+  },
+  {
+   "key": "MIT1974",
+   "cite": "Chodos A., Jaffe R. L., Johnson K., Thorn C. B. & Weisskopf V. F. 1974, PRD 9, 3471 — New extended model of hadrons",
+   "id": "doi:10.1103/PhysRevD.9.3471",
+   "value": "MIT bag model; bag constant B = energy-density difference of perturbative and physical vacua",
+   "verified": "web search (secondary)",
+   "url": "https://arxiv.org/pdf/2212.11107"
+  },
+  {
+   "key": "Witten1984",
+   "cite": "Witten E. 1984, PRD 30, 272 — Cosmic separation of phases",
+   "id": "INSPIRE 200133",
+   "value": "strange quark matter could be absolutely stable (E/A < 938 MeV); bag-model strange stars",
+   "verified": "web search (INSPIRE)",
+   "url": "https://inspirehep.net/literature/200133"
+  },
+  {
+   "key": "FarhiJaffe1984",
+   "cite": "Farhi E. & Jaffe R. L. 1984, PRD 30, 2379 — Strange matter",
+   "id": "doi:10.1103/PhysRevD.30.2379",
+   "value": "stability window for massless quarks, alpha_s = 0: B^(1/4) = 145-164 MeV (lower edge from stability of ordinary nuclei)",
+   "verified": "web search (secondary: astro-ph/9601129, Madsen review)",
+   "url": "https://ar5iv.arxiv.org/html/astro-ph/9601129",
+   "status_v2": "window recomputed [DERIVED, Mentat]: B^1/4 = 144.4-162.8 MeV (massless quarks, alpha_s = 0, E/A(56Fe atom) = 930.41 MeV); the v1 '145-164' was secondary-sourced"
+  },
+  {
+   "key": "Vinciguerra2024",
+   "cite": "Vinciguerra S. et al. 2024, ApJ 961, 62 — An updated mass-radius analysis of the 2017-2018 NICER data set of PSR J0030+0451",
+   "id": "arXiv:2308.09469",
+   "value": "including XMM-Newton constraints disfavours the 2019 main solutions; new solutions ~[1.4 Msun, 11.5 km] or ~[1.7 Msun, 14.5 km] depending on the model",
+   "verified": "v2: arXiv abstract fetched",
+   "url": "https://arxiv.org/abs/2308.09469"
+  },
+  {
+   "key": "Salmi2024",
+   "cite": "Salmi T. et al. 2024, ApJ 974, 294 — The Radius of the High-mass Pulsar PSR J0740+6620 with 3.6 yr of NICER Data",
+   "id": "arXiv:2406.14466",
+   "value": "R_eq = 12.49 (+1.28/-0.88) km, M = 2.073 +/- 0.069 Msun (68 %)",
+   "verified": "v2: arXiv abstract fetched",
+   "url": "https://arxiv.org/abs/2406.14466"
+  },
+  {
+   "key": "Choudhury2024",
+   "cite": "Choudhury D. et al. 2024, ApJL 971, L20 — A NICER View of the Nearest and Brightest Millisecond Pulsar: PSR J0437-4715",
+   "id": "arXiv:2407.06789; doi:10.3847/2041-8213/ad5a6f",
+   "value": "M = 1.418 +/- 0.037 Msun, R_eq = 11.36 (+0.95/-0.63) km (68 %)",
+   "verified": "v2: arXiv abstract fetched; volume/page from Crossref metadata",
+   "url": "https://arxiv.org/abs/2407.06789"
+  },
+  {
+   "key": "HaenselPotekhin2004",
+   "cite": "Haensel P. & Potekhin A. Y. 2004, A&A 428, 191 — Analytical representations of unified equations of state of neutron-star matter",
+   "id": "arXiv:astro-ph/0408324",
+   "value": "analytic fits of the unified FPS and SLy EOS; used here (eq. 14, Table 2 SLy) only for scratch verification of the plan's expected test outcomes",
+   "verified": "v2: arXiv abstract fetched; fit coefficients as transcribed by the skeptic and reproduced DH2001 M_max 2.05 (2.047)",
+   "url": "https://arxiv.org/abs/astro-ph/0408324"
+  }
+ ]
+}

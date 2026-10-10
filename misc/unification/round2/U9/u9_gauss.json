@@ -1,0 +1,203 @@
+{
+ "e": "257/1250",
+ "k": "38325173/62500000",
+ "k_float": 0.613202768,
+ "pred_over_u": {
+  "gr_engine_rest": -6.0,
+  "gr_engine_x": -6.384181406560678,
+  "gr_engine_y": -35.31204423741719,
+  "gr_engine_z": -6.0,
+  "gr_textbook_rest": 6.0,
+  "gr_textbook_x": 6.384181406560678,
+  "gr_textbook_y": 35.31204423741719,
+  "gr_textbook_z": 6.0,
+  "eih_engine_rest": -10.0,
+  "eih_engine_x": -10.0,
+  "eih_engine_y": -21.93001494163424,
+  "eih_engine_z": -10.0,
+  "eih_textbook_rest": 6.0,
+  "eih_textbook_x": 6.0,
+  "eih_textbook_y": 6.0,
+  "eih_textbook_z": 6.0
+ },
+ "sources": {
+  "gr_engine_rest": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "-771*pi/625"
+  },
+  "gr_engine_rest_de": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "0"
+  },
+  "gr_engine_x": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "-4509404262561464294479*pi/13261400781250000000 + 1468818885479929*sqrt(1496451)*pi/5304560312500000"
+  },
+  "gr_engine_x_de": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "-237000991898523*pi/2064031250000 + 57351743461023*sqrt(1496451)*pi/645009765625000"
+  },
+  "gr_engine_y": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "-1961297358529929*sqrt(1496451)*pi/5304560312500000 + 5901833975502536219479*pi/13261400781250000000"
+  },
+  "gr_engine_y_de": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "0"
+  },
+  "gr_engine_z": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "-771*pi/625"
+  },
+  "gr_engine_z_de": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "0"
+  },
+  "gr_textbook_rest": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "771*pi/625"
+  },
+  "gr_textbook_rest_de": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "0"
+  },
+  "gr_textbook_x": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "-1468818885479929*sqrt(1496451)*pi/5304560312500000 + 4509404262561464294479*pi/13261400781250000000"
+  },
+  "gr_textbook_x_de": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "-57351743461023*sqrt(1496451)*pi/645009765625000 + 237000991898523*pi/2064031250000"
+  },
+  "gr_textbook_y": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "-5901833975502536219479*pi/13261400781250000000 + 1961297358529929*sqrt(1496451)*pi/5304560312500000"
+  },
+  "gr_textbook_y_de": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "0"
+  },
+  "gr_textbook_z": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "771*pi/625"
+  },
+  "gr_textbook_z_de": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "0"
+  },
+  "eih_engine_rest": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "-257*pi/125"
+  },
+  "eih_engine_rest_de": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "0"
+  },
+  "eih_engine_x": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "-257*pi/125"
+  },
+  "eih_engine_x_de": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "-38325173*pi/15625000"
+  },
+  "eih_engine_y": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "-70450173*pi/15625000"
+  },
+  "eih_engine_y_de": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "0"
+  },
+  "eih_engine_z": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "-257*pi/125"
+  },
+  "eih_engine_z_de": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "0"
+  },
+  "eih_textbook_rest": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "771*pi/625"
+  },
+  "eih_textbook_rest_de": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "0"
+  },
+  "eih_textbook_x": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "771*pi/625"
+  },
+  "eih_textbook_x_de": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "0"
+  },
+  "eih_textbook_y": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "771*pi/625"
+  },
+  "eih_textbook_y_de": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "0"
+  },
+  "eih_textbook_z": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "771*pi/625"
+  },
+  "eih_textbook_z_de": {
+   "tool": "integrate_expr",
+   "source": "sympy.integrate",
+   "value": "0"
+  }
+ },
+ "de_pred_over_u": {
+  "gr_engine_rest": 0.0,
+  "gr_engine_x": -6.053708206269063,
+  "gr_engine_y": 0.0,
+  "gr_engine_z": 0.0,
+  "gr_textbook_rest": 0.0,
+  "gr_textbook_x": 6.053708206269063,
+  "gr_textbook_y": 0.0,
+  "gr_textbook_z": 0.0,
+  "eih_engine_rest": 0.0,
+  "eih_engine_x": -2.452811072,
+  "eih_engine_y": 0.0,
+  "eih_engine_z": 0.0,
+  "eih_textbook_rest": 0.0,
+  "eih_textbook_x": 0.0,
+  "eih_textbook_y": 0.0,
+  "eih_textbook_z": 0.0
+ }
+}

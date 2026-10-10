@@ -1,0 +1,278 @@
+{
+ "id": "U1-v2 engine defect 2",
+ "earth_sun_shipped_test": {
+  "test": "test_physics_stability.TestGWDampingOnPlanetaryOrbits.test_gw_damping_does_not_add_measurable_drift_beyond_integrator",
+  "dt_s": 3600.0,
+  "n_steps": 8766,
+  "eps_mentat": 3.99259888236769e-17,
+  "half_ulp_below_1": 5.551115123125783e-17,
+  "eps_below_half_ulp": true,
+  "recorder": {
+   "n": 8766,
+   "n_not_1": 0,
+   "eps_min": 3.992471860564947e-17,
+   "eps_max": 3.992517758789904e-17
+  },
+  "damp_equals_1_at_every_step": true,
+  "gw_run_bit_identical_to_damp_forced_1": true,
+  "gw_additional_drift_km": 1.4862060546875e-05,
+  "reading": "the shipped test's GW toggle never applies any GW loss; its 'GW additional drift' is CM-recompute round-off"
+ },
+ "j1738_recompute_only": {
+  "rows": [
+   {
+    "steps_per_orbit": 2000,
+    "theta_rad": 0.0,
+    "n_orbits": 10,
+    "fit_over_peters": 9.07405922104466,
+    "endpoint_over_peters": 9.07545600361447
+   },
+   {
+    "steps_per_orbit": 2000,
+    "theta_rad": 0.7,
+    "n_orbits": 10,
+    "fit_over_peters": 9.075760482961366,
+    "endpoint_over_peters": 9.088553789736011
+   },
+   {
+    "steps_per_orbit": 2000,
+    "theta_rad": 1.9,
+    "n_orbits": 10,
+    "fit_over_peters": 8.595390261984772,
+    "endpoint_over_peters": 8.594767252953984
+   },
+   {
+    "steps_per_orbit": 2000,
+    "theta_rad": 3.1,
+    "n_orbits": 10,
+    "fit_over_peters": 9.037045610950772,
+    "endpoint_over_peters": 9.190716521484015
+   },
+   {
+    "steps_per_orbit": 2000,
+    "theta_rad": 4.4,
+    "n_orbits": 10,
+    "fit_over_peters": 9.225161192637712,
+    "endpoint_over_peters": 9.108200468918318
+   },
+   {
+    "steps_per_orbit": 1000,
+    "theta_rad": 0.0,
+    "n_orbits": 10,
+    "fit_over_peters": 4.472719207785713,
+    "endpoint_over_peters": 4.554100234459274
+   },
+   {
+    "steps_per_orbit": 1000,
+    "theta_rad": 0.7,
+    "n_orbits": 10,
+    "fit_over_peters": 4.451061449624398,
+    "endpoint_over_peters": 4.415918590877033
+   },
+   {
+    "steps_per_orbit": 1000,
+    "theta_rad": 1.9,
+    "n_orbits": 10,
+    "fit_over_peters": 4.568786509653246,
+    "endpoint_over_peters": 4.6922818780415145
+   },
+   {
+    "steps_per_orbit": 1000,
+    "theta_rad": 3.1,
+    "n_orbits": 10,
+    "fit_over_peters": 4.747936213708812,
+    "endpoint_over_peters": 4.701450328326592
+   },
+   {
+    "steps_per_orbit": 1000,
+    "theta_rad": 4.4,
+    "n_orbits": 10,
+    "fit_over_peters": 4.81170431381722,
+    "endpoint_over_peters": 4.70210521763267
+   }
+  ],
+  "summary": {
+   "2000": {
+    "min": 8.595390261984772,
+    "max": 9.225161192637712,
+    "mean": 9.001483353915857,
+    "all_positive_decay": true
+   },
+   "1000": {
+    "min": 4.451061449624398,
+    "max": 4.81170431381722,
+    "mean": 4.610441538917877,
+    "all_positive_decay": true
+   },
+   "ratio_mean_2000_over_1000": 1.9524124268645662
+  },
+  "Pbdot_peters": -2.7474517886244367e-14,
+  "kepler_factor": -1.5,
+  "note": "damp forced to 1 (scratch subclass): any apparent decay is CM-recompute round-off"
+ },
+ "sources": [
+  {
+   "label": "G",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "G"
+   },
+   "value": 6.6743e-11,
+   "source": "sigma_ground.field.constants"
+  },
+  {
+   "label": "c",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "c"
+   },
+   "value": 299792458.0,
+   "source": "sigma_ground.field.constants"
+  },
+  {
+   "label": "M_sun",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "M_sun"
+   },
+   "value": 1.989e+30,
+   "source": "sigma_ground.field.constants"
+  },
+  {
+   "label": "au",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "au"
+   },
+   "value": 149597870700.0,
+   "source": "scipy.constants (CODATA)"
+  },
+  {
+   "label": "earth record",
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "earth"
+   },
+   "value": {
+    "mass_kg": 5.97219e+24,
+    "orbital_period_d": 365.256,
+    "radius_m": 6378100.0,
+    "semimajor_axis_au": 1.000001018,
+    "surface_g_ms2": 9.80665
+   },
+   "source": "sigma-ground via NASA Planetary Fact Sheet 2024"
+  },
+  {
+   "label": "Earth-Sun eps per 1 h step with the engine's r^-4 law (Mentat masses, v = sqrt(GM/AU))",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((32/5)*6.6743e-11**4*1.989e+30**2*5.97219e+24**2*(1.989e+30+5.97219e+24)/(299792458.0**5*149597870700.0**4)*3600.0/(0.5*1.989e+30*5.97219e+24/(1.989e+30+5.97219e+24)*6.6743e-11*1.989e+30/149597870700.0)), 17)"
+   },
+   "value": "3.9925988823676900e-17",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "day",
+   "tool": "convert_units",
+   "args": {
+    "value": 1,
+    "from_units": "day",
+    "to_units": "s"
+   },
+   "value": 86400.0,
+   "source": "pint UnitRegistry"
+  },
+  {
+   "label": "Pb [s] (Freire+2012 [LIT])",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((0.3547907398724*86400.0), 17)"
+   },
+   "value": "30653.919924975362",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "m_p",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((1.46*1.989e+30), 17)"
+   },
+   "value": "2.9039399999999998e+30",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "m_c",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((0.181*1.989e+30), 17)"
+   },
+   "value": "3.6000899999999999e+29",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "M",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2.90394e+30+3.60009e+29), 17)"
+   },
+   "value": "3.2639489999999999e+30",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "a",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((6.6743e-11*3.263949e+30*30653.919924975362**2/(4*pi**2))**(1/3)), 17)"
+   },
+   "value": "1730827537.0422586",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "v_rel",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((sqrt(6.6743e-11*3.263949e+30/1730827537.0422585)), 17)"
+   },
+   "value": "354770.61911241004",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Pbdot Peters",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((-(192*pi/5)*(2*pi*6.6743e-11/(299792458.0**3*30653.919924975362))**(5/3)*2.90394e+30*3.60009e+29*3.263949e+30**(-1/3)), 17)"
+   },
+   "value": "-2.7474517886244366e-14",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "dlnPb/dE",
+   "tool": "differentiate_expr",
+   "args": {
+    "expression": "log(2*pi*sqrt((-G*m1*m2/(2*En))**3/(G*M)))",
+    "variable": "En"
+   },
+   "value": "-3/(2*En)",
+   "source": "sympy.diff"
+  },
+  {
+   "label": "Kepler factor E dlnPb/dE (Mentat)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-3/(2*En))*En), 17)"
+   },
+   "value": "-1.5000000000000000",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "mean bias Pb/2000 over Pb/1000",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((9.001483353915857/4.610441538917877), 17)"
+   },
+   "value": "1.9524124268645661",
+   "source": "sympy.simplify"
+  }
+ ],
+ "runtime_s": 51.24529981613159
+}

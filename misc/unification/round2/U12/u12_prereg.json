@@ -1,0 +1,34 @@
+{
+  "id": "U12",
+  "written": "2026-10-10, before any engine derivative was evaluated",
+  "design_criterion_verbatim": "Chain PASS if the three identities hold to 1e-6 (predicted FAIL on thermal-vs-acoustics - report, don't fix). Observability: every material effect >= 1e5 below its floor (predicted 5-9 orders); clocks are the only channel and S9a has closed it. No thesis weight.",
+  "identities": {
+    "I1": "d ln rho/d sigma - PROTON_QCD_FRACTION, |.| < 1e-6",
+    "I2": "d ln v_L/d sigma - 0.5*(d ln K/d sigma - d ln rho/d sigma), |.| < 1e-6",
+    "I3_design_sketch": "d ln vD_thermal/d sigma - d ln v_L/d sigma, |.| < 1e-6",
+    "I3_like_for_like": "d ln vD_thermal/d sigma - d ln vD_acoustics/d sigma, |.| < 1e-6 (same quantity, two modules)"
+  },
+  "predictions_from_code_reading": {
+    "dlnrho": "+0.9904 (= f_QCD, by construction); I1 residual ~1e-9 PASS",
+    "dlnK": "about +0.005 (ZPE correction: (9/8) k_B Theta_D/E_coh * f_QCD/2); dlnG = dlnE = dlnK (nu sigma-free)",
+    "dlnvL": "about -0.493; I2 residual ~1e-9 PASS (by construction, G proportional to K)",
+    "dlnvD_thermal": "about +0.0025 (rho frozen at rho_0); I3 residual = 0.5*f_QCD = 0.495 FAIL (both forms)",
+    "dlnThetaD": "about +0.0025 as coded; consistent chain -0.493; the code's sign is opposite to the physics",
+    "dlnTm_Lindemann": "about +0.005 as coded = dlnK; consistent chain also dlnK (frozen M and frozen rho cancel); docstring claims T_m decreases with sigma - contradicted",
+    "dlncp": "about -6e-4 as coded (rho frozen); consistent chain about -0.87",
+    "dlncs_air": "about -0.490 (argon mass sigma-invariant in atmosphere.py); with argon coupled about -0.496"
+  },
+  "observability_floors_fixed_now": {
+    "note": "best demonstrated relative resolution, order of magnitude, all [LIT] verified by web search 2026-10-10; the smallest verified figure is used so that 'below floor' is the conservative claim",
+    "rho":   [1.2e-8, "Bartl et al. 2017 Metrologia 54, 693: N_A by XRCD to 1.2e-8 (sphere density/volume limited); NMIJ sphere density 2320.070841(76) kg/m3 = 3.3e-8"],
+    "K_G_E": [2e-7, "DERIVED from LIT: M = rho v^2 with pulse-echo v precision 1e-7 (Pantea et al. 2005 RSI 76, 114902)"],
+    "v_L_v_T_v_D": [1e-7, "Pantea et al. 2005 RSI 76, 114902: digital pulse-echo precision exceeds 1 part in 1e7"],
+    "Theta_D": [1e-7, "DERIVED from LIT: Theta_D proportional to v_D at fixed n; same pulse-echo floor"],
+    "T_melt": [1.3e-7, "DERIVED from LIT: NIST, 13 Ga melting-point cells span 0.04 mK at 302.9146 K"],
+    "c_p": [1e-3, "LIT: adiabatic calorimetry of Cu agrees with references to 0.1 % (Stevens & Boerio-Goates 2004, J. Chem. Thermodyn., doi 10.1016/j.jct.2004.06.008)"],
+    "c_s_air": [3.5e-7, "DERIVED from LIT: acoustic gas thermometry k_B to 0.71 ppm (de Podesta et al. 2013 Metrologia 50, 354), k_B proportional to c^2"]
+  },
+  "sigma_increments": "Delta sigma per km = 2 xi g (1 km)/c^2 and Delta sigma annual amplitude = 2 xi e r_s,sun/(2a); field-equation normalisation sigma = -2 xi Phi/c^2 as headline, inventory normalisation (x1/2) also reported",
+  "my_forecast_against_design_criterion": "FAIL on the annual channel: rho (~2.4 orders below floor), v_L / v_T / consistent v_D and Theta_D (~3.6), air c_s (~4.1) are inside 1e5 of their floors; per-km channel passes everywhere (>= 5.5). Every property-metrology row is still below its floor (unobservable). A frequency-metrology row (acoustic resonator vs atomic clock, Campbell et al. 2021 PRL 126, 071301; Lo et al. 2016 PRX 6, 011018) is NOT below floor and is added as a design correction, not as a change of criterion.",
+  "clock_row": "Lange et al. 2021 PRL 126, 011102: (c^2/mu) d mu/d Phi = 7(45)e-8; sigma-bridge prediction -2 xi f_QCD = -0.313 (field) / -0.157 (inventory); predicted excluded x 3.2e5 / 1.6e5 at |central| + 2 sigma"
+}

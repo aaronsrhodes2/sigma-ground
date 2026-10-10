@@ -1,0 +1,27 @@
+{
+ "id": "U11-v2 supplementary runs (repair round)",
+ "written": "2026-10-10, before any v2 run was launched. Scope: post-hoc supplementary runs asked for by the skeptic review. They do NOT alter the original criterion in prereg.json, which is applied unchanged (final state; |H_fit/H-1|<=0.10 AND rms<=0.05 AND KE<1e-4 of peak) to every run.",
+ "driver": "u11_sph_v2.py = final u11_sph.py + one argument --cfl (default 0.3, dt = cfl*h/max(c_s, v_max)); unmodified engine",
+ "R1_reruns_C1_to_C8": {
+  "what": "C1..C8 re-run with u11_sph_v2.py at the default --cfl 0.3, same arguments as queue_line.txt",
+  "prediction": "bitwise identical to the v1 run JSONs on every stored leaf (fit, y, rho, nnb, vy, history fits); adds ke_parcels and ke_free_over_peak where v1 lacked them",
+  "pass": "0 differing stored leaves"
+ },
+ "R2_independent_seeds": {
+  "what": "C2 configuration (line, N 128, h/H 0.2, 2000-step budget, max 8000 steps) with seeds 4, 5, 7, 11",
+  "prediction": "each final H_fit/H in [0.995, 1.010] and rms <= 0.005 (H and rms legs PASS); KE leg FAIL with KE/peak between 1e-3 and 3e-3 (floor limit cycle)",
+  "pass": "all four seeds inside the stated H and rms ranges"
+ },
+ "R3_dt_scaling_of_floor_KE": {
+  "what": "C2 configuration, seed 3, --cfl 0.15 (dt x0.5, max 16000 steps) and --cfl 0.075 (dt x0.25, max 20000 steps); same stop rule as prereg.json (stop at the first settled step after the 2000-step budget, else at max_steps)",
+  "model": "restitution limit cycle of the merged floor clump: each step the floor returns the column weight N m g dt, so the clump leaves the floor at v_out = e N g dt / ((1+e) N_f), e = 0.5 (GroundPlane default 0.50, ContinuumParcel restitution 0.5); floor KE = 0.5 N_f m v_out^2, i.e. proportional to dt^2 / N_f",
+  "predictions": {
+   "a": "if a floor clump exists at the end, its common vy equals the model value with the measured N_f to within 5 %",
+   "b": "floor-clump KE/peak = 1.578e-3 * f^2 * (33/N_f), f = dt factor (C2 baseline: 1.578e-3 at N_f = 33)",
+   "c": "H_fit/H within 0.10 of 1 (expected within 0.01): the time step does not change the hydrostatic profile",
+   "d": "pre-registered KE leg: f = 0.5 FAIL (predicted 3.9e-4 at N_f = 33); f = 0.25 marginal (predicted 9.9e-5 at N_f = 33) - no confident call, it hinges on N_f and on the free atmosphere having settled within 20000 steps (t = 300 H/c_s)"
+  },
+  "pass": "a and c hold for both runs; b within 25 % (N_f and peak KE may shift with dt)"
+ },
+ "evidential_weight": "engine and diagnosis validation only; no bearing on the unification thesis"
+}

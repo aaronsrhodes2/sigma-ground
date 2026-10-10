@@ -1,0 +1,8 @@
+C1_line_N128_h0.1 --mode line --N 128 --h 0.1
+C2_line_N128_h0.2 --mode line --N 128 --h 0.2
+C3_line_N256_h0.1 --mode line --N 256 --h 0.1
+C4_line_g0.5 --mode line --N 128 --h 0.1 --g 0.5
+C5_line_g2 --mode line --N 128 --h 0.1 --g 2.0
+C6_line_cs1.4142_g2 --mode line --N 128 --h 0.1 --g 2.0 --cs 1.4142135623730951
+C7_line_expH0.5 --mode line --N 128 --h 0.1 --init exp:0.5
+C8_line_expH2 --mode line --N 128 --h 0.1 --init exp:2.0

@@ -1,0 +1,1207 @@
+{
+ "experiment": "U10",
+ "version": "v2 (repair)",
+ "prereg_file": "u10_prereg.txt (unchanged)",
+ "inputs": "u10_n{32,40,48}.json + u10_fields_n*.npz from u10_run.py (unchanged; bitwise-reproduced by verify_reproduce/)",
+ "grids": {
+  "32": {
+   "n": 32,
+   "dx_km": 1.25,
+   "h_s": 52083.333333333336,
+   "substeps_per_20x_kick": 20,
+   "substeps_per_1x_kick": 1,
+   "mu_nominal_h_over_a2": 0.0020833333333333333,
+   "mu_effective_centre": 0.0020768326031286965,
+   "cg_rel_residual_N": 1.0540091386699675e-13,
+   "v_centre_analytic": 49805144.75310739,
+   "peak_prereg_max_Tan": 49805144.75310739,
+   "peak_2a2": 50000000.0,
+   "heat_leg_minus_discrete_centre_over_vc": -4.826981781756378e-08,
+   "heat_leg_minus_discrete_maxabs_over_vc": 4.826981946310435e-08,
+   "design_leg_minus_discrete_centre_over_vc": 0.009690233523954359,
+   "bias_pred_claimed_dt_split_over_2_centre_over_vc": 0.010375913002257237,
+   "bias_pred_corrected_first_order_centre_over_vc": 0.009857117352144373,
+   "bias_pred_corrected_with_O_mu_centre_over_vc": 0.00992876789155867,
+   "transient_eps8_from_heat_history": 0.00024279617484426343,
+   "design_run_end_time_over_tau": 8.019053575885144,
+   "transient_at_design_end_loginterp": 0.00023724631806558508,
+   "transient_expected_exp_minus_8_n_over_n_minus_1_sq": 0.00019855315822462345,
+   "design_minus_discrete_minus_bias_claimed_centre_over_vc": -0.0006856794783028779,
+   "closure_after_bias_claimed_and_transient_centre_over_vc": -0.00044806755677233274,
+   "design_minus_discrete_minus_bias_claimed_maxabs_over_vc": 0.0006856794783045234,
+   "fullfield_closure_after_bias_claimed_and_transient_mode_maxabs_over_vc": 0.0004480675567739783,
+   "design_minus_discrete_minus_bias_corrected_first_order_centre_over_vc": -0.00016688382819001496,
+   "closure_after_bias_corrected_first_order_and_transient_centre_over_vc": 7.072809334053013e-05,
+   "design_minus_discrete_minus_bias_corrected_first_order_maxabs_over_vc": 0.00022190808031788203,
+   "fullfield_closure_after_bias_corrected_first_order_and_transient_mode_maxabs_over_vc": 0.00012634052216453344,
+   "design_minus_discrete_minus_bias_corrected_with_O_mu_centre_over_vc": -0.00023853436760431167,
+   "closure_after_bias_corrected_with_O_mu_and_transient_centre_over_vc": -9.224460737665819e-07,
+   "design_minus_discrete_minus_bias_corrected_with_O_mu_maxabs_over_vc": 0.00023853436760595722,
+   "fullfield_closure_after_bias_corrected_with_O_mu_and_transient_mode_maxabs_over_vc": 2.0873610488001607e-05,
+   "spatial_error_discrete_minus_analytic_centre_over_vc": 0.0015410773063945994,
+   "spatial_error_discrete_minus_analytic_max_over_peak_prereg": 0.0015410773063962448,
+   "split_ratio_raw": 0.9830746097046412,
+   "split_ratio_transient_corrected_POST_HOC": 1.0079400034406258,
+   "split_ratio_predicted_by_O_mu_term": 1.0072689141109505,
+   "C4_design_max_prereg_norm": 0.011231310830348958,
+   "C4_heat_max_prereg_norm": 0.0015410290365767817,
+   "C4_design_max_2a2_norm_original": 0.011187541233453453,
+   "C4_heat_max_2a2_norm_original": 0.001535023484709086,
+   "C4_design_split_part_max": 0.009690281793772175,
+   "w": {
+    "0.001": {
+     "quadrature": {
+      "analytic_mf": {
+       "C1_dev": -1.4054612562652835e-07,
+       "C2_literal_rel": 0.002140957474724807,
+       "QT_over_QN": 1.0025010598648711
+      },
+      "discrete_mf": {
+       "C1_dev": -1.4103549050847874e-07,
+       "C2_literal_rel": 0.0021434877511986115,
+       "QT_over_QN": 1.0025031002844265
+      },
+      "engine": {
+       "C1_dev": -1.4410849569213013e-07,
+       "C2_literal_rel": 0.0021594020799867684,
+       "QT_over_QN": 1.0025159384818543
+      },
+      "engine_stored": {
+       "C1_dev": -1.4410849569213013e-07,
+       "C2_literal_rel": 0.002159402080002381,
+       "QT_over_QN": 1.0025159384818545
+      }
+     },
+     "exact_derived": {
+      "C1_dev": -1.564478782078993e-07,
+      "C2_literal_rel": 0.0021569175860599882,
+      "QT_over_QN": 1.002501078458793
+     },
+     "decomposition": {
+      "C1_dev": {
+       "engine_minus_exact": 1.233938251576916e-08,
+       "cell_quadrature": 1.5901752581370943e-08,
+       "PhiN_spatial_via_mf": -4.893648819503937e-10,
+       "PhiN_split_and_transient_via_mf": -3.0730051836513894e-09,
+       "fraction_from_cell_quadrature": 1.2886992165976894
+      },
+      "C2_literal_rel": {
+       "engine_minus_exact": 2.48449394239271e-06,
+       "cell_quadrature": -1.5960111335181285e-05,
+       "PhiN_spatial_via_mf": 2.5302764738045075e-06,
+       "PhiN_split_and_transient_via_mf": 1.5914328803769487e-05,
+       "fraction_from_cell_quadrature": -6.423888206308438
+      },
+      "QT_over_QN": {
+       "engine_minus_exact": 1.4860023061391558e-05,
+       "cell_quadrature": -1.8593921957688053e-08,
+       "PhiN_spatial_via_mf": 2.0404195553158644e-06,
+       "PhiN_split_and_transient_via_mf": 1.2838197428033382e-05,
+       "fraction_from_cell_quadrature": -0.0012512714065698654
+      }
+     },
+     "C3_engine": 1.2241119377862653,
+     "C3_discrete_same_sources": 1.2164040992613812,
+     "C3_discrete_discrete_mf": 1.2164007563085637,
+     "C3_analytic_at_inner_cells": 1.2152199643872263,
+     "C3_analytic_r0": 1.2182551056668711,
+     "C3_engine_minus_analytic": 0.00889197339903891,
+     "C3_split_part": 0.007707838524884103,
+     "C3_spatial_part": 0.0011807919213373541,
+     "C3_split_fraction_of_excess": 0.8668310372720194,
+     "sigma_centre_engine": 0.00042560275281657445,
+     "sigma_centre_discrete": 0.00042152378318570914,
+     "sigma_centre_model_inner_cells": 0.00042086747167624614,
+     "sigma_engine_over_model_minus_1": 0.011251240494943637,
+     "sigma_discrete_over_model_minus_1": 0.001559425599818809,
+     "C2c_weighted_rel": 2.479146627433577e-06,
+     "C2c_unweighted_rel": -1.5920799249259654e-05
+    },
+    "0.01": {
+     "quadrature": {
+      "analytic_mf": {
+       "C1_dev": -1.507394719513222e-05,
+       "C2_literal_rel": 0.02155286194154525,
+       "QT_over_QN": 1.025107658171046
+      },
+      "discrete_mf": {
+       "C1_dev": -1.5121315478427988e-05,
+       "C2_literal_rel": 0.021578164704645977,
+       "QT_over_QN": 1.025128176229032
+      },
+      "engine": {
+       "C1_dev": -1.5418726038829433e-05,
+       "C2_literal_rel": 0.021737307991898103,
+       "QT_over_QN": 1.025257274348102
+      },
+      "engine_stored": {
+       "C1_dev": -1.5418726038940456e-05,
+       "C2_literal_rel": 0.02173730799191042,
+       "QT_over_QN": 1.0252572743481023
+      }
+     },
+     "exact_derived": {
+      "C1_dev": -1.523126587898993e-05,
+      "C2_literal_rel": 0.021569175860599796,
+      "QT_over_QN": 1.025107845879303
+     },
+     "decomposition": {
+      "C1_dev": {
+       "engine_minus_exact": -1.8746015995052545e-07,
+       "cell_quadrature": 1.5731868385771008e-07,
+       "PhiN_spatial_via_mf": -4.736828329576781e-08,
+       "PhiN_split_and_transient_via_mf": -2.974105605124677e-07,
+       "fraction_from_cell_quadrature": -0.8392112964121533
+      },
+      "C2_literal_rel": {
+       "engine_minus_exact": 0.0001681321313106235,
+       "cell_quadrature": -1.6313919054544712e-05,
+       "PhiN_spatial_via_mf": 2.5302763100726322e-05,
+       "PhiN_split_and_transient_via_mf": 0.00015914328726444188,
+       "fraction_from_cell_quadrature": -0.09703034706914414
+      },
+      "QT_over_QN": {
+       "engine_minus_exact": 0.00014942846879928418,
+       "cell_quadrature": -1.8770825693792403e-07,
+       "PhiN_spatial_via_mf": 2.051805798597428e-05,
+       "PhiN_split_and_transient_via_mf": 0.00012909811907024782,
+       "fraction_from_cell_quadrature": -0.0012561746663552992
+      }
+     },
+     "C3_engine": 1.2189425643580054,
+     "C3_discrete_same_sources": 1.2112986743898184,
+     "C3_discrete_discrete_mf": 1.2112664666145425,
+     "C3_analytic_at_inner_cells": 1.2100907589520316,
+     "C3_analytic_r0": 1.2131007495402601,
+     "C3_engine_minus_analytic": 0.008851805405973856,
+     "C3_split_part": 0.00764388996818699,
+     "C3_spatial_part": 0.0011757076625109608,
+     "C3_split_fraction_of_excess": 0.8635402177987697,
+     "sigma_centre_engine": 0.0043149304151141234,
+     "sigma_centre_discrete": 0.004273528431294884,
+     "sigma_centre_model_inner_cells": 0.004266187340878307,
+     "sigma_engine_over_model_minus_1": 0.01142544158076797,
+     "sigma_discrete_over_model_minus_1": 0.0017207613801286659,
+     "C2c_weighted_rel": 0.0001645822282852104,
+     "C2c_unweighted_rel": -1.5920799249259654e-05
+    }
+   },
+   "seconds": 0.4
+  },
+  "40": {
+   "n": 40,
+   "dx_km": 1.0,
+   "h_s": 33333.333333333336,
+   "substeps_per_20x_kick": 20,
+   "substeps_per_1x_kick": 1,
+   "mu_nominal_h_over_a2": 0.0013333333333333335,
+   "mu_effective_centre": 0.0013306692060695994,
+   "cg_rel_residual_N": 9.356883809012834e-14,
+   "v_centre_analytic": 49875187.366127215,
+   "peak_prereg_max_Tan": 49875187.366127215,
+   "peak_2a2": 50000000.0,
+   "heat_leg_minus_discrete_centre_over_vc": -5.962977357661317e-08,
+   "heat_leg_minus_discrete_maxabs_over_vc": 5.9629774398228e-08,
+   "design_leg_minus_discrete_centre_over_vc": 0.006079176781529295,
+   "bias_pred_claimed_dt_split_over_2_centre_over_vc": 0.0066499833363423055,
+   "bias_pred_corrected_first_order_centre_over_vc": 0.00631748416952519,
+   "bias_pred_corrected_with_O_mu_centre_over_vc": 0.006346906855279957,
+   "transient_eps8_from_heat_history": 0.0002692163351298878,
+   "design_run_end_time_over_tau": 8.006716570383803,
+   "transient_at_design_end_loginterp": 0.0002667659961828801,
+   "transient_expected_exp_minus_8_n_over_n_minus_1_sq": 0.0002214051874330892,
+   "design_minus_discrete_minus_bias_claimed_centre_over_vc": -0.0005708065548130112,
+   "closure_after_bias_claimed_and_transient_centre_over_vc": -0.0003037896635950369,
+   "design_minus_discrete_minus_bias_claimed_maxabs_over_vc": 0.0005708065548138328,
+   "fullfield_closure_after_bias_claimed_and_transient_mode_maxabs_over_vc": 0.0003037896635958585,
+   "design_minus_discrete_minus_bias_corrected_first_order_centre_over_vc": -0.00023830738799589523,
+   "closure_after_bias_corrected_first_order_and_transient_centre_over_vc": 2.8709503222079064e-05,
+   "design_minus_discrete_minus_bias_corrected_first_order_maxabs_over_vc": 0.00023830738799671683,
+   "fullfield_closure_after_bias_corrected_first_order_and_transient_mode_maxabs_over_vc": 6.874405769993674e-05,
+   "design_minus_discrete_minus_bias_corrected_with_O_mu_centre_over_vc": -0.000267730073750663,
+   "closure_after_bias_corrected_with_O_mu_and_transient_centre_over_vc": -7.131825326887071e-07,
+   "design_minus_discrete_minus_bias_corrected_with_O_mu_maxabs_over_vc": 0.0002677300737514846,
+   "fullfield_closure_after_bias_corrected_with_O_mu_and_transient_mode_maxabs_over_vc": 1.0380453025371101e-05,
+   "spatial_error_discrete_minus_analytic_centre_over_vc": 0.0009405656863333224,
+   "spatial_error_discrete_minus_analytic_max_over_peak_prereg": 0.000940565686334144,
+   "split_ratio_raw": 0.9622875575420358,
+   "split_ratio_transient_corrected_POST_HOC": 1.005162318279064,
+   "split_ratio_predicted_by_O_mu_term": 1.0046573422212437,
+   "C4_design_max_prereg_norm": 0.007019742467862617,
+   "C4_heat_max_prereg_norm": 0.0009405060565597457,
+   "C4_design_max_2a2_norm_original": 0.0070022194169321655,
+   "C4_heat_max_2a2_norm_original": 0.0009381583157977502,
+   "C4_design_split_part_max": 0.006079236411302872,
+   "w": {
+    "0.001": {
+     "quadrature": {
+      "analytic_mf": {
+       "C1_dev": -2.334264309622469e-07,
+       "C2_literal_rel": 0.0022341786713351523,
+       "QT_over_QN": 1.0025011684858132
+      },
+      "discrete_mf": {
+       "C1_dev": -2.3373937763082608e-07,
+       "C2_literal_rel": 0.002235673421537238,
+       "QT_over_QN": 1.0025023498209444
+      },
+      "engine": {
+       "C1_dev": -2.356782821122394e-07,
+       "C2_literal_rel": 0.0022455876512842993,
+       "QT_over_QN": 1.002510322399673
+      },
+      "engine_stored": {
+       "C1_dev": -2.356782822232617e-07,
+       "C2_literal_rel": 0.0022455876513482673,
+       "QT_over_QN": 1.002510322399673
+      }
+     },
+     "exact_derived": {
+      "C1_dev": -1.564478782078993e-07,
+      "C2_literal_rel": 0.0021569175860599882,
+      "QT_over_QN": 1.002501078458793
+     },
+     "decomposition": {
+      "C1_dev": {
+       "engine_minus_exact": -7.923040401536241e-08,
+       "cell_quadrature": -7.697855275434762e-08,
+       "PhiN_spatial_via_mf": -3.1294666857917264e-10,
+       "PhiN_split_and_transient_via_mf": -1.9389045924356196e-09,
+       "fraction_from_cell_quadrature": 0.9715784453077108
+      },
+      "C2_literal_rel": {
+       "engine_minus_exact": 8.867006528827902e-05,
+       "cell_quadrature": 7.726108527516401e-05,
+       "PhiN_spatial_via_mf": 1.4947502020856707e-06,
+       "PhiN_split_and_transient_via_mf": 9.914229811029338e-06,
+       "fraction_from_cell_quadrature": 0.8713322249620231
+      },
+      "QT_over_QN": {
+       "engine_minus_exact": 9.24394087986613e-06,
+       "cell_quadrature": 9.002702006100094e-08,
+       "PhiN_spatial_via_mf": 1.1813351312728315e-06,
+       "PhiN_split_and_transient_via_mf": 7.972578728532298e-06,
+       "fraction_from_cell_quadrature": 0.009739030271935782
+      }
+     },
+     "C3_engine": 1.2220943137950524,
+     "C3_discrete_same_sources": 1.2171265688779576,
+     "C3_discrete_discrete_mf": 1.2171244560270216,
+     "C3_analytic_at_inner_cells": 1.21630950320617,
+     "C3_analytic_r0": 1.2182551056668711,
+     "C3_engine_minus_analytic": 0.005784810588882472,
+     "C3_split_part": 0.004967744917094841,
+     "C3_spatial_part": 0.0008149528208516443,
+     "C3_split_fraction_of_excess": 0.8587567113506003,
+     "sigma_centre_engine": 0.0004244231485017849,
+     "sigma_centre_discrete": 0.0004218606250553892,
+     "sigma_centre_model_inner_cells": 0.0004214594271822269,
+     "sigma_engine_over_model_minus_1": 0.0070320441978786175,
+     "sigma_discrete_over_model_minus_1": 0.0009519252561145386,
+     "C2c_weighted_rel": 8.847922289641283e-05,
+     "C2c_unweighted_rel": 7.709471611843169e-05
+    },
+    "0.01": {
+     "quadrature": {
+      "analytic_mf": {
+       "C1_dev": -1.599073439828569e-05,
+       "C2_literal_rel": 0.02164793426654328,
+       "QT_over_QN": 1.0251087536361068
+      },
+      "discrete_mf": {
+       "C1_dev": -1.602104301456908e-05,
+       "C2_literal_rel": 0.021662881770868198,
+       "QT_over_QN": 1.0251206342511916
+      },
+      "engine": {
+       "C1_dev": -1.620872126073536e-05,
+       "C2_literal_rel": 0.021762024065887127,
+       "QT_over_QN": 1.0252008061788043
+      },
+      "engine_stored": {
+       "C1_dev": -1.620872126073536e-05,
+       "C2_literal_rel": 0.02176202406588435,
+       "QT_over_QN": 1.025200806178804
+      }
+     },
+     "exact_derived": {
+      "C1_dev": -1.523126587898993e-05,
+      "C2_literal_rel": 0.021569175860599796,
+      "QT_over_QN": 1.025107845879303
+     },
+     "decomposition": {
+      "C1_dev": {
+       "engine_minus_exact": -9.77455381745429e-07,
+       "cell_quadrature": -7.594685192957584e-07,
+       "PhiN_spatial_via_mf": -3.03086162833921e-08,
+       "PhiN_split_and_transient_via_mf": -1.8767824616627848e-07,
+       "fraction_from_cell_quadrature": 0.7769853575716015
+      },
+      "C2_literal_rel": {
+       "engine_minus_exact": 0.00019284820528455565,
+       "cell_quadrature": 7.875840594348538e-05,
+       "PhiN_spatial_via_mf": 1.4947504324916427e-05,
+       "PhiN_split_and_transient_via_mf": 9.914229501615385e-05,
+       "fraction_from_cell_quadrature": 0.40839584598297934
+      },
+      "QT_over_QN": {
+       "engine_minus_exact": 9.296029950101037e-05,
+       "cell_quadrature": 9.077568037252348e-07,
+       "PhiN_spatial_via_mf": 1.1880615084836066e-05,
+       "PhiN_split_and_transient_via_mf": 8.017192761244907e-05,
+       "fraction_from_cell_quadrature": 0.009764994396509755
+      }
+     },
+     "C3_engine": 1.2169288775756293,
+     "C3_discrete_same_sources": 1.2120023991968667,
+     "C3_discrete_discrete_mf": 1.2119820398263523,
+     "C3_analytic_at_inner_cells": 1.2111712641867944,
+     "C3_analytic_r0": 1.2131007495402601,
+     "C3_engine_minus_analytic": 0.005757613388834848,
+     "C3_split_part": 0.004926478378762589,
+     "C3_spatial_part": 0.0008107756395578924,
+     "C3_split_fraction_of_excess": 0.855645915426695,
+     "sigma_centre_engine": 0.004302695400942833,
+     "sigma_centre_discrete": 0.004276687405190273,
+     "sigma_centre_model_inner_cells": 0.004272193922665741,
+     "sigma_engine_over_model_minus_1": 0.007139535056044366,
+     "sigma_discrete_over_model_minus_1": 0.001051797415068778,
+     "C2c_weighted_rel": 0.00018877645277628376,
+     "C2c_unweighted_rel": 7.709471611834495e-05
+    }
+   },
+   "seconds": 1.0
+  },
+  "48": {
+   "n": 48,
+   "dx_km": 0.8333333333333334,
+   "h_s": 23148.14814814815,
+   "substeps_per_20x_kick": 20,
+   "substeps_per_1x_kick": 1,
+   "mu_nominal_h_over_a2": 0.000925925925925926,
+   "mu_effective_centre": 0.0009246407681647687,
+   "cg_rel_residual_N": 6.93106948170236e-14,
+   "v_centre_analytic": 49913284.822058715,
+   "peak_prereg_max_Tan": 49913284.822058715,
+   "peak_2a2": 50000000.0,
+   "heat_leg_minus_discrete_centre_over_vc": -6.85207971703588e-08,
+   "heat_leg_minus_discrete_maxabs_over_vc": 6.852079808464057e-08,
+   "design_leg_minus_discrete_centre_over_vc": 0.004116898797015184,
+   "bias_pred_claimed_dt_split_over_2_centre_over_vc": 0.004621586497253815,
+   "bias_pred_corrected_first_order_centre_over_vc": 0.004390507172391125,
+   "bias_pred_corrected_with_O_mu_centre_over_vc": 0.004404715919126919,
+   "transient_eps8_from_heat_history": 0.00028787964713661003,
+   "design_run_end_time_over_tau": 8.001918846022223,
+   "transient_at_design_end_loginterp": 0.00028706415315872335,
+   "transient_expected_exp_minus_8_n_over_n_minus_1_sq": 0.00023780796490690956,
+   "design_minus_discrete_minus_bias_claimed_centre_over_vc": -0.0005046877002386308,
+   "closure_after_bias_claimed_and_transient_centre_over_vc": -0.00021743135552311008,
+   "design_minus_discrete_minus_bias_claimed_maxabs_over_vc": 0.0005046877002395451,
+   "fullfield_closure_after_bias_claimed_and_transient_mode_maxabs_over_vc": 0.00021743135552402436,
+   "design_minus_discrete_minus_bias_corrected_first_order_centre_over_vc": -0.0002736083753759404,
+   "closure_after_bias_corrected_first_order_and_transient_centre_over_vc": 1.3647969339580397e-05,
+   "design_minus_discrete_minus_bias_corrected_first_order_maxabs_over_vc": 0.00027360837537685465,
+   "fullfield_closure_after_bias_corrected_first_order_and_transient_mode_maxabs_over_vc": 3.898021590397377e-05,
+   "design_minus_discrete_minus_bias_corrected_with_O_mu_centre_over_vc": -0.0002878171221117349,
+   "closure_after_bias_corrected_with_O_mu_and_transient_centre_over_vc": -5.60777396214118e-07,
+   "design_minus_discrete_minus_bias_corrected_with_O_mu_maxabs_over_vc": 0.0002878171221126492,
+   "fullfield_closure_after_bias_corrected_with_O_mu_and_transient_mode_maxabs_over_vc": 6.773207511574671e-06,
+   "spatial_error_discrete_minus_analytic_centre_over_vc": 0.0006695758580339328,
+   "spatial_error_discrete_minus_analytic_max_over_peak_prereg": 0.0006695758580348471,
+   "split_ratio_raw": 0.9376974358910347,
+   "split_ratio_transient_corrected_POST_HOC": 1.00354241586907,
+   "split_ratio_predicted_by_O_mu_term": 1.0032362426885768,
+   "C4_design_max_prereg_norm": 0.004786474655049117,
+   "C4_heat_max_prereg_norm": 0.0006695073372367625,
+   "C4_design_max_2a2_norm_original": 0.004778173455020636,
+   "C4_heat_max_2a2_norm_original": 0.0006683462082793312,
+   "C4_design_split_part_max": 0.004116967317812355,
+   "w": {
+    "0.001": {
+     "quadrature": {
+      "analytic_mf": {
+       "C1_dev": -1.755777138123804e-07,
+       "C2_literal_rel": 0.002176117631605195,
+       "QT_over_QN": 1.0025011008307634
+      },
+      "discrete_mf": {
+       "C1_dev": -1.757950141012543e-07,
+       "C2_literal_rel": 0.002177197986931445,
+       "QT_over_QN": 1.0025019636217978
+      },
+      "engine": {
+       "C1_dev": -1.7712065769615037e-07,
+       "C2_literal_rel": 0.002183855118799991,
+       "QT_over_QN": 1.0025072935128847
+      },
+      "engine_stored": {
+       "C1_dev": -1.7712065780717268e-07,
+       "C2_literal_rel": 0.0021838551188956175,
+       "QT_over_QN": 1.0025072935128847
+      }
+     },
+     "exact_derived": {
+      "C1_dev": -1.564478782078993e-07,
+      "C2_literal_rel": 0.0021569175860599882,
+      "QT_over_QN": 1.002501078458793
+     },
+     "decomposition": {
+      "C1_dev": {
+       "engine_minus_exact": -2.0672779599273383e-08,
+       "cell_quadrature": -1.9129835604481116e-08,
+       "PhiN_spatial_via_mf": -2.1730028887390063e-10,
+       "PhiN_split_and_transient_via_mf": -1.3256437059183668e-09,
+       "fraction_from_cell_quadrature": 0.9253634961189979
+      },
+      "C2_literal_rel": {
+       "engine_minus_exact": 2.6937532835629233e-05,
+       "cell_quadrature": 1.9200045545206962e-05,
+       "PhiN_spatial_via_mf": 1.0803553262498516e-06,
+       "PhiN_split_and_transient_via_mf": 6.657131964172419e-06,
+       "fraction_from_cell_quadrature": 0.7127618428296375
+      },
+      "QT_over_QN": {
+       "engine_minus_exact": 6.215054091596173e-06,
+       "cell_quadrature": 2.237197027632476e-08,
+       "PhiN_spatial_via_mf": 8.627910343950163e-07,
+       "PhiN_split_and_transient_via_mf": 5.329891086924832e-06,
+       "fraction_from_cell_quadrature": 0.0035996420862330915
+      }
+     },
+     "C3_engine": 1.2209252334409726,
+     "C3_discrete_same_sources": 1.2174519143750284,
+     "C3_discrete_discrete_mf": 1.2174504681871228,
+     "C3_analytic_at_inner_cells": 1.216902818135579,
+     "C3_analytic_r0": 1.2182551056668711,
+     "C3_engine_minus_analytic": 0.004022415305393601,
+     "C3_split_part": 0.0034733190659441693,
+     "C3_spatial_part": 0.0005476500515437799,
+     "C3_split_fraction_of_excess": 0.863490913354184,
+     "sigma_centre_engine": 0.00042380376365062754,
+     "sigma_centre_discrete": 0.0004220670664468067,
+     "sigma_centre_model_inner_cells": 0.00042178140272610705,
+     "sigma_engine_over_model_minus_1": 0.004794808190805355,
+     "sigma_discrete_over_model_minus_1": 0.0006772790807116902,
+     "C2c_weighted_rel": 2.687955584891323e-05,
+     "C2c_unweighted_rel": 1.9157921257641902e-05
+    },
+    "0.01": {
+     "quadrature": {
+      "analytic_mf": {
+       "C1_dev": -1.5420068677496346e-05,
+       "C2_literal_rel": 0.02158875502433384,
+       "QT_over_QN": 1.0251080714945968
+      },
+      "discrete_mf": {
+       "C1_dev": -1.5441108383140723e-05,
+       "C2_literal_rel": 0.021599558578598577,
+       "QT_over_QN": 1.0251167480209362
+      },
+      "engine": {
+       "C1_dev": -1.556944543645855e-05,
+       "C2_literal_rel": 0.021666129897433654,
+       "QT_over_QN": 1.0251703465027386
+      },
+      "engine_stored": {
+       "C1_dev": -1.556944543690264e-05,
+       "C2_literal_rel": 0.021666129897469043,
+       "QT_over_QN": 1.0251703465027386
+      }
+     },
+     "exact_derived": {
+      "C1_dev": -1.523126587898993e-05,
+      "C2_literal_rel": 0.021569175860599796,
+      "QT_over_QN": 1.025107845879303
+     },
+     "decomposition": {
+      "C1_dev": {
+       "engine_minus_exact": -3.3817955791271004e-07,
+       "cell_quadrature": -1.8880279850641557e-07,
+       "PhiN_spatial_via_mf": -2.1039705644376738e-08,
+       "PhiN_split_and_transient_via_mf": -1.2833705376191773e-07,
+       "fraction_from_cell_quadrature": 0.5582915764386587
+      },
+      "C2_literal_rel": {
+       "engine_minus_exact": 9.695403686924703e-05,
+       "cell_quadrature": 1.957916373404589e-05,
+       "PhiN_spatial_via_mf": 1.0803554264735005e-05,
+       "PhiN_split_and_transient_via_mf": 6.657131887046613e-05,
+       "fraction_from_cell_quadrature": 0.2019427387066977
+      },
+      "QT_over_QN": {
+       "engine_minus_exact": 6.250062343560181e-05,
+       "cell_quadrature": 2.256152937807343e-07,
+       "PhiN_spatial_via_mf": 8.676526339401747e-06,
+       "PhiN_split_and_transient_via_mf": 5.359848180241933e-05,
+       "fraction_from_cell_quadrature": 0.003609808692759672
+      }
+     },
+     "C3_engine": 1.2157630938533837,
+     "C3_discrete_same_sources": 1.2123186779036177,
+     "C3_discrete_discrete_mf": 1.2123047403259202,
+     "C3_analytic_at_inner_cells": 1.2117596622436722,
+     "C3_analytic_r0": 1.2131007495402601,
+     "C3_engine_minus_analytic": 0.004003431609711505,
+     "C3_split_part": 0.0034444159497659665,
+     "C3_spatial_part": 0.0005450780822480183,
+     "C3_split_fraction_of_excess": 0.8603658774663513,
+     "sigma_centre_engine": 0.004296272308289535,
+     "sigma_centre_discrete": 0.00427864625917545,
+     "sigma_centre_model_inner_cells": 0.004275461024393347,
+     "sigma_engine_over_model_minus_1": 0.004867611651106163,
+     "sigma_discrete_over_model_minus_1": 0.0007450038168819173,
+     "C2c_weighted_rel": 9.490697170612073e-05,
+     "C2c_unweighted_rel": 1.9157921257555166e-05
+    }
+   },
+   "seconds": 2.5
+  }
+ },
+ "orders": {
+  "primary_design_literal_T_leg_max": {
+   "order_lsq": 2.103635164851499,
+   "pairwise": [
+    2.1061731475592924,
+    2.1003131955931353
+   ]
+  },
+  "heat_law_T_leg_max_SPATIAL_SENTINEL": {
+   "order_lsq": 2.061839861298869,
+   "pairwise": [
+    2.2128696369456673,
+    1.864156768244064
+   ]
+  },
+  "discrete_exact_spatial_error_max": {
+   "order_lsq": 2.061665867133227,
+   "pairwise": [
+    2.2127258856718037,
+    1.8639431891133966
+   ]
+  },
+  "split_part_design_minus_heat_max": {
+   "order_lsq": 2.110372128008592,
+   "pairwise": [
+    2.089437072117006,
+    2.1377740531203937
+   ]
+  },
+  "deficit_err_engine_w1e_2": {
+   "order_lsq": 1.9558512112539406,
+   "pairwise": [
+    1.9274515876810838,
+    1.9930235198628288
+   ]
+  },
+  "deficit_err_discrete_exact_w1e_2_SPATIAL": {
+   "order_lsq": 1.8873571077325206,
+   "pairwise": [
+    1.665448720728441,
+    2.177813318303592
+   ]
+  },
+  "deficit_err_discrete_exact_w1e_3_SPATIAL": {
+   "order_lsq": 1.8862892089126977,
+   "pairwise": [
+    1.6617571375618678,
+    2.180179563742032
+   ]
+  },
+  "QT_over_QN_engine_err_w1e_2": {
+   "order_lsq": 2.148898170911218,
+   "pairwise": [
+    2.127084968564383,
+    2.17744950319579
+   ]
+  }
+ },
+ "C5_power": {
+  "order_with_first_order_spatial_error_of_measured_size": 1.9635746460392096,
+  "largest_first_order_amplitude_passing_C4_at_40": 0.003920763588697128,
+  "order_at_that_amplitude": 1.6802205006785926,
+  "amplitude_needed_for_primary_order_below_1p2_over_measured_spatial": 30.260090151917773,
+  "C4_total_at_40_at_that_amplitude": 0.03453903447122546,
+  "heat_law_sentinel_order_if_spatial_were_first_order": 1.0,
+  "note": "first-order spatial error A*(dx/dx_40) added to the measured split part (design - heat); judged as in C5 (lsq over 32/40/48)"
+ },
+ "criteria_at_40": {
+  "C1 |Q_s/Q_T - (1-w/2)/(1+w/2)| < 1e-6 (w=1e-3)": {
+   "value": 2.356782822232617e-07,
+   "threshold": 1e-06,
+   "tag": "[BY CONSTRUCTION] cell-sum quadrature (99 %) + ~1 % solver term; post-diction at 40^3 (P7b)",
+   "pass": true
+  },
+  "C1 |Q_s/Q_T - (1-w/2)/(1+w/2)| < 1e-4 (w=1e-2)": {
+   "value": 1.620872126073536e-05,
+   "threshold": 0.0001,
+   "tag": "[BY CONSTRUCTION] quadrature (99 %) + ~1 % solver; post-diction",
+   "pass": true
+  },
+  "C2 literal |(Q_T-Q_s)/Q_N - w|/w < 1e-3 (w=1e-3)": {
+   "value": 0.0022455876513482673,
+   "threshold": 0.001,
+   "tag": "FAIL as predicted; design error (target w_c omits the metric weight on the pressure term)",
+   "pass": false
+  },
+  "C2 literal |(Q_T-Q_s)/Q_N - w|/w < 1e-3 (w=1e-2)": {
+   "value": 0.02176202406588435,
+   "threshold": 0.001,
+   "tag": "FAIL as predicted; design error",
+   "pass": false
+  },
+  "C2' weighted vs 2B/I1, rel < 1e-3 (w=1e-3)": {
+   "value": 8.847922289641283e-05,
+   "threshold": 0.001,
+   "tag": "[BY CONSTRUCTION] quadrature; corrected criterion",
+   "pass": true
+  },
+  "C2' weighted vs 2B/I1, rel < 1e-3 (w=1e-2)": {
+   "value": 0.00018877645277628376,
+   "threshold": 0.001,
+   "tag": "[BY CONSTRUCTION] quadrature; corrected criterion",
+   "pass": true
+  },
+  "C2' unweighted vs w, rel < 1e-3 (w=1e-3)": {
+   "value": 7.709471611843169e-05,
+   "threshold": 0.001,
+   "tag": "[BY CONSTRUCTION] pure quadrature, no solver",
+   "pass": true
+  },
+  "C2' unweighted vs w, rel < 1e-3 (w=1e-2)": {
+   "value": 7.709471611834495e-05,
+   "threshold": 0.001,
+   "tag": "[BY CONSTRUCTION] pure quadrature, no solver",
+   "pass": true
+  },
+  "C3 |deficit/w - 1.219| < 0.02 (w=1e-3)": {
+   "value": 0.003094313795052317,
+   "threshold": 0.02,
+   "tag": "[VERIFIED numerics] solver; post-diction at 40^3 (P7b)",
+   "pass": true
+  },
+  "C3 |deficit/w - 1.219| < 0.02 (w=1e-2)": {
+   "value": 0.002071122424370797,
+   "threshold": 0.02,
+   "tag": "[VERIFIED numerics] solver; post-diction at 40^3 (P7b)",
+   "pass": true
+  },
+  "C4 T leg max <= 1 % (design-literal, 40^3)": {
+   "value": 0.007019742467862617,
+   "threshold": 0.01,
+   "tag": "[VERIFIED numerics] 0.63 % split-kick + 0.09 % stencil - 0.02 % transient",
+   "pass": true
+  },
+  "C4 T leg max <= 1 % (heat law 1x kick, 40^3)": {
+   "value": 0.0009405060565597457,
+   "threshold": 0.01,
+   "tag": "[VERIFIED numerics] = exact discrete solution; pure stencil error",
+   "pass": true
+  },
+  "C5 order >= 1.2 (primary: design-literal T leg)": {
+   "value": 2.103635164851499,
+   "threshold": 1.2,
+   "kind": "min",
+   "tag": "[BY CONSTRUCTION] split bias ~ dt_split ~ dx^2 (CFL); no power vs a first-order spatial defect that passes C4",
+   "pass": true
+  },
+  "C5 order >= 1.2 (secondary: heat-law T leg = spatial sentinel)": {
+   "value": 2.061839861298869,
+   "threshold": 1.2,
+   "kind": "min",
+   "tag": "[VERIFIED numerics] the real spatial-order test",
+   "pass": true
+  }
+ },
+ "summary": {
+  "all_literal_pass": false,
+  "all_corrected_pass": true,
+  "literal_failures": [
+   "C2 literal |(Q_T-Q_s)/Q_N - w|/w < 1e-3 (w=1e-3)",
+   "C2 literal |(Q_T-Q_s)/Q_N - w|/w < 1e-3 (w=1e-2)"
+  ],
+  "corrected_failures": []
+ },
+ "prereg_vs_measured": {
+  "C1 (40^3)": {
+   "prereg": "~2.4e-7 / ~1.6e-5",
+   "measured": [
+    -2.356782822232617e-07,
+    -1.620872126073536e-05
+   ],
+   "note": "matches the P7b 40^3 measurement (00:51), not the [DERIVED] metric offset (-1.56e-7 / -1.52e-5): post-diction"
+  },
+  "C2 literal (40^3)": {
+   "prereg": "~2.2e-3 / ~2.2e-2 FAIL",
+   "measured": [
+    0.0022455876513482673,
+    0.02176202406588435
+   ],
+   "derived": [
+    0.0021569175860599882,
+    0.021569175860599796
+   ],
+   "note": "fails as predicted; measured 4 % / 1 % above the derived 2.157 w (excess = cell quadrature)"
+  },
+  "C3 (40^3)": {
+   "prereg": "~1.22-1.23 / ~1.21-1.225",
+   "measured": [
+    1.2220943137950524,
+    1.2169288775756293
+   ],
+   "note": "derivable from the P7b sigma_centre ratio: post-diction at 40^3"
+  },
+  "C4 design-literal": {
+   "prereg": "~0.7 % at 40^3 (PASS), ~1.05 % at 32^3",
+   "measured": [
+    0.007019742467862617,
+    0.011231310830348958
+   ],
+   "note": "close, but built on the wrong bias formula (0.665 % claimed vs 0.635 % true) that happened to offset the omitted 0.094 % stencil error"
+  },
+  "C4 heat-law": {
+   "prereg": "~0.05 % (bias 1/20 of the 20x bias)",
+   "measured": 0.0009405060565597457,
+   "note": "MISSED by ~1.9x: the 1x leg has ZERO split bias; its 0.094 % is pure 7-point stencil error (equals the discrete solve)"
+  },
+  "C5": {
+   "prereg": "order ~2",
+   "measured": 2.103635164851499,
+   "note": "true but [BY CONSTRUCTION] for the primary metric"
+  }
+ },
+ "earlier_P7b_run": {
+  "file": "C:\\Users\\aaron\\AppData\\Local\\Temp\\claude\\D--Aaron-development-sigma-ground\\c6652910-47a9-478d-9c83-a8a8c8aaa457\\scratchpad\\sigma-bridge-1pn\\p7_restricted_results.json",
+  "written": "2026-10-10 00:51:02",
+  "prereg_written": "2026-10-10 02:56:14",
+  "first_u10_solver_output": "2026-10-10 02:57:59",
+  "rows": {
+   "0.001": {
+    "Q_S_over_Q_T": [
+     0.9990002640718428,
+     0.999000264071843
+    ],
+    "QT_over_QN": [
+     1.002510322399673,
+     1.002510322399673
+    ],
+    "deficit_over_w": [
+     1.2220943137950524,
+     1.2220943137950524
+    ],
+    "sigma_centre": [
+     0.0004244231485017849,
+     0.00042442314850178487
+    ],
+    "C2_literal_rel_derivable_from_p7": 0.002245587651263266,
+    "max_abs_rel_diff": 2.220446049250313e-16
+   },
+   "0.01": {
+    "Q_S_over_Q_T": [
+     0.9900335425225204,
+     0.9900335425225205
+    ],
+    "QT_over_QN": [
+     1.025200806178804,
+     1.025200806178804
+    ],
+    "deficit_over_w": [
+     1.2169288775756293,
+     1.2169288775756182
+    ],
+    "sigma_centre": [
+     0.004302695400942833,
+     0.004302695400942833
+    ],
+    "C2_literal_rel_derivable_from_p7": 0.02176202406587377,
+    "max_abs_rel_diff": 9.103828801926284e-15
+   }
+  },
+  "reading": "the 40^3 C1, C2, C3, Q_T/Q_N and sigma_centre values existed before the prereg; at 40^3 these are post-dictions"
+ },
+ "mentat_sources": {
+  "original": {
+   "G": {
+    "value": 6.6743e-11,
+    "source": "sigma_ground.field.constants",
+    "tool": "lookup_constant",
+    "args": {
+     "name": "G"
+    }
+   },
+   "c": {
+    "value": 299792458.0,
+    "source": "sigma_ground.field.constants",
+    "tool": "lookup_constant",
+    "args": {
+     "name": "c"
+    }
+   },
+   "XI": {
+    "value": 0.1582,
+    "source": "sigma_ground.inventory.core.sigma.XI (engine)"
+   },
+   "I1_symbolic": {
+    "value": "pi",
+    "source": "sympy.integrate",
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "x*sin(x)",
+     "variable": "x",
+     "lower": "0",
+     "upper": "pi"
+    }
+   },
+   "I1": {
+    "value": "3.1415926535897932",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "N(pi, 17)"
+    }
+   },
+   "I2_symbolic": {
+    "value": "pi/2",
+    "source": "sympy.integrate",
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "sin(x)**2",
+     "variable": "x",
+     "lower": "0",
+     "upper": "pi"
+    }
+   },
+   "I2": {
+    "value": "1.5707963267948966",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "N(pi/2, 17)"
+    }
+   },
+   "I_symbolic": {
+    "value": "-Ci(2*pi)/2 + EulerGamma/2 + log(2)/2 + log(pi)/2",
+    "source": "sympy.integrate",
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "sin(x)**2/x",
+     "variable": "x",
+     "lower": "0",
+     "upper": "pi"
+    }
+   },
+   "I": {
+    "value": "1.2188266965286122",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "N(-Ci(2*pi)/2 + EulerGamma/2 + log(2)/2 + log(pi)/2, 17)"
+    }
+   },
+   "I3_symbolic": {
+    "value": "-Si(3*pi)/4 + 3*Si(pi)/4",
+    "source": "sympy.integrate",
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "sin(x)**3/x",
+     "variable": "x",
+     "lower": "0",
+     "upper": "pi"
+    }
+   },
+   "I3": {
+    "value": "0.97026233924185931",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "N(-Si(3*pi)/4 + 3*Si(pi)/4, 17)"
+    }
+   },
+   "J_symbolic": {
+    "value": "-3*Ci(3*pi)/4 + 3*Ci(pi)/4 + 3*log(3)/4",
+    "source": "sympy.integrate",
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "sin(x)**3/x**2",
+     "variable": "x",
+     "lower": "0",
+     "upper": "pi"
+    }
+   },
+   "J": {
+    "value": "0.87124499831196367",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "N(-3*Ci(3*pi)/4 + 3*Ci(pi)/4 + 3*log(3)/4, 17)"
+    }
+   },
+   "series_pressure_only_ratio": {
+    "value": "w**2/2 - w + 1",
+    "source": "sympy.series",
+    "tool": "series_expansion",
+    "args": {
+     "expression": "(1-w/2)/(1+w/2)",
+     "variable": "w",
+     "point": "0",
+     "order": 3
+    }
+   },
+   "six_P_difference": {
+    "value": "6*P",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "(rho*c**2 + 3*P) - (rho*c**2 - 3*P)"
+    }
+   },
+   "n1_potential_solves_poisson": {
+    "value": "0",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "diff(r**2*diff(a**2*(1+a*sin(r/a)/r), r), r)/r**2 + a*sin(r/a)/r"
+    }
+   },
+   "series_weighted_ratio": {
+    "value": "w**2*(-8*q3/(3*pi) + 7/6) - w + 1",
+    "source": "sympy.series",
+    "tool": "series_expansion",
+    "args": {
+     "expression": "((pi + (4*w/3)*(pi + pi/2))-(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3))))",
+     "variable": "w",
+     "point": "0",
+     "order": 3
+    }
+   },
+   "series_deficit_over_w": {
+    "value": "ii + w*(2*ii*(-7*ii/12 - 2/3) + 4*ii/3 + 4*jj/3)",
+    "source": "sympy.series",
+    "tool": "series_expansion",
+    "args": {
+     "expression": "2*(w*(ii + (4*w/3)*(ii + jj)))/(w*((2 + (4*w/3)*(2 + ii))+(w*(ii + (4*w/3)*(ii + jj)))))",
+     "variable": "w",
+     "point": "0",
+     "order": 2
+    }
+   },
+   "series_QT_over_QN": {
+    "value": "w**2*(4*q3/(3*pi) + 2/3) + 5*w/2 + 1",
+    "source": "sympy.series",
+    "tool": "series_expansion",
+    "args": {
+     "expression": "((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/pi",
+     "variable": "w",
+     "point": "0",
+     "order": 3
+    }
+   }
+  },
+  "repair_v2": {
+   "G": {
+    "value": 6.6743e-11,
+    "source": "sigma_ground.field.constants",
+    "tool": "lookup_constant",
+    "args": {
+     "name": "G"
+    }
+   },
+   "c": {
+    "value": 299792458.0,
+    "source": "sigma_ground.field.constants",
+    "tool": "lookup_constant",
+    "args": {
+     "name": "c"
+    }
+   },
+   "split_series_symbolic_m": {
+    "value": "mu**2*((1/2 - m/2)**2 - (m/6 - 1/6)*(m - 2)) + mu*(m/2 - 1/2) + 1",
+    "source": "sympy.series",
+    "tool": "series_expansion",
+    "args": {
+     "expression": "m*mu/(1-(1-mu)**m)",
+     "variable": "mu",
+     "point": "0",
+     "order": 3
+    }
+   },
+   "split_mu2_coefficient_factored": {
+    "value": "(m - 1)*(m + 1)/12",
+    "source": "sympy.factor",
+    "tool": "factor_expression",
+    "args": {
+     "expression": "(1/2 - m/2)**2 - (m/6 - 1/6)*(m - 2)"
+    }
+   },
+   "split_m1_exact": {
+    "value": "1",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "mu/(1-(1-mu)**1)"
+    }
+   },
+   "split_series_m20": {
+    "value": "133*mu**2/4 + 19*mu/2 + 1",
+    "source": "sympy.series",
+    "tool": "series_expansion",
+    "args": {
+     "expression": "20*mu/(1-(1-mu)**20)",
+     "variable": "mu",
+     "point": "0",
+     "order": 3
+    }
+   },
+   "split_bias_factor_check": {
+    "value": "0",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "((m-1)/2)*mu*(1 + (m+1)*mu/6) - (mu*(m/2 - 1/2) + mu**2*((1/2 - m/2)**2 - (m/6 - 1/6)*(m - 2)))"
+    }
+   },
+   "C1_offset_rho_total_energy": {
+    "value": "w**2*(-8*q3/(3*pi) + 2/3)",
+    "source": "sympy.series",
+    "tool": "series_expansion",
+    "args": {
+     "expression": "((pi + (4*w/3)*(pi + pi/2))-(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))) - (1-w/2)/(1+w/2)",
+     "variable": "w",
+     "point": "0",
+     "order": 3
+    }
+   },
+   "C1_offset_rho_rest_plus_internal_energy": {
+    "value": "w**2*(-8*q3/(3*pi) + 5/6)",
+    "source": "sympy.series",
+    "tool": "series_expansion",
+    "args": {
+     "expression": "((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3-(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))) - (1-w/2)/(1+w/2)",
+     "variable": "w",
+     "point": "0",
+     "order": 3
+    }
+   },
+   "QT_over_QN_rho_rest_plus_internal_energy": {
+    "value": "w**2*(16*q3/(9*pi) + 8/9) + 8*w/3 + 1",
+    "source": "sympy.series",
+    "tool": "series_expansion",
+    "args": {
+     "expression": "((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3+(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/pi",
+     "variable": "w",
+     "point": "0",
+     "order": 3
+    }
+   },
+   "C2_difference_unchanged_by_internal_energy": {
+    "value": "0",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "(((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))) - ((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3-(w*(pi/2 + (4*w/3)*(pi/2 + q3))))) - (((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))) - ((pi + (4*w/3)*(pi + pi/2))-(w*(pi/2 + (4*w/3)*(pi/2 + q3)))))"
+    }
+   },
+   "C1_offset_rho_total_energy_w1e-3": {
+    "value": "-1.56917586060e-7",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "N((w**2*(-8*0.9702623392418593/(3*pi) + 2/3)).subs(w, Rational(1,1000)), 12)"
+    }
+   },
+   "C1_offset_rho_rest_plus_internal_energy_w1e-3": {
+    "value": "9.74908060668e-9",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "N((w**2*(-8*0.9702623392418593/(3*pi) + 5/6)).subs(w, Rational(1,1000)), 12)"
+    }
+   },
+   "C1_offset_rho_total_energy_exact_w1e-3": {
+    "value": "-1.56447878059e-7",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "N((((pi + (4*w/3)*(pi + pi/2))-(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))) - (1-w/2)/(1+w/2)).subs(q3, 0.9702623392418593).subs(w, Rational(1,1000)), 12)"
+    }
+   },
+   "C1_offset_rho_rest_plus_internal_energy_exact_w1e-3": {
+    "value": "1.00766296115e-8",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "N((((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3-(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))) - (1-w/2)/(1+w/2)).subs(q3, 0.9702623392418593).subs(w, Rational(1,1000)), 12)"
+    }
+   },
+   "C1_offset_rho_total_energy_w1e-2": {
+    "value": "-1.56917586060e-5",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "N((w**2*(-8*0.9702623392418593/(3*pi) + 2/3)).subs(w, Rational(1,100)), 12)"
+    }
+   },
+   "C1_offset_rho_rest_plus_internal_energy_w1e-2": {
+    "value": "9.74908060668e-7",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "N((w**2*(-8*0.9702623392418593/(3*pi) + 5/6)).subs(w, Rational(1,100)), 12)"
+    }
+   },
+   "C1_offset_rho_total_energy_exact_w1e-2": {
+    "value": "-1.52312658790e-5",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "N((((pi + (4*w/3)*(pi + pi/2))-(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))) - (1-w/2)/(1+w/2)).subs(q3, 0.9702623392418593).subs(w, Rational(1,100)), 12)"
+    }
+   },
+   "C1_offset_rho_rest_plus_internal_energy_exact_w1e-2": {
+    "value": "1.29308728094e-6",
+    "source": "sympy.simplify",
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "N((((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3-(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))) - (1-w/2)/(1+w/2)).subs(q3, 0.9702623392418593).subs(w, Rational(1,100)), 12)"
+    }
+   }
+  }
+ },
+ "engine_leaves": {
+  "XI": {
+   "value": 0.1582,
+   "source": "sigma_ground.inventory.core.sigma.XI (engine)"
+  },
+  "solver_under_test": "sigma_ground.dynamics.fields.heat.diffuse_fvm / stable_dt",
+  "pilot_wrapper": "scripts/unification/pilot_p7_sigma_three_fields.py poisson_fvm (lines 20-31)"
+ },
+ "predictions_original": [
+  {
+   "w": 0.001,
+   "ratio_pressure_only": 0.9990004997501251,
+   "ratio_weighted_exact": 0.9990003433022469,
+   "ratio_weighted_minus_pressure_only": -1.564478782078993e-07,
+   "dQ_over_QN_weighted_exact": 0.00100215691758606,
+   "dQ_over_QN_weighted_rel_offset_from_w": 0.0021569175860599882,
+   "dQ_over_QN_unweighted": 0.001,
+   "QT_over_QN_weighted_exact": 1.002501078458793,
+   "QT_over_QN_design_1p2_5w": 1.0025,
+   "deficit_over_w_weighted_centre_exact": 1.2182551056668711,
+   "deficit_over_w_unweighted_centre_exact": 1.2180843796483423,
+   "compactness_rs_over_R": 0.0013333333333333333
+  },
+  {
+   "w": 0.01,
+   "ratio_pressure_only": 0.9900497512437811,
+   "ratio_weighted_exact": 0.9900345199779021,
+   "ratio_weighted_minus_pressure_only": -1.523126587898993e-05,
+   "dQ_over_QN_weighted_exact": 0.010215691758605998,
+   "dQ_over_QN_weighted_rel_offset_from_w": 0.021569175860599796,
+   "dQ_over_QN_unweighted": 0.01,
+   "QT_over_QN_weighted_exact": 1.025107845879303,
+   "QT_over_QN_design_1p2_5w": 1.025,
+   "deficit_over_w_weighted_centre_exact": 1.2131007495402601,
+   "deficit_over_w_unweighted_centre_exact": 1.2114439951156313,
+   "compactness_rs_over_R": 0.013333333333333334
+  }
+ ]
+}

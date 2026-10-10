@@ -1,0 +1,37 @@
+{
+ "choices": {
+  "grid": 32,
+  "dx_m": 0.01,
+  "T_background_K": 200.0,
+  "blobs": "+50 K (w=4dx), -30 K (w=3dx)",
+  "slices": 20,
+  "t_slice_s": 14.514825451400208
+ },
+ "material": {
+  "source": "sigma_ground.dynamics.continuum.material_properties('water_ice', 200 K) (repo cascade)",
+  "k_W_mK": 29.91162933598881,
+  "rho_kg_m3": 917.0,
+  "cp_J_kgK": 3550.94393766788,
+  "alpha_m2_s": 9.186010109440965e-06
+ },
+ "substeps_total": 800,
+ "dt_sub_s": 0.3628706362850052,
+ "Sdot_min": 0.010906102196263194,
+ "Sdot_all_positive": true,
+ "Sdot_monotone_decreasing": true,
+ "S_monotone_increasing": true,
+ "dS_min_J_per_K": 0.1682778198737651,
+ "dS_vs_trapezoid_max_relerr": 0.019597705258897494,
+ "energy_drift_rel": 1.7357401181543582e-16,
+ "reversed_run_negative_time": {
+  "substeps": 0,
+  "unchanged": true
+ },
+ "reversed_run_negative_k": {
+  "substeps": 0,
+  "unchanged": true
+ },
+ "inverse_map_highest_mode_log10_amplification": 177.47899969308511,
+ "lam_per_substep": 0.4,
+ "wall_s": 0.5050406455993652
+}

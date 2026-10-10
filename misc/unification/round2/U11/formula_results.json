@@ -1,0 +1,844 @@
+{
+ "id": "U11-formula",
+ "H_eq_cs2_over_g": {
+  "ode": "Eq(y(x), C1*exp(-g*x/c_s**2))",
+  "residual": "0"
+ },
+ "K_line_times_h2": 0.477464829275686,
+ "kernel3d_norm": 1.0,
+ "air": {
+  "scale_height_engine_m": 8433.45384237488,
+  "scale_height_mentat_m": 8433.45384237488,
+  "scale_height_ISA_constants_m": 8434.515630756852,
+  "mean_molar_mass_engine": 0.028968543572818032,
+  "M0_ISA": 0.0289644,
+  "dry_lapse_engine_K_per_km": 9.77065262160704,
+  "ISA_lapse_K_per_km": 6.5,
+  "ISA_exponent": 5.255876113278518,
+  "engine_exponent": 5.2565378383912025
+ },
+ "isa_constants_LIT": {
+  "T0": 288.15,
+  "p0": 101325.0,
+  "L": 0.0065,
+  "M0": 0.0289644,
+  "Rstar": 8.31432,
+  "g0": 9.80665,
+  "r0": 6356766.0
+ },
+ "isa_anchor_check": {
+  "5000": {
+   "T_tab": 255.676,
+   "p_tab": 54048.0,
+   "T_formula": 255.67554322180348,
+   "p_formula": 54048.28614576139,
+   "p_rel": 5.294289546158946e-06,
+   "T_rel": -1.7865509336344126e-06
+  },
+  "10000": {
+   "T_tab": 223.252,
+   "p_tab": 26500.0,
+   "T_formula": 223.25209264797857,
+   "p_formula": 26499.898139253346,
+   "p_rel": -3.843801760527674e-06,
+   "T_rel": 4.1499282676929853e-07
+  }
+ },
+ "rows": [
+  {
+   "z_m": 0.0,
+   "H_geopotential_m": 0.0,
+   "T_ISA": 288.15,
+   "p_ISA": 101325.0,
+   "p_isothermal_engine": 101325.0,
+   "p_rel_err": 0.0,
+   "T_dry_adiabatic_engine": 288.15,
+   "T_rel_err": 0.0
+  },
+  {
+   "z_m": 1000.0,
+   "H_geopotential_m": 999.8427120469674,
+   "T_ISA": 281.6510223716947,
+   "p_ISA": 89876.28518727125,
+   "p_isothermal_engine": 89995.331054418,
+   "p_rel_err": 0.0013245525991500305,
+   "T_dry_adiabatic_engine": 278.37934737839294,
+   "T_rel_err": -0.011616059355126822
+  },
+  {
+   "z_m": 2000.0,
+   "H_geopotential_m": 1999.370947130308,
+   "T_ISA": 275.15408884365297,
+   "p_ISA": 79501.424641667,
+   "p_isothermal_engine": 79932.49061529034,
+   "p_rel_err": 0.005422116340257533,
+   "T_dry_adiabatic_engine": 268.6086947567859,
+   "T_rel_err": -0.023788104019730836
+  },
+  {
+   "z_m": 3000.0,
+   "H_geopotential_m": 2998.58485359367,
+   "T_ISA": 268.65919845164115,
+   "p_ISA": 70121.16223643,
+   "p_isothermal_engine": 70994.82807724859,
+   "p_rel_err": 0.012459374787212174,
+   "T_dry_adiabatic_engine": 258.83804213517885,
+   "T_rel_err": -0.036556188558085456
+  },
+  {
+   "z_m": 4000.0,
+   "H_geopotential_m": 3997.484579687415,
+   "T_ISA": 262.1663502320318,
+   "p_ISA": 61660.444130465075,
+   "p_isothermal_engine": 63056.53151703408,
+   "p_rel_err": 0.022641539584357693,
+   "T_dry_adiabatic_engine": 249.0673895135718,
+   "T_rel_err": -0.0499643097097193
+  },
+  {
+   "z_m": 5000.0,
+   "H_geopotential_m": 4996.070273568692,
+   "T_ISA": 255.67554322180348,
+   "p_ISA": 54048.28614576139,
+   "p_isothermal_engine": 56005.85668905822,
+   "p_rel_err": 0.03621891983804096,
+   "T_dry_adiabatic_engine": 239.29673689196477,
+   "T_rel_err": -0.06406090361028305
+  },
+  {
+   "z_m": 6000.0,
+   "H_geopotential_m": 5994.342083301508,
+   "T_ISA": 249.18677645854018,
+   "p_ISA": 47217.642475894994,
+   "p_isothermal_engine": 49743.55404607042,
+   "p_rel_err": 0.053495080180356876,
+   "T_dry_adiabatic_engine": 229.52608427035773,
+   "T_rel_err": -0.07889942021643996
+  },
+  {
+   "z_m": 7000.0,
+   "H_geopotential_m": 6992.300156856804,
+   "T_ISA": 242.70004898043075,
+   "p_ISA": 41105.27573234054,
+   "p_isothermal_engine": 44181.47164272827,
+   "p_rel_err": 0.07483700949772396,
+   "T_dry_adiabatic_engine": 219.7554316487507,
+   "T_rel_err": -0.09453898929179912
+  },
+  {
+   "z_m": 8000.0,
+   "H_geopotential_m": 7989.94464211253,
+   "T_ISA": 236.21535982626853,
+   "p_ISA": 35651.628335825,
+   "p_isothermal_engine": 39241.31425569911,
+   "p_rel_err": 0.10068785319033985,
+   "T_dry_adiabatic_engine": 209.98477902714365,
+   "T_rel_err": -0.11104519544544827
+  },
+  {
+   "z_m": 9000.0,
+   "H_geopotential_m": 8987.27568685371,
+   "T_ISA": 229.73270803545086,
+   "p_ISA": 30800.695260495395,
+   "p_isothermal_engine": 34853.54125291974,
+   "p_rel_err": 0.13158293857160033,
+   "T_dry_adiabatic_engine": 200.2141264055366,
+   "T_rel_err": -0.1284909836406888
+  },
+  {
+   "z_m": 10000.0,
+   "H_geopotential_m": 9984.293438772525,
+   "T_ISA": 223.25209264797857,
+   "p_ISA": 26499.898139253346,
+   "p_isothermal_engine": 30956.387697757982,
+   "p_rel_err": 0.1681700637144487,
+   "T_dry_adiabatic_engine": 190.44347378392956,
+   "T_rel_err": -0.14695772153760403
+  },
+  {
+   "z_m": 11000.0,
+   "H_geopotential_m": 10980.99804546838,
+   "T_ISA": 216.7735127044555,
+   "p_ISA": 22699.960739233342,
+   "p_isothermal_engine": 27494.994908548164,
+   "p_rel_err": 0.21123535077430128,
+   "T_dry_adiabatic_engine": 180.67282116232252,
+   "T_rel_err": -0.166536451302295
+  }
+ ],
+ "engine_polytrope": [
+  {
+   "z_m": 0.0,
+   "p_engine_polytrope": 101325.0,
+   "rel_err": 0.0
+  },
+  {
+   "z_m": 1000.0,
+   "p_engine_polytrope": 89874.92846767079,
+   "rel_err": -1.5095412517682603e-05
+  },
+  {
+   "z_m": 2000.0,
+   "p_engine_polytrope": 79498.99681994323,
+   "rel_err": -3.0538090791657915e-05
+  },
+  {
+   "z_m": 3000.0,
+   "p_engine_polytrope": 70117.9125053126,
+   "rel_err": -4.634451303640103e-05
+  },
+  {
+   "z_m": 4000.0,
+   "p_engine_polytrope": 61656.58835743789,
+   "rel_err": -6.253235897924516e-05
+  },
+  {
+   "z_m": 5000.0,
+   "p_engine_polytrope": 54044.009811333126,
+   "rel_err": -7.912062959280679e-05
+  },
+  {
+   "z_m": 6000.0,
+   "p_engine_polytrope": 47213.10345421091,
+   "rel_err": -9.612978213386255e-05
+  },
+  {
+   "z_m": 7000.0,
+   "p_engine_polytrope": 41100.60691772685,
+   "rel_err": -0.00011358188287286621
+  },
+  {
+   "z_m": 8000.0,
+   "p_engine_polytrope": 35646.94011887628,
+   "rel_err": -0.0001315007804008396
+  },
+  {
+   "z_m": 9000.0,
+   "p_engine_polytrope": 30796.07785733774,
+   "rel_err": -0.00014991230290758634
+  },
+  {
+   "z_m": 10000.0,
+   "p_engine_polytrope": 26495.42377763805,
+   "rel_err": -0.00016884448354417567
+  },
+  {
+   "z_m": 11000.0,
+   "p_engine_polytrope": 22695.685705140742,
+   "rel_err": -0.00018832781878828523
+  }
+ ],
+ "verdicts": {
+  "pressure_within_5pct_to_5km": true,
+  "pressure_beyond_5pct_above_8km": true,
+  "pressure_5pct_crossing_altitude_m": 5797.693462487953,
+  "T_dry_within_5pct_to_11km": false,
+  "lapse_within_10pct_of_6p5": false
+ },
+ "sigma_column": {
+  "w_sea_level": 9.362948835614391e-13,
+  "three_w": 2.8088846506843174e-12,
+  "tolman_over_scale_height": 9.20205324875728e-13,
+  "tolman_over_11km": 1.200250663941804e-12,
+  "cs2_over_c2": 1.286890043750157e-12
+ },
+ "mentat_leaves": {
+  "ode_hydrostatic_isothermal": {
+   "tool": "solve_ode",
+   "args": {
+    "equation": "Derivative(y(x),x) + g*y(x)/c_s**2"
+   },
+   "value": "Eq(y(x), C1*exp(-g*x/c_s**2))",
+   "source": "sympy.dsolve"
+  },
+  "dPdz": {
+   "tool": "differentiate_expr",
+   "args": {
+    "expression": "rho0*c_s**2*exp(-g*z/c_s**2)",
+    "variable": "z"
+   },
+   "value": "-g*rho0*exp(-g*z/c_s**2)",
+   "source": "sympy.diff"
+  },
+  "hydrostatic_residual": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "(-g*rho0*exp(-g*z/c_s**2)) + g*rho0*exp(-g*z/c_s**2)"
+   },
+   "value": "0",
+   "source": "sympy.simplify"
+  },
+  "H_symbolic": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "c_s**2/g"
+   },
+   "value": "c_s**2/g",
+   "source": "sympy.simplify"
+  },
+  "kernel_int_inner": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "2/3 - q**2 + q**3/2",
+    "variable": "q",
+    "lower": "0",
+    "upper": "1"
+   },
+   "value": "11/24",
+   "source": "sympy.integrate"
+  },
+  "kernel_int_outer": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "(2-q)**3/6",
+    "variable": "q",
+    "lower": "1",
+    "upper": "2"
+   },
+   "value": "1/24",
+   "source": "sympy.integrate"
+  },
+  "K_line_times_h2": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((3/(2*pi))*2*((11/24) + (1/24)), 17)"
+   },
+   "value": "0.47746482927568601",
+   "source": "sympy.simplify"
+  },
+  "kernel3d_inner": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "q**2*(2/3 - q**2 + q**3/2)",
+    "variable": "q",
+    "lower": "0",
+    "upper": "1"
+   },
+   "value": "19/180",
+   "source": "sympy.integrate"
+  },
+  "kernel3d_outer": {
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "q**2*(2-q)**3/6",
+    "variable": "q",
+    "lower": "1",
+    "upper": "2"
+   },
+   "value": "11/180",
+   "source": "sympy.integrate"
+  },
+  "kernel3d_norm": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(4*pi*(3/(2*pi))*((19/180) + (11/180)), 17)"
+   },
+   "value": "1.0000000000000000",
+   "source": "sympy.simplify"
+  },
+  "R": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "molar gas constant"
+   },
+   "value": 8.31446261815324,
+   "source": "scipy.constants (CODATA via value())"
+  },
+  "g_standard": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "standard acceleration of gravity"
+   },
+   "value": 9.80665,
+   "source": "scipy.constants (CODATA via value())"
+  },
+  "atm": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "standard atmosphere"
+   },
+   "value": 101325.0,
+   "source": "scipy.constants (CODATA via value())"
+  },
+  "c": {
+   "tool": "lookup_constant",
+   "args": {
+    "name": "c"
+   },
+   "value": 299792458.0,
+   "source": "sigma_ground.field.constants"
+  },
+  "rho_air_20C": {
+   "tool": "density",
+   "args": {
+    "material": "air"
+   },
+   "value": 1.2041,
+   "source": "sigma-ground via CRC Handbook (dry air at 20 C, 101.325 kPa)"
+  },
+  "cs_air_288K": {
+   "tool": "speed_of_sound_in_ideal_gas",
+   "args": {
+    "temperature_k": 288.15
+   },
+   "value": 340.08809024799785,
+   "source": "sigma-ground (ideal-gas adiabatic sound speed)"
+  },
+  "ISA_exponent": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(9.80665*0.0289644/(8.31432*0.0065), 17)"
+   },
+   "value": "5.2558761132785179",
+   "source": "sympy.simplify"
+  },
+  "ISA_Hgp_0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(6356766.0*0.0/(6356766.0+0.0), 17)"
+   },
+   "value": "0",
+   "source": "sympy.simplify"
+  },
+  "ISA_T_0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(288.15 - 0.0065*0.0, 17)"
+   },
+   "value": "288.14999999999998",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*(288.15/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "101325.00000000000",
+   "source": "sympy.simplify"
+  },
+  "ISA_Hgp_1000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(6356766.0*1000.0/(6356766.0+1000.0), 17)"
+   },
+   "value": "999.84271204696745",
+   "source": "sympy.simplify"
+  },
+  "ISA_T_1000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(288.15 - 0.0065*999.8427120469674, 17)"
+   },
+   "value": "281.65102237169469",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_1000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*(281.6510223716947/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "89876.285187271256",
+   "source": "sympy.simplify"
+  },
+  "ISA_Hgp_2000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(6356766.0*2000.0/(6356766.0+2000.0), 17)"
+   },
+   "value": "1999.3709471303080",
+   "source": "sympy.simplify"
+  },
+  "ISA_T_2000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(288.15 - 0.0065*1999.370947130308, 17)"
+   },
+   "value": "275.15408884365298",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_2000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*(275.15408884365297/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "79501.424641667002",
+   "source": "sympy.simplify"
+  },
+  "ISA_Hgp_3000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(6356766.0*3000.0/(6356766.0+3000.0), 17)"
+   },
+   "value": "2998.5848535936698",
+   "source": "sympy.simplify"
+  },
+  "ISA_T_3000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(288.15 - 0.0065*2998.58485359367, 17)"
+   },
+   "value": "268.65919845164115",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_3000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*(268.65919845164115/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "70121.162236430003",
+   "source": "sympy.simplify"
+  },
+  "ISA_Hgp_4000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(6356766.0*4000.0/(6356766.0+4000.0), 17)"
+   },
+   "value": "3997.4845796874151",
+   "source": "sympy.simplify"
+  },
+  "ISA_T_4000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(288.15 - 0.0065*3997.484579687415, 17)"
+   },
+   "value": "262.16635023203178",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_4000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*(262.1663502320318/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "61660.444130465078",
+   "source": "sympy.simplify"
+  },
+  "ISA_Hgp_5000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(6356766.0*5000.0/(6356766.0+5000.0), 17)"
+   },
+   "value": "4996.0702735686918",
+   "source": "sympy.simplify"
+  },
+  "ISA_T_5000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(288.15 - 0.0065*4996.070273568692, 17)"
+   },
+   "value": "255.67554322180348",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_5000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*(255.67554322180348/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "54048.286145761394",
+   "source": "sympy.simplify"
+  },
+  "ISA_Hgp_6000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(6356766.0*6000.0/(6356766.0+6000.0), 17)"
+   },
+   "value": "5994.3420833015080",
+   "source": "sympy.simplify"
+  },
+  "ISA_T_6000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(288.15 - 0.0065*5994.342083301508, 17)"
+   },
+   "value": "249.18677645854018",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_6000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*(249.18677645854018/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "47217.642475894993",
+   "source": "sympy.simplify"
+  },
+  "ISA_Hgp_7000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(6356766.0*7000.0/(6356766.0+7000.0), 17)"
+   },
+   "value": "6992.3001568568043",
+   "source": "sympy.simplify"
+  },
+  "ISA_T_7000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(288.15 - 0.0065*6992.300156856804, 17)"
+   },
+   "value": "242.70004898043075",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_7000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*(242.70004898043075/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "41105.275732340537",
+   "source": "sympy.simplify"
+  },
+  "ISA_Hgp_8000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(6356766.0*8000.0/(6356766.0+8000.0), 17)"
+   },
+   "value": "7989.9446421125303",
+   "source": "sympy.simplify"
+  },
+  "ISA_T_8000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(288.15 - 0.0065*7989.94464211253, 17)"
+   },
+   "value": "236.21535982626853",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_8000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*(236.21535982626853/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "35651.628335825002",
+   "source": "sympy.simplify"
+  },
+  "ISA_Hgp_9000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(6356766.0*9000.0/(6356766.0+9000.0), 17)"
+   },
+   "value": "8987.2756868537108",
+   "source": "sympy.simplify"
+  },
+  "ISA_T_9000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(288.15 - 0.0065*8987.27568685371, 17)"
+   },
+   "value": "229.73270803545086",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_9000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*(229.73270803545086/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "30800.695260495396",
+   "source": "sympy.simplify"
+  },
+  "ISA_Hgp_10000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(6356766.0*10000.0/(6356766.0+10000.0), 17)"
+   },
+   "value": "9984.2934387725254",
+   "source": "sympy.simplify"
+  },
+  "ISA_T_10000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(288.15 - 0.0065*9984.293438772525, 17)"
+   },
+   "value": "223.25209264797857",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_10000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*(223.25209264797857/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "26499.898139253347",
+   "source": "sympy.simplify"
+  },
+  "ISA_Hgp_11000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(6356766.0*11000.0/(6356766.0+11000.0), 17)"
+   },
+   "value": "10980.998045468379",
+   "source": "sympy.simplify"
+  },
+  "ISA_T_11000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(288.15 - 0.0065*10980.99804546838, 17)"
+   },
+   "value": "216.77351270445551",
+   "source": "sympy.simplify"
+  },
+  "ISA_p_11000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*(216.7735127044555/288.15)**(5.255876113278518), 17)"
+   },
+   "value": "22699.960739233342",
+   "source": "sympy.simplify"
+  },
+  "engine_polytrope_exponent": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(9.80665*0.028968543572818032/(8.31446261815324*0.0065), 17)"
+   },
+   "value": "5.2565378383912021",
+   "source": "sympy.simplify"
+  },
+  "engine_poly_p_0": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*0.0)/288.15)**(5.2565378383912025), 17)"
+   },
+   "value": "101325.00000000000",
+   "source": "sympy.simplify"
+  },
+  "engine_poly_p_1000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*999.8427120469674)/288.15)**(5.2565378383912025), 17)"
+   },
+   "value": "89874.928467670789",
+   "source": "sympy.simplify"
+  },
+  "engine_poly_p_2000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*1999.370947130308)/288.15)**(5.2565378383912025), 17)"
+   },
+   "value": "79498.996819943230",
+   "source": "sympy.simplify"
+  },
+  "engine_poly_p_3000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*2998.58485359367)/288.15)**(5.2565378383912025), 17)"
+   },
+   "value": "70117.912505312607",
+   "source": "sympy.simplify"
+  },
+  "engine_poly_p_4000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*3997.484579687415)/288.15)**(5.2565378383912025), 17)"
+   },
+   "value": "61656.588357437892",
+   "source": "sympy.simplify"
+  },
+  "engine_poly_p_5000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*4996.070273568692)/288.15)**(5.2565378383912025), 17)"
+   },
+   "value": "54044.009811333124",
+   "source": "sympy.simplify"
+  },
+  "engine_poly_p_6000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*5994.342083301508)/288.15)**(5.2565378383912025), 17)"
+   },
+   "value": "47213.103454210911",
+   "source": "sympy.simplify"
+  },
+  "engine_poly_p_7000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*6992.300156856804)/288.15)**(5.2565378383912025), 17)"
+   },
+   "value": "41100.606917726850",
+   "source": "sympy.simplify"
+  },
+  "engine_poly_p_8000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*7989.94464211253)/288.15)**(5.2565378383912025), 17)"
+   },
+   "value": "35646.940118876276",
+   "source": "sympy.simplify"
+  },
+  "engine_poly_p_9000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*8987.27568685371)/288.15)**(5.2565378383912025), 17)"
+   },
+   "value": "30796.077857337738",
+   "source": "sympy.simplify"
+  },
+  "engine_poly_p_10000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*9984.293438772525)/288.15)**(5.2565378383912025), 17)"
+   },
+   "value": "26495.423777638050",
+   "source": "sympy.simplify"
+  },
+  "engine_poly_p_11000": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0*((288.15 - 0.0065*10980.99804546838)/288.15)**(5.2565378383912025), 17)"
+   },
+   "value": "22695.685705140741",
+   "source": "sympy.simplify"
+  },
+  "H_air_RT_over_Mg": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(8.31446261815324*288.15/(0.028968543572818032*9.80665), 17)"
+   },
+   "value": "8433.4538423748802",
+   "source": "sympy.simplify"
+  },
+  "H_air_ISA_constants": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(8.31432*288.15/(0.0289644*9.80665), 17)"
+   },
+   "value": "8434.5156307568523",
+   "source": "sympy.simplify"
+  },
+  "w_sea_level": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(101325.0/(1.2041*299792458.0**2), 17)"
+   },
+   "value": "9.3629488356143912e-13",
+   "source": "sympy.simplify"
+  },
+  "three_w_sea_level": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(3*101325.0/(1.2041*299792458.0**2), 17)"
+   },
+   "value": "2.8088846506843174e-12",
+   "source": "sympy.simplify"
+  },
+  "tolman_over_scale_height": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(9.80665*8433.45384237488/299792458.0**2, 17)"
+   },
+   "value": "9.2020532487572793e-13",
+   "source": "sympy.simplify"
+  },
+  "tolman_over_11km": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(9.80665*11000/299792458.0**2, 17)"
+   },
+   "value": "1.2002506639418039e-12",
+   "source": "sympy.simplify"
+  },
+  "cs2_over_c2_air": {
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(340.08809024799785**2/299792458.0**2, 17)"
+   },
+   "value": "1.2868900437501569e-12",
+   "source": "sympy.simplify"
+  }
+ }
+}

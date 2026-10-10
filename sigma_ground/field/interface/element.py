@@ -512,6 +512,10 @@ def _binding_energy_MeV(Z, A):
     B -= _SEMF_AC * Z * (Z - 1) / A**(1.0/3.0)
 
     # Asymmetry term: penalty for N ≠ Z (Pauli exclusion)
+    # PHYSICS_GAP (2026-10-10, unification round 2, N1; KNOWN_GAPS.md): a_a = 23.29 MeV
+    # belongs to the (A−2Z)²/A form (which stable_mass_number below assumes); with /(4A)
+    # the asymmetry penalty is 4× too small. rms error over 136 AME2020 nuclides with
+    # A ≥ 12: 6.82 % as coded, 0.78 % with /A. Flagged, not fixed.
     B -= _SEMF_AA * (A - 2*Z)**2 / (4.0 * A)
 
     # Pairing term

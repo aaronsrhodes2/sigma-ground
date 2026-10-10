@@ -85,11 +85,12 @@ SCENARIOS = {
         oracle="Havok rope/spring constraints; the prediction chain runs through solve_ode and series_expansion",
         bundles=[], needs=[]),
     "S07": dict(
-        name="Pool", kind="ENGINE", effort_days=2,
+        name="Pool", kind="PORT", effort_days=2,
         what="A tank with floating and sinking blocks of known material, an ice cube, and falling balls: draft "
              "depth, flotation, and viscous settling speed.",
-        oracle="Source water buoyancy (a constant ratio per object, configured from density): checks that it obeys Archimedes; drag is a Lua port",
-        bundles=[], needs=["real densities via surface data", "water volume entity"]),
+        oracle="Lua port of buoyancy and Stokes drag against the Mentat tools (offline parity). NOT an engine test: neither installed map "
+               "(gm_construct, gm_flatgrass) has water, Lua cannot create a water volume, and Source buoyancy would be a constant ratio anyway",
+        bundles=[], needs=["a Lua buoyancy and drag force on bodies below a plane", "real densities (Mentat density)"]),
     "S08": dict(
         name="Furnace", kind="PORT", effort_days=3,
         what="A heated iron ball glows by blackbody colour as it heats; a hot block is set on a cold slab and the "
@@ -152,6 +153,21 @@ SCENARIOS = {
         oracle="n/a until a metric fluid exists", bundles=[], needs=["metric fluid solver"]),
 }
 
+# Build status, as of 2026-10-10. "BUILT" means: spec builder, Lua scene, independent grader, recorded run and offline
+# tests exist under stage/gmod/experiments, and the grader passes on the dedicated server.
+_STATUS = {
+    "S01": "BUILT (stage/gmod/experiments, run.py S01): four metal spheres agree with Mentat free fall to 1e-6. The coin, the feather and the drag run are not built.",
+    "S02": "BUILT: three launch angles; range, apex and flight time agree with Mentat to 5e-6. The straight-up throw is not built.",
+    "S03": "BUILT: friction handed over from Mentat is realized to 3e-4 on the steady lanes; critical angle bracketed 44-46 deg around 45.",
+    "S04": "BUILT: momentum conserved to 6e-4, Mentat collision outcomes agree to 1e-4. Sphere bounce height is not built.",
+    "S05": "BUILT IN PART: the rolling race (solid sphere, solid disc, hollow sphere) and the inertia audit pass; the gear train and the hand tool are deferred.",
+    "S06": "BUILT: pendulum periods within 0.3 % of Mentat's exact period, springs within 6e-4, damped spring within 0.4 %.",
+    "S07": "NOT BUILT, AND NOT AN ENGINE TEST: no installed map has water; reclassified PORT.",
+}
+for _sid, _text in _STATUS.items():
+    SCENARIOS[_sid]["status"] = _text
+
+
 CLASSES = ("ENGINE", "PORT", "SHOW", "PREDICT", "LOOKUP", "GENERATOR", "BLOCKED", "OUT")
 OUT_KINDS = ("ASTRO", "LARGE_SCALE", "RELATIVISTIC", "ATOMIC_QUANTUM", "THEORY", "TIMESCALE", "EXTREME_REGIME")
 
@@ -199,7 +215,8 @@ T("collision_analysis", "ENGINE", ["S04"],
 T("hertzian_impact_analysis", "PREDICT", ["S04"],
   note="supplies the restitution Havok is handed (a surface property); Havok cannot validate the number itself")
 T("rotational_dynamics", "ENGINE", ["S05"], note="moments of inertia: Havok derives inertia from the hull")
-T("buoyancy_analysis", "ENGINE", ["S07"], note="Source buoyancy is a constant ratio per object: expect a gap")
+T("buoyancy_analysis", "PORT", ["S07"],
+  note="no water volume exists on the installed maps, so the engine offers no buoyancy to compare with: a Lua force port stands in")
 
 # ---- PREDICT: math / conversion tools that build another scenario's prediction -----
 T("solve_ode series_expansion compute_limit simplify_expr expand_expression factor_expression",
@@ -304,7 +321,8 @@ T("light_travel_time", "OUT", kind="TIMESCALE", note="Mentat: 3 m takes 10.0 ns;
 # ======================================================================================
 V("collision_dynamics", "ENGINE", ["S04"])
 V("projectile_motion vertical_launch", "ENGINE", ["S02"])
-V("rolling_object rotational_dynamics actuate_hand_tool", "ENGINE", ["S05"])
+V("rolling_object rotational_dynamics", "ENGINE", ["S05"])
+V("actuate_hand_tool", "ENGINE", ["S05"], note="DEFERRED: needs the hinge and gear constraint scenes (the pivot is discovered from Deckard contact geometry)")
 V("tribology", "PREDICT", ["S03"], note="supplies the friction coefficient Havok is handed; the Archard wear part is value-only")
 V("fluid_flow", "PORT", ["S07", "S01"], note="Stokes settling needs Mentat's drag applied by a Lua port; Havok's own drag is not physical")
 V("water_state", "PREDICT", ["S07"], note="density(T) is fed to Source buoyancy; the 4 C maximum decides whether ice floats")

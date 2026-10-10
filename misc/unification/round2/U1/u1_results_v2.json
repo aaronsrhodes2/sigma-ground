@@ -1,0 +1,2561 @@
+{
+ "id": "U1",
+ "version": "v2 (repair pass)",
+ "date": "2026-10-10",
+ "prereg": {
+  "engine": "Pbdot_engine within 2 % of Peters (by construction); > 5 % = nbody bug",
+  "physics": "coded sigma passes only if ALL of |gamma-1|<4.6e-5, |eta_N|<2.2e-4, eta(Ti,Pt)<5.4e-15, |beta_LPI|<9e-7, (dalpha)^2<3.6e-6; predicted NO-GO on all five, excesses 4.0/3.3/11.1/5.5/>=3 orders",
+  "note": "not moved in v2; the dipole bound 3.6e-6 is relabelled (1-sigma based), not changed"
+ },
+ "engine": {
+  "J1738": {
+   "Pb_s": 30653.919924975362,
+   "m_p_kg": 2.90394e+30,
+   "m_c_kg": 3.60009e+29,
+   "a_m": 1730827537.0422585,
+   "v_rel_m_s": 354770.61911241006,
+   "E_kepler_J": -2.015686229185039e+40,
+   "PN_parameter": 1.4004057519011964e-06,
+   "r_s_pulsar_m": 4313.024770380891,
+   "r_s_companion_m": 534.6969064650283
+  },
+  "dlnPb_dE": "-3/(2*En)",
+  "kepler_factor_E_dlnPb_dE": -1.5,
+  "Pbdot_peters_mentat": -2.7474517886244367e-14,
+  "E0_engine_vs_kepler_rel": 0.0,
+  "Pbdot_peters_vs_freire_GR_rel": -0.008140148511033727,
+  "peters_sensitivity_rel": {
+   "M_sun_from_solar_system_body": -6.703446240092538e-05,
+   "m_c_plus1sigma": 0.042507539331482526,
+   "m_c_minus1sigma": -0.037303226287605816,
+   "m_p_plus1sigma": 0.028708088577658317,
+   "m_p_minus1sigma": -0.02423390404939843
+  },
+  "runs": {
+   "2000": {
+    "cls": "NBodySystem",
+    "a_m": 1730827537.0422585,
+    "Pb_s": 30653.919924975362,
+    "steps_per_orbit": 2000,
+    "n_orbits": 20,
+    "dt_s": 15.326959962487681,
+    "E0_J": -2.015686229185039e+40,
+    "dE_off_J": -1.2572828523992143e+26,
+    "dE_on_J": -1.2796599875371748e+37,
+    "Edot_endpoint_W": -2.0872697368828114e+31,
+    "Edot_fit_W": -2.0872693332768245e+31,
+    "Pbdot_energy_endpoint": -4.761380897221714e-05,
+    "Pbdot_energy_fit": -4.761379976534846e-05,
+    "Pbdot_timing": -4.764025251736967e-05,
+    "timing_fit_rms_rad": 7.670473752066352e-06,
+    "timing_lag_end_rad": 0.05981244207045222,
+    "energy_wobble_rel_gw_off": 2.4369045060624177e-11,
+    "alias_free": true
+   },
+   "1000": {
+    "cls": "NBodySystem",
+    "a_m": 1730827537.0422585,
+    "Pb_s": 30653.919924975362,
+    "steps_per_orbit": 1000,
+    "n_orbits": 20,
+    "dt_s": 30.653919924975362,
+    "E0_J": -2.015686229185039e+40,
+    "dE_off_J": -5.4885232210504165e+26,
+    "dE_on_J": -1.2796410076832448e+37,
+    "Edot_endpoint_W": -2.087238778531826e+31,
+    "Edot_fit_W": -2.0872383386167672e+31,
+    "Pbdot_energy_endpoint": -4.76131027649724e-05,
+    "Pbdot_energy_fit": -4.761309272983837e-05,
+    "Pbdot_timing": -4.7638142662742324e-05,
+    "timing_fit_rms_rad": 7.870038931701246e-06,
+    "timing_lag_end_rad": 0.05980917253478424,
+    "energy_wobble_rel_gw_off": 3.896271525363602e-10,
+    "alias_free": true
+   },
+   "4000": {
+    "cls": "NBodySystem",
+    "a_m": 1730827537.0422585,
+    "Pb_s": 30653.919924975362,
+    "steps_per_orbit": 4000,
+    "n_orbits": 20,
+    "dt_s": 7.6634799812438406,
+    "E0_J": -2.015686229185039e+40,
+    "dE_off_J": -6.141343163642316e+26,
+    "dE_on_J": -1.279664745933032e+37,
+    "Edot_endpoint_W": -2.0872774982833574e+31,
+    "Edot_fit_W": -2.087277104129181e+31,
+    "Pbdot_energy_endpoint": -4.761398602161158e-05,
+    "Pbdot_energy_fit": -4.761397703035313e-05,
+    "Pbdot_timing": -4.764078095695215e-05,
+    "timing_fit_rms_rad": 7.621412872372722e-06,
+    "timing_lag_end_rad": 0.059813633900773766,
+    "energy_wobble_rel_gw_off": 1.5495371761403402e-12,
+    "alias_free": true
+   },
+   "a10_2000": {
+    "cls": "NBodySystem",
+    "a_m": 173082753.70422584,
+    "Pb_s": 969.3620617533993,
+    "steps_per_orbit": 2000,
+    "n_orbits": 20,
+    "dt_s": 0.48468103087669967,
+    "E0_J": -2.0156862291850397e+41,
+    "dE_off_J": -3.9072482489944815e+27,
+    "dE_on_J": -4.211526450751577e+39,
+    "Edot_endpoint_W": -2.17231858812887e+35,
+    "Edot_fit_W": -2.1719001902558414e+35,
+    "Pbdot_energy_endpoint": -0.0015670320074259877,
+    "Pbdot_energy_fit": -0.0015667301903433287,
+    "Pbdot_timing": -0.0015746971324592449,
+    "timing_fit_rms_rad": 0.0011866132791982609,
+    "timing_lag_end_rad": 1.9482282572045335,
+    "energy_wobble_rel_gw_off": 2.4360960310223806e-11,
+    "alias_free": true
+   },
+   "R5_2000": {
+    "cls": "NBodyPetersR5",
+    "a_m": 1730827537.0422585,
+    "Pb_s": 30653.919924975362,
+    "steps_per_orbit": 2000,
+    "n_orbits": 20,
+    "dt_s": 15.326959962487681,
+    "E0_J": -2.015686229185039e+40,
+    "dE_off_J": -1.2572828523992143e+26,
+    "dE_on_J": -6.599767834440184e+28,
+    "Edot_endpoint_W": -1.0744457841017026e+23,
+    "Edot_fit_W": -1.0637741586353694e+23,
+    "Pbdot_energy_endpoint": -2.4509748506019176e-13,
+    "Pbdot_energy_fit": -2.426631243860612e-13,
+    "Pbdot_timing": -2.433011115686892e-13,
+    "timing_fit_rms_rad": 2.8485073138308713e-13,
+    "timing_lag_end_rad": 3.105355972365942e-10,
+    "energy_wobble_rel_gw_off": 2.4369045060624177e-11,
+    "alias_free": true
+   },
+   "R5_2000_100orb": {
+    "cls": "NBodyPetersR5",
+    "a_m": 1730827537.0422585,
+    "Pb_s": 30653.919924975362,
+    "steps_per_orbit": 2000,
+    "n_orbits": 100,
+    "dt_s": 15.326959962487681,
+    "E0_J": -2.015686229185039e+40,
+    "dE_off_J": -3.687223749824619e+27,
+    "dE_on_J": -3.3132546367850296e+29,
+    "Edot_endpoint_W": -1.0688298290416495e+23,
+    "Edot_fit_W": -1.0619549667900529e+23,
+    "Pbdot_energy_endpoint": -2.43816399981915e-13,
+    "Pbdot_energy_fit": -2.422481389556871e-13,
+    "Pbdot_timing": -2.4228560556220145e-13,
+    "timing_fit_rms_rad": 2.0500161932292383e-12,
+    "timing_lag_end_rad": 7.65896857046755e-09,
+    "energy_wobble_rel_gw_off": 2.4369045060624177e-11,
+    "alias_free": true
+   }
+  },
+  "ratio_vs_peters": {
+   "Pbdot_energy_endpoint": 1733017087.6649263,
+   "Pbdot_energy_fit": 1733016752.559185,
+   "Pbdot_timing": 1733979562.9761226
+  },
+  "rel_dev_vs_peters": {
+   "Pbdot_energy_endpoint": 1733017086.6649263,
+   "Pbdot_energy_fit": 1733016751.559185,
+   "Pbdot_timing": 1733979561.9761226
+  },
+  "rel_dev_engine_vs_freire_GR": 1718910070.1991746,
+  "defect_diagnosis": {
+   "engine_over_peters_divided_by_a_per_m": 1.0012650310766429,
+   "same_at_a_over_10": 1.0420630358487006,
+   "Pbdot_peters_at_a_over_10": -8.688205413556712e-12,
+   "counterfactual_r5_ratio_vs_peters": {
+    "R5_2000": {
+     "Pbdot_energy_endpoint": 8.920902127381984,
+     "Pbdot_energy_fit": 8.832297818319681,
+     "Pbdot_timing": 8.855518869377594
+    },
+    "R5_2000_100orb": {
+     "Pbdot_energy_endpoint": 8.874274008789296,
+     "Pbdot_energy_fit": 8.817193442982058,
+     "Pbdot_timing": 8.818557128658709
+    }
+   },
+   "counterfactual_r5_note": "per estimator: endpoint = pre-registered energy-difference; fit = least-squares slope; timing = orbital-phase lag",
+   "earth_sun_LGW_r4_W": 29384491969303.625,
+   "earth_sun_LGW_r5_W": 196.42319661240757
+  },
+  "verdict": "BUG"
+ },
+ "couplings": {
+  "XI": 0.1582,
+  "f_p": 0.9903865838980467,
+  "f_p_numeric": 0.9903865851867977,
+  "f_atoms": {
+   "Z=22,A=48": 0.9865518180163235,
+   "Z=13,A=27": 0.9871595878507833,
+   "Z=23,A=51": 0.9865149657173333,
+   "Z=78,A=195": 0.9844036625850094,
+   "Z=45,A=103": 0.9853974738405213
+  },
+  "f_TA6V": 0.9865868101144315,
+  "f_PtRh10": 0.9845030437105606,
+  "alpha_eff2": 0.313358315145342,
+  "alpha_DEF": 0.5597841683589685,
+  "omega_BD": 0.09561746356751288,
+  "gamma_minus_1_attractive": -0.4771863268869842,
+  "gamma_minus_1_repulsive": 0.9127273279706892,
+  "eta_N_repulsive": 0.9127273279706892,
+  "G_over_Gstar": 1.313358315145342,
+  "G_over_Gstar_dex": 0.11838322803985873
+ },
+ "gate_rows": [
+  {
+   "row": "|gamma-1| (Cassini)",
+   "test": "Shapiro delay, Cassini 2002",
+   "prediction": -0.4771863268869842,
+   "bound_preregistered": 4.6e-05,
+   "bound_convention": "2 x 2.3e-5 (2 sigma); central +2.1e-5 not added",
+   "log10_excess": 4.015930159388383,
+   "verdict": "NO-GO",
+   "lit": "Bertotti, Iess & Tortora 2003, Nature 425, 374 (doi:10.1038/nature01997); b_min = 1.6 R_sun",
+   "alt_bound_central_plus_2sigma": 6.7e-05,
+   "alt_log10_excess_central_plus_2sigma": 3.852613188369131,
+   "tag": "[DERIVED] Mentat arithmetic on fixed repo couplings; cannot come out GO for xi = 0.1582, f_p = 0.99",
+   "mapping": "DEF/Brans-Dicke (shared with LLR and the dipole)",
+   "alt_prediction_repulsive_sign": 0.9127273279706892,
+   "alt_log10_excess_repulsive": 4.297583222255159,
+   "predicted_log10_excess": 4.0
+  },
+  {
+   "row": "|eta_N| (LLR Nordtvedt)",
+   "test": "lunar laser ranging",
+   "prediction": 0.4771863268869842,
+   "bound_preregistered": 0.00022,
+   "bound_convention": "2 x 1.1e-4 (2 sigma); central -0.2e-4 not added",
+   "log10_excess": 3.336265310247751,
+   "verdict": "NO-GO",
+   "lit": "Hofmann & Mueller 2018, CQG 35, 035015 (doi:10.1088/1361-6382/aa8f7a)",
+   "alt_bound_central_plus_2sigma": 0.00024,
+   "alt_log10_excess_central_plus_2sigma": 3.298476749358351,
+   "tag": "[DERIVED] Mentat arithmetic on fixed repo couplings; cannot come out GO for xi = 0.1582, f_p = 0.99",
+   "mapping": "DEF/Brans-Dicke (shared with Cassini and the dipole)",
+   "alt_prediction_repulsive_sign": 0.9127273279706892,
+   "alt_log10_excess_repulsive": 3.617918373114527,
+   "predicted_log10_excess": 3.3
+  },
+  {
+   "row": "eta(Ti,Pt) (MICROSCOPE)",
+   "test": "WEP in orbit",
+   "prediction": 0.0006796763784677795,
+   "bound_preregistered": 5.4e-15,
+   "bound_convention": "2 x 2.7e-15 (stat (+) syst = 2.75e-15, rounded; 2 sigma); central -1.5e-15 not added",
+   "log10_excess": 11.099908416853213,
+   "verdict": "NO-GO",
+   "lit": "Touboul et al. 2022, PRL 129, 121102 (arXiv:2209.15487): eta(Ti,Pt) = [-1.5 +/- 2.3 +/- 1.5]e-15; altitude 710 km from Touboul et al. 2017, PRL 119, 231101 (arXiv:1712.01176): 'injected into a 710 km altitude, circular orbit'",
+   "alt_bound_central_plus_2sigma": 6.991812087098392e-15,
+   "alt_log10_excess_central_plus_2sigma": 10.98771242905111,
+   "tag": "[DERIVED] Mentat arithmetic on fixed repo couplings; cannot come out GO for xi = 0.1582, f_p = 0.99",
+   "mapping": "mapping-free: m_A proportional to e^{f_A sigma}, sigma proportional to Phi",
+   "alt_prediction_alloys": 0.0006593036901847514,
+   "alt_log10_excess_alloys": 11.08669174671459,
+   "alt_log10_excess_quadrature_2sigma": 11.092586508077313,
+   "predicted_log10_excess": 11.1
+  },
+  {
+   "row": "|beta_LPI| (Yb+/Cs clocks)",
+   "test": "mu = m_p/m_e vs solar potential",
+   "prediction": 0.313358315145342,
+   "bound_preregistered": 9e-07,
+   "bound_convention": "2 x 45e-8 (2 sigma); central 7e-8 not added",
+   "log10_excess": 5.54179871400651,
+   "verdict": "NO-GO",
+   "lit": "Lange et al. 2021, PRL 126, 011102 (arXiv:2010.06620): (c^2/mu) dmu/dPhi = 7(45)e-8",
+   "alt_bound_central_plus_2sigma": 9.7e-07,
+   "alt_log10_excess_central_plus_2sigma": 5.50926948917959,
+   "tag": "[DERIVED] Mentat arithmetic on fixed repo couplings; cannot come out GO for xi = 0.1582, f_p = 0.99",
+   "mapping": "mapping-free: m_p proportional to e^{f_p sigma}, m_e sigma-invariant",
+   "predicted_log10_excess": 5.5,
+   "annual_dlnmu_amplitude": 5.166702710289728e-11
+  },
+  {
+   "row": "(dalpha)^2 (J1738+0333 dipole)",
+   "test": "NS-WD dipole radiation",
+   "prediction": [
+    0.0031360000000000003,
+    0.0121
+   ],
+   "bound_preregistered": 3.6e-06,
+   "bound_convention": "NOT 2 sigma: +3.7 fs/s (the 1-sigma upper error bar of Pbdot_xs) / coef = 3.62e-6, rounded",
+   "log10_excess": [
+    2.9400735532451137,
+    3.526482869549163
+   ],
+   "alt_bound_central_plus_2sigma": 5.382545674252097e-06,
+   "alt_log10_excess_central_plus_2sigma": [
+    2.7653883302420987,
+    3.3517976465461476
+   ],
+   "alt_log10_excess_xs_2sigma": [
+    2.7897476761015434,
+    3.3761569924055923
+   ],
+   "verdict": "NO-GO",
+   "lit": "Freire et al. 2012, MNRAS 423, 3328, arXiv:1205.1450 (Table 1; sec. 3.3 Eq. 7 Pbdot_xs; sec. 4.2 Eq. 13 Pbdot_Gdot = +0.14 +/- 0.74 and Pbdot_D = Pbdot_xs - Pbdot_Gdot = 1.9(+3.8/-3.7) fs/s; Eq. 21 dipole)",
+   "predicted_log10_excess": ">= 3 (U1 pass_fail) / >= 2 (X1)",
+   "mapping": "DEF/Brans-Dicke (shared with Cassini and LLR); Freire Eq. 21 uses bare G* (G/G* = 1 + alpha^2)",
+   "tag": "[DERIVED] analytic Freire Eq. 21 on the repo's crude dalpha; not engine output"
+  }
+ ],
+ "dipole_rows": [
+  {
+   "dalpha": 0.0019,
+   "dalpha2": 3.61e-06,
+   "Pbdot_D_fs": -3.688775014948451,
+   "times_observed_decay": 0.14242374575090544,
+   "log10_excess_vs_preregistered": 0.0012047011383706538,
+   "log10_excess_vs_freire_D_2sigma": -0.17348052186464435,
+   "log10_excess_vs_xs_2sigma": -0.14912117600519967,
+   "verdict_design_dalpha2": "NO-GO",
+   "verdict_x1_sketch_abs_lt_3p7fs": "GO",
+   "verdict_x1_text_within_minus3p6fs": "NO-GO",
+   "verdict_xs_1sigma": "NO-GO",
+   "verdict_xs_2sigma": "GO",
+   "verdict_freire_D_1sigma": "NO-GO",
+   "verdict_freire_D_2sigma": "GO"
+  },
+  {
+   "dalpha": 0.056,
+   "dalpha2": 0.0031360000000000003,
+   "Pbdot_D_fs": -3204.431702736383,
+   "times_observed_decay": 123.72323176588353,
+   "log10_excess_vs_preregistered": 2.9400735532451137,
+   "log10_excess_vs_freire_D_2sigma": 2.7653883302420987,
+   "log10_excess_vs_xs_2sigma": 2.7897476761015434,
+   "verdict_design_dalpha2": "NO-GO",
+   "verdict_x1_sketch_abs_lt_3p7fs": "NO-GO",
+   "verdict_x1_text_within_minus3p6fs": "NO-GO",
+   "verdict_xs_1sigma": "NO-GO",
+   "verdict_xs_2sigma": "NO-GO",
+   "verdict_freire_D_1sigma": "NO-GO",
+   "verdict_freire_D_2sigma": "NO-GO"
+  },
+  {
+   "dalpha": 0.11,
+   "dalpha2": 0.0121,
+   "Pbdot_D_fs": -12364.038138746884,
+   "times_observed_decay": 477.3759899130071,
+   "log10_excess_vs_preregistered": 3.526482869549163,
+   "log10_excess_vs_freire_D_2sigma": 3.3517976465461476,
+   "log10_excess_vs_xs_2sigma": 3.3761569924055923,
+   "verdict_design_dalpha2": "NO-GO",
+   "verdict_x1_sketch_abs_lt_3p7fs": "NO-GO",
+   "verdict_x1_text_within_minus3p6fs": "NO-GO",
+   "verdict_xs_1sigma": "NO-GO",
+   "verdict_xs_2sigma": "NO-GO",
+   "verdict_freire_D_1sigma": "NO-GO",
+   "verdict_freire_D_2sigma": "NO-GO"
+  }
+ ],
+ "dipole_coef_per_dalpha2": 1.0218213337807343e-09,
+ "dalpha_repo_crude": {
+  "0.1": 0.055978416835896855,
+  "0.2": 0.11195683367179371
+ },
+ "dipole_bounds_dalpha2": {
+  "design_from_plus3p7": 3.620985271769593e-06,
+  "xs_1sigma": 1.5658314688733375e-06,
+  "xs_2sigma": 5.0889522738383465e-06,
+  "D_1sigma": 1.761560402482505e-06,
+  "D_2sigma": 5.382545674252097e-06,
+  "D_repulsive_1sigma": 5.578274607861264e-06,
+  "D_repulsive_2sigma": 9.297124346435442e-06
+ },
+ "dipole_bounds_note": "Pre-registered 3.6e-6 = +3.7 fs/s / coef (1-sigma error bar on |Pbdot_D|, sign ignored). Corrected: Freire sec. 4.2 Pbdot_D = Pbdot_xs - Pbdot_Gdot = 1.9(+3.8/-3.7) fs/s; a non-ghost scalar radiates (Pbdot_D < 0), so the -3.7 side and the +1.9 central value bound it (D_1sigma, D_2sigma); under the repo's repulsive sign read as a ghost (Pbdot_D > 0) the +3.8 side applies (D_repulsive_*). xs_* use Pbdot_xs before the Gdot subtraction (v1 values).",
+ "dipole_robustness": {
+  "rsR_min_for_nogo": 0.004519281307206287,
+  "R_max_pulsar_m": 954360.7660588628,
+  "note": "trace-charge reading M_sigma/M_T = 1-(3/(5-n)) r_s/R, n=1; WD charge ~1 [DERIVED, normalisation SPECULATIVE]"
+ },
+ "overall_verdict": "NO-GO",
+ "all_five_nogo": true,
+ "routes": {
+  "a_long_range_small_xi": {
+   "cassini": 1.1611894479446533e-05,
+   "llr": 5.5539979599759706e-05,
+   "microscope": 1.2568922903070962e-12,
+   "clocks": 4.5436802892548504e-07,
+   "dipole_b10": 0.00018174721157019396,
+   "dipole_b20": 4.54368028925485e-05,
+   "binding": "microscope",
+   "xi_max_all_rows": 1.2568922903070962e-12,
+   "xi_max_if_universal_coupling": 1.1611894479446533e-05
+  },
+  "b_massive_sigma_at_captains_xi": {
+   "0.13": {
+    "cassini": {
+     "lambda_max_m": 12593286042.085726,
+     "Y_needed": 8.93222652265118e-05,
+     "mentat_check_ratio": 0.9999999999998189,
+     "geometry": "PRIMARY: GM_sun calibration at 1 AU, force factor (1 + r/lam) e^{-r/lam}"
+    },
+    "cassini_mercury": {
+     "lambda_max_m": 4874065571.190631,
+     "Y_needed": 8.93222652265118e-05,
+     "mentat_check_ratio": 0.9999999999999497,
+     "geometry": "sensitivity: calibration at Mercury's a"
+    },
+    "cassini_mars": {
+     "lambda_max_m": 19188429723.54313,
+     "Y_needed": 8.93222652265118e-05,
+     "mentat_check_ratio": 0.999999999996477,
+     "geometry": "sensitivity: calibration at Mars's a"
+    },
+    "cassini_potential_1AU": {
+     "lambda_max_m": 16045338006.238642,
+     "Y_needed": 8.93222652265118e-05,
+     "mentat_check_ratio": 0.9999999999983695,
+     "geometry": "cross-check: Perivolaropoulos 2010 potential form e^{-r/lam} at 1 AU"
+    },
+    "cassini_b1p6_superseded": {
+     "lambda_max_m": 56258718.75604554,
+     "Y_needed": 0.00011232021081441159,
+     "mentat_check_ratio": 0.9999999999999988,
+     "geometry": "SUPERSEDED v1: factor at impact parameter b = 1.6 R_sun"
+    },
+    "llr": {
+     "lambda_max_m": 14707113819.4336,
+     "Y_needed": 0.0004272306123058439,
+     "mentat_check_ratio": 1.000000000000405,
+     "geometry": "Sun's scalar force at 1 AU"
+    },
+    "microscope": {
+     "lambda_max_m": 34383.316099890995,
+     "Y_needed": 9.668402233131508e-12,
+     "mentat_check_ratio": 0.9999999999999987,
+     "geometry": "Earth's scalar force at 710 km altitude, isotopes, bound 5.4e-15"
+    },
+    "microscope_alloys_program_bound": {
+     "lambda_max_m": 34848.00601410051,
+     "Y_needed": 1.2905278106232754e-11,
+     "mentat_check_ratio": 0.9999999999999962,
+     "geometry": "alloys and |c|+2 sigma = 6.99e-15 (program sec. 6 inputs)"
+    },
+    "clocks": {
+     "lambda_max_m": 9739791178.27439,
+     "Y_needed": 3.4951386840421923e-06,
+     "mentat_check_ratio": 0.9999999999998141,
+     "geometry": "annual modulation of the Sun's scalar potential at 1 AU"
+    },
+    "dipole": {
+     "lambda_max_m": 1462604324456.6804,
+     "geometry": "massive field radiates only at omega > c/lambda; below this range the dipole row passes trivially"
+    },
+    "binding_row": "microscope",
+    "other_rows_range_m": [
+     9739791178.27439,
+     1462604324456.6804
+    ],
+    "second_tightest_row": "clocks"
+   },
+   "0.1582": {
+    "cassini": {
+     "lambda_max_m": 12371747511.600212,
+     "Y_needed": 7.34000915262107e-05,
+     "mentat_check_ratio": 0.9999999999996754,
+     "geometry": "PRIMARY: GM_sun calibration at 1 AU, force factor (1 + r/lam) e^{-r/lam}"
+    },
+    "cassini_mercury": {
+     "lambda_max_m": 4788309507.815477,
+     "Y_needed": 7.34000915262107e-05,
+     "mentat_check_ratio": 0.9999999999999548,
+     "geometry": "sensitivity: calibration at Mercury's a"
+    },
+    "cassini_mars": {
+     "lambda_max_m": 18850875700.905407,
+     "Y_needed": 7.34000915262107e-05,
+     "mentat_check_ratio": 1.0000000000024953,
+     "geometry": "sensitivity: calibration at Mars's a"
+    },
+    "cassini_potential_1AU": {
+     "lambda_max_m": 15714422942.140398,
+     "Y_needed": 7.34000915262107e-05,
+     "mentat_check_ratio": 1.0000000000006455,
+     "geometry": "cross-check: Perivolaropoulos 2010 potential form e^{-r/lam} at 1 AU"
+    },
+    "cassini_b1p6_superseded": {
+     "lambda_max_m": 55249859.89620196,
+     "Y_needed": 9.639840332410561e-05,
+     "mentat_check_ratio": 0.9999999999999984,
+     "geometry": "SUPERSEDED v1: factor at impact parameter b = 1.6 R_sun"
+    },
+    "llr": {
+     "lambda_max_m": 14402082433.171234,
+     "Y_needed": 0.00035107446017547216,
+     "mentat_check_ratio": 0.9999999999990398,
+     "geometry": "Sun's scalar force at 1 AU"
+    },
+    "microscope": {
+     "lambda_max_m": 34074.246313529984,
+     "Y_needed": 7.944957587276209e-12,
+     "mentat_check_ratio": 0.9999999999999982,
+     "geometry": "Earth's scalar force at 710 km altitude, isotopes, bound 5.4e-15"
+    },
+    "microscope_alloys_program_bound": {
+     "lambda_max_m": 34530.758504935664,
+     "Y_needed": 1.0604842944439052e-11,
+     "mentat_check_ratio": 0.999999999999997,
+     "geometry": "alloys and |c|+2 sigma = 6.99e-15 (program sec. 6 inputs)"
+    },
+    "clocks": {
+     "lambda_max_m": 9609016107.156073,
+     "Y_needed": 2.8721114344215236e-06,
+     "mentat_check_ratio": 1.0000000000002836,
+     "geometry": "annual modulation of the Sun's scalar potential at 1 AU"
+    },
+    "dipole": {
+     "lambda_max_m": 1462604324456.6804,
+     "geometry": "massive field radiates only at omega > c/lambda; below this range the dipole row passes trivially"
+    },
+    "binding_row": "microscope",
+    "other_rows_range_m": [
+     9609016107.156073,
+     1462604324456.6804
+    ],
+    "second_tightest_row": "clocks"
+   },
+   "0.17": {
+    "cassini": {
+     "lambda_max_m": 12292582032.776043,
+     "Y_needed": 6.830526164380313e-05,
+     "mentat_check_ratio": 1.0000000000002085,
+     "geometry": "PRIMARY: GM_sun calibration at 1 AU, force factor (1 + r/lam) e^{-r/lam}"
+    },
+    "cassini_mercury": {
+     "lambda_max_m": 4757665087.707343,
+     "Y_needed": 6.830526164380313e-05,
+     "mentat_check_ratio": 1.0000000000000118,
+     "geometry": "sensitivity: calibration at Mercury's a"
+    },
+    "cassini_mars": {
+     "lambda_max_m": 18730252774.60966,
+     "Y_needed": 6.830526164380313e-05,
+     "mentat_check_ratio": 0.9999999999986139,
+     "geometry": "sensitivity: calibration at Mars's a"
+    },
+    "cassini_potential_1AU": {
+     "lambda_max_m": 15596559143.005867,
+     "Y_needed": 6.830526164380313e-05,
+     "mentat_check_ratio": 1.0000000000006526,
+     "geometry": "cross-check: Perivolaropoulos 2010 potential form e^{-r/lam} at 1 AU"
+    },
+    "cassini_b1p6_superseded": {
+     "lambda_max_m": 54899703.85640654,
+     "Y_needed": 9.130369062278534e-05,
+     "mentat_check_ratio": 0.9999999999999993,
+     "geometry": "SUPERSEDED v1: factor at impact parameter b = 1.6 R_sun"
+    },
+    "llr": {
+     "lambda_max_m": 14293590461.475452,
+     "Y_needed": 0.00032670576235152766,
+     "mentat_check_ratio": 0.9999999999989093,
+     "geometry": "Sun's scalar force at 1 AU"
+    },
+    "microscope": {
+     "lambda_max_m": 33962.350788919,
+     "Y_needed": 7.393484060629977e-12,
+     "mentat_check_ratio": 0.9999999999999961,
+     "geometry": "Earth's scalar force at 710 km altitude, isotopes, bound 5.4e-15"
+    },
+    "microscope_alloys_program_bound": {
+     "lambda_max_m": 34415.9196111339,
+     "Y_needed": 9.868742081236812e-12,
+     "mentat_check_ratio": 0.9999999999999986,
+     "geometry": "alloys and |c|+2 sigma = 6.99e-15 (program sec. 6 inputs)"
+    },
+    "clocks": {
+     "lambda_max_m": 9561997884.939362,
+     "Y_needed": 2.6727531113263825e-06,
+     "mentat_check_ratio": 0.9999999999999662,
+     "geometry": "annual modulation of the Sun's scalar potential at 1 AU"
+    },
+    "dipole": {
+     "lambda_max_m": 1462604324456.6804,
+     "geometry": "massive field radiates only at omega > c/lambda; below this range the dipole row passes trivially"
+    },
+    "binding_row": "microscope",
+    "other_rows_range_m": [
+     9561997884.939362,
+     1462604324456.6804
+    ],
+    "second_tightest_row": "clocks"
+   }
+  },
+  "b_note": "upper bound on lambda from THESE FIVE ROWS ONLY. Not evaluated: ground torsion-balance EP tests (Schlamminger 2008: ranges 1 m to infinity) and inverse-square-law tests (Lee 2020: gravitational-strength Yukawa excluded beyond 38.6 um). The coded coupling has a universal Yukawa strength alpha^2 = 0.31 and a composition-dependent part 2 xi Delta f ~ 7e-4, so these tests very likely push lambda_max far below 34 km [SPECULATIVE magnitude, not computed].",
+  "c_notation": {
+   "statement": "sigma == -2 xi Phi/c^2 as universal, non-dynamical notation; drops the sigma-invariant m_e/alpha_EM/bond rules",
+   "rows": "all five pass BY CONSTRUCTION (no observable)",
+   "caveat_gamma_minus_1_mass_only_universal": 0.9256875365710943,
+   "caveat_log10_excess": 4.303706584759347,
+   "caveat": "passes only if e^sigma is a change of units (all dimensionful constants together); a mass-only universal rescale is excluded by Cassini"
+  },
+  "chosen": null,
+  "note": "recorded, not chosen (the Captain's decision; design section 2.5 item 6)"
+ },
+ "mentat_diagnostics": [
+  {
+   "file": "sigma_ground/mcp/tools/symbolic.py",
+   "lines": {
+    "solve_equation": "49-52 (docstring example line 29 uses E)",
+    "integrate_expr": "94-95",
+    "differentiate_expr": "142-143"
+   },
+   "defect": "all three tools call _sympify(expression) before creating sp.Symbol(variable); a variable named E (likewise I, N, S, O, Q) is parsed as a sympy constant, and the answer is silently wrong. Fix direction: sympify with locals={variable: Symbol(variable)}.",
+   "evidence": {
+    "differentiate_expr": {
+     "with_E": "0",
+     "control_with_x": "2*x"
+    },
+    "solve_equation": {
+     "with_E": [],
+     "control_with_x": [
+      "-2",
+      "2"
+     ]
+    },
+    "integrate_expr": {
+     "with_E": "E*E",
+     "control_with_x": "x**2/2"
+    }
+   }
+  }
+ ],
+ "mentat_msun_note": {
+  "lookup_constant_M_sun": 1.989e+30,
+  "solar_system_body_sun_mass": 1.98892e+30,
+  "rel": 4.022283450314177e-05
+ },
+ "companion_files": {
+  "precision_diagnostic": "u1_gw_precision_diag.json (u1_gw_precision_diag.py, v1, unchanged)",
+  "gain_scan": "u1_gain_scan.json (u1_gain_scan.py, v1, unchanged)",
+  "engine_defect2": "u1_engine_defect2_v2.json (u1_engine_defect2_v2.py)",
+  "series": "u1_series_v2.json"
+ },
+ "lit": {
+  "J1738": {
+   "Pb_d": 0.3547907398724,
+   "m_p_msun": 1.46,
+   "m_p_err": [
+    0.06,
+    -0.05
+   ],
+   "m_c_msun": 0.181,
+   "m_c_err": [
+    0.008,
+    -0.007
+   ],
+   "q": 8.1,
+   "Pbdot_obs_fs": -17.0,
+   "Pbdot_int_fs": -25.9,
+   "Pbdot_int_err_fs": 3.2,
+   "Pbdot_GR_fs": -27.7,
+   "Pbdot_GR_err_fs": [
+    1.5,
+    -1.9
+   ],
+   "Pbdot_xs_fs": 2.0,
+   "Pbdot_xs_err_fs": [
+    3.7,
+    -3.6
+   ],
+   "Pbdot_Gdot_fs": 0.14,
+   "Pbdot_Gdot_err_fs": 0.74,
+   "Pbdot_D_fs": 1.9,
+   "Pbdot_D_err_fs": [
+    3.8,
+    -3.7
+   ],
+   "ref": "Freire et al. 2012, MNRAS 423, 3328, arXiv:1205.1450 (Table 1; sec. 3.3 Eq. 7 Pbdot_xs; sec. 4.2 Eq. 13 Pbdot_Gdot = +0.14 +/- 0.74 and Pbdot_D = Pbdot_xs - Pbdot_Gdot = 1.9(+3.8/-3.7) fs/s; Eq. 21 dipole)"
+  },
+  "cassini": {
+   "gamma_minus_1": 2.1e-05,
+   "err": 2.3e-05,
+   "b_min_rsun": 1.6,
+   "ref": "Bertotti, Iess & Tortora 2003, Nature 425, 374 (doi:10.1038/nature01997); b_min = 1.6 R_sun"
+  },
+  "llr": {
+   "eta_N": -2e-05,
+   "err": 0.00011,
+   "ref": "Hofmann & Mueller 2018, CQG 35, 035015 (doi:10.1088/1361-6382/aa8f7a)"
+  },
+  "microscope": {
+   "eta": -1.5e-15,
+   "stat": 2.3e-15,
+   "syst": 1.5e-15,
+   "altitude_m": 710000.0,
+   "ref": "Touboul et al. 2022, PRL 129, 121102 (arXiv:2209.15487): eta(Ti,Pt) = [-1.5 +/- 2.3 +/- 1.5]e-15; altitude 710 km from Touboul et al. 2017, PRL 119, 231101 (arXiv:1712.01176): 'injected into a 710 km altitude, circular orbit'"
+  },
+  "clocks": {
+   "k_mu": 7e-08,
+   "err": 4.5e-07,
+   "ref": "Lange et al. 2021, PRL 126, 011102 (arXiv:2010.06620): (c^2/mu) dmu/dPhi = 7(45)e-8"
+  },
+  "earth_e": {
+   "e": 0.0167,
+   "ref": "NASA Planetary Fact Sheet (Earth), orbit eccentricity 0.0167 \u2014 not in the Mentat body record"
+  },
+  "alloys": {
+   "TA6V": [
+    [
+     22,
+     48,
+     0.9
+    ],
+    [
+     13,
+     27,
+     0.06
+    ],
+    [
+     23,
+     51,
+     0.04
+    ]
+   ],
+   "PtRh10": [
+    [
+     78,
+     195,
+     0.9
+    ],
+    [
+     45,
+     103,
+     0.1
+    ]
+   ],
+   "ref": "MICROSCOPE test-mass alloys TA6V and PtRh10 by mass, as in scripts/unification/sigma_exclusion.py"
+  },
+  "perivolaropoulos": {
+   "ref": "Perivolaropoulos 2010, PRD 81, 047501 (arXiv:0911.3401): massive BD gamma(m,r) = (1 - e^{-m r}/(2w+3))/(1 + e^{-m r}/(2w+3)), Cassini applied at r ~ 1 AU"
+  },
+  "lee2020": {
+   "lambda_um": 38.6,
+   "ref": "Lee et al. 2020, PRL 124, 101101 (arXiv:2002.11761): gravitational-strength Yukawa limited to ranges < 38.6 um (95 %)"
+  },
+  "schlamminger2008": {
+   "ref": "Schlamminger et al. 2008, PRL 100, 041101 (arXiv:0712.0607): rotating torsion balance, EP-violation limits for ranges 1 m to infinity"
+  }
+ },
+ "mentat_calls": 187,
+ "sources": [
+  {
+   "label": "G",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "G"
+   },
+   "value": 6.6743e-11,
+   "source": "sigma_ground.field.constants"
+  },
+  {
+   "label": "c",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "c"
+   },
+   "value": 299792458.0,
+   "source": "sigma_ground.field.constants"
+  },
+  {
+   "label": "M_sun",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "M_sun"
+   },
+   "value": 1.989e+30,
+   "source": "sigma_ground.field.constants"
+  },
+  {
+   "label": "hbar",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "hbar"
+   },
+   "value": 1.054571817e-34,
+   "source": "sigma_ground.field.constants"
+  },
+  {
+   "label": "au",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "au"
+   },
+   "value": 149597870700.0,
+   "source": "scipy.constants (CODATA)"
+  },
+  {
+   "label": "1 day [s]",
+   "tool": "convert_units",
+   "args": {
+    "value": 1,
+    "from_units": "day",
+    "to_units": "s"
+   },
+   "value": 86400.0,
+   "source": "pint UnitRegistry"
+  },
+  {
+   "label": "sun record",
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "sun"
+   },
+   "value": {
+    "luminosity_w": 3.828e+26,
+    "mass_kg": 1.98892e+30,
+    "radius_m": 695700000.0,
+    "surface_temp_k": 5772.0
+   },
+   "source": "sigma-ground via IAU 2015 nominal solar values"
+  },
+  {
+   "label": "earth record",
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "earth"
+   },
+   "value": {
+    "mass_kg": 5.97219e+24,
+    "orbital_period_d": 365.256,
+    "radius_m": 6378100.0,
+    "semimajor_axis_au": 1.000001018,
+    "surface_g_ms2": 9.80665
+   },
+   "source": "sigma-ground via NASA Planetary Fact Sheet 2024"
+  },
+  {
+   "label": "mercury record (calibration-distance sensitivity)",
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "mercury"
+   },
+   "value": {
+    "mass_kg": 3.3011e+23,
+    "orbital_period_d": 87.969,
+    "radius_m": 2439700.0,
+    "semimajor_axis_au": 0.387098
+   },
+   "source": "sigma-ground via NASA Planetary Fact Sheet 2024"
+  },
+  {
+   "label": "mars record (calibration-distance sensitivity)",
+   "tool": "solar_system_body",
+   "args": {
+    "body_name": "mars"
+   },
+   "value": {
+    "mass_kg": 6.4171e+23,
+    "orbital_period_d": 686.971,
+    "radius_m": 3389500.0,
+    "semimajor_axis_au": 1.523679,
+    "surface_g_ms2": 3.711
+   },
+   "source": "sigma-ground via NASA Planetary Fact Sheet 2024"
+  },
+  {
+   "label": "Pb [s]",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((0.3547907398724*86400.0), 17)"
+   },
+   "value": "30653.919924975362",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "m_p [kg]",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((1.46*1.989e+30), 17)"
+   },
+   "value": "2.9039399999999998e+30",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "m_c [kg]",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((0.181*1.989e+30), 17)"
+   },
+   "value": "3.6000899999999999e+29",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "M [kg]",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2.90394e+30+3.60009e+29), 17)"
+   },
+   "value": "3.2639489999999999e+30",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "a (Kepler) [m]",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((6.6743e-11*3.263949e+30*30653.919924975362**2/(4*pi**2))**(1/3)), 17)"
+   },
+   "value": "1730827537.0422586",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "v_rel circular [m/s]",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((sqrt(6.6743e-11*3.263949e+30/1730827537.0422585)), 17)"
+   },
+   "value": "354770.61911241004",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "E_orbit = -G m1 m2/(2a) [J]",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((-6.6743e-11*2.90394e+30*3.60009e+29/(2*1730827537.0422585)), 17)"
+   },
+   "value": "-2.0156862291850388e+40",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Pbdot Peters (circular quadrupole) [s/s]",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((-(192*pi/5)*(2*pi*6.6743e-11/(299792458.0**3*30653.919924975362))**(5/3)*2.90394e+30*3.60009e+29*(2.90394e+30+3.60009e+29)**(-1/3)), 17)"
+   },
+   "value": "-2.7474517886244366e-14",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "d ln Pb / dE  (Kepler)",
+   "tool": "differentiate_expr",
+   "args": {
+    "expression": "log(2*pi*sqrt((-G*m1*m2/(2*En))**3/(G*M)))",
+    "variable": "En"
+   },
+   "value": "-3/(2*En)",
+   "source": "sympy.diff"
+  },
+  {
+   "label": "Kepler factor E * dlnPb/dE (Mentat; replaces the hard-coded -1.5)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-3/(2*En))*En), 17)"
+   },
+   "value": "-1.5000000000000000",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "r_s pulsar [m]",
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 2.90394e+30
+   },
+   "value": 4313.024770380891,
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)"
+  },
+  {
+   "label": "r_s companion [m]",
+   "tool": "schwarzschild_radius",
+   "args": {
+    "mass_kg": 3.60009e+29
+   },
+   "value": 534.6969064650283,
+   "source": "sigma_ground.field.gr_basics (standard Schwarzschild)"
+  },
+  {
+   "label": "GM/(a c^2)  (PN parameter)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((6.6743e-11*3.263949e+30/(1730827537.0422585*299792458.0**2)), 17)"
+   },
+   "value": "1.4004057519011964e-6",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Peters with solar_system_body M_sun",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((-(192*pi/5)*(2*pi*6.6743e-11/(299792458.0**3*30653.919924975362))**(5/3)*(1.46*1.98892e+30)*(0.181*1.98892e+30)*((1.46*1.98892e+30)+(0.181*1.98892e+30))**(-1/3)), 17)"
+   },
+   "value": "-2.7472676146708137e-14",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Peters at m_c_plus1sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((-(192*pi/5)*(2*pi*6.6743e-11/(299792458.0**3*30653.919924975362))**(5/3)*(1.46*1.989e+30)*(0.189*1.989e+30)*((1.46*1.989e+30)+(0.189*1.989e+30))**(-1/3)), 17)"
+   },
+   "value": "-2.8642392035907419e-14",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Peters at m_c_minus1sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((-(192*pi/5)*(2*pi*6.6743e-11/(299792458.0**3*30653.919924975362))**(5/3)*(1.46*1.989e+30)*(0.174*1.989e+30)*((1.46*1.989e+30)+(0.174*1.989e+30))**(-1/3)), 17)"
+   },
+   "value": "-2.6449629728390918e-14",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Peters at m_p_plus1sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((-(192*pi/5)*(2*pi*6.6743e-11/(299792458.0**3*30653.919924975362))**(5/3)*(1.52*1.989e+30)*(0.181*1.989e+30)*((1.52*1.989e+30)+(0.181*1.989e+30))**(-1/3)), 17)"
+   },
+   "value": "-2.8263258779351129e-14",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Peters at m_p_minus1sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((-(192*pi/5)*(2*pi*6.6743e-11/(299792458.0**3*30653.919924975362))**(5/3)*(1.41*1.989e+30)*(0.181*1.989e+30)*((1.41*1.989e+30)+(0.181*1.989e+30))**(-1/3)), 17)"
+   },
+   "value": "-2.6808703055985640e-14",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Peters rel shift M_sun_from_solar_system_body",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-2.7472676146708138e-14)/(-2.7474517886244367e-14)-1), 17)"
+   },
+   "value": "-6.7034462400925379e-5",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Peters rel shift m_c_plus1sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-2.864239203590742e-14)/(-2.7474517886244367e-14)-1), 17)"
+   },
+   "value": "0.042507539331482528",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Peters rel shift m_c_minus1sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-2.644962972839092e-14)/(-2.7474517886244367e-14)-1), 17)"
+   },
+   "value": "-0.037303226287605813",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Peters rel shift m_p_plus1sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-2.8263258779351128e-14)/(-2.7474517886244367e-14)-1), 17)"
+   },
+   "value": "0.028708088577658315",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Peters rel shift m_p_minus1sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-2.680870305598564e-14)/(-2.7474517886244367e-14)-1), 17)"
+   },
+   "value": "-0.024233904049398429",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "ratio Pbdot_energy_endpoint / Peters",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-4.761380897221714e-05)/(-2.7474517886244367e-14)), 17)"
+   },
+   "value": "1733017087.6649263",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "ratio Pbdot_energy_fit / Peters",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-4.761379976534846e-05)/(-2.7474517886244367e-14)), 17)"
+   },
+   "value": "1733016752.5591851",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "ratio Pbdot_timing / Peters",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-4.764025251736967e-05)/(-2.7474517886244367e-14)), 17)"
+   },
+   "value": "1733979562.9761225",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "rel dev Pbdot_energy_endpoint vs Peters",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-4.761380897221714e-05)/(-2.7474517886244367e-14)-1), 17)"
+   },
+   "value": "1733017086.6649263",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "rel dev Pbdot_energy_fit vs Peters",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-4.761379976534846e-05)/(-2.7474517886244367e-14)-1), 17)"
+   },
+   "value": "1733016751.5591851",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "rel dev Pbdot_timing vs Peters",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-4.764025251736967e-05)/(-2.7474517886244367e-14)-1), 17)"
+   },
+   "value": "1733979561.9761225",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "rel dev engine vs Freire GR -27.7 fs/s",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-4.761380897221714e-05)/(-27.7e-15)-1), 17)"
+   },
+   "value": "1718910070.1991746",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "rel dev Mentat Peters vs Freire GR -27.7",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-2.7474517886244367e-14)/(-27.7e-15)-1), 17)"
+   },
+   "value": "-0.0081401485110337273",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "engine/Peters divided by a [1/m]",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-4.761380897221714e-05)/(-2.7474517886244367e-14)/1730827537.0422585), 17)"
+   },
+   "value": "1.0012650310766429",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "a/10 [m]",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((1730827537.0422585/10), 17)"
+   },
+   "value": "173082753.70422585",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "v_rel at a/10",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((sqrt(6.6743e-11*3.263949e+30/173082753.70422584)), 17)"
+   },
+   "value": "1121883.2033032794",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Pb at a/10 [s]",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*pi*sqrt(173082753.70422584**3/(6.6743e-11*3.263949e+30))), 17)"
+   },
+   "value": "969.36206175339931",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Pbdot Peters at a/10",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((-(192*pi/5)*(2*pi*6.6743e-11/(299792458.0**3*969.3620617533993))**(5/3)*2.90394e+30*3.60009e+29*3.263949e+30**(-1/3)), 17)"
+   },
+   "value": "-8.6882054135567121e-12",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "engine/Peters at a/10 divided by a/10",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-0.0015670320074259877)/(-8.688205413556712e-12)/173082753.70422584), 17)"
+   },
+   "value": "1.0420630358487006",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "counterfactual r^5 R5_2000 Pbdot_energy_endpoint / Peters",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-2.4509748506019176e-13)/(-2.7474517886244367e-14)), 17)"
+   },
+   "value": "8.9209021273819846",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "counterfactual r^5 R5_2000 Pbdot_energy_fit / Peters",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-2.426631243860612e-13)/(-2.7474517886244367e-14)), 17)"
+   },
+   "value": "8.8322978183196818",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "counterfactual r^5 R5_2000 Pbdot_timing / Peters",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-2.433011115686892e-13)/(-2.7474517886244367e-14)), 17)"
+   },
+   "value": "8.8555188693775940",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "counterfactual r^5 R5_2000_100orb Pbdot_energy_endpoint / Peters",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-2.43816399981915e-13)/(-2.7474517886244367e-14)), 17)"
+   },
+   "value": "8.8742740087892964",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "counterfactual r^5 R5_2000_100orb Pbdot_energy_fit / Peters",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-2.422481389556871e-13)/(-2.7474517886244367e-14)), 17)"
+   },
+   "value": "8.8171934429820578",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "counterfactual r^5 R5_2000_100orb Pbdot_timing / Peters",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-2.4228560556220145e-13)/(-2.7474517886244367e-14)), 17)"
+   },
+   "value": "8.8185571286587083",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Earth-Sun L_GW with r^-4 [W]",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((32/5)*6.6743e-11**4*1.98892e+30**2*5.97219e+24**2*(1.98892e+30+5.97219e+24)/(299792458.0**5*149597870700.0**4)), 17)"
+   },
+   "value": "29384491969303.625",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Earth-Sun L_GW Peters r^-5 [W]",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((32/5)*6.6743e-11**4*1.98892e+30**2*5.97219e+24**2*(1.98892e+30+5.97219e+24)/(299792458.0**5*149597870700.0**5)), 17)"
+   },
+   "value": "196.42319661240757",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "XI",
+   "tool": "repo engine",
+   "args": null,
+   "value": 0.1582,
+   "source": "sigma_ground.inventory.core.sigma.XI"
+  },
+  {
+   "label": "f_p = qcd_fraction(proton)",
+   "tool": "repo engine",
+   "args": null,
+   "value": 0.9903865838980467,
+   "source": "sigma_ground.inventory.core.sigma.nucleon_qcd_fraction"
+  },
+  {
+   "label": "f_p numeric dln m_p/dsigma",
+   "tool": "repo engine",
+   "args": null,
+   "value": 0.9903865851867977,
+   "source": "central difference of sigma_ground.inventory.core.sigma.proton_mass_kg"
+  },
+  {
+   "label": "BE Z=22 A=48",
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 22,
+    "neutrons": 26,
+    "measured_mass_u": 47.947940677
+   },
+   "value": {
+    "binding_energy_MeV": 418.7045883332539,
+    "binding_per_nucleon_MeV": 8.72301225694279,
+    "mass_defect_fraction": 0.009287637015106192,
+    "mass_defect_u": 0.44949784142000376
+   },
+   "source": "sigma-ground nuclear (exact (measured nuclide mass))"
+  },
+  {
+   "label": "f_A Z=22 A=48",
+   "tool": "repo engine",
+   "args": null,
+   "value": 0.9865518180163235,
+   "source": "central difference of sigma_ground.inventory.core.sigma.three_measures_atom"
+  },
+  {
+   "label": "BE Z=13 A=27",
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 13,
+    "neutrons": 14,
+    "measured_mass_u": 26.981538408
+   },
+   "value": {
+    "binding_energy_MeV": 224.95194254976377,
+    "binding_per_nucleon_MeV": 8.331553427769029,
+    "mass_defect_fraction": 0.008871010817816685,
+    "mass_defect_u": 0.24149583123000334
+   },
+   "source": "sigma-ground nuclear (exact (measured nuclide mass))"
+  },
+  {
+   "label": "f_A Z=13 A=27",
+   "tool": "repo engine",
+   "args": null,
+   "value": 0.9871595878507833,
+   "source": "central difference of sigma_ground.inventory.core.sigma.three_measures_atom"
+  },
+  {
+   "label": "BE Z=23 A=51",
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 23,
+    "neutrons": 28,
+    "measured_mass_u": 50.943957664
+   },
+   "value": {
+    "binding_energy_MeV": 445.8463487574336,
+    "binding_per_nucleon_MeV": 8.7420852697536,
+    "mass_defect_fraction": 0.009307887579532553,
+    "mass_defect_u": 0.4786357182499977
+   },
+   "source": "sigma-ground nuclear (exact (measured nuclide mass))"
+  },
+  {
+   "label": "f_A Z=23 A=51",
+   "tool": "repo engine",
+   "args": null,
+   "value": 0.9865149657173333,
+   "source": "central difference of sigma_ground.inventory.core.sigma.three_measures_atom"
+  },
+  {
+   "label": "BE Z=78 A=195",
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 78,
+    "neutrons": 117,
+    "measured_mass_u": 194.964794325
+   },
+   "value": {
+    "binding_energy_MeV": 1545.677844843187,
+    "binding_per_nucleon_MeV": 7.926553050477882,
+    "mass_defect_fraction": 0.008439214380190078,
+    "mass_defect_u": 1.6593533344199947
+   },
+   "source": "sigma-ground nuclear (exact (measured nuclide mass))"
+  },
+  {
+   "label": "f_A Z=78 A=195",
+   "tool": "repo engine",
+   "args": null,
+   "value": 0.9844036625850094,
+   "source": "central difference of sigma_ground.inventory.core.sigma.three_measures_atom"
+  },
+  {
+   "label": "BE Z=45 A=103",
+   "tool": "nuclear_binding_energy",
+   "args": {
+    "protons": 45,
+    "neutrons": 58,
+    "measured_mass_u": 102.905494081
+   },
+   "value": {
+    "binding_energy_MeV": 884.171857623398,
+    "binding_per_nucleon_MeV": 8.584192792460174,
+    "mass_defect_fraction": 0.00913966879005491,
+    "mass_defect_u": 0.9491974831900063
+   },
+   "source": "sigma-ground nuclear (exact (measured nuclide mass))"
+  },
+  {
+   "label": "f_A Z=45 A=103",
+   "tool": "repo engine",
+   "args": null,
+   "value": 0.9853974738405213,
+   "source": "central difference of sigma_ground.inventory.core.sigma.three_measures_atom"
+  },
+  {
+   "label": "alpha_eff^2 = 2 xi f_p",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*0.1582*0.9903865838980467), 17)"
+   },
+   "value": "0.31335831514534199",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "alpha_DEF = sqrt(alpha_eff^2)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((sqrt(0.313358315145342)), 17)"
+   },
+   "value": "0.55978416835896849",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "gamma-1 (DEF attractive sign)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((-2*0.313358315145342/(1+0.313358315145342)), 17)"
+   },
+   "value": "-0.47718632688698420",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "gamma-1 (repo repulsive sign)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*0.313358315145342/(1-0.313358315145342)), 17)"
+   },
+   "value": "0.91272732797068923",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "omega_BD = (1/alpha^2-3)/2",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((1/0.313358315145342-3)/2), 17)"
+   },
+   "value": "0.095617463567512884",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "eta_N = 4beta-gamma-3 = 2 alpha^2/(1+alpha^2) (DEF beta0 = 0)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*0.313358315145342/(1+0.313358315145342)), 17)"
+   },
+   "value": "0.47718632688698420",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "eta_N at the repo's repulsive sign = 2 alpha^2/(1-alpha^2)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*0.313358315145342/(1-0.313358315145342)), 17)"
+   },
+   "value": "0.91272732797068923",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "eta(Ti-48,Pt-195) = 2 xi (f_Ti - f_Pt)  [design: pure isotopes]",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*0.1582*(0.9865518180163235-0.9844036625850094)), 17)"
+   },
+   "value": "0.00067967637846777948",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "eta(TA6V,PtRh10) = 2 xi (f_TA6V - f_PtRh10)  [S9a: alloys]",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*0.1582*(0.9865868101144315-0.9845030437105606)), 17)"
+   },
+   "value": "0.00065930369018475147",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "beta_LPI = |(c^2/mu) dmu/dPhi| = 2 xi f_p (m_e sigma-invariant)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*0.1582*0.9903865838980467), 17)"
+   },
+   "value": "0.31335831514534199",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "annual Delta U/c^2 amplitude at Earth (e from [LIT])",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((6.6743e-11*1.98892e+30*0.0167/(1.000001018*149597870700.0*299792458.0**2)), 17)"
+   },
+   "value": "1.6488162147199779e-10",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "predicted annual Delta ln mu amplitude",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((0.313358315145342*1.648816214719978e-10), 17)"
+   },
+   "value": "5.1667027102897277e-11",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "G/G* = 1 + alpha^2 (Freire Eq. 21 is written with bare G*)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((1+0.313358315145342), 17)"
+   },
+   "value": "1.3133583151453421",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10(G/G*)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(1+0.313358315145342, 10)), 17)"
+   },
+   "value": "0.11838322803985874",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "q = m_p/m_c",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2.90394e+30/3.60009e+29), 17)"
+   },
+   "value": "8.0662983425414367",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "|Pbdot_D|/(dalpha)^2 [s/s]",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*pi*(2*pi/30653.919924975362)*(6.6743e-11*3.60009e+29/299792458.0**3)*(8.066298342541437/(8.066298342541437+1))), 17)"
+   },
+   "value": "1.0218213337807343e-9",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "dalpha = alpha_DEF*0.1 (crude NS binding 10 %)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((0.5597841683589685*0.1), 17)"
+   },
+   "value": "0.055978416835896854",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "dalpha = alpha_DEF*0.2 (crude NS binding 20 %)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((0.5597841683589685*0.2), 17)"
+   },
+   "value": "0.11195683367179371",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Pbdot_D at dalpha=0.0019",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((1.0218213337807343e-09*0.0019**2), 17)"
+   },
+   "value": "3.6887750149484510e-15",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Pbdot_D at dalpha=0.056",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((1.0218213337807343e-09*0.056**2), 17)"
+   },
+   "value": "3.2044317027363831e-12",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Pbdot_D at dalpha=0.11",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((1.0218213337807343e-09*0.11**2), 17)"
+   },
+   "value": "1.2364038138746885e-11",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Cassini |c|+2 sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2.1e-05+2*2.3e-05), 17)"
+   },
+   "value": "6.7000000000000002e-5",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "LLR |c|+2 sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2e-05+2*0.00011), 17)"
+   },
+   "value": "0.00024000000000000001",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "MICROSCOPE |c|+2 sigma (stat (+) syst) = program's ETA_BOUND",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((1.5e-15+2*sqrt(2.3e-15**2+1.5e-15**2)), 17)"
+   },
+   "value": "6.9918120870983920e-15",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "clocks |c|+2 sigma = program's K_MU_BOUND",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((7e-08+2*4.5e-07), 17)"
+   },
+   "value": "9.7000000000000003e-7",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "MICROSCOPE 2 sigma (quadrature, no central)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*sqrt(2.3e-15**2+1.5e-15**2)), 17)"
+   },
+   "value": "5.4918120870983921e-15",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "(dalpha)^2: design value = +3.7 fs/s / coef (1 sigma error bar)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((3.7e-15)/1.0218213337807343e-09), 17)"
+   },
+   "value": "3.6209852717695930e-6",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "(dalpha)^2 < , 1 sigma, Pbdot_xs = 2.0 - 3.6",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((1.6e-15)/1.0218213337807343e-09), 17)"
+   },
+   "value": "1.5658314688733374e-6",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "(dalpha)^2 < , 2 sigma, Pbdot_xs = 2.0 - 7.2",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((5.2e-15)/1.0218213337807343e-09), 17)"
+   },
+   "value": "5.0889522738383467e-6",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "(dalpha)^2 < , 1 sigma, Freire Pbdot_D = 1.9 - 3.7 (Pbdot_D < 0)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-(1.9-3.7))*1e-15/1.0218213337807343e-09), 17)"
+   },
+   "value": "1.7615604024825051e-6",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "(dalpha)^2 < , 2 sigma, Freire Pbdot_D = 1.9 - 7.4 (Pbdot_D < 0)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((-(1.9+2*(-3.7)))*1e-15/1.0218213337807343e-09), 17)"
+   },
+   "value": "5.3825456742520976e-6",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "(dalpha)^2 < , 1 sigma, repulsive/ghost reading Pbdot_D > 0: 1.9 + 3.8",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((1.9+3.8)*1e-15/1.0218213337807343e-09), 17)"
+   },
+   "value": "5.5782746078612642e-6",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "(dalpha)^2 < , 2 sigma, repulsive/ghost reading: 1.9 + 7.6",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((1.9+2*3.8)*1e-15/1.0218213337807343e-09), 17)"
+   },
+   "value": "9.2971243464354415e-6",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess gamma repulsive",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.9127273279706892/4.6e-05, 10)), 17)"
+   },
+   "value": "4.2975832222551588",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess |gamma-1| (Cassini)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.4771863268869842/4.6e-05, 10)), 17)"
+   },
+   "value": "4.0159301593883831",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess |gamma-1| (Cassini) vs |c|+2 sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.4771863268869842/6.7e-05, 10)), 17)"
+   },
+   "value": "3.8526131883691307",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess eta_N repulsive",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.9127273279706892/0.00022, 10)), 17)"
+   },
+   "value": "3.6179183731145267",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess |eta_N| (LLR Nordtvedt)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.4771863268869842/0.00022, 10)), 17)"
+   },
+   "value": "3.3362653102477509",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess |eta_N| (LLR Nordtvedt) vs |c|+2 sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.4771863268869842/0.00024, 10)), 17)"
+   },
+   "value": "3.2984767493583511",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess eta alloys",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.0006593036901847514/5.4e-15, 10)), 17)"
+   },
+   "value": "11.086691746714591",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess eta vs 2 sigma quadrature",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.0006796763784677795/5.491812087098392e-15, 10)), 17)"
+   },
+   "value": "11.092586508077312",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess eta(Ti,Pt) (MICROSCOPE)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.0006796763784677795/5.4e-15, 10)), 17)"
+   },
+   "value": "11.099908416853212",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess eta(Ti,Pt) (MICROSCOPE) vs |c|+2 sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.0006796763784677795/6.991812087098392e-15, 10)), 17)"
+   },
+   "value": "10.987712429051109",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess |beta_LPI| (Yb+/Cs clocks)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.313358315145342/9e-07, 10)), 17)"
+   },
+   "value": "5.5417987140065101",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess |beta_LPI| (Yb+/Cs clocks) vs |c|+2 sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.313358315145342/9.7e-07, 10)), 17)"
+   },
+   "value": "5.5092694891795901",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "dalpha^2 at 0.0019",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((0.0019**2), 17)"
+   },
+   "value": "3.6100000000000002e-6",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "|Pbdot_D|/|Pbdot_int| at dalpha=0.0019",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((abs(-3.688775014948451e-15)/abs(-25.9e-15)), 17)"
+   },
+   "value": "0.14242374575090545",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess dipole dalpha=0.0019 (pre-registered)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(3.61e-06/3.6e-06, 10)), 17)"
+   },
+   "value": "0.0012047011383706537",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess dipole dalpha=0.0019 vs Freire Pbdot_D 2 sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(3.61e-06/5.382545674252097e-06, 10)), 17)"
+   },
+   "value": "-0.17348052186464435",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess dipole dalpha=0.0019 vs Pbdot_xs 2 sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(3.61e-06/5.0889522738383465e-06, 10)), 17)"
+   },
+   "value": "-0.14912117600519968",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "dalpha^2 at 0.056",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((0.056**2), 17)"
+   },
+   "value": "0.0031360000000000003",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "|Pbdot_D|/|Pbdot_int| at dalpha=0.056",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((abs(-3.204431702736383e-12)/abs(-25.9e-15)), 17)"
+   },
+   "value": "123.72323176588352",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess dipole dalpha=0.056 (pre-registered)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.0031360000000000003/3.6e-06, 10)), 17)"
+   },
+   "value": "2.9400735532451136",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess dipole dalpha=0.056 vs Freire Pbdot_D 2 sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.0031360000000000003/5.382545674252097e-06, 10)), 17)"
+   },
+   "value": "2.7653883302420986",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess dipole dalpha=0.056 vs Pbdot_xs 2 sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.0031360000000000003/5.0889522738383465e-06, 10)), 17)"
+   },
+   "value": "2.7897476761015432",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "dalpha^2 at 0.11",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((0.11**2), 17)"
+   },
+   "value": "0.012100000000000000",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "|Pbdot_D|/|Pbdot_int| at dalpha=0.11",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((abs(-1.2364038138746884e-11)/abs(-25.9e-15)), 17)"
+   },
+   "value": "477.37598991300713",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess dipole dalpha=0.11 (pre-registered)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.0121/3.6e-06, 10)), 17)"
+   },
+   "value": "3.5264828695491632",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess dipole dalpha=0.11 vs Freire Pbdot_D 2 sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.0121/5.382545674252097e-06, 10)), 17)"
+   },
+   "value": "3.3517976465461478",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess dipole dalpha=0.11 vs Pbdot_xs 2 sigma",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.0121/5.0889522738383465e-06, 10)), 17)"
+   },
+   "value": "3.3761569924055924",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "r_s/R minimum for NO-GO (trace charge, n=1)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((sqrt(3.6e-06)/0.5597841683589685/0.75), 17)"
+   },
+   "value": "0.0045192813072062872",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "largest pulsar radius still giving NO-GO [m]",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4313.024770380891/0.004519281307206287), 17)"
+   },
+   "value": "954360.76605886282",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "xi_max Cassini (long range)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((4.6e-05/(2-4.6e-05))/(2*0.9903865838980467)), 17)"
+   },
+   "value": "1.1611894479446534e-5",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "xi_max LLR",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((0.00022/(2-0.00022))/(2*0.9903865838980467)), 17)"
+   },
+   "value": "5.5539979599759708e-5",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "xi_max MICROSCOPE (isotopes)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((5.4e-15/(2*(0.9865518180163235-0.9844036625850094))), 17)"
+   },
+   "value": "1.2568922903070962e-12",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "xi_max clocks",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((9e-07/(2*0.9903865838980467)), 17)"
+   },
+   "value": "4.5436802892548502e-7",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "xi_max dipole (binding 10 %)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((3.6e-06/(2*0.9903865838980467*0.1**2)), 17)"
+   },
+   "value": "0.00018174721157019397",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "xi_max dipole (binding 20 %)",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((3.6e-06/(2*0.9903865838980467*0.2**2)), 17)"
+   },
+   "value": "4.5436802892548494e-5",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "alpha^2 at xi=0.13",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*0.13*0.9903865838980467), 17)"
+   },
+   "value": "0.25750051181349215",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed Cassini xi=0.13",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4.6e-05/((2-4.6e-05)*0.25750051181349215)), 17)"
+   },
+   "value": "8.9322265226511796e-5",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed LLR xi=0.13",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((0.00022/((2-0.00022)*0.25750051181349215)), 17)"
+   },
+   "value": "0.00042723061230584388",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed MICROSCOPE xi=0.13",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((5.4e-15/(2*0.13*(0.9865518180163235-0.9844036625850094))), 17)"
+   },
+   "value": "9.6684022331315087e-12",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed clocks xi=0.13",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((9e-07/(2*0.13*0.9903865838980467)), 17)"
+   },
+   "value": "3.4951386840421923e-6",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed MICROSCOPE alloys, bound 6.99e-15, xi=0.13",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((6.991812087098392e-15/(2*0.13*(0.9865868101144315-0.9845030437105606))), 17)"
+   },
+   "value": "1.2905278106232754e-11",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed Cassini (v1 linear form) xi=0.13",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4.6e-05/(2*0.25750051181349215/(1+0.25750051181349215))), 17)"
+   },
+   "value": "0.00011232021081441159",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check cassini xi=0.13: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(149597870700.0-695700000.0)/12593286042.085726)*3*((0.055243722541918595-1)+exp(-2*0.055243722541918595)*(0.055243722541918595+1))/(2*0.055243722541918595**3)*(1+149597870700.0/12593286042.085726))/(8.93222652265118e-05)), 17)"
+   },
+   "value": "0.99999999999981887",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check cassini_mercury xi=0.13: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(57909036552.2286-695700000.0)/4874065571.190631)*3*((0.142735051434701-1)+exp(-2*0.142735051434701)*(0.142735051434701+1))/(2*0.142735051434701**3)*(1+57909036552.2286/4874065571.190631))/(8.93222652265118e-05)), 17)"
+   },
+   "value": "0.99999999999994976",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check cassini_mars xi=0.13: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(227939134030.3053-695700000.0)/19188429723.54313)*3*((0.0362562236734992-1)+exp(-2*0.0362562236734992)*(0.0362562236734992+1))/(2*0.0362562236734992**3)*(1+227939134030.3053/19188429723.54313))/(8.93222652265118e-05)), 17)"
+   },
+   "value": "0.99999999999647703",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check cassini_potential_1AU xi=0.13: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(149597870700.0-695700000.0)/16045338006.238642)*3*((0.04335838856928427-1)+exp(-2*0.04335838856928427)*(0.04335838856928427+1))/(2*0.04335838856928427**3))/(8.93222652265118e-05)), 17)"
+   },
+   "value": "0.99999999999836950",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check cassini_b1p6_superseded xi=0.13: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(1113120000.0-695700000.0)/56258718.75604554)*3*((12.366083255766295-1)+exp(-2*12.366083255766295)*(12.366083255766295+1))/(2*12.366083255766295**3)*(1+1113120000.0/56258718.75604554))/(0.00011232021081441159)), 17)"
+   },
+   "value": "0.99999999999999873",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check llr xi=0.13: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(149597870700.0-695700000.0)/14707113819.4336)*3*((0.04730363880646113-1)+exp(-2*0.04730363880646113)*(0.04730363880646113+1))/(2*0.04730363880646113**3)*(1+149597870700.0/14707113819.4336))/(0.0004272306123058439)), 17)"
+   },
+   "value": "1.0000000000004049",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check microscope xi=0.13: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(7088100.0-6378100.0)/34383.316099890995)*3*((185.49985060982004-1)+exp(-2*185.49985060982004)*(185.49985060982004+1))/(2*185.49985060982004**3)*(1+7088100.0/34383.316099890995))/(9.668402233131508e-12)), 17)"
+   },
+   "value": "0.99999999999999866",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check microscope_alloys_program_bound xi=0.13: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(7088100.0-6378100.0)/34848.00601410051)*3*((183.02625399626126-1)+exp(-2*183.02625399626126)*(183.02625399626126+1))/(2*183.02625399626126**3)*(1+7088100.0/34848.00601410051))/(1.2905278106232754e-11)), 17)"
+   },
+   "value": "0.99999999999999626",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check clocks xi=0.13: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(149597870700.0-695700000.0)/9739791178.27439)*3*((0.07142863612433814-1)+exp(-2*0.07142863612433814)*(0.07142863612433814+1))/(2*0.07142863612433814**3)*(1+149597870700.0/9739791178.27439))/(3.4951386840421923e-06)), 17)"
+   },
+   "value": "0.99999999999981419",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "dipole: lambda below which a field cannot radiate at omega_orb",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((299792458.0*30653.919924975362/(2*pi)), 17)"
+   },
+   "value": "1462604324456.6805",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "alpha^2 at xi=0.1582",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*0.1582*0.9903865838980467), 17)"
+   },
+   "value": "0.31335831514534199",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed Cassini xi=0.1582",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4.6e-05/((2-4.6e-05)*0.313358315145342)), 17)"
+   },
+   "value": "7.3400091526210705e-5",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed LLR xi=0.1582",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((0.00022/((2-0.00022)*0.313358315145342)), 17)"
+   },
+   "value": "0.00035107446017547216",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed MICROSCOPE xi=0.1582",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((5.4e-15/(2*0.1582*(0.9865518180163235-0.9844036625850094))), 17)"
+   },
+   "value": "7.9449575872762082e-12",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed clocks xi=0.1582",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((9e-07/(2*0.1582*0.9903865838980467)), 17)"
+   },
+   "value": "2.8721114344215234e-6",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed MICROSCOPE alloys, bound 6.99e-15, xi=0.1582",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((6.991812087098392e-15/(2*0.1582*(0.9865868101144315-0.9845030437105606))), 17)"
+   },
+   "value": "1.0604842944439052e-11",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed Cassini (v1 linear form) xi=0.1582",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4.6e-05/(2*0.313358315145342/(1+0.313358315145342))), 17)"
+   },
+   "value": "9.6398403324105607e-5",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check cassini xi=0.1582: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(149597870700.0-695700000.0)/12371747511.600212)*3*((0.05623296137814692-1)+exp(-2*0.05623296137814692)*(0.05623296137814692+1))/(2*0.05623296137814692**3)*(1+149597870700.0/12371747511.600212))/(7.34000915262107e-05)), 17)"
+   },
+   "value": "0.99999999999967535",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check cassini_mercury xi=0.1582: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(57909036552.2286-695700000.0)/4788309507.815477)*3*((0.1452913598973664-1)+exp(-2*0.1452913598973664)*(0.1452913598973664+1))/(2*0.1452913598973664**3)*(1+57909036552.2286/4788309507.815477))/(7.34000915262107e-05)), 17)"
+   },
+   "value": "0.99999999999995486",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check cassini_mars xi=0.1582: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(227939134030.3053-695700000.0)/18850875700.905407)*3*((0.036905447313865934-1)+exp(-2*0.036905447313865934)*(0.036905447313865934+1))/(2*0.036905447313865934**3)*(1+227939134030.3053/18850875700.905407))/(7.34000915262107e-05)), 17)"
+   },
+   "value": "1.0000000000024954",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check cassini_potential_1AU xi=0.1582: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(149597870700.0-695700000.0)/15714422942.140398)*3*((0.044271431573499546-1)+exp(-2*0.044271431573499546)*(0.044271431573499546+1))/(2*0.044271431573499546**3))/(7.34000915262107e-05)), 17)"
+   },
+   "value": "1.0000000000006455",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check cassini_b1p6_superseded xi=0.1582: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(1113120000.0-695700000.0)/55249859.89620196)*3*((12.59188713432058-1)+exp(-2*12.59188713432058)*(12.59188713432058+1))/(2*12.59188713432058**3)*(1+1113120000.0/55249859.89620196))/(9.639840332410561e-05)), 17)"
+   },
+   "value": "0.99999999999999850",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check llr xi=0.1582: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(149597870700.0-695700000.0)/14402082433.171234)*3*((0.04830551437461894-1)+exp(-2*0.04830551437461894)*(0.04830551437461894+1))/(2*0.04830551437461894**3)*(1+149597870700.0/14402082433.171234))/(0.00035107446017547216)), 17)"
+   },
+   "value": "0.99999999999903976",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check microscope xi=0.1582: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(7088100.0-6378100.0)/34074.246313529984)*3*((187.18242338547117-1)+exp(-2*187.18242338547117)*(187.18242338547117+1))/(2*187.18242338547117**3)*(1+7088100.0/34074.246313529984))/(7.944957587276209e-12)), 17)"
+   },
+   "value": "0.99999999999999823",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check microscope_alloys_program_bound xi=0.1582: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(7088100.0-6378100.0)/34530.758504935664)*3*((184.70778738000627-1)+exp(-2*184.70778738000627)*(184.70778738000627+1))/(2*184.70778738000627**3)*(1+7088100.0/34530.758504935664))/(1.0604842944439052e-11)), 17)"
+   },
+   "value": "0.99999999999999696",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check clocks xi=0.1582: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(149597870700.0-695700000.0)/9609016107.156073)*3*((0.07240075281816782-1)+exp(-2*0.07240075281816782)*(0.07240075281816782+1))/(2*0.07240075281816782**3)*(1+149597870700.0/9609016107.156073))/(2.8721114344215236e-06)), 17)"
+   },
+   "value": "1.0000000000002836",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "dipole: lambda below which a field cannot radiate at omega_orb",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((299792458.0*30653.919924975362/(2*pi)), 17)"
+   },
+   "value": "1462604324456.6805",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "alpha^2 at xi=0.17",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((2*0.17*0.9903865838980467), 17)"
+   },
+   "value": "0.33673143852533590",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed Cassini xi=0.17",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4.6e-05/((2-4.6e-05)*0.3367314385253359)), 17)"
+   },
+   "value": "6.8305261643803136e-5",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed LLR xi=0.17",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((0.00022/((2-0.00022)*0.3367314385253359)), 17)"
+   },
+   "value": "0.00032670576235152766",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed MICROSCOPE xi=0.17",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((5.4e-15/(2*0.17*(0.9865518180163235-0.9844036625850094))), 17)"
+   },
+   "value": "7.3934840606299769e-12",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed clocks xi=0.17",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((9e-07/(2*0.17*0.9903865838980467)), 17)"
+   },
+   "value": "2.6727531113263823e-6",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed MICROSCOPE alloys, bound 6.99e-15, xi=0.17",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((6.991812087098392e-15/(2*0.17*(0.9865868101144315-0.9845030437105606))), 17)"
+   },
+   "value": "9.8687420812368112e-12",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "Y needed Cassini (v1 linear form) xi=0.17",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4.6e-05/(2*0.3367314385253359/(1+0.3367314385253359))), 17)"
+   },
+   "value": "9.1303690622785329e-5",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check cassini xi=0.17: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(149597870700.0-695700000.0)/12292582032.776043)*3*((0.056595107370041246-1)+exp(-2*0.056595107370041246)*(0.056595107370041246+1))/(2*0.056595107370041246**3)*(1+149597870700.0/12292582032.776043))/(6.830526164380313e-05)), 17)"
+   },
+   "value": "1.0000000000002084",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check cassini_mercury xi=0.17: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(57909036552.2286-695700000.0)/4757665087.707343)*3*((0.14622719068593557-1)+exp(-2*0.14622719068593557)*(0.14622719068593557+1))/(2*0.14622719068593557**3)*(1+57909036552.2286/4757665087.707343))/(6.830526164380313e-05)), 17)"
+   },
+   "value": "1.0000000000000117",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check cassini_mars xi=0.17: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(227939134030.3053-695700000.0)/18730252774.60966)*3*((0.03714311858850492-1)+exp(-2*0.03714311858850492)*(0.03714311858850492+1))/(2*0.03714311858850492**3)*(1+227939134030.3053/18730252774.60966))/(6.830526164380313e-05)), 17)"
+   },
+   "value": "0.99999999999861387",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check cassini_potential_1AU xi=0.17: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(149597870700.0-695700000.0)/15596559143.005867)*3*((0.044605992489823006-1)+exp(-2*0.044605992489823006)*(0.044605992489823006+1))/(2*0.044605992489823006**3))/(6.830526164380313e-05)), 17)"
+   },
+   "value": "1.0000000000006527",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check cassini_b1p6_superseded xi=0.17: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(1113120000.0-695700000.0)/54899703.85640654)*3*((12.672199504384304-1)+exp(-2*12.672199504384304)*(12.672199504384304+1))/(2*12.672199504384304**3)*(1+1113120000.0/54899703.85640654))/(9.130369062278534e-05)), 17)"
+   },
+   "value": "0.99999999999999937",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check llr xi=0.17: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(149597870700.0-695700000.0)/14293590461.475452)*3*((0.04867216546290963-1)+exp(-2*0.04867216546290963)*(0.04867216546290963+1))/(2*0.04867216546290963**3)*(1+149597870700.0/14293590461.475452))/(0.00032670576235152766)), 17)"
+   },
+   "value": "0.99999999999890934",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check microscope xi=0.17: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(7088100.0-6378100.0)/33962.350788919)*3*((187.79913203419954-1)+exp(-2*187.79913203419954)*(187.79913203419954+1))/(2*187.79913203419954**3)*(1+7088100.0/33962.350788919))/(7.393484060629977e-12)), 17)"
+   },
+   "value": "0.99999999999999609",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check microscope_alloys_program_bound xi=0.17: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(7088100.0-6378100.0)/34415.9196111339)*3*((185.32411953730332-1)+exp(-2*185.32411953730332)*(185.32411953730332+1))/(2*185.32411953730332**3)*(1+7088100.0/34415.9196111339))/(9.868742081236812e-12)), 17)"
+   },
+   "value": "0.99999999999999858",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route b check clocks xi=0.17: Y(lam_max)/Y_needed",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(((exp(-(149597870700.0-695700000.0)/9561997884.939362)*3*((0.0727567615441291-1)+exp(-2*0.0727567615441291)*(0.0727567615441291+1))/(2*0.0727567615441291**3)*(1+149597870700.0/9561997884.939362))/(2.6727531113263825e-06)), 17)"
+   },
+   "value": "0.99999999999996623",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "dipole: lambda below which a field cannot radiate at omega_orb",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((299792458.0*30653.919924975362/(2*pi)), 17)"
+   },
+   "value": "1462604324456.6805",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "route c caveat: gamma-1 if e^sigma rescales all masses but not light",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((4*0.1582/(1-2*0.1582)), 17)"
+   },
+   "value": "0.92568753657109426",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "log10 excess route c mass-only",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N((log(0.9256875365710943/4.6e-05, 10)), 17)"
+   },
+   "value": "4.3037065847593469",
+   "source": "sympy.simplify"
+  },
+  {
+   "label": "DIAGNOSTIC differentiate_expr with variable E",
+   "tool": "differentiate_expr",
+   "args": {
+    "expression": "E**2",
+    "variable": "E"
+   },
+   "value": "0",
+   "source": "sympy.diff"
+  },
+  {
+   "label": "CONTROL differentiate_expr with variable x",
+   "tool": "differentiate_expr",
+   "args": {
+    "expression": "x**2",
+    "variable": "x"
+   },
+   "value": "2*x",
+   "source": "sympy.diff"
+  },
+  {
+   "label": "DIAGNOSTIC solve_equation with variable E",
+   "tool": "solve_equation",
+   "args": {
+    "equation": "E**2 - 4",
+    "variable": "E"
+   },
+   "value": [],
+   "source": "sympy.solve"
+  },
+  {
+   "label": "CONTROL solve_equation with variable x",
+   "tool": "solve_equation",
+   "args": {
+    "equation": "x**2 - 4",
+    "variable": "x"
+   },
+   "value": [
+    "-2",
+    "2"
+   ],
+   "source": "sympy.solve"
+  },
+  {
+   "label": "DIAGNOSTIC integrate_expr with variable E",
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "E",
+    "variable": "E"
+   },
+   "value": "E*E",
+   "source": "sympy.integrate"
+  },
+  {
+   "label": "CONTROL integrate_expr with variable x",
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "x",
+    "variable": "x"
+   },
+   "value": "x**2/2",
+   "source": "sympy.integrate"
+  }
+ ],
+ "runtime_s": 210.48627614974976
+}

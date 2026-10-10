@@ -1,0 +1,1446 @@
+{
+ "id": "U2",
+ "version": "v2 (repair round)",
+ "prereg": {
+  "frozen_utc": "2026-10-10T09:57:16.832329Z",
+  "original_design_criterion_verbatim": "SEPARATE if eps_rec(N-body), eps_rec(SPH alpha=0) <= 1e-8 R and shrink under dt-halving while eps_rec(SPH alpha=1) >= 1e-3 R and does not, with min S_dot_visc >= 0 and ledger closure <= 1e-3; SAME if all three within 10x; growth above 1e-8 that halves with dt is Lyapunov, not irreversibility. S8 sentinel: sum m u_int(T) = Q_cum(T) to 1e-3 and K + W_soft + U_int conserved to 1e-4.",
+  "evaluation_point": "primary verdict at T = 1 t_ff (the X2 trimmed design); T = 0.3 t_ff reported alongside",
+  "design_corrections_identified_before_running": [
+   "C1 'shrink under dt-halving' is wrong for the Hamiltonian engines: velocity-Verlet with position-only forces is exactly time-symmetric, so the echo error is roundoff x chaotic amplification, not truncation. Halving dt doubles the roundoff injections and leaves the amplification unchanged; expected ratio eps(dt/2)/eps(dt) ~ 1-2, not < 1. The original criterion therefore cannot return SEPARATE whatever the physics. Corrected discriminator below (perturbation-size control).",
+   "C2 'ledger closure' against the softened mechanical energy K + U_soft: with eos='isothermal' the PdV work also goes to the bath, so the closure only holds if the mechanical energy includes the isothermal free energy F = c_s^2 sum m ln rho. Literal closure (K + U_soft only) reported too; predicted to fail for alpha=1 (density field does not return).",
+   "C3 S8 sentinel 'sum m u_int(T) = Q_cum(T)': for eos='isothermal' u_int == 0 by design (work goes to scene.energy_bath_J); for eos='ideal' Delta U_int = Q_visc + W_PdV, not Q_visc alone. Literal sentinel predicted to FAIL for both EOS for this reason, not for an engine defect. Corrected sentinel: |Delta(K + U_soft + U_int + bath)| / |U_soft(0)| <= 1e-4, and the engine's own viscous share (pair-decomposed) equals the independent ledger Q_led to 1e-3 at dt = t_ff/1200.",
+   "C4 min S_dot_visc >= 0 holds by construction (Pi_ij > 0 only for approaching pairs; cubic-spline W' <= 0), as does the Fourier face-by-face k dT^2/(Ta Tb) >= 0: engine validation, not evidence.",
+   "C5 Reversibility of N-body and inviscid SPH follows from the symplectic integrator and position-only forces; it holds for any force law and any constants. SEPARATE is engine validation of where the closure terms were put, not evidence about the unification thesis."
+  ],
+  "corrected_criterion": {
+   "SEPARATE": [
+    "H1: eps_rec(N-body) and eps_rec(SPH alpha=0, isothermal) <= 1e-8 R at both dt, OR above 1e-8 R but linear in an injected displacement delta (log-slope in [0.7, 1.3] over delta points with 3 eps_rec(0) <= eps_rec(delta) <= 1e-2 R) = Lyapunov",
+    "H2: Hamiltonian eps_rec is dt-independent at roundoff: eps(dt/2)/eps(dt) in [0.1, 10]",
+    "D1: eps_rec(SPH alpha=1) >= 1e-3 R at both dt AND dt-converged |eps(dt/2)/eps(dt) - 1| <= 0.1 AND delta-independent |eps(delta=1e-9 R)/eps(0) - 1| <= 0.1",
+    "D2: min S_dot_led >= 0 every step (by construction) and engine per-step viscous booking q_visc >= 0 every step",
+    "D3: corrected ledger closure |Q_led - (-Delta(K + U_soft + F))| / Q_led <= 1e-3 at dt = t_ff/1200"
+   ],
+   "SAME": "all three eps_rec within 10x of each other AND the Hamiltonian echo errors are delta-independent (genuine loss)",
+   "otherwise": "MIXED (report which clause failed)"
+  },
+  "predictions": {
+   "nbody_eps_rec_T0.3": "1e-16 .. 1e-14 R",
+   "nbody_eps_rec_T1": "<= 1e-8 R (moderate confidence: collapse to a rotating disk near t_ff amplifies roundoff)",
+   "sph_a0_eps_rec_T0.3": "1e-16 .. 1e-14 R",
+   "sph_a0_eps_rec_T1": "<= 1e-12 R (pressure-supported cloud, 2K_th/|W| = 1.25)",
+   "sph_a1_eps_rec_T0.3": "~1e-2 R (smoke at N=32: 1.5e-2)",
+   "sph_a1_eps_rec_T1": "1e-2 .. 1e-1 R, dt-ratio within 0.9-1.1",
+   "dt_halving_hamiltonian_ratio": "1 .. 2 (fails the original 'shrink' clause)",
+   "delta_control": "Hamiltonian slope ~ 1; viscous flat",
+   "S_dot_min": ">= 0 (by construction)",
+   "corrected_closure": "1e-4 .. 1e-2, scaling ~ dt (engine viscous force uses pre-kick velocities)",
+   "ideal_gas_alpha0_echo": "NOT roundoff: the cached end-of-step force uses the pre-update temperature, which breaks discrete time-symmetry; expect eps_rec >> 1e-14 R and ~ proportional to dt (ratio ~0.5)",
+   "ideal_sentinel_energy": "|Delta(K + U_soft + U_int)| / |U_soft(0)| <= 1e-4 (O(dt^2) from gravity only)",
+   "fourier": "S_dot >= 0 every slice (by construction), S monotone, energy conserved to roundoff; engine refuses a reversed run",
+   "verdict_corrected": "SEPARATE",
+   "verdict_original": "not SEPARATE (fails the dt-halving 'shrink' clause) -> MIXED"
+  },
+  "addendum_1": {
+   "written_utc": "2026-10-10T10:07:27.215968+00:00",
+   "seen_before_writing": "N-body and SPH alpha=0 eps_rec at T=0.3 and T=1 (both dt); SPH alpha=1 at T=0.3 (both dt) and at T=1, dt=t_ff/600 via the delta runs; SPH alpha=0 delta runs; N=32 smoke. NOT yet seen: SPH alpha=1 at T=1, dt=t_ff/1200; ideal-gas runs; Fourier; N-body delta runs.",
+   "reading_rule_for_original_clause": "The design's 'shrink under dt-halving' / 'does not' has no tolerance. Evaluated strictly for both: shrink means eps(dt/2)/eps(dt) < 1; does-not-shrink means ratio >= 1. Reported alongside the corrected clauses (H2, D1), which are unchanged.",
+   "prediction_correction": "My frozen prediction 'Hamiltonian dt-ratio 1..2' is already contradicted by the T=0.3/T=1 runs (ratios 0.77-0.99): roundoff in a time-symmetric step largely cancels between legs, so the echo error is not a sqrt(n) random walk. Recorded as a wrong prediction; criteria unchanged.",
+   "post_hoc_diagnostic_declared": "Because the T=0.3 alpha=1 corrected closure is 7.8e-3 (dt/600) and 3.7e-3 (dt/1200), i.e. ~ proportional to dt, the analysis will also report (labelled POST-HOC, not a criterion) the Richardson extrapolation 2c(dt/2) - c(dt) and the closure of the engine's own pair-decomposed viscous booking against -Delta(K + U_soft + F)."
+  }
+ },
+ "prereg_v2_addendum": {
+  "written_utc": "2026-10-10T11:00:02.620502+00:00",
+  "status": "POST-HOC diagnostics requested by the skeptic round; predictions frozen before running; not criteria",
+  "criteria_unchanged": "prereg.json original_design_criterion_verbatim and corrected_criterion are evaluated exactly as before",
+  "already_seen_from_verifiers": [
+   "delta at t=0 echo gain 0.99995 (skeptic, N-body, T=1, dt/600)",
+   "forward-twin gain 1.23 / 1.86 / 37.0 at 0.3 / 0.5 / 1.0 t_ff (verifiers)",
+   "delta-at-reversal gain after a 0.3 t_ff leg 2.26 (reproduce verifier)",
+   "no cache invalidation: isothermal a=0 echo bitwise identical; ideal a=0 5.3432e-4 vs 5.3494e-4 R",
+   "median radius 0.750 R at t=0; 0.726 R (isothermal a=1) and 0.737 R (ideal a=1) at T=1"
+  ],
+  "predictions": {
+   "P_A_delta_at_t0": "echo gain = 1 to within 1e-3 (exact reversibility of position-only velocity-Verlet) [DERIVED; already seen]",
+   "P_B_forward_twin_post_bounce": "NEW: ln(gain) keeps growing after the collapse/bounce; mean rate over 1.5-4 t_ff between 1 and 6 per t_ff (chaos). If < 0.5 per t_ff, the 'chaos' reading is NOT supported and the gain is collapse focusing.",
+   "P_C_backward_leg_profile": "NEW: more than half of ln(gain) for delta injected at the reversal (T=1) accrues in the first 0.25 t_ff of the backward leg (the collapsed phase)",
+   "P_D_delta_at_reversal_T0.3": "gain ~ 2.3 (already seen)",
+   "P_E_horizon": "NEW: roundoff-only N-body echo eps_rec(T) at T = 2, 3, 4, 6, 8 t_ff (dt = t_ff/600) rises monotonically; crosses 1e-8 R (the H1 threshold) between T = 3 and 6 t_ff; at T = 8 t_ff eps_rec >= 1e-3 R (the D1 threshold), i.e. by eps_rec alone the Hamiltonian echo is no longer distinguishable from viscous loss. Order-of-magnitude horizon ln(2^53)/4.81 = 7.6 t_ff.",
+   "P_E_validation": "checkpointed forward leg reproduces the original T=1 dt/600 echo 4.687074276493767e-15 R bitwise",
+   "P_F_cache": "isothermal a=0: bitwise identical without invalidation; ideal a=0: differs by ~0.1 % (already seen)",
+   "P_G_fourier_mode": "NEW (on the engine): the highest insulated-grid mode prod cos(31 pi (i+1/2)/32) decays per diffuse_fvm substep by 1 - 0.4 sin^2(31 pi/64) = 0.60096 (uniform over cells to 1e-9 relative); 800-substep inverse amplification 10^176.9, not the 10^177.5 checkerboard bound"
+  }
+ },
+ "mentat_leaves": {
+  "G": {
+   "value": 6.6743e-11,
+   "source": "sigma_ground.field.constants",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "G"
+   }
+  },
+  "R_gas": {
+   "value": 8.31446261815324,
+   "source": "sigma_ground.field.constants",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "R"
+   }
+  },
+  "k_B": {
+   "value": 1.380649e-23,
+   "source": "sigma_ground.field.constants",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "k_B"
+   }
+  },
+  "rho_water_ice": {
+   "value": 916.7,
+   "source": "sigma-ground via CRC Handbook (ice at 0 C)",
+   "tool": "density",
+   "args": {
+    "material": "water_ice"
+   }
+  },
+  "T_melt_water_ice": {
+   "value": 273.15,
+   "source": "sigma-ground via SI definition",
+   "tool": "melting_point",
+   "args": {
+    "material": "water_ice"
+   }
+  },
+  "t_ff_expr": {
+   "value": "15300.553831318*pi",
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "sqrt(3*pi/(32*6.6743e-11*(3*1000000000000.0/(4*pi*5000.0**3))))"
+   }
+  },
+  "t_ff": {
+   "value": 48068.1075123238,
+   "source": "Mentat simplify_expr (sympy.simplify) of t_ff = sqrt(3 pi / (32 G rho_mean)), evaluated with sympy.evalf",
+   "tool": "simplify_expr"
+  },
+  "E_equipartition_f3_300K": {
+   "value": 6.2129205000000004e-21,
+   "source": "sigma-ground via equipartition theorem (CODATA k_B)",
+   "tool": "thermal_energy_per_molecule",
+   "args": {
+    "temperature_k": 300.0,
+    "degrees_of_freedom": 3
+   }
+  },
+  "gamma_monatomic": {
+   "value": 1.6666666666666665,
+   "source": "1 + k_B T / E(f=3): Mentat lookup_constant(k_B) + thermal_energy_per_molecule(f=3)"
+  }
+ },
+ "mentat_v2_simplify_expr": {
+  "rate_nbody_per_tff": {
+   "value": "4.810261669928681",
+   "float": 4.810261669928681,
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "log(122.7637368930219)/1"
+   }
+  },
+  "rate_sph0_per_tff": {
+   "value": "3.9905633942194183",
+   "float": 3.9905633942194183,
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "log(54.085352156000056)/1"
+   }
+  },
+  "horizon_tff_ln2pow53_over_rate": {
+   "value": "7.637173004399526",
+   "float": 7.637173004399526,
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "log(2**53)/log(122.7637368930219)"
+   }
+  }
+ },
+ "choices": {
+  "N": 64,
+  "M": 1000000000000.0,
+  "R": 5000.0,
+  "cs": 0.05776807076577856,
+  "h": 3022.484913780879,
+  "eps": 100.0,
+  "tff": 48068.1075123238
+ },
+ "eps_rec_R": {
+  "nbody_T0.3_n600": 1.345734224091206e-16,
+  "sph0_T0.3_n600": 2.013800868572213e-15,
+  "sph1_T0.3_n600": 0.014893332512467833,
+  "nbody_T0.3_n1200": 1.0383105833570433e-16,
+  "sph0_T0.3_n1200": 2.0000354982456626e-15,
+  "sph1_T0.3_n1200": 0.014927953824225992,
+  "nbody_T1.0_n600": 4.687074276493767e-15,
+  "sph0_T1.0_n600": 2.025894078765393e-14,
+  "sph1_T1.0_n600": 0.15801349852574248,
+  "nbody_T1.0_n1200": 3.749190494457643e-15,
+  "sph0_T1.0_n1200": 1.874777301517033e-14,
+  "sph1_T1.0_n1200": 0.15477323020466796,
+  "ideal0_T1.0_n600": 0.0005349436977475715,
+  "ideal1_T1.0_n600": 0.17936253699621446,
+  "ideal0_T1.0_n1200": 0.00026772926782896514,
+  "ideal1_T1.0_n1200": 0.17876309259951903
+ },
+ "dt_halving_ratio": {
+  "nbody_T0.3": 0.7715569424997195,
+  "sph0_T0.3": 0.9931644828734679,
+  "sph1_T0.3": 1.0023246181960401,
+  "nbody_T1.0": 0.7998999532096766,
+  "sph0_T1.0": 0.9254073651567941,
+  "sph1_T1.0": 0.9794937245785579,
+  "ideal0_T1.0": 0.5004812075668211,
+  "ideal1_T1.0": 0.9966579174964052
+ },
+ "delta_control": {
+  "deltas_R": [
+   1e-13,
+   1e-11,
+   1e-09
+  ],
+  "injected": "at the reversal (backward leg only)",
+  "eps_rec_R": {
+   "nbody": [
+    1.2277646164872948e-11,
+    1.2276355944971454e-09,
+    1.227637368930219e-07
+   ],
+   "sph0": [
+    5.420021622914923e-12,
+    5.408535215600005e-10,
+    5.408524011058489e-08
+   ],
+   "sph1": [
+    0.15801349841347487,
+    0.15801348728616713,
+    0.15801237465090898
+   ]
+  },
+  "eps_rec_delta0_R": {
+   "nbody": 4.687074276493767e-15,
+   "sph0": 2.025894078765393e-14,
+   "sph1": 0.15801349852574248
+  },
+  "loglog_slope": {
+   "nbody": 0.9999887466670955,
+   "sph0": 0.9997694357382069,
+   "sph1": null
+  },
+  "backward_leg_gain": {
+   "nbody": [
+    122.77646164872948,
+    122.76355944971455,
+    122.7637368930219
+   ],
+   "sph0": [
+    54.20021622914923,
+    54.085352156000056,
+    54.085240110584884
+   ],
+   "sph1": [
+    1580134984134.7485,
+    15801348728.616714,
+    158012374.65090898
+   ]
+  },
+  "sph1_rel_change_delta1e-9": 7.112524208263693e-06
+ },
+ "growth_rate_post_hoc": {
+  "backward_leg_gain_delta_at_reversal_T1_dt600": {
+   "nbody": 122.7637368930219,
+   "sph0": 54.085352156000056
+  },
+  "finite_time_rate_per_tff_ln_gain_over_1tff": {
+   "nbody": 4.810261669928681,
+   "sph0": 3.9905633942194183
+  },
+  "as_reported_before_wrong_factor_2": {
+   "nbody": 2.40513083496434,
+   "sph0": 1.9952816971097092
+  },
+  "A_delta_at_t0_full_echo_gain": 0.9999543260071513,
+  "B_forward_twin_gain": {
+   "0.3": 1.2298594076303542,
+   "0.5": 1.8642420004579536,
+   "1.0": 37.00908350080792,
+   "1.5": 1765.8677116449303,
+   "2.0": 37377.067795795745,
+   "3.0": 46447177.756561674,
+   "4.0": 8828936166.104214
+  },
+  "B_forward_twin_rate_0.5_to_1.0_tff": 6.171953083336021,
+  "B_forward_twin_rate_1.5_to_4.0_tff": 6.577135580275604,
+  "B_r_median_min_R_and_time_tff": [
+   0.15017931401916249,
+   1.18
+  ],
+  "C_backward_leg_gain_end": 122.76345472910448,
+  "C_fraction_of_ln_gain_in_first_0.25_tff_of_backward_leg": 0.26427682725003343,
+  "C_gain_after_0.25_tff_back": 3.5652710611128793,
+  "C_gain_after_0.5_tff_back": 14.042192293747616,
+  "D_backward_leg_gain_after_0.3_tff_leg": 2.2567492328619734,
+  "C6_revised": {
+   "roundoff_echo_ratio_T1_over_T0.3_dt1200": 36.108564764271605,
+   "roundoff_echo_ratio_T1_over_T0.3_dt600": 34.82912296192078,
+   "backward_leg_gain_ratio_T1_over_T0.3": 54.39835890557403
+  }
+ },
+ "roundoff_horizon_post_hoc": {
+  "eps_rec_R_by_T_tff": {
+   "0.3": 1.345734224091206e-16,
+   "1.0": 4.687074276493767e-15,
+   "2.0": 8.108902864416613e-12,
+   "3.0": 2.137602303782303e-09,
+   "4.0": 2.3547822850187477e-06,
+   "6.0": 0.26217929678259955,
+   "8.0": 0.8843399506889426
+  },
+  "validation_T1_bitwise_equal_original": true,
+  "first_T_above_1e-8_R": 4.0,
+  "first_T_at_or_above_1e-3_R": 6.0,
+  "order_of_magnitude_T_star_tff": 7.637173004399526,
+  "r_median_forward_to_8tff": [
+   [
+    0.05,
+    0.7487621017696805
+   ],
+   [
+    0.1,
+    0.7454861262487475
+   ],
+   [
+    0.15,
+    0.7402269035246385
+   ],
+   [
+    0.2,
+    0.7330083376149137
+   ],
+   [
+    0.25,
+    0.723855590777824
+   ],
+   [
+    0.3,
+    0.7128000824862712
+   ],
+   [
+    0.35,
+    0.6974745261485316
+   ],
+   [
+    0.4,
+    0.6775929945314269
+   ],
+   [
+    0.45,
+    0.6545777263185386
+   ],
+   [
+    0.5,
+    0.6259135357555515
+   ],
+   [
+    0.55,
+    0.6138039498005508
+   ],
+   [
+    0.6,
+    0.5890342351765372
+   ],
+   [
+    0.65,
+    0.5610745381610385
+   ],
+   [
+    0.7,
+    0.5292259056353952
+   ],
+   [
+    0.75,
+    0.5136384614378707
+   ],
+   [
+    0.8,
+    0.4779677119557035
+   ],
+   [
+    0.85,
+    0.4465280353681306
+   ],
+   [
+    0.9,
+    0.4102191059382776
+   ],
+   [
+    0.95,
+    0.3788239319129612
+   ],
+   [
+    1.0,
+    0.3252137519017159
+   ],
+   [
+    1.05,
+    0.25697113928564463
+   ],
+   [
+    1.1,
+    0.21673526322964926
+   ],
+   [
+    1.15,
+    0.1780394947598969
+   ],
+   [
+    1.2,
+    0.15123588033220503
+   ],
+   [
+    1.25,
+    0.17351313412618716
+   ],
+   [
+    1.3,
+    0.21086034152128522
+   ],
+   [
+    1.35,
+    0.2508946994128913
+   ],
+   [
+    1.4,
+    0.29546999782726036
+   ],
+   [
+    1.45,
+    0.33226458306482626
+   ],
+   [
+    1.5,
+    0.3515315703835385
+   ],
+   [
+    1.55,
+    0.38284178858074375
+   ],
+   [
+    1.6,
+    0.3987887433521259
+   ],
+   [
+    1.65,
+    0.43098902495826524
+   ],
+   [
+    1.7,
+    0.4554673503251123
+   ],
+   [
+    1.75,
+    0.4817614424767107
+   ],
+   [
+    1.8,
+    0.48248189036923167
+   ],
+   [
+    1.85,
+    0.4960785477496903
+   ],
+   [
+    1.9,
+    0.5177358085806872
+   ],
+   [
+    1.95,
+    0.5249128299996191
+   ],
+   [
+    2.0,
+    0.4999815692522776
+   ],
+   [
+    2.05,
+    0.49230812279616565
+   ],
+   [
+    2.1,
+    0.48018159938032456
+   ],
+   [
+    2.15,
+    0.4625727474061832
+   ],
+   [
+    2.2,
+    0.4375809737630494
+   ],
+   [
+    2.25,
+    0.4467832114364912
+   ],
+   [
+    2.3,
+    0.4449374928853225
+   ],
+   [
+    2.35,
+    0.414814363154587
+   ],
+   [
+    2.4,
+    0.4019510839951303
+   ],
+   [
+    2.45,
+    0.41743793089456865
+   ],
+   [
+    2.5,
+    0.4110046315446627
+   ],
+   [
+    2.55,
+    0.38017765456181407
+   ],
+   [
+    2.6,
+    0.38209061946147393
+   ],
+   [
+    2.65,
+    0.398335098401666
+   ],
+   [
+    2.7,
+    0.4221471696744948
+   ],
+   [
+    2.75,
+    0.39200123943160625
+   ],
+   [
+    2.8,
+    0.3752066462709992
+   ],
+   [
+    2.85,
+    0.33310619134891045
+   ],
+   [
+    2.9,
+    0.35015152074567524
+   ],
+   [
+    2.95,
+    0.34466976181801795
+   ],
+   [
+    3.0,
+    0.3755348100176634
+   ],
+   [
+    3.05,
+    0.39662221346979587
+   ],
+   [
+    3.1,
+    0.3880608449901511
+   ],
+   [
+    3.15,
+    0.3565278060336306
+   ],
+   [
+    3.2,
+    0.37469377314591673
+   ],
+   [
+    3.25,
+    0.3929622561597041
+   ],
+   [
+    3.3,
+    0.362985569229856
+   ],
+   [
+    3.35,
+    0.3110485862718253
+   ],
+   [
+    3.4,
+    0.29331050660279445
+   ],
+   [
+    3.45,
+    0.3215091564318309
+   ],
+   [
+    3.5,
+    0.3376286006564113
+   ],
+   [
+    3.55,
+    0.3521114339494819
+   ],
+   [
+    3.6,
+    0.3621130158133617
+   ],
+   [
+    3.65,
+    0.34971391394717205
+   ],
+   [
+    3.7,
+    0.34793431058236496
+   ],
+   [
+    3.75,
+    0.35514151582328213
+   ],
+   [
+    3.8,
+    0.3368924818727198
+   ],
+   [
+    3.85,
+    0.3218053193620152
+   ],
+   [
+    3.9,
+    0.3354501619027335
+   ],
+   [
+    3.95,
+    0.33363418640782316
+   ],
+   [
+    4.0,
+    0.3192099006611755
+   ],
+   [
+    4.05,
+    0.32444129883732636
+   ],
+   [
+    4.1,
+    0.3502319886880058
+   ],
+   [
+    4.15,
+    0.3772231170700738
+   ],
+   [
+    4.2,
+    0.40159739051651794
+   ],
+   [
+    4.25,
+    0.413087077387522
+   ],
+   [
+    4.3,
+    0.432396148642707
+   ],
+   [
+    4.35,
+    0.43253710844434373
+   ],
+   [
+    4.4,
+    0.43028383763277217
+   ],
+   [
+    4.45,
+    0.3943295131403972
+   ],
+   [
+    4.5,
+    0.3532843924403497
+   ],
+   [
+    4.55,
+    0.32688586668925257
+   ],
+   [
+    4.6,
+    0.3216822754998002
+   ],
+   [
+    4.65,
+    0.33198756925333817
+   ],
+   [
+    4.7,
+    0.32294885381069355
+   ],
+   [
+    4.75,
+    0.337412123450044
+   ],
+   [
+    4.8,
+    0.35662651544553803
+   ],
+   [
+    4.85,
+    0.39069491791709654
+   ],
+   [
+    4.9,
+    0.39236279518853745
+   ],
+   [
+    4.95,
+    0.39491826509983535
+   ],
+   [
+    5.0,
+    0.3732897020474709
+   ],
+   [
+    5.05,
+    0.37445327145014773
+   ],
+   [
+    5.1,
+    0.4040000639764239
+   ],
+   [
+    5.15,
+    0.42062946993696204
+   ],
+   [
+    5.2,
+    0.40931480507165274
+   ],
+   [
+    5.25,
+    0.42987492764517793
+   ],
+   [
+    5.3,
+    0.4468370929156259
+   ],
+   [
+    5.35,
+    0.4392003410735988
+   ],
+   [
+    5.4,
+    0.45123877164509596
+   ],
+   [
+    5.45,
+    0.4551011808161931
+   ],
+   [
+    5.5,
+    0.39740286816906756
+   ],
+   [
+    5.55,
+    0.40307864139485794
+   ],
+   [
+    5.6,
+    0.4224884052198181
+   ],
+   [
+    5.65,
+    0.41023182775955813
+   ],
+   [
+    5.7,
+    0.39617127325091034
+   ],
+   [
+    5.75,
+    0.37982178588125104
+   ],
+   [
+    5.8,
+    0.3745492934741226
+   ],
+   [
+    5.85,
+    0.3652511803442854
+   ],
+   [
+    5.9,
+    0.37007345112680223
+   ],
+   [
+    5.95,
+    0.3703262602641594
+   ],
+   [
+    6.0,
+    0.3614485593721792
+   ],
+   [
+    6.05,
+    0.34580220102754045
+   ],
+   [
+    6.1,
+    0.34022162314194154
+   ],
+   [
+    6.15,
+    0.35961593120410834
+   ],
+   [
+    6.2,
+    0.3730890870295426
+   ],
+   [
+    6.25,
+    0.4266502176273461
+   ],
+   [
+    6.3,
+    0.4506365151336062
+   ],
+   [
+    6.35,
+    0.42453011707189
+   ],
+   [
+    6.4,
+    0.39694197489227456
+   ],
+   [
+    6.45,
+    0.37788308469642395
+   ],
+   [
+    6.5,
+    0.38150475860244104
+   ],
+   [
+    6.55,
+    0.40871036846842096
+   ],
+   [
+    6.6,
+    0.42073486562755535
+   ],
+   [
+    6.65,
+    0.4221931811842196
+   ],
+   [
+    6.7,
+    0.41929722931549657
+   ],
+   [
+    6.75,
+    0.44126431823859785
+   ],
+   [
+    6.8,
+    0.4383063419001168
+   ],
+   [
+    6.85,
+    0.4511114722917751
+   ],
+   [
+    6.9,
+    0.45208528526021785
+   ],
+   [
+    6.95,
+    0.46172966253787273
+   ],
+   [
+    7.0,
+    0.47431818808981313
+   ],
+   [
+    7.05,
+    0.45869260414907076
+   ],
+   [
+    7.1,
+    0.4449508182800837
+   ],
+   [
+    7.15,
+    0.423908923906584
+   ],
+   [
+    7.2,
+    0.4274432070385417
+   ],
+   [
+    7.25,
+    0.3849416254031005
+   ],
+   [
+    7.3,
+    0.35484259072909125
+   ],
+   [
+    7.35,
+    0.3621507144850878
+   ],
+   [
+    7.4,
+    0.36008385876034327
+   ],
+   [
+    7.45,
+    0.39840573096236465
+   ],
+   [
+    7.5,
+    0.3923654338446786
+   ],
+   [
+    7.55,
+    0.35755907246973545
+   ],
+   [
+    7.6,
+    0.37222520640218315
+   ],
+   [
+    7.65,
+    0.41358650052757323
+   ],
+   [
+    7.7,
+    0.44211659979029466
+   ],
+   [
+    7.75,
+    0.46065046442566393
+   ],
+   [
+    7.8,
+    0.47825377754919357
+   ],
+   [
+    7.85,
+    0.46389041251951
+   ],
+   [
+    7.9,
+    0.4763081931453004
+   ],
+   [
+    7.95,
+    0.46913334233207626
+   ],
+   [
+    8.0,
+    0.45343276031457647
+   ]
+  ]
+ },
+ "smoke_N32_comparison": {
+  "settings": "N=32, T=0.3 t_ff, dt=t_ff/600 (180+180 steps); the design smoke used 120 steps: a comparison at different settings, not a reproduction",
+  "nbody": 8.266455531475683e-17,
+  "sph0": 1.5542391889655818e-15,
+  "sph1": 0.014997302044383489,
+  "design_smoke": [
+   1.7e-16,
+   2.3e-15,
+   0.015
+  ]
+ },
+ "ledger": {
+  "Sdot_led_min_alpha1": 0.07243124362777058,
+  "Sdot_led_negative_steps_all": 0,
+  "engine_q_visc_step_min_J": 872.6399368341616,
+  "engine_q_visc_negative_steps": 0,
+  "isothermal_T1": {
+   "600": {
+    "Q_led_end_J": 1692665356.7226274,
+    "Q_visc_eng_end_J": 1670324960.1651158,
+    "Q_led_over_absU0": 0.21278989463761183,
+    "closure_literal_end": 0.13930219094172858,
+    "closure_corrected_end": 0.012911926396818887,
+    "closure_engine_vs_led_end": 0.01319835398579167,
+    "total_drift_max_over_absU0": 0.0002737350603121533,
+    "total_drift_end_over_absU0": 6.0175666312388544e-05,
+    "S_led_cum_J_per_K_end": 5642217.855742091,
+    "r_median_at_T_over_R": 0.7263132096726204
+   },
+   "1200": {
+    "Q_led_end_J": 1698914005.6828222,
+    "Q_visc_eng_end_J": 1687909844.3012073,
+    "Q_led_over_absU0": 0.21357543050776265,
+    "closure_literal_end": 0.12605341308163,
+    "closure_corrected_end": 0.006333285421630578,
+    "closure_engine_vs_led_end": 0.006477173856243633,
+    "total_drift_max_over_absU0": 7.974160889272829e-05,
+    "total_drift_end_over_absU0": 3.05375681885655e-05,
+    "S_led_cum_J_per_K_end": 5663046.685609408,
+    "r_median_at_T_over_R": 0.7263322598698649
+   }
+  },
+  "isothermal_alpha0_T1": {
+   "600": {
+    "bath_at_T": -513922006.8046868,
+    "Q_press_eng_end_J": 2.8547256079036742e-06,
+    "dF_iso_end_over_absU0": 7.193350646684372e-16
+   },
+   "1200": {
+    "bath_at_T": -513930572.87145096,
+    "Q_press_eng_end_J": 1.3940016287961043e-06,
+    "dF_iso_end_over_absU0": 7.642935062102146e-16
+   }
+  },
+  "post_hoc": {
+   "richardson_corrected_closure_T1": -0.0002453555535577318,
+   "richardson_corrected_closure_T0.3": -0.0002632931123687189,
+   "engine_own_viscous_booking_vs_mech_loss_T1": {
+    "600": 0.00029025852371618256,
+    "1200": 0.0001448265010392782
+   },
+   "engine_own_viscous_booking_vs_mech_loss_T0.3": {
+    "600": 0.0003068227255445749,
+    "1200": 7.317244560829698e-05
+   },
+   "Q_led_vs_Q_visc_engine_T1": {
+    "600": 0.01319835398579167,
+    "1200": 0.006477173856243633
+   }
+  }
+ },
+ "ideal_gas_entropy": {
+  "n600": {
+   "dS_state_forward_leg_J_per_K": 64432.03290721774,
+   "dS_state_end_of_echo_J_per_K": -4131.296191439033
+  },
+  "n1200": {
+   "dS_state_forward_leg_J_per_K": 65393.01974391937,
+   "dS_state_end_of_echo_J_per_K": -2064.7020775675774
+  },
+  "alpha1_n1200": {
+   "dS_state_end": 6266729.6745274365,
+   "booked_sum_q_visc_over_T": 6229542.098515305
+  }
+ },
+ "sph_cache_invalidation": {
+  "isothermal": {
+   "invalidated": 2.025894078765393e-14,
+   "not_invalidated": 2.025894078765393e-14,
+   "bitwise_equal": true,
+   "rel_change": 0.0,
+   "matches_original_run": true
+  },
+  "ideal": {
+   "invalidated": 0.0005349436977475715,
+   "not_invalidated": 0.0005343191208966601,
+   "bitwise_equal": false,
+   "rel_change": 0.0011675562373035418,
+   "matches_original_run": true
+  }
+ },
+ "cloud_size": {
+  "isothermal_a0": {
+   "t0": {
+    "t_tff": 0.0,
+    "r_median_R": 0.7500288418106882,
+    "r_rms_mass_R": 0.7619315458315933,
+    "r_p90_R": 0.9628361907910725,
+    "mean_ln_rho_sph": 0.2596442802060923
+   },
+   "T1": {
+    "t_tff": 1.0,
+    "r_median_R": 0.732007264208177,
+    "r_rms_mass_R": 0.806112390234524,
+    "r_p90_R": 1.1645514487612791,
+    "mean_ln_rho_sph": 0.10564282406482728
+   },
+   "r_median_max_over_leg_R": 0.7522028862963782,
+   "r_median_min_over_leg_R": 0.7260825287635951
+  },
+  "isothermal_a1": {
+   "t0": {
+    "t_tff": 0.0,
+    "r_median_R": 0.7500288418106882,
+    "r_rms_mass_R": 0.7619315458315933,
+    "r_p90_R": 0.9628361907910725,
+    "mean_ln_rho_sph": 0.2596442802060923
+   },
+   "T1": {
+    "t_tff": 1.0,
+    "r_median_R": 0.7263132096726204,
+    "r_rms_mass_R": 0.8199703299855442,
+    "r_p90_R": 1.1736284411594944,
+    "mean_ln_rho_sph": 0.06743518114331744
+   },
+   "r_median_max_over_leg_R": 0.7532463746622633,
+   "r_median_min_over_leg_R": 0.7263132096726204
+  },
+  "ideal_a0": {
+   "t0": {
+    "t_tff": 0.0,
+    "r_median_R": 0.7500288418106882,
+    "r_rms_mass_R": 0.7619315458315933,
+    "r_p90_R": 0.9628361907910725,
+    "mean_ln_rho_sph": 0.2596442802060923
+   },
+   "T1": {
+    "t_tff": 1.0,
+    "r_median_R": 0.7338408817209949,
+    "r_rms_mass_R": 0.7993258734400142,
+    "r_p90_R": 1.133296007242637,
+    "mean_ln_rho_sph": 0.12406136258681912
+   },
+   "r_median_max_over_leg_R": 0.752735786780265,
+   "r_median_min_over_leg_R": 0.7266571177801807
+  },
+  "ideal_a1": {
+   "t0": {
+    "t_tff": 0.0,
+    "r_median_R": 0.7500288418106882,
+    "r_rms_mass_R": 0.7619315458315933,
+    "r_p90_R": 0.9628361907910725,
+    "mean_ln_rho_sph": 0.2596442802060923
+   },
+   "T1": {
+    "t_tff": 1.0,
+    "r_median_R": 0.7370099876974624,
+    "r_rms_mass_R": 0.8263066416090528,
+    "r_p90_R": 1.1483212545228971,
+    "mean_ln_rho_sph": 0.04642772201453595
+   },
+   "r_median_max_over_leg_R": 0.7553070073851872,
+   "r_median_min_over_leg_R": 0.7370099876974624
+  },
+  "nbody_r_median_T1_R": 0.3252137519017159
+ },
+ "fourier": {
+  "original": {
+   "choices": {
+    "grid": 32,
+    "dx_m": 0.01,
+    "T_background_K": 200.0,
+    "blobs": "+50 K (w=4dx), -30 K (w=3dx)",
+    "slices": 20,
+    "t_slice_s": 14.514825451400208
+   },
+   "material": {
+    "source": "sigma_ground.dynamics.continuum.material_properties('water_ice', 200 K) (repo cascade)",
+    "k_W_mK": 29.91162933598881,
+    "rho_kg_m3": 917.0,
+    "cp_J_kgK": 3550.94393766788,
+    "alpha_m2_s": 9.186010109440965e-06
+   },
+   "substeps_total": 800,
+   "dt_sub_s": 0.3628706362850052,
+   "Sdot_min": 0.010906102196263194,
+   "Sdot_all_positive": true,
+   "Sdot_monotone_decreasing": true,
+   "S_monotone_increasing": true,
+   "dS_min_J_per_K": 0.1682778198737651,
+   "dS_vs_trapezoid_max_relerr": 0.019597705258897494,
+   "energy_drift_rel": 1.7357401181543582e-16,
+   "reversed_run_negative_time": {
+    "substeps": 0,
+    "unchanged": true
+   },
+   "reversed_run_negative_k": {
+    "substeps": 0,
+    "unchanged": true
+   },
+   "inverse_map_highest_mode_log10_amplification": 177.47899969308511,
+   "lam_per_substep": 0.4,
+   "wall_s": 0.5050406455993652
+  },
+  "v2_conditioning": {
+   "material_cascade_200K": {
+    "k_W_mK": 29.91162933598881,
+    "rho_kg_m3": 917.0,
+    "cp_J_kgK": 3550.94393766788,
+    "alpha_m2_s": 9.186010109440965e-06,
+    "melting_point_K": 92.1612023859985,
+    "source": "sigma_ground.dynamics.continuum.material_properties('water_ice', 200 K)"
+   },
+   "dt_substep_s": 0.3628706362850052,
+   "lam_12_alpha_dt_over_dx2": 0.4,
+   "per_substep_factor_measured": {
+    "neumann_highest_k31": {
+     "substeps": 1,
+     "factor_mean": 0.6009630546655129,
+     "factor_min": 0.600963054537518,
+     "factor_max": 0.6009630546737214,
+     "factor_interior_mean": 0.6009630546655683,
+     "is_eigenmode_spread": 1.362033819063413e-10
+    },
+    "checkerboard": {
+     "substeps": 1,
+     "factor_mean": 0.6124999999999936,
+     "factor_min": 0.5999999999999943,
+     "factor_max": 0.8000000000000114,
+     "factor_interior_mean": 0.5999999999999943,
+     "is_eigenmode_spread": 0.20000000000001705
+    }
+   },
+   "log10_inverse_amplification_800_from_measured_factor": 176.92178099759906,
+   "mentat": {
+    "factor_neumann_closed_form": {
+     "value": "0.8 - 0.2*cos(pi/32)",
+     "float": 0.6009630546655607,
+     "source": "sympy.simplify",
+     "tool": "simplify_expr",
+     "args": {
+      "expression": "1 - 0.4*sin(31*pi/64)**2"
+     }
+    },
+    "log10_amp_800_neumann": {
+     "value": "-800*log(0.8 - 0.2*cos(pi/32))/log(10)",
+     "float": 176.92178099757146,
+     "source": "sympy.simplify",
+     "tool": "simplify_expr",
+     "args": {
+      "expression": "-800*log(1 - 0.4*sin(31*pi/64)**2, 10)"
+     }
+    },
+    "log10_amp_800_checkerboard": {
+     "value": "408.660499012793/log(10)",
+     "float": 177.4789996930853,
+     "source": "sympy.simplify",
+     "tool": "simplify_expr",
+     "args": {
+      "expression": "-800*log(1 - 0.4, 10)"
+     }
+    }
+   },
+   "factor_rel_err_vs_closed_form": 7.943847743760069e-14,
+   "reversed_requests": {
+    "negative_time": {
+     "substeps": 0,
+     "unchanged": true,
+     "guard": "heat.py:122 'if total_time <= 0 or not solid.any(): return T, info'"
+    },
+    "negative_k": {
+     "substeps": 0,
+     "unchanged": true,
+     "stable_dt_for_negative_alpha": "inf",
+     "guard": "heat.py:32-33 stable_dt returns inf for alpha_max <= 0; heat.py:159 'if not np.isfinite(dt) or dt <= 0: return T, info'"
+    },
+    "tag": "[BY CONSTRUCTION] input guards that silently return T unchanged; not a measurement"
+   }
+  }
+ },
+ "criteria_original": {
+  "readings": {
+   "strict_ratio_lt_1 (addendum_1, fixed AFTER the Hamiltonian ratios were seen)": {
+    "clauses": {
+     "hamiltonian_le_1e-8": true,
+     "viscous_ge_1e-3": true,
+     "min_Sdot_ge_0": true,
+     "ledger_closure_le_1e-3_literal": false,
+     "SAME_all_within_10x": false,
+     "hamiltonian_shrink_under_dt_halving": true,
+     "viscous_does_not_shrink": false
+    },
+    "verdict": "MIXED",
+    "failed": [
+     "viscous_does_not_shrink",
+     "ledger_closure_le_1e-3_literal"
+    ]
+   },
+   "halves_ratio_0.4_to_0.6 (the design's 'halves with dt' language)": {
+    "clauses": {
+     "hamiltonian_le_1e-8": true,
+     "viscous_ge_1e-3": true,
+     "min_Sdot_ge_0": true,
+     "ledger_closure_le_1e-3_literal": false,
+     "SAME_all_within_10x": false,
+     "hamiltonian_shrink_under_dt_halving": false,
+     "viscous_does_not_shrink": true
+    },
+    "verdict": "MIXED",
+    "failed": [
+     "hamiltonian_shrink_under_dt_halving",
+     "ledger_closure_le_1e-3_literal"
+    ]
+   }
+  },
+  "verdict": [
+   "MIXED"
+  ],
+  "S8_sentinel_literal": {
+   "isothermal_sum_m_uint_eq_Qcum": {
+    "internal_at_T": 0.0,
+    "Q_led_at_T": 639487349.6883188,
+    "pass": false
+   },
+   "ideal_sum_m_uint_eq_Qcum_relerr": 0.7516490052091455,
+   "ideal_pass": false,
+   "K_Wsoft_Uint_conserved_1e-4": {
+    "isothermal_a1_T1_n600": {
+     "max_over_run": 0.0002737350603121533,
+     "at_end": 6.0175666312388544e-05
+    },
+    "isothermal_a1_T1_n1200": {
+     "max_over_run": 7.974160889272829e-05,
+     "at_end": 3.05375681885655e-05
+    },
+    "isothermal_a0_T1_n600": {
+     "max_over_run": 8.512820908044086e-05,
+     "at_end": 1.1988917744473954e-15
+    },
+    "isothermal_a0_T1_n1200": {
+     "max_over_run": 2.1593731706898998e-05,
+     "at_end": 8.392242421131767e-16
+    },
+    "ideal_a1_T1_n600": {
+     "max_over_run": 0.000426819768462866,
+     "at_end": 0.0002209254655982439
+    },
+    "ideal_a1_T1_n1200": {
+     "max_over_run": 0.00011260947028305645,
+     "at_end": 7.5072971275983e-05
+    },
+    "ideal_a0_T1_n600": {
+     "max_over_run": 8.533206836454046e-05,
+     "at_end": 1.1296928561956419e-08
+    },
+    "ideal_a0_T1_n1200": {
+     "max_over_run": 2.1218205894761756e-05,
+     "at_end": 1.419208279383915e-09
+    }
+   },
+   "verdict": "FAIL"
+  }
+ },
+ "criteria_corrected": {
+  "clauses": {
+   "H1": true,
+   "H2": true,
+   "D1": true,
+   "D2": true,
+   "D3": false
+  },
+  "verdict": "MIXED",
+  "failed": [
+   "D3"
+  ],
+  "separate_if_D3_dropped": true,
+  "S8_sentinel_frozen_C3": {
+   "text": "C3 S8 sentinel 'sum m u_int(T) = Q_cum(T)': for eos='isothermal' u_int == 0 by design (work goes to scene.energy_bath_J); for eos='ideal' Delta U_int = Q_visc + W_PdV, not Q_visc alone. Literal sentinel predicted to FAIL for both EOS for this reason, not for an engine defect. Corrected sentinel: |Delta(K + U_soft + U_int + bath)| / |U_soft(0)| <= 1e-4, and the engine's own viscous share (pair-decomposed) equals the independent ledger Q_led to 1e-3 at dt = t_ff/1200.",
+   "part_a_drift_max_over_run_dt1200": {
+    "isothermal_a1_T1_n1200": 7.974160889272829e-05,
+    "isothermal_a0_T1_n1200": 2.1593731706898998e-05,
+    "ideal_a1_T1_n1200": 0.00011260947028305645,
+    "ideal_a0_T1_n1200": 2.1218205894761756e-05
+   },
+   "part_a_pass_max_reading": false,
+   "part_a_drift_end_dt1200": {
+    "isothermal_a1_T1_n1200": 3.05375681885655e-05,
+    "isothermal_a0_T1_n1200": 8.392242421131767e-16,
+    "ideal_a1_T1_n1200": 7.5072971275983e-05,
+    "ideal_a0_T1_n1200": 1.419208279383915e-09
+   },
+   "part_a_pass_end_reading": true,
+   "part_a_drift_max_over_run_dt600": {
+    "isothermal_a1_T1_n600": 0.0002737350603121533,
+    "isothermal_a0_T1_n600": 8.512820908044086e-05,
+    "ideal_a1_T1_n600": 0.000426819768462866,
+    "ideal_a0_T1_n600": 8.533206836454046e-05
+   },
+   "part_b_engine_viscous_share_vs_Q_led_dt1200": {
+    "isothermal_a1_T1_n1200": 0.006477173856243633,
+    "ideal_a1_T1_n1200": 0.007933727794468272
+   },
+   "part_b_pass": false,
+   "verdict": "FAIL",
+   "not_a_sentinel_by_construction_check": {
+    "what": "the script's pair decomposition of continuum_step's own pair lists sums back to the engine's own internal-energy increment; it reproduces the engine's booking and could not fail",
+    "isothermal_split_max_relerr": 1.6423258752958935e-12,
+    "ideal_uint_vs_engine_split_T": 9.930048742496535e-16
+   }
+  },
+  "could_it_fail": {
+   "D1_delta_clause_gain_needed_to_fail": 15801349.85257425,
+   "D1_delta_clause_measured_viscous_response_gain": 1123.874833502958,
+   "H2_note": "H2 ([0.1, 10]) also passes a first-order dt effect (ideal a=0 ratio 0.5005): it is not a discriminator",
+   "H2_ideal_a0_ratio": 0.5004812075668211
+  }
+ },
+ "wrong_predictions": [
+  {
+   "prediction": "dt_halving_hamiltonian_ratio 1..2",
+   "measured": "0.800 (N-body), 0.925 (SPH a=0) at T=1"
+  },
+  {
+   "prediction": "sph_a1_eps_rec_T1 1e-2 .. 1e-1 R",
+   "measured": "0.1580 / 0.1548 R isothermal; 0.1794 / 0.1788 R ideal"
+  },
+  {
+   "prediction": "verdict_corrected SEPARATE",
+   "measured": "MIXED (D3 fails)"
+  },
+  {
+   "prediction": "ideal_sentinel_energy <= 1e-4",
+   "measured": "max over run 1.126e-04 at dt/1200 (ideal a=1); 4.268e-04 at dt/600"
+  },
+  {
+   "prediction": "frozen C1: the original criterion 'cannot return SEPARATE whatever the physics'",
+   "measured": "withdrawn: under the strict reading the Hamiltonian 'shrink' clause PASSES (ratios 0.80, 0.93); the original verdict is MIXED for other clauses"
+  }
+ ],
+ "addendum_2_scorecard": {
+  "P_A_delta_at_t0_gain_1_within_1e-3": {
+   "measured": 0.9999543260071513,
+   "pass": true
+  },
+  "P_B_post_bounce_rate_1_to_6_per_tff": {
+   "measured_1.5_to_4.0": 6.577135580275604,
+   "pass_numeric_range": false,
+   "chaos_reading_supported_rate_ge_0.5": true
+  },
+  "P_C_more_than_half_of_ln_gain_in_first_0.25_tff_back": {
+   "measured_fraction": 0.26427682725003343,
+   "pass": false
+  },
+  "P_D_gain_after_0.3_leg_about_2.3": {
+   "measured": 2.2567492328619734
+  },
+  "P_E_cross_1e-8_between_3_and_6_tff": {
+   "first_T_above": 4.0,
+   "pass": true
+  },
+  "P_E_eps_T8_ge_1e-3": {
+   "measured": 0.8843399506889426,
+   "pass": true
+  },
+  "P_E_validation_bitwise": {
+   "pass": true
+  },
+  "P_F_cache": {
+   "isothermal_bitwise": true,
+   "ideal_rel_change": 0.0011675562373035418
+  },
+  "P_G_fourier_factor": {
+   "measured": 0.6009630546655129,
+   "rel_err_closed_form": 7.943847743760069e-14,
+   "log10_amp_800": 176.92178099759906,
+   "pass": true
+  }
+ },
+ "figure": "C:\\Users\\aaron\\AppData\\Local\\Temp\\claude\\D--Aaron-development-sigma-ground\\c6652910-47a9-478d-9c83-a8a8c8aaa457\\scratchpad\\round2\\U2\\u2_loschmidt_echo_v2.png"
+}

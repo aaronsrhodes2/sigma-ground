@@ -1,0 +1,716 @@
+{
+ "experiment": "U10",
+ "grids": {
+  "24": {
+   "n": 24,
+   "dx_km": 1.6666666666666667,
+   "a_cells": 3.0,
+   "T_leg_design_max": 0.020098210516379476,
+   "T_leg_heat_max": 0.00272395788904646,
+   "T_leg_design_centre": 0.020238168921497948,
+   "T_leg_heat_centre": 0.002742926781896404,
+   "N_flux_over_quad_minus_1": [
+    -0.0005895502074597658,
+    -0.001121187932767831
+   ],
+   "heat_flux_over_quad_minus_1": [
+    -9.924223409729649e-08,
+    -9.37988219318342e-08
+   ],
+   "split_measured_over_predicted": 1.0014401488094669,
+   "split_bias_over_v_centre": 0.017495242139601484,
+   "w": {
+    "0.001": {
+     "C1_dev": -1.083571461446553e-07,
+     "C1_dev_vs_exact_weighted": 4.809073206324399e-08,
+     "C1_dev_flux": [
+      -8.50295359677844e-08,
+      -5.684500750113841e-07
+     ],
+     "C2_literal_rel": 0.0021356677949988835,
+     "C2c_weighted_rel": -2.120405566055469e-05,
+     "C2c_unweighted_rel": -5.457451076620011e-05,
+     "C2_flux_literal_rel": [
+      0.002112253312556555,
+      0.0025974745545564743
+     ],
+     "QT_over_QN": 1.00252805023508,
+     "QT_over_QN_exact": 1.002501078458793,
+     "QT_over_QN_design_1p2_5w": 1.0025,
+     "QT_over_QN_solver_err_rel_to_2w": 0.013485888143427438,
+     "C3_deficit_over_w": 1.2285175105731794,
+     "deficit_over_w_analytic_at_r_inner": 1.2128779507167842,
+     "deficit_over_w_analytic_r0": 1.2182551056668711,
+     "deficit_err": 0.015639559856395202,
+     "deficit_unweighted_over_w": 1.2283366981921118,
+     "deficit_unweighted_analytic_at_r_inner": 1.2127088175537537,
+     "sigma_centre": 0.00042809905938915135,
+     "sigma_centre_if_sourced_like_Phi_T": 0.0004286256334853686,
+     "rs_over_R": 0.0013334232551308045
+    },
+    "0.01": {
+     "C1_dev": -1.531310441060807e-05,
+     "C1_dev_vs_exact_weighted": -8.183853161813914e-08,
+     "C1_dev_flux": [
+      -1.5081717665510475e-05,
+      -1.985567923390441e-05
+     ],
+     "C2_literal_rel": 0.021847848545750517,
+     "C2c_weighted_rel": 0.0002727888543778345,
+     "C2c_unweighted_rel": -5.457451076624348e-05,
+     "C2_flux_literal_rel": [
+      0.021823841542898542,
+      0.022319172184888728
+     ],
+     "QT_over_QN": 1.025379063254551,
+     "QT_over_QN_exact": 1.025107845879303,
+     "QT_over_QN_design_1p2_5w": 1.025,
+     "QT_over_QN_solver_err_rel_to_2w": 0.013560868762396705,
+     "C3_deficit_over_w": 1.2233382257243242,
+     "deficit_over_w_analytic_at_r_inner": 1.2077681830399367,
+     "deficit_over_w_analytic_r0": 1.2131007495402601,
+     "deficit_err": 0.015570042684387442,
+     "deficit_unweighted_over_w": 1.221584372078366,
+     "deficit_unweighted_analytic_at_r_inner": 1.2061267550745658,
+     "sigma_centre": 0.004340835630792735,
+     "sigma_centre_if_sourced_like_Phi_T": 0.004394596408524524,
+     "rs_over_R": 0.013334232551308042
+    }
+   },
+   "transient_residual_at_8tau_frac": 0.0002028446929954471,
+   "split_measured_over_predicted_transient_corrected": 1.0132370889737956
+  },
+  "32": {
+   "n": 32,
+   "dx_km": 1.25,
+   "a_cells": 4.0,
+   "T_leg_design_max": 0.011187541233453453,
+   "T_leg_heat_max": 0.001535023484709086,
+   "T_leg_design_centre": 0.011231310830348958,
+   "T_leg_heat_centre": 0.0015410290365769036,
+   "N_flux_over_quad_minus_1": [
+    -0.0007108786684364432,
+    -0.0006951299363121555
+   ],
+   "heat_flux_over_quad_minus_1": [
+    -1.4427472494471516e-07,
+    -1.3987878610954851e-07
+   ],
+   "split_measured_over_predicted": 0.9830746097046412,
+   "split_bias_over_v_centre": 0.009690281793772177,
+   "w": {
+    "0.001": {
+     "C1_dev": -1.4410849569213013e-07,
+     "C1_dev_vs_exact_weighted": 1.233938251576916e-08,
+     "C1_dev_flux": [
+      -1.1282911727139577e-07,
+      -1.201416165441671e-07
+     ],
+     "C2_literal_rel": 0.002159402080002381,
+     "C2c_weighted_rel": 2.479146627433577e-06,
+     "C2c_unweighted_rel": -1.5920799249259654e-05,
+     "C2_flux_literal_rel": [
+      0.002128006971333996,
+      0.002135346528809017
+     ],
+     "QT_over_QN": 1.0025159384818545,
+     "QT_over_QN_exact": 1.002501078458793,
+     "QT_over_QN_design_1p2_5w": 1.0025,
+     "QT_over_QN_solver_err_rel_to_2w": 0.007430011530695779,
+     "C3_deficit_over_w": 1.2241119377862653,
+     "deficit_over_w_analytic_at_r_inner": 1.2152199643872263,
+     "deficit_over_w_analytic_r0": 1.2182551056668711,
+     "deficit_err": 0.00889197339903891,
+     "deficit_unweighted_over_w": 1.2239355616380232,
+     "deficit_unweighted_analytic_at_r_inner": 1.215050143087426,
+     "sigma_centre": 0.00042560275281657445,
+     "sigma_centre_if_sourced_like_Phi_T": 0.0004261243767531397,
+     "rs_over_R": 0.001333362614947123
+    },
+    "0.01": {
+     "C1_dev": -1.5418726038940456e-05,
+     "C1_dev_vs_exact_weighted": -1.8746015995052545e-07,
+     "C1_dev_flux": [
+      -1.5108828402499164e-05,
+      -1.518099417840979e-05
+     ],
+     "C2_literal_rel": 0.02173730799191042,
+     "C2c_weighted_rel": 0.0001645822282852104,
+     "C2c_unweighted_rel": -1.5920799249259654e-05,
+     "C2_flux_literal_rel": [
+      0.02170516257999997,
+      0.021712648495912472
+     ],
+     "QT_over_QN": 1.0252572743481023,
+     "QT_over_QN_exact": 1.025107845879303,
+     "QT_over_QN_design_1p2_5w": 1.025,
+     "QT_over_QN_solver_err_rel_to_2w": 0.007471423439964209,
+     "C3_deficit_over_w": 1.2189425643580054,
+     "deficit_over_w_analytic_at_r_inner": 1.2100907589520316,
+     "deficit_over_w_analytic_r0": 1.2131007495402601,
+     "deficit_err": 0.008851805405973856,
+     "deficit_unweighted_over_w": 1.2172314040285404,
+     "deficit_unweighted_analytic_at_r_inner": 1.208442709893387,
+     "sigma_centre": 0.0043149304151141234,
+     "sigma_centre_if_sourced_like_Phi_T": 0.004368175971314535,
+     "rs_over_R": 0.013333626149471228
+    }
+   },
+   "transient_residual_at_8tau_frac": 0.00024279617484426343,
+   "split_measured_over_predicted_transient_corrected": 1.0079400034406258
+  },
+  "40": {
+   "n": 40,
+   "dx_km": 1.0,
+   "a_cells": 5.0,
+   "T_leg_design_max": 0.0070022194169321655,
+   "T_leg_heat_max": 0.0009381583157977502,
+   "T_leg_design_centre": 0.007019742467862617,
+   "T_leg_heat_centre": 0.0009405060565596003,
+   "N_flux_over_quad_minus_1": [
+    -0.0008064578354349816,
+    -0.0007896652506504953
+   ],
+   "heat_flux_over_quad_minus_1": [
+    -1.7962014720040997e-07,
+    -1.7614804381782534e-07
+   ],
+   "split_measured_over_predicted": 0.9622875575420358,
+   "split_bias_over_v_centre": 0.006079236411302871,
+   "w": {
+    "0.001": {
+     "C1_dev": -2.356782822232617e-07,
+     "C1_dev_vs_exact_weighted": -7.923040401536241e-08,
+     "C1_dev_flux": [
+      -2.0299348935104433e-07,
+      -2.0258910493620164e-07
+     ],
+     "C2_literal_rel": 0.0022455876513482673,
+     "C2c_weighted_rel": 8.847922289641283e-05,
+     "C2c_unweighted_rel": 7.709471611843169e-05,
+     "C2_flux_literal_rel": [
+      0.002212782291861849,
+      0.0022123764155444845
+     ],
+     "QT_over_QN": 1.002510322399673,
+     "QT_over_QN_exact": 1.002501078458793,
+     "QT_over_QN_design_1p2_5w": 1.0025,
+     "QT_over_QN_solver_err_rel_to_2w": 0.004621970439933065,
+     "C3_deficit_over_w": 1.2220943137950524,
+     "deficit_over_w_analytic_at_r_inner": 1.21630950320617,
+     "deficit_over_w_analytic_r0": 1.2182551056668711,
+     "deficit_err": 0.005784810588882472,
+     "deficit_unweighted_over_w": 1.2219200313926537,
+     "deficit_unweighted_analytic_at_r_inner": 1.2161393588097091,
+     "sigma_centre": 0.0004244231485017849,
+     "sigma_centre_if_sourced_like_Phi_T": 0.00042494246827595494,
+     "rs_over_R": 0.0013332306055239436
+    },
+    "0.01": {
+     "C1_dev": -1.620872126073536e-05,
+     "C1_dev_vs_exact_weighted": -9.77455381745429e-07,
+     "C1_dev_flux": [
+      -1.5884829514756227e-05,
+      -1.5880857346273203e-05
+     ],
+     "C2_literal_rel": 0.02176202406588435,
+     "C2c_weighted_rel": 0.00018877645277628376,
+     "C2c_unweighted_rel": 7.709471611834495e-05,
+     "C2_flux_literal_rel": [
+      0.021728430749120425,
+      0.021728018738862223
+     ],
+     "QT_over_QN": 1.025200806178804,
+     "QT_over_QN_exact": 1.025107845879303,
+     "QT_over_QN_design_1p2_5w": 1.025,
+     "QT_over_QN_solver_err_rel_to_2w": 0.004648014975050518,
+     "C3_deficit_over_w": 1.2169288775756293,
+     "deficit_over_w_analytic_at_r_inner": 1.2111712641867944,
+     "deficit_over_w_analytic_r0": 1.2131007495402601,
+     "deficit_err": 0.005757613388834848,
+     "deficit_unweighted_over_w": 1.215237875628461,
+     "deficit_unweighted_analytic_at_r_inner": 1.2095201062802374,
+     "sigma_centre": 0.004302695400942833,
+     "sigma_centre_if_sourced_like_Phi_T": 0.004355701186502283,
+     "rs_over_R": 0.013332306055239435
+    }
+   },
+   "transient_residual_at_8tau_frac": 0.0002692163351298878,
+   "split_measured_over_predicted_transient_corrected": 1.005162318279064
+  },
+  "48": {
+   "n": 48,
+   "dx_km": 0.8333333333333334,
+   "a_cells": 6.0,
+   "T_leg_design_max": 0.004778173455020636,
+   "T_leg_heat_max": 0.0006683462082793312,
+   "T_leg_design_centre": 0.004786474655049117,
+   "T_leg_heat_centre": 0.0006695073372369614,
+   "N_flux_over_quad_minus_1": [
+    -0.0008712524757716889,
+    -0.0008595259459012183
+   ],
+   "heat_flux_over_quad_minus_1": [
+    -2.0741332695806136e-07,
+    -2.0464662664476663e-07
+   ],
+   "split_measured_over_predicted": 0.9376974358910347,
+   "split_bias_over_v_centre": 0.004116967317812355,
+   "w": {
+    "0.001": {
+     "C1_dev": -1.7712065780717268e-07,
+     "C1_dev_vs_exact_weighted": -2.0672779599273383e-08,
+     "C1_dev_flux": [
+      -1.422155906372069e-07,
+      -1.425804445620571e-07
+     ],
+     "C2_literal_rel": 0.0021838551188956175,
+     "C2c_weighted_rel": 2.687955584891323e-05,
+     "C2c_unweighted_rel": 1.9157921257641902e-05,
+     "C2_flux_literal_rel": [
+      0.002148821508956341,
+      0.002149187706449677
+     ],
+     "QT_over_QN": 1.0025072935128847,
+     "QT_over_QN_exact": 1.002501078458793,
+     "QT_over_QN_design_1p2_5w": 1.0025,
+     "QT_over_QN_solver_err_rel_to_2w": 0.0031075270457980864,
+     "C3_deficit_over_w": 1.2209252334409726,
+     "deficit_over_w_analytic_at_r_inner": 1.216902818135579,
+     "deficit_over_w_analytic_r0": 1.2182551056668711,
+     "deficit_err": 0.004022415305393601,
+     "deficit_unweighted_over_w": 1.2207520449318832,
+     "deficit_unweighted_analytic_at_r_inner": 1.2167324970050464,
+     "sigma_centre": 0.00042380376365062754,
+     "sigma_centre_if_sourced_like_Phi_T": 0.00042432182887860526,
+     "rs_over_R": 0.001333306531380009
+    },
+    "0.01": {
+     "C1_dev": -1.556944543690264e-05,
+     "C1_dev_vs_exact_weighted": -3.3817955791271004e-07,
+     "C1_dev_flux": [
+      -1.5223548628262584e-05,
+      -1.5227168384979173e-05
+     ],
+     "C2_literal_rel": 0.021666129897469043,
+     "C2c_weighted_rel": 9.490697170612073e-05,
+     "C2c_unweighted_rel": 1.9157921257555166e-05,
+     "C2_flux_literal_rel": [
+      0.021630256413177583,
+      0.021630631820355323
+     ],
+     "QT_over_QN": 1.0251703465027386,
+     "QT_over_QN_exact": 1.025107845879303,
+     "QT_over_QN_design_1p2_5w": 1.025,
+     "QT_over_QN_solver_err_rel_to_2w": 0.0031250311717800905,
+     "C3_deficit_over_w": 1.2157630938533837,
+     "deficit_over_w_analytic_at_r_inner": 1.2117596622436722,
+     "deficit_over_w_analytic_r0": 1.2131007495402601,
+     "deficit_err": 0.004003431609711505,
+     "deficit_unweighted_over_w": 1.2140826226325507,
+     "deficit_unweighted_analytic_at_r_inner": 1.2101068037765783,
+     "sigma_centre": 0.004296272308289535,
+     "sigma_centre_if_sourced_like_Phi_T": 0.004349147640196236,
+     "rs_over_R": 0.013333065313800088
+    }
+   },
+   "transient_residual_at_8tau_frac": 0.00028787964713661003,
+   "split_measured_over_predicted_transient_corrected": 1.00354241586907
+  }
+ },
+ "orders": {
+  "T_leg_design_max": {
+   "order_lsq": 2.098251048924035,
+   "pairwise": [
+    2.099875206529752,
+    2.096125186671172
+   ],
+   "C": 0.007003970215865144
+  },
+  "T_leg_heat_max": {
+   "order_lsq": 2.056455745370925,
+   "pairwise": [
+    2.206571695917172,
+    1.8599687593196255
+   ],
+   "C": 0.0009600888075995057
+  },
+  "deficit_err_w1e_2": {
+   "order_lsq": 1.9558512112539406,
+   "pairwise": [
+    1.9274515876810838,
+    1.9930235198628288
+   ],
+   "C": 0.005732498904327363
+  },
+  "deficit_err_w1e_3": {
+   "order_lsq": 1.9553382634881706,
+   "pairwise": [
+    1.9266224977643636,
+    1.9929243710183517
+   ],
+   "C": 0.005759297198704807
+  },
+  "QT_over_QN_solver_err_w1e_2": {
+   "order_lsq": 2.1488981709112305,
+   "pairwise": [
+    2.127084968564383,
+    2.17744950319579
+   ],
+   "C": 0.004632434663361681
+  }
+ },
+ "criteria_at_40": {
+  "C1 |Q_s/Q_T - (1-w/2)/(1+w/2)| < 1e-6 (w=1e-3)": {
+   "value": 2.356782822232617e-07,
+   "threshold": 1e-06,
+   "pass": true
+  },
+  "C1 |Q_s/Q_T - (1-w/2)/(1+w/2)| < 1e-4 (w=1e-2)": {
+   "value": 1.620872126073536e-05,
+   "threshold": 0.0001,
+   "pass": true
+  },
+  "C2 literal |(Q_T-Q_s)/Q_N - w|/w < 1e-3 (w=1e-3)": {
+   "value": 0.0022455876513482673,
+   "threshold": 0.001,
+   "pass": false
+  },
+  "C2 literal |(Q_T-Q_s)/Q_N - w|/w < 1e-3 (w=1e-2)": {
+   "value": 0.02176202406588435,
+   "threshold": 0.001,
+   "pass": false
+  },
+  "C2' weighted vs 2B/I1, rel < 1e-3 (w=1e-3)": {
+   "value": 8.847922289641283e-05,
+   "threshold": 0.001,
+   "pass": true
+  },
+  "C2' weighted vs 2B/I1, rel < 1e-3 (w=1e-2)": {
+   "value": 0.00018877645277628376,
+   "threshold": 0.001,
+   "pass": true
+  },
+  "C2' unweighted vs w, rel < 1e-3 (w=1e-3)": {
+   "value": 7.709471611843169e-05,
+   "threshold": 0.001,
+   "pass": true
+  },
+  "C2' unweighted vs w, rel < 1e-3 (w=1e-2)": {
+   "value": 7.709471611834495e-05,
+   "threshold": 0.001,
+   "pass": true
+  },
+  "C3 |deficit/w - 1.219| < 0.02 (w=1e-3)": {
+   "value": 0.003094313795052317,
+   "threshold": 0.02,
+   "pass": true
+  },
+  "C3 |deficit/w - 1.219| < 0.02 (w=1e-2)": {
+   "value": 0.002071122424370797,
+   "threshold": 0.02,
+   "pass": true
+  },
+  "C4 T leg max <= 1 % (design-literal, 40^3)": {
+   "value": 0.0070022194169321655,
+   "threshold": 0.01,
+   "pass": true
+  },
+  "C4 T leg max <= 1 % (heat law 1x kick, 40^3)": {
+   "value": 0.0009381583157977502,
+   "threshold": 0.01,
+   "pass": true
+  },
+  "C5 order >= 1.2 (primary: design-literal T leg)": {
+   "value": 2.098251048924035,
+   "threshold": 1.2,
+   "kind": "min",
+   "pass": true
+  }
+ },
+ "summary": {
+  "all_literal_pass": false,
+  "all_corrected_pass": true,
+  "literal_failures": [
+   "C2 literal |(Q_T-Q_s)/Q_N - w|/w < 1e-3 (w=1e-3)",
+   "C2 literal |(Q_T-Q_s)/Q_N - w|/w < 1e-3 (w=1e-2)"
+  ],
+  "corrected_failures": []
+ },
+ "quad_check": {
+  "0.001": {
+   "quad_deficit_over_w_r0": 1.2182551056670876,
+   "mentat_exact": 1.2182551056668711
+  },
+  "0.01": {
+   "quad_deficit_over_w_r0": 1.2131007495402857,
+   "mentat_exact": 1.2131007495402601
+  }
+ },
+ "mentat_leaves": {
+  "G": {
+   "value": 6.6743e-11,
+   "source": "sigma_ground.field.constants",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "G"
+   }
+  },
+  "c": {
+   "value": 299792458.0,
+   "source": "sigma_ground.field.constants",
+   "tool": "lookup_constant",
+   "args": {
+    "name": "c"
+   }
+  },
+  "XI": {
+   "value": 0.1582,
+   "source": "sigma_ground.inventory.core.sigma.XI (engine)"
+  },
+  "I1_symbolic": {
+   "value": "pi",
+   "source": "sympy.integrate",
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "x*sin(x)",
+    "variable": "x",
+    "lower": "0",
+    "upper": "pi"
+   }
+  },
+  "I1": {
+   "value": "3.1415926535897932",
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(pi, 17)"
+   }
+  },
+  "I2_symbolic": {
+   "value": "pi/2",
+   "source": "sympy.integrate",
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "sin(x)**2",
+    "variable": "x",
+    "lower": "0",
+    "upper": "pi"
+   }
+  },
+  "I2": {
+   "value": "1.5707963267948966",
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(pi/2, 17)"
+   }
+  },
+  "I_symbolic": {
+   "value": "-Ci(2*pi)/2 + EulerGamma/2 + log(2)/2 + log(pi)/2",
+   "source": "sympy.integrate",
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "sin(x)**2/x",
+    "variable": "x",
+    "lower": "0",
+    "upper": "pi"
+   }
+  },
+  "I": {
+   "value": "1.2188266965286122",
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(-Ci(2*pi)/2 + EulerGamma/2 + log(2)/2 + log(pi)/2, 17)"
+   }
+  },
+  "I3_symbolic": {
+   "value": "-Si(3*pi)/4 + 3*Si(pi)/4",
+   "source": "sympy.integrate",
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "sin(x)**3/x",
+    "variable": "x",
+    "lower": "0",
+    "upper": "pi"
+   }
+  },
+  "I3": {
+   "value": "0.97026233924185931",
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(-Si(3*pi)/4 + 3*Si(pi)/4, 17)"
+   }
+  },
+  "J_symbolic": {
+   "value": "-3*Ci(3*pi)/4 + 3*Ci(pi)/4 + 3*log(3)/4",
+   "source": "sympy.integrate",
+   "tool": "integrate_expr",
+   "args": {
+    "expression": "sin(x)**3/x**2",
+    "variable": "x",
+    "lower": "0",
+    "upper": "pi"
+   }
+  },
+  "J": {
+   "value": "0.87124499831196367",
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "N(-3*Ci(3*pi)/4 + 3*Ci(pi)/4 + 3*log(3)/4, 17)"
+   }
+  },
+  "series_pressure_only_ratio": {
+   "value": "w**2/2 - w + 1",
+   "source": "sympy.series",
+   "tool": "series_expansion",
+   "args": {
+    "expression": "(1-w/2)/(1+w/2)",
+    "variable": "w",
+    "point": "0",
+    "order": 3
+   }
+  },
+  "six_P_difference": {
+   "value": "6*P",
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "(rho*c**2 + 3*P) - (rho*c**2 - 3*P)"
+   }
+  },
+  "n1_potential_solves_poisson": {
+   "value": "0",
+   "source": "sympy.simplify",
+   "tool": "simplify_expr",
+   "args": {
+    "expression": "diff(r**2*diff(a**2*(1+a*sin(r/a)/r), r), r)/r**2 + a*sin(r/a)/r"
+   }
+  },
+  "series_weighted_ratio": {
+   "value": "w**2*(-8*q3/(3*pi) + 7/6) - w + 1",
+   "source": "sympy.series",
+   "tool": "series_expansion",
+   "args": {
+    "expression": "((pi + (4*w/3)*(pi + pi/2))-(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3))))",
+    "variable": "w",
+    "point": "0",
+    "order": 3
+   }
+  },
+  "series_deficit_over_w": {
+   "value": "ii + w*(2*ii*(-7*ii/12 - 2/3) + 4*ii/3 + 4*jj/3)",
+   "source": "sympy.series",
+   "tool": "series_expansion",
+   "args": {
+    "expression": "2*(w*(ii + (4*w/3)*(ii + jj)))/(w*((2 + (4*w/3)*(2 + ii))+(w*(ii + (4*w/3)*(ii + jj)))))",
+    "variable": "w",
+    "point": "0",
+    "order": 2
+   }
+  },
+  "series_QT_over_QN": {
+   "value": "w**2*(4*q3/(3*pi) + 2/3) + 5*w/2 + 1",
+   "source": "sympy.series",
+   "tool": "series_expansion",
+   "args": {
+    "expression": "((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/pi",
+    "variable": "w",
+    "point": "0",
+    "order": 3
+   }
+  }
+ },
+ "engine_leaves": {
+  "XI": {
+   "value": 0.1582,
+   "source": "sigma_ground.inventory.core.sigma.XI (engine)"
+  }
+ },
+ "engine_constants_equal_mentat": {
+  "G": true,
+  "c": true
+ },
+ "predictions": [
+  {
+   "w": 0.001,
+   "ratio_pressure_only": 0.9990004997501251,
+   "ratio_weighted_exact": 0.9990003433022469,
+   "ratio_weighted_minus_pressure_only": -1.564478782078993e-07,
+   "dQ_over_QN_weighted_exact": 0.00100215691758606,
+   "dQ_over_QN_weighted_rel_offset_from_w": 0.0021569175860599882,
+   "dQ_over_QN_unweighted": 0.001,
+   "QT_over_QN_weighted_exact": 1.002501078458793,
+   "QT_over_QN_design_1p2_5w": 1.0025,
+   "deficit_over_w_weighted_centre_exact": 1.2182551056668711,
+   "deficit_over_w_unweighted_centre_exact": 1.2180843796483423,
+   "compactness_rs_over_R": 0.0013333333333333333
+  },
+  {
+   "w": 0.01,
+   "ratio_pressure_only": 0.9900497512437811,
+   "ratio_weighted_exact": 0.9900345199779021,
+   "ratio_weighted_minus_pressure_only": -1.523126587898993e-05,
+   "dQ_over_QN_weighted_exact": 0.010215691758605998,
+   "dQ_over_QN_weighted_rel_offset_from_w": 0.021569175860599796,
+   "dQ_over_QN_unweighted": 0.01,
+   "QT_over_QN_weighted_exact": 1.025107845879303,
+   "QT_over_QN_design_1p2_5w": 1.025,
+   "deficit_over_w_weighted_centre_exact": 1.2131007495402601,
+   "deficit_over_w_unweighted_centre_exact": 1.2114439951156313,
+   "compactness_rs_over_R": 0.013333333333333334
+  }
+ ],
+ "timing_s": {
+  "32": {
+   "N": 6.2,
+   "T_leg_design": 6.7,
+   "P_shape": 6.7,
+   "T_leg_heat_1x": 68.9,
+   "T_0.001": 6.7,
+   "S_0.001": 6.5,
+   "T_0.01": 8.0,
+   "S_0.01": 7.9
+  },
+  "40": {
+   "N": 26.3,
+   "T_leg_design": 21.7,
+   "P_shape": 27.6,
+   "T_leg_heat_1x": 182.9,
+   "T_0.001": 22.1,
+   "S_0.001": 23.1,
+   "T_0.01": 26.1,
+   "S_0.01": 27.3
+  },
+  "48": {
+   "N": 71.1,
+   "T_leg_design": 79.4,
+   "P_shape": 64.4,
+   "T_leg_heat_1x": 344.9,
+   "T_0.001": 56.6,
+   "S_0.001": 55.7,
+   "T_0.01": 49.1,
+   "S_0.01": 39.7
+  }
+ },
+ "bitwise_T_leg_equals_PhiN": {
+  "32": true,
+  "40": true,
+  "48": true
+ },
+ "reading": {
+  "outcome": "MIXED: all pre-registered criteria pass except C2 as sketched, which fails exactly as pre-registered (design error); all corrected criteria pass",
+  "tags": {
+   "Q ratios (C1, C2)": "[BY CONSTRUCTION] source quadrature; only the O(w^2) metric-weight term touches the solver",
+   "T leg = Phi_N (design call)": "[BY CONSTRUCTION] bitwise identical solve",
+   "heat-law T leg vs analytic": "[VERIFIED numerics] 0.094 % max at 40^3, order 2.06",
+   "central deficit/w": "[VERIFIED numerics] vs [DERIVED] exact 1PN pair (Mentat integrals)",
+   "split-kick bias (dt/2)s": "[DERIVED] and [MEASURED] to 0.5 % after transient correction",
+   "opposite-sign pressure coupling": "[DERIVED] put in by hand in the sources; zero evidential weight"
+  },
+  "prereg_file": "u10_prereg.txt"
+ }
+}

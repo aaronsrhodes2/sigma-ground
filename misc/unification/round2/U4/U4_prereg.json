@@ -1,0 +1,13 @@
+{
+ "id": "U4",
+ "written_before_run": "2026-10-10, before u4_normalisation_table.py was executed",
+ "source_of_design": "D:/Aaron/development/sigma-ground/misc/unification/design_synthesis.json experiments_ranked[id=U4] + markdown section 'U4' and section 2.5 items 1-3",
+ "criterion_as_designed": "A row is allowed only if |e^sigma - 1|/z_GR < 1.4e-4 (Gravity Probe A, Vessot+1980). Rows = three normalisations {xi*r_s/R (field equation), sigma_from_potential(R,M)=xi*GM/Rc^2 (inventory), r_s/2R (docstring)} x two bodies {Earth, Sun} x two interpretations {'extra dilation on top of GR', 'e^sigma IS the GR factor (notation)'}.",
+ "metric_per_interpretation_as_read_before_run": {
+   "extra_dilation": "|e^sigma - 1| / z_GR, with e^sigma - 1 = sigma_time_dilation(sigma,1) - 1 and z_GR = 1/time_dilation_gr(M,R) - 1",
+   "notation": "|e^sigma - 1/time_dilation_gr(M,R)| / z_GR  (the design's formula |e^sigma-1|/z_GR cannot be applied literally to this interpretation; this is its only coherent reading - declared here before the run)"
+ },
+ "prediction": "Both 'extra dilation' rows that carry xi (field equation, inventory) excluded by >= 3 orders (ratios ~0.316 and ~0.158 vs 1.4e-4); only the 'notation' reading survives, which the code does not implement (two functions, two laws).",
+ "horizon_row": "Record that no derivation from box(sigma) = -xi R gives a finite horizon value (star: horizon not reached; BH: regular static vacuum solution is constant, no hair; the ln(1-r_s/r) branch is the irregular one) -> withdraw 'sigma = xi/2 at any horizon'.",
+ "emit": "amplitude factor (x1 field-equation reading, x1/2 inventory reading) that U5/U6/U12 must carry; do not decide C2."
+}

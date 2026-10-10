@@ -1,0 +1,169 @@
+{
+ "G": {
+  "value": 6.6743e-11,
+  "source": "sigma_ground.field.constants",
+  "tool": "lookup_constant",
+  "args": {
+   "name": "G"
+  }
+ },
+ "c": {
+  "value": 299792458.0,
+  "source": "sigma_ground.field.constants",
+  "tool": "lookup_constant",
+  "args": {
+   "name": "c"
+  }
+ },
+ "split_series_symbolic_m": {
+  "value": "mu**2*((1/2 - m/2)**2 - (m/6 - 1/6)*(m - 2)) + mu*(m/2 - 1/2) + 1",
+  "source": "sympy.series",
+  "tool": "series_expansion",
+  "args": {
+   "expression": "m*mu/(1-(1-mu)**m)",
+   "variable": "mu",
+   "point": "0",
+   "order": 3
+  }
+ },
+ "split_mu2_coefficient_factored": {
+  "value": "(m - 1)*(m + 1)/12",
+  "source": "sympy.factor",
+  "tool": "factor_expression",
+  "args": {
+   "expression": "(1/2 - m/2)**2 - (m/6 - 1/6)*(m - 2)"
+  }
+ },
+ "split_m1_exact": {
+  "value": "1",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "mu/(1-(1-mu)**1)"
+  }
+ },
+ "split_series_m20": {
+  "value": "133*mu**2/4 + 19*mu/2 + 1",
+  "source": "sympy.series",
+  "tool": "series_expansion",
+  "args": {
+   "expression": "20*mu/(1-(1-mu)**20)",
+   "variable": "mu",
+   "point": "0",
+   "order": 3
+  }
+ },
+ "split_bias_factor_check": {
+  "value": "0",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "((m-1)/2)*mu*(1 + (m+1)*mu/6) - (mu*(m/2 - 1/2) + mu**2*((1/2 - m/2)**2 - (m/6 - 1/6)*(m - 2)))"
+  }
+ },
+ "C1_offset_rho_total_energy": {
+  "value": "w**2*(-8*q3/(3*pi) + 2/3)",
+  "source": "sympy.series",
+  "tool": "series_expansion",
+  "args": {
+   "expression": "((pi + (4*w/3)*(pi + pi/2))-(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))) - (1-w/2)/(1+w/2)",
+   "variable": "w",
+   "point": "0",
+   "order": 3
+  }
+ },
+ "C1_offset_rho_rest_plus_internal_energy": {
+  "value": "w**2*(-8*q3/(3*pi) + 5/6)",
+  "source": "sympy.series",
+  "tool": "series_expansion",
+  "args": {
+   "expression": "((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3-(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))) - (1-w/2)/(1+w/2)",
+   "variable": "w",
+   "point": "0",
+   "order": 3
+  }
+ },
+ "QT_over_QN_rho_rest_plus_internal_energy": {
+  "value": "w**2*(16*q3/(9*pi) + 8/9) + 8*w/3 + 1",
+  "source": "sympy.series",
+  "tool": "series_expansion",
+  "args": {
+   "expression": "((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3+(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/pi",
+   "variable": "w",
+   "point": "0",
+   "order": 3
+  }
+ },
+ "C2_difference_unchanged_by_internal_energy": {
+  "value": "0",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "(((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))) - ((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3-(w*(pi/2 + (4*w/3)*(pi/2 + q3))))) - (((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))) - ((pi + (4*w/3)*(pi + pi/2))-(w*(pi/2 + (4*w/3)*(pi/2 + q3)))))"
+  }
+ },
+ "C1_offset_rho_total_energy_w1e-3": {
+  "value": "-1.56917586060e-7",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N((w**2*(-8*0.9702623392418593/(3*pi) + 2/3)).subs(w, Rational(1,1000)), 12)"
+  }
+ },
+ "C1_offset_rho_rest_plus_internal_energy_w1e-3": {
+  "value": "9.74908060668e-9",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N((w**2*(-8*0.9702623392418593/(3*pi) + 5/6)).subs(w, Rational(1,1000)), 12)"
+  }
+ },
+ "C1_offset_rho_total_energy_exact_w1e-3": {
+  "value": "-1.56447878059e-7",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N((((pi + (4*w/3)*(pi + pi/2))-(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))) - (1-w/2)/(1+w/2)).subs(q3, 0.9702623392418593).subs(w, Rational(1,1000)), 12)"
+  }
+ },
+ "C1_offset_rho_rest_plus_internal_energy_exact_w1e-3": {
+  "value": "1.00766296115e-8",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N((((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3-(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))) - (1-w/2)/(1+w/2)).subs(q3, 0.9702623392418593).subs(w, Rational(1,1000)), 12)"
+  }
+ },
+ "C1_offset_rho_total_energy_w1e-2": {
+  "value": "-1.56917586060e-5",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N((w**2*(-8*0.9702623392418593/(3*pi) + 2/3)).subs(w, Rational(1,100)), 12)"
+  }
+ },
+ "C1_offset_rho_rest_plus_internal_energy_w1e-2": {
+  "value": "9.74908060668e-7",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N((w**2*(-8*0.9702623392418593/(3*pi) + 5/6)).subs(w, Rational(1,100)), 12)"
+  }
+ },
+ "C1_offset_rho_total_energy_exact_w1e-2": {
+  "value": "-1.52312658790e-5",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N((((pi + (4*w/3)*(pi + pi/2))-(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))) - (1-w/2)/(1+w/2)).subs(q3, 0.9702623392418593).subs(w, Rational(1,100)), 12)"
+  }
+ },
+ "C1_offset_rho_rest_plus_internal_energy_exact_w1e-2": {
+  "value": "1.29308728094e-6",
+  "source": "sympy.simplify",
+  "tool": "simplify_expr",
+  "args": {
+   "expression": "N((((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3-(w*(pi/2 + (4*w/3)*(pi/2 + q3))))/((pi + (4*w/3)*(pi + pi/2))+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))/3+(w*(pi/2 + (4*w/3)*(pi/2 + q3)))) - (1-w/2)/(1+w/2)).subs(q3, 0.9702623392418593).subs(w, Rational(1,100)), 12)"
+  }
+ }
+}

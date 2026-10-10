@@ -454,6 +454,13 @@ class NBodySystem:
                     )
                     acc[i] += gm_j * r_ij * A_ij / (r_sq * r)
 
+                    # PHYSICS_GAP (2026-10-10, unification round 2, U9; KNOWN_GAPS.md):
+                    # EIH uses n_ij = (x_i - x_j)/r in [n_ij.(4v_i - 3v_j)](v_i - v_j);
+                    # dotting r_ij = x_j - x_i reverses this cross-term (the A_ij
+                    # bracket above is correct). Mercury then precesses -71.66"/cy and
+                    # the precession changes under a boost; with this sign flipped back
+                    # it gives +6 pi GM/(c^2 p) in every frame. Live in the jpl_de440
+                    # predictor (rolling_shootout.py, eih_cross=True). Flagged, not fixed.
                     B_ij = 4.0 * vi - 3.0 * vj
                     cross = float(np.dot(r_ij, B_ij)) / _c2
                     acc[i] += (gm_j / (r_sq * r)) * cross * (vi - vj)
@@ -461,6 +468,14 @@ class NBodySystem:
                     acc[i] += (7.0 / (2.0 * _c2)) * gm_j * a_newton[j] / r
 
                 elif t.gr_1pn:
+                    # PHYSICS_GAP (2026-10-10, unification round 2, U9; KNOWN_GAPS.md):
+                    # SIGN REVERSED. r_hat = r_ij/r points from body i TOWARD the
+                    # attractor (r_ij = x_j - x_i), but the textbook bracket
+                    # (4GM/r - v^2) n + 4 (n.v) v uses the OUTWARD n = (x_i - x_j)/r.
+                    # The whole correction is minus GR: Mercury's perihelion moves
+                    # -42.997"/cy instead of +42.98"/cy (three independent integrators).
+                    # It also uses absolute v_i, so it is valid only in the attractor's
+                    # rest frame. Flagged, not fixed; fix direction: n = -r_ij/r.
                     # ┌──────────────────────────────────────────────────────┐
                     # │ BORROWED FROM TEXTBOOK -- PENDING SSBM DERIVATION    │
                     # │ Source: Soffel et al. 2003, eq. 10.12                │
@@ -780,6 +795,11 @@ class NBodySystem:
         Forest & Ruth (1990): 7 sub-steps (4 drifts, 3 kicks), 3 force
         evaluations.  Exact symplecticity for fixed dt — energy and angular
         momentum conserved to machine precision over arbitrary time.
+
+        PHYSICS_GAP (2026-10-10, unification round 2, U9; KNOWN_GAPS.md): the
+        symplecticity and 4th order hold for position-only forces. With the
+        velocity-dependent layers on (gr_1pn, eih_cross) each kick is explicit in
+        v and the scheme converges at FIRST order in dt (measured ratio 1.997).
 
         Coefficients (exact mathematics, not approximations):
             θ  = 1 / (2 − ∛2) ≈ 1.3512
@@ -1204,6 +1224,11 @@ class NBodySystem:
             return vel_new
         mu_red = b0.mass_kg * b1.mass_kg / (b0.mass_kg + b1.mass_kg)
         M_tot  = b0.mass_kg + b1.mass_kg
+        # PHYSICS_GAP (2026-10-10, unification round 2, U1; KNOWN_GAPS.md): Peters 1964 has
+        # r⁵, not r⁴ — as coded dE/dt has units of W·m and the loss is r[m] times too strong
+        # (PSR J1738+0333: 1.73e9 × Peters; Earth–Sun 2.9e13 W vs 196 W). With r⁵ the
+        # per-step loss is often below the half-ulp of 1.0, so `damp` rounds to exactly 1
+        # and the v_cm recompute below injects a spurious decay. Flagged, not fixed.
         # Peters formula: dE/dt = -(32/5) G⁴ m1² m2² M / (c⁵ r⁴)
         # Coefficients 32/5 are exact from quadrupole formula (Peters 1964).
         dE_dt  = -(32.0 / 5.0) * _G**4 * b0.mass_kg**2 * b1.mass_kg**2 * M_tot / (
