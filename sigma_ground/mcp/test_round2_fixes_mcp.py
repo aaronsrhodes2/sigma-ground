@@ -10,6 +10,11 @@ closed form, or the library function the tool must agree with):
             when it is E, I, N, S, O or Q (sympy's Euler number, imaginary unit,
             N(), S, O(), Q): checked against closed forms (d/dv v^2 = 2v, roots of
             v^2 - 4, the Basel sum pi^2/6, the Gaussian's Fourier transform, ...).
+  D4 / A21  elastic_analysis's moduli_from_lame and yield check use the requested
+            material: iron K, E, G against the literature (Wikipedia 'Iron': 170, 211,
+            82 GPa); every material's Lame moduli obey the isotropic identities with
+            the same call's hydrostatic, uniaxial and shear moduli; annealed copper
+            (0.2 % yield <= 140 MPa, C10200 O-temper datasheets) yields at 200 MPa.
 """
 from __future__ import annotations
 
@@ -27,6 +32,7 @@ import pytest
 from sigma_ground.mcp.tools import nuclear as t_nuc
 from sigma_ground.mcp.tools import symbolic as t_sym
 from sigma_ground.mcp.tools import mathx as t_mx
+from sigma_ground.mcp.tools import materials_strength as t_ms
 from sigma_ground.field.interface.element import semf_binding_energy_MeV
 
 _ISOTOPES = os.path.join(_ROOT, "sigma_ground", "inventory", "data", "isotopes.json")
@@ -108,3 +114,32 @@ def test_other_reserved_names_are_disclosed():
     r = t_sym.solve_equation("E - m*c**2", "m")
     assert "Euler" in r.notes
     assert t_sym.differentiate_expr("x**2", "x").notes == ""
+
+
+# ── D4: elastic_analysis per material ────────────────────────────────────
+def test_elastic_analysis_moduli_are_the_materials():
+    v = t_ms.elastic_analysis("iron", 0.001)["value"]["moduli_from_lame"]
+    # Wikipedia 'Iron' infobox: K = 170, E = 211, G = 82 GPa, nu = 0.29
+    assert abs(v["K_pa"] / 170e9 - 1) < 0.03, v
+    assert abs(v["E_pa"] / 211e9 - 1) < 0.03, v
+    assert abs(v["G_pa"] / 82e9 - 1) < 0.03, v
+    assert abs(v["poisson_ratio"] - 0.29) < 0.01, v
+
+
+@pytest.mark.parametrize("mat", ["iron", "copper", "aluminum", "lead", "tungsten"])
+def test_elastic_analysis_lame_moduli_match_the_same_calls_moduli(mat):
+    eps = 0.001
+    v = t_ms.elastic_analysis(mat, eps)["value"]
+    m = v["moduli_from_lame"]
+    # isotropic linear elasticity: sigma_hyd = -K eps_v, sigma = E eps, tau = G gamma
+    assert abs(m["K_pa"] / (-v["hydrostatic_stress_Pa"] / eps) - 1) < 1e-9
+    assert abs(m["E_pa"] / (v["uniaxial_stress_Pa"] / eps) - 1) < 1e-9
+    assert abs(m["G_pa"] / (v["shear_stress_Pa"] / eps) - 1) < 1e-9
+
+
+def test_elastic_analysis_yield_check_uses_the_materials_yield_stress():
+    cu = t_ms.elastic_analysis("copper")["value"]
+    assert cu["is_yielded_at_200MPa"] is True          # annealed Cu yields below 140 MPa
+    assert cu["yield_stress_Pa"] <= 140e6
+    w = t_ms.elastic_analysis("tungsten")["value"]
+    assert w["is_yielded_at_200MPa"] is False
