@@ -6,17 +6,37 @@ horizon, sampled at monthly intervals (1200 samples total per integration).
 
 The DE440 snapshot fixture only covers J2000–J2026 (annual). For truth data
 beyond J2026 -- AND at monthly cadence rather than annual -- we tap the
-jplephem DE440 kernel directly (cached at ~/.materia/ephemeris/de440s.bsp,
-coverage 1849-12 → 2150-01, 300 years).
+jplephem DE440 kernel directly (D:/datasets/jpl/de440s.bsp, the location
+adapters._jplephem_bridge._load_kernel searches; coverage 1849-12 → 2150-01).
 
-Truth coverage caveat: de440s.bsp carries only the 11 major bodies + Moon
-(NAIF codes 1-10, 199, 299, 301, 399). Mars's moons, Jupiter's Galileans,
-Saturn's / Uranus's / Neptune's moons, and Pluto's moons are NOT in this
-kernel. We still INTEGRATE them (they perturb Jupiter, Saturn, etc.) but
-we drop them from truth comparison since we have no reference.
+Truth coverage caveat: de440s.bsp carries only the system barycentres
+(NAIF 1-9), the Sun (10), and the Mercury, Venus, Earth and Moon centres
+(199, 299, 399, 301). Mars's moons, Jupiter's Galileans, Saturn's / Uranus's /
+Neptune's moons, and Pluto's moons are NOT in this kernel. We still INTEGRATE
+them (they perturb Jupiter, Saturn, etc.) but drop them from truth comparison.
+
+Like is compared with like. For Mercury, Venus, Earth and the Moon the truth
+is the body centre. For Mars through Pluto the kernel only knows the SYSTEM
+BARYCENTRE, so the prediction compared with it is the mass-weighted
+barycentre of the planet and every integrated body anchored to it (the
+fixture's gravitational_anchor). Comparing the kernel barycentre with the
+integrated planet centre, as this script used to, put a floor of 174 km
+(Jupiter), 276 km (Saturn), 527 km (Uranus), 74 km (Neptune) and 2131 km
+(Pluto) under every error at t = 0 (window j2015). With barycentres the t = 0
+floor (truth_floor_km) is 0.0 km for Jupiter, 0.05 km for Neptune and 0.1 km
+for Pluto. Two floors remain, both in the fixture rather than the method:
+Saturn 11.7 km (the fixture has no Iapetus, Hyperion or Phoebe), and Uranus
+350-1160 km, growing from J2000 to J2026, because the fixture's Uranus-system
+states disagree with the de440s Uranus barycentre by that much (the moons
+can only move the barycentre ~35 km).
 
 Bodies with truth comparison enabled:
   Mercury, Venus, Earth, Moon, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto
+
+Integration is rolling_shootout._integrate_nbody itself, so every predictor
+runs exactly as it does in the shoot-out: Forest-Ruth for 'fr4', RESPA with
+the fixture's parent-attractor indices for 'respa', velocity Verlet for
+'verlet'.
 
 Compute estimate:
   100y × 365.25d/y / 0.1d_per_step = 365,250 force evals per predictor.
@@ -34,18 +54,14 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import time
 from pathlib import Path
 
 import numpy as np
 
-from sigma_ground.field.constants import G as _G, L_SUN_W as _L_SUN_W
-from sigma_ground.field.interface.nbody import (
-    CelestialBody, NBodySystem, PhysicsToggles,
-)
+from sigma_ground.field.interface.nbody import CelestialBody, PhysicsToggles
 from sigma_ground.field.interface.rolling_shootout import (
-    _build_bodies_at_snapshot, _load_de440, AU_KM, KM_TO_M, DAY_S, YR_DAYS,
+    _build_bodies_at_snapshot, _integrate_nbody, _load_de440, AU_KM, YR_DAYS,
     Predictor, PREDICTORS,
 )
 from sigma_ground.field.interface.adapters._jplephem_bridge import (
@@ -54,12 +70,13 @@ from sigma_ground.field.interface.adapters._jplephem_bridge import (
 
 
 # -- Truth-comparison-eligible bodies (in de440s.bsp coverage) -----------
-# Pluto here is via NAIF code 9 (Pluto barycenter); good enough at the
-# 100y horizon for impact-monitoring precision (~1000 km accuracy).
 _TRUTH_BODIES = [
     "Mercury", "Venus", "Earth", "Moon", "Mars",
     "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto",
 ]
+# Bodies whose de440s truth is the system barycentre (NAIF 4-9); the
+# prediction for them is the barycentre of the planet and its moons.
+_BARYCENTRE_TRUTH = {"Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"}
 
 
 def _query_jplephem_ssb_km(kernel, body_name: str, jd: float) -> np.ndarray | None:
@@ -87,7 +104,10 @@ def _query_jplephem_ssb_km(kernel, body_name: str, jd: float) -> np.ndarray | No
 
 def _heliocentric_truth_km(kernel, body_name: str, jd: float,
                             sun_pos_km: np.ndarray | None = None) -> np.ndarray | None:
-    """Heliocentric (Sun-relative) truth position at JD via jplephem."""
+    """Heliocentric (Sun-relative) truth position at JD via jplephem.
+
+    For the bodies in _BARYCENTRE_TRUTH this is the system barycentre.
+    """
     if sun_pos_km is None:
         sun_pos_km = _query_jplephem_ssb_km(kernel, "Sun", jd)
         if sun_pos_km is None:
@@ -98,16 +118,78 @@ def _heliocentric_truth_km(kernel, body_name: str, jd: float,
     return body_pos - sun_pos_km
 
 
+def _system_members(de440: dict, window_start_key: str,
+                    body_names: list[str]) -> dict[str, list[int]]:
+    """Index lists of the bodies that make up each truth point.
+
+    A barycentre-truth planet takes itself plus every body whose fixture
+    gravitational_anchor is that planet; every other truth body is itself.
+    """
+    anchors = {b["name"]: b.get("gravitational_anchor")
+               for b in de440["snapshots"][window_start_key]["bodies"]}
+    members: dict[str, list[int]] = {}
+    for body in _TRUTH_BODIES:
+        if body not in body_names:
+            continue
+        idx = [body_names.index(body)]
+        if body in _BARYCENTRE_TRUTH:
+            idx += [i for i, n in enumerate(body_names) if anchors.get(n) == body]
+        members[body] = idx
+    return members
+
+
+def _model_points_km(preds: dict[str, np.ndarray], bodies: list[CelestialBody],
+                     body_names: list[str],
+                     members: dict[str, list[int]]) -> dict[str, np.ndarray]:
+    """Heliocentric predictions of each truth point (centre or barycentre)."""
+    out: dict[str, np.ndarray] = {}
+    for body, idx in members.items():
+        if len(idx) == 1:
+            out[body] = preds[body]
+            continue
+        m = np.array([bodies[i].mass_kg for i in idx])
+        stack = np.stack([preds[body_names[i]] for i in idx])   # (k, n_samples, 3)
+        out[body] = np.tensordot(m / m.sum(), stack, axes=1)
+    return out
+
+
+def truth_floor_km(window_start_key: str, de440: dict | None = None,
+                   kernel=None) -> dict[str, float]:
+    """|truth - prediction point| at t = 0, built from the fixture states.
+
+    This is the error every predictor carries before it takes a step: the
+    gap between the de440s point and the same point assembled from the
+    DE440 fixture (whose moons list is incomplete, e.g. no Iapetus).
+    """
+    de440 = de440 or _load_de440()
+    kernel = kernel or _load_kernel("de440s")
+    pred0 = Predictor("t0", PhysicsToggles())
+    bodies, names, sun_idx, _ = _build_bodies_at_snapshot(window_start_key, de440, pred0)
+    sun = bodies[sun_idx].position_m
+    preds = {n: ((b.position_m - sun) / 1000.0)[None, :] for n, b in zip(names, bodies)}
+    points = _model_points_km(preds, bodies, names,
+                              _system_members(de440, window_start_key, names))
+    jd = de440["snapshots"][window_start_key]["epoch"]["jd_tdb"]
+    out = {}
+    for body, p in points.items():
+        t = _heliocentric_truth_km(kernel, body, jd)
+        out[body] = float(np.linalg.norm(p[0] - t)) if t is not None else float("nan")
+    return out
+
+
 def _build_sample_jds(start_jd: float, horizon_yr: float,
                       month_step: int = 1) -> list[float]:
-    """Generate monthly sample JDs from start_jd to start_jd + horizon_yr.
+    """Sample JDs every month_step months from start_jd, always ending at the
+    horizon (start_jd + round(12 * horizon_yr) months).
 
     month_step=1 → every month; month_step=12 → annual; etc.
-    Returns [start_jd, start_jd + month, start_jd + 2*month, ...].
     """
     month_days = YR_DAYS / 12.0   # 30.4375
-    n_months   = int(round(horizon_yr * 12)) + 1
-    return [start_jd + k * month_days for k in range(0, n_months, month_step)]
+    n_months   = int(round(horizon_yr * 12))
+    months = list(range(0, n_months + 1, month_step))
+    if months[-1] != n_months:
+        months.append(n_months)
+    return [start_jd + k * month_days for k in months]
 
 
 def _integrate_with_samples(
@@ -116,46 +198,19 @@ def _integrate_with_samples(
     body_names: list[str],
     sun_idx:    int,
     sample_jds: list[float],
+    parent_attractor_indices: list[int | None] | None = None,
 ) -> dict[str, np.ndarray]:
-    """Forward-integrate with arbitrary sample schedule (not snapshot-aligned).
+    """Forward-integrate with an arbitrary sample schedule.
 
-    Same integration logic as rolling_shootout._integrate_nbody but accepts
-    monthly cadence sample times instead of relying on annual-snapshot JDs.
+    Delegates to rolling_shootout._integrate_nbody, so the integrator
+    dispatch (fr4 / respa with parent indices / verlet) is the shoot-out's.
     """
     if len(sample_jds) < 1:
         raise ValueError("need at least one sample JD")
-    start_jd = sample_jds[0]
-    dt_s = predictor.dt_days * DAY_S
-
-    system = NBodySystem(
-        bodies,
-        toggles=predictor.toggles,
-        solar_luminosity_W=_L_SUN_W if predictor.toggles.srp else 0.0,
+    return _integrate_nbody(
+        predictor, bodies, body_names, sun_idx, sample_jds[0], sample_jds,
+        parent_attractor_indices=parent_attractor_indices,
     )
-    step_fn = (system.forest_ruth_step if predictor.integrator == "fr4"
-                else system.step)
-
-    samples: dict[str, list[np.ndarray]] = {n: [] for n in body_names}
-
-    def _snapshot() -> None:
-        sun_pos = system.bodies[sun_idx].position_m
-        for i, n in enumerate(body_names):
-            hel_km = (system.bodies[i].position_m - sun_pos) / KM_TO_M
-            samples[n].append(hel_km.copy())
-
-    _snapshot()
-
-    current_jd = start_jd
-    for target_jd in sample_jds[1:]:
-        dt_total_days = target_jd - current_jd
-        n_steps = max(1, int(round(dt_total_days / predictor.dt_days)))
-        exact_dt_s = (dt_total_days * DAY_S) / n_steps
-        for _ in range(n_steps):
-            step_fn(exact_dt_s)
-        current_jd = target_jd
-        _snapshot()
-
-    return {n: np.array(samples[n]) for n in body_names}
 
 
 def run_long_horizon_sweep(
@@ -170,20 +225,23 @@ def run_long_horizon_sweep(
 
     Output JSON shape:
       {
-        "metadata": {window_start_key, horizon_yr, month_step, predictors, ...},
+        "metadata": {window_start_key, horizon_yr, month_step, predictors, truth_points, ...},
         "samples": [{predictor, body, month, sample_jd, error_au, predicted_helio_km, truth_helio_km}, ...]
       }
+    For the bodies in _BARYCENTRE_TRUTH both predicted_helio_km and
+    truth_helio_km are the system barycentre (metadata.truth_points).
     """
     de440  = _load_de440()
     kernel = _load_kernel("de440s")
     start_jd = de440["snapshots"][window_start_key]["epoch"]["jd_tdb"]
+    month_days = YR_DAYS / 12.0
 
     sample_jds = _build_sample_jds(start_jd, horizon_yr, month_step)
     if verbose:
         print(f"  window:       {window_start_key} (JD={start_jd:.1f})")
         print(f"  horizon:      {horizon_yr}y")
         print(f"  month_step:   {month_step}")
-        print(f"  samples:      {len(sample_jds)} (every {month_step} month(s))")
+        print(f"  samples:      {len(sample_jds)} (every {month_step} month(s), plus the horizon end)")
         print(f"  truth bodies: {', '.join(_TRUTH_BODIES)}")
         print(f"  predictors:   {[p.name for p in predictors]}")
 
@@ -210,23 +268,31 @@ def run_long_horizon_sweep(
             print(f"\n  Predictor {pred_idx+1}/{len(predictors)}: {predictor.name}")
         t0 = time.time()
 
+        if predictor.use_kepler:
+            raise ValueError(f"{predictor.name}: the Kepler predictor is not an "
+                             f"integration; the long-horizon sweep runs n-body predictors only")
+
         # Build bodies from the window-start snapshot
-        bodies, body_names, sun_idx = _build_bodies_at_snapshot(
+        bodies, body_names, sun_idx, parent_idx = _build_bodies_at_snapshot(
             window_start_key, de440, predictor,
         )
 
         # Run integration with monthly samples
         preds = _integrate_with_samples(
             predictor, bodies, body_names, sun_idx, sample_jds,
+            parent_attractor_indices=parent_idx,
         )
+        points = _model_points_km(
+            preds, bodies, body_names,
+            _system_members(de440, window_start_key, body_names))
         if verbose:
             print(f"    integration: {time.time() - t0:.1f}s")
 
         # Compare to truth at each (sample, body)
         for body_name in _TRUTH_BODIES:
-            if body_name not in preds:
+            if body_name not in points:
                 continue
-            pred_arr = preds[body_name]
+            pred_arr = points[body_name]
             for s_idx, sjd in enumerate(sample_jds):
                 truth_km = truth_helio_km_cache.get((sjd, body_name))
                 pred_km  = pred_arr[s_idx]
@@ -236,7 +302,7 @@ def run_long_horizon_sweep(
                 out_samples.append({
                     "predictor": predictor.name,
                     "body":      body_name,
-                    "month":     s_idx * month_step,
+                    "month":     int(round((sjd - start_jd) / month_days)),
                     "sample_jd": float(sjd),
                     "predicted_helio_km": [float(x) for x in pred_km],
                     "truth_helio_km":     ([float(x) for x in truth_km]
@@ -251,15 +317,20 @@ def run_long_horizon_sweep(
             "month_step":         month_step,
             "n_samples":          len(sample_jds),
             "truth_bodies":       _TRUTH_BODIES,
+            "truth_points":       {b: ("system barycentre" if b in _BARYCENTRE_TRUTH
+                                       else "body centre") for b in _TRUTH_BODIES},
+            "truth_kernel":       "de440s",
             "predictors":         [p.name for p in predictors],
+            "integrators":        {p.name: p.integrator for p in predictors},
             "elapsed_s":          round(time.time() - t0_global, 1),
         },
         "samples": out_samples,
     }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(payload, separators=(",", ":")))
     if verbose:
         print(f"\n  Total: {time.time() - t0_global:.1f}s")
-        print(f"  Written {len(out_samples):,} samples -> {output_path.name}")
+        print(f"  Written {len(out_samples):,} samples -> {output_path}")
 
 
 # -- Default predictors for the sweep (built on over_physics_finedt) -----
@@ -275,6 +346,11 @@ DEFAULT_LONG_HORIZON_PREDICTORS: list[Predictor] = [
     ),
 ]
 
+# Default output (untracked); the committed fixture is long_horizon_smoke.json,
+# regenerated only by passing it explicitly as --output.
+_DEFAULT_OUTPUT = (Path(__file__).parent.parent / "sigma_ground" / "field"
+                   / "interface" / "fixtures" / "long_horizon_sweep.json")
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -287,11 +363,8 @@ def main() -> None:
     parser.add_argument("--predictors", nargs="+", default=None,
                         help="predictor names from rolling_shootout.PREDICTORS, "
                              "or 'finedt' for the default")
-    parser.add_argument("--output", type=Path,
-                        default=Path(__file__).parent.parent
-                                / "sigma_ground" / "field" / "interface" / "fixtures"
-                                / "long_horizon_sweep.json",
-                        help="output JSON path")
+    parser.add_argument("--output", type=Path, default=_DEFAULT_OUTPUT,
+                        help=f"output JSON path (default: {_DEFAULT_OUTPUT})")
     args = parser.parse_args()
 
     if args.predictors:
