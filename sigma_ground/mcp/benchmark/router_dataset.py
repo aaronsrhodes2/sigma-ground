@@ -928,9 +928,13 @@ TEACHER_PROMPT = (
 
 def ollama_teacher(url: str, model: str) -> Callable[[str, int], str]:
     import httpx                          # already a benchmark extra
+    # One client for the whole pass: a fresh httpx.post per call cost ~1 s of
+    # client setup, plus ~2 s per new connection to "localhost" on Windows
+    # (IPv6 first), against ~0.7 s for the rewrite itself.
+    client = httpx.Client(timeout=120)
 
     def rewrite(question: str, k: int) -> str:
-        r = httpx.post(f"{url.rstrip('/')}/api/chat", timeout=120, json={
+        r = client.post(f"{url.rstrip('/')}/api/chat", json={
             "model": model, "stream": False, "think": False,
             "messages": [{"role": "system", "content": TEACHER_PROMPT},
                          {"role": "user", "content": question}],

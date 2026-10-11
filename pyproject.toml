@@ -73,6 +73,7 @@ mcp = [
 benchmark = [
     "wolframalpha>=5.1",       # Wolfram Alpha free-tier API client
     "httpx>=0.27",             # async HTTP client for Ollama tool loop
+    "requests>=2.31",          # benchmark/interpreter_demo.py (semantic router embeddings)
     "python-dotenv>=1.0",      # auto-load env vars from dev-root .env
 ]
 # Materials Project API client (elastic/dielectric DFT-computed properties;

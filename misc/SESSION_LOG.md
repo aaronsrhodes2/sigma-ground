@@ -3515,3 +3515,161 @@ depended on test order.
 - Safe pre-fix runs failed as intended; the infinite-j case was not run against the old code. Real server:
   2.5 → 6 sublevels; 1.3 and −2 decline.
 - 292 passed (+ known-red `test_targets.py`); Materia 52 passed; tree clean.
+
+## Session 38 — 2026-10-10 — Router fine-tune study: baselines and dataset pilot measured; training, export and evaluation staged, not run
+
+### Status
+**Nothing has been trained.** The Captain asked mid-session to halt GPU work until tonight, so the study stops after
+the baselines, the dataset pilot, and a CPU-only rehearsal of everything downstream of training.
+`tools/run_router_study.sh` runs every remaining stage, unattended, in one go. Master moved while this ran
+(fa2c753 → 25c68b0); it is merged into the branch at PR time.
+
+### Environment (measured)
+- GPU: NVIDIA GeForce RTX 4070 Ti SUPER, 16,376 MiB, driver 591.86 (CUDA 13.1). Ollama 0.35.1.
+- Repo venv (`.claude/worktrees/beautiful-einstein-9oiut1/.venv`): Python 3.13.12, mcp 1.30.0.
+- Training venv in WSL2 Ubuntu-24.04 (`~/venvs/mentat-router`): torch 2.14.1+cu130, transformers 5.17.0,
+  trl 1.13.0, peft 0.21.2, bitsandbytes 0.50.2, datasets 4.8.5, accelerate 1.15.0, Unsloth 2026.10.3.
+  Installed with the Captain's OK: `python3-venv python3-pip python3-dev build-essential cmake`. No CUDA toolkit.
+- llama.cpp 23b0202 in WSL, CPU build of `llama-quantize` only; `gguf-py` in the venv for `convert_hf_to_gguf.py`.
+- Ollama models: `qwen3:8b`, `nomic-embed-text` (both already present), teacher `qwen2.5:14b`. `qwen2.5:32b` was
+  not pulled: at about 19 GB it cannot sit in 16 GB of VRAM. The Captain chose 14b.
+
+### Step 0
+- Branch `claude/beautiful-einstein-9oiut1` at 364e4d5; master (fa2c753) was already merged in, no conflicts.
+- `pytest sigma_ground/mcp/benchmark sigma_ground/mcp/test_server_wrappers.py tests/test_layering.py -q`:
+  **68 passed, 1 failed, 2 xfailed** (65 s). The failure is the known-red `test_targets.py` (97% vs the 98% target).
+- `pip install -e ".[mcp,benchmark,test]"` was not enough: `benchmark/interpreter_demo.py` imports `requests`,
+  which the `benchmark` extra did not list, so two test modules failed at collection. Added `requests>=2.31`.
+
+### Step 1: baselines (qwen3:8b, scored by `score.py` unchanged)
+The cascade answered the same 86 of 150 questions in both runs; the model path is the same other 64 (checked: identical id sets).
+
+| run | overall | model-path correct | grounded | declines | clarifications | router_errors | median s (model path) |
+|---|---|---|---|---|---|---|---|
+| chain (`chain_qwen3_8b_run.json`) | **134/150** (89.3%) | 50/64 | 62/64 | n/a | n/a | n/a | 13.68 |
+| stock router + tool index (`router_qwen3_8b_stock_run.json`) | **137/150** (91.3%) | 53/64 | 59/64 | 0 | 1 | 4 | 3.57 |
+
+- Chain: 0 timeouts, 0 errors; 55 of 64 model-path questions took 2 turns.
+- Right in chain, wrong in stock router (3): `atom_004`, `em_adv_002`, `nuc_005`.
+  Right in stock router, wrong in chain (6): `astro_011`, `atom_003`, `mech_intro_001`, `mech_intro_003`,
+  `nuc_007`, `optics_003`.
+- The five stock-router non-answers: `em_intro_012` (`parallel_plate_capacitance` with `capacitance_f` and
+  `separation_m`, no value), `mech_adv_005` (`density` of "Mars", no value), `em_adv_002` (`lookup_constant` of an
+  invented name, no value), `atom_004` (`first_ionization_energy` for Xe, no value), `nuc_003` (asked for
+  `energy_carried` although the question carries it).
+- The stock router is not near 100% on the model path (53/64), so this study's premise holds.
+
+How the runs were made, and what to distrust:
+- Both ran against a dedicated single-slot Ollama (`OLLAMA_HOST=127.0.0.1:11435 OLLAMA_NUM_PARALLEL=1`). The main
+  server on 11434 has `OLLAMA_NUM_PARALLEL=4`; with the harness's `num_ctx 32768` that is 18 GB of KV cache, qwen3:8b
+  ran 43% CPU / 57% GPU, and prompt processing started at about 15 tokens/s. That first attempt was stopped after
+  one record (an error record). A second attempt ran while another client was using qwen3:8b on 11434; I stopped
+  it at 89/150 and discarded it. The reported chain run is the third, after unloading the idle model on 11434.
+- The GPU was still shared with live clients of the main Ollama. Three chain questions are outliers:
+  `optics_003` 105 s and `optics_004` 94 s (13 s for both in the discarded run) and `astro_011` 163 s (that run
+  never reached it). Probably contention. The medians absorb them. Treat latencies as indicative.
+- The semantic router's embedding calls go to a hard-coded `http://localhost:11434` (`interpreter_demo.OLLAMA`),
+  whatever `--ollama-url` says. Both runs share that path, so the comparison is unaffected.
+
+### Step 2: dataset pilot (`--per-tool 3 --variants 3`, teacher `qwen2.5:14b`, guard on)
+- Output: 1,827 examples = 622 template + 21 clarify + 29 decline seeds (672) + 1,155 accepted rewrites; split
+  1,691 train / 136 val. 208 of 217 tools have examples; the 8 gaps: `age_of_universe`,
+  `eta_value_report`, `mond_a0_constant` (benchmark overlap); `parse_quantity`, `simulate`, `solve_ode`
+  (free-text input); `playground_apply`, `playground_simulate` (need an open scene). Tool-surface hash
+  `762bbee3725389bf`, unchanged from the earlier full run.
+- Timing: template phase 172 s in the first attempt and 461 s in the second (same code for that phase; the
+  difference is unexplained). Teacher phase **692 s for 2,016 rewrite attempts = 0.34 s each**.
+- The first attempt spaced calls 3–4 s apart. Cause: `ollama_teacher` made a fresh `httpx.post` per call, and a
+  new httpx client costs about 1 s and a new connection to `localhost` about 2.5 s on this machine (127.0.0.1:
+  0.4–0.7 s). Fixed with one persistent client (`router_dataset.py`); the 29 dataset tests still pass.
+- Acceptance: **1,155 of 2,016 attempts kept (57.3%)**; 102 (5.1%) failed the rewrite checks (numbers changed 59,
+  named key or unit symbol dropped 34, unit changed 9); 759 (37.6%) were dropped elsewhere. The manifest does not split drops by
+  phase: it logs 752 duplicates, 69 benchmark overlaps, 52 calls with no value and 13 classifier conflicts across
+  the whole build, so how much of the 759 is duplicate rewrites is not itemised.
+- Ten random accepted rewrites (seed 0), template → rewrite [plan]:
+  1. "Calculate the time-dependent strain for applied stress of 66.8 MPa and temperature of 925 K." → "What would be
+     the time-dependent strain for an applied stress of 66.8 MPa at a temperature of 925 K?" [viscoelastic_creep_analysis]
+  2. "Normal force of 16.6 N: will it slide?" → "If the normal force is 16.6 N, will the object slide?" [friction_analysis]
+  3. "Please expand for (x + 2)**3." → "How would you expand (x + 2)**3?" [expand_expression]
+  4. "Please list of things in the solar system you can look up." → "What can I look up about things in the solar
+     system?" [list_bodies]
+  5. "Suggest a birthday gift for my dad." → "What would be a great birthday gift for my dad?" [decline]
+  6. "Start over?" → "What happens if we start over?" [playground_reset]
+  7. "I need the infinite square well for n 3 of 6." → "What is the wave function for the infinite square well
+     when n equals 3 out of 6?" [quantum_box_energy_analysis, args `{"n3": 6}`]
+  8. "Molality of 0.0429 mol/kg: what's the colligative freezing point?" → "What's the freezing point depression
+     for a solution with a molality of 0.0429 mol/kg?" [freezing_point_depression]
+  9. "Give me the scene." → "What is the scene like?" [playground_load]
+  10. "What is the Paris law for aluminum?" → "What does the Paris law state for aluminum?" [stress_failure_analysis]
+- Two of the ten read as label drift that `check_rewrite` cannot see: #7 now says n = 3 while the label is
+  `n3 = 6`, and #10 turns a material lookup into a conceptual question. The number check compares numbers as a
+  multiset, so it cannot see a number moving to a different role. Not changed here.
+- Extrapolation to `--per-tool 40 --variants 3` (about 8.0k seeds, about 24k attempts): **about 2.3 h** of
+  teacher time plus a few minutes of templates, and about 13.7k accepted rewrites on top of the seeds if 57%
+  holds. `--variants 2` is about 1.5 h; `--per-tool 20 --variants 2` about 45 min. The full run has NOT been
+  started: it is over an hour and needs the Captain's OK.
+
+### Step 3: training environment and script
+- `tools/train_router.py` (QLoRA, the spec's recipe: r 16, alpha 32, all seven projections, lr 2e-4 cosine, 3% warmup,
+  2 epochs, effective batch 16, seed 0, loss on assistant tokens only, `meta` ignored). The base is `Qwen/Qwen3-8B`,
+  non-thinking template. Unsloth backend with a transformers+PEFT fallback (`--no-unsloth`).
+- Measured on the pilot data with the Qwen3 tokenizer: tokens per example p50 198, p95 245, max 286, so
+  `max_len` = 288 (cap 1024 not reached). The script asserts that the HF template with `enable_thinking=False`
+  renders exactly prompt + plan + `<|im_end|>` + newline for the first 20 records, and the decoded label tokens are
+  the plan JSON plus `<|im_end|>` (30 tokens for the Schwarzschild example) with everything before masked.
+- **Loading the 8B base from `/mnt/d` is unusable**: the first Unsloth load showed `Loading weights 4/399` after
+  2.5 minutes with an ETA of hours, and a plain `cp` moved about 1.7 GB in roughly 10 minutes. The base now lives
+  on WSL's ext4 (`~/models/Qwen3-8B`, 16 GB, downloaded there directly). Not yet confirmed that it loads quickly
+  from ext4; the pilot is the first stage to find out.
+- **The 50-step pilot never got past weight loading**, so VRAM peak, steps/s and the projected full-run time are
+  all unmeasured, and there is no loss curve.
+- CPU smoke of the loop (`--cpu-smoke`, Qwen3-0.6B fp32, 48 training / 8 validation records, 4 steps): losses and
+  eval losses logged, adapter written, exit 0. A mechanics check only; 4 steps say nothing about learning.
+
+### Step 4: export, rehearsed on CPU with Qwen3-0.6B and a random LoRA (r 16, alpha 32, same targets)
+- Unsloth's `save_pretrained_gguf` is not used. `train_router.py merge` folds the adapter into the bf16 base shard
+  by shard on the CPU (a few GB of RAM, no GPU needed after training); llama.cpp does the GGUF and `llama-quantize`
+  does Q4_K_M.
+- Merge vs `PEFT.merge_and_unload()` on the same input: max |Δlogit| **0.0000**, argmax agreement **1.000**, with
+  the adapter's own effect on the logits at 3.801 (so the comparison could have failed).
+- GGUF bf16 1.51 GB → Q4_K_M 484 MB. `ollama create` and serving worked on a CPU-only server
+  (`CUDA_VISIBLE_DEVICES=-1`; its log shows `library=cpu`, `total_vram="0 B"`), then the test model was removed.
+- Template: Ollama 0.35 logs `selected=gguf_chat_template` for a model created with a Modelfile `TEMPLATE`, so
+  the template embedded in the GGUF is what counts. `merge` therefore writes `{%- set enable_thinking = false %}`
+  at the top of the checkpoint's chat template (a safeguard; I did not test the unpinned case, so I cannot say it
+  was needed). After the pin, `chat think=false`, `chat` with no `think`, and the trained text sent raw all gave
+  165 prompt tokens and the same reply.
+- Open: with the harness's JSON-schema `format`, `/api/chat` and a raw `/api/generate` of the same prompt gave
+  different replies from the random-weights model (`decline` vs `request_clarification`) while the unconstrained
+  replies matched. Cause not investigated; `smoke` therefore compares the unconstrained renderings and also checks
+  that the harness-shaped request returns 200. The benchmark run will show whether it matters for the real model.
+- `tools/eval_router_val.py` controls: every gold plan in the pilot scores exact against itself (1,827/1,827); a
+  1e-5 relative change to the first numeric argument is caught in 1,029/1,029 plans that have one; a string where a
+  number belongs is rejected; int 2 equals float 2.0. On the random CPU model it scored 0/12, as it should.
+
+### Step 5, Step 6: not run
+Val evaluation of `mentat-router`, the `--router` benchmark and the three-way comparison are staged
+(`eval_router_val.py`, `compare_router_runs.py`, stages `eval_val`, `benchmark`, `score`). No numbers exist yet.
+
+### What shipped
+- `tools/train_router.py`: `train`, `merge`, `modelfile`.
+- `tools/eval_router_val.py`: val scoring by tool and exact plan, overall and by `meta.source`, and `--smoke`.
+- `tools/compare_router_runs.py`: the comparison table and the right/wrong cross-lists, using `score.score_run`.
+- `tools/run_router_study.sh`: dataset → pilot → train → merge → GGUF → `ollama create` → smoke → val eval →
+  benchmark → score. Resumable by stage (`local-cache/router/state/*.done`), logs under `local-cache/router/logs/`,
+  `--dry-run` for a preflight that touches no GPU compute. Exclusive stages wait up to 45 minutes for the GPU to
+  drop under 4,000 MiB in use, then stop with a message instead of training into an out-of-memory error.
+  The full script has never run end to end; only its preflight has.
+- `router_dataset.py`: one persistent httpx client for the teacher. `pyproject.toml`: `requests` in `benchmark`.
+  `.gitignore`: `unsloth_compiled_cache/`.
+- Baseline run files are NOT committed (per the study's rules); they are in `sigma_ground/mcp/benchmark/results/` on
+  the machine that ran them, and the numbers above are from them.
+
+### Next Steps
+- [ ] Captain: OK the teacher-pass size (default about 2.3 h; `PER_TOOL=20 VARIANTS=2` is about 45 min) and close
+      GMod and other clients of the main Ollama before starting. The machine must not sleep overnight.
+- [ ] Run `tools/run_router_study.sh --dry-run`, then `tools/run_router_study.sh`.
+- [ ] Afterwards: fill in the pilot's VRAM and steps/s, the loss curve, the val table, and the three-way benchmark
+      comparison here. Stop and look if val accuracy is high but the benchmark is worse.
+- [ ] A training run that dies restarts from step 0 (no resume yet).
+- [ ] Decide whether `check_rewrite` should compare numbers by role, not as a multiset.
