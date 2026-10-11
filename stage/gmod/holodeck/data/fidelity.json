@@ -71,16 +71,16 @@
   "no_mentat_density_note": "Mentat returned \"not in lookup table\" for steel, ceramic, foam, cardboard and fabric (checked 2026-10-10). Wherever the references describe steel, the cross-check uses Mentat's iron (7874 kg/m3) as the nearest entry and says so; where they describe foam, fabric, ceramic, cardboard or plywood no cross-check is made."
  },
  "summary": {
-  "models": 127,
-  "audited": 121,
+  "models": 126,
+  "audited": 120,
   "unaudited": 6,
   "confidence": {
    "high": 9,
    "medium": 45,
-   "low": 67
+   "low": 66
   },
   "clamped": 45,
-  "engine_mass_over_fidelity_median": 3.492433,
+  "engine_mass_over_fidelity_median": 3.470355,
   "engine_mass_over_fidelity_max": 86.206897
  },
  "families": {
@@ -2285,54 +2285,6 @@
    "crosscheck": null,
    "crosscheck_unavailable": "Mentat has no ceramic density; the 8 to 10 mm wall is generic sanitaryware",
    "caveats": null
-  },
-  "toilet_bowl_only": {
-   "label": "wall-hung or flushometer toilet bowl (no tank)",
-   "research": "toilet",
-   "reference": {
-    "item": "Eljer manual: elongated bowl alone 43 lb (opened)",
-    "mass_kg": 19.5,
-    "mass_basis": "43 lb x 0.45359237",
-    "weight_kind": "bowl weight (manual)",
-    "size_m": null,
-    "size_basis": "not used (fixed reason below)"
-   },
-   "low_kg": 19.5,
-   "high_kg": 19.5,
-   "bounds_basis": "a single listing: the range has no width",
-   "topology": "shell",
-   "k": 2,
-   "scale": "fixed",
-   "fixed_reason": "one listing (a floor-standing bowl) is the only figure for a bowl without a tank, and no matching size is given, so the mass is used as is",
-   "evidence": "single-source",
-   "research_confidence": "partly sourced",
-   "makeup": {
-    "materials": [
-     "vitreous china (fired ceramic with glaze)",
-     "plastic or brass flush hardware (small mass)"
-    ],
-    "construction": "Two-piece close-coupled toilet: a cast and fired vitreous china bowl with an integral S-trap passage, plus a hollow china tank bolted on top (tank lid separate). Both parts are thin-walled hollow castings; the base/trap region is thicker.",
-    "hollow": true,
-    "wall_thickness_mm": "~8 to 10 mm as-cast for sanitaryware in general (US5143871 background: 'normally in the region of from 8 to 10 mm'; examples at 9 mm). Not toilet-specific; thicker at trap and base."
-   },
-   "sources": [
-    "https://www.manualsdir.com/manuals/44691/eljer-091-2195-091-2190.html",
-    "https://www.build.com/american-standard-270aa101/s872683",
-    "https://shopkohlernj.com/products/kohler-k-3997-u-wellworth-two-piece-round-front-toilet-1-28-gpf",
-    "https://www.perigold.com/bath/pdp/toto-drake-128-gpf-auto-flush-elongated-floor-mounted-89-lbs-weight-two-piece-toilet-seat-included-p100095858.html",
-    "https://patents.google.com/patent/US5143871"
-   ],
-   "real_topology": {
-    "pieces": [
-     2,
-     3
-    ],
-    "interior": "open",
-    "text": "a china bowl with an integral trap, no tank; open bowl"
-   },
-   "crosscheck": null,
-   "crosscheck_unavailable": "Mentat has no ceramic density",
-   "caveats": "A floor-standing elongated bowl is heavier than a wall-hung one: likely an overestimate."
   },
   "bathtub_cast_iron": {
    "label": "enamelled cast-iron bathtub (clawfoot class)",
@@ -8669,60 +8621,6 @@
    "mass_low_kg": 31,
    "mass_high_kg": 45.4,
    "mass_source": "fidelity/toilet_two_piece (research 'toilet'): reference 36.29 kg at 0.705x0.457x0.743 m, box volume x0.75 (linear s=0.91, k=2) = 30.09 kg, below the sourced 31 to 45.4 kg so held at 31 kg. Confidence low (mixed evidence, good fit). Detail: data/fidelity.json"
-  },
-  "models/props_wasteland/prison_toilet01.mdl": {
-   "kind": "toilet",
-   "engine_mass_kg": 150,
-   "geometry": {
-    "box_m": [
-     0.485887,
-     0.28145,
-     0.561369
-    ],
-    "box_volume_m3": 0.076769,
-    "hull_volume_m3": 0.017182,
-    "hull_surface_m2": 0.489494,
-    "hull_fill": 0.223811,
-    "engine_density_kg_m3": 8730.243133,
-    "convexes": 3,
-    "triangles": 60,
-    "engine_material": "porcelain"
-   },
-   "family": "toilet_bowl_only",
-   "parts": null,
-   "fit": "partial",
-   "note": "wall-hung flushometer bowl with no tank",
-   "cross_check": {
-    "available": false,
-    "reason": "Mentat has no ceramic density"
-   },
-   "complexity": {
-    "engine_convexes": 3,
-    "engine_triangles": 60,
-    "real_pieces": [
-     2,
-     3
-    ],
-    "interior": "open",
-    "verdict": "comparable",
-    "note": null
-   },
-   "evidence": "single-source",
-   "scaled_kg": 19.5,
-   "outside_factor": 1.0,
-   "scale_mode": "fixed",
-   "scale_note": null,
-   "linear_scale": 1.0,
-   "k": 2,
-   "clamped": null,
-   "makeup": "wall-hung or flushometer toilet bowl (no tank): vitreous china (fired ceramic with glaze), plastic or brass flush hardware (small mass); shell",
-   "status": "audited",
-   "mass_kg": 19.5,
-   "mass_over_engine": 0.13,
-   "confidence": "low",
-   "mass_low_kg": 19.5,
-   "mass_high_kg": 19.5,
-   "mass_source": "fidelity/toilet_bowl_only (research 'toilet'): reference 19.5 kg, used as is (one listing, no matching size), sourced range 19.5 to 19.5 kg. Confidence low (single-source evidence, partial fit). Detail: data/fidelity.json"
   },
   "models/props_c17/furniturebathtub001a.mdl": {
    "kind": "bathtub",

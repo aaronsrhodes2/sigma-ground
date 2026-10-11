@@ -135,8 +135,7 @@ KINDS = [
          variants=["models/props_c17/furnituresink001a.mdl", "models/props_interiors/sinkkitchen01a.mdl",
                    "models/props_wasteland/prison_sink001a.mdl"]),
     dict(kind="toilet", names=["toilet", "loo", "lavatory", "wc"], category="bath", wall="prefer", front="auto_back",
-         variants=["models/props_c17/furnituretoilet001a.mdl", "models/props/cs_militia/toilet.mdl",
-                   "models/props_wasteland/prison_toilet01.mdl"]),
+         variants=["models/props_c17/furnituretoilet001a.mdl", "models/props/cs_militia/toilet.mdl"]),   # the wall-hung prison bowl rolled over in the engine: removed
     dict(kind="bathtub", names=["bathtub", "bath tub", "bath", "tub"], category="bath", wall="prefer", front="auto_back",
          variants=["models/props_c17/furniturebathtub001a.mdl", "models/props_interiors/bathtub01a.mdl"]),
     dict(kind="radiator", names=["radiator"], approx=["heater", "baseboard heater"], category="appliance", wall="prefer",

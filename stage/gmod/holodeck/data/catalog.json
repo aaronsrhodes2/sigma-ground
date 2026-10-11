@@ -3948,38 +3948,6 @@
      "makeup": "two-piece close-coupled toilet: vitreous china (fired ceramic with glaze), plastic or brass flush hardware (small mass); shell",
      "material": "default",
      "skins": 1
-    },
-    {
-     "model": "models/props_wasteland/prison_toilet01.mdl",
-     "front": 0.0,
-     "symmetric": false,
-     "front_source": "from the collision mesh (confirmed by eye)",
-     "top": null,
-     "w": 14.774260997772217,
-     "d": 25.505881309509277,
-     "h": 29.468174934387207,
-     "mins": [
-      -12.884737968444824,
-      -7.446968078613281,
-      -14.696922302246094
-     ],
-     "maxs": [
-      12.621143341064453,
-      7.3272929191589355,
-      14.771252632141113
-     ],
-     "cx": -0.13179731369018555,
-     "cy": -0.05983757972717285,
-     "mass": 19.5,
-     "engine_mass": 150,
-     "mass_source": "fidelity/toilet_bowl_only (research 'toilet'): reference 19.5 kg, used as is (one listing, no matching size), sourced range 19.5 to 19.5 kg. Confidence low (single-source evidence, partial fit). Detail: data/fidelity.json",
-     "mass_status": "audited",
-     "mass_low": 19.5,
-     "mass_high": 19.5,
-     "mass_confidence": "low",
-     "makeup": "wall-hung or flushometer toilet bowl (no tank): vitreous china (fired ceramic with glaze), plastic or brass flush hardware (small mass); shell",
-     "material": "porcelain",
-     "skins": 1
     }
    ]
   },

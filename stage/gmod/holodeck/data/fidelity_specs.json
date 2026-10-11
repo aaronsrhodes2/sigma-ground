@@ -1642,40 +1642,6 @@
     "plastic or brass flush hardware (small mass)"
    ]
   },
-  "toilet_bowl_only": {
-   "label": "wall-hung or flushometer toilet bowl (no tank)",
-   "research": "toilet",
-   "reference": {
-    "item": "Eljer manual: elongated bowl alone 43 lb (opened)",
-    "mass_kg": 19.5,
-    "mass_basis": "43 lb x 0.45359237",
-    "weight_kind": "bowl weight (manual)",
-    "size_m": null,
-    "size_basis": "not used (fixed reason below)"
-   },
-   "low_kg": 19.5,
-   "high_kg": 19.5,
-   "bounds_basis": "a single listing: the range has no width",
-   "topology": "shell",
-   "scale": "fixed",
-   "evidence": "single-source",
-   "real": {
-    "pieces": [
-     2,
-     3
-    ],
-    "interior": "open",
-    "text": "a china bowl with an integral trap, no tank; open bowl"
-   },
-   "fixed_reason": "one listing (a floor-standing bowl) is the only figure for a bowl without a tank, and no matching size is given, so the mass is used as is",
-   "fixed_short": "one listing, no matching size",
-   "crosscheck_unavailable": "Mentat has no ceramic density",
-   "caveats": "A floor-standing elongated bowl is heavier than a wall-hung one: likely an overestimate.",
-   "materials": [
-    "vitreous china (fired ceramic with glaze)",
-    "plastic or brass flush hardware (small mass)"
-   ]
-  },
   "bathtub_cast_iron": {
    "label": "enamelled cast-iron bathtub (clawfoot class)",
    "research": "bathtub",
@@ -2630,11 +2596,6 @@
    "family": "toilet_two_piece",
    "fit": "good",
    "note": "close-coupled toilet with a tank, seat and lid"
-  },
-  "models/props_wasteland/prison_toilet01.mdl": {
-   "family": "toilet_bowl_only",
-   "fit": "partial",
-   "note": "wall-hung flushometer bowl with no tank"
   },
   "models/props_c17/furniturebathtub001a.mdl": {
    "family": "bathtub_cast_iron",

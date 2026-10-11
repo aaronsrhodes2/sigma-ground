@@ -180,7 +180,7 @@ One cluster: undo must restore the right thing for the right owner, and one play
 - [ ] **T1** Replace the 3 % tolerance in the parser pass-rate test with per-slice 100 % checks; stop calling the 750 cases 'held out' (they are regression cases); write a fresh unseen set of 200 by someone other than the parser's author.
 - [ ] Apply the SkippyTel cloud patch (commit 6800362 in the scratch clone; needs a push to SkippyTel main or a permission rule), then verify the addon installs at the next VM boot.
 - [ ] Mount Half-Life 2 and Counter-Strike: Source content on the cloud server (ask the portal chat), or run it with `+holodeck_content hl2`.
-- [x] Bathroom: bath fixtures now stand 8 HU apart (was 2; the toilet tipped over in the engine). Offline-verified; confirm live when the server next runs.
+- [x] Bathroom: bath fixtures now stand 8 HU apart (was 2; the toilet tipped over in the engine). Live-checked 2026-10-10: the wall-hung prison toilet (it rolled over in the engine) is removed from the library; four bathrooms stood clean.
 - [ ] 'Except the last one' / 'except what I just made': planner understanding exclude=['@last'].
 - [ ] Ears: a 3-second gap in the game's key signal cut one press; widen PTT_HEARTBEAT_STALE_S if it recurs; Whisper hears 'add' as 'placed' (accepted by the parser).
 - [ ] Deckard axis-orientation fix (P4) as its own change with the pinned 1700s scenes re-baked.
