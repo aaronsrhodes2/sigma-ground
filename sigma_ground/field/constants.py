@@ -299,9 +299,7 @@ A_C_MEV = (3.0 / 5.0) * KE_E2_MEV_FM / R0_FM  # ≈ 0.7111 MeV (σ-INVARIANT)
 #      the golden ratio φ pre-baked into the target. The 0.125% gap was
 #      treated as approximate agreement; for a genuine derivation it should
 #      be exact, not 0.125% off.
-#   3. See misc/bh_phase_xi_eta_candidates_results.md for the rejected
-#      Phase XI verdict; see misc/eta_empirical_verdict_2026-05-15.md for
-#      the current adoption.
+#   3. See misc/DISPROOF_LEDGER.md (rejected 2026-05-15 as numerology).
 #
 # Bounds:   0 ≤ η ≤ 1
 #   η = 0:  no particles entangled (fully classical limit)

@@ -16,8 +16,7 @@ anchored at ETA_HDE_UNION3 (DESI Union3 c²); the "triple coincidence" framing
 collapsed to a single empirical observation by adoption.
 
 References:
-  Rejection: misc/eta_empirical_verdict_2026-05-15.md
-  Superseded Phase XI: misc/bh_phase_xi_eta_candidates_results.md
+  Rejection record: misc/DISPROOF_LEDGER.md
 """
 
 import math

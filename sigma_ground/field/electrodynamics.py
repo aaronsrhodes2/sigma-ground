@@ -299,7 +299,7 @@ def muon_g2_tension_sigmas():
     Sigma-combination: σ_tot = √(σ_exp² + σ_SM²). With 2025 values,
     residual ≈ 5.2σ numerically, but per MTI 2025 WP this is an artefact
     of differing HVP input data (CMD-3 vs lattice), not a real physics
-    tension. See misc/arxiv_pluggable_survey_2025.md Batch 3.
+    tension. (literature survey removed 2026-10-11; see misc/DISPROOF_LEDGER.md).
 
     Returns:
         residual tension in σ_tot units (float, ≥ 0).

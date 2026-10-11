@@ -64,9 +64,11 @@ session a double-take every time. **Cleanup trigger:** the moment a
 worktree's branch merges into master, remove the worktree and delete the
 branch in the same sitting — don't leave it "for later."
 
-**Key physics concepts (don't panic)**
-- σ (sigma) field — scalar field governing scale transitions
-- Space cavitation — compressed spacetime pocket, electromagnetically
-  incommensurable with surrounding universe
-- r_s / R_H identity — Schwarzschild radius equals Hubble radius at junction
-- Bond failure layers — 8 bond types fail in order during BH formation
+**What counts as physics here (the Captain, 2026-10-11): data alone.**
+- A claim stays in the model only if it can be disproved and has survived the test. A disproved claim is not part of the model; at most it is
+  speculation about ourselves.
+- The σ-field guesses and SSBM theory were put through that test and removed. The record of what was tested and what the data did is
+  [misc/DISPROOF_LEDGER.md](misc/DISPROOF_LEDGER.md); the removed documents are in git at tag `pre-strip-2026-10-11`.
+- The `sigma=` plumbing in the code stays (Captain, 2026-10-11): at σ = 0 it reproduces standard physics, and the goal is to make σ properly variable.
+  It is a parameter, not a claim; nothing in the model asserts a value of σ or a mechanism that sets it.
+- Do not add numerology (formula searches over constants). Do not describe an untested idea as a result.
