@@ -117,6 +117,10 @@ class FastEphemeris:
     def _ecl(self, key: str, jd: np.ndarray) -> np.ndarray:
         p, freqs, coef, poly = self._arrays(key)
         t = np.atleast_1d(np.asarray(jd, dtype=float)) - J2000
+        reflex = self._doc["bodies"][key].get("reflex")
+        if reflex:                                            # the Sun about the barycentre: a fixed combination of the giants' orbits
+            out = sum(c * self._ecl(name, jd) for name, c in reflex.items())
+            return out + periodic_sum(freqs, coef, poly, t)
         base = kepler_ecliptic(p, t) if p is not None else 0.0
         return base + periodic_sum(freqs, coef, poly, t)
 

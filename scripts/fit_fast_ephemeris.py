@@ -331,6 +331,27 @@ def score(truth: Truth, doc: dict, terms: int | None, targets: list[str]) -> dic
     return out
 
 
+GIANTS = ("Jupiter", "Saturn", "Uranus", "Neptune")
+
+
+def build_reflex(truth: Truth, train_end: float) -> dict:
+    """The Sun's motion about the barycentre as a fixed linear combination of the giants' barycentric positions.
+
+    Barycentre condition: M_sun r_sun + sum m_i r_i = 0, so r_sun = -sum (m_i / M_sun) r_i. The coefficients are fitted (they come out near
+    minus the planet/Sun mass ratios, which is the check) on the true positions, then applied to the *modelled* giants at query time.
+    """
+    jd = np.arange(jd_of(CONFIG["SunBary"]["start"]), train_end, CONFIG["SunBary"]["step"])
+    sun = truth.helio("SunBary", jd).T @ fe._ECL_TO_EQ
+    cols = [truth.helio(g, jd).T @ fe._ECL_TO_EQ for g in GIANTS]
+    A = np.stack([c.ravel() for c in cols], axis=1)
+    coef, *_ = np.linalg.lstsq(A, sun.ravel(), rcond=None)
+    resid = sun - sum(c * col for c, col in zip(coef, cols))
+    print(f"  SunBary reflex: coefficients {np.round(coef, 8)}, residual rms {np.sqrt((resid ** 2).sum(1).mean()):.0f} km", flush=True)
+    return {"elements": None, "frame": "bary", "reflex": {g: float(c) for g, c in zip(GIANTS, coef)},
+            "ladder": {"0": {"freq_rad_day": [], "coef_km": [], "poly_km": [0.0] * 6}}, "default_terms": 0,
+            "validation_median_km": {}, "info": {"reflex_residual_rms_km": float(np.sqrt((resid ** 2).sum(1).mean()))}}
+
+
 def make_bodies(truth: Truth, names: list[str], train_end: float, quick: bool) -> dict:
     rates = base_rates(truth, train_end)
     planet_bases = np.array([rates[n]["n"] for n in ("Mercury", "Venus", "EMB", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune")])
@@ -340,6 +361,9 @@ def make_bodies(truth: Truth, names: list[str], train_end: float, quick: bool) -
     out = {}
     for name in ORDER:
         if name not in names:
+            continue
+        if name == "SunBary" and all(g in names for g in GIANTS):
+            out[name] = build_reflex(truth, train_end)
             continue
         bases = moon_bases if name == "Moon" else (sun_bases if name == "SunBary" else planet_bases)
         out[name] = build_body(truth, name, bases, CONFIG[name], quick, train_end)
