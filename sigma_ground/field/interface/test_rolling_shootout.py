@@ -9,8 +9,10 @@ MATERIA_RUN_PROPAGATION=1, like the other propagation tests.
 
 from __future__ import annotations
 
+import json
 import math
 import os
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -252,3 +254,81 @@ class TestKeplerPredictor:
         names = {p.name: p for p in rs.PREDICTORS}
         assert names["kepler_forecast"].kepler_forecast
         assert not names["kepler"].kepler_forecast
+
+
+# ── F3: scripts/run_long_horizon_sweep.py ────────────────────────────────
+
+_REPO = Path(rs.__file__).resolve().parents[3]
+
+
+def _load_script(name: str):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        f"_script_{name}", _REPO / "scripts" / f"{name}.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _need_de440s() -> None:
+    pytest.importorskip("jplephem.spk")
+    if not os.path.exists(_DE440S):
+        pytest.skip(f"{_DE440S} not on this machine")
+
+
+class TestLongHorizonSweep:
+    """run_long_horizon_sweep crashed on every predictor (it unpacked
+    _build_bodies_at_snapshot's four return values into three), ran velocity
+    Verlet for anything that was not 'fr4', compared the de440s system
+    barycentre with the integrated planet centre, and dropped the horizon
+    end from coarse sample schedules."""
+
+    def test_runs_and_scores_like_with_like(self, tmp_path):
+        _need_de440s()
+        lh = _load_script("run_long_horizon_sweep")
+        out = tmp_path / "lh.json"
+        pn = {p.name: p for p in rs.PREDICTORS}["pure_newton"]
+        lh.run_long_horizon_sweep("j2015", 1.0 / 12.0, 1, [pn], out, verbose=False)
+        payload = json.loads(out.read_text())
+        t0 = {s["body"]: s for s in payload["samples"] if s["month"] == 0}
+        assert set(t0) == set(lh._TRUTH_BODIES)
+        # At t = 0 the prediction IS the DE440 state: the barycentre-vs-
+        # barycentre floor is sub-km where the fixture lists every major
+        # moon (it was 174 km for Jupiter, 74 km Neptune, 2131 km Pluto).
+        for body in ("Mercury", "Venus", "Earth", "Moon", "Mars",
+                     "Jupiter", "Neptune", "Pluto"):
+            assert t0[body]["error_au"] * rs.AU_KM < 1.0, body
+        assert payload["metadata"]["truth_points"]["Jupiter"] == "system barycentre"
+
+    @pytest.mark.parametrize("pname,method", [
+        ("jpl_de440_respa", "respa_step"),
+        ("jpl_de440", "forest_ruth_step"),
+    ])
+    def test_integrator_dispatch_is_the_shootouts(self, monkeypatch, pname, method):
+        from sigma_ground.field.interface import nbody as nbm
+        lh = _load_script("run_long_horizon_sweep")
+        pred = {p.name: p for p in rs.PREDICTORS}[pname]
+        jd0 = _DE440["snapshots"]["j2015"]["epoch"]["jd_tdb"]
+        jds = [jd0, jd0 + 0.2]
+        b1, n1, s1, p1 = rs._build_bodies_at_snapshot("j2015", _DE440, pred)
+        want = rs._integrate_nbody(pred, b1, n1, s1, jd0, jds, parent_attractor_indices=p1)
+        calls = {"forest_ruth_step": 0, "step": 0, "respa_step": 0}
+        for name in calls:
+            orig = getattr(nbm.NBodySystem, name)
+            def wrap(self, *a, _o=orig, _n=name, **k):
+                calls[_n] += 1
+                return _o(self, *a, **k)
+            monkeypatch.setattr(nbm.NBodySystem, name, wrap)
+        b2, n2, s2, p2 = rs._build_bodies_at_snapshot("j2015", _DE440, pred)
+        got = lh._integrate_with_samples(pred, b2, n2, s2, jds,
+                                         parent_attractor_indices=p2)
+        assert calls[method] == 2 and sum(calls.values()) == 2, calls
+        for n in n1:
+            np.testing.assert_array_equal(got[n], want[n])
+
+    def test_sample_schedule_ends_at_the_horizon(self):
+        lh = _load_script("run_long_horizon_sweep")
+        jd0 = 2457023.75
+        s = lh._build_sample_jds(jd0, 1.0, 5)
+        assert [round(x - jd0, 4) for x in s] == [0.0, 152.1875, 304.375, 365.25]
+        assert len(lh._build_sample_jds(jd0, 100.0, 1)) == 1201
