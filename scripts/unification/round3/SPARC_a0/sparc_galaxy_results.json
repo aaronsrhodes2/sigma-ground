@@ -1,0 +1,19 @@
+{
+ "n_galaxies": 149,
+ "g_dagger_fixed_ML_0.5_0.7": 1.0462347172695044e-10,
+ "g_dagger_fixed_boot_sd": 7.743142516698405e-12,
+ "g_dagger_free_ML_priors_0.1dex": 8.362697455418896e-11,
+ "g_dagger_free_boot_sd": 1.9166673055408647e-12,
+ "median_fitted_disc_ML": 0.5692619338198263,
+ "disc_ML_16_84": [
+  0.3587361365569199,
+  1.062816262761271
+ ],
+ "a0_prediction_cH0_over_2pi": 1.042e-10,
+ "pred_over_fit_fixed": 0.9959524213834575,
+ "pred_over_fit_free": 1.2460094431908457,
+ "sigmas_fixed": 0.05468990478183883,
+ "sigmas_free": -10.733748828676104,
+ "published_g_dagger_Lelli2017": "1.20e-10 +/- 0.02 (random) +/- 0.24 (systematic) [LIT]",
+ "not_modelled": "distance and inclination uncertainties; bulge ratio free only for galaxies with a bulge"
+}
