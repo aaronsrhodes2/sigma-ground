@@ -3900,6 +3900,12 @@ function Parse:parse_clause(raw, opts)
       -- a bare "chairs on both sides" is one per side; "a lamp on each side" stays one (the planner puts one on each side)
       local it = movable[1]
       if not explicit[it] and it.count > 2 then it.count = 2 end
+      -- "3 chairs on each side of the table": a number said with "each side" is for EACH side (a bare "2 lamps on either side" stays a pair)
+      if explicit[it] and it.count > 1 and chosen then
+        for k = chosen.i, chosen.i + (chosen.n or 1) - 1 do
+          if tokens[k] == "each" then it.count = math.min(it.count * 2, COUNT_CAP); break end
+        end
+      end
     end
   end
   -- an item whose count the player never gave but a "for N" did

@@ -207,6 +207,14 @@ def test_flank(parse, text, count):
     assert req["arrangement"] == "flank" and req["items"][0]["count"] == count and req["target"] in ("couch", "table", "bed"), (text, req)
 
 
+@pytest.mark.parametrize("text,count", [("3 chairs on each side of the table", 6), ("two lamps at each side of the couch", 4),
+                                        ("3 chairs on both sides of the table", 3), ("put 2 lamps on either side of the couch", 2)])
+def test_a_number_said_with_each_side_is_for_each_side(parse, text, count):
+    """review item 38: '3 chairs on each side of the table' placed 3 in all. 'each side' makes the number per side (a bare 'both sides' /
+    'either side' keeps its number as the pair or total)."""
+    assert one(parse, text)["items"][0]["count"] == count, text
+
+
 def test_flank_with_the_flanked_thing_named(parse):
     req = one(parse, "a couch flanked by two lamps")
     assert req["arrangement"] == "flank" and req["target"] == "couch" and kinds(req) == [("couch", 1), ("floor lamp", 2)]

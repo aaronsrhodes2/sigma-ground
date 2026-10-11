@@ -23,7 +23,7 @@ It never asks a clarifying question. Whatever is unclear resolves to the most se
 - **What the models need:** the server must have the Half-Life 2 and Counter-Strike: Source content (the holodeck checks and leaves out
   what is missing); `holodeck_content hl2` restricts it to Half-Life 2 models, which every player has.
 - **Safety on a shared server:** everyone's props belong to whoever made them (admins change anything) and are created as theirs
-  (`SetCreator`, CPPI), the server's own spawn rules apply (`PlayerSpawnProp`), a cooldown between requests (checked first, longer
+  (`SetCreator`, CPPI), the server's own spawn rules apply (`PlayerSpawnObject` and `PlayerSpawnProp`, asked with `hook.Run` so registered hooks and the gamemode's own function both count, and `sbox_maxprops` where the gamemode has no such function; an explicit `false` is a veto), a cooldown between requests (checked first, longer
   after an expensive one), caps per player and overall that undo also obeys, props of players who left make way for newcomers, a small
   planner time budget for ordinary players, Skippy's lines go only to the requester and those within earshot, and the bridge is
   rationed per player and per server. Details and the convars: [../CLOUD_SERVER.md](../CLOUD_SERVER.md).
@@ -120,6 +120,9 @@ family's sourced range (`fidelity.py`, `data/fidelity.json`, report in `misc/HOL
 prop that mass. Six models keep the engine's gameplay mass because no source describes them (catalog `mass_status` "unaudited"); the
 engine's original mass stays in the catalog as `engine_mass`. A separate audit (`audit_physics.py`, report in
 `misc/HOLODECK_PHYSICS_AUDIT.md`) sets the ENGINE's mass, size and collision body beside what Deckard compiles for the same name; it
-reports, it does not correct. Deckard's own mass and size defects found by that audit were fixed in `sigma_ground/deckard` (whole-word
-aliases, head-noun tie-break, a hollow-shell occupancy rule); the one left on purpose is the axis-orientation change, which moves
+reports, it does not correct. Deckard's own mass and size defects found by that audit were fixed in `sigma_ground/deckard` (aliases match
+only as the head noun, so "a desk lamp" is a lamp and compounds keep their own head noun; each part is voxelised on its own grid, so thin
+boards, slender members, glazing and foliage get a mass that does not move with the grid resolution; masses are held to the sourced ranges
+in `fidelity.py`, and the mass-sanity bands in `tests/test_deckard_mass_sanity.py` come from those ranges, with three strict xfails for
+the cases still outside them; a hollow-shell occupancy rule that depends on thickness and material); the one left on purpose is the axis-orientation change, which moves
 pinned scenes and needs its own change.

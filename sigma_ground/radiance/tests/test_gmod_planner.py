@@ -591,6 +591,18 @@ def test_one_on_each_side_of_the_couch(lab):
     assert kinds(res) == {"floor lamp": 2}
 
 
+def test_three_chairs_on_each_side_of_the_table_is_three_per_side(lab):
+    """review item 38: parsed as 3 in all, now 3 on each side of the table."""
+    fresh(lab)
+    stand(lab, "a table", world="room")
+    table = standing(lab, "table")[0]
+    res = lab.run("3 chairs on each side of the table", world="room")
+    assert kinds(res) == {"chair": 6}
+    fx, fy = math.cos(math.radians(table["theta"])), math.sin(math.radians(table["theta"]))
+    sides = [((p["x"] - table["x"]) * fy - (p["y"] - table["y"]) * fx) for p in res["placements"]]
+    assert sum(1 for v in sides if v > 0) == 3 and sum(1 for v in sides if v < 0) == 3, sides
+
+
 def test_one_in_every_corner(lab):
     """heldout-18: 'a plant in each corner' placed one plant."""
     fresh(lab)
