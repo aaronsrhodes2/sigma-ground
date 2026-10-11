@@ -795,11 +795,12 @@ class TestGR2PN(unittest.TestCase):
 
 
 class TestTotalEnergyBookkeeping(unittest.TestCase):
-    """total_energy() reports the energy of the system the integrator actually evolves (fixed 2026-10-10, A2 and its
-    σ sibling): with Plummer softening the pair potential is −G m m'/√(r² + ε²), with uniform σ it carries e^σ.
-    Ground truth: a symplectic integrator with position-only forces conserves that Hamiltonian to its bounded
-    O(dt⁴) error, which the independently written function below confirms. Before the fix total_energy() reported
-    50 % "drift" for the softened cluster and 183 % for the σ = 0.5 binary."""
+    """total_energy(as_integrated=True) reports the energy of the system the integrator actually evolves (fixed
+    2026-10-10, A2 and its σ sibling): with Plummer softening the pair potential is −G m m'/√(r² + ε²), with uniform σ
+    it carries e^σ. Ground truth: a symplectic integrator with position-only forces conserves that Hamiltonian to its
+    bounded O(dt⁴) error, which the independently written function below confirms. Before the fix total_energy()
+    reported 50 % "drift" for the softened cluster and 183 % for the σ = 0.5 binary. The default stays the legacy
+    bare sum until the Captain settles decision C6."""
 
     @staticmethod
     def _independent_energy(bodies, eps):
@@ -820,12 +821,12 @@ class TestTotalEnergyBookkeeping(unittest.TestCase):
         vel -= vel.mean(axis=0)
         system = NBodySystem([CelestialBody(m, pos[i], vel[i], 1.0, 0.0) for i in range(n)], softening_m=0.3 * R)
         t_dyn = math.sqrt(R**3 / (_G * n * m))
-        e0 = system.total_energy()
+        e0 = system.total_energy(as_integrated=True)
         self.assertAlmostEqual(e0 / self._independent_energy(system.bodies, 0.3 * R), 1.0, delta=1e-12)
         worst = 0.0
         for _ in range(200):
             system.forest_ruth_step(t_dyn / 100)
-            worst = max(worst, abs(system.total_energy() / e0 - 1.0))
+            worst = max(worst, abs(system.total_energy(as_integrated=True) / e0 - 1.0))
         self.assertLess(worst, 1e-6)
 
     def test_uniform_sigma_binary_energy_is_conserved(self):
@@ -836,23 +837,27 @@ class TestTotalEnergyBookkeeping(unittest.TestCase):
         system = NBodySystem([CelestialBody(M0, -M1 / M * x, -M1 / M * v, 1.0, 0.0, sigma_field=sigma),
                               CelestialBody(M1, M0 / M * x, M0 / M * v, 1.0, 0.0, sigma_field=sigma)])
         period = 2 * math.pi * math.sqrt(a**3 / mu)
-        e0 = system.total_energy()
+        e0 = system.total_energy(as_integrated=True)
         self.assertAlmostEqual(e0 / self._independent_energy(system.bodies, 0.0), 1.0, delta=1e-12)
         worst = 0.0
         for _ in range(800):
             system.forest_ruth_step(period / 400)
-            worst = max(worst, abs(system.total_energy() / e0 - 1.0))
+            worst = max(worst, abs(system.total_energy(as_integrated=True) / e0 - 1.0))
         self.assertLess(worst, 1e-5)
 
     def test_legacy_point_mass_sum_and_plain_case(self):
-        """as_integrated=False keeps the bare −Σ G m m'/r; without softening and σ both agree bit for bit."""
+        """as_integrated=False keeps the bare −Σ G m m'/r and is still the default (decision C6 is the Captain's);
+        without softening and σ both forms agree bit for bit."""
         bodies = [CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.0, sigma_field=0.2),
                   CelestialBody(6e24, np.array([AU, 1e9, 0.0]), np.array([0.0, 3e4, 0.0]), 1.0, 0.0)]
-        legacy = NBodySystem(bodies, softening_m=1e9).total_energy(as_integrated=False)
+        softened = NBodySystem(bodies, softening_m=1e9)
+        legacy = softened.total_energy(as_integrated=False)
         bare = (0.5 * 6e24 * 9e8) - _G * M_SUN * 6e24 / float(np.linalg.norm(bodies[1].position_m))
         self.assertAlmostEqual(legacy / bare, 1.0, delta=1e-12)
+        self.assertEqual(softened.total_energy(), legacy)
         plain = [b.replace(sigma_field=0.0) for b in bodies]
-        self.assertEqual(NBodySystem(plain).total_energy(), NBodySystem(plain).total_energy(as_integrated=False))
+        self.assertEqual(NBodySystem(plain).total_energy(as_integrated=True),
+                         NBodySystem(plain).total_energy(as_integrated=False))
 
 
 # ═══════════════════════════════════════════════════════════════════════════

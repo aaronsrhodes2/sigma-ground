@@ -1229,23 +1229,23 @@ class NBodySystem:
 
     # ── conserved quantities ────────────────────────────────────────────────
 
-    def total_energy(self, *, as_integrated: bool = True) -> float:
+    def total_energy(self, *, as_integrated: bool = False) -> float:
         """Total mechanical energy (kinetic + Newtonian pair potential) in J.
 
-        as_integrated=True (default): the Hamiltonian of the Newtonian force law the integrators use,
+        as_integrated=False (default): the bare point-mass sum −Σ G m_i m_j / r, ignoring softening_m and σ.
+        as_integrated=True: the Hamiltonian of the Newtonian force law the integrators use,
             E = Σ ½ m v² − Σ_{i<j} G m_i m_j e^{(σ_i+σ_j)/2} / √(r² + ε²),
         with the Plummer softening ε = softening_m and the σ mass scaling of gm_m3_s2. With position-only forces this
         is what step() and forest_ruth_step() conserve (bounded O(dt²), O(dt⁴) error). It is exact for uniform σ; with
         unequal σ the engine's pair forces are not reciprocal (σ-mass law, decisions A23/C2), no conserved energy
-        exists, and the geometric mean e^{(σ_i+σ_j)/2} is a convention. Not included: the potential energy of the
-        J₂–J₄, tidal and post-Newtonian layers.
-        as_integrated=False: the bare point-mass sum −Σ G m_i m_j / r, the value reported before 2026-10-10.
-        With softening_m = 0 and every σ = 0 the two are bit-identical.
+        exists, and the geometric mean e^{(σ_i+σ_j)/2} is a convention. Not included in either: the potential energy of
+        the J₂–J₄, tidal and post-Newtonian layers. With softening_m = 0 and every σ = 0 the two are bit-identical.
 
-        FIXED 2026-10-10 (KNOWN_GAPS A2 and the audit's σ sibling): the energy ignored softening and σ, so runs the
-        integrator conserved reported spurious drift (P5 pilot 0.96 %; a σ = 0.5 binary 183 %). API decision, for the
-        Captain to confirm (open decision C6): the default reports the integrated system's energy; the legacy number
-        stays available with as_integrated=False.
+        FIXED 2026-10-10 (KNOWN_GAPS A2): as_integrated=True gives the energy the integrator conserves.
+        DEFERRED (open decision C6, the Captain's): which one is the default. Option 1, keep as_integrated=False: every
+        existing caller is unchanged, but softened or σ ≠ 0 runs report spurious drift (P5 pilot 0.96 %; σ = 0.5 binary
+        183 %). Option 2, make as_integrated=True the default: the reported energy is the conserved one, but softened or
+        σ ≠ 0 callers see a different number (each pair term changes by its factor e^{(σ_i+σ_j)/2} and by the softening).
         """
         ke = sum(b.kinetic_energy() for b in self.bodies)
         pe = 0.0
