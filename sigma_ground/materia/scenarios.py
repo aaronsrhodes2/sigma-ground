@@ -1389,27 +1389,39 @@ def collision_dynamics(m1: float = 2.0, v1: float = 10.0, m2: float = 1.0,
                           {"m1": m1, "v1": v1, "m2": m2, "v2": v2}, headline, M)
 
 
-def black_hole(solar_masses: float = 10.0,
+def black_hole(solar_masses: float | None = None,
                mass_kg: float | None = None) -> MateriaResult:
     """Black-hole thermodynamics and strong-gravity observables for a mass M
-    (`mass_kg` when given, else `solar_masses` M_sun): Schwarzschild radius,
-    Hawking temperature / luminosity / evaporation time, Bekenstein-Hawking
-    entropy, ISCO and photon-sphere radii, and, at the test radius r = 3 r_s,
-    escape velocity, gravitational redshift, time dilation and tidal
-    stretching. Standard GR (the `gravity` group).
+    (`solar_masses` M_sun or `mass_kg`; 10 M_sun when neither is given):
+    Schwarzschild radius, Hawking temperature / luminosity / evaporation time,
+    Bekenstein-Hawking entropy, ISCO and photon-sphere radii, and, at the test
+    radius r = 3 r_s, escape velocity, gravitational redshift, time dilation
+    and tidal stretching. Standard GR (the `gravity` group).
 
     FIXED 2026-10-10: M was floored at 1e-12 M_sun, so every primordial-mass
     hole (and 0 or negative input) was computed as a 2e18 kg hole; a
-    non-positive or non-finite mass is now refused."""
+    non-positive or non-finite mass is now refused. Two masses that disagree
+    are refused too (neither silently wins)."""
     import math
     from ..field.constants import G, C, M_SUN_KG
-    inputs = {"solar_masses": solar_masses}
+    if solar_masses is None and mass_kg is None:
+        solar_masses = 10.0
+    inputs = {}
     try:
+        if solar_masses is not None:
+            inputs["solar_masses"] = solar_masses
+            M = float(solar_masses) * M_SUN_KG
         if mass_kg is not None:
             inputs["mass_kg"] = mass_kg
-            M = float(mass_kg)
-        else:
-            M = float(solar_masses) * M_SUN_KG
+            M_kg = float(mass_kg)
+            if (solar_masses is not None
+                    and not math.isclose(M, M_kg, rel_tol=1e-6)):
+                return _refusal(
+                    "black_hole", inputs,
+                    "Two different black-hole masses were given.",
+                    f"solar_masses = {solar_masses!r} ({M:.6g} kg) and "
+                    f"mass_kg = {mass_kg!r} disagree; give one mass")
+            M = M_kg
     except (TypeError, ValueError):
         M = float("nan")
     if not (math.isfinite(M) and M > 0):

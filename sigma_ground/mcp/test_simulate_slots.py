@@ -115,7 +115,59 @@ def test_black_hole_primordial_mass_not_floored():
         assert run_simulation("black_hole", {"solar_masses": bad}).value is None
 
 
-# Review of A41: "<unit> of matter" is not a mass-to-energy conversion.
+# Review of the A39 fix: the hole's mass must be the HOLE's. Ground truth is
+# r_s = 2 GM/c^2 with independent GM values: IAU 2015 nominal GM_sun =
+# 1.3271244e20 m^3/s^2, IERS GM_earth = 3.986004418e14, JPL DE440 GM_moon =
+# 4.9028e12 (the body table's masses agree to < 1e-3).
+GM_SUN, GM_EARTH, GM_MOON = 1.3271244e20, 3.986004418e14, 4.9028e12
+
+
+def _r_s(gm):
+    return 2.0 * gm / sc.c ** 2
+
+
+@pytest.mark.parametrize("q, n_sun", [
+    ("tidal force on a 70 kg astronaut falling into a 10 solar mass black hole", 10.0),
+    ("drop a 1 kg clock toward a 4 million solar mass black hole: Hawking temperature", 4e6),
+])
+def test_black_hole_unrelated_kg_mass_is_not_the_hole(q, n_sun):
+    tr = simulate(q, use_llm=False)
+    assert tr.value == pytest.approx(_r_s(n_sun * GM_SUN), rel=1e-3, abs=0.0)
+
+
+@pytest.mark.parametrize("q", [
+    "What's the event horizon radius for one solar mass?",
+    "If the Sun collapsed into a black hole, what would its event horizon radius be?",  # weak_domains gr_001
+    "How big is the Sun's event horizon?",                                           # robustness para_rs_01
+    "Bekenstein-Hawking entropy of a solar-mass black hole",
+])
+def test_black_hole_one_solar_mass_in_words(q):
+    tr = simulate(q, use_llm=False)
+    assert tr.value == pytest.approx(_r_s(GM_SUN), rel=5e-3, abs=0.0)    # 2953 m
+
+
+@pytest.mark.parametrize("q, gm", [
+    ("Bekenstein-Hawking entropy of an Earth-mass black hole in units of k_B", GM_EARTH),
+    ("Schwarzschild radius of a black hole with the mass of the Moon", GM_MOON),
+])
+def test_black_hole_body_mass(q, gm):
+    tr = simulate(q, use_llm=False)
+    assert tr.value == pytest.approx(_r_s(gm), rel=1e-3, abs=0.0)
+
+
+def test_black_hole_kg_mass_tied_to_the_hole():
+    for q, m in [("Hawking temperature of a primordial black hole of mass 1e12 kg", 1e12),
+                 ("a 1e9-kg primordial black hole: lifetime", 1e9),
+                 ("If a 1-kilometer-mass black hole existed (1e12 kg), what's its "
+                  "event horizon size and Hawking temperature?", 1e12),
+                 ("density of 1 kg of matter compressed to a black hole", 1.0)]:
+        tr = simulate(q, use_llm=False)
+        assert tr.value == pytest.approx(2.0 * sc.G * m / sc.c ** 2, rel=1e-6, abs=0.0)
+
+
+def test_black_hole_two_disagreeing_masses_are_refused():
+    assert run_simulation("black_hole", {"solar_masses": 10.0, "mass_kg": 70.0}).value is None
+
 
 @pytest.mark.parametrize("q", [
     "how much energy does 1 kg of matter release in fusion",

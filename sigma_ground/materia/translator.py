@@ -378,6 +378,73 @@ def _extract_solar_masses(q: str):
     return _num_from(m) if m else None
 
 
+# The mass of the BLACK HOLE itself, for the black_hole verb (FIXED
+# 2026-10-10, A39 review): a kg mass is the hole's only when the phrasing ties
+# it to the hole ("a 1e11 kg black hole", "black hole of mass 1e11 kg"), so the
+# 70 kg astronaut falling into a 10 solar-mass hole never becomes the hole.
+_MASS_UNIT_ALT = ("(" + "|".join(sorted(map(re.escape, _MASS_UNIT_KG),
+                                        key=len, reverse=True)) + r")\b")
+_BH = r"black[\s-]*holes?"
+_BH_KG_BEFORE_RE = re.compile(
+    _NUM_PAT + r"\s*-?\s*" + _MASS_UNIT_ALT +
+    r"(?:\s*-?\s*(?:(?:primordial|mini|micro|tiny|small|hypothetical)\s+)*|"
+    # "1 kg of matter compressed into a black hole" (not "falls into")
+    r"\s+of\s+(?:matter|mass)\s+(?:is\s+|were\s+|was\s+)?(?:compressed|"
+    r"collapsed|squeezed|crushed|turned)\s+(?:in)?to\s+an?\s+)" + _BH)
+_BH_KG_AFTER_RE = re.compile(
+    _BH + r"\s*(?:\(\s*|,?\s*(?:of|weighing|massing)\s+|"
+    r",?\s*(?:with|having|of|whose)\s+(?:a\s+)?(?:total\s+)?mass\s*"
+    r"(?:of|=|:|is|equal\s+to)?\s*|\s+mass\s*(?:of|=|:|is)?\s*)" +
+    _NUM_PAT + r"\s*" + _MASS_UNIT_ALT)
+# "a black hole existed (1e12 kg)": a parenthetical mass in the same clause
+_BH_KG_PAREN_RE = re.compile(
+    _BH + r"[^.?!();,]{0,30}\(\s*" + _NUM_PAT + r"\s*" + _MASS_UNIT_ALT +
+    r"\s*\)")
+# A solar mass written in words: "one solar mass", "a solar-mass black hole".
+_ONE_SOLAR_MASS_RE = re.compile(r"\b(?:solar|sun)[\s-]*mass\b(?!es)")
+_BODY_ALT = r"(sun|earth|moon|mars|jupiter|saturn|venus|mercury|neptune|uranus|pluto)"
+# A body's mass named as the hole's: "an Earth-mass black hole", "a black hole
+# with the mass of the Moon", "Jupiter's mass".
+_BODY_MASS_RE = re.compile(
+    r"\b" + _BODY_ALT + r"(?:[\s-]+mass\b|(?:'s|’s)\s+mass\b)|"
+    r"\bmass\s+of\s+(?:the\s+)?" + _BODY_ALT + r"\b")
+# The body itself as the hole: "if the Sun collapsed into a black hole",
+# "the Sun's event horizon", "Schwarzschild radius of the Earth".
+_BODY_AS_HOLE_RE = re.compile(
+    r"\b" + _BODY_ALT + r"\s+(?:collapsed|collapses|collapsing|were|was|"
+    r"became|becomes|turned|is\s+compressed|compressed)\b|"
+    r"\b" + _BODY_ALT + r"(?:'s|’s)\s+(?:event\s+horizon|schwarzschild|"
+    r"hawking|horizon)|"
+    r"\b(?:schwarzschild\s+radius|event\s+horizon(?:\s+radius)?|"
+    r"hawking\s+temperature)\s+(?:of|for)\s+(?:the\s+)?" + _BODY_ALT + r"\b")
+
+
+def _extract_black_hole_mass(q: str) -> dict:
+    """The hole's mass as {"solar_masses": x} or {"mass_kg": x}; {} when the
+    question names none (the verb's default then applies). A numeric solar
+    mass wins over everything; a kg mass counts only when tied to the hole."""
+    low = q.lower()
+    sm = _extract_solar_masses(q)
+    if sm is not None:
+        return {"solar_masses": sm}
+    m = _BH_KG_BEFORE_RE.search(low)
+    if m:
+        return {"mass_kg": _num_from(m) * _MASS_UNIT_KG[m.group(5)]}
+    m = _BH_KG_AFTER_RE.search(low) or _BH_KG_PAREN_RE.search(low)
+    if m:
+        return {"mass_kg": _num_from(m) * _MASS_UNIT_KG[m.group(5)]}
+    if _ONE_SOLAR_MASS_RE.search(low):
+        return {"solar_masses": 1.0}
+    m = _BODY_MASS_RE.search(low) or _BODY_AS_HOLE_RE.search(low)
+    if m:
+        key = next(g for g in m.groups() if g)
+        if key == "sun":
+            return {"solar_masses": 1.0}
+        from .bodies import resolve_body
+        return {"mass_kg": resolve_body(key).mass_kg}
+    return {}
+
+
 # Speed as a fraction of c, for relativity questions. Accepts "0.99c",
 # "0.5 c", "beta = 0.8", "99% of the speed of light", "0.9 times the speed of
 # light", "half the speed of light", "2.7e8 m/s", "1.5e5 km/s".
@@ -540,9 +607,7 @@ def _params_for(verb: str, q: str) -> dict:
         if "orbiter" in orbit or "period_s" in orbit:
             p.pop("altitude_m", None)     # a natural / synchronous orbit has its own radius
     if "solar_masses" in slots:               # black_hole: "3 solar masses"
-        sm = _extract_solar_masses(q)
-        if sm is not None:
-            p["solar_masses"] = sm
+        p.update(_extract_black_hole_mass(q))  # the hole's own mass only
     if "velocity_fraction_c" in slots:        # relativistic_motion: "0.99c"
         b = _extract_beta(q)
         if b is not None:
@@ -570,7 +635,7 @@ def _params_for(verb: str, q: str) -> dict:
         mat = _extract_material(q)
         if mat:
             p["bell_material"] = mat
-    if "mass_kg" in slots:
+    if "mass_kg" in slots and "solar_masses" not in slots:
         mkg = _extract_mass_kg(q)
         if mkg is not None:
             p["mass_kg"] = mkg
