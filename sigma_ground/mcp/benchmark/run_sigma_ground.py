@@ -719,8 +719,14 @@ def _parse_plan(content: str) -> dict | None:
 async def _route_once(session, http, ollama_url: str, model: str, question: str,
                       system_prompt: str, tools_for_ollama: list[dict],
                       real_params_by_tool: dict[str, set[str]] | None,
-                      t0: float) -> dict:
-    """One model call -> one plan -> at most one tool call -> the record."""
+                      t0: float, router_format: str = "schema") -> dict:
+    """One model call -> one plan -> at most one tool call -> the record.
+
+    router_format="schema" (default) sends the JSON-schema `format` above.
+    Ollama orders a schema's properties alphabetically, so the grammar makes
+    the model write "args" (or "decline") before it can name the "tool" --
+    the reverse of how router_dataset.py trains it. "free" sends no `format`:
+    the model writes its plan in its trained order and _parse_plan reads it."""
     names = [t["function"]["name"] for t in tools_for_ollama]
     if "request_clarification" not in names:
         names.append("request_clarification")
@@ -729,9 +735,12 @@ async def _route_once(session, http, ollama_url: str, model: str, question: str,
                          {"role": "user", "content": question}],
             "options": {"temperature": 0.0,
                         "num_ctx": 32768 if len(system_prompt) > 6000 else 4096}}
-    response = await http.post(ollama_url, json={**body, "format": _router_format(names)})
-    if response.status_code >= 400:     # an Ollama that can't take a schema
-        response = await http.post(ollama_url, json={**body, "format": "json"})
+    if router_format == "free":
+        response = await http.post(ollama_url, json=body)
+    else:
+        response = await http.post(ollama_url, json={**body, "format": _router_format(names)})
+        if response.status_code >= 400:     # an Ollama that can't take a schema
+            response = await http.post(ollama_url, json={**body, "format": "json"})
     response.raise_for_status()
     raw = (response.json().get("message") or {}).get("content") or ""
     plan = _parse_plan(raw)
@@ -740,7 +749,8 @@ async def _route_once(session, http, ollama_url: str, model: str, question: str,
         return {"answer_text": answer_text, "extracted_value": None,
                 "extracted_units": "", "tool_calls": [], "turns": 1,
                 "elapsed_s": time.time() - t0, "extracted_via_fallback": False,
-                "nudges_sent": 0, "router_plan": raw, **extra}
+                "nudges_sent": 0, "router_plan": raw, "router_format": router_format,
+                **extra}
 
     if plan is None:
         return record("<router: reply was not a JSON plan>", router_error="unparseable plan")
@@ -1003,7 +1013,8 @@ async def _run_one_question(session, ollama_url: str, model: str,
                               primary_tool_expected: str | None = None,
                               tool_category: str = "auto",
                               finalize: str = "chain",
-                              router: bool = False) -> dict:
+                              router: bool = False,
+                              router_format: str = "schema") -> dict:
     """Multi-turn tool loop for a single question.
 
     finalize="chain" (default): after the first successful tool call the
@@ -1340,7 +1351,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
         async with httpx.AsyncClient(timeout=120.0) as http:
             return await _route_once(session, http, ollama_url, model, question,
                                      system_prompt, tools_for_ollama,
-                                     real_params_by_tool, t0)
+                                     real_params_by_tool, t0, router_format)
 
     messages = [
         {"role": "system",    "content": system_prompt},
@@ -1880,6 +1891,7 @@ async def _amain(args) -> int:
                             tool_category=args.tools,
                             finalize=args.finalize,
                             router=args.router,
+                            router_format=args.router_format,
                         ),
                         _QUESTION_TIMEOUT_S,
                     )
@@ -1966,9 +1978,16 @@ def main() -> int:
                         help="with --router: append the tool index to the router "
                              "prompt. Needed for a stock model; a router fine-tune "
                              "was trained on the bare prompt.")
+    parser.add_argument("--router-format", default="schema", choices=["schema", "free"],
+                        help="with --router: 'schema' (default) constrains the reply with a "
+                             "JSON schema; 'free' sends no `format`. Ollama sorts a schema's "
+                             "keys, so the schema forces \"args\" before \"tool\"; a router "
+                             "trained tool-first does far better in 'free' (see Session 38).")
     args = parser.parse_args()
     if args.router_index and not args.router:
         parser.error("--router-index needs --router")
+    if args.router_format != "schema" and not args.router:
+        parser.error("--router-format needs --router")
     return asyncio.run(_amain(args))
 
 

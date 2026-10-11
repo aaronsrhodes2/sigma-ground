@@ -73,12 +73,14 @@ def _ollama(monkeypatch, replies):
     return bodies
 
 
-def _ask(question, session=None, tools=OLLAMA_TOOLS, real_params=None, prompt=None):
+def _ask(question, session=None, tools=OLLAMA_TOOLS, real_params=None, prompt=None,
+         router_format=None):
     session = session or _FakeSession()
+    extra = {} if router_format is None else {"router_format": router_format}
     rec = asyncio.run(R._run_one_question(
         session, "http://fake/api/chat", "router-model", tools, question,
         prompt or R._router_system_prompt(tools, False),
-        real_params_by_tool=real_params, router=True))
+        real_params_by_tool=real_params, router=True, **extra))
     assert not any(k.endswith("_hit") for k in rec), "a classifier caught the question"
     return G.apply_gate(rec), session
 
@@ -105,6 +107,19 @@ def test_an_ollama_without_schema_support_gets_json_mode(monkeypatch):
     assert [b["format"] if isinstance(b["format"], str) else "schema" for b in bodies] == \
         ["schema", "json"]
     assert rec["extracted_value"] == 79
+
+
+def test_free_format_sends_no_format_and_the_default_still_sends_the_schema(monkeypatch):
+    """Ollama sorts a schema's keys, which forces "args" before "tool"; a router
+    trained tool-first needs the free format (Session 38). The default must not change."""
+    plan = '{"tool": "element_atomic_data", "args": {"element_symbol": "Au"}}'
+    bodies = _ollama(monkeypatch, [plan, plan])
+    rec_default, _ = _ask("What's the atomic number of gold?")
+    rec_free, session = _ask("What's the atomic number of gold?", router_format="free")
+    assert "format" in bodies[0] and "format" not in bodies[1]
+    assert bodies[0]["messages"] == bodies[1]["messages"] and bodies[0]["options"] == bodies[1]["options"]
+    assert (rec_default["router_format"], rec_free["router_format"]) == ("schema", "free")
+    assert rec_free["extracted_value"] == 79 and session.calls == [("element_atomic_data", {"element_symbol": "Au"})]
 
 
 def test_decline_and_clarification_run_nothing(monkeypatch):

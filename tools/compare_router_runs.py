@@ -66,6 +66,9 @@ def main(argv: list[str]) -> int:
         for b in names:
             if a >= b:
                 continue
+            if any(n.startswith("tuned") for n in runs) \
+                    and (a.startswith("tuned")) == (b.startswith("tuned")):
+                continue    # with a fine-tune present, list only tuned-vs-baseline pairs
             ra, rb = runs[a]["rows"], runs[b]["rows"]
             only_a = sorted(i for i in ra if ra[i].correct and i in rb and not rb[i].correct)
             only_b = sorted(i for i in rb if rb[i].correct and i in ra and not ra[i].correct)

@@ -197,6 +197,15 @@ def main() -> int:
                    help="JSON with the summary and every record's verdict")
     p.add_argument("--limit", type=int, default=0)
     p.add_argument("--show", type=int, default=10, help="failures to print")
+    p.add_argument("--format", choices=["schema", "json", "none"], default="schema",
+                   help="schema: the harness's JSON-schema `format` (default, what "
+                        "run_sigma_ground --router sends); json: Ollama's plain JSON mode; "
+                        "none: free generation")
+    p.add_argument("--num-predict", type=int, default=1024,
+                   help="cap on generated tokens per reply (plans are under 150 tokens); "
+                        "a reply that hits the cap is a failure, counted in the summary")
+    p.add_argument("--timeout", type=float, default=120,
+                   help="seconds per request; a timeout is a failure, not a crash")
     a = p.parse_args()
     if a.smoke:
         return smoke(a)
@@ -214,25 +223,40 @@ def main() -> int:
     url = a.ollama_url.rstrip("/") + "/api/chat"
     rows = []
     t_start = time.time()
-    with httpx.Client(timeout=300) as http:
+    with httpx.Client(timeout=a.timeout) as http:
         for i, rec in enumerate(recs):
             system, user, gold_msg = rec["messages"]
             gold = json.loads(gold_msg["content"])
             body = {"model": a.model, "stream": False, "think": False,
-                    "messages": [system, user], "format": fmt,
-                    "options": {"temperature": 0.0,
+                    "messages": [system, user],
+                    "options": {"temperature": 0.0, "num_predict": a.num_predict,
                                 "num_ctx": 32768 if len(system["content"]) > 6000 else 4096}}
+            if a.format == "schema":
+                body["format"] = fmt
+            elif a.format == "json":
+                body["format"] = "json"
             t0 = time.time()
-            r = http.post(url, json=body)
-            r.raise_for_status()
-            raw = (r.json().get("message") or {}).get("content") or ""
+            capped = timed_out = False
+            try:
+                r = http.post(url, json=body)
+                r.raise_for_status()
+                js = r.json()
+                raw = (js.get("message") or {}).get("content") or ""
+                capped = js.get("done_reason") == "length"
+            except httpx.TimeoutException:
+                raw, timed_out = "", True
             dt = time.time() - t0
-            pred = _parse_plan(raw)
+            pred = None if (timed_out or capped) else _parse_plan(raw)
             tool_ok, exact, why = compare(pred, gold)
+            if timed_out:
+                why = f"timed out after {a.timeout:.0f} s"
+            elif capped:
+                why = f"hit the {a.num_predict}-token cap"
             meta = rec.get("meta") or {}
             rows.append({"i": i, "source": meta.get("source"), "group": meta.get("group"),
                          "question": user["content"], "gold": gold, "raw": raw,
                          "tool_ok": tool_ok, "exact": exact, "why": why,
+                         "timed_out": timed_out, "capped": capped,
                          "elapsed_s": round(dt, 3)})
             if (i + 1) % 100 == 0:
                 done = rows
@@ -253,7 +277,9 @@ def main() -> int:
         by_source[r["source"]].append(r)
     fails = [r for r in rows if not r["exact"]]
     summary = {
-        "model": a.model, "data": str(a.data), "split": a.split,
+        "model": a.model, "data": str(a.data), "split": a.split, "format": a.format,
+        "num_predict": a.num_predict, "timeout_s": a.timeout,
+        "timed_out": sum(r["timed_out"] for r in rows), "hit_token_cap": sum(r["capped"] for r in rows),
         "tool_names": len(names), "overall": summ(rows),
         "by_source": {k: summ(v) for k, v in sorted(by_source.items())},
         "failure_kinds": Counter("wrong tool" if r["why"].startswith("tool ")

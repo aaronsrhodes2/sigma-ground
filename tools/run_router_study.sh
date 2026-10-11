@@ -253,21 +253,37 @@ do_smoke() {
 do_eval_val() {
   ollama_up
   gpu_guard eval_val exclusive
-  "$PY" -u "$REPO/tools/eval_router_val.py" --model "$MODEL" --ollama-url "$API" --data "$DATA" \
-    --out "$CACHE/eval_val_$MODEL.json" > "$LOGS/eval_val.log" 2>&1
+  # Two request shapes, same records: "schema" is the harness's JSON-schema
+  # format (Ollama sorts its keys, forcing "args" before "tool"); "free" sends
+  # no format, the order the model was trained in. See Session 38.
+  local f fmt
+  for f in schema free; do
+    fmt=$f; [[ $f == free ]] && fmt=none
+    "$PY" -u "$REPO/tools/eval_router_val.py" --model "$MODEL" --ollama-url "$API" --data "$DATA" \
+      --format "$fmt" --out "$CACHE/eval_val_${MODEL}_$f.json" > "$LOGS/eval_val_$f.log" 2>&1 || return 1
+  done
 }
 do_benchmark() {
   ollama_up
   gpu_guard benchmark exclusive
-  "$PY" -u -m sigma_ground.mcp.benchmark.run_sigma_ground --router --model "$MODEL" \
-    --ollama-url "$HARNESS_URL" --output "$RESULTS/router_mentat_router_run.json" > "$LOGS/benchmark.log" 2>&1
+  local h=(-m sigma_ground.mcp.benchmark.run_sigma_ground --ollama-url "$HARNESS_URL")
+  # the tuned router as the harness defines router mode (schema format), then free
+  "$PY" -u "${h[@]}" --router --model "$MODEL" \
+    --output "$RESULTS/router_mentat_router_run.json" > "$LOGS/benchmark_schema.log" 2>&1 || return 1
+  "$PY" -u "${h[@]}" --router --router-format free --model "$MODEL" \
+    --output "$RESULTS/router_mentat_router_free_run.json" > "$LOGS/benchmark_free.log" 2>&1 || return 1
+  # the stock model in the same free format, so both models meet both formats
+  "$PY" -u "${h[@]}" --router --router-index --router-format free --model qwen3:8b \
+    --output "$RESULTS/router_qwen3_8b_stock_free_run.json" > "$LOGS/benchmark_stock_free.log" 2>&1 || return 1
 }
 do_score() {
   "$PY" -m sigma_ground.mcp.benchmark.score > "$LOGS/score.log" 2>&1 || return 1
   "$PY" "$REPO/tools/compare_router_runs.py" \
     chain="$RESULTS/chain_qwen3_8b_run.json" \
-    stock="$RESULTS/router_qwen3_8b_stock_run.json" \
-    tuned="$RESULTS/router_mentat_router_run.json" > "$CACHE/comparison.md"
+    stock_schema="$RESULTS/router_qwen3_8b_stock_run.json" \
+    stock_free="$RESULTS/router_qwen3_8b_stock_free_run.json" \
+    tuned_schema="$RESULTS/router_mentat_router_run.json" \
+    tuned_free="$RESULTS/router_mentat_router_free_run.json" > "$CACHE/comparison.md"
   cat "$CACHE/comparison.md" | tee -a "$LOGS/pipeline.log"
 }
 
