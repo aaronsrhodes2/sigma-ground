@@ -48,6 +48,12 @@ def gravitational_redshift(M, r):
     A photon climbing out of a gravitational well loses energy. At r = r_s,
     z -> infinity (event horizon).
 
+    Evaluated as z = expm1(-1/2 log1p(-r_s/r)), the same quantity without
+    the cancellation of "1/sqrt(1 - x) - 1": in a weak field (x = r_s/r =
+    1.4e-9 at Earth's surface) the old form lost ~8 digits of z, and the
+    redshift difference across 1 m (1.09e-16, Pound-Rebka scale) came out 0.
+    FIXED 2026-10-10 (A24).
+
     Args:
         M: mass (kg)
         r: coordinate radius (m), must be > r_s
@@ -58,7 +64,7 @@ def gravitational_redshift(M, r):
     rs = schwarzschild_radius(M)
     if r <= rs:
         raise ValueError(f"r={r:.4e} m <= r_s={rs:.4e} m: inside/at the horizon")
-    return 1.0 / math.sqrt(1.0 - rs / r) - 1.0
+    return math.expm1(-0.5 * math.log1p(-rs / r))
 
 
 def time_dilation_gr(M, r):

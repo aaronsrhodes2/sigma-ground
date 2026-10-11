@@ -240,3 +240,37 @@ def test_sigma_time_dilation_linearity():
 def test_effective_liv_scale_infinite_at_sigma_zero():
     """At σ=0 (observer frame) the engine predicts no LIV."""
     assert effective_liv_scale_gev(0.0) == math.inf
+
+
+# ── 2026-10-10 audit: (γ−1)m c² must not cancel at everyday speeds ─────
+# Ground truth: the binomial series γ − 1 = β²/2 + 3β⁴/8 + 5β⁶/16 + …,
+# summed in floats with no subtraction (truncation error < β⁸ ≤ 1e-44 here).
+
+def _gamma_minus_one_series(v):
+    b2 = (v / C) ** 2
+    return b2 * (0.5 + b2 * (3.0 / 8.0 + b2 * 5.0 / 16.0))
+
+
+@pytest.mark.parametrize("m, v", [
+    (1.0, 0.01), (1.0, 1.0), (1.0, 2.998), (70.0, 10.0),
+    (1000.0, 30.0), (1.0, 100.0), (1.0, 1000.0),
+])
+def test_kinetic_energy_rel_everyday_speeds_no_cancellation(m, v):
+    """1 kg at 1 m/s is 0.5 J (was 0 J); a 1000 kg car at 30 m/s is 450 kJ
+    (was 459 kJ). Relative accuracy ~1e-16, as the problem's conditioning allows."""
+    K_ref = _gamma_minus_one_series(v) * m * C**2
+    assert kinetic_energy_rel(m, v) == pytest.approx(K_ref, rel=1e-14, abs=0.0)
+
+
+def test_kinetic_energy_rel_still_exact_at_high_speed():
+    """At 0.9c the (γ−1) form is well conditioned: γ − 1 = 1/sqrt(0.19) − 1."""
+    v = 0.9 * C
+    K_ref = (1.0 / math.sqrt(1.0 - 0.81) - 1.0) * M_ELECTRON_KG * C**2
+    assert kinetic_energy_rel(M_ELECTRON_KG, v) == pytest.approx(K_ref, rel=1e-13, abs=0.0)
+
+
+def test_kinetic_energy_rel_rejects_v_at_or_above_c():
+    with pytest.raises(ValueError):
+        kinetic_energy_rel(1.0, C)
+    with pytest.raises(ValueError):
+        kinetic_energy_rel(1.0, float("nan"))

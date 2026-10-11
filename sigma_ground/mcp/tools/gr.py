@@ -143,7 +143,10 @@ def gravitational_redshift(mass_kg: float, radius_m: float) -> ToolResult:
                    f"Redshift diverges.",
             inputs={"mass_kg": mass_kg, "radius_m": radius_m},
         )
-    z = (1.0 - r_s / radius_m) ** -0.5 - 1.0
+    # FIXED 2026-10-10 (A24): one stable implementation (expm1/log1p), not a
+    # second copy of (1 - x)^(-1/2) - 1, which cancels in a weak field.
+    from sigma_ground.field.gr_basics import gravitational_redshift as _z
+    z = _z(mass_kg, radius_m)
     return ToolResult(
         value=z,
         units="dimensionless",

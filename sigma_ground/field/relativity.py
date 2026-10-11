@@ -84,10 +84,35 @@ def relativistic_energy(m0, v):
     return lorentz_factor(v) * m0 * C**2
 
 
+def gamma_minus_one(v):
+    """γ − 1, evaluated without catastrophic cancellation.
+
+    γ = (1 − β²)^(−1/2) = exp(−½ ln(1 − β²)), so exactly
+        γ − 1 = expm1(−½ · log1p(−β²)).
+    Forming γ first and subtracting 1 loses everything at everyday speeds:
+    γ rounds to within one ulp (2.2e-16) of 1, so (γ − 1) m c² was 0 J for
+    1 kg at 1 m/s and +2 % for a car at 30 m/s. expm1/log1p keep full
+    relative precision for every β < 1 (→ β²/2 as β → 0).
+
+    Domain: 0 ≤ |v| < c.
+
+    Raises:
+        ValueError: if |v| ≥ c
+    """
+    v = abs(v)
+    if not v < C:                      # also refuses NaN
+        raise ValueError(
+            f"v={v:.6e} m/s ≥ c={C:.6e} m/s: Lorentz factor undefined at or above c"
+        )
+    beta_sq = (v / C) ** 2
+    return math.expm1(-0.5 * math.log1p(-beta_sq))
+
+
 def kinetic_energy_rel(m0, v):
     """Relativistic kinetic energy K = (γ−1)m₀c².
 
-    Equals the classical ½m₀v² at v ≪ c.
+    Equals the classical ½m₀v² at v ≪ c. FIXED 2026-10-10: γ−1 via
+    gamma_minus_one (expm1/log1p), so everyday speeds no longer cancel to 0.
 
     Args:
         m0: rest mass (kg)
@@ -96,7 +121,7 @@ def kinetic_energy_rel(m0, v):
     Returns:
         kinetic energy (J)
     """
-    return (lorentz_factor(v) - 1.0) * m0 * C**2
+    return gamma_minus_one(v) * m0 * C**2
 
 
 def momentum_rel(m0, v):

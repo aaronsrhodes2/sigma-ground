@@ -137,3 +137,23 @@ def test_relativistic_particle_electron_unchanged_regime():
     assert rows["Lorentz factor γ"] == pytest.approx(1.0 + 1e6 / mc2, rel=1e-9, abs=0.0)
     assert rows["Momentum (pc)"] == pytest.approx(_pc_invariant_eV(1e6, mc2), rel=1e-8, abs=0.0)
 
+
+# ── B4: cancellation in the MCP faces of (γ−1) m c² and the weak-field z ────
+
+@pytest.mark.parametrize("m, v, K", [(1.0, 1.0, 0.5), (1500.0, 30.0, 6.75e5),
+                                     (70.0, 10.0, 3500.0)])
+def test_relativistic_energy_analysis_everyday_kinetic_energy(m, v, K):
+    from sigma_ground.mcp.tools.relativity_spectra import relativistic_energy_analysis
+    out = relativistic_energy_analysis(m, v)["value"]
+    # classical 1/2 m v^2; the relativistic correction 3 beta^2/4 is < 1e-14 here
+    assert out["kinetic_energy_J"] == pytest.approx(K, rel=1e-13, abs=0.0)
+
+
+@pytest.mark.parametrize("h", [1.0, 0.01])
+def test_mcp_gravitational_redshift_difference_at_earth_surface(h):
+    from sigma_ground.mcp.tools import gr as t_gr
+    M, R = 5.9722e24, 6.371e6
+    dz = t_gr.gravitational_redshift(M, R).value - t_gr.gravitational_redshift(M, R + h).value
+    # weak field: dz = G M h / (c^2 R (R + h)) to relative O(r_s/R) = 1e-9
+    dz_ref = sc.G * M * h / (sc.c ** 2 * R * (R + h))
+    assert dz == pytest.approx(dz_ref, rel=1e-6, abs=0.0)                 # 1.09e-16 per metre
