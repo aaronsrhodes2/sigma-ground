@@ -7,8 +7,12 @@ Provides planet/body positions using a priority chain:
   2. SSBM 30-year forecast fixture   (SSBM's own N-body forecast; only AT its
                                       stored monthly epochs, 2025-2055)
   3. jplephem kernel                 (exact DE440, if jplephem + de440s.bsp
-                                      are installed; 1849-2150)
-  4. Keplerian orbit fit             (last resort, no external deps; any epoch)
+                                      are installed; 1849-2150; Mars..Pluto
+                                      converted from system barycentre to
+                                      planet centre)
+  4. Keplerian orbit fit             (last resort, no external deps; any epoch;
+                                      a satellite's fitted orbit is added to
+                                      its planet as served by tiers 1-4)
 
 A tier serves a query only when it holds a value for that epoch: the
 fixtures are samples, not continuous ephemerides, so an epoch between two
@@ -49,7 +53,7 @@ from pathlib import Path
 import numpy as np
 
 from sigma_ground.field.interface.orbital import (
-    DE440_GM, fit_orbit, _ecliptic_to_equatorial,
+    ANCHOR_MAP, DE440_GM, SATELLITE_GM, fit_orbit, _ecliptic_to_equatorial,
 )
 
 AU_KM = 1.495978707e8
@@ -77,6 +81,15 @@ _BARYCENTRE_GM: dict[str, float] = {
 # Kepler fits are deterministic functions of the fixture: share them across
 # instances (each planet fit costs ~0.5 s).
 _FIT_CACHE: dict[str, object] = {}
+
+# de440s gives Mars..Pluto as planetary-system barycentres (NAIF 4-9), not
+# planet centres; the kernel tier converts them (_barycentre_offset_km).
+_KERNEL_BARYCENTRE_PLANETS = ("Mars", "Jupiter", "Saturn", "Uranus",
+                              "Neptune", "Pluto")
+
+# Measured error (km) of the kernel tier's planet centre, per planet (cache;
+# see SGEphemeris._kernel_centre_bound_km).
+_KERNEL_BOUND_CACHE: dict[str, float] = {}
 
 
 def sun_ssb_from_heliocentric(hel_km: dict[str, np.ndarray]) -> np.ndarray:
@@ -275,17 +288,91 @@ class SGEphemeris:
             return None
         return hel + sun
 
+    def _barycentre_offset_km(self, planet: str, jd: float) -> np.ndarray:
+        """System barycentre minus planet centre (km, equatorial) at jd.
+
+        From the barycentre definition GM_sys r_bary = GM_p r_p + sum_i GM_i
+        r_i with r_i = r_p + r_i,rel:  r_bary - r_p = sum_i GM_i r_i,rel /
+        GM_sys.  GM_sys: DE440 system GM; GM_i: SATELLITE_GM; r_i,rel: the
+        Kepler fits of the planet's moons in ANCHOR_MAP (relative to the
+        planet centre).  Moons without a fit are omitted (Saturn: Iapetus,
+        Rhea, Dione, Tethys, Mimas, ~12 km together).
+        """
+        num = np.zeros(3)
+        for moon, anchor in ANCHOR_MAP.items():
+            if anchor != planet or moon not in SATELLITE_GM:
+                continue
+            orbit = self._kepler(moon)
+            if orbit is None:
+                continue
+            rel = np.array(_ecliptic_to_equatorial(
+                *orbit.predict_relative_ecliptic(jd)))
+            num += SATELLITE_GM[moon] * rel
+        return num / DE440_GM[planet]
+
     def _jplephem_position(self, body_name: str, jd: float) -> np.ndarray | None:
-        """jplephem kernel lookup (km) -- requires jplephem + downloaded kernel."""
+        """jplephem kernel lookup (km) -- requires jplephem + downloaded kernel.
+
+        Mars..Pluto: de440s holds the system barycentre; the planet centre
+        is barycentre - _barycentre_offset_km.  FIXED 2026-10-10: the
+        barycentre was returned as the planet (Pluto 2131 km, Uranus up to
+        1163 km, Saturn ~300 km from the fixture's planet centres) with
+        uncertainty 0.  The remaining error is _kernel_centre_bound_km.
+        First use fits the planet's moons (about 1-3 s per planet, cached
+        per process).
+        """
         if not self._use_kernel:
             return None
         try:
             from sigma_ground.field.interface.adapters._jplephem_bridge import (
                 query_jplephem,
             )
-            return query_jplephem(body_name, jd)
+            pos = query_jplephem(body_name, jd)
         except Exception:
             return None
+        if pos is None:
+            return None
+        name = self._canonical(body_name)
+        if name in _KERNEL_BARYCENTRE_PLANETS:
+            pos = pos - self._barycentre_offset_km(name, jd)
+        return pos
+
+    def _kernel_centre_bound_km(self, planet: str) -> float:
+        """Measured error (km) of the kernel tier's planet centre.
+
+        The largest |kernel-tier centre - Horizons planet centre| over the
+        27 DE440 snapshots and the fixture's bary_to_center_offsets epochs
+        (Horizons N vs N99; the J2015 one is 0.25 d off its snapshot, so it
+        also checks the moon fits between their samples).  0 for the bodies
+        de440s gives directly (Sun, Mercury, Venus, Earth, Moon).  See
+        sg_position_with_uncertainty for the measured values.
+        """
+        if planet not in _KERNEL_BARYCENTRE_PLANETS:
+            return 0.0
+        if planet in _KERNEL_BOUND_CACHE:
+            return _KERNEL_BOUND_CACHE[planet]
+        from sigma_ground.field.interface.adapters._jplephem_bridge import (
+            query_jplephem,
+        )
+        data = self._load_de440()
+        worst = 0.0
+        for snap in data["snapshots"].values():
+            truth = self._snap_pos(snap, planet)
+            pos = self._jplephem_position(planet, snap["epoch"]["jd_tdb"])
+            if truth is None or pos is None:
+                continue
+            worst = max(worst, float(np.linalg.norm(pos - truth)))
+        offsets = data.get("bary_to_center_offsets", {})
+        for key, rec in offsets.get("bodies", {}).get(planet, {}).items():
+            jd = offsets["epochs"][key]["jd_tdb"]
+            pos = self._jplephem_position(planet, jd)
+            bary = query_jplephem(planet, jd)
+            if pos is None or bary is None:
+                continue
+            truth = bary + np.array([rec["dx_km"], rec["dy_km"], rec["dz_km"]])
+            worst = max(worst, float(np.linalg.norm(pos - truth)))
+        _KERNEL_BOUND_CACHE[planet] = worst
+        return worst
 
     def _serve(self, body_name: str, jd: float):
         """(tier, SSB position, heliocentric position) from the best tier."""
@@ -314,12 +401,32 @@ class SGEphemeris:
             if sun is not None:
                 return "jplephem", pos, pos - sun
 
-        # Tier 4: Keplerian orbit fit
-        hel = self._kepler_heliocentric(body_name, jd)
-        if hel is not None:
+        # Tier 4: Keplerian orbit fit.  A satellite's fit is relative to its
+        # planet, so it is added to the planet as served at jd (any tier),
+        # with that tier's Sun: moon - planet is then the fitted relative
+        # orbit whichever tier serves the planet.  FIXED 2026-10-10: with
+        # the kernel on, the planet came from the kernel and the moon from a
+        # Kepler planet (Charon-Pluto 1.78e6 km on 2012-07-02, true 19 596).
+        if body_name == "Sun":
             sun = self._kepler_sun_ssb(jd)
             if sun is not None:
-                return "kepler", hel + sun, hel
+                return "kepler", sun, np.zeros(3)
+        else:
+            orbit = self._kepler(body_name)
+            if orbit is not None:
+                rel = np.array(_ecliptic_to_equatorial(
+                    *orbit.predict_relative_ecliptic(jd)))
+                if orbit.anchor == "Sun":
+                    sun = self._kepler_sun_ssb(jd)
+                    if sun is not None:
+                        return "kepler", rel + sun, rel
+                else:
+                    try:
+                        _, a_pos, a_hel = self._serve(orbit.anchor, jd)
+                    except ValueError:
+                        pass
+                    else:
+                        return "kepler", a_pos + rel, a_hel + rel
 
         kernel = ("disabled" if not self._use_kernel else
                   "unavailable, outside its span, or without this body")
@@ -368,10 +475,18 @@ class SGEphemeris:
     ) -> tuple[np.ndarray, float]:
         """Position (km) with the served tier's error estimate in AU.
 
-        - 'de440' and 'jplephem' tiers: 0.0 -- the values are DE440 itself
-          (DE440's own error, Park et al. 2021, is not included; the kernel
-          gives Mars..Pluto as system barycentres, within ~300 km of the
-          planet centre).
+        - 'de440' tier, and 'jplephem' for the Sun, Mercury, Venus, Earth
+          and Moon: 0.0 -- the values are DE440 itself (DE440's own error,
+          Park et al. 2021, is not included).
+        - 'jplephem' for Mars..Pluto: the measured error of the conversion
+          from system barycentre to planet centre (_kernel_centre_bound_km),
+          i.e. the largest disagreement with Horizons' planet centres.
+          Measured 2026-10-10: Mars < 1 m, Jupiter 0.4 km, Saturn 15 km
+          (moons without a Kepler fit, mainly Iapetus), Neptune 3 km
+          (Triton's fit), Pluto 0.4 km; Uranus 1.1e3 km: Horizons' Uranus
+          centre (799) sits 352-1163 km from DE440's Uranus barycentre over
+          2000-2026, while the five major moons (605 km^3/s^2) put the
+          centre within 35 km of it.  That disagreement is not resolved here.
         - 'forecast' tier with the kernel available: the measured error
           |forecast - DE440 kernel| at jd.
         - 'forecast' tier without the kernel: |forecast - Kepler fit|, a
@@ -380,7 +495,8 @@ class SGEphemeris:
         - 'kepler' tier: nan.  It serves only where no exact value exists,
           so there is no independent reference and no honest number (its
           in-sample fit residual says nothing about errors between the
-          yearly fit epochs, e.g. for the Moon).
+          yearly fit epochs, e.g. for the Moon).  A satellite served by this
+          tier sits on its planet as served by the planet's own tier.
 
         Returns
         -------
@@ -388,8 +504,11 @@ class SGEphemeris:
         err_au  : float           -- error estimate in AU (nan if unknown)
         """
         tier, pos, _ = self._serve(body_name, jd)
-        if tier in ("de440", "jplephem"):
+        if tier == "de440":
             return pos, 0.0
+        if tier == "jplephem":
+            bound = self._kernel_centre_bound_km(self._canonical(body_name))
+            return pos, bound / AU_KM
         if tier == "forecast":
             name = self._canonical(body_name)
             ref = self._jplephem_position(name, jd)

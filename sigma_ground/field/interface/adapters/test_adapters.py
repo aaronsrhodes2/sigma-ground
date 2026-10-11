@@ -459,6 +459,74 @@ class TestSGEphemerisContract(unittest.TestCase):
         self.assertEqual(eph.sg_tier("Mars", self.JD_2012), "jplephem")
         self.assertLess(np.linalg.norm(eph.sg_position("Mars", self.JD_2012) - truth), 1.0)
 
+    # -- C2 review: kernel tier planet centres and satellites on them -----
+
+    # JPL SSD planetary satellite mean elements, https://ssd.jpl.nasa.gov/
+    # sats/elem/ (checked 2026-10-10): a (km), e; MAR099, NEP097, PLU060,
+    # JUP365, SAT441.
+    _MEAN_ELEMENTS = {"Charon": ("Pluto", 19600.0, 0.000),
+                      "Triton": ("Neptune", 354800.0, 0.000),
+                      "Phobos": ("Mars", 9375.0, 0.015),
+                      "Io": ("Jupiter", 421800.0, 0.004),
+                      "Titan": ("Saturn", 1221900.0, 0.029)}
+
+    def test_kernel_on_satellite_sits_on_its_planet(self):
+        """Kernel on, 2012-07-02: |moon - planet| must lie in a(1-e)..a(1+e)
+        (1 % allowed for mean vs osculating elements and the table's
+        rounding).  Before: the planet came from the kernel and the moon
+        from a Kepler planet: Charon-Pluto 1.78e6 km, Triton-Neptune
+        1.90e6, Phobos-Mars 3.34e4, Io-Jupiter 5.45e5, Titan-Saturn 1.57e6."""
+        self._truth("Sun", self.JD_2012)  # skip without kernel
+        eph = SGEphemeris()
+        for moon, (planet, a, e) in self._MEAN_ELEMENTS.items():
+            self.assertEqual(eph.sg_tier(planet, self.JD_2012), "jplephem")
+            for fn in (eph.sg_position, eph.sg_heliocentric):
+                sep = float(np.linalg.norm(fn(moon, self.JD_2012)
+                                           - fn(planet, self.JD_2012)))
+                self.assertTrue(0.99 * a * (1 - e) <= sep <= 1.01 * a * (1 + e),
+                                f"{moon}-{planet} {fn.__name__}: {sep:.6g} km")
+
+    def test_kernel_tier_gives_planet_centres(self):
+        """de440s holds system barycentres for Mars..Pluto; the kernel tier
+        must give the planet centre.  Truth: the fixture's Horizons planet
+        centre at J2010, and Horizons' own barycentre->centre offsets at
+        JD 2457024.0 (0.25 d off the J2015 snapshot, so also between the
+        moon fits' samples).  Before: Pluto 2131 km off at J2010; offsets
+        off by Jupiter 180, Saturn 275, Neptune 74, Pluto 2131 km."""
+        from sigma_ground.field.interface.adapters._jplephem_bridge import (
+            query_jplephem,
+        )
+        self._truth("Sun", self.JD_J2010)  # skip without kernel
+        eph = SGEphemeris()
+        pluto = eph._jplephem_position("Pluto", self.JD_J2010)
+        self.assertLess(np.linalg.norm(pluto - self._snap("j2010", "Pluto")), 1.0)
+        offsets = self.fix["bary_to_center_offsets"]
+        jd = offsets["epochs"]["j2015"]["jd_tdb"]
+        for planet, tol in (("Jupiter", 1.0), ("Saturn", 20.0),
+                            ("Neptune", 1.0), ("Pluto", 1.0)):
+            rec = offsets["bodies"][planet]["j2015"]
+            truth = query_jplephem(planet, jd) + np.array(
+                [rec["dx_km"], rec["dy_km"], rec["dz_km"]])
+            err = float(np.linalg.norm(eph._jplephem_position(planet, jd) - truth))
+            self.assertLess(err, tol, f"{planet}: {err:.4g} km")
+
+    def test_kernel_tier_uncertainty_covers_centre_error(self):
+        """Before: exactly 0.0 for the kernel's system barycentres (Pluto
+        2131 km, Uranus 507 km from the planet centre at J2010)."""
+        self._truth("Sun", self.JD_J2010)  # skip without kernel
+        eph = SGEphemeris()
+        for planet in ("Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"):
+            self.assertEqual(eph.sg_tier(planet, self.JD_2012), "jplephem")
+            _, err_au = eph.sg_position_with_uncertainty(planet, self.JD_2012)
+            miss = float(np.linalg.norm(eph._jplephem_position(planet, self.JD_J2010)
+                                        - self._snap("j2010", planet)))
+            self.assertGreaterEqual(err_au * 1.495978707e8, miss, planet)
+            if planet in ("Saturn", "Uranus", "Pluto"):
+                self.assertGreater(err_au, 0.0, planet)
+        for name in ("Earth", "Moon", "Sun"):
+            _, err_au = eph.sg_position_with_uncertainty(name, self.JD_2012)
+            self.assertEqual(err_au, 0.0, name)
+
     def test_available_bodies_are_servable_off_snapshot(self):
         eph = SGEphemeris(use_kernel=False)
         bodies = eph.sg_available_bodies()
