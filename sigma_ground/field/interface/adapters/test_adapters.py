@@ -189,18 +189,22 @@ class TestSGEphemeris(unittest.TestCase):
             self.assertIn(name, bodies, f"{name} missing from available_bodies")
 
     def test_de440_tier_past_epoch(self):
-        """J2025 is in DE440 fixture -- tier should be de440."""
-        jd_j2025 = 2460310.5
+        """J2025.0 (JD 2460676.25) is a DE440 snapshot -- tier should be de440.
+
+        (Until 2026-10-10 this used JD 2460310.5, half a day before the
+        J2024.0 snapshot, which the tier served only because it snapped to
+        snapshots up to 5 days away.)"""
+        jd_j2025 = 2460676.25
         tier = self.eph.sg_tier("Earth", jd_j2025)
         self.assertEqual(tier, "de440",
                          f"Expected de440 tier for J2025, got {tier!r}")
 
     def test_forecast_tier_future_epoch(self):
-        """J2040 is in SSBM forecast -- tier should be forecast."""
-        jd_j2040 = 2451545.0 + 40 * 365.25  # ~J2040
-        tier = self.eph.sg_tier("Earth", jd_j2040)
-        self.assertIn(tier, ("forecast", "kepler"),
-                      f"Expected forecast or kepler for J2040, got {tier!r}")
+        """A stored forecast epoch (month 180, ~J2040) -- tier should be forecast."""
+        jd_m180 = self.eph._load_forecast()["predictions"][180]["jd"]
+        tier = self.eph.sg_tier("Earth", jd_m180)
+        self.assertEqual(tier, "forecast",
+                         f"Expected forecast at a stored epoch, got {tier!r}")
 
     def test_position_shape(self):
         """sg_position should return (3,) ndarray."""
@@ -216,8 +220,8 @@ class TestSGEphemeris(unittest.TestCase):
                                msg=f"Earth at {dist:.3f} AU (expected ~1 AU)")
 
     def test_position_with_uncertainty_past(self):
-        """For past epochs, SSBM and Keplerian should agree to < 0.05 AU."""
-        jd   = 2460310.5  # J2025 -- in DE440
+        """At a DE440 snapshot epoch the served value is exact: error 0."""
+        jd   = 2460676.25  # J2025.0 -- in DE440
         pos, err_au = self.eph.sg_position_with_uncertainty("Earth", jd)
         self.assertLess(err_au, 0.05,
                         f"SSBM vs Kepler disagreement at J2025: {err_au:.4f} AU")
@@ -228,6 +232,178 @@ class TestSGEphemeris(unittest.TestCase):
         dist_km = float(np.linalg.norm(hel))
         self.assertLess(dist_km, 1e6,  # within 1M km of origin
                         f"Sun heliocentric offset {dist_km:.0f} km")
+
+
+class TestSGEphemerisContract(unittest.TestCase):
+    """Regression tests for the 2026-10-10 audit (fix queue C2, A44-A46).
+
+    Ground truth: the DE440 fixture snapshots, and the de440s kernel read
+    directly with jplephem (not through query_jplephem); kernel tests skip
+    when the kernel is not installed.
+    """
+
+    JD_J2010 = 2455197.5           # DE440 snapshot epoch
+    JD_2012 = 2456110.5            # 2012-07-02, between snapshots
+    _CHAINS = {"Sun": [(0, 10)], "Earth": [(0, 3), (3, 399)],
+               "Moon": [(0, 3), (3, 301)], "Mars": [(0, 4)],
+               "Jupiter": [(0, 5)]}
+
+    @classmethod
+    def setUpClass(cls):
+        import json
+        from pathlib import Path
+        fx = Path(__file__).parent.parent / "fixtures"
+        with open(fx / "de440_state_vectors.json") as f:
+            cls.fix = json.load(f)
+        with open(fx / "ssbm_future_predictions.json") as f:
+            cls.fc = json.load(f)
+        cls.kernel = None
+        try:
+            from jplephem.spk import SPK
+            from sigma_ground.field.interface.adapters._jplephem_bridge import (
+                _KERNEL_DIR,
+            )
+            path = _KERNEL_DIR / "de440s.bsp"
+            if path.exists():
+                cls.kernel = SPK.open(str(path))
+        except ImportError:
+            pass
+
+    def _snap(self, key, name):
+        for b in self.fix["snapshots"][key]["bodies"]:
+            if b["name"] == name:
+                sv = b["state_vector"]
+                return np.array([sv["x_km"], sv["y_km"], sv["z_km"]])
+        raise KeyError(name)
+
+    def _truth(self, name, jd):
+        if self.kernel is None:
+            self.skipTest("de440s kernel not installed")
+        return sum(np.asarray(self.kernel[a, b].compute(jd))
+                   for a, b in self._CHAINS[name])
+
+    # -- A44: the Kepler tier evaluates anchor and Sun at the query epoch --
+
+    def test_kepler_tier_anchor_and_sun_at_query_epoch(self):
+        """Before: the anchor was the J2026 snapshot for every epoch (Earth
+        5e5 km off, Titan 2e9 km off at J2010; the Moon 2 AU off)."""
+        eph = SGEphemeris(use_kernel=False)
+        for name, tol in (("Earth", 5e4), ("Mars", 5e4), ("Sun", 2e3)):
+            err = np.linalg.norm(eph._kepler_position(name, self.JD_J2010)
+                                 - self._snap("j2010", name))
+            self.assertLess(err, tol, f"{name}: {err:.4g} km")
+        rel = (eph._kepler_position("Titan", self.JD_J2010)
+               - eph._kepler_position("Saturn", self.JD_J2010))
+        rel_true = self._snap("j2010", "Titan") - self._snap("j2010", "Saturn")
+        self.assertLess(np.linalg.norm(rel - rel_true), 1e4)
+
+    def test_kepler_tier_off_snapshot_vs_kernel(self):
+        """Earth on 2012-07-02 from the Kepler tier: before 5.4e5 km off."""
+        truth_e = self._truth("Earth", self.JD_2012)
+        truth_s = self._truth("Sun", self.JD_2012)
+        eph = SGEphemeris(use_kernel=False)
+        self.assertEqual(eph.sg_tier("Earth", self.JD_2012), "kepler")
+        self.assertLess(np.linalg.norm(eph.sg_position("Earth", self.JD_2012)
+                                       - truth_e), 2e4)
+        self.assertLess(np.linalg.norm(eph.sg_heliocentric("Earth", self.JD_2012)
+                                       - (truth_e - truth_s)), 2e4)
+        self.assertLess(np.linalg.norm(eph.sg_position("Sun", self.JD_2012)
+                                       - truth_s), 2e3)
+
+    # -- A45: the forecast tier serves only its stored epochs --------------
+
+    def test_forecast_served_only_at_stored_epochs(self):
+        """Before: month 0.5 was served 4e7 km off; so were epochs 15 d
+        outside the forecast."""
+        eph = SGEphemeris(use_kernel=False)
+        meta = self.fc["metadata"]
+        start, md = meta["start_jd"], meta["month_days"]
+        last = self.fc["predictions"][-1]["jd"]
+        for jd in (start + 0.5 * md, start + 119.5 * md, start - 15.0,
+                   last + 15.0):
+            self.assertIsNone(eph._forecast_position("Earth", jd), jd)
+            self.assertEqual(eph.sg_tier("Earth", jd), "kepler", jd)
+        stored = self.fc["predictions"][120]["jd"]
+        self.assertEqual(eph.sg_tier("Earth", stored), "forecast")
+
+    def test_forecast_heliocentric_is_the_stored_vector(self):
+        """Before: a Sun from another date was subtracted (1.47e6 km)."""
+        entry = self.fc["predictions"][240]
+        hel = SGEphemeris().sg_heliocentric("Jupiter", entry["jd"])
+        np.testing.assert_allclose(hel, entry["ssbm"]["Jupiter"], atol=1e-6)
+
+    def test_forecast_sun_from_its_own_planets(self):
+        """The forecast tier's Sun (barycentre of the forecast's planets)
+        vs DE440 at month 240: before 1.47e6 km (J2025 Sun frozen)."""
+        entry = self.fc["predictions"][240]
+        jd = entry["jd"]
+        eph = SGEphemeris()
+        sun = eph._forecast_position("Mercury", jd) - np.array(entry["ssbm"]["Mercury"])
+        self.assertLess(np.linalg.norm(sun - self._truth("Sun", jd)), 5e3)
+
+    # -- A46: the uncertainty belongs to the tier that served -------------
+
+    def test_uncertainty_zero_for_exact_values(self):
+        """Before: 0.0085 AU for the exact DE440 Earth, nan for the Sun."""
+        for name in ("Earth", "Moon", "Sun"):
+            _, err = SGEphemeris().sg_position_with_uncertainty(name, self.JD_J2010)
+            self.assertEqual(err, 0.0, name)
+
+    def test_uncertainty_kepler_tier_is_not_zero(self):
+        """Before: exactly 0 for the Moon on 2012-07-02, then 2.0 AU off."""
+        _, err = SGEphemeris(use_kernel=False).sg_position_with_uncertainty(
+            "Moon", self.JD_2012)
+        self.assertTrue(math.isnan(err), err)
+
+    def test_uncertainty_forecast_tier_is_measured(self):
+        jd = self.fc["predictions"][120]["jd"]
+        truth = self._truth("Earth", jd)
+        pos, err = SGEphemeris().sg_position_with_uncertainty("Earth", jd)
+        self.assertAlmostEqual(err, np.linalg.norm(pos - truth) / 1.495978707e8,
+                               delta=1e-12)
+        self.assertGreater(err, 0.0)
+
+    # -- query_jplephem Earth and Moon; tier order; names ------------------
+
+    def test_query_jplephem_earth_and_moon(self):
+        """Before: None for both (kernel[0, 399] does not exist)."""
+        from sigma_ground.field.interface.adapters._jplephem_bridge import (
+            query_jplephem,
+        )
+        self._truth("Sun", self.JD_J2010)  # skip without kernel
+        earth = query_jplephem("Earth", self.JD_J2010)
+        moon = query_jplephem("moon", self.JD_J2010)
+        self.assertIsNotNone(earth)
+        self.assertIsNotNone(moon)
+        self.assertLess(np.linalg.norm(earth - self._snap("j2010", "Earth")), 1.0)
+        # Earth-Moon distance between lunar perigee and apogee extremes
+        # (356 375 - 406 720 km; Meeus, Astronomical Algorithms, ch. 50)
+        self.assertTrue(3.56e5 < np.linalg.norm(moon - earth) < 4.07e5)
+
+    def test_de440_tier_only_at_snapshot_epochs(self):
+        """Before: J2010 + 1 d returned the J2010 snapshot (2.6e6 km off)."""
+        eph = SGEphemeris(use_kernel=False)
+        self.assertNotEqual(eph.sg_tier("Earth", self.JD_J2010 + 1.0), "de440")
+        self.assertEqual(eph.sg_tier("Earth", self.JD_J2010), "de440")
+        truth = self._truth("Earth", self.JD_J2010 + 1.0)
+        pos = SGEphemeris().sg_position("Earth", self.JD_J2010 + 1.0)
+        self.assertLess(np.linalg.norm(pos - truth), 1.0)
+
+    def test_kernel_ranks_above_kepler(self):
+        """Before: Mars on 2012-07-02 came from Kepler (5.3e5 km off)."""
+        truth = self._truth("Mars", self.JD_2012)
+        eph = SGEphemeris()
+        self.assertEqual(eph.sg_tier("Mars", self.JD_2012), "jplephem")
+        self.assertLess(np.linalg.norm(eph.sg_position("Mars", self.JD_2012) - truth), 1.0)
+
+    def test_available_bodies_are_servable_off_snapshot(self):
+        eph = SGEphemeris(use_kernel=False)
+        bodies = eph.sg_available_bodies()
+        self.assertNotIn("Mimas", bodies)
+        self.assertIn("Titan", bodies)
+        self.assertEqual(eph.sg_position("Titan", self.JD_2012).shape, (3,))
+        np.testing.assert_array_equal(eph.sg_position("mars", self.JD_J2010),
+                                      self._snap("j2010", "Mars"))
 
 
 # ══════════════════════════════════════════════════════════════════════════

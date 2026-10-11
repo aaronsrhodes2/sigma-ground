@@ -18,20 +18,26 @@ _KERNEL_CACHE: dict = {}
 # in one place instead of each project re-fetching to its own cache.
 _KERNEL_DIR   = Path("D:/datasets/jpl")
 
-# NAIF body codes for JPL DE440
-_NAIF_CODES: dict[str, int] = {
-    "Sun":     10,
-    "Mercury":  1,   # Mercury barycentre
-    "Venus":    2,
-    "Earth":    399,
-    "Moon":     301,
-    "Mars":     4,
-    "Jupiter":  5,
-    "Saturn":   6,
-    "Uranus":   7,
-    "Neptune":  8,
-    "Pluto":    9,
+# NAIF segment chains for JPL DE440s: a body's SSB position is the sum of the
+# segments along its chain.  de440s holds SSB -> planetary-system barycentres
+# (1-9), SSB -> Sun (10), EMB (3) -> Earth (399) and Moon (301), and the
+# trivial Mercury/Venus barycentre -> centre segments.  It has no planet-centre
+# segments for Mars..Pluto, so those are SYSTEM BARYCENTRES (the planet centre
+# is within ~300 km for Saturn; see the fixture's bary_to_center_offsets).
+_NAIF_CHAINS: dict[str, tuple[tuple[int, int], ...]] = {
+    "Sun":     ((0, 10),),
+    "Mercury": ((0, 1), (1, 199)),
+    "Venus":   ((0, 2), (2, 299)),
+    "Earth":   ((0, 3), (3, 399)),
+    "Moon":    ((0, 3), (3, 301)),
+    "Mars":    ((0, 4),),
+    "Jupiter": ((0, 5),),
+    "Saturn":  ((0, 6),),
+    "Uranus":  ((0, 7),),
+    "Neptune": ((0, 8),),
+    "Pluto":   ((0, 9),),
 }
+_CHAIN_BY_LOWER = {k.lower(): v for k, v in _NAIF_CHAINS.items()}
 
 
 def _load_kernel(name: str = "de440s"):
@@ -64,13 +70,16 @@ def query_jplephem(body_name: str, jd: float) -> np.ndarray | None:
         except Exception:
             return None
 
-    code = _NAIF_CODES.get(body_name)
-    if code is None:
+    chain = _CHAIN_BY_LOWER.get(str(body_name).lower())
+    if chain is None:
         return None
 
     try:
-        # jplephem compute() returns (position, velocity) in km, km/day
-        pos, _ = kernel[0, code].compute_and_differentiate(jd)
-        return np.array(pos)
+        # jplephem compute() returns the position in km.  Earth and Moon need
+        # two segments (SSB -> EMB -> body): kernel[0, 399] does not exist.
+        pos = np.zeros(3)
+        for center, target in chain:
+            pos = pos + np.asarray(kernel[center, target].compute(jd), dtype=float)
+        return pos
     except Exception:
         return None

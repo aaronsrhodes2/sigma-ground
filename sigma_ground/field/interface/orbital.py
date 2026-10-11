@@ -55,6 +55,25 @@ ANCHOR_MAP: dict[str, str] = {
     "Charon": "Pluto",
 }
 
+# DE440 gravitational parameters, km³/s² [LIT]: JPL SSD Astrodynamic
+# Parameters, https://ssd.jpl.nasa.gov/astro_par.html (checked 2026-10-10),
+# from Park, R. S. et al. 2021, AJ 161, 105 (DE440/DE441).  Mars..Pluto are
+# SYSTEM values (planet + satellites); Mercury, Venus, Earth and the Moon are
+# single bodies.
+DE440_GM: dict[str, float] = {
+    "Sun":     132_712_440_041.279419,
+    "Mercury":          22_031.868551,
+    "Venus":           324_858.592000,
+    "Earth":           398_600.435507,
+    "Moon":              4_902.800118,
+    "Mars":             42_828.375816,
+    "Jupiter":     126_712_764.100000,
+    "Saturn":       37_940_584.841800,
+    "Uranus":        5_794_556.400000,
+    "Neptune":       6_836_527.100580,
+    "Pluto":               975.500000,
+}
+
 # GM values (km³/s²) from JPL DE440 ephemeris.
 # LOCAL_LIBRARY: measured from DE440/JPL — NAIF PDS, Folkner et al. (2014).
 # These are measured gravitational parameters, not approximations.
