@@ -60,6 +60,14 @@ def elastic_analysis(material_key: str, strain: float = 0.001) -> dict[str, Any]
     volume change, a von Mises yield check, and isotropic moduli from Lame
     parameters. e.g. elastic_analysis('iron', 0.001)."""
     from sigma_ground.field.interface import elasticity as E
+    from sigma_ground.field.interface import plasticity as P
+
+    def _yielded_at_200MPa():                          # uniaxial 200 MPa vs the material's σ_y
+        return E.is_yielded(200.0e6, 0.0, 0.0, P.yield_stress(material_key))
+
+    def _moduli_from_lame():
+        return E.moduli_from_lame(E.lame_lambda(material_key), E.lame_mu(material_key))
+
     _raw = {
         "uniaxial_stress_Pa": _safe_call(E.uniaxial_stress, material_key, strain),
         "shear_stress_Pa": _safe_call(E.shear_stress, material_key, strain),
@@ -69,11 +77,11 @@ def elastic_analysis(material_key: str, strain: float = 0.001) -> dict[str, Any]
         "strain_energy_uniaxial_J_m3": _safe_call(E.strain_energy_density_uniaxial, material_key, strain),
         "strain_energy_shear_J_m3": _safe_call(E.strain_energy_density_shear, material_key, strain),
         "strain_energy_hydrostatic_J_m3": _safe_call(E.strain_energy_density_hydrostatic, material_key, strain),
-        # PHYSICS_GAP (2026-10-10, unification round 2, U8; KNOWN_GAPS.md): the next two
-        # entries ignore material_key — fixed Lamé parameters and a fixed 250 MPa yield, so
-        # every material reports K = 70 GPa, E = 78.75 GPa, G = 30 GPa. Flagged, not fixed.
-        "is_yielded_at_200MPa": _safe_call(E.is_yielded, 200.0e6, 0.0, 0.0, 250.0e6),
-        "moduli_from_lame": _safe_call(E.moduli_from_lame, 50.0e9, 30.0e9),
+        # FIXED 2026-10-10: the next entries use the requested material's σ_y and Lamé
+        # parameters (were a fixed 250 MPa and λ = 50, μ = 30 GPa for every material, A21).
+        "yield_stress_Pa": _safe_call(P.yield_stress, material_key),
+        "is_yielded_at_200MPa": _safe_call(_yielded_at_200MPa),
+        "moduli_from_lame": _safe_call(_moduli_from_lame),
     }
     results = {k: v for k, (v, e) in _raw.items()}
     errors = {k: e for k, (v, e) in _raw.items() if e}

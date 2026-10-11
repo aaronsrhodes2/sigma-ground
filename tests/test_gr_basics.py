@@ -258,7 +258,8 @@ def test_page_time_sm_is_fraction_of_evaporation():
     t_sm = page_time_sm(M)
     t_evap = hawking_evaporation_time(M)
     assert 0.0 < t_sm < t_evap
-    assert t_sm == pytest.approx(0.5384 * t_evap, rel=1e-10)
+    # Page 2013 (JCAP 09, 028, eq. 9): eps = 0.53810 (was 0.5384, a transcription error)
+    assert t_sm == pytest.approx(0.53810 * t_evap, rel=1e-10, abs=0.0)
 
 
 def test_page_time_sm_scales_with_M_cubed():
@@ -304,3 +305,87 @@ def test_bekenstein_hawking_rejects_nonpositive_mass():
         bekenstein_hawking_entropy(0.0)
     with pytest.raises(ValueError):
         bekenstein_hawking_entropy(-1.0)
+
+
+# ── 2026-10-10 audit (A24): weak-field redshift without cancellation ───
+# Ground truth: z = (1 − x)^(−1/2) − 1 = x/2 + 3x²/8 + 5x³/16 + 35x⁴/128 + …
+# with x = r_s/r; at Earth's surface x = 1.4e-9, so four terms are exact to
+# ~1e-45. The difference across a height h uses Δx = r_s h / (r (r + h))
+# directly, so the reference never subtracts two nearly equal numbers.
+
+_M_EARTH = 5.9722e24
+_R_EARTH = 6.371e6
+
+
+def _z_series(x):
+    return x * (0.5 + x * (3.0 / 8.0 + x * (5.0 / 16.0 + x * 35.0 / 128.0)))
+
+
+def test_gravitational_redshift_earth_surface_full_precision():
+    rs = schwarzschild_radius(_M_EARTH)
+    z_ref = _z_series(rs / _R_EARTH)                           # 6.9613e-10
+    assert gravitational_redshift(_M_EARTH, _R_EARTH) == pytest.approx(z_ref, rel=1e-13, abs=0.0)
+
+
+@pytest.mark.parametrize("h", [1.0, 0.01])
+def test_gravitational_redshift_difference_over_1m_and_1cm(h):
+    """Pound-Rebka scale: z(R) − z(R + h) ≈ g h / c² = 1.09e-16 per metre.
+    The old form returned exactly 0 for both heights."""
+    rs = schwarzschild_radius(_M_EARTH)
+    x0, x1 = rs / _R_EARTH, rs / (_R_EARTH + h)
+    dx = rs * h / (_R_EARTH * (_R_EARTH + h))
+    dz_ref = dx * (0.5 + 3.0 / 8.0 * (x0 + x1)
+                   + 5.0 / 16.0 * (x0 * x0 + x0 * x1 + x1 * x1))
+    dz = gravitational_redshift(_M_EARTH, _R_EARTH) - gravitational_redshift(
+        _M_EARTH, _R_EARTH + h)
+    assert dz == pytest.approx(dz_ref, rel=1e-6, abs=0.0)
+    g = G * _M_EARTH / _R_EARTH**2
+    assert dz == pytest.approx(g * h / C**2, rel=1e-6, abs=0.0)          # weak-field law
+
+
+# ── 2026-10-10 audit: the Hawking power law is what its label says ─────
+# hawking_luminosity is relabelled as the photon-only horizon blackbody; check
+# that claim against Stefan-Boltzmann (scipy CODATA sigma) at T_H over the
+# horizon area, and t_evap = M c^2 / (3 L) (mass loss dM/dt = -L/c^2).
+
+def test_hawking_luminosity_is_photon_only_horizon_blackbody():
+    sc = pytest.importorskip("scipy.constants")
+    M = 1.0e12
+    T = hawking_temperature(M)
+    rs = schwarzschild_radius(M)
+    L_bb = sc.Stefan_Boltzmann * T**4 * 4.0 * math.pi * rs**2
+    assert hawking_luminosity(M) == pytest.approx(L_bb, rel=1e-8, abs=0.0)
+
+
+def test_hawking_evaporation_time_integrates_its_own_luminosity():
+    M = 1.0e12
+    t = hawking_evaporation_time(M)
+    assert t == pytest.approx(M * C**2 / (3.0 * hawking_luminosity(M)), rel=1e-12, abs=0.0)
+
+
+# ── 2026-10-10 audit: one mass contract for every function (M > 0, finite) ─
+
+@pytest.mark.parametrize("call", [
+    lambda M: schwarzschild_radius(M),
+    lambda M: isco_radius(M),
+    lambda M: photon_sphere_radius(M),
+    lambda M: gravitational_redshift(M, 1e4),
+    lambda M: time_dilation_gr(M, 1e4),
+    lambda M: escape_velocity(M, 1e4),
+    lambda M: tidal_force(M, 1e9, 1.0),
+    lambda M: hawking_temperature(M),
+    lambda M: hawking_luminosity(M),
+    lambda M: hawking_evaporation_time(M),
+    lambda M: page_time_sm(M),
+])
+@pytest.mark.parametrize("M", [-M_SUN_KG, 0.0, float("nan"), float("inf")])
+def test_gr_basics_refuses_nonpositive_or_nonfinite_mass(call, M):
+    """Was: negative radii (-8862 m ISCO), a 'redshift' of -0.121 and a clock
+    running fast for -M_sun, 0 K for M = inf, NaN for NaN."""
+    with pytest.raises(ValueError):
+        call(M)
+
+
+def test_gravitational_redshift_refuses_nan_radius():
+    with pytest.raises(ValueError):
+        gravitational_redshift(M_SUN_KG, float("nan"))

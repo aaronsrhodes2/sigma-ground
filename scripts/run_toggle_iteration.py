@@ -17,19 +17,25 @@ Predictor list:
 Windows: j2005, j2010, j2015, j2020 (4, widely spaced)
 Horizon: 3y
 dt: 0.1d
+
+Output: --output PATH (default: the untracked
+local-cache/rolling_shootout/rolling_shootout_toggle_iteration.json). The
+committed fixture is regenerated only by naming it explicitly:
+    python scripts/run_toggle_iteration.py \\
+        --output sigma_ground/field/interface/fixtures/rolling_shootout_toggle_iteration.json
+The run writes straight to that path; no other file is touched.
 """
 
 from __future__ import annotations
 
-import json
-import shutil
+import argparse
 import time
 from dataclasses import replace
 from pathlib import Path
 
 from sigma_ground.field.interface.nbody import PhysicsToggles
 from sigma_ground.field.interface.rolling_shootout import (
-    Predictor, run_rolling_shootout, _RESULTS_FILE,
+    Predictor, run_rolling_shootout,
 )
 
 
@@ -104,20 +110,34 @@ WINDOW_START_KEYS = ["j2005", "j2010", "j2015", "j2020"]
 PREDICTION_HORIZON_YR = 3.0
 SAMPLE_INTERVAL_YR    = 1.0
 
-_OUTPUT_PATH = (
+# The committed fixture this script regenerates when named with --output.
+_FIXTURE_PATH = (
     Path(__file__).parent.parent
     / "sigma_ground" / "field" / "interface" / "fixtures"
     / "rolling_shootout_toggle_iteration.json"
 )
+# Default output: untracked (local-cache/ is ignored).
+_DEFAULT_OUTPUT = (
+    Path(__file__).parent.parent / "local-cache" / "rolling_shootout"
+    / "rolling_shootout_toggle_iteration.json"
+)
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--output", type=Path, default=None,
+                        help=f"results JSON (default: {_DEFAULT_OUTPUT}; the "
+                             f"committed fixture is {_FIXTURE_PATH})")
+    args = parser.parse_args(argv)
+    output = args.output if args.output is not None else _DEFAULT_OUTPUT
+
     print(f"\n  TOGGLE ITERATION PASS")
     print(f"  Predictors:  {len(PREDICTORS_ITERATION)}")
     print(f"  Windows:     {WINDOW_START_KEYS}")
     print(f"  Horizon:     {PREDICTION_HORIZON_YR}y")
     print(f"  Total runs:  {len(PREDICTORS_ITERATION) * len(WINDOW_START_KEYS)}")
-    print(f"  Output:      {_OUTPUT_PATH.name}")
+    print(f"  Output:      {output}")
     print()
 
     t0 = time.time()
@@ -127,12 +147,8 @@ def main() -> None:
         sample_interval_yr=SAMPLE_INTERVAL_YR,
         predictors=PREDICTORS_ITERATION,
         verbose=True,
+        output_path=output,
     )
-
-    # run_rolling_shootout writes to _RESULTS_FILE; move it to our target.
-    if _RESULTS_FILE.exists():
-        shutil.move(str(_RESULTS_FILE), str(_OUTPUT_PATH))
-        print(f"\n  Saved -> {_OUTPUT_PATH.name}")
     print(f"  Total elapsed: {(time.time() - t0)/60:.1f} min")
 
 

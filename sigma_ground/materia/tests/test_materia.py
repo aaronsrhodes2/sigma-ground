@@ -6,10 +6,13 @@ velocity, so the integrator can be checked against it to integration tolerance.
 import os
 import sys
 
-# Pin the canonical sigma-ground ahead of any stale worktree shadow.
-_CANON = r"D:\Aaron\development\sigma-ground"
-if os.path.isdir(_CANON) and _CANON not in sys.path:
-    sys.path.insert(0, _CANON)
+# Import sigma_ground from THIS tree (worktree-portable): walk up from this
+# file (.../sigma_ground/materia/tests/<this>) to the repo root. A hardcoded
+# canonical path made a worktree's run test the main checkout's code.
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)))))
+if _ROOT not in sys.path:
+    sys.path.insert(0, _ROOT)
 
 from sigma_ground.materia import (simulate_fall, analytic_terminal_velocity,
                                   terminal_velocity_drop, drag_heating_drop,
@@ -71,7 +74,9 @@ def test_drag_heating_scenario_self_validates():
     """The drag-heating scenario reports its own PASS verdict and a ΔT > 0."""
     res = drag_heating_drop("iron", 0.05, 10_000.0)
     assert res.validation["passed"], res.validation["note"]
-    assert res.steps[-1].units == "K" and res.steps[-1].value > 0
+    # The ΔT row is no longer the last one (a "Visible glow?" row follows it).
+    dT = next(s for s in res.steps if s.label.startswith("Temperature rise"))
+    assert dT.units == "K" and dT.value > 0
 
 
 # ── Family D: advanced drag (Mach + high-altitude descent) ──────────────

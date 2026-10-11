@@ -284,16 +284,34 @@ class TestTidalDeformation(unittest.TestCase):
         field = sys.compute_tidal_deformation(0, 1)
         self.assertLess(field.evaluate_at_angle(math.pi / 2), 0)
 
-    def test_epsilon2_formula(self):
-        """ε₂ = (k₂/2)(M_c/M_b)(R/d)³ — Love (1911)."""
-        d, k2 = 1e11, 0.5
-        sys   = self._aligned_system(d=d, k2=k2)
-        field = sys.compute_tidal_deformation(0, 1)
-        expected = (k2 / 2) * (M_SUN / M_SUN) * (R_SUN / d) ** 3
-        self.assertAlmostEqual(
-            field.evaluate_at_angle(0), expected,
-            delta=expected * 0.01,
-        )
+    def test_homogeneous_fluid_surface_is_an_equipotential(self):
+        """A homogeneous fluid body (k₂ = 3/2) deforms until its surface is an equipotential.
+
+        Ground truth (first-order potential theory): lifting the surface by ε P₂ R raises −GM/r by (GM/R) ε P₂, the
+        displaced mass adds −(3/5)(GM/R) ε P₂, and the tide adds −(G M_c R²/d³) P₂. The P₂ part of the surface
+        potential vanishes only for ε = (5/2)(M_c/M_b)(R/d)³, i.e. h₂ = 5/2 = 1 + k₂. (Before 2026-10-10 the code
+        returned (k₂/2) q (R/d)³ = 0.30 × this; KNOWN_GAPS A36.)"""
+        d = 1e11
+        sys   = self._aligned_system(d=d, k2=1.5)
+        eps   = sys.compute_tidal_deformation(0, 1).evaluate_at_angle(0)
+        GM, R = _G * M_SUN, R_SUN
+        p2_residual = (GM / R) * eps - 0.6 * (GM / R) * eps - _G * M_SUN * R**2 / d**3
+        self.assertLess(abs(p2_residual), 1e-9 * _G * M_SUN * R**2 / d**3)
+        # the bulge's external potential, (3/5)(GM/R) ε at the surface, is the k₂ response the tidal_force layer uses
+        self.assertAlmostEqual(0.6 * (GM / R) * eps / (1.5 * _G * M_SUN * R**2 / d**3), 1.0, delta=1e-12)
+
+    def test_supplied_h2_sets_the_amplitude(self):
+        """An elastic body uses its own h₂: Earth (h₂ = 0.6078, IERS Conventions 2010) under the Moon has a body
+        tide of h₂ (M_moon/M_earth)(R/d)³ R ≈ 21.7 cm at the sub-lunar point."""
+        earth = CelestialBody(5.972e24, np.zeros(3), np.zeros(3), 6.371e6, 0.30, love_number_h2=0.6078)
+        moon = CelestialBody(7.342e22, np.array([3.844e8, 0.0, 0.0]), np.zeros(3), 1.7374e6, 0.0)
+        field = NBodySystem([earth, moon]).compute_tidal_deformation(0, 1)
+        self.assertAlmostEqual(field.epsilon2 * 6.371e6, 0.217, delta=0.002)
+
+    def test_rigid_body_does_not_deform(self):
+        rigid = CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.0)
+        other = CelestialBody(M_SUN, np.array([1e11, 0.0, 0.0]), np.zeros(3), R_SUN, 0.0)
+        self.assertEqual(NBodySystem([rigid, other]).compute_tidal_deformation(0, 1).epsilon2, 0.0)
 
     def test_max_deformation(self):
         sys   = self._aligned_system()
@@ -492,14 +510,31 @@ class TestJ2Quadrupole(unittest.TestCase):
 
 class TestRocheLimit(unittest.TestCase):
 
-    def test_roche_formula(self):
-        """d_R = R_p × (2 M_p/M_s)^(1/3) — Roche (1847)."""
-        b1 = CelestialBody(M_SUN,       np.zeros(3), np.zeros(3), R_SUN, 0.5)
-        b2 = CelestialBody(M_SUN * 0.1, np.array([1e11, 0, 0.0]), np.zeros(3), R_SUN * 0.5, 0.3)
-        sys = NBodySystem([b1, b2])
-        rl  = sys.roche_limit(0, 1)
-        expected = R_SUN * (2 * M_SUN / (M_SUN * 0.1)) ** (1.0 / 3.0)
-        self.assertAlmostEqual(rl, expected, delta=expected * 1e-10)
+    @staticmethod
+    def _earth_moon_by_density():
+        """Earth and Moon from mean density and radius (ρ 5,513 and 3,346 kg/m³; R 6,378 and 1,737 km)."""
+        R_E, R_M = 6378e3, 1737e3
+        M_E = 4.0 / 3.0 * math.pi * 5513.0 * R_E**3
+        M_M = 4.0 / 3.0 * math.pi * 3346.0 * R_M**3
+        return NBodySystem([CelestialBody(M_E, np.zeros(3), np.zeros(3), R_E, 0.3),
+                            CelestialBody(M_M, np.array([3.844e8, 0.0, 0.0]), np.zeros(3), R_M, 0.02)])
+
+    def test_earth_moon_rigid_and_fluid(self):
+        """Earth–Moon Roche limits from the literature: 9,492 km (rigid) and 18,381 km (fluid, Roche's 2.44)
+        (Wikipedia "Roche limit", table of selected examples, rev. 1120701647). Before 2026-10-10 the rigid value
+        was 34,850 km (R_p used with the mass ratio; KNOWN_GAPS A35) and there was no fluid option."""
+        sys = self._earth_moon_by_density()
+        self.assertAlmostEqual(sys.roche_limit(0, 1) / 9492e3, 1.0, delta=1e-3)
+        self.assertAlmostEqual(sys.roche_limit(0, 1, fluid=True) / 18381e3, 1.0, delta=1e-3)
+
+    def test_rigid_limit_balances_tide_and_self_gravity(self):
+        """Definition: at the rigid Roche distance the primary's tidal stretch across the satellite, 2 G M_p R_s/d³,
+        equals the satellite's surface gravity G M_s/R_s²."""
+        sys = self._earth_moon_by_density()
+        p, s_ = sys.bodies
+        d = sys.roche_limit(0, 1)
+        tide = 2 * _G * p.mass_kg * s_.radius_m / d**3
+        self.assertAlmostEqual(tide / (_G * s_.mass_kg / s_.radius_m**2), 1.0, delta=1e-12)
 
     def test_roche_zero_satellite_mass(self):
         b1 = CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.5)
@@ -529,23 +564,28 @@ class TestGWDamping(unittest.TestCase):
         b2 = CelestialBody(M, np.array([-a/2, 0, 0.0]), np.array([0, -v, 0.0]), 1e4, 0.3)
         return b1, b2
 
-    def test_energy_decreases_with_gw(self):
-        """GW damping should cause total energy to decrease over time."""
+    def test_energy_loss_rate_equals_peters(self):
+        """The energy radiated equals Peters (1964): dE/dt = −(32/5) G⁴ m₁² m₂² (m₁+m₂)/(c⁵ a⁵) on a circular orbit.
+
+        Measured as the energy difference between a damped and an undamped run from the same state, so the
+        integrator's own energy error cancels. a = 1e8 m (v/c ≈ 0.02) makes the loss (1.2e-11 of E per orbit) large
+        against round-off. (Before 2026-10-10 this test asserted only E1 < E0, which the r⁻⁴ law passed by a factor
+        of a = 1e9 too much; KNOWN_GAPS A11.)"""
+        from sigma_ground.field.constants import C as _C
         M  = 1.4 * M_SUN
-        a  = 1e9
+        a  = 1e8
         T  = 2 * math.pi * math.sqrt(a**3 / (_G * 2 * M))  # orbital period (s)
-        dt = T / 100          # 100 steps per orbit
-        b1, b2 = self._ns_binary(a)
-
-        system = NBodySystem([b1, b2])
-        E0     = system.total_energy()
-
-        n_steps = int(5 * T / dt)  # 5 orbits
-        for _ in range(n_steps):
-            system.step(dt, include_gw_loss=True)
-
-        E1 = system.total_energy()
-        self.assertLess(E1, E0, f"GW damping should reduce energy: E0={E0:.3e} E1={E1:.3e}")
+        dt = T / 200
+        n_steps = 5 * 200
+        energies = {}
+        for gw in (False, True):
+            system = NBodySystem(list(self._ns_binary(a)))
+            for _ in range(n_steps):
+                system.step(dt, include_gw_loss=gw)
+            energies[gw] = system.total_energy()
+        loss_rate = (energies[False] - energies[True]) / (n_steps * dt)
+        peters = (32.0 / 5.0) * _G**4 * M**4 * (2 * M) / (_C**5 * a**5)
+        self.assertAlmostEqual(loss_rate / peters, 1.0, delta=0.01)
 
     def test_no_damping_no_energy_loss(self):
         """Without GW damping, energy should be well conserved."""
@@ -707,32 +747,33 @@ class TestGR2PN(unittest.TestCase):
                               ).compute_accelerations()
         np.testing.assert_allclose(a_both, a_1pn, atol=0.0)
 
-    def test_2pn_correction_detectable_in_compact_binary(self):
-        """2PN correction at NS-binary scale (v ~ 0.05c) should be detectable.
+    def test_static_2pn_relative_coefficient_matches_kidder(self):
+        """Static 2PN relative acceleration of two bodies at rest, harmonic gauge:
+        −(GM/r²)(3/4)(12 + 29η)(GM/(rc²))² n  (Kidder 1995, PRD 52, 821, eq. 4d; η = m₁m₂/M²).
+        9 in the test-mass limit (harmonic Schwarzschild 1 − 4u + 9u²), 14.4375 for equal masses.
+        Before 2026-10-10 the engine gave 9(m₁³+m₂³)/M³: 2.25 for equal masses. (This test replaced one that
+        asserted only that 2PN changed the acceleration.)"""
+        from sigma_ground.field.constants import C as _C
+        r = 1e7
+        for q in (1e-9, 0.1, 0.5, 1.0):
+            m1 = 1.4 * M_SUN; m2 = q * m1; M = m1 + m2; eta = m1 * m2 / M**2
+            bodies = [CelestialBody(m1, np.zeros(3), np.zeros(3), 1e4, 0.0),
+                      CelestialBody(m2, np.array([r, 0.0, 0.0]), np.zeros(3), 1e4, 0.0)]
+            d = (NBodySystem(bodies, toggles=PhysicsToggles(gr_2pn=True)).compute_accelerations()
+                 - NBodySystem(bodies, toggles=PhysicsToggles()).compute_accelerations())
+            u = _G * M / (r * _C**2)
+            coefficient = -(d[1][0] - d[0][0]) / (_G * M / r**2 * u**2)
+            self.assertAlmostEqual(coefficient / (0.75 * (12 + 29 * eta)), 1.0, delta=1e-6, msg=f"q={q}")
 
-        At Mercury's solar-system scale, 2PN is ~10⁻²⁵ m/s² -- below float64
-        precision when added to Newton's ~10⁻² m/s². We need a strong-field
-        regime to make 2PN measurable.
-        """
-        # Neutron-star binary: m=1.4 M_sun each, separation 1e7 m → v ~ 0.05c
-        M  = 1.4 * M_SUN
-        r  = 1e7
-        v  = math.sqrt(_G * M / r)  # circular velocity at r (~0.05c here)
-        b1 = CelestialBody(M, np.zeros(3), np.zeros(3), 1e4, 0.0)
-        b2 = CelestialBody(M, np.array([r, 0.0, 0.0]),
-                            np.array([0.0, v, 0.0]), 1e4, 0.0)
-        bodies = [b1, b2]
-        a_1pn  = NBodySystem(bodies,
-                              toggles=PhysicsToggles(gr_1pn=True)
-                              ).compute_accelerations()
-        a_2pn  = NBodySystem(bodies,
-                              toggles=PhysicsToggles(gr_1pn=True, gr_2pn=True)
-                              ).compute_accelerations()
-        delta_2pn = float(np.linalg.norm(a_2pn[1] - a_1pn[1]))
-        # In this regime v/c ≈ 0.05, so 2PN/1PN ratio ~ 0.0025.
-        # Both deltas should be measurable.
-        self.assertGreater(delta_2pn, 0,
-                            "2PN should change accel in strong-field regime")
+    def test_2pn_magnitude_at_mercury(self):
+        """At Mercury's perihelion the static 2PN term is 9 (GM)³/(c⁴ r⁴) ≈ 5.6e-16 m/s² (the earlier test comment
+        said ~1e-25 m/s²), about 8e-14 of the Newtonian pull: resolvable in float64."""
+        from sigma_ground.field.constants import C as _C
+        bodies = self._mercury_like()
+        d = (NBodySystem(bodies, toggles=PhysicsToggles(gr_1pn=True, gr_2pn=True)).compute_accelerations()
+             - NBodySystem(bodies, toggles=PhysicsToggles(gr_1pn=True)).compute_accelerations())
+        gm = bodies[0].gm_m3_s2; r = 0.31 * AU
+        self.assertAlmostEqual(-d[1][0] / (9 * gm**3 / (_C**4 * r**4)), 1.0, delta=0.05)
 
     def test_2pn_zero_velocity_still_has_radial(self):
         """At v=0, 2PN should give a purely radial (GM/r)² correction."""
@@ -751,6 +792,72 @@ class TestGR2PN(unittest.TestCase):
         # The y and z components of delta should be zero (radial-only at v=0)
         self.assertAlmostEqual(delta[1], 0.0, delta=abs(delta[0]) * 1e-10)
         self.assertAlmostEqual(delta[2], 0.0, delta=abs(delta[0]) * 1e-10)
+
+
+class TestTotalEnergyBookkeeping(unittest.TestCase):
+    """total_energy(as_integrated=True) reports the energy of the system the integrator actually evolves (fixed
+    2026-10-10, A2 and its σ sibling): with Plummer softening the pair potential is −G m m'/√(r² + ε²), with uniform σ
+    it carries e^σ. Ground truth: a symplectic integrator with position-only forces conserves that Hamiltonian to its
+    bounded O(dt⁴) error, which the independently written function below confirms. Before the fix total_energy()
+    reported 50 % "drift" for the softened cluster and 183 % for the σ = 0.5 binary. The default stays the legacy
+    bare sum until the Captain settles decision C6."""
+
+    @staticmethod
+    def _independent_energy(bodies, eps):
+        ke = sum(0.5 * b.mass_kg * float(b.velocity_m_s @ b.velocity_m_s) for b in bodies)
+        pe = 0.0
+        for i in range(len(bodies)):
+            for j in range(i + 1, len(bodies)):
+                d = bodies[i].position_m - bodies[j].position_m
+                pe -= (_G * bodies[i].mass_kg * bodies[j].mass_kg
+                       * math.exp(0.5 * (bodies[i].sigma_field + bodies[j].sigma_field)) / math.sqrt(d @ d + eps**2))
+        return ke + pe
+
+    def test_softened_cluster_energy_is_conserved(self):
+        rng = np.random.default_rng(3)
+        n, m, R = 8, 1e24, 1e8
+        pos = rng.normal(size=(n, 3)) * R
+        vel = rng.normal(size=(n, 3)) * math.sqrt(_G * n * m / R) * 0.3
+        vel -= vel.mean(axis=0)
+        system = NBodySystem([CelestialBody(m, pos[i], vel[i], 1.0, 0.0) for i in range(n)], softening_m=0.3 * R)
+        t_dyn = math.sqrt(R**3 / (_G * n * m))
+        e0 = system.total_energy(as_integrated=True)
+        self.assertAlmostEqual(e0 / self._independent_energy(system.bodies, 0.3 * R), 1.0, delta=1e-12)
+        worst = 0.0
+        for _ in range(200):
+            system.forest_ruth_step(t_dyn / 100)
+            worst = max(worst, abs(system.total_energy(as_integrated=True) / e0 - 1.0))
+        self.assertLess(worst, 1e-6)
+
+    def test_uniform_sigma_binary_energy_is_conserved(self):
+        sigma, M0, M1, a, e = 0.5, 2e30, 6e24, 1.5e11, 0.5
+        M = M0 + M1; mu = _G * M * math.exp(sigma)
+        rp = a * (1 - e); vp = math.sqrt(mu * (1 + e) / rp)
+        x = np.array([rp, 0.0, 0.0]); v = np.array([0.0, vp, 0.0])
+        system = NBodySystem([CelestialBody(M0, -M1 / M * x, -M1 / M * v, 1.0, 0.0, sigma_field=sigma),
+                              CelestialBody(M1, M0 / M * x, M0 / M * v, 1.0, 0.0, sigma_field=sigma)])
+        period = 2 * math.pi * math.sqrt(a**3 / mu)
+        e0 = system.total_energy(as_integrated=True)
+        self.assertAlmostEqual(e0 / self._independent_energy(system.bodies, 0.0), 1.0, delta=1e-12)
+        worst = 0.0
+        for _ in range(800):
+            system.forest_ruth_step(period / 400)
+            worst = max(worst, abs(system.total_energy(as_integrated=True) / e0 - 1.0))
+        self.assertLess(worst, 1e-5)
+
+    def test_legacy_point_mass_sum_and_plain_case(self):
+        """as_integrated=False keeps the bare −Σ G m m'/r and is still the default (decision C6 is the Captain's);
+        without softening and σ both forms agree bit for bit."""
+        bodies = [CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.0, sigma_field=0.2),
+                  CelestialBody(6e24, np.array([AU, 1e9, 0.0]), np.array([0.0, 3e4, 0.0]), 1.0, 0.0)]
+        softened = NBodySystem(bodies, softening_m=1e9)
+        legacy = softened.total_energy(as_integrated=False)
+        bare = (0.5 * 6e24 * 9e8) - _G * M_SUN * 6e24 / float(np.linalg.norm(bodies[1].position_m))
+        self.assertAlmostEqual(legacy / bare, 1.0, delta=1e-12)
+        self.assertEqual(softened.total_energy(), legacy)
+        plain = [b.replace(sigma_field=0.0) for b in bodies]
+        self.assertEqual(NBodySystem(plain).total_energy(as_integrated=True),
+                         NBodySystem(plain).total_energy(as_integrated=False))
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1041,17 +1148,67 @@ class TestTidalForce(unittest.TestCase):
                                     sys_off.compute_accelerations(),
                                     atol=0.0)
 
-    def test_tidal_on_earth_k2_changes_moon_accel(self):
-        """With k₂_Earth = 0.30, Moon should feel an extra force from Earth's bulge."""
-        bodies = self._earth_moon(k2_earth=0.30)
-        sys_on  = NBodySystem(bodies, toggles=PhysicsToggles(tidal_force=True))
-        sys_off = NBodySystem(bodies, toggles=PhysicsToggles())
-        a_on  = sys_on.compute_accelerations()
-        a_off = sys_off.compute_accelerations()
-        delta_moon = a_on[1] - a_off[1]
-        self.assertGreater(float(np.linalg.norm(delta_moon)), 0.0,
-                            "tidal_force should change Moon's acceleration "
-                            "when Earth has a non-zero Love number")
+    def test_bulge_pulls_the_perturber_by_the_love_number_law(self):
+        """The Earth's tidal bulge pulls the Moon toward the Earth by 3 k₂ G M_moon R⁵/d⁷, and the Earth recoils.
+
+        Ground truth: by definition of k₂ (Love 1911) the deformed body adds the external potential
+        −k₂ (G M_j R⁵/d³) P₂/r³; its gradient at the perturber is 3 k₂ G M_j R⁵/d⁷, attractive. (Before 2026-10-10
+        this test asserted only |Δa| > 0, while the layer pushed the Moon AWAY at half this size and left the Earth
+        untouched; KNOWN_GAPS A34.)"""
+        k2 = 0.30
+        bodies = self._earth_moon(k2_earth=k2)
+        delta = (NBodySystem(bodies, toggles=PhysicsToggles(tidal_force=True)).compute_accelerations()
+                 - NBodySystem(bodies, toggles=PhysicsToggles()).compute_accelerations())
+        d = self.EARTH_MOON_DIST
+        expected_moon = -3.0 * k2 * _G * self.M_MOON * self.R_EARTH**5 / d**7      # along +x (Moon at +x)
+        # Δa is ~1e-11 of the Newtonian pull, so round-off in the difference limits the comparison to ~1e-5
+        self.assertAlmostEqual(delta[1][0] / expected_moon, 1.0, delta=1e-4)
+        self.assertAlmostEqual(delta[0][0] / (-expected_moon * self.M_MOON / self.M_EARTH), 1.0, delta=1e-4)
+        self.assertEqual(float(np.abs(delta[:, 1:]).max()), 0.0)
+
+    def test_momentum_is_conserved_with_three_bodies(self):
+        """Newton III: sum of m a = 0 with the tidal layer on. A star with k₂ = 0.5 is deformed by a close companion
+        (R/d = 0.23, so the tide is 1e-3 of gravity and round-off does not hide it) and a third body also feels the
+        bulge. Before the fix the residual was the full bulge force on the perturber."""
+        bodies = [CelestialBody(2.0e30, np.zeros(3), np.zeros(3), 7.0e8, 0.5),
+                  CelestialBody(1.0e30, np.array([3.0e9, 0.0, 0.0]), np.zeros(3), 1.0, 0.0),
+                  CelestialBody(1.0e29, np.array([0.0, 4.0e9, 1.0e8]), np.zeros(3), 1.0, 0.0)]
+        delta = (NBodySystem(bodies, toggles=PhysicsToggles(tidal_force=True)).compute_accelerations()
+                 - NBodySystem(bodies, toggles=PhysicsToggles()).compute_accelerations())
+        net = sum(b.mass_kg * delta[i] for i, b in enumerate(bodies))
+        largest = max(b.mass_kg * float(np.linalg.norm(delta[i])) for i, b in enumerate(bodies))
+        self.assertGreater(largest, 0.0)
+        self.assertLess(float(np.linalg.norm(net)), 1e-9 * largest)
+
+    def test_apsidal_motion_matches_cowling_sterne(self):
+        """Tidal apsidal motion of a binary: Δω per orbit = 2π · 15 (k₂/2)(M₁/M₀)(R₀/a)⁵ f(e),
+        f(e) = (1 + 3e²/2 + e⁴/8)/(1 − e²)⁵ (Cowling 1938; Sterne 1939; k₂/2 is the apsidal-motion constant).
+        Measured as the orbit-averaged Laplace–Runge–Lenz angle minus a Newtonian run. Before the fix:
+        −0.333 × the closed form (retrograde)."""
+        M0, M1, R0, k2, e, a = 2.0e30, 1.0e30, 5.0e8, 0.5, 0.3, 1.0e10
+        M = M0 + M1; mu = _G * M
+        rp = a * (1 - e); vp = math.sqrt(mu * (1 + e) / rp)
+        x = np.array([rp, 0.0, 0.0]); v = np.array([0.0, vp, 0.0])
+        period = 2 * math.pi * math.sqrt(a**3 / mu); spo = 1000
+
+        def lrl_angles(tidal):
+            s = NBodySystem([CelestialBody(M0, -M1 / M * x, -M1 / M * v, R0, k2),
+                             CelestialBody(M1, M0 / M * x, M0 / M * v, 1.0, 0.0)],
+                            toggles=PhysicsToggles(tidal_force=tidal))
+            out = []
+            for _ in range(3 * spo):
+                s.forest_ruth_step(period / spo)
+                r = s.bodies[1].position_m - s.bodies[0].position_m
+                w = s.bodies[1].velocity_m_s - s.bodies[0].velocity_m_s
+                A = np.cross(w, np.cross(r, w)) - mu * r / np.linalg.norm(r)
+                out.append(math.atan2(A[1], A[0]))
+            return np.unwrap(np.array(out))
+
+        dw = lrl_angles(True) - lrl_angles(False)
+        advance = (dw[-spo:].mean() - dw[:spo].mean()) / 2
+        f_e = (1 + 1.5 * e**2 + e**4 / 8) / (1 - e**2) ** 5
+        expected = 2 * math.pi * 15 * (k2 / 2) * (M1 / M0) * (R0 / a) ** 5 * f_e
+        self.assertAlmostEqual(advance / expected, 1.0, delta=0.01)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1063,10 +1220,18 @@ class TestGWDampingToggle(unittest.TestCase):
 
     The legacy kwarg is still honored when explicitly True/False; only when
     it's None (the new default) does the toggle take effect.
+
+    Each run is compared with an undamped twin from the same state: the energy
+    difference must be the radiated energy L·t (Peters & Mathews quadrupole power,
+    engine's gw_luminosity_W). a = 1e7 m (v/c ≈ 0.02) makes the loss after 20 steps
+    (7e-9 of E) large against round-off. (Before 2026-10-10 these tests asserted only
+    that E decreased, which the r⁻⁴ law passed by a factor of r; KNOWN_GAPS A11.)
     """
 
+    DT = 0.05     # s; the orbit period is 10.3 s
+
     @staticmethod
-    def _ns_binary(a=1e9):
+    def _ns_binary(a=1e7):
         M = 1.4 * M_SUN
         v = math.sqrt(_G * M / (2 * a))
         b1 = CelestialBody(M, np.array([ a/2, 0, 0.0]),
@@ -1075,40 +1240,36 @@ class TestGWDampingToggle(unittest.TestCase):
                             np.array([0, -v, 0.0]), 1e4, 0.3)
         return b1, b2
 
+    def _radiated_fraction(self, sys, **step_kw):
+        """Energy removed relative to an undamped twin, divided by the expected L·t."""
+        twin = NBodySystem(list(self._ns_binary()))
+        power = sys.gw_luminosity_W()
+        for _ in range(20):
+            sys.step(self.DT, **step_kw)
+            twin.step(self.DT, include_gw_loss=False)
+        return (twin.total_energy() - sys.total_energy()) / (power * 20 * self.DT)
+
     def test_legacy_kwarg_true_still_damps(self):
         """step(dt, include_gw_loss=True) overrides toggle and applies damping."""
-        b1, b2 = self._ns_binary()
-        sys = NBodySystem([b1, b2])  # toggles.gw_damping defaults False
-        e0 = sys.total_energy()
-        for _ in range(20):
-            sys.step(1.0, include_gw_loss=True)
-        e1 = sys.total_energy()
-        # Energy should DECREASE due to GW damping
-        self.assertLess(e1, e0)
+        sys = NBodySystem(list(self._ns_binary()))  # toggles.gw_damping defaults False
+        self.assertAlmostEqual(self._radiated_fraction(sys, include_gw_loss=True), 1.0, delta=0.02)
 
     def test_default_kwarg_uses_toggle(self):
         """step(dt) with no kwarg -> uses self.toggles.gw_damping."""
-        b1, b2 = self._ns_binary()
-        sys = NBodySystem([b1, b2],
+        sys = NBodySystem(list(self._ns_binary()),
                            toggles=PhysicsToggles(gw_damping=True))
-        e0 = sys.total_energy()
-        for _ in range(20):
-            sys.step(1.0)
-        e1 = sys.total_energy()
-        self.assertLess(e1, e0)
+        self.assertAlmostEqual(self._radiated_fraction(sys), 1.0, delta=0.02)
 
     def test_legacy_kwarg_false_blocks_toggle(self):
-        """step(dt, include_gw_loss=False) overrides even if toggle is True."""
-        b1, b2 = self._ns_binary()
-        sys = NBodySystem([b1, b2],
+        """step(dt, include_gw_loss=False) overrides even if toggle is True: bit-identical to no damping."""
+        sys = NBodySystem(list(self._ns_binary()),
                            toggles=PhysicsToggles(gw_damping=True))
-        # Take a step with override-off
-        e0 = sys.total_energy()
+        twin = NBodySystem(list(self._ns_binary()))
         for _ in range(20):
-            sys.step(1.0, include_gw_loss=False)
-        e1 = sys.total_energy()
-        # Without damping (and good integration), energy should be nearly conserved
-        self.assertAlmostEqual(e1 / e0, 1.0, delta=1e-3)
+            sys.step(self.DT, include_gw_loss=False)
+            twin.step(self.DT)
+        for b, t in zip(sys.bodies, twin.bodies):
+            np.testing.assert_array_equal(b.velocity_m_s, t.velocity_m_s)
 
 
 # ═══════════════════════════════════════════════════════════════════════════

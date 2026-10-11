@@ -66,6 +66,8 @@ from sigma_ground.field.interface.orbital import (
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 PREDICTION_FILE = FIXTURES_DIR / "ssbm_future_predictions.json"
+# The sealed file above is PAST DATA and is never rewritten. Regeneration writes the v2physics baseline beside it.
+PREDICTION_FILE_V2 = FIXTURES_DIR / "ssbm_future_predictions_v2physics.json"
 DE440_FILE = FIXTURES_DIR / "de440_state_vectors.json"
 
 _DE440 = None
@@ -91,6 +93,12 @@ DT_DAYS    = 1.0              # Forest-Ruth timestep (days)  -- FR4 makes this a
 
 ALL_MAJOR     = ["Sun", "Mercury", "Venus", "Earth", "Mars",
                  "Jupiter", "Saturn", "Uranus", "Neptune"]
+# Bodies the generator integrates (and records under "ssbm"). The Moon is in:
+# without it Earth is a lone point mass carrying the Earth-centre velocity
+# (12 m/s off the Earth-Moon barycentre's) with Earth-only GM, and lags
+# 14.8 days after 30 years (0.26 AU); with it, 1.3e-4 AU (audit A49).
+FORECAST_BODIES = ["Sun", "Mercury", "Venus", "Earth", "Moon", "Mars",
+                   "Jupiter", "Saturn", "Uranus", "Neptune"]
 INNER_PLANETS = ["Mercury", "Venus", "Earth", "Mars"]
 OUTER_PLANETS = ["Jupiter", "Saturn", "Uranus", "Neptune"]
 
@@ -151,6 +159,43 @@ def _de440_heliocentric_km(snapshot_key: str, name: str) -> np.ndarray:
     return (body.position_m - sun.position_m) / KM_TO_M
 
 
+_DE440S_PATH = Path("D:/datasets/jpl/de440s.bsp")
+_DE440S_CODE = {"Mercury": 1, "Venus": 2, "Mars": 4, "Jupiter": 5, "Saturn": 6,
+                "Uranus": 7, "Neptune": 8}
+
+
+def _truth_heliocentric_km(snapshot_key: str, name: str, jd: float) -> np.ndarray | None:
+    """DE440 heliocentric position (km) of `name` at the prediction's own jd.
+
+    The snapshot when jd is its epoch; otherwise de440s.bsp at jd (system
+    barycentres for Mars..Neptune, centres for Mercury, Venus, Earth, Moon)
+    when jplephem and the kernel are available; otherwise None, so that a
+    prediction is never scored against truth from a different instant (the
+    old fixture's month 12 sits a quarter day before J2026, which alone
+    reads as 0.006 AU for Mercury).
+    """
+    snap_jd = _load_de440()["snapshots"][snapshot_key]["epoch"]["jd_tdb"]
+    if abs(jd - snap_jd) < 1e-6:
+        return _de440_heliocentric_km(snapshot_key, name)
+    try:
+        from jplephem.spk import SPK
+    except ImportError:
+        return None
+    if not _DE440S_PATH.exists():
+        return None
+    k = SPK.open(str(_DE440S_PATH))
+    try:
+        if name in ("Earth", "Moon"):
+            pos = k[0, 3].compute(jd) + k[3, 399 if name == "Earth" else 301].compute(jd)
+        elif name in _DE440S_CODE:
+            pos = k[0, _DE440S_CODE[name]].compute(jd)
+        else:
+            return None
+        return np.asarray(pos - k[0, 10].compute(jd))
+    finally:
+        k.close()
+
+
 # -- Helper: JD ↔ calendar -------------------------------------------------
 
 _J2000_DT = datetime.datetime(2000, 1, 1, 12, 0, 0)
@@ -202,6 +247,74 @@ def _kepler_heliocentric_km(orbit, jd: float) -> tuple[float, float, float]:
 
 # -- Prediction generation --------------------------------------------------
 
+def _forecast_body_si(snapshot_key: str, name: str) -> CelestialBody:
+    """A forecast body: the planet together with the satellites it carries.
+
+    The forecast integrates no planetary satellites except the Moon, so each
+    planet stands for its whole system: the system GM (planet plus every
+    fixture body anchored to it) at the system barycentre, which is what
+    the Sun and the other planets actually feel. A planet-centre point mass
+    with the planet-only GM put Jupiter 1.5e-3 AU off after 10 years; the
+    system barycentre, 1.2e-8 AU. Bodies integrated in their own right (the
+    Moon) are not folded in. For the giant planets the recorded position is
+    therefore the system barycentre (within ~200 km of the planet centre).
+    """
+    data = _load_de440()
+    snap = data["snapshots"][snapshot_key]["bodies"]
+    members = [b for b in snap
+               if b["name"] == name
+               or (b.get("gravitational_anchor") == name
+                   and b["name"] not in FORECAST_BODIES)]
+    if name == "Sun" or len(members) == 1:
+        return _get_body_si(snapshot_key, name)
+    gm = np.array([_gm_si(name) / 1e9 if b["name"] == name else b["gm_km3_s2"]
+                   for b in members])
+    pos = np.array([[b["state_vector"][c] for c in ("x_km", "y_km", "z_km")]
+                    for b in members])
+    vel = np.array([[b["state_vector"][c] for c in ("vx_km_s", "vy_km_s", "vz_km_s")]
+                    for b in members])
+    w = gm / gm.sum()
+    return CelestialBody(gm.sum() * 1e9 / _G, (w @ pos) * KM_TO_M,
+                         (w @ vel) * KM_TO_M, 1.0, 0.0)
+
+
+def _propagate_monthly(start_key: str, n_months: int) -> list[dict]:
+    """FR4 + 1PN propagation of FORECAST_BODIES from a DE440 snapshot.
+
+    Entry m is the state at EXACTLY start_jd + m * MONTH_DAYS: each month is
+    covered by round(MONTH_DAYS / DT_DAYS) equal steps (1.0146 d for
+    DT_DAYS = 1), so an entry and a DE440 snapshot on the same date refer
+    to the same instant. (Stepping whole days put month 12 at day 365, a
+    quarter day before J2026, which alone reads as 0.006 AU for Mercury.)
+    Returns [{"month", "jd", "iso_date", <body>: [x, y, z] heliocentric km}].
+    """
+    data     = _load_de440()
+    start_jd = data["snapshots"][start_key]["epoch"]["jd_tdb"]
+    system   = NBodySystem([_forecast_body_si(start_key, n) for n in FORECAST_BODIES],
+                           include_gr=True)
+    n_sub    = max(1, int(round(MONTH_DAYS / DT_DAYS)))
+    dt_s     = MONTH_DAYS * 86400.0 / n_sub
+
+    monthly: list[dict] = []
+    for month in range(n_months + 1):
+        if month > 0:
+            for _ in range(n_sub):
+                system.forest_ruth_step(dt_s)
+        jd_now = start_jd + month * MONTH_DAYS
+        sun    = system.bodies[0]  # FORECAST_BODIES[0] = "Sun"
+        entry: dict = {"month": month, "jd": round(jd_now, 4),
+                       "iso_date": _jd_to_iso(jd_now)}
+        for name, body in zip(FORECAST_BODIES, system.bodies):
+            hel_km = (body.position_m - sun.position_m) / KM_TO_M
+            entry[name] = [round(float(hel_km[0]), 3),
+                           round(float(hel_km[1]), 3),
+                           round(float(hel_km[2]), 3)]
+        monthly.append(entry)
+        if month % 60 == 0 and month > 0:
+            print(f"    month {month}/{n_months}", flush=True)
+    return monthly
+
+
 def _generate_predictions() -> dict:
     """Run 30-year FR4+GR propagation and Keplerian fits; return fixture dict.
 
@@ -212,44 +325,9 @@ def _generate_predictions() -> dict:
     start_key = "j2025"
     start_jd  = data["snapshots"][start_key]["epoch"]["jd_tdb"]
 
-    # Compute step numbers for each monthly checkpoint
-    DT_S        = DT_DAYS * 86400.0
-    checkpoints = [int(round(m * MONTH_DAYS / DT_DAYS)) for m in range(N_MONTHS + 1)]
-    total_steps = checkpoints[-1]
-
-    # Initialise N-body system
-    bodies_init = [_get_body_si(start_key, n) for n in ALL_MAJOR]
-    system = NBodySystem(bodies_init, include_gr=True)
-
     print(f"\n  Generating {N_MONTHS}-month SSBM forecast"
-          f"(FR4, dt={DT_DAYS}d, GR=on) ...")
-
-    # Propagate, recording at monthly checkpoints
-    ssbm_monthly: list[dict] = []
-    check_idx = 0
-
-    for step in range(total_steps + 1):
-        if check_idx <= N_MONTHS and step == checkpoints[check_idx]:
-            month  = check_idx
-            jd_now = start_jd + step * DT_DAYS
-            sun    = system.bodies[0]  # ALL_MAJOR[0] = "Sun"
-            entry: dict = {"month": month, "jd": round(jd_now, 4),
-                           "iso_date": _jd_to_iso(jd_now)}
-            for name, body in zip(ALL_MAJOR, system.bodies):
-                hel_km = (body.position_m - sun.position_m) / KM_TO_M
-                entry[name] = [round(float(hel_km[0]), 3),
-                                round(float(hel_km[1]), 3),
-                                round(float(hel_km[2]), 3)]
-            ssbm_monthly.append(entry)
-            check_idx += 1
-            if check_idx > N_MONTHS:
-                break
-        if step < total_steps:
-            system.forest_ruth_step(DT_S)
-        if step % 1000 == 0 and step > 0:
-            pct = 100 * step / total_steps
-            print(f"    step {step}/{total_steps}  ({pct:.0f}%)", flush=True)
-
+          f"(FR4, dt={DT_DAYS}d nominal, GR=on, bodies {FORECAST_BODIES}) ...")
+    ssbm_monthly = _propagate_monthly(start_key, N_MONTHS)
     print("  SSBM propagation done.")
 
     # Keplerian fits -- exclude j2026 so we can validate against it
@@ -277,7 +355,7 @@ def _generate_predictions() -> dict:
             "month":    srow["month"],
             "jd":       srow["jd"],
             "iso_date": srow["iso_date"],
-            "ssbm":     {n: srow[n] for n in ALL_MAJOR if n != "Sun"},
+            "ssbm":     {n: srow[n] for n in FORECAST_BODIES if n != "Sun"},
             "kepler":   {n: krow[n] for n in INNER_PLANETS + list(OUTER_PLANETS)
                          if n in krow},
         })
@@ -297,9 +375,14 @@ def _generate_predictions() -> dict:
             "n_months":      N_MONTHS,
             "month_days":    MONTH_DAYS,
             "dt_days":       DT_DAYS,
+            "step_days":     MONTH_DAYS / max(1, int(round(MONTH_DAYS / DT_DAYS))),
+            "epochs":        "start_jd + month * month_days exactly",
             "integrator":    "forest_ruth_4th_order",
             "include_gr":    True,
-            "bodies":        ALL_MAJOR,
+            "bodies":        FORECAST_BODIES,
+            "planet_points": ("each planet is its system: planet + the fixture "
+                              "satellites anchored to it (not the Moon, which is "
+                              "integrated), system GM at the system barycentre"),
             "coordinates":   "heliocentric_equatorial_icrf_km",
             "note": (
                 "SHA-256 binds created_utc to predictions; "
@@ -311,10 +394,11 @@ def _generate_predictions() -> dict:
     }
 
     FIXTURES_DIR.mkdir(parents=True, exist_ok=True)
-    with open(PREDICTION_FILE, "w") as f:
+    fixture["metadata"]["baseline_label"] = "v2physics_2026-10-10"
+    with open(PREDICTION_FILE_V2, "w") as f:
         json.dump(fixture, f, indent=2)
 
-    print(f"  Saved to {PREDICTION_FILE}  (sha256={sha256[:12]}...)")
+    print(f"  Saved to {PREDICTION_FILE_V2}  (sha256={sha256[:12]}...); the sealed {PREDICTION_FILE.name} is untouched")
     return fixture
 
 
@@ -454,10 +538,12 @@ class TestFuturePredictions(unittest.TestCase):
                 if name not in self.de440["snapshots"].get(snap_key, {}).get("bodies", [{}]):
                     pass  # body not in this snapshot -- handled below
 
-                # DE440 heliocentric ground truth
+                # DE440 heliocentric ground truth at the prediction's own jd
                 try:
-                    de440_hel = _de440_heliocentric_km(snap_key, name)
+                    de440_hel = _truth_heliocentric_km(snap_key, name, jd_pred)
                 except (ValueError, KeyError):
+                    continue
+                if de440_hel is None:
                     continue
 
                 # SSBM heliocentric prediction
@@ -637,6 +723,34 @@ class TestFuturePredictions(unittest.TestCase):
                 ratio, 0.5,
                 f"{name}: 30-yr distance ratio {ratio:.2f} < 0.5 (orbit drifted?)",
             )
+
+
+class TestForecastGenerator(unittest.TestCase):
+    """The generator itself (not the sealed fixture), one year from J2025.
+
+    Ground truth: the DE440 snapshot at J2026. The old generator had no
+    Moon (Earth 0.0087 AU off at one year, 0.26 AU at thirty), stepped
+    whole days (month 12 a quarter day before J2026), and integrated the
+    giant planets as planet-centre point masses with planet-only GM
+    (Jupiter 1.5e-3 AU off after ten years).
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.monthly = _propagate_monthly("j2025", 12)
+        cls.j2026 = _load_de440()["snapshots"]["j2026"]["epoch"]["jd_tdb"]
+
+    def test_month_12_is_j2026(self):
+        self.assertEqual(self.monthly[12]["jd"], round(self.j2026, 4))
+        self.assertIn("Moon", self.monthly[12])
+
+    def test_one_year_errors(self):
+        tol_au = {"Earth": 5e-5, "Moon": 2e-3, "Mars": 1e-6, "Venus": 1e-5,
+                  "Jupiter": 1e-5, "Saturn": 1e-5, "Neptune": 1e-5}
+        for name, tol in tol_au.items():
+            pred = np.array(self.monthly[12][name])
+            err = float(np.linalg.norm(pred - _de440_heliocentric_km("j2026", name))) / AU_KM
+            self.assertLess(err, tol, f"{name}: {err:.2e} AU after one year")
 
 
 if __name__ == "__main__":

@@ -28,7 +28,9 @@ PREDICTOR ABLATION
   standard             Newton + 1PN GR (no SRP, no J2)
   over_physics_no_j2   Newton + GR + SRP (J2 = 0)        ← ablation
   over_physics         Newton + GR + SRP + J2
-  kepler               2-body Keplerian fit per body
+  kepler               2-body Keplerian fit per body (in-sample: fitted on
+                       all snapshots, including the ones it is scored on)
+  kepler_forecast      the same fit on snapshots up to the window start only
 
 The over_physics vs over_physics_no_j2 difference isolates J2's contribution.
 The standard vs pure_newton difference isolates 1PN GR's contribution.
@@ -48,8 +50,11 @@ USAGE
 
     # results: list[WindowResult], one per (predictor, window, sample)
 
-Output is also saved to fixtures/rolling_shootout_results.json so the
-analysis pass doesn't need to re-run the integrations.
+Output is also saved as JSON (output_path; by default the untracked
+local-cache/rolling_shootout/rolling_shootout_results.json) so the analysis
+pass doesn't need to re-run the integrations. The committed
+fixtures/rolling_shootout_results.json is written only when passed
+explicitly as output_path (or --output).
 """
 
 from __future__ import annotations
@@ -67,7 +72,7 @@ from sigma_ground.field.constants import G as _G, L_SUN_W as _L_SUN_W
 from sigma_ground.field.interface.nbody import (
     CelestialBody, NBodySystem, PhysicsToggles,
 )
-from sigma_ground.field.interface.orbital import fit_orbit, predict_ssb_position
+from sigma_ground.field.interface.orbital import fit_orbit, _ecliptic_to_equatorial
 
 
 def _pole_unit_from_radec(ra_deg: float, dec_deg: float) -> np.ndarray:
@@ -94,7 +99,129 @@ YR_DAYS = 365.25
 
 _FIXTURES = Path(__file__).parent / "fixtures"
 _DE440_FILE = _FIXTURES / "de440_state_vectors.json"
+# The committed (git-tracked) results fixture: read by rolling_analysis,
+# written only when a caller passes it explicitly as output_path.
 _RESULTS_FILE = _FIXTURES / "rolling_shootout_results.json"
+# Default output of run_rolling_shootout: untracked (local-cache/ is ignored).
+_DEFAULT_RESULTS_OUTPUT = (Path(__file__).resolve().parents[3] / "local-cache"
+                           / "rolling_shootout" / "rolling_shootout_results.json")
+_USE_DEFAULT_OUTPUT = object()
+
+
+# ── IAU rotational poles (WGCCRE) ─────────────────────────────────────────
+# Zonal harmonics (J2/J3/J4) act about each body's own spin axis, so every
+# body that carries one needs its pole: ICRS +z is off by 25.5 deg for
+# Jupiter, 37 deg for Mars, 28.6 deg for Mercury and 6.5 deg for Saturn.
+# Pole right ascension / declination in the ICRF, as published by the IAU
+# Working Group on Cartographic Coordinates and Rotational Elements:
+#   Archinal et al. 2018, Celest. Mech. Dyn. Astr. 130:22 (the 2015 report)
+#   for the Sun, planets, Pluto and satellites; Earth and Moon from
+#   Archinal et al. 2011, Celest. Mech. Dyn. Astr. 109:101 (the 2009 report),
+#   which the 2015 report keeps. Every number below was checked against
+#   NAIF's pck00011.tpc, which encodes the 2015 report.
+# Each entry: (ra0, ra_rate, dec0, dec_rate, ra_terms, dec_terms) with
+#   ra  = ra0  + ra_rate  T + sum(a sin(A0 + A1 T))   over ra_terms  (a, A0, A1)
+#   dec = dec0 + dec_rate T + sum(a cos(A0 + A1 T))   over dec_terms (a, A0, A1)
+# T = Julian centuries (TDB) from J2000.0; angles in degrees, rates in
+# degrees per century (the Moon's E1..E13 in the PCK's per-century form of
+# the report's per-day expressions).
+_IAU_POLE_MODELS: dict[str, tuple] = {
+    "Sun":     (286.13, 0.0, 63.87, 0.0, (), ()),
+    "Mercury": (281.0103, -0.0328, 61.4155, -0.0049, (), ()),
+    "Venus":   (272.76, 0.0, 67.16, 0.0, (), ()),
+    "Earth":   (0.00, -0.641, 90.00, -0.557, (), ()),
+    "Moon":    (269.9949, 0.0031, 66.5392, 0.0130,
+                ((-3.8787, 125.045,  -1935.5364525),    # E1
+                 (-0.1204, 250.089,  -3871.0729050),    # E2
+                 ( 0.0700, 260.008, 475263.3328725),    # E3
+                 (-0.0172, 176.625, 487269.6299850),    # E4
+                 ( 0.0072, 311.589, 964468.4993100),    # E6
+                 (-0.0052,  15.134,  -5806.6093575),    # E10
+                 ( 0.0043,  25.053, 473327.7964200)),   # E13
+                (( 1.5419, 125.045,  -1935.5364525),    # E1
+                 ( 0.0239, 250.089,  -3871.0729050),    # E2
+                 (-0.0278, 260.008, 475263.3328725),    # E3
+                 ( 0.0068, 176.625, 487269.6299850),    # E4
+                 (-0.0029, 311.589, 964468.4993100),    # E6
+                 ( 0.0009, 134.963, 477198.8693250),    # E7
+                 ( 0.0008,  15.134,  -5806.6093575),    # E10
+                 (-0.0009,  25.053, 473327.7964200))),  # E13
+    # Mars: the Kuchynka et al. 2014 model adopted by the 2015 report. The
+    # slow 0.5042615 deg/cy terms carry 0.42 deg (RA) and 1.59 deg (Dec).
+    "Mars":    (317.269202, -0.10927547, 54.432516, -0.05827105,
+                ((0.000068, 198.991226, 19139.4819985),
+                 (0.000238, 226.292679, 38280.8511281),
+                 (0.000052, 249.663391, 57420.7251593),
+                 (0.000009, 266.183510, 76560.6367950),
+                 (0.419057,  79.398797,     0.5042615)),
+                ((0.000051, 122.433576, 19139.9407476),
+                 (0.000141,  43.058401, 38280.8753272),
+                 (0.000031,  57.663379, 57420.7517205),
+                 (0.000005,  79.476401, 76560.6495004),
+                 (1.591274, 166.325722,     0.5042615))),
+    # Jupiter (angles Ja..Je) and the Galilean satellites (angles J3..J8).
+    "Jupiter": (268.056595, -0.006499, 64.495303, 0.002413,
+                ((0.000117,  99.360714, 4850.4046),
+                 (0.000938, 175.895369, 1191.9605),
+                 (0.001432, 300.323162,  262.5475),
+                 (0.000030, 114.012305, 6070.2476),
+                 (0.002150,  49.511251,   64.3000)),
+                (( 0.000050,  99.360714, 4850.4046),
+                 ( 0.000404, 175.895369, 1191.9605),
+                 ( 0.000617, 300.323162,  262.5475),
+                 (-0.000013, 114.012305, 6070.2476),
+                 ( 0.000926,  49.511251,   64.3000))),
+    "Io":       (268.05, -0.009, 64.50, 0.003,
+                 ((0.094, 283.90, 4850.7), (0.024, 355.80, 1191.3)),
+                 ((0.040, 283.90, 4850.7), (0.011, 355.80, 1191.3))),
+    "Europa":   (268.08, -0.009, 64.51, 0.003,
+                 ((1.086, 355.80, 1191.3), (0.060, 119.90, 262.1),
+                  (0.015, 229.80, 64.3), (0.009, 352.25, 2382.6)),
+                 ((0.468, 355.80, 1191.3), (0.026, 119.90, 262.1),
+                  (0.007, 229.80, 64.3), (0.002, 352.25, 2382.6))),
+    "Ganymede": (268.20, -0.009, 64.57, 0.003,
+                 ((-0.037, 355.80, 1191.3), (0.431, 119.90, 262.1),
+                  (0.091, 229.80, 64.3)),
+                 ((-0.016, 355.80, 1191.3), (0.186, 119.90, 262.1),
+                  (0.039, 229.80, 64.3))),
+    "Callisto": (268.72, -0.009, 64.83, 0.003,
+                 ((-0.068, 119.90, 262.1), (0.590, 229.80, 64.3),
+                  (0.010, 113.35, 6070.0)),
+                 ((-0.029, 119.90, 262.1), (0.254, 229.80, 64.3),
+                  (-0.004, 113.35, 6070.0))),
+    "Saturn":    (40.589, -0.036, 83.537, -0.004, (), ()),
+    "Enceladus": (40.66, -0.036, 83.52, -0.004, (), ()),
+    "Titan":     (39.4827, 0.0, 83.4279, 0.0, (), ()),
+    "Uranus":    (257.311, 0.0, -15.175, 0.0, (), ()),
+    # Neptune: N = 357.85 + 52.316 T.
+    "Neptune":   (299.36, 0.0, 43.46, 0.0,
+                  ((0.70, 357.85, 52.316),),
+                  ((-0.51, 357.85, 52.316),)),
+    "Pluto":     (132.993, 0.0, -6.163, 0.0, (), ()),
+}
+
+_JD_J2000 = 2451545.0
+
+
+def _iau_pole_radec(name: str, jd_tdb: float = _JD_J2000) -> tuple[float, float]:
+    """IAU WGCCRE pole (RA, Dec), degrees, of `name` at TDB Julian date jd_tdb.
+
+    Raises KeyError for a body with no model in _IAU_POLE_MODELS.
+    """
+    ra0, ra1, dec0, dec1, ra_terms, dec_terms = _IAU_POLE_MODELS[name]
+    T = (jd_tdb - _JD_J2000) / 36525.0
+    ra = ra0 + ra1 * T
+    dec = dec0 + dec1 * T
+    for a, A0, A1 in ra_terms:
+        ra += a * math.sin(math.radians(A0 + A1 * T))
+    for a, A0, A1 in dec_terms:
+        dec += a * math.cos(math.radians(A0 + A1 * T))
+    return ra, dec
+
+
+def _iau_pole_unit(name: str, jd_tdb: float = _JD_J2000) -> np.ndarray:
+    """ICRF unit vector along `name`'s IAU north pole at TDB Julian date jd_tdb."""
+    return _pole_unit_from_radec(*_iau_pole_radec(name, jd_tdb))
 
 
 # ── Canonical body parameters (radius, albedo, J2, pole) ───────────────────
@@ -102,10 +229,14 @@ _RESULTS_FILE = _FIXTURES / "rolling_shootout_results.json"
 #   radius_km, albedo: IAU Working Group 2015 / NASA Planetary Fact Sheets
 #   J2: NASA Planetary Fact Sheets, Williams 2024 (planets); Pavlis et al. 2008 (Earth);
 #       0.0 for bodies with no published value (small moons, TNOs)
-#   pole_axis_unit: simplified — z-axis for all bodies. Solar system planets
-#       have varying obliquities (Uranus ~97°!), but for this first-pass
-#       experiment we use the ICRF frame's z-axis. A future refinement is to
-#       set each body's true pole from IAU 2015 rotation models.
+#   pole_axis_unit: the IAU WGCCRE pole at J2000.0 (_iau_pole_unit) for every
+#       body with a published model. _build_bodies_at_snapshot re-evaluates it
+#       at the snapshot epoch, so each window starts with the pole of its own
+#       date, then holds it fixed over the window. The largest drifts ignored
+#       that way are Earth's precession (0.85 deg/cy) and the Moon's 18.6-yr
+#       wobble (about 1.5 deg), whose J2 reaches other bodies at ~1e-13 m/s^2.
+#       Bodies with no model and no zonal coefficients keep the +z default,
+#       which no force layer reads.
 @dataclass(frozen=True)
 class BodyParams:
     """Per-body physical parameters (canonical IAU/NASA values).
@@ -132,17 +263,16 @@ class BodyParams:
     pole_axis_unit: np.ndarray | None           = None  # None → ICRS +z default
 
 
-# IAU 2015 pole RA/Dec (J2000.0) for high-obliquity bodies.
-# Most planets have poles within ~30° of ICRS +z so the default works fine;
-# these need explicit vectors for J2/J3/J4 to be evaluated correctly.
-_SUN_POLE    = _pole_unit_from_radec(286.13,   63.87)  # IAU 2015 solar pole
-_URANUS_POLE = _pole_unit_from_radec(257.311, -15.175)
-_PLUTO_POLE  = _pole_unit_from_radec(132.993,  -6.163)
-# Neptune's pole RA/Dec (43.46°, 89.45° -- nearly +z but slightly tilted).
-_NEPTUNE_POLE = _pole_unit_from_radec(299.36,  43.46)
-# Triton orbits Neptune retrograde at ~157° to Neptune's equator. Triton's
-# own rotational pole is roughly opposite Neptune's orbital normal; we use
-# -Neptune's pole as a first approximation since Triton's own J2 = 0.
+# IAU WGCCRE poles at J2000.0 (see _IAU_POLE_MODELS above); the pole at the
+# window's own epoch replaces these in _build_bodies_at_snapshot.
+_SUN_POLE     = _iau_pole_unit("Sun")       # RA 286.13,  Dec 63.87 (constant)
+_URANUS_POLE  = _iau_pole_unit("Uranus")    # RA 257.311, Dec -15.175 (constant)
+_PLUTO_POLE   = _iau_pole_unit("Pluto")     # RA 132.993, Dec -6.163 (constant)
+# Neptune: RA 299.36 + 0.70 sin N, Dec 43.46 - 0.51 cos N, which at J2000 is
+# RA 299.33, Dec 42.95: 47.05 deg from ICRS +z, not "nearly +z".
+_NEPTUNE_POLE = _iau_pole_unit("Neptune")
+# Triton carries no zonal coefficients here (J2 = J3 = J4 = 0), so no force
+# layer reads its pole; -Neptune's pole is a placeholder, not Triton's IAU pole.
 _TRITON_POLE = -_NEPTUNE_POLE
 
 
@@ -155,29 +285,40 @@ _BODY_PARAMS: dict[str, BodyParams] = {
                             love_number_k2=0.02,
                             pole_axis_unit=_SUN_POLE),
     "Mercury":  BodyParams(  2440.0,  0.088,  5.03e-5,   0.0,       -1.0e-5,
-                            love_number_k2=0.45),
+                            love_number_k2=0.45,
+                            pole_axis_unit=_iau_pole_unit("Mercury")),
     "Venus":    BodyParams(  6052.0,  0.689,  4.46e-6,   0.0,        0.0,
-                            love_number_k2=0.295),
+                            love_number_k2=0.295,
+                            pole_axis_unit=_iau_pole_unit("Venus")),
     "Earth":    BodyParams(  6371.0,  0.367,  1.0826e-3, -2.5e-6,   -1.6e-6,
-                            love_number_k2=0.299),
+                            love_number_k2=0.299,
+                            pole_axis_unit=_iau_pole_unit("Earth")),
     "Moon":     BodyParams(  1737.4,  0.120,  2.034e-4,   8.5e-6,   -1.2e-5,
-                            love_number_k2=0.024),
+                            love_number_k2=0.024,
+                            pole_axis_unit=_iau_pole_unit("Moon")),
     "Mars":     BodyParams(  3389.5,  0.170,  1.9606e-3,  3.5e-5,   -1.4e-5,
-                            love_number_k2=0.169),
+                            love_number_k2=0.169,
+                            pole_axis_unit=_iau_pole_unit("Mars")),
     "Phobos":   BodyParams(    11.2,  0.071,  0.0),
     "Deimos":   BodyParams(     6.1,  0.068,  0.0),
     "Jupiter":  BodyParams( 71492.0,  0.520,  1.4736e-2,  0.0,      -5.87e-4,
-                            love_number_k2=0.535),
+                            love_number_k2=0.535,
+                            pole_axis_unit=_iau_pole_unit("Jupiter")),
     "Io":       BodyParams(  1821.6,  0.630,  1.846e-3,   0.0,        0.0,
-                            love_number_k2=0.7),
+                            love_number_k2=0.7,
+                            pole_axis_unit=_iau_pole_unit("Io")),
     "Europa":   BodyParams(  1560.8,  0.670,  4.355e-4,   0.0,        0.0,
-                            love_number_k2=0.26),
+                            love_number_k2=0.26,
+                            pole_axis_unit=_iau_pole_unit("Europa")),
     "Ganymede": BodyParams(  2634.1,  0.430,  1.276e-4,   0.0,        0.0,
-                            love_number_k2=0.13),
+                            love_number_k2=0.13,
+                            pole_axis_unit=_iau_pole_unit("Ganymede")),
     "Callisto": BodyParams(  2410.3,  0.170,  3.5e-5,     0.0,        0.0,
-                            love_number_k2=0.05),
+                            love_number_k2=0.05,
+                            pole_axis_unit=_iau_pole_unit("Callisto")),
     "Saturn":   BodyParams( 60268.0,  0.470,  1.6298e-2,  0.0,      -9.15e-4,
-                            love_number_k2=0.39),
+                            love_number_k2=0.39,
+                            pole_axis_unit=_iau_pole_unit("Saturn")),
     # Saturn moons -- added 2026-05-15 to provide the perturbations missing
     # from earlier 26-body fixture. Mimas--Tethys 3:2 resonance and
     # Enceladus--Dione 2:1 resonance now both computable; expected to drop
@@ -186,12 +327,14 @@ _BODY_PARAMS: dict[str, BodyParams] = {
     # set to 0 so the j2_zonal toggle skips them.
     "Mimas":    BodyParams(   198.2,  0.962,  0.0,        0.0,        0.0),
     "Enceladus":BodyParams(   252.1,  0.990,  5.4e-3,     0.0,        0.0,
-                            love_number_k2=0.01),
+                            love_number_k2=0.01,
+                            pole_axis_unit=_iau_pole_unit("Enceladus")),
     "Tethys":   BodyParams(   531.0,  0.800,  0.0,        0.0,        0.0),
     "Dione":    BodyParams(   561.4,  0.998,  0.0,        0.0,        0.0),
     "Rhea":     BodyParams(   763.8,  0.949,  0.0,        0.0,        0.0),
     "Titan":    BodyParams(  2574.7,  0.220,  3.318e-5,   0.0,        0.0,
-                            love_number_k2=0.6),
+                            love_number_k2=0.6,
+                            pole_axis_unit=_iau_pole_unit("Titan")),
     "Uranus":   BodyParams( 25559.0,  0.510,  3.5107e-3,  0.0,      -3.4e-5,
                             love_number_k2=0.36,
                             pole_axis_unit=_URANUS_POLE),
@@ -223,7 +366,10 @@ class Predictor:
     fields drifting out of sync.
 
     `use_kepler` is a special path (no n-body integration; per-body
-    Keplerian fits). When True, `toggles` is ignored.
+    Keplerian fits). When True, `toggles` is ignored. `kepler_forecast`
+    then picks the fit data: False fits every orbit on all fixture
+    snapshots (in-sample, including the epochs it is scored on); True fits
+    only on snapshots at or before the window start (an honest forecast).
 
     `fast_body_names` + `fast_substep_factor` enable per-body dt via
     NBodySystem.forest_ruth_step_hierarchical: listed bodies integrate at
@@ -238,6 +384,7 @@ class Predictor:
     description:         str    = ""
     fast_body_names:     tuple[str, ...] | None = None
     fast_substep_factor: int    = 1
+    kepler_forecast:     bool   = False
 
 
 # Common toggle bundles for the existing predictor lineup.
@@ -280,15 +427,31 @@ _JPL_DE440          = PhysicsToggles(
 )
 
 
+# Measured hygiene (window j2015 -> j2016 against the DE440 fixture, after the
+# pole fix; scratch evidence of fix track F, 2026-10-10). The four dt = 1 d
+# predictors below do not resolve the inner moons: Phobos, Deimos, Io,
+# Miranda, Mimas and Tethys end the year unbound (with GR + SRP + J2 also
+# Enceladus and Ariel), and Mercury is off by 31,000-34,000 km, Earth by
+# ~900 km, Jupiter by 10,000-14,000 km (recoil from the ejected moons), so
+# their differences measure the integrator, not GR, SRP or J2 (the 1PN effect
+# on Mercury is ~230 km in that year). gr_1pn (standard, over_physics*) is a
+# rest-frame approximation: for the moons it misses 19-97 % of the EIH
+# differential acceleration (1-yr position: Moon 3.4 km of a 6.0 km 1PN
+# effect, Phobos 20 of 38 km). Which predictors, dt and GR model are canonical
+# for the recalculation is the Captain's decision; these entries are unchanged.
 PREDICTORS: list[Predictor] = [
     Predictor("pure_newton",        _NO_PHYSICS,
-              description="Newton only (no GR, no SRP, no J2) -- baseline"),
+              description="Newton only (no GR, no SRP, no J2) -- baseline; "
+                          "dt=1d ejects the inner moons"),
     Predictor("standard",           _GR_ONLY,
-              description="Newton + 1PN GR (no SRP, no J2)"),
+              description="Newton + 1PN GR (gr_1pn, no SRP, no J2); "
+                          "dt=1d ejects the inner moons"),
     Predictor("over_physics_no_j2", _GR_SRP,
-              description="Newton + GR + SRP (J2 ablated) -- diagnostic"),
+              description="Newton + GR + SRP (J2 ablated) -- diagnostic; "
+                          "dt=1d ejects the inner moons"),
     Predictor("over_physics",       _GR_SRP_J2,
-              description="Newton + GR + SRP + J2 (current best)"),
+              description="Newton + GR + SRP + J2 at dt=1d (ejects the inner "
+                          "moons; not the best predictor)"),
     Predictor("over_physics_finedt", _GR_SRP_J2,
               dt_days=0.1,
               description="Over_physics with dt=0.1d (10x finer; targets fast-moon row)"),
@@ -301,9 +464,18 @@ PREDICTORS: list[Predictor] = [
                           "integrator-noise floor (Enceladus, Io, Europa at 1-2d period)"),
     # RESPA per-body dt: macro dt=0.1d for slow forces (Sun on moons, J2/J3/J4,
     # EIH cross-terms, etc.), inner dt=0.01d for the parent-pair Newton force
-    # (Saturn-Mimas, Mars-Phobos, etc.). Symplectic via Strang splitting; works
-    # because for our fast moons the parent-pull dominates Sun's pull by 4-6
-    # orders of magnitude (Saturn pulls Mimas 10000x harder than Sun does).
+    # (Saturn-Mimas, Mars-Phobos, etc.). Symplectic via Strang splitting; it
+    # relies on the parent's pull dominating the Sun's, which holds for the
+    # giant planets' moons (Saturn pulls Mimas 10000x harder than the Sun)
+    # but NOT for the Moon: the Sun pulls the Moon 2.2x harder than Earth
+    # does, the regime respa_step's docstring says fails. Measured over
+    # j2015 -> j2016: Moon 5,635 km (jpl_de440: 10 km), and the Moon's error
+    # leaks into Earth (74 km against 1.3). Taking the Moon out of the fast
+    # group does not help (6,835 km), and taking the planets' Sun pairs out
+    # wrecks the planets (Mercury 21,000 km), so the cure is in respa_step,
+    # not in these parent links. The giant planets' moons do gain over
+    # jpl_de440 at 0.1 d (Europa 61,300 vs 407,400 km) but stay far behind
+    # uniform FR4 at 0.02 d (1,600 km).
     # Parent-attractor links are read from the DE440 fixture's
     # gravitational_anchor field. See misc/respa_attempt_2026-05-16.md.
     Predictor("jpl_de440_respa",    _JPL_DE440,
@@ -325,9 +497,54 @@ PREDICTORS: list[Predictor] = [
     # remain in nbody.py for future repair; the right fix is symplectic
     # multi-timestep (Tuckerman 1992 RESPA, split by force type) rather
     # than the body-split operator scheme.
+    # Two Kepler baselines (the canonical one is the Captain's call):
+    # "kepler" keeps its historical meaning, an IN-SAMPLE fit on all 27
+    # snapshots J2000-J2026, including the epochs it is scored on;
+    # "kepler_forecast" fits only snapshots at or before the window start,
+    # the honest forecast (NaN for windows with fewer than 3 such snapshots).
+    # In both, a moon rides on its parent's Kepler prediction at the sample
+    # epoch, not on the parent frozen at the window start.
     Predictor("kepler",             _NO_PHYSICS, use_kepler=True,
-              description="2-body Keplerian fit per body"),
+              description="2-body Keplerian fit per body, in-sample "
+                          "(fitted on all snapshots incl. the scored ones)"),
+    Predictor("kepler_forecast",    _NO_PHYSICS, use_kepler=True,
+              kepler_forecast=True,
+              description="2-body Keplerian fit per body on snapshots up to "
+                          "the window start only (honest forecast)"),
 ]
+
+
+# ── The canonical scoreboard set (the Captain's decision, 2026-10-10) ──────
+# Headline = the full JPL-style stack at ONE step size; ablations = the headline minus exactly one
+# layer at the same step (so each row isolates what that layer contributes); the honest Kepler
+# forecast as the baseline. Everything above this line (the dt = 1 d chain, single-body gr_1pn,
+# RESPA, the in-sample Kepler fit) stays selectable by name as a labelled diagnostic.
+# The step size comes from the step-size measurement (misc/SHOOTOUT_STEP_SIZE_2026-10-10.md).
+CANONICAL_DT_DAYS = 0.1
+
+# Bodies whose phase is lost to integrator round-off over a year at any practical step (error of
+# order their orbital radius): scored in their own table, never in the headline averages.
+INTEGRATOR_LIMITED_BODIES = ("Phobos", "Deimos", "Mimas", "Enceladus", "Io", "Miranda")
+
+
+def canonical_predictors(dt_days: float = CANONICAL_DT_DAYS) -> list[Predictor]:
+    """Headline stack, its one-layer-off ablations and the honest Kepler baseline, all at `dt_days`."""
+    import dataclasses as _dc
+    t = _JPL_DE440
+    rows = [
+        ("de440_stack",     t, "HEADLINE: EIH 1PN + J2/J3/J4 zonals + tides + SRP (Park et al. 2021 force model)"),
+        ("de440_no_eih",    _dc.replace(t, eih_cross=False), "headline minus the N-body 1PN (EIH) layer"),
+        ("de440_no_zonals", _dc.replace(t, j2_zonal=False, j3_zonal=False, j4_zonal=False), "headline minus the J2/J3/J4 zonal harmonics"),
+        ("de440_no_tides",  _dc.replace(t, tidal_force=False), "headline minus the Love-number tidal force"),
+        ("de440_no_srp",    _dc.replace(t, srp=False), "headline minus solar radiation pressure"),
+        ("newton_same_dt",  _NO_PHYSICS, "Newtonian point masses at the same step: the floor every layer is measured from"),
+    ]
+    return [Predictor(n, tog, dt_days=dt_days, description=d) for n, tog, d in rows]
+
+
+CANONICAL_PREDICTORS: list[Predictor] = canonical_predictors() + [
+    p for p in PREDICTORS if p.name == "kepler_forecast"]
+PREDICTORS.extend(p for p in CANONICAL_PREDICTORS if p.name != "kepler_forecast")
 
 
 # ── Initial state extraction ──────────────────────────────────────────────
@@ -343,8 +560,10 @@ def _build_bodies_at_snapshot(
 ) -> tuple[list[CelestialBody], list[str], int, list[int | None]]:
     """Build CelestialBody list from a DE440 annual snapshot.
 
-    Per-body parameters (j2, j3, j4, area_m2, pole_axis_unit) are ALWAYS set
-    from _BODY_PARAMS regardless of the predictor's toggles. Predictor-level
+    Per-body parameters (j2, j3, j4, area_m2) are ALWAYS set from _BODY_PARAMS
+    regardless of the predictor's toggles; pole_axis_unit is the IAU pole at
+    the snapshot epoch (_iau_pole_unit) for bodies with a published model, else
+    the _BODY_PARAMS value. Predictor-level
     gating now happens at the force-computation layer inside NBodySystem
     (via PhysicsToggles), not by zeroing per-body data here.
 
@@ -354,6 +573,7 @@ def _build_bodies_at_snapshot(
     NBodySystem.respa_step to identify parent-pair fast forces.
     """
     snap = de440["snapshots"][snap_key]
+    snap_jd = snap["epoch"]["jd_tdb"]
     bodies: list[CelestialBody] = []
     names: list[str] = []
     anchor_names: list[str | None] = []  # parallel list of anchor body names
@@ -375,6 +595,10 @@ def _build_bodies_at_snapshot(
         # whether the SRP block runs.
         area_m2 = math.pi * r_m * r_m if (name != "Sun") else 0.0
 
+        # Zonal harmonics act about the body's spin axis at this epoch.
+        pole = (_iau_pole_unit(name, snap_jd) if name in _IAU_POLE_MODELS
+                else params.pole_axis_unit)
+
         body = CelestialBody(
             mass_kg=mass,
             position_m=pos,
@@ -386,7 +610,7 @@ def _build_bodies_at_snapshot(
             j2=params.j2,
             j3=params.j3,
             j4=params.j4,
-            pole_axis_unit=params.pole_axis_unit,
+            pole_axis_unit=pole,
         )
         bodies.append(body)
         names.append(name)
@@ -522,39 +746,51 @@ def _kepler_predictions(
     anchor_snap_key: str,
     body_names:      list[str],
     sample_jds:      list[float],
+    forecast:        bool = False,
 ) -> dict[str, np.ndarray]:
-    """Per-body Keplerian fits from the anchor snapshot, evaluated at sample JDs.
+    """Per-body Keplerian predictions, heliocentric km at the sample JDs.
 
-    Returns heliocentric km arrays of shape (len(sample_jds), 3) per body.
-    For bodies where fit_orbit returns None (Sun, missing data), returns
-    an array of zeros — same shape, sentinel value.
+    Each body is its fitted two-body orbit about its anchor (orbital.
+    ANCHOR_MAP) added to the anchor's own Kepler prediction AT THE SAME
+    SAMPLE EPOCH, recursively down to the Sun, which is the heliocentric
+    origin. A moon therefore rides on its parent's predicted motion rather
+    than on the parent frozen at the window start, and no DE440 state at a
+    sample epoch enters any prediction.
+
+    forecast=False: orbits are fitted on every fixture snapshot (J2000-J2026),
+    including the epochs they are scored on -- an in-sample fit.
+    forecast=True: orbits are fitted only on snapshots at or before the window
+    start, an honest forecast. fit_orbit needs three snapshots, so windows
+    starting before J2002 get NaN.
+
+    Returns heliocentric km arrays of shape (len(sample_jds), 3) per body:
+    zeros for the Sun, NaN for a body (or any ancestor) without a fit.
     """
-    anchor_snap = de440["snapshots"][anchor_snap_key]
-    results: dict[str, np.ndarray] = {}
+    if forecast:
+        start_jd = de440["snapshots"][anchor_snap_key]["epoch"]["jd_tdb"]
+        fixture = {"snapshots": {k: v for k, v in de440["snapshots"].items()
+                                 if v["epoch"]["jd_tdb"] <= start_jd}}
+    else:
+        fixture = de440
 
-    for name in body_names:
-        if name == "Sun":
-            results[name] = np.zeros((len(sample_jds), 3))
-            continue
-        orbit = fit_orbit(name, de440)
+    n = len(sample_jds)
+    helio: dict[str, np.ndarray] = {"Sun": np.zeros((n, 3))}
+
+    def _helio(name: str, chain: tuple[str, ...] = ()) -> np.ndarray:
+        if name in helio:
+            return helio[name]
+        orbit = fit_orbit(name, fixture) if name not in chain else None
         if orbit is None:
-            results[name] = np.full((len(sample_jds), 3), np.nan)
-            continue
-        positions = []
-        for jd in sample_jds:
-            ssb_km = predict_ssb_position(orbit, anchor_snap, jd)
-            if ssb_km is None:
-                positions.append(np.array([np.nan, np.nan, np.nan]))
-                continue
-            sun_ssb = _de440_heliocentric_km(de440, anchor_snap_key, name)  # not what we want
-            # We need the Sun's SSB position at jd. Use anchor snap Sun position
-            # (DE440 snapshots store SSB-equatorial). Kepler predict gives SSB,
-            # so heliocentric = SSB - Sun_SSB.
-            sun_sv = [b for b in anchor_snap["bodies"] if b["name"] == "Sun"][0]["state_vector"]
-            sun_pos = np.array([sun_sv["x_km"], sun_sv["y_km"], sun_sv["z_km"]])
-            positions.append(np.array(ssb_km) - sun_pos)
-        results[name] = np.array(positions)
-    return results
+            out = np.full((n, 3), np.nan)
+        else:
+            parent = _helio(orbit.anchor, chain + (name,))
+            rel = np.array([_ecliptic_to_equatorial(*orbit.predict_relative_ecliptic(jd))
+                            for jd in sample_jds])
+            out = parent + rel
+        helio[name] = out
+        return out
+
+    return {name: _helio(name).copy() for name in body_names}
 
 
 # ── Result dataclass ─────────────────────────────────────────────────────
@@ -592,6 +828,7 @@ def run_rolling_shootout(
     predictors:             list[Predictor] = PREDICTORS,
     de440:                  dict | None = None,
     verbose:                bool = True,
+    output_path:            "Path | str | None" = _USE_DEFAULT_OUTPUT,
 ) -> list[WindowSample]:
     """Run the rolling-window shootout.
 
@@ -600,17 +837,30 @@ def run_rolling_shootout(
     window_start_keys     : DE440 snapshot keys to use as window starts
                            (e.g. ["j2005", "j2006", ..., "j2020"])
     prediction_horizon_yr : how far into the future each window predicts
-    sample_interval_yr    : sampling cadence within each window (1.0 = annual,
-                            which lets us compare directly to DE440 snapshots)
-    predictors            : list of Predictor specs (default: all 5)
+    sample_interval_yr    : sampling cadence within each window. Samples sit
+                            at start + k * sample_interval_yr (k = 1, 2, ...
+                            up to the horizon); one within half a day of a
+                            DE440 snapshot is placed exactly on it and scored.
+                            With the annual fixture, 1.0 scores every sample;
+                            sub-annual samples between snapshots carry the
+                            prediction with truth_km = error_au = None.
+    predictors            : list of Predictor specs (default: PREDICTORS)
+    output_path           : where to write the results JSON. Default: the
+                            untracked _DEFAULT_RESULTS_OUTPUT (local-cache/);
+                            None writes nothing. The committed
+                            fixtures/rolling_shootout_results.json is written
+                            only when passed here explicitly.
 
     Returns
     -------
     list of WindowSample, one per (predictor, body, window, sample_time).
-    Also writes the same data to fixtures/rolling_shootout_results.json.
     """
     if de440 is None:
         de440 = _load_de440()
+    if not sample_interval_yr > 0.0:
+        raise ValueError(f"sample_interval_yr must be > 0, got {sample_interval_yr}")
+    if output_path is _USE_DEFAULT_OUTPUT:
+        output_path = _DEFAULT_RESULTS_OUTPUT
 
     snap_keys_all = sorted(de440["snapshots"].keys())
     # JD lookup helper
@@ -624,22 +874,20 @@ def run_rolling_shootout(
 
     for w_idx, w_key in enumerate(window_start_keys):
         start_jd = _jd_of(w_key)
-        # Sample JDs are the actual DE440 snapshot JDs that fall within
-        # the prediction window. This ensures predictions are compared to
-        # truth at the SAME instant — no time-alignment error.
-        # (Using start_jd + round(k*365.25) instead gives Earth a spurious
-        # ~0.005 AU error from snapshot epochs not being exactly 365.25d apart.)
-        end_jd = start_jd + prediction_horizon_yr * YR_DAYS
+        # Samples every sample_interval_yr from the window start. A sample
+        # within half a day of a DE440 snapshot is moved exactly onto it, so
+        # prediction and truth refer to the SAME instant (the annual
+        # snapshots are exactly 365.25 d apart, so an annual cadence lands
+        # on them exactly).
+        n_samples = int(math.floor(prediction_horizon_yr / sample_interval_yr + 1e-9))
         sample_jds: list[float] = [start_jd]
         sample_snap_keys: list[str | None] = [w_key]
-        for snap_key in snap_keys_all:
-            snap_jd = _jd_of(snap_key)
-            if snap_jd <= start_jd + 0.5:
-                continue  # at or before window start
-            if snap_jd > end_jd + 0.5:
-                break     # past prediction horizon
-            sample_jds.append(snap_jd)
-            sample_snap_keys.append(snap_key)
+        for k in range(1, n_samples + 1):
+            jd = start_jd + k * sample_interval_yr * YR_DAYS
+            key = next((sk for sk in snap_keys_all
+                        if abs(_jd_of(sk) - jd) <= 0.5), None)
+            sample_jds.append(_jd_of(key) if key is not None else jd)
+            sample_snap_keys.append(key)
 
         if verbose:
             print(f"\n  Window {w_idx+1}/{n_windows}: start={w_key} (JD={start_jd:.1f})")
@@ -654,9 +902,11 @@ def run_rolling_shootout(
             t0 = time.time()
 
             if predictor.use_kepler:
-                # Anchor on the window start; fit orbit globally from de440 data
+                # In-sample fit on all snapshots, or (kepler_forecast) only
+                # on snapshots up to the window start.
                 body_names = [b["name"] for b in de440["snapshots"][w_key]["bodies"]]
-                preds = _kepler_predictions(de440, w_key, body_names, sample_jds)
+                preds = _kepler_predictions(de440, w_key, body_names, sample_jds,
+                                            forecast=predictor.kepler_forecast)
             else:
                 bodies, body_names, sun_idx, parent_idx = _build_bodies_at_snapshot(
                     w_key, de440, predictor)
@@ -694,7 +944,12 @@ def run_rolling_shootout(
                         error_au=err_au,
                     ))
 
-    # Save to fixture file
+    if output_path is None:
+        if verbose:
+            print(f"\n  Total elapsed: {time.time() - t0_global:.1f}s "
+                  f"({len(out)} samples, not written)")
+        return out
+
     payload = {
         "metadata": {
             "n_windows":             n_windows,
@@ -706,11 +961,13 @@ def run_rolling_shootout(
         },
         "samples": [_samples_to_dict(s) for s in out],
     }
-    _RESULTS_FILE.write_text(json.dumps(payload, separators=(",", ":")))
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(payload, separators=(",", ":")))
 
     if verbose:
         print(f"\n  Total elapsed: {time.time() - t0_global:.1f}s")
-        print(f"  {len(out)} samples written -> {_RESULTS_FILE.name}")
+        print(f"  {len(out)} samples written -> {output_path}")
 
     return out
 
@@ -729,11 +986,26 @@ if __name__ == "__main__":
                              "long (20y horizon, 5y slide), or both")
     parser.add_argument("--predictors", nargs="+", default=None,
                         help="predictor names to run (default: all)")
+    parser.add_argument("--output", type=Path, default=_DEFAULT_RESULTS_OUTPUT,
+                        help="results JSON (default: the untracked "
+                             f"{_DEFAULT_RESULTS_OUTPUT}); with --pass both the "
+                             "long pass goes to the same name with _long added")
+    parser.add_argument("--set", dest="pred_set", choices=["canonical", "all"], default="canonical",
+                        help="predictor set when --predictors is not given: the canonical scoreboard "
+                             "(headline, ablations, Kepler forecast) or every predictor incl. diagnostics")
+    parser.add_argument("--dt-days", type=float, default=None,
+                        help="step for the canonical predictors (default: CANONICAL_DT_DAYS)")
     args = parser.parse_args()
 
-    selected = PREDICTORS
+    pool = PREDICTORS
+    if args.dt_days is not None:
+        canon = {p.name: p for p in canonical_predictors(args.dt_days)}
+        pool = [canon.get(p.name, p) for p in PREDICTORS]
+    selected = CANONICAL_PREDICTORS if args.pred_set == "canonical" else pool
+    if args.dt_days is not None and args.pred_set == "canonical":
+        selected = canonical_predictors(args.dt_days) + [p for p in PREDICTORS if p.name == "kepler_forecast"]
     if args.predictors:
-        selected = [p for p in PREDICTORS if p.name in args.predictors]
+        selected = [p for p in pool if p.name in args.predictors]
 
     all_results: list[WindowSample] = []
 
@@ -745,6 +1017,7 @@ if __name__ == "__main__":
             prediction_horizon_yr=5.0,
             sample_interval_yr=1.0,
             predictors=selected,
+            output_path=args.output,
         )
         all_results.extend(results)
 
@@ -752,10 +1025,13 @@ if __name__ == "__main__":
         # Long: starts every 5y from J2000 to J2005, 20y horizon
         # (last possible start is J2006 for truth coverage to J2026)
         keys = [f"j{y}" for y in range(2000, 2007)]
+        long_out = (args.output.with_name(args.output.stem + "_long" + args.output.suffix)
+                    if args.which_pass == "both" else args.output)
         results = run_rolling_shootout(
             window_start_keys=keys,
             prediction_horizon_yr=20.0,
             sample_interval_yr=1.0,
             predictors=selected,
+            output_path=long_out,
         )
         all_results.extend(results)

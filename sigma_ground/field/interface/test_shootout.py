@@ -67,6 +67,8 @@ from sigma_ground.field.interface.nbody import CelestialBody, NBodySystem
 FIXTURES_DIR    = Path(__file__).parent / "fixtures"
 DE440_FILE      = FIXTURES_DIR / "de440_state_vectors.json"
 OVER_PHYS_FILE  = FIXTURES_DIR / "ssbm_over_physics_predictions.json"
+# The sealed file above is PAST DATA and is never rewritten. Regeneration writes the v2physics baseline beside it.
+OVER_PHYS_FILE_V2 = FIXTURES_DIR / "ssbm_over_physics_predictions_v2physics.json"
 STANDARD_FILE   = FIXTURES_DIR / "ssbm_future_predictions.json"
 MINOR_FILE      = FIXTURES_DIR / "ssbm_minor_bodies_predictions.json"
 
@@ -102,6 +104,10 @@ _BODY_PARAMS: dict[str, tuple[float, float]] = {
     "Saturn":     ( 60268.0,  0.470),
     "Enceladus":  (   252.1,  0.990),  # highest albedo in solar system
     "Titan":      (  2574.7,  0.220),
+    "Mimas":      (   198.2,  0.962),  # same values as rolling_shootout
+    "Tethys":     (   531.0,  0.800),
+    "Dione":      (   561.4,  0.998),
+    "Rhea":       (   763.8,  0.949),
     "Uranus":     ( 25559.0,  0.510),
     "Miranda":    (   235.8,  0.320),
     "Ariel":      (   578.9,  0.530),
@@ -193,13 +199,20 @@ def _fmt_err(err_au: float | None) -> str:
 # Over-physics prediction generation
 # ---------------------------------------------------------------------------
 
-def _build_over_physics_bodies(snap_key: str) -> list[CelestialBody]:
-    """Build all 26 CelestialBody objects from a DE440 snapshot."""
+def _build_over_physics_bodies(snap_key: str) -> tuple[list[CelestialBody], list[str]]:
+    """Build a CelestialBody for every body in a DE440 snapshot.
+
+    The Sun comes first, then the rest alphabetically: NBodySystem's solar
+    radiation pressure treats bodies[0] as the radiation source. (Sorting
+    everything alphabetically made Ariel the source: Miranda then felt
+    3.5e-9 m/s^2 of 'sunlight' against 4.3e-17 m/s^2 from the Sun.)
+    """
     data   = _load_de440()
     snap   = data["snapshots"][snap_key]
     by_name = {b["name"]: b for b in snap["bodies"]}
+    names = ["Sun"] + sorted(n for n in by_name if n != "Sun")
     bodies = []
-    for name in sorted(by_name.keys()):
+    for name in names:
         b   = by_name[name]
         sv  = b["state_vector"]
         gm  = b["gm_km3_s2"] * 1e9    # -> m³/s²
@@ -213,78 +226,77 @@ def _build_over_physics_bodies(snap_key: str) -> list[CelestialBody]:
             mass, pos, vel, r_m, 0.0,
             area_m2=area, reflectivity=albedo,
         ))
-    return bodies, sorted(by_name.keys())
+    return bodies, names
 
 
 def _generate_over_physics_predictions() -> dict:
-    """Run 30-year FR4+GR+SRP integration for all 26 bodies.
+    """Run 30-year FR4+GR+SRP integration for every DE440 fixture body.
 
     dt = 1 day  (~2 min).  Monthly checkpoints.  SHA-256 timestamped.
+    SRP radiates from the Sun (bodies[0], see _build_over_physics_bodies).
 
-    Note on inner moons: Phobos (T=0.32d), Deimos (1.26d), Io (1.77d),
-    Enceladus (1.37d) have orbital periods near or below dt=1 day.
-    Their N-body phase prediction is unreliable; heliocentric error is
-    dominated by the parent planet prediction, not the moon's phase.
-    This is noted in the shootout chart.
+    Note on inner moons: dt = 1 day does not resolve the moons with periods
+    of a few days or less (Phobos 0.32 d, Mimas 0.94 d, Deimos 1.26 d,
+    Enceladus 1.37 d, Io 1.77 d, Tethys 1.89 d, Miranda 1.41 d). Started
+    from the DE440 j2015 states, pure Newton at dt = 1 d unbinds Phobos,
+    Deimos, Io, Miranda, Mimas and Tethys within a year (with GR and SRP
+    also Enceladus and Ariel), so their entries are not orbits, and their
+    recoil also perturbs the parent planet's prediction.
     """
     data      = _load_de440()
     start_key = "j2025"
     start_jd  = data["snapshots"][start_key]["epoch"]["jd_tdb"]
 
     bodies_init, body_names = _build_over_physics_bodies(start_key)
-    # body_names is sorted alphabetically; Sun is included at index for Sun
+    # body_names starts with the Sun (the SRP source), then alphabetical
     sun_idx = body_names.index("Sun")
 
     # Record which names are predicted (all except Sun for heliocentric)
     predicted_names = [n for n in body_names if n != "Sun"]
 
-    DT_S        = DT_DAYS * 86400.0
-    checkpoints = [int(round(m * MONTH_DAYS / DT_DAYS)) for m in range(N_MONTHS + 1)]
-    total_steps = checkpoints[-1]
+    # Each month is covered by n_sub equal steps, so entry m is the state at
+    # exactly start_jd + m * MONTH_DAYS (whole-day steps put month 12 a
+    # quarter day before J2026, the epoch it is scored against).
+    n_sub = max(1, int(round(MONTH_DAYS / DT_DAYS)))
+    DT_S  = MONTH_DAYS * 86400.0 / n_sub
 
     system = NBodySystem(bodies_init, include_gr=True,
                          solar_luminosity_W=_L_SUN_W)
 
     print(f"\n  Generating over-physics forecast:")
-    print(f"    26 bodies | FR4 | 1PN GR | SRP (L_sun={_L_SUN_W:.3e} W)")
-    print(f"    dt={DT_DAYS}d | {N_MONTHS} months | ~2 min ...")
+    print(f"    {len(body_names)} bodies | FR4 | 1PN GR | SRP from the Sun "
+          f"(L_sun={_L_SUN_W:.3e} W)")
+    print(f"    dt={DT_DAYS}d nominal ({MONTH_DAYS / n_sub:.4f} d) | "
+          f"{N_MONTHS} months | ~2 min ...")
 
     predictions: list[dict] = []
-    check_idx = 0
     t0 = time.time()
 
-    for step in range(total_steps + 1):
-        if check_idx <= N_MONTHS and step == checkpoints[check_idx]:
-            month  = check_idx
-            jd_now = start_jd + step * DT_DAYS
-            sun_pos = system.bodies[sun_idx].position_m
-            entry: dict = {
-                "month":    month,
-                "jd":       round(jd_now, 4),
-                "iso_date": _jd_to_iso(jd_now),
-                "over":     {},
-            }
-            for i, name in enumerate(body_names):
-                if name == "Sun":
-                    continue
-                hel_km = (system.bodies[i].position_m - sun_pos) / KM_TO_M
-                entry["over"][name] = [
-                    round(float(hel_km[0]), 3),
-                    round(float(hel_km[1]), 3),
-                    round(float(hel_km[2]), 3),
-                ]
-            predictions.append(entry)
-            check_idx += 1
-            if check_idx > N_MONTHS:
-                break
-        if step < total_steps:
-            system.forest_ruth_step(DT_S)
-        if step % 2000 == 0 and step > 0:
+    for month in range(N_MONTHS + 1):
+        if month > 0:
+            for _ in range(n_sub):
+                system.forest_ruth_step(DT_S)
+        jd_now = start_jd + month * MONTH_DAYS
+        sun_pos = system.bodies[sun_idx].position_m
+        entry: dict = {
+            "month":    month,
+            "jd":       round(jd_now, 4),
+            "iso_date": _jd_to_iso(jd_now),
+            "over":     {},
+        }
+        for i, name in enumerate(body_names):
+            if name == "Sun":
+                continue
+            hel_km = (system.bodies[i].position_m - sun_pos) / KM_TO_M
+            entry["over"][name] = [
+                round(float(hel_km[0]), 3),
+                round(float(hel_km[1]), 3),
+                round(float(hel_km[2]), 3),
+            ]
+        predictions.append(entry)
+        if month % 60 == 0 and month > 0:
             elapsed = time.time() - t0
-            pct = 100 * step / total_steps
-            eta = elapsed / step * (total_steps - step)
-            print(f"    step {step}/{total_steps} ({pct:.0f}%)  "
-                  f"elapsed={elapsed:.0f}s  eta={eta:.0f}s", flush=True)
+            print(f"    month {month}/{N_MONTHS}  elapsed={elapsed:.0f}s", flush=True)
 
     elapsed = time.time() - t0
     print(f"  Done in {elapsed:.0f}s ({elapsed/60:.1f} min).")
@@ -297,16 +309,21 @@ def _generate_over_physics_predictions() -> dict:
             "created_utc":        created_utc,
             "start_jd":           start_jd,
             "dt_days":            DT_DAYS,
+            "step_days":          MONTH_DAYS / n_sub,
+            "epochs":             "start_jd + month * MONTH_DAYS exactly",
             "n_months":           N_MONTHS,
             "integrator":         "forest_ruth_4th_order",
             "include_gr":         True,
             "include_srp":        True,
             "solar_luminosity_W": _L_SUN_W,
             "bodies":             predicted_names,
+            "srp_source":         body_names[0],
             "note": (
-                "ALL 26 DE440 bodies. FR4+GR+SRP. SHA-256 binds timestamp to data. "
-                "Inner moons (Phobos/Deimos/Io/Enceladus) have phase uncertainty "
-                "~their orbital radius because dt=1d > their period."
+                f"All {len(body_names)} DE440 fixture bodies. FR4+GR+SRP (SRP from "
+                f"the Sun). SHA-256 binds timestamp to data. dt=1d does not resolve "
+                f"the inner moons' orbital phase: moons such as Phobos, Deimos, Io, "
+                f"Miranda, Mimas and Tethys become unbound within a year, so their "
+                f"entries are not orbits and their recoil perturbs the parent planet."
             ),
         },
         "predictions_sha256": sha256,
@@ -314,8 +331,9 @@ def _generate_over_physics_predictions() -> dict:
     }
 
     FIXTURES_DIR.mkdir(parents=True, exist_ok=True)
-    OVER_PHYS_FILE.write_text(json.dumps(fixture, indent=2))
-    print(f"  Saved {OVER_PHYS_FILE.name}  sha256={sha256[:16]}...")
+    fixture["metadata"]["baseline_label"] = "v2physics_2026-10-10"
+    OVER_PHYS_FILE_V2.write_text(json.dumps(fixture, indent=2))
+    print(f"  Saved {OVER_PHYS_FILE_V2.name}  sha256={sha256[:16]}...; the sealed {OVER_PHYS_FILE.name} is untouched")
     return fixture
 
 
@@ -766,6 +784,39 @@ class TestShootout(unittest.TestCase):
         # Should mention the phase issue
         self.assertIn("phase", note.lower(),
                       "Fixture note should acknowledge inner moon phase uncertainty")
+
+
+class TestOverPhysicsGenerator(unittest.TestCase):
+    """The over-physics generator itself (not the sealed fixture).
+
+    NBodySystem's solar radiation pressure radiates from bodies[0], so the
+    generator must put the Sun there. Ground truth is the closed form
+    a = L A (1 + albedo) / (4 pi r^2 c m), directed away from the Sun.
+    """
+
+    def test_srp_comes_from_the_sun(self):
+        from sigma_ground.field.constants import C as _c
+        bodies, names = _build_over_physics_bodies("j2025")
+        self.assertEqual(names[0], "Sun")
+        on = NBodySystem(bodies, include_gr=True, solar_luminosity_W=_L_SUN_W)
+        off = NBodySystem(bodies, include_gr=True)
+        srp = on.compute_accelerations() - off.compute_accelerations()
+        sun = bodies[names.index("Sun")]
+        # Earth and Mercury: the SRP term is resolvable against gravity in
+        # float64 (to ~1 %); compare it with the closed form.
+        for name in ("Earth", "Mercury"):
+            i = names.index(name)
+            b = bodies[i]
+            r = b.position_m - sun.position_m
+            d = float(np.linalg.norm(r))
+            want = (_L_SUN_W * b.area_m2 * (1.0 + b.reflectivity)
+                    / (4.0 * math.pi * d * d * _c) / b.mass_kg) * r / d
+            np.testing.assert_allclose(srp[i], want, rtol=0.03,
+                                       atol=0.03 * float(np.linalg.norm(want)))
+        # Uranian moons, 19 AU out, get ~1e-17 m/s^2 from the Sun; with Ariel
+        # as the source Miranda got 3.5e-9 m/s^2.
+        for name in ("Miranda", "Uranus", "Umbriel"):
+            self.assertLess(float(np.linalg.norm(srp[names.index(name)])), 1e-14, name)
 
 
 if __name__ == "__main__":

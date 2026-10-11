@@ -9,7 +9,8 @@ J2000 frame.  ICRF (equatorial) data from the fixture are rotated to ecliptic
 before fitting; predictions are rotated back.
 
 All constants from sigma_ground.field.constants.  No magic numbers.
-  ANCHOR_GM values: measured from DE440/JPL ephemerides (NAIF PDS).
+  DE440_GM / ANCHOR_GM: DE440 (JPL SSD astro_par; Park et al. 2021).
+  PLANET_GM / SATELLITE_GM: JPL SSD satellite physical parameters.
   J2000_OBLIQUITY_DEG: IAU 1976 / IERS 1980 value (Lieske et al. 1977).
   Levenberg-Marquardt coefficients: standard algorithm (Moré 1978), no approx.
 
@@ -18,12 +19,14 @@ References
   Bate, Mueller & White (1971): Fundamentals of Astrodynamics (rv→elements).
   Levenberg (1944), Marquardt (1963), Moré (1978): LM optimizer.
   Lieske et al. (1977): J2000 obliquity, A&A 58, 1-16.
-  Folkner et al. (2014): DE430/440 planetary ephemerides, IPN Progress Report.
+  Park, R. S. et al. (2021): The JPL Planetary and Lunar Ephemerides DE440
+    and DE441, AJ 161, 105.
 """
 
 from __future__ import annotations
 
 import math
+import warnings
 from dataclasses import dataclass
 
 import numpy as np
@@ -55,19 +58,97 @@ ANCHOR_MAP: dict[str, str] = {
     "Charon": "Pluto",
 }
 
-# GM values (km³/s²) from JPL DE440 ephemeris.
-# LOCAL_LIBRARY: measured from DE440/JPL — NAIF PDS, Folkner et al. (2014).
-# These are measured gravitational parameters, not approximations.
-ANCHOR_GM: dict[str, float] = {
-    "Sun":     132_712_440_041.93938,
-    "Earth":         398_600.435436,
-    "Mars":           42_828.375662,
-    "Jupiter":   126_686_531.900,
-    "Saturn":     37_931_206.234,
-    "Uranus":      5_793_950.6103,
-    "Neptune":     6_835_099.97,
-    "Pluto":             869.326,
+# DE440 gravitational parameters, km³/s² [LIT]: JPL SSD Astrodynamic
+# Parameters, https://ssd.jpl.nasa.gov/astro_par.html (checked 2026-10-10),
+# from Park, R. S. et al. 2021, AJ 161, 105 (DE440/DE441).  Mars..Pluto are
+# SYSTEM values (planet + satellites); Mercury, Venus, Earth and the Moon are
+# single bodies.
+DE440_GM: dict[str, float] = {
+    "Sun":     132_712_440_041.279419,
+    "Mercury":          22_031.868551,
+    "Venus":           324_858.592000,
+    "Earth":           398_600.435507,
+    "Moon":              4_902.800118,
+    "Mars":             42_828.375816,
+    "Jupiter":     126_712_764.100000,
+    "Saturn":       37_940_584.841800,
+    "Uranus":        5_794_556.400000,
+    "Neptune":       6_836_527.100580,
+    "Pluto":               975.500000,
 }
+
+# GM of each anchor body (km³/s²): the DE440 values above.  Mars..Pluto are
+# SYSTEM GMs, the right mass for a heliocentric point body that carries its
+# moons (N-body runs without satellites).  FIXED 2026-10-10: these were the
+# DE430 Sun/Earth values and planet-only Mars..Pluto GMs labelled "DE440"
+# (Pluto 10.9 % below its system GM).  Satellite orbits use PLANET_GM below.
+ANCHOR_GM: dict[str, float] = {
+    name: DE440_GM[name]
+    for name in ("Sun", "Earth", "Mars", "Jupiter", "Saturn", "Uranus",
+                 "Neptune", "Pluto")
+}
+
+# Planet-only GMs (km³/s²): the central mass of a satellite orbit [LIT] JPL
+# SSD Planetary Satellite Physical Parameters,
+# https://ssd.jpl.nasa.gov/sats/phys_par/ (checked 2026-10-10): Earth DE440,
+# Mars MAR097, Jupiter JUP365, Saturn SAT441, Uranus URA111, Neptune NEP097,
+# Pluto PLU060.
+PLANET_GM: dict[str, float] = {
+    "Earth":         398_600.435507,
+    "Mars":           42_828.37362,
+    "Jupiter":   126_686_531.9,
+    "Saturn":     37_931_206.23,
+    "Uranus":      5_793_951.3,
+    "Neptune":     6_835_099.97,
+    "Pluto":             869.3,
+}
+
+# Satellite GMs (km³/s²), same source and ephemerides (Moon: DE440).
+SATELLITE_GM: dict[str, float] = {
+    "Moon":       4_902.800118,
+    "Phobos":         0.0007087,
+    "Deimos":         0.0000962,
+    "Io":         5_959.91547,
+    "Europa":     3_202.71210,
+    "Ganymede":   9_887.83275,
+    "Callisto":   7_179.28340,
+    "Mimas":          2.50349,
+    "Enceladus":      7.21037,
+    "Tethys":        41.21353,
+    "Dione":         73.11607,
+    "Rhea":         153.94175,
+    "Titan":      8_978.13710,
+    "Miranda":        4.3,
+    "Ariel":         83.5,
+    "Umbriel":       85.1,
+    "Titania":      226.9,
+    "Oberon":       205.3,
+    "Triton":     1_428.49546,
+    "Charon":       106.1,
+}
+
+
+def _two_body_mu(body: str, anchor: str) -> float | None:
+    """Gravitational parameter of the relative orbit, mu = G(M + m), km³/s².
+
+    The relative two-body orbit obeys r'' = -G(M + m) r / r³, so Kepler III
+    reads n² a³ = G(M + m); with GM_anchor alone the fitted a is biased by
+    -(m/M)/3 (Moon: -0.41 %, Charon: -3.8 %).
+    Heliocentric body: DE440 GM_sun + the body's DE440 system GM (Earth:
+    Earth + Moon, since the Earth-Moon barycentre carries the Kepler orbit).
+    Satellite: the planet-only GM + the satellite's GM.  None if the anchor's
+    GM is unknown; an unknown body mass counts as a test particle.
+    """
+    if anchor == "Sun":
+        central = DE440_GM["Sun"]
+        body_gm = (DE440_GM["Earth"] + DE440_GM["Moon"] if body == "Earth"
+                   else DE440_GM.get(body, 0.0))
+    else:
+        central = PLANET_GM.get(anchor)
+        body_gm = SATELLITE_GM.get(body, 0.0)
+    if central is None:
+        return None
+    return central + body_gm
 
 
 def _equatorial_to_ecliptic(
@@ -362,6 +443,65 @@ def _extract_body_pos(
     return sv[0] if sv else None
 
 
+def _circular_mean(angles: np.ndarray) -> float:
+    """Mean direction of a set of angles (rad), immune to the 0/2π wrap."""
+    return math.atan2(float(np.mean(np.sin(angles))),
+                      float(np.mean(np.cos(angles))))
+
+
+def _fit_start(
+    elems: np.ndarray,
+    mean_longitudes: np.ndarray,
+    t_s: np.ndarray,
+    gm: float,
+) -> np.ndarray:
+    """Start point for the Kepler least-squares fit, clear of aliased minima.
+
+    Samples a year apart pin each epoch's mean longitude only modulo 2π, so
+    the mean motion n is ambiguous by multiples of 2π/Δt (the Moon's 13.37
+    rev/yr fits the samples as well as 12.37 or 14.37), and an n off by more
+    than ~π/span leaves the phases incoherent and the least-squares fit in a
+    local minimum.  The previous start (median osculating elements, with each
+    sample's own period) put the Moon in such a minimum: a fit worse than
+    "the Moon is at Earth's centre" (audit A47).
+
+    Here n maximises the phase coherence C(n) = |Σ_j exp(i(λ_j - n t_j))|
+    over n0 ± min(5 %, half the alias spacing), where n0 is Kepler III from
+    the median osculating a; then a = (mu/n²)^(1/3) (Kepler III with the
+    fit's own mu), and the mean longitude at J2000 is the phase of that sum.
+    e and i are medians; Ω and ϖ = Ω + ω are circular means.
+    """
+    a_med = float(np.median(elems[:, 0]))
+    e_med = float(np.median(elems[:, 1]))
+    i_med = float(np.median(elems[:, 2]))
+    Om0 = _circular_mean(elems[:, 3])
+    varpi0 = _circular_mean(elems[:, 3] + elems[:, 4])
+    n0 = math.sqrt(gm / a_med ** 3)            # rad/s (km³/s², km)
+    lam = np.asarray(mean_longitudes, dtype=float)
+    t = np.asarray(t_s, dtype=float)
+
+    def _coherence(ns: np.ndarray) -> np.ndarray:
+        return np.abs(np.exp(1j * (lam[None, :] - ns[:, None] * t[None, :]))
+                      .sum(axis=1))
+
+    n = n0
+    span = float(np.max(t) - np.min(t)) if t.size else 0.0
+    if t.size >= 3 and span > 0.0:
+        gaps = np.diff(np.sort(t))
+        gaps = gaps[gaps > 0.0]
+        spacing = float(np.median(gaps))
+        half = min(0.05 * n0, math.pi / spacing)
+        step = min(TWO_PI / (8.0 * span), half / 50.0)
+        grid = n0 + np.arange(-half, half + 0.5 * step, step)
+        n = float(grid[int(np.argmax(_coherence(grid)))])
+        fine = n + np.linspace(-step, step, 41)
+        n = float(fine[int(np.argmax(_coherence(fine)))])
+    lam0 = float(np.angle(np.exp(1j * (lam - n * t)).sum())) if t.size else 0.0
+    a0 = (gm / n ** 2) ** (1.0 / 3.0)
+    return np.array([a0, e_med, i_med, Om0, varpi0 - Om0,
+                     (lam0 - varpi0) % TWO_PI])
+
+
 def fit_orbit(
     body:           str,
     fixture:        dict,
@@ -370,8 +510,12 @@ def fit_orbit(
     """Fit Keplerian elements from yearly DE440 fixture snapshots.
 
     Strategy: compute elements from each snapshot's state vector via the
-    classical rv-to-elements algorithm, then refine by least-squares across
-    all position + velocity residuals.
+    classical rv-to-elements algorithm, pick the mean motion that makes the
+    yearly mean longitudes coherent (_fit_start; avoids the aliased minima),
+    then refine by least-squares across all position + velocity residuals.
+    The two-body mu is G(M_anchor + m_body) (_two_body_mu), stored as
+    FittedOrbit.gm_km3_s2.  A RuntimeWarning flags a fit whose residual rms
+    exceeds 10 % of a.
 
     Parameters
     ----------
@@ -382,7 +526,8 @@ def fit_orbit(
     anchor = ANCHOR_MAP.get(body)
     if anchor is None:
         return None
-    gm = ANCHOR_GM.get(anchor)
+    # FIXED 2026-10-10: mu = G(M + m), not GM_anchor (A47).
+    gm = _two_body_mu(body, anchor)
     if gm is None:
         return None
 
@@ -392,6 +537,8 @@ def fit_orbit(
     obs_vel_ecl:     list[np.ndarray] = []
     times_s:         list[float]      = []
     element_samples: list[tuple]      = []
+    mean_longitudes: list[float]      = []
+    sample_times:    list[float]      = []
 
     for snap_name, snap in sorted(fixture.get("snapshots", {}).items()):
         if snap_name == exclude_epoch:
@@ -418,15 +565,16 @@ def fit_orbit(
         elems = _state_to_elements(r, v, gm)
         if elems is not None:
             a_e, e_e, inc_e, Om_e, om_e, M_e = elems
-            T_s = TWO_PI * math.sqrt((a_e * 1000.0) ** 3 / (gm * 1e9))
-            M_at_j2000 = (M_e - (TWO_PI / T_s) * t_s) % TWO_PI
-            element_samples.append((a_e, e_e, inc_e, Om_e, om_e, M_at_j2000))
+            element_samples.append((a_e, e_e, inc_e, Om_e, om_e, M_e))
+            mean_longitudes.append(Om_e + om_e + M_e)
+            sample_times.append(t_s)
 
     if len(obs_pos_ecl) < 3 or len(element_samples) < 1:
         return None
 
-    elem_arr  = np.array(element_samples)
-    x0        = np.median(elem_arr, axis=0)
+    x0        = _fit_start(np.array(element_samples),
+                           np.array(mean_longitudes), np.array(sample_times),
+                           gm)
     pos_arr   = np.array(obs_pos_ecl)
     vel_arr   = np.array(obs_vel_ecl)
     t_arr     = np.array(times_s)
@@ -458,6 +606,14 @@ def fit_orbit(
         pred_p, _ = _keplerian_pos_vel(p, gm, t)
         pos_residuals[i*3:i*3+3] = pred_p - pos_arr[i]
     rms = math.sqrt(float(np.mean(pos_residuals ** 2)))
+    if rms > 0.1 * float(p[0]):
+        warnings.warn(
+            f"fit_orbit({body!r}): residual rms {rms:.3g} km is "
+            f"{rms / float(p[0]):.0%} of the semi-major axis; a fixed Kepler "
+            f"orbit does not describe these samples (the trivial predictor "
+            f"'at the anchor' is off by about a).",
+            RuntimeWarning, stacklevel=2,
+        )
 
     return FittedOrbit(
         body=body,
@@ -482,7 +638,10 @@ def predict_ssb_position(
     """Predict SSB-centred ICRF position from fitted orbit.
 
     Uses the anchor's ground-truth position from the snapshot for the
-    SSB offset, then adds the fitted anchor-relative position.
+    SSB offset, then adds the fitted anchor-relative position.  The anchor
+    is taken at the SNAPSHOT epoch, so the result is the body's position at
+    jd only when jd is that snapshot's epoch; for other epochs evaluate the
+    anchor at jd (SGEphemeris does, since 2026-10-10).
     """
     anchor_pos = _extract_body_pos(fixture_snapshot, fitted.anchor)
     if anchor_pos is None:

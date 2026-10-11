@@ -42,12 +42,13 @@ Physics used:
     — the energy-conserving companion of the symmetric momentum equation;
     dT = du/cp for eos="tait"; booked to scene.energy_bath_J for "isothermal".
     Then conduction + sources:
-    dT/dt = (1/ρcp) Σⱼ mⱼ (κᵢ+κⱼ)(Tᵢ-Tⱼ)/(ρᵢρⱼ) (rᵢⱼ·∇W) / rᵢⱼ²
-          + Q_source / (ρ cp)           (internal heat generation)
+    dT/dt = (1/cp) Σⱼ mⱼ 2κᵢⱼ(Tᵢ-Tⱼ)/(ρᵢρⱼ) (rᵢⱼ·∇W) / (rᵢⱼ² + 0.01h²)
+          + q_source / cp               (q_source in W/kg: internal heat generation)
+    with κᵢⱼ the harmonic mean (Cleary & Monaghan 1999); see _heat_conduction.
     scene.energy_ledger() reports kinetic + internal + bath + self-gravity + uniform g.
 
-  Buoyancy (Boussinesq approximation):
-    F_buoy = -α ΔT ρ₀ g   where α = thermal expansion coefficient
+  Buoyancy (Boussinesq approximation; not applied for eos="ideal"):
+    F_buoy / m = −β ΔT g   where β = 3α_L is the volumetric expansion coefficient
 
 σ-dependence:
   All σ effects flow through the interface cascade. The bridge doesn't
@@ -59,6 +60,7 @@ Physics used:
 """
 
 import math
+import warnings
 from .vec import Vec3
 from .parcel import PhysicsParcel
 from .scene import PhysicsScene
@@ -621,20 +623,22 @@ def _sph_viscous_force(parcels, h, alpha_visc=1.0, c_override=None, pairs=None):
 def _buoyancy_force(parcel, rho_0, T_0, gravity):
     """Boussinesq buoyancy force.
 
-    F_buoy / m = −α (T − T₀) g
+    F_buoy / m = −β (T − T₀) g,   β = 3 α_L
 
-    where α is thermal expansion coefficient from the interface cascade.
+    FIRST_PRINCIPLES: the density perturbation ρ' = −ρ₀ β ΔT drives buoyancy,
+    and β is the VOLUMETRIC coefficient: an isotropic solid's volume strain is
+    (1 + α_L ΔT)³ − 1 ≈ 3 α_L ΔT (thermal_expansion.volumetric_expansion_coefficient;
+    e.g. iron α_L = 11.8, α_V = 35.4 × 10⁻⁶ K⁻¹, Wikipedia 'Thermal expansion'
+    table at 20 °C). `parcel.thermal_expansion` is the cascade's LINEAR α_L(T).
+    Anisotropic carriers (carbon_fiber, kevlar) inherit the isotropic 3α_L
+    convention of the cascade.
 
-    FIRST_PRINCIPLES: density perturbation ρ' = −ρ₀ α ΔT drives buoyancy.
+    Not applied under eos="ideal": there P = ρ(R/M)T, so the SPH pressure
+    gradient already carries the thermal buoyancy (continuum_step gates it).
 
-    PHYSICS_GAP (2026-10-10, unification round 2, U14G; KNOWN_GAPS.md): the
-    density perturbation needs the VOLUMETRIC coefficient β = 3α_L, but
-    `parcel.thermal_expansion` is the cascade's LINEAR α_L, so buoyancy is 1/3
-    of physical (measured 0.322–0.350 for 10 cubic crystals). The term is also
-    applied under eos="ideal", where the SPH pressure gradient already carries
-    thermal buoyancy, so ideal-gas runs count it twice. Flagged, not fixed.
+    FIXED 2026-10-10: β = 3α_L (was α_L, 1/3 of Archimedes) and off for the ideal EOS (A14).
     """
-    alpha = parcel.thermal_expansion
+    alpha = 3.0 * parcel.thermal_expansion        # volumetric β = 3 α_L
     dT = parcel.temperature - T_0
     # Buoyancy acceleration: opposite to gravity, proportional to ΔT
     return Vec3(
@@ -645,43 +649,47 @@ def _buoyancy_force(parcel, rho_0, T_0, gravity):
 
 
 def _heat_conduction(parcels, h):
-    """SPH heat conduction.
+    """SPH heat conduction (Fourier's law).
 
-    dTᵢ/dt = (1/ρᵢcpᵢ) Σⱼ mⱼ (κᵢ+κⱼ)(Tᵢ−Tⱼ)/(ρᵢρⱼ)
-              × (rᵢⱼ · ∇Wᵢⱼ) / (rᵢⱼ² + 0.01h²)
+    duᵢ/dt = Σⱼ mⱼ/(ρᵢρⱼ) · 2κᵢⱼ (Tᵢ−Tⱼ) (rᵢⱼ·∇ᵢWᵢⱼ)/(rᵢⱼ² + 0.01h²)   [W/kg]
+    dTᵢ/dt = (duᵢ/dt) / cpᵢ
 
-    FIRST_PRINCIPLES: Fourier's law discretized via SPH (Cleary & Monaghan 1999).
+    The pair sum is already the specific heating rate du/dt: it is the
+    Brookshaw (1985) / Monaghan (1992) second-derivative operator, written as
+    Jubelgas, Springel & Dolag 2004 (MNRAS 351, 423) eq. 17, whose continuum
+    limit is (1/ρ)∇·(κ∇T). The conductivity pair mean is Cleary & Monaghan's
+    (1999, J. Comput. Phys. 148, 227) harmonic mean κᵢⱼ = 2κᵢκⱼ/(κᵢ+κⱼ)
+    (JSD 2004 eq. 18), chosen deliberately: it is the series conductance of
+    two half-gaps, so heat flux stays continuous across a material interface
+    (an insulator next to copper limits the flow); it equals κ for like
+    neighbours.
 
-    PHYSICS_GAP (2026-10-10, unification round 2, U14G; KNOWN_GAPS.md): the
-    pair sum below is already du/dt in W/kg (Brookshaw 1985 / Monaghan 1992;
-    Jubelgas et al. 2004 eq. 17), so dividing by ρᵢcpᵢ divides by ρ a second
-    time. Conduction runs ρ_sph[SI] times too slow (iron: 1.16e-4 of the
-    Fourier rate), scales as ρ⁻² instead of ρ⁻¹, and is not antisymmetric
-    between neighbours of unequal density, so it creates or destroys heat.
-    The κᵢ + κⱼ arithmetic mean is Brookshaw/Monaghan, not Cleary & Monaghan's
-    harmonic mean. Flagged, not fixed.
+    Each pair's heat flow Qᵢⱼ = mᵢmⱼ/(ρᵢρⱼ)·2κᵢⱼ(Tᵢ−Tⱼ)(rᵢⱼ·∇ᵢWᵢⱼ)/(rᵢⱼ²+η²)
+    (W) is computed once and booked +Qᵢⱼ to i and −Qᵢⱼ to j, so
+    Σ mᵢ cpᵢ dTᵢ/dt = 0 exactly in floating point, whatever the densities.
+
+    FIXED 2026-10-10: dT/dt = rate/cp (was rate/(ρcp), ρ_sph times too slow) and pairwise antisymmetric (A15).
 
     Returns dict of {parcel_index: dT/dt in K/s}.
     """
-    dTdt = {}
     eta2 = 0.01 * h * h
+    n = len(parcels)
+    heat_W = [0.0] * n            # Σⱼ Qᵢⱼ, heat flowing INTO parcel i (W)
 
     for i, pi in enumerate(parcels):
-        rate = 0.0
         rho_i = pi.sph_density
         T_i = pi.temperature
         kappa_i = pi.thermal_conductivity
-        cp_i = pi.specific_heat
-
-        if cp_i <= 0 or rho_i <= 0:
-            dTdt[i] = 0.0
-            continue
 
         for j in pi.neighbors:
+            if j <= i:
+                continue                      # each pair once; neighbour lists are symmetric
             pj = parcels[j]
             rho_j = pj.sph_density
-            T_j = pj.temperature
             kappa_j = pj.thermal_conductivity
+            ksum = kappa_i + kappa_j
+            if ksum <= 0.0 or rho_i <= 0.0 or rho_j <= 0.0:
+                continue
 
             dx = pi.position.x - pj.position.x
             dy = pi.position.y - pj.position.y
@@ -689,20 +697,158 @@ def _heat_conduction(parcels, h):
             r2 = dx * dx + dy * dy + dz * dz
 
             gx, gy, gz = grad_W(dx, dy, dz, h)
-            rdotg = dx * gx + dy * gy + dz * gz
+            rdotg = dx * gx + dy * gy + dz * gz       # < 0 inside the kernel
 
-            kappa_avg = kappa_i + kappa_j  # factor 2 absorbed into formula
-            coeff = pj.mass * kappa_avg * (T_i - T_j) / (rho_i * rho_j)
-            rate += coeff * rdotg / (r2 + eta2)
+            two_kappa_ij = 4.0 * kappa_i * kappa_j / ksum   # 2 × harmonic mean
+            q = (pi.mass * pj.mass / (rho_i * rho_j) * two_kappa_ij
+                 * (T_i - pj.temperature) * rdotg / (r2 + eta2))
+            heat_W[i] += q
+            heat_W[j] -= q
 
-        dTdt[i] = rate / (rho_i * cp_i)
-
+    dTdt = {}
+    for i, pi in enumerate(parcels):
+        cp_i = pi.specific_heat
+        dTdt[i] = heat_W[i] / (pi.mass * cp_i) if (cp_i > 0 and pi.mass > 0) else 0.0
     return dTdt
+
+
+# ══════════════════════════════════════════════════════════════════════
+# FORCE EVALUATION — shared by continuum_step and cfl_timestep
+# ══════════════════════════════════════════════════════════════════════
+
+def _geometry(scene, parcels):
+    """SPH density and neighbour lists (+ optional pairwise self-gravity,
+    Phase E) at the parcels' CURRENT positions. Returns the self-gravity
+    accelerations ({index: Vec3}) or None."""
+    return _sph_density_sum(
+        parcels, scene.h,
+        gravity_G=getattr(scene, "self_gravity_G", None),
+        softening=getattr(scene, "gravity_softening_m", None))
+
+
+def _thermo_forces(scene, parcels, a_grav, alpha_visc, energy_on):
+    """The rest of a force evaluation, at the CURRENT positions, densities
+    and temperatures: EOS pressure, pressure gradient, artificial viscosity,
+    buoyancy, uniform g, plus the self-gravity ``a_grav`` from _geometry.
+    Returns (accelerations, pairs): a list of Vec3 accelerations and, when
+    the energy equation is on, the per-parcel lists of internal pair forces
+    (j, gx, gy, gz) the first law is booked from (None otherwise), both
+    parcel-ordered."""
+    h = scene.h
+    g = scene.gravity
+    eos = getattr(scene, "eos", "tait")
+    iso_cs = scene.sound_speed_m_s if eos == "isothermal" else None
+    if eos == "ideal":
+        r_spec = _R_GAS / scene.ideal_molar_mass_kg_mol          # J/(kg·K)
+        t_max = 0.0
+        for p in parcels:
+            p.pressure = p.sph_density * r_spec * p.temperature
+            t_max = max(t_max, p.temperature)
+        iso_cs = math.sqrt(scene.ideal_gamma * r_spec * t_max)   # viscosity's c̄ (global)
+    else:
+        for p in parcels:
+            if iso_cs is not None:
+                _pressure_isothermal(p, iso_cs)
+            else:
+                _pressure_from_eos(p)
+    pairs = [[] for _ in parcels] if energy_on else None
+    a_pressure = _sph_pressure_force(parcels, h, pairs=pairs)
+    a_viscous = _sph_viscous_force(parcels, h, alpha_visc,
+                                   c_override=iso_cs, pairs=pairs)
+    out = []
+    zero = Vec3(0, 0, 0)
+    for i, p in enumerate(parcels):
+        a_p = a_pressure.get(i, zero)
+        a_v = a_viscous.get(i, zero)
+        # Boussinesq only where the EOS carries no thermal pressure: the
+        # ideal gas's P = ρ(R/M)T already makes hot gas buoyant.
+        a_b = zero if eos == "ideal" else _buoyancy_force(p, scene.rho_0, scene.T_0, g)
+        a_g = (a_grav or {}).get(i, Vec3(0, 0, 0))
+        out.append(Vec3(
+            g.x + a_p.x + a_v.x + a_b.x + a_g.x,
+            g.y + a_p.y + a_v.y + a_b.y + a_g.y,
+            g.z + a_p.z + a_v.z + a_b.z + a_g.z,
+        ))
+    return out, pairs
 
 
 # ══════════════════════════════════════════════════════════════════════
 # CONTINUUM STEPPER — the full loop
 # ══════════════════════════════════════════════════════════════════════
+
+# eos="ideal": the end-of-step temperature is solved by fixed-point iteration
+# (each pass is one pressure + viscosity evaluation at the final positions;
+# the contraction factor is O((c Δt/h)²), a few passes at CFL steps).
+_IDEAL_T_RTOL = 1e-14
+_IDEAL_MAX_ITER = 50
+
+
+def _ideal_gas_end_of_step(scene, parcels, acc0, pairs0, dt, alpha_visc):
+    """Second half of a velocity-Verlet step for eos="ideal", time-centred.
+
+    The ideal-gas pressure P = ρ(R/M)T depends on the temperature that the
+    first law updates in the same step. Using the pre-update T in the
+    end-of-step force (the scheme before 2026-10-10) lags the pressure by a
+    step: first order, not time-reversible (KNOWN_GAPS A17). Here the
+    end-of-step force uses the end-of-step temperature,
+
+        aₙ₊₁ = a(xₙ₊₁, Tₙ₊₁),   vₙ₊₁ = vₙ + ½(aₙ + aₙ₊₁)Δt,
+        uₙ₊₁ = uₙ + ¼Δt Σ_{n,n+1} Σⱼ gᵢⱼ·(v̄ᵢ − v̄ⱼ),   Tₙ₊₁ = Tₙ + (uₙ₊₁ − uₙ)/c_v,
+
+    solved for Tₙ₊₁ by fixed-point iteration to a relative 1e-14. The pressure
+    then enters both kicks at its own time level (trapezoidal rule): the
+    scheme is second order, and with α_visc = 0 it is time-reversible (map the
+    step's end state through the same step with v → −v and it returns). The
+    first-law booking is unchanged, so K + U_int stays exact to roundoff.
+    Conduction and heat sources, applied after this, are a first-order split.
+
+    Sets the parcels' velocity, internal_energy and temperature; returns the
+    end-of-step (accelerations, pairs) for the cache.
+    """
+    c_v = _R_GAS / (scene.ideal_molar_mass_kg_mol * (scene.ideal_gamma - 1.0))
+    a_grav = _geometry(scene, parcels)               # positions are final: one density sum
+    v_old = [(p.velocity.x, p.velocity.y, p.velocity.z) for p in parcels]
+    T_old = [p.temperature for p in parcels]
+    n = len(parcels)
+    change = 0.0
+    for _ in range(_IDEAL_MAX_ITER):
+        acc1, pairs1 = _thermo_forces(scene, parcels, a_grav, alpha_visc, True)
+        v_new = []
+        for i in range(n):
+            a0, a1, vo = acc0[i], acc1[i], v_old[i]
+            v_new.append((vo[0] + 0.5 * (a0.x + a1.x) * dt,
+                          vo[1] + 0.5 * (a0.y + a1.y) * dt,
+                          vo[2] + 0.5 * (a0.z + a1.z) * dt))
+        vbar = [(0.5 * (vo[0] + vn[0]), 0.5 * (vo[1] + vn[1]), 0.5 * (vo[2] + vn[2]))
+                for vo, vn in zip(v_old, v_new)]
+        du = []
+        for i in range(n):
+            bix, biy, biz = vbar[i]
+            w = 0.0
+            for lst in (pairs0[i], pairs1[i]):
+                for (j, gx, gy, gz) in lst:
+                    bj = vbar[j]
+                    w += gx * (bix - bj[0]) + gy * (biy - bj[1]) + gz * (biz - bj[2])
+            du.append(0.25 * dt * w)                     # J/kg
+        change = 0.0
+        t_scale = 0.0
+        for i, p in enumerate(parcels):
+            t_new = T_old[i] + du[i] / c_v               # u = c_v T for an ideal gas
+            change = max(change, abs(t_new - p.temperature))
+            t_scale = max(t_scale, abs(t_new))
+            p.temperature = t_new
+        if change <= _IDEAL_T_RTOL * t_scale:
+            break
+    else:
+        warnings.warn(
+            f"continuum_step (eos='ideal'): end-of-step temperature not converged in "
+            f"{_IDEAL_MAX_ITER} passes (last change {change:.3e} K); dt is likely "
+            f"above cfl_timestep", RuntimeWarning, stacklevel=3)
+    for i, p in enumerate(parcels):
+        p.velocity = Vec3(*v_new[i])
+        p.internal_energy += p.mass * du[i]
+    return acc1, pairs1
+
 
 def continuum_step(scene, dt, alpha_visc=1.0):
     """Advance a ContinuumScene by one timestep.
@@ -733,7 +879,6 @@ def continuum_step(scene, dt, alpha_visc=1.0):
         return dt
 
     h = scene.h
-    g = scene.gravity
 
     # ── 1. Update material properties from cascade ──
     for p in parcels:
@@ -742,48 +887,10 @@ def continuum_step(scene, dt, alpha_visc=1.0):
     energy_on = getattr(scene, "energy_equation", True)
 
     def _forces():
-        """One full force evaluation at the parcels' CURRENT positions:
-        SPH density (+ optional pairwise self-gravity, Phase E), EOS
-        pressure, pressure gradient, artificial viscosity, buoyancy,
-        uniform g. Returns (accelerations, pairs): a list of Vec3
-        accelerations and, when the energy equation is on, the per-parcel
-        lists of internal pair forces (j, gx, gy, gz) the first law is
-        booked from (None otherwise), both parcel-ordered."""
-        a_grav = _sph_density_sum(
-            parcels, h,
-            gravity_G=getattr(scene, "self_gravity_G", None),
-            softening=getattr(scene, "gravity_softening_m", None))
-        eos = getattr(scene, "eos", "tait")
-        iso_cs = scene.sound_speed_m_s if eos == "isothermal" else None
-        if eos == "ideal":
-            r_spec = _R_GAS / scene.ideal_molar_mass_kg_mol          # J/(kg·K)
-            t_max = 0.0
-            for p in parcels:
-                p.pressure = p.sph_density * r_spec * p.temperature
-                t_max = max(t_max, p.temperature)
-            iso_cs = math.sqrt(scene.ideal_gamma * r_spec * t_max)   # viscosity's c̄ (global)
-        else:
-            for p in parcels:
-                if iso_cs is not None:
-                    _pressure_isothermal(p, iso_cs)
-                else:
-                    _pressure_from_eos(p)
-        pairs = [[] for _ in parcels] if energy_on else None
-        a_pressure = _sph_pressure_force(parcels, h, pairs=pairs)
-        a_viscous = _sph_viscous_force(parcels, h, alpha_visc,
-                                       c_override=iso_cs, pairs=pairs)
-        out = []
-        for i, p in enumerate(parcels):
-            a_p = a_pressure.get(i, Vec3(0, 0, 0))
-            a_v = a_viscous.get(i, Vec3(0, 0, 0))
-            a_b = _buoyancy_force(p, scene.rho_0, scene.T_0, g)
-            a_g = (a_grav or {}).get(i, Vec3(0, 0, 0))
-            out.append(Vec3(
-                g.x + a_p.x + a_v.x + a_b.x + a_g.x,
-                g.y + a_p.y + a_v.y + a_b.y + a_g.y,
-                g.z + a_p.z + a_v.z + a_b.z + a_g.z,
-            ))
-        return out, pairs
+        """One full force evaluation at the parcels' CURRENT positions
+        (see _geometry and _thermo_forces). Returns (accelerations, pairs)."""
+        a_grav = _geometry(scene, parcels)
+        return _thermo_forces(scene, parcels, a_grav, alpha_visc, energy_on)
 
     # ── 2-8. Velocity-Verlet advance ──
     # TRUE velocity Verlet: drift with a(x_n), re-evaluate forces at x_{n+1},
@@ -795,6 +902,9 @@ def continuum_step(scene, dt, alpha_visc=1.0):
     # force evaluation per step (viscosity is velocity-dependent, so the
     # scheme is the standard SPH approximation, exact for conservative
     # forces). The cache is invalidated if the parcel list changes.
+    # eos="ideal" with the energy equation: one density sum plus a few
+    # pressure passes, so the end-of-step force sees T at n+1
+    # (_ideal_gas_end_of_step; FIXED 2026-10-10, was T at n: A17).
     cached = getattr(scene, "_vv_accel", None)
     pairs0 = getattr(scene, "_vv_pairs", None)
     if (cached is None or len(cached) != len(parcels)
@@ -809,15 +919,23 @@ def continuum_step(scene, dt, alpha_visc=1.0):
             p.position.y + p.velocity.y * dt + 0.5 * a0.y * dt * dt,
             p.position.z + p.velocity.z * dt + 0.5 * a0.z * dt * dt,
         )
-    acc1, pairs1 = _forces()
-    v_old = [(p.velocity.x, p.velocity.y, p.velocity.z) for p in parcels] if energy_on else None
-    for i, p in enumerate(parcels):
-        a0, a1 = acc0[i], acc1[i]
-        p.velocity = Vec3(
-            p.velocity.x + 0.5 * (a0.x + a1.x) * dt,
-            p.velocity.y + 0.5 * (a0.y + a1.y) * dt,
-            p.velocity.z + 0.5 * (a0.z + a1.z) * dt,
-        )
+    eos_now = getattr(scene, "eos", "tait")
+    ideal_implicit = energy_on and eos_now == "ideal"
+    if ideal_implicit:
+        # P = ρ(R/M)T depends on the temperature the first law is updating:
+        # the end-of-step force uses T at n+1 (self-consistent), the kick and the
+        # energy update are both trapezoidal, so the step is time-symmetric.
+        acc1, pairs1 = _ideal_gas_end_of_step(scene, parcels, acc0, pairs0, dt, alpha_visc)
+    else:
+        acc1, pairs1 = _forces()
+        v_old = [(p.velocity.x, p.velocity.y, p.velocity.z) for p in parcels] if energy_on else None
+        for i, p in enumerate(parcels):
+            a0, a1 = acc0[i], acc1[i]
+            p.velocity = Vec3(
+                p.velocity.x + 0.5 * (a0.x + a1.x) * dt,
+                p.velocity.y + 0.5 * (a0.y + a1.y) * dt,
+                p.velocity.z + 0.5 * (a0.z + a1.z) * dt,
+            )
     scene._vv_accel = acc1
     scene._vv_pairs = pairs1
 
@@ -836,12 +954,10 @@ def continuum_step(scene, dt, alpha_visc=1.0):
     #   eos="isothermal" : T is held by definition (a dispersion closure in
     #                      contact with a bath); the same energy is booked to
     #                      scene.energy_bath_J so the ledger still closes.
-    #   eos="ideal"      : u = c_v T with constant c_v = R/(M(γ−1)).
+    #   eos="ideal"      : u = c_v T with constant c_v = R/(M(γ−1)); booked inside
+    #                      _ideal_gas_end_of_step (the pressure needs T at n+1).
     # scene.energy_equation = False restores the pre-2026-10-10 behaviour.
-    eos_now = getattr(scene, "eos", "tait")
-    if energy_on:
-        c_v_ideal = (_R_GAS / (scene.ideal_molar_mass_kg_mol * (scene.ideal_gamma - 1.0))
-                     if eos_now == "ideal" else None)
+    if energy_on and not ideal_implicit:
         vbar = [(0.5 * (vo[0] + p.velocity.x), 0.5 * (vo[1] + p.velocity.y), 0.5 * (vo[2] + p.velocity.z))
                 for vo, p in zip(v_old, parcels)]
         for i, p in enumerate(parcels):
@@ -854,9 +970,6 @@ def continuum_step(scene, dt, alpha_visc=1.0):
             du = 0.25 * dt * w                                # J/kg
             if eos_now == "isothermal":
                 scene.energy_bath_J = getattr(scene, "energy_bath_J", 0.0) + p.mass * du
-            elif eos_now == "ideal":
-                p.internal_energy += p.mass * du
-                p.temperature += du / c_v_ideal              # u = c_v T for an ideal gas
             else:
                 p.internal_energy += p.mass * du
                 p.temperature += du / max(p.specific_heat, 1.0)
@@ -930,27 +1043,153 @@ def continuum_step_to(scene, t_end, dt=0.001, alpha_visc=1.0, callback=None):
 # CONVENIENCE: CFL timestep for continuum
 # ══════════════════════════════════════════════════════════════════════
 
-def cfl_timestep(scene, safety=0.3):
-    """CFL-limited timestep for the continuum solver.
+def cfl_timestep(scene, safety=0.3, force_safety=0.25, alpha_visc=1.0,
+                 conduction_safety=0.5):
+    """Stable timestep for continuum_step: signal-speed, force and conduction criteria.
 
-    dt = safety × h / max(c_s, v_max)
+        dt = min( safety · h / max(c_sig, v_max),
+                  force_safety · √(h / |a|_max),
+                  conduction_safety / D_max )        (D_max: conduction, below)
 
-    where c_s is the fastest sound speed and v_max is the fastest particle.
+    c_sig is the signal speed of the scene's EOS (the speed the pressure
+    and the artificial viscosity actually carry):
+      eos="isothermal": scene.sound_speed_m_s  (P = ρc_s²)
+      eos="ideal":      √(γ R T/M) of the hottest parcel (also the viscosity's c̄)
+      eos="tait":       each parcel's cascade sound speed c_L, which is also the
+                        Tait viscosity's c̄ and ≥ the Tait bulk speed √(K/ρ₀)
+    The force criterion (Monaghan 1989; Phantom, Price et al. 2018 PASA 35
+    e031, eq. 73, C_force = 0.25) bounds the step where accelerations, not
+    sound, set the time scale (self-gravity, strong g, a dilute gas).
+    |a|_max is taken from the end-of-step accelerations continuum_step
+    cached on the scene; before the first step one force evaluation is made
+    (with ``alpha_visc``) and the parcels' SPH state is restored afterwards.
+
+    Conduction criterion (when ``scene.heat_conduction``). continuum_step
+    applies _heat_conduction as ONE forward-Euler step. Its pair sum is
+    dTᵢ/dt = Σⱼ aᵢⱼ (Tⱼ − Tᵢ) with
+        aᵢⱼ = mⱼ/(ρᵢρⱼ) · 2κᵢⱼ |rᵢⱼ·∇ᵢWᵢⱼ| /(rᵢⱼ² + 0.01h²) / c_p,ᵢ  ≥ 0,
+    so the step is Tᵢ ← (1 − Δt Dᵢ) Tᵢ + Δt Σⱼ aᵢⱼ Tⱼ with Dᵢ = Σⱼ aᵢⱼ (1/s).
+    For Δt Dᵢ ≤ 1 every new T is a convex combination of old ones: the heat
+    equation's maximum principle holds discretely (conduction makes no new
+    hot or cold extremum), and by Gershgorin every eigenvalue λ of the
+    operator lies in [0, 2 D_max], so |1 − Δtλ| ≤ 1: stable. The bound is
+    sharp: at Δt Dᵢ = 1 a lone hot spike cools exactly to the aᵢⱼ-weighted
+    mean of its neighbours. On a 1-D grid it is the FTCS limit r = αΔt/Δx² ≤ 1/2 (the weight
+    1 − 2r of uᵢ; Recktenwald, PSU ME 448/548 FTCS notes, eq. 5). Dᵢ is
+    evaluated on the actual (possibly disordered) particles, so no lattice
+    constant enters. On the engine's cubic lattice (h = 1.2 Δx) the interior
+    gives Dᵢ h² ρc_p/κ = 5.04, i.e. κΔt/(ρc_p h²) ≤ 0.198 for Δt D = 1,
+    inside the operator's checkerboard von Neumann limit 0.335.
+    ``conduction_safety`` = 0.5 (a disclosed Choice, not physics): the
+    operator is applied at the end-of-step positions and densities, and κ,
+    c_p come from the parcels' cached properties, so D may move within the
+    step; 0.5 tolerates it doubling. On the lattice this is κΔt/(ρc_p h²)
+    = 0.099. It never binds for condensed matter at the acoustic step (a
+    5×5×5 iron lattice, h = 1.2 cm, surface parcels included: 0.32 s against
+    5e-7 s); it binds for a dilute gas with a conducting carrier material.
+
+    FIXED 2026-10-10: c_sig was the cascade c_L for every EOS (an isothermal
+    c_s = 1 m/s iron-carrier gas got dt 5942× too small) and there was no
+    force criterion (A16). There was also no conduction criterion: with
+    conduction at its correct rate (A15), a ~1 kg/m³ iron-carrier gas got
+    κΔt/(ρc_p h²) = 4.04 and blew up (T 1–7390 K after two steps).
 
     Args:
         scene: ContinuumScene
-        safety: CFL safety factor (default 0.3)
+        safety: Courant factor (default 0.3)
+        force_safety: force-criterion factor (default 0.25)
+        alpha_visc: the viscosity coefficient continuum_step will use
+        conduction_safety: fraction of the maximum-principle bound 1/D_max
+            (default 0.5)
 
     Returns:
         dt in seconds
     """
     h = scene.h
+    parcels = scene.continuum_parcels()
+    eos = getattr(scene, "eos", "tait")
     c_max = 0.0
     v_max = 0.0
+    if eos == "isothermal":
+        c_max = scene.sound_speed_m_s
+    elif eos == "ideal":
+        r_spec = _R_GAS / scene.ideal_molar_mass_kg_mol
+        t_max = max((p.temperature for p in parcels), default=0.0)
+        c_max = math.sqrt(scene.ideal_gamma * r_spec * max(t_max, 0.0))
 
-    for p in scene.continuum_parcels():
-        c_max = max(c_max, p.sound_speed)
+    for p in parcels:
+        if eos == "tait":
+            c_max = max(c_max, p.sound_speed)
         v_max = max(v_max, p.velocity.length())
 
     signal = max(c_max, v_max, 1e-10)
-    return safety * h / signal
+    dt = safety * h / signal
+
+    a_max, d_max = _max_rates(scene, parcels, alpha_visc)
+    if a_max > 0.0:
+        dt = min(dt, force_safety * math.sqrt(h / a_max))
+    if d_max > 0.0:
+        dt = min(dt, conduction_safety / d_max)
+    return dt
+
+
+def _max_rates(scene, parcels, alpha_visc):
+    """(|a|_max, D_max): the largest acceleration and the largest diagonal of
+    the conduction operator (0 when scene.heat_conduction is off), from the
+    cached end-of-step state, or from one side-effect-free force evaluation
+    if there is no valid cache."""
+    if not parcels:
+        return 0.0, 0.0
+    conduct = getattr(scene, "heat_conduction", True)
+    acc = getattr(scene, "_vv_accel", None)
+    if acc is None or len(acc) != len(parcels):
+        saved = [(p.sph_density, p.neighbors, p.pressure) for p in parcels]
+        try:
+            a_grav = _geometry(scene, parcels)
+            acc, _ = _thermo_forces(scene, parcels, a_grav, alpha_visc, False)
+            d_max = _conduction_diagonal_max(parcels, scene.h) if conduct else 0.0
+        finally:
+            for p, (rho, nb, P) in zip(parcels, saved):
+                p.sph_density, p.neighbors, p.pressure = rho, nb, P
+    else:
+        d_max = _conduction_diagonal_max(parcels, scene.h) if conduct else 0.0
+    a_max = max(math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z) for a in acc)
+    return a_max, d_max
+
+
+def _conduction_diagonal_max(parcels, h):
+    """max over parcels of Dᵢ = Σⱼ aᵢⱼ (1/s), the diagonal of the operator
+    _heat_conduction applies, dTᵢ/dt = Σⱼ aᵢⱼ (Tⱼ − Tᵢ), at the parcels'
+    current densities, neighbour lists and cached κ, c_p. Same pair
+    coefficient as _heat_conduction: aᵢⱼ = mⱼ Gᵢⱼ / c_p,ᵢ with the symmetric
+    Gᵢⱼ = 2κᵢⱼ |rᵢⱼ·∇ᵢWᵢⱼ| / (ρᵢρⱼ (rᵢⱼ² + 0.01h²))."""
+    eta2 = 0.01 * h * h
+    n = len(parcels)
+    diag = [0.0] * n              # Σⱼ mⱼ Gᵢⱼ = c_p,ᵢ Dᵢ  (W/(kg·K))
+    for i, pi in enumerate(parcels):
+        rho_i = pi.sph_density
+        kappa_i = pi.thermal_conductivity
+        for j in pi.neighbors:
+            if j <= i:
+                continue                      # each pair once; neighbour lists are symmetric
+            pj = parcels[j]
+            rho_j = pj.sph_density
+            kappa_j = pj.thermal_conductivity
+            ksum = kappa_i + kappa_j
+            if ksum <= 0.0 or rho_i <= 0.0 or rho_j <= 0.0:
+                continue
+            dx = pi.position.x - pj.position.x
+            dy = pi.position.y - pj.position.y
+            dz = pi.position.z - pj.position.z
+            r2 = dx * dx + dy * dy + dz * dz
+            gx, gy, gz = grad_W(dx, dy, dz, h)
+            rdotg = dx * gx + dy * gy + dz * gz       # < 0 inside the kernel
+            g_ij = (4.0 * kappa_i * kappa_j / ksum) * (-rdotg) / (rho_i * rho_j * (r2 + eta2))
+            diag[i] += pj.mass * g_ij
+            diag[j] += pi.mass * g_ij
+    d_max = 0.0
+    for i, p in enumerate(parcels):
+        cp_i = p.specific_heat
+        if cp_i > 0.0:
+            d_max = max(d_max, diag[i] / cp_i)
+    return d_max

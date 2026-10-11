@@ -7,9 +7,13 @@ and the never-confidently-wrong clarification fallback.
 import os
 import sys
 
-_CANON = r"D:\Aaron\development\sigma-ground"
-if os.path.isdir(_CANON) and _CANON not in sys.path:
-    sys.path.insert(0, _CANON)
+# Import sigma_ground from THIS tree (worktree-portable): walk up from this
+# file (.../sigma_ground/materia/tests/<this>) to the repo root. A hardcoded
+# canonical path made a worktree's run test the main checkout's code.
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)))))
+if _ROOT not in sys.path:
+    sys.path.insert(0, _ROOT)
 
 from sigma_ground.materia import translate, answer
 

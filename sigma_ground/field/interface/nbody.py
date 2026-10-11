@@ -12,11 +12,13 @@ Two integration schemes:
 Physics included (all deriving from local_library constants):
   - Pairwise Newtonian gravity (point masses)
   - σ-field mass scaling via local_library.scale.scale_ratio
-  - Optional 1PN Schwarzschild post-Newtonian correction (GR time dilation)
+  - Optional 1PN equations of motion: gr_1pn (test-particle Schwarzschild, valid in the
+    attractor's rest frame) or eih_cross (Einstein-Infeld-Hoffmann N-body; wins if both are on)
+  - Optional static 2PN two-body terms (gr_2pn; velocity terms not included)
   - Zonal J₂ quadrupole acceleration (rotational oblateness / static tides)
   - Tidal deformation: r(θ) = R₀[1 + ε₂ P₂(cos θ)]
   - Love number k₂ tidal response
-  - Gravitational wave energy loss (Peters 1964 formula)
+  - Gravitational wave energy loss (Peters & Mathews 1963 quadrupole power; step() only, two bodies)
   - Solar radiation pressure (opt-in via solar_luminosity_W + area_m2)
 
 All constants from sigma_ground.field.constants.  No magic numbers.
@@ -32,6 +34,7 @@ References
   Soffel et al. (2003): "The IAU 2000 resolutions for astrometry ...",
       AJ 126(6), 2687-2706.  [1PN EOM, solar-system limit]
   Peters (1964): GW inspiral formula, Phys. Rev. 136, B1224.
+  Peters & Mathews (1963): GW power of a Keplerian binary, Phys. Rev. 131, 435.
   Wisdom & Holman (1991): Symplectic integration, AJ 102(4), 1528-1538.
   Darwin (1879) / Love (1911): Tidal deformation.
   Vallado (2013) §9.4: J₂ zonal-harmonic acceleration, exact vector form.
@@ -41,6 +44,7 @@ References
 from __future__ import annotations
 
 import math
+import warnings
 from dataclasses import dataclass, replace as _replace
 from typing import Sequence
 
@@ -67,6 +71,17 @@ _FR_C     = [_FR_THETA / 2.0,                # c₁ = c₄
 _FR_D     = [_FR_THETA,                      # d₁ = d₃
              1.0 - 2.0 * _FR_THETA,          # d₂  (NEGATIVE — unavoidable at 4th order)
              _FR_THETA]
+
+# Implicit velocity kick for velocity-dependent forces (gr_1pn, eih_cross): v = v_base + h·a(x, v) is solved by
+# fixed-point iteration. The map contracts by θ ≈ h·|∂a/∂v| ~ h·ω·(v/c)² (≈ 4e-10 for Mercury at dt = 0.1 d), so it
+# converges in one or two extra force evaluations. Stop when the estimated remaining error θ/(1−θ)·|Δv| (Hairer &
+# Wanner, Solving ODEs II, §IV.8) is below a few ulps of the largest speed. Numerical choices, not physics.
+_IMPLICIT_KICK_RTOL     = 4.0 * float(np.finfo(np.float64).eps)
+_IMPLICIT_KICK_MAX_ITER = 25
+
+# Fluid-satellite Roche limit coefficient, d ≈ 2.44 R_p (ρ_p/ρ_s)^(1/3): Roche (1849), Mémoires de l'Académie des
+# sciences de Montpellier 1, p. 258. (A refined Roche-ellipsoid solution gives 2.423 for a point-mass primary.)
+_ROCHE_FLUID_COEFF = 2.44
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -96,14 +111,14 @@ class PhysicsToggles:
     Grep for "BORROWED FROM TEXTBOOK" to find every line awaiting derivation.
     """
 
-    gr_1pn:      bool = False   # single-body 1PN Schwarzschild (Soffel 2003 -- BORROWED)
-    gr_2pn:      bool = False   # single-body 2PN c⁻⁴ correction (Will 1993 -- BORROWED)
-    eih_cross:   bool = False   # full N-body 1PN EIH cross-terms (-- BORROWED, stretch)
+    gr_1pn:      bool = False   # test-particle 1PN Schwarzschild, attractor rest frame (Soffel 2003 -- BORROWED)
+    gr_2pn:      bool = False   # static two-body 2PN terms, harmonic gauge (Blanchet 2014 eq. 203 -- BORROWED)
+    eih_cross:   bool = False   # full N-body 1PN EIH equations; overrides gr_1pn (Will 1993 -- BORROWED)
     srp:         bool = False   # classical EM radiation pressure (σ-independent at SS scales)
     j2_zonal:    bool = False   # rotational oblateness quadrupole (Vallado §9.4 -- BORROWED)
     j3_zonal:    bool = False   # zonal J₃ (asymmetric, e.g. Earth's pear shape -- BORROWED)
     j4_zonal:    bool = False   # zonal J₄ (gas giants -- BORROWED)
-    tidal_force: bool = False   # mutual tidal bulge as effective quadrupole (OURS, not borrowed)
+    tidal_force: bool = False   # equilibrium tidal bulge: Love-number k₂ induced quadrupole + reaction (Love 1911)
     gw_damping:  bool = False   # GW energy loss (Peters 1964, binaries only -- BORROWED)
     # Future toggles to be added when their physics is implemented:
     #   yarkovsky:        bool = False    # NEA thermal recoil
@@ -123,7 +138,7 @@ class TidalDeformationField:
     body_radius_m : float
         Undeformed body radius R₀ (meters).
     epsilon2 : float
-        Tidal deformation amplitude ε₂ = (k₂/2)(Mc/Mb)(R/d)³.
+        Tidal deformation amplitude ε₂ = h₂ (Mc/Mb)(R/d)³ (h₂: displacement Love number).
     tidal_direction : NDArray
         Unit vector pointing toward primary tidal source (shape (3,)).
     """
@@ -166,7 +181,9 @@ class CelestialBody:
     position_m      : Cartesian position (m), shape (3,)
     velocity_m_s    : Cartesian velocity (m/s), shape (3,)
     radius_m        : mean radius (m)
-    love_number_k2  : dimensionless tidal Love number (0.3-0.5 stars, ~0 BHs)
+    love_number_k2  : potential Love number k₂ (dimensionless): homogeneous fluid 3/2,
+                      Earth ≈ 0.30 (IERS 2010), main-sequence stars ~0.01 (twice the
+                      apsidal-motion constant), ~0 for black holes. 0 = no tidal response.
     sigma_field     : σ value (dimensionless); 0 = standard Newtonian
     area_m2         : cross-sectional area (m²) for solar radiation pressure;
                       0 = SRP disabled for this body (default, safe for planets)
@@ -189,6 +206,10 @@ class CelestialBody:
                       WRONG for Uranus (97° obliquity), Pluto (122°), and Triton
                       (retrograde) — callers should supply real IAU pole vectors.
                       Auto-normalized in __post_init__ if not unit length.
+    love_number_h2  : displacement Love number h₂ (surface amplitude of the tide), used by
+                      compute_tidal_deformation. None (default) = hydrostatic value 1 + k₂,
+                      exact for fluid bodies; supply it for elastic ones (Earth 0.6078,
+                      IERS Conventions 2010).
     """
 
     mass_kg:        float
@@ -203,6 +224,7 @@ class CelestialBody:
     j3:             float = 0.0   # zonal J₃ coefficient (north-south asymmetry)
     j4:             float = 0.0   # zonal J₄ coefficient (next-order oblateness)
     pole_axis_unit: NDArray[np.float64] | None = None  # default → +z axis in __post_init__
+    love_number_h2: float | None = None   # displacement Love number; None → 1 + k₂ (hydrostatic)
 
     def __post_init__(self) -> None:
         if self.position_m.shape != (3,):
@@ -258,14 +280,18 @@ class NBodySystem:
     Two integration methods:
       step()             Velocity-Verlet, 2nd-order symplectic. Fast.
                          Use for well-resolved inner-planet / moon systems.
-      forest_ruth_step() Forest-Ruth, 4th-order symplectic. 3× cost.
+      forest_ruth_step() Forest-Ruth, 4th-order symplectic. 3 force
+                         evaluations per step against 2 for step().
                          Required for chaotic high-eccentricity orbits
                          (comets, NEAs, binary pulsars) where 2nd-order
                          energy drift accumulates over many periods.
 
-    Forest-Ruth maintains EXACT symplecticity for fixed dt, so energy and
-    angular momentum are conserved to machine precision over arbitrary time.
-    (Variable dt breaks symplecticity in BOTH schemes — use fixed dt.)
+    For fixed dt and position-only forces both schemes are symplectic: angular
+    momentum is conserved to round-off and the energy error stays bounded
+    (O(dt²) and O(dt⁴)) with no secular drift. (Variable dt breaks
+    symplecticity in BOTH schemes — use fixed dt.) With velocity-dependent
+    layers (gr_1pn, eih_cross) the kicks are implicit and time-symmetric, so
+    the orders 2 and 4 hold; they then cost 3 and 6 evaluations per step.
 
     Parameters
     ----------
@@ -312,6 +338,9 @@ class NBodySystem:
         self.softening_m        = softening_m
         self.solar_luminosity_W = solar_luminosity_W
         self._time              = 0.0
+        # GW damping: velocity change not yet representable in the bodies' doubles (compensated sum, see
+        # _apply_gw_damping). Below half an ulp of the velocities, so it never changes reported quantities.
+        self._gw_dv_residual    = np.zeros((2, 3))
         # parent_attractor_indices[i] = index of body i's dominant Newton
         # attractor (e.g. Earth -> Sun, Mimas -> Saturn), or None if i has
         # no fast-pair partner. Used by respa_step to split the Hamiltonian
@@ -355,13 +384,16 @@ class NBodySystem:
 
         Layers (in order applied):
           - Newtonian            (always on)
-          - 1PN Schwarzschild GR (toggles.gr_1pn)              [BORROWED]
-          - 2PN c⁻⁴ correction   (toggles.gr_2pn)              [BORROWED]
+          - 1PN EIH N-body       (toggles.eih_cross)           [BORROWED]
+          - 1PN test-particle    (toggles.gr_1pn; skipped when eih_cross is on, which already
+                                  contains it)                 [BORROWED]
+          - 2PN static terms     (toggles.gr_2pn; two-body, no velocity terms) [BORROWED]
           - J₂ zonal quadrupole  (toggles.j2_zonal)            [BORROWED]
           - J₃ zonal             (toggles.j3_zonal)            [BORROWED]
           - J₄ zonal             (toggles.j4_zonal)            [BORROWED]
-          - Tidal mutual force   (toggles.tidal_force)         (OURS — built from
-                                                                compute_tidal_deformation)
+          - Tidal mutual force   (toggles.tidal_force)         equilibrium tide from k₂,
+                                                                with the reaction on the
+                                                                deformed body
           - Solar radiation pres (toggles.srp + solar_luminosity_W > 0)
 
         Sigma-mass scaling (M_eff = M·e^σ) is applied in body.gm_m3_s2 via
@@ -487,35 +519,36 @@ class NBodySystem:
 
                 if t.gr_2pn:
                     # ┌──────────────────────────────────────────────────────┐
-                    # │ BORROWED FROM TEXTBOOK -- LEADING TERM ONLY          │
-                    # │ Source: Will 1993 "Theory and Experiment in          │
-                    # │ Gravitational Physics" §4.4 (test-particle 2PN in    │
-                    # │ Schwarzschild), Soffel 2003 eq. 10.12 at c⁻⁴.        │
+                    # │ BORROWED FROM TEXTBOOK -- STATIC 2PN TERMS ONLY      │
+                    # │ Source: two-body 2PN equations of motion, harmonic   │
+                    # │ gauge (Damour & Deruelle 1981; Blanchet 2014, Living │
+                    # │ Rev. Relativ. 17, 2, eq. 203), velocity-free part:   │
+                    # │   a_i ∋ −[9 (Gm_j)³ + (57/4)(Gm_i)²(Gm_j)            │
+                    # │          + (69/2)(Gm_i)(Gm_j)²] n_ij / (c⁴ r⁴),      │
+                    # │   n_ij = (x_i − x_j)/r  (attractive).                │
+                    # │ For the relative motion this is                      │
+                    # │   −(GM/r²)(3/4)(12 + 29η)(GM/(rc²))² n               │
+                    # │ (Kidder 1995, PRD 52, 821, eq. 4d): 9 in the         │
+                    # │ test-mass limit (harmonic Schwarzschild 1−4u+9u²),   │
+                    # │ 14.44 for equal masses.                              │
                     # │                                                      │
-                    # │ STATUS: LEADING RADIAL TERM with the correct c⁻⁴     │
-                    # │ Schwarzschild coefficient 9:                         │
-                    # │   a_2PN_leading = +9 (GM/r)² × (1/c⁴) × (1/r²) × r̂   │
-                    # │                 = 9 GM × (GM/(rc²))² / r² × r̂        │
-                    # │ Earlier version had a placeholder coefficient 1; the │
-                    # │ correct leading-order radial coefficient from the    │
-                    # │ Schwarzschild metric expansion is 9.                 │
-                    # │                                                      │
-                    # │ NOT YET INCLUDED (full 2PN has additional terms):    │
-                    # │   - v_i² mixed terms ~ (GM/r) × v² × r̂/c⁴            │
-                    # │   - (r̂·v_i)² terms                                   │
-                    # │   - Cross-velocity-radial couplings                  │
-                    # │ The leading radial dominates for slow orbits         │
-                    # │ (v/c < 0.05); add velocity terms for compact binary  │
-                    # │ work. Per SSBM derivation roadmap (GOLDEN_RULES §2)  │
-                    # │ this whole block awaits σ-modified geodesic.         │
+                    # │ NOT INCLUDED: the 2PN velocity terms. They are the   │
+                    # │ same order (GM/(rc²))² as these on any bound orbit,  │
+                    # │ so slowness does not make them negligible (on an     │
+                    # │ e = 0.6 orbit they are ~0-14 % of the static term);  │
+                    # │ and for N > 2 the genuine three-body static terms.   │
+                    # │ Use with gr_1pn or eih_cross: alone it is an         │
+                    # │ inconsistent PN truncation (c⁻⁴ without c⁻²).        │
+                    # │ Per SSBM derivation roadmap (GOLDEN_RULES §2) this   │
+                    # │ block awaits the σ-modified geodesic.                │
                     # └──────────────────────────────────────────────────────┘
-                    r_hat     = r_ij / r
-                    gm_over_r = gm_j / r          # m²/s²
-                    pn_param  = gm_over_r / _c2   # dimensionless (GM/(rc²))
-                    # Leading radial 2PN: +9 GM³/(r⁴ c⁴) × r̂
-                    #   = 9 × (GM/r²) × (GM/(rc²))² × r̂
-                    a_2pn_mag = 9.0 * (gm_j / r_sq) * pn_param * pn_param
-                    acc[i] += a_2pn_mag * r_hat
+                    # PHYSICS_GAP: omitted from 2PN: the velocity terms (same order as the static ones on bound orbits)
+                    # and, for N > 2, the three-body static terms. gr_2pn without gr_1pn/eih_cross is not warned about.
+                    # FIXED 2026-10-10 (audit): the test-mass term 9 (Gm_j)³ alone was applied pairwise, a relative
+                    # coefficient 9(m_i³ + m_j³)/M³ (2.25 for equal masses, 0.156 × Kidder's 14.44).
+                    gm_i   = self.bodies[i].gm_m3_s2
+                    static = (9.0 * gm_j**3 + 14.25 * gm_i**2 * gm_j + 34.5 * gm_i * gm_j**2) / (_c4 * r_sq * r_sq)
+                    acc[i] += static * (r_ij / r)
 
         # ── J₂ zonal quadrupole (rotational oblateness) ───────────────────
         if t.j2_zonal:
@@ -640,40 +673,35 @@ class NBodySystem:
                     n_factor = 4.0 * s * (3.0 - 7.0 * s * s)
                     acc[i] += coef * (r_factor * (r_vec / r) + n_factor * n_hat)
 
-        # ── Mutual tidal force (OURS — built from compute_tidal_deformation) ──
+        # ── Mutual tidal force (equilibrium tide, Love-number response) ──────
         if t.tidal_force:
-            # For each body i with non-zero Love number, it is tidally
-            # deformed by every other body j. The deformation produces an
-            # *effective* J₂-like quadrupole on body i along the i-j axis
-            # with amplitude ε₂ = (k₂/2)(M_j/M_i)(R_i/d_ij)³.
-            #
-            # The resulting acceleration on a third body k (and the back-
-            # reaction on j) is computed using the same J₂ vector formula
-            # we already use above, with J₂_eff = ε₂ and pole_axis = unit
-            # vector from i to j.
-            #
-            # NOT BORROWED: this uses our existing TidalDeformationField
-            # geometry + our J₂ formula. The math is local to this project.
-            #
-            # Caveat: the bulge is treated as static (rigid response, no
-            # dissipation lag). Adding the lag is a separate (and σ-derivable)
-            # extension.
+            # Each body i with a non-zero Love number k₂ is deformed by its dominant perturber j (largest M_j/d³).
+            # By the definition of k₂ (Love 1911) the deformation adds the external potential
+            #     Φ_ind(r) = −A P₂(r̂·n̂)/r³,   A = k₂ G M_j R_i⁵/d³,   n̂ = (x_j − x_i)/d,
+            # a prolate bulge pointing at j. Its pull on every other body k is a_k = −∇Φ_ind:
+            #     a_k = −(3A/(2r⁵)) [(5(r̂·n̂)² − 1) r − 2 (r·n̂) n̂],   r = x_k − x_i,
+            # which on the perturber is −3 k₂ G M_j R⁵/d⁷ toward i. The deformed body feels the equal and
+            # opposite reaction −(m_k/M_i) a_k (Newton III), so momentum is conserved. On a binary this gives
+            # the classical tidal apsidal motion, 15 (k₂/2)(M_j/M_i)(R/a)⁵ f(e) per radian of mean motion
+            # (Cowling 1938; Sterne 1939). The bulge is static (no dissipation lag) and only the dominant
+            # perturber raises it.
+            # PHYSICS_GAP: Love response is linear, so every body's tide should superpose; only the dominant perturber's
+            # is kept. With the Moon dominant, Earth's solar tide is dropped, (M_☉/M_☾)(a_☾/AU)³ = 0.46 of the lunar.
+            # Also omitted: the dissipative lag (no tidal torque, no secular change of a or e).
+            # FIXED 2026-10-10 (A34): the code used J2_eff = +(k₂/2)(M_j/M_i)(R/d)³ in the oblate J₂ formula
+            # (an oblate bulge: wrong sign and half the size on the perturber) and applied no reaction.
             for i in range(n):
                 bi = self.bodies[i]
                 if bi.love_number_k2 == 0.0 or bi.radius_m == 0.0:
                     continue
-                pos_i  = bi.position_m
-                R_i_sq = bi.radius_m * bi.radius_m
-                M_i    = bi.mass_kg
+                pos_i = bi.position_m
+                M_i   = bi.mass_kg
                 if M_i == 0.0:
                     continue
-                gm_i = bi.gm_m3_s2
 
-                # Find the dominant perturber of body i (maximum tidal magnitude
-                # ε₂ ∝ M_j / d_ij³). For the SS this is overwhelmingly the
-                # Sun for planets and the parent planet for moons.
+                # Dominant perturber of body i: maximum M_j/d³ (the Sun for planets, the parent for moons).
                 best_j = -1
-                best_eps2 = 0.0
+                best_metric = 0.0
                 best_d2 = None
                 for j in range(n):
                     if j == i:
@@ -683,23 +711,19 @@ class NBodySystem:
                     d_sq  = float(np.dot(d_vec, d_vec))
                     if d_sq == 0.0:
                         continue
-                    d3    = d_sq * math.sqrt(d_sq)
-                    eps2  = (bi.love_number_k2 / 2.0) * (bj.mass_kg / M_i) * (R_i_sq * bi.radius_m) / d3
-                    if eps2 > best_eps2:
-                        best_eps2 = eps2
-                        best_j    = j
-                        best_d2   = d_sq
-                if best_j < 0 or best_eps2 == 0.0:
+                    metric = bj.mass_kg / (d_sq * math.sqrt(d_sq))
+                    if metric > best_metric:
+                        best_metric = metric
+                        best_j      = j
+                        best_d2     = d_sq
+                if best_j < 0:
                     continue
 
-                # Effective J₂ along the i->(perturber) axis; apply the same
-                # vector form used for permanent J₂ above to body i's effect
-                # on every body k (including back-reaction on the perturber).
                 bj    = self.bodies[best_j]
                 d_vec = bj.position_m - pos_i
-                d     = math.sqrt(best_d2)  # |d_vec|
+                d     = math.sqrt(best_d2)
                 n_hat_tidal = d_vec / d
-                j2_eff = best_eps2
+                amp   = bi.love_number_k2 * bj.gm_m3_s2 * bi.radius_m ** 5 / (best_d2 * d)   # A, m⁵/s²
 
                 for k in range(n):
                     if k == i:
@@ -708,12 +732,13 @@ class NBodySystem:
                     r_sq  = float(np.dot(r_vec, r_vec)) + self.softening_m ** 2
                     if r_sq == 0.0:
                         continue
-                    r        = math.sqrt(r_sq)
-                    r_dot_n  = float(np.dot(r_vec, n_hat_tidal))
-                    cos2     = (r_dot_n * r_dot_n) / r_sq
-                    coef     = 1.5 * gm_i * j2_eff * R_i_sq / (r_sq * r_sq * r)
-                    acc[k] += coef * ((5.0 * cos2 - 1.0) * r_vec
-                                      - 2.0 * r_dot_n * n_hat_tidal)
+                    r       = math.sqrt(r_sq)
+                    r_dot_n = float(np.dot(r_vec, n_hat_tidal))
+                    cos2    = (r_dot_n * r_dot_n) / r_sq
+                    a_k     = (-1.5 * amp / (r_sq * r_sq * r)) * ((5.0 * cos2 - 1.0) * r_vec
+                                                                  - 2.0 * r_dot_n * n_hat_tidal)
+                    acc[k] += a_k
+                    acc[i] -= (self.bodies[k].mass_kg / M_i) * a_k
 
         # ── Solar radiation pressure ──────────────────────────────────────
         # Gated by both toggles.srp AND solar_luminosity_W > 0 (need a value
@@ -737,13 +762,72 @@ class NBodySystem:
 
         return acc
 
+    # ── implicit kick for velocity-dependent forces ───────────────────────
+
+    def _has_velocity_dependent_forces(self) -> bool:
+        """True when a layer that reads the velocities is on (gr_1pn, eih_cross)."""
+        return bool(self.toggles.gr_1pn or self.toggles.eih_cross)
+
+    def _set_velocities(self, vel: NDArray[np.float64]) -> None:
+        self.bodies = [b.replace(velocity_m_s=vel[i].copy()) for i, b in enumerate(self.bodies)]
+
+    def _implicit_kick(
+        self,
+        v_base: NDArray[np.float64],
+        h:      float,
+        accel,
+        u0:     NDArray[np.float64] | None = None,
+        a_u0:   NDArray[np.float64] | None = None,
+    ) -> NDArray[np.float64]:
+        """Solve v = v_base + h·a(x, v) at the current positions by fixed-point iteration.
+
+        ``accel`` is the force routine (compute_accelerations or compute_slow_accelerations). The iteration starts from
+        ``u0`` (default v_base); ``a_u0`` is accel at u0 if the caller already has it. On return the bodies carry the
+        solution, which is also returned as an (N, 3) array.
+        """
+        v_base = np.asarray(v_base, dtype=np.float64).reshape(-1, 3)
+        u_prev = v_base if u0 is None else np.asarray(u0, dtype=np.float64).reshape(-1, 3)
+        if a_u0 is None:
+            self._set_velocities(u_prev)
+            a_u0 = accel()
+        u = v_base + h * a_u0
+        d_prev = float(np.max(np.abs(u - u_prev))) if u.size else 0.0
+        converged = False
+        for _ in range(_IMPLICIT_KICK_MAX_ITER):
+            tol = _IMPLICIT_KICK_RTOL * float(np.max(np.abs(u))) if u.size else 0.0
+            if d_prev <= tol:
+                converged = True
+                break
+            self._set_velocities(u)
+            u_new = v_base + h * accel()
+            d = float(np.max(np.abs(u_new - u)))
+            theta = d / d_prev                       # contraction factor of the map
+            u, d_prev = u_new, d
+            if d <= tol or (theta < 1.0 and theta / (1.0 - theta) * d <= tol):
+                converged = True
+                break
+        if not converged:
+            warnings.warn(
+                "implicit velocity kick did not converge: the velocity-dependent force is too strong for this dt "
+                f"(last |dv| = {d_prev:.3e} m/s); reduce dt",
+                RuntimeWarning, stacklevel=3,
+            )
+        self._set_velocities(u)
+        return u
+
     # ── velocity-Verlet (2nd-order symplectic) ─────────────────────────────
 
     def step(self, dt: float, include_gw_loss: bool | None = None) -> None:
         """Advance dt using velocity-Verlet (leapfrog).
 
-        Symplectic, O(dt²) global error per orbit.  Two force evaluations.
+        Symplectic, O(dt²) global error.  Two force evaluations with position-only forces.
         For well-sampled orbits (≥ 88 steps/period) this is sufficient.
+
+        Velocity-dependent forces (gr_1pn, eih_cross): the closing half-kick
+        v_{n+1} = v_{n+½} + ½dt·a(x_{n+1}, v_{n+1}) is implicit and is solved by fixed-point iteration (usually two
+        extra force evaluations). The step is then time-symmetric and 2nd order (generalised leapfrog; Hairer, Lubich
+        & Wanner 2006, Geometric Numerical Integration, §VI.3). FIXED 2026-10-10 (A12): the closing kick used
+        a(x_{n+1}, v_n) and the step was first order.
 
         For highly-eccentric orbits where timestep adaption is needed,
         use forest_ruth_step() with a fixed small dt instead.
@@ -766,8 +850,12 @@ class NBodySystem:
         for i in range(n):
             self.bodies[i] = self.bodies[i].replace(position_m=pos_new[i])
 
-        acc_new = self.compute_accelerations()
-        vel_new = [vel_half[i] + 0.5 * dt * acc_new[i] for i in range(n)]
+        if self._has_velocity_dependent_forces():
+            v_impl  = self._implicit_kick(np.array(vel_half).reshape(-1, 3), 0.5 * dt, self.compute_accelerations)
+            vel_new = [v_impl[i].copy() for i in range(n)]
+        else:
+            acc_new = self.compute_accelerations()
+            vel_new = [vel_half[i] + 0.5 * dt * acc_new[i] for i in range(n)]
 
         # GW damping resolution: legacy kwarg overrides toggle if given,
         # else fall through to the PhysicsToggles flag.
@@ -787,13 +875,13 @@ class NBodySystem:
         """Advance dt using 4th-order Forest-Ruth symplectic integration.
 
         Forest & Ruth (1990): 7 sub-steps (4 drifts, 3 kicks), 3 force
-        evaluations.  Exact symplecticity for fixed dt — energy and angular
-        momentum conserved to machine precision over arbitrary time.
+        evaluations.  Symplectic for fixed dt with position-only forces: angular
+        momentum is conserved to round-off and the energy error stays bounded at
+        O(dt⁴) (a conserved shadow Hamiltonian), with no secular drift.
 
-        PHYSICS_GAP (2026-10-10, unification round 2, U9; KNOWN_GAPS.md): the
-        symplecticity and 4th order hold for position-only forces. With the
-        velocity-dependent layers on (gr_1pn, eih_cross) each kick is explicit in
-        v and the scheme converges at FIRST order in dt (measured ratio 1.997).
+        FIXED 2026-10-10 (A12): with velocity-dependent layers (gr_1pn, eih_cross) each kick is the time-symmetric
+        trapezoidal kick v' = v + ½d·dt[a(x, v) + a(x, v')], solved by fixed-point iteration (usually one extra force
+        evaluation per kick), so the triple-jump composition is 4th order again (it was first order).
 
         Coefficients (exact mathematics, not approximations):
             θ  = 1 / (2 − ∛2) ≈ 1.3512
@@ -813,6 +901,7 @@ class NBodySystem:
         """
         c = _FR_C
         d = _FR_D
+        velocity_dependent = self._has_velocity_dependent_forces()
 
         def _drift(frac: float) -> None:
             self.bodies = [
@@ -822,6 +911,11 @@ class NBodySystem:
 
         def _kick(frac: float) -> None:
             acc = self.compute_accelerations()
+            if velocity_dependent:
+                h_half = 0.5 * frac * dt
+                v0 = np.array([b.velocity_m_s for b in self.bodies], dtype=np.float64).reshape(-1, 3)
+                self._implicit_kick(v0 + h_half * acc, h_half, self.compute_accelerations, u0=v0, a_u0=acc)
+                return
             self.bodies = [
                 b.replace(velocity_m_s=b.velocity_m_s + frac * dt * acc[i])
                 for i, b in enumerate(self.bodies)
@@ -979,11 +1073,17 @@ class NBodySystem:
 
         # 3. Half-kick using slow forces (recomputed at new positions)
         acc_slow = self.compute_slow_accelerations()
-        for i in range(n):
-            b = self.bodies[i]
-            self.bodies[i] = b.replace(
-                velocity_m_s=b.velocity_m_s + 0.5 * dt * acc_slow[i]
-            )
+        if self._has_velocity_dependent_forces():
+            # FIXED 2026-10-10 (A12): GR sits in the slow forces, so this closing half-kick is implicit,
+            # v_{n+1} = v + ½dt·a_slow(x_{n+1}, v_{n+1}); explicit, the step was first order.
+            v0 = np.array([b.velocity_m_s for b in self.bodies], dtype=np.float64).reshape(-1, 3)
+            self._implicit_kick(v0, 0.5 * dt, self.compute_slow_accelerations, u0=v0, a_u0=acc_slow)
+        else:
+            for i in range(n):
+                b = self.bodies[i]
+                self.bodies[i] = b.replace(
+                    velocity_m_s=b.velocity_m_s + 0.5 * dt * acc_slow[i]
+                )
 
         self._time += dt
 
@@ -1134,27 +1234,41 @@ class NBodySystem:
 
     # ── conserved quantities ────────────────────────────────────────────────
 
-    def total_energy(self) -> float:
-        """Total mechanical energy (kinetic + gravitational potential) in J.
+    def total_energy(self, *, as_integrated: bool = False) -> float:
+        """Total mechanical energy (kinetic + Newtonian pair potential) in J.
 
-        PHYSICS_GAP (2026-10-10): this sums the UNSOFTENED 1/r pair potential,
-        while ``compute_accelerations`` integrates Plummer-softened forces when
-        ``softening_m > 0``. The conserved quantity of the integrated system is
-        K + U_soft with U_soft = -Σ G m_i m_j / sqrt(r² + ε²); the number
-        returned here drifts even when the integrator is exact (unification
-        pilot P5: 0.96 % "drift" vs 2.4e-5 for the softened Hamiltonian).
-        Filed in KNOWN_GAPS.md. Mentat flags, never fixes — a fix needs a
-        Captain decision on which energy the API should report.
+        as_integrated=False (default): the bare point-mass sum −Σ G m_i m_j / r, ignoring softening_m and σ.
+        as_integrated=True: the Hamiltonian of the Newtonian force law the integrators use,
+            E = Σ ½ m v² − Σ_{i<j} G m_i m_j e^{(σ_i+σ_j)/2} / √(r² + ε²),
+        with the Plummer softening ε = softening_m and the σ mass scaling of gm_m3_s2. With position-only forces this
+        is what step() and forest_ruth_step() conserve (bounded O(dt²), O(dt⁴) error). It is exact for uniform σ; with
+        unequal σ the engine's pair forces are not reciprocal (σ-mass law, decisions A23/C2), no conserved energy
+        exists, and the geometric mean e^{(σ_i+σ_j)/2} is a convention. Not included in either: the potential energy of
+        the J₂–J₄, tidal and post-Newtonian layers. With softening_m = 0 and every σ = 0 the two are bit-identical.
+
+        FIXED 2026-10-10 (KNOWN_GAPS A2): as_integrated=True gives the energy the integrator conserves.
+        DEFERRED (open decision C6, the Captain's): which one is the default. Option 1, keep as_integrated=False: every
+        existing caller is unchanged, but softened or σ ≠ 0 runs report spurious drift (P5 pilot 0.96 %; σ = 0.5 binary
+        183 %). Option 2, make as_integrated=True the default: the reported energy is the conserved one, but softened or
+        σ ≠ 0 callers see a different number (each pair term changes by its factor e^{(σ_i+σ_j)/2} and by the softening).
         """
         ke = sum(b.kinetic_energy() for b in self.bodies)
         pe = 0.0
+        eps_sq = self.softening_m ** 2 if as_integrated else 0.0
         for i, bi in enumerate(self.bodies):
             for j, bj in enumerate(self.bodies):
                 if j <= i:
                     continue
-                r = float(np.linalg.norm(bi.position_m - bj.position_m))
+                if eps_sq > 0.0:
+                    d = bi.position_m - bj.position_m
+                    r = math.sqrt(float(np.dot(d, d)) + eps_sq)
+                else:
+                    r = float(np.linalg.norm(bi.position_m - bj.position_m))
                 if r > 0:
-                    pe -= _G * bi.mass_kg * bj.mass_kg / r
+                    coupling = _G * bi.mass_kg * bj.mass_kg
+                    if as_integrated and (bi.sigma_field != 0.0 or bj.sigma_field != 0.0):
+                        coupling *= _scale_ratio(0.5 * (bi.sigma_field + bj.sigma_field))
+                    pe -= coupling / r
         return ke + pe
 
     def total_momentum(self) -> NDArray[np.float64]:
@@ -1170,9 +1284,17 @@ class NBodySystem:
     def compute_tidal_deformation(
         self, body_idx: int, perturber_idx: int,
     ) -> TidalDeformationField:
-        """Tidal deformation of body_idx due to perturber_idx.
+        """Equilibrium tidal deformation of body_idx raised by perturber_idx.
 
-        ε₂ = (k₂/2)(M_c/M_b)(R_b/d)³  —  derived from Love (1911).
+        Surface shape r(θ) = R[1 + ε₂ P₂(cos θ)], θ measured from the body→perturber axis, with
+            ε₂ = h₂ (M_c/M_b)(R_b/d)³,
+        the definition of the displacement Love number h₂ (Love 1911). h₂ is body.love_number_h2 when given;
+        otherwise the hydrostatic value h₂ = 1 + k₂, exact for a fluid body whose surface is an equipotential
+        (Munk & MacDonald 1960): a homogeneous fluid body has k₂ = 3/2, h₂ = 5/2. For elastic bodies supply h₂
+        (Earth 0.6078, IERS Conventions 2010; 1 + k₂ = 1.30 would overstate the Earth's body tide 2.1×). A body with
+        k₂ = 0 and no h₂ is treated as rigid (ε₂ = 0), as in the tidal_force layer.
+
+        FIXED 2026-10-10 (A36): ε₂ was (k₂/2)(M_c/M_b)(R/d)³, 0.30× the equilibrium amplitude of a homogeneous body.
         """
         body      = self.bodies[body_idx]
         perturber = self.bodies[perturber_idx]
@@ -1182,64 +1304,117 @@ class NBodySystem:
             raise ValueError("Bodies are at the same position")
         tidal_dir = r_ij / d
         ratio     = perturber.mass_kg / body.mass_kg if body.mass_kg > 0 else 0.0
-        eps2      = (body.love_number_k2 / 2.0) * ratio * (body.radius_m / d) ** 3
+        if body.love_number_h2 is not None:
+            h2 = body.love_number_h2
+        else:
+            h2 = 1.0 + body.love_number_k2 if body.love_number_k2 != 0.0 else 0.0
+        eps2      = h2 * ratio * (body.radius_m / d) ** 3
         return TidalDeformationField(
             body_radius_m=body.radius_m,
             epsilon2=eps2,
             tidal_direction=tidal_dir,
         )
 
-    def roche_limit(self, primary_idx: int, satellite_idx: int) -> float:
-        """Roche limit d = R_p × (2 M_p/M_s)^(1/3) (rigid satellite).
+    def roche_limit(self, primary_idx: int, satellite_idx: int, fluid: bool = False) -> float:
+        """Roche limit (m) of satellite_idx about primary_idx.
 
-        Exact formula for a rigid satellite (Roche 1847).
+        Rigid spherical satellite: the distance at which the primary's tidal stretch across the satellite,
+        2 G M_p R_s/d³, equals the satellite's surface gravity G M_s/R_s²:
+            d = R_s (2 M_p/M_s)^(1/3) = R_p (2 ρ_p/ρ_s)^(1/3).
+        Fluid satellite (fluid=True), Roche's (1849, p. 258) approximate solution:
+            d ≈ 2.44 R_p (ρ_p/ρ_s)^(1/3) = 2.44 R_s (M_p/M_s)^(1/3).
+        Earth–Moon (ρ 5,513 and 3,346 kg/m³, R_E 6,378 km): 9,492 km rigid, 18,381 km fluid.
+
+        FIXED 2026-10-10 (A35): the code returned R_p (2 M_p/M_s)^(1/3), mixing the two forms (Earth–Moon 3.67× too
+        large).
         """
         primary   = self.bodies[primary_idx]
         satellite = self.bodies[satellite_idx]
         if satellite.mass_kg == 0:
             return float("inf")
-        return primary.radius_m * (2.0 * primary.mass_kg / satellite.mass_kg) ** (1.0 / 3.0)
+        ratio = primary.mass_kg / satellite.mass_kg
+        if fluid:
+            return _ROCHE_FLUID_COEFF * satellite.radius_m * ratio ** (1.0 / 3.0)
+        return satellite.radius_m * (2.0 * ratio) ** (1.0 / 3.0)
 
     # ── GW energy loss ───────────────────────────────────────────────────
+
+    @staticmethod
+    def _gw_power(m0: float, m1: float, r_vec: NDArray[np.float64], v_rel: NDArray[np.float64]) -> float:
+        """Quadrupole GW luminosity (W) of two point masses with separation r_vec and relative velocity v_rel.
+
+        Peters & Mathews (1963), Phys. Rev. 131, 435, instantaneous power of a Keplerian binary:
+            L = (8/15) G³ m₀² m₁² / (c⁵ r⁴) · (12 v² − 11 ṙ²),   ṙ = r̂·v.
+        On a circular orbit (v² = GM/r, ṙ = 0) this is Peters (1964), L = (32/5) G⁴ m₀² m₁² (m₀+m₁)/(c⁵ r⁵);
+        averaged over a Kepler orbit it is (32/5) G⁴ m₀² m₁² M/(c⁵ a⁵) · f(e), f(e) = (1 + 73e²/24 + 37e⁴/96)/(1−e²)^(7/2).
+        Rest masses with G (no σ scaling), as in the rest of the damping.
+        """
+        r = float(np.linalg.norm(r_vec))
+        if r == 0.0:
+            return 0.0
+        v2 = float(np.dot(v_rel, v_rel))
+        r_dot = float(np.dot(r_vec, v_rel)) / r
+        return (8.0 / 15.0) * _G**3 * m0**2 * m1**2 / (_c**5 * r**4) * (12.0 * v2 - 11.0 * r_dot * r_dot)
+
+    def gw_luminosity_W(self) -> float:
+        """Quadrupole gravitational-wave luminosity (W) of the pair bodies[0], bodies[1] in the current state.
+
+        See ``_gw_power`` (Peters & Mathews 1963). Earth–Sun at 1 AU: ≈ 196 W. Other bodies are ignored.
+        """
+        if len(self.bodies) < 2:
+            raise ValueError("gw_luminosity_W needs at least two bodies")
+        b0, b1 = self.bodies[0], self.bodies[1]
+        return self._gw_power(b0.mass_kg, b1.mass_kg, b1.position_m - b0.position_m,
+                              b1.velocity_m_s - b0.velocity_m_s)
 
     def _apply_gw_damping(
         self,
         vel_new:  list[NDArray[np.float64]],
         dt:       float,
     ) -> list[NDArray[np.float64]]:
-        """Reduce binary velocities by GW energy loss (Peters 1964).
+        """Remove the GW energy L·dt from the binary's relative kinetic energy (Peters & Mathews 1963).
 
-        Only meaningful for compact object binaries; ignored for planets.
+        The relative velocity is scaled by s = √(1 − L·dt/KE_rel) about the centre of mass, which conserves total
+        momentum and, on a circular orbit only, removes angular momentum at Peters' rate L/ω (see the PHYSICS_GAP
+        below for eccentric orbits). Only meaningful for compact binaries (two bodies); ignored otherwise.
+
+        FIXED 2026-10-10 (A11): the power had r⁴ instead of r⁵ (W·m; PSR J1738+0333 decayed 1.73e9× too fast,
+        Earth–Sun radiated 2.9e13 W instead of 196 W), losses below half an ulp of 1 rounded to zero, and the
+        centre-of-mass recompute injected a spurious decay. The velocity change is now applied as a compensated sum
+        (TwoSum; Knuth, TAOCP vol. 2 §4.2.2): the part that a double cannot hold is carried to the next step instead of
+        being rounded away, and nothing is rewritten when nothing is applied.
         """
+        # PHYSICS_GAP: scaling v_rel removes angular momentum at L·P/(μv²), which equals Peters' (1964) ⟨dL/dt⟩ only
+        # on a circular orbit. Orbit-averaged L loss / Peters = 0.992 at e = 0.1, 0.795 at e = 0.617, 0.701 at e = 0.9,
+        # so de/dt is 1.26× Peters as e → 0 and 1.12× at e = 0.617: eccentric binaries circularise too fast. The
+        # orbit-averaged energy loss and Ṗb match Peters. Full fix: the 2.5PN Burke–Thorne radiation-reaction force.
         b0, b1 = self.bodies[0], self.bodies[1]
-        r_vec  = b1.position_m - b0.position_m
-        r      = float(np.linalg.norm(r_vec))
-        if r == 0.0:
+        m0, m1 = b0.mass_kg, b1.mass_kg
+        M_tot  = m0 + m1
+        if M_tot <= 0.0:
             return vel_new
-        mu_red = b0.mass_kg * b1.mass_kg / (b0.mass_kg + b1.mass_kg)
-        M_tot  = b0.mass_kg + b1.mass_kg
-        # PHYSICS_GAP (2026-10-10, unification round 2, U1; KNOWN_GAPS.md): Peters 1964 has
-        # r⁵, not r⁴ — as coded dE/dt has units of W·m and the loss is r[m] times too strong
-        # (PSR J1738+0333: 1.73e9 × Peters; Earth–Sun 2.9e13 W vs 196 W). With r⁵ the
-        # per-step loss is often below the half-ulp of 1.0, so `damp` rounds to exactly 1
-        # and the v_cm recompute below injects a spurious decay. Flagged, not fixed.
-        # Peters formula: dE/dt = -(32/5) G⁴ m1² m2² M / (c⁵ r⁴)
-        # Coefficients 32/5 are exact from quadrupole formula (Peters 1964).
-        dE_dt  = -(32.0 / 5.0) * _G**4 * b0.mass_kg**2 * b1.mass_kg**2 * M_tot / (
-            _c**5 * r**4
-        )
         v_rel  = vel_new[1] - vel_new[0]
-        v_mag  = float(np.linalg.norm(v_rel))
-        if v_mag == 0.0:
+        ke_rel = 0.5 * (m0 * m1 / M_tot) * float(np.dot(v_rel, v_rel))
+        if ke_rel <= 0.0:
             return vel_new
-        ke_rel = 0.5 * mu_red * v_mag**2
-        if ke_rel == 0.0:
+        power = self._gw_power(m0, m1, b1.position_m - b0.position_m, v_rel)
+        eps   = min(power * dt / ke_rel, 1.0)
+        if eps <= 0.0:
             return vel_new
-        damp   = 1.0 + dE_dt * dt / ke_rel
-        damp   = max(0.0, damp)
-        v_cm   = (b0.mass_kg * vel_new[0] + b1.mass_kg * vel_new[1]) / M_tot
-        # CM-frame decomposition: v_i = v_cm ± (m_other/M) * v_rel
-        # b0 gets -m_b1/M * v_rel;  b1 gets +m_b0/M * v_rel
-        vel_new[0] = v_cm - math.sqrt(damp) * b1.mass_kg / M_tot * v_rel
-        vel_new[1] = v_cm + math.sqrt(damp) * b0.mass_kg / M_tot * v_rel
-        return vel_new
+        s_minus_1 = -eps / (1.0 + math.sqrt(1.0 - eps))      # √(1−ε) − 1 without cancellation
+        dv_rel    = s_minus_1 * v_rel
+        deltas    = (-(m1 / M_tot) * dv_rel, (m0 / M_tot) * dv_rel)
+        residual  = getattr(self, "_gw_dv_residual", None)
+        if residual is None or residual.shape != (2, 3):
+            residual = np.zeros((2, 3))
+        new_residual = np.empty((2, 3))
+        out = list(vel_new)
+        for k in (0, 1):
+            a = vel_new[k]
+            b = deltas[k] + residual[k]
+            s = a + b                                           # TwoSum: s + err == a + b exactly
+            bb = s - a
+            new_residual[k] = (a - (s - bb)) + (b - bb)
+            out[k] = s
+        self._gw_dv_residual = new_residual
+        return out

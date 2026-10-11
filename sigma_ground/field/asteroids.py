@@ -22,10 +22,21 @@ from .constants import G, C
 BENNU = {
     'name': 'Bennu',
     'mission': 'OSIRIS-REx (2018-2021)',
-    # Semi-axes in meters (a ≥ b ≥ c)
-    'a_m': 262.5 / 2,    # equatorial semi-major = 131.25 m
-    'b_m': 258.5 / 2,    # equatorial semi-minor = 129.25 m
-    'c_m': 249.3 / 2,    # polar semi-axis = 124.65 m
+    # Semi-axes in meters (a ≥ b ≥ c): the best-fit ellipsoid of the
+    # OSIRIS-REx shape model, Barnouin et al. 2019, Nat. Geosci. 12, 247,
+    # Table 1: (252.78 ± 0.05) × (246.20 ± 0.09) × (228.69 ± 0.12) m.
+    # Its volume, 0.0596 km³, is 0.97× the shape-model volume 0.0615 km³
+    # (same paper), so M/V is 1.03× the measured 1190 kg/m³.  The full
+    # extents of the spinning-top shape are larger: (563.87 × 536.09 ×
+    # 498.42) ± 0.17 m (Barnouin et al. 2019, as quoted in NAIF
+    # bennu_v14.tpc); the pre-arrival Design Reference Asteroid (Hergenrother
+    # et al. 2014, arXiv:1409.4704, from the Nolan et al. 2013 radar model)
+    # gave 565 × 535 × 508 m.
+    # FIXED 2026-10-10: the values were halved (131.25 × 129.25 × 124.65 m;
+    # implied density 6.95× the table's).
+    'a_m': 252.78,
+    'b_m': 246.20,
+    'c_m': 228.69,
     'mass_kg': 7.329e10,
     'density_kg_m3': 1190,
     'rotation_period_h': 4.2905,
@@ -40,9 +51,17 @@ BENNU = {
 RYUGU = {
     'name': 'Ryugu',
     'mission': 'Hayabusa2 (2018-2019)',
-    'a_m': 504 / 2,
-    'b_m': 502 / 2,
-    'c_m': 474 / 2,
+    # Equatorial radius 502 ± 2 m and polar radius 438 ± 2 m of the
+    # Hayabusa2 shape model (Watanabe et al. 2019, Science 364, 268).  These
+    # are the radii of the spinning top's equatorial ridge and poles, so the
+    # spheroid through them holds 0.462 km³, 1.23× the shape-model volume
+    # 0.377 ± 0.005 km³ (same paper): M/V is 0.82× the measured 1190 kg/m³
+    # and (abc)^(1/3) = 480 m vs the volume-equivalent 448 m.
+    # FIXED 2026-10-10: the values were halved (252 × 251 × 237 m; implied
+    # density 6.02× the table's).
+    'a_m': 502.0,
+    'b_m': 502.0,
+    'c_m': 438.0,
     'mass_kg': 4.50e11,
     'density_kg_m3': 1190,
     'rotation_period_h': 7.6326,
@@ -152,6 +171,12 @@ def surface_gravity(body):
 
     We compute all three axis gravities — the variation IS the wobble.
     No external formula; this is Newton directly.
+
+    PHYSICS_GAP: point-mass GM/r² at each tip, non-rotating.  A homogeneous
+    ellipsoid's own field differs at the tips (audit 2026-10-10: Eros g_a
+    3× low, g_c 2.3× high), and the centrifugal ω²a is 42 % (Eros), 12 %
+    (Vesta) and 55 % (Bennu, at a = 252.78 m) of g at the equator.  Not
+    fixed here.
     """
     M = body['mass_kg']
     return {
