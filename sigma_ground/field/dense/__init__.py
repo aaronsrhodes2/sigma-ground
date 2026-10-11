@@ -7,3 +7,4 @@ from .eos import EOS, PolytropeEOS, TabulatedEOS, UniformEOS, electron_ion_eos, 
 from .polytrope import LaneEmden, PolytropeStar, lane_emden, polytrope_structure  # noqa: F401
 from .tov import TOVStar, mass_radius_curve, maximum_mass, solve_tov  # noqa: F401
 from .white_dwarf import WhiteDwarf, chandrasekhar_mass, white_dwarf_mass_radius, white_dwarf_max_mass_gr, white_dwarf_structure  # noqa: F401
+from .nuclear_matter import SLY4, BetaState, Skyrme, beta_equilibrium, npe_mu_eos  # noqa: F401

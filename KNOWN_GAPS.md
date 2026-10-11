@@ -582,3 +582,13 @@ The v2physics short pass keeps its first-run numbers as the baseline taken BEFOR
 resistivity(T). Skin effect / current diffusion, sliding-contact and arc resistance, plasma armature, rail erosion, flat-rail
 inductance gradient, and latent heat are not modelled (list: `NOT_MODELLED`; detail: `misc/RAILGUN_SCENARIO.md`). The reported
 temperature rise is a lower bound; bank resistance/inductance are owner-entered with no library source.
+
+## PHYSICS_GAP: dense matter (field/dense, 2026-10-11)
+
+Built so far (misc/NUCLEAR_MATTER_PLAN.md phases P0-P3 and the SLy4 part of P6): the adaptive integrator (`kernel/ode.py`), the exact degenerate
+Fermi gas, Lane-Emden polytropes, cold white dwarfs, EOS tables, the TOV solver, and a Skyrme SLy4 core EOS in beta equilibrium. Verified against
+published values (SLy4 saturation point to 4 digits; Chandrasekhar mass 1.4563; free-neutron M_max 0.7102; SLy4 M_max 2.0503 vs DH2001 2.05).
+Not modelled, by design of the build order: (1) no crust (neutron-star radii from `npe_mu_eos` are core-only and are not scored; M_max is insensitive);
+(2) white dwarfs have no Coulomb (Salpeter) correction; (3) one nuclear parametrization only (SLy4), no experiment-based meta-model; (4) no hyperons,
+no quark matter, zero temperature; (5) the GW170817 pressure window at 2 rho_nuc does not discriminate (a free neutron gas passes it), so the 2 solar-mass
+floor is the working gate; (6) NICER radius scores wait for the crust. The plan's SEMF fix (A19) was already made by commits 3ace229 and 47ada40.
