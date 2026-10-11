@@ -60,15 +60,14 @@ def merge(outdir: Path, pass_name: str, pred_names: list[str], dt_days: float | 
           label: str | None = None, fixture: str | None = None) -> Path | None:
     keys, horizon = PASSES[pass_name]
     samples, got, elapsed = [], [], 0.0
-    for pred in pred_names:
-        for key in keys:
-            f = _job_file(outdir, pass_name, pred, key)
-            if not f.exists():
-                continue
-            d = json.loads(f.read_text())
-            samples.extend(d["samples"])
-            elapsed += d["metadata"].get("elapsed_s", 0.0)
-            got.append((pred, key))
+    # scan the whole pass folder (not just this invocation's predictors) so separate invocations accumulate
+    for f in sorted((outdir / pass_name).glob("*__*.json")):
+        pred, key = f.stem.split("__", 1)
+        d = json.loads(f.read_text())
+        samples.extend(d["samples"])
+        elapsed += d["metadata"].get("elapsed_s", 0.0)
+        got.append((pred, key))
+    pred_names = sorted({g[0] for g in got}, key=lambda n: pred_names.index(n) if n in pred_names else 99)
     if not samples:
         return None
     payload = {
@@ -80,7 +79,7 @@ def merge(outdir: Path, pass_name: str, pred_names: list[str], dt_days: float | 
             "predictors": [p for p in pred_names if any(p == g[0] for g in got)],
             "dt_days": dt_days,
             "jobs_present": len(got),
-            "jobs_expected": len(pred_names) * len(keys),
+            "jobs_expected_if_full_grid": len(pred_names) * len(keys),
             "elapsed_s_total_cpu": round(elapsed, 1),
             "baseline_label": label,
             "input_fixture": fixture,
@@ -102,6 +101,8 @@ def main() -> int:
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 4) // 2))
     ap.add_argument("--outdir", type=Path, default=_DEFAULT_OUT)
     ap.add_argument("--merge-only", action="store_true")
+    ap.add_argument("--thin-predictors", nargs="+", default=[], help="predictors run on --thin-windows only (e.g. the ablations)")
+    ap.add_argument("--thin-windows", nargs="+", default=[], help="window keys used for --thin-predictors")
     ap.add_argument("--fixture", type=Path, default=None,
                     help="DE440 state-vector fixture to use (default: the original tracked one). Past data is never overwritten: "
                          "recalculations read a *_v2physics fixture and write to their own labelled folder.")
@@ -134,6 +135,8 @@ def main() -> int:
         (a.outdir / ps).mkdir(parents=True, exist_ok=True)
         for pred in names:
             for key in keys:
+                if pred in a.thin_predictors and a.thin_windows and key not in a.thin_windows:
+                    continue
                 f = _job_file(a.outdir, ps, pred, key)
                 if not f.exists():
                     jobs.append((ps, pred, key, horizon, f))
