@@ -50,8 +50,11 @@ USAGE
 
     # results: list[WindowResult], one per (predictor, window, sample)
 
-Output is also saved to fixtures/rolling_shootout_results.json so the
-analysis pass doesn't need to re-run the integrations.
+Output is also saved as JSON (output_path; by default the untracked
+local-cache/rolling_shootout/rolling_shootout_results.json) so the analysis
+pass doesn't need to re-run the integrations. The committed
+fixtures/rolling_shootout_results.json is written only when passed
+explicitly as output_path (or --output).
 """
 
 from __future__ import annotations
@@ -96,7 +99,13 @@ YR_DAYS = 365.25
 
 _FIXTURES = Path(__file__).parent / "fixtures"
 _DE440_FILE = _FIXTURES / "de440_state_vectors.json"
+# The committed (git-tracked) results fixture: read by rolling_analysis,
+# written only when a caller passes it explicitly as output_path.
 _RESULTS_FILE = _FIXTURES / "rolling_shootout_results.json"
+# Default output of run_rolling_shootout: untracked (local-cache/ is ignored).
+_DEFAULT_RESULTS_OUTPUT = (Path(__file__).resolve().parents[3] / "local-cache"
+                           / "rolling_shootout" / "rolling_shootout_results.json")
+_USE_DEFAULT_OUTPUT = object()
 
 
 # ── IAU rotational poles (WGCCRE) ─────────────────────────────────────────
@@ -761,6 +770,7 @@ def run_rolling_shootout(
     predictors:             list[Predictor] = PREDICTORS,
     de440:                  dict | None = None,
     verbose:                bool = True,
+    output_path:            "Path | str | None" = _USE_DEFAULT_OUTPUT,
 ) -> list[WindowSample]:
     """Run the rolling-window shootout.
 
@@ -769,17 +779,30 @@ def run_rolling_shootout(
     window_start_keys     : DE440 snapshot keys to use as window starts
                            (e.g. ["j2005", "j2006", ..., "j2020"])
     prediction_horizon_yr : how far into the future each window predicts
-    sample_interval_yr    : sampling cadence within each window (1.0 = annual,
-                            which lets us compare directly to DE440 snapshots)
-    predictors            : list of Predictor specs (default: all 5)
+    sample_interval_yr    : sampling cadence within each window. Samples sit
+                            at start + k * sample_interval_yr (k = 1, 2, ...
+                            up to the horizon); one within half a day of a
+                            DE440 snapshot is placed exactly on it and scored.
+                            With the annual fixture, 1.0 scores every sample;
+                            sub-annual samples between snapshots carry the
+                            prediction with truth_km = error_au = None.
+    predictors            : list of Predictor specs (default: PREDICTORS)
+    output_path           : where to write the results JSON. Default: the
+                            untracked _DEFAULT_RESULTS_OUTPUT (local-cache/);
+                            None writes nothing. The committed
+                            fixtures/rolling_shootout_results.json is written
+                            only when passed here explicitly.
 
     Returns
     -------
     list of WindowSample, one per (predictor, body, window, sample_time).
-    Also writes the same data to fixtures/rolling_shootout_results.json.
     """
     if de440 is None:
         de440 = _load_de440()
+    if not sample_interval_yr > 0.0:
+        raise ValueError(f"sample_interval_yr must be > 0, got {sample_interval_yr}")
+    if output_path is _USE_DEFAULT_OUTPUT:
+        output_path = _DEFAULT_RESULTS_OUTPUT
 
     snap_keys_all = sorted(de440["snapshots"].keys())
     # JD lookup helper
@@ -793,22 +816,20 @@ def run_rolling_shootout(
 
     for w_idx, w_key in enumerate(window_start_keys):
         start_jd = _jd_of(w_key)
-        # Sample JDs are the actual DE440 snapshot JDs that fall within
-        # the prediction window. This ensures predictions are compared to
-        # truth at the SAME instant — no time-alignment error.
-        # (Using start_jd + round(k*365.25) instead gives Earth a spurious
-        # ~0.005 AU error from snapshot epochs not being exactly 365.25d apart.)
-        end_jd = start_jd + prediction_horizon_yr * YR_DAYS
+        # Samples every sample_interval_yr from the window start. A sample
+        # within half a day of a DE440 snapshot is moved exactly onto it, so
+        # prediction and truth refer to the SAME instant (the annual
+        # snapshots are exactly 365.25 d apart, so an annual cadence lands
+        # on them exactly).
+        n_samples = int(math.floor(prediction_horizon_yr / sample_interval_yr + 1e-9))
         sample_jds: list[float] = [start_jd]
         sample_snap_keys: list[str | None] = [w_key]
-        for snap_key in snap_keys_all:
-            snap_jd = _jd_of(snap_key)
-            if snap_jd <= start_jd + 0.5:
-                continue  # at or before window start
-            if snap_jd > end_jd + 0.5:
-                break     # past prediction horizon
-            sample_jds.append(snap_jd)
-            sample_snap_keys.append(snap_key)
+        for k in range(1, n_samples + 1):
+            jd = start_jd + k * sample_interval_yr * YR_DAYS
+            key = next((sk for sk in snap_keys_all
+                        if abs(_jd_of(sk) - jd) <= 0.5), None)
+            sample_jds.append(_jd_of(key) if key is not None else jd)
+            sample_snap_keys.append(key)
 
         if verbose:
             print(f"\n  Window {w_idx+1}/{n_windows}: start={w_key} (JD={start_jd:.1f})")
@@ -865,7 +886,12 @@ def run_rolling_shootout(
                         error_au=err_au,
                     ))
 
-    # Save to fixture file
+    if output_path is None:
+        if verbose:
+            print(f"\n  Total elapsed: {time.time() - t0_global:.1f}s "
+                  f"({len(out)} samples, not written)")
+        return out
+
     payload = {
         "metadata": {
             "n_windows":             n_windows,
@@ -877,11 +903,13 @@ def run_rolling_shootout(
         },
         "samples": [_samples_to_dict(s) for s in out],
     }
-    _RESULTS_FILE.write_text(json.dumps(payload, separators=(",", ":")))
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(payload, separators=(",", ":")))
 
     if verbose:
         print(f"\n  Total elapsed: {time.time() - t0_global:.1f}s")
-        print(f"  {len(out)} samples written -> {_RESULTS_FILE.name}")
+        print(f"  {len(out)} samples written -> {output_path}")
 
     return out
 
@@ -900,6 +928,10 @@ if __name__ == "__main__":
                              "long (20y horizon, 5y slide), or both")
     parser.add_argument("--predictors", nargs="+", default=None,
                         help="predictor names to run (default: all)")
+    parser.add_argument("--output", type=Path, default=_DEFAULT_RESULTS_OUTPUT,
+                        help="results JSON (default: the untracked "
+                             f"{_DEFAULT_RESULTS_OUTPUT}); with --pass both the "
+                             "long pass goes to the same name with _long added")
     args = parser.parse_args()
 
     selected = PREDICTORS
@@ -916,6 +948,7 @@ if __name__ == "__main__":
             prediction_horizon_yr=5.0,
             sample_interval_yr=1.0,
             predictors=selected,
+            output_path=args.output,
         )
         all_results.extend(results)
 
@@ -923,10 +956,13 @@ if __name__ == "__main__":
         # Long: starts every 5y from J2000 to J2005, 20y horizon
         # (last possible start is J2006 for truth coverage to J2026)
         keys = [f"j{y}" for y in range(2000, 2007)]
+        long_out = (args.output.with_name(args.output.stem + "_long" + args.output.suffix)
+                    if args.which_pass == "both" else args.output)
         results = run_rolling_shootout(
             window_start_keys=keys,
             prediction_horizon_yr=20.0,
             sample_interval_yr=1.0,
             predictors=selected,
+            output_path=long_out,
         )
         all_results.extend(results)

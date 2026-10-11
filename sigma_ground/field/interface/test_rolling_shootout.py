@@ -332,3 +332,85 @@ class TestLongHorizonSweep:
         s = lh._build_sample_jds(jd0, 1.0, 5)
         assert [round(x - jd0, 4) for x in s] == [0.0, 152.1875, 304.375, 365.25]
         assert len(lh._build_sample_jds(jd0, 100.0, 1)) == 1201
+
+
+# ── F4: outputs and sampling cadence ─────────────────────────────────────
+
+_SMALL_BODIES = {"Sun", "Mercury", "Earth", "Jupiter"}
+
+
+def _small_de440() -> dict:
+    """The DE440 fixture cut to four bodies, so a 1-yr run takes a moment."""
+    snaps = {}
+    for key, snap in _DE440["snapshots"].items():
+        snaps[key] = dict(snap, bodies=[b for b in snap["bodies"]
+                                        if b["name"] in _SMALL_BODIES])
+    return {"snapshots": snaps}
+
+
+def _cheap_predictor():
+    from sigma_ground.field.interface.nbody import PhysicsToggles
+    return rs.Predictor("cheap_newton", PhysicsToggles(), dt_days=1.0)
+
+
+def _sha(path: Path) -> str | None:
+    import hashlib
+    return hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
+
+
+class TestShootoutOutputs:
+    """run_rolling_shootout overwrote the tracked fixtures/
+    rolling_shootout_results.json on every call, run_toggle_iteration then
+    shutil.move()d it away, and sample_interval_yr was ignored."""
+
+    def test_default_output_leaves_the_tracked_fixture_alone(self, monkeypatch, tmp_path):
+        tracked = rs._RESULTS_FILE
+        before = _sha(tracked)
+        assert "local-cache" in rs._DEFAULT_RESULTS_OUTPUT.parts
+        default = tmp_path / "default.json"
+        monkeypatch.setattr(rs, "_DEFAULT_RESULTS_OUTPUT", default)
+        small = _small_de440()
+        rs.run_rolling_shootout(["j2015"], 1.0, predictors=[_cheap_predictor()],
+                                de440=small, verbose=False)
+        assert default.exists()
+        default.unlink()
+        rs.run_rolling_shootout(["j2015"], 1.0, predictors=[_cheap_predictor()],
+                                de440=small, verbose=False, output_path=None)
+        assert not default.exists()
+        explicit = tmp_path / "sub" / "explicit.json"
+        rs.run_rolling_shootout(["j2015"], 1.0, predictors=[_cheap_predictor()],
+                                de440=small, verbose=False, output_path=explicit)
+        assert json.loads(explicit.read_text())["metadata"]["predictors"] == ["cheap_newton"]
+        assert _sha(tracked) == before
+
+    def test_sample_interval_is_honoured(self):
+        small = _small_de440()
+        start = small["snapshots"]["j2015"]["epoch"]["jd_tdb"]
+        res = rs.run_rolling_shootout(["j2015"], 1.0, sample_interval_yr=0.25,
+                                      predictors=[_cheap_predictor()], de440=small,
+                                      verbose=False, output_path=None)
+        earth = sorted((s for s in res if s.body == "Earth"), key=lambda s: s.sample_jd)
+        assert [s.sample_jd - start for s in earth] == [0.0, 91.3125, 182.625, 273.9375, 365.25]
+        assert [s.truth_km is not None for s in earth] == [True, False, False, False, True]
+        assert earth[-1].sample_jd == small["snapshots"]["j2016"]["epoch"]["jd_tdb"]
+        res1 = rs.run_rolling_shootout(["j2015"], 2.0, sample_interval_yr=1.0,
+                                       predictors=[_cheap_predictor()], de440=small,
+                                       verbose=False, output_path=None)
+        want = [small["snapshots"][k]["epoch"]["jd_tdb"] for k in ("j2015", "j2016", "j2017")]
+        assert sorted({s.sample_jd for s in res1}) == want
+
+    def test_toggle_iteration_touches_no_tracked_file(self, monkeypatch, tmp_path):
+        import functools
+        rti = _load_script("run_toggle_iteration")
+        fixture = Path(rs.__file__).parent / "fixtures" / "rolling_shootout_toggle_iteration.json"
+        before = (_sha(rs._RESULTS_FILE), _sha(fixture))
+        monkeypatch.setattr(rti, "PREDICTORS_ITERATION", [_cheap_predictor()])
+        monkeypatch.setattr(rti, "WINDOW_START_KEYS", ["j2015"])
+        monkeypatch.setattr(rti, "PREDICTION_HORIZON_YR", 1.0)
+        monkeypatch.setattr(rti, "run_rolling_shootout",
+                            functools.partial(rs.run_rolling_shootout, de440=_small_de440()))
+        out = tmp_path / "toggle.json"
+        rti.main(["--output", str(out)])
+        assert out.exists()
+        assert (_sha(rs._RESULTS_FILE), _sha(fixture)) == before
+        assert rs._RESULTS_FILE.exists()
