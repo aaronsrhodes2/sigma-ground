@@ -1362,10 +1362,14 @@ end
 -- again through the normal pipeline, so layouts, overlap rules, undo, limits and ownership treat it like any other prop. Everything
 -- else the resolver says ("the closest I have is ...", not found, too big, size unknown, not shareable) is only a sentence.
 local cv_found = CreateConVar("holodeck_found", "1", FCVAR_ARCHIVE, "1 = ask the bridge about things the library lacks and show what it finds as placeholder boxes")
+H.Wisps = include("mentat/holodeck/wisps.lua")            -- the failure wisps: a floating light carrying Skippy's reason (not a placed thing, see wisps.lua)
+H.Wisps.init({ key = player_key })
+local WispFx = include("mentat/fx/wisp.lua")                -- (the pure half: reason class from the resolver's status)
 H.Mesh = include("mentat/holodeck/meshnet.lua")           -- the real shape of a found object, relayed to the clients (see meshnet.lua)
 H.Mesh.init({ post = bridge_post, allow = bridge_allow, key = player_key,
               quiet_post = function(path, tbl, ok, fail, timeout) return bridge_post(path, tbl, ok, fail, timeout, true) end,
-              say = function(ply, text) H.Say(ply, text, nil, { speak = IsValid(ply) }) end })           -- the transporter: status polls, and Skippy saying why one gave up
+              say = function(ply, text) H.Say(ply, text, nil, { speak = IsValid(ply) }) end,           -- the transporter: status polls, and Skippy saying why one gave up
+              wisp = function(ply, text, class, pos) return H.Wisps.drop(ply, text, class, pos) end })   -- ...and leaving the reason behind as a floating wisp
 local F = {}
 F.MAX_KINDS, F.MAX_NOUNS, F.MIN_HU, F.MAX_HU = 64, 3, 1, 2000      -- kinds kept per session, nouns asked per sentence, size limits (HU)
 F.refused = {}                                                       -- noun -> { say =, t = } : a definite "no", remembered for a while
@@ -1485,7 +1489,7 @@ end
 --- Ask about one noun. cb(result): { kind = id } when a kind was added, { say = } for any other answer, {} when nothing could be asked.
 function F.ask(ply, noun, cb)
   local old = F.refused[noun]
-  if old and CurTime() - old.t < F.REFUSED_FOR then return cb({ say = old.say, cached = true }) end
+  if old and CurTime() - old.t < F.REFUSED_FOR then return cb({ say = old.say, class = old.class, cached = true }) end
   if not bridge_allow("resolve", ply) then return cb({}) end
   local done = false
   local function once(r) if not done then done = true; cb(r) end end
@@ -1498,16 +1502,21 @@ function F.ask(ply, noun, cb)
       if not kind then
         say = (why == "too big" and "That is bigger than anything I will put down here.") or (why == "too small" and "That is too small for me to place.")
               or "I found it, but the numbers I have for it do not add up, so I will not place it."
-        F.refused[noun] = { say = say, t = CurTime() }
-        return once({ say = say })
+        F.refused[noun] = { say = say, t = CurTime(), class = "refusal" }
+        return once({ say = say, class = "refusal" })
       end
       local id, why2 = F.add(kind)
-      if not id then return once({ say = "I found " .. noun .. " but cannot add it: " .. tostring(why2) .. "." }) end
+      if not id then return once({ say = "I found " .. noun .. " but cannot add it: " .. tostring(why2) .. ".", class = "failure" }) end
       return once({ kind = id, say = say })
     end
     if say == "" then return once({}) end
-    F.refused[noun] = { say = say, t = CurTime() }
-    once({ say = say })
+    -- failure (amber) | suggest (cyan, "the closest I have") | refusal (red). A card that matched by name but was not placed ("a model I may
+    -- not share") keeps the matching status from the resolver, so "matched and not placed" is the refusal.
+    local tag = obj.status
+    if obj.place ~= true and (tag == "exact" or tag == "alias" or tag == "synonym") then tag = "not_shareable" end
+    local class = WispFx.class_for(tag)
+    F.refused[noun] = { say = say, t = CurTime(), class = class }
+    once({ say = say, class = class })
   end, function(reason)
     H.last_resolve_error = reason
     once({})
@@ -1569,6 +1578,14 @@ function H.Handle(ply, text, opts)
   local heard = text
   text = clean_text(heard, MAX_INPUT)                 -- what the agent, the persona and the log get
   opts.was_player = IsValidPlayer(ply)
+  if H.Wisps.is_clear_command(heard) then                        -- "clear the wisps": only the floating notes, never the placed things
+    local n = H.Wisps.clear(IsValidPlayer(ply) and ply or nil)
+    local res = { action = "wisps", removed = n, fixed = true, placements = {},
+                  say = n > 0 and ("Dismissed " .. n .. " wisp" .. (n == 1 and "" or "s") .. ".") or "There are no wisps to dismiss." }
+    H.Tell(ply, res.say)
+    if opts.done then opts.done(res) end
+    return res
+  end
   if opts.was_player and not manages_all(ply) then
     -- the rest between requests is checked first, so refusing a request costs nothing either
     local key, now = player_key(ply), CurTime()
@@ -1611,6 +1628,9 @@ function H.Handle(ply, text, opts)
         local spoke, other = false, false
         for _, r in ipairs(results) do
           if r.say and (r.strict or r.kind) then H.Say(ply, r.say, nil, { speak = false }); spoke = true end
+          if r.say and r.strict and not r.kind then                  -- a definite no: the sentence is also left hanging where the thing would have stood
+            H.Wisps.drop(ply, r.say, r.class or "failure", H.Wisps.spot(ply))
+          end
         end
         for _, r in ipairs(reqs) do if actionable(r) then other = true end end
         if added == 0 and spoke and not other then

@@ -250,6 +250,49 @@ Procedural only: billboard squares of an additive `color/white` material, quads,
   than staying passable for the whole materialise; the stall colours and the band's strength were judged by eye at one distance; the sparkle size is a fixed
   fraction of the card's size (a very large object has large squares); the resolve step is invisible (above).
 
+### Failure wisp: the reason, left hanging where the transport failed
+
+When a found-object transport FAILS, Skippy's honest sentence is also left behind as a **wisp**: a small soft light at about eye height at the failed spot (after the
+red collapse has played), carrying that same sentence. It is the silent, persistent version of what Skippy said and typed. The owner reads it by walking up and looking at
+it; it notices, dissolves, and goes. (Aaron: "instead of a post-it note, a floating whisp that is dismissed after a few moments of being read/seen up close".)
+
+- **What leaves one.** The resolver's definite no for a noun the library lacks ("I don't have a gargoyle, and I can't make new things right now."; the wisp is made
+  where the thing would have stood: an arm's length in front of the asker, at eye height, kept out of walls), the game's own refusals of a bad card, a failed download,
+  decode or checksum, and the hard timeout (at the failed object's place, the same `FP.sentence` Skippy says). Not a parser guess that stands, not a bridge that is down (no sentence).
+  Colour by class, from the resolver's `status`: amber `#FFAA00` a real failure (not found, fetch/decode failure, timeout); cyan `#00CCFF` a neutral suggestion ("I read 'boombx' as
+  'boombox'", ambiguous); red `#FF4444` a refusal (too big for here, "a model I may not share", the game rejecting a card's numbers). The text is the sentence, never made up on the
+  client, cleaned and cut to 160 characters (at a word, ending in "..."; the whole sentence was also said in chat); each viewer's own chat filter is applied to it when drawn.
+- **Reading.** The SERVER runs the state machine (it sees the owner): `appear` (1.2 s fade-in) -> `idle` <-> `reading` -> `dissolving` (1.0 s) -> gone. The owner is "reading" while within
+  4 m, looking within about 28 degrees of it and with no wall between (a `MASK_SOLID_BRUSHONLY` trace). It brightens and the text types out (about 0.9 s) on a black plate that faces the reader
+  (3D2D; scaled up a little with distance so 2-3 m stays readable). Reading time only counts while it is being looked at: dwell = max(2.5 s, characters / 18 per second) (63 characters: 3.5 s).
+  A glance away shorter than 0.4 s does not fold the text up. When the dwell is full the text turns to sparks, the light flares and goes. Other players see only a dim light (no text) and cannot dismiss it.
+- **Never read.** After `holodeck_wisp_life` (120 s) it dims over 2.5 s and goes by itself. A new wisp within 1.5 m of an old one of the same owner replaces it; at most `holodeck_wisp_max` (3) per player
+  (the oldest goes first, gracefully) and 24 on the server. A wisp is **not a placed thing**: no registry entry, so undo / clear / the per-player and server limits never count it and "clear everything"
+  leaves it alone; the owner leaving removes theirs.
+- **Commands.** Say "clear the wisps" / "clean up the notes" / "dismiss the wisps" (only the wisps; "clear the couches" is still the holodeck's), or the console `mentat_wisps_clear`
+  (the server console clears everyone's).
+- **Convars.** `holodeck_wisps` (1), `holodeck_wisp_life` (120), `holodeck_wisp_max` (3); all server, archived.
+- **Files.** `mentat/fx/wisp.lua` (pure: classes and colours, dwell, state machine, who can read, replacement/cap, text cap and wrap, the look of each state), `entities/holodeck_wisp/{shared,init,cl_init}.lua`
+  (no model, no physics, NetworkVars carry text/class/state/owner, so a late joiner sees the same), `mentat/holodeck/wisps.lua` (server glue: drop, cap, tick every 0.1 s, clear, the command),
+  hooks in `holodeck.lua` (`F.ask` classes, the resolve callback) and `foundprog.lua` (`give_up_entities`). Procedural only: a 64x64 soft-falloff texture painted once into a render target, additive
+  sprites (halo, body, hot core, 7 embers rising slowly, slow bob and pulse), no model, material or sound from the game, so it works on the cloud server. Client cost: about 10 sprites idle, 20-30 with the text and sparks;
+  nothing is drawn beyond 25 m or behind the viewer.
+- **Offline tests.** `sigma_ground/radiance/tests/test_gmod_wisp.py` (80): the pure module (palette, dwell scaling, the state machine, a glance away, expiry, who can read, replacement and cap, text cap/UTF-8/wrap),
+  the server (each failure path leaves a wisp with the SAME sentence, the right class, place and timing; owner-only reading; not in the registry; clear command and its non-matches; per-player and server caps, convars;
+  owner leaving; NetworkVars) and the client against fakes of the render library (owner-only text, the chat filter, colour by class, far/behind draws nothing, bounded sprites, no game content in the source).
+- **Live (real game, this machine; the real bridge and resolver, a made-up download for the fetch failures).** `python stage/gmod/holodeck/wisp_shots.py lapse|colours|unread|fetch|perf`; pictures (gitignored)
+  `stage/gmod/holodeck/data/shots/wisp_<scenario>_*.jpg` and `_sheet.jpg`. *lapse*: the wisp fades in at eye height, drifts with a few embers; from 5.7 m it is a small glow; from 2.7 m the text types out on a
+  dark plate, the light brightens, after 3.5 s of looking the text fades into sparks, the light flares and is gone. *colours*: amber (not found), cyan (a typo read as the closest), red (a model I may not
+  share), clearly distinguishable in daylight. *unread*: dims and goes with `holodeck_wisp_life 7`. *fetch*: after the red collapse an amber wisp carries "the bridge could not fetch it" / "it took too long and I lost the lock".
+  **Legibility verdict:** three lines of bold white on a dark plate read easily at 2-3 m at the game's native resolution; in a 960-pixel-wide contact sheet they are small but still readable. The additive light is
+  weak against a bright daylight sky (the map's horizon sits at eye height, so the wisp is often seen against the sky) but visible; it will be stronger indoors or at dusk. "It noticed me" comes across: the
+  light brightens while it is read, and the dissolve starts the moment the dwell is full. Frame cost: the wisps' own CPU time is about 0.16 ms per frame for three wisps (23-30 sprites); the whole-frame
+  timings in the perf run (17-42 ms) were dominated by other load on the machine and are not usable for a comparison.
+- **Not verified / known limits.** Several players (owner-only reading and dimness are tested offline only; the live runs were one player on a listen server); a dedicated server with a remote client (the owner
+  is a NetworkVar entity, the state time is read against `CurTime()`); a wisp seen through glass or a prop (only the world's brushes block reading); the font ("Tahoma") on a Linux client; indoor lighting and a
+  wisp in a dark room; a player who is looking at the wisp when it appears reads it at once (it appears 2 m in front of the asker, which is the point, but a very short sentence dissolves after 2.5 s);
+  reading by voice/chat of the text is not a thing: only the view counts.
+
 ## Playing with your voice (one command)
 
 ```bash

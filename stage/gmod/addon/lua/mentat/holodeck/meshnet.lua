@@ -41,10 +41,10 @@ util.AddNetworkString("holodeck_mesh")
 util.AddNetworkString("holodeck_mesh_want")
 
 --- deps = { post = bridge_post, allow = bridge_allow, key = player_key, quiet_post = <bridge_post that is not counted as a call in flight>,
----          say = fn(ply, text) }
+---          say = fn(ply, text), wisp = fn(ply, text, class, pos) (leaves the reason hanging where the object failed) }
 function Mesh.init(deps)
   Mesh.deps = deps
-  FP.init({ mesh = Mesh, quiet_post = deps.quiet_post, say = deps.say })
+  FP.init({ mesh = Mesh, quiet_post = deps.quiet_post, say = deps.say, wisp = deps.wisp })
 end
 Mesh.FP = FP
 

@@ -33,6 +33,7 @@ if SERVER then
   AddCSLuaFile("mentat/holodeck/svm1.lua")
   AddCSLuaFile("mentat/fx/transporter_model.lua")
   AddCSLuaFile("mentat/fx/transporter.lua")
+  AddCSLuaFile("mentat/fx/wisp.lua")
   AddCSLuaFile("mentat/avatar_client.lua")
   include("mentat/server.lua")
   include("mentat/autotest.lua")

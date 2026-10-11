@@ -94,7 +94,10 @@ function FP.give_up_entities(list, why)
       if e.FxSet then e:FxSet("failed", 0) end
       local o = e.FxOwner
       local key = o or "none"
-      if not by_owner[key] then by_owner[key] = { ply = o, name = e.GetFoundName and e:GetFoundName() or "object", n = 0 }; order[#order + 1] = key end
+      if not by_owner[key] then
+        by_owner[key] = { ply = o, name = e.GetFoundName and e:GetFoundName() or "object", n = 0, pos = e:GetPos() }
+        order[#order + 1] = key
+      end
       by_owner[key].n = by_owner[key].n + 1
       timer.Simple(FP.REMOVE_AFTER, function() if IsValid(e) then e:Remove() end end)
     end
@@ -104,6 +107,10 @@ function FP.give_up_entities(list, why)
     local g = by_owner[key]
     FP.last_say = FP.sentence(g.name, g.n, why)
     if FP.deps.say then FP.deps.say(g.ply, FP.last_say) end
+    if FP.deps.wisp and g.pos then                              -- the same sentence, left hanging at the failed spot once the collapse is over
+      local text, ply, pos = FP.last_say, g.ply, g.pos
+      timer.Simple(FP.REMOVE_AFTER, function() FP.deps.wisp(ply, text, "failure", Vector(pos.x, pos.y, pos.z + 58)) end)
+    end
   end
 end
 

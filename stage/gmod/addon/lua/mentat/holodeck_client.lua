@@ -10,6 +10,9 @@ local function filtered(text)
   return text
 end
 
+Mentat = Mentat or {}
+Mentat.FilterText = filtered                                 -- the failure wisp's floating text gets the same treatment (entities/holodeck_wisp)
+
 net.Receive("holodeck_say", function()
   local text = filtered(net.ReadString())
   local to = net.ReadString()
