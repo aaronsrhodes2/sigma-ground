@@ -28,7 +28,9 @@ PREDICTOR ABLATION
   standard             Newton + 1PN GR (no SRP, no J2)
   over_physics_no_j2   Newton + GR + SRP (J2 = 0)        ← ablation
   over_physics         Newton + GR + SRP + J2
-  kepler               2-body Keplerian fit per body
+  kepler               2-body Keplerian fit per body (in-sample: fitted on
+                       all snapshots, including the ones it is scored on)
+  kepler_forecast      the same fit on snapshots up to the window start only
 
 The over_physics vs over_physics_no_j2 difference isolates J2's contribution.
 The standard vs pure_newton difference isolates 1PN GR's contribution.
@@ -67,7 +69,7 @@ from sigma_ground.field.constants import G as _G, L_SUN_W as _L_SUN_W
 from sigma_ground.field.interface.nbody import (
     CelestialBody, NBodySystem, PhysicsToggles,
 )
-from sigma_ground.field.interface.orbital import fit_orbit, predict_ssb_position
+from sigma_ground.field.interface.orbital import fit_orbit, _ecliptic_to_equatorial
 
 
 def _pole_unit_from_radec(ra_deg: float, dec_deg: float) -> np.ndarray:
@@ -355,7 +357,10 @@ class Predictor:
     fields drifting out of sync.
 
     `use_kepler` is a special path (no n-body integration; per-body
-    Keplerian fits). When True, `toggles` is ignored.
+    Keplerian fits). When True, `toggles` is ignored. `kepler_forecast`
+    then picks the fit data: False fits every orbit on all fixture
+    snapshots (in-sample, including the epochs it is scored on); True fits
+    only on snapshots at or before the window start (an honest forecast).
 
     `fast_body_names` + `fast_substep_factor` enable per-body dt via
     NBodySystem.forest_ruth_step_hierarchical: listed bodies integrate at
@@ -370,6 +375,7 @@ class Predictor:
     description:         str    = ""
     fast_body_names:     tuple[str, ...] | None = None
     fast_substep_factor: int    = 1
+    kepler_forecast:     bool   = False
 
 
 # Common toggle bundles for the existing predictor lineup.
@@ -457,8 +463,20 @@ PREDICTORS: list[Predictor] = [
     # remain in nbody.py for future repair; the right fix is symplectic
     # multi-timestep (Tuckerman 1992 RESPA, split by force type) rather
     # than the body-split operator scheme.
+    # Two Kepler baselines (the canonical one is the Captain's call):
+    # "kepler" keeps its historical meaning, an IN-SAMPLE fit on all 27
+    # snapshots J2000-J2026, including the epochs it is scored on;
+    # "kepler_forecast" fits only snapshots at or before the window start,
+    # the honest forecast (NaN for windows with fewer than 3 such snapshots).
+    # In both, a moon rides on its parent's Kepler prediction at the sample
+    # epoch, not on the parent frozen at the window start.
     Predictor("kepler",             _NO_PHYSICS, use_kepler=True,
-              description="2-body Keplerian fit per body"),
+              description="2-body Keplerian fit per body, in-sample "
+                          "(fitted on all snapshots incl. the scored ones)"),
+    Predictor("kepler_forecast",    _NO_PHYSICS, use_kepler=True,
+              kepler_forecast=True,
+              description="2-body Keplerian fit per body on snapshots up to "
+                          "the window start only (honest forecast)"),
 ]
 
 
@@ -661,39 +679,51 @@ def _kepler_predictions(
     anchor_snap_key: str,
     body_names:      list[str],
     sample_jds:      list[float],
+    forecast:        bool = False,
 ) -> dict[str, np.ndarray]:
-    """Per-body Keplerian fits from the anchor snapshot, evaluated at sample JDs.
+    """Per-body Keplerian predictions, heliocentric km at the sample JDs.
 
-    Returns heliocentric km arrays of shape (len(sample_jds), 3) per body.
-    For bodies where fit_orbit returns None (Sun, missing data), returns
-    an array of zeros — same shape, sentinel value.
+    Each body is its fitted two-body orbit about its anchor (orbital.
+    ANCHOR_MAP) added to the anchor's own Kepler prediction AT THE SAME
+    SAMPLE EPOCH, recursively down to the Sun, which is the heliocentric
+    origin. A moon therefore rides on its parent's predicted motion rather
+    than on the parent frozen at the window start, and no DE440 state at a
+    sample epoch enters any prediction.
+
+    forecast=False: orbits are fitted on every fixture snapshot (J2000-J2026),
+    including the epochs they are scored on -- an in-sample fit.
+    forecast=True: orbits are fitted only on snapshots at or before the window
+    start, an honest forecast. fit_orbit needs three snapshots, so windows
+    starting before J2002 get NaN.
+
+    Returns heliocentric km arrays of shape (len(sample_jds), 3) per body:
+    zeros for the Sun, NaN for a body (or any ancestor) without a fit.
     """
-    anchor_snap = de440["snapshots"][anchor_snap_key]
-    results: dict[str, np.ndarray] = {}
+    if forecast:
+        start_jd = de440["snapshots"][anchor_snap_key]["epoch"]["jd_tdb"]
+        fixture = {"snapshots": {k: v for k, v in de440["snapshots"].items()
+                                 if v["epoch"]["jd_tdb"] <= start_jd}}
+    else:
+        fixture = de440
 
-    for name in body_names:
-        if name == "Sun":
-            results[name] = np.zeros((len(sample_jds), 3))
-            continue
-        orbit = fit_orbit(name, de440)
+    n = len(sample_jds)
+    helio: dict[str, np.ndarray] = {"Sun": np.zeros((n, 3))}
+
+    def _helio(name: str, chain: tuple[str, ...] = ()) -> np.ndarray:
+        if name in helio:
+            return helio[name]
+        orbit = fit_orbit(name, fixture) if name not in chain else None
         if orbit is None:
-            results[name] = np.full((len(sample_jds), 3), np.nan)
-            continue
-        positions = []
-        for jd in sample_jds:
-            ssb_km = predict_ssb_position(orbit, anchor_snap, jd)
-            if ssb_km is None:
-                positions.append(np.array([np.nan, np.nan, np.nan]))
-                continue
-            sun_ssb = _de440_heliocentric_km(de440, anchor_snap_key, name)  # not what we want
-            # We need the Sun's SSB position at jd. Use anchor snap Sun position
-            # (DE440 snapshots store SSB-equatorial). Kepler predict gives SSB,
-            # so heliocentric = SSB - Sun_SSB.
-            sun_sv = [b for b in anchor_snap["bodies"] if b["name"] == "Sun"][0]["state_vector"]
-            sun_pos = np.array([sun_sv["x_km"], sun_sv["y_km"], sun_sv["z_km"]])
-            positions.append(np.array(ssb_km) - sun_pos)
-        results[name] = np.array(positions)
-    return results
+            out = np.full((n, 3), np.nan)
+        else:
+            parent = _helio(orbit.anchor, chain + (name,))
+            rel = np.array([_ecliptic_to_equatorial(*orbit.predict_relative_ecliptic(jd))
+                            for jd in sample_jds])
+            out = parent + rel
+        helio[name] = out
+        return out
+
+    return {name: _helio(name).copy() for name in body_names}
 
 
 # ── Result dataclass ─────────────────────────────────────────────────────
@@ -793,9 +823,11 @@ def run_rolling_shootout(
             t0 = time.time()
 
             if predictor.use_kepler:
-                # Anchor on the window start; fit orbit globally from de440 data
+                # In-sample fit on all snapshots, or (kepler_forecast) only
+                # on snapshots up to the window start.
                 body_names = [b["name"] for b in de440["snapshots"][w_key]["bodies"]]
-                preds = _kepler_predictions(de440, w_key, body_names, sample_jds)
+                preds = _kepler_predictions(de440, w_key, body_names, sample_jds,
+                                            forecast=predictor.kepler_forecast)
             else:
                 bodies, body_names, sun_idx, parent_idx = _build_bodies_at_snapshot(
                     w_key, de440, predictor)

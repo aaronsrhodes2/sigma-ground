@@ -191,3 +191,64 @@ def _galileans_one_year_with_zonals() -> None:
         truth = _state("j2016", moon)[0] - _state("j2016", "Jupiter")[0]
         err = float(np.linalg.norm(pred - truth))
         assert err < tol_km, f"{moon} {err:.0f} km from DE440 after 1 yr"
+
+
+# ── F2: Kepler predictor ─────────────────────────────────────────────────
+
+_KEPLER_KEYS = ("j2015", "j2016", "j2017", "j2018")
+_KEPLER_JDS = [_DE440["snapshots"][k]["epoch"]["jd_tdb"] for k in _KEPLER_KEYS]
+_DE440S = r"D:/datasets/jpl/de440s.bsp"
+
+
+def _de440s_heliocentric_moon_km(jd: float) -> np.ndarray:
+    spk_mod = pytest.importorskip("jplephem.spk")
+    if not os.path.exists(_DE440S):
+        pytest.skip(f"{_DE440S} not on this machine")
+    k = spk_mod.SPK.open(_DE440S)
+    try:
+        moon = k[0, 3].compute(jd) + k[3, 301].compute(jd)
+        return moon - k[0, 10].compute(jd)
+    finally:
+        k.close()
+
+
+class TestKeplerPredictor:
+    """A moon's Kepler prediction must ride on its parent's motion at the
+    sample epoch. It used to add the fitted relative orbit to the parent
+    frozen at the window start, so Io's error was Jupiter's displacement
+    since the window start: 2.6, 5.1, 7.2 AU after 1, 2, 3 years."""
+
+    def test_moon_follows_parent_at_snapshots(self):
+        preds = rs._kepler_predictions(_DE440, "j2015", ["Io"], _KEPLER_JDS)
+        for i, key in enumerate(_KEPLER_KEYS):
+            truth = rs._de440_heliocentric_km(_DE440, key, "Io")
+            err_au = np.linalg.norm(preds["Io"][i] - truth) / rs.AU_KM
+            assert err_au < 0.02, f"Io Kepler error {err_au:.3f} AU at {key}"
+
+    def test_moon_between_snapshots(self):
+        """Annual sampling hides the Earth case (Earth is back where it was
+        after a year), so check the Moon half a year in against de440s."""
+        jd = _KEPLER_JDS[0] + 182.625
+        truth = _de440s_heliocentric_moon_km(jd)
+        preds = rs._kepler_predictions(_DE440, "j2015", ["Moon"],
+                                       [_KEPLER_JDS[0], jd])
+        err_au = np.linalg.norm(preds["Moon"][1] - truth) / rs.AU_KM
+        assert err_au < 0.02, f"Moon Kepler error {err_au:.3f} AU half a year in"
+
+    def test_forecast_uses_no_snapshot_after_the_window_start(self):
+        """kepler_forecast is fitted only on snapshots up to the window
+        start: scrambling every later snapshot must not change it."""
+        import copy
+        start_jd = _KEPLER_JDS[0]
+        scrambled = copy.deepcopy(_DE440)
+        for snap in scrambled["snapshots"].values():
+            if snap["epoch"]["jd_tdb"] > start_jd:
+                for b in snap["bodies"]:
+                    b["state_vector"]["x_km"] += 1.0e7
+                    b["state_vector"]["vy_km_s"] *= 1.1
+        a = rs._kepler_predictions(_DE440, "j2015", ["Io"], _KEPLER_JDS, forecast=True)
+        b = rs._kepler_predictions(scrambled, "j2015", ["Io"], _KEPLER_JDS, forecast=True)
+        np.testing.assert_array_equal(a["Io"], b["Io"])
+        names = {p.name: p for p in rs.PREDICTORS}
+        assert names["kepler_forecast"].kepler_forecast
+        assert not names["kepler"].kepler_forecast
