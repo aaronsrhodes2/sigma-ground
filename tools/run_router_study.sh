@@ -36,6 +36,10 @@
 # training starts. PER_TOOL=20 VARIANTS=2 is about 45 min. Training time is
 # not measured yet; the train_pilot stage reports it.
 #
+# DOCKER_OLLAMA=skippytel-ollama stops that container before the first GPU stage
+# and starts it again when the script exits (success or failure). MAX_TRAIN_H (6):
+# the pilot's projected full-run time above this stops the study before training.
+#
 # Why a second Ollama on 11435: the main server runs OLLAMA_NUM_PARALLEL=4,
 # and four 32k-token slots don't fit beside the model, which then runs half on
 # CPU. The harness gets http://localhost:11435 because both baselines were run
@@ -54,6 +58,8 @@ PER_TOOL="${PER_TOOL:-40}"
 VARIANTS="${VARIANTS:-3}"
 TEACHER="${TEACHER:-qwen2.5:14b}"
 UNLOAD_MAIN="${UNLOAD_MAIN:-0}"
+DOCKER_OLLAMA="${DOCKER_OLLAMA:-}"     # e.g. skippytel-ollama: stopped for the run, restarted after
+MAX_TRAIN_H="${MAX_TRAIN_H:-6}"        # stop after the pilot if the full run is projected longer
 GPU_BUSY_MIB="${GPU_BUSY_MIB:-4000}"   # MiB others may hold when an exclusive stage starts
 GPU_WAIT_MIN="${GPU_WAIT_MIN:-45}"     # how long to wait for that before giving up
 PORT=11435
@@ -104,7 +110,24 @@ ollama_down() {
   unload_all "127.0.0.1:$PORT"
   [[ -n "$OLLAMA_PID" ]] && kill "$OLLAMA_PID" 2>/dev/null || true
 }
-trap 'ollama_down' EXIT
+# A Docker Ollama (skippytel-ollama) keeps llava and qwen3:8b resident forever, about
+# 6 GB of the 16 GB. With DOCKER_OLLAMA=<container> the script stops it before the
+# first GPU stage and starts it again when the script ends, however it ends.
+docker_ollama_stop() {
+  [[ -n "$DOCKER_OLLAMA" ]] || return 0
+  if [[ "$(docker inspect -f '{{.State.Running}}' "$DOCKER_OLLAMA" 2>/dev/null)" == true ]]; then
+    log "  stopping Docker container $DOCKER_OLLAMA (restarted when the script ends)"
+    docker stop "$DOCKER_OLLAMA" >/dev/null || die "could not stop $DOCKER_OLLAMA"
+  fi
+}
+docker_ollama_restore() {
+  [[ -n "$DOCKER_OLLAMA" ]] || return 0
+  if [[ "$(docker inspect -f '{{.State.Running}}' "$DOCKER_OLLAMA" 2>/dev/null)" == false ]]; then
+    docker start "$DOCKER_OLLAMA" >/dev/null 2>&1 && log "restarted Docker container $DOCKER_OLLAMA"
+  fi
+}
+cleanup() { ollama_down; docker_ollama_restore; }
+trap cleanup EXIT
 
 # Before a GPU stage: record who holds the GPU; free it as allowed.
 gpu_guard() {
@@ -114,6 +137,7 @@ gpu_guard() {
     tasklist | grep -i -E "gmod|hl2" || true; } > "$f" 2>&1
   if [[ "$UNLOAD_MAIN" == 1 ]]; then unload_all "127.0.0.1:11434"; fi
   if [[ "$2" == exclusive ]]; then
+    docker_ollama_stop
     unload_all "127.0.0.1:$PORT"
     # QLoRA on Qwen3-8B needs most of the 16 GB: wait for GMod and other
     # clients to let go rather than train into an out-of-memory error.
@@ -170,7 +194,7 @@ preflight() {
 
 do_dataset() {
   ollama_up
-  gpu_guard dataset shared
+  gpu_guard dataset exclusive
   "$PY" -u -m sigma_ground.mcp.benchmark.router_dataset --per-tool "$PER_TOOL" \
       --variants "$VARIANTS" --teacher-model "$TEACHER" --teacher-url "$API" --out "$DATA" 2>&1 \
     | while IFS= read -r l; do printf '%s %s\n' "$(date +%s)" "$l"; done > "$LOGS/dataset.log"
@@ -193,6 +217,11 @@ do_train_pilot() {
     echo "--no-unsloth" > "$STATE/backend_flag"
   fi
   wsl_run "mkdir -p '$W_CACHE/pilot' && cp $W_WORK/pilot/train_report.json $W_WORK/pilot/log_history.json '$W_CACHE/pilot/'"
+  local proj
+  proj=$("$PY" -c "import json,sys; print(int(json.load(open(sys.argv[1]))['projected_full_run_s']))" \
+         "$CACHE/pilot/train_report.json") || return 1
+  log "  pilot projects the full training run at $((proj / 60)) min"
+  (( proj <= MAX_TRAIN_H * 3600 )) || { log "  over MAX_TRAIN_H=${MAX_TRAIN_H} h: rerun with a larger MAX_TRAIN_H or a smaller dataset"; return 1; }
 }
 do_train() {
   gpu_guard train exclusive
