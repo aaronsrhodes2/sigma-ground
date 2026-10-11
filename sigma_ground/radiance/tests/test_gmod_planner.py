@@ -2337,3 +2337,25 @@ def test_chairs_still_tuck_under_an_open_table(lab):
                 if a["kind"] == "table" and b["kind"] == "chair":
                     tucked = max(tucked, sat_penetration(polys[i], polys[j]))
     assert tucked > 3, "chairs slide under an open table top"
+
+
+def test_bath_fixtures_keep_a_hand_between_them():
+    """A toilet 2 HU from the tub tipped over in the engine: fixtures in a bathroom stand at least 6 HU apart."""
+    import math
+    from lab import Lab, poly_of
+    lab = Lab()
+
+    def seg(p, a, b):
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        t = max(0, min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy or 1)))
+        return math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy)
+
+    def dist(A, B):
+        return min(min(seg(p, Q[i], Q[(i + 1) % 4]) for i in range(4)) for P, Q in ((A, B), (B, A)) for p in P)
+
+    for seed in (1, 2, 3):
+        res = lab.run("add a bathroom", world="room", seed=seed)
+        polys = [poly_of(lab.variant(p), p["origin"], p["yaw"]) for p in res["placements"]]
+        for i, a in enumerate(polys):
+            for b in polys[i + 1:]:
+                assert dist(a, b) >= 6, (seed, dist(a, b))

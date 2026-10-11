@@ -1353,9 +1353,13 @@ function Plan:room(entries, rng, ctx, opts)
     for _, e in ipairs(list("main_seat")) do to_wall(back, e) end
   end
   local wall_items = list("wall")
+  -- bath fixtures keep a hand's width between them (a toilet 2 HU from the tub tipped over in the engine); other things stand 2 apart
+  local function wall_gap(a, b)
+    return ((a.inst.k and a.inst.k.category == "bath") or (b.inst.k and b.inst.k.category == "bath")) and 8 or 2
+  end
   local function wall_len(w)
     local s = 0
-    for i, e in ipairs(w) do s = s + e.inst.w + (i > 1 and 2 or 0) end
+    for i, e in ipairs(w) do s = s + e.inst.w + (i > 1 and wall_gap(w[i - 1], e) or 0) end
     return s
   end
   local back_cap = max(330, cv + 80)
@@ -1490,7 +1494,8 @@ function Plan:room(entries, rng, ctx, opts)
       local pos = -total / 2
       if centre_on then pos = centre_on - total / 2 end
       if fixed_axis == "v" and corner_shared(wall) then pos = max(pos, -D / 2 + db + 2) end
-      for _, e in ipairs(wall) do
+      for wi, e in ipairs(wall) do
+        if wi > 1 then pos = pos + wall_gap(wall[wi - 1], e) - 2 end
         local c = pos + e.inst.w / 2
         local pose
         if fixed_axis == "u" then pose = to_world(frame, -D / 2 + e.inst.d / 2 + 1, c, phi)
