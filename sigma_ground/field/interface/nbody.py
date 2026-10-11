@@ -542,6 +542,8 @@ class NBodySystem:
                     # │ Per SSBM derivation roadmap (GOLDEN_RULES §2) this   │
                     # │ block awaits the σ-modified geodesic.                │
                     # └──────────────────────────────────────────────────────┘
+                    # PHYSICS_GAP: omitted from 2PN: the velocity terms (same order as the static ones on bound orbits)
+                    # and, for N > 2, the three-body static terms. gr_2pn without gr_1pn/eih_cross is not warned about.
                     # FIXED 2026-10-10 (audit): the test-mass term 9 (Gm_j)³ alone was applied pairwise, a relative
                     # coefficient 9(m_i³ + m_j³)/M³ (2.25 for equal masses, 0.156 × Kidder's 14.44).
                     gm_i   = self.bodies[i].gm_m3_s2
@@ -683,6 +685,9 @@ class NBodySystem:
             # the classical tidal apsidal motion, 15 (k₂/2)(M_j/M_i)(R/a)⁵ f(e) per radian of mean motion
             # (Cowling 1938; Sterne 1939). The bulge is static (no dissipation lag) and only the dominant
             # perturber raises it.
+            # PHYSICS_GAP: Love response is linear, so every body's tide should superpose; only the dominant perturber's
+            # is kept. With the Moon dominant, Earth's solar tide is dropped, (M_☉/M_☾)(a_☾/AU)³ = 0.46 of the lunar.
+            # Also omitted: the dissipative lag (no tidal torque, no secular change of a or e).
             # FIXED 2026-10-10 (A34): the code used J2_eff = +(k₂/2)(M_j/M_i)(R/d)³ in the oblate J₂ formula
             # (an oblate bulge: wrong sign and half the size on the perturber) and applied no reaction.
             for i in range(n):
