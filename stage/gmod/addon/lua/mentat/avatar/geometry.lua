@@ -16,7 +16,7 @@ G.CAN_H = 26                    -- HU tall (about 0.5 m)
 G.CAN_R = 7.2                   -- HU radius (a can is about 1.8 : 1, so it is slim)
 G.HAT_HALF_WIDTH = 23.5         -- HU: the hat is 47 HU (0.9 m) from point to point
 G.PIVOT_HAT = { x = 0, y = 0, z = 12 }
-G.PIVOT_MOUTH = { x = 7, y = 0, z = -4.2 }
+G.PIVOT_MOUTH = { x = 7.3, y = 0, z = -4.2 }
 
 -- the project palette (HudPalette.kt / ChatPalette.kt) and a few can colours
 G.COLORS = {
@@ -27,7 +27,7 @@ G.COLORS = {
   white = { 255, 255, 255 },
   silver = { 176, 184, 192 },   -- the can, a little dim
   silver_dark = { 112, 120, 130 },
-  hat = { 24, 26, 38 },         -- dark felt
+  hat = { 34, 38, 58 },         -- dark felt (a little blue so it reads against the sky and the grass)
   ink = { 12, 12, 20 },
 }
 local C = G.COLORS
@@ -127,7 +127,7 @@ local function build_can(can, label)
   disc(can, N, zb, R * 0.86, C.silver_dark, false)
   band(can, N, zb, R * 0.86, zb + 1.2, R, C.silver, "side")
   -- body: silver below, the label band, silver above
-  local lz0, lz1 = -8.6, 5.0
+  local lz0, lz1 = -6.8, 4.8
   band(can, N, zb + 1.2, R, lz0, R, C.silver, "side")
   band(label, N, lz0, R * 1.012, lz1, R * 1.012, C.green, "side")
   band(can, N, lz1, R, 8.4, R, C.silver, "side")
@@ -152,17 +152,17 @@ end
 
 -- ------------------------------------------------------------------------------------------------ the face
 local function build_face(face, mouth)
-  local x = G.CAN_R * 0.97
-  for _, y in ipairs({ -2.7, 2.7 }) do
-    face_disc(face, 12, x + 0.15, y, 0.6, 1.9, C.white)
-    face_disc(face, 10, x + 0.3, y, 0.6, 0.95, C.ink)
+  local x = G.CAN_R * 1.012                 -- the label band is at 1.012 R: the face must stand in front of it, not inside it
+  for _, y in ipairs({ -3.0, 3.0 }) do
+    face_disc(face, 14, x + 0.15, y, 0.6, 2.3, C.white)
+    face_disc(face, 12, x + 0.3, y, 0.6, 1.2, C.ink)
   end
   -- a slight scowl: the knowing look of a being much cleverer than the room
-  box(face, x + 0.1, x + 0.5, -4.4, -1.2, 2.8, 3.3, C.ink, "decor")
-  box(face, x + 0.1, x + 0.5, 1.2, 4.4, 2.8, 3.3, C.ink, "decor")
+  box(face, x + 0.1, x + 0.5, -5.0, -1.2, 3.4, 4.0, C.ink, "decor")
+  box(face, x + 0.1, x + 0.5, 1.2, 5.0, 3.4, 4.0, C.ink, "decor")
   -- the mouth: the client scales it with his voice
   local c = G.PIVOT_MOUTH
-  box(mouth, c.x - 0.1, c.x + 0.5, -2.4, 2.4, c.z - 0.4, c.z + 0.4, C.amber, "decor")
+  box(mouth, c.x - 0.1, c.x + 0.5, -3.0, 3.0, c.z - 0.5, c.z + 0.5, C.amber, "decor")
   mouth.pivot = c
 end
 
@@ -170,17 +170,18 @@ end
 -- A bicorn worn athwartships: a long thin crescent whose two points rise at the left and right, folded from a dark felt body with an
 -- amber braid along its edges and a tricolour cockade pinned at the front. Built as a lens-shaped tube along y: at each station
 -- the cross-section is an ellipse in (x, z), narrowing to a point at each end while the centre line curves up.
-local function hat_station(u)
+function G.hat_station(u)
   local W = G.HAT_HALF_WIDTH
   local au = math.abs(u)
-  local d = 9.0 * (1 - u * u) ^ 0.7                  -- half depth (front to back)
-  local t = 5.5 * (1 - u * u) ^ 0.5                  -- half height of the cross-section
-  local zc = 14.0 + 10.0 * au ^ 2.2                  -- the centre line, curling up at both ends
+  local d = 11.0 * (1 - u * u) ^ 0.7                 -- half depth (front to back)
+  local t = 8.0 * (1 - u * u) ^ 0.5                  -- half height of the cross-section
+  local zc = 12.0 + 11.0 * au ^ 2.2                  -- the centre line, curling up at both ends; low in the middle so the crown comes down over the can
   return W * u, d, t, zc
 end
+local hat_station = G.hat_station
 
 local function build_hat(hat)
-  local NU, NR = 22, 12
+  local NU, NR = 22, 16
   hat.pivot = G.PIVOT_HAT
   local rings = {}
   for i = 0, NU do
@@ -198,18 +199,21 @@ local function build_hat(hat)
     local tip = (i == 0 or i == NU - 1)
     for j = 0, NR - 1 do
       local j1 = (j + 1) % NR
-      -- braid along the front and back edges (the x extremes) and at the two points
-      local edge = (j == 0 or j == NR - 1 or j == NR / 2 - 1 or j == NR / 2)
+      -- gold lace along the top crest and the lower edge (the folded brim), and at the two points; the faces stay dark felt
+      local edge = (j == NR / 4 - 1 or j == NR / 4 or j == 3 * NR / 4 - 1 or j == 3 * NR / 4)
       local color = (edge or tip) and C.amber or C.hat
       local ref = P(0, (a.centre.y + b.centre.y) / 2, (a.centre.z + b.centre.z) / 2)
       quad(hat, a.pts[j], a.pts[j1], b.pts[j1], b.pts[j], color, "side", ref)
     end
   end
   -- the cockade on the front, a little off the middle, standing on the front edge: blue, white, red from the outside in
+  local R_COCK = 5.4
   local y, d, _, zc = hat_station(0.38)
-  face_disc(hat, 14, d + 0.15, y, zc, 4.4, C.cyan)
-  face_disc(hat, 14, d + 0.3, y, zc, 3.0, C.white)
-  face_disc(hat, 14, d + 0.45, y, zc, 1.6, C.red)
+  local _, d_in = hat_station(0.38 - R_COCK / G.HAT_HALF_WIDTH)            -- the hat is deeper nearer the middle: stand clear of its fullest part under the disc
+  d = math.max(d, d_in) + 0.2
+  face_disc(hat, 14, d + 0.15, y, zc, 5.4, C.cyan)
+  face_disc(hat, 14, d + 0.3, y, zc, 3.7, C.white)
+  face_disc(hat, 14, d + 0.45, y, zc, 2.0, C.red)
 end
 
 -- ------------------------------------------------------------------------------------------------ the whole

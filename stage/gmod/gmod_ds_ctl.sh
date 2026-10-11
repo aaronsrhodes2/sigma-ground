@@ -94,7 +94,7 @@ start() {
   # -insecure/sv_lan: no Steam login or master-server contact. sv_hibernate_*: an EMPTY server must keep simulating
   # (by default it sleeps and ignores Think, which would freeze the experiment). -nohltv: no TV relay.
   ( cd "$DS" && cmd //c start "" //min srcds.exe -console -game garrysmod -condebug -insecure -nohltv -norestart -allowlocalhttp \
-      -tickrate "$TICK" -port "$PORT" +maxplayers 2 +sv_lan 1 +sv_hibernate_think 1 +sv_hibernate_when_empty 0 \
+      -tickrate "$TICK" -port "$PORT" +maxplayers "${GMOD_DS_MAXPLAYERS:-2}" +sv_lan 1 +sv_hibernate_think 1 +sv_hibernate_when_empty 0 \
       +map "$map" >/dev/null 2>&1 )
   local s=0
   while [ "$(count)" -eq 0 ] && [ "$s" -lt 10 ]; do sleep 1; s=$((s + 1)); done

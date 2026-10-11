@@ -20,6 +20,7 @@ Av.Logic, Av.Geo = Logic, Geo
 
 local cv_draw = CreateClientConVar("mentat_avatar_draw", "1", true, false, "1 = draw Skippy's avatar when he is in the world")
 local cv_light = CreateClientConVar("mentat_avatar_light", "1", true, false, "1 = his glow lights the room a little")
+local cv_hide = CreateClientConVar("mentat_avatar_hide", "", false, false, "debugging: part names to leave out (can, face, label, mouth, hat), comma separated")
 local cv_scale = CreateClientConVar("mentat_avatar_scale", "1", true, false, "size of the avatar (1 = a 0.5 m can)")
 
 --- The bot, when the server says he is in the world.
@@ -89,6 +90,58 @@ end)
 hook.Add("Think", "Mentat.AvatarVoiceFollow", function()
   if next(tracked) ~= nil then Av.UpdateVoices(false) end
 end)
+
+-- ------------------------------------------------------------------------------------------------ the test tone
+--- A 1.5 s pulsing tone (16-bit mono WAV bytes), for hearing (and measuring) where his voice comes from without the bridge.
+function Av.ToneWav(seconds, rate)
+  seconds, rate = seconds or 1.5, rate or 22050
+  local n = math.floor(seconds * rate)
+  local out = {}
+  local function u32(v) return string.char(v % 256, math.floor(v / 256) % 256, math.floor(v / 65536) % 256, math.floor(v / 16777216) % 256) end
+  local function u16(v) return string.char(v % 256, math.floor(v / 256) % 256) end
+  out[1] = "RIFF" .. u32(36 + n * 2) .. "WAVEfmt " .. u32(16) .. u16(1) .. u16(1) .. u32(rate) .. u32(rate * 2) .. u16(2) .. u16(16) .. "data" .. u32(n * 2)
+  local chunk = {}
+  for i = 0, n - 1 do
+    local t = i / rate
+    local v = math.floor(12000 * math.sin(2 * math.pi * 440 * t) * (0.6 + 0.4 * math.sin(2 * math.pi * 3 * t)))
+    if v < 0 then v = v + 65536 end
+    chunk[#chunk + 1] = u16(v)
+    if #chunk >= 4096 then out[#out + 1] = table.concat(chunk); chunk = {} end
+  end
+  out[#out + 1] = table.concat(chunk)
+  return table.concat(out)
+end
+
+--- Play the tone as if it were his voice (the same hook the real clips take) and report what the engine did with it.
+function Av.PlayTone(report)
+  if not Av.Get() then print("[avatar] tone: he is not in the world (say \"Skippy, come here\" first)"); return end
+  file.CreateDir("mentat")
+  file.Write("mentat/avatar_tone.wav", Av.ToneWav())
+  sound.PlayFile("data/mentat/avatar_tone.wav", "3d mono", function(chan, errid, errname)
+    if not IsValid(chan) then print("[avatar] tone: could not play: " .. tostring(errid) .. " " .. tostring(errname)); return end
+    local bot = Av.Get()
+    if bot then chan:SetPos(bot:GetPos()) end
+    chan:Set3DFadeDistance(250, 2400)
+    chan:SetVolume(1)
+    chan:Play()
+    hook.Run("SkippySpoke", chan)
+    local info = { dist = nil }
+    timer.Simple(0.5, function()
+      if not IsValid(chan) then return end
+      local heard, gain, dist, range, blocked = Av.Hearing()
+      local l, r = 0, 0
+      if chan.GetLevel then l, r = chan:GetLevel() end
+      local px, py, pz = 0, 0, 0
+      if chan.GetPos then local v = chan:GetPos(); px, py, pz = v.x, v.y, v.z end
+      local tr = tracked[chan]
+      info = { volume = chan:GetVolume(), want = tr and (tr.base * Av.gain) or nil, gain = gain, heard = heard, dist = dist, range = range, blocked = blocked,
+               level_l = l, level_r = r, chan_pos = { px, py, pz }, tracked = tr ~= nil, state = chan:GetState() }
+      print("[avatar] tone: " .. util.TableToJSON(info))
+      if report then report(info) end
+    end)
+  end)
+end
+concommand.Add("mentat_avatar_tone", function() Av.PlayTone() end, nil, "Play a test tone from where Skippy hovers (hear the 3D position; prints what the engine did)")
 
 -- ------------------------------------------------------------------------------------------------ his loudness
 Av.level = 0
@@ -177,13 +230,18 @@ local function draw()
   base:Rotate(Angle(0, yaw, 0))
   base:Scale(Vector(1, 1, 1) * math.Clamp(cv_scale:GetFloat(), 0.25, 4))
 
+  local hide = "," .. cv_hide:GetString():gsub("%s", "") .. ","
+  local function shown(name) return not hide:find("," .. name .. ",", 1, true) end
   render.SetColorMaterial()
   render.CullMode(MATERIAL_CULLMODE_NONE)                       -- two-sided: the hat is a thin shell
+  -- the colour material is translucent: it does not write depth, so the label painted over the eyes drawn before it (live pass).
+  -- With depth writing forced on, what is in front stays in front whatever order the parts are drawn in.
+  if render.OverrideDepthEnable then render.OverrideDepthEnable(true, true) end
   cam.PushModelMatrix(base)
-  meshes.can:Draw()
-  meshes.face:Draw()
+  if shown("can") then meshes.can:Draw() end
+  if shown("face") then meshes.face:Draw() end
   render.SetColorModulation(glow, glow, glow)                   -- the label brightens with his voice
-  meshes.label:Draw()
+  if shown("label") then meshes.label:Draw() end
   render.SetColorModulation(1, 1, 1)
   -- the mouth opens with the voice
   local mp = Geo.PIVOT_MOUTH
@@ -192,7 +250,7 @@ local function draw()
   mm:Scale(Vector(1, 1, 0.5 + 3.5 * Av.level))
   mm:Translate(Vector(-mp.x, -mp.y, -mp.z))
   cam.PushModelMatrix(mm, true)
-  meshes.mouth:Draw()
+  if shown("mouth") then meshes.mouth:Draw() end
   cam.PopModelMatrix()
   -- the hat tips about the top of the can
   local hp = Geo.PIVOT_HAT
@@ -201,9 +259,10 @@ local function draw()
   hm:Rotate(Angle(pitch, 0, roll))
   hm:Translate(Vector(-hp.x, -hp.y, -hp.z))
   cam.PushModelMatrix(hm, true)
-  meshes.hat:Draw()
+  if shown("hat") then meshes.hat:Draw() end
   cam.PopModelMatrix()
   cam.PopModelMatrix()
+  if render.OverrideDepthEnable then render.OverrideDepthEnable(false, false) end
   render.CullMode(MATERIAL_CULLMODE_CCW)
 
   if cv_light:GetBool() and DynamicLight then

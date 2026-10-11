@@ -191,6 +191,8 @@ local function tick()
   st.yaw = Logic.turn(st.yaw, goal, Logic.DEFAULTS.turn_rate * dt)
   if snapped then hook.Run("SkippyAvatarLeave", bot, tov(before)) end
   place(bot, st.pos, st.yaw)
+  -- the engine's own Spawn (after a kill) puts a walking body back; live pass: movetype was WALK after the revive
+  if bot.GetMoveType and bot:GetMoveType() ~= MOVETYPE_NOCLIP then configure(bot) end
   if snapped then hook.Run("SkippyAvatarArrive", bot, tov(before), tov(st.pos)) end
   publish_in = publish_in - dt
   if publish_in <= 0 then publish_in = 0.25; publish() end
@@ -213,7 +215,21 @@ hook.Add("PlayerShouldTakeDamage", "Mentat.AvatarUnharmed", function(ply) if Av.
 hook.Add("PlayerSpawn", "Mentat.AvatarRespawn", function(ply)
   if Av.bot ~= nil and ply == Av.bot then
     configure(ply)
-    if Av.visible then place(ply, Av.st.pos, Av.st.yaw) end
+    if Av.visible then place(ply, Av.st.pos, Av.st.yaw)
+    elseif ply.SetNoDraw then ply:SetNoDraw(true) end
+  end
+end)
+-- God mode does not stop an explicit kill (the console `kill`, a map's kill trigger, Player:Kill): the live pass found the bot then stays
+-- dead forever (a bot never respawns by itself), still pinned to the owner as a corpse. He is put back on his feet at once, and
+-- the default death makes no ragdoll of him.
+hook.Add("DoPlayerDeath", "Mentat.AvatarNoRagdoll", function(ply)
+  if Av.bot ~= nil and ply == Av.bot then return true end
+end)
+hook.Add("PlayerDeath", "Mentat.AvatarRevive", function(ply)
+  if Av.bot ~= nil and ply == Av.bot then
+    timer.Simple(0.1, function()
+      if IsValid(ply) and Av.bot == ply and not ply:Alive() then ply:Spawn() end
+    end)
   end
 end)
 hook.Add("PlayerDisconnected", "Mentat.AvatarGone", function(ply)

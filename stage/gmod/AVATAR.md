@@ -1,8 +1,7 @@
 # Skippy as an in-world avatar
 
 Approved 2026-10-11. A player calls Skippy and he appears next to them, hovers, follows, and his spoken answers come from where he
-floats (3D, with proximity voice's range, wall and whisper rules). Built and tested offline; **never run in the real game yet**
-(see "Not verified" and the live-pass task list below).
+floats (3D, with proximity voice's range, wall and whisper rules). Built and tested offline; run live on 2026-10-11 (dedicated server + real client; see "Live pass" below).
 
 ## What it does
 
@@ -62,48 +61,54 @@ back. Files: `mentat/avatar.lua` (server), `mentat/avatar_client.lua` (client), 
 `AddCSLuaFile`. `package_addon.sh` copies the whole `lua/` tree, so it needs no change. Tests:
 `sigma_ground/radiance/tests/test_gmod_avatar.py`.
 
-## Not verified (needs the real game)
+## Live pass (2026-10-11): what the real game showed
 
-1. **Bot creation.** `player.CreateNextBot("Skippy")` on a dedicated server, on a listen server, with `maxplayers` full; whether the
-   bot's `PlayerSpawn` re-runs our `configure`; that `StartCommand` really silences a NextBot player (no wandering, jumping, respawn
-   loops); that god mode and `SetNotSolid` hold after a death or a map trigger (`trigger_hurt`, void); that `SetPos` every tick on a
-   noclip bot is smooth and not overridden by the engine's bot movement.
-2. **net.Send to a bot.** `Holodeck.Say/Speak` choose their audience from `player.GetAll()`, which now includes the bot. Sending a
-   net message to a bot is assumed to be ignored harmlessly; if it logs errors the audience builders in `holodeck.lua` need
-   `and not p:IsBot()` (a follow-up edit, not made here).
-3. **3D sound.** Whether `chan:SetPos` each frame moves the sound in 3D for a `"3d mono"` stream; whether
-   `Set3DFadeDistance(100000, 200000)` really disables the engine's own distance fade (assumed: min = distance where fade starts);
-   whether `chan:SetVolume` below 1 works on a 3D channel. **Walls:** GMod has no easy low-pass, so a wall only lowers volume (the
-   55% range rule), it does not muffle.
-4. **Level meter.** `IGModAudioChannel:GetLevel()` on a 3D mp3 stream; if it returns 0 the timed envelope is used (looks like talking,
-   not synced to the syllables).
-5. **Rendering.** `Mesh()`/`mesh.Begin` per part built once, `render.SetColorMaterial()` with vertex colours, `render.CullMode`
-   none, `cam.PushModelMatrix(m, true)` nested (the multiply argument), `render.SetColorModulation` on the label, `DynamicLight`.
-   Whether the mesh is lit as intended (shading is baked into vertex colours with a fixed light), whether the can/hat read at
-   distance, whether the cockade z-fights the hat, whether `PostDrawTranslucentRenderables` order puts him behind or in front of
-   glass. `PrePlayerDraw` returning true hides the bot's model (also: its shadow, and the target-ID name tag).
-6. **Hat look.** Proportions are guessed (47 HU wide, points rising 10 HU, 9 HU deep): "a believable Napoleonic bicorn" is a human
-   judgement. Tune `hat_station` in `geometry.lua`.
-7. **The scoreboard** shows a player named Skippy while the bot exists, also when he is hidden.
+How it was run: `GMOD_DS_MAXPLAYERS=4 python stage/gmod/holodeck/run_tool.py avatar_live --timeout 300` (dedicated server, no human: one bot plays
+the caller through the same `Holodeck.Handle` entry the voice path uses, another is a second listener; tool `tools/avatar_live.lua`) and
+`python stage/gmod/holodeck/avatar_shots.py` (the visible client for about 90 s, tool `tools/avatar_shots.lua`; pictures in
+`holodeck/data/shots/avatar_*.jpg`). Console-only checks: `mentat_avatar_tone` plays a pulsing tone from where he hovers through the same
+hook his voice takes and prints what the engine did with it (**use it to hear the pan**); `mentat_avatar_hide hat,label` (client) leaves
+parts out of the drawing, for debugging.
 
-## Live pass: task list
+| # | item | result |
+|---|---|---|
+| 1 | server starts, status "away; bot not created", no errors | VERIFIED (no Lua error in either console log over all runs) |
+| 2 | "Skippy, come here" -> bot, ~1.5 m to the side, slightly above, arrival hook | VERIFIED. `player.CreateNextBot` works on the dedicated server and on a listen server (4 ms); named Skippy; 79 HU (1.5 m) to the right, 12 HU above the eyes, facing the caller; instant; Arrive fires once with `from = false`. His `PlayerSpawn` did not re-run `configure` on first creation (Summon configures him) |
+| 3 | follows: walk/run/rise/teleport, wall on the right, back to a wall | VERIFIED. Walking (200 HU/s): steady 87 HU behind; at 800 HU/s (far beyond a real sprint) the lag peaks at 250 HU then settles near 178 (= v / 4.5, as designed); teleport: Leave+Arrive snap, 67 HU away on the next tick (also on the real client: 97 HU after 0.3 s); rise: steady 43 HU above the feet; wall on the right: he moves to the left side, never inside; back to a wall: he is 5 HU in front of it (not inside, but his 23 HU wide hat would clip it: cosmetic, not changed) |
+| 4 | idle 60 s; kill; damage; void | VERIFIED after a FIX. Idle: no wandering (inside the 3 HU bob), no weapons, health 100, no respawns, stays MOVETYPE_NOCLIP. `TakeDamage(1e5)`: ignored (god). **FAILED, fixed:** `Player:Kill()` (also the console `kill`, a kill trigger) ignores god mode and the bot then stayed dead for ever (bots never respawn by themselves), pinned to his owner as a corpse; and after a respawn the engine had put him back to MOVETYPE_WALK. Now: `DoPlayerDeath` makes no ragdoll, `PlayerDeath` respawns him 0.1 s later, and every tick restores NOCLIP if the engine changed it (re-run: alive, noclip, beside the owner 0.5 s after `Kill()`). Void (`SetPos` 100000 HU down): back beside the owner within one tick. Owner dead: he waits where he is |
+| 5 | client: model gone, can + hat, upright, size, front/side/5 m, inside out | VERIFIED after FIXES (see "The look") |
+| 6 | voice from his position, debug gain lines | PARTLY. Verified: the per-listener lines match `Core.gain` (listener 100 HU: 1.0; 800: 0.77; 1000: 0.12; 1050: 0.03; 1100+: 0; crouched owner: range 385, 354 HU away -> 0.095; wall -> blocked, shorter range). On the real client the engine accepts everything the code does: `chan:SetPos` takes his position (read back), `chan:SetVolume` on a `"3d mono"` stream works (read back 0.77 at 800 HU, 0.12 at 1000 HU = `Core.gain` exactly), `Set3DFadeDistance` is accepted. **Only an ear can verify** that the sound pans and changes as you walk round him and that the engine's own distance fade is really flat: run `mentat_avatar_tone` while walking around him. A second human on another client was not possible |
+| 7 | label brightens, mouth moves, hat leans | PARTLY. `chan:GetLevel()` works on a 3D stream (0.22 to 0.30 for the tone), so the real level drives the glow. Not photographed while speaking; "hat leans toward the speaker" needs a second talker: UNVERIFIED |
+| 8 | `mentat_avatar_kick 1`; full server | VERIFIED. Kick frees the slot (3 -> 2 players), calling again re-creates him (`Dropped Skippy` in the log); on a full server (4/4) he says "the server has no free player slot for me" and nothing appears. "Player Skippy has joined the game" shows once, on first creation. Scoreboard row not looked at (UNVERIFIED) |
+| 9 | `net.Send` to the bot | VERIFIED HARMLESS. `Holodeck.Say/Tell` audiences include the bot (`IsBot()` true); a direct `net.Send(bot)` returns without error and the console log has no line about it over many spoken lines. `holodeck.lua` was NOT changed |
+| 10 | other words still work | VERIFIED. "add a couch" builds a couch while he is out, "add a lamp" while he is in; "go away" hides him (`nodraw`, bot kept, `IsActive()` false); "come with me" / "come here" bring him back |
 
-Run later by Aaron, on the dedicated server first (no window, no mouse grab), then once with a real client.
+### The look (item 5), honestly
+Live, the bot's player model is never drawn and the mesh draws with no error (`draw_error` nil, ~1320 triangles). Three things were wrong and
+are fixed (each has an offline test):
+1. **The eyes were invisible.** The face sat at 0.97 R, inside the label band (1.012 R), so the label hid it. Moved in front of the label.
+2. **The colour material does not write depth**, so the label (drawn after the face) painted over the eyes even once they stood proud, and
+   every part's draw order mattered. The draw now forces depth writing on (`render.OverrideDepthEnable(true, true)`) and off again after.
+3. **The hat** was a thin gold "banana" (amber along the whole front) with a cockade sunk into the felt. Now a chunkier crescent
+   (half-depth 11, half-height 8 HU, centre 12 HU so the crown comes down over the can's top), dark blue felt `#222639` with a narrow amber
+   lace along the top crest and lower edge and amber points, and a blue/white/red cockade standing clear of the felt. The label band is
+   also a little shorter (more silver shows).
 
-1. Start the server with the addon; `mentat_avatar_status` says `away; bot not created`. No errors in the console.
-2. As a player: say "Skippy, come here". Expect a `Skippy` bot in `status`, no error from `CreateNextBot`, and the arrival hook
-   in the log if you add a `hook.Add("SkippyAvatarArrive", ...)` print. Check he is about 1.5 m to the side and slightly above.
-3. Walk, run, jump, noclip, climb a ladder: he follows smoothly. Teleport (`setpos`) far away: he is there next tick.
-   Stand with your back against a wall and with the wall on your right: he must not end up inside it.
-4. Watch the bot for 5 minutes idle: no wandering, no weapons, no damage, no respawn loop. Try `kill` on the bot
-   (`kickid`/`bot_kill` are not needed), a `trigger_hurt`, and falling out of the map: he survives and stays with you.
-5. Client: is the default model gone? Is the can + hat there, upright, the right size? Screenshot from the front, the side, 5 m away.
-   Is anything inside out (flip `render.CullMode`)? Does the hat sit on the can?
-6. Voice: with `holodeck_bridge` set, ask for something. The answer must come from him: turn your head, walk around him, hear it
-   pan. Run `mentat_avatar_debug 1` and read the per-listener lines against what you hear: 2 m away (gain 1), at 800 HU (fading),
-   behind a wall (shorter range), crouched (whisper: range 385). Second player on another client at various distances.
-7. Does the label brighten and the mouth move while he talks, and the hat lean toward the speaker (talk into voice chat next to him)?
-8. `mentat_avatar_kick 1`: send him away, call again; check the join/leave messages and that the slot is freed. Fill the server
-   (`maxplayers`) and call: expect the polite refusal.
-9. `net.Send` to the bot: look for console errors on every spoken line (see item 2 above).
-10. "Skippy, add a couch" still builds a couch while he is out; "go away" hides him; his chat answers still reach the right people.
+My read: a green-label silver can with a cheeky face wearing an enormous dark crescent hat with a gold-edged crest and a roundel. It reads
+as "a can in a Napoleon-style bicorn" from the front and three-quarter views, and is recognisable as a can in a hat at 5 m. Side-on, the hat
+is a pointed dome with a gold crest (a bishop's mitre more than a bicorn; that is what a bicorn looks like end-on). Weaknesses: the felt is
+smooth and dark with no texture, and the can is more green than silver. Nothing is inside out. Pictures:
+`stage/gmod/holodeck/data/shots/avatar_{front,close,side,threequarter,far5m,firstperson}.jpg` (the first-person one looks away from him:
+he floats behind the right shoulder, outside the 90 degree view).
+
+### Other things found
+- `tool.lua` (the headless job runner) ran its job a second time, with the bot as "the player", when the avatar's bot joined a listen server
+  (`PlayerInitialSpawn` fires for bots). It now runs once, for the first human only.
+- `gmod_ds_ctl.sh` takes `GMOD_DS_MAXPLAYERS` (default 2); the live pass needs 4 (caller, second listener, Skippy, one filler).
+
+### Still unverified (needs a human, ears or a second client)
+- 3D panning and loudness by ear; that the engine's distance fade really is flat (the code sets 100000/200000); walls only lower the volume (no muffling).
+- A second human at various distances (only the per-listener gain numbers were checked, with a bot as the second listener).
+- The label, mouth and hat lean while he speaks and while someone talks into voice chat next to him; the dynamic light in the dark.
+- The scoreboard row for Skippy; `PostDrawTranslucentRenderables` order against glass; the hidden body's shadow and target-ID name tag.
+- Speech end to end through `holodeck_bridge` with the avatar out (no bridge was running): the position and gain plumbing was exercised, the real mp3 path was not.

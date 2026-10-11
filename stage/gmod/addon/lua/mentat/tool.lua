@@ -38,6 +38,12 @@ end
 if game.IsDedicated() then
   hook.Add("InitPostEntity", "MentatTool", function() timer.Simple(5, function() go(nil) end) end)
 else
-  hook.Add("PlayerInitialSpawn", "MentatTool", function(ply) timer.Simple(5, function() if IsValid(ply) then go(ply) end end) end)
+  -- the first HUMAN to spawn runs it, once (a bot that joins later, such as Skippy's avatar, must not run it again with itself as the player)
+  local started = false
+  hook.Add("PlayerInitialSpawn", "MentatTool", function(ply)
+    if started or ply:IsBot() then return end
+    started = true
+    timer.Simple(5, function() if IsValid(ply) then go(ply) end end)
+  end)
 end
 print("[mentat-tool] armed for " .. NAME)

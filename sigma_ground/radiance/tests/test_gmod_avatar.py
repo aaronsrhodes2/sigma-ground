@@ -313,6 +313,65 @@ def test_the_bots_own_ai_is_switched_off_and_it_is_harmless():
     assert tuple(r) == (True, True, 0, True, True, True, None, False, True, True, 8, True, True)
 
 
+def test_a_killed_bot_is_put_back_on_his_feet_without_a_ragdoll():
+    """Live pass: god mode does not stop Player:Kill(); the bot then stayed dead for ever (bots never respawn by themselves)."""
+    w = avatar_world()
+    p = w.player(A)
+    L(w, "Mentat.Avatar.Summon(...)", p)
+    r = w.rt.eval("""function(b, p)
+      b.spawned = 0
+      function b:Spawn() self.spawned = self.spawned + 1; self.alive = true; hook.Run('PlayerSpawn', self) end
+      local ragdoll_bot, ragdoll_player = hook.Run('DoPlayerDeath', b), hook.Run('DoPlayerDeath', p)
+      b.alive = false
+      hook.Run('PlayerDeath', b)
+      p.alive = false
+      hook.Run('PlayerDeath', p)
+      MOCK.advance(0.5)
+      return ragdoll_bot, ragdoll_player, b.spawned, b.alive, p.spawned
+    end""")(bot(w), p)
+    assert tuple(r) == (True, None, 1, True, None), "the bot is revived (once), the death makes no ragdoll of him, other players are untouched"
+    run(w, 0.5)
+    assert abs(where(w, bot(w))[0] - where(w, p)[0]) < 200, "and he is back with his owner"
+
+
+def test_a_walking_body_is_put_back_to_noclip_on_the_next_tick():
+    """Live pass: after Player:Spawn() the engine had set the bot's movetype to WALK, so gravity worked on him."""
+    w = avatar_world()
+    p = w.player(A)
+    L(w, "Mentat.Avatar.Summon(...)", p)
+    r = w.rt.eval("""function(b)
+      function b:GetMoveType() return self.movetype end
+      b.movetype = MOVETYPE_WALK
+      hook.Run('Tick')
+      return b.movetype == MOVETYPE_NOCLIP
+    end""")(bot(w))
+    assert r is True
+
+
+def test_the_tool_runner_runs_once_for_the_first_human_and_never_for_a_joining_bot():
+    """Live pass: Skippy's bot joining a listen server fired the runner's PlayerInitialSpawn hook again, and the job ran a second
+    time with the bot as 'the player'."""
+    w = World(load=())
+    w.rt.execute(PRELUDE)
+    w.rt.execute("""
+      game.IsDedicated = function() return false end
+      local real_include = include
+      include = function(path)
+        if path == "mentat/tools/probe_runs.lua" then return function(args, done, ply) RUNS = (RUNS or 0) + 1; RAN_FOR = ply; done({}) end end
+        return real_include(path)
+      end
+      MOCK.files["mentat/tool.txt"] = '{"script":"mentat/tools/probe_runs.lua","id":"t"}'
+      dofile(MOCK.ROOT .. "/mentat/tool.lua")
+    """)
+    human = w.player(A)
+    bot_ply = w.rt.eval("function() local b = player.CreateNextBot('Skippy'); return b end")()
+    L(w, "hook.Run('PlayerInitialSpawn', ...)", bot_ply)
+    L(w, "hook.Run('PlayerInitialSpawn', ...)", human)
+    L(w, "hook.Run('PlayerInitialSpawn', ...)", bot_ply)
+    w.rt.eval("function() MOCK.advance(6) end")()
+    assert L(w, "return RUNS") == 1 and L(w, "return RAN_FOR == ...", human) is True
+
+
 # ================================================================================================ the words
 CALLS = ["come here", "Skippy, come here", "skippy come here please", "skippy come over", "Skippy, come over here!", "Skippy come",
          "come to me", "cmoe here", "come hear", "skippy comee here", "get over here", "skippy could you come here",
@@ -815,6 +874,43 @@ def test_the_hat_is_much_wider_than_the_can_and_sits_on_top(geo):
     assert abs(hlo[1] + hhi[1]) < 1e-6
 
 
+def test_the_face_stands_proud_of_the_label_so_it_can_be_seen(geo):
+    """Live pass: the eyes sat at 0.97 R, inside the label band (1.012 R): the label hid them and only a sliver of mouth showed."""
+    label_r = 7.2 * 1.012
+    eyes = [t for t in geo["parts"]["face"] if t["kind"] == "decor"]
+    assert eyes
+    assert min(p[0] for t in eyes for p in (t["a"], t["b"], t["c"])) >= label_r - 0.001
+    mlo, mhi = bbox(geo["parts"]["mouth"])
+    assert mhi[0] > label_r + 0.2 and mlo[0] < label_r, "the mouth pokes through the label's surface"
+
+
+def test_the_hat_is_a_chunky_crown_that_covers_the_top_of_the_can(geo):
+    """Live pass: a thin banana floating over the can read as a smile, not a hat."""
+    clo, chi = bbox(geo["parts"]["can"])
+    mid = [t for t in geo["parts"]["hat"] if all(abs(p[1]) < 6 for p in (t["a"], t["b"], t["c"]))]
+    zs = [p[2] for t in mid for p in (t["a"], t["b"], t["c"])]
+    xs = [p[0] for t in mid for p in (t["a"], t["b"], t["c"])]
+    assert max(zs) - min(zs) >= 14, "the crown is tall in the middle"
+    assert max(xs) - min(xs) >= 20, "and deep front to back"
+    assert min(zs) <= chi[2] - 4, "it comes down over the top of the can"
+
+
+def test_the_cockade_stands_clear_of_the_hat_it_is_pinned_to(geo):
+    """Live pass: with depth writing right, the left third of the cockade was seen to be sunk into the hat."""
+    cyan = [t for t in geo["parts"]["hat"] if tuple(t["color"]) == (0, 204, 255)]
+    pts = [p for t in cyan for p in (t["a"], t["b"], t["c"])]
+    x0 = min(p[0] for p in pts)
+    ylo, yhi = min(p[1] for p in pts), max(p[1] for p in pts)
+    zlo, zhi = min(p[2] for p in pts), max(p[2] for p in pts)
+    felt = [p for t in geo["parts"]["hat"] if tuple(t["color"]) != (0, 204, 255) and t["kind"] == "side" for p in (t["a"], t["b"], t["c"])
+            if ylo <= p[1] <= yhi and zlo <= p[2] <= zhi]
+    assert felt and max(p[0] for p in felt) <= x0 + 1e-6, (max(p[0] for p in felt), x0)
+
+
+def hat_centre_z(geo, y):
+    return geo["w"].rt.eval("function(y) local _, _, _, zc = GEO.hat_station(y / GEO.HAT_HALF_WIDTH); return zc end")(y)
+
+
 def test_hat_triangles_face_away_from_the_hats_centre_line(geo):
     bad = 0
     for t in geo["parts"]["hat"]:
@@ -822,8 +918,7 @@ def test_hat_triangles_face_away_from_the_hats_centre_line(geo):
             continue
         cx = [(t["a"][i] + t["b"][i] + t["c"][i]) / 3 for i in range(3)]
         y = cx[1]
-        u = y / 23.5
-        zc = 14.0 + 10.0 * abs(u) ** 2.2
+        zc = hat_centre_z(geo, y)
         if dot(t["n"], [cx[0], 0, cx[2] - zc]) < -1e-9:
             bad += 1
     assert bad == 0
@@ -836,10 +931,10 @@ def test_the_palette_is_the_projects(geo):
     assert label_colors == {(0, 255, 136)}
     hat_colors = {tuple(t["color"]) for t in geo["parts"]["hat"]}
     assert (255, 170, 0) in hat_colors, "amber trim"
-    assert (24, 26, 38) in hat_colors, "dark felt"
+    assert (34, 38, 58) in hat_colors, "dark felt"
     assert {(0, 204, 255), (255, 255, 255), (255, 68, 68)} <= hat_colors, "the cockade"
     amber = sum(1 for t in geo["parts"]["hat"] if tuple(t["color"]) == (255, 170, 0))
-    dark = sum(1 for t in geo["parts"]["hat"] if tuple(t["color"]) == (24, 26, 38))
+    dark = sum(1 for t in geo["parts"]["hat"] if tuple(t["color"]) == (34, 38, 58))
     assert dark > amber > 10, "mostly dark, with a trim"
     can_colors = {tuple(t["color"]) for t in geo["parts"]["can"]}
     assert (176, 184, 192) in can_colors
@@ -868,3 +963,13 @@ def test_the_loader_ships_and_loads_every_avatar_file():
     shared = (ADDON / "mentat" / "avatar" / "logic.lua").read_text(encoding="utf-8")
     for inc in re.findall(r'include\("([^"]+)"\)', shared):
         assert inc in shipped, inc
+
+
+def test_the_client_draws_with_depth_writing_on_and_restores_it():
+    """Live pass: the colour material does not write depth, so the label (drawn after the face) painted over the eyes."""
+    src = (ADDON / "mentat" / "avatar_client.lua").read_text(encoding="utf-8")
+    on = src.index("render.OverrideDepthEnable(true, true)")
+    first_draw = src.index("meshes.can:Draw()")
+    off = src.index("render.OverrideDepthEnable(false, false)")
+    last_draw = src.index("meshes.hat:Draw()")
+    assert on < first_draw and last_draw < off
