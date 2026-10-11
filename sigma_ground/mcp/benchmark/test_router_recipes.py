@@ -134,3 +134,14 @@ def test_recipes_against_the_real_server(tmp_path):
         assert values == pytest.approx(recorded, rel=1e-9)
         assert D._norm(e["question"]) and e["group"].startswith("recipe:")
     assert any(len(e["plan"].get("steps", [])) >= 2 for e in examples)
+
+
+def test_the_guard_counts_the_hard_set_as_test_data_unless_told_otherwise():
+    """router_hardval.json sits in the benchmark folder, so training data is kept away from it;
+    the hard set's own benchmark check must leave it out or every question matches itself."""
+    import json
+    from pathlib import Path
+    spec = json.loads((Path(D.__file__).parent / "router_hardval.json").read_text(encoding="utf-8"))
+    q = spec[0]["question"]
+    assert D.BenchmarkGuard.from_repo().check(q)                                    # a hard question is test data
+    assert D.BenchmarkGuard.from_repo(exclude=("router_hardval.json",)).check(q) is None   # but not benchmark proper

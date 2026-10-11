@@ -821,10 +821,15 @@ class BenchmarkGuard:
         self.threshold = threshold
 
     @classmethod
-    def from_repo(cls, bench_dir: Path = HERE, threshold: float = 0.5):
+    def from_repo(cls, bench_dir: Path = HERE, threshold: float = 0.5,
+                  exclude: tuple = ()):
+        """Every question file in the benchmark folder counts as test data, which
+        includes router_hardval.json: training data that resembles a hard-set
+        question is dropped too. Pass exclude=("router_hardval.json",) to check
+        the hard set itself against the benchmark proper."""
         texts, instances = [], []
         for path in sorted(bench_dir.glob("*.json")):
-            if "ground_truth" in path.name:
+            if "ground_truth" in path.name or path.name in exclude:
                 continue
             try:
                 data = json.loads(path.read_text(encoding="utf-8"))

@@ -166,7 +166,8 @@ async def _amain(args) -> int:
         train_q = [json.loads(line)["messages"][1]["content"]
                    for line in Path(args.train).read_text(encoding="utf-8").splitlines() if line.strip()]
     print(f"{len(spec)} questions; comparing with {len(train_q)} training questions")
-    guard = None if args.no_guard else D.BenchmarkGuard.from_repo()
+    # the spec lives in the benchmark folder, so leave it out or every question matches itself
+    guard = None if args.no_guard else D.BenchmarkGuard.from_repo(exclude=(SPEC.name,))
 
     from contextlib import asynccontextmanager
 
