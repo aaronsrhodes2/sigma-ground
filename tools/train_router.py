@@ -39,6 +39,7 @@ train.jsonl trains, val.jsonl evaluates (the split is group-aware already).
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 import math
 import os
@@ -46,6 +47,9 @@ import random
 import sys
 import time
 from pathlib import Path
+
+# Fewer, larger free blocks: less fragmentation after an evaluation pass.
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 
 LORA_TARGETS = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
 MAX_LEN_CAP = 1024
@@ -231,10 +235,22 @@ def cmd_train(a) -> int:
         def on_step_end(self, args, state, control, **kw):
             self.step_times.append(time.time())
 
+    class FreeCache(TrainerCallback):
+        """Unsloth's fused cross-entropy asks the driver how much memory is free.
+        After an evaluation pass PyTorch still caches those blocks, the driver
+        reports almost nothing free, and the first training step afterwards
+        raises 'No or negligible GPU memory available' (seen in the pilot, at
+        step 29, right after the step-25 evaluation). Hand the cache back."""
+        def on_evaluate(self, args, state, control, **kw):
+            gc.collect()
+            if gpu:
+                torch.cuda.empty_cache()
+
     clock = Clock()
     targs = TrainingArguments(
         output_dir=str(out / "checkpoints"),
-        per_device_train_batch_size=a.batch, per_device_eval_batch_size=a.batch,
+        per_device_train_batch_size=a.batch, per_device_eval_batch_size=max(1, a.batch // 2),
+        prediction_loss_only=True,       # eval needs the loss, not 152k-wide logits per token
         gradient_accumulation_steps=a.grad_accum,
         learning_rate=a.lr, lr_scheduler_type="cosine", warmup_steps=warmup,
         num_train_epochs=a.epochs, max_steps=a.max_steps if a.max_steps > 0 else -1,
@@ -245,7 +261,7 @@ def cmd_train(a) -> int:
         seed=a.seed, data_seed=a.seed, report_to="none",
         remove_unused_columns=False, dataloader_num_workers=0)
     trainer = Trainer(model=model, args=targs, train_dataset=train_ds, eval_dataset=val_ds,
-                      data_collator=Collator(tok.pad_token_id), callbacks=[clock])
+                      data_collator=Collator(tok.pad_token_id), callbacks=[clock, FreeCache()])
     if gpu:
         torch.cuda.reset_peak_memory_stats()
     t0 = time.time()
