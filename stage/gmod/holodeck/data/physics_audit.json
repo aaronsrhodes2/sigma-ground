@@ -4,6 +4,17 @@
   "category": "seating",
   "deckard": {
    "ok": true,
+   "asked": "a couch",
+   "tried": [
+    "a couch",
+    "a sofa",
+    "a settee",
+    "a davenport",
+    "a sectional",
+    "a chaise",
+    "a futon",
+    "a daybed"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -22,6 +33,7 @@
     "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 414 models)'"
    ],
    "mass_kg": 86.59087825920003,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     2.1322080000000003,
     1.061708,
@@ -36,8 +48,7 @@
     24.80838594244416,
     26.137296569399624,
     13.836890441341879
-   ],
-   "seconds": 1.7
+   ]
   },
   "engine": {
    "variants": [
@@ -102,11 +113,11 @@
      "hull_density_kg_m3": 771.1
     }
    ],
-   "median_mass_kg": 300,
+   "median_mass_kg": 275.5,
    "median_size_m": [
-    2.003,
-    0.864,
-    0.861
+    1.746,
+    0.844,
+    0.717
    ]
   },
   "flags": []
@@ -116,6 +127,14 @@
   "category": "seating",
   "deckard": {
    "ok": true,
+   "asked": "a loveseat",
+   "tried": [
+    "a loveseat",
+    "a love seat",
+    "a two seater",
+    "a 2 seater",
+    "a two seat sofa"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -134,6 +153,7 @@
     "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 23 models)',"
    ],
    "mass_kg": 82.55277320683429,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     1.8626399999999999,
     1.04874,
@@ -148,8 +168,7 @@
     19.57018532008945,
     18.701557950863958,
     14.44234146453094
-   ],
-   "seconds": 4.2
+   ]
   },
   "engine": {
    "variants": [
@@ -185,6 +204,17 @@
   "category": "seating",
   "deckard": {
    "ok": true,
+   "asked": "an armchair",
+   "tried": [
+    "an armchair",
+    "an arm chair",
+    "an easy chair",
+    "a recliner",
+    "a lounge chair",
+    "a club chair",
+    "a wingback",
+    "a wing chair"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -203,6 +233,7 @@
     "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 64 models)',"
    ],
    "mass_kg": 53.43641046581529,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     1.0475971999999998,
     0.9526922,
@@ -217,8 +248,7 @@
     6.3017137113762836,
     5.91012348022034,
     7.987066339425847
-   ],
-   "seconds": 4.0
+   ]
   },
   "engine": {
    "variants": [
@@ -270,9 +300,9 @@
    ],
    "median_mass_kg": 180,
    "median_size_m": [
-    1.102,
-    0.854,
-    0.847
+    0.89,
+    0.845,
+    0.817
    ]
   },
   "flags": [
@@ -284,6 +314,14 @@
   "category": "seating",
   "deckard": {
    "ok": true,
+   "asked": "a chair",
+   "tried": [
+    "a chair",
+    "a dining chair",
+    "a kitchen chair",
+    "a wooden chair",
+    "a seat"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -310,23 +348,23 @@
     "{'name': 'material composition (ShapeNetSem): fabric 42%, leather 12%, plastic 4",
     "{'name': 'per-part material by role-convention (frame=wood, upholstery=fabric) \u2014"
    ],
-   "mass_kg": 123.11807502059398,
+   "mass_kg": 50.2432914004001,
+   "part_density_max_kg_m3": 534.652,
    "size_m": [
     1.0417732,
     0.8222082,
     0.7698932
    ],
    "com_m": [
-    -0.001159528709066293,
-    -0.03741458367015247,
-    0.43250754590859297
+    -0.0011288458631029757,
+    -0.08198435393874864,
+    0.47937051234792655
    ],
    "inertia_kgm2": [
-    13.2009027893581,
-    13.9473726871196,
-    14.397828893676772
-   ],
-   "seconds": 5.8
+    5.951354500320102,
+    6.255824440541458,
+    5.661450800884346
+   ]
   },
   "engine": {
    "variants": [
@@ -438,18 +476,16 @@
    ],
    "median_mass_kg": 20,
    "median_size_m": [
-    0.744,
-    0.374,
-    0.374
+    0.764,
+    0.483,
+    0.424
    ]
   },
   "flags": [
-   "engine mass 20 kg vs Deckard 123.1 kg (x0.2)",
    "props_c17/furniturechair001a.mdl: 10 kg in a 0.01 m3 body is 1727 kg/m3",
    "props_c17/chair02a.mdl: 20 kg in a 0.00 m3 body is 6444 kg/m3",
    "props_interiors/furniture_chair01a.mdl: 16 kg in a 0.00 m3 body is 3694 kg/m3",
-   "props/de_tides/patio_chair2.mdl: 30 kg in a 0.01 m3 body is 3686 kg/m3",
-   "Deckard's own density looks wrong: 123 kg for a body Deckard sizes at 1.04 m"
+   "props/de_tides/patio_chair2.mdl: 30 kg in a 0.01 m3 body is 3686 kg/m3"
   ]
  },
  {
@@ -457,6 +493,14 @@
   "category": "seating",
   "deckard": {
    "ok": true,
+   "asked": "an office chair",
+   "tried": [
+    "an office chair",
+    "a swivel chair",
+    "a desk chair",
+    "a computer chair",
+    "a task chair"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -483,23 +527,23 @@
     "{'name': 'material composition (ShapeNetSem): fabric 42%, leather 12%, plastic 4",
     "{'name': 'per-part material by role-convention (frame=wood, upholstery=fabric) \u2014"
    ],
-   "mass_kg": 123.11807502059398,
+   "mass_kg": 50.2432914004001,
+   "part_density_max_kg_m3": 534.652,
    "size_m": [
     1.0417732,
     0.8222082,
     0.7698932
    ],
    "com_m": [
-    -0.001159528709066293,
-    -0.03741458367015247,
-    0.43250754590859297
+    -0.0011288458631029757,
+    -0.08198435393874864,
+    0.47937051234792655
    ],
    "inertia_kgm2": [
-    13.2009027893581,
-    13.9473726871196,
-    14.397828893676772
-   ],
-   "seconds": 6.0
+    5.951354500320102,
+    6.255824440541458,
+    5.661450800884346
+   ]
   },
   "engine": {
    "variants": [
@@ -551,13 +595,12 @@
    ],
    "median_mass_kg": 20,
    "median_size_m": [
-    0.814,
-    0.51,
-    0.471
+    0.916,
+    0.512,
+    0.487
    ]
   },
   "flags": [
-   "engine mass 20 kg vs Deckard 123.1 kg (x0.2)",
    "props_c17/chair_office01a.mdl: 50 kg in a 0.02 m3 body is 2751 kg/m3"
   ]
  },
@@ -566,6 +609,15 @@
   "category": "seating",
   "deckard": {
    "ok": true,
+   "asked": "a stool",
+   "tried": [
+    "a stool",
+    "a bar stool",
+    "a barstool",
+    "an ottoman",
+    "a footstool",
+    "a pouf"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -583,6 +635,7 @@
     "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 140 models)'"
    ],
    "mass_kg": 19.565554979771196,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     0.9951604000000001,
     0.5979753999999999,
@@ -597,8 +650,7 @@
     2.0541051662078758,
     2.076606423246039,
     1.4051761065561978
-   ],
-   "seconds": 3.1
+   ]
   },
   "engine": {
    "variants": [
@@ -633,11 +685,11 @@
      "hull_density_kg_m3": 525.5
     }
    ],
-   "median_mass_kg": 50,
+   "median_mass_kg": 30.0,
    "median_size_m": [
-    0.682,
-    0.369,
-    0.364
+    0.685,
+    0.399,
+    0.387
    ]
   },
   "flags": [
@@ -649,6 +701,12 @@
   "category": "seating",
   "deckard": {
    "ok": true,
+   "asked": "a bench",
+   "tried": [
+    "a bench",
+    "a park bench",
+    "a pew"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -667,6 +725,7 @@
     "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 85 models)',"
    ],
    "mass_kg": 23.83083607051121,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     1.3500240000000001,
     0.533724,
@@ -681,8 +740,7 @@
     2.1582168853083807,
     2.1217259849745105,
     1.0217972062432044
-   ],
-   "seconds": 4.0
+   ]
   },
   "engine": {
    "variants": [
@@ -764,9 +822,9 @@
    ],
    "median_mass_kg": 20,
    "median_size_m": [
-    1.902,
-    0.818,
-    0.724
+    1.668,
+    0.7,
+    0.451
    ]
   },
   "flags": []
@@ -776,6 +834,16 @@
   "category": "table",
   "deckard": {
    "ok": true,
+   "asked": "a table",
+   "tried": [
+    "a table",
+    "a dining table",
+    "a kitchen table",
+    "a wooden table",
+    "a counter",
+    "a workbench",
+    "a worktable"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -802,23 +870,23 @@
     "{'name': 'material composition (ShapeNetSem): glass 7%, metal 3%, wood 87%', 'li",
     "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
    ],
-   "mass_kg": 23.784771789836505,
+   "mass_kg": 20.98332312017877,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     1.1086504,
     0.8673404,
     0.6946404
    ],
    "com_m": [
-    0.01245009560475944,
-    0.0012661027488007923,
-    0.9173147721263135
+    0.014127131321357754,
+    0.0012105788753356411,
+    0.9007694574770849
    ],
    "inertia_kgm2": [
-    2.8442541873474916,
-    3.3610697665397495,
-    2.3923134872165277
-   ],
-   "seconds": 7.5
+    2.696645269404012,
+    3.149616751108116,
+    2.131718046767235
+   ]
   },
   "engine": {
    "variants": [
@@ -913,22 +981,26 @@
      "hull_density_kg_m3": 470.6
     }
    ],
-   "median_mass_kg": 100,
+   "median_mass_kg": 82.5,
    "median_size_m": [
-    0.868,
-    0.602,
-    0.579
+    1.232,
+    0.75,
+    0.651
    ]
   },
-  "flags": [
-   "engine mass 100 kg vs Deckard 23.8 kg (x4.2)"
-  ]
+  "flags": []
  },
  {
   "kind": "coffee table",
   "category": "table",
   "deckard": {
    "ok": true,
+   "asked": "a coffee table",
+   "tried": [
+    "a coffee table",
+    "a low table",
+    "a cocktail table"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -955,23 +1027,23 @@
     "{'name': 'material composition (ShapeNetSem): glass 7%, metal 3%, wood 87%', 'li",
     "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
    ],
-   "mass_kg": 18.279265867879484,
+   "mass_kg": 15.269980597359266,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     1.2556075999999998,
     0.8342926,
     0.4907926
    ],
    "com_m": [
-    0.0040546027181801465,
-    -0.0006544542988649742,
-    1.0119093424811594
+    0.004871448020609415,
+    -0.0010248137979755167,
+    0.9789242460602401
    ],
    "inertia_kgm2": [
-    2.461270831663647,
-    3.1521700888812667,
-    1.3544669792326323
-   ],
-   "seconds": 7.0
+    2.311551019535859,
+    2.896732615124007,
+    1.1524257722873101
+   ]
   },
   "engine": {
    "variants": [
@@ -1024,8 +1096,8 @@
    "median_mass_kg": 20,
    "median_size_m": [
     1.154,
-    0.584,
-    0.396
+    0.587,
+    0.415
    ]
   },
   "flags": []
@@ -1035,6 +1107,17 @@
   "category": "table",
   "deckard": {
    "ok": true,
+   "asked": "a side table",
+   "tried": [
+    "a side table",
+    "an end table",
+    "a nightstand",
+    "a night stand",
+    "a bedside table",
+    "a bedside cabinet",
+    "a lamp table",
+    "an occasional table"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -1061,23 +1144,23 @@
     "{'name': 'material composition (ShapeNetSem): glass 7%, metal 3%, wood 87%', 'li",
     "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
    ],
-   "mass_kg": 23.784771789836505,
+   "mass_kg": 20.98332312017877,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     1.1086504,
     0.8673404,
     0.6946404
    ],
    "com_m": [
-    0.01245009560475944,
-    0.0012661027488007923,
-    0.9173147721263135
+    0.014127131321357754,
+    0.0012105788753356411,
+    0.9007694574770849
    ],
    "inertia_kgm2": [
-    2.8442541873474916,
-    3.3610697665397495,
-    2.3923134872165277
-   ],
-   "seconds": 6.8
+    2.696645269404012,
+    3.149616751108116,
+    2.131718046767235
+   ]
   },
   "engine": {
    "variants": [
@@ -1111,6 +1194,15 @@
   "category": "table",
   "deckard": {
    "ok": true,
+   "asked": "a desk",
+   "tried": [
+    "a desk",
+    "a writing desk",
+    "an office desk",
+    "a workstation",
+    "a bureau desk",
+    "an escritoire"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -1137,23 +1229,23 @@
     "{'name': 'material composition (ShapeNetSem): wood 100%', 'license': 'ShapeNet T",
     "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
    ],
-   "mass_kg": 28.792524770788948,
+   "mass_kg": 23.13270889506186,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     1.3252044,
     0.8186694000000001,
     0.7250694
    ],
    "com_m": [
-    0.0038329228169139236,
-    0.0006935351033238345,
-    1.0710981314148666
+    0.00478566027245537,
+    0.0005455099485267931,
+    1.0286499305275023
    ],
    "inertia_kgm2": [
-    4.923969555498317,
-    5.256594384195083,
-    2.776661620455841
-   ],
-   "seconds": 6.8
+    4.493644315107144,
+    4.764862059170589,
+    2.2813745347353773
+   ]
   },
   "engine": {
    "variants": [
@@ -1218,20 +1310,28 @@
      "hull_density_kg_m3": 294.6
     }
    ],
-   "median_mass_kg": 100,
+   "median_mass_kg": 97.5,
    "median_size_m": [
-    2.607,
-    0.79,
-    0.65
+    1.947,
+    0.794,
+    0.647
    ]
   },
-  "flags": []
+  "flags": [
+   "engine mass 98 kg vs Deckard 23.1 kg (x4.2)"
+  ]
  },
  {
   "kind": "meeting table",
   "category": "table",
   "deckard": {
    "ok": true,
+   "asked": "a meeting table",
+   "tried": [
+    "a meeting table",
+    "a conference table",
+    "a boardroom table"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -1258,23 +1358,23 @@
     "{'name': 'material composition (ShapeNetSem): glass 7%, metal 3%, wood 87%', 'li",
     "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
    ],
-   "mass_kg": 23.784771789836505,
+   "mass_kg": 20.98332312017877,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     1.1086504,
     0.8673404,
     0.6946404
    ],
    "com_m": [
-    0.01245009560475944,
-    0.0012661027488007923,
-    0.9173147721263135
+    0.014127131321357754,
+    0.0012105788753356411,
+    0.9007694574770849
    ],
    "inertia_kgm2": [
-    2.8442541873474916,
-    3.3610697665397495,
-    2.3923134872165277
-   ],
-   "seconds": 6.5
+    2.696645269404012,
+    3.149616751108116,
+    2.131718046767235
+   ]
   },
   "engine": {
    "variants": [
@@ -1302,7 +1402,7 @@
    ]
   },
   "flags": [
-   "engine mass 200 kg vs Deckard 23.8 kg (x8.4)",
+   "engine mass 200 kg vs Deckard 21.0 kg (x9.5)",
    "size differs a lot: engine 5.83 x 2.47 x 0.58 m vs Deckard 1.11 x 0.87 x 0.69 m"
   ]
  },
@@ -1311,6 +1411,14 @@
   "category": "table",
   "deckard": {
    "ok": true,
+   "asked": "a patio table",
+   "tried": [
+    "a patio table",
+    "a garden table",
+    "a picnic table",
+    "an outdoor table",
+    "an umbrella table"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -1337,23 +1445,23 @@
     "{'name': 'material composition (ShapeNetSem): glass 7%, metal 3%, wood 87%', 'li",
     "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
    ],
-   "mass_kg": 23.784771789836505,
+   "mass_kg": 20.98332312017877,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     1.1086504,
     0.8673404,
     0.6946404
    ],
    "com_m": [
-    0.01245009560475944,
-    0.0012661027488007923,
-    0.9173147721263135
+    0.014127131321357754,
+    0.0012105788753356411,
+    0.9007694574770849
    ],
    "inertia_kgm2": [
-    2.8442541873474916,
-    3.3610697665397495,
-    2.3923134872165277
-   ],
-   "seconds": 6.5
+    2.696645269404012,
+    3.149616751108116,
+    2.131718046767235
+   ]
   },
   "engine": {
    "variants": [
@@ -1388,15 +1496,15 @@
      "hull_density_kg_m3": 403.1
     }
    ],
-   "median_mass_kg": 300,
+   "median_mass_kg": 300.0,
    "median_size_m": [
-    2.225,
+    2.226,
     1.883,
     1.622
    ]
   },
   "flags": [
-   "engine mass 300 kg vs Deckard 23.8 kg (x12.6)"
+   "engine mass 300 kg vs Deckard 21.0 kg (x14.3)"
   ]
  },
  {
@@ -1404,6 +1512,13 @@
   "category": "bed",
   "deckard": {
    "ok": true,
+   "asked": "a bed",
+   "tried": [
+    "a bed",
+    "a double bed",
+    "a single bed",
+    "a bed frame"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -1419,6 +1534,7 @@
     "bar_stretcher_9"
    ],
    "materials": [
+    "foam",
     "wood"
    ],
    "sources": [
@@ -1429,23 +1545,23 @@
     "{'name': 'material composition (ShapeNetSem): wood 99%', 'license': 'ShapeNet Te",
     "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
    ],
-   "mass_kg": 856.3193377493712,
+   "mass_kg": 150.615524569104,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     2.319408,
     1.983408,
     1.2685080000000002
    ],
    "com_m": [
-    9.966888665900803e-19,
-    -0.042364432933148406,
-    1.0878881081043654
+    5.735745325775412e-17,
+    -0.2717940765118161,
+    1.0735909172768001
    ],
    "inertia_kgm2": [
-    163.90207949247304,
-    286.7430610544859,
-    347.31808668161386
-   ],
-   "seconds": 6.0
+    59.95586717603746,
+    84.48959690194005,
+    74.35432192888788
+   ]
   },
   "engine": {
    "variants": [
@@ -1497,15 +1613,12 @@
    ],
    "median_mass_kg": 100,
    "median_size_m": [
-    1.755,
-    0.926,
-    0.781
+    1.745,
+    0.811,
+    0.699
    ]
   },
-  "flags": [
-   "engine mass 100 kg vs Deckard 856.3 kg (x0.1)",
-   "Deckard's own density looks wrong: 856 kg for a body Deckard sizes at 2.32 m"
-  ]
+  "flags": []
  },
  {
   "kind": "mattress",
@@ -1559,6 +1672,12 @@
   "category": "bed",
   "deckard": {
    "ok": true,
+   "asked": "a bunk bed",
+   "tried": [
+    "a bunk bed",
+    "a bunk",
+    "a bunkbed"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -1574,6 +1693,7 @@
     "bar_stretcher_9"
    ],
    "materials": [
+    "foam",
     "wood"
    ],
    "sources": [
@@ -1584,23 +1704,23 @@
     "{'name': 'material composition (ShapeNetSem): wood 100%', 'license': 'ShapeNet T",
     "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
    ],
-   "mass_kg": 956.4872015202907,
+   "mass_kg": 130.01226948326263,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     2.244216,
     1.926426,
     1.562821
    ],
    "com_m": [
-    -1.7041868533219758e-17,
-    -0.028198544029044065,
-    1.0513735100145118
+    -2.4397250262844905e-17,
+    -0.20743796247189306,
+    1.0246793634217295
    ],
    "inertia_kgm2": [
-    220.40771470834807,
-    285.30185112644176,
-    428.1883431023599
-   ],
-   "seconds": 6.5
+    55.95725287581587,
+    61.92306936414457,
+    76.93257466164698
+   ]
   },
   "engine": {
    "variants": [
@@ -1627,15 +1747,19 @@
     0.977
    ]
   },
-  "flags": [
-   "Deckard's own density looks wrong: 956 kg for a body Deckard sizes at 2.24 m"
-  ]
+  "flags": []
  },
  {
   "kind": "hospital bed",
   "category": "bed",
   "deckard": {
    "ok": true,
+   "asked": "a hospital bed",
+   "tried": [
+    "a hospital bed",
+    "a cot",
+    "a stretcher bed"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -1651,6 +1775,7 @@
     "bar_stretcher_9"
    ],
    "materials": [
+    "foam",
     "wood"
    ],
    "sources": [
@@ -1661,23 +1786,23 @@
     "{'name': 'material composition (ShapeNetSem): wood 99%', 'license': 'ShapeNet Te",
     "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
    ],
-   "mass_kg": 856.3193377493712,
+   "mass_kg": 150.615524569104,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     2.319408,
     1.983408,
     1.2685080000000002
    ],
    "com_m": [
-    9.966888665900803e-19,
-    -0.042364432933148406,
-    1.0878881081043654
+    5.735745325775412e-17,
+    -0.2717940765118161,
+    1.0735909172768001
    ],
    "inertia_kgm2": [
-    163.90207949247304,
-    286.7430610544859,
-    347.31808668161386
-   ],
-   "seconds": 6.1
+    59.95586717603746,
+    84.48959690194005,
+    74.35432192888788
+   ]
   },
   "engine": {
    "variants": [
@@ -1711,7 +1836,7 @@
   "category": "storage",
   "deckard": {
    "ok": true,
-   "asked": "a bookcase",
+   "asked": "a bookshelf",
    "tried": [
     "a bookshelf",
     "a bookcase",
@@ -1720,43 +1845,48 @@
    "identified": true,
    "kind": "composite",
    "parts": [
-    "shelf_1",
-    "shelf_2",
-    "shelf_3",
-    "shelf_4",
-    "shelf_5",
-    "frame",
-    "back_panel",
-    "glass_front"
+    "vertical_side_panel_0",
+    "vertical_side_panel_1",
+    "back_panel_2",
+    "bottom_panel_3",
+    "top_panel_4",
+    "frame_vertical_bar_5",
+    "frame_vertical_bar_6",
+    "frame_horizontal_bar_7",
+    "frame_horizontal_bar_8",
+    "frame_horizontal_bar_9",
+    "frame_horizontal_bar_10",
+    "shelf_11",
+    "door_surface_12"
    ],
    "materials": [
-    "glass",
-    "oak"
+    "wood"
    ],
    "sources": [
-    "{'name': 'qwen2.5:7b \u2014 researched proportions (estimates)', 'license': ''}",
-    "{'name': 'field.interface.surface.MATERIALS', 'license': ''}",
-    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 aspect ratio corrected to median pro",
-    "{'name': 'ShapeNetSem (Savva et al. 2015), median of 91 models \u2014 overall size (c",
-    "{'name': 'modeled hollow - bulk density from a thin-wall shell estimate (applian"
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 44851', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 44851 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 21 models)',",
+    "{'name': 'material composition (ShapeNetSem): glass 7%, wood 93%', 'license': 'S",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
    ],
-   "mass_kg": 4.075672665549665,
+   "mass_kg": 46.53865604839579,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
-    1.2994800729272329,
-    0.41748000670057905,
-    0.07858600280489357
+    1.3714115999999998,
+    1.0553766000000002,
+    0.3146516
    ],
    "com_m": [
-    -0.01245866082286136,
-    0.528895819001539,
-    0.007151566466658477
+    -4.8089272756765046e-17,
+    0.019884237189156877,
+    0.6593324999997591
    ],
    "inertia_kgm2": [
-    0.2028425729116472,
-    0.03113077198754303,
-    0.23344759649500446
-   ],
-   "seconds": 4.7
+    8.988441853265584,
+    14.749202773502457,
+    6.532570265001135
+   ]
   },
   "engine": {
    "variants": [
@@ -1821,37 +1951,71 @@
      "hull_density_kg_m3": 104.5
     }
    ],
-   "median_mass_kg": 100,
+   "median_mass_kg": 100.0,
    "median_size_m": [
     1.615,
     1.013,
-    0.297
+    0.284
    ]
   },
-  "flags": [
-   "engine mass 100 kg vs Deckard 4.1 kg (x24.5)",
-   "size differs a lot: engine 1.61 x 1.01 x 0.30 m vs Deckard 1.30 x 0.42 x 0.08 m"
-  ]
+  "flags": []
  },
  {
   "kind": "shelf",
   "category": "storage",
   "deckard": {
    "ok": true,
-   "asked": "a rack",
+   "asked": "a shelf",
    "tried": [
     "a shelf",
     "a shelving unit",
     "a rack"
    ],
-   "identified": false,
-   "kind": "layered_vessel",
-   "parts": [],
-   "materials": [],
-   "sources": [
-    "{'name': 'no catalog/DB entry \u2014 defaulted to a generic small vessel', 'license':"
+   "identified": true,
+   "kind": "composite",
+   "parts": [
+    "vertical_side_panel_0",
+    "vertical_side_panel_1",
+    "back_panel_2",
+    "bottom_panel_3",
+    "top_panel_4",
+    "frame_vertical_bar_5",
+    "frame_vertical_bar_6",
+    "frame_horizontal_bar_7",
+    "frame_horizontal_bar_8",
+    "frame_horizontal_bar_9",
+    "frame_horizontal_bar_10",
+    "shelf_11",
+    "door_surface_12"
    ],
-   "note": "Deckard could not ground this name"
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 44851', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 44851 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 98 models)',",
+    "{'name': 'material composition (ShapeNetSem): glass 7%, metal 3%, wood 89%', 'li",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 47.52018621112483,
+   "part_density_max_kg_m3": 700.0,
+   "size_m": [
+    1.2123904,
+    0.9520404,
+    0.36843040000000005
+   ],
+   "com_m": [
+    -1.9993891955350356e-17,
+    0.030019257253772278,
+    0.5828800000012081
+   ],
+   "inertia_kgm2": [
+    7.382250446328609,
+    11.799178845740105,
+    5.632426392309661
+   ]
   },
   "engine": {
    "variants": [
@@ -1916,22 +2080,31 @@
      "hull_density_kg_m3": 934.0
     }
    ],
-   "median_mass_kg": 251,
+   "median_mass_kg": 170.5,
    "median_size_m": [
-    1.664,
-    0.932,
-    0.361
+    1.719,
+    1.073,
+    0.381
    ]
   },
-  "flags": [
-   "Deckard cannot ground this name (no mass or size to compare)"
-  ]
+  "flags": []
  },
  {
   "kind": "dresser",
   "category": "storage",
   "deckard": {
    "ok": true,
+   "asked": "a dresser",
+   "tried": [
+    "a dresser",
+    "a chest of drawers",
+    "a bureau",
+    "a drawers",
+    "a sideboard",
+    "a credenza",
+    "a cupboard",
+    "a buffet"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -1960,23 +2133,23 @@
     "{'name': 'material composition (ShapeNetSem): wood 97%', 'license': 'ShapeNet Te",
     "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
    ],
-   "mass_kg": 115.62933861544148,
+   "mass_kg": 114.74598117770672,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     1.2109291999999998,
     1.1781142,
     0.6540792
    ],
    "com_m": [
-    -8.907705225978704e-21,
-    0.06255750061275323,
-    0.5821775000010729
+    -3.2739800462764705e-19,
+    0.061162480485197686,
+    0.5821775000008834
    ],
    "inertia_kgm2": [
-    21.749607011439736,
-    34.90774156816532,
-    23.86058163111079
-   ],
-   "seconds": 7.1
+    21.619868021209378,
+    34.55611861360222,
+    23.5799329875109
+   ]
   },
   "engine": {
    "variants": [
@@ -2041,11 +2214,11 @@
      "hull_density_kg_m3": 1201.1
     }
    ],
-   "median_mass_kg": 251,
+   "median_mass_kg": 140.5,
    "median_size_m": [
-    1.116,
-    1.09,
-    0.442
+    1.008,
+    0.791,
+    0.422
    ]
   },
   "flags": []
@@ -2055,7 +2228,7 @@
   "category": "storage",
   "deckard": {
    "ok": true,
-   "asked": "a clothes cupboard",
+   "asked": "a wardrobe",
    "tried": [
     "a wardrobe",
     "an armoire",
@@ -2063,30 +2236,50 @@
     "a clothes cupboard"
    ],
    "identified": true,
-   "kind": "layered_vessel",
-   "parts": [],
-   "materials": [],
-   "sources": [
-    "{'name': 'typical stoneware coffee mug (approx.)', 'license': ''}",
-    "{'name': 'liquid water at 20C = 998 kg/m^3', 'license': 'public-domain'}"
+   "kind": "composite",
+   "parts": [
+    "vertical_side_panel_0",
+    "vertical_side_panel_1",
+    "back_panel_2",
+    "bottom_panel_3",
+    "top_panel_4",
+    "frame_vertical_bar_5",
+    "frame_vertical_bar_6",
+    "frame_horizontal_bar_7",
+    "frame_horizontal_bar_8",
+    "frame_horizontal_bar_9",
+    "frame_horizontal_bar_10",
+    "shelf_11",
+    "door_surface_12"
    ],
-   "mass_kg": 0.5991574167378529,
+   "materials": [
+    "wood"
+   ],
+   "sources": [
+    "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
+    "{'name': 'representative real model \u2014 PartNet anno_id 44851', 'license': 'ShapeN",
+    "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 44851 (real assembled ",
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 16 models)',",
+    "{'name': 'material composition (ShapeNetSem): glass 2%, metal 2%, wood 96%', 'li",
+    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+   ],
+   "mass_kg": 118.9799899661305,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
-    0.095,
-    0.08,
-    0.08
+    1.7296032000000001,
+    1.1339032,
+    0.5912232
    ],
    "com_m": [
-    0.0,
-    0.0,
-    0.04067657103705865
+    -4.235478334757937e-18,
+    0.052949547019876746,
+    0.831539999998713
    ],
    "inertia_kgm2": [
-    0.0007059607286235992,
-    0.000705960728623591,
-    0.0005829675582153917
-   ],
-   "seconds": 0.3
+    40.03198065451639,
+    51.65581191865519,
+    20.14941698802458
+   ]
   },
   "engine": {
    "variants": [
@@ -2113,16 +2306,19 @@
     0.666
    ]
   },
-  "flags": [
-   "engine mass 150 kg vs Deckard 0.6 kg (x250.4)",
-   "size differs a lot: engine 1.56 x 1.13 x 0.67 m vs Deckard 0.10 x 0.08 x 0.08 m"
-  ]
+  "flags": []
  },
  {
   "kind": "filing cabinet",
   "category": "storage",
   "deckard": {
    "ok": true,
+   "asked": "a filing cabinet",
+   "tried": [
+    "a filing cabinet",
+    "a file cabinet",
+    "a cabinet"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -2152,6 +2348,7 @@
     "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
    ],
    "mass_kg": 27.937210370388428,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     0.7863856,
     0.6477455999999999,
@@ -2166,8 +2363,7 @@
     2.257078835219276,
     3.0237460504019595,
     1.9417373359462613
-   ],
-   "seconds": 7.1
+   ]
   },
   "engine": {
    "variants": [
@@ -2262,11 +2458,11 @@
      "hull_density_kg_m3": 532.1
     }
    ],
-   "median_mass_kg": 60,
+   "median_mass_kg": 55.0,
    "median_size_m": [
-    0.526,
-    0.463,
-    0.362
+    1.055,
+    0.496,
+    0.402
    ]
   },
   "flags": []
@@ -2462,11 +2658,11 @@
      "hull_density_kg_m3": 86.3
     }
    ],
-   "median_mass_kg": 400,
+   "median_mass_kg": 229.99999809265137,
    "median_size_m": [
-    1.23,
-    1.23,
-    1.23
+    1.246,
+    1.002,
+    1.0
    ]
   },
   "flags": [
@@ -2556,11 +2752,11 @@
      "hull_density_kg_m3": 780.1
     }
    ],
-   "median_mass_kg": 3,
+   "median_mass_kg": 3.0,
    "median_size_m": [
     0.484,
-    0.27,
-    0.251
+    0.294,
+    0.262
    ]
   },
   "flags": [
@@ -2651,7 +2847,7 @@
      "hull_density_kg_m3": 160.7
     }
    ],
-   "median_mass_kg": 50,
+   "median_mass_kg": 40.0,
    "median_size_m": [
     0.868,
     0.552,
@@ -2717,6 +2913,13 @@
   "category": "lighting",
   "deckard": {
    "ok": true,
+   "asked": "a floor lamp",
+   "tried": [
+    "a floor lamp",
+    "a standing lamp",
+    "a standard lamp",
+    "a lamp"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -2726,6 +2929,7 @@
     "light_bulb_3"
    ],
    "materials": [
+    "fabric",
     "glass"
    ],
    "sources": [
@@ -2736,23 +2940,23 @@
     "{'name': 'material composition (ShapeNetSem): ceramic 4%, fabric 40%, glass 39%,",
     "{'name': 'per-part material by role-convention (frame=glass, upholstery=fabric) "
    ],
-   "mass_kg": 178.6348011634983,
+   "mass_kg": 16.10256450655293,
+   "part_density_max_kg_m3": 689.405,
    "size_m": [
     1.684774,
     0.551499,
     0.508804
    ],
    "com_m": [
-    1.0613825171718266e-17,
-    0.007241276789737099,
-    0.7835214419622132
+    1.0012794089603483e-17,
+    -0.005207198979628906,
+    0.6364232143737578
    ],
    "inertia_kgm2": [
-    43.687914485366136,
-    41.38375500843675,
-    3.0079534216603476
-   ],
-   "seconds": 2.5
+    3.5111756224367694,
+    3.3080360967583644,
+    0.30950609579012334
+   ]
   },
   "engine": {
    "variants": [
@@ -2779,16 +2983,20 @@
     0.362
    ]
   },
-  "flags": [
-   "engine mass 15 kg vs Deckard 178.6 kg (x0.1)",
-   "Deckard's own density looks wrong: 179 kg for a body Deckard sizes at 1.68 m"
-  ]
+  "flags": []
  },
  {
   "kind": "desk lamp",
   "category": "lighting",
   "deckard": {
    "ok": true,
+   "asked": "a desk lamp",
+   "tried": [
+    "a desk lamp",
+    "a table lamp",
+    "a reading lamp",
+    "a bedside lamp"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -2798,33 +3006,34 @@
     "light_bulb_3"
    ],
    "materials": [
-    "wood"
+    "fabric",
+    "glass"
    ],
    "sources": [
     "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
     "{'name': 'representative real model \u2014 PartNet anno_id 14982', 'license': 'ShapeN",
     "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 14982 (real assembled ",
-    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 194 models)'",
-    "{'name': 'material composition (ShapeNetSem): wood 100%', 'license': 'ShapeNet T",
-    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 668 models)'",
+    "{'name': 'material composition (ShapeNetSem): ceramic 4%, fabric 35%, glass 46%,",
+    "{'name': 'per-part material by role-convention (frame=glass, upholstery=fabric) "
    ],
-   "mass_kg": 99.30717634973234,
+   "mass_kg": 7.876255236244391,
+   "part_density_max_kg_m3": 1096.397,
    "size_m": [
-    1.3251264,
-    0.8186664,
-    0.7250713999999999
+    0.8007376000000002,
+    0.47349759999999996,
+    0.42470259999999993
    ],
    "com_m": [
-    -3.0514796686609996e-17,
-    0.010099885464275819,
-    0.6178930404412117
+    1.3767495798708221e-17,
+    -0.01015341800324983,
+    0.28536767330174473
    ],
    "inertia_kgm2": [
-    17.51960048221237,
-    14.552478974256324,
-    3.964887705194902
-   ],
-   "seconds": 2.4
+    0.475752446834775,
+    0.4033048248447394,
+    0.1303636420721346
+   ]
   },
   "engine": {
    "variants": [
@@ -2859,24 +3068,27 @@
      "hull_density_kg_m3": 3218.6
     }
    ],
-   "median_mass_kg": 10,
+   "median_mass_kg": 9.0,
    "median_size_m": [
-    0.422,
-    0.17,
-    0.161
+    0.407,
+    0.253,
+    0.198
    ]
   },
-  "flags": [
-   "engine mass 10 kg vs Deckard 99.3 kg (x0.1)",
-   "size differs a lot: engine 0.42 x 0.17 x 0.16 m vs Deckard 1.33 x 0.82 x 0.73 m",
-   "Deckard's own density looks wrong: 99 kg for a body Deckard sizes at 1.33 m"
-  ]
+  "flags": []
  },
  {
   "kind": "fridge",
   "category": "appliance",
   "deckard": {
    "ok": true,
+   "asked": "a fridge",
+   "tried": [
+    "a fridge",
+    "a refrigerator",
+    "an icebox",
+    "a freezer"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -2901,23 +3113,23 @@
     "{'name': 'material composition (ShapeNetSem): metal 97%', 'license': 'ShapeNet T",
     "{'name': 'per-part material by role-convention (frame=metal) \u2014 PartNet carries n"
    ],
-   "mass_kg": 7750.090719073607,
+   "mass_kg": 75.30297351804063,
+   "part_density_max_kg_m3": 3840.27,
    "size_m": [
     1.6701619999999997,
     0.882837,
     0.840907
    ],
    "com_m": [
-    -0.00035089309440500244,
-    -0.012791521555422491,
-    0.8027998418257682
+    -0.006960095763105917,
+    -0.006506667283131643,
+    0.8016880323910507
    ],
    "inertia_kgm2": [
-    2011.9357339816788,
-    2096.1417459373006,
-    801.6747408220206
-   ],
-   "seconds": 4.1
+    19.395491428101472,
+    20.21516320022765,
+    7.993523488902672
+   ]
   },
   "engine": {
    "variants": [
@@ -2974,10 +3186,7 @@
     0.584
    ]
   },
-  "flags": [
-   "engine mass 250 kg vs Deckard 7750.1 kg (x0.0)",
-   "Deckard's own density looks wrong: 7750 kg for a body Deckard sizes at 1.67 m"
-  ]
+  "flags": []
  },
  {
   "kind": "stove",
@@ -3051,9 +3260,9 @@
    ],
    "median_mass_kg": 1500,
    "median_size_m": [
-    0.887,
-    0.699,
-    0.548
+    1.014,
+    0.773,
+    0.675
    ]
   },
   "flags": [
@@ -3065,6 +3274,11 @@
   "category": "appliance",
   "deckard": {
    "ok": true,
+   "asked": "a microwave",
+   "tried": [
+    "a microwave",
+    "a microwave oven"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -3087,23 +3301,23 @@
     "{'name': 'material composition (ShapeNetSem): glass 55%, metal 42%, plastic 3%',",
     "{'name': 'per-part material by role-convention (frame=glass) \u2014 PartNet carries n"
    ],
-   "mass_kg": 404.53372442622214,
+   "mass_kg": 23.185952422362995,
+   "part_density_max_kg_m3": 2040.804,
    "size_m": [
     0.7730059999999999,
     0.5976309999999999,
     0.450006
    ],
    "com_m": [
-    0.0004024285262804247,
-    -0.016770845801628485,
-    0.37559865014136357
+    -0.003944438102382641,
+    0.022675140441235923,
+    0.37467268660856534
    ],
    "inertia_kgm2": [
-    23.086451758909085,
-    29.11728101415229,
-    16.068894448829294
-   ],
-   "seconds": 4.2
+    1.34174376689412,
+    1.5511500678224102,
+    0.9347668930798728
+   ]
   },
   "engine": {
    "variants": [
@@ -3138,17 +3352,14 @@
      "hull_density_kg_m3": 201.8
     }
    ],
-   "median_mass_kg": 25,
+   "median_mass_kg": 22.5,
    "median_size_m": [
-    0.673,
-    0.478,
-    0.431
+    0.638,
+    0.467,
+    0.378
    ]
   },
-  "flags": [
-   "engine mass 25 kg vs Deckard 404.5 kg (x0.1)",
-   "Deckard's own density looks wrong: 405 kg for a body Deckard sizes at 0.77 m"
-  ]
+  "flags": []
  },
  {
   "kind": "sink",
@@ -3222,7 +3433,7 @@
    "median_mass_kg": 100,
    "median_size_m": [
     0.678,
-    0.534,
+    0.53,
     0.455
    ]
   },
@@ -3302,8 +3513,8 @@
    "median_mass_kg": 150,
    "median_size_m": [
     0.722,
-    0.571,
-    0.438
+    0.486,
+    0.43
    ]
   },
   "flags": [
@@ -3364,11 +3575,11 @@
      "hull_density_kg_m3": 1143.6
     }
    ],
-   "median_mass_kg": 900,
+   "median_mass_kg": 550.0,
    "median_size_m": [
-    1.877,
-    0.753,
-    0.735
+    1.665,
+    0.676,
+    0.592
    ]
   },
   "flags": [
@@ -3428,11 +3639,11 @@
      "hull_density_kg_m3": 644.6
     }
    ],
-   "median_mass_kg": 200,
+   "median_mass_kg": 130.0,
    "median_size_m": [
-    0.958,
+    0.961,
     0.7,
-    0.2
+    0.205
    ]
   },
   "flags": [
@@ -3462,33 +3673,33 @@
     "plant_1"
    ],
    "materials": [
-    "ceramic"
+    "metal"
    ],
    "sources": [
     "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
     "{'name': 'representative real model \u2014 PartNet anno_id 4262', 'license': 'ShapeNe",
     "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 4262 (real assembled p",
-    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 48 models)',",
-    "{'name': 'material composition (ShapeNetSem): ceramic 54%, paper 10%, plastic 33",
-    "{'name': 'per-part material by role-convention (frame=ceramic) \u2014 PartNet carries"
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 4 models)', ",
+    "{'name': 'material composition (ShapeNetSem): glass 12%, metal 84%, plastic 3%',",
+    "{'name': 'per-part material by role-convention (frame=metal) \u2014 PartNet carries n"
    ],
-   "mass_kg": 2189.077903567237,
+   "mass_kg": 114.69761330094728,
+   "part_density_max_kg_m3": 115.49,
    "size_m": [
-    1.222624,
-    1.131124,
-    0.7660239999999999
+    1.5620851999999998,
+    1.3924802,
+    1.0929802
    ],
    "com_m": [
-    -1.1886672510489246e-21,
-    -9.311226799883242e-21,
-    0.5878000000030106
+    0.0,
+    1.9283508768984665e-19,
+    0.750992500003188
    ],
    "inertia_kgm2": [
-    344.4782444572435,
-    464.7373628150109,
-    308.4002070920064
-   ],
-   "seconds": 1.0
+    31.45157663285333,
+    38.43624836769614,
+    27.053252123844395
+   ]
   },
   "engine": {
    "variants": [
@@ -3516,7 +3727,7 @@
    ]
   },
   "flags": [
-   "Deckard's own density looks wrong: 2189 kg for a body Deckard sizes at 1.22 m"
+   "engine mass 800 kg vs Deckard 114.7 kg (x7.0)"
   ]
  },
  {
@@ -3573,11 +3784,11 @@
      "hull_density_kg_m3": 95.1
     }
    ],
-   "median_mass_kg": 600,
+   "median_mass_kg": 350.0,
    "median_size_m": [
-    1.616,
-    0.922,
-    0.779
+    1.728,
+    0.963,
+    0.8
    ]
   },
   "flags": [
@@ -3589,6 +3800,17 @@
   "category": "storage",
   "deckard": {
    "ok": true,
+   "asked": "a display case",
+   "tried": [
+    "a display case",
+    "a display cabinet",
+    "a shop counter",
+    "a glass counter",
+    "a deli counter",
+    "a display cooler",
+    "a water cooler",
+    "a cooler"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -3608,23 +3830,23 @@
     "{'name': 'material composition (ShapeNetSem): glass 6%, paper 11%, wood 79%', 'l",
     "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
    ],
-   "mass_kg": 50.326942441529475,
+   "mass_kg": 34.71370400589382,
+   "part_density_max_kg_m3": 663.113,
    "size_m": [
     1.0613148,
     0.9652198,
     0.3086048
    ],
    "com_m": [
-    -0.0012206493532658383,
-    -0.006639679341934754,
-    0.5468228558527014
+    -0.0010644893250978382,
+    0.0011959715458173424,
+    0.5461130070880053
    ],
    "inertia_kgm2": [
-    3.7052829944651293,
-    6.380218188414457,
-    2.888829873004731
-   ],
-   "seconds": 2.5
+    2.689881936907872,
+    4.622996858999123,
+    2.0711898900821772
+   ]
   },
   "engine": {
    "variants": [
@@ -3658,7 +3880,7 @@
   "category": "electronics",
   "deckard": {
    "ok": true,
-   "asked": "a flat screen",
+   "asked": "a tv",
    "tried": [
     "a tv",
     "a television",
@@ -3675,33 +3897,33 @@
     "surface_3"
    ],
    "materials": [
-    "wood"
+    "glass"
    ],
    "sources": [
     "{'name': 'assembled from a representative real model \u2014 its actual part layout (n",
     "{'name': 'representative real model \u2014 PartNet anno_id 4911', 'license': 'ShapeNe",
     "{'name': 'PartNet (Mo et al. 2019) \u2014 representative model 4911 (real assembled p",
-    "{'name': 'typical overall size (scale estimate)', 'license': ''}",
-    "{'name': 'material composition (ShapeNetSem): wood', 'license': ''}",
-    "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
+    "{'name': 'ShapeNetSem (Savva et al. 2015) \u2014 overall size (median of 233 models)'",
+    "{'name': 'material composition (ShapeNetSem): glass 94%, plastic 6%', 'license':",
+    "{'name': 'per-part material by role-convention (frame=glass) \u2014 PartNet carries n"
    ],
-   "mass_kg": 2.0414686066680723,
+   "mass_kg": 16.373232819119785,
+   "part_density_max_kg_m3": 717.36,
    "size_m": [
-    0.312,
-    0.198,
-    0.19798500000000002
+    0.9441067999999999,
+    0.6355118,
+    0.2275018
    ],
    "com_m": [
-    -5.351219763654304e-05,
-    -0.00444033258312762,
-    0.16159573064944976
+    -0.0007243531403792542,
+    -0.0006645763065412176,
+    0.4869180647143361
    ],
    "inertia_kgm2": [
-    0.014543606134796216,
-    0.017145673462038123,
-    0.0065924268355436275
-   ],
-   "seconds": 3.0
+    0.9749390401529823,
+    1.3460129948372512,
+    0.40404574510075053
+   ]
   },
   "engine": {
    "variants": [
@@ -3753,13 +3975,13 @@
    ],
    "median_mass_kg": 100.00000762939453,
    "median_size_m": [
-    0.427,
-    0.316,
+    1.152,
+    0.73,
     0.277
    ]
   },
   "flags": [
-   "engine mass 100 kg vs Deckard 2.0 kg (x49.0)"
+   "engine mass 100 kg vs Deckard 16.4 kg (x6.1)"
   ]
  },
  {
@@ -3793,23 +4015,23 @@
     "{'name': 'material composition (ShapeNetSem): wood', 'license': ''}",
     "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
    ],
-   "mass_kg": 21.58993014673349,
+   "mass_kg": 15.722189209857406,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     0.7290452,
     0.6238402,
     0.2879302
    ],
    "com_m": [
-    -0.0007703086848259864,
-    -0.007372907410574952,
-    0.37639143199138875
+    -0.0007271860083320078,
+    -0.0015513276236750683,
+    0.37332110895242465
    ],
    "inertia_kgm2": [
-    0.7691211869195183,
-    1.2302378259558324,
-    0.5429029697295786
-   ],
-   "seconds": 2.9
+    0.5898718805396332,
+    0.9335746247476298,
+    0.4028363980401188
+   ]
   },
   "engine": {
    "variants": [
@@ -3843,6 +4065,11 @@
   "category": "electronics",
   "deckard": {
    "ok": true,
+   "asked": "a phone",
+   "tried": [
+    "a phone",
+    "a telephone"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -3866,23 +4093,23 @@
     "{'name': 'material composition (ShapeNetSem): wood', 'license': ''}",
     "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
    ],
-   "mass_kg": 1.4316982947265617,
+   "mass_kg": 1.4190259339598206,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     0.217022,
     0.195357,
     0.193547
    ],
    "com_m": [
-    9.523343687623452e-06,
-    -1.2572097204733749e-20,
-    0.08709446528834806
+    9.608390228373107e-06,
+    -1.4363183790750724e-20,
+    0.08632469164473901
    ],
    "inertia_kgm2": [
-    0.007552655835908599,
-    0.011726266529474946,
-    0.00940094909499426
-   ],
-   "seconds": 4.4
+    0.007450765046037696,
+    0.011590670502211615,
+    0.009363818470992357
+   ]
   },
   "engine": {
    "variants": [
@@ -3918,7 +4145,7 @@
   "category": "decor",
   "deckard": {
    "ok": true,
-   "asked": "a pot plant",
+   "asked": "a plant",
    "tried": [
     "a plant",
     "a potted plant",
@@ -3946,23 +4173,23 @@
     "{'name': 'material composition (ShapeNetSem): ceramic 40%, foliage 13%, plastic ",
     "{'name': 'per-part material by role-convention (frame=ceramic) \u2014 PartNet carries"
    ],
-   "mass_kg": 1457.243196907674,
+   "mass_kg": 61.81929233616162,
+   "part_density_max_kg_m3": 205.686,
    "size_m": [
     1.1531416,
     0.8268516,
     0.7560516
    ],
    "com_m": [
-    -1.97118510067528e-17,
-    -1.2350550753265688e-20,
-    0.5543949999906618
+    1.4249827713235978e-21,
+    7.223566510017315e-20,
+    0.5543949999917024
    ],
    "inertia_kgm2": [
-    209.2870394887609,
-    221.246933696905,
-    133.96347928909722
-   ],
-   "seconds": 1.1
+    8.878392229699035,
+    9.385755858466055,
+    5.6830098820228985
+   ]
   },
   "engine": {
    "variants": [
@@ -4027,23 +4254,30 @@
      "hull_density_kg_m3": 2571.6
     }
    ],
-   "median_mass_kg": 40,
+   "median_mass_kg": 40.0,
    "median_size_m": [
-    1.021,
-    0.943,
-    0.851
+    0.976,
+    0.901,
+    0.745
    ]
   },
-  "flags": [
-   "engine mass 40 kg vs Deckard 1457.2 kg (x0.0)",
-   "Deckard's own density looks wrong: 1457 kg for a body Deckard sizes at 1.15 m"
-  ]
+  "flags": []
  },
  {
   "kind": "trash can",
   "category": "container",
   "deckard": {
    "ok": true,
+   "asked": "a trash can",
+   "tried": [
+    "a trash can",
+    "a trashcan",
+    "a bin",
+    "a rubbish bin",
+    "a garbage can",
+    "a wastebasket",
+    "a waste bin"
+   ],
    "identified": true,
    "kind": "composite",
    "parts": [
@@ -4062,6 +4296,7 @@
     "{'name': 'per-part material by role-convention (frame=wood) \u2014 PartNet carries no"
    ],
    "mass_kg": 8.20831334596,
+   "part_density_max_kg_m3": 700.0,
    "size_m": [
     0.6852872000000001,
     0.5245572,
@@ -4076,8 +4311,7 @@
     1.013821447395934,
     1.015657200045914,
     0.3429978906793959
-   ],
-   "seconds": 0.6
+   ]
   },
   "engine": {
    "variants": [
@@ -4129,9 +4363,9 @@
    ],
    "median_mass_kg": 20,
    "median_size_m": [
-    1.063,
-    0.688,
-    0.688
+    0.775,
+    0.505,
+    0.459
    ]
   },
   "flags": []
@@ -4188,11 +4422,11 @@
      "hull_density_kg_m3": 191.4
     }
    ],
-   "median_mass_kg": 999.9999389648438,
+   "median_mass_kg": 724.9999694824219,
    "median_size_m": [
-    3.479,
-    2.469,
-    2.409
+    2.445,
+    1.746,
+    1.704
    ]
   },
   "flags": [
@@ -4204,6 +4438,12 @@
   "category": "decor",
   "deckard": {
    "ok": true,
+   "asked": "a mug",
+   "tried": [
+    "a mug",
+    "a coffee mug",
+    "a cup"
+   ],
    "identified": true,
    "kind": "layered_vessel",
    "parts": [],
@@ -4213,6 +4453,7 @@
     "{'name': 'liquid water at 20C = 998 kg/m^3', 'license': 'public-domain'}"
    ],
    "mass_kg": 0.5991574167378529,
+   "part_density_max_kg_m3": 2400.0,
    "size_m": [
     0.095,
     0.08,
@@ -4227,8 +4468,7 @@
     0.0007059607286235992,
     0.000705960728623591,
     0.0005829675582153917
-   ],
-   "seconds": 0.3
+   ]
   },
   "engine": {
    "variants": [
