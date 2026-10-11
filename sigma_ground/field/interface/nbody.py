@@ -583,8 +583,13 @@ class NBodySystem:
                     r_dot_n  = float(np.dot(r_vec, n_hat))
                     cos2     = (r_dot_n * r_dot_n) / r_sq
                     coef     = 1.5 * gm_j * j2_j * R_j_sq / (r_sq * r_sq * r)
-                    acc[i] += coef * ((5.0 * cos2 - 1.0) * r_vec
-                                      - 2.0 * r_dot_n * n_hat)
+                    a_z = coef * ((5.0 * cos2 - 1.0) * r_vec
+                                  - 2.0 * r_dot_n * n_hat)
+                    acc[i] += a_z
+                    # Newton III (fixed 2026-10-11): the oblate body feels the equal and opposite force. Without it the
+                    # planet-moon force was not mutual (net force 2.2e-5 of the total on the Jupiter system) and the giant
+                    # planets came out worse with zonals on in the DE440 shoot-out.
+                    acc[j] -= (self.bodies[i].mass_kg / bj.mass_kg) * a_z
 
         # ── J₃ zonal (north-south asymmetric quadrupole) ──────────────────
         if t.j3_zonal:
@@ -629,7 +634,9 @@ class NBodySystem:
                     coef     = 0.5 * gm_j * j3_j * R3 / (r_sq * r_sq * r)   # GM J₃ R³ / (2 r⁵)
                     n_factor = 3.0 - 15.0 * s * s
                     r_factor = 5.0 * s * (7.0 * s * s - 3.0)
-                    acc[i] += coef * (n_factor * n_hat + r_factor * (r_vec / r))
+                    a_z = coef * (n_factor * n_hat + r_factor * (r_vec / r))
+                    acc[i] += a_z
+                    acc[j] -= (self.bodies[i].mass_kg / bj.mass_kg) * a_z   # Newton III (fixed 2026-10-11)
 
         # ── J₄ zonal (next-order oblateness) ──────────────────────────────
         if t.j4_zonal:
@@ -671,7 +678,9 @@ class NBodySystem:
                     coef     = 0.625 * gm_j * j4_j * R4 / (r_sq * r_sq * r_sq)  # 5/8 GM J₄ R⁴/r⁶
                     r_factor = 3.0 * (21.0 * s**4 - 14.0 * s**2 + 1.0)
                     n_factor = 4.0 * s * (3.0 - 7.0 * s * s)
-                    acc[i] += coef * (r_factor * (r_vec / r) + n_factor * n_hat)
+                    a_z = coef * (r_factor * (r_vec / r) + n_factor * n_hat)
+                    acc[i] += a_z
+                    acc[j] -= (self.bodies[i].mass_kg / bj.mass_kg) * a_z   # Newton III (fixed 2026-10-11)
 
         # ── Mutual tidal force (equilibrium tide, Love-number response) ──────
         if t.tidal_force:

@@ -564,3 +564,14 @@ overwrites a tracked fixture.
 **Fixtures carrying the old GR sign:** `ssbm_future_predictions.json` (SHA-sealed, reproduced bit-for-bit by the pre-fix tree;
 Mercury differs by 3.7 × 10⁶ km at month 360 with the fix), `ssbm_over_physics_predictions.json`, the `rolling_shootout_*`,
 toggle-iteration and long-horizon fixtures. No test fails, because they check only hashes or loose thresholds.
+
+## ✅ FIXED 2026-10-11 — PHYSICS_GAP: the J2/J3/J4 zonal layers had no reaction on the oblate body (found by the v2physics shoot-out)
+
+`nbody.py::compute_accelerations` accelerated every body by the oblate body's zonal multipole field but applied nothing to the
+oblate body, so planet-moon zonal forces were not equal and opposite (audit finding, medium, A50; unfixed when the v2physics short
+pass ran). On the real Jupiter system, net force with only the zonal layers on was 2.2e-5 of the total force scale (Newton and the
+fixed tidal layer: 1e-17), and Jupiter got 1.7e-12 m/s^2 from the layers against the ~1.9e-8 the moons' pull implies. Cost in the
+DE440 shoot-out (`fixtures/v2physics/`): Jupiter 630 km and Saturn 140 km at +5 yr with zonals on, against 31 and 26 km without
+them, while the same layers improved the moons 10-100 fold. Fix: each zonal block adds `acc[j] -= (m_i/m_j) * a_zonal`.
+After: net force 9e-17; Jupiter receives 1.9e-8 m/s^2. Sentinels: `test_nbody_zonal_reaction.py` (3 of 5 fail on the old code).
+The v2physics short pass keeps its first-run numbers as the baseline taken BEFORE this fix; a corrected run is added beside it.
