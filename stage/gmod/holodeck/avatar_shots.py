@@ -1,4 +1,5 @@
-"""Photograph Skippy's avatar (the beer can in the bicorn) in the real game: a visible window for about a minute.
+"""Photograph Skippy's avatar in the real game (the real print-kit body when its private files are installed, else the beer can in the bicorn).
+A visible window for about a minute and a half. The private body files are copied into the game's data folder first (install_skippy_body.sh).
 
     python stage/gmod/holodeck/avatar_shots.py [--views '[{"name":"front","dist":90,"yaw":0,"elev":8}]'] [--out DIR] [--prefix avatar]
 Summons him with the sentence a player would say, takes the player's own view, then parks him and photographs him from each view
@@ -27,16 +28,20 @@ def main(argv=None) -> int:
     ap.add_argument("--prefix", default="avatar")
     ap.add_argument("--width", type=int, default=960)
     ap.add_argument("--map", default="gm_flatgrass")
+    ap.add_argument("--no-perf", action="store_true", help="skip the frame-cost measurement (saves ~15 s)")
     a = ap.parse_args(argv)
     os.environ.setdefault("GMOD_EXTRA_ARGS", "+maxplayers 4")
-    targs = {}
+    targs = {"perf": False, "tone": False} if a.no_perf else {}
     names = ["firstperson"]
     if a.views:
         targs["views"] = json.loads(a.views)
-    names += [v["name"] for v in targs.get("views", [])] or ["front", "side", "far5m"]
+    names += [v["name"] for v in targs.get("views", [])] or ["front", "threequarter", "side", "back", "far5m", "point"]
+    if True:  # (a missing private kit only means the procedural can is photographed)
+        import subprocess
+        subprocess.run([exp_run._bash(), str(HERE.parent / "install_skippy_body.sh").replace("\\", "/")], stdin=subprocess.DEVNULL)
     for old in exp_run.DATA.glob("shot_av_*.jpg"):
         old.unlink()
-    res = run_tool.run_tool("avatar_shots", targs, client=True, visible=True, map_name=a.map, timeout=150)
+    res = run_tool.run_tool("avatar_shots", targs, client=True, visible=True, map_name=a.map, timeout=240)
     print(json.dumps(res))
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)

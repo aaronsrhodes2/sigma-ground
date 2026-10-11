@@ -22,10 +22,12 @@ if not SERVER then return end
 Mentat = Mentat or {}
 local Logic = include("mentat/avatar/logic.lua")
 local Core = Logic.Core
+local BodyNet = include("mentat/avatar/body_net.lua")        -- the real Skippy's private files, read and sent to the clients once
 
 local Av = Mentat.Avatar or {}
 Mentat.Avatar = Av
 Av.Logic = Logic
+Av.Body = BodyNet
 Av.visible = Av.visible or false
 Av.st = Av.st or { pos = { x = 0, y = 0, z = 0 }, yaw = 0, t = 0 }
 Av.wrapped = Av.wrapped or setmetatable({}, { __mode = "k" })
@@ -135,6 +137,7 @@ function Av.Summon(ply)
   local bot, why = ensure_bot()
   if not bot then return false, why end
   configure(bot)
+  BodyNet.ensure()                                              -- the real body's files (a failure only means the procedural can)
   local fr = frame(ply)
   local to = arrival_point(ply, fr)
   local from = Av.visible and fromv(bot:GetPos()) or nil
@@ -236,6 +239,24 @@ hook.Add("PlayerDisconnected", "Mentat.AvatarGone", function(ply)
   if Av.bot ~= nil and ply == Av.bot then Av.bot = nil; reset()
   elseif ply == Av.owner then Av.Dismiss() end
 end)
+
+-- ------------------------------------------------------------------------------------------------ pointing
+-- Hook SkippyAvatarPoint(pos, seconds): the right hand of the real body swings to aim at `pos` (a Vector) for `seconds` (default 4);
+-- pos nil lowers it. The clients draw it (avatar_client.lua); this just carries the order to them. Console: skippy_point = at what I look at.
+util.AddNetworkString("mentat_avatar_point")
+hook.Add("SkippyAvatarPoint", "Mentat.AvatarPointNet", function(pos, seconds)
+  net.Start("mentat_avatar_point")
+  net.WriteBool(pos ~= nil)
+  if pos ~= nil then net.WriteVector(pos) end
+  net.WriteUInt(math.Clamp(math.floor((seconds or 4) * 10 + 0.5), 1, 600), 16)
+  net.Broadcast()
+end)
+function Av.Point(pos, seconds) hook.Run("SkippyAvatarPoint", pos, seconds) end
+concommand.Add("skippy_point", function(ply)
+  if not is_player(ply) or ply ~= Av.owner then return end
+  local tr = util.TraceLine({ start = ply:GetShootPos(), endpos = ply:GetShootPos() + ply:GetAimVector() * 4000, mask = MASK_SOLID })
+  Av.Point(tr.HitPos, 4)
+end, nil, "Skippy points at what you are looking at")
 
 -- ------------------------------------------------------------------------------------------------ who hears him
 --- How well one listener hears Skippy where he hovers now: the same rule as proximity voice (distance, walls, whisper).

@@ -29,6 +29,50 @@ floats (3D, with proximity voice's range, wall and whisper rules). Built and tes
   dynamic light pulses and the hat leans toward whoever is talking (the nearest speaking player, else the owner) with the voice
   level (`chan:GetLevel()` when available, else a timed envelope).
 
+## The real Skippy body (print kit; private, optional)
+
+When the private payloads exist the avatar draws Aaron's canonical Skippy (silver can and head with an open mouth and red tongue, navy coat
+with yellow trim, silver pointing hand, navy and yellow bicorn) instead of the procedural can; without them, or if ANY file is missing or
+corrupt, every client keeps the procedural can in a bicorn (never a half-built mix). The payloads (`stage/skippyverse/private/skippy/`:
+`manifest.json`, `can|jacket|head|hat|hand_a|hand_b.svm2`, about 12k triangles, 112 KB) are gitignored and NEVER committed; see its
+`INTEGRATION.md` and `stage/skippyverse/skippy_model.py`.
+
+- **Delivery.** Server: `avatar/body_net.lua` reads `garrysmod/data/<mentat_avatar_body_dir>/` (convar, default `mentat/skippy`), checks every
+  file (size cap 256 KB, CRC-32, LZMA declared size, `util.Decompress`, full SVM2 decode; manifest pivots), sets the global `mentat_avatar_body`,
+  and sends the 7 items in 16 KB chunks (one per 0.1 s) to every human once (`mentat_avatar_body`); a client that joins late, or missed a chunk,
+  asks (`mentat_avatar_body_want`, rate limited) and gets them alone; the bot never is a target. `mentat_avatar_body 0` = never send.
+  `mentat_avatar_body_reload` (server console) re-reads and re-sends. **Route:** `stage/gmod/install_skippy_body.sh` copies the files from the private
+  folder into the game's and the dedicated server's `data/mentat/skippy/` (`holodeck/avatar_shots.py` runs it first). A cloud server gets the same eight
+  files copied by hand, outside git.
+- **Client.** `avatar/body_client.lua` reassembles and verifies, decodes (`holodeck/svm1.lua`, now also reads SVM2 with normals, only when asked),
+  builds one IMesh per part (plus one for the red triangles) with per-vertex baked shading from the stored normals (ambient 0.5, a key from above-front-left,
+  a weak fill so the back is not black; the material is unlit), draws two-sided with depth writing forced on (the live finding above). Real body only
+  when all seven items arrived and built; `mentat_avatar_real 0` forces the procedural one. Size: `mentat_avatar_body_m` (0.6 m total) times `mentat_avatar_scale`;
+  his middle hovers where the can's middle did. The kit's black mouth is tinted DimGreen `#003322`.
+- **Animation** (pivots from the manifest, `avatar/body.lua`): the right hand swings about the wrist to aim at a point, at most 35 degrees
+  (hook `SkippyAvatarPoint(pos, seconds)` on the server, relayed to clients; `Mentat.Avatar.Point(pos, secs)`; console `skippy_point` = at what the owner
+  looks at; client `mentat_avatar_point 1` = follows the owner's gaze; rest pose = the kit's, pointing up); the hat leans toward whoever talks with the voice
+  level, at most 12 degrees; the head turns toward them, at most 25 degrees; the red tongue brightens with the voice (75% to 100%). The hover light stays.
+  Hooks `SkippyAvatarArrive/Leave`, the summon/dismiss behaviour and the 3D speech are unchanged.
+- **Tests:** `sigma_ground/radiance/tests/test_gmod_avatar_body.py` (decoder vs Python on the real parts, SKIPPED without the private folder; fallback on
+  absent/corrupt/missing-chunk/undecodable; transfer, chunking, late joiner, rate limit; the pointing hand's fingertip direction hits the target within 0.5
+  degrees or stops at 35; the hat nod and head yaw bounded; depth writing; shading).
+
+### Live pass, real body (2026-10-11)
+Run: `python stage/gmod/holodeck/avatar_shots.py` (listen server + visible client; pictures `holodeck/data/shots/avatar_{firstperson,front,threequarter,side,back,far5m,point}.jpg`,
+`av2_{point,point_front}.jpg`).
+- VERIFIED live: the files are read from `data/mentat/skippy`, sent, assembled and built on the client (12023 triangles, state `ready`); he draws the real
+  six-part figure facing the right way (+X front: mouth toward the camera in the front view, his back with the hat from behind, the pointing hand on his left),
+  nothing inside out, no Lua error; parts sit where the kit puts them (head on the collar, hat on the head, hand at the sleeve); colours read right (silver, navy,
+  yellow, red tongue, DimGreen mouth); the right hand swings toward a ball hung above it (`av2_point*.jpg`).
+- Look against the kit photo: recognisably the same character from front, three-quarter, side and back; the flat colours and low-poly facets match the preview.
+  Weaker than the photo: the baked light is flat (little shading on the silver coat panel), the mouth reads green-teal rather than black, and at 5 m he is a small blue
+  figure with a yellow-edged hat (still recognisable).
+- Frame cost (144 fps uncapped window, he in view at 75 HU): whole frame 6.90 ms with the real body, 6.97 ms with no avatar, 6.96 ms with the procedural can: no
+  measurable difference; the CPU time of the draw call itself is about 0.10 ms (procedural 0.08 ms).
+- NOT verified: the head yaw and the hat nod on screen while he speaks (no voice in this run; bounds are unit tested), a second client, the dedicated server path
+  (only the file read from its data folder is shared code; not run with a real second player), `mentat_avatar_point 1` live, a server without the files while a client has them.
+
 ## The bot
 
 Holds a player slot. Weapons stripped, god mode, `MOVETYPE_NOCLIP`, not solid (nobody's aim or movement is blocked), no collision,

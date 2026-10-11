@@ -968,8 +968,13 @@ def test_the_loader_ships_and_loads_every_avatar_file():
 def test_the_client_draws_with_depth_writing_on_and_restores_it():
     """Live pass: the colour material does not write depth, so the label (drawn after the face) painted over the eyes."""
     src = (ADDON / "mentat" / "avatar_client.lua").read_text(encoding="utf-8")
-    on = src.index("render.OverrideDepthEnable(true, true)")
     first_draw = src.index("meshes.can:Draw()")
-    off = src.index("render.OverrideDepthEnable(false, false)")
+    on = src.rindex("render.OverrideDepthEnable(true, true)", 0, first_draw)          # the procedural body's own switch-on ...
     last_draw = src.index("meshes.hat:Draw()")
-    assert on < first_draw and last_draw < off
+    off = src.index("render.OverrideDepthEnable(false, false)", last_draw)
+    assert on < first_draw < last_draw < off
+    # ... and the real body's: on before BodyC.draw, off after it
+    real_on = src.index("render.OverrideDepthEnable(true, true)")
+    real_draw = src.index("BodyC.draw(")
+    real_off = src.index("render.OverrideDepthEnable(false, false)")
+    assert real_on < real_draw < real_off

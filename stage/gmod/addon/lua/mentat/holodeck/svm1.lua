@@ -8,6 +8,7 @@
 local SVM1 = {}
 
 SVM1.MAX_TRIS = 4000          -- more than meshpack's target ever makes (1500); a client builds at most this
+SVM1.MAX_TRIS2 = 8000         -- the body's parts (SVM2) are finer: the head is 4200
 SVM1.MAX_VERTS = 12000        -- and never more than 3 per triangle
 SVM1.MAX_EXTENT_M = 1000      -- no coordinate beyond this (a bad float is not a model)
 SVM1.HEADER = 32
@@ -23,20 +24,23 @@ local function f32(b1, b2, b3, b4)
 end
 SVM1.f32 = f32
 
---- Decode `raw` (the decompressed payload). Returns a table or nil and why:
+--- Decode `raw` (the decompressed payload). `allow2`: also accept SVM2 (SVM1 plus `i8 normals[nv][3]` after the colours; the avatar's body
+--- uses it, a found object never does). Returns a table or nil and why:
 ---   { nv, nt, min = {x,y,z}, max = {x,y,z}, x = {}, y = {}, z = {}  (metres, 1-based per vertex),
 ---     a = {}, b = {}, c = {}  (vertex numbers, 1-based, per triangle), r = {}, g = {}, bl = {}  (0-255 per triangle) }
-function SVM1.decode(raw)
+function SVM1.decode(raw, allow2)
   if type(raw) ~= "string" then return nil, "no data" end
   local n = #raw
   if n < SVM1.HEADER then return nil, "too short" end
-  if raw:sub(1, 4) ~= "SVM1" then return nil, "not an SVM1 payload" end
+  local magic = raw:sub(1, 4)
+  local two = allow2 == true and magic == "SVM2"
+  if magic ~= "SVM1" and not two then return nil, "not an SVM1 payload" end
   local byte = string.byte
   local nv = byte(raw, 5) + byte(raw, 6) * 256
   local nt = byte(raw, 7) + byte(raw, 8) * 256
-  if nt < 1 or nt > SVM1.MAX_TRIS then return nil, "triangle count " .. nt .. " out of range" end
+  if nt < 1 or nt > (two and SVM1.MAX_TRIS2 or SVM1.MAX_TRIS) then return nil, "triangle count " .. nt .. " out of range" end
   if nv < 3 or nv > SVM1.MAX_VERTS or nv > 3 * nt then return nil, "vertex count " .. nv .. " out of range" end
-  if n ~= SVM1.HEADER + 6 * nv + 6 * nt + 3 * nt then return nil, "length " .. n .. " does not match the counts" end
+  if n ~= SVM1.HEADER + 6 * nv + 6 * nt + 3 * nt + (two and 3 * nv or 0) then return nil, "length " .. n .. " does not match the counts" end
   local mn, mx = {}, {}
   for k = 0, 2 do
     local o = 9 + 4 * k
@@ -73,7 +77,17 @@ function SVM1.decode(raw)
     R[i], G[i], BL[i] = byte(raw, o + 1), byte(raw, o + 2), byte(raw, o + 3)
     o = o + 3
   end
-  return { nv = nv, nt = nt, min = mn, max = mx, x = X, y = Y, z = Z, a = A, b = B, c = C, r = R, g = G, bl = BL }
+  local dec = { nv = nv, nt = nt, min = mn, max = mx, x = X, y = Y, z = Z, a = A, b = B, c = C, r = R, g = G, bl = BL }
+  if two then
+    local NX, NY, NZ = {}, {}, {}
+    local function s8(v) return (v >= 128 and v - 256 or v) / 127 end
+    for i = 1, nv do
+      NX[i], NY[i], NZ[i] = s8(byte(raw, o + 1)), s8(byte(raw, o + 2)), s8(byte(raw, o + 3))
+      o = o + 3
+    end
+    dec.nx, dec.ny, dec.nz, dec.svm2 = NX, NY, NZ, true
+  end
+  return dec
 end
 
 --- The size the LZMA stream declares for its output, or nil: Garry's Mod's util.Compress / util.Decompress use the legacy ".lzma"

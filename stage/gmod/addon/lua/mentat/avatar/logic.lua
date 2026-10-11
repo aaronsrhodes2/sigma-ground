@@ -214,10 +214,10 @@ function L.voice_range(base, crouching) return Core.effective_range({ range = ba
 -- ------------------------------------------------------------------------------------------------ the client's animation
 --- Hat tilt toward the person talking. (dx, dy) = that person's offset from him in HIS frame (x forward, y left), strength 0..1.
 --- Returns pitch (positive tips the front down), roll (positive tips the left down), both in degrees, at most 14 * strength.
-function L.hat_tilt(dx, dy, strength)
+function L.hat_tilt(dx, dy, strength, max_deg)
   local len = math.sqrt(dx * dx + dy * dy)
   if len < 1e-6 then return 0, 0 end
-  local s = math.max(0, math.min(1, strength or 1)) * 14
+  local s = math.max(0, math.min(1, strength or 1)) * (max_deg or 14)
   return s * dx / len, s * dy / len
 end
 

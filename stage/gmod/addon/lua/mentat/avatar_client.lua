@@ -11,17 +11,21 @@ if not CLIENT then return end
 
 local Logic = include("mentat/avatar/logic.lua")
 local Geo = include("mentat/avatar/geometry.lua")
+local BodyC = include("mentat/avatar/body_client.lua")        -- the real Skippy (the print kit), when its private files were sent
 local Core = Logic.Core
 
 Mentat = Mentat or {}
 local Av = Mentat.Avatar or {}
 Mentat.Avatar = Av
-Av.Logic, Av.Geo = Logic, Geo
+Av.Logic, Av.Geo, Av.BodyC = Logic, Geo, BodyC
 
 local cv_draw = CreateClientConVar("mentat_avatar_draw", "1", true, false, "1 = draw Skippy's avatar when he is in the world")
 local cv_light = CreateClientConVar("mentat_avatar_light", "1", true, false, "1 = his glow lights the room a little")
 local cv_hide = CreateClientConVar("mentat_avatar_hide", "", false, false, "debugging: part names to leave out (can, face, label, mouth, hat), comma separated")
-local cv_scale = CreateClientConVar("mentat_avatar_scale", "1", true, false, "size of the avatar (1 = a 0.5 m can)")
+local cv_scale = CreateClientConVar("mentat_avatar_scale", "1", true, false, "size of the avatar (1 = a 0.5 m can; the real body is mentat_avatar_body_m tall at 1)")
+local cv_real = CreateClientConVar("mentat_avatar_real", "1", true, false, "1 = draw the real Skippy when his files arrived; 0 = always the procedural can in a bicorn")
+local cv_body_m = CreateClientConVar("mentat_avatar_body_m", "0.6", true, false, "total height in metres of the real body at scale 1")
+local cv_point = CreateClientConVar("mentat_avatar_point", "0", true, false, "1 = his hand points at what his owner looks at; 0 = only when told (hook SkippyAvatarPoint)")
 
 --- The bot, when the server says he is in the world.
 function Av.Get()
@@ -198,10 +202,60 @@ end
 
 local pitch, roll, last_t = 0, 0, nil
 
+-- ------------------------------------------------------------------------------------------------ pointing
+-- Hook SkippyAvatarPoint(pos, seconds): the real body's right hand swings to aim at `pos` for `seconds` (4 by default); pos nil lowers it.
+-- The server sends the order to every client (avatar.lua); mentat_avatar_point 1 makes the hand follow his owner's gaze instead.
+Av.aim = nil
+function Av.Point(pos, seconds)
+  if pos == nil then Av.aim = nil; return end
+  Av.aim = { pos = pos, t1 = CurTime() + (seconds or 4) }
+end
+hook.Add("SkippyAvatarPoint", "Mentat.AvatarPoint", function(pos, seconds) Av.Point(pos, seconds) end)
+net.Receive("mentat_avatar_point", function()
+  local on = net.ReadBool()
+  local pos = on and net.ReadVector() or nil
+  local secs = net.ReadUInt(16) / 10
+  Av.Point(pos, secs)
+end)
+
+--- The world point his hand should aim at now, or nil (rest pose).
+local function aim_point(bot)
+  local a = Av.aim
+  if a and CurTime() < a.t1 then return a.pos end
+  if cv_point:GetBool() then
+    local owner = bot:GetNWEntity("mentat_avatar_owner")
+    if IsValid(owner) then
+      local tr = owner:GetEyeTrace()
+      if tr and tr.Hit then return tr.HitPos end
+    end
+  end
+  return nil
+end
+
+--- The real body: the print kit's six parts, animated. Drawn with the same depth-writing rule as the procedural body.
+local function draw_real(bot, dt, target, yaw)
+  local lx, ly
+  if target then
+    local d = target:EyePos() - bot:GetPos()
+    local rad = math.rad(-yaw)
+    lx, ly = d.x * math.cos(rad) - d.y * math.sin(rad), d.x * math.sin(rad) + d.y * math.cos(rad)
+  end
+  local hide = "," .. cv_hide:GetString():gsub("%s", "") .. ","
+  render.SetColorMaterial()
+  render.CullMode(MATERIAL_CULLMODE_NONE)
+  if render.OverrideDepthEnable then render.OverrideDepthEnable(true, true) end
+  BodyC.draw(bot, { level = Av.level, lx = lx, ly = ly, aim = aim_point(bot), dt = dt, height_m = cv_body_m:GetFloat(),
+    scale = math.Clamp(cv_scale:GetFloat(), 0.25, 4), hat_tilt = Logic.hat_tilt,
+    hide = function(name) return hide:find("," .. name .. ",", 1, true) ~= nil end })
+  if render.OverrideDepthEnable then render.OverrideDepthEnable(false, false) end
+  render.CullMode(MATERIAL_CULLMODE_CCW)
+end
+
 local function draw()
   local bot = Av.Get()
   if not bot or not cv_draw:GetBool() then return end
-  if not meshes then build_meshes() end
+  local real = cv_real:GetBool() and BodyC.ready
+  if not real and not meshes then build_meshes() end
   local now = CurTime()
   local dt = math.min(math.max(now - (last_t or now), 0), 0.1)
   last_t = now
@@ -215,16 +269,20 @@ local function draw()
   local ang = bot:EyeAngles()
   local yaw = ang.y
   local target = who_is_talking(bot)
-  local tp, tr = 0, 0
-  if target then
-    local d = target:EyePos() - bot:GetPos()
-    local rad = math.rad(-yaw)                                 -- into his frame: x forward, y to his left
-    local lx, ly = d.x * math.cos(rad) - d.y * math.sin(rad), d.x * math.sin(rad) + d.y * math.cos(rad)
-    tp, tr = Logic.hat_tilt(lx, ly, 0.35 + 0.65 * Av.level)
-  end
-  pitch, roll = Logic.approach(pitch, tp, 6, dt), Logic.approach(roll, tr, 6, dt)
-
   local pos = bot:GetPos()
+  if real then
+    draw_real(bot, dt, target, yaw)
+    Av.drew_real = true
+  else
+    Av.drew_real = false
+    local tp, tr = 0, 0
+    if target then
+      local d = target:EyePos() - bot:GetPos()
+      local rad = math.rad(-yaw)                                 -- into his frame: x forward, y to his left
+      local lx, ly = d.x * math.cos(rad) - d.y * math.sin(rad), d.x * math.sin(rad) + d.y * math.cos(rad)
+      tp, tr = Logic.hat_tilt(lx, ly, 0.35 + 0.65 * Av.level)
+    end
+    pitch, roll = Logic.approach(pitch, tp, 6, dt), Logic.approach(roll, tr, 6, dt)
   local base = Matrix()
   base:Translate(pos)
   base:Rotate(Angle(0, yaw, 0))
@@ -264,6 +322,7 @@ local function draw()
   cam.PopModelMatrix()
   if render.OverrideDepthEnable then render.OverrideDepthEnable(false, false) end
   render.CullMode(MATERIAL_CULLMODE_CCW)
+  end
 
   if cv_light:GetBool() and DynamicLight then
     light_id = light_id or (bot:EntIndex() + 4096)
@@ -277,7 +336,9 @@ end
 
 hook.Add("PostDrawTranslucentRenderables", "Mentat.AvatarDraw", function(_, skybox)
   if skybox then return end
+  local t0 = SysTime()
   local ok, err = pcall(draw)
+  Av.cost_ms = (Av.cost_ms or 0) * 0.95 + (SysTime() - t0) * 1000 * 0.05          -- CPU time of the draw call, smoothed (the GPU's share is in the frame time)
   if not ok and not Av.draw_error then
     Av.draw_error = tostring(err)
     print("[avatar] could not draw Skippy: " .. Av.draw_error)
