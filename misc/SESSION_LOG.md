@@ -3519,6 +3519,7 @@ depended on test order.
 ## Session 38 — 2026-10-10 — Router fine-tune study: baselines and dataset pilot measured; training, export and evaluation staged, not run
 
 ### Status
+*(When this entry was written. The model was trained later the same day: see "Session 38 (continued)" below.)*
 **Nothing has been trained.** The Captain asked mid-session to halt GPU work until tonight, so the study stops after
 the baselines, the dataset pilot, and a CPU-only rehearsal of everything downstream of training.
 `tools/run_router_study.sh` runs every remaining stage, unattended, in one go. Master moved while this ran
@@ -3673,3 +3674,126 @@ Val evaluation of `mentat-router`, the `--router` benchmark and the three-way co
       comparison here. Stop and look if val accuracy is high but the benchmark is worse.
 - [ ] A training run that dies restarts from step 0 (no resume yet).
 - [ ] Decide whether `check_rewrite` should compare numbers by role, not as a multiset.
+
+## Session 38 (continued) — 2026-10-11 — The router fine-tune: trained, exported, evaluated. It does not beat vanilla Qwen on the benchmark
+
+The "Status: nothing has been trained" line above is superseded by this entry.
+
+### Result
+`mentat-router` (Qwen3-8B, QLoRA, 19,385 training examples, 2 epochs) against the baselines on the same 150
+questions. The cascade answers the same 86; the other 64 are the model path. Scored by `score.py`, unchanged.
+
+| run | overall | model-path correct | grounded | declines | clarif. | router_errors | median s (model path) |
+|---|---|---|---|---|---|---|---|
+| chain, qwen3:8b | 134/150 | 50/64 | 62 | n/a | n/a | n/a | 13.68 |
+| stock router + index, schema | 137/150 | 53/64 | 59 | 0 | 1 | 4 | 3.57 |
+| stock router + index, free | **138/150** | **54/64** | 60 | 0 | 0 | 4 | 3.43 |
+| tuned router, schema (router mode as built) | 117/150 | 33/64 | 47 | 9 | 1 | 7 | 3.20 |
+| tuned router, free | 135/150 | 51/64 | 58 | 0 | 2 | 4 | 3.16 |
+
+- **The fine-tune does not beat vanilla Qwen on the model path in either format.** Its best run (free) is 51/64:
+  +1 over the chain baseline, −2 to −3 against the stock routers. Against `stock_free` it loses 5 questions and
+  wins 2 (sign test, two-sided, p ≈ 0.45), so at n = 64 it is not distinguishable from stock; it is not better.
+- Router mode as the harness defines it (JSON-schema `format`) is far worse for the tuned model: 33/64.
+- Latency does not separate the runs. The tuned model's own call is about 0.3 s (median over validation, on a
+  persistent 127.0.0.1 connection), yet the harness shows 3.16 s per model-path question, so about 2.8 s is overhead
+  outside the model. I did not isolate it; the earlier connection measurements (a new `localhost` connection costs
+  2–3 s, and the embedding calls use a hard-coded `localhost:11434`) are the suspect. The chain figure is slow because it
+  loops; the stock routers because they read a 16k-token index.
+
+### Why the schema hurts: the request format, not the model
+Ollama sorts a JSON schema's properties alphabetically, so the grammar makes the model write `args` (or `decline`)
+before it can name the `tool`, the reverse of the training order (`router_dataset.py`).
+- First 300 validation records, only the constraint changed: free generation 99.7% right tool / 96.3% exact plan;
+  Ollama's plain JSON mode 99.3% / 92.7%; the harness schema 73.0% / 66.0%. In schema mode no reply started with
+  `tool` (221 `args`, 79 `decline`); in free mode all 300 did.
+- Full validation set (2,062 records):
+
+| format | right tool | exact plan | rewrite / template / clarify (exact) |
+|---|---|---|---|
+| free | 97.7% (2,014) | 95.2% (1,962) | 94.2% / 97.1% / 73.3% |
+| schema | 59.6% (1,228) | 51.5% (1,062) | 51.2% / 52.9% / 0.0% |
+
+  No timeouts in either; two schema-mode replies hit the 1,024-token cap (a runaway generation hung my first eval at
+  300 s). Free-mode failures: 48 wrong tool, 37 wrong values, 15 wrong argument keys.
+- `run_sigma_ground.py` gets `--router-format {schema,free}` (default `schema`, so earlier results reproduce);
+  `test_router_mode.py` covers it. The stock model was run in both formats so the comparison is like for like.
+
+### Why 95% on validation but 51/64 on the benchmark
+This is the "validation high, benchmark worse" surprise the study said not to push past. What the failures show
+(`tuned_free` vs `stock_free`; 15 questions where either is wrong):
+- **Both wrong, 8:** `em_intro_012` and `em_adv_004` (corpus expects `solve_equation`), `em_adv_002` (`percent_of`),
+  `mech_adv_010` (`orbital_raise_energy`), `nuc_005`, `gr_008`, `em_adv_001`, `atom_004`. Most want a different tool than
+  the obvious one or more than one call; a single-call plan cannot finish them.
+- **Tuned wrong, stock right, 5:**
+  - `optics_010`: the tuned model named a tool that does not exist, `thin_lens_magnification` (the real one is
+    `lens_magnification`). Free format has no tool-name constraint.
+  - `mech_adv_006`: it called `circular_orbit_velocity`, the correct first step of a two-step question. The stock model
+    scored by putting its own mental-arithmetic velocity (3074) into `kinetic_energy`, which is what the router design
+    says never to do; the groundedness gate cannot see it.
+  - `atom_003`: `hydrogen_like_energy_level(n=1)` returns −13.6 eV; the corpus wants `first_ionization_energy`, 13.598.
+  - `nuc_003`: it asked for a velocity although the question carries the data; the stock model used `convert_units`.
+  - `nuc_007`: `fission_energy_release(mass_kg=2e12)` instead of `energy_to_mass`.
+- **Tuned right, stock wrong, 2:** `em_intro_014`, `mech_adv_005`.
+- Likely contributors, not tested: the model path is by construction the questions the cascade did not answer; the
+  dataset guard removed benchmark look-alikes; validation shares the generator's templates with training (a
+  group-aware split, but the same phrasing families). There is no hand-written out-of-template validation set.
+- Caveat: n = 64, and `stock_free` also has 4 router errors.
+
+### Dataset (full run, `--per-tool 40 --variants 3`, teacher qwen2.5:14b)
+- 21,447 examples: 19,385 train / 2,062 val. Seeds 8,055 (7,735 template, 291 clarify, 29 decline) plus 13,392
+  accepted rewrites out of 24,165 attempts (55.4%). 208/217 tools, the same 8 gaps as the pilot, tool-surface hash
+  `762bbee3725389bf`.
+- Drops: 14,101 duplicates, 1,044 benchmark overlaps, 620 calls with no value, 340 classifier conflicts, 1,268
+  rewrite-check failures (5.2% of attempts). Stage time 12,446 s (3 h 27 min); the template phase took about 42 min.
+- The earlier README estimate of 2.6 min for the template phase was for a different machine without a teacher.
+
+### Training
+- Pilot, attempt 1 (Unsloth): about 2.5 s/step for 28 steps, then it crashed right after the step-25 evaluation with
+  "Unsloth: No or negligible GPU memory available for fused cross entropy". Fallback transformers+PEFT: 0.091 steps/s
+  (about 11 s/step), peak 14.9 GiB allocated and 20.8 GiB reserved on a 16 GiB card (it was spilling into system
+  memory), full run projected at 443 min, over the 6 h cap, so the script stopped.
+- Fix (`train_router.py`): hand the cached evaluation memory back (`on_evaluate`), evaluate on loss only, halve the eval
+  batch, expandable segments. Cause is my diagnosis (the driver reports almost no free memory while PyTorch still caches
+  the evaluation blocks); the rerun passing is the evidence, not a proof.
+- Pilot, attempt 2 (Unsloth): 50 steps completed, peak 7.33 GiB allocated, 0.186 steps/s including two evaluation
+  passes (about 2.6 s/step otherwise), projected 217 min; loss 1.93 → 0.25 over 50 steps; eval loss 0.456 at step 25,
+  0.267 at step 50.
+- Full run: Unsloth 2026.10.3, 2,424 steps (2 epochs, effective batch 16, lr 2e-4 cosine, warmup 73), 7,847 s (2.18 h),
+  peak 7.49 GiB allocated. Eval loss 0.0416 (step 242), 0.0295, 0.020, 0.0172, 0.0149, 0.0135, 0.0132, 0.0123, 0.0122
+  (step 2178), 0.0127, final 0.0128: it flattens from about step 1700 with no sign of overfitting.
+- Merge 62 s (252 LoRA pairs), bf16 GGUF 16.4 GB, Q4_K_M 5.03 GB (228 s for both), `ollama create` 68 s, smoke 20 s.
+- Smoke: chat with `think=false`, chat without `think` and the trained text sent raw all gave 165 prompt tokens and the
+  same reply (template OK). But "2 solar masses" came back as `mass_kg = 4.000000000000001e+30`, 0.58% off the expected
+  3.977e30: the model rounds the solar mass to 2e30, which costs exact-plan matches on solar-mass questions.
+
+### Cost
+- Time: dataset 3.46 h, training 2.24 h (stage), validation eval 22.9 min, benchmark runs 14.6 min, scoring 10.1 min,
+  export 6 min, plus pilots (10.5 min for the passing one; the PEFT fallback took about 17 min and the aborted Unsloth
+  attempt about 6) and the baselines. Roughly 7 h of GPU time end to end for this stretch, on top of the earlier baselines and dataset pilot.
+- Disk: 5.0 GB in the worktree's `local-cache/router` (4.7 GB is the Q4_K_M GGUF), 26 MB dataset. WSL ext4: 17 GB base
+  model, 37 GB under `~/router` (16 GB merged checkpoint and 16 GB bf16 GGUF are intermediates), 6.3 GB venv, 3.6 GB rehearsal
+  files. Ollama store +5 GB. The main checkout's `local-cache/router` still holds a 16 GB first download of the base that
+  nothing uses.
+- Skippy's Ollama container (`skippytel-ollama`) was stopped at the Captain's instruction for the GPU stages
+  (roughly 21:30 to 01:53, 01:55 to 04:33, and 10:17 to 11:05) and restarted by the script each time.
+
+### Other things found
+- The rewrite checker compares numbers as a multiset and cannot see a number change role (from the pilot); still open.
+- Free format has no tool-name constraint, so a tool name can be invented (`optics_010`).
+- Plans are single-step; the corpus has questions that need two calls or a different tool than the obvious one.
+- A killed Ollama leaves its `llama-server` runner alive and holding VRAM (I hit this with my own diagnostic server).
+
+### Next Steps (proposals; the Captain decides)
+- [ ] Multi-step plans (`{"steps": [...]}` with the output of one step feeding the next): the shared failures and
+      `mech_adv_006` suggest this is the biggest lever on the model path. It needs dataset, harness executor and retraining.
+- [ ] Make key order a non-issue: either train with `tool` sorted before the arguments key (for example
+      `tool` / `tool_args`) so Ollama's sorted schema and the training order agree and the tool-name enum can be kept, or
+      keep the free format and check the tool name after the fact.
+- [ ] A hand-written, out-of-template validation set (about 100 questions) so validation can predict the benchmark; and
+      new data for the weak families (conversions with particles, `percent_of`, `solve_equation` set-ups, ionization
+      energy vs energy level), written from the tool descriptions, not from benchmark questions.
+- [ ] Solar-mass precision: add examples that pin the constant (1.98841e30), or let the harness convert units.
+- [ ] Measure and remove the fixed per-question overhead in the harness before comparing latencies.
+- [ ] Clean-up that is safe once the Captain agrees: the 16 GB duplicate base in the main checkout's
+      `local-cache/router`, and the 32 GB of merge intermediates under `~/router` in WSL.
