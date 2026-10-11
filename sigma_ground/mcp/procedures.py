@@ -111,25 +111,50 @@ def relativistic_particle(kinetic_energy_eV: float,
     """KE → γ → total energy → momentum → de Broglie wavelength.
 
     The relativistic-kinematics chain a physicist runs for any fast particle.
+    Particles: electron, proton, neutron, alpha, muon (one CODATA rest mass
+    per particle for every step: the de Broglie tool's table).
+
+    FIXED 2026-10-10 (A43): unknown particles and "alpha" silently used the
+    electron's rest energy, and the wavelength step used a different mass
+    from gamma and pc; pc = sqrt(E^2 - (mc^2)^2) cancelled catastrophically
+    for slow particles (a 100 neV neutron's pc was 17 % high). Now unknown
+    particles and KE <= 0 or non-finite raise ValueError; pc is
+    sqrt(KE (KE + 2 mc^2)) and lambda = h c / pc from that same pc.
+
+    Raises:
+        ValueError: unknown particle, or kinetic_energy_eV not positive and finite.
     """
     import math
-    from sigma_ground.mcp.tools.atomic import de_broglie_from_kinetic_energy
-    rest_mev = {"electron": 0.51099895, "proton": 938.272, "neutron": 939.565,
-                "muon": 105.658}.get(particle.lower(), 0.51099895)
-    rest_eV = rest_mev * 1e6
+    from sigma_ground.mcp.tools.atomic import _PARTICLE_REST_MASS_KG
+    key = str(particle or "").strip().lower()
+    key = {"alpha particle": "alpha", "helium nucleus": "alpha",
+           "helium-4 nucleus": "alpha"}.get(key, key)
+    m_kg = _PARTICLE_REST_MASS_KG.get(key)
+    if m_kg is None:
+        raise ValueError(f"unknown particle {particle!r}: known particles are "
+                         f"{sorted(_PARTICLE_REST_MASS_KG)}")
+    if not (isinstance(kinetic_energy_eV, (int, float))
+            and math.isfinite(kinetic_energy_eV) and kinetic_energy_eV > 0):
+        raise ValueError(f"kinetic_energy_eV must be positive and finite "
+                         f"(got {kinetic_energy_eV!r})")
+    KE = float(kinetic_energy_eV)
+    rest_eV = m_kg * _C * _C / _EV_J                 # m c^2 in eV
     s: list[Step] = []
-    s.append(Step("Kinetic energy", kinetic_energy_eV, "eV", "(input)", "user"))
-    gamma = 1.0 + kinetic_energy_eV / rest_eV
+    s.append(Step("Kinetic energy", KE, "eV", "(input)", "user"))
+    s.append(Step("Rest energy m c²", rest_eV, "eV", "m c² / e",
+                  "CODATA 2018 mass (mcp.tools.atomic)"))
+    gamma = 1.0 + KE / rest_eV
     s.append(Step("Lorentz factor γ", gamma, "", "γ = 1 + KE/(m c²)", "sigma-ground"))
-    total = kinetic_energy_eV + rest_eV
+    total = KE + rest_eV
     s.append(Step("Total energy", total, "eV", "E = KE + m c²", "sigma-ground"))
-    pc = math.sqrt(total**2 - rest_eV**2)          # in eV (pc)
-    s.append(Step("Momentum (pc)", pc, "eV", "pc = √(E² − (mc²)²)", "sigma-ground"))
-    db = de_broglie_from_kinetic_energy(kinetic_energy_eV, particle)
-    s.append(_from_tool("de Broglie wavelength", db))
+    pc = math.sqrt(KE * (KE + 2.0 * rest_eV))      # = √(E² − (mc²)²), no cancellation
+    s.append(Step("Momentum (pc)", pc, "eV", "pc = √(KE (KE + 2 m c²))", "sigma-ground"))
+    lam = _H * _C / (pc * _EV_J)
+    s.append(Step("de Broglie wavelength", lam, "m", "λ = h / p = h c / (pc)",
+                  "sigma-ground (de Broglie 1924)"))
     return ProcedureResult("relativistic_particle",
-                            {"kinetic_energy_eV": kinetic_energy_eV, "particle": particle}, s,
-                            summary=f"Relativistic profile of a {kinetic_energy_eV:g} eV {particle}.")
+                            {"kinetic_energy_eV": kinetic_energy_eV, "particle": key}, s,
+                            summary=f"Relativistic profile of a {KE:g} eV {key}.")
 
 
 # ── PROCEDURE: projectile trajectory ────────────────────────────────────

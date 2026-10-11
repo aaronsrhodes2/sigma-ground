@@ -321,6 +321,183 @@ def _extract_mach(q: str):
     return float(m.group(1)) if m else None
 
 
+# A number as people write it in a question: "5", "2.5", ".5", "1e-3",
+# "2.5E+4", "3 x 10^5", "4×10^-2", optionally followed by a scale word
+# ("4 million"). The look-behind stops a match starting inside a word or
+# after a digit/point, so "1e-3" is read whole, never as its trailing "3".
+_NUM_PAT = (r"(?<![\w.])(\d+(?:\.\d+)?|\.\d+)"
+            r"(?:[eE]([-+]?\d+)|\s*[x×*]\s*10\s*\^\s*([-+]?\d+))?"
+            r"(?:\s+(thousand|million|billion|trillion))?")
+_SCALE_WORDS = {"thousand": 1e3, "million": 1e6, "billion": 1e9,
+                "trillion": 1e12}
+
+
+def _num_from(m, start: int = 1) -> float:
+    """Value of a _NUM_PAT match whose first group is group `start`."""
+    mant, e1, e2, word = m.group(start, start + 1, start + 2, start + 3)
+    x = float(mant)
+    exp = e1 if e1 is not None else e2
+    if exp is not None:
+        x *= 10.0 ** int(exp)
+    if word:
+        x *= _SCALE_WORDS[word]
+    return x
+
+
+# Mass units → kg (for the mass_kg slot). FIXED 2026-10-10 (A41): the old
+# regex r"(\d+(?:\.\d+)?)\s*kg" read "1e-3 kg" as 3 kg; grams were ignored
+# and fell back to the 1 kg default.
+_MASS_UNIT_KG = {"kg": 1.0, "kilogram": 1.0, "kilograms": 1.0,
+                 "g": 1e-3, "gram": 1e-3, "grams": 1e-3, "gramme": 1e-3,
+                 "grammes": 1e-3, "mg": 1e-6, "milligram": 1e-6,
+                 "milligrams": 1e-6, "tonne": 1e3, "tonnes": 1e3,
+                 "metric ton": 1e3, "metric tons": 1e3}
+_MASS_RE = re.compile(
+    _NUM_PAT + r"\s*(" + "|".join(sorted(map(re.escape, _MASS_UNIT_KG),
+                                         key=len, reverse=True)) +
+    r")\b(?!\s*/)")
+
+
+def _extract_mass_kg(q: str):
+    """A mass with a unit → kg ("1e-3 kg", "2.5 grams", "3 tonnes"); None if
+    the question names no mass."""
+    m = _MASS_RE.search(q.lower())
+    if not m:
+        return None
+    return _num_from(m) * _MASS_UNIT_KG[m.group(5)]
+
+
+_SOLAR_MASS_RE = re.compile(
+    _NUM_PAT + r"\s*-?\s*(?:solar[\s-]*mass(?:es)?|sun[\s-]*mass(?:es)?|"
+               r"m_?sun\b|msol\b|m☉)")
+
+
+def _extract_solar_masses(q: str):
+    """"3 solar masses", "10 solar-mass", "4 million solar masses" → M/M_sun."""
+    m = _SOLAR_MASS_RE.search(q.lower())
+    return _num_from(m) if m else None
+
+
+# The mass of the BLACK HOLE itself, for the black_hole verb (FIXED
+# 2026-10-10, A39 review): a kg mass is the hole's only when the phrasing ties
+# it to the hole ("a 1e11 kg black hole", "black hole of mass 1e11 kg"), so the
+# 70 kg astronaut falling into a 10 solar-mass hole never becomes the hole.
+_MASS_UNIT_ALT = ("(" + "|".join(sorted(map(re.escape, _MASS_UNIT_KG),
+                                        key=len, reverse=True)) + r")\b")
+_BH = r"black[\s-]*holes?"
+_BH_KG_BEFORE_RE = re.compile(
+    _NUM_PAT + r"\s*-?\s*" + _MASS_UNIT_ALT +
+    r"(?:\s*-?\s*(?:(?:primordial|mini|micro|tiny|small|hypothetical)\s+)*|"
+    # "1 kg of matter compressed into a black hole" (not "falls into")
+    r"\s+of\s+(?:matter|mass)\s+(?:is\s+|were\s+|was\s+)?(?:compressed|"
+    r"collapsed|squeezed|crushed|turned)\s+(?:in)?to\s+an?\s+)" + _BH)
+_BH_KG_AFTER_RE = re.compile(
+    _BH + r"\s*(?:\(\s*|,?\s*(?:of|weighing|massing)\s+|"
+    r",?\s*(?:with|having|of|whose)\s+(?:a\s+)?(?:total\s+)?mass\s*"
+    r"(?:of|=|:|is|equal\s+to)?\s*|\s+mass\s*(?:of|=|:|is)?\s*)" +
+    _NUM_PAT + r"\s*" + _MASS_UNIT_ALT)
+# "a black hole existed (1e12 kg)": a parenthetical mass in the same clause
+_BH_KG_PAREN_RE = re.compile(
+    _BH + r"[^.?!();,]{0,30}\(\s*" + _NUM_PAT + r"\s*" + _MASS_UNIT_ALT +
+    r"\s*\)")
+# A solar mass written in words: "one solar mass", "a solar-mass black hole".
+_ONE_SOLAR_MASS_RE = re.compile(r"\b(?:solar|sun)[\s-]*mass\b(?!es)")
+_BODY_ALT = r"(sun|earth|moon|mars|jupiter|saturn|venus|mercury|neptune|uranus|pluto)"
+# A body's mass named as the hole's: "an Earth-mass black hole", "a black hole
+# with the mass of the Moon", "Jupiter's mass".
+_BODY_MASS_RE = re.compile(
+    r"\b" + _BODY_ALT + r"(?:[\s-]+mass\b|(?:'s|’s)\s+mass\b)|"
+    r"\bmass\s+of\s+(?:the\s+)?" + _BODY_ALT + r"\b")
+# The body itself as the hole: "if the Sun collapsed into a black hole",
+# "the Sun's event horizon", "Schwarzschild radius of the Earth".
+_BODY_AS_HOLE_RE = re.compile(
+    r"\b" + _BODY_ALT + r"\s+(?:collapsed|collapses|collapsing|were|was|"
+    r"became|becomes|turned|is\s+compressed|compressed)\b|"
+    r"\b" + _BODY_ALT + r"(?:'s|’s)\s+(?:event\s+horizon|schwarzschild|"
+    r"hawking|horizon)|"
+    r"\b(?:schwarzschild\s+radius|event\s+horizon(?:\s+radius)?|"
+    r"hawking\s+temperature)\s+(?:of|for)\s+(?:the\s+)?" + _BODY_ALT + r"\b")
+
+
+def _extract_black_hole_mass(q: str) -> dict:
+    """The hole's mass as {"solar_masses": x} or {"mass_kg": x}; {} when the
+    question names none (the verb's default then applies). A numeric solar
+    mass wins over everything; a kg mass counts only when tied to the hole."""
+    low = q.lower()
+    sm = _extract_solar_masses(q)
+    if sm is not None:
+        return {"solar_masses": sm}
+    m = _BH_KG_BEFORE_RE.search(low)
+    if m:
+        return {"mass_kg": _num_from(m) * _MASS_UNIT_KG[m.group(5)]}
+    m = _BH_KG_AFTER_RE.search(low) or _BH_KG_PAREN_RE.search(low)
+    if m:
+        return {"mass_kg": _num_from(m) * _MASS_UNIT_KG[m.group(5)]}
+    if _ONE_SOLAR_MASS_RE.search(low):
+        return {"solar_masses": 1.0}
+    m = _BODY_MASS_RE.search(low) or _BODY_AS_HOLE_RE.search(low)
+    if m:
+        key = next(g for g in m.groups() if g)
+        if key == "sun":
+            return {"solar_masses": 1.0}
+        from .bodies import resolve_body
+        return {"mass_kg": resolve_body(key).mass_kg}
+    return {}
+
+
+# Speed as a fraction of c, for relativity questions. Accepts "0.99c",
+# "0.5 c", "beta = 0.8", "99% of the speed of light", "0.9 times the speed of
+# light", "half the speed of light", "2.7e8 m/s", "1.5e5 km/s".
+_C_WORDS = r"(?:the\s+)?(?:speed\s+of\s+light|light\s*speed|c\b)"
+_FRACTION_WORDS = {"half": 0.5, "a half": 0.5, "one half": 0.5,
+                   "a third": 1 / 3, "one third": 1 / 3,
+                   "a quarter": 0.25, "one quarter": 0.25, "quarter": 0.25,
+                   "three quarters": 0.75, "two thirds": 2 / 3,
+                   "a tenth": 0.1, "one tenth": 0.1}
+
+
+def _extract_beta(q: str):
+    """|v|/c named in the question, or None. Values >= 1 are passed through
+    unchanged so the verb can refuse them (never clamped here)."""
+    from ..field.constants import C
+    low = q.lower()
+    m = re.search(_NUM_PAT + r"\s*(?:%|percent|per\s+cent)\s*(?:of\s+)?" +
+                  _C_WORDS, low)
+    if m:
+        return _num_from(m) / 100.0
+    m = re.search(_NUM_PAT + r"\s*(?:times\s+)?" + _C_WORDS, low)
+    if m:
+        return _num_from(m)
+    m = re.search(r"(?:\bbeta|β)\s*=?\s*" + _NUM_PAT, low)
+    if m:
+        return _num_from(m)
+    for words in sorted(_FRACTION_WORDS, key=len, reverse=True):
+        if re.search(r"\b" + words + r"\s+(?:of\s+)?" + _C_WORDS, low):
+            return _FRACTION_WORDS[words]
+    m = re.search(_NUM_PAT + r"\s*(km/s|m/s|kilometers? per second|"
+                             r"meters? per second|metres? per second)", low)
+    if m:
+        v = _num_from(m) * (1e3 if m.group(5).startswith("k") else 1.0)
+        return v / C
+    return None
+
+
+# Particles a relativity question can name (the verb holds the masses).
+_PARTICLE_WORDS = (("alpha particle", "alpha"), ("alpha", "alpha"),
+                   ("helium nucleus", "alpha"), ("positron", "positron"),
+                   ("electron", "electron"), ("proton", "proton"),
+                   ("neutron", "neutron"), ("muon", "muon"),
+                   ("deuteron", "deuteron"))
+
+
+def _extract_particle(q: str):
+    low = q.lower()
+    for word, key in _PARTICLE_WORDS:
+        if re.search(r"\b" + word + r"s?\b", low):
+            return key
+    return None
+
+
 _ENERGY_UNIT_J = {"megaton": 4.184e15, "megatons": 4.184e15, "mt": 4.184e15,
                   "kiloton": 4.184e12, "kilotons": 4.184e12, "kt": 4.184e12,
                   "joule": 1.0, "joules": 1.0}
@@ -425,10 +602,23 @@ def _params_for(verb: str, q: str) -> dict:
     if "altitude_m" in slots and L["altitude_found"]:
         p["altitude_m"] = L["drop_altitude_m"]
     if "central_body" in slots:
-        body, sma_au = _extract_orbit(q)
-        p["central_body"] = body
-        if sma_au is not None:
-            p["semimajor_axis_au"] = sma_au
+        orbit = _extract_orbit(q, altitude_given=L["altitude_found"])
+        p.update({k: v for k, v in orbit.items() if k in slots})
+        if "orbiter" in orbit or "period_s" in orbit:
+            p.pop("altitude_m", None)     # a natural / synchronous orbit has its own radius
+    if "solar_masses" in slots:               # black_hole: "3 solar masses"
+        p.update(_extract_black_hole_mass(q))  # the hole's own mass only
+    if "velocity_fraction_c" in slots:        # relativistic_motion: "0.99c"
+        b = _extract_beta(q)
+        if b is not None:
+            p["velocity_fraction_c"] = b
+    if "particle" in slots:                   # relativistic_motion: "a proton"
+        # mass_energy takes a particle only for its REST energy: "an electron
+        # and a positron annihilate" releases 2 m c^2, not one rest energy.
+        if verb != "mass_energy" or re.search(r"\brest\b", q.lower()):
+            part = _extract_particle(q)
+            if part:
+                p["particle"] = part
     if "body" in slots:                       # planetary_surface: gravity OF Mars
         b = _extract_body(q)
         if b:
@@ -445,10 +635,10 @@ def _params_for(verb: str, q: str) -> dict:
         mat = _extract_material(q)
         if mat:
             p["bell_material"] = mat
-    if "mass_kg" in slots:
-        mm = re.search(r"(\d+(?:\.\d+)?)\s*(?:kg|kilograms?)\b", q.lower())
-        if mm:
-            p["mass_kg"] = float(mm.group(1))
+    if "mass_kg" in slots and "solar_masses" not in slots:
+        mkg = _extract_mass_kg(q)
+        if mkg is not None:
+            p["mass_kg"] = mkg
     if "energy_j" in slots:
         ej = _extract_energy_j(q)
         if ej is not None:
@@ -500,18 +690,72 @@ _PLANET_AU = {"mercury": 0.387, "venus": 0.723, "earth": 1.0, "mars": 1.524,
               "neptune": 30.07, "pluto": 39.48}
 
 
-def _extract_orbit(q: str):
-    """(central_body, semimajor_axis_au | None).
+# Words that make a body the CENTRE of the orbit when they precede it
+# ("around Mars", "above the Moon", "orbit the Earth", "satellite of Jupiter").
+_CENTRE_CUES = r"(?:around|above|over|orbiting|circling|orbits?|orbited)"
+# Words that put an artificial orbiter in the question, so a named body is the
+# centre, not the thing orbiting ("a satellite around Mars", "the ISS").
+_SATELLITE_NOUNS = ("satellite", "spacecraft", "space station", "station",
+                    "iss", "probe", "cubesat", "astronaut", "shuttle",
+                    "spaceship", "craft", "low earth orbit", "leo")
+# Natural orbiters the orbital_velocity verb knows (its own table holds the
+# parent body and the mean distance).
+_NATURAL_ORBITERS = ("moon",) + tuple(_PLANET_AU)
+# Synchronous orbits: the period is the central body's sidereal rotation.
+_SIDEREAL_DAY_S = 86164.0905   # Earth, IERS (sidereal day = 23 h 56 min 4.0905 s)
 
-    A planet orbiting the Sun → heliocentric (central='sun', the planet's AU);
-    otherwise a satellite-altitude orbit around the named body (default earth).
+
+def _extract_orbit(q: str, altitude_given: bool = False) -> dict:
+    """Slots for orbital_velocity: central_body, and one of semimajor_axis_au
+    (a heliocentric distance), orbiter (a natural body on its own orbit) or
+    period_s (a synchronous orbit).
+
+    FIXED 2026-10-10 (A38): the old rule centred the orbit on the first body
+    in a fixed list ("earth" before "moon"), with the 400 km default altitude,
+    unless the word "sun" appeared — so "how fast does the Moon orbit" was a
+    400 km orbit above the Moon and "geostationary" was LEO. Now the body's
+    ROLE is read from the sentence:
+      * a body after a centre cue ("around Mars", "orbit the Earth") is the
+        centre;
+      * with an altitude or a satellite noun, a named body is the centre;
+      * otherwise a named natural body is the ORBITER on its own orbit (the
+        Moon around Earth, a planet around the Sun);
+      * "geostationary"/"geosynchronous" is a synchronous Earth orbit
+        (period = one sidereal day), "N AU" a heliocentric distance.
     """
     low = q.lower()
-    if "sun" in low and ("orbit" in low or "around" in low):
-        for planet, au in _PLANET_AU.items():
-            if re.search(r"\b" + planet + r"\b", low):
-                return "sun", au
-    return _extract_body(q) or "earth", None
+    mentions = []                                   # (position, body, is_centre)
+    for b in _BODIES:
+        for m in re.finditer(r"\b" + b + r"\b", low):
+            before = low[max(0, m.start() - 24):m.start()]
+            centre = re.search(_CENTRE_CUES + r"\s+(?:the\s+|planet\s+)?$",
+                               before) is not None
+            mentions.append((m.start(), b, centre))
+    mentions.sort()
+    centres = [b for _, b, c in mentions if c]
+    others = [b for _, b, c in mentions if not c]
+    satellite = altitude_given or any(
+        re.search(r"\b" + re.escape(n) + r"\b", low) for n in _SATELLITE_NOUNS)
+
+    au = re.search(_NUM_PAT + r"\s*(?:au|astronomical\s+units?)\b", low)
+    if au and not altitude_given:
+        return {"central_body": "sun", "semimajor_axis_au": _num_from(au)}
+
+    if re.search(r"\bgeo(?:stationary|synchronous)\b", low) and not altitude_given:
+        if not centres or centres[0] == "earth":
+            return {"central_body": "earth", "period_s": _SIDEREAL_DAY_S}
+
+    if not satellite:
+        for b in others:
+            if b in _NATURAL_ORBITERS:
+                parent = "earth" if b == "moon" else "sun"
+                if not centres or centres[0] == parent:
+                    return {"central_body": parent, "orbiter": b}
+    if centres:
+        return {"central_body": centres[0]}
+    if others:
+        return {"central_body": others[0]}
+    return {"central_body": "earth"}
 
 
 def _auto_bind(steps):
@@ -742,7 +986,8 @@ def _qwen_translate(question: str) -> SimulationSpec | None:
                 continue
             if slot == "material_key":
                 params[slot] = _coerce_material(p_in[slot])
-            elif declared[slot].get("unit") in ("object", "body", "environment"):
+            elif declared[slot].get("unit") in ("object", "body", "environment",
+                                                "particle"):
                 # STRING slots survive (manifest-driven) — same rule as
                 # _qwen_plan: float("alkaline soil") must not delete the slot.
                 v = str(p_in[slot]).strip()
@@ -848,7 +1093,8 @@ def _qwen_plan(question: str) -> SimulationSpec | None:
                     if slot == "material_key":
                         params[slot] = _coerce_material(p_in[slot])
                     elif declared[slot].get("unit") in ("object", "body",
-                                                        "environment"):
+                                                        "environment",
+                                                        "particle"):
                         # STRING slots survive (manifest-driven): float("wine
                         # glass") used to silently delete drop_object's
                         # object_name, orphaning the verb qwen chose.

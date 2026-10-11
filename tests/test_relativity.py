@@ -240,3 +240,77 @@ def test_sigma_time_dilation_linearity():
 def test_effective_liv_scale_infinite_at_sigma_zero():
     """At σ=0 (observer frame) the engine predicts no LIV."""
     assert effective_liv_scale_gev(0.0) == math.inf
+
+
+# ── 2026-10-10 audit: (γ−1)m c² must not cancel at everyday speeds ─────
+# Ground truth: the binomial series γ − 1 = β²/2 + 3β⁴/8 + 5β⁶/16 + …,
+# summed in floats with no subtraction (truncation error < β⁸ ≤ 1e-44 here).
+
+def _gamma_minus_one_series(v):
+    b2 = (v / C) ** 2
+    return b2 * (0.5 + b2 * (3.0 / 8.0 + b2 * 5.0 / 16.0))
+
+
+@pytest.mark.parametrize("m, v", [
+    (1.0, 0.01), (1.0, 1.0), (1.0, 2.998), (70.0, 10.0),
+    (1000.0, 30.0), (1.0, 100.0), (1.0, 1000.0),
+])
+def test_kinetic_energy_rel_everyday_speeds_no_cancellation(m, v):
+    """1 kg at 1 m/s is 0.5 J (was 0 J); a 1000 kg car at 30 m/s is 450 kJ
+    (was 459 kJ). Relative accuracy ~1e-16, as the problem's conditioning allows."""
+    K_ref = _gamma_minus_one_series(v) * m * C**2
+    assert kinetic_energy_rel(m, v) == pytest.approx(K_ref, rel=1e-14, abs=0.0)
+
+
+def test_kinetic_energy_rel_still_exact_at_high_speed():
+    """At 0.9c the (γ−1) form is well conditioned: γ − 1 = 1/sqrt(0.19) − 1."""
+    v = 0.9 * C
+    K_ref = (1.0 / math.sqrt(1.0 - 0.81) - 1.0) * M_ELECTRON_KG * C**2
+    assert kinetic_energy_rel(M_ELECTRON_KG, v) == pytest.approx(K_ref, rel=1e-13, abs=0.0)
+
+
+def test_kinetic_energy_rel_rejects_v_at_or_above_c():
+    with pytest.raises(ValueError):
+        kinetic_energy_rel(1.0, C)
+    with pytest.raises(ValueError):
+        kinetic_energy_rel(1.0, float("nan"))
+
+
+# ── 2026-10-10 audit: input contracts (|v| < c, m0 >= 0, cos in [-1, 1]) ─
+
+@pytest.mark.parametrize("u, v", [(2 * C, 0.5 * C), (-2 * C, 0.9 * C),
+                                  (3 * C, -0.5 * C), (C, -C), (float("nan"), 0.0)])
+def test_velocity_addition_refuses_superluminal_input(u, v):
+    """Was 1.25c, 1.375c, -5c and ZeroDivisionError for these inputs."""
+    with pytest.raises(ValueError):
+        velocity_addition(u, v)
+
+
+def test_beta_refuses_v_at_or_above_c():
+    with pytest.raises(ValueError):
+        beta(2 * C)                                  # was 2.0
+
+
+@pytest.mark.parametrize("cos_theta", [2.0, 1 / 0.6, -1.5, float("nan")])
+def test_doppler_factor_refuses_non_cosine(cos_theta):
+    """Was -4.0 at cos = 2 and ZeroDivisionError at cos = 1/beta."""
+    with pytest.raises(ValueError):
+        doppler_factor(0.6 * C, cos_theta)
+
+
+@pytest.mark.parametrize("fn", [rest_energy, energy_momentum_invariant])
+def test_rest_mass_functions_refuse_negative_or_nan_mass(fn):
+    for m in (-1.0, float("nan"), float("inf")):
+        with pytest.raises(ValueError):
+            fn(m)
+
+
+@pytest.mark.parametrize("fn", [relativistic_energy, kinetic_energy_rel, momentum_rel])
+def test_moving_mass_functions_refuse_negative_mass(fn):
+    with pytest.raises(ValueError):
+        fn(-1.0, 0.6 * C)                            # momentum_rel gave -2.25e8
+
+
+def test_lorentz_factor_refuses_nan():
+    with pytest.raises(ValueError):
+        lorentz_factor(float("nan"))
