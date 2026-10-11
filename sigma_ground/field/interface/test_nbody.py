@@ -529,23 +529,28 @@ class TestGWDamping(unittest.TestCase):
         b2 = CelestialBody(M, np.array([-a/2, 0, 0.0]), np.array([0, -v, 0.0]), 1e4, 0.3)
         return b1, b2
 
-    def test_energy_decreases_with_gw(self):
-        """GW damping should cause total energy to decrease over time."""
+    def test_energy_loss_rate_equals_peters(self):
+        """The energy radiated equals Peters (1964): dE/dt = −(32/5) G⁴ m₁² m₂² (m₁+m₂)/(c⁵ a⁵) on a circular orbit.
+
+        Measured as the energy difference between a damped and an undamped run from the same state, so the
+        integrator's own energy error cancels. a = 1e8 m (v/c ≈ 0.02) makes the loss (1.2e-11 of E per orbit) large
+        against round-off. (Before 2026-10-10 this test asserted only E1 < E0, which the r⁻⁴ law passed by a factor
+        of a = 1e9 too much; KNOWN_GAPS A11.)"""
+        from sigma_ground.field.constants import C as _C
         M  = 1.4 * M_SUN
-        a  = 1e9
+        a  = 1e8
         T  = 2 * math.pi * math.sqrt(a**3 / (_G * 2 * M))  # orbital period (s)
-        dt = T / 100          # 100 steps per orbit
-        b1, b2 = self._ns_binary(a)
-
-        system = NBodySystem([b1, b2])
-        E0     = system.total_energy()
-
-        n_steps = int(5 * T / dt)  # 5 orbits
-        for _ in range(n_steps):
-            system.step(dt, include_gw_loss=True)
-
-        E1 = system.total_energy()
-        self.assertLess(E1, E0, f"GW damping should reduce energy: E0={E0:.3e} E1={E1:.3e}")
+        dt = T / 200
+        n_steps = 5 * 200
+        energies = {}
+        for gw in (False, True):
+            system = NBodySystem(list(self._ns_binary(a)))
+            for _ in range(n_steps):
+                system.step(dt, include_gw_loss=gw)
+            energies[gw] = system.total_energy()
+        loss_rate = (energies[False] - energies[True]) / (n_steps * dt)
+        peters = (32.0 / 5.0) * _G**4 * M**4 * (2 * M) / (_C**5 * a**5)
+        self.assertAlmostEqual(loss_rate / peters, 1.0, delta=0.01)
 
     def test_no_damping_no_energy_loss(self):
         """Without GW damping, energy should be well conserved."""
@@ -1063,10 +1068,18 @@ class TestGWDampingToggle(unittest.TestCase):
 
     The legacy kwarg is still honored when explicitly True/False; only when
     it's None (the new default) does the toggle take effect.
+
+    Each run is compared with an undamped twin from the same state: the energy
+    difference must be the radiated energy L·t (Peters & Mathews quadrupole power,
+    engine's gw_luminosity_W). a = 1e7 m (v/c ≈ 0.02) makes the loss after 20 steps
+    (7e-9 of E) large against round-off. (Before 2026-10-10 these tests asserted only
+    that E decreased, which the r⁻⁴ law passed by a factor of r; KNOWN_GAPS A11.)
     """
 
+    DT = 0.05     # s; the orbit period is 10.3 s
+
     @staticmethod
-    def _ns_binary(a=1e9):
+    def _ns_binary(a=1e7):
         M = 1.4 * M_SUN
         v = math.sqrt(_G * M / (2 * a))
         b1 = CelestialBody(M, np.array([ a/2, 0, 0.0]),
@@ -1075,40 +1088,36 @@ class TestGWDampingToggle(unittest.TestCase):
                             np.array([0, -v, 0.0]), 1e4, 0.3)
         return b1, b2
 
+    def _radiated_fraction(self, sys, **step_kw):
+        """Energy removed relative to an undamped twin, divided by the expected L·t."""
+        twin = NBodySystem(list(self._ns_binary()))
+        power = sys.gw_luminosity_W()
+        for _ in range(20):
+            sys.step(self.DT, **step_kw)
+            twin.step(self.DT, include_gw_loss=False)
+        return (twin.total_energy() - sys.total_energy()) / (power * 20 * self.DT)
+
     def test_legacy_kwarg_true_still_damps(self):
         """step(dt, include_gw_loss=True) overrides toggle and applies damping."""
-        b1, b2 = self._ns_binary()
-        sys = NBodySystem([b1, b2])  # toggles.gw_damping defaults False
-        e0 = sys.total_energy()
-        for _ in range(20):
-            sys.step(1.0, include_gw_loss=True)
-        e1 = sys.total_energy()
-        # Energy should DECREASE due to GW damping
-        self.assertLess(e1, e0)
+        sys = NBodySystem(list(self._ns_binary()))  # toggles.gw_damping defaults False
+        self.assertAlmostEqual(self._radiated_fraction(sys, include_gw_loss=True), 1.0, delta=0.02)
 
     def test_default_kwarg_uses_toggle(self):
         """step(dt) with no kwarg -> uses self.toggles.gw_damping."""
-        b1, b2 = self._ns_binary()
-        sys = NBodySystem([b1, b2],
+        sys = NBodySystem(list(self._ns_binary()),
                            toggles=PhysicsToggles(gw_damping=True))
-        e0 = sys.total_energy()
-        for _ in range(20):
-            sys.step(1.0)
-        e1 = sys.total_energy()
-        self.assertLess(e1, e0)
+        self.assertAlmostEqual(self._radiated_fraction(sys), 1.0, delta=0.02)
 
     def test_legacy_kwarg_false_blocks_toggle(self):
-        """step(dt, include_gw_loss=False) overrides even if toggle is True."""
-        b1, b2 = self._ns_binary()
-        sys = NBodySystem([b1, b2],
+        """step(dt, include_gw_loss=False) overrides even if toggle is True: bit-identical to no damping."""
+        sys = NBodySystem(list(self._ns_binary()),
                            toggles=PhysicsToggles(gw_damping=True))
-        # Take a step with override-off
-        e0 = sys.total_energy()
+        twin = NBodySystem(list(self._ns_binary()))
         for _ in range(20):
-            sys.step(1.0, include_gw_loss=False)
-        e1 = sys.total_energy()
-        # Without damping (and good integration), energy should be nearly conserved
-        self.assertAlmostEqual(e1 / e0, 1.0, delta=1e-3)
+            sys.step(self.DT, include_gw_loss=False)
+            twin.step(self.DT)
+        for b, t in zip(sys.bodies, twin.bodies):
+            np.testing.assert_array_equal(b.velocity_m_s, t.velocity_m_s)
 
 
 # ═══════════════════════════════════════════════════════════════════════════

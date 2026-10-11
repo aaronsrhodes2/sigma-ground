@@ -7,10 +7,10 @@ but negligibly small for planetary orbits:
                           ~4"/century Earth).  HELPS accuracy for Mercury;
                           has a tiny effect on outer planets.
 
-  GW energy loss       -- Peters (1964) damping.  For Earth-Sun the merger
-                          timescale is ~10^30 yr; the per-step velocity
-                          reduction is ~1e-50.  Should not measurably affect
-                          a 1-year integration.
+  GW energy loss       -- Peters (1964) damping.  Earth-Sun radiates ~196 W;
+                          the inspiral timescale is ~10^23 yr and the
+                          fractional energy loss per 1-h step is ~3e-25.
+                          Should not measurably affect a 1-year integration.
 
   Tidal deformation    -- Tidal stress tensor / Love number response.
                           Relevant for NS binaries; essentially zero for
@@ -123,22 +123,27 @@ class TestGWDampingOnPlanetaryOrbits(unittest.TestCase):
     N_STEPS = int(YEAR_S / DT_S)  # 1 Julian year
 
     def test_gw_damping_earth_power_and_timescale(self):
-        """GW power for Earth-Sun should be non-zero but orbital fraction tiny.
+        """GW power for Earth-Sun is the Peters value, ~196 W, and the orbital fraction is tiny.
 
-        Peters (1964): dE/dt = -(32/5) G^4 m1^2 m2^2 M / (c^5 r^4)
-        Earth-Sun computed value: ~-3e13 W.
-        That sounds large, but Earth's orbital KE is ~2.7e33 J, so the
-        fractional drain per year is ~3.5e-13 -- negligible for any 30-yr run.
-        Merger timescale (instantaneous): ~10^12 yr >> 30 yr.
+        Peters (1964): dE/dt = -(32/5) G^4 m1^2 m2^2 M / (c^5 r^5)  (r^5: W, not W*m).
+        Earth-Sun: ~196 W (quadrupole tables give ~200 W, e.g. arXiv:gr-qc/0606111).
+        Earth's orbital KE is ~2.7e33 J, so the fractional drain per year is
+        ~2.3e-24 and the timescale KE/|dE/dt| is ~4e23 yr.
+        FIXED 2026-10-10 (KNOWN_GAPS A11): this test used r^4 and expected ~3e13 W;
+        it now checks the engine's power against the closed form.
         """
+        from sigma_ground.field.constants import C as _C
         r  = AU_M
         m1 = M_SUN
         m2 = M_EARTH
         M  = m1 + m2
         G  = _G
-        c  = 3.0e8
-        # Peters: dE/dt = -(32/5) G^4 m1^2 m2^2 M / (c^5 r^4)
-        dE_dt = -(32.0 / 5.0) * G**4 * m1**2 * m2**2 * M / (c**5 * r**4)
+        c  = _C
+        # Peters: dE/dt = -(32/5) G^4 m1^2 m2^2 M / (c^5 r^5)
+        dE_dt = -(32.0 / 5.0) * G**4 * m1**2 * m2**2 * M / (c**5 * r**5)
+        engine_power = _earth_sun_system().gw_luminosity_W()
+        self.assertAlmostEqual(engine_power / -dE_dt, 1.0, delta=1e-3)
+        self.assertAlmostEqual(-dE_dt, 196.0, delta=3.0)
         KE_orb = 0.5 * m2 * _V_EARTH**2
         timescale_yr = abs(KE_orb / dE_dt) / YEAR_S
         fraction_per_yr = abs(dE_dt) * YEAR_S / KE_orb
@@ -174,7 +179,8 @@ class TestGWDampingOnPlanetaryOrbits(unittest.TestCase):
         """GW damping should not add measurable drift ON TOP of bare Verlet drift.
 
         Verlet (2nd-order) has ~2-3 km drift per year for Earth at dt=1 hr.
-        GW physics adds only ~15 m on top of that -- undetectable in practise.
+        GW physics shrinks the orbit by ~2.3e-24 x 1 AU ~ 3e-13 m in a year --
+        far below an ulp, so the damped run must equal the plain run.
         This test isolates the GW contribution by differencing two identical runs.
         """
         dt = self.DT_S
@@ -194,8 +200,8 @@ class TestGWDampingOnPlanetaryOrbits(unittest.TestCase):
         print(f"\n  Verlet orbit drift (no GW):           "
               f"{abs(r_plain - AU_M) / 1000.0:.3f} km")
         print(f"  GW additional drift above Verlet:     {gw_additional_km:.6f} km")
-        # GW-specific drift should be < 1 km (physical prediction: ~15 m)
-        self.assertLess(gw_additional_km, 1.0,
+        # GW-specific drift: physical prediction ~3e-13 m (< 1 mm asserted)
+        self.assertLess(gw_additional_km, 1e-6,
                         f"GW added {gw_additional_km:.4f} km drift beyond Verlet")
 
 
@@ -422,24 +428,26 @@ class TestAllPhysicsKitchenSink(unittest.TestCase):
     def test_gw_damping_energy_drain_fraction_per_year(self):
         """GW energy drain in 1 year should be < 1e-9 of total orbital energy.
 
-        Earth-Sun GW power ~3e13 W; orbital energy ~2.7e33 J.
-        Fractional drain per year ~3.5e-13 -- far below any observable effect.
-        Threshold is generous (1e-9) to give plenty of headroom.
+        Earth-Sun GW power ~196 W (Peters, r^5); orbital energy ~2.7e33 J.
+        Fractional drain per year ~2.3e-24 -- far below any observable effect.
+        (Before 2026-10-10 this used r^4: ~3e13 W, KNOWN_GAPS A11.)
         """
+        from sigma_ground.field.constants import C as _C
         G  = _G
-        c  = 3.0e8
+        c  = _C
         # Orbital energy: E = -G*m1*m2 / (2a)
         E_orb = -G * M_SUN * M_EARTH / (2 * AU_M)
         # Peters dE/dt
         M_tot = M_SUN + M_EARTH
         dE_dt = -(32.0 / 5.0) * G**4 * M_SUN**2 * M_EARTH**2 * M_tot / (
-            c**5 * AU_M**4)
+            c**5 * AU_M**5)
         fraction_per_year = abs(dE_dt) * YEAR_S / abs(E_orb)
         print(f"\n  [Kitchen-sink] GW energy fraction drained / year: {fraction_per_year:.3e}")
         self.assertLess(
             fraction_per_year, 1e-9,
             f"GW drains {fraction_per_year:.2e} of orbital energy/yr (expected < 1e-9)",
         )
+        self.assertAlmostEqual(fraction_per_year / 2.3e-24, 1.0, delta=0.05)
 
     def test_all_corrections_together_mercury_still_orbits(self):
         """Mercury with GR + GW damping (goofy) should remain gravitationally bound."""

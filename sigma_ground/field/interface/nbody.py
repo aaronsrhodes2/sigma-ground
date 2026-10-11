@@ -16,7 +16,7 @@ Physics included (all deriving from local_library constants):
   - Zonal J₂ quadrupole acceleration (rotational oblateness / static tides)
   - Tidal deformation: r(θ) = R₀[1 + ε₂ P₂(cos θ)]
   - Love number k₂ tidal response
-  - Gravitational wave energy loss (Peters 1964 formula)
+  - Gravitational wave energy loss (Peters & Mathews 1963 quadrupole power; step() only, two bodies)
   - Solar radiation pressure (opt-in via solar_luminosity_W + area_m2)
 
 All constants from sigma_ground.field.constants.  No magic numbers.
@@ -32,6 +32,7 @@ References
   Soffel et al. (2003): "The IAU 2000 resolutions for astrometry ...",
       AJ 126(6), 2687-2706.  [1PN EOM, solar-system limit]
   Peters (1964): GW inspiral formula, Phys. Rev. 136, B1224.
+  Peters & Mathews (1963): GW power of a Keplerian binary, Phys. Rev. 131, 435.
   Wisdom & Holman (1991): Symplectic integration, AJ 102(4), 1528-1538.
   Darwin (1879) / Love (1911): Tidal deformation.
   Vallado (2013) §9.4: J₂ zonal-harmonic acceleration, exact vector form.
@@ -324,6 +325,9 @@ class NBodySystem:
         self.softening_m        = softening_m
         self.solar_luminosity_W = solar_luminosity_W
         self._time              = 0.0
+        # GW damping: velocity change not yet representable in the bodies' doubles (compensated sum, see
+        # _apply_gw_damping). Below half an ulp of the velocities, so it never changes reported quantities.
+        self._gw_dv_residual    = np.zeros((2, 3))
         # parent_attractor_indices[i] = index of body i's dominant Newton
         # attractor (e.g. Earth -> Sun, Mimas -> Saturn), or None if i has
         # no fast-pair partner. Used by respa_step to split the Hamiltonian
@@ -1289,44 +1293,78 @@ class NBodySystem:
 
     # ── GW energy loss ───────────────────────────────────────────────────
 
+    @staticmethod
+    def _gw_power(m0: float, m1: float, r_vec: NDArray[np.float64], v_rel: NDArray[np.float64]) -> float:
+        """Quadrupole GW luminosity (W) of two point masses with separation r_vec and relative velocity v_rel.
+
+        Peters & Mathews (1963), Phys. Rev. 131, 435, instantaneous power of a Keplerian binary:
+            L = (8/15) G³ m₀² m₁² / (c⁵ r⁴) · (12 v² − 11 ṙ²),   ṙ = r̂·v.
+        On a circular orbit (v² = GM/r, ṙ = 0) this is Peters (1964), L = (32/5) G⁴ m₀² m₁² (m₀+m₁)/(c⁵ r⁵);
+        averaged over a Kepler orbit it is (32/5) G⁴ m₀² m₁² M/(c⁵ a⁵) · f(e), f(e) = (1 + 73e²/24 + 37e⁴/96)/(1−e²)^(7/2).
+        Rest masses with G (no σ scaling), as in the rest of the damping.
+        """
+        r = float(np.linalg.norm(r_vec))
+        if r == 0.0:
+            return 0.0
+        v2 = float(np.dot(v_rel, v_rel))
+        r_dot = float(np.dot(r_vec, v_rel)) / r
+        return (8.0 / 15.0) * _G**3 * m0**2 * m1**2 / (_c**5 * r**4) * (12.0 * v2 - 11.0 * r_dot * r_dot)
+
+    def gw_luminosity_W(self) -> float:
+        """Quadrupole gravitational-wave luminosity (W) of the pair bodies[0], bodies[1] in the current state.
+
+        See ``_gw_power`` (Peters & Mathews 1963). Earth–Sun at 1 AU: ≈ 196 W. Other bodies are ignored.
+        """
+        if len(self.bodies) < 2:
+            raise ValueError("gw_luminosity_W needs at least two bodies")
+        b0, b1 = self.bodies[0], self.bodies[1]
+        return self._gw_power(b0.mass_kg, b1.mass_kg, b1.position_m - b0.position_m,
+                              b1.velocity_m_s - b0.velocity_m_s)
+
     def _apply_gw_damping(
         self,
         vel_new:  list[NDArray[np.float64]],
         dt:       float,
     ) -> list[NDArray[np.float64]]:
-        """Reduce binary velocities by GW energy loss (Peters 1964).
+        """Remove the GW energy L·dt from the binary's relative kinetic energy (Peters & Mathews 1963).
 
-        Only meaningful for compact object binaries; ignored for planets.
+        The relative velocity is scaled by s = √(1 − L·dt/KE_rel) about the centre of mass, which conserves total
+        momentum and, on a circular orbit, removes angular momentum at Peters' rate L/ω. Only meaningful for compact
+        binaries (two bodies); ignored otherwise.
+
+        FIXED 2026-10-10 (A11): the power had r⁴ instead of r⁵ (W·m; PSR J1738+0333 decayed 1.73e9× too fast,
+        Earth–Sun radiated 2.9e13 W instead of 196 W), losses below half an ulp of 1 rounded to zero, and the
+        centre-of-mass recompute injected a spurious decay. The velocity change is now applied as a compensated sum
+        (TwoSum; Knuth, TAOCP vol. 2 §4.2.2): the part that a double cannot hold is carried to the next step instead of
+        being rounded away, and nothing is rewritten when nothing is applied.
         """
         b0, b1 = self.bodies[0], self.bodies[1]
-        r_vec  = b1.position_m - b0.position_m
-        r      = float(np.linalg.norm(r_vec))
-        if r == 0.0:
+        m0, m1 = b0.mass_kg, b1.mass_kg
+        M_tot  = m0 + m1
+        if M_tot <= 0.0:
             return vel_new
-        mu_red = b0.mass_kg * b1.mass_kg / (b0.mass_kg + b1.mass_kg)
-        M_tot  = b0.mass_kg + b1.mass_kg
-        # PHYSICS_GAP (2026-10-10, unification round 2, U1; KNOWN_GAPS.md): Peters 1964 has
-        # r⁵, not r⁴ — as coded dE/dt has units of W·m and the loss is r[m] times too strong
-        # (PSR J1738+0333: 1.73e9 × Peters; Earth–Sun 2.9e13 W vs 196 W). With r⁵ the
-        # per-step loss is often below the half-ulp of 1.0, so `damp` rounds to exactly 1
-        # and the v_cm recompute below injects a spurious decay. Flagged, not fixed.
-        # Peters formula: dE/dt = -(32/5) G⁴ m1² m2² M / (c⁵ r⁴)
-        # Coefficients 32/5 are exact from quadrupole formula (Peters 1964).
-        dE_dt  = -(32.0 / 5.0) * _G**4 * b0.mass_kg**2 * b1.mass_kg**2 * M_tot / (
-            _c**5 * r**4
-        )
         v_rel  = vel_new[1] - vel_new[0]
-        v_mag  = float(np.linalg.norm(v_rel))
-        if v_mag == 0.0:
+        ke_rel = 0.5 * (m0 * m1 / M_tot) * float(np.dot(v_rel, v_rel))
+        if ke_rel <= 0.0:
             return vel_new
-        ke_rel = 0.5 * mu_red * v_mag**2
-        if ke_rel == 0.0:
+        power = self._gw_power(m0, m1, b1.position_m - b0.position_m, v_rel)
+        eps   = min(power * dt / ke_rel, 1.0)
+        if eps <= 0.0:
             return vel_new
-        damp   = 1.0 + dE_dt * dt / ke_rel
-        damp   = max(0.0, damp)
-        v_cm   = (b0.mass_kg * vel_new[0] + b1.mass_kg * vel_new[1]) / M_tot
-        # CM-frame decomposition: v_i = v_cm ± (m_other/M) * v_rel
-        # b0 gets -m_b1/M * v_rel;  b1 gets +m_b0/M * v_rel
-        vel_new[0] = v_cm - math.sqrt(damp) * b1.mass_kg / M_tot * v_rel
-        vel_new[1] = v_cm + math.sqrt(damp) * b0.mass_kg / M_tot * v_rel
-        return vel_new
+        s_minus_1 = -eps / (1.0 + math.sqrt(1.0 - eps))      # √(1−ε) − 1 without cancellation
+        dv_rel    = s_minus_1 * v_rel
+        deltas    = (-(m1 / M_tot) * dv_rel, (m0 / M_tot) * dv_rel)
+        residual  = getattr(self, "_gw_dv_residual", None)
+        if residual is None or residual.shape != (2, 3):
+            residual = np.zeros((2, 3))
+        new_residual = np.empty((2, 3))
+        out = list(vel_new)
+        for k in (0, 1):
+            a = vel_new[k]
+            b = deltas[k] + residual[k]
+            s = a + b                                           # TwoSum: s + err == a + b exactly
+            bb = s - a
+            new_residual[k] = (a - (s - bb)) + (b - bb)
+            out[k] = s
+        self._gw_dv_residual = new_residual
+        return out
