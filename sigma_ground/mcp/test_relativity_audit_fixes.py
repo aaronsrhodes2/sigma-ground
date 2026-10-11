@@ -73,3 +73,66 @@ def test_doppler_rejects_non_finite_input():
     assert t_rel.doppler_shift_factor(float("nan"), 0.0).value is None
     assert t_rel.doppler_shift_factor(1.0e7, float("inf")).value is None
     assert t_rel.doppler_shift_factor(sc.c, 0.0).value is None
+
+
+# ── A43: procedure relativistic_particle ───────────────────────────────────
+
+def _cascade(ke_eV, particle):
+    from sigma_ground.mcp.procedures import relativistic_particle
+    r = relativistic_particle(ke_eV, particle)
+    return {s.label: s.value for s in r.steps}, r
+
+
+def _codata_rest_eV(name):
+    """CODATA m c^2 in eV (scipy, independent of the repo's mass tables)."""
+    return sc.physical_constants[f"{name} mass energy equivalent in MeV"][0] * 1e6
+
+
+def _pc_invariant_eV(ke_eV, mc2_eV):
+    """pc from the invariant E^2 - (mc^2)^2 in 50-digit arithmetic."""
+    mp = pytest.importorskip("mpmath")
+    mp.mp.dps = 50
+    E = mp.mpf(ke_eV) + mp.mpf(mc2_eV)
+    return float(mp.sqrt(E * E - mp.mpf(mc2_eV) ** 2))
+
+
+def test_relativistic_particle_alpha_uses_the_alpha_mass():
+    rows, r = _cascade(5e6, "alpha")
+    mc2 = _codata_rest_eV("alpha particle")                    # 3727.379 MeV
+    assert rows["Lorentz factor γ"] == pytest.approx(1.0 + 5e6 / mc2, rel=1e-9)
+    pc_ref = _pc_invariant_eV(5e6, mc2)                         # 1.931e8 eV
+    assert rows["Momentum (pc)"] == pytest.approx(pc_ref, rel=1e-8)
+    lam_ref = sc.h * sc.c / (pc_ref * sc.e)                     # 6.420e-15 m
+    assert rows["de Broglie wavelength"] == pytest.approx(lam_ref, rel=1e-8)
+    # one mass for the whole cascade: (gamma^2 - 1) (mc^2)^2 = (pc)^2
+    g, pc = rows["Lorentz factor γ"], rows["Momentum (pc)"]
+    assert (g * g - 1.0) * mc2 ** 2 == pytest.approx(pc ** 2, rel=1e-7)
+
+
+@pytest.mark.parametrize("particle", ["pion", "tau", "", "kaon"])
+def test_relativistic_particle_unknown_particle_raises(particle):
+    with pytest.raises(ValueError, match="unknown particle"):
+        _cascade(5e6, particle)
+
+
+@pytest.mark.parametrize("ke", [0.0, -1.0, -1e6, float("nan"), float("inf")])
+def test_relativistic_particle_rejects_bad_kinetic_energy(ke):
+    with pytest.raises(ValueError, match="kinetic_energy_eV"):
+        _cascade(ke, "electron")
+
+
+@pytest.mark.parametrize("ke_eV", [1e-7, 3e-7, 1e-5])
+def test_relativistic_particle_ultracold_neutron_no_cancellation(ke_eV):
+    rows, _ = _cascade(ke_eV, "neutron")
+    # non-relativistic de Broglie, exact to KE/(4 m c^2) ~ 1e-17 here
+    lam_ref = sc.h / math.sqrt(2.0 * sc.m_n * ke_eV * sc.e)     # 100 neV: 9.0446e-8 m
+    assert rows["de Broglie wavelength"] == pytest.approx(lam_ref, rel=1e-8)
+    pc_ref = _pc_invariant_eV(ke_eV, _codata_rest_eV("neutron"))
+    assert rows["Momentum (pc)"] == pytest.approx(pc_ref, rel=1e-8)
+
+
+def test_relativistic_particle_electron_unchanged_regime():
+    rows, _ = _cascade(1e6, "electron")
+    mc2 = _codata_rest_eV("electron")
+    assert rows["Lorentz factor γ"] == pytest.approx(1.0 + 1e6 / mc2, rel=1e-9)
+    assert rows["Momentum (pc)"] == pytest.approx(_pc_invariant_eV(1e6, mc2), rel=1e-8)
