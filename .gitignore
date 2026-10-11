@@ -73,3 +73,6 @@ sigma_ground/radiance/web/_compile_scratch/
 # SkippyVerse ingest: downloaded listings and built index (rebuild with ingest_real.py --fetch)
 stage/skippyverse/cache/
 stage/skippyverse/build/
+
+# SkippyVerse avatar: personal print-kit derivatives (licence unknown, never commit)
+stage/skippyverse/private/
