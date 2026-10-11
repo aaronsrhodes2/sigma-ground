@@ -221,15 +221,16 @@ end
 
 --- POST json to the bridge. ok(body, headers) on 200, fail(reason) otherwise. Returns false if nothing was sent.
 H.thinking = 0             -- bridge calls in flight
-local function bridge_post(path, tbl, ok, fail, timeout)
+local function bridge_post(path, tbl, ok, fail, timeout, quiet)
   if bridge_url() == "" then return false end
-  H.thinking = H.thinking + 1
+  if not quiet then H.thinking = H.thinking + 1 end         -- (quiet: a status poll, not a piece of work; it never crowds out real calls)
   local who = tbl and tbl.who
-  if who then H.inflight_by[who] = (H.inflight_by[who] or 0) + 1 end
+  if who and not quiet then H.inflight_by[who] = (H.inflight_by[who] or 0) + 1 end
   local finished = false
   local function settle()
     if finished then return end
     finished = true
+    if quiet then return end
     H.thinking = math.max(0, H.thinking - 1)
     if who then H.inflight_by[who] = math.max(0, (H.inflight_by[who] or 1) - 1); if H.inflight_by[who] == 0 then H.inflight_by[who] = nil end end
   end
@@ -1362,7 +1363,9 @@ end
 -- else the resolver says ("the closest I have is ...", not found, too big, size unknown, not shareable) is only a sentence.
 local cv_found = CreateConVar("holodeck_found", "1", FCVAR_ARCHIVE, "1 = ask the bridge about things the library lacks and show what it finds as placeholder boxes")
 H.Mesh = include("mentat/holodeck/meshnet.lua")           -- the real shape of a found object, relayed to the clients (see meshnet.lua)
-H.Mesh.init({ post = bridge_post, allow = bridge_allow, key = player_key })
+H.Mesh.init({ post = bridge_post, allow = bridge_allow, key = player_key,
+              quiet_post = function(path, tbl, ok, fail, timeout) return bridge_post(path, tbl, ok, fail, timeout, true) end,
+              say = function(ply, text) H.Say(ply, text, nil, { speak = IsValid(ply) }) end })           -- the transporter: status polls, and Skippy saying why one gave up
 local F = {}
 F.MAX_KINDS, F.MAX_NOUNS, F.MIN_HU, F.MAX_HU = 64, 3, 1, 2000      -- kinds kept per session, nouns asked per sentence, size limits (HU)
 F.refused = {}                                                       -- noun -> { say =, t = } : a definite "no", remembered for a while

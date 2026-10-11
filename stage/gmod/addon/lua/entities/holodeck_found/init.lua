@@ -4,6 +4,8 @@ AddCSLuaFile("shared.lua")
 AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("mentat/holodeck/svm1.lua")             -- the client's decoder and mesh builder (the server sends them with this entity)
 AddCSLuaFile("mentat/holodeck/meshclient.lua")
+AddCSLuaFile("mentat/fx/transporter_model.lua")      -- the transporter effect: stages and the pure coherence function
+AddCSLuaFile("mentat/fx/transporter.lua")
 include("shared.lua")
 
 util.AddNetworkString("holodeck_found_visual")

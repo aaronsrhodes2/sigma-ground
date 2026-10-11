@@ -31,6 +31,8 @@ if SERVER then
   AddCSLuaFile("mentat/avatar/body.lua")
   AddCSLuaFile("mentat/avatar/body_client.lua")
   AddCSLuaFile("mentat/holodeck/svm1.lua")
+  AddCSLuaFile("mentat/fx/transporter_model.lua")
+  AddCSLuaFile("mentat/fx/transporter.lua")
   AddCSLuaFile("mentat/avatar_client.lua")
   include("mentat/server.lua")
   include("mentat/autotest.lua")
@@ -38,6 +40,7 @@ if SERVER then
   include("mentat/holodeck.lua")
   include("mentat/voice.lua")
   include("mentat/avatar.lua")
+  include("mentat/fx/beam_net.lua")            -- Skippy's arrival and departure as a transporter beam (the avatar's hooks, nothing else touched)
 else
   include("mentat/client.lua")
   include("mentat/holodeck_client.lua")

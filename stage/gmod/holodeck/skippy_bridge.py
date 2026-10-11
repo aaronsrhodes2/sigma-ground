@@ -28,7 +28,14 @@ It runs on the machine that hosts the game server (or the game, for single playe
                      "bbox_m": [x, y, z], "b64": "<base64 of the payload>"}   (stage/skippyverse/README.md has the payload format)
          The real shape of a found object as a small payload (<= 256 KB) the game relays to its clients, which then draw it where the
          placeholder box was. Only for a card /resolve offered a mesh for (servable, Poly Haven, whose key this is); one download at a
-         time, one pack at a time, and a failure is a plain error: the box simply stays.
+         time, one pack at a time, and a failure is a plain error (the game takes the placeholder down and says why).
+
+    POST /progress {"key": "<16 hex, a /mesh key>"}
+                 -> {"ok": true, "key", "stage": "idle|queued|fetching|packing|done|failed", "bytes": N, "total": N, "age_s": S, "error"?}
+         What a /mesh request for that key is doing right now, for the game's transporter effect (a beam whose coherence is this
+         progress). `bytes` is what has been downloaded so far, `total` what the asset is known to need (0 = not known yet), `age_s`
+         how long it has been in this stage. Read-only and cheap; token-guarded and budgeted like every other path. A game that
+         never calls it loses nothing: /mesh behaves exactly as before.
 
 What stands between a caller and the machine's CPU, GPU and the paid voice:
   * a token (X-Skippy-Token). The bridge refuses to start without one; --no-token exists for a bridge on loopback only.
@@ -123,8 +130,8 @@ MIN_USEFUL_S = 1.0                     # a model call with less time than this l
 SPEAK_TIMEOUT_S = 25.0
 PER_MINUTE = {"plan": _env_int("SKIPPY_PLAN_PER_MIN", 24), "reply": _env_int("SKIPPY_REPLY_PER_MIN", 40),
               "speak": _env_int("SKIPPY_SPEAK_PER_MIN", 40), "resolve": _env_int("SKIPPY_RESOLVE_PER_MIN", 12),
-              "mesh": _env_int("SKIPPY_MESH_PER_MIN", 12)}
-PER_CALLER_PER_MINUTE = {"plan": 8, "reply": 12, "speak": 12, "resolve": 4, "mesh": 4}    # applied to a request's `who`, when it names one (the game rations too; this is the backstop)
+              "mesh": _env_int("SKIPPY_MESH_PER_MIN", 12), "progress": _env_int("SKIPPY_PROGRESS_PER_MIN", 300)}
+PER_CALLER_PER_MINUTE = {"plan": 8, "reply": 12, "speak": 12, "resolve": 4, "mesh": 4, "progress": 150}    # applied to a request's `who`, when it names one (the game rations too; this is the backstop)
 SPEAK_CHARS_PER_MINUTE = _env_int("SKIPPY_SPEAK_CHARS_PER_MIN", 3000)
 PAID_CHARS_PER_DAY = _env_int("SKIPPY_PAID_CHARS_PER_DAY", 20000)   # ElevenLabs costs per character
 
@@ -1160,9 +1167,10 @@ class _HttpsOnly(urllib.request.HTTPRedirectHandler):
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
-def bounded_fetch(deadline: float, cancel: Cancel | None = None, max_total: int = FETCH_MAX_BYTES):
+def bounded_fetch(deadline: float, cancel: Cancel | None = None, max_total: int = FETCH_MAX_BYTES, on_bytes=None):
     """A fetch(url, *, max_bytes) for acquire.py that stays inside one budget: https only, the named hosts, `max_total` bytes in all,
-    a per-request timeout, and a deadline for the whole download (checked between chunks). It also stops when the caller hangs up."""
+    a per-request timeout, and a deadline for the whole download (checked between chunks). It also stops when the caller hangs up.
+    `on_bytes(n)`, when given, is told about every chunk as it arrives (the transporter's progress)."""
     acquire, _, _, _ = _skippyverse()
     budget = [max_total]
     opener = urllib.request.build_opener(_HttpsOnly)
@@ -1189,6 +1197,8 @@ def bounded_fetch(deadline: float, cancel: Cancel | None = None, max_total: int 
                 if not chunk:
                     break
                 buf += chunk
+                if on_bytes is not None:
+                    on_bytes(len(chunk))
                 if len(buf) > limit:
                     raise acquire.TooLarge(f"the download is over the {max_total / 1e6:.0f} MB budget")
         budget[0] -= len(buf)
@@ -1313,6 +1323,57 @@ def mesh_offer(card: dict) -> dict | None:
     return {"key": mesh_key(card["id"]), "format": MESH_FORMAT}
 
 
+class MeshProgress:
+    """What one /mesh request is doing (read by POST /progress). Written by the worker thread, read by the poller; plain attribute
+    writes, so no lock is needed for a status line."""
+
+    def __init__(self):
+        self.stage, self.bytes, self.total, self.error = "queued", 0, 0, None
+        self.t_stage = time.monotonic()
+        self.fetching = 0                      # bytes of the file in flight (the chunk callback); `bytes` holds the finished files
+
+    def set(self, stage: str, error: str | None = None) -> None:
+        self.stage, self.error, self.t_stage = stage, error, time.monotonic()
+
+    def snapshot(self) -> dict:
+        out = {"stage": self.stage, "bytes": self.bytes + self.fetching, "total": self.total, "age_s": round(time.monotonic() - self.t_stage, 1)}
+        if self.error:
+            out["error"] = self.error[:160]
+        return out
+
+    def wrap(self, fetch):
+        """Count a fetch(url, *, max_bytes) callable: a Poly Haven /files listing tells how much the geometry will need."""
+        def counted(url, *, max_bytes):
+            data = fetch(url, max_bytes=max_bytes)
+            self.fetching = 0
+            self.bytes += len(data)
+            if url.startswith("https://api.polyhaven.com/files/") and not self.total:
+                try:
+                    entry = json.loads(data.decode("utf-8"))["gltf"]
+                    entry = entry["1k"]["gltf"] if "1k" in entry else entry[sorted(entry)[0]]["gltf"]
+                    self.total = len(data) + int(entry.get("size") or 0) + sum(
+                        int(v.get("size") or 0) for k, v in (entry.get("include") or {}).items() if str(k).lower().endswith(".bin"))
+                except (ValueError, KeyError, TypeError, AttributeError, IndexError):
+                    pass                                              # the total stays unknown; the bytes still count
+            return data
+        return counted
+
+
+MESH_PROGRESS: dict = {}                           # key -> MeshProgress (insertion ordered; the last MESH_CACHE_MAX*2 are kept)
+
+
+def mesh_progress(key: str) -> dict:
+    """The status line for POST /progress. A key nobody asked for is "idle"; a packed one is "done"."""
+    if not isinstance(key, str) or not re.fullmatch(r"[0-9a-f]{16}", key):
+        raise ValueError("key required")
+    p = MESH_PROGRESS.get(key)
+    if p is not None:
+        return {"ok": True, "key": key, **p.snapshot()}
+    if key in MESH_PACKED:
+        return {"ok": True, "key": key, "stage": "done", "bytes": MESH_PACKED[key].get("bytes", 0), "total": MESH_PACKED[key].get("bytes", 0), "age_s": 0.0}
+    return {"ok": True, "key": key, "stage": "idle", "bytes": 0, "total": 0, "age_s": 0.0}
+
+
 def mesh_payload(card_id: str, key: str, cancel: Cancel | None = None, deadline: float | None = None) -> dict:
     acquire, _, _, _ = _skippyverse()
     from skippyverse import meshpack
@@ -1330,20 +1391,32 @@ def mesh_payload(card_id: str, key: str, cancel: Cancel | None = None, deadline:
     if not card or not mesh_offer(card):
         raise ValueError("no mesh for that card")
     deadline = deadline or time.monotonic() + RESOLVE_TIMEOUT_S * 2
-    fetch = FOUND_FETCHER or bounded_fetch(deadline, cancel)
-    with GATE.slot("fetch", cancel):                                       # a second download waits a second, then gets 503
-        asset = acquire.acquire(card, fetch=fetch, cache_dir=MESH_CACHE_DIR)
-    path = Path(asset["dir"]) / (asset.get("mesh") or "")
-    if not asset.get("mesh") or path.suffix.lower() not in (".gltf", ".glb"):
-        raise ValueError("the asset is not a glTF")
-    with _mesh_lock:
-        if cancel is not None and cancel.is_set():
-            raise Cancelled()
-        blob, info = meshpack.pack(path, MESH_TRIS, "lzma")
-    if len(blob) > MESH_MAX_BYTES:
-        raise ValueError(f"the payload is {len(blob)} bytes, over the {MESH_MAX_BYTES} byte cap")
+    prog = MeshProgress()                                                   # what POST /progress reports while this runs
+    MESH_PROGRESS[key] = prog
+    while len(MESH_PROGRESS) > MESH_CACHE_MAX * 2:
+        MESH_PROGRESS.pop(next(iter(MESH_PROGRESS)))
+    try:
+        fetch = prog.wrap(FOUND_FETCHER or bounded_fetch(deadline, cancel, on_bytes=lambda n: setattr(prog, "fetching", prog.fetching + n)))
+        with GATE.slot("fetch", cancel):                                       # a second download waits a second, then gets 503
+            prog.set("fetching")
+            asset = acquire.acquire(card, fetch=fetch, cache_dir=MESH_CACHE_DIR)
+        path = Path(asset["dir"]) / (asset.get("mesh") or "")
+        if not asset.get("mesh") or path.suffix.lower() not in (".gltf", ".glb"):
+            raise ValueError("the asset is not a glTF")
+        prog.set("packing")
+        with _mesh_lock:
+            if cancel is not None and cancel.is_set():
+                raise Cancelled()
+            prog.t_stage = time.monotonic()                                    # (the wait for the pack lock is not packing)
+            blob, info = meshpack.pack(path, MESH_TRIS, "lzma")
+        if len(blob) > MESH_MAX_BYTES:
+            raise ValueError(f"the payload is {len(blob)} bytes, over the {MESH_MAX_BYTES} byte cap")
+    except BaseException as e:
+        prog.set("failed", f"{type(e).__name__}: {e}")
+        raise
     out = {"ok": True, "key": key, "card": card_id, "format": MESH_FORMAT, "bytes": len(blob), "crc32": zlib.crc32(blob) & 0xFFFFFFFF,
            "tris": info["tris_out"], "verts": info["verts"], "bbox_m": info["bbox_m"], "b64": base64.b64encode(blob).decode("ascii")}
+    prog.set("done")
     MESH_PACKED[key] = out
     while len(MESH_PACKED) > MESH_CACHE_MAX:
         MESH_PACKED.pop(next(iter(MESH_PACKED)))
@@ -1579,6 +1652,12 @@ class Handler(BaseHTTPRequestHandler):
             _ctx.deadline = time.monotonic() + RESOLVE_TIMEOUT_S * 2
             try:
                 return self._json(200, mesh_payload(body.get("card"), body.get("key"), _ctx.cancel, _ctx.deadline))
+            except ValueError as e:
+                return self._json(400, {"ok": False, "error": str(e)[:200]})
+        if self.path == "/progress":
+            GATE.admit("progress", "")
+            try:
+                return self._json(200, mesh_progress(body.get("key")))
             except ValueError as e:
                 return self._json(400, {"ok": False, "error": str(e)[:200]})
         self._json(404, {"ok": False, "error": "no such path"})

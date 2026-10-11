@@ -395,14 +395,13 @@ def test_asking_over_and_over_is_rationed_per_player(game):
     lambda b: (200, {"ok": True, "key": skippy_bridge.mesh_key(TALL), "format": "svm1-lzma", "b64": "A" * (400 * 1024)}),        # over the cap
     lambda b: (200, {"ok": True, "key": skippy_bridge.mesh_key(TALL), "format": "svm1-lzma", "b64": base64.b64encode(b"\x5d" + b"\0" * 40).decode()}),   # not a model
 ])
-def test_a_failed_or_hostile_answer_leaves_the_box(game, answer):
+def test_a_failed_or_hostile_answer_gives_up_and_takes_the_placeholder_down(game, answer):
     summon(game)
     game.serve_mesh(answer)
     game.w.advance(3)
-    assert game.visuals() == [{"visual": "box", "mesh": 0}]
+    assert game.visuals() == [], "the transporter gave up: the placeholder is gone (see test_gmod_transporter.py for the effect and the sentence)"
     assert game.nets() == [], "nothing is relayed to anyone"
     assert game.w.call("T.mesh_state") == "failed"
-    assert game.found()[0]["visual"] == "box"
 
 
 def _answer_with(blob, raw=None, **override):
@@ -420,7 +419,7 @@ def test_a_checksum_or_length_that_does_not_match_is_refused(game):
     game.register(blob, raw)
     game.serve_mesh(_answer_with(blob, crc32=zlib.crc32(blob) ^ 1))
     game.w.advance(3)
-    assert game.visuals() == [{"visual": "box", "mesh": 0}] and game.nets() == []
+    assert game.visuals() == [] and game.nets() == []
 
 
 def test_the_length_and_the_declared_inflated_size_are_checked(game):
@@ -429,7 +428,7 @@ def test_the_length_and_the_declared_inflated_size_are_checked(game):
     game.register(blob, raw)
     game.serve_mesh(_answer_with(blob, bytes=len(blob) + 1))
     game.w.advance(3)
-    assert game.visuals() == [{"visual": "box", "mesh": 0}]
+    assert game.visuals() == []
     # a bomb: the header claims 3 GB; the engine's inflate is never asked
     bomb = blob[:5] + struct.pack("<Q", 3 * 1024 ** 3) + blob[13:]
     g2 = MeshGame()
@@ -437,14 +436,14 @@ def test_the_length_and_the_declared_inflated_size_are_checked(game):
     g2.register(bomb, raw)
     g2.serve_mesh(_answer_with(bomb))
     g2.w.advance(3)
-    assert g2.visuals() == [{"visual": "box", "mesh": 0}] and g2.nets() == []
+    assert g2.visuals() == [] and g2.nets() == []
     # unknown size (-1): the real engine returns nothing for it, so it is refused up front
     unknown = blob[:5] + b"\xff" * 8 + blob[13:]
     g3 = MeshGame()
     summon(g3)
     g3.serve_mesh(_answer_with(unknown))
     g3.w.advance(3)
-    assert g3.visuals() == [{"visual": "box", "mesh": 0}] and g3.nets() == []
+    assert g3.visuals() == [] and g3.nets() == []
 
 
 def test_a_payload_over_256_kb_is_refused_on_the_game_side_too(game):
@@ -455,7 +454,7 @@ def test_a_payload_over_256_kb_is_refused_on_the_game_side_too(game):
     game.register(padded, raw)
     game.serve_mesh(_answer_with(padded))
     game.w.advance(3)
-    assert game.visuals() == [{"visual": "box", "mesh": 0}] and game.nets() == []
+    assert game.visuals() == [] and game.nets() == []
     ok = MeshGame()
     summon(ok)
     ok.register(blob, raw)
@@ -472,8 +471,9 @@ def test_a_failed_model_is_asked_for_again_later_but_not_forever(game):
         game.summon(p, "add a garden gnome")
         game.serve_mesh(lambda b: (502, {"ok": False}))
     assert len(game.mesh_posts()) == 3, "three tries, then the box is all there is"
-    game.found()                                                        # (still all boxes)
-    assert all(v == {"visual": "box", "mesh": 0} for v in game.visuals())
+    # each of the three tries ended with its placeholder taken down; the objects asked for after that were never waiting for anything
+    # (no request goes out), so they are plain boxes, not beams
+    assert len(game.visuals()) == 3 and all(v == {"visual": "box", "mesh": 0} for v in game.visuals())
 
 
 def test_with_holodeck_mesh_off_nothing_is_asked_and_resume_asks(game):

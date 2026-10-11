@@ -12,6 +12,7 @@ if not CLIENT then return end
 local Logic = include("mentat/avatar/logic.lua")
 local Geo = include("mentat/avatar/geometry.lua")
 local BodyC = include("mentat/avatar/body_client.lua")        -- the real Skippy (the print kit), when its private files were sent
+local FX = include("mentat/fx/transporter.lua")           -- the transporter beam: his body waits for the arrival beam (FX.avatar_hidden)
 local Core = Logic.Core
 
 Mentat = Mentat or {}
@@ -254,6 +255,7 @@ end
 local function draw()
   local bot = Av.Get()
   if not bot or not cv_draw:GetBool() then return end
+  if FX.avatar_hidden() then return end                          -- arriving: the beam comes first, the body when it completes
   local real = cv_real:GetBool() and BodyC.ready
   if not real and not meshes then build_meshes() end
   local now = CurTime()

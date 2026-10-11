@@ -11,6 +11,7 @@
 --   payload | UInt16 bytes in this chunk | Data. The payload is the bridge's LZMA bytes as they came (util.Decompress reads them).
 -- Wire (client -> server, "holodeck_mesh_want"): UInt8 mesh number, 0 = every mesh the server has.
 local SVM1 = include("mentat/holodeck/svm1.lua")
+local FP = include("mentat/holodeck/foundprog.lua")        -- the transporter's progress, heartbeat and failure (server side)
 
 local Mesh = (Holodeck and Holodeck.Mesh) or {}            -- a reload of holodeck.lua keeps what was fetched (entities keep their model numbers)
 Mesh.CAP_BYTES = 256 * 1024          -- a payload over this is never taken, relayed or accepted (also the client's limit)
@@ -39,8 +40,13 @@ Mesh.cv_fetch = cv_fetch
 util.AddNetworkString("holodeck_mesh")
 util.AddNetworkString("holodeck_mesh_want")
 
---- deps = { post = bridge_post, allow = bridge_allow, key = player_key }
-function Mesh.init(deps) Mesh.deps = deps end
+--- deps = { post = bridge_post, allow = bridge_allow, key = player_key, quiet_post = <bridge_post that is not counted as a call in flight>,
+---          say = fn(ply, text) }
+function Mesh.init(deps)
+  Mesh.deps = deps
+  FP.init({ mesh = Mesh, quiet_post = deps.quiet_post, say = deps.say })
+end
+Mesh.FP = FP
 
 local function now() return CurTime() end
 
@@ -68,7 +74,11 @@ local function pump()
   for _, p in ipairs(job.targets) do if IsValid(p) then alive[#alive + 1] = p end end
   job.targets = alive
   local m = job.m
-  if #alive == 0 or not m.data or job.i > m.chunks then table.remove(Mesh.queue, 1); return end
+  if #alive == 0 or not m.data or job.i > m.chunks then
+    table.remove(Mesh.queue, 1)
+    if job.track then FP.sent(m) end                       -- nobody to send to: whoever asks later gets it; the objects are done waiting
+    return
+  end
   local piece = m.data:sub((job.i - 1) * Mesh.CHUNK + 1, job.i * Mesh.CHUNK)
   net.Start("holodeck_mesh")
   net.WriteUInt(m.id, 8)
@@ -81,11 +91,15 @@ local function pump()
   net.Send(alive)
   Mesh.sent_chunks = Mesh.sent_chunks + 1
   job.i = job.i + 1
-  if job.i > m.chunks then table.remove(Mesh.queue, 1) end
+  if job.track then FP.stage(m, "sending", (job.i - 1) / m.chunks) end          -- chunks sent of chunks to send
+  if job.i > m.chunks then
+    table.remove(Mesh.queue, 1)
+    if job.track then FP.sent(m) end
+  end
 end
 
 --- Queue a ready model for these players. Returns false when the queue is full or there is nobody to send to.
-function Mesh.send(m, targets)
+function Mesh.send(m, targets, track)
   if m.state ~= "ready" then return false end
   local list = {}
   for _, p in ipairs(targets) do if IsValid(p) then list[#list + 1] = p end end
@@ -96,7 +110,7 @@ function Mesh.send(m, targets)
     end
   end
   if #Mesh.queue >= Mesh.MAX_QUEUED then return false end
-  Mesh.queue[#Mesh.queue + 1] = { m = m, targets = list, i = 1 }
+  Mesh.queue[#Mesh.queue + 1] = { m = m, targets = list, i = 1, track = track }
   if not timer.Exists("holodeck_mesh_pump") then timer.Create("holodeck_mesh_pump", Mesh.PUMP, 0, pump) end
   return true
 end
@@ -117,6 +131,44 @@ end
 local function fail(m, why)
   m.state, m.why, m.t = "failed", tostring(why), now()
   Mesh.last_error = m.why
+  FP.fail(m, why)                                         -- the beam collapses, the placeholder goes, Skippy says why
+end
+Mesh.fail = fail
+
+Mesh.BUSY_RETRY = 2.0                -- seconds before asking again when the bridge says "busy" (one download at a time: this one waits its turn)
+
+local ask
+
+local function on_answer(m, body)
+  local obj = util.JSONToTable(body or "")
+  if not (istable(obj) and obj.ok == true and obj.key == m.key and obj.format == "svm1-lzma" and isstring(obj.b64)) then
+    return fail(m, "the bridge's answer was not a mesh")
+  end
+  if #obj.b64 > math.ceil(Mesh.CAP_BYTES * 4 / 3) + 8 then return fail(m, "the bridge's payload is over the cap") end
+  local data = SVM1.b64decode(obj.b64)
+  if not data then return fail(m, "the payload was not base64") end
+  local info, why = Mesh.check(data, tonumber(obj.bytes), tonumber(obj.crc32))
+  if not info then return fail(m, why) end
+  m.data, m.crc, m.total, m.tris, m.verts = data, info.crc, info.total, info.tris, info.verts
+  m.chunks = math.ceil(m.total / Mesh.CHUNK)
+  m.state, m.why = "ready", nil
+  FP.watch[m] = nil
+  FP.stage(m, "sending", 0)
+  tell_entities(m)
+  if not Mesh.send(m, player.GetAll(), true) then FP.sent(m) end
+end
+
+--- One POST /mesh. A "busy" (HTTP 503: the bridge downloads one thing at a time) is not a failure: this model waits its turn and asks again,
+--- until the transporter's own timeout gives up on it; any other error is the end of it.
+function ask(m, ply)
+  local d = Mesh.deps
+  return d.post("/mesh", { card = m.card, key = m.key, who = d.key(ply) }, function(body) on_answer(m, body) end, function(reason)
+    if m.state == "pending" and tostring(reason):find("HTTP 503", 1, true) and now() - (m.t or 0) < FP.cv_timeout:GetFloat() then
+      timer.Simple(Mesh.BUSY_RETRY, function() if m.state == "pending" then ask(m, ply) end end)
+      return
+    end
+    fail(m, reason)
+  end, Mesh.REQUEST_TIMEOUT)
 end
 
 local function request(m, ply)
@@ -126,23 +178,9 @@ local function request(m, ply)
   if not d.allow("mesh", ply) then return false end
   m.tries = m.tries + 1
   m.state, m.t = "pending", now()
-  local sent = d.post("/mesh", { card = m.card, key = m.key, who = d.key(ply) }, function(body)
-    local obj = util.JSONToTable(body or "")
-    if not (istable(obj) and obj.ok == true and obj.key == m.key and obj.format == "svm1-lzma" and isstring(obj.b64)) then
-      return fail(m, "the bridge's answer was not a mesh")
-    end
-    if #obj.b64 > math.ceil(Mesh.CAP_BYTES * 4 / 3) + 8 then return fail(m, "the bridge's payload is over the cap") end
-    local data = SVM1.b64decode(obj.b64)
-    if not data then return fail(m, "the payload was not base64") end
-    local info, why = Mesh.check(data, tonumber(obj.bytes), tonumber(obj.crc32))
-    if not info then return fail(m, why) end
-    m.data, m.crc, m.total, m.tris, m.verts = data, info.crc, info.total, info.tris, info.verts
-    m.chunks = math.ceil(m.total / Mesh.CHUNK)
-    m.state, m.why = "ready", nil
-    tell_entities(m)
-    Mesh.send(m, player.GetAll())
-  end, function(reason) fail(m, reason) end, Mesh.REQUEST_TIMEOUT)
+  local sent = ask(m, ply)
   if not sent then m.state = "wanted"; m.tries = m.tries - 1; return false end
+  if m.state == "pending" then FP.begin(m) end              -- (a synchronous failure has already settled it)
   return true
 end
 
@@ -162,10 +200,14 @@ function Mesh.attach(ent, found, ply)
     Mesh.by_id[m.id] = m
   end
   m.ents[#m.ents + 1] = ent
+  ent.FxOwner = ply
   if m.state == "ready" then
     if ent.SetVisual then ent:SetVisual("mesh", { id = m.id }) end
+    FP.join(m, ent, ply)
   elseif m.state == "wanted" or (m.state == "failed" and now() - (m.t or 0) >= Mesh.RETRY_AFTER) then
-    request(m, ply)
+    request(m, ply)                                          -- (a request that goes out stages every entity of the model: FP.begin)
+  else
+    FP.join(m, ent, ply)                                     -- in flight (the entity shows the model's state) or failed a moment ago (it is given up on)
   end
   return true
 end

@@ -161,8 +161,10 @@ box, at the same pose, with no re-plan**. No model file is installed on any clie
   entity's box has them the other way round, so the mesh is turned a quarter circle (the authored front lands on +x, where the planner puts a front)
   and put on the box's footprint centre and floor. Triangle order is flipped for the engine (Source's front faces are clockwise); the normals follow.
   The label stays. `holodeck_found_outline 1` (client convar) keeps a faint outline of the card's box around the shape; off by default.
-- **Failure keeps the box.** No answer, a bad answer, a checksum or length that does not match, a payload that does not decode, a client that never gets
-  the chunks, `util.Decompress` returning nothing: the entity keeps drawing the box, nothing is re-planned, the label is unchanged.
+- **Failure takes the placeholder down** (changed with the transporter effect, below). No answer, a bad answer, a checksum or length that does not
+  match, a payload that does not decode, a bridge that stays busy or silent past `holodeck_found_timeout`: the beam collapses red, the placeholder is
+  removed and Skippy says why. (A model whose three tries are used up, or `holodeck_mesh 0`, leaves plain boxes: nothing waits, so there is no beam.)
+  A client that never gets the chunks, or whose `util.Decompress` returns nothing, keeps drawing the box on that client (the server cannot know).
 - **Collision is still the card's box.** Only the drawing changes. The mesh is NOT a collision hull: things rest on the box, so a chair's open back is
   solid to the physics.
 - **LZMA verdict (real game, this machine).** `util.Decompress` reads exactly the legacy `.lzma` stream with a known size in its header, which is also
@@ -187,6 +189,66 @@ box, at the same pose, with no re-plan**. No model file is installed on any clie
   answers, the Lua decoder against Python's unpacker on the real chair. **Not tried in the real game:** a dedicated server with a remote client (the
   live net path was the listen server's own loopback, so a late joiner's `holodeck_mesh_want` and a payload of several chunks have only run in the
   mock), several different models at once, a weak connection.
+
+### The transporter effect: a materialise whose coherence is the pipeline's progress
+
+While a found object's real shape is on its way, the placeholder box is replaced by a Star Trek style beam: a column of sparkles in the card's
+footprint box. Its job is **feedback about progress** (players need to tell whether we gave up or not): the beam is *sparse, wide and flickery* at 0, and
+*condenses* as the pipeline really advances (noise falls, the sparkles are pulled onto the box's edges and faces, the outline sharpens, a scan band
+sweeps the column, the silhouette fills in). When the mesh arrives it is revealed floor-up behind a bright band and the beam fades (0.8 s). A beam that
+has heard nothing for a while **destabilises** (jitter, dimming, drifting to amber); one that is given up on **collapses red** and the object is removed.
+Procedural only: billboard squares of an additive `color/white` material, quads, `DrawWireframeBox`; no model, material file or sound from the game.
+
+- **Files.** `mentat/fx/transporter_model.lua` (pure: stages, progress bands, the coherence function; tested offline), `mentat/fx/transporter.lua`
+  (client drawing), `mentat/holodeck/foundprog.lua` (server: progress events, heartbeat, giving up, saying why), `mentat/fx/beam_net.lua` (Skippy's
+  beams), the entity (`holodeck_found/shared.lua` NetworkVars and `FxSet`, `cl_init.lua` drawing), `meshnet.lua`/`meshclient.lua` (events and per-chunk
+  receive fraction), the bridge's `POST /progress`.
+- **Progress comes from real events only** (published as NetworkVars `FxStage`, `FxProgress`, `FxBeat` on the entity, so a late joiner sees the same).
+  Stage bands on a 0..1 scale: resolving 0-0.08, fetching 0.08-0.50, measuring 0.50-0.58, packing 0.58-0.74, sending 0.74-0.92, decoding 0.92-1.
+  *fetching* = bytes downloaded / bytes expected, from the bridge's `/progress` (polled once a second while pending; the bridge counts every 256 KB chunk
+  of the real download, and learns the expected total from Poly Haven's file list: glTF + .bin, never textures; an unknown total gives `1 - exp(-bytes/1.5 MB)`);
+  *packing* has no inner progress (one blocking call), so the bridge's "I am in packing" is a heartbeat, honoured for 25 s; *sending* = chunks sent / chunks
+  (and, on each client, the bytes it has really received); *decoding*, then *done*, after the last chunk. Progress only rises; a stage never goes back.
+  `resolving` and `measuring` exist in the table but are **not visible**: the /resolve (and the size measurement it may trigger) happens before the object
+  exists, so the entity is born in *fetching* at 0.08.
+- **Heartbeat.** Every event that adds progress (or a living packing worker) stamps `FxBeat`. Clients derive "silent for N seconds" from it and drift to
+  amber from about a third of `holodeck_found_stall` (default 6 s, replicated). "Waiting in line" (the bridge downloads one thing at a time and answers
+  503; the game asks again every 2 s) is silence too, so the beam shows the wait honestly. `holodeck_found_timeout` (default 75 s, counted from the request;
+  the bridge's own /mesh deadline is 44 s) is the hard limit.
+- **Failure** (`FxStage = failed`, from the server, immediately for a known error): over 1.5 s the column collapses from the top, flickers wildly, goes
+  amber then red, the sparkles scatter and fade; then the placeholder is removed (1.7 s) and Skippy says why: "I could not bring in the cannon: it took too
+  long and I lost the lock. I took the placeholder down." (also "the bridge could not fetch it", "the model file was damaged on the way", "the model is too
+  big for me to bring in", "the download slot was busy", ...). One sentence per owner and model ("3 of the garden gnome").
+- **Reveal technique.** `render.PushCustomClipPlane` with the entity's local up flipped (it keeps what is below the band) around `CM.draw`; a bright
+  quad (the band) rides the clip height. It worked in the real game first time. A per-vertex alpha ramp was not needed.
+- **Cost bounds.** At most 220 sparkles per beam (full detail inside 700 HU, a quarter of them by 2,500 HU, nothing beyond 3,500), the entity's render
+  bounds do the off-screen culling, no allocation per sparkle. `holodeck_fx 0` (client) = the old translucent box and no beam; the avatar's body is then
+  never held back.
+- **Skippy.** `SkippyAvatarArrive` / `SkippyAvatarLeave` (avatar.lua, untouched) become a `mentat_fx_beam` message; the client draws a 1.0 s beam-in at the arrival
+  point (following him while it plays) with his body hidden until it completes (`avatar_client.lua`: one line in `draw()`), and a 0.8 s beam-out at the old place.
+- **Convars.** `holodeck_found_timeout`, `holodeck_found_stall` (server; the second is replicated), `holodeck_fx` (client). Live-test knobs (not convars):
+  `Holodeck.Mesh.CHUNK` / `.PUMP` (a slower send, so progress inside *sending* can be photographed).
+- **Bridge.** `POST /progress {"key"}` -> `{"ok", "stage": idle|queued|fetching|packing|done|failed, "bytes", "total", "age_s", "error"?}`: token-guarded, validated
+  (16 hex), budgeted (300 a minute, 150 per caller); `/mesh` answers exactly as before (a game that never polls loses nothing).
+- **Offline tests.** `sigma_ground/radiance/tests/test_gmod_transporter.py`: the coherence function condenses with progress, destabilises with a stall and
+  collapses on failure (mutating it to a constant fails them); events -> NetworkVars, monotonic, heartbeat, timeout -> failure -> removal -> sentence, a late
+  joiner, the bridge's counters and endpoint, the client drawing against fakes of the render library (sparkles inside the box rise with progress, amber on
+  silence, red collapse, the reveal plane moves up, LOD, bound), the avatar beams. `test_gmod_found_mesh.py` was changed where it said "failure keeps the box".
+- **Live proof (real game, this machine).** `python stage/gmod/holodeck/transporter_shots.py success|failure|avatar|perf` (the real bridge and real packing; only the
+  *download* is replaced by a throttled delivery of cached or made-up bytes so each stage lasts long enough to photograph; the progress counters, `/progress`, chunks,
+  heartbeat and effect are the production code). Pictures (gitignored): `data/shots/transporter_<scenario>_*.jpg` and `..._sheet.jpg`.
+  *success* (boombox): 8 % sparse scattered sparkles; 25 % a faint box outline forming; 49 % tighter, the scan band visible; 71-80 % a dense box with the band
+  sweeping; at arrival the grey boombox is revealed bottom-up inside the fading beam; done. "More coherent over time" is clearly visible.
+  *failure*: a download that breaks (hydrant) flashes amber, collapses red, scatters and is gone in 1.7 s with a red "transport failed" label and
+  Skippy's sentence in chat; a download that goes quiet (cannon) first goes amber with "no news for 6 s", then fails the same way at the timeout.
+  *avatar*: the beam-out dissolves in 0.8 s; the beam-in condenses over 1 s without his body, which appears when it ends.
+  *perf* (4 beams, about 160-250 sparkles in view): whole frame 6.85-6.87 ms (display-limited at 144 Hz) with beams, 6.87 with plain boxes, 6.90 with nothing: no
+  measurable difference; the effect's own CPU time is 0.6-0.9 ms per frame for those four beams (about 0.2 ms each).
+- **Not verified / known limits.** Late joiners in the real game (offline only: the NetworkVars are copied between mocks); a dedicated server with a remote
+  client (the stall is read against `CurTime()`, which the client keeps close to the server's; a large offset would shift the amber by that much); a client
+  whose decode fails keeps its box and never tells the server; the plain box still turns solid after 0.6 s as before (the card's box is the contract) rather
+  than staying passable for the whole materialise; the stall colours and the band's strength were judged by eye at one distance; the sparkle size is a fixed
+  fraction of the card's size (a very large object has large squares); the resolve step is invisible (above).
 
 ## Playing with your voice (one command)
 

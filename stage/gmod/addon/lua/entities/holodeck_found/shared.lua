@@ -11,6 +11,8 @@
 -- the limits never notice the swap). ONLY THE DRAWING changes: the physics stays the card's box. A client that does not (yet) have
 -- the mesh, or fails to build it, keeps drawing the box. Server: SetVisual validates, stores the kind and number in NetworkVars (they
 -- reach every client, including those who join later) and also sends "holodeck_found_visual". Client: Draw reads the NetworkVars.
+local TM = include("mentat/fx/transporter_model.lua")      -- the pure half of the transporter effect (stages, progress mapping)
+
 ENT.Type = "anim"
 ENT.Base = "base_anim"
 ENT.PrintName = "Holodeck found object"
@@ -34,6 +36,12 @@ function ENT:SetupDataTables()
   self:NetworkVar("Float", 0, "FoundMass")     -- kg applied to the body (0 = the engine's own)
   self:NetworkVar("Int", 0, "VisualKind")      -- index (from 0) into VISUAL_KINDS
   self:NetworkVar("Int", 1, "MeshId")          -- the model number of the mesh to draw (1..64), 0 = none
+  -- the transporter effect's progress (see FxSet): the pipeline's stage (index into TM.STAGES, 0 = no effect: a plain box), its overall
+  -- progress 0..1, and the server time of the last progress event (the clients derive "stalled for N seconds" from it; a late joiner
+  -- reads the same three values and sees the same picture)
+  self:NetworkVar("Int", 2, "FxStage")
+  self:NetworkVar("Float", 1, "FxProgress")
+  self:NetworkVar("Float", 2, "FxBeat")
 end
 
 local function text(s)
@@ -89,4 +97,40 @@ end
 --- Which visual is current ("box").
 function ENT:GetVisual()
   return self.VISUAL_KINDS[self:GetVisualKind() + 1] or "box"
+end
+
+-- ------------------------------------------------------------------------------------------------ the transporter's progress
+--- The pipeline stage name ("fetching", ...) or nil when this object never waited for anything.
+function ENT:FxStageName() return TM.STAGES[self:GetFxStage()] end
+
+--- Is the object still on its way (the beam is up)?
+function ENT:FxPending()
+  local s = self:FxStageName()
+  return s ~= nil and s ~= "done" and s ~= "failed"
+end
+
+--- SERVER. A real pipeline event: the object is now at `frac` (0..1) of `stage`. Progress only ever rises; a stage never goes back; a
+--- failed object stays failed. A move that adds nothing does not count as news (only `heartbeat` = true, "the worker is still in this
+--- stage", refreshes the stall clock). Returns true when something was published.
+function ENT:FxSet(stage, frac, heartbeat)
+  local idx = TM.STAGE_INDEX[stage]
+  if not idx then return false end
+  local cur = self:GetFxStage()
+  if TM.STAGES[cur] == "failed" then return false end
+  if stage == "failed" then
+    self:SetFxStage(idx)
+    self:SetFxBeat(CurTime())
+    return true
+  end
+  local p = TM.progress(stage, frac)
+  local old = self:GetFxProgress()
+  if idx < cur then return false end
+  if cur == 0 or idx > cur or p > old + 1e-4 then
+    self:SetFxStage(idx)
+    self:SetFxProgress(math.max(p, old))
+    self:SetFxBeat(CurTime())
+    return true
+  end
+  if heartbeat then self:SetFxBeat(CurTime()); return true end
+  return false
 end

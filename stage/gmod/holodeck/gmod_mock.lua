@@ -16,6 +16,7 @@ local M = MOCK
 SERVER = SERVER == nil and true or SERVER
 CLIENT = not SERVER
 FCVAR_ARCHIVE, FCVAR_PROTECTED, FCVAR_DONTRECORD, FCVAR_NOTIFY = 1, 2, 4, 8
+FCVAR_REPLICATED = 16
 RENDERMODE_TRANSALPHA, RENDERMODE_NORMAL = 4, 0
 MASK_SOLID_BRUSHONLY, MASK_SOLID = 16395, 33570827
 MOVETYPE_NOCLIP, MOVETYPE_WALK = 8, 2
@@ -38,12 +39,29 @@ Vec.__mul = function(a, b)
   if type(a) == "number" then a, b = b, a end
   return Vector(a.x * b, a.y * b, a.z * b)
 end
+function Vec:Dot(o) return self.x * o.x + self.y * o.y + self.z * o.z end
+Vec.__unm = function(a) return Vector(-a.x, -a.y, -a.z) end
 local Ang = {}
 Ang.__index = function(t, k)
   if k == "pitch" then return rawget(t, "p") elseif k == "yaw" then return rawget(t, "y") elseif k == "roll" then return rawget(t, "r") end
   return rawget(Ang, k)
 end
 function Angle(p, y, r) return setmetatable({ p = p or 0, y = y or 0, r = r or 0 }, Ang) end
+--- Source's axes of an Angle (pitch about y, yaw about z, roll about x): Forward is +x at 0,0,0; Right is -y; Up is +z.
+function Ang:Forward()
+  local p, y = math.rad(rawget(self, "p")), math.rad(rawget(self, "y"))
+  return Vector(math.cos(p) * math.cos(y), math.cos(p) * math.sin(y), -math.sin(p))
+end
+function Ang:Right()
+  local p, y, r = math.rad(rawget(self, "p")), math.rad(rawget(self, "y")), math.rad(rawget(self, "r"))
+  local sp, cp, sy, cy, sr, cr = math.sin(p), math.cos(p), math.sin(y), math.cos(y), math.sin(r), math.cos(r)
+  return Vector(-1 * sr * sp * cy + -1 * cr * -sy, -1 * sr * sp * sy + -1 * cr * cy, -1 * sr * cp)
+end
+function Ang:Up()
+  local p, y, r = math.rad(rawget(self, "p")), math.rad(rawget(self, "y")), math.rad(rawget(self, "r"))
+  local sp, cp, sy, cy, sr, cr = math.sin(p), math.cos(p), math.sin(y), math.cos(y), math.sin(r), math.cos(r)
+  return Vector(cr * sp * cy + -sr * -sy, cr * sp * sy + -sr * cy, cr * cp)
+end
 function Color(r, g, b, a) return { r = r, g = g, b = b, a = a or 255 } end
 vector_origin = Vector(0, 0, 0)
 
@@ -205,6 +223,8 @@ function net.WriteUInt(v, bits)
 end
 function net.WriteBool(b) M.cur.writes[#M.cur.writes + 1] = b; M.cur.seq[#M.cur.seq + 1] = { "b", b } end
 function net.WriteVector(v) M.cur.vector = v end
+function net.WriteEntity(e) M.cur.entity = e end
+function net.ReadEntity() return M.rd and M.rd.entity or M.NULL end
 function net.WriteData(d, n)
   if n > 65535 then error("net.WriteData: " .. n .. " bytes in one message is over the engine's limit") end
   M.cur.bytes = M.cur.bytes + n; M.cur.data = d; M.cur.seq[#M.cur.seq + 1] = { "d", d:sub(1, n) }
@@ -378,6 +398,7 @@ function Ent:SetPos(v) self.pos = v end
 function Ent:GetPos() return self.pos end
 function Ent:SetAngles(a) self.ang = a end
 function Ent:GetAngles() return self.ang end
+function Ent:GetUp() return self.ang:Up() end
 function Ent:Spawn() if self.Initialize then self:Initialize() end end        -- a scripted entity's own Initialize (MOCK.load_entity)
 function Ent:Activate() end
 function Ent:PhysicsInitBox(mn, mx) self.box = { mins = mn, maxs = mx }; self.phys.box = self.box; return true end

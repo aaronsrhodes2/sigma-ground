@@ -153,6 +153,14 @@ function CM.want(id)
   return true
 end
 
+--- How much of mesh `id` this client has received so far (chunks held / chunks expected, 0..1), or nil when none is arriving. This is
+--- the per-chunk part of the transporter's "sending" progress.
+function CM.recv_fraction(id)
+  local p = CM.partial[id]
+  if p and p.count > 0 then return p.n / p.count end
+  return nil
+end
+
 --- The ready mesh for a number, or nil (the box is drawn meanwhile; a missing one is asked for).
 function CM.get(id)
   if not id or id < 1 then return nil end

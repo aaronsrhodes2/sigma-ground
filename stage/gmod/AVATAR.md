@@ -95,6 +95,8 @@ Lua: `Mentat.Avatar.Summon(ply)`, `.Dismiss()`, `.Get()`, `.IsActive()`, `.WhoHe
 `{ply, nick, dist, range, blocked, gain, heard}`), `.Hearing(listener)`. Hooks (for the transporter effect):
 `SkippyAvatarArrive(bot, from, to)` (`from` is nil on the first appearance, else where he was) and `SkippyAvatarLeave(bot, from)`.
 A jump (called elsewhere, or a snap) fires Leave then Arrive.
+Both hooks drive the transporter beam (`mentat/fx/beam_net.lua`, `mentat/fx/transporter.lua`; stage/gmod/holodeck/README.md, "The transporter effect"): a 1 s beam-in with his body
+hidden until it completes, a 0.8 s beam-out at the old place. `holodeck_fx 0` (client) switches it off.
 
 ## How it hooks in (nothing in holodeck.lua changed)
 
