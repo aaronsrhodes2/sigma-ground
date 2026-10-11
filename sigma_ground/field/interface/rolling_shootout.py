@@ -427,15 +427,31 @@ _JPL_DE440          = PhysicsToggles(
 )
 
 
+# Measured hygiene (window j2015 -> j2016 against the DE440 fixture, after the
+# pole fix; scratch evidence of fix track F, 2026-10-10). The four dt = 1 d
+# predictors below do not resolve the inner moons: Phobos, Deimos, Io,
+# Miranda, Mimas and Tethys end the year unbound (with GR + SRP + J2 also
+# Enceladus and Ariel), and Mercury is off by 31,000-34,000 km, Earth by
+# ~900 km, Jupiter by 10,000-14,000 km (recoil from the ejected moons), so
+# their differences measure the integrator, not GR, SRP or J2 (the 1PN effect
+# on Mercury is ~230 km in that year). gr_1pn (standard, over_physics*) is a
+# rest-frame approximation: for the moons it misses 19-97 % of the EIH
+# differential acceleration (1-yr position: Moon 3.4 km of a 6.0 km 1PN
+# effect, Phobos 20 of 38 km). Which predictors, dt and GR model are canonical
+# for the recalculation is the Captain's decision; these entries are unchanged.
 PREDICTORS: list[Predictor] = [
     Predictor("pure_newton",        _NO_PHYSICS,
-              description="Newton only (no GR, no SRP, no J2) -- baseline"),
+              description="Newton only (no GR, no SRP, no J2) -- baseline; "
+                          "dt=1d ejects the inner moons"),
     Predictor("standard",           _GR_ONLY,
-              description="Newton + 1PN GR (no SRP, no J2)"),
+              description="Newton + 1PN GR (gr_1pn, no SRP, no J2); "
+                          "dt=1d ejects the inner moons"),
     Predictor("over_physics_no_j2", _GR_SRP,
-              description="Newton + GR + SRP (J2 ablated) -- diagnostic"),
+              description="Newton + GR + SRP (J2 ablated) -- diagnostic; "
+                          "dt=1d ejects the inner moons"),
     Predictor("over_physics",       _GR_SRP_J2,
-              description="Newton + GR + SRP + J2 (current best)"),
+              description="Newton + GR + SRP + J2 at dt=1d (ejects the inner "
+                          "moons; not the best predictor)"),
     Predictor("over_physics_finedt", _GR_SRP_J2,
               dt_days=0.1,
               description="Over_physics with dt=0.1d (10x finer; targets fast-moon row)"),
@@ -448,9 +464,18 @@ PREDICTORS: list[Predictor] = [
                           "integrator-noise floor (Enceladus, Io, Europa at 1-2d period)"),
     # RESPA per-body dt: macro dt=0.1d for slow forces (Sun on moons, J2/J3/J4,
     # EIH cross-terms, etc.), inner dt=0.01d for the parent-pair Newton force
-    # (Saturn-Mimas, Mars-Phobos, etc.). Symplectic via Strang splitting; works
-    # because for our fast moons the parent-pull dominates Sun's pull by 4-6
-    # orders of magnitude (Saturn pulls Mimas 10000x harder than Sun does).
+    # (Saturn-Mimas, Mars-Phobos, etc.). Symplectic via Strang splitting; it
+    # relies on the parent's pull dominating the Sun's, which holds for the
+    # giant planets' moons (Saturn pulls Mimas 10000x harder than the Sun)
+    # but NOT for the Moon: the Sun pulls the Moon 2.2x harder than Earth
+    # does, the regime respa_step's docstring says fails. Measured over
+    # j2015 -> j2016: Moon 5,635 km (jpl_de440: 10 km), and the Moon's error
+    # leaks into Earth (74 km against 1.3). Taking the Moon out of the fast
+    # group does not help (6,835 km), and taking the planets' Sun pairs out
+    # wrecks the planets (Mercury 21,000 km), so the cure is in respa_step,
+    # not in these parent links. The giant planets' moons do gain over
+    # jpl_de440 at 0.1 d (Europa 61,300 vs 407,400 km) but stay far behind
+    # uniform FR4 at 0.02 d (1,600 km).
     # Parent-attractor links are read from the DE440 fixture's
     # gravitational_anchor field. See misc/respa_attempt_2026-05-16.md.
     Predictor("jpl_de440_respa",    _JPL_DE440,
