@@ -694,13 +694,18 @@ def _router_format(tool_names: list[str]) -> dict:
     ]}
 
 
-def _router_system_prompt(tools_for_ollama: list[dict], with_index: bool) -> str:
-    """The exact prompt the router fine-tune is trained on; `with_index` adds
+def _router_system_prompt(tools_for_ollama: list[dict], with_index: bool,
+                          plan: str = "v1") -> str:
+    """The exact prompt the router fine-tune is trained on (plan="v1": the
+    `args` format; "v2": `tool_args` and multi-step `steps`); `with_index` adds
     the tool index for a stock model, which has no catalogue in its weights."""
-    from sigma_ground.mcp.benchmark.router_dataset import ROUTER_SYSTEM_PROMPT
+    if plan == "v2":
+        from sigma_ground.mcp.benchmark.router_plan import ROUTER_SYSTEM_PROMPT_V2 as prompt
+    else:
+        from sigma_ground.mcp.benchmark.router_dataset import ROUTER_SYSTEM_PROMPT as prompt
     if not with_index:
-        return ROUTER_SYSTEM_PROMPT
-    return ROUTER_SYSTEM_PROMPT + "\n\n" + _build_tool_index(tools_for_ollama)
+        return prompt
+    return prompt + "\n\n" + _build_tool_index(tools_for_ollama)
 
 
 def _parse_plan(content: str) -> dict | None:
@@ -719,14 +724,22 @@ def _parse_plan(content: str) -> dict | None:
 async def _route_once(session, http, ollama_url: str, model: str, question: str,
                       system_prompt: str, tools_for_ollama: list[dict],
                       real_params_by_tool: dict[str, set[str]] | None,
-                      t0: float, router_format: str = "schema") -> dict:
-    """One model call -> one plan -> at most one tool call -> the record.
+                      t0: float, router_format: str = "schema",
+                      router_plan: str = "v1") -> dict:
+    """One model call -> one plan -> its tool calls, in order -> the record.
 
-    router_format="schema" (default) sends the JSON-schema `format` above.
-    Ollama orders a schema's properties alphabetically, so the grammar makes
+    router_format="schema" (default) sends the v1 JSON-schema `format` above.
+    Ollama orders a schema's properties alphabetically, so that grammar makes
     the model write "args" (or "decline") before it can name the "tool" --
     the reverse of how router_dataset.py trains it. "free" sends no `format`:
-    the model writes its plan in its trained order and _parse_plan reads it."""
+    the model writes its plan in its trained order and _parse_plan reads it.
+    "toolfirst" sends router_plan.router_format: `tool` < `tool_args`, so the
+    grammar keeps the training order AND the tool-name enum.
+
+    router_plan="v2" allows `{"steps": [...]}`: up to three calls, a later
+    argument "$n" standing for call n's headline value (router_plan.py).
+    A one-call plan behaves exactly as before in either spelling."""
+    from sigma_ground.mcp.benchmark import router_plan as RP
     names = [t["function"]["name"] for t in tools_for_ollama]
     if "request_clarification" not in names:
         names.append("request_clarification")
@@ -738,7 +751,9 @@ async def _route_once(session, http, ollama_url: str, model: str, question: str,
     if router_format == "free":
         response = await http.post(ollama_url, json=body)
     else:
-        response = await http.post(ollama_url, json={**body, "format": _router_format(names)})
+        fmt = (RP.router_format(names, steps=(router_plan == "v2"))
+               if router_format == "toolfirst" else _router_format(names))
+        response = await http.post(ollama_url, json={**body, "format": fmt})
         if response.status_code >= 400:     # an Ollama that can't take a schema
             response = await http.post(ollama_url, json={**body, "format": "json"})
     response.raise_for_status()
@@ -750,49 +765,78 @@ async def _route_once(session, http, ollama_url: str, model: str, question: str,
                 "extracted_units": "", "tool_calls": [], "turns": 1,
                 "elapsed_s": time.time() - t0, "extracted_via_fallback": False,
                 "nudges_sent": 0, "router_plan": raw, "router_format": router_format,
-                **extra}
+                "router_plan_version": router_plan, **extra}
 
     if plan is None:
         return record("<router: reply was not a JSON plan>", router_error="unparseable plan")
-    if "decline" in plan and "tool" not in plan:
-        return record(f"Declined: {plan['decline']}", router_decline=str(plan["decline"]))
-    name = plan.get("tool")
-    args = plan.get("args") if isinstance(plan.get("args"), dict) else {}
-    if name == "request_clarification":
+    canon = RP.canonical(plan)
+    if canon is None:
+        if "steps" in plan:
+            return record("<router: invalid steps>", router_error="invalid steps")
+        name = plan.get("tool")
+        return record(f"<router: unknown tool {name!r}>", router_error=f"unknown tool {name!r}")
+    if canon["kind"] == "decline":
+        return record(f"Declined: {canon['reason']}", router_decline=str(canon["reason"]))
+    steps = canon["steps"]
+    if steps[0]["tool"] == "request_clarification":
+        if len(steps) > 1:
+            return record("<router: request_clarification inside steps>",
+                          router_error="request_clarification inside steps")
+        args = steps[0]["args"]
         ask = args.get("question") or f"What is the {args.get('variable') or 'missing input'}?"
         return record(f"CLARIFY: {ask}", router_clarify=args.get("variable"))
-    if name not in names:
-        return record(f"<router: unknown tool {name!r}>", router_error=f"unknown tool {name!r}")
-
-    renames: list[str] = []
-    chain_log: list[str] = []
-    if real_params_by_tool is not None and name in real_params_by_tool:
-        from sigma_ground.mcp.benchmark.param_aliases import (
-            normalize_kwargs, resolve_body_name_chain)
-        args, renames = normalize_kwargs(args, real_params_by_tool[name])
-        args, chain_log = await resolve_body_name_chain(
-            session, args, real_params_by_tool[name])
+    for s in steps:
+        if s["tool"] not in names or s["tool"] == "request_clarification":
+            return record(f"<router: unknown tool {s['tool']!r}>",
+                          router_error=f"unknown tool {s['tool']!r}")
     try:
-        result = await asyncio.wait_for(session.call_tool(name, args), _TOOL_CALL_TIMEOUT_S)
-        tool_text = "\n".join(p.text for p in (result.content or [])
-                              if getattr(p, "text", None)) or "(empty)"
-    except asyncio.TimeoutError:
-        tool_text = f"<TOOL TIMEOUT: {name} exceeded {_TOOL_CALL_TIMEOUT_S:.0f}s>"
-    except Exception as e:
-        tool_text = f"<TOOL ERROR: {e}>"
-    call = {"name": name, "args": args, "result_text": tool_text[:2000],
-            "renames_applied": renames, "chain_log": chain_log}
-    step = {"name": name, "args": args, "result_text": tool_text}
-    got = _tool_call_value(step, question)
-    if got is None:
-        return {**record(f"<router: {name} returned no value>",
-                         router_error=f"{name} returned no value"),
-                "tool_calls": [call]}
-    step["value"] = got
-    return {**record(_chain_answer_text([step], "router plan")),
-            "tool_calls": [call], "extracted_value": got[0], "extracted_units": got[1],
-            "finalized_from_tool": name, "finalize_reason": "router plan",
-            "chain_length": 1}
+        RP.check_refs(steps)
+    except RP.PlanError as e:
+        return record(f"<router: bad reference: {e}>", router_error=f"bad reference: {e}")
+
+    chain: list[dict] = []
+    calls: list[dict] = []
+    values: list[Any] = []
+    for s in steps:
+        name = s["tool"]
+        try:
+            args = RP.resolve_args(s["args"], values)
+        except RP.PlanError as e:
+            return {**record(f"<router: bad reference: {e}>", router_error=f"bad reference: {e}"),
+                    "tool_calls": calls}
+        renames: list[str] = []
+        chain_log: list[str] = []
+        if real_params_by_tool is not None and name in real_params_by_tool:
+            from sigma_ground.mcp.benchmark.param_aliases import (
+                normalize_kwargs, resolve_body_name_chain)
+            args, renames = normalize_kwargs(args, real_params_by_tool[name])
+            args, chain_log = await resolve_body_name_chain(
+                session, args, real_params_by_tool[name])
+        try:
+            result = await asyncio.wait_for(session.call_tool(name, args), _TOOL_CALL_TIMEOUT_S)
+            tool_text = "\n".join(p.text for p in (result.content or [])
+                                  if getattr(p, "text", None)) or "(empty)"
+        except asyncio.TimeoutError:
+            tool_text = f"<TOOL TIMEOUT: {name} exceeded {_TOOL_CALL_TIMEOUT_S:.0f}s>"
+        except Exception as e:
+            tool_text = f"<TOOL ERROR: {e}>"
+        calls.append({"name": name, "args": args, "result_text": tool_text[:2000],
+                      "renames_applied": renames, "chain_log": chain_log})
+        step = {"name": name, "args": args, "result_text": tool_text}
+        got = _tool_call_value(step, question)
+        if got is None:
+            return {**record(f"<router: {name} returned no value>",
+                             router_error=f"{name} returned no value"),
+                    "tool_calls": calls}
+        step["value"] = got
+        chain.append(step)
+        values.append(got[0])
+    reason = "router plan" if len(chain) == 1 else f"router plan, {len(chain)} steps"
+    return {**record(_chain_answer_text(chain, reason)),
+            "tool_calls": calls, "extracted_value": chain[-1]["value"][0],
+            "extracted_units": chain[-1]["value"][1],
+            "finalized_from_tool": chain[-1]["name"], "finalize_reason": reason,
+            "chain_length": len(chain)}
 
 
 # Question-pattern -> domain hints. When a question matches a phrase
@@ -1014,7 +1058,8 @@ async def _run_one_question(session, ollama_url: str, model: str,
                               tool_category: str = "auto",
                               finalize: str = "chain",
                               router: bool = False,
-                              router_format: str = "schema") -> dict:
+                              router_format: str = "schema",
+                              router_plan: str = "v1") -> dict:
     """Multi-turn tool loop for a single question.
 
     finalize="chain" (default): after the first successful tool call the
@@ -1351,7 +1396,8 @@ async def _run_one_question(session, ollama_url: str, model: str,
         async with httpx.AsyncClient(timeout=120.0) as http:
             return await _route_once(session, http, ollama_url, model, question,
                                      system_prompt, tools_for_ollama,
-                                     real_params_by_tool, t0, router_format)
+                                     real_params_by_tool, t0, router_format,
+                                     router_plan)
 
     messages = [
         {"role": "system",    "content": system_prompt},
@@ -1827,7 +1873,8 @@ async def _amain(args) -> int:
             real_params_by_tool = _build_real_params_map(tools_for_ollama)
             sys_prompt = _SYSTEM_PROMPT_BASE + "\n\n" + tool_index
             if args.router:
-                sys_prompt = _router_system_prompt(tools_for_ollama, args.router_index)
+                sys_prompt = _router_system_prompt(tools_for_ollama, args.router_index,
+                                                   args.router_plan)
                 print("ROUTER MODE: one JSON plan per question"
                       + (" (tool index in the prompt)" if args.router_index
                          else " (bare prompt: expects a router fine-tune)"))
@@ -1892,6 +1939,7 @@ async def _amain(args) -> int:
                             finalize=args.finalize,
                             router=args.router,
                             router_format=args.router_format,
+                            router_plan=args.router_plan,
                         ),
                         _QUESTION_TIMEOUT_S,
                     )
@@ -1978,16 +2026,27 @@ def main() -> int:
                         help="with --router: append the tool index to the router "
                              "prompt. Needed for a stock model; a router fine-tune "
                              "was trained on the bare prompt.")
-    parser.add_argument("--router-format", default="schema", choices=["schema", "free"],
-                        help="with --router: 'schema' (default) constrains the reply with a "
-                             "JSON schema; 'free' sends no `format`. Ollama sorts a schema's "
-                             "keys, so the schema forces \"args\" before \"tool\"; a router "
-                             "trained tool-first does far better in 'free' (see Session 38).")
+    parser.add_argument("--router-format", default="schema",
+                        choices=["schema", "free", "toolfirst"],
+                        help="with --router: 'schema' (default) constrains the reply with the "
+                             "v1 JSON schema; 'free' sends no `format`; 'toolfirst' sends a "
+                             "schema whose keys are alphabetical in the training order "
+                             "(`tool` < `tool_args`), so it keeps the tool-name enum. Ollama "
+                             "sorts a schema's keys, so the v1 schema forces \"args\" before "
+                             "\"tool\" and a tool-first router does far worse under it "
+                             "(see Session 38).")
+    parser.add_argument("--router-plan", default="v1", choices=["v1", "v2"],
+                        help="with --router: which plan format the model was trained on. v1: "
+                             "`args`, one call. v2: `tool_args`, plus `steps` for up to three "
+                             "calls with \"$n\" references (router_plan.py). Sets the system "
+                             "prompt; with 'toolfirst' it also sets the schema.")
     args = parser.parse_args()
     if args.router_index and not args.router:
         parser.error("--router-index needs --router")
     if args.router_format != "schema" and not args.router:
         parser.error("--router-format needs --router")
+    if args.router_plan != "v1" and not args.router:
+        parser.error("--router-plan needs --router")
     return asyncio.run(_amain(args))
 
 

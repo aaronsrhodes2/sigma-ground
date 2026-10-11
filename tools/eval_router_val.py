@@ -36,6 +36,7 @@ sys.path.insert(0, str(REPO))
 
 from sigma_ground.mcp.benchmark.run_sigma_ground import (  # noqa: E402
     _ollama_tools, _parse_plan, _router_format)
+from sigma_ground.mcp.benchmark import router_plan as RP  # noqa: E402
 
 REL_TOL = 1e-6
 
@@ -59,13 +60,15 @@ async def router_tool_names() -> list[str]:
     return names
 
 
-def kind(plan: dict | None) -> str | None:
-    if not isinstance(plan, dict):
+def signature(plan: dict | None) -> tuple | None:
+    """What a plan calls, in order: ("decline",) or ("tool", name, ...). None if it
+    is not a plan. Both spellings (`args` / `tool_args`) and one call or several."""
+    c = RP.canonical(plan)
+    if c is None:
         return None
-    if "decline" in plan and "tool" not in plan:
-        return "decline"
-    t = plan.get("tool")
-    return t if isinstance(t, str) else None
+    if c["kind"] == "decline":
+        return ("decline",)
+    return tuple(s["tool"] for s in c["steps"])
 
 
 def same_value(a, b) -> bool:
@@ -87,24 +90,31 @@ def same_value(a, b) -> bool:
 
 
 def compare(pred: dict | None, gold: dict) -> tuple[bool, bool, str]:
-    """(tool match, exact plan, why not exact)."""
-    kp, kg = kind(pred), kind(gold)
-    if kp is None:
+    """(same tools in the same order, exact plan, why not exact). A plan is exact
+    when every call has the same argument keys and values (numbers within 1e-6
+    relative, strings and "$n" references equal)."""
+    sp, sg = signature(pred), signature(gold)
+    if sp is None:
         return False, False, "unparseable or no tool"
-    if kp != kg:
-        return False, False, f"tool {kp} != {kg}"
-    if kg == "decline":
-        ok = same_value(pred.get("decline"), gold.get("decline"))
+    if sp != sg:
+        return False, False, f"tools {'>'.join(sp)} != {'>'.join(sg)}"
+    cp, cg = RP.canonical(pred), RP.canonical(gold)
+    if cg["kind"] == "decline":
+        ok = same_value(cp.get("reason"), cg.get("reason"))
         return True, ok, "" if ok else "decline reason differs"
-    pa = pred.get("args") if isinstance(pred.get("args"), dict) else {}
-    ga = gold.get("args") or {}
-    if set(pa) != set(ga):
-        return True, False, (f"arg keys: missing {sorted(set(ga) - set(pa))}, "
-                             f"extra {sorted(set(pa) - set(ga))}")
-    bad = [k for k in ga if not same_value(pa[k], ga[k])]
-    if bad:
-        return True, False, "values: " + ", ".join(
-            f"{k}={pa[k]!r} vs {ga[k]!r}" for k in bad)
+    for n, (a, b) in enumerate(zip(cp["steps"], cg["steps"]), start=1):
+        at = f"step {n} " if len(cg["steps"]) > 1 else ""
+        if b["tool"] == "request_clarification":
+            # what matters is WHICH input is asked for, not how the question is worded
+            a, b = ({"variable": x["args"].get("variable")} for x in (a, b))
+            a, b = {"args": a}, {"args": b}
+        if set(a["args"]) != set(b["args"]):
+            return True, False, (f"{at}arg keys: missing {sorted(set(b['args']) - set(a['args']))}, "
+                                 f"extra {sorted(set(a['args']) - set(b['args']))}")
+        bad = [k for k in b["args"] if not same_value(a["args"][k], b["args"][k])]
+        if bad:
+            return True, False, f"{at}values: " + ", ".join(
+                f"{k}={a['args'][k]!r} vs {b['args'][k]!r}" for k in bad)
     return True, True, ""
 
 
@@ -126,8 +136,11 @@ def smoke(a) -> int:
     tokens and give the same reply. (Not under the schema: the chat and raw
     endpoints compile the schema into different grammars.)"""
     import httpx
-    from sigma_ground.mcp.benchmark.router_dataset import ROUTER_SYSTEM_PROMPT
-    fmt = _router_format(asyncio.run(router_tool_names()))
+    from sigma_ground.mcp.benchmark.router_dataset import ROUTER_SYSTEM_PROMPT as V1_PROMPT
+    ROUTER_SYSTEM_PROMPT = RP.ROUTER_SYSTEM_PROMPT_V2 if a.plan == "v2" else V1_PROMPT
+    names = asyncio.run(router_tool_names())
+    fmt = (RP.router_format(names, steps=(a.plan == "v2")) if a.format == "toolfirst"
+           else _router_format(names))
     base = a.ollama_url.rstrip("/")
     opts = {"temperature": 0.0, "num_ctx": 4096}
     msgs = [{"role": "system", "content": ROUTER_SYSTEM_PROMPT},
@@ -175,8 +188,10 @@ def smoke(a) -> int:
     if plan is None:
         print("reply is not a JSON plan")
         return 1
-    m = (plan.get("args") or {}).get("mass_kg")
-    good = plan.get("tool") == "schwarzschild_radius" and isinstance(m, (int, float)) \
+    c = RP.canonical(plan)
+    first = c["steps"][0] if c and c["kind"] == "steps" else {"tool": None, "args": {}}
+    m = first["args"].get("mass_kg")
+    good = first["tool"] == "schwarzschild_radius" and isinstance(m, (int, float)) \
         and abs(m - 3.977e30) <= 1e-3 * 3.977e30
     print("smoke plan:", "as expected" if good else "NOT the expected schwarzschild_radius(mass_kg~3.977e30)")
     return 0 if ok else 1
@@ -197,10 +212,15 @@ def main() -> int:
                    help="JSON with the summary and every record's verdict")
     p.add_argument("--limit", type=int, default=0)
     p.add_argument("--show", type=int, default=10, help="failures to print")
-    p.add_argument("--format", choices=["schema", "json", "none"], default="schema",
-                   help="schema: the harness's JSON-schema `format` (default, what "
+    p.add_argument("--format", choices=["schema", "json", "none", "toolfirst"], default="schema",
+                   help="schema: the harness's v1 JSON-schema `format` (default, what "
                         "run_sigma_ground --router sends); json: Ollama's plain JSON mode; "
-                        "none: free generation")
+                        "none: free generation; toolfirst: a schema whose keys are already "
+                        "alphabetical in the training order (tool < tool_args), with the "
+                        "tool-name enum (router_plan.router_format)")
+    p.add_argument("--plan", choices=["v1", "v2"], default="v1",
+                   help="the plan format the model was trained on; with --format toolfirst, "
+                        "v2 also allows `steps`")
     p.add_argument("--num-predict", type=int, default=1024,
                    help="cap on generated tokens per reply (plans are under 150 tokens); "
                         "a reply that hits the cap is a failure, counted in the summary")
@@ -219,7 +239,8 @@ def main() -> int:
     if a.limit:
         recs = recs[:a.limit]
     names = asyncio.run(router_tool_names())
-    fmt = _router_format(names)
+    fmt = (RP.router_format(names, steps=(a.plan == "v2")) if a.format == "toolfirst"
+           else _router_format(names))
     url = a.ollama_url.rstrip("/") + "/api/chat"
     rows = []
     t_start = time.time()
@@ -231,7 +252,7 @@ def main() -> int:
                     "messages": [system, user],
                     "options": {"temperature": 0.0, "num_predict": a.num_predict,
                                 "num_ctx": 32768 if len(system["content"]) > 6000 else 4096}}
-            if a.format == "schema":
+            if a.format in ("schema", "toolfirst"):
                 body["format"] = fmt
             elif a.format == "json":
                 body["format"] = "json"
@@ -254,6 +275,7 @@ def main() -> int:
                 why = f"hit the {a.num_predict}-token cap"
             meta = rec.get("meta") or {}
             rows.append({"i": i, "source": meta.get("source"), "group": meta.get("group"),
+                         "family": meta.get("family"),
                          "question": user["content"], "gold": gold, "raw": raw,
                          "tool_ok": tool_ok, "exact": exact, "why": why,
                          "timed_out": timed_out, "capped": capped,
@@ -273,16 +295,20 @@ def main() -> int:
                 "exact_correct": sum(r["exact"] for r in rs)}
 
     by_source = defaultdict(list)
+    by_family = defaultdict(list)
     for r in rows:
         by_source[r["source"]].append(r)
+        if r.get("family"):
+            by_family[r["family"]].append(r)
     fails = [r for r in rows if not r["exact"]]
     summary = {
-        "model": a.model, "data": str(a.data), "split": a.split, "format": a.format,
+        "model": a.model, "data": str(a.data), "split": a.split, "format": a.format, "plan": a.plan,
         "num_predict": a.num_predict, "timeout_s": a.timeout,
         "timed_out": sum(r["timed_out"] for r in rows), "hit_token_cap": sum(r["capped"] for r in rows),
         "tool_names": len(names), "overall": summ(rows),
         "by_source": {k: summ(v) for k, v in sorted(by_source.items())},
-        "failure_kinds": Counter("wrong tool" if r["why"].startswith("tool ")
+        "by_family": {k: summ(v) for k, v in sorted(by_family.items())},
+        "failure_kinds": Counter("wrong tool" if r["why"].startswith("tool")
                                  else r["why"].split(":")[0] for r in fails).most_common(),
         "median_latency_s": round(statistics.median(r["elapsed_s"] for r in rows), 3),
         "wall_s": round(time.time() - t_start, 1),
