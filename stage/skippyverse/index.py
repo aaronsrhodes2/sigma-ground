@@ -148,9 +148,10 @@ class IndexError_(RuntimeError):
 class Index:
     """Read-only handle on a built index."""
 
-    def __init__(self, path: Path, version: dict):
+    def __init__(self, path: Path, version: dict, shared: bool = False):
+        """shared=True: the handle may be used from several threads (a server's request threads); the index is read-only."""
         self.path, self.version = Path(path), version
-        self.db = sqlite3.connect(f"file:{Path(path).as_posix()}?mode=ro", uri=True)
+        self.db = sqlite3.connect(f"file:{Path(path).as_posix()}?mode=ro", uri=True, check_same_thread=not shared)
         self.db.row_factory = sqlite3.Row
         self._cards: dict[str, dict] = {}
         self._vocab: dict[str, set] | None = None
@@ -226,7 +227,7 @@ class Index:
         return t
 
 
-def load_index(index_dir: str | Path) -> Index:
+def load_index(index_dir: str | Path, shared: bool = False) -> Index:
     d = Path(index_dir)
     vj = d / "version.json"
     if not vj.exists():
@@ -239,7 +240,7 @@ def load_index(index_dir: str | Path) -> Index:
         raise IndexError_(f"{d}: index.sqlite does not match version.json (partial or tampered)")
     if version.get("schema_v") != SCHEMA_V:
         raise IndexError_(f"{d}: schema {version.get('schema_v')} is not {SCHEMA_V}")
-    return Index(db, version)
+    return Index(db, version, shared=shared)
 
 
 def build_local(out_dir: str | Path | None = None, *, web: bool = False) -> Index:

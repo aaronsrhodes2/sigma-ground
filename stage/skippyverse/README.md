@@ -53,7 +53,7 @@ Size basis: measured 126, sourced 4, estimated 361, guessed 9. Mass basis: estim
 - **Every source fixture format is from memory and unverified** (Poly Haven's `dimensions` units and up-axis, Fuel's `license_name` strings and
   whether "Creative Commons - Attribution" is v4.0, NASA and Kenney listings, the Smithsonian response shape, all page URL patterns). Each adapter's docstring says so.
 - The two seed facts (car, 747) are copied from the design document, which cites Wikidata; not re-checked. Licence `unverified`, so not servable.
-- No embeddings, no vector file, no mesh handling (LOD, hashing, normalisation), no bucket publish, no portal routes, no GMod/planner wiring.
+- No embeddings, no vector file, no mesh handling (LOD, hashing, normalisation), no bucket publish, no portal routes. (GMod wiring: see the last section.)
 - Size-sanity bands (`taxonomy.py`) are judgement, not sourced or physics. The mass prior is the design's, not a computation of mine; the Mentat stack was down.
 - Known imperfections: ShapeNetSem names contain junk (`voider`, `butt`, `down`); `lamb` is read as `lamp`; the keyword category guess
   is crude; a `kind` for ShapeNet groups is the shortest name (`grand` for `grand piano`).
@@ -85,3 +85,33 @@ Size basis after a download: `measured` when the units are known (glTF metres, C
 `resolve(..., acquirer=None)`: by default nothing is fetched and a found card with no size gets `plan[0] = {action: 'fetch', card_id, source, executed: False}`. Pass `acquirer=acquire.acquire_and_measure` (partially applied with a cache dir if wanted) and rung 2 runs for a found, servable card with no size or no local copy; the sentence says "I don't have a ... on the shelf yet. Fetching a model from X..." then the honesty clause with the measured size and its basis. A failed fetch is `fetch_failed`, never hidden.
 
 Live proof 2026-10-10: Poly Haven barrel_03 and dining_chair_02 measured from the downloaded glTF match the published dimensions to four decimals (axis handling confirmed on an asymmetric chair).
+
+
+## GMod wiring (increment 4): the holodeck summons any servable card as a placeholder box
+
+```bash
+python stage/skippyverse/ingest_real.py        # offline: cache/ listings -> build/cards.json + build/index (4602 cards, 4102 servable)
+python stage/gmod/holodeck/live.py "add a fire hydrant" "add a birthday cake" --start-bridge --pos 64,0     # dedicated server, graded against the cards
+python -m pytest sigma_ground/radiance/tests/test_gmod_found.py
+```
+
+`stage/gmod/holodeck/skippy_bridge.py` serves `POST /resolve {"noun", "audience": "game"}` (token, deadlines, 12 per minute and 4 per caller, one
+download slot): it runs `resolve.resolve(noun, index, room=outdoor, audience="web")` (so only servable cards rank first and the answer is the
+web-safe copy), turns a placeable answer into a planner kind with `cards.to_planner_kind` (Hammer units; made safe: no approximate names, no seat, no
+surface, `entity: holodeck_found`, the card's id/name/source/licence/basis in `found`), and the game does the rest (`stage/gmod/holodeck/README.md`,
+"Found objects"). The index is `build/index` when it holds found cards, else it is built from `cache/` into a temporary directory (about 5 s).
+`index.load_index(..., shared=True)` allows the one read-only handle to serve the bridge's request threads.
+
+What a game answer means: `place` is true only for status exact / alias / synonym, a servable `found` card, a size that passed the sanity check
+(`index.size_ok`) and the outdoor room check; a card with no size triggers rung 2 only when the match is one the game would place; the sentence
+always ends "For now it shows as a box of that size." when it places. Measured live on the dedicated server (2026-10-11): Poly Haven fire hydrant,
+boombox, cannon and croissant, and a Gazebo Fuel birthday cake fetched in the run (2.3 MB, measured 0.4207 x 0.4148 x 0.2256 m): the engine's own
+box matched the card to 0.000 % on all three axes, the engine mass matched the card's guessed prior (`41.9 x V^0.72`, label "guessed"), all asleep, none
+shoved, sunk, toppled or overlapping.
+
+Findings worth knowing. (1) Most nouns people say for these cards are not unknown to the holodeck's parser: "barrel", "chair", "table" and a few
+dozen more are library words, and "fire" is an approximate name for a wood stove, so "fire hydrant" parses as a wood stove with "hydrant" left over
+(handled: the whole phrase is asked). (2) Size-less Fuel/NASA cards are 3,581 of the 4,102 servable; every one of them costs a download before it can be
+placed. (3) A model that is tiny or huge for its category is refused by the game (1 to 2000 HU on every side, so a 6 mm ball bearing and a 70 m
+airliner are sentences, not boxes). (4) `build/index` from `index.py build` holds only the 500 local cards; `ingest_real.py` is the command that
+builds the real one.

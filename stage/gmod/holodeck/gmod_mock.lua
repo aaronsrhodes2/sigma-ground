@@ -316,8 +316,13 @@ function Ent:SetPos(v) self.pos = v end
 function Ent:GetPos() return self.pos end
 function Ent:SetAngles(a) self.ang = a end
 function Ent:GetAngles() return self.ang end
-function Ent:Spawn() end
+function Ent:Spawn() if self.Initialize then self:Initialize() end end        -- a scripted entity's own Initialize (MOCK.load_entity)
 function Ent:Activate() end
+function Ent:PhysicsInitBox(mn, mx) self.box = { mins = mn, maxs = mx }; self.phys.box = self.box; return true end
+function Ent:SetSolid(s) self.solid = s end
+function Ent:SetMoveType(m) self.movetype = m end
+function Ent:DrawShadow() end
+
 function Ent:GetPhysicsObject() return self.phys end
 function Ent:SetRenderMode() end
 function Ent:SetColor() end
@@ -334,13 +339,43 @@ function Ent:Remove()
   hook.Run("EntityRemoved", self)
 end
 ents = {}
+M.entity_classes = {}                  -- class name -> { meta = <metatable of its instances>, ENT = <the entity table> }
+M.NULL = setmetatable({ valid = false, idx = 0 }, Ent)
+SOLID_VPHYSICS, MOVETYPE_VPHYSICS = 6, 6
+RENDERGROUP_OPAQUE, RENDERGROUP_TRANSLUCENT, RENDERGROUP_BOTH = 7, 8, 9
+--- NetworkVar(kind, slot, name) -> GetName / SetName, stored on the entity (the mock records, it does not network)
+function Ent:NetworkVar(kind, slot, name)
+  self.nvars = self.nvars or {}
+  local zero = ({ String = "", Float = 0, Int = 0, Bool = false })[kind] or Vector(0, 0, 0)
+  self.nvars[name] = { kind = kind, slot = slot, value = zero }
+  self["Get" .. name] = function(s) return s.nvars[name].value end
+  self["Set" .. name] = function(s, v) s.nvars[name].value = v end
+end
+--- Run the REAL entities/<name>/ files (init.lua on the server, cl_init.lua on a client) and register the class, so ents.Create(name)
+--- makes an entity with the real methods. `realm` = "server" | "client".
+function M.load_entity(name, realm)
+  local dir = M.ROOT .. "/entities/" .. name
+  local saved_include, saved_ent = include, ENT
+  ENT = {}
+  include = function(p) return dofile(dir .. "/" .. p) end
+  local ok, err = pcall(dofile, dir .. "/" .. (realm == "client" and "cl_init.lua" or "init.lua"))
+  include = saved_include
+  local def = ENT
+  ENT = saved_ent
+  if not ok then error(err) end
+  M.entity_classes[name] = { ENT = def, meta = { __index = function(t, k) local v = def[k]; if v == nil then v = Ent[k] end; return v end } }
+  return def
+end
 function ents.Create(class)
+  local def = M.entity_classes[class]
+  if not def and class ~= "prop_physics" then return M.NULL end          -- the engine answers NULL for a class it does not have
   next_index = next_index + 1
-  local e = setmetatable({ valid = true, idx = next_index, class = class, pos = Vector(0, 0, 0), ang = Angle(0, 0, 0), group = 0 }, Ent)
+  local e = setmetatable({ valid = true, idx = next_index, class = class, pos = Vector(0, 0, 0), ang = Angle(0, 0, 0), group = 0 }, def and def.meta or Ent)
   e.phys = { mass = nil, motion = true, IsValid = function() return true end, EnableMotion = function(s, b) e.phys.motion = b end,
              Wake = function() end, Sleep = function() end, SetMass = function(s, m) e.phys.mass = m end,
              GetVelocity = function() return Vector(0, 0, 0) end, SetVelocity = function() end }
   M.ents[#M.ents + 1] = e
+  if def and e.SetupDataTables then e:SetupDataTables() end
   return e
 end
 function ents.FindInBox(mins, maxs)

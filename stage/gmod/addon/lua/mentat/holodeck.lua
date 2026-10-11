@@ -43,19 +43,38 @@ local function model_present(model)
   return ok and valid and true or false
 end
 
---- (Re)build the parser and planner over the models this server can actually show.
-function H.BuildLibrary()
-  local filtered, report = Library.filter(raw_catalog, util.IsValidModel, { hl2_only = cv_content:GetString() == "hl2" })
-  H.catalog, H.library_report = filtered, report
-  H.parser = Parse.new(filtered)
-  H.planner = Plan.new(filtered)
-  -- things already standing keep their model; find it again in the (possibly different) variant list. One whose model left the
-  -- library stays LEGACY: no index (the old one would name another variant of the new list), but it keeps the variant it was
-  -- built from, which is all that moving, turning and removing it need.
+H.found_kinds = H.found_kinds or {}      -- kind id -> a kind record the SkippyVerse resolver found this session (see "found objects")
+H.found_order = H.found_order or {}      -- their ids, oldest first
+
+--- The library the parser and planner see: the models this server can show, then this session's found kinds (placeholder boxes).
+--- A found kind never replaces one of the server's own.
+local function assemble(base)
+  local cat = { version = base.version, hu_m = base.hu_m, order = {}, kinds = {}, recipes = base.recipes }
+  for i, id in ipairs(base.order) do cat.order[i] = id; cat.kinds[id] = base.kinds[id] end
+  for _, id in ipairs(H.found_order) do
+    if H.found_kinds[id] and not cat.kinds[id] then cat.kinds[id] = H.found_kinds[id]; cat.order[#cat.order + 1] = id end
+  end
+  return cat
+end
+
+--- Parser and planner over `cat`; and things already standing keep their model, found again in the (possibly different) variant
+--- list. One whose model left the library stays LEGACY: no index (the old one would name another variant of the new list), but it
+--- keeps the variant it was built from, which is all that moving, turning and removing it need.
+local function install_library(cat)
+  H.catalog = cat
+  H.parser = Parse.new(cat)
+  H.planner = Plan.new(cat)
   for _, e in pairs(H.registry or {}) do
     local vi, v = find_variant(e.kind, e.model)
     if v then e.vi, e.variant, e.legacy = vi, v, nil else e.vi, e.legacy = nil, true end
   end
+end
+
+--- (Re)build the parser and planner over the models this server can actually show.
+function H.BuildLibrary()
+  local filtered, report = Library.filter(raw_catalog, util.IsValidModel, { hl2_only = cv_content:GetString() == "hl2" })
+  H.base_catalog, H.library_report = filtered, report
+  install_library(assemble(filtered))
   MsgC(Color(0, 255, 136), "[holodeck] ", Color(255, 255, 255), report.kept .. " of " .. report.total .. " catalog models are available here, " ..
        #filtered.order .. " kinds" .. (#report.lost_kinds > 0 and (" (no model at all for: " .. table.concat(report.lost_kinds, ", ") .. ")") or "") .. "\n")
   return report
@@ -572,10 +591,28 @@ local WAIT_FAST, WAIT_SLOW, WAIT_GIVE_UP = 20, 145, 20 + 145     -- polls: 20 x 
 
 local remove_entry                                                       -- defined below
 
-local function spawn_prop(entry, fade)
+--- The entity for a standing thing: a `holodeck_found` box for a found kind (its variant names the class and the card's numbers),
+--- a prop_physics of the library's model for everything else.
+local function create_entity(entry)
+  local v = entry.variant
+  if v and v.entity then
+    local ent = ents.Create(v.entity)
+    if not IsValid(ent) then return nil end
+    local f = v.found or {}
+    local ok = ent.SetFound and ent:SetFound({ mins = v.mins, maxs = v.maxs, name = f.name, source = f.source, licence = f.licence,
+                                                basis = f.basis, mass = cv_real_mass:GetBool() and v.mass or 0 })
+    if not ok then ent:Remove(); return nil end
+    return ent
+  end
   local ent = ents.Create("prop_physics")
   if not IsValid(ent) then return nil end
   ent:SetModel(entry.model)
+  return ent
+end
+
+local function spawn_prop(entry, fade)
+  local ent = create_entity(entry)
+  if not ent then return nil end
   ent:SetPos(Vector(entry.origin.x, entry.origin.y, entry.origin.z))
   ent:SetAngles(Angle(0, entry.yaw, 0))
   ent:Spawn()
@@ -1314,6 +1351,180 @@ local function ask_agent(ply, text, opts, fallback)
   return sent
 end
 
+-- ------------------------------------------------------------------------------------------------ found objects
+-- A noun the library lacks ("a fire hydrant") is asked of the bridge's /resolve (the SkippyVerse inventory). An answer that may be
+-- placed carries a planner kind; it is validated here (the bridge is trusted to be the bridge, not to be right), added to the live
+-- library as a virtual kind whose one variant is a `holodeck_found` box of the card's size and mass, and the request is then run
+-- again through the normal pipeline, so layouts, overlap rules, undo, limits and ownership treat it like any other prop. Everything
+-- else the resolver says ("the closest I have is ...", not found, too big, size unknown, not shareable) is only a sentence.
+local cv_found = CreateConVar("holodeck_found", "1", FCVAR_ARCHIVE, "1 = ask the bridge about things the library lacks and show what it finds as placeholder boxes")
+local F = {}
+F.MAX_KINDS, F.MAX_NOUNS, F.MIN_HU, F.MAX_HU = 64, 3, 1, 2000      -- kinds kept per session, nouns asked per sentence, size limits (HU)
+F.refused = {}                                                       -- noun -> { say =, t = } : a definite "no", remembered for a while
+F.REFUSED_FOR = 300
+H.resolving = H.resolving or {}                                      -- player key -> true while their nouns are being looked up
+
+--- A noun as the bridge and the library write it: lower-case letters, digits, hyphen, apostrophe and single spaces, up to 40.
+function F.noun(s)
+  s = tostring(s or ""):lower():gsub("[^a-z0-9'%-]+", " "):gsub("%s+", " "):match("^%s*(.-)%s*$") or ""
+  return string.sub(s, 1, 40):match("^(.-)%s*$")
+end
+
+local function finite(n) return type(n) == "number" and n == n and n > -math.huge and n < math.huge end
+
+--- The planner kind for a bridge answer, or nil and why. Rebuilds the box from the card's size: the numbers that arrive are only
+--- w, d, h and the mass; everything else about the variant is fixed here (front unknown => symmetric, no top, one entity class).
+function F.kind_from(obj)
+  local k = istable(obj) and obj.kind
+  if not istable(k) then return nil, "no kind" end
+  local id = F.noun(k.kind)
+  if id == "" then return nil, "no name" end
+  local v = istable(k.variants) and k.variants[1]
+  if not (istable(v) and v.entity == "holodeck_found" and isstring(v.model) and v.model ~= "") then return nil, "no placeable variant" end
+  local w, d, h = tonumber(v.w), tonumber(v.d), tonumber(v.h)
+  if not (finite(w) and finite(d) and finite(h)) then return nil, "no size" end
+  if math.max(w, d, h) > F.MAX_HU then return nil, "too big" end
+  if math.min(w, d, h) < F.MIN_HU then return nil, "too small" end
+  local mass = tonumber(v.mass)
+  if not finite(mass) or mass <= 0 then mass = nil else mass = math.Clamp(mass, 0.1, 50000) end
+  local f = istable(v.found) and v.found or {}
+  local names, seen = { id }, { [id] = true }
+  for _, n in ipairs(istable(k.names) and k.names or {}) do
+    n = F.noun(n)
+    if n ~= "" and not seen[n] and #names < 8 then seen[n] = true; names[#names + 1] = n end
+  end
+  return {
+    kind = id, names = names, approx = {}, category = "found", seat = false, surface = false, wall = "free", found = true,
+    variants = { {
+      model = clean_text(v.model, 120), front = 0, front_source = "unknown", symmetric = true, top = nil,
+      w = w, d = d, h = h, mins = { -d / 2, -w / 2, 0 }, maxs = { d / 2, w / 2, h }, cx = 0, cy = 0,
+      mass = mass, mass_status = isstring(v.mass_status) and clean_text(v.mass_status, 20) or "guessed", material = "default", skins = 1,
+      entity = "holodeck_found",
+      found = { card = clean_text(f.card, 120), name = clean_text(f.name or id, 60), source = clean_text(f.source, 40),
+                licence = clean_text(f.licence, 24), basis = clean_text(f.basis, 16) },
+    } },
+  }
+end
+
+local function standing_kinds()
+  local used = {}
+  for _, e in pairs(H.registry) do used[e.kind] = true end
+  return used
+end
+
+--- Put a validated kind into the live library. Returns the kind id, or nil and why.
+function F.add(kind)
+  local id = kind.kind
+  if H.base_catalog.kinds[id] then return nil, "the server's own library already has " .. id end
+  -- a name the library already understands keeps meaning what it meant; only this kind's own new names are added
+  local mine = {}
+  for _, n in ipairs(kind.names) do
+    local old = H.parser and H.parser.noun and H.parser.noun[n]
+    if n == id and old and not (H.found_kinds[id]) then return nil, "the library already knows the word " .. id end
+    if not old or old.kind == id then mine[#mine + 1] = n end
+  end
+  kind.names = mine
+  if not H.found_kinds[id] then
+    if #H.found_order >= F.MAX_KINDS then                                -- the shelf is full: the oldest kind nothing stands as makes way
+      local used = standing_kinds()
+      local victim
+      for i, old in ipairs(H.found_order) do if not used[old] then victim = i; break end end
+      if not victim then return nil, "too many different found things are standing" end
+      H.found_kinds[table.remove(H.found_order, victim)] = nil
+    end
+    H.found_order[#H.found_order + 1] = id
+  end
+  H.found_kinds[id] = kind
+  install_library(assemble(H.base_catalog))
+  return id
+end
+
+H.AddFoundKind = F.add
+
+--- May a noun be asked about now? (the bridge is set up, found objects are on)
+function F.enabled() return cv_found:GetBool() and bridge_url() ~= "" end
+
+--- The distinct nouns worth asking the bridge about, in order (adds only; at most F.MAX_NOUNS): { noun =, strict = }.
+--- STRICT: the parser knows nothing of the word (an UNKNOWN item), so whatever the resolver answers is the reply ("I don't have a
+--- dragon"). Not strict: the parser guessed (an approximate name: "fire" is a wood stove, "ottoman" a stool, with "hydrant" left over);
+--- the resolver is asked in case it has the thing itself, and if it has not, the parser's own stated guess stands, unchanged.
+function F.unknown_nouns(reqs)
+  local out, seen = {}, {}
+  local function want(noun, strict)
+    noun = F.noun(noun)
+    if noun ~= "" and not seen[noun] and #out < F.MAX_NOUNS then seen[noun] = true; out[#out + 1] = { noun = noun, strict = strict } end
+  end
+  for _, r in ipairs(reqs) do
+    if r.action == "add" then
+      local text = " " .. tostring(r.normalised or "") .. " "
+      for _, it in ipairs(r.items or {}) do
+        if tostring(it.kind):match("^UNKNOWN") then
+          want(it.phrase or tostring(it.kind):sub(9), true)
+        elseif it.approx and isstring(it.word) then
+          local noun = it.word
+          for _, left in ipairs(r.leftover or {}) do                   -- "fire" + the leftover "hydrant" right after it
+            if isstring(left) and text:find(" " .. it.word .. " " .. left .. " ", 1, true) then noun = it.word .. " " .. left; break end
+          end
+          want(noun, false)
+        end
+      end
+    end
+  end
+  return out
+end
+
+--- Ask about one noun. cb(result): { kind = id } when a kind was added, { say = } for any other answer, {} when nothing could be asked.
+function F.ask(ply, noun, cb)
+  local old = F.refused[noun]
+  if old and CurTime() - old.t < F.REFUSED_FOR then return cb({ say = old.say, cached = true }) end
+  if not bridge_allow("resolve", ply) then return cb({}) end
+  local done = false
+  local function once(r) if not done then done = true; cb(r) end end
+  local sent = bridge_post("/resolve", { noun = noun, audience = "game", who = player_key(ply) }, function(body)
+    local obj = util.JSONToTable(body or "")
+    if not (istable(obj) and obj.ok) then return once({}) end
+    local say = isstring(obj.say) and clean_text(obj.say, 240) or ""
+    if obj.place == true then
+      local kind, why = F.kind_from(obj)
+      if not kind then
+        say = (why == "too big" and "That is bigger than anything I will put down here.") or (why == "too small" and "That is too small for me to place.")
+              or "I found it, but the numbers I have for it do not add up, so I will not place it."
+        F.refused[noun] = { say = say, t = CurTime() }
+        return once({ say = say })
+      end
+      local id, why2 = F.add(kind)
+      if not id then return once({ say = "I found " .. noun .. " but cannot add it: " .. tostring(why2) .. "." }) end
+      return once({ kind = id, say = say })
+    end
+    if say == "" then return once({}) end
+    F.refused[noun] = { say = say, t = CurTime() }
+    once({ say = say })
+  end, function(reason)
+    H.last_resolve_error = reason
+    once({})
+  end, 28)
+  if not sent then return cb({}) end
+  timer.Simple(31, function() once({}) end)
+end
+
+--- Look up the nouns ({ noun =, strict = }) one after another (the bridge is rationed per player), then cb(results, added).
+--- A result is only to be SAID when its noun was strict.
+function F.resolve_all(ply, nouns, cb)
+  local results, added, i = {}, 0, 0
+  local function nextone()
+    i = i + 1
+    local want = nouns[i]
+    if not want then return cb(results, added) end
+    F.ask(ply, want.noun, function(r)
+      r.strict = want.strict
+      results[i] = r
+      if r.kind then added = added + 1 end
+      nextone()
+    end)
+  end
+  nextone()
+end
+
 --- The parsed requests of one utterance, in order: one, or several for a compound sentence.
 --- `prev` is the player's previous request, so "another one" and "again" know what to repeat.
 --- How many requests of one sentence are carried out: the parser's own limit (one number, so the parser's "I only did the first N"
@@ -1352,8 +1563,10 @@ function H.Handle(ply, text, opts)
   if opts.was_player and not manages_all(ply) then
     -- the rest between requests is checked first, so refusing a request costs nothing either
     local key, now = player_key(ply), CurTime()
-    if now < (H.next_ok[key] or 0) then return nil end
-    H.next_ok[key] = now + cv_cooldown:GetFloat()
+    if not opts.found_done then                                   -- (the second pass of a request that waited for the bridge is the same request)
+      if now < (H.next_ok[key] or 0) then return nil end
+      H.next_ok[key] = now + cv_cooldown:GetFloat()
+    end
   end
   if IsValidPlayer(ply) and cv_admin:GetBool() and not ply:IsAdmin() then
     H.Tell(ply, "The holodeck is for admins on this server.")
@@ -1371,6 +1584,36 @@ function H.Handle(ply, text, opts)
   if last_add and last_add ~= prev then
     for _, r in ipairs(reqs) do
       if r.again and not actionable(r) then reqs = parse_requests(full, last_add); break end
+    end
+  end
+  -- A noun the library lacks is looked up first, and the request then runs again with what was found (see "found objects").
+  if not opts.found_done and F.enabled() then
+    local nouns = F.unknown_nouns(reqs)
+    if #nouns > 0 then
+      if H.resolving[key] then
+        H.Tell(ply, "I am still looking up your last request.")
+        return nil
+      end
+      H.resolving[key] = true
+      local returned, out = false, nil              -- answers from the cache arrive at once: then the result is this call's own
+      F.resolve_all(ply, nouns, function(results, added)
+        H.resolving[key] = nil
+        if opts.was_player and not IsValidPlayer(ply) then return end
+        local spoke, other = false, false
+        for _, r in ipairs(results) do
+          if r.say and (r.strict or r.kind) then H.Say(ply, r.say, nil, { speak = false }); spoke = true end
+        end
+        for _, r in ipairs(reqs) do if actionable(r) then other = true end end
+        if added == 0 and spoke and not other then
+          if opts.done then opts.done({ action = "none", say = H.last_say or "", placements = {} }) end
+          return                                                   -- asked, answered, nothing to place: the answer was the whole reply
+        end
+        opts.found_done = true
+        local r = H.Handle(ply, heard, opts)
+        if not returned then out = r end
+      end)
+      returned = true
+      return out
     end
   end
   local req = reqs[1]
@@ -1508,6 +1751,7 @@ concommand.Add("holodeck_status", function(ply)
   print(string.format("[holodeck] %d of %d models available, %d kinds, %d rooms; content=%s; %d things standing; bridge=%s agent=%d persona=%s voice=%s",
     r.kept, r.total, #H.catalog.order, table.Count(H.catalog.recipes), cv_content:GetString(), #H.order,
     bridge_url() ~= "" and "set" or "none", cv_agent:GetInt(), tostring(cv_persona:GetBool()), tostring(cv_voice:GetBool())))
+  print("[holodeck] found objects: " .. #H.found_order .. " kinds this session" .. (cv_found:GetBool() and "" or " (switched off)"))
   if #r.lost_models > 0 then print("[holodeck] missing here: " .. table.concat(r.lost_models, ", ", 1, math.min(#r.lost_models, 12)) .. (#r.lost_models > 12 and " ..." or "")) end
 end, nil, "What the holodeck can show on this server")
 

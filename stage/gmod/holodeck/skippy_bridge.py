@@ -15,6 +15,13 @@ It runs on the machine that hosts the game server (or the game, for single playe
     POST /reply  {"user": "...", "did": "three couches in a U shape", "notes": [], "who": "..."}
                  -> {"ok": true, "say": "<one or two short in-character sentences>"}
     POST /speak  {"text": "...", "who": "..."}  -> audio/mpeg bytes (header X-Skippy-Voice says which voice made it)
+    POST /resolve {"noun": "fire hydrant", "audience": "game", "who": "..."}
+                 -> {"ok": true, "place": bool, "status": "exact|alias|synonym|closest|not_found|too_big|needs_size|...",
+                     "say": "<Skippy's honest sentence>", "kind": <a planner kind (Hammer units) or null>, "card": <summary or null>}
+         The SkippyVerse resolver (stage/skippyverse) for a noun the game's library lacks. Only an exact / alias / synonym answer
+         for a SERVABLE (licence-gated) found card with a trusted size has place=true and a kind; "the closest I have is X", a typo
+         reading, not-found, too-big, unknown-size and non-redistributable (Valve / ShapeNet derived) answers are only a sentence,
+         and the game places nothing for them. A card with no size may cost ONE bounded download (40 MB, a deadline, one at a time).
 
 What stands between a caller and the machine's CPU, GPU and the paid voice:
   * a token (X-Skippy-Token). The bridge refuses to start without one; --no-token exists for a bridge on loopback only.
@@ -106,8 +113,8 @@ REPLY_TIMEOUT_S = 10.0
 MIN_USEFUL_S = 1.0                     # a model call with less time than this left would only finish after the game gave up
 SPEAK_TIMEOUT_S = 25.0
 PER_MINUTE = {"plan": _env_int("SKIPPY_PLAN_PER_MIN", 24), "reply": _env_int("SKIPPY_REPLY_PER_MIN", 40),
-              "speak": _env_int("SKIPPY_SPEAK_PER_MIN", 40)}
-PER_CALLER_PER_MINUTE = {"plan": 8, "reply": 12, "speak": 12}    # applied to a request's `who`, when it names one (the game rations too; this is the backstop)
+              "speak": _env_int("SKIPPY_SPEAK_PER_MIN", 40), "resolve": _env_int("SKIPPY_RESOLVE_PER_MIN", 12)}
+PER_CALLER_PER_MINUTE = {"plan": 8, "reply": 12, "speak": 12, "resolve": 4}    # applied to a request's `who`, when it names one (the game rations too; this is the backstop)
 SPEAK_CHARS_PER_MINUTE = _env_int("SKIPPY_SPEAK_CHARS_PER_MIN", 3000)
 PAID_CHARS_PER_DAY = _env_int("SKIPPY_PAID_CHARS_PER_DAY", 20000)   # ElevenLabs costs per character
 
@@ -732,7 +739,8 @@ class Gate:
         self.clock = clock
         self.lock = threading.Lock()
         self.res = {"llm": Resource(LLM_SLOTS if llm_slots is None else llm_slots, queue_max, wait_s),
-                    "tts": Resource(TTS_SLOTS if tts_slots is None else tts_slots, queue_max, wait_s)}
+                    "tts": Resource(TTS_SLOTS if tts_slots is None else tts_slots, queue_max, wait_s),
+                    "fetch": Resource(1, 1, 1.0)}                           # one download at a time; one waits at most a second
         self.per_minute = dict(PER_MINUTE if per_minute is None else per_minute)
         self.per_caller = dict(PER_CALLER_PER_MINUTE if per_caller is None else per_caller)
         self.rate = {k: Window(v, 60, clock) for k, v in self.per_minute.items()}
@@ -1078,6 +1086,190 @@ def speak(text: str, mode: str | None = None) -> tuple[bytes, str]:
     return data, voice
 
 
+# --------------------------------------------------------------------------------------------- found objects (POST /resolve)
+# The holodeck asks about a noun its library lacks; the SkippyVerse resolver (stage/skippyverse) answers from its cards. Nothing the
+# resolver says is acted on by the game unless `place` is true, and `place` needs a servable (licence-gated) found card with a
+# trusted size reached by an exact / alias / synonym match. Everything else is a sentence, never a substitution.
+STAGE_DIR = HERE.parents[1]                       # .../stage
+RESOLVE_TIMEOUT_S = 22.0                          # the game gives up on /resolve after 28 s
+FETCH_MAX_BYTES = 40 * 1024 * 1024                # ONE asset: at most this many bytes in all (the resolver's own per-file limit is the same)
+FETCH_REQUEST_TIMEOUT_S = 10.0
+FETCH_HOSTS = ("api.polyhaven.com", "dl.polyhaven.org", "fuel.gazebosim.org", "raw.githubusercontent.com")   # the sources acquire.py names
+FOUND_FETCH = os.environ.get("SKIPPY_FOUND_FETCH", "1") != "0"      # 0 = never download: a card with no size is "I don't know how big"
+MAX_NOUN_CHARS = 40
+MAX_FOUND_SAY = 230
+PLACING = ("exact", "alias", "synonym")           # the resolver statuses that may place something
+FOUND_INDEX = None                                # a loaded Index (tests inject one); else built/loaded on first use
+FOUND_FETCHER = None                              # fetch(url, *, max_bytes) -> bytes (tests inject one; None = the bounded real fetch)
+FOUND_ACQUIRER = None                             # acquirer(card) -> acquire.acquire_and_measure result (tests inject one; overrides downloading)
+_found_loaded = None
+_found_lock = threading.Lock()                    # one resolver query at a time (they are milliseconds); downloads are outside it
+
+
+def _skippyverse():
+    if str(STAGE_DIR) not in sys.path:
+        sys.path.insert(0, str(STAGE_DIR))
+    from skippyverse import acquire, cards, index, resolve
+    return acquire, cards, index, resolve
+
+
+def found_index():
+    """The SkippyVerse index: the built one (stage/skippyverse/build/index) when it is whole, else built from the cached listings
+    (cache/) into a temporary directory. Loaded once."""
+    global _found_loaded
+    if FOUND_INDEX is not None:
+        return FOUND_INDEX
+    with _found_lock:
+        if _found_loaded is None:
+            _, _, ix, _ = _skippyverse()
+            try:
+                _found_loaded = ix.load_index(STAGE_DIR / "skippyverse" / "build" / "index", shared=True)
+                # an index built from the local cards alone (index.py build) has no found object in it: it is no use here
+                if _found_loaded.db.execute("SELECT 1 FROM cards WHERE cls='found' LIMIT 1").fetchone() is None:
+                    raise ValueError("the built index holds no found cards")
+            except (ix.IndexError_, OSError, ValueError):
+                from skippyverse import ingest_real
+                cards_, _ = ingest_real.build()
+                d = Path(tempfile.mkdtemp(prefix="skippyverse-index-"))
+                ix.build_index(cards_, d)
+                _found_loaded = ix.load_index(d, shared=True)
+        return _found_loaded
+
+
+def clean_noun(s) -> str:
+    """The noun as plain lower-case ASCII words (letters, digits, hyphen, apostrophe), at most MAX_NOUN_CHARS."""
+    s = unicodedata.normalize("NFKC", "" if s is None else str(s)[:200]).casefold()
+    s = re.sub(r"[^a-z0-9'-]+", " ", s)
+    return _WS.sub(" ", s).strip()[:MAX_NOUN_CHARS].strip()
+
+
+class _HttpsOnly(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if urllib.parse.urlsplit(newurl).scheme != "https":
+            raise urllib.error.URLError("a redirect to a non-https address was refused")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+def bounded_fetch(deadline: float, cancel: Cancel | None = None, max_total: int = FETCH_MAX_BYTES):
+    """A fetch(url, *, max_bytes) for acquire.py that stays inside one budget: https only, the named hosts, `max_total` bytes in all,
+    a per-request timeout, and a deadline for the whole download (checked between chunks). It also stops when the caller hangs up."""
+    acquire, _, _, _ = _skippyverse()
+    budget = [max_total]
+    opener = urllib.request.build_opener(_HttpsOnly)
+
+    def fetch(url: str, *, max_bytes: int = FETCH_MAX_BYTES) -> bytes:
+        u = urllib.parse.urlsplit(url)
+        if u.scheme != "https" or (u.hostname or "").lower() not in FETCH_HOSTS:
+            raise acquire.AcquireRefused(f"{u.hostname or url!r} is not one of the download hosts")
+        limit = min(max_bytes, budget[0])
+        left = deadline - time.monotonic()
+        if left <= 0:
+            raise TimeoutError("the download ran out of time")
+        with opener.open(urllib.request.Request(url, headers=acquire.UA), timeout=min(FETCH_REQUEST_TIMEOUT_S, left)) as r:
+            n = r.headers.get("Content-Length")
+            if n and int(n) > limit:
+                raise acquire.TooLarge(f"the download is {int(n) / 1e6:.1f} MB, over the {max_total / 1e6:.0f} MB budget")
+            buf = bytearray()
+            while True:
+                if cancel is not None and cancel.is_set():
+                    raise Cancelled()
+                if time.monotonic() > deadline:
+                    raise TimeoutError("the download ran out of time")
+                chunk = r.read(1 << 18)
+                if not chunk:
+                    break
+                buf += chunk
+                if len(buf) > limit:
+                    raise acquire.TooLarge(f"the download is over the {max_total / 1e6:.0f} MB budget")
+        budget[0] -= len(buf)
+        return bytes(buf)
+    return fetch
+
+
+def _card_summary(card: dict) -> dict:
+    _, C, _, _ = _skippyverse()
+    prov, size, mass = card.get("provenance") or {}, card.get("size_m"), card.get("mass")
+    return {"id": card["id"], "name": clean_text(card["name"], 80), "kind": clean_text(card["kind"], 60),
+            "class": (card.get("visual") or {}).get("class"), "source": clean_text(prov.get("source"), 60),
+            "licence": clean_text(C.normalize_licence(prov.get("license")), 30), "author": clean_text(prov.get("author"), 80),
+            "url": prov.get("url") if isinstance(prov.get("url"), str) and prov["url"].startswith("https://") else None,
+            "size_m": {k: size[k] for k in ("w", "d", "h", "basis")} if size else None,
+            "mass_kg": mass["kg"] if mass else None, "mass_basis": mass["basis"] if mass else None,
+            "say": clean_text(card.get("say"), 200), "flags": [clean_text(f, 40) for f in (card.get("flags") or [])[:10]]}
+
+
+def _found_kind(card: dict) -> dict:
+    """The planner kind for one servable found card: the SkippyVerse converter's record (Hammer units), then made safe for the game
+    and marked as made of the `holodeck_found` entity. No approximate names (they would substitute silently), no seat, no surface."""
+    _, C, _, _ = _skippyverse()
+    kind = C.to_planner_kind([card])
+    name = clean_noun(kind["kind"])
+    names = [n for n in dict.fromkeys(clean_noun(x) for x in kind.get("names", [])) if n][:8]
+    if name not in names:
+        names.insert(0, name)
+    prov = card.get("provenance") or {}
+    for v in kind["variants"]:
+        v["entity"] = "holodeck_found"
+        v["found"] = {"card": card["id"], "name": clean_text(card["name"], 60), "source": clean_text(prov.get("source"), 40),
+                      "licence": clean_text(C.normalize_licence(prov.get("license")), 24), "basis": card["size_m"]["basis"]}
+        v["mass_status"] = (card.get("mass") or {}).get("basis")
+        v["top"] = None
+    kind.update(kind=name, names=names, approx=[], category="found", seat=False, surface=False, wall="free")
+    return kind
+
+
+def resolve_found(noun: str, audience: str = "game", cancel: Cancel | None = None, deadline: float | None = None) -> dict:
+    """Answer one noun the game's library lacks. See the header for the shape of the answer. `audience` is "game": the object must be
+    one the licence gate lets us serve, exactly like a friend's browser would be allowed to receive it."""
+    acquire, C, _, R = _skippyverse()
+    noun = clean_noun(noun)
+    if not noun:
+        raise ValueError("noun required")
+    ix = found_index()
+    room = {"outdoor": True}
+    with _found_lock:
+        res = R.resolve(noun, ix, room=room, audience="web")
+    # a download happens only for a card the game could then place: matched by its own name (or alias, or a listed synonym), never for
+    # "the closest I have is X" or a typo reading (those are only sentences)
+    placing_match = (res.get("match") or {}).get("how") in PLACING
+    step = (res.get("plan") or [{}])[0] if res["status"] == "needs_size" and placing_match else {}
+    if step.get("action") == "fetch" and (FOUND_FETCH or FOUND_ACQUIRER is not None):
+        card = ix.card(step["card_id"])
+        acquirer = FOUND_ACQUIRER or (lambda c: acquire.acquire_and_measure(
+            c, fetch=FOUND_FETCHER or bounded_fetch(deadline or time.monotonic() + RESOLVE_TIMEOUT_S, cancel)))
+        got = err = None
+        try:
+            with GATE.slot("fetch", cancel):                              # one download at a time; Busy -> the game is told to try shortly
+                got = acquirer(card)
+        except (Busy, Cancelled):
+            raise
+        except Exception as e:                                           # a refused or failed download is reported, never hidden
+            err = f"{type(e).__name__}: {e}"
+
+        def once(c):
+            if c["id"] != card["id"]:
+                raise acquire.AcquireRefused("not the card that was planned")
+            if got is None:
+                raise RuntimeError(err)
+            return got
+        with _found_lock:
+            res = R.resolve(noun, ix, room=room, audience="web", acquirer=once)
+    card = res.get("card")
+    status = res["status"]
+    say = res.get("sentence") or ""
+    if status == "needs_size" and placing_match:
+        say = f"I know of {R.a_an(res.get('kind') or noun)}, but I don't know how big that is, so I won't guess."
+    place = bool(status in PLACING and res.get("servable") and card and card.get("size_m") and card.get("redistributable")
+                 and (card.get("visual") or {}).get("class") == "found")
+    BOX_CLAUSE = " For now it shows as a box of that size."
+    if place:
+        say = clean_text(say, MAX_FOUND_SAY - len(BOX_CLAUSE)) + BOX_CLAUSE              # the honest clause is never the part that is cut
+    elif card and status in PLACING and not card.get("redistributable"):
+        say = f"I know of {R.a_an(res.get('kind') or noun)}, but only as a model I may not share, so I won't place it as a found object."
+    return {"ok": True, "noun": noun, "place": place, "status": status, "say": clean_text(say, MAX_FOUND_SAY) or "I could not look that up.",
+            "kind": _found_kind(card) if place else None, "card": _card_summary(card) if card else None, "fetched": bool(res.get("fetched"))}
+
+
 # --------------------------------------------------------------------------------------------- the server
 TOKEN = os.environ.get("SKIPPY_BRIDGE_TOKEN", "")
 ALLOW_NO_TOKEN = False                 # --no-token: only ever honoured on a loopback address
@@ -1293,6 +1485,15 @@ class Handler(BaseHTTPRequestHandler):
             GATE.admit("speak", who)
             data, voice = speak(text)
             return self._send(200, data, "audio/mpeg", {"X-Skippy-Voice": voice})
+        if self.path == "/resolve":
+            noun = clean_noun(body.get("noun"))
+            if not noun:
+                return self._json(400, {"ok": False, "error": "noun required"})
+            if body.get("audience", "game") != "game":
+                return self._json(400, {"ok": False, "error": "audience must be game"})
+            GATE.admit("resolve", who)
+            _ctx.deadline = time.monotonic() + RESOLVE_TIMEOUT_S
+            return self._json(200, resolve_found(noun, "game", _ctx.cancel, _ctx.deadline))
         self._json(404, {"ok": False, "error": "no such path"})
 
 
@@ -1356,7 +1557,14 @@ def models_available() -> list[str] | None:
 
 
 def warm() -> None:
-    """Load the model now, so the first request is not the slow one (and say so if Ollama does not have it)."""
+    """Load the model now, so the first request is not the slow one (and say so if Ollama does not have it). Also the found-object index."""
+    def index_go():
+        try:
+            found_index()
+        except Exception as e:
+            print(f"[bridge] the found-object index is not available ({type(e).__name__}: {str(e)[:150]}); /resolve will fail", file=sys.stderr)
+    threading.Thread(target=index_go, daemon=True).start()
+
     def go():
         have = models_available()
         if have is not None and MODEL not in have and f"{MODEL}:latest" not in have:

@@ -89,6 +89,48 @@ free; the bridge's own default when you start it by hand). The game prints "Skip
 speaks changes. A dedicated server reaches the bridge on localhost with `-allowlocalhttp` (already in `gmod_ds_ctl.sh`);
 a game that hosts its own world must use the machine's Tailscale address (the engine's flag works on servers only).
 
+## Found objects: anything in the SkippyVerse inventory, as a labelled placeholder box
+
+Say a thing the 46-kind library lacks ("Skippy, add a fire hydrant", "a boombox", "a birthday cake") and, when the bridge is set up, the holodeck asks
+it about the noun (`POST /resolve`, the SkippyVerse resolver in `stage/skippyverse`). If the inventory has a **servable** card of that name with a
+size we can trust, the card becomes a *virtual kind* in the live library (one variant: a box of the card's size, its mass, front unknown so
+symmetric) and the request runs again through the normal pipeline, so layouts, overlap rules, "remove it", "undo", the per-player and server limits,
+ownership and the server's own spawn rules all treat it like any other prop. What stands is an `holodeck_found` entity
+(`addon/lua/entities/holodeck_found/`): a physics box made at runtime with `PhysicsInitBox`, **no model and no game content** (so it works on the cloud
+server that lacks HL2/CS:S), the card's mass (respecting `holodeck_real_mass`; with 0 the engine's own), asleep once settled. Every client draws it
+as a translucent `#00FF88` box with solid edges and a floating label `<name> - <source>, <licence>, size <basis>` within about 10 m. The label
+strings, the box and the mass are NetworkVars on the entity.
+
+- **Honesty, never a substitution.** Only an exact / alias / listed-synonym match for a licence-gated (CC0, CC-BY, PD-USGOV) found card with a
+  trusted size is placed. "The closest I have is X", a typo reading, "not found" ("I don't have a dragon"), too big, size untrusted, size unknown
+  ("I don't know how big that is") and **non-redistributable cards (Valve- and ShapeNet-derived, which includes the 126 curated models)** come back as
+  Skippy's sentence and place nothing. Where the parser only *guessed* ("fire" is the library's approximate name for a wood stove, with "hydrant"
+  left over), the bridge is asked about the whole phrase in case the inventory has the thing itself; if it has not, the parser's own stated guess
+  stands unchanged and the bridge's "no" is not spoken.
+- **A card with no size** (Gazebo Fuel and NASA listings carry none) may cost ONE download: the bridge fetches and measures that asset (rung 2 of the
+  resolver) inside a budget of 40 MB in all, https only, the four download hosts only, a per-request timeout and a 22 s deadline, one download at a
+  time (a second gets 503), and only for a card the game could then place (never for a "closest" or typo reading). `SKIPPY_FOUND_FETCH=0` turns
+  downloads off: the answer is then "I know of X, but I don't know how big that is". Downloaded assets are kept in `stage/skippyverse/cache/assets/`
+  (gitignored). The box is the measured size; no mesh is converted or used yet.
+- **The game side never blocks and never trusts.** The call is asynchronous (the bridge's per-minute and per-player allowances, the in-flight cap and
+  `holodeck_bridge_inflight` apply; one lookup per player at a time; a definite "no" is remembered for 5 minutes), the answer is re-validated in Lua
+  (finite sizes between 1 and 2000 HU, one variant of the right entity class, no word the library already knows) and the box is rebuilt from the
+  card's w, d, h alone. At most 3 nouns are asked per sentence and 64 found kinds are kept per session (the oldest that nothing stands as makes way).
+  Found kinds live in `Holodeck.found_kinds`, are re-applied by `holodeck_reload`, and a standing thing whose kind has left stays *legacy* (movable,
+  removable). `holodeck_found 0` switches the whole thing off; `holodeck_status` counts the kinds.
+- **The hook for a real mesh later.** `ENT:SetVisual(kind, data)` (server and client; a `holodeck_found_visual` net message tells clients) is the one
+  place a future mesh visual plugs in: same origin, same yaw, same bounds, so the planner, registry, undo and limits never notice. Today it accepts
+  `"box"` and answers `false, "unsupported visual kind"` for anything else. The mesh path is **not built**.
+- **Tests.** `sigma_ground/radiance/tests/test_gmod_found.py` (58): the real bridge function and HTTP handler against a synthetic inventory (no
+  network: a guard fails any non-loopback connection), the real `holodeck.lua` + entity against `gmod_mock.lua` (now with scripted-entity support:
+  `MOCK.load_entity`), fed the bridge's real answers; footprint and mass vs the card, label strings, undo, limits, rules, reload, legacy, the
+  refusals, rate limits, the download budget, and the client drawing. `live.py` grades found objects against the CARD, not the planner:
+  `python stage/gmod/holodeck/live.py "add a fire hydrant" "add a birthday cake" --start-bridge --pos 64,0`.
+- **Not verified.** The client drawing (box, label, 10 m range) is tested against stand-ins for `render`, `cam`, `surface` and `draw`, not in a
+  real client: the desktop game was not started. A modelless `base_anim` networked to a real client, and the label's readability, have not
+  been looked at. `barrel`, `chair`, `couch` and the other 46 kinds stay the curated Valve models (the parser knows them, so the bridge is never
+  asked); "dining chair" is a chair.
+
 ## Playing with your voice (one command)
 
 ```bash

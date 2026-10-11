@@ -34,6 +34,11 @@ return function(args, done)
     for _, id in ipairs(H.order) do
       local e = H.registry[id]
       local row = { id = id, kind = e.kind, vi = e.vi, model = e.model, group = e.group, planned = { x = e.x, y = e.y, z = e.z, theta = e.theta, origin = e.origin, yaw = e.yaw } }
+      local fv = e.variant
+      if fv and fv.entity then                       -- a found object is not in the static catalog: its own footprint travels with it
+        row.variant = { mins = fv.mins, maxs = fv.maxs, cx = fv.cx, cy = fv.cy, front = fv.front, w = fv.w, d = fv.d, h = fv.h, mass = fv.mass,
+                        entity = fv.entity, card = fv.found and fv.found.card }
+      end
       if IsValid(e.ent) then
         local po = e.ent:GetPhysicsObject()
         row.actual = { pos = vec(e.ent:GetPos()), ang = { e.ent:GetAngles().p, e.ent:GetAngles().y, e.ent:GetAngles().r } }
@@ -52,6 +57,13 @@ return function(args, done)
           end
         end
         row.in_wall = inside
+        local omn, omx = e.ent:OBBMins(), e.ent:OBBMaxs()
+        row.obb = { mins = vec(omn), maxs = vec(omx) }                   -- the engine's own box of it
+        row.class = e.ent:GetClass()
+        if e.ent.LabelText then                                           -- a holodeck_found box: what its networked variables hold
+          row.found = { name = e.ent:GetFoundName(), source = e.ent:GetFoundSource(), licence = e.ent:GetFoundLicence(), basis = e.ent:GetFoundBasis(),
+                        mass = e.ent:GetFoundMass(), label = e.ent:LabelText(), visual = e.ent:GetVisual(), solid = e.ent:GetSolid(), movetype = e.ent:GetMoveType() }
+        end
       else
         row.missing = true
       end
