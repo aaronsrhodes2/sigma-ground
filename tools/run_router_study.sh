@@ -126,7 +126,7 @@ docker_ollama_restore() {
     docker start "$DOCKER_OLLAMA" >/dev/null 2>&1 && log "restarted Docker container $DOCKER_OLLAMA"
   fi
 }
-cleanup() { ollama_down; docker_ollama_restore; }
+cleanup() { rm -f "$STATE/keepawake"; ollama_down; docker_ollama_restore; }
 trap cleanup EXIT
 
 # Before a GPU stage: record who holds the GPU; free it as allowed.
@@ -270,6 +270,15 @@ do_score() {
     tuned="$RESULTS/router_mentat_router_run.json" > "$CACHE/comparison.md"
   cat "$CACHE/comparison.md" | tee -a "$LOGS/pipeline.log"
 }
+
+# Keep Windows awake while the study runs: a helper process holds the standard
+# "system required" execution state (a request that ends with the process, not
+# a power setting) until the sentinel file is removed by cleanup.
+if [[ $DRY == 0 && ( "${OSTYPE:-}" == msys* || "${OSTYPE:-}" == cygwin* ) ]]; then
+  touch "$STATE/keepawake"
+  "$PY" -c "import ctypes,os,sys,time; ctypes.windll.kernel32.SetThreadExecutionState(0x80000001); [time.sleep(20) for _ in iter(lambda: os.path.exists(sys.argv[1]), False)]" \
+    "$STATE/keepawake" &
+fi
 
 stage preflight preflight
 rm -f "$STATE/preflight.done"          # always rerun
