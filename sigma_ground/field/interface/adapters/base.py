@@ -32,6 +32,40 @@ import math
 from typing import Any
 
 
+# sg_density domain (see its docstring for the derivation).
+_DENSITY_DT_MAX_K = 300.0
+_DENSITY_DP_MAX_PA = 1.0e9
+_DENSITY_DP_MAX_OVER_K = 0.04
+
+# Ice Ih melting pressure, IAPWS R14-08(2011) Eq. (1) [LIT]: Wagner,
+# Riethmann, Feistel & Harvey 2011, J. Phys. Chem. Ref. Data 40, 043103.
+# pi = p/p*, theta = T/T*: pi = 1 + sum_i a_i (1 - theta^b_i), valid from
+# 273.16 K down to the Ih-III-liquid triple point at 251.165 K.  Check value
+# (the release's Table 3): 138.268 MPa at 260 K.
+_ICE_IH_T_STAR_K = 273.16
+_ICE_IH_P_STAR_PA = 611.657
+_ICE_IH_A = (0.119539337e7, 0.808183159e5, 0.333826860e4)
+_ICE_IH_B = (0.300000e1, 0.257500e2, 0.103750e3)
+_ICE_IH_III_L_T_K = 251.165
+
+
+def _ice_ih_melting_pressure_pa(T_K: float) -> float:
+    """Melting pressure (Pa) of ice Ih at T_K, IAPWS R14-08(2011) Eq. (1)."""
+    theta = T_K / _ICE_IH_T_STAR_K
+    pi = 1.0 + sum(a * (1.0 - theta ** b) for a, b in zip(_ICE_IH_A, _ICE_IH_B))
+    return pi * _ICE_IH_P_STAR_PA
+
+
+def _ice_ih_max_pressure_pa(T_K: float) -> float:
+    """Highest pressure (Pa) at which ice Ih is the stable phase at T_K.
+
+    Above 251.165 K: the Ih melting curve.  At and below it: the pressure
+    of the Ih-III-liquid triple point (208.6 MPa); the Ih-III and Ih-II
+    boundaries at lower temperature are not modelled.
+    """
+    return _ice_ih_melting_pressure_pa(max(T_K, _ICE_IH_III_L_T_K))
+
+
 class SGPhysicsMixin:
     """Mixin adding SSBM-physics sg_ methods to any class.
 
@@ -85,14 +119,31 @@ class SGPhysicsMixin:
         (water_ice: 273.15 K) and P_0 = 1 atm; alpha: measured linear
         expansion coefficient at 300 K (thermal_expansion.EXPANSION_DATA);
         K: the library's bulk modulus (thermal_expansion.bulk_modulus).
-        Bound: holding alpha and K constant errs by < ~0.5 % for
-        |T - T_0| <= 300 K and |P - P_0| <= 1 GPa in metals (alpha(T)
-        follows the Debye heat capacity; K' ~ 5).  Solid-solid phase
-        changes are not modelled; above the melting point
-        (phase_transition.PHASE_DATA) a ValueError is raised, since no
-        liquid equation of state is available.
+
+        Domain (enforced, ValueError outside it):
+          |T - T_0| <= 300 K, and T below the melting point
+              (phase_transition.PHASE_DATA; no liquid equation of state);
+          |P - P_0| <= min(1 GPa, 0.04 K): against a Murnaghan EOS
+              (Murnaghan 1944, PNAS 30, 244), ln(rho/rho_0) =
+              ln(1 + K' dP/K)/K', the constant-K form errs by about
+              K' (dP/K)^2 / 2, which is < 0.5 % for dP/K <= 0.04 if K' <= 6;
+          water_ice: ice Ih only.  Above 251.165 K the pressure must stay
+              below the Ih melting curve, IAPWS R14-08(2011) Eq. (1); at
+              and below 251.165 K (the Ih-III-liquid triple point) below
+              that point's pressure, 208.6 MPa from the same equation (the
+              Ih-III and Ih-II boundaries at lower temperature are not
+              modelled).
+        Bound (metals): holding alpha and K constant errs by < ~1 % in the
+        domain, most at cryogenic T where alpha -> 0 (Al from 293 K to 4 K:
+        2.0 % volume contraction predicted, 1.24 % measured from the 0.414 %
+        linear contraction, Corruccini & Gniewek 1961, NBS Monograph 29).
+        Non-metals use the same formula without a stated bound.  Solid-solid
+        phase changes inside the domain are not modelled.
         FIXED 2026-10-10: both import targets of the previous version were
-        missing, so every call raised ImportError.
+        missing, so every call raised ImportError; then the declared domain
+        was not enforced (Fe at 100 GPa gave 14 260 kg/m^3, about 30-37 %
+        above Murnaghan/Vinet estimates and through the bcc-hcp transition
+        near 13 GPa; rubber at 1 GPa gave 2.8e11 kg/m^3).
 
         Parameters
         ----------
@@ -129,10 +180,28 @@ class SGPhysicsMixin:
                 f"{key} melts at {T_melt} K; T_K = {T_K} K is above it and no "
                 f"liquid equation of state is available"
             )
+        if abs(T_K - T_0) > _DENSITY_DT_MAX_K:
+            raise ValueError(
+                f"T_K = {T_K} K is outside the domain |T - {T_0}| <= "
+                f"{_DENSITY_DT_MAX_K:g} K of the constant-alpha expansion"
+            )
         if T_K == T_0 and P_Pa == P_0:
             return rho_0
         alpha = _te.EXPANSION_DATA[key]["alpha_linear_per_K"]
         K = _te.bulk_modulus(key, 0.0)
+        dP_max = min(_DENSITY_DP_MAX_PA, _DENSITY_DP_MAX_OVER_K * K)
+        if abs(P_Pa - P_0) > dP_max:
+            raise ValueError(
+                f"P_Pa = {P_Pa:g} Pa is outside the domain |P - P_0| <= "
+                f"{dP_max:.4g} Pa (min(1 GPa, 0.04 K), K = {K:.4g} Pa) of the "
+                f"constant-bulk-modulus compression"
+            )
+        if key == "water_ice" and P_Pa > _ice_ih_max_pressure_pa(T_K):
+            raise ValueError(
+                f"water_ice at T_K = {T_K} K and P_Pa = {P_Pa:g} Pa is not ice "
+                f"Ih (above {_ice_ih_max_pressure_pa(T_K):.6g} Pa: melting "
+                f"curve or ice III/II, IAPWS R14-08(2011))"
+            )
         return rho_0 * math.exp(-3.0 * alpha * (T_K - T_0) + (P_Pa - P_0) / K)
 
     # ── integration ───────────────────────────────────────────────────────

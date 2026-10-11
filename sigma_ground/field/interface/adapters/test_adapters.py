@@ -162,6 +162,22 @@ class TestSGPhysicsMixin(unittest.TestCase):
         with self.assertRaises(KeyError):
             self.obj.sg_density("unobtainium")
 
+    def test_sg_density_enforces_domain(self):
+        """Golden Rule 2: outside the declared domain, raise; no silent number.
+
+        Before: Fe at 100 GPa gave 14 260 kg/m^3 (a Murnaghan EOS with K' = 5
+        gives ~10 400, and bcc Fe turns hcp near 13 GPa), Fe at 1100 K
+        7652, rubber at 1 GPa 2.8e11, and ice at 260 K and 145 MPa a solid
+        density although IAPWS R14-08(2011) puts the Ih melting pressure at
+        260 K at 138.268 MPa (the release's own check value, Table 3)."""
+        for args in (("Fe", 293.15, 1e11), ("Fe", 1100.0, 101_325.0),
+                     ("rubber", 293.15, 1e9), ("water_ice", 260.0, 145e6)):
+            with self.assertRaises(ValueError, msg=str(args)):
+                self.obj.sg_density(*args)
+        # Just inside the IAPWS melting curve the ice is still ice Ih.
+        rho = self.obj.sg_density("water_ice", T_K=260.0, P_Pa=130e6)
+        self.assertTrue(917.0 < rho < 935.0, rho)
+
     def test_sg_propagate_orbit_rejects_unknown_method(self):
         """Before: any string but 'forest_ruth' silently ran Verlet."""
         from sigma_ground.field.interface.nbody import CelestialBody
