@@ -284,7 +284,7 @@ local STOP = {
   ["for"] = true, ["from"] = true, ["into"] = true, ["onto"] = true, ["up"] = true, ["it"] = true, ["them"] = true,
   ["then"] = true, ["also"] = true, ["too"] = true, ["please"] = true, ["thanks"] = true, ["thank"] = true, ["you"] = true,
   ["there"] = true, ["over"] = true, ["right"] = true, ["just"] = true, ["now"] = true, ["here"] = true, ["so"] = true,
-  ["is"] = true, ["are"] = true, ["be"] = true, ["we"] = true, ["i"] = true, ["me"] = true, ["my"] = true, ["out"] = true,
+  ["is"] = true, ["are"] = true, ["be"] = true, ["we"] = true, ["i"] = true, ["me"] = true, ["out"] = true,
   ["as"] = true, ["or"] = true, ["but"] = true, ["if"] = true, ["when"] = true, ["while"] = true, ["where"] = true,
   ["around"] = true, ["next"] = true, ["by"] = true, ["off"] = true, ["down"] = true, ["back"] = true, ["away"] = true,
   ["would"] = true, ["could"] = true, ["can"] = true, ["will"] = true, ["should"] = true, ["shall"] = true, ["might"] = true,
@@ -481,7 +481,8 @@ local CLEAR_OBJECTS = { "everything", "all", "it all", "all of it", "everything 
   "my stuff", "the stuff", "everything here", "everything in here", "everything in the room", "everything out of here",
   "all of the furniture", "everything there", "the house", "the whole place", "the whole thing", "everything up", "this room",
   "this place", "the whole area", "the whole scene", "the whole floor", "the entire room", "the entire area", "the entire scene",
-  "all the things", "all things" }
+  "all the things", "all things", "my room", "our room", "my place", "our place", "my house", "our house", "our stuff", "all our stuff",
+  "our furniture", "all our furniture", "my furniture", "all my furniture", "all of my stuff", "all of our stuff" }
 local CLEAR_ALONE = { "end program", "end the program", "end simulation", "end the simulation", "end holodeck", "end the holodeck",
   "arch", "start over", "start again", "start from scratch", "begin again", "clean slate", "a clean slate", "blank slate",
   "make it all go away", "make everything go away", "thats enough", "that is enough", "enough already", "reset",
@@ -511,7 +512,8 @@ local ALL_SRC = { "everything", "all of it", "it all", "the lot", "the whole lot
   "all of my stuff", "my stuff", "everything here", "everything in here", "everything in the room", "everything there",
   "all the things", "all things", "all the items", "all items", "the whole room", "the room", "all the props", "all props",
   "everything standing", "everything out here", "all the objects", "the entire room", "everything around", "everything around here",
-  "each and everything", "the whole lot of it", "anything", "all", "everything else", "all else" }
+  "each and everything", "the whole lot of it", "anything", "all", "everything else", "all else", "my room", "our room",
+  "our stuff", "all our stuff", "our furniture", "all our furniture" }
 local ALL_FIRST = index_phrases((function()
   local l = {}
   for _, p in ipairs(ALL_SRC) do l[#l + 1] = { text = p } end
@@ -531,15 +533,46 @@ end)(), function(e) return e.text end)
 local EXCEPT_SRC = { "except for", "except", "other than", "apart from", "aside from", "save for", "excluding", "not counting",
   "with the exception of", "besides", "barring", "but not", "minus", "all but", "everything but", "anything but", "none but",
   "but keep", "but leave", "but save", "and keep", "and leave", "leaving", "just not", "not including", "but" }
+-- more markers (kept apart: their words, "touch" among them, are not words the parser should treat as understood)
+local EXCEPT_MORE = {
+  -- "remove the couch and keep the chairs", ", leave the table alone", "while keeping the chairs", "and don't touch the lamp"
+  "keep", "keeping", "leave", "spare", "sparing", "preserve", "preserving", "and spare", "and preserve", "while keeping", "while leaving",
+  "while sparing", "while preserving", "dont touch", "do not touch", "never touch", "not touching", "without touching", "and dont touch",
+  "dont remove", "do not remove", "dont delete", "do not delete", "dont get rid of", "do not get rid of", "dont move", "do not move",
+  "but dont touch", "but do not touch", "but dont remove", "but do not remove", "but dont delete", "but do not delete", "but spare",
+  "but preserve", "but dont", "but do not",
+  -- a negated relative clause: "everything that isnt the couch", "all the chairs which are not red"
+  "that isnt", "that is not", "that arent", "that are not", "which isnt", "which is not", "which arent", "which are not", "thats not",
+  "who isnt", "who is not" }
+-- the markers that say what to LEAVE ALONE (the thing after them is kept, never acted on); the rest say what to exempt
+local KEEP_MARKERS = set{ "but keep", "but leave", "but save", "and keep", "and leave", "keep", "keeping", "leave", "spare", "sparing", "preserve",
+  "preserving", "and spare", "and preserve", "while keeping", "while leaving", "while sparing", "while preserving", "dont touch",
+  "do not touch", "never touch", "not touching", "without touching", "and dont touch", "dont remove", "do not remove", "dont delete",
+  "do not delete", "dont get rid of", "do not get rid of", "dont move", "do not move", "but dont touch", "but do not touch",
+  "but dont remove", "but do not remove", "but dont delete", "but do not delete", "but spare", "but preserve", "but dont", "but do not" }
+-- the markers that were always a keep clause, whatever came before them
+local KEEP_ALWAYS = set{ "but keep", "but leave", "but save" }
+-- words that begin a named thing after a keep marker ("keep THE chairs", "leave ALL the rest"): "keep it facing the tv" is not one
+local KEEP_DET = set{ "the", "these", "those", "my", "our", "your", "all", "every", "each", "everything", "both", "that", "this", "anything",
+  "any", "whatever" }
+local KEEP_VERBS = set{ "keep", "keeping", "leave", "leaving", "spare", "sparing", "preserve", "preserving", "save" }
+-- words in the tail of an exception that point at ONE of a kind ("except the first one", "all but the newest")
+local TAIL_PICKERS = set{ "first", "second", "third", "fourth", "fifth", "sixth", "last", "newest", "oldest", "latest", "nearest", "closest",
+  "farthest", "furthest", "previous", "final", "recent" }
+local TAIL_FILLER = set{ "alone", "untouched", "intact", "unchanged", "safe", "else", "as", "is", "are", "they", "where", "was", "stays",
+  "stay", "way", "same", "be", "for", "now", "thanks", "ok" }
 local EXCEPT_FIRST = index_phrases((function()
   local l = {}
   for _, p in ipairs(EXCEPT_SRC) do l[#l + 1] = { text = p } end
+  for _, p in ipairs(EXCEPT_MORE) do l[#l + 1] = { text = p } end
   return l
 end)(), function(e) return e.text end)
 
 -- negators inside an add request: the noun phrase right after them is NOT wanted
 local NEGATORS = { "without", "but no", "but not", "instead of", "rather than", "not", "no", "minus", "sans", "excluding", "and no",
-  "with no", "and not", "nor", "free of", "lacking", "no more" }
+  "with no", "and not", "nor", "free of", "lacking", "no more", "leave out", "leaving out", "leave off", "leaving off", "omit", "omitting",
+  "that doesnt have", "that does not have", "which doesnt have", "which does not have", "that has no", "which has no", "that lacks",
+  "that is missing", "thats missing" }
 local NEG_FIRST = index_phrases((function()
   local l = {}
   for _, p in ipairs(NEGATORS) do l[#l + 1] = { text = p } end
@@ -677,6 +710,10 @@ local PREFIX_SRC = {
   "anyways", "okey", "my bad", "thx", "ty", "on second thought", "come to think of it", "cant you", "couldnt you", "wouldnt you", "why dont you", "why not",
   "dont forget to", "do not forget to", "please dont forget to", "dont forget", "by the way", "oh and", "actually wait",
   "ooh", "so um", "hm okay", "right so", "okay so", "ok so then",
+  "it would be great if you could", "it would be nice if you could", "it would be great if you would", "it would be nice if you would",
+  "it would be great if you can", "it would be nice if you can", "id appreciate it if you could", "i would appreciate it if you could",
+  "would you be so kind as to", "be a dear and", "be a pal and", "what i need is for you to", "what i want is for you to",
+  "what i need you to do is", "what i want you to do is", "the thing i need is for you to", "so basically", "basically",
 }
 local SUFFIX_SRC = { "please", "thanks", "thank you", "pls", "plz", "thx", "ty", "if you can", "for me", "right now", "now", "quickly",
   "asap", "okay", "ok", "real quick", "thanks a lot", "thank you very much", "lol", "lmao", "haha", "hahaha", "hehe", "xd", "if possible",
@@ -1183,6 +1220,7 @@ do
     for _, p in ipairs(list) do for _, w in ipairs(words_of(p)) do KNOWN_WORDS[w] = true end end
   end
   for _, e in ipairs(VERB_ENTRIES) do for _, w in ipairs(words_of(e.text)) do KNOWN_WORDS[w] = true end end
+  for _, w in ipairs({ "keeping", "spare", "sparing", "preserve", "preserving", "touching", "isnt", "arent", "thats" }) do KNOWN_WORDS[w] = true end
   for w in ([[tablet tablets stable stables planet planets plane planes plank planks shell shells chain chains coach coaches crane cranes
     truck trucks bridge bridges orange oranges beach beaches choir choirs store stores stone stones cable cables piano pianos dragon
     dragons rug rugs carpet carpets lamb clock clocks painting paintings picture pictures poster posters mirror mirrors curtain
@@ -1444,7 +1482,11 @@ local QUESTION_WORDS = set{ "how", "what", "whats", "why", "who", "whos", "when"
 local COPULA = set{ "is", "are", "was", "were", "isnt", "arent", "wasnt", "werent", "looks", "seems", "feels", "looked", "seemed", "needs",
   "wants", "smells", "sounds" }
 local TRASH_WORDS = set{ "trash", "bin", "garbage", "rubbish", "dumpster", "dump", "skip", "wastebasket", "trashcan", "litter", "waste" }
-local NEG_VERB_START = set{ "dont", "never", "stop", "quit", "no", "not", "nope" }
+-- a negated modal or auxiliary: "you cannot remove the couch", "you shouldnt remove the lamp" are refusals, never orders
+local NEG_CONTR = set{ "dont", "cant", "cannot", "wont", "shouldnt", "wouldnt", "couldnt", "mustnt", "neednt", "shant", "doesnt", "didnt",
+  "aint", "havent", "hasnt" }
+local NEG_VERB_START = set{ "dont", "never", "stop", "quit", "no", "not", "nope", "cant", "cannot", "wont", "shouldnt", "wouldnt", "couldnt",
+  "mustnt", "neednt", "shant", "doesnt", "didnt", "aint", "havent", "hasnt" }
 local ANYMORE = { "anymore", "any more", "any longer", "no longer", "at all", "anymore please" }
 
 --- Is tokens[a..b] one of the given trailing phrases (given as a last-word index)? Returns its length.
@@ -1459,6 +1501,43 @@ local function tail_phrase(tokens, last, from)
       if ok then return e.n end
     end
   end
+end
+
+local OBJECT_FILLER = set{ "and", "or", ",", "please", "thanks", "pls", "plz", "one", "ones", "of", "else", "also", "too", "all" }
+
+--- Is tokens[a..b] only the NAME of what is meant (things, determiners, colours and sizes, numbers, "the last one", "and", "please"),
+--- with no place, direction or reason in it?  "i dont want the couch" has a bare object; "i dont want the couch by the window"
+--- and "... to face the tv" do not: they say where or how the player wants it, which is not a request to delete it.
+function Parse:bare_object(tokens, a, b)
+  local k = a
+  while k <= b do
+    local w = tokens[k]
+    local nd, len = self:noun_at(tokens, k)
+    local lr = last_ref_at(tokens, k)
+    local mt = made_tail_at(tokens, k)
+    local al = match_at(ALL_FIRST, tokens, k) or match_at(REST_FIRST, tokens, k)
+    if nd then k = k + len
+    elseif lr then k = k + lr
+    elseif mt then k = k + mt
+    elseif al and k + al.n - 1 <= b then k = k + al.n
+    elseif PRON_OBJ[w] or DETERMINERS[w] or ADJECTIVE_WORDS[w] or number_of(w) or OBJECT_FILLER[w] then k = k + 1
+    elseif w:match("^%a+$") and not STOP[w] and not match_at(REL_FIRST, tokens, k) and not match_at(SOFT_FIRST, tokens, k)
+           and not verb_at(tokens, k) and not SCENE_NOUNS[w] and not PLACE_MODS[w] and not WORLD_TARGETS[w] and not SPEAKER_WORDS[w] then
+      -- a describing word right before a thing ("the ugly couch", "the old wooden table")
+      local m, ok = k + 1, false
+      while m <= b and m - k <= 3 do
+        if self:noun_at(tokens, m) then ok = true; break end
+        local x = tokens[m]
+        if STOP[x] or DETERMINERS[x] or match_at(REL_FIRST, tokens, m) or verb_at(tokens, m) or not x:match("^%a+$") then break end
+        m = m + 1
+      end
+      if not ok then return false end
+      k = k + 1
+    else
+      return false
+    end
+  end
+  return true
 end
 
 --- Sentences that mean a plain verb said another way, rewritten to it: "the lamp has to go" -> "remove the lamp",
@@ -1487,11 +1566,12 @@ function Parse:rewrite_idioms(tokens, p)
   -- refusals: "dont add a couch", "no more chairs", "stop adding chairs"; "i dont want the couch anymore" is a removal
   local neg_at = p
   if t == "do" and tokens[p + 1] == "not" then neg_at = p + 1; t = "not" end
-  if (t == "dont" or t == "cant") or (t == "not" and neg_at ~= p) then
+  if NEG_CONTR[t] or (t == "not" and neg_at ~= p) then
     local rest = neg_at + 1
     if tokens[rest] == "you" then rest = rest + 1 end
     local w = tokens[rest]
-    if w == "want" or w == "need" or w == "like" or w == "care" then
+    -- "like" is an opinion ("i dont like the couch"), never an order to remove it: only want / need / care are
+    if w == "want" or w == "need" or w == "care" then
       local obj_from = rest + 1
       if tokens[obj_from] == "to" or tokens[obj_from] == "have" then return tokens, "none" end
       local anymore = false
@@ -1506,7 +1586,8 @@ function Parse:rewrite_idioms(tokens, p)
         end
       end
       local definite = DEFINITE_WORDS[tokens[obj_from] or ""] and tokens[obj_from] ~= "it" and true or false
-      if (anymore or definite or tokens[obj_from] == "it" or tokens[obj_from] == "them") and obj_to >= obj_from then
+      if (anymore or definite or tokens[obj_from] == "it" or tokens[obj_from] == "them") and obj_to >= obj_from
+         and self:bare_object(tokens, obj_from, obj_to) then
         return cat({ "remove" }, sub(obj_from, obj_to)), nil
       end
     end
@@ -1685,8 +1766,11 @@ function Parse:rewrite_idioms(tokens, p)
   return tokens, nil
 end
 
---- The first exception marker ("except", "but", "other than", "and keep") that makes the rest of the sentence things to keep.
-function Parse:find_exclusion(tokens, from)
+--- The first exception marker ("except", "but", "other than", "and keep", ", leave the table alone", "that isnt") that makes the rest of
+--- the sentence things to keep.  `class` is the verb's class: after a removal a keep / leave / spare / dont-touch clause is always a
+--- clause about what STAYS; after any other verb it must start with a determiner ("move the couch and leave THE chairs").
+--- `keep_only`: the verb adds things, so only a keep clause counts ("add a couch and keep the chairs"), never "except" or "but".
+function Parse:find_exclusion(tokens, from, class, keep_only)
   local universal = false
   for i = from, #tokens do
     local t = tokens[i]
@@ -1695,19 +1779,107 @@ function Parse:find_exclusion(tokens, from)
     end
     local m = match_at(EXCEPT_FIRST, tokens, i)
     if m and i > from then
+      local keep = KEEP_MARKERS[m.text]
+      local nx = tokens[i + m.n]
       local ok
-      if m.text == "but" or m.text == "besides" or m.text == "minus" or m.text == "leaving" or m.text == "just not" or m.text == "and keep"
-         or m.text == "and leave" then
+      if keep then
+        ok = KEEP_ALWAYS[m.text] or class == "remove" or universal or (nx ~= nil and KEEP_DET[nx] == true)
+        if m.text == "but dont" or m.text == "but do not" then ok = ok and (nx == "touch" or nx == "move" or nx == "remove" or nx == "delete") end
+      elseif keep_only then
+        ok = false
+      elseif m.text == "but" or m.text == "besides" or m.text == "minus" or m.text == "leaving" or m.text == "just not"
+         then
         ok = universal
       else
         ok = true
       end
-      if m.text == "all but" or m.text == "everything but" or m.text == "anything but" or m.text == "none but" then ok = true end
-      if ok then return { i = i, n = m.n, text = m.text, implied_all = (m.text == "all but" or m.text == "everything but" or m.text == "anything but") } end
-    elseif m and i == from and (m.text == "all but" or m.text == "everything but" or m.text == "anything but") then
+      if not keep_only and (m.text == "all but" or m.text == "everything but" or m.text == "anything but" or m.text == "none but") then ok = true end
+      if ok then
+        return { i = i, n = m.n, text = m.text, keep_type = keep and true or false, keep_only = keep_only and true or false,
+                 implied_all = (m.text == "all but" or m.text == "everything but" or m.text == "anything but") }
+      end
+    elseif m and i == from and (m.text == "all but" or m.text == "everything but" or m.text == "anything but") and not keep_only then
       return { i = i, n = m.n, text = m.text, implied_all = true }
     end
   end
+end
+
+-- ---------------------------------------------------------------------------------------------- hedges before a managing verb
+local HEDGE_MODAL = set{ "need", "needs", "have", "has", "want", "wants", "got", "gotta", "hafta" }
+local HEDGE_AUX = set{ "may", "must", "might", "shall", "do", "does", "did", "is", "are", "am", "was", "were", "be", "been", "had" }
+local HEDGE_BLOCK = set{ "nothing", "nor", "neither", "without", "instead", "only", "except", "but", "anything", "everything" }
+local HEDGE_TIME = set{ "sec", "secs", "second", "seconds", "moment", "minute", "minutes", "min" }
+local HEDGE_QUESTION = set{ "do", "does", "did", "is", "are", "am", "was", "were" }
+local HEDGE_MAX = 8
+
+--- Does a verb that manages what stands begin at tokens[q]?  remove / move / turn / tidy, undo, "start over".
+function Parse:manages_at(tokens, q)
+  local ve = verb_at(tokens, q)
+  if ve and (ve.class == "remove" or ve.class == "move" or ve.class == "rotate" or ve.class == "rearrange") then
+    local _, name_len = self:noun_at(tokens, q)
+    if name_len and name_len > ve.n then return false end            -- "swivel chair", "trash can"
+    if ve.n == 1 and self.noun[tokens[q]] then                        -- "bin", "trash": a verb only when a thing follows
+      local nx = tokens[q + 1]
+      return (nx and (DETERMINERS[nx] or PRON_OBJ[nx] or number_of(nx))) and true or false
+    end
+    return true
+  end
+  if match_at(UNDO_FIRST, tokens, q) then return true end
+  if tokens[q] == "start" and (tokens[q + 1] == "over" or tokens[q + 1] == "again") then return true end
+  return false
+end
+
+--- Does a sentence begin at tokens[q]?  A verb of any kind, undo / "start over", a refusal ("dont", "stop") or "keep X".
+function Parse:starter_at(tokens, q)
+  local t = tokens[q]
+  if self:manages_at(tokens, q) then return true end
+  if NEG_VERB_START[t] or t == "keep" or t == "leave" or t == "save" then return true end
+  local ve = verb_at(tokens, q)
+  if ve then
+    local _, name_len = self:noun_at(tokens, q)
+    if name_len and name_len > ve.n then return false end
+    if ve.n == 1 and self.noun[t] then return false end
+    return true
+  end
+  return false
+end
+
+--- "basically remove the lamp", "you have to get rid of the couch", "hey buddy undo", "honestly dont add a couch", "basically put the lamp
+--- on the table": the index where the sentence really begins when only hedge words come before it (nil when it begins at `from`, or
+--- a word that carries a request -- a thing, a number, an article, a colour or size, a relation -- comes first).  A hedge is an OPEN
+--- class: any word that is none of those, so the next adverb or nickname needs no entry in a list.  Only the grammar words
+--- "need / have / want to" are listed.
+function Parse:hedge_verb_at(tokens, from)
+  local q = from
+  while q < from + HEDGE_MAX and tokens[q] do
+    local t = tokens[q]
+    if q == from and HEDGE_QUESTION[t] and HEDGE_AUX[t] then
+      return nil                                                       -- "do you want to remove the lamp?" is a question, not an order
+    elseif t == "," or HEDGE_MODAL[t] or HEDGE_AUX[t] then
+      q = q + 1
+    elseif t == "know" and tokens[q + 1] == "what" then                          -- "you know what, remove the lamp"
+      q = q + 2
+    elseif (t == "make" or t == "be") and tokens[q + 1] == "sure" then            -- "make sure to remove the lamp"
+      q = q + 2
+      if tokens[q] == "to" or tokens[q] == "that" then q = q + 1 end
+    elseif number_of(t) and HEDGE_TIME[tokens[q + 1]] then
+      q = q + 2
+    elseif self:starter_at(tokens, q) then
+      return (q > from) and q or nil
+    elseif q > from and (DETERMINERS[t] or ARTICLES[t]) and tail_phrase(tokens, #tokens, q) then
+      return q                                                       -- "basically the lamp has to go"
+    elseif LEAD[t] then
+      q = q + 1
+    elseif HEDGE_BLOCK[t] or (#t >= 4 and t:sub(-2) == "nt")
+           or self:noun_at(tokens, q) or number_of(t) or DETERMINERS[t] or ARTICLES[t] or PRON_OBJ[t] or STOP[t]
+           or (ADJECTIVE_WORDS[t] and not INTENSIFIERS[t]) or self.scene[t] or match_at(REL_FIRST, tokens, q) or match_at(QUANT_FIRST, tokens, q)
+           or match_at(NEG_FIRST, tokens, q) or match_at(EXCEPT_FIRST, tokens, q) or match_at(ALL_FIRST, tokens, q) then
+      return nil
+    else
+      q = q + 1
+    end
+  end
+  return nil
 end
 
 -- ---------------------------------------------------------------------------------------------- one request
@@ -1732,6 +1904,10 @@ function Parse:parse_clause(raw, opts)
   local grid_dims
   tokens, grid_dims = self:fold_products(tokens)
   tokens = self:strip_greeting(tokens)
+  do                                                  -- "basically remove the lamp", "you need to get rid of the couch"
+    local hv = self:hedge_verb_at(tokens, 1)
+    if hv then local rest = {}; for k = hv, #tokens do rest[#rest + 1] = tokens[k] end; tokens = rest end
+  end
   req.normalised = table.concat(tokens, " ")
   if is_bare_undo(tokens) then req.action = "undo"; return req end
   do
@@ -1807,7 +1983,9 @@ function Parse:parse_clause(raw, opts)
   -- ---- "everything except the couch": the markers and their tail
   local excl
   if class == "remove" or class == "move" or class == "rotate" or class == "rearrange" or (class == "add" and VERB_MOVEISH[verb or ""]) or class == nil then
-    excl = self:find_exclusion(tokens, start)
+    excl = self:find_exclusion(tokens, start, class)
+  elseif class == "add" then
+    excl = self:find_exclusion(tokens, start, class, true)                 -- "add a couch and keep the chairs": the chairs are not asked for
   end
   if not excl and is_clear(tokens) then req.action = "clear"; return req end
 
@@ -1932,6 +2110,12 @@ function Parse:parse_clause(raw, opts)
 
   -- ---- negators: "a table without chairs", "a bedroom but no bed", "a couch not a chair"
   local neg_scopes = {}
+  local scene_word = false
+  for k = start, ntok do
+    for len = 1, math.min(self.scene_max, ntok - k + 1) do
+      if self.scene[join(tokens, k, k + len - 1)] then scene_word = true end
+    end
+  end
   do
     local i = start
     while i <= ntok do
@@ -1948,6 +2132,21 @@ function Parse:parse_clause(raw, opts)
           else k = k + 1 end
         end
         if k > s0 then
+          -- "a kitchen without the fridge and the stove": neither (only for a whole room, and only a plain list of things)
+          if scene_word then
+            for _ = 1, 4 do
+              if tokens[k] ~= "and" and tokens[k] ~= "," and tokens[k] ~= "or" then break end
+              local m0 = k + 1
+              while tokens[m0] == "and" or tokens[m0] == "," or tokens[m0] == "or" do m0 = m0 + 1 end
+              local m = m0
+              while tokens[m] and m - m0 < 8 and tokens[m] ~= "," and tokens[m] ~= "and" and tokens[m] ~= "with" and tokens[m] ~= "plus"
+                    and tokens[m] ~= "then" and tokens[m] ~= "also" and tokens[m] ~= "but" and not match_at(REL_FIRST, tokens, m) do
+                m = m + 1
+              end
+              if m == m0 or (tokens[m] and match_at(REL_FIRST, tokens, m)) then break end
+              k = m
+            end
+          end
           neg_scopes[#neg_scopes + 1] = { from = s0, to = k - 1 }
           mark(i, i + e.n - 1)
         end
@@ -2089,7 +2288,8 @@ function Parse:parse_clause(raw, opts)
           else
             matched = { i = i, j = j, pseudo = "@last", word = tok }
           end
-        elseif (tok == "that" or tok == "this" or tok == "those" or tok == "these") and manage_context then
+        elseif (tok == "that" or tok == "this" or tok == "those" or tok == "these") and manage_context
+               and not (tok == "that" and (tokens[i - 1] == "so" or COPULA[tokens[i + 1] or ""])) then      -- "so that i can sit", "that is ugly"
           local nx = tokens[i + 1]
           local determiner = nx and (self:noun_at(tokens, i + 1) or ADJECTIVE_WORDS[nx] or number_of(nx) or (not STOP[nx] and nx ~= "," and not match_at(REL_FIRST, tokens, i + 1)
                                        and not match_at(SOFT_FIRST, tokens, i + 1) and not SCENE_NOUNS[nx] and not verb_at(tokens, i + 1)))
@@ -2103,7 +2303,7 @@ function Parse:parse_clause(raw, opts)
             if al.text == "all" then
               ok = (nx == nil or nx == "," or match_at(REL_FIRST, tokens, i + 1) ~= nil or match_at(SOFT_FIRST, tokens, i + 1) ~= nil or (excl and i + 1 == excl.i))
               if ok and i > start and (tokens[i - 1] == "of") then ok = false end
-            elseif al.text == "the room" or al.text == "the whole room" or al.text == "the entire room" or al.text == "everything around" then
+            elseif al.text == "the room" or al.text == "my room" or al.text == "our room" or al.text == "the whole room" or al.text == "the entire room" or al.text == "everything around" then
               ok = (i == start or tokens[i - 1] == "," or tokens[i - 1] == "and") and not (nx == "of")
             end
             if al.text == "the furniture" or al.text == "my furniture" or al.text == "the lot" then ok = ok and nx ~= "of" end
@@ -2647,61 +2847,105 @@ function Parse:parse_clause(raw, opts)
     end
     -- the tail may be a count ("all the chairs except one") or a subset ("except the red one"): not expressible as kinds
     local tail_has_count = false
+    local has_picker, tail_content = false, false           -- "except the first one" / words nothing above explained ("that are not red")
     for k = excl.i + excl.n, ntok do
       local w = tokens[k]
       if number_of(w) or w == "one" or w == "ones" or w == "some" or w == "half" then tail_has_count = true end
+      if TAIL_PICKERS[w] then has_picker = true end
+      if not mask[k] and w ~= "," and not STOP[w] and not ARTICLES[w] and not DETERMINERS[w] and not TAIL_FILLER[w] then tail_content = true end
     end
-    local head_kinds = {}
-    for _, it in ipairs(heads) do head_kinds[it.kind] = true end
-    local subset = false
-    for _, it in ipairs(tails) do
-      if head_kinds[it.kind] then subset = true end
+    if excl.keep_only then
+      -- "add a couch and keep the chairs": what comes after a keep marker is what stays, never something to add
+      req.items = heads
+      local gone = {}
+      for _, it in ipairs(tails) do if it.kind:match("^UNKNOWN") then gone[it.kind:sub(9)] = true end end
+      local kept_unknown = {}
+      for _, u in ipairs(req.unknown) do if not gone[u] then kept_unknown[#kept_unknown + 1] = u end end
+      req.unknown = kept_unknown
+      excl = nil
     end
-    if #tails == 0 and tail_has_count then subset = true end
-    if tail_has_count and #tails > 0 then
-      for _, it in ipairs(tails) do if explicit[it] and it.count > 0 then subset = true end end
-    end
-    if excl.implied_all and #heads == 0 then
-      heads[1] = { kind = "@all", count = 0, adjectives = {}, word = "everything", definite = true, position = excl.i }
-    end
-    local has_all = false
-    for _, it in ipairs(heads) do if it.kind == "@all" then has_all = true end end
-    if #heads == 0 then
-      -- "leaving the couch" with nothing named before: everything else goes
-      if req.action == "remove" then
-        heads[1] = { kind = "@all", count = 0, adjectives = {}, word = "everything", definite = true, position = excl.i }
-        has_all = true
+    if excl then
+      local head_kinds = {}
+      for _, it in ipairs(heads) do head_kinds[it.kind] = true end
+      local subset = false
+      for _, it in ipairs(tails) do
+        if head_kinds[it.kind] then subset = true end
       end
-    end
-    if subset and not has_all then
-      -- keep only some of a kind
-      req.items = {}
-      req.action = "none"
-      keep_note = "I can't keep just some of them yet, so I left everything as it was"
-      req.notes[#req.notes + 1] = keep_note
-    elseif subset and has_all then
-      -- "everything except the chairs" is fine; "except one" is not
-      if #tails == 0 then
+      if #tails == 0 and tail_has_count then subset = true end
+      if tail_has_count and #tails > 0 then
+        for _, it in ipairs(tails) do if explicit[it] and it.count > 0 then subset = true end end
+      end
+      if excl.implied_all and #heads == 0 then
+        heads[1] = { kind = "@all", count = 0, adjectives = {}, word = "everything", definite = true, position = excl.i }
+      end
+      local has_all = false
+      for _, it in ipairs(heads) do if it.kind == "@all" then has_all = true end end
+      if #heads == 0 then
+        -- "leaving the couch" with nothing named before: everything else goes
+        if req.action == "remove" then
+          heads[1] = { kind = "@all", count = 0, adjectives = {}, word = "everything", definite = true, position = excl.i }
+          has_all = true
+        end
+      end
+      -- What is to be kept must be NAMED, as kinds we know: "everything that isnt the couch" keeps the couch. When it is "the last
+      -- one", "the first", a word like "red", something the library lacks, or nothing at all, the holodeck cannot tell what to
+      -- keep, and a removal of everything would take the very thing the player meant to keep: it changes nothing instead.
+      local n_concrete, n_last, n_unknown, n_all = 0, 0, 0, 0
+      for _, it in ipairs(tails) do
+        if it.kind == "@last" then n_last = n_last + 1
+        elseif it.kind == "@all" then n_all = n_all + 1
+        elseif it.kind:match("^UNKNOWN") then n_unknown = n_unknown + 1
+        else n_concrete = n_concrete + 1 end
+      end
+      local unresolved = false
+      if req.action ~= "add" then
+        if has_picker or n_last > 0 then unresolved = true
+        elseif has_all then unresolved = (n_concrete == 0)
+        else
+          if n_all > 0 and not excl.keep_type then unresolved = true end
+          if n_concrete == 0 and not excl.keep_type and (n_unknown > 0 or tail_content) then unresolved = true end
+        end
+      end
+      if unresolved then
         req.items = {}
         req.action = "none"
-        req.notes[#req.notes + 1] = "I can't keep just some of them yet, so I left everything as it was"
+        keep_note = "I can't tell which ones to keep, so I left everything as it was"
+        req.notes[#req.notes + 1] = keep_note
+        local kept_unknown = {}
+        for _, u in ipairs(req.unknown) do if not TAIL_PICKERS[u] then kept_unknown[#kept_unknown + 1] = u end end
+        req.unknown = kept_unknown
+      elseif subset and not has_all then
+        -- keep only some of a kind
+        req.items = {}
+        req.action = "none"
+        keep_note = "I can't keep just some of them yet, so I left everything as it was"
+        req.notes[#req.notes + 1] = keep_note
+      elseif subset and has_all then
+        -- "everything except the chairs" is fine; "except one" is not
+        if #tails == 0 then
+          req.items = {}
+          req.action = "none"
+          req.notes[#req.notes + 1] = "I can't keep just some of them yet, so I left everything as it was"
+        else
+          req.items = heads
+        end
       else
         req.items = heads
       end
-    else
-      req.items = heads
-    end
-    if req.action ~= "none" then
-      local ex, seen_ex = {}, {}
-      for _, it in ipairs(tails) do
-        if it.kind:sub(1, 1) ~= "@" and not it.kind:match("^UNKNOWN") and not seen_ex[it.kind] then
-          seen_ex[it.kind] = true; ex[#ex + 1] = it.kind
-          if #(it.adjectives or {}) > 0 and not subset then
-            req.notes[#req.notes + 1] = "I kept every " .. it.kind .. ", not only the " .. table.concat(it.adjectives, " ") .. " ones"
+      if req.action ~= "none" then
+        local ex, seen_ex = {}, {}
+        for _, it in ipairs(tails) do
+          if it.kind:sub(1, 1) ~= "@" and not it.kind:match("^UNKNOWN") and not seen_ex[it.kind] then
+            seen_ex[it.kind] = true; ex[#ex + 1] = it.kind
+            if #(it.adjectives or {}) > 0 and not subset then
+              req.notes[#req.notes + 1] = "I kept every " .. it.kind .. ", not only the " .. table.concat(it.adjectives, " ") .. " ones"
+            end
           end
         end
+        if #ex > 0 then req.exclude = ex end
+        -- a keep clause is no scene exclusion: "a living room, keep the tv" is not "a living room without the tv"
+        if excl.keep_type and req.action == "add" then req.exclude = nil end
       end
-      if #ex > 0 then req.exclude = ex end
     end
   end
   if req.action == "none" and keep_note then return req end
@@ -2711,6 +2955,7 @@ function Parse:parse_clause(raw, opts)
     if it.rest and not req.exclude then
       req.items = {}
       req.action = "none"
+      req.rest_unresolved = true
       req.notes[#req.notes + 1] = "I could not tell which ones the rest are, so I changed nothing"
       return req
     end
@@ -2754,6 +2999,31 @@ function Parse:parse_clause(raw, opts)
   local is_facing = (arr == "facing_me" or arr == "facing_each_other" or arr == "facing_away" or req.half_turn) and true or false
   local is_shape = (arr == "row" or arr == "circle" or arr == "grid" or arr == "u_shape" or arr == "l_shape" or arr == "stacked" or arr == "scattered")
 
+  -- "it would be great if you could remove the lamp": a verb that manages what stands, in front of the first thing but not at the
+  -- start of the sentence. Adding the lamp it names would build a second one: nothing is better than that.
+  if class == nil and req.action == "add" and #req.items > 0 and req.scene == "" and definite_items() then
+    local first_pos = math.huge
+    for _, it in ipairs(req.items) do
+      if it.position and it.position < first_pos and it.kind:sub(1, 1) ~= "@" then first_pos = it.position end
+    end
+    for q = p + 1, math.min(first_pos - 1, ntok) do
+      if self:manages_at(tokens, q) then
+        req.action = "none"
+        req.items = {}
+        req.arrangement, req.target, req.facing, req.shape = "unspecified", "", nil, nil
+        req.notes[#req.notes + 1] = "I wasn't sure what to do with that, so I changed nothing"
+        return req
+      end
+    end
+  end
+  -- "keep the couch", "leave the chairs alone", "spare the lamp": nothing to do, and never a second couch
+  if class == nil and req.action == "add" and KEEP_VERBS[tokens[p] or ""] and req.scene == "" and arr == "unspecified" and not req.facing
+     and not req.facing_away and #req.items > 0 and definite_items() then
+    req.action = "none"
+    req.items = {}
+    req.notes[#req.notes + 1] = "that sounded like leaving things as they are, so I changed nothing"
+    return req
+  end
   -- "toss a barrel behind me" throws one in; "toss the lamp" throws it out
   if req.action == "remove" and (verb == "toss" or verb == "chuck") and req.arrangement ~= "unspecified" then req.action = "add" end
   -- "half of the crates", "all of the chairs but the red ones": a share of them cannot be named
@@ -2780,7 +3050,8 @@ function Parse:parse_clause(raw, opts)
   -- statements and questions are not requests: "the lamp is ugly", "how many chairs are there"
   if class == nil and req.action == "add" and tokens[p] then
     local first = tokens[p]
-    local is_question = QUESTION_WORDS[first] and not last_ref_at(tokens, p)
+    local is_question = (QUESTION_WORDS[first] or (first == "do" and (tokens[p + 1] == "you" or tokens[p + 1] == "we" or tokens[p + 1] == "i")))
+                        and not last_ref_at(tokens, p)
     local statement = false
     if DEFINITE_WORDS[first] and first ~= "them" and first ~= "it" and req.arrangement == "unspecified" then
       for k = p + 1, ntok do if COPULA[tokens[k]] then statement = true; break end end
@@ -2914,6 +3185,32 @@ function Parse:parse_clause(raw, opts)
   if req.action == "remove" and #req.items == 0 and req.scene == "" then
     -- "get rid of it", "remove that": the last thing created
     req.items[1] = { kind = "@last", count = 1, adjectives = {}, word = "it", definite = true, position = 1 }
+  end
+  -- "remove everything thats red", "remove the chairs that are broken": a description that picks some of them out. A colour is
+  -- the same as "the red chairs"; anything else the holodeck cannot tell, and taking all of them would take the wrong ones.
+  if (req.action == "remove" or req.action == "move" or req.action == "rotate" or req.action == "rearrange") and not excl then
+    for i = start + 1, ntok do
+      local w = tokens[i]
+      if not mask[i] and (w == "thats" or ((w == "that" or w == "which" or w == "who") and COPULA[tokens[i + 1] or ""])) then
+        local prev_item
+        for _, it in ipairs(req.items) do if it.position < i then prev_item = it end end
+        if prev_item and (prev_item.kind == "@all" or prev_item.count == 0 or prev_item.count > 1) then
+          local k = i + ((w == "thats") and 1 or 2)
+          if prev_item.kind:sub(1, 1) ~= "@" and COLORS[tokens[k] or ""] and (tokens[k + 1] == nil or tokens[k + 1] == ",") then
+            prev_item.adjectives[#prev_item.adjectives + 1] = tokens[k]
+            mark(i, k)
+          else
+            req.action = "none"
+            req.items = {}
+            req.arrangement, req.target = "unspecified", ""
+            req.notes[#req.notes + 1] = "I can't pick out just the ones that are " .. (tokens[k] and ADJECTIVE_WORDS[tokens[k]] and tokens[k] or "like that")
+                                        .. " yet, so I changed nothing"
+            return req
+          end
+          break
+        end
+      end
+    end
   end
   -- "clear everything off the table": only what stands on / near something, which the holodeck cannot tell
   if req.action == "remove" and #req.items == 1 and req.items[1].kind == "@all" and not req.exclude then
@@ -3060,6 +3357,7 @@ function Parse:starts_request(tokens, k)
     end
   end
   i = skip_lead(tokens, i)
+  do local hv = self:hedge_verb_at(tokens, i); if hv then i = hv end end
   local ve = verb_at(tokens, i)
   if ve then
     local base = ve.base
@@ -3145,7 +3443,11 @@ function Parse:split_tokens(tokens)
       local ok = after <= n
       -- protect "loads and loads of"
       if ok and tokens[i] == "and" and tokens[i - 1] == tokens[i + 1] and run_end == i then ok = false end
-      if ok and not hard and keep_first then ok = false end
+      if ok and not hard and keep_first then
+        -- "keep the couch and remove the rest" is one idiom; "keep the couch and add a lamp" is two requests
+        local ve2 = verb_at(tokens, skip_lead(tokens, after))
+        if not ve2 or ve2.class == "remove" then ok = false end
+      end
       if ok and not hard then
         -- a soft joint splits only when a verb or a whole relation-bearing phrase follows
         local prev_cut = (#cuts > 0) and cuts[#cuts].to + 1 or 1
@@ -3163,6 +3465,26 @@ function Parse:split_tokens(tokens)
           local noun_start = first and (ARTICLES[first] or first == "a" or first == "an" or number_of(first) or match_at(QUANT_FIRST, tokens, after)
                                          or self:noun_at(tokens, after) or ADJECTIVE_WORDS[first] or DETERMINERS[first]) and true or false
           ok = a_rel and b_rel and noun_start
+          if not ok and b_rel and noun_start and not a_rel then
+            -- "a table with four chairs and a lamp on it": the relation of the last part is about ONE thing of the first part (the
+            -- table), never about the chairs listed with it. Cut only when it points back ("it", "them" or a thing named on the left)
+            -- and the left part lists at least two things.
+            local groups, named = 0, {}
+            local k = prev_cut
+            while k <= i - 1 do
+              local nd, len = self:noun_at(tokens, k)
+              if nd then groups = groups + 1; named[nd.kind] = true; k = k + len else k = k + 1 end
+            end
+            if groups >= 2 then
+              local kk = after
+              while kk <= next_cut and not covered[kk] do kk = kk + 1 end
+              while kk <= next_cut and covered[kk] do kk = kk + 1 end
+              while kk <= next_cut and DETERMINERS[tokens[kk]] do kk = kk + 1 end
+              local tt = tokens[kk]
+              local tnd = (kk <= next_cut) and self:noun_at(tokens, kk) or nil
+              if tt == "it" or tt == "them" or (tnd and named[tnd.kind]) then ok = true end
+            end
+          end
         end
       end
       if ok then
@@ -3214,8 +3536,10 @@ local function merge_requests(a, b, is_surface)
     if b.arrangement ~= "unspecified" or a.arrangement ~= "unspecified" then return false end
   elseif a.action == "add" then
     -- "add a table and put four chairs around it": one build, the chairs around the table of the first clause
+    local real_in_a = 0
+    for _, it in ipairs(a.items) do if it.kind:sub(1, 1) ~= "@" and not it.kind:match("^UNKNOWN") then real_in_a = real_in_a + 1 end end
     if b.target == "@last" and a.arrangement == "unspecified" and a.scene == "" and not a.facing and not a.every and not a.seats
-       and b.scene == "" and #a.items > 0 then
+       and b.scene == "" and #a.items > 0 and real_in_a == 1 then
       local head
       for _, it in ipairs(a.items) do
         if it.kind:sub(1, 1) ~= "@" and not it.kind:match("^UNKNOWN") then
@@ -3319,8 +3643,101 @@ function Parse:parse_all(text, prev)
       if truncated then r.truncated = true end
       local merged = false
       if pc.soft and #reqs > 0 then merged = merge_requests(reqs[#reqs], r, function(k) return self:is_surface(k) end) end
+      if not merged and pc.soft and #reqs > 0 and r.action == "add" and r.target == "@last" and reqs[#reqs].action == "add"
+         and r.scene == "" and reqs[#reqs].scene == "" then
+        -- "a table with four chairs and a lamp on it": "it" is the first thing named (the surface, for "on"), not the whole group
+        local head, real = nil, 0
+        for _, it in ipairs(reqs[#reqs].items) do
+          if it.kind:sub(1, 1) ~= "@" and not it.kind:match("^UNKNOWN") then
+            real = real + 1
+            if not head then head = it end
+            if r.arrangement == "on" and self:is_surface(it.kind) then head = it end
+          end
+        end
+        if head and real >= 2 then
+          local own = false                                          -- not when the last part names that very thing itself
+          for _, it in ipairs(r.items) do if it.kind == head.kind then own = true end end
+          if not own then
+            r.target = head.kind
+            local tk = self.catalog.kinds[head.kind]
+            if r.arrangement == "on" and tk and tk.category == "table" and self.catalog.kinds["desk lamp"] then
+              for _, it in ipairs(r.items) do        -- a bare "lamp" placed on a table is the desk lamp
+                if it.kind == "floor lamp" and not it.definite and (it.word == "lamp" or it.word == "lamps") then it.kind = "desk lamp" end
+              end
+            end
+          end
+        end
+      end
       if not merged then reqs[#reqs + 1] = r end
       last_prev = reqs[#reqs]
+    end
+  end
+  do
+    -- "i just want the couch, get rid of everything else", "add a table and remove everything else": "else" means besides what
+    -- the earlier request makes or keeps.  Adds come after the clear, so the new things are not wiped with the rest; a move or a
+    -- turn leaves the things it names standing.
+    local function says_else(r)
+      for w in (r.normalised or ""):gmatch("%S+") do
+        if w == "else" or w == "rest" or w == "others" or w == "remaining" or w == "other" or w == "leftover" or w == "leftovers" then return true end
+      end
+      return false
+    end
+    local function is_wipe(r)
+      return r.action == "clear" or (r.action == "remove" and not r.exclude and #r.items == 1 and r.items[1].kind == "@all")
+    end
+    for k = 2, #reqs do
+      local r = reqs[k]
+      if r.rest_unresolved and r.action == "none" then
+        -- "add a couch and delete the others": the others are what stood before; the new couch is not one of them
+        local j = k
+        while j > 1 and reqs[j - 1].action == "add" and (#reqs[j - 1].items > 0 or reqs[j - 1].scene ~= "") do j = j - 1 end
+        if j < k then
+          r.action = "clear"
+          r.items = {}
+          r.notes = {}
+          r.rest_unresolved = nil
+        else
+          local pr = reqs[k - 1]
+          if pr.action == "move" or pr.action == "rotate" or pr.action == "rearrange" then
+            local ex, seen = {}, {}
+            for _, it in ipairs(pr.items) do
+              if it.kind:sub(1, 1) ~= "@" and not it.kind:match("^UNKNOWN") and not seen[it.kind] then seen[it.kind] = true; ex[#ex + 1] = it.kind end
+            end
+            if #ex > 0 then
+              r.action = "remove"
+              r.items = { { kind = "@all", count = 0, adjectives = {}, word = "the rest", definite = true, position = 1 } }
+              r.exclude = ex
+              r.notes = {}
+              r.rest_unresolved = nil
+            end
+          end
+        end
+      end
+      if is_wipe(r) and says_else(r) then
+        local j = k
+        while j > 1 and reqs[j - 1].action == "add" and (#reqs[j - 1].items > 0 or reqs[j - 1].scene ~= "") do j = j - 1 end
+        if j < k then
+          table.remove(reqs, k)
+          table.insert(reqs, j, r)
+        else
+          local pr = reqs[k - 1]
+          if pr.action == "move" or pr.action == "rotate" or pr.action == "rearrange" then
+            local ex, seen = {}, {}
+            for _, it in ipairs(pr.items) do
+              if it.kind:sub(1, 1) ~= "@" and not it.kind:match("^UNKNOWN") and not seen[it.kind] then seen[it.kind] = true; ex[#ex + 1] = it.kind end
+            end
+            if #ex > 0 then
+              r.action = "remove"
+              r.items = { { kind = "@all", count = 0, adjectives = {}, word = "everything", definite = true, position = 1 } }
+              r.exclude = ex
+            else
+              r.action = "none"
+              r.items = {}
+              r.notes[#r.notes + 1] = "I can't tell which ones the rest are, so I changed nothing"
+            end
+          end
+        end
+      end
     end
   end
   do

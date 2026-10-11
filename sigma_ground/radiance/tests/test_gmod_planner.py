@@ -1549,3 +1549,215 @@ def test_a_table_for_six_chairs_is_big_enough_that_no_two_chairs_touch(lab, worl
             for j in range(i + 1, len(polys)):
                 assert sat_penetration(polys[i], polys[j]) < 0.5, (seed, i, j)
         assert "squeeze" not in " ".join(res.get("notes", [])), res.get("notes")
+
+
+# ---------------------------------------------------------------------------------------------- the second review (high findings)
+def distinct(values, tol=6.0):
+    out = []
+    for v in sorted(values):
+        if not out or v - out[-1] > tol:
+            out.append(v)
+    return out
+
+
+@pytest.mark.parametrize("first", ["an office", "a desk with a computer", "a kitchen", "five barrels stacked"])
+@pytest.mark.parametrize("second", ["move it closer", "move it against the wall", "move it to the corner", "rearrange it in a row",
+                                    "rearrange everything in a grid", "turn it around"])
+def test_a_selection_holding_a_support_and_its_load_carries_the_load(lab, first, second):
+    """The load of a selected support was laid out as a floor item of its own: the computer ended at the floor inside the desk,
+    the upper barrels of a pile came down onto the lower ones. A selection that holds both moves the load rigidly with its support."""
+    fresh(lab)
+    env = lab.world("room")
+    stand(lab, first, world=env, owner="a")
+    raised = {e["id"]: e["z"] for e in lab.registry if e["z"] > 0.5}
+    assert raised, "the scene has nothing standing on anything"
+    res = stand(lab, second, world=env, owner="a")
+    for e in lab.registry:
+        if e["id"] in raised:
+            assert abs(e["z"] - raised[e["id"]]) < 0.6, (first, second, e["kind"], raised[e["id"]], e["z"], res["say"])
+    assert lab.audit(env) == [], (first, second, res["say"])
+
+
+def test_a_support_and_its_load_move_together_and_the_reply_counts_both(lab):
+    fresh(lab)
+    env = lab.world("room")
+    stand(lab, "a desk with a computer", world=env, owner="a")
+    desk, computer = standing(lab, "desk")[0], standing(lab, "computer")[0]
+    res = lab.run("move it against the wall", world=env, owner="a")
+    assert {m["id"] for m in res["moves"]} == {desk["id"], computer["id"]}, res
+    assert "computer" in res["say"] and "desk" in res["say"], res["say"]
+    moved_c = next(m for m in res["moves"] if m["id"] == computer["id"])
+    moved_d = next(m for m in res["moves"] if m["id"] == desk["id"])
+    assert abs(moved_c["z"] - computer["z"]) < 0.6 and math.hypot(moved_c["x"] - moved_d["x"], moved_c["y"] - moved_d["y"]) < 40
+
+
+def test_naming_only_the_load_still_moves_it_alone(lab):
+    fresh(lab)
+    env = lab.world("room")
+    stand(lab, "a desk with a computer", world=env, owner="a")
+    desk, computer = standing(lab, "desk")[0], standing(lab, "computer")[0]
+    res = lab.run_request({"action": "move", "items": [item("computer", 1, definite=True)], "arrangement": "against_wall"}, world=env, owner="a")
+    ids = {m["id"] for m in res["moves"]}
+    assert ids <= {computer["id"]} and desk["id"] not in ids, res
+
+
+MAIN_SEAT_SENTENCES = [
+    "add a couch, a table and four chairs", "a couch, a table and some chairs", "a table with four chairs and a couch",
+    "a sofa and a dining table with chairs", "a loveseat, a dining table and 4 chairs", "a bench, a table and 4 chairs",
+    "a couch, a coffee table and four chairs", "a couch, a table and six stools", "a couch, a table and three chairs",
+    "ok skippy I want a couch a table and some chairs please",
+]
+
+
+@pytest.mark.parametrize("world", ["open", "room", "room:420x360", "room:300x260"])
+@pytest.mark.parametrize("text", MAIN_SEAT_SENTENCES)
+def test_a_main_seat_with_a_table_and_chairs_is_never_refused(lab, text, world):
+    """The couch and the chairs shared the table's sides (the third chair landed on the couch): every frame was rejected and the
+    answer was 'I could not find room for that.' with nothing placed, in every room and on open ground."""
+    fresh(lab)
+    res = lab.run(text, world=world)
+    k = kinds(res)
+    seats = k["chair"] + k["stool"]
+    assert seats >= 2 and sum(v for key, v in k.items() if key in ("couch", "loveseat", "bench")) == 1, (text, world, dict(k), res["say"])
+    assert sum(v for key, v in k.items() if "table" in key) == 1, (text, world, dict(k))
+    assert not clean(lab, res, world), (text, world, clean(lab, res, world))
+
+
+def test_main_seats_with_a_table_and_chairs_over_many_seeds(lab):
+    for main in ("couch", "loveseat", "bench"):
+        for table in ("table", "coffee table"):
+            for seat, n in (("chair", 4), ("stool", 4), ("chair", 6)):
+                for seed in seeds(lab, f"{main}{table}{seat}{n}", 4):
+                    fresh(lab)
+                    res = lab.run_request({"action": "add", "items": [item(main), item(table), item(seat, n)]}, world="room", seed=seed)
+                    assert kinds(res)[main] == 1 and kinds(res)[seat] >= min(n, 4), (main, table, seat, n, seed, res["say"])
+                    assert not clean(lab, res, "room"), (main, table, seat, n, seed)
+
+
+@pytest.mark.parametrize("text, expect", [
+    ("add 10 chairs and 10 crates", {"chair": 10, "crate": 10}), ("add ten chairs and ten crates", {"chair": 10, "crate": 10}),
+    ("add 5 chairs and 10 crates", {"chair": 5, "crate": 10}), ("add 4 tables and 4 crates", {"table": 4, "crate": 4}),
+    ("add 10 barrels and 10 crates", {"barrel": 10, "crate": 10}), ("add 40 chairs and 40 crates", None),
+])
+def test_a_plain_mixed_request_on_open_ground_is_never_refused(lab, text, expect):
+    """A room of chairs and big crates overlapped its own side rows at the corners and put the cluster off centre, so every frame
+    failed on open ground; the same request with other numbers worked."""
+    for seed in [None] + seeds(lab, text, 12):
+        fresh(lab)
+        res = lab.run(text, world="open", seed=seed)
+        assert res["placements"], (text, seed, res["say"])
+        if expect:
+            got = kinds(res)
+            assert all(got[key] == n for key, n in expect.items()), (text, seed, dict(got), res["say"])
+        assert not clean(lab, res, "open"), (text, seed, clean(lab, res, "open"))
+
+
+@pytest.mark.parametrize("text, world", [("add 12 barrels and 10 crates", "room:420x360"), ("add 8 tables and 10 crates", "room"),
+                                         ("add 5 tables and 12 crates", "room:420x360"), ("add 10 couches and 3 barrels", "room")])
+def test_when_no_one_room_holds_a_mixed_request_each_kind_gets_a_group_of_its_own(lab, text, world):
+    fresh(lab)
+    res = lab.run(text, world=world)
+    assert "separate groups" in res["say"], res["say"]
+    n = sum(int(w) for w in text.split() if w.isdigit())
+    assert len(res["placements"]) == n, (len(res["placements"]), n, res["say"])
+    assert not clean(lab, res, world)
+
+
+def test_a_mixed_request_that_cannot_fit_places_what_does_and_says_so(lab):
+    fresh(lab)
+    res = lab.run("add 10 chairs and 10 crates", world="room:300x260")
+    assert res["placements"] and len(res["placements"]) < 20
+    assert "of the" in res["say"] and "fit" in res["say"], res["say"]
+    assert not clean(lab, res, "room:300x260")
+
+
+@pytest.mark.parametrize("text, gone", [("a living room without the tv", "tv"), ("a living room, no tv", "tv"), ("a bedroom but no bed", "bed"),
+                                        ("a kitchen without a table", "table"), ("an office with no computer", "computer")])
+def test_a_scene_leaves_out_what_the_parser_excluded(lab, text, gone):
+    fresh(lab)
+    assert lab.parser.parse(lab.parser, text)["exclude"], "the parser no longer reports the exclusion"
+    res = lab.run(text, world="room")
+    assert res["placements"] and kinds(res)[gone] == 0, (text, dict(kinds(res)))
+    assert not clean(lab, res, "room")
+
+
+def test_an_explicit_item_of_an_excluded_kind_wins(lab):
+    fresh(lab)
+    res = lab.run_request({"action": "add", "items": [item("tv")], "scene": "living room", "exclude": ["tv"]}, world="room")
+    assert kinds(res)["tv"] == 1 and kinds(res)["couch"] == 1, dict(kinds(res))
+    res = lab.run_request({"action": "add", "items": [], "scene": "living room", "exclude": ["tv"]}, world="room")
+    assert kinds(res)["tv"] == 0 and kinds(res)["couch"] == 1
+
+
+def test_in_a_circle_around_a_table_is_a_ring(lab):
+    fresh(lab)
+    res = lab.run("six chairs in a circle around the table", world="room")
+    assert kinds(res) == {"chair": 6, "table": 1}, dict(kinds(res))
+    assert "ring" in res["say"], res["say"]
+    table = next(p for p in res["placements"] if p["kind"] == "table")
+    dists = [math.hypot(p["x"] - table["x"], p["y"] - table["y"]) for p in res["placements"] if p["kind"] == "chair"]
+    assert max(dists) - min(dists) < 6, dists
+    assert not clean(lab, res, "room")
+
+
+@pytest.mark.parametrize("text, n, per_axis", [("twelve chairs in 3 rows", 12, (3, 4)), ("six chairs in 2 rows of 3", 6, (2, 3))])
+def test_a_grid_has_the_rows_and_columns_it_was_asked_for(lab, text, n, per_axis):
+    fresh(lab)
+    res = lab.run(text, world="open")
+    assert len(res["placements"]) == n
+    xs = distinct([p["x"] for p in res["placements"]])
+    ys = distinct([p["y"] for p in res["placements"]])
+    assert tuple(sorted((len(xs), len(ys)))) == tuple(sorted(per_axis)), (len(xs), len(ys), res["say"])
+    assert not clean(lab, res, "open")
+
+
+def test_facing_away_after_a_shape_turns_every_one_about(lab):
+    fresh(lab)
+    inward = lab.run("six chairs in a circle", world="open")
+    away = lab.run("six chairs in a circle facing away from the table", world="open")
+    assert kinds(away) == {"chair": 6}
+
+    def errors(res):
+        cx = sum(p["x"] for p in res["placements"]) / 6
+        cy = sum(p["y"] for p in res["placements"]) / 6
+        return [lab.facing_error(p, cx, cy) for p in res["placements"]]
+    assert max(errors(inward)) < 30 and min(errors(away)) > 150, (errors(inward), errors(away))
+    assert "outward" in away["say"] or "away" in away["say"], away["say"]
+    row = lab.run("a row of chairs with their backs to the wall", world="room")
+    assert row["placements"] and "against the wall" in row["say"], row["say"]
+
+
+def test_move_away_from_a_thing_moves_away_from_that_thing(lab):
+    fresh(lab)
+    stand(lab, "a couch", world="open", owner="a")
+    stand(lab, "a lamp next to the couch", world="open", owner="a")
+    couch, lamp = standing(lab, "couch")[0], standing(lab, "floor lamp")[0]
+    ux, uy = lamp["x"] - couch["x"], lamp["y"] - couch["y"]
+    n = math.hypot(ux, uy)
+    # the player stands beyond the lamp: 'away from the player' would push it toward the couch
+    pos = (lamp["x"] + ux / n * 200, lamp["y"] + uy / n * 200, 0.0)
+    before = math.hypot(lamp["x"] - couch["x"], lamp["y"] - couch["y"])
+    res = lab.run("move the lamp away from the couch", world="open", owner="a", pos=pos)
+    assert res["moves"], res["say"]
+    m = res["moves"][0]
+    assert math.hypot(m["x"] - couch["x"], m["y"] - couch["y"]) > before + 30, (before, m, res["say"])
+
+
+@pytest.mark.parametrize("second", ["move it against the wall", "move it to the corner", "rearrange it in a row", "move it closer"])
+def test_a_pile_moves_as_one_piece(lab, second):
+    """The upper barrels rested on two lower ones: laid out piece by piece they were left hanging (or in the wall). A pile keeps
+    its shape: every distance between its barrels is the same after the move, and the reply counts the barrels."""
+    fresh(lab)
+    env = lab.world("room")
+    stand(lab, "five barrels stacked", world=env, owner="a")
+    before = [(e["id"], e["x"], e["y"], e["z"]) for e in lab.registry]
+    res = stand(lab, second, world=env, owner="a")
+    assert res["moves"], res["say"]
+    assert "five barrels" in res["say"], res["say"]
+    after = {e["id"]: (e["x"], e["y"], e["z"]) for e in lab.registry}
+    for i, (ia, xa, ya, za) in enumerate(before):
+        for (ib, xb, yb, zb) in before[i + 1:]:
+            d0 = math.hypot(xa - xb, ya - yb)
+            d1 = math.hypot(after[ia][0] - after[ib][0], after[ia][1] - after[ib][1])
+            assert abs(d0 - d1) < 0.5 and abs((za - zb) - (after[ia][2] - after[ib][2])) < 0.5, (second, ia, ib, d0, d1)
+    assert lab.audit(env) == []

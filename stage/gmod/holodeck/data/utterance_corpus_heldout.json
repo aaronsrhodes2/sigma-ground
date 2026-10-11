@@ -3094,29 +3094,40 @@
   },
   {
    "utterance": "a table with 4 chairs and a lamp on it",
-   "action": "add",
-   "scene": "",
-   "items": [
+   "sequence": [
     {
-     "noun": "table",
-     "count": 1,
-     "adjectives": []
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "table",
+       "count": 1,
+       "adjectives": []
+      },
+      {
+       "noun": "chair",
+       "count": 4,
+       "adjectives": []
+      }
+     ]
     },
     {
-     "noun": "chair",
-     "count": 4,
-     "adjectives": []
-    },
-    {
-     "noun": "desk lamp",
-     "count": 1,
-     "adjectives": []
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "desk lamp",
+       "count": 1,
+       "adjectives": []
+      }
+     ],
+     "arrangement": "on",
+     "target": "table"
     }
    ],
-   "arrangement": "on",
-   "target": "table",
    "slice": "relations",
-   "audited": "review"
+   "audited": "review",
+   "note": "two requests: the chairs stand around the table; only the lamp goes ON it (the one-request reading put the chairs on the table top)"
   },
   {
    "utterance": "put a chair behind me",
@@ -9203,7 +9214,13 @@
        "noun": "chair",
        "count": 4,
        "adjectives": []
-      },
+      }
+     ]
+    },
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
       {
        "noun": "desk lamp",
        "count": 1,
@@ -9215,7 +9232,8 @@
     }
    ],
    "slice": "compound",
-   "audited": "review"
+   "audited": "review",
+   "note": "two requests: the chairs stand around the table; only the lamp goes ON it (the one-request reading put the chairs on the table top)"
   },
   {
    "utterance": "remove the lamp. remove the plant.",
@@ -11442,6 +11460,4194 @@
    "arrangement": "circle",
    "target": "",
    "slice": "e2e",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the couch and keep the chairs",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "chair"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the couch while keeping the chairs",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "chair"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the couch, keep the chairs",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "chair"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the lamp, leave everything else",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "clear the room, keep the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "delete the lamp, keep the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "delete the lamp and leave the table alone",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "table"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the lamp and don't touch the chairs",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "chair"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the lamp and do not touch the chairs",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "chair"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "get rid of the lamp, keep the rest",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the lamp and leave the rest alone",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "get rid of the tv but leave the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "get rid of the tv, leave the couch alone",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the tv, don't touch the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the tv and the lamp but keep the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    },
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the tv, the lamp and leave the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    },
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the tv and leave the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the lamp and keep everything else",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the lamp and leave everything else alone",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the lamp and keep it all",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "delete the table and don't touch anything else",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "clear the room but don't touch the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "clear the room and leave the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "wipe everything, keep the table and the chairs",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "table",
+    "chair"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the lamp and never touch the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "delete the chairs and spare the table",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "table"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the chairs while leaving the table",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "table"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the chairs and preserve the table",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "table"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "erase the chairs while keeping the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "take away the table and keep the chairs",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "chair"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "throw away the crates and spare the barrels",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "barrel"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "trash the crates and leave the barrels alone",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "barrel"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything while keeping the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "delete everything and spare the bed",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "bed"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything and don't touch the bed",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "bed"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "destroy the lamp and the plant, leave the rest",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    },
+    {
+     "noun": "plant",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "nuke the tv and keep everything else",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove my lamp and keep my chairs",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "chair"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "get rid of the tv and don't remove the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove all the lamps and leave the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "clear out the crates but keep the barrels",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "barrel"
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "move the couch and leave the chairs",
+   "action": "move",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "move the lamp near the tv and leave the couch",
+   "action": "move",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "beside",
+   "target": "tv",
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "turn the chairs to face the tv and keep the couch as is",
+   "action": "rotate",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "facing_me",
+   "target": "tv",
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "rotate the couch and spare the lamp",
+   "action": "rotate",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "tidy up the chairs and keep the table",
+   "action": "rearrange",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "add a couch and keep the chairs",
+   "action": "add",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": false
+    }
+   ],
+   "exclude": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "add a lamp, keep the couch",
+   "action": "add",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": false
+    }
+   ],
+   "exclude": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "add a lamp and leave the tv",
+   "action": "add",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": false
+    }
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "add three chairs and keep the table",
+   "action": "add",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 3,
+     "adjectives": [],
+     "definite": false
+    }
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "add a table and spare the chairs",
+   "action": "add",
+   "scene": "",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": [],
+     "definite": false
+    }
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "spawn a lamp while keeping the couch",
+   "action": "add",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": false
+    }
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "put a plant next to the couch and keep the tv",
+   "action": "add",
+   "scene": "",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 1,
+     "adjectives": [],
+     "definite": false
+    }
+   ],
+   "arrangement": "beside",
+   "target": "couch",
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "put two chairs around the table and leave the couch",
+   "action": "add",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 2,
+     "adjectives": [],
+     "definite": false
+    }
+   ],
+   "arrangement": "around",
+   "target": "table",
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the red couch and keep the blue couch",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the lamp and keep one chair",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the chairs and keep two",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "keep the couch",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "leave the couch alone",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "spare the lamp",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "leave everything as it is",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "keep the chairs coming",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "keep the couch and add a lamp",
+   "sequence": [
+    {
+     "action": "none",
+     "scene": "",
+     "items": []
+    },
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "floor lamp",
+       "count": 1,
+       "adjectives": [],
+       "definite": false
+      }
+     ]
+    }
+   ],
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "keep the chairs facing the tv",
+   "action": "rotate",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "facing_me",
+   "target": "tv",
+   "slice": "keep_clauses",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything that isn't the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything that is not the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "delete anything thats not the bed",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "bed"
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything which is not the table",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "table"
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "delete everything that isnt a chair",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "chair"
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "delete everything that isn't the tv or the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "tv",
+    "floor lamp"
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "clear everything that is not the table",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "table"
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove all the furniture that isn't the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "get rid of everything thats not the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "clear all but the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything except the couch and the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch",
+    "floor lamp"
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "clear the room but not the bed",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "bed"
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "wipe everything out except the sofa",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "delete everything besides the table",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "table"
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything apart from the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@all",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything except the last one",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the furniture except what i just made",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything but what I just built",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove all chairs except the first",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove all chairs except the last",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove all chairs except the newest",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "get rid of everything except the first one",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything except for the oldest couch",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything except red things",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything except",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything but",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "delete everything but",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the chairs that are not red",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the chairs that aren't broken",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything other than the last one",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything but the dragon",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "clear the room except what i just made",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "clear the room except the last thing",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove all but the last",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "delete everything that isnt the one i just made",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything and keep nothing",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove every chair that isn't the first one",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything but the last two",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything except it",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "i just want the couch, get rid of everything else",
+   "sequence": [
+    {
+     "action": "clear",
+     "scene": "",
+     "items": []
+    },
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "couch",
+       "count": 1,
+       "adjectives": [],
+       "definite": true
+      }
+     ]
+    }
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "add a table and remove everything else",
+   "sequence": [
+    {
+     "action": "clear",
+     "scene": "",
+     "items": []
+    },
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "table",
+       "count": 1,
+       "adjectives": [],
+       "definite": false
+      }
+     ]
+    }
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "add a table and a chair. remove everything else",
+   "sequence": [
+    {
+     "action": "clear",
+     "scene": "",
+     "items": []
+    },
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "table",
+       "count": 1,
+       "adjectives": [],
+       "definite": false
+      },
+      {
+       "noun": "chair",
+       "count": 1,
+       "adjectives": [],
+       "definite": false
+      }
+     ]
+    }
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "add a lamp then clear the room",
+   "sequence": [
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "floor lamp",
+       "count": 1,
+       "adjectives": [],
+       "definite": false
+      }
+     ]
+    },
+    {
+     "action": "clear",
+     "scene": "",
+     "items": []
+    }
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "move the couch next to the tv and delete everything else",
+   "sequence": [
+    {
+     "action": "move",
+     "scene": "",
+     "items": [
+      {
+       "noun": "couch",
+       "count": 1,
+       "adjectives": [],
+       "definite": true
+      }
+     ],
+     "arrangement": "beside",
+     "target": "tv"
+    },
+    {
+     "action": "remove",
+     "scene": "",
+     "items": [
+      {
+       "noun": "@all",
+       "count": 0,
+       "adjectives": [],
+       "definite": true
+      }
+     ],
+     "exclude": [
+      "couch"
+     ]
+    }
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "you need to remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "basically remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "you have to get rid of the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "honestly delete the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "literally remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "definitely remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "obviously remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "totally remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "probably remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "possibly remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "hey buddy remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "hey bro remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "hey mate remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "hey captain remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "you may remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "you must remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "you gotta remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "last thing remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "one second remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "make sure to remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "boss delete the chairs",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "sir remove the tv",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "frankly get rid of all the chairs",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "fine remove the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "you should probably remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "you know what remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "um yeah so basically get rid of the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "please basically remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "you probably want to remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "basically clear the room",
+   "action": "clear",
+   "scene": "",
+   "items": [],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "hey buddy clear everything",
+   "action": "clear",
+   "scene": "",
+   "items": [],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "you must undo that",
+   "action": "undo",
+   "scene": "",
+   "items": [],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "you need to undo that",
+   "action": "undo",
+   "scene": "",
+   "items": [],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "basically undo that",
+   "action": "undo",
+   "scene": "",
+   "items": [],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "hey buddy undo",
+   "action": "undo",
+   "scene": "",
+   "items": [],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "you need to move the couch next to the tv",
+   "action": "move",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "beside",
+   "target": "tv",
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "honestly move the couch next to the tv",
+   "action": "move",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "beside",
+   "target": "tv",
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "okay captain rotate the couch",
+   "action": "rotate",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "honestly straighten the chairs",
+   "action": "rearrange",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "basically tidy up",
+   "action": "rearrange",
+   "scene": "",
+   "items": [],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "honestly dont add a couch",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "totally dont remove the couch",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "do you want to remove the lamp",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "basically add a couch",
+   "action": "add",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": false
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "i need a couch",
+   "action": "add",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": false
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "dont move the table",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "put my couch next to the tv",
+   "action": "move",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "beside",
+   "target": "tv",
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "put my couch next to the lamp",
+   "action": "move",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "beside",
+   "target": "floor lamp",
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove my chairs",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove my couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove all of my chairs",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "delete my lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "get rid of my chairs",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "get rid of my tv",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "delete my crates",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove my tv and my lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    },
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "put my chairs around the table",
+   "action": "move",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "around",
+   "target": "table",
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "make my chairs face the tv",
+   "action": "rotate",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "facing_me",
+   "target": "tv",
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "bring my chairs over here",
+   "action": "move",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "stack my crates",
+   "action": "rearrange",
+   "scene": "",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "stacked",
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "line up my chairs",
+   "action": "rearrange",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "row",
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "spread my chairs out",
+   "action": "rearrange",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "scattered",
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "move my chairs next to the table",
+   "action": "move",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "beside",
+   "target": "table",
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "turn my chairs to face the tv",
+   "action": "rotate",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "facing_me",
+   "target": "tv",
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "rotate my couch",
+   "action": "rotate",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "turn my couch to face me",
+   "action": "rotate",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "facing_me",
+   "target": "me",
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "move my couch against the wall",
+   "action": "move",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "against_wall",
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "push my bed into the corner",
+   "action": "move",
+   "scene": "",
+   "items": [
+    {
+     "noun": "bed",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "corner",
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "put my lamp on my desk",
+   "action": "move",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "arrangement": "on",
+   "target": "desk",
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "move my chair and my table",
+   "action": "move",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    },
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "move my couch left",
+   "action": "move",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "shift my table closer",
+   "action": "move",
+   "scene": "",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "my couch is ugly",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "clear my room",
+   "action": "clear",
+   "scene": "",
+   "items": [],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "clear our room",
+   "action": "clear",
+   "scene": "",
+   "items": [],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove my furniture",
+   "action": "clear",
+   "scene": "",
+   "items": [],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "undo my last action",
+   "action": "undo",
+   "scene": "",
+   "items": [],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "put a lamp on my desk",
+   "action": "add",
+   "scene": "",
+   "items": [
+    {
+     "noun": "desk lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": false
+    }
+   ],
+   "arrangement": "on",
+   "target": "desk",
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "add a couch next to my table",
+   "action": "add",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": false
+    }
+   ],
+   "arrangement": "beside",
+   "target": "table",
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "add a couch in my room",
+   "action": "add",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": false
+    }
+   ],
+   "slice": "my_things",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch by the window",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i don't want the couch by the window",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch to face the tv",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch facing the wall",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch there",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont like the couch there",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont like the couch where it is",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch in the middle",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont like the couch",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont like it",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch next to the table",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want it by the window",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want it facing the tv",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch in the corner",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch over there",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "dont want the couch by the window",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont like the couch by the window",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the tv close to the couch",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the tv that close",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch so close to the tv",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch facing the tv anymore",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the lamp on the table",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the chairs around the table",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch here",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch to be there",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch because it is ugly",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch there anymore",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i no longer like the couch",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont like the couch anymore",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "we dont like the lamp",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont need the lamp anymore",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the chairs anymore",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the red couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want it",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "@last",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the ugly couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the old wooden table anymore",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch and the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    },
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch or the lamp anymore",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    },
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i no longer want the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "we dont want the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "we dont need the table",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "i dont want the couch please",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "dont_want",
+   "audited": "review"
+  },
+  {
+   "utterance": "a living room with no tv",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "tv"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a living room, no tv",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "tv"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a living room but no tv",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "tv"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a bedroom without a bed",
+   "action": "add",
+   "scene": "bedroom",
+   "items": [],
+   "exclude": [
+    "bed"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a kitchen without a fridge",
+   "action": "add",
+   "scene": "kitchen",
+   "items": [],
+   "exclude": [
+    "fridge"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a kitchen without the fridge and the stove",
+   "action": "add",
+   "scene": "kitchen",
+   "items": [],
+   "exclude": [
+    "fridge",
+    "stove"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a kitchen with no fridge or stove",
+   "action": "add",
+   "scene": "kitchen",
+   "items": [],
+   "exclude": [
+    "fridge",
+    "stove"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "add a living room without a couch",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "couch"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "build me a living room minus the tv",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "tv"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a living room except the tv",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "tv"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a living room except for the tv",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "tv"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a living room sans tv",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "tv"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a living room and no lamp",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "floor lamp"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "an office without a computer",
+   "action": "add",
+   "scene": "office",
+   "items": [],
+   "exclude": [
+    "computer"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a bathroom without the toilet",
+   "action": "add",
+   "scene": "bathroom",
+   "items": [],
+   "exclude": [
+    "toilet"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a dining room without chairs",
+   "action": "add",
+   "scene": "dining room",
+   "items": [],
+   "exclude": [
+    "chair"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a dining room but no table",
+   "action": "add",
+   "scene": "dining room",
+   "items": [],
+   "exclude": [
+    "table"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "make a bedroom without a wardrobe",
+   "action": "add",
+   "scene": "bedroom",
+   "items": [],
+   "exclude": [
+    "wardrobe"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a living room and leave out the tv",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "tv"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a living room but not the tv",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "tv"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a living room without the tv or the lamp",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "tv",
+    "floor lamp"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a living room that doesn't have a tv",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "tv"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a living room with no tv and no lamp",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "tv",
+    "floor lamp"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a living room and omit the plant",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "plant"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a living room excluding the tv",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "tv"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a living room not including the tv",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "tv"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a living room without a tv please",
+   "action": "add",
+   "scene": "living room",
+   "items": [],
+   "exclude": [
+    "tv"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a kitchen without the fridge, the stove and the sink",
+   "action": "add",
+   "scene": "kitchen",
+   "items": [],
+   "exclude": [
+    "fridge",
+    "stove",
+    "sink"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a bedroom with a bed but no wardrobe",
+   "action": "add",
+   "scene": "bedroom",
+   "items": [
+    {
+     "noun": "bed",
+     "count": 1,
+     "adjectives": [],
+     "definite": false
+    }
+   ],
+   "exclude": [
+    "wardrobe"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "a living room without the tv and a plant in the corner",
+   "action": "add",
+   "scene": "living room",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 1,
+     "adjectives": [],
+     "definite": false
+    }
+   ],
+   "arrangement": "corner",
+   "exclude": [
+    "tv"
+   ],
+   "slice": "scene_exclusions",
+   "audited": "review"
+  },
+  {
+   "utterance": "add a table with four chairs and a lamp on it",
+   "sequence": [
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "table",
+       "count": 1,
+       "adjectives": []
+      },
+      {
+       "noun": "chair",
+       "count": 4,
+       "adjectives": []
+      }
+     ]
+    },
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "desk lamp",
+       "count": 1,
+       "adjectives": []
+      }
+     ],
+     "arrangement": "on",
+     "target": "table"
+    }
+   ],
+   "slice": "attached_relations",
+   "audited": "review"
+  },
+  {
+   "utterance": "add a desk with a chair and a computer on it",
+   "sequence": [
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "desk",
+       "count": 1,
+       "adjectives": []
+      },
+      {
+       "noun": "chair",
+       "count": 1,
+       "adjectives": []
+      }
+     ]
+    },
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "computer",
+       "count": 1,
+       "adjectives": []
+      }
+     ],
+     "arrangement": "on",
+     "target": "desk"
+    }
+   ],
+   "slice": "attached_relations",
+   "audited": "review"
+  },
+  {
+   "utterance": "add a table with four chairs and a plant next to it",
+   "sequence": [
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "table",
+       "count": 1,
+       "adjectives": []
+      },
+      {
+       "noun": "chair",
+       "count": 4,
+       "adjectives": []
+      }
+     ]
+    },
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "plant",
+       "count": 1,
+       "adjectives": []
+      }
+     ],
+     "arrangement": "beside",
+     "target": "table"
+    }
+   ],
+   "slice": "attached_relations",
+   "audited": "review"
+  },
+  {
+   "utterance": "add a table with four chairs and put a lamp on it",
+   "sequence": [
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "table",
+       "count": 1,
+       "adjectives": []
+      },
+      {
+       "noun": "chair",
+       "count": 4,
+       "adjectives": []
+      }
+     ]
+    },
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "desk lamp",
+       "count": 1,
+       "adjectives": []
+      }
+     ],
+     "arrangement": "on",
+     "target": "table"
+    }
+   ],
+   "slice": "attached_relations",
+   "audited": "review"
+  },
+  {
+   "utterance": "add a table with four chairs and put a plant next to it",
+   "sequence": [
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "table",
+       "count": 1,
+       "adjectives": []
+      },
+      {
+       "noun": "chair",
+       "count": 4,
+       "adjectives": []
+      }
+     ]
+    },
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "plant",
+       "count": 1,
+       "adjectives": []
+      }
+     ],
+     "arrangement": "beside",
+     "target": "table"
+    }
+   ],
+   "slice": "attached_relations",
+   "audited": "review"
+  },
+  {
+   "utterance": "a table, four chairs and a lamp on it",
+   "sequence": [
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "table",
+       "count": 1,
+       "adjectives": []
+      },
+      {
+       "noun": "chair",
+       "count": 4,
+       "adjectives": []
+      }
+     ]
+    },
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "desk lamp",
+       "count": 1,
+       "adjectives": []
+      }
+     ],
+     "arrangement": "on",
+     "target": "table"
+    }
+   ],
+   "slice": "attached_relations",
+   "audited": "review"
+  },
+  {
+   "utterance": "a desk with two chairs and a computer on it",
+   "sequence": [
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "desk",
+       "count": 1,
+       "adjectives": []
+      },
+      {
+       "noun": "chair",
+       "count": 2,
+       "adjectives": []
+      }
+     ]
+    },
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "computer",
+       "count": 1,
+       "adjectives": []
+      }
+     ],
+     "arrangement": "on",
+     "target": "desk"
+    }
+   ],
+   "slice": "attached_relations",
+   "audited": "review"
+  },
+  {
+   "utterance": "a table with six chairs and a lamp on the table",
+   "sequence": [
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "table",
+       "count": 1,
+       "adjectives": []
+      },
+      {
+       "noun": "chair",
+       "count": 6,
+       "adjectives": []
+      }
+     ]
+    },
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "desk lamp",
+       "count": 1,
+       "adjectives": []
+      }
+     ],
+     "arrangement": "on",
+     "target": "table"
+    }
+   ],
+   "slice": "attached_relations",
+   "audited": "review"
+  },
+  {
+   "utterance": "a couch and a lamp next to it",
+   "action": "add",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "beside",
+   "target": "couch",
+   "slice": "attached_relations",
+   "audited": "review"
+  },
+  {
+   "utterance": "a couch, a table and a lamp in front of the tv",
+   "action": "add",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "arrangement": "in_front_of",
+   "target": "tv",
+   "slice": "attached_relations",
+   "audited": "review"
+  },
+  {
+   "utterance": "you cannot remove the couch",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "you shouldnt remove the lamp",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "you wont remove the lamp",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "you mustnt remove the lamp",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "you dont need to remove the lamp",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "it would be great if you could remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "so basically what i need is for you to remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "what i want is for you to get rid of the couch",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "what i need you to do is remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "be a pal and remove the lamp",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "lead_ins",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything thats red",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything that is red",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything which is big",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "delete anything that is blue",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove everything that is next to the tv",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the chairs that are broken",
+   "action": "none",
+   "scene": "",
+   "items": [],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the chairs that are red",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "remove the lamp that is ugly",
+   "action": "remove",
+   "scene": "",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": [],
+     "definite": true
+    }
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "add a couch and delete the others",
+   "sequence": [
+    {
+     "action": "clear",
+     "scene": "",
+     "items": []
+    },
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "couch",
+       "count": 1,
+       "adjectives": [],
+       "definite": false
+      }
+     ]
+    }
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "add two chairs, clear the rest",
+   "sequence": [
+    {
+     "action": "clear",
+     "scene": "",
+     "items": []
+    },
+    {
+     "action": "add",
+     "scene": "",
+     "items": [
+      {
+       "noun": "chair",
+       "count": 2,
+       "adjectives": [],
+       "definite": false
+      }
+     ]
+    }
+   ],
+   "slice": "exceptions_hard",
+   "audited": "review"
+  },
+  {
+   "utterance": "move the lamp and remove the rest",
+   "sequence": [
+    {
+     "action": "move",
+     "scene": "",
+     "items": [
+      {
+       "noun": "floor lamp",
+       "count": 1,
+       "adjectives": [],
+       "definite": true
+      }
+     ]
+    },
+    {
+     "action": "remove",
+     "scene": "",
+     "items": [
+      {
+       "noun": "@all",
+       "count": 0,
+       "adjectives": [],
+       "definite": true
+      }
+     ],
+     "exclude": [
+      "floor lamp"
+     ]
+    }
+   ],
+   "slice": "exceptions_hard",
    "audited": "review"
   }
  ]

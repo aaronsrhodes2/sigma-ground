@@ -105,9 +105,10 @@ def test_it_inside_one_sentence_is_the_thing_just_named(parse):
     assert req["target"] == "couch" and req["arrangement"] == "beside"
     req = one(parse, "turn the couch around so it faces the tv")
     assert req["action"] == "rotate" and kinds(req) == [("couch", 1)] and req["target"] == "tv"
-    req = one(parse, "a table with 4 chairs and a lamp on it")
-    assert req["arrangement"] == "on" and req["target"] == "table", "the lamp goes on the table, not on a chair"
-    assert "desk lamp" in [i["kind"] for i in req["items"]]
+    reqs = parse.parse_all("a table with 4 chairs and a lamp on it")
+    assert len(reqs) == 2, [(r["action"], kinds(r)) for r in reqs]
+    assert kinds(reqs[0]) == [("table", 1), ("chair", 4)] and reqs[0]["arrangement"] == "unspecified", "the chairs stand around the table"
+    assert kinds(reqs[1]) == [("desk lamp", 1)] and reqs[1]["arrangement"] == "on" and reqs[1]["target"] == "table", "only the lamp goes on it"
 
 
 # --------------------------------------------------------------------------------------------- exceptions
@@ -669,3 +670,377 @@ def test_straighten_keeps_the_shape_and_line_up_makes_a_row(parse):
     assert one(parse, "straighten the chairs")["arrangement"] == "unspecified"
     assert one(parse, "line up all the chairs")["arrangement"] == "row"
     assert one(parse, "line the chairs up in front of me")["shape"] == "row"
+
+
+# --------------------------------------------------------------------------------------------- the high-severity review (2026-10-10)
+# One class of defect each. Every sentence here is one whose meaning is certain; the held-out corpus holds many more of the same
+# classes (slices keep_clauses, exceptions_hard, lead_ins, my_things, dont_want, scene_exclusions, attached_relations).
+NEW_SLICES = ("keep_clauses", "exceptions_hard", "lead_ins", "my_things", "dont_want", "scene_exclusions", "attached_relations")
+
+
+def test_the_review_slices_of_the_heldout_corpus_are_exact(parse):
+    """The general pass-rate test allows a few misses; these slices are the defects of the review and allow none."""
+    cases = [c for c in eval_parse.load_cases("utterance_corpus_heldout.json") if c["slice"] in NEW_SLICES]
+    assert len(cases) >= 250
+    bad = [(c["utterance"], eval_parse.compare_case(c, parse)) for c in cases]
+    bad = [b for b in bad if b[1]]
+    assert not bad, bad[:8]
+
+
+def seeded(lab, *requests):
+    lab.registry, lab.next_id, lab.seq, lab.gseq = [], 1, 0, 0
+    for t in requests:
+        lab.commit(lab.run(t, world="room"))
+
+
+def standing(lab):
+    out = {}
+    for e in lab.registry:
+        out[e["kind"]] = out.get(e["kind"], 0) + 1
+    return out
+
+
+def play(lab, text):
+    """The utterance the way the game runs it (each request committed before the next), on what is already standing."""
+    return lab.run_all(text, world="room")
+
+
+# ---- a keep / leave / spare / don't-touch clause after a removal says what STAYS
+@pytest.mark.parametrize("text,gone,kept", [
+    ("remove the couch and keep the chairs", [("couch", 1)], ["chair"]),
+    ("remove the couch while keeping the chairs", [("couch", 1)], ["chair"]),
+    ("remove the couch, keep the chairs", [("couch", 1)], ["chair"]),
+    ("delete the lamp, keep the couch", [("floor lamp", 1)], ["couch"]),
+    ("delete the lamp and leave the table alone", [("floor lamp", 1)], ["table"]),
+    ("remove the lamp and don't touch the chairs", [("floor lamp", 1)], ["chair"]),
+    ("remove the lamp and do not touch the chairs", [("floor lamp", 1)], ["chair"]),
+    ("get rid of the tv, leave the couch alone", [("tv", 1)], ["couch"]),
+    ("delete the chairs and spare the table", [("chair", 0)], ["table"]),
+    ("remove the chairs while leaving the table", [("chair", 0)], ["table"]),
+    ("remove the chairs and preserve the table", [("chair", 0)], ["table"]),
+    ("remove the tv and the lamp but keep the couch", [("tv", 1), ("floor lamp", 1)], ["couch"]),
+    ("clear the room, keep the couch", [("@all", 0)], ["couch"]),
+    ("clear the room but don't touch the couch", [("@all", 0)], ["couch"]),
+    ("remove everything while keeping the couch", [("@all", 0)], ["couch"]),
+    ("remove the lamp, leave everything else", [("floor lamp", 1)], []),
+    ("get rid of the lamp, keep the rest", [("floor lamp", 1)], []),
+    ("remove the lamp and leave everything else alone", [("floor lamp", 1)], []),
+    ("delete the table and don't touch anything else", [("table", 1)], []),
+])
+def test_a_keep_clause_after_a_removal_is_never_removed(parse, text, gone, kept):
+    req = one(parse, text)
+    assert req["action"] == "remove" and kinds(req) == gone, (text, req["action"], kinds(req))
+    assert sorted(req.get("exclude") or []) == sorted(kept), (text, req.get("exclude"))
+
+
+def test_a_keep_clause_in_the_planner_leaves_the_kept_things_standing(lab):
+    for text, left in [
+        ("remove the couch and keep the chairs", {"chair": 2, "floor lamp": 1}),
+        ("remove the couch while keeping the chairs", {"chair": 2, "floor lamp": 1}),
+        ("remove the lamp, leave everything else", {"couch": 1, "chair": 2}),
+        ("clear the room, keep the couch", {"couch": 1}),
+        ("delete the lamp, keep the couch", {"couch": 1, "chair": 2}),
+        ("delete the lamp and leave the table alone", {"couch": 1, "chair": 2}),
+        ("remove the lamp and don't touch the chairs", {"couch": 1, "chair": 2}),
+        ("get rid of the lamp, keep the rest", {"couch": 1, "chair": 2}),
+        ("remove everything and don't touch the couch", {"couch": 1}),
+    ]:
+        seeded(lab, "a couch", "two chairs", "a lamp")
+        play(lab, text)
+        assert standing(lab) == left, (text, standing(lab))
+
+
+@pytest.mark.parametrize("text,kinds_added", [
+    ("add a couch and keep the chairs", [("couch", 1)]), ("add a lamp, keep the couch", [("floor lamp", 1)]),
+    ("add three chairs and keep the table", [("chair", 3)]), ("add a table and spare the chairs", [("table", 1)]),
+    ("spawn a lamp while keeping the couch", [("floor lamp", 1)]), ("add a lamp and leave the tv", [("floor lamp", 1)]),
+    ("put a plant next to the couch and keep the tv", [("plant", 1)]),
+])
+def test_a_keep_clause_after_an_add_adds_nothing(parse, text, kinds_added):
+    req = one(parse, text)
+    assert req["action"] == "add" and kinds(req) == kinds_added and not req.get("exclude"), (text, kinds(req))
+
+
+@pytest.mark.parametrize("text,action", [
+    ("move the couch and leave the chairs", "move"), ("rotate the couch and spare the lamp", "rotate"),
+    ("turn the chairs to face the tv and keep the couch as is", "rotate"), ("tidy up the chairs and keep the table", "rearrange"),
+])
+def test_a_keep_clause_after_a_move_or_turn_is_not_moved(parse, text, action):
+    req = one(parse, text)
+    assert req["action"] == action and [k for k, _ in kinds(req)] in (["couch"], ["chair"]), (text, kinds(req))
+
+
+@pytest.mark.parametrize("text", ["keep the couch", "leave the couch alone", "spare the lamp", "keep them", "leave everything as it is",
+                                  "remove the red couch and keep the blue couch", "remove the lamp and keep one chair"])
+def test_keeping_or_a_keep_that_cannot_be_told_apart_changes_nothing(parse, text):
+    req = one(parse, text)
+    assert req["action"] == "none" and not req["items"], (text, req["action"], kinds(req))
+
+
+def test_keep_then_add_is_two_requests_and_a_keep_alone_is_not_an_add(parse):
+    reqs = parse.parse_all("keep the couch and add a lamp")
+    assert [r["action"] for r in reqs] == ["none", "add"] and kinds(reqs[1]) == [("floor lamp", 1)]
+    assert [r["action"] for r in parse.parse_all("keep the couch and remove the rest")] == ["remove"]
+
+
+# ---- everything that isn't X / except the last one / get rid of everything else
+@pytest.mark.parametrize("text,kept", [
+    ("remove everything that isn't the couch", ["couch"]), ("remove everything that is not the couch", ["couch"]),
+    ("delete anything thats not the bed", ["bed"]), ("remove everything which is not the table", ["table"]),
+    ("delete everything that isnt a chair", ["chair"]), ("get rid of everything thats not the couch", ["couch"]),
+    ("delete everything that isn't the tv or the lamp", ["tv", "floor lamp"]), ("clear all but the couch", ["couch"]),
+])
+def test_everything_that_is_not_x_keeps_x(parse, text, kept):
+    req = one(parse, text)
+    assert req["action"] == "remove" and kinds(req) == [("@all", 0)] and sorted(req["exclude"]) == sorted(kept), (text, req)
+
+
+@pytest.mark.parametrize("text", [
+    "remove everything except the last one", "remove everything but what I just built", "remove the furniture except what i just made",
+    "remove all chairs except the first", "remove all chairs except the newest", "get rid of everything except the first one",
+    "remove everything except", "remove everything but", "remove the chairs that are not red", "remove everything except red things",
+    "remove everything but the dragon", "clear the room except what i just made", "remove everything and keep nothing",
+    "delete everything that isnt the one i just made",
+])
+def test_an_exception_that_cannot_be_named_changes_nothing_never_clears(parse, text):
+    reqs = parse.parse_all(text)
+    assert [r["action"] for r in reqs] == ["none"] and not reqs[0]["items"], (text, [(r["action"], kinds(r)) for r in reqs])
+
+
+def test_an_exception_that_cannot_be_named_leaves_the_room_alone(lab):
+    for text in ["remove everything except the last one", "remove everything that isn't the one i just made", "remove everything but",
+                 "remove all chairs except the first"]:
+        seeded(lab, "a couch", "two chairs", "a lamp")
+        before = standing(lab)
+        play(lab, text)
+        assert standing(lab) == before, (text, standing(lab))
+
+
+def test_everything_that_is_not_the_couch_in_the_planner(lab):
+    for text in ["remove everything that isn't the couch", "remove everything that is not the couch"]:
+        seeded(lab, "a couch", "two chairs", "a lamp")
+        play(lab, text)
+        assert standing(lab) == {"couch": 1}, (text, standing(lab))
+
+
+def test_everything_else_does_not_wipe_what_the_same_sentence_makes(parse, lab):
+    reqs = parse.parse_all("i just want the couch, get rid of everything else")
+    assert [r["action"] for r in reqs] == ["clear", "add"] and kinds(reqs[1]) == [("couch", 1)]
+    reqs = parse.parse_all("add a table and remove everything else")
+    assert [r["action"] for r in reqs] == ["clear", "add"] and kinds(reqs[1]) == [("table", 1)]
+    reqs = parse.parse_all("move the couch next to the tv and delete everything else")
+    assert [r["action"] for r in reqs] == ["move", "remove"] and reqs[1]["exclude"] == ["couch"]
+    assert [r["action"] for r in parse.parse_all("add a lamp then clear the room")] == ["add", "clear"]
+    seeded(lab, "a couch", "two chairs", "a lamp")
+    play(lab, "add a table and remove everything else")
+    assert standing(lab) == {"table": 1}
+    seeded(lab, "a couch", "two chairs", "a lamp")
+    play(lab, "i just want a couch, get rid of everything else")
+    assert standing(lab) == {"couch": 1}
+
+
+# ---- words before the verb that no list can hold
+@pytest.mark.parametrize("text", [
+    "you need to remove the lamp", "basically remove the lamp", "honestly delete the lamp", "literally remove the lamp",
+    "definitely remove the lamp", "totally remove the lamp", "probably remove the lamp", "hey buddy remove the lamp",
+    "hey bro remove the lamp", "hey captain remove the lamp", "you may remove the lamp", "you must remove the lamp",
+    "you gotta remove the lamp", "last thing remove the lamp", "one second remove the lamp", "make sure to remove the lamp",
+    "boss delete the lamp", "frankly get rid of the lamp", "you know what remove the lamp", "um yeah so basically get rid of the lamp",
+    "you probably want to remove the lamp", "you have to get rid of the lamp",
+])
+def test_a_removal_behind_a_lead_in_is_still_a_removal(parse, text):
+    req = one(parse, text)
+    assert req["action"] == "remove" and kinds(req) == [("floor lamp", 1)] and req["items"][0]["definite"], (text, req["action"], kinds(req))
+
+
+@pytest.mark.parametrize("text,action", [
+    ("basically clear the room", "clear"), ("hey buddy clear everything", "clear"), ("you must undo that", "undo"),
+    ("you need to undo that", "undo"), ("basically undo that", "undo"), ("hey buddy undo", "undo"),
+    ("honestly dont add a couch", "none"), ("totally dont remove the couch", "none"), ("do you want to remove the lamp", "none"),
+    ("you need to move the couch next to the tv", "move"), ("okay captain rotate the couch", "rotate"),
+    ("honestly straighten the chairs", "rearrange"), ("basically tidy up", "rearrange"),
+])
+def test_other_managing_verbs_behind_a_lead_in(parse, text, action):
+    assert one(parse, text)["action"] == action, text
+
+
+def test_a_lead_in_does_not_remove_a_real_request(parse):
+    assert one(parse, "i need a couch")["action"] == "add" and kinds(one(parse, "i need three chairs")) == [("chair", 3)]
+    assert one(parse, "basically add a couch next to the tv")["arrangement"] == "beside"
+    assert one(parse, "dont move the table")["action"] == "none"
+    assert kinds(one(parse, "hey so like i was thinking maybe we could use a bookshelf")) == [("bookshelf", 1)]
+
+
+def test_a_lead_in_removal_in_the_planner(lab):
+    for text in ["you need to remove the lamp", "basically remove the lamp", "hey buddy remove the lamp", "honestly delete the lamp"]:
+        seeded(lab, "a couch", "a lamp")
+        play(lab, text)
+        assert standing(lab) == {"couch": 1}, (text, standing(lab))
+    seeded(lab, "a couch", "a lamp")
+    play(lab, "basically clear the room")
+    assert standing(lab) == {}
+
+
+# ---- "my" names the things that stand, like "the" and "our"
+@pytest.mark.parametrize("text,action,item", [
+    ("remove my chairs", "remove", ("chair", 0)), ("remove all of my chairs", "remove", ("chair", 0)),
+    ("get rid of my chairs", "remove", ("chair", 0)), ("remove my couch", "remove", ("couch", 1)),
+    ("put my couch next to the tv", "move", ("couch", 1)), ("put my chairs around the table", "move", ("chair", 0)),
+    ("make my chairs face the tv", "rotate", ("chair", 0)), ("bring my chairs over here", "move", ("chair", 0)),
+    ("stack my crates", "rearrange", ("crate", 0)), ("line up my chairs", "rearrange", ("chair", 0)),
+    ("spread my chairs out", "rearrange", ("chair", 0)), ("move my chairs next to the table", "move", ("chair", 0)),
+    ("turn my chairs to face the tv", "rotate", ("chair", 0)), ("push my bed into the corner", "move", ("bed", 1)),
+    ("put my lamp on my desk", "move", ("floor lamp", 1)),
+])
+def test_my_names_what_already_stands(parse, text, action, item):
+    req = one(parse, text)
+    assert req["action"] == action and kinds(req) == [item] and req["items"][0]["definite"], (text, req["action"], kinds(req))
+
+
+def test_my_is_not_a_new_thing(parse):
+    assert one(parse, "my couch is ugly")["action"] == "none"
+    assert one(parse, "clear my room")["action"] == "clear" and one(parse, "clear our room")["action"] == "clear"
+    assert one(parse, "undo my last action")["action"] == "undo"
+    req = one(parse, "put a lamp on my desk")
+    assert req["action"] == "add" and kinds(req) == [("desk lamp", 1)] and req["target"] == "desk"
+
+
+def test_my_chairs_in_the_planner(lab):
+    seeded(lab, "four chairs")
+    play(lab, "remove my chairs")
+    assert standing(lab) == {}, "all four, not the default three"
+    seeded(lab, "a couch", "a lamp")
+    res = play(lab, "put my couch next to the lamp")
+    assert standing(lab) == {"couch": 1, "floor lamp": 1} and res[0]["action"] == "move", "the couch is moved, not duplicated"
+    seeded(lab, "four chairs", "a table")
+    play(lab, "put my chairs around the table")
+    assert standing(lab) == {"chair": 4, "table": 1}
+
+
+# ---- "i dont want X <where or how>" is not "remove X"
+@pytest.mark.parametrize("text", [
+    "i dont want the couch by the window", "i don't want the couch by the window", "i dont want the couch to face the tv",
+    "i dont want the couch facing the wall", "i dont want the couch there", "i dont like the couch there", "i dont like the couch",
+    "i dont like it", "i dont want it by the window", "i dont want it facing the tv", "i dont want the couch next to the table",
+    "i dont want the couch in the corner", "i dont want the tv that close", "i dont want the couch so close to the tv",
+    "i dont want the lamp on the table", "i dont want the chairs around the table", "i dont want the couch here",
+    "i dont want the couch because it is ugly", "i no longer like the couch", "we dont like the lamp",
+])
+def test_i_dont_want_it_somewhere_is_not_a_removal(parse, text):
+    req = one(parse, text)
+    assert req["action"] == "none" and not req["items"], (text, req["action"], kinds(req))
+
+
+@pytest.mark.parametrize("text,item", [
+    ("i dont want the couch", ("couch", 1)), ("i dont want the couch anymore", ("couch", 1)), ("i dont need the lamp anymore", ("floor lamp", 1)),
+    ("i dont want the chairs anymore", ("chair", 0)), ("i dont want the ugly couch", ("couch", 1)), ("we dont want the couch", ("couch", 1)),
+    ("i no longer want the couch", ("couch", 1)), ("i dont want the old wooden table anymore", ("table", 1)),
+])
+def test_i_dont_want_the_thing_still_removes_it(parse, text, item):
+    req = one(parse, text)
+    assert req["action"] == "remove" and kinds(req) == [item], text
+
+
+def test_i_dont_want_it_there_keeps_the_room(lab):
+    for text in ["i dont want the couch by the window", "i dont want the couch to face the tv", "i dont like the couch"]:
+        seeded(lab, "a couch", "a tv")
+        play(lab, text)
+        assert standing(lab) == {"couch": 1, "tv": 1}, (text, standing(lab))
+
+
+# ---- what the parser says about a room without something (the planner reads req.exclude)
+@pytest.mark.parametrize("text,scene,exclude", [
+    ("a living room without the tv", "living room", ["tv"]), ("a living room with no tv", "living room", ["tv"]),
+    ("a bedroom but no bed", "bedroom", ["bed"]), ("a kitchen without a fridge", "kitchen", ["fridge"]),
+    ("a living room except the tv", "living room", ["tv"]), ("a living room sans tv", "living room", ["tv"]),
+    ("a kitchen without the fridge and the stove", "kitchen", ["fridge", "stove"]),
+    ("a living room without the tv or the lamp", "living room", ["tv", "floor lamp"]),
+    ("a living room and leave out the tv", "living room", ["tv"]), ("a living room and omit the plant", "living room", ["plant"]),
+    ("a living room that doesn't have a tv", "living room", ["tv"]), ("a dining room but no table", "dining room", ["table"]),
+    ("a living room with no tv and no lamp", "living room", ["tv", "floor lamp"]),
+])
+def test_a_room_without_a_thing_names_it_in_exclude_and_does_not_add_it(parse, text, scene, exclude):
+    req = one(parse, text)
+    assert req["scene"] == scene and sorted(req["exclude"]) == sorted(exclude) and not req["items"], (text, req["exclude"], kinds(req))
+
+
+def test_a_room_without_a_thing_keeps_the_rest_it_asks_for(parse):
+    req = one(parse, "a bedroom with a bed but no wardrobe")
+    assert kinds(req) == [("bed", 1)] and req["exclude"] == ["wardrobe"]
+    req = one(parse, "a living room without the tv and a plant in the corner")
+    assert kinds(req) == [("plant", 1)] and req["exclude"] == ["tv"] and req["arrangement"] == "corner"
+
+
+# ---- "a table with four chairs and a lamp on it": the relation is about the lamp alone
+@pytest.mark.parametrize("text,second,arr,target", [
+    ("add a table with four chairs and a lamp on it", [("desk lamp", 1)], "on", "table"),
+    ("add a table with four chairs and a plant next to it", [("plant", 1)], "beside", "table"),
+    ("add a desk with a chair and a computer on it", [("computer", 1)], "on", "desk"),
+    ("add a table with four chairs and put a lamp on it", [("desk lamp", 1)], "on", "table"),
+    ("add a table with four chairs and put a plant next to it", [("plant", 1)], "beside", "table"),
+    ("a table, four chairs and a lamp on it", [("desk lamp", 1)], "on", "table"),
+])
+def test_a_relation_after_a_list_belongs_to_the_last_thing_only(parse, text, second, arr, target):
+    reqs = parse.parse_all(text)
+    assert len(reqs) == 2, (text, [(r["action"], kinds(r)) for r in reqs])
+    assert reqs[0]["arrangement"] == "unspecified" and len(reqs[0]["items"]) == 2, "the chairs are not placed by the lamp's words"
+    assert kinds(reqs[1]) == second and reqs[1]["arrangement"] == arr and reqs[1]["target"] == target, (text, reqs[1]["target"])
+
+
+def test_the_chairs_of_a_table_are_not_put_on_it(lab):
+    for text, top in [("add a table with four chairs and a lamp on it", "desk lamp"), ("add a desk with a chair and a computer on it", "computer")]:
+        seeded(lab)
+        play(lab, text)
+        high = [e for e in lab.registry if e["kind"] == top]
+        chairs = [e for e in lab.registry if e["kind"] == "chair"]
+        assert len(high) == 1 and high[0]["z"] > 20, (text, high)
+        assert chairs and all(c["z"] < 1 for c in chairs), (text, [c["z"] for c in chairs])
+
+
+def test_listing_without_a_pointer_back_is_still_one_request(parse):
+    assert len(parse.parse_all("add a table and put four chairs around it")) == 1
+    assert len(parse.parse_all("a couch and a lamp next to it")) == 1
+    assert len(parse.parse_all("a couch, a table and a lamp in front of the tv")) == 1
+
+
+def test_the_new_clause_readers_stay_linear(parse):
+    """Keep clauses, hedges, 'that isnt', 'else', 'i dont want', 'without' lists and 'with' lists on the longest input the parser reads."""
+    for pattern in ["remove the couch and keep the chairs, ", "keep ", "basically honestly literally ", "you need to ", "remove everything that isnt the couch and ",
+                    "add a table and remove everything else. ", "i dont want the couch by the window and ", "a living room without the tv and the lamp and ",
+                    "a table with four chairs and a lamp on it and ", "remove everything that is red and that is blue ", "remove my chairs and my couch "]:
+        t0 = time.perf_counter()
+        for _ in range(20):
+            parse.parse_all(pattern * 400)
+        assert (time.perf_counter() - t0) / 20 < 0.1, pattern
+
+
+@pytest.mark.parametrize("text", ["you cannot remove the couch", "you shouldnt remove the lamp", "you wont remove the lamp",
+                                  "you mustnt remove the lamp", "you dont need to remove the lamp"])
+def test_a_negated_modal_before_a_removal_is_a_refusal(parse, text):
+    assert one(parse, text)["action"] == "none", text
+
+
+@pytest.mark.parametrize("text", ["remove everything thats red", "remove everything that is red", "remove everything which is big",
+                                  "delete anything that is blue", "remove everything that is next to the tv", "remove the chairs that are broken"])
+def test_a_description_that_picks_some_out_never_clears_everything(parse, text):
+    reqs = parse.parse_all(text)
+    assert [r["action"] for r in reqs] == ["none"], (text, [(r["action"], kinds(r)) for r in reqs])
+
+
+def test_a_colour_after_that_are_is_a_colour(parse):
+    req = one(parse, "remove the chairs that are red")
+    assert req["action"] == "remove" and kinds(req) == [("chair", 0)] and req["items"][0]["adjectives"] == ["red"]
+
+
+@pytest.mark.parametrize("text,second", [("add a couch and delete the others", ("add", [("couch", 1)])),
+                                         ("add two chairs, clear the rest", ("add", [("chair", 2)]))])
+def test_the_others_after_an_add_are_what_stood_before(parse, text, second):
+    reqs = parse.parse_all(text)
+    assert [r["action"] for r in reqs] == ["clear", second[0]] and kinds(reqs[1]) == second[1], text
+
+
+@pytest.mark.parametrize("text", ["it would be great if you could remove the lamp", "what i want is for you to get rid of the couch",
+                                  "so basically what i need is for you to remove the lamp"])
+def test_a_polite_frame_before_a_removal_is_still_a_removal(parse, text):
+    req = one(parse, text)
+    assert req["action"] == "remove" and len(req["items"]) == 1 and req["items"][0]["definite"], text

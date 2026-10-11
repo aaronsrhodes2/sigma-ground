@@ -8,7 +8,8 @@ stressed, messy and compound sentences the first corpus does not cover. Its case
     "sequence": [ {...}, {...} ]       the requests parse_all() must return, in order (compound sentences)
 and, on any expected request, these optional checks: "exclude", "facing", "facing_away", "shape", "seats", "every", "rows", "cols",
 "unknown_verb", "truncated", "notes_contain" (a substring of some note), "unknown" (the unknown words). An item may give "count": null
-(any count) or "count_min"; "arrangement" and "target" may be left out (not checked)."""
+(any count) or "count_min", and "definite": true / false (does it name a thing already standing: "the couch", "my chairs"); "arrangement"
+and "target" may be left out (not checked)."""
 from __future__ import annotations
 
 import argparse
@@ -96,6 +97,8 @@ def _match_items(exp_items: list[dict], got_items: list[dict]) -> str | None:
         for g in remaining:
             if g["kind"] != e["noun"]:
                 continue
+            if "definite" in e and bool(g.get("definite")) != bool(e["definite"]):
+                continue                      # an item may say that it names a thing already standing ("my couch"), or a new one
             ec = e.get("count", None)
             if ec is None and "count" in e and e.get("count_min") is None:
                 hit = g
