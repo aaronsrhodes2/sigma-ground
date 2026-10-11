@@ -2,7 +2,10 @@
  "category": "earphone",
  "aliases": [
   "headphones",
-  "earbuds"
+  "earbuds",
+  "headphone",
+  "earphones",
+  "earbud"
  ],
  "source_anno_id": "10982",
  "n_parts": 5,

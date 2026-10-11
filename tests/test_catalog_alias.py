@@ -75,6 +75,11 @@ _ALIASES = {
     "cabinet": ["bookcase", "bookshelf", "book shelf", "wardrobe", "closet", "armoire", "shelf"],
     "monitor": ["tv", "television"],
     "vase": ["plant", "houseplant", "potted plant", "flower pot"],
+    "bed": ["bed frame"],
+    "microwave": ["microwave oven"],
+    "laptop": ["laptop computer", "notebook computer"],
+    "refrigerator": ["fridge freezer"],
+    "earphone": ["headphone", "earphones", "earbud"],
 }
 
 
@@ -105,3 +110,21 @@ def test_an_alias_does_not_steal_a_longer_or_head_matching_name():
     """'a closet door' is a door (head noun), not a cabinet; 'a plant pot' is still a pot."""
     assert {e[4] for e in exemplar._category_pool("a closet door")} == {e[4] for e in exemplar._category_pool("a door")}
     assert {e[4] for e in exemplar._category_pool("a plant pot")} == {e[4] for e in exemplar._category_pool("a pot")}
+
+
+def test_distill_partnet_mirrors_the_shipped_exemplar_aliases():
+    """tools/distill_partnet.py re-creates the exemplar files; its alias lists must equal the shipped ones, or the
+    next distillation silently drops an alias."""
+    import importlib.util
+    import json
+    import pathlib
+    p = pathlib.Path(__file__).resolve().parents[1] / "tools" / "distill_partnet.py"
+    spec = importlib.util.spec_from_file_location("distill_partnet_alias_sync", p)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    for _pn, (name, aliases) in m._CATEGORIES.items():
+        f = exemplar._DIR / f"{name.replace(' ', '_')}.json"
+        if not f.exists():                                       # a category with no shipped exemplar (keyboard)
+            continue
+        have = json.loads(f.read_text(encoding="utf-8"))["aliases"]
+        assert sorted(have) == sorted(aliases), f"{name}: shipped {have} vs distill_partnet {aliases}"

@@ -1,7 +1,8 @@
 {
  "category": "refrigerator",
  "aliases": [
-  "fridge"
+  "fridge",
+  "fridge freezer"
  ],
  "source_anno_id": "13244",
  "n_parts": 8,

@@ -24,21 +24,37 @@ local cv_content = CreateConVar("holodeck_content", "all", FCVAR_ARCHIVE, "all =
 
 H.parse_mod, H.plan_mod, H.layout, H.library = Parse, Plan, Layout, Library
 
+--- Where a model stands in the CURRENT variant list of a kind: its index and variant, or nil when the library no longer has it.
+--- The one place a model becomes an index, so a stale index can never name a different variant.
+local function find_variant(kind_id, model)
+  local k = H.catalog and H.catalog.kinds[kind_id]
+  if k and model then
+    for vi, v in ipairs(k.variants) do
+      if v.model == model then return vi, v end
+    end
+  end
+  return nil
+end
+
+--- Does the engine on this server still have this model (whatever the library says about it)?
+local function model_present(model)
+  if not model then return false end
+  local ok, valid = pcall(util.IsValidModel, model)
+  return ok and valid and true or false
+end
+
 --- (Re)build the parser and planner over the models this server can actually show.
 function H.BuildLibrary()
   local filtered, report = Library.filter(raw_catalog, util.IsValidModel, { hl2_only = cv_content:GetString() == "hl2" })
   H.catalog, H.library_report = filtered, report
   H.parser = Parse.new(filtered)
   H.planner = Plan.new(filtered)
-  -- things already standing keep their model; find it again in the (possibly different) variant list
+  -- things already standing keep their model; find it again in the (possibly different) variant list. One whose model left the
+  -- library stays LEGACY: no index (the old one would name another variant of the new list), but it keeps the variant it was
+  -- built from, which is all that moving, turning and removing it need.
   for _, e in pairs(H.registry or {}) do
-    local k = filtered.kinds[e.kind]
-    e.legacy = true
-    if k then
-      for vi, v in ipairs(k.variants) do
-        if v.model == e.model then e.vi, e.variant, e.legacy = vi, v, nil; break end
-      end
-    end
+    local vi, v = find_variant(e.kind, e.model)
+    if v then e.vi, e.variant, e.legacy = vi, v, nil else e.vi, e.legacy = nil, true end
   end
   MsgC(Color(0, 255, 136), "[holodeck] ", Color(255, 255, 255), report.kept .. " of " .. report.total .. " catalog models are available here, " ..
        #filtered.order .. " kinds" .. (#report.lost_kinds > 0 and (" (no model at all for: " .. table.concat(report.lost_kinds, ", ") .. ")") or "") .. "\n")
@@ -52,10 +68,12 @@ H.last_group = H.last_group or {}        -- player key -> ids of what they made 
 H.absent = H.absent or {}                -- player key -> CurTime() when they left
 H.next_ok = H.next_ok or {}              -- player key -> CurTime() before which they may not ask again
 H.agent_busy = H.agent_busy or {}        -- player key -> true while the agent is thinking about their last request
-H.prev_req = H.prev_req or {}            -- player key -> their previous request (for "another one", "again")
+H.prev_req = H.prev_req or {}            -- player key -> their previous request (for "it" and the like)
+H.last_add = H.last_add or {}            -- player key -> the last request of theirs that really added something (for "another one", "again")
 local function IsValidPlayer(ply) return ply ~= nil and IsValid(ply) and ply:IsPlayer() end
 H.BuildLibrary()
 H.pending = 0              -- spawns still scheduled
+H.pending_spawns = H.pending_spawns or {}   -- entry id -> { owner =, run = fn } for props whose turn has not come yet
 H.log = H.log or {}
 H.debug = true
 
@@ -67,8 +85,10 @@ local cv_max = CreateConVar("holodeck_max_ents", "400", FCVAR_ARCHIVE, "Most pro
 local cv_admin = CreateConVar("holodeck_admin_only", "0", FCVAR_ARCHIVE, "1 = only admins may use the holodeck")
 local cv_stagger = CreateConVar("holodeck_stagger", "0.05", FCVAR_ARCHIVE, "Seconds between one prop appearing and the next")
 local cv_wake = CreateConVar("holodeck_need_wake", "1", FCVAR_ARCHIVE, "1 = chat and voice need the wake word (Skippy); the console never does")
-local cv_bridge = CreateConVar("holodeck_bridge", "", FCVAR_ARCHIVE + FCVAR_PROTECTED, "Skippy bridge URL, e.g. http://127.0.0.1:8765 (empty = no agent and no voice)")
-local cv_token = CreateConVar("holodeck_bridge_token", "", FCVAR_ARCHIVE + FCVAR_PROTECTED + FCVAR_DONTRECORD, "shared token for the Skippy bridge")
+local cv_bridge = CreateConVar("holodeck_bridge", "", FCVAR_ARCHIVE + FCVAR_PROTECTED, "Skippy bridge URL, e.g. http://127.0.0.1:8777 (empty = no agent and no voice)")
+-- A secret: deliberately NOT FCVAR_ARCHIVE. An archived convar is written to the game's server.vdf, so a token that was rotated or
+-- revoked would stay on disk for ever. Set it at each start (server.cfg, launch line or the launcher) and it lives in memory only.
+local cv_token = CreateConVar("holodeck_bridge_token", "", FCVAR_PROTECTED + FCVAR_DONTRECORD, "shared token for the Skippy bridge (never saved to disk)")
 local cv_agent = CreateConVar("holodeck_agent", "1", FCVAR_ARCHIVE, "0 = never ask the agent, 1 = ask when the words build nothing, 2 = ask for every request to add things")
 local cv_agent_destructive = CreateConVar("holodeck_agent_destructive", "0", FCVAR_ARCHIVE, "1 = the agent may also remove, move and clear (default: it may only add)")
 local cv_persona = CreateConVar("holodeck_persona", "1", FCVAR_ARCHIVE, "1 = Skippy answers in his own words (through the bridge), else a plain sentence")
@@ -99,22 +119,40 @@ end
 
 local function player_key(ply) return IsValidPlayer(ply) and ply:SteamID64() or "console" end
 
+--- The connected player a registry owner key names, or nil (left, or the console).
+local function player_of(key)
+  if not key or key == "console" then return nil end
+  for _, p in ipairs(player.GetAll()) do
+    if p:SteamID64() == key then return p end
+  end
+  return nil
+end
+
 --- A refilling allowance: `cap` units at most, `rate` units back per second.
 local function bucket(cap, rate) return { cap = cap, rate = rate, tokens = cap, t = SysTime() } end
-local function take(b, n)
+local function refill(b)
   local now = SysTime()
   b.tokens = math.min(b.cap, b.tokens + (now - b.t) * b.rate)
   b.t = now
+end
+local function take(b, n)
+  refill(b)
   if b.tokens >= n then b.tokens = b.tokens - n; return true end
   return false
 end
 
+-- Every allowance has two layers: each player's own share (a refusal there stops that player alone) and a global ceiling for
+-- the whole server. The shares are small enough that the players who stay inside theirs can never empty the ceiling.
 local global_calls, global_chars, planner_cpu = bucket(12, 0.4), bucket(1800, 30), bucket(0.4, 0.1)
+local PLAYER_CPU_CAP, PLAYER_CPU_RATE = 0.15, 0.02      -- seconds of planning a player may bank, and get back per second
+local PLAYER_CALLS_CAP, PLAYER_CALL_SHARE = 3, 8         -- bridge calls a player may bank; a player's rate is the server's / 8
 H.player_buckets = H.player_buckets or {}
+H.inflight_by = H.inflight_by or {}                      -- player key -> bridge calls of theirs waiting for an answer
 local function player_bucket(key, kind)
   local set = H.player_buckets[key]
   if not set then set = {}; H.player_buckets[key] = set end
-  if not set[kind] then set[kind] = kind == "plan" and bucket(3, 1 / 4) or bucket(2, 1 / 8) end
+  kind = kind == "cpu" and "cpu" or "bridge"
+  if not set[kind] then set[kind] = kind == "cpu" and bucket(PLAYER_CPU_CAP, PLAYER_CPU_RATE) or bucket(PLAYER_CALLS_CAP, 1 / 20) end
   return set[kind]
 end
 
@@ -140,7 +178,10 @@ local function bridge_allow(kind, ply, chars)
   if H.thinking >= cv_inflight:GetInt() then return false end
   local mine
   if IsValidPlayer(ply) and not manages_all(ply) then
-    mine = player_bucket(player_key(ply), kind)
+    local key = player_key(ply)
+    if (H.inflight_by[key] or 0) >= math.max(1, math.floor(cv_inflight:GetInt() / 2)) then return false end   -- one player cannot fill the queue
+    mine = player_bucket(key, "bridge")
+    mine.cap, mine.rate = PLAYER_CALLS_CAP, cv_calls:GetFloat() / 60 / PLAYER_CALL_SHARE
     if not take(mine, 1) then return false end
   end
   global_calls.cap, global_calls.rate = math.max(2, cv_calls:GetFloat() / 2), cv_calls:GetFloat() / 60
@@ -150,7 +191,11 @@ local function bridge_allow(kind, ply, chars)
   end
   if kind == "speak" then
     global_chars.cap, global_chars.rate = cv_chars:GetFloat(), cv_chars:GetFloat() / 60
-    if not take(global_chars, chars or 0) then return false end
+    if not take(global_chars, chars or 0) then
+      global_calls.tokens = global_calls.tokens + 1
+      if mine then mine.tokens = mine.tokens + 1 end
+      return false
+    end
   end
   return true
 end
@@ -160,8 +205,15 @@ H.thinking = 0             -- bridge calls in flight
 local function bridge_post(path, tbl, ok, fail, timeout)
   if bridge_url() == "" then return false end
   H.thinking = H.thinking + 1
+  local who = tbl and tbl.who
+  if who then H.inflight_by[who] = (H.inflight_by[who] or 0) + 1 end
   local finished = false
-  local function settle() if not finished then finished = true; H.thinking = math.max(0, H.thinking - 1) end end
+  local function settle()
+    if finished then return end
+    finished = true
+    H.thinking = math.max(0, H.thinking - 1)
+    if who then H.inflight_by[who] = math.max(0, (H.inflight_by[who] or 1) - 1); if H.inflight_by[who] == 0 then H.inflight_by[who] = nil end end
+  end
   local sent = HTTP({
     url = bridge_url() .. path, method = "POST", type = "application/json", body = util.TableToJSON(tbl),
     headers = { ["X-Skippy-Token"] = cv_token:GetString() }, timeout = timeout or 20,
@@ -268,6 +320,7 @@ function H.Tell(ply, text)
     net.Start("holodeck_say")
     net.WriteString(text)
     net.WriteString("")
+    net.WriteUInt(0, 32)
     net.Send(ply)
   end
 end
@@ -287,6 +340,9 @@ function H.Say(ply, text, pos, opts)
     net.Start("holodeck_say")
     net.WriteString(text)
     net.WriteString(IsValidPlayer(ply) and clean_text(ply:Nick(), 24) or "")
+    -- who asked, as a number: the client decides "is this my own line" by it, never by comparing names (a name is changed by
+    -- clean_text, so the two sides disagreed for double spaces, long non-ASCII names and the like)
+    net.WriteUInt(IsValidPlayer(ply) and ply:UserID() or 0, 32)
     net.Send(targets)
   end
   hook.Run("HolodeckSaid", ply, text)
@@ -294,7 +350,7 @@ function H.Say(ply, text, pos, opts)
 end
 
 -- ------------------------------------------------------------------------------------------------ the world, as the planner asks about it
-local MASK = MASK_SOLID_BRUSHONLY
+local MASK = MASK_SOLID_BRUSHONLY      -- walls: the map's own brushes (see wall_probe)
 
 --- What blocks a footprint besides the world: players (alive, walking), NPCs, ragdolls and other people's props. The holodeck's
 --- own props are the registry's business, so they never block here (a chair may sit under its table).
@@ -304,10 +360,28 @@ local function blocks(ent)
   return true
 end
 
+--- What counts as GROUND (and as a ceiling) for the floor and ceiling probes: the map's own brushes and brush entities, plus a
+--- prop somebody froze (a platform, a floor built of props). With the old brush-only mask a requester standing ON props was
+--- planned onto the world floor far below. Not ground: players, NPCs, ragdolls, loose (unfrozen) props, the holodeck's own props
+--- (the registry plans those) and anything else lying around (weapons, items): a stray crate is not a floor. Deliberately NOT
+--- `blocks`, which says yes to a living player, so a probe down through a person would land on their head.
+local function ground(ent)
+  if ent.IsWorld and ent:IsWorld() then return true end
+  if ent.HolodeckId then return false end
+  if ent.IsPlayer and ent:IsPlayer() then return false end
+  if (ent.IsNPC and ent:IsNPC()) or (ent.IsNextBot and ent:IsNextBot()) then return false end
+  local class = ent.GetClass and ent:GetClass() or ""
+  if class:sub(1, 12) == "prop_physics" then
+    local po = ent.GetPhysicsObject and ent:GetPhysicsObject()
+    return po ~= nil and po ~= false and IsValid(po) and po.IsMotionEnabled ~= nil and not po:IsMotionEnabled()
+  end
+  return class:sub(1, 5) == "func_"
+end
+
 local function make_env(origin_z)
   local env = {}
   function env.floor_z(x, y)
-    local tr = util.TraceLine({ start = Vector(x, y, origin_z + 48), endpos = Vector(x, y, origin_z - 700), mask = MASK })
+    local tr = util.TraceLine({ start = Vector(x, y, origin_z + 48), endpos = Vector(x, y, origin_z - 700), mask = MASK_SOLID, filter = ground })
     if tr.StartSolid or not tr.Hit or tr.HitNormal.z < 0.7 or tr.HitSky then return nil end
     return tr.HitPos.z
   end
@@ -324,10 +398,13 @@ local function make_env(origin_z)
   end
   --- How high the room is above z at (x, y): the absolute height of the ceiling, or nil outdoors (the planner limits piles by it).
   function env.ceiling_z(x, y, z)
-    local tr = util.TraceLine({ start = Vector(x, y, z + 3), endpos = Vector(x, y, z + 600), mask = MASK })
+    local tr = util.TraceLine({ start = Vector(x, y, z + 3), endpos = Vector(x, y, z + 600), mask = MASK_SOLID, filter = ground })
     if not tr.Hit or tr.StartSolid or tr.HitSky then return nil end
     return tr.HitPos.z
   end
+  -- Walls stay brush-only on purpose: a wall is a big, continuous surface, and the planner snaps furniture to it ("against the
+  -- wall"). A frozen prop is not that (a stray frozen lamp would pull a couch to it); the clearance hull already keeps new things
+  -- out of other people's props. The ray runs at the probed floor's height, so on a platform it still reaches the room's walls.
   function env.wall_probe(x, y, dx, dy, maxd)
     local fz = env.floor_z(x, y) or origin_z
     local a = Vector(x, y, fz + 30)
@@ -377,12 +454,27 @@ local function resync()
   end
 end
 
+--- The variant index the PLANNER is told for a standing thing. A legacy one (its model left the library) has none of its own; the
+--- planner needs some index of the kind to name it, move it and count it, and its stored footprint (x, y, w, d, h, theta) does the
+--- rest, so it is given the variant of that kind closest to its size. The registry itself never takes this index.
+local function planner_vi(e)
+  if not e.legacy then return e.vi end
+  local k = H.catalog.kinds[e.kind]
+  if not k then return nil end
+  local best, best_err = nil, math.huge
+  for vi, v in ipairs(k.variants) do
+    local err = math.abs((v.w or 0) - (e.w or 0)) + math.abs((v.d or 0) - (e.d or 0)) + math.abs((v.h or 0) - (e.h or 0))
+    if err < best_err then best, best_err = vi, err end
+  end
+  return best
+end
+
 local function registry_list(owner)
   local out = {}
   for _, id in ipairs(H.order) do
     local e = H.registry[id]
     if e and (not owner or e.owner == owner) then
-      out[#out + 1] = { id = e.id, kind = e.kind, vi = e.vi, x = e.x, y = e.y, z = e.z, theta = e.theta, w = e.w, d = e.d, h = e.h,
+      out[#out + 1] = { id = e.id, kind = e.kind, vi = planner_vi(e), x = e.x, y = e.y, z = e.z, theta = e.theta, w = e.w, d = e.d, h = e.h,
                         color_name = e.color_name, group = e.group, seq = e.seq, owner = e.owner, tilted = e.tilted, legacy = e.legacy }
     end
   end
@@ -474,7 +566,13 @@ local function player_inside(ent)
   return false
 end
 
-local function spawn_prop(entry, fade, owner_ply)
+--- Set one registered thing free once nobody stands in it. Never solidifies around a person: it waits (passable) and says so,
+--- and if somebody simply stays for minutes the prop is taken down instead.
+local WAIT_FAST, WAIT_SLOW, WAIT_GIVE_UP = 20, 145, 20 + 145     -- polls: 20 x 0.5 s, then 145 x 2 s (about five minutes)
+
+local remove_entry                                                       -- defined below
+
+local function spawn_prop(entry, fade)
   local ent = ents.Create("prop_physics")
   if not IsValid(ent) then return nil end
   ent:SetModel(entry.model)
@@ -484,6 +582,7 @@ local function spawn_prop(entry, fade, owner_ply)
   ent:Activate()
   if not IsValid(ent) then return nil end
   ent.HolodeckId = entry.id
+  local owner_ply = player_of(entry.owner)                               -- the owner, never whoever pressed undo
   if IsValid(owner_ply) then
     if ent.SetCreator then ent:SetCreator(owner_ply) end
     if ent.CPPISetOwner then ent:CPPISetOwner(owner_ply) end             -- prop-protection addons treat it as the player's own
@@ -497,10 +596,24 @@ local function spawn_prop(entry, fade, owner_ply)
   end
   if fade then fade_in(ent, entry.color, 0.5)
   elseif entry.color then ent:SetColor(Color(entry.color[1], entry.color[2], entry.color[3])) end
-  local tries = 0
+  local waited = 0
   local function release()
     if not IsValid(ent) then return end
-    if tries < 20 and player_inside(ent) then tries = tries + 1; timer.Simple(0.5, release); return end   -- wait for them to step out
+    if player_inside(ent) then
+      waited = waited + 1
+      if waited == WAIT_FAST then
+        local o = player_of(entry.owner)
+        if o then H.Tell(o, "Something of yours stays see-through while someone stands in it. It turns solid when they step out.") end
+      end
+      if waited >= WAIT_GIVE_UP then                                     -- someone parked in it: take the prop down, never set it solid around them
+        local o = player_of(entry.owner)
+        if o then H.Tell(o, "I took down a thing of yours because someone kept standing in it.") end
+        if H.registry[entry.id] == entry then remove_entry(entry, true) else ent:Remove() end
+        return
+      end
+      timer.Simple(waited < WAIT_FAST and 0.5 or 2, release)
+      return
+    end
     ent:SetCollisionGroup(COLLISION_GROUP_NONE)
     local p2 = ent:GetPhysicsObject()
     if IsValid(p2) then p2:EnableMotion(true); p2:Wake() end
@@ -521,10 +634,20 @@ local function register(pl, group, ply)
   local id = pl.rid
   if not id or H.registry[id] then id = H.next_id end
   if id >= H.next_id then H.next_id = id + 1 end
+  -- The variant comes from the MODEL, looked up in the library as it is now: an index saved earlier (an undo snapshot) can name a
+  -- different variant, or none, once the library was rebuilt. A model the library no longer has stays legacy: no index, and the
+  -- variant it was built from (carried by the snapshot) for its footprint math and mass.
+  local vi, variant, legacy
+  if pl.model then
+    vi, variant = find_variant(pl.kind, pl.model)
+    if not variant then variant, legacy = pl.variant, true end
+  else
+    vi, variant = pl.vi, H.catalog.kinds[pl.kind] and H.catalog.kinds[pl.kind].variants[pl.vi]
+  end
   local entry = {
-    id = id, kind = pl.kind, vi = pl.vi, model = pl.model, x = pl.x, y = pl.y, z = pl.z, theta = pl.theta, w = pl.w, d = pl.d, h = pl.h,
+    id = id, kind = pl.kind, vi = vi, model = pl.model, x = pl.x, y = pl.y, z = pl.z, theta = pl.theta, w = pl.w, d = pl.d, h = pl.h,
     origin = pl.origin, yaw = pl.yaw, color = pl.color, color_name = pl.color_name, group = group, seq = pl.seq or H.seq,
-    owner = pl.owner or player_key(ply), variant = H.catalog.kinds[pl.kind] and H.catalog.kinds[pl.kind].variants[pl.vi],
+    owner = pl.owner or player_key(ply), variant = variant, legacy = legacy,
   }
   H.registry[id] = entry
   local at = #H.order + 1
@@ -547,7 +670,7 @@ hook.Add("EntityRemoved", "Holodeck.Forget", function(ent)
   if id and H.registry[id] and H.registry[id].ent == ent then unregister(id) end
 end)
 
-local function remove_entry(entry, fade)
+function remove_entry(entry, fade)
   local ent = entry.ent
   unregister(entry.id)
   if IsValid(ent) then
@@ -571,119 +694,262 @@ end
 local function snapshot(entry)
   return { rid = entry.id, owner = entry.owner, seq = entry.seq, kind = entry.kind, vi = entry.vi, model = entry.model, x = entry.x, y = entry.y,
            z = entry.z, theta = entry.theta, w = entry.w, d = entry.d, h = entry.h, origin = entry.origin, yaw = entry.yaw, color = entry.color,
-           color_name = entry.color_name, group = entry.group }
+           color_name = entry.color_name, group = entry.group, variant = entry.variant, legacy = entry.legacy }
 end
 
 -- ------------------------------------------------------------------------------------------------ how many may stand
---- Take down what is not in use to make room for `need` more: first the props of players who left, oldest first; then the
---- oldest props of whoever holds more than a fair share of the server's allowance. The requester's own things are never taken.
-local function make_room(ply, need)
-  if cv_max:GetInt() - #H.order >= need then return end
+--- Who would be taken down to make room for `need` more, without taking anyone down: first the props of players who left, oldest
+--- first; then the oldest props of whoever holds more than a fair share of the server's allowance. The requester's own things are
+--- never taken.
+local function eviction_list(ply, need)
+  local cap = cv_max:GetInt()
+  need = math.min(need, cap)
+  local out = {}
+  local free = cap - #H.order
+  if free >= need then return out end
   local mine = player_key(ply)
   local connected, players = {}, player.GetAll()
   for _, p in ipairs(players) do connected[p:SteamID64()] = true end
-  local freed = {}
-  local function take_down(e)
-    freed[e.owner] = (freed[e.owner] or 0) + 1
-    remove_entry(e, true)
-  end
+  local gone = {}
+  local function mark(e) gone[e.id] = true; out[#out + 1] = e; free = free + 1 end
   for _, id in ipairs({ unpack(H.order, 1, math.min(#H.order, 5000)) }) do
-    if cv_max:GetInt() - #H.order >= need then break end
+    if free >= need then return out end
     local e = H.registry[id]
-    if e and e.owner ~= "console" and e.owner ~= mine and not connected[e.owner] then take_down(e) end
+    if e and e.owner ~= "console" and e.owner ~= mine and not connected[e.owner] then mark(e) end
   end
-  local fair = math.max(1, math.floor(cv_max:GetInt() / math.max(1, #players)))
-  while cv_max:GetInt() - #H.order < need do
-    local counts, biggest, most = {}, nil, fair
-    for _, id in ipairs(H.order) do
-      local e = H.registry[id]
-      if e and e.owner ~= "console" and e.owner ~= mine then
-        counts[e.owner] = (counts[e.owner] or 0) + 1
-        if counts[e.owner] > most then biggest, most = e.owner, counts[e.owner] end
-      end
+  local fair = math.max(1, math.floor(cap / math.max(1, #players)))
+  local counts, seq = {}, {}
+  for _, id in ipairs(H.order) do
+    local e = H.registry[id]
+    if e and not gone[id] and e.owner ~= "console" and e.owner ~= mine then
+      if not counts[e.owner] then counts[e.owner] = 0; seq[#seq + 1] = e.owner end
+      counts[e.owner] = counts[e.owner] + 1
+    end
+  end
+  while free < need do
+    local biggest, most = nil, fair
+    for _, owner in ipairs(seq) do
+      if counts[owner] > most then biggest, most = owner, counts[owner] end
     end
     if not biggest then break end
     for _, id in ipairs(H.order) do
       local e = H.registry[id]
-      if e and e.owner == biggest then take_down(e); break end
+      if e and e.owner == biggest and not gone[id] then mark(e); break end
     end
+    counts[biggest] = counts[biggest] - 1
+  end
+  return out
+end
+
+local function make_room(ply, need)
+  local victims = eviction_list(ply, need)
+  if #victims == 0 then return end
+  local freed = {}
+  for _, e in ipairs(victims) do
+    freed[e.owner] = (freed[e.owner] or 0) + 1
+    remove_entry(e, true)
   end
   for owner, n in pairs(freed) do
-    for _, p in ipairs(players) do
-      if p:SteamID64() == owner then H.Tell(p, "I took down " .. n .. " of your things to make room for someone else.") end
-    end
+    local p = player_of(owner)
+    if p then H.Tell(p, "I took down " .. n .. " of your things to make room for someone else.") end
   end
 end
 
---- How many more things this player may add right now, and which limit is the tight one ("player" or "server").
-local function room_for(ply, want)
-  if want then make_room(ply, want) end
-  local room, which = cv_max:GetInt() - entity_count(), "server"
-  if IsValidPlayer(ply) and not manages_all(ply) then
-    local left = cv_per_player:GetInt() - owner_count(ply:SteamID64())
-    if left < room then room, which = left, "player" end
+--- How many things this player may still add under their own limit (managers and the console have none).
+local function personal_left(ply)
+  if not IsValidPlayer(ply) or manages_all(ply) then return math.huge end
+  return cv_per_player:GetInt() - owner_count(ply:SteamID64())
+end
+
+local ENGINE_ENTS = 7900     -- the engine's entity table holds 8192; stay clear of it
+
+--- Room the engine itself still has (when it can say), so a request is not promised props the engine will refuse.
+local function engine_room()
+  if ents.GetCount then
+    local ok, n = pcall(ents.GetCount)
+    if ok and tonumber(n) then return ENGINE_ENTS - n end
   end
+  return math.huge
+end
+
+--- How many more things this player may add right now, and which limit is the tight one ("player" or "server"). `want` is the
+--- number that will really be built: only for that many is anyone else's work taken down (dry = just ask, take down nothing).
+local function room_for(ply, want, dry)
+  local left = personal_left(ply)
+  local n = want and math.min(want, left) or 0
+  local free = cv_max:GetInt() - entity_count()
+  if n > 0 and free < n then
+    if dry then free = free + #eviction_list(ply, n) else make_room(ply, n); free = cv_max:GetInt() - entity_count() end
+  end
+  free = math.min(free, engine_room())
+  local room, which = free, "server"
+  if left <= room then room, which = left, "player" end
   return math.max(room, 0), which
 end
 
---- The server's own rules about spawning props (jails, spawn bans, prop protection blocklists) apply to the holodeck too.
+--- The server's own rules about spawning props (jails, spawn bans, prop protection blocklists, the gamemode's own refusals and
+--- sbox_maxprops) apply to the holodeck too. Asked the way the engine asks its own spawn path: registered hooks first (the first
+--- answer that is not nil wins), then the gamemode's function. `hook.Run` is that (`hook.Call` with the active gamemode); with a
+--- nil gamemode `hook.Call` returns before GAMEMODE:PlayerSpawnProp, which is where Sandbox keeps its prop limit and DarkRP-style
+--- gamemodes keep their jail rules. Only an explicit `false` is a veto: a gamemode without such a function (TTT and the like) does
+--- not forbid anything, and `gamemode.Call` would answer false for it. Nothing here may throw.
+--- The answer is asked once per MODEL of a request, not once per prop: the holodeck's props are not registered with the player's
+--- sandbox counts (AddCount), so the count a rule sees does not move while we build, and one refusal is one notice, not forty.
 local function vetoed(ply, model)
   if not IsValidPlayer(ply) then return false end
-  local ok1, a = pcall(hook.Call, "PlayerSpawnObject", nil, ply, model, 0)
-  local ok2, b = pcall(hook.Call, "PlayerSpawnProp", nil, ply, model)
-  return (ok1 and a == false) or (ok2 and b == false)
+  local ok1, a = pcall(hook.Run, "PlayerSpawnObject", ply, model, 0)
+  local ok2, b = pcall(hook.Run, "PlayerSpawnProp", ply, model)
+  if (ok1 and a == false) or (ok2 and b == false) then return true end
+  -- A gamemode that does not define PlayerSpawnProp never reaches the sandbox limit through the call above, but the player may
+  -- still have sbox_maxprops (their ply:CheckLimit, from the sandbox extension). Asked here ONLY then: where the gamemode
+  -- function exists it already made that check, and a second one would count the same limit twice (and show its notice twice).
+  local gm = GAMEMODE
+  local has_rule = istable(gm) and gm.PlayerSpawnProp ~= nil
+  if not has_rule and not (ok2 and b ~= nil) and isfunction(ply.CheckLimit) then
+    local ok3, c = pcall(ply.CheckLimit, ply, "props")
+    if ok3 and c == false then return true end
+  end
+  return false
+end
+
+--- Is this owner free of the per-player limit? The console, and players who manage everything (admins, the host).
+local function owner_exempt(owner, ply, reqkey)
+  if owner == "console" then return true end
+  if owner == reqkey then return manages_all(ply) end
+  local p = player_of(owner)
+  return p ~= nil and manages_all(p)
+end
+
+--- A batch whose engine spawns failed: forget the missing ids and tell the requester what really stands.
+local function batch_failed(batch)
+  local made = batch.total - batch.failed
+  local st = H.undo_stacks[batch.key]
+  if st then
+    for i = #st, 1, -1 do
+      local op = st[i]
+      if op.type == "add" then
+        local keep = {}
+        for _, id in ipairs(op.ids) do if not batch.failed_ids[id] then keep[#keep + 1] = id end end
+        op.ids = keep
+        if #keep == 0 then table.remove(st, i) end
+      end
+    end
+  end
+  local lg = H.last_group[batch.key]
+  if lg then
+    local keep = {}
+    for _, id in ipairs(lg) do if not batch.failed_ids[id] then keep[#keep + 1] = id end end
+    H.last_group[batch.key] = keep
+  end
+  if IsValidPlayer(batch.ply) then
+    H.Tell(batch.ply, "Only " .. made .. " of the " .. batch.total .. " could be created: the server is out of entity slots.")
+  end
 end
 
 --- Put things on the floor, one after another. The one place props are made, so every caller meets the same limits.
---- Returns the registered entries, and how many placements the limits or the server's rules turned away.
+--- Returns the registered entries, how many placements the limits or the server's rules turned away, the placements the LIMITS
+--- (not the rules) turned away (so an undo can keep them), and how many the server's rules ruled out.
 local function build(ply, placements)
-  local room = room_for(ply, #placements)
-  local verdicts, kept, turned_away = {}, {}, 0
+  local reqkey = player_key(ply)
+  -- 1. the server's rules first: a vetoed prop never costs anyone anything
+  local verdicts, allowed, ruled_out = {}, {}, 0
   for _, pl in ipairs(placements) do
-    if #kept >= room then turned_away = turned_away + 1
-    else
-      if verdicts[pl.model] == nil then verdicts[pl.model] = vetoed(ply, pl.model) end
-      if verdicts[pl.model] then turned_away = turned_away + 1 else kept[#kept + 1] = pl end
+    if verdicts[pl.model] == nil then verdicts[pl.model] = vetoed(ply, pl.model) end
+    if verdicts[pl.model] then ruled_out = ruled_out + 1 else allowed[#allowed + 1] = pl end
+  end
+  -- 2. each OWNER's own limit (a restored thing counts against the player who had it, not whoever pressed undo)
+  local left, capped, rejected = {}, {}, {}
+  for _, pl in ipairs(allowed) do
+    local owner = pl.owner or reqkey
+    if left[owner] == nil then
+      left[owner] = owner_exempt(owner, ply, reqkey) and math.huge or (cv_per_player:GetInt() - owner_count(owner))
     end
+    if left[owner] > 0 then left[owner] = left[owner] - 1; capped[#capped + 1] = pl else rejected[#rejected + 1] = pl end
+  end
+  -- 3. the server's room: other people's things come down only for what will really be built
+  local room = room_for(ply, #capped)
+  local kept = {}
+  for _, pl in ipairs(capped) do
+    if #kept < room then kept[#kept + 1] = pl else rejected[#rejected + 1] = pl end
   end
   H.group = H.group + 1
   local entries = {}
   local delay = cv_stagger:GetFloat()
+  local batch = { total = #kept, left = #kept, failed = 0, failed_ids = {}, key = reqkey, ply = ply }
   for i, pl in ipairs(kept) do
     local entry = register(pl, H.group, ply)
     entries[i] = entry
     H.pending = H.pending + 1
-    timer.Simple((i - 1) * delay, function()
+    local spawned = false
+    local function spawn_now()
+      if spawned then return end
+      spawned = true
+      H.pending_spawns[entry.id] = nil
       H.pending = H.pending - 1
+      local failed = false
       if H.registry[entry.id] == entry then
-        local ent = spawn_prop(entry, true, ply)
-        if ent then entry.ent = ent else unregister(entry.id) end
+        local ent = spawn_prop(entry, true)
+        if ent then entry.ent = ent else unregister(entry.id); failed = true end
       end
-    end)
+      batch.left = batch.left - 1
+      if failed then batch.failed = batch.failed + 1; batch.failed_ids[entry.id] = true end
+      if batch.left == 0 and batch.failed > 0 then batch_failed(batch) end
+    end
+    -- Kept where a player's departure can find it (see PlayerDisconnected): a prop still waiting for its turn when its owner
+    -- leaves is made right then, while the owner can still be looked up, so it is created as theirs like the rest.
+    H.pending_spawns[entry.id] = { owner = entry.owner, run = spawn_now }
+    timer.Simple((i - 1) * delay, spawn_now)
   end
-  return entries, turned_away
+  return entries, #placements - #kept, rejected, ruled_out
 end
 
-local function apply_moves(ply, moves)
-  local old = {}
+-- ------------------------------------------------------------------------------------------------ is the ground free?
+local TUCK_PEN = 14          -- how far a chair may sit under a table (the planner's own tolerance)
+
+--- Is the spot a pose names taken now (by another prop, a person, an NPC, the world)? `ignore` = ids that do not count (the
+--- things being put back together). Things resting on something belong to their support and are never judged here.
+local function pose_blocked(p, ignore)
+  local env = make_env(p.z)
+  local fz = env.floor_z(p.x, p.y)
+  if fz and p.z - fz > 1.5 then return false end
+  local r = Layout.rect(p.x, p.y, p.w, p.d, p.theta)
+  for _, id in ipairs(H.order) do
+    local e = not ignore[id] and H.registry[id]
+    if e and e.x and e.w and not (e.z >= p.z + p.h - 1) and not (p.z >= e.z + e.h - 1) then
+      local er = Layout.rect(e.x, e.y, e.w, e.d, e.theta or 0)
+      if Layout.overlap(er, r, 0.4) and Layout.penetration(er, r) > math.min(TUCK_PEN, 0.5 * math.min(p.w, p.d, e.w, e.d)) then return true end
+    end
+  end
+  return not env.clear(r, fz or p.z, p.h)
+end
+
+--- Move registered things. `guard` (undo): a set of ids that do not count as obstacles; a pose that is taken is not applied.
+--- Returns what was moved (their old poses) and the ids that were held back by something in the way.
+local function apply_moves(ply, moves, guard)
+  local old, blocked = {}, {}
   for _, mv in ipairs(moves) do
     local e = H.registry[mv.id]
     -- what stands on something that moves rides with it, whoever made it; everything else must be the player's own
     if e and (mv.carried or can_touch(ply, e)) and e.variant then
-      old[#old + 1] = { id = e.id, x = e.x, y = e.y, z = e.z, theta = e.theta, w = e.w, d = e.d, h = e.h, tilted = e.tilted }
       local v = e.variant
-      local origin, yaw = Plan.entity_pose(v, mv.x, mv.y, mv.z, mv.theta)
-      e.x, e.y, e.z, e.theta, e.origin, e.yaw = mv.x, mv.y, mv.z, mv.theta, origin, yaw
-      e.w, e.d, e.h, e.tilted = v.w, v.d, v.h, nil
-      if IsValid(e.ent) then
-        local po = e.ent:GetPhysicsObject()
-        e.ent:SetPos(Vector(origin.x, origin.y, origin.z))
-        e.ent:SetAngles(Angle(0, yaw, 0))
-        if IsValid(po) then po:SetVelocity(Vector(0, 0, 0)); po:Wake() end
+      if guard and pose_blocked({ x = mv.x, y = mv.y, z = mv.z, theta = mv.theta, w = mv.w or v.w, d = mv.d or v.d, h = mv.h or v.h }, guard) then
+        blocked[#blocked + 1] = mv.id
+      else
+        old[#old + 1] = { id = e.id, x = e.x, y = e.y, z = e.z, theta = e.theta, w = e.w, d = e.d, h = e.h, tilted = e.tilted,
+                          carried = mv.carried or nil, to = mv.carried and { x = mv.x, y = mv.y, z = mv.z, theta = mv.theta } or nil }
+        local origin, yaw = Plan.entity_pose(v, mv.x, mv.y, mv.z, mv.theta)
+        e.x, e.y, e.z, e.theta, e.origin, e.yaw = mv.x, mv.y, mv.z, mv.theta, origin, yaw
+        e.w, e.d, e.h, e.tilted = v.w, v.d, v.h, nil
+        if IsValid(e.ent) then
+          local po = e.ent:GetPhysicsObject()
+          e.ent:SetPos(Vector(origin.x, origin.y, origin.z))
+          e.ent:SetAngles(Angle(0, yaw, 0))
+          if IsValid(po) then po:SetVelocity(Vector(0, 0, 0)); po:Wake() end
+        end
       end
     end
   end
-  return old
+  return old, blocked
 end
 
 -- ------------------------------------------------------------------------------------------------ the entry point
@@ -744,50 +1010,135 @@ local function limit_text(ply, which)
   return "That is as many props as I will keep standing (" .. cv_max:GetInt() .. "). Clear some first."
 end
 
---- May the planner run now? It runs on the server's main thread, so the server as a whole gets a share of the time.
+--- May the planner run now? It runs on the server's main thread. Each ordinary player has a share of their own (a player whose
+--- share is spent is refused alone); the server as a whole has a ceiling that is always higher than the shares of the players
+--- present, so players who stay inside their share can never empty it. Returns true, or false and which limit said no.
 local function planner_admit(ply)
   if manages_all(ply) then return true end
-  return take(planner_cpu, 0.02)
+  local mine = player_bucket(player_key(ply), "cpu")
+  refill(mine)
+  if mine.tokens < 0.02 then return false, "own" end
+  local n = 0
+  for _, p in ipairs(player.GetAll()) do if not manages_all(p) then n = n + 1 end end
+  planner_cpu.rate = math.Clamp(1.25 * PLAYER_CPU_RATE * n, 0.1, 0.4)
+  planner_cpu.cap = math.Clamp(PLAYER_CPU_CAP * n, 0.4, 0.8)
+  refill(planner_cpu)
+  if planner_cpu.tokens < 0.02 then return false, "global" end
+  return true
 end
 
 local function charge_planner(ply, seconds)
-  planner_cpu.tokens = planner_cpu.tokens - seconds
-  if IsValidPlayer(ply) and not manages_all(ply) then
-    local key = player_key(ply)
-    H.next_ok[key] = math.max(H.next_ok[key] or 0, CurTime() + 10 * seconds)    -- an expensive request earns a longer rest
+  if not IsValidPlayer(ply) or manages_all(ply) then return end         -- the console and admins have their own, bigger budget
+  seconds = math.max(seconds, 0)
+  local mine = player_bucket(player_key(ply), "cpu")
+  mine.tokens = math.max(mine.tokens - seconds, -mine.cap)
+  planner_cpu.tokens = math.max(planner_cpu.tokens - seconds, -planner_cpu.cap)
+  local key = player_key(ply)
+  H.next_ok[key] = math.max(H.next_ok[key] or 0, CurTime() + 10 * seconds)    -- an expensive request earns a longer rest
+end
+
+--- Within a few HU and degrees of where a move left it? (A stale undo must not drag something its owner has moved since.)
+local function still_at(e, to)
+  return math.abs(e.x - to.x) <= 6 and math.abs(e.y - to.y) <= 6 and math.abs((e.z or 0) - (to.z or 0)) <= 6
+         and math.abs(Layout.angle_diff(e.theta or 0, to.theta or 0)) <= 6
+end
+
+local MAX_RETRIES = 3        -- an undo that could put nothing back this many times in a row is let go
+
+--- Undo the player's last operation. What could not be put back (the limits, something standing there) stays on the stack.
+local function undo_one(ply, key)
+  local st = H.undo_stacks[key]
+  local op = st and table.remove(st)
+  if not op then return { action = "undo", say = "There is nothing to undo.", fixed = true } end
+  resync()
+  local say
+  if op.type == "add" then
+    local n = 0
+    for _, id in ipairs(op.ids) do
+      local e = H.registry[id]
+      if e and can_touch(ply, e) then remove_entry(e, true); n = n + 1 end
+    end
+    say = n > 0 and ("Undone: " .. n .. " thing" .. (n == 1 and "" or "s") .. " gone.") or "Those are already gone."
+    -- "it" means what the player made BEFORE the group just undone, but only when that group was the one "it" pointed at
+    local mine, lg = {}, H.last_group[key]
+    for _, id in ipairs(op.ids) do mine[id] = true end
+    local points_here = lg ~= nil
+    for _, id in ipairs(lg or {}) do if not mine[id] then points_here = false end end
+    if points_here then H.last_group[key] = op.prev_last end
+  elseif op.type == "remove" then
+    local ready, rest, taken, gone = {}, {}, 0, 0
+    for _, snap in ipairs(op.snaps) do
+      if not H.registry[snap.rid] then
+        if not H.catalog.kinds[snap.kind] or not (find_variant(snap.kind, snap.model) or model_present(snap.model)) then
+          gone = gone + 1                                                    -- what it was made from is not here any more: never respawned
+        elseif pose_blocked(snap, {}) then rest[#rest + 1] = snap; taken = taken + 1
+        else ready[#ready + 1] = snap end
+      end
+    end
+    local entries, away, rejected = build(ply, ready)
+    for _, snap in ipairs(rejected) do rest[#rest + 1] = snap end
+    local n = #entries
+    say = n > 0 and ("Undone: " .. n .. " thing" .. (n == 1 and "" or "s") .. " back.") or "Nothing could go back just now."
+    if gone > 0 then say = say .. " " .. gone .. " could not go back: this server no longer has " .. (gone == 1 and "its model." or "their models.") end
+    if taken > 0 then say = say .. " " .. taken .. " could not go back: something is standing there now." end
+    if away > #rejected then say = say .. " " .. (away - #rejected) .. " would break a rule on this server." end
+    if #rejected > 0 then say = say .. " " .. #rejected .. " did not fit under the limits." end
+    if #rest > 0 then
+      op.snaps, op.tries = rest, n > 0 and 0 or (op.tries or 0) + 1
+      if op.tries < MAX_RETRIES then push_undo(ply, op); say = say .. " Say undo again to retry those." end
+    end
+  elseif op.type == "move" then
+    local mvs, ignore, stale = {}, {}, 0
+    for _, o in ipairs(op.old) do ignore[o.id] = true end
+    for _, o in ipairs(op.old) do
+      local e = H.registry[o.id]
+      if e then
+        local carried = nil
+        if o.carried then
+          if o.to and still_at(e, o.to) then carried = true else stale = stale + 1 end
+        end
+        if not o.carried or carried then
+          mvs[#mvs + 1] = { id = o.id, x = o.x, y = o.y, z = o.z, theta = o.theta, w = o.w, d = o.d, h = o.h, carried = carried }
+        end
+      end
+    end
+    local done, blocked = apply_moves(ply, mvs, ignore)
+    say = #done > 0 and "Undone." or ((#blocked > 0 and "Nothing could go back just now.") or "Those are gone, so there is nothing to put back.")
+    local missing = #mvs - #done
+    if missing > 0 then
+      say = say .. " " .. missing .. " could not be put back" .. (#blocked > 0 and ": something is in the way." or ".")
+    end
+    if stale > 0 then say = say .. " " .. stale .. " left where their owners put them." end
+    if #blocked > 0 then
+      local isb, rest = {}, {}
+      for _, id in ipairs(blocked) do isb[id] = true end
+      for _, o in ipairs(op.old) do if isb[o.id] then rest[#rest + 1] = o end end
+      op.old, op.tries = rest, #done > 0 and 0 or (op.tries or 0) + 1
+      if op.tries < MAX_RETRIES then push_undo(ply, op) end
+    end
   end
+  return { action = "undo", say = say or "Undone.", fixed = true }
 end
 
 --- Do what a request says. Returns the result table (its `say` is what to tell the player); announces nothing.
 local function run_one(ply, req, opts)
   local key = player_key(ply)
   if req.action == "undo" then
-    local st = H.undo_stacks[key]
-    local op = st and table.remove(st)
-    if not op then return { action = "undo", say = "There is nothing to undo.", fixed = true } end
-    local say
-    if op.type == "add" then
-      local n = 0
-      for _, id in ipairs(op.ids) do
-        local e = H.registry[id]
-        if e and can_touch(ply, e) then remove_entry(e, true); n = n + 1 end
-      end
-      say = n > 0 and ("Undone: " .. n .. " thing" .. (n == 1 and "" or "s") .. " gone.") or "Those are already gone."
-    elseif op.type == "remove" then
-      local placements = {}
-      for _, snap in ipairs(op.snaps) do
-        if not H.registry[snap.rid] and H.catalog.kinds[snap.kind] then placements[#placements + 1] = snap end
-      end
-      local entries, away = build(ply, placements)
-      say = "Undone: " .. #entries .. " thing" .. (#entries == 1 and "" or "s") .. " back."
-      if away > 0 then say = say .. " " .. away .. " did not fit under the limits." end
-    elseif op.type == "move" then
-      local mvs = {}
-      for _, o in ipairs(op.old) do mvs[#mvs + 1] = { id = o.id, x = o.x, y = o.y, z = o.z, theta = o.theta } end
-      local done = apply_moves(ply, mvs)
-      say = #done > 0 and "Undone." or "Those are gone, so there is nothing to put back."
+    -- "undo twice", "undo the last three", "undo everything" (req.times, at most 30): the player's OWN undo steps, one after the other
+    local n = math.min(math.max(math.floor(tonumber(req.times) or 1), 1), 30)
+    local res = undo_one(ply, key)
+    if n == 1 or res.say == "There is nothing to undo." then return res end
+    local done, says = 1, { res.say }
+    while done < n and not res.say:find("Nothing could go back", 1, true) do
+      local st = H.undo_stacks[key]
+      if not st or #st == 0 then break end
+      res = undo_one(ply, key)
+      done = done + 1
+      says[#says + 1] = res.say
     end
-    return { action = "undo", say = say or "Undone.", fixed = true }
+    local say = "Undone " .. done .. " step" .. (done == 1 and "" or "s") .. "."
+    if done <= 3 then say = say .. " " .. table.concat(says, " ") end
+    return { action = "undo", fixed = true, say = say }
   end
 
   if req.action == "clear" then
@@ -804,12 +1155,15 @@ local function run_one(ply, req, opts)
   end
 
   if req.action == "add" then
-    local room, which = room_for(ply, 1)
+    local room, which = room_for(ply, 1, true)                              -- only asks: nobody's things come down for a request not yet planned
     if room <= 0 then return { action = "add", say = limit_text(ply, which), placements = {}, limit = true, fixed = true, quiet = true } end
   end
 
-  if not planner_admit(ply) then
-    return { action = req.action, say = "I am busy planning for someone else. Ask again in a moment.", placements = {}, fixed = true, quiet = true }
+  local admitted, why = planner_admit(ply)
+  if not admitted then
+    return { action = req.action, say = why == "own" and "You have used your share of planning for the moment. Ask again in a few seconds."
+                                                        or "I am busy planning for someone else. Ask again in a moment.",
+             placements = {}, fixed = true, quiet = true }
   end
   local ctx = context(ply, opts)
   local t0 = SysTime()
@@ -824,23 +1178,24 @@ local function run_one(ply, req, opts)
 
   if res.action == "add" and #(res.placements or {}) > 0 then
     local want = #res.placements
-    local entries, away = build(ply, res.placements)
+    local entries, away, _, ruled_out = build(ply, res.placements)
     if #entries < want then
-      local why = away > 0 and ((#entries == 0) and "" or " The rest would break a limit or a rule on this server.") or ""
+      local why2 = away > 0 and ((#entries == 0) and "" or " The rest would break a limit or a rule on this server.") or ""
       if #entries == 0 then
         local room, which = room_for(ply)
-        res.say = (room <= 0 and limit_text(ply, which)) or "None of that could be placed under this server's rules."
+        res.say = (ruled_out < want and room <= 0 and limit_text(ply, which)) or "None of that could be placed under this server's rules."
         res.fixed, res.quiet = true, true
       else
-        res.say = "I had room for only " .. #entries .. " of the " .. want .. "." .. why
+        res.say = "I had room for only " .. #entries .. " of the " .. want .. "." .. why2
       end
     end
     local ids = {}
     for i, e in ipairs(entries) do ids[i] = e.id end
     res.ids = ids
     if #ids > 0 then
-      push_undo(ply, { type = "add", ids = ids })
+      push_undo(ply, { type = "add", ids = ids, prev_last = H.last_group[key] })   -- so undo can hand "it" back to the group before
       H.last_group[key] = ids
+      H.last_add[key] = req                                               -- what "another one" and "again" repeat, after any other request
     end
   elseif res.action == "remove" and res.removals and #res.removals > 0 then
     local snaps = {}
@@ -961,6 +1316,10 @@ end
 
 --- The parsed requests of one utterance, in order: one, or several for a compound sentence.
 --- `prev` is the player's previous request, so "another one" and "again" know what to repeat.
+--- How many requests of one sentence are carried out: the parser's own limit (one number, so the parser's "I only did the first N"
+--- is true), or 8 when the parser does not say.
+local function max_clauses() return tonumber(H.parser and H.parser.MAX_REQUESTS) or tonumber(Parse.MAX_REQUESTS) or 8 end
+
 local function parse_requests(text, prev)
   if H.parser.parse_all then
     local ok, list = pcall(H.parser.parse_all, H.parser, text, prev)
@@ -969,11 +1328,14 @@ local function parse_requests(text, prev)
   return { H.parser:parse(text, prev) }
 end
 
+-- The parser's notes about a sentence that was cut short are told once, privately, before anything runs (see cut_notes).
+local function is_cut_note(n) return isstring(n) and (n:match("^I only did the first") ~= nil or n:match("^I only read the first") ~= nil) end
+
 --- What the parser wants the requester to know about their words (a repaired typo, a refusal): private, plain letters only.
 local function tell_notes(ply, req)
   local lines = {}
   for _, n in ipairs(req.notes or {}) do
-    if isstring(n) and #lines < 3 then lines[#lines + 1] = clean_text(n, 160) end
+    if isstring(n) and #lines < 3 and not is_cut_note(n) then lines[#lines + 1] = clean_text(n, 160) end
   end
   if req.unknown_verb then lines[#lines + 1] = "I can add, remove, move and turn things, but I do not know how to do that." end
   if #lines > 0 then H.Tell(ply, table.concat(lines, " ")) end
@@ -984,7 +1346,8 @@ end
 --- opts.done receives the result either way).
 function H.Handle(ply, text, opts)
   opts = opts or {}
-  text = clean_text(text, MAX_INPUT)
+  local heard = text
+  text = clean_text(heard, MAX_INPUT)                 -- what the agent, the persona and the log get
   opts.was_player = IsValidPlayer(ply)
   if opts.was_player and not manages_all(ply) then
     -- the rest between requests is checked first, so refusing a request costs nothing either
@@ -997,27 +1360,79 @@ function H.Handle(ply, text, opts)
     return nil
   end
   local key = player_key(ply)
-  local reqs = parse_requests(text, H.prev_req[key])
+  -- The parser reads MAX_INPUT characters and knows by itself whether there was more (req.truncated and its note), but only if it
+  -- is given at least one more: so it gets MAX_INPUT + 1.
+  local full = clean_text(heard, MAX_INPUT + 1)
+  local prev = H.prev_req[key]
+  local reqs = parse_requests(full, prev)
+  -- "another one" / "again" repeat the last thing ADDED, not merely the last request: after a turn, a move, a remove or an undo
+  -- in between the parser has nothing to repeat, so it is asked again with the last add as the one before.
+  local last_add = H.last_add[key]
+  if last_add and last_add ~= prev then
+    for _, r in ipairs(reqs) do
+      if r.again and not actionable(r) then reqs = parse_requests(full, last_add); break end
+    end
+  end
   local req = reqs[1]
-  for _, r in ipairs(reqs) do if r.action ~= "none" then H.prev_req[key] = r end end
+  local cut = false
+  for _, r in ipairs(reqs) do if r.truncated then cut = true end end
+  if cut then
+    -- never remove or move things on half a sentence: the part that was dropped may hold the "except the couch"
+    for _, r in ipairs(reqs) do
+      if r.action == "clear" or r.action == "remove" or r.action == "move" or r.action == "rotate" or r.action == "rearrange" then
+        H.Tell(ply, "That was too long for me to read to the end, and I will not remove or move things on half a sentence. Say it again, shorter.")
+        return nil
+      end
+    end
+  end
+  -- what the parser cut short is told to the requester, once, before anything runs
+  local told_cap = false
+  for _, r in ipairs(reqs) do
+    for _, n in ipairs(r.notes or {}) do
+      if isstring(n) and n:match("^I only did the first") and not told_cap then
+        told_cap = true
+        H.Tell(ply, clean_text(n, 140) .. ". Ask again for the rest.")
+      end
+    end
+  end
+  if cut then H.Tell(ply, "I only read the first " .. MAX_INPUT .. " characters of that, so the rest was left out.") end
+  if #reqs == 1 and req.action ~= "none" then H.prev_req[key] = req end      -- (several: each is remembered as it is carried out)
   if req.action == "none" and #reqs == 1 then
     tell_notes(ply, req)
     return nil
   end
   if #reqs > 1 then
+    -- One sentence is one request: the planning time and the number of new things are ONE budget shared by all its parts
+    local trusted = manages_all(ply)
+    local time_left = opts.budget or (trusted and 0.25 or 0.05)
+    local things_left = opts.max_total or (trusted and 150 or 40)
     local says, notes, fixed, last = {}, {}, true, nil
+    local cap = max_clauses()
     for i, r in ipairs(reqs) do
-      if i > 4 then break end
+      if i > cap then
+        says[#says + 1] = "I only do the first " .. cap .. " things you ask for in one go."
+        break
+      end
+      local plans = r.action ~= "undo" and r.action ~= "clear"
       if r.action == "none" then
         tell_notes(ply, r)
+      elseif plans and (time_left < 0.004 or (r.action == "add" and things_left <= 0)) then
+        says[#says + 1] = "That is as much as I will plan in one go. Ask for the rest separately."
+        break
       else
-        local ok, res = pcall(run_one, ply, r, opts)
+        H.prev_req[key] = r                                                -- only what really ran is remembered (not the clauses cut off)
+        local part = setmetatable({ budget = time_left, max_total = things_left }, { __index = opts })
+        local t0 = SysTime()
+        local ok, res = pcall(run_one, ply, r, part)
+        time_left = time_left - (SysTime() - t0)
         if not ok then
           ErrorNoHalt("[holodeck] request error: " .. tostring(res) .. "\n")
           res = { action = "error", say = "I tripped over that one. The error is in the server console.", fixed = true }
         end
         if res then
           if res.say and res.say ~= "" then says[#says + 1] = res.say end
+          if res.ids then things_left = things_left - #res.ids end
+          if res.clamped and res.action == "add" and not res.fixed then says[#says + 1] = "That is as many as I will build in one go." end
           for _, n in ipairs(res.notes or {}) do notes[#notes + 1] = n end
           fixed = fixed and res.fixed
           if res.placements and #res.placements > 0 then last = res end
@@ -1113,8 +1528,17 @@ hook.Add("PlayerDisconnected", "Holodeck.Leave", function(ply)
   last_spoken[ply] = nil
   H.agent_busy[key] = nil
   H.prev_req[key] = nil
+  H.last_add[key] = nil
   H.player_buckets[key] = nil
   H.next_ok[key] = nil
+  -- Props of theirs still waiting for their turn to appear are made NOW, while the player can still be looked up: made later they
+  -- would have no creator and no prop-protection owner although the registry says they are theirs.
+  local mine = {}
+  for _, p in pairs(H.pending_spawns) do if p.owner == key then mine[#mine + 1] = p end end
+  for _, p in ipairs(mine) do
+    local ok, err = pcall(p.run)
+    if not ok then ErrorNoHalt("[holodeck] spawn error: " .. tostring(err) .. "\n") end
+  end
   -- their work stays for a while (they may be back); the undo history and bookkeeping do not
   timer.Simple(600, function()
     if H.absent[key] then H.undo_stacks[key] = nil; H.last_group[key] = nil end

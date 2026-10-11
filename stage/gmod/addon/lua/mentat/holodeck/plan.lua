@@ -37,8 +37,12 @@ local KEEP_OUT, KEEP_OUT_PAD = 40, 4
 -- two new things further into each other than this (HU) are inside each other, not touching; the seats at one table may touch
 -- at the corners (a chair is not its whole bounding box) up to TUCK_PEN
 local DEEP, TUCK_PEN = 3, 14
--- a pile is no taller than this (HU); a wall within WALL_NEAR is where a wall-loving thing goes unasked, WALL_FAR when asked
-local MAX_PILE_H, WALL_NEAR, WALL_FAR = 128, 420, 900
+-- a pile is no taller than this (HU): two of the tallest common crate (65.65 HU) with a margin; a wall within WALL_NEAR is where
+-- a wall-loving thing goes unasked, WALL_FAR when asked
+local MAX_PILE_H, WALL_NEAR, WALL_FAR = 134, 420, 900
+-- what a chair may slide its front edge under: open tops with knee room. A dresser or a side table is a drawer unit, a coffee table
+-- is too low: a seat stands clear of those (tucked in it would stand through the drawers)
+local TUCKS_UNDER = { table = true, desk = true, ["meeting table"] = true, ["patio table"] = true }
 -- how far a thing may overhang the edge of what it stands on (HU)
 local ON_OVERHANG = 2
 
@@ -128,6 +132,15 @@ end
 local function add_note(res, text)
   for _, n in ipairs(res.notes) do if n == text then return end end
   res.notes[#res.notes + 1] = text
+end
+
+--- A note that says what the layout DID ("there was no X, so I added one"): it is true only if something was placed, so a refusal
+--- drops it (request-level notes, such as an unknown word or a scaled-down count, stay true either way).
+function Plan:effect_note(res, text)
+  add_note(res, text)
+  self._effects = self._effects or setmetatable({}, { __mode = "k" })             -- (weak: a finished reply is not kept alive)
+  self._effects[res] = self._effects[res] or {}
+  self._effects[res][text] = true
 end
 
 local function say_list(parts)
@@ -336,10 +349,13 @@ end
 --- The people a prop must never land on: the requester and everybody else (the same keep-out for each).
 local function keep_outs(ctx)
   if ctx.keep_out == false then return {} end
+  local cached = ctx._people                              -- (the same people for the whole request)
+  if cached then return cached end
   local out = { rect(ctx.pos.x, ctx.pos.y, KEEP_OUT, KEEP_OUT, 0) }
   for _, p in ipairs(ctx.players or {}) do
     if abs((p.z or ctx.pos.z or 0) - (ctx.pos.z or 0)) < 200 then out[#out + 1] = rect(p.x, p.y, KEEP_OUT, KEEP_OUT, 0) end
   end
+  ctx._people = out
   return out
 end
 
@@ -385,8 +401,26 @@ local function judge(ctx, pls, ignore, o)
       if done() then return viol, pen, hard end
     end
   end
+  -- what the moved things carry (a load on a crate that goes to a corner) must stand clear of the walls too
+  if ctx.carry_check and ctx.carry_check(pls) then
+    viol, hard = viol + 1, hard + 1
+    ctx._carry_blocked = true
+    if explain then explain("carried load", pls[1] and pls[1].kind, "carry") end
+    if done() then return viol, pen, hard end
+  end
   -- the world itself (these are the engine's traces: ask last, and not at all once the time is up)
-  for i, p in ipairs(pls) do
+  -- (a candidate that fails does so at its outermost piece: those are asked first, so a refusal costs one trace, not one per piece)
+  local wi = {}
+  for k = 1, n do wi[k] = k end
+  if n > 3 and o.quick then
+    local cx, cy, far = 0, 0, {}
+    for _, p in ipairs(pls) do cx, cy = cx + p.x, cy + p.y end
+    cx, cy = cx / n, cy / n
+    for k, p in ipairs(pls) do far[k] = (p.x - cx) ^ 2 + (p.y - cy) ^ 2 end
+    table.sort(wi, function(a, b) if far[a] ~= far[b] then return far[a] > far[b] end return a < b end)
+  end
+  for _, i in ipairs(wi) do
+    local p = pls[i]
     if expired(ctx, 16) then return viol + 1, pen, hard + 1 end
     if (p.zoff or 0) <= 0.01 then
       local fz = floor_ok(env, rects[i])
@@ -402,6 +436,11 @@ local function judge(ctx, pls, ignore, o)
       end
     else
       p.fz = env.floor_z(p.x, p.y) or ctx.pos.z
+      -- an upper layer is held to the world too: there must be floor under all of it (a wall or an edge is not a place to stack)
+      if p.pile and not floor_ok(env, rects[i]) then
+        viol, hard = viol + 1, hard + 1
+        if explain then explain("no floor", p.kind, p.role, p.x, p.y) end
+      end
       -- a pile that would reach the ceiling is not a pile (the engine tells where the ceiling is, when it can)
       if p.pile and env.ceiling_z then
         local ceil_z = env.ceiling_z(p.x, p.y, p.fz)
@@ -489,7 +528,7 @@ local function open_frames(ctx, R, theta_for)
   local pos, yaw = ctx.pos, ctx.yaw
   local frames = {}
   local function add(cx, cy)
-    frames[#frames + 1] = { x = cx, y = cy, theta = theta_for(cx, cy) }
+    frames[#frames + 1] = { x = cx, y = cy, theta = theta_for(cx, cy), open = true }
   end
   if ctx.aim and ctx.aim_first then add(ctx.aim.x, ctx.aim.y) end
   -- straight ahead first, then sweeping round the player, so a player in the middle of a small room still finds a spot
@@ -546,8 +585,21 @@ local function real_room(ctx, maxd)
   return { frame = { x = pos.x + fx * u_off + rx * v_off, y = pos.y + fy * u_off + ry * v_off, theta = box.theta0 }, w = w, d = d }
 end
 
+local NO_BUILDERS = {}
+--- Is there floor under (x, y)? Asked once per place for the whole request (the engine's trace is the dearest thing in a search).
+local function floor_at(ctx, x, y)
+  local cache = ctx._floorc
+  if not cache then cache = {}; ctx._floorc = cache end
+  local key = floor(x * 4 + 0.5) * 4194304 + floor(y * 4 + 0.5)
+  local v = cache[key]
+  if v == nil then v = ctx.env.floor_z(x, y) or false; cache[key] = v end
+  return v
+end
+
 --- Build with each candidate frame; the first that violates nothing wins, otherwise the least-bad. `share` is the part of the
 --- request's remaining time this search may spend (the stages after it keep the rest); the first build always happens.
+--- A frame of the open sweep (frame.open) is the CENTRE of the group: when that stands on no floor it lies outside the room (the
+--- sweep reaches well past the walls of a small room) and nothing built round it can stand, so it is passed over without building.
 --- Returns placements, frame, builder, score (nil when nothing was acceptable).
 local function fit(ctx, builders, frames, ignore, share)
   local best, best_score
@@ -561,7 +613,8 @@ local function fit(ctx, builders, frames, ignore, share)
   end
   for _, frame in ipairs(frames) do
     if out_of_time() then break end
-    for _, b in ipairs(builders) do
+    local outside = frame.open and tried > 0 and not ctx.exhaustive and not floor_at(ctx, frame.x, frame.y)
+    for _, b in ipairs(outside and NO_BUILDERS or builders) do
       if out_of_time() then break end
       tried = tried + 1
       local pls = b.build(frame)
@@ -643,8 +696,13 @@ function Plan:arrangement(name, insts, rng, ctx, opts)
     build = function(frame) return from_poses(Layout.row(frame, items, { gap = gap, align_back = wall })) end
   elseif name == "circle" then
     desc = "in a circle, facing the middle"
+    -- the radius that clears every footprint does not depend on where the circle stands: found once, then reused (a search builds
+    -- the same circle round hundreds of frames, and each radius search is quadratic)
+    local known_r
     build = function(frame)
-      return from_poses((Layout.circle(frame.x, frame.y, items, { gap = gap, start = frame.theta + 180, min_r = opts.min_r or 14, stop = stop })))
+      local poses, r = Layout.circle(frame.x, frame.y, items, { gap = gap, start = frame.theta + 180, min_r = max(opts.min_r or 14, known_r or 0), stop = stop })
+      if not known_r and not ctx.timed_out then known_r = r end
+      return from_poses(poses)
     end
   elseif name == "grid" then
     local cols = opts.cols or (insts[1].k.seat and ceil(sqrt(n * 1.6)) or ceil(sqrt(n)))
@@ -687,7 +745,12 @@ function Plan:arrangement(name, insts, rng, ctx, opts)
       return from_poses((Layout.perimeter(frame, sides, { gap = gap, clear = 0, arm_align = "center", inner_w = sep })))
     end
   elseif name == "stacked" then
-    desc = n > 2 and "stacked in a pile" or "stacked"
+    -- the words describe the result: a pile the height cap lays flat (tall crates) is a row, not a pile
+    local flat = true
+    for _, pz in pairs(Layout.stack({ x = 0, y = 0, theta = 0 }, items, { gap = 1, max_h = MAX_PILE_H })) do
+      if (pz.z or 0) > 0.01 then flat = false end
+    end
+    desc = flat and (n == 1 and "" or "in a row") or (n > 2 and "stacked in a pile" or "stacked")
     build = function(frame) return from_poses((Layout.stack(frame, items, { gap = 1, max_h = MAX_PILE_H })), nil, { pile = true }) end
   elseif name == "scattered" then
     desc = "scattered about"
@@ -731,7 +794,11 @@ function Plan:default_arrangement(insts)
   elseif c == "storage" or c == "appliance" or c == "bath" then
     return "row"
   elseif c == "container" then
-    if k.kind == "crate" or k.kind == "box" then return n <= 2 and "row" or "stacked" end
+    -- a pile is for crates and boxes only: unlike kinds are not stacked under each other (beds on crates, through walls)
+    local piles = true
+    for _, i in ipairs(insts) do if i.kind ~= "crate" and i.kind ~= "box" then piles = false end end
+    if (k.kind == "crate" or k.kind == "box") and piles then return n <= 2 and "row" or "stacked" end
+    if k.kind == "crate" or k.kind == "box" then return n <= 6 and "row" or "grid" end
     if k.kind == "barrel" then return "cluster" end
     return "row"
   elseif c == "lighting" then
@@ -793,7 +860,7 @@ local function around_builder(ref, insts, opts)
   -- a chair slides its front edge under a table top; a couch or armchair at a low coffee table stands clear of it
   local topf = ref.topf or (ref.inst and top_frame(ref.inst.v))
   local chairlike = insts[1].kind == "chair" or insts[1].kind == "office chair" or insts[1].kind == "stool"
-  local tuck = (seat and chairlike and topf and topf.z >= 28) and min(9, 0.35 * insts[1].d) or 0
+  local tuck = (seat and chairlike and topf and topf.z >= 28 and TUCKS_UNDER[ref.kind or ""]) and min(9, 0.35 * insts[1].d) or 0
   local b = { desc = "around the " .. (ref.kind or "middle"), dropped = dropped }
   b.build = function()
     local frame = { x = ref.x, y = ref.y, theta = ref.theta }
@@ -808,16 +875,18 @@ local function around_builder(ref, insts, opts)
   return b
 end
 
---- Items in a ring round a reference, facing it: for when the sides of the reference are too short for them all.
+--- Items in a ring round a reference, facing it: for when the sides of the reference are too short for them all. opts.arc: only
+--- that many degrees of the ring, centred on the reference's front (a screen against a wall has no back to stand behind).
 local function ring_builder(ref, insts, opts)
   opts = opts or {}
   local items = to_items(insts)
   local inner = 0.5 * sqrt(ref.w * ref.w + ref.d * ref.d)
   local deepest = 0
   for _, it in ipairs(items) do deepest = max(deepest, it.d) end
-  local b = { desc = "in a ring around the " .. (ref.kind or "middle"), dropped = 0, ring = true }
+  local b = { desc = (opts.arc and "in an arc around the " or "in a ring around the ") .. (ref.kind or "middle"), dropped = 0, ring = true }
   b.build = function()
-    local poses = Layout.circle(ref.x, ref.y, items, { gap = opts.gap or 6, min_r = inner + deepest / 2 + 3, start = ref.theta, stop = opts.stop })
+    local poses = Layout.circle(ref.x, ref.y, items, { gap = opts.gap or 6, min_r = inner + deepest / 2 + 3, start = ref.theta, stop = opts.stop,
+                                                        arc = opts.arc })
     local out = {}
     for i, it in ipairs(items) do out[#out + 1] = P(it.inst, poses[i], "around", { sits_on = ref.id }) end
     return out
@@ -839,11 +908,12 @@ local function offset_builder(ref, insts, relation, opts)
     if relation == "beside" then
       local used = { [1] = 0, [-1] = 0 }
       for i, it in ipairs(items) do
-        local side = (i % 2 == 1) and 1 or -1
-        if opts.flip then side = -side end
+        local side = opts.only_side or ((i % 2 == 1) and 1 or -1)
+        if opts.flip and not opts.only_side then side = -side end
         local v = side * (ref.w / 2 + gap + used[side] + it.w / 2)
         used[side] = used[side] + it.w + gap
-        local pose = to_world(rf, 0, v, 0)
+        -- opts.align: the backs line up with the reference's (a deeper thing beside a wall-flush one would stick out behind the wall)
+        local pose = to_world(rf, opts.align and (it.d - ref.d) / 2 or 0, v, 0)
         pose.theta = ref.theta
         out[#out + 1] = P(it.inst, pose, "beside")
       end
@@ -1062,7 +1132,7 @@ local function desk_chairs(dp, chairs)
   local frame = { x = dp.x, y = dp.y, theta = dp.theta }
   for k = 1, row do
     local inst = chairs[k].inst
-    local tuck = (dtop and dtop.z >= 28) and min(9, 0.35 * inst.d) or 0
+    local tuck = (dtop and dtop.z >= 28 and TUCKS_UNDER[dp.inst.kind or ""]) and min(9, 0.35 * inst.d) or 0
     local u = dp.inst.d / 2 + inst.d / 2 - tuck
     local v = (k - (row + 1) / 2) * (inst.w + 4)
     out[#out + 1] = P(inst, to_world(frame, u, v, 180), "at_desk", { tuck = dp, tuck_group = true, sits_on = nil, tuck_depth = tuck })
@@ -1296,7 +1366,16 @@ function Plan:room(entries, rng, ctx, opts)
   end
   -- the cluster stands in the middle (not against the left wall, as it does with a screen there), so the deeper side row counts on both sides
   local side_w = has_focus and (dl + dr) or (2 * max(dl, dr))
-  local W = max(opts.min_w or 230, wall_len(back) + 60 + beside_w, side_w + 34 + cv + 34, 120 + cv)
+  -- side tables by seats that stand on a wall take the two ends of the row, alternately: the room is wide enough for them
+  local side_end = { [1] = 0, [-1] = 0 }
+  if mains_on_wall then
+    for i, e in ipairs(list("beside_main")) do
+      local s = (i % 2 == 1) and 1 or -1
+      side_end[s] = side_end[s] + e.inst.w + 4
+    end
+  end
+  local W = max(opts.min_w or 230, wall_len(back) + 60 + beside_w, wall_len(back) + 2 * max(30, side_end[1] + 4, side_end[-1] + 4),
+                side_w + 34 + cv + 34, 120 + cv)
   -- a side row that shares a corner with the back row starts beyond the back row's depth, and the room is deep enough for that
   local function corner_shared(w) return #back > 0 and #w > 0 and wall_len(back) / 2 + depth_of(w) + 2 > W / 2 end
   local function side_need(w) return #w == 0 and 0 or (wall_len(w) + 60 + (corner_shared(w) and db or 0)) end
@@ -1472,11 +1551,26 @@ function Plan:room(entries, rng, ctx, opts)
         out[#out + 1] = P(e.inst, pose, "beside_bed")
       end
     end
+    -- side tables by the main seats: on a wall the tables stand at the two ENDS of the row of seats (alternating, each further one
+    -- beyond the last), so they never share a place with a seat; round a table they keep to the first seat's right
+    local mains = {}
+    for _, p in ipairs(out) do if p.role == "main_seat" then mains[#mains + 1] = p end end
+    local first_main = mains[1]
+    if mains_on_wall then
+      table.sort(mains, function(a, c) return (a.x - frame.x) * rx0 + (a.y - frame.y) * ry0 < (c.x - frame.x) * rx0 + (c.y - frame.y) * ry0 end)
+    end
+    local main_end, n_main = { [1] = 0, [-1] = 0 }, 0
     for _, e in ipairs(list("beside_main")) do
-      local main
-      for _, p in ipairs(out) do if p.role == "main_seat" then main = p; break end end
       local pose
-      if main then pose = to_world({ x = main.x, y = main.y, theta = main.theta }, 0, main.w / 2 + e.inst.w / 2 + 4, 0); pose.theta = main.theta
+      if first_main then
+        local side = (mains_on_wall and n_main % 2 == 1) and -1 or 1
+        local main = first_main
+        if mains_on_wall then main = (side == 1) and mains[#mains] or mains[1] end
+        local v = side * (main.w / 2 + e.inst.w / 2 + 4 + main_end[side])
+        main_end[side] = main_end[side] + e.inst.w + 4
+        n_main = n_main + 1
+        pose = to_world({ x = main.x, y = main.y, theta = main.theta }, 0, v, 0)
+        pose.theta = main.theta
       else pose = to_world(frame, 0, 0, 0) end
       out[#out + 1] = P(e.inst, pose, "beside_main")
     end
@@ -1504,6 +1598,27 @@ function Plan:room(entries, rng, ctx, opts)
     repair(out, frame)
     if opts.mirror then mirror(out, frame) end
     return out
+  end
+  -- things in the corners must not stand in the cluster: the room grows (the cluster stays as it is) until they do not. The cluster
+  -- is measured alone, so a crowded middle (several tables) used to reach the corner plants whatever the room's size.
+  if not opts.room and #list("corner") > 0 and #probe > 0 then
+    for _ = 1, 24 do
+      local out = {}
+      for _, p in ipairs(b.build({ x = 0, y = 0, theta = 0 })) do out[#out + 1] = p end
+      local rects, clash = {}, false
+      for i, p in ipairs(out) do rects[i] = rect(p.x, p.y, p.w, p.d, p.theta) end
+      for i, p in ipairs(out) do
+        if p.role == "corner" then
+          for j, q in ipairs(out) do
+            if q.role ~= "corner" and (q.zoff or 0) <= 0.01 and Layout.overlap(rects[i], rects[j], 0.4) then clash = true; break end
+          end
+        end
+        if clash then break end
+      end
+      if not clash then break end
+      W, D = W + 16, D + 16
+      b.size = { w = W, d = D }
+    end
   end
   b.radius = sqrt((W / 2) ^ 2 + (D / 2) ^ 2)
   return b
@@ -1541,11 +1656,18 @@ function Plan:safe_note(s)
 end
 
 local function finish(self, ctx, pls, res, group_id)
+  -- "facing away from the tv": each one looks along the line from that thing to itself
+  local apt, apx, apy = ctx._away_pt, nil, nil
+  if apt == "referent" then
+    for _, q in ipairs(pls) do if q.role == "referent" then apx, apy = q.x, q.y end end
+  elseif type(apt) == "table" then apx, apy = apt.x, apt.y end
   for _, p in ipairs(pls) do
     local v = p.inst.v
     local zbot = (p.fz or ctx.pos.z) + (p.zoff or 0)
     local theta = p.theta
-    if res.away and p.role ~= "referent" then theta = theta + 180 end              -- "facing away from ..."
+    if res.away and p.role ~= "referent" then                                       -- "facing away from ..."
+      if apx and (p.x - apx) ^ 2 + (p.y - apy) ^ 2 > 1 then theta = Layout.angle_of(p.x - apx, p.y - apy) else theta = theta + 180 end
+    end
     local origin, yaw = Plan.entity_pose(v, p.x, p.y, zbot, theta)
     res.placements[#res.placements + 1] = {
       kind = p.kind, vi = p.inst.vi, model = v.model, x = p.x, y = p.y, z = zbot, theta = Layout.wrap(theta),
@@ -1730,14 +1852,14 @@ local function corner_builders(ctx, insts, rr)
     for _, d in ipairs(diagonal) do if d[1] == c[1] and d[2] == c[2] then seen = true end end
     if not seen then diagonal[#diagonal + 1] = c end
   end
-  local function mk(corners)
+  local function mk(corners, k)
     local b = { desc = (#insts > 1) and "in the corners" or "in the corner", radius = 0 }
     b.build = function()
       local out = {}
       -- each corner keeps a running length along its wall, and starts a second layer when the wall is used up
       local used, layer, layer_d = { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }
       for i, it in ipairs(its) do
-        local slot = (i - 1) % 4 + 1
+        local slot = (i - 1 + k) % 4 + 1
         local c = corners[slot]
         if used[slot] > 0 and used[slot] + it.w > rr.w / 2 - 4 then
           layer[slot] = layer[slot] + layer_d[slot] + 2
@@ -1753,7 +1875,13 @@ local function corner_builders(ctx, insts, rr)
     end
     return b
   end
-  return { mk(order), mk(diagonal) }
+  -- nearest corner first; when a corner is taken (by a plant, say) the next one is tried, so a second "in the corner" finds a free one
+  local out = {}
+  for k = 0, 3 do
+    out[#out + 1] = mk(order, k)
+    if #insts > 1 then out[#out + 1] = mk(diagonal, k) end
+  end
+  return out
 end
 
 local FALLBACK = {
@@ -1796,7 +1924,7 @@ function Plan:place_group(ctx, insts, name, rng, res, o)
     -- the same frames with the group turned a quarter: a long thing (a meeting table) fits across a room it cannot fit along
     local function turned(frames)
       local out = {}
-      for i, f in ipairs(frames) do out[i] = { x = f.x, y = f.y, theta = Layout.wrap(f.theta + 90) } end
+      for i, f in ipairs(frames) do out[i] = { x = f.x, y = f.y, theta = Layout.wrap(f.theta + 90), open = f.open } end
       return out
     end
     if (bb.wall or wall_flag) and (nm == "row" or nm == "single") then
@@ -1807,7 +1935,7 @@ function Plan:place_group(ctx, insts, name, rng, res, o)
         pls, frame, _won, score = fit(ctx, { bb }, wf, ignore, 0.35)
         if pls and score and score > 0 then pls = nil end
       elseif wall_flag and not o.strict then
-        add_note(res, "there is no wall in reach, so I stood them in the open")
+        self:effect_note(res, "there is no wall in reach, so I stood them in the open")
       end
       if not pls and not (o.strict and wall_flag) then
         local frames = pre(open_frames(ctx, bb.radius, theta_for))
@@ -1827,7 +1955,7 @@ function Plan:place_group(ctx, insts, name, rng, res, o)
     b, pls, frame, score = attempt("corner")
     if not pls then
       if o.strict then return nil end
-      add_note(res, corner_reason == "full" and "it would not fit in the corners, so I grouped them in the open"
+      self:effect_note(res, corner_reason == "full" and "it would not fit in the corners, so I grouped them in the open"
                                               or "there is no corner in reach, so I grouped them in the open")
       name = "cluster"
     end
@@ -1838,7 +1966,13 @@ function Plan:place_group(ctx, insts, name, rng, res, o)
       local b2, p2, f2, s2 = attempt(fb[1], false, fb[2])
       if p2 then
         b, pls, frame, score = b2, p2, f2, s2
-        add_note(res, "it would not fit as asked, so I laid it out " .. (b2.desc ~= "" and b2.desc or "in a row"))
+        if ctx.cut_short then
+          -- a stage's slice of the time ran out, so "it would not fit" is not known: say that time ran out instead
+          ctx._cut_fallback = true
+        else
+          self:effect_note(res, (o.asked == false and "it would not fit in one place, so I laid it out " or "it would not fit as asked, so I laid it out ")
+                                .. (b2.desc ~= "" and b2.desc or "in a row"))
+        end
         break
       end
     end
@@ -1880,6 +2014,16 @@ function Plan:add(req, ctx)
   local res = { action = "add", placements = {}, notes = {}, groups = {} }
   local rng = Layout.rng(ctx.seed or Layout.hash(req.raw or ""))
   local want = self:wanted(req, res, ctx)
+  -- "a living room and a kitchen": one room at a time is built; say which one was left for the next request (the parser lists
+  -- the others in req.extra_scenes; only names of the library's own scenes are spoken)
+  if type(req.extra_scenes) == "table" and req.scene and req.scene ~= "" then
+    for _, nm in ipairs(req.extra_scenes) do
+      if type(nm) == "string" and nm ~= req.scene and self.catalog.recipes[nm] then
+        add_note(res, "I built the " .. req.scene .. " only, so ask for the " .. nm .. " next")
+        break
+      end
+    end
+  end
   if #want == 0 then
     res.say = ((#res.notes > 0) and (res.notes[1] .. ", so I added nothing") or T.nothing_to_add) .. "."
     res.fixed = true
@@ -1890,7 +2034,11 @@ function Plan:add(req, ctx)
   if req.every == "corner" then
     local limit = ctx.max_per_kind or MAX_PER_KIND
     for _, w in ipairs(want) do
-      if not (w.count >= 4 and w.count % 4 == 0) then w.count = min(limit, w.count * 4) end
+      -- the parser says whether the count is per corner ("each", "every") or the total ("all four corners"); without that
+      -- word, a multiple of four is read as the total, as before
+      local mode = req.every_mode
+      local total = (mode == "total") or (mode ~= "per" and w.count >= 4 and w.count % 4 == 0)
+      if not total then w.count = min(limit, w.count * 4) end
     end
   end
   -- what one request may ask for in all
@@ -1928,9 +2076,22 @@ function Plan:add(req, ctx)
   -- a second relation the parser kept: "six chairs in a circle facing away from the table" is the circle, every one turned about;
   -- "a row of chairs with their backs to the wall" is a row against the wall
   local fa = req.facing_away
+  local away_from                                   -- the standing thing the group turns its back on ("facing away from the tv")
   if type(fa) == "string" and arr ~= "facing_away" then
     if fa == "wall" then
       if arr == "row" or arr == "single" or arr == "unspecified" then arr, target = "against_wall", "" end
+    elseif self.kinds[fa] and not kinds_present[fa] and #order == 1 and not REL_ARR[arr] and arr ~= "corner" and arr ~= "against_wall"
+           and (req.facing == nil or req.facing == "") then
+      -- a NAMED thing, not the player: the group stands in front of the one that stands near, and every one looks away from it;
+      -- with none standing nothing is made up for it to turn from: they turn away from the player, and the reply says so
+      res.away = true
+      local stands = false
+      for _, list in ipairs({ ctx.mine or {}, ctx.registry or {} }) do
+        local near = registry_matches(self, ctx, fa, {}, aim_or_front(ctx), list)
+        if near[1] and (near[1].x - ctx.pos.x) ^ 2 + (near[1].y - ctx.pos.y) ^ 2 < 700 ^ 2 then stands = true; break end
+      end
+      if stands then away_from = fa
+      else add_note(res, "there was no " .. fa .. " to turn away from") end
     elseif #order == 1 and not res.away then
       res.away = true
     end
@@ -1977,9 +2138,13 @@ function Plan:add(req, ctx)
     if res.away then
       -- every one was turned about after the layout was made
       local d = desc or ""
-      if d:find("facing the middle", 1, true) then d = (d:gsub("facing the middle", "facing outward"))
-      elseif d:find("facing you", 1, true) then d = (d:gsub("facing you", "facing away from you"))
-      elseif not d:find("away", 1, true) then d = (d ~= "" and (d .. ", ") or "") .. "facing away" end
+      local changed = false
+      d = (d:gsub(", facing the middle, facing the ", ", facing the "))                      -- (a circle in front of a thing: only the thing matters)
+      if d:find("facing the middle", 1, true) then d = (d:gsub("facing the middle", "facing outward")); changed = true end
+      if d:find("facing you", 1, true) then d = (d:gsub("facing you", "facing away from you")); changed = true end
+      local named, n = d:gsub("facing the ", "facing away from the ")                   -- "facing the tv": the thing they turned their backs on
+      if n > 0 then d, changed = named, true end
+      if not changed and not d:find("away", 1, true) then d = (d ~= "" and (d .. ", ") or "") .. "facing away" end
       desc = d
     end
     local text = describe(shown, 8)
@@ -1987,7 +2152,7 @@ function Plan:add(req, ctx)
     else res.say = what .. text .. ((desc and desc ~= "") and (" " .. desc) or "") .. "." end
     local lost = note_missing(res, o.insts or insts, pls)
     if score and score > 0 then add_note(res, "it was a tight squeeze") end
-    if ctx.cut_short and ((score or 0) > 0 or lost > 0) then
+    if ctx.cut_short and ((score or 0) > 0 or lost > 0 or ctx._cut_fallback) then
       res.timed_out = true
       add_note(res, T.out_of_time)
     end
@@ -1998,6 +2163,13 @@ function Plan:add(req, ctx)
     if ctx.cut_short then
       res.timed_out = true
       text = T.too_much
+    end
+    -- nothing was built, so a note about what was built ("I added a table", "I put them on...") would be false
+    local effects = self._effects and self._effects[res]
+    if effects then
+      local kept = {}
+      for _, n in ipairs(res.notes) do if not effects[n] then kept[#kept + 1] = n end end
+      res.notes = kept
     end
     res.say = with_notes(text .. ".", res.notes)
     res.fixed = (#res.notes == 0) or nil
@@ -2016,7 +2188,7 @@ function Plan:add(req, ctx)
   end
   -- -- "in a row facing the tv": the group stands in front of that and looks at it
   local shape_name
-  local face_kind = req.facing
+  local face_kind = req.facing or away_from
   if face_kind == "@last" and not REL_ARR[arr] then
     pinned = group_anchor(last_entries(self, ctx))
     if pinned then face_kind = pinned.kind
@@ -2109,7 +2281,7 @@ function Plan:add(req, ctx)
         end
         if not pk then pk, pv = kind_id, self:pick_variants(kind_id, 1, {}, rng)[1] end
         created = make_inst(self, pk, pv, {})
-        add_note(res, "there was no " .. pk .. ", so I added one")
+        self:effect_note(res, "there was no " .. pk .. ", so I added one")
       else
         relational = false
       end
@@ -2140,6 +2312,8 @@ function Plan:add(req, ctx)
       if arr == "facing_me" or arr == "facing_group" then rel = "in_front_of" end
       if arr == "flank" then rel = "beside" end
       if arr == "facing_group" then rel = "facing_group" end
+      -- turned away from a NAMED thing (not from the player): each one looks along the line from that thing to itself
+      if res.away and (rel == "in_front_of" or rel == "facing_group") then ctx._away_pt = ref.exists and { x = ref.x, y = ref.y } or "referent" end
       if arr == "flank" and #rel_insts == 1 then
         -- one on each side
         local only = rel_insts[1]
@@ -2151,7 +2325,7 @@ function Plan:add(req, ctx)
       if rel == "facing_group" then
         local nm = shape_name or self:default_arrangement(rel_insts)
         if nm == "single" then nm = "row" end
-        if nm == "circle" then add_note(res, "a circle looks at its own middle, so I stood it in front of the " .. target) end
+        if nm == "circle" then self:effect_note(res, "a circle looks at its own middle, so I stood it in front of the " .. target) end
         grp = self:arrangement(nm, rel_insts, rng, ctx, {})
       end
       local no_top = (rel == "on" and not ref.topf)
@@ -2162,7 +2336,7 @@ function Plan:add(req, ctx)
       end
       local function inner_for(r, o2)
         if rel == "around" then
-          if o2.ring then return ring_builder(r, rel_insts, { stop = stopper(ctx) }) end
+          if o2.ring then return ring_builder(r, rel_insts, { stop = stopper(ctx), arc = o2.arc }) end
           return around_builder(r, rel_insts, o2)
         elseif rel == "on" and r.topf then return on_builder(r, rel_insts, o2)
         elseif rel == "on" then return offset_builder(r, rel_insts, "beside", o2)
@@ -2179,7 +2353,7 @@ function Plan:add(req, ctx)
         end
         local dist = o2.distance
         if rel == "in_front_of" and r.kind == "tv" then dist = max(dist or 0, 70, 1.6 * r.w) end
-        return offset_builder(r, rel_insts, rel, { flip = o2.flip, distance = dist })
+        return offset_builder(r, rel_insts, rel, { flip = o2.flip, distance = dist, align = o2.align })
       end
       -- the builders work in the reference's own frame; one per way of standing, recomputed per frame
       local function mk(o2)
@@ -2215,10 +2389,23 @@ function Plan:add(req, ctx)
       end
       local builders = {}
       local first = mk({})
-      -- a ring takes more than the sides do; "in a circle around the table" asks for one
-      if rel == "around" and (first.dropped > 0 or req.shape == "circle") then builders[#builders + 1] = mk({ ring = true }) end
+      -- a ring takes more than the sides do; "in a circle around the table" asks for one. A thing against a wall has no back to
+      -- stand behind: only an arc in front of it fits, and that is tried before the sides.
+      local arcs = {}
+      if rel == "around" and #rel_insts > 1 then
+        for _, a in ipairs({ 300, 240, 180, 140 }) do arcs[#arcs + 1] = mk({ ring = true, arc = a }) end
+      end
+      local ring_wanted = rel == "around" and (first.dropped > 0 or req.shape == "circle")
+      if ring_wanted then builders[#builders + 1] = mk({ ring = true }) end
+      if ring_wanted and req.shape == "circle" then for _, a in ipairs(arcs) do builders[#builders + 1] = a end end
       builders[#builders + 1] = first
-      if rel == "beside" then builders[#builders + 1] = mk({ flip = true }) end
+      if not (ring_wanted and req.shape == "circle") then for _, a in ipairs(arcs) do builders[#builders + 1] = a end end
+      if rel == "beside" then
+        builders[#builders + 1] = mk({ flip = true })
+        -- a deeper thing beside a wall-flush one: backs aligned, after the centred poses (which stay first wherever they fit)
+        builders[#builders + 1] = mk({ align = true })
+        builders[#builders + 1] = mk({ align = true, flip = true })
+      end
       if rel == "in_front_of" or rel == "facing_group" then
         for _, d in ipairs({ 30, 60, 100, 160 }) do builders[#builders + 1] = mk({ distance = d }) end
       end
@@ -2231,12 +2418,12 @@ function Plan:add(req, ctx)
         -- an existing referent fixes the frame: try its own pose, not the player's view
         local pls, _, b, score = fit(ctx, builders, { { x = ref.x, y = ref.y, theta = ref.theta } })
         if pls then
-          if no_top then add_note(res, "I can't stand things on the " .. ref.kind .. ", so I put them beside it") end
-          if no_fit then add_note(res, (#rel_insts > 1 and "they do not" or "it does not") .. " fit on the " .. ref.kind .. ", so I put " .. (#rel_insts > 1 and "them" or "it") .. " beside it") end
+          if no_top then self:effect_note(res, "I can't stand things on the " .. ref.kind .. ", so I put them beside it") end
+          if no_fit then self:effect_note(res, (#rel_insts > 1 and "they do not" or "it does not") .. " fit on the " .. ref.kind .. ", so I put " .. (#rel_insts > 1 and "them" or "it") .. " beside it") end
           return conclude(pls, rel == "facing_group" and group_desc or (b.desc or group_desc or ""), score, o)
         end
         -- no clean room against it: the same things, free-standing nearby (never on top of what stands)
-        add_note(res, "there was no room " .. rel_phrase .. " the " .. ref.kind .. ", so I put them nearby")
+        self:effect_note(res, "there was no room " .. rel_phrase .. " the " .. ref.kind .. ", so I put them nearby")
         relational = false
         arr, target = "unspecified", ""
         if rel == "facing_group" then arr = shape_name or "unspecified" end
@@ -2253,8 +2440,8 @@ function Plan:add(req, ctx)
         end
         local pls, _, b, score = fit(ctx, builders, frames)
         if pls then
-          if no_top then add_note(res, "I can't stand things on the " .. ref.kind .. ", so I put them beside it") end
-          if no_fit then add_note(res, (#rel_insts > 1 and "they do not" or "it does not") .. " fit on the " .. ref.kind .. ", so I put " .. (#rel_insts > 1 and "them" or "it") .. " beside it") end
+          if no_top then self:effect_note(res, "I can't stand things on the " .. ref.kind .. ", so I put them beside it") end
+          if no_fit then self:effect_note(res, (#rel_insts > 1 and "they do not" or "it does not") .. " fit on the " .. ref.kind .. ", so I put " .. (#rel_insts > 1 and "them" or "it") .. " beside it") end
           return conclude(pls, rel == "facing_group" and group_desc or (b.desc or group_desc or ""), score, o)
         end
         return refuse(T.no_floor)
@@ -2296,12 +2483,12 @@ function Plan:add(req, ctx)
         end
       end
       pls, frame, bb, score = fit(ctx, { b }, frames, nil, 0.8)
-      if pls and frame.arc then add_note(res, "something was in the way, so they only go part of the way round") end
+      if pls and frame.arc then self:effect_note(res, "something was in the way, so they only go part of the way round") end
       if not pls then
         -- no ring will do: the same things as a group nearby
         local nb, p2, _, s2 = self:place_group(ctx, insts, (#insts > 1) and "circle" or "single", rng, res, {})
         if p2 then
-          add_note(res, "there was no room around you, so I put them nearby")
+          self:effect_note(res, "there was no room around you, so I put them nearby")
           return conclude(p2, nb.desc, s2, {})
         end
       end
@@ -2345,7 +2532,16 @@ function Plan:add(req, ctx)
         pls, frame, bb, score = fit(ctx, { b }, frames3, nil, 1)
         if pls and frame.off and frame.off > 50 then
           local want_words = ({ in_front_of = "in front of you", behind = "behind you", beside = "beside you" })[arr] or "in front of you"
-          add_note(res, "there was no room " .. want_words .. ", so I put " .. (#insts > 1 and "them " or "it ") .. side_words(ctx, frame.bearing))
+          self:effect_note(res, "there was no room " .. want_words .. ", so I put " .. (#insts > 1 and "them " or "it ") .. side_words(ctx, frame.bearing))
+        end
+      end
+      if not pls then
+        -- no bearing round the player will do: the same things wherever they fit (place_group falls back from a row to a grid)
+        local nb, p2, _, s2 = self:place_group(ctx, insts, base_arr, rng, res, { asked = false })
+        if p2 then
+          local want_words = ({ in_front_of = "in front of you", behind = "behind you", beside = "beside you" })[arr] or "in front of you"
+          self:effect_note(res, "there was no room " .. want_words .. ", so I put " .. (#insts > 1 and "them" or "it") .. " nearby")
+          return conclude(p2, nb.desc, s2, {})
         end
       end
       if pls then
@@ -2389,7 +2585,7 @@ function Plan:add(req, ctx)
           if #insts_by_want[wi] == 0 then table.remove(want, wi); table.remove(insts_by_want, wi) end
         end
         insts = all_insts()
-        add_note(res, "only " .. #insts .. " fit on " .. (need == 1 and ("the " .. sk) or (count_word(need) .. " " .. plural(sk, need))))
+        self:effect_note(res, "only " .. #insts .. " fit on " .. (need == 1 and ("the " .. sk) or (count_word(need) .. " " .. plural(sk, need))))
       end
       local surfs = {}
       for i = 1, need do surfs[i] = make_inst(self, sk, sv, {}) end
@@ -2398,7 +2594,7 @@ function Plan:add(req, ctx)
       insts = all_insts()
       kinds_present[sk] = true
       order[#order + 1] = sk
-      add_note(res, "I put " .. (#insts > need + 1 and "them" or "it") .. " on " .. (need == 1 and article(sk) or (count_word(need) .. " " .. plural(sk, need))) .. " I added")
+      self:effect_note(res, "I put " .. (#insts > need + 1 and "them" or "it") .. " on " .. (need == 1 and article(sk) or (count_word(need) .. " " .. plural(sk, need))) .. " I added")
     end
   end
 
@@ -2473,7 +2669,7 @@ function Plan:add(req, ctx)
         local sk, sv = self:surface_for(leftover[1].kind, leftover)
         if not sk or excluded_kind[sk] then break end                       -- (nothing is added that the request said to leave out)
         out[#out + 1] = { inst = make_inst(self, sk, sv, {}), role = (sk == "desk") and "desk" or "center" }
-        add_note(res, "I added " .. article(sk) .. " to put " .. (#leftover > 1 and "them" or "it") .. " on")
+        self:effect_note(res, "I added " .. article(sk) .. " to put " .. (#leftover > 1 and "them" or "it") .. " on")
       end
       return out
     end
@@ -2554,7 +2750,7 @@ function Plan:add(req, ctx)
         local nm = self:default_arrangement(insts)
         if nm == "stacked" then uniformize(insts) end
         return with_standing(placed, function()
-          local _, p, _, sc = self:place_group(ctx, insts, nm, rng, res, {})
+          local _, p, _, sc = self:place_group(ctx, insts, nm, rng, res, { asked = false })
           return p, sc
         end)
       end
@@ -2583,7 +2779,7 @@ function Plan:add(req, ctx)
         end
       end
       if #placed == 0 then return nil end
-      add_note(res, "it would not fit as one room, so I laid each kind out on its own")
+      self:effect_note(res, "it would not fit as one room, so I laid each kind out on its own")
       return placed, worst
     end
 
@@ -2603,7 +2799,7 @@ function Plan:add(req, ctx)
       separate = pls ~= nil
     end
     if not pls then return refuse(T.no_room) end
-    if used_room then add_note(res, "I furnished the room you are standing in") end
+    if used_room then self:effect_note(res, "I furnished the room you are standing in") end
     local room_insts = {}
     for i, e in ipairs(sized) do room_insts[i] = e.inst end
     local what = (req.scene and req.scene ~= "" and self.catalog.recipes[req.scene]) and (article(req.scene) .. ": ") or ""
@@ -2620,7 +2816,7 @@ function Plan:add(req, ctx)
   end
   if name == "stacked" then uniformize(insts) end
   local b, pls, frame, score = self:place_group(ctx, insts, name, rng, res,
-    { wall_pref = wall_pref, cols = (name == "grid") and Plan.grid_cols(req, #insts) or nil })
+    { wall_pref = wall_pref, asked = explicit_arr, cols = (name == "grid") and Plan.grid_cols(req, #insts) or nil })
   if not pls then return refuse(T.no_floor) end
   local desc = b.desc
   local end_text = (desc and desc ~= "") and desc or ""
@@ -2639,6 +2835,20 @@ local function by_seq(a, b)
   return (a.id or 0) < (b.id or 0)
 end
 
+-- Bare words the parser reads as one kind but players use for several: "the lamp" is the floor lamp or the desk lamp that stands
+-- ("merge": any of them, nearest first); "the chair" and "the table" are the plain kind, and the others only when none stands.
+local WORD_FAMILY = {}
+for word, fam in pairs({
+  lamp = { merge = true, "floor lamp", "desk lamp" }, lamps = { merge = true, "floor lamp", "desk lamp" },
+  chair = { "chair", "office chair" }, chairs = { "chair", "office chair" },
+  table = { "table", "coffee table", "side table", "meeting table", "patio table" },
+  tables = { "table", "coffee table", "side table", "meeting table", "patio table" },
+}) do
+  fam.has = {}
+  for _, k in ipairs(fam) do fam.has[k] = true end
+  WORD_FAMILY[word] = fam
+end
+
 --- Pick the standing things a spec means. `plain_ok`: a named colour may fall back to the uncoloured ones when none has it.
 --- Returns the entries and whether the fallback was used.
 local function select_entries(self, ctx, spec, from, plain_ok, include_stale)
@@ -2652,6 +2862,25 @@ local function select_entries(self, ctx, spec, from, plain_ok, include_stale)
     return out, false
   end
   local pool, plain = registry_matches(self, ctx, spec.kind, spec.adjectives, from, list)
+  -- a bare word that names several kinds ("the lamp" for a floor lamp or a desk lamp) means any of them: the parser picks one kind
+  -- for the word, and a standing desk lamp would otherwise be invisible to "remove the lamp"
+  local fam = spec.word and WORD_FAMILY[tostring(spec.word):lower()]
+  if fam and fam.has[spec.kind] then
+    for _, k in ipairs(fam) do
+      if k ~= spec.kind and (fam.merge or (#pool == 0 and #plain == 0)) and self.kinds[k] then
+        local p2, pl2 = registry_matches(self, ctx, k, spec.adjectives, from, list)
+        for _, e in ipairs(p2) do pool[#pool + 1] = e end
+        for _, e in ipairs(pl2) do plain[#plain + 1] = e end
+      end
+    end
+    local function nearer(a, b)
+      local da, db = (a.x - from.x) ^ 2 + (a.y - from.y) ^ 2, (b.x - from.x) ^ 2 + (b.y - from.y) ^ 2
+      if da ~= db then return da < db end
+      return (a.seq or 0) > (b.seq or 0)
+    end
+    table.sort(pool, nearer)
+    table.sort(plain, nearer)
+  end
   local used_plain = false
   if #pool == 0 and plain_ok and #plain > 0 then pool, used_plain = plain, true end
   if spec.count == 0 or #pool == 0 then return pool, used_plain end
@@ -2791,6 +3020,42 @@ local function emit_moves(res, order, moves_by_id, riders)
   end
 end
 
+--- Where would the load (riders) of the moved things stand if they went with them, and would it stand on floor? Returns a test for
+--- judge (true: some carried thing would poke out of the room), or nil when nothing is carried. A placement stands for the
+--- standing thing in its inst.entry.
+local function carry_check_for(ctx, riders)
+  if not riders or #riders == 0 then return nil end
+  return function(pls)
+    local moves = {}
+    for _, p in ipairs(pls) do
+      local e = p.inst and p.inst.entry
+      if e then moves[e.id] = { id = e.id, x = p.x, y = p.y, z = e.z or 0, theta = Layout.wrap(p.theta) } end
+    end
+    carry_riders(moves, riders)
+    for _, r in ipairs(riders) do
+      local m = moves[r.e.id]
+      if m and m.carried and not floor_ok(ctx.env, rect(m.x, m.y, r.e.w, r.e.d, m.theta)) then return true end
+    end
+    return false
+  end
+end
+
+--- The same for a turn in place: would the load of `e` stand on floor when `e` is at (x, y, theta)?
+local function carry_ok_for(ctx, e, riders)
+  local mine = {}
+  for _, r in ipairs(riders or {}) do mine[#mine + 1] = r end
+  if #mine == 0 then return nil end
+  return function(x, y, theta)
+    local moves = { [e.id] = { id = e.id, x = x, y = y, z = e.z or 0, theta = Layout.wrap(theta) } }
+    carry_riders(moves, mine)
+    for _, r in ipairs(mine) do
+      local m = moves[r.e.id]
+      if m and m.carried and not floor_ok(ctx.env, rect(m.x, m.y, r.e.w, r.e.d, m.theta)) then return false end
+    end
+    return true
+  end
+end
+
 local function id_set(list)
   local s = {}
   for _, e in ipairs(list) do s[e.id] = true end
@@ -2916,8 +3181,17 @@ end
 
 --- Where a thing can turn to `theta` as {x, y, z}: in place when that is no worse, else eased off a wall or a neighbour by as much
 --- as the turn needs; nil when no nearby spot will do (and for a thing tucked into others, which is never slid away from them).
-local function settle_turn(self, ctx, e, theta, ignore, decided)
+local function settle_turn(self, ctx, e, theta, ignore, decided, carry_ok)
   local ok, st = pose_checker(ctx, e, ignore, decided)
+  if carry_ok then
+    -- what the thing carries turns with it: the load must stay on floor too
+    local ok0 = ok
+    ok = function(x, y, t)
+      local g, z = ok0(x, y, t)
+      if g and not carry_ok(x, y, t) then return false end
+      return g, z
+    end
+  end
   local old_r, fz_old, elevated = st.old_r, st.fz_old, st.elevated
   -- footprint-neutral: a half turn, or a quarter turn of a square one
   local dth = abs(Layout.angle_diff(theta, e.theta))
@@ -2943,9 +3217,12 @@ local function settle_turn(self, ctx, e, theta, ignore, decided)
     if not ignore[er.id] and er.id ~= e.id and Layout.overlap(er, old_r, 0.4) then tucked = true end
   end)
   if tucked then return nil end
-  local reach = (max(e.w, e.d) - min(e.w, e.d)) / 2 + 8
-  for _, ring in ipairs({ 3, 6, 9, 12, 16, 20, 25, 30, 38, 46 }) do
-    if ring > reach then break end
+  -- the most a turned footprint can grow past the old one is its half-diagonal less its short half side (a bench turned a quarter
+  -- against a wall needs its whole length less its depth); the rings widen by a quarter each, so none up to that is skipped
+  local reach = (sqrt(e.w * e.w + e.d * e.d) - min(e.w, e.d)) / 2 + 8
+  local ring = 0
+  while ring < reach do
+    ring = ring + max(3, floor(ring / 4))
     if expired(ctx, 1) then return nil end
     for k = 0, 11 do
       local a = k * 30
@@ -3070,7 +3347,7 @@ function Plan:rotate(req, ctx)
       theta = Layout.wrap(e.theta + sign * (angle or 90))
     end
     if theta then
-      local at = settle_turn(self, ctx, e, theta, ignore, decided)
+      local at = settle_turn(self, ctx, e, theta, ignore, decided, carry_ok_for(ctx, e, riders))
       if at then
         moves_by_id[e.id] = { id = e.id, x = at.x, y = at.y, z = at.z, theta = Layout.wrap(theta), rotate_only = (at.x == e.x and at.y == e.y) or nil }
         order[#order + 1] = e.id
@@ -3146,6 +3423,8 @@ function Plan:move(req, ctx)
     if pile then sel, riders = { pile }, pile_riders end
   end
   local ignore = id_set(sel)
+  ctx.carry_check = carry_check_for(ctx, riders)            -- the load that goes with them must stay in the room too
+  local carry_say = "What rests on " .. ((#sel > 1) and "them" or "it") .. " would not fit there."
   for id in pairs(rider_ids(riders)) do ignore[id] = true end
   local text = req.normalised or ""
   local pos, yaw = ctx.pos, ctx.yaw
@@ -3183,6 +3462,9 @@ function Plan:move(req, ctx)
     return res
   end
 
+  -- "to the other side of the couch", "on the left of the couch" (req.side): just the thing named moves, to that side of the reference
+  local side_req = (type(req.side) == "string" and req.side ~= "") and req.side or nil
+  if side_req and arr == "unspecified" and target ~= "" then arr = "beside" end
   -- -- beside / in front of / on / around a standing thing
   local ref_entry
   if target == "@last" and (arr == "beside" or arr == "in_front_of" or arr == "behind" or arr == "on" or arr == "around" or arr == "facing_me" or arr == "flank") then
@@ -3213,13 +3495,66 @@ function Plan:move(req, ctx)
     else b = offset_builder(r, insts, (rel == "on") and "beside" or rel, { distance = (r.kind == "tv") and max(70, 1.6 * r.w) or nil }) end
     local bs = { b }
     if rel == "around" and (b.dropped or 0) > 0 then table.insert(bs, 1, ring_builder(r, insts, { stop = stopper(ctx) })) end
-    if rel == "beside" or rel == "on" then bs[#bs + 1] = offset_builder(r, insts, "beside", { flip = true }) end
+    if rel == "around" and #insts > 1 then
+      for _, a in ipairs({ 300, 240, 180, 140 }) do bs[#bs + 1] = ring_builder(r, insts, { stop = stopper(ctx), arc = a }) end
+    end
+    if rel == "beside" or rel == "on" then
+      bs[#bs + 1] = offset_builder(r, insts, "beside", { flip = true })
+      bs[#bs + 1] = offset_builder(r, insts, "beside", { align = true })
+      bs[#bs + 1] = offset_builder(r, insts, "beside", { align = true, flip = true })
+    end
+    if side_req then
+      -- the side asked for: "left"/"right" are the player's own; "other"/"opposite" is the side facing away from the player, and not
+      -- the one the thing stands at now (a lamp by a couch's right end goes to its left end when the back is a wall). The other sides
+      -- follow, the nearest to the wanted direction first, for when a wall or a neighbour fills the first.
+      local rfx, rfy = fwd(r.theta)
+      local rrx, rry = Layout.right(r.theta)
+      local sides = { front = { rfx, rfy }, back = { -rfx, -rfy }, right = { rrx, rry }, left = { -rrx, -rry } }
+      local wx, wy                                                    -- the direction the wanted side faces in the world
+      local strict = false
+      if side_req == "left" or side_req == "right" then
+        local px, py = Layout.right(yaw)
+        if side_req == "left" then px, py = -px, -py end
+        wx, wy = px, py
+        strict = true
+      else
+        wx, wy = r.x - pos.x, r.y - pos.y
+        if wx * wx + wy * wy < 1 then wx, wy = fwd(yaw) end
+      end
+      local here
+      do
+        local e1, best_dot = sel[1], -1e9
+        for nm, n in pairs(sides) do
+          local dot = (e1.x - r.x) * n[1] + (e1.y - r.y) * n[2]
+          if dot > best_dot then here, best_dot = nm, dot end
+        end
+      end
+      local ranked = {}
+      for _, nm in ipairs({ "front", "back", "right", "left" }) do
+        ranked[#ranked + 1] = { nm = nm, dot = sides[nm][1] * wx + sides[nm][2] * wy }
+      end
+      table.sort(ranked, function(p, q) if p.dot ~= q.dot then return p.dot > q.dot end return p.nm < q.nm end)
+      bs = {}
+      for ri, rk in ipairs(ranked) do
+        if (ri == 1 or not strict) and (strict or rk.nm ~= here or ri == #ranked) then
+          for _, al in ipairs({ false, true }) do
+            local o3 = { align = al or nil, distance = (r.kind == "tv") and max(70, 1.6 * r.w) or nil }
+            if rk.nm == "right" or rk.nm == "left" then
+              o3.only_side = (rk.nm == "right") and 1 or -1
+              bs[#bs + 1] = offset_builder(r, insts, "beside", o3)
+            else
+              bs[#bs + 1] = offset_builder(r, insts, (rk.nm == "front") and "in_front_of" or "behind", o3)
+            end
+          end
+        end
+      end
+    end
     local pls, _, bb = fit(ctx, bs, { { x = r.x, y = r.y, theta = r.theta } }, ignore)
     if pls then
       if rel == "on" and not r.topf then add_note(res, "I can't stand things on the " .. ref_entry.kind .. ", so I put them beside it") end
       return commit(pls)
     end
-    return fixed(res, "There was no clear spot for that.")
+    return fixed(res, ctx._carry_blocked and carry_say or "There was no clear spot for that.")
   end
 
   -- -- against a wall, in a corner
@@ -3228,7 +3563,7 @@ function Plan:move(req, ctx)
     local b, pls = self:place_group(ctx, insts, name, rng, res, { wall_pref = (arr == "against_wall"), ignore = ignore, strict = true })
     if pls then return commit(pls) end
     if ctx.cut_short then res.timed_out = true; return fixed(res, T.too_much .. ".") end
-    return fixed(res, (arr == "corner") and "There is no corner in reach." or "There is no wall in reach.")
+    return fixed(res, ctx._carry_blocked and carry_say or ((arr == "corner") and "There is no corner in reach." or "There is no wall in reach."))
   end
 
   -- loose directions in the words
@@ -3274,7 +3609,7 @@ function Plan:move(req, ctx)
     pls = shifted_by(0.5)
     viol = judge(ctx, pls, ignore, { rigid = true })
     if viol == 0 then return commit(pls) end
-    return fixed(res, "Something was in the way.")
+    return fixed(res, ctx._carry_blocked and carry_say or "Something was in the way.")
   end
 
   -- otherwise to where the player is looking, laid out as they were (or in a row)
@@ -3335,6 +3670,7 @@ function Plan:rearrange(req, ctx)
     if pile then sel, riders = { pile }, pile_riders end
   end
   local ignore = id_set(sel)
+  ctx.carry_check = carry_check_for(ctx, riders)
   for id in pairs(rider_ids(riders)) do ignore[id] = true end
   local insts = {}
   for i, e in ipairs(sel) do
@@ -3366,7 +3702,7 @@ function Plan:rearrange(req, ctx)
     frames_first = (not strict) and { { x = cx, y = cy, theta = toward(cx, cy) } } or nil })
   if not pls then
     if ctx.cut_short then res.timed_out = true; return fixed(res, T.too_much .. ".") end
-    if strict then return fixed(res, (arr == "corner") and "There is no corner in reach." or "There is no wall in reach.") end
+    if strict then return fixed(res, ctx._carry_blocked and "What rests on it would not fit there." or ((arr == "corner") and "There is no corner in reach." or "There is no wall in reach.")) end
     return fixed(res, T.no_floor .. ".")
   end
   local moves_by_id, order = {}, {}
@@ -3390,6 +3726,7 @@ function Plan:run(req, ctx)
   ctx.clock = ctx.now or os.clock
   ctx.deadline = ctx.clock() + (ctx.budget or DEFAULT_BUDGET)
   ctx.timed_out, ctx.cut_short, ctx._ridx, ctx._tick = false, false, nil, 0
+  ctx._cut_fallback, ctx.carry_check, ctx._carry_blocked, ctx._away_pt, ctx._floorc, ctx._people = nil, nil, nil, nil, nil, nil
   local a = req.action
   local res
   if a == "add" then res = self:add(req, ctx)

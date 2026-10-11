@@ -1,5 +1,5 @@
 {
- "source": "Held-out requests (2026-10-10). Built from the hand-judged sentences of an independent review of the parser (about 240 parser requests and 160 end-to-end requests; their intended meanings were re-read and only the certain ones kept), the scenarios of each defect that review reported (every phrasing it quoted), and slice 'realistic': requests written by the parser's implementer BEFORE reading what the parser answered. A case with `sequence` is what parse_all must return, in order; a case without is the first request (parse). Optional checks per request: exclude, facing, facing_away, shape, seats, every, rows, cols, unknown_verb, truncated, notes_contain, unknown; an item may have count null (any) or count_min.",
+ "source": "Held-out requests (2026-10-10). Built from the hand-judged sentences of an independent review of the parser (about 240 parser requests and 160 end-to-end requests; their intended meanings were re-read and only the certain ones kept), the scenarios of each defect that review reported (every phrasing it quoted), and slice 'realistic': requests written by the parser's implementer BEFORE reading what the parser answered. A case with `sequence` is what parse_all must return, in order; a case without is the first request (parse). Optional checks per request: exclude, facing, facing_away, shape, seats, every, rows, cols, unknown_verb, truncated, notes_contain, unknown; an item may have count null (any) or count_min. Slices selfcorrect, undo_forms, unplaced_object, chat_retraction, colour_one, hypothetical, modal_requests, past_purpose, toss_chuck, casual_clear, leading_no, apostrophes, fewer_less, neg_scope, chat_words, bare_plural_remove, reference_prep, side_of and opinions (2026-10-10, P0 parser classes) were written from the MEANING of each sentence before the parser's answer was read, 33-52 sentences per class, and each is required at 100%. Extra checks there: times (an undo repeated N times), inert (does nothing), noreal (builds no library thing, destroys nothing).",
  "cases": [
   {
    "utterance": "couch",
@@ -15649,6 +15649,6325 @@
    ],
    "slice": "exceptions_hard",
    "audited": "review"
+  },
+  {
+   "utterance": "remove the couch, no wait, the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the couch no wait the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the lamp actually the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the couch, actually, the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the couch, I mean the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the couch, sorry, the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "delete the couch, wait no, the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the couch, no, the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the couch no the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the couch, no wait remove the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the couch no remove the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "get rid of the table, no wait, the tv",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "tv",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "delete the bed, I mean the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the chairs, no wait, the table",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "table",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the tv, or rather the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "take out the plant, no wait, the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "delete the table, actually the desk",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "desk",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "erase the lamp, wait no, the tv",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "tv",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove a couch, no wait, a lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the couch, no wait, the lamp and the plant",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    },
+    {
+     "noun": "plant",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the couch, no wait, just the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove everything, no wait, just the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the lamp, no wait, I meant the plant",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "plant",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the couch, um, no wait, the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "delete the tv, actually no, the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "kill the lamp no wait the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the lamp, make that the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "Remove the couch. No wait, the lamp.",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "Remove the couch. No, the lamp.",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "Delete the tv. Actually the table.",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "table",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the couch, no wait",
+   "action": "none",
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the lamp, wait no",
+   "action": "none",
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "rotate the couch, no wait, the chair",
+   "action": "rotate",
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the desk, no wait, the armchair",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "armchair",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "get rid of the bed, I mean the wardrobe",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "wardrobe",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the stove, actually the fridge",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "fridge",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "selfcorrect",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo what you just did",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo what i just did",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo all of that",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo the whole thing",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo everything you just did",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo my last request",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo your last move",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo that last bit",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo twice",
+   "action": "undo",
+   "times": 2,
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo 3 times",
+   "action": "undo",
+   "times": 3,
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo three times",
+   "action": "undo",
+   "times": 3,
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo the last two",
+   "action": "undo",
+   "times": 2,
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo the last 2 things",
+   "action": "undo",
+   "times": 2,
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo that twice",
+   "action": "undo",
+   "times": 2,
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo once",
+   "action": "undo",
+   "times": 1,
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo everything",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo it all",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "cancel everything",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "cancel all of that",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "revert everything",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo the last thing",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "roll back the last two things",
+   "action": "undo",
+   "times": 2,
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo please",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo the last request",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo my last action",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo that one",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo the previous one",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo this",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo the last change",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo that last step",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo what we did",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo what i did",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo my last two requests",
+   "action": "undo",
+   "times": 2,
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo the last three",
+   "action": "undo",
+   "times": 3,
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo four times",
+   "action": "undo",
+   "times": 4,
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo twice please",
+   "action": "undo",
+   "times": 2,
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "revert that",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "revert the last one",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo the last 5 things",
+   "action": "undo",
+   "times": 5,
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "undo that again",
+   "action": "undo",
+   "slice": "undo_forms",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear the air",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove yourself",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear some space",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear the way",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clean up the mess",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clean up in here",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear things up",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the wall",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "get rid of the wall",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the door",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the window",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the ceiling",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "get rid of the mess",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear a path",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear space",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear a space",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear out some space",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear some room",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear a spot",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear the walls",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "delete the walls",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the doors",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "get rid of the windows",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "delete yourself",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "get rid of yourself",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the corner",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "get rid of the corners",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the spot",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear some space around the couch",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear space around the table",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear some room around the table",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear room by the window",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear the way to the door",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear a path to the couch",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the middle",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear the air in here",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "get rid of the walls",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "delete the ceiling",
+   "action": "none",
+   "slice": "unplaced_object",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i mean it",
+   "inert": true,
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "my bad i dropped it",
+   "inert": true,
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sorry",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sorry about that",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sorry what",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sorry i can't hear you",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sorry i deleted your couch",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sorry for the delay",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sorry my mic is bad",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "wait here",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "wait for it",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "wait for me",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "wait right there",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "oops i dropped my drink",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "oops i spilled my coffee",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "whoops i tripped",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i meant to ask how you are",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i meant to say hello",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "or rather",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sorry about the noise",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sorry guys",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sorry i was afk",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "wait what",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "wait who is that",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "wait is that you",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "wait where did he go",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "oops my mic was on",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "whoops wrong window",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "actually no thanks",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no wait",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "wait no",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sorry sorry",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "oops",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "whoops",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "actually no",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sorry i meant to ask something else",
+   "action": "none",
+   "slice": "chat_retraction",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the red one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the red ones",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the blue ones",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "delete the red one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "delete that red one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "get rid of the green one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "get rid of the red ones",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "take out the blue one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the big one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the old one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the small ones",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the yellow one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the red one to the left",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the red one next to the tv",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "turn the red one around",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "rotate the blue one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the white one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "delete the black ones",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the pink one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the orange ones",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the purple one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "take away the red one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "throw away the blue one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss out the green one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "erase the red one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "zap the red one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "nuke the blue ones",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "destroy the brown one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "discard the grey one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "dismiss the red one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "get rid of the big ones",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the large one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the tiny one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the red one please",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "please remove the blue one",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "delete the yellow ones",
+   "action": "none",
+   "slice": "colour_one",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "should i clear the room",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "maybe we should clear the room",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "we could clear the room",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i will clear the room",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "should i remove the couch",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "if you remove the couch i will be sad",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "would it be bad to remove the couch",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "may i clear the room",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "shall we clear the room",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "should we clear the room or keep it",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "should i get rid of the lamp",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "we should remove the lamp",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "could we remove the couch",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "could i delete the table",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "do you want me to remove the couch",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "do i need to clear the room",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "do we have to remove the lamp",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "what if we remove the couch",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "what if i clear the room",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "why should i remove the couch",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "how do i remove the couch",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "how would i clear the room",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "is it ok to remove the lamp",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "is it okay to clear the room",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "would it be better to remove the couch",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "would it be ok to clear the room",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "when i remove the couch you will see",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "if i remove the lamp the room is dark",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "if we clear the room we can start over",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "what happens if i clear the room",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "what would happen if we remove the couch",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i might remove the couch later",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i could clear the room later",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i would remove the couch",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "we can clear the room later",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i can remove the couch myself",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "should i delete the table",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "perhaps we could remove the lamp",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "if you clear the room it will be empty",
+   "action": "none",
+   "slice": "hypothetical",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "can you remove the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "could you clear the room",
+   "action": "clear",
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "please remove the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "would you mind removing the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "I think you should remove the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "if you could remove the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i want to remove the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "lets clear the room",
+   "action": "clear",
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "you should remove the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "would you please remove the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "will you clear the room",
+   "action": "clear",
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "go ahead and remove the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i need you to remove the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "can you please clear the room",
+   "action": "clear",
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "could you get rid of the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "can you remove the couch?",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "could you clear the room?",
+   "action": "clear",
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "would you remove the lamp?",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "will you remove the couch?",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "can you undo that?",
+   "action": "undo",
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "could you undo that please",
+   "action": "undo",
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i would like you to remove the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i would like to clear the room",
+   "action": "clear",
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "id like you to get rid of the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i want you to remove the table",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "table",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "do me a favour and remove the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "if you can, remove the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "if you would remove the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "you could remove the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "you can clear the room",
+   "action": "clear",
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "we need to remove the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i wanna remove the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "would you be able to clear the room",
+   "action": "clear",
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "do you mind removing the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "is it possible to remove the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i dont want the couch anymore",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "modal_requests",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "the lamp was removed",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "the lamp has been removed",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "the lamp got removed",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "the lamp was deleted",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "the lamp was cleared",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "my chairs were deleted",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "the lamp is gone",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "why was the lamp removed",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "was the lamp removed",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "somebody removed the couch",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "someone deleted the lamp",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "he deleted the couch",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "you removed my chairs",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "thanks for removing the lamp",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "deleted my chairs",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear space for a table",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear a space for a table",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear some room for a table",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear out some space for a table",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear a spot for the couch",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear room for the couch",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear the way for the couch",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "free up space for a table",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "free up some room for the chairs",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "open up some space for a desk",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "the couch is removed",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "the tv was thrown out",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "the lamp was thrown away",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "the couch got deleted",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i removed the lamp already",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "we deleted the couch yesterday",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "they removed the table",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "the lamp has been taken away",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "the plant was destroyed",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "the table was erased",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "who removed the couch",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "when was the lamp deleted",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "the chairs were taken out",
+   "action": "none",
+   "slice": "past_purpose",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss me a crate",
+   "action": "add",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "chuck me a crate",
+   "action": "add",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss a barrel",
+   "action": "add",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "chuck a crate",
+   "action": "add",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss 3 crates",
+   "action": "add",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss a couch",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "chuck a barrel over there",
+   "action": "add",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss two barrels",
+   "action": "add",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "chuck four crates",
+   "action": "add",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss me two crates",
+   "action": "add",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "chuck me a barrel please",
+   "action": "add",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss me 5 barrels",
+   "action": "add",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 5,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "chuck me three crates",
+   "action": "add",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss a barrel behind me",
+   "action": "add",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss a crate in the corner",
+   "action": "add",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss out a crate",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "crate",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss a crate away",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "crate",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "chuck out a crate",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "crate",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "chuck a crate away",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "crate",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss it",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "@last",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss that crate",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "crate",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "chuck the barrel",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "chuck the chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss all the crates",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "crate",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "chuck my barrels",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss those crates",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "crate",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss the red couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "chuck the old table",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "table",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss away the crates",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "crate",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "chuck out the barrels",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "toss them",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "@last",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "chuck that",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "@last",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "toss_chuck",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "that is enough",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "thats enough",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "that's enough",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "Enough already",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "enough already please",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "ok that is enough",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "okay that's enough thanks",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "that is enough for now",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "thats enough for today",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "that's enough chairs",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "that is enough now",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "that is enough, thanks",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "Skippy, that's enough",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clean up",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clean up please",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clean up now",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear up",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear up please",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clean up a bit",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clean up here",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "that is enough, add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "enough already, add a couch",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "that's enough, remove the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "thats enough, undo",
+   "action": "undo",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "ok that's enough, clear it all out",
+   "action": "clear",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "that's enough, clear the room",
+   "action": "clear",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "enough already, clear everything",
+   "action": "clear",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "that is enough and add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "the lamp is enough",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "one lamp is enough",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "two chairs are enough",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "is that enough",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "thats enough for me",
+   "action": "none",
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "that is plenty",
+   "inert": true,
+   "slice": "casual_clear",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "nope add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no I want a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no no no add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no remove the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no actually add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no I said add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "No - add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "No \u2014 add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no i meant a lamp",
+   "sequence": [
+    {
+     "action": "undo"
+    },
+    {
+     "action": "add",
+     "items": [
+      {
+       "noun": "floor lamp",
+       "count": 1,
+       "adjectives": []
+      }
+     ]
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no i need a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "nope a couch",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no add a couch",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no, I want a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no, add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "No. Add a lamp.",
+   "sequence": [
+    {
+     "action": "none"
+    },
+    {
+     "action": "add",
+     "items": [
+      {
+       "noun": "floor lamp",
+       "count": 1,
+       "adjectives": []
+      }
+     ]
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "not a couch, a bed",
+   "action": "add",
+   "items": [
+    {
+     "noun": "bed",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no put a lamp in the corner",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no give me a table",
+   "action": "add",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "nope i want a bed",
+   "action": "add",
+   "items": [
+    {
+     "noun": "bed",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no i want three chairs",
+   "action": "add",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no add two lamps",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no remove the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no delete the table",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "table",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "nope remove the lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no undo",
+   "action": "undo",
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no chairs",
+   "action": "none",
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no more chairs",
+   "action": "none",
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no couch",
+   "action": "none",
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no lamps please",
+   "action": "none",
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no thanks",
+   "action": "none",
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "nope",
+   "action": "none",
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "not now",
+   "action": "none",
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "not yet",
+   "action": "none",
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "no",
+   "action": "none",
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add no chairs",
+   "action": "none",
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "dont add a lamp",
+   "action": "none",
+   "slice": "leading_no",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "don`t remove the couch",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "don`t clear the room",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "can`t delete the lamp",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i don`t want the couch anymore",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "shouldn`t i clear the room",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "don\u00b4t remove the couch",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "don\u00b4t clear the room",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "can\u00b4t delete the lamp",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i don\u00b4t want the couch anymore",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "shouldn\u00b4t i clear the room",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "don\u02bct remove the couch",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "don\u02bct clear the room",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "can\u02bct delete the lamp",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i don\u02bct want the couch anymore",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "shouldn\u02bct i clear the room",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "don\u2032t remove the couch",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "don\u2032t clear the room",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "can\u2032t delete the lamp",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i don\u2032t want the couch anymore",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "shouldn\u2032t i clear the room",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "don\u2019t remove the couch",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "don\u2019t clear the room",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "can\u2019t delete the lamp",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i don\u2019t want the couch anymore",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "shouldn\u2019t i clear the room",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "don\u2018t remove the couch",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "don\u2018t clear the room",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "can\u2018t delete the lamp",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i don\u2018t want the couch anymore",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "shouldn\u2018t i clear the room",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a c\u200bouch",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a co\u200cuch",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a cou\u200dch",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a cou\u00adch",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "re\u200bmove the couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a floor\u2060 lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "\ufeffadd a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add\u200b a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a la\u200bmp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add 3 cha\u200birs",
+   "action": "add",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "don\u00b4t add a couch",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "don\u00b4t move the table",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "don\u00b4t undo",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "isn\u00b4t this couch too big",
+   "action": "none",
+   "slice": "apostrophes",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "one less chair",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "one fewer chair",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "two fewer chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "two less chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "three fewer tables",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "table",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "2 fewer chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "one less lamp",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "one fewer crate",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a couple fewer chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i want one less chair",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i need two fewer chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "one less chair please",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "there should be one less chair",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "we need one less chair",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "we want one fewer chair",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "fewer chairs",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "less chairs",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "less chairs please",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i want fewer chairs",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "keep fewer chairs",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "less tables",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "fewer lamps",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "too many chairs",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "there are too many chairs",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "too many chairs, fewer please",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "put fewer chairs around the table",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a room with fewer chairs",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "less chairs and more tables",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "only keep two chairs",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "double the chairs",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "half the chairs",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "half as many chairs",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "twice as many chairs",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "far fewer chairs",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "way too many lamps",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "many fewer chairs",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "much less furniture",
+   "action": "none",
+   "slice": "fewer_less",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a kitchen without the table and chairs",
+   "action": "add",
+   "scene": "kitchen",
+   "exclude": [
+    "table",
+    "chair"
+   ],
+   "items": [],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a bedroom minus the bed and the lamp",
+   "action": "add",
+   "scene": "bedroom",
+   "exclude": [
+    "bed",
+    "floor lamp"
+   ],
+   "items": [],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a living room without the tv and the lamp",
+   "action": "add",
+   "scene": "living room",
+   "exclude": [
+    "tv",
+    "floor lamp"
+   ],
+   "items": [],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a kitchen without the table and the chairs",
+   "action": "add",
+   "scene": "kitchen",
+   "exclude": [
+    "table",
+    "chair"
+   ],
+   "items": [],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a kitchen without the fridge and the stove",
+   "action": "add",
+   "scene": "kitchen",
+   "exclude": [
+    "fridge",
+    "stove"
+   ],
+   "items": [],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a kitchen without the fridge, the stove and the sink",
+   "action": "add",
+   "scene": "kitchen",
+   "exclude": [
+    "fridge",
+    "stove",
+    "sink"
+   ],
+   "items": [],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a living room without the tv, the lamp and the plant",
+   "action": "add",
+   "scene": "living room",
+   "exclude": [
+    "tv",
+    "floor lamp",
+    "plant"
+   ],
+   "items": [],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a dining room without the table and chairs",
+   "action": "add",
+   "scene": "dining room",
+   "exclude": [
+    "table",
+    "chair"
+   ],
+   "items": [],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a bedroom without the bed and the lamp",
+   "action": "add",
+   "scene": "bedroom",
+   "exclude": [
+    "bed",
+    "floor lamp"
+   ],
+   "items": [],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a living room without the couch and the tv",
+   "action": "add",
+   "scene": "living room",
+   "exclude": [
+    "couch",
+    "tv"
+   ],
+   "items": [],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a living room minus the couch and the tv",
+   "action": "add",
+   "scene": "living room",
+   "exclude": [
+    "couch",
+    "tv"
+   ],
+   "items": [],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a kitchen without the stove and the fridge",
+   "action": "add",
+   "scene": "kitchen",
+   "exclude": [
+    "stove",
+    "fridge"
+   ],
+   "items": [],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a living room but no tv and no lamp",
+   "action": "add",
+   "scene": "living room",
+   "exclude": [
+    "tv",
+    "floor lamp"
+   ],
+   "items": [],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a table without the chairs and the lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a couch and dont add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a couch and don't put a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a couch, don't add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a couch but dont add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a couch and never add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a table and don't add chairs",
+   "action": "add",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a table but dont put any chairs",
+   "action": "add",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add two chairs and never add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a bed and dont add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "bed",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a couch and dont add a lamp or a table",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a couch and don't add the lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a table and dont add any chairs",
+   "action": "add",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a desk and dont put a chair",
+   "action": "add",
+   "items": [
+    {
+     "noun": "desk",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a couch and don\u2019t add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a couch and don`t add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a table and a lamp, dont add a couch",
+   "action": "add",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a couch and a table but dont add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a couch and do not add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "add a table with four chairs and dont add a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "table",
+     "count": 1,
+     "adjectives": []
+    },
+    {
+     "noun": "chair",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "slice": "neg_scope",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "tell me a joke",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "tell me a story",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "tell me what you can do",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "tell jokes",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sing me a song",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sing something",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sing to me",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sing happy birthday",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "tell me how to remove the couch",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "loose",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "ease",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "pure",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "slice",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "cost",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "heart",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "chess",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "tell me a secret",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "tell me about yourself",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "tell me about the room",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "tell a joke",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sing a song",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sing us a song",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "ease up",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "pure joy",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "cost of living",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "heart of gold",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "slice of cake",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "tell me more",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "tell me why",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sing along",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "tell me a riddle",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "loose ends",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "sing the alphabet",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "tell me the time",
+   "noreal": true,
+   "slice": "chat_words",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove barrels",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear barrels",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "get rid of chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear the room of barrels",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear the floor of crates",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "delete chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove crates",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "erase lamps",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "destroy couches",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove tables",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "table",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "get rid of crates",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove stools",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "stool",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "delete barrels please",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "take out chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "throw away crates",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "dismiss barrels",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove boxes",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "box",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "delete plants",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "zap lamps",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove two barrels",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove 3 chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove a chair",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove one crate",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove a couple of chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove half a dozen crates",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 6,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove several chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove some chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove a few chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove a barrel",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove four lamps",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "delete 5 crates",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "crate",
+     "count": 5,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove all chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove the chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove both chairs",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove chair",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "remove couch",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "clear the room of the barrels",
+   "action": "remove",
+   "items": [
+    {
+     "noun": "barrel",
+     "count": 0,
+     "adjectives": []
+    }
+   ],
+   "slice": "bare_plural_remove",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "put a lamp past the couch",
+   "action": "add",
+   "target": "couch",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a lamp beyond the couch",
+   "action": "add",
+   "target": "couch",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a lamp infront of the tv",
+   "action": "add",
+   "target": "tv",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a lamp besides the couch",
+   "action": "add",
+   "target": "couch",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a plant nearby the tv",
+   "action": "add",
+   "target": "tv",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a lamp in the middle of the table",
+   "action": "add",
+   "target": "table",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a lamp along side the couch",
+   "action": "add",
+   "target": "couch",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a lamp upon the table",
+   "action": "add",
+   "target": "table",
+   "items": [
+    {
+     "noun": "desk lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a chair adjoining the table",
+   "action": "add",
+   "target": "table",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a lamp in line with the couch",
+   "action": "add",
+   "target": "couch",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a lamp on the side of the couch",
+   "action": "add",
+   "target": "couch",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "three chairs on opposite sides of the table",
+   "action": "add",
+   "target": "table",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 3,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "surround the table with chairs",
+   "action": "add",
+   "target": "table",
+   "items": [
+    {
+     "noun": "chair",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "ring the table with chairs",
+   "action": "add",
+   "target": "table",
+   "items": [
+    {
+     "noun": "chair",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "circle the table with four chairs",
+   "action": "add",
+   "target": "table",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "put a lamp alongside the couch",
+   "action": "add",
+   "target": "couch",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a lamp atop the table",
+   "action": "add",
+   "target": "table",
+   "items": [
+    {
+     "noun": "desk lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a lamp opposite the couch",
+   "action": "add",
+   "target": "couch",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a plant nearby the couch",
+   "action": "add",
+   "target": "couch",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a lamp past the table",
+   "action": "add",
+   "target": "table",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a stool beyond the desk",
+   "action": "add",
+   "target": "desk",
+   "items": [
+    {
+     "noun": "stool",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a chair infront the tv",
+   "action": "add",
+   "target": "tv",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a bookshelf besides the desk",
+   "action": "add",
+   "target": "desk",
+   "items": [
+    {
+     "noun": "bookshelf",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a plant upon the desk",
+   "action": "add",
+   "target": "desk",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "two chairs adjoining the table",
+   "action": "add",
+   "target": "table",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a lamp along side the bed",
+   "action": "add",
+   "target": "bed",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a chair in line with the desk",
+   "action": "add",
+   "target": "desk",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a lamp on the side of the bed",
+   "action": "add",
+   "target": "bed",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "two lamps on opposite sides of the couch",
+   "action": "add",
+   "target": "couch",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 2,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "four chairs on opposite sides of the table",
+   "action": "add",
+   "target": "table",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 4,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "surround the table with six chairs",
+   "action": "add",
+   "target": "table",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 6,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "ring the desk with stools",
+   "action": "add",
+   "target": "desk",
+   "items": [
+    {
+     "noun": "stool",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "circle the couch with plants",
+   "action": "add",
+   "target": "couch",
+   "items": [
+    {
+     "noun": "plant",
+     "count": null,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a tv opposite the couch",
+   "action": "add",
+   "target": "couch",
+   "items": [
+    {
+     "noun": "tv",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "put a stool alongside the desk",
+   "action": "add",
+   "target": "desk",
+   "items": [
+    {
+     "noun": "stool",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a lamp atop the dresser",
+   "action": "add",
+   "target": "dresser",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "a plant in the middle of the desk",
+   "action": "add",
+   "target": "desk",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "reference_prep",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the lamp to the other side of couch",
+   "action": "move",
+   "target": "couch",
+   "side": "other",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the plant to the other side of tv",
+   "action": "move",
+   "target": "tv",
+   "side": "other",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the chair to the other side of table",
+   "action": "move",
+   "target": "table",
+   "side": "other",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the tv to the other side of couch",
+   "action": "move",
+   "target": "couch",
+   "side": "other",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the lamp to the opposite side of couch",
+   "action": "move",
+   "target": "couch",
+   "side": "opposite",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the plant to the opposite side of tv",
+   "action": "move",
+   "target": "tv",
+   "side": "opposite",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the chair to the opposite side of table",
+   "action": "move",
+   "target": "table",
+   "side": "opposite",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the tv to the opposite side of couch",
+   "action": "move",
+   "target": "couch",
+   "side": "opposite",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the lamp to the right side of couch",
+   "action": "move",
+   "target": "couch",
+   "side": "right",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the plant to the right side of tv",
+   "action": "move",
+   "target": "tv",
+   "side": "right",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the chair to the right side of table",
+   "action": "move",
+   "target": "table",
+   "side": "right",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the tv to the right side of couch",
+   "action": "move",
+   "target": "couch",
+   "side": "right",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the lamp to the left side of couch",
+   "action": "move",
+   "target": "couch",
+   "side": "left",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the plant to the left side of tv",
+   "action": "move",
+   "target": "tv",
+   "side": "left",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the chair to the left side of table",
+   "action": "move",
+   "target": "table",
+   "side": "left",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the tv to the left side of couch",
+   "action": "move",
+   "target": "couch",
+   "side": "left",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the table to the other side of the bed",
+   "action": "move",
+   "target": "bed",
+   "side": "other",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "put a plant on the left side of the tv",
+   "action": "add",
+   "target": "tv",
+   "side": "left",
+   "items": [
+    {
+     "noun": "plant",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "put a lamp on the right side of the couch",
+   "action": "add",
+   "target": "couch",
+   "side": "right",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the desk to the left side of the bed",
+   "action": "move",
+   "target": "bed",
+   "side": "left",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the lamp over to the other side of the couch",
+   "action": "move",
+   "target": "couch",
+   "side": "other",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the lamp to the opposite side of the table",
+   "action": "move",
+   "target": "table",
+   "side": "opposite",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the plant to the right side of the desk",
+   "action": "move",
+   "target": "desk",
+   "side": "right",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "put the lamp on the other side of the couch",
+   "action": "move",
+   "target": "couch",
+   "side": "other",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the stool to the left side of the desk",
+   "action": "move",
+   "target": "desk",
+   "side": "left",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "move the chair to the other side of the desk",
+   "action": "move",
+   "target": "desk",
+   "side": "other",
+   "slice": "side_of",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "I like the couch",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "I love that couch",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i love lamps",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i hate couches",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i like tables",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "chairs are cool",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "I really like the lamp",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "we love this couch",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i adore plants",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i dislike that table",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i prefer the armchair",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i enjoy the tv",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "they like the couch",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "he hates the lamp",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "she loves chairs",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "tables are great",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "couches are comfy",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "lamps are nice",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "plants are cool",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "tvs are expensive",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i kinda like the desk",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i really hate chairs",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i love the bed",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "I like that lamp a lot",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "we like the plant",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "I hate this table",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "you like couches",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "beds are cozy",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "crates are heavy",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "barrels are useful",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i like the red couch",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "I love my lamp",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i hate my chairs",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i like chairs",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "bring me the lamp",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "grab the lamp",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "take the lamp",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "give me the couch",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "hand me the lamp",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "fetch the lamp",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "bring me the couch",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "grab the couch",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "take the tv",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "give me the lamp",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "get me the lamp",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "fetch me the chair",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "bring me the chairs",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "grab the plant",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "take the desk",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "hand me the mug",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "give me the mug",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "bring the lamp",
+   "action": "none",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "grab a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "give me a couch",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "bring me a couch",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "get me a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "bring the lamp closer",
+   "action": "move",
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "id like a couch",
+   "action": "add",
+   "items": [
+    {
+     "noun": "couch",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "i want a lamp",
+   "action": "add",
+   "items": [
+    {
+     "noun": "floor lamp",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "fetch me a chair",
+   "action": "add",
+   "items": [
+    {
+     "noun": "chair",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "opinions",
+   "audited": "parser-p0"
+  },
+  {
+   "utterance": "hand me a mug",
+   "action": "add",
+   "items": [
+    {
+     "noun": "mug",
+     "count": 1,
+     "adjectives": []
+    }
+   ],
+   "slice": "opinions",
+   "audited": "parser-p0"
   }
  ]
 }

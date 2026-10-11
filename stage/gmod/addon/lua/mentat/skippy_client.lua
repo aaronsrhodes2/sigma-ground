@@ -16,7 +16,10 @@ file.CreateDir(DIR)
 local cv_voice = CreateClientConVar("skippy_voice", "1", true, false, "1 = play Skippy's spoken answers")
 local cv_volume = CreateClientConVar("skippy_volume", "1", true, false, "loudness of Skippy's voice, 0 to 1")
 local cv_debug = CreateClientConVar("skippy_debug", "0", false, false, "1 = leave a note in data/mentat when Skippy's voice starts playing (for tests)")
-local cv_key = CreateClientConVar("skippy_key", "x", true, false, "the key you hold to talk to Skippy alone (no wake word, other players hear nothing); empty = none")
+-- Off by default and never saved: holding this key sends EVERYTHING the microphone hears to the server as a request (no wake word),
+-- so it must be a key the player chose for it. The launcher (play.py) sets it each session; a key that already does something else
+-- (a shout, a spawn menu, anything bound) is refused with a warning rather than turned into a way to transcribe what is shouted at players.
+local cv_key = CreateClientConVar("skippy_key", "", false, false, "the key you hold to talk to Skippy alone (no wake word; EVERYTHING you say while it is down goes to the server); empty = none")
 
 -- ------------------------------------------------------------------------------------------------ the player speaks
 local transmitting, direct, direct_cmd, direct_key = false, false, false, false
@@ -32,6 +35,22 @@ function write_ptt()
   file.Write(DIR .. "/ptt.txt", (on and "1 " or "0 ") .. string.format("%.2f", SysTime()) .. (direct and " direct" or ""))
 end
 write_ptt()
+
+-- false (and one warning) when the player has given this key another job
+local warned = {}
+local function key_is_free(name, code)
+  if not input.LookupKeyBinding then return true end
+  local cmd = input.LookupKeyBinding(code)
+  if not cmd or cmd == "" or cmd:find("skippy", 1, true) then return true end
+  local tag = name .. ">" .. cmd
+  if not warned[tag] then
+    warned[tag] = true
+    local msg = "[skippy] skippy_key " .. name:upper() .. " is already bound to '" .. cmd .. "', so it is ignored; pick a free key with skippy_key"
+    print(msg)
+    if chat and chat.AddText then chat.AddText(Color(255, 170, 0), msg) end
+  end
+  return false
+end
 
 -- the voice key (and open-mic activation) tell us when the player is talking
 hook.Add("PlayerBindPress", "Mentat.SkippyPTT", function(ply, bind, pressed)
@@ -55,7 +74,7 @@ timer.Create("Mentat.SkippyPTTWatch", 0.1, 0, function()
   local name = cv_key:GetString()
   local code = (name ~= "") and input.GetKeyCode(name) or 0
   local down = false
-  if code and code > 0 and IsValid(me) then
+  if code and code > 0 and IsValid(me) and key_is_free(name, code) then
     down = input.IsKeyDown(code) and not me:IsTyping() and not vgui.CursorVisible() and not gui.IsGameUIVisible() and not gui.IsConsoleVisible()
   end
   if down ~= direct_key then direct_key = down; set_direct() end
@@ -64,7 +83,7 @@ timer.Create("Mentat.SkippyPTTWatch", 0.1, 0, function()
   if (transmitting or direct) and SysTime() - last_beat >= 0.5 then last_beat = SysTime(); write_ptt() end
 end)
 
--- the key named by skippy_key (default X), or `bind <key> +skippy`: talk to Skippy only (no wake word, other players hear nothing)
+-- the key named by skippy_key (off until set), or `bind <key> +skippy`: talk to Skippy only (no wake word, other players hear nothing)
 concommand.Add("+skippy", function() direct_cmd = true; set_direct() end)
 concommand.Add("-skippy", function() direct_cmd = false; set_direct() end)
 

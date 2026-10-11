@@ -13,8 +13,11 @@ end
 net.Receive("holodeck_say", function()
   local text = filtered(net.ReadString())
   local to = net.ReadString()
+  local uid = net.ReadUInt(32) or 0                       -- who asked (0 = nobody in particular: a private line, the console)
   local me = LocalPlayer()
-  local mine = to == "" or (IsValid(me) and string.sub(me:Nick(), 1, 24) == to)     -- others near by see whom Skippy answered
+  -- Others near by see whom Skippy answered. Decided by the asker's number, never by comparing names: the server sends the name
+  -- after cleaning it (single spaces, cut at 24 bytes, repaired UTF-8), which is not the raw name for many players.
+  local mine = to == "" or (uid ~= 0 and IsValid(me) and me:UserID() == uid)
   chat.AddText(Color(0, 255, 136), mine and "[Skippy] " or ("[Skippy to " .. to .. "] "), Color(255, 255, 255), text)
   hook.Run("HolodeckSay", text)
 end)

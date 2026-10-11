@@ -1,6 +1,9 @@
 {
  "category": "laptop",
- "aliases": [],
+ "aliases": [
+  "laptop computer",
+  "notebook computer"
+ ],
  "source_anno_id": "10272",
  "n_parts": 3,
  "parts": [

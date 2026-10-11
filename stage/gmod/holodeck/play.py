@@ -7,17 +7,22 @@
 What it does, in order (and says what it found):
   1. checks what you need: SkippyTel's Whisper (port 3003), Ollama, ffmpeg and a microphone, your Tailscale address;
   2. starts Skippy's bridge on your Tailscale address (a game that hosts its own world cannot reach localhost: the engine's
-     -allowlocalhttp works on dedicated servers only), behind a fresh token that exists only in this process and the game's memory;
+     -allowlocalhttp works on dedicated servers only), behind a fresh token. The token is short-lived: it is made for this run and
+     dies with the bridge when this program ends. This program writes it nowhere except the tool file below, which is deleted the
+     moment the game has consumed it (and again on exit and on a crash). The game's own convar holodeck_bridge_token is archived by
+     the game (server.vdf) and keeps the dead token; it opens nothing once the bridge is gone;
   3. starts the game as a small listen server (so voice chat works) with the Mentat addon, which is already linked into its folder;
-  4. once you are in, a tool (mentat/tools/skippy_play.lua) points the game at the bridge, turns on Skippy's persona and voice and
+  4. once you are in, a tool (mentat/tools/skippy_play.lua, armed through data/mentat/tool.txt) points the game at the bridge, turns on Skippy's persona and voice and
      binds a key (default X) that talks to Skippy alone;
   5. starts the microphone bridge (skippy_ears.py): the microphone is read into memory only while you hold the key.
 Then: hold X and say "add three couches" (no wake word), or hold V and say "Skippy, add three couches". Ctrl+C stops the
 bridge and the microphone; the game keeps running until you close it (or `--stop-after`).
 
 --selftest-voice needs no human: it speaks a request with Windows speech, hands the recording to the SAME code the microphone bridge
-uses (the real local Whisper in SkippyTel recognises it), lets the game pick the request up, and checks that things were built and
-Skippy's spoken answer played in the game. Only the physical microphone and the key press are not exercised.
+uses (the real local Whisper in SkippyTel recognises it), lets the game pick the request up, and checks THREE things: the recognised
+text contains the request's words, the game's answer is a build (not a refusal, a "nothing to add" or an error) naming what was asked
+for, and Skippy's spoken answer played in the game (with --tts elevenlabs, in his own voice). Only the physical microphone and the
+key press are not exercised.
 """
 from __future__ import annotations
 
@@ -46,6 +51,14 @@ SKIPPY_TEL = os.environ.get("SKIPPY_TEL", "http://127.0.0.1:3003")
 OLLAMA = os.environ.get("SKIPPY_OLLAMA", "http://127.0.0.1:11434")
 DATA: Path = exp_run.DATA
 CONSOLE_LOG = DATA.parent.parent / "console.log"
+
+
+def disarm() -> None:
+    """Remove the armed tool file (it holds the bridge URL and the token). Safe to call at any time."""
+    try:
+        (DATA / "tool.txt").unlink(missing_ok=True)
+    except OSError:
+        pass
 
 
 def say(msg: str) -> None:
@@ -151,7 +164,66 @@ def speak_to_ears(phrase: str, api: str, direct: bool) -> str | None:
         return skippy_ears.handle_speech(wav16.read_bytes(), api, DATA, direct)
 
 
-def selftest_voice(request: str, api: str) -> bool:
+NUMBER_WORDS = {"0": "zero", "1": "one", "2": "two", "3": "three", "4": "four", "5": "five", "6": "six", "7": "seven", "8": "eight",
+                "9": "nine", "10": "ten", "11": "eleven", "12": "twelve"}
+FILLER = {"skippy", "hey", "please", "a", "an", "the", "some", "and", "me", "can", "you", "could"}
+VERBS = ("add", "put", "make", "build", "place", "spawn", "give", "bring", "set", "get")
+# what the game says when it did NOT build (holodeck.lua limit_text, plan.lua refusals and notes, parse.lua)
+NOT_BUILT = re.compile(r"nothing in that to add|so I added nothing|I don't have|limit of|as many props|Clear some first|could not|no room|"
+                       r"not allowed|None of that|nothing to undo|nothing recent|more than I can fit|sounded like a no|too soon|cooldown",
+                       re.I)
+
+
+def _words(text: str) -> list[str]:
+    out = []
+    for w in re.findall(r"[a-z0-9']+", (text or "").lower()):
+        w = NUMBER_WORDS.get(w, w)
+        if w not in FILLER:
+            out.append(w)
+    return out
+
+
+def _stem(w: str) -> str:
+    return w[:-2] if w.endswith("es") and len(w) > 4 else (w[:-1] if w.endswith("s") and len(w) > 3 else w)
+
+
+def heard_request(request: str, got: str | None) -> bool:
+    """Did the recogniser hear the request? Every content word of the request (numbers as words, plurals ignored, no wake word) must be there."""
+    if not got:
+        return False
+    have = {_stem(w) for w in _words(got)}
+    need = [_stem(w) for w in _words(request)]
+    return bool(need) and all(w in have for w in need)
+
+
+def selftest_verdict(request: str, got: str | None, console: str, played: bool, count_before: int | None = None,
+                     count_after: int | None = None, tts: str = "auto") -> tuple[bool, str]:
+    """Judge the self-test from what was observed. Returns (passed, why). Pure: the tests drive it with canned console text."""
+    if not heard_request(request, got):
+        return False, f"the recogniser heard {got!r}, which does not contain the request {request!r}"
+    answers = re.findall(r"\[holodeck\] \(for [^)]*\) (.*\S)", console)
+    if not answers:
+        return False, "the game never answered the request"
+    if count_before is not None and count_after is not None:
+        built = count_after > count_before
+        proof = f"{count_after - count_before} new props"
+    else:
+        number_words = set(NUMBER_WORDS.values())
+        nouns = [_stem(w) for w in _words(request) if not w.isdigit() and w not in number_words and w not in VERBS]
+        last = answers[-1]
+        built = not NOT_BUILT.search(last) and (not nouns or any(n in last.lower() for n in nouns))
+        proof = f"the answer {last!r}"
+    if not built:
+        return False, f"nothing was built ({proof})"
+    if not played:
+        return False, "Skippy's voice did not play in the game (see the bridge lines above)"
+    voices = re.findall(r"Skippy's voice is now: (\S+)", console)
+    if tts == "elevenlabs" and (not voices or voices[-1] != "elevenlabs"):
+        return False, f"--tts elevenlabs was asked for but the voice that spoke was {voices[-1] if voices else 'not reported'}"
+    return True, f"built ({proof}) and the voice played" + (f" ({voices[-1]})" if voices else "")
+
+
+def selftest_voice(request: str, api: str, tts: str = "auto") -> bool:
     """Drive the real voice path once and report each link."""
     (DATA / "skippy_played.txt").unlink(missing_ok=True)
     start = log_size()
@@ -165,26 +237,29 @@ def selftest_voice(request: str, api: str) -> bool:
         say("FAIL: the recogniser did not hand anything on (no wake word heard, or Whisper did not answer)")
         return False
     say(f"the recogniser heard and handed on: {got!r}")
-    ok_built = ok_played = False
+    ok_answered = ok_played = False
     seen = ""
     t0 = time.time()
     while time.time() - t0 < 90:
         time.sleep(1)
         seen = log_tail_since(start)
-        ok_built = ok_built or bool(re.search(r"\[holodeck\] \(for [^)]*\) .*\S", seen))
+        ok_answered = bool(re.search(r"\[holodeck\] \(for [^)]*\) .*\S", seen))
         ok_played = (DATA / "skippy_played.txt").exists()
-        if ok_built and ok_played:
+        if ok_answered and ok_played:
             break
     spoken = re.findall(r"\[holodeck\] \(for [^)]*\) (.*)", seen)
     voice = re.findall(r"Skippy's voice is now: (\S+)", seen)
     if voice:
         say(f"the voice that spoke: {voice[-1]}" + ("  (Skippy's own)" if voice[-1] == "elevenlabs" else "  (Windows speech)"))
+    else:
+        say("the voice that spoke: not reported")
     say(f"the game picked it up and answered: {spoken[-1] if spoken else '(nothing)'}")
-    say("Skippy's voice reached the game and played" if ok_played else "FAIL: Skippy's voice did not play in the game (see the bridge lines above)")
     played = (DATA / "skippy_played.txt").read_text(encoding="utf-8").strip() if ok_played else ""
     if played:
         say(f"played clip: {played} (id, seconds long)")
-    return bool(ok_built and ok_played)
+    passed, why = selftest_verdict(request, got, seen, ok_played, tts=tts)
+    say(("verdict: " if passed else "FAIL: ") + why)
+    return passed
 
 
 def main(argv=None) -> int:
@@ -252,7 +327,9 @@ def main(argv=None) -> int:
         if started.returncode != 0:
             say("cannot start the game: " + (started.stdout or "").strip()[:300])
             return 1
-        if not wait_for(DATA / "tool_skippy_play.json", 180, alive=game_running):
+        answered = wait_for(DATA / "tool_skippy_play.json", 180, alive=game_running)
+        disarm()                                                          # the game has consumed the tool: the token leaves the disk now
+        if not answered:
             say("the game never reached the point where it connects to the bridge (is the Mentat addon linked into its addons folder?)")
             return 1
         try:
@@ -274,8 +351,8 @@ def main(argv=None) -> int:
 
         if a.selftest_voice is not None:
             time.sleep(6)                                                 # let the tool finish and the player settle in
-            ok = selftest_voice(a.selftest_voice, SKIPPY_TEL)
-            say("PASS: a spoken request was recognised, built things, and Skippy answered aloud in the game" if ok else "FAIL")
+            ok = selftest_voice(a.selftest_voice, SKIPPY_TEL, a.tts)
+            say("PASS: the spoken request was recognised as asked, the game built what was asked, and Skippy answered aloud" if ok else "FAIL")
             result = 0 if ok else 1
             if a.stop_after:
                 return result
@@ -293,7 +370,7 @@ def main(argv=None) -> int:
             ears.terminate()
         srv.shutdown()
         srv.server_close()
-        (DATA / "tool.txt").unlink(missing_ok=True)
+        disarm()
         if a.stop_after and game_running():
             exp_run.ctl("stop")
     return result

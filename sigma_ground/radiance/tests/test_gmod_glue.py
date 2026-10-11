@@ -694,10 +694,10 @@ def test_malformed_audio_messages_are_ignored():
 def test_the_chat_line_names_whom_skippy_answered():
     """glue-11: people near by see who was answered; the requester sees the plain tag."""
     w = World(server=False, load=())
-    w.lua("""function() MOCK.me = { IsValid = function() return true end, Nick = function() return 'Alice' end } end""")()
+    w.lua("""function() MOCK.me = { IsValid = function() return true end, Nick = function() return 'Alice' end, UserID = function() return 7 end } end""")()
     w.rt.execute('dofile(MOCK.ROOT .. "/mentat/holodeck_client.lua")')
-    for who in ("Alice", "Bob"):
-        w.rt.eval("function(t, who) MOCK.deliver({ name = 'holodeck_say', writes = { t, who } }) end")("Three couches.", who)
+    for who, uid in (("Alice", 7), ("Bob", 8)):       # the asker travels as a number (see test_the_requester_sees_the_plain_tag_whatever_their_nickname)
+        w.rt.eval("function(t, who, uid) MOCK.deliver({ name = 'holodeck_say', writes = { t, who, uid } }) end")("Three couches.", who, uid)
     chat = list(w.rt.eval("function() return MOCK.chat end")().values())
     assert chat[0].startswith("[Skippy] ") and chat[1].startswith("[Skippy to Bob] ")
 
@@ -784,6 +784,7 @@ def test_holding_the_talk_key_tells_the_microphone_bridge_without_any_bind():
     """The server may not bind keys for a player (ConCommand is blocked! (bind)), so the client watches skippy_key itself: holding
     it writes 'direct' to ptt.txt (no wake word), releasing it writes off, and it is ignored while typing or with a menu open."""
     w = client_world()
+    w.lua("function() MOCK.cvars.skippy_key:SetValue('x') end")()               # the key is opt-in (the launcher sets it)
     w.lua("""function() MOCK.me.IsSpeaking = function() return false end; MOCK.me.IsTyping = function() return false end end""")()
     w.advance(0.5)
     assert w.rt.eval("function() return MOCK.files['mentat/ptt.txt']:sub(1, 1) end")() == "0"
@@ -800,3 +801,890 @@ def test_holding_the_talk_key_tells_the_microphone_bridge_without_any_bind():
     w.lua("function() input.keys_down[34] = false end")()
     w.advance(0.3)
     assert w.rt.eval("function() return MOCK.files['mentat/ptt.txt']:sub(1, 1) end")() == "0"
+
+
+# ================================================================================================ round 2: undo, evictions, budgets
+FAKE_CLOCK = """function()
+  FAKE = 0
+  SysTime = function() return MOCK.now + FAKE end
+  local run = Holodeck.planner.run
+  CAPTURED_BUDGETS = {}
+  Holodeck.planner.run = function(self, req, ctx)
+    CAPTURED_BUDGETS[#CAPTURED_BUDGETS + 1] = ctx.budget
+    local heavy = false
+    for _, it in ipairs(req.items or {}) do if (it.count or 1) >= 10 then heavy = true end end
+    FAKE = FAKE + (heavy and 0.05 or 0.001)
+    return run(self, req, ctx)
+  end
+end"""
+
+RECORD_SAYS = """function()
+  SAYS = {}
+  hook.Add('HolodeckSaid', 'rec', function(p, t) SAYS[#SAYS + 1] = { sid = p and p.sid or 'console', text = t } end)
+end"""
+
+
+def says_to(w, sid):
+    n = w.rt.eval("function() return #SAYS end")()
+    return [w.rt.eval("function(i) return SAYS[i].text end")(i) for i in range(1, n + 1)
+            if w.rt.eval("function(i) return SAYS[i].sid end")(i) == sid]
+
+
+def tells(w):
+    return [m.writes[1] for m in w.rt.eval("function() return T.nets('holodeck_say') end")().values()]
+
+
+def last_text(w):
+    return w.rt.eval("function() return Holodeck.last_say or '' end")()
+
+
+def overlaps(w):
+    """Number of registry pairs standing on the same ground (floor-level footprints that coincide)."""
+    return w.rt.eval("""function()
+      local L, n = Holodeck.layout, 0
+      local es = {}
+      for _, id in ipairs(Holodeck.order) do es[#es + 1] = Holodeck.registry[id] end
+      for i = 1, #es do for j = i + 1, #es do
+        local a, b = es[i], es[j]
+        local ra, rb = L.rect(a.x, a.y, a.w, a.d, a.theta), L.rect(b.x, b.y, b.w, b.d, b.theta)
+        if math.abs(a.z - b.z) < 1 and L.overlap(ra, rb, 0) and L.penetration(ra, rb) > 8 then n = n + 1 end
+      end end
+      return n
+    end""")()
+
+
+BLOCK_AT = """function(x, y) MOCK.blockers[1] = { x0 = x - 30, y0 = y - 30, x1 = x + 30, y1 = y + 30, ent = { IsPlayer = function() return false end } } end"""
+
+
+# ---- (b) evictions only for what is really built
+def test_eviction_is_only_for_the_number_really_built():
+    """glue-security 25: a player with one slot left who asks for four lamps costs the others one prop, not the whole shortfall."""
+    w = World(cvars={"holodeck_max_ents": "11", "holodeck_max_per_player": "4"})
+    x, v1, v2 = w.player(A), w.player(B, x=900), w.player(C, x=-900)
+    for p in (v1, v2):
+        w.ask(p, "add four lamps")
+    w.ask(x, "add three lamps")
+    assert w.count() == 11 and w.count(A) == 3
+    w.ask(x, "add four lamps")
+    assert w.count(A) == 4
+    assert w.count() == 11, "others lost more props than were built for the requester"
+
+
+def test_a_vetoed_request_takes_nothing_from_anyone():
+    """glue-security 25: the spawn rules are asked before anyone's props come down."""
+    w = World(cvars={"holodeck_max_ents": "8", "holodeck_max_per_player": "4"})
+    v1, v2, x = w.player(B, x=900), w.player(C, x=-900), w.player(A)
+    for p in (v1, v2):
+        w.ask(p, "add four lamps")
+    w.lua("function() hook.Add('PlayerSpawnProp', 'jail', function(ply) if ply.sid == '%s' then return false end end) end" % A)()
+    w.ask(x, "add three lamps")
+    assert w.count(B) == 4 and w.count(C) == 4 and w.count(A) == 0
+
+
+def test_a_player_at_their_own_limit_costs_nobody_else_a_prop():
+    """integration 57 / glue-security 25: the personal limit is looked at before any eviction; a request for nothing evicts nothing."""
+    w = World(cvars={"holodeck_max_ents": "9", "holodeck_max_per_player": "4"})
+    x, v1, v2 = w.player(A), w.player(B, x=900), w.player(C, x=-900)
+    w.ask(x, "add four lamps")
+    w.ask(v1, "add four lamps")
+    w.ask(v2, "add a lamp")
+    assert w.count() == 9
+    w.ask(x, "add a chair")
+    assert w.count(B) == 4 and w.count(A) == 4
+    for text in ("add a unicorn", "add something"):
+        w.ask(v2, text)
+    assert w.count(B) == 4
+
+
+# ---- (a) undo restores the right thing for the right owner
+def test_an_admins_undo_gives_a_rebuilt_owner_no_more_than_their_limit():
+    """glue-security 29 / critic 8: restored props count against the OWNER's limit, not the admin's."""
+    w = World(cvars={"holodeck_max_per_player": "3"})
+    bob, admin = w.player(A), w.player(B, admin=True, x=900)
+    w.ask(bob, "add three lamps")
+    w.ask(admin, "clear everything")
+    w.ask(bob, "add three lamps")
+    w.ask(admin, "undo")
+    assert w.count(A) == 3
+
+
+def test_restored_props_are_created_as_their_owners():
+    """glue-security 29 / integration 42: creator and CPPI owner are the owner; unowned (not the admin) when the owner is away."""
+    w = World()
+    a, admin = w.player(A), w.player(B, admin=True, x=900)
+    w.ask(a, "add two couches")
+    w.advance(3)
+    w.ask(admin, "clear everything")
+    w.ask(admin, "undo")
+    w.advance(3)
+    live = w.rt.eval("""function() local o = {}
+      for _, e in ipairs(MOCK.ents) do
+        if e.valid then o[#o + 1] = (e.creator and e.creator.sid or 'none') .. '/' .. (e.cppi and e.cppi.sid or 'none') end
+      end
+      return o end""")()
+    assert list(live.values()) == [A + "/" + A] * 2
+    w.ask(admin, "clear everything")
+    w.rt.eval("function(p) MOCK.disconnect(p) end")(a)
+    w.ask(admin, "undo")
+    w.advance(3)
+    live = w.rt.eval("""function() local o = {}
+      for _, e in ipairs(MOCK.ents) do
+        if e.valid then o[#o + 1] = (e.creator and e.creator.sid or 'none') .. '/' .. (e.cppi and e.cppi.sid or 'none') end
+      end
+      return o end""")()
+    assert list(live.values()) == ["none/none"] * 2
+
+
+def test_undo_does_not_put_props_into_ground_someone_else_now_holds():
+    """glue-security 26 / integration 52: A clears, B builds in the freed spot, A's undo restores nothing on top of it."""
+    w = World()
+    a, b = w.player(A), w.player(B)
+    w.ask(a, "add a couch")
+    w.advance(2)
+    w.ask(a, "clear everything")
+    w.ask(b, "add a couch")
+    w.advance(2)
+    w.ask(a, "undo")
+    w.advance(2)
+    assert w.count() == 1 and overlaps(w) == 0
+    assert "something is standing there" in last_text(w)
+
+
+def test_what_could_not_be_restored_stays_on_the_undo_stack():
+    """integration 56 / glue-security 26: a blocked undo keeps the remainder; a later undo puts it back."""
+    w = World()
+    a, b = w.player(A), w.player(B)
+    w.ask(a, "add a couch")
+    w.advance(2)
+    w.ask(a, "clear everything")
+    w.ask(b, "add a couch")
+    w.advance(2)
+    w.ask(a, "undo")
+    assert w.count(A) == 0
+    w.ask(b, "clear everything")
+    w.ask(a, "undo")
+    w.advance(2)
+    assert w.count(A) == 1
+
+
+def test_a_partial_restore_under_the_server_limit_keeps_the_rest():
+    """integration 56: 'N did not fit' no longer throws the N away."""
+    w = World(cvars={"holodeck_max_ents": "6", "holodeck_max_per_player": "6"})
+    a, b, c = w.player(A), w.player(B, x=900), w.player(C, x=-900)
+    w.ask(a, "add four lamps")
+    w.ask(a, "clear everything")
+    w.ask(b, "add three lamps")
+    w.ask(c, "add three lamps")
+    w.ask(a, "undo")
+    first = w.count(A)
+    assert 0 < first < 4
+    w.ask(b, "clear everything")
+    w.ask(c, "clear everything")
+    w.ask(a, "undo")
+    w.advance(2)
+    assert w.count(A) == 4
+
+
+def test_a_blocked_spot_keeps_the_prop_from_coming_back():
+    """glue-security 26: the clearance test sees other addons' props, for restores."""
+    w = World()
+    a = w.player(A)
+    w.ask(a, "add a couch")
+    w.advance(2)
+    pos = w.rt.eval("function() local e = Holodeck.registry[Holodeck.order[1]]; return e.x, e.y end")()
+    w.ask(a, "clear everything")
+    w.rt.eval(BLOCK_AT)(pos[0], pos[1])
+    w.ask(a, "undo")
+    assert w.count() == 0
+    w.lua("function() MOCK.blockers = {} end")()
+    w.ask(a, "undo")
+    assert w.count() == 1
+
+
+def test_undo_of_a_move_does_not_land_on_something_that_arrived():
+    """glue-security 26: an undone move leaves the prop where it is when its old spot is taken now, and says so."""
+    w = World()
+    a = w.player(A)
+    w.ask(a, "add a couch")
+    w.advance(2)
+    old = w.rt.eval("function() local e = Holodeck.registry[Holodeck.order[1]]; return e.x, e.y end")()
+    w.ask(a, "move the couch away from me")
+    moved = w.rt.eval("function() local e = Holodeck.registry[Holodeck.order[1]]; return e.x, e.y end")()
+    assert abs(moved[0] - old[0]) + abs(moved[1] - old[1]) > 20
+    w.rt.eval(BLOCK_AT)(old[0], old[1])
+    w.ask(a, "undo")
+    now = w.rt.eval("function() local e = Holodeck.registry[Holodeck.order[1]]; return e.x, e.y end")()
+    assert abs(now[0] - moved[0]) < 1 and abs(now[1] - moved[1]) < 1
+    assert "could not be put back" in last_text(w)
+    w.lua("function() MOCK.blockers = {} end")()
+    w.ask(a, "undo")
+    back = w.rt.eval("function() local e = Holodeck.registry[Holodeck.order[1]]; return e.x, e.y end")()
+    assert abs(back[0] - old[0]) < 1 and abs(back[1] - old[1]) < 1
+
+
+def desk_with_foreign_lamp():
+    w = World()
+    p = w.player(A)
+    w.ask(p, "add a desk with a lamp on it")
+    w.advance(3)
+    lamp = w.rt.eval("""function()
+      for _, id in ipairs(Holodeck.order) do
+        local e = Holodeck.registry[id]
+        if e.kind:find('lamp') then e.owner = 'someone-else'; return id end
+      end
+    end""")()
+    return w, p, lamp
+
+
+def test_undo_of_a_move_puts_back_the_load_of_another_player():
+    """integration 40: the load that rode along comes back with its support, whoever owns it."""
+    w, p, lamp = desk_with_foreign_lamp()
+    before = w.rt.eval("function(id) local e = Holodeck.registry[id]; return e.x, e.y end")(lamp)
+    w.ask(p, "move the desk away from me")
+    mid = w.rt.eval("function(id) local e = Holodeck.registry[id]; return e.x, e.y end")(lamp)
+    assert abs(mid[0] - before[0]) + abs(mid[1] - before[1]) > 1
+    w.ask(p, "undo")
+    after = w.rt.eval("function(id) local e = Holodeck.registry[id]; return e.x, e.y end")(lamp)
+    assert abs(after[0] - before[0]) < 1 and abs(after[1] - before[1]) < 1
+
+
+def test_undo_does_not_drag_a_load_its_owner_moved_since():
+    """integration 40 (verifier note): a carried prop moved by its owner after the move stays where the owner put it."""
+    w, p, lamp = desk_with_foreign_lamp()
+    w.ask(p, "move the desk away from me")
+    w.lua("function(id) local e = Holodeck.registry[id]; e.ent:SetPos(e.ent:GetPos() + Vector(150, 150, 0)) end")(lamp)
+    pos = w.rt.eval("function(id) local e = Holodeck.registry[id]; return e.ent:GetPos().x end")(lamp)
+    w.ask(p, "undo")
+    assert w.rt.eval("function(id) local e = Holodeck.registry[id]; return e.ent:GetPos().x end")(lamp) == pos
+    assert "left where" in last_text(w)
+
+
+# ---- (c) compound sentences share one budget
+def test_a_compound_sentence_shares_one_planning_budget_and_one_thing_count():
+    """glue-security 27: the clauses of one sentence split 0.05 s and 40 things between them."""
+    w = World()
+    p = w.player(A)
+    w.lua(FAKE_CLOCK)()
+    w.ask(p, "add thirty lamps. add thirty chairs. add two tables")
+    n = w.rt.eval("function() return #CAPTURED_BUDGETS end")()
+    b = [w.rt.eval("function(i) return CAPTURED_BUDGETS[i] end")(i) for i in range(1, n + 1)]
+    assert b[0] == 0.05 and all(x < 0.05 for x in b[1:]), b
+    w2 = World()
+    q = w2.player(A)
+    w2.ask(q, "add thirty lamps. add thirty chairs. add thirty tables")
+    assert w2.count(A) <= 40
+    assert "one go" in last_text(w2)
+
+
+def test_a_long_compound_sentence_is_cut_off_and_the_player_is_told():
+    """glue-security 27: at most eight requests of one sentence, and the rest is said to be dropped."""
+    w = World()
+    p = w.player(A)
+    w.ask(p, ". ".join(["add a lamp"] * 10))
+    assert w.count(A) <= 8
+    assert any("first 8" in t for t in tells(w))
+
+
+# ---- (d) fair shares of the planner and the bridge
+def test_three_planner_hogs_do_not_lock_out_a_fourth_player():
+    """integration 44 / glue-security 28: the planner allowance has a share per player; the hogs are refused alone."""
+    w = World()
+    hogs = [w.player(str(7000 + i), x=3000 * i) for i in range(3)]
+    honest = w.player(A, x=-5000)
+    w.lua(FAKE_CLOCK)()
+    w.lua(RECORD_SAYS)()
+    w.rt.eval("""function(h1, h2, h3, honest)
+      local hogs = { h1, h2, h3 }
+      for tick = 1, 40 do
+        for _, h in ipairs(hogs) do Holodeck.Handle(h, 'add thirty lamps') end
+        if tick % 3 == 0 then Holodeck.Handle(honest, 'add a lamp') end
+        MOCK.advance(1.1)
+      end
+    end""")(*hogs, honest)
+    mine = says_to(w, A)
+    assert mine and not any("busy planning" in t or "share of planning" in t for t in mine)
+    assert any("share of planning" in t for t in says_to(w, "7000"))
+
+
+def test_one_player_cannot_use_up_the_servers_bridge_allowance():
+    """glue-security 28: a per-player bridge share below the server's, so an honest player still gets calls."""
+    w = bridge_world(holodeck_agent="0")
+    hog, honest = w.player(B), w.player(A, x=5000)
+    w.rt.eval("""function(hog, honest)
+      local answered = 0
+      local function answer()
+        for i = answered + 1, #MOCK.https do
+          local h = MOCK.https[i]
+          if h.url:sub(-6) == '/reply' then MOCK.respond(i, 200, '{"say":"Done."}')
+          else MOCK.respond(i, 200, 'ID3' .. string.rep('x', 400), {}) end
+        end
+        answered = #MOCK.https
+      end
+      for t = 1, 100 do
+        Holodeck.Handle(hog, 'add a lamp'); answer()
+        MOCK.advance(0.2)
+        if t % 10 == 0 then Holodeck.Handle(honest, 'add a lamp'); answer() end
+        MOCK.advance(1.0)
+      end
+    end""")(hog, honest)
+    mine = {B: 0, A: 0}
+    for h in w.rt.eval("function() return MOCK.https end")().values():
+        who = json.loads(h.body).get("who")
+        if who in mine:
+            mine[who] += 1
+    assert mine[B] <= 14, mine
+    assert mine[A] >= 6, mine
+
+
+# ---- (e) a prop is never set solid around a person
+def test_a_prop_never_goes_solid_around_a_player_who_stays():
+    """glue-security 32: it stays passable and the owner is told; it turns solid when the player steps out."""
+    w = World()
+    p = w.player(A)
+    w.rt.eval("function(p) Holodeck.Handle(p, 'add a couch') end")(p)
+    w.advance(0.2)
+    e = w.rt.eval("function() return MOCK.ents[#MOCK.ents] end")()
+    w.rt.eval("function(p, e) p.pos = Vector(e.pos.x, e.pos.y, 0) end")(p, e)
+    w.advance(15)
+    assert w.rt.eval("function(e) return e.group end")(e) == 15
+    assert any("see-through" in t for t in tells(w))
+    w.rt.eval("function(p) p.pos = Vector(5000, 5000, 0) end")(p)
+    w.advance(3)
+    assert w.rt.eval("function(e) return e.group end")(e) == 0
+
+
+# ---- (f) the reply only counts what the engine really made
+def test_props_the_engine_refused_are_reported_and_forgotten():
+    """integration 60: five asked, two created: the player is told, and undo does not list ghosts."""
+    w = World()
+    p = w.player(A)
+    w.lua("""function()
+      local create, made = ents.Create, 0
+      ents.Create = function(class)
+        local e = create(class)
+        made = made + 1
+        if made > 2 then e.valid = false end
+        return e
+      end
+    end""")()
+    w.ask(p, "add five lamps")
+    w.advance(3)
+    assert w.count(A) == 2
+    assert any("Only 2 of the 5" in t for t in tells(w))
+    w.ask(p, "undo")
+    assert "2 things gone" in last_text(w)
+
+
+def test_a_request_is_not_promised_more_than_the_engine_has_room_for():
+    """integration 60: when the engine reports few free entity slots the reply says so up front."""
+    w = World()
+    p = w.player(A)
+    w.lua("function() ents.GetCount = function() return 7898 end end")()
+    w.ask(p, "add five lamps")
+    w.advance(3)
+    assert w.count(A) == 2
+    assert "only 2" in last_text(w)
+
+
+# ------------------------------------------------------------------------------------------------ the talk key must not hijack another key (D1 / finding 31)
+def _held(w):
+    return w.rt.eval("function() return MOCK.files['mentat/ptt.txt'] end")()
+
+
+def _quiet_client():
+    w = client_world()
+    w.lua("""function() MOCK.me.IsSpeaking = function() return false end; MOCK.me.IsTyping = function() return false end end""")()
+    return w
+
+
+def test_the_talk_key_is_off_until_the_player_or_the_launcher_chooses_one():
+    """Holding a key must never start sending the microphone to the server unasked: with the default settings, holding X (the key
+    the README once gave to the shout) leaves ptt.txt off, and the setting is not saved into the player's config."""
+    w = _quiet_client()
+    assert w.rt.eval("function() return MOCK.cvars.skippy_key:GetString() end")() == ""
+    w.lua("function() input.keys_down[34] = true end")()
+    w.advance(1)
+    assert _held(w).startswith("0 "), _held(w)
+    w.lua("function() MOCK.cvars.skippy_key:SetValue('x') end")()               # the launcher's `skippy_key x`
+    w.advance(0.3)
+    assert _held(w).startswith("1 ") and _held(w).endswith(" direct")
+
+
+def test_a_key_that_already_has_another_job_is_never_the_talk_key():
+    """The player bound X to the shout (+mentat_shout): holding it to shout at a team mate must not be transcribed and sent."""
+    w = _quiet_client()
+    w.lua("""function()
+      input.LookupKeyBinding = function(code) if code == 34 then return '+mentat_shout' end end
+      MOCK.cvars.skippy_key:SetValue('x')
+      input.keys_down[34] = true
+    end""")()
+    w.advance(2)
+    assert _held(w).startswith("0 "), _held(w)
+    assert w.rt.eval("function() return T.printed('already bound') end")() is True, "the player is told once why the key does nothing"
+    shown = w.rt.eval("function() local n = 0; for _, l in ipairs(MOCK.printed) do if l:find('already bound', 1, true) then n = n + 1 end end; return n end")()
+    assert shown == 1, "one warning, not one per tick"
+    # a key bound to nothing, or to +skippy itself, still works
+    w.lua("function() input.LookupKeyBinding = function(code) return nil end end")()
+    w.advance(0.3)
+    assert _held(w).startswith("1 ") and _held(w).endswith(" direct")
+    w.lua("function() input.LookupKeyBinding = function(code) return '+skippy' end end")()
+    w.advance(0.3)
+    assert _held(w).startswith("1 ")
+
+
+# ================================================================================================ round 3: engine-glue classes (review F)
+def kinds_standing(w):
+    return list(w.rt.eval("""function() local o = {}
+      for _, id in ipairs(Holodeck.order) do o[#o + 1] = Holodeck.registry[id].kind end
+      return o end""")().values())
+
+
+# ---- one sentence: the cap, what was cut, what "another one" repeats
+def test_the_readme_sentence_runs_all_five_requests():
+    """review F4/F39: 'put a lamp next to the couch. Turn the chair to face me. Remove the lamp. Undo. Clear the room.' ends with the room cleared."""
+    w = World()
+    p = w.player(A)
+    w.ask(p, "add a couch")
+    w.ask(p, "add a chair")
+    w.ask(p, "put a lamp next to the couch. Turn the chair to face me. Remove the lamp. Undo. Clear the room.")
+    w.advance(3)
+    assert w.count() == 0
+    assert "Cleared" in last_text(w)
+
+
+def test_the_glue_follows_the_parsers_limit_and_says_what_it_left_out():
+    """review F76: one limit for parser and glue (the parser's MAX_REQUESTS); clauses over it are named, not dropped in silence."""
+    w = World()
+    p = w.player(A)
+    w.lua("""function()
+      local parse_all = Holodeck.parser.parse_all
+      Holodeck.parser.MAX_REQUESTS = 4
+      Holodeck.parser.parse_all = function(self, text, prev) return parse_all(self, text, prev) end
+    end""")()
+    w.ask(p, ". ".join(["add a lamp"] * 6))
+    assert w.count(A) == 4
+    assert "first 4" in last_text(w)
+
+
+def test_clauses_that_never_ran_do_not_become_the_thing_to_repeat():
+    """review F39: 'another one' repeats the last request that really ran, not a clause the one-sentence budget cut off."""
+    w = World()
+    p = w.player(A)
+    w.ask(p, "add thirty lamps. add thirty chairs. add thirty tables")
+    assert "one go" in last_text(w)
+    assert "table" not in kinds_standing(w)
+    chairs = kinds_standing(w).count("chair")
+    w.ask(p, "add another one")
+    assert "table" not in kinds_standing(w)
+    assert kinds_standing(w).count("chair") == chairs + 1
+
+
+def test_a_request_over_the_read_limit_says_the_rest_was_not_read():
+    """review F76/F55: the parser sees one character more than it reads, so its truncation note reaches the player."""
+    w = World()
+    p = w.player(A)
+    w.ask(p, "add a lamp" + " please" * 60)
+    assert w.count(A) >= 1
+    assert any("first 400 characters" in t for t in tells(w))
+
+
+def test_nothing_is_removed_on_half_a_sentence():
+    """review F76: a destructive request cut at the limit may have lost its 'except the couch': it is refused with a reason."""
+    w = World()
+    p = w.player(A)
+    w.ask(p, "add a couch")
+    w.ask(p, "add three chairs")
+    before = w.count()
+    w.ask(p, "remove everything" + " please" * 58 + " except the couch")
+    assert w.count() == before
+    assert "too long" in last_tell(w)
+    w.ask(p, "remove everything except the couch")
+    assert kinds_standing(w) == ["couch"]
+
+
+def last_tell(w):
+    return w.rt.eval("function() return Holodeck.last_tell or '' end")()
+
+
+def test_another_one_works_after_any_request_not_only_after_an_add():
+    """review F54: a turn, a move, a remove or an undo in between no longer leaves 'another one' with nothing to repeat."""
+    w = World()
+    p = w.player(A)
+    w.ask(p, "add a couch")
+    w.ask(p, "turn the couch around")
+    w.ask(p, "add another one")
+    assert kinds_standing(w).count("couch") == 2
+    w2 = World()
+    q = w2.player(B)
+    w2.ask(q, "add three chairs")
+    w2.ask(q, "undo")
+    assert w2.count() == 0
+    w2.ask(q, "add another one")
+    assert kinds_standing(w2).count("chair") == 1
+
+
+def test_undoing_an_add_gives_it_back_to_the_earlier_group():
+    """review F58: after 'undo', 'it' means the couch again, not the lamp that is gone."""
+    w = World()
+    p = w.player(A)
+    w.ask(p, "add a couch")
+    w.ask(p, "put a lamp next to it")
+    w.ask(p, "undo")
+    assert "lamp" not in " ".join(kinds_standing(w))
+    w.ask(p, "put a plant next to it")
+    assert "nothing recent" not in last_text(w)
+    assert "couch" in last_text(w)
+
+
+# ---- the library changes under standing props and undo snapshots
+FORGET_MODEL = """function(gone, still_on_server)
+  local real = util.IsValidModel
+  util.IsValidModel = function(m) return m ~= gone end
+  Holodeck.BuildLibrary()
+  util.IsValidModel = still_on_server and real or function(m) return m ~= gone end
+end"""
+
+
+def standing_couch_model(w):
+    return w.rt.eval("function() return Holodeck.registry[Holodeck.order[1]].model end")()
+
+
+def test_a_prop_whose_model_left_the_library_can_still_be_named_and_removed():
+    """review F59: the couch stands, its model leaves the library: it is legacy (no index), still named, moved, removed, and not added twice."""
+    w = World()
+    p = w.player(A)
+    w.ask(p, "add a couch")
+    w.advance(2)
+    model = standing_couch_model(w)
+    w.lua(FORGET_MODEL)(model, True)
+    e = w.rt.eval("function() local e = Holodeck.registry[Holodeck.order[1]]; return e.legacy, e.vi, e.variant and e.variant.model end")()
+    assert e == (True, None, model)
+    w.ask(p, "move the couch closer")
+    assert "no couch" not in last_text(w).lower()
+    w.ask(p, "put a lamp next to the couch")
+    assert kinds_standing(w).count("couch") == 1
+    w.ask(p, "remove the couch")
+    assert "couch" not in kinds_standing(w)
+
+
+def test_undo_never_brings_a_prop_back_under_a_stale_variant():
+    """review F43/F33: a cleared prop whose model left the library comes back with ITS variant, marked legacy, never variants[old index]."""
+    w = World()
+    p = w.player(A)
+    w.ask(p, "add a couch")
+    w.advance(2)
+    model = standing_couch_model(w)
+    w.ask(p, "clear everything")
+    w.lua(FORGET_MODEL)(model, True)
+    w.ask(p, "undo")
+    w.advance(2)
+    got = w.rt.eval("""function() local e = Holodeck.registry[Holodeck.order[1]]
+      return e.model, e.legacy, e.vi, e.variant and e.variant.model end""")()
+    assert got == (model, True, None, model)
+
+
+def test_undo_skips_props_whose_model_the_server_no_longer_has_and_says_so():
+    """review F33: no engine error models respawned; the player is told how many stayed gone."""
+    w = World()
+    p = w.player(A)
+    w.ask(p, "add two couches")
+    w.advance(2)
+    models = w.rt.eval("""function() local o = {}
+      for _, id in ipairs(Holodeck.order) do o[#o + 1] = Holodeck.registry[id].model end
+      return o end""")()
+    gone = set(models.values())
+    w.ask(p, "clear everything")
+    w.lua("function(list) local g = {}; for _, m in pairs(list) do g[m] = true end; util.IsValidModel = function(m) return not g[m] end; Holodeck.BuildLibrary() end")(
+        lua_table(w.rt, sorted(gone)))
+    live_before = w.rt.eval("function() return MOCK.live_props() end")()
+    w.ask(p, "undo")
+    w.advance(2)
+    assert w.rt.eval("function() return MOCK.live_props() end")() == live_before
+    assert w.count() == 0
+    assert "no longer has" in last_text(w)
+
+
+# ---- floor and ceiling see what a person stands on
+FROZEN_PROP = """{ IsPlayer = function() return false end, GetClass = function() return 'prop_physics' end,
+  GetPhysicsObject = function() return { IsValid = function() return true end, IsMotionEnabled = function() return %s end } end }"""
+
+
+def platform(w, top, motion, bottom=None):
+    w.lua("function() MOCK.blockers[#MOCK.blockers + 1] = { x0 = -900, y0 = -900, x1 = 900, y1 = 900, top = %s, bottom = %s, ent = %s } end"
+          % (top, bottom if bottom is not None else "nil", FROZEN_PROP % ("true" if motion else "false")))()
+
+
+def test_a_requester_on_a_frozen_platform_gets_things_on_the_platform():
+    """review F34: the floor probe sees a frozen prop as ground: the couch is planned onto the platform, not 300 HU below it."""
+    w = World()
+    p = w.player(A)
+    w.rt.eval("function(p) p.pos = Vector(0, 0, 300) end")(p)
+    platform(w, 300, motion=False)
+    w.ask(p, "add a couch")
+    z = w.rt.eval("function() return Holodeck.registry[Holodeck.order[1]].z end")()
+    assert abs(z - 300) < 1.0
+
+
+def test_a_loose_prop_is_not_a_floor():
+    """review F34: only a FROZEN prop is ground; a crate lying about is not (the old behaviour for loose props stays)."""
+    w = World()
+    capture_ctx(w)
+    p = w.player(A)
+    w.ask(p, "add a lamp")
+    platform(w, 40, motion=True)
+    assert w.rt.eval("function() return CAPTURED.env.floor_z(0, 0) end")() == 0
+    w.lua("function() MOCK.blockers = {} end")()
+    platform(w, 40, motion=False)
+    assert w.rt.eval("function() return CAPTURED.env.floor_z(0, 0) end")() == 40
+
+
+def test_a_frozen_slab_overhead_is_a_ceiling():
+    """review F34: ceiling_z sees the same ground; a loose prop overhead is no ceiling."""
+    w = World()
+    capture_ctx(w)
+    p = w.player(A)
+    w.ask(p, "add a lamp")
+    platform(w, 200, motion=False, bottom=190)
+    assert w.rt.eval("function() return CAPTURED.env.ceiling_z(0, 0, 0) end")() == 190
+    w.lua("function() MOCK.blockers = {} end")()
+    platform(w, 200, motion=True, bottom=190)
+    assert w.rt.eval("function() return CAPTURED.env.ceiling_z(0, 0, 0) end")() is None
+
+
+def test_ground_ignores_players_and_the_holodecks_own_props():
+    """review F34: the ground filter is not `blocks`: a person's head and our own props are not floor."""
+    w = World()
+    capture_ctx(w)
+    p = w.player(A)
+    w.ask(p, "add a lamp")
+    w.lua("""function() MOCK.blockers[1] = { x0 = -900, y0 = -900, x1 = 900, y1 = 900, top = 72, bottom = 0,
+      ent = { IsPlayer = function() return true end, Alive = function() return true end, GetMoveType = function() return 2 end } } end""")()
+    assert w.rt.eval("function() return CAPTURED.env.floor_z(0, 0) end")() == 0
+    w.lua("""function() MOCK.blockers[1].ent = { HolodeckId = 3, IsPlayer = function() return false end } end""")()
+    assert w.rt.eval("function() return CAPTURED.env.floor_z(0, 0) end")() == 0
+
+
+# ---- the chat tag
+def test_the_requester_sees_the_plain_tag_whatever_their_nickname():
+    """review F35: who asked travels as a number, so a nickname that clean_text changes still gets '[Skippy]'."""
+    for nick in ("Bob  Smith", " padded ", "tab\there", "Дмитрий Васильевич Иванов"):
+        server = World()
+        server.lua("function() utf8 = { force = function(s) return (s:gsub('[\\192-\\255][\\128-\\191]*$', '?')) end } end")()
+        p = server.player(A)
+        server.rt.eval("function(p, nick) p.name = nick end")(p, nick)
+        server.rt.eval("function(p) Holodeck.Say(p, 'One floor lamp.') end")(p)
+        msg = server.rt.eval("function() return T.nets('holodeck_say')[1] end")()
+        writes = [msg.writes[i] for i in range(1, 4)]
+        uid = server.rt.eval("function(p) return p:UserID() end")(p)
+        client = World(server=False, load=())
+        client.lua("function(uid, nick) MOCK.me = { IsValid = function() return true end, Nick = function() return nick end, UserID = function() return uid end } end")(uid, nick)
+        client.rt.execute('dofile(MOCK.ROOT .. "/mentat/holodeck_client.lua")')
+        client.rt.eval("function(a, b, c) MOCK.deliver({ name = 'holodeck_say', writes = { a, b, c } }) end")(*writes)
+        other = World(server=False, load=())
+        other.lua("function(uid) MOCK.me = { IsValid = function() return true end, Nick = function() return 'Eve' end, UserID = function() return uid + 1 end } end")(uid)
+        other.rt.execute('dofile(MOCK.ROOT .. "/mentat/holodeck_client.lua")')
+        other.rt.eval("function(a, b, c) MOCK.deliver({ name = 'holodeck_say', writes = { a, b, c } }) end")(*writes)
+        mine = list(client.rt.eval("function() return MOCK.chat end")().values())[0]
+        theirs = list(other.rt.eval("function() return MOCK.chat end")().values())[0]
+        assert mine.startswith("[Skippy] "), (nick, mine)
+        assert theirs.startswith("[Skippy to "), (nick, theirs)
+
+
+# ---- the voice rule
+def test_an_unknown_voice_mode_means_proximity_for_the_server_and_the_clients():
+    """review F36: 'Proximity', 'PROXIMITY', 'proximity ' and typos are proximity everywhere; 'Global' and ' OFF ' mean what they say."""
+    for raw in ("Proximity", "PROXIMITY", "proximity ", "prox", ""):
+        w = voice_world()
+        a, far = w.player(A), w.player(C, x=50000)
+        w.lua("function(v) GetConVar('mentat_voice_mode'):SetValue(v) end")(raw)
+        w.advance(1)
+        heard = w.rt.eval("function(a, b) return hook.Run('PlayerCanHearPlayersVoice', a, b) end")(a, far)[0]
+        assert heard is False, raw                                                  # the server enforces proximity
+        assert w.rt.eval("function() return GetGlobalString('mentat_voice_mode') end")() == "proximity", raw
+        assert w.rt.eval("function(p) return p:GetNWFloat('mentat_voice_range') end")(a) > 0, raw      # so the clients fade
+    for raw, published in (("Global", "global"), ("  GLOBAL", "global"), (" OFF ", "off")):
+        w = voice_world()
+        a, far = w.player(A), w.player(C, x=50000)
+        w.lua("function(v) GetConVar('mentat_voice_mode'):SetValue(v) end")(raw)
+        w.advance(1)
+        assert w.rt.eval("function(a, b) return hook.Run('PlayerCanHearPlayersVoice', a, b) end")(a, far) == (True, False), raw
+        assert w.rt.eval("function() return GetGlobalString('mentat_voice_mode') end")() == published
+        assert w.rt.eval("function(p) return p:GetNWFloat('mentat_voice_range') end")(a) == 0
+
+
+def test_proximity_voice_is_put_back_when_a_later_addon_replaces_the_rule():
+    """review F37: the existing timer notices that the gamemode's rule is no longer ours and wraps it again."""
+    w = voice_world()
+    a, far = w.player(A), w.player(C, x=50000)
+    w.advance(1)
+    run = w.rt.eval("function(a, b) return hook.Run('PlayerCanHearPlayersVoice', a, b) end")
+    assert run(a, far)[0] is False
+    w.lua("function() GAMEMODE.PlayerCanHearPlayersVoice = function(gm, l, t) return true, false end end")()
+    assert run(a, far)[0] is True                       # for the moment the other addon's rule stands
+    w.advance(1)
+    w.lua("function() Mentat.Voice.ClearCache() end")()
+    assert run(a, far)[0] is False
+    near = w.player(B, x=100)
+    assert run(a, near)[0] is True
+    assert w.rt.eval("function() return T.printed('replaced the gamemode') end")()
+
+
+# ---- the server's own spawn rules
+def spawn_rule_world(rule=None, **kw):
+    w = World(gamemode=True, **kw)
+    if rule:
+        w.lua("function() GAMEMODE.%s = function(gm, ply, model) return false end end" % rule)()
+    return w
+
+
+def test_the_gamemodes_own_prop_rule_is_a_veto():
+    """review F30/F7: GM:PlayerSpawnProp and GM:PlayerSpawnObject are consulted (hook.Call with a nil gamemode never reached them)."""
+    for rule in ("PlayerSpawnProp", "PlayerSpawnObject"):
+        w = spawn_rule_world(rule)
+        p = w.player(A)
+        w.ask(p, "add three couches")
+        assert w.count() == 0, rule
+        assert w.rt.eval("function() return MOCK.live_props() end")() == 0
+    w = spawn_rule_world()                                # no rule at all: nothing is forbidden
+    w.ask(w.player(A), "add three couches")
+    assert w.count() == 3
+
+
+def test_a_registered_hook_answers_before_the_gamemode_as_in_the_engine():
+    """review F30: a hook that says yes means the gamemode's function is not asked; a hook that says no is a veto on its own."""
+    w = spawn_rule_world("PlayerSpawnProp")
+    w.lua("function() hook.Add('PlayerSpawnProp', 'allow', function() return true end) end")()
+    w.ask(w.player(A), "add a couch")
+    assert w.count() == 1
+
+
+def test_a_broken_spawn_rule_never_throws_and_is_not_a_veto():
+    """review F30: a rule that errors is ignored, the request still runs."""
+    import faulthandler
+    w = spawn_rule_world()
+    w.lua("function() GAMEMODE.PlayerSpawnProp = function() error('boom') end end")()
+    was_on = faulthandler.is_enabled()
+    faulthandler.disable()           # LuaJIT raises Lua errors as Windows SEH exceptions, which the fault handler would print although pcall catches them
+    try:
+        w.ask(w.player(A), "add a couch")
+    finally:
+        if was_on:
+            faulthandler.enable()
+    assert w.count() == 1
+
+
+def test_sbox_maxprops_is_asked_once_and_never_twice():
+    """review F30/F7: CheckLimit is called by the gamemode's own rule when there is one; the glue asks it itself ONLY when the
+    gamemode has no PlayerSpawnProp, so the limit is never counted twice."""
+    counting = """function(p) p.limit_calls = 0; p.limit_ok = %s
+      p.CheckLimit = function(self, what) self.limit_calls = self.limit_calls + 1; return self.limit_ok end end"""
+    w = spawn_rule_world()
+    w.lua("function() GAMEMODE.PlayerSpawnProp = function(gm, ply, model) return ply:CheckLimit('props') end end")()
+    p = w.player(A)
+    w.lua(counting % "true")(p)
+    w.ask(p, "add a couch")
+    assert w.count() == 1 and w.rt.eval("function(p) return p.limit_calls end")(p) == 1
+    w2 = spawn_rule_world()                                # a gamemode with no PlayerSpawnProp: the glue asks CheckLimit itself, once
+    q = w2.player(A)
+    w2.lua(counting % "true")(q)
+    w2.ask(q, "add a couch")
+    assert w2.count() == 1 and w2.rt.eval("function(p) return p.limit_calls end")(q) == 1
+    w3 = spawn_rule_world()
+    r = w3.player(A)
+    w3.lua(counting % "false")(r)                          # sbox_maxprops reached
+    w3.ask(r, "add a couch")
+    assert w3.count() == 0
+    w4 = spawn_rule_world()
+    s = w4.player(A)
+    w4.lua(counting % "false")(s)
+    w4.lua("function() GAMEMODE.PlayerSpawnProp = function() return true end end")()   # a gamemode that has its own rule decides alone
+    w4.ask(s, "add a couch")
+    assert w4.count() == 1 and w4.rt.eval("function(p) return p.limit_calls end")(s) == 0
+
+
+# ---- a prop whose builder leaves keeps its creator
+def test_props_still_materialising_when_their_builder_leaves_keep_their_creator():
+    """review F53: the owner is looked up while they can still be, so no prop is made ownerless although the registry says it is theirs."""
+    w = World()
+    p = w.player(A)
+    w.rt.eval("function(p) Holodeck.Handle(p, 'add thirty lamps') end")(p)
+    w.advance(0.1)
+    made = w.rt.eval("function() return MOCK.live_props() end")()
+    assert 0 < made < 30
+    w.rt.eval("function(p) MOCK.disconnect(p) end")(p)
+    w.advance(8)
+    assert w.rt.eval("function() return MOCK.live_props() end")() == 30 == w.count(A)
+    orphans = w.rt.eval("""function() local n = 0
+      for _, e in ipairs(MOCK.ents) do if e.valid and e.class == 'prop_physics' and (not e.creator or not e.cppi) then n = n + 1 end end
+      return n end""")()
+    assert orphans == 0
+
+
+# ---- configuration
+def test_the_bridge_token_is_never_saved_to_disk():
+    """review F-token: FCVAR_ARCHIVE writes a convar to server.vdf, where a revoked token would stay for ever."""
+    w = World()
+    flags = w.rt.eval("function() local f = MOCK.cvars.holodeck_bridge_token.flags; return bit.band(f, FCVAR_ARCHIVE), bit.band(f, FCVAR_PROTECTED), bit.band(f, FCVAR_DONTRECORD) end")()
+    assert flags[0] == 0 and flags[1] != 0 and flags[2] != 0
+    assert w.rt.eval("function() return bit.band(MOCK.cvars.holodeck_bridge.flags, FCVAR_ARCHIVE) end")() != 0
+
+
+def test_the_bridge_example_names_the_port_the_bridge_listens_on():
+    """review F116: the help text of holodeck_bridge shows the port skippy_bridge.py serves on."""
+    w = World()
+    help_text = w.rt.eval("function() return MOCK.cvars.holodeck_bridge.help end")()
+    bridge_src = (HOLO / "skippy_bridge.py").read_text(encoding="utf-8")
+    assert "8777" in help_text and "8765" not in help_text
+    assert "8777" in bridge_src
+
+
+# ---- parser fields the glue honours: undo counts, silence for chatter, order
+def test_undo_twice_and_everything_undo_that_many_of_the_players_own_steps():
+    """coordinator: req.times on an undo request runs that many undo steps (at most 30), never touching other players' work."""
+    w = World()
+    p, q = w.player(A), w.player(B, x=900)
+    w.ask(q, "add a table")
+    for k in ("couch", "chair", "lamp"):
+        w.ask(p, "add a " + k)
+    assert w.count(A) == 3
+    w.ask(p, "undo twice")
+    assert w.count(A) == 1 and "2 steps" in last_text(w)
+    w.ask(p, "add a plant")
+    w.ask(p, "add a bed")
+    w.ask(p, "undo everything")
+    assert w.count(A) == 0 and w.count(B) == 1
+    w.ask(p, "undo")
+    assert "nothing to undo" in last_text(w)
+
+
+def test_undo_everything_after_a_clear_brings_the_room_back_then_unbuilds_it():
+    """coordinator: an undo count is a count of undo steps, a clear is one step among them."""
+    w = World()
+    p = w.player(A)
+    w.ask(p, "add a couch")
+    w.ask(p, "add a lamp")
+    w.ask(p, "clear everything")
+    w.ask(p, "undo the last three")
+    assert w.count(A) == 0
+
+
+def test_chatter_the_parser_calls_nothing_gets_no_answer_at_all():
+    """coordinator: a statement is silent: no private line, no chat line, no bridge call."""
+    w = bridge_world()
+    p = w.player(A)
+    before = len(tells(w))
+    w.rt.eval("function(p) Holodeck.Handle(p, 'the weather is nice today') end")(p)
+    assert len(tells(w)) == before
+    assert len(list(w.rt.eval("function() return MOCK.https end")().values())) == 0
+    assert w.count() == 0
+
+
+def test_requests_run_in_order_and_undo_then_remove_works_end_to_end():
+    """coordinator: 'remove the couch. No wait, remove the lamp.' puts the couch back, then removes the lamp."""
+    w = World()
+    p = w.player(A)
+    w.ask(p, "add a couch")
+    w.ask(p, "add a lamp")
+    w.ask(p, "remove the couch. No wait, remove the lamp.")
+    w.advance(3)
+    assert kinds_standing(w) == ["couch"]

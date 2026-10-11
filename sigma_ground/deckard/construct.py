@@ -99,6 +99,76 @@ def _integrate(composed, density, bbox, n):
     return M, (cx, cy, cz), (Ixx, Iyy, Izz), vol
 
 
+def _integrate_items(items, density, bbox, n, min_cells=6):
+    """Mass, centre of mass and inertia of the composed parts, converged for THIN parts.
+
+    ``_integrate`` samples one point per cell of an n^3 grid over the whole bounding box, so a
+    16 mm board in a 2 m object is 0 or 1 cell thick depending on where the grid falls: a bed
+    came out 76, 71, 151, 138, 116 kg at 32, 48, 64, 96, 128 cells (exact: 123.3 kg). This
+    integrator gives every part its OWN grid over its own tight AABB, with the global cell size
+    along its long axes but at least ``min_cells`` cells across its thin axis. Each point of
+    space is counted by exactly one part: the LAST item whose shape contains it (the same
+    last-wins rule as ``ComposedSDF.material_at``), so overlaps are never double counted and a
+    later part (or carve) still erases what it covers. A box-like board is then exact in its thin
+    direction at every resolution; what remains is the O(cell/size) error where a later part
+    clips it. Returns (mass, (cx,cy,cz), (Ixx,Iyy,Izz), {label: volume}) like ``_integrate``.
+    """
+    import numpy as np
+    (x0, x1), (y0, y1), (z0, z1) = bbox
+    g = ((x1 - x0) / n, (y1 - y0) / n, (z1 - z0) / n)
+    boxes = []
+    for it in items:
+        c, he = it["shape"].center, it["he"]
+        boxes.append(tuple((c[k] - he[k], c[k] + he[k]) for k in range(3)))
+
+    M = 0.0
+    S = np.zeros(3)
+    J = np.zeros(3)                                   # inertia about the origin: Jxx, Jyy, Jzz
+    vol = {}
+    for i, it in enumerate(items):
+        rho = it["rho"]
+        if rho <= 0.0 or it["op"] == "subtract":
+            continue
+        lo_hi = boxes[i]
+        axes, cell = [], 1.0
+        for k in range(3):
+            lo, hi = lo_hi[k]
+            side = hi - lo
+            if side <= 0.0:
+                break
+            m = max(min_cells, int(math.ceil(side / g[k] - 1e-9)))
+            d = side / m
+            axes.append(lo + (np.arange(m) + 0.5) * d)
+            cell *= d
+        else:
+            X, Y, Z = np.meshgrid(axes[0], axes[1], axes[2], indexing="ij")
+            pts = np.column_stack((X.ravel(), Y.ravel(), Z.ravel()))
+            pts = pts[np.asarray(it["shape"].surface_distance_batch(pts)) < 0.0]
+            for j in range(i + 1, len(items)):          # drop what any LATER part claims
+                if not len(pts):
+                    break
+                bj = boxes[j]
+                if any(bj[k][1] <= lo_hi[k][0] or bj[k][0] >= lo_hi[k][1] for k in range(3)):
+                    continue
+                pts = pts[np.asarray(items[j]["shape"].surface_distance_batch(pts)) >= 0.0]
+            if not len(pts):
+                continue
+            dm = rho * cell
+            cnt = len(pts)
+            M += dm * cnt
+            S += dm * pts.sum(axis=0)
+            sq = (pts * pts).sum(axis=0)              # sum x^2, y^2, z^2
+            J += dm * np.array([sq[1] + sq[2], sq[0] + sq[2], sq[0] + sq[1]])
+            vol[it["name"]] = vol.get(it["name"], 0.0) + cell * cnt
+    if M <= 0.0:
+        return 0.0, (0.0, 0.0, 0.0), (0.0, 0.0, 0.0), vol
+    cx, cy, cz = (float(v) for v in S / M)
+    Ixx = float(J[0]) - M * (cy * cy + cz * cz)
+    Iyy = float(J[1]) - M * (cx * cx + cz * cz)
+    Izz = float(J[2]) - M * (cx * cx + cy * cy)
+    return M, (cx, cy, cz), (Ixx, Iyy, Izz), vol
+
+
 # ── The compiled matter ─────────────────────────────────────────────────
 @dataclass
 class Construct:
@@ -931,7 +1001,7 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
     pad = 0.02 * max(max(xs) - min(xs), max(ys) - min(ys), max(zs) - min(zs), 1e-9)
     bbox = ((min(xs) - pad, max(xs) + pad), (min(ys) - pad, max(ys) + pad),
             (min(zs) - pad, max(zs) + pad))
-    M_num, com_num, inertia, _vol = _integrate(composed, density, bbox, resolution)
+    M_num, com_num, inertia, _vol = _integrate_items(items, density, bbox, resolution)
 
     # overlap test on tight AABBs (touching faces => not overlapping)
     boxes = []
@@ -970,7 +1040,7 @@ def _compile_parts(spec, resolution: int, tolerance: float) -> Construct:
     else:
         mode = "hollow" if sub_parts else ("conforming" if conformed else "overlapping")
         nhi = int(resolution * 1.5)
-        M_hi, com_hi, inertia, _ = _integrate(composed, density, bbox, nhi)
+        M_hi, com_hi, inertia, _ = _integrate_items(items, density, bbox, nhi)
         stab = abs(M_num - M_hi) / M_hi if M_hi > 0 else 1.0
         passed = stab <= tolerance
         mass, com = M_hi, com_hi

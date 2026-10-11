@@ -458,10 +458,20 @@ def _is_solid_class(name: str) -> bool:
     return aliases.holds_head(_SOLID_WORDS, aliases.head_noun(name))
 
 
-# Board / sheet / rod stock thinner than this (in any one edge) is solid, not an
-# enclosure: about twice the 18 mm board gauge of research._BOARD_T_M. A 2.9 cm
-# bookcase plank is not a 0.8 mm-walled box.
+# Board / sheet / rod stock is solid, not an enclosure. For a BOX the test is per
+# material: some edge <= 2 x research._stock_thickness(material) (oak/wood 36 mm,
+# steel 3 mm, glass 8 mm, plastic 5 mm), the rule research._occupancy uses, so a 2.9 cm
+# oak bookcase plank stays solid but a 3.8 cm steel door or 3 cm glass panel is a shell.
+# A cylinder or sphere (a rod, a knob, a handle) keeps the absolute floor below: a
+# 3 cm steel handle is not a thin-walled tube.
 _MIN_ENCLOSURE_M = 0.04
+
+
+def _is_stock_box(sides, material):
+    """True if a box with edge lengths ``sides`` (m) of ``material`` is board / sheet
+    stock (some edge within twice that material's stock gauge), so not an enclosure."""
+    from .research import _stock_thickness
+    return min(sides) <= 2.0 * _stock_thickness(material)
 
 
 def _hollow_pass(name, parts, sources):
@@ -505,7 +515,10 @@ def _hollow_pass(name, parts, sources):
         sides = ((d.get("x_m", 0.0), d.get("y_m", 0.0), d.get("z_m", 0.0)) if shape == "box"
                  else (2 * d.get("radius_m", 0.0), 2 * d.get("radius_m", 0.0),
                        d.get("height_m", 2 * d.get("radius_m", 0.0))))
-        if min(sides) < _MIN_ENCLOSURE_M:         # a plank / sheet / rod: solid, not a box
+        if shape == "box":                        # a plank / sheet: solid, by its own material's gauge
+            if _is_stock_box(sides, p.material):
+                continue
+        elif min(sides) < _MIN_ENCLOSURE_M:       # a rod / knob / handle: solid, not a tube
             continue
         if shape == "box" and all(d[k] > 2.2 * w for k in ("x_m", "y_m", "z_m")):
             outer = d["x_m"] * d["y_m"] * d["z_m"]

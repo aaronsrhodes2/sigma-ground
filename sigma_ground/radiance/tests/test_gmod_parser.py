@@ -1044,3 +1044,96 @@ def test_the_others_after_an_add_are_what_stood_before(parse, text, second):
 def test_a_polite_frame_before_a_removal_is_still_a_removal(parse, text):
     req = one(parse, text)
     assert req["action"] == "remove" and len(req["items"]) == 1 and req["items"][0]["definite"], text
+
+
+# --------------------------------------------------------------------------------------------- P0 classes (2026-10-10)
+# Sentences that are NOT a request, or are a different request, must never be run as a destructive action or a wrong add.
+# Each class below has 26-61 sentences in the held-out corpus (written from the meaning of each sentence BEFORE the parser's answer was
+# read); a class is required at 100%, because one destroyed room is worse than a hundred misses.
+P0_SLICES = ["selfcorrect", "undo_forms", "unplaced_object", "chat_retraction", "colour_one", "hypothetical", "modal_requests", "past_purpose",
+             "toss_chuck", "casual_clear", "leading_no", "apostrophes", "fewer_less", "neg_scope", "chat_words", "bare_plural_remove",
+             "reference_prep", "side_of", "opinions"]
+
+
+@pytest.mark.parametrize("name", P0_SLICES)
+def test_p0_class_is_perfect(parse, name):
+    cases = [c for c in eval_parse.load_cases("utterance_corpus_heldout.json") if c["slice"] == name]
+    assert len(cases) >= 26, (name, len(cases))
+    failures = []
+    for c in cases:
+        try:
+            bad = eval_parse.compare_case(c, parse)
+        except Exception as e:
+            bad = [f"CRASH {e}"]
+        if bad:
+            failures.append((c["utterance"], bad[:2]))
+    assert not failures, f"{name}: {len(failures)} of {len(cases)} misread:\n" + "\n".join(f"  {u!r}: {b}" for u, b in failures[:15])
+
+
+def test_spoken_correction_replaces_never_adds_both(parse):
+    for text, kind in [("remove the couch, no wait, the lamp", "floor lamp"), ("remove the lamp actually the couch", "couch"),
+                       ("remove the couch no the lamp", "floor lamp"), ("remove the couch, no wait remove the lamp", "floor lamp"),
+                       ("Remove the couch. No wait, the lamp.", "floor lamp")]:
+        reqs = parse.parse_all(text)
+        assert [r["action"] for r in reqs] == ["remove"] and [i["kind"] for i in reqs[0]["items"]] == [kind], (text, reqs)
+    # the dropped part carried a destination: nothing is moved rather than the wrong thing
+    assert all(r["action"] == "none" for r in parse.parse_all("move the couch next to the tv, no wait, the lamp"))
+    # a correction that belongs to the second of two requests leaves the first alone
+    reqs = parse.parse_all("add a lamp and remove the couch, no wait, the table")
+    assert [(r["action"], [i["kind"] for i in r["items"]]) for r in reqs] == [("add", ["floor lamp"]), ("remove", ["table"])]
+    # words that merely contain a marker are not corrections
+    assert [i["kind"] for i in one(parse, "add a table with no chairs")["items"]] == ["table"]
+    assert [i["kind"] for i in one(parse, "remove the couch and the lamp")["items"]] == ["couch", "floor lamp"]
+
+
+def test_undo_with_a_count_carries_times_and_never_clears(parse):
+    for text, times in [("undo twice", 2), ("undo 3 times", 3), ("undo the last two", 2), ("undo once", 1), ("undo my last two requests", 2)]:
+        req = one(parse, text)
+        assert req["action"] == "undo" and req.get("times") == times, (text, req)
+    for text in ["undo everything", "cancel everything", "revert everything", "undo it all"]:
+        req = one(parse, text)
+        assert req["action"] == "undo" and (req.get("times") or 30) >= 10, (text, req)
+    for text in ["undo what you just did", "undo that", "undo the whole thing"]:
+        req = one(parse, text)
+        assert req["action"] == "undo" and not req.get("times"), (text, req)
+
+
+def test_the_side_of_a_thing_is_a_field_and_the_reference_stays_put(parse):
+    for text, side in [("move the lamp to the other side of the couch", "other"), ("move the lamp to the opposite side of the couch", "opposite"),
+                       ("move the lamp to the right side of the couch", "right"), ("move the lamp to the left side of the couch", "left")]:
+        req = one(parse, text)
+        assert req["action"] == "move" and [i["kind"] for i in req["items"]] == ["floor lamp"], (text, req)
+        assert req["target"] == "couch" and req["side"] == side, (text, req)
+    assert "side" not in one(parse, "move the lamp next to the couch") or not one(parse, "move the lamp next to the couch").get("side")
+
+
+@pytest.mark.parametrize("text,woke,rest", [
+    ("Skippy's couch is ugly", False, "Skippy's couch is ugly"), ("Skippy’s couch is ugly", False, None), ("Skippy‘s chairs are cool", False, None),
+    ("skippy's a good boy", False, None), ("skippy`s lamp broke", False, None), ("Skippyʼs bed is big", False, None),
+    ("Skippy´s desk is messy", False, None), ("Skippy′s tv is on", False, None), ("hey Skippy's table is nice", False, None),
+    ("hey skippy's couch", False, None), ("ok skippy's the best", False, None), ("skippys couch", False, None), ("Skippy's chairs are cool", False, None),
+    ("Skippy's lamp broke", False, None), ("skippy's a bed", False, None), ("so Skippy's plant died", False, None), ("Skippy’s", False, None),
+    ("Skippy's room is great", False, None), ("Skippy’s couch", False, None), ("Skippy's house", False, None),
+    ("Skippy add a couch", True, "add a couch"), ("skippy, add a couch", True, "add a couch"), ("Skippy: remove the lamp", True, "remove the lamp"),
+    ("hey skippy undo", True, "undo"), ("Skippy's add a couch", True, "add a couch"), ("Skippy’s remove the lamp", True, "remove the lamp"),
+    ("Skippy's clear the room", True, "clear the room"), ("okay skippy put a lamp here", True, "put a lamp here"), ("Skippy", True, ""),
+    ("Skippy, the couch is ugly", True, "the couch is ugly"), ("skipping stones", False, None), ("skippers", False, None),
+])
+def test_the_possessive_skippys_is_not_the_wake_word(parse, text, woke, rest):
+    got_woke, got_rest = parse.Parse.strip_wake(text)
+    assert got_woke == woke, (text, got_woke, got_rest)
+    if rest is not None:
+        assert got_rest == rest, (text, got_rest)
+    if not woke:
+        assert got_rest == text
+
+
+def test_new_readers_stay_linear(parse):
+    """The mood gate, the correction fold, the refusal scan and the undo reader on the longest input the parser reads."""
+    for pattern in ["remove the couch, no wait, ", "should i clear the room and ", "undo twice ", "add a couch and dont add a lamp and ",
+                    "i like the couch and ", "no wait ", "sorry ", "remove the red one and ", "one less chair and ", "move the lamp to the other side of the couch and ",
+                    "toss a crate and ", "a lamp past the couch and ", "that is enough, "]:
+        t0 = time.perf_counter()
+        for _ in range(20):
+            parse.parse_all(pattern * 400)
+        assert (time.perf_counter() - t0) / 20 < 0.1, pattern

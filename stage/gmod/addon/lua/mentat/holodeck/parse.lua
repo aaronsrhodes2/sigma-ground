@@ -30,6 +30,9 @@
 --     notes = { strings for the player: "read 'barrles' as 'barrels'", "that sounded like a no, ...", ... },
 --     unknown_verb = nil | "<verb>" (a verb for something the holodeck cannot do: action is "none", nothing is added),
 --     away_from = nil | <kind> ("move the lamp away from the couch"), again = nil | true ("another one": see prev),
+--     times = nil | N (an undo to repeat N times: "undo twice", "undo the last three"; "undo everything" is 30 -- the player's own steps,
+--       never a clear), side = nil | "other"|"opposite"|"left"|"right" ("move the lamp to the other side of the couch": target is the couch,
+--       which stays where it is; the planner picks the side),
 --     truncated = nil | true, verb, leftover (words nothing explained), half_turn, normalised, raw }
 -- count 0 means "everything of that kind that exists". Counts are capped at 1000 (the planner applies its own, lower cap).
 local Parse = {}
@@ -38,6 +41,7 @@ Parse.__index = Parse
 local MAX_INPUT = 400        -- characters of a request that are read; the rest is dropped (req.truncated)
 local MAX_REQUESTS = 8       -- requests read from one utterance
 local COUNT_CAP = 1000
+local W = {}                -- tables of the readers below (one upvalue instead of dozens: Lua allows 60 per function)
 
 -- ---------------------------------------------------------------------------------------------- small helpers
 local function set(list)
@@ -297,7 +301,7 @@ local STOP = {
 -- nouns that name places or parts of a scene, never things to summon (kept out of "unknown thing" detection)
 local SCENE_NOUNS = { room = true, middle = true, center = true, centre = true, floor = true, left = true, right = true, back = true,
   front = true, side = true, area = true, space = true, scene = true, program = true, holodeck = true, world = true, simulation = true,
-  rest = true, others = true, other = true, same = true, way = true, spot = true, place = true, position = true, distance = true,
+  rest = true, others = true, other = true, same = true, way = true, path = true, spot = true, place = true, position = true, distance = true,
   direction = true, ground = true, air = true, top = true, bottom = true, edge = true, ["end"] = true, line = true, row = true,
   rows = true, circle = true, ring = true, grid = true, pile = true, stack = true, group = true, set = true, bunch = true, lot = true,
   lots = true, pair = true, couple = true, few = true, wall = true, walls = true, corner = true, corners = true, window = true,
@@ -428,9 +432,11 @@ local LEAD = set{ "to", "you", "please", "could", "can", "would", "will", "shoul
   "if", "able", "mind", "possible", "ahead", "go", "try" }
 
 local UNDO_SRC = { "undo", "take that back", "take it back", "scratch that", "never mind", "nevermind", "nvm", "revert", "put it back",
-  "put them back", "that was a mistake", "go back", "oops", "whoops", "cancel that", "cancel", "ctrl z", "undo that", "undo it",
-  "undo the last", "undo last", "roll back", "rollback", "take back", "forget that", "forget it", "ignore that", "my bad",
-  "that was wrong", "that was the wrong one", "wrong one", "not that", "put that back", "step back" }
+  "put them back", "that was a mistake", "go back", "cancel that", "cancel", "ctrl z", "undo that", "undo it",
+  "undo the last", "undo last", "roll back", "rollback", "take back", "forget that", "forget it", "ignore that",
+  "that was wrong", "that was the wrong one", "wrong one", "not that", "put that back", "step back",
+  "thats not what i wanted", "that isnt what i wanted", "not what i wanted", "i didnt want that", "i didnt mean that",
+  "that is wrong", "thats wrong", "thats not right" }
 local UNDO_FIRST = index_phrases((function()
   local l = {}
   for _, p in ipairs(UNDO_SRC) do l[#l + 1] = { text = p } end
@@ -446,6 +452,11 @@ local UNDO_FILLER = set{ "that", "it", "them", "the", "last", "one", "thing", "t
 local RETRACT_SRC = { "never mind", "nevermind", "nvm", "scratch that", "oops", "whoops", "forget that", "forget it", "cancel that",
   "take that back", "ignore that", "my bad", "i meant", "i mean", "make that", "no wait", "wait no", "no i meant", "no make that",
   "sorry i meant", "oh i meant", "or rather", "sorry", "wait", "actually no" }
+-- Only these take the last build back whatever follows them ("never mind, i changed my mind"). Every other retraction word
+-- ("sorry", "wait", "oops", "i mean", "my bad") is plain talk unless a request or an undo phrase follows it: "wait here" and
+-- "oops i dropped my drink" are not orders.
+local RETRACT_HARD = set{ "never mind", "nevermind", "nvm", "scratch that", "forget that", "forget it", "cancel that", "take that back",
+  "ignore that" }
 local RETRACT_STRICT = set{ "make that" }                       -- "make that couch red" is a recolour: only "make that two chairs"
 local RETRACT_FIRST = index_phrases((function()
   local l = {}
@@ -455,18 +466,19 @@ end)(), function(e) return e.text end)
 
 --- Where the retraction phrases at the start of tokens end (the index after them), and whether one of them was a strict one.
 local function retraction_end(tokens)
-  local i, any, strict = 1, false, false
+  local i, any, strict, hard = 1, false, false, false
   while true do
     local e = match_at(RETRACT_FIRST, tokens, i)
     if e then
       any = true
       if RETRACT_STRICT[e.text] then strict = true end
+      if RETRACT_HARD[e.text] then hard = true end
       i = i + e.n
     elseif tokens[i] == "," and any then i = i + 1
     else break end
   end
   if not any then return nil end
-  return i, strict
+  return i, strict, hard
 end
 
 -- Whole-sentence clears. A clear is verb + whole-room object + politeness, nothing else: "clear the floor lamp" is a removal.
@@ -485,8 +497,8 @@ local CLEAR_OBJECTS = { "everything", "all", "it all", "all of it", "everything 
   "our furniture", "all our furniture", "my furniture", "all my furniture", "all of my stuff", "all of our stuff" }
 local CLEAR_ALONE = { "end program", "end the program", "end simulation", "end the simulation", "end holodeck", "end the holodeck",
   "arch", "start over", "start again", "start from scratch", "begin again", "clean slate", "a clean slate", "blank slate",
-  "make it all go away", "make everything go away", "thats enough", "that is enough", "enough already", "reset",
-  "clear", "wipe", "clean up", "clear up", "clear out", "clean out", "wipe out", "empty it", "empty everything", "restart", "reboot",
+  "make it all go away", "make everything go away", "reset",
+  "clear", "wipe", "clear out", "clean out", "wipe out", "empty it", "empty everything", "restart", "reboot",
   "wipe the slate clean", "start fresh", "start anew", "begin anew" }
 local CLEAR_POLITE = set{ "out", "away", "now", "please", "already", "again", "here", "up", "thanks", "right", "quickly", "then", "also",
   "and", "for", "me", "just", "there", "completely", "entirely", "totally", "altogether", "all", "ok", "okay", "pls", "plz" }
@@ -674,6 +686,12 @@ local function fold_text(s)
       return " "
     end)
     s = s:gsub("\226\128[\152-\155]", "")                                  -- curly single quotes: dropped like an apostrophe
+    -- the other apostrophe look-alikes are dropped too (acute accent, modifier apostrophe, prime), and so are the invisible
+    -- characters (zero-width space / joiners / marks, bidi controls, word joiner, soft hyphen, BOM): a space there would split a
+    -- word ("c<ZWSP>ouch") and a lost apostrophe loses the negation ("don`t remove the couch")
+    s = s:gsub("\194\180", ""):gsub("\202\188", ""):gsub("\226\128\178", "")
+    s = s:gsub("\226\128[\139-\143]", ""):gsub("\226\128[\170-\174]", ""):gsub("\226\129[\160-\175]", "")
+    s = s:gsub("\194\173", "")
     s = s:gsub("\226\128[\156-\159]", " ")                                 -- curly double quotes
     s = s:gsub("\226\128[\144-\149]", " ")                                 -- dashes
     s = s:gsub("\226\128\166", " , ")                                      -- ellipsis
@@ -740,7 +758,31 @@ local PREFIX_NOT_BEFORE = { next = set{ "to" }, computer = set{ "desk", "chair",
 local PREFIX_NEEDS_COMMA = set{ "look", "see", "like", "good", "sorry", "listen", "man", "sure", "wait" }
 
 --- Lower-case words (commas are words of their own) with the polite padding stripped from both ends. Linear in the length.
-local function tokenise(raw)
+-- "don t" -> "dont": an apostrophe that came out as a space (a look-alike character the speech engine or keyboard chose)
+local T_STEMS = set{ "don", "can", "isn", "wasn", "won", "doesn", "didn", "couldn", "wouldn", "shouldn", "aren", "weren", "hasn", "haven",
+  "hadn", "mustn", "needn", "ain" }
+
+-- Which words before a leading "no" show that it is a correction ("no add a lamp", "no, I want a lamp") and not a refusal ("no chairs")?
+local NO_SKIP = set{ "no", "nope", "actually", "sorry", "um", "uh", "er", "erm", "hmm", "ok", "okay", "just", "please", "oh", "well", "so", ",", "nah" }
+local function no_is_correction(tokens, i, j)
+  local k = i + 1
+  while k <= j and NO_SKIP[tokens[k]] do k = k + 1 end
+  if k > j then return false end
+  local w = tokens[k]
+  if w == "a" or w == "an" then return true end
+  if w == "i" then
+    local x = tokens[k + 1]
+    return x == "want" or x == "need" or x == "said" or x == "wanted"
+  end
+  local ve = match_at(VERB_FIRST, tokens, k)
+  if ve and ve.class ~= "unsupported" then
+    local nx = tokens[k + ve.n]
+    return nx ~= nil                                                    -- a verb with something to act on
+  end
+  return false
+end
+
+local function tokenise(raw, keep_prefix)
   local s = fold_text(tostring(raw or ""))
   s = s:lower()
   for _ = 1, 3 do                                                           -- 1,000 and 1,000,000 (bounded: never quadratic)
@@ -749,7 +791,7 @@ local function tokenise(raw)
     if n == 0 then break end
   end
   s = s:gsub("(%d+)%.%d+", "%1")
-  s = s:gsub("'", "")
+  s = s:gsub("['`]", "")
   s = s:gsub("[%.!?;:]+", " , ")
   s = s:gsub("[&+]", " and ")
   s = s:gsub("[^%w%s,\128-\255]", " ")
@@ -758,13 +800,24 @@ local function tokenise(raw)
   s = s:gsub("%s+", " ")
   s = s:gsub("[%s,]*,[%s,]*", " , ")
   local tokens = {}
-  for w in s:gmatch("%S+") do tokens[#tokens + 1] = w end
+  for w in s:gmatch("%S+") do
+    if w == "t" and T_STEMS[tokens[#tokens] or ""] then tokens[#tokens] = tokens[#tokens] .. "t" else tokens[#tokens + 1] = w end
+  end
+  if keep_prefix then                                       -- the words as said, politeness and all (for reading the sentence's mood)
+    local out = {}
+    for _, t in ipairs(tokens) do if t ~= "," or (out[#out] ~= "," and #out > 0) then out[#out + 1] = t end end
+    if out[#out] == "," then out[#out] = nil end
+    return out
+  end
   -- strip politeness from both ends (one pass forward, one index at each end: never rescans)
   local i, j = 1, #tokens
   local progress = true
   while progress and i <= j do
     progress = false
     while i <= j and tokens[i] == "," do i = i + 1; progress = true end
+    if i < j and (tokens[i] == "no" or tokens[i] == "nope" or tokens[i] == "nah") and no_is_correction(tokens, i, j) then
+      i = i + 1; progress = true                           -- "no add a lamp", "no, I want a lamp": the no takes back an earlier wish
+    end
     local e = match_at(PREFIX_FIRST, tokens, i)
     if e and i <= j then
       local nxt = tokens[i + e.n]
@@ -811,7 +864,11 @@ Parse.normalise = normalise
 -- Players with a live mic talk to each other normally; only a sentence that STARTS with the wake word is a request.
 -- Speech recognition spells the name several ways, so the accepted spellings are a list; a few filler words may come first.
 Parse.WAKE_WORDS = { "skippy", "skipy", "skippie", "skipie", "skipi", "skippi", "skipee", "skippee", "skippey", "skipey", "skeepy",
-  "skeepi", "skeepie", "skippy's" }
+  "skeepi", "skeepie" }
+-- "Skippy's couch is ugly" talks ABOUT Skippy: the possessive wakes him only before a word that is plainly an order
+local WAKE_ORDERS = set{ "add", "put", "remove", "delete", "clear", "undo", "make", "build", "place", "create", "spawn", "give", "get",
+  "bring", "move", "turn", "rotate", "show", "set", "erase", "destroy", "summon", "please", "can", "could", "would", "will" }
+local POSSESSIVE_MARKS = { "'", "\226\128\152", "\226\128\153", "\226\128\155", "\202\188", "`", "\194\180", "\226\128\178" }
 local WAKE_LEAD = set{ "hey", "hi", "hello", "hiya", "howdy", "yo", "oi", "ok", "okay", "so", "um", "umm", "uh", "uhh", "er", "erm", "hmm",
   "hm", "well", "alright", "all", "right", "there", "please", "excuse", "me", "oh", "ah", "now", "then", "and", "but", "yes", "yeah", "sure" }
 
@@ -827,6 +884,26 @@ function Parse.strip_wake(text, words)
     local s, e = head:find("[%w']+", pos)
     if not s then return false, raw end
     local word = head:sub(s, e):lower()
+    local poss_base = word:match("^(.-)'s$")
+    local poss_end                                                        -- where a possessive 's ends, if the wake word has one
+    if poss_base and list[poss_base] then
+      word, poss_end = poss_base, e
+    elseif list[word] then
+      for _, mark in ipairs(POSSESSIVE_MARKS) do
+        if head:sub(e + 1, e + #mark) == mark and head:sub(e + #mark + 1, e + #mark + 1):lower() == "s"
+           and not head:sub(e + #mark + 2, e + #mark + 2):match("%w") then
+          poss_end = e + #mark + 1
+          break
+        end
+      end
+    end
+    if poss_end then
+      local nw = head:sub(poss_end + 1):match("^[^%w]*(%w+)")
+      if nw and WAKE_ORDERS[nw:lower()] then
+        return true, (head:sub(poss_end + 1):gsub("^[^%w]+", "")) .. raw:sub(from + #head)
+      end
+      return false, raw
+    end
     if list[word] then
       local nxt = head:sub(e + 1, e + 1)
       if nxt ~= "_" then
@@ -1232,7 +1309,10 @@ do
     flag flags banner banners sign signs balloon balloons cake cakes pizza pizzas apple apples banana bananas bread table tables
     carry carries cart carts wagon wagons wheel wheels tire tires tyre tyres sandbag sandbags barricade barricades wall walls
     maze mazes fort forts pyramid pyramids tunnel tunnels ramp ramps stair stairs platform platforms stage stages podium podiums
-    cabinet cabinets counter counters couple couples friend friends people persons person guest guests]]):gmatch("%S+") do
+    cabinet cabinets counter counters couple couples friend friends people persons person guest guests
+    tell tells sing sings say says talk speak ask whisper shout chat joke jokes song songs story stories riddle riddles secret secrets
+    ease eased pure loose slice slices cost costs heart hearts chess shoe shoes sick sock socks stuck chase rage pace joy gold cake
+    ends alphabet birthday happy along music dance sleep rest relax chill hello thanks sorry bye goodbye welcome please yes]]):gmatch("%S+") do
     KNOWN_WORDS[w] = true
   end
 end
@@ -1478,7 +1558,16 @@ local PARTICLE_VERBS = { take = set{ "away", "out", "off" }, throw = set{ "away"
   get = set{ "out", "gone", "away" }, kick = set{ "out", "away" }, haul = set{ "away" }, carry = set{ "away", "out" }, pick = set{ "up" },
   clear = set{ "away", "out" }, wipe = set{ "away", "out" }, sweep = set{ "away" }, toss = set{ "away", "out" }, chuck = set{ "away", "out" },
   pack = set{ "away" }, tidy = set{ "away" } }
-local QUESTION_WORDS = set{ "how", "what", "whats", "why", "who", "whos", "when", "where", "wheres", "which", "whose", "is", "are", "does", "did", "hows" }
+local QUESTION_WORDS = set{ "how", "what", "whats", "why", "who", "whos", "when", "where", "wheres", "which", "whose", "is", "are", "does", "did", "hows",
+  "isnt", "arent", "doesnt", "didnt", "wasnt", "werent", "was", "were" }
+-- "the lamp was removed", "the chairs got deleted": a statement about what happened, never an order
+local STATE_AUX = set{ "was", "were", "been", "got", "is", "are", "isnt", "arent", "wasnt", "werent", "gets", "being" }
+-- what is said of something already gone: "somebody removed the couch", "thanks for removing the lamp"
+W.PAST_REMOVAL = set{ "removed", "deleted", "erased", "destroyed", "dismissed", "banished", "killed", "discarded", "ditched", "scrapped",
+  "eliminated", "zapped", "nuked", "tossed", "chucked", "purged", "cleared", "wiped", "cleaned", "trashed", "binned", "vanished", "disappeared",
+  "removing", "deleting", "erasing", "destroying", "dismissing", "killing", "discarding", "ditching", "scrapping", "eliminating", "zapping",
+  "nuking", "tossing", "chucking", "purging", "clearing", "wiping", "cleaning", "trashing", "binning" }
+local SPACE_NOUNS = set{ "space", "room", "spot", "place", "area", "path", "way", "floor", "gap", "corner" }
 local COPULA = set{ "is", "are", "was", "were", "isnt", "arent", "wasnt", "werent", "looks", "seems", "feels", "looked", "seemed", "needs",
   "wants", "smells", "sounds" }
 local TRASH_WORDS = set{ "trash", "bin", "garbage", "rubbish", "dumpster", "dump", "skip", "wastebasket", "trashcan", "litter", "waste" }
@@ -1735,6 +1824,9 @@ function Parse:rewrite_idioms(tokens, p)
     if from <= n then
       -- the tail may be followed by politeness already stripped; find a removal tail ending at the last token
       local tl = tail_phrase(tokens, n, from + 1)
+      if tl and not lead_cause and (STATE_AUX[tokens[n - tl]] or QUESTION_WORDS[tokens[p]]) then
+        return tokens, "silent"                                       -- "the lamp was removed", "why was the lamp removed"
+      end
       if tl then
         local obj_to = n - tl
         if tokens[obj_to] == "go" and false then obj_to = obj_to - 1 end
@@ -1753,7 +1845,20 @@ function Parse:rewrite_idioms(tokens, p)
       end
     end
   end
-  -- "clear the room of barrels", "clear the floor of crates": the barrels go, not the room
+  -- "clear space for a table", "free up some room for the chairs": making room is not taking the table away
+  if (t == "clear" or t == "free" or t == "open" or t == "empty" or t == "clean") and n >= p + 3 then
+    local k = p + 1
+    if tokens[k] == "up" or tokens[k] == "out" then k = k + 1 end
+    while tokens[k] == "a" or tokens[k] == "an" or tokens[k] == "the" or tokens[k] == "some" or tokens[k] == "more" or tokens[k] == "enough"
+          or tokens[k] == "extra" or tokens[k] == "this" do k = k + 1 end
+    local w = tokens[k]
+    local nx = tokens[k + 1]
+    if SPACE_NOUNS[w] and (nx == "for" or nx == "around" or nx == "near" or nx == "by" or nx == "beside" or nx == "behind" or nx == "to"
+                           or nx == "next" or nx == "in") then
+      return tokens, "purpose"
+    end
+  end
+  -- "clear the room of barrels", "clear the floor of crates": the barrels go (all of them), not the room
   if (t == "clear" or t == "empty" or t == "clean") and n >= p + 3 then
     local k = p + 1
     if tokens[k] == "the" or tokens[k] == "this" then k = k + 1 end
@@ -1761,6 +1866,14 @@ function Parse:rewrite_idioms(tokens, p)
     local w = tokens[k]
     if (w == "room" or w == "floor" or w == "area" or w == "space" or w == "place" or w == "scene" or w == "house") and tokens[k + 1] == "of" then
       return cat({ "remove" }, sub(k + 2, n)), nil
+    end
+  end
+  -- "surround the table with chairs", "ring the table with chairs": chairs around the table
+  if (t == "surround" or t == "ring" or t == "circle" or t == "encircle") and n >= p + 4 then
+    for q = p + 2, n - 1 do
+      if tokens[q] == "with" then
+        return cat(sub(1, p - 1), { "put" }, sub(q + 1, n), { "around" }, sub(p + 1, q - 1)), nil
+      end
     end
   end
   return tokens, nil
@@ -1853,7 +1966,7 @@ function Parse:hedge_verb_at(tokens, from)
   local q = from
   while q < from + HEDGE_MAX and tokens[q] do
     local t = tokens[q]
-    if q == from and HEDGE_QUESTION[t] and HEDGE_AUX[t] then
+    if q == from and ((HEDGE_QUESTION[t] and HEDGE_AUX[t]) or QUESTION_WORDS[t]) then
       return nil                                                       -- "do you want to remove the lamp?" is a question, not an order
     elseif t == "," or HEDGE_MODAL[t] or HEDGE_AUX[t] then
       q = q + 1
@@ -1882,14 +1995,281 @@ function Parse:hedge_verb_at(tokens, from)
   return nil
 end
 
+-- ---------------------------------------------------------------------------------------------- sentences that are not orders
+-- A sentence that merely has a destroying verb in it is not an order: "should i clear the room", "maybe we should remove the lamp",
+-- "if you remove the couch i will be sad", "how do i remove the couch". These readers look at the words as SAID (politeness kept).
+local MOOD_JUNK = set{ "skippy", "computer", "holodeck", "hey", "hi", "hello", "ok", "okay", "so", "well", "now", "and", "but", "then", "oh",
+  "um", "uh", "umm", "er", "erm", "hmm", "alright", "yes", "yeah", "sure", "maybe", "perhaps", "actually", "kindly", "just", "really",
+  "honestly", "basically", "ah", "yo", ",", "right" }
+local MODALS = set{ "should", "shall", "could", "would", "can", "may", "might", "will", "must" }
+local AUX_Q = set{ "should", "shall", "could", "would", "can", "may", "might", "will", "must", "do", "does", "did", "is", "are", "am", "was",
+  "were", "have", "has", "had" }
+local MOOD_SUBJ = set{ "i", "we", "it", "this", "that", "he", "she", "they", "one", "someone", "somebody", "anyone", "everyone", "there" }
+local FIRST_PERSON = set{ "i", "we" }
+local WISH_AFTER = set{ "like", "love", "want", "need", "prefer", "appreciate", "rather" }
+local WH_WORDS = set{ "how", "what", "whats", "why", "who", "whos", "when", "where", "wheres", "which", "whose", "hows" }
+local SUBORDINATORS = set{ "if", "unless", "whether", "suppose", "supposing", "imagine", "pretend" }
+-- politeness that makes a modal / question a real request to Skippy
+local REQUEST_FRAMES = set{ "can you", "could you", "would you", "will you", "can u", "could u", "can you please", "could you please",
+  "if you could", "if you can", "if you would", "if you dont mind", "you should", "you could", "you can", "i think you should",
+  "i want you to", "i would like you to", "id like you to", "i need you to", "we need you to", "do you mind", "would you mind",
+  "do you think you could", "would you be able to", "are you able to", "is it possible to", "would it be possible to",
+  "i was wondering if you could", "i wonder if you could", "feel free to", "it would be great if you could",
+  "it would be nice if you could", "it would be great if you would", "it would be nice if you would", "it would be great if you can",
+  "it would be nice if you can", "id appreciate it if you could", "i would appreciate it if you could", "would you be so kind as to",
+  "be a dear and", "be a pal and", "what i need is for you to", "what i want is for you to", "what i need you to do is",
+  "what i want you to do is", "the thing i need is for you to", "why dont you", "why not", "what about", "how about", "how bout",
+  "cant you", "couldnt you", "wouldnt you", "could you be able to" }
+
+--- Does a verb that DESTROYS (removes, clears, undoes) begin at full[q]?  Second result: it is an undo.
+function Parse:destroys_at(full, q)
+  local ve = verb_at(full, q)
+  if ve and ve.class == "remove" then
+    local _, name_len = self:noun_at(full, q)
+    if name_len and name_len > ve.n then return false end
+    if ve.n == 1 and self.noun[full[q]] then
+      local nx = full[q + 1]
+      return (nx and (DETERMINERS[nx] or PRON_OBJ[nx] or number_of(nx))) and true or false
+    end
+    return true, false
+  end
+  if match_at(UNDO_FIRST, full, q) then return true, true end
+  if full[q] == "start" and (full[q + 1] == "over" or full[q + 1] == "again") then return true, false end
+  return false
+end
+
+--- full = the words as said; question = the sentence ended with "?". True when a destroying verb is wrapped in a question, a
+--- suggestion, a condition or a plan ("should i clear the room", "we could remove the lamp"): never an order.
+function Parse:not_an_order(full, question)
+  local n = #full
+  local i = 1
+  while i <= n and MOOD_JUNK[full[i]] do i = i + 1 end
+  if i > n then return false end
+  local e = match_at(PREFIX_FIRST, full, i)
+  if e and REQUEST_FRAMES[e.text] then return false end
+  local dv, is_undo
+  for q = i, math.min(n, i + 12) do
+    local d, u = self:destroys_at(full, q)
+    if d then dv = q; is_undo = u; break end
+  end
+  if not dv then return false end
+  local t1, t2 = full[i], full[i + 1]
+  for j = i, dv - 1 do if full[j] == "please" or full[j] == "possible" then return false end end
+  if AUX_Q[t1] and MOOD_SUBJ[t2] then return true end                              -- "should i ...", "would it be bad to ..."
+  if (t1 == "do" or t1 == "does" or t1 == "did") and (t2 == "you" or t2 == "we" or t2 == "i" or t2 == "they") then return true end
+  if WH_WORDS[t1] or SUBORDINATORS[t1] then return true end                       -- "how do i ...", "if you remove ..."
+  for j = i, dv - 1 do                                                              -- "we should ...", "i could ...", "i will ..."
+    local w = full[j]
+    if MODALS[w] then
+      local before, after = full[j - 1], full[j + 1]
+      if (j > i and FIRST_PERSON[before] and not WISH_AFTER[after or ""]) or (FIRST_PERSON[after or ""] and j + 1 <= dv - 1) then return true end
+    end
+  end
+  -- (a bare "remove the lamp?" stays an order: speech engines add a question mark to any rising voice, and the tests pin it)
+  return false
+end
+
+-- ---------------------------------------------------------------------------------------------- spoken corrections
+-- "remove the couch, no wait, the lamp": the second thing REPLACES the first. Only the later one is meant.
+local CORRECT_SRC = { "no wait", "wait no", "no actually", "actually no", "no i mean", "no i meant", "i mean", "i meant", "or rather",
+  "make that", "sorry", "actually", "wait", "no", "nope", "rather" }
+local CORRECT_FIRST = index_phrases((function()
+  local l = {}
+  for _, p in ipairs(CORRECT_SRC) do l[#l + 1] = { text = p } end
+  return l
+end)(), function(e) return e.text end)
+local CORRECT_STRONG = set{ "no wait", "wait no", "no actually", "actually no", "no i mean", "no i meant", "i mean", "i meant", "or rather", "make that" }
+local CORRECT_WITHDRAW = set{ "no wait", "wait no", "no actually", "actually no" }
+local CORRECT_FILLER = set{ "um", "uh", "er", "erm", "hmm", "oh", "ah", "well", "ok", "okay" }
+local CORRECT_BAD_PRIOR = set{ "with", "without", "and", "or", "but", "of", "to", "in", "on", "at", "for", "by", "plus", "no", "not", "the", "a", "an",
+  "my", "your", "our", "this", "that", "these", "those", "every", "each", "all", "both", "from", "into", "onto", "than", "then", "except" }
+
+--- A sentence with a correction inside it, folded to what was finally meant. Returns tokens (maybe the same table).
+function Parse:fold_correction(tokens, depth)
+  depth = depth or 0
+  local n = #tokens
+  if n < 4 or depth > 3 then return tokens end
+  for m = 3, n do
+    local t = tokens[m]
+    local comma_led = (t == "," or CORRECT_FILLER[t]) and tokens[m - 1] ~= ","
+    if (comma_led or match_at(CORRECT_FIRST, tokens, m)) and not CORRECT_BAD_PRIOR[tokens[m - 1]] and tokens[m - 1] ~= "," then
+      local j, marker, strong, withdraw = m, false, false, false
+      while j <= n do
+        local e = match_at(CORRECT_FIRST, tokens, j)
+        if e then
+          marker = true
+          if CORRECT_STRONG[e.text] then strong = true end
+          if CORRECT_WITHDRAW[e.text] then withdraw = true end
+          j = j + e.n
+        elseif tokens[j] == "," or CORRECT_FILLER[tokens[j]] then j = j + 1
+        else break end
+      end
+      if marker then
+        -- the verb this correction belongs to: the latest one before the marker
+        local v, ve
+        for q = m - 1, math.max(1, m - 16), -1 do
+          local cand = verb_at(tokens, q)
+          if cand and cand.class ~= "unsupported" and self:starter_at(tokens, q) then v, ve = q, cand; break end
+        end
+        local noun_end = false
+        if v then
+          for k = math.max(v, m - 4), m - 1 do
+            local nd, len = self:noun_at(tokens, k)
+            if nd and k + len == m then noun_end = true end
+          end
+          if PRON_OBJ[tokens[m - 1]] or tokens[m - 1] == "ones" or tokens[m - 1] == "one" then noun_end = true end
+        end
+        if v and m > v + ve.n and (strong or comma_led or noun_end) then
+          local r = j
+          while tokens[r] == "," do r = r + 1 end
+          local kept_from = r
+          while tokens[r] == "just" or tokens[r] == "only" do r = r + 1 end
+          local class = ve.class
+          if r > n then
+            if withdraw and (class == "remove" or class == "move" or class == "rotate") then return { "wait" } end
+          elseif class == "remove" or class == "move" or class == "rotate" or class == "add" then
+            local nx = tokens[r]
+            local article = (nx == "a" or nx == "an" or ARTICLES[nx] or number_of(nx)) and true or false
+            if self:starts_request(tokens, r) then
+              local out = {}
+              for k = 1, v - 1 do out[#out + 1] = tokens[k] end
+              for k = r, n do out[#out + 1] = tokens[k] end
+              return self:fold_correction(out, depth + 1)
+            end
+            local weak_no = (not strong) and (tokens[m] == "no" or tokens[m] == "nope" or (comma_led and tokens[j - 1] == "no"))
+            local is_group = article or (not weak_no and (match_at(QUANT_FIRST, tokens, r) or self:noun_at(tokens, r)
+                                         or match_at(ALL_FIRST, tokens, r) or PRON_OBJ[nx] or last_ref_at(tokens, r)))
+            if is_group then                                  -- a bare number or article with no thing after it corrects nothing
+              local has_noun = false
+              for k = r, math.min(n, r + 5) do
+                if self:noun_at(tokens, k) or PRON_OBJ[tokens[k]] or last_ref_at(tokens, k) or match_at(ALL_FIRST, tokens, k) then has_noun = true; break end
+              end
+              is_group = has_noun
+            end
+            if is_group and (class ~= "add" or article) then
+              local dropped_relation = false
+              for k = v + ve.n, m - 1 do
+                if match_at(REL_FIRST, tokens, k) or match_at(SOFT_FIRST, tokens, k) then dropped_relation = true end
+              end
+              if dropped_relation and (class == "move" or class == "rotate") then return { "wait" } end
+              local out = {}
+              for k = 1, v + ve.n - 1 do out[#out + 1] = tokens[k] end
+              for k = kept_from, n do out[#out + 1] = tokens[k] end
+              return self:fold_correction(out, depth + 1)
+            end
+          end
+        end
+      end
+    end
+  end
+  return tokens
+end
+
+--- Is this sentence (words as said) the tail of a correction: "no wait, the lamp" / "actually the table", with a thing and no verb?
+function Parse:correction_tail(kept)
+  local j, marker = 1, false
+  while kept[j] and (CORRECT_FILLER[kept[j]] or kept[j] == ",") do j = j + 1 end
+  while true do
+    local e = match_at(CORRECT_FIRST, kept, j)
+    if e then marker = true; j = j + e.n
+    elseif kept[j] == "," or CORRECT_FILLER[kept[j]] then j = j + 1
+    else break end
+  end
+  if not marker or j > #kept then return false end
+  while kept[j] == "just" or kept[j] == "only" do j = j + 1 end
+  if self:starts_request(kept, j) then return false end
+  local nx = kept[j]
+  return (nx == "a" or nx == "an" or ARTICLES[nx] or number_of(nx) or self:noun_at(kept, j) or PRON_OBJ[nx]) and true or false
+end
+
+-- ---------------------------------------------------------------------------------------------- undo, said in many ways
+local UNDO_ALL = 30
+local UNDO_VERB_WORDS = set{ "undo", "revert", "cancel", "rollback" }
+local STEP_FILLER = set{ "all", "what", "you", "i", "we", "just", "did", "done", "made", "whole", "thing", "things", "of", "that", "it", "them",
+  "this", "those", "these", "my", "your", "our", "the", "last", "previous", "one", "ones", "request", "requests", "action", "actions", "move",
+  "moves", "step", "steps", "change", "changes", "bit", "please", "thanks", "a", "again", "then", "now", "so", "stuff", "ok", "okay", "there",
+  "build", "builds", "order", "orders", "edit", "edits", "time", "times", "more", "also", "for", "me", "and", "had", "have", "ve", "recent",
+  "latest", "newest", "final", "far" }
+
+--- "undo what you just did", "undo twice", "undo the last 3 things", "undo everything": an undo with a count. Returns (true, times|nil).
+function W.undo_steps(tokens)
+  local p = skip_lead(tokens, 1)
+  local k
+  if UNDO_VERB_WORDS[tokens[p]] then k = p + 1
+  elseif tokens[p] == "roll" and tokens[p + 1] == "back" then k = p + 2
+  else return false end
+  local times, all = nil, false
+  for q = k, #tokens do
+    local w = tokens[q]
+    local num = number_of(w)
+    if w == "," then
+    elseif w == "everything" then all = true
+    elseif w == "all" and tokens[q + 1] ~= "of" then all = true
+    elseif w == "twice" then times = 2
+    elseif w == "thrice" then times = 3
+    elseif w == "once" then times = 1
+    elseif num and num > 0 then times = num
+    elseif STEP_FILLER[w] then
+    else return false end
+  end
+  if all then times = UNDO_ALL end
+  if times and times > UNDO_ALL then times = UNDO_ALL end
+  return true, times
+end
+
 -- ---------------------------------------------------------------------------------------------- one request
+local SIDE_MODS = set{ "other", "opposite", "left", "right" }
+local SIDE_PREPS = set{ "to", "on", "at", "in", "over", "onto", "toward", "towards", "by", "the", "a" }
+--- "to the other side of the couch" -> "next to the couch" with side = "other"; "on opposite sides of the table" -> "on both sides of".
+function W.extract_side(tokens)
+  local n = #tokens
+  for k = 2, n - 1 do
+    if tokens[k] == "side" and SIDE_MODS[tokens[k - 1]] and tokens[k + 1] == "of" then
+      local s0 = k - 1
+      while s0 > 1 and SIDE_PREPS[tokens[s0 - 1]] do s0 = s0 - 1 end
+      local out = {}
+      for i = 1, s0 - 1 do out[#out + 1] = tokens[i] end
+      out[#out + 1] = "next"; out[#out + 1] = "to"
+      for i = k + 2, n do out[#out + 1] = tokens[i] end
+      return out, tokens[k - 1]
+    elseif tokens[k] == "sides" and tokens[k - 1] == "opposite" and tokens[k + 1] == "of" then
+      local out = {}
+      for i = 1, n do out[#out + 1] = (i == k - 1) and "both" or tokens[i] end
+      return out, nil
+    end
+  end
+  return tokens, nil
+end
+
+W.CHAT_VERBS = set{ "tell", "sing", "say", "talk", "speak", "ask", "whisper", "shout", "chat", "joke", "explain", "describe", "teach", "hum",
+  "laugh", "dance" }
+W.OPINION_VERBS = set{ "like", "love", "hate", "dislike", "adore", "enjoy", "prefer", "miss", "appreciate", "admire", "loathe", "detest",
+  "likes", "loves", "hates", "dislikes", "adores", "enjoys", "prefers" }
+W.OPINION_SUBJECTS = set{ "i", "we", "you", "they", "he", "she", "people", "everyone", "everybody", "nobody", "somebody", "someone", "all" }
+W.OPINION_ADVERBS = set{ "really", "kinda", "sorta", "totally", "absolutely", "just", "also", "always", "still", "quite", "very", "so", "much",
+  "do", "does", "actually", "honestly", "truly", "definitely", "sure", "kind", "of", "sort" }
+W.FETCH_VERBS = set{ "bring", "grab", "take", "give", "hand", "fetch", "pass", "get" }
+W.COPULA_STATE = set{ "is", "are", "was", "were", "isnt", "arent", "looks", "seems", "feels", "smells", "sounds", "looked", "seemed" }
+W.BACKSTOP_PREPS = set{ "past", "beyond", "infront", "besides", "nearby", "upon", "atop", "adjoining", "alongside", "along", "via", "through",
+  "across", "opposite", "round", "within", "inside", "outside", "underneath", "beneath", "below", "above", "under", "onto", "toward", "amid",
+  "among", "amongst", "versus", "abreast", "adjacent", "nearest", "closest" }
+W.PLACE_HEADS = set{ "infront", "side", "sides", "middle", "front", "back", "edge", "end", "top", "line", "center", "centre", "left", "right", "rear",
+  "bottom", "corner", "half" }
+W.RESIDUE = set{ "again", "anymore", "else", "all", "one", "ones", "this", "that", "those", "these", "also", "too", "already", "still", "yet",
+  "last", "previous", "some", "any", "more", "everything", "it", "them" }
+W.WORLD_FEATURES = set{ "wall", "walls", "door", "doors", "window", "windows", "ceiling", "air", "space", "way", "path", "mess", "yourself" }
+W.ENOUGH_FILLER = set{ "for", "now", "today", "me", "us", "thanks", "thank", "you", "please", "already", "ok", "okay", "yet", ",", "skippy", "guys",
+  "everyone", "tonight", "here", "then", "a", "lot", "very", "much" }
+W.CLEAN_FILLER = set{ "please", "now", "here", "in", "a", "bit", "little", "thanks", "for", "me", "already", "then", "there", "quickly", "again" }
 local CREATE_VERBS = set{ "build", "make", "create", "generate", "produce", "craft", "construct", "form", "assemble", "conjure", "materialize",
   "materialise", "fashion", "devise", "design", "spawn", "summon" }
 local SIZE_COMPARATIVE = set{ "bigger", "larger", "smaller", "taller", "shorter", "wider", "longer", "narrower", "thinner", "thicker",
   "biggest", "largest", "smallest", "tallest", "lower", "higher", "huge", "tiny", "bigger", "massive", "giant" }
 
---- One request out of one clause. The phases, in order (each is marked "-- ----" below):
----   words -> numbers folded -> undo / retraction -> idioms rewritten ("the lamp has to go") -> the verb -> exceptions ("except X") ->
+--- One request out of one clause. Before the clause is read, parse_all has already dropped sentences that are no order (Parse:not_an_order:
+--- questions, "should i ...", "if you ...", "we could ...") and folded spoken corrections (Parse:fold_correction: "remove the couch, no wait,
+--- the lamp" is the lamp). The phases, in order (each is marked "-- ----" below):
+---   words -> numbers folded -> opinions / "that is enough" / bare "clean up" -> undo (with a count) / retraction (plain "sorry" is not one) -> idioms rewritten ("the lamp has to go") -> the verb -> exceptions ("except X") ->
 ---   clear -> homophones -> typos -> seats ("a table for six") -> negators ("without") -> relations and their targets -> "I just made" ->
 ---   things (it / everything / the last one / library nouns) -> rooms -> quantity and adjectives -> unknown things -> split counts ->
 ---   arrangement, target, a second relation -> pronoun targets -> negated and excepted items -> the action settled from the whole sentence.
@@ -1904,30 +2284,88 @@ function Parse:parse_clause(raw, opts)
   local grid_dims
   tokens, grid_dims = self:fold_products(tokens)
   tokens = self:strip_greeting(tokens)
+  local said = tokens                                 -- the words before the hedges ("i", "we need to") are cut away
   do                                                  -- "basically remove the lamp", "you need to get rid of the couch"
     local hv = self:hedge_verb_at(tokens, 1)
     if hv then local rest = {}; for k = hv, #tokens do rest[#rest + 1] = tokens[k] end; tokens = rest end
   end
   req.normalised = table.concat(tokens, " ")
-  if is_bare_undo(tokens) then req.action = "undo"; return req end
+  local function quiet()                              -- a sentence that asks for nothing: no request at all, and no note
+    req.action = "none"; req.items = {}; req.normalised = ""
+    return req
+  end
+  do                                                  -- "i like the couch", "i hate couches", "he loves that lamp": opinions, not wishes
+    local a = 1
+    while a <= 5 and said[a] and (W.OPINION_SUBJECTS[said[a]] or W.OPINION_ADVERBS[said[a]]) and not W.OPINION_VERBS[said[a]] do a = a + 1 end
+    if a > 1 and W.OPINION_VERBS[said[a] or ""] then return quiet() end
+  end
+  -- "that is enough", "enough already": a remark. It wipes nothing; whatever follows it is a request of its own.
   do
-    local after, strict = retraction_end(tokens)
+    local a
+    if tokens[1] == "thats" and tokens[2] == "enough" then a = 3
+    elseif tokens[1] == "that" and tokens[2] == "is" and tokens[3] == "enough" then a = 4
+    elseif tokens[1] == "enough" and tokens[2] == "already" then a = 3 end
+    if a then
+      local filler = true
+      for k = a, #tokens do if not W.ENOUGH_FILLER[tokens[k]] then filler = false end end
+      if filler then return quiet() end
+      req.action = "none"; req.items = {}
+      req.notes[1] = "that sounded like a remark, not an order, so I changed nothing"
+      return req
+    end
+  end
+  -- a bare "clean up" / "clear up" may be tidying or taking away: it is neither, so nothing happens
+  do
+    local last = #tokens
+    while last > 2 and W.CLEAN_FILLER[tokens[last]] do last = last - 1 end
+    if last == 2 and (tokens[1] == "clean" or tokens[1] == "clear") and tokens[2] == "up" then
+      req.action = "none"; req.items = {}
+      req.notes[1] = "I can't tell whether you want things tidied or taken away, so I changed nothing; say 'tidy up' or 'clear the room'"
+      return req
+    end
+  end
+  if is_bare_undo(tokens) then req.action = "undo"; return req end
+  do                                                  -- "undo twice", "undo what you just did", "undo everything"
+    local ok, times = W.undo_steps(tokens)
+    if ok then req.action = "undo"; req.times = times; return req end
+  end
+  do
+    local after, strict, hard = retraction_end(tokens)
     if after then
       local nt = tokens[after]
-      if nt == nil then req.action = "undo"; return req end
+      -- "sorry", "wait", "oops", "i meant" are plain talk unless a request or an undo follows; only the explicit take-backs
+      -- ("never mind", "scratch that") undo whatever trails them
+      if nt == nil then
+        if hard or opts.retract_followed then req.action = "undo"; return req end
+        return quiet()
+      end
       local item_start = nt == "a" or nt == "an" or number_of(nt) or match_at(QUANT_FIRST, tokens, after)
                          or (not strict and not ARTICLES[nt] and self:noun_at(tokens, after))
-      if not self:starts_request(tokens, after) and not item_start then req.action = "undo"; return req end
+      if not self:starts_request(tokens, after) and not item_start then
+        local rest = {}
+        for k = after, #tokens do rest[#rest + 1] = tokens[k] end
+        if hard or is_bare_undo(rest) then req.action = "undo"; return req end
+        return quiet()
+      end
     end
   end
 
   -- ---- sentences that are a plain verb said another way, and refusals
   local p = skip_lead(tokens, 1)
+  -- "the other side of the couch", "the left side of the tv": the thing is the place's reference, the side is a field of its own
+  local side
+  tokens, side = W.extract_side(tokens)
   local idiom
   tokens, idiom = self:rewrite_idioms(tokens, p)
   if idiom == "none" then
     req.action = "none"
     req.notes[1] = "that sounded like a no, so I changed nothing"
+    return req
+  elseif idiom == "silent" then
+    return quiet()
+  elseif idiom == "purpose" then
+    req.action = "none"
+    req.notes[1] = "I can't clear a space; tell me what to add or what to take away, so I changed nothing"
     return req
   elseif idiom == "undo" then
     req.action = "undo"
@@ -1947,6 +2385,11 @@ function Parse:parse_clause(raw, opts)
     local nx = tokens[p + 1]
     if not (nx and (DETERMINERS[nx] or PRON_OBJ[nx] or number_of(nx))) then ve = nil end
   end
+  if not ve and W.CHAT_VERBS[tokens[p] or ""] then            -- "tell me a joke", "sing me a song": talk to Skippy, not a wish for furniture
+    req.action = "none"; req.items = {}
+    req.notes[1] = "that sounded like chat, not an order, so I changed nothing"
+    return req
+  end
   local typo_note = {}
   if not ve and tokens[p] and tokens[p]:match("^%a+$") and #tokens[p] >= 4 and not KNOWN_WORDS[tokens[p]] and not self.noun[tokens[p]]
      and not self.known_word[tokens[p]] and not self.scene[tokens[p]] then
@@ -1957,7 +2400,11 @@ function Parse:parse_clause(raw, opts)
         best = best or vw
       end
     end
-    if best and not tie then
+    -- a word is only read as a verb when a thing follows it, and a short word only when it is the same length (a swap or a neighbour
+    -- key): "tell" is not "telly", "ease" is not "erase", "loose" is not "lose"
+    local nx1 = tokens[p + 1]
+    local object_follows = nx1 and (DETERMINERS[nx1] or PRON_OBJ[nx1] or number_of(nx1) or self:noun_at(tokens, p + 1)) and true or false
+    if best and not tie and object_follows and (#tokens[p] >= 5 or #tokens[p] == #best) then
       typo_note[#typo_note + 1] = "read '" .. tokens[p] .. "' as '" .. best .. "'"
       tokens[p] = best
       ve = verb_at(tokens, p)
@@ -1999,7 +2446,8 @@ function Parse:parse_clause(raw, opts)
   local HOMO = { to = "2", too = "2", ["for"] = "4", fore = "4", ate = "8", tree = "3", free = "3", won = "1", sick = "6" }
   for i = start, ntok do
     local h = HOMO[tokens[i]]
-    if h and (i == start or tokens[i - 1] == "," or tokens[i - 1] == "and" or tokens[i - 1] == "plus"
+    if h and not (tokens[i] == "too" and tokens[i + 1] == "many")
+       and (i == start or tokens[i - 1] == "," or tokens[i - 1] == "and" or tokens[i - 1] == "plus"
               or (tokens[i - 1] == "with" and tokens[i] ~= "to" and tokens[i] ~= "for" and tokens[i] ~= "too")) then
       for look = 1, 3 do
         local nd = self:noun_at(tokens, i + look)
@@ -2022,7 +2470,10 @@ function Parse:parse_clause(raw, opts)
     local tries = 0
     for i = start, ntok do
       local w = tokens[i]
-      if tries < 14 and w and #w >= 4 and #w <= 16 and w:match("^%a+$") and not KNOWN_WORDS[w] and not self.noun[w] and not self.known_word[w]
+      local slot = #w >= 5 or (ve and i == start) or (i > start and (DETERMINERS[tokens[i - 1]] or number_of(tokens[i - 1])
+                   or ADJECTIVE_WORDS[tokens[i - 1]] or tokens[i - 1] == "of"
+                   or self.known_word[tokens[i - 1]]))
+      if tries < 14 and w and #w >= 4 and #w <= 16 and slot and w:match("^%a+$") and not KNOWN_WORDS[w] and not self.noun[w] and not self.known_word[w]
          and not self.scene[w] and not self:noun_at(tokens, i) then
         tries = tries + 1
         local best, tie
@@ -2133,11 +2584,17 @@ function Parse:parse_clause(raw, opts)
         end
         if k > s0 then
           -- "a kitchen without the fridge and the stove": neither (only for a whole room, and only a plain list of things)
-          if scene_word then
+          do
             for _ = 1, 4 do
               if tokens[k] ~= "and" and tokens[k] ~= "," and tokens[k] ~= "or" then break end
               local m0 = k + 1
               while tokens[m0] == "and" or tokens[m0] == "," or tokens[m0] == "or" do m0 = m0 + 1 end
+              -- outside a whole room only a list of "the" things / a bare plural goes on ("without the table and chairs");
+              -- a new "a lamp" after it is wanted ("a table without chairs and a lamp")
+              if not scene_word then
+                local f = tokens[m0]
+                if f == nil or f == "a" or f == "an" or f == "another" or number_of(f) or verb_at(tokens, m0) or NEG_CONTR[f] or f == "never" then break end
+              end
               local m = m0
               while tokens[m] and m - m0 < 8 and tokens[m] ~= "," and tokens[m] ~= "and" and tokens[m] ~= "with" and tokens[m] ~= "plus"
                     and tokens[m] ~= "then" and tokens[m] ~= "also" and tokens[m] ~= "but" and not match_at(REL_FIRST, tokens, m) do
@@ -2151,6 +2608,39 @@ function Parse:parse_clause(raw, opts)
           mark(i, i + e.n - 1)
         end
         i = math.max(k, i + e.n)
+      else
+        i = i + 1
+      end
+    end
+  end
+
+  -- "add a couch and dont add a lamp", "..., never put a table": a refusal inside the sentence drops what it names, up to the end of its part
+  do
+    local i = start + 1
+    while i <= ntok do
+      local t = tokens[i]
+      local joined = tokens[i - 1] == "and" or tokens[i - 1] == "," or tokens[i - 1] == "but" or tokens[i - 1] == "then"
+      local neg_at = (NEG_CONTR[t] or t == "never") and i or ((t == "do" and tokens[i + 1] == "not") and i + 1 or nil)
+      if neg_at and joined and not mask[i] then
+        local v = neg_at + 1
+        if tokens[v] == "you" then v = v + 1 end
+        local ve2 = verb_at(tokens, v)
+        if ve2 and ve2.class == "add" then
+          local s0 = v + ve2.n
+          local k = s0
+          while tokens[k] and k - s0 < 10 do
+            local w = tokens[k]
+            if (w == "," or w == "and" or w == "but" or w == "then") and self:starts_request(tokens, k + 1) then break end
+            k = k + 1
+          end
+          if k > s0 then
+            neg_scopes[#neg_scopes + 1] = { from = s0, to = k - 1 }
+            mark(i, s0 - 1)
+          end
+          i = k
+        else
+          i = i + 1
+        end
       else
         i = i + 1
       end
@@ -2260,7 +2750,7 @@ function Parse:parse_clause(raw, opts)
 
   -- ---- the library's own things (longest match first, left to right), "it", "everything", "the last one"
   local spans = {}
-  local anaphor_pending
+  local anaphor_pending, unresolved_one
   do
     local i = start
     local manage_context = (class == "remove" or class == "move" or class == "rotate" or class == "rearrange" or class == "unsupported")
@@ -2332,6 +2822,7 @@ function Parse:parse_clause(raw, opts)
           elseif not ant and not counting and (ADJECTIVE_WORDS[tokens[i - 1] or ""] or tokens[i - 1] == "a" or tokens[i - 1] == "an") then
             -- "add a red one": which kind is only known from what was asked before
             anaphor_pending = { adjectives = (ADJECTIVE_WORDS[tokens[i - 1] or ""]) and { tokens[i - 1] } or {}, count = (tok == "ones") and 3 or 1 }
+            if class == "remove" or class == "move" or class == "rotate" or class == "rearrange" then unresolved_one = true end
             mark(i - 1, i)
             i = i + 1
           end
@@ -2481,7 +2972,7 @@ function Parse:parse_clause(raw, opts)
       if count == nil and tokens[sp.i - 1] == "x" and number_of(tokens[sp.i - 2]) then count = number_of(tokens[sp.i - 2]); spoken = true end
       if count == nil then
         -- "the chairs" means the ones that stand there (all of them); a bare "chairs" means a handful
-        if sp.plural and definite then count = 0 else count = sp.plural and 3 or 1 end
+        if sp.plural and (definite or class == "remove") then count = 0 else count = sp.plural and 3 or 1 end
       end
       local clean = {}
       for _, a in ipairs(adjs) do
@@ -2489,7 +2980,7 @@ function Parse:parse_clause(raw, opts)
       end
       for k = ate, sp.i - 1 do mask[k] = true end
       local item = { kind = sp.kind, count = count, adjectives = clean, word = sp.word, definite = definite, plural = sp.plural,
-                     position = sp.i, approx = sp.approx or nil }
+                     position = sp.i, approx = sp.approx or nil, span_from = ate }
       if typo_at[sp.i] or typo_at[sp.j] then item.typo = true end
       req.items[#req.items + 1] = item
       if spoken then explicit[item] = true end
@@ -2784,6 +3275,27 @@ function Parse:parse_clause(raw, opts)
   end
   if req.every and req.arrangement ~= "corner" then req.every = nil end
 
+  -- ---- a definite thing after a preposition nothing above knew ("a lamp past the couch", "in the middle of the table"): where, not what
+  if req.target == "" and req.action ~= "remove" and req.action ~= "clear" and #req.items >= 2 then
+    for idx = #req.items, 2, -1 do
+      local it = req.items[idx]
+      if it.definite and it.kind:sub(1, 1) ~= "@" and not it.kind:match("^UNKNOWN") and it.span_from and it.span_from > start then
+        local b1, b2 = tokens[it.span_from - 1], tokens[it.span_from - 2]
+        local ref = W.BACKSTOP_PREPS[b1 or ""] or (b1 == "of" and W.PLACE_HEADS[b2 or ""]) or (W.PLACE_HEADS[b1 or ""] and W.BACKSTOP_PREPS[b2 or ""])
+                    or (b1 == "with" and b2 == "line") or (b1 == "to" and (b2 == "next" or b2 == "close" or b2 == "closer"))
+        if ref then
+          table.remove(req.items, idx)
+          req.target = it.kind
+          if req.arrangement == "unspecified" then
+            req.arrangement = (b1 == "upon" or b1 == "atop") and "on" or "beside"
+          end
+          break
+        end
+      end
+    end
+  end
+  if side and req.target ~= "" and req.target:sub(1, 1) ~= "@" then req.side = side end
+
   -- ---- seats: "a table for six"
   if seats then req.seats = seats end
   if for_count then
@@ -2999,6 +3511,56 @@ function Parse:parse_clause(raw, opts)
   local is_facing = (arr == "facing_me" or arr == "facing_each_other" or arr == "facing_away" or req.half_turn) and true or false
   local is_shape = (arr == "row" or arr == "circle" or arr == "grid" or arr == "u_shape" or arr == "l_shape" or arr == "stacked" or arr == "scattered")
 
+  -- ---- sentences that are not orders although they name things
+  local function nothing(note)
+    req.action = "none"; req.items = {}; req.scene = ""
+    req.arrangement, req.target, req.facing, req.shape = "unspecified", "", nil, nil
+    req.exclude, req.side, req.seats, req.every, req.times = nil, nil, nil, nil, nil
+    if note then req.notes[#req.notes + 1] = note else req.normalised = "" end
+    return req
+  end
+  local manages = (req.action == "remove" or req.action == "move" or req.action == "rotate" or req.action == "rearrange")
+  -- "remove the red one": which one is red cannot be told from the thing made last, and guessing would destroy the wrong thing
+  if unresolved_one and manages then
+    return nothing("I can't tell which one you mean, so I changed nothing; say what it is ('remove the red couch')")
+  end
+  -- "one less chair" takes one away; "fewer chairs", "too many chairs", "double the chairs", "only keep two" cannot be turned into a count
+  do
+    local reducing, cue_less = false, 0
+    for k = start, ntok do
+      local w, nx = tokens[k], tokens[k + 1]
+      if w == "less" or w == "fewer" then
+        reducing = true; cue_less = cue_less + 1
+        local b = tokens[k - 1]
+        if b == "many" or b == "much" or b == "far" or b == "way" or b == "lots" or b == "lot" then cue_less = cue_less + 2 end
+      elseif w == "too" and nx == "many" then reducing = true; cue_less = cue_less + 2
+      elseif w == "double" or w == "triple" or w == "quadruple" or w == "halve" then reducing = true; cue_less = cue_less + 2
+      elseif (w == "twice" or w == "half") and (nx == "the" or nx == "as" or nx == "that") then reducing = true; cue_less = cue_less + 2
+      elseif (w == "only" or w == "just") and (nx == "keep" or nx == "leave") then reducing = true; cue_less = cue_less + 2 end
+    end
+    if reducing then
+      local its = real_items()
+      if cue_less == 1 and class ~= "remove" and #its == 1 and #pseudo_items() == 0 and req.scene == "" and explicit[its[1]] and its[1].count > 0 then
+        req.action = "remove"
+        its[1].adjectives, its[1].definite = {}, true
+        req.items = its
+        req.arrangement, req.target, req.facing, req.shape = "unspecified", "", nil, nil
+        return req
+      end
+      return nothing("that sounded like a request for a different number, which I can't work out; say 'remove two chairs', so I changed nothing")
+    end
+  end
+  if class == nil and req.action == "add" then
+    for k = start, ntok do                                       -- "one lamp is enough", "two chairs are enough"
+      if tokens[k] == "enough" and not (k > start and (SIZE_WORDS[tokens[k - 1]] or tokens[k - 1] == "room" or tokens[k - 1] == "roomy")) and tokens[k + 1] ~= "for" then
+        return nothing()
+      end
+    end
+    if #req.items > 0 or req.scene ~= "" then                    -- "somebody removed the couch", "thanks for removing the lamp"
+      for k = 1, ntok do if W.PAST_REMOVAL[tokens[k]] then return nothing() end end
+    end
+  end
+
   -- "it would be great if you could remove the lamp": a verb that manages what stands, in front of the first thing but not at the
   -- start of the sentence. Adding the lamp it names would build a second one: nothing is better than that.
   if class == nil and req.action == "add" and #req.items > 0 and req.scene == "" and definite_items() then
@@ -3025,7 +3587,20 @@ function Parse:parse_clause(raw, opts)
     return req
   end
   -- "toss a barrel behind me" throws one in; "toss the lamp" throws it out
-  if req.action == "remove" and (verb == "toss" or verb == "chuck") and req.arrangement ~= "unspecified" then req.action = "add" end
+  -- "toss me a crate" throws one in; "toss the lamp" throws it out ("toss out a crate" is a removal by its particle)
+  if req.action == "remove" and (verb == "toss" or verb == "chuck") then
+    local indefinite = #real_items() > 0 and #pseudo_items() == 0
+    for _, it in ipairs(req.items) do
+      if it.definite or (it.count == 0 and explicit[it]) then indefinite = false end
+    end
+    local particle = tokens[p + 1] == "out" or tokens[p + 1] == "away"
+    if (indefinite or req.arrangement ~= "unspecified") and not particle then
+      req.action = "add"
+      for _, it in ipairs(req.items) do
+        if it.count == 0 and not it.definite and not explicit[it] then it.count = 3 end
+      end
+    end
+  end
   -- "half of the crates", "all of the chairs but the red ones": a share of them cannot be named
   for _, it in ipairs(req.items) do
     if it.count and it.count < 0 then
@@ -3056,7 +3631,14 @@ function Parse:parse_clause(raw, opts)
     if DEFINITE_WORDS[first] and first ~= "them" and first ~= "it" and req.arrangement == "unspecified" then
       for k = p + 1, ntok do if COPULA[tokens[k]] then statement = true; break end end
     end
-    if statement and explicit_new_items() then statement = false end      -- "the room needs a couch" still asks for one
+    if not statement and req.arrangement == "unspecified" and #real_items() > 0 then
+      local spoken = false
+      for _, it in ipairs(req.items) do if explicit[it] then spoken = true end end
+      if not spoken then
+        for k = p + 1, ntok do if W.COPULA_STATE[tokens[k]] then statement = true; break end end    -- "chairs are cool"
+      end
+    end
+    if statement and explicit_new_items() and DEFINITE_WORDS[first] then statement = false end      -- "the room needs a couch" still asks for one
     if is_question or statement then
       req.action = "none"
       req.items = {}
@@ -3165,6 +3747,10 @@ function Parse:parse_clause(raw, opts)
       if all_zero then req.action = "rearrange" end
     end
   end
+  -- "bring me the lamp", "grab the lamp", "give me the couch": the holodeck hands nothing over, and a second lamp is not what was asked
+  if req.action == "add" and W.FETCH_VERBS[verb or ""] and #req.items > 0 and definite_items() and req.scene == "" then
+    return nothing("I can't hand things over, so I changed nothing")
+  end
   -- an "@all" or "@last" is only for the verbs that manage what stands; for an add it names nothing
   if req.action == "add" then
     local kept_items = {}
@@ -3182,8 +3768,23 @@ function Parse:parse_clause(raw, opts)
       req.items[1] = { kind = "@last", count = 1, adjectives = {}, word = "it", definite = true, position = start }
     end
   end
+  if (req.action == "move" or req.action == "rotate") and #req.items == 0 and req.scene == "" then
+    local k = start
+    while tokens[k] and (DETERMINERS[tokens[k]] or ARTICLES[tokens[k]]) do k = k + 1 end
+    if W.WORLD_FEATURES[tokens[k] or ""] then
+      return nothing("I can't tell what you want " .. (req.action == "move" and "moved" or "turned") .. ", so I changed nothing")
+    end
+  end
   if req.action == "remove" and #req.items == 0 and req.scene == "" then
-    -- "get rid of it", "remove that": the last thing created
+    -- "get rid of it", "remove that": the last thing created -- but only for a bare verb or a pronoun. "clear the air", "clear some
+    -- space", "remove the wall", "remove yourself" name something this holodeck cannot take away, and the last build is not it.
+    for k = start, ntok do
+      local w = tokens[k]
+      if w ~= "," and not STOP[w] and not W.RESIDUE[w] and not ARTICLES[w] and not DETERMINERS[w] and not number_of(w) then
+        return nothing("I can't tell what to take away, so I changed nothing")
+      end
+    end
+    -- the last thing created
     req.items[1] = { kind = "@last", count = 1, adjectives = {}, word = "it", definite = true, position = 1 }
   end
   -- "remove everything thats red", "remove the chairs that are broken": a description that picks some of them out. A colour is
@@ -3409,7 +4010,7 @@ function Parse:split_tokens(tokens)
       local rest = {}
       for k = after, n do rest[#rest + 1] = tokens[k] end
       if (self:starts_request(tokens, after) or item_start) and not is_bare_undo(rest) then      -- "oops, put them back" is one undo
-        cuts[1] = { from = after, to = after - 1, soft = false }
+        cuts[1] = { from = after, to = after - 1, soft = false, retract = true }
         i = math.max(2, after)
       end
     end
@@ -3508,7 +4109,7 @@ function Parse:split_tokens(tokens)
   for _, c in ipairs(cuts) do
     local part = {}
     for k = from, c.from - 1 do part[#part + 1] = tokens[k] end
-    parts[#parts + 1] = { tokens = part, soft = soft_before }
+    parts[#parts + 1] = { tokens = part, soft = soft_before, retract = c.retract }
     soft_before = c.soft
     from = c.to + 1
   end
@@ -3612,19 +4213,69 @@ function Parse:parse_all(text, prev)
   if #raw > MAX_INPUT then raw = cut_utf8(raw, MAX_INPUT); truncated = true end
   local reqs = {}
   local folded = fold_text(raw):gsub("(%d)%.(%d)", "%1\1%2")
-  local sentences = {}
-  for s in (folded .. "."):gmatch("([^%.!?;]*)[%.!?;]+") do
+  local sentences, asked = {}, {}
+  for s, term in (folded .. "."):gmatch("([^%.!?;]*)([%.!?;]+)") do
     s = s:gsub("\1", ".")
     sentences[#sentences + 1] = s
+    asked[#sentences] = term:find("?", 1, true) ~= nil
   end
-  local pieces = {}
+  local sents = {}
   for si, s in ipairs(sentences) do
     local tokens = self:strip_greeting(tokenise(s))
-    if #tokens > 0 then
+    if #tokens > 0 then sents[#sents + 1] = { text = s, tokens = tokens, kept = tokenise(s, true), question = asked[si] } end
+  end
+  -- "Remove the couch. No wait, the lamp.": a correction said as a sentence of its own replaces the thing it corrects
+  do
+    local k = 2
+    while k <= #sents do
+      local prev, cur = sents[k - 1], sents[k]
+      local merged
+      if self:correction_tail(cur.kept) then
+        merged = {}
+        for _, t in ipairs(prev.tokens) do merged[#merged + 1] = t end
+        merged[#merged + 1] = ","
+        for _, t in ipairs(cur.kept) do merged[#merged + 1] = t end
+        local folded_tokens = self:fold_correction(merged)
+        if folded_tokens ~= merged then
+          prev.tokens, prev.kept, prev.text = folded_tokens, folded_tokens, prev.text .. " , " .. cur.text
+          table.remove(sents, k)
+        else
+          k = k + 1
+        end
+      else
+        k = k + 1
+      end
+    end
+  end
+  local pieces = {}
+  for _, sent in ipairs(sents) do
+    local s, tokens = sent.text, sent.tokens
+    do                                                                     -- "not a couch, a bed" wants the bed
+      local t1 = tokens[1]
+      if (t1 == "not" or t1 == "no" or t1 == "nope") and (tokens[2] == "a" or tokens[2] == "an") then
+        for c = 3, math.min(#tokens - 1, 8) do
+          if tokens[c] == "," then
+            local nx = tokens[c + 1]
+            local verbal = false
+            for q = 2, c - 1 do if verb_at(tokens, q) then verbal = true end end
+            if not verbal and (nx == "a" or nx == "an" or number_of(nx)) then
+              local out = {}
+              for q = c + 1, #tokens do out[#out + 1] = tokens[q] end
+              tokens = out
+            end
+            break
+          end
+        end
+      end
+    end
+    if self:not_an_order(sent.kept, sent.question) then
+      pieces[#pieces + 1] = { gated = true, text = table.concat(tokens, " "), raw = trim(s) }
+    else
+      tokens = self:fold_correction(tokens)
       local parts = self:split_tokens(tokens)
       for pi, part in ipairs(parts) do
         pieces[#pieces + 1] = { text = table.concat(part.tokens, " "), raw = (#parts == 1) and trim(s) or nil, soft = part.soft and #pieces > 0,
-                                single = (#parts == 1) }
+                                single = (#parts == 1), retract = part.retract }
       end
     end
   end
@@ -3636,7 +4287,13 @@ function Parse:parse_all(text, prev)
       last.notes[#last.notes + 1] = "I only did the first " .. MAX_REQUESTS .. " things you asked for"
       break
     end
-    local r = self:parse_clause(pc.raw or pc.text, { text = pc.text, prev = last_prev })
+    local r
+    if pc.gated then
+      r = { raw = pc.raw, normalised = pc.text, action = "none", items = {}, arrangement = "unspecified", target = "", scene = "", unknown = {},
+            notes = { "that sounded like a question or a maybe, not an order, so I changed nothing" }, leftover = {} }
+    else
+      r = self:parse_clause(pc.raw or pc.text, { text = pc.text, prev = last_prev, retract_followed = pc.retract })
+    end
     bind_it(r, last_prev, function(k) return self:is_surface(k) end)
     local skip = (r.action == "none" and r.normalised == "" and #r.notes == 0 and not r.unknown_verb)
     if not skip then

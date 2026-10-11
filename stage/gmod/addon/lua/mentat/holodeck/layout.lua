@@ -56,8 +56,15 @@ function Layout.hash(str)
 end
 
 -- ------------------------------------------------------------------------------------------------ rectangles
+-- (a search builds hundreds of rectangles at the same few yaws: the last yaw's direction is remembered)
+local last_theta, last_fx, last_fy
 function Layout.rect(x, y, w, d, theta)
-  local fx, fy = Layout.fwd(theta)
+  local fx, fy
+  if theta == last_theta then fx, fy = last_fx, last_fy
+  else
+    fx, fy = Layout.fwd(theta)
+    last_theta, last_fx, last_fy = theta, fx, fy
+  end
   return { x = x, y = y, w = w, d = d, theta = theta, fx = fx, fy = fy, rx = fy, ry = -fx, rad = sqrt(w * w + d * d) / 2 }
 end
 
@@ -268,17 +275,46 @@ function Layout.stack(frame, items, opts)
   if opts.max_h and tallest > 0 then
     while base < n and #layers_of(base) * tallest > opts.max_h do base = base + 1 end
   end
+  -- the widest go lowest (a stable sort, poses written back to the caller's own indices), so no layer is wider than the one under
+  -- it and the base layer bounds the whole pile: the caller's wall and floor checks on the base then cover every layer
+  local order = {}
+  for k = 1, n do order[k] = k end
+  table.sort(order, function(a, b)
+    if items[a].w ~= items[b].w then return items[a].w > items[b].w end
+    return a < b
+  end)
+  -- unlike widths (a mixed pile): the base is packed edge to edge and every upper item stands centred on a support of its own (the
+  -- k-th widest on the k-th widest support below), so nothing hangs over a gap; equal widths keep the pyramid, each over two
+  local wmin, wmax = 1e9, -1e9
+  for _, it in ipairs(items) do wmin, wmax = min(wmin, it.w), max(wmax, it.w) end
+  local mixed = wmax - wmin > 0.5
   local poses, i = {}, 1
   local below                              -- the layer under this one: { {v, half, top} ... }
   for _, count in ipairs(layers_of(base)) do
     local lw = 0
-    for k = i, i + count - 1 do lw = max(lw, items[k].w) end
+    for k = i, i + count - 1 do lw = max(lw, items[order[k]].w) end
     local row = {}
+    local supports
+    if mixed and below then
+      supports = {}
+      for _, b in ipairs(below) do supports[#supports + 1] = b end
+      table.sort(supports, function(a, b) if a.half ~= b.half then return a.half > b.half end return a.v < b.v end)
+    end
+    local total = -gap
+    if mixed and not below then
+      for k = 0, count - 1 do total = total + items[order[i + k]].w + gap end
+    end
+    local cursor = -total / 2
     for k = 0, count - 1 do
-      local it = items[i + k]
+      local it = items[order[i + k]]
       local v = (k - (count - 1) / 2) * (lw + gap)
       local z = 0
-      if below then
+      if mixed and not below then
+        v = cursor + it.w / 2
+        cursor = cursor + it.w + gap
+      elseif mixed and supports[k + 1] then
+        v, z = supports[k + 1].v, supports[k + 1].top
+      elseif below then
         local seen = false
         for _, b in ipairs(below) do
           if abs(b.v - v) < b.half + it.w / 2 then z, seen = max(z, b.top), true end
@@ -287,7 +323,7 @@ function Layout.stack(frame, items, opts)
       end
       local pose = Layout.to_world(frame, 0, v, 0)
       pose.z = z
-      poses[i + k] = pose
+      poses[order[i + k]] = pose
       row[#row + 1] = { v = v, half = it.w / 2, top = z + (it.h or 0) }
     end
     below = row

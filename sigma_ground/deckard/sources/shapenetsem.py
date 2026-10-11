@@ -23,6 +23,7 @@ _JSON = (pathlib.Path(__file__).resolve().parents[2]
          / "inventory" / "data" / "shapenetsem_sizes.json")
 _SOURCE = "ShapeNetSem (Savva et al. 2015)"
 _LICENSE = "ShapeNet Terms of Use (non-commercial research)"
+_ARTICLE = re.compile(r"^(a|an|the)\s+")
 
 
 def _words(s: str) -> set:
@@ -37,28 +38,35 @@ def _doc() -> dict:
         return {}
 
 
-def _entry(name: str, _aliased: bool = False):
+def _entry(name: str, _aliased: bool = False, anchor=None):
     """The best table entry for ``name``: exact key, else whole-word containment
     (the key's words all appear in the query; longest key wins, and of equally
     long keys the one holding the query's head noun — "a desk LAMP" is a lamp,
     not a desk, whatever order the table lists them in), else the query's
-    WordNet aliases (taxonomy table) retried once."""
+    WordNet aliases (taxonomy table) retried once.
+
+    ``anchor`` (words; see ``exemplar.anchor_words``) pins the lookup to the object an exemplar
+    layout was already chosen for: only keys sharing a word with it are considered, so "a bed
+    FRAME" is sized as a bed (never as the 'frame' key's picture frame) and "a closet DOOR" is
+    never sized as a closet. With an anchor there is no WordNet retry and no exact-key shortcut
+    to an unrelated key: no related key means None, and the caller falls back to a sourced size
+    for the category."""
     from . import aliases
     cats = _doc().get("categories") or {}
-    key = name.strip().lower()
-    if key in cats:
+    key = _ARTICLE.sub("", name.strip().lower())
+    if key in cats and (not anchor or _words(key) & set(anchor)):
         return cats[key]
     qw = _words(name)
     head = aliases.head_noun(name)
     best, best_rank = None, (0, False)
     for nm, entry in cats.items():
         nw = _words(nm)
-        if not (nw and nw <= qw):
+        if not (nw and nw <= qw) or (anchor and not nw & set(anchor)):
             continue
         rank = (len(nw), aliases.holds_head(nw, head))
         if rank > best_rank:
             best_rank, best = rank, entry
-    if best is None and not _aliased:
+    if best is None and not _aliased and not anchor:
         # alias retries match EXACT keys only: aliases are precise lemma swaps,
         # and stacking word-containment on top cascades into false friends
         # ("pushpin" -> "drawing pin" -> containment -> bowling "pin").
@@ -69,25 +77,25 @@ def _entry(name: str, _aliased: bool = False):
     return best
 
 
-def size_of(name: str):
+def size_of(name: str, anchor=None):
     """(size_m, source, license) — median real-world longest extent, or None."""
-    e = _entry(name)
+    e = _entry(name, anchor=anchor)
     if not e:
         return None
     return (e["size_m"], f"{_SOURCE}, median of {e['n']} models", _LICENSE)
 
 
-def dims_of(name: str):
+def dims_of(name: str, anchor=None):
     """(dims_m, n, source, license) — the median aligned extents, or None."""
-    e = _entry(name)
+    e = _entry(name, anchor=anchor)
     if not e:
         return None
     return (list(e["dims_m"]), e["n"], _SOURCE, _LICENSE)
 
 
-def materials_of(name: str):
+def materials_of(name: str, anchor=None):
     """({material: ratio}, source, license) for the object's category, or None."""
-    e = _entry(name)
+    e = _entry(name, anchor=anchor)
     if not e or not e.get("materials"):
         return None
     return (dict(e["materials"]), _SOURCE, _LICENSE)

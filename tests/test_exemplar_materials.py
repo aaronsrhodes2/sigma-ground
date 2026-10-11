@@ -7,7 +7,7 @@ import pytest
 
 from sigma_ground.deckard.research import (
     _exemplar_spec, _role_material, _hint_to_material, _is_container,
-    _density_fact, _occupancy, _part_extent, _stock_thickness,
+    _density_fact, _occupancy, _part_extent, _part_occupancy, _stock_thickness,
 )
 from sigma_ground.deckard import compile
 
@@ -55,13 +55,14 @@ def test_part_density_resolves_cited_via_material_profile():
     # ... but a PartNet leaf is only the bounding BOX of a part (this leg is a 21 x 20 x 51 cm box
     # around a slender post), so the part carries that density times the share of its box that
     # board stock can fill: an ESTIMATED bulk density (it used to be the full, cited 700 = 123 kg chairs).
-    occ = _occupancy(_part_extent(leg), _stock_thickness(leg.material))
+    occ = _part_occupancy(leg.name, _part_extent(leg), _stock_thickness(leg.material), leg.shape)
     assert occ < 0.98 and leg.density.estimated
+    assert occ < 0.1                                    # a 4 cm post in a 21 x 20 cm box (was an 18 mm shell: 26%)
     assert leg.density.value == pytest.approx(cited.value * occ, rel=1e-3)
     assert leg.density.value < cited.value
     # plank and rod stock keeps its citation (the headboard of a bed is a 16 mm board)
     bed = _exemplar_spec("a bed")
-    boards = [p for p in bed.parts if _occupancy(_part_extent(p), _stock_thickness(p.material)) >= 0.98
+    boards = [p for p in bed.parts if _part_occupancy(p.name, _part_extent(p), _stock_thickness(p.material), p.shape) >= 0.98
               and p.material == "wood"]
     assert boards and all(not p.density.estimated and p.density.value == cited.value for p in boards)
 

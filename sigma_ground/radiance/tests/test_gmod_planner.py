@@ -1761,3 +1761,567 @@ def test_a_pile_moves_as_one_piece(lab, second):
             d1 = math.hypot(after[ia][0] - after[ib][0], after[ia][1] - after[ib][1])
             assert abs(d0 - d1) < 0.5 and abs((za - zb) - (after[ia][2] - after[ib][2])) < 0.5, (second, ia, ib, d0, d1)
     assert lab.audit(env) == []
+
+
+
+# ================================================================================================ the second review's planner fixes
+# Each test names the finding it holds shut (E-nn: the numbers of the verified review list). All of them fail on the planner as it
+# was before these fixes (HOLODECK_LUA_ROOT points the lab at a copy of the old addon to show it). No overlap tolerance was loosened:
+# a live run showed touching chairs get thrown by the physics engine, so a crowd gets a bigger room or a refusal, never a squeeze.
+from eval_parse import to_py  # noqa: E402
+from lab import sat_penetration  # noqa: E402
+
+
+def explain_run(lab, text, world, budget=30.0, **kw):
+    """Plan a sentence with the planner's `explain` hook: how many candidate placements were judged and refused (a measure of the
+    search's effort that does not depend on the speed of the machine)."""
+    env = lab.world(world) if isinstance(world, str) else world
+    req = lab.parser.parse(lab.parser, text)
+    ctx = lab.context(env, budget=budget, **kw)
+    events = []
+    ctx["explain"] = lambda *a: events.append(a[0])
+    res = lab._lists(to_py(lab.mod, lab.planner.run(lab.planner, req, ctx)))
+    return res, len(events)
+
+
+def wide_seeds(n):
+    """n seeds spread over the generator's range: the first draw of the planner's generator barely moves between neighbouring seeds
+    (nor between the hashes of sentences that differ in a last digit), so these are 7919 apart and draw every variant of a kind."""
+    return [13 + k * 7919 for k in range(1, n + 1)]
+
+
+def wanted_count(lab, text):
+    req = to_py(lab.mod, lab.parser.parse(lab.parser, text))
+    return sum(int(i["count"]) or 1 for i in req["items"])
+
+
+def away_error(lab, p, tx, ty):
+    """Angle (deg) between where a thing faces and the direction AWAY from (tx, ty)."""
+    fx, fy = lab.front_vec(p)
+    want = math.degrees(math.atan2(p["y"] - ty, p["x"] - tx))
+    have = math.degrees(math.atan2(fy, fx))
+    d = (have - want) % 360
+    return abs(d - 360 if d > 180 else d)
+
+
+def pile_problems(lab, res, env):
+    """What the independent grader's 'on' rule cannot say about a mixed pile: a piece through a wall, or hanging over nothing."""
+    pls = res["placements"]
+    polys = [poly_of(lab.variant(p), p["origin"], p["yaw"]) for p in pls]
+    x0, y0, x1, y1 = (env.bounds[k] for k in (1, 2, 3, 4))
+    bad = []
+    for i, (p, poly) in enumerate(zip(pls, polys)):
+        if any(x < x0 - 0.7 or x > x1 + 0.7 or y < y0 - 0.7 or y > y1 + 0.7 for x, y in poly):
+            bad.append((p["kind"], "through a wall"))
+        bottom = p["origin"]["z"] + lab.variant(p)["mins"][2]
+        if bottom > 0.6:
+            held = False
+            for j, q in enumerate(pls):
+                if j != i and abs(bottom - (q["origin"]["z"] + lab.variant(q)["maxs"][2])) < 1.0 and sat_penetration(poly, polys[j]) > 0:
+                    held = True
+            if not held:
+                bad.append((p["kind"], f"hangs at {bottom:.1f}"))
+    return bad
+
+
+# ---------------------------------------------------------------------------------------------------------- E-86: side tables, plants
+SIDE_TABLE_SENTENCES = [
+    "three couches and a side table", "four couches and a side table", "three loveseats and a side table", "three couches and two side tables",
+    "two couches, two mugs and two side tables", "4 side tables and a couch", "four loveseats and a side table", "a bench and two side tables",
+]
+
+
+@pytest.mark.parametrize("world", ["open", "room"])
+@pytest.mark.parametrize("text", SIDE_TABLE_SENTENCES)
+def test_side_tables_stand_at_the_ends_of_a_row_of_seats(lab, text, world):
+    """E-86: three or more seats on a wall left no room for the side table (it was placed beside the first seat and slid in 8 HU
+    steps): every candidate failed and the request was refused ('I could not find room for that') on open ground."""
+    for seed, yaw in [(None, 0.0), (None, 30.0)] + [(s, 0.0) for s in wide_seeds(2)]:
+        fresh(lab)
+        res = lab.run(text, world=world, seed=seed, yaw=yaw, budget=0.5)
+        assert res["placements"], (text, world, seed, yaw, res["say"])
+        assert len(res["placements"]) >= wanted_count(lab, text), (text, len(res["placements"]), res["say"])
+        assert "separate groups" not in res["say"], res["say"]                 # one room, not each kind on its own after a long search
+        assert not clean(lab, res, world), clean(lab, res, world)
+
+
+@pytest.mark.parametrize("world", ["open", "room"])
+@pytest.mark.parametrize("text", ["four tables and five plants", "four tables and six plants", "six tables and six plants", "five tables and six plants"])
+def test_corner_plants_do_not_stand_in_a_crowded_middle(lab, text, world):
+    """E-86: the cluster of tables was measured alone, so the plants in the room's corners overlapped it whatever the room's size."""
+    for seed in [None] + wide_seeds(2):
+        fresh(lab)
+        res = lab.run(text, world=world, seed=seed, budget=0.5)
+        assert res["placements"], (text, world, res["say"])
+        assert kinds(res)["plant"] >= 5 and kinds(res)["table"] >= 4, kinds(res)
+        assert "separate groups" not in res["say"], res["say"]
+        assert not clean(lab, res, world), clean(lab, res, world)
+
+
+# ---------------------------------------------------------------------------------------------------------- E-87: the search's effort
+@pytest.mark.parametrize("text, world, limit", [
+    ("ten stools in a circle", "room:300x260", 150), ("a dozen barrels in a circle", "room:300x260", 900),
+    ("five benches against the wall", "room:420x360", 1500), ("add twenty couches", "room:560x480", 1100),
+])
+def test_the_search_does_not_judge_frames_outside_the_room(lab, text, world, limit):
+    """E-87: the frames of the open sweep reach far past the walls of a small room, and each was built and judged (thousands of
+    refusals before the first fit). A frame whose centre stands on no floor is passed over: the same answers, a fraction of the work."""
+    fresh(lab)
+    res, refused = explain_run(lab, text, world)
+    assert res["placements"], (text, res["say"])
+    assert refused <= limit, (text, refused)
+
+
+@pytest.mark.parametrize("text, world", [("ten stools in a circle", "room:300x260"), ("a dozen barrels in a circle", "room:300x260"),
+                                         ("add twenty couches", "room:560x480")])
+def test_an_ordinary_players_budget_is_enough_for_a_plain_request(lab, text, world):
+    """E-87: requests that needed 30 to 120 ms of Lua were cut at the ordinary player's 0.05 s and the player was told 'That is
+    more than I can fit here.' (on a quiet machine, JIT off: 20 of 20 runs). The slowest of five runs may still be cut by a busy
+    machine; at least one must finish."""
+    done = 0
+    for _ in range(5):
+        fresh(lab)
+        res = lab.run(text, world=world, budget=0.05)
+        if res["placements"] and not res["timed_out"]:
+            done += 1
+            break
+    assert done, (text, world)
+
+
+def test_the_unlimited_answer_is_the_same_with_and_without_the_frame_filter(lab):
+    """E-87: passing over frames outside the room changes the effort, never the answer (ctx.exhaustive judges everything)."""
+    for text, world in [("ten stools in a circle", "room:300x260"), ("five benches against the wall", "room:420x360"),
+                        ("add three couches", "room:420x360"), ("a dozen barrels in a circle", "room:420x360")]:
+        fresh(lab)
+        env = lab.world(world)
+        req = lab.parser.parse(lab.parser, text)
+        a = lab._lists(to_py(lab.mod, lab.planner.run(lab.planner, req, lab.context(env, budget=30.0))))
+        ctx = lab.context(env, budget=30.0)
+        ctx["exhaustive"] = True
+        b = lab._lists(to_py(lab.mod, lab.planner.run(lab.planner, req, ctx)))
+        assert [(p["kind"], round(p["x"], 2), round(p["y"], 2), round(p["theta"], 2)) for p in a["placements"]] == \
+               [(p["kind"], round(p["x"], 2), round(p["y"], 2), round(p["theta"], 2)) for p in b["placements"]], text
+
+
+@pytest.mark.parametrize("step", [0.0002, 0.0005, 0.001, 0.002, 0.004, 0.008])
+@pytest.mark.parametrize("text, world", [("a dozen barrels in a circle", "room:420x360"),
+                                         ("ten stools in a circle", "room:300x260"), ("six stools in a circle", "room:300x260")])
+def test_a_slice_of_the_time_ending_a_search_is_not_reported_as_no_fit(lab, text, world, step):
+    """E-93: when the circle's own slice of the budget ran out, a simpler layout was found and the reply said 'it would not fit as
+    asked' with timed_out false, although the unlimited search places the circle. A cut search says it ran out of time."""
+    fresh(lab)
+    full = lab.run(text, world=world, budget=60.0)
+    assert "would not fit" not in full["say"], full["say"]
+    cut = lab.run(text, world=world, now=make_clock(lab, step), budget=0.05)
+    if cut["placements"] and "would not fit as asked" in cut["say"]:
+        raise AssertionError(("a cut search blamed the room", step, cut["say"], cut["timed_out"]))
+    if cut["placements"] and "circle" not in cut["say"]:
+        assert cut["timed_out"] is True, cut["say"]
+
+
+# ---------------------------------------------------------------------------------------------------------- E-88: turning at a wall
+@pytest.mark.parametrize("world", ["room", "room:700x600"])
+@pytest.mark.parametrize("how", ["rotate the {k} 45 degrees", "rotate the {k} 90 degrees", "turn the {k} to face me"])
+@pytest.mark.parametrize("kind", ["table", "crate", "patio table", "bench", "dresser"])
+def test_a_prop_against_a_wall_turns_when_the_room_is_empty(lab, kind, how, world):
+    """E-88: settle_turn tried slides of at most (long side - short side)/2 + 8 HU and rings up to 46: a square table turned 45
+    degrees needs about 10 HU and a bench turned a quarter 48 HU, so both were refused in an empty room ('no room to turn it')."""
+    for seed in wide_seeds(4):                       # the variants differ in size: the square ones are the hard ones
+        fresh(lab)
+        env = lab.world(world)
+        stand(lab, f"a {kind} against the wall", world=env, owner="a", seed=seed)
+        res = lab.run(how.format(k=kind), world=env, owner="a")
+        assert res["moves"], (kind, how, world, seed, res["say"])
+        lab.commit(res, owner="a")
+        assert lab.audit(env) == [], lab.audit(env)
+
+
+# ---------------------------------------------------------------------------------------------------------- E-89 / E-48 / E-50: beside a wall-flush thing
+WALL_FLUSH = ["bookshelf", "tv", "side table", "fridge", "couch", "wardrobe", "dresser"]
+
+
+@pytest.mark.parametrize("yaw", [0.0, 90.0, 200.0])
+@pytest.mark.parametrize("new", ["couch", "table", "plant", "armchair", "bed"])
+@pytest.mark.parametrize("ref", WALL_FLUSH)
+def test_a_deeper_thing_goes_beside_a_wall_flush_one_without_the_nearby_fallback(lab, ref, new, yaw):
+    """E-89/E-48/E-50: the new thing was centred on the reference's centre line; a deeper one stuck out behind the wall, both
+    sides failed and it was put 'nearby' with a false 'no room beside' note. The backs line up as a later candidate."""
+    if ref == new:
+        pytest.skip("a thing beside its own kind is not the case")
+    fresh(lab)
+    env = lab.world("room")
+    stand(lab, f"a {ref} against the wall", world=env, owner="a", yaw=yaw)
+    res = lab.run(f"a {new} next to the {ref}", world=env, owner="a", yaw=yaw)
+    assert res["placements"], res["say"]
+    assert "nearby" not in res["say"] and "no room beside" not in res["say"], res["say"]
+    r0 = standing(lab, ref)[0]
+    p = res["placements"][0]
+    edge_gap = math.hypot(p["x"] - r0["x"], p["y"] - r0["y"]) - (r0["w"] + p["w"]) / 2
+    assert edge_gap < 30, (ref, new, yaw, edge_gap)
+    assert not clean(lab, res, "room"), clean(lab, res, "room")
+
+
+@pytest.mark.parametrize("ref", ["bookshelf", "tv", "fridge"])
+def test_moving_a_deeper_thing_next_to_a_wall_flush_one_moves_it(lab, ref):
+    """E-89/E-48: 'move the couch next to the bookshelf' answered 'There was no clear spot for that.' for the same reason."""
+    fresh(lab)
+    env = lab.world("room")
+    stand(lab, "a couch", world=env, owner="a")
+    stand(lab, f"a {ref} against the wall", world=env, owner="a")
+    res = stand(lab, f"move the couch next to the {ref}", world=env, owner="a")
+    assert res["moves"], res["say"]
+    assert lab.audit(env) == []
+    couch, r0 = standing(lab, "couch")[0], standing(lab, ref)[0]
+    assert math.hypot(couch["x"] - r0["x"], couch["y"] - r0["y"]) - (couch["w"] + r0["w"]) / 2 < 30
+
+
+# ---------------------------------------------------------------------------------------------------------- E-90 / E-17 / E-98: piles
+@pytest.mark.parametrize("text", ["three crates stacked", "stack four crates", "five crates stacked", "add five crates"])
+def test_a_pile_the_height_cap_lays_flat_is_not_called_a_pile(lab, text):
+    """E-90: MAX_PILE_H (128) was below two of the common crates (64.6, 65.6 HU), so their 'pile' was one flat layer that the reply
+    still called 'stacked in a pile' (and a default pile said 'it would not fit as asked' to a player who asked for nothing)."""
+    flat = 0
+    stacked = 0
+    for seed in wide_seeds(16):
+        fresh(lab)
+        res = lab.run(text, world="room", seed=seed)
+        assert res["placements"], res["say"]
+        top = max(p["z"] for p in res["placements"])
+        if top > 0.5:
+            stacked += 1
+            assert "stacked" in res["say"], res["say"]
+        else:
+            flat += 1
+            assert "pile" not in res["say"] and "stacked" not in res["say"], (res["say"], seed)
+        assert "as asked" not in res["say"] or "stack" in text, res["say"]
+        assert not clean(lab, res, "room"), clean(lab, res, "room")
+    assert stacked >= 10, (stacked, flat)             # the 64 and 65 HU crates now stack two high
+
+
+@pytest.mark.parametrize("text", ["three crates facing me and four beds", "three boxes facing me and four desks", "a box and two chairs in front of me",
+                                  "three boxes and a couch in front of me", "three crates and four dressers behind me"])
+@pytest.mark.parametrize("world", ["room:420x360", "room"])
+def test_unlike_kinds_are_not_stacked_under_a_pile_default(lab, text, world):
+    """E-17: default_arrangement read only the first kind: crates first with three or more things made 'stacked' of everything, so
+    beds were put on crates and on each other, hovering and through a wall, with a success message."""
+    fresh(lab)
+    env = lab.world(world)
+    res = lab.run(text, world=env)
+    assert res["placements"], (text, world, res["say"])
+    assert all(p["z"] < 0.5 for p in res["placements"]), [(p["kind"], p["z"]) for p in res["placements"] if p["z"] >= 0.5]
+    assert not lab.grade(res, world=env), lab.grade(res, world=env)
+
+
+def test_a_pile_of_crates_and_boxes_alone_is_still_a_pile(lab):
+    fresh(lab)
+    res = lab.run("ten crates in front of me", world="room")
+    assert max(p["z"] for p in res["placements"]) > 0.5, res["say"]                       # a pile of crates alone is still piled
+    res = lab.run("six crates and two boxes behind me", world="room")
+    assert res["placements"] and not clean(lab, res, "room")
+
+
+@pytest.mark.parametrize("world", ["room", "room:700x300", "room:420x360"])
+@pytest.mark.parametrize("text", ["ten chairs and ten tables stacked", "a barrel and eight small desk lamps and two small dumpsters stacked",
+                                  "five boxes, eight barrels and eight stoves stacked", "eight chairs and four tables stacked"])
+def test_a_mixed_pile_stays_in_the_room_and_every_piece_rests_on_something(lab, text, world):
+    """E-98: only a pile's base was held to the walls and the floor, and an upper piece with nothing under it took the highest top:
+    tables were put 117 HU outside the room, desk lamps hung at 52 HU over nothing. The widest pieces now go lowest and each upper
+    piece stands on a support of its own; whatever does not fit is refused (or laid out in a grid), never stacked into a wall."""
+    fresh(lab)
+    env = lab.world(world)
+    res = lab.run(text, world=env)
+    if res["placements"]:
+        assert pile_problems(lab, res, env) == [], (text, world, pile_problems(lab, res, env)[:3], res["say"])
+        assert max(p["z"] for p in res["placements"]) >= 0
+
+
+# ---------------------------------------------------------------------------------------------------------- E-5: more than one corner
+def test_successive_corner_requests_each_find_a_free_corner(lab):
+    """E-5: a single thing only ever tried the corner nearest the view, so the second 'in the corner' found it taken and fell back to
+    the open with 'it would not fit in the corners' (three corners empty); a move to a corner said 'There is no corner in reach.'"""
+    fresh(lab)
+    env = lab.world("room")
+    used = set()
+    for text in ["a plant in the corner", "a lamp in the corner", "a chair in the corner", "a crate in the corner"]:
+        res = stand(lab, text, world=env, owner="a")
+        assert res["placements"] and res["placements"][0]["role"] == "corner", (text, res["say"])
+        assert "would not fit" not in res["say"], res["say"]
+        p = res["placements"][0]
+        corner = (p["x"] > 0, p["y"] > 0)
+        assert corner not in used, (text, corner, used)
+        used.add(corner)
+    assert len(used) == 4
+    # a fifth has no corner left: said, and truthfully
+    res = lab.run("a barrel in the corner", world=env, owner="a")
+    assert "would not fit in the corners" in res["say"] or res["placements"][0]["role"] != "corner", res["say"]
+
+
+def test_four_corner_moves_in_a_row_each_succeed(lab):
+    fresh(lab)
+    env = lab.world("room")
+    for text in ["a plant", "a lamp", "a chair", "a crate"]:
+        stand(lab, text, world=env, owner="a")
+    corners = set()
+    for word in ["plant", "lamp", "chair", "crate"]:
+        res = stand(lab, f"put the {word} in the corner", world=env, owner="a")
+        assert res["moves"], (word, res["say"])
+        m = res["moves"][0]
+        corners.add((m["x"] > 0, m["y"] > 0))
+    assert len(corners) == 4, corners
+    assert lab.audit(env) == []
+
+
+# ---------------------------------------------------------------------------------------------------------- E-6: moving a pile's support
+@pytest.mark.parametrize("pos", [(30.0, 20.0, 0.0), (0.0, 0.0, 0.0), (-120.0, 60.0, 0.0)])
+@pytest.mark.parametrize("world", ["room", "room:420x360"])
+@pytest.mark.parametrize("what", ["move the crate to the corner", "move the crate against the wall", "move the crate closer"])
+def test_moving_one_crate_of_a_pile_keeps_what_rests_on_it_in_the_room(lab, what, world, pos):
+    """E-6: the crates resting on the one that went to a corner were carried with their old offsets, never re-checked: one stood in
+    the east wall, two hung in the air. Now the load is judged with the crate; when it cannot go too, the crate stays."""
+    fresh(lab)
+    env = lab.world(world)
+    stand(lab, "five crates", world=env, owner="a", pos=pos)
+    res = stand(lab, what, world=env, owner="a", pos=pos)
+    assert lab.audit(env) == [], (what, world, pos, res["say"], lab.audit(env))
+
+
+@pytest.mark.parametrize("second", ["move them closer", "move them left", "move them right", "move them away"])
+@pytest.mark.parametrize("kind", ["boxes", "crates"])
+def test_a_whole_pile_moved_in_a_direction_keeps_its_shape(lab, kind, second):
+    """E-6: a pile moved as a whole must not be flattened onto the floor (interpenetrating)."""
+    fresh(lab)
+    env = lab.world("room")
+    stand(lab, f"six {kind}", world=env, owner="a", pos=(30.0, 20.0, 0.0))
+    before = sorted((round(e["z"], 1) for e in lab.registry))
+    stand(lab, second, world=env, owner="a", pos=(30.0, 20.0, 0.0))
+    assert sorted((round(e["z"], 1) for e in lab.registry)) == before
+    assert lab.audit(env) == []
+
+
+# ---------------------------------------------------------------------------------------------------------- E-2 / E-50: 'the lamp'
+@pytest.mark.parametrize("command", ["remove the lamp", "turn the lamp around", "get rid of the lamp", "remove the lamps"])
+@pytest.mark.parametrize("setup", [["a table", "a lamp on the table"], ["a desk with a lamp on it"]])
+def test_a_bare_the_lamp_finds_the_desk_lamp_that_stands(lab, setup, command):
+    """E-2/E-50: 'a lamp on the table' makes a desk lamp, but a definite 'the lamp' meant only the floor lamp, so the lamp just
+    asked for could not be removed, moved or turned ('There is no floor lamp to remove.')."""
+    fresh(lab)
+    env = lab.world("room")
+    for text in setup:
+        stand(lab, text, world=env, owner="a")
+    n = len(lab.registry)
+    res = lab.run(command, world=env, owner="a")
+    assert "no floor lamp" not in res["say"] and "no lamp" not in res["say"], res["say"]
+    if "remove" in command or "get rid" in command:
+        assert res["removals"], res["say"]
+        assert "desk lamp" in res["say"]
+    else:
+        assert res["moves"], res["say"]
+    assert len(lab.registry) == n
+
+
+def test_the_lamp_means_either_kind_nearest_first_and_the_full_name_stays_exact(lab):
+    fresh(lab)
+    env = lab.world("room")
+    stand(lab, "a lamp", world=env, owner="a")
+    stand(lab, "a desk lamp", world=env, owner="a")
+    res = stand(lab, "remove the lamp", world=env, owner="a")
+    assert len(res["removals"]) == 1
+    res = stand(lab, "remove the lamp", world=env, owner="a")
+    assert len(res["removals"]) == 1, res["say"]
+    assert not standing(lab, "floor lamp") and not standing(lab, "desk lamp")
+    res = lab.run("remove the lamp", world=env, owner="a")
+    assert "no floor lamp to remove" in res["say"], res["say"]            # none of either kind: the old sentence stays
+    fresh(lab)
+    stand(lab, "a desk lamp", world=env, owner="a")
+    res = lab.run("remove the floor lamp", world=env, owner="a")
+    assert not res["removals"], "the full name matches only that kind"
+
+
+def test_a_put_the_lamp_does_not_make_a_second_lamp_when_a_desk_lamp_stands(lab):
+    fresh(lab)
+    env = lab.world("room")
+    stand(lab, "a desk with a lamp on it", world=env, owner="a")
+    stand(lab, "a couch", world=env, owner="a")
+    n = len(lab.registry)
+    res = stand(lab, "put the lamp next to the couch", world=env, owner="a")
+    assert len(lab.registry) == n and res["moves"], res["say"]
+
+
+@pytest.mark.parametrize("setup, command, kind", [(["an office chair"], "remove the chair", "office chair"), (["a coffee table"], "move the table closer", "coffee table")])
+def test_a_bare_chair_or_table_finds_the_kind_that_stands_when_the_plain_one_does_not(lab, setup, command, kind):
+    fresh(lab)
+    env = lab.world("room")
+    for text in setup:
+        stand(lab, text, world=env, owner="a")
+    res = lab.run(command, world=env, owner="a", pos=(-150.0, 0.0, 0.0))
+    assert kind in res["say"] or res["moves"] or res["removals"], res["say"]
+    assert "There is no" not in res["say"], res["say"]
+
+
+# ---------------------------------------------------------------------------------------------------------- E-9: two scenes in a sentence
+def test_a_scene_the_parser_left_out_is_named(lab):
+    """E-9: 'a living room and a kitchen' built the living room only and said nothing about the kitchen."""
+    fresh(lab)
+    res = lab.run_request({"action": "add", "items": [], "scene": "living room", "extra_scenes": ["kitchen"]}, world="room:700x600")
+    assert res["placements"]
+    assert "kitchen" in res["say"] and "living room" in res["say"], res["say"]
+    res = lab.run_request({"action": "add", "items": [], "scene": "living room", "extra_scenes": ["a dragon's lair"]}, world="room:700x600")
+    assert "dragon" not in res["say"], "only the library's own scene names are spoken"
+
+
+# ---------------------------------------------------------------------------------------------------------- E-96: each corner
+@pytest.mark.parametrize("n, mode, want", [(4, "per", 16), (2, "per", 8), (8, "per", 32), (4, "total", 4), (2, "total", 2), (3, None, 12), (4, None, 4)])
+def test_a_count_per_corner_is_multiplied_and_a_total_is_not(lab, n, mode, want):
+    """E-96: 'N plants in each corner' was read as a total whenever N was a multiple of four. The parser says per or total
+    (req.every_mode); without its word a multiple of four is still taken as the total, as before."""
+    fresh(lab)
+    req = {"action": "add", "items": [item("plant", n)], "every": "corner"}
+    if mode:
+        req["every_mode"] = mode
+    res = lab.run_request(req, world="open", max_per_kind=60, budget=5.0)
+    assert len(res["placements"]) == want, (n, mode, len(res["placements"]), res["say"])
+
+
+# ---------------------------------------------------------------------------------------------------------- E-97: refusals
+@pytest.mark.parametrize("text, world", [
+    ("fifty computers", "room:300x260"), ("twelve chairs in a circle around the table", "room:420x360"),
+    ("sixty chairs around the table", "room:300x260"), ("forty plants in the corners", "room:300x260"), ("sixty beds against the wall", "room"),
+])
+def test_a_refusal_carries_no_note_about_what_was_not_done(lab, text, world):
+    """E-97: 'There was no meeting table, so I added one' and 'I put them on two meeting tables I added' were spoken after a request
+    that placed nothing."""
+    fresh(lab)
+    res = lab.run(text, world=world, budget=5.0)
+    if res["placements"]:
+        return
+    spoken = " ".join([res["say"]] + res["notes"]).lower()
+    for phrase in ("i added", "so i added", "i put them", "grouped", "laid it out", "i furnished", "so i put"):
+        assert phrase not in spoken, (text, spoken)
+
+
+def test_request_level_notes_survive_a_refusal(lab):
+    """The note about an unknown word, or a count scaled down, is true whether or not anything was placed."""
+    fresh(lab)
+    res = lab.run("a dragon and a hundred and forty crates", world="room:300x260", budget=5.0)
+    spoken = " ".join([res["say"]] + res["notes"]).lower()
+    assert "library" in spoken or res["placements"], spoken
+
+
+# ---------------------------------------------------------------------------------------------------------- facing away from a named thing
+@pytest.mark.parametrize("text, kind", [
+    ("four chairs in a row facing away from the tv", "chair"), ("3 couches in a row facing away from the tv", "couch"),
+    ("six chairs in a circle facing away from the tv", "chair"), ("six chairs facing away from the tv", "chair"),
+])
+def test_a_group_facing_away_from_a_named_thing_looks_away_from_that_thing(lab, text, kind):
+    """The parser keeps 'facing away from the tv' as req.facing_away = 'tv'; the planner ignored the name and turned the group away
+    from the PLAYER, so the chairs faced the tv and the reply said 'facing away'. Each one now looks along the line from the tv."""
+    fresh(lab)
+    env = lab.world("room")
+    stand(lab, "a tv", world=env, owner="a")
+    tv = standing(lab, "tv")[0]
+    res = lab.run(text, world=env, owner="a")
+    group = [p for p in res["placements"] if p["kind"] == kind]
+    assert group and "away" in res["say"] or "outward" in res["say"], res["say"]
+    errs = [away_error(lab, p, tv["x"], tv["y"]) for p in group]
+    assert max(errs) < 20, (text, errs, res["say"])
+    assert not lab.grade(res, world=env), lab.grade(res, world=env)
+
+
+def test_facing_away_from_a_thing_that_is_not_there_says_so_and_adds_nothing(lab):
+    fresh(lab)
+    res = lab.run("four chairs in a row facing away from the tv", world="room")
+    assert kinds(res) == {"chair": 4}, kinds(res)
+    assert "no tv" in res["say"], res["say"]
+
+
+# ---------------------------------------------------------------------------------------------------------- a circle round a wall-flush screen
+def test_a_circle_of_chairs_round_a_screen_on_a_wall_stands_in_front_of_it(lab):
+    """'five chairs in a circle around the tv' with the tv against a wall: a ring needs the wall's side too, so it was thrown 130 to
+    194 HU away with 'no room around the tv'. An arc in front of the screen is the circle that fits there."""
+    for seed in [None] + wide_seeds(3):
+        fresh(lab)
+        env = lab.world("room")
+        stand(lab, "a tv", world=env, owner="a")
+        tv = standing(lab, "tv")[0]
+        res = lab.run("five chairs in a circle around the tv", world=env, owner="a", seed=seed)
+        chairs = [p for p in res["placements"] if p["kind"] == "chair"]
+        assert len(chairs) == 5, res["say"]
+        assert "no room" not in res["say"], res["say"]
+        assert max(math.hypot(p["x"] - tv["x"], p["y"] - tv["y"]) for p in chairs) < 110, res["say"]
+        assert not lab.grade(res, world=env), lab.grade(res, world=env)
+
+
+# ---------------------------------------------------------------------------------------------------------- 'the other side of the couch'
+def _couch_and_lamp(lab, yaw):
+    env = lab.world("open")
+    stand(lab, "a couch", world=env, owner="a", yaw=yaw)
+    stand(lab, "a lamp", world=env, owner="a", yaw=yaw)
+    return env, standing(lab, "couch")[0], standing(lab, "floor lamp")[0]
+
+
+@pytest.mark.parametrize("yaw", [0.0, 90.0, 215.0])
+@pytest.mark.parametrize("side", ["left", "right"])
+def test_a_lamp_moved_to_the_left_or_right_of_the_couch_goes_to_the_players_left_or_right(lab, side, yaw):
+    """req.side: only the lamp moves, to the side of the couch that is the player's left (or right)."""
+    fresh(lab)
+    env, couch, lamp = _couch_and_lamp(lab, yaw)
+    req = {"action": "move", "items": [item("floor lamp", 1, definite=True)], "arrangement": "beside", "target": "couch", "side": side,
+           "verb": "move", "raw": "x", "normalised": "x"}
+    res = lab.run_request(req, world=env, owner="a", yaw=yaw)
+    assert [m["id"] for m in res["moves"]] == [lamp["id"]], res["say"]
+    m = res["moves"][0]
+    rx, ry = math.sin(math.radians(yaw)), -math.cos(math.radians(yaw))                 # the player's right
+    lateral = (m["x"] - couch["x"]) * rx + (m["y"] - couch["y"]) * ry
+    assert (lateral > 0) == (side == "right") and abs(lateral) > couch["w"] / 2, (side, yaw, lateral)
+    lab.commit(res, owner="a")
+    assert lab.audit(env) == []
+
+
+@pytest.mark.parametrize("yaw", [0.0, 90.0, 215.0])
+@pytest.mark.parametrize("side", ["other", "opposite"])
+def test_a_lamp_moved_to_the_other_side_of_the_couch_goes_to_the_side_facing_away(lab, side, yaw):
+    fresh(lab)
+    env, couch, lamp = _couch_and_lamp(lab, yaw)
+    req = {"action": "move", "items": [item("floor lamp", 1, definite=True)], "arrangement": "beside", "target": "couch", "side": side,
+           "verb": "move", "raw": "x", "normalised": "x"}
+    res = lab.run_request(req, world=env, owner="a", yaw=yaw)
+    assert [m["id"] for m in res["moves"]] == [lamp["id"]], res["say"]
+    m = res["moves"][0]
+    away = (couch["x"], couch["y"])                                                    # the player stands at the origin
+    d = math.hypot(*away)
+    beyond = ((m["x"] - couch["x"]) * away[0] + (m["y"] - couch["y"]) * away[1]) / d
+    assert beyond > couch["d"] / 2 - 1, (side, yaw, beyond)
+    assert abs(math.hypot(m["x"] - couch["x"], m["y"] - couch["y"]) - (couch["d"] + 20) / 2) < 60
+
+
+# ---------------------------------------------------------------------------------------------------------- chairs do not tuck through drawers
+@pytest.mark.parametrize("ref", ["dresser", "side table"])
+def test_chairs_are_not_tucked_through_a_dresser_or_a_side_table(lab, ref):
+    """The tuck (a chair's front edge slid under the top) is for open tables with knee room. A dresser or a side table is a drawer
+    unit: the chairs stood 9 HU inside it. Over several seeds (the variants differ) none overlaps it."""
+    worst = 0.0
+    for seed in wide_seeds(8):
+        fresh(lab)
+        res = lab.run_request({"action": "add", "items": [item("chair", 4)], "arrangement": "around", "target": ref}, world="room", seed=seed)
+        pls = res["placements"]
+        polys = [poly_of(lab.variant(p), p["origin"], p["yaw"]) for p in pls]
+        for i, a in enumerate(pls):
+            for j, b in enumerate(pls):
+                if a["kind"] == ref and b["kind"] == "chair":
+                    worst = max(worst, sat_penetration(polys[i], polys[j]))
+    assert worst <= 1.5, worst
+
+
+def test_chairs_still_tuck_under_an_open_table(lab):
+    fresh(lab)
+    tucked = 0.0
+    for seed in wide_seeds(6):
+        fresh(lab)
+        res = lab.run_request({"action": "add", "items": [item("chair", 4)], "arrangement": "around", "target": "table"}, world="room", seed=seed)
+        pls = res["placements"]
+        polys = [poly_of(lab.variant(p), p["origin"], p["yaw"]) for p in pls]
+        for i, a in enumerate(pls):
+            for j, b in enumerate(pls):
+                if a["kind"] == "table" and b["kind"] == "chair":
+                    tucked = max(tucked, sat_penetration(polys[i], polys[j]))
+    assert tucked > 3, "chairs slide under an open table top"

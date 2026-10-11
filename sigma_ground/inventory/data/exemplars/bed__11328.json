@@ -1,6 +1,8 @@
 {
  "category": "bed",
- "aliases": [],
+ "aliases": [
+  "bed frame"
+ ],
  "source_anno_id": "11328",
  "n_parts": 8,
  "parts": [

@@ -569,16 +569,33 @@ def render_report(fid: dict) -> str:
 
 
 # ------------------------------------------------------------------------------------------------------------- cli
+def _bash() -> str:
+    """Git Bash. A bare `bash` on a Windows PATH is the WSL launcher (System32 is searched first), which cannot run these scripts.
+    Same search as stage/gmod/experiments/run.py; GMOD_BASH overrides."""
+    import os
+    import shutil
+    for cand in (os.environ.get("GMOD_BASH"), "C:/Program Files/Git/bin/bash.exe", "C:/Program Files/Git/usr/bin/bash.exe"):
+        if cand and Path(cand).exists():
+            return cand
+    return shutil.which("bash") or "bash"
+
+
+def mentat_density_cmd(name: str) -> list[str]:
+    return [_bash(), str(REPO / "tools" / "mentat_call.sh").replace("\\", "/"), "density", json.dumps({"material": name})]
+
+
 def verify_densities(specs: dict) -> int:
     """Re-ask Mentat for every density the specs rely on (needs the SkippyTel stack up). Manual: the tests never call it."""
     bad = 0
     for name, row in specs["densities"]["values"].items():
-        out = subprocess.run(["bash", str(REPO / "tools" / "mentat_call.sh"), "density", json.dumps({"material": name})],
-                             capture_output=True, text=True, timeout=180)
+        out = subprocess.run(mentat_density_cmd(name), capture_output=True, text=True, timeout=180)
         try:
             got = json.loads(out.stdout)["result"]["value"]
         except Exception:                                    # noqa: BLE001
-            print(f"{name}: no answer from Mentat: {out.stdout[:200]!r} {out.stderr[:200]!r}")
+            if "WSL" in out.stderr or "execvpe" in out.stderr:
+                print(f"{name}: bash launcher failed (this is the WSL stub, not Git Bash; set GMOD_BASH): {out.stderr[:200]!r}")
+            else:
+                print(f"{name}: no answer from Mentat: {out.stdout[:200]!r} {out.stderr[:200]!r}")
             bad += 1
             continue
         ok = abs(got - row["kg_m3"]) < 1e-6

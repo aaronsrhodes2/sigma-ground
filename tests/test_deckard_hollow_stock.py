@@ -36,19 +36,54 @@ def test_a_thick_box_of_a_hollow_class_is_still_a_shell():
     assert notes and "modeled hollow" in notes[0]["name"]
 
 
-def test_the_guard_is_on_the_thinnest_edge():
-    thin = Part("door", "box", {"x_m": Fact(0.5), "y_m": Fact(0.4), "z_m": Fact(_MIN_ENCLOSURE_M * 0.95)}, "steel", _STEEL)
-    thick = Part("body", "box", {"x_m": Fact(0.5), "y_m": Fact(0.4), "z_m": Fact(_MIN_ENCLOSURE_M * 1.05)}, "steel", _STEEL)
-    _hollow_pass("a microwave", [thin], [])
+_GLASS = Fact(2500.0, "surface.MATERIALS", "", 0.9)
+
+
+def _box(name, x, y, z, material, rho):
+    return Part(name, "box", {"x_m": Fact(x), "y_m": Fact(y), "z_m": Fact(z)}, material, rho)
+
+
+def test_the_box_guard_is_per_material_not_a_flat_4_cm():
+    """Stock gauge is the material's: some edge <= 2 x research._stock_thickness(material)."""
+    # a 3.8 cm steel door (steel stock is 1.5 mm) and a 3 cm glass panel are shells, not solid slabs
+    steel_door = _box("door", 0.5, 0.4, 0.038, "steel", _STEEL)
+    glass = _box("panel", 0.6, 0.4, 0.03, "glass", _GLASS)
+    _hollow_pass("a microwave", [steel_door], [])
+    _hollow_pass("a microwave", [glass], [])
+    assert steel_door.density.estimated and steel_door.density.value < 0.1 * 7850.0
+    assert glass.density.estimated and glass.density.value < 0.2 * 2500.0
+    # ... while board stock stays solid: 2.9 cm oak ("oak" carries no 'wood' in its name) and 3.4 cm plywood
+    oak = _box("shelf", 0.9, 0.3, 0.0286, "oak", _OAK)
+    ply = _box("side", 0.9, 0.5, 0.034, "plywood", _OAK)
+    _hollow_pass("a microwave", [oak], [])
+    _hollow_pass("a microwave", [ply], [])
+    assert not oak.density.estimated and not ply.density.estimated
+    # sheet at its own gauge (3 mm steel) is solid stock
+    sheet = _box("sheet", 0.5, 0.4, 0.003, "steel", _STEEL)
+    _hollow_pass("a microwave", [sheet, _box("body", 0.5, 0.5, 0.5, "steel", _STEEL)], [])
+    assert not sheet.density.estimated and sheet.density.value == 7850.0
+    # a steel box thicker than 2 gauges, at any size, is a shell
+    thick = _box("body", 0.5, 0.4, 0.05, "steel", _STEEL)
     _hollow_pass("a microwave", [thick], [])
-    assert not thin.density.estimated and thin.density.value == 7850.0
     assert thick.density.estimated and thick.density.value < 7850.0
-    # round parts: a slim rod is not an enclosure either
+    # round parts keep the absolute 4 cm floor: a slim rod / knob is not an enclosure
     rod = Part("handle", "cylinder", {"radius_m": Fact(0.015), "height_m": Fact(0.6)}, "steel", _STEEL)
     ball = Part("knob", "sphere", {"radius_m": Fact(0.015)}, "steel", _STEEL)
     _hollow_pass("a microwave", [rod], [])
     _hollow_pass("a microwave", [ball], [])
     assert not rod.density.estimated and not ball.density.estimated
+    assert _MIN_ENCLOSURE_M == 0.04
+
+
+def test_through_research_spec_a_thin_steel_door_is_a_shell():
+    payload = json.dumps({"kind": "composite", "parts": [
+        {"name": "body", "shape": "box", "dims": {"x_m": 0.3, "y_m": 0.3, "z_m": 0.3}, "material": "steel"},
+        {"name": "door", "shape": "box", "dims": {"x_m": 0.6, "y_m": 0.4, "z_m": 0.038}, "material": "steel",
+         "center_m": [0.0, 0.2, 0.0]}]})
+    spec = research_spec("microwave", ask=lambda n: payload, model="stub")
+    assert spec is not None
+    door = next(p for p in spec.parts if p.name == "door")
+    assert door.density.estimated and door.density.value < 0.1 * 7850.0
 
 
 def test_through_research_spec_a_slab_bookcase_keeps_cited_oak():

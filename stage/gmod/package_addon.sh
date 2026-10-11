@@ -13,7 +13,13 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GMOD_DIR="${GMOD_DIR:-/d/Steam/steamapps/common/GarrysMod}"
 GMAD="${GMAD:-$GMOD_DIR/bin/gmad.exe}"
 OUT_DIR="${1:-$HERE/dist}"
-[ -x "$GMAD" ] || { echo "gmad not found at $GMAD (set GMOD_DIR, or GMAD to the program)" >&2; exit 1; }
+# GMAD is a path (anything with a slash) or a bare program name looked up on PATH; resolve it once so the check and the call agree
+GMAD_WAS="$GMAD"
+case "$GMAD" in
+  */*) [ -x "$GMAD" ] || GMAD="" ;;
+  *) GMAD_FOUND="$(command -v "$GMAD" 2>/dev/null || true)"; GMAD="$GMAD_FOUND" ;;
+esac
+[ -n "$GMAD" ] || { echo "gmad not found at $GMAD_WAS (set GMOD_DIR, or GMAD to the program)" >&2; exit 1; }
 
 # gmad.exe wants Windows paths; under Git Bash cygpath makes them, anywhere else the path is already native
 native() { if command -v cygpath >/dev/null 2>&1; then cygpath -w "$1"; else printf '%s\n' "$1"; fi; }

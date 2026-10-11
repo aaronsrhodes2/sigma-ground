@@ -9,7 +9,11 @@ stressed, messy and compound sentences the first corpus does not cover. Its case
 and, on any expected request, these optional checks: "exclude", "facing", "facing_away", "shape", "seats", "every", "rows", "cols",
 "unknown_verb", "truncated", "notes_contain" (a substring of some note), "unknown" (the unknown words). An item may give "count": null
 (any count) or "count_min", and "definite": true / false (does it name a thing already standing: "the couch", "my chairs"); "arrangement"
-and "target" may be left out (not checked)."""
+and "target" may be left out (not checked). The P0 slices (selfcorrect ... chat_words) also use
+    "times": N                         an undo that must be repeated N times (req.times)
+    "inert": true                      the sentence does nothing: action none, or an add that names no thing
+    "noreal": true                     the sentence builds no library thing and never removes, moves, turns or undoes (chat words)
+and may leave out "action" (then only these checks apply)."""
 from __future__ import annotations
 
 import argparse
@@ -79,9 +83,17 @@ def make_parser():
 
 
 # ---------------------------------------------------------------------------------------------- comparing
+DESTRUCTIVE = ("remove", "clear", "undo", "move", "rotate", "rearrange")
+
+
 def _items_of(got: dict) -> list[dict]:
     items = got.get("items")
     return items if isinstance(items, list) else []
+
+
+def _real_items(got: dict) -> list[dict]:
+    """The items that are a thing of the library (not "@last" / "@all", not a word the library lacks)."""
+    return [i for i in _items_of(got) if not str(i["kind"]).startswith(("@", "UNKNOWN"))]
 
 
 def _match_items(exp_items: list[dict], got_items: list[dict]) -> str | None:
@@ -125,13 +137,21 @@ def _match_items(exp_items: list[dict], got_items: list[dict]) -> str | None:
 
 def compare(exp: dict, got: dict) -> list[str]:
     bad = []
-    if got["action"] != exp["action"]:
+    if "action" in exp and got["action"] != exp["action"]:
         bad.append(f"action {got['action']} != {exp['action']}")
+    if exp.get("inert"):
+        # "nothing happens": none, or an add that names no thing (the planner answers "there was nothing to add")
+        if not (got["action"] == "none" or (got["action"] == "add" and not _real_items(got) and not got.get("scene"))):
+            bad.append(f"not inert: {got['action']} {[i['kind'] for i in _items_of(got)]}")
+    if exp.get("noreal"):
+        # chat words: whatever the parser does, it builds no thing of the library and never destroys, moves or turns anything
+        if _real_items(got) or got["action"] in DESTRUCTIVE or got.get("scene"):
+            bad.append(f"not harmless: {got['action']} {[i['kind'] for i in _items_of(got)]}")
     if "items" in exp:
         problem = _match_items(exp["items"], _items_of(got))
         if problem:
             bad.append(problem)
-    if exp["action"] in ("add", "move", "rearrange", "rotate"):
+    if exp.get("action") in ("add", "move", "rearrange", "rotate"):
         if "arrangement" in exp and got["arrangement"] != exp["arrangement"] and not (got.get("facing") and exp["arrangement"] == "facing_me"):
             bad.append(f"arrangement {got['arrangement']} != {exp['arrangement']}")
         gt = got.get("target", "") or ""
@@ -139,7 +159,7 @@ def compare(exp: dict, got: dict) -> list[str]:
             bad.append(f"target {gt!r} != {exp['target']!r}")
     if "scene" in exp and (got.get("scene") or "") != exp["scene"]:
         bad.append(f"scene {got.get('scene')!r} != {exp['scene']!r}")
-    for key in ("facing", "facing_away", "shape", "seats", "every", "rows", "cols", "unknown_verb", "truncated"):
+    for key in ("facing", "facing_away", "shape", "seats", "every", "rows", "cols", "unknown_verb", "truncated", "times", "side"):
         if key in exp and got.get(key) != exp[key]:
             bad.append(f"{key} {got.get(key)!r} != {exp[key]!r}")
     if "exclude" in exp:
@@ -182,6 +202,8 @@ def main(argv=None) -> int:
     ap.add_argument("--corpus", default="utterance_corpus.json", help="a file in data/ (utterance_corpus_heldout.json)")
     ap.add_argument("--max-fail", type=int, default=0, help="exit non-zero when more cases than this fail")
     a = ap.parse_args(argv)
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")        # the corpus holds typographic characters on purpose
     cases = load_cases(a.corpus)
     parse = make_parser()
     fails, by_slice, known = [], Counter(), []

@@ -1,6 +1,8 @@
 {
  "category": "microwave",
- "aliases": [],
+ "aliases": [
+  "microwave oven"
+ ],
  "source_anno_id": "7159",
  "n_parts": 5,
  "parts": [

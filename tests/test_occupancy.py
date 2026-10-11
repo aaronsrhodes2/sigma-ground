@@ -63,7 +63,9 @@ def test_stock_thickness_is_by_material_class():
     assert R._stock_thickness("glass") == R._GLASS_T_M
     assert R._stock_thickness("ceramic") == R._CERAMIC_T_M
     assert R._stock_thickness("plastic") == R._PLASTIC_T_M
-    assert R._stock_thickness("foliage") == R._stock_thickness(None) == R._STOCK_T_DEFAULT_M
+    assert R._stock_thickness("foliage") == R._FOLIAGE_T_M                    # a leaf, not a 5 mm shell
+    assert R._stock_thickness("stone") == R._stock_thickness(None) == R._STOCK_T_DEFAULT_M
+    assert R._stock_thickness("oak") == R._stock_thickness("MDF") == R._BOARD_T_M      # wood species / boards without 'wood' in the name
     # the conventions are named constants, in a plausible range
     assert 0.001 <= R._SHEET_METAL_T_M < R._CAST_METAL_T_M < R._BOARD_T_M <= 0.025
     assert 20.0 <= R._UPHOLSTERY_KG_M3 <= 100.0
@@ -186,7 +188,10 @@ def test_a_lamp_shade_is_cloth_not_glass():
     shade = next(p for p in spec.parts if p.name.startswith("shade"))
     assert shade.material == "fabric" and shade.density.value <= R._UPHOLSTERY_KG_M3
     body = next(p for p in spec.parts if p.name.startswith("body"))
-    assert body.material == "glass" and body.density.estimated                # the pole keeps the frame material, shelled
+    # the pole is the FRAME: metal (ShapeNetSem lamps: 8% metal, 46% glass - the glass is the bulb and
+    # lens), never a glass pole; it was 17 kg of "glass" in a 1.6 m column
+    assert body.material == "metal" and body.density.estimated
+    assert next(p for p in spec.parts if p.name.startswith("light_bulb")).material == "glass"
 
 
 def test_a_carved_container_body_is_not_hollowed_twice():
@@ -221,3 +226,63 @@ _MENTAT_KG_M3 = {"glass": 2500.0, "aluminum": 2700.0, "iron": 7874.0, "copper": 
 def test_resolver_densities_agree_with_mentat(material):
     ours = R._density_fact(material).value
     assert ours == pytest.approx(_MENTAT_KG_M3[material], rel=0.12)
+
+
+# ── slender members, slabs, canopies, glazing (the sourced-mass repairs) ────────────────────────
+def test_a_leg_is_a_post_not_a_shell_around_a_box():
+    """A PartNet leg is a 0.215 x 0.200 x 0.51 m box around a slender post: it holds a 4 cm square post of
+    wood, not an 18 mm shell of the box (5.6 kg each, 22 kg for four, then)."""
+    ext = (0.215, 0.2, 0.51)
+    occ = R._part_occupancy("leg_6", ext, R._BOARD_T_M)
+    assert occ == pytest.approx((R._ROD_SECTION_M ** 2) / (ext[0] * ext[1]), rel=0.02)      # a solid wood post
+    assert 700.0 * occ * 0.215 * 0.2 * 0.51 < 0.8                                            # < 0.8 kg a leg
+    steel = R._part_occupancy("leg_6", ext, R._SHEET_METAL_T_M)
+    assert steel < 0.2 * occ                                                                 # a thin-walled tube is lighter still
+    # a block named 'body' (a mug) is not a rod; a lamp's 1.6 m 'body' is
+    assert R._part_occupancy("body_1", (0.1, 0.1, 0.12), R._SHEET_METAL_T_M) == R._occupancy((0.1, 0.1, 0.12), R._SHEET_METAL_T_M)
+    assert R._is_rod("body_1", (0.105, 0.414, 1.579)) and not R._is_rod("body_1", (0.1, 0.1, 0.12))
+    assert not R._is_rod("seat_support_5", (0.669, 0.614, 0.052))                            # a panel, whatever its name
+
+
+def test_a_slab_is_one_board():
+    """A 0.678 x 0.049 x 0.49 m back box encloses ONE 18 mm board, not a closed 2T shell of itself."""
+    ext = (0.678, 0.049, 0.491)
+    assert R._part_occupancy("back_single_surface_0", ext, R._BOARD_T_M) == pytest.approx(R._BOARD_T_M / 0.049)
+    assert R._part_occupancy("side_panel", (0.031, 0.473, 1.663), R._BOARD_T_M) == pytest.approx(R._BOARD_T_M / 0.031)
+    assert R._part_occupancy("shelf", (0.9, 0.3, 0.018), R._BOARD_T_M) == 1.0                # a gauge board is solid
+    assert R._part_occupancy("lump", (0.05, 0.05, 0.03), R._BOARD_T_M) == 1.0                  # a small block of stock: solid
+
+
+def test_a_canopy_is_leaves_not_a_block_and_a_vase_carves_the_vase():
+    vase = R._exemplar_spec("a vase")
+    canopy = next(p for p in vase.parts if p.name.startswith("plant"))
+    assert canopy.material == "foliage" and canopy.density.estimated
+    assert canopy.density.value < 10.0                                      # 1000 kg/m3 leaf tissue x a 0.3 mm leaf shell of the box
+    carved = next(p for p in vase.parts if p.name == "interior")
+    pot = next(p for p in vase.parts if p.name.startswith("container"))
+    assert pot.shape == "cylinder" and pot.dims["radius_m"].value > carved.dims["radius_m"].value    # the VASE was hollowed
+    assert canopy.shape != "cylinder"                                        # ... and the foliage left alone
+    from sigma_ground.deckard import construct
+    c = construct.compile(vase, resolution=40)
+    assert c.mass_kg > 1.0                                                  # the pot survives the foliage box that encloses it
+
+
+def test_glass_is_glazing_not_a_frame():
+    assert R._frame_material({"ceramic": 0.037, "fabric": 0.352, "glass": 0.46, "metal": 0.084, "plastic": 0.067}) == "metal"
+    assert R._frame_material({"glass": 0.937, "plastic": 0.059}) == "plastic"                # a TV: plastic case, glass screen
+    assert R._frame_material({"glass": 1.0}) == "glass"                                      # nothing else to build it from
+    assert R._frame_material({}) == "wood"
+    assert R._role_material("screen_1", "plastic", None, glass=True) == "glass"
+    assert R._role_material("screen_1", "plastic", None, glass=False) == "plastic"
+    assert R._role_material("plant_1", "ceramic", None) == "foliage"
+    assert R._role_material("plant_pot_0", "ceramic", None) == "ceramic"                     # 'plant' in the name of a POT is not foliage
+
+
+def test_a_denser_part_wins_an_overlap_whatever_the_file_order():
+    """Last-wins composition + an enclosing envelope box painted last erased its contents (reversing the leaf
+    order moved a fridge 76 -> 88 kg). The exemplar assembler now paints the denser part last."""
+    for q in ("a refrigerator", "a floor lamp", "a vase", "a microwave"):
+        spec = R._exemplar_spec(q)
+        dens = [p.density.value for p in spec.parts if p.op == "add"]
+        assert dens == sorted(dens), q
+        assert all(p.op == "subtract" for p in spec.parts[len(dens):]), q                   # carves stay last

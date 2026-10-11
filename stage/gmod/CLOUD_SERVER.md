@@ -61,18 +61,34 @@ I will build exactly that.
   rule the gamemode already had, so a gag or mute addon (a hook that returns false) always wins and the game's own refusal still
   holds. About 21 m for a normal voice with a smooth fade, crouching whispers, holding `+mentat_shout` shouts (the server
   remembers a shout for 1.5 s at a time), walls muffle. `mentat_voice_mode global` turns it off (everyone hears everyone, flat),
-  `off` hands voice back to the game's own rule; both also tell the clients not to fade voices. `mentat_voice_range` sets the
+  `off` hands voice back to the game's own rule; both also tell the clients not to fade voices. The mode is read once the same way
+  everywhere (case and spaces ignored; anything that is not `proximity`, `global` or `off` means `proximity`, with one console
+  warning) and the clients are sent that value. If another addon loads later and replaces the gamemode's voice rule, the rule is
+  wrapped around it again within half a second (one console line says so). `mentat_voice_range` sets the
   reach, `mentat_voice_wall 0` stops walls shrinking it. A player can run `mentat_voice_fade 0` to opt out of the fade.
 - Safety on a public server:
   - everyone's props belong to the player who made them (admins can change anything), and they are created as that player's props
-    (`SetCreator`, and the CPPI owner when a prop-protection addon is present); the server's own spawn rules apply too (a
-    `PlayerSpawnProp` hook that says no is honoured);
+    (`SetCreator`, and the CPPI owner when a prop-protection addon is present; a prop still waiting for its turn to appear when its
+    builder leaves is made at that moment, so it is theirs too); the server's own spawn rules apply too: `PlayerSpawnObject` and
+    `PlayerSpawnProp` are asked the way the engine asks them (registered hooks first, then the gamemode's own function, so Sandbox's
+    `sbox_maxprops` check and a derived gamemode's jail or ban rules count), and an explicit `false` from either is a veto. A gamemode
+    that has no such function forbids nothing, and when it has none the holodeck asks the player's `CheckLimit("props")` itself, once.
+    Holodeck props are not counted against `sbox_maxprops` (`holodeck_max_per_player` and `holodeck_max_ents` limit them);
   - a rest between requests (`holodeck_cooldown`, 1 s, checked before anything else, longer after an expensive request), a cap per
     player (`holodeck_max_per_player`, 150) and overall (`holodeck_max_ents`, 400). Undo obeys the same caps. When the server is full,
     the props of players who left go first, then the oldest props of whoever holds more than a fair share; nobody can lock the
     holodeck by leaving. Props of players who left are taken down after `holodeck_orphan_minutes` (30; 0 = keep until the room is needed);
   - the planner runs on the server's main thread, so an ordinary player gets 0.05 s of planning per request, 40 things at most, and
     the server as a whole about a tenth of its time; admins get 0.25 s and 150 things;
+  - a sentence may hold up to eight requests (the parser's own limit, one number); the clauses past it, and any text past 400
+    characters, are named to the requester in a private line, and a request to remove, move or clear that was cut at 400
+    characters is refused rather than carried out on half a sentence. "Another one" / "again" repeat the last thing added, even
+    after a turn, move, remove or undo in between; undoing an add gives "it" back to the group before it;
+  - when the library changes under standing props (`holodeck_content`, then `holodeck_reload`), a prop whose model left the library
+    stays nameable and removable (marked legacy, with the variant it was built from). Undo never respawns a model the server no
+    longer has (it says how many stayed gone) and never trusts a saved variant index;
+  - the floor and ceiling probes see props somebody froze (a platform to stand on) as ground, never loose props, players, NPCs,
+    ragdolls or the holodeck's own props; walls stay the map's brushes only;
   - Skippy's lines go to the requester and whoever is within earshot of where he stands (2600 HU), never to the whole server; they
     carry no words the player typed (an unknown word is shown only to the requester) and each viewer's own chat filter applies;
   - new props let players walk through until they are set free, and wait for anyone standing in the footprint to step out;
@@ -80,7 +96,10 @@ I will build exactly that.
 - The bridge (agent, persona, voice) is rationed because every call costs a model run, a speech synthesis or credit: per player
   (a few calls a minute), for the whole server (`holodeck_bridge_per_min`, 24; `holodeck_voice_chars_per_min`, 1800) and in flight
   (`holodeck_bridge_inflight`, 4). When a limit is reached Skippy answers in plain text. The agent may only add things
-  (`holodeck_agent_destructive 1` lets it also remove, move and clear). Spoken clips are sent a chunk at a time, at most about
+  (`holodeck_agent_destructive 1` lets it also remove, move and clear). The bridge listens on port 8777
+  (`holodeck_bridge http://127.0.0.1:8777`). `holodeck_bridge_token` is a secret and is deliberately not saved: the convar is not
+  `FCVAR_ARCHIVE`, so it never reaches `server.vdf`; set it at every start (launch line or `server.cfg`). A token already written to
+  an old `server.vdf` stays there until that line is deleted by hand. Spoken clips are sent a chunk at a time, at most about
   160 KB, mp3 only.
 
 ## What needs more before it works on the cloud server

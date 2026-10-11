@@ -185,12 +185,14 @@ _FURNITURE = {
 
 def _furniture_archetype(name: str):
     """(surface_frac, has_back, n_legs, matched-category) for a legged-furniture
-    name, by longest whole-word match — or None."""
+    name, by longest whole-word match of a key that is the phrase's HEAD ("a chair
+    FRAME" is not a chair, "a table LAMP" not a table) — or None."""
+    from .sources import aliases
     qw = {w for w in __import__("re").split(r"[^a-z0-9]+", name.lower()) if w}
     best, best_len, cat = None, 0, None
     for key, arch in _FURNITURE.items():
         kw = set(key.split())
-        if kw <= qw and len(kw) > best_len:
+        if kw <= qw and len(kw) > best_len and aliases.names_head(kw, name):
             best, best_len, cat = arch, len(kw), key
     return (*best, cat) if best else None
 
@@ -234,20 +236,31 @@ _CAST_METAL_T_M = 0.005       # cast or drawn brass / bronze wall (casting minim
 _GLASS_T_M = 0.004
 _CERAMIC_T_M = 0.006
 _PLASTIC_T_M = 0.0025         # injection-moulded wall
-_STOCK_T_DEFAULT_M = 0.005    # any other material (paper, foliage, stone ...)
+_FOLIAGE_T_M = 0.0003         # a leaf (0.2-0.5 mm): a canopy box is mostly air between leaves
+_ROD_SECTION_M = 0.04         # a leg / post / pole / stretcher is stock of at most this square section
+                              # (chair and table legs 30-50 mm): a PartNet leg box is 20 x 21 cm around it
+_STOCK_T_DEFAULT_M = 0.005    # any other material (paper, stone ...)
 _STOCK_T_M = (                # first substring match wins ("cast iron" is cast, not sheet)
     ("cast", _CAST_METAL_T_M), ("brass", _CAST_METAL_T_M), ("bronze", _CAST_METAL_T_M),
     ("wood", _BOARD_T_M), ("steel", _SHEET_METAL_T_M), ("iron", _SHEET_METAL_T_M),
     ("alumin", _SHEET_METAL_T_M), ("metal", _SHEET_METAL_T_M),
     ("glass", _GLASS_T_M), ("ceramic", _CERAMIC_T_M), ("plastic", _PLASTIC_T_M),
+    ("foliage", _FOLIAGE_T_M), ("leaf", _FOLIAGE_T_M), ("leaves", _FOLIAGE_T_M),
 )
 _UPHOLSTERY_KG_M3 = 50.0      # cushion / mattress BULK density (flexible foam ~25-60), not the fibre's
 _SOFT_BY_ROLE = ("mattress", "cushion", "pillow")   # parts that are foam-filled whatever their label
 
 
+_WOOD_WORDS = ("oak", "pine", "maple", "birch", "walnut", "cherry", "mahogany", "teak", "cedar",
+               "elm", "ash", "beech", "plywood", "mdf", "particle", "chipboard", "timber", "lumber",
+               "bamboo", "balsa", "spruce", "fir")
+
+
 def _stock_thickness(material):
     """Wall/board thickness T (m) of the stock a material is built from (an estimate)."""
     mat = (material or "").lower()
+    if set(__import__("re").split(r"[^a-z]+", mat)) & set(_WOOD_WORDS):
+        return _BOARD_T_M                             # "oak", "plywood", "mdf" ... are board stock
     return next((t for k, t in _STOCK_T_M if k in mat), _STOCK_T_DEFAULT_M)
 
 
@@ -279,6 +292,47 @@ def _part_extent(p):
     return None
 
 
+# Parts that are slender MEMBERS (a leg, a post, a pole, a stretcher, a rail, a handle): their PartNet
+# box is the bounding box around a thin rod, not a shell around a block.
+_ROD_ROLE = ("leg", "post", "pole", "stem", "stretcher", "rail", "handle", "bar", "tube", "neck", "chain",
+             "foot")
+_ROD_ASPECT = 2.0             # a rod part is at least this much longer than its second side
+_ROD_ASPECT_BODY = 3.0        # ... and 'body' (a lamp's pole is a 'body'; a mug's is not) at least this
+_SLAB_ASPECT = 3.0            # a slab: its two large sides are at least this much its thickness
+
+
+def _is_rod(name, ext):
+    """True for a slender member by ROLE (its name) and SHAPE (one long side)."""
+    nm = (name or "").lower()
+    a, b, c = sorted(ext)
+    if any(k in nm for k in _ROD_ROLE):
+        return c >= _ROD_ASPECT * b
+    return "body" in nm and c >= _ROD_ASPECT_BODY * b
+
+
+def _part_occupancy(name, ext, T, shape="box"):
+    """Fraction of a part's bounding box that real stock of wall thickness ``T`` fills.
+      * a slender member (``_is_rod``, by name and proportions): a post of at most
+        ``_ROD_SECTION_M`` square section, shelled by ``T`` like any stock (a solid wood post, a
+        thin-walled steel tube), spread over the part's box;
+      * a slab (its middle side is at least 3x its thinnest): ONE board of thickness T,
+        ``min(1, T / thinnest side)`` - a curved backrest's box is deeper than its board, and a
+        board's box thicker than the gauge T encloses more than one board;
+      * a plank, sheet or small block with some side <= 2T: solid, 1.0;
+      * otherwise the closed shell of ``_occupancy``.
+    All of it an estimate (see the block comment above); the stock thicknesses are the convention,
+    the classification is by the PartNet part's own name and proportions."""
+    a, b, c = sorted(ext)
+    if shape in ("box", "cylinder") and _is_rod(name, ext):
+        sa, sb = min(a, _ROD_SECTION_M), min(b, _ROD_SECTION_M)
+        return _occupancy((sa, sb, c), T) * (sa * sb) / (a * b)
+    if shape == "box" and b >= _SLAB_ASPECT * a:
+        return min(1.0, T / a)
+    if a <= 2.0 * T:
+        return 1.0
+    return _occupancy(ext, T)
+
+
 def _apply_occupancy(parts, skip=()):
     """Swap each box part's full material density for an ESTIMATED effective bulk
     density (in place; returns how many parts changed). Plank/rod stock keeps its
@@ -297,7 +351,7 @@ def _apply_occupancy(parts, skip=()):
             if not soft and rho < rho0:
                 p.material = "foam"                       # the mass is now foam bulk: say so
         else:
-            rho = rho0 * _occupancy(ext, _stock_thickness(mat))
+            rho = rho0 * _part_occupancy(p.name, ext, _stock_thickness(mat), (p.shape or "").lower())
         if rho > 0.98 * rho0:                             # solid stock keeps its citation
             continue
         p.density = Fact(round(rho, 3), confidence=0.4)   # source "estimated": a convention
@@ -311,8 +365,10 @@ def _occupancy_note():
                      "the shell fraction that stock of ESTIMATED wall thickness can fill (wood "
                      f"{_BOARD_T_M * 1e3:g} mm, sheet metal {_SHEET_METAL_T_M * 1e3:g} mm, cast metal "
                      f"{_CAST_METAL_T_M * 1e3:g} mm, glass {_GLASS_T_M * 1e3:g} mm, ceramic "
-                     f"{_CERAMIC_T_M * 1e3:g} mm, plastic {_PLASTIC_T_M * 1e3:g} mm; planks and rods "
-                     f"stay solid), upholstery {_UPHOLSTERY_KG_M3:g} kg/m3 bulk"), "license": ""}
+                     f"{_CERAMIC_T_M * 1e3:g} mm, plastic {_PLASTIC_T_M * 1e3:g} mm, leaf {_FOLIAGE_T_M * 1e3:g} mm; "
+                     f"planks and rods stay solid; a flat slab is one board; a leg, post or pole is stock of at "
+                     f"most {_ROD_SECTION_M * 1e2:g} cm square section), upholstery {_UPHOLSTERY_KG_M3:g} "
+                     f"kg/m3 bulk"), "license": ""}
 
 # A material adjective ("a wooden chair") biases the FRAME material — it selects,
 # it does not invent. Maps the adjective to a canonical material the resolver
@@ -341,12 +397,39 @@ def _hint_to_material(material_hint):
     return None
 
 
-def _role_material(part_name, structural, soft):
-    """Which material a part takes by ROLE (structural vs upholstery)."""
+_GLASS_ROLE = ("screen", "glass", "bulb", "lens", "window")
+_FOLIAGE_ROLE = ("plant", "leaf", "leaves", "foliage", "canopy")
+_SOIL_ROLE = ("soil",)
+
+
+def _role_material(part_name, structural, soft, glass=False):
+    """Which material a part takes by ROLE (structural vs upholstery vs glazing vs foliage).
+    ``glass``: the category's composition includes glass, so a screen, lens, bulb or window
+    leaf is glass whatever the frame is made of; a leaf named plant / foliage / canopy is
+    foliage (a vase exemplar's 'plant' is the leaf mass, not a block of the pot's ceramic)."""
     nm = (part_name or "").lower()
+    if any(k in nm for k in _FOLIAGE_ROLE) and "pot" not in nm and "planter" not in nm:
+        return "foliage"
+    if any(k in nm for k in _SOIL_ROLE):
+        return "soil"
+    if glass and any(k in nm for k in _GLASS_ROLE):
+        return "glass"
     if soft and any(k in nm for k in _SOFT_ROLE) and not any(k in nm for k in _STRUCT_ROLE):
         return soft
     return structural
+
+
+def _frame_material(ratios):
+    """The FRAME material of a category from its ShapeNetSem composition: the dominant non-upholstery
+    material, except that glass is glazing, not a frame - when another solid is present (>= 5%), the
+    frame is that one (a floor lamp's pole is metal, a TV's case plastic, a microwave's body sheet
+    metal; its glass is the lens, bulb, window or screen, see ``_role_material``). 'wood' if none."""
+    non_soft = {c: r for c, r in ratios.items() if c not in _SOFT_MATERIALS}
+    if not non_soft:
+        return "wood"
+    solid = {c: r for c, r in non_soft.items() if c != "glass" and r >= 0.05}
+    pick = solid or non_soft
+    return max(pick, key=pick.get)
 
 
 def _density_fact(material_name):
@@ -393,6 +476,10 @@ def _container_body(parts):
         return 0.0
 
     bodies = [p for p in parts if p.shape in ("box", "cylinder")]
+    # a vessel's body is not its contents: a vase exemplar's 'plant' / 'soil' leaf is carved from
+    # nothing (it was the largest box, so 'a vase' carved the foliage and left the vase solid)
+    vessel = [p for p in bodies if not any(k in (p.name or "").lower() for k in _FOLIAGE_ROLE + _SOIL_ROLE)]
+    bodies = vessel or bodies
     return max(bodies, key=vol) if bodies else None
 
 
@@ -429,6 +516,23 @@ def _carve_interior(parts):
     return "interior"
 
 
+def _object_dims(name):
+    """(dims_m, basis text, source, license) of the overall size of the
+    object an exemplar layout was chosen for, or None. ONE object is resolved: the ShapeNetSem key
+    must share a word with the exemplar category that matched (``exemplar.anchor_words``), so a
+    compound never takes its modifier's size ("a bed FRAME" is a bed, "a closet DOOR" a door);
+    a category ShapeNetSem has no key for (door, dishwasher) takes its standard size."""
+    from . import sources
+    anchor = sources.exemplar.anchor_words(name)
+    dim = sources.shapenetsem.dims_of(name, anchor=anchor) if anchor else sources.shapenetsem.dims_of(name)
+    if dim:
+        return (dim[0], f"median of {dim[1]} models", dim[2], dim[3])
+    std = sources.exemplar.standard_dims_of(sources.exemplar.category_of(name))
+    if std:
+        return (std[0], "standard size", std[1], std[2])
+    return None
+
+
 def _exemplar_spec(name: str, material_hint: str | None = None,
                    exclude=None) -> ConstructSpec | None:
     """Assemble a known PartNet category from a REAL representative model's part
@@ -453,10 +557,10 @@ def _exemplar_spec(name: str, material_hint: str | None = None,
     reused = bool(exclude) and anno in {str(x) for x in exclude}
 
     # overall real-world extents (W x D x H) — ShapeNetSem median, else a guess
-    dim = sources.shapenetsem.dims_of(name)
+    dim = _object_dims(name)
     if dim:
         H, W, D = sorted(dim[0], reverse=True)       # tallest axis is height
-        size_src = {"name": f"{dim[2]} — overall size (median of {dim[1]} models)",
+        size_src = {"name": f"{dim[2]} — overall size ({dim[1]})",
                     "license": dim[3]}
     else:
         sz = sources.typical_size_of(name)
@@ -469,7 +573,7 @@ def _exemplar_spec(name: str, material_hint: str | None = None,
     # composition, OR the material_hint override; soft parts take the upholstery
     # material when the composition has one. Densities are resolved AND cited
     # through material_profile (the combined resolver).
-    comp = sources.shapenetsem.materials_of(name)
+    comp = sources.shapenetsem.materials_of(name, anchor=sources.exemplar.anchor_words(name) or None)
     ratios = comp[0] if comp else {}
     structural = _hint_to_material(material_hint)
     hint_used = structural is not None
@@ -477,8 +581,7 @@ def _exemplar_spec(name: str, material_hint: str | None = None,
         # the DOMINANT non-soft material is the frame (highest ratio), not the
         # first one the dict happens to list — a 40%-wood / 4%-plastic chair is
         # wood-framed, not plastic.
-        non_soft = {c: r for c, r in ratios.items() if c not in _SOFT_MATERIALS}
-        structural = (max(non_soft, key=non_soft.get) if non_soft else None) or "wood"
+        structural = _frame_material(ratios)
     soft_r = {c: r for c, r in ratios.items() if c in _SOFT_MATERIALS}
     soft = max(soft_r, key=soft_r.get) if soft_r else None
     struct_dens = _density_fact(structural)
@@ -498,8 +601,9 @@ def _exemplar_spec(name: str, material_hint: str | None = None,
             dims = {"radius_m": est((ext[0] + ext[1] + ext[2]) / 6.0)}
         else:
             dims, shape = {"x_m": est(ext[0]), "y_m": est(ext[1]), "z_m": est(ext[2])}, "box"
-        pmat = _role_material(pp.get("name"), structural, soft)
-        pdens = soft_dens if (soft is not None and pmat == soft) else struct_dens
+        pmat = _role_material(pp.get("name"), structural, soft, glass="glass" in ratios)
+        pdens = (soft_dens if (soft is not None and pmat == soft)
+                 else struct_dens if pmat == structural else _density_fact(pmat))
         parts.append(Part(f"{pp['name'] or 'part'}_{i}", shape, dims, pmat, pdens,
                           tuple(round(x, 5) for x in ctr)))
         zs.append(ctr[2] - ext[2] / 2.0)
@@ -519,6 +623,12 @@ def _exemplar_spec(name: str, material_hint: str | None = None,
     shelled = 0
     if not _is_solid_class(name):
         shelled = _apply_occupancy(parts, skip={carved.name} if cavity else ())
+    # The compiler resolves overlaps LAST-WINS, and PartNet boxes overlap (an appliance's envelope box
+    # contains its shelves; a vase's foliage box contains the pot). The leaf order is arbitrary, so
+    # fix a physical one: the denser (effective bulk density) part is painted later and wins - a
+    # shell's box never erases the contents it encloses, whichever order the file lists them in.
+    # Carved cavities stay last (they carve what is already there).
+    parts.sort(key=lambda p: (p.op == "subtract", p.density.value))
 
     comp_str = (", ".join(f"{m} {r:.0%}" for m, r in list(ratios.items())[:4])
                 if ratios else structural)
@@ -560,7 +670,7 @@ def _furniture_spec(name: str) -> ConstructSpec | None:
     surface_frac, has_back, n_legs, cat = arch
 
     # overall extents (W x D x H), real-world: Sem medians else a sane default
-    dim = sources.shapenetsem.dims_of(name)
+    dim = sources.shapenetsem.dims_of(name, anchor=set(cat.split()))   # sized as the archetype it IS
     if dim:
         a, b, c = sorted(dim[0], reverse=True)
         H, W, D = a, b, c                        # tallest axis is height
@@ -974,17 +1084,16 @@ def voxel_plan(name: str, *, material_hint: str | None = None, exclude=None):
     if got is None:
         return None
     _layout, src, lic, anno = got
-    dim = sources.shapenetsem.dims_of(name)
+    dim = _object_dims(name)
     if dim:
         longest = max(dim[0])                            # tallest/longest real edge
     else:
         sz = sources.typical_size_of(name)
         longest = sz[0] if sz else 0.3
-    comp = sources.shapenetsem.materials_of(name)
+    comp = sources.shapenetsem.materials_of(name, anchor=sources.exemplar.anchor_words(name) or None)
     ratios = comp[0] if comp else {}
     structural = _hint_to_material(material_hint)
     if structural is None:
-        non_soft = {c: r for c, r in ratios.items() if c not in _SOFT_MATERIALS}
-        structural = (max(non_soft, key=non_soft.get) if non_soft else None) or "wood"
+        structural = _frame_material(ratios)
     return {"anno_id": str(anno), "scale_to_m": float(longest),
             "material": structural, "source": src, "license": lic}

@@ -32,14 +32,22 @@ SEATS = ("chair", "office chair", "stool")
 TUCK_HU = 14.0          # how far a seat may slide under a table (the planner tucks at most 9 HU; the grader allows a little more)
 
 
+# Kinds a seat can really slide under: open underneath, with knee space. A dresser or a side table is a solid drawer unit with a
+# high flat top, so the top height alone must never count as "a table".
+OPEN_UNDER_KINDS = ("table", "desk", "meeting table", "coffee table", "patio table")
+
+
 def has_table_top(e: dict) -> bool:
-    """A body with a flat top high enough to slide a seat under: the planner's own condition for tucking (top at 28 HU or more)."""
+    """A table-like body (open underneath) with a flat top high enough to slide a seat under (28 HU or more, the planner's condition)."""
+    if e["kind"] not in OPEN_UNDER_KINDS:
+        return False
     top = variant(e["kind"], e["vi"]).get("top")
     return bool(top) and top["z"] >= 28
 
 
 def tucked(a: dict, b: dict, pen: float) -> bool:
-    """A seat pushed under a table or desk overlaps it in plan view by design, and only that: not a seat against a seat, a couch or a wall."""
+    """A seat pushed under a table or desk overlaps it in plan view by design, and only that: not a seat against a seat, a couch, closed storage
+    (a dresser, a drawer-unit side table) or a wall."""
     return pen <= TUCK_HU and ((a["kind"] in SEATS and has_table_top(b)) or (b["kind"] in SEATS and has_table_top(a)))
 
 

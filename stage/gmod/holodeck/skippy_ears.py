@@ -54,7 +54,8 @@ PTT_UNREADABLE_S = 1.0             # a file caught half-written keeps the previo
 VOICE_IN_MAX_AGE_S = 15.0          # a request the game has not picked up by then is withdrawn
 WORKER_QUEUE = 4                   # sentences waiting for recognition; the next one is refused with a message
 MIC_START_S = 5.0                  # how long a microphone gets to deliver its first samples
-MIC_RESTARTS = 3                   # times ffmpeg is started again after the microphone stops, before giving up
+MIC_RESTARTS = 3                   # CONSECUTIVE times ffmpeg is started again after the microphone stops, before giving up
+MIC_STABLE_S = 30.0                # a restarted microphone that runs this long clean has earned its full budget of restarts back
 
 WAKE_WORDS = ["skippy", "skipy", "skippie", "skipi", "skippi", "skipee", "skipe", "skippe", "skipper", "skypie", "skippee"]
 LEAD_WORDS = {"hey", "ok", "okay", "yo", "hi", "hello", "oi", "so"}
@@ -509,7 +510,7 @@ def listen(data_dir: Path, device: str, api: str, alt: str = "", log=print, stop
     expire_voice_in(data_dir)
     started = last_check = time.monotonic()
     warned_missing = False
-    code, restarts = 0, 0
+    code, restarts, mic_since = 0, 0, time.monotonic()
     try:
         while stop is None or not stop.is_set():
             on, direct, token = watcher.poll()
@@ -521,6 +522,8 @@ def listen(data_dir: Path, device: str, api: str, alt: str = "", log=print, stop
                 if why:
                     log(f"[ears] the microphone stopped: {why}")
                     mic.close()
+                    if now - mic_since >= MIC_STABLE_S:
+                        restarts = 0                                         # it had been fine for a long time: an old dropout, not a crash loop
                     restarts += 1
                     mic = open_microphone(device, alt, log) if restarts <= MIC_RESTARTS else None
                     if mic is None:
@@ -528,7 +531,10 @@ def listen(data_dir: Path, device: str, api: str, alt: str = "", log=print, stop
                         code = 2
                         break
                     log("[ears] the microphone is back")
+                    mic_since = time.monotonic()
                     rec = Recorder(mic, worker.submit, log)                  # a sentence cut off by the stop is not continued
+                elif restarts and now - mic_since >= MIC_STABLE_S:
+                    restarts = 0
                 expire_voice_in(data_dir)
                 if not warned_missing and now - started > 10 and not ptt_file.exists():
                     warned_missing = True

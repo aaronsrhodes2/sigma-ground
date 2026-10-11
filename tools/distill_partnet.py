@@ -58,16 +58,20 @@ _PN_SOURCE = "PartNet (Mo et al. 2019) — aggregate medians"
 _PN_LICENSE = ("ShapeNet/PartNet Terms of Use (non-commercial research); "
                "derived aggregate facts only, no raw rows")
 
-# PartNet category -> (common object name, [aliases])
+# PartNet category -> (common object name, [aliases]).
+# An alias identifies the category only as the HEAD of a name ("a plant", never "a plant stand"; see
+# deckard/sources/exemplar._name_fits), so list true synonyms and "<category> <part-noun>" names that
+# are the category itself ("bed frame", "microwave oven"), not accessories. Polysemous aliases
+# (plant, pot, screen, closet ...) are guarded in exemplar._POLYSEMOUS.
 _CATEGORIES = {
-    "Bag": ("bag", ["handbag"]), "Bed": ("bed", []), "Bottle": ("bottle", []),
+    "Bag": ("bag", ["handbag"]), "Bed": ("bed", ["bed frame"]), "Bottle": ("bottle", []),
     "Bowl": ("bowl", []), "Chair": ("chair", []), "Clock": ("clock", []),
     "Dishwasher": ("dishwasher", []), "Display": ("monitor", ["display", "screen", "tv", "television"]),
-    "Door": ("door", []), "Earphone": ("earphone", ["headphones", "earbuds"]),
+    "Door": ("door", []), "Earphone": ("earphone", ["headphones", "earbuds", "headphone", "earphones", "earbud"]),
     "Faucet": ("faucet", ["tap"]), "Hat": ("hat", ["cap"]), "Keyboard": ("keyboard", []),
-    "Knife": ("knife", []), "Lamp": ("lamp", []), "Laptop": ("laptop", []),
-    "Microwave": ("microwave", []), "Mug": ("mug", []),
-    "Refrigerator": ("refrigerator", ["fridge"]), "Scissors": ("scissors", []),
+    "Knife": ("knife", []), "Lamp": ("lamp", []), "Laptop": ("laptop", ["laptop computer", "notebook computer"]),
+    "Microwave": ("microwave", ["microwave oven"]), "Mug": ("mug", []),
+    "Refrigerator": ("refrigerator", ["fridge", "fridge freezer"]), "Scissors": ("scissors", []),
     "StorageFurniture": ("cabinet", ["storage furniture", "dresser", "cupboard", "bookcase", "bookshelf", "book shelf", "wardrobe", "closet", "armoire", "shelf"]),
     "Table": ("table", ["desk"]), "TrashCan": ("trash can", ["bin", "garbage can"]),
     "Vase": ("vase", ["pot", "plant", "houseplant", "potted plant", "flower pot"]),

@@ -80,7 +80,7 @@ function AddCSLuaFile() end
 -- ------------------------------------------------------------------------------------------------ convars, hooks, timers
 function CreateConVar(name, default, flags, help)
   if M.cvars[name] then return M.cvars[name] end
-  local cv = { name = name, val = tostring(default) }
+  local cv = { name = name, val = tostring(default), flags = flags or 0, help = help or "" }
   function cv:GetString() return self.val end
   function cv:GetInt() return math.floor(tonumber(self.val) or 0) end
   function cv:GetFloat() return tonumber(self.val) or 0 end
@@ -198,7 +198,12 @@ function net.ReadBool() return M.rd.bool end
 function M.deliver(msg)
   local w = msg.writes
   if msg.name == "holodeck_audio" then M.rd = { uints = { w[1], w[2], w[3], #(msg.data or "") }, vector = msg.vector, data = msg.data }
-  elseif msg.name == "holodeck_say" then M.rd = { string = w[1], strings = { w[1], w[2] } }
+  elseif msg.name == "holodeck_say" then
+    local strings, uints = {}, {}
+    for _, x in ipairs(w) do
+      if type(x) == "string" then strings[#strings + 1] = x elseif type(x) == "number" then uints[#uints + 1] = x end
+    end
+    M.rd = { string = strings[1], strings = strings, uints = uints }
     local n = 0
     net.ReadString = function() n = n + 1; return M.rd.strings[n] end
   end
@@ -223,15 +228,41 @@ local function inside_room(x, y)
   return not r or (x > r.x0 and x < r.x1 and y > r.y0 and y < r.y1)
 end
 
+--- A vertical ray against the PLATFORMS: blockers that have a `top` (and a `bottom`, default 10 below it) are slabs that stand up
+--- in z. Only a trace with a solid mask (not brush-only) sees them, and only those the trace's filter accepts, as in the engine.
+--- Returns the nearest hit { z =, normal_z = } or nil, and whether the ray starts inside a slab.
+local function platform_hit(t, sx, sy, sz, ez)
+  if t.mask ~= MASK_SOLID then return nil end
+  local best
+  for _, b in ipairs(M.blockers) do
+    if b.top and sx > b.x0 and sx < b.x1 and sy > b.y0 and sy < b.y1 and (not t.filter or not b.ent or t.filter(b.ent)) then
+      local bottom = b.bottom or (b.top - 10)
+      if sz > bottom and sz < b.top then return { start_solid = true } end
+      if ez < sz and sz >= b.top and ez <= b.top then
+        if not best or b.top > best.z then best = { z = b.top, nz = 1 } end
+      elseif ez > sz and sz <= bottom and ez >= bottom then
+        if not best or bottom < best.z then best = { z = bottom, nz = -1 } end
+      end
+    end
+  end
+  return best
+end
+
 function util.TraceLine(t)
   local sx, sy, sz, ex, ey, ez = t.start.x, t.start.y, t.start.z, t.endpos.x, t.endpos.y, t.endpos.z
   if math.abs(ex - sx) < 1e-6 and math.abs(ey - sy) < 1e-6 then                       -- straight down: the floor at z = 0
+    local plat = platform_hit(t, sx, sy, sz, ez)
+    if plat and plat.start_solid then return { Hit = true, StartSolid = true, HitSky = false, HitNormal = Vector(0, 0, 1), HitPos = t.start, Fraction = 0 } end
+    local world
     if ez > sz and M.ceiling and sz < M.ceiling and ez >= M.ceiling and inside_room(sx, sy) then       -- straight up: a ceiling, if the room has one
-      return { Hit = true, StartSolid = false, HitSky = false, HitNormal = Vector(0, 0, -1), HitPos = Vector(sx, sy, M.ceiling), Fraction = (M.ceiling - sz) / (ez - sz), HitWorld = true }
+      world = { Hit = true, StartSolid = false, HitSky = false, HitNormal = Vector(0, 0, -1), HitPos = Vector(sx, sy, M.ceiling), Fraction = (M.ceiling - sz) / (ez - sz), HitWorld = true }
+    elseif sz > 0 and ez < 0 and inside_room(sx, sy) then
+      world = { Hit = true, StartSolid = false, HitSky = false, HitNormal = Vector(0, 0, 1), HitPos = Vector(sx, sy, 0), Fraction = sz / (sz - ez), HitWorld = true }
     end
-    if sz > 0 and ez < 0 and inside_room(sx, sy) then
-      return { Hit = true, StartSolid = false, HitSky = false, HitNormal = Vector(0, 0, 1), HitPos = Vector(sx, sy, 0), Fraction = sz / (sz - ez), HitWorld = true }
+    if plat and (not world or math.abs(plat.z - sz) < math.abs(world.HitPos.z - sz)) then
+      return { Hit = true, StartSolid = false, HitSky = false, HitNormal = Vector(0, 0, plat.nz), HitPos = Vector(sx, sy, plat.z), Fraction = (plat.z - sz) / (ez - sz) }
     end
+    if world then return world end
     return { Hit = false, StartSolid = false, HitSky = false, HitNormal = Vector(0, 0, 1), HitPos = t.endpos, Fraction = 1 }
   end
   local r = M.room
@@ -258,8 +289,11 @@ function util.TraceHull(t)
   local y0, y1 = t.start.y + t.mins.y, t.start.y + t.maxs.y
   local r = M.room
   if r and (x0 <= r.x0 or x1 >= r.x1 or y0 <= r.y0 or y1 >= r.y1) then return { Hit = true, StartSolid = false } end
+  local z0, z1 = t.start.z + t.mins.z, t.start.z + t.maxs.z
   for _, b in ipairs(M.blockers) do
-    if x0 < b.x1 and x1 > b.x0 and y0 < b.y1 and y1 > b.y0 then
+    -- a platform (a blocker with a top) is only in the way of a hull that reaches into its slab
+    local in_z = not b.top or (z1 > (b.bottom or (b.top - 10)) and z0 < b.top)
+    if in_z and x0 < b.x1 and x1 > b.x0 and y0 < b.y1 and y1 > b.y0 then
       local hits = true
       if t.filter and b.ent then hits = t.filter(b.ent) and true or false end
       if t.mask == MASK_SOLID_BRUSHONLY and b.ent then hits = false end                  -- the old mask never saw entities
@@ -276,6 +310,7 @@ local next_index = 100
 function Ent:IsValid() return self.valid end
 function Ent:IsPlayer() return false end
 function Ent:EntIndex() return self.idx end
+function Ent:GetClass() return self.class or "" end
 function Ent:SetModel(m) self.model = m end
 function Ent:SetPos(v) self.pos = v end
 function Ent:GetPos() return self.pos end
@@ -288,6 +323,7 @@ function Ent:SetRenderMode() end
 function Ent:SetColor() end
 function Ent:SetCollisionGroup(g) self.group = g end
 function Ent:SetCreator(p) self.creator = p end
+function Ent:CPPISetOwner(p) self.cppi = p end       -- a prop-protection addon's owner record
 function Ent:WorldSpaceAABB()
   local h = self.half or 20
   return Vector(self.pos.x - h, self.pos.y - h, self.pos.z), Vector(self.pos.x + h, self.pos.y + h, self.pos.z + 2 * h)
@@ -338,6 +374,7 @@ function Ply:GetEyeTrace() return { Hit = false } end
 function Ply:Crouching() return self.crouch == true end
 function Ply:GetShootPos() return Vector(self.pos.x, self.pos.y, self.pos.z + 64) end
 function Ply:EntIndex() return self.idx end
+function Ply:UserID() return self.userid or self.idx end
 function Ply:IsSpeaking() return self.speaking == true end
 function Ply:IsTyping() return self.typing == true end
 function Ply:SetNWFloat(k, v) self.nw = self.nw or {}; self.nw[k] = v end
