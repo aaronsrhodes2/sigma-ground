@@ -285,7 +285,9 @@ def cmd_train(a) -> int:
     gaps = [b - a_ for a_, b in zip(st, st[1:])][5:]
     median_step = statistics.median(gaps) if len(gaps) > 5 else wall / max(1, len(st))
     eval_s = float(final_eval.get("eval_runtime", 0.0))
-    n_evals = full_total // eval_steps + 1
+    # evaluations in the FULL run: its own cadence, not a pilot's --eval-steps override
+    full_eval_steps = a.eval_steps if (a.eval_steps and a.max_steps <= 0) else max(25, full_total // 10)
+    n_evals = full_total // full_eval_steps + 1
     projected = median_step * full_total + n_evals * eval_s
     report = {
         "backend": backend, "base": a.base, "data": str(a.data),
