@@ -514,6 +514,39 @@ PREDICTORS: list[Predictor] = [
 ]
 
 
+# ── The canonical scoreboard set (the Captain's decision, 2026-10-10) ──────
+# Headline = the full JPL-style stack at ONE step size; ablations = the headline minus exactly one
+# layer at the same step (so each row isolates what that layer contributes); the honest Kepler
+# forecast as the baseline. Everything above this line (the dt = 1 d chain, single-body gr_1pn,
+# RESPA, the in-sample Kepler fit) stays selectable by name as a labelled diagnostic.
+# The step size comes from the step-size measurement (misc/SHOOTOUT_STEP_SIZE_2026-10-10.md).
+CANONICAL_DT_DAYS = 0.1
+
+# Bodies whose phase is lost to integrator round-off over a year at any practical step (error of
+# order their orbital radius): scored in their own table, never in the headline averages.
+INTEGRATOR_LIMITED_BODIES = ("Phobos", "Deimos", "Mimas", "Enceladus", "Io", "Miranda")
+
+
+def canonical_predictors(dt_days: float = CANONICAL_DT_DAYS) -> list[Predictor]:
+    """Headline stack, its one-layer-off ablations and the honest Kepler baseline, all at `dt_days`."""
+    import dataclasses as _dc
+    t = _JPL_DE440
+    rows = [
+        ("de440_stack",     t, "HEADLINE: EIH 1PN + J2/J3/J4 zonals + tides + SRP (Park et al. 2021 force model)"),
+        ("de440_no_eih",    _dc.replace(t, eih_cross=False), "headline minus the N-body 1PN (EIH) layer"),
+        ("de440_no_zonals", _dc.replace(t, j2_zonal=False, j3_zonal=False, j4_zonal=False), "headline minus the J2/J3/J4 zonal harmonics"),
+        ("de440_no_tides",  _dc.replace(t, tidal_force=False), "headline minus the Love-number tidal force"),
+        ("de440_no_srp",    _dc.replace(t, srp=False), "headline minus solar radiation pressure"),
+        ("newton_same_dt",  _NO_PHYSICS, "Newtonian point masses at the same step: the floor every layer is measured from"),
+    ]
+    return [Predictor(n, tog, dt_days=dt_days, description=d) for n, tog, d in rows]
+
+
+CANONICAL_PREDICTORS: list[Predictor] = canonical_predictors() + [
+    p for p in PREDICTORS if p.name == "kepler_forecast"]
+PREDICTORS.extend(p for p in CANONICAL_PREDICTORS if p.name != "kepler_forecast")
+
+
 # ── Initial state extraction ──────────────────────────────────────────────
 
 def _load_de440() -> dict:
@@ -957,11 +990,22 @@ if __name__ == "__main__":
                         help="results JSON (default: the untracked "
                              f"{_DEFAULT_RESULTS_OUTPUT}); with --pass both the "
                              "long pass goes to the same name with _long added")
+    parser.add_argument("--set", dest="pred_set", choices=["canonical", "all"], default="canonical",
+                        help="predictor set when --predictors is not given: the canonical scoreboard "
+                             "(headline, ablations, Kepler forecast) or every predictor incl. diagnostics")
+    parser.add_argument("--dt-days", type=float, default=None,
+                        help="step for the canonical predictors (default: CANONICAL_DT_DAYS)")
     args = parser.parse_args()
 
-    selected = PREDICTORS
+    pool = PREDICTORS
+    if args.dt_days is not None:
+        canon = {p.name: p for p in canonical_predictors(args.dt_days)}
+        pool = [canon.get(p.name, p) for p in PREDICTORS]
+    selected = CANONICAL_PREDICTORS if args.pred_set == "canonical" else pool
+    if args.dt_days is not None and args.pred_set == "canonical":
+        selected = canonical_predictors(args.dt_days) + [p for p in PREDICTORS if p.name == "kepler_forecast"]
     if args.predictors:
-        selected = [p for p in PREDICTORS if p.name in args.predictors]
+        selected = [p for p in pool if p.name in args.predictors]
 
     all_results: list[WindowSample] = []
 

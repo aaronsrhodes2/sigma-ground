@@ -67,6 +67,8 @@ from sigma_ground.field.interface.nbody import CelestialBody, NBodySystem
 FIXTURES_DIR    = Path(__file__).parent / "fixtures"
 DE440_FILE      = FIXTURES_DIR / "de440_state_vectors.json"
 OVER_PHYS_FILE  = FIXTURES_DIR / "ssbm_over_physics_predictions.json"
+# The sealed file above is PAST DATA and is never rewritten. Regeneration writes the v2physics baseline beside it.
+OVER_PHYS_FILE_V2 = FIXTURES_DIR / "ssbm_over_physics_predictions_v2physics.json"
 STANDARD_FILE   = FIXTURES_DIR / "ssbm_future_predictions.json"
 MINOR_FILE      = FIXTURES_DIR / "ssbm_minor_bodies_predictions.json"
 
@@ -329,8 +331,9 @@ def _generate_over_physics_predictions() -> dict:
     }
 
     FIXTURES_DIR.mkdir(parents=True, exist_ok=True)
-    OVER_PHYS_FILE.write_text(json.dumps(fixture, indent=2))
-    print(f"  Saved {OVER_PHYS_FILE.name}  sha256={sha256[:16]}...")
+    fixture["metadata"]["baseline_label"] = "v2physics_2026-10-10"
+    OVER_PHYS_FILE_V2.write_text(json.dumps(fixture, indent=2))
+    print(f"  Saved {OVER_PHYS_FILE_V2.name}  sha256={sha256[:16]}...; the sealed {OVER_PHYS_FILE.name} is untouched")
     return fixture
 
 

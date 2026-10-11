@@ -10,6 +10,7 @@ NAIF codes: Iapetus 608, Hyperion 607, Phoebe 609.
 GM (km^3/s^2), SAT441 (Jacobson 2022, AJ 164:199), read from https://ssd.jpl.nasa.gov/sats/phys_par/ on 2026-10-10:
 Iapetus 120.51511 (+-0.00242), Hyperion 0.37049 (+-0.00005), Phoebe 0.55479 (+-0.00108).
 
+The ORIGINAL fixture is never modified: the default --output is de440_state_vectors_v2physics.json (the v2physics baseline input).
 Usage: python scripts/extend_de440_fixture_saturn_outer_moons.py [--input PATH] [--output PATH] [--dry-run] [--throttle-s F]
 """
 
@@ -183,7 +184,7 @@ def extend_fixture(input_path: Path, output_path: Path,
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input",  type=Path, default=_FIXTURE)
-    parser.add_argument("--output", type=Path, default=_FIXTURE)
+    parser.add_argument("--output", type=Path, default=_FIXTURE.with_name("de440_state_vectors_v2physics.json"))
     parser.add_argument("--dry-run",    action="store_true")
     parser.add_argument("--throttle-s", type=float, default=0.5)
     args = parser.parse_args()

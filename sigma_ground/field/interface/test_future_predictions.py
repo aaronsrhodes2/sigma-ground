@@ -66,6 +66,8 @@ from sigma_ground.field.interface.orbital import (
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 PREDICTION_FILE = FIXTURES_DIR / "ssbm_future_predictions.json"
+# The sealed file above is PAST DATA and is never rewritten. Regeneration writes the v2physics baseline beside it.
+PREDICTION_FILE_V2 = FIXTURES_DIR / "ssbm_future_predictions_v2physics.json"
 DE440_FILE = FIXTURES_DIR / "de440_state_vectors.json"
 
 _DE440 = None
@@ -392,10 +394,11 @@ def _generate_predictions() -> dict:
     }
 
     FIXTURES_DIR.mkdir(parents=True, exist_ok=True)
-    with open(PREDICTION_FILE, "w") as f:
+    fixture["metadata"]["baseline_label"] = "v2physics_2026-10-10"
+    with open(PREDICTION_FILE_V2, "w") as f:
         json.dump(fixture, f, indent=2)
 
-    print(f"  Saved to {PREDICTION_FILE}  (sha256={sha256[:12]}...)")
+    print(f"  Saved to {PREDICTION_FILE_V2}  (sha256={sha256[:12]}...); the sealed {PREDICTION_FILE.name} is untouched")
     return fixture
 
 
