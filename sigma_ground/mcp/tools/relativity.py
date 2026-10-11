@@ -155,33 +155,60 @@ def relativistic_velocity_addition(u_m_s: float, v_m_s: float) -> ToolResult:
 
 def doppler_shift_factor(velocity_m_s: float,
                            angle_to_los_deg: float = 0.0) -> ToolResult:
-    """Relativistic Doppler factor for light: lambda_obs / lambda_emit.
+    """Relativistic Doppler factor for light: lambda_obs / lambda_emit (= 1 + z).
+
+    Angle convention (stated explicitly; every quantity in the OBSERVER's
+    rest frame, at the moment the light is received):
+
+        lambda_obs / lambda_emit = gamma (1 + beta cos(theta))
+
+    theta is the angle between the source's velocity and the line of sight
+    pointing AWAY from the observer (observer -> source). theta = 0: the
+    source recedes head-on (redshift sqrt((1+b)/(1-b))); theta = 180 deg:
+    it approaches head-on (blueshift); theta = 90 deg: transverse in the
+    observer's frame, a pure time-dilation REDSHIFT, factor gamma.
+    (Transverse in the SOURCE's frame instead gives 1/gamma; aberration
+    makes the two differ.) Reference: MIT 8.20 Special Relativity, IAP 2008,
+    problem set 3 solution 1, "lambda = lambda0 gamma (1 + beta cos theta)"
+    with theta measured from the direction away from the observer.
 
     Parameters
     ----------
     velocity_m_s : float
-        Radial velocity (positive = source receding, gives redshift).
+        Source speed along the direction set by the angle; a positive value
+        with theta = 0 is a receding source. A negative value reverses the
+        velocity, which is the same as replacing theta by 180 deg - theta.
     angle_to_los_deg : float
-        Angle between source velocity and line of sight (0 = head-on
-        recession, 90 = transverse).
+        theta above, in degrees.
     """
+    import math
     from sigma_ground.field.constants import C
+    inputs = {"velocity_m_s": velocity_m_s, "angle_to_los_deg": angle_to_los_deg}
+    if not (math.isfinite(velocity_m_s) and math.isfinite(angle_to_los_deg)):
+        return ToolResult(value=None, source="invalid input",
+                           notes="velocity_m_s and angle_to_los_deg must be finite",
+                           inputs=inputs)
     if abs(velocity_m_s) >= C:
         return ToolResult(value=None, source="invalid input",
                            notes="velocity_m_s must be subluminal",
-                           inputs={"velocity_m_s": velocity_m_s,
-                                   "angle_to_los_deg": angle_to_los_deg})
-    import math
+                           inputs=inputs)
     cos_theta = math.cos(math.radians(angle_to_los_deg))
     from sigma_ground.field.relativity import doppler_factor as _df
-    factor = _df(velocity_m_s, cos_theta)
+    # FIXED 2026-10-10 (A37): field.doppler_factor is the FREQUENCY ratio with
+    # the angle measured from the source->observer direction; this tool's angle
+    # is measured from the observer->source direction, so cos flips sign and
+    # the wavelength ratio is the reciprocal: 1/D(v, -cos) = gamma (1 + b cos).
+    factor = 1.0 / _df(velocity_m_s, -cos_theta)
     return ToolResult(
         value=factor,
         units="dimensionless",
         source="sigma-ground (relativistic Doppler)",
         formula="lambda_obs / lambda_emit = gamma (1 + beta cos(theta))",
-        inputs={"velocity_m_s": velocity_m_s,
-                "angle_to_los_deg": angle_to_los_deg},
-        notes=("At theta=90 deg, you get pure transverse Doppler = gamma "
-                "(only a relativistic effect; no classical analog)."),
+        inputs=inputs,
+        notes=("theta = angle, in the observer's frame, between the source "
+                "velocity and the line of sight from the observer to the "
+                "source (0 = receding, 180 = approaching). Value > 1 is a "
+                "redshift; the frequency ratio is its reciprocal. At "
+                "theta = 90 deg the transverse Doppler factor is gamma, a "
+                "redshift (pure time dilation, no classical analog)."),
     )
