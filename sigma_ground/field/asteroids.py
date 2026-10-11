@@ -27,7 +27,11 @@ BENNU = {
     # Table 1: (252.78 ± 0.05) × (246.20 ± 0.09) × (228.69 ± 0.12) m.
     # Its volume, 0.0596 km³, is 0.97× the shape-model volume 0.0615 km³
     # (same paper), so M/V is 1.03× the measured 1190 kg/m³.  The full
-    # extents of the spinning-top shape are larger (565 × 535 × 508 m).
+    # extents of the spinning-top shape are larger: (563.87 × 536.09 ×
+    # 498.42) ± 0.17 m (Barnouin et al. 2019, as quoted in NAIF
+    # bennu_v14.tpc); the pre-arrival Design Reference Asteroid (Hergenrother
+    # et al. 2014, arXiv:1409.4704, from the Nolan et al. 2013 radar model)
+    # gave 565 × 535 × 508 m.
     # FIXED 2026-10-10: the values were halved (131.25 × 129.25 × 124.65 m;
     # implied density 6.95× the table's).
     'a_m': 252.78,
