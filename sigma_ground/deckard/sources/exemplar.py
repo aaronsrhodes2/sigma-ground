@@ -61,19 +61,25 @@ def _tag_match(tags: set, hint: str) -> bool:
 
 
 def _category_pool(name: str):
-    """The variant pool: all exemplars of the best-matching category for name."""
+    """The variant pool: all exemplars of the best-matching category for name.
+    Best = the longest whole-word category/alias match; of equally long ones, the
+    category holding the query's head noun ("a desk LAMP" pools the lamps, not the
+    tables that 'desk' aliases)."""
+    from . import aliases
     qw = _words(name)
+    head = aliases.head_noun(name)
     scored = []
     for entry in _table():
         names = entry[0]
-        m = max((len(w) for w in (_words(nm) for nm in names) if w and w <= qw),
-                default=0)
-        if m > 0:
-            scored.append((m, entry))
+        r = max(((len(w), aliases.holds_head(w, head))
+                 for w in (_words(nm) for nm in names) if w and w <= qw),
+                default=(0, False))
+        if r[0] > 0:
+            scored.append((r, entry))
     if not scored:
         return []
-    best = max(m for m, _ in scored)
-    return [entry for m, entry in scored if m == best]
+    best = max(r for r, _ in scored)
+    return [entry for r, entry in scored if r == best]
 
 
 def exemplar_of(name: str, *, exclude=None, hint=None, _aliased: bool = False):

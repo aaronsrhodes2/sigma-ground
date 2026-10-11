@@ -3,8 +3,11 @@ part's MATERIAL is assigned by a CITED role-convention (PartNet has no per-part
 material). A material adjective biases the frame material — it SELECTS, it does
 not invent. Densities resolve through field.interface.resolve.material_profile.
 """
+import pytest
+
 from sigma_ground.deckard.research import (
     _exemplar_spec, _role_material, _hint_to_material, _is_container,
+    _density_fact, _occupancy, _part_extent, _stock_thickness,
 )
 from sigma_ground.deckard import compile
 
@@ -45,9 +48,22 @@ def test_material_hint_biases_the_frame_it_selects_not_invents():
 def test_part_density_resolves_cited_via_material_profile():
     spec = _exemplar_spec("a wooden chair", material_hint="wood")
     leg = next(p for p in spec.parts if p.name.startswith("leg"))
-    # wood resolves to a real cited density (oak ~700), not the flagged-700 default
-    assert 300 < leg.density.value < 1200
-    assert not leg.density.estimated
+    # The MATERIAL resolves to a real cited density through material_profile (oak ~700),
+    # not the flagged-700 default ...
+    cited = _density_fact("wood")
+    assert 300 < cited.value < 1200 and not cited.estimated
+    # ... but a PartNet leaf is only the bounding BOX of a part (this leg is a 21 x 20 x 51 cm box
+    # around a slender post), so the part carries that density times the share of its box that
+    # board stock can fill: an ESTIMATED bulk density (it used to be the full, cited 700 = 123 kg chairs).
+    occ = _occupancy(_part_extent(leg), _stock_thickness(leg.material))
+    assert occ < 0.98 and leg.density.estimated
+    assert leg.density.value == pytest.approx(cited.value * occ, rel=1e-3)
+    assert leg.density.value < cited.value
+    # plank and rod stock keeps its citation (the headboard of a bed is a 16 mm board)
+    bed = _exemplar_spec("a bed")
+    boards = [p for p in bed.parts if _occupancy(_part_extent(p), _stock_thickness(p.material)) >= 0.98
+              and p.material == "wood"]
+    assert boards and all(not p.density.estimated and p.density.value == cited.value for p in boards)
 
 
 def test_role_and_hint_helpers():
@@ -75,6 +91,18 @@ def test_container_is_hollow_open_top_and_compiles():
     # the hollow vessel still compiles to a real solid with mass
     c = compile(spec, resolution=40)
     assert c.mass_kg > 0
+
+
+def test_a_carved_container_body_is_not_hollowed_twice():
+    # a bowl / vase has its interior carved out: the wall keeps its cited ceramic density (the
+    # occupancy rule would otherwise shell an already hollow body a second time)
+    for name in ("a bowl", "a vase"):
+        spec = _exemplar_spec(name)
+        cav = next(p for p in spec.parts if p.name == "interior")
+        walls = [p for p in spec.parts if p.op == "add" and p.shape == "cylinder"
+                 and p.center_m[:2] == cav.center_m[:2]
+                 and p.dims["radius_m"].value > cav.dims["radius_m"].value]
+        assert walls and all(not w.density.estimated for w in walls), name
 
 
 def test_different_chair_grabs_a_fresh_real_model():

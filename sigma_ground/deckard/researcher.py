@@ -448,6 +448,22 @@ def _is_hollow(name: str) -> bool:
     return bool(w & _HOLLOW_WORDS)
 
 
+def _is_solid_class(name: str) -> bool:
+    """True if the object is cast, forged or turned solid through (anvil, hammer,
+    dumbbell, knife, key, ball ...): its HEAD noun is a _SOLID_WORDS word. The
+    shell/occupancy models (``_hollow_pass``, ``research._apply_occupancy``) leave
+    such an object solid. The head noun, not any word: "a bar fridge" is a fridge
+    and "a stone vase" a vase, whatever their modifiers."""
+    from .sources import aliases
+    return aliases.holds_head(_SOLID_WORDS, aliases.head_noun(name))
+
+
+# Board / sheet / rod stock thinner than this (in any one edge) is solid, not an
+# enclosure: about twice the 18 mm board gauge of research._BOARD_T_M. A 2.9 cm
+# bookcase plank is not a 0.8 mm-walled box.
+_MIN_ENCLOSURE_M = 0.04
+
+
 def _hollow_pass(name, parts, sources):
     """Hollow-class objects (appliances, containers, furniture, electronics) are
     mostly air, but the model fills them solid -> absurd masses (a 300 kg
@@ -486,6 +502,11 @@ def _hollow_pass(name, parts, sources):
             continue
         w = max(0.0008, min(0.0025, 0.01 * min(d.values())))   # thin wall ~1-2.5 mm
         shape = p.shape.lower()
+        sides = ((d.get("x_m", 0.0), d.get("y_m", 0.0), d.get("z_m", 0.0)) if shape == "box"
+                 else (2 * d.get("radius_m", 0.0), 2 * d.get("radius_m", 0.0),
+                       d.get("height_m", 2 * d.get("radius_m", 0.0))))
+        if min(sides) < _MIN_ENCLOSURE_M:         # a plank / sheet / rod: solid, not a box
+            continue
         if shape == "box" and all(d[k] > 2.2 * w for k in ("x_m", "y_m", "z_m")):
             outer = d["x_m"] * d["y_m"] * d["z_m"]
             inner = (d["x_m"] - 2 * w) * (d["y_m"] - 2 * w) * (d["z_m"] - 2 * w)

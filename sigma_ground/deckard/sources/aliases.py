@@ -42,4 +42,20 @@ def expand(name: str) -> set:
     return found - {q}
 
 
-__all__ = ["expand"]
+def head_noun(name: str) -> str:
+    """The head of a noun phrase: its LAST word ("desk LAMP" is a lamp, "coffee
+    TABLE" a table) — English compounds put the head last and the modifiers
+    before it. "" for an empty name."""
+    ws = [w for w in re.split(r"[^a-z0-9]+", (name or "").lower()) if w]
+    return ws[-1] if ws else ""
+
+
+def holds_head(words: set, head: str) -> bool:
+    """True if a key's ``words`` contain the query's ``head`` noun (singular or
+    plural: "two desk lamps"). The tie-break between equally specific matches:
+    when "desk" and "lamp" both fit "a desk lamp", the one with the head wins."""
+    return bool(head) and (head in words or (head.endswith("s") and head[:-1] in words)
+                           or (head.endswith("es") and head[:-2] in words))
+
+
+__all__ = ["expand", "head_noun", "holds_head"]

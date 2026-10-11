@@ -43,16 +43,21 @@ def _table() -> list:
 
 
 def _local(name: str, _aliased: bool = False):
+    from . import aliases
     qw = _words(name)
-    best, best_len = None, 0
+    head = aliases.head_noun(name)
+    best, best_rank = None, (0, False)
     for names, size, src, lic in _table():
-        m = max((len(w) for w in (_words(nm) for nm in names) if w and w <= qw), default=0)
-        if m > best_len:
-            best_len, best = m, (size, src, lic)
+        # longest match wins; of equally long ones, the object holding the query's
+        # head noun ("a desk LAMP" is a lamp) — see shapenetsem._entry
+        r = max(((len(w), aliases.holds_head(w, head))
+                 for w in (_words(nm) for nm in names) if w and w <= qw),
+                default=(0, False))
+        if r > best_rank:
+            best_rank, best = r, (size, src, lic)
     if best is None and not _aliased:
         # exact-name alias retries only (no containment stacking — see
         # shapenetsem._entry for the bowling-pin cautionary tale)
-        from . import aliases
         for alt in sorted(aliases.expand(name)):
             aw = _words(alt)
             for names, size, src, lic in _table():

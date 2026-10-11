@@ -14,7 +14,8 @@ from ..schema import ConstructSpec, emit_markdown, parse_markdown
 
 _DIR = pathlib.Path(__file__).resolve().parent
 
-# curated name (lowercased) -> slug.  Containment-matched too ("a ceramic mug").
+# curated name (lowercased) -> slug.  Whole-word-matched too ("a ceramic mug"),
+# never as a substring: "cup" is not in "cupboard".
 ALIASES = {
     "coffee cup": "coffee_cup",
     "coffee mug": "coffee_cup",
@@ -29,13 +30,24 @@ def slugify(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", name.strip().lower()).strip("_")
 
 
+def _alias_in(alias: str, words: set) -> bool:
+    """True if every word of ``alias`` is a whole word of the query (the last one
+    may be plural: "two mugs"). Never a substring: "cup" is not in "cupboard"."""
+    aw = alias.split()
+    return all(w in words for w in aw[:-1]) and (
+        aw[-1] in words or aw[-1] + "s" in words or aw[-1] + "es" in words)
+
+
 def slug_for(name: str) -> str | None:
-    """Resolve a free-text name to a *curated* catalog slug, or None."""
+    """Resolve a free-text name to a *curated* catalog slug, or None. An alias
+    matches on whole words, so "a ceramic mug" is a coffee cup but "a clothes
+    cupboard" (which contains the letters c-u-p) is not."""
     key = name.strip().lower()
     if key in ALIASES:
         return ALIASES[key]
+    words = set(re.findall(r"[a-z0-9]+", key))
     for alias, slug in ALIASES.items():
-        if alias in key:
+        if _alias_in(alias, words):
             return slug
     return None
 
