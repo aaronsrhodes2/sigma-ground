@@ -220,6 +220,13 @@ ALPHA = E_CHARGE**2 / (4 * math.pi * EPS_0 * HBAR * C)
 # SI form for use in EM and plasma calculations:
 M_ELECTRON_KG = 9.1093837015e-31  # kg (CODATA 2018)
 
+# ── Fermion masses for the dense-matter work (field/dense) ────────────────────────
+# MEASURED. Mentat lookup_constant, 2026-10-11, scipy.constants (CODATA 2022). Note the electron mass above is CODATA 2018;
+# the two editions differ by 1.5e-9 relative, far below anything the equations of state resolve.
+M_PROTON_KG = 1.67262192595e-27    # kg
+M_NEUTRON_KG = 1.67492750056e-27   # kg
+M_MUON_KG = 1.883531627e-28        # kg (Mentat quotes u = 4.2e-36 kg)
+
 # ── Boltzmann Constant ────────────────────────────────────────────────
 # Exact by 2019 SI redefinition (links energy to temperature).
 K_B = 1.380649e-23            # J/K (Boltzmann constant, exact by 2019 SI)
