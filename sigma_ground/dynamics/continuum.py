@@ -1043,10 +1043,13 @@ def continuum_step_to(scene, t_end, dt=0.001, alpha_visc=1.0, callback=None):
 # CONVENIENCE: CFL timestep for continuum
 # ══════════════════════════════════════════════════════════════════════
 
-def cfl_timestep(scene, safety=0.3, force_safety=0.25, alpha_visc=1.0):
-    """Stable timestep for continuum_step: signal-speed and force criteria.
+def cfl_timestep(scene, safety=0.3, force_safety=0.25, alpha_visc=1.0,
+                 conduction_safety=0.5):
+    """Stable timestep for continuum_step: signal-speed, force and conduction criteria.
 
-        dt = min( safety · h / max(c_sig, v_max),  force_safety · √(h / |a|_max) )
+        dt = min( safety · h / max(c_sig, v_max),
+                  force_safety · √(h / |a|_max),
+                  conduction_safety / D_max )        (D_max: conduction, below)
 
     c_sig is the signal speed of the scene's EOS (the speed the pressure
     and the artificial viscosity actually carry):
@@ -1061,15 +1064,43 @@ def cfl_timestep(scene, safety=0.3, force_safety=0.25, alpha_visc=1.0):
     cached on the scene; before the first step one force evaluation is made
     (with ``alpha_visc``) and the parcels' SPH state is restored afterwards.
 
+    Conduction criterion (when ``scene.heat_conduction``). continuum_step
+    applies _heat_conduction as ONE forward-Euler step. Its pair sum is
+    dTᵢ/dt = Σⱼ aᵢⱼ (Tⱼ − Tᵢ) with
+        aᵢⱼ = mⱼ/(ρᵢρⱼ) · 2κᵢⱼ |rᵢⱼ·∇ᵢWᵢⱼ| /(rᵢⱼ² + 0.01h²) / c_p,ᵢ  ≥ 0,
+    so the step is Tᵢ ← (1 − Δt Dᵢ) Tᵢ + Δt Σⱼ aᵢⱼ Tⱼ with Dᵢ = Σⱼ aᵢⱼ (1/s).
+    For Δt Dᵢ ≤ 1 every new T is a convex combination of old ones: the heat
+    equation's maximum principle holds discretely (conduction makes no new
+    hot or cold extremum), and by Gershgorin every eigenvalue λ of the
+    operator lies in [0, 2 D_max], so |1 − Δtλ| ≤ 1: stable. The bound is
+    sharp: at Δt Dᵢ = 1 a lone hot spike cools exactly to the aᵢⱼ-weighted
+    mean of its neighbours. On a 1-D grid it is the FTCS limit r = αΔt/Δx² ≤ 1/2 (the weight
+    1 − 2r of uᵢ; Recktenwald, PSU ME 448/548 FTCS notes, eq. 5). Dᵢ is
+    evaluated on the actual (possibly disordered) particles, so no lattice
+    constant enters. On the engine's cubic lattice (h = 1.2 Δx) the interior
+    gives Dᵢ h² ρc_p/κ = 5.04, i.e. κΔt/(ρc_p h²) ≤ 0.198 for Δt D = 1,
+    inside the operator's checkerboard von Neumann limit 0.335.
+    ``conduction_safety`` = 0.5 (a disclosed Choice, not physics): the
+    operator is applied at the end-of-step positions and densities, and κ,
+    c_p come from the parcels' cached properties, so D may move within the
+    step; 0.5 tolerates it doubling. On the lattice this is κΔt/(ρc_p h²)
+    = 0.099. It never binds for condensed matter at the acoustic step (a
+    5×5×5 iron lattice, h = 1.2 cm, surface parcels included: 0.32 s against
+    5e-7 s); it binds for a dilute gas with a conducting carrier material.
+
     FIXED 2026-10-10: c_sig was the cascade c_L for every EOS (an isothermal
     c_s = 1 m/s iron-carrier gas got dt 5942× too small) and there was no
-    force criterion (A16).
+    force criterion (A16). There was also no conduction criterion: with
+    conduction at its correct rate (A15), a ~1 kg/m³ iron-carrier gas got
+    κΔt/(ρc_p h²) = 4.04 and blew up (T 1–7390 K after two steps).
 
     Args:
         scene: ContinuumScene
         safety: Courant factor (default 0.3)
         force_safety: force-criterion factor (default 0.25)
         alpha_visc: the viscosity coefficient continuum_step will use
+        conduction_safety: fraction of the maximum-principle bound 1/D_max
+            (default 0.5)
 
     Returns:
         dt in seconds
@@ -1094,24 +1125,71 @@ def cfl_timestep(scene, safety=0.3, force_safety=0.25, alpha_visc=1.0):
     signal = max(c_max, v_max, 1e-10)
     dt = safety * h / signal
 
-    a_max = _max_acceleration(scene, parcels, alpha_visc)
+    a_max, d_max = _max_rates(scene, parcels, alpha_visc)
     if a_max > 0.0:
         dt = min(dt, force_safety * math.sqrt(h / a_max))
+    if d_max > 0.0:
+        dt = min(dt, conduction_safety / d_max)
     return dt
 
 
-def _max_acceleration(scene, parcels, alpha_visc):
-    """Largest |a| over the parcels: the cached end-of-step accelerations,
-    or one side-effect-free force evaluation if there is no valid cache."""
+def _max_rates(scene, parcels, alpha_visc):
+    """(|a|_max, D_max): the largest acceleration and the largest diagonal of
+    the conduction operator (0 when scene.heat_conduction is off), from the
+    cached end-of-step state, or from one side-effect-free force evaluation
+    if there is no valid cache."""
     if not parcels:
-        return 0.0
+        return 0.0, 0.0
+    conduct = getattr(scene, "heat_conduction", True)
     acc = getattr(scene, "_vv_accel", None)
     if acc is None or len(acc) != len(parcels):
         saved = [(p.sph_density, p.neighbors, p.pressure) for p in parcels]
         try:
             a_grav = _geometry(scene, parcels)
             acc, _ = _thermo_forces(scene, parcels, a_grav, alpha_visc, False)
+            d_max = _conduction_diagonal_max(parcels, scene.h) if conduct else 0.0
         finally:
             for p, (rho, nb, P) in zip(parcels, saved):
                 p.sph_density, p.neighbors, p.pressure = rho, nb, P
-    return max(math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z) for a in acc)
+    else:
+        d_max = _conduction_diagonal_max(parcels, scene.h) if conduct else 0.0
+    a_max = max(math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z) for a in acc)
+    return a_max, d_max
+
+
+def _conduction_diagonal_max(parcels, h):
+    """max over parcels of Dᵢ = Σⱼ aᵢⱼ (1/s), the diagonal of the operator
+    _heat_conduction applies, dTᵢ/dt = Σⱼ aᵢⱼ (Tⱼ − Tᵢ), at the parcels'
+    current densities, neighbour lists and cached κ, c_p. Same pair
+    coefficient as _heat_conduction: aᵢⱼ = mⱼ Gᵢⱼ / c_p,ᵢ with the symmetric
+    Gᵢⱼ = 2κᵢⱼ |rᵢⱼ·∇ᵢWᵢⱼ| / (ρᵢρⱼ (rᵢⱼ² + 0.01h²))."""
+    eta2 = 0.01 * h * h
+    n = len(parcels)
+    diag = [0.0] * n              # Σⱼ mⱼ Gᵢⱼ = c_p,ᵢ Dᵢ  (W/(kg·K))
+    for i, pi in enumerate(parcels):
+        rho_i = pi.sph_density
+        kappa_i = pi.thermal_conductivity
+        for j in pi.neighbors:
+            if j <= i:
+                continue                      # each pair once; neighbour lists are symmetric
+            pj = parcels[j]
+            rho_j = pj.sph_density
+            kappa_j = pj.thermal_conductivity
+            ksum = kappa_i + kappa_j
+            if ksum <= 0.0 or rho_i <= 0.0 or rho_j <= 0.0:
+                continue
+            dx = pi.position.x - pj.position.x
+            dy = pi.position.y - pj.position.y
+            dz = pi.position.z - pj.position.z
+            r2 = dx * dx + dy * dy + dz * dz
+            gx, gy, gz = grad_W(dx, dy, dz, h)
+            rdotg = dx * gx + dy * gy + dz * gz       # < 0 inside the kernel
+            g_ij = (4.0 * kappa_i * kappa_j / ksum) * (-rdotg) / (rho_i * rho_j * (r2 + eta2))
+            diag[i] += pj.mass * g_ij
+            diag[j] += pi.mass * g_ij
+    d_max = 0.0
+    for i, p in enumerate(parcels):
+        cp_i = p.specific_heat
+        if cp_i > 0.0:
+            d_max = max(d_max, diag[i] / cp_i)
+    return d_max

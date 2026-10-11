@@ -20,6 +20,10 @@ code's own formula:
             0.25√(h/|a|) (Phantom eq. 73) with |a| the exact uniform g or the
             Newtonian self-gravity of the cloud; before: the cascade c_L for every
             EOS (5942× too small for a c_s = 1 m/s gas) and no force criterion.
+            Conduction criterion: the heat equation's maximum principle (no new
+            temperature extremum) holds at dt = cfl_timestep in a ~1 kg/m³
+            iron-carrier gas; before: κΔt/(ρc_p h²) = 4.04, T 154–453 K after one
+            step from 295–305 K, OverflowError at the third.
   D6 / A17  eos="ideal" with α_visc = 0 is time-reversible (Loschmidt echo returns
             the gas to its start to roundoff; before 0.22 R) and second order
             (self-convergence ratio ≈ 4; before 2.2).
@@ -212,6 +216,43 @@ class TestCFLTimestep(unittest.TestCase):
                 continuum_step(sc, 500.0)
             return [(p.position.x, p.position.y, p.velocity.z, p.sph_density) for p in sc.continuum_parcels()]
         self.assertEqual(run(False), run(True))
+
+    @staticmethod
+    def _iron_lattice(mass_scale, n=5, dx=0.01, seed=0):
+        rng = random.Random(seed)
+        ps = []
+        for ix in range(n):
+            for iy in range(n):
+                for iz in range(n):
+                    p = ContinuumParcel("iron", dx * (3 / (4 * math.pi)) ** (1 / 3),
+                                        temperature=300.0 + rng.uniform(-5.0, 5.0),
+                                        position=Vec3(ix * dx, iy * dx, iz * dx))
+                    p.mass *= mass_scale
+                    ps.append(p)
+        return ps
+
+    def test_conduction_obeys_the_maximum_principle_at_the_cfl_step(self):
+        # A ~1 kg/m³ gas with an iron carrier (κ, c_p of iron): conduction, not
+        # sound, sets the time scale. Under eos="isothermal" T changes only by
+        # conduction, and Fourier's law makes no new extremum (maximum principle
+        # of the heat equation): every T must stay inside the initial range.
+        ps = self._iron_lattice(1.0 / 7874.0)
+        sc = ContinuumScene(ps, gravity=ZERO, ground=False, eos="isothermal", sound_speed_m_s=1.0)
+        t_lo = min(p.temperature for p in ps)
+        t_hi = max(p.temperature for p in ps)
+        for step in range(20):
+            continuum_step(sc, cfl_timestep(sc))
+            temps = [p.temperature for p in ps]
+            self.assertGreaterEqual(min(temps), t_lo - 1e-9, step)
+            self.assertLessEqual(max(temps), t_hi + 1e-9, step)
+        spread = max(temps) - min(temps)
+        self.assertLess(spread, 0.5 * (t_hi - t_lo))          # and heat really flowed
+
+    def test_conduction_criterion_does_not_bind_for_condensed_matter(self):
+        sc = ContinuumScene(self._iron_lattice(1.0), gravity=Vec3(0.0, -G_STD, 0.0), ground=False)
+        dt_with = cfl_timestep(sc)
+        sc.heat_conduction = False
+        self.assertEqual(dt_with, cfl_timestep(sc))
 
 
 def _gas_ball(n=40, seed=2):
