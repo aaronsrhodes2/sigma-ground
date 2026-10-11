@@ -348,8 +348,10 @@ class TestTidalCorrectionOnPlanetaryOrbits(unittest.TestCase):
     def test_tidal_epsilon2_earth_sun_is_tiny(self):
         """Earth-Sun tidal deformation amplitude epsilon2 should be << 1.
 
-        epsilon2 = (k2/2) * (M_sun/M_earth) * (R_earth/r)^3
-        At 1 AU: epsilon2 ~ 1e-7 (Earth deforms by ~1 metre at equator).
+        epsilon2 = h2 * (M_sun/M_earth) * (R_earth/r)^3 with Earth's h2 = 0.6078
+        (IERS Conventions 2010). At 1 AU: epsilon2 ~ 1.6e-8, a solar body tide of
+        ~10 cm at the sub-solar point (0.46 of the lunar 22 cm).
+        (Before 2026-10-10 the code used k2/2 and this docstring said ~1e-7, ~1 m.)
         """
         R_EARTH  = 6.371e6
         K2_EARTH = 0.299
@@ -357,13 +359,14 @@ class TestTidalCorrectionOnPlanetaryOrbits(unittest.TestCase):
                               R_EARTH * 100, 0.0)
         earth = CelestialBody(M_EARTH, np.array([AU_M, 0., 0.]),
                               np.array([0., _V_EARTH, 0.]),
-                              R_EARTH, K2_EARTH)
+                              R_EARTH, K2_EARTH, love_number_h2=0.6078)
         system = NBodySystem([sun, earth], include_gr=False)
         td = system.compute_tidal_deformation(1, 0)
         print(f"\n  Earth tidal epsilon2 due to Sun: {td.epsilon2:.3e}")
         # Should be a small fraction -- Earth is not tidally deformed by the Sun
         self.assertLess(td.epsilon2, 1.0,
                         f"epsilon2={td.epsilon2:.3e} >= 1 (body would be torn apart)")
+        self.assertAlmostEqual(td.epsilon2 * R_EARTH, 0.0995, delta=0.002)
 
 
 # ===========================================================================

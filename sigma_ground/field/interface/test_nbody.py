@@ -284,16 +284,34 @@ class TestTidalDeformation(unittest.TestCase):
         field = sys.compute_tidal_deformation(0, 1)
         self.assertLess(field.evaluate_at_angle(math.pi / 2), 0)
 
-    def test_epsilon2_formula(self):
-        """ε₂ = (k₂/2)(M_c/M_b)(R/d)³ — Love (1911)."""
-        d, k2 = 1e11, 0.5
-        sys   = self._aligned_system(d=d, k2=k2)
-        field = sys.compute_tidal_deformation(0, 1)
-        expected = (k2 / 2) * (M_SUN / M_SUN) * (R_SUN / d) ** 3
-        self.assertAlmostEqual(
-            field.evaluate_at_angle(0), expected,
-            delta=expected * 0.01,
-        )
+    def test_homogeneous_fluid_surface_is_an_equipotential(self):
+        """A homogeneous fluid body (k₂ = 3/2) deforms until its surface is an equipotential.
+
+        Ground truth (first-order potential theory): lifting the surface by ε P₂ R raises −GM/r by (GM/R) ε P₂, the
+        displaced mass adds −(3/5)(GM/R) ε P₂, and the tide adds −(G M_c R²/d³) P₂. The P₂ part of the surface
+        potential vanishes only for ε = (5/2)(M_c/M_b)(R/d)³, i.e. h₂ = 5/2 = 1 + k₂. (Before 2026-10-10 the code
+        returned (k₂/2) q (R/d)³ = 0.30 × this; KNOWN_GAPS A36.)"""
+        d = 1e11
+        sys   = self._aligned_system(d=d, k2=1.5)
+        eps   = sys.compute_tidal_deformation(0, 1).evaluate_at_angle(0)
+        GM, R = _G * M_SUN, R_SUN
+        p2_residual = (GM / R) * eps - 0.6 * (GM / R) * eps - _G * M_SUN * R**2 / d**3
+        self.assertLess(abs(p2_residual), 1e-9 * _G * M_SUN * R**2 / d**3)
+        # the bulge's external potential, (3/5)(GM/R) ε at the surface, is the k₂ response the tidal_force layer uses
+        self.assertAlmostEqual(0.6 * (GM / R) * eps / (1.5 * _G * M_SUN * R**2 / d**3), 1.0, delta=1e-12)
+
+    def test_supplied_h2_sets_the_amplitude(self):
+        """An elastic body uses its own h₂: Earth (h₂ = 0.6078, IERS Conventions 2010) under the Moon has a body
+        tide of h₂ (M_moon/M_earth)(R/d)³ R ≈ 21.7 cm at the sub-lunar point."""
+        earth = CelestialBody(5.972e24, np.zeros(3), np.zeros(3), 6.371e6, 0.30, love_number_h2=0.6078)
+        moon = CelestialBody(7.342e22, np.array([3.844e8, 0.0, 0.0]), np.zeros(3), 1.7374e6, 0.0)
+        field = NBodySystem([earth, moon]).compute_tidal_deformation(0, 1)
+        self.assertAlmostEqual(field.epsilon2 * 6.371e6, 0.217, delta=0.002)
+
+    def test_rigid_body_does_not_deform(self):
+        rigid = CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.0)
+        other = CelestialBody(M_SUN, np.array([1e11, 0.0, 0.0]), np.zeros(3), R_SUN, 0.0)
+        self.assertEqual(NBodySystem([rigid, other]).compute_tidal_deformation(0, 1).epsilon2, 0.0)
 
     def test_max_deformation(self):
         sys   = self._aligned_system()
@@ -492,14 +510,31 @@ class TestJ2Quadrupole(unittest.TestCase):
 
 class TestRocheLimit(unittest.TestCase):
 
-    def test_roche_formula(self):
-        """d_R = R_p × (2 M_p/M_s)^(1/3) — Roche (1847)."""
-        b1 = CelestialBody(M_SUN,       np.zeros(3), np.zeros(3), R_SUN, 0.5)
-        b2 = CelestialBody(M_SUN * 0.1, np.array([1e11, 0, 0.0]), np.zeros(3), R_SUN * 0.5, 0.3)
-        sys = NBodySystem([b1, b2])
-        rl  = sys.roche_limit(0, 1)
-        expected = R_SUN * (2 * M_SUN / (M_SUN * 0.1)) ** (1.0 / 3.0)
-        self.assertAlmostEqual(rl, expected, delta=expected * 1e-10)
+    @staticmethod
+    def _earth_moon_by_density():
+        """Earth and Moon from mean density and radius (ρ 5,513 and 3,346 kg/m³; R 6,378 and 1,737 km)."""
+        R_E, R_M = 6378e3, 1737e3
+        M_E = 4.0 / 3.0 * math.pi * 5513.0 * R_E**3
+        M_M = 4.0 / 3.0 * math.pi * 3346.0 * R_M**3
+        return NBodySystem([CelestialBody(M_E, np.zeros(3), np.zeros(3), R_E, 0.3),
+                            CelestialBody(M_M, np.array([3.844e8, 0.0, 0.0]), np.zeros(3), R_M, 0.02)])
+
+    def test_earth_moon_rigid_and_fluid(self):
+        """Earth–Moon Roche limits from the literature: 9,492 km (rigid) and 18,381 km (fluid, Roche's 2.44)
+        (Wikipedia "Roche limit", table of selected examples, rev. 1120701647). Before 2026-10-10 the rigid value
+        was 34,850 km (R_p used with the mass ratio; KNOWN_GAPS A35) and there was no fluid option."""
+        sys = self._earth_moon_by_density()
+        self.assertAlmostEqual(sys.roche_limit(0, 1) / 9492e3, 1.0, delta=1e-3)
+        self.assertAlmostEqual(sys.roche_limit(0, 1, fluid=True) / 18381e3, 1.0, delta=1e-3)
+
+    def test_rigid_limit_balances_tide_and_self_gravity(self):
+        """Definition: at the rigid Roche distance the primary's tidal stretch across the satellite, 2 G M_p R_s/d³,
+        equals the satellite's surface gravity G M_s/R_s²."""
+        sys = self._earth_moon_by_density()
+        p, s_ = sys.bodies
+        d = sys.roche_limit(0, 1)
+        tide = 2 * _G * p.mass_kg * s_.radius_m / d**3
+        self.assertAlmostEqual(tide / (_G * s_.mass_kg / s_.radius_m**2), 1.0, delta=1e-12)
 
     def test_roche_zero_satellite_mass(self):
         b1 = CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.5)
@@ -1046,17 +1081,67 @@ class TestTidalForce(unittest.TestCase):
                                     sys_off.compute_accelerations(),
                                     atol=0.0)
 
-    def test_tidal_on_earth_k2_changes_moon_accel(self):
-        """With k₂_Earth = 0.30, Moon should feel an extra force from Earth's bulge."""
-        bodies = self._earth_moon(k2_earth=0.30)
-        sys_on  = NBodySystem(bodies, toggles=PhysicsToggles(tidal_force=True))
-        sys_off = NBodySystem(bodies, toggles=PhysicsToggles())
-        a_on  = sys_on.compute_accelerations()
-        a_off = sys_off.compute_accelerations()
-        delta_moon = a_on[1] - a_off[1]
-        self.assertGreater(float(np.linalg.norm(delta_moon)), 0.0,
-                            "tidal_force should change Moon's acceleration "
-                            "when Earth has a non-zero Love number")
+    def test_bulge_pulls_the_perturber_by_the_love_number_law(self):
+        """The Earth's tidal bulge pulls the Moon toward the Earth by 3 k₂ G M_moon R⁵/d⁷, and the Earth recoils.
+
+        Ground truth: by definition of k₂ (Love 1911) the deformed body adds the external potential
+        −k₂ (G M_j R⁵/d³) P₂/r³; its gradient at the perturber is 3 k₂ G M_j R⁵/d⁷, attractive. (Before 2026-10-10
+        this test asserted only |Δa| > 0, while the layer pushed the Moon AWAY at half this size and left the Earth
+        untouched; KNOWN_GAPS A34.)"""
+        k2 = 0.30
+        bodies = self._earth_moon(k2_earth=k2)
+        delta = (NBodySystem(bodies, toggles=PhysicsToggles(tidal_force=True)).compute_accelerations()
+                 - NBodySystem(bodies, toggles=PhysicsToggles()).compute_accelerations())
+        d = self.EARTH_MOON_DIST
+        expected_moon = -3.0 * k2 * _G * self.M_MOON * self.R_EARTH**5 / d**7      # along +x (Moon at +x)
+        # Δa is ~1e-11 of the Newtonian pull, so round-off in the difference limits the comparison to ~1e-5
+        self.assertAlmostEqual(delta[1][0] / expected_moon, 1.0, delta=1e-4)
+        self.assertAlmostEqual(delta[0][0] / (-expected_moon * self.M_MOON / self.M_EARTH), 1.0, delta=1e-4)
+        self.assertEqual(float(np.abs(delta[:, 1:]).max()), 0.0)
+
+    def test_momentum_is_conserved_with_three_bodies(self):
+        """Newton III: sum of m a = 0 with the tidal layer on. A star with k₂ = 0.5 is deformed by a close companion
+        (R/d = 0.23, so the tide is 1e-3 of gravity and round-off does not hide it) and a third body also feels the
+        bulge. Before the fix the residual was the full bulge force on the perturber."""
+        bodies = [CelestialBody(2.0e30, np.zeros(3), np.zeros(3), 7.0e8, 0.5),
+                  CelestialBody(1.0e30, np.array([3.0e9, 0.0, 0.0]), np.zeros(3), 1.0, 0.0),
+                  CelestialBody(1.0e29, np.array([0.0, 4.0e9, 1.0e8]), np.zeros(3), 1.0, 0.0)]
+        delta = (NBodySystem(bodies, toggles=PhysicsToggles(tidal_force=True)).compute_accelerations()
+                 - NBodySystem(bodies, toggles=PhysicsToggles()).compute_accelerations())
+        net = sum(b.mass_kg * delta[i] for i, b in enumerate(bodies))
+        largest = max(b.mass_kg * float(np.linalg.norm(delta[i])) for i, b in enumerate(bodies))
+        self.assertGreater(largest, 0.0)
+        self.assertLess(float(np.linalg.norm(net)), 1e-9 * largest)
+
+    def test_apsidal_motion_matches_cowling_sterne(self):
+        """Tidal apsidal motion of a binary: Δω per orbit = 2π · 15 (k₂/2)(M₁/M₀)(R₀/a)⁵ f(e),
+        f(e) = (1 + 3e²/2 + e⁴/8)/(1 − e²)⁵ (Cowling 1938; Sterne 1939; k₂/2 is the apsidal-motion constant).
+        Measured as the orbit-averaged Laplace–Runge–Lenz angle minus a Newtonian run. Before the fix:
+        −0.333 × the closed form (retrograde)."""
+        M0, M1, R0, k2, e, a = 2.0e30, 1.0e30, 5.0e8, 0.5, 0.3, 1.0e10
+        M = M0 + M1; mu = _G * M
+        rp = a * (1 - e); vp = math.sqrt(mu * (1 + e) / rp)
+        x = np.array([rp, 0.0, 0.0]); v = np.array([0.0, vp, 0.0])
+        period = 2 * math.pi * math.sqrt(a**3 / mu); spo = 1000
+
+        def lrl_angles(tidal):
+            s = NBodySystem([CelestialBody(M0, -M1 / M * x, -M1 / M * v, R0, k2),
+                             CelestialBody(M1, M0 / M * x, M0 / M * v, 1.0, 0.0)],
+                            toggles=PhysicsToggles(tidal_force=tidal))
+            out = []
+            for _ in range(3 * spo):
+                s.forest_ruth_step(period / spo)
+                r = s.bodies[1].position_m - s.bodies[0].position_m
+                w = s.bodies[1].velocity_m_s - s.bodies[0].velocity_m_s
+                A = np.cross(w, np.cross(r, w)) - mu * r / np.linalg.norm(r)
+                out.append(math.atan2(A[1], A[0]))
+            return np.unwrap(np.array(out))
+
+        dw = lrl_angles(True) - lrl_angles(False)
+        advance = (dw[-spo:].mean() - dw[:spo].mean()) / 2
+        f_e = (1 + 1.5 * e**2 + e**4 / 8) / (1 - e**2) ** 5
+        expected = 2 * math.pi * 15 * (k2 / 2) * (M1 / M0) * (R0 / a) ** 5 * f_e
+        self.assertAlmostEqual(advance / expected, 1.0, delta=0.01)
 
 
 # ═══════════════════════════════════════════════════════════════════════════

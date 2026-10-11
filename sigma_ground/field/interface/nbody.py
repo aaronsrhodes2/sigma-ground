@@ -77,6 +77,10 @@ _FR_D     = [_FR_THETA,                      # d₁ = d₃
 _IMPLICIT_KICK_RTOL     = 4.0 * float(np.finfo(np.float64).eps)
 _IMPLICIT_KICK_MAX_ITER = 25
 
+# Fluid-satellite Roche limit coefficient, d ≈ 2.44 R_p (ρ_p/ρ_s)^(1/3): Roche (1849), Mémoires de l'Académie des
+# sciences de Montpellier 1, p. 258. (A refined Roche-ellipsoid solution gives 2.423 for a point-mass primary.)
+_ROCHE_FLUID_COEFF = 2.44
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # § 0. PHYSICS TOGGLES — ablation filters for the force budget
@@ -112,7 +116,7 @@ class PhysicsToggles:
     j2_zonal:    bool = False   # rotational oblateness quadrupole (Vallado §9.4 -- BORROWED)
     j3_zonal:    bool = False   # zonal J₃ (asymmetric, e.g. Earth's pear shape -- BORROWED)
     j4_zonal:    bool = False   # zonal J₄ (gas giants -- BORROWED)
-    tidal_force: bool = False   # mutual tidal bulge as effective quadrupole (OURS, not borrowed)
+    tidal_force: bool = False   # equilibrium tidal bulge: Love-number k₂ induced quadrupole + reaction (Love 1911)
     gw_damping:  bool = False   # GW energy loss (Peters 1964, binaries only -- BORROWED)
     # Future toggles to be added when their physics is implemented:
     #   yarkovsky:        bool = False    # NEA thermal recoil
@@ -132,7 +136,7 @@ class TidalDeformationField:
     body_radius_m : float
         Undeformed body radius R₀ (meters).
     epsilon2 : float
-        Tidal deformation amplitude ε₂ = (k₂/2)(Mc/Mb)(R/d)³.
+        Tidal deformation amplitude ε₂ = h₂ (Mc/Mb)(R/d)³ (h₂: displacement Love number).
     tidal_direction : NDArray
         Unit vector pointing toward primary tidal source (shape (3,)).
     """
@@ -175,7 +179,9 @@ class CelestialBody:
     position_m      : Cartesian position (m), shape (3,)
     velocity_m_s    : Cartesian velocity (m/s), shape (3,)
     radius_m        : mean radius (m)
-    love_number_k2  : dimensionless tidal Love number (0.3-0.5 stars, ~0 BHs)
+    love_number_k2  : potential Love number k₂ (dimensionless): homogeneous fluid 3/2,
+                      Earth ≈ 0.30 (IERS 2010), main-sequence stars ~0.01 (twice the
+                      apsidal-motion constant), ~0 for black holes. 0 = no tidal response.
     sigma_field     : σ value (dimensionless); 0 = standard Newtonian
     area_m2         : cross-sectional area (m²) for solar radiation pressure;
                       0 = SRP disabled for this body (default, safe for planets)
@@ -198,6 +204,10 @@ class CelestialBody:
                       WRONG for Uranus (97° obliquity), Pluto (122°), and Triton
                       (retrograde) — callers should supply real IAU pole vectors.
                       Auto-normalized in __post_init__ if not unit length.
+    love_number_h2  : displacement Love number h₂ (surface amplitude of the tide), used by
+                      compute_tidal_deformation. None (default) = hydrostatic value 1 + k₂,
+                      exact for fluid bodies; supply it for elastic ones (Earth 0.6078,
+                      IERS Conventions 2010).
     """
 
     mass_kg:        float
@@ -212,6 +222,7 @@ class CelestialBody:
     j3:             float = 0.0   # zonal J₃ coefficient (north-south asymmetry)
     j4:             float = 0.0   # zonal J₄ coefficient (next-order oblateness)
     pole_axis_unit: NDArray[np.float64] | None = None  # default → +z axis in __post_init__
+    love_number_h2: float | None = None   # displacement Love number; None → 1 + k₂ (hydrostatic)
 
     def __post_init__(self) -> None:
         if self.position_m.shape != (3,):
@@ -376,8 +387,9 @@ class NBodySystem:
           - J₂ zonal quadrupole  (toggles.j2_zonal)            [BORROWED]
           - J₃ zonal             (toggles.j3_zonal)            [BORROWED]
           - J₄ zonal             (toggles.j4_zonal)            [BORROWED]
-          - Tidal mutual force   (toggles.tidal_force)         (OURS — built from
-                                                                compute_tidal_deformation)
+          - Tidal mutual force   (toggles.tidal_force)         equilibrium tide from k₂,
+                                                                with the reaction on the
+                                                                deformed body
           - Solar radiation pres (toggles.srp + solar_luminosity_W > 0)
 
         Sigma-mass scaling (M_eff = M·e^σ) is applied in body.gm_m3_s2 via
@@ -656,40 +668,32 @@ class NBodySystem:
                     n_factor = 4.0 * s * (3.0 - 7.0 * s * s)
                     acc[i] += coef * (r_factor * (r_vec / r) + n_factor * n_hat)
 
-        # ── Mutual tidal force (OURS — built from compute_tidal_deformation) ──
+        # ── Mutual tidal force (equilibrium tide, Love-number response) ──────
         if t.tidal_force:
-            # For each body i with non-zero Love number, it is tidally
-            # deformed by every other body j. The deformation produces an
-            # *effective* J₂-like quadrupole on body i along the i-j axis
-            # with amplitude ε₂ = (k₂/2)(M_j/M_i)(R_i/d_ij)³.
-            #
-            # The resulting acceleration on a third body k (and the back-
-            # reaction on j) is computed using the same J₂ vector formula
-            # we already use above, with J₂_eff = ε₂ and pole_axis = unit
-            # vector from i to j.
-            #
-            # NOT BORROWED: this uses our existing TidalDeformationField
-            # geometry + our J₂ formula. The math is local to this project.
-            #
-            # Caveat: the bulge is treated as static (rigid response, no
-            # dissipation lag). Adding the lag is a separate (and σ-derivable)
-            # extension.
+            # Each body i with a non-zero Love number k₂ is deformed by its dominant perturber j (largest M_j/d³).
+            # By the definition of k₂ (Love 1911) the deformation adds the external potential
+            #     Φ_ind(r) = −A P₂(r̂·n̂)/r³,   A = k₂ G M_j R_i⁵/d³,   n̂ = (x_j − x_i)/d,
+            # a prolate bulge pointing at j. Its pull on every other body k is a_k = −∇Φ_ind:
+            #     a_k = −(3A/(2r⁵)) [(5(r̂·n̂)² − 1) r − 2 (r·n̂) n̂],   r = x_k − x_i,
+            # which on the perturber is −3 k₂ G M_j R⁵/d⁷ toward i. The deformed body feels the equal and
+            # opposite reaction −(m_k/M_i) a_k (Newton III), so momentum is conserved. On a binary this gives
+            # the classical tidal apsidal motion, 15 (k₂/2)(M_j/M_i)(R/a)⁵ f(e) per radian of mean motion
+            # (Cowling 1938; Sterne 1939). The bulge is static (no dissipation lag) and only the dominant
+            # perturber raises it.
+            # FIXED 2026-10-10 (A34): the code used J2_eff = +(k₂/2)(M_j/M_i)(R/d)³ in the oblate J₂ formula
+            # (an oblate bulge: wrong sign and half the size on the perturber) and applied no reaction.
             for i in range(n):
                 bi = self.bodies[i]
                 if bi.love_number_k2 == 0.0 or bi.radius_m == 0.0:
                     continue
-                pos_i  = bi.position_m
-                R_i_sq = bi.radius_m * bi.radius_m
-                M_i    = bi.mass_kg
+                pos_i = bi.position_m
+                M_i   = bi.mass_kg
                 if M_i == 0.0:
                     continue
-                gm_i = bi.gm_m3_s2
 
-                # Find the dominant perturber of body i (maximum tidal magnitude
-                # ε₂ ∝ M_j / d_ij³). For the SS this is overwhelmingly the
-                # Sun for planets and the parent planet for moons.
+                # Dominant perturber of body i: maximum M_j/d³ (the Sun for planets, the parent for moons).
                 best_j = -1
-                best_eps2 = 0.0
+                best_metric = 0.0
                 best_d2 = None
                 for j in range(n):
                     if j == i:
@@ -699,23 +703,19 @@ class NBodySystem:
                     d_sq  = float(np.dot(d_vec, d_vec))
                     if d_sq == 0.0:
                         continue
-                    d3    = d_sq * math.sqrt(d_sq)
-                    eps2  = (bi.love_number_k2 / 2.0) * (bj.mass_kg / M_i) * (R_i_sq * bi.radius_m) / d3
-                    if eps2 > best_eps2:
-                        best_eps2 = eps2
-                        best_j    = j
-                        best_d2   = d_sq
-                if best_j < 0 or best_eps2 == 0.0:
+                    metric = bj.mass_kg / (d_sq * math.sqrt(d_sq))
+                    if metric > best_metric:
+                        best_metric = metric
+                        best_j      = j
+                        best_d2     = d_sq
+                if best_j < 0:
                     continue
 
-                # Effective J₂ along the i->(perturber) axis; apply the same
-                # vector form used for permanent J₂ above to body i's effect
-                # on every body k (including back-reaction on the perturber).
                 bj    = self.bodies[best_j]
                 d_vec = bj.position_m - pos_i
-                d     = math.sqrt(best_d2)  # |d_vec|
+                d     = math.sqrt(best_d2)
                 n_hat_tidal = d_vec / d
-                j2_eff = best_eps2
+                amp   = bi.love_number_k2 * bj.gm_m3_s2 * bi.radius_m ** 5 / (best_d2 * d)   # A, m⁵/s²
 
                 for k in range(n):
                     if k == i:
@@ -724,12 +724,13 @@ class NBodySystem:
                     r_sq  = float(np.dot(r_vec, r_vec)) + self.softening_m ** 2
                     if r_sq == 0.0:
                         continue
-                    r        = math.sqrt(r_sq)
-                    r_dot_n  = float(np.dot(r_vec, n_hat_tidal))
-                    cos2     = (r_dot_n * r_dot_n) / r_sq
-                    coef     = 1.5 * gm_i * j2_eff * R_i_sq / (r_sq * r_sq * r)
-                    acc[k] += coef * ((5.0 * cos2 - 1.0) * r_vec
-                                      - 2.0 * r_dot_n * n_hat_tidal)
+                    r       = math.sqrt(r_sq)
+                    r_dot_n = float(np.dot(r_vec, n_hat_tidal))
+                    cos2    = (r_dot_n * r_dot_n) / r_sq
+                    a_k     = (-1.5 * amp / (r_sq * r_sq * r)) * ((5.0 * cos2 - 1.0) * r_vec
+                                                                  - 2.0 * r_dot_n * n_hat_tidal)
+                    acc[k] += a_k
+                    acc[i] -= (self.bodies[k].mass_kg / M_i) * a_k
 
         # ── Solar radiation pressure ──────────────────────────────────────
         # Gated by both toggles.srp AND solar_luminosity_W > 0 (need a value
@@ -1261,9 +1262,17 @@ class NBodySystem:
     def compute_tidal_deformation(
         self, body_idx: int, perturber_idx: int,
     ) -> TidalDeformationField:
-        """Tidal deformation of body_idx due to perturber_idx.
+        """Equilibrium tidal deformation of body_idx raised by perturber_idx.
 
-        ε₂ = (k₂/2)(M_c/M_b)(R_b/d)³  —  derived from Love (1911).
+        Surface shape r(θ) = R[1 + ε₂ P₂(cos θ)], θ measured from the body→perturber axis, with
+            ε₂ = h₂ (M_c/M_b)(R_b/d)³,
+        the definition of the displacement Love number h₂ (Love 1911). h₂ is body.love_number_h2 when given;
+        otherwise the hydrostatic value h₂ = 1 + k₂, exact for a fluid body whose surface is an equipotential
+        (Munk & MacDonald 1960): a homogeneous fluid body has k₂ = 3/2, h₂ = 5/2. For elastic bodies supply h₂
+        (Earth 0.6078, IERS Conventions 2010; 1 + k₂ = 1.30 would overstate the Earth's body tide 2.1×). A body with
+        k₂ = 0 and no h₂ is treated as rigid (ε₂ = 0), as in the tidal_force layer.
+
+        FIXED 2026-10-10 (A36): ε₂ was (k₂/2)(M_c/M_b)(R/d)³, 0.30× the equilibrium amplitude of a homogeneous body.
         """
         body      = self.bodies[body_idx]
         perturber = self.bodies[perturber_idx]
@@ -1273,23 +1282,38 @@ class NBodySystem:
             raise ValueError("Bodies are at the same position")
         tidal_dir = r_ij / d
         ratio     = perturber.mass_kg / body.mass_kg if body.mass_kg > 0 else 0.0
-        eps2      = (body.love_number_k2 / 2.0) * ratio * (body.radius_m / d) ** 3
+        if body.love_number_h2 is not None:
+            h2 = body.love_number_h2
+        else:
+            h2 = 1.0 + body.love_number_k2 if body.love_number_k2 != 0.0 else 0.0
+        eps2      = h2 * ratio * (body.radius_m / d) ** 3
         return TidalDeformationField(
             body_radius_m=body.radius_m,
             epsilon2=eps2,
             tidal_direction=tidal_dir,
         )
 
-    def roche_limit(self, primary_idx: int, satellite_idx: int) -> float:
-        """Roche limit d = R_p × (2 M_p/M_s)^(1/3) (rigid satellite).
+    def roche_limit(self, primary_idx: int, satellite_idx: int, fluid: bool = False) -> float:
+        """Roche limit (m) of satellite_idx about primary_idx.
 
-        Exact formula for a rigid satellite (Roche 1847).
+        Rigid spherical satellite: the distance at which the primary's tidal stretch across the satellite,
+        2 G M_p R_s/d³, equals the satellite's surface gravity G M_s/R_s²:
+            d = R_s (2 M_p/M_s)^(1/3) = R_p (2 ρ_p/ρ_s)^(1/3).
+        Fluid satellite (fluid=True), Roche's (1849, p. 258) approximate solution:
+            d ≈ 2.44 R_p (ρ_p/ρ_s)^(1/3) = 2.44 R_s (M_p/M_s)^(1/3).
+        Earth–Moon (ρ 5,513 and 3,346 kg/m³, R_E 6,378 km): 9,492 km rigid, 18,381 km fluid.
+
+        FIXED 2026-10-10 (A35): the code returned R_p (2 M_p/M_s)^(1/3), mixing the two forms (Earth–Moon 3.67× too
+        large).
         """
         primary   = self.bodies[primary_idx]
         satellite = self.bodies[satellite_idx]
         if satellite.mass_kg == 0:
             return float("inf")
-        return primary.radius_m * (2.0 * primary.mass_kg / satellite.mass_kg) ** (1.0 / 3.0)
+        ratio = primary.mass_kg / satellite.mass_kg
+        if fluid:
+            return _ROCHE_FLUID_COEFF * satellite.radius_m * ratio ** (1.0 / 3.0)
+        return satellite.radius_m * (2.0 * ratio) ** (1.0 / 3.0)
 
     # ── GW energy loss ───────────────────────────────────────────────────
 
