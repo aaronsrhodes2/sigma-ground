@@ -15,15 +15,27 @@ code's own formula:
             neighbours of unequal density (before: 25 % imbalance), and the
             series-resistance law at an iron|copper contact (resistances of the
             two half-gaps add; before: the arithmetic mean, 1.61× the series flow).
+  D6 / A16  cfl_timestep uses the EOS signal speed (isothermal c_s; ideal-gas
+            sound speed, N₂ at 300 K = 353.2 m/s measured) and the force criterion
+            0.25√(h/|a|) (Phantom eq. 73) with |a| the exact uniform g or the
+            Newtonian self-gravity of the cloud; before: the cascade c_L for every
+            EOS (5942× too small for a c_s = 1 m/s gas) and no force criterion.
+  D6 / A17  eos="ideal" with α_visc = 0 is time-reversible (Loschmidt echo returns
+            the gas to its start to roundoff; before 0.22 R) and second order
+            (self-convergence ratio ≈ 4; before 2.2).
 """
 import math
 import unittest
 
 from sigma_ground.dynamics.vec import Vec3
+import random
+
 from sigma_ground.dynamics.continuum import (
-    ContinuumParcel, ContinuumScene, continuum_step,
+    ContinuumParcel, ContinuumScene, continuum_step, cfl_timestep,
     _heat_conduction, _sph_density_sum, material_properties,
 )
+from sigma_ground.dynamics.seeding import seed_rotating_cloud, to_continuum, G_CODATA
+from sigma_ground.field.constants import R_GAS
 from sigma_ground.dynamics.fluid.kernel import smoothing_length
 
 G_STD = 9.80665          # standard gravity (exact by definition, CGPM 1901)
@@ -138,6 +150,123 @@ class TestConductionConservesHeat(unittest.TestCase):
         g_fe, g_cu, g_fecu = flow("iron", "iron"), flow("copper", "copper"), flow("iron", "copper")
         series = 2.0 * g_fe * g_cu / (g_fe + g_cu)
         self.assertAlmostEqual(g_fecu / series, 1.0, delta=2e-3)
+
+
+# ── D6: timestep and the ideal-gas temperature lag ───────────────────────
+ZERO = Vec3(0.0, 0.0, 0.0)
+M_N2, GAMMA_N2 = 0.028014, 1.4        # N₂ molar mass (kg/mol), diatomic γ
+
+
+class TestCFLTimestep(unittest.TestCase):
+    def _lone(self, gravity=ZERO, **kw):
+        p = ContinuumParcel("iron", 0.01, temperature=300.0)
+        return ContinuumScene([p], gravity=gravity, ground=False, **kw)
+
+    def test_isothermal_signal_speed_is_c_s(self):
+        sc = self._lone(eos="isothermal", sound_speed_m_s=1.0)   # P = ρ c_s²: signal speed c_s
+        self.assertAlmostEqual(cfl_timestep(sc) / (0.3 * sc.h / 1.0), 1.0, delta=1e-12)
+
+    def test_ideal_signal_speed_is_the_gas_sound_speed(self):
+        sc = self._lone(eos="ideal", ideal_molar_mass_kg_mol=M_N2, ideal_gamma=GAMMA_N2)
+        c_implied = 0.3 * sc.h / cfl_timestep(sc)
+        # speed of sound in N₂ at 300 K, 1 bar: 353.2 m/s (knowledgedoor elements handbook)
+        self.assertAlmostEqual(c_implied / 353.2, 1.0, delta=0.005)
+
+    def test_force_criterion_under_strong_uniform_gravity(self):
+        g = 1.0e4                                             # a lone parcel falls at exactly g
+        sc = self._lone(gravity=Vec3(0.0, -g, 0.0), eos="isothermal", sound_speed_m_s=1.0)
+        self.assertAlmostEqual(cfl_timestep(sc) / (0.25 * math.sqrt(sc.h / g)), 1.0, delta=1e-12)
+
+    def _cloud(self):
+        M, R, n = 1.0e12, 5000.0, 16
+        bodies = seed_rotating_cloud(n, cloud_mass_kg=M, cloud_radius_m=R, omega_rad_s=0.0,
+                                     particle_density_kg_m3=920.0, jitter_frac=0.0, seed=3)
+        h = 1.5 * (4 / 3 * math.pi * R ** 3 / n) ** (1 / 3)
+        return to_continuum(bodies, material_key="water_ice", G=G_CODATA, gravity_softening_m=0.02 * R,
+                            eos="isothermal", sound_speed_m_s=1e-9, smoothing_h=h)
+
+    def test_force_criterion_from_self_gravity_before_the_first_step(self):
+        sc = self._cloud()
+        ps = sc.continuum_parcels()
+        eps2 = sc.gravity_softening_m ** 2
+        a_max = 0.0                                           # Plummer-softened Newton, written here
+        for i, pi_ in enumerate(ps):
+            ax = ay = az = 0.0
+            for j, pj in enumerate(ps):
+                if i != j:
+                    dx = pj.position.x - pi_.position.x
+                    dy = pj.position.y - pi_.position.y
+                    dz = pj.position.z - pi_.position.z
+                    k = G_CODATA * pj.mass / (dx * dx + dy * dy + dz * dz + eps2) ** 1.5
+                    ax, ay, az = ax + k * dx, ay + k * dy, az + k * dz
+            a_max = max(a_max, math.sqrt(ax * ax + ay * ay + az * az))
+        self.assertAlmostEqual(cfl_timestep(sc) / (0.25 * math.sqrt(sc.h / a_max)), 1.0, delta=1e-6)
+
+    def test_cfl_timestep_leaves_the_run_unchanged(self):
+        def run(probe):
+            sc = self._cloud()
+            sc.sound_speed_m_s = 0.03
+            if probe:
+                cfl_timestep(sc)
+            for _ in range(5):
+                continuum_step(sc, 500.0)
+            return [(p.position.x, p.position.y, p.velocity.z, p.sph_density) for p in sc.continuum_parcels()]
+        self.assertEqual(run(False), run(True))
+
+
+def _gas_ball(n=40, seed=2):
+    rng = random.Random(seed)
+    ps = []
+    while len(ps) < n:
+        x, y, z = [rng.uniform(-1, 1) for _ in range(3)]
+        if x * x + y * y + z * z <= 1:
+            ps.append(ContinuumParcel("water_ice", 0.05, temperature=300.0, position=Vec3(x, y, z), velocity=ZERO))
+    h = 1.5 * (4 / 3 * math.pi / n) ** (1 / 3)
+    sc = ContinuumScene(ps, gravity=ZERO, ground=False, smoothing_h=h, eos="ideal",
+                        ideal_molar_mass_kg_mol=M_N2, ideal_gamma=GAMMA_N2)
+    sc.heat_conduction = False
+    return sc, ps
+
+
+class TestIdealGasTimeCentred(unittest.TestCase):
+    T_END_STEPS_AT_CFL = 40                     # 40 steps of 0.15 h/c_s
+
+    def _t_end(self):
+        sc, _ = _gas_ball()
+        return self.T_END_STEPS_AT_CFL * 0.15 * sc.h / math.sqrt(GAMMA_N2 * R_GAS * 300.0 / M_N2)
+
+    def test_loschmidt_echo_returns_to_the_start(self):
+        sc, ps = _gas_ball()
+        x0 = [(p.position.x, p.position.y, p.position.z, p.temperature) for p in ps]
+        steps = self.T_END_STEPS_AT_CFL
+        dt = self._t_end() / steps
+        for _ in range(steps):
+            continuum_step(sc, dt, alpha_visc=0.0)
+        moved = max(abs(p.position.x - a[0]) for p, a in zip(ps, x0))
+        self.assertGreater(moved, 0.05)                        # the gas really expanded
+        for p in ps:
+            p.velocity = Vec3(-p.velocity.x, -p.velocity.y, -p.velocity.z)
+        for _ in range(steps):
+            continuum_step(sc, dt, alpha_visc=0.0)
+        rms = math.sqrt(sum((p.position.x - a[0]) ** 2 + (p.position.y - a[1]) ** 2 + (p.position.z - a[2]) ** 2
+                            for p, a in zip(ps, x0)) / len(ps))
+        self.assertLess(rms, 1e-10)                            # R = 1 m
+        self.assertLess(max(abs(p.temperature - a[3]) for p, a in zip(ps, x0)), 1e-8)
+
+    def test_second_order_in_dt(self):
+        def end_state(steps):
+            sc, ps = _gas_ball()
+            dt = self._t_end() / steps
+            for _ in range(steps):
+                continuum_step(sc, dt, alpha_visc=0.0)
+            return [(p.position.x, p.position.y, p.position.z) for p in ps]
+
+        def rms(a, b):
+            return math.sqrt(sum((u[k] - v[k]) ** 2 for u, v in zip(a, b) for k in range(3)) / len(a))
+
+        s1, s2, s4 = end_state(20), end_state(40), end_state(80)
+        ratio = rms(s1, s2) / rms(s2, s4)                      # 2^p for a p-th order scheme
+        self.assertTrue(3.5 <= ratio <= 5.0, ratio)
 
 
 if __name__ == "__main__":
