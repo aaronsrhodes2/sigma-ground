@@ -250,9 +250,10 @@ function Layout.grid(frame, items, opts)
 end
 
 --- A pyramid / pile: bottom layer of as many as fit across `base`, each layer above one fewer, centred on the join.
---- Each item rests on the highest of the (up to two) items of the layer below that it overlaps, so a mixed pile does not
---- float. opts.max_h widens the base until the pile is no taller than that. Returns poses with z = height above the floor
---- of the pile's own base.
+--- Each item rests on the highest of the (up to two) items of the layer below that it overlaps. Items of unlike widths (a mixed
+--- pile) go widest first at the bottom, the base packed edge to edge, and every upper item stands centred on a support of its own,
+--- so no layer is wider than the one below and nothing hangs over a gap. opts.max_h widens the base until the pile is no taller
+--- than that. Returns poses (keyed by the caller's own item indices) with z = height above the floor of the pile's own base.
 function Layout.stack(frame, items, opts)
   opts = opts or {}
   local n = #items

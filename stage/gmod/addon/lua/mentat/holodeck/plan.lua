@@ -20,6 +20,15 @@
 --         unknown_words = { "dragon" }  (sanitised; the only place a player's own word appears: never in say or notes),
 --         fixed = true when `say` is a constant sentence }
 --
+-- Request fields the planner reads besides the parser's core ones, when the parser sends them:
+--   req.facing_away  'me' | 'wall' | '' | <a kind>: the group turns its back on that (a kind that stands near: each one looks along
+--                    the line from it; one that does not stand: the group turns from the player and the reply says so)
+--   req.side         'other' | 'opposite' | 'left' | 'right': for a move beside a target, which side of it ('other' is the side
+--                    facing away from the player and not the one the thing stands at; left/right are the player's own)
+--   req.every_mode   'per' | 'total': with req.every = 'corner', whether the count is for each corner or in all (absent: a count that
+--                    is a multiple of four is the total)
+--   req.extra_scenes the scenes named beside req.scene (one room is built at a time; the reply names the one left for next)
+--
 -- It never asks a question: whatever is unclear resolves to the most sensible reading, and the reading is reported.
 local Layout = include("mentat/holodeck/layout.lua")
 
@@ -1593,18 +1602,13 @@ function Plan:room(entries, rng, ctx, opts)
     b.on_left = #leftover
     return out
   end
-  b.build = function(frame)
-    local out = raw_build(frame)
-    repair(out, frame)
-    if opts.mirror then mirror(out, frame) end
-    return out
-  end
+local function full_build(frame)    local out = raw_build(frame)    repair(out, frame)    if opts.mirror then mirror(out, frame) end    return out  end
   -- things in the corners must not stand in the cluster: the room grows (the cluster stays as it is) until they do not. The cluster
   -- is measured alone, so a crowded middle (several tables) used to reach the corner plants whatever the room's size.
   if not opts.room and #list("corner") > 0 and #probe > 0 then
     for _ = 1, 24 do
       local out = {}
-      for _, p in ipairs(b.build({ x = 0, y = 0, theta = 0 })) do out[#out + 1] = p end
+      for _, p in ipairs(full_build({ x = 0, y = 0, theta = 0 })) do out[#out + 1] = p end
       local rects, clash = {}, false
       for i, p in ipairs(out) do rects[i] = rect(p.x, p.y, p.w, p.d, p.theta) end
       for i, p in ipairs(out) do
@@ -1619,6 +1623,27 @@ function Plan:room(entries, rng, ctx, opts)
       W, D = W + 16, D + 16
       b.size = { w = W, d = D }
     end
+  end
+  -- The room is the same wherever it stands: built once in a neutral frame, then moved rigidly to each frame a search asks for (a
+  -- search builds the same room hundreds of times, and laying out its stations, walls and corners is most of what a candidate costs).
+  -- References between its pieces (a seat tucked into its table, a load on its surface) follow the copies.
+  local neutral
+  b.build = function(frame)
+    if not neutral then neutral = full_build({ x = 0, y = 0, theta = 0 }) end
+    local out, copy = {}, {}
+    for i, p in ipairs(neutral) do
+      local q = {}
+      for k, v in pairs(p) do q[k] = v end
+      local pose = to_world(frame, p.x, -p.y, 0)
+      q.x, q.y, q.theta = pose.x, pose.y, Layout.wrap(frame.theta + p.theta)
+      copy[p], out[i] = q, q
+    end
+    for _, q in ipairs(out) do
+      if q.tuck and copy[q.tuck] then q.tuck = copy[q.tuck] end
+      if q.on_placement and copy[q.on_placement] then q.on_placement = copy[q.on_placement] end
+      if q.bedside and copy[q.bedside] then q.bedside = copy[q.bedside] end
+    end
+    return out
   end
   b.radius = sqrt((W / 2) ^ 2 + (D / 2) ^ 2)
   return b
@@ -2393,7 +2418,11 @@ function Plan:add(req, ctx)
       -- stand behind: only an arc in front of it fits, and that is tried before the sides.
       local arcs = {}
       if rel == "around" and #rel_insts > 1 then
-        for _, a in ipairs({ 300, 240, 180, 140 }) do arcs[#arcs + 1] = mk({ ring = true, arc = a }) end
+        for _, a in ipairs({ 300, 240, 180, 140 }) do
+          local ab = mk({ ring = true, arc = a })
+          ab.radius = 0                                  -- (the sweep of frames is laid out for the usual builders, not for these)
+          arcs[#arcs + 1] = ab
+        end
       end
       local ring_wanted = rel == "around" and (first.dropped > 0 or req.shape == "circle")
       if ring_wanted then builders[#builders + 1] = mk({ ring = true }) end
