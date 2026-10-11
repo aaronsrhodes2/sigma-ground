@@ -60,6 +60,9 @@ AU_KM = 1.495978707e8
 # Parent body for each tracked body. For moons this is the planet they orbit;
 # for planets and dwarf-planets it's the Sun. Used to build the RTN frame
 # (Radial / along-Track / Normal) for position-error decomposition.
+# add_rtn_components takes the parent from the DE440 fixture's own
+# gravitational_anchor (_parents_from_fixture); this table is only the
+# fallback for bodies the fixture does not anchor.
 _PARENT_OF: dict[str, str] = {
     "Mercury":   "Sun",
     "Venus":     "Sun",
@@ -124,17 +127,58 @@ _ORBITAL: dict[str, tuple[float, float, float]] = {
 
 # -- RTN decomposition ----------------------------------------------------
 
-def _build_truth_state_lookup(de440: dict) -> dict[tuple[int, str], tuple[np.ndarray, np.ndarray]]:
-    """Index DE440 snapshots: (round(jd), body_name) -> (pos_km_ssb, vel_km_s_ssb)."""
-    out: dict[tuple[int, str], tuple[np.ndarray, np.ndarray]] = {}
-    for _, snap in de440["snapshots"].items():
-        jd = round(snap["epoch"]["jd_tdb"])
+def _parents_from_fixture(de440: dict) -> dict[str, str]:
+    """body -> parent, from the DE440 fixture's own gravitational_anchor.
+
+    Anchors that are not fixture bodies (the Sun's "Milky Way center") are
+    ignored; bodies the fixture does not anchor keep _PARENT_OF's entry, and
+    anything else defaults to the Sun in add_rtn_components.
+    """
+    out = dict(_PARENT_OF)
+    for snap in de440["snapshots"].values():
+        names = {b["name"] for b in snap["bodies"]}
         for b in snap["bodies"]:
+            anchor = b.get("gravitational_anchor")
+            if anchor in names and anchor != b["name"]:
+                out[b["name"]] = anchor
+    return out
+
+
+def _build_truth_state_lookup(de440: dict) -> dict[tuple[float, str], tuple[np.ndarray, np.ndarray]]:
+    """Index DE440 snapshots: (jd_tdb, body_name) -> (pos_km_ssb, vel_km_s_ssb).
+
+    Keyed on the exact snapshot JD. round(jd) sent x.5 epochs one day apart
+    to the same key (banker's rounding), and the later snapshot silently
+    replaced the earlier one; the shoot-out's sample_jd is the snapshot JD
+    itself, so exact keys are what it needs. Two snapshots at the same JD
+    raise rather than overwrite.
+    """
+    out: dict[tuple[float, str], tuple[np.ndarray, np.ndarray]] = {}
+    for snap_key, snap in de440["snapshots"].items():
+        jd = float(snap["epoch"]["jd_tdb"])
+        for b in snap["bodies"]:
+            key = (jd, b["name"])
+            if key in out:
+                raise ValueError(f"two DE440 snapshots at JD {jd} for {b['name']} "
+                                 f"(second: {snap_key})")
             sv = b["state_vector"]
             pos = np.array([sv["x_km"], sv["y_km"], sv["z_km"]])
             vel = np.array([sv["vx_km_s"], sv["vy_km_s"], sv["vz_km_s"]])
-            out[(jd, b["name"])] = (pos, vel)
+            out[key] = (pos, vel)
     return out
+
+
+def _as_vec3(value) -> np.ndarray | None:
+    """predicted_km as a finite 3-vector, or None if missing or NaN."""
+    if value is None:
+        return None
+    try:
+        arr = np.asarray(value, dtype=float)
+    except (TypeError, ValueError):
+        return None
+    if arr.shape != (3,) or not np.all(np.isfinite(arr)):
+        return None
+    return arr
 
 
 def _rtn_decompose(
@@ -181,28 +225,38 @@ def _rtn_decompose(
 def add_rtn_components(df: pd.DataFrame, de440: dict | None = None) -> pd.DataFrame:
     """Add dR_au, dT_au, dN_au columns to a results DataFrame.
 
-    Requires df to have 'predicted_km' column. Loads DE440 fixture for the
-    truth state vectors (positions and velocities).
+    Requires df to have a 'predicted_km' column holding HELIOCENTRIC ICRF
+    positions in km, as rolling_shootout writes them (a barycentric
+    prediction would be off by the Sun's SSB offset, ~0.007 AU). Loads the
+    DE440 fixture for the truth state vectors (positions and velocities).
+
+    The frame of each body is built about its parent as the fixture's own
+    gravitational_anchor names it (Saturn for Mimas..Rhea, the Sun for the
+    planets). Truth is looked up at the exact sample JD. Rows give NaN when
+    the prediction or error is missing (None, NaN, [None]*3), when the
+    sample JD is not a snapshot, or when the body or its parent is not in
+    that snapshot.
     """
     if de440 is None:
         de440 = json.loads(_DE440_FILE.read_text())
     lookup = _build_truth_state_lookup(de440)
+    parents = _parents_from_fixture(de440)
 
     dRs: list[float] = []
     dTs: list[float] = []
     dNs: list[float] = []
     for _, row in df.iterrows():
         err_au_v = row.get("error_au")
-        pred_km  = row.get("predicted_km")
+        pred_vec = _as_vec3(row.get("predicted_km"))
         if (err_au_v is None
                 or (isinstance(err_au_v, float) and np.isnan(err_au_v))
-                or pred_km is None or pred_km[0] is None):
+                or pred_vec is None):
             dRs.append(np.nan); dTs.append(np.nan); dNs.append(np.nan)
             continue
 
-        sample_key = round(row["sample_jd"])
+        sample_key = float(row["sample_jd"])
         body = row["body"]
-        primary = _PARENT_OF.get(body, "Sun")
+        primary = parents.get(body, "Sun")
 
         body_state    = lookup.get((sample_key, body))
         primary_state = lookup.get((sample_key, primary))
@@ -216,8 +270,7 @@ def add_rtn_components(df: pd.DataFrame, de440: dict | None = None) -> pd.DataFr
         sun_pos_ssb,     _               = sun_state
 
         truth_helio_km = body_pos_ssb - sun_pos_ssb
-        pred_helio_km  = np.array(pred_km)
-        err_vec_km     = pred_helio_km - truth_helio_km
+        err_vec_km     = pred_vec - truth_helio_km
 
         dR, dT, dN = _rtn_decompose(
             err_vec_km, body_pos_ssb, body_vel_ssb,
@@ -334,8 +387,10 @@ def per_predictor_body_summary(df: pd.DataFrame) -> pd.DataFrame:
     mean_err_au         : mean error across all cells
     max_err_au          : worst error
     growth_rate_au_yr   : average dE/dt across windows (least-squares slope)
-    growth_std_au_yr    : window-to-window std of slopes (the SUB-DELTA)
-    sub_delta_rms_au    : RMS of (e_{w+1}(tau) - e_w(tau)) across all (w, tau)
+    growth_std_au_yr    : window-to-window std of slopes (the SUB-DELTA);
+                          NaN with fewer than two windows (undefined, not 0)
+    sub_delta_rms_au    : RMS of (e_{w+1}(tau) - e_w(tau)) across all
+                          adjacent-window (w, tau) pairs; NaN if none
     """
     rows = []
     for (pred, body), grp in df.groupby(["predictor", "body"]):
@@ -362,20 +417,26 @@ def per_predictor_body_summary(df: pd.DataFrame) -> pd.DataFrame:
             "mean_err_au":        float(valid["error_au"].mean()),
             "max_err_au":         float(valid["error_au"].max()),
             "growth_rate_au_yr":  float(np.nanmean(slopes_arr)),
-            "growth_std_au_yr":   float(np.nanstd(slopes_arr)),
+            "growth_std_au_yr":   (float(np.nanstd(slopes_arr)) if len(slopes) >= 2
+                                   else float("nan")),
             "sub_delta_rms_au":   float(sub_delta_rms),
         })
     return pd.DataFrame(rows)
 
 
 def _sub_delta_rms(grp: pd.DataFrame) -> float:
-    """RMS of e_{w+1}(tau) - e_w(tau) over all matched (w, tau) pairs within one (predictor, body)."""
+    """RMS of e_{w+1}(tau) - e_w(tau) over all matched (w, tau) pairs within one (predictor, body).
+
+    Only ADJACENT windows (window_idx w and w + 1) are differenced: when a
+    window is missing, the windows on either side of the gap are not a pair.
+    """
     # Pivot to (window_idx, t_yr_bin) -> error_au
     piv = grp.pivot_table(index="window_idx", columns="t_yr_bin",
-                          values="error_au", aggfunc="mean")
+                          values="error_au", aggfunc="mean").sort_index()
     if piv.shape[0] < 2:
         return float("nan")
-    diffs = piv.diff(axis=0).iloc[1:].to_numpy()
+    adjacent = np.diff(piv.index.to_numpy()) == 1
+    diffs = piv.diff(axis=0).iloc[1:].to_numpy()[adjacent]
     diffs = diffs[~np.isnan(diffs)]
     if diffs.size == 0:
         return float("nan")
@@ -637,7 +698,11 @@ def fingerprint_diff(baseline_path: Path, new_path: Path,
     """Print a side-by-side diff of two result JSONs.
 
     For each (predictor, body) cell, compares mean_err, growth_rate, and
-    sub_delta_rms between baseline and new. Sorts by absolute improvement.
+    sub_delta_rms between baseline and new. Improvements are sorted by
+    absolute mean-error reduction (base - new, AU), regressions by absolute
+    increase; the ratio is shown alongside. Cells present only in the
+    baseline (a dropped predictor or body) are listed as REMOVED, and cells
+    present only in the new file as NEW.
     """
     _, df_b = load_results(baseline_path)
     _, df_n = load_results(new_path)
@@ -655,24 +720,27 @@ def fingerprint_diff(baseline_path: Path, new_path: Path,
 
     in_both = merged[merged["_merge"] == "both"].copy()
     new_only = merged[merged["_merge"] == "right_only"].copy()
+    base_only = merged[merged["_merge"] == "left_only"].copy()
+
+    print("\n" + "=" * 78)
+    print("FINGERPRINT DIFF -- baseline vs new")
+    print("=" * 78)
+    print(f"baseline: {baseline_path.name}")
+    print(f"new:      {new_path.name}")
+    print()
 
     if not in_both.empty:
         in_both["mean_err_ratio"] = in_both["mean_err_au_new"] / in_both["mean_err_au_base"]
+        in_both["mean_err_change_au"] = in_both["mean_err_au_new"] - in_both["mean_err_au_base"]
         in_both["subdelta_ratio"] = in_both["sub_delta_rms_au_new"] / in_both["sub_delta_rms_au_base"]
 
-        print("\n" + "=" * 78)
-        print("FINGERPRINT DIFF -- baseline vs new")
-        print("=" * 78)
-        print(f"baseline: {baseline_path.name}")
-        print(f"new:      {new_path.name}")
-        print()
-
         print("-" * 78)
-        print("TOP-15 IMPROVEMENTS (largest mean-error reduction)")
+        print("TOP-15 IMPROVEMENTS (largest absolute mean-error reduction)")
         print("-" * 78)
         improvements = in_both[in_both["mean_err_ratio"] < 0.999].sort_values(
-            "mean_err_ratio")
-        cols = ["predictor", "body", "mean_err_au_base", "mean_err_au_new", "mean_err_ratio"]
+            "mean_err_change_au")
+        cols = ["predictor", "body", "mean_err_au_base", "mean_err_au_new",
+                "mean_err_change_au", "mean_err_ratio"]
         if not improvements.empty:
             print(improvements[cols].head(15).to_string(
                 index=False, float_format=lambda x: f"{x:.4e}"))
@@ -681,10 +749,10 @@ def fingerprint_diff(baseline_path: Path, new_path: Path,
 
         print()
         print("-" * 78)
-        print("TOP-10 REGRESSIONS (mean error got WORSE)")
+        print("TOP-10 REGRESSIONS (mean error got WORSE, largest absolute increase)")
         print("-" * 78)
         regressions = in_both[in_both["mean_err_ratio"] > 1.001].sort_values(
-            "mean_err_ratio", ascending=False)
+            "mean_err_change_au", ascending=False)
         if not regressions.empty:
             print(regressions[cols].head(10).to_string(
                 index=False, float_format=lambda x: f"{x:.4e}"))
@@ -714,6 +782,18 @@ def fingerprint_diff(baseline_path: Path, new_path: Path,
             cols2 = ["body", "mean_err_au_new", "sub_delta_rms_au_new"]
             top = grp.nlargest(10, "mean_err_au_new")[cols2]
             print(top.to_string(index=False, float_format=lambda x: f"{x:.4e}"))
+
+    if not base_only.empty:
+        print()
+        print("-" * 78)
+        print("REMOVED (in the baseline, not in the new file)")
+        print("-" * 78)
+        for pred, grp in base_only.groupby("predictor"):
+            bodies = sorted(grp["body"])
+            in_new = pred in set(sum_n["predictor"])
+            what = (f"{len(bodies)} bodies dropped: {', '.join(bodies)}" if in_new
+                    else f"whole predictor dropped ({len(bodies)} bodies)")
+            print(f"  {pred}: {what}")
 
 
 # -- Entry point ----------------------------------------------------------
