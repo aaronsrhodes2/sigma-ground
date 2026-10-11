@@ -48,7 +48,7 @@ class SGConstants:
     G    = G          # 6.67430e-11 m³ kg⁻¹ s⁻²   (gravitational constant)
     c    = C          # 2.99792458e8 m/s             (speed of light, exact)
     hbar = HBAR       # 1.054571817e-34 J·s          (reduced Planck)
-    h    = HBAR * 2 * math.pi                        # Planck constant
+    h    = 6.62607015e-34   # Planck constant, exact by definition (SI 2019)
 
     # ── Derived (from G, c above -- no magic numbers) ────────────────────
     M_Planck = M_PLANCK_KG    # Planck mass    √(ℏc/G)
@@ -73,7 +73,7 @@ class SGConstants:
     # ── Time / distance ───────────────────────────────────────────────────
     yr        = YEAR_S              # Julian year, s (IAU exact)
     au        = 1.495978707e11      # 1 AU in metres (IAU 2012, exact by definition)
-    pc        = 3.085677581e16      # 1 parsec in metres  (= AU / tan(1 arcsec))
+    pc        = 648_000 / math.pi * 1.495978707e11  # parsec, m (IAU 2015 B2: 648000/pi au)
     ly        = C * YEAR_S          # 1 light-year in metres (derived from c, yr)
 
     # ── Cosmological ─────────────────────────────────────────────────────

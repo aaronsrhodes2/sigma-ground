@@ -73,29 +73,67 @@ class SGPhysicsMixin:
 
     # ── density ─────────────────────────────────────────────────────────
 
-    def sg_density(self, material_name: str, T_K: float = 293.0,
+    def sg_density(self, material_name: str, T_K: float = 293.15,
                    P_Pa: float = 101_325.0) -> float:
-        """Density in kg/m³ via local_library element/material database.
+        """Density in kg/m³ of a solid at temperature T_K and pressure P_Pa.
 
-        Unlike STP lookups, this uses the actual T and P.
-        Flags any STP-only approximation via LOCAL_LIBRARY: approximation.
+        d ln rho = -beta dT + dP/K, integrated with constant coefficients:
+
+            rho = rho_0 * exp(-3 alpha (T - T_0) + (P - P_0) / K)
+
+        rho_0: measured density (surface.MATERIALS) at T_0 = 293.15 K
+        (water_ice: 273.15 K) and P_0 = 1 atm; alpha: measured linear
+        expansion coefficient at 300 K (thermal_expansion.EXPANSION_DATA);
+        K: the library's bulk modulus (thermal_expansion.bulk_modulus).
+        Bound: holding alpha and K constant errs by < ~0.5 % for
+        |T - T_0| <= 300 K and |P - P_0| <= 1 GPa in metals (alpha(T)
+        follows the Debye heat capacity; K' ~ 5).  Solid-solid phase
+        changes are not modelled; above the melting point
+        (phase_transition.PHASE_DATA) a ValueError is raised, since no
+        liquid equation of state is available.
+        FIXED 2026-10-10: both import targets of the previous version were
+        missing, so every call raised ImportError.
 
         Parameters
         ----------
-        material_name : element symbol or common name (e.g. 'Fe', 'iron')
+        material_name : MATERIALS key ('iron', 'water_ice') or element symbol
+                        ('Fe', 'Cu'); case-insensitive
         T_K : temperature in Kelvin
         P_Pa : pressure in Pascals
         """
-        try:
-            from sigma_ground.field.interface.element import MaterialElement
-            elem = MaterialElement(material_name)
-            return elem.density_kg_m3(T_K=T_K, P_Pa=P_Pa)
-        except Exception:
-            # LOCAL_LIBRARY: approximation -- EOS not available for this material;
-            # falling back to STP density from element table.
-            from sigma_ground.field.interface.element import ElementalProperties
-            props = ElementalProperties(material_name)
-            return props.density_stp_kg_m3
+        from sigma_ground.field.interface.surface import MATERIALS
+        from sigma_ground.field.interface import thermal_expansion as _te
+        from sigma_ground.field.interface.phase_transition import PHASE_DATA
+
+        symbols = {
+            "fe": "iron", "cu": "copper", "al": "aluminum", "au": "gold",
+            "si": "silicon", "w": "tungsten", "ni": "nickel", "ti": "titanium",
+            "pb": "lead", "ag": "silver", "zn": "zinc", "pt": "platinum",
+        }
+        name = str(material_name).strip().lower()
+        key = symbols.get(name, name)
+        if key not in MATERIALS:
+            raise KeyError(
+                f"No density data for {material_name!r}. Known: "
+                f"{sorted(MATERIALS)} or symbols {sorted(s.capitalize() for s in symbols)}"
+            )
+        rho_0 = float(MATERIALS[key]["density_kg_m3"])
+        T_0 = 273.15 if key == "water_ice" else 293.15
+        P_0 = 101_325.0
+        T_K, P_Pa = float(T_K), float(P_Pa)
+        if not (math.isfinite(T_K) and T_K > 0 and math.isfinite(P_Pa)):
+            raise ValueError(f"need T_K > 0 and finite P_Pa, got {T_K}, {P_Pa}")
+        T_melt = PHASE_DATA.get(key, {}).get("T_melt_K")
+        if T_melt is not None and T_melt >= T_0 and T_K > T_melt:
+            raise ValueError(
+                f"{key} melts at {T_melt} K; T_K = {T_K} K is above it and no "
+                f"liquid equation of state is available"
+            )
+        if T_K == T_0 and P_Pa == P_0:
+            return rho_0
+        alpha = _te.EXPANSION_DATA[key]["alpha_linear_per_K"]
+        K = _te.bulk_modulus(key, 0.0)
+        return rho_0 * math.exp(-3.0 * alpha * (T_K - T_0) + (P_Pa - P_0) / K)
 
     # ── integration ───────────────────────────────────────────────────────
 
@@ -128,6 +166,10 @@ class SGPhysicsMixin:
         list of CelestialBody at t0 + n_steps * dt_s
         """
         from sigma_ground.field.interface.nbody import NBodySystem
+        if method not in ("forest_ruth", "verlet"):
+            raise ValueError(
+                f"Unknown method {method!r}. Choose 'forest_ruth' or 'verlet'."
+            )
         system  = NBodySystem(bodies, include_gr=include_gr)
         step_fn = (system.forest_ruth_step if method == "forest_ruth"
                    else system.step)
@@ -162,6 +204,10 @@ class SGAdapter:
         self.lib = obj  # unmodified external object
 
     def __getattr__(self, name: str) -> Any:
+        # 'lib' itself is missing on an instance rebuilt without __init__
+        # (copy, pickle); looking it up via self.lib would recurse forever.
+        if name == "lib":
+            raise AttributeError(name)
         if name.startswith("sg_"):
             raise AttributeError(
                 f"SGAdapter has no SSBM method {name!r}. "

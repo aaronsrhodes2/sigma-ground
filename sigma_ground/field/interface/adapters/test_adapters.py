@@ -61,6 +61,13 @@ class TestSGConstants(unittest.TestCase):
         expected = C * YEAR_S
         self.assertAlmostEqual(SGConstants.ly, expected, delta=1e3)
 
+    def test_exact_h_and_parsec(self):
+        """h is exact in the SI since 2019 (6.62607015e-34 J s); the parsec is
+        648000/pi au (IAU 2015 Resolution B2).  Before: -6.1e-10, -1.6e-10."""
+        self.assertEqual(SGConstants.h, 6.62607015e-34)
+        self.assertAlmostEqual(SGConstants.pc / (648_000 / math.pi * 1.495978707e11),
+                               1.0, delta=1e-15)
+
     def test_sg_alias(self):
         """sg_ aliases must equal their non-prefixed counterparts."""
         self.assertEqual(SGConstants.sg_G,      SGConstants.G)
@@ -131,6 +138,37 @@ class TestSGPhysicsMixin(unittest.TestCase):
         with self.assertRaises(KeyError):
             self.obj.sg_gm("Pluto_X_9999")
 
+    # -- sg_density (fix queue C4: every call raised ImportError) ----------
+
+    def test_sg_density_room_temperature(self):
+        """CRC Handbook room-temperature densities [LIT]: Fe 7874, Cu 8960."""
+        self.assertAlmostEqual(self.obj.sg_density("Fe"), 7874.0, delta=0.005 * 7874)
+        self.assertAlmostEqual(self.obj.sg_density("copper"), 8960.0, delta=0.005 * 8960)
+
+    def test_sg_density_temperature_and_pressure(self):
+        """Heating 293 -> 373 K lowers a metal's density by 3 alpha dT with
+        alpha in 1e-5..2e-5 /K [LIT], i.e. 0.24-0.48 %; 1 GPa raises iron's by
+        dP/K with K = 160-175 GPa [LIT], i.e. 0.57-0.63 %."""
+        rho0 = self.obj.sg_density("iron")
+        drop = 1.0 - self.obj.sg_density("iron", T_K=373.15) / rho0
+        self.assertTrue(0.0024 < drop < 0.0048, drop)
+        rise = self.obj.sg_density("iron", P_Pa=1e9 + 101_325.0) / rho0 - 1.0
+        self.assertTrue(0.0057 < rise < 0.0063, rise)
+
+    def test_sg_density_refuses_melted_ice_and_unknowns(self):
+        """Ice above 273.15 K at 1 atm is not ice: no silent number."""
+        with self.assertRaises(ValueError):
+            self.obj.sg_density("water_ice", T_K=300.0)
+        with self.assertRaises(KeyError):
+            self.obj.sg_density("unobtainium")
+
+    def test_sg_propagate_orbit_rejects_unknown_method(self):
+        """Before: any string but 'forest_ruth' silently ran Verlet."""
+        from sigma_ground.field.interface.nbody import CelestialBody
+        bodies = [CelestialBody(1.989e30, np.zeros(3), np.zeros(3), 7e8, 0.5)]
+        with self.assertRaises(ValueError):
+            self.obj.sg_propagate_orbit(bodies, dt_s=3600.0, n_steps=1, method="rk4")
+
     def test_sg_propagate_orbit(self):
         """sg_propagate_orbit should return bodies list of same length."""
         from sigma_ground.field.interface.nbody import CelestialBody
@@ -174,6 +212,16 @@ class TestSGAdapter(unittest.TestCase):
         wrapped = SGAdapter(object())
         with self.assertRaises(AttributeError):
             _ = wrapped.sg_nonexistent_method_xyz
+
+    def test_copy_and_pickle(self):
+        """Before: RecursionError (__getattr__ looked up self.lib on an
+        instance rebuilt without __init__)."""
+        import copy
+        import pickle
+        wrapped = SGAdapter([1, 2, 3])
+        self.assertEqual(copy.copy(wrapped).lib, [1, 2, 3])
+        self.assertEqual(copy.deepcopy(wrapped).lib, [1, 2, 3])
+        self.assertEqual(pickle.loads(pickle.dumps(wrapped)).lib, [1, 2, 3])
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -627,6 +675,39 @@ class TestSGNbody(unittest.TestCase):
         E1   = sys1.total_energy()
         drift = abs(E1 - E0) / abs(E0)
         self.assertLess(drift, 0.05, f"sg_nbody energy drift {drift:.2e}")
+
+    # -- fix queue C4 (audit 2026-10-10) ----------------------------------
+
+    def test_ends_at_t_total(self):
+        """Before: ceil() whole steps overshot (3 d steps over 10 d ended at
+        12 d; 30 d steps over 1 d ended at 30 d)."""
+        for dt_d, total_d in ((3.0, 10.0), (30.0, 1.0), (0.7, 7.0)):
+            _, times = sg_nbody(self._circular_pair(), dt_s=dt_d * 86400.0,
+                                t_total_s=total_d * 86400.0)
+            self.assertAlmostEqual(times[-1] / 86400.0, total_d, delta=1e-9)
+
+    def test_circular_orbit_closes_after_one_period(self):
+        """Equal-mass circular binary returns to its start after
+        T = 2 pi sqrt(a^3 / (G M_tot)) (closed form) even when dt does not
+        divide T.  Before: 500 steps of T/499.5 overran by 0.1 % of an orbit
+        (|dr| ~ 4.7e-3 of the orbit radius)."""
+        M, a = 1.989e30, 1.496e11
+        T = 2 * math.pi * math.sqrt(a ** 3 / (_G * 2 * M))
+        bodies = self._circular_pair()
+        r0 = bodies[0].position_m.copy()
+        final, _ = sg_nbody(bodies, dt_s=T / 499.5, t_total_s=T)
+        self.assertLess(np.linalg.norm(final[0].position_m - r0) / (a / 2), 1e-5)
+
+    def test_rejects_unknown_method_and_bad_steps(self):
+        """Before: 'rk4' silently ran Verlet; record_every=0 and dt_s=0 raised
+        ZeroDivisionError; negative dt_s returned the input unchanged."""
+        for kw in ({"method": "rk4"}, {"method": "Forest-Ruth"},
+                   {"record_every": 0}, {"dt_s": 0.0}, {"dt_s": -3600.0},
+                   {"t_total_s": -3600.0}, {"dt_s": float("nan")}):
+            args = {"dt_s": 3600.0, "t_total_s": 7200.0}
+            args.update(kw)
+            with self.assertRaises(ValueError, msg=str(kw)):
+                sg_nbody(self._circular_pair(), **args)
 
 
 # ══════════════════════════════════════════════════════════════════════════

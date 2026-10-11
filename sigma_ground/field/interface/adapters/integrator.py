@@ -410,29 +410,56 @@ def sg_nbody(
     bodies     : list of CelestialBody (from sigma_ground.field.interface.nbody)
     dt_s       : fixed timestep (seconds) -- keep fixed for symplecticity
     t_total_s  : total integration time (seconds)
-    method     : 'forest_ruth' or 'verlet'
+    method     : 'forest_ruth' or 'verlet' (anything else raises ValueError)
     include_gr : opt in to the 1PN Schwarzschild correction (nbody gr_1pn; a
                  single-body form, valid in the attractor's rest frame).
                  Default False since 2026-10-10: plain Newtonian, like the
                  scipy propagators this replaces.
-    record_every : record state every N steps (1 = every step)
+    record_every : record the simulation TIME every N steps (1 = every
+                 step); states are not stored -- use NBodySystem directly
+                 for a trajectory.
 
     Returns
     -------
     final_bodies : list of CelestialBody at t = t_total_s
     times_s      : list of recorded simulation times
+
+    Notes
+    -----
+    Whole steps of dt_s are taken, then one shorter step to land exactly on
+    t_total_s when dt_s does not divide it (FIXED 2026-10-10: ceil() whole
+    steps overshot, e.g. dt = 3 d, t_total = 10 d ended at 12 d).
     """
     from sigma_ground.field.interface.nbody import NBodySystem
 
+    if method not in ("forest_ruth", "verlet"):
+        raise ValueError(
+            f"Unknown method {method!r}. Choose 'forest_ruth' or 'verlet'."
+        )
+    dt_s, t_total_s = float(dt_s), float(t_total_s)
+    if not (math.isfinite(dt_s) and dt_s > 0):
+        raise ValueError(f"dt_s must be positive and finite, got {dt_s}")
+    if not (math.isfinite(t_total_s) and t_total_s >= 0):
+        raise ValueError(f"t_total_s must be >= 0 and finite, got {t_total_s}")
+    if record_every != int(record_every) or record_every < 1:
+        raise ValueError(f"record_every must be a positive integer, got {record_every}")
+
     system  = NBodySystem(bodies, include_gr=include_gr)
     step_fn = system.forest_ruth_step if method == "forest_ruth" else system.step
-    n_steps = int(math.ceil(t_total_s / dt_s))
+    ratio   = t_total_s / dt_s
+    n_full  = int(math.floor(ratio))
+    if ratio - n_full > 1.0 - 1e-9:   # e.g. 7 d / 0.7 d = 9.999...
+        n_full += 1
+    remainder = t_total_s - n_full * dt_s
+    if abs(remainder) <= 1e-9 * dt_s:
+        remainder = 0.0
+    steps = [dt_s] * n_full + ([remainder] if remainder > 0.0 else [])
     times   = []
 
-    for i in range(n_steps):
+    for i, h in enumerate(steps):
         if i % record_every == 0:
             times.append(system.time)
-        step_fn(dt_s)
+        step_fn(h)
 
     times.append(system.time)
     return system.bodies, times
