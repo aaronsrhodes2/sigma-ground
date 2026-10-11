@@ -1,19 +1,27 @@
 -- voice.lua -- proximity voice, native to the server: players hear each other by distance, with no external software.
 --
--- The engine already carries every player's microphone to the server; this hook decides, per listener and talker, whether
+-- The engine already carries every player's microphone to the server; this rule decides, per listener and talker, whether
 -- the voice is passed on and whether it is positional (3D, fading with distance and panned in stereo). The range depends on
 -- how the talker is speaking (crouch = whisper, shout key = shout), and walls between the two shrink it. A player who is not
 -- speaking costs nothing (the engine only asks while someone talks). See voice/core.lua for the numbers.
 --
--- Convars:  mentat_voice_mode  proximity | global | off   (default proximity)
+-- The rule is installed as the gamemode's own PlayerCanHearPlayersVoice, wrapped around what the gamemode already had, NOT
+-- as a competing hook: hooks win by whichever answers first, so a gag or mute addon (which returns false from its hook)
+-- could be overridden by ours. Wrapped like this, every hook gets its say first, and the gamemode's own refusal (team
+-- voice, sv_alltalk 0) still holds; ours only decides what remains.
+--
+-- Convars:  mentat_voice_mode  proximity | global | off   (default proximity; global = everyone hears everyone, flat; off = the
+--                                                          game's own rules, untouched)
 --           mentat_voice_range HU a normal voice carries   (default 1100)
 --           mentat_voice_wall  1 = walls shrink the range  (default 1)
--- A client may hold +mentat_shout to carry farther; the server keeps the state.
+-- A client may hold +mentat_shout to carry farther (the server remembers it for a second at a time, so a lost key-up cannot
+-- leave a player shouting for ever). A player can turn the smooth fade off for themselves with mentat_voice_fade 0.
 if not SERVER then return end
 
 local Core = include("mentat/voice/core.lua")
 Mentat = Mentat or {}
 Mentat.Voice = Core
+Mentat.VoiceWrappers = Mentat.VoiceWrappers or setmetatable({}, { __mode = "k" })
 
 util.AddNetworkString("mentat_voice_shout")
 
@@ -21,11 +29,12 @@ local cv_mode = CreateConVar("mentat_voice_mode", "proximity", FCVAR_ARCHIVE + F
 local cv_range = CreateConVar("mentat_voice_range", tostring(Core.DEFAULTS.range), FCVAR_ARCHIVE + FCVAR_NOTIFY, "HU a normal voice carries")
 local cv_wall = CreateConVar("mentat_voice_wall", "1", FCVAR_ARCHIVE, "1 = walls between talker and listener shrink the range")
 
-local shouting = {}      -- player -> true while the shout key is held
-local cache = {}         -- "listener|talker" -> { t, heard }
+local SHOUT_HOLD = 1.5       -- seconds a shout lasts after the client last said so (the client repeats it while the key is down)
+local shouting = {}          -- player -> CurTime() until which they count as shouting
+local cache = {}             -- "listener|talker" -> { t, heard }
 
 net.Receive("mentat_voice_shout", function(_, ply)
-  shouting[ply] = net.ReadBool() or nil
+  shouting[ply] = net.ReadBool() and (CurTime() + SHOUT_HOLD) or nil
 end)
 
 local function opts()
@@ -33,7 +42,7 @@ local function opts()
 end
 
 local function state_of(ply)
-  return { crouching = ply:Crouching(), shouting = shouting[ply] }
+  return { crouching = ply:Crouching(), shouting = shouting[ply] ~= nil and shouting[ply] > CurTime() }
 end
 
 --- The reach of a talker's voice right now (HU).
@@ -44,7 +53,7 @@ local function occluded(a, b)
   return tr.Hit
 end
 
---- The decision for one pair, uncached: used by the hook and by tests.
+--- The decision for one pair, uncached: used by the rule and by tests.
 function Core.CanHear(listener, talker)
   local o = opts()
   local range = Core.effective_range(o, state_of(talker))
@@ -54,13 +63,12 @@ function Core.CanHear(listener, talker)
   return Core.decide(dist, range, blocked, o)
 end
 
---- Forget remembered decisions (the hook remembers each pair for a quarter of a second).
+--- Forget remembered decisions (the rule remembers each pair for a quarter of a second).
 function Core.ClearCache() cache = {} end
 
-hook.Add("PlayerCanHearPlayersVoice", "Mentat.ProximityVoice", function(listener, talker)
-  local mode = cv_mode:GetString()
-  if mode == "off" then return end                                    -- leave the game's own rules alone
-  if mode == "global" then return true, false end
+--- Mentat's verdict for one pair, in the modes that have one (global, proximity).
+local function verdict(listener, talker)
+  if cv_mode:GetString() == "global" then return true, false end
   if listener == talker then return false end
   local key = listener:EntIndex() .. "|" .. talker:EntIndex()
   local now = CurTime()
@@ -69,18 +77,51 @@ hook.Add("PlayerCanHearPlayersVoice", "Mentat.ProximityVoice", function(listener
   local heard = Core.CanHear(listener, talker)
   cache[key] = { t = now, heard = heard }
   return heard, heard
-end)
+end
 
--- every player's reach, for the clients' smooth fade
-timer.Create("Mentat.VoiceRange", 0.4, 0, function()
-  for _, p in ipairs(player.GetAll()) do
-    p:SetNWFloat("mentat_voice_range", Core.TalkerRange(p))
+--- Wrap the gamemode's rule (idempotent: a second call, or a Lua refresh, replaces our wrapper and keeps the original).
+local function install()
+  local gm = GAMEMODE
+  if not gm then return false end
+  local current = gm.PlayerCanHearPlayersVoice
+  local base = current
+  if current and Mentat.VoiceWrappers[current] then base = gm.MentatVoiceBase else gm.MentatVoiceBase = current end
+  local function rule(g, listener, talker)
+    local heard, positional
+    if base then heard, positional = base(g, listener, talker) end
+    if cv_mode:GetString() == "off" then return heard, positional end    -- leave the game's own rules alone
+    if heard == false then return false, false end                       -- the game (or a rule it runs) says no
+    return verdict(listener, talker)
   end
+  Mentat.VoiceWrappers[rule] = true
+  gm.PlayerCanHearPlayersVoice = rule
+  return true
+end
+
+hook.Add("PostGamemodeLoaded", "Mentat.ProximityVoice", install)
+timer.Simple(0, install)                                              -- a Lua refresh after the gamemode loaded
+
+-- what the clients need to fade voices smoothly: every talker's reach (0 = do not fade: global and off modes), the wall factor
+local function publish()
+  local proximity = cv_mode:GetString() == "proximity"
+  SetGlobalString("mentat_voice_mode", cv_mode:GetString())
+  SetGlobalFloat("mentat_voice_wallf", cv_wall:GetBool() and Core.DEFAULTS.wall or 1)
+  for _, p in ipairs(player.GetAll()) do
+    p:SetNWFloat("mentat_voice_range", proximity and Core.TalkerRange(p) or 0)
+  end
+end
+cvars.AddChangeCallback("mentat_voice_mode", publish, "Mentat.VoiceMode")
+cvars.AddChangeCallback("mentat_voice_wall", publish, "Mentat.VoiceWall")
+
+timer.Create("Mentat.VoiceRange", 0.4, 0, function()
+  publish()
   for k, c in pairs(cache) do
     if CurTime() - c.t > 5 then cache[k] = nil end
   end
 end)
 
 hook.Add("PlayerDisconnected", "Mentat.VoiceForget", function(ply) shouting[ply] = nil end)
+hook.Add("PlayerSpawn", "Mentat.VoiceForgetShout", function(ply) shouting[ply] = nil end)
+hook.Add("PlayerDeath", "Mentat.VoiceForgetShoutDeath", function(ply) shouting[ply] = nil end)
 
 MsgC(Color(0, 255, 136), "[mentat] proximity voice: ", Color(255, 255, 255), cv_mode:GetString() .. ", range " .. cv_range:GetInt() .. " HU\n")

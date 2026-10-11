@@ -135,7 +135,9 @@ def test_the_parser_never_asks_a_question(lab):
         assert "?" not in res.get("say", ""), (text, res.get("say"))
     res = lab.run("a dragon and two couches")
     assert len(res["placements"]) == 2, "the couches still appear when one word is unknown"
-    assert any("dragon" in n for n in res["notes"]), res["notes"]
+    # the unknown word is kept apart for the requester's eyes only: nothing a player typed is echoed in a sentence others may see
+    assert res["unknown_words"] == ["dragon"], res.get("unknown_words")
+    assert any("my library" in n for n in res["notes"]) and not any("dragon" in n for n in res["notes"]), res["notes"]
 
 
 # --------------------------------------------------------------------------------------------- geometry

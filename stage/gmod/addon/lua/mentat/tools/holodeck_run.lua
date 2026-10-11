@@ -92,8 +92,9 @@ return function(args, done)
     settle_step()
   end
   if args.content then RunConsoleCommand("holodeck_content", args.content) end
+  if args.real_mass ~= nil then RunConsoleCommand("holodeck_real_mass", args.real_mass and "1" or "0") end
   -- console variables set by RunConsoleCommand take effect on the next frame: let them land before the first request
-  timer.Simple((args.bridge or args.content) and 0.5 or 0, function()
+  timer.Simple((args.bridge or args.content or args.real_mass ~= nil) and 0.5 or 0, function()
     if args.content then H.BuildLibrary() end
     nextreq()
   end)
