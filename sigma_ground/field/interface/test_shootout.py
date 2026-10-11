@@ -252,9 +252,11 @@ def _generate_over_physics_predictions() -> dict:
     # Record which names are predicted (all except Sun for heliocentric)
     predicted_names = [n for n in body_names if n != "Sun"]
 
-    DT_S        = DT_DAYS * 86400.0
-    checkpoints = [int(round(m * MONTH_DAYS / DT_DAYS)) for m in range(N_MONTHS + 1)]
-    total_steps = checkpoints[-1]
+    # Each month is covered by n_sub equal steps, so entry m is the state at
+    # exactly start_jd + m * MONTH_DAYS (whole-day steps put month 12 a
+    # quarter day before J2026, the epoch it is scored against).
+    n_sub = max(1, int(round(MONTH_DAYS / DT_DAYS)))
+    DT_S  = MONTH_DAYS * 86400.0 / n_sub
 
     system = NBodySystem(bodies_init, include_gr=True,
                          solar_luminosity_W=_L_SUN_W)
@@ -262,44 +264,37 @@ def _generate_over_physics_predictions() -> dict:
     print(f"\n  Generating over-physics forecast:")
     print(f"    {len(body_names)} bodies | FR4 | 1PN GR | SRP from the Sun "
           f"(L_sun={_L_SUN_W:.3e} W)")
-    print(f"    dt={DT_DAYS}d | {N_MONTHS} months | ~2 min ...")
+    print(f"    dt={DT_DAYS}d nominal ({MONTH_DAYS / n_sub:.4f} d) | "
+          f"{N_MONTHS} months | ~2 min ...")
 
     predictions: list[dict] = []
-    check_idx = 0
     t0 = time.time()
 
-    for step in range(total_steps + 1):
-        if check_idx <= N_MONTHS and step == checkpoints[check_idx]:
-            month  = check_idx
-            jd_now = start_jd + step * DT_DAYS
-            sun_pos = system.bodies[sun_idx].position_m
-            entry: dict = {
-                "month":    month,
-                "jd":       round(jd_now, 4),
-                "iso_date": _jd_to_iso(jd_now),
-                "over":     {},
-            }
-            for i, name in enumerate(body_names):
-                if name == "Sun":
-                    continue
-                hel_km = (system.bodies[i].position_m - sun_pos) / KM_TO_M
-                entry["over"][name] = [
-                    round(float(hel_km[0]), 3),
-                    round(float(hel_km[1]), 3),
-                    round(float(hel_km[2]), 3),
-                ]
-            predictions.append(entry)
-            check_idx += 1
-            if check_idx > N_MONTHS:
-                break
-        if step < total_steps:
-            system.forest_ruth_step(DT_S)
-        if step % 2000 == 0 and step > 0:
+    for month in range(N_MONTHS + 1):
+        if month > 0:
+            for _ in range(n_sub):
+                system.forest_ruth_step(DT_S)
+        jd_now = start_jd + month * MONTH_DAYS
+        sun_pos = system.bodies[sun_idx].position_m
+        entry: dict = {
+            "month":    month,
+            "jd":       round(jd_now, 4),
+            "iso_date": _jd_to_iso(jd_now),
+            "over":     {},
+        }
+        for i, name in enumerate(body_names):
+            if name == "Sun":
+                continue
+            hel_km = (system.bodies[i].position_m - sun_pos) / KM_TO_M
+            entry["over"][name] = [
+                round(float(hel_km[0]), 3),
+                round(float(hel_km[1]), 3),
+                round(float(hel_km[2]), 3),
+            ]
+        predictions.append(entry)
+        if month % 60 == 0 and month > 0:
             elapsed = time.time() - t0
-            pct = 100 * step / total_steps
-            eta = elapsed / step * (total_steps - step)
-            print(f"    step {step}/{total_steps} ({pct:.0f}%)  "
-                  f"elapsed={elapsed:.0f}s  eta={eta:.0f}s", flush=True)
+            print(f"    month {month}/{N_MONTHS}  elapsed={elapsed:.0f}s", flush=True)
 
     elapsed = time.time() - t0
     print(f"  Done in {elapsed:.0f}s ({elapsed/60:.1f} min).")
@@ -312,6 +307,8 @@ def _generate_over_physics_predictions() -> dict:
             "created_utc":        created_utc,
             "start_jd":           start_jd,
             "dt_days":            DT_DAYS,
+            "step_days":          MONTH_DAYS / n_sub,
+            "epochs":             "start_jd + month * MONTH_DAYS exactly",
             "n_months":           N_MONTHS,
             "integrator":         "forest_ruth_4th_order",
             "include_gr":         True,
