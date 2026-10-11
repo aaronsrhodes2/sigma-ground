@@ -868,9 +868,11 @@ _ROUTABLE_NEW = {
         "triggers": ["e=mc", "e = mc", "mass-energy", "mass energy",
                      "rest energy", "converted to energy", "mass to energy",
                      "energy from converting", "annihilat", "kg of mass",
-                     # any mass unit ("1 gram of mass"), 2026-10-10 (A41)
+                     # any mass unit ("1 gram of mass"), 2026-10-10 (A41).
+                     # "of mass" only: "1 kg of matter ... fusion / near a
+                     # neutron star" is not a mass-to-energy conversion.
                      r"\b(?:kg|kilograms?|g|grams?|mg|milligrams?|tonnes?)"
-                     r"\s+of\s+(?:mass|matter)\b",
+                     r"\s+of\s+mass\b",
                      # 2026-10-10 audit: these went to nucleon_masses, whose
                      # "rest energy of" trigger is longer, and were answered
                      # with the proton mass. Proton/neutron stay there.

@@ -115,6 +115,20 @@ def test_black_hole_primordial_mass_not_floored():
         assert run_simulation("black_hole", {"solar_masses": bad}).value is None
 
 
+# Review of A41: "<unit> of matter" is not a mass-to-energy conversion.
+
+@pytest.mark.parametrize("q", [
+    "how much energy does 1 kg of matter release in fusion",
+    "what happens to 5 g of matter near a neutron star",
+    "density of 1 kg of matter compressed to a black hole",
+    "how much energy is released when 1 kg of matter falls into a black hole",
+])
+def test_kg_of_matter_is_not_a_mass_energy_conversion(q):
+    from sigma_ground import materia
+    steps = materia.translate(q, use_qwen=False).steps
+    assert "mass_energy" not in [s.verb for s in steps]
+
+
 # ── A40: relativistic_motion reads the speed and the particle ──────────────
 
 @pytest.mark.parametrize("q, beta", [
