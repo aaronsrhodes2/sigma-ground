@@ -1370,8 +1370,8 @@ class NBodySystem:
         """Remove the GW energy L·dt from the binary's relative kinetic energy (Peters & Mathews 1963).
 
         The relative velocity is scaled by s = √(1 − L·dt/KE_rel) about the centre of mass, which conserves total
-        momentum and, on a circular orbit, removes angular momentum at Peters' rate L/ω. Only meaningful for compact
-        binaries (two bodies); ignored otherwise.
+        momentum and, on a circular orbit only, removes angular momentum at Peters' rate L/ω (see the PHYSICS_GAP
+        below for eccentric orbits). Only meaningful for compact binaries (two bodies); ignored otherwise.
 
         FIXED 2026-10-10 (A11): the power had r⁴ instead of r⁵ (W·m; PSR J1738+0333 decayed 1.73e9× too fast,
         Earth–Sun radiated 2.9e13 W instead of 196 W), losses below half an ulp of 1 rounded to zero, and the
@@ -1379,6 +1379,10 @@ class NBodySystem:
         (TwoSum; Knuth, TAOCP vol. 2 §4.2.2): the part that a double cannot hold is carried to the next step instead of
         being rounded away, and nothing is rewritten when nothing is applied.
         """
+        # PHYSICS_GAP: scaling v_rel removes angular momentum at L·P/(μv²), which equals Peters' (1964) ⟨dL/dt⟩ only
+        # on a circular orbit. Orbit-averaged L loss / Peters = 0.992 at e = 0.1, 0.795 at e = 0.617, 0.701 at e = 0.9,
+        # so de/dt is 1.26× Peters as e → 0 and 1.12× at e = 0.617: eccentric binaries circularise too fast. The
+        # orbit-averaged energy loss and Ṗb match Peters. Full fix: the 2.5PN Burke–Thorne radiation-reaction force.
         b0, b1 = self.bodies[0], self.bodies[1]
         m0, m1 = b0.mass_kg, b1.mass_kg
         M_tot  = m0 + m1
