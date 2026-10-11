@@ -109,10 +109,16 @@ _N_EFFECTIVE = {1: 1.0, 2: 2.0, 3: 3.0, 4: 3.7, 5: 4.0, 6: 4.2, 7: 4.4}
 # ── Semi-Empirical Mass Formula Coefficients ─────────────────────
 # FITTED to nuclear binding energy data (Weizsäcker 1935).
 # The formula structure is FIRST_PRINCIPLES (liquid drop model).
+# a_v, a_s, a_a, a_p: the textbook fit a_V = 15.56, a_S = 17.23, a_A = 23.285,
+# a_P = 12.0 MeV with the asymmetry written a_A (N−Z)²/A and pairing a_P/A^½
+# (Southampton PHYS3002 notes ch. 4 'The Liquid Drop Model', after B. R. Martin,
+# Nuclear and Particle Physics; Martin writes a_a = 93.14 MeV with (Z − A/2)²/A,
+# the same term). This is the ONE SEMF of the repo: mcp/tools/nuclear.py calls
+# semf_binding_energy_MeV below.
 _SEMF_AV = 15.56   # MeV — volume term (strong force, short-range)
 _SEMF_AS = 17.23   # MeV — surface term (missing neighbors at surface)
 _SEMF_AC = A_C_MEV  # MeV — Coulomb term (DERIVED from Coulomb's law in constants.py, ≈ 0.7111)
-_SEMF_AA = 23.29   # MeV — asymmetry term (Pauli exclusion, N≠Z penalty)
+_SEMF_AA = 23.29   # MeV — asymmetry term a_A (N−Z)²/A (Pauli exclusion, N≠Z penalty)
 _SEMF_AP = 12.0    # MeV — pairing term (even-even bonus)
 
 # ── Friedel d-Band Widths ────────────────────────────────────────
@@ -482,11 +488,11 @@ def slater_radius_m(Z):
 # SEMI-EMPIRICAL MASS FORMULA
 # ══════════════════════════════════════════════════════════════════
 
-def _binding_energy_MeV(Z, A):
+def semf_binding_energy_MeV(Z, A):
     """Nuclear binding energy from the semi-empirical mass formula (MeV).
 
     B(Z,A) = a_v·A - a_s·A^(2/3) - a_c·Z(Z-1)/A^(1/3)
-             - a_a·(A-2Z)²/(4A) + δ(A,Z)
+             - a_a·(A-2Z)²/A + δ(A,Z)
 
     Where δ is the pairing term:
       +a_p/A^(1/2) for even-even (Z even, N even)
@@ -496,6 +502,11 @@ def _binding_energy_MeV(Z, A):
     FIRST_PRINCIPLES: liquid drop model (volume, surface, Coulomb)
                       + Pauli exclusion (asymmetry, pairing).
     FITTED: coefficients from nuclear binding energy data.
+
+    Accuracy against AME2020 (inventory/data/isotopes.json): rms 0.78 % over
+    the 136 nuclides with A ≥ 12 (Pb-208 −1.1 %, U-238 −0.3 %); the liquid
+    drop fails for light nuclei (He-4 −15 %) and misses shell effects.
+    Returns 0.0 where the formula goes negative (H-1) or for invalid (Z, A).
     """
     if A <= 0 or Z <= 0 or Z > A:
         return 0.0
@@ -511,12 +522,10 @@ def _binding_energy_MeV(Z, A):
     # Coulomb term: proton-proton repulsion
     B -= _SEMF_AC * Z * (Z - 1) / A**(1.0/3.0)
 
-    # Asymmetry term: penalty for N ≠ Z (Pauli exclusion)
-    # PHYSICS_GAP (2026-10-10, unification round 2, N1; KNOWN_GAPS.md): a_a = 23.29 MeV
-    # belongs to the (A−2Z)²/A form (which stable_mass_number below assumes); with /(4A)
-    # the asymmetry penalty is 4× too small. rms error over 136 AME2020 nuclides with
-    # A ≥ 12: 6.82 % as coded, 0.78 % with /A. Flagged, not fixed.
-    B -= _SEMF_AA * (A - 2*Z)**2 / (4.0 * A)
+    # Asymmetry term: penalty for N ≠ Z (Pauli exclusion), the (A−2Z)²/A form that
+    # a_a = 23.29 MeV belongs to and stable_mass_number below assumes.
+    # FIXED 2026-10-10: was (A−2Z)²/(4A), 4× too small (rms 6.82 % → 0.78 %, A19).
+    B -= _SEMF_AA * (A - 2*Z)**2 / A
 
     # Pairing term
     if A % 2 == 1:
@@ -529,6 +538,9 @@ def _binding_energy_MeV(Z, A):
     B += delta
 
     return max(B, 0.0)
+
+
+_binding_energy_MeV = semf_binding_energy_MeV   # historical private name
 
 
 def stable_mass_number(Z):

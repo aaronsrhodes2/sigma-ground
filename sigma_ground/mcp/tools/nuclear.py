@@ -58,20 +58,14 @@ def nuclear_binding_energy(protons: int, neutrons: int,
         be_MeV = constituent_MeV - nucleus_MeV
         method = "exact (measured nuclide mass)"
     else:
-        # Semi-empirical mass formula (Bethe-Weizsäcker), MeV
-        a_v, a_s, a_c, a_a = 15.75, 17.8, 0.711, 23.7
-        delta = 0.0
-        if Z % 2 == 0 and N % 2 == 0:
-            delta = 11.18 / (A ** 0.5)
-        elif Z % 2 == 1 and N % 2 == 1:
-            delta = -11.18 / (A ** 0.5)
-        be_MeV = (a_v * A
-                    - a_s * A ** (2.0 / 3.0)
-                    - a_c * Z * (Z - 1) / A ** (1.0 / 3.0)
-                    - a_a * (N - Z) ** 2 / A
-                    + delta)
+        # Semi-empirical mass formula (Bethe-Weizsäcker), MeV: the repo's ONE SEMF,
+        # field.interface.element.semf_binding_energy_MeV (FIXED 2026-10-10: this tool
+        # carried a second, different coefficient set; A19).
+        from sigma_ground.field.interface.element import semf_binding_energy_MeV
+        be_MeV = semf_binding_energy_MeV(Z, A)
         nucleus_MeV = constituent_MeV - be_MeV
-        method = "SEMF estimate (Bethe-Weizsäcker)"
+        method = ("SEMF estimate (Bethe-Weizsäcker, field.interface.element; "
+                  "rms 0.78 % vs AME2020 for A >= 12, unreliable for light nuclei)")
 
     mass_defect_u = (constituent_MeV - nucleus_MeV) / _U_MEV
     defect_fraction = (constituent_MeV - nucleus_MeV) / constituent_MeV

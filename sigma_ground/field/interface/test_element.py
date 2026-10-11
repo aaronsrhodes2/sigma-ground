@@ -301,6 +301,54 @@ class TestMassNumber(unittest.TestCase):
             prev_A = A
 
 
+class TestSEMFBindingEnergyVsAME2020(unittest.TestCase):
+    """SEMF binding energies against the measured AME2020 values in
+    inventory/data/isotopes.json (independent ground truth).
+
+    Regression for A19 (2026-10-10): the asymmetry term was written
+    a_a(A−2Z)²/(4A) with the a_a of the (A−2Z)²/A form, 4× too small:
+    rms 6.82 % over the 136 nuclides with A ≥ 12, Pb-208 +8.8 %, U-238 +11.6 %.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        import json
+        import pathlib
+        from .element import semf_binding_energy_MeV
+        path = pathlib.Path(__file__).resolve().parents[2] / "inventory" / "data" / "isotopes.json"
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        cls.ame = {(r["Z"], r["A"]): r["binding_energy_per_nucleon_kev"] * r["A"] / 1000.0
+                   for r in data if r["binding_energy_per_nucleon_kev"]}
+        cls.semf = staticmethod(semf_binding_energy_MeV)
+
+    def _rel(self, Z, A):
+        return (self.semf(Z, A) - self.ame[(Z, A)]) / self.ame[(Z, A)]
+
+    def test_rms_below_one_percent_for_A_ge_12(self):
+        rel = [self._rel(Z, A) for (Z, A) in self.ame if A >= 12]
+        self.assertGreaterEqual(len(rel), 130)
+        rms = math.sqrt(sum(x * x for x in rel) / len(rel))
+        self.assertLess(rms, 0.009, f"rms {100 * rms:.3f} %")
+
+    def test_heavy_neutron_rich_nuclides(self):
+        # the asymmetry term dominates the error here: Pb-208, U-238 within 2 %
+        for Z, A in ((82, 208), (92, 238), (26, 56), (50, 120)):
+            with self.subTest(Z=Z, A=A):
+                self.assertLess(abs(self._rel(Z, A)), 0.02)
+
+    def test_no_systematic_trend_with_neutron_excess(self):
+        # a wrong asymmetry coefficient shows as residuals growing with (N−Z)²/A
+        pts = [((A - 2 * Z) ** 2 / A, self._rel(Z, A)) for (Z, A) in self.ame if A >= 40]
+        n = len(pts)
+        mx = sum(p[0] for p in pts) / n
+        my = sum(p[1] for p in pts) / n
+        slope = (sum((x - mx) * (y - my) for x, y in pts)
+                 / sum((x - mx) ** 2 for x, _ in pts))
+        # relative error per unit (N−Z)²/A; the 4× bug gave ≈ +4e-3
+        self.assertLess(abs(slope), 1e-3, slope)
+
+
 class TestAtomicMass(unittest.TestCase):
     """Atomic mass from SEMF."""
 
