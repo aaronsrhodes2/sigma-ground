@@ -37,7 +37,7 @@ These are predictions with no supporting evidence. They are out of the model unt
 ## C. Not falsifiable as stated
 
 - ξ = Ω_b/(Ω_b+Ω_c) = 0.158 being "the" baryon fraction of the σ field: a numerical coincidence with Planck's value; Kobakhidze–Liang's derivation is the strongest candidate found but the identification is speculative and was never derived.
-- a₀ = cH₀/2π: tested on 2693 SPARC points (2026-10-11): consistent within systematics (prediction/fit = 0.907; systematic ~20 %), cannot separate MOND, emergent gravity or a halo. Kept as an observation, not as theory.
+- a₀ = cH₀/2π: tested on SPARC (2026-10-11). The fitted scale g† spans 0.84 to 1.20 ×10⁻¹⁰ m/s² depending only on the analysis (tabulated points 1.148; 149 galaxies with fixed mass-to-light 1.046; with free mass-to-light 0.836; published 1.20 ± 0.24 systematic). The prediction 1.042 lies inside that spread, so the data cannot discriminate it, and cannot separate MOND, emergent gravity or a halo. Kept as an observation, not as theory.
 
 ## What stays
 Everything that is standard physics and was merely labelled with the theory's name: the N-body engine, the integrators, GR, tides, the DE440
