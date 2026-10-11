@@ -14,7 +14,23 @@ from __future__ import annotations
 from .common import AdapterFormatError, bbox_to_size, filter_servable, found_card
 
 SOURCE = "NASA 3D Resources"
-FIXTURE_STATUS = "from memory, unverified"
+FIXTURE_STATUS = "repo tree verified 2026-10-10 (from_github_tree); the hand-made record format is from memory"
+
+
+def from_github_tree(tree: dict) -> list[dict]:
+    """Records for the adapter from the official repo's file tree (GET https://api.github.com/repos/nasa/NASA-3D-Resources/git/trees/master?recursive=1,
+    verified 2026-10-10: 1583 entries, 257 .glb). One record per folder under '3D Models/' that holds a .glb: title = the folder name,
+    file = the glb path, no size (the files are in arbitrary units; a sourced real size has to be added by hand or by the Deckard sizes)."""
+    out = []
+    for e in tree.get("tree", []):
+        path = e.get("path", "")
+        if e.get("type") == "blob" and path.startswith("3D Models/") and path.lower().endswith(".glb"):
+            parts = path.split("/")
+            if len(parts) >= 3:
+                out.append({"title": parts[1], "category": "NASA 3D Models", "file": path, "bytes": e.get("size"),
+                            "page": "https://github.com/nasa/NASA-3D-Resources/tree/master/" + "/".join(p.replace(" ", "%20") for p in parts[:2]),
+                            "bbox": None, "real_size_m": None})
+    return out
 
 
 def parse_listing_with_report(raw, *, up: str = "y", include_disallowed: bool = False):

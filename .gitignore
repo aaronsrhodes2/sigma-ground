@@ -69,3 +69,7 @@ sigma_ground/radiance/web/data/mpdr_leafsweep_n*.json
 sigma_ground/radiance/web/_compile_scratch/
 # ...but the COMMITTED pixel baselines override the global *.png ignore above
 !sigma_ground/radiance/web/baselines/*.png
+
+# SkippyVerse ingest: downloaded listings and built index (rebuild with ingest_real.py --fetch)
+stage/skippyverse/cache/
+stage/skippyverse/build/

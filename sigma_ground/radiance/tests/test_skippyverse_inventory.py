@@ -366,7 +366,7 @@ def test_polyhaven_converts_mm_and_axes_and_keeps_cc0():
     sofa = next(c for c in cards if c["name"] == "sofa")
     assert (sofa["size_m"]["w"], sofa["size_m"]["d"], sofa["size_m"]["h"]) == pytest.approx((2.0, 0.95, 0.85))
     assert sofa["size_m"]["basis"] == "sourced" and sofa["redistributable"] and sofa["aliases"] == ["sofa 01"]
-    assert sofa["provenance"]["url"].endswith("/a/sofa_01") and "source_format_unverified" in sofa["flags"]
+    assert sofa["provenance"]["url"].endswith("/a/sofa_01")
     assert next(c for c in cards if "boulder" in c["name"])["size_m"] is None
     assert rep["problems"] and len(cards) == 3
     y_up = polyhaven.parse_listing(FIX["polyhaven"]["raw"], up="y")
@@ -393,8 +393,11 @@ def test_fuel_keeps_only_cc0_and_ccby4():
     assert {c["name"] for c in cards} == {"fire hydrant", "bicycle", "grand piano"}
     assert len(rep["skipped"]) == 2 and len(rep["problems"]) == 1                  # NC teapot, SA cabinet, one nonsense record
     bike = next(c for c in cards if c["name"] == "bicycle")
-    assert bike["provenance"]["license"] == "CC-BY-4.0" and "licence_version_assumed" in bike["flags"]
-    assert "licence_version_assumed" not in next(c for c in cards if c["name"] == "fire hydrant")["flags"]
+    # the live listing names the version in license_url, so no version is ever assumed
+    assert bike["provenance"]["license"] == "CC-BY-4.0" and "licence_version_assumed" not in bike["flags"]
+    assert next(c for c in cards if c["name"] == "fire hydrant")["provenance"]["license"] == "CC0"
+    assert gazebo_fuel.map_licence("Creative Commons Attribution 4.0 International", "http://creativecommons.org/licenses/by/4.0/") == ("CC-BY-4.0", False)
+    assert gazebo_fuel.map_licence("Creative Commons Attribution Non Commercial 4.0 International", "http://creativecommons.org/licenses/by-nc/4.0/")[0] == "CC-NC"
     allc = gazebo_fuel.parse_listing(FIX["fuel"]["raw"], include_disallowed=True)
     assert len(allc) == 5 and sum(not c["redistributable"] for c in allc) == 2
     assert next(c for c in cards if c["name"] == "grand piano")["size_m"] is None
@@ -433,9 +436,12 @@ def test_adapters_reject_the_wrong_shape(mod, bad):
 
 
 def test_every_adapter_declares_its_fixture_format_unverified():
-    for mod in (polyhaven, kenney, gazebo_fuel, nasa3d, smithsonian):
+    # polyhaven, gazebo_fuel and nasa3d were checked against their live endpoints on 2026-10-10 and say so; the others have not been
+    for mod in (kenney, smithsonian):
         assert "unverified" in mod.FIXTURE_STATUS and "UNVERIFIED" in mod.__doc__
-    for key in ("polyhaven", "kenney", "fuel", "nasa", "smithsonian"):
+    for mod in (polyhaven, gazebo_fuel, nasa3d):
+        assert "verified 2026-10-10" in mod.FIXTURE_STATUS or "VERIFIED 2026-10-10" in mod.__doc__
+    for key in ("kenney", "smithsonian"):
         assert "unverified" in FIX[key]["status"]
 
 
@@ -461,8 +467,13 @@ def test_fetch_listing_is_a_stub():
     assert src_cli.main(["--source", "polyhaven", "--allow-network"]) == 3
 
 
+NETWORK_MODULES = {"ingest_real.py", "acquire.py"}
+
+
 def test_adapter_sources_do_not_import_network_modules():
     for p in (STAGE / "skippyverse").rglob("*.py"):
+        if p.name in NETWORK_MODULES:      # the only modules that may fetch: they are run by hand, never imported by the adapters or the resolver
+            continue
         text = p.read_text(encoding="utf-8")
         for bad in ("import urllib", "import requests", "import http", "import socket", "import httpx", "from urllib", "import ftplib"):
             assert bad not in text, f"{p.name} imports {bad}"
