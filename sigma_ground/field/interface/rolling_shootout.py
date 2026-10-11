@@ -97,15 +97,135 @@ _DE440_FILE = _FIXTURES / "de440_state_vectors.json"
 _RESULTS_FILE = _FIXTURES / "rolling_shootout_results.json"
 
 
+# ── IAU rotational poles (WGCCRE) ─────────────────────────────────────────
+# Zonal harmonics (J2/J3/J4) act about each body's own spin axis, so every
+# body that carries one needs its pole: ICRS +z is off by 25.5 deg for
+# Jupiter, 37 deg for Mars, 28.6 deg for Mercury and 6.5 deg for Saturn.
+# Pole right ascension / declination in the ICRF, as published by the IAU
+# Working Group on Cartographic Coordinates and Rotational Elements:
+#   Archinal et al. 2018, Celest. Mech. Dyn. Astr. 130:22 (the 2015 report)
+#   for the Sun, planets, Pluto and satellites; Earth and Moon from
+#   Archinal et al. 2011, Celest. Mech. Dyn. Astr. 109:101 (the 2009 report),
+#   which the 2015 report keeps. Every number below was checked against
+#   NAIF's pck00011.tpc, which encodes the 2015 report.
+# Each entry: (ra0, ra_rate, dec0, dec_rate, ra_terms, dec_terms) with
+#   ra  = ra0  + ra_rate  T + sum(a sin(A0 + A1 T))   over ra_terms  (a, A0, A1)
+#   dec = dec0 + dec_rate T + sum(a cos(A0 + A1 T))   over dec_terms (a, A0, A1)
+# T = Julian centuries (TDB) from J2000.0; angles in degrees, rates in
+# degrees per century (the Moon's E1..E13 in the PCK's per-century form of
+# the report's per-day expressions).
+_IAU_POLE_MODELS: dict[str, tuple] = {
+    "Sun":     (286.13, 0.0, 63.87, 0.0, (), ()),
+    "Mercury": (281.0103, -0.0328, 61.4155, -0.0049, (), ()),
+    "Venus":   (272.76, 0.0, 67.16, 0.0, (), ()),
+    "Earth":   (0.00, -0.641, 90.00, -0.557, (), ()),
+    "Moon":    (269.9949, 0.0031, 66.5392, 0.0130,
+                ((-3.8787, 125.045,  -1935.5364525),    # E1
+                 (-0.1204, 250.089,  -3871.0729050),    # E2
+                 ( 0.0700, 260.008, 475263.3328725),    # E3
+                 (-0.0172, 176.625, 487269.6299850),    # E4
+                 ( 0.0072, 311.589, 964468.4993100),    # E6
+                 (-0.0052,  15.134,  -5806.6093575),    # E10
+                 ( 0.0043,  25.053, 473327.7964200)),   # E13
+                (( 1.5419, 125.045,  -1935.5364525),    # E1
+                 ( 0.0239, 250.089,  -3871.0729050),    # E2
+                 (-0.0278, 260.008, 475263.3328725),    # E3
+                 ( 0.0068, 176.625, 487269.6299850),    # E4
+                 (-0.0029, 311.589, 964468.4993100),    # E6
+                 ( 0.0009, 134.963, 477198.8693250),    # E7
+                 ( 0.0008,  15.134,  -5806.6093575),    # E10
+                 (-0.0009,  25.053, 473327.7964200))),  # E13
+    # Mars: the Kuchynka et al. 2014 model adopted by the 2015 report. The
+    # slow 0.5042615 deg/cy terms carry 0.42 deg (RA) and 1.59 deg (Dec).
+    "Mars":    (317.269202, -0.10927547, 54.432516, -0.05827105,
+                ((0.000068, 198.991226, 19139.4819985),
+                 (0.000238, 226.292679, 38280.8511281),
+                 (0.000052, 249.663391, 57420.7251593),
+                 (0.000009, 266.183510, 76560.6367950),
+                 (0.419057,  79.398797,     0.5042615)),
+                ((0.000051, 122.433576, 19139.9407476),
+                 (0.000141,  43.058401, 38280.8753272),
+                 (0.000031,  57.663379, 57420.7517205),
+                 (0.000005,  79.476401, 76560.6495004),
+                 (1.591274, 166.325722,     0.5042615))),
+    # Jupiter (angles Ja..Je) and the Galilean satellites (angles J3..J8).
+    "Jupiter": (268.056595, -0.006499, 64.495303, 0.002413,
+                ((0.000117,  99.360714, 4850.4046),
+                 (0.000938, 175.895369, 1191.9605),
+                 (0.001432, 300.323162,  262.5475),
+                 (0.000030, 114.012305, 6070.2476),
+                 (0.002150,  49.511251,   64.3000)),
+                (( 0.000050,  99.360714, 4850.4046),
+                 ( 0.000404, 175.895369, 1191.9605),
+                 ( 0.000617, 300.323162,  262.5475),
+                 (-0.000013, 114.012305, 6070.2476),
+                 ( 0.000926,  49.511251,   64.3000))),
+    "Io":       (268.05, -0.009, 64.50, 0.003,
+                 ((0.094, 283.90, 4850.7), (0.024, 355.80, 1191.3)),
+                 ((0.040, 283.90, 4850.7), (0.011, 355.80, 1191.3))),
+    "Europa":   (268.08, -0.009, 64.51, 0.003,
+                 ((1.086, 355.80, 1191.3), (0.060, 119.90, 262.1),
+                  (0.015, 229.80, 64.3), (0.009, 352.25, 2382.6)),
+                 ((0.468, 355.80, 1191.3), (0.026, 119.90, 262.1),
+                  (0.007, 229.80, 64.3), (0.002, 352.25, 2382.6))),
+    "Ganymede": (268.20, -0.009, 64.57, 0.003,
+                 ((-0.037, 355.80, 1191.3), (0.431, 119.90, 262.1),
+                  (0.091, 229.80, 64.3)),
+                 ((-0.016, 355.80, 1191.3), (0.186, 119.90, 262.1),
+                  (0.039, 229.80, 64.3))),
+    "Callisto": (268.72, -0.009, 64.83, 0.003,
+                 ((-0.068, 119.90, 262.1), (0.590, 229.80, 64.3),
+                  (0.010, 113.35, 6070.0)),
+                 ((-0.029, 119.90, 262.1), (0.254, 229.80, 64.3),
+                  (-0.004, 113.35, 6070.0))),
+    "Saturn":    (40.589, -0.036, 83.537, -0.004, (), ()),
+    "Enceladus": (40.66, -0.036, 83.52, -0.004, (), ()),
+    "Titan":     (39.4827, 0.0, 83.4279, 0.0, (), ()),
+    "Uranus":    (257.311, 0.0, -15.175, 0.0, (), ()),
+    # Neptune: N = 357.85 + 52.316 T.
+    "Neptune":   (299.36, 0.0, 43.46, 0.0,
+                  ((0.70, 357.85, 52.316),),
+                  ((-0.51, 357.85, 52.316),)),
+    "Pluto":     (132.993, 0.0, -6.163, 0.0, (), ()),
+}
+
+_JD_J2000 = 2451545.0
+
+
+def iau_pole_radec(name: str, jd_tdb: float = _JD_J2000) -> tuple[float, float]:
+    """IAU WGCCRE pole (RA, Dec), degrees, of `name` at TDB Julian date jd_tdb.
+
+    Raises KeyError for a body with no model in _IAU_POLE_MODELS.
+    """
+    ra0, ra1, dec0, dec1, ra_terms, dec_terms = _IAU_POLE_MODELS[name]
+    T = (jd_tdb - _JD_J2000) / 36525.0
+    ra = ra0 + ra1 * T
+    dec = dec0 + dec1 * T
+    for a, A0, A1 in ra_terms:
+        ra += a * math.sin(math.radians(A0 + A1 * T))
+    for a, A0, A1 in dec_terms:
+        dec += a * math.cos(math.radians(A0 + A1 * T))
+    return ra, dec
+
+
+def iau_pole_unit(name: str, jd_tdb: float = _JD_J2000) -> np.ndarray:
+    """ICRF unit vector along `name`'s IAU north pole at TDB Julian date jd_tdb."""
+    return _pole_unit_from_radec(*iau_pole_radec(name, jd_tdb))
+
+
 # ── Canonical body parameters (radius, albedo, J2, pole) ───────────────────
 # Sources:
 #   radius_km, albedo: IAU Working Group 2015 / NASA Planetary Fact Sheets
 #   J2: NASA Planetary Fact Sheets, Williams 2024 (planets); Pavlis et al. 2008 (Earth);
 #       0.0 for bodies with no published value (small moons, TNOs)
-#   pole_axis_unit: simplified — z-axis for all bodies. Solar system planets
-#       have varying obliquities (Uranus ~97°!), but for this first-pass
-#       experiment we use the ICRF frame's z-axis. A future refinement is to
-#       set each body's true pole from IAU 2015 rotation models.
+#   pole_axis_unit: the IAU WGCCRE pole at J2000.0 (iau_pole_unit) for every
+#       body with a published model. _build_bodies_at_snapshot re-evaluates it
+#       at the snapshot epoch, so each window starts with the pole of its own
+#       date, then holds it fixed over the window. The largest drifts ignored
+#       that way are Earth's precession (0.85 deg/cy) and the Moon's 18.6-yr
+#       wobble (about 1.5 deg), whose J2 reaches other bodies at ~1e-13 m/s^2.
+#       Bodies with no model and no zonal coefficients keep the +z default,
+#       which no force layer reads.
 @dataclass(frozen=True)
 class BodyParams:
     """Per-body physical parameters (canonical IAU/NASA values).
@@ -132,17 +252,16 @@ class BodyParams:
     pole_axis_unit: np.ndarray | None           = None  # None → ICRS +z default
 
 
-# IAU 2015 pole RA/Dec (J2000.0) for high-obliquity bodies.
-# Most planets have poles within ~30° of ICRS +z so the default works fine;
-# these need explicit vectors for J2/J3/J4 to be evaluated correctly.
-_SUN_POLE    = _pole_unit_from_radec(286.13,   63.87)  # IAU 2015 solar pole
-_URANUS_POLE = _pole_unit_from_radec(257.311, -15.175)
-_PLUTO_POLE  = _pole_unit_from_radec(132.993,  -6.163)
-# Neptune's pole RA/Dec (43.46°, 89.45° -- nearly +z but slightly tilted).
-_NEPTUNE_POLE = _pole_unit_from_radec(299.36,  43.46)
-# Triton orbits Neptune retrograde at ~157° to Neptune's equator. Triton's
-# own rotational pole is roughly opposite Neptune's orbital normal; we use
-# -Neptune's pole as a first approximation since Triton's own J2 = 0.
+# IAU WGCCRE poles at J2000.0 (see _IAU_POLE_MODELS above); the pole at the
+# window's own epoch replaces these in _build_bodies_at_snapshot.
+_SUN_POLE     = iau_pole_unit("Sun")       # RA 286.13,  Dec 63.87 (constant)
+_URANUS_POLE  = iau_pole_unit("Uranus")    # RA 257.311, Dec -15.175 (constant)
+_PLUTO_POLE   = iau_pole_unit("Pluto")     # RA 132.993, Dec -6.163 (constant)
+# Neptune: RA 299.36 + 0.70 sin N, Dec 43.46 - 0.51 cos N, which at J2000 is
+# RA 299.33, Dec 42.95: 47.05 deg from ICRS +z, not "nearly +z".
+_NEPTUNE_POLE = iau_pole_unit("Neptune")
+# Triton carries no zonal coefficients here (J2 = J3 = J4 = 0), so no force
+# layer reads its pole; -Neptune's pole is a placeholder, not Triton's IAU pole.
 _TRITON_POLE = -_NEPTUNE_POLE
 
 
@@ -155,29 +274,40 @@ _BODY_PARAMS: dict[str, BodyParams] = {
                             love_number_k2=0.02,
                             pole_axis_unit=_SUN_POLE),
     "Mercury":  BodyParams(  2440.0,  0.088,  5.03e-5,   0.0,       -1.0e-5,
-                            love_number_k2=0.45),
+                            love_number_k2=0.45,
+                            pole_axis_unit=iau_pole_unit("Mercury")),
     "Venus":    BodyParams(  6052.0,  0.689,  4.46e-6,   0.0,        0.0,
-                            love_number_k2=0.295),
+                            love_number_k2=0.295,
+                            pole_axis_unit=iau_pole_unit("Venus")),
     "Earth":    BodyParams(  6371.0,  0.367,  1.0826e-3, -2.5e-6,   -1.6e-6,
-                            love_number_k2=0.299),
+                            love_number_k2=0.299,
+                            pole_axis_unit=iau_pole_unit("Earth")),
     "Moon":     BodyParams(  1737.4,  0.120,  2.034e-4,   8.5e-6,   -1.2e-5,
-                            love_number_k2=0.024),
+                            love_number_k2=0.024,
+                            pole_axis_unit=iau_pole_unit("Moon")),
     "Mars":     BodyParams(  3389.5,  0.170,  1.9606e-3,  3.5e-5,   -1.4e-5,
-                            love_number_k2=0.169),
+                            love_number_k2=0.169,
+                            pole_axis_unit=iau_pole_unit("Mars")),
     "Phobos":   BodyParams(    11.2,  0.071,  0.0),
     "Deimos":   BodyParams(     6.1,  0.068,  0.0),
     "Jupiter":  BodyParams( 71492.0,  0.520,  1.4736e-2,  0.0,      -5.87e-4,
-                            love_number_k2=0.535),
+                            love_number_k2=0.535,
+                            pole_axis_unit=iau_pole_unit("Jupiter")),
     "Io":       BodyParams(  1821.6,  0.630,  1.846e-3,   0.0,        0.0,
-                            love_number_k2=0.7),
+                            love_number_k2=0.7,
+                            pole_axis_unit=iau_pole_unit("Io")),
     "Europa":   BodyParams(  1560.8,  0.670,  4.355e-4,   0.0,        0.0,
-                            love_number_k2=0.26),
+                            love_number_k2=0.26,
+                            pole_axis_unit=iau_pole_unit("Europa")),
     "Ganymede": BodyParams(  2634.1,  0.430,  1.276e-4,   0.0,        0.0,
-                            love_number_k2=0.13),
+                            love_number_k2=0.13,
+                            pole_axis_unit=iau_pole_unit("Ganymede")),
     "Callisto": BodyParams(  2410.3,  0.170,  3.5e-5,     0.0,        0.0,
-                            love_number_k2=0.05),
+                            love_number_k2=0.05,
+                            pole_axis_unit=iau_pole_unit("Callisto")),
     "Saturn":   BodyParams( 60268.0,  0.470,  1.6298e-2,  0.0,      -9.15e-4,
-                            love_number_k2=0.39),
+                            love_number_k2=0.39,
+                            pole_axis_unit=iau_pole_unit("Saturn")),
     # Saturn moons -- added 2026-05-15 to provide the perturbations missing
     # from earlier 26-body fixture. Mimas--Tethys 3:2 resonance and
     # Enceladus--Dione 2:1 resonance now both computable; expected to drop
@@ -186,12 +316,14 @@ _BODY_PARAMS: dict[str, BodyParams] = {
     # set to 0 so the j2_zonal toggle skips them.
     "Mimas":    BodyParams(   198.2,  0.962,  0.0,        0.0,        0.0),
     "Enceladus":BodyParams(   252.1,  0.990,  5.4e-3,     0.0,        0.0,
-                            love_number_k2=0.01),
+                            love_number_k2=0.01,
+                            pole_axis_unit=iau_pole_unit("Enceladus")),
     "Tethys":   BodyParams(   531.0,  0.800,  0.0,        0.0,        0.0),
     "Dione":    BodyParams(   561.4,  0.998,  0.0,        0.0,        0.0),
     "Rhea":     BodyParams(   763.8,  0.949,  0.0,        0.0,        0.0),
     "Titan":    BodyParams(  2574.7,  0.220,  3.318e-5,   0.0,        0.0,
-                            love_number_k2=0.6),
+                            love_number_k2=0.6,
+                            pole_axis_unit=iau_pole_unit("Titan")),
     "Uranus":   BodyParams( 25559.0,  0.510,  3.5107e-3,  0.0,      -3.4e-5,
                             love_number_k2=0.36,
                             pole_axis_unit=_URANUS_POLE),
@@ -343,8 +475,10 @@ def _build_bodies_at_snapshot(
 ) -> tuple[list[CelestialBody], list[str], int, list[int | None]]:
     """Build CelestialBody list from a DE440 annual snapshot.
 
-    Per-body parameters (j2, j3, j4, area_m2, pole_axis_unit) are ALWAYS set
-    from _BODY_PARAMS regardless of the predictor's toggles. Predictor-level
+    Per-body parameters (j2, j3, j4, area_m2) are ALWAYS set from _BODY_PARAMS
+    regardless of the predictor's toggles; pole_axis_unit is the IAU pole at
+    the snapshot epoch (iau_pole_unit) for bodies with a published model, else
+    the _BODY_PARAMS value. Predictor-level
     gating now happens at the force-computation layer inside NBodySystem
     (via PhysicsToggles), not by zeroing per-body data here.
 
@@ -354,6 +488,7 @@ def _build_bodies_at_snapshot(
     NBodySystem.respa_step to identify parent-pair fast forces.
     """
     snap = de440["snapshots"][snap_key]
+    snap_jd = snap["epoch"]["jd_tdb"]
     bodies: list[CelestialBody] = []
     names: list[str] = []
     anchor_names: list[str | None] = []  # parallel list of anchor body names
@@ -375,6 +510,10 @@ def _build_bodies_at_snapshot(
         # whether the SRP block runs.
         area_m2 = math.pi * r_m * r_m if (name != "Sun") else 0.0
 
+        # Zonal harmonics act about the body's spin axis at this epoch.
+        pole = (iau_pole_unit(name, snap_jd) if name in _IAU_POLE_MODELS
+                else params.pole_axis_unit)
+
         body = CelestialBody(
             mass_kg=mass,
             position_m=pos,
@@ -386,7 +525,7 @@ def _build_bodies_at_snapshot(
             j2=params.j2,
             j3=params.j3,
             j4=params.j4,
-            pole_axis_unit=params.pole_axis_unit,
+            pole_axis_unit=pole,
         )
         bodies.append(body)
         names.append(name)
