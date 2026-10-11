@@ -424,7 +424,13 @@ L_PLANCK    = HBAR / (M_PLANCK_KG * C) # Planck length √(ℏG/c³) ≈ 1.616e-
 #   The smallest length with physical meaning (below this: quantum gravity).
 #   Use as the natural "effectively zero" floor — not a magic number,
 #   but the universe's own minimum. Derived from ℏ, G, c above.
-M_SUN_KG = 1.989e30    # Solar mass
+# Solar mass: the Sun's GM is known to ~10 digits, G to only ~5, so GM is the
+# primary quantity. IAU 2015 Resolution B3 (arXiv:1510.07674) fixes the nominal
+# solar mass parameter (GM)☉ = 1.3271244e20 m³/s² exactly and says SI masses are
+# (GM)/G with the G stated: here this module's G (CODATA 2018).
+# FIXED 2026-10-10: was the literal 1.989e30 (G·M 2.97e-4 above the IAU GM; A22).
+GM_SUN_M3_S2 = 1.3271244e20        # (GM)☉ nominal, IAU 2015 B3, exact
+M_SUN_KG = GM_SUN_M3_S2 / G        # Solar mass ≈ 1.98841e30 kg (derived)
 L_SUN_W  = 3.828e26    # Solar luminosity (W) — IAU 2015 nominal solar luminosity
 AU_M     = 1.495978707e11  # 1 Astronomical Unit in metres (IAU 2012 exact)
 

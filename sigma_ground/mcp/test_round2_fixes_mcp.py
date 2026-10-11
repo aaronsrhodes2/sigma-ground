@@ -15,6 +15,8 @@ closed form, or the library function the tool must agree with):
             82 GPa); every material's Lame moduli obey the isotropic identities with
             the same call's hydrostatic, uniaxial and shear moduli; annealed copper
             (0.2 % yield <= 140 MPa, C10200 O-temper datasheets) yields at 200 MPa.
+  D5 / A22  one solar mass: every place that carries M_sun gives G*M equal to the
+            IAU 2015 Resolution B3 nominal (GM)sun = 1.3271244e20 m^3/s^2 (exact).
 """
 from __future__ import annotations
 
@@ -143,3 +145,21 @@ def test_elastic_analysis_yield_check_uses_the_materials_yield_stress():
     assert cu["yield_stress_Pa"] <= 140e6
     w = t_ms.elastic_analysis("tungsten")["value"]
     assert w["is_yielded_at_200MPa"] is False
+
+
+# ── D5: one solar mass ───────────────────────────────────────────────────
+def test_every_solar_mass_reproduces_the_iau_2015_gm():
+    from sigma_ground.field import constants as K
+    from sigma_ground.mcp.tools import astronomy, orbital, units
+    from sigma_ground.materia import bodies
+    gm_iau = 1.3271244e20          # IAU 2015 Resolution B3 nominal (GM)sun, exact
+    masses = {
+        "field.constants.M_SUN_KG": K.M_SUN_KG,
+        "solar_system_body('sun')": astronomy.solar_system_body("sun").value["mass_kg"],
+        "materia.bodies sun": bodies._BODIES["sun"].mass_kg,
+        "mcp.tools.orbital": orbital._M_SUN,
+        "convert(1 solar_mass, kg)": units.convert(1.0, "solar_mass", "kg").value,
+    }
+    for where, m in masses.items():
+        assert abs(K.G * m / gm_iau - 1.0) < 1e-15, (where, m)
+    assert len(set(masses.values())) == 1, masses

@@ -9,6 +9,7 @@ directly outside the MCP scope.
 from __future__ import annotations
 
 from sigma_ground.mcp.provenance import ToolResult
+from sigma_ground.field.constants import M_SUN_KG
 
 
 # Solar-system body parameters. Sources: NASA Planetary Fact Sheets,
@@ -17,15 +18,13 @@ from sigma_ground.mcp.provenance import ToolResult
 #              source}
 _SOLAR_SYSTEM_BODIES: dict[str, dict] = {
     "sun": {
-        # PHYSICS_GAP (2026-10-10, unification round 2; KNOWN_GAPS.md): 1.98892e30 is the
-        # IAU 2015 nominal GM (1.3271244e20 m^3/s^2) divided by the obsolete G = 6.67259e-11.
-        # With Mentat's G = 6.6743e-11 the product GM comes out 2.57e-4 high (Mentat
-        # simplify_expr). Flagged, not fixed; fix direction: store GM and derive M.
-        "mass_kg":          1.98892e30,
+        # FIXED 2026-10-10: mass = IAU 2015 (GM)☉ / this repo's G (field.constants), so
+        # G·M is the IAU GM exactly (was 1.98892e30 = GM / the obsolete G 6.67259e-11, A22).
+        "mass_kg":          M_SUN_KG,
         "radius_m":         6.957e8,
         "luminosity_w":     3.828e26,
         "surface_temp_k":   5772.0,
-        "source": "IAU 2015 nominal solar values",
+        "source": "IAU 2015 nominal solar values (mass = nominal (GM)☉ / CODATA 2018 G)",
     },
     "mercury": {
         "mass_kg":           3.3011e23,

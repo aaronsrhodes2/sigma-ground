@@ -23,9 +23,10 @@ from __future__ import annotations
 import math
 
 from sigma_ground.mcp.provenance import ToolResult
+from sigma_ground.field.constants import M_SUN_KG
 
 _AU_M = 1.495978707e11
-_M_SUN = 1.98892e30
+_M_SUN = M_SUN_KG          # (GM)☉ IAU 2015 / G (field.constants)
 
 
 def _resolve_central(central_body: str | None,
