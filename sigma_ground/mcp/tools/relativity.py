@@ -11,11 +11,27 @@ exposed here per the MCP-positioning decision.
 
 from __future__ import annotations
 
+import math
+
 from sigma_ground.mcp.provenance import ToolResult
+
+
+def _nonfinite(inputs: dict):
+    """ToolResult refusing NaN / inf inputs, or None (2026-10-10 audit: NaN
+    and inf passed through to NaN, inf or 0 under physics labels)."""
+    for k, x in inputs.items():
+        if not (isinstance(x, (int, float)) and math.isfinite(x)):
+            return ToolResult(value=None, source="invalid input",
+                              notes=f"{k} must be a finite number (got {x!r})",
+                              inputs=inputs)
+    return None
 
 
 def lorentz_factor(velocity_m_s: float) -> ToolResult:
     """gamma = 1 / sqrt(1 - v^2/c^2)."""
+    bad = _nonfinite({"velocity_m_s": velocity_m_s})
+    if bad:
+        return bad
     from sigma_ground.field.constants import C
     if abs(velocity_m_s) >= C:
         return ToolResult(
@@ -39,6 +55,9 @@ def lorentz_factor(velocity_m_s: float) -> ToolResult:
 def relativistic_time_dilation(rest_time_s: float,
                                  velocity_m_s: float) -> ToolResult:
     """Moving clock's tick interval as seen from rest frame: t = gamma t0."""
+    bad = _nonfinite({"rest_time_s": rest_time_s, "velocity_m_s": velocity_m_s})
+    if bad:
+        return bad
     from sigma_ground.field.constants import C
     if abs(velocity_m_s) >= C:
         return ToolResult(
@@ -63,6 +82,9 @@ def relativistic_time_dilation(rest_time_s: float,
 def relativistic_length_contraction(rest_length_m: float,
                                      velocity_m_s: float) -> ToolResult:
     """Moving ruler's length as seen from rest frame: L = L0 / gamma."""
+    bad = _nonfinite({"rest_length_m": rest_length_m, "velocity_m_s": velocity_m_s})
+    if bad:
+        return bad
     from sigma_ground.field.constants import C
     if abs(velocity_m_s) >= C:
         return ToolResult(
@@ -85,6 +107,9 @@ def relativistic_length_contraction(rest_length_m: float,
 
 def relativistic_energy(rest_mass_kg: float, velocity_m_s: float) -> ToolResult:
     """Total relativistic energy E = gamma m c^2."""
+    bad = _nonfinite({"rest_mass_kg": rest_mass_kg, "velocity_m_s": velocity_m_s})
+    if bad:
+        return bad
     from sigma_ground.field.constants import C
     if abs(velocity_m_s) >= C:
         return ToolResult(value=None, source="invalid input",
@@ -110,15 +135,27 @@ def relativistic_energy(rest_mass_kg: float, velocity_m_s: float) -> ToolResult:
 
 def relativistic_momentum(rest_mass_kg: float,
                             velocity_m_s: float) -> ToolResult:
-    """Relativistic momentum p = gamma m v."""
+    """Relativistic momentum p = gamma m v (signed, along v).
+
+    FIXED 2026-10-10: returned the magnitude (the sign of v was dropped,
+    contrary to the formula label) and accepted negative masses.
+    """
+    bad = _nonfinite({"rest_mass_kg": rest_mass_kg, "velocity_m_s": velocity_m_s})
+    if bad:
+        return bad
     from sigma_ground.field.constants import C
     if abs(velocity_m_s) >= C:
         return ToolResult(value=None, source="invalid input",
                            notes="velocity_m_s must be subluminal",
                            inputs={"rest_mass_kg": rest_mass_kg,
                                    "velocity_m_s": velocity_m_s})
+    if rest_mass_kg < 0:
+        return ToolResult(value=None, source="invalid input",
+                           notes="rest_mass_kg must be non-negative",
+                           inputs={"rest_mass_kg": rest_mass_kg,
+                                   "velocity_m_s": velocity_m_s})
     from sigma_ground.field.relativity import momentum_rel as _pr
-    p = _pr(rest_mass_kg, velocity_m_s)
+    p = math.copysign(_pr(rest_mass_kg, velocity_m_s), velocity_m_s)
     return ToolResult(
         value=p,
         units="kg m/s",
@@ -135,6 +172,9 @@ def relativistic_velocity_addition(u_m_s: float, v_m_s: float) -> ToolResult:
     For collinear velocities u and v (both magnitudes signed along same
     axis). Returns the resultant speed in the original frame.
     """
+    bad = _nonfinite({"u_m_s": u_m_s, "v_m_s": v_m_s})
+    if bad:
+        return bad
     from sigma_ground.field.constants import C
     if abs(u_m_s) >= C or abs(v_m_s) >= C:
         return ToolResult(value=None, source="invalid input",

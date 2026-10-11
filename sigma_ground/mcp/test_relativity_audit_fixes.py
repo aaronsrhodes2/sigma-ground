@@ -157,3 +157,42 @@ def test_mcp_gravitational_redshift_difference_at_earth_surface(h):
     # weak field: dz = G M h / (c^2 R (R + h)) to relative O(r_s/R) = 1e-9
     dz_ref = sc.G * M * h / (sc.c ** 2 * R * (R + h))
     assert dz == pytest.approx(dz_ref, rel=1e-6, abs=0.0)                 # 1.09e-16 per metre
+
+
+# ── B5: MCP input validation ────────────────────────────────────────────────
+
+def test_relativistic_momentum_is_signed_and_refuses_negative_mass():
+    # p = gamma m v: beta = -0.6 -> gamma = 1.25, p = -0.75 c kg m/s
+    tr = t_rel.relativistic_momentum(1.0, -0.6 * sc.c)
+    assert tr.value == pytest.approx(-1.25 * 0.6 * sc.c, rel=1e-12, abs=0.0)
+    assert t_rel.relativistic_momentum(-1.0, 0.6 * sc.c).value is None
+
+
+@pytest.mark.parametrize("call", [
+    lambda: t_rel.lorentz_factor(float("nan")),
+    lambda: t_rel.relativistic_time_dilation(float("inf"), 1e7),
+    lambda: t_rel.relativistic_length_contraction(1.0, float("nan")),
+    lambda: t_rel.relativistic_energy(float("nan"), 1e7),
+    lambda: t_rel.relativistic_momentum(1.0, float("nan")),
+    lambda: t_rel.relativistic_velocity_addition(float("nan"), 0.0),
+])
+def test_mcp_relativity_refuses_non_finite_input(call):
+    assert call().value is None
+
+
+@pytest.mark.parametrize("call", [
+    lambda t: t.gravitational_redshift(-1.98847e30, 1e4),      # was -0.121
+    lambda t: t.gravitational_time_dilation(-1.98847e30, 1e4),  # was 1.138
+    lambda t: t.gravitational_redshift(1.98847e30, -5.0),       # was inf
+    lambda t: t.gravitational_time_dilation(1.98847e30, float("nan")),
+    lambda t: t.hawking_temperature(float("inf")),              # was 0.0 K
+    lambda t: t.hawking_temperature(float("nan")),
+    lambda t: t.hawking_evaporation_time(float("nan")),
+    lambda t: t.schwarzschild_radius(float("nan")),
+    lambda t: t.isco_radius(float("inf")),
+    lambda t: t.photon_sphere_radius(float("nan")),
+])
+def test_mcp_gr_refuses_invalid_mass_or_radius(call):
+    from sigma_ground.mcp.tools import gr as t_gr
+    tr = call(t_gr)
+    assert tr.value is None and tr.source == "invalid input"

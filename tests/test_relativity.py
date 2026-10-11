@@ -274,3 +274,43 @@ def test_kinetic_energy_rel_rejects_v_at_or_above_c():
         kinetic_energy_rel(1.0, C)
     with pytest.raises(ValueError):
         kinetic_energy_rel(1.0, float("nan"))
+
+
+# ── 2026-10-10 audit: input contracts (|v| < c, m0 >= 0, cos in [-1, 1]) ─
+
+@pytest.mark.parametrize("u, v", [(2 * C, 0.5 * C), (-2 * C, 0.9 * C),
+                                  (3 * C, -0.5 * C), (C, -C), (float("nan"), 0.0)])
+def test_velocity_addition_refuses_superluminal_input(u, v):
+    """Was 1.25c, 1.375c, -5c and ZeroDivisionError for these inputs."""
+    with pytest.raises(ValueError):
+        velocity_addition(u, v)
+
+
+def test_beta_refuses_v_at_or_above_c():
+    with pytest.raises(ValueError):
+        beta(2 * C)                                  # was 2.0
+
+
+@pytest.mark.parametrize("cos_theta", [2.0, 1 / 0.6, -1.5, float("nan")])
+def test_doppler_factor_refuses_non_cosine(cos_theta):
+    """Was -4.0 at cos = 2 and ZeroDivisionError at cos = 1/beta."""
+    with pytest.raises(ValueError):
+        doppler_factor(0.6 * C, cos_theta)
+
+
+@pytest.mark.parametrize("fn", [rest_energy, energy_momentum_invariant])
+def test_rest_mass_functions_refuse_negative_or_nan_mass(fn):
+    for m in (-1.0, float("nan"), float("inf")):
+        with pytest.raises(ValueError):
+            fn(m)
+
+
+@pytest.mark.parametrize("fn", [relativistic_energy, kinetic_energy_rel, momentum_rel])
+def test_moving_mass_functions_refuse_negative_mass(fn):
+    with pytest.raises(ValueError):
+        fn(-1.0, 0.6 * C)                            # momentum_rel gave -2.25e8
+
+
+def test_lorentz_factor_refuses_nan():
+    with pytest.raises(ValueError):
+        lorentz_factor(float("nan"))

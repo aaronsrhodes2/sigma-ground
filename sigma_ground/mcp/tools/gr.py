@@ -17,6 +17,25 @@ import math
 from sigma_ground.mcp.provenance import ToolResult
 
 
+def _invalid(inputs: dict, mass_kg, radius_m=None):
+    """ToolResult refusing a non-positive / non-finite mass or radius, or
+    None when the inputs are fine (2026-10-10 audit: NaN and inf came back
+    as NaN, inf or 0 K under physics labels; a negative mass gave a
+    "Schwarzschild" blueshift; r = -5 m was reported as inside the horizon)."""
+    if not (isinstance(mass_kg, (int, float)) and math.isfinite(mass_kg)
+            and mass_kg > 0):
+        return ToolResult(value=None, source="invalid input",
+                          notes="mass must be positive and finite",
+                          inputs=inputs)
+    if radius_m is not None and not (isinstance(radius_m, (int, float))
+                                     and math.isfinite(radius_m)
+                                     and radius_m > 0):
+        return ToolResult(value=None, source="invalid input",
+                          notes="radius must be positive and finite",
+                          inputs=inputs)
+    return None
+
+
 def schwarzschild_radius(mass_kg: float) -> ToolResult:
     """Schwarzschild radius r_s = 2 G M / c^2.
 
@@ -29,12 +48,9 @@ def schwarzschild_radius(mass_kg: float) -> ToolResult:
     -------
     ToolResult with `value` in meters.
     """
-    if mass_kg <= 0:
-        return ToolResult(
-            value=None, source="invalid input",
-            notes="mass must be positive",
-            inputs={"mass_kg": mass_kg},
-        )
+    bad = _invalid({"mass_kg": mass_kg}, mass_kg)
+    if bad:
+        return bad
     from sigma_ground.field.constants import G, C
     rs = 2.0 * G * mass_kg / (C * C)
     return ToolResult(
@@ -49,10 +65,9 @@ def schwarzschild_radius(mass_kg: float) -> ToolResult:
 
 def isco_radius(mass_kg: float) -> ToolResult:
     """Innermost stable circular orbit, r_ISCO = 6 G M / c^2 = 3 r_s."""
-    if mass_kg <= 0:
-        return ToolResult(value=None, source="invalid input",
-                           notes="mass must be positive",
-                           inputs={"mass_kg": mass_kg})
+    bad = _invalid({"mass_kg": mass_kg}, mass_kg)
+    if bad:
+        return bad
     from sigma_ground.field.constants import G, C
     r_isco = 6.0 * G * mass_kg / (C * C)
     return ToolResult(
@@ -69,10 +84,9 @@ def isco_radius(mass_kg: float) -> ToolResult:
 
 def photon_sphere_radius(mass_kg: float) -> ToolResult:
     """Photon sphere radius r_ph = 3 G M / c^2 = 1.5 r_s."""
-    if mass_kg <= 0:
-        return ToolResult(value=None, source="invalid input",
-                           notes="mass must be positive",
-                           inputs={"mass_kg": mass_kg})
+    bad = _invalid({"mass_kg": mass_kg}, mass_kg)
+    if bad:
+        return bad
     from sigma_ground.field.constants import G, C
     r_ph = 3.0 * G * mass_kg / (C * C)
     return ToolResult(
@@ -88,10 +102,9 @@ def photon_sphere_radius(mass_kg: float) -> ToolResult:
 
 def hawking_temperature(mass_kg: float) -> ToolResult:
     """Hawking temperature T_H = hbar c^3 / (8 pi G M k_B)."""
-    if mass_kg <= 0:
-        return ToolResult(value=None, source="invalid input",
-                           notes="mass must be positive",
-                           inputs={"mass_kg": mass_kg})
+    bad = _invalid({"mass_kg": mass_kg}, mass_kg)
+    if bad:
+        return bad
     from sigma_ground.field.constants import G, C, HBAR, K_B
     T_H = HBAR * C**3 / (8.0 * math.pi * G * mass_kg * K_B)
     return ToolResult(
@@ -112,10 +125,9 @@ def hawking_evaporation_time(mass_kg: float) -> ToolResult:
     The photon-only horizon-blackbody estimate (see
     field.gr_basics.hawking_evaporation_time), not Page's computed lifetime.
     """
-    if mass_kg <= 0:
-        return ToolResult(value=None, source="invalid input",
-                           notes="mass must be positive",
-                           inputs={"mass_kg": mass_kg})
+    bad = _invalid({"mass_kg": mass_kg}, mass_kg)
+    if bad:
+        return bad
     from sigma_ground.field.constants import G, C, HBAR
     tau_s = 5120.0 * math.pi * G**2 * mass_kg**3 / (HBAR * C**4)
     # Conversion: 1 year ~ 3.1557e7 s
@@ -140,6 +152,9 @@ def gravitational_redshift(mass_kg: float, radius_m: float) -> ToolResult:
     Returns (lambda_obs / lambda_emitted) - 1 for light emitted at r
     and observed at infinity. Diverges at the horizon.
     """
+    bad = _invalid({"mass_kg": mass_kg, "radius_m": radius_m}, mass_kg, radius_m)
+    if bad:
+        return bad
     from sigma_ground.field.constants import G, C
     r_s = 2.0 * G * mass_kg / (C * C)
     if radius_m <= r_s:
@@ -171,6 +186,9 @@ def gravitational_time_dilation(mass_kg: float, radius_m: float) -> ToolResult:
     Returns the factor by which a clock at radius r runs slower than
     a clock at infinity. Equivalent to sqrt(1 - r_s/r).
     """
+    bad = _invalid({"mass_kg": mass_kg, "radius_m": radius_m}, mass_kg, radius_m)
+    if bad:
+        return bad
     from sigma_ground.field.constants import G, C
     r_s = 2.0 * G * mass_kg / (C * C)
     if radius_m <= r_s:

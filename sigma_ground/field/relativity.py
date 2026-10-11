@@ -20,6 +20,21 @@ from .constants import C, LAMBDA_LIV_MIN_GEV
 from .scale import scale_ratio
 
 
+# ── Input contracts (2026-10-10 audit) ────────────────────────────────
+# A massive body moves with |v| < c; a rest mass is >= 0 and finite; a
+# direction cosine lies in [-1, 1]. Violations raise ValueError instead of
+# returning superluminal, negative or NaN "results". NaN fails every check.
+
+def _check_speed(v, name="v"):
+    if not abs(v) < C:
+        raise ValueError(f"{name}={v!r} m/s: need |{name}| < c = {C:.6e} m/s")
+
+
+def _check_mass(m0):
+    if not (m0 >= 0.0 and m0 != math.inf):
+        raise ValueError(f"m0={m0!r} kg: rest mass must be >= 0 and finite")
+
+
 # ── Lorentz Factor ─────────────────────────────────────────────────────
 
 def lorentz_factor(v):
@@ -37,7 +52,7 @@ def lorentz_factor(v):
         ValueError: if |v| ≥ c
     """
     v = abs(v)
-    if v >= C:
+    if not v < C:                      # also refuses NaN
         raise ValueError(
             f"v={v:.6e} m/s ≥ c={C:.6e} m/s: Lorentz factor undefined at or above c"
         )
@@ -53,7 +68,11 @@ def beta(v):
 
     Returns:
         β (dimensionless, 0 ≤ β < 1)
+
+    Raises:
+        ValueError: if |v| ≥ c (was returned as β ≥ 1 before 2026-10-10)
     """
+    _check_speed(v)
     return abs(v) / C
 
 
@@ -68,6 +87,7 @@ def rest_energy(m0):
     Returns:
         rest energy (J)
     """
+    _check_mass(m0)
     return m0 * C**2
 
 
@@ -81,6 +101,7 @@ def relativistic_energy(m0, v):
     Returns:
         total energy (J)
     """
+    _check_mass(m0)
     return lorentz_factor(v) * m0 * C**2
 
 
@@ -121,6 +142,7 @@ def kinetic_energy_rel(m0, v):
     Returns:
         kinetic energy (J)
     """
+    _check_mass(m0)
     return gamma_minus_one(v) * m0 * C**2
 
 
@@ -134,6 +156,7 @@ def momentum_rel(m0, v):
     Returns:
         momentum magnitude (kg·m/s)
     """
+    _check_mass(m0)
     return lorentz_factor(v) * m0 * abs(v)
 
 
@@ -148,6 +171,7 @@ def energy_momentum_invariant(m0):
     Returns:
         (m₀c²)² in J²
     """
+    _check_mass(m0)
     return (m0 * C**2) ** 2
 
 
@@ -166,7 +190,13 @@ def velocity_addition(u, v):
 
     Returns:
         combined velocity (m/s), −c < w < c
+
+    Raises:
+        ValueError: if |u| ≥ c or |v| ≥ c (superluminal inputs gave
+            superluminal or sign-flipped w, and (c, −c) divided by zero)
     """
+    _check_speed(u, "u")
+    _check_speed(v, "v")
     return (u + v) / (1.0 + u * v / C**2)
 
 
@@ -218,7 +248,13 @@ def doppler_factor(v, cos_theta):
 
     Returns:
         Doppler factor D (dimensionless, > 0)
+
+    Raises:
+        ValueError: if |v| ≥ c or cos_theta is outside [−1, 1] (gave a
+            negative D, or a division by zero at cos_theta = 1/β)
     """
+    if not -1.0 <= cos_theta <= 1.0:
+        raise ValueError(f"cos_theta={cos_theta!r} is not a cosine (need [-1, 1])")
     gamma = lorentz_factor(v)
     b = v / C
     return 1.0 / (gamma * (1.0 - b * cos_theta))

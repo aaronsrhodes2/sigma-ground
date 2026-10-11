@@ -18,7 +18,7 @@ Dependency: G, C, HBAR, K_B from constants; schwarzschild_radius from scale.
 import math
 
 from .constants import G, C, HBAR, K_B
-from .scale import schwarzschild_radius        # r_s = 2GM/c^2
+from .scale import schwarzschild_radius as _scale_schwarzschild_radius
 
 __all__ = [
     'schwarzschild_radius',
@@ -44,7 +44,27 @@ __all__ = [
 _PAGE_FRACTION_SM = 0.53810
 
 
+# ── Input contract (2026-10-10 audit) ───────────────────────────────────
+# Every function here needs M > 0 and finite: before, M <= 0 gave negative
+# radii, a blueshift for "redshift", or a bare "math domain error", while
+# the Hawking functions already raised. NaN fails the check.
+
+def _check_mass(M):
+    if not (M > 0.0 and M != math.inf):
+        raise ValueError(f"M={M!r}: mass must be positive and finite")
+
+
 # ── Schwarzschild geometry ──────────────────────────────────────────────
+
+def schwarzschild_radius(M):
+    """Schwarzschild radius r_s = 2GM/c^2 (m), from field.scale.
+
+    Raises:
+        ValueError: if M is not positive and finite.
+    """
+    _check_mass(M)
+    return _scale_schwarzschild_radius(M)
+
 
 def gravitational_redshift(M, r):
     """Gravitational redshift z = 1/sqrt(1 - r_s/r) - 1.
@@ -66,7 +86,7 @@ def gravitational_redshift(M, r):
         ValueError: if r <= r_s.
     """
     rs = schwarzschild_radius(M)
-    if r <= rs:
+    if not r > rs:
         raise ValueError(f"r={r:.4e} m <= r_s={rs:.4e} m: inside/at the horizon")
     return math.expm1(-0.5 * math.log1p(-rs / r))
 
@@ -85,7 +105,7 @@ def time_dilation_gr(M, r):
         ValueError: if r <= r_s.
     """
     rs = schwarzschild_radius(M)
-    if r <= rs:
+    if not r > rs:
         raise ValueError(f"r={r:.4e} m <= r_s={rs:.4e} m: inside/at the horizon")
     return math.sqrt(1.0 - rs / r)
 
@@ -99,7 +119,8 @@ def escape_velocity(M, r):
         M: mass (kg)
         r: radius (m), must be > 0
     """
-    if r <= 0:
+    _check_mass(M)
+    if not r > 0:
         raise ValueError(f"r={r} <= 0: radius must be positive")
     return math.sqrt(2.0 * G * M / r)
 
@@ -112,6 +133,7 @@ def isco_radius(M):
     r_ISCO = 6 GM/c^2 = 3 r_s. Inside it, no stable circular orbits exist.
     Reference: Bardeen, Press & Teukolsky 1972, ApJ 178, 347.
     """
+    _check_mass(M)
     return 6.0 * G * M / C**2
 
 
@@ -120,6 +142,7 @@ def photon_sphere_radius(M):
 
     Photons travel in unstable circular orbits at this radius.
     """
+    _check_mass(M)
     return 3.0 * G * M / C**2
 
 
@@ -134,8 +157,7 @@ def hawking_temperature(M):
     Args:
         M: black hole mass (kg), must be > 0.
     """
-    if M <= 0:
-        raise ValueError(f"M={M} <= 0: mass must be positive")
+    _check_mass(M)
     return HBAR * C**3 / (8.0 * math.pi * G * M * K_B)
 
 
@@ -154,8 +176,7 @@ def hawking_luminosity(M):
     Args:
         M: black hole mass (kg), must be > 0.
     """
-    if M <= 0:
-        raise ValueError(f"M={M} <= 0: mass must be positive")
+    _check_mass(M)
     return HBAR * C**6 / (15360.0 * math.pi * G**2 * M**2)
 
 
@@ -175,8 +196,7 @@ def hawking_evaporation_time(M):
     Args:
         M: initial black hole mass (kg), must be > 0.
     """
-    if M <= 0:
-        raise ValueError(f"M={M} <= 0: mass must be positive")
+    _check_mass(M)
     return 5120.0 * math.pi * G**2 * M**3 / (HBAR * C**4)
 
 
@@ -193,8 +213,7 @@ def page_time_sm(M):
     Args:
         M: initial black hole mass (kg), must be > 0.
     """
-    if M <= 0:
-        raise ValueError(f"M={M} <= 0: mass must be positive")
+    _check_mass(M)
     return _PAGE_FRACTION_SM * hawking_evaporation_time(M)
 
 
@@ -206,8 +225,7 @@ def bekenstein_hawking_entropy(M):
     Args:
         M: black hole mass (kg), must be > 0.
     """
-    if M <= 0:
-        raise ValueError(f"M={M} <= 0: mass must be positive")
+    _check_mass(M)
     return K_B * 4.0 * math.pi * G * M * M / (HBAR * C)
 
 
@@ -222,6 +240,7 @@ def tidal_force(M, r, dr, m=1.0):
         dr: radial separation of the two test points (m)
         m: test mass (kg); default 1.0 returns acceleration difference (m/s^2)
     """
-    if r <= 0:
+    _check_mass(M)
+    if not r > 0:
         raise ValueError(f"r={r} <= 0: radius must be positive")
     return 2.0 * G * M * m * dr / r**3

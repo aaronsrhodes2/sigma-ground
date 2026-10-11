@@ -361,3 +361,31 @@ def test_hawking_evaporation_time_integrates_its_own_luminosity():
     M = 1.0e12
     t = hawking_evaporation_time(M)
     assert t == pytest.approx(M * C**2 / (3.0 * hawking_luminosity(M)), rel=1e-12, abs=0.0)
+
+
+# ── 2026-10-10 audit: one mass contract for every function (M > 0, finite) ─
+
+@pytest.mark.parametrize("call", [
+    lambda M: schwarzschild_radius(M),
+    lambda M: isco_radius(M),
+    lambda M: photon_sphere_radius(M),
+    lambda M: gravitational_redshift(M, 1e4),
+    lambda M: time_dilation_gr(M, 1e4),
+    lambda M: escape_velocity(M, 1e4),
+    lambda M: tidal_force(M, 1e9, 1.0),
+    lambda M: hawking_temperature(M),
+    lambda M: hawking_luminosity(M),
+    lambda M: hawking_evaporation_time(M),
+    lambda M: page_time_sm(M),
+])
+@pytest.mark.parametrize("M", [-M_SUN_KG, 0.0, float("nan"), float("inf")])
+def test_gr_basics_refuses_nonpositive_or_nonfinite_mass(call, M):
+    """Was: negative radii (-8862 m ISCO), a 'redshift' of -0.121 and a clock
+    running fast for -M_sun, 0 K for M = inf, NaN for NaN."""
+    with pytest.raises(ValueError):
+        call(M)
+
+
+def test_gravitational_redshift_refuses_nan_radius():
+    with pytest.raises(ValueError):
+        gravitational_redshift(M_SUN_KG, float("nan"))
