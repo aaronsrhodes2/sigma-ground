@@ -657,8 +657,15 @@ def _integrate_nbody(
     start_jd:         float,
     sample_jds:       list[float],
     parent_attractor_indices: list[int | None] | None = None,
+    checkpoint_path:  "Path | str | None" = None,
 ) -> dict[str, np.ndarray]:
     """Forward-integrate from start_jd, sample heliocentric km at sample_jds.
+
+    checkpoint_path: optional .npz file. After every sample the full state (positions, velocities, time, the samples so
+    far) is written atomically; if the file already exists and matches this run (same bodies, same sample epochs, forest-ruth
+    integrator) the integration resumes from it. A resumed run is bit-identical to an uninterrupted one. This exists because a
+    20-yr window at dt = 0.05 d takes about 6 h and a lost process must not cost it all (2026-10-11: seven such jobs died
+    together at 91 % with no trace). Only the fr4 integrator is checkpointed; others ignore the argument.
 
     sample_jds[0] must equal start_jd (the trivial sample = initial state).
 
@@ -722,11 +729,44 @@ def _integrate_nbody(
             hel_km = (system.bodies[i].position_m - sun_pos) / KM_TO_M
             samples[n].append(hel_km.copy())
 
-    # t = sample_jds[0]: initial state
-    _snapshot()
+    ckpt = Path(checkpoint_path) if (checkpoint_path is not None and predictor.integrator == "fr4") else None
+    done = 0                     # number of sample epochs after the first that are already integrated
+    if ckpt is not None and ckpt.exists():
+        loaded = None
+        try:
+            with np.load(ckpt, allow_pickle=False) as z:       # closed before any later atomic replace (Windows)
+                if (list(z["names"]) == list(body_names) and np.array_equal(z["sample_jds"], np.asarray(sample_jds, dtype=float))
+                        and float(z["dt_days"]) == float(predictor.dt_days)):
+                    loaded = dict(done=int(z["done"]), time=float(z["time"]), pos=z["pos"].copy(), vel=z["vel"].copy(),
+                                  samples=z["samples"].copy())
+        except Exception:
+            loaded = None
+        if loaded is not None:
+            done = loaded["done"]
+            system.bodies = [b.replace(position_m=loaded["pos"][i].copy(), velocity_m_s=loaded["vel"][i].copy())
+                             for i, b in enumerate(system.bodies)]
+            system._time = loaded["time"]
+            for i, n in enumerate(body_names):
+                samples[n] = [row.copy() for row in loaded["samples"][i][:done + 1]]
 
-    current_jd = start_jd
-    for target_jd in sample_jds[1:]:
+    def _save_checkpoint(k_done: int) -> None:
+        if ckpt is None:
+            return
+        tmp = ckpt.with_suffix(".tmp.npz")
+        np.savez(tmp, names=np.array(body_names), sample_jds=np.asarray(sample_jds, dtype=float), dt_days=float(predictor.dt_days),
+                 done=k_done, time=float(system._time),
+                 pos=np.array([b.position_m for b in system.bodies]), vel=np.array([b.velocity_m_s for b in system.bodies]),
+                 samples=np.array([np.array(samples[n]) for n in body_names]))
+        tmp.replace(ckpt)
+
+    if done == 0:
+        # t = sample_jds[0]: initial state
+        _snapshot()
+
+    current_jd = sample_jds[done]
+    for k, target_jd in enumerate(sample_jds[1:], start=1):
+        if k <= done:
+            continue
         dt_total_days = target_jd - current_jd
         n_steps = max(1, int(round(dt_total_days / predictor.dt_days)))
         # use exact step size that lands on target_jd
@@ -735,6 +775,7 @@ def _integrate_nbody(
             step_fn(exact_dt_s)
         current_jd = target_jd
         _snapshot()
+        _save_checkpoint(k)
 
     return {n: np.array(samples[n]) for n in body_names}
 
@@ -829,6 +870,7 @@ def run_rolling_shootout(
     de440:                  dict | None = None,
     verbose:                bool = True,
     output_path:            "Path | str | None" = _USE_DEFAULT_OUTPUT,
+    checkpoint_dir:         "Path | str | None" = None,
 ) -> list[WindowSample]:
     """Run the rolling-window shootout.
 
@@ -845,6 +887,8 @@ def run_rolling_shootout(
                             sub-annual samples between snapshots carry the
                             prediction with truth_km = error_au = None.
     predictors            : list of Predictor specs (default: PREDICTORS)
+    checkpoint_dir        : if given, every (predictor, window) integration saves its state after each sample epoch to
+                            <dir>/<predictor>__<window>.npz and resumes from it when rerun (see _integrate_nbody).
     output_path           : where to write the results JSON. Default: the
                             untracked _DEFAULT_RESULTS_OUTPUT (local-cache/);
                             None writes nothing. The committed
@@ -910,9 +954,13 @@ def run_rolling_shootout(
             else:
                 bodies, body_names, sun_idx, parent_idx = _build_bodies_at_snapshot(
                     w_key, de440, predictor)
+                _ck = None
+                if checkpoint_dir is not None:
+                    Path(checkpoint_dir).mkdir(parents=True, exist_ok=True)
+                    _ck = Path(checkpoint_dir) / f"{predictor.name}__{w_key}.npz"
                 preds = _integrate_nbody(
                     predictor, bodies, body_names, sun_idx, start_jd, sample_jds,
-                    parent_attractor_indices=parent_idx)
+                    parent_attractor_indices=parent_idx, checkpoint_path=_ck)
 
             elapsed = time.time() - t0
             if verbose:

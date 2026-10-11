@@ -414,3 +414,49 @@ class TestShootoutOutputs:
         assert out.exists()
         assert (_sha(rs._RESULTS_FILE), _sha(fixture)) == before
         assert rs._RESULTS_FILE.exists()
+
+
+class TestCheckpointResume:
+    """A long integration killed part-way resumes from its last annual checkpoint and is BIT-IDENTICAL to an uninterrupted one
+    (2026-10-11: seven 6-hour jobs died together with no trace; a lost process must cost at most one simulated year)."""
+
+    @staticmethod
+    def _setup():
+        pred = rs.Predictor("ck_newton", rs._NO_PHYSICS, dt_days=1.0)
+        bodies, names, sun_idx, parent_idx = rs._build_bodies_at_snapshot("j2015", _DE440, pred)
+        start = _DE440["snapshots"]["j2015"]["epoch"]["jd_tdb"]
+        return pred, bodies, names, sun_idx, parent_idx, start, [start, start + 365.25, start + 730.5, start + 1095.75]
+
+    def test_resumed_run_is_bit_identical(self, tmp_path):
+        from unittest import mock
+        from sigma_ground.field.interface.nbody import NBodySystem
+        pred, bodies, names, sun_idx, parent_idx, start, sjds = self._setup()
+        straight = rs._integrate_nbody(pred, bodies, names, sun_idx, start, sjds, parent_attractor_indices=parent_idx)
+        ck = tmp_path / "w.npz"
+        real = NBodySystem.forest_ruth_step
+        calls = {"n": 0}
+
+        def dying(self, dt):
+            calls["n"] += 1
+            if calls["n"] == 500:                       # dies inside year 2, after year 1 was checkpointed
+                raise KeyboardInterrupt("simulated kill")
+            return real(self, dt)
+
+        with mock.patch.object(NBodySystem, "forest_ruth_step", dying):
+            with pytest.raises(KeyboardInterrupt):
+                rs._integrate_nbody(pred, bodies, names, sun_idx, start, sjds, parent_attractor_indices=parent_idx, checkpoint_path=ck)
+        assert ck.exists()
+        with np.load(ck) as z:
+            assert int(z["done"]) == 1                  # one full year survived
+        resumed = rs._integrate_nbody(pred, bodies, names, sun_idx, start, sjds, parent_attractor_indices=parent_idx, checkpoint_path=ck)
+        for n in names:
+            assert np.array_equal(resumed[n], straight[n]), n
+
+    def test_mismatched_checkpoint_is_ignored(self, tmp_path):
+        pred, bodies, names, sun_idx, parent_idx, start, sjds = self._setup()
+        ck = tmp_path / "w.npz"
+        rs._integrate_nbody(pred, bodies, names, sun_idx, start, sjds[:3], parent_attractor_indices=parent_idx, checkpoint_path=ck)
+        a = rs._integrate_nbody(pred, bodies, names, sun_idx, start, sjds, parent_attractor_indices=parent_idx, checkpoint_path=ck)
+        b = rs._integrate_nbody(pred, bodies, names, sun_idx, start, sjds, parent_attractor_indices=parent_idx)
+        for n in names:
+            assert np.array_equal(a[n], b[n]), n

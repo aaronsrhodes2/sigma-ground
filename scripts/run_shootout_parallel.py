@@ -41,11 +41,13 @@ def _pool(dt_days: float | None):
     return rs, pool
 
 
-def _worker(pred_name: str, key: str, horizon: float, dt_days: float | None, out: str, fixture: str | None) -> None:
+def _worker(pred_name: str, key: str, horizon: float, dt_days: float | None, out: str, fixture: str | None,
+            ckpt_dir: str | None = None) -> None:
     rs, pool = _pool(dt_days)
     pred = pool[pred_name]
     de440 = json.loads(Path(fixture).read_text()) if fixture and fixture != "none" else None
-    rs.run_rolling_shootout([key], horizon, 1.0, predictors=[pred], de440=de440, verbose=False, output_path=out)
+    rs.run_rolling_shootout([key], horizon, 1.0, predictors=[pred], de440=de440, verbose=False, output_path=out,
+                            checkpoint_dir=None if not ckpt_dir or ckpt_dir == "none" else ckpt_dir)
 
 
 def _job_file(outdir: Path, pass_name: str, pred: str, key: str) -> Path:
@@ -107,12 +109,12 @@ def main() -> int:
                     help="DE440 state-vector fixture to use (default: the original tracked one). Past data is never overwritten: "
                          "recalculations read a *_v2physics fixture and write to their own labelled folder.")
     ap.add_argument("--label", default=None, help="baseline label stored in the merged metadata, e.g. v2physics_2026-10-10")
-    ap.add_argument("--worker", nargs=6, metavar=("PRED", "KEY", "HORIZON", "DT", "OUT", "FIXTURE"), help=argparse.SUPPRESS)
+    ap.add_argument("--worker", nargs=7, metavar=("PRED", "KEY", "HORIZON", "DT", "OUT", "FIXTURE", "CKPT"), help=argparse.SUPPRESS)
     a = ap.parse_args()
 
     if a.worker:
-        pred, key, horizon, dt, out, fixture = a.worker
-        _worker(pred, key, float(horizon), None if dt == "none" else float(dt), out, fixture)
+        pred, key, horizon, dt, out, fixture, ckpt = a.worker
+        _worker(pred, key, float(horizon), None if dt == "none" else float(dt), out, fixture, ckpt)
         return 0
 
     rs, pool = _pool(a.dt_days)
@@ -145,15 +147,20 @@ def main() -> int:
         print(f"{len(jobs)} jobs to run, {a.workers} workers, dt = {a.dt_days or 'predictor default'} d, out = {a.outdir}", flush=True)
         env = dict(os.environ, OMP_NUM_THREADS="1", MKL_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1", PYTHONDONTWRITEBYTECODE="1")
         running: list[tuple[subprocess.Popen, tuple, float]] = []
+        horizon_of = {(j[0], j[2]): j[3] for j in jobs}
         pending, done, failed, t0 = list(jobs), 0, [], time.time()
+        attempts: dict[tuple, int] = {}
+        MAX_ATTEMPTS = 3
         while pending or running:
             while pending and len(running) < a.workers:
                 ps, pred, key, horizon, f = pending.pop(0)
                 tmp = f.with_suffix(".part")
                 cmd = [sys.executable, "-X", "utf8", str(Path(__file__).resolve()), "--worker", pred, key, str(horizon),
-                       "none" if a.dt_days is None else str(a.dt_days), str(tmp), str(a.fixture) if a.fixture else "none"]
+                       "none" if a.dt_days is None else str(a.dt_days), str(tmp), str(a.fixture) if a.fixture else "none",
+                       str(a.outdir / "ckpt")]
+                attempts[(ps, pred, key)] = attempts.get((ps, pred, key), 0) + 1
                 running.append((subprocess.Popen(cmd, env=env, stdout=subprocess.DEVNULL,
-                                                 stderr=open(f.with_suffix(".log"), "w")), (ps, pred, key, f), time.time()))
+                                                 stderr=open(f.with_suffix(".log"), "a")), (ps, pred, key, f), time.time()))
             time.sleep(5)
             for item in list(running):
                 proc, (ps, pred, key, f), t1 = item
@@ -163,11 +170,17 @@ def main() -> int:
                 tmp = f.with_suffix(".part")
                 if proc.returncode == 0 and tmp.exists():
                     tmp.replace(f)
+                    (a.outdir / "ckpt" / f"{pred}__{key}.npz").unlink(missing_ok=True)
                     done += 1
                     print(f"[{time.time() - t0:7.0f}s] done {ps}/{pred}/{key} in {time.time() - t1:.0f}s  ({done}/{len(jobs)})", flush=True)
                 else:
-                    failed.append((ps, pred, key))
-                    print(f"[{time.time() - t0:7.0f}s] FAILED {ps}/{pred}/{key} (see {f.with_suffix('.log')})", flush=True)
+                    n_try = attempts.get((ps, pred, key), 1)
+                    print(f"[{time.time() - t0:7.0f}s] FAILED {ps}/{pred}/{key} exit code {proc.returncode} after "
+                          f"{time.time() - t1:.0f}s, attempt {n_try}/{MAX_ATTEMPTS} (see {f.with_suffix('.log')})", flush=True)
+                    if n_try < MAX_ATTEMPTS:
+                        pending.insert(0, (ps, pred, key, horizon_of[(ps, key)], f))   # resumes from its checkpoint
+                    else:
+                        failed.append((ps, pred, key))
         print(f"finished: {done} ok, {len(failed)} failed, {time.time() - t0:.0f}s wall", flush=True)
     for ps in passes:
         out = merge(a.outdir, ps, names, a.dt_days, a.label, str(a.fixture) if a.fixture else None)
