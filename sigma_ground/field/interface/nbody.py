@@ -41,6 +41,7 @@ References
 from __future__ import annotations
 
 import math
+import warnings
 from dataclasses import dataclass, replace as _replace
 from typing import Sequence
 
@@ -67,6 +68,13 @@ _FR_C     = [_FR_THETA / 2.0,                # c₁ = c₄
 _FR_D     = [_FR_THETA,                      # d₁ = d₃
              1.0 - 2.0 * _FR_THETA,          # d₂  (NEGATIVE — unavoidable at 4th order)
              _FR_THETA]
+
+# Implicit velocity kick for velocity-dependent forces (gr_1pn, eih_cross): v = v_base + h·a(x, v) is solved by
+# fixed-point iteration. The map contracts by θ ≈ h·|∂a/∂v| ~ h·ω·(v/c)² (≈ 4e-10 for Mercury at dt = 0.1 d), so it
+# converges in one or two extra force evaluations. Stop when the estimated remaining error θ/(1−θ)·|Δv| (Hairer &
+# Wanner, Solving ODEs II, §IV.8) is below a few ulps of the largest speed. Numerical choices, not physics.
+_IMPLICIT_KICK_RTOL     = 4.0 * float(np.finfo(np.float64).eps)
+_IMPLICIT_KICK_MAX_ITER = 25
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -258,14 +266,18 @@ class NBodySystem:
     Two integration methods:
       step()             Velocity-Verlet, 2nd-order symplectic. Fast.
                          Use for well-resolved inner-planet / moon systems.
-      forest_ruth_step() Forest-Ruth, 4th-order symplectic. 3× cost.
+      forest_ruth_step() Forest-Ruth, 4th-order symplectic. 3 force
+                         evaluations per step against 2 for step().
                          Required for chaotic high-eccentricity orbits
                          (comets, NEAs, binary pulsars) where 2nd-order
                          energy drift accumulates over many periods.
 
-    Forest-Ruth maintains EXACT symplecticity for fixed dt, so energy and
-    angular momentum are conserved to machine precision over arbitrary time.
-    (Variable dt breaks symplecticity in BOTH schemes — use fixed dt.)
+    For fixed dt and position-only forces both schemes are symplectic: angular
+    momentum is conserved to round-off and the energy error stays bounded
+    (O(dt²) and O(dt⁴)) with no secular drift. (Variable dt breaks
+    symplecticity in BOTH schemes — use fixed dt.) With velocity-dependent
+    layers (gr_1pn, eih_cross) the kicks are implicit and time-symmetric, so
+    the orders 2 and 4 hold; they then cost 3 and 6 evaluations per step.
 
     Parameters
     ----------
@@ -737,13 +749,72 @@ class NBodySystem:
 
         return acc
 
+    # ── implicit kick for velocity-dependent forces ───────────────────────
+
+    def _has_velocity_dependent_forces(self) -> bool:
+        """True when a layer that reads the velocities is on (gr_1pn, eih_cross)."""
+        return bool(self.toggles.gr_1pn or self.toggles.eih_cross)
+
+    def _set_velocities(self, vel: NDArray[np.float64]) -> None:
+        self.bodies = [b.replace(velocity_m_s=vel[i].copy()) for i, b in enumerate(self.bodies)]
+
+    def _implicit_kick(
+        self,
+        v_base: NDArray[np.float64],
+        h:      float,
+        accel,
+        u0:     NDArray[np.float64] | None = None,
+        a_u0:   NDArray[np.float64] | None = None,
+    ) -> NDArray[np.float64]:
+        """Solve v = v_base + h·a(x, v) at the current positions by fixed-point iteration.
+
+        ``accel`` is the force routine (compute_accelerations or compute_slow_accelerations). The iteration starts from
+        ``u0`` (default v_base); ``a_u0`` is accel at u0 if the caller already has it. On return the bodies carry the
+        solution, which is also returned as an (N, 3) array.
+        """
+        v_base = np.asarray(v_base, dtype=np.float64).reshape(-1, 3)
+        u_prev = v_base if u0 is None else np.asarray(u0, dtype=np.float64).reshape(-1, 3)
+        if a_u0 is None:
+            self._set_velocities(u_prev)
+            a_u0 = accel()
+        u = v_base + h * a_u0
+        d_prev = float(np.max(np.abs(u - u_prev))) if u.size else 0.0
+        converged = False
+        for _ in range(_IMPLICIT_KICK_MAX_ITER):
+            tol = _IMPLICIT_KICK_RTOL * float(np.max(np.abs(u))) if u.size else 0.0
+            if d_prev <= tol:
+                converged = True
+                break
+            self._set_velocities(u)
+            u_new = v_base + h * accel()
+            d = float(np.max(np.abs(u_new - u)))
+            theta = d / d_prev                       # contraction factor of the map
+            u, d_prev = u_new, d
+            if d <= tol or (theta < 1.0 and theta / (1.0 - theta) * d <= tol):
+                converged = True
+                break
+        if not converged:
+            warnings.warn(
+                "implicit velocity kick did not converge: the velocity-dependent force is too strong for this dt "
+                f"(last |dv| = {d_prev:.3e} m/s); reduce dt",
+                RuntimeWarning, stacklevel=3,
+            )
+        self._set_velocities(u)
+        return u
+
     # ── velocity-Verlet (2nd-order symplectic) ─────────────────────────────
 
     def step(self, dt: float, include_gw_loss: bool | None = None) -> None:
         """Advance dt using velocity-Verlet (leapfrog).
 
-        Symplectic, O(dt²) global error per orbit.  Two force evaluations.
+        Symplectic, O(dt²) global error.  Two force evaluations with position-only forces.
         For well-sampled orbits (≥ 88 steps/period) this is sufficient.
+
+        Velocity-dependent forces (gr_1pn, eih_cross): the closing half-kick
+        v_{n+1} = v_{n+½} + ½dt·a(x_{n+1}, v_{n+1}) is implicit and is solved by fixed-point iteration (usually two
+        extra force evaluations). The step is then time-symmetric and 2nd order (generalised leapfrog; Hairer, Lubich
+        & Wanner 2006, Geometric Numerical Integration, §VI.3). FIXED 2026-10-10 (A12): the closing kick used
+        a(x_{n+1}, v_n) and the step was first order.
 
         For highly-eccentric orbits where timestep adaption is needed,
         use forest_ruth_step() with a fixed small dt instead.
@@ -766,8 +837,12 @@ class NBodySystem:
         for i in range(n):
             self.bodies[i] = self.bodies[i].replace(position_m=pos_new[i])
 
-        acc_new = self.compute_accelerations()
-        vel_new = [vel_half[i] + 0.5 * dt * acc_new[i] for i in range(n)]
+        if self._has_velocity_dependent_forces():
+            v_impl  = self._implicit_kick(np.array(vel_half).reshape(-1, 3), 0.5 * dt, self.compute_accelerations)
+            vel_new = [v_impl[i].copy() for i in range(n)]
+        else:
+            acc_new = self.compute_accelerations()
+            vel_new = [vel_half[i] + 0.5 * dt * acc_new[i] for i in range(n)]
 
         # GW damping resolution: legacy kwarg overrides toggle if given,
         # else fall through to the PhysicsToggles flag.
@@ -787,13 +862,13 @@ class NBodySystem:
         """Advance dt using 4th-order Forest-Ruth symplectic integration.
 
         Forest & Ruth (1990): 7 sub-steps (4 drifts, 3 kicks), 3 force
-        evaluations.  Exact symplecticity for fixed dt — energy and angular
-        momentum conserved to machine precision over arbitrary time.
+        evaluations.  Symplectic for fixed dt with position-only forces: angular
+        momentum is conserved to round-off and the energy error stays bounded at
+        O(dt⁴) (a conserved shadow Hamiltonian), with no secular drift.
 
-        PHYSICS_GAP (2026-10-10, unification round 2, U9; KNOWN_GAPS.md): the
-        symplecticity and 4th order hold for position-only forces. With the
-        velocity-dependent layers on (gr_1pn, eih_cross) each kick is explicit in
-        v and the scheme converges at FIRST order in dt (measured ratio 1.997).
+        FIXED 2026-10-10 (A12): with velocity-dependent layers (gr_1pn, eih_cross) each kick is the time-symmetric
+        trapezoidal kick v' = v + ½d·dt[a(x, v) + a(x, v')], solved by fixed-point iteration (usually one extra force
+        evaluation per kick), so the triple-jump composition is 4th order again (it was first order).
 
         Coefficients (exact mathematics, not approximations):
             θ  = 1 / (2 − ∛2) ≈ 1.3512
@@ -813,6 +888,7 @@ class NBodySystem:
         """
         c = _FR_C
         d = _FR_D
+        velocity_dependent = self._has_velocity_dependent_forces()
 
         def _drift(frac: float) -> None:
             self.bodies = [
@@ -822,6 +898,11 @@ class NBodySystem:
 
         def _kick(frac: float) -> None:
             acc = self.compute_accelerations()
+            if velocity_dependent:
+                h_half = 0.5 * frac * dt
+                v0 = np.array([b.velocity_m_s for b in self.bodies], dtype=np.float64).reshape(-1, 3)
+                self._implicit_kick(v0 + h_half * acc, h_half, self.compute_accelerations, u0=v0, a_u0=acc)
+                return
             self.bodies = [
                 b.replace(velocity_m_s=b.velocity_m_s + frac * dt * acc[i])
                 for i, b in enumerate(self.bodies)
@@ -979,11 +1060,17 @@ class NBodySystem:
 
         # 3. Half-kick using slow forces (recomputed at new positions)
         acc_slow = self.compute_slow_accelerations()
-        for i in range(n):
-            b = self.bodies[i]
-            self.bodies[i] = b.replace(
-                velocity_m_s=b.velocity_m_s + 0.5 * dt * acc_slow[i]
-            )
+        if self._has_velocity_dependent_forces():
+            # FIXED 2026-10-10 (A12): GR sits in the slow forces, so this closing half-kick is implicit,
+            # v_{n+1} = v + ½dt·a_slow(x_{n+1}, v_{n+1}); explicit, the step was first order.
+            v0 = np.array([b.velocity_m_s for b in self.bodies], dtype=np.float64).reshape(-1, 3)
+            self._implicit_kick(v0, 0.5 * dt, self.compute_slow_accelerations, u0=v0, a_u0=acc_slow)
+        else:
+            for i in range(n):
+                b = self.bodies[i]
+                self.bodies[i] = b.replace(
+                    velocity_m_s=b.velocity_m_s + 0.5 * dt * acc_slow[i]
+                )
 
         self._time += dt
 
