@@ -43,23 +43,23 @@ class SGPhysicsMixin:
     # ── gravitational parameters ─────────────────────────────────────────
 
     def sg_gm(self, body_name: str) -> float:
-        """GM in m³/s² from DE440 measurements.
+        """GM in m³/s² from DE440 (names are case-insensitive).
 
-        More precise than CODATA-derived values used in astropy/scipy.
-        Source: Folkner et al. (2014), ANCHOR_GM in local_library.interface.orbital.
+        Source: JPL SSD Astrodynamic Parameters (astro_par), from Park et al.
+        2021, AJ 161, 105 -- orbital.DE440_GM.  Mars..Pluto are SYSTEM GMs
+        (planet + satellites), the mass a heliocentric orbit feels; the
+        planet-only GMs (central mass of a satellite orbit) are in
+        orbital.PLANET_GM.  FIXED 2026-10-10: Sun and Earth were DE430
+        values, Mercury a pre-DE430 value (+10 ppm), and Mars..Pluto
+        planet-only GMs (Pluto -10.9 %), all labelled DE440.
         """
-        from sigma_ground.field.interface.orbital import ANCHOR_GM
-        _extra = {
-            "Mercury": 22_032.09,
-            "Venus":   324_858.59,
-            "Uranus":    5_793_950.6103,
-            "Neptune":   6_835_099.97,
-        }
-        km3 = ANCHOR_GM.get(body_name) or _extra.get(body_name)
+        from sigma_ground.field.interface.orbital import DE440_GM
+        by_lower = {k.lower(): v for k, v in DE440_GM.items()}
+        km3 = by_lower.get(str(body_name).lower())
         if km3 is None:
             raise KeyError(
                 f"No DE440 GM for {body_name!r}. "
-                f"Available: {list(ANCHOR_GM.keys()) + list(_extra.keys())}"
+                f"Available: {list(DE440_GM.keys())}"
             )
         return km3 * 1e9  # km³/s² → m³/s²
 

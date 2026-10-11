@@ -38,8 +38,10 @@ class TestSGConstants(unittest.TestCase):
         self.assertAlmostEqual(SGConstants.G, _G, places=20)
 
     def test_GM_sun_de440(self):
-        """GM_sun must match the DE440 value (132712440041.93938 km³/s²)."""
-        expected = 132_712_440_041.93938 * 1e9
+        """GM_sun must match the DE440 value, 132712440041.279419 km³/s²
+        (JPL SSD astro_par; Park et al. 2021, AJ 161, 105).  Until
+        2026-10-10 this test pinned 132712440041.93938, the DE430 value."""
+        expected = 132_712_440_041.279419 * 1e9
         self.assertAlmostEqual(SGConstants.GM_sun, expected, delta=1e6)
 
     def test_GM_sun_more_precise_than_astropy(self):
