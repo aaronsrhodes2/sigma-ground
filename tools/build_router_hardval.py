@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import hashlib
 import json
 import re
 import statistics
@@ -94,13 +95,47 @@ def similarity(question: str, train_grams: list) -> float:
     return best
 
 
-async def build(spec: list, train_questions: list, guard, session) -> tuple[list, dict]:
+def cache_key(item: dict, plan: dict) -> str:
+    return hashlib.sha256(json.dumps([item["question"], plan], sort_keys=True,
+                                     ensure_ascii=False).encode("utf-8")).hexdigest()[:20]
+
+
+async def verify_all(spec: list, cache_path: Path | None, session_factory) -> dict:
+    """id -> (verified | None, why). Results are cached by question + plan, so once every
+    item is cached no server is started (a fresh Mentat server's first tool call imports pint,
+    which takes minutes on a busy CPU)."""
+    cache = {}
+    if cache_path and cache_path.exists():
+        cache = json.loads(cache_path.read_text(encoding="utf-8"))
+    out, todo = {}, []
+    for item in spec:
+        plan = resolve_macros(item["plan"])
+        hit = cache.get(item["id"])
+        if hit and hit["key"] == cache_key(item, plan):
+            out[item["id"]] = (hit["verified"], hit["why"])
+        else:
+            todo.append((item, plan))
+    if todo:
+        print(f"verifying {len(todo)} of {len(spec)} items on the server ({len(spec) - len(todo)} cached)", flush=True)
+        async with session_factory() as session:
+            for item, plan in todo:
+                verified, why = await verify(session, plan, item["question"])
+                out[item["id"]] = (verified, why)
+                cache[item["id"]] = {"key": cache_key(item, plan), "verified": verified, "why": why}
+                if cache_path:
+                    cache_path.write_text(json.dumps(cache, indent=1, ensure_ascii=False), encoding="utf-8")
+    else:
+        print(f"all {len(spec)} items cached: no server needed", flush=True)
+    return out
+
+
+def build(spec: list, train_questions: list, guard, verified_by_id: dict) -> tuple[list, dict]:
     train_grams = [D._trigrams(q) for q in train_questions]
     keep, report = [], {"failed": [], "too_similar": [], "benchmark_overlap": []}
     sims = []
     for item in spec:
         plan = resolve_macros(item["plan"])
-        verified, why = await verify(session, plan, item["question"])
+        verified, why = verified_by_id[item["id"]]
         if verified is None:
             report["failed"].append({"id": item["id"], "why": why})
             continue
@@ -132,12 +167,22 @@ async def _amain(args) -> int:
                    for line in Path(args.train).read_text(encoding="utf-8").splitlines() if line.strip()]
     print(f"{len(spec)} questions; comparing with {len(train_q)} training questions")
     guard = None if args.no_guard else D.BenchmarkGuard.from_repo()
-    async with stdio_client(D.server_params(args.server_mem_gb)) as (read, write):
-        async with ClientSession(read, write) as session:
-            await session.initialize()
-            await D.execute(session, "convert_units", {"value": 1.0, "from_units": "eV", "to_units": "J"},
-                            "", timeout_s=900)          # a fresh server's first call is slow on a busy CPU
-            keep, report = await build(spec, train_q, guard, session)
+
+    from contextlib import asynccontextmanager
+
+    @asynccontextmanager
+    async def session_factory():
+        async with stdio_client(D.server_params(args.server_mem_gb)) as (read, write):
+            async with ClientSession(read, write) as session:
+                await session.initialize()
+                await D.execute(session, "convert_units", {"value": 1.0, "from_units": "eV", "to_units": "J"},
+                                "", timeout_s=1800)     # a fresh server's first call is slow on a busy CPU
+                yield session
+
+    cache_path = args.cache if args.cache else (args.out / "verified.json")
+    args.out.mkdir(parents=True, exist_ok=True)
+    verified_by_id = await verify_all(spec, cache_path, session_factory)
+    keep, report = build(spec, train_q, guard, verified_by_id)
     args.out.mkdir(parents=True, exist_ok=True)
     with (args.out / "hard.jsonl").open("w", encoding="utf-8") as f:
         for r in keep:
@@ -161,6 +206,8 @@ def main() -> int:
     p.add_argument("--spec", type=Path, default=SPEC)
     p.add_argument("--train", type=Path, default=None, help="train.jsonl to measure similarity against")
     p.add_argument("--out", type=Path, default=REPO / "local-cache" / "router_hardval")
+    p.add_argument("--cache", type=Path, default=None,
+                   help="verified results by question + plan (default: <out>/verified.json)")
     p.add_argument("--no-guard", action="store_true")
     p.add_argument("--server-mem-gb", type=float, default=6)
     return asyncio.run(_amain(p.parse_args()))

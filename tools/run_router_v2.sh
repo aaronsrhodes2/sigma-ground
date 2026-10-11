@@ -65,9 +65,9 @@ log() { printf '%s %s\n' "$(date '+%F %T')" "$*" | tee -a "$LOGS/pipeline.log"; 
 die() { log "FAILED: $*"; exit 1; }
 
 # The CPU is shared: n-body work can hold 18 of its 20 threads. Training is GPU-bound, so cap
-# the threads torch and the quantizer take in WSL (OMP/MKL 2, quantize 4) and leave the rest.
-# To also keep the Windows-side jobs out of its way, start this script below normal priority:
-#   powershell -Command "$p = Start-Process bash -ArgumentList 'tools/run_router_v2.sh' -PassThru -WindowStyle Hidden; $p.PriorityClass = 'BelowNormal'"
+# the threads torch and the quantizer take in WSL (OMP/MKL 2, quantize 4) and stay inside the
+# two that are left. Do NOT lower this script's priority: against 18 busy threads a
+# below-normal process is starved (a fresh Mentat server got 2 s of CPU in 5 minutes).
 wsl_run() {
   MSYS_NO_PATHCONV=1 wsl.exe -d "$DISTRO" -- bash -lc "export OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 TOKENIZERS_PARALLELISM=false; source $W_VENV/bin/activate && cd '$W_REPO' && $1" 2>&1 | tr -d '\0'
   return "${PIPESTATUS[0]}"
@@ -255,10 +255,18 @@ do_benchmark() {
   ollama_up
   gpu_guard benchmark exclusive
   local h=(-m sigma_ground.mcp.benchmark.run_sigma_ground --ollama-url "$HARNESS_URL" --router --router-plan v2 --model "$MODEL")
+  # Both formats at once: each starts its own Mentat server, whose first tool call costs minutes of
+  # CPU on a busy machine, and the model is small. They share the one-slot Ollama in turn.
   "$PY" -u "${h[@]}" --router-format toolfirst \
-    --output "$RESULTS/router_mentat_router_v2_toolfirst_run.json" > "$LOGS/benchmark_toolfirst.log" 2>&1 || return 1
+    --output "$RESULTS/router_mentat_router_v2_toolfirst_run.json" > "$LOGS/benchmark_toolfirst.log" 2>&1 &
+  local p1=$!
   "$PY" -u "${h[@]}" --router-format free \
-    --output "$RESULTS/router_mentat_router_v2_free_run.json" > "$LOGS/benchmark_free.log" 2>&1 || return 1
+    --output "$RESULTS/router_mentat_router_v2_free_run.json" > "$LOGS/benchmark_free.log" 2>&1 &
+  local p2=$!
+  local rc=0
+  wait "$p1" || rc=1
+  wait "$p2" || rc=1
+  return "$rc"
 }
 do_score() {
   "$PY" -m sigma_ground.mcp.benchmark.score > "$LOGS/score.log" 2>&1 || return 1
