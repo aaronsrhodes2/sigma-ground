@@ -126,6 +126,32 @@ class TestSummaries:
         assert s["sub_delta_rms_au"].iloc[0] == pytest.approx(want, rel=1e-12)
 
 
+class TestOrbitalTable:
+    def test_every_body_has_elements_and_moon_inclinations_match_de440(self):
+        """Each fixture body has an _ORBITAL row, and each moon's i (to the
+        ecliptic) is within 1.5 deg of the mean of its orbit's instantaneous
+        inclination over the 27 DE440 snapshots. Charon carried Pluto's
+        heliocentric 17.16 deg; DE440 says 112.9."""
+        eps = math.radians(23.439291111)
+        ecl = np.array([0.0, -math.sin(eps), math.cos(eps)])
+        anchors = {b["name"]: b["gravitational_anchor"]
+                   for b in _DE440["snapshots"]["j2015"]["bodies"]}
+        for body, parent in anchors.items():
+            if body == "Sun":
+                continue
+            assert body in ra._ORBITAL, body
+            if parent == "Sun":
+                continue
+            incs = []
+            for snap in _DE440["snapshots"].values():
+                st = {b["name"]: b["state_vector"] for b in snap["bodies"]}
+                r = np.array([st[body][c] - st[parent][c] for c in ("x_km", "y_km", "z_km")])
+                v = np.array([st[body][c] - st[parent][c] for c in ("vx_km_s", "vy_km_s", "vz_km_s")])
+                h = np.cross(r, v)
+                incs.append(math.degrees(math.acos(float(h @ ecl) / np.linalg.norm(h))))
+            assert abs(ra._ORBITAL[body][2] - np.mean(incs)) < 1.5, (body, np.mean(incs))
+
+
 class TestFingerprintDiff:
     def test_reports_removed_predictors_and_sorts_by_absolute_change(self, tmp_path):
         starts = [2451545.0, 2451910.25, 2452275.5]

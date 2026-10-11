@@ -94,7 +94,12 @@ _PARENT_OF: dict[str, str] = {
 
 # Orbital element references (semi-major axis in AU, eccentricity, inclination
 # in degrees from ecliptic). Used to correlate sub-deltas with physical parameters.
-# Source: JPL Planetary Fact Sheets.
+# Planets: JPL mean elements. Moons carry their PARENT's heliocentric a, their
+# own e, and their own orbit's inclination to the ecliptic (not to the
+# parent's equator); every moon's i agrees within 1.4 deg with the mean
+# inclination of its orbit in the DE440 fixture (test_rolling_analysis).
+# Mimas, Tethys, Dione and Rhea: e from JPL's mean satellite elements
+# (ssd.jpl.nasa.gov/sats/elem), i from the DE440 fixture (27 snapshots).
 _ORBITAL: dict[str, tuple[float, float, float]] = {
     # body          a(AU)     e        i(deg)
     "Mercury":   (0.3871,  0.2056,   7.005),
@@ -102,7 +107,7 @@ _ORBITAL: dict[str, tuple[float, float, float]] = {
     "Earth":     (1.0000,  0.0167,   0.000),
     "Moon":      (1.0000,  0.0549,   5.145),  # ecliptic; Moon orbits Earth at 5° to ecliptic
     "Mars":      (1.5237,  0.0934,   1.850),
-    "Phobos":    (1.5237,  0.0151,  26.040),  # parent Mars's heliocentric a; phobos i to Mars eq.
+    "Phobos":    (1.5237,  0.0151,  26.040),  # parent Mars's heliocentric a; Phobos i to the ecliptic
     "Deimos":    (1.5237,  0.0002,  27.580),
     "Jupiter":   (5.2026,  0.0484,   1.304),
     "Io":        (5.2026,  0.0041,   2.213),
@@ -112,6 +117,10 @@ _ORBITAL: dict[str, tuple[float, float, float]] = {
     "Saturn":    (9.5549,  0.0539,   2.485),
     "Enceladus": (9.5549,  0.0047,  28.060),  # Enceladus i to Saturn eq + Saturn tilt
     "Titan":     (9.5549,  0.0288,  27.720),
+    "Mimas":     (9.5549,  0.020,   28.55),
+    "Tethys":    (9.5549,  0.001,   27.99),
+    "Dione":     (9.5549,  0.002,   28.04),
+    "Rhea":      (9.5549,  0.001,   27.93),
     "Uranus":    (19.218,  0.0473,   0.770),
     "Miranda":   (19.218,  0.0013,  97.770),  # Uranus's pole is tilted 97.77° !
     "Ariel":     (19.218,  0.0012,  97.770),
@@ -121,7 +130,7 @@ _ORBITAL: dict[str, tuple[float, float, float]] = {
     "Neptune":   (30.110,  0.0086,   1.770),
     "Triton":    (30.110,  0.0000, 130.000),  # retrograde
     "Pluto":     (39.482,  0.2488,  17.160),
-    "Charon":    (39.482,  0.0022,  17.160),
+    "Charon":    (39.482,  0.0022, 112.89),   # in Pluto's equator (was Pluto's 17.16)
 }
 
 
