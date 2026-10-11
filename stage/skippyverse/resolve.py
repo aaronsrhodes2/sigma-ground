@@ -4,7 +4,9 @@
   rung 1   cached / indexed    - any other card in the index matched by name or alias
   rung 1b  mid-band            - a synonym, an `approx` name, a one-or-two-letter typo, or a margin-checked partial text match:
                                  Skippy says "the closest I have is X" or "I read that as X"; NEVER a silent substitution
-  rung 2/3/4  STUBS            - fetch / generate / build from parts: `plan` says what WOULD happen; nothing is executed
+  rung 2   fetch               - a found card with no size, or no local asset yet: `plan[0]` is {action: 'fetch', ...}. Executed ONLY when
+                                 the caller passes `acquirer` (acquire.acquire_and_measure or a stand-in); otherwise nothing is fetched
+  rung 3/4  STUBS              - generate / build from parts: `plan` says what WOULD happen; nothing is executed
   rung 5   honest refusal      - unknown, too big for the room, size not trustworthy, size unknown
 
 There is no cosine cutoff anywhere: acceptance is by exact/alias evidence, then by a coverage + score MARGIN between the best and
@@ -17,7 +19,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from skippyverse import cards as C  # noqa: E402
-from skippyverse.index import Index  # noqa: E402
+from skippyverse.index import Index, size_sanity  # noqa: E402
 from skippyverse.taxonomy import guess_category  # noqa: E402
 from skippyverse.text import damerau, norm, parse_query  # noqa: E402
 
@@ -62,6 +64,33 @@ def plan_rungs(phrase: str) -> list[dict]:
                      "would": f"build a blocky '{phrase}' from parts with a sourced size and weight",
                      "needs": ["Deckard v2 (design increment 7)"]})
     return plan
+
+
+FETCH_SOURCES = {"NASA 3D Resources": "NASA", "Gazebo Fuel": "Gazebo Fuel", "Poly Haven": "Poly Haven"}      # mirrors acquire.SOURCE_LABEL
+
+
+def fetchable(card: dict) -> bool:
+    """A found, servable card from a source we can download from, with no local copy yet."""
+    return (card["visual"]["class"] == "found" and bool(card["redistributable"])
+            and (card.get("provenance") or {}).get("source") in FETCH_SOURCES and not card["visual"].get("local_asset"))
+
+
+def fetch_plan(card: dict, phrase: str) -> list[dict]:
+    """plan_rungs with rung 2 made concrete for this card: {action: 'fetch', card_id, source}. Still nothing is executed."""
+    plan = plan_rungs(phrase)
+    if fetchable(card):
+        label = FETCH_SOURCES[card["provenance"]["source"]]
+        plan[0] = {**plan[0], "action": "fetch", "card_id": card["id"], "source": label,
+                   "would": f"download this one model from {label} ({card['provenance'].get('url')}), measure it, then resolve again"}
+    return plan[:1]
+
+
+def _acquire(acquirer, card: dict):
+    """-> (result or None, error text or None). Never raises: a failed fetch is reported, not hidden."""
+    try:
+        return acquirer(card), None
+    except Exception as e:                                  # AcquireRefused / AcquireError / anything the stand-in raises
+        return None, f"{type(e).__name__}: {e}"
 
 
 # --------------------------------------------------------------------------------------------------------------------- choosing
@@ -196,19 +225,22 @@ def _neighbours(index: Index, phrase: str, exclude: set[str]) -> list[str]:
 
 
 # --------------------------------------------------------------------------------------------------------------------- the ladder
-def resolve(query: str, index: Index, *, room: dict | None = None, audience: str = "local", online: bool = False) -> dict:
+def resolve(query: str, index: Index, *, room: dict | None = None, audience: str = "local", online: bool = False, acquirer=None) -> dict:
     """Resolve a natural request to a card, or to an honest refusal.
 
     room      None (no check), {"w","d","h"} in metres, or {"outdoor": True} for the open apron.
     audience  "web" = the card must be servable to friends' browsers (a non-redistributable card is still reported, with its
               size, but as a box: `servable` is False and the card is the web-safe copy); "local" = Garry's Mod side.
-    online    True only changes the wording and the plan for unknown things ('would fetch'); nothing is ever fetched here.
+    online    True only changes the wording and the plan for unknown things ('would fetch'); nothing is ever fetched by it.
+    acquirer  None (default, offline): nothing is fetched. A callable card -> {"card": updated_card, "pose": ..., ...} (normally
+              acquire.acquire_and_measure) makes rung 2 real for a found card with no size or no local copy: the result carries
+              `fetched`, `pose`, `announce` and the sentence includes the honesty clause with the measured size and its basis.
     """
     pq = parse_query(query)
     phrase = pq["phrase"]
     res = {"query": query, "phrase": phrase, "raw_phrase": pq["raw_phrase"], "count": pq["count"], "modifiers": pq["modifiers"],
            "status": "not_found", "rung": "5", "card": None, "kind": None, "shortlist": [], "options": [], "candidates": [],
-           "servable": False, "refusal": None, "plan": None, "match": None, "sentence": ""}
+           "servable": False, "refusal": None, "plan": None, "match": None, "sentence": "", "fetched": False, "pose": None, "announce": None}
     if room and room.get("outdoor"):
         room = OUTDOOR
     if not phrase:
@@ -270,14 +302,32 @@ def resolve(query: str, index: Index, *, room: dict | None = None, audience: str
     res["rung"] = rung
     lead = _lead(how, shown, kind, detail)
 
+    announce = None
     if not sized:
-        res.update(status="needs_size", refusal="no_size", card=_out(pool[0], audience), plan=plan_rungs(phrase)[:1],
-                   sentence=f"{lead} I know the name but not its size, so I won't guess where to put it.")
-        return res
+        target = next((c for c in pool if fetchable(c)), None)
+        if acquirer is not None and target is not None:
+            label = FETCH_SOURCES[target["provenance"]["source"]]
+            announce = f"I don't have {a_an(kind)} on the shelf yet. Fetching a model from {label}..."
+            got, err = _acquire(acquirer, target)
+            if got is None:
+                res.update(status="fetch_failed", refusal="fetch_failed", card=_out(target, audience), plan=fetch_plan(target, phrase),
+                           announce=announce, sentence=f"{announce} It didn't work ({err}), so I still don't know its size and won't guess.")
+                return res
+            new_card = got["card"]
+            res.update(fetched=True, pose=got.get("pose"), announce=announce, rung="2")
+            pool = [new_card]
+            sized = [new_card]
+            trusted = [new_card] if new_card["id"] not in size_sanity([new_card]) else []
+            lead = "Got it. " + _lead(how, shown, kind, detail)
+        else:
+            res.update(status="needs_size", refusal="no_size", card=_out(pool[0], audience),
+                       plan=fetch_plan(target, phrase) if target else plan_rungs(phrase)[:1],
+                       sentence=f"{lead} I know the name but not its size, so I won't guess where to put it.")
+            return res
     if not trusted:
         c = sized[0]
         res.update(status="untrusted_size", refusal="size_suspect", card=_out(c, audience), plan=plan_rungs(phrase)[:1],
-                   sentence=f"{lead} But my size for it ({_fmt_m(max(c['size_m']['w'], c['size_m']['d'], c['size_m']['h']))} on its "
+                   sentence=(f"{announce} " if announce else "") + f"{lead} But my size for it ({_fmt_m(max(c['size_m']['w'], c['size_m']['d'], c['size_m']['h']))} on its "
                             "longest side) looks wrong, so I won't place it by that.")
         return res
 
@@ -287,14 +337,34 @@ def resolve(query: str, index: Index, *, room: dict | None = None, audience: str
         big = max(small["size_m"]["w"], small["size_m"]["d"], small["size_m"]["h"])
         where = "the open ground I have" if room is OUTDOOR else "this room"
         res.update(status="too_big", refusal="too_big", card=_out(small, audience), shortlist=[_out(c, audience) for c in shortlist(trusted)],
-                   sentence=f"{lead} That's bigger than {where} ({_fmt_m(big)})." + ("" if room is OUTDOOR else " Try it outdoors."))
+                   sentence=(f"{announce} " if announce else "") + f"{lead} That's bigger than {where} ({_fmt_m(big)})." + ("" if room is OUTDOOR else " Try it outdoors."))
         return res
 
     cs = sorted(fits, key=_volume)
     pref = pq["size_pref"]
     rep = cs[-1] if pref == "up" else cs[0] if pref == "down" else cs[len(cs) // 2]
+    if acquirer is not None and not res["fetched"] and fetchable(rep):
+        label = FETCH_SOURCES[rep["provenance"]["source"]]
+        announce = f"I don't have {a_an(kind)} on the shelf yet. Fetching a model from {label}..."
+        got, err = _acquire(acquirer, rep)
+        if got is None:
+            res["plan"] = fetch_plan(rep, phrase)
+            announce += f" It didn't work ({err}), so this stays a box at the size I already had."
+        else:
+            rep = got["card"]
+            res.update(fetched=True, pose=got.get("pose"), rung="2")
+            lead = "Got it. " + lead
+            if rep["id"] in size_sanity([rep]) or not _fits(rep, room):
+                big = max(rep["size_m"][k] for k in ("w", "d", "h"))
+                bad = rep["id"] in size_sanity([rep])
+                res.update(status="untrusted_size" if bad else "too_big", refusal="size_suspect" if bad else "too_big",
+                           card=_out(rep, audience), announce=announce,
+                           sentence=f"{announce} {lead} " + (f"But its measured size ({_fmt_m(big)} on its longest side) looks wrong, so I won't place it by that."
+                                                            if bad else f"That's bigger than this room ({_fmt_m(big)}). Try it outdoors."))
+                return res
+    res["announce"] = announce
     servable = bool(rep["redistributable"])
-    sentence = f"{lead} {rep['say']}"
+    sentence = (f"{announce} " if announce else "") + f"{lead} {rep['say']}"
     if audience == "web" and not servable:
         sentence += " I can't share a model of it, so it would be a box."
     res.update(status={"exact": "exact", "alias": "alias", "approx": "closest", "synonym": "synonym", "typo": "closest",

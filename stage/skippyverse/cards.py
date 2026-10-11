@@ -320,6 +320,7 @@ def strip_for_web(card: dict) -> dict:
     c = {k: (dict(v) if isinstance(v, dict) else v) for k, v in card.items()}
     vis = dict(c.get("visual") or {})
     vis.pop("local_model", None)
+    vis.pop("local_asset", None)
     vis.pop("model_frame_hu", None)
     if not c.get("redistributable"):
         vis.pop("lods", None)

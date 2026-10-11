@@ -1,0 +1,4 @@
+{
+  "about": "Published real sizes for NASA 3D models, whose file units are arbitrary. An entry makes acquire.py set the model's LONGEST side to longest_m (basis 'sourced'); proportions still come from the mesh. Only entries with verified=true are used; each needs source_url. Left empty on 2026-10-10 on purpose: Hubble's 13.2 m length was confirmed only by a NASA search snippet (science.nasa.gov/mission/hubble/overview/about-hubble/) and the Hubble (A) mesh's longest axis could not be shown to be the hull length; the Saturn V mesh measured 2.0 x 2.0 x 13.0 units (ratio 6.4) against a published ~110.6 x 10.1 m (ratio ~11), so its proportions do not match either.",
+  "entries": {}
+}

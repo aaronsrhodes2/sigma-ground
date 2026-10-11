@@ -50,7 +50,7 @@ def parse_listing_with_report(raw, *, up: str = "y", include_disallowed: bool = 
             flags.append("scale_arbitrary")
         cards.append(found_card(
             source=SOURCE, ext_id=r["file"] if r.get("file") else r["title"], name=r["title"], tags=[r.get("category", "")], size=size,
-            license_raw="NASA", author="NASA", url=r.get("page"), style="agency", extra_flags=flags))
+            license_raw="NASA", author="NASA", url=r.get("page"), style="agency", extra_flags=flags, asset=r.get("file")))
     kept, skipped = filter_servable(cards, include_disallowed)
     return kept, {"skipped": [c["id"] for c in skipped], "problems": problems}
 

@@ -65,3 +65,23 @@ Size basis: measured 126, sourced 4, estimated 361, guessed 9. Mass basis: estim
 4. **ShapeNet-derived data in friends' browsers** (design decision 5): currently blocked by the gate (`redistributable=false`).
 5. **Repo-original facts**: `object_sizes.json` and the seed facts carry licence "repo-original, unreviewed"/"unverified" and are treated as not servable until you say otherwise.
 6. **Write the 200-query labelled set** (and the 30 "must not resolve" nouns) from your own phrasing.
+
+
+## Rung 2: acquire, measure, resolve (increment 3)
+
+```bash
+python stage/skippyverse/live_acquire_check.py        # by hand, NOT pytest: 1 NASA + 1 Fuel + 2 Poly Haven models, a few MB
+python -m pytest sigma_ground/radiance/tests/test_skippyverse_acquire.py      # offline: injected fetch, synthetic 2x1x3 meshes
+```
+
+| File | What it does |
+|---|---|
+| `acquire.py` | One of two modules allowed network imports. `acquire(card, fetch, cache_dir, force)` downloads ONE asset: NASA `.glb` from `raw.githubusercontent.com/nasa/NASA-3D-Resources/master/<quoted path>`, Fuel `https://fuel.gazebosim.org/1.0/<owner>/models/<name>.zip` (images are not kept), Poly Haven `api.polyhaven.com/files/<id>` then the 1k glTF + `.bin` only. Licence gate first; 40 MB per file unless `force=True`; cache in `cache/assets/<card id>/` (gitignored), marker written last. `acquire_and_measure` returns `{card, pose, asset, measurement, bytes}`. |
+| `measure.py` | Pure-stdlib bounding boxes: GLB/glTF (node matrix/TRS, vertices read when not axis-aligned), OBJ, STL (binary+ascii), Collada (`<unit>`, `up_axis`, node transforms), SDF (`<scale>`, poses, box/sphere/cylinder; nested models and includes are refused). Everything is reported +Z up; unit-less formats say `unit_known=False`. |
+| `data/nasa_real_sizes.json` | Published real sizes for NASA models; empty on purpose (see its `about`). |
+
+Size basis after a download: `measured` when the units are known (glTF metres, Collada `<unit>`, SDF models, Poly Haven); NASA stays `guessed` (flag `scale_arbitrary`) unless a verified table entry makes it `sourced`. A download never replaces a stronger listing size; a measured size more than 5% off a `sourced` listing size is flagged `measured_size_disagrees_with_listing`. Mass is the labelled-`guessed` prior; front stays unknown. The `pose` is a row-major 4x4 (source scene coords -> metres, +Z up, origin on the floor under the footprint centre); no mesh is converted or re-exported.
+
+`resolve(..., acquirer=None)`: by default nothing is fetched and a found card with no size gets `plan[0] = {action: 'fetch', card_id, source, executed: False}`. Pass `acquirer=acquire.acquire_and_measure` (partially applied with a cache dir if wanted) and rung 2 runs for a found, servable card with no size or no local copy; the sentence says "I don't have a ... on the shelf yet. Fetching a model from X..." then the honesty clause with the measured size and its basis. A failed fetch is `fetch_failed`, never hidden.
+
+Live proof 2026-10-10: Poly Haven barrel_03 and dining_chair_02 measured from the downloaded glTF match the published dimensions to four decimals (axis handling confirmed on an asymmetric chair).

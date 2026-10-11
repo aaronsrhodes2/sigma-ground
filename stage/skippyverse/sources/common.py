@@ -77,7 +77,7 @@ def bbox_to_size(bbox, up: str, basis: str, source: str) -> dict:
 
 def found_card(*, source: str, ext_id: str, name: str, tags=(), category: str | None = None, size: dict | None, license_raw: str,
                author: str | None, url: str | None, style: str = "low-poly", blocky: bool = False, extra_flags=(),
-               aliases=(), fetched: str | None = None) -> dict:
+               aliases=(), fetched: str | None = None, asset: str | None = None) -> dict:
     """Build a `found` card from one listing entry. The card's id embeds the source and the source's own id."""
     nm = name.strip()
     # "Sofa 01" is "sofa": a trailing variant number is not part of the name people say (the full title stays as an alias)
@@ -89,7 +89,8 @@ def found_card(*, source: str, ext_id: str, name: str, tags=(), category: str | 
         category=category or guess_category(nm + " " + " ".join(tags)), tags=list(tags), size=size,
         mass=C.prior_mass(size) if size else None,
         visual={"class": "found", "style": style, "blocky": blocky, "lods": []},
-        provenance={"source": source, "url": url, "author": author, "license": license_raw, "fetched": fetched},
+        provenance={"source": source, "url": url, "author": author, "license": license_raw, "fetched": fetched,
+                    **({"asset": asset} if asset else {})},
         flags=["front_unknown", *extra_flags])
     # an unmeasured mesh has no known front: unknown fronts are treated as symmetric (design section 4)
     C.assert_valid(card)
