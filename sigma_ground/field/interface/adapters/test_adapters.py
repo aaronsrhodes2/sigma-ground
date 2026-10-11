@@ -743,6 +743,20 @@ class TestSGOdeint(unittest.TestCase):
         y_default = sg_odeint(self._sho_yt, np.array([1.0, 0.0]), t)
         self.assertLess(float(np.max(np.abs(y_default[:, 0] - np.cos(t)))), 1e-3)
 
+    def test_dense_grid_default_step(self):
+        """A dense output grid without dt must not be stepped more coarsely
+        than the grid (closed form q = cos t).
+
+        Before the repair the default step was always span/1000:
+        linspace(0, 300, 30001) gave 0.16 and linspace(0, 100, 10001)
+        6.6e-4 (stepping at the grid spacing gives 2.0e-7 and 6.5e-8)."""
+        y0 = np.array([1.0, 0.0])
+        for t, tol in ((np.linspace(0.0, 300.0, 30001), 1e-5),
+                       (np.linspace(0.0, 100.0, 10001), 1e-6)):
+            y = sg_odeint(self._sho_yt, y0, t)
+            err = float(np.max(np.abs(y[:, 0] - np.cos(t))))
+            self.assertLess(err, tol, f"{t.size} points over {t[-1]:g} s")
+
     def test_non_uniform_grid(self):
         """Row k is y(t[k]) on a non-uniform grid."""
         t = np.array([0.0, 0.3, 0.35, 1.234, 5.0])

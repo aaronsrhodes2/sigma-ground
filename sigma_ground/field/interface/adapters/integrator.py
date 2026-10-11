@@ -500,8 +500,13 @@ def sg_odeint(
              t[0] is the initial time.  Row k of the result is y(t[k]).
     method : 'forest_ruth', 'verlet', or 'rk4' (see sg_solve_ivp)
     dt     : integration step magnitude.  It is independent of the output
-             spacing; if None, |t[-1] - t[0]| / 1000.  There is no error
-             control: pass a smaller dt for more accuracy.
+             spacing.  If None, the smaller of |t[-1] - t[0]| / 1000 and the
+             mean output spacing |t[-1] - t[0]| / (len(t) - 1), rounded
+             down to a whole number of steps: a dense grid is stepped at
+             its own spacing (as before 2026-10-10), a coarse grid still at
+             span / 1000, and the cost stays below max(1000, len(t) - 1)
+             steps.  There is no error control: pass a smaller dt for more
+             accuracy.
     args   : extra arguments passed to func, as in odeint.
     tfirst : True for f(t, y), False for f(y, t) (odeint's default).  If
              None, a first parameter named t, time, tau, t_* or time* means
@@ -533,6 +538,18 @@ def sg_odeint(
     steps = np.diff(t)
     if not (np.all(steps >= 0) or np.all(steps <= 0)):
         raise ValueError("t must be monotonic (increasing or decreasing)")
+
+    if dt is None:
+        # FIXED 2026-10-10: a fixed span/1000 default stepped dense output
+        # grids more coarsely than the grid (q''=-q on linspace(0,300,30001):
+        # error 0.16, against 2e-7 at the grid spacing).
+        span = abs(float(t[-1]) - float(t[0]))
+        if span > 0.0:
+            h = min(span / 1000.0, span / (t.size - 1))
+            n = max(1, math.ceil(span / h - 1e-9))  # rounding in span / h
+            dt = span / n
+            while math.ceil(span / dt) > n:  # sg_solve_ivp takes ceil(span/dt)
+                dt = float(np.nextafter(dt, np.inf))
 
     sol = sg_solve_ivp(fun, (t[0], t[-1]), y0, method=method,
                        t_eval=t, dt=dt)
