@@ -3302,13 +3302,28 @@ def planetary_surface(body: str = "earth") -> MateriaResult:
 
 
 def mass_energy(mass_kg: float | None = None,
-                energy_j: float | None = None) -> MateriaResult:
+                energy_j: float | None = None,
+                particle: str | None = None) -> MateriaResult:
     """Mass-energy equivalence E = m·c² — BIDIRECTIONAL: the rest energy of a
-    given mass, OR the mass converted when a given energy is released. Reports
-    both sides in joules, kilotons and megatons of TNT."""
+    given mass (or of a named `particle`: electron, positron, proton, neutron,
+    muon, alpha, deuteron; CODATA 2018), OR the mass converted when a given
+    energy is released. Reports both sides in joules, kilotons and megatons of
+    TNT."""
     import math
     from ..field.constants import C
     inputs = {"mass_kg": mass_kg, "energy_j": energy_j}
+    if particle is not None:
+        inputs["particle"] = particle
+        if mass_kg is None and energy_j is None:
+            key = str(particle).strip().lower()
+            key = {"alpha particle": "alpha", "helium nucleus": "alpha"}.get(key, key)
+            masses = _particle_masses()
+            if key not in masses:
+                return _refusal("mass_energy", inputs,
+                                f"Unknown particle {particle!r}.",
+                                f"no rest mass on file for {particle!r}; "
+                                f"known: {sorted(masses)}")
+            mass_kg = masses[key]
     if energy_j is not None:                       # energy → mass
         E = float(energy_j)
         if not (math.isfinite(E) and E > 0):
@@ -3328,7 +3343,10 @@ def mass_energy(mass_kg: float | None = None,
                             "Mass must be positive and finite.",
                             f"mass_kg={mass_kg!r} is not positive and finite")
         E = m * C * C
-        m_step = MateriaStep("Mass", m, "kg", "(input)", "user")
+        m_step = (MateriaStep(f"Mass ({inputs['particle']})", m, "kg",
+                              "CODATA 2018", "materia.scenarios")
+                  if inputs.get("particle") and inputs["mass_kg"] is None
+                  else MateriaStep("Mass", m, "kg", "(input)", "user"))
         e_step = MateriaStep("Rest energy", E, "J", "E = m·c²",
                              "field.constants.C (speed of light)")
     steps = [m_step, e_step,
@@ -3339,6 +3357,8 @@ def mass_energy(mass_kg: float | None = None,
     summary = (f"{m:.4g} kg ↔ {E:.3g} J ({E/4.184e15:.3g} Mt TNT) by E = m·c².")
     if energy_j is not None and mass_kg is not None:
         summary += f" (mass_kg={mass_kg!r} ignored: energy_j was given)"
+    if inputs.get("particle") and inputs["mass_kg"] is None and energy_j is None:
+        summary = f"Rest energy of {inputs['particle']}: " + summary
     return MateriaResult("mass_energy",
                          inputs, steps,
                          summary=summary,

@@ -169,3 +169,30 @@ def test_mass_energy_electron_rest_energy():
         1e-35 * sc.c ** 2, rel=1e-12, abs=0.0)
     for bad in (0.0, -5.0):
         assert mass_energy(mass_kg=bad).validation["passed"] is False
+
+
+# ── audit medium: "rest energy of an electron" answered with the proton mass ─
+
+def test_rest_energy_of_an_electron():
+    tr = simulate("rest energy of an electron", use_llm=False)
+    # CODATA 2022 m_e c^2 = 8.1871057880(26)e-14 J (NIST); the verb's CODATA
+    # 2018 mass differs by 1.4e-9
+    assert tr.value == pytest.approx(8.1871057880e-14, rel=1e-8, abs=0.0)
+
+
+def test_rest_energy_of_a_muon_and_of_a_kg_mass():
+    tr = simulate("what is the rest energy of a muon", use_llm=False)
+    mu = sc.physical_constants["muon mass energy equivalent"][0]   # J
+    assert tr.value == pytest.approx(mu, rel=1e-8, abs=0.0)
+    tr = simulate("rest energy of 1e11 kg of mass", use_llm=False)
+    assert tr.value == pytest.approx(1e11 * sc.c ** 2, rel=1e-12, abs=0.0)
+
+
+def test_rest_energy_routing_keeps_nucleons_and_annihilation_apart():
+    from sigma_ground import materia
+    steps = materia.translate("rest energy of a neutron in MeV", use_qwen=False).steps
+    assert [s.verb for s in steps] == ["nucleon_masses"]
+    # a pair annihilation is 2 m c^2, so the particle slot must NOT be filled
+    steps = materia.translate("how much energy when an electron and positron "
+                              "annihilate", use_qwen=False).steps
+    assert "particle" not in steps[0].params

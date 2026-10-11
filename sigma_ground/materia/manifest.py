@@ -870,13 +870,24 @@ _ROUTABLE_NEW = {
                      "energy from converting", "annihilat", "kg of mass",
                      # any mass unit ("1 gram of mass"), 2026-10-10 (A41)
                      r"\b(?:kg|kilograms?|g|grams?|mg|milligrams?|tonnes?)"
-                     r"\s+of\s+(?:mass|matter)\b"],
+                     r"\s+of\s+(?:mass|matter)\b",
+                     # 2026-10-10 audit: these went to nucleon_masses, whose
+                     # "rest energy of" trigger is longer, and were answered
+                     # with the proton mass. Proton/neutron stay there.
+                     r"\brest\s+(?:energy|mass[\s-]*energy)\s+of\s+"
+                     r"(?:an?\s+|the\s+|one\s+)?(?:electron|positron|muon|"
+                     r"alpha(?:\s+particle)?|deuteron)s?\b",
+                     r"\brest\s+(?:energy|mass[\s-]*energy)\s+of\s+"
+                     r"[\d.]+(?:e[-+]?\d+)?\s*(?:kg|kilograms?|g|grams?|"
+                     r"tonnes?)\b"],
         "examples": ["how much energy is in 1 kg of mass",
                      "how much mass is converted to energy in a 1-megaton bomb"],
         "slots": {"mass_kg": {"unit": "kg", "default": 1.0,
                               "aliases": ["kg", "kilogram", "mass"]},
                   "energy_j": {"unit": "J", "default": None,
-                               "aliases": ["megaton", "kiloton", "joule"]}}},
+                               "aliases": ["megaton", "kiloton", "joule"]},
+                  "particle": {"unit": "particle", "default": None,
+                               "aliases": ["rest energy of an electron"]}}},
     "drop_object": {
         "description": "Drop a NAMED real object (anvil, piano, frying pan…) — "
                        "asks the Deckard shape researcher for its real "

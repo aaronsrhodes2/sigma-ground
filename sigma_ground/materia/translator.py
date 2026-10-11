@@ -548,9 +548,12 @@ def _params_for(verb: str, q: str) -> dict:
         if b is not None:
             p["velocity_fraction_c"] = b
     if "particle" in slots:                   # relativistic_motion: "a proton"
-        part = _extract_particle(q)
-        if part:
-            p["particle"] = part
+        # mass_energy takes a particle only for its REST energy: "an electron
+        # and a positron annihilate" releases 2 m c^2, not one rest energy.
+        if verb != "mass_energy" or re.search(r"\brest\b", q.lower()):
+            part = _extract_particle(q)
+            if part:
+                p["particle"] = part
     if "body" in slots:                       # planetary_surface: gravity OF Mars
         b = _extract_body(q)
         if b:
