@@ -1,0 +1,850 @@
+{
+ "_about": "SEED query set written by the agent that built the resolver, in one session, WITHOUT looking at results first. It is NOT the real evaluation set: Aaron should write the 200-query set from his own phrasing (design increment 2 acceptance test). `expect` is a name that must be a name/alias of the returned kind (null = nothing should resolve). Tags: natural, plural, synonym, typo, hard (needs semantic understanding the resolver does not claim), negative.",
+ "queries": [
+  {
+   "q": "Skippy, add three couches",
+   "expect": "couch",
+   "tag": "natural"
+  },
+  {
+   "q": "add a table",
+   "expect": "table",
+   "tag": "natural"
+  },
+  {
+   "q": "I want a lamp",
+   "expect": "lamp",
+   "tag": "natural"
+  },
+  {
+   "q": "can you give me a refrigerator",
+   "expect": "fridge",
+   "tag": "natural"
+  },
+  {
+   "q": "put a bookshelf in the corner",
+   "expect": "bookshelf",
+   "tag": "natural"
+  },
+  {
+   "q": "spawn an armchair",
+   "expect": "armchair",
+   "tag": "natural"
+  },
+  {
+   "q": "gimme a stool",
+   "expect": "stool",
+   "tag": "natural"
+  },
+  {
+   "q": "I need a desk",
+   "expect": "desk",
+   "tag": "natural"
+  },
+  {
+   "q": "a bed please",
+   "expect": "bed",
+   "tag": "natural"
+  },
+  {
+   "q": "make me a bathtub",
+   "expect": "bathtub",
+   "tag": "natural"
+  },
+  {
+   "q": "Skippy, a toilet",
+   "expect": "toilet",
+   "tag": "natural"
+  },
+  {
+   "q": "add a tv next to the couch",
+   "expect": "tv",
+   "tag": "natural"
+  },
+  {
+   "q": "a microwave",
+   "expect": "microwave",
+   "tag": "natural"
+  },
+  {
+   "q": "place a plant",
+   "expect": "plant",
+   "tag": "natural"
+  },
+  {
+   "q": "bring in a vending machine",
+   "expect": "vending machine",
+   "tag": "natural"
+  },
+  {
+   "q": "I'd like a filing cabinet",
+   "expect": "filing cabinet",
+   "tag": "natural"
+  },
+  {
+   "q": "add some crates",
+   "expect": "crate",
+   "tag": "natural"
+  },
+  {
+   "q": "a dozen barrels",
+   "expect": "barrel",
+   "tag": "natural"
+  },
+  {
+   "q": "two benches",
+   "expect": "bench",
+   "tag": "natural"
+  },
+  {
+   "q": "a coffee table",
+   "expect": "coffee table",
+   "tag": "natural"
+  },
+  {
+   "q": "an office chair",
+   "expect": "office chair",
+   "tag": "natural"
+  },
+  {
+   "q": "a floor lamp",
+   "expect": "floor lamp",
+   "tag": "natural"
+  },
+  {
+   "q": "a desk lamp",
+   "expect": "desk lamp",
+   "tag": "natural"
+  },
+  {
+   "q": "a mug",
+   "expect": "mug",
+   "tag": "natural"
+  },
+  {
+   "q": "a trash can",
+   "expect": "trash can",
+   "tag": "natural"
+  },
+  {
+   "q": "a dumpster",
+   "expect": "dumpster",
+   "tag": "natural"
+  },
+  {
+   "q": "a radiator",
+   "expect": "radiator",
+   "tag": "natural"
+  },
+  {
+   "q": "a sink",
+   "expect": "sink",
+   "tag": "natural"
+  },
+  {
+   "q": "a stove",
+   "expect": "stove",
+   "tag": "natural"
+  },
+  {
+   "q": "a wardrobe",
+   "expect": "wardrobe",
+   "tag": "natural"
+  },
+  {
+   "q": "a locker",
+   "expect": "locker",
+   "tag": "natural"
+  },
+  {
+   "q": "a chest",
+   "expect": "chest",
+   "tag": "natural"
+  },
+  {
+   "q": "a mattress",
+   "expect": "mattress",
+   "tag": "natural"
+  },
+  {
+   "q": "a dresser",
+   "expect": "dresser",
+   "tag": "natural"
+  },
+  {
+   "q": "a loveseat",
+   "expect": "loveseat",
+   "tag": "natural"
+  },
+  {
+   "q": "a bunk bed",
+   "expect": "bunk bed",
+   "tag": "natural"
+  },
+  {
+   "q": "a hospital bed",
+   "expect": "hospital bed",
+   "tag": "natural"
+  },
+  {
+   "q": "a computer",
+   "expect": "computer",
+   "tag": "natural"
+  },
+  {
+   "q": "a phone",
+   "expect": "phone",
+   "tag": "natural"
+  },
+  {
+   "q": "a patio table",
+   "expect": "patio table",
+   "tag": "natural"
+  },
+  {
+   "q": "a meeting table",
+   "expect": "meeting table",
+   "tag": "natural"
+  },
+  {
+   "q": "a side table",
+   "expect": "side table",
+   "tag": "natural"
+  },
+  {
+   "q": "a shelf",
+   "expect": "shelf",
+   "tag": "natural"
+  },
+  {
+   "q": "a box",
+   "expect": "box",
+   "tag": "natural"
+  },
+  {
+   "q": "a big red couch",
+   "expect": "couch",
+   "tag": "natural"
+  },
+  {
+   "q": "a small wooden chair",
+   "expect": "chair",
+   "tag": "natural"
+  },
+  {
+   "q": "Skippy, could you put a lamp over there",
+   "expect": "lamp",
+   "tag": "natural"
+  },
+  {
+   "q": "a car",
+   "expect": "car",
+   "tag": "natural"
+  },
+  {
+   "q": "a jumbo jet",
+   "expect": "jumbo jet",
+   "tag": "natural"
+  },
+  {
+   "q": "add a laptop",
+   "expect": "laptop",
+   "tag": "natural"
+  },
+  {
+   "q": "a piano",
+   "expect": "piano",
+   "tag": "natural"
+  },
+  {
+   "q": "a hammer",
+   "expect": "hammer",
+   "tag": "natural"
+  },
+  {
+   "q": "a vase",
+   "expect": "vase",
+   "tag": "natural"
+  },
+  {
+   "q": "a bottle",
+   "expect": "bottle",
+   "tag": "natural"
+  },
+  {
+   "q": "a clock",
+   "expect": "clock",
+   "tag": "natural"
+  },
+  {
+   "q": "a guitar",
+   "expect": "guitar",
+   "tag": "natural"
+  },
+  {
+   "q": "a teapot",
+   "expect": "teapot",
+   "tag": "natural"
+  },
+  {
+   "q": "an umbrella",
+   "expect": "umbrella",
+   "tag": "natural"
+  },
+  {
+   "q": "scissors",
+   "expect": "scissors",
+   "tag": "natural"
+  },
+  {
+   "q": "a backpack",
+   "expect": "backpack",
+   "tag": "natural"
+  },
+  {
+   "q": "a camera",
+   "expect": "camera",
+   "tag": "natural"
+  },
+  {
+   "q": "a printer",
+   "expect": "printer",
+   "tag": "natural"
+  },
+  {
+   "q": "a keyboard",
+   "expect": "keyboard",
+   "tag": "natural"
+  },
+  {
+   "q": "a dishwasher",
+   "expect": "dishwasher",
+   "tag": "natural"
+  },
+  {
+   "q": "a door",
+   "expect": "door",
+   "tag": "natural"
+  },
+  {
+   "q": "a faucet",
+   "expect": "faucet",
+   "tag": "natural"
+  },
+  {
+   "q": "a bowl",
+   "expect": "bowl",
+   "tag": "natural"
+  },
+  {
+   "q": "a microscope",
+   "expect": "microscope",
+   "tag": "natural"
+  },
+  {
+   "q": "a toaster",
+   "expect": "toaster",
+   "tag": "natural"
+  },
+  {
+   "q": "a kettle",
+   "expect": "kettle",
+   "tag": "natural"
+  },
+  {
+   "q": "a stapler",
+   "expect": "stapler",
+   "tag": "natural"
+  },
+  {
+   "q": "couches",
+   "expect": "couch",
+   "tag": "plural"
+  },
+  {
+   "q": "bookshelves",
+   "expect": "bookshelf",
+   "tag": "plural"
+  },
+  {
+   "q": "chairs",
+   "expect": "chair",
+   "tag": "plural"
+  },
+  {
+   "q": "tables",
+   "expect": "table",
+   "tag": "plural"
+  },
+  {
+   "q": "wardrobes",
+   "expect": "wardrobe",
+   "tag": "plural"
+  },
+  {
+   "q": "lockers",
+   "expect": "locker",
+   "tag": "plural"
+  },
+  {
+   "q": "shelves",
+   "expect": "shelf",
+   "tag": "plural"
+  },
+  {
+   "q": "mugs",
+   "expect": "mug",
+   "tag": "plural"
+  },
+  {
+   "q": "boxes",
+   "expect": "box",
+   "tag": "plural"
+  },
+  {
+   "q": "benches",
+   "expect": "bench",
+   "tag": "plural"
+  },
+  {
+   "q": "crates",
+   "expect": "crate",
+   "tag": "plural"
+  },
+  {
+   "q": "stools",
+   "expect": "stool",
+   "tag": "plural"
+  },
+  {
+   "q": "desks",
+   "expect": "desk",
+   "tag": "plural"
+  },
+  {
+   "q": "beds",
+   "expect": "bed",
+   "tag": "plural"
+  },
+  {
+   "q": "lamps",
+   "expect": "lamp",
+   "tag": "plural"
+  },
+  {
+   "q": "fridges",
+   "expect": "fridge",
+   "tag": "plural"
+  },
+  {
+   "q": "toilets",
+   "expect": "toilet",
+   "tag": "plural"
+  },
+  {
+   "q": "sinks",
+   "expect": "sink",
+   "tag": "plural"
+  },
+  {
+   "q": "laptops",
+   "expect": "laptop",
+   "tag": "plural"
+  },
+  {
+   "q": "pianos",
+   "expect": "piano",
+   "tag": "plural"
+  },
+  {
+   "q": "sofa",
+   "expect": "couch",
+   "tag": "synonym"
+  },
+  {
+   "q": "settee",
+   "expect": "couch",
+   "tag": "synonym"
+  },
+  {
+   "q": "refrigerator",
+   "expect": "fridge",
+   "tag": "synonym"
+  },
+  {
+   "q": "television",
+   "expect": "tv",
+   "tag": "synonym"
+  },
+  {
+   "q": "telephone",
+   "expect": "phone",
+   "tag": "synonym"
+  },
+  {
+   "q": "bookcase",
+   "expect": "bookshelf",
+   "tag": "synonym"
+  },
+  {
+   "q": "armoire",
+   "expect": "wardrobe",
+   "tag": "synonym"
+  },
+  {
+   "q": "loo",
+   "expect": "toilet",
+   "tag": "synonym"
+  },
+  {
+   "q": "icebox",
+   "expect": "fridge",
+   "tag": "synonym"
+  },
+  {
+   "q": "nightstand",
+   "expect": "side table",
+   "tag": "synonym"
+  },
+  {
+   "q": "oil drum",
+   "expect": "barrel",
+   "tag": "synonym"
+  },
+  {
+   "q": "trunk",
+   "expect": "chest",
+   "tag": "synonym"
+  },
+  {
+   "q": "garbage can",
+   "expect": "trash can",
+   "tag": "synonym"
+  },
+  {
+   "q": "rubbish bin",
+   "expect": "trash can",
+   "tag": "synonym"
+  },
+  {
+   "q": "cooker",
+   "expect": "stove",
+   "tag": "synonym"
+  },
+  {
+   "q": "pew",
+   "expect": "bench",
+   "tag": "synonym"
+  },
+  {
+   "q": "automobile",
+   "expect": "car",
+   "tag": "synonym"
+  },
+  {
+   "q": "aeroplane",
+   "expect": "airplane",
+   "tag": "synonym"
+  },
+  {
+   "q": "boeing 747",
+   "expect": "jumbo jet",
+   "tag": "synonym"
+  },
+  {
+   "q": "wine glass",
+   "expect": "wineglass",
+   "tag": "synonym"
+  },
+  {
+   "q": "cuoch",
+   "expect": "couch",
+   "tag": "typo"
+  },
+  {
+   "q": "sofaa",
+   "expect": "sofa",
+   "tag": "typo"
+  },
+  {
+   "q": "bookshlef",
+   "expect": "bookshelf",
+   "tag": "typo"
+  },
+  {
+   "q": "refridgerator",
+   "expect": "refrigerator",
+   "tag": "typo"
+  },
+  {
+   "q": "wardrob",
+   "expect": "wardrobe",
+   "tag": "typo"
+  },
+  {
+   "q": "tabel",
+   "expect": "table",
+   "tag": "typo"
+  },
+  {
+   "q": "chiar",
+   "expect": "chair",
+   "tag": "typo"
+  },
+  {
+   "q": "lampp",
+   "expect": "lamp",
+   "tag": "typo"
+  },
+  {
+   "q": "bathtbu",
+   "expect": "bathtub",
+   "tag": "typo"
+  },
+  {
+   "q": "stoool",
+   "expect": "stool",
+   "tag": "typo"
+  },
+  {
+   "q": "microwav",
+   "expect": "microwave",
+   "tag": "typo"
+  },
+  {
+   "q": "televsion",
+   "expect": "television",
+   "tag": "typo"
+  },
+  {
+   "q": "toliet",
+   "expect": "toilet",
+   "tag": "typo"
+  },
+  {
+   "q": "dreser",
+   "expect": "dresser",
+   "tag": "typo"
+  },
+  {
+   "q": "cabnet",
+   "expect": "cabinet",
+   "tag": "typo"
+  },
+  {
+   "q": "vending machin",
+   "expect": "vending machine",
+   "tag": "typo"
+  },
+  {
+   "q": "something to sit on",
+   "expect": "chair",
+   "tag": "hard"
+  },
+  {
+   "q": "a place to sit",
+   "expect": "chair",
+   "tag": "hard"
+  },
+  {
+   "q": "a thing to sleep in",
+   "expect": "bed",
+   "tag": "hard"
+  },
+  {
+   "q": "somewhere to put my clothes",
+   "expect": "wardrobe",
+   "tag": "hard"
+  },
+  {
+   "q": "a thing to cook on",
+   "expect": "stove",
+   "tag": "hard"
+  },
+  {
+   "q": "something to watch movies on",
+   "expect": "tv",
+   "tag": "hard"
+  },
+  {
+   "q": "dragon",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "a unicorn",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "phoenix",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "fire hydrant",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "bicycle",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "skateboard",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "submarine",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "trampoline",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "telescope",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "hot air balloon",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "jukebox",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "statue of liberty",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "eiffel tower",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "spaceship",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "robot",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "lawnmower",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "wheelbarrow",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "chandelier",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "accordion",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "harp",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "violin",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "saxophone",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "treadmill",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "canoe",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "kayak",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "typewriter",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "cuckoo clock",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "pogo stick",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "ice cream truck",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "hot tub",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "snowman",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "castle",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "windmill",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "dinosaur",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "lightsaber",
+   "expect": null,
+   "tag": "negative"
+  },
+  {
+   "q": "toaster oven",
+   "expect": null,
+   "tag": "negative"
+  }
+ ]
+}

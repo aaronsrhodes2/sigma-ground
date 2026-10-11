@@ -1,0 +1,57 @@
+{
+ "_about": "Hand-written test fixtures that MIMIC each source's listing format as the adapter author remembers it. The record names are plausible, the NUMBERS ARE INVENTED for tests and are not measurements of anything. Every format here is from memory and UNVERIFIED against the live source (see each adapter's docstring). Nothing in this file was fetched.",
+ "polyhaven": {
+  "status": "from memory, unverified",
+  "raw": {
+   "sofa_01": {"name": "Sofa 01", "type": 2, "categories": ["furniture", "seating"], "tags": ["sofa", "couch", "lounge"], "authors": {"Example Author": "All"}, "dimensions": [2000, 950, 850]},
+   "fire_hydrant": {"name": "Fire Hydrant", "type": 2, "categories": ["outdoor"], "tags": ["street", "hydrant"], "authors": {"Example Author": "All"}, "dimensions": [400, 400, 800]},
+   "boulder_01": {"name": "Boulder 01", "type": 2, "categories": ["nature"], "tags": ["rock"], "authors": {"Example Author": "All"}},
+   "broken": "not a record"
+  }
+ },
+ "kenney": {
+  "status": "from memory, unverified (no real listing format exists; pack description is hand-made)",
+  "raw": {
+   "pack": "Car Kit", "pack_url": "https://example.invalid/kenney/car-kit", "license": "CC0",
+   "models": [
+    {"file": "sedan.glb", "name": "sedan", "bbox": [1.5, 1.45, 2.55]},
+    {"file": "truck.glb", "name": "truck", "bbox": [1.7, 1.9, 3.8]},
+    {"file": "wheel_default.glb"}
+   ]
+  },
+  "raw_nc": {
+   "pack": "Hypothetical NC Pack", "pack_url": "https://example.invalid/nc", "license": "CC-BY-NC 4.0",
+   "models": [{"file": "thing.glb", "bbox": [1, 1, 1]}]
+  }
+ },
+ "fuel": {
+  "status": "from memory, unverified",
+  "raw": [
+   {"name": "Fire Hydrant", "owner": "ExampleOwner", "tags": ["street"], "version": 4, "license_name": "Creative Commons - Public Domain", "bbox_m": [0.4, 0.4, 0.87]},
+   {"name": "Bicycle", "owner": "ExampleOwner", "tags": ["vehicle"], "version": 2, "license_name": "Creative Commons - Attribution", "bbox_m": [0.6, 1.7, 1.0]},
+   {"name": "Grand Piano", "owner": "ExampleOwner", "tags": ["music"], "version": 1, "license_name": "Creative Commons - Public Domain"},
+   {"name": "Teapot", "owner": "ExampleOwner", "tags": ["kitchen"], "version": 1, "license_name": "Creative Commons - Attribution - Non Commercial", "bbox_m": [0.2, 0.15, 0.15]},
+   {"name": "Cabinet", "owner": "ExampleOwner", "tags": [], "version": 1, "license_name": "Creative Commons - Attribution - Share Alike", "bbox_m": [0.5, 0.4, 1.0]},
+   {"nonsense": true}
+  ]
+ },
+ "nasa": {
+  "status": "from memory, unverified",
+  "raw": [
+   {"title": "Saturn V", "category": "Launch Vehicles", "page": "https://example.invalid/nasa/saturn-v", "file": "saturn_v.glb", "bbox": [2, 13, 2]},
+   {"title": "Space Shuttle", "category": "Spacecraft", "page": "https://example.invalid/nasa/shuttle", "file": "shuttle.glb", "bbox": [3, 1, 4], "real_size_m": [23.8, 37.2, 17.4]}
+  ]
+ },
+ "smithsonian": {
+  "status": "from memory, unverified",
+  "raw": {"response": {"rows": [
+   {"id": "edanmdm:example-1", "title": "Example Hand Plane", "content": {
+     "descriptiveNonRepeating": {"record_link": "https://example.invalid/si/1", "unit_code": "NMAH", "online_media": {"media": [{"type": "3d", "usage": {"access": "CC0"}, "content": "https://example.invalid/si/1.glb"}]}},
+     "freetext": {"physicalDescription": [{"label": "Dimensions", "content": "H x W x D: 10 x 20 x 30 cm"}]}}},
+   {"id": "edanmdm:example-2", "title": "Example Restricted Object", "content": {
+     "descriptiveNonRepeating": {"record_link": "https://example.invalid/si/2", "unit_code": "NASM", "online_media": {"media": [{"type": "3d", "usage": {"access": "Usage conditions apply"}, "content": "https://example.invalid/si/2.glb"}]}},
+     "freetext": {"physicalDescription": [{"label": "Dimensions", "content": "5 x 5 x 5 m"}]}}},
+   {"id": "bad"}
+  ]}}
+ }
+}
