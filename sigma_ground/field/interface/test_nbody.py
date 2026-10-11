@@ -747,32 +747,33 @@ class TestGR2PN(unittest.TestCase):
                               ).compute_accelerations()
         np.testing.assert_allclose(a_both, a_1pn, atol=0.0)
 
-    def test_2pn_correction_detectable_in_compact_binary(self):
-        """2PN correction at NS-binary scale (v ~ 0.05c) should be detectable.
+    def test_static_2pn_relative_coefficient_matches_kidder(self):
+        """Static 2PN relative acceleration of two bodies at rest, harmonic gauge:
+        −(GM/r²)(3/4)(12 + 29η)(GM/(rc²))² n  (Kidder 1995, PRD 52, 821, eq. 4d; η = m₁m₂/M²).
+        9 in the test-mass limit (harmonic Schwarzschild 1 − 4u + 9u²), 14.4375 for equal masses.
+        Before 2026-10-10 the engine gave 9(m₁³+m₂³)/M³: 2.25 for equal masses. (This test replaced one that
+        asserted only that 2PN changed the acceleration.)"""
+        from sigma_ground.field.constants import C as _C
+        r = 1e7
+        for q in (1e-9, 0.1, 0.5, 1.0):
+            m1 = 1.4 * M_SUN; m2 = q * m1; M = m1 + m2; eta = m1 * m2 / M**2
+            bodies = [CelestialBody(m1, np.zeros(3), np.zeros(3), 1e4, 0.0),
+                      CelestialBody(m2, np.array([r, 0.0, 0.0]), np.zeros(3), 1e4, 0.0)]
+            d = (NBodySystem(bodies, toggles=PhysicsToggles(gr_2pn=True)).compute_accelerations()
+                 - NBodySystem(bodies, toggles=PhysicsToggles()).compute_accelerations())
+            u = _G * M / (r * _C**2)
+            coefficient = -(d[1][0] - d[0][0]) / (_G * M / r**2 * u**2)
+            self.assertAlmostEqual(coefficient / (0.75 * (12 + 29 * eta)), 1.0, delta=1e-6, msg=f"q={q}")
 
-        At Mercury's solar-system scale, 2PN is ~10⁻²⁵ m/s² -- below float64
-        precision when added to Newton's ~10⁻² m/s². We need a strong-field
-        regime to make 2PN measurable.
-        """
-        # Neutron-star binary: m=1.4 M_sun each, separation 1e7 m → v ~ 0.05c
-        M  = 1.4 * M_SUN
-        r  = 1e7
-        v  = math.sqrt(_G * M / r)  # circular velocity at r (~0.05c here)
-        b1 = CelestialBody(M, np.zeros(3), np.zeros(3), 1e4, 0.0)
-        b2 = CelestialBody(M, np.array([r, 0.0, 0.0]),
-                            np.array([0.0, v, 0.0]), 1e4, 0.0)
-        bodies = [b1, b2]
-        a_1pn  = NBodySystem(bodies,
-                              toggles=PhysicsToggles(gr_1pn=True)
-                              ).compute_accelerations()
-        a_2pn  = NBodySystem(bodies,
-                              toggles=PhysicsToggles(gr_1pn=True, gr_2pn=True)
-                              ).compute_accelerations()
-        delta_2pn = float(np.linalg.norm(a_2pn[1] - a_1pn[1]))
-        # In this regime v/c ≈ 0.05, so 2PN/1PN ratio ~ 0.0025.
-        # Both deltas should be measurable.
-        self.assertGreater(delta_2pn, 0,
-                            "2PN should change accel in strong-field regime")
+    def test_2pn_magnitude_at_mercury(self):
+        """At Mercury's perihelion the static 2PN term is 9 (GM)³/(c⁴ r⁴) ≈ 5.6e-16 m/s² (the earlier test comment
+        said ~1e-25 m/s²), about 8e-14 of the Newtonian pull: resolvable in float64."""
+        from sigma_ground.field.constants import C as _C
+        bodies = self._mercury_like()
+        d = (NBodySystem(bodies, toggles=PhysicsToggles(gr_1pn=True, gr_2pn=True)).compute_accelerations()
+             - NBodySystem(bodies, toggles=PhysicsToggles(gr_1pn=True)).compute_accelerations())
+        gm = bodies[0].gm_m3_s2; r = 0.31 * AU
+        self.assertAlmostEqual(-d[1][0] / (9 * gm**3 / (_C**4 * r**4)), 1.0, delta=0.05)
 
     def test_2pn_zero_velocity_still_has_radial(self):
         """At v=0, 2PN should give a purely radial (GM/r)² correction."""
@@ -791,6 +792,67 @@ class TestGR2PN(unittest.TestCase):
         # The y and z components of delta should be zero (radial-only at v=0)
         self.assertAlmostEqual(delta[1], 0.0, delta=abs(delta[0]) * 1e-10)
         self.assertAlmostEqual(delta[2], 0.0, delta=abs(delta[0]) * 1e-10)
+
+
+class TestTotalEnergyBookkeeping(unittest.TestCase):
+    """total_energy() reports the energy of the system the integrator actually evolves (fixed 2026-10-10, A2 and its
+    σ sibling): with Plummer softening the pair potential is −G m m'/√(r² + ε²), with uniform σ it carries e^σ.
+    Ground truth: a symplectic integrator with position-only forces conserves that Hamiltonian to its bounded
+    O(dt⁴) error, which the independently written function below confirms. Before the fix total_energy() reported
+    50 % "drift" for the softened cluster and 183 % for the σ = 0.5 binary."""
+
+    @staticmethod
+    def _independent_energy(bodies, eps):
+        ke = sum(0.5 * b.mass_kg * float(b.velocity_m_s @ b.velocity_m_s) for b in bodies)
+        pe = 0.0
+        for i in range(len(bodies)):
+            for j in range(i + 1, len(bodies)):
+                d = bodies[i].position_m - bodies[j].position_m
+                pe -= (_G * bodies[i].mass_kg * bodies[j].mass_kg
+                       * math.exp(0.5 * (bodies[i].sigma_field + bodies[j].sigma_field)) / math.sqrt(d @ d + eps**2))
+        return ke + pe
+
+    def test_softened_cluster_energy_is_conserved(self):
+        rng = np.random.default_rng(3)
+        n, m, R = 8, 1e24, 1e8
+        pos = rng.normal(size=(n, 3)) * R
+        vel = rng.normal(size=(n, 3)) * math.sqrt(_G * n * m / R) * 0.3
+        vel -= vel.mean(axis=0)
+        system = NBodySystem([CelestialBody(m, pos[i], vel[i], 1.0, 0.0) for i in range(n)], softening_m=0.3 * R)
+        t_dyn = math.sqrt(R**3 / (_G * n * m))
+        e0 = system.total_energy()
+        self.assertAlmostEqual(e0 / self._independent_energy(system.bodies, 0.3 * R), 1.0, delta=1e-12)
+        worst = 0.0
+        for _ in range(200):
+            system.forest_ruth_step(t_dyn / 100)
+            worst = max(worst, abs(system.total_energy() / e0 - 1.0))
+        self.assertLess(worst, 1e-6)
+
+    def test_uniform_sigma_binary_energy_is_conserved(self):
+        sigma, M0, M1, a, e = 0.5, 2e30, 6e24, 1.5e11, 0.5
+        M = M0 + M1; mu = _G * M * math.exp(sigma)
+        rp = a * (1 - e); vp = math.sqrt(mu * (1 + e) / rp)
+        x = np.array([rp, 0.0, 0.0]); v = np.array([0.0, vp, 0.0])
+        system = NBodySystem([CelestialBody(M0, -M1 / M * x, -M1 / M * v, 1.0, 0.0, sigma_field=sigma),
+                              CelestialBody(M1, M0 / M * x, M0 / M * v, 1.0, 0.0, sigma_field=sigma)])
+        period = 2 * math.pi * math.sqrt(a**3 / mu)
+        e0 = system.total_energy()
+        self.assertAlmostEqual(e0 / self._independent_energy(system.bodies, 0.0), 1.0, delta=1e-12)
+        worst = 0.0
+        for _ in range(800):
+            system.forest_ruth_step(period / 400)
+            worst = max(worst, abs(system.total_energy() / e0 - 1.0))
+        self.assertLess(worst, 1e-5)
+
+    def test_legacy_point_mass_sum_and_plain_case(self):
+        """as_integrated=False keeps the bare −Σ G m m'/r; without softening and σ both agree bit for bit."""
+        bodies = [CelestialBody(M_SUN, np.zeros(3), np.zeros(3), R_SUN, 0.0, sigma_field=0.2),
+                  CelestialBody(6e24, np.array([AU, 1e9, 0.0]), np.array([0.0, 3e4, 0.0]), 1.0, 0.0)]
+        legacy = NBodySystem(bodies, softening_m=1e9).total_energy(as_integrated=False)
+        bare = (0.5 * 6e24 * 9e8) - _G * M_SUN * 6e24 / float(np.linalg.norm(bodies[1].position_m))
+        self.assertAlmostEqual(legacy / bare, 1.0, delta=1e-12)
+        plain = [b.replace(sigma_field=0.0) for b in bodies]
+        self.assertEqual(NBodySystem(plain).total_energy(), NBodySystem(plain).total_energy(as_integrated=False))
 
 
 # ═══════════════════════════════════════════════════════════════════════════

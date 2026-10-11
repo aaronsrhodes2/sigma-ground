@@ -12,7 +12,9 @@ Two integration schemes:
 Physics included (all deriving from local_library constants):
   - Pairwise Newtonian gravity (point masses)
   - σ-field mass scaling via local_library.scale.scale_ratio
-  - Optional 1PN Schwarzschild post-Newtonian correction (GR time dilation)
+  - Optional 1PN equations of motion: gr_1pn (test-particle Schwarzschild, valid in the
+    attractor's rest frame) or eih_cross (Einstein-Infeld-Hoffmann N-body; wins if both are on)
+  - Optional static 2PN two-body terms (gr_2pn; velocity terms not included)
   - Zonal J₂ quadrupole acceleration (rotational oblateness / static tides)
   - Tidal deformation: r(θ) = R₀[1 + ε₂ P₂(cos θ)]
   - Love number k₂ tidal response
@@ -109,9 +111,9 @@ class PhysicsToggles:
     Grep for "BORROWED FROM TEXTBOOK" to find every line awaiting derivation.
     """
 
-    gr_1pn:      bool = False   # single-body 1PN Schwarzschild (Soffel 2003 -- BORROWED)
-    gr_2pn:      bool = False   # single-body 2PN c⁻⁴ correction (Will 1993 -- BORROWED)
-    eih_cross:   bool = False   # full N-body 1PN EIH cross-terms (-- BORROWED, stretch)
+    gr_1pn:      bool = False   # test-particle 1PN Schwarzschild, attractor rest frame (Soffel 2003 -- BORROWED)
+    gr_2pn:      bool = False   # static two-body 2PN terms, harmonic gauge (Blanchet 2014 eq. 203 -- BORROWED)
+    eih_cross:   bool = False   # full N-body 1PN EIH equations; overrides gr_1pn (Will 1993 -- BORROWED)
     srp:         bool = False   # classical EM radiation pressure (σ-independent at SS scales)
     j2_zonal:    bool = False   # rotational oblateness quadrupole (Vallado §9.4 -- BORROWED)
     j3_zonal:    bool = False   # zonal J₃ (asymmetric, e.g. Earth's pear shape -- BORROWED)
@@ -382,8 +384,10 @@ class NBodySystem:
 
         Layers (in order applied):
           - Newtonian            (always on)
-          - 1PN Schwarzschild GR (toggles.gr_1pn)              [BORROWED]
-          - 2PN c⁻⁴ correction   (toggles.gr_2pn)              [BORROWED]
+          - 1PN EIH N-body       (toggles.eih_cross)           [BORROWED]
+          - 1PN test-particle    (toggles.gr_1pn; skipped when eih_cross is on, which already
+                                  contains it)                 [BORROWED]
+          - 2PN static terms     (toggles.gr_2pn; two-body, no velocity terms) [BORROWED]
           - J₂ zonal quadrupole  (toggles.j2_zonal)            [BORROWED]
           - J₃ zonal             (toggles.j3_zonal)            [BORROWED]
           - J₄ zonal             (toggles.j4_zonal)            [BORROWED]
@@ -515,35 +519,34 @@ class NBodySystem:
 
                 if t.gr_2pn:
                     # ┌──────────────────────────────────────────────────────┐
-                    # │ BORROWED FROM TEXTBOOK -- LEADING TERM ONLY          │
-                    # │ Source: Will 1993 "Theory and Experiment in          │
-                    # │ Gravitational Physics" §4.4 (test-particle 2PN in    │
-                    # │ Schwarzschild), Soffel 2003 eq. 10.12 at c⁻⁴.        │
+                    # │ BORROWED FROM TEXTBOOK -- STATIC 2PN TERMS ONLY      │
+                    # │ Source: two-body 2PN equations of motion, harmonic   │
+                    # │ gauge (Damour & Deruelle 1981; Blanchet 2014, Living │
+                    # │ Rev. Relativ. 17, 2, eq. 203), velocity-free part:   │
+                    # │   a_i ∋ −[9 (Gm_j)³ + (57/4)(Gm_i)²(Gm_j)            │
+                    # │          + (69/2)(Gm_i)(Gm_j)²] n_ij / (c⁴ r⁴),      │
+                    # │   n_ij = (x_i − x_j)/r  (attractive).                │
+                    # │ For the relative motion this is                      │
+                    # │   −(GM/r²)(3/4)(12 + 29η)(GM/(rc²))² n               │
+                    # │ (Kidder 1995, PRD 52, 821, eq. 4d): 9 in the         │
+                    # │ test-mass limit (harmonic Schwarzschild 1−4u+9u²),   │
+                    # │ 14.44 for equal masses.                              │
                     # │                                                      │
-                    # │ STATUS: LEADING RADIAL TERM with the correct c⁻⁴     │
-                    # │ Schwarzschild coefficient 9:                         │
-                    # │   a_2PN_leading = +9 (GM/r)² × (1/c⁴) × (1/r²) × r̂   │
-                    # │                 = 9 GM × (GM/(rc²))² / r² × r̂        │
-                    # │ Earlier version had a placeholder coefficient 1; the │
-                    # │ correct leading-order radial coefficient from the    │
-                    # │ Schwarzschild metric expansion is 9.                 │
-                    # │                                                      │
-                    # │ NOT YET INCLUDED (full 2PN has additional terms):    │
-                    # │   - v_i² mixed terms ~ (GM/r) × v² × r̂/c⁴            │
-                    # │   - (r̂·v_i)² terms                                   │
-                    # │   - Cross-velocity-radial couplings                  │
-                    # │ The leading radial dominates for slow orbits         │
-                    # │ (v/c < 0.05); add velocity terms for compact binary  │
-                    # │ work. Per SSBM derivation roadmap (GOLDEN_RULES §2)  │
-                    # │ this whole block awaits σ-modified geodesic.         │
+                    # │ NOT INCLUDED: the 2PN velocity terms. They are the   │
+                    # │ same order (GM/(rc²))² as these on any bound orbit,  │
+                    # │ so slowness does not make them negligible (on an     │
+                    # │ e = 0.6 orbit they are ~0-14 % of the static term);  │
+                    # │ and for N > 2 the genuine three-body static terms.   │
+                    # │ Use with gr_1pn or eih_cross: alone it is an         │
+                    # │ inconsistent PN truncation (c⁻⁴ without c⁻²).        │
+                    # │ Per SSBM derivation roadmap (GOLDEN_RULES §2) this   │
+                    # │ block awaits the σ-modified geodesic.                │
                     # └──────────────────────────────────────────────────────┘
-                    r_hat     = r_ij / r
-                    gm_over_r = gm_j / r          # m²/s²
-                    pn_param  = gm_over_r / _c2   # dimensionless (GM/(rc²))
-                    # Leading radial 2PN: +9 GM³/(r⁴ c⁴) × r̂
-                    #   = 9 × (GM/r²) × (GM/(rc²))² × r̂
-                    a_2pn_mag = 9.0 * (gm_j / r_sq) * pn_param * pn_param
-                    acc[i] += a_2pn_mag * r_hat
+                    # FIXED 2026-10-10 (audit): the test-mass term 9 (Gm_j)³ alone was applied pairwise, a relative
+                    # coefficient 9(m_i³ + m_j³)/M³ (2.25 for equal masses, 0.156 × Kidder's 14.44).
+                    gm_i   = self.bodies[i].gm_m3_s2
+                    static = (9.0 * gm_j**3 + 14.25 * gm_i**2 * gm_j + 34.5 * gm_i * gm_j**2) / (_c4 * r_sq * r_sq)
+                    acc[i] += static * (r_ij / r)
 
         # ── J₂ zonal quadrupole (rotational oblateness) ───────────────────
         if t.j2_zonal:
@@ -1226,27 +1229,41 @@ class NBodySystem:
 
     # ── conserved quantities ────────────────────────────────────────────────
 
-    def total_energy(self) -> float:
-        """Total mechanical energy (kinetic + gravitational potential) in J.
+    def total_energy(self, *, as_integrated: bool = True) -> float:
+        """Total mechanical energy (kinetic + Newtonian pair potential) in J.
 
-        PHYSICS_GAP (2026-10-10): this sums the UNSOFTENED 1/r pair potential,
-        while ``compute_accelerations`` integrates Plummer-softened forces when
-        ``softening_m > 0``. The conserved quantity of the integrated system is
-        K + U_soft with U_soft = -Σ G m_i m_j / sqrt(r² + ε²); the number
-        returned here drifts even when the integrator is exact (unification
-        pilot P5: 0.96 % "drift" vs 2.4e-5 for the softened Hamiltonian).
-        Filed in KNOWN_GAPS.md. Mentat flags, never fixes — a fix needs a
-        Captain decision on which energy the API should report.
+        as_integrated=True (default): the Hamiltonian of the Newtonian force law the integrators use,
+            E = Σ ½ m v² − Σ_{i<j} G m_i m_j e^{(σ_i+σ_j)/2} / √(r² + ε²),
+        with the Plummer softening ε = softening_m and the σ mass scaling of gm_m3_s2. With position-only forces this
+        is what step() and forest_ruth_step() conserve (bounded O(dt²), O(dt⁴) error). It is exact for uniform σ; with
+        unequal σ the engine's pair forces are not reciprocal (σ-mass law, decisions A23/C2), no conserved energy
+        exists, and the geometric mean e^{(σ_i+σ_j)/2} is a convention. Not included: the potential energy of the
+        J₂–J₄, tidal and post-Newtonian layers.
+        as_integrated=False: the bare point-mass sum −Σ G m_i m_j / r, the value reported before 2026-10-10.
+        With softening_m = 0 and every σ = 0 the two are bit-identical.
+
+        FIXED 2026-10-10 (KNOWN_GAPS A2 and the audit's σ sibling): the energy ignored softening and σ, so runs the
+        integrator conserved reported spurious drift (P5 pilot 0.96 %; a σ = 0.5 binary 183 %). API decision, for the
+        Captain to confirm (open decision C6): the default reports the integrated system's energy; the legacy number
+        stays available with as_integrated=False.
         """
         ke = sum(b.kinetic_energy() for b in self.bodies)
         pe = 0.0
+        eps_sq = self.softening_m ** 2 if as_integrated else 0.0
         for i, bi in enumerate(self.bodies):
             for j, bj in enumerate(self.bodies):
                 if j <= i:
                     continue
-                r = float(np.linalg.norm(bi.position_m - bj.position_m))
+                if eps_sq > 0.0:
+                    d = bi.position_m - bj.position_m
+                    r = math.sqrt(float(np.dot(d, d)) + eps_sq)
+                else:
+                    r = float(np.linalg.norm(bi.position_m - bj.position_m))
                 if r > 0:
-                    pe -= _G * bi.mass_kg * bj.mass_kg / r
+                    coupling = _G * bi.mass_kg * bj.mass_kg
+                    if as_integrated and (bi.sigma_field != 0.0 or bj.sigma_field != 0.0):
+                        coupling *= _scale_ratio(0.5 * (bi.sigma_field + bj.sigma_field))
+                    pe -= coupling / r
         return ke + pe
 
     def total_momentum(self) -> NDArray[np.float64]:
