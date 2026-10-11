@@ -118,7 +118,9 @@ _N_EFFECTIVE = {1: 1.0, 2: 2.0, 3: 3.0, 4: 3.7, 5: 4.0, 6: 4.2, 7: 4.4}
 _SEMF_AV = 15.56   # MeV — volume term (strong force, short-range)
 _SEMF_AS = 17.23   # MeV — surface term (missing neighbors at surface)
 _SEMF_AC = A_C_MEV  # MeV — Coulomb term (DERIVED from Coulomb's law in constants.py, ≈ 0.7111)
-_SEMF_AA = 23.29   # MeV — asymmetry term a_A (N−Z)²/A (Pauli exclusion, N≠Z penalty)
+_SEMF_AA = 23.29   # MeV — asymmetry term a_A (N−Z)²/A (Pauli exclusion, N≠Z penalty);
+                   # the textbook 23.285 rounded (2e-4 relative), the value
+                   # stable_mass_number has always used — kept so it is unchanged
 _SEMF_AP = 12.0    # MeV — pairing term (even-even bonus)
 
 # ── Friedel d-Band Widths ────────────────────────────────────────
