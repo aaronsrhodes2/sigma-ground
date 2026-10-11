@@ -42,12 +42,13 @@ Physics used:
     — the energy-conserving companion of the symmetric momentum equation;
     dT = du/cp for eos="tait"; booked to scene.energy_bath_J for "isothermal".
     Then conduction + sources:
-    dT/dt = (1/ρcp) Σⱼ mⱼ (κᵢ+κⱼ)(Tᵢ-Tⱼ)/(ρᵢρⱼ) (rᵢⱼ·∇W) / rᵢⱼ²
-          + Q_source / (ρ cp)           (internal heat generation)
+    dT/dt = (1/cp) Σⱼ mⱼ 2κᵢⱼ(Tᵢ-Tⱼ)/(ρᵢρⱼ) (rᵢⱼ·∇W) / (rᵢⱼ² + 0.01h²)
+          + q_source / cp               (q_source in W/kg: internal heat generation)
+    with κᵢⱼ the harmonic mean (Cleary & Monaghan 1999); see _heat_conduction.
     scene.energy_ledger() reports kinetic + internal + bath + self-gravity + uniform g.
 
-  Buoyancy (Boussinesq approximation):
-    F_buoy = -α ΔT ρ₀ g   where α = thermal expansion coefficient
+  Buoyancy (Boussinesq approximation; not applied for eos="ideal"):
+    F_buoy / m = −β ΔT g   where β = 3α_L is the volumetric expansion coefficient
 
 σ-dependence:
   All σ effects flow through the interface cascade. The bridge doesn't
@@ -621,20 +622,22 @@ def _sph_viscous_force(parcels, h, alpha_visc=1.0, c_override=None, pairs=None):
 def _buoyancy_force(parcel, rho_0, T_0, gravity):
     """Boussinesq buoyancy force.
 
-    F_buoy / m = −α (T − T₀) g
+    F_buoy / m = −β (T − T₀) g,   β = 3 α_L
 
-    where α is thermal expansion coefficient from the interface cascade.
+    FIRST_PRINCIPLES: the density perturbation ρ' = −ρ₀ β ΔT drives buoyancy,
+    and β is the VOLUMETRIC coefficient: an isotropic solid's volume strain is
+    (1 + α_L ΔT)³ − 1 ≈ 3 α_L ΔT (thermal_expansion.volumetric_expansion_coefficient;
+    e.g. iron α_L = 11.8, α_V = 35.4 × 10⁻⁶ K⁻¹, Wikipedia 'Thermal expansion'
+    table at 20 °C). `parcel.thermal_expansion` is the cascade's LINEAR α_L(T).
+    Anisotropic carriers (carbon_fiber, kevlar) inherit the isotropic 3α_L
+    convention of the cascade.
 
-    FIRST_PRINCIPLES: density perturbation ρ' = −ρ₀ α ΔT drives buoyancy.
+    Not applied under eos="ideal": there P = ρ(R/M)T, so the SPH pressure
+    gradient already carries the thermal buoyancy (continuum_step gates it).
 
-    PHYSICS_GAP (2026-10-10, unification round 2, U14G; KNOWN_GAPS.md): the
-    density perturbation needs the VOLUMETRIC coefficient β = 3α_L, but
-    `parcel.thermal_expansion` is the cascade's LINEAR α_L, so buoyancy is 1/3
-    of physical (measured 0.322–0.350 for 10 cubic crystals). The term is also
-    applied under eos="ideal", where the SPH pressure gradient already carries
-    thermal buoyancy, so ideal-gas runs count it twice. Flagged, not fixed.
+    FIXED 2026-10-10: β = 3α_L (was α_L, 1/3 of Archimedes) and off for the ideal EOS (A14).
     """
-    alpha = parcel.thermal_expansion
+    alpha = 3.0 * parcel.thermal_expansion        # volumetric β = 3 α_L
     dT = parcel.temperature - T_0
     # Buoyancy acceleration: opposite to gravity, proportional to ΔT
     return Vec3(
@@ -645,43 +648,47 @@ def _buoyancy_force(parcel, rho_0, T_0, gravity):
 
 
 def _heat_conduction(parcels, h):
-    """SPH heat conduction.
+    """SPH heat conduction (Fourier's law).
 
-    dTᵢ/dt = (1/ρᵢcpᵢ) Σⱼ mⱼ (κᵢ+κⱼ)(Tᵢ−Tⱼ)/(ρᵢρⱼ)
-              × (rᵢⱼ · ∇Wᵢⱼ) / (rᵢⱼ² + 0.01h²)
+    duᵢ/dt = Σⱼ mⱼ/(ρᵢρⱼ) · 2κᵢⱼ (Tᵢ−Tⱼ) (rᵢⱼ·∇ᵢWᵢⱼ)/(rᵢⱼ² + 0.01h²)   [W/kg]
+    dTᵢ/dt = (duᵢ/dt) / cpᵢ
 
-    FIRST_PRINCIPLES: Fourier's law discretized via SPH (Cleary & Monaghan 1999).
+    The pair sum is already the specific heating rate du/dt: it is the
+    Brookshaw (1985) / Monaghan (1992) second-derivative operator, written as
+    Jubelgas, Springel & Dolag 2004 (MNRAS 351, 423) eq. 17, whose continuum
+    limit is (1/ρ)∇·(κ∇T). The conductivity pair mean is Cleary & Monaghan's
+    (1999, J. Comput. Phys. 148, 227) harmonic mean κᵢⱼ = 2κᵢκⱼ/(κᵢ+κⱼ)
+    (JSD 2004 eq. 18), chosen deliberately: it is the series conductance of
+    two half-gaps, so heat flux stays continuous across a material interface
+    (an insulator next to copper limits the flow); it equals κ for like
+    neighbours.
 
-    PHYSICS_GAP (2026-10-10, unification round 2, U14G; KNOWN_GAPS.md): the
-    pair sum below is already du/dt in W/kg (Brookshaw 1985 / Monaghan 1992;
-    Jubelgas et al. 2004 eq. 17), so dividing by ρᵢcpᵢ divides by ρ a second
-    time. Conduction runs ρ_sph[SI] times too slow (iron: 1.16e-4 of the
-    Fourier rate), scales as ρ⁻² instead of ρ⁻¹, and is not antisymmetric
-    between neighbours of unequal density, so it creates or destroys heat.
-    The κᵢ + κⱼ arithmetic mean is Brookshaw/Monaghan, not Cleary & Monaghan's
-    harmonic mean. Flagged, not fixed.
+    Each pair's heat flow Qᵢⱼ = mᵢmⱼ/(ρᵢρⱼ)·2κᵢⱼ(Tᵢ−Tⱼ)(rᵢⱼ·∇ᵢWᵢⱼ)/(rᵢⱼ²+η²)
+    (W) is computed once and booked +Qᵢⱼ to i and −Qᵢⱼ to j, so
+    Σ mᵢ cpᵢ dTᵢ/dt = 0 exactly in floating point, whatever the densities.
+
+    FIXED 2026-10-10: dT/dt = rate/cp (was rate/(ρcp), ρ_sph times too slow) and pairwise antisymmetric (A15).
 
     Returns dict of {parcel_index: dT/dt in K/s}.
     """
-    dTdt = {}
     eta2 = 0.01 * h * h
+    n = len(parcels)
+    heat_W = [0.0] * n            # Σⱼ Qᵢⱼ, heat flowing INTO parcel i (W)
 
     for i, pi in enumerate(parcels):
-        rate = 0.0
         rho_i = pi.sph_density
         T_i = pi.temperature
         kappa_i = pi.thermal_conductivity
-        cp_i = pi.specific_heat
-
-        if cp_i <= 0 or rho_i <= 0:
-            dTdt[i] = 0.0
-            continue
 
         for j in pi.neighbors:
+            if j <= i:
+                continue                      # each pair once; neighbour lists are symmetric
             pj = parcels[j]
             rho_j = pj.sph_density
-            T_j = pj.temperature
             kappa_j = pj.thermal_conductivity
+            ksum = kappa_i + kappa_j
+            if ksum <= 0.0 or rho_i <= 0.0 or rho_j <= 0.0:
+                continue
 
             dx = pi.position.x - pj.position.x
             dy = pi.position.y - pj.position.y
@@ -689,14 +696,18 @@ def _heat_conduction(parcels, h):
             r2 = dx * dx + dy * dy + dz * dz
 
             gx, gy, gz = grad_W(dx, dy, dz, h)
-            rdotg = dx * gx + dy * gy + dz * gz
+            rdotg = dx * gx + dy * gy + dz * gz       # < 0 inside the kernel
 
-            kappa_avg = kappa_i + kappa_j  # factor 2 absorbed into formula
-            coeff = pj.mass * kappa_avg * (T_i - T_j) / (rho_i * rho_j)
-            rate += coeff * rdotg / (r2 + eta2)
+            two_kappa_ij = 4.0 * kappa_i * kappa_j / ksum   # 2 × harmonic mean
+            q = (pi.mass * pj.mass / (rho_i * rho_j) * two_kappa_ij
+                 * (T_i - pj.temperature) * rdotg / (r2 + eta2))
+            heat_W[i] += q
+            heat_W[j] -= q
 
-        dTdt[i] = rate / (rho_i * cp_i)
-
+    dTdt = {}
+    for i, pi in enumerate(parcels):
+        cp_i = pi.specific_heat
+        dTdt[i] = heat_W[i] / (pi.mass * cp_i) if (cp_i > 0 and pi.mass > 0) else 0.0
     return dTdt
 
 
@@ -773,10 +784,13 @@ def continuum_step(scene, dt, alpha_visc=1.0):
         a_viscous = _sph_viscous_force(parcels, h, alpha_visc,
                                        c_override=iso_cs, pairs=pairs)
         out = []
+        zero = Vec3(0, 0, 0)
         for i, p in enumerate(parcels):
-            a_p = a_pressure.get(i, Vec3(0, 0, 0))
-            a_v = a_viscous.get(i, Vec3(0, 0, 0))
-            a_b = _buoyancy_force(p, scene.rho_0, scene.T_0, g)
+            a_p = a_pressure.get(i, zero)
+            a_v = a_viscous.get(i, zero)
+            # Boussinesq only where the EOS carries no thermal pressure: the
+            # ideal gas's P = ρ(R/M)T already makes hot gas buoyant.
+            a_b = zero if eos == "ideal" else _buoyancy_force(p, scene.rho_0, scene.T_0, g)
             a_g = (a_grav or {}).get(i, Vec3(0, 0, 0))
             out.append(Vec3(
                 g.x + a_p.x + a_v.x + a_b.x + a_g.x,
