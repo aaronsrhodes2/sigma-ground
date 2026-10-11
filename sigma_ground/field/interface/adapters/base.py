@@ -121,7 +121,7 @@ class SGPhysicsMixin:
         include_gr : opt in to the 1PN Schwarzschild correction (nbody gr_1pn; a
                      single-body form, valid in the attractor's rest frame).
                      Default False since 2026-10-10: plain Newtonian, like the
-                     scipy propagators this replaces and like sg_solve_ivp.
+                     scipy propagators this replaces.
 
         Returns
         -------

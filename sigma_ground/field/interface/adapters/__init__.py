@@ -9,9 +9,9 @@ Public API
     SGAdapter         Generic wrapper: adds sg_ methods to any external object
     SGPhysicsMixin    Mixin: inherit to add sg_ methods to your own classes
     SGEphemeris       Planet positions with 4-tier SSBM fallback
-    sg_solve_ivp      Forest-Ruth ODE solver (scipy.integrate.solve_ivp API)
+    sg_solve_ivp      Fixed-step Forest-Ruth/Verlet/RK4 solver (solve_ivp-like call)
     sg_nbody          N-body convenience wrapper (NBodySystem + FR4)
-    sg_odeint         Forest-Ruth odeint (scipy.integrate.odeint API)
+    sg_odeint         Fixed-step odeint-like call (step independent of output grid)
     sg_patch_astropy  Inject SSBM constants into astropy (non-destructive)
     sg_patch_scipy    Inject SSBM G into scipy (non-destructive)
 

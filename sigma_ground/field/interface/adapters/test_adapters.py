@@ -290,6 +290,123 @@ class TestSGSolveIVP(unittest.TestCase):
         self.assertTrue(sol.success)
 
 
+class TestSGSolveIVPContract(unittest.TestCase):
+    """Regression tests for the 2026-10-10 audit (fix queue C1).
+
+    Ground truth is closed-form: the driven oscillator q'' = -q + cos 2t with
+    q(0) = q'(0) = 0 has q(t) = (cos 2t - cos t) / (1 - 4); the free oscillator
+    has q = cos t; y' = y^2, y(0) = 1 blows up at t = 1 (y = 1/(1 - t)).
+    """
+
+    @staticmethod
+    def _sho(t, y):
+        return np.array([y[1], -y[0]])
+
+    def test_fr4_fourth_order_on_driven_oscillator(self):
+        """Forest-Ruth substeps must advance time: order 4 on a driven system.
+
+        Before the fix every drift and kick saw the step-start time and the
+        error fell only 2x per halving (order 0.98)."""
+        def driven(t, y):
+            return np.array([y[1], -y[0] + math.cos(2.0 * t)])
+
+        def exact(t):
+            return (math.cos(2.0 * t) - math.cos(t)) / (1.0 - 4.0)
+
+        T = 20.0
+        errs = []
+        for n in (400, 800, 1600):
+            sol = sg_solve_ivp(driven, (0.0, T), np.array([0.0, 0.0]),
+                               method="forest_ruth", dt=T / n)
+            errs.append(abs(sol.y[0, -1] - exact(T)))
+        for e1, e2 in zip(errs, errs[1:]):
+            self.assertGreater(math.log2(e1 / e2), 3.8,
+                               f"FR4 order on driven oscillator: errs {errs}")
+        self.assertLess(errs[-1], 1e-7)
+
+    def test_odd_length_state_rejected_by_symplectic_methods(self):
+        """A [q, p] splitting cannot integrate an odd-length state."""
+        for method in ("forest_ruth", "verlet"):
+            with self.assertRaises(ValueError):
+                sg_solve_ivp(lambda t, y: -y, (0.0, 5.0), np.array([1.0]),
+                             method=method)
+        sol = sg_solve_ivp(lambda t, y: -y, (0.0, 5.0), np.array([1.0]),
+                           method="rk4", dt=5.0 / 400)
+        self.assertAlmostEqual(sol.y[0, -1], math.exp(-5.0), delta=1e-8)
+
+    def test_non_separable_split_warns(self):
+        """Damping makes dp/dt depend on p: the symplectic default must say so."""
+        def damped(t, y):
+            return np.array([y[1], -y[0] - 0.2 * y[1]])
+
+        with self.assertWarns(RuntimeWarning):
+            sg_solve_ivp(damped, (0.0, 1.0), np.array([1.0, 0.0]), dt=0.01)
+        import warnings as _w
+        with _w.catch_warnings():
+            _w.simplefilter("error", RuntimeWarning)
+            sg_solve_ivp(self._sho, (0.0, 1.0), np.array([1.0, 0.0]), dt=0.01)
+
+    def test_list_returning_rhs(self):
+        """A right-hand side returning a list (the scipy idiom) is accepted."""
+        for method in ("forest_ruth", "verlet", "rk4"):
+            sol = sg_solve_ivp(lambda t, y: [y[1], -y[0]], (0.0, 1.0),
+                               np.array([1.0, 0.0]), method=method, dt=1e-3)
+            self.assertAlmostEqual(sol.y[0, -1], math.cos(1.0), delta=1e-6)
+            self.assertAlmostEqual(sol.y[1, -1], -math.sin(1.0), delta=1e-6)
+
+    def test_include_gr_true_is_rejected(self):
+        """include_gr=True used to be accepted and ignored."""
+        with self.assertRaises(ValueError):
+            sg_solve_ivp(self._sho, (0.0, 1.0), np.array([1.0, 0.0]),
+                         dt=0.01, include_gr=True)
+
+    def test_blow_up_reports_failure(self):
+        """y' = y^2 from y(0) = 1 diverges at t = 1: success must be False."""
+        import warnings as _w
+        with _w.catch_warnings():
+            _w.simplefilter("ignore", RuntimeWarning)
+            sol = sg_solve_ivp(lambda t, y: y * y, (0.0, 2.0), np.array([1.0]),
+                               method="rk4", dt=0.01)
+        self.assertFalse(sol.success)
+        self.assertEqual(sol.status, -1)
+        self.assertTrue(np.all(np.isfinite(sol.y)))
+        self.assertLess(sol.t[-1], 1.05)
+
+    def test_t_eval_returned_exactly(self):
+        """sol.t equals t_eval, off-grid times included, values = cos t."""
+        t_eval = np.array([1.0, 1.004, 2.0, 7.4])
+        sol = sg_solve_ivp(self._sho, (0.0, 10.0), np.array([1.0, 0.0]),
+                           dt=0.01, t_eval=t_eval)
+        np.testing.assert_array_equal(sol.t, t_eval)
+        np.testing.assert_allclose(sol.y[0], np.cos(t_eval), atol=1e-7)
+
+    def test_t_eval_out_of_span_or_unsorted_raises(self):
+        """As scipy: out-of-span or unsorted t_eval is an error, not a guess."""
+        for bad in ([-1.0, 5.0, 12.0], [5.0, 1.0, 3.0]):
+            with self.assertRaises(ValueError):
+                sg_solve_ivp(self._sho, (0.0, 10.0), np.array([1.0, 0.0]),
+                             dt=0.01, t_eval=np.array(bad))
+
+    def test_backward_integration(self):
+        """t_span = (10, 0) integrates backward to the initial condition."""
+        y10 = np.array([math.cos(10.0), -math.sin(10.0)])
+        sol = sg_solve_ivp(self._sho, (10.0, 0.0), y10, dt=0.01)
+        self.assertTrue(sol.success)
+        self.assertAlmostEqual(sol.t[-1], 0.0, delta=1e-9)
+        np.testing.assert_allclose(sol.y[:, -1], [1.0, 0.0], atol=1e-7)
+
+    def test_zero_span_returns_initial_state(self):
+        sol = sg_solve_ivp(self._sho, (0.0, 0.0), np.array([1.0, 0.0]))
+        self.assertTrue(sol.success)
+        np.testing.assert_array_equal(sol.y[:, 0], [1.0, 0.0])
+
+    def test_bad_dt_raises(self):
+        for bad in (0.0, -0.1, float("nan"), float("inf")):
+            with self.assertRaises(ValueError):
+                sg_solve_ivp(self._sho, (0.0, 1.0), np.array([1.0, 0.0]),
+                             dt=bad)
+
+
 # ══════════════════════════════════════════════════════════════════════════
 # sg_nbody
 # ══════════════════════════════════════════════════════════════════════════
@@ -341,12 +458,65 @@ class TestSGNbody(unittest.TestCase):
 class TestSGOdeint(unittest.TestCase):
 
     def test_output_shape(self):
-        """sg_odeint should return (n_time, n_state)."""
+        """sg_odeint should return (n_time, n_state).
+
+        A one-component state is not a [q, p] split, so it needs rk4 (the
+        symplectic default rejects it since 2026-10-10)."""
         def f(y, t): return np.array([-y[0]])
         t  = np.linspace(0, 1, 50)
         y0 = np.array([1.0])
-        result = sg_odeint(f, y0, t)
+        result = sg_odeint(f, y0, t, method="rk4")
         self.assertEqual(result.shape, (50, 1))
+
+    # -- 2026-10-10 audit regressions (fix queue C1); closed-form truth ----
+
+    @staticmethod
+    def _sho_yt(y, t):
+        return np.array([y[1], -y[0]])
+
+    def test_step_independent_of_output_spacing(self):
+        """Outputs every 2 s over 100 s must not mean a 2 s step.
+
+        Before the fix the output spacing was the step: FR4 reached 2.6e43."""
+        t = np.arange(0.0, 100.0 + 1e-9, 2.0)
+        y = sg_odeint(self._sho_yt, np.array([1.0, 0.0]), t, dt=0.01)
+        self.assertLess(float(np.max(np.abs(y[:, 0] - np.cos(t)))), 1e-6)
+        y_default = sg_odeint(self._sho_yt, np.array([1.0, 0.0]), t)
+        self.assertLess(float(np.max(np.abs(y_default[:, 0] - np.cos(t)))), 1e-3)
+
+    def test_non_uniform_grid(self):
+        """Row k is y(t[k]) on a non-uniform grid."""
+        t = np.array([0.0, 0.3, 0.35, 1.234, 5.0])
+        y = sg_odeint(self._sho_yt, np.array([1.0, 0.0]), t, dt=1e-3)
+        self.assertEqual(y.shape, (5, 2))
+        np.testing.assert_allclose(y[:, 0], np.cos(t), atol=1e-9)
+
+    def test_decreasing_grid(self):
+        """Decreasing t integrates backward, as odeint does."""
+        t = np.linspace(2.0, 0.0, 11)
+        y0 = np.array([math.cos(2.0), -math.sin(2.0)])
+        y = sg_odeint(self._sho_yt, y0, t, dt=1e-3)
+        np.testing.assert_allclose(y[:, 0], np.cos(t), atol=1e-9)
+
+    def test_argument_order(self):
+        """f(time, y) is not swapped; tfirst selects the convention."""
+        def f_time_y(time, y):
+            return -y
+
+        def f_y_t(y, t):
+            return -y
+
+        t = np.linspace(0.0, 2.0, 201)
+        for func, kw in ((f_time_y, {}), (f_time_y, {"tfirst": True}),
+                         (f_y_t, {}), (f_y_t, {"tfirst": False})):
+            y = sg_odeint(func, np.array([1.0]), t, method="rk4", **kw)
+            self.assertAlmostEqual(y[-1, 0], math.exp(-2.0), delta=1e-9,
+                                   msg=f"{func.__name__} {kw}")
+
+    def test_args_and_list_rhs(self):
+        y = sg_odeint(lambda y, t, k: [-k * y[0]], np.array([1.0]),
+                      np.linspace(0.0, 1.0, 11), method="rk4", args=(2.0,))
+        self.assertAlmostEqual(y[-1, 0], math.exp(-2.0), delta=1e-9)
 
     def test_exponential_decay(self):
         """dy/dt = -y  =>  y(t) = exp(-t)."""
