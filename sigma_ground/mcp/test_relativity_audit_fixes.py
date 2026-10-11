@@ -51,22 +51,22 @@ def _boost_wavelength_ratio(beta_signed: float, theta_deg: float) -> float:
 def test_doppler_shift_factor_matches_lorentz_boost(beta, theta):
     tr = t_rel.doppler_shift_factor(beta * sc.c, theta)
     ref = _boost_wavelength_ratio(beta, theta)
-    assert tr.value == pytest.approx(ref, rel=1e-12), (beta, theta, tr.value, ref)
+    assert tr.value == pytest.approx(ref, rel=1e-12, abs=0.0), (beta, theta, tr.value, ref)
 
 
 def test_doppler_transverse_is_a_redshift_equal_to_gamma():
     # beta = 0.6 -> gamma = 1.25 exactly; observer-frame transverse = gamma
     tr = t_rel.doppler_shift_factor(0.6 * sc.c, 90.0)
-    assert tr.value == pytest.approx(1.25, rel=1e-12)
+    assert tr.value == pytest.approx(1.25, rel=1e-12, abs=0.0)
     assert tr.value > 1.0                       # redshift, not a blueshift
 
 
 def test_doppler_head_on_recession_closed_form():
     # theta = 0: lambda ratio = sqrt((1 + b) / (1 - b)); b = 0.6 -> 2
     tr = t_rel.doppler_shift_factor(0.6 * sc.c, 0.0)
-    assert tr.value == pytest.approx(2.0, rel=1e-12)
+    assert tr.value == pytest.approx(2.0, rel=1e-12, abs=0.0)
     tr = t_rel.doppler_shift_factor(0.6 * sc.c, 180.0)
-    assert tr.value == pytest.approx(0.5, rel=1e-12)
+    assert tr.value == pytest.approx(0.5, rel=1e-12, abs=0.0)
 
 
 def test_doppler_rejects_non_finite_input():
@@ -99,14 +99,14 @@ def _pc_invariant_eV(ke_eV, mc2_eV):
 def test_relativistic_particle_alpha_uses_the_alpha_mass():
     rows, r = _cascade(5e6, "alpha")
     mc2 = _codata_rest_eV("alpha particle")                    # 3727.379 MeV
-    assert rows["Lorentz factor γ"] == pytest.approx(1.0 + 5e6 / mc2, rel=1e-9)
+    assert rows["Lorentz factor γ"] == pytest.approx(1.0 + 5e6 / mc2, rel=1e-9, abs=0.0)
     pc_ref = _pc_invariant_eV(5e6, mc2)                         # 1.931e8 eV
-    assert rows["Momentum (pc)"] == pytest.approx(pc_ref, rel=1e-8)
+    assert rows["Momentum (pc)"] == pytest.approx(pc_ref, rel=1e-8, abs=0.0)
     lam_ref = sc.h * sc.c / (pc_ref * sc.e)                     # 6.420e-15 m
-    assert rows["de Broglie wavelength"] == pytest.approx(lam_ref, rel=1e-8)
+    assert rows["de Broglie wavelength"] == pytest.approx(lam_ref, rel=1e-8, abs=0.0)
     # one mass for the whole cascade: (gamma^2 - 1) (mc^2)^2 = (pc)^2
     g, pc = rows["Lorentz factor γ"], rows["Momentum (pc)"]
-    assert (g * g - 1.0) * mc2 ** 2 == pytest.approx(pc ** 2, rel=1e-7)
+    assert (g * g - 1.0) * mc2 ** 2 == pytest.approx(pc ** 2, rel=1e-7, abs=0.0)
 
 
 @pytest.mark.parametrize("particle", ["pion", "tau", "", "kaon"])
@@ -126,13 +126,14 @@ def test_relativistic_particle_ultracold_neutron_no_cancellation(ke_eV):
     rows, _ = _cascade(ke_eV, "neutron")
     # non-relativistic de Broglie, exact to KE/(4 m c^2) ~ 1e-17 here
     lam_ref = sc.h / math.sqrt(2.0 * sc.m_n * ke_eV * sc.e)     # 100 neV: 9.0446e-8 m
-    assert rows["de Broglie wavelength"] == pytest.approx(lam_ref, rel=1e-8)
+    assert rows["de Broglie wavelength"] == pytest.approx(lam_ref, rel=1e-8, abs=0.0)
     pc_ref = _pc_invariant_eV(ke_eV, _codata_rest_eV("neutron"))
-    assert rows["Momentum (pc)"] == pytest.approx(pc_ref, rel=1e-8)
+    assert rows["Momentum (pc)"] == pytest.approx(pc_ref, rel=1e-8, abs=0.0)
 
 
 def test_relativistic_particle_electron_unchanged_regime():
     rows, _ = _cascade(1e6, "electron")
     mc2 = _codata_rest_eV("electron")
-    assert rows["Lorentz factor γ"] == pytest.approx(1.0 + 1e6 / mc2, rel=1e-9)
-    assert rows["Momentum (pc)"] == pytest.approx(_pc_invariant_eV(1e6, mc2), rel=1e-8)
+    assert rows["Lorentz factor γ"] == pytest.approx(1.0 + 1e6 / mc2, rel=1e-9, abs=0.0)
+    assert rows["Momentum (pc)"] == pytest.approx(_pc_invariant_eV(1e6, mc2), rel=1e-8, abs=0.0)
+
