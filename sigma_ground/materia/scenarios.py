@@ -3378,6 +3378,139 @@ def mass_energy(mass_kg: float | None = None,
                          outputs={"rest_energy_J": E, "mass_kg": m})
 
 
+def rail_shot(cap_F: float | None = None, volts: float | None = None,
+              rail_len_m: float | None = None, rail_radius_m: float | None = None,
+              rail_spacing_m: float | None = None,
+              armature_material: str = "aluminum",
+              armature_mass_kg: float | None = None,
+              rail_material: str = "copper",
+              circuit_R_ohm: float | None = None,
+              circuit_L0_H: float | None = None,
+              L_per_m: float | None = None, T0_K: float = 300.0,
+              tolerance: float = 1e-3) -> MateriaResult:
+    """A capacitor-driven railgun shot: current, force, heating, muzzle speed.
+
+    Integrates (V_c, I, x, v, T) together -- RLC with the motional back-EMF
+    L' v I, F = 1/2 L' I^2 on the armature, Joule heating of the armature with
+    resistivity(T) fed back -- with the library's RK4 stepper, until the
+    armature clears the rails or reaches its melting point.  Inputs the library
+    cannot supply (bank resistance/inductance) are REQUIRED, never defaulted:
+    a missing one raises NeedsData.  Self-checks (energy ledger, v below
+    sqrt(2E/m), library Lorentz force, monotone x, T >= 0) gate the answer: on
+    any failure the muzzle outputs are withheld, so a chained
+    supersonic_projectile step fails loudly instead of using a bad speed.
+    Physics detail and what is NOT modelled: materia/railgun.py, RAILGUN_SCENARIO.md.
+    """
+    from .railgun import simulate_rail_shot, check_rail_shot, NOT_MODELLED
+    sim = simulate_rail_shot(
+        cap_F=cap_F, volts=volts, rail_len_m=rail_len_m,
+        rail_radius_m=rail_radius_m, rail_spacing_m=rail_spacing_m,
+        armature_material=armature_material, armature_mass_kg=armature_mass_kg,
+        rail_material=rail_material, circuit_R_ohm=circuit_R_ohm,
+        circuit_L0_H=circuit_L0_H, L_per_m=L_per_m, T0_K=T0_K,
+        tolerance=tolerance)
+    validation = check_rail_shot(sim)
+    validation["not_modelled"] = list(NOT_MODELLED)
+    sc, mo = sim["scalars"], sim["model"]
+    exited = sc["exited_rails"]
+    LIB = "sigma_ground.field.interface"
+    lib_L = mo["L_prime_source"] == "library"
+    steps = [
+        MateriaStep("Bank energy", sc["E_cap0_J"], "J", "E = C V^2 / 2",
+                    f"{LIB}.electronics.energy_stored"),
+        MateriaStep("Rail inductance gradient L'", mo["L_prime_H_m"], "H/m",
+                    ("L' = (mu0/pi) ln(d/r)  [round-wire pair; flat rails differ]"
+                     if lib_L else "owner-entered override  [NOT from the library]"),
+                    (f"{LIB}.mobius.parallel_pair_inductance_per_m"
+                     if lib_L else "owner (cite it)")),
+        MateriaStep("Armature resistivity at T0", mo["rho_armature_T0_ohm_m"],
+                    "ohm m", "Bloch-Gruneisen rho(T), fed back each step",
+                    f"{LIB}.electronics.resistivity"),
+        MateriaStep("Armature specific heat at T0", mo["cp_armature_T0_J_kgK"],
+                    "J/(kg K)", "Debye c_p(T)",
+                    f"{LIB}.thermal.specific_heat_j_kg_K"),
+        MateriaStep("Armature melting point", mo["T_melt_K"], "K",
+                    "onset; no latent heat", f"{LIB}.phase_transition.PHASE_DATA"),
+        MateriaStep("Peak current", sc["peak_current_A"], "A",
+                    "RLC discharge into the moving load",
+                    "materia.railgun (sg_solve_ivp rk4)"),
+        MateriaStep("Peak force", sc["peak_force_N"], "N", "F = L' I^2 / 2",
+                    "materia.railgun; checked vs electromagnetic_force_analysis"),
+        MateriaStep("Muzzle speed" if exited else "Speed when the shot ended",
+                    sc["speed_end_m_s"], "m/s",
+                    f"after {sc['x_end_m']:.3g} m in {sc['t_end_s'] * 1e3:.3g} ms "
+                    f"({sc['reason']})", "materia.railgun (sg_solve_ivp rk4)"),
+        MateriaStep("Kinetic energy at end", sc["KE_end_J"], "J", "m v^2 / 2",
+                    "ledger"),
+        MateriaStep("Efficiency (KE / bank energy)", sc["efficiency"] * 100.0, "%",
+                    "KE_end / E_cap0", "ledger"),
+        MateriaStep("Armature temperature rise (bulk Joule, lower bound)",
+                    sc["T_end_K"] - mo["T0_K"], "K",
+                    "m c_p dT = I^2 R_arm dt (uniform current; no skin effect)",
+                    "materia.railgun"),
+        MateriaStep("Energy ledger worst residual", sc["ledger_rel"] * 100.0,
+                    "% of E0",
+                    "E0 = E_cap + L I^2/2 + KE + Joule(circuit, rails, armature)",
+                    "Materia self-check"),
+    ]
+    if sc["bank_reversed"]:
+        steps.append(MateriaStep("Bank voltage reversed (no crowbar modelled)",
+                                 sc["min_Vc_V"], "V", "min V_c over the shot",
+                                 "materia.railgun (event)"))
+    if exited:
+        m_kg = mo['armature_mass_kg']
+        m_txt = f"{m_kg:.3g} kg" if m_kg >= 1.0 else f"{m_kg * 1e3:.3g} g"
+        summary = (f"The {m_txt} "
+                   f"{mo['armature_material']} armature leaves "
+                   f"{mo['rail_len_m']:g} m of rails at "
+                   f"{sc['speed_end_m_s']:.4g} m/s (Mach "
+                   f"{sc['speed_end_m_s'] / mo['speed_of_sound_m_s']:.2f}) after "
+                   f"{sc['t_end_s'] * 1e3:.3g} ms, peak current "
+                   f"{sc['peak_current_A'] / 1e3:.4g} kA, "
+                   f"{sc['efficiency'] * 100:.2g}% of the {sc['E_cap0_J']:.4g} J "
+                   f"bank becoming kinetic energy; bulk armature heating "
+                   f"{sc['T_end_K'] - mo['T0_K']:.2g} K.")
+    elif sc["reason"] == "melt":
+        summary = (f"The armature reached its melting point "
+                   f"({mo['T_melt_K']:.0f} K) after {sc['x_end_m']:.3g} m of "
+                   f"{mo['rail_len_m']:g} m at {sc['speed_end_m_s']:.4g} m/s: the "
+                   f"shot fails before the muzzle.")
+    else:
+        summary = (f"The armature never left the rails ({sc['reason']}; "
+                   f"reached {sc['x_end_m']:.3g} m).")
+    if not validation["passed"]:
+        summary = (f"[SELF-CHECK FAILED: {', '.join(validation['failed_checks'])}] "
+                   + summary)
+
+    outputs: dict = {}
+    if validation["passed"] and exited:
+        # a muzzle exit: these feed supersonic_projectile (bind_from) and impact
+        outputs.update({
+            "muzzle_speed_m_s": sc["speed_end_m_s"],
+            "muzzle_mach": sc["speed_end_m_s"] / mo["speed_of_sound_m_s"],
+            "projectile_mass_kg": mo["armature_mass_kg"]})
+    elif validation["passed"]:
+        outputs["speed_at_failure_m_s"] = sc["speed_end_m_s"]
+    outputs.update({
+        "peak_current_A": sc["peak_current_A"], "peak_force_N": sc["peak_force_N"],
+        "delta_T_K": sc["T_end_K"] - mo["T0_K"], "peak_T_K": sc["T_end_K"],
+        "muzzle_energy_J": sc["KE_end_J"], "efficiency": sc["efficiency"],
+        "shot_time_s": sc["t_end_s"], "armature_melted": sc["reason"] == "melt",
+        "exited_rails": exited, "bank_reversed": sc["bank_reversed"]})
+    return MateriaResult("rail_shot",
+                         {"cap_F": cap_F, "volts": volts, "rail_len_m": rail_len_m,
+                          "rail_radius_m": rail_radius_m,
+                          "rail_spacing_m": rail_spacing_m,
+                          "armature_material": armature_material,
+                          "armature_mass_kg": armature_mass_kg,
+                          "rail_material": rail_material,
+                          "circuit_R_ohm": circuit_R_ohm,
+                          "circuit_L0_H": circuit_L0_H, "L_per_m": L_per_m,
+                          "T0_K": T0_K, "tolerance": tolerance},
+                         steps, summary=summary, validation=validation,
+                         outputs=outputs)
+
+
 SCENARIOS = {
     "planetary_surface": planetary_surface,
     "mass_energy": mass_energy,
@@ -3389,6 +3522,7 @@ SCENARIOS = {
     "contact_conduction": contact_conduction,
     "high_altitude_descent": high_altitude_descent,
     "supersonic_projectile": supersonic_projectile,
+    "rail_shot": rail_shot,
     "vertical_launch": vertical_launch,
     "orbital_velocity": orbital_velocity,
     "material_profile": material_profile,

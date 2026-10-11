@@ -939,6 +939,59 @@ for _v, _e in _ROUTABLE_NEW.items():
     _e.setdefault("outputs", ["functions_called"])
     VERB_MANIFEST[_v] = _e
 
+# -- railgun (capacitor-driven rail launcher): the coupled EM + motion + heat
+# process.  Numeric slots default to None ON PURPOSE: the bank resistance /
+# inductance and the design inputs have no library source and are never
+# invented -- a missing one raises NeedsData (materia/railgun.py).  Outputs are
+# chainable: muzzle_mach / projectile_mass_kg feed supersonic_projectile.
+VERB_MANIFEST["rail_shot"] = {
+    "description": "A capacitor-driven railgun shot: RLC discharge into a moving "
+                   "armature (back-EMF), F = 1/2 L' I^2, Joule heating of the "
+                   "armature with resistivity(T) feedback; muzzle speed, peak "
+                   "current, temperature, energy ledger. Stops at the muzzle or "
+                   "at armature melt.",
+    "answers": ["railgun", "rail gun", "electromagnetic launcher",
+                "capacitor discharge launcher", "how fast does a railgun fire"],
+    "slots": {
+        "cap_F": {"unit": "F", "default": None,
+                  "aliases": ["capacitor", "capacitance", "bank"]},
+        "volts": {"unit": "V", "default": None, "aliases": ["volts", "charged to"]},
+        "rail_len_m": {"unit": "m", "default": None,
+                       "aliases": ["rail length", "long rails", "barrel length"]},
+        "rail_radius_m": {"unit": "m", "default": None, "aliases": ["rail radius"]},
+        "rail_spacing_m": {"unit": "m", "default": None,
+                           "aliases": ["rail spacing", "rail gap"]},
+        "armature_material": {"unit": "material", "default": "aluminum",
+                              "aliases": ["armature", "slug"]},
+        "armature_mass_kg": {"unit": "kg", "default": None,
+                             "aliases": ["armature mass", "projectile mass"]},
+        "rail_material": {"unit": "material", "default": "copper",
+                          "aliases": ["rails of"]},
+        "circuit_R_ohm": {"unit": "ohm", "default": None,
+                          "aliases": ["circuit resistance", "ESR"]},
+        "circuit_L0_H": {"unit": "H", "default": None,
+                         "aliases": ["circuit inductance", "ESL"]},
+        "L_per_m": {"unit": "H/m", "default": None,
+                    "aliases": ["inductance gradient"]},
+        "T0_K": {"unit": "K", "default": 300.0, "aliases": ["initial temperature"]},
+        "tolerance": {"unit": "", "default": 1e-3, "aliases": []},
+    },
+    "outputs": ["muzzle_speed_m_s", "muzzle_mach", "projectile_mass_kg",
+                "peak_current_A", "peak_force_N", "delta_T_K", "peak_T_K",
+                "muzzle_energy_J", "efficiency", "shot_time_s", "armature_melted",
+                "exited_rails", "bank_reversed"],
+    "triggers": ["railgun", "rail gun", "rail-gun", "electromagnetic launcher",
+                 "capacitor launcher"],
+    "examples": ["fire a 10 gram aluminum armature down a 0.5 m railgun from a "
+                 "10 mF bank charged to 400 V",
+                 "how fast does a railgun launch a 3 kg slug"],
+    "exclusive": True,
+    "motion": True,
+}
+# a railgun muzzle exit chains into the flight verb
+VERB_MANIFEST["supersonic_projectile"]["slots"]["launch_mach"]["bind_from"] = "muzzle_mach"
+VERB_MANIFEST["supersonic_projectile"]["slots"]["mass_kg"]["bind_from"] = "projectile_mass_kg"
+
 # Verbs that SIMULATE MOTION. When a question is an ACTION (fired/thrown/
 # dropped/jumps...), the translator lets these outrank property-report verbs
 # in the exclusive-trigger contest — "fire a slug at Mach 2" must not route

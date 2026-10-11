@@ -41,7 +41,7 @@ from .scenarios import (terminal_velocity_drop, drag_heating_drop,
                         structural_response, thermal_response,
                         contact_conduction,
                         rotational_dynamics, material_full_profile,
-                        quantum_report, SCENARIOS)
+                        quantum_report, rail_shot, SCENARIOS)
 from .spec import SimulationSpec, SpecStep, run_spec, synthesize_chain
 from .manifest import VERB_MANIFEST
 from .translator import translate, answer
@@ -69,6 +69,7 @@ __all__ = [
     "rotational_dynamics",
     "material_full_profile",
     "quantum_report",
+    "rail_shot",
     "SCENARIOS",
     "SimulationSpec",
     "SpecStep",

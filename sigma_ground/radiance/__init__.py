@@ -32,6 +32,7 @@ from .trajectory import (record_fall, record_object_fall, record_descent,
                          record_gear_mesh_spin, record_clock,
                          record_windmill_spinup, record_windmill_theater)
 from .thermal_record import record_fall_thermal, record_thermal_field
+from .railgun_record import record_rail_shot
 
 __all__ = [
     "construct_to_scene",
@@ -39,6 +40,7 @@ __all__ = [
     "scene_from_spec",
     "record_fall",
     "record_fall_thermal",
+    "record_rail_shot",
     "record_thermal_field",
     "record_object_fall",
     "record_descent",

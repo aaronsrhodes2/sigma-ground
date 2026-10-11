@@ -575,3 +575,10 @@ DE440 shoot-out (`fixtures/v2physics/`): Jupiter 630 km and Saturn 140 km at +5 
 them, while the same layers improved the moons 10-100 fold. Fix: each zonal block adds `acc[j] -= (m_i/m_j) * a_zonal`.
 After: net force 9e-17; Jupiter receives 1.9e-8 m/s^2. Sentinels: `test_nbody_zonal_reaction.py` (3 of 5 fail on the old code).
 The v2physics short pass keeps its first-run numbers as the baseline taken BEFORE this fix; a corrected run is added beside it.
+
+## PHYSICS_GAP: railgun armature heating is bulk Joule only (2026-10-11)
+
+`sigma_ground/materia/railgun.py` (verb `rail_shot`) heats the armature with a uniform-current Joule term and library
+resistivity(T). Skin effect / current diffusion, sliding-contact and arc resistance, plasma armature, rail erosion, flat-rail
+inductance gradient, and latent heat are not modelled (list: `NOT_MODELLED`; detail: `misc/RAILGUN_SCENARIO.md`). The reported
+temperature rise is a lower bound; bank resistance/inductance are owner-entered with no library source.
