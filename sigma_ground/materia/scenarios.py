@@ -433,35 +433,143 @@ def vertical_launch(material_key: str = "steel_mild", radius_m: float = 0.05,
                                   }})
 
 
+# Natural orbits the orbital_velocity verb knows: body -> (parent, mean
+# distance a in metres, source). Planets: J2000 mean semi-major axes, JPL SSD
+# "Approximate Positions of the Planets", Table 1 (Standish), EM barycentre
+# for Earth; Pluto: NASA NSSDCA Pluto fact sheet (J2000, 39.48168677 au).
+# Moon: 384,399 km (NASA NSSDCA Moon fact sheet: 0.3844e6 km).
+def _natural_orbits():
+    from ..field.constants import AU_M
+    au = {"mercury": 0.38709927, "venus": 0.72333566, "earth": 1.00000261,
+          "mars": 1.52371034, "jupiter": 5.20288700, "saturn": 9.53667594,
+          "uranus": 19.18916464, "neptune": 30.06992276,
+          "pluto": 39.48168677}
+    table = {b: ("sun", a * AU_M, "JPL SSD approx_pos Table 1 (J2000)")
+             for b, a in au.items()}
+    table["pluto"] = ("sun", au["pluto"] * AU_M, "NASA NSSDCA Pluto fact sheet")
+    table["moon"] = ("earth", 3.84399e8, "NASA NSSDCA Moon fact sheet")
+    return table
+
+
+def _known_body(name):
+    """The Body for `name`, or None when materia.bodies does not know it
+    (resolve_body would silently substitute Earth)."""
+    from .bodies import resolve_body
+    if name is None:
+        return None
+    b = resolve_body(name)
+    key = str(name).strip().lower()
+    if key.startswith("the "):
+        key = key[4:]
+    if b.key == "earth" and key not in ("earth", "earth's", "terra"):
+        return None
+    return b
+
+
+def _refusal(name, inputs, summary, note):
+    """A verb's honest refusal: no value, self-check failed, reason given."""
+    return MateriaResult(name, inputs, [], summary=summary,
+                         validation={"passed": False, "note": note},
+                         outputs={})
+
+
 def orbital_velocity(central_body: str = "earth",
                      altitude_m: float = 400000.0,
-                     semimajor_axis_au: float | None = None) -> MateriaResult:
-    """Orbital speed and period: v = √(G·M/r). Two modes —
+                     semimajor_axis_au: float | None = None,
+                     orbiter: str | None = None,
+                     period_s: float | None = None) -> MateriaResult:
+    """Orbital speed and period: v = sqrt(mu/r), T = 2 pi sqrt(r^3/mu). Four modes:
 
-      • satellite:    a circular orbit at `altitude_m` above a body's surface
-      • heliocentric: a planet at `semimajor_axis_au` AU around the Sun
+      * satellite:    a circular orbit at `altitude_m` above a body's surface
+                      (test particle, mu = G M)
+      * heliocentric: a circular orbit `semimajor_axis_au` AU from the Sun
+      * natural:      `orbiter` (the Moon or a planet) on its own orbit around
+                      its parent, at its mean distance; two-body mu = G (M + m)
+      * synchronous:  the circular orbit whose period is `period_s` (one
+                      sidereal day around Earth = geostationary):
+                      r = (mu T^2 / 4 pi^2)^(1/3)
 
-    Wraps sigma-ground's body-aware orbital math (it does the mass/radius
-    lookup); this just routes the right question to it.
+    FIXED 2026-10-10 (A38): natural orbiters and synchronous orbits were not
+    expressible, so "how fast does the Moon orbit" became a 400 km orbit above
+    the Moon; an unknown body silently became Earth (now refused).
     """
-    from .bodies import (resolve_body, circular_orbital_velocity,
+    import math
+    from .bodies import (circular_orbital_velocity,
                          orbital_period as _period)
-    from ..field.constants import AU_M
+    from ..field.constants import AU_M, G
 
-    if semimajor_axis_au is not None:                       # heliocentric
-        body = resolve_body("sun")                          # primary is the Sun
-        r = semimajor_axis_au * AU_M
-        where = f"{semimajor_axis_au:g} AU from {body.label}"
-        loc_step = MateriaStep("Orbit radius", semimajor_axis_au, "AU",
-                               "heliocentric distance", "user")
-    else:                                                   # satellite altitude
-        body = resolve_body(central_body)
-        r = body.radius_m + altitude_m
-        where = f"{altitude_m/1000:.0f} km above {body.label}"
-        loc_step = MateriaStep("Altitude", altitude_m, "m", "above the surface",
-                               "user")
-    v = circular_orbital_velocity(body, r)
-    period = _period(r, body)
+    inputs = {"central_body": central_body, "altitude_m": altitude_m,
+              "semimajor_axis_au": semimajor_axis_au}
+    if orbiter is not None:
+        inputs["orbiter"] = orbiter
+    if period_s is not None:
+        inputs["period_s"] = period_s
+    if orbiter is not None or period_s is not None:
+        inputs.pop("altitude_m")          # the orbit fixes its own radius
+    v_formula = "v = √(G·M / r)"
+
+    if orbiter is not None:                                 # natural orbit
+        key = str(orbiter).strip().lower()
+        key = key[4:] if key.startswith("the ") else key
+        nat = _natural_orbits().get(key)
+        moving = _known_body(key)
+        if nat is None or moving is None:
+            return _refusal("orbital_velocity", inputs,
+                            f"No orbit on file for {orbiter!r}.",
+                            f"unknown orbiter {orbiter!r}: known "
+                            f"{sorted(_natural_orbits())}")
+        parent, r, src = nat
+        body = _known_body(parent)
+        if (central_body not in (None, "earth", parent)
+                and _known_body(central_body) is not body):
+            return _refusal("orbital_velocity", inputs,
+                            f"{moving.label} orbits {body.label}, not "
+                            f"{central_body}.",
+                            f"orbiter {key} has parent {parent}, but "
+                            f"central_body={central_body!r} was given")
+        mu = G * (body.mass_kg + moving.mass_kg)
+        where = (f"{moving.label[0].upper() + moving.label[1:]} orbits "
+                 f"{body.label} at a mean distance of {r/1e3:,.0f} km")
+        loc_step = MateriaStep("Mean orbital distance", r, "m",
+                               "semi-major axis", src)
+        v_formula = "v = √(G·(M + m) / r), two-body"
+        v = math.sqrt(mu / r)
+        period = 2.0 * math.pi * math.sqrt(r ** 3 / mu)
+        alt_out = r - body.radius_m
+    else:
+        if semimajor_axis_au is not None:                   # heliocentric
+            body = _known_body("sun")
+            r = semimajor_axis_au * AU_M
+            where = f"{semimajor_axis_au:g} AU from {body.label}"
+            loc_step = MateriaStep("Orbit radius", semimajor_axis_au, "AU",
+                                   "heliocentric distance", "user")
+        else:
+            body = _known_body(central_body)
+            if body is None:
+                return _refusal("orbital_velocity", inputs,
+                                f"Unknown central body {central_body!r}.",
+                                f"central body {central_body!r} is not in "
+                                f"materia.bodies; refusing rather than "
+                                f"substituting Earth")
+            if period_s is not None:                        # synchronous
+                if not (math.isfinite(period_s) and period_s > 0):
+                    return _refusal("orbital_velocity", inputs,
+                                    "Orbit period must be positive.",
+                                    f"period_s={period_s!r} is not positive")
+                r = (body.mu * period_s ** 2 / (4.0 * math.pi ** 2)) ** (1 / 3)
+                altitude_m = r - body.radius_m
+                where = (f"{altitude_m/1000:,.0f} km above {body.label} "
+                         f"(synchronous, period {period_s/3600:.4g} h)")
+                loc_step = MateriaStep("Orbit radius", r, "m",
+                                       "r = (μ T² / 4π²)^(1/3)", "Kepler III")
+            else:                                           # satellite altitude
+                r = body.radius_m + altitude_m
+                where = f"{altitude_m/1000:.0f} km above {body.label}"
+                loc_step = MateriaStep("Altitude", altitude_m, "m",
+                                       "above the surface", "user")
+        v = circular_orbital_velocity(body, r)
+        period = _period(r, body)
+        alt_out = altitude_m
 
     if period < 7200:
         per = f"{period/60:.1f} min"
@@ -474,22 +582,24 @@ def orbital_velocity(central_body: str = "earth",
         MateriaStep("Central body", body.label, "", "(mass & radius from table)",
                     "materia.bodies"),
         loc_step,
-        MateriaStep("Orbital velocity", v, "m/s", "v = √(G·M / r)",
+        MateriaStep("Orbital velocity", v, "m/s", v_formula,
                     "materia.bodies.circular_orbital_velocity"),
         MateriaStep("Orbital period", period, "s", "Kepler III / T = 2π√(r³/μ)",
                     "materia.bodies.orbital_period"),
     ]
-    summary = (f"A circular orbit {where} needs {v:.0f} m/s ({v/1000:.2f} km/s), "
-               f"one lap every {per}.")
-    return MateriaResult("orbital_velocity",
-                         {"central_body": central_body, "altitude_m": altitude_m,
-                          "semimajor_axis_au": semimajor_axis_au},
+    if orbiter is not None:
+        summary = (f"{where}: {v:.0f} m/s ({v/1000:.3g} km/s) on the "
+                   f"equivalent circular orbit, one lap every {per}.")
+    else:
+        summary = (f"A circular orbit {where} needs {v:.0f} m/s "
+                   f"({v/1000:.2f} km/s), one lap every {per}.")
+    return MateriaResult("orbital_velocity", inputs,
                          steps, summary=summary,
                          validation={"passed": v > 0,
                                      "note": f"v=√(GM/r): {v/1000:.2f} km/s"},
                          outputs={"orbital_velocity_m_s": v,
                                   "orbital_period_s": period,
-                                  "altitude_m": altitude_m})
+                                  "altitude_m": alt_out})
 
 
 def material_profile(material_key: str = "steel_mild",
@@ -1279,14 +1389,33 @@ def collision_dynamics(m1: float = 2.0, v1: float = 10.0, m2: float = 1.0,
                           {"m1": m1, "v1": v1, "m2": m2, "v2": v2}, headline, M)
 
 
-def black_hole(solar_masses: float = 10.0) -> MateriaResult:
-    """Black-hole thermodynamics and strong-gravity observables for a mass M:
-    Schwarzschild radius, Hawking temperature / luminosity / evaporation time,
-    Bekenstein-Hawking entropy, ISCO and photon-sphere radii, surface escape
-    velocity, gravitational redshift and tidal stretching. Standard GR
-    (the `gravity` group)."""
+def black_hole(solar_masses: float = 10.0,
+               mass_kg: float | None = None) -> MateriaResult:
+    """Black-hole thermodynamics and strong-gravity observables for a mass M
+    (`mass_kg` when given, else `solar_masses` M_sun): Schwarzschild radius,
+    Hawking temperature / luminosity / evaporation time, Bekenstein-Hawking
+    entropy, ISCO and photon-sphere radii, and, at the test radius r = 3 r_s,
+    escape velocity, gravitational redshift, time dilation and tidal
+    stretching. Standard GR (the `gravity` group).
+
+    FIXED 2026-10-10: M was floored at 1e-12 M_sun, so every primordial-mass
+    hole (and 0 or negative input) was computed as a 2e18 kg hole; a
+    non-positive or non-finite mass is now refused."""
+    import math
     from ..field.constants import G, C, M_SUN_KG
-    M = max(float(solar_masses), 1e-12) * M_SUN_KG
+    inputs = {"solar_masses": solar_masses}
+    try:
+        if mass_kg is not None:
+            inputs["mass_kg"] = mass_kg
+            M = float(mass_kg)
+        else:
+            M = float(solar_masses) * M_SUN_KG
+    except (TypeError, ValueError):
+        M = float("nan")
+    if not (math.isfinite(M) and M > 0):
+        return _refusal("black_hole", inputs,
+                        "A black hole needs a positive, finite mass.",
+                        f"mass M = {M!r} kg is not positive and finite")
     r_s = 2.0 * G * M / (C * C)
     r = 3.0 * r_s                                  # a test point outside the horizon
     GR = "sigma_ground.field.gr_basics"
@@ -1305,9 +1434,14 @@ def black_hole(solar_masses: float = 10.0) -> MateriaResult:
     T = _pick(vals, "hawking_temperature")
     headline = (f"r_s={r_s:.3g} m, T_H={T:.3g} K"
                 if isinstance(T, (int, float)) else f"r_s={r_s:.3g} m")
+    headline = (f"M = {M:.4g} kg ({M / M_SUN_KG:.4g} M_sun): {headline}; "
+                f"escape velocity, redshift, time dilation and tidal force "
+                f"at r = 3 r_s")
     res = _domain_result("black_hole", "Black-hole gravity", vals,
-                         {"solar_masses": solar_masses}, headline, GR)
-    res.outputs["schwarzschild_radius_m"] = r_s
+                         inputs, headline, GR)
+    # The defining quantity leads (the MCP wrapper reports the FIRST output as
+    # the value; a function count is not an answer).
+    res.outputs = {"schwarzschild_radius_m": r_s, "mass_kg": M, **res.outputs}
     return res
 
 
@@ -1433,17 +1567,66 @@ def projectile_motion(speed_m_s: float = 30.0,
                           headline, P)
 
 
+# Particle rest masses for the relativity verb (kg), CODATA 2018, the same set
+# as field.constants.M_ELECTRON_KG and mcp.tools.atomic; Mentat
+# lookup_constant (scipy, CODATA 2022) agrees to <= 2e-9 relative.
+def _particle_masses():
+    from ..field.constants import M_ELECTRON_KG
+    return {"electron": M_ELECTRON_KG, "positron": M_ELECTRON_KG,
+            "proton": 1.67262192369e-27, "neutron": 1.67492749804e-27,
+            "muon": 1.883531627e-28, "alpha": 6.6446573357e-27,
+            "deuteron": 3.3435837724e-27}
+
+
 def relativistic_motion(velocity_fraction_c: float = 0.9,
-                        rest_mass_kg: float = 9.1093837015e-31) -> MateriaResult:
+                        rest_mass_kg: float | None = None,
+                        particle: str | None = None) -> MateriaResult:
     """Special relativity at speed v = βc: Lorentz factor, time dilation, length
     contraction, relativistic energy / momentum / kinetic energy, rest energy,
     relativistic Doppler shift and velocity addition. Sweeps the relativity
-    module."""
+    module. The moving body is `particle` (electron, proton, neutron, muon,
+    alpha, deuteron, positron) or an explicit `rest_mass_kg`; default electron.
+
+    FIXED 2026-10-10 (A40): the verb had no slots, so the question's speed and
+    particle were ignored; -0.5c was clamped to 0 and >= c to 0.999999c with
+    the self-check passing. A negative beta now means the same speed (the
+    direction only matters for the Doppler row, which is head-on approach);
+    |beta| >= 1, non-finite input and unknown particles are refused."""
+    import math
     from ..field.constants import C
     R = "sigma_ground.field.relativity"
-    beta = max(min(float(velocity_fraction_c), 0.999999), 0.0)
+    inputs = {"velocity_fraction_c": velocity_fraction_c}
+    if particle is not None:
+        inputs["particle"] = particle
+    if rest_mass_kg is not None:
+        inputs["rest_mass_kg"] = rest_mass_kg
+    try:
+        beta_in = float(velocity_fraction_c)
+    except (TypeError, ValueError):
+        beta_in = float("nan")
+    if not math.isfinite(beta_in) or abs(beta_in) >= 1.0:
+        return _refusal("relativistic_motion", inputs,
+                        f"A massive body cannot move at {velocity_fraction_c}c.",
+                        "speed must satisfy |v| < c (|beta| < 1)")
+    beta = abs(beta_in)
     v = beta * C
-    m0 = max(float(rest_mass_kg), 1e-40)
+    masses = _particle_masses()
+    if rest_mass_kg is not None:
+        m0, label = float(rest_mass_kg), f"a {float(rest_mass_kg):.4g} kg body"
+    else:
+        key = (particle or "electron").strip().lower()
+        key = {"alpha particle": "alpha", "helium nucleus": "alpha"}.get(key, key)
+        if key not in masses:
+            return _refusal("relativistic_motion", inputs,
+                            f"Unknown particle {particle!r}.",
+                            f"no rest mass on file for {particle!r}; known: "
+                            f"{sorted(masses)}")
+        m0 = masses[key]
+        label = ("an " if key[0] in "aeiou" else "a ") + key
+    if not (math.isfinite(m0) and m0 > 0):
+        return _refusal("relativistic_motion", inputs,
+                        "Rest mass must be positive.",
+                        f"rest mass {m0!r} kg is not positive and finite")
     vals = _sweep_calls([
         (R, "beta", (v,), {}),
         (R, "lorentz_factor", (v,), {}),
@@ -1460,9 +1643,12 @@ def relativistic_motion(velocity_fraction_c: float = 0.9,
     g = _pick(vals, "lorentz_factor")
     headline = (f"gamma={g:.3f} at {beta:g}c"
                 if isinstance(g, (int, float)) else "relativity computed")
-    return _domain_result("relativistic_motion", "Special relativity", vals,
-                          {"velocity_fraction_c": velocity_fraction_c},
-                          headline, R)
+    headline += f" for {label} (rest mass {m0:.6g} kg)"
+    res = _domain_result("relativistic_motion", "Special relativity", vals,
+                         inputs, headline, R)
+    lead = {"lorentz_factor": g} if isinstance(g, (int, float)) else {}
+    res.outputs = {**lead, "rest_mass_kg": m0, **res.outputs}
+    return res
 
 
 def thermal_statistics(temperature_k: float = 300.0) -> MateriaResult:
@@ -3120,15 +3306,27 @@ def mass_energy(mass_kg: float | None = None,
     """Mass-energy equivalence E = m·c² — BIDIRECTIONAL: the rest energy of a
     given mass, OR the mass converted when a given energy is released. Reports
     both sides in joules, kilotons and megatons of TNT."""
+    import math
     from ..field.constants import C
+    inputs = {"mass_kg": mass_kg, "energy_j": energy_j}
     if energy_j is not None:                       # energy → mass
-        E = max(float(energy_j), 0.0)
+        E = float(energy_j)
+        if not (math.isfinite(E) and E > 0):
+            return _refusal("mass_energy", inputs,
+                            "Energy must be positive and finite.",
+                            f"energy_j={energy_j!r} is not positive and finite")
         m = E / (C * C)
         m_step = MateriaStep("Mass converted", m, "kg", "m = E / c²",
                              "field.constants.C")
         e_step = MateriaStep("Energy released", E, "J", "(input)", "user")
     else:                                          # mass → energy
-        m = max(float(mass_kg if mass_kg is not None else 1.0), 1e-30)
+        # FIXED 2026-10-10 (A42): the mass was floored at 1e-30 kg, so the
+        # electron's rest energy came out 9.8 % high and 0 or -5 kg passed.
+        m = float(mass_kg if mass_kg is not None else 1.0)
+        if not (math.isfinite(m) and m > 0):
+            return _refusal("mass_energy", inputs,
+                            "Mass must be positive and finite.",
+                            f"mass_kg={mass_kg!r} is not positive and finite")
         E = m * C * C
         m_step = MateriaStep("Mass", m, "kg", "(input)", "user")
         e_step = MateriaStep("Rest energy", E, "J", "E = m·c²",
@@ -3139,8 +3337,10 @@ def mass_energy(mass_kg: float | None = None,
              MateriaStep("Energy (megatons TNT)", E / 4.184e15, "Mt",
                          "1 Mt = 4.184e15 J", "Materia")]
     summary = (f"{m:.4g} kg ↔ {E:.3g} J ({E/4.184e15:.3g} Mt TNT) by E = m·c².")
+    if energy_j is not None and mass_kg is not None:
+        summary += f" (mass_kg={mass_kg!r} ignored: energy_j was given)"
     return MateriaResult("mass_energy",
-                         {"mass_kg": mass_kg, "energy_j": energy_j}, steps,
+                         inputs, steps,
                          summary=summary,
                          validation={"passed": E > 0, "note": f"E = m·c² = {E:.3g} J"},
                          outputs={"rest_energy_J": E, "mass_kg": m})

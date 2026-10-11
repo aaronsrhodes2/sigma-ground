@@ -110,6 +110,13 @@ VERB_MANIFEST = {
                            "aliases": ["altitude", "at", "above"]},
             "semimajor_axis_au": {"unit": "au", "default": None,
                                   "aliases": ["au", "astronomical units"]},
+            # FIXED 2026-10-10 (A38): a NATURAL body on its own orbit ("how
+            # fast does the Moon orbit") and synchronous orbits
+            # ("geostationary") — the verb holds the parent and distance.
+            "orbiter": {"unit": "body", "default": None,
+                        "aliases": ["moon", "planet", "does mars orbit"]},
+            "period_s": {"unit": "s", "default": None,
+                         "aliases": ["geostationary", "geosynchronous"]},
         },
     },
     "material_profile": {
@@ -441,7 +448,14 @@ _ROUTABLE_NEW = {
                      "relativity", "near light speed"],
         "examples": ["time dilation at 0.9c",
                      "relativistic energy of a proton near light speed"],
-        "slots": {}},
+        # FIXED 2026-10-10 (A40): the verb had no slots, so the speed and the
+        # particle in the question were ignored (0.9c electron always).
+        "slots": {"velocity_fraction_c": {"unit": "c", "default": 0.9,
+                                          "aliases": ["0.99c", "% of the speed "
+                                                      "of light", "beta"]},
+                  "particle": {"unit": "particle", "default": "electron",
+                               "aliases": ["electron", "proton", "neutron",
+                                           "muon", "alpha"]}}},
     "thermal_statistics": {
         "description": "Statistical mechanics of a gas — Maxwell-Boltzmann "
                        "speeds, Boltzmann factors & entropy, partition function, "
@@ -769,9 +783,13 @@ _ROUTABLE_NEW = {
                      "photon sphere", "isco", "bekenstein", "tidal force near"],
         "examples": ["Hawking temperature of a 10 solar-mass black hole",
                      "Schwarzschild radius of a black hole"],
+        # FIXED 2026-10-10 (A39): the translator now fills these (it never
+        # filled solar_masses, so every question was answered for 10 Msun).
         "slots": {"solar_masses": {"unit": "Msun", "default": 10.0,
                                    "aliases": ["solar mass", "solar masses",
-                                               "sun masses"]}}},
+                                               "sun masses"]},
+                  "mass_kg": {"unit": "kg", "default": None,
+                              "aliases": ["kg black hole"]}}},
     "superconductor": {
         "description": "Superconductivity — BCS gap & coherence length, "
                        "Ginzburg-Landau parameter & type, London penetration, "
@@ -849,7 +867,10 @@ _ROUTABLE_NEW = {
                        "or the energy released by converting mass.",
         "triggers": ["e=mc", "e = mc", "mass-energy", "mass energy",
                      "rest energy", "converted to energy", "mass to energy",
-                     "energy from converting", "annihilat", "kg of mass"],
+                     "energy from converting", "annihilat", "kg of mass",
+                     # any mass unit ("1 gram of mass"), 2026-10-10 (A41)
+                     r"\b(?:kg|kilograms?|g|grams?|mg|milligrams?|tonnes?)"
+                     r"\s+of\s+(?:mass|matter)\b"],
         "examples": ["how much energy is in 1 kg of mass",
                      "how much mass is converted to energy in a 1-megaton bomb"],
         "slots": {"mass_kg": {"unit": "kg", "default": 1.0,

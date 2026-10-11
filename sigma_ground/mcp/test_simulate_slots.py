@@ -1,0 +1,171 @@
+"""Regression tests for the simulate() front door (audit 2026-10-10, A38-A42).
+
+The deterministic router (use_llm=False) must use what the question says: the
+body asked about, the black-hole mass, the speed and the particle, masses in
+exponent notation; and the verbs must not floor or clamp what they were given.
+Ground truth is independent of the code: NASA fact sheets, the geostationary
+radius, CODATA (scipy) and closed forms.
+"""
+from __future__ import annotations
+
+import math
+import os
+import sys
+
+import pytest
+
+# Import sigma_ground from THIS tree (worktree-portable).
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if _ROOT not in sys.path:
+    sys.path.insert(0, _ROOT)
+
+pytest.importorskip("scipy")
+import scipy.constants as sc  # noqa: E402
+
+from sigma_ground.mcp.tools.simulation import simulate, run_simulation  # noqa: E402
+from sigma_ground.materia.manifest import VERB_MANIFEST  # noqa: E402
+
+DAY = 86400.0
+
+
+def _chain_rows(tr):
+    """{row label: value} of the last verb in a simulate() result."""
+    chain = tr.inputs["chain"]
+    return {s["label"]: s["value"] for s in chain[-1]["steps"]}
+
+
+def _outputs(tr):
+    return tr.inputs["chain"][-1]["outputs"]
+
+
+# ── A38: orbit questions use the body asked about ──────────────────────────
+
+def test_manifest_example_moon_orbit_is_the_moons_orbit():
+    q = "how fast does the Moon orbit"
+    assert q in VERB_MANIFEST["orbital_velocity"]["examples"]
+    tr = simulate(q, use_llm=False)
+    # NASA NSSDCA Moon fact sheet: mean orbital velocity 1.022 km/s,
+    # sidereal period 27.3217 d (circular two-body estimate: within 0.5 %)
+    assert tr.value == pytest.approx(1022.0, rel=5e-3)
+    assert _outputs(tr)["orbital_period_s"] == pytest.approx(27.3217 * DAY, rel=5e-3)
+
+
+def test_moon_orbit_the_earth():
+    tr = simulate("how fast does the Moon orbit the Earth", use_llm=False)
+    assert tr.value == pytest.approx(1022.0, rel=5e-3)
+
+
+def test_orbital_period_of_mars_is_heliocentric():
+    tr = simulate("what is the orbital period of Mars", use_llm=False)
+    # NASA NSSDCA Mars fact sheet: sidereal orbit period 686.980 d
+    assert _outputs(tr)["orbital_period_s"] == pytest.approx(686.980 * DAY, rel=1e-3)
+
+
+def test_geostationary_orbit():
+    tr = simulate("what is the speed of a geostationary orbit", use_llm=False)
+    # geostationary radius 42,164 km, altitude 35,786 km above the equator;
+    # speed = 2 pi r / sidereal day = 3.0747 km/s
+    v_ref = 2.0 * math.pi * 42_164.17e3 / 86164.0905
+    assert tr.value == pytest.approx(v_ref, rel=1e-4)
+    assert _outputs(tr)["altitude_m"] == pytest.approx(35_786e3, abs=2e3)
+
+
+def test_satellite_phrasings_still_route_to_a_satellite_orbit():
+    tr = simulate("orbital velocity at 400 km above Earth", use_llm=False)
+    # v = sqrt(GM/r), GM_Earth = 3.986004418e14 m^3/s^2 (IERS), R = 6378.1 km
+    v_ref = math.sqrt(3.986004418e14 / (6378.1e3 + 400e3))
+    assert tr.value == pytest.approx(v_ref, rel=1e-4)
+
+
+def test_unknown_central_body_is_refused_not_earth():
+    tr = run_simulation("orbital_velocity", {"central_body": "vulcan"})
+    assert tr.value is None
+
+
+# ── A39: black-hole mass slot (and no 1e-12 M_sun floor) ───────────────────
+
+def _hawking_T(M):
+    return sc.hbar * sc.c ** 3 / (8.0 * math.pi * sc.G * M * sc.k)
+
+
+def test_black_hole_solar_mass_slot_is_used():
+    tr = simulate("Hawking temperature of a 3 solar mass black hole", use_llm=False)
+    M = _outputs(tr)["mass_kg"]
+    assert M == pytest.approx(3 * 1.98847e30, rel=1e-3)        # IAU M_sun
+    # rows are 4-significant-figure strings; M_sun convention differs 3e-4
+    assert float(_chain_rows(tr)["hawking temperature"]) == pytest.approx(
+        _hawking_T(3 * 1.98847e30), rel=2e-3)
+
+
+def test_black_hole_mass_in_kg_exponent_notation():
+    tr = simulate("Schwarzschild radius of a 1e11 kg black hole", use_llm=False)
+    r_s = 2.0 * sc.G * 1e11 / sc.c ** 2                         # 1.485e-16 m
+    assert tr.value == pytest.approx(r_s, rel=1e-6)
+    tr = simulate("how long until a 1e11 kg black hole evaporates", use_llm=False)
+    assert float(_chain_rows(tr)["hawking temperature"]) == pytest.approx(
+        _hawking_T(1e11), rel=1e-3)                       # 4-sig-fig row
+
+
+def test_black_hole_primordial_mass_not_floored():
+    tr = run_simulation("black_hole", {"solar_masses": 1e-20})
+    M = _outputs(tr)["mass_kg"]
+    assert M == pytest.approx(1e-20 * 1.98847e30, rel=1e-3)     # not 2e18 kg
+    assert tr.value == pytest.approx(2.0 * sc.G * M / sc.c ** 2, rel=1e-6)
+    for bad in (0.0, -5.0):
+        assert run_simulation("black_hole", {"solar_masses": bad}).value is None
+
+
+# ── A40: relativistic_motion reads the speed and the particle ──────────────
+
+@pytest.mark.parametrize("q, beta", [
+    ("Lorentz factor at 0.99c", 0.99),
+    ("time dilation at 99% of the speed of light", 0.99),
+    ("time dilation at 0.5c", 0.5),
+    ("how much does a clock slow at half the speed of light", 0.5),
+])
+def test_relativistic_speed_slot(q, beta):
+    tr = simulate(q, use_llm=False)
+    assert tr.value == pytest.approx(1.0 / math.sqrt(1.0 - beta ** 2), rel=1e-12)
+
+
+def test_relativistic_particle_slot_proton():
+    tr = simulate("relativistic energy of a proton near light speed", use_llm=False)
+    E = float(_chain_rows(tr)["relativistic energy"])            # 4-sig-fig row
+    E_ref = sc.m_p * sc.c ** 2 / math.sqrt(1.0 - 0.9 ** 2)       # 3.449e-10 J
+    assert E == pytest.approx(E_ref, rel=1e-3)
+    assert _outputs(tr)["rest_mass_kg"] == pytest.approx(sc.m_p, rel=1e-8)
+
+
+def test_relativistic_motion_refuses_superluminal_and_reads_speed():
+    assert run_simulation("relativistic_motion",
+                          {"velocity_fraction_c": 1.5}).value is None
+    assert run_simulation("relativistic_motion",
+                          {"velocity_fraction_c": 1.0}).value is None
+    tr = run_simulation("relativistic_motion", {"velocity_fraction_c": -0.5})
+    assert tr.value == pytest.approx(1.0 / math.sqrt(0.75), rel=1e-12)
+
+
+# ── A41: mass regex keeps the mantissa; grams are grams ────────────────────
+
+@pytest.mark.parametrize("q, m", [
+    ("how much energy is in 1e-3 kg of mass", 1e-3),
+    ("how much energy is in 2.5e-3 kg of mass", 2.5e-3),
+    ("how much energy is in 1 gram of mass", 1e-3),
+    ("how much energy is in 5 kg of mass", 5.0),
+])
+def test_mass_slot_exponent_notation(q, m):
+    tr = simulate(q, use_llm=False)
+    assert tr.value == pytest.approx(m * sc.c ** 2, rel=1e-12)
+
+
+# ── A42: mass_energy does not floor the mass ───────────────────────────────
+
+def test_mass_energy_electron_rest_energy():
+    tr = run_simulation("mass_energy", {"mass_kg": sc.m_e})
+    # CODATA 2022 m_e c^2 = 8.1871057880(26)e-14 J (NIST)
+    assert tr.value == pytest.approx(8.1871057880e-14, rel=1e-9)
+    from sigma_ground.materia.scenarios import mass_energy
+    assert mass_energy(mass_kg=1e-35).outputs["rest_energy_J"] == pytest.approx(
+        1e-35 * sc.c ** 2, rel=1e-12)
+    for bad in (0.0, -5.0):
+        assert mass_energy(mass_kg=bad).validation["passed"] is False
