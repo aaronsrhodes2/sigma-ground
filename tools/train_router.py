@@ -42,6 +42,7 @@ import argparse
 import gc
 import json
 import math
+import statistics
 import os
 import random
 import sys
@@ -211,6 +212,10 @@ def cmd_train(a) -> int:
     gpu = not a.cpu_smoke
     train_ds, over_tr = build_split(tok, train_recs, max_len)
     val_ds, over_va = build_split(tok, val_recs, max_len)
+    if a.eval_limit and len(val_ds) > a.eval_limit:
+        # a fixed, evenly spread slice for the loss curve; the full validation set is
+        # scored after training (eval_router_val.py), which is what measures accuracy
+        val_ds = val_ds[::len(val_ds) // a.eval_limit][:a.eval_limit]
     if over_tr or over_va:
         print(f"dropped over max_len: train {over_tr}, val {over_va}")
 
@@ -268,10 +273,20 @@ def cmd_train(a) -> int:
     trainer.train()
     wall = time.time() - t0
     final_eval = trainer.evaluate()
+    # save the adapter FIRST: nothing computed below may cost a finished training run
+    model.save_pretrained(str(out / "adapter"))
+    tok.save_pretrained(str(out / "adapter"))
 
-    # steady-state speed: skip the first 5 steps (compile/warm-up)
+    # Speed: skip the first 5 steps (compile/warm-up). `steady` is the plain average, which an
+    # evaluation pass in the middle inflates; the projection uses the MEDIAN step time (a pass
+    # spoils only the one step it follows) plus the measured evaluation time, once per pass.
     st = clock.step_times
     steady = (len(st) - 6) / (st[-1] - st[5]) if len(st) > 10 else len(st) / wall
+    gaps = [b - a_ for a_, b in zip(st, st[1:])][5:]
+    median_step = statistics.median(gaps) if len(gaps) > 5 else wall / max(1, len(st))
+    eval_s = float(final_eval.get("eval_runtime", 0.0))
+    n_evals = full_total // eval_steps + 1
+    projected = median_step * full_total + n_evals * eval_s
     report = {
         "backend": backend, "base": a.base, "data": str(a.data),
         "train_examples": len(train_ds), "val_examples": len(val_ds),
@@ -283,7 +298,9 @@ def cmd_train(a) -> int:
         "lr": a.lr, "warmup_steps": warmup, "seed": a.seed,
         "lora": {"r": 16, "alpha": 32, "dropout": 0.0, "targets": LORA_TARGETS},
         "wall_s": round(wall, 1), "steady_steps_per_s": round(steady, 4),
-        "projected_full_run_s": round(full_total / steady, 0),
+        "median_step_s": round(median_step, 3), "eval_s": round(eval_s, 1),
+        "n_evals_full_run": n_evals, "eval_records": len(val_ds),
+        "projected_full_run_s": round(projected, 0),
         "vram_peak_allocated_gib": round(torch.cuda.max_memory_allocated() / 2**30, 2) if gpu else None,
         "vram_peak_reserved_gib": round(torch.cuda.max_memory_reserved() / 2**30, 2) if gpu else None,
         "final_eval": final_eval,
@@ -295,8 +312,6 @@ def cmd_train(a) -> int:
         report["versions"]["unsloth"] = unsloth.__version__
     (out / "log_history.json").write_text(json.dumps(trainer.state.log_history, indent=1))
     (out / "train_report.json").write_text(json.dumps(report, indent=2, default=str))
-    model.save_pretrained(str(out / "adapter"))
-    tok.save_pretrained(str(out / "adapter"))
     print(json.dumps(report, indent=2, default=str))
     return 0
 
@@ -409,6 +424,8 @@ def main() -> int:
     t.add_argument("--grad-accum", type=int, default=2, help="batch x accum = 16")
     t.add_argument("--max-steps", type=int, default=0, help=">0: pilot of this many steps")
     t.add_argument("--eval-steps", type=int, default=0, help="0: a tenth of the run")
+    t.add_argument("--eval-limit", type=int, default=0,
+                   help="evaluate during training on this many validation records (0: all)")
     t.add_argument("--logging-steps", type=int, default=10)
     t.add_argument("--seed", type=int, default=0)
     t.add_argument("--no-unsloth", action="store_true")

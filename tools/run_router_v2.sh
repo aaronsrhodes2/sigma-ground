@@ -41,6 +41,7 @@ TEACHER="${TEACHER:-qwen2.5:14b}"
 UNLOAD_MAIN="${UNLOAD_MAIN:-0}"
 DOCKER_OLLAMA="${DOCKER_OLLAMA:-}"
 MAX_TRAIN_H="${MAX_TRAIN_H:-6}"
+EVAL_LIMIT="${EVAL_LIMIT:-800}"         # validation records used for the loss curve during training
 GPU_BUSY_MIB="${GPU_BUSY_MIB:-4000}"
 GPU_WAIT_MIN="${GPU_WAIT_MIN:-45}"
 PORT=11435
@@ -195,7 +196,7 @@ do_hardval() {   # CPU only
 
 train_cmd() {   # train_cmd <out> [extra args]
   local out=$1; shift
-  echo "python -u tools/train_router.py train --data '$W_DATA' --base $W_BASE --out $out $*"
+  echo "python -u tools/train_router.py train --data '$W_DATA' --base $W_BASE --out $out --eval-limit $EVAL_LIMIT $*"
 }
 do_train_pilot() {
   gpu_guard train_pilot exclusive
