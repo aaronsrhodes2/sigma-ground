@@ -1,7 +1,11 @@
 {
  "category": "vase",
  "aliases": [
-  "pot"
+  "pot",
+  "plant",
+  "houseplant",
+  "potted plant",
+  "flower pot"
  ],
  "source_anno_id": "5722",
  "n_parts": 6,

@@ -1,0 +1,2774 @@
+{
+ "version": 1,
+ "about": "Which real-world family each holodeck model is, and the sourced reference that stands for it. fidelity.py turns this plus the engine geometry (data/measured.json) into data/fidelity.json; build_catalog.py then carries the adopted mass into the catalog. The sourced numbers are in data/fidelity_research.json; every figure here is copied from it or converted from its pounds, and each *_basis string says which. A number that is the researcher's own pick, a midpoint or an assumption says so.",
+ "method": {
+  "mass": "mass = clamp(reference mass x s^k, low, high) with s = (bounding-box volume / reference bounding-box volume)^(1/3), the linear scale factor, and k the exponent on it: 3 for solid and frame-and-panel objects (mass follows volume) and 2 for thin shells (geometrically similar shells at constant wall thickness scale with surface area). Equivalent to mass proportional to V^1 and V^(2/3). low and high are the sourced range of the family.",
+  "scale_fixed": "a family or variant marked 'fixed' skips the scaling (mass = reference mass) where the bounding box is not a fair measure of the object (umbrella, lamp arm, foliage, cistern, flue).",
+  "guard_factor": 2.0,
+  "guard": "if the scaled mass falls more than guard_factor outside [low, high] the model lies too far outside what the sources describe: the variant is left 'unaudited' with the engine mass and the extrapolated figure is recorded, never adopted.",
+  "k_by_topology": {
+   "solid": 3,
+   "frame-and-panel": 3,
+   "shell": 2
+  },
+  "confidence": "high: evidence 'opened', a good fit, no clamp and the model's size used; medium: one step down; low: two or more steps down. Steps down: evidence 'mixed' (1), 'search-summary' or 'single-source' (2), a partial fit (1), the scaled mass clamped to a bound (1), a fixed scale, which does not use the model's size (1)."
+ },
+ "densities": {
+  "source": "bash tools/mentat_call.sh density '{\"material\":\"<name>\"}' (Mentat's own table, queried 2026-10-10); re-check with python fidelity.py --verify-densities",
+  "values": {
+   "wood_oak": {
+    "kg_m3": 770.0,
+    "mentat_source": "sigma-ground via CRC Handbook (white oak nominal)"
+   },
+   "wood_pine": {
+    "kg_m3": 530.0,
+    "mentat_source": "sigma-ground via CRC Handbook (Eastern white pine nominal)"
+   },
+   "glass": {
+    "kg_m3": 2500.0,
+    "mentat_source": "sigma-ground via CRC Handbook (soda-lime glass nominal)"
+   },
+   "plastic": {
+    "kg_m3": 1100.0,
+    "mentat_source": "sigma-ground via CRC Handbook (typical thermoplastic, nominal)"
+   },
+   "rubber": {
+    "kg_m3": 1100.0,
+    "mentat_source": "sigma-ground via CRC Handbook (vulcanized rubber)"
+   },
+   "iron": {
+    "kg_m3": 7874.0,
+    "mentat_source": "sigma-ground via CRC Handbook (iron at 20 C)"
+   },
+   "aluminum": {
+    "kg_m3": 2700.0,
+    "mentat_source": "sigma-ground via CRC Handbook (aluminum at 20 C)"
+   },
+   "concrete": {
+    "kg_m3": 2400.0,
+    "mentat_source": "sigma-ground via ACI 318 (normal-weight concrete)"
+   },
+   "copper": {
+    "kg_m3": 8960.0,
+    "mentat_source": "sigma-ground via CRC Handbook (copper at 20 C)"
+   },
+   "graphite": {
+    "kg_m3": 2266.0,
+    "mentat_source": "sigma-ground via CRC Handbook (graphite at 20 C)"
+   },
+   "water": {
+    "kg_m3": 999.972,
+    "mentat_source": "sigma-ground via CRC Handbook (water at 4 C, 1 atm)"
+   }
+  },
+  "no_mentat_density": [
+   "steel",
+   "fabric",
+   "foam",
+   "ceramic",
+   "cardboard"
+  ],
+  "no_mentat_density_note": "Mentat returned \"not in lookup table\" for steel, ceramic, foam, cardboard and fabric (checked 2026-10-10). Wherever the references describe steel, the cross-check uses Mentat's iron (7874 kg/m3) as the nearest entry and says so; where they describe foam, fabric, ceramic, cardboard or plywood no cross-check is made."
+ },
+ "unused_research": {
+  "shelf (wall-mounted board)": "no engine model is a wall-mounted board: the three wooden shelf models are bookcase carcasses and the fourth is freestanding steel shelving",
+  "display case (tall glass-door cabinet)": "the only display-case model is a low curved-glass deli counter, which the countertop family describes",
+  "computer": "the engine computer is an LCD monitor with a keyboard and mouse; the sourced item is a 17 in CRT monitor plus keyboard"
+ },
+ "families": {
+  "sofa_3seat": {
+   "label": "upholstered three-seat sofa (84 in class)",
+   "research": "couch",
+   "reference": {
+    "item": "typical 3-seat sofa; opened listings: GKW Pera 84 in 49.9 kg, CityHome Kellan 84 in 57.6 kg, Madeline 84 in 74.4 kg",
+    "mass_kg": 60,
+    "mass_basis": "the researcher's own pick inside the sourced range (a design input, not a measurement); sits between the opened listings",
+    "weight_kind": "net product weights of the opened listings (IKEA's 72.8 kg is a package weight and was not used)",
+    "size_m": [
+     2.13,
+     0.95,
+     0.85
+    ],
+    "size_basis": "size_m_typical of the research item (3-seat, 84 in class)"
+   },
+   "low_kg": 45,
+   "high_kg": 90,
+   "bounds_basis": "the research range ends: 45 kg and 90 kg (the opened listings span 49.9 to 74.4 kg; a Bassett 90 in listing gives 175 with no unit, 79 kg if pounds)",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     4,
+     8
+    ],
+    "interior": "solid",
+    "text": "seat base, back and two arms, on legs or a plinth; soft fill, no usable interior"
+   },
+   "crosscheck_unavailable": "Mentat has no density for foam, fabric or upholstery, and no frame-member thickness is sourced (the research says so)",
+   "caveats": "Sleepers, sectionals and reclining sofas are heavier and are not covered by this range.",
+   "materials": [
+    "kiln-dried hardwood (solid and engineered)",
+    "plywood",
+    "particleboard/fibreboard",
+    "polyurethane foam 20-35 kg/m3",
+    "polyester fibre / feather-down",
+    "fabric or leather cover",
+    "steel sinuous springs"
+   ]
+  },
+  "sofa_2seat": {
+   "label": "upholstered two-seat sofa (loveseat)",
+   "research": "loveseat",
+   "reference": {
+    "item": "typical loveseat; opened listings: Lesro 50 in 47.2 kg, Lesro Avon 44 in steel frame 24.5 kg, IKEA EKTORP 2-seat 61.6 kg (package)",
+    "mass_kg": 45,
+    "mass_basis": "the researcher's reading of the spread, not a quoted figure (the research says so)",
+    "weight_kind": "net product weights except IKEA (package weight, probably gross)",
+    "size_m": [
+     1.55,
+     0.85,
+     0.85
+    ],
+    "size_basis": "size_m_typical of the research item"
+   },
+   "low_kg": 25,
+   "high_kg": 65,
+   "bounds_basis": "the research range ends (25 kg is the steel-frame commercial unit, 65 kg is above every opened listing)",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     4,
+     8
+    ],
+    "interior": "solid",
+    "text": "seat base, back and two arms; soft fill"
+   },
+   "crosscheck_unavailable": "Mentat has no density for foam, fabric or upholstery, and no frame thickness is sourced",
+   "materials": [
+    "plywood/particleboard/fibreboard/solid wood or steel tube frame",
+    "polyurethane foam 20-35 kg/m3",
+    "polyester fibre",
+    "fabric or polyurethane (vinyl) upholstery"
+   ]
+  },
+  "armchair": {
+   "label": "upholstered armchair",
+   "research": "armchair",
+   "reference": {
+    "item": "typical armchair; opened listings: POANG 9.9-10.4 kg, STRANDMON wing chair 29.4 kg (package), EKTORP armchair 42.2 kg, La-Z-Boy Pinnacle recliner 32.2 kg",
+    "mass_kg": 25,
+    "mass_basis": "the researcher's judgement between the light accent chair and the upholstered club or wing chair",
+    "weight_kind": "net product weights except IKEA (package weights)",
+    "size_m": [
+     0.8,
+     0.9,
+     0.97
+    ],
+    "size_basis": "size_m_typical of the research item"
+   },
+   "low_kg": 10,
+   "high_kg": 42,
+   "bounds_basis": "the research range ends (10 kg = bentwood accent chair, 42 kg = EKTORP armchair)",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     4,
+     8
+    ],
+    "interior": "solid",
+    "text": "seat base, back and two arms on short legs; soft fill"
+   },
+   "crosscheck_unavailable": "Mentat has no density for foam, fabric or upholstery, and no frame thickness is sourced",
+   "materials": [
+    "layer-glued birch veneer (bentwood)",
+    "plywood/particleboard/solid wood frame",
+    "polyurethane foam 20-35 kg/m3",
+    "polyester fibre",
+    "fabric/leather",
+    "steel (recliner mechanism)"
+   ]
+  },
+  "chair": {
+   "label": "dining or side chair (bentwood, moulded or stack)",
+   "research": "chair",
+   "reference": {
+    "item": "typical side chair; opened: Thonet 214 2.7 kg, IKEA ODGER 7.0 kg (package), Oak Street stack chair 6.8 kg",
+    "mass_kg": 5.5,
+    "mass_basis": "the researcher's own pick inside the sourced range (a design input, not a measurement); between Thonet 214 (2.7 kg) and the 6.8-7.0 kg listings",
+    "weight_kind": "Thonet 214 is a net weight without packaging; ODGER and the stack chair are package or unstated weights",
+    "size_m": [
+     0.45,
+     0.52,
+     0.84
+    ],
+    "size_basis": "size_m_typical of the research item (seat height about 0.45)"
+   },
+   "low_kg": 2.7,
+   "high_kg": 12,
+   "bounds_basis": "the research range ends; the researcher states the verified range is 2.7 to 7 kg and that 12 kg is not from an opened page",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     5,
+     14
+    ],
+    "interior": "open",
+    "text": "four legs, a seat panel and a back (rails, slats or a shell); sometimes arms; open under the seat"
+   },
+   "crosscheck_unavailable": "the only sourced thickness is a 1.2 mm steel tube for one stack chair; every other shell, plywood and wood-section thickness is unsourced",
+   "caveats": "A single chair class; the sourced chairs span bentwood, moulded-shell and steel stack chairs, so the range is wide.",
+   "materials": [
+    "solid beech (bent)",
+    "wood plastic composite",
+    "polypropylene",
+    "maple or ash legs",
+    "steel tube 1.2 mm",
+    "plywood core",
+    "polyurethane foam"
+   ]
+  },
+  "office_chair": {
+   "label": "swivel office chair (five-star base, gas lift)",
+   "research": "office chair",
+   "reference": {
+    "item": "Herman Miller Aeron size B: 41 lb product weight (opened store page)",
+    "mass_kg": 18.6,
+    "mass_basis": "41 lb x 0.45359237",
+    "weight_kind": "product weight (not shipping)",
+    "size_m": [
+     0.67,
+     0.67,
+     1.04
+    ],
+    "size_basis": "base 26.5 in (0.67 m) and 1.04 m high, both from the research size_m_typical"
+   },
+   "low_kg": 13,
+   "high_kg": 25,
+   "bounds_basis": "the research range ends (13 kg from unopened listings, 25 kg from IKEA's gross package weight)",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     5,
+     12
+    ],
+    "interior": "open",
+    "text": "five-star base with casters, gas-lift column, tilt mechanism, seat and back, usually arms"
+   },
+   "crosscheck_unavailable": "Mentat has no density for foam, fabric, mesh or nylon covers, and no tube or shell thickness is sourced",
+   "materials": [
+    "aluminium or steel five-star base",
+    "steel tube frame",
+    "glass-reinforced polyamide/nylon covers",
+    "layer-glued wood veneer seat frame",
+    "polyurethane foam 35 kg/m3",
+    "polyester fabric, leather or elastomeric mesh"
+   ]
+  },
+  "stool_steel_bar": {
+   "label": "steel bar or counter stool",
+   "research": "stool",
+   "reference": {
+    "item": "National Public Seating 30 in steel stool: 11 lb (opened page)",
+    "mass_kg": 4.99,
+    "mass_basis": "11 lb x 0.45359237",
+    "weight_kind": "listed weight; the page does not say net or shipping",
+    "size_m": [
+     0.43,
+     0.36,
+     0.76
+    ],
+    "size_basis": "0.43 W x 0.36 dia x 0.76 seat height (30 in), the research's bar-stool size"
+   },
+   "low_kg": 1.6,
+   "high_kg": 10,
+   "bounds_basis": "the research range ends (10 kg is an unopened swivel bar stool listing)",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     3,
+     8
+    ],
+    "interior": "open",
+    "text": "five-star or four-leg steel base, column, padded seat and a foot ring"
+   },
+   "crosscheck_unavailable": "the sourced tube is 18 gauge (about 1.2 mm, a gauge conversion the researcher made) and the seat is masonite and foam; no Mentat density for steel, masonite or foam",
+   "materials": [
+    "steel tube, 18 gauge and 7/8 in diameter",
+    "masonite (hardboard) seat board"
+   ]
+  },
+  "stool_wood": {
+   "label": "wooden stool",
+   "research": "stool",
+   "reference": {
+    "item": "IKEA BEKVAM 50 cm beech stool: 4.61 kg (opened page)",
+    "mass_kg": 4.61,
+    "mass_basis": "IKEA package weight, likely gross",
+    "weight_kind": "package weight (likely gross)",
+    "size_m": [
+     0.43,
+     0.39,
+     0.5
+    ],
+    "size_basis": "IKEA BEKVAM 0.43 x 0.39 x 0.50 m, the research's opened listing"
+   },
+   "low_kg": 1.6,
+   "high_kg": 10,
+   "bounds_basis": "the research range ends",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     5,
+     9
+    ],
+    "interior": "open",
+    "text": "three or four legs, a round or square seat, stretchers"
+   },
+   "crosscheck_unavailable": "wood section and seat thickness are unsourced",
+   "caveats": "Artek Stool 60 is 3.2 kg per Connox but 6.8 kg per dimensions.com for the same stool: a direct conflict the researcher could not resolve.",
+   "materials": [
+    "solid birch, beech or aspen",
+    "birch plywood"
+   ]
+  },
+  "bench_backed_wood": {
+   "label": "wooden bench with a back (indoor or garden)",
+   "research": "bench",
+   "reference": {
+    "item": "Heritage Gardens Balmoral teak 3-seat 1.5 m bench: 25 kg assembled (opened page)",
+    "mass_kg": 25,
+    "mass_basis": "listed assembled weight",
+    "weight_kind": "assembled weight (opened page)",
+    "size_m": [
+     1.5,
+     0.62,
+     0.88
+    ],
+    "size_basis": "the same listing: 1.50 x 0.62 x 0.88 m"
+   },
+   "low_kg": 10,
+   "high_kg": 25,
+   "bounds_basis": "the research's domestic-bench range: 10 kg (IKEA HEMNES 83 cm solid pine, 9.86 kg package weight on an opened page; the research's own note is inconsistent about whether the 10 kg is opened) to 25 kg (the teak bench)",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "opened",
+   "real": {
+    "pieces": [
+     5,
+     16
+    ],
+    "interior": "open",
+    "text": "legs or end frames, a slatted seat and a slatted back"
+   },
+   "crosscheck_unavailable": "slat and frame thickness are unsourced",
+   "materials": [
+    "teak (assembled garden bench)"
+   ]
+  },
+  "bench_plank": {
+   "label": "plank bench without a back",
+   "research": "bench",
+   "reference": {
+    "item": "IKEA SKOGSTA 120 cm solid acacia bench: 18.79 kg net (20.10 kg gross; opened page)",
+    "mass_kg": 18.79,
+    "mass_basis": "IKEA net weight",
+    "weight_kind": "net weight (the page also gives 20.10 kg gross)",
+    "size_m": [
+     1.2,
+     0.46,
+     0.45
+    ],
+    "size_basis": "IKEA SKOGSTA 1.20 x 0.46 x 0.45 m, the research's opened listing"
+   },
+   "low_kg": 9.86,
+   "high_kg": 18.79,
+   "bounds_basis": "9.86 kg is IKEA HEMNES 83 cm solid pine (package weight, opened); 18.79 kg is SKOGSTA net",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "opened",
+   "real": {
+    "pieces": [
+     3,
+     8
+    ],
+    "interior": "open",
+    "text": "a seat plank on two end frames or four legs"
+   },
+   "crosscheck_unavailable": "plank and leg thickness are unsourced",
+   "materials": [
+    "solid acacia (SKOGSTA)",
+    "solid pine (HEMNES)"
+   ]
+  },
+  "bench_park_steel": {
+   "label": "six-foot park bench (steel frame, slatted)",
+   "research": "bench",
+   "reference": {
+    "item": "Lasting Impressions 6 ft steel park bench: 92 lb assembled (search summary, page not opened)",
+    "mass_kg": 41.73,
+    "mass_basis": "92 lb x 0.45359237",
+    "weight_kind": "assembled weight (search summary)",
+    "size_m": [
+     1.83,
+     0.68,
+     0.79
+    ],
+    "size_basis": "the research's 6 ft park bench size, from a search summary"
+   },
+   "low_kg": 41.73,
+   "high_kg": 79.83,
+   "bounds_basis": "the research's unverified park-bench range: 92 lb (41.7 kg) to Indoff 176 lb (79.8 kg), all from search summaries that could not be opened",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "search-summary",
+   "real": {
+    "pieces": [
+     5,
+     16
+    ],
+    "interior": "open",
+    "text": "two end frames, a slatted seat and a slatted back"
+   },
+   "crosscheck_unavailable": "the park-bench steel figures (5/16 in slats, 1.5 in tube, 14 gauge seat) come from search summaries only; no Mentat density for steel",
+   "caveats": "Every park-bench figure is from a search summary that could not be opened (certificate error, 403, timeouts). The research's 80 kg high leaves out the Global Industrial 200 to 242 lb (91 to 110 kg) listings its own note names, so heavier park benches exist.",
+   "materials": [
+    "powder-coated steel frame",
+    "steel slats"
+   ]
+  },
+  "bed_frame": {
+   "label": "bed frame, no mattress (steel or wood)",
+   "research": "bed",
+   "reference": {
+    "item": "typical bed frame; opened: Zinus Suzanne queen frame 31.4 kg item weight, IKEA MALM single frame 41.6 kg (packages)",
+    "mass_kg": 35,
+    "mass_basis": "the researcher's own pick inside the sourced range (a design input, not a measurement)",
+    "weight_kind": "item weight (Zinus) and package weights (IKEA)",
+    "size_m": [
+     1.51,
+     2.02,
+     0.36
+    ],
+    "size_basis": "queen frame 59.5 x 79.5 x 14 in platform (Zinus), from the research"
+   },
+   "low_kg": 20,
+   "high_kg": 70,
+   "bounds_basis": "the research range ends (both from search summaries, not opened pages)",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     5,
+     14
+    ],
+    "interior": "open",
+    "text": "head and foot boards, two side rails, a slat or platform deck on legs; the mattress bay is open"
+   },
+   "crosscheck_unavailable": "neither the Zinus nor the IKEA page gives tube or board thickness",
+   "materials": [
+    "steel tube",
+    "solid pine",
+    "particleboard",
+    "fibreboard",
+    "plywood",
+    "layered wood-veneer slats",
+    "paper honeycomb filling"
+   ]
+  },
+  "mattress_single": {
+   "label": "single mattress (90 x 200 cm class)",
+   "research": "mattress",
+   "reference": {
+    "item": "IKEA MORGEDAL 90x200x18 latex-foam mattress: 16.65 kg net (19.52 kg gross; opened page)",
+    "mass_kg": 16.65,
+    "mass_basis": "IKEA net weight",
+    "weight_kind": "net weight (the page also gives 19.52 kg gross)",
+    "size_m": [
+     0.9,
+     2.0,
+     0.18
+    ],
+    "size_basis": "IKEA MORGEDAL 0.90 x 2.00 x 0.18 m"
+   },
+   "low_kg": 14.98,
+   "high_kg": 19.52,
+   "bounds_basis": "14.98 kg is IKEA VADSO 90x200x17 spring (package weight, opened) and 19.52 kg is the MORGEDAL gross weight; the research's queen-size range 25-73 kg does not apply to a single",
+   "topology": "solid",
+   "scale": "bbox",
+   "evidence": "opened",
+   "real": {
+    "pieces": [
+     1,
+     1
+    ],
+    "interior": "solid",
+    "text": "one slab of foam or spring unit in a quilted cover"
+   },
+   "crosscheck_unavailable": "Mentat has no density for foam, latex or fabric (no foam at all in its table)",
+   "materials": [
+    "polyurethane foam 28 kg/m3 (IKEA base layers; 25 kg/m3 above springs)",
+    "polyurethane memory foam 50 kg/m3",
+    "synthetic latex",
+    "steel springs (14 gauge, 1.63 mm is described as higher-quality coil wire)",
+    "polyester wadding",
+    "polyester or cotton cover"
+   ]
+  },
+  "bunk_steel": {
+   "label": "steel twin-over-twin bunk bed frame",
+   "research": "bunk bed",
+   "reference": {
+    "item": "IKEA TUFFING steel bunk frame: 44.67 kg in three packages (opened page)",
+    "mass_kg": 44.67,
+    "mass_basis": "sum of the three package weights, likely gross",
+    "weight_kind": "package weights (likely gross)",
+    "size_m": [
+     0.965,
+     2.07,
+     1.305
+    ],
+    "size_basis": "IKEA TUFFING 0.965 x 2.07 x 1.305 m"
+   },
+   "low_kg": 39.01,
+   "high_kg": 44.67,
+   "bounds_basis": "39.01 kg is DHP metal twin-over-twin 86 lb net (search summary); 44.67 kg is TUFFING; Costway 89 lb and Walker Edison 95 lb (search summaries) lie between",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     8,
+     20
+    ],
+    "interior": "open",
+    "text": "four posts, two decks of slats, guard rails and a ladder"
+   },
+   "crosscheck_unavailable": "no post, rail or tube section is sourced",
+   "materials": [
+    "steel tube with powder coat",
+    "steel or wood slats"
+   ]
+  },
+  "hospital_bed": {
+   "label": "hospital bed (powered, adjustable height)",
+   "research": "hospital bed",
+   "reference": {
+    "item": "Arjo Prioma 600 medical bed: 146 kg approximate product weight (opened page)",
+    "mass_kg": 146,
+    "mass_basis": "the page's 'Product Weight (approximate)'",
+    "weight_kind": "product weight",
+    "size_m": [
+     1.0,
+     2.15,
+     0.6
+    ],
+    "size_basis": "1.00 x 2.15 m from the Arjo page; the 0.60 m height is the midpoint of the research's stated 0.37-0.83 m adjustable range (an assumption)"
+   },
+   "low_kg": 68,
+   "high_kg": 255,
+   "bounds_basis": "68 kg is a home-care electric bed (Drive, page does not say product or shipping); 255 kg is the researcher's own inference from a refurbisher page (the research says so)",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     6,
+     16
+    ],
+    "interior": "open",
+    "text": "a powered steel frame, three or four articulating deck sections, side rails, four casters"
+   },
+   "crosscheck_unavailable": "no tube or panel thickness is sourced",
+   "caveats": "The sourced beds are modern powered beds; the engine model is an older crank-style frame.",
+   "materials": [
+    "steel (frame and deck)",
+    "ABS plastic (side rails, deck panels)",
+    "electric linear actuators",
+    "rubber/steel casters",
+    "foam or air mattress surface"
+   ]
+  },
+  "table_dining": {
+   "label": "dining or kitchen table",
+   "research": "table",
+   "reference": {
+    "item": "typical 1.8 m dining table; opened: IKEA LISABO 140x78 19.19 kg net, IKEA EKEDALEN 48.98 kg net",
+    "mass_kg": 40,
+    "mass_basis": "the researcher's own pick inside the sourced range (a design input, not a measurement)",
+    "weight_kind": "net weights for the opened IKEA tables; the solid-wood figures are search summaries",
+    "size_m": [
+     1.8,
+     0.9,
+     0.75
+    ],
+    "size_basis": "size_m_typical of the research item (dining, 4-6 seats)"
+   },
+   "low_kg": 19.2,
+   "high_kg": 54,
+   "bounds_basis": "the research range ends (19.2 kg = LISABO, 54 kg = a solid-wood 180 x 90 table, search summary)",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     3,
+     9
+    ],
+    "interior": "open",
+    "text": "a top on four legs (pedestal: top, column and base); open underneath"
+   },
+   "crosscheck_unavailable": "top thickness is rarely published (one retail listing: 24 mm oak top on a steel base); no thickness for the IKEA tables",
+   "caveats": "The solid-wood figures (Woood, vidaXL, Kare) are search summaries; the retailer pages timed out.",
+   "materials": [
+    "particleboard core with ash/oak veneer",
+    "solid birch/pine/beech underframe",
+    "plywood legs",
+    "solid oak or solid acacia tops (retail listings)",
+    "steel legs (retail listings)"
+   ]
+  },
+  "coffee_table": {
+   "label": "coffee table",
+   "research": "coffee table",
+   "reference": {
+    "item": "IKEA LACK 90x55x45 coffee table: 8.75 kg net, and a 149 x 78.5 x 35 cm mahogany-on-steel table 41 kg (spec sheet)",
+    "mass_kg": 17,
+    "mass_basis": "the researcher's own pick inside the sourced range (a design input, not a measurement); between the light and heavy class",
+    "weight_kind": "net weights (both read)",
+    "size_m": [
+     0.9,
+     0.55,
+     0.45
+    ],
+    "size_basis": "size_m_typical of the research item (IKEA-class)"
+   },
+   "low_kg": 8.75,
+   "high_kg": 41,
+   "bounds_basis": "the research range ends: LACK net 8.75 kg and the mahogany-and-steel table 41 kg (both read)",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     3,
+     9
+    ],
+    "interior": "open",
+    "text": "a top on four legs or a frame; open underneath"
+   },
+   "crosscheck_unavailable": "top thickness is 25 mm and 50 mm for the two designer tables but the IKEA table's is unpublished; the tables are not one material",
+   "materials": [
+    "particleboard",
+    "paper honeycomb filling",
+    "fibreboard",
+    "paper foil and plastic edging",
+    "mahogany",
+    "steel (hollow and solid)",
+    "oak veneer on MDF/plywood (spec sheet item 113962)"
+   ]
+  },
+  "side_table_light": {
+   "label": "light flat-pack side table (honeycomb board)",
+   "research": "side table",
+   "reference": {
+    "item": "IKEA LACK 55x55x45 side table: 4.01 kg net (all three pages read)",
+    "mass_kg": 4.01,
+    "mass_basis": "IKEA net weight",
+    "weight_kind": "net weight (gross 4.10 kg)",
+    "size_m": [
+     0.55,
+     0.55,
+     0.45
+    ],
+    "size_basis": "IKEA LACK 0.55 x 0.55 x 0.45 m"
+   },
+   "low_kg": 2.45,
+   "high_kg": 4.01,
+   "bounds_basis": "2.45 kg is the LACK 35x35x35 net and 4.01 kg the 55x55x45 net: one manufacturer, one product family, so the range covers only the lightweight class",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "single-source",
+   "real": {
+    "pieces": [
+     3,
+     9
+    ],
+    "interior": "open",
+    "text": "a top on four legs; open underneath"
+   },
+   "crosscheck_unavailable": "IKEA publishes no thickness (only the 50 mm package height); one family of one maker",
+   "caveats": "Heavier wood or metal side tables are unsourced: this class understates a solid-wood nightstand.",
+   "materials": [
+    "particleboard",
+    "paper honeycomb filling (100% recycled)",
+    "fibreboard",
+    "paper foil",
+    "plastic edging"
+   ]
+  },
+  "desk": {
+   "label": "desk (panel desk with drawer units)",
+   "research": "desk",
+   "reference": {
+    "item": "IKEA MALM 140x65x73 desk: 37.69 kg net (two package net weights, opened); LAGKAPTEN/ALEX top plus two drawer units 60.5 kg net",
+    "mass_kg": 37.69,
+    "mass_basis": "sum of the two net package weights of the MALM desk",
+    "weight_kind": "net weights",
+    "size_m": [
+     1.4,
+     0.65,
+     0.73
+    ],
+    "size_basis": "IKEA MALM 1.4 x 0.65 x 0.73 m"
+   },
+   "low_kg": 14.1,
+   "high_kg": 60.5,
+   "bounds_basis": "14.1 kg is a HOMCOM steel-frame desk (search summary) and 60.5 kg the LAGKAPTEN/ALEX desk (opened); light steel desks are far lighter",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     3,
+     10
+    ],
+    "interior": "open",
+    "text": "a top on two side units or panels with the knee space open"
+   },
+   "crosscheck_unavailable": "not published for MALM; LAGKAPTEN's top is at most about 40 mm (from a package height) and a steel desk's top 19 mm (a different construction)",
+   "materials": [
+    "particleboard",
+    "fibreboard",
+    "paper honeycomb filling",
+    "paper foil and plastic edging",
+    "steel frame (budget desks)"
+   ]
+  },
+  "meeting_table": {
+   "label": "twelve-foot conference table",
+   "research": "meeting table",
+   "reference": {
+    "item": "Office Source boat-shaped 12 ft conference table: 242 lb (opened page)",
+    "mass_kg": 109.77,
+    "mass_basis": "242 lb x 0.45359237",
+    "weight_kind": "listed weight",
+    "size_m": [
+     3.66,
+     1.2,
+     0.76
+    ],
+    "size_basis": "12 ft x 48 in, from the research"
+   },
+   "low_kg": 39.5,
+   "high_kg": 162,
+   "bounds_basis": "39.5 kg is an unopened 8 ft budget table; 162 kg is the Mayline Medina 12 ft (opened); Safco Mirella 12 ft is 86.6 kg",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "opened",
+   "real": {
+    "pieces": [
+     2,
+     6
+    ],
+    "interior": "open",
+    "text": "a thick laminate-over-particleboard top (two pieces for 12 ft) on slab bases or metal legs"
+   },
+   "crosscheck_unavailable": "top thicknesses are 25.4 mm (Mayline), 41 mm (Safco) and 15 mm (budget table) and the tops are laminate over particleboard, which Mentat has no density for",
+   "caveats": "The engine model is 5.83 m long, 1.6 times the longest sourced table; no table that large is sourced.",
+   "materials": [
+    "laminate over particleboard top",
+    "PVC edge",
+    "metal legs (steel)",
+    "laminate or wood slab base"
+   ]
+  },
+  "patio_table_alu": {
+   "label": "six-seat patio table (aluminium)",
+   "research": "patio table",
+   "reference": {
+    "item": "typical 71 in aluminium patio table; opened: Presidio 42 lb (19.1 kg); search summaries: Signature Design Gale 23.2 kg, Pier 1 Kona acacia 23.5 kg",
+    "mass_kg": 24,
+    "mass_basis": "the researcher's own pick inside the sourced range (a design input, not a measurement) (roughly the middle of the listings)",
+    "weight_kind": "listed weights (Beliani's 35.0 kg is a packing weight and not a net mass)",
+    "size_m": [
+     1.8,
+     0.99,
+     0.76
+    ],
+    "size_basis": "size_m_typical of the research item (71 x 39 x 30 in, 6 seats)"
+   },
+   "low_kg": 19,
+   "high_kg": 35,
+   "bounds_basis": "the research range ends (19 kg Presidio, 35 kg the extendable table's packing weight)",
+   "topology": "frame-and-panel",
+   "scale": "fixed",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     3,
+     8
+    ],
+    "interior": "open",
+    "text": "a tube-frame top on legs or a pedestal, with an umbrella pole and canopy in these models"
+   },
+   "fixed_reason": "the engine models include the umbrella canopy, so the bounding box is mostly canopy and says nothing about the table; the reference mass is used as is (the umbrella itself is unsourced and not added)",
+   "fixed_short": "the umbrella canopy fills the box",
+   "crosscheck_unavailable": "wall thickness is not published in any listing",
+   "caveats": "A teak or acacia patio table is heavier; no verified solid-wood patio table figure exists.",
+   "materials": [
+    "aluminium frame (powder-coated)",
+    "aluminium slats or faux-wood/plastic top",
+    "solid acacia slats (wood versions)"
+   ]
+  },
+  "bookshelf": {
+   "label": "flat-pack bookcase (particleboard carcass)",
+   "research": "bookshelf",
+   "reference": {
+    "item": "IKEA BILLY 80x28x202 bookcase: 36.88 kg net (opened page)",
+    "mass_kg": 36.88,
+    "mass_basis": "IKEA net weight",
+    "weight_kind": "net weight (gross 38.74 kg)",
+    "size_m": [
+     0.8,
+     0.28,
+     2.02
+    ],
+    "size_basis": "IKEA BILLY 0.80 x 0.28 x 2.02 m"
+   },
+   "low_kg": 28,
+   "high_kg": 38.5,
+   "bounds_basis": "28 kg is IKEA KALLAX 77x147 net and 38.5 kg another BILLY article's net (search summary)",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "opened",
+   "real": {
+    "pieces": [
+     6,
+     11
+    ],
+    "interior": "open",
+    "text": "two sides, top, bottom, a thin back and several shelves: an open carcass whose shelves hold things"
+   },
+   "crosscheck_unavailable": "IKEA does not publish panel thickness (the 16 mm side and 3 mm back figures the researcher tried were unverified)",
+   "caveats": "Empty-bookcase mass; the books the models show are not included. Solid-wood bookcases are heavier and unsourced.",
+   "materials": [
+    "particleboard with paper foil and plastic edging",
+    "fibreboard back with paint and paper foil",
+    "paper honeycomb filling (KALLAX)"
+   ]
+  },
+  "shelf_wire": {
+   "label": "freestanding wire or steel shelving unit",
+   "research": "shelf (freestanding wire shelving unit)",
+   "reference": {
+    "item": "Uline H-2941-72 wire shelving 48x18x72 in: 66 lb unit weight (opened page)",
+    "mass_kg": 29.94,
+    "mass_basis": "66 lb x 0.45359237",
+    "weight_kind": "listed unit weight",
+    "size_m": [
+     1.22,
+     0.46,
+     1.83
+    ],
+    "size_basis": "size_m_typical of the research item (48 x 18 x 72 in, 4 shelves)"
+   },
+   "low_kg": 26.3,
+   "high_kg": 33.6,
+   "bounds_basis": "26.3 kg is a Store More 58 lb unit and 33.6 kg a Muscle Rack 74 lb unit (both search summaries)",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     6,
+     12
+    ],
+    "interior": "open",
+    "text": "four posts and three to five wire or steel shelves; mostly open space"
+   },
+   "crosscheck_unavailable": "wire gauge is unpublished by Uline (one Lorell listing says 10 gauge, a search summary); post diameter 25.4 mm is sourced but there is no Mentat density for steel",
+   "materials": [
+    "chrome-plated or powder-coated carbon steel"
+   ]
+  },
+  "dresser": {
+   "label": "chest of drawers (carcass with drawers)",
+   "research": "dresser",
+   "reference": {
+    "item": "IKEA MALM 6-drawer 160x48x78 dresser: 62.35 kg net (three packages, opened)",
+    "mass_kg": 62.35,
+    "mass_basis": "IKEA net weight (sum of three packages)",
+    "weight_kind": "net weight (gross 65.04 kg)",
+    "size_m": [
+     1.6,
+     0.48,
+     0.78
+    ],
+    "size_basis": "IKEA MALM 1.6 x 0.48 x 0.78 m"
+   },
+   "low_kg": 41,
+   "high_kg": 73,
+   "bounds_basis": "41 kg is a 60 in pine dresser (91 lb) and 73 kg a 60 in oak dresser (161 lb), both search summaries",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     1,
+     9
+    ],
+    "interior": "closed",
+    "text": "a closed carcass with drawers (convex from outside) on a plinth or short legs"
+   },
+   "crosscheck_unavailable": "panel thickness is not published on the IKEA pages",
+   "materials": [
+    "ash-veneered particleboard (MALM)",
+    "particleboard",
+    "fibreboard back and drawer bottoms",
+    "solid pine (HEMNES)",
+    "solid oak or pine (retail 60 in dressers)"
+   ]
+  },
+  "wardrobe": {
+   "label": "flat-pack wardrobe",
+   "research": "wardrobe",
+   "reference": {
+    "item": "typical wardrobe; opened: IKEA PAX frame 100x58x201 38.42 kg net (no doors), IKEA BRIMNES 2-door 57.92 kg net",
+    "mass_kg": 50,
+    "mass_basis": "the researcher's own pick inside the sourced range (a design input, not a measurement); between the bare PAX frame and a complete BRIMNES",
+    "weight_kind": "net weights",
+    "size_m": [
+     1.0,
+     0.58,
+     2.01
+    ],
+    "size_basis": "IKEA PAX frame 1.0 x 0.58 x 2.01 m"
+   },
+   "low_kg": 38.4,
+   "high_kg": 58,
+   "bounds_basis": "the research range ends: PAX frame net 38.4 kg and BRIMNES net 57.92 kg",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     1,
+     4
+    ],
+    "interior": "closed",
+    "text": "a tall closed carcass with two doors (convex from outside)"
+   },
+   "crosscheck_unavailable": "IKEA publishes no panel thickness",
+   "caveats": "A solid-wood armoire is not covered (the research says so) and is heavier than particleboard.",
+   "materials": [
+    "particleboard with paper foil",
+    "fibreboard back and door panels",
+    "plastic edging"
+   ]
+  },
+  "filing_cabinet_steel": {
+   "label": "four-drawer steel filing cabinet",
+   "research": "filing cabinet",
+   "reference": {
+    "item": "HON 510 4-drawer letter 15x25x52 in: 102 lb at Costco (opened)",
+    "mass_kg": 46.27,
+    "mass_basis": "102 lb x 0.45359237",
+    "weight_kind": "listed weight",
+    "size_m": [
+     0.38,
+     0.635,
+     1.32
+    ],
+    "size_basis": "size_m_typical of the research item (15 x 25 x 52 in)"
+   },
+   "low_kg": 29.5,
+   "high_kg": 54,
+   "bounds_basis": "29.5 kg is a Hirsh commercial 4-drawer (65 lb, search summary) and 54 kg the HON legal-width 118 lb (search summary)",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     1,
+     2
+    ],
+    "interior": "closed",
+    "text": "a folded or welded sheet-steel case with drawers (convex from outside)"
+   },
+   "crosscheck": {
+    "mode": "shell",
+    "layers": [
+     {
+      "material": "iron",
+      "thickness_mm": 0.6,
+      "thickness_source": "one Czech 4-drawer listing says sheet steel 0.6 mm (search summary, unverified); US listings give no gauge",
+      "thickness_evidence": "search-summary"
+     }
+    ],
+    "excluded": "drawer boxes, slides and the drawer fronts' double walls",
+    "proxy": "steel -> iron (Mentat has no steel density)"
+   },
+   "materials": [
+    "cold-rolled steel sheet",
+    "baked-enamel finish over phosphate pre-treatment",
+    "steel drawer slides"
+   ]
+  },
+  "locker_steel": {
+   "label": "steel locker (louvred door)",
+   "research": "locker",
+   "reference": {
+    "item": "typical single-tier 12x18x72 in locker; opened: Kleton knocked-down 51.7 lb (23.4 kg); search summaries: assembled 56 and 60 lb (25.4, 27.2 kg), Tennsco 76 lb (34.5 kg)",
+    "mass_kg": 25,
+    "mass_basis": "the researcher's own pick inside the sourced range (a design input, not a measurement) (the assembled Kleton lockers)",
+    "weight_kind": "knocked-down weight (opened); assembled weights from summaries",
+    "size_m": [
+     0.305,
+     0.457,
+     1.83
+    ],
+    "size_basis": "size_m_typical of the research item (12 x 18 x 72 in, single tier)"
+   },
+   "low_kg": 23.4,
+   "high_kg": 34.5,
+   "bounds_basis": "the research range ends: Kleton knocked-down 23.4 kg and Tennsco 34.5 kg (possibly shipping weight)",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     1,
+     3
+    ],
+    "interior": "closed",
+    "text": "a closed sheet-steel box with a louvred door, shelf and coat rod (convex from outside)"
+   },
+   "crosscheck": {
+    "mode": "shell",
+    "layers": [
+     {
+      "material": "iron",
+      "thickness_mm": 0.607,
+      "thickness_source": "Kleton body 24 gauge = 0.607 mm (JRV page, read)",
+      "thickness_evidence": "opened"
+     }
+    ],
+    "excluded": "16 gauge frame (1.519 mm), double-pan door (20 + 24 gauge), shelves and hardware",
+    "proxy": "steel -> iron (Mentat has no steel density)"
+   },
+   "caveats": "A single tier is sourced; the engine models are banks of several lockers and one open two-door locker, so they extrapolate (the one sourced bank of three is about 63 kg, a search summary).",
+   "materials": [
+    "cold-rolled steel sheet, powder-coated",
+    "stainless recessed handle (Kleton)"
+   ]
+  },
+  "crate_wood": {
+   "label": "plywood shipping crate",
+   "research": "crate",
+   "reference": {
+    "item": "Uline S-9922 48x40x42 in plywood crate: 89 lb including the pallet (opened); S-18249 heavy-duty 219 lb",
+    "mass_kg": 40.37,
+    "mass_basis": "89 lb x 0.45359237",
+    "weight_kind": "weight including the pallet (the research says Uline weights include it)",
+    "size_m": [
+     1.22,
+     1.02,
+     1.07
+    ],
+    "size_basis": "48 x 40 x 42 in, 1/4 in plywood"
+   },
+   "low_kg": 40.37,
+   "high_kg": 99.34,
+   "bounds_basis": "40.37 kg is S-9922 and 99.34 kg the 3/4 in heavy-duty S-18249 (219 lb), both opened",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "opened",
+   "real": {
+    "pieces": [
+     1,
+     2
+    ],
+    "interior": "closed",
+    "text": "a closed six-sided box of boards (hollow inside) on a pallet"
+   },
+   "crosscheck_unavailable": "the plywood is 6.35 mm (1/4 in) or 19.05 mm (3/4 in) birch, but Mentat has no plywood density (only solid oak and pine)",
+   "caveats": "Pallet mass is unsourced and included in the reference weights, so the crates here read slightly heavy.",
+   "materials": [
+    "birch plywood",
+    "pallet lumber, heat treated",
+    "steel clips"
+   ]
+  },
+  "crate_plastic": {
+   "label": "plastic milk crate",
+   "research": "crate",
+   "reference": {
+    "item": "webstaurantstore 13x13x11 in milk crate: 3 lb shipping weight",
+    "mass_kg": 1.4,
+    "mass_basis": "3 lb shipping weight, as the research states it",
+    "weight_kind": "shipping weight (includes packaging, so the real crate is somewhat lighter)",
+    "size_m": [
+     0.33,
+     0.33,
+     0.28
+    ],
+    "size_basis": "13 x 13 x 11 in, from the research"
+   },
+   "low_kg": 1.4,
+   "high_kg": 1.4,
+   "bounds_basis": "a single listing: the range has no width",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "single-source",
+   "real": {
+    "pieces": [
+     5,
+     6
+    ],
+    "interior": "open",
+    "text": "an open-top lattice basket: floor and four walls"
+   },
+   "crosscheck_unavailable": "the wall thickness of a milk crate is not published",
+   "materials": [
+    "polyethylene"
+   ]
+  },
+  "box_cardboard": {
+   "label": "single-wall corrugated cardboard box",
+   "research": "box",
+   "reference": {
+    "item": "Uline S-19077 24x18x18 in 32 ECT: 2.01 lb (0.91 kg); U-Haul 24x18x18 in: 2.30 lb (1.04 kg)",
+    "mass_kg": 1.0,
+    "mass_basis": "between the two opened listings (0.91 and 1.04 kg)",
+    "weight_kind": "empty-box weights",
+    "size_m": [
+     0.61,
+     0.46,
+     0.46
+    ],
+    "size_basis": "size_m_typical of the research item (24 x 18 x 18 in)"
+   },
+   "low_kg": 0.44,
+   "high_kg": 1.04,
+   "bounds_basis": "0.44 kg is Uline S-4125 12x12x12 in 200# test; 1.04 kg the U-Haul 24x18x18",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "opened",
+   "real": {
+    "pieces": [
+     1,
+     5
+    ],
+    "interior": "open",
+    "text": "an open-top carton: floor and four panels (flaps)"
+   },
+   "crosscheck_unavailable": "Mentat has no density for cardboard or corrugated fibreboard (the flute height, 1.6 to 4.8 mm, is sourced)",
+   "caveats": "Empty-box mass; contents (the files in the file box) are not included.",
+   "materials": [
+    "corrugated fibreboard (kraft linerboard and fluted medium)"
+   ]
+  },
+  "cask_oak": {
+   "label": "oak barrel (cask)",
+   "research": "barrel (oak cask)",
+   "reference": {
+    "item": "Seguin Moreau 225 L Bordeaux cask: 45 kg with six hoops (opened PDF)",
+    "mass_kg": 45,
+    "mass_basis": "Seguin Moreau, 27 mm staves, 6 hoops",
+    "weight_kind": "empty weight",
+    "size_m": [
+     0.69,
+     0.69,
+     0.94
+    ],
+    "size_basis": "0.94 m tall x 0.69 m bilge diameter (Seguin Moreau 225 L)"
+   },
+   "low_kg": 31.3,
+   "high_kg": 55,
+   "bounds_basis": "31.3 kg is a True Value 53 gal listing (69 lb, search summary) and 55 kg an Artisan Barrels 225 L (22 mm staves)",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "opened",
+   "real": {
+    "pieces": [
+     1,
+     3
+    ],
+    "interior": "closed",
+    "text": "bent oak staves with iron hoops and two flat heads: a closed hollow vessel"
+   },
+   "crosscheck": {
+    "mode": "shell",
+    "layers": [
+     {
+      "material": "wood_oak",
+      "thickness_mm": 27,
+      "thickness_source": "Seguin Moreau 225 L staves 27 mm (opened PDF)",
+      "thickness_evidence": "opened"
+     }
+    ],
+    "excluded": "iron hoops and the thicker heads",
+    "proxy": null
+   },
+   "caveats": "Empty mass; a full cask is about 227 kg.",
+   "materials": [
+    "French or American white oak staves and heads",
+    "galvanised iron or steel hoops"
+   ]
+  },
+  "drum_steel": {
+   "label": "200 L steel drum",
+   "research": "barrel (steel drum, 200 L)",
+   "reference": {
+    "item": "Pachmas 215 L tight-head drum: 0.8 mm body 14.3 kg, 1.0 mm body 18.1 kg (opened)",
+    "mass_kg": 18,
+    "mass_basis": "the researcher's own pick inside the sourced range (a design input, not a measurement); between the 0.8 and 1.0 mm drums",
+    "weight_kind": "empty weights",
+    "size_m": [
+     0.585,
+     0.585,
+     0.877
+    ],
+    "size_basis": "0.877 m tall x 0.585 m diameter (Pachmas and Wikipedia)"
+   },
+   "low_kg": 14.3,
+   "high_kg": 22,
+   "bounds_basis": "14.3 kg is the 0.8 mm drum and 22 kg a galvanised 1.2 mm drum (search summary)",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     1,
+     3
+    ],
+    "interior": "closed",
+    "text": "a rolled and welded steel cylinder with rolling hoops and double-seamed ends: a closed hollow vessel"
+   },
+   "crosscheck": {
+    "mode": "shell",
+    "layers": [
+     {
+      "material": "iron",
+      "thickness_mm": 0.8,
+      "thickness_source": "Pachmas tight-head drum: 0.8 mm body, lid and bottom (opened page)",
+      "thickness_evidence": "opened"
+     }
+    ],
+    "excluded": "rolling hoops and fittings",
+    "proxy": "steel -> iron (Mentat has no steel density)"
+   },
+   "materials": [
+    "cold-rolled steel",
+    "baked-enamel or epoxy lining (optional)"
+   ]
+  },
+  "chest": {
+   "label": "hinged-lid chest",
+   "research": "chest",
+   "reference": {
+    "item": "Powell/Linon cedar chest 40.5x17.5x19 in: 50.7 lb (Target page, opened)",
+    "mass_kg": 23.0,
+    "mass_basis": "50.7 lb x 0.45359237",
+    "weight_kind": "listed weight (55.1 lb estimated shipping)",
+    "size_m": [
+     1.03,
+     0.44,
+     0.48
+    ],
+    "size_basis": "size_m_typical of the research item (40.5 x 17.5 x 19 in)"
+   },
+   "low_kg": 15.5,
+   "high_kg": 38.6,
+   "bounds_basis": "15.5 kg is the research low and 38.6 kg a 46 in maple chest (85 lb, search summary)",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     1,
+     3
+    ],
+    "interior": "closed",
+    "text": "a closed case with a hinged lid (plywood or solid wood walls)"
+   },
+   "crosscheck_unavailable": "footlocker plywood is 12.7 to 31.8 mm (Wikipedia) but Mentat has no plywood density",
+   "caveats": "No weight for an authentic wooden military footlocker was found; the cedar chest is the nearest sourced case.",
+   "materials": [
+    "rubberwood frame, MDF and cedar veneer (Powell)",
+    "solid hardwood with cedar lining",
+    "plywood with steel corner straps (footlocker)"
+   ]
+  },
+  "floor_lamp": {
+   "label": "steel floor lamp with a shade",
+   "research": "floor lamp",
+   "reference": {
+    "item": "IKEA Kryssmast: base and tube 138 cm, 30 cm base, 4.25 kg net (shade sold separately; opened)",
+    "mass_kg": 4.25,
+    "mass_basis": "IKEA net weight",
+    "weight_kind": "net weight (the shade is not included)",
+    "size_m": [
+     0.3,
+     0.3,
+     1.38
+    ],
+    "size_basis": "IKEA Kryssmast 0.30 x 0.30 x 1.38 m"
+   },
+   "low_kg": 2.8,
+   "high_kg": 10.5,
+   "bounds_basis": "2.8 kg and 10.5 kg are CAL Lighting 60 in lamps listed without a unit, which the researcher read as pounds (search summary)",
+   "topology": "frame-and-panel",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     3,
+     5
+    ],
+    "interior": "open",
+    "text": "a weighted base, a thin pole and a shade"
+   },
+   "crosscheck_unavailable": "no tube or shade wall thickness is sourced",
+   "caveats": "Mass is dominated by the base weight, so it is scaled with the volume, not the pole's surface.",
+   "materials": [
+    "powder-coated steel tube and base",
+    "reinforced EVA plastic or concrete/PE base weight (Hektar)",
+    "aluminium or steel shade",
+    "fabric shade on cheaper units"
+   ]
+  },
+  "desk_lamp": {
+   "label": "steel desk lamp (weighted base)",
+   "research": "desk lamp",
+   "reference": {
+    "item": "IKEA Forsa: 35 cm tall, 15 cm base, 2.32 kg net (opened)",
+    "mass_kg": 2.32,
+    "mass_basis": "IKEA net weight",
+    "weight_kind": "net weight",
+    "size_m": [
+     0.15,
+     0.15,
+     0.35
+    ],
+    "size_basis": "IKEA Forsa 0.15 x 0.15 x 0.35 m"
+   },
+   "low_kg": 0.74,
+   "high_kg": 5.0,
+   "bounds_basis": "0.74 kg is a cage-base lamp and 5.0 kg a Cal Lighting 21 in lamp (11 lb), both single search-summary listings, so soft bounds",
+   "topology": "frame-and-panel",
+   "scale": "fixed",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     3,
+     5
+    ],
+    "interior": "open",
+    "text": "a weighted base, an arm and a shade"
+   },
+   "fixed_reason": "a lamp's bounding box is mostly air (arm and shade overhang), so scaling by its volume would be arbitrary; the reference mass is used as is",
+   "fixed_short": "a lamp box is mostly air",
+   "crosscheck_unavailable": "no wall thickness is listed anywhere",
+   "caveats": "Low and high are single listings: soft bounds.",
+   "materials": [
+    "powder-coated steel arm, shade and base",
+    "cast iron or reinforced EVA plastic base weight",
+    "brass or nickel plating on some",
+    "plastic switch and cord"
+   ]
+  },
+  "fridge_cabinet": {
+   "label": "top-freezer refrigerator (18 cu ft)",
+   "research": "fridge",
+   "reference": {
+    "item": "Frigidaire FFHT1814WW: product weight 153 lb (spec sheet, read)",
+    "mass_kg": 69.4,
+    "mass_basis": "153 lb x 0.45359237",
+    "weight_kind": "product weight (the sibling model's 205 lb is a shipping weight and was not used)",
+    "size_m": [
+     0.76,
+     0.77,
+     1.69
+    ],
+    "size_basis": "size_m_typical of the research item (30 x 30-3/8 x 66 in)"
+   },
+   "low_kg": 26,
+   "high_kg": 119,
+   "bounds_basis": "26 kg is an Avanti 4.5 cu ft compact and 119 kg a Whirlpool side-by-side (262 lb), search summaries",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     1,
+     4
+    ],
+    "interior": "closed",
+    "text": "a foam-insulated double-walled steel and ABS cabinet with doors (convex from outside)"
+   },
+   "crosscheck": {
+    "mode": "shell",
+    "layers": [
+     {
+      "material": "iron",
+      "thickness_mm": 0.6,
+      "thickness_source": "outer steel shell 0.6 mm (LG/Hoseo sidewall paper, Table 1)",
+      "thickness_evidence": "opened"
+     },
+     {
+      "material": "plastic",
+      "thickness_mm": 1.5,
+      "thickness_source": "ABS inner liner 1.5 mm (same paper); Mentat's 'plastic' is a generic thermoplastic, not ABS",
+      "thickness_evidence": "opened"
+     }
+    ],
+    "excluded": "polyurethane foam (Mentat has no foam density; its thickness is unsourced), compressor, shelves and bins",
+    "proxy": "steel -> iron (Mentat has no steel density)"
+   },
+   "caveats": "A compressor and the foam layer are a large part of the real mass, so the shell-only cross-check is expected to come out well below the sourced mass.",
+   "materials": [
+    "pre-painted sheet steel outer shell",
+    "ABS plastic inner liner",
+    "polyurethane foam insulation",
+    "glass and plastic shelves/bins",
+    "steel/copper compressor and tubing"
+   ]
+  },
+  "stove_range": {
+   "label": "30 in freestanding kitchen range",
+   "research": "stove",
+   "reference": {
+    "item": "Frigidaire FCRC3022BB electric range: 152 lb (spec sheet, read)",
+    "mass_kg": 68.95,
+    "mass_basis": "152 lb x 0.45359237",
+    "weight_kind": "listed product weight",
+    "size_m": [
+     0.76,
+     0.66,
+     1.2
+    ],
+    "size_basis": "size_m_typical of the research item (30 x 26 x 47 in)"
+   },
+   "low_kg": 58,
+   "high_kg": 86,
+   "bounds_basis": "58 kg is the FCRC3012BB (128 lb) and 86 kg a gas range (190 lb, search summary)",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     1,
+     5
+    ],
+    "interior": "closed",
+    "text": "a painted sheet-steel box with an enamelled oven cavity and insulation behind it, a cooktop and a control panel (convex from outside)"
+   },
+   "crosscheck_unavailable": "no body or cavity sheet gauge was found in any spec; no Mentat density for steel, porcelain enamel or mineral wool",
+   "materials": [
+    "painted/enamelled sheet steel body",
+    "porcelain (vitreous) enamel on low-carbon steel oven cavity",
+    "glass door window",
+    "cast iron or steel wire grates (gas)",
+    "mineral wool or ceramic fibre insulation"
+   ]
+  },
+  "microwave": {
+   "label": "countertop microwave oven (1.1 cu ft)",
+   "research": "microwave",
+   "reference": {
+    "item": "Danby DBMW1120BBB: product weight 31.1 lb (opened)",
+    "mass_kg": 14.11,
+    "mass_basis": "31.1 lb x 0.45359237",
+    "weight_kind": "product weight (package 35.5 lb)",
+    "size_m": [
+     0.513,
+     0.401,
+     0.307
+    ],
+    "size_basis": "Danby 20.2 x 15.8 x 12.1 in"
+   },
+   "low_kg": 11.5,
+   "high_kg": 16.8,
+   "bounds_basis": "11.5 kg is the Panasonic NN-SN67KS net (25.4 lb) and 16.8 kg the NN-SN966S (37 lb, search summary)",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     1,
+     2
+    ],
+    "interior": "closed",
+    "text": "a steel cabinet and cavity around a transformer, magnetron and glass turntable (convex from outside)"
+   },
+   "crosscheck_unavailable": "no sheet gauge was found; no Mentat density for steel",
+   "materials": [
+    "painted sheet steel cabinet and cavity",
+    "iron-core transformer / copper windings and magnetron",
+    "glass turntable",
+    "plastic door and controls"
+   ]
+  },
+  "sink_steel_kitchen": {
+   "label": "stainless steel kitchen sink",
+   "research": "sink",
+   "reference": {
+    "item": "Costco Kraus KBU14 31.5 in 18 gauge sink: 16.1 lb (opened); KBU12 23 in: 11.9 lb",
+    "mass_kg": 7.3,
+    "mass_basis": "16.1 lb x 0.45359237",
+    "weight_kind": "listed weight",
+    "size_m": [
+     0.84,
+     0.56,
+     0.23
+    ],
+    "size_basis": "the research's kitchen-sink size (33 x 22 x 9 in); the listing itself is 31.5 in wide"
+   },
+   "low_kg": 5.4,
+   "high_kg": 7.3,
+   "bounds_basis": "5.4 kg is the KBU12 23 in (11.9 lb) and 7.3 kg the KBU14 (both read); Elkay's 32 lb is a shipping weight and was not used",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "opened",
+   "real": {
+    "pieces": [
+     5,
+     8
+    ],
+    "interior": "open",
+    "text": "a stamped open-top tub with sound-deadening pads (floor and four walls) and a tap"
+   },
+   "crosscheck": {
+    "mode": "shell",
+    "layers": [
+     {
+      "material": "iron",
+      "thickness_mm": 1.31,
+      "thickness_source": "18 gauge stainless = 1.31 mm (Wikipedia stainless gauge table; Costco and Elkay list 18 ga)",
+      "thickness_evidence": "opened"
+     }
+    ],
+    "excluded": "sound-deadening pads, tap, rim",
+    "proxy": "stainless steel -> iron (Mentat has no steel density)"
+   },
+   "caveats": "The engine's kitchen sink is enamelled, not stainless; an enamelled sink is heavier, so this likely understates it.",
+   "materials": [
+    "18 gauge type 304 stainless steel",
+    "rubber or fibre sound-deadening pads"
+   ]
+  },
+  "sink_china": {
+   "label": "vitreous china wash basin",
+   "research": "sink",
+   "reference": {
+    "item": "American Standard Tropic Petite 21 in china basin: 31.9 lb (search summary)",
+    "mass_kg": 14.47,
+    "mass_basis": "31.9 lb x 0.45359237",
+    "weight_kind": "listed weight (search summary)",
+    "size_m": [
+     0.55,
+     0.46,
+     0.82
+    ],
+    "size_basis": "lavatory pedestal basin ~0.55 x 0.46 x 0.82 m, from the research"
+   },
+   "low_kg": 14.47,
+   "high_kg": 27.0,
+   "bounds_basis": "14.47 kg is the Tropic Petite and 27.0 kg a Kohler Memoirs fireclay basin (59.5 lb; its pedestal, about 14 lb, is separate and not included)",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "search-summary",
+   "real": {
+    "pieces": [
+     2,
+     4
+    ],
+    "interior": "open",
+    "text": "a cast and fired china bowl, with or without a separate pedestal; an open vessel"
+   },
+   "crosscheck_unavailable": "Mentat has no ceramic density; the china wall thickness (8 to 10 mm) is generic sanitaryware, not sink-specific",
+   "materials": [
+    "vitreous china or fireclay"
+   ]
+  },
+  "toilet_two_piece": {
+   "label": "two-piece close-coupled toilet",
+   "research": "toilet",
+   "reference": {
+    "item": "Eljer manual: elongated bowl 43 lb plus tank 37 lb, complete unit 80 lb (opened)",
+    "mass_kg": 36.29,
+    "mass_basis": "80 lb x 0.45359237",
+    "weight_kind": "complete unit weight (manual)",
+    "size_m": [
+     0.705,
+     0.457,
+     0.743
+    ],
+    "size_basis": "Kohler Wellworth K-3997 27-3/4 x 18 x 29-1/4 in (the research's size)"
+   },
+   "low_kg": 31,
+   "high_kg": 45.4,
+   "bounds_basis": "31 kg is a European close-coupled set (search summary) and 45.4 kg an American Standard Cadet 3 (100 lb, search summary)",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     3,
+     6
+    ],
+    "interior": "open",
+    "text": "a china bowl with an S-trap, a hollow china tank on top, a seat and lid; the bowl is open"
+   },
+   "crosscheck_unavailable": "Mentat has no ceramic density; the 8 to 10 mm wall is generic sanitaryware",
+   "materials": [
+    "vitreous china (fired ceramic with glaze)",
+    "plastic or brass flush hardware (small mass)"
+   ]
+  },
+  "toilet_bowl_only": {
+   "label": "wall-hung or flushometer toilet bowl (no tank)",
+   "research": "toilet",
+   "reference": {
+    "item": "Eljer manual: elongated bowl alone 43 lb (opened)",
+    "mass_kg": 19.5,
+    "mass_basis": "43 lb x 0.45359237",
+    "weight_kind": "bowl weight (manual)",
+    "size_m": null,
+    "size_basis": "not used (fixed reason below)"
+   },
+   "low_kg": 19.5,
+   "high_kg": 19.5,
+   "bounds_basis": "a single listing: the range has no width",
+   "topology": "shell",
+   "scale": "fixed",
+   "evidence": "single-source",
+   "real": {
+    "pieces": [
+     2,
+     3
+    ],
+    "interior": "open",
+    "text": "a china bowl with an integral trap, no tank; open bowl"
+   },
+   "fixed_reason": "one listing (a floor-standing bowl) is the only figure for a bowl without a tank, and no matching size is given, so the mass is used as is",
+   "fixed_short": "one listing, no matching size",
+   "crosscheck_unavailable": "Mentat has no ceramic density",
+   "caveats": "A floor-standing elongated bowl is heavier than a wall-hung one: likely an overestimate.",
+   "materials": [
+    "vitreous china (fired ceramic with glaze)",
+    "plastic or brass flush hardware (small mass)"
+   ]
+  },
+  "bathtub_cast_iron": {
+   "label": "enamelled cast-iron bathtub (clawfoot class)",
+   "research": "bathtub",
+   "reference": {
+    "item": "Kohler Bellwether 60x32 cast iron tub: 327 lb (search summary)",
+    "mass_kg": 148.33,
+    "mass_basis": "327 lb x 0.45359237",
+    "weight_kind": "listed weight (search summary)",
+    "size_m": [
+     1.52,
+     0.76,
+     0.42
+    ],
+    "size_basis": "60 x 30 in alcove from the research; the 0.42 m height is the one specific height the research lists (a Kaldewei steel-enamel tub), the cast-iron listings give none (an assumption)"
+   },
+   "low_kg": 143.33,
+   "high_kg": 158.76,
+   "bounds_basis": "316 lb (Kohler Villager) to 350 lb (a 60 in cast iron tub), all search summaries",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "search-summary",
+   "real": {
+    "pieces": [
+     5,
+     10
+    ],
+    "interior": "open",
+    "text": "one large open-top casting: floor, four walls and four feet"
+   },
+   "crosscheck_unavailable": "the cast-iron wall thickness is unsourced (only low-quality SEO pages); the steel-enamel and acrylic walls belong to other families",
+   "caveats": "The steel-enamel (about 50 kg) and acrylic (about 35 kg) tubs are other families; the models are clawfoot tubs.",
+   "materials": [
+    "enamelled cast iron"
+   ]
+  },
+  "radiator_cast_iron": {
+   "label": "cast-iron column radiator",
+   "research": "radiator",
+   "reference": {
+    "item": "Arroll cast iron 4-column 660x874, 14 sections: 67.2 kg (opened)",
+    "mass_kg": 67.2,
+    "mass_basis": "the listing",
+    "weight_kind": "dry mass, no water",
+    "size_m": [
+     0.874,
+     0.23,
+     0.66
+    ],
+    "size_basis": "660 x 874 mm from the listing; the 0.23 m depth is the research's class depth for a cast-iron column radiator (an assumption: the listing gives none)"
+   },
+   "low_kg": 67.2,
+   "high_kg": 164,
+   "bounds_basis": "67.2 kg is the 4-column and 164 kg the Arroll 3-column 760x1074 with 13 sections (also opened); the two listings differ by 2.4 times and the researcher did not reconcile them",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     1,
+     2
+    ],
+    "interior": "closed",
+    "text": "bolted-together hollow cast sections (convex from outside)"
+   },
+   "crosscheck_unavailable": "the wall of a cast-iron section is unsourced",
+   "caveats": "Two opened listings disagree by 2.4 times, so this is a wide, low-confidence class.",
+   "materials": [
+    "grey cast iron (column sections)"
+   ]
+  },
+  "stove_cast_iron_small": {
+   "label": "small cast-iron stove with a flue",
+   "research": "wood stove",
+   "reference": {
+    "item": "Westbo Carl 95 cast iron stove: 70 kg (search summary)",
+    "mass_kg": 70,
+    "mass_basis": "the listing",
+    "weight_kind": "listed weight (search summary)",
+    "size_m": null,
+    "size_basis": "not used (fixed reason below)"
+   },
+   "low_kg": 59,
+   "high_kg": 115,
+   "bounds_basis": "59 kg is a US Stove US1269E small cast iron (130 lb, search summary) and 115 kg a Westbo Nr 27 cast iron (from a fetched page)",
+   "topology": "shell",
+   "scale": "fixed",
+   "evidence": "search-summary",
+   "real": {
+    "pieces": [
+     2,
+     4
+    ],
+    "interior": "closed",
+    "text": "bolted cast-iron plates forming a box with a door, a top and a flue collar"
+   },
+   "fixed_reason": "the engine model's bounding box includes a tall stovepipe that carries little mass, and no size is given for these stoves, so the reference mass is used as is",
+   "fixed_short": "the flue fills the box and no size is sourced",
+   "crosscheck_unavailable": "the cast-iron plate thickness is not given by any source found",
+   "caveats": "The research's typical 170 kg is a mid-size steel-plate stove (Drolet), not a small cast-iron one.",
+   "materials": [
+    "cast iron (bolted plates and door)"
+   ]
+  },
+  "vending_machine": {
+   "label": "drinks or snack vending machine (empty)",
+   "research": "vending machine",
+   "reference": {
+    "item": "Seaga ENV5S snack machine 72x39x37 in: empty about 583 lb (opened)",
+    "mass_kg": 264.4,
+    "mass_basis": "583 lb x 0.45359237",
+    "weight_kind": "empty weight (shipping weight is about 695 lb)",
+    "size_m": [
+     0.99,
+     0.94,
+     1.83
+    ],
+    "size_basis": "size_m_typical of the research item (39 x 37 x 72 in)"
+   },
+   "low_kg": 231,
+   "high_kg": 347,
+   "bounds_basis": "231 kg is a Crane Merchant MEDIA (510 lb) and 347 kg a Crane BevMax Classic (764 lb; whether empty is not stated)",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     1,
+     3
+    ],
+    "interior": "closed",
+    "text": "an insulated sheet-steel cabinet with a glass front, trays and a refrigeration unit (convex from outside)"
+   },
+   "crosscheck_unavailable": "no steel gauge was found (a forum reply suggesting 16 gauge is opinion, not a spec)",
+   "materials": [
+    "heavy-duty steel cabinet",
+    "tempered glass front",
+    "steel trays",
+    "refrigeration compressor/evaporator (beverage machines)",
+    "plastic and electronics"
+   ]
+  },
+  "display_counter_glass": {
+   "label": "aluminium-and-glass display counter",
+   "research": "display case (countertop aluminium and glass)",
+   "reference": {
+    "item": "Displays2go 48 in glass counter JBQHV48LED: 160 lb (search summary)",
+    "mass_kg": 72.57,
+    "mass_basis": "160 lb x 0.45359237",
+    "weight_kind": "listed weight (search summary)",
+    "size_m": [
+     1.22,
+     0.46,
+     0.97
+    ],
+    "size_basis": "48 in counter from the research: 1.22 x 0.46 x 0.97 m"
+   },
+   "low_kg": 18.6,
+   "high_kg": 73,
+   "bounds_basis": "18.6 kg is a 24x18x12 in tabletop case and 73 kg the 48 in counter; every figure is a search summary (no page could be fetched)",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "search-summary",
+   "real": {
+    "pieces": [
+     2,
+     6
+    ],
+    "interior": "closed",
+    "text": "an aluminium frame with 3/16 in tempered glass panels and a veneered particleboard base"
+   },
+   "crosscheck": {
+    "mode": "shell",
+    "layers": [
+     {
+      "material": "glass",
+      "thickness_mm": 4.76,
+      "thickness_source": "3/16 in tempered glass in aluminium-frame cases (search summary)",
+      "thickness_evidence": "search-summary"
+     }
+    ],
+    "excluded": "aluminium frame, particleboard base and any refrigeration",
+    "proxy": null
+   },
+   "caveats": "Use as a rough target only (the research says so); a refrigerated deli case with a compressor is heavier.",
+   "materials": [
+    "tempered glass",
+    "extruded aluminium frame",
+    "veneered particleboard base"
+   ]
+  },
+  "tv_crt": {
+   "label": "27 in CRT television",
+   "research": "tv",
+   "reference": {
+    "item": "Sony KV-27S25 27 in CRT set: 89.8 lb (crtdatabase, opened; community-maintained)",
+    "mass_kg": 40.73,
+    "mass_basis": "89.8 lb x 0.45359237",
+    "weight_kind": "listed weight",
+    "size_m": [
+     0.66,
+     0.52,
+     0.6
+    ],
+    "size_basis": "Sony KV-27S25 660 x 603 x 521 mm"
+   },
+   "low_kg": 21,
+   "high_kg": 47,
+   "bounds_basis": "21 kg is a 20 in RCA set (46.2 lb) and 47 kg a Sony KV-27FS210 (103 lb), both opened",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "opened",
+   "real": {
+    "pieces": [
+     1,
+     2
+    ],
+    "interior": "closed",
+    "text": "a hollow plastic cabinet around an evacuated glass tube (about half the mass)"
+   },
+   "crosscheck_unavailable": "the panel glass is about 10 mm but its area is not the hull's, and Mentat has no density for the leaded funnel glass or the plastic cabinet thickness is unsourced",
+   "materials": [
+    "lead-free barium-strontium panel glass",
+    "leaded funnel glass (21 to 25% PbO)",
+    "HIPS/ABS plastic cabinet",
+    "steel mask and frame",
+    "copper yoke and transformer windings",
+    "circuit boards"
+   ]
+  },
+  "phone_corded_modern": {
+   "label": "modern corded desk telephone",
+   "research": "phone",
+   "reference": {
+    "item": "modern ABS corded desk phones 280 to 462 g; VTech hospitality 1.4 lb (search summaries)",
+    "mass_kg": 0.45,
+    "mass_basis": "the researcher's own figure for a modern push-button phone ('use ~0.45 kg')",
+    "weight_kind": "listed weights (search summaries)",
+    "size_m": null,
+    "size_basis": "not used (fixed reason below)"
+   },
+   "low_kg": 0.28,
+   "high_kg": 0.64,
+   "bounds_basis": "0.28 kg is the lightest ABS corded phone and 0.64 kg the VTech hospitality phone (1.4 lb), search summaries",
+   "topology": "shell",
+   "scale": "fixed",
+   "evidence": "search-summary",
+   "real": {
+    "pieces": [
+     2,
+     3
+    ],
+    "interior": "solid",
+    "text": "a base with a keypad and a handset on a cradle"
+   },
+   "fixed_reason": "the research sizes its reference for a 1960s rotary phone, not a modern one, and gives no size for modern phones, so the mass is used as is",
+   "fixed_short": "no size is sourced for a modern phone",
+   "materials": [
+    "molded ABS plastic housing",
+    "plastic handset",
+    "metal contacts",
+    "rubber feet"
+   ],
+   "crosscheck_unavailable": "housing thickness is unsourced",
+   "caveats": "The research's own Model 500 rotary figures (1.8 kg) describe a different object and were not used."
+  },
+  "potted_plant": {
+   "label": "potted houseplant (10 in nursery pot)",
+   "research": "plant",
+   "reference": {
+    "item": "Costa Farms White Bird of Paradise, 10 in basket, 24 in tall: 8 lb (retailer search summary)",
+    "mass_kg": 3.63,
+    "mass_basis": "8 lb x 0.45359237",
+    "weight_kind": "listed weight (search summary)",
+    "size_m": null,
+    "size_basis": "not used (fixed reason below)"
+   },
+   "low_kg": 3.2,
+   "high_kg": 4.8,
+   "bounds_basis": "3.2 kg is a Monstera in a 10 in pot (7 lb) and 4.8 kg a category snippet's 10.6 lb; all from one retailer family",
+   "topology": "solid",
+   "scale": "fixed",
+   "evidence": "single-source",
+   "real": {
+    "pieces": [
+     1,
+     2
+    ],
+    "interior": "solid",
+    "text": "moist potting mix in a pot with a stem and leaves on top; the mass is almost all soil and water"
+   },
+   "fixed_reason": "the bounding box is mostly foliage, which carries almost no mass; the physics hull (9.7 to 15.6 litres) is the pot, which is what the reference describes",
+   "fixed_short": "the box is mostly foliage, the mass is the pot",
+   "crosscheck_unavailable": "Mentat has no density for potting mix (the moist-mix density the researcher used is unsourced)",
+   "caveats": "One retailer family, so not two independent sources; the research says so.",
+   "materials": [
+    "moist peat/bark potting mix",
+    "plastic nursery pot (or ceramic/fiberstone decor pot)",
+    "plant tissue (leaves, stems, roots)"
+   ]
+  },
+  "trash_can_plastic": {
+   "label": "plastic or light steel waste container",
+   "research": "trash can",
+   "reference": {
+    "item": "Rubbermaid Brute 32 gal: 9.97 lb (Lowe's, search summary); the fetched page lists 8.25 with no unit",
+    "mass_kg": 4.5,
+    "mass_basis": "the research's typical (a plastic 32 gal can)",
+    "weight_kind": "listed weights (search summaries)",
+    "size_m": [
+     0.56,
+     0.56,
+     0.69
+    ],
+    "size_basis": "size_m_typical of the research item (22 in diameter x 27.25 in)"
+   },
+   "low_kg": 3.6,
+   "high_kg": 6.2,
+   "bounds_basis": "3.6 kg is a touchless 13 gal can (8 lb) and 6.2 kg a 13 gal stainless step can (13.7 lb), both search summaries",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "search-summary",
+   "real": {
+    "pieces": [
+     5,
+     6
+    ],
+    "interior": "open",
+    "text": "an open-top thin-walled vessel: floor and wall"
+   },
+   "crosscheck": {
+    "mode": "shell",
+    "layers": [
+     {
+      "material": "plastic",
+      "thickness_mm": 3.8,
+      "thickness_source": "municipal HDPE roll-out container sidewall 0.15 in (a South Bend, IN document, search summary); Mentat's 'plastic' is a generic thermoplastic",
+      "thickness_evidence": "search-summary"
+     }
+    ],
+    "excluded": "lid, wheels, axle",
+    "proxy": null
+   },
+   "materials": [
+    "high-impact polyethylene/polypropylene plastic",
+    "stainless or painted steel body (kitchen cans)",
+    "plastic inner bucket",
+    "steel pedal mechanism"
+   ]
+  },
+  "dumpster_steel": {
+   "label": "four-yard steel front-load dumpster (empty)",
+   "research": "dumpster",
+   "reference": {
+    "item": "manufacturer PDF: 4 yd slant-top dumpster nominal weight 765 lb (read); Wastequip 2 yd 500 lb",
+    "mass_kg": 347.0,
+    "mass_basis": "765 lb x 0.45359237",
+    "weight_kind": "nominal empty weight",
+    "size_m": [
+     1.83,
+     1.42,
+     1.47
+    ],
+    "size_basis": "4 yd front-load: 72 x 56 x 58 in"
+   },
+   "low_kg": 227,
+   "high_kg": 526,
+   "bounds_basis": "227 kg is the 2 yd (500 lb) and 526 kg the 8 yd (1160 lb), all from the manufacturer's table",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "opened",
+   "real": {
+    "pieces": [
+     5,
+     8
+    ],
+    "interior": "open",
+    "text": "a welded steel open-top box with a hinged lid: floor and four walls, lift pockets underneath"
+   },
+   "crosscheck": {
+    "mode": "shell",
+    "layers": [
+     {
+      "material": "iron",
+      "thickness_mm": 2.78,
+      "thickness_source": "12 gauge walls = 2.78 mm (manufacturer PDF; gauge to mm from Wikipedia's US steel table)",
+      "thickness_evidence": "opened"
+     }
+    ],
+    "excluded": "10 gauge floor (3.57 mm), 7 gauge lift pockets and ears, lids, rails",
+    "proxy": "steel -> iron (Mentat has no steel density)"
+   },
+   "materials": [
+    "12 gauge steel walls",
+    "10 gauge steel floor and top rails",
+    "7 gauge steel lift pockets/ears/bumpers",
+    "plastic lids",
+    "primer and paint"
+   ]
+  },
+  "mug_ceramic": {
+   "label": "ceramic coffee mug (12 oz)",
+   "research": "mug",
+   "reference": {
+    "item": "Vistaprint 12 oz ceramic mug: 0.88 lb (399 g), 4.01 in tall x 3.5 in diameter (opened)",
+    "mass_kg": 0.399,
+    "mass_basis": "399 g, as listed",
+    "weight_kind": "listed weight",
+    "size_m": [
+     0.089,
+     0.129,
+     0.102
+    ],
+    "size_basis": "3.5 in diameter x 4.01 in tall from the listing; the 0.04 m the handle adds to the depth is the research's figure"
+   },
+   "low_kg": 0.26,
+   "high_kg": 0.43,
+   "bounds_basis": "0.26 kg is a Denby stoneware mug and 0.43 kg a Vistaprint Woden 12 oz (425 g), search summaries",
+   "topology": "shell",
+   "scale": "bbox",
+   "evidence": "mixed",
+   "real": {
+    "pieces": [
+     3,
+     5
+    ],
+    "interior": "open",
+    "text": "a thin fired-ceramic wall on a thicker foot ring, with a strap handle; an open vessel"
+   },
+   "crosscheck_unavailable": "Mentat has no ceramic density (the 3 to 6 mm wall is forum guidance)",
+   "materials": [
+    "stoneware or porcelain ceramic",
+    "glass glaze"
+   ]
+  }
+ },
+ "variants": {
+  "models/props_c17/furniturecouch001a.mdl": {
+   "family": "sofa_2seat",
+   "fit": "good",
+   "note": "two seat cushions in the photograph and 1.47 m wide: a two-seater, so the two-seat class, not the three-seat one"
+  },
+  "models/props_interiors/furniture_couch01a.mdl": {
+   "family": "sofa_2seat",
+   "fit": "good",
+   "note": "two seat cushions, 1.49 m wide: a two-seater"
+  },
+  "models/props/cs_office/sofa.mdl": {
+   "family": "sofa_3seat",
+   "fit": "good",
+   "note": "three seat cushions, 2.00 m wide"
+  },
+  "models/props/cs_militia/couch.mdl": {
+   "family": "sofa_3seat",
+   "fit": "good",
+   "note": "three seat cushions, 2.03 m wide"
+  },
+  "models/props_c17/furniturecouch002a.mdl": {
+   "family": "sofa_2seat",
+   "fit": "good",
+   "note": "two seat cushions, a small loveseat"
+  },
+  "models/props_c17/furniturearmchair001a.mdl": {
+   "family": "armchair",
+   "fit": "good",
+   "note": "upholstered armchair on turned wooden legs"
+  },
+  "models/props/cs_office/sofa_chair.mdl": {
+   "family": "armchair",
+   "fit": "good",
+   "note": "leather club chair"
+  },
+  "models/props_interiors/furniture_couch02a.mdl": {
+   "family": "armchair",
+   "fit": "good",
+   "note": "upholstered tub chair"
+  },
+  "models/props_c17/furniturechair001a.mdl": {
+   "family": "chair",
+   "fit": "good",
+   "note": "wooden kitchen chair with a rush seat"
+  },
+  "models/props_c17/chair02a.mdl": {
+   "family": "chair",
+   "fit": "good",
+   "note": "steel-tube chair with a padded seat and back (stack-chair construction)"
+  },
+  "models/props_interiors/furniture_chair01a.mdl": {
+   "family": "chair",
+   "fit": "good",
+   "note": "bentwood chair (Thonet 214 class)"
+  },
+  "models/props_interiors/furniture_chair03a.mdl": {
+   "family": "chair",
+   "fit": "good",
+   "note": "steel-tube chair with a padded seat and back"
+  },
+  "models/props/de_inferno/chairantique.mdl": {
+   "family": "chair",
+   "fit": "partial",
+   "note": "carved solid-wood armchair: heavier than a bentwood chair of the same size"
+  },
+  "models/props/de_tides/patio_chair.mdl": {
+   "family": "chair",
+   "fit": "good",
+   "note": "wooden chair with a rush seat and a tall back"
+  },
+  "models/props/de_tides/patio_chair2.mdl": {
+   "family": "chair",
+   "fit": "partial",
+   "note": "wrought-iron mesh garden armchair: a steel family the research does not cover"
+  },
+  "models/props/cs_office/chair_office.mdl": {
+   "family": "office_chair",
+   "fit": "good",
+   "note": "leather task chair with arms on a five-star base"
+  },
+  "models/props_c17/chair_office01a.mdl": {
+   "family": "office_chair",
+   "fit": "good",
+   "note": "armless swivel task chair on a five-star base"
+  },
+  "models/props_combine/breenchair.mdl": {
+   "family": "office_chair",
+   "fit": "partial",
+   "note": "large executive leather chair, bigger than the sourced task chairs"
+  },
+  "models/props_c17/chair_stool01a.mdl": {
+   "family": "stool_steel_bar",
+   "fit": "good",
+   "note": "steel bar stool with a padded seat and a foot ring"
+  },
+  "models/props/cs_militia/barstool01.mdl": {
+   "family": "stool_wood",
+   "fit": "partial",
+   "note": "chunky wooden bar stool; the sourced wooden stools are low stools"
+  },
+  "models/props_c17/bench01a.mdl": {
+   "family": "bench_backed_wood",
+   "fit": "good",
+   "note": "wooden bench with a slatted back"
+  },
+  "models/props_trainstation/bench_indoor001a.mdl": {
+   "family": "bench_park_steel",
+   "fit": "partial",
+   "note": "park bench with wooden slats on iron ends; the sourced one is steel slats on a steel frame"
+  },
+  "models/props/de_inferno/bench_wood.mdl": {
+   "family": "bench_park_steel",
+   "fit": "partial",
+   "note": "weathered slatted bench with a back and curved ends"
+  },
+  "models/props/cs_militia/wood_bench.mdl": {
+   "family": "bench_plank",
+   "fit": "good",
+   "note": "low plank bench without a back"
+  },
+  "models/props_wasteland/cafeteria_bench001a.mdl": {
+   "family": "bench_plank",
+   "fit": "good",
+   "note": "long plank bench without a back"
+  },
+  "models/props_c17/furnituretable001a.mdl": {
+   "family": "table_dining",
+   "fit": "good",
+   "note": "round wooden table on four tapered legs"
+  },
+  "models/props_c17/furnituretable002a.mdl": {
+   "family": "table_dining",
+   "fit": "good",
+   "note": "rectangular wooden table with a stretcher"
+  },
+  "models/props/cs_militia/table_kitchen.mdl": {
+   "family": "table_dining",
+   "fit": "partial",
+   "note": "painted wooden work table with a lower slat shelf"
+  },
+  "models/props/de_inferno/tableantique.mdl": {
+   "family": "table_dining",
+   "fit": "good",
+   "note": "small wooden table with carved legs"
+  },
+  "models/props/de_tides/restaurant_table.mdl": {
+   "family": "table_dining",
+   "fit": "partial",
+   "note": "octagonal pedestal table with a felt top (card-table class)"
+  },
+  "models/props_wasteland/cafeteria_table001a.mdl": {
+   "family": "table_dining",
+   "fit": "partial",
+   "note": "long plank table on a steel frame"
+  },
+  "models/props/cs_office/table_coffee.mdl": {
+   "family": "coffee_table",
+   "fit": "good",
+   "note": "wooden coffee table with a thick top"
+  },
+  "models/props/de_inferno/tablecoffee.mdl": {
+   "family": "coffee_table",
+   "fit": "good",
+   "note": "rustic plank coffee table"
+  },
+  "models/props_c17/furnituretable003a.mdl": {
+   "family": "coffee_table",
+   "fit": "good",
+   "note": "low wooden table, 0.41 m high"
+  },
+  "models/props_c17/furnituredrawer002a.mdl": {
+   "family": "side_table_light",
+   "fit": "partial",
+   "note": "solid-wood table with one drawer on four slim legs; the sourced class is flat-pack honeycomb board, which is lighter"
+  },
+  "models/props_interiors/furniture_desk01a.mdl": {
+   "family": "desk",
+   "fit": "good",
+   "note": "wooden desk with two drawer pedestals"
+  },
+  "models/props_combine/breendesk.mdl": {
+   "family": "desk",
+   "fit": "good",
+   "note": "executive double-pedestal desk (top plus two drawer units, the LAGKAPTEN/ALEX class)"
+  },
+  "models/props_wasteland/controlroom_desk001a.mdl": {
+   "family": "desk",
+   "fit": "partial",
+   "note": "long steel-and-wood industrial desk on thin legs"
+  },
+  "models/props_wasteland/controlroom_desk001b.mdl": {
+   "family": "desk",
+   "fit": "partial",
+   "note": "long steel-and-wood industrial desk with a drawer"
+  },
+  "models/props/cs_office/table_meeting.mdl": {
+   "family": "meeting_table",
+   "fit": "good",
+   "note": "oval laminate conference table"
+  },
+  "models/props/de_tides/patio_table.mdl": {
+   "family": "patio_table_alu",
+   "fit": "partial",
+   "note": "octagonal wooden pedestal table with an umbrella; the table top looks about a metre across on the photograph, smaller than the sourced six-seaters, so the mass is probably high"
+  },
+  "models/props/de_tides/patio_table2.mdl": {
+   "family": "patio_table_alu",
+   "fit": "partial",
+   "note": "round wire-mesh table with an umbrella; the table top looks about a metre across on the photograph, smaller than the sourced six-seaters, so the mass is probably high"
+  },
+  "models/props_c17/furniturebed001a.mdl": {
+   "family": "bed_frame",
+   "fit": "good",
+   "note": "metal-tube bed with head and foot boards, no mattress"
+  },
+  "models/props/de_inferno/bed.mdl": {
+   "family": "bed_frame",
+   "fit": "partial",
+   "note": "metal-tube bed frame WITH a mattress; the frame-only reference does not include the mattress (about 17 kg for a single, the mattress_single class)"
+  },
+  "models/props_wasteland/prison_bedframe001a.mdl": {
+   "family": "bed_frame",
+   "fit": "good",
+   "note": "steel-tube bed frame, no mattress"
+  },
+  "models/props_c17/furnituremattress001a.mdl": {
+   "family": "mattress_single",
+   "fit": "good",
+   "note": "single mattress"
+  },
+  "models/props/cs_militia/bunkbed.mdl": {
+   "family": "bunk_steel",
+   "fit": "good",
+   "note": "steel-tube bunk bed"
+  },
+  "models/props_c17/hospital_bed01.mdl": {
+   "family": "hospital_bed",
+   "fit": "partial",
+   "note": "older crank-style steel hospital bed; the sourced beds are modern powered beds"
+  },
+  "models/props/cs_office/bookshelf1.mdl": {
+   "family": "bookshelf",
+   "fit": "good",
+   "note": "open bookcase (the books shown are not included in the mass)"
+  },
+  "models/props/cs_office/bookshelf2.mdl": {
+   "family": "bookshelf",
+   "fit": "good",
+   "note": "open bookcase (the books shown are not included in the mass)"
+  },
+  "models/props/cs_office/bookshelf3.mdl": {
+   "family": "bookshelf",
+   "fit": "good",
+   "note": "open bookcase (the books shown are not included in the mass)"
+  },
+  "models/props/cs_havana/bookcase_small.mdl": {
+   "family": "bookshelf",
+   "fit": "partial",
+   "note": "dark solid-wood bookcase: heavier than particleboard"
+  },
+  "models/props_c17/shelfunit01a.mdl": {
+   "family": "bookshelf",
+   "fit": "partial",
+   "note": "wooden open shelving unit, a bookcase carcass (no engine model is a wall-mounted board)"
+  },
+  "models/props_c17/furnitureshelf001a.mdl": {
+   "family": "bookshelf",
+   "fit": "partial",
+   "note": "painted wooden shelving box"
+  },
+  "models/props_interiors/furniture_shelf01a.mdl": {
+   "family": "bookshelf",
+   "fit": "partial",
+   "note": "dark wooden open bookcase"
+  },
+  "models/props_wasteland/kitchen_shelf001a.mdl": {
+   "family": "shelf_wire",
+   "fit": "partial",
+   "note": "steel posts with solid shelf panels rather than wire"
+  },
+  "models/props_c17/furnituredrawer001a.mdl": {
+   "family": "dresser",
+   "fit": "good",
+   "note": "wooden three-drawer chest on short legs"
+  },
+  "models/props_c17/furnituredrawer003a.mdl": {
+   "family": "dresser",
+   "fit": "partial",
+   "note": "very narrow tall drawer cabinet (0.25 x 0.28 x 0.86 m), far smaller than any sourced dresser"
+  },
+  "models/props_interiors/furniture_cabinetdrawer01a.mdl": {
+   "family": "dresser",
+   "fit": "partial",
+   "note": "writing bureau with drawers and shelves"
+  },
+  "models/props_interiors/furniture_cabinetdrawer02a.mdl": {
+   "family": "dresser",
+   "fit": "partial",
+   "note": "tall hutch with drawers and glazed doors"
+  },
+  "models/props_c17/furnituredresser001a.mdl": {
+   "family": "wardrobe",
+   "fit": "partial",
+   "note": "solid-wood two-door armoire; the sourced class is flat-pack particleboard, which is lighter"
+  },
+  "models/props/cs_office/file_cabinet1.mdl": {
+   "family": "filing_cabinet_steel",
+   "fit": "good"
+  },
+  "models/props/cs_office/file_cabinet2.mdl": {
+   "family": "filing_cabinet_steel",
+   "fit": "good"
+  },
+  "models/props/cs_office/file_cabinet3.mdl": {
+   "family": "filing_cabinet_steel",
+   "fit": "good",
+   "note": "three-drawer cabinet"
+  },
+  "models/props_wasteland/controlroom_filecabinet001a.mdl": {
+   "family": "filing_cabinet_steel",
+   "fit": "good",
+   "note": "two-drawer cabinet"
+  },
+  "models/props_wasteland/controlroom_filecabinet002a.mdl": {
+   "family": "filing_cabinet_steel",
+   "fit": "good"
+  },
+  "models/props_lab/filecabinet02.mdl": {
+   "family": "filing_cabinet_steel",
+   "fit": "good",
+   "note": "two-drawer cabinet"
+  },
+  "models/props_c17/lockers001a.mdl": {
+   "family": "locker_steel",
+   "fit": "partial",
+   "note": "bank of four narrow lockers: a bank shares walls but is heavier than one tier",
+   "real_pieces": [
+    4,
+    12
+   ],
+   "real_note": "four lockers side by side, each one to three pieces"
+  },
+  "models/props/de_train/lockers001a.mdl": {
+   "family": "locker_steel",
+   "fit": "partial",
+   "note": "bank of four narrow lockers: a bank shares walls but is heavier than one tier",
+   "real_pieces": [
+    4,
+    12
+   ],
+   "real_note": "four lockers side by side, each one to three pieces"
+  },
+  "models/props_lab/lockers.mdl": {
+   "family": "locker_steel",
+   "fit": "partial",
+   "note": "open two-compartment steel locker",
+   "real_pieces": [
+    2,
+    6
+   ],
+   "real_note": "two open compartments with shelves; the interior is visible, so it is not a closed box"
+  },
+  "models/props_junk/wood_crate001a.mdl": {
+   "family": "crate_wood",
+   "fit": "good",
+   "note": "nailed board crate, 0.77 m cube"
+  },
+  "models/props_junk/wood_crate002a.mdl": {
+   "family": "crate_wood",
+   "fit": "good",
+   "note": "nailed board crate"
+  },
+  "models/props_junk/plasticcrate01a.mdl": {
+   "family": "crate_plastic",
+   "fit": "good",
+   "note": "plastic milk crate"
+  },
+  "models/props/de_dust/du_crate_64x64.mdl": {
+   "family": "crate_wood",
+   "fit": "good",
+   "note": "wooden shipping crate"
+  },
+  "models/props/de_nuke/crate_small.mdl": {
+   "family": "crate_wood",
+   "fit": "good",
+   "note": "wooden shipping crate"
+  },
+  "models/props/de_nuke/crate_large.mdl": {
+   "family": "crate_wood",
+   "fit": "good",
+   "note": "large plywood shipping crate"
+  },
+  "models/props/cs_office/cardboard_box01.mdl": {
+   "family": "box_cardboard",
+   "fit": "good",
+   "note": "open cardboard carton"
+  },
+  "models/props/cs_office/cardboard_box02.mdl": {
+   "family": "box_cardboard",
+   "fit": "good",
+   "note": "small cardboard carton"
+  },
+  "models/props/cs_office/cardboard_box03.mdl": {
+   "family": "box_cardboard",
+   "fit": "good",
+   "note": "'fragile' cardboard carton"
+  },
+  "models/props/cs_office/file_box.mdl": {
+   "family": "box_cardboard",
+   "fit": "partial",
+   "note": "white file box with the files showing; the files are not included"
+  },
+  "models/props_c17/woodbarrel001.mdl": {
+   "family": "cask_oak",
+   "fit": "good",
+   "note": "oak cask with iron hoops, smaller than a 225 L barrique"
+  },
+  "models/props_borealis/bluebarrel001.mdl": {
+   "unaudited": "a blue closed-head polyethylene drum: the sourced barrel classes are an oak cask and a steel drum, and the research states plastic drums are not covered",
+   "hint": "the research mentions poly 55 gal drums at 19 to 23 lb (8.6 to 10.4 kg) only as an aside with no source recorded; not adopted"
+  },
+  "models/props_c17/oildrum001.mdl": {
+   "family": "drum_steel",
+   "fit": "good",
+   "note": "rusty steel oil drum"
+  },
+  "models/props/de_train/barrel.mdl": {
+   "family": "drum_steel",
+   "fit": "good",
+   "note": "steel oil drum"
+  },
+  "models/props/cs_militia/footlocker01_closed.mdl": {
+   "family": "chest",
+   "fit": "partial",
+   "note": "plywood footlocker with metal latches; the sourced chest is a cedar chest"
+  },
+  "models/props_interiors/furniture_lamp01a.mdl": {
+   "family": "floor_lamp",
+   "fit": "good",
+   "note": "floor lamp with a fabric shade, thin pole and a round cast base"
+  },
+  "models/props_lab/desklamp01.mdl": {
+   "family": "desk_lamp",
+   "fit": "good",
+   "note": "orange gooseneck desk lamp"
+  },
+  "models/props_c17/lamp001a.mdl": {
+   "family": "desk_lamp",
+   "fit": "partial",
+   "note": "green glazed-ceramic oil-lamp vessel; the sourced lamps are steel"
+  },
+  "models/props_c17/furniturefridge001a.mdl": {
+   "family": "fridge_cabinet",
+   "fit": "partial",
+   "note": "small rounded 1950s-style refrigerator"
+  },
+  "models/props/cs_militia/refrigerator01.mdl": {
+   "family": "fridge_cabinet",
+   "fit": "partial",
+   "note": "old two-door ice-box style refrigerator"
+  },
+  "models/props_wasteland/kitchen_fridge001a.mdl": {
+   "family": "fridge_cabinet",
+   "fit": "partial",
+   "note": "commercial two-door stainless reach-in refrigerator"
+  },
+  "models/props_c17/furniturestove001a.mdl": {
+   "family": "stove_range",
+   "fit": "good",
+   "note": "kitchen range with a cooktop and drawers"
+  },
+  "models/props/cs_militia/stove01.mdl": {
+   "family": "stove_range",
+   "fit": "good",
+   "note": "vintage enamelled gas range with a back panel"
+  },
+  "models/props_wasteland/kitchen_stove001a.mdl": {
+   "family": "stove_range",
+   "fit": "partial",
+   "note": "commercial oven with a cooktop"
+  },
+  "models/props/cs_office/microwave.mdl": {
+   "family": "microwave",
+   "fit": "good",
+   "note": "countertop microwave with a turntable"
+  },
+  "models/props/cs_militia/microwave01.mdl": {
+   "family": "microwave",
+   "fit": "good",
+   "note": "older countertop microwave oven"
+  },
+  "models/props_c17/furnituresink001a.mdl": {
+   "family": "sink_china",
+   "fit": "good",
+   "note": "china pedestal wash basin"
+  },
+  "models/props_interiors/sinkkitchen01a.mdl": {
+   "family": "sink_steel_kitchen",
+   "fit": "partial",
+   "note": "enamelled kitchen or utility sink with a back panel; the sourced class is stainless steel"
+  },
+  "models/props_wasteland/prison_sink001a.mdl": {
+   "family": "sink_china",
+   "fit": "good",
+   "note": "wall-hung china wash basin"
+  },
+  "models/props_c17/furnituretoilet001a.mdl": {
+   "family": "toilet_two_piece",
+   "fit": "partial",
+   "note": "old high-level cistern toilet with a pull chain: the bounding box is mostly the pipe and chain",
+   "scale": "fixed",
+   "scale_note": "the cistern hangs high above the bowl on a pipe, so the bounding box is mostly empty; the complete-unit mass (bowl plus tank) is used as is",
+   "scale_short": "the high cistern and pipe fill the box"
+  },
+  "models/props/cs_militia/toilet.mdl": {
+   "family": "toilet_two_piece",
+   "fit": "good",
+   "note": "close-coupled toilet with a tank, seat and lid"
+  },
+  "models/props_wasteland/prison_toilet01.mdl": {
+   "family": "toilet_bowl_only",
+   "fit": "partial",
+   "note": "wall-hung flushometer bowl with no tank"
+  },
+  "models/props_c17/furniturebathtub001a.mdl": {
+   "family": "bathtub_cast_iron",
+   "fit": "good",
+   "note": "clawfoot tub"
+  },
+  "models/props_interiors/bathtub01a.mdl": {
+   "family": "bathtub_cast_iron",
+   "fit": "good",
+   "note": "white clawfoot tub with a tap set (the bounding box includes the taps)"
+  },
+  "models/props_c17/furnitureradiator001a.mdl": {
+   "family": "radiator_cast_iron",
+   "fit": "good",
+   "note": "cast-iron column radiator"
+  },
+  "models/props_interiors/radiator01a.mdl": {
+   "family": "radiator_cast_iron",
+   "fit": "good",
+   "note": "cast-iron column radiator"
+  },
+  "models/props_c17/furniturefireplace001a.mdl": {
+   "family": "stove_cast_iron_small",
+   "fit": "partial",
+   "note": "small cast-iron stove with a stovepipe"
+  },
+  "models/props_interiors/vendingmachinesoda01a.mdl": {
+   "family": "vending_machine",
+   "fit": "good",
+   "note": "drinks vending machine"
+  },
+  "models/props/cs_office/vending_machine.mdl": {
+   "family": "vending_machine",
+   "fit": "good",
+   "note": "drinks vending machine"
+  },
+  "models/props_c17/display_cooler01a.mdl": {
+   "family": "display_counter_glass",
+   "fit": "partial",
+   "note": "curved-glass deli display counter; refrigeration, if present, is not in the sourced mass"
+  },
+  "models/props/cs_office/tv_plasma.mdl": {
+   "unaudited": "a flat-panel (plasma or LCD) television: the sourced television class is CRT sets only (21 to 47 kg), a different construction",
+   "hint": "the CRT class would overstate a 1.15 m flat panel; no flat-panel mass is sourced"
+  },
+  "models/props_c17/tv_monitor01.mdl": {
+   "family": "tv_crt",
+   "fit": "good",
+   "note": "small CRT television; smaller than any sourced set, so the 20 in set is the floor"
+  },
+  "models/props/cs_militia/television_console01.mdl": {
+   "parts": [
+    {
+     "family": "tv_crt",
+     "scale": "fixed",
+     "note": "the CRT set inside the console, one 27 in class set"
+    },
+    {
+     "family": "dresser",
+     "scale": "bbox",
+     "note": "the wooden console cabinet around it, treated as a closed carcass"
+    }
+   ],
+   "fit": "partial",
+   "note": "wooden console television (a CRT set in a furniture cabinet): the mass is the sum of two sourced classes, a composite the research does not itself give"
+  },
+  "models/props/cs_office/computer.mdl": {
+   "unaudited": "an LCD monitor with a keyboard and mouse: the sourced class is a 17 in CRT monitor (12 to 25 kg); the only flat-panel-era figure is a 424 g keyboard",
+   "hint": "the CRT class would overstate a flat monitor several times over; no LCD monitor mass is sourced"
+  },
+  "models/props/cs_office/phone.mdl": {
+   "family": "phone_corded_modern",
+   "fit": "good",
+   "note": "modern push-button corded desk phone"
+  },
+  "models/props/cs_office/plant01.mdl": {
+   "family": "potted_plant",
+   "fit": "good",
+   "note": "plant in a terracotta pot"
+  },
+  "models/props/de_inferno/potted_plant1.mdl": {
+   "family": "potted_plant",
+   "fit": "good",
+   "note": "plant in a terracotta pot"
+  },
+  "models/props/de_inferno/potted_plant2.mdl": {
+   "family": "potted_plant",
+   "fit": "good",
+   "note": "plant in a terracotta pot"
+  },
+  "models/props/de_inferno/potted_plant3.mdl": {
+   "family": "potted_plant",
+   "fit": "good",
+   "note": "plant in a terracotta pot"
+  },
+  "models/props/cs_office/trash_can.mdl": {
+   "family": "trash_can_plastic",
+   "fit": "partial",
+   "note": "office wastebasket, smaller than any sourced bin"
+  },
+  "models/props_trainstation/trashcan_indoor001a.mdl": {
+   "family": "trash_can_plastic",
+   "fit": "partial",
+   "note": "steel slatted street litter bin with a dome lid; likely heavier than the sourced plastic can"
+  },
+  "models/props_junk/trashbin01a.mdl": {
+   "family": "trash_can_plastic",
+   "fit": "good",
+   "note": "wheeled polyethylene waste cart"
+  },
+  "models/props_junk/trashdumpster01a.mdl": {
+   "family": "dumpster_steel",
+   "fit": "partial",
+   "note": "small green steel dumpster with plastic lids, smaller than the sourced 2 yd"
+  },
+  "models/props_junk/trashdumpster02.mdl": {
+   "family": "dumpster_steel",
+   "fit": "partial",
+   "note": "very large blue steel dumpster, bigger than the sourced 8 yd"
+  },
+  "models/props/cs_office/coffee_mug.mdl": {
+   "family": "mug_ceramic",
+   "fit": "good",
+   "note": "ceramic coffee mug"
+  },
+  "models/props/cs_office/coffee_mug2.mdl": {
+   "family": "mug_ceramic",
+   "fit": "good",
+   "note": "ceramic coffee mug"
+  },
+  "models/props/cs_office/coffee_mug3.mdl": {
+   "family": "mug_ceramic",
+   "fit": "good",
+   "note": "ceramic coffee mug"
+  }
+ }
+}

@@ -8,8 +8,6 @@ import argparse
 import sys
 from pathlib import Path
 
-from PIL import Image
-
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parent / "experiments"))
@@ -18,6 +16,7 @@ import run_tool  # noqa: E402
 
 
 def main(argv=None) -> int:
+    from PIL import Image                      # only stitching the pictures needs it
     ap = argparse.ArgumentParser()
     ap.add_argument("requests", nargs="+")
     ap.add_argument("--tag", default="hd")

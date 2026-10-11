@@ -58,7 +58,7 @@ end
 -- ------------------------------------------------------------------------------------------------ rectangles
 function Layout.rect(x, y, w, d, theta)
   local fx, fy = Layout.fwd(theta)
-  return { x = x, y = y, w = w, d = d, theta = theta, fx = fx, fy = fy, rx = fy, ry = -fx }
+  return { x = x, y = y, w = w, d = d, theta = theta, fx = fx, fy = fy, rx = fy, ry = -fx, rad = sqrt(w * w + d * d) / 2 }
 end
 
 function Layout.corners(r)
@@ -69,19 +69,24 @@ function Layout.corners(r)
   return out
 end
 
---- Do two footprints overlap (or come closer than `pad` HU)? Separating-axis test; `pad` widens `a` on every side.
+local SQRT2 = 1.4143
+
+-- Do the projections of a (half extents ad along its front, aw across) and b (bd, bw) onto the axis (ux, uy) leave a gap?
+local function separated(ux, uy, dx, dy, a, b, ad, aw, bd, bw)
+  return abs(dx * ux + dy * uy) >= ad * abs(a.fx * ux + a.fy * uy) + aw * abs(a.rx * ux + a.ry * uy)
+                                   + bd * abs(b.fx * ux + b.fy * uy) + bw * abs(b.rx * ux + b.ry * uy)
+end
+
+--- Do two footprints overlap (or come closer than `pad` HU)? A circle test throws out the far pairs (most of them) before the
+--- separating-axis test; `pad` widens `a` on every side.
 function Layout.overlap(a, b, pad)
   pad = pad or 0
   local dx, dy = b.x - a.x, b.y - a.y
-  local axes = { { a.fx, a.fy }, { a.rx, a.ry }, { b.fx, b.fy }, { b.rx, b.ry } }
-  for i = 1, 4 do
-    local ux, uy = axes[i][1], axes[i][2]
-    local dist = abs(dx * ux + dy * uy)
-    local ra = (a.d / 2 + pad) * abs(a.fx * ux + a.fy * uy) + (a.w / 2 + pad) * abs(a.rx * ux + a.ry * uy)
-    local rb = (b.d / 2) * abs(b.fx * ux + b.fy * uy) + (b.w / 2) * abs(b.rx * ux + b.ry * uy)
-    if dist >= ra + rb then return false end
-  end
-  return true
+  local reach = (a.rad or sqrt(a.w * a.w + a.d * a.d) / 2) + pad * SQRT2 + (b.rad or sqrt(b.w * b.w + b.d * b.d) / 2)
+  if dx * dx + dy * dy >= reach * reach then return false end
+  local ad, aw, bd, bw = a.d / 2 + pad, a.w / 2 + pad, b.d / 2, b.w / 2
+  return not (separated(a.fx, a.fy, dx, dy, a, b, ad, aw, bd, bw) or separated(a.rx, a.ry, dx, dy, a, b, ad, aw, bd, bw)
+              or separated(b.fx, b.fy, dx, dy, a, b, ad, aw, bd, bw) or separated(b.rx, b.ry, dx, dy, a, b, ad, aw, bd, bw))
 end
 
 --- How far two footprints interpenetrate along the best separating axis (0 when apart): for tests and for scoring.
@@ -178,7 +183,8 @@ function Layout.perimeter(frame, sides, opts)
 end
 
 --- Items on a circle around (cx, cy), facing the centre (or away with opts.outward). The radius grows until no two
---- footprints touch. opts: gap, min_r, start (yaw of the first item as seen from the centre), arc (degrees, default 360).
+--- footprints touch. opts: gap, min_r, start (yaw of the first item as seen from the centre), arc (degrees, default 360),
+--- stop (a function that says the caller has run out of time: the best radius so far is returned).
 function Layout.circle(cx, cy, items, opts)
   opts = opts or {}
   local gap, n = opts.gap or 6, #items
@@ -209,6 +215,7 @@ function Layout.circle(cx, cy, items, opts)
       if clash then break end
     end
     if not clash or n < 2 then return poses, r end
+    if opts.stop and opts.stop() then return poses, r end
     r = r + 2
   end
   local poses = build(r)
@@ -236,42 +243,71 @@ function Layout.grid(frame, items, opts)
 end
 
 --- A pyramid / pile: bottom layer of as many as fit across `base`, each layer above one fewer, centred on the join.
---- Returns poses with z = height above the floor of the pile's own base.
+--- Each item rests on the highest of the (up to two) items of the layer below that it overlaps, so a mixed pile does not
+--- float. opts.max_h widens the base until the pile is no taller than that. Returns poses with z = height above the floor
+--- of the pile's own base.
 function Layout.stack(frame, items, opts)
   opts = opts or {}
   local n = #items
   local gap = opts.gap or 1
   local base = opts.base
   if not base then base = 1; while base * (base + 1) / 2 < n do base = base + 1 end end
-  local poses, i, z, layer = {}, 1, 0, 0
-  while i <= n do
-    local count = min(base - layer, n - i + 1)
-    if count < 1 then count = n - i + 1 end
-    local lh, lw = 0, 0
-    for k = i, i + count - 1 do lh, lw = max(lh, items[k].h or 0), max(lw, items[k].w) end
+  -- layer sizes for a given base (the last layer takes whatever is left)
+  local function layers_of(b)
+    local out, i, layer = {}, 1, 0
+    while i <= n do
+      local count = min(b - layer, n - i + 1)
+      if count < 1 then count = n - i + 1 end
+      out[#out + 1] = count
+      i, layer = i + count, layer + 1
+    end
+    return out
+  end
+  local tallest = 0
+  for _, it in ipairs(items) do tallest = max(tallest, it.h or 0) end
+  if opts.max_h and tallest > 0 then
+    while base < n and #layers_of(base) * tallest > opts.max_h do base = base + 1 end
+  end
+  local poses, i = {}, 1
+  local below                              -- the layer under this one: { {v, half, top} ... }
+  for _, count in ipairs(layers_of(base)) do
+    local lw = 0
+    for k = i, i + count - 1 do lw = max(lw, items[k].w) end
+    local row = {}
     for k = 0, count - 1 do
       local it = items[i + k]
       local v = (k - (count - 1) / 2) * (lw + gap)
+      local z = 0
+      if below then
+        local seen = false
+        for _, b in ipairs(below) do
+          if abs(b.v - v) < b.half + it.w / 2 then z, seen = max(z, b.top), true end
+        end
+        if not seen then for _, b in ipairs(below) do z = max(z, b.top) end end
+      end
       local pose = Layout.to_world(frame, 0, v, 0)
       pose.z = z
       poses[i + k] = pose
+      row[#row + 1] = { v = v, half = it.w / 2, top = z + (it.h or 0) }
     end
+    below = row
     i = i + count
-    z = z + lh
-    layer = layer + 1
   end
   return poses
 end
 
---- Scatter by rejection sampling inside a disc; deterministic for a given rng. `spin`: random yaws (else face the frame).
+--- Scatter by rejection sampling inside a disc; deterministic for a given rng. `spin`: random yaws (else face the frame);
+--- `stop`: a function that says the caller is out of time (what is not placed by then is parked out of the way).
 function Layout.scatter(frame, items, rng, opts)
   opts = opts or {}
   local gap = opts.gap or 10
   local radius = opts.radius or 60
   local poses, rects = {}, {}
+  local stopped = false
   for i, it in ipairs(items) do
     local ok
     for attempt = 1, 400 do
+      if stopped or (opts.stop and attempt % 16 == 1 and opts.stop()) then stopped = true; break end
       local rr = radius * sqrt(rng.next()) * (1 + attempt / 200)
       local a = rng.range(0, 2 * pi)
       local u, v = rr * cos(a), rr * sin(a)
@@ -297,35 +333,96 @@ function Layout.scatter(frame, items, rng, opts)
   return poses
 end
 
---- Items standing on the flat top of something (`top` = {x, y, w, d, theta, z} of the usable top), spread along its long
---- axis and set toward its front edge. Returns poses with z = the top height.
+--- Items standing on the flat top of something (`top` = {x, y, w, d, theta, z} of the usable top), in rows along its long
+--- axis and set toward its back (bias -1) or front (+1) edge. Nothing overhangs by more than `opts.overhang` (default 2 HU)
+--- a side; an item that does not fit gets no pose. A symmetric item (`it.sym`) may turn a quarter to fit. The gap between
+--- neighbours shrinks (4, 2, then 1 HU) before anything is left off. Returns poses (poses[i] = nil for an item left off,
+--- else with z = the top height) and the number left off.
 function Layout.on_top(top, items, opts)
   opts = opts or {}
-  local gap = opts.gap or 4
+  local tol = opts.overhang or 2
   local frame = { x = top.x, y = top.y, theta = top.theta }
-  local n = #items
   local along_v = top.w >= top.d
-  local poses = {}
-  local total = 0
-  for i, it in ipairs(items) do total = total + (along_v and it.w or it.d) + (i > 1 and gap or 0) end
-  local pos = -total / 2
-  for i, it in ipairs(items) do
-    local len = along_v and it.w or it.d
-    local c = pos + len / 2
-    local u, v = 0, 0
-    if along_v then v = c else u = c end
-    -- bias: -1 sets things toward the back edge (a monitor on a desk), +1 toward the front, 0 centres
-    if opts.bias and opts.bias ~= 0 then
-      local room = (along_v and top.d - it.d or top.w - it.w) / 2
-      local shift = opts.bias * max(0, room - 2) * 0.8
-      if along_v then u = shift else v = shift end
-    end
-    local pose = Layout.to_world(frame, u, v, opts.phi or 0)
-    pose.z = top.z or 0
-    poses[i] = pose
-    pos = pos + len + gap
+  local long, short = (along_v and top.w or top.d) + 2 * tol, (along_v and top.d or top.w) + 2 * tol
+  -- extents of an item along the top's long axis and across it, turned a quarter or not
+  local function ext(it, turned)
+    local a, b = it.w, it.d                                    -- along v, along u
+    if turned then a, b = b, a end
+    if along_v then return a, b end
+    return b, a
   end
-  return poses
+  local function pack(gap)
+    local rows, dropped = {}, 0
+    for i, it in ipairs(items) do
+      local turn = false
+      local a, b = ext(it, false)
+      if (a > long or b > short) and it.sym then
+        local a2, b2 = ext(it, true)
+        if a2 <= long and b2 <= short then a, b, turn = a2, b2, true end
+      end
+      local at
+      if a <= long and b <= short then
+        for _, row in ipairs(rows) do
+          if row.len + gap + a <= long then
+            -- a deeper item deepens its row: the rows together must still fit the depth of the top
+            local others = 0
+            for _, r2 in ipairs(rows) do if r2 ~= row then others = others + r2.depth + gap end end
+            if others + max(row.depth, b) <= short then at = row; break end
+          end
+        end
+        if not at then
+          local used = 0
+          for _, row in ipairs(rows) do used = used + row.depth + gap end
+          if used + b <= short then
+            at = { len = -gap, depth = 0, list = {} }
+            rows[#rows + 1] = at
+          end
+        end
+      end
+      if at then
+        at.len = at.len + gap + a
+        at.depth = max(at.depth, b)
+        at.list[#at.list + 1] = { i = i, a = a, b = b, turn = turn }
+      else
+        dropped = dropped + 1
+      end
+    end
+    return rows, dropped
+  end
+  local gap0 = opts.gap or 4
+  local rows, dropped = pack(gap0)
+  local gap = gap0
+  for _, g in ipairs({ 2, 1 }) do
+    if dropped == 0 or g >= gap0 then break end
+    local r2, d2 = pack(g)
+    if d2 < dropped then rows, dropped, gap = r2, d2, g end
+  end
+  -- the block of rows, centred across the top and pushed toward the biased edge
+  local height = -gap
+  for _, row in ipairs(rows) do height = height + gap + row.depth end
+  local poses = {}
+  local cross = -height / 2
+  for _, row in ipairs(rows) do
+    local pos = -row.len / 2
+    for _, e in ipairs(row.list) do
+      local it = items[e.i]
+      local c = pos + e.a / 2
+      local lat = cross + row.depth / 2                         -- the row's centre line across the top
+      if opts.bias and opts.bias ~= 0 then
+        -- one row: each item sets toward the edge by what it has to spare; several rows move as a block
+        local room = (#rows == 1) and (short - 2 * tol - e.b) / 2 or (short - 2 * tol - height) / 2
+        lat = lat + opts.bias * max(0, room - 2) * 0.8
+      end
+      local u, v
+      if along_v then u, v = lat, c else u, v = c, lat end
+      local pose = Layout.to_world(frame, u, v, (opts.phi or 0) + (e.turn and 90 or 0))
+      pose.z = top.z or 0
+      poses[e.i] = pose
+      pos = pos + e.a + gap
+    end
+    cross = cross + row.depth + gap
+  end
+  return poses, dropped
 end
 
 -- ------------------------------------------------------------------------------------------------ walls and space

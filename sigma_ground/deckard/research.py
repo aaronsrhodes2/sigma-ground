@@ -116,12 +116,17 @@ def _scaffold_from_composition(name: str) -> ConstructSpec | None:
             for p in parts:
                 p.center_m = (p.center_m[0], p.center_m[1],
                               round(p.center_m[2] - floor, 5))
+            # census parts are bounding boxes too (see _apply_occupancy); a
+            # cast-solid kind (anvil, hammer, dumbbell) is not shelled
+            from .researcher import _is_solid_class
+            shelled = 0 if _is_solid_class(name) else _apply_occupancy(parts)
             return ConstructSpec(
                 name=name, kind="composite", identified=False, parts=parts,
                 sources=[{"name": source or "part decomposition", "license": lic},
                          {"name": "scaffold: proportions & placement from PartNet "
                                   "census medians — still a flagged placeholder",
-                          "license": ""}],
+                          "license": ""},
+                         *([_occupancy_note()] if shelled else [])],
                 notes="Unidentified shape: scaffolded from the measured part "
                       "census (median proportions/placement; this object's own "
                       "specifics unverified).",
@@ -197,9 +202,117 @@ def _furniture_archetype(name: str):
 # frame material; soft parts (seat/cushion/pad) take the upholstery material
 # when the category composition includes one. This is a convention, flagged as
 # such; the SHAPE remains 100% the real exemplar's layout.
-_SOFT_ROLE = ("seat", "cushion", "pad", "mattress", "pillow", "headrest", "armrest", "sole")
+_SOFT_ROLE = ("seat", "cushion", "pad", "mattress", "pillow", "headrest", "armrest", "sole", "shade")
 _STRUCT_ROLE = ("support", "frame", "bar", "leg", "stretcher", "runner", "post", "base", "rail")
 _SOFT_MATERIALS = ("fabric", "leather", "carpet", "foam", "cloth", "textile")
+
+
+# ── Occupancy of a bounding-box part ────────────────────────────────────────
+# A PartNet leaf (exemplar) or census part (scaffold) is only the axis-aligned BOX
+# around a surface mesh, not a solid: a refrigerator "frame" is a box spanning 86-96%
+# of the object, a chair "leg" a 21 x 20 x 51 cm box around a slender post. Giving
+# every box its material's FULL density made a refrigerator 1 m3 of steel (7750 kg)
+# and a chair 123 kg. A manufactured part is built from stock (board, sheet, casting)
+# of limited wall thickness T, so a box part holds no more material than a
+# thin-wall shell of that box; a plank or rod (some side <= 2T) is solid.
+#
+# EVERY NUMBER BELOW IS AN ESTIMATE — a modelling convention, not a measurement —
+# and the density it produces is stored as an `estimated` Fact (like
+# researcher._hollow_pass). Checked against Mentat's density tool (PLATINUM section
+# 21, 2026-10-10): the resolver's glass 2500, aluminum 2700, iron 7870 and copper
+# 8940 agree with Mentat's 2500, 2700, 7874, 8960 kg/m3, and its wood 700 and
+# plastic 1040 are within 10% of Mentat's wood_oak 770 and plastic 1100. Mentat has
+# NO density for steel, brass, bronze, ceramic, fabric or foam, so those (7850,
+# 8500, 8800, 2400, 1540, 40) rest on the resolver's own cited tables
+# (surface.MATERIALS, CRC Handbook, MatWeb), not on Mentat. The real cure is per-part
+# mesh occupancy recorded when the exemplars are distilled
+# (tools/distill_partnet.py), which would remove every T below.
+_BOARD_T_M = 0.018            # solid-wood / plywood board (cabinet carcass 16-19 mm)
+_SHEET_METAL_T_M = 0.0015     # appliance / enclosure sheet, the heavy end of 0.5-1.5 mm
+_CAST_METAL_T_M = 0.005       # cast or drawn brass / bronze wall (casting minimum 3-6 mm):
+                              # a solid brass fixture is not a sheet-metal box
+_GLASS_T_M = 0.004
+_CERAMIC_T_M = 0.006
+_PLASTIC_T_M = 0.0025         # injection-moulded wall
+_STOCK_T_DEFAULT_M = 0.005    # any other material (paper, foliage, stone ...)
+_STOCK_T_M = (                # first substring match wins ("cast iron" is cast, not sheet)
+    ("cast", _CAST_METAL_T_M), ("brass", _CAST_METAL_T_M), ("bronze", _CAST_METAL_T_M),
+    ("wood", _BOARD_T_M), ("steel", _SHEET_METAL_T_M), ("iron", _SHEET_METAL_T_M),
+    ("alumin", _SHEET_METAL_T_M), ("metal", _SHEET_METAL_T_M),
+    ("glass", _GLASS_T_M), ("ceramic", _CERAMIC_T_M), ("plastic", _PLASTIC_T_M),
+)
+_UPHOLSTERY_KG_M3 = 50.0      # cushion / mattress BULK density (flexible foam ~25-60), not the fibre's
+_SOFT_BY_ROLE = ("mattress", "cushion", "pillow")   # parts that are foam-filled whatever their label
+
+
+def _stock_thickness(material):
+    """Wall/board thickness T (m) of the stock a material is built from (an estimate)."""
+    mat = (material or "").lower()
+    return next((t for k, t in _STOCK_T_M if k in mat), _STOCK_T_DEFAULT_M)
+
+
+def _occupancy(ext, T):
+    """Fraction of a box with edges ``ext`` (m) that stock of wall thickness ``T`` can
+    fill: 1 - the volume left inside walls T thick on every face. 1.0 when some edge
+    is <= 2T (a plank or rod: nothing to hollow). For a cylinder or sphere (edges
+    2r, 2r, h) it is also the exact shell fraction of the round solid."""
+    t = min(T, min(ext) / 2.0)
+    free = 1.0
+    for e in ext:
+        free *= max(0.0, 1.0 - 2.0 * t / e)
+    return 1.0 - free
+
+
+def _part_extent(p):
+    """Edges (m) of the box that bounds a box/cylinder/sphere part, else None."""
+    v = {k: f.value for k, f in p.dims.items()}
+    try:
+        shape = (p.shape or "").lower()
+        if shape == "box":
+            return (v["x_m"], v["y_m"], v["z_m"])
+        if shape == "cylinder":
+            return (2 * v["radius_m"], 2 * v["radius_m"], v["height_m"])
+        if shape == "sphere":
+            return (2 * v["radius_m"],) * 3
+    except KeyError:
+        pass
+    return None
+
+
+def _apply_occupancy(parts, skip=()):
+    """Swap each box part's full material density for an ESTIMATED effective bulk
+    density (in place; returns how many parts changed). Plank/rod stock keeps its
+    cited density; soft parts (fabric, or a mattress/cushion by role) take the
+    upholstery bulk; ``skip`` names parts that are already hollow (a carved
+    container body) and subtract parts are never touched."""
+    touched = 0
+    for p in parts:
+        ext = _part_extent(p)
+        if p.op != "add" or p.name in skip or ext is None or min(ext) <= 0.0:
+            continue
+        mat, rho0 = (p.material or "").lower(), p.density.value
+        soft = mat in _SOFT_MATERIALS
+        if soft or any(k in (p.name or "").lower() for k in _SOFT_BY_ROLE):
+            rho = min(rho0, _UPHOLSTERY_KG_M3)
+            if not soft and rho < rho0:
+                p.material = "foam"                       # the mass is now foam bulk: say so
+        else:
+            rho = rho0 * _occupancy(ext, _stock_thickness(mat))
+        if rho > 0.98 * rho0:                             # solid stock keeps its citation
+            continue
+        p.density = Fact(round(rho, 3), confidence=0.4)   # source "estimated": a convention
+        touched += 1
+    return touched
+
+
+def _occupancy_note():
+    """The provenance line a spec carries when _apply_occupancy changed a density."""
+    return {"name": ("modeled bulk density - a PartNet part is only a bounding box: each box part holds "
+                     "the shell fraction that stock of ESTIMATED wall thickness can fill (wood "
+                     f"{_BOARD_T_M * 1e3:g} mm, sheet metal {_SHEET_METAL_T_M * 1e3:g} mm, cast metal "
+                     f"{_CAST_METAL_T_M * 1e3:g} mm, glass {_GLASS_T_M * 1e3:g} mm, ceramic "
+                     f"{_CERAMIC_T_M * 1e3:g} mm, plastic {_PLASTIC_T_M * 1e3:g} mm; planks and rods "
+                     f"stay solid), upholstery {_UPHOLSTERY_KG_M3:g} kg/m3 bulk"), "license": ""}
 
 # A material adjective ("a wooden chair") biases the FRAME material — it selects,
 # it does not invent. Maps the adjective to a canonical material the resolver
@@ -269,11 +382,8 @@ def _is_container(name):
     return bool(words) and words[-1] in _CONTAINER_WORDS
 
 
-def _carve_interior(parts):
-    """Hollow the container: round the largest body part into a wall and add an
-    open-top interior cavity (op='subtract'). Returns the cavity name, or None."""
-    from .schema import Part
-
+def _container_body(parts):
+    """The part a container's interior is carved from: its largest box/cylinder."""
     def vol(p):
         d = p.dims
         if p.shape == "cylinder":
@@ -283,9 +393,17 @@ def _carve_interior(parts):
         return 0.0
 
     bodies = [p for p in parts if p.shape in ("box", "cylinder")]
-    if not bodies:
+    return max(bodies, key=vol) if bodies else None
+
+
+def _carve_interior(parts):
+    """Hollow the container: round the largest body part into a wall and add an
+    open-top interior cavity (op='subtract'). Returns the cavity name, or None."""
+    from .schema import Part
+
+    body = _container_body(parts)
+    if body is None:
         return None
-    body = max(bodies, key=vol)
     d = body.dims
     if body.shape == "box":                          # containers are round
         r_out = min(d["x_m"].value, d["y_m"].value) / 2.0
@@ -320,9 +438,12 @@ def _exemplar_spec(name: str, material_hint: str | None = None,
     hand-authored — Deckard inherently knows what a chair (mug, lamp, scissors…)
     is. ``material_hint`` (e.g. "wooden") biases the frame material AND prefers a
     tagged shape variant; ``exclude`` (anno_ids) skips already-used models so "a
-    different chair" grabs a fresh one. None if the name isn't a PartNet
+    different chair" grabs a fresh one. Each part's density is the material's times
+    the share of its bounding box that wall stock fills (``_apply_occupancy``; a
+    PartNet leaf is a box, not a solid). None if the name isn't a PartNet
     category."""
     from . import sources
+    from .researcher import _is_solid_class
     from .schema import Part
 
     got = sources.exemplar.exemplar_of(name, exclude=exclude, hint=material_hint)
@@ -388,7 +509,16 @@ def _exemplar_spec(name: str, material_hint: str | None = None,
     for p in parts:
         p.center_m = (p.center_m[0], p.center_m[1], round(p.center_m[2] - floor, 5))
 
-    cavity = _carve_interior(parts) if _is_container(name) else None
+    carved = _container_body(parts) if _is_container(name) else None
+    cavity = _carve_interior(parts) if carved is not None else None
+
+    # Every PartNet leaf is only a bounding BOX: give each the bulk density of the
+    # stock that fills it, not its material's full density. A carved container's
+    # body is already hollow (skip it); a cast-solid kind (anvil, hammer, knife) is
+    # solid through, so it is not shelled. See _apply_occupancy.
+    shelled = 0
+    if not _is_solid_class(name):
+        shelled = _apply_occupancy(parts, skip={carved.name} if cavity else ())
 
     comp_str = (", ".join(f"{m} {r:.0%}" for m, r in list(ratios.items())[:4])
                 if ratios else structural)
@@ -409,7 +539,8 @@ def _exemplar_spec(name: str, material_hint: str | None = None,
                  {"name": f"material composition (ShapeNetSem): {comp_str}",
                   "license": comp[2] if comp else ""},
                  {"name": mat_note + " — PartNet carries no per-part material; "
-                          "materials cited to ShapeNetSem category ratios", "license": ""}],
+                          "materials cited to ShapeNetSem category ratios", "license": ""},
+                 *([_occupancy_note()] if shelled else [])],
         notes=f"A representative {name}: {len(parts)} parts at their measured "
               f"relative positions, scaled to the median real size; {mat_note}.",
     )

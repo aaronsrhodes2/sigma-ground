@@ -12,7 +12,11 @@ For every variant:
     w, d, h  width across the front, depth along the front, height (HU), from the engine's bounding box
     cx, cy   centre of the footprint relative to the model's origin, in the model frame (HU)
     mins/maxs the engine's bounding box
-    mass, material, skins  as the engine reports them (the game's own mass is kept: mass is physics, and Mentat/the engine own it)
+    material, skins  as the engine reports them
+    mass     the REAL-WORLD mass in kg from the fidelity layer (fidelity.py: a sourced reference scaled to the model's size and held inside the
+             family's sourced range), or the engine's own gameplay mass where the sources do not describe the model (mass_status "unaudited")
+    engine_mass, mass_source, mass_status ("audited" | "unaudited"), mass_low, mass_high (the sourced range, audited only),
+    mass_confidence ("high" | "medium" | "low", audited only), makeup (what it is made of): the provenance of `mass`, from data/fidelity.json
 """
 from __future__ import annotations
 
@@ -24,6 +28,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parent / "experiments"))
 import catalog_src  # noqa: E402
+import fidelity  # noqa: E402
 from luaout import lua  # noqa: E402
 
 BACK_TO_FRONT_YAW = {"+x": 180.0, "-x": 0.0, "+y": 270.0, "-y": 90.0}
@@ -54,6 +59,7 @@ def build() -> dict:
     measured = {m["model"]: m for m in json.loads((HERE / "data" / "measured.json").read_text(encoding="utf-8"))["models"]}
     overrides_path = HERE / "data" / "front_overrides.json"
     overrides = json.loads(overrides_path.read_text(encoding="utf-8")) if overrides_path.exists() else {}
+    fid = fidelity.load()["variants"]
     kinds, order, problems = {}, [], []
     for k in catalog_src.KINDS:
         variants = []
@@ -62,6 +68,10 @@ def build() -> dict:
             m = measured.get(path)
             if not m or m.get("missing") or m.get("no_physics"):
                 problems.append(f"{k['kind']}: {path} is not available in the game ({'missing' if not m or m.get('missing') else 'no physics'})")
+                continue
+            f = fid.get(path)
+            if f is None:
+                problems.append(f"{k['kind']}: {path} has no entry in data/fidelity.json (run python stage/gmod/holodeck/fidelity.py)")
                 continue
             front, symmetric, how = resolve_front(k, v, m, overrides)
             mn, mx = m["mins"], m["maxs"]
@@ -78,7 +88,9 @@ def build() -> dict:
             variants.append({
                 "model": path, "front": front % 360.0, "symmetric": symmetric, "front_source": how, "top": top,
                 "w": w, "d": d, "h": ez, "mins": mn, "maxs": mx, "cx": (mn[0] + mx[0]) / 2, "cy": (mn[1] + mx[1]) / 2,
-                "mass": m["mass"], "material": m.get("material") or "default", "skins": m.get("skins", 1),
+                "mass": f["mass_kg"], "engine_mass": m["mass"], "mass_source": f["mass_source"], "mass_status": f["status"],
+                "mass_low": f["mass_low_kg"], "mass_high": f["mass_high_kg"], "mass_confidence": f["confidence"], "makeup": f.get("makeup"),
+                "material": m.get("material") or "default", "skins": m.get("skins", 1),
             })
         if not variants:
             problems.append(f"{k['kind']}: no usable model")

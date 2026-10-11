@@ -1,0 +1,1182 @@
+{
+ "about": "The sourced real-world reference table behind data/fidelity_specs.json: one entry per real kind (some real kinds appear in more than one family), copied from the independent review's research. mass_kg_low/typical/high are kilograms; 'typical' is often the researcher's own pick inside the range and the 'note' says so item by item. Figures marked search-summary were NOT read on an opened page. Nothing here is Mentat output (Mentat has no furniture masses); the densities used for cross-checks are in fidelity_specs.json under 'densities'.",
+ "corrections_to_the_reviewers_text": [
+  {
+   "item": "desk",
+   "change": "dropped the placeholder URL https://www.homecomputerdesk.example/none (the reviewer's own note says to ignore it)"
+  },
+  {
+   "item": "meeting table",
+   "change": "replaced the Mayline URL (typo) with the working one the reviewer's note gives"
+  }
+ ],
+ "items": {
+  "couch": {
+   "mass_kg_typical": 60,
+   "mass_kg_low": 45,
+   "mass_kg_high": 90,
+   "size_m_typical": "2.13 W x 0.95 D x 0.85 H (3-seat, 84 in class). Opened listings: 2.13-2.29 W, 0.86-1.02 D, 0.83-0.97 H.",
+   "construction": "Frame-and-panel with soft fill, not a hollow shell. Kiln-dried solid and/or engineered hardwood frame (listings say '11-layer plywood', plywood, particleboard, fibreboard, laminated veneer lumber), sinuous-spring seat deck, polyurethane foam cores (IKEA: 20 and 25 kg/m3 in frame and arms, 35 kg/m3 cold-foam seat cushion), polyester-fibre or feather/down wrap, fabric or leather cover.",
+   "materials": [
+    "kiln-dried hardwood (solid and engineered)",
+    "plywood",
+    "particleboard/fibreboard",
+    "polyurethane foam 20-35 kg/m3",
+    "polyester fibre / feather-down",
+    "fabric or leather cover",
+    "steel sinuous springs"
+   ],
+   "hollow": false,
+   "wall_thickness_mm": "Frame member and plywood thickness: UNSOURCED (no opened page states it). Sourced: seat cushions 7 in (178 mm) and back cushions 9 in (229 mm) on the Kellan 84 in sofa; armrest width 24 cm (IKEA EKTORP).",
+   "sources": [
+    "https://www.ikea.com/cz/en/p/ektorp-3-seat-sofa-kilanda-light-beige-s69509010/",
+    "https://www.ikea.cn/cn/en/p/ektorp-s39318210/",
+    "https://studiogkw.com/products/3-seater-sofa-pera-84-upholstered-sofa",
+    "https://www.cityhome.com/product/2741214",
+    "https://www.furniture.com/shop/madeline-sea-salt-performance-skirted-sofa-84-kathy-kuo-home-kuo-179524",
+    "https://www.bassettfurniture.com/pdp/leather-sofas/classic-sofa/C400-72SFL-53.html"
+   ],
+   "confidence": "sourced",
+   "note": "Opened-page masses: IKEA EKTORP 3-seat 218 cm = 68.00 kg frame pkg + 4.78 kg cover = 72.8 kg (IKEA labels it just 'Weight', probably gross; the 252 cm chaise version is 37.91+43.28 kg net frame + 6.89 kg cover = 88 kg net); GKW Pera 84 in = 110 lb (49.9 kg); CityHome Kellan 84 in leather = 127 lb (57.6 kg); Madeline 84 in = 164 lb (74.4 kg, feather-down seat); Bassett 90 in leather = 175 with NO unit stated (79 kg if lb). Seen only in search-engine summaries, pages not opened: Pemberly Row 84 in 124 lb, Huntington House 88 in 142 lb, La-Z-Boy Collins 132 lb, Flexsteel Dana 82 in 108 lb. Blog-grade 'average sofa' ranges (150-250 lb) disagree with each other and were not used. Sleepers, sectionals and reclining sofas are heavier and are NOT covered by this range. Web-search budget ran out before I could source frame lumber thickness; do not treat any thickness as sourced."
+  },
+  "loveseat": {
+   "mass_kg_typical": 45,
+   "mass_kg_low": 25,
+   "mass_kg_high": 65,
+   "size_m_typical": "1.55 W x 0.85 D x 0.85 H. Opened listings: IKEA EKTORP 2-seat 1.79 x 0.88 x 0.88; Lesro 50 in loveseat 1.27 x 0.76 x 0.83; Lesro 44 in 1.12 x 0.58 x 0.81.",
+   "construction": "Smaller version of the couch: hardwood/engineered-wood frame, foam seat cushions, fabric cover. IKEA EKTORP 2-seat: plywood, fibreboard, particleboard, solid wood frame; foam 20/25 kg/m3 in frame and arms; 35 kg/m3 cold-foam seat cushion. Commercial Lesro units use a steel frame (Avon 44 in) or wood plus synthetic materials (50 in) with a seat-support system.",
+   "materials": [
+    "plywood/particleboard/fibreboard/solid wood or steel tube frame",
+    "polyurethane foam 20-35 kg/m3",
+    "polyester fibre",
+    "fabric or polyurethane (vinyl) upholstery"
+   ],
+   "hollow": false,
+   "wall_thickness_mm": "UNSOURCED. No opened page states frame or panel thickness; the Lesro page only says 'heavy-duty construction'.",
+   "sources": [
+    "https://www.ikea.com/cz/en/p/ektorp-2-seat-sofa-kilanda-light-beige-s49509025/",
+    "https://www.officefurniture2go.com/product/VLA346/Polyurethane+Loveseat+50in+W+x+30in+D+by+Lesro.aspx",
+    "https://www.officefurniture2go.com/product/VLA187/Loveseat+with+750+lb+Capacity+by+Lesro.aspx"
+   ],
+   "confidence": "sourced",
+   "note": "Opened-page masses: IKEA EKTORP 2-seat 179 cm = 57.70 kg frame pkg + 3.90 kg cover = 61.6 kg (IKEA package 'Weight', likely gross); Lesro 50 in = 104 lb (47.2 kg, the page's depth is inconsistent: 30 in vs 29.5 in); Lesro Avon 44 in steel-frame commercial = 54 lb (24.5 kg). Search-summary only, pages not opened or blocked: Best Buy Whisen faux-fur loveseat 87.3 lb, Valour leather loveseat 81 lb, On Time Supplies reception loveseat 114 lb. The IKEA unit is the heavy end for its width; typical 45 kg is my reading of the spread, not a quoted figure."
+  },
+  "armchair": {
+   "mass_kg_typical": 25,
+   "mass_kg_low": 10,
+   "mass_kg_high": 42,
+   "size_m_typical": "0.80 W x 0.90 D x 0.97 H. Opened listings: POANG 0.68 x 0.82 x 1.00; STRANDMON wing chair 0.82 x 0.96 x 1.01; La-Z-Boy Pinnacle recliner 0.84 x 0.98 x 1.04.",
+   "construction": "Two families. (a) Light bentwood: POANG frame is layer-glued birch veneer (bent plywood) with a separate foam cushion. (b) Upholstered: engineered-wood/solid-wood frame, foam seat, e.g. STRANDMON frame = plywood, particleboard, solid wood with PU foam seat (2.2 lb/cu ft = about 35 kg/m3); EKTORP armchair uses the same frame stack as the sofa (foam 20/25 kg/m3 frame, 35 kg/m3 seat cushion). Recliners add a steel mechanism.",
+   "materials": [
+    "layer-glued birch veneer (bentwood)",
+    "plywood/particleboard/solid wood frame",
+    "polyurethane foam 20-35 kg/m3",
+    "polyester fibre",
+    "fabric/leather",
+    "steel (recliner mechanism)"
+   ],
+   "hollow": false,
+   "wall_thickness_mm": "UNSOURCED. POANG veneer layer count/thickness is not given on the opened pages.",
+   "sources": [
+    "https://www.ikea.com/ph/en/p/poaeng-armchair-birch-veneer-kelinge-beige-s49625299/",
+    "https://www.ikea.com/kr/en/catalog/products/S49240824/",
+    "https://www.ikea.com/ph/en/p/strandmon-wing-chair-tommaboda-deep-beige-50613177/",
+    "https://www.ikea.com/cz/en/p/ektorp-armchair-kilanda-light-beige-s99552101/",
+    "https://la-z-boy.com/p/pinnacle-rocking-recliner/_/R-010512"
+   ],
+   "confidence": "sourced",
+   "note": "Opened-page masses: POANG frame 8.20 kg + cushion 1.73 to 2.23 kg = 9.9 to 10.4 kg; STRANDMON 29.36 kg (one package, IKEA 'Weight', likely gross; a search summary of the Taiwan page gave 26.13 kg net, not opened); EKTORP armchair frame 39.70 kg + cover 2.47 kg = 42.2 kg; La-Z-Boy Pinnacle rocker-recliner 71 lb (32.2 kg). Search-summary only: La-Z-Boy Fulton 82 lb, Cassian 88 lb, Sherman 77 lb; Walmart/Houzz accent chairs 22-57 lb (10-26 kg). Typical 25 kg is a judgment between the light accent chair and the upholstered club/wing chair."
+  },
+  "chair": {
+   "mass_kg_typical": 5.5,
+   "mass_kg_low": 2.7,
+   "mass_kg_high": 12,
+   "size_m_typical": "0.45 W x 0.52 D x 0.84 H, seat height about 0.45. Opened listings: IKEA ODGER 0.45 x 0.51 x 0.81; Thonet 214 0.43 x 0.52 x 0.84 (seat 0.46); Eames DSW 0.465 x 0.55 x 0.83 (seat 0.43).",
+   "construction": "Not a hollow shell: frame members plus a seat panel. Classic bentwood (Thonet 214: steam-bent solid beech, cane seat). Moulded-shell chairs (IKEA ODGER: wood-plastic-composite shell with legs integral; Eames DSW: one-piece polypropylene shell on maple legs with steel bracing). Stack chairs: steel tube frame, plywood-core seat and back, thin foam pad (Oak Street: 1.2 mm steel frame, 2 in foam, plywood core).",
+   "materials": [
+    "solid beech (bent)",
+    "wood plastic composite",
+    "polypropylene",
+    "maple or ash legs",
+    "steel tube 1.2 mm",
+    "plywood core",
+    "polyurethane foam"
+   ],
+   "hollow": false,
+   "wall_thickness_mm": "Steel stack-chair frame 1.2 mm (Oak Street page); all other shell, plywood and wood-section thicknesses: UNSOURCED (Eames shell thickness is not on the opened pages).",
+   "sources": [
+    "https://www.ikea.com/lv/en/p/odger-chair-white-beige-60359996/",
+    "https://shop.mohd.it/en/214-chair.html",
+    "https://connox.com/categories/furniture/seating-furniture/chairs/thonet-214-bentwood-chair.html?itm=147183",
+    "https://smow.com/a/VT-035-000",
+    "https://oakstreetmfg.com/?p=37750",
+    "https://www.ikea.com/cz/en/p/ingolf-junior-chair-antique-stain-60353838/"
+   ],
+   "confidence": "partly sourced",
+   "note": "Opened-page masses: Thonet 214 = 2.7 kg without packaging (Mohd and Connox agree); IKEA ODGER = 7.00 kg package (search summaries of other IKEA regions gave 6.5 kg gross and 5.11 kg net, not opened); Oak Street SL2082 stack chair = 15 lb (6.8 kg), page does not say net or shipping; IKEA INGOLF junior chair 4.45 kg package (a child chair, not representative). Eames DSW = 4.65 kg is from a search summary of a Connox listing; the Connox page I opened was too long to read and the smow page lists no weight. NORDVIKEN 5.5 kg and solid-oak dining chairs 4 to 16 kg (Oroa, UMAGE, Loaf, John Lewis) are search-summary only. Highest figure (12 kg) is therefore not from an opened page; verified range is 2.7 to 7."
+  },
+  "office chair": {
+   "mass_kg_typical": 18,
+   "mass_kg_low": 13,
+   "mass_kg_high": 25,
+   "size_m_typical": "Base 0.64-0.67 x 0.64-0.67 footprint; overall height 0.95-1.30 (adjustable); seat height 0.43-0.57. IKEA MARKUS 0.64 x 0.64 x 1.18-1.29; ALEFJALL 0.64 x 0.64 x up to 0.95; Aeron B 1.04 m high, base 26.5 in (0.67 m).",
+   "construction": "Assembly of a five-star base, steel gas-lift cylinder and casters, a tilt mechanism, and a seat and back. Frame-and-skin, not a hollow shell. IKEA MARKUS: aluminium star base, steel back/armrest frame, layer-glued wood-veneer seat frame, PU foam 35 kg/m3, polyester fabric. IKEA ALEFJALL: steel frame and star base, PU foam, reinforced polyamide covers, leather or fabric. Herman Miller Aeron: die-cast aluminium or polymer chassis and base, elastomeric mesh seat and back.",
+   "materials": [
+    "aluminium or steel five-star base",
+    "steel tube frame",
+    "glass-reinforced polyamide/nylon covers",
+    "layer-glued wood veneer seat frame",
+    "polyurethane foam 35 kg/m3",
+    "polyester fabric, leather or elastomeric mesh"
+   ],
+   "hollow": false,
+   "wall_thickness_mm": "UNSOURCED. No opened page gives tube wall or shell thickness.",
+   "sources": [
+    "https://store.hermanmiller.com/2195348.html?lang=en_US",
+    "https://www.ikea.com/lv/en/p/markus-office-chair-vissle-dark-grey-30588800/",
+    "https://www.ikea.com/om/en/p/alefjaell-office-chair-glose-black-70367458/"
+   ],
+   "confidence": "sourced",
+   "note": "Opened-page masses: Herman Miller Aeron 40 lb (A), 41 lb (B), 43 lb (C) = 18.1 to 19.5 kg, product weight, Herman Miller store; IKEA MARKUS package 20.81 kg (search summaries of other regions: 19.06 kg net, 22.36 kg gross, not opened); IKEA ALEFJALL package 20.80 kg (Taiwan listing summary: 17.88 kg net, not opened). Search-summary only: Office Star Matrex mesh 40 lb, Lorell vinyl task chair 29.3 lb (13.3 kg), NuSparc 32-33 lb (14.5-15 kg). The 13 kg low and 25 kg high come from those unopened listings and from IKEA gross package weight respectively."
+  },
+  "stool": {
+   "mass_kg_typical": 3.5,
+   "mass_kg_low": 1.6,
+   "mass_kg_high": 10,
+   "size_m_typical": "Backless 0.32-0.38 dia seat x 0.44-0.50 high. Opened listings: Artek Stool 60 0.38 x 0.38 x 0.44; IKEA BEKVAM 0.43 x 0.39 x 0.50; IKEA MARIUS seat 0.32 dia, seat height 0.45; bar/counter stool 0.43 W x 0.36 dia x 0.76 seat height (30 in).",
+   "construction": "Not a hollow shell. Wooden stools are solid or bent-plywood legs with a round or square seat (Artek Stool 60: three bent solid-birch legs, seat of solid birch and birch plywood; IKEA PS 2026 and BEKVAM: solid birch/beech/aspen). Light stools are steel tube legs with a polypropylene seat (MARIUS). Bar stools are 18-gauge, 7/8 in OD steel tube with a footring and a masonite-board seat pan (National Public Seating 30 in).",
+   "materials": [
+    "solid birch/beech/aspen",
+    "birch plywood",
+    "steel tube",
+    "polypropylene",
+    "masonite (hardboard) seat board"
+   ],
+   "hollow": false,
+   "wall_thickness_mm": "Bar stool steel tube: '18-gauge, 7/8 in diameter' (roughly 1.2 mm by standard gauge conversion, which is my conversion, not on the page); footring 5/8 in OD. Wood stool section and seat thickness: UNSOURCED.",
+   "sources": [
+    "https://www.ikea.com/sa/en/p/marius-stool-red-brown-20605249/",
+    "https://www.ikea.com/lt/en/p/bekvaem-step-stool-beech-60178887/",
+    "https://www.ikea.com/ma/en/p/ikea-ps-2026-stool-height-adjustable-birch-clear-lacquered-bright-blue-20617916/",
+    "https://www.connox.com/categories/furniture/stools/artek-stool-60.html",
+    "https://www.dimensions.com/element/artek-alto-stool-60",
+    "https://www.officefurniture2go.com/product/ICA287/Kitchen+Stool+30in+H+by+National+Public+Seating.aspx"
+   ],
+   "confidence": "sourced",
+   "note": "Opened-page masses: IKEA MARIUS 1.59 kg package; IKEA BEKVAM 50 cm beech 4.61 kg package (aspen versions 3.38 kg, search summary); IKEA PS 2026 solid birch 5.29 kg package; Artek Stool 60 = 3.2 kg without packaging per Connox BUT dimensions.com says 6.8 kg (15 lb) for the same stool: a direct conflict, I could not reach Artek's factsheet, and I judge 3.2 kg the likelier because the dimensions.com figure would make bent birch very dense; treat as unresolved. National Public Seating 30 in steel stool 11 lb (5.0 kg). Search-summary only: American Woodcrafters swivel bar stool 22.5 lb (10.2 kg), which is the source of the 10 kg high end; vintage IKEA FROSTA about 2.85 kg each (resale listing, no current IKEA page found)."
+  },
+  "bench": {
+   "mass_kg_typical": 20,
+   "mass_kg_low": 10,
+   "mass_kg_high": 80,
+   "size_m_typical": "Indoor/garden bench 1.2-1.5 W x 0.40-0.62 D x 0.45-0.88 H. Opened listings: HEMNES 0.83 x 0.37 x 0.53; SKOGSTA 1.20 x 0.46 x 0.45; teak 3-seat 1.50 x 0.62 x 0.88 (seat 0.45). Park bench 6 ft is about 1.83 x 0.68 x 0.79 (search summary).",
+   "construction": "Frame-and-slat or frame-and-panel, not hollow. IKEA benches: solid pine, or solid birch legs with fibreboard top (HEMNES), solid acacia (SKOGSTA). Garden bench: teak, assembled. 6 ft park bench: welded steel frame with steel slats (search summary: 5/16 in steel slats; 1.5 in steel tube frame and 14-gauge seat on one model).",
+   "materials": [
+    "solid pine",
+    "solid birch",
+    "solid acacia",
+    "fibreboard",
+    "teak",
+    "powder-coated steel (park bench)"
+   ],
+   "hollow": false,
+   "wall_thickness_mm": "UNSOURCED for the wooden benches (the teak bench page gives no slat thickness). Park-bench steel figures (5/16 in slats, 1.5 in tube, 14-gauge seat) come from search summaries only, pages not opened.",
+   "sources": [
+    "https://www.ikea.com/ca/en/p/hemnes-bench-gray-70349011/?device=m",
+    "https://www.ikea.com/sa/en/p/hemnes-bench-white-50223625/",
+    "https://www.ikea.com.tw/en/products/dining-seating/benches/skogsta-art-90593808",
+    "https://www.heritagegardens.co.uk/products/balmoral-teak-bench-3-seater-1-5m"
+   ],
+   "confidence": "partly sourced",
+   "note": "Opened-page masses: HEMNES 83 cm solid pine 9.86 kg package (IKEA Canada); HEMNES 83 cm fibreboard-and-birch 13.99 kg package (IKEA Saudi Arabia; the two pages disagree because they are different articles); SKOGSTA 120 cm solid acacia 18.79 kg net / 20.10 kg gross; Heritage Gardens Balmoral teak 3-seat 1.5 m 25 kg assembled. The 10 kg low and the 80 kg high are NOT from opened pages: they come from search summaries of 6 ft steel park-bench listings (Lasting Impressions 92 lb assembled, Indoff 165-176 lb, Global Industrial 200-242 lb) that I could not open (certificate error, 403, timeouts). If the game's 'bench' is a park bench, use roughly 42-80 kg as unverified; if it is a domestic bench, 10-25 kg is verified."
+  },
+  "bed": {
+   "mass_kg_typical": 35,
+   "mass_kg_low": 20,
+   "mass_kg_high": 70,
+   "size_m_typical": "Frame only, queen: 1.51 W x 2.02 L x 0.36 H (59.5 x 79.5 x 14 in platform, Zinus). IKEA MALM single (90x200 mattress): 1.05 W x 2.09 L x 1.00 H headboard. Add a mattress separately (see mattress).",
+   "construction": "Frame-and-panel, not hollow: side rails, headboard/footboard, slat or platform deck, legs. Zinus Suzanne: steel frame with solid-pine footboard and wooden slats about 75 mm apart, reinforced centre support. IKEA MALM: particleboard and fibreboard headboard/footboard with a honeycomb paper filling, particleboard side rails, plywood bed base, layered-veneer slats, particleboard storage-box sides, bottoms and fronts.",
+   "materials": [
+    "steel tube",
+    "solid pine",
+    "particleboard",
+    "fibreboard",
+    "plywood",
+    "layered wood-veneer slats",
+    "paper honeycomb filling"
+   ],
+   "hollow": false,
+   "wall_thickness_mm": "UNSOURCED. Neither the Zinus nor the IKEA page gives steel tube wall or board thickness.",
+   "sources": [
+    "https://www.target.com/p/-/-/A-79371704",
+    "https://www.ikea.com/cz/en/p/malm-bed-frame-high-w-2-storage-boxes-white-loenset-s89032738/"
+   ],
+   "confidence": "sourced",
+   "note": "Opened-page masses (frame only, no mattress): Zinus Suzanne queen 69.18 lb (31.4 kg) item weight, estimated ship weight 84.09 lb (38.1 kg); IKEA MALM high frame 90x200 = 13.75 + 16.95 kg frame packages + 10.92 kg LONSET slat base = 41.6 kg, and the listing also carries a 'storage box' package of 20.50 kg (unclear whether that is per box, so a bed with two boxes could reach 62-83 kg). Search-summary only: West Elm Asher queen 69 kg, Benzara Huder queen 149 lb, FlexiSpot walnut 99 lb, Zinus Joseph 45.6 lb, Zinus Priage 73 lb, so the 20 and 70 kg bounds are not from opened pages. A complete bed (frame plus a typical queen mattress) is therefore roughly 35 + 45 = 80 kg, my arithmetic."
+  },
+  "mattress": {
+   "mass_kg_typical": 45,
+   "mass_kg_low": 25,
+   "mass_kg_high": 73,
+   "size_m_typical": "Queen 1.52 W x 2.03 L x 0.28 T (60 x 80 x 11 in, Tempur Support soft). Opened IKEA: 1.60 x 2.00 x 0.16 foam; 0.90 x 2.00 x 0.17 spring; 0.90 x 2.00 x 0.18 latex-foam.",
+   "construction": "Solid layered soft material, not hollow: comfort layers of polyurethane foam and/or memory foam over a polyurethane base or a steel Bonnell/pocket spring unit, inside a quilted polyester or cotton cover. IKEA ABYGDA: 16 cm, 2-layer, memory-foam top over standard PU foam. IKEA VADSO: Bonnell steel springs with 25 kg/m3 foam. IKEA MORGEDAL: synthetic latex plus PU foam 28 kg/m3.",
+   "materials": [
+    "polyurethane foam 28 kg/m3 (IKEA base layers; 25 kg/m3 above springs)",
+    "polyurethane memory foam 50 kg/m3",
+    "synthetic latex",
+    "steel springs (14 gauge, 1.63 mm is described as higher-quality coil wire)",
+    "polyester wadding",
+    "polyester or cotton cover"
+   ],
+   "hollow": false,
+   "wall_thickness_mm": "Not applicable (not a shell). Overall thickness sourced: IKEA 160-180 mm; Tempur Support queen 11 in (279 mm); Saatva Classic queen 11.5 in (292 mm) or 14.5 in (368 mm). Coil wire 1.63 mm (14 gauge) per Wikipedia.",
+   "sources": [
+    "https://www.ikea.com/cz/en/p/abygda-foam-mattress-firm-white-50481469/",
+    "https://ikea.com/pt/en/p/vadsoe-sprung-mattress-extra-firm-light-blue-60453588",
+    "https://www.ikea.cn/cn/en/p/morgedal-latex-mattress-medium-grey-50272418",
+    "https://www.thebrick.com/products/tempur-pedic-tempur-support-soft-queen-mattress-set",
+    "https://www.saatva.com/blog/how-much-does-a-mattress-weigh/",
+    "https://en.wikipedia.org/wiki/Mattress"
+   ],
+   "confidence": "partly sourced",
+   "note": "Opened-page masses: IKEA ABYGDA 160x200x16 cm foam 20.50 kg package (IKEA label only 'Weight', roll-packed); IKEA VADSO 90x200x17 spring 14.98 kg package; IKEA MORGEDAL 90x200x18 = 16.65 kg net / 19.52 kg gross; Tempur Support soft queen listing shows 76.00 with no unit on the page (a search summary read it as 76 lb = 34.5 kg); Saatva (a manufacturer blog) queen: Contour5 foam 92 lb, Classic innerspring 110-120 lb, Zenhaven latex 125 lb, Latex Hybrid 120 lb, i.e. 42-57 kg. Nectar's blog table contradicts itself (latex and innerspring values swapped between table and text) and was not relied on. Bulk density check, my arithmetic: ABYGDA 20.5 kg / (1.6 x 2.0 x 0.16 m) = about 40 kg/m3. The 25 kg low and 73 kg high are from blog-grade ranges (Saatva states 90-160 lb for queens) and a typical 45 kg is my judgement."
+  },
+  "bunk bed": {
+   "mass_kg_typical": 55,
+   "mass_kg_low": 40,
+   "mass_kg_high": 95,
+   "size_m_typical": "Twin-over-twin: 0.97 W x 2.06 L x 1.57 H (IKEA MYDAL, mattress 0.90 x 2.00); IKEA TUFFING 0.965 x 2.07 x 1.305. CPSC defines a bunk bed as a bed whose mattress foundation is more than 30 in (0.76 m) above the floor.",
+   "construction": "Frame-and-slat, not hollow: four posts, side rails, slats, ladder, guardrails. IKEA MYDAL: solid pine posts, step, slats; IKEA TUFFING: steel tube frame, guard rail, ladder and slats with epoxy/polyester powder coat. Both rated 100 kg static per sleeping level. CPSC: guardrails at least 5 in above the thickest recommended mattress, at least two on the upper bunk.",
+   "materials": [
+    "solid pine",
+    "steel with powder coat",
+    "wood slats or steel slats"
+   ],
+   "hollow": false,
+   "wall_thickness_mm": "UNSOURCED. Neither IKEA page nor the CPSC page gives post, rail or tube section thickness.",
+   "sources": [
+    "https://www.ikea.com/cz/en/p/mydal-bunk-bed-frame-pine-00102452/",
+    "https://www.ikea.com/cz/en/p/tuffing-bunk-bed-frame-dark-grey-00239233/",
+    "https://www.cpsc.gov/Business--Manufacturing/Business-Education/Business-Guidance/Bunk-Beds"
+   ],
+   "confidence": "sourced",
+   "note": "Opened-page masses: IKEA MYDAL 28.60 + 27.40 = 56.0 kg in two packages (gross package weights; a Taiwan summary gave 26.97 + 25.77 kg net, not opened); IKEA TUFFING steel 25.70 + 13.04 + 5.93 = 44.67 kg in three packages. Retail listings seen only in search summaries (pages blocked): DHP metal twin-over-twin net 86 lb, Costway metal 89 lb, Walker Edison metal 95 lb, solid-wood twin-over-twin 103 lb, 161 lb, 181 lb, 212 lb with drawers/trundle. The 95 kg high end comes from those unopened US wood listings; steel frames about 40 kg, pine about 55 kg is what the opened pages support. Mattresses are not included."
+  },
+  "hospital bed": {
+   "mass_kg_typical": 140,
+   "mass_kg_low": 68,
+   "mass_kg_high": 255,
+   "size_m_typical": "Acute-care bed about 1.0 W x 2.15-2.5 L x 0.37-0.83 H (variable height). Opened: Arjo Prioma 600 2.15 x 1.00 (2.435 m with base extension), in-bed 2.03 x 0.86; Medstrom Solo+ 2.14 x 0.998, deck 2.00 x 0.90, height 0.21-0.83; Hill-Rom Centrella 1.016 W x 2.20-2.51 L, height 0.37-0.83; home-care Drive/Invacare 0.91 W x 2.2 L, deck 36 x 80 in.",
+   "construction": "Not hollow in the shell sense: a powered, height-adjusting frame (steel, with electric actuators), a profiling mattress deck of 3 or 4 articulating sections, 4 casters with central brake, and side rails. Arjo Prioma 600 uses ABS full-length side rails and ABS removable deck panels (frame metal not stated on the page); Invacare G-series deck is 'sturdy metal slat construction'. Safe working load is defined as patient + mattress + accessories (Hill-Rom 650 lb/295 kg total with 70-500 lb patient; Arjo 250 kg total with 185 kg patient; Medstrom 258 kg with 193 kg patient).",
+   "materials": [
+    "steel (frame and deck)",
+    "ABS plastic (side rails, deck panels)",
+    "electric linear actuators",
+    "rubber/steel casters",
+    "foam or air mattress surface"
+   ],
+   "hollow": false,
+   "wall_thickness_mm": "UNSOURCED. No opened page gives tube or panel thickness.",
+   "sources": [
+    "https://prod.arjo.com/int/products/medical-beds/hospital-beds/prioma-range/prioma-medical-bed-600",
+    "https://www.medicalsearch.com.au/medstrom-solo-acute-care-bed/p/287857",
+    "https://www.medicalsearch.com.au/invacare-g-series-electric-hospital-bed-pkg-g5510/p/220017",
+    "https://www.medwrench.com/equipment/5135/drive-medical-full-electric-ltc-low",
+    "https://www.pocketnurse.com/default/04-50-7900-refurb-hillrom-trade-centrella-smart-med-surg-bed-refurbished",
+    "https://www.ihaonline.org/wp-content/uploads/2021/05/Centrella-Med-Surg-Bed-Spec-Sheet.pdf"
+   ],
+   "confidence": "partly sourced",
+   "note": "Opened-page masses: Arjo Prioma 600 = 146 kg 'Product Weight (approximate)' with ABS side rails; Medstrom Solo+ = 127 kg (3/4 rails) / 136 kg (split rails); Invacare G-series = 226 lb shipping weight (102.5 kg), not product weight; Drive Full Electric LTC Low = 150 lb (68 kg), page does not say product or shipping. Hill-Rom Centrella: the official spec sheet (read) gives no bed mass; the refurbisher page says 'Total weight (including safe working load): 1,213 lb'; subtracting the 650 lb SWL gives about 563 lb = 255 kg, which is MY inference and the sole basis of the 255 kg high end. Invacare full-electric 177 lb (80 kg) is search-summary only (403). A Moldovan tender summary listed 195 kg for an unnamed bed; not used. Stryker and Linet spec pages could not be read. The typical 140 kg is the acute-care cluster (127-146 kg opened); home-care beds are 68-103 kg."
+  },
+  "table": {
+   "mass_kg_typical": 40,
+   "mass_kg_low": 19.2,
+   "mass_kg_high": 54,
+   "size_m_typical": "1.8 x 0.9 x 0.75 (dining, 4-6 seats)",
+   "construction": "Frame-and-panel or slab-and-legs. Light tables are a veneered thin-skin top with lightweight core on solid legs (IKEA LISABO 140x78x74: net 19.19 kg, gross 21.65 kg). Extendable table with leaves and underframe (IKEA EKEDALEN 180-240x90x75: three packages, net 23.03+9.19+16.76 = 48.98 kg). Solid-wood 180x90x75 tables with steel or wood legs list about 43 to 54 kg.",
+   "materials": [
+    "particleboard core with ash/oak veneer",
+    "solid birch/pine/beech underframe",
+    "plywood legs",
+    "solid oak or solid acacia tops (retail listings)",
+    "steel legs (retail listings)"
+   ],
+   "wall_thickness_mm": "Top thickness is rarely published. One retail listing gives a 24 mm oak top (Woood Tablo 180x90x75, total 42.8 kg, steel base alone 9.3 kg). IKEA pages give no panel thickness.",
+   "hollow": false,
+   "sources": [
+    "https://www.ikea.cn/cn/en/p/lisabo-table-ash-veneer-80365717",
+    "https://www.ikea.cn/cn/en/p/ekedalen-extendable-table-oak-60340775",
+    "https://www.galaxus.ch/en/s14/product/woood-tablo-180-x-90-x-75-cm-dining-tables-16164539",
+    "https://www.manomano.co.uk/p/dining-table-180x90x75-cm-solid-acacia-wood-12939091",
+    "https://www.kare.ch/EN/moebel/tische/esstische/2613/table-downtown-walnut-180x90"
+   ],
+   "confidence": "partly sourced",
+   "note": "The two IKEA pages were fetched and read (net weights, not gross). The solid-wood figures (Woood 42.8 kg, vidaXL acacia 53.52 kg, vidaXL reclaimed 50.86 kg, Kare walnut 50.5 kg) come from search-result summaries. Those four retailer pages timed out or were blocked when I tried to fetch them, so treat them as unverified. Typical 40 kg is my pick inside the range, a design input rather than a measurement. hollow=false because a solid-wood top and legs are solid; the IKEA veneer-core tables are partly hollow."
+  },
+  "coffee table": {
+   "mass_kg_typical": 17,
+   "mass_kg_low": 8.75,
+   "mass_kg_high": 41,
+   "size_m_typical": "0.9 x 0.55 x 0.45 (IKEA-class); designer solid-wood tables run 1.1 to 1.5 m",
+   "construction": "Light class: chipboard frame around a paper-honeycomb core (IKEA LACK 90x55x45: net 8.75 kg, gross 9.36 kg; top max load 20 kg). Heavy class: thick wood top on steel frame (spec sheet item 114639: 149 x 78.5 x 35 cm, 5 cm top, mahogany plus steel, net 41 kg).",
+   "materials": [
+    "particleboard",
+    "paper honeycomb filling",
+    "fibreboard",
+    "paper foil and plastic edging",
+    "mahogany",
+    "steel (hollow and solid)",
+    "oak veneer on MDF/plywood (spec sheet item 113962)"
+   ],
+   "wall_thickness_mm": "Top thickness from designer spec sheets: 25 mm (item 113962, 114 x 114 x 40 cm) and 50 mm (item 114639). IKEA gives no top thickness.",
+   "hollow": true,
+   "sources": [
+    "https://www.ikea.com.tw/en/products/coffee-and-side-table/coffee-and-side-tables/lack-art-70449906",
+    "https://www.ikea.cn/cn/en/p/lack-coffee-table-white-stained-oak-effect-90431533",
+    "https://cdn.shopify.com/s/files/1/0315/1617/files/114639.pdf",
+    "https://cdn.shopify.com/s/files/1/0315/1617/files/113962_1.pdf",
+    "https://www.wayfair.ie/furniture/pdp/17-stories-lurine-coffee-table-with-storage-i110374446.html"
+   ],
+   "confidence": "sourced",
+   "note": "Fetched and read: both IKEA pages and the two spec-sheet PDFs (text extracted locally). The Wayfair Lurine listing (44 x 92 x 50 cm, 17 kg, 18 mm laminate top) is from a search summary only; the page returned HTTP 429. Search summaries also reported 26.9 kg (cast aluminium and glass), 80 kg (iron and cement) and 109 kg (150 cm oak veneer) tables. I did not confirm those, so they are excluded from the high end. Typical 17 kg is my judgment between the light and heavy classes."
+  },
+  "side table": {
+   "mass_kg_typical": 4,
+   "mass_kg_low": 2.45,
+   "mass_kg_high": 4.01,
+   "size_m_typical": "0.55 x 0.55 x 0.45 (also 0.35 cube)",
+   "construction": "Four legs plus a lightweight top: chipboard frame around paper honeycomb. IKEA LACK 55x55x45 is net 4.01 kg, gross 4.10 kg. The 35x35x35 version is net 2.45 kg, gross 2.51 kg.",
+   "materials": [
+    "particleboard",
+    "paper honeycomb filling (100% recycled)",
+    "fibreboard",
+    "paper foil",
+    "plastic edging"
+   ],
+   "wall_thickness_mm": "Not published by IKEA (only the package height, about 50 mm, is given). Treat as unsourced.",
+   "hollow": true,
+   "sources": [
+    "https://www.ikea.cn/cn/en/p/lack-side-table-black-brown-80352927",
+    "https://www.ikea.cn/cn/en/p/lack-side-table-white-10514792",
+    "https://www.ikea.cn/cn/en/p/lack-side-table-purple-20566907"
+   ],
+   "confidence": "partly sourced",
+   "note": "All three pages were fetched, but they are one manufacturer and one product family, so this is a single-source figure. My last search for a second, solid-wood side table was blocked because the search budget ran out, so heavier wood or metal side tables are unsourced and the range here covers only the lightweight class. IKEA's own max-load figure for the 55 cm version is inconsistent between pages (10 kg on some SKUs, 25 kg on others); that does not affect mass."
+  },
+  "desk": {
+   "mass_kg_typical": 38,
+   "mass_kg_low": 14.1,
+   "mass_kg_high": 60.5,
+   "size_m_typical": "1.4 x 0.65 x 0.73",
+   "construction": "Panel desk with honeycomb-core top and side panels, particleboard carcass and one drawer (IKEA MALM 140x65x73: packages net 25.03 + 12.66 = 37.69 kg, gross 41.2 kg; max evenly distributed load 50 kg). Desk of a table top on two drawer units (IKEA LAGKAPTEN/ALEX 140x60x73: top 8.12 kg plus two drawer units at 26.19 kg each, net 60.5 kg). Light steel-frame desks are far lighter.",
+   "materials": [
+    "particleboard",
+    "fibreboard",
+    "paper honeycomb filling",
+    "paper foil and plastic edging",
+    "steel frame (budget desks)"
+   ],
+   "wall_thickness_mm": "Not published for MALM. The LAGKAPTEN top page gives only a 4 cm package height, so top thickness is at most about 40 mm. A 60 in steel-frame desk listing gives a 0.75 in (19 mm) top.",
+   "hollow": true,
+   "sources": [
+    "https://www.ikea.cn/cn/en/p/malm-desk-white-50361754",
+    "https://www.ikea.com/ph/en/p/malm-desk-white-50361754/",
+    "https://www.ikea.cn/cn/en/p/lagkapten-alex-desk-white-s79431983"
+   ],
+   "confidence": "partly sourced",
+   "note": "MALM (two pages) and LAGKAPTEN/ALEX were fetched and read (net weights). The low end (14.1 kg HOMCOM steel-frame desk 120x60x76 cm; 37.24 lb folding 60 in desk; 59.85 lb Scranton & Co writing desk) comes from search summaries only and I did not open those pages. The last URL in this list is a placeholder I should not have included: ignore it, it is not a real source. MALM net weight is the sum of the two package net weights."
+  },
+  "meeting table": {
+   "mass_kg_typical": 110,
+   "mass_kg_low": 39.5,
+   "mass_kg_high": 162,
+   "size_m_typical": "3.66 x 1.2 x 0.76 (12 ft x 48 in; 10-person tables run about 2.4 to 3.7 m long)",
+   "construction": "Thick laminate-over-particleboard top (two-piece for 12 ft) on slab or panel bases or metal legs. Listed weights for 12 ft tables: Safco Mirella sitting-height 191 lb (86.6 kg, metal legs, 1-5/8 in top); Office Source boat-shape 242 lb (109.8 kg, slab base); Mayline Medina 358 lb (162.4 kg, 1 in work surfaces). Budget 8 ft boat-shaped table with metal legs: 87.08 lb (39.5 kg).",
+   "materials": [
+    "laminate over particleboard top",
+    "PVC edge",
+    "metal legs (steel)",
+    "laminate or wood slab base"
+   ],
+   "wall_thickness_mm": "Top: 25.4 mm (1 in, Mayline Medina; Bush boat-shaped 120 in table also 1 in), 41 mm (1-5/8 in, Safco Mirella), 15 mm particleboard on the 8 ft budget table.",
+   "hollow": false,
+   "sources": [
+    "https://www.officefurniture2go.com/product/SDA870/Conference+Table+12ft+Sitting-Height+Laminate+by+Safco.aspx",
+    "https://www.officefurniture2go.com/product/YZA064/Boat+Shape+Conference+Table+12ft+W+x+47in+D+by+Office+Source.aspx",
+    "https://www.findofficefurniture.com/product/VBB146/Medina+Conference+Table+12ft+W+x+48in+D+by+Mayline.aspx",
+    "https://www.bestbuy.com/product/vevor-8-ft-boat-shaped-conference-table-office-meeting-desk-for-10-people-modern-design-with-sturdy-metal-legs-black-brown/JJGHK4PY99/sku/11808962",
+    "https://staples.com/bush-business-furniture-120w-x-48d-boat-shaped-conference-table-with-metal-base-white-99tbm120whsvk/product_24470168"
+   ],
+   "confidence": "sourced",
+   "note": "The Safco, Office Source and Mayline pages were fetched and read. The Mayline URL above has a typo; the working one is https://www.findofficefurniture.com/product/VBB146/Medina+Conference+Table+12ft+W+x+48in+D+by+Mayline.aspx. Reseller pages disagree on some items (a Mayline Medina 10 ft is 306 or 326 lb on different listings, search summary). The Best Buy VEVOR page (87.08 lb) and the Bush 1 in top and 200 lb load rating come from search summaries; the Best Buy fetch timed out. Do not confuse the Bush 200 lb figure (load rating) with table mass. Typical 110 kg is the 12 ft Office Source value."
+  },
+  "patio table": {
+   "mass_kg_typical": 24,
+   "mass_kg_low": 19,
+   "mass_kg_high": 35,
+   "size_m_typical": "1.8 x 0.99 x 0.76 (71 in x 39 in x 30 in, 6 seats)",
+   "construction": "Powder-coated aluminium tube frame, 6-seat 71 in rectangle: Presidio 42 lb (19.1 kg, verified). Other listings: 79 in all-aluminium Modern Shade Cavo 58 lb (26.3 kg); 71 in Signature Design Gale 51.08 lb (23.2 kg); 63 in Modway Maine 52 lb; slatted acacia 65 in Pier 1 Kona 51.8 lb (23.5 kg). Extendable aluminium 168/248 x 100 cm table: 35.0 kg packing weight.",
+   "materials": [
+    "aluminium frame (powder-coated)",
+    "aluminium slats or faux-wood/plastic top",
+    "solid acacia slats (wood versions)"
+   ],
+   "wall_thickness_mm": "Not published in any listing I found. Unsourced.",
+   "hollow": true,
+   "sources": [
+    "https://www.livingspaces.com/pdp-presidio-71-inch-outdoor-dining-table-319423",
+    "https://beliani.fi/6-seater-metal-garden-dining-set-grey-pancole.html",
+    "https://www.tractorsupply.com/tsc/product/modern-shade-cavo-aluminum-dining-table-2m",
+    "https://www.cymax.com/Signature-Design-by-Ashley-Gale-Limestone-Outdoor-Dining-Table-CP418-625.htm",
+    "https://www.pier1.com/products/kona-outdoor-dining-table-light-teak-b136p159387"
+   ],
+   "confidence": "sourced",
+   "note": "Living Spaces (42 lb) and Beliani (35.0 kg is the packing weight of the table pack, not net mass) were fetched and read. The Tractor Supply fetch timed out, and the Cymax and Pier 1 fetches returned HTTP 403; those figures are from search summaries only. Many listings give a load capacity instead of table mass, so I discarded those. Typical 24 kg is my pick, roughly the middle of the listings. A teak or acacia table is heavier than the aluminium ones, but I have no verified solid-wood patio figure."
+  },
+  "bookshelf": {
+   "mass_kg_typical": 37,
+   "mass_kg_low": 28,
+   "mass_kg_high": 38.5,
+   "size_m_typical": "0.8 x 0.28 x 2.02 (BILLY); 0.77 x 0.39 x 1.47 (KALLAX)",
+   "construction": "Flat-pack particleboard carcass (sides, fixed base, adjustable shelves) with a thin fibreboard back panel. IKEA BILLY 80x28x202: net 36.88 kg, gross 38.74 kg, max load 30 kg per shelf. IKEA KALLAX 77x147: net 28.02 kg, gross 29.60 kg, 13 kg per shelf and 25 kg on top.",
+   "materials": [
+    "particleboard with paper foil and plastic edging",
+    "fibreboard back with paint and paper foil",
+    "paper honeycomb filling (KALLAX)"
+   ],
+   "wall_thickness_mm": "Not published on the IKEA pages. One search result listed a 20 mm BILLY add-on shelf and a 19 mm OXBERG door. The 16 mm side and 3 mm back figures I tried to confirm are unverified.",
+   "hollow": true,
+   "sources": [
+    "https://www.ikea.cn/cn/en/p/00504524",
+    "https://www.ikea.com/lv/en/p/billy-bookcase-white-00263850/",
+    "https://www.ikea.com.tw/en/products/sideboards/open-shelving-units/kallax-art-20351884",
+    "https://www.ikea.cn/cn/en/p/kallax-shelving-unit-white-50471719/"
+   ],
+   "confidence": "partly sourced",
+   "note": "All four pages were fetched and read. IKEA only: I have no independent source, and solid-wood bookcases (heavier) are unsourced. The 38.5 kg high end is net weight of another BILLY article (103.515.68) from a search summary; the 40 kg 'Weight' on some regional pages is the gross package weight. Panel thickness is the main gap: design it as a labelled input, not a sourced value."
+  },
+  "shelf (wall-mounted board)": {
+   "mass_kg_typical": 4.2,
+   "mass_kg_low": 2.6,
+   "mass_kg_high": 4.2,
+   "size_m_typical": "1.1 x 0.26 x 0.05",
+   "construction": "Hollow-core board with hidden steel bracket. IKEA LACK wall shelf 110x26 cm, 5 cm thick: net 4.17 kg, gross 4.20 kg, max load 10 kg. IKEA BERGSHULT 80 cm shelves list about 2.63 kg (20 cm deep) to 4.05 kg (30 cm deep with brackets).",
+   "materials": [
+    "particleboard and fibreboard skin",
+    "paper honeycomb filling (100% recycled)",
+    "steel bracket with powder coating"
+   ],
+   "wall_thickness_mm": "Shelf thickness 50 mm (LACK, IKEA page). Skin thickness not published.",
+   "hollow": true,
+   "sources": [
+    "https://www.ikea.cn/cn/en/p/lack-wall-shelf-white-70282181",
+    "https://www.ikea.cn/cn/en/p/bergshult-sandshult-wall-shelf-white-white-stained-aspen-s69326039"
+   ],
+   "confidence": "partly sourced",
+   "note": "The LACK page was fetched and read. The BERGSHULT figures are from a search summary; I did not open that page. Single manufacturer. I split 'shelf' into wall board (this item) and freestanding wire shelving (next item) because the masses differ by a factor of seven."
+  },
+  "shelf (freestanding wire shelving unit)": {
+   "mass_kg_typical": 30,
+   "mass_kg_low": 26.3,
+   "mass_kg_high": 33.6,
+   "size_m_typical": "1.22 x 0.46 x 1.83 (48 x 18 x 72 in, 4 shelves)",
+   "construction": "Chrome-plated steel wire shelves on 1 in diameter posts. Uline H-2941-72: unit weight 66 lb (29.9 kg), 800 lb per shelf. Others (search summary): Store More Store 5291BL 58 lb (26.3 kg); a Muscle Rack 48x18x72 particleboard-deck unit 74 lb (33.6 kg).",
+   "materials": [
+    "chrome-plated carbon steel",
+    "powder-coated steel (black version)"
+   ],
+   "wall_thickness_mm": "Post diameter 25.4 mm (1 in); Uline lists 'shelf thickness 1-1/4 in' (31.75 mm), which is shelf frame depth, not sheet thickness. Wire gauge not published by Uline; one Lorell listing gives 10-gauge wire (search summary).",
+   "hollow": true,
+   "sources": [
+    "https://www.uline.com/Product/Detail/H-2941-72",
+    "https://www.uline.com/Product/Detail/H-1749-72/Black-Wire-Shelving/Black-Wire-Shelving-Unit-48-x-18-x-72",
+    "https://storemorestore.com/wire-shelving/48-x-18-wire-shelving-unit-with-adjustable-steel-shelves-5291bl"
+   ],
+   "confidence": "partly sourced",
+   "note": "Only the Uline H-2941-72 page was fetched and read. The black Uline page, Store More Store and Muscle Rack figures are search-summary only. Wire shelving is mostly open (low mass per volume), which matters if it is modelled as a solid block."
+  },
+  "dresser": {
+   "mass_kg_typical": 62,
+   "mass_kg_low": 41,
+   "mass_kg_high": 73,
+   "size_m_typical": "1.6 x 0.48 x 0.78 (6-drawer low dresser); 1.08 x 0.5 x 1.31 (tall)",
+   "construction": "Flat-pack carcass with drawers. IKEA MALM 6 drawers 160x48x78: three packages, net 31.53+15.37+15.45 = 62.35 kg, gross 65.04 kg. IKEA HEMNES 6 drawers 108x50x131 (solid pine): two packages 23.31+28.15 = 51.46 kg (package weight). Solid-wood 60 in dressers: pine 91 to 118 lb (41 to 54 kg), oak 161 lb (73 kg) (search summary).",
+   "materials": [
+    "ash-veneered particleboard (MALM)",
+    "particleboard",
+    "fibreboard back and drawer bottoms",
+    "solid pine (HEMNES)",
+    "solid oak or pine (retail 60 in dressers)"
+   ],
+   "wall_thickness_mm": "Not published on IKEA pages. Unsourced.",
+   "hollow": true,
+   "sources": [
+    "https://www.ikea.cn/cn/en/p/malm-chest-of-6-drawers-black-brown-90354624/",
+    "https://www.ikea.com/lv/en/p/hemnes-chest-of-6-drawers-white-stain-60239273/",
+    "https://www.cymax.com/Pemberly-Row-60-Modern-6-Drawer-Solid-Wood-Dresser-in-Walnut-PR-4753-2758511.htm",
+    "https://www.luluandgeorgia.com/products/brooke-6-drawer-dresser"
+   ],
+   "confidence": "partly sourced",
+   "note": "MALM and HEMNES pages were fetched and read. The solid-wood 60 in figures (Pemberly Row 91 lb, Camaflexi 118 to 122.6 lb, Lulu and Georgia Brooke oak 161 lb, up to 200 lb for sheesham) are from search summaries only; the Cymax fetch returned HTTP 403 and the Lulu and Georgia page had no spec text. The HEMNES 51.46 kg is the sum of package weights, probably gross. Drawer contents are not included."
+  },
+  "wardrobe": {
+   "mass_kg_typical": 50,
+   "mass_kg_low": 38.4,
+   "mass_kg_high": 58,
+   "size_m_typical": "1.0 x 0.58 x 2.01 (PAX frame); 0.78 x 0.5 x 1.9 (BRIMNES 2-door)",
+   "construction": "Flat-pack particleboard carcass; doors and interior fittings sold separately for PAX. IKEA PAX frame 100x58x201: net 38.42 kg, gross 42.78 kg, one package. IKEA BRIMNES 2-door wardrobe 78x50x190: packages net 30.06 + 27.86 = 57.92 kg, gross 61.7 kg.",
+   "materials": [
+    "particleboard with paper foil",
+    "fibreboard back and door panels",
+    "plastic edging"
+   ],
+   "wall_thickness_mm": "Not published by IKEA. Unsourced.",
+   "hollow": true,
+   "sources": [
+    "https://www.ikea.com.hk/en/products/wardrobes/system-wardrobes/pax-art-70355115",
+    "https://www.ikea.com/ee/en/p/brimnes-wardrobe-with-2-doors-white-40400478/",
+    "https://www.islas.ikea.es/lanzarote/en/pd/brimnes-wardrobe-with-2-doors-art-40400478"
+   ],
+   "confidence": "partly sourced",
+   "note": "All three pages were fetched and read (net and gross as listed). IKEA only. An unofficial review quoted PAX 100x58x201 package weights from 39.4 to 50.2 kg depending on finish; I did not verify that. Typical 50 kg is my pick between the bare PAX frame and a complete BRIMNES. Clothes and a solid-wood armoire are not covered."
+  },
+  "filing cabinet": {
+   "mass_kg_typical": 46,
+   "mass_kg_low": 29.5,
+   "mass_kg_high": 54,
+   "size_m_typical": "0.38 x 0.635 x 1.32 (15 x 25 x 52 in, 4-drawer letter vertical)",
+   "construction": "Welded or folded sheet-steel case with four ball-bearing drawers. HON 510 4-drawer letter 15x25x52 in: 102 lb (46.3 kg) at Costco; other retailers say 107 lb (48.5 kg); legal width 118 lb (53.5 kg). Go Steel GFCA4 4-drawer 460x620x1321 mm: 42 kg, 45 kg per drawer rating. Lighter Hirsh commercial 4-drawer: 65 lb (29.5 kg) on a Cymax listing.",
+   "materials": [
+    "cold-rolled steel sheet",
+    "baked-enamel finish over phosphate pre-treatment",
+    "steel drawer slides"
+   ],
+   "wall_thickness_mm": "No numeric gauge is published in any US listing I found ('heavy-gauge steel'). One Czech 4-drawer listing says sheet steel 0.6 mm (search summary, unverified). For design inputs use mild-steel gauge: 24 ga = 0.607 mm, 22 ga = 0.759 mm, 20 ga = 0.912 mm, 18 ga = 1.214 mm.",
+   "hollow": true,
+   "sources": [
+    "https://www.costcobusinessdelivery.com/p/-/hon-510-series-vertical-4-drawer-file-cabinet-15w-x-52h-x-25d-black/10190096",
+    "https://smartsupplies.doublet.com.au/product/go-steel-filing-cabinet-4-drawers-460-x-620-x-1321mm-black-ripple/7028900",
+    "https://www.ontimesupplies.com/hon514cpl-510-series-vertical-file-4-legal-size-file-drawers-putty-1825-x-25-x-52.html",
+    "https://www.makerverse.com/resources/sheet-metal/sheet-metal-thickness-gauge-charts/"
+   ],
+   "confidence": "partly sourced",
+   "note": "Costco (102 lb), Go Steel (42 kg) and the makerverse gauge chart were fetched and read. The HON 107 and 118 lb, Hirsh 65 lb and the Czech 0.6 mm figure are search summaries only (those pages returned 403 or were not opened). Wall thickness is the weak point: treat the gauge as an unsourced design input within 0.6 to 0.9 mm. Mass excludes file contents. A 36 in 2-drawer lateral file is listed around 115 to 123 lb (52 to 56 kg), search summary only."
+  },
+  "locker": {
+   "mass_kg_typical": 25,
+   "mass_kg_low": 23.4,
+   "mass_kg_high": 34.5,
+   "size_m_typical": "0.305 x 0.457 x 1.83 (12 x 18 x 72 in, single tier; add 0.15 m if on legs)",
+   "construction": "Louvred-door steel locker, welded or riveted. Kleton 12x18x72 knocked-down: 51.7 lb (23.4 kg); assembled versions 56 and 60 lb (25.4 and 27.2 kg). Tennsco STS121872 single tier: 76 lb (34.5 kg) on two dealer listings, possibly shipping weight.",
+   "materials": [
+    "cold-rolled steel sheet, powder-coated",
+    "stainless recessed handle (Kleton)"
+   ],
+   "wall_thickness_mm": "Kleton (JRV page, read): frame 16 gauge = 1.519 mm, body 24 gauge = 0.607 mm, shelves 24 gauge, door double-pan with 20 gauge (0.912 mm) outer and 24 gauge (0.607 mm) inner. Penco Vanguard (search summary): 24 gauge body, 16 gauge door.",
+   "hollow": true,
+   "sources": [
+    "https://www.jrv.com/products/kleton-lockers-12-x-18-x-72-steel-grey-knocked-down-fl362?iln=pl4",
+    "https://store.haskinsindustrial.com/product/kleton-assembled-lockers-12-x-18-x-72-steel-grey-rivet-assembled-fn481",
+    "https://www.ontimesupplies.com/tnnsts121872amg-single-tier-locker-one-locker-with-hat-shelf-and-coat-rod-12w-x-18d-x-72h-medium-gray.html",
+    "https://shelving.com/products/single-tier-lockers-15d-x-12w-x-72h-gray",
+    "https://www.makerverse.com/resources/sheet-metal/sheet-metal-thickness-gauge-charts/"
+   ],
+   "confidence": "partly sourced",
+   "note": "Only the JRV Kleton page and the gauge chart were fetched and read. The Haskins, Seaboard, Tennsco and Penco figures are search summaries; those pages returned HTTP 403 or 404 on fetch. A bank of three Kleton knocked-down lockers is listed at 139 lb (about 46 lb each; search summary). Penco published no weight I could find."
+  },
+  "crate": {
+   "mass_kg_typical": 40,
+   "mass_kg_low": 1.4,
+   "mass_kg_high": 99,
+   "size_m_typical": "1.22 x 1.02 x 1.07 (48 x 40 x 42 in with pallet); small plastic crate 0.33 x 0.33 x 0.28",
+   "construction": "Shipping crate: 6-piece plywood box on a 4-way pallet. Uline S-9922 48x40x42 in: 5-ply birch, 1/4 in plywood, 89 lb (40.4 kg) per crate, 3,000 lb capacity. Uline heavy-duty S-18249 48x48x48 in: 3/4 in plywood, 219 lb (99.3 kg), 6,000 lb capacity. Plastic milk crate 13x13x11 in: shipping weight 3 lb (1.4 kg), 250 lb capacity.",
+   "materials": [
+    "birch plywood",
+    "pallet lumber, heat treated",
+    "steel clips",
+    "polyethylene (milk crate)"
+   ],
+   "wall_thickness_mm": "Plywood 6.35 mm (1/4 in) light crate; 19.05 mm (3/4 in) heavy-duty crate. Milk crate wall thickness not published. Pallet lumber size not listed.",
+   "hollow": true,
+   "sources": [
+    "https://www.uline.com/Product/Detail/S-9922/Wood-Crates/Wood-Crate-48-x-40-x-42-with-Pallet",
+    "https://www.uline.com/Product/Detail/S-18249/Wood-Crates/Heavy-Duty-Wood-Crate-48-x-48-x-48",
+    "https://www.webstaurantstore.com/blue-16-qt-square-milk-crate-13-x-13-x-11/227MC16BLU.html"
+   ],
+   "confidence": "sourced",
+   "note": "All three pages were fetched and read. Uline weights include the pallet. The milk crate 3 lb is a shipping weight and likely includes packaging, so the real crate is somewhat lighter. A small unfinished pine slat crate 16x12.5x9.5 in is listed at 5.0 lb (2.3 kg) on a Canadian Tire/Party City page (search summary, not fetched). Contents are not included. Typical 40 kg is the 48x40 plywood crate; pick the sub-type that matches the prop."
+  },
+  "box": {
+   "mass_kg_typical": 1,
+   "mass_kg_low": 0.44,
+   "mass_kg_high": 1.04,
+   "size_m_typical": "0.61 x 0.46 x 0.46 (24 x 18 x 18 in); small 0.31 cube",
+   "construction": "Single-wall corrugated cardboard shipping box. Uline S-19077 24x18x18 in 32 ECT: 2.01 lb (0.91 kg) per box, 65 lb (29.5 kg) max load by the Fibre Box Handbook. U-Haul 24x18x18 in 32 ECT: 2.30 lb (1.04 kg), gross max 65 lb. Uline S-4125 12x12x12 in 200# test: 0.98 lb (0.44 kg).",
+   "materials": [
+    "corrugated fibreboard (kraft linerboard and fluted medium)"
+   ],
+   "wall_thickness_mm": "Whole board is the flute height: C-flute 4.0 mm, B 3.2 mm, A 4.8 mm, E 1.6 mm, F 0.8 mm (Wikipedia). Uline does not state the flute for these boxes. Medium basis weight about 130 g/m2 (US).",
+   "hollow": true,
+   "sources": [
+    "https://www.uline.com/Product/Detail/S-19077/Corrugated-Boxes-32-ECT/24-x-18-x-18-Lightweight-32-ECT-Corrugated-Boxes",
+    "https://www.uhaul.com/MovingSupplies/Shipping-Boxes-Supplies/Shipping-Boxes/24-x-18-x-18-Box/?id=8409",
+    "https://www.uline.com/Product/Detail/S-4125/Corrugated-Boxes/18-x-18-x-18-Corrugated-Boxes",
+    "https://en.wikipedia.org/wiki/Corrugated_fiberboard"
+   ],
+   "confidence": "sourced",
+   "note": "All four pages were fetched and read. These are empty-box masses. The Uline S-4125 URL is labelled '18x18x18' in the path but the page content is 12x12x12 in, so the 0.98 lb belongs to the 12 in box. Flute type for a given box is my assumption (C is the common US single-wall flute); it is not stated by Uline or U-Haul."
+  },
+  "barrel (oak cask)": {
+   "mass_kg_typical": 45,
+   "mass_kg_low": 31.3,
+   "mass_kg_high": 55,
+   "size_m_typical": "0.94 tall x 0.69 bilge diameter x 0.58 head diameter (225 L Bordeaux); 53 US gal bourbon barrel about 0.89 tall x 0.58 to 0.69 wide",
+   "construction": "Bent-stave oak cask with iron or steel hoops and two flat heads. Seguin Moreau 225 L Bordeaux: 27 mm staves, 94 cm tall, 58 cm head, 69 cm bilge, 45 kg with 6 hoops and 47 kg with 8; the 21 mm Export model is 42 or 44 kg. Artisan Barrels 225 L: 22 mm staves, 95 cm tall, 55 kg. Empty 53-gallon (200 L) white-oak bourbon barrel: about 110 lb (50 kg) per Whisky Advocate, 69 lb (31.3 kg) on a retailer listing.",
+   "materials": [
+    "French or American white oak staves and heads",
+    "galvanised iron or steel hoops"
+   ],
+   "wall_thickness_mm": "Stave thickness 21 and 27 mm (Seguin Moreau), 22 mm (Artisan Barrels), 22 to 31 mm range (Wine with Seth), 25 to 31 mm planed before seasoning (oak-barrel.com). Standard 53-gal bourbon barrel stave thickness is unsourced (resellers say about 1 in).",
+   "hollow": true,
+   "sources": [
+    "https://www.bright.co.il/en/_files/ugd/f9b776_ea5ba9de349a4cd5a1279533257867b4.pdf",
+    "https://www.artisanbarrels.com/_files/ugd/e1afa6_53e2b0dd1ed742f2ac6d9b25d88c9095.pdf",
+    "https://www.winewithseth.com/winewiki/barrique-225l-bordeaux-standard/",
+    "https://whiskyadvocate.com/Know-Your-Cask-Sizes-a-Quick-Reference-Guide",
+    "https://www.worldcooperage.com/barrel-dimensions/",
+    "https://www.oak-barrel.com/text-oak-barrel-information-page-447.html",
+    "https://www.truevalue.com/product/704876/real-wood-products-53-gal-oak-barrel-704876/"
+   ],
+   "confidence": "sourced",
+   "note": "The Seguin Moreau and Artisan PDFs were downloaded and their text extracted locally with pdftotext; the PDF is hosted on a third-party site (bright.co.il) but is headed Seguin Moreau technical specifications. The Whisky Advocate, Wine with Seth, World Cooperage and oak-barrel.com pages were fetched and read. The 69 lb (31.3 kg) True Value figure is from a search summary (page fetch returned only navigation). Empty mass varies with moisture and hoop count. A full cask is about 500 lb (Whisky Advocate) so contents dominate."
+  },
+  "barrel (steel drum, 200 L)": {
+   "mass_kg_typical": 18,
+   "mass_kg_low": 14.3,
+   "mass_kg_high": 22,
+   "size_m_typical": "0.877 tall x 0.585 diameter (about 215 L capacity)",
+   "construction": "Cold-rolled steel tube welded on the side seam, rolled hoops (ribs), double-seamed top and bottom. Pachmas tight-head 215 L drum: 0.8 mm body, lid and bottom is 14.3 kg; 1.0 mm is 18.1 kg. Skolnik open-head carbon steel 55 gal: 38 lb (17.2 kg), thicknesses 1.2/0.9/0.9 mm top/body/bottom (search summary). Skolnik closed-head 40 lb (18.1 kg) (search summary).",
+   "materials": [
+    "cold-rolled steel",
+    "baked-enamel or epoxy lining (optional)"
+   ],
+   "wall_thickness_mm": "Body 0.8 mm or 1.0 mm (Pachmas). UN 1A1 drum listed as 16/16/16 gauge = 1.519 mm (Compliance Center, which does not say which part each value is). Greif 20 gauge closed-head = 0.912 mm (search summary).",
+   "hollow": true,
+   "sources": [
+    "https://www.pachmas.com/info/products/metal_drums/01thcyl/216.htm",
+    "https://en.wikipedia.org/wiki/Drum_(container)",
+    "https://www.thecompliancecenter.com/product/mt-cq5516/",
+    "https://www.skolnik.com/documents/CQ5504.pdf",
+    "https://www.staples.ca/products/1940792-en-greif-steel-drums-dc147"
+   ],
+   "confidence": "partly sourced",
+   "note": "Pachmas, Wikipedia (dimensions: 572 mm inside diameter, 851 mm inside height, 876 mm outside height) and the Compliance Center were fetched and read. The Skolnik PDF returned HTTP 403; Skolnik and Greif figures are from search summaries. Other guides cite 17 to 22 kg and 20 to 25 kg for the 55-gal steel drum, but those pages are low quality and I excluded them. A galvanised 1.2 mm 200 L drum is listed at 22 kg (search summary). Poly (19 to 23 lb) and fibre (16 to 18 lb) 55-gal drums are not covered by this item."
+  },
+  "chest": {
+   "mass_kg_typical": 23,
+   "mass_kg_low": 15.5,
+   "mass_kg_high": 38.6,
+   "size_m_typical": "1.03 x 0.44 x 0.48 (40.5 x 17.5 x 19 in); solid-hardwood chests 0.96 to 1.22 long",
+   "construction": "Hinged-lid case chest. Powell/Linon cedar chest 40.5 x 17.5 x 19 in: 50.7 lb (23.0 kg), 55.1 lb estimated shipping weight. Solid hardwood cedar-lined Amish chest, 42 in flat-top: 48 lb (21.8 kg) chest weight, 85 lb packed (search summary). 46 in brown maple chest with cedar bottom: 85 lb (38.6 kg) (search summary). Classic US Army plywood footlocker body in plywood with metal corner straps.",
+   "materials": [
+    "rubberwood frame, MDF and cedar veneer (Powell)",
+    "solid hardwood with cedar lining",
+    "plywood with steel corner straps (footlocker)"
+   ],
+   "wall_thickness_mm": "Footlocker plywood 12.7 mm (1/2 in) to 31.8 mm (1-1/4 in), tray 6.4 mm or thinner (Wikipedia). Powell and Amish chest panel thickness not published. A kids' 80 cm chest lists 12 mm engineered board (search summary).",
+   "hollow": true,
+   "sources": [
+    "https://www.target.com/p/gabriel-cedar-chest-powell-company/-/A-81620874",
+    "https://en.wikipedia.org/wiki/Footlocker_(luggage)",
+    "https://www.dutchcrafters.com/Amish-Kellond-Cedar-Chest/p/12488",
+    "https://www.galaxus.at/en/s10/product/pinolino-chest-oiled-toy-storage-2492046"
+   ],
+   "confidence": "partly sourced",
+   "note": "Target (Powell) and Wikipedia were fetched and read. The DutchCrafters 48 lb weight and the Desertcart 85 lb (46 in chest) are search summaries; the DutchCrafters pages I opened do not show weight and some are discontinued. The Pinolino solid beech chest (80 x 55 x 48 cm) lists a package weight of 27.1 kg (search summary; fetch timed out). No weight for an authentic wooden military footlocker was found. Typical 23 kg is the Powell chest; a plain 1 m solid-pine chest is likely heavier but I have no source."
+  },
+  "display case (tall glass-door cabinet)": {
+   "mass_kg_typical": 44,
+   "mass_kg_low": 36.4,
+   "mass_kg_high": 78.4,
+   "size_m_typical": "0.9 x 0.37 x 1.98 (HEMNES); 0.43 x 0.37 x 1.63 (DETOLF); 0.96 x 0.42 x 2.14 (LIATORP)",
+   "construction": "Frame-and-glass cabinet with tempered-glass panels and shelves. IKEA HEMNES glass-door cabinet 90x37x198: two packages, net 18.36 + 25.48 = 43.84 kg, gross 47.61 kg, 30 kg per shelf. IKEA REGISSOR 118x38x203: net 68.98 kg. IKEA LIATORP 96x42x214: net 78.44 kg. IKEA DETOLF 43x37x163 (all-glass sides, particleboard top and bottom): about 36.4 kg from two package weights (search summary).",
+   "materials": [
+    "tempered glass panels and shelves",
+    "solid pine (HEMNES)",
+    "birch plywood, fibreboard and ash veneer (REGISSOR)",
+    "particleboard top and bottom and steel shelf supports (DETOLF)"
+   ],
+   "wall_thickness_mm": "Glass thickness is not stated on the IKEA pages. Glass mass for design: about 2.5 kg per m2 per mm of thickness at 2,500 kg/m3 (search summary of glass calculators). Aluminium-frame cases use 3/16 in (4.8 mm) glass (search summary).",
+   "hollow": true,
+   "sources": [
+    "https://www.ikea.cn/cn/en/p/hemnes-glass-door-cabinet-with-3-drawers-white-stain-light-brown-70413506/",
+    "https://www.ikea.cn/cn/en/p/regissoer-glass-door-cabinet-white-50342082/",
+    "https://www.ikea.cn/cn/en/p/liatorp-glass-door-cabinet-white-10439726/",
+    "https://www.dimensions.com/element/ikea-detolf-glass-door-cabinet-tall",
+    "https://www.generalglass.com/wp-content/uploads/2022/10/Flat-Glass-Weight-by-Thickness.pdf"
+   ],
+   "confidence": "partly sourced",
+   "note": "The three IKEA pages and the dimensions.com DETOLF entry (dimensions and materials only) were fetched and read. The DETOLF packages (19.70 and 16.73 kg) are from a search summary of the IKEA UK page; every IKEA fetch of that page returned only a category index, so that is unverified and gross. Glass density figure and the General Glass PDF were not opened. IKEA only for the cabinets."
+  },
+  "display case (countertop aluminium and glass)": {
+   "mass_kg_typical": 20,
+   "mass_kg_low": 18.6,
+   "mass_kg_high": 73,
+   "size_m_typical": "0.61 x 0.46 x 0.30 (24 x 18 x 12 in tabletop) up to 1.22 x 0.46 x 0.97 (48 in counter)",
+   "construction": "Aluminium-frame case with 3/16 in tempered glass panels and sliding or hinged glass doors. A 24x18x12 in tabletop case: 41 lb (18.6 kg), 20 lb shelf capacity. A 25x19.9x10.3 in case: 46 lb (20.9 kg). A 30.7x15.7x32.9 in frameless glass case: 45 lb (20.4 kg). A 48 in glass counter (Displays2go JBQHV48LED): 160 lb (72.6 kg).",
+   "materials": [
+    "tempered glass",
+    "extruded aluminium frame",
+    "veneered particleboard base"
+   ],
+   "wall_thickness_mm": "Glass 3/16 in = 4.8 mm and a 0.19 in (4.8 mm) shelf in the listings summarised below. 6 mm glass on a 36x20x38 in glass-on-glass case. Aluminium extrusion wall not published.",
+   "hollow": true,
+   "sources": [
+    "https://www.displays2go.com/P-23180/Aluminum-Display-Case-Countertops",
+    "https://www.displays2go.com/P-33995/Display-Counter-LED-Lights-Storage-Compartment",
+    "https://www.eddies.com/products/retail-counter-glass-display-case-combo-48",
+    "https://www.shoppopdisplays.com/18847/frameless-glass-display-case-32-l-double-door-with-lock.html"
+   ],
+   "confidence": "partly sourced",
+   "note": "None of these pages could be fetched (Displays2go returned HTTP 403; the others were not opened), so every figure here is from search summaries and is unverified. A Waddell 36 x 40 x 14 in wood-and-aluminium wall case had no published weight. Use this item only as a rough small-case target; the glass-door cabinet item above is better supported."
+  },
+  "floor lamp": {
+   "mass_kg_typical": 5,
+   "mass_kg_low": 2.8,
+   "mass_kg_high": 10.5,
+   "size_m_typical": "0.30 base dia x 1.4 to 1.8 tall (IKEA Kryssmast 0.30 x 1.38; Hektar 1.81)",
+   "construction": "Thin-walled steel pole (hollow tube) on a weighted base, plus a lampshade. Base is a stamped or cast steel disc or a filled/plastic-encased weight; shade is fabric, aluminium or steel. Not a solid body.",
+   "materials": [
+    "powder-coated steel tube and base",
+    "reinforced EVA plastic or concrete/PE base weight (Hektar)",
+    "aluminium or steel shade",
+    "fabric shade on cheaper units"
+   ],
+   "hollow": true,
+   "wall_thickness_mm": "unsourced - no spec page lists tube or shade wall thickness",
+   "sources": [
+    "https://www.ikea.cn/cn/en/p/hektar-floor-lamp-dark-grey-00216547/",
+    "https://www.ikea.cn/cn/en/p/kryssmast-floor-lamp-base-brass-plated-20405702/",
+    "https://lumispecusa.xologic.com/brand-cal-lighting/100w-metal-floor-lamp/sku-V162-la-8020fl-1-bs",
+    "https://mnlighting.xologic.com/60-tall-metal-floor-lamp-in-brushed-steel/sku-405ZLCZ"
+   ],
+   "confidence": "partly sourced",
+   "note": "FETCHED: IKEA Hektar 181 cm = 8.90 kg net (10.13 kg packed); IKEA Kryssmast base+tube 138 cm, 30 cm base = 4.25 kg net (4.76 kg packed; shade sold separately). SEARCH-SUMMARY ONLY (pages 403 on fetch): CAL Lighting 60 in steel floor lamps listed at 6.1 to 23.21 with NO unit shown; I assumed lb (2.8 to 10.5 kg) because the carton sizes fit. 'typical 5.0' is my judgement between Kryssmast and the CAL midrange, not a sourced figure. Wall thickness not found."
+  },
+  "desk lamp": {
+   "mass_kg_typical": 2.3,
+   "mass_kg_low": 0.74,
+   "mass_kg_high": 5,
+   "size_m_typical": "0.15 base dia x 0.35 to 0.5 tall (IKEA Forsa 0.15 x 0.35; Barometer 0.18 x 0.48)",
+   "construction": "Hollow steel arm and shade on a small weighted base (cast iron or EVA-filled), or a lighter flexible-neck lamp. Mass is dominated by the base weight.",
+   "materials": [
+    "powder-coated steel arm, shade and base",
+    "cast iron or reinforced EVA plastic base weight",
+    "brass or nickel plating on some",
+    "plastic switch and cord"
+   ],
+   "hollow": true,
+   "wall_thickness_mm": "unsourced - not listed anywhere found",
+   "sources": [
+    "https://www.ikea.cn/cn/en/p/forsa-work-lamp-white-30444425",
+    "https://www.ikea.cn/cn/en/p/barometer-work-lamp-brass-colour-40358040",
+    "https://www.build.com/cal-lighting-bo-2734dk/s1372885",
+    "https://www.lampsplus.com/p/1095H"
+   ],
+   "confidence": "partly sourced",
+   "note": "FETCHED: IKEA Forsa 35 cm tall, 15 cm base = 2.32 kg net (2.56 kg packed), steel arm/base/shade. SEARCH-SUMMARY ONLY: IKEA Barometer 3.45 kg net; Cal Lighting BO-2734DK 21 in = 11 lb (5.0 kg); Lite Source 27.5 in = 5.75 lb; a flexible-neck lamp 14.3 in = 1.7 lb (0.77 kg); cage-base 15.5 in = 1.63 lb (0.74 kg). Lamps Plus page returned an error on fetch. Low/high are single listings, so treat as soft bounds."
+  },
+  "fridge": {
+   "mass_kg_typical": 75,
+   "mass_kg_low": 26,
+   "mass_kg_high": 119,
+   "size_m_typical": "0.76 W x 0.77 D x 1.69 H (18 cu ft top-freezer: 30 x 30-3/8 x 66 in)",
+   "construction": "Foam-insulated double-walled cabinet: thin steel outer shell, thin ABS inner liner, rigid polyurethane foam injected between them. Plus a compressor (heavy), door shells, glass/plastic shelves. Interior is empty storage volume.",
+   "materials": [
+    "pre-painted sheet steel outer shell",
+    "ABS plastic inner liner",
+    "polyurethane foam insulation",
+    "glass and plastic shelves/bins",
+    "steel/copper compressor and tubing"
+   ],
+   "hollow": true,
+   "wall_thickness_mm": "steel shell 0.6 mm, ABS liner 1.5 mm (LG/Hoseo sidewall FEM paper, Table 1); PU foam layer thickness not stated in any source found (unsourced)",
+   "sources": [
+    "https://assets.ajmadison.com/ajmadison/itemdocs/FFHT1814W_EN.pdf",
+    "https://www.canadianappliance.ca/pdf/frigidaire/top-freezer-freestanding-refrigerator/FFTR1821QB-product-specifications-sheet-english-3.pdf",
+    "https://www.doitbest.com/product/VB4947/whirlpool-30-in-18-cu-ft-top-freezer-refrigerator-black-vb4947/",
+    "https://www.bestbuy.com/site/6098326.p",
+    "https://www.townappliance.com/collections/all/products/danby-dcr045b1bsldb3-compact-refrigerator",
+    "https://koreascience.kr/article/CFKO200910348033416.pdf"
+   ],
+   "confidence": "sourced",
+   "note": "FETCHED/READ: Frigidaire FFHT1814WW spec sheet 'Product Weight 153 lbs' (69.4 kg); Frigidaire FFTR1821Q sheet 'Shipping Weight 205 lbs' (includes packaging, so not a net figure); Korean paper gives steel 0.6 mm / ABS 1.5 mm. SEARCH-SUMMARY ONLY: Whirlpool WRT318FZDB 177 lb net (80 kg); Whirlpool WRS315SNHB side-by-side 262 lb (119 kg); Danby 4.5 cu ft compact 59.5 lb (27 kg) and Avanti 57.3 lb (26 kg). Typical 75 kg is the 18 cu ft top-freezer class (69 to 80 kg). A side-by-side is ~120 kg."
+  },
+  "stove": {
+   "mass_kg_typical": 68,
+   "mass_kg_low": 58,
+   "mass_kg_high": 86,
+   "size_m_typical": "0.76 W x 0.66 D (0.72 with handle) x 1.20 H (30 x 26 x 47 in)",
+   "construction": "Freestanding 30 in kitchen range: welded sheet-steel box (enamelled/painted), porcelain-enamelled steel oven cavity with insulation behind it, glass oven window, cooktop of coil elements or burners with cast-iron or steel grates, control panel. Hollow box with an inner oven cavity.",
+   "materials": [
+    "painted/enamelled sheet steel body",
+    "porcelain (vitreous) enamel on low-carbon steel oven cavity",
+    "glass door window",
+    "cast iron or steel wire grates (gas)",
+    "mineral wool or ceramic fibre insulation"
+   ],
+   "hollow": true,
+   "wall_thickness_mm": "unsourced - no range spec or search result gave body or cavity sheet gauge",
+   "sources": [
+    "https://www.townappliance.com/collections/freestanding-electric-ranges/products/frigidaire-fcrc3022bb-30-freestanding-coil-electric-range",
+    "https://www.townappliance.com/collections/freestanding-electric-ranges/products/frigidaire-fcrc3012bb-30-freestanding-coil-electric-range",
+    "https://www.bestbuy.com/product/whirlpool-30-in-wide-4-element-5-3-cu-ft-freestanding-electric-range-with-no-preheat-mode-white/J3KHVGXWKG",
+    "https://www.standardtvandappliance.com/cooking/ranges/gas-freestanding-ranges/JGBS30DEKWW/",
+    "https://data.epo.org/publication-server/rest/v1.2/patents/EP3327358NWA1/document.html"
+   ],
+   "confidence": "partly sourced",
+   "note": "FETCHED: Frigidaire FCRC3022BB electric range 152 lb (68.9 kg), FCRC3012BB 128.25 lb (58.2 kg), both 30 in wide, 26 in deep, 46.75 to 47.75 in tall, 5.3 cu ft oven. SEARCH-SUMMARY ONLY: Whirlpool electric 136 to 140 lb (62 to 64 kg); gas ranges GE JGBS30DEKWW 149 lb net and JGB645SEKSS 190 lb net (68 to 86 kg) - the JGBS30DEKWW page I fetched did not show the weight, so treat the gas figures as unconfirmed. Cavity enamel-on-low-carbon-steel statement is from the EP3327358 patent. No wall thickness found."
+  },
+  "microwave": {
+   "mass_kg_typical": 14,
+   "mass_kg_low": 11.5,
+   "mass_kg_high": 16.8,
+   "size_m_typical": "0.51 W x 0.40 D x 0.31 H (Danby 1.1 cu ft: 20.2 x 15.8 x 12.1 in)",
+   "construction": "Countertop oven: sheet-steel outer wrap and steel cavity (acts as a Faraday cage), heavy high-voltage transformer or inverter plus magnetron, glass turntable, plastic door frame with mesh window and plastic control panel.",
+   "materials": [
+    "painted sheet steel cabinet and cavity",
+    "iron-core transformer / copper windings and magnetron",
+    "glass turntable",
+    "plastic door and controls"
+   ],
+   "hollow": true,
+   "wall_thickness_mm": "unsourced - no sheet gauge found",
+   "sources": [
+    "https://www.danby.com/en-us/shop/dbmw1120bbb/?o=pdf",
+    "https://help.na.panasonic.com/answers/features-and-specifications-microwave-oven-nn-sn67ks/",
+    "https://help.na.panasonic.com/answers/features-and-specifications-microwave-oven-model-nn-sn766s-model-nn-sn966s/",
+    "https://www.ajmadison.com/cgi-bin/ajmadison/MT115V1B.html",
+    "https://en.wikipedia.org/wiki/Microwave_oven"
+   ],
+   "confidence": "partly sourced",
+   "note": "FETCHED: Danby DBMW1120BBB product weight 31.1 lb (14.11 kg), package 35.5 lb; Panasonic NN-SN67KS net weight 25.4 lb (11.5 kg), 525 x 401 x 310 mm; Wikipedia: countertop microwaves 23 to 45 lb overall, 45 to 60 cm wide. SEARCH-SUMMARY ONLY: Panasonic NN-SN766S 1.6 cu ft 32 lb, NN-SN966S 2.2 cu ft 37 lb (16.8 kg), Avanti MT115V1B 32 lb. Typical is the 1.1 cu ft class. Cabinet material 'sheet steel' is standard practice but no fetched page states it explicitly (Wikipedia only says the chamber is metal)."
+  },
+  "sink": {
+   "mass_kg_typical": 12,
+   "mass_kg_low": 7.3,
+   "mass_kg_high": 27,
+   "size_m_typical": "Kitchen: 0.84 W x 0.56 D x 0.23 deep (33 x 22 x 9 in); lavatory pedestal basin ~0.55 x 0.46 x 0.82 H",
+   "construction": "Two common builds. (a) Kitchen sink: single stamped 18 gauge stainless-steel tub with sound-deadening pads, open top. (b) Bathroom basin: one-piece cast and fired vitreous china bowl, optionally on a separate china pedestal. Both are thin-walled open vessels, not solid.",
+   "materials": [
+    "18 gauge type 304 stainless steel (kitchen)",
+    "vitreous china or fireclay (bathroom)",
+    "rubber/fibre sound-deadening pads"
+   ],
+   "hollow": true,
+   "wall_thickness_mm": "stainless 18 gauge = 1.31 mm (Wikipedia stainless table; Costco and Elkay list 18 ga); china basin ~8 to 10 mm as-cast (generic sanitaryware pressure-casting patent, not sink-specific)",
+   "sources": [
+    "https://www.costco.com/.product.100509730.html",
+    "https://www.elkay.com/products/details/lwdbo332292",
+    "https://superarbor.io/collections/elegant-pedestal-sinks-for-every-bathroom/products/202502010-american-standard-tropic-petite-21-in-center-pedestal-sink-basin-with-8-in-faucet-centers-in-white",
+    "https://shopkohlernj.com/products/kohler-memoirs-pedestal-console-table-bathroom-sink-basin-single-faucet-hole-2",
+    "https://en.wikipedia.org/wiki/Sheet_metal",
+    "https://patents.google.com/patent/US5143871"
+   ],
+   "confidence": "partly sourced",
+   "note": "FETCHED: Costco Kraus KBU14 31.5 in, 18 gauge stainless, 16.1 lb (7.3 kg); KBU12 23 in = 11.9 lb. SEARCH-SUMMARY ONLY: Elkay 33 in double-bowl 18 ga = 32 lb SHIPPING weight (includes packaging, so net is lower); American Standard Tropic Petite 21 in china basin 31.9 lb (14.5 kg); Kohler Memoirs basin 59.5 lb (27 kg, listed as fireclay) with a separate ~14 lb pedestal. The prop kind is ambiguous (kitchen vs bathroom); typical 12 kg sits between a stainless kitchen sink and a small china basin. 8 to 10 mm is the generic cast thickness of vitreous-china articles from US5143871, not measured on a sink."
+  },
+  "toilet": {
+   "mass_kg_typical": 38,
+   "mass_kg_low": 31,
+   "mass_kg_high": 45.4,
+   "size_m_typical": "0.70 L x 0.46 W x 0.74 H (Kohler Wellworth K-3997: 27-3/4 x 18 x 29-1/4 in)",
+   "construction": "Two-piece close-coupled toilet: a cast and fired vitreous china bowl with an integral S-trap passage, plus a hollow china tank bolted on top (tank lid separate). Both parts are thin-walled hollow castings; the base/trap region is thicker.",
+   "materials": [
+    "vitreous china (fired ceramic with glaze)",
+    "plastic or brass flush hardware (small mass)"
+   ],
+   "hollow": true,
+   "wall_thickness_mm": "~8 to 10 mm as-cast for sanitaryware in general (US5143871 background: 'normally in the region of from 8 to 10 mm'; examples at 9 mm). Not toilet-specific; thicker at trap and base.",
+   "sources": [
+    "https://www.manualsdir.com/manuals/44691/eljer-091-2195-091-2190.html",
+    "https://www.build.com/american-standard-270aa101/s872683",
+    "https://shopkohlernj.com/products/kohler-k-3997-u-wellworth-two-piece-round-front-toilet-1-28-gpf",
+    "https://www.perigold.com/bath/pdp/toto-drake-128-gpf-auto-flush-elongated-floor-mounted-89-lbs-weight-two-piece-toilet-seat-included-p100095858.html",
+    "https://patents.google.com/patent/US5143871"
+   ],
+   "confidence": "partly sourced",
+   "note": "FETCHED: Eljer manual lists elongated bowl 43 lb + tank 37 lb, complete unit 80 lb (36.3 kg); Kohler K-3997-U dimensions and 'vitreous china' (the 86.3 lb weight is SEARCH-SUMMARY ONLY - the fetched page did not show a weight and Kohler's own spec PDF has no weight). SEARCH-SUMMARY ONLY: American Standard Cadet 3 270AA101 = 100 lb, other Cadet 3 80 to 93 lb; Toto Drake 89 lb (in the page title); a European close-coupled set 31 kg. The 8 to 10 mm thickness is the only wall-thickness figure found and is generic."
+  },
+  "bathtub": {
+   "mass_kg_typical": 50,
+   "mass_kg_low": 34,
+   "mass_kg_high": 159,
+   "size_m_typical": "1.52 to 1.70 L x 0.76 to 0.80 W x 0.36 to 0.42 H (60 x 30 in alcove; Kaldewei 170 x 80 x 42 cm)",
+   "construction": "One large open-top shell, dry weight excluding water. Three families: thermoformed acrylic (often glass-fibre backed) ~34 to 36 kg; porcelain-enamelled sheet steel ~50 kg; enamelled cast iron ~145 to 160 kg. All are thin-walled open vessels (cast iron is a thick casting).",
+   "materials": [
+    "acrylic (+ fibreglass backing)",
+    "porcelain-enamelled steel",
+    "enamelled cast iron"
+   ],
+   "hollow": true,
+   "wall_thickness_mm": "steel-enamel: 3.5 mm total = 2.9 mm steel +/-0.14 mm plus enamel (Kaldewei spec); a 1.4 m steel tub uses 1.8 mm sheet (jika.eu); acrylic shell guide says 3 to 8 mm (weak source); cast iron wall unsourced",
+   "sources": [
+    "https://www.specifiedby.com/kaldewei/asymmetric-duo/kaldewei_ASYMMETRIC-DUO_Specifications_KAATE-ASYMMETRICDUO-740.pdf",
+    "https://www.jika.eu/products/steel-bathtub-155l-1-8mm-sheet-metal-H225210...0001",
+    "https://store.thegranitegroup.com/Product/K875WHI",
+    "https://www.fergusonhome.com/american-standard-bathing-2964-102/s2134010",
+    "https://en.wikipedia.org/wiki/Bathtub",
+    "https://www.studiomatrx.org/guides/acrylic-bathtub-india"
+   ],
+   "confidence": "partly sourced",
+   "note": "READ: Kaldewei Asymmetric Duo spec text: 'steel-enamel 3.5 mm, made of steel 2.9 mm +/- 0.14 mm, 170 x 80 x 42 cm, weight: 50 kg'. FETCHED: jika.eu 1.8 mm sheet. SEARCH-SUMMARY ONLY (pages 404/403 on fetch): Kohler Bellwether 60 x 32 cast iron 327 lb (148 kg), a 60 in cast iron 350 lb, Kohler Villager 316 lb; American Standard 60 in acrylic 74.96 to 80.03 lb (34 to 36 kg). Typical 50 kg is the steel-enamel class; the most common US alcove acrylic is ~35 kg and a cast iron tub is ~150 kg, so pick the family before using the number. Cast iron and acrylic wall thickness: only low-quality SEO pages."
+  },
+  "radiator": {
+   "mass_kg_typical": 30,
+   "mass_kg_low": 25,
+   "mass_kg_high": 164,
+   "size_m_typical": "Panel type 22: 1.00 W x 0.107 D x 0.60 H; cast iron column: ~1.07 W x 0.23 D x 0.76 H",
+   "construction": "Two families, dry mass (no water). Steel panel: two welded pressed-steel water panels plus convector fins, thin-walled, ~6 L water content at 600 x 1000. Cast iron column: bolted-together cast sections, thick-walled and ~5 to 13 kg per section.",
+   "materials": [
+    "mild steel sheet, powder coated (panel)",
+    "grey cast iron (column sections)"
+   ],
+   "hollow": true,
+   "wall_thickness_mm": "unsourced - sheet gauge of panel radiators and wall of cast iron sections not found in any spec",
+   "sources": [
+    "https://www.diy.ie/departments/barlo-type-22-panel-radiator-white-w-1000mm-h-600mm/278605_BQ.prd",
+    "https://pexhouse.com/product/sanica-k22-600mm-x-1000mm-steel-panel-radiator-4-hole/",
+    "https://www.travisperkins.co.uk/stelrad-softline-compact-p-double-panel-radiator-600mm-x-1000mm/p/422307",
+    "https://www.screwfix.com/p/arroll-760mm-x-1074mm-6387btu-white-cast-iron-3-column-radiator/1834p",
+    "https://www.screwfix.com/p/arroll-660mm-x-874mm-3726btu-black-cast-iron-4-column-radiator/8415f",
+    "https://www.castrads.com/en/product/rococo-iii-768mm/",
+    "https://en.wikipedia.org/wiki/Radiator_(heating)"
+   ],
+   "confidence": "partly sourced",
+   "note": "FETCHED: Barlo type 22 600 x 1000 = 31.7 kg, depth 107 mm, steel; Arroll cast iron 3-column 760 x 1074, 13 sections = 164 kg; Arroll cast iron 4-column 660 x 874, 14 sections = 67.2 kg; Castrads Rococo III 768 mm cast iron section 12.48 to 13.65 kg (13 sections x 12.6 = 164 kg, so the Arroll figure is consistent). SEARCH-SUMMARY ONLY: Sanica K22 600 x 1000 = 25.35 kg, 6.2 L; Stelrad Softline 600 x 1000 double panel 29.14 kg. Typical 30 kg assumes a steel panel; if the prop is a cast iron column radiator use 67 to 164 kg. The range is therefore very wide on purpose. Add ~6 kg per 600 x 1000 panel for water if it is filled."
+  },
+  "wood stove": {
+   "mass_kg_typical": 170,
+   "mass_kg_low": 59,
+   "mass_kg_high": 215,
+   "size_m_typical": "0.65 W x 0.65 D x 0.83 H (Drolet Escape 1800: 25-5/8 x 25-3/4 x 32-5/8 in)",
+   "construction": "Welded steel-plate firebox (box with door), cast iron door frame, ceramic glass window, firebrick/refractory lining and a vermiculite baffle inside, flue collar on top. Small cast-iron stoves are bolted cast plates instead. Hollow plate box lined with brick.",
+   "materials": [
+    "welded steel plate (body and top)",
+    "cast iron door frame (or all-cast-iron body)",
+    "ceramic glass",
+    "refractory firebrick",
+    "vermiculite baffle"
+   ],
+   "hollow": true,
+   "wall_thickness_mm": "steel body 3/16 in = 4.76 mm, top 5/16 in = 7.94 mm (Drolet Escape 1800 and Baltic); Englander NC-30 body 3/16 in, top 1/4 in = 6.35 mm. Cast iron plate thickness not given by any source found.",
+   "sources": [
+    "https://firepitsurplus.com/products/drolet-escape-1800-wood-stove-black-door-db03102",
+    "https://www.hearth.com/talk/threads/stove-weights.53072",
+    "https://www.sekelskifte.com/en/products/wood-burning-stove-cast-iron-westbo-nr-27",
+    "https://www.doitbest.com/product/493245/englander-32-nc-2400-sq-ft-wood-stove-493245/",
+    "https://www.sylvane.com/collections/wood-burning-electric-pellet-natural-gas-stoves/products/us-stove-us1269e-cast-iron-wood-stove",
+    "https://en.wikipedia.org/wiki/Wood-burning_stove"
+   ],
+   "confidence": "sourced",
+   "note": "FETCHED: Drolet Escape 1800 = 382 lb (173 kg) SHIPPING weight (a Canadian retailer lists 370 lb assembled), 3/16 in body / 5/16 in top; hearth.com thread: Drolet Baltic 405 lb shipping, 3/16 body and 5/16 top, Englander NC-30 ~472 lb with 3/16 body and 1/4 top (forum figures, shipping weights include pallet); Westbo Nr 27 cast iron 115 kg. SEARCH-SUMMARY ONLY: Englander 32-NC 398 lb (180 kg); US Stove US1269E small cast iron 130 lb (59 kg); Westbo Carl 95 70 kg. Typical 170 kg is a mid-size steel stove; small cast iron stoves run 60 to 130 kg."
+  },
+  "vending machine": {
+   "mass_kg_typical": 265,
+   "mass_kg_low": 231,
+   "mass_kg_high": 347,
+   "size_m_typical": "0.99 W x 0.94 D x 1.83 H (39 x 37 x 72 in; beverage models up to 1.19 W)",
+   "construction": "Large insulated sheet-steel cabinet with a glass front and steel door, internal steel trays/spirals, coin/bill mechanisms and (for cold drinks) a compressor and cooling unit. Hollow cabinet; heavy because of steel, glass and refrigeration hardware. Empty weight, no product.",
+   "materials": [
+    "heavy-duty steel cabinet",
+    "tempered glass front",
+    "steel trays",
+    "refrigeration compressor/evaporator (beverage machines)",
+    "plastic and electronics"
+   ],
+   "hollow": true,
+   "wall_thickness_mm": "unsourced - no spec gave the gauge (a forum reply suggested ~16 gauge = 1.59 mm for an enclosure, which is opinion, not a spec)",
+   "sources": [
+    "https://vmfsusa.com/products/seaga-env5s-snack-merchandiser",
+    "https://www.shafferdistributing.com/?p=1625",
+    "https://www.shafferdistributing.com/products/crane-bevmax-classic/",
+    "https://selecta.com/ie/en/vending-machines/crane-merchant",
+    "https://www.betson.com/vending-products/envision-5-wide-beverage/"
+   ],
+   "confidence": "partly sourced",
+   "note": "FETCHED: Seaga ENV5S snack machine 72 x 39 x 37 in, empty ~583 lb (264 kg), ship ~695 lb, 'heavy-duty steel cabinet'; Crane Merchant MEDIA 510 lb (72 x 33 x 39) and 610 lb (72 x 44 x 38); Crane BevMax Classic 764 lb (347 kg, 72 x 47 x 32), whether empty is not stated. SEARCH-SUMMARY ONLY: Crane Merchant (Selecta) 247 kg; Seaga EnVision 5-wide beverage 527 lb SHIPPING weight (Betson page 403 on fetch). No source for steel gauge; masses are solid, thickness is the gap."
+  },
+  "tv": {
+   "mass_kg_typical": 40,
+   "mass_kg_low": 21,
+   "mass_kg_high": 47,
+   "size_m_typical": "27 in CRT set: 0.66 W x 0.52 D x 0.60 H (Sony KV-27S25 660 x 603 x 521 mm)",
+   "construction": "Hollow plastic cabinet around a CRT: an evacuated glass bulb made of a thick faceplate (panel) and a leaded-glass funnel, with a deflection yoke, shadow mask/aperture grille, a flyback transformer and circuit boards. The glass tube is about half of the set mass.",
+   "materials": [
+    "lead-free barium-strontium panel glass",
+    "leaded funnel glass (21 to 25% PbO)",
+    "HIPS/ABS plastic cabinet",
+    "steel mask and frame",
+    "copper yoke and transformer windings",
+    "circuit boards"
+   ],
+   "hollow": true,
+   "wall_thickness_mm": "panel glass ~10 mm at centre (standard screen transmittance is specified at 10.16 mm); design patent US6707245 gives 13.1 mm minimum face-centre thickness at 760 mm diagonal and 13.2 mm at 660 mm; thicker toward edges, funnel varies. Plastic cabinet thickness unsourced.",
+   "sources": [
+    "https://crtdatabase.com/crts/sony/sony-kv-27s25",
+    "https://crtdatabase.com/crts/panasonic/panasonic-ct-27g7df",
+    "https://crtdatabase.com/crts/sony/sony-kv-27fs210",
+    "https://crtdatabase.com/crts/rca/rca-20v500t",
+    "https://www.oeko.de/oekodoc/2061/2014-635-en.pdf",
+    "https://patents.google.com/patent/US6707245",
+    "https://en.wikipedia.org/wiki/Cathode-ray_tube"
+   ],
+   "confidence": "partly sourced",
+   "note": "FETCHED: 27 in sets - Sony KV-27S25 89.8 lb (40.7 kg), Panasonic CT-27G7DF 77.2 lb (35 kg), Sony KV-27FS210 103 lb (46.7 kg); 20 in RCA 20V500T 46.2 lb (21 kg). Oeko-Institut mass balance (from ~1,900 weighed units) gives the FLEET AVERAGE CRT TV = 24.1 kg (CRT unit 11.9 kg, glass 9.8 kg), so a set smaller than 27 in is much lighter. Typical 40 kg assumes the 27 in class; use ~21 to 25 kg for a 20 in set. crtdatabase.com is community-maintained, not manufacturer-verified. Panel glass 14.8 kg for a 660 mm panel is from the same patent."
+  },
+  "computer": {
+   "mass_kg_typical": 16,
+   "mass_kg_low": 12,
+   "mass_kg_high": 25,
+   "size_m_typical": "17 in CRT monitor 0.41 W x 0.42 D x 0.40 H + keyboard 0.45 x 0.15 x 0.03",
+   "construction": "CRT-era monitor (hollow plastic case around an evacuated glass tube, yoke, mask, boards) plus a full-size keyboard (plastic case; membrane type ~0.4 to 0.55 kg, IBM-style buckling-spring type with a steel back plate ~2 kg). Tower excluded.",
+   "materials": [
+    "ABS/HIPS plastic housings",
+    "glass CRT with leaded funnel",
+    "steel shadow mask and shielding",
+    "copper yoke",
+    "steel backplate (Model M) or plastic membrane (cheap keyboards)",
+    "ABS keycaps"
+   ],
+   "hollow": true,
+   "wall_thickness_mm": "CRT panel glass ~10 to 13 mm at centre (same sources as the TV); Model M steel backplate ~1.0 mm (deskthority owner measurement, search-summary only); plastic housing thickness unsourced",
+   "sources": [
+    "https://www.ibm.com/support/pages/node/807312",
+    "https://www.oeko.de/oekodoc/2061/2014-635-en.pdf",
+    "https://deskthority.net/viewtopic.php?p=182401",
+    "https://en.wikipedia.org/wiki/Model_M_keyboard",
+    "https://shop.eltelnetworks.dk/gembird-kb-u-103-standard-keyboard-usb/cat-p/c/p7773442",
+    "https://store.intcomex.com/Product/Detail/25024"
+   ],
+   "confidence": "partly sourced",
+   "note": "FETCHED: IBM C117 17 in monitor 15.5 kg, 410 x 420 x 402 mm; Oeko-Institut AVERAGE CRT monitor = 14.2 kg (CRT 7.0 kg, glass 5.8 kg); Gembird 104-key keyboard 424 g, 450 x 148 x 21 mm; Model M 2.0 to 2.5 kg (Wikipedia) and measured 1.92 to 2.27 kg (deskthority). SEARCH-SUMMARY ONLY: 15 in CRTs 11.5 to 14 kg, Philips 107E 17 in 13.4 kg, 19 in CRTs 18 to 27.5 kg. Typical 16 kg = ~15 kg 17 in monitor + ~0.5 to 1 kg keyboard; add ~2 kg if the keyboard is a Model M. Low = 15 in + light keyboard, high = 19 in + Model M."
+  },
+  "phone": {
+   "mass_kg_typical": 1.8,
+   "mass_kg_low": 0.28,
+   "mass_kg_high": 2.2,
+   "size_m_typical": "0.22 L x 0.20 W x 0.14 H (Western Electric 500: 8.75 x 8 x 5.5 in)",
+   "construction": "Classic desk telephone (Bell Model 500 rotary): molded plastic housing over a heavy steel chassis/base plate, with metal dial mechanism, bell, and a handset on a cradle. Modern corded ABS desk phones are far lighter (0.28 to 0.64 kg). Mostly hollow shell around a dense steel base.",
+   "materials": [
+    "molded plastic housing (older: painted steel or Bakelite)",
+    "steel base plate and chassis",
+    "Bakelite or plastic handset",
+    "metal dial, brass/copper contacts",
+    "rubber feet"
+   ],
+   "hollow": true,
+   "wall_thickness_mm": "unsourced - no source gives housing wall thickness",
+   "sources": [
+    "https://myreadingvintage.com/products/vintage-western-electric-model-500-avocado-green-rotary-phone",
+    "https://plusmodels.com/store/WESTERN-ELECTRIC-Signal-Corps-black-SOFT-PLASTIC-1962-500-SET-mod-orig-cords_389997281855.html",
+    "https://en.wikipedia.org/wiki/Model_500_telephone",
+    "https://www.thehenryford.org/collections/explore/artifact/577820",
+    "https://collections.ingenium.ca/en/id/1978.0075.001/",
+    "https://www.newegg.com/p/3C6-00V6-01KZ2",
+    "https://www.thetelecomspot.com/products/vtech-hospitality-a1311-matte-black-classic-analog-1-line-corded-lite-phone"
+   ],
+   "confidence": "partly sourced",
+   "note": "FETCHED: seller listing Model 500 'about 3 lb 15 oz' (1.79 kg); Henry Ford 1961 Model 500 5.5 x 8 x 8.75 in; Wikipedia: 'molded plastic housing covering a steel chassis'; Ingenium (an older set): painted steel housing, black Bakelite handset. SEARCH-SUMMARY ONLY: another seller 4 lb 13 oz (2.18 kg) for a 1962 Signal Corps set; modern ABS corded phones ~280 to 462 g, VTech hospitality 1.4 lb (0.64 kg). No manufacturer or museum weight found; Model 500 weights are two seller listings. Typical 1.8 assumes a rotary 500-style set to match the CRT-era props; for a modern push-button phone use ~0.45 kg."
+  },
+  "plant": {
+   "mass_kg_typical": 3.6,
+   "mass_kg_low": 3.2,
+   "mass_kg_high": 4.8,
+   "size_m_typical": "0.25 pot dia x 0.6 to 0.7 tall (10 in nursery pot, 24 to 26 in plant)",
+   "construction": "Not a hollow shell: a solid-ish mass of moist potting mix in a plastic nursery pot, with a stem and leaves on top. Mass is almost entirely soil plus retained water; the pot is a thin plastic cylinder (decor pots/ceramic add more).",
+   "materials": [
+    "moist peat/bark potting mix",
+    "plastic nursery pot (or ceramic/fiberstone decor pot)",
+    "plant tissue (leaves, stems, roots)"
+   ],
+   "hollow": false,
+   "wall_thickness_mm": "n/a for the plant; pot wall thickness unsourced",
+   "sources": [
+    "https://www.perigold.com/decor/pdp/costa-farms-indoor-philodendron-monstera-deliciosa-house-plant-in-10-inch-nursery-pot-ctaf1087.html",
+    "https://www.perigold.com/decor/pdp/costa-farms-indoor-white-bird-of-paradise-house-plant-in-10-inch-weave-basket-ctaf1009.html",
+    "https://www.perigold.com/decor/sb0/live-plants-and-trees-c1875583.html"
+   ],
+   "confidence": "partly sourced",
+   "note": "SEARCH-SUMMARY ONLY and all from one retailer/grower family (Perigold, Costa Farms), so NOT two independent sources; page fetches returned HTTP 429 and my web-search budget ran out before I could cross-check: Costa Farms Monstera in a 10 in nursery pot, 26 in tall = 7 lb (3.2 kg); White Bird of Paradise in a 10 in weave basket, 24 in tall = 8 lb (3.6 kg); a category-page snippet gave 10.6 lb (4.8 kg) for a 10 in bird of paradise. Latinafy fiddle-leaf fig 2.6 kg is ambiguous (pot/soil inclusion not stated). The soil bulk-density route (moist mix ~0.5 to 0.8 g/cm3 x ~4 L pot) is my own estimate and unsourced; I found no extension figure for wet potting mix."
+  },
+  "trash can": {
+   "mass_kg_typical": 4.5,
+   "mass_kg_low": 3.6,
+   "mass_kg_high": 6.2,
+   "size_m_typical": "Plastic 32 gal: 0.56 dia x 0.69 H (22 x 27.25 in); kitchen step can 13 gal: 0.42 x 0.32 x 0.65",
+   "construction": "Open-top single-wall thin shell: rotomolded/injection-molded plastic (32 gal can) or stainless-steel body with plastic inner bucket and a pedal lid (13 gal kitchen can). Empty mass only.",
+   "materials": [
+    "high-impact polyethylene/polypropylene plastic",
+    "stainless or painted steel body (kitchen cans)",
+    "plastic inner bucket",
+    "steel pedal mechanism"
+   ],
+   "hollow": true,
+   "wall_thickness_mm": "municipal HDPE roll-out container sidewall averaging 0.15 in = 3.8 mm (a South Bend, IN document for an Otto MSD-45E; search-summary only, page not fetchable); Rubbermaid Brute and steel-can wall thickness unsourced",
+   "sources": [
+    "https://www.cityfoodequipment.com/products/rubbermaid-1867531-32-gallon-brute-trash-can-plastic-round-food-rated",
+    "https://www.lowes.com/collections/Rubbermaid-Commercial-Products-BRUTE-32-Gallon-Trash-Can-w-Lid-Moxie-Clear-Lawn-Leaf-Drawstring-Trash-Bags-40ct/GR_14032",
+    "https://www.overstock.com/Home-Garden/White-Step-Trash-Can-with-Hinged-Lid-for-Kitchen-As-Pictured/34780551/product.html",
+    "https://www.walmart.com/ip/5315311651",
+    "https://docs.southbendin.gov/WebLink/0/doc/401909/Page52.aspx"
+   ],
+   "confidence": "partly sourced",
+   "note": "FETCHED: City Food Equipment Rubbermaid Brute 32 gal 'weight 8.25' (no unit shown; assumed lb = 3.7 kg), 22 in dia x 27.25 in, high-impact plastic. SEARCH-SUMMARY ONLY: Lowe's Brute 32 gal 9.97 lb (4.5 kg); Overstock 13 gal stainless step can 13.7 lb (6.2 kg); Walmart 13 gal 13 lb; touchless 13 gal 8 lb; one listing at 19 lb looked implausible and was ignored. Typical 4.5 kg is a plastic 32 gal can."
+  },
+  "dumpster": {
+   "mass_kg_typical": 347,
+   "mass_kg_low": 227,
+   "mass_kg_high": 526,
+   "size_m_typical": "4 yd front-load (slant): 1.83 W x 1.42 D x 1.47 H (72 x 56 x 58 in); 2 yd steel: 2.08 x 1.01 x 1.15",
+   "construction": "Welded steel open-top box with a hinged plastic lid, formed top rails, lift pockets with gussets and channels under the floor. Thin walls (12 gauge) on a heavier floor (10 gauge) with 7 gauge lift ears and gussets. Empty mass, no waste.",
+   "materials": [
+    "12 gauge steel walls",
+    "10 gauge steel floor and top rails",
+    "7 gauge steel lift pockets/ears/bumpers",
+    "plastic lids",
+    "primer and paint"
+   ],
+   "hollow": true,
+   "wall_thickness_mm": "walls 12 gauge = 2.78 mm, floor 10 gauge = 3.57 mm, lift ears/gussets 7 gauge = 4.76 mm (gauge-to-mm from the Wikipedia US standard steel table; the two US gauge standards differ by ~0.1 mm)",
+   "sources": [
+    "https://americanmadedumpsters.com/wp-content/uploads/2023/11/30987-Front-Load-Dumpsters.pdf",
+    "https://www.webstaurantstore.com/wastequip-125540webblu-2-cubic-yard-blue-steel-front-end-loading-dumpster-1000-lb-capacity/991FEL540BL.html",
+    "https://www.webstaurantstore.com/toter-fr040-00125-4-cubic-yd-dark-cool-gray-front-end-loading-mobile-trash-container-dumpster-2000-lb-capacity/991FR040GY.html",
+    "https://en.wikipedia.org/wiki/Sheet_metal"
+   ],
+   "confidence": "sourced",
+   "note": "READ from the manufacturer PDF text (column order reconstructed from layout): slant-top nominal weights 500 lb (2 yd, 72x38x41 in), 765 lb (4 yd, 72x56x58), 955 lb (6 yd, 72x71x68), 1160 lb (8 yd, 72x82x76), 12 gauge walls, 10 gauge floors. FETCHED: Wastequip 2 yd steel = 500 lb SHIPPING weight, 12 gauge walls and 10 gauge bottom, 81-7/8 x 39-3/4 x 45-1/4 in (agrees with the 500 lb above); Toter 4 yd POLYETHYLENE = 315 lb (143 kg) shipping, so a plastic dumpster is ~40% of steel. Typical 347 kg = 4 yd steel."
+  },
+  "mug": {
+   "mass_kg_typical": 0.37,
+   "mass_kg_low": 0.26,
+   "mass_kg_high": 0.43,
+   "size_m_typical": "0.09 dia x 0.10 H (handle adds ~0.04 depth); 12 oz / 350 ml",
+   "construction": "Single-wall fired ceramic cup with a glazed interior and an attached strap handle; a thicker foot ring at the base. Open-top hollow vessel; mass is the ceramic body.",
+   "materials": [
+    "stoneware or porcelain ceramic",
+    "glass glaze"
+   ],
+   "hollow": true,
+   "wall_thickness_mm": "about 3 to 6 mm (potter-community guidance: ~1/8 in = 3.2 mm up to ~6 mm for throwing; not a standard and from forum posts, search-summary only); base thicker",
+   "sources": [
+    "https://www.vistaprint.com/promotional-products/drinkware/mugs/12-oz-ceramic-coffee-mug",
+    "https://digitalfire.com/potterytony/2430",
+    "https://www.johnlewis.com/denby-studio-grey-accent-stoneware-mug-400ml/p114671955",
+    "https://community.ceramicartsdaily.org/topic/21460-stoneware-thickness"
+   ],
+   "confidence": "partly sourced",
+   "note": "FETCHED: Vistaprint 12 oz ceramic mug 0.88 lb (399 g), 4.01 in tall x 3.5 in dia; Digitalfire handmade stoneware mug 363 g, 100 mm rim x 110 mm tall. SEARCH-SUMMARY ONLY: Vistaprint Woden/Oslo 12 oz 0.83 to 0.94 lb (375 to 425 g); Denby stoneware mugs 295 to 410 ml = 265 to 340 g; Corelle 12 oz stoneware ~10 to 12 oz. Wall-thickness figure is anecdotal, no manufacturer spec found."
+  }
+ }
+}

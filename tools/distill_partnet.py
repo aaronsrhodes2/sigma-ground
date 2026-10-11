@@ -62,15 +62,15 @@ _PN_LICENSE = ("ShapeNet/PartNet Terms of Use (non-commercial research); "
 _CATEGORIES = {
     "Bag": ("bag", ["handbag"]), "Bed": ("bed", []), "Bottle": ("bottle", []),
     "Bowl": ("bowl", []), "Chair": ("chair", []), "Clock": ("clock", []),
-    "Dishwasher": ("dishwasher", []), "Display": ("monitor", ["display", "screen"]),
+    "Dishwasher": ("dishwasher", []), "Display": ("monitor", ["display", "screen", "tv", "television"]),
     "Door": ("door", []), "Earphone": ("earphone", ["headphones", "earbuds"]),
     "Faucet": ("faucet", ["tap"]), "Hat": ("hat", ["cap"]), "Keyboard": ("keyboard", []),
     "Knife": ("knife", []), "Lamp": ("lamp", []), "Laptop": ("laptop", []),
     "Microwave": ("microwave", []), "Mug": ("mug", []),
     "Refrigerator": ("refrigerator", ["fridge"]), "Scissors": ("scissors", []),
-    "StorageFurniture": ("cabinet", ["storage furniture", "dresser", "cupboard"]),
+    "StorageFurniture": ("cabinet", ["storage furniture", "dresser", "cupboard", "bookcase", "bookshelf", "book shelf", "wardrobe", "closet", "armoire", "shelf"]),
     "Table": ("table", ["desk"]), "TrashCan": ("trash can", ["bin", "garbage can"]),
-    "Vase": ("vase", ["pot"]),
+    "Vase": ("vase", ["pot", "plant", "houseplant", "potted plant", "flower pot"]),
 }
 
 from sigma_ground.deckard.sources.partnet_hierarchy import _NOISE  # noqa: E402,F401

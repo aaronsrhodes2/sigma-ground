@@ -64,16 +64,21 @@ def composition_of(name: str, _aliased: bool = False):
     """(parts, source, license) for a known multi-part object, or None. Matched by
     whole-word containment (the object's words all appear in the query); on a
     miss, the query's WordNet aliases (taxonomy table) are retried once."""
+    from . import aliases
     qw = _words(name)
-    best, best_len = None, 0
+    head = aliases.head_noun(name)
+    best, best_rank = None, (0, False)
     for names, parts, source, lic in _table():
-        m = max((len(w) for w in (_words(nm) for nm in names) if w and w <= qw), default=0)
-        if m > best_len:
-            best_len, best = m, (parts, source, lic)
+        # longest match wins; of equally long ones, the object holding the query's
+        # head noun ("a desk LAMP" is a lamp) — see shapenetsem._entry
+        r = max(((len(w), aliases.holds_head(w, head))
+                 for w in (_words(nm) for nm in names) if w and w <= qw),
+                default=(0, False))
+        if r > best_rank:
+            best_rank, best = r, (parts, source, lic)
     if best is None and not _aliased:
         # exact-name alias retries only (no containment stacking — see
         # shapenetsem._entry for the bowling-pin cautionary tale)
-        from . import aliases
         for alt in sorted(aliases.expand(name)):
             aw = _words(alt)
             for names, parts, source, lic in _table():

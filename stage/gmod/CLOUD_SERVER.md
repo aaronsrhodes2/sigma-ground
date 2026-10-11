@@ -1,6 +1,6 @@
 # The cloud Garry's Mod server as our live mod server
 
-Status as reported by the portal chat on 2026-10-10 (I have not been able to check it myself; see "Not verified" below), and how we
+Status as reported by the portal chat on 2026-10-10, twice (I have not been able to check it myself; see "Content" and "Not verified" below), and how we
 use it for the Mentat stage mod (holodeck, proximity voice, Skippy).
 
 ## The three places the mod runs
@@ -35,6 +35,13 @@ Three routes, in the order I recommend:
 3. **Workshop.** Publish the addon and add it to the portal's Workshop collection; the server and players pull it at every start.
    That publishes under your Steam account, so it is your decision, not something to do automatically.
 
+**Which version runs.** Following `master` is the development loop, and it means whoever can push to the repo (or to the GitHub
+account) can run Lua on the server and send Lua to every player who joins. Before strangers are on the server, pin it: a full commit
+id fetched by id cannot be moved. The deployment patch in `stage/gmod/deploy/skippy-tel-gmod-addon.patch` (not applied to SkippyTel;
+see below) adds a portal setting, `GARRYSMOD_ADDON_REF` ("Mod version": blank = master, or a full 40-character commit id), read by
+`gmod_addon.sh`. The pin lives in the portal behind the Captain's login, not in either repo, because a pin that the same agent
+sessions can edit and auto-deploy protects nothing.
+
 I have not built anything that downloads and runs code from GitHub while the server is up (a live hot-update). It would make the
 loop seconds instead of minutes, but a server that executes whatever the repo says is a remote-code-execution path if that account or
 repo is ever compromised. If you want it, it should be superadmin-triggered, pinned to a commit you name, and nothing else; say so and
@@ -50,12 +57,31 @@ I will build exactly that.
   with `+holodeck_content hl2`, or at any time with `holodeck_content hl2` then `holodeck_reload` (superadmin).
 - Chat: any sentence that starts with **Skippy** is a request (`Skippy, add three couches`). Everything else players say is left
   alone. Players with a live mic talk normally; only the wake word starts the holodeck.
-- Proximity voice is native to the server (the `PlayerCanHearPlayersVoice` hook): about 21 m for a normal voice with a smooth fade,
-  crouching whispers, holding `+mentat_shout` shouts, walls muffle. `mentat_voice_mode global` turns it off (everyone hears everyone),
-  `off` hands voice back to the game's own rule. `mentat_voice_range` sets the reach.
-- Safety on a public server: everyone's props belong to the player who made them (admins can change anything); a cooldown between
-  requests (`holodeck_cooldown`, 1 s), a cap per player (`holodeck_max_per_player`, 150) and overall (`holodeck_max_ents`, 400); the
-  older scenario commands (`mentat_*`) are admin-only.
+- Proximity voice is native to the server. It is installed as the gamemode's own `PlayerCanHearPlayersVoice`, wrapped around the
+  rule the gamemode already had, so a gag or mute addon (a hook that returns false) always wins and the game's own refusal still
+  holds. About 21 m for a normal voice with a smooth fade, crouching whispers, holding `+mentat_shout` shouts (the server
+  remembers a shout for 1.5 s at a time), walls muffle. `mentat_voice_mode global` turns it off (everyone hears everyone, flat),
+  `off` hands voice back to the game's own rule; both also tell the clients not to fade voices. `mentat_voice_range` sets the
+  reach, `mentat_voice_wall 0` stops walls shrinking it. A player can run `mentat_voice_fade 0` to opt out of the fade.
+- Safety on a public server:
+  - everyone's props belong to the player who made them (admins can change anything), and they are created as that player's props
+    (`SetCreator`, and the CPPI owner when a prop-protection addon is present); the server's own spawn rules apply too (a
+    `PlayerSpawnProp` hook that says no is honoured);
+  - a rest between requests (`holodeck_cooldown`, 1 s, checked before anything else, longer after an expensive request), a cap per
+    player (`holodeck_max_per_player`, 150) and overall (`holodeck_max_ents`, 400). Undo obeys the same caps. When the server is full,
+    the props of players who left go first, then the oldest props of whoever holds more than a fair share; nobody can lock the
+    holodeck by leaving. Props of players who left are taken down after `holodeck_orphan_minutes` (30; 0 = keep until the room is needed);
+  - the planner runs on the server's main thread, so an ordinary player gets 0.05 s of planning per request, 40 things at most, and
+    the server as a whole about a tenth of its time; admins get 0.25 s and 150 things;
+  - Skippy's lines go to the requester and whoever is within earshot of where he stands (2600 HU), never to the whole server; they
+    carry no words the player typed (an unknown word is shown only to the requester) and each viewer's own chat filter applies;
+  - new props let players walk through until they are set free, and wait for anyone standing in the footprint to step out;
+  - the older scenario commands (`mentat_*`) are admin-only.
+- The bridge (agent, persona, voice) is rationed because every call costs a model run, a speech synthesis or credit: per player
+  (a few calls a minute), for the whole server (`holodeck_bridge_per_min`, 24; `holodeck_voice_chars_per_min`, 1800) and in flight
+  (`holodeck_bridge_inflight`, 4). When a limit is reached Skippy answers in plain text. The agent may only add things
+  (`holodeck_agent_destructive 1` lets it also remove, move and clear). Spoken clips are sent a chunk at a time, at most about
+  160 KB, mp3 only.
 
 ## What needs more before it works on the cloud server
 
@@ -68,12 +94,44 @@ I will build exactly that.
 - The home server needs `-allowlocalhttp` for the bridge on localhost (already in `gmod_ds_ctl.sh` and `gmod_ctl.sh`); the cloud VM
   does not unless a bridge runs on the same machine.
 
-## Not verified (from the portal chat's report)
+## The deployment patch (ready, not applied)
+
+`stage/gmod/deploy/skippy-tel-gmod-addon.patch` is the whole of route 1 as a change to the SkippyTel repo, so nobody has to wait for
+the portal chat to write it. It was checked against SkippyTel `origin/main` (`84f817c`, 2026-10-10): `git apply --check` is clean and
+the 57 tests in `portal/tests/test_gmod_addon.py`, `test_garrysmod.py` and `test_fix_watchdog_startup.py` pass with it. It adds:
+
+- `infra/gcp-games/gmod_addon.sh`, shipped in instance metadata, run at every boot and by `ops restart-game garrysmod` (stop, refresh
+  the addon, start). Shallow sparse fetch of `stage/gmod/addon`, no `.git` left behind, file times untouched when nothing changed (the
+  backup job fingerprints them), never stops the server from starting. Follows `master`, or the commit named by the new portal
+  setting `GARRYSMOD_ADDON_REF`.
+- `GARRYSMOD_EXTRA_ARGS` ("Extra server arguments", validated), so `+holodeck_content hl2` and the like can be set from the portal.
+- the documentation lines, and tests (the script is run for real against a local repository).
+
+Applying it changes infrastructure code that the next `terraform apply` ships to the live VM, so it waits for the Captain: in the
+SkippyTel checkout, `git apply <this patch>`, run its tests, then deploy the way SkippyTel deploys.
+
+## Content: the holodeck needs Half-Life 2 and Counter-Strike: Source models on the server
+
+The portal chat's second report (2026-10-10, after the first) says it plainly: **the cloud server does not have those games' content
+mounted the way the home server's `sourceengine` folder does.** The holodeck's catalog is 127 models from Half-Life 2 and
+Counter-Strike: Source. `util.IsValidModel` is false on a server that lacks a model, and the holodeck then leaves that model out
+(`library.lua`), so on the cloud server as it stands it will have few or none of its kinds. The `[holodeck] N of M catalog models are
+available here` line at start says how many (`ops tail garrysmod`); `holodeck_status` shows what is missing.
+
+What fixes it is a server-side mount of the two games' content (`mount.cfg` pointing at their folders), which needs the content on the
+VM's disk. Steam's anonymous dedicated-server packages for Counter-Strike: Source (app 232330) and Half-Life 2: Deathmatch (app
+232370) carry it; I have not verified that the image can mount them, or what that does to the persistent-disk size, so this is a
+request for the portal chat, not something I have done. The players' side is separate: each client mounts its own copies of those
+games (GMod does this for owned games), so a model the server has but a player lacks shows as an error model for that player;
+`holodeck_content hl2` keeps to the Half-Life 2 models, which every GMod player has (72 of 127).
+
+## Not verified (from the portal chat's reports)
 
 The server name still shows the old "Skippy" until its next restart; no Steam login token, no RCON; Workshop download and
-`sv_password` have never been exercised on the live server; whether the image's own Source content includes the Half-Life 2 and
-Counter-Strike: Source models (the home server's `sourceengine` folder does). The `[holodeck] N of M` line will answer the last one
-the first time the addon starts there.
+`sv_password` have never been exercised on the live server; the portal's per-game admin card cannot show a version for this game; the
+image offers no way to pin the Garry's Mod version and re-updates from Steam at every start, and only `data/` and `addons/` persist
+(`cfg/` and `gamemodes/` edits are lost at restart, and `server.cfg` is not editable from the portal yet). Verified by the portal chat:
+the server answers Steam's server query from outside, and `READY garrysmod=1` came about 5 minutes after the VM started.
 
 ## Prompt for the portal chat
 
@@ -82,7 +140,8 @@ Paste this into the portal chat (it owns `portal/catalog.py` and `games/docker-c
 > The Garry's Mod server on the VM is now our live development server for the Mentat stage mod. I need one thing added: **at each
 > start of the `garrysmod` service, before srcds starts, put the addon from the public repo into the persistent addons folder.**
 > Repo: `https://github.com/aaronsrhodes2/sigma-ground` (public, branch `master`), path `stage/gmod/addon`, target
-> `data/garrysmod/addons/mentat-stage` (replace it each start so a push to `master` shows up on the next start). Use a sparse, shallow
+> `data/garrysmod/addons/mentat-stage` (replace it each start so a push to `master` shows up on the next start; add a portal setting
+> `GARRYSMOD_ADDON_REF`, blank = `master`, or a full 40-character commit id that pins exactly that version, fetched by id). Use a sparse, shallow
 > clone, for example `git clone --depth 1 --branch master --filter=blob:none --sparse <url> /tmp/sg && git -C /tmp/sg sparse-checkout
 > set stage/gmod/addon`, then copy the folder over the target. If the clone fails (no network, GitHub down) keep the previous copy and
 > say so in the log; never block the server from starting. Then please add a **restart-only** operation (restart the game server
@@ -91,3 +150,10 @@ Paste this into the portal chat (it owns `portal/catalog.py` and `games/docker-c
 > Optional but useful: RCON on the VM's localhost only (password in the vault, never in chat), reachable through `ops`, so I can run
 > `holodeck_status` and `holodeck_reload` without a restart. Do not open anything else to the internet. Report in one to three
 > sentences what changed and how to trigger a restart.
+>
+> **Second thing, only after the first works:** the mod spawns models from Half-Life 2 and Counter-Strike: Source, and your report says
+> the server does not have that content mounted. Please find out whether the image can mount it (for example SteamCMD's anonymous
+> dedicated-server packages for Counter-Strike: Source, app 232330, and Half-Life 2: Deathmatch, app 232370, installed on the persistent
+> data disk and listed in `garrysmod/cfg/mount.cfg`, which must also survive restarts since `cfg/` does not persist), what it costs in
+> disk and boot time, and report. After it is mounted, `[holodeck] N of M catalog models are available here` in `ops tail garrysmod`
+> should say 127 of 127. If it cannot be done, say why; the mod then runs with `+holodeck_content hl2` and whatever the image has.

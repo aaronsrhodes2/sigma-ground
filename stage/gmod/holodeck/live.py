@@ -1,6 +1,7 @@
 """Run the holodeck for real, headless, on the dedicated server, and grade what the PHYSICS ENGINE left standing.
 
-    python stage/gmod/holodeck/live.py "add three couches" "a living room" [--map gm_flatgrass] [--pos 0,0] [--yaw 0] [--out r.json]
+    python stage/gmod/holodeck/live.py "add three couches" "a living room" [--map gm_flatgrass] [--pos 0,0[,z]] [--yaw 0] [--out r.json]
+    (a negative position needs the equals sign: --pos=-100,0)
 
 The grader is independent of the planner: footprints come from the engine-measured model bounds (data/catalog.json), turned by
 the yaw the engine reports for each prop after it settled. It checks that every prop is still where it was put (nothing was
@@ -25,6 +26,32 @@ CATALOG = json.loads((HERE / "data" / "catalog.json").read_text(encoding="utf-8"
 
 def variant(kind: str, vi: int) -> dict:
     return CATALOG["kinds"][kind]["variants"][vi - 1]
+
+
+SEATS = ("chair", "office chair", "stool")
+TUCK_HU = 14.0          # how far a seat may slide under a table (the planner tucks at most 9 HU; the grader allows a little more)
+
+
+def has_table_top(e: dict) -> bool:
+    """A body with a flat top high enough to slide a seat under: the planner's own condition for tucking (top at 28 HU or more)."""
+    top = variant(e["kind"], e["vi"]).get("top")
+    return bool(top) and top["z"] >= 28
+
+
+def tucked(a: dict, b: dict, pen: float) -> bool:
+    """A seat pushed under a table or desk overlaps it in plan view by design, and only that: not a seat against a seat, a couch or a wall."""
+    return pen <= TUCK_HU and ((a["kind"] in SEATS and has_table_top(b)) or (b["kind"] in SEATS and has_table_top(a)))
+
+
+def parse_pos(text: str) -> dict:
+    """'x,y' or 'x,y,z' (Hammer units) as the position the run stands at; z is left to the floor unless given."""
+    try:
+        c = [float(v) for v in text.split(",")]
+    except ValueError:
+        c = []
+    if len(c) not in (2, 3):
+        raise argparse.ArgumentTypeError(f"{text!r}: expected x,y or x,y,z")
+    return {"x": c[0], "y": c[1], **({"z": c[2]} if len(c) == 3 else {})}
 
 
 def actual_poly(e: dict) -> list:
@@ -71,8 +98,7 @@ def grade(report: dict, floor_z: float = 0.0, max_shove: float = 6.0) -> list[st
             zb = b["planned"]["z"] - floor_z
             if za > 1 or zb > 1:
                 continue
-            roles = {a.get("group"), b.get("group")}
-            if pen <= 14 and (a["kind"] in ("chair", "office chair", "stool") or b["kind"] in ("chair", "office chair", "stool")):
+            if tucked(a, b, pen):
                 continue                                           # a chair tucked under a table
             problems.append(f"{a['kind']}#{a['id']} and {b['kind']}#{b['id']} interpenetrate by {pen:.1f} HU")
     return problems
@@ -82,7 +108,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("requests", nargs="+")
     ap.add_argument("--map", default="gm_flatgrass")
-    ap.add_argument("--pos", default="0,0")
+    ap.add_argument("--pos", type=parse_pos, default="0,0", help="x,y[,z] to stand at")
     ap.add_argument("--yaw", type=float, default=0.0)
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--settle", type=float, default=7.0)
@@ -93,9 +119,9 @@ def main(argv=None) -> int:
     ap.add_argument("--voice", action="store_true")
     ap.add_argument("--agent", type=int, default=1)
     ap.add_argument("--content", default="", help="all | hl2 (only the models every player has)")
+    ap.add_argument("--engine-mass", action="store_true", help="keep the engine's own gameplay masses instead of the catalog's real-world masses")
     a = ap.parse_args(argv)
-    x, y = (float(v) for v in a.pos.split(","))
-    targs = {"requests": a.requests, "pos": {"x": x, "y": y}, "yaw": a.yaw, "seed": a.seed, "settle": a.settle}
+    targs = {"requests": a.requests, "pos": a.pos, "yaw": a.yaw, "seed": a.seed, "settle": a.settle}
     srv = None
     if a.start_bridge:
         import secrets
@@ -106,6 +132,8 @@ def main(argv=None) -> int:
         targs["token"] = skippy_bridge.TOKEN
     if a.content:
         targs["content"] = a.content
+    if a.engine_mass:
+        targs["real_mass"] = False
     if a.bridge:
         targs.update({"bridge": a.bridge, "persona": a.persona, "voice": a.voice, "agent": a.agent})
         targs["timeout_note"] = "bridge on"
@@ -114,6 +142,7 @@ def main(argv=None) -> int:
     finally:
         if srv:
             srv.shutdown()
+            srv.server_close()
     if a.out:
         Path(a.out).write_text(json.dumps(res, indent=1), encoding="utf-8")
     floor_z = res["pos"]["z"]

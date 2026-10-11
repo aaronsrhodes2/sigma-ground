@@ -39,23 +39,29 @@ def _doc() -> dict:
 
 def _entry(name: str, _aliased: bool = False):
     """The best table entry for ``name``: exact key, else whole-word containment
-    (the key's words all appear in the query; longest key wins), else the
-    query's WordNet aliases (taxonomy table) retried once."""
+    (the key's words all appear in the query; longest key wins, and of equally
+    long keys the one holding the query's head noun — "a desk LAMP" is a lamp,
+    not a desk, whatever order the table lists them in), else the query's
+    WordNet aliases (taxonomy table) retried once."""
+    from . import aliases
     cats = _doc().get("categories") or {}
     key = name.strip().lower()
     if key in cats:
         return cats[key]
     qw = _words(name)
-    best, best_len = None, 0
+    head = aliases.head_noun(name)
+    best, best_rank = None, (0, False)
     for nm, entry in cats.items():
         nw = _words(nm)
-        if nw and nw <= qw and len(nw) > best_len:
-            best_len, best = len(nw), entry
+        if not (nw and nw <= qw):
+            continue
+        rank = (len(nw), aliases.holds_head(nw, head))
+        if rank > best_rank:
+            best_rank, best = rank, entry
     if best is None and not _aliased:
         # alias retries match EXACT keys only: aliases are precise lemma swaps,
         # and stacking word-containment on top cascades into false friends
         # ("pushpin" -> "drawing pin" -> containment -> bowling "pin").
-        from . import aliases
         for alt in sorted(aliases.expand(name)):
             best = cats.get(alt.strip().lower())
             if best is not None:

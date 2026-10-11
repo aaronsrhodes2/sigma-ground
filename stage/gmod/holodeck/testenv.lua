@@ -10,8 +10,9 @@ function M.open()
   }
 end
 
---- A rectangular room x0..x1, y0..y1 with optional box obstacles { {x0,y0,x1,y1}, ... }. Outside is void (no floor).
-function M.room(x0, y0, x1, y1, obstacles)
+--- A rectangular room x0..x1, y0..y1 with optional box obstacles { {x0,y0,x1,y1}, ... } and an optional ceiling height (HU
+--- above the floor, answered by env.ceiling_z). Outside is void (no floor).
+function M.room(x0, y0, x1, y1, obstacles, ceiling)
   obstacles = obstacles or {}
   local env = {}
   local function inside(x, y, tol)
@@ -69,6 +70,9 @@ function M.room(x0, y0, x1, y1, obstacles)
       if ok and tmin <= tmax and tmin > 0 then try(tmin, nx, ny) end
     end
     return best
+  end
+  if ceiling then
+    function env.ceiling_z(x, y, z) return ceiling end
   end
   env.bounds = { x0, y0, x1, y1 }
   return env
