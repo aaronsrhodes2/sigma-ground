@@ -1430,7 +1430,7 @@ local function place_at(tokens, i)
   end
   local every
   if arr == "corner" then
-    if each_kind then every = "each" elseif four then every = "four" end
+    if each_kind and not four then every = "each" elseif four then every = "four" end      -- "all four corners" counts the corners
   end
   return last - i + 1, arr, every
 end
@@ -2882,7 +2882,11 @@ function Parse:parse_clause(raw, opts)
                 mark(i, j)
                 if first_det < i then mark(first_det, first_det) end
               else
-                if req.scene == "" then req.scene = self.scene[phrase] end
+                if req.scene == "" then req.scene = self.scene[phrase]
+                elseif self.scene[phrase] ~= req.scene then
+                  req.extra_scenes = req.extra_scenes or {}
+                  req.extra_scenes[#req.extra_scenes + 1] = self.scene[phrase]
+                end
                 mark(i, j)
                 if first_det < i then mark(first_det, first_det) end
               end
@@ -3270,10 +3274,12 @@ function Parse:parse_clause(raw, opts)
     else
       req.every = "corner"
     end
+    if req.every then req.every_mode = "per" end                              -- "a plant in each corner": the count is for each corner
     local before = tokens[chosen.i - 1]
     if before == "one" or before == "1" then req.every = nil end
   end
   if req.every and req.arrangement ~= "corner" then req.every = nil end
+  if not req.every then req.every_mode = nil end
 
   -- ---- a definite thing after a preposition nothing above knew ("a lamp past the couch", "in the middle of the table"): where, not what
   if req.target == "" and req.action ~= "remove" and req.action ~= "clear" and #req.items >= 2 then

@@ -1137,3 +1137,16 @@ def test_new_readers_stay_linear(parse):
         for _ in range(20):
             parse.parse_all(pattern * 400)
         assert (time.perf_counter() - t0) / 20 < 0.1, pattern
+
+
+def test_every_mode_and_extra_scenes(parse):
+    """The planner reads req.every_mode (per corner or in all) and req.extra_scenes (the other rooms named in the sentence)."""
+    r = parse("a plant in each corner")
+    assert r["every"] == "corner" and r["every_mode"] == "per"
+    r = parse("put four plants in all four corners")
+    assert r.get("every") is None and r.get("every_mode") is None and kinds(r) == [("plant", 4)]
+    r = parse("a plant in all four corners")
+    assert r["every"] == "corner" and r["every_mode"] == "per" and kinds(r) == [("plant", 1)]
+    r = parse("a living room and a kitchen")
+    assert r["scene"] and r.get("extra_scenes") and r["scene"] not in r["extra_scenes"]
+    assert parse("add a couch").get("extra_scenes") is None
