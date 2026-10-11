@@ -430,6 +430,19 @@ class TestSGEphemerisContract(unittest.TestCase):
         # (356 375 - 406 720 km; Meeus, Astronomical Algorithms, ch. 50)
         self.assertTrue(3.56e5 < np.linalg.norm(moon - earth) < 4.07e5)
 
+    def test_naif_codes_kept_for_long_horizon_sweep(self):
+        """scripts/run_long_horizon_sweep.py imports _NAIF_CODES; C2 had
+        removed it (ImportError at import).  Values: NAIF integer IDs (NAIF
+        "NAIF IDs" required reading): barycentres 1-9, Sun 10, Earth 399,
+        Moon 301."""
+        from sigma_ground.field.interface.adapters._jplephem_bridge import (
+            _NAIF_CODES, _load_kernel,  # noqa: F401 -- the script's import
+        )
+        self.assertEqual(_NAIF_CODES, {
+            "Sun": 10, "Mercury": 1, "Venus": 2, "Earth": 399, "Moon": 301,
+            "Mars": 4, "Jupiter": 5, "Saturn": 6, "Uranus": 7, "Neptune": 8,
+            "Pluto": 9})
+
     def test_de440_tier_only_at_snapshot_epochs(self):
         """Before: J2010 + 1 d returned the J2010 snapshot (2.6e6 km off)."""
         eph = SGEphemeris(use_kernel=False)
