@@ -1,0 +1,13 @@
+{
+ "n_points": 2693,
+ "g_dagger_m_s2": 1.1484299498869949e-10,
+ "g_dagger_stat_err": 2.070873702635716e-12,
+ "intrinsic_scatter_dex_fitted": 0.07080479213766909,
+ "rms_scatter_dex": 0.13277499169572354,
+ "a0_pred_cH0_over_2pi_m_s2": 1.042e-10,
+ "log10_ratio_pred_over_fit": -0.04223679096776213,
+ "pred_over_fit": 0.9073256928753316,
+ "stat_sigmas_away": 5.139374253076641,
+ "difference_in_units_of_point_scatter": 0.3181080294439401,
+ "published_g_dagger_Lelli2017": "1.20e-10 +/- 0.02 (random) +/- 0.24 (systematic) m/s^2 [LIT]"
+}
