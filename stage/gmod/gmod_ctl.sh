@@ -15,7 +15,7 @@
 #   stage/gmod/gmod_ctl.sh restart [map]
 #   stage/gmod/gmod_ctl.sh wait-ready       # until the addon announces itself in console.log
 #
-# Env: GMOD_DIR (install dir), GMOD_EXE (default gmod.exe, the 32-bit launcher Steam uses;
+# Env: GMOD_EXTRA_ARGS (more game arguments, e.g. "+maxplayers 4"), GMOD_DIR (install dir), GMOD_EXE (default gmod.exe, the 32-bit launcher Steam uses;
 #      gmod_win64.exe for the 64-bit build), GMOD_STOP_TIMEOUT (seconds per rung, default 20).
 # Shell note (PLATINUM §20): bash first; PowerShell only for the window message, which has no bash equivalent.
 set -u
@@ -85,9 +85,9 @@ start() {
   fi
   if [ "$quiet" -eq 1 ]; then
     # `start /min` launches it already minimized so it never takes focus; the flags stop it grabbing the mouse
-    ( cd "$GMOD_DIR" && cmd //c start "" //min "$GMOD_EXE" -console -condebug -novid -allowlocalhttp -nosound -nomouse -nojoy -windowed -w 640 -h 360 +map "$map" >/dev/null 2>&1 )
+    ( cd "$GMOD_DIR" && cmd //c start "" //min "$GMOD_EXE" -console -condebug -novid -allowlocalhttp -nosound -nomouse -nojoy -windowed -w 640 -h 360 +map "$map" ${GMOD_EXTRA_ARGS:-} >/dev/null 2>&1 )
   else
-    ( cd "$GMOD_DIR" && ./"$GMOD_EXE" -console -condebug -novid -allowlocalhttp -windowed -w 1280 -h 720 +map "$map" >/dev/null 2>&1 & )
+    ( cd "$GMOD_DIR" && ./"$GMOD_EXE" -console -condebug -novid -allowlocalhttp -windowed -w 1280 -h 720 +map "$map" ${GMOD_EXTRA_ARGS:-} >/dev/null 2>&1 & )
   fi
   if [ "$quiet" -eq 1 ]; then
     # keep the window minimized and unfocused while it loads (see gmod_hide.ps1); detached, ends on its own

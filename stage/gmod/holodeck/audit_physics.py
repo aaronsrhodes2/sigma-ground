@@ -9,13 +9,15 @@ flags are only ratios between them. Where Deckard's own result looks wrong (a ch
 (sigma-ground CLAUDE.md: diagnostics flag, they never fix).
 
 Needs no game and no network; Deckard runs without its language model (allow_llm=False), so a name it cannot ground says so.
-Writes data/physics_audit.json and the markdown report.
+Writes data/physics_audit.json and the markdown report. `--from-json` re-derives the medians and the flags from the stored numbers
+(no Deckard run) and rewrites both files, so a change to the checks below reaches the published report without a new run.
 """
 from __future__ import annotations
 
 import argparse
 import json
 import math
+import statistics
 import sys
 import time
 from pathlib import Path
@@ -54,15 +56,18 @@ def deckard_record(names: list[str]) -> dict:
     try:
         c = deckard.compile(spec)
         bb = c.bbox
+        # the densest material Deckard gave any part of this object (its own number; carved cavities have density 0)
+        dens = [float(v) for v in (getattr(c, "density_by_label", None) or {}).values() if v and v > 0]
         out.update({
             "mass_kg": float(c.mass_kg),
+            "part_density_max_kg_m3": max(dens) if dens else None,
             "size_m": sorted((abs(b[1] - b[0]) for b in bb), reverse=True),
             "com_m": [float(v) for v in c.com_m] if getattr(c, "com_m", None) is not None else None,
             "inertia_kgm2": [float(v) for v in c.inertia_kgm2] if getattr(c, "inertia_kgm2", None) is not None else None,
         })
     except Exception as e:                                               # noqa: BLE001
         out.update({"ok": False, "error": f"compile failed: {type(e).__name__}: {e}"})
-    out["seconds"] = round(time.time() - t, 1)
+    print(f"    {time.time() - t:.1f} s")                  # timing is not stored: it would make every re-run differ
     return out
 
 
@@ -71,16 +76,22 @@ def engine_record(kind: dict, measured: dict) -> dict:
     for v in kind["variants"]:
         m = measured.get(v["model"], {})
         ph = m.get("phys") or {}
+        engine_mass = v.get("engine_mass", v["mass"])          # the catalog's "mass" is the real-world mass now (fidelity.py); this audit sets the ENGINE's beside Deckard
         size = sorted(((v["maxs"][i] - v["mins"][i]) * HU_M for i in range(3)), reverse=True)
         vol_m3 = ph.get("volume", 0) * HU_M ** 3
         rows.append({
-            "model": v["model"].replace("models/", ""), "mass_kg": v["mass"], "size_m": [round(x, 3) for x in size],
+            "model": v["model"].replace("models/", ""), "mass_kg": engine_mass, "size_m": [round(x, 3) for x in size],
             "hull_volume_m3": round(vol_m3, 4), "convexes": ph.get("convexes"), "material": v["material"],
             "surface_density": (ph.get("surface") or {}).get("density"), "friction": (ph.get("surface") or {}).get("friction"),
-            "hull_density_kg_m3": round(v["mass"] / vol_m3, 1) if vol_m3 > 0 else None,
+            "hull_density_kg_m3": round(engine_mass / vol_m3, 1) if vol_m3 > 0 else None,
         })
-    masses = sorted(r["mass_kg"] for r in rows)
-    return {"variants": rows, "median_mass_kg": masses[len(masses) // 2], "median_size_m": rows[len(rows) // 2]["size_m"]}
+    return {"variants": rows, **engine_medians(rows)}
+
+
+def engine_medians(rows: list) -> dict:
+    """The kind's typical variant: the true median mass, and the median of each of the three (largest-first) dimensions."""
+    return {"median_mass_kg": statistics.median(r["mass_kg"] for r in rows),
+            "median_size_m": [round(statistics.median(r["size_m"][i] for r in rows), 3) for i in range(3)]}
 
 
 def flags(d: dict, e: dict) -> list[str]:
@@ -101,9 +112,22 @@ def flags(d: dict, e: dict) -> list[str]:
     for row in e["variants"]:
         if row["hull_density_kg_m3"] and row["hull_density_kg_m3"] > 1500 and ("locker" in row["model"] or "stove" in row["model"] or "chair" in row["model"]):
             out.append(f"{row['model']}: {row['mass_kg']:.0f} kg in a {row['hull_volume_m3']:.2f} m3 body is {row['hull_density_kg_m3']:.0f} kg/m3")
-    if dm > 0 and (dm / max(1e-9, e["variants"][0]["hull_volume_m3"])) > 5000:
-        out.append(f"Deckard's own density looks wrong: {dm:.0f} kg for a body Deckard sizes at {ds[0]:.2f} m")
+    # Deckard against itself: its mass over its own bounding box cannot exceed the densest material it gave any part (the box is
+    # larger than the body, so the true mean density is lower still). Only rows compiled with that number can be checked.
+    box = ds[0] * ds[1] * ds[2]
+    ceiling = d.get("part_density_max_kg_m3")
+    if dm > 0 and box > 0 and ceiling and dm / box > ceiling:
+        out.append(f"Deckard's own mass is more than its own materials can fill its own box with: {dm:.0f} kg in {box:.2f} m3 is "
+                   f"{dm / box:.0f} kg/m3, its densest part is {ceiling:.0f} kg/m3")
     return out
+
+
+def rederive(row: dict) -> dict:
+    """A stored row with its medians and flags recomputed from the stored numbers, and without the run-to-run timing."""
+    row["engine"].update(engine_medians(row["engine"]["variants"]))
+    row["deckard"].pop("seconds", None)
+    row["flags"] = flags(row["deckard"], row["engine"])
+    return row
 
 
 def render(rows: list, out: str) -> None:
@@ -139,8 +163,10 @@ def main(argv=None) -> int:
     a = ap.parse_args(argv)
     path = HERE / "data" / "physics_audit.json"
     if a.from_json:
-        render(json.loads(path.read_text(encoding="utf-8")), a.out)
-        print(f"wrote {a.out}")
+        rows = [rederive(r) for r in json.loads(path.read_text(encoding="utf-8"))]
+        path.write_text(json.dumps(rows, indent=1), encoding="utf-8")
+        render(rows, a.out)
+        print(f"wrote {a.out} and {path}")
         return 0
     catalog = json.loads((HERE / "data" / "catalog.json").read_text(encoding="utf-8"))
     measured = {m["model"]: m for m in json.loads((HERE / "data" / "measured.json").read_text(encoding="utf-8"))["models"]}

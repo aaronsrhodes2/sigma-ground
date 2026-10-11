@@ -39,6 +39,7 @@ def main(argv=None) -> int:
                                 client=True, visible=True, timeout=240)
     finally:
         srv.shutdown()
+        srv.server_close()
     print(json.dumps(res, indent=1))
     ok = res.get("consumed") and res.get("built", 0) > 0 and res.get("played")
     print("PASS: spoken request built things and Skippy's voice played in the game" if ok else "FAIL")
