@@ -13,18 +13,24 @@ passed as nested-list strings, e.g. "[[1,2],[3,4]]".
 from __future__ import annotations
 
 from sigma_ground.mcp.provenance import ToolResult
+from sigma_ground.mcp.tools.symbolic import _reserved_note
 
 
-def _sympify(expr: str):
-    # PHYSICS_GAP (2026-10-10, unification round 2; KNOWN_GAPS.md): compute_limit,
-    # series_expansion and summation parse before creating Symbol(variable), so a
-    # variable named E, I, N, S, O or Q becomes a sympy object (compute_limit('S**2',
-    # 'S', '2') fails to parse). Same defect as symbolic._sympify. Flagged, not fixed.
+def _sympify(expr: str, variables=()):
+    # Names in ``variables`` (the tool's named variable(s)) parse as plain Symbols,
+    # so E, I, N, S, O or Q is the variable, not sympy's object of that name.
+    # FIXED 2026-10-10: compute_limit('S**2', 'S', '2') failed to parse and
+    # compute_limit('E**2', 'E', '2') returned exp(2) (A30; same defect as A20).
     import sympy as sp
+    local = {v: sp.Symbol(v) for v in variables if v}
     try:
-        return sp.sympify(expr, convert_xor=True)
+        return sp.sympify(expr, locals=local, convert_xor=True)
     except (sp.SympifyError, SyntaxError, TypeError) as e:
         raise ValueError(f"could not parse '{expr}': {e}") from e
+
+
+def _names(variables: str):
+    return [v.strip() for v in variables.split(",")]
 
 
 def _matrix(s: str):
@@ -109,7 +115,7 @@ def compute_limit(expression: str, variable: str = "x",
     """Limit of expression as variable -> point. direction '+', '-', or '+-'."""
     try:
         import sympy as sp
-        expr = _sympify(expression)
+        expr = _sympify(expression, [variable])
         var = sp.Symbol(variable)
         pt = _sympify(point)
         d = direction if direction in ("+", "-") else "+-"
@@ -118,7 +124,8 @@ def compute_limit(expression: str, variable: str = "x",
         return _ok(str(lim), "sympy.limit",
                     f"limit({expression}, {variable}->{point})",
                     {"expression": expression, "variable": variable,
-                     "point": point})
+                     "point": point},
+                    _reserved_note([expression, point], [variable]))
     except Exception as e:
         return _err(e, {"expression": expression, "variable": variable})
 
@@ -128,13 +135,14 @@ def series_expansion(expression: str, variable: str = "x",
     """Taylor/Maclaurin series of expression about point, to given order."""
     try:
         import sympy as sp
-        expr = _sympify(expression)
+        expr = _sympify(expression, [variable])
         var = sp.Symbol(variable)
         s = sp.series(expr, var, _sympify(point), int(order)).removeO()
         return _ok(str(s), "sympy.series",
                     f"series({expression}, {variable}, {point}, {order})",
                     {"expression": expression, "variable": variable,
-                     "point": point, "order": order})
+                     "point": point, "order": order},
+                    _reserved_note([expression, point], [variable]))
     except Exception as e:
         return _err(e, {"expression": expression, "variable": variable})
 
@@ -144,13 +152,14 @@ def summation(expression: str, variable: str = "n",
     """Symbolic sum of expression over variable from lower to upper."""
     try:
         import sympy as sp
-        expr = _sympify(expression)
+        expr = _sympify(expression, [variable])
         var = sp.Symbol(variable)
         total = sp.summation(expr, (var, _sympify(lower), _sympify(upper)))
         return _ok(str(total), "sympy.summation",
                     f"Sum({expression}, ({variable}, {lower}, {upper}))",
                     {"expression": expression, "variable": variable,
-                     "lower": lower, "upper": upper})
+                     "lower": lower, "upper": upper},
+                    _reserved_note([expression, lower, upper], [variable]))
     except Exception as e:
         return _err(e, {"expression": expression})
 
@@ -179,7 +188,7 @@ def fourier_transform(expression: str, x_var: str = "x",
     try:
         import sympy as sp
         x, k = sp.Symbol(x_var), sp.Symbol(k_var)
-        F = sp.fourier_transform(_sympify(expression), x, k)
+        F = sp.fourier_transform(_sympify(expression, [x_var]), x, k)
         return _ok(str(F), "sympy.fourier_transform",
                     f"F{{{expression}}}(k)", {"expression": expression})
     except Exception as e:
@@ -229,9 +238,9 @@ def solve_ode(equation: str, func: str = "y",
         s = _re.sub(rf"\b{func}\b(?!\s*\()", f"{func}({variable})", s)
         if "=" in s:
             lhs, rhs = s.split("=", 1)
-            eq = sp.Eq(_sympify(lhs), _sympify(rhs))
+            eq = sp.Eq(_sympify(lhs, [variable]), _sympify(rhs, [variable]))
         else:
-            eq = sp.Eq(_sympify(s), 0)
+            eq = sp.Eq(_sympify(s, [variable]), 0)
         sol = sp.dsolve(eq, y(x))
         return _ok(str(sol), "sympy.dsolve", f"dsolve({equation})",
                     {"equation": equation, "func": func, "variable": variable})
@@ -245,8 +254,8 @@ def gradient(scalar_field: str, variables: str = "x,y,z") -> ToolResult:
     """Gradient ∇f of a scalar field. variables comma-separated."""
     try:
         import sympy as sp
-        vs = [sp.Symbol(v.strip()) for v in variables.split(",")]
-        f = _sympify(scalar_field)
+        vs = [sp.Symbol(v) for v in _names(variables)]
+        f = _sympify(scalar_field, _names(variables))
         grad = [str(sp.diff(f, v)) for v in vs]
         return _ok(grad, "sympy.diff (gradient)", f"grad({scalar_field})",
                     {"scalar_field": scalar_field, "variables": variables})
@@ -258,8 +267,8 @@ def divergence(vector_field: str, variables: str = "x,y,z") -> ToolResult:
     """Divergence ∇·F. vector_field as comma-separated components, e.g. 'x,y,z'."""
     try:
         import sympy as sp
-        vs = [sp.Symbol(v.strip()) for v in variables.split(",")]
-        comps = [_sympify(c) for c in vector_field.split(",")]
+        vs = [sp.Symbol(v) for v in _names(variables)]
+        comps = [_sympify(c, _names(variables)) for c in vector_field.split(",")]
         if len(comps) != len(vs):
             raise ValueError("component count must match variable count")
         div = sum(sp.diff(comps[i], vs[i]) for i in range(len(vs)))
@@ -274,8 +283,8 @@ def curl(vector_field: str, variables: str = "x,y,z") -> ToolResult:
     """Curl ∇×F for a 3-component field. components comma-separated."""
     try:
         import sympy as sp
-        vs = [sp.Symbol(v.strip()) for v in variables.split(",")]
-        F = [_sympify(c) for c in vector_field.split(",")]
+        vs = [sp.Symbol(v) for v in _names(variables)]
+        F = [_sympify(c, _names(variables)) for c in vector_field.split(",")]
         if len(F) != 3 or len(vs) != 3:
             raise ValueError("curl requires 3 components and 3 variables")
         cx = sp.diff(F[2], vs[1]) - sp.diff(F[1], vs[2])

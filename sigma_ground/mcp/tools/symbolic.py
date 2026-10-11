@@ -10,21 +10,51 @@ from __future__ import annotations
 from sigma_ground.mcp.provenance import ToolResult
 
 
-def _sympify(expr: str):
+import re as _re
+
+# Bare names that sympy's parser binds to objects, not symbols.
+_SYMPY_RESERVED = {
+    "E": "Euler's number e", "I": "the imaginary unit i",
+    "N": "sympy's numeric-evaluation function N", "S": "sympy's singleton registry S",
+    "O": "sympy's big-O order symbol", "Q": "sympy's assumptions object Q",
+}
+_RESERVED_RE = _re.compile(r"(?<![\w.])([EINSOQ])(?![\w])")
+
+
+def _sympify(expr: str, variables=()):
     """Parse a string into a sympy expression, raising informatively.
 
-    PHYSICS_GAP (2026-10-10, unification round 2, U1; KNOWN_GAPS.md): parsing
-    happens before the caller creates `sp.Symbol(variable)`, so a variable named
-    E, I, N, S, O or Q is read as a sympy constant and the answer is silently
-    wrong: differentiate_expr('E**2', 'E') returns '0'; solve_equation('E**2 - 4',
-    'E') returns []. Fix direction: sympify with locals={variable: Symbol(variable)}.
-    Flagged, not fixed.
+    Every name in ``variables`` (the tool's named variable(s)) is parsed as a
+    plain sympy Symbol, so a physicist's E, I, N, S, O or Q is the variable,
+    not sympy's constant/function of that name.
+    FIXED 2026-10-10: the variable was created after parsing, so
+    differentiate_expr('E**2', 'E') returned '0' and solve_equation('E**2 - 4',
+    'E') returned [] (A20).
     """
     import sympy as sp
+    local = {v: sp.Symbol(v) for v in variables if v}
     try:
-        return sp.sympify(expr, convert_xor=True)
+        return sp.sympify(expr, locals=local, convert_xor=True)
     except (sp.SympifyError, SyntaxError, TypeError) as e:
         raise ValueError(f"could not parse expression '{expr}': {e}") from e
+
+
+def _reserved_note(texts, variables=()) -> str:
+    """Disclose any OTHER bare E, I, N, S, O or Q in the inputs: sympy reads
+    those as its own objects (E = Euler's number, I = imaginary unit, ...)."""
+    hits = set()
+    for t in texts:
+        if t:
+            hits.update(m.group(1) for m in _RESERVED_RE.finditer(str(t)))
+    hits -= set(variables)
+    if not hits:
+        return ""
+    return ("sympy read " + ", ".join(f"'{h}' as {_SYMPY_RESERVED[h]}" for h in sorted(hits))
+            + " (only the named variable is parsed as a symbol)")
+
+
+def _join_notes(*parts) -> str:
+    return "; ".join(p for p in parts if p)
 
 
 def solve_equation(equation: str, variable: str) -> ToolResult:
@@ -54,9 +84,9 @@ def solve_equation(equation: str, variable: str) -> ToolResult:
         # Allow either "expr" (= 0) or "lhs = rhs"
         if "=" in equation:
             lhs_str, rhs_str = equation.split("=", 1)
-            expr = _sympify(lhs_str) - _sympify(rhs_str)
+            expr = _sympify(lhs_str, [variable]) - _sympify(rhs_str, [variable])
         else:
-            expr = _sympify(equation)
+            expr = _sympify(equation, [variable])
         var = sp.Symbol(variable)
         solutions = sp.solve(expr, var)
     except (ValueError, NotImplementedError) as e:
@@ -71,7 +101,8 @@ def solve_equation(equation: str, variable: str) -> ToolResult:
         source="sympy.solve",
         formula=f"solve({equation}, {variable})",
         inputs={"equation": equation, "variable": variable},
-        notes=f"{len(solutions)} solution(s)" if solutions else "no solutions",
+        notes=_join_notes(f"{len(solutions)} solution(s)" if solutions else "no solutions",
+                          _reserved_note([equation], [variable])),
     )
 
 
@@ -99,7 +130,7 @@ def integrate_expr(expression: str, variable: str,
         )
 
     try:
-        expr = _sympify(expression)
+        expr = _sympify(expression, [variable])
         var = sp.Symbol(variable)
         if lower is None and upper is None:
             result = sp.integrate(expr, var)
@@ -123,6 +154,7 @@ def integrate_expr(expression: str, variable: str,
                   else f"integrate({expression}, {variable})"),
         inputs={"expression": expression, "variable": variable,
                 "lower": lower, "upper": upper},
+        notes=_reserved_note([expression, lower, upper], [variable]),
     )
 
 
@@ -147,7 +179,7 @@ def differentiate_expr(expression: str, variable: str,
             inputs={"expression": expression, "variable": variable},
         )
     try:
-        expr = _sympify(expression)
+        expr = _sympify(expression, [variable])
         var = sp.Symbol(variable)
         result = sp.diff(expr, var, order)
     except (ValueError, NotImplementedError) as e:
@@ -162,6 +194,7 @@ def differentiate_expr(expression: str, variable: str,
         source="sympy.diff",
         formula=f"d^{order}/d{variable}^{order}({expression})",
         inputs={"expression": expression, "variable": variable, "order": order},
+        notes=_reserved_note([expression], [variable]),
     )
 
 
