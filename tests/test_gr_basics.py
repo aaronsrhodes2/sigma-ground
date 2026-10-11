@@ -258,7 +258,8 @@ def test_page_time_sm_is_fraction_of_evaporation():
     t_sm = page_time_sm(M)
     t_evap = hawking_evaporation_time(M)
     assert 0.0 < t_sm < t_evap
-    assert t_sm == pytest.approx(0.5384 * t_evap, rel=1e-10)
+    # Page 2013 (JCAP 09, 028, eq. 9): eps = 0.53810 (was 0.5384, a transcription error)
+    assert t_sm == pytest.approx(0.53810 * t_evap, rel=1e-10, abs=0.0)
 
 
 def test_page_time_sm_scales_with_M_cubed():
@@ -340,3 +341,23 @@ def test_gravitational_redshift_difference_over_1m_and_1cm(h):
     assert dz == pytest.approx(dz_ref, rel=1e-6, abs=0.0)
     g = G * _M_EARTH / _R_EARTH**2
     assert dz == pytest.approx(g * h / C**2, rel=1e-6, abs=0.0)          # weak-field law
+
+
+# ── 2026-10-10 audit: the Hawking power law is what its label says ─────
+# hawking_luminosity is relabelled as the photon-only horizon blackbody; check
+# that claim against Stefan-Boltzmann (scipy CODATA sigma) at T_H over the
+# horizon area, and t_evap = M c^2 / (3 L) (mass loss dM/dt = -L/c^2).
+
+def test_hawking_luminosity_is_photon_only_horizon_blackbody():
+    sc = pytest.importorskip("scipy.constants")
+    M = 1.0e12
+    T = hawking_temperature(M)
+    rs = schwarzschild_radius(M)
+    L_bb = sc.Stefan_Boltzmann * T**4 * 4.0 * math.pi * rs**2
+    assert hawking_luminosity(M) == pytest.approx(L_bb, rel=1e-8, abs=0.0)
+
+
+def test_hawking_evaporation_time_integrates_its_own_luminosity():
+    M = 1.0e12
+    t = hawking_evaporation_time(M)
+    assert t == pytest.approx(M * C**2 / (3.0 * hawking_luminosity(M)), rel=1e-12, abs=0.0)

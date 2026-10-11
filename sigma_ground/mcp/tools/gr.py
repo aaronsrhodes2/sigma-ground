@@ -107,7 +107,11 @@ def hawking_temperature(mass_kg: float) -> ToolResult:
 
 
 def hawking_evaporation_time(mass_kg: float) -> ToolResult:
-    """Hawking evaporation timescale tau = 5120 pi G^2 M^3 / (hbar c^4)."""
+    """Hawking evaporation timescale tau = 5120 pi G^2 M^3 / (hbar c^4).
+
+    The photon-only horizon-blackbody estimate (see
+    field.gr_basics.hawking_evaporation_time), not Page's computed lifetime.
+    """
     if mass_kg <= 0:
         return ToolResult(value=None, source="invalid input",
                            notes="mass must be positive",
@@ -119,11 +123,14 @@ def hawking_evaporation_time(mass_kg: float) -> ToolResult:
     return ToolResult(
         value=tau_s,
         units="s",
-        source="sigma_ground.field.gr_basics (Hawking 1974, Page 1976)",
+        source=("sigma_ground.field.gr_basics (photon-only horizon "
+                "blackbody estimate; T_H from Hawking 1974)"),
         formula="tau = 5120 pi G^2 M^3 / (hbar c^4)",
         inputs={"mass_kg": mass_kg},
-        notes=f"Semiclassical evaporation timescale = {tau_yr:.3e} years. "
-               f"For solar-mass BH ~ 1e67 years; tiny BHs evaporate fast.",
+        notes=(f"Order-of-magnitude evaporation timescale = {tau_yr:.3e} "
+               f"years (one species, no greybody factors). Page 2013 "
+               f"(photons + gravitons, greybody) gives 0.553x this: "
+               f"{0.553 * tau_yr:.3e} years. Tiny BHs evaporate fast."),
     )
 
 

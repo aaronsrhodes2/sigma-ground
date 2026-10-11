@@ -9,7 +9,8 @@ References:
   Wald "General Relativity" (Chicago, 1984)
   Hawking 1974, Comm. Math. Phys. 43, 199
   Bardeen, Press & Teukolsky 1972, ApJ 178, 347
-  Page 1976, Phys. Rev. D 13, 198; Page 1993, PRL 71, 3743
+  Page 1976, Phys. Rev. D 13, 198 (greybody emission rates; for comparison)
+  Page 2013, JCAP 09, 028, arXiv:1301.4995 (Page time fraction)
 
 Dependency: G, C, HBAR, K_B from constants; schwarzschild_radius from scale.
 """
@@ -34,10 +35,13 @@ __all__ = [
     'tidal_force',
 ]
 
-# Page 1993 (PRL 71, 3743): for a Schwarzschild BH evaporating into a thermal
-# environment, the radiation's entanglement entropy peaks at ~half the BH's
-# initial entropy at t ~ 0.5384 t_evap (single massless-field reference).
-_PAGE_FRACTION_SM = 0.5384
+# Page 2013 (JCAP 09, 028; arXiv:1301.4995, eq. 9): for a large nonrotating
+# hole emitting photons and gravitons, the radiation's coarse-grained entropy
+# equals the remaining Bekenstein-Hawking entropy (about 59.75 % of the
+# initial) at t* = eps t_decay, eps = 1 - (beta/(beta+1))^(3/2) = 0.53810.
+# FIXED 2026-10-10: was 0.5384, cited to Page 1993 (whose abstract has no
+# time fraction) and described as "half the initial entropy".
+_PAGE_FRACTION_SM = 0.53810
 
 
 # ── Schwarzschild geometry ──────────────────────────────────────────────
@@ -136,9 +140,16 @@ def hawking_temperature(M):
 
 
 def hawking_luminosity(M):
-    """Hawking luminosity L_H = hbar c^6 / (15360 pi G^2 M^2) (W).
+    """Photon-only horizon-blackbody estimate of the Hawking luminosity (W):
+    L = hbar c^6 / (15360 pi G^2 M^2) = sigma_SB T_H^4 * 4 pi r_s^2.
 
-    Reference: Page 1976, Phys. Rev. D 13, 198.
+    This is the textbook geometric-optics estimate: one species (photons),
+    the horizon as the radiating surface, no greybody factors. It is NOT
+    Page's computed rate. Page 1976 (PRD 13, 198), with greybody factors and
+    massless neutrinos, photons and gravitons, gives 2.0e-4 hbar c^6/(G^2 M^2)
+    for M >> 1e17 g: 9.65x this value (81 % neutrinos, 17 % photons, 2 %
+    gravitons); his photon-only rate is about 1.6x this value.
+    (Relabelled 2026-10-10; the law itself is unchanged.)
 
     Args:
         M: black hole mass (kg), must be > 0.
@@ -149,9 +160,17 @@ def hawking_luminosity(M):
 
 
 def hawking_evaporation_time(M):
-    """Black-hole evaporation time t_evap = 5120 pi G^2 M^3 / (hbar c^4) (s).
+    """Evaporation time of the photon-only blackbody estimate (s):
+    t_evap = 5120 pi G^2 M^3 / (hbar c^4) = M c^2 / (3 L), with L from
+    hawking_luminosity (mass loss dM/dt = -L/c^2 integrated to zero).
 
-    Reference: Hawking 1974; Page 1976.
+    An order-of-magnitude estimate, not a computed lifetime: Page 2013
+    (JCAP 09, 028, eq. 4; photons and gravitons with greybody factors) gives
+    t_decay = 8895 M^3 (Planck units) = 1.159e67 yr (M/M_sun)^3, i.e. 0.553x
+    this value (5120 pi = 16085 in the same units). With Standard-Model
+    species the holes evaporating today start near 5e11 kg (MacGibbon, Carr
+    and Page 2008); this formula puts that at 1.7e11 kg.
+    (Relabelled 2026-10-10; the law itself is unchanged.)
 
     Args:
         M: initial black hole mass (kg), must be > 0.
@@ -162,11 +181,14 @@ def hawking_evaporation_time(M):
 
 
 def page_time_sm(M):
-    """Page time t_Page ~ 0.5384 t_evap (s).
+    """Page time t_Page = 0.53810 t_evap (s).
 
-    When the Hawking radiation's entanglement entropy has built up to half
-    the BH's initial Bekenstein-Hawking entropy. Reference: Page 1993
-    (PRL 71, 3743).
+    When the radiation's entropy has grown to equal the black hole's
+    remaining Bekenstein-Hawking entropy (about 59.75 % of the initial).
+    Fraction from Page 2013 (JCAP 09, 028, eq. 9; photons + gravitons).
+    Caveat: Page applies it to his own t_decay (8895 M^3, Planck units);
+    applied here to the photon-only blackbody t_evap (16085 M^3), the
+    absolute Page time is 1.81x Page's t* = 6.236e66 yr (M/M_sun)^3.
 
     Args:
         M: initial black hole mass (kg), must be > 0.
