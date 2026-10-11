@@ -2,6 +2,8 @@
 -- server without the game's content has none to give).
 AddCSLuaFile("shared.lua")
 AddCSLuaFile("cl_init.lua")
+AddCSLuaFile("mentat/holodeck/svm1.lua")             -- the client's decoder and mesh builder (the server sends them with this entity)
+AddCSLuaFile("mentat/holodeck/meshclient.lua")
 include("shared.lua")
 
 util.AddNetworkString("holodeck_found_visual")
@@ -32,11 +34,11 @@ function ENT:Initialize()
   po:Wake()
 end
 
---- A visual changed: tell every client (they redraw). A future mesh kind would also rebuild the physics here, at the same pose;
---- for "box" the physics stays.
+--- A visual changed: tell every client (they redraw). The physics stays the card's box for every kind.
 function ENT:OnVisualChanged(kind)
   net.Start("holodeck_found_visual")
   net.WriteUInt(self:EntIndex(), 16)
   net.WriteString(kind)
+  net.WriteUInt(self:GetMeshId(), 8)
   net.Broadcast()
 end

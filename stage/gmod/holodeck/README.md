@@ -111,25 +111,82 @@ strings, the box and the mass are NetworkVars on the entity.
   resolver) inside a budget of 40 MB in all, https only, the four download hosts only, a per-request timeout and a 22 s deadline, one download at a
   time (a second gets 503), and only for a card the game could then place (never for a "closest" or typo reading). `SKIPPY_FOUND_FETCH=0` turns
   downloads off: the answer is then "I know of X, but I don't know how big that is". Downloaded assets are kept in `stage/skippyverse/cache/assets/`
-  (gitignored). The box is the measured size; no mesh is converted or used yet.
+  (gitignored). The box is the measured size; the real shape (Poly Haven cards) follows it, see "The real shape of a found object" below.
 - **The game side never blocks and never trusts.** The call is asynchronous (the bridge's per-minute and per-player allowances, the in-flight cap and
   `holodeck_bridge_inflight` apply; one lookup per player at a time; a definite "no" is remembered for 5 minutes), the answer is re-validated in Lua
   (finite sizes between 1 and 2000 HU, one variant of the right entity class, no word the library already knows) and the box is rebuilt from the
   card's w, d, h alone. At most 3 nouns are asked per sentence and 64 found kinds are kept per session (the oldest that nothing stands as makes way).
   Found kinds live in `Holodeck.found_kinds`, are re-applied by `holodeck_reload`, and a standing thing whose kind has left stays *legacy* (movable,
   removable). `holodeck_found 0` switches the whole thing off; `holodeck_status` counts the kinds.
-- **The hook for a real mesh later.** `ENT:SetVisual(kind, data)` (server and client; a `holodeck_found_visual` net message tells clients) is the one
-  place a future mesh visual plugs in: same origin, same yaw, same bounds, so the planner, registry, undo and limits never notice. Today it accepts
-  `"box"` and answers `false, "unsupported visual kind"` for anything else. The mesh path is **not built**.
+- **The real shape.** `ENT:SetVisual(kind, data)` takes `"box"` or `"mesh"` (`{ id = n }`); see "The real shape of a found object" below.
 - **Tests.** `sigma_ground/radiance/tests/test_gmod_found.py` (58): the real bridge function and HTTP handler against a synthetic inventory (no
   network: a guard fails any non-loopback connection), the real `holodeck.lua` + entity against `gmod_mock.lua` (now with scripted-entity support:
   `MOCK.load_entity`), fed the bridge's real answers; footprint and mass vs the card, label strings, undo, limits, rules, reload, legacy, the
   refusals, rate limits, the download budget, and the client drawing. `live.py` grades found objects against the CARD, not the planner:
   `python stage/gmod/holodeck/live.py "add a fire hydrant" "add a birthday cake" --start-bridge --pos 64,0`.
-- **Not verified.** The client drawing (box, label, 10 m range) is tested against stand-ins for `render`, `cam`, `surface` and `draw`, not in a
-  real client: the desktop game was not started. A modelless `base_anim` networked to a real client, and the label's readability, have not
-  been looked at. `barrel`, `chair`, `couch` and the other 46 kinds stay the curated Valve models (the parser knows them, so the bridge is never
-  asked); "dining chair" is a chair.
+- **Verified in the real game (2026-10-11).** The box, its label and the translucent fill render in the real client (a modelless `base_anim` is
+  networked and drawn fine); see `data/shots/` (`boombox_box.jpg` and friends). `barrel`, `chair`, `couch` and the other 46 kinds stay the curated
+  Valve models (the parser knows them, so the bridge is never asked); "dining chair" is a chair.
+
+### The real shape of a found object (mesh swap, prototype)
+
+A found object starts as the labelled box (the ghost). When its card is a Poly Haven model, the real triangles follow and are drawn **in place of the
+box, at the same pose, with no re-plan**. No model file is installed on any client: the geometry travels over the network.
+
+```
+ /resolve says  found.mesh = <16 hex key>  ->  the entity spawns as a box  ->  H.Mesh.attach(): ONE POST /mesh {card, key} per model
+ bridge: acquire (cache or one bounded download) -> meshpack 1500 tris -> LZMA -> base64 in JSON
+ server (meshnet.lua): checks it -> sends 16 KB chunks, one per 0.1 s, to everyone -> ent:SetVisual("mesh", {id})  (NetworkVar MeshId)
+ client (meshclient.lua): reassembles -> verifies -> util.Decompress -> SVM1 decode (svm1.lua) -> IMesh -> ENT:Draw
+```
+
+- **Bridge to server:** `POST /mesh {"card", "key", "who"}` returns `{"ok", "key", "format": "svm1-lzma", "bytes", "crc32", "tris", "verts", "bbox_m",
+  "b64"}`. Base64 inside JSON because the engine's HTTP callback hands the body over as a string, and a JSON field reaches it whole whatever the
+  bytes are. The key is a hash of the card id and the recipe; the bridge only answers for a card it offered (`mesh_offer`: servable, `found`, source
+  Poly Haven); 12 a minute and 4 per caller; one download at a time; one pack at a time; `SKIPPY_FOUND_FETCH=0` still means no download (the box stays).
+- **Server to clients:** net message `holodeck_mesh`, one per chunk: `UInt8 mesh number (1..64) | UInt8 chunk (1-based) | UInt8 chunk count | UInt20
+  total bytes | UInt32 CRC-32 of the whole payload | UInt16 bytes here | Data`. The payload is the bridge's LZMA bytes untouched. Sent **once per model**
+  (not per entity) to everyone connected when it is ready. A client that joins later, or missed a chunk, asks with `holodeck_mesh_want` (`UInt8`
+  number, 0 = everything) on loading and whenever it draws an entity whose mesh it lacks (at most once per 8 s per mesh); the server answers that
+  player alone and rations asks to 12 a minute per player. Entities carry the number in a NetworkVar (`MeshId`, with `VisualKind`), so a late client
+  learns it with the entity.
+- **Limits.** Payload <= 256 KB (the bridge, the server's check and the client each refuse more), 16 KB chunks (<= 16 per payload), <= 64 models per
+  session, <= 4,000 triangles and 12,000 vertices on decode, an LZMA header that declares its inflated size (<= 1 MB: a "bomb" or an unknown size is
+  refused before anything is inflated), 8 sends queued, a half-received mesh dropped after 30 s, a failed model asked for again after 60 s (three tries
+  at most). Only the server can reach a client's `net.Receive`; the mesh receiver has no server-side twin, so a client cannot inject one.
+  `holodeck_mesh 0` (server convar) = boxes only (`Holodeck.Mesh.resume()` asks for what waited); `holodeck_status` counts ready/waiting/failed shapes.
+- **Drawing.** Built once per client from flat per-triangle colours with computed normals and a fixed light baked into the colours (the material is
+  unlit `UnlitGeneric` with `$vertexcolor`: no scene lighting, no shadows). Same pose as the entity (`Matrix` Translate + Rotate; a `SetTranslation` +
+  `SetAngles` pair misplaced it in the real game whenever the yaw was not 0). The payload's frame has x = the card's width and y = its depth, the
+  entity's box has them the other way round, so the mesh is turned a quarter circle (the authored front lands on +x, where the planner puts a front)
+  and put on the box's footprint centre and floor. Triangle order is flipped for the engine (Source's front faces are clockwise); the normals follow.
+  The label stays. `holodeck_found_outline 1` (client convar) keeps a faint outline of the card's box around the shape; off by default.
+- **Failure keeps the box.** No answer, a bad answer, a checksum or length that does not match, a payload that does not decode, a client that never gets
+  the chunks, `util.Decompress` returning nothing: the entity keeps drawing the box, nothing is re-planned, the label is unchanged.
+- **Collision is still the card's box.** Only the drawing changes. The mesh is NOT a collision hull: things rest on the box, so a chair's open back is
+  solid to the physics.
+- **LZMA verdict (real game, this machine).** `util.Decompress` reads exactly the legacy `.lzma` stream with a known size in its header, which is also
+  what `util.Compress` writes; Python's `lzma` module produces it after patching the size field (`meshpack.lzma_alone`). `.xz`, an unknown size (-1), a
+  stream without the 13-byte header and a Source `LZMA` header are all refused (`util.Decompress` returns nil). A 6.5 KB boombox payload went
+  bridge, server, client, passed the CRC-32 on both sides, inflated and drew. No fallback (raw bytes, RLE) was needed.
+- **Live proof.** `python stage/gmod/holodeck/shots.py "add a boombox" --tag boombox --start-bridge --two-phase --outline --yaws 0,90,180,270 --dist 1.6 --top`
+  (the real game for about 80 s; the bridge listens on the Tailscale address because a game that hosts its own world cannot use localhost; no language
+  model is started) photographs the box (`holodeck_mesh 0`), then lets the shape be fetched and photographs the same views again. `--synthetic` serves
+  a made-up six-colour block (`synthetic_found.py`: +x red, -x cyan, top green, +z blue, -z yellow) instead, which is how colour, axes and winding
+  were read off the pictures. Pictures: `data/shots/{boombox,boombox_close,pillar}_{box,mesh}.jpg`.
+- **What the pictures show (honestly).** Poly Haven boombox, 1,320 triangles, 6,501 bytes: the box is replaced in place by a recognisable boombox
+  (handle, speaker grilles, antenna) filling the card's footprint, upright and on the floor, with the outline box around it when asked. It is
+  **white-grey, not coloured**: Poly Haven materials are textured and carry no base colour, so every face is the default grey, shaded by the baked
+  light. The six-colour block shows that colours come through (from each of four camera yaws the face seen was the one the mapping predicts, and the
+  top is green), that the faces are not inside out (the near faces are the ones drawn), and that nothing z-fights (the box is not drawn under the
+  mesh; only the optional outline is). Defects: the baked light is crude (some faces look dark), the 1,500-triangle clustering rounds off thin parts
+  (the antenna is a thin line), and the fade-in (`render.SetBlend` with the entity's colour alpha) was not looked at separately.
+- **Not done / not verified.** Textures; a collision hull; levels of detail; models over 4,000 triangles; NASA and Fuel models; client-side caching
+  between sessions (a reconnect asks again; the server keeps the bytes for the session only); scene lighting and shadows. Offline tests only
+  (`sigma_ground/radiance/tests/test_gmod_found_mesh.py`, 63): chunk reassembly out of order and twice, a late joiner, rationing, hostile and malformed
+  answers, the Lua decoder against Python's unpacker on the real chair. **Not tried in the real game:** a dedicated server with a remote client (the
+  live net path was the listen server's own loopback, so a late joiner's `holodeck_mesh_want` and a payload of several chunks have only run in the
+  mock), several different models at once, a weak connection.
 
 ## Playing with your voice (one command)
 

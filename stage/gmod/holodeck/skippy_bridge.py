@@ -23,6 +23,13 @@ It runs on the machine that hosts the game server (or the game, for single playe
          reading, not-found, too-big, unknown-size and non-redistributable (Valve / ShapeNet derived) answers are only a sentence,
          and the game places nothing for them. A card with no size may cost ONE bounded download (40 MB, a deadline, one at a time).
 
+    POST /mesh   {"card": "found.poly-haven.boombox", "key": "<16 hex, from /resolve>", "who": "..."}
+                 -> {"ok": true, "key", "card", "format": "svm1-lzma", "bytes": N, "crc32": <u32 of the bytes>, "tris", "verts",
+                     "bbox_m": [x, y, z], "b64": "<base64 of the payload>"}   (stage/skippyverse/README.md has the payload format)
+         The real shape of a found object as a small payload (<= 256 KB) the game relays to its clients, which then draw it where the
+         placeholder box was. Only for a card /resolve offered a mesh for (servable, Poly Haven, whose key this is); one download at a
+         time, one pack at a time, and a failure is a plain error: the box simply stays.
+
 What stands between a caller and the machine's CPU, GPU and the paid voice:
   * a token (X-Skippy-Token). The bridge refuses to start without one; --no-token exists for a bridge on loopback only.
     Requests from a web page (an Origin or Sec-Fetch-* header), without a JSON body, or with a foreign Host are refused.
@@ -40,6 +47,7 @@ SkippyTel's /tts/stream, which costs API credit per character), `auto` (ElevenLa
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import hmac
 import http.client
@@ -59,6 +67,7 @@ import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
+import zlib
 from collections import deque
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -113,8 +122,9 @@ REPLY_TIMEOUT_S = 10.0
 MIN_USEFUL_S = 1.0                     # a model call with less time than this left would only finish after the game gave up
 SPEAK_TIMEOUT_S = 25.0
 PER_MINUTE = {"plan": _env_int("SKIPPY_PLAN_PER_MIN", 24), "reply": _env_int("SKIPPY_REPLY_PER_MIN", 40),
-              "speak": _env_int("SKIPPY_SPEAK_PER_MIN", 40), "resolve": _env_int("SKIPPY_RESOLVE_PER_MIN", 12)}
-PER_CALLER_PER_MINUTE = {"plan": 8, "reply": 12, "speak": 12, "resolve": 4}    # applied to a request's `who`, when it names one (the game rations too; this is the backstop)
+              "speak": _env_int("SKIPPY_SPEAK_PER_MIN", 40), "resolve": _env_int("SKIPPY_RESOLVE_PER_MIN", 12),
+              "mesh": _env_int("SKIPPY_MESH_PER_MIN", 12)}
+PER_CALLER_PER_MINUTE = {"plan": 8, "reply": 12, "speak": 12, "resolve": 4, "mesh": 4}    # applied to a request's `who`, when it names one (the game rations too; this is the backstop)
 SPEAK_CHARS_PER_MINUTE = _env_int("SKIPPY_SPEAK_CHARS_PER_MIN", 3000)
 PAID_CHARS_PER_DAY = _env_int("SKIPPY_PAID_CHARS_PER_DAY", 20000)   # ElevenLabs costs per character
 
@@ -1214,6 +1224,9 @@ def _found_kind(card: dict) -> dict:
                       "licence": clean_text(C.normalize_licence(prov.get("license")), 24), "basis": card["size_m"]["basis"]}
         v["mass_status"] = (card.get("mass") or {}).get("basis")
         v["top"] = None
+        offer = mesh_offer(card)
+        if offer:
+            v["found"]["mesh"] = offer["key"]
     kind.update(kind=name, names=names, approx=[], category="found", seat=False, surface=False, wall="free")
     return kind
 
@@ -1267,7 +1280,74 @@ def resolve_found(noun: str, audience: str = "game", cancel: Cancel | None = Non
     elif card and status in PLACING and not card.get("redistributable"):
         say = f"I know of {R.a_an(res.get('kind') or noun)}, but only as a model I may not share, so I won't place it as a found object."
     return {"ok": True, "noun": noun, "place": place, "status": status, "say": clean_text(say, MAX_FOUND_SAY) or "I could not look that up.",
-            "kind": _found_kind(card) if place else None, "card": _card_summary(card) if card else None, "fetched": bool(res.get("fetched"))}
+            "kind": _found_kind(card) if place else None, "card": _card_summary(card) if card else None, "fetched": bool(res.get("fetched")),
+            "mesh": mesh_offer(card) if place else None}
+
+
+# --------------------------------------------------------------------------------------------- the real shape (POST /mesh)
+# /resolve places the box; /mesh, asked by the game for the same card, answers with the model's triangles as a meshpack payload
+# (stage/skippyverse/meshpack.py: SVM1, ~1500 triangles, flat colours, LZMA in the framing Garry's Mod's util.Decompress reads).
+# The payload travels as base64 inside JSON: the engine's HTTP callback hands the body over as a string, and a JSON field is the
+# one form that reaches it whole whatever the bytes are (a binary body would depend on how the engine treats NULs and encodings).
+MESH_TRIS = 1500                                   # the triangle target handed to meshpack
+MESH_MAX_BYTES = 256 * 1024                        # a payload over this is never sent
+MESH_SOURCES = ("Poly Haven",)                     # glTF in metres by Poly Haven's convention; NASA units are guessed and Fuel is Collada
+MESH_FORMAT = "svm1-lzma"
+MESH_CACHE_MAX = 32
+MESH_CACHE_DIR = None                              # tests point acquire at a temporary directory; None = the real cache
+MESH_PACKED: dict = {}                             # key -> the answer (insertion ordered), so one model is packed once
+_mesh_lock = threading.Lock()                      # packing is CPU work in pure Python: one at a time
+
+
+def mesh_key(card_id: str) -> str:
+    """The short name of one model's payload: a hash of the card id and the recipe, so a new recipe is a new key."""
+    return hashlib.sha1(f"{card_id}|{MESH_FORMAT}|{MESH_TRIS}".encode()).hexdigest()[:16]
+
+
+def mesh_offer(card: dict) -> dict | None:
+    """The mesh the game may ask for on this card, or None (the box is all there will be)."""
+    if not card or (card.get("provenance") or {}).get("source") not in MESH_SOURCES:
+        return None
+    if not card.get("redistributable") or (card.get("visual") or {}).get("class") != "found":
+        return None
+    return {"key": mesh_key(card["id"]), "format": MESH_FORMAT}
+
+
+def mesh_payload(card_id: str, key: str, cancel: Cancel | None = None, deadline: float | None = None) -> dict:
+    acquire, _, _, _ = _skippyverse()
+    from skippyverse import meshpack
+    if not isinstance(card_id, str) or not re.fullmatch(r"[a-z0-9._-]{1,120}", card_id):
+        raise ValueError("card required")
+    if key != mesh_key(card_id):
+        raise ValueError("that key is not this card's")
+    hit = MESH_PACKED.get(key)
+    if hit is not None:
+        return hit
+    try:
+        card = found_index().card(card_id)
+    except Exception:
+        card = None
+    if not card or not mesh_offer(card):
+        raise ValueError("no mesh for that card")
+    deadline = deadline or time.monotonic() + RESOLVE_TIMEOUT_S * 2
+    fetch = FOUND_FETCHER or bounded_fetch(deadline, cancel)
+    with GATE.slot("fetch", cancel):                                       # a second download waits a second, then gets 503
+        asset = acquire.acquire(card, fetch=fetch, cache_dir=MESH_CACHE_DIR)
+    path = Path(asset["dir"]) / (asset.get("mesh") or "")
+    if not asset.get("mesh") or path.suffix.lower() not in (".gltf", ".glb"):
+        raise ValueError("the asset is not a glTF")
+    with _mesh_lock:
+        if cancel is not None and cancel.is_set():
+            raise Cancelled()
+        blob, info = meshpack.pack(path, MESH_TRIS, "lzma")
+    if len(blob) > MESH_MAX_BYTES:
+        raise ValueError(f"the payload is {len(blob)} bytes, over the {MESH_MAX_BYTES} byte cap")
+    out = {"ok": True, "key": key, "card": card_id, "format": MESH_FORMAT, "bytes": len(blob), "crc32": zlib.crc32(blob) & 0xFFFFFFFF,
+           "tris": info["tris_out"], "verts": info["verts"], "bbox_m": info["bbox_m"], "b64": base64.b64encode(blob).decode("ascii")}
+    MESH_PACKED[key] = out
+    while len(MESH_PACKED) > MESH_CACHE_MAX:
+        MESH_PACKED.pop(next(iter(MESH_PACKED)))
+    return out
 
 
 # --------------------------------------------------------------------------------------------- the server
@@ -1494,6 +1574,13 @@ class Handler(BaseHTTPRequestHandler):
             GATE.admit("resolve", who)
             _ctx.deadline = time.monotonic() + RESOLVE_TIMEOUT_S
             return self._json(200, resolve_found(noun, "game", _ctx.cancel, _ctx.deadline))
+        if self.path == "/mesh":
+            GATE.admit("mesh", who)
+            _ctx.deadline = time.monotonic() + RESOLVE_TIMEOUT_S * 2
+            try:
+                return self._json(200, mesh_payload(body.get("card"), body.get("key"), _ctx.cancel, _ctx.deadline))
+            except ValueError as e:
+                return self._json(400, {"ok": False, "error": str(e)[:200]})
         self._json(404, {"ok": False, "error": "no such path"})
 
 

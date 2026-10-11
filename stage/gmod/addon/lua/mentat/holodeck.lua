@@ -618,6 +618,9 @@ local function spawn_prop(entry, fade)
   ent:Spawn()
   ent:Activate()
   if not IsValid(ent) then return nil end
+  if H.Mesh and entry.variant and entry.variant.found and entry.variant.found.mesh then      -- a found object whose card has a real shape (meshnet.lua)
+    H.Mesh.attach(ent, entry.variant.found, player_of(entry.owner))
+  end
   ent.HolodeckId = entry.id
   local owner_ply = player_of(entry.owner)                               -- the owner, never whoever pressed undo
   if IsValid(owner_ply) then
@@ -1358,6 +1361,8 @@ end
 -- again through the normal pipeline, so layouts, overlap rules, undo, limits and ownership treat it like any other prop. Everything
 -- else the resolver says ("the closest I have is ...", not found, too big, size unknown, not shareable) is only a sentence.
 local cv_found = CreateConVar("holodeck_found", "1", FCVAR_ARCHIVE, "1 = ask the bridge about things the library lacks and show what it finds as placeholder boxes")
+H.Mesh = include("mentat/holodeck/meshnet.lua")           -- the real shape of a found object, relayed to the clients (see meshnet.lua)
+H.Mesh.init({ post = bridge_post, allow = bridge_allow, key = player_key })
 local F = {}
 F.MAX_KINDS, F.MAX_NOUNS, F.MIN_HU, F.MAX_HU = 64, 3, 1, 2000      -- kinds kept per session, nouns asked per sentence, size limits (HU)
 F.refused = {}                                                       -- noun -> { say =, t = } : a definite "no", remembered for a while
@@ -1401,7 +1406,8 @@ function F.kind_from(obj)
       mass = mass, mass_status = isstring(v.mass_status) and clean_text(v.mass_status, 20) or "guessed", material = "default", skins = 1,
       entity = "holodeck_found",
       found = { card = clean_text(f.card, 120), name = clean_text(f.name or id, 60), source = clean_text(f.source, 40),
-                licence = clean_text(f.licence, 24), basis = clean_text(f.basis, 16) },
+                licence = clean_text(f.licence, 24), basis = clean_text(f.basis, 16),
+                mesh = (isstring(f.mesh) and #f.mesh == 16 and f.mesh:match("^%x+$")) and f.mesh or nil },     -- the key of the real shape, if the card has one
     } },
   }
 end
@@ -1752,6 +1758,11 @@ concommand.Add("holodeck_status", function(ply)
     r.kept, r.total, #H.catalog.order, table.Count(H.catalog.recipes), cv_content:GetString(), #H.order,
     bridge_url() ~= "" and "set" or "none", cv_agent:GetInt(), tostring(cv_persona:GetBool()), tostring(cv_voice:GetBool())))
   print("[holodeck] found objects: " .. #H.found_order .. " kinds this session" .. (cv_found:GetBool() and "" or " (switched off)"))
+  if H.Mesh then
+    local ready, waiting, failed = H.Mesh.status()
+    print(string.format("[holodeck] real shapes: %d ready, %d waiting, %d failed%s%s", ready, waiting, failed, H.Mesh.cv_fetch:GetBool() and "" or " (switched off)",
+      H.Mesh.last_error and ("; last error: " .. tostring(H.Mesh.last_error)) or ""))
+  end
   if #r.lost_models > 0 then print("[holodeck] missing here: " .. table.concat(r.lost_models, ", ", 1, math.min(#r.lost_models, 12)) .. (#r.lost_models > 12 and " ..." or "")) end
 end, nil, "What the holodeck can show on this server")
 

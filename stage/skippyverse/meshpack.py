@@ -8,7 +8,7 @@ builds a runtime mesh. Collision stays the box (or a later hull); nothing here i
 Frame of the result: metres, +Z up, origin on the floor under the footprint centre (the card's frame, design section 4); the glTF
 y-up axes are turned to z-up the way measure.py does it. The front of a found model is unknown, so it is left as authored.
 
-Wire format (little endian, then zlib-deflated):
+Wire format (little endian, then compressed: zlib by default; codec="lzma" for a Garry's Mod client, see lzma_alone below):
     magic 'SVM1' | u16 n_verts | u16 n_tris | f32 min[3] | f32 max[3] | u16 verts[n_verts][3] (quantised across min..max)
     | u16 idx[n_tris][3] | u8 rgb[n_tris][3] (flat colour per triangle: the material's base colour)
 Simplification is vertex clustering on a grid sized to hit the target: crude, keeps the silhouette and the size, drops detail.
@@ -17,6 +17,7 @@ Textures are not carried; that is the next step, and flat colours are what mark 
 from __future__ import annotations
 
 import argparse
+import lzma
 import struct
 import sys
 import zlib
@@ -163,7 +164,21 @@ def simplify(tris, target):
     return best
 
 
-def pack(path, target_tris=3000):
+def lzma_alone(body: bytes) -> bytes:
+    """`body` as the legacy .lzma stream with the uncompressed size KNOWN in its header (props 5 B | u64 size | stream): the one framing
+    Garry's Mod's util.Decompress accepts. Verified in the real game 2026-10-11: the size field must hold the real length (-1 / unknown
+    makes util.Decompress return nothing); xz and a header-less stream are refused as well. util.Compress emits exactly this framing."""
+    a = lzma.compress(body, format=lzma.FORMAT_ALONE,
+                      filters=[{"id": lzma.FILTER_LZMA1, "dict_size": 1 << 18, "lc": 3, "lp": 0, "pb": 2}])
+    return a[:5] + struct.pack("<Q", len(body)) + a[13:]
+
+
+def unlzma_alone(blob: bytes) -> bytes:
+    """The inverse, for tests (liblzma wants the unknown-size form of a stream that ends with an end marker, which ours does)."""
+    return lzma.decompress(blob[:5] + bytes([255]) * 8 + blob[13:], format=lzma.FORMAT_ALONE)
+
+
+def pack(path, target_tris=3000, codec="zlib"):
     tris = on_floor(triangles(path))
     pos, faces, cols = simplify(tris, target_tris)
     if not faces or len(pos) > 65535:
@@ -179,15 +194,20 @@ def pack(path, target_tris=3000):
         body += struct.pack("<3H", *f)
     for c in cols:
         body += struct.pack("<3B", *c)
-    blob = zlib.compress(bytes(body), 9)
+    if codec == "lzma":
+        blob = lzma_alone(bytes(body))
+    elif codec == "zlib":
+        blob = zlib.compress(bytes(body), 9)
+    else:
+        raise ValueError(f"unknown codec {codec!r}")
     info = {"tris_in": len(tris), "tris_out": len(faces), "verts": len(pos),
-            "bbox_m": [round(mx[i] - mn[i], 4) for i in range(3)], "raw_bytes": len(body), "bytes": len(blob)}
+            "bbox_m": [round(mx[i] - mn[i], 4) for i in range(3)], "raw_bytes": len(body), "bytes": len(blob), "codec": codec}
     return blob, info
 
 
 def unpack(blob):
     """The inverse, for tests: (verts in metres, faces, colours)."""
-    b = zlib.decompress(blob)
+    b = unlzma_alone(blob) if blob[:1] == bytes([0x5D]) else zlib.decompress(blob)         # zlib streams start 0x78; legacy lzma props 0x5d
     if b[:4] != MAGIC:
         raise M.MeasureError("not an SVM1 payload")
     nv, nt = struct.unpack_from("<HH", b, 4)
@@ -210,8 +230,9 @@ def main(argv=None):
     ap.add_argument("model")
     ap.add_argument("--target-tris", type=int, default=3000)
     ap.add_argument("--out")
+    ap.add_argument("--codec", default="zlib", choices=["zlib", "lzma"])
     a = ap.parse_args(argv)
-    blob, info = pack(a.model, a.target_tris)
+    blob, info = pack(a.model, a.target_tris, a.codec)
     print(info)
     if a.out:
         Path(a.out).write_bytes(blob)

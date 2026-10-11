@@ -150,6 +150,26 @@ end
 util = util or {}
 function util.IsValidModel() return true end
 function util.AddNetworkString() end
+--- CRC-32 (the standard one) as a decimal string, like the engine's util.CRC.
+function util.CRC(str)
+  local crc = 0xFFFFFFFF
+  for i = 1, #str do
+    crc = bit.bxor(crc, str:byte(i))
+    for _ = 1, 8 do
+      local lsb = bit.band(crc, 1)
+      crc = bit.rshift(crc, 1)
+      if lsb == 1 then crc = bit.bxor(crc, 0xEDB88320) end
+    end
+  end
+  crc = bit.bxor(crc, 0xFFFFFFFF)
+  if crc < 0 then crc = crc + 4294967296 end
+  return tostring(crc)
+end
+--- LZMA is not reimplemented here: a test registers (compressed -> raw) pairs it made with Python's lzma module, and the real framing
+--- is verified in the real game (tools/lzma_probe.lua). Anything not registered "fails" the way the engine does: nothing is returned.
+M.lzma = {}
+function util.Decompress(blob) return M.lzma[blob] end
+function util.Compress(raw) for c, r in pairs(M.lzma) do if r == raw then return c end end return nil end
 function util.TableToJSON(t) return M.json_encode(t) end
 function util.JSONToTable(s) return M.json_decode(s) end
 function util.FilterText(s) return M.filter and M.filter(s) or s end
@@ -172,15 +192,24 @@ function M.json_encode(v)
 end
 
 net = {}
-function net.Start(name) M.cur = { name = name, writes = {}, bytes = 0 } end
+function net.Start(name) M.cur = { name = name, writes = {}, bytes = 0, seq = {} } end
 function net.WriteString(s)
   if type(s) ~= "string" then error("net.WriteString: not a string: " .. type(s)) end
   M.cur.writes[#M.cur.writes + 1] = s
+  M.cur.seq[#M.cur.seq + 1] = { "s", s }
 end
-function net.WriteUInt(v, bits) M.cur.writes[#M.cur.writes + 1] = v end
-function net.WriteBool(b) M.cur.writes[#M.cur.writes + 1] = b end
+function net.WriteUInt(v, bits)
+  if bits and (v < 0 or v >= 2 ^ bits or v % 1 ~= 0) then error("net.WriteUInt: " .. tostring(v) .. " does not fit " .. bits .. " bits") end
+  M.cur.writes[#M.cur.writes + 1] = v
+  M.cur.seq[#M.cur.seq + 1] = { "u", v, bits }
+end
+function net.WriteBool(b) M.cur.writes[#M.cur.writes + 1] = b; M.cur.seq[#M.cur.seq + 1] = { "b", b } end
 function net.WriteVector(v) M.cur.vector = v end
-function net.WriteData(d, n) M.cur.bytes = M.cur.bytes + n; M.cur.data = d end
+function net.WriteData(d, n)
+  if n > 65535 then error("net.WriteData: " .. n .. " bytes in one message is over the engine's limit") end
+  M.cur.bytes = M.cur.bytes + n; M.cur.data = d; M.cur.seq[#M.cur.seq + 1] = { "d", d:sub(1, n) }
+  if M.cur.bytes > 65000 then error("net message over 64 KB") end
+end
 function net.Broadcast() M.cur.kind = "broadcast"; M.cur.to = player.GetAll(); M.nets[#M.nets + 1] = M.cur end
 function net.Send(t)
   M.cur.kind = "send"
@@ -209,6 +238,39 @@ function M.deliver(msg)
   end
   M.receivers[msg.name]()
 end
+
+--- Hex of a string / a string of hex (so a test can carry bytes through a text-only bridge to Python).
+function M.tohex(str) return (str:gsub(".", function(c) return string.format("%02x", c:byte()) end)) end
+function M.fromhex(h) return (h:gsub("%x%x", function(c) return string.char(tonumber(c, 16)) end)) end
+--- A recorded message as plain data (the data parts in hex), to carry from a server runtime to a client runtime.
+function M.export(msg)
+  local out = {}
+  for _, it in ipairs(msg.seq or {}) do
+    if it[1] == "d" then out[#out + 1] = { "d", M.tohex(it[2]) } else out[#out + 1] = { it[1], it[2], it[3] } end
+  end
+  return { name = msg.name, seq = out, kind = msg.kind }
+end
+--- Deliver an exported message to a receiver in THIS runtime: the Read* functions read the sequence in order. `ply` is the sender
+--- when the receiver is on a server (net.SendToServer), nil on a client.
+function M.deliver_seq(name, seq, ply)
+  local i = 0
+  local saved = { net.ReadString, net.ReadUInt, net.ReadData, net.ReadBool }
+  local function nxt(kind)
+    i = i + 1
+    local it = seq[i]
+    if not it or it[1] ~= kind then error("net read of '" .. kind .. "' #" .. i .. " but the message holds '" .. tostring(it and it[1]) .. "'") end
+    return it
+  end
+  net.ReadString = function() return nxt("s")[2] end
+  net.ReadUInt = function(bits) local it = nxt("u"); return it[2] end
+  net.ReadData = function(n) local it = nxt("d"); local d = M.fromhex(it[2]); return d end
+  net.ReadBool = function() return nxt("b")[2] end
+  local ok, err = pcall(M.receivers[name], #seq, ply)
+  net.ReadString, net.ReadUInt, net.ReadData, net.ReadBool = saved[1], saved[2], saved[3], saved[4]
+  if not ok then error(err, 0) end
+end
+--- A client message to the server: build it with net.Start / Write* / SendToServer on the CLIENT runtime, export it, and deliver here.
+function M.net_from_client(ply, name, seq) return M.deliver_seq(name, seq, ply) end
 
 player = {}
 function player.GetAll() local o = {}; for _, p in ipairs(M.players) do if p.valid then o[#o + 1] = p end end; return o end
@@ -357,7 +419,11 @@ function M.load_entity(name, realm)
   local dir = M.ROOT .. "/entities/" .. name
   local saved_include, saved_ent = include, ENT
   ENT = {}
-  include = function(p) return dofile(dir .. "/" .. p) end
+  include = function(p)
+    local f = io.open(dir .. "/" .. p, "rb")
+    if f then f:close(); return dofile(dir .. "/" .. p) end
+    return dofile(M.ROOT .. "/" .. p)                       -- a path under lua/ (mentat/holodeck/svm1.lua), as the engine resolves it
+  end
   local ok, err = pcall(dofile, dir .. "/" .. (realm == "client" and "cl_init.lua" or "init.lua"))
   include = saved_include
   local def = ENT
@@ -377,6 +443,11 @@ function ents.Create(class)
   M.ents[#M.ents + 1] = e
   if def and e.SetupDataTables then e:SetupDataTables() end
   return e
+end
+function ents.FindByClass(class)
+  local out = {}
+  for _, e in ipairs(M.ents) do if e.valid and e.class == class then out[#out + 1] = e end end
+  return out
 end
 function ents.FindInBox(mins, maxs)
   local out = {}

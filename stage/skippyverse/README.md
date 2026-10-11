@@ -80,7 +80,7 @@ python -m pytest sigma_ground/radiance/tests/test_skippyverse_acquire.py      # 
 | `measure.py` | Pure-stdlib bounding boxes: GLB/glTF (node matrix/TRS, vertices read when not axis-aligned), OBJ, STL (binary+ascii), Collada (`<unit>`, `up_axis`, node transforms), SDF (`<scale>`, poses, box/sphere/cylinder; nested models and includes are refused). Everything is reported +Z up; unit-less formats say `unit_known=False`. |
 | `data/nasa_real_sizes.json` | Published real sizes for NASA models; empty on purpose (see its `about`). |
 
-Size basis after a download: `measured` when the units are known (glTF metres, Collada `<unit>`, SDF models, Poly Haven); NASA stays `guessed` (flag `scale_arbitrary`) unless a verified table entry makes it `sourced`. A download never replaces a stronger listing size; a measured size more than 5% off a `sourced` listing size is flagged `measured_size_disagrees_with_listing`. Mass is the labelled-`guessed` prior; front stays unknown. The `pose` is a row-major 4x4 (source scene coords -> metres, +Z up, origin on the floor under the footprint centre); no mesh is converted or re-exported.
+Size basis after a download: `measured` when the units are known (glTF metres, Collada `<unit>`, SDF models, Poly Haven); NASA stays `guessed` (flag `scale_arbitrary`) unless a verified table entry makes it `sourced`. A download never replaces a stronger listing size; a measured size more than 5% off a `sourced` listing size is flagged `measured_size_disagrees_with_listing`. Mass is the labelled-`guessed` prior; front stays unknown. The `pose` is a row-major 4x4 (source scene coords -> metres, +Z up, origin on the floor under the footprint centre); `acquire` itself converts nothing; `meshpack.py` (last section) does.
 
 `resolve(..., acquirer=None)`: by default nothing is fetched and a found card with no size gets `plan[0] = {action: 'fetch', card_id, source, executed: False}`. Pass `acquirer=acquire.acquire_and_measure` (partially applied with a cache dir if wanted) and rung 2 runs for a found, servable card with no size or no local copy; the sentence says "I don't have a ... on the shelf yet. Fetching a model from X..." then the honesty clause with the measured size and its basis. A failed fetch is `fetch_failed`, never hidden.
 
@@ -115,3 +115,31 @@ dozen more are library words, and "fire" is an approximate name for a wood stove
 placed. (3) A model that is tiny or huge for its category is refused by the game (1 to 2000 HU on every side, so a 6 mm ball bearing and a 70 m
 airliner are sentences, not boxes). (4) `build/index` from `index.py build` holds only the 500 local cards; `ingest_real.py` is the command that
 builds the real one.
+
+## Mesh payload (SVM1): the real shape of a found object, small enough to send to a game client
+
+`meshpack.py` turns one cached glTF/GLB into a payload a client can draw. It is the visual half of swapping a placeholder box for the real thing;
+collision stays the box (`stage/gmod/holodeck/README.md`, "The real shape of a found object").
+
+```bash
+python stage/skippyverse/meshpack.py <model.gltf|glb> --target-tris 1500 --codec lzma --out payload.bin    # codec zlib (default) or lzma
+```
+
+Wire format of the payload after decompression (little endian): `'SVM1' | u16 n_verts | u16 n_tris | f32 min[3] | f32 max[3] | u16 verts[n][3] |
+u16 idx[t][3] | u8 rgb[t][3]` (32-byte header; vertices quantised across min..max; one flat colour per triangle: the material's `baseColorFactor`,
+linear to display, grey 0.8 when there is none). Frame: metres, +Z up, x = the card's width, y = its depth, origin on the floor under the footprint
+centre (glTF y-up turned to z-up the way `measure.py` does it; the authored front, glTF +Z, comes out as -y). Simplification is vertex clustering on a
+grid sized to the target (crude: it keeps size and silhouette, drops detail). Real models (Poly Haven, 1k glTF): dining chair 22,013 -> 1,308
+triangles, 7,982 bytes; boombox 10,168 -> 1,320, 6,501 bytes; barrel 1,473 -> 1,473, 5,630 bytes; packing takes 0.1 to 1.5 s in pure Python.
+
+**Codecs.** `zlib` (the default) and `lzma`. Garry's Mod Lua has no zlib; `util.Decompress` is LZMA, and the framing it reads was checked in the
+real game (2026-10-11, `stage/gmod/addon/lua/mentat/tools/lzma_probe.lua`): it is the legacy `.lzma` ("alone") stream, `props[5] | u64 uncompressed
+size | stream`, which is also exactly what `util.Compress` emits. **The size field must hold the real length**: Python's
+`lzma.compress(format=FORMAT_ALONE)` writes -1 ("unknown") and `util.Decompress` then returns nothing, as it does for `.xz`, a bare stream and a
+Source-engine `LZMA` header; patching in the real size makes it work (`meshpack.lzma_alone`). liblzma, conversely, rejects that known-size form when
+the stream also carries an end marker, so `meshpack.unlzma_alone` writes -1 back before decoding (tests only).
+
+**Not done:** textures (every Poly Haven model is textured, so it comes out grey: the colour is only the material's base colour), normals from the
+file (computed per triangle on the client), a collision hull, levels of detail, models over 4,000 triangles or 65,535 vertices, NASA and Gazebo Fuel
+models (NASA units are a guess and would need the measured scale applied; Fuel is Collada), animation, and any caching of the payload beyond the
+bridge's memory.

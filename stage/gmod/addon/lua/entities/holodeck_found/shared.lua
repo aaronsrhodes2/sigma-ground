@@ -5,11 +5,12 @@
 -- The server builds the physics (a box of the card's size, the card's mass); every client draws the box and a floating label
 -- "<name> - <source>, <licence>, size <basis>" (cl_init.lua). The numbers are the card's, in Hammer units (1 HU = 0.01905 m).
 --
--- THE HOOK FOR A REAL MESH LATER: ENT:SetVisual(kind, data). Today only kind "box" exists. A later "mesh" kind would carry the vertex
--- data and replace BOTH the drawn shape and the physics at the SAME pose: same origin, same yaw, same bounds (the box of the card
--- stays the contract, so the planner's footprint, the registry, undo and the limits never notice the swap). That path is NOT built:
--- SetVisual("mesh", ...) answers false and changes nothing. Server: SetVisual validates, stores the kind and tells clients with the
--- "holodeck_found_visual" net message. Client: the same function, called by that message, changes what Draw does.
+-- THE REAL SHAPE: ENT:SetVisual(kind, data). Kind "box" is the placeholder. Kind "mesh" ({ id = n }) says the card's real shape is model
+-- number n of mentat/holodeck/meshnet.lua: the server relays its triangles to the clients once per model, and each client draws them
+-- at the SAME pose (same origin, same yaw; the box of the card stays the contract, so the planner's footprint, the registry, undo and
+-- the limits never notice the swap). ONLY THE DRAWING changes: the physics stays the card's box. A client that does not (yet) have
+-- the mesh, or fails to build it, keeps drawing the box. Server: SetVisual validates, stores the kind and number in NetworkVars (they
+-- reach every client, including those who join later) and also sends "holodeck_found_visual". Client: Draw reads the NetworkVars.
 ENT.Type = "anim"
 ENT.Base = "base_anim"
 ENT.PrintName = "Holodeck found object"
@@ -18,8 +19,8 @@ ENT.Spawnable = false
 ENT.AdminOnly = true
 ENT.RenderGroup = RENDERGROUP_TRANSLUCENT     -- the box is translucent
 
-ENT.VISUALS = { box = true }                  -- the kinds SetVisual accepts; "mesh" is the planned second one
-ENT.VISUAL_KINDS = { "box" }                  -- their order, as the networked integer VisualKind
+ENT.VISUALS = { box = true, mesh = true }     -- the kinds SetVisual accepts
+ENT.VISUAL_KINDS = { "box", "mesh" }          -- their order, as the networked integer VisualKind
 
 local MAX_TEXT = 80
 
@@ -32,6 +33,7 @@ function ENT:SetupDataTables()
   self:NetworkVar("String", 3, "FoundBasis")   -- how the size is known: measured | sourced | estimated | guessed
   self:NetworkVar("Float", 0, "FoundMass")     -- kg applied to the body (0 = the engine's own)
   self:NetworkVar("Int", 0, "VisualKind")      -- index (from 0) into VISUAL_KINDS
+  self:NetworkVar("Int", 1, "MeshId")          -- the model number of the mesh to draw (1..64), 0 = none
 end
 
 local function text(s)
@@ -66,10 +68,17 @@ function ENT:LabelText()
   return self:GetFoundName() .. " - " .. self:GetFoundSource() .. ", " .. self:GetFoundLicence() .. ", size " .. (basis ~= "" and basis or "unknown")
 end
 
---- Change what the object looks like and is made of (the future mesh hook). Today: "box" only. Returns true, or false and why.
---- `data` is reserved for the mesh kind (vertices, indices, the pose); the box needs none.
+--- Change what the object looks like (never what it is made of). Returns true, or false and why.
+--- "box": the placeholder. "mesh": data = { id = <model number 1..64> }; the mesh itself travels by net message (meshnet.lua).
 function ENT:SetVisual(kind, data)
   if not self.VISUALS[kind] then return false, "unsupported visual kind: " .. tostring(kind) end
+  if kind == "mesh" then
+    local id = type(data) == "table" and tonumber(data.id)
+    if not id or id ~= id or id < 1 or id > 64 or id % 1 ~= 0 then return false, "a mesh visual needs an id from 1 to 64" end
+    self:SetMeshId(id)
+  else
+    self:SetMeshId(0)
+  end
   for i, k in ipairs(self.VISUAL_KINDS) do
     if k == kind then self:SetVisualKind(i - 1) end
   end

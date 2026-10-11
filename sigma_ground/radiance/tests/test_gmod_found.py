@@ -115,7 +115,8 @@ def test_a_servable_card_with_a_size_comes_back_as_a_planner_kind_in_hammer_unit
     assert v["entity"] == "holodeck_found" and v["symmetric"] is True and v["front"] == 0.0, "front unknown means symmetric"
     assert v["mins"] == pytest.approx([-v["d"] / 2, -v["w"] / 2, 0.0]) and v["maxs"] == pytest.approx([v["d"] / 2, v["w"] / 2, v["h"]])
     assert v["mass"] == pytest.approx(C.prior_mass(sized(*HYDRANT))["kg"]) and v["mass_status"] == "guessed"
-    assert v["found"] == {"card": "found.poly-haven.fire-hydrant", "name": "fire hydrant", "source": "Poly Haven", "licence": "CC0", "basis": "sourced"}
+    assert v["found"] == {"card": "found.poly-haven.fire-hydrant", "name": "fire hydrant", "source": "Poly Haven", "licence": "CC0", "basis": "sourced",
+                          "mesh": skippy_bridge.mesh_key("found.poly-haven.fire-hydrant")}, "a Poly Haven card carries the key of its real shape"
     assert k["approx"] == [] and k["seat"] is False and k["surface"] is False, "nothing may stand in for another word, sit, or carry things"
     assert "box" in r["say"], "Skippy says it is a box for now"
     assert r["card"]["size_m"]["basis"] == "sourced" and r["card"]["licence"] == "CC0" and r["card"]["source"] == "Poly Haven"
@@ -731,12 +732,15 @@ def test_the_shelf_of_found_kinds_is_bounded(ix):
 
 
 # ============================================================================================================ the entity itself
-def test_the_visual_hook_accepts_box_and_refuses_everything_else_for_now(ix):
+def test_the_visual_hook_accepts_box_and_mesh_with_an_id_and_refuses_everything_else(ix):
     g = Game()
     ent = g.w.rt.eval('function() local e = ents.Create("holodeck_found"); e:SetFound({ mins = {-5,-5,0}, maxs = {5,5,10}, name = "x", source = "s", licence = "CC0", basis = "guessed", mass = 3 }); return e end')()
     assert ent.SetVisual(ent, "box") is True
-    ok, why = ent.SetVisual(ent, "mesh", {"vertices": [], "indices": []})
+    ok, why = ent.SetVisual(ent, "model", {"id": 1})
     assert ok is False and "unsupported" in why
+    for bad in ('{vertices = {}}', "{id = 0}", "{id = 65}", "{id = 1.5}", "{id = 0/0}", "nil"):
+        ok, why = g.w.rt.eval(f"function(e) return e:SetVisual('mesh', {bad}) end")(ent)
+        assert ok is False and "id from 1 to 64" in why, bad
     assert ent.GetVisual(ent) == "box", "a refused kind changes nothing"
     nets = g.w.rt.eval('function() local n = 0; for _, m in ipairs(MOCK.nets) do if m.name == "holodeck_found_visual" then n = n + 1 end end return n end')()
     assert nets == 1, "only the accepted change was broadcast"
@@ -828,11 +832,13 @@ def test_the_box_fades_in_with_the_holodecks_materialising_alpha():
     assert r.boxes[1].col.a == 0 and r.wires[1].col.a == 0
 
 
-def test_the_mesh_visual_is_not_built_on_the_client_either():
+def test_the_client_refuses_the_same_things_and_keeps_the_box():
     w = client_world()
     e = client_box(w)
-    ok, why = e.SetVisual(e, "mesh", {"vertices": []})
+    ok, why = e.SetVisual(e, "model", {"id": 1})
     assert ok is False and "unsupported" in why and e.GetVisual(e) == "box"
+    ok, why = e.SetVisual(e, "mesh", {"vertices": []})
+    assert ok is False and e.GetVisual(e) == "box"
 
 
 # ============================================================================================================ the live grader

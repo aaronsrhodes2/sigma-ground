@@ -1,6 +1,7 @@
 -- holodeck_found -- client part: the box and its label. Colours follow the project's doctrine: the green accent (#00FF88) on black,
 -- one flat colour, no gradients, text on black.
 include("shared.lua")
+local CM = include("mentat/holodeck/meshclient.lua")          -- receives the real shape and builds it (see meshnet.lua for the server half)
 
 local GREEN = Color(0, 255, 136)
 local WHITE = Color(255, 255, 255)
@@ -8,12 +9,15 @@ local BLACK = Color(0, 0, 0)
 local FILL_ALPHA = 60                 -- the translucent fill
 local LABEL_RANGE = 525               -- Hammer units: about 10 m
 local LABEL_RANGE_SQR = LABEL_RANGE * LABEL_RANGE
+local cv_outline = CreateClientConVar("holodeck_found_outline", "0", true, false, "1 = keep a faint outline of the card's box around a found object's real shape")
 
---- The server changed the visual (see SetVisual in shared.lua).
+--- The server changed the visual. The NetworkVars (VisualKind, MeshId) carry the truth to every client, including a late one; this
+--- message only lets the object redraw at once, and a mesh the client does not have yet is asked for here.
 net.Receive("holodeck_found_visual", function()
   local ent = Entity(net.ReadUInt(16))
   local kind = net.ReadString()
-  if IsValid(ent) and ent.SetVisual then ent:SetVisual(kind) end
+  local id = net.ReadUInt(8)
+  if IsValid(ent) and ent.SetVisual then ent:SetVisual(kind, { id = id }) end
 end)
 
 function ENT:Initialize()
@@ -26,10 +30,24 @@ local function fade(self)
   return (c and c.a or 255) / 255
 end
 
+--- The real shape when this object's visual is a mesh and this client has built it; nil (draw the box) otherwise.
+local function ready_mesh(self)
+  if self:GetVisual() ~= "mesh" then return nil end
+  return CM.get(self:GetMeshId())
+end
+
 function ENT:Draw()
-  if self:GetVisual() ~= "box" then return end            -- only "box" exists; a mesh visual would be drawn here
   local a = fade(self)
   local mn, mx = self:GetBoxMins(), self:GetBoxMaxs()
+  local real = ready_mesh(self)
+  if real then
+    CM.draw(self, real, a)
+    if cv_outline:GetBool() then
+      render.SetColorMaterial()
+      render.DrawWireframeBox(self:GetPos(), self:GetAngles(), mn, mx, Color(GREEN.r, GREEN.g, GREEN.b, math.floor(70 * a)), true)
+    end
+    return
+  end
   render.SetColorMaterial()
   render.DrawBox(self:GetPos(), self:GetAngles(), mn, mx, Color(GREEN.r, GREEN.g, GREEN.b, math.floor(FILL_ALPHA * a)), true)
   render.DrawWireframeBox(self:GetPos(), self:GetAngles(), mn, mx, Color(GREEN.r, GREEN.g, GREEN.b, math.floor(255 * a)), true)
