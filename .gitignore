@@ -76,3 +76,6 @@ stage/skippyverse/build/
 
 # SkippyVerse avatar: personal print-kit derivatives (licence unknown, never commit)
 stage/skippyverse/private/
+
+# Skippy home: private config/catalog/state/token (personal library listing; never commit)
+stage/skippy_home/private/

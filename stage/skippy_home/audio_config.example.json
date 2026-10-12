@@ -1,0 +1,9 @@
+{
+  "default_target": "here",
+  "outputs": {
+    "here":     {"device": "EPSON PJ (NVIDIA High Definition Audio)", "kind": "hdmi",      "latency_ms": 60,  "lead_in_ms": 300, "volume": 0.4},
+    "upstairs": {"device": "Speakers (Enclave Audio)",               "kind": "bluetooth", "latency_ms": 200, "lead_in_ms": 400, "volume": 0.4}
+  },
+  "groups": {"everywhere": ["here", "upstairs"]},
+  "api": {"host": "127.0.0.1", "port": 8790}
+}
