@@ -217,7 +217,20 @@ do_train_pilot() {
 }
 do_train() {
   gpu_guard train exclusive
-  wsl_run "$(train_cmd "$W_WORK/run1" "$(cat "$STATE/backend_flag" 2>/dev/null)")" > "$LOGS/train.log" || return 1
+  # A GPU fault ("CUDA error: unknown error", seen at step 1,439 of a 3,312-step run) kills the
+  # training process but not the checkpoints (every ~330 steps), so retry from the newest one.
+  local tries=0 resume rc=1
+  while (( tries < 4 )); do
+    resume=""
+    wsl_run "ls -d $W_WORK/run1/checkpoints/checkpoint-* >/dev/null 2>&1" && resume="--resume"
+    if wsl_run "$(train_cmd "$W_WORK/run1" "$(cat "$STATE/backend_flag" 2>/dev/null)" $resume)" >> "$LOGS/train.log"; then
+      rc=0; break
+    fi
+    tries=$((tries + 1))
+    log "  training stopped (attempt $tries of 4)"
+    (( tries < 4 )) && { log "  resuming from the newest checkpoint in 90 s"; sleep 90; }
+  done
+  (( rc == 0 )) || return 1
   wsl_run "mkdir -p '$W_CACHE/run1' && cp -r $W_WORK/run1/adapter $W_WORK/run1/train_report.json $W_WORK/run1/log_history.json '$W_CACHE/run1/'"
 }
 do_merge() {

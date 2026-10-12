@@ -269,8 +269,15 @@ def cmd_train(a) -> int:
                       data_collator=Collator(tok.pad_token_id), callbacks=[clock, FreeCache()])
     if gpu:
         torch.cuda.reset_peak_memory_stats()
+    resume_from = None
+    if a.resume:
+        found = sorted((out / "checkpoints").glob("checkpoint-*"),
+                       key=lambda c: int(c.name.split("-")[-1]))
+        resume_from = str(found[-1]) if found else None
+        print(f"resuming from {resume_from}" if resume_from else "--resume: no checkpoint, starting fresh",
+              flush=True)
     t0 = time.time()
-    trainer.train()
+    trainer.train(resume_from_checkpoint=resume_from)
     wall = time.time() - t0
     final_eval = trainer.evaluate()
     # save the adapter FIRST: nothing computed below may cost a finished training run
@@ -296,7 +303,8 @@ def cmd_train(a) -> int:
         "tokens_per_example": {"p50": pct(lens, .5), "p95": pct(lens, .95), "max": max(lens)},
         "max_len": max_len, "effective_batch": a.batch * a.grad_accum,
         "per_device_batch": a.batch, "grad_accum": a.grad_accum,
-        "steps_trained": len(st), "steps_full_run": full_total, "epochs": a.epochs,
+        "steps_trained": trainer.state.global_step, "steps_this_process": len(st),
+        "resumed_from": resume_from, "steps_full_run": full_total, "epochs": a.epochs,
         "lr": a.lr, "warmup_steps": warmup, "seed": a.seed,
         "lora": {"r": 16, "alpha": 32, "dropout": 0.0, "targets": LORA_TARGETS},
         "wall_s": round(wall, 1), "steady_steps_per_s": round(steady, 4),
@@ -431,6 +439,9 @@ def main() -> int:
     t.add_argument("--logging-steps", type=int, default=10)
     t.add_argument("--seed", type=int, default=0)
     t.add_argument("--no-unsloth", action="store_true")
+    t.add_argument("--resume", action="store_true",
+                   help="continue from the newest checkpoint in <out>/checkpoints, if there is one "
+                        "(optimizer, schedule and data position included)")
     t.add_argument("--cpu-smoke", action="store_true",
                    help="test the training loop on CPU (unquantized; use a tiny base)")
     g = sub.add_parser("merge", help="fold the adapter into the 16-bit base (CPU)")
