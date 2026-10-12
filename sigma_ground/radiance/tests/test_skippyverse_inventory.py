@@ -806,3 +806,65 @@ def test_metrics_would_catch_a_bad_resolver(full, monkeypatch):
                                                               "sentence": ""})
     m = metrics.evaluate(full, q)
     assert m["negatives"]["false_accept"] == 1 and m["top1"] == 0.0
+
+
+# ============================================================================================================ Task Z: fall-through and part-of-a-name
+@pytest.fixture(scope="module")
+def shelf(tmp_path_factory):
+    def sz(w, d, h):
+        return {"w": w, "d": d, "h": h, "basis": "measured", "source": "test"}
+
+    def mk(i, name, size, *, valve=False, source="Poly Haven", lic="CC0", cls="found", aliases=()):
+        vis = {"class": "curated" if valve else cls, "style": "low-poly", "blocky": False}
+        prov = ({"source": "Half-Life 2 (Valve)", "license": "Valve-SSA", "author": "Valve"} if valve
+                else {"source": source, "license": lic, "author": "A", "url": "https://e.invalid/x"})
+        if valve:
+            vis["local_model"] = "models/x.mdl"
+        return C.make_card(id=i, name=name, aliases=aliases, category="misc", size=size, symmetric=True,
+                           front={"yaw_deg": 0.0, "source": "curated-by-eye"}, visual=vis, provenance=prov, mass=C.prior_mass(size))
+
+    cs = [mk("c.kettle", "kettle", sz(0.2, 0.2, 0.25), valve=True),
+          mk("f.vkettle", "vintage electric kettle", sz(0.25, 0.2, 0.25)),
+          mk("c.sofa", "sofa", sz(2.0, 0.9, 0.9), valve=True),                                   # blocked, and nothing servable names a sofa
+          mk("f.chair", "wooden chair", sz(0.5, 0.5, 0.9)),
+          mk("c.vase", "vase", sz(0.2, 0.2, 0.3), valve=True),
+          mk("f.vase1", "ceramic vase", sz(0.2, 0.2, 0.3)), mk("f.vase2", "glass vase", sz(0.2, 0.2, 0.3)),   # two servable vases: ambiguous
+          mk("f.rover", "mars 2020 perseverance rover", sz(2.9, 2.7, 2.2), source="NASA 3D Resources", lic="NASA"),
+          mk("f.rovercfg", "nasa perseverance sensor config", sz(1, 1, 1), source="Gazebo Fuel", lic="CC-BY-4.0"),
+          mk("f.lm", "apollo lunar module", sz(6, 6, 5), source="NASA 3D Resources", lic="NASA"),
+          mk("f.lm2", "apollo lunar roving vehicle", sz(3, 2, 1), source="NASA 3D Resources", lic="NASA")]
+    d = tmp_path_factory.mktemp("shelf_index")
+    IX.build_index(cs, d)
+    return IX.load_index(d)
+
+
+def test_a_blocked_exact_match_falls_through_to_the_servable_card_of_the_same_noun_and_says_so(shelf):
+    r = R.resolve("kettle", shelf, audience="web", room={"outdoor": True})
+    assert r["status"] == "alias" and r["card"]["id"] == "f.vkettle" and r["servable"] is True and r["match"]["how"] == "shared_instead"
+    assert "can't share my kettle" in r["sentence"] and "CC0 one" in r["sentence"] and "vintage electric kettle" in r["sentence"]
+    loc = R.resolve("kettle", shelf, audience="local", room={"outdoor": True})
+    assert loc["card"]["id"] == "c.kettle" and loc["match"]["how"] == "exact", "the local game keeps its own model: no fall-through"
+
+
+def test_the_fall_through_never_reaches_a_loose_match(shelf):
+    r = R.resolve("sofa", shelf, audience="web", room={"outdoor": True})
+    assert r["card"]["id"] == "c.sofa" and r["servable"] is False and r["match"]["how"] == "exact", "nothing servable names a sofa: unchanged"
+    v = R.resolve("vase", shelf, audience="web", room={"outdoor": True})
+    assert v["status"] == "ambiguous" and set(v["options"]) == {"ceramic vase", "glass vase"} and v["card"] is None and "can't share my vase" in v["sentence"]
+
+
+def test_a_part_of_exactly_one_name_ending_in_its_head_noun_is_taken_and_said(shelf):
+    for q in ("perseverance rover", "mars 2020 rover", "the perseverance rover"):
+        r = R.resolve(q, shelf, audience="web", room={"outdoor": True})
+        assert r["match"]["how"] == "partial" and r["status"] == "synonym" and r["kind"] == "mar 2020 perseverance rover", q
+        assert "I took '" in r["sentence"] and "mars 2020 perseverance rover" in r["sentence"]
+    lm = R.resolve("lunar module", shelf, audience="web", room={"outdoor": True})
+    assert lm["match"]["how"] == "partial" and lm["card"]["id"] == "f.lm"
+
+
+def test_part_of_a_name_is_not_a_loose_match(shelf):
+    assert R.resolve("perseverance", shelf, audience="web", room={"outdoor": True})["status"] in ("ambiguous", "closest"), "one word is not decided"
+    assert R.resolve("mars 2020", shelf, audience="web", room={"outdoor": True})["match"]["how"] != "partial", "must end in the head noun"
+    assert R.resolve("rover mars", shelf, audience="web", room={"outdoor": True})["match"]["how"] != "partial", "order matters at the end"
+    two = R.resolve("apollo lunar", shelf, audience="web", room={"outdoor": True})
+    assert two["match"]["how"] != "partial", "two kinds contain those words and neither ends in them"

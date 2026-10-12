@@ -143,3 +143,22 @@ the stream also carries an end marker, so `meshpack.unlzma_alone` writes -1 back
 file (computed per triangle on the client), a collision hull, levels of detail, models over 4,000 triangles or 65,535 vertices, NASA and Gazebo Fuel
 models (NASA units are a guess and would need the measured scale applied; Fuel is Collada), animation, and any caching of the payload beyond the
 bridge's memory.
+
+### Draco-compressed glb (2026-10-11)
+
+Most NASA glb files store geometry as `KHR_draco_mesh_compression`. `measure.decode_draco_primitive` decodes each Draco primitive with the OPTIONAL
+official PyPI package **DracoPy** (`pip install DracoPy`, 2.2.0, Apache-2.0, wheel for CPython 3.13 win_amd64; wraps Google's Draco library). `measure.py` takes
+bounding boxes from the decoded positions (node transforms applied); `meshpack.py` packs the decoded triangles and the material base colour like any glTF.
+Without DracoPy the modules still import and a Draco model stays a box with the reason "Draco-compressed and the Draco decoder is not installed";
+a corrupt Draco buffer is refused with a Draco reason (the box size falls back to the accessor min/max). `gltf_readable` now trial-decodes every Draco buffer,
+so the bridge offers a mesh only for a file that really decodes. EXT_meshopt_compression is still unreadable. Live 2026-10-11 (NASA raw files): Apollo Lunar
+Module 716,840 B, 97,588 -> 1,445 tris, 8,030 B payload (zlib 10,415), 6.4 x 6.4 x 5.0 native; Mars 2020 Perseverance Rover 4,987,176 B, 199,521 -> 1,476 tris,
+8,447 B, 2.58 x 2.95 x 1.79 m packed; Cassini Assembly 2,388,308 B, 453,987 -> 1,469 tris, 8,203 B. Packing is pure Python: 7 s to 33 s for these.
+
+### Resolver: part of a name, and a servable card instead of a blocked one (2026-10-11)
+
+`how = "partial"`: a phrase of two words or more that is a subset of exactly one kind's name and ends in that kind's head noun ("perseverance rover" of
+"mars 2020 perseverance rover") is taken as that kind and said so ("I took ... to mean ..."); status `synonym`, so the bridge may fetch and place it.
+`how = "shared_instead"`: when the exact/alias match is a card the web/game audience may not be served, the resolver falls through to a servable card that names the
+same noun (exact/alias first, then head-noun subset), strictly (never a loose text match), and says "I can't share my kettle, but I have a CC0 one: ...";
+several servable kinds give an ambiguity question. Seed-set metrics unchanged: top-1 95.5%, false accepts 1/36.

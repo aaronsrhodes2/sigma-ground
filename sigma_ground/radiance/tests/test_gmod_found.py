@@ -860,3 +860,44 @@ def test_the_live_grader_holds_the_engines_box_to_the_card_within_two_percent(ix
     assert "label strings" in " ".join(live.grade_found({"entities": [row(source="Somewhere Else")]})[0])
     problems, rows = live.grade_found({"entities": [row()]})
     assert rows[0]["size_err_pct"] == pytest.approx([0, 0, 0], abs=1e-6) and rows[0]["card"] == "found.poly-haven.fire-hydrant"
+
+
+# ============================================================================================================ Task Z: fall-through and part-of-a-name through the bridge
+@pytest.fixture()
+def ix2(tmp_path, monkeypatch):
+    valve = C.make_card(id="curated.kettle.1", name="kettle", kind="kettle", category="misc", size=sized(0.2, 0.2, 0.25, "measured"),
+                        front={"yaw_deg": 0.0, "source": "curated-by-eye"}, symmetric=False,
+                        visual={"class": "curated", "style": "x", "blocky": False}, provenance={"source": "Half-Life 2 (Valve)", "license": "Valve-SSA"})
+    cs = [valve, found_card("vintage electric kettle", sized(0.25, 0.2, 0.25, "measured")),
+          found_card("mars 2020 perseverance rover", None, source="Gazebo Fuel", lic="CC-BY-4.0", url="https://fuel.gazebosim.org/1.0/O/models/rover")]
+    IX.build_index(cs, tmp_path / "ix3", synonym_groups=[])
+    monkeypatch.setattr(skippy_bridge, "FOUND_INDEX", IX.load_index(tmp_path / "ix3", shared=True))
+    monkeypatch.setattr(skippy_bridge, "FOUND_ACQUIRER", None)
+    monkeypatch.setattr(skippy_bridge, "FOUND_FETCH", False)
+    monkeypatch.setattr(skippy_bridge, "GATE", skippy_bridge.Gate())
+
+
+def test_a_noun_whose_card_we_may_not_share_places_the_servable_one_and_says_so(ix2):
+    r = skippy_bridge.resolve_found("kettle")
+    assert r["place"] is True and r["card"]["id"] == "found.poly-haven.vintage-electric-kettle"
+    assert "can't share my kettle" in r["say"] and "CC0 one" in r["say"] and r["say"].endswith("a box of that size.")
+    assert "may not share, so I won't place" not in r["say"]
+
+
+def test_a_part_of_one_name_is_fetched_placed_and_said(ix2, monkeypatch, tmp_path):
+    fake = Fake(ph_routes())
+    seen = []
+
+    def acq(card):
+        seen.append(card["id"])
+        return A.acquire_and_measure(found_card("mars 2020 perseverance rover", None, url="https://polyhaven.com/a/barrel_03", cid=card["id"]), fake, tmp_path)
+    monkeypatch.setattr(skippy_bridge, "FOUND_ACQUIRER", acq)
+    r = skippy_bridge.resolve_found("perseverance rover")
+    assert seen == ["found.gazebo-fuel.mars-2020-perseverance-rover"] and r["place"] is True and r["fetched"] is True
+    assert "I took 'perseverance rover' to mean the mars 2020 perseverance rover" in r["say"]
+    assert r["say"].endswith("a box of that size.")
+
+
+def test_the_words_the_player_used_become_a_name_of_the_kind_so_the_planner_finds_it(ix2):
+    r = skippy_bridge.resolve_found("kettle")
+    assert "kettle" in r["kind"]["names"] and "vintage electric kettle" in r["kind"]["names"]

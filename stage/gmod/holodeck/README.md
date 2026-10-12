@@ -193,8 +193,7 @@ box, at the same pose, with no re-plan**. No model file is installed on any clie
   mock), several different models at once, a weak connection.
 
 **Other sources (2026-10-11, live-tested with `found_live.py`).** The bridge offers a mesh only when it can really read the geometry, so a promise
-never turns into a failure: **NASA** glb models once downloaded (the /resolve that sizes the card downloads them) and **not Draco/meshopt-compressed**
-(`meshpack.gltf_readable`; most of NASA's files ARE Draco-compressed, so most NASA models stay a labelled box), packed at the card's size (file units
+never turns into a failure: **NASA** glb models once downloaded (the /resolve that sizes the card downloads them) and **not meshopt-compressed**, and Draco-compressed ones too when the optional decoder is installed (`pip install DracoPy`, Apache-2.0; `meshpack.gltf_readable`; without it, or with a corrupt Draco buffer, the model stays a labelled box). Live: the Apollo Lunar Module (Draco, 97,588 triangles) arrives as 1,445 triangles, 8,030 bytes, in-game, packed at the card's size (file units
 taken as metres while the size basis is guessed; scaled to the published length when `nasa_real_sizes.json` has a verified entry); **Gazebo Fuel**
 models whose SDF visuals are box/sphere/cylinder or Collada/OBJ meshes (`meshpack.sdf_drawable`; scale and poses applied, colours from the visual's
 diffuse else grey, no textures; STL stays a box). Poly Haven is unchanged. Live driver: `python stage/gmod/holodeck/found_live.py <tag> "add a mailbox" --purge <card id> [--slow-send]`

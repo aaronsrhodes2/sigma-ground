@@ -1116,6 +1116,7 @@ FOUND_FETCH = os.environ.get("SKIPPY_FOUND_FETCH", "1") != "0"      # 0 = never 
 MAX_NOUN_CHARS = 40
 MAX_FOUND_SAY = 230
 PLACING = ("exact", "alias", "synonym")           # the resolver statuses that may place something
+PLACING_HOW = PLACING + ("partial", "shared_instead")   # the ways of matching that may place: a part of exactly one name (said so), a shareable card instead of one we may not share (said so)
 FOUND_INDEX = None                                # a loaded Index (tests inject one); else built/loaded on first use
 FOUND_FETCHER = None                              # fetch(url, *, max_bytes) -> bytes (tests inject one; None = the bounded real fetch)
 FOUND_ACQUIRER = None                             # acquirer(card) -> acquire.acquire_and_measure result (tests inject one; overrides downloading)
@@ -1218,7 +1219,7 @@ def _card_summary(card: dict) -> dict:
             "say": clean_text(card.get("say"), 200), "flags": [clean_text(f, 40) for f in (card.get("flags") or [])[:10]]}
 
 
-def _found_kind(card: dict) -> dict:
+def _found_kind(card: dict, asked: str | None = None) -> dict:
     """The planner kind for one servable found card: the SkippyVerse converter's record (Hammer units), then made safe for the game
     and marked as made of the `holodeck_found` entity. No approximate names (they would substitute silently), no seat, no surface."""
     _, C, _, _ = _skippyverse()
@@ -1227,6 +1228,8 @@ def _found_kind(card: dict) -> dict:
     names = [n for n in dict.fromkeys(clean_noun(x) for x in kind.get("names", [])) if n][:8]
     if name not in names:
         names.insert(0, name)
+    if asked and asked not in names:                                     # the words the player used, once Skippy has said what she took them to mean
+        names = (names[:7] + [asked])
     prov = card.get("provenance") or {}
     for v in kind["variants"]:
         v["entity"] = "holodeck_found"
@@ -1254,7 +1257,7 @@ def resolve_found(noun: str, audience: str = "game", cancel: Cancel | None = Non
         res = R.resolve(noun, ix, room=room, audience="web")
     # a download happens only for a card the game could then place: matched by its own name (or alias, or a listed synonym), never for
     # "the closest I have is X" or a typo reading (those are only sentences)
-    placing_match = (res.get("match") or {}).get("how") in PLACING
+    placing_match = (res.get("match") or {}).get("how") in PLACING_HOW
     step = (res.get("plan") or [{}])[0] if res["status"] == "needs_size" and placing_match else {}
     if step.get("action") == "fetch" and (FOUND_FETCH or FOUND_ACQUIRER is not None):
         card = ix.card(step["card_id"])
@@ -1290,7 +1293,7 @@ def resolve_found(noun: str, audience: str = "game", cancel: Cancel | None = Non
     elif card and status in PLACING and not card.get("redistributable"):
         say = f"I know of {R.a_an(res.get('kind') or noun)}, but only as a model I may not share, so I won't place it as a found object."
     return {"ok": True, "noun": noun, "place": place, "status": status, "say": clean_text(say, MAX_FOUND_SAY) or "I could not look that up.",
-            "kind": _found_kind(card) if place else None, "card": _card_summary(card) if card else None, "fetched": bool(res.get("fetched")),
+            "kind": _found_kind(card, noun if (res.get("match") or {}).get("how") in ("partial", "shared_instead", "synonym") else None) if place else None, "card": _card_summary(card) if card else None, "fetched": bool(res.get("fetched")),
             "mesh": mesh_offer(card) if place else None}
 
 

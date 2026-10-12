@@ -225,3 +225,95 @@ def test_a_draco_compressed_gltf_is_not_readable_and_says_why(tmp_path):
     with pytest.raises(M.MeasureError, match="Draco"):
         meshpack.pack(d, target_tris=100)
     assert meshpack.gltf_readable(tmp_path / "missing.glb") is False
+
+
+# ------------------------------------------------------------------------------------------------------- Draco decoding (DracoPy, optional)
+def _glb(doc, blob):
+    js = json.dumps(doc).encode()
+    js += b" " * (-len(js) % 4)
+    blob += b"\0" * (-len(blob) % 4)
+    body = struct.pack("<II", len(js), 0x4E4F534A) + js + struct.pack("<II", len(blob), 0x004E4942) + blob
+    return b"glTF" + struct.pack("<II", 2, 12 + len(body)) + body
+
+
+def _draco_glb(tmp_path, buffers, *, node_extra=None, name="d.glb", colour=(1.0, 0.0, 0.0, 1.0)):
+    """A GLB whose primitives are Draco buffers (one primitive per buffer in `buffers`), all under one node."""
+    blob, views, prims = b"", [], []
+    for i, b in enumerate(buffers):
+        views.append({"buffer": 0, "byteOffset": len(blob), "byteLength": len(b)})
+        blob += b + b"\0" * (-len(b) % 4)
+        prims.append({"attributes": {"POSITION": i}, "material": 0, "extensions": {"KHR_draco_mesh_compression": {"bufferView": i, "attributes": {"POSITION": 0}}}})
+    doc = {"asset": {"version": "2.0"}, "extensionsUsed": ["KHR_draco_mesh_compression"], "extensionsRequired": ["KHR_draco_mesh_compression"],
+           "buffers": [{"byteLength": len(blob)}], "bufferViews": views,
+           "accessors": [{"componentType": 5126, "count": 8, "type": "VEC3", "min": [-1, -1.5, -0.5], "max": [1, 1.5, 0.5]} for _ in buffers],
+           "materials": [{"pbrMetallicRoughness": {"baseColorFactor": list(colour)}}],
+           "meshes": [{"primitives": prims}], "nodes": [{"mesh": 0, **(node_extra or {})}], "scenes": [{"nodes": [0]}]}
+    p = tmp_path / name
+    p.write_bytes(_glb(doc, blob))
+    return p
+
+
+def _draco_box(bits, shift=(0.0, 0.0, 0.0)):
+    import numpy as np
+    dp = pytest.importorskip("DracoPy")
+    v = np.array([(x + shift[0], y + shift[1], z + shift[2]) for x, y, z in _V], dtype=np.float32)
+    f = np.array(_I, dtype=np.uint32).reshape(-1, 3)
+    return dp.encode(v, f, quantization_bits=bits)
+
+
+@pytest.mark.parametrize("bits", [8, 14, 30])
+def test_a_draco_box_packs_to_the_right_size_triangles_and_colour(tmp_path, bits):
+    from skippyverse import measure as M
+    p = _draco_glb(tmp_path, [_draco_box(bits)])
+    assert meshpack.gltf_readable(p) is True
+    m = M.measure_file(p)
+    assert list(m.size_whd()) == pytest.approx([2.0, 1.0, 3.0], abs=0.05) and not m.notes
+    blob, info = meshpack.pack(p, target_tris=100)
+    verts, faces, cols = meshpack.unpack(blob)
+    ext = [max(v[i] for v in verts) - min(v[i] for v in verts) for i in range(3)]
+    assert info["tris_in"] == 12 and len(faces) == 12
+    assert ext == pytest.approx([2.0, 1.0, 3.0], abs=0.05) and min(v[2] for v in verts) == pytest.approx(0.0, abs=1e-3)
+    assert set(cols) == {(255, 0, 0)}
+
+
+def test_draco_with_two_primitives_and_a_node_scale(tmp_path):
+    from skippyverse import measure as M
+    p = _draco_glb(tmp_path, [_draco_box(14), _draco_box(14, shift=(4.0, 0.0, 0.0))], node_extra={"scale": [2, 2, 2]})
+    assert list(M.measure_file(p).size_whd()) == pytest.approx([12.0, 2.0, 6.0], abs=0.1), "x spans -1..5 doubled"
+    _, info = meshpack.pack(p, target_tris=1000)
+    assert info["tris_in"] == 24
+
+
+def test_a_corrupt_draco_buffer_is_refused_cleanly(tmp_path):
+    from skippyverse import measure as M
+    good = _draco_box(14)
+    for bad in (good[: len(good) // 2], b"DRACO" + b"\xff" * 40, b"not draco at all"):
+        p = _draco_glb(tmp_path, [bad], name="bad.glb")
+        assert meshpack.gltf_readable(p) is False
+        assert "Draco" in meshpack.gltf_unreadable_why(p)
+        with pytest.raises(M.MeasureError, match="Draco"):
+            meshpack.pack(p, target_tris=100)
+        assert list(M.measure_file(p).size_whd()) == pytest.approx([2.0, 1.0, 3.0]), "the size falls back to the accessor min/max"
+
+
+def test_draco_error_paths_without_the_package(tmp_path, monkeypatch):
+    """Runs with or without DracoPy: a fixture buffer, the decoder made unavailable."""
+    from skippyverse import measure as M
+    monkeypatch.setitem(sys.modules, "DracoPy", None)               # import DracoPy -> ImportError
+    assert M.draco_available() is False
+    p = _draco_glb(tmp_path, [b"DRACO\0\0\0\0\0\0\0"])
+    assert meshpack.gltf_readable(p) is False
+    assert "decoder" in meshpack.gltf_unreadable_why(p) and "DracoPy" in meshpack.gltf_unreadable_why(p)
+    with pytest.raises(M.MeasureError, match="not installed"):
+        meshpack.pack(p, target_tris=100)
+    assert list(M.measure_file(p).size_whd()) == pytest.approx([2.0, 1.0, 3.0]), "still sized from the accessor min/max"
+    assert meshpack.gltf_readable(_gltf(tmp_path)) is True, "plain glTF is unaffected"
+
+
+def test_a_draco_primitive_without_a_buffer_view_is_refused(tmp_path):
+    from skippyverse import measure as M
+    p = _draco_glb(tmp_path, [b"x" * 8])
+    doc, _ = M._load_gltf(p)
+    doc["meshes"][0]["primitives"][0]["extensions"]["KHR_draco_mesh_compression"] = {}
+    with pytest.raises(M.MeasureError, match="bufferView"):
+        M.decode_draco_primitive(doc, [b""], doc["meshes"][0]["primitives"][0])

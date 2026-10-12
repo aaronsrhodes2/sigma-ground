@@ -52,16 +52,25 @@ def _base_colour(doc, prim):
     return tuple(max(0, min(255, int(round(255 * v ** (1 / 2.2))))) for v in c[:3])      # linear -> display
 
 
-_UNREADABLE_EXT = {"KHR_draco_mesh_compression": "Draco", "EXT_meshopt_compression": "meshopt"}
+_UNREADABLE_EXT = {"EXT_meshopt_compression": "meshopt"}       # no decoder for these; Draco is decoded when DracoPy is installed (measure.decode_draco_primitive)
 
 
 def gltf_unreadable_why(path):
-    """None when this glTF/GLB's geometry is plain accessors; else a short reason (a geometry-compression extension we have no decoder for)."""
-    doc, _ = M._load_gltf(Path(path))
+    """None when this glTF/GLB's geometry can be read (plain accessors, or Draco with the decoder installed and every Draco buffer decoding);
+    else a short reason."""
+    doc, buffers = M._load_gltf(Path(path))
     used = set(doc.get("extensionsRequired", [])) | set(doc.get("extensionsUsed", []))
     for ext, name in _UNREADABLE_EXT.items():
         if ext in used and any(ext in (pr.get("extensions") or {}) for m in doc.get("meshes", []) for pr in m.get("primitives", [])):
             return f"its geometry is {name}-compressed, which this packer cannot decode"
+    if M.DRACO_EXT in used or any(M.draco_ext(pr) is not None for m in doc.get("meshes", []) for pr in m.get("primitives", [])):
+        for m in doc.get("meshes", []):
+            for pr in m.get("primitives", []):
+                if M.draco_ext(pr) is not None:
+                    try:
+                        M.decode_draco_primitive(doc, buffers, pr)
+                    except M.MeasureError as e:
+                        return str(e) if "Draco" in str(e) else f"its Draco geometry cannot be read ({e})"
     return None
 
 
@@ -112,11 +121,16 @@ def triangles(path):
             for prim in doc["meshes"][n["mesh"]].get("primitives", []):
                 if prim.get("mode", 4) != 4 or "POSITION" not in prim.get("attributes", {}):
                     continue
-                pts, _, _ = M._accessor_points(doc, buffers, prim["attributes"]["POSITION"])
-                if pts is None:
-                    continue
+                if M.draco_ext(prim) is not None:
+                    pts, ix = M.decode_draco_primitive(doc, buffers, prim)
+                else:
+                    pts, _, _ = M._accessor_points(doc, buffers, prim["attributes"]["POSITION"])
+                    if pts is None:
+                        continue
+                    ix = None
                 pts = [M.mat_apply(full, p) for p in pts]
-                ix = _indices(doc, buffers, prim["indices"]) if "indices" in prim else list(range(len(pts)))
+                if ix is None:
+                    ix = _indices(doc, buffers, prim["indices"]) if "indices" in prim else list(range(len(pts)))
                 rgb = _base_colour(doc, prim)
                 for k in range(0, len(ix) - 2, 3):
                     out.append((pts[ix[k]], pts[ix[k + 1]], pts[ix[k + 2]], rgb))

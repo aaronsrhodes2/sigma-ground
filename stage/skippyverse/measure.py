@@ -19,6 +19,7 @@ import math
 import re
 import struct
 import xml.etree.ElementTree as ET
+import zlib
 from pathlib import Path
 
 Matrix = list  # 16 floats, row-major 4x4
@@ -224,6 +225,68 @@ def _load_gltf(path: Path) -> tuple[dict, list[bytes | None]]:
     return doc, buffers
 
 
+# ---------------------------------------------------------------------------------------------------------------- Draco (KHR_draco_mesh_compression)
+# Most of NASA's glb files store each primitive's geometry as a Draco buffer. The decoder is the official Apache-2.0 PyPI package DracoPy
+# (Google's Draco library; `pip install DracoPy`). It is optional: without it this module imports and works, and a Draco model stays a box.
+DRACO_EXT = "KHR_draco_mesh_compression"
+_DRACO_CACHE: dict = {}
+
+
+def draco_available() -> bool:
+    try:
+        import DracoPy  # noqa: F401
+        return True
+    except Exception:
+        return False
+
+
+def draco_ext(prim: dict):
+    """The primitive's KHR_draco_mesh_compression extension dict, or None."""
+    return (prim.get("extensions") or {}).get(DRACO_EXT)
+
+
+def decode_draco_primitive(doc: dict, buffers: list, prim: dict):
+    """([(x, y, z)], [i0, i1, i2, ...]) for one Draco primitive (positions already dequantised by the decoder, whatever the quantisation).
+    Raises MeasureError when the decoder is absent, the extension is malformed or the buffer is corrupt: never anything else."""
+    ext = draco_ext(prim)
+    if not isinstance(ext, dict) or not isinstance(ext.get("bufferView"), int):
+        raise MeasureError("Draco primitive has no usable bufferView")
+    try:
+        import DracoPy
+    except Exception:
+        raise MeasureError("its geometry is Draco-compressed and the Draco decoder (pip install DracoPy) is not installed") from None
+    try:
+        bv = doc["bufferViews"][ext["bufferView"]]
+        buf = buffers[bv["buffer"]]
+        if buf is None:
+            raise MeasureError("Draco buffer is missing")
+        start = bv.get("byteOffset", 0)
+        data = bytes(buf[start: start + bv["byteLength"]])
+        if len(data) != bv["byteLength"]:
+            raise MeasureError("Draco buffer runs past the end of its buffer")
+        key = (len(data), zlib.crc32(data))
+        hit = _DRACO_CACHE.get(key)
+        if hit is None:
+            m = DracoPy.decode(data)
+            pts = m.points
+            faces = m.faces
+            if pts is None or len(pts) == 0 or pts.ndim != 2 or pts.shape[1] != 3:
+                raise MeasureError("Draco buffer holds no 3D positions")
+            n = len(pts)
+            flat = [] if faces is None else [int(i) for i in faces.reshape(-1)]
+            if len(flat) % 3 or (flat and (min(flat) < 0 or max(flat) >= n)):
+                raise MeasureError("Draco faces are malformed")
+            hit = ([(float(a), float(b), float(c)) for a, b, c in pts.tolist()], flat)
+            if len(_DRACO_CACHE) >= 6:
+                _DRACO_CACHE.pop(next(iter(_DRACO_CACHE)))
+            _DRACO_CACHE[key] = hit
+        return hit
+    except MeasureError:
+        raise
+    except Exception as e:                                       # DracoPy raises its own exception types on a bad buffer
+        raise MeasureError(f"Draco buffer is corrupt ({type(e).__name__}: {e})") from None
+
+
 def _accessor_points(doc: dict, buffers: list, idx: int):
     """(points or None, min or None, max or None) for a VEC3 float POSITION accessor."""
     acc = doc["accessors"][idx]
@@ -284,6 +347,13 @@ def measure_gltf(path, *, post: Matrix = IDENT) -> Measurement:
                 pos = prim.get("attributes", {}).get("POSITION")
                 if pos is None:
                     continue
+                if draco_ext(prim) is not None and draco_available():
+                    try:
+                        dpts, _ = decode_draco_primitive(doc, buffers, prim)
+                        box.add_points(full, dpts)
+                        continue
+                    except MeasureError as e:                    # corrupt Draco: fall back to the accessor min/max, say so
+                        notes.append(str(e))
                 pts, amin, amax = _accessor_points(doc, buffers, pos)
                 if pts is not None and not (amin and amax and axis_aligned(full)):
                     box.add_points(full, pts)

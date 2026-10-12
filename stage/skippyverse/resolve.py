@@ -138,6 +138,36 @@ def _kind_rank(cards_: list[dict], audience: str) -> tuple:
     return min(_tier(c, audience) for c in cards_)
 
 
+def _head_match(kind: str, want: list[str]) -> bool:
+    """The words asked for are all in this kind's name and the last one is the kind's last word (the head noun of 'vintage electric kettle'
+    is 'kettle'): 'perseverance rover' is part of 'mars 2020 perseverance rover'; 'rover mars' is not, and neither is 'mars 2020'."""
+    kt = kind.split()
+    return bool(want) and want[-1] == kt[-1] and set(want) <= set(kt) and len(want) < len(kt)
+
+
+def _head_kinds(index: Index, phrase: str, *, servable_only: bool = False) -> dict[str, list[dict]]:
+    """{kind: [cards]} of the kinds the phrase names by head noun and token subset (see _head_match). Strict: every word asked for must be
+    in the name; a card that merely shares a word is not here (that is the text rung, which needs a margin)."""
+    want = [t for t in phrase.split() if t not in STOP]
+    out: dict[str, list[dict]] = {}
+    if not want:
+        return out
+    for card, _ in index.search(" ".join(want), 60, any_token=True):
+        k = norm(card["kind"])
+        if _head_match(k, want) and (card["redistributable"] or not servable_only):
+            out.setdefault(k, []).append(card)
+    return out
+
+
+def _servable_same_noun(index: Index, phrase: str) -> tuple[dict[str, list[dict]], str]:
+    """When the best match is a card the audience may not be served: the servable cards that name the same noun, strictly. First the
+    exact/alias matches of the phrase itself, then the kinds whose head noun and words contain it. -> ({kind: cards}, 'named'|'head')."""
+    named = [c for c, role in index.by_term(phrase) if role in ("name", "alias") and c["redistributable"]]
+    if named:
+        return _group(named), "named"
+    return _head_kinds(index, phrase, servable_only=True), "head"
+
+
 # ---------------------------------------------------------------------------------------------------------------------- matching
 def _match(index: Index, phrase: str):
     """-> (how, {kind: [cards]}, detail). how in exact|alias|approx|synonym|category|typo|text|none."""
@@ -186,8 +216,15 @@ def _match(index: Index, phrase: str):
         if best:
             cs = [index.card(i) for _, ids in best for i in ids]
             return "typo", _prefer_curated(_group(cs)), {"read_as": best[0][0], "distance": bd}
-    # partial text match, accepted only with the head noun present and a clear margin
+    # a part of exactly one kind's name, ending in its head noun, two words or more ('perseverance rover' of 'mars 2020 perseverance rover'):
+    # taken as that kind and said so; a single word, or two kinds that both contain it, is not decided here
     toks = [t for t in phrase.split() if t not in STOP]
+    if len(toks) >= 2:
+        hk = _head_kinds(index, phrase)
+        if len(hk) == 1:
+            k1, cs1 = next(iter(hk.items()))
+            return "partial", {k1: cs1}, {"name": cs1[0]["name"]}
+    # partial text match, accepted only with the head noun present and a clear margin
     if toks:
         head, want = toks[-1], set(toks)
         scored: dict[str, tuple[float, float, list]] = {}
@@ -286,6 +323,22 @@ def resolve(query: str, index: Index, *, room: dict | None = None, audience: str
                    sentence=f"{shown.capitalize()} could be " + _join(opts[:4]) + ". Which one?")
         return res
     kind, kcards = next(iter(kinds.items()))
+    if audience == "web" and how in ("exact", "alias", "synonym") and not any(c["redistributable"] for c in kcards):
+        # the best match is a card this audience may not be served: fall through to a servable card naming the same noun, and say so
+        alt, via = _servable_same_noun(index, phrase)
+        if len(alt) == 1:
+            blocked = kcards[0]["name"]
+            kind, kcards = next(iter(alt.items()))
+            how, detail = "shared_instead", {"blocked": blocked, "via": via, "name": kcards[0]["name"]}
+            lic = C.normalize_licence((kcards[0].get("provenance") or {}).get("license"))
+            if lic != "UNKNOWN":
+                detail["licence"] = lic
+            res["match"] = {"how": how, **detail}
+        elif len(alt) > 1:
+            opts = sorted(alt, key=lambda k: (_kind_rank(alt[k], audience), k))
+            res.update(status="ambiguous", options=opts, candidates=opts[:3], match={"how": "shared_instead", "blocked": kcards[0]["name"], "via": via},
+                       sentence=f"I can't share my {kcards[0]['name']}, but I have " + _join(opts[:4]) + ". Which one?")
+            return res
     res["kind"] = kind
     res["candidates"] = [kind, *_neighbours(index, phrase, {kind})][:3]
     if how == "text" and detail.get("alternatives"):
@@ -297,7 +350,7 @@ def resolve(query: str, index: Index, *, room: dict | None = None, audience: str
     sized = [c for c in pool if c.get("size_m")]
     trusted = [c for c in sized if index.size_ok(c["id"])]
     rung = "0" if any(c["visual"]["class"] == "curated" for c in pool) else "1"
-    if how in ("approx", "synonym", "typo", "text"):
+    if how in ("approx", "synonym", "typo", "text", "partial", "shared_instead"):
         rung = "1b"
     res["rung"] = rung
     lead = _lead(how, shown, kind, detail)
@@ -364,11 +417,14 @@ def resolve(query: str, index: Index, *, room: dict | None = None, audience: str
                 return res
     res["announce"] = announce
     servable = bool(rep["redistributable"])
-    sentence = (f"{announce} " if announce else "") + f"{lead} {rep['say']}"
+    if how in ("partial", "shared_instead"):                 # what was taken instead of what was asked comes first: a cut sentence must never lose it
+        sentence = f"{lead} " + (f"{announce} " if announce else "") + rep["say"]
+    else:
+        sentence = (f"{announce} " if announce else "") + f"{lead} {rep['say']}"
     if audience == "web" and not servable:
         sentence += " I can't share a model of it, so it would be a box."
     res.update(status={"exact": "exact", "alias": "alias", "approx": "closest", "synonym": "synonym", "typo": "closest",
-                       "text": "closest"}[how],
+                       "text": "closest", "partial": "synonym", "shared_instead": "alias"}[how],
                card=_out(rep, audience), shortlist=[_out(c, audience) for c in shortlist(fits)], servable=servable, sentence=sentence)
     return res
 
@@ -394,6 +450,11 @@ def _lead(how: str, shown: str, kind: str, detail: dict) -> str:
         return f"I took '{shown}' to mean {kind} (a listed synonym)."
     if how == "typo":
         return f"I read '{shown}' as '{detail.get('read_as', kind)}'. If that's wrong, say so."
+    if how == "partial":
+        return f"I took '{shown}' to mean the {detail.get('name', kind)}."
+    if how == "shared_instead":
+        lic = detail.get("licence")
+        return (f"I can't share my {detail.get('blocked', shown)}, but I have {'a ' + lic if lic else 'another'} one: the {detail.get('name', kind)}.")
     if how == "text":
         return f"I don't have {a_an(shown)} by that name. The closest I have is {a_an(kind)}. Using that."
     return ""
