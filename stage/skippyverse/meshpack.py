@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import lzma
+import math
 import struct
 import sys
 import zlib
@@ -51,8 +52,37 @@ def _base_colour(doc, prim):
     return tuple(max(0, min(255, int(round(255 * v ** (1 / 2.2))))) for v in c[:3])      # linear -> display
 
 
+_UNREADABLE_EXT = {"KHR_draco_mesh_compression": "Draco", "EXT_meshopt_compression": "meshopt"}
+
+
+def gltf_unreadable_why(path):
+    """None when this glTF/GLB's geometry is plain accessors; else a short reason (a geometry-compression extension we have no decoder for)."""
+    doc, _ = M._load_gltf(Path(path))
+    used = set(doc.get("extensionsRequired", [])) | set(doc.get("extensionsUsed", []))
+    for ext, name in _UNREADABLE_EXT.items():
+        if ext in used and any(ext in (pr.get("extensions") or {}) for m in doc.get("meshes", []) for pr in m.get("primitives", [])):
+            return f"its geometry is {name}-compressed, which this packer cannot decode"
+    return None
+
+
+def gltf_readable(path) -> bool:
+    """Never raises."""
+    try:
+        return gltf_unreadable_why(path) is None
+    except (M.MeasureError, OSError, ValueError, KeyError):
+        return False
+
+
 def triangles(path):
-    """[(p0, p1, p2, rgb)] in metres, z up, with the node transforms applied (not yet put on the floor)."""
+    """[(p0, p1, p2, rgb)] in metres, z up, with the node transforms applied (not yet put on the floor). glTF/GLB, or a Gazebo SDF
+    made of box/sphere/cylinder visuals (sdf_triangles)."""
+    if Path(path).suffix.lower() == ".sdf":
+        return sdf_triangles(path)
+    if Path(path).suffix.lower() in (".dae", ".obj"):
+        return mesh_file_triangles(path, M.IDENT, (200, 200, 200))
+    why = gltf_unreadable_why(path)
+    if why:
+        raise M.MeasureError(why)
     doc, buffers = M._load_gltf(Path(path))
     nodes = doc.get("nodes", [])
     scenes = doc.get("scenes", [])
@@ -95,6 +125,264 @@ def triangles(path):
 
     for r in roots:
         visit(r, M.IDENT)
+    return out
+
+
+# ----------------------------------------------------------------------------------------------------------------- Collada and OBJ
+def obj_triangles(path, post, rgb):
+    """OBJ: +Z up, metres (nothing is declared; the same assumption measure_obj makes). Faces are fanned."""
+    total = M.mat_mul(post, M._canon("z", None))
+    pts, out = [], []
+    with open(path, "r", encoding="utf-8", errors="replace") as f:
+        for line in f:
+            w = line.split()
+            if line.startswith("v ") and len(w) >= 4:
+                pts.append(M.mat_apply(total, (float(w[1]), float(w[2]), float(w[3]))))
+            elif line.startswith("f ") and len(w) >= 4:
+                ix = [int(t.split("/")[0]) for t in w[1:]]
+                ix = [i - 1 if i > 0 else len(pts) + i for i in ix]
+                for k in range(1, len(ix) - 1):
+                    out.append((pts[ix[0]], pts[ix[k]], pts[ix[k + 1]], rgb))
+    return out
+
+
+def dae_triangles(path, post, rgb):
+    """Collada <triangles>/<polylist>/<polygons> (positions only; the material is not read), with the file's unit and up axis and the scene's node
+    transforms applied, the way measure_dae measures them."""
+    root = M.ET.parse(str(path)).getroot()
+    unit_m, up = 1.0, "y"
+    for el in root.iter():
+        t = M._local(el.tag)
+        if t == "unit" and el.get("meter"):
+            unit_m = float(el.get("meter"))
+        elif t == "up_axis" and el.text:
+            up = el.text.strip()[0].lower()
+    if up not in M.UP_TO_Z:
+        raise M.MeasureError(f"unknown up_axis {up!r}")
+    total = M.mat_mul(post, M._canon(up, unit_m))
+    sources = {}
+    for el in root.iter():
+        if M._local(el.tag) == "source":
+            fa = next((c for c in el.iter() if M._local(c.tag) == "float_array"), None)
+            acc = next((c for c in el.iter() if M._local(c.tag) == "accessor"), None)
+            if fa is not None:
+                sources[el.get("id")] = (M._floats(fa.text), int(acc.get("stride")) if acc is not None and acc.get("stride") else 3)
+    geoms = {}
+    for g in root.iter():
+        if M._local(g.tag) != "geometry":
+            continue
+        tris = []
+        for mesh in (c for c in g if M._local(c.tag) == "mesh"):
+            vpos = {}
+            for vert in (c for c in mesh if M._local(c.tag) == "vertices"):
+                for inp in (c for c in vert if M._local(c.tag) == "input" and c.get("semantic") == "POSITION"):
+                    vals, stride = sources.get(inp.get("source", "").lstrip("#"), ([], 3))
+                    vpos[vert.get("id")] = [(vals[i], vals[i + 1], vals[i + 2]) for i in range(0, len(vals) - 2, stride)]
+            for prim in (c for c in mesh if M._local(c.tag) in ("triangles", "polylist", "polygons")):
+                ins = [c for c in prim if M._local(c.tag) == "input"]
+                vin = next((c for c in ins if c.get("semantic") == "VERTEX"), None)
+                if vin is None or vin.get("source", "").lstrip("#") not in vpos:
+                    continue
+                pos, off = vpos[vin.get("source").lstrip("#")], int(vin.get("offset", 0))
+                stride = max(int(c.get("offset", 0)) for c in ins) + 1
+                kind = M._local(prim.tag)
+                rings = []
+                if kind == "polygons":
+                    for p in (q for q in prim if M._local(q.tag) == "p"):
+                        v = [int(x) for x in p.text.split()]
+                        rings.append([v[i] for i in range(off, len(v), stride)])
+                else:
+                    flat = [int(x) for x in next(q.text for q in prim if M._local(q.tag) == "p").split()]
+                    if kind == "triangles":
+                        counts = [3] * (len(flat) // (3 * stride))
+                    else:
+                        counts = [int(x) for x in next(q.text for q in prim if M._local(q.tag) == "vcount").split()]
+                    k = 0
+                    for n in counts:
+                        rings.append([flat[(k + j) * stride + off] for j in range(n)])
+                        k += n
+                for r in rings:
+                    for j in range(1, len(r) - 1):
+                        tris.append((pos[r[0]], pos[r[j]], pos[r[j + 1]]))
+        geoms[g.get("id")] = tris
+
+    def node_matrix(node):
+        m = M.IDENT
+        for c in node:
+            t, v = M._local(c.tag), M._floats(c.text)
+            if t == "matrix":
+                if len(v) != 16:
+                    raise M.MeasureError("Collada matrix needs 16 numbers")
+                m = M.mat_mul(m, v)
+            elif t == "translate":
+                m = M.mat_mul(m, M.mat_translate(v[:3]))
+            elif t == "rotate":
+                m = M.mat_mul(m, M.mat_axis_angle(v[:3], v[3]))
+            elif t == "scale":
+                m = M.mat_mul(m, M.mat_scale(v[:3]))
+            elif t in ("lookat", "skew"):
+                raise M.MeasureError(f"Collada <{t}> transforms are not supported")
+        return m
+
+    nodes_by_id = {n.get("id"): n for n in root.iter() if M._local(n.tag) == "node" and n.get("id")}
+    out, seen = [], [0]
+
+    def emit(gid, world):
+        full = M.mat_mul(total, world)
+        for a, b, c in geoms.get(gid, []):
+            out.append((M.mat_apply(full, a), M.mat_apply(full, b), M.mat_apply(full, c), rgb))
+
+    def visit(node, parent, depth=0):
+        if depth > 64:
+            raise M.MeasureError("Collada node hierarchy too deep or cyclic")
+        world = M.mat_mul(parent, node_matrix(node))
+        for c in node:
+            t = M._local(c.tag)
+            if t == "instance_geometry":
+                seen[0] += 1
+                emit(c.get("url", "").lstrip("#"), world)
+            elif t == "instance_node":
+                tgt = nodes_by_id.get(c.get("url", "").lstrip("#"))
+                if tgt is not None:
+                    visit(tgt, world, depth + 1)
+            elif t == "node":
+                visit(c, world, depth + 1)
+    for vs in root.iter():
+        if M._local(vs.tag) == "visual_scene":
+            for n in (c for c in vs if M._local(c.tag) == "node"):
+                visit(n, M.IDENT)
+    if not seen[0]:
+        for gid in geoms:
+            emit(gid, M.IDENT)
+    return out
+
+
+def mesh_file_triangles(path, post, rgb):
+    ext = Path(path).suffix.lower()
+    if ext == ".dae":
+        return dae_triangles(path, post, rgb)
+    if ext == ".obj":
+        return obj_triangles(path, post, rgb)
+    raise M.MeasureError(f"{ext} meshes are not read")
+
+
+# ----------------------------------------------------------------------------------------------------------------- Gazebo SDF primitives
+# What an SDF draws: its own box/sphere/cylinder and <mesh> visuals that are Collada or OBJ (colours: the visual's diffuse/ambient, else grey;
+# textures and material scripts are not read). Anything else (STL, glTF inside an SDF) is NOT read: such a model stays a box in the game
+# (sdf_drawable says which is which, before anything is promised).
+_BOX_FACES = (((1, 0, 0), (1, 1, 0), (1, 1, 1), (1, 0, 1)), ((0, 0, 0), (0, 0, 1), (0, 1, 1), (0, 1, 0)),
+              ((0, 1, 0), (0, 1, 1), (1, 1, 1), (1, 1, 0)), ((0, 0, 0), (1, 0, 0), (1, 0, 1), (0, 0, 1)),
+              ((0, 0, 1), (1, 0, 1), (1, 1, 1), (0, 1, 1)), ((0, 0, 0), (0, 1, 0), (1, 1, 0), (1, 0, 0)))        # counter-clockwise from outside
+SDF_SEGMENTS = 16
+
+
+def _sdf_visuals(path):
+    """-> [(world matrix, geometry element, rgb)] of every <visual> of an SDF model (collisions are not drawn)."""
+    root = M.ET.parse(str(path)).getroot()
+    model = next((c for c in root.iter() if M._local(c.tag) == "model"), None)
+    if model is None:
+        raise M.MeasureError("no <model> in the SDF")
+    for c in model.iter():
+        if M._local(c.tag) == "include" or (M._local(c.tag) == "model" and c is not model):
+            raise M.MeasureError("nested models and <include> are not supported")
+    out = []
+    model_m = M._sdf_pose(model)
+    for link in (c for c in model if M._local(c.tag) == "link"):
+        link_m = M.mat_mul(model_m, M._sdf_pose(link))
+        for vis in (c for c in link if M._local(c.tag) == "visual"):
+            geo = next((c for c in vis if M._local(c.tag) == "geometry"), None)
+            kind = next(iter(geo), None) if geo is not None else None
+            if kind is None:
+                continue
+            rgb = (200, 200, 200)
+            mat = next((c for c in vis if M._local(c.tag) == "material"), None)
+            if mat is not None:
+                for tag in ("diffuse", "ambient"):
+                    el = next((c for c in mat if M._local(c.tag) == tag), None)
+                    v = M._floats(el.text) if el is not None else []
+                    if len(v) >= 3:
+                        rgb = tuple(max(0, min(255, int(round(255 * x)))) for x in v[:3])
+                        break
+            out.append((M.mat_mul(link_m, M._sdf_pose(vis)), kind, rgb))
+    return out
+
+
+def sdf_drawable(path) -> bool:
+    """True when every visual of the SDF can be drawn by sdf_triangles: box/sphere/cylinder, or a mesh visual whose .dae/.obj file is in
+    the model. Never raises (a model that is not drawable stays a box in the game)."""
+    try:
+        path = Path(path)
+        vis = _sdf_visuals(path)
+        if not vis:
+            return False
+        for _, kind, _ in vis:
+            t = M._local(kind.tag)
+            if t == "mesh":
+                uri = next((c.text for c in kind if M._local(c.tag) == "uri"), None)
+                if not uri or M._find_mesh_file(uri, path.parent, path.parent).suffix.lower() not in (".dae", ".obj"):
+                    return False
+            elif t not in ("box", "sphere", "cylinder"):
+                return False
+        return True
+    except (M.MeasureError, OSError, ValueError, M.ET.ParseError, StopIteration):
+        return False
+
+
+def _quads(tris, rgb, a, b, c, d):
+    tris.append((a, b, c, rgb))
+    tris.append((a, c, d, rgb))
+
+
+def sdf_triangles(path):
+    """[(p0, p1, p2, rgb)] in metres, z up (the SDF's own frame), for box/sphere/cylinder visuals; anything else raises MeasureError."""
+    out = []
+    for m, kind, rgb in _sdf_visuals(path):
+        t = M._local(kind.tag)
+
+        def put(p):
+            return M.mat_apply(m, p)
+        if t == "box":
+            h = [v / 2 for v in M._floats(next(c.text for c in kind if M._local(c.tag) == "size"))]
+            for f in _BOX_FACES:
+                _quads(out, rgb, *[put(tuple(h[i] * (1 if q[i] else -1) for i in range(3))) for q in f])
+        elif t == "cylinder":
+            r = float(next(c.text for c in kind if M._local(c.tag) == "radius"))
+            hl = float(next(c.text for c in kind if M._local(c.tag) == "length")) / 2
+            n = SDF_SEGMENTS
+            ring = [(r * math.cos(2 * math.pi * i / n), r * math.sin(2 * math.pi * i / n)) for i in range(n + 1)]
+            for i in range(n):
+                (x0, y0), (x1, y1) = ring[i], ring[i + 1]
+                _quads(out, rgb, put((x0, y0, -hl)), put((x1, y1, -hl)), put((x1, y1, hl)), put((x0, y0, hl)))
+                out.append((put((0, 0, hl)), put((x0, y0, hl)), put((x1, y1, hl)), rgb))
+                out.append((put((0, 0, -hl)), put((x1, y1, -hl)), put((x0, y0, -hl)), rgb))
+        elif t == "sphere":
+            r = float(next(c.text for c in kind if M._local(c.tag) == "radius"))
+            nlat, nlon = 8, 12
+
+            def pt(i, j):
+                th, ph = math.pi * i / nlat, 2 * math.pi * j / nlon
+                return put((r * math.sin(th) * math.cos(ph), r * math.sin(th) * math.sin(ph), r * math.cos(th)))
+            for i in range(nlat):
+                for j in range(nlon):
+                    a, b, c, d = pt(i, j), pt(i + 1, j), pt(i + 1, j + 1), pt(i, j + 1)
+                    if i < nlat - 1:
+                        out.append((a, b, c, rgb))                    # (the last ring meets the bottom pole: b == c, so no triangle here)
+                    if i > 0:
+                        out.append((a, c, d, rgb))                    # (the first ring meets the top pole: a == d)
+        elif t == "mesh":
+            uri = next((c.text for c in kind if M._local(c.tag) == "uri"), None)
+            if not uri:
+                raise M.MeasureError("mesh visual without a <uri>")
+            sc = next((c for c in kind if M._local(c.tag) == "scale"), None)
+            sv = M._floats(sc.text) if sc is not None and (sc.text or "").strip() else [1.0, 1.0, 1.0]
+            if len(sv) != 3:
+                raise M.MeasureError("<scale> needs 3 numbers")
+            f = M._find_mesh_file(uri, Path(path).parent, Path(path).parent)
+            out += mesh_file_triangles(f, M.mat_mul(m, M.mat_scale(sv)), rgb)
+        else:
+            raise M.MeasureError(f"SDF geometry <{t}> cannot be drawn")
+    if not out:
+        raise M.MeasureError("the SDF has nothing to draw")
     return out
 
 
@@ -178,8 +466,12 @@ def unlzma_alone(blob: bytes) -> bytes:
     return lzma.decompress(blob[:5] + bytes([255]) * 8 + blob[13:], format=lzma.FORMAT_ALONE)
 
 
-def pack(path, target_tris=3000, codec="zlib"):
-    tris = on_floor(triangles(path))
+def pack(path, target_tris=3000, codec="zlib", scale=1.0):
+    """`scale` multiplies every coordinate (NASA files whose published size sets the scale); 1.0 = as authored."""
+    raw = triangles(path)
+    if scale != 1.0:
+        raw = [tuple(tuple(c * scale for c in p) for p in t[:3]) + (t[3],) for t in raw]
+    tris = on_floor(raw)
     pos, faces, cols = simplify(tris, target_tris)
     if not faces or len(pos) > 65535:
         raise M.MeasureError("nothing to pack, or too many vertices for u16")

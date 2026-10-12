@@ -130,6 +130,8 @@ strings, the box and the mass are NetworkVars on the entity.
 
 ### The real shape of a found object (mesh swap, prototype)
 
+*(2026-10-11: the swap now also covers NASA glb models and Gazebo Fuel models, see "Other sources" at the end of this section.)*
+
 A found object starts as the labelled box (the ghost). When its card is a Poly Haven model, the real triangles follow and are drawn **in place of the
 box, at the same pose, with no re-plan**. No model file is installed on any client: the geometry travels over the network.
 
@@ -189,6 +191,15 @@ box, at the same pose, with no re-plan**. No model file is installed on any clie
   answers, the Lua decoder against Python's unpacker on the real chair. **Not tried in the real game:** a dedicated server with a remote client (the
   live net path was the listen server's own loopback, so a late joiner's `holodeck_mesh_want` and a payload of several chunks have only run in the
   mock), several different models at once, a weak connection.
+
+**Other sources (2026-10-11, live-tested with `found_live.py`).** The bridge offers a mesh only when it can really read the geometry, so a promise
+never turns into a failure: **NASA** glb models once downloaded (the /resolve that sizes the card downloads them) and **not Draco/meshopt-compressed**
+(`meshpack.gltf_readable`; most of NASA's files ARE Draco-compressed, so most NASA models stay a labelled box), packed at the card's size (file units
+taken as metres while the size basis is guessed; scaled to the published length when `nasa_real_sizes.json` has a verified entry); **Gazebo Fuel**
+models whose SDF visuals are box/sphere/cylinder or Collada/OBJ meshes (`meshpack.sdf_drawable`; scale and poses applied, colours from the visual's
+diffuse else grey, no textures; STL stays a box). Poly Haven is unchanged. Live driver: `python stage/gmod/holodeck/found_live.py <tag> "add a mailbox" --purge <card id> [--slow-send]`
+(real bridge, real download, per-stage timings from the bridge, a time-lapse, six final views, the engine's own size/pose of what stands, a frame-cost
+comparison; pictures `data/shots/<tag>_*.jpg`, `<tag>_sheet.jpg`, `<tag>_report.json`).
 
 ### The transporter effect: a materialise whose coherence is the pipeline's progress
 

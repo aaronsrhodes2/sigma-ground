@@ -83,3 +83,145 @@ def test_payload_is_small_and_round_trips_the_magic(tmp_path):
     assert zlib.decompress(blob)[:4] == b"SVM1"
     with pytest.raises(Exception):
         meshpack.unpack(zlib.compress(b"JUNKJUNKJUNK" * 4))
+
+
+# ------------------------------------------------------------------------------------------------------- Gazebo Fuel SDF primitives, NASA scale
+SDF_SHELF = """<sdf version="1.5"><model name="Shelf"><static>true</static><link name="link"><pose>0 0 0 0 0 0</pose>
+<visual name="back"><pose>0 0.005 0.6 0 0 0</pose><geometry><box><size>0.9 0.01 1.2</size></box></geometry>
+<material><diffuse>1.0 0.0 0.0</diffuse></material></visual>
+<collision name="c"><geometry><box><size>9 9 9</size></box></geometry></collision>
+<visual name="side"><pose>0.45 -0.195 0.6 0 0 0</pose><geometry><box><size>0.02 0.4 1.2</size></box></geometry></visual>
+</link></model></sdf>"""
+
+
+def _sdf(tmp_path, text=SDF_SHELF):
+    p = tmp_path / "model.sdf"
+    p.write_text(text, encoding="utf-8")
+    return p
+
+
+def test_an_sdf_of_boxes_packs_at_the_size_measure_reports_on_the_floor(tmp_path):
+    from skippyverse import measure as M
+    p = _sdf(tmp_path)
+    m = M.measure_sdf(p, tmp_path)
+    blob, info = meshpack.pack(p, target_tris=500)
+    verts, faces, cols = meshpack.unpack(blob)
+    ext = [max(v[i] for v in verts) - min(v[i] for v in verts) for i in range(3)]
+    assert ext == pytest.approx(list(m.size_whd()), abs=2e-3), "the picture is as big as the size the card was given"
+    assert min(v[2] for v in verts) == pytest.approx(0, abs=1e-6) and info["tris_in"] == 24, "two boxes (collisions are not drawn)"
+    assert (255, 0, 0) in set(cols), "the visual's diffuse colour survives"
+
+
+def test_sdf_box_faces_point_outward(tmp_path):
+    p = _sdf(tmp_path, SDF_SHELF.replace("0.45 -0.195 0.6", "0 0 0.6").replace("0.9 0.01 1.2", "1 1 1").replace("0.02 0.4 1.2", "1 1 1"))
+    tris = meshpack.triangles(p)
+    cen = (0.0, 0.0, 0.6)
+    assert tris
+    for a, b, c, _ in tris:
+        n = ((b[1] - a[1]) * (c[2] - a[2]) - (b[2] - a[2]) * (c[1] - a[1]), (b[2] - a[2]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[2] - a[2]),
+             (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]))
+        mid = tuple((a[i] + b[i] + c[i]) / 3 - cen[i] for i in range(3))
+        assert sum(n[i] * mid[i] for i in range(3)) > 0, "counter-clockwise seen from outside, like glTF"
+
+
+def test_sdf_cylinder_and_sphere_faces_point_outward_and_have_no_degenerate_triangles(tmp_path):
+    for geo in ("<cylinder><radius>0.3</radius><length>1</length></cylinder>", "<sphere><radius>0.5</radius></sphere>"):
+        tris = meshpack.triangles(_sdf(tmp_path, f'<sdf><model name="m"><link name="l"><visual name="v"><geometry>{geo}</geometry></visual></link></model></sdf>'))
+        for a, b, c, _ in tris:
+            n = ((b[1] - a[1]) * (c[2] - a[2]) - (b[2] - a[2]) * (c[1] - a[1]), (b[2] - a[2]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[2] - a[2]),
+                 (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]))
+            mid = [(a[i] + b[i] + c[i]) / 3 for i in range(3)]
+            assert sum(x * x for x in n) > 1e-12, "a degenerate (zero-area) triangle"
+            assert sum(n[i] * mid[i] for i in range(3)) > 0, geo
+
+
+def test_sdf_cylinder_and_sphere_are_drawn_a_mesh_visual_is_refused(tmp_path):
+    from skippyverse import measure as M
+    cyl = '<sdf><model name="m"><link name="l"><visual name="v"><geometry><cylinder><radius>0.1</radius><length>0.5</length></cylinder></geometry></visual>' \
+          '<visual name="s"><pose>0 0 0.5 0 0 0</pose><geometry><sphere><radius>0.1</radius></sphere></geometry></visual></link></model></sdf>'
+    verts, faces, _ = meshpack.unpack(meshpack.pack(_sdf(tmp_path, cyl), target_tris=2000)[0])
+    assert max(v[2] for v in verts) - min(v[2] for v in verts) == pytest.approx(0.85, abs=2e-3)       # cylinder -0.25..0.25, sphere to 0.6
+    assert max(v[0] for v in verts) - min(v[0] for v in verts) == pytest.approx(0.2, abs=2e-3)
+    mesh = '<sdf><model name="m"><link name="l"><visual name="v"><geometry><mesh><uri>model://m/x.dae</uri></mesh></geometry></visual></link></model></sdf>'
+    with pytest.raises(M.MeasureError):
+        meshpack.pack(_sdf(tmp_path, mesh), target_tris=100)
+    assert meshpack.sdf_drawable(_sdf(tmp_path, cyl)) is True
+    assert meshpack.sdf_drawable(_sdf(tmp_path, mesh)) is False
+    assert meshpack.sdf_drawable(tmp_path / "nothing.sdf") is False
+
+
+def test_pack_applies_a_scale_to_every_coordinate(tmp_path):
+    verts, _, _ = meshpack.unpack(meshpack.pack(_gltf(tmp_path), target_tris=100, scale=0.5)[0])
+    assert max(v[2] for v in verts) - min(v[2] for v in verts) == pytest.approx(1.5, abs=1e-3)
+
+
+# ------------------------------------------------------------------------------------------------------- Collada and OBJ meshes (Gazebo Fuel's usual form)
+def _dae(tmp_path, *, up="Z_UP", unit=1.0, node='<translate>0 0 1</translate>'):
+    # a 2 x 1 x 3 box (x, y, z) as 12 triangles; <triangles> with VERTEX at offset 0 and NORMAL at offset 1 (so the stride is 2)
+    pts = [(x, y, z) for x in (0, 2) for y in (0, 1) for z in (0, 3)]
+    pos = " ".join(str(c) for p in pts for c in p)
+    idx = [0, 1, 3, 0, 3, 2, 4, 6, 7, 4, 7, 5, 0, 4, 5, 0, 5, 1, 2, 3, 7, 2, 7, 6, 0, 2, 6, 0, 6, 4, 1, 5, 7, 1, 7, 3]
+    p = " ".join(f"{i} 0" for i in idx)
+    text = f"""<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema"><asset><unit meter="{unit}"/><up_axis>{up}</up_axis></asset>
+<library_geometries><geometry id="g"><mesh><source id="pos"><float_array id="pa" count="24">{pos}</float_array>
+<technique_common><accessor source="#pa" count="8" stride="3"/></technique_common></source>
+<vertices id="v"><input semantic="POSITION" source="#pos"/></vertices>
+<triangles count="12"><input semantic="VERTEX" source="#v" offset="0"/><input semantic="NORMAL" source="#n" offset="1"/><p>{p}</p></triangles></mesh></geometry></library_geometries>
+<library_visual_scenes><visual_scene id="s"><node id="n1">{node}<instance_geometry url="#g"/></node></visual_scene></library_visual_scenes></COLLADA>"""
+    f = tmp_path / "m.dae"
+    f.write_text(text, encoding="utf-8")
+    return f
+
+
+def test_a_collada_box_packs_at_its_measured_size_with_unit_axis_and_node_transform_applied(tmp_path):
+    from skippyverse import measure as M
+    for kw in ({}, {"up": "Y_UP"}, {"unit": 0.01}):
+        f = _dae(tmp_path, **kw)
+        m = M.measure_dae(f)
+        verts, faces, _ = meshpack.unpack(meshpack.pack(f, target_tris=100)[0])
+        ext = [max(v[i] for v in verts) - min(v[i] for v in verts) for i in range(3)]
+        assert len(faces) == 12 and ext == pytest.approx(list(m.size_whd()), abs=1e-3), kw
+        assert min(v[2] for v in verts) == pytest.approx(0, abs=1e-6)
+
+
+def test_a_collada_polylist_is_fanned_into_triangles(tmp_path):
+    f = _dae(tmp_path)
+    t = f.read_text(encoding="utf-8")
+    quad = '<polylist count="1"><input semantic="VERTEX" source="#v" offset="0"/><vcount>4</vcount><p>0 1 3 2</p></polylist>'
+    f.write_text(t[:t.index("<triangles")] + quad + t[t.index("</mesh>"):], encoding="utf-8")
+    assert len(meshpack.triangles(f)) == 2
+
+
+def test_an_obj_and_an_sdf_mesh_visual_with_scale_and_pose(tmp_path):
+    from skippyverse import measure as M
+    (tmp_path / "meshes").mkdir()
+    (tmp_path / "meshes" / "x.obj").write_text("v 0 0 0\nv 1 0 0\nv 1 1 0\nv 0 1 0\nv 0 0 2\nf 1 2 3 4\nf 1 2 5\n", encoding="utf-8")
+    sdf = ('<sdf><model name="m"><link name="l"><visual name="v"><pose>0 0 1 0 0 0</pose><geometry><mesh><uri>model://m/meshes/x.obj</uri>'
+           '<scale>2 2 2</scale></mesh></geometry></visual></link></model></sdf>')
+    p = _sdf(tmp_path, sdf)
+    assert meshpack.sdf_drawable(p) is True
+    verts, faces, _ = meshpack.unpack(meshpack.pack(p, target_tris=100)[0])
+    ext = [max(v[i] for v in verts) - min(v[i] for v in verts) for i in range(3)]
+    assert len(faces) == 3 and ext == pytest.approx(list(M.measure_sdf(p, tmp_path).size_whd()), abs=1e-3) and ext == pytest.approx([2, 2, 4], abs=1e-3)
+    assert meshpack.sdf_drawable(_sdf(tmp_path, sdf.replace("x.obj", "missing.obj"))) is False
+    assert meshpack.sdf_drawable(_sdf(tmp_path, sdf.replace("x.obj", "x.stl"))) is False, "STL is not read"
+
+
+# ------------------------------------------------------------------------------------------------------- compressed glTF (NASA's Apollo Lunar Module is Draco)
+def _draco_gltf(tmp_path):
+    p = _gltf(tmp_path)
+    doc = json.loads(p.read_text(encoding="utf-8"))
+    doc["extensionsUsed"] = doc["extensionsRequired"] = ["KHR_draco_mesh_compression"]
+    doc["meshes"][0]["primitives"][0]["extensions"] = {"KHR_draco_mesh_compression": {"bufferView": 0, "attributes": {"POSITION": 0}}}
+    p.write_text(json.dumps(doc), encoding="utf-8")
+    return p
+
+
+def test_a_draco_compressed_gltf_is_not_readable_and_says_why(tmp_path):
+    from skippyverse import measure as M
+    assert meshpack.gltf_readable(_gltf(tmp_path)) is True
+    d = _draco_gltf(tmp_path)
+    assert meshpack.gltf_readable(d) is False
+    with pytest.raises(M.MeasureError, match="Draco"):
+        meshpack.pack(d, target_tris=100)
+    assert meshpack.gltf_readable(tmp_path / "missing.glb") is False

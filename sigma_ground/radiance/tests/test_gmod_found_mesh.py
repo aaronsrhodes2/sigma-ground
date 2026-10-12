@@ -130,14 +130,121 @@ def test_pack_with_the_lzma_codec_round_trips_and_is_smaller_than_the_raw_bytes(
 
 
 # ============================================================================================================ the bridge half
-def test_resolve_offers_a_mesh_only_for_a_poly_haven_card_and_says_its_key(ix):
+def test_resolve_offers_a_mesh_for_a_glTF_card_and_says_its_key(ix):
     r = skippy_bridge.resolve_found("garden gnome")
     assert r["place"] is True and r["mesh"] == {"key": skippy_bridge.mesh_key(TALL), "format": "svm1-lzma"}
     assert r["kind"]["variants"][0]["found"]["mesh"] == r["mesh"]["key"]
     assert len(r["mesh"]["key"]) == 16
     fuel = skippy_bridge.resolve_found("fuel widget")
-    assert fuel["place"] is True and fuel["mesh"] is None and "mesh" not in fuel["kind"]["variants"][0]["found"], "a Fuel (Collada) card stays a box"
+    assert fuel["place"] is True and fuel["mesh"] is None and "mesh" not in fuel["kind"]["variants"][0]["found"], "a Fuel card that was never downloaded stays a box (its file is not known)"
     assert skippy_bridge.resolve_found("dragon")["mesh"] is None
+
+
+# ------------------------------------------------------------------------------------------------------- NASA and Gazebo Fuel cards
+NASA_PATH = "3D Models/Gizmo/Gizmo.glb"
+FUEL_SHELF = ('<sdf version="1.5"><model name="Shelf"><link name="l"><visual name="a"><pose>0 0 0.5 0 0 0</pose><geometry><box><size>0.8 0.3 1.0</size></box></geometry>'
+              '<material><diffuse>0.2 0.4 0.6</diffuse></material></visual><collision name="c"><geometry><box><size>5 5 5</size></box></geometry></collision></link></model></sdf>')
+FUEL_MESHED = FUEL_SHELF.replace("</link>", '<visual name="m"><geometry><mesh><uri>model://Dresser/meshes/y.stl</uri></mesh></geometry></visual></link>')
+FUEL_OBJ = FUEL_SHELF.replace("</link>", '<visual name="m"><geometry><mesh><uri>model://Locker/meshes/x.obj</uri></mesh></geometry></visual></link>')
+
+
+OBJ_TRI = "v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3\n"
+
+
+STL_TRI = (bytes(80) + struct.pack("<I", 1) + struct.pack("<12fH", 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0))
+
+
+def _zip(files):
+    import io
+    import zipfile
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as z:
+        for k, v in files.items():
+            z.writestr(k, v)
+    return buf.getvalue()
+
+
+@pytest.fixture()
+def real_sources(tmp_path, monkeypatch):
+    """A NASA glb (a 2 x 1 x 3 box in its own units), and two Fuel models: one of primitives, one that needs an OBJ/Collada mesh."""
+    from test_skippyverse_acquire import glb
+    prov_nasa = {"asset": NASA_PATH}
+    nasa = found_card("nasa gizmo", None, source="NASA 3D Resources", lic="PD-USGOV", url="https://github.com/nasa/NASA-3D-Resources")
+    nasa["provenance"].update(prov_nasa)
+    shelf = found_card("test shelf", None, source="Gazebo Fuel", lic="CC0", url="https://fuel.gazebosim.org/O/models/Shelf")
+    meshed = found_card("test dresser", None, source="Gazebo Fuel", lic="CC0", url="https://fuel.gazebosim.org/O/models/Dresser")
+    obj_model = found_card("test locker", None, source="Gazebo Fuel", lic="CC0", url="https://fuel.gazebosim.org/O/models/Locker")
+    routes = {A.nasa_url(NASA_PATH): glb([{"mesh": 0}]),
+              A.fuel_url("O", "Shelf"): _zip({"model.config": "<model/>", "model.sdf": FUEL_SHELF}),
+              A.fuel_url("O", "Locker"): _zip({"model.sdf": FUEL_OBJ, "meshes/x.obj": OBJ_TRI}),
+              A.fuel_url("O", "Dresser"): _zip({"model.sdf": FUEL_MESHED, "meshes/x.obj": OBJ_TRI, "meshes/y.stl": STL_TRI})}
+    IX.build_index([nasa, shelf, meshed, obj_model], tmp_path / "ix2", synonym_groups=[])
+    monkeypatch.setattr(skippy_bridge, "FOUND_INDEX", IX.load_index(tmp_path / "ix2", shared=True))
+    f = Fetch(routes)
+    monkeypatch.setattr(skippy_bridge, "FOUND_FETCHER", f)
+    monkeypatch.setattr(skippy_bridge, "FOUND_ACQUIRER", None)
+    monkeypatch.setattr(skippy_bridge, "FOUND_FETCH", True)
+    monkeypatch.setattr(skippy_bridge, "MESH_CACHE_DIR", tmp_path / "assets")
+    monkeypatch.setattr(A, "DEFAULT_CACHE", tmp_path / "assets")
+    monkeypatch.setattr(skippy_bridge, "MESH_PACKED", {})
+    monkeypatch.setattr(skippy_bridge, "GATE", skippy_bridge.Gate())
+    return f
+
+
+def test_a_nasa_card_gets_a_mesh_at_the_size_the_card_was_given(real_sources):
+    r = skippy_bridge.resolve_found("nasa gizmo")
+    assert r["place"] is True and r["card"]["size_m"]["basis"] == "guessed"
+    assert r["mesh"] and r["kind"]["variants"][0]["found"]["mesh"] == r["mesh"]["key"]
+    p = skippy_bridge.mesh_payload("found.nasa-3d-resources.nasa-gizmo", r["mesh"]["key"])
+    sz = r["card"]["size_m"]
+    assert p["bbox_m"] == pytest.approx([sz["w"], sz["d"], sz["h"]], abs=1e-3), "the picture is as big as the box the card stands as"
+
+
+def test_a_draco_compressed_nasa_glb_stays_a_box_and_is_never_offered(real_sources, monkeypatch):
+    import struct as st
+    doc = {"asset": {"version": "2.0"}, "extensionsUsed": ["KHR_draco_mesh_compression"], "extensionsRequired": ["KHR_draco_mesh_compression"],
+           "scenes": [{"nodes": [0]}], "nodes": [{"mesh": 0}], "meshes": [{"primitives": [{"attributes": {"POSITION": 0}, "extensions": {"KHR_draco_mesh_compression": {}}}]}],
+           "accessors": [{"componentType": 5126, "count": 8, "type": "VEC3", "min": [0, 0, 0], "max": [2, 1, 3]}]}
+    js = json.dumps(doc).encode()
+    js += b" " * (-len(js) % 4)
+    real_sources.routes[A.nasa_url(NASA_PATH)] = b"glTF" + st.pack("<II", 2, 20 + len(js)) + st.pack("<II", len(js), 0x4E4F534A) + js
+    r = skippy_bridge.resolve_found("nasa gizmo")
+    assert r["place"] is True and r["mesh"] is None, "the box is placed (the size is in the file's accessors), but no mesh is promised for geometry we cannot read"
+    with pytest.raises(ValueError, match="no mesh"):
+        skippy_bridge.mesh_payload("found.nasa-3d-resources.nasa-gizmo", skippy_bridge.mesh_key("found.nasa-3d-resources.nasa-gizmo"))
+
+
+def test_a_nasa_card_whose_size_is_a_verified_published_length_is_scaled_to_it(real_sources, monkeypatch):
+    monkeypatch.setattr(A, "load_nasa_sizes", lambda path=None: {"Gizmo": {"longest_m": 30.0, "source_url": "https://nasa.example/fact", "verified": True}})
+    r = skippy_bridge.resolve_found("nasa gizmo")
+    assert r["card"]["size_m"]["basis"] == "sourced"
+    p = skippy_bridge.mesh_payload("found.nasa-3d-resources.nasa-gizmo", r["mesh"]["key"])
+    assert max(p["bbox_m"]) == pytest.approx(30.0, abs=0.05), "the glb's own units (3) became the published 30 m"
+    assert p["bbox_m"] == pytest.approx([r["card"]["size_m"][k] for k in ("w", "d", "h")], abs=0.05)
+
+
+def test_a_fuel_model_of_primitives_gets_a_mesh_and_one_with_a_collada_mesh_stays_a_box(real_sources):
+    shelf = skippy_bridge.resolve_found("test shelf")
+    assert shelf["place"] is True and shelf["fetched"] is True and shelf["mesh"], "sized by the one download, then offered"
+    assert shelf["card"]["size_m"]["basis"] == "measured"
+    p = skippy_bridge.mesh_payload("found.gazebo-fuel.test-shelf", shelf["mesh"]["key"])
+    n_calls = len(real_sources.calls)
+    assert p["tris"] == 12 and p["bbox_m"] == pytest.approx([0.8, 0.3, 1.0], abs=1e-3), "the collision box (5 m) is not drawn"
+    verts, faces, cols = meshpack.unpack(base64.b64decode(p["b64"]))
+    assert set(cols) == {(51, 102, 153)}
+    assert len(real_sources.calls) == n_calls, "the /mesh used the file the /resolve had already fetched"
+    locker = skippy_bridge.resolve_found("test locker")
+    assert locker["place"] is True and locker["mesh"], "an OBJ mesh visual is read"
+    assert skippy_bridge.mesh_payload("found.gazebo-fuel.test-locker", locker["mesh"]["key"])["tris"] == 12 + 1
+    dresser = skippy_bridge.resolve_found("test dresser")
+    assert dresser["place"] is True and dresser["mesh"] is None and "mesh" not in dresser["kind"]["variants"][0]["found"], "an STL mesh is not read: the box stays"
+    with pytest.raises(ValueError, match="no mesh"):
+        skippy_bridge.mesh_payload("found.gazebo-fuel.test-dresser", skippy_bridge.mesh_key("found.gazebo-fuel.test-dresser"))
+
+
+def test_a_fuel_card_that_was_never_downloaded_is_not_offered_a_mesh(real_sources):
+    ix = skippy_bridge.found_index()
+    assert skippy_bridge.mesh_offer(ix.card("found.gazebo-fuel.test-shelf")) is None
 
 
 def test_the_mesh_endpoint_downloads_once_packs_once_and_never_fetches_a_texture(ix, fetch):
@@ -157,7 +264,6 @@ def test_the_mesh_endpoint_downloads_once_packs_once_and_never_fetches_a_texture
 @pytest.mark.parametrize("card,key,why", [
     (TALL, "0" * 16, "key"),                                            # not this card's key
     ("found.gazebo-fuel.fuel-widget", None, "no mesh"),                   # a card with no mesh offer
-    ("found.nasa-3d-resources.nasa-gizmo", None, "no mesh"),
     ("found.poly-haven.nothing-here", None, "no mesh"),                   # a card the index does not have
     ("../../etc/passwd", "0" * 16, "card"),
     (12, "0" * 16, "card"),

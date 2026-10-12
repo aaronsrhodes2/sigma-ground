@@ -1301,7 +1301,8 @@ def resolve_found(noun: str, audience: str = "game", cancel: Cancel | None = Non
 # one form that reaches it whole whatever the bytes are (a binary body would depend on how the engine treats NULs and encodings).
 MESH_TRIS = 1500                                   # the triangle target handed to meshpack
 MESH_MAX_BYTES = 256 * 1024                        # a payload over this is never sent
-MESH_SOURCES = ("Poly Haven",)                     # glTF in metres by Poly Haven's convention; NASA units are guessed and Fuel is Collada
+MESH_SOURCES = ("Poly Haven", "NASA 3D Resources")   # glTF/GLB (NASA: only once downloaded and not Draco-compressed): Poly Haven's are metres by its convention; NASA's follow the card's size (guessed units, or scaled to a verified published length)
+MESH_FUEL = "Gazebo Fuel"                          # an SDF of box/sphere/cylinder/Collada/OBJ visuals; a model with an STL (or glTF) mesh stays a box
 MESH_FORMAT = "svm1-lzma"
 MESH_CACHE_MAX = 32
 MESH_CACHE_DIR = None                              # tests point acquire at a temporary directory; None = the real cache
@@ -1314,11 +1315,29 @@ def mesh_key(card_id: str) -> str:
     return hashlib.sha1(f"{card_id}|{MESH_FORMAT}|{MESH_TRIS}".encode()).hexdigest()[:16]
 
 
+def _asset_drawable(card: dict) -> bool:
+    """A Gazebo Fuel or NASA card's mesh is offered only once its download is in the cache (the /resolve that sized the card put it there) and
+    is readable: a Fuel SDF of box/sphere/cylinder/Collada/OBJ visuals, a NASA glb whose geometry is not Draco/meshopt-compressed."""
+    acquire, _, _, _ = _skippyverse()
+    from skippyverse import meshpack
+    try:
+        d = acquire._safe_dir(MESH_CACHE_DIR or acquire.DEFAULT_CACHE, card["id"])
+        info = json.loads((d / "acquired.json").read_text(encoding="utf-8"))
+        if info.get("sdf"):
+            return meshpack.sdf_drawable(d / info["sdf"])
+        return bool(info.get("mesh")) and meshpack.gltf_readable(d / info["mesh"])
+    except Exception:
+        return False
+
+
 def mesh_offer(card: dict) -> dict | None:
     """The mesh the game may ask for on this card, or None (the box is all there will be)."""
-    if not card or (card.get("provenance") or {}).get("source") not in MESH_SOURCES:
+    src = (card.get("provenance") or {}).get("source") if card else None
+    if src not in MESH_SOURCES and src != MESH_FUEL:
         return None
     if not card.get("redistributable") or (card.get("visual") or {}).get("class") != "found":
+        return None
+    if src != "Poly Haven" and not _asset_drawable(card):
         return None
     return {"key": mesh_key(card["id"]), "format": MESH_FORMAT}
 
@@ -1400,15 +1419,18 @@ def mesh_payload(card_id: str, key: str, cancel: Cancel | None = None, deadline:
         with GATE.slot("fetch", cancel):                                       # a second download waits a second, then gets 503
             prog.set("fetching")
             asset = acquire.acquire(card, fetch=fetch, cache_dir=MESH_CACHE_DIR)
-        path = Path(asset["dir"]) / (asset.get("mesh") or "")
-        if not asset.get("mesh") or path.suffix.lower() not in (".gltf", ".glb"):
-            raise ValueError("the asset is not a glTF")
+        path = Path(asset["dir"]) / (asset.get("mesh") or asset.get("sdf") or "")
+        if path.suffix.lower() not in (".gltf", ".glb", ".sdf") or path.name == "":
+            raise ValueError("the asset is not a glTF or an SDF of primitives")
+        scale = 1.0
+        if (card.get("provenance") or {}).get("source") == "NASA 3D Resources":     # a verified published length scales the file's own units
+            scale = float(acquire.measure_acquired(card, asset)["measurement"].get("scale_to_m", 1.0))
         prog.set("packing")
         with _mesh_lock:
             if cancel is not None and cancel.is_set():
                 raise Cancelled()
             prog.t_stage = time.monotonic()                                    # (the wait for the pack lock is not packing)
-            blob, info = meshpack.pack(path, MESH_TRIS, "lzma")
+            blob, info = meshpack.pack(path, MESH_TRIS, "lzma", scale=scale)
         if len(blob) > MESH_MAX_BYTES:
             raise ValueError(f"the payload is {len(blob)} bytes, over the {MESH_MAX_BYTES} byte cap")
     except BaseException as e:
