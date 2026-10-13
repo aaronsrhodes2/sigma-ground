@@ -11,7 +11,7 @@ the voice can summon. No new physics domains; as much of the construct's own phy
 
 | # | Area | What it means | State |
 |---|---|---|---|
-| A1 | **World constants** | One config file for the construct's physics (gravity, blanket air drag as per-object damping, restitution/friction by material, time scale), each value with its source; Aaron's targets as the starting point (about -30% gravity acceleration, 2% blanket air friction). Values computed by Mentat when it is back, not by hand. | to build |
+| A1 | **World constants** | The construct's physics from REAL-WORLD values only, each with its source: Earth gravity from the sigma-ground library (converted with the stage scale, 1 HU = 1.905 cm) and real per-object aerodynamic drag (1/2 rho Cd A v^2 from the object's real size and shape class). No gameplay fudge numbers and no blanket damping. Presets only for real places and states (moon, mars, jupiter, free fall). Player movement and jump height are engine game-feel, not claimed as physics. Values come from the library, never typed by hand (Mentat when it is back). | running |
 | A2 | **Water** | Pools, ponds, a sea, summoned by voice: a rendered surface (our own, no game content), buoyancy and drag from each object's real density (cards carry size and mass), splashes, swimming. Real fluid simulation (particles) is Phase B. | to build |
 | A3 | **Stage / environment summoning** | "Make it a beach / a meadow / night": ground, sky and light as summonable things (CC0 textures, a sky dome), not a fixed map. | to build |
 | A4 | **Objects on demand** | 4,100 free models streamed by the beam protocol (done); colour and lighting look pass (running: LK2a); caches (client and packed payloads); Draco (done). | done / polishing |
