@@ -27,6 +27,12 @@ Not yet isolated: why all the giants improve together (a plausible mechanism is 
 Limits: 8 cases, three vintages, three start years; the other ~340 asteroids of the DE440 model and Kuiper-belt objects are still missing; the asteroid states are test-particle integrations from 2026 elements.
 Next check: a wider set of starts and all vintages at the converged step (about 8 hours for 24 more cases).
 
+### C1 update (2026-10-13): confirmed on 24 further cases across all 7 vintages
+24 propagations (DE403 to DE432, start years 2000 to 2015), converged step, seven asteroids on, against the matching dt = 0.05 no-asteroid baseline (Mars, Venus, Earth and Jupiter to Pluto are step-converged at 0.05; Mercury and the Moon are excluded). 0 failures.
+Median gap to the vintage's own continuation at +5 yr, baseline -> with asteroids (runs improved of 23 that reach +5 yr):
+Mars 2.43 -> 0.84 km (22), Venus 0.51 -> 0.42 (21), Earth 0.73 -> 0.46 (21), Jupiter 3.61 -> 1.21 (16), Saturn 2.00 -> 0.41 (21), Uranus 1.51 -> 0.22 (23), Neptune 1.48 -> 0.23 (23), Pluto 1.51 -> 0.24 (23).
+Mars improves in every vintage (DE405 4.37 -> 2.03, DE421 0.68 -> 0.42, DE432 3.03 -> 0.63). C1 is supported; the mechanism for the giants is still not isolated.
+
 ## Open candidates (not yet tested)
 - C2 lunar figure and Earth-Moon tides (Moon 1.8 km, Earth 0.7 km): lunar J2 and sectoral C22, Earth tidal phase lag; needs lunar gravity coefficients (published, to be checked against the kernel).
 - C3 solar oblateness and mass loss, higher-order relativity (Mercury 0.44 km, Venus 0.57 km).
