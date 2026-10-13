@@ -125,6 +125,7 @@ def run_one(args):
     system = NBodySystem(bodies, toggles=toggles, solar_luminosity_W=rs._L_SUN_W if toggles.srp else 0.0, parent_attractor_indices=None)
     out = {n: {} for n in ORDER if n != "Sun"}
     pole_days = args[9] if len(args) > 9 else None
+    rtn_wanted = bool(args[10]) if len(args) > 10 else False
     pole_idx = [(i, n) for i, n in enumerate(ORDER) if pole_days and n in rs._IAU_POLE_MODELS and bodies[i].j2 != 0.0]   # bodies whose zonal axis matters
     pole_every = max(1, int(round(pole_days / dt_days))) if pole_days else 0
     steps_done = 0
@@ -158,6 +159,16 @@ def run_one(args):
             truth = pos(kt, n, target) - pos(kt, "Sun", target)
             out[n][k] = {"eO": float(np.linalg.norm(ours - truth)), "eV": float(np.linalg.norm(v_own - truth)),
                          "dyn": float(np.linalg.norm(ours - v_own)), "e0": e0[n]}
+            if n == "Moon" and rtn_wanted:                            # the gap as radial / along-track / cross-track about the Earth, in the vintage's own orbit frame
+                pm, vm = state(kv, "Moon", target)
+                pe, ve = state(kv, "Earth", target)
+                r_g, v_g = pm - pe, vm - ve
+                ours_geo = system.bodies[i].position_m / KM - system.bodies[ORDER.index("Earth")].position_m / KM
+                rh = r_g / np.linalg.norm(r_g)
+                nh = np.cross(r_g, v_g) / np.linalg.norm(np.cross(r_g, v_g))
+                th = np.cross(nh, rh)
+                d = ours_geo - r_g
+                out[n][k]["rtn_km"] = [float(d @ rh), float(d @ th), float(d @ nh)]
     return {"vintage": vname, "start": key, "jd": e_jd, "bodies": out}
 
 
@@ -171,6 +182,7 @@ def main() -> int:
     ap.add_argument("--worker", nargs=2, metavar=("JOB", "RESULT"), help=argparse.SUPPRESS)
     ap.add_argument("--asteroids", type=Path, default=None, help="asteroid_perturber_states_v2physics.json: add the heavy asteroids as massive bodies")
     ap.add_argument("--pole-update-days", type=float, default=None, help="candidate C2: refresh the IAU spin axes of the zonal bodies every this many days")
+    ap.add_argument("--sample-days", type=float, default=None, help="sample every this many days (residual atlas) instead of yearly; also records the Moon gap as R/T/N")
     ap.add_argument("--cases", nargs="*", default=None, help="explicit VINTAGE:start cases, e.g. DE405:j2001 DE421:j2009 (overrides --only-vintage/--starts)")
     ap.add_argument("--only-vintage", nargs="*", default=None)
     ap.add_argument("--starts", nargs="*", default=None, help="restrict start snapshots, e.g. j2005 j2010")
@@ -190,10 +202,11 @@ def main() -> int:
     ast = json.loads(a.asteroids.read_text()) if a.asteroids else None
     def ast_for(key):
         return {n: {"gm_km3_s2": d["gm_km3_s2"], "radius_km": d["radius_km"], "state": d["states"][key]} for n, d in ast["asteroids"].items()} if ast else None
+    leads = [1, 2, 3, 4, 5] if not a.sample_days else [round(i * a.sample_days / 365.25, 9) for i in range(1, int(5 * 365.25 / a.sample_days) + 1)]
     jobs = []
     if a.validate:
         for k in keys:
-            jobs.append(("DE440(control)", None, k, de["snapshots"][k]["epoch"]["jd_tdb"], a.dt_days, [1, 2, 3, 4, 5], None, de["snapshots"][k], ast_for(k), a.pole_update_days))
+            jobs.append(("DE440(control)", None, k, de["snapshots"][k]["epoch"]["jd_tdb"], a.dt_days, leads, None, de["snapshots"][k], ast_for(k), a.pole_update_days, bool(a.sample_days)))
     else:
         import datetime as dt
         wanted = {tuple(c.split(":")) for c in a.cases} if a.cases else None
@@ -205,7 +218,7 @@ def main() -> int:
                     continue
                 jd = de["snapshots"][k]["epoch"]["jd_tdb"]
                 if jd >= rel.toordinal() + 1721424.5:
-                    jobs.append((name, f, k, jd, a.dt_days, [1, 2, 3, 4, 5], None, de["snapshots"][k], ast_for(k), a.pole_update_days))
+                    jobs.append((name, f, k, jd, a.dt_days, leads, None, de["snapshots"][k], ast_for(k), a.pole_update_days, bool(a.sample_days)))
     tag = "validate" if a.validate else "contest"
     a.out.mkdir(parents=True, exist_ok=True)
     part = a.out / f"fair_contest_{tag}.jsonl"                  # one finished propagation per line: a killed run resumes where it stopped
