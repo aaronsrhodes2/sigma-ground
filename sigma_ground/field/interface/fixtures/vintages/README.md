@@ -45,3 +45,16 @@ were already close to DE440's, while ours drifts away: Moon 0.9 -> 3.6 km (about
 So our remaining model error over 5 years is of order 1-4 km for those bodies, and it is physics we lack (the candidates: asteroid perturbations, especially for Mars; lunar figure and Earth-Moon tides; solar oblateness and mass loss), not initial conditions.
 **Wording to use:** "km-level dynamics parity with JPL's historical model over 5 years (gap <= 4 km), with a known, quantified deficit of 1-3 km on the Moon, Mars, Earth and Mercury." Not "mathematical parity".
 Caveats: DE440 is the truth reference and is itself a fit (data end about 2020); our model has no asteroids; the reduced model carries the giants as system barycentres.
+
+## Step-size convergence (2026-10-12): separating numerics from physics
+Eight of the contest cases (DE405/DE410/DE421 x J2006/J2010/J2013) were rerun at half the step (0.025 d against 0.05 d). Median of the "dynamics gap" (ours vs the vintage's own continuation, km):
+
+| body | +1 yr (0.05 -> 0.025) | +3 yr | +5 yr |
+|---|---|---|---|
+| Moon | 0.80 -> 0.40 | 1.90 -> 0.96 | 3.17 -> 1.82 |
+| Mercury | 0.27 -> 0.08 | 0.66 -> 0.24 | 1.25 -> 0.46 |
+| Venus, Earth, Mars, Jupiter | unchanged to 0.01 km | unchanged | unchanged |
+
+Reading: Venus, Earth, Mars and Jupiter are converged at 0.05 d, so their gaps (Mars 2.5 km, Earth 0.7, Venus 0.6 at +5 yr) are PHYSICS we lack. The Moon and Mercury were not converged:
+fitting gap(dt) = floor + c dt^4 (a fourth-order scheme) gives numerical errors of about 1.4 km (Moon) and 0.8 km (Mercury) at 0.05 d and 0.09 and 0.05 km at 0.025 d, leaving physics floors of about
+**1.7 km (Moon), 0.4 km (Mercury) at +5 yr**. The scheme keeps its order; the standard step was too coarse for the fast inner pair. (The engine's hierarchical stepper is documented broken, so the fix is the global step.)

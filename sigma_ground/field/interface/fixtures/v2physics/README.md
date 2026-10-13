@@ -77,3 +77,8 @@ Ganymede (7.15 d), Miranda, Ariel, Umbriel. Today Table 2 lists only the first s
 ## Not a claim of beating JPL
 Our forecasts start from the DE440 state at the issue date (perfect initial conditions), so these numbers measure integration error. A JPL vintage also carried its own orbit-determination error (see `../vintages/README.md`).
 DE440 itself is a fit whose data end about 2020; targets after 2020 (windows from J2016 on) are DE440's own forecast, so they are agreement with DE440, not with measurements.
+
+## Correction note (2026-10-12): inner-body errors in r2 are partly numerical
+The r2 numbers above were taken at dt = 0.05 d. The step-size test in `../vintages/README.md` shows that at that step the Moon carries about 1.4 km and Mercury about 0.8 km of NUMERICAL
+error at +5 yr (fourth-order fit), against 0.09 and 0.05 km at 0.025 d. So r2's Moon (3.9 km at +5 yr) and Mercury (1.35 km) are upper bounds, not converged physics errors; Venus, Earth, Mars and Jupiter are unaffected.
+A reduced-system rerun of the inner bodies at 0.025 d (cheap, the contest harness) is the way to restate them; r2 itself stays as recorded.
