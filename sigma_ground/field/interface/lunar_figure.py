@@ -120,5 +120,5 @@ class LockedMoonSystem(NBodySystem):
         acc = super().compute_accelerations()
         if self.c22 == 0.0:
             return acc
-        jd = None if self.jd0_tdb is None else self.jd0_tdb + self._time / 86400.0
+        jd = None if self.jd0_tdb is None else self.jd0_tdb + self._t_eval / 86400.0      # the instant of the positions being evaluated (the sub-step time inside a step)
         return acc + c22_extra_accelerations(self.bodies, self.moon_index, self.earth_index, self.c22, self.ref_radius_m, jd)

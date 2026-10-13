@@ -338,6 +338,10 @@ class NBodySystem:
         self.softening_m        = softening_m
         self.solar_luminosity_W = solar_luminosity_W
         self._time              = 0.0
+        # Time (s since the start) of the positions at which forces are being evaluated. Equals _time outside a Forest-Ruth step; inside one it
+        # advances with the drifts (the three force evaluations see t + theta/2 dt, t + dt/2, t + dt - theta/2 dt), so a time-dependent force
+        # (a rotating figure, a prescribed ephemeris) is evaluated at the right instant instead of at the step's start (fixed 2026-10-13).
+        self._t_eval            = 0.0
         # GW damping: velocity change not yet representable in the bodies' doubles (compensated sum, see
         # _apply_gw_damping). Below half an ulp of the velocities, so it never changes reported quantities.
         self._gw_dv_residual    = np.zeros((2, 3))
@@ -911,14 +915,17 @@ class NBodySystem:
         c = _FR_C
         d = _FR_D
         velocity_dependent = self._has_velocity_dependent_forces()
+        elapsed = [0.0]                                   # time since the start of this step, advanced by the drifts
 
         def _drift(frac: float) -> None:
             self.bodies = [
                 b.replace(position_m=b.position_m + frac * dt * b.velocity_m_s)
                 for b in self.bodies
             ]
+            elapsed[0] += frac * dt
 
         def _kick(frac: float) -> None:
+            self._t_eval = self._time + elapsed[0]        # the instant of the positions the force is evaluated at
             acc = self.compute_accelerations()
             if velocity_dependent:
                 h_half = 0.5 * frac * dt
@@ -939,6 +946,7 @@ class NBodySystem:
         _drift(c[3])  # drift θ/2
 
         self._time += dt
+        self._t_eval = self._time
 
     # ── RESPA-style force decomposition (per-body dt by force type) ─────
     def compute_fast_accelerations(self) -> NDArray[np.float64]:
