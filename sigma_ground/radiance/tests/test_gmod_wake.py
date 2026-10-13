@@ -338,6 +338,17 @@ def stored(w):
     return w.rt.eval("function() return MOCK.files['mentat/wake_words.json'] end")()
 
 
+def file_of(players):
+    """A wake_words.json as the code writes it (version 2): a LIST of records, the SteamID64 a string value."""
+    return json.dumps({"version": 2, "players": [{"sid": k, "names": v} for k, v in players.items()]})
+
+
+def stored_names(w):
+    obj = json.loads(stored(w))
+    assert isinstance(obj["players"], list) and all(isinstance(r["sid"], str) for r in obj["players"])
+    return {r["sid"]: r["names"] for r in obj["players"]}
+
+
 # ------------------------------------------------------------------------------------------------ storage and the commands
 def test_the_default_is_skippy_and_skippy_still_works():
     w = make_world()
@@ -660,7 +671,7 @@ def test_a_non_latin_name_is_added_persisted_sent_and_wakes_him_by_chat():
     assert lamps(w, A) == 2
     say(w, p, "алеке, add a lamp")                                        # a slip: no fuzzy matching outside Latin
     assert lamps(w, A) == 2
-    assert json.loads(stored(w))["players"][A] == ["skippy", "алекс"]
+    assert stored_names(w)[A] == ["skippy", "алекс"]
     w2 = make_world(files={FILE: stored(w)})
     p2 = w2.player(A)
     assert names_of(w2, p2) == ["skippy", "алекс"]
@@ -695,8 +706,8 @@ def test_the_lists_survive_a_restart():
     ask(w, a, "answer to Big Tony")
     ask(w, b, "only answer to Rex")
     raw = stored(w)
-    assert raw and json.loads(raw)["players"][A] == ["skippy", "asshole", "big tony"]
-    assert w.rt.eval("function() return MOCK.files['mentat/wake_words.tmp'] end")() is None      # the temp file is gone
+    assert raw and stored_names(w)[A] == ["skippy", "asshole", "big tony"]
+    assert w.rt.eval("function() return MOCK.files['mentat/wake_words.tmp'] end")() is None      # no temp file: the engine refuses that extension
     w2 = make_world(files={FILE: raw})
     a2, b2 = w2.player(A), w2.player(B)
     assert names_of(w2, a2) == ["skippy", "asshole", "big tony"] and names_of(w2, b2) == ["rex"]
@@ -723,8 +734,8 @@ def test_an_oversized_file_is_ignored():
 
 
 def test_a_half_good_file_keeps_the_good_part_within_the_caps():
-    good = {"players": {A: ["rex", "REX", "Big  Tony", "a", "<x>"] + [f"name{i}" for i in range(20)], B: ["zed"], "oops": ["x"]}}
-    w = make_world(files={FILE: json.dumps(good)})
+    good = {A: ["rex", "REX", "Big  Tony", "a", "<x>"] + [f"name{i}" for i in range(20)], B: ["zed"], "oops": ["x"]}
+    w = make_world(files={FILE: file_of(good)})
     a, b = w.player(A), w.player(B)
     assert names_of(w, a)[:2] == ["rex", "big tony"] and len(names_of(w, a)) <= 8
     assert names_of(w, b) == ["zed"]
@@ -736,7 +747,7 @@ def test_the_stored_file_is_small_and_valid_json():
     for n in ("Rex", "Zed", "Bob"):
         ask(w, p, f"answer to {n}")
     raw = stored(w)
-    assert len(raw) < 500 and json.loads(raw)["version"] == 1
+    assert len(raw) < 500 and json.loads(raw)["version"] == 2 and stored_names(w) == {A: ["skippy", "rex", "zed", "bob"]}
 
 
 # ------------------------------------------------------------------------------------------------ the owner's client
@@ -766,7 +777,7 @@ def test_the_list_goes_to_its_owner_alone_on_every_change_and_on_request():
 
 
 def test_a_player_who_joins_is_sent_their_stored_list():
-    w = make_world(files={FILE: json.dumps({"players": {A: ["rex"]}})})
+    w = make_world(files={FILE: file_of({A: ["rex"]})})
     p = w.player(A)
     w.rt.eval("function(p) hook.Run('PlayerInitialSpawn', p) end")(p)
     w.advance(10)
@@ -898,3 +909,48 @@ def test_the_bridges_skippy_matching_is_unchanged():
     for text, woke, rest in [("Skippy, add a couch", True, "add a couch"), ("hey skippy add a couch", True, "add a couch"),
                              ("skipping rope", False, "skipping rope"), ("add a couch", False, "add a couch")]:
         assert E.strip_wake(text) == (woke, rest)
+
+
+# ------------------------------------------------------------------------------------------------ the engine's persistence rules (found live, 2026-10-12)
+REAL_SID = "76561197989151002"           # same magnitude as a real SteamID64 (past 2^53: a JSON number or key loses its low digits)
+
+
+def test_a_real_size_steamid_survives_a_restart_through_the_strict_engine():
+    """Fail-first: the old code wrote a .tmp file (refused: nothing was ever saved) and keyed the list by SteamID64 (comes back rounded)."""
+    w = make_world()
+    p = w.player(REAL_SID)
+    ask(w, p, "answer to Rex")
+    assert w.rt.eval("function() return MOCK.files['mentat/wake_words.json'] end")() is not None, "the file was written"
+    assert stored_names(w) == {REAL_SID: ["skippy", "rex"]}
+    w2 = make_world(files={FILE: stored(w)})
+    assert names_of(w2, w2.player(REAL_SID)) == ["skippy", "rex"]
+
+
+def test_the_previous_good_copy_is_kept_as_bak_txt_and_used_when_the_main_file_is_damaged():
+    w = make_world()
+    p = w.player(A)
+    ask(w, p, "answer to Rex")
+    ask(w, p, "answer to Zed")
+    bak = w.rt.eval("function() return MOCK.files['mentat/wake_words.bak.txt'] end")()
+    assert bak and json.loads(bak)["players"][0]["names"] == ["skippy", "rex"]
+    w2 = make_world(files={FILE: "{ not json", "mentat/wake_words.bak.txt": bak})
+    assert names_of(w2, w2.player(A)) == ["skippy", "rex"]
+
+
+def test_the_old_object_keyed_file_is_read_without_a_crash_and_its_rounded_keys_are_dropped():
+    """A version 1 file {"players": {sid: [...]}}: under the real engine the keys come back as rounded numbers and cannot be recovered."""
+    w = make_world(files={FILE: json.dumps({"players": {REAL_SID: ["rex"]}})})
+    assert names_of(w, w.player(REAL_SID)) == ["skippy"]
+    assert "rounded SteamID64 key" in " | ".join(str(x) for x in w.rt.eval("MOCK.printed").values())
+
+
+def test_the_mock_is_strict_like_the_engine_by_default():
+    """So no test can pass with code the real engine would silently break (every rule here was measured live: holodeck/persist_probe.py)."""
+    w = make_world()
+    ev = w.rt.eval
+    ev("function() file.Write('mentat/x.tmp', 'x'); file.Write('mentat/x.bak', 'x'); file.Write('mentat/x.jsonl', 'x') end")()
+    assert not ev("function() return file.Exists('mentat/x.tmp') or file.Exists('mentat/x.bak') or file.Exists('mentat/x.jsonl') end")()
+    ev("function() file.Write('mentat/x.bak.txt', 'x'); file.Write('nodir_never_made/x.txt', 'x') end")()
+    assert not ev("function() return file.Exists('nodir_never_made/x.txt') end")(), "a write into a directory nobody created is dropped"
+    assert ev("function() return next(util.JSONToTable('{\"76561197989151002\": 1}')) end")() != "76561197989151002", "a numeric-looking key comes back as a number"
+    assert "e+16" in ev("function() return util.TableToJSON({ n = 76561197989151002 }) end")(), "a SteamID64 stored as a number is rounded"

@@ -3,8 +3,9 @@
 --
 --   * Every player's list is private to them: other players' sentences are never matched against it, and every line Skippy says about
 --     it goes to that player only (Holodeck.Tell: not broadcast, not spoken aloud). The default list is { "skippy" }.
---   * Persisted by SteamID64 in data/mentat/wake_words.json (written through a temp file and read back before it replaces the real one,
---     size-capped, tolerant of corruption: anything unreadable means the default list). At most 8 names a player.
+--   * Persisted by SteamID64 in data/mentat/wake_words.json: a LIST of { sid = "<steamid64 string>", names = {..} } (persist.lua: written directly and
+--     read back, the last good copy in wake_words.bak.txt; size-capped, tolerant of corruption: anything unreadable means the default list;
+--     the old object-keyed form is read, its rounded number keys dropped). At most 8 names a player.
 --   * The server console never shows a name or a name command: every reply about the list is a private Tell (not printed), and the
 --     only line printed is "wake list changed for <steamid64>". Names may be in any script (see wakewords.lua).
 --   * Nothing is refused for being rude. A name is refused only when it would make ORDINARY talk wake him: a command word, an object
@@ -21,9 +22,10 @@
 if not SERVER then return end
 
 local Wake = include("mentat/holodeck/wakewords.lua")
+local Persist = include("mentat/persist.lua")
 local N = { Wake = Wake }
 
-N.FILE, N.TMP = "mentat/wake_words.json", "mentat/wake_words.tmp"
+N.FILE = "mentat/wake_words.json"
 N.MAX_FILE = 2 * 1024 * 1024        -- bytes read or written; a bigger file is not ours
 N.MAX_PLAYERS = 4000                -- players with a custom list kept (the file stays well under MAX_FILE)
 N.REST = 0.4                        -- seconds between two commands of one player
@@ -58,44 +60,51 @@ end
 
 local function is_default(list) return #list == 1 and list[1] == Wake.DEFAULT end
 
---- Read the file; whatever is wrong with it, the answer is a usable table (possibly empty = everybody on the default).
+--- The players of a parsed file: version 2 is a LIST of { sid = "7656...", names = { ... } } (a SteamID64 is only ever a string value);
+--- version 1 was an object keyed by SteamID64, which the engine hands back with number keys (rounded): those entries are dropped and counted.
+local function parse_players(raw)
+  local obj = util.JSONToTable(raw)
+  local players = type(obj) == "table" and type(obj.players) == "table" and obj.players or nil
+  if not players then return nil end
+  local out, count, dropped = {}, 0, 0
+  for k, v in pairs(players) do
+    local sid, list
+    if type(v) == "table" and type(v.sid) == "string" then sid, list = v.sid, v.names
+    elseif type(k) == "string" then sid, list = k, v
+    else dropped = dropped + 1 end
+    if sid and Persist.sid_ok(sid) and count < N.MAX_PLAYERS then
+      local names = clean_list(list)
+      if #names > 0 and not is_default(names) and not out[sid] then out[sid] = names; count = count + 1 end
+    end
+  end
+  Persist.note_dropped("wake words", dropped)
+  return out
+end
+
+--- Read the file (or its .bak.txt copy); whatever is wrong with it, the answer is a usable table (possibly empty = everybody on the default).
 function N.load()
   store = {}
   local raw = file.Read(N.FILE, "DATA")
-  if not raw or raw == "" then return store end
-  if #raw > N.MAX_FILE then
+  if raw and #raw > N.MAX_FILE then
     print("[holodeck] " .. N.FILE .. " is over " .. N.MAX_FILE .. " bytes: ignored, everybody answers to the default name")
     return store
   end
-  local obj = util.JSONToTable(raw)
-  local players = type(obj) == "table" and type(obj.players) == "table" and obj.players or nil
-  if not players then
-    if obj ~= nil or raw ~= "" then print("[holodeck] " .. N.FILE .. " could not be read: everybody answers to the default name") end
-    return store
-  end
-  local count = 0
-  for sid, list in pairs(players) do
-    if type(sid) == "string" and #sid <= 20 and sid:match("^%d+$") and count < N.MAX_PLAYERS then
-      local names = clean_list(list)
-      if #names > 0 and not is_default(names) then store[sid] = names; count = count + 1 end
-    end
-  end
+  local got = Persist.load(N.FILE, parse_players)
+  if got then store = got
+  elseif raw and raw ~= "" then print("[holodeck] " .. N.FILE .. " could not be read: everybody answers to the default name") end
   return store
 end
 
---- Write the file: to a temp file first, read back, and only then over the real one. false when it could not be written.
+--- Write the file directly (the engine refuses temp-file names), read it back, keep the last good copy as .bak.txt. false when it could not be written.
 function N.save()
-  local players, count = {}, 0
-  for sid, list in pairs(store) do
-    if count < N.MAX_PLAYERS then players[sid] = list; count = count + 1 end
+  local list, count = {}, 0
+  for sid, names in pairs(store) do
+    if count < N.MAX_PLAYERS then list[#list + 1] = { sid = sid, names = names }; count = count + 1 end
   end
-  local payload = util.TableToJSON({ version = 1, players = players })
+  table.sort(list, function(x, y) return x.sid < y.sid end)
+  local payload = util.TableToJSON({ version = 2, players = list })
   if not payload or #payload > N.MAX_FILE then print("[holodeck] wake word file too large to write"); return false end
-  file.CreateDir("mentat")
-  file.Write(N.TMP, payload)
-  if file.Read(N.TMP, "DATA") ~= payload then print("[holodeck] wake word file could not be written"); return false end
-  file.Write(N.FILE, payload)
-  file.Delete(N.TMP)
+  if not Persist.write(N.FILE, payload, function(t) return parse_players(t) ~= nil end) then print("[holodeck] wake word file could not be written"); return false end
   return true
 end
 

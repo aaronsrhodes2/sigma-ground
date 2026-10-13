@@ -14,6 +14,7 @@
 --   "mentat_face_img"  UInt8 slot | UInt32 crc | UInt8 chunk (1-based) | UInt8 chunks | UInt16 total bytes | UInt8 r,g,b (skin tone: the head's sides, back and neck)
 --                      | UInt16 bytes in this chunk | Data      one 128x128 JPEG in 8 KB chunks, one chunk per 0.1 s, once per image per player
 -- Wire (client -> server): "mentat_face_want" UInt8 slot (0 = everything the server has) -- late joiners and lost chunks; rate limited.
+local Persist = include("mentat/persist.lua")
 local SVM1 = include("mentat/holodeck/svm1.lua")        -- only for b64decode (the bridge answers in base64)
 
 local Faces = MentatFaces or {}
@@ -112,27 +113,36 @@ local function clean_rec(r)
   return out
 end
 
+-- The file keeps SteamID64s as string VALUES in lists (rec = [{ sid = "7656...", ...fields }], blocked = ["7656...", ...]): used as an object KEY the engine's
+-- util.JSONToTable hands it back as a rounded number. The old keyed form (version 1) is still read; its number keys cannot be recovered and are dropped.
 local function parse_state(txt)
   if type(txt) ~= "string" or txt == "" then return nil end
   local ok, obj = pcall(util.JSONToTable, txt)
   if not ok or type(obj) ~= "table" or type(obj.rec) ~= "table" then return nil end
-  local rec, blocked = {}, {}
-  for sid, r in pairs(obj.rec) do
-    if valid_sid(sid) then
+  local rec, blocked, dropped = {}, {}, 0
+  for k, r in pairs(obj.rec) do
+    local sid = type(r) == "table" and type(r.sid) == "string" and r.sid or (type(k) == "string" and k or nil)
+    if sid == nil then dropped = dropped + 1
+    elseif valid_sid(sid) then
       local c = clean_rec(r)
       if c then rec[sid] = c end
     end
   end
   if type(obj.blocked) == "table" then
-    for sid, v in pairs(obj.blocked) do if valid_sid(sid) and v then blocked[sid] = true end end
+    for k, v in pairs(obj.blocked) do
+      if type(v) == "string" then if valid_sid(v) then blocked[v] = true end
+      elseif v and type(k) == "string" then if valid_sid(k) then blocked[k] = true end
+      elseif v then dropped = dropped + 1 end
+    end
   end
+  Persist.note_dropped("faces", dropped)
   return rec, blocked
 end
 
 function Faces.load()
   Faces.rec, Faces.blocked, Faces.images = {}, {}, {}
   local rec, blocked
-  for _, path in ipairs({ Faces.FILE, Faces.FILE .. ".bak" }) do
+  for _, path in ipairs({ Faces.FILE, Persist.bak_name(Faces.FILE) }) do
     rec, blocked = parse_state(file.Read(path, "DATA"))
     if rec then Faces.loaded_from = path; break end
     if file.Exists(path, "DATA") then Faces.corrupt = (Faces.corrupt or 0) + 1 end
@@ -151,20 +161,18 @@ function Faces.load()
 end
 
 function Faces.save()
-  local out = { version = 1, rec = Faces.rec, blocked = Faces.blocked }
-  local txt = util.TableToJSON(out)
-  if not txt then return false end
-  file.CreateDir("mentat")
-  local old = file.Read(Faces.FILE, "DATA")
-  if old and parse_state(old) then file.Write(Faces.FILE .. ".bak", old) end      -- the last good copy
-  if file.Rename then                                                                -- write whole, then swap: a crash mid-write leaves the old file
-    file.Write(Faces.FILE .. ".tmp", txt)
-    if file.Exists(Faces.FILE, "DATA") then file.Delete(Faces.FILE) end
-    file.Rename(Faces.FILE .. ".tmp", Faces.FILE)
-  else
-    file.Write(Faces.FILE, txt)
+  local rec, blocked = {}, {}
+  for sid, r in pairs(Faces.rec) do
+    local row = { sid = sid }
+    for f, v in pairs(r) do row[f] = v end
+    rec[#rec + 1] = row
   end
-  return true
+  table.sort(rec, function(x, y) return x.sid < y.sid end)
+  for sid, v in pairs(Faces.blocked) do if v then blocked[#blocked + 1] = sid end end
+  table.sort(blocked)
+  local txt = util.TableToJSON({ version = 2, rec = rec, blocked = blocked })
+  if not txt then return false end
+  return Persist.write(Faces.FILE, txt, function(t) return parse_state(t) ~= nil end)      -- direct write + read-back; the last good copy is faces.bak.txt
 end
 
 local function store_image(ans)

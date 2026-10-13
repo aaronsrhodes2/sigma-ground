@@ -495,15 +495,15 @@ def test_the_store_survives_a_restart_and_a_damaged_file_falls_back_then_starts_
     w.rt.execute("MOCK.files['mentat/faces.json'] = '{ not json'")              # the main file is damaged: the last good copy is used
     w.rt.execute('dofile(MOCK.ROOT .. "/mentat/faces_server.lua")')
     assert source(w, B) in ("set", "none")
-    w.rt.execute("MOCK.files['mentat/faces.json'] = '{ not json'; MOCK.files['mentat/faces.json.bak'] = '\\0\\1garbage'")
+    w.rt.execute("MOCK.files['mentat/faces.json'] = '{ not json'; MOCK.files['mentat/faces.bak.txt'] = '\\0\\1garbage'")
     w.rt.execute('dofile(MOCK.ROOT .. "/mentat/faces_server.lua")')
     assert source(w, A) == "none" and w.rt.eval("next(MentatFaces.rec)") is None
 
 
 def test_hand_edited_junk_in_the_store_is_dropped_record_by_record(w):
-    w.rt.execute("""MOCK.files['mentat/faces.json'] = [[{"version":1,"rec":{"123":{"hidden":true},
-      "76561190000000001":{"source":"set","hash":"../../etc/x","crc":5,"skin":[1,2,3]},
-      "76561190000000002":{"hidden":true,"off":true,"optin":true,"junk":[1,2,3]}},"blocked":{"76561190000000003":true,"x":true}}]]""")
+    w.rt.execute("""MOCK.files['mentat/faces.json'] = [[{"version":2,"rec":[{"sid":"123","hidden":true},
+      {"sid":"76561190000000001","source":"set","hash":"../../etc/x","crc":5,"skin":[1,2,3]},
+      {"sid":"76561190000000002","hidden":true,"off":true,"optin":true,"junk":[1,2,3]}],"blocked":["76561190000000003","x"]}]]""")
     w.rt.execute('dofile(MOCK.ROOT .. "/mentat/faces_server.lua")')
     rec = w.rt.eval("MentatFaces.rec")
     assert A not in rec.keys() and "123" not in rec.keys() and B in rec.keys()
@@ -511,11 +511,38 @@ def test_hand_edited_junk_in_the_store_is_dropped_record_by_record(w):
     assert w.rt.eval("function(s) return MentatFaces.blocked[s] end")(C) is True and w.rt.eval("MentatFaces.blocked.x") is None
 
 
-def test_the_store_is_written_whole_then_swapped_when_the_engine_can_rename(w):
-    w.rt.execute("function file.Rename(a, b) MOCK.files[b] = MOCK.files[a]; MOCK.files[a] = nil; MOCK.renamed = (MOCK.renamed or 0) + 1 end")
+def test_the_store_is_written_directly_and_kept_by_the_engine(w):
+    """The engine refuses a .tmp / .bak name: the store goes straight to faces.json, the last good copy to faces.bak.txt."""
     give_default(w, w.player(A))
-    assert w.rt.eval("MOCK.renamed") >= 1 and not w.rt.eval("MOCK.files['mentat/faces.json.tmp'] ~= nil")
-    assert w.rt.eval("MOCK.files['mentat/faces.json'] ~= nil")
+    set_own(w, w.player(B))
+    assert w.rt.eval("MOCK.files['mentat/faces.json'] ~= nil") and w.rt.eval("MOCK.files['mentat/faces.bak.txt'] ~= nil")
+    assert not w.rt.eval("MOCK.files['mentat/faces.json.tmp'] ~= nil") and not w.rt.eval("MOCK.files['mentat/faces.json.bak'] ~= nil")
+    assert faces_sid_values(w) == {A, B}, "SteamID64s are string VALUES in a list, never keys"
+
+
+def faces_sid_values(w):
+    obj = json.loads(w.rt.eval("MOCK.files['mentat/faces.json']"))
+    assert isinstance(obj["rec"], list) and all(isinstance(r["sid"], str) for r in obj["rec"])
+    return {r["sid"] for r in obj["rec"]}
+
+
+def test_a_store_with_real_size_steamids_survives_a_restart_through_the_strict_engine(w):
+    """Fail-first: the old keyed file came back with ROUNDED NUMBER keys (the engine's JSONToTable), so nobody's record survived."""
+    give_default(w, w.player(A))
+    set_own(w, w.player(B))
+    w.rt.execute("MOCK.files['mentat/faces.bak.txt'] = nil")
+    w.rt.execute('dofile(MOCK.ROOT .. "/mentat/faces_server.lua")')
+    assert source(w, A) == "steam" and source(w, B) == "set"
+
+
+def test_an_old_keyed_store_is_read_without_a_crash_and_its_rounded_keys_are_dropped(w):
+    w.rt.execute("""MOCK.files['mentat/faces.json'] = [[{"version":1,"rec":{"76561190000000002":{"hidden":true}},"blocked":{"76561190000000003":true}}]]""")
+    w.rt.execute('dofile(MOCK.ROOT .. "/mentat/faces_server.lua")')      # the strict mock hands the keys back as rounded numbers, like the engine
+    assert w.rt.eval("next(MentatFaces.rec)") is None and w.rt.eval("next(MentatFaces.blocked)") is None
+    assert "rounded SteamID64 key" in " | ".join(str(x) for x in w.rt.eval("MOCK.printed").values())
+    w.rt.execute("MOCK.json_number_keys = false")                         # (a lax reader would still find them: the string keys are accepted)
+    w.rt.execute('dofile(MOCK.ROOT .. "/mentat/faces_server.lua")')
+    assert w.rt.eval("MentatFaces.rec['76561190000000002'].hidden") is True
 
 
 def test_pictures_nobody_wears_any_more_are_deleted(w):

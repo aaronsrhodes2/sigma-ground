@@ -1,0 +1,156 @@
+{
+ "write": {
+  "keys_ignore_conversions": [
+   "number:76561197912345680"
+  ],
+  "phase": "write",
+  "number_roundtrip": "76561197912345680",
+  "checks": {
+   "rule_ext_txt_json_writable": {
+    "ok": true,
+    "evidence": "txt=true json=true"
+   },
+   "faces_file_written": {
+    "ok": true,
+    "evidence": "134 bytes: {\"blocked\":[\"76561197912345678\"],\"version\":2,\"rec\":[{\"sid\":\"76561197912345678\",\"off\":true,\"hidden\":true,\"optin\":true,\"t\":1791871450}]}"
+   },
+   "wake_add_76561197912345678": {
+    "ok": true,
+    "evidence": "true"
+   },
+   "wake_file_written": {
+    "ok": true,
+    "evidence": "137 bytes: {\"version\":2,\"players\":[{\"sid\":\"76561197912345678\",\"names\":[\"skippy\",\"rex678\"]},{\"sid\":\"90071996842377216\",\"names\":[\"skippy\",\"rex216\"]}]}"
+   },
+   "faces_save": {
+    "ok": true,
+    "evidence": "mentat/faces.json"
+   },
+   "journal_file_90071996842377216": {
+    "ok": true,
+    "evidence": "53 bytes: {\"t\":1791871450,\"k\":\"add\",\"name\":\"probecouch\",\"n\":3}\n"
+   },
+   "journal_file_76561197912345678": {
+    "ok": true,
+    "evidence": "53 bytes: {\"t\":1791871450,\"k\":\"add\",\"name\":\"probecouch\",\"n\":3}\n"
+   },
+   "prefs_file_written": {
+    "ok": true,
+    "evidence": "145 bytes: {\"version\":2,\"players\":[{\"sid\":\"76561197912345678\",\"roast\":\"savage\",\"chat\":\"quiet\"},{\"sid\":\"90071996842377216\",\"roast\":\"savage\",\"chat\":\"quiet\"}]}"
+   },
+   "journal_log_76561197912345678": {
+    "ok": true,
+    "evidence": ""
+   },
+   "wake_add_90071996842377216": {
+    "ok": true,
+    "evidence": "true"
+   },
+   "journal_log_90071996842377216": {
+    "ok": true,
+    "evidence": ""
+   },
+   "prefs_save": {
+    "ok": true,
+    "evidence": "mentat/skippy_prefs.json"
+   },
+   "rule_ext_tmp_bak_jsonl_refused": {
+    "ok": true,
+    "evidence": "tmp=false bak=false jsonl=false"
+   },
+   "rule_sid_string_value_survives": {
+    "ok": true,
+    "evidence": "true"
+   },
+   "rule_bak_txt_writable": {
+    "ok": true,
+    "evidence": "true"
+   }
+  },
+  "keys_default": [
+   "number:76561197912345680"
+  ],
+  "sid": "76561197912345678",
+  "sid_value_roundtrip": true,
+  "ext": {
+   "bak": false,
+   "png": true,
+   "log": false,
+   "jpg": true,
+   "txt": true,
+   "csv": true,
+   "bak.txt": true,
+   "md": false,
+   "lua": false,
+   "dat": true,
+   "html": false,
+   "xml": true,
+   "jsonl": false,
+   "ini": false,
+   "cfg": false,
+   "json": true,
+   "tmp": false,
+   "bin": false,
+   "vmt": true,
+   "vtf": true,
+   "jpeg": true,
+   "mp3": true,
+   "wav": true,
+   "ogg": true
+  },
+  "dir_rule": {
+   "write_into_missing_dir": false
+  },
+  "bot_sid": "90071996842377216",
+  "rename_to_tmp": false,
+  "json_text": "{\"num\":76561197912345680.0,\"list\":[{\"sid\":\"76561197912345678\"}],\"players\":{\"76561197912345678\":[1]}}"
+ },
+ "read": {
+  "sid": "76561197912345678",
+  "phase": "read",
+  "legacy_wake_names": [
+   "skippy"
+  ],
+  "checks": {
+   "wake_survived_90071996842377216": {
+    "ok": true,
+    "evidence": "skippy,rex216"
+   },
+   "prefs_survived_90071996842377216": {
+    "ok": true,
+    "evidence": "savage/quiet"
+   },
+   "journal_survived_76561197912345678": {
+    "ok": true,
+    "evidence": "events=1"
+   },
+   "legacy_wake_loads_without_crash": {
+    "ok": true,
+    "evidence": "table: 0xb28cbdf2"
+   },
+   "wake_survived_76561197912345678": {
+    "ok": true,
+    "evidence": "skippy,rex678"
+   },
+   "journal_survived_90071996842377216": {
+    "ok": true,
+    "evidence": "events=1"
+   },
+   "prefs_survived_76561197912345678": {
+    "ok": true,
+    "evidence": "savage/quiet"
+   },
+   "legacy_faces_loads_without_crash": {
+    "ok": true,
+    "evidence": "nil"
+   },
+   "faces_survived_76561197912345678": {
+    "ok": true,
+    "evidence": "rec ok"
+   }
+  },
+  "bot_sid": "90071996842377216",
+  "prefs_loaded_by_server_start": true,
+  "legacy_faces_rec": false
+ }
+}

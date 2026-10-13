@@ -23,6 +23,7 @@ local AvLogic = include("mentat/avatar/logic.lua")        -- the avatar's own ar
 local Anim = include("mentat/avatar/anim.lua")
 local Notes = include("mentat/avatar/notes.lua")
 local Journal = include("mentat/avatar/journal.lua")
+local Persist = include("mentat/persist.lua")
 
 local Dr = Mentat.Director or {}
 Mentat.Director = Dr
@@ -69,32 +70,36 @@ Dr.Log = log
 
 -- ------------------------------------------------------------------------------------------------ private per-player settings
 -- The file is a LIST of records { sid =, roast =, chat =, journal = }, not a table keyed by SteamID64: the engine's util.JSONToTable turns a numeric-looking KEY into a number
--- (and loses its low digits), which a string VALUE never suffers. The temp file is .txt: the engine silently refuses extensions outside its short list (.tmp is one).
-Dr.PREFS_FILE, Dr.PREFS_TMP, Dr.PREFS_MAX = "mentat/skippy_prefs.json", "mentat/skippy_prefs_tmp.txt", 4000
+-- (and loses its low digits), which a string VALUE never suffers. Written through persist.lua: directly and read back (the engine silently refuses temp-file extensions), the last good copy in skippy_prefs.bak.txt.
+Dr.PREFS_FILE, Dr.PREFS_MAX = "mentat/skippy_prefs.json", 4000
 local prefs = {}
 Dr.prefs = prefs
 
 local ROAST_OK = { gentle = true, standard = true, savage = true }
 local CHAT_OK = { quiet = true, normal = true, chatty = true }
 
-function Dr.LoadPrefs()
-  for k in pairs(prefs) do prefs[k] = nil end
-  local raw = file.Read(Dr.PREFS_FILE, "DATA")
-  if not raw or raw == "" or #raw > 2 * 1024 * 1024 then return prefs end
+local function parse_prefs(raw)
   local obj = util.JSONToTable(raw)
   local players = type(obj) == "table" and type(obj.players) == "table" and obj.players or nil
-  if not players then return prefs end
-  local n = 0
+  if not players then return nil end
+  local out, n = {}, 0
   for _, p in ipairs(players) do
     local sid = type(p) == "table" and p.sid
-    if type(sid) == "string" and #sid <= 20 and sid:match("^%d+$") and n < Dr.PREFS_MAX then
+    if Persist.sid_ok(sid) and n < Dr.PREFS_MAX then
       local clean = {}
       if ROAST_OK[p.roast] then clean.roast = p.roast end
       if CHAT_OK[p.chat] then clean.chat = p.chat end
       if p.journal == false then clean.journal = false end
-      if next(clean) then prefs[sid] = clean; n = n + 1 end
+      if next(clean) then out[sid] = clean; n = n + 1 end
     end
   end
+  return out
+end
+
+function Dr.LoadPrefs()
+  for k in pairs(prefs) do prefs[k] = nil end
+  local got = Persist.load(Dr.PREFS_FILE, parse_prefs)
+  if got then for k, v in pairs(got) do prefs[k] = v end end
   return prefs
 end
 
@@ -105,13 +110,8 @@ function Dr.SavePrefs()
   end
   table.sort(list, function(a, b) return a.sid < b.sid end)
   local payload = util.TableToJSON({ version = 2, players = list })
-  if not payload or #payload > 2 * 1024 * 1024 then return false end
-  file.CreateDir("mentat")
-  file.Write(Dr.PREFS_TMP, payload)
-  if file.Read(Dr.PREFS_TMP, "DATA") ~= payload then return false end
-  file.Write(Dr.PREFS_FILE, payload)
-  file.Delete(Dr.PREFS_TMP)
-  return true
+  if not payload then return false end
+  return Persist.write(Dr.PREFS_FILE, payload, function(t) return parse_prefs(t) ~= nil end)
 end
 
 local function set_pref(ply, key, value)

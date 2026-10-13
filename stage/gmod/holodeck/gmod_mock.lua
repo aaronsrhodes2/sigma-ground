@@ -189,16 +189,21 @@ M.lzma = {}
 function util.Decompress(blob) return M.lzma[blob] end
 function util.Compress(raw) for c, r in pairs(M.lzma) do if r == raw then return c end end return nil end
 function util.TableToJSON(t) return M.json_encode(t) end
--- Two engine behaviours the real game has and a test may switch on (found live; off by default so older tests keep their meaning):
+-- Engine behaviours the real game has, ON BY DEFAULT so no test can pass with code the engine would silently break (found live, 2026-10-12).
+-- A test that needs the old lax behaviour sets the switch to false explicitly (MOCK.strict_files = false, etc.):
 --   MOCK.json_number_keys: util.JSONToTable turns a string key that looks like a number into a NUMBER (a SteamID64 key loses its low digits)
---   MOCK.strict_files: file.Write / file.Append silently ignore an extension outside the engine's short list (txt, dat, json, xml, csv, jpg, jpeg, png, vtf, vmt, mp3, wav, ogg)
+--   MOCK.strict_files: file.Write / file.Append / file.Rename-to silently ignore an extension outside the engine's short list
+--     (txt, dat, json, xml, csv, jpg, jpeg, png, vtf, vmt, mp3, wav, ogg); '.tmp', '.bak', '.jsonl' are all refused. Also a write into a directory
+--     nobody created with file.CreateDir is silently dropped.
+--   MOCK.json_big_numbers: util.TableToJSON writes a number past 2^53 as a rounded double (a SteamID64 stored as a number comes back wrong)
+M.json_number_keys, M.strict_files, M.json_big_numbers = true, true, true
 local function convert_keys(t)
   local move = {}
   for k, v in pairs(t) do
     if type(v) == 'table' then convert_keys(v) end
     if type(k) == 'string' and k:match('^%d+$') then move[#move + 1] = k end
   end
-  for _, k in ipairs(move) do t[tonumber(k)] = t[k]; t[k] = nil end
+  for _, k in ipairs(move) do t[tonumber(k) + 0.0] = t[k]; t[k] = nil end
 end
 function util.JSONToTable(s)
   local t = M.json_decode(s)
@@ -211,6 +216,7 @@ function util.FilterText(s) return M.filter and M.filter(s) or s end
 function M.json_encode(v)
   local ty = type(v)
   if ty == "string" then return '"' .. v:gsub('[%c"\\]', function(c) return string.format("\\u%04x", c:byte()) end) .. '"' end
+  if ty == "number" and M.json_big_numbers and math.abs(v) >= 2 ^ 53 then return string.format("%.14g", v) end
   if ty == "number" or ty == "boolean" then return tostring(v) end
   if ty == "table" then
     if #v > 0 or next(v) == nil then
@@ -556,10 +562,13 @@ function LocalPlayer() return M.me end
 
 -- client side: files, sounds
 file = {}
-function file.CreateDir() end
+M.dirs = {}
+function file.CreateDir(d) local acc; for part in tostring(d):gmatch("[^/]+") do acc = acc and (acc .. "/" .. part) or part; M.dirs[acc] = true end end
 M.ALLOWED_EXT = { txt = true, dat = true, json = true, xml = true, csv = true, jpg = true, jpeg = true, png = true, vtf = true, vmt = true, mp3 = true, wav = true, ogg = true }
 local function writable(path)
   if not M.strict_files then return true end
+  local dir = path:match("^(.*)/[^/]*$")
+  if dir and not M.dirs[dir] then return false end
   local ext = path:match('%.(%w+)$')
   return ext ~= nil and M.ALLOWED_EXT[ext:lower()] == true
 end
@@ -569,7 +578,7 @@ function file.Exists(path) return M.files[path] ~= nil end
 function file.Delete(path) M.files[path] = nil end
 function file.Append(path, data) if not writable(path) then return end; M.files[path] = (M.files[path] or '') .. data; M.write_count = M.write_count or {}; M.write_count[path] = (M.write_count[path] or 0) + 1 end
 function file.Size(path) if M.files[path] == nil then return -1 end return #M.files[path] end
-function file.Rename(from, to) if M.files[from] == nil then return false end M.files[to] = M.files[from]; M.files[from] = nil; return true end
+function file.Rename(from, to) if M.files[from] == nil or not writable(to) then return false end M.files[to] = M.files[from]; M.files[from] = nil; return true end
 function file.Find(pattern)
   local dir = pattern:match("^(.*)/") or ""
   local prefix = pattern:match("^(.-)%*") or pattern

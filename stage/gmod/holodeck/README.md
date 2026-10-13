@@ -555,8 +555,8 @@ of a limit of 8 spent it, the next five were chat only (nothing synthesised, 0 c
 "built three couches, a boombox and a floor lamp today / third couch of the evening / flux capacitor failed twice / undid one thing / already joked about opera, hat", which went to `/quip` and came back as callbacks
 ("Another boombox. I'm starting to think you have a type, and the type is boombox."). Frame cost, 146.7 fps uncapped: whole frame 6.815 ms with the director, 6.817 ms with it off, 6.811 ms with no avatar (no measurable difference); the avatar's draw call 0.225 ms with the director against 0.201 ms without (about 0.02 ms for the animation).
 Pictures: `data/shots/dir_contact_sheet.jpg` (all 25 frames), the numbers in `data/shots/dir_live_result.json`.
-**Two things the real engine does that the offline mock did not, found by this pass and now in the mock as opt-in switches (`MOCK.strict_files`, `MOCK.json_number_keys`) that the director tests turn on:** `file.Write` / `file.Append` silently ignore any extension outside txt, dat, json, xml, csv, jpg, png, vtf, vmt, mp3, wav, ogg (`.jsonl` and `.tmp` write nothing: the first journal was empty), and `util.JSONToTable` turns a SteamID64 used as a JSON KEY into a rounded number (so the preference file is a list of records, `{sid = "..."}`).
-The same two facts probably break the per-player WAKE NAMES file (`wakenames.lua` writes a `.tmp` temp file and keys by SteamID64): a separate task was raised, not fixed here.
+**Two things the real engine does that the offline mock did not, found by this pass and now in the mock (`MOCK.strict_files`, `MOCK.json_number_keys`, on by default since 2026-10-12):** `file.Write` / `file.Append` silently ignore any extension outside txt, dat, json, xml, csv, jpg, png, vtf, vmt, mp3, wav, ogg (`.jsonl` and `.tmp` write nothing: the first journal was empty), and `util.JSONToTable` turns a SteamID64 used as a JSON KEY into a rounded number (so the preference file is a list of records, `{sid = "..."}`).
+The same two facts did break the wake names file and the faces file: fixed 2026-10-12, see "Persistence rules of the engine" below.
 **Honest read of the animation** (front view, 25 frames): it reads as alive. The hat tip is unmistakable (the hat lifts and tips forward and settles back), the body leans and turns on a flourish, the free hand swings out and the whole figure sways while he sings, the head nods with the voice, and he turns toward the thing he looks at. It is not a full performance: it is the kit's rigid parts moving as a doll, so a conducting arm is a hand flick (the sleeve is part of the coat and does not follow), there are no eyes or brows to act with, and from the side the sway is less readable. The pictures cannot show timing or feel.
 **Only a person can verify:** how the voice sounds with capitals, stretched vowels and pauses (the Windows voice was used here; ElevenLabs was not reachable), whether the pace of remarks feels right over a real afternoon, whether the jokes land, the 3D position of the clips by ear, a second human client, and the real model route (no Anthropic key on this machine: the local model qwen3:8b was probed offline, 6 of 6 sample lines passed the validators, but it is not wired live).
 
@@ -920,3 +920,29 @@ boards, slender members, glazing and foliage get a mass that does not move with 
 in `fidelity.py`, and the mass-sanity bands in `tests/test_deckard_mass_sanity.py` come from those ranges, with three strict xfails for
 the cases still outside them; a hollow-shell occupancy rule that depends on thickness and material); the one left on purpose is the axis-orientation change, which moves
 pinned scenes and needs its own change.
+
+
+## Persistence rules of the engine
+
+Measured in the real game (dedicated server, `python stage/gmod/holodeck/persist_probe.py`, tool `tools/persist_probe.lua`: writes and reads back every file through the real wakenames / faces / director / journal code, with a made-up id of real SteamID64 magnitude and a bot's, stops and restarts the server between the two phases; result in `data/persist_live_result.json`).
+
+1. **Only these extensions can be written** (`file.Write`, `file.Append`, `file.Rename` target): txt, dat, json, xml, csv, jpg, jpeg, png, vtf, vmt, mp3, wav, ogg. Anything else (`.tmp`, `.bak`, `.jsonl`, `.log`, `.lua`, `.cfg`, `.ini`, `.bin`, `.md`, `.html`) is dropped SILENTLY: no error, no file. So there are no temp files; a file is written directly, read back and compared, and the previous good copy is `name.bak.txt`.
+2. **A SteamID64 is never a JSON key and never a JSON number.** `util.JSONToTable` turns a numeric-looking key into a number even with its second argument `true`, and a 17-digit id (past 2^53) comes back rounded (`76561197912345678` as `76561197912345680`); `util.TableToJSON` writes a number of that size as `7.6561197912346e+16`. A string VALUE is exact, so files hold lists of records: `{ sid = "7656..." }`.
+3. **A write into a directory nobody created is dropped** (`file.CreateDir` first; it makes the whole path).
+4. Legacy files written in the old keyed form are still read; entries whose key came back as a number cannot be recovered, are dropped, and one line says how many (`persist.lua`: `note_dropped`). Nothing crashes.
+
+The offline mock (`gmod_mock.lua`) enforces rules 1 to 3 BY DEFAULT (`MOCK.strict_files`, `MOCK.json_number_keys`, `MOCK.json_big_numbers`); a test that needs the lax behaviour sets the switch to false.
+The shared code is `addon/lua/mentat/persist.lua` (`write` = direct write + read-back + `.bak.txt` copy, `load` = file then backup, `sid_ok`).
+
+| file under `data/` | written by | format | backup |
+|---|---|---|---|
+| `mentat/wake_words.json` | `holodeck/wakenames.lua` | v2 `players = [{ sid, names }]` | `wake_words.bak.txt` |
+| `mentat/faces.json` | `faces_server.lua` | v2 `rec = [{ sid, ... }]`, `blocked = ["sid"]` | `faces.bak.txt` |
+| `mentat/faces/<hash>.jpg` | `faces_server.lua` | JPEG, named by hash | none (re-fetched) |
+| `mentat/skippy_prefs.json` | `avatar/director.lua` | v2 `players = [{ sid, roast, chat, journal }]` | `skippy_prefs.bak.txt` |
+| `mentat/journal/<sid>.txt`, `<sid>.1.txt` | `avatar/journal.lua` | one JSON event per line; sid only in the file NAME | rotation to `.1.txt` |
+| `mentat/wake_names.json`, `voice_in.json`, `ptt.txt` (client) | `skippy_client.lua` | no SteamID64 inside | none |
+| `mentat_faces/<crc>.jpg` (client) | `faces_client.lua` | JPEG | none |
+| `mentat/tool*.json`, `experiment*.json`, `autotest*.json`, `probe*.json`, `shot_*.jpg`, `dirsample_*.json` | tools and experiments | results, read by the driver scripts | none |
+
+Notes (anonymous summaries) and the quip budget and line history are not files in the game: notes are rebuilt from the journal, the budget and history live in the Python bridge's own state.
