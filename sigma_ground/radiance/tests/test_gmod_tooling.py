@@ -2162,7 +2162,9 @@ def test_a_visible_test_run_never_takes_the_mouse_but_an_interactive_session_doe
     play_branch = branches.split('elif [ "${GMOD_MOUSE:-0}" = "1" ]; then')[1].split('else')[0]
     assert "-nomouse" in test_branch and "-nojoy" in test_branch                      # the engine does not read or recentre the mouse
     assert "-nomouse" not in play_branch                                               # a person plays: the engine owns the mouse
-    assert "gmod_behind.ps1" in branches and 'GMOD_MOUSE:-0}" != "1"' in branches      # the window is kept behind, unfocused, for test runs only
+    assert "gmod_behind.ps1" in branches and 'GMOD_MOUSE:-0}" = "0"' in branches      # the window is kept behind, unfocused, for hands-off test runs only
     assert (GMOD / "gmod_behind.ps1").exists()
     play = (GMOD / "holodeck" / "play.py").read_text(encoding="utf-8")
-    assert 'os.environ["GMOD_MOUSE"] = "0" if a.selftest_voice is not None else "1"' in play
+    assert 'os.environ["GMOD_MOUSE"] = "0" if a.selftest_voice is not None else ("2" if (a.text_only and not a.mouse) else "1")' in play
+    two = branches.split('elif [ "${GMOD_MOUSE:-0}" = "2" ]; then')[1].split('else')[0]
+    assert "-nomouse" in two and 'GMOD_MOUSE:-0}" = "0"' in branches               # a played text session frees the mouse and is not sent behind

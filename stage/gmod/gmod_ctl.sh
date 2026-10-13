@@ -89,6 +89,10 @@ start() {
   elif [ "${GMOD_MOUSE:-0}" = "1" ]; then
     # an interactive play session (holodeck/play.py sets GMOD_MOUSE=1): normal window, the engine owns the mouse
     ( cd "$GMOD_DIR" && ./"$GMOD_EXE" -console -condebug -novid -allowlocalhttp -windowed -w 1280 -h 720 +map "$map" ${GMOD_EXTRA_ARGS:-} >/dev/null 2>&1 & )
+  elif [ "${GMOD_MOUSE:-0}" = "2" ]; then
+    # a played session that must leave the mouse alone (holodeck/play.py --text-only): a normal visible window, but no mouse or joystick
+    # input to the engine, so it cannot recentre the cursor while you work elsewhere. Look with the arrow keys, or type cl_mouseenable 1.
+    ( cd "$GMOD_DIR" && ./"$GMOD_EXE" -console -condebug -novid -allowlocalhttp -nomouse -nojoy -windowed -w 1280 -h 720 +map "$map" ${GMOD_EXTRA_ARGS:-} >/dev/null 2>&1 & )
   else
     # a visible TEST run (screenshots): the window must render, but it must never take the mouse or the focus from whoever is at the PC:
     # no mouse and no joystick input, and the window is kept behind everything, unfocused (gmod_behind.ps1)
@@ -97,7 +101,7 @@ start() {
   if [ "$quiet" -eq 1 ]; then
     # keep the window minimized and unfocused while it loads (see gmod_hide.ps1); detached, ends on its own
     ( powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$(cygpath -w "$HERE/gmod_hide.ps1")" >/dev/null 2>&1 & )
-  elif [ "${GMOD_MOUSE:-0}" != "1" ]; then
+  elif [ "${GMOD_MOUSE:-0}" = "0" ]; then
     ( powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$(cygpath -w "$HERE/gmod_behind.ps1")" >/dev/null 2>&1 & )
   fi
   local s=0

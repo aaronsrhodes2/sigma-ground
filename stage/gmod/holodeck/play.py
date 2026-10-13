@@ -267,7 +267,8 @@ def main(argv=None) -> int:
     ap.add_argument("--map", default="gm_construct")
     ap.add_argument("--key", default="x", help="the key bound to talk to Skippy alone (default x)")
     ap.add_argument("--device", default="", help="DirectShow microphone name (default: the first one)")
-    ap.add_argument("--text-only", action="store_true", help="no microphone bridge")
+    ap.add_argument("--text-only", action="store_true", help="no microphone bridge (and the game does not capture the mouse: look with the arrow keys)")
+    ap.add_argument("--mouse", action="store_true", help="with --text-only: let the game own the mouse as usual")
     ap.add_argument("--tts", default="auto", choices=["sapi", "auto", "elevenlabs"],
                     help="Skippy's voice: auto = his own ElevenLabs voice through SkippyTel (costs a little credit per word), else Windows speech; sapi = free Windows speech only")
     ap.add_argument("--port", type=int, default=8777)
@@ -323,7 +324,8 @@ def main(argv=None) -> int:
         (DATA / "tool.txt").write_text(json.dumps(arm), encoding="utf-8")
         os.environ["GMOD_EXTRA_ARGS"] = f"+maxplayers {max(2, a.players)}"
         # a person plays this session, so the engine owns the mouse; the hands-off self-test must not take it (gmod_ctl.sh, gmod_behind.ps1)
-        os.environ["GMOD_MOUSE"] = "0" if a.selftest_voice is not None else "1"
+        # GMOD_MOUSE: 0 = hands-off test (no mouse, window kept behind), 1 = the engine owns the mouse, 2 = played but the mouse stays yours
+        os.environ["GMOD_MOUSE"] = "0" if a.selftest_voice is not None else ("2" if (a.text_only and not a.mouse) else "1")
         say(f"starting Garry's Mod on {a.map} (a window will open; you will spawn in a few seconds)")
         started = exp_run.ctl("start", a.map)
         if started.returncode != 0:
