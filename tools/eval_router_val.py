@@ -227,6 +227,7 @@ def main() -> int:
     p.add_argument("--timeout", type=float, default=120,
                    help="seconds per request; a timeout is a failure, not a crash")
     a = p.parse_args()
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")    # questions hold Ω, µ, °; a Windows console is cp1252
     if a.smoke:
         return smoke(a)
     if a.out is None:

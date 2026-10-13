@@ -49,8 +49,12 @@ import sys
 import time
 from pathlib import Path
 
-# Fewer, larger free blocks: less fragmentation after an evaluation pass.
-os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
+# Keep the process inside the card. The first v2 run reserved 17 GiB on a 16 GiB card (7.6 GiB
+# allocated), WSL's kernel log filled with "dxgkio_make_resident: Ioctl failed: -12" (out of
+# memory when making allocations resident), and the run died twice with "CUDA error: unknown
+# error". The allocator now gives cached blocks back at 75% use, and cmd_train caps the process
+# at GPU_FRACTION (default 0.85) of the card.
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "garbage_collection_threshold:0.75,max_split_size_mb:512")
 
 LORA_TARGETS = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
 MAX_LEN_CAP = 1024
@@ -192,6 +196,8 @@ def cmd_train(a) -> int:
 
     random.seed(a.seed)
     torch.manual_seed(a.seed)
+    if torch.cuda.is_available() and not a.cpu_smoke:
+        torch.cuda.set_per_process_memory_fraction(float(os.environ.get("GPU_FRACTION", "0.85")))
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     train_recs = read_jsonl(Path(a.data) / "train.jsonl")
