@@ -1679,6 +1679,9 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(200, mesh_payload(body.get("card"), body.get("key"), _ctx.cancel, _ctx.deadline))
             except ValueError as e:
                 return self._json(400, {"ok": False, "error": str(e)[:200]})
+        if self.path == "/face":                              # a player's picture as a head (skippy_faces.py)
+            import skippy_faces
+            return skippy_faces.route(self, body, who, sys.modules[__name__])
         if self.path == "/progress":
             GATE.admit("progress", "")
             try:

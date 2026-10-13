@@ -79,3 +79,6 @@ stage/skippyverse/private/
 
 # Skippy home: private config/catalog/state/token (personal library listing; never commit)
 stage/skippy_home/private/
+
+# Faces: the bridge cache of 128x128 pictures (private)
+stage/gmod/holodeck/data/faces_cache/

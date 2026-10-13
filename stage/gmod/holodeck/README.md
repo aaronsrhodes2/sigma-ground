@@ -341,6 +341,75 @@ it; it notices, dissolves, and goes. (Aaron: "instead of a post-it note, a float
   wisp in a dark room; a player who is looking at the wisp when it appears reads it at once (it appears 2 m in front of the asker, which is the point, but a very short sentence dissolves after 2.5 s);
   reading by voice/chat of the text is not a thing: only the view counts.
 
+## Faces: a player's picture is their head
+
+Every player can wear a picture as their head: a small rounded head (about 400 triangles, drawn with the render/mesh API, so no
+HL2/CS:S content is needed) at the player's head, with the picture on the front and the picture's border colour on the sides, back
+and neck. Code: bridge `holodeck/skippy_faces.py` (route `POST /face`), server `addon/lua/mentat/faces_server.lua`, client
+`faces_client.lua`, shared geometry and model policy `faces_head.lua`, loader `addon/lua/autorun/mentat_faces.lua` (its own, the
+stage loader is untouched). Tests: `test_gmod_faces.py` (Lua) and `test_gmod_faces_bridge.py` (Python, synthetic pictures only).
+
+**Where the picture comes from, per player, in this order.** (1) A picture the player chose: `skippy face <https link>` (or, for the
+host and the server console only, a file on the host) or the optional portal link code (`skippy link <code>`, see
+`stage/gmod/FACE_PORTAL_HANDOFF.md`, lower priority). (2) Their public **Steam avatar**, automatically, no setup: the default and the
+main path. (3) Nothing: their usual head.
+
+**The hard rule: the automatic default never touches a choice.** It is applied only to a player with no explicit choice: a picture
+of their own, `skippy face off`, `skippy face hide`, or an admin block each count as a choice that the default never overwrites,
+replaces, refreshes or re-enables (including when their Steam avatar changes, when it is fetched again, or when its answer arrives
+after they chose). The active source per player is stored and persisted (`set` | `steam` | `off` | `none`).
+
+| Say it (chat) or type it (console) | Effect |
+|---|---|
+| `skippy face <https link>` / `skippy_face_set <link>` | use this picture (Google, Gravatar and Steam picture hosts only) |
+| `skippy face hide` / `show` | hide / show your head for everyone, at once |
+| `skippy face remove` | drop the picture you set; back to the Steam default unless you said `off` |
+| `skippy face off` | never use my Steam avatar (a picture I set myself stays mine; `remove` it to be rid of it) |
+| `skippy face on` | the explicit yes: show my picture (and allow it on a custom model, see below) |
+| `skippy face status` | what you are wearing and why |
+| `skippy link <code>` / `skippy_link <code>` | optional: redeem a portal code for your Google account picture |
+| `mentat_face_block <steamid64>` / `mentat_face_unblock` | admins: no face for this player, for everyone, now and later |
+| `mentat_faces 0\|1` | the global switch; `mentat_faces_steam_default 0` turns only the Steam default off |
+
+Chat commands are swallowed (a link code is nobody else's business) and never reach the planner or the model. Records live in
+`data/mentat/faces.json` (atomic write, a `.bak` of the last good copy, damaged files start empty, junk records are dropped one by
+one); the 128 px pictures in `data/mentat/faces/<hash>.jpg`, deleted when nobody wears them.
+
+**Which models get a new head (conservative).** Only a *stock* player model that has the head bone `ValveBiped.Bip01_Head1` and whose
+head bone nobody else is already scaling or moving. A custom or addon model, or a model another addon animates, is left completely
+alone (nothing drawn) unless that player said `skippy face on`. The real head is hidden with `ManipulateBoneScale(bone, 0)` and put
+back the moment the face goes (removed, hidden, blocked, switched off, model changed). A player with no player model at all (a server
+without the game's content) gets the head floating at their eyes. Never drawn in first person; drawn for your own third-person and
+mirror views. Tunable on each client: `mentat_face_up`, `mentat_face_fwd`, `mentat_face_scale`.
+
+**The bridge (`POST /face`, token-guarded, rationed like the other routes).** Actions: `steam {steamid64}` (the game server passes
+its own `ply:SteamID64()`, never a client's word), `url {url}`, `path {path}` (only with `SKIPPY_FACE_ALLOW_LOCAL=1` on the bridge,
+and the game only asks from the host/console), `redeem {code}` (the portal STUB: with no `SKIPPY_PORTAL_URL` and
+`SKIPPY_PORTAL_SECRET` it answers "unavailable"). Fetching: https only, port 443, no user info, no IP literals; host on the
+allow-list (`*.googleusercontent.com`, gravatar, `*.steamstatic.com`, `steamcdn-a.akamaihd.net`; extend with `SKIPPY_FACE_HOSTS`);
+the name must resolve only to public addresses and the connection goes to that vetted address (no second lookup); redirects are
+re-checked and capped at 3; 2 MB cap (64 KB for the Steam XML), 6 s timeouts, content-type and magic-byte check, Pillow with a
+24-megapixel limit (decompression bombs refused). The picture is centred on a face when OpenCV's Haar cascade
+(`opencv-python-headless`, optional) finds one, else centre-cropped (the `detector` field says which), resized to 128x128, saved as
+JPEG (quality 85 down to 40 until it is 20 KB or less), cached by content hash in `holodeck/data/faces_cache/` (gitignored, pruned
+after 30 days). Needs `pip install pillow` (and optionally `opencv-python-headless`) in the bridge's Python.
+
+**Steam profile format** (verified once on 2026-10-12 against Valve's public profile 76561197960287930):
+`https://steamcommunity.com/profiles/<steamid64>/?xml=1` answers `text/xml` with `<profile>` holding
+`<avatarIcon>`, `<avatarMedium>` and `<avatarFull>` (CDATA https URLs on `avatars.akamai.steamstatic.com`, a 184x184 JPEG for
+`_full`; `avatars.steamstatic.com` also serves them). A friends-only profile still shows its avatar; an unknown id answers a web
+page instead of the XML, which the bridge treats as "no picture" and says nothing.
+
+**Privacy.** The picture is fetched and stored only on the PC running the bridge and on the game server's `data/` folder: a 128x128
+JPEG, nothing else. Steam avatars are public and already shown to everyone in the scoreboard; a picture you set yourself is your
+own choice; the portal route is your own consent in your own signed-in session. Nobody's picture is ever looked up by an e-mail
+address or name. Everyone can say `skippy face hide`, `off` or `remove`; admins can block. Retention: the bridge cache keeps a
+picture 30 days since last use; the server deletes a picture when nobody's record names it.
+
+**Not verified until the live check** (see the live section of the report in the commit message): that `Material("data/<file>.jpg")`
+accepts a jpg written at run time, and how the head looks. `FC.load_material` in `faces_client.lua` is the one small function to
+change; when the material is not valid the head is a plain neutral one.
+
 ## Playing with your voice (one command)
 
 ```bash
