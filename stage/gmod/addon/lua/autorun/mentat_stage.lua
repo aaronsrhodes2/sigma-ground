@@ -29,6 +29,7 @@ if SERVER then
   AddCSLuaFile("mentat/avatar/logic.lua")
   AddCSLuaFile("mentat/avatar/geometry.lua")
   AddCSLuaFile("mentat/avatar/body.lua")
+  AddCSLuaFile("mentat/lit.lua")
   AddCSLuaFile("mentat/avatar/body_client.lua")
   AddCSLuaFile("mentat/holodeck/svm1.lua")
   AddCSLuaFile("mentat/fx/transporter_model.lua")

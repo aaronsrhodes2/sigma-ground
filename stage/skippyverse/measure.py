@@ -276,15 +276,36 @@ def decode_draco_primitive(doc: dict, buffers: list, prim: dict):
             flat = [] if faces is None else [int(i) for i in faces.reshape(-1)]
             if len(flat) % 3 or (flat and (min(flat) < 0 or max(flat) >= n)):
                 raise MeasureError("Draco faces are malformed")
-            hit = ([(float(a), float(b), float(c)) for a, b, c in pts.tolist()], flat)
+            uv = None
+            try:
+                tc = getattr(m, "tex_coord", None)
+                if tc is not None and len(tc) == n:
+                    uv = [(float(a), float(b)) for a, b in tc.tolist()]
+            except Exception:
+                uv = None
+            hit = ([(float(a), float(b), float(c)) for a, b, c in pts.tolist()], flat, uv)
             if len(_DRACO_CACHE) >= 6:
                 _DRACO_CACHE.pop(next(iter(_DRACO_CACHE)))
             _DRACO_CACHE[key] = hit
-        return hit
+        return hit[0], hit[1]
     except MeasureError:
         raise
     except Exception as e:                                       # DracoPy raises its own exception types on a bad buffer
         raise MeasureError(f"Draco buffer is corrupt ({type(e).__name__}: {e})") from None
+
+
+def draco_uvs(doc: dict, buffers: list, prim: dict):
+    """[(u, v)] per decoded vertex of a Draco primitive (the decoder's first texture-coordinate set), or None when it has none. Call after
+    decode_draco_primitive (it fills the same cache); never raises."""
+    try:
+        ext = draco_ext(prim)
+        bv = doc["bufferViews"][ext["bufferView"]]
+        start = bv.get("byteOffset", 0)
+        data = bytes(buffers[bv["buffer"]][start: start + bv["byteLength"]])
+        hit = _DRACO_CACHE.get((len(data), zlib.crc32(data)))
+        return hit[2] if hit else None
+    except Exception:
+        return None
 
 
 def _accessor_points(doc: dict, buffers: list, idx: int):

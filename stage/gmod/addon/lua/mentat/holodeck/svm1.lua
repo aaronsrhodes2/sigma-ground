@@ -11,6 +11,9 @@ SVM1.MAX_TRIS = 4000          -- more than meshpack's target ever makes (1500); 
 SVM1.MAX_TRIS2 = 24000        -- the body parts (SVM2) are finer: the jacket is about 10000, the head 16500
 SVM1.MAX_VERTS = 12000        -- and never more than 3 per triangle
 SVM1.MAX_VERTS2 = 30000       -- (SVM2: the vertices are duplicated along creases)
+SVM1.MAX_TRIS3 = 6000         -- SVM3 (found objects with colour regions and normals): meshpack aims at 3000
+SVM1.MAX_VERTS3 = 12000       -- (creases duplicate vertices; the packer refuses to make more than this)
+SVM1.MAX_PAL = 32
 SVM1.MAX_EXTENT_M = 1000      -- no coordinate beyond this (a bad float is not a model)
 SVM1.HEADER = 32
 
@@ -89,6 +92,84 @@ function SVM1.decode(raw, allow2)
     dec.nx, dec.ny, dec.nz, dec.svm2 = NX, NY, NZ, true
   end
   return dec
+end
+
+--- Decode an SVM3 payload (a found object with colour regions and normals; stage/skippyverse/meshpack.py, module docstring). After
+--- decompression, little endian:
+---   'SVM3' | u16 nv | u16 nt | f32 min[3] | f32 max[3] | u8 npal | npal x (u8 r, g, b, spec, metal, emit, alpha) | u16 verts[nv][3]
+---   | u16 idx[nt][3] | u8 palette index per triangle | i8 normals[nv][3]
+--- Returns the same table SVM1.decode does (r, g, bl per triangle are the triangle's palette colour, so a consumer that only knows
+--- flat colours still works) plus: svm3 = true, pal = { { r, g, b, spec, metal, emit, alpha }, ... } (1-based), pi = palette entry per triangle
+--- (1-based), nx / ny / nz per vertex (unit-ish, -1..1). nil and why on anything wrong.
+function SVM1.decode3(raw)
+  if type(raw) ~= "string" then return nil, "no data" end
+  local n = #raw
+  if n < SVM1.HEADER + 1 then return nil, "too short" end
+  if raw:sub(1, 4) ~= "SVM3" then return nil, "not an SVM3 payload" end
+  local byte = string.byte
+  local nv = byte(raw, 5) + byte(raw, 6) * 256
+  local nt = byte(raw, 7) + byte(raw, 8) * 256
+  if nt < 1 or nt > SVM1.MAX_TRIS3 then return nil, "triangle count " .. nt .. " out of range" end
+  if nv < 3 or nv > SVM1.MAX_VERTS3 or nv > 3 * nt then return nil, "vertex count " .. nv .. " out of range" end
+  local npal = byte(raw, SVM1.HEADER + 1)
+  if npal < 1 or npal > SVM1.MAX_PAL then return nil, "palette size " .. npal .. " out of range" end
+  local head = SVM1.HEADER + 1 + 7 * npal
+  if n ~= head + 6 * nv + 6 * nt + nt + 3 * nv then return nil, "length " .. n .. " does not match the counts" end
+  local mn, mx = {}, {}
+  for k = 0, 2 do
+    local o = 9 + 4 * k
+    mn[k + 1] = f32(byte(raw, o, o + 3))
+    local p = 21 + 4 * k
+    mx[k + 1] = f32(byte(raw, p, p + 3))
+    if not mn[k + 1] or not mx[k + 1] then return nil, "bad bounds" end
+    if mn[k + 1] > mx[k + 1] or math.abs(mn[k + 1]) > SVM1.MAX_EXTENT_M or math.abs(mx[k + 1]) > SVM1.MAX_EXTENT_M then return nil, "bad bounds" end
+  end
+  local pal = {}
+  local o = SVM1.HEADER + 1
+  for i = 1, npal do
+    pal[i] = { byte(raw, o + 1), byte(raw, o + 2), byte(raw, o + 3), byte(raw, o + 4), byte(raw, o + 5), byte(raw, o + 6), byte(raw, o + 7) }
+    o = o + 7
+  end
+  local X, Y, Z = {}, {}, {}
+  local sx, sy, sz = mx[1] - mn[1], mx[2] - mn[2], mx[3] - mn[3]
+  for i = 1, nv do
+    X[i] = mn[1] + sx * (byte(raw, o + 1) + byte(raw, o + 2) * 256) / 65535
+    Y[i] = mn[2] + sy * (byte(raw, o + 3) + byte(raw, o + 4) * 256) / 65535
+    Z[i] = mn[3] + sz * (byte(raw, o + 5) + byte(raw, o + 6) * 256) / 65535
+    o = o + 6
+  end
+  local A, B, C = {}, {}, {}
+  for i = 1, nt do
+    local a = byte(raw, o + 1) + byte(raw, o + 2) * 256
+    local b = byte(raw, o + 3) + byte(raw, o + 4) * 256
+    local c = byte(raw, o + 5) + byte(raw, o + 6) * 256
+    if a >= nv or b >= nv or c >= nv then return nil, "triangle " .. i .. " names a vertex that does not exist" end
+    if a == b or b == c or a == c then return nil, "triangle " .. i .. " is degenerate" end
+    A[i], B[i], C[i] = a + 1, b + 1, c + 1
+    o = o + 6
+  end
+  local R, G, BL, PI = {}, {}, {}, {}
+  for i = 1, nt do
+    local k = byte(raw, o + 1)
+    if k >= npal then return nil, "triangle " .. i .. " names a palette entry that does not exist" end
+    local e = pal[k + 1]
+    PI[i], R[i], G[i], BL[i] = k + 1, e[1], e[2], e[3]
+    o = o + 1
+  end
+  local NX, NY, NZ = {}, {}, {}
+  local function s8(v) return (v >= 128 and v - 256 or v) / 127 end
+  for i = 1, nv do
+    NX[i], NY[i], NZ[i] = s8(byte(raw, o + 1)), s8(byte(raw, o + 2)), s8(byte(raw, o + 3))
+    o = o + 3
+  end
+  return { nv = nv, nt = nt, min = mn, max = mx, x = X, y = Y, z = Z, a = A, b = B, c = C, r = R, g = G, bl = BL,
+    nx = NX, ny = NY, nz = NZ, svm3 = true, pal = pal, pi = PI }
+end
+
+--- Decode whatever a found object's payload is: SVM3 (colour regions, normals) or the original SVM1 (flat colours).
+function SVM1.decode_found(raw)
+  if type(raw) == "string" and raw:sub(1, 4) == "SVM3" then return SVM1.decode3(raw) end
+  return SVM1.decode(raw)
 end
 
 --- The size the LZMA stream declares for its output, or nil: Garry's Mod's util.Compress / util.Decompress use the legacy ".lzma"

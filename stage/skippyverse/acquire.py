@@ -6,10 +6,12 @@ injectable `fetch(url, *, max_bytes) -> bytes`, so every test runs offline.
 Sources (URL patterns verified live 2026-10-10, no keys, no accounts):
     NASA 3D       https://raw.githubusercontent.com/nasa/NASA-3D-Resources/master/<url-quoted repo path>      one .glb
     Gazebo Fuel   https://fuel.gazebosim.org/1.0/<owner>/models/<url-quoted name>.zip                          a zip (SDF + mesh + textures)
-    Poly Haven    https://api.polyhaven.com/files/<id> -> JSON; the 1k glTF and its .bin only (textures are never fetched)
+    Poly Haven    https://api.polyhaven.com/files/<id> -> JSON; the 1k glTF, its .bin and ONLY the 1k images the glTF uses as base colour or
+                  metal-rough maps (the look pass colours the payload from them at pack time; normal maps and the rest are never fetched)
 
 Hard rules: the licence gate must pass (cards.compute_redistributable); a single file over 40 MB is refused unless force=True; one
-card per call, never bulk; textures are not kept.
+card per call, never bulk; a texture over 8 MB is skipped (the colour factor stays); textures are read only by meshpack/surface.py and are
+never sent to a client.
 
 Sizes: a mesh in KNOWN units (glTF metres by spec, Collada <unit>, SDF models, Poly Haven) gives basis `measured`. NASA meshes have
 arbitrary units: `guessed`, unless data/nasa_real_sizes.json holds a verified published figure for that model (then `sourced`).
@@ -38,6 +40,8 @@ NASA_SOURCE, FUEL_SOURCE, PH_SOURCE = "NASA 3D Resources", "Gazebo Fuel", "Poly 
 SOURCE_LABEL = {NASA_SOURCE: "NASA", FUEL_SOURCE: "Gazebo Fuel", PH_SOURCE: "Poly Haven"}
 NASA_RAW = "https://raw.githubusercontent.com/nasa/NASA-3D-Resources/master/"
 IMAGE_EXT = {".png", ".jpg", ".jpeg", ".tga", ".bmp", ".tif", ".tiff", ".gif", ".webp", ".dds", ".hdr", ".exr"}
+TEXTURE_EXT = {".png", ".jpg", ".jpeg", ".tga", ".bmp", ".webp"}          # the ones Pillow reads that a model may carry
+TEXTURE_MAX = 8 * 1024 * 1024
 
 
 class AcquireRefused(Exception):
@@ -141,6 +145,34 @@ def _fetch_nasa(card, fetch, d, limit, state) -> dict:
     return {"mesh": _write(d, name, data), "files": [name], "url": nasa_url(path)}
 
 
+def _wanted_texture(info) -> bool:
+    return Path(info.filename).suffix.lower() in TEXTURE_EXT and info.file_size <= TEXTURE_MAX
+
+
+def _gltf_texture_names(gltf_bytes: bytes) -> list[str]:
+    """The relative image paths a glTF uses as a base-colour or metal-rough map (the only ones the look pass reads)."""
+    try:
+        doc = json.loads(gltf_bytes.decode("utf-8"))
+        textures, images = doc.get("textures") or [], doc.get("images") or []
+        want = []
+        for m in doc.get("materials") or []:
+            pbr = m.get("pbrMetallicRoughness") or {}
+            for key in ("baseColorTexture", "metallicRoughnessTexture"):
+                t = pbr.get(key)
+                if t is None or t.get("index") is None:
+                    continue
+                tex = textures[t["index"]]
+                src = tex.get("source")
+                if src is None:
+                    src = ((tex.get("extensions") or {}).get("EXT_texture_webp") or {}).get("source")
+                uri = images[src].get("uri")
+                if uri and not uri.startswith("data:") and uri not in want:
+                    want.append(uri)
+        return want
+    except (ValueError, KeyError, IndexError, TypeError, AttributeError):
+        return []
+
+
 def _fetch_fuel(card, fetch, d, limit, state, force) -> dict:
     owner, name = fuel_ref(card)
     url = fuel_url(owner, name)
@@ -150,7 +182,7 @@ def _fetch_fuel(card, fetch, d, limit, state, force) -> dict:
         z = zipfile.ZipFile(io.BytesIO(data))
     except zipfile.BadZipFile:
         raise AcquireError("Fuel download is not a zip") from None
-    infos = [i for i in z.infolist() if not i.is_dir() and Path(i.filename).suffix.lower() not in IMAGE_EXT]
+    infos = [i for i in z.infolist() if not i.is_dir() and (Path(i.filename).suffix.lower() not in IMAGE_EXT or _wanted_texture(i))]
     if not force and sum(i.file_size for i in infos) > 4 * limit:
         raise AcquireRefused("zip would expand to more than four times the size limit")
     files = [_write(d, i.filename, z.read(i)) for i in infos]
@@ -174,12 +206,35 @@ def _fetch_polyhaven(card, fetch, d, limit, state, resolution="1k") -> dict:
     state["bytes"] += len(gl)
     mesh = _write(d, Path(entry["url"]).name, gl)
     files = [mesh]
-    for rel, inc in (entry.get("include") or {}).items():
-        if Path(rel).suffix.lower() == ".bin":                     # geometry only; never textures
+    inc_all = entry.get("include") or {}
+    want_len = {}
+    try:
+        want_len = {b["uri"]: int(b["byteLength"]) for b in json.loads(gl.decode("utf-8")).get("buffers", []) if b.get("uri")}
+    except (ValueError, KeyError, TypeError, AttributeError):
+        pass
+    for rel, inc in inc_all.items():
+        if Path(rel).suffix.lower() == ".bin":                     # geometry
             b = fetch(inc["url"], max_bytes=limit)
             state["bytes"] += len(b)
+            if rel in want_len and len(b) != want_len[rel]:        # the listing can name another resolution's file (cannon_01: the 8k .bin for the 1k glTF)
+                alt = entry["url"].rsplit("/", 1)[0] + "/" + rel
+                if alt != inc["url"]:
+                    b = fetch(alt, max_bytes=limit)
+                    state["bytes"] += len(b)
+                if len(b) != want_len[rel]:
+                    raise AcquireError(f"{rel} is {len(b)} bytes but the glTF declares {want_len[rel]}")
             files.append(_write(d, rel, b))
-    return {"mesh": mesh, "files": files, "url": entry["url"], "resolution": res}
+    for rel in _gltf_texture_names(gl):                           # and the colour / metal-rough images the look pass samples
+        inc = inc_all.get(rel)
+        if inc is None or int(inc.get("size") or 0) > TEXTURE_MAX:
+            continue
+        try:
+            b = fetch(inc["url"], max_bytes=TEXTURE_MAX)
+        except TooLarge:
+            continue
+        state["bytes"] += len(b)
+        files.append(_write(d, rel, b))
+    return {"mesh": mesh, "files": files, "url": entry["url"], "resolution": res, "textures_checked": True}
 
 
 # ----------------------------------------------------------------------------------------------------------------- acquire
@@ -209,9 +264,58 @@ def acquire(card: dict, fetch=None, cache_dir=None, *, force: bool = False) -> d
     except Exception as e:                                       # network, JSON, OS: one error type for the caller
         raise AcquireError(f"{type(e).__name__}: {e}") from e
     info.update(source=src, bytes=state["bytes"])
+    if src == FUEL_SOURCE:
+        info["textures_checked"] = True                           # the zip was unpacked just now, images included
     marker.write_text(json.dumps(info), encoding="utf-8")        # written last: an interrupted download is not a cache hit
     info.update(dir=str(d), from_cache=False)
     return info
+
+
+def ensure_textures(card: dict, asset: dict, fetch=None, cache_dir=None) -> int:
+    """A model downloaded before the look pass has no textures on disk. Fetch what the look pass samples, ONCE (acquired.json remembers that it
+    looked, whatever the answer): a Poly Haven glTF's base-colour / metal-rough images, or the images of a Gazebo Fuel zip. NASA glb files carry
+    theirs inside. Never raises (a missing texture only means the flat colours); returns the bytes downloaded."""
+    try:
+        d = Path(asset["dir"])
+        marker = d / "acquired.json"
+        info = json.loads(marker.read_text(encoding="utf-8"))
+        if info.get("textures_checked") or info.get("source") not in (PH_SOURCE, FUEL_SOURCE):
+            return 0
+        fetch = fetch or default_fetch
+        got = 0
+        if info["source"] == PH_SOURCE:
+            names = _gltf_texture_names((d / info["mesh"]).read_bytes())
+            missing = [n for n in names if not (d / n).is_file()]
+            if missing:
+                raw = fetch(f"https://api.polyhaven.com/files/{quote(polyhaven_id(card))}", max_bytes=MAX_BYTES)
+                g = json.loads(raw.decode("utf-8"))["gltf"]
+                res = info.get("resolution") or "1k"
+                inc_all = (g[res if res in g else sorted(g)[0]]["gltf"].get("include")) or {}
+                for rel in missing:
+                    inc = inc_all.get(rel)
+                    if inc is None or int(inc.get("size") or 0) > TEXTURE_MAX:
+                        continue
+                    b = fetch(inc["url"], max_bytes=TEXTURE_MAX)
+                    got += len(b)
+                    _write(d, rel, b)
+                    info.setdefault("files", []).append(rel)
+        else:
+            owner, name = fuel_ref(card)
+            data = fetch(fuel_url(owner, name), max_bytes=MAX_BYTES)
+            got += len(data)
+            z = zipfile.ZipFile(io.BytesIO(data))
+            for i in z.infolist():
+                if not i.is_dir() and _wanted_texture(i) and not (d / i.filename).exists():
+                    _write(d, i.filename, z.read(i))
+                    info.setdefault("files", []).append(i.filename)
+            for i in z.infolist():                                  # a Gazebo material script's texture may carry any suffix (".tga.orig")
+                if not i.is_dir() and "/textures/" in "/" + i.filename.replace("\\", "/") and i.file_size <= TEXTURE_MAX and not (d / i.filename).exists():
+                    _write(d, i.filename, z.read(i))
+        info["textures_checked"] = True
+        marker.write_text(json.dumps(info), encoding="utf-8")
+        return got
+    except Exception:
+        return 0
 
 
 # ----------------------------------------------------------------------------------------------------------------- measuring a download

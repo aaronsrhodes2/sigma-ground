@@ -139,10 +139,42 @@ size | stream`, which is also exactly what `util.Compress` emits. **The size fie
 Source-engine `LZMA` header; patching in the real size makes it work (`meshpack.lzma_alone`). liblzma, conversely, rejects that known-size form when
 the stream also carries an end marker, so `meshpack.unlzma_alone` writes -1 back before decoding (tests only).
 
-**Not done:** textures (every Poly Haven model is textured, so it comes out grey: the colour is only the material's base colour), normals from the
+**Not done (SVM1; the SVM3 section below does textures and normals):** textures (every Poly Haven model is textured, so it comes out grey: the colour is only the material's base colour), normals from the
 file (computed per triangle on the client), a collision hull, levels of detail, models over 4,000 triangles or 65,535 vertices, NASA and Gazebo Fuel
 models (NASA units are a guess and would need the measured scale applied; Fuel is Collada), animation, and any caching of the payload beyond the
 bridge's memory.
+
+### SVM3: colours from textures, material cues, normals (look pass 1, 2026-10-12)
+
+`python stage/skippyverse/meshpack.py <model> --fmt svm3 --target-tris 3000 --codec lzma` (the bridge's default; `SKIPPY_MESH_LEGACY=1` keeps SVM1).
+`surface.py` holds the pieces (all pure Python; Pillow only decodes textures):
+
+| piece | what it does |
+|---|---|
+| `Texture`, `tri_colour` | decode, box-reduce to 256 px, bilinear sample with repeat wrap; colour = base-colour factor x texture, in linear light, at the UV centroid of a triangle (four points for a large one) |
+| `pbr_cue` | metal / roughness / emissive / alpha -> `(spec, metal, emit, alpha)` bytes (spec = (1 - rough)^1.5; unknown metal counts as 0) |
+| `build_palette` | triangles -> <= 24 colour regions: split by material class (spec level, metal level, glows, see-through), each class cut by median cut, entries shared out by area |
+| `smooth_normals` | vertex normals with creases split at 40 degrees (a box keeps hard edges, a sphere stays smooth) |
+
+Sources of colour: glTF `baseColorTexture` (external file next to the model, `data:` URI or embedded bufferView; `EXT_texture_webp` sources too) with
+`TEXCOORD_n`, the metal-rough map (G, B), `emissiveFactor`, `alphaMode`; Draco primitives use the decoder's UVs when it has them; Collada: material ->
+effect -> diffuse colour or texture (sampler -> surface -> image, images found by name or by stem next to the `.dae`), `specular`/`shininess` for the gloss,
+and a Gazebo model that says plain white but ships `materials/textures/*Diffuse*` gets that image; SDF primitives and OBJ keep flat colours; an SDF
+`<submesh><name>` now selects that node/geometry of the Collada (before, every visual drew the whole file).
+
+Wire format after decompression: `'SVM3' | u16 nv | u16 nt | f32 min[3] | f32 max[3] | u8 npal | npal x (u8 r g b spec metal emit alpha) | u16 verts[nv][3] |
+u16 idx[nt][3] | u8 palette index[nt] | i8 normals[nv][3]` (triangles sorted by palette entry; `meshpack.unpack3` is the inverse, `unpack` still returns
+(verts, faces, colours) for either magic). Simplification is still vertex clustering, but each cluster's vertex now sits at the quadric-error minimiser,
+and a surviving face takes the dominant colour of the triangles around it. On the real cache (3000-triangle target, LZMA): kettle 25 KB,
+boombox 25 KB, cannon 29 KB, croissant 18 KB, hydrant 26 KB, mailbox 1 KB, birthday cake 20 KB, Gemini 24 KB, Apollo Lunar Module 26 KB.
+
+**Downloads (`acquire.py`).** The look pass needs images: Poly Haven's 1k base-colour and metal-rough images (the ones the glTF names; normal maps never; each
+under 8 MB), the images in a Gazebo Fuel zip (under 8 MB each), nothing extra for NASA (embedded). `ensure_textures` tops up a model downloaded before this
+pass, once. A `.bin` whose size differs from its glTF's declared buffer length is replaced from the glTF's own folder (Poly Haven's listing names the 8k `.bin`
+for `cannon_01`'s 1k glTF); a mismatch that survives is an error, not a corrupt mesh.
+
+**What is lost** (honest): texture detail below one triangle (labels, grain, logos), reflections, anything the clustering removes (thin parts break up);
+cast shadows. What is kept: the main colours, the material split, the smooth/hard edge structure. Tests: `sigma_ground/radiance/tests/test_skippyverse_surface.py`.
 
 ### Draco-compressed glb (2026-10-11)
 

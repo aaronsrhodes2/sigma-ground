@@ -206,7 +206,7 @@ box, at the same pose, with no re-plan**. No model file is installed on any clie
   refused before anything is inflated), 8 sends queued, a half-received mesh dropped after 30 s, a failed model asked for again after 60 s (three tries
   at most). Only the server can reach a client's `net.Receive`; the mesh receiver has no server-side twin, so a client cannot inject one.
   `holodeck_mesh 0` (server convar) = boxes only (`Holodeck.Mesh.resume()` asks for what waited); `holodeck_status` counts ready/waiting/failed shapes.
-- **Drawing.** Built once per client from flat per-triangle colours with computed normals and a fixed light baked into the colours (the material is
+- **Drawing (SVM1, the original; SVM3 supersedes it, see "The look of found objects" below).** Built once per client from flat per-triangle colours with computed normals and a fixed light baked into the colours (the material is
   unlit `UnlitGeneric` with `$vertexcolor`: no scene lighting, no shadows). Same pose as the entity (`Matrix` Translate + Rotate; a `SetTranslation` +
   `SetAngles` pair misplaced it in the real game whenever the yaw was not 0). The payload's frame has x = the card's width and y = its depth, the
   entity's box has them the other way round, so the mesh is turned a quarter circle (the authored front lands on +x, where the planner puts a front)
@@ -234,7 +234,7 @@ box, at the same pose, with no re-plan**. No model file is installed on any clie
   top is green), that the faces are not inside out (the near faces are the ones drawn), and that nothing z-fights (the box is not drawn under the
   mesh; only the optional outline is). Defects: the baked light is crude (some faces look dark), the 1,500-triangle clustering rounds off thin parts
   (the antenna is a thin line), and the fade-in (`render.SetBlend` with the entity's colour alpha) was not looked at separately.
-- **Not done / not verified.** Textures; a collision hull; levels of detail; models over 4,000 triangles; NASA and Fuel models; client-side caching
+- **Not done / not verified.** (Textures: done since, as colours, see the look pass below.) A collision hull; levels of detail; models over 4,000 triangles; NASA and Fuel models; client-side caching
   between sessions (a reconnect asks again; the server keeps the bytes for the session only); scene lighting and shadows. Offline tests only
   (`sigma_ground/radiance/tests/test_gmod_found_mesh.py`, 63): chunk reassembly out of order and twice, a late joiner, rationing, hostile and malformed
   answers, the Lua decoder against Python's unpacker on the real chair. **Not tried in the real game:** a dedicated server with a remote client (the
@@ -248,6 +248,60 @@ models whose SDF visuals are box/sphere/cylinder or Collada/OBJ meshes (`meshpac
 diffuse else grey, no textures; STL stays a box). Poly Haven is unchanged. Live driver: `python stage/gmod/holodeck/found_live.py <tag> "add a mailbox" --purge <card id> [--slow-send]`
 (real bridge, real download, per-stage timings from the bridge, a time-lapse, six final views, the engine's own size/pose of what stands, a frame-cost
 comparison; pictures `data/shots/<tag>_*.jpg`, `<tag>_sheet.jpg`, `<tag>_report.json`).
+
+### The look of found objects (look pass 1, 2026-10-12)
+
+A found object used to arrive as a flat, unlit grey-white shape (SVM1: one base-colour factor per triangle, so every textured model lost all its
+colour; a fixed light baked into the vertex colours). It now arrives as **SVM3** and is drawn with the same lights as Skippy's body.
+
+```
+ bridge: acquire (+ the 1k diffuse / metal-rough images the glTF uses) -> meshpack fmt=svm3, ~3000 tris -> colour sampled from the texture at each
+         triangle's UV, material cue from metal/rough/emissive/alpha -> a palette of <= 24 colour regions -> smooth normals, creases split -> LZMA
+ client: SVM1.decode3 -> one IMesh per palette entry -> drawn with a VertexLitGeneric material per entry (own colour, own gloss), lit by mentat/lit.lua
+```
+
+- **Colour without shipping a texture.** At pack time (Pillow, optional) the base-colour texture (a glTF `baseColorTexture` x `baseColorFactor`; a Collada
+  diffuse map or colour per material; a Gazebo material script's loose diffuse image; NASA's embedded webp/png) is box-reduced to 256 px and sampled at the
+  UV centroid of every original triangle (four points for a big one), in linear light. Clustering then gives each surviving face the DOMINANT colour among the
+  triangles around it (binned, area-weighted; a plain mean turned a red cake purple). **What is lost:** every fine detail of the texture (labels, grain,
+  logos, speaker cloth weave): each triangle is ONE flat colour, and the palette snaps those to at most 24 regions. Big colour areas, tonal gradients
+  and the material split survive. No texture ever travels to a client; without Pillow a textured model keeps its base-colour factor (the old look).
+- **Materials.** `metallicFactor`/`roughnessFactor` (and the metal-rough map, G = rough, B = metal) become a gloss and a metal level per palette entry:
+  a kettle's polished metal glints (phong boost up to ~4x a plain plastic's), a plastic boombox has a soft highlight, a croissant is matte; a metal tints its
+  highlight and has less diffuse. Emissive glows (flat, self-lit); `alphaMode` BLEND entries are translucent and MASK cut-outs lose their holes. Collada
+  specular/shininess give the gloss. Palette entries are material classes first, colours second, so a metal red and a plain red stay two entries.
+- **Draw.** `mentat/lit.lua` (extracted from `avatar/body_client.lua`, which now uses it) sets the engine's lights per object: the map's ambient and sun at the
+  object, a warm key toward the viewer's upper left, a rim from behind, a fill, Phong gloss; one mesh per palette entry because a lit mesh ignores vertex
+  colours (found for Skippy's body in cb4f52e; a vertex-colour VertexLitGeneric was not tried again here). Convars shared with the avatar: `mentat_avatar_amb / key / rim / spec`. `holodeck_found_lit 0` draws
+  the old flat way; an old client (no lighting calls) bakes the shade from the normals into one colour per vertex. A soft **blob shadow** (Skippy's,
+  sized to the object's footprint) sits under every object. The materialise fade uses translucent variants of the materials.
+- **Format and compatibility.** `svm3-lzma` (bridge `MESH_FORMAT`); the server accepts `svm1-lzma` too and SVM1 payloads still decode and draw exactly as
+  before. `SKIPPY_MESH_LEGACY=1` makes the bridge send the original SVM1 (1500 tris, flat colours): that is the "before" of the pictures below.
+  SVM3 after decompression: `'SVM3' | u16 nv | u16 nt | f32 min[3] | f32 max[3] | u8 npal | npal x (u8 r g b spec metal emit alpha) | u16 verts[nv][3] |
+  u16 idx[nt][3] | u8 palette index[nt] | i8 normals[nv][3]`. Limits on decode: 6000 triangles, 12000 vertices, 32 palette entries.
+- **Size and cost** (this machine): typical payload 17 to 29 KB at 3000 triangles (kettle 25 KB, boombox 25 KB, cannon 29 KB, croissant 18 KB, hydrant 26 KB,
+  mailbox 1 KB, cake 20 KB, Gemini 24 KB, Lunar Module 26 KB; before 6 to 8 KB at 1500; hard cap still 256 KB), so two chunks of 16 KB instead of one: about
+  0.1 s more on the wire. Packing in pure Python: 0.3 to 7 s (the Draco Lunar Module 6.7 s, the hydrant 6.6 s), the cake 3.8 s (it was 14 s: see below).
+  CPU cost of drawing one object in the real game (`holodeck_mesh_bench`: 200 draws inside the translucent pass, SysTime): **0.04 to 0.12 ms** for
+  6 to 24 lit regions (kettle 0.10 ms, boombox 0.12, cannon 0.10, Gemini 0.08, Lunar Module 0.08, mailbox 0.05, croissant 0.04). The frame rate is capped by the
+  display, so the GPU side could not be separated; at these numbers 100 objects would cost about 10 ms of CPU. The textures kept on disk for the nine models
+  are about 10 MB in all (limit for this pass: 40 MB).
+- **Fixed on the way.** (1) A Gazebo SDF that draws one `<submesh>` per `<visual>` (the birthday cake: 11 visuals of one 377,000-triangle Collada)
+  drew the WHOLE file once per visual; `meshpack` now honours `<submesh><name>` (42,858 triangles, 14 s to 0.6 s). (2) Poly Haven's file list can name
+  another resolution's `.bin` for a glTF (`cannon_01`: the 8k `.bin`, 1,198,792 B, for a 1k glTF that declares 1,143,768 B): indices ran past the vertex list
+  and the cannon never arrived ("transport failed"). The glTF's declared length now decides, and the sibling file in the glTF's own folder is used.
+  (3) Clustering puts each vertex where its triangles' planes meet (quadric error), not at their centroid, so a box stays a box.
+- **Textures are fetched now, but only these.** Poly Haven: the images the glTF uses as base-colour or metal-rough maps at 1k (normal maps never), each
+  under 8 MB; Gazebo Fuel: the zip's images (and a material script's textures) under 8 MB; a model downloaded before this pass tops up once
+  (`acquire.ensure_textures`, remembered in `acquired.json`). New downloads for the whole pass: see the report; well under 40 MB.
+- **Pictures.** `python stage/gmod/holodeck/found_look.py --phase before|after [--only kettle ...]` summons the standard set one after another through the
+  real bridge (hands off: the window stays behind, no mouse) and photographs five fixed cameras plus a top view and times the draw; `--sheet` builds
+  `data/shots/found_look_before_after.jpg` (before on top, after below, same cameras) and `found_look_before_after_close.jpg`; per-model views are
+  `data/shots/look_{before,after}_<tag>_<view>.jpg` (gitignored with the other shots).
+- **Still weak.** The geometry is vertex-clustered to ~3000 triangles: thin parts (antenna, handles, spouts) break up and a hydrant-like model with many
+  small features turns to mush (a real decimator would fix it). One flat colour per triangle: no texture detail. No environment reflections, so polished metal
+  shows only its highlight. The blob shadow is a blob, not the object's shadow, and no cast shadows. Glass is translucent but unsorted. The lighting
+  follows the viewer, so highlights move as you walk around (as Skippy's do).
 
 ### The transporter effect: a materialise whose coherence is the pipeline's progress
 

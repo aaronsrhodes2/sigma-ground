@@ -2,7 +2,7 @@
 -- mentat/holodeck/meshclient.lua). Loaded by mentat/holodeck.lua.
 --
 --   spawn of a found object whose card has a mesh -> attach(): the bridge is asked for the payload ONCE per model (not per entity);
---   the answer is checked (size cap, CRC-32, LZMA header, SVM1 decode) and kept; it is sent to every client in 16 KB chunks, one chunk
+--   the answer is checked (size cap, CRC-32, LZMA header, SVM1/SVM3 decode) and kept; it is sent to every client in 16 KB chunks, one chunk
 --   per 0.1 s; every entity of that model is told the model's number (ent:SetVisual("mesh", { id = n })); a client that joins later
 --   (or missed a chunk) asks with "holodeck_mesh_want" and is sent it alone. A failure of any kind leaves the box.
 --
@@ -61,7 +61,7 @@ function Mesh.check(data, declared_bytes, declared_crc)
   if not size or size < 40 or size > Mesh.MAX_RAW then return nil, "the LZMA header declares no usable size" end
   local ok, raw = pcall(util.Decompress, data)
   if not ok or type(raw) ~= "string" or #raw ~= size then return nil, "util.Decompress did not give the declared bytes" end
-  local dec, why = SVM1.decode(raw)
+  local dec, why = SVM1.decode_found(raw)
   if not dec then return nil, "not a mesh: " .. tostring(why) end
   return { crc = crc, total = #data, tris = dec.nt, verts = dec.nv }
 end
@@ -141,7 +141,7 @@ local ask
 
 local function on_answer(m, body)
   local obj = util.JSONToTable(body or "")
-  if not (istable(obj) and obj.ok == true and obj.key == m.key and obj.format == "svm1-lzma" and isstring(obj.b64)) then
+  if not (istable(obj) and obj.ok == true and obj.key == m.key and (obj.format == "svm1-lzma" or obj.format == "svm3-lzma") and isstring(obj.b64)) then
     return fail(m, "the bridge's answer was not a mesh")
   end
   if #obj.b64 > math.ceil(Mesh.CAP_BYTES * 4 / 3) + 8 then return fail(m, "the bridge's payload is over the cap") end

@@ -26,8 +26,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from skippyverse import measure as M  # noqa: E402
+from skippyverse import surface as S  # noqa: E402
 
 MAGIC = b"SVM1"
+MAGIC3 = b"SVM3"
 _IDX = {5121: ("B", 1), 5123: ("H", 2), 5125: ("I", 4)}
 
 
@@ -84,15 +86,128 @@ def gltf_readable(path) -> bool:
 
 def triangles(path):
     """[(p0, p1, p2, rgb)] in metres, z up, with the node transforms applied (not yet put on the floor). glTF/GLB, or a Gazebo SDF
-    made of box/sphere/cylinder visuals (sdf_triangles)."""
+    made of box/sphere/cylinder/mesh visuals. The colour is the material's (with a base-colour texture sampled when it can be read)."""
+    return [t[:4] for t in surface_triangles(path)]
+
+
+def _gltf_image_bytes(doc, buffers, base, tex_index):
+    """The bytes of glTF texture `tex_index`'s image (an external file next to the model, a data: URI or a bufferView), or None."""
+    try:
+        tex = doc["textures"][tex_index]
+        src = tex.get("source")
+        if src is None:
+            src = ((tex.get("extensions") or {}).get("EXT_texture_webp") or {}).get("source")
+        img = doc["images"][src]
+        if img.get("uri") is not None:
+            uri = img["uri"]
+            if uri.startswith("data:"):
+                import base64
+                return base64.b64decode(uri.split(",", 1)[1])
+            f = Path(base) / M._unquote(uri)
+            return f.read_bytes() if f.is_file() else None
+        bv = doc["bufferViews"][img["bufferView"]]
+        buf = buffers[bv["buffer"]]
+        start = bv.get("byteOffset", 0)
+        return bytes(buf[start: start + bv["byteLength"]]) if buf is not None else None
+    except (KeyError, IndexError, TypeError, OSError, ValueError):
+        return None
+
+
+def _gltf_uv(doc, buffers, acc_index):
+    """[(u, v)] of a TEXCOORD accessor (float, or normalised ubyte/ushort), or None."""
+    try:
+        acc = doc["accessors"][acc_index]
+        if acc.get("type") != "VEC2" or acc.get("sparse") or acc.get("bufferView") is None:
+            return None
+        ct = acc["componentType"]
+        fmt, size, norm = {5126: ("f", 4, 1.0), 5121: ("B", 1, 255.0), 5123: ("H", 2, 65535.0)}[ct]
+        bv = doc["bufferViews"][acc["bufferView"]]
+        buf = buffers[bv["buffer"]]
+        stride = bv.get("byteStride") or 2 * size
+        start = bv.get("byteOffset", 0) + acc.get("byteOffset", 0)
+        n = acc["count"]
+        if buf is None or (n and start + (n - 1) * stride + 2 * size > len(buf)):
+            return None
+        out = []
+        for i in range(n):
+            u, v = struct.unpack_from("<2" + fmt, buf, start + i * stride)
+            out.append((u / norm, v / norm))
+        return out
+    except (KeyError, IndexError, TypeError, struct.error):
+        return None
+
+
+class _GltfMaterial:
+    """What one glTF material says about a surface: the colour factor, a base-colour texture, the metal-rough texture (G rough, B metal),
+    the emissive colour, the alpha mode."""
+
+    def __init__(self, doc, buffers, base, mi, cache):
+        m = (doc.get("materials") or [{}])[mi] if mi is not None and mi < len(doc.get("materials") or []) else {}
+        pbr = m.get("pbrMetallicRoughness") or {}
+        self.factor = list(pbr.get("baseColorFactor") or [1.0, 1.0, 1.0, 1.0])
+        self.tex = self.mr = None
+        self.uv_set, self.mr_set = 0, 0
+        bt, mt = pbr.get("baseColorTexture"), pbr.get("metallicRoughnessTexture")
+        if bt is not None:
+            self.tex = self._tex(doc, buffers, base, bt.get("index"), cache)
+            self.uv_set = bt.get("texCoord", 0)
+        if mt is not None:
+            self.mr = self._tex(doc, buffers, base, mt.get("index"), cache)
+            self.mr_set = mt.get("texCoord", 0)
+        self.has_factor = "baseColorFactor" in pbr
+        self.metal_f, self.rough_f = pbr.get("metallicFactor"), pbr.get("roughnessFactor")
+        e = m.get("emissiveFactor") or [0, 0, 0]
+        self.emit_rgb = tuple(S.to_display(c) for c in e[:3])
+        self.emit = S.lum255(self.emit_rgb) if max(e[:3] or [0]) > 0.02 else 0.0
+        self.mode = m.get("alphaMode", "OPAQUE")
+        self.cutoff = m.get("alphaCutoff", 0.5)
+
+    @staticmethod
+    def _tex(doc, buffers, base, index, cache):
+        if index is None:
+            return None
+        key = (id(doc), index)
+        if key not in cache:
+            cache[key] = S.load_texture(_gltf_image_bytes(doc, buffers, base, index))
+        return cache[key]
+
+
+def _gltf_surface(mat, uvs, mr_uvs):
+    """-> (rgb, cue) for a triangle, or None when an alpha-masked texel is cut out."""
+    f = mat.factor
+    rgb = S.tri_colour(tuple(f[:3]), mat.tex, uvs)
+    alpha = f[3] if len(f) > 3 else 1.0
+    if mat.tex is not None and uvs and (mat.mode != "OPAQUE"):
+        cu = sum(p[0] for p in uvs) / 3.0
+        cv = sum(p[1] for p in uvs) / 3.0
+        alpha *= mat.tex.sample(cu, cv)[3] / 255.0
+    if mat.mode == "MASK" and alpha < mat.cutoff:
+        return None
+    metal, rough = mat.metal_f, mat.rough_f
+    if mat.mr is not None and mr_uvs:
+        cu = sum(p[0] for p in mr_uvs) / 3.0
+        cv = sum(p[1] for p in mr_uvs) / 3.0
+        s = mat.mr.sample(cu, cv)
+        metal = (1.0 if metal is None else metal) * s[2] / 255.0
+        rough = (1.0 if rough is None else rough) * s[1] / 255.0
+    if mat.emit > 0.05:
+        rgb = mat.emit_rgb
+    cue = S.pbr_cue(metal, rough, mat.emit)
+    a255 = 255 if mat.mode != "BLEND" else max(0, min(255, int(round(255 * alpha))))
+    return rgb, cue[:3] + (a255,)
+
+
+def surface_triangles(path):
+    """[(p0, p1, p2, rgb, cue)] as triangles() but with the material cue (spec, metal, emit, alpha bytes: surface.pbr_cue) of every triangle."""
     if Path(path).suffix.lower() == ".sdf":
-        return sdf_triangles(path)
+        return [t if len(t) == 5 else t + (S.DEFAULT_CUE,) for t in sdf_triangles(path)]
     if Path(path).suffix.lower() in (".dae", ".obj"):
-        return mesh_file_triangles(path, M.IDENT, (200, 200, 200))
+        return mesh_file_triangles(path, M.IDENT, None)
     why = gltf_unreadable_why(path)
     if why:
         raise M.MeasureError(why)
     doc, buffers = M._load_gltf(Path(path))
+    base = Path(path).parent
     nodes = doc.get("nodes", [])
     scenes = doc.get("scenes", [])
     if scenes:
@@ -102,6 +217,7 @@ def triangles(path):
         roots = [i for i in range(len(nodes)) if i not in children]
     canon = M._canon("y", 1.0)
     out = []
+    tex_cache, mats = {}, {}
 
     def local(n):
         if "matrix" in n:
@@ -121,8 +237,10 @@ def triangles(path):
             for prim in doc["meshes"][n["mesh"]].get("primitives", []):
                 if prim.get("mode", 4) != 4 or "POSITION" not in prim.get("attributes", {}):
                     continue
+                uv_all = None
                 if M.draco_ext(prim) is not None:
                     pts, ix = M.decode_draco_primitive(doc, buffers, prim)
+                    uv_all = {0: M.draco_uvs(doc, buffers, prim)}
                 else:
                     pts, _, _ = M._accessor_points(doc, buffers, prim["attributes"]["POSITION"])
                     if pts is None:
@@ -131,9 +249,35 @@ def triangles(path):
                 pts = [M.mat_apply(full, p) for p in pts]
                 if ix is None:
                     ix = _indices(doc, buffers, prim["indices"]) if "indices" in prim else list(range(len(pts)))
-                rgb = _base_colour(doc, prim)
+                mi = prim.get("material")
+                if mi not in mats:
+                    mats[mi] = _GltfMaterial(doc, buffers, base, mi, tex_cache)
+                mat = mats[mi]
+                uvs = {}
+
+                def uvset(k):
+                    if k not in uvs:
+                        if uv_all is not None and k in uv_all:
+                            uvs[k] = uv_all[k]
+                        else:
+                            a = prim["attributes"].get(f"TEXCOORD_{k}")
+                            uvs[k] = _gltf_uv(doc, buffers, a) if a is not None else None
+                    return uvs[k]
+                want_tex = mat.tex is not None or mat.mr is not None or mat.mode != "OPAQUE"
+                uv_b = uvset(mat.uv_set) if want_tex else None
+                uv_m = uvset(mat.mr_set) if mat.mr is not None else None
+                flat = None
+                if not want_tex or (uv_b is None and uv_m is None):
+                    flat = _gltf_surface(mat, None, None)             # no texture to read (or no UVs): one colour for the whole primitive
                 for k in range(0, len(ix) - 2, 3):
-                    out.append((pts[ix[k]], pts[ix[k + 1]], pts[ix[k + 2]], rgb))
+                    a, b, c = ix[k], ix[k + 1], ix[k + 2]
+                    if flat is not None:
+                        sf = flat
+                    else:
+                        sf = _gltf_surface(mat, [uv_b[a], uv_b[b], uv_b[c]] if uv_b else None, [uv_m[a], uv_m[b], uv_m[c]] if uv_m else None)
+                    if sf is None:
+                        continue
+                    out.append((pts[a], pts[b], pts[c], sf[0], sf[1]))
         for c in n.get("children", []):
             visit(c, world, depth + 1)
 
@@ -156,13 +300,115 @@ def obj_triangles(path, post, rgb):
                 ix = [int(t.split("/")[0]) for t in w[1:]]
                 ix = [i - 1 if i > 0 else len(pts) + i for i in ix]
                 for k in range(1, len(ix) - 1):
-                    out.append((pts[ix[0]], pts[ix[k]], pts[ix[k + 1]], rgb))
+                    out.append((pts[ix[0]], pts[ix[k]], pts[ix[k + 1]], rgb or (200, 200, 200), S.DEFAULT_CUE))
     return out
 
 
-def dae_triangles(path, post, rgb):
-    """Collada <triangles>/<polylist>/<polygons> (positions only; the material is not read), with the file's unit and up axis and the scene's node
-    transforms applied, the way measure_dae measures them."""
+def _dae_texture_file(name, dae_path):
+    """The image file a Collada <init_from> names, or a sibling of the same stem (the .dae often says .tga and ships a .png), or None."""
+    if not name:
+        return None
+    n = M._unquote(name.strip()).replace("file://", "").replace("\\", "/")
+    base = Path(dae_path).parent
+    roots = [base, base.parent]
+    stem = Path(n).stem.lower()
+    for r in roots:
+        f = r / n
+        if f.is_file():
+            return f
+    want = {Path(n).name.lower(), stem}
+    for r in roots:
+        for f in (sorted(r.rglob("*")) if r.is_dir() else []):
+            if f.is_file() and f.suffix.lower() in S.IMAGE_SUFFIXES and (f.name.lower() in want or f.stem.lower() in want):
+                return f
+    return None
+
+
+def _dae_materials(root, dae_path):
+    """{material id: {"factor": (r, g, b) linear, "tex": Texture | None, "cue": (spec, metal, emit, alpha)}} from the file's effects."""
+    images = {}
+    for im in root.iter():
+        if M._local(im.tag) == "image":
+            init = next((c.text for c in im if M._local(c.tag) == "init_from" and c.text), None)
+            if im.get("id") and init:
+                images[im.get("id")] = init
+    effects = {}
+    for ef in root.iter():
+        if M._local(ef.tag) != "effect":
+            continue
+        params = {}
+        for np_ in ef.iter():
+            if M._local(np_.tag) == "newparam" and np_.get("sid"):
+                src = next((c.text.strip() for c in np_.iter() if M._local(c.tag) in ("source", "init_from") and c.text), None)
+                params[np_.get("sid")] = src
+        tech = next((c for c in ef.iter() if M._local(c.tag) in ("lambert", "phong", "blinn", "constant")), None)
+        if tech is None:
+            continue
+
+        def slot(name, tech=tech):
+            el = next((c for c in tech if M._local(c.tag) == name), None)
+            if el is None:
+                return None, None
+            col = next((c for c in el if M._local(c.tag) == "color"), None)
+            tx = next((c for c in el if M._local(c.tag) == "texture"), None)
+            return (M._floats(col.text) if col is not None else None), (tx.get("texture") if tx is not None else None)
+        dif, dif_tex = slot("diffuse")
+        spec, _ = slot("specular")
+        emi, _ = slot("emission")
+        sh = next((c for c in tech if M._local(c.tag) == "shininess"), None)
+        shin = next((float(c.text) for c in sh.iter() if M._local(c.tag) == "float" and c.text), 20.0) if sh is not None else 20.0
+        effects[ef.get("id")] = (dif, dif_tex, spec, emi, shin, params, M._local(tech.tag))
+    out = {}
+    for mat in root.iter():
+        if M._local(mat.tag) != "material":
+            continue
+        inst = next((c for c in mat if M._local(c.tag) == "instance_effect"), None)
+        eff = effects.get((inst.get("url", "") if inst is not None else "").lstrip("#"))
+        if eff is None:
+            continue
+        dif, dif_tex, spec, emi, shin, params, kind = eff
+        tex = None
+        if dif_tex:
+            ref = dif_tex
+            for _ in range(3):                                             # sampler -> surface -> image
+                nxt = params.get(ref)
+                if nxt is None:
+                    break
+                ref = nxt
+            f = _dae_texture_file(images.get(ref) or ref, dae_path)
+            if f is not None:
+                tex = S.load_texture(f.read_bytes())
+        factor = tuple(dif[:3]) if dif and len(dif) >= 3 else (1.0, 1.0, 1.0)
+        if tex is not None:
+            factor = (1.0, 1.0, 1.0)
+        sp = S.lum255([255 * c for c in spec[:3]]) if spec and len(spec) >= 3 and kind != "lambert" else 0.08
+        gloss = max(0.0, min(1.0, sp * min(1.0, shin / 50.0)))
+        em = S.lum255([255 * c for c in emi[:3]]) if emi and len(emi) >= 3 else 0.0
+        out[mat.get("id")] = {"factor": factor, "tex": tex, "cue": (int(round(255 * gloss)), 0, int(round(255 * em)) if em > 0.05 else 0, 255),
+                              "plain_white": tex is None and min(factor) > 0.95}
+    return out
+
+
+def _dae_loose_texture(dae_path):
+    """A model whose Collada says plain white but ships a diffuse image in materials/textures (a Gazebo material script): that image, or None."""
+    base = Path(dae_path).parent
+    for r in (base, base.parent):
+        d = r / "materials" / "textures"
+        if d.is_dir():
+            files = [f for f in sorted(d.iterdir()) if f.is_file()]
+            pick = [f for f in files if any(k in f.name.lower() for k in ("diffuse", "albedo", "color", "colour", "basecolor"))] or files
+            for f in pick:
+                t = S.load_texture(f.read_bytes())
+                if t is not None:
+                    return t
+    return None
+
+
+def dae_triangles(path, post, rgb, submesh=None):
+    """Collada <triangles>/<polylist>/<polygons> with the file's unit and up axis and the scene's node transforms applied, the way measure_dae
+    measures them. Colours: each primitive's material (a diffuse colour, or its texture sampled at the UV centroid of the triangle), unless
+    `rgb` is given (a Gazebo visual's own colour, which wins); (p0, p1, p2, rgb, cue). `submesh`: draw only the node/geometry of that name (an SDF's
+    <submesh><name>: without it a file of ten parts used by ten visuals was drawn ten times over)."""
     root = M.ET.parse(str(path)).getroot()
     unit_m, up = 1.0, "y"
     for el in root.iter():
@@ -174,6 +420,10 @@ def dae_triangles(path, post, rgb):
     if up not in M.UP_TO_Z:
         raise M.MeasureError(f"unknown up_axis {up!r}")
     total = M.mat_mul(post, M._canon(up, unit_m))
+    try:
+        materials = _dae_materials(root, path)
+    except Exception:                                                      # a colour is a nicety: never lose the shape over it
+        materials = {}
     sources = {}
     for el in root.iter():
         if M._local(el.tag) == "source":
@@ -181,7 +431,7 @@ def dae_triangles(path, post, rgb):
             acc = next((c for c in el.iter() if M._local(c.tag) == "accessor"), None)
             if fa is not None:
                 sources[el.get("id")] = (M._floats(fa.text), int(acc.get("stride")) if acc is not None and acc.get("stride") else 3)
-    geoms = {}
+    geoms, gnames = {}, {}
     for g in root.iter():
         if M._local(g.tag) != "geometry":
             continue
@@ -199,12 +449,19 @@ def dae_triangles(path, post, rgb):
                     continue
                 pos, off = vpos[vin.get("source").lstrip("#")], int(vin.get("offset", 0))
                 stride = max(int(c.get("offset", 0)) for c in ins) + 1
+                tin = next((c for c in ins if c.get("semantic") == "TEXCOORD"), None)
+                uvs, uoff = None, 0
+                if tin is not None:
+                    vals, ustride = sources.get(tin.get("source", "").lstrip("#"), ([], 2))
+                    uvs = [(vals[i], vals[i + 1]) for i in range(0, len(vals) - 1, ustride)]
+                    uoff = int(tin.get("offset", 0))
+                sym = prim.get("material")
                 kind = M._local(prim.tag)
                 rings = []
                 if kind == "polygons":
                     for p in (q for q in prim if M._local(q.tag) == "p"):
                         v = [int(x) for x in p.text.split()]
-                        rings.append([v[i] for i in range(off, len(v), stride)])
+                        rings.append([(v[i], v[i - off + uoff] if uvs else None) for i in range(off, len(v), stride)])
                 else:
                     flat = [int(x) for x in next(q.text for q in prim if M._local(q.tag) == "p").split()]
                     if kind == "triangles":
@@ -213,12 +470,15 @@ def dae_triangles(path, post, rgb):
                         counts = [int(x) for x in next(q.text for q in prim if M._local(q.tag) == "vcount").split()]
                     k = 0
                     for n in counts:
-                        rings.append([flat[(k + j) * stride + off] for j in range(n)])
+                        rings.append([(flat[(k + j) * stride + off], flat[(k + j) * stride + uoff] if uvs else None) for j in range(n)])
                         k += n
                 for r in rings:
                     for j in range(1, len(r) - 1):
-                        tris.append((pos[r[0]], pos[r[j]], pos[r[j + 1]]))
+                        tri = (r[0], r[j], r[j + 1])
+                        tuv = tuple(uvs[t[1]] for t in tri) if uvs and all(t[1] is not None and t[1] < len(uvs) for t in tri) else None
+                        tris.append((pos[r[0][0]], pos[r[j][0]], pos[r[j + 1][0]], sym, tuv))
         geoms[g.get("id")] = tris
+        gnames[g.get("id")] = (g.get("name"), g.get("id"))
 
     def node_matrix(node):
         m = M.IDENT
@@ -240,11 +500,46 @@ def dae_triangles(path, post, rgb):
 
     nodes_by_id = {n.get("id"): n for n in root.iter() if M._local(n.tag) == "node" and n.get("id")}
     out, seen = [], [0]
+    state = {"loose": None, "tried": False}
 
-    def emit(gid, world):
+    def surface_of(mat, tuv):
+        if rgb is not None:
+            return rgb, S.DEFAULT_CUE
+        if mat is None:
+            return (200, 200, 200), S.DEFAULT_CUE
+        tex = mat["tex"]
+        if tex is None and mat["plain_white"]:
+            if not state["tried"]:
+                state["tried"], state["loose"] = True, _dae_loose_texture(path)
+            tex = state["loose"]
+        return S.tri_colour(mat["factor"], tex, tuv, flip_v=True), mat["cue"]
+
+    def wanted(gid, node):
+        if not submesh:
+            return True
+        names = {node.get("name") if node is not None else None, node.get("id") if node is not None else None, *gnames.get(gid, ())}
+        names |= {n[:-5] for n in names if isinstance(n, str) and n.endswith("-mesh")}
+        return submesh in names
+
+    def emit(gid, world, binding):
         full = M.mat_mul(total, world)
-        for a, b, c in geoms.get(gid, []):
-            out.append((M.mat_apply(full, a), M.mat_apply(full, b), M.mat_apply(full, c), rgb))
+        cache = {}
+        for a, b, c, sym, tuv in geoms.get(gid, []):
+            mat = materials.get(binding.get(sym, sym)) or materials.get(sym)
+            if tuv is None and sym in cache:
+                sf = cache[sym]
+            else:
+                sf = surface_of(mat, tuv)
+                if tuv is None:
+                    cache[sym] = sf
+            out.append((M.mat_apply(full, a), M.mat_apply(full, b), M.mat_apply(full, c), sf[0], sf[1]))
+
+    def bindings(inst):
+        b = {}
+        for im in inst.iter():
+            if M._local(im.tag) == "instance_material" and im.get("symbol"):
+                b[im.get("symbol")] = (im.get("target") or "").lstrip("#")
+        return b
 
     def visit(node, parent, depth=0):
         if depth > 64:
@@ -254,7 +549,8 @@ def dae_triangles(path, post, rgb):
             t = M._local(c.tag)
             if t == "instance_geometry":
                 seen[0] += 1
-                emit(c.get("url", "").lstrip("#"), world)
+                if wanted(c.get("url", "").lstrip("#"), node):
+                    emit(c.get("url", "").lstrip("#"), world, bindings(c))
             elif t == "instance_node":
                 tgt = nodes_by_id.get(c.get("url", "").lstrip("#"))
                 if tgt is not None:
@@ -267,14 +563,15 @@ def dae_triangles(path, post, rgb):
                 visit(n, M.IDENT)
     if not seen[0]:
         for gid in geoms:
-            emit(gid, M.IDENT)
+            if wanted(gid, None):
+                emit(gid, M.IDENT, {})
     return out
 
 
-def mesh_file_triangles(path, post, rgb):
+def mesh_file_triangles(path, post, rgb, submesh=None):
     ext = Path(path).suffix.lower()
     if ext == ".dae":
-        return dae_triangles(path, post, rgb)
+        return dae_triangles(path, post, rgb, submesh)
     if ext == ".obj":
         return obj_triangles(path, post, rgb)
     raise M.MeasureError(f"{ext} meshes are not read")
@@ -308,7 +605,7 @@ def _sdf_visuals(path):
             kind = next(iter(geo), None) if geo is not None else None
             if kind is None:
                 continue
-            rgb = (200, 200, 200)
+            rgb = None
             mat = next((c for c in vis if M._local(c.tag) == "material"), None)
             if mat is not None:
                 for tag in ("diffuse", "ambient"):
@@ -350,8 +647,9 @@ def _quads(tris, rgb, a, b, c, d):
 def sdf_triangles(path):
     """[(p0, p1, p2, rgb)] in metres, z up (the SDF's own frame), for box/sphere/cylinder visuals; anything else raises MeasureError."""
     out = []
-    for m, kind, rgb in _sdf_visuals(path):
+    for m, kind, vis_rgb in _sdf_visuals(path):
         t = M._local(kind.tag)
+        rgb = vis_rgb or (200, 200, 200)
 
         def put(p):
             return M.mat_apply(m, p)
@@ -392,7 +690,9 @@ def sdf_triangles(path):
             if len(sv) != 3:
                 raise M.MeasureError("<scale> needs 3 numbers")
             f = M._find_mesh_file(uri, Path(path).parent, Path(path).parent)
-            out += mesh_file_triangles(f, M.mat_mul(m, M.mat_scale(sv)), rgb)
+            sub = next((c for c in kind if M._local(c.tag) == "submesh"), None)
+            sub_name = next((c.text.strip() for c in sub if M._local(c.tag) == "name" and c.text), None) if sub is not None else None
+            out += mesh_file_triangles(f, M.mat_mul(m, M.mat_scale(sv)), vis_rgb, sub_name)
         else:
             raise M.MeasureError(f"SDF geometry <{t}> cannot be drawn")
     if not out:
@@ -408,24 +708,65 @@ def on_floor(tris):
     cx = (min(p[0] for p in pts) + max(p[0] for p in pts)) / 2
     cy = (min(p[1] for p in pts) + max(p[1] for p in pts)) / 2
     z0 = min(p[2] for p in pts)
-    return [tuple((p[0] - cx, p[1] - cy, p[2] - z0) for p in t[:3]) + (t[3],) for t in tris]
+    return [tuple((p[0] - cx, p[1] - cy, p[2] - z0) for p in t[:3]) + tuple(t[3:]) for t in tris]
 
 
-def simplify(tris, target):
-    """Vertex clustering: snap vertices to a grid, drop triangles that collapse, drop duplicates. Returns (verts, faces, colours)."""
+def _area(a, b, c):
+    ux, uy, uz = b[0] - a[0], b[1] - a[1], b[2] - a[2]
+    vx, vy, vz = c[0] - a[0], c[1] - a[1], c[2] - a[2]
+    x, y, z = uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx
+    return 0.5 * math.sqrt(x * x + y * y + z * z)
+
+
+def _qem_point(q, centroid, lo, hi):
+    """The point minimising the summed squared distance to the planes of `q` (see simplify_surface), pulled a little toward the cluster's centroid
+    (a flat or one-plane cluster has no best point: the pull keeps it where the surface is) and kept within half a cell of the cell."""
+    w = q[10]
+    if w <= 0:
+        return centroid
+    lam = 1e-2 * (q[0] + q[3] + q[5]) / 3.0 + 1e-18
+    a = [[q[0] + lam, q[1], q[2]], [q[1], q[3] + lam, q[4]], [q[2], q[4], q[5] + lam]]
+    rhs = [-q[6] + lam * centroid[0], -q[7] + lam * centroid[1], -q[8] + lam * centroid[2]]
+    m = [a[i] + [rhs[i]] for i in range(3)]                                   # Gauss-Jordan with pivoting
+    for col in range(3):
+        piv = max(range(col, 3), key=lambda r: abs(m[r][col]))
+        if abs(m[piv][col]) < 1e-30:
+            return centroid
+        m[col], m[piv] = m[piv], m[col]
+        for r in range(3):
+            if r != col:
+                f = m[r][col] / m[col][col]
+                for c in range(col, 4):
+                    m[r][c] -= f * m[col][c]
+    p = [m[i][3] / m[i][i] for i in range(3)]
+    return tuple(min(hi[i] + 0.5 * (hi[i] - lo[i]), max(lo[i] - 0.5 * (hi[i] - lo[i]), p[i])) for i in range(3))
+
+
+def simplify_surface(tris, target, qem=True):
+    """Vertex clustering: snap vertices to a grid, drop triangles that collapse, drop duplicates. `tris` are (p0, p1, p2, rgb[, cue]).
+    Returns (verts, faces, colours, cues, areas). A surviving face takes the DOMINANT colour among every original triangle (the collapsed
+    ones too) that touches its three vertices or landed on it (colours binned 16 per channel, area-weighted; the face's own triangles count
+    double), and the mean colour and cue inside that winning bin: detail the clustering removed still decides the colour, but unlike a plain
+    mean a red frosting next to a brown sponge does not become purple.
+    `qem`: each cluster's vertex is placed where the planes of its triangles meet best (the quadric error minimiser, Lindstrom / Garland-Heckbert
+    clustering) instead of at their centroid, so corners, edges and thin parts keep their place and a box stays a box."""
     if not tris:
-        return [], [], []
+        return [], [], [], [], []
     pts = [p for t in tris for p in t[:3]]
     mn = tuple(min(p[i] for p in pts) for i in range(3))
     mx = tuple(max(p[i] for p in pts) for i in range(3))
     ext = max(mx[i] - mn[i] for i in range(3)) or 1.0
+    dflt = S.DEFAULT_CUE
 
-    def cluster(cells):
+    def cluster(cells, full):
         # cells along the longest axis; a thinner axis gets proportionally fewer but never fewer than 2, so a thin shape is not flattened
         n = [max(2, round(cells * (mx[i] - mn[i]) / ext)) for i in range(3)]
         h = [((mx[i] - mn[i]) / n[i]) or 1.0 for i in range(3)]
-        vid, order, faces, cols, seen, acc = {}, [], [], [], set(), {}
-        for a, b, c, rgb in tris:
+        vid, order, faces, seen, acc = {}, [], [], {}, {}
+        fbins, vbins = [], []                                 # per face and per vertex: {bin: [w, r, g, b, spec, metal, emit, alpha] weighted sums}
+        quad = []                                             # per vertex: [Axx, Axy, Axz, Ayy, Ayz, Azz, bx, by, bz, c, w] (the plane quadrics, area-weighted)
+        for t in tris:
+            a, b, c, rgb = t[0], t[1], t[2], t[3]
             key = []
             for p in (a, b, c):
                 k = tuple(min(n[i] - 1, int((p[i] - mn[i]) / h[i])) for i in range(3))
@@ -433,37 +774,104 @@ def simplify(tris, target):
                     vid[k] = len(order)
                     order.append(k)
                     acc[k] = [0.0, 0.0, 0.0, 0]
+                    if full:
+                        vbins.append({})
+                        quad.append([0.0] * 11)
                 s = acc[k]
                 s[0] += p[0]
                 s[1] += p[1]
                 s[2] += p[2]
                 s[3] += 1
                 key.append(vid[k])
+            bk = vals = None
+            if full:
+                w = _area(a, b, c) + 1e-12
+                if qem:
+                    ux, uy, uz = b[0] - a[0], b[1] - a[1], b[2] - a[2]
+                    vx, vy, vz = c[0] - a[0], c[1] - a[1], c[2] - a[2]
+                    nx, ny, nz = uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx
+                    nl = math.sqrt(nx * nx + ny * ny + nz * nz)
+                    if nl > 1e-18:
+                        nx, ny, nz = nx / nl, ny / nl, nz / nl
+                        d = -(nx * a[0] + ny * a[1] + nz * a[2])
+                        qv = (w * nx * nx, w * nx * ny, w * nx * nz, w * ny * ny, w * ny * nz, w * nz * nz, w * d * nx, w * d * ny, w * d * nz, w * d * d, w)
+                        for v in set(key):
+                            qq = quad[v]
+                            for j in range(11):
+                                qq[j] += qv[j]
+                cue = t[4] if len(t) > 4 else dflt
+                vals = [w, w * rgb[0], w * rgb[1], w * rgb[2], w * cue[0], w * cue[1], w * cue[2], w * cue[3]]
+                bk = (rgb[0] >> 4, rgb[1] >> 4, rgb[2] >> 4, cue[3] < 250)
+                for v in set(key):
+                    d = vbins[v]
+                    sv = d.get(bk)
+                    if sv is None:
+                        d[bk] = list(vals)
+                    else:
+                        for j in range(8):
+                            sv[j] += vals[j]
             if len(set(key)) < 3:
                 continue
             canon = tuple(sorted(key))
-            if canon in seen:
-                continue
-            seen.add(canon)
-            faces.append(tuple(key))
-            cols.append(rgb)
+            fi = seen.get(canon)
+            if fi is None:
+                seen[canon] = len(faces)
+                faces.append(tuple(key))
+                if full:
+                    fbins.append({bk: list(vals)})
+            elif full:
+                d = fbins[fi]
+                sv = d.get(bk)
+                if sv is None:
+                    d[bk] = list(vals)
+                else:
+                    for j in range(8):
+                        sv[j] += vals[j]
         pos = [(acc[k][0] / acc[k][3], acc[k][1] / acc[k][3], acc[k][2] / acc[k][3]) for k in order]
-        return pos, faces, cols
+        if not full:
+            return pos, faces, None, None, None
+        if qem:
+            for i, k in enumerate(order):
+                pos[i] = _qem_point(quad[i], pos[i], [mn[j] + k[j] * h[j] for j in range(3)], [mn[j] + (k[j] + 1) * h[j] for j in range(3)])
+        cols, cues, areas = [], [], []
+        for f, own in zip(faces, fbins):
+            tot = {}
+            for d, mult in ((own, OWN_WEIGHT), (vbins[f[0]], 1.0), (vbins[f[1]], 1.0), (vbins[f[2]], 1.0)) if not OWN_ONLY else ((own, 1.0),):
+                for bk, sv in d.items():
+                    t = tot.get(bk)
+                    if t is None:
+                        tot[bk] = [mult * x for x in sv]
+                    else:
+                        for j in range(8):
+                            t[j] += mult * sv[j]
+            best = max(tot.values(), key=lambda t: t[0])
+            w = best[0]
+            cols.append((int(round(best[1] / w)), int(round(best[2] / w)), int(round(best[3] / w))))
+            cues.append((int(round(best[4] / w)), int(round(best[5] / w)), int(round(best[6] / w)), int(round(best[7] / w))))
+            areas.append(_area(pos[f[0]], pos[f[1]], pos[f[2]]) + 1e-12)
+        return pos, faces, cols, cues, areas
 
     lo, hi = 4, 512
-    best = cluster(lo)
+    best_cells = lo
     while lo < hi:                                           # the finest grid that stays at or under the target
         mid = (lo + hi + 1) // 2
-        got = cluster(mid)
-        if len(got[1]) <= target:
-            best, lo = got, mid
+        if len(cluster(mid, False)[1]) <= target:
+            best_cells, lo = mid, mid
         else:
             hi = mid - 1
+    best = cluster(best_cells, False)
     cells = 4
     while not best[1] and cells < 4096:                      # a thin shape collapses on a coarse grid: refine until something is left
         cells *= 2
-        best = cluster(cells)
-    return best
+        best = cluster(cells, False)
+        best_cells = cells
+    return cluster(best_cells, True)
+
+
+def simplify(tris, target):
+    """simplify_surface without the cues: (verts, faces, colours)."""
+    pos, faces, cols, _, _ = simplify_surface(tris, target, qem=False)          # (the original centroid clustering: the legacy SVM1 payload is unchanged)
+    return pos, faces, cols
 
 
 def lzma_alone(body: bytes) -> bytes:
@@ -480,12 +888,30 @@ def unlzma_alone(blob: bytes) -> bytes:
     return lzma.decompress(blob[:5] + bytes([255]) * 8 + blob[13:], format=lzma.FORMAT_ALONE)
 
 
-def pack(path, target_tris=3000, codec="zlib", scale=1.0):
-    """`scale` multiplies every coordinate (NASA files whose published size sets the scale); 1.0 = as authored."""
-    raw = triangles(path)
+def _compress(body: bytes, codec: str) -> bytes:
+    if codec == "lzma":
+        return lzma_alone(bytes(body))
+    if codec == "zlib":
+        return zlib.compress(bytes(body), 9)
+    raise ValueError(f"unknown codec {codec!r}")
+
+
+MAX_PAL = 24
+OWN_ONLY = False                               # a face takes its colour from the triangles that landed on it (not the neighbourhood: interior layers would win)
+OWN_WEIGHT = 6.0                              # the triangles that landed on a face count this much more than its vertices' other neighbours
+SVM3_MAX_VERTS = 12000                        # what the game client accepts (svm1.lua MAX_VERTS3)
+
+
+def pack(path, target_tris=3000, codec="zlib", scale=1.0, fmt="svm1"):
+    """`scale` multiplies every coordinate (NASA files whose published size sets the scale); 1.0 = as authored.
+    fmt "svm1": flat colour per triangle (the original payload). fmt "svm3": colour regions (a palette of <= 24 entries, each with a gloss, a
+    metal level, a glow and an opacity), smooth vertex normals with creases split, a palette index per triangle (see the module docstring)."""
+    raw = surface_triangles(path)
     if scale != 1.0:
-        raw = [tuple(tuple(c * scale for c in p) for p in t[:3]) + (t[3],) for t in raw]
+        raw = [tuple(tuple(c * scale for c in p) for p in t[:3]) + tuple(t[3:]) for t in raw]
     tris = on_floor(raw)
+    if fmt == "svm3":
+        return _pack3(tris, target_tris, codec)
     pos, faces, cols = simplify(tris, target_tris)
     if not faces or len(pos) > 65535:
         raise M.MeasureError("nothing to pack, or too many vertices for u16")
@@ -500,20 +926,83 @@ def pack(path, target_tris=3000, codec="zlib", scale=1.0):
         body += struct.pack("<3H", *f)
     for c in cols:
         body += struct.pack("<3B", *c)
-    if codec == "lzma":
-        blob = lzma_alone(bytes(body))
-    elif codec == "zlib":
-        blob = zlib.compress(bytes(body), 9)
-    else:
-        raise ValueError(f"unknown codec {codec!r}")
+    blob = _compress(bytes(body), codec)
     info = {"tris_in": len(tris), "tris_out": len(faces), "verts": len(pos),
             "bbox_m": [round(mx[i] - mn[i], 4) for i in range(3)], "raw_bytes": len(body), "bytes": len(blob), "codec": codec}
     return blob, info
 
 
+def _pack3(tris, target_tris, codec):
+    target = target_tris
+    while True:
+        pos, faces, cols, cues, areas = simplify_surface(tris, target)
+        if not faces:
+            raise M.MeasureError("nothing to pack")
+        pal, pidx = S.build_palette([(cols[i], cues[i], areas[i]) for i in range(len(faces))], MAX_PAL)
+        order = sorted(range(len(faces)), key=lambda i: (pidx[i], i))               # runs of one palette entry compress to nothing
+        faces = [faces[i] for i in order]
+        pidx = [pidx[i] for i in order]
+        vpos, vnrm, faces = S.smooth_normals(pos, faces)
+        if len(vpos) <= SVM3_MAX_VERTS and len(vpos) <= 65535:
+            break
+        target = int(target * 0.8)
+        if target < 50:
+            raise M.MeasureError("too many vertices for one payload")
+    mn = [min(p[i] for p in vpos) for i in range(3)]
+    mx = [max(p[i] for p in vpos) for i in range(3)]
+    body = bytearray()
+    body += MAGIC3 + struct.pack("<HH6f", len(vpos), len(faces), *mn, *mx)
+    body += struct.pack("<B", len(pal))
+    for e in pal:
+        body += struct.pack("<7B", *e)
+    for p in vpos:
+        body += struct.pack("<3H", *[int(round(65535 * (p[i] - mn[i]) / ((mx[i] - mn[i]) or 1.0))) for i in range(3)])
+    for f in faces:
+        body += struct.pack("<3H", *f)
+    body += bytes(pidx)
+    for n in vnrm:
+        body += struct.pack("<3b", *[max(-127, min(127, int(round(127 * c)))) for c in n])
+    blob = _compress(bytes(body), codec)
+    info = {"tris_in": len(tris), "tris_out": len(faces), "verts": len(vpos), "palette": len(pal),
+            "bbox_m": [round(mx[i] - mn[i], 4) for i in range(3)], "raw_bytes": len(body), "bytes": len(blob), "codec": codec, "format": "svm3"}
+    return blob, info
+
+
+def _inflate(blob):
+    return unlzma_alone(blob) if blob[:1] == bytes([0x5D]) else zlib.decompress(blob)         # zlib streams start 0x78; legacy lzma props 0x5d
+
+
+def unpack3(blob):
+    """The inverse of an SVM3 payload, for tests and tools: dict(verts, normals, faces, palette, face_pal, bbox)."""
+    b = _inflate(blob)
+    if b[:4] != MAGIC3:
+        raise M.MeasureError("not an SVM3 payload")
+    nv, nt = struct.unpack_from("<HH", b, 4)
+    f = struct.unpack_from("<6f", b, 8)
+    mn, mx = f[:3], f[3:]
+    npal = b[32]
+    off = 33
+    pal = [struct.unpack_from("<7B", b, off + 7 * i) for i in range(npal)]
+    off += 7 * npal
+    verts = []
+    for i in range(nv):
+        q = struct.unpack_from("<3H", b, off + 6 * i)
+        verts.append(tuple(mn[k] + (mx[k] - mn[k]) * q[k] / 65535 for k in range(3)))
+    off += 6 * nv
+    faces = [struct.unpack_from("<3H", b, off + 6 * i) for i in range(nt)]
+    off += 6 * nt
+    face_pal = list(b[off: off + nt])
+    off += nt
+    nrm = [tuple(c / 127.0 for c in struct.unpack_from("<3b", b, off + 3 * i)) for i in range(nv)]
+    return {"verts": verts, "normals": nrm, "faces": faces, "palette": pal, "face_pal": face_pal, "bbox": (mn, mx)}
+
+
 def unpack(blob):
-    """The inverse, for tests: (verts in metres, faces, colours)."""
-    b = unlzma_alone(blob) if blob[:1] == bytes([0x5D]) else zlib.decompress(blob)         # zlib streams start 0x78; legacy lzma props 0x5d
+    """The inverse, for tests: (verts in metres, faces, colours). An SVM3 payload gives each triangle its palette colour."""
+    b = _inflate(blob)
+    if b[:4] == MAGIC3:
+        d = unpack3(blob)
+        return d["verts"], d["faces"], [tuple(d["palette"][i][:3]) for i in d["face_pal"]]
     if b[:4] != MAGIC:
         raise M.MeasureError("not an SVM1 payload")
     nv, nt = struct.unpack_from("<HH", b, 4)
@@ -537,8 +1026,9 @@ def main(argv=None):
     ap.add_argument("--target-tris", type=int, default=3000)
     ap.add_argument("--out")
     ap.add_argument("--codec", default="zlib", choices=["zlib", "lzma"])
+    ap.add_argument("--fmt", default="svm3", choices=["svm1", "svm3"])
     a = ap.parse_args(argv)
-    blob, info = pack(a.model, a.target_tris, a.codec)
+    blob, info = pack(a.model, a.target_tris, a.codec, fmt=a.fmt)
     print(info)
     if a.out:
         Path(a.out).write_bytes(blob)

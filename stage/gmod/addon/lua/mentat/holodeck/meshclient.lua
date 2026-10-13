@@ -3,6 +3,7 @@
 -- in place of its box. Loaded by entities/holodeck_found/cl_init.lua. Nothing here trusts the network: a message from anyone but the
 -- server cannot reach net.Receive on a client; sizes, counts and order are checked anyway; any failure leaves the box.
 local SVM1 = include("mentat/holodeck/svm1.lua")
+local Lit = include("mentat/lit.lua")                          -- the lighting and materials Skippy's body uses too
 
 local CM = {}
 CM.CAP_BYTES = 256 * 1024            -- the same cap as the server's
@@ -19,6 +20,8 @@ CM.store = {}                        -- mesh number -> { state = "ready" | "fail
 CM.partial = {}                      -- mesh number -> { n =, got =, count =, total =, crc =, t = }
 CM.asked = {}                        -- mesh number -> time of the last ask
 CM.stats = { chunks = 0, rejected = 0 }
+CM.cv_lit = CreateClientConVar and CreateClientConVar("holodeck_found_lit", "1", true, false, "1 = a found object's real shape is drawn lit (key, rim, fill, gloss, its own colours and materials); 0 = the old flat shading") or nil
+local function lit_enabled() return Lit.LIT and (CM.cv_lit == nil or CM.cv_lit:GetBool()) end
 
 local function now() return SysTime() end
 
@@ -63,6 +66,64 @@ function CM.triangles(dec, box)
   return tris, px, py, pz
 end
 
+--- SVM3 (colour regions, normals): one IMesh per palette entry, in the ENTITY's frame, Hammer units (see CM.triangles for the frame).
+--- Lit drawing ignores vertex colours, so each entry is its own mesh drawn with its own material; the unlit fallback bakes colour and a fixed
+--- light (Lit.shade from the vertex normal) into one vertex colour per vertex instead. Returns { parts = {...}, tris =, footprint = {ex, ey} } or nil, why.
+function CM.build3(dec, box)
+  if not (Mesh and mesh and mesh.Begin) then return nil, "no mesh library" end
+  local k = CM.HU_PER_M
+  local cx = box and (box.mins.x + box.maxs.x) / 2 or 0
+  local cy = box and (box.mins.y + box.maxs.y) / 2 or 0
+  local z0 = box and box.mins.z or 0
+  local px, py, pz, qx, qy, qz = {}, {}, {}, {}, {}, {}
+  for i = 1, dec.nv do
+    px[i], py[i], pz[i] = -dec.y[i] * k + cx, dec.x[i] * k + cy, dec.z[i] * k + z0
+    qx[i], qy[i], qz[i] = -dec.ny[i], dec.nx[i], dec.nz[i]                 -- the same quarter turn as the positions
+  end
+  local groups, order = {}, {}
+  for t = 1, dec.nt do
+    local g = groups[dec.pi[t]]
+    if not g then g = {}; groups[dec.pi[t]] = g; order[#order + 1] = dec.pi[t] end
+    g[#g + 1] = t
+  end
+  table.sort(order, function(a, b) return a < b end)
+  local lit = lit_enabled()
+  local parts, built = {}, {}
+  local ok, err = pcall(function()
+    for _, pidx in ipairs(order) do
+      local e = dec.pal[pidx]
+      local glow = e[6] > 20
+      local list = groups[pidx]
+      local imesh = Mesh()
+      built[#built + 1] = imesh
+      mesh.Begin(imesh, MATERIAL_TRIANGLES, #list)
+      for _, t in ipairs(list) do
+        local a, b, c = dec.a[t], dec.b[t], dec.c[t]
+        if CM.FLIP then b, c = c, b end
+        for _, v in ipairs({ a, b, c }) do
+          mesh.Position(Vector(px[v], py[v], pz[v]))
+          mesh.Normal(Vector(qx[v], qy[v], qz[v]))
+          if lit or glow then
+            mesh.Color(255, 255, 255, 255)
+          else
+            local sh = Lit.shade(qx[v], qy[v], qz[v])
+            mesh.Color(math.min(255, math.floor(e[1] * sh + 0.5)), math.min(255, math.floor(e[2] * sh + 0.5)), math.min(255, math.floor(e[3] * sh + 0.5)), e[7])
+          end
+          mesh.TexCoord(0, 0, 0)
+          mesh.AdvanceVertex()
+        end
+      end
+      mesh.End()
+      parts[#parts + 1] = { imesh = imesh, r = e[1], g = e[2], b = e[3], spec = e[4] / 255, metal = e[5] / 255, glow = glow, alpha = e[7], tris = #list }
+    end
+  end)
+  if not ok then
+    for _, m in ipairs(built) do if m.Destroy then pcall(m.Destroy, m) end end
+    return nil, tostring(err)
+  end
+  return { parts = parts, tris = dec.nt, lit = lit, footprint = { (dec.max[2] - dec.min[2]) / 2 * k, (dec.max[1] - dec.min[1]) / 2 * k } }
+end
+
 --- Build the engine mesh. Returns the IMesh or nil and why.
 function CM.build(dec, box)
   if not (Mesh and mesh and mesh.Begin) then return nil, "no mesh library" end
@@ -92,8 +153,14 @@ local function accept(id, blob, box)
   if not size or size < 40 or size > CM.MAX_RAW then CM.store[id] = { state = "failed", why = "bad LZMA header" }; return false end
   local ok, raw = pcall(util.Decompress, blob)
   if not ok or type(raw) ~= "string" or #raw ~= size then CM.store[id] = { state = "failed", why = "util.Decompress failed" }; return false end
-  local dec, why = SVM1.decode(raw)
+  local dec, why = SVM1.decode_found(raw)
   if not dec then CM.store[id] = { state = "failed", why = why }; return false end
+  if dec.svm3 then
+    local b3, why3 = CM.build3(dec, box)
+    if not b3 then CM.store[id] = { state = "failed", why = why3 }; return false end
+    CM.store[id] = { state = "ready", imesh = b3.parts[1].imesh, parts = b3.parts, tris = b3.tris, lit = b3.lit, footprint = b3.footprint, bbox = { dec.min, dec.max } }
+    return true
+  end
   local imesh, why2, ntris = CM.build(dec, box)
   if not imesh then CM.store[id] = { state = "failed", why = why2 }; return false end
   CM.store[id] = { state = "ready", imesh = imesh, tris = ntris, bbox = { dec.min, dec.max } }
@@ -180,11 +247,52 @@ local function material()
   return CM.material
 end
 
+--- A lit SVM3 object: a contact shadow, the engine's lights (set like Skippy's), one draw per palette entry with its own material.
+--- Opaque entries first, then the see-through ones, then the glowing ones (flat, self-lit).
+local function draw3(ent, s, alpha, m)
+  local fadeing = (alpha or 1) < 0.99
+  local pos = ent:GetPos()
+  local lit = s.lit and Lit.LIT
+  if lit then
+    local mn, mx = ent:GetBoxMins(), ent:GetBoxMaxs()
+    local foot = ent:LocalToWorld(Vector((mn.x + mx.x) / 2, (mn.y + mx.y) / 2, mn.z))
+    render.OverrideDepthEnable(true, false)                                  -- the shadow tests depth but never writes it
+    Lit.draw_shadow(foot + Vector(0, 0, 6), math.max(s.footprint[1] * 1.5, s.footprint[1] + 5), math.max(s.footprint[2] * 1.5, s.footprint[2] + 5), ent:GetAngles().y, alpha or 1)
+    render.OverrideDepthEnable(false, false)
+  end
+  local lights = lit and Lit.setup(pos + ent:GetUp() * ((ent:GetBoxMaxs().z + ent:GetBoxMins().z) / 2), ent:EntIndex())
+  cam.PushModelMatrix(m)
+  render.SetBlend(alpha or 1)
+  for pass = 1, 2 do
+    for _, p in ipairs(s.parts) do
+      local see = p.alpha < 250
+      if not p.glow and ((pass == 1 and not see) or (pass == 2 and see)) then
+        if lights then
+          render.SetMaterial(Lit.material(p.r, p.g, p.b, { spec = p.spec, metal = p.metal, alpha = p.alpha }, fadeing).mat)
+        else
+          render.SetMaterial(material())
+        end
+        p.imesh:Draw()
+      end
+    end
+  end
+  for _, p in ipairs(s.parts) do
+    if p.glow then
+      render.SetMaterial(Lit.glow_material(p.r, p.g, p.b))
+      p.imesh:Draw()
+    end
+  end
+  cam.PopModelMatrix()
+  render.SetBlend(1)
+  if lights then Lit.unlight() end
+end
+
 --- Draw a ready mesh at the entity's pose; `alpha` 0..1 is the holodeck's materialising fade.
 function CM.draw(ent, s, alpha)
   local m = Matrix()                                       -- (Translate then Rotate: world = move * turn; SetTranslation + SetAngles misplaced it live)
   m:Translate(ent:GetPos())
   m:Rotate(ent:GetAngles())
+  if s.parts then return draw3(ent, s, alpha, m) end
   render.SetBlend(alpha or 1)
   render.SetMaterial(material())
   cam.PushModelMatrix(m)
@@ -202,10 +310,33 @@ concommand.Add("holodeck_mesh_info", function()
   local n = 0
   for id, st in pairs(CM.store) do
     n = n + 1
-    print(string.format("[holodeck] mesh %d: %s%s%s", id, st.state, st.tris and (", " .. st.tris .. " triangles") or "", st.why and (", " .. tostring(st.why)) or ""))
+    print(string.format("[holodeck] mesh %d: %s%s%s%s", id, st.state, st.tris and (", " .. st.tris .. " triangles") or "", st.parts and (", " .. #st.parts .. " colour regions, " .. (st.lit and "lit" or "flat")) or "", st.why and (", " .. tostring(st.why)) or ""))
   end
   print(string.format("[holodeck] meshes held: %d; chunks received %d, rejected %d; FLIP=%s", n, CM.stats.chunks, CM.stats.rejected, tostring(CM.FLIP)))
 end)
+
+--- `holodeck_mesh_bench [tag]`: how long drawing the first found object takes the CPU (200 draws per frame inside the translucent pass,
+--- timed with SysTime, averaged over about 1.5 s); prints "[fl-perf] tag draw_ms=... parts=... tris=...". The look pass reads it from console.log.
+concommand.Add("holodeck_mesh_bench", function(_, _, args)
+  local acc, n = 0, 0
+  local tag = args and args[1] or "mesh"
+  hook.Add("PostDrawTranslucentRenderables", "holodeck_mesh_bench", function(depth, sky)
+    if sky or depth then return end
+    local e = ents.FindByClass("holodeck_found")[1]
+    local s = IsValid(e) and CM.get(e:GetMeshId())
+    if not s then return end
+    local t0 = SysTime()
+    for _ = 1, 200 do CM.draw(e, s, 1) end
+    acc = acc + (SysTime() - t0) / 200 * 1000
+    n = n + 1
+  end)
+  timer.Simple(1.6, function()
+    hook.Remove("PostDrawTranslucentRenderables", "holodeck_mesh_bench")
+    local e = ents.FindByClass("holodeck_found")[1]
+    local s = IsValid(e) and CM.store[e:GetMeshId()]
+    print(string.format("[fl-perf] %s draw_ms=%.4f samples=%d parts=%d tris=%s lit=%s", tag, acc / math.max(n, 1), n, s and s.parts and #s.parts or 1, tostring(s and s.tris), tostring(s and s.lit)))
+  end)
+end, nil, "Time the CPU cost of drawing the first found object")
 
 --- A client that has just loaded asks for everything the server already has.
 hook.Add("InitPostEntity", "holodeck_mesh_hello", function() CM.want(0) end)

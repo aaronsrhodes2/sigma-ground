@@ -1302,11 +1302,12 @@ def resolve_found(noun: str, audience: str = "game", cancel: Cancel | None = Non
 # (stage/skippyverse/meshpack.py: SVM1, ~1500 triangles, flat colours, LZMA in the framing Garry's Mod's util.Decompress reads).
 # The payload travels as base64 inside JSON: the engine's HTTP callback hands the body over as a string, and a JSON field is the
 # one form that reaches it whole whatever the bytes are (a binary body would depend on how the engine treats NULs and encodings).
-MESH_TRIS = 1500                                   # the triangle target handed to meshpack
+MESH_LEGACY = os.environ.get("SKIPPY_MESH_LEGACY", "") == "1"   # 1 = the original flat-colour SVM1 payload (the "before" of the look pass, and a fallback)
+MESH_TRIS = 1500 if MESH_LEGACY else 3000          # the triangle target handed to meshpack
 MESH_MAX_BYTES = 256 * 1024                        # a payload over this is never sent
 MESH_SOURCES = ("Poly Haven", "NASA 3D Resources")   # glTF/GLB (NASA: only once downloaded and not Draco-compressed): Poly Haven's are metres by its convention; NASA's follow the card's size (guessed units, or scaled to a verified published length)
 MESH_FUEL = "Gazebo Fuel"                          # an SDF of box/sphere/cylinder/Collada/OBJ visuals; a model with an STL (or glTF) mesh stays a box
-MESH_FORMAT = "svm1-lzma"
+MESH_FORMAT = "svm1-lzma" if MESH_LEGACY else "svm3-lzma"
 MESH_CACHE_MAX = 32
 MESH_CACHE_DIR = None                              # tests point acquire at a temporary directory; None = the real cache
 MESH_PACKED: dict = {}                             # key -> the answer (insertion ordered), so one model is packed once
@@ -1422,6 +1423,8 @@ def mesh_payload(card_id: str, key: str, cancel: Cancel | None = None, deadline:
         with GATE.slot("fetch", cancel):                                       # a second download waits a second, then gets 503
             prog.set("fetching")
             asset = acquire.acquire(card, fetch=fetch, cache_dir=MESH_CACHE_DIR)
+            if not MESH_LEGACY:                                                 # the colour/metal images the look pass samples (once per model)
+                acquire.ensure_textures(card, asset, fetch=fetch, cache_dir=MESH_CACHE_DIR)
         path = Path(asset["dir"]) / (asset.get("mesh") or asset.get("sdf") or "")
         if path.suffix.lower() not in (".gltf", ".glb", ".sdf") or path.name == "":
             raise ValueError("the asset is not a glTF or an SDF of primitives")
@@ -1433,7 +1436,7 @@ def mesh_payload(card_id: str, key: str, cancel: Cancel | None = None, deadline:
             if cancel is not None and cancel.is_set():
                 raise Cancelled()
             prog.t_stage = time.monotonic()                                    # (the wait for the pack lock is not packing)
-            blob, info = meshpack.pack(path, MESH_TRIS, "lzma", scale=scale)
+            blob, info = meshpack.pack(path, MESH_TRIS, "lzma", scale=scale, fmt="svm1" if MESH_LEGACY else "svm3")
         if len(blob) > MESH_MAX_BYTES:
             raise ValueError(f"the payload is {len(blob)} bytes, over the {MESH_MAX_BYTES} byte cap")
     except BaseException as e:

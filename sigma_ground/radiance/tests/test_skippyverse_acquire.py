@@ -237,7 +237,7 @@ def test_source_without_a_downloader_is_refused(tmp_path):
         A.acquire(found_card(source="Kenney", url="https://kenney.nl/x"), Fake({}), tmp_path)
 
 
-def test_polyhaven_fetches_gltf_and_bin_but_never_textures(tmp_path):
+def test_polyhaven_fetches_gltf_and_bin_and_no_texture_the_gltf_does_not_use(tmp_path):
     f = Fake(ph_routes())
     info = A.acquire(found_card(), f, tmp_path)
     assert "https://dl.example/tex.jpg" not in f.calls
@@ -292,7 +292,7 @@ def test_fuel_url_pattern_and_zip_handling(tmp_path):
         z.writestr("meshes/b.dae", dae("0.01"))
         z.writestr("materials/textures/t.png", b"x" * 100)
     info = A.acquire(card, Fake({url: buf.getvalue()}), tmp_path)
-    assert info["sdf"] == "model.sdf" and not (Path(info["dir"]) / "materials/textures/t.png").exists()
+    assert info["sdf"] == "model.sdf" and (Path(info["dir"]) / "materials/textures/t.png").is_file(), "images are kept since the look pass (colours are sampled at pack time)"
 
 
 def test_zip_slip_is_refused(tmp_path):

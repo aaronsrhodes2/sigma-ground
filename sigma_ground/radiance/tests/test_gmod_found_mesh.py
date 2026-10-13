@@ -132,7 +132,7 @@ def test_pack_with_the_lzma_codec_round_trips_and_is_smaller_than_the_raw_bytes(
 # ============================================================================================================ the bridge half
 def test_resolve_offers_a_mesh_for_a_glTF_card_and_says_its_key(ix):
     r = skippy_bridge.resolve_found("garden gnome")
-    assert r["place"] is True and r["mesh"] == {"key": skippy_bridge.mesh_key(TALL), "format": "svm1-lzma"}
+    assert r["place"] is True and r["mesh"] == {"key": skippy_bridge.mesh_key(TALL), "format": skippy_bridge.MESH_FORMAT}
     assert r["kind"]["variants"][0]["found"]["mesh"] == r["mesh"]["key"]
     assert len(r["mesh"]["key"]) == 16
     fuel = skippy_bridge.resolve_found("fuel widget")
@@ -255,7 +255,7 @@ def test_the_mesh_endpoint_downloads_once_packs_once_and_never_fetches_a_texture
     assert b is a and len(fetch.calls) == 3, "the second ask is answered from memory"
     blob = base64.b64decode(a["b64"])
     assert len(blob) == a["bytes"] <= skippy_bridge.MESH_MAX_BYTES and zlib.crc32(blob) == a["crc32"]
-    assert a["format"] == "svm1-lzma" and a["tris"] == 12 and a["verts"] == 8
+    assert a["format"] == skippy_bridge.MESH_FORMAT == "svm3-lzma" and a["tris"] == 12 and a["verts"] == 24, "a box: 12 triangles, 8 corners split into 3 (its creases keep their own normals)"
     assert a["bbox_m"] == pytest.approx([BOX_W, BOX_D, BOX_H], abs=1e-3), "x = the card's width, y = its depth, z = height"
     verts, faces, _ = meshpack.unpack(blob)
     assert len(faces) == 12 and min(v[2] for v in verts) == pytest.approx(0, abs=1e-6), "on the floor"
@@ -939,3 +939,194 @@ def test_a_server_to_client_round_trip_ends_with_the_mesh_on_screen(game):
     assert w.call("T.store", 1) == "ready"
     e.Draw(e)
     assert draws(w)[0] == 1
+
+
+# ============================================================================================================ the look pass: SVM3 (colour regions, normals, material cues), lit drawing
+LIT_FAKES = r"""
+local V = getmetatable(Vector(0, 0, 0)).__index
+function V:GetNormalized() local v = Vector(self.x, self.y, self.z); v:Normalize(); return v end
+function V:Angle() return Angle(0, 0, 0) end
+function EyePos() return Vector(0, 0, 0) end
+MATERIAL_LIGHT_DIRECTIONAL = 2
+function Matrix() local m = {}; function m:Translate(v) self.t = v end; function m:Rotate(a) self.a = a end; function m:Scale(v) self.s = v end; return m end
+LIGHT = { suppress_on = 0, suppress_off = 0, ambient = 0, lights = 0, nlights = 0, resets = 0, mats = {}, order = {}, depth = 0 }
+render.SuppressEngineLighting = function(b) if b then LIGHT.suppress_on = LIGHT.suppress_on + 1 else LIGHT.suppress_off = LIGHT.suppress_off + 1 end end
+render.SetModelLighting = function() LIGHT.ambient = LIGHT.ambient + 1 end
+render.SetLocalModelLights = function(t) if t then LIGHT.lights = LIGHT.lights + 1; LIGHT.nlights = #t else LIGHT.resets = LIGHT.resets + 1 end end
+render.ComputeLighting = function() return Vector(0.5, 0.5, 0.5) end
+render.OverrideDepthEnable = function() LIGHT.depth = LIGHT.depth + 1 end
+function CreateMaterial(name, shader, p)
+  local m = { name = name, shader = shader, p = p }
+  function m:SetFloat() end
+  LIGHT.mats[#LIGHT.mats + 1] = m
+  return m
+end
+render.SetMaterial = function(m) RENDER2.mats = RENDER2.mats + 1; LIGHT.order[#LIGHT.order + 1] = m and m.shader or "?" end
+util.TraceLine = function(t) return { Hit = true, HitPos = Vector(t.start.x, t.start.y, 0), HitNormal = Vector(0, 0, 1) } end
+MASK_SOLID_BRUSHONLY = 1
+"""
+
+
+def mesh_client_lit(lit=True):
+    w = World(cvars={}, load=(), server=False)
+    w.rt.execute(CLIENT_FAKES)
+    w.rt.execute(CLIENT_MESH_FAKES)
+    if lit:
+        w.rt.execute(LIT_FAKES)
+    w.rt.execute('MOCK.load_entity("holodeck_found", "client")')
+    return w
+
+
+def client_with_payload_lit(raw, blob, lit=True):
+    w = mesh_client_lit(lit)
+    w.rt.eval("function(a, b) MOCK.lzma[MOCK.fromhex(a)] = MOCK.fromhex(b) end")(blob.hex(), raw.hex())
+    return w
+
+
+def svm3_blob():
+    """A box with a red-metal half and a blue-matte half, as an SVM3 payload: (raw, lzma blob)."""
+    import io
+    import tempfile
+    from PIL import Image
+    from test_skippyverse_surface import BLUE, RED, png, textured_gltf
+    d = Path(tempfile.mkdtemp())
+    p = textured_gltf(d, png([RED, BLUE]))
+    mr = Image.new("RGB", (8, 8), (0, 255, 0))                         # matte: rough 1, metal 0
+    for x in range(4):
+        for y in range(8):
+            mr.putpixel((x, y), (0, 40, 255))                          # the left half: polished metal
+    b = io.BytesIO()
+    mr.save(b, "PNG")
+    doc = json.loads(p.read_text())
+    doc["images"].append({"uri": "textures/mr.png"})
+    doc["textures"].append({"source": 1})
+    doc["materials"][0]["pbrMetallicRoughness"]["metallicRoughnessTexture"] = {"index": 1}
+    (d / "textures" / "mr.png").write_bytes(b.getvalue())
+    p.write_text(json.dumps(doc))
+    blob, _ = meshpack.pack(p, 100, "lzma", fmt="svm3")
+    return meshpack.unlzma_alone(blob), blob
+
+
+DECODE3 = "function(h) local S = dofile(MOCK.ROOT .. '/mentat/holodeck/svm1.lua'); return S.decode3(MOCK.fromhex(h)) end"
+DECODE3_ERR = "function(h) local S = dofile(MOCK.ROOT .. '/mentat/holodeck/svm1.lua'); local d, e = S.decode3(MOCK.fromhex(h)); return d == nil, e end"
+
+
+def test_the_lua_svm3_decoder_matches_the_python_unpacker():
+    raw, blob = svm3_blob()
+    d = meshpack.unpack3(blob)
+    w = mesh_client()
+    dec = w.rt.eval(DECODE3)(raw.hex())
+    assert dec.svm3 is True and dec.nv == len(d["verts"]) and dec.nt == len(d["faces"])
+    for i, v in enumerate(d["verts"], 1):
+        assert (dec.x[i], dec.y[i], dec.z[i]) == pytest.approx(v, abs=1e-12)
+    for i, n in enumerate(d["normals"], 1):
+        assert (dec.nx[i], dec.ny[i], dec.nz[i]) == pytest.approx(n, abs=1e-9)
+    for i, e in enumerate(d["palette"], 1):
+        assert [dec.pal[i][k] for k in range(1, 8)] == list(e)
+    for i, k in enumerate(d["face_pal"], 1):
+        assert dec.pi[i] == k + 1 and (dec.r[i], dec.g[i], dec.bl[i]) == tuple(d["palette"][k][:3]), "a flat-colour consumer still sees the palette colour"
+    found = "function(h) local S = dofile(MOCK.ROOT .. '/mentat/holodeck/svm1.lua'); return S.decode_found(MOCK.fromhex(h)).svm3 end"
+    assert w.rt.eval(found)(raw.hex()) is True
+    raw1, _ = box_blob()
+    assert w.rt.eval(found)(raw1.hex()) is None, "SVM1 still decodes, as before"
+
+
+@pytest.mark.parametrize("mutate,why", [
+    (lambda r: r[:20], "too short"),
+    (lambda r: r + b"\0", "does not match"),
+    (lambda r: r[:32] + b"\0" + r[33:], "palette size"),
+    (lambda r: r[:4] + struct.pack("<HH", 2, 12) + r[8:], "vertex count"),
+    (lambda r: r[:-1], "does not match"),
+])
+def test_a_malformed_svm3_is_refused(mutate, why):
+    raw, _ = svm3_blob()
+    w = mesh_client()
+    ok, e = w.rt.eval(DECODE3_ERR)(mutate(raw).hex())
+    assert ok is True and why in e
+
+
+def test_an_svm3_palette_index_past_the_palette_is_refused():
+    raw, _ = svm3_blob()
+    npal = raw[32]
+    nv, nt = struct.unpack_from("<HH", raw, 4)
+    off = 33 + 7 * npal + 6 * nv + 6 * nt
+    bad = raw[:off] + bytes([npal]) + raw[off + 1:]
+    w = mesh_client()
+    ok, e = w.rt.eval(DECODE3_ERR)(bad.hex())
+    assert ok is True and "palette entry" in e
+
+
+def client_entity_lit(w, mesh_id=1):
+    e = client_entity(w, mesh_id)
+    up = w.rt.eval("Vector(0, 0, 1)")
+    e.GetUp = lambda s: up
+    e.EntIndex = lambda s: 7
+    return e
+
+
+def test_the_unlit_fallback_builds_one_mesh_per_colour_region_with_the_shade_baked_in():
+    raw, blob = svm3_blob()
+    w = client_with_payload_lit(raw, blob, lit=False)
+    e = client_entity_lit(w)
+    feed(w, make_msgs(blob))
+    assert w.call("T.store", 1) == "ready"
+    n_pal = len(meshpack.unpack3(blob)["palette"])
+    assert len(list(w.rt.eval("Holodeck.MeshClient.store[1].parts").values())) == n_pal >= 2
+    assert w.rt.eval("Holodeck.MeshClient.store[1].lit") is False
+    e.Draw(e)
+    assert w.rt.eval("RENDER2.draws") == n_pal, "one draw per region, the flat material, no engine lighting calls"
+
+
+def test_a_found_object_is_drawn_lit_with_its_own_materials_and_a_contact_shadow():
+    raw, blob = svm3_blob()
+    w = client_with_payload_lit(raw, blob)
+    e = client_entity_lit(w)
+    feed(w, make_msgs(blob))
+    assert w.call("T.store", 1) == "ready" and w.rt.eval("Holodeck.MeshClient.store[1].lit") is True
+    n_pal = len(meshpack.unpack3(blob)["palette"])
+    e.Draw(e)
+    L = w.rt.eval("LIGHT")
+    assert (L.suppress_on, L.suppress_off, L.lights, L.resets, L.nlights) == (1, 1, 1, 1, 3), "key + rim + fill, set once and put back once"
+    assert L.ambient == 6, "the map's ambient on six sides"
+    assert w.rt.eval("RENDER2.draws") == n_pal + 1, "every colour region once, and the shadow blob"
+    mats = [m for m in list(L.mats.values()) if m.shader == "VertexLitGeneric"]
+    assert len(mats) == n_pal and all(m.p["$phong"] == 1 and m.p["$basetexture"] == "color/white" for m in mats)
+    boosts = sorted(m.p["$phongboost"] for m in mats)
+    assert boosts[-1] > 2 * boosts[0], "the polished metal half glints far more than the matte half"
+    assert any(m.p["$phongtint"] for m in mats if m.p["$phongboost"] == boosts[-1]), "a metal tints its highlight"
+    col = w.rt.eval("RENDER2.meshes[1].verts[1].col")
+    assert (col[1], col[2], col[3]) == (255, 255, 255), "lit meshes carry no colour: the material has it"
+
+
+def test_the_materialise_fade_uses_translucent_variants_of_the_lit_materials():
+    raw, blob = svm3_blob()
+    w = client_with_payload_lit(raw, blob)
+    e = client_entity_lit(w)
+    feed(w, make_msgs(blob))
+    e.Draw(e)
+    solid = [m for m in list(w.rt.eval("LIGHT.mats").values()) if m.shader == "VertexLitGeneric"]
+    assert solid and not any(m.p["$translucent"] for m in solid)
+    e.GetColor = w.rt.eval("function() return function() return Color(255, 255, 255, 100) end end")()
+    e.Draw(e)
+    fade = [m for m in list(w.rt.eval("LIGHT.mats").values()) if m.shader == "VertexLitGeneric" and m.p["$translucent"]]
+    assert len(fade) == len(solid) and list(w.rt.eval("RENDER2.blends").values())[-1] == 1
+
+
+def test_the_lit_switch_draws_the_old_flat_way_when_off():
+    raw, blob = svm3_blob()
+    w = client_with_payload_lit(raw, blob)
+    w.rt.execute("GetConVar('holodeck_found_lit'):SetValue(0)")
+    e = client_entity_lit(w)
+    feed(w, make_msgs(blob))
+    assert w.rt.eval("Holodeck.MeshClient.store[1].lit") is False
+    e.Draw(e)
+    assert w.rt.eval("LIGHT.suppress_on") == 0
+
+
+def test_an_svm1_object_from_an_older_bridge_still_draws_as_before():
+    raw, blob = box_blob()
+    w = client_with_payload_lit(raw, blob)
+    e = client_entity_lit(w)
+    feed(w, make_msgs(blob))
+    e.Draw(e)
+    assert w.rt.eval("RENDER2.draws") == 1 and w.rt.eval("LIGHT.suppress_on") == 0

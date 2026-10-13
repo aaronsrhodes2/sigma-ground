@@ -43,32 +43,17 @@ local function failed(why)
 end
 
 -- ------------------------------------------------------------------------------------------------ lighting
--- The parts are drawn with a VertexLit material: the engine shades them from the vertex normals with the lights set below (the map's
--- own light and sun at his position, a rim light from behind him, a fill), so silver looks like metal and the coat has folds. Without
--- the lighting calls (an old client, the offline tests) the shading is baked into the vertex colours instead (B.shade) and the flat colour
--- material is used.
-local LIT = CLIENT and CreateMaterial ~= nil and render and render.SuppressEngineLighting ~= nil and render.SetModelLighting ~= nil
-  and render.SetLocalModelLights ~= nil and render.SetMaterial ~= nil
+-- The parts are drawn with a VertexLit material: the engine shades them from the vertex normals with the lights set in mentat/lit.lua (the
+-- map's own light and sun at his position, a key toward the viewer, a rim light from behind him, a fill), so silver looks like metal and the
+-- coat has folds. The same kit lights the found objects (holodeck/meshclient.lua), so everything stands in one light. Without the lighting
+-- calls (an old client, the offline tests) the shading is baked into the vertex colours instead (B.shade) and the flat colour material is used.
+local Lit = include("mentat/lit.lua")
+local LIT = Lit.LIT
 BC.LIT = LIT
-local mats = {}            -- "r_g_b" -> { mat = IMaterial, kind = "metal" | "gold" | "paint" }
-local KINDS = {
-  metal = { ["$phong"] = 1, ["$phongexponent"] = 45, ["$phongboost"] = 2.6, ["$phongfresnelranges"] = "[0.4 0.8 1.6]" },
-  gold = { ["$phong"] = 1, ["$phongexponent"] = 30, ["$phongboost"] = 1.4, ["$phongfresnelranges"] = "[0.3 0.7 1.3]" },
-  paint = { ["$phong"] = 1, ["$phongexponent"] = 18, ["$phongboost"] = 0.7, ["$phongfresnelranges"] = "[0.3 0.6 1]" },
-}
 local material_of
 --- The lit material of one colour (made once): a VertexLit white texture tinted by $color, with a gloss that suits the colour.
 local function lit_material(r, g, b)
-  local key = r .. "_" .. g .. "_" .. b
-  local m = mats[key]
-  if m then return m end
-  local kind = material_of(r, g, b)
-  local tint = string.format("[%.3f %.3f %.3f]", r / 255, g / 255, b / 255)
-  local p = { ["$basetexture"] = "color/white", ["$model"] = 1, ["$color"] = tint }
-  for k, v in pairs(KINDS[kind]) do p[k] = v end
-  m = { mat = CreateMaterial("mentat_skippy_" .. key .. "_2", "VertexLitGeneric", p), kind = kind }
-  mats[key] = m
-  return m
+  return Lit.material(r, g, b, { kind = material_of(r, g, b) })
 end
 --- Which material a colour wears: silver and white are the brushed metal / glossy paint, the gold trim a little glossy, navy and black plain paint.
 function material_of(r, g, b)
@@ -77,70 +62,13 @@ function material_of(r, g, b)
   return "paint"
 end
 
--- tuning knobs (client convars): multipliers on the ambient, the key, the rim, and the specular boost
-local cv_amb = CreateClientConVar("mentat_avatar_amb", "0.15", true, false, "his ambient light, times the map's")
-local cv_key = CreateClientConVar("mentat_avatar_key", "1.0", true, false, "his key (sun) light")
-local cv_rim = CreateClientConVar("mentat_avatar_rim", "0.45", true, false, "his rim light")
-local cv_spec = CreateClientConVar("mentat_avatar_spec", "0.8", true, false, "his specular highlight boost")
-local base_boost = { metal = 2.6, paint = 0.7, gold = 1.4 }
-
-BC.light = { cache_t = -1, amb = {}, key_dir = Vector and Vector(0, 0, -1) or nil }
-local function lum(v) return 0.3 * v.x + 0.59 * v.y + 0.11 * v.z end
-
 --- Set the engine's lights for drawing him. Returns true when they were set (call BC.unlight afterwards).
 function BC.setup_light(bot, level)
-  if not LIT then return false end
-  local L = BC.light
-  local t = SysTime()
-  local pos = bot:GetPos() + Vector(0, 0, 10)
-  if t - L.cache_t > 0.15 then                          -- the map's light at his position, six directions, a few times a second
-    L.cache_t = t
-    local dirs = { [BOX_FRONT or 0] = Vector(1, 0, 0), [BOX_BACK or 1] = Vector(-1, 0, 0), [BOX_RIGHT or 2] = Vector(0, -1, 0),
-      [BOX_LEFT or 3] = Vector(0, 1, 0), [BOX_TOP or 4] = Vector(0, 0, 1), [BOX_BOTTOM or 5] = Vector(0, 0, -1) }
-    local top = 0
-    for box, d in pairs(dirs) do
-      local c = render.ComputeLighting and render.ComputeLighting(pos, d) or Vector(0.4, 0.4, 0.4)
-      if d.z > 0.5 then top = lum(c) end
-      L.amb[box] = c
-    end
-    L.top = top
-    local sun = util.GetSunInfo and util.GetSunInfo() or nil
-    if sun and sun.direction and sun.direction.z > 0.1 then L.sun = sun.direction else L.sun = Vector(0.45, 0.35, 0.82):GetNormalized() end
-  end
-  render.SuppressEngineLighting(true)
-  local floor = BC.AMBIENT_FLOOR
-  local ak = cv_amb:GetFloat()
-  for box, c in pairs(L.amb) do
-    -- never black indoors; a little lift so the shadow side keeps its colour
-    render.SetModelLighting(box, math.max(c.x * ak, floor * ak), math.max(c.y * ak, floor * ak), math.max(c.z * ak, floor * ak * 1.05))
-  end
-  for _, m in pairs(mats) do m.mat:SetFloat("$phongboost", base_boost[m.kind] * cv_spec:GetFloat()) end
-  local eye = EyePos and EyePos() or (pos + Vector(100, 0, 0))
-  local toeye = eye - pos
-  toeye.z = 0
-  if toeye:LengthSqr() < 1 then toeye = Vector(1, 0, 0) end
-  toeye:Normalize()
-  local day = math.Clamp(L.top * 1.6, 0.35, 1.0)        -- how sunny it is at his position
-  local keyc, rimc = cv_key:GetFloat() * day, cv_rim:GetFloat() * (0.5 + 0.5 * day)
-  -- the key leans on the sun's height and sits toward the viewer's upper left (a back-lit figure would show you only his shadow side)
-  local left = Vector(-toeye.y, toeye.x, 0)
-  local keyto = L.sun * 0.45 + (toeye * 0.7 + left * 0.5) * 0.55 + Vector(0, 0, 0.35)
-  keyto:Normalize()
-  -- (the light's `dir` is the way the light travels)
-  render.SetLocalModelLights({
-    { type = MATERIAL_LIGHT_DIRECTIONAL, color = Vector(keyc, keyc * 0.96, keyc * 0.88), dir = -keyto },                        -- key: sun-ish, warm
-    { type = MATERIAL_LIGHT_DIRECTIONAL, color = Vector(rimc * 0.55, rimc * 0.7, rimc), dir = toeye + Vector(0, 0, -0.3) },    -- rim: from behind him toward you
-    { type = MATERIAL_LIGHT_DIRECTIONAL, color = Vector(0.3, 0.32, 0.38) * cv_key:GetFloat(), dir = -toeye + Vector(0.3, -0.4, -0.5) },  -- soft fill from your side
-  })
-  return true
+  return Lit.setup(bot:GetPos() + Vector(0, 0, 10), "avatar")
 end
 
-function BC.unlight()
-  if not LIT then return end
-  render.SetLocalModelLights()
-  render.SuppressEngineLighting(false)
-end
-BC.AMBIENT_FLOOR = 0.2
+function BC.unlight() Lit.unlight() end
+BC.AMBIENT_FLOOR = Lit.AMBIENT_FLOOR
 BC.BOB_M = 0.012                     -- metres of bob
 
 local function build_mesh(rows)
@@ -287,59 +215,10 @@ function BC.want()
 end
 
 -- ------------------------------------------------------------------------------------------------ ground contact: a soft blob shadow
-local shadow
-local function shadow_mesh()
-  if shadow or not LIT then return shadow end
-  local mat = CreateMaterial("mentat_skippy_blob_1", "UnlitGeneric", { ["$basetexture"] = "color/white", ["$vertexcolor"] = 1, ["$vertexalpha"] = 1,
-    ["$translucent"] = 1, ["$nocull"] = 1 })
-  local m = Mesh()
-  local rings = { { 0, 120 }, { 0.45, 85 }, { 0.75, 38 }, { 1, 0 } }
-  local n = 24
-  mesh.Begin(m, MATERIAL_TRIANGLES, n * (1 + 2 * (#rings - 2)))
-  local function vert(r, a, alpha)
-    mesh.Position(Vector(r * math.cos(a), r * math.sin(a), 0))
-    mesh.Normal(Vector(0, 0, 1))
-    mesh.Color(0, 0, 0, alpha)
-    mesh.TexCoord(0, 0, 0)
-    mesh.AdvanceVertex()
-  end
-  for i = 0, n - 1 do
-    local a0, a1 = 2 * math.pi * i / n, 2 * math.pi * (i + 1) / n
-    vert(0, 0, rings[1][2]); vert(rings[2][1], a0, rings[2][2]); vert(rings[2][1], a1, rings[2][2])
-    for k = 2, #rings - 1 do
-      local r0, c0, r1, c1 = rings[k][1], rings[k][2], rings[k + 1][1], rings[k + 1][2]
-      vert(r0, a0, c0); vert(r1, a0, c1); vert(r1, a1, c1)
-      vert(r0, a0, c0); vert(r1, a1, c1); vert(r0, a1, c0)
-    end
-  end
-  mesh.End()
-  shadow = { mesh = m, mat = mat }
-  return shadow
-end
-
 --- A soft dark patch on the ground under him (a trace down; it fades as he floats higher), so he is not a sticker on the scene.
 function BC.draw_shadow(bot, s)
-  local sh = shadow_mesh()
-  if not sh then return end
-  local pos = bot:GetPos()
-  local tr = util.TraceLine({ start = pos, endpos = pos - Vector(0, 0, 900), mask = MASK_SOLID_BRUSHONLY })
-  if not tr.Hit then return end
-  local h = pos.z - tr.HitPos.z
-  local fade = math.Clamp(1 - h / 700, 0, 1)
-  if fade <= 0.02 then return end
-  local ang = tr.HitNormal:Angle()
-  ang.p = ang.p + 90
-  local m = Matrix()
-  m:Translate(tr.HitPos + tr.HitNormal * 0.6)
-  m:Rotate(ang)
-  local r = 0.2 * B.HU_PER_M * s * (1 + 0.15 * (1 - fade))
-  m:Scale(Vector(r, r, r))
-  render.SetMaterial(sh.mat)
-  render.SetBlend(fade)
-  cam.PushModelMatrix(m)
-  sh.mesh:Draw()
-  cam.PopModelMatrix()
-  render.SetBlend(1)
+  local r = 0.2 * B.HU_PER_M * s
+  Lit.draw_shadow(bot:GetPos(), r, r, 0, 1)
 end
 
 --- Called now and then: if the server has the body and this client does not, ask.
