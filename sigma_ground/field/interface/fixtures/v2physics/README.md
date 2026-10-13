@@ -25,3 +25,55 @@ for Newton. A corrected revision is a separate baseline (`v2physics_r2`), added 
 * "Integrator-limited" (Table 2) is the Captain's list of six fast moons. At dt = 0.05 d the data show more moons losing phase
   (Europa, Tethys, Dione, Rhea, Ganymede, Ariel, Umbriel: fewer than ~150 steps per orbit); a step-count rule is proposed, not applied.
 * Uranus and Neptune floors (about 780 and 440 km at +5 yr) are in the fixture's Horizons planet-centre data, not the integrator.
+
+
+# Baseline r2 (2026-10-11/12): the shoot-out after the zonal Newton's-third-law fix
+
+`rolling_shootout_short_v2physics_r2.json`, `rolling_shootout_long_v2physics_r2.json`, `SCOREBOARD_v2physics_r2.md/.json/.png`, `FABRIC_v2physics_r2_*`. Label `v2physics_r2_2026-10-11`.
+r1 (above) is kept byte-identical beside it: it was taken BEFORE the fix (KNOWN_GAPS: zonal reaction). Code: master b41f0b0 (zonal fix, yearly checkpoints with retries).
+Same fixture, same step (0.05 d), same canonical predictors. Short pass: 16 windows J2005-J2020, 5 yr. Long pass: the headline stack on 7 windows J2000-J2006, 20 yr (its first
+successful run; the 2026-10-11 attempt had died silently, which the checkpoints now guard).
+
+**Provenance of r2's jobs.** Re-run with the fix: every headline-stack job (16 short + 7 long) and the `no_eih`, `no_tides`, `no_srp` ablations (6 windows each: j2005, j2008, j2011,
+j2014, j2017, j2020). Carried over unchanged from r1 because the fix cannot touch them (their layers do not include the zonal block, or no layers at all):
+`no_zonals`, `newton_same_dt`, `kepler_forecast`. The windows j2005 and j2006 appear in both passes; the scoreboard counts each once.
+
+## Headline (median over windows, heliocentric position error in km)
+
+| body | +1 yr | +5 yr | +20 yr | Newton only, +5 yr | Kepler forecast, +5 yr |
+|---|---|---|---|---|---|
+| Mercury | 0.29 | 1.48 | 5.84 | 958.1 | 6,073 |
+| Venus | 0.04 | 0.18 | 0.59 | 452.3 | 7,365 |
+| Earth | 0.08 | 0.44 | 1.89 | 304.9 | 10,477 |
+| Mars | 0.42 | 1.26 | 3.92 | 143.4 | 48,402 |
+| Jupiter | 17.6 | 37.6 | 67.6 | 34.3 | 726,228 |
+| Saturn | 0.31 | 1.67 | 12.3 | 26.3 | 1,675,731 |
+| Uranus | 151.9 | 775.8 | 3,924 | 798.5 | 1,587,423 |
+| Neptune | 87.1 | 433.9 | 1,673 | 452.7 | 2,056,146 |
+| Pluto | 13.3 | 55.1 | 278.9 | 41.9 | 2,550,524 |
+| Moon | 0.75 | 3.89 | 14.7 | 339.2 | 47,708 |
+| Titan | 66.0 | 328.5 | 1,334 | 105,259 | 1,672,918 |
+| Callisto | 19.5 | 93.0 | 370.6 | 82,170 | 724,671 |
+| Iapetus | 8.62 | 41.8 | 163.9 | 6,351 | – |
+| Phoebe | 3.68 | 13.5 | 65.7 | 151.1 | – |
+
+## What changed from r1 (same windows, +1 yr, in the scoreboard's Table 4)
+Jupiter 231 -> 40 km, Saturn 49 -> 1.1 km (45x), Earth 1.1 -> 0.30, Callisto 249 -> 59, Phoebe 58 -> 7, Moon 4.0 -> 2.3; the inner planets, Uranus, Neptune, Pluto and the fast moons are unchanged (the defect acted on bodies with a
+heavy, oblate parent and its moons).
+
+## What each force layer buys (Table 3, +5 yr, the 6 windows common to every predictor; ratio of ablation error to headline error)
+Relativity (full EIH): x408 median (Mercury x679, Venus x2399, Earth x678, Mars x139, Moon x82). Zonal harmonics: Moon x31, Earth x3.0, Mercury x1.4, Mars x0.97, Jupiter x1.03, **Venus x0.26 (the layer makes
+Venus worse: 0.15 km with it, 0.05 km without; sub-km, sign unexplained, a candidate for follow-up: Sun J2, or the J values)**. Tides and solar radiation pressure: x1.00 everywhere. That is not a bug: measured on the
+initial state, tides change accelerations by at most 8e-8 (Io) and solar pressure by at most 2e-12 (Deimos), which moves a planet by metres against kilometre-level errors.
+
+## Corrected scoreboard method (2026-10-12)
+Two defects in the first scoreboard draft were found and fixed before anything was reported: ablation columns were medians over 6 windows against 16-21 for the headline (now compared on the common windows), and the windows
+shared by the short and long passes were counted twice (now deduplicated). Both changes are in `scripts/shootout_scoreboard.py`.
+
+## Integrator-limited moons: the evidence for the rule, a decision for the Captain
+Errors of order the orbital radius (phase lost) appear for every moon with fewer than about 150 steps per orbit at 0.05 d, i.e. period below ~7.5 d: Phobos, Deimos, Mimas, Enceladus, Tethys, Dione, Rhea, Io, Europa,
+Ganymede (7.15 d), Miranda, Ariel, Umbriel. Today Table 2 lists only the first six decided earlier; the other seven are in Table 1 with errors of 10^3-10^6 km. Proposal: apply the steps-per-orbit rule to both tables.
+
+## Not a claim of beating JPL
+Our forecasts start from the DE440 state at the issue date (perfect initial conditions), so these numbers measure integration error. A JPL vintage also carried its own orbit-determination error (see `../vintages/README.md`).
+DE440 itself is a fit whose data end about 2020; targets after 2020 (windows from J2016 on) are DE440's own forecast, so they are agreement with DE440, not with measurements.

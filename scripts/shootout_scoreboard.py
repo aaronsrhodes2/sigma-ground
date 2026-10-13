@@ -83,6 +83,14 @@ def main() -> int:
         d = load(r)
         samples += d["samples"]
         meta.append(d["metadata"])
+    # a window can appear in two passes (the short and the long pass share j2005 and j2006): count each (predictor, body, window, epoch) once
+    seen, uniq = set(), []
+    for s_ in samples:
+        k_ = (s_["predictor"], s_["body"], s_["window_start_jd"], s_["sample_jd"])
+        if k_ not in seen:
+            seen.add(k_)
+            uniq.append(s_)
+    samples = uniq
     preds = [p for p in ORDER if any(s["predictor"] == p for s in samples)]
     extra = sorted({s["predictor"] for s in samples} - set(preds))
     preds += extra
@@ -99,6 +107,9 @@ def main() -> int:
           f"Predictors: {', '.join(preds)}. Step (canonical set): {sorted({m.get('dt_days') for m in meta if m.get('dt_days')})} d. "
           "Each cell is the **median over windows** of the heliocentric position error (km) at that horizon.", ""]
     summary: dict = {"cells": {}}
+    wins = {p: {s_["window_start_jd"] for s_ in samples if s_["predictor"] == p} for p in preds}
+    md += ["**Windows per predictor:** " + ", ".join(f"{p} {len(w)}" for p, w in wins.items()) +
+           ". Columns with fewer windows are medians over a thinner set, so compare columns only on the common windows (Table 3 does)", ""]
     for yrs, E in horizons.items():
         cell = {k: med(v) for k, v in E.items()}
         summary["cells"][f"{yrs:g}yr"] = {f"{p}|{b}": v for (p, b), v in cell.items()}
@@ -106,9 +117,10 @@ def main() -> int:
         md += table(lim_bodies, preds, cell, f"Table 2 — integrator-limited moons at +{yrs:g} yr (km; phase lost to round-off, not averaged into anything)")
     # layer contributions
     key_bodies = [b for b in PLANETS[:5] + ("Moon",) if b in bodies]
-    cell5 = {k: med(v) for k, v in horizons[5.0].items()}
-    md += ["**Table 3 — what each layer buys** (median over Mercury–Jupiter and the Moon of ablation error ÷ headline error at +5 yr; "
-           ">1 means the layer helps)", "", "| predictor | median ratio | per body |", "|---|---|---|"]
+    common = set.intersection(*wins.values()) if wins else set()
+    cell5 = {k: med(v) for k, v in errors_at([s_ for s_ in samples if s_["window_start_jd"] in common], 5.0).items()}
+    md += [f"**Table 3 — what each layer buys** (median over Mercury–Jupiter and the Moon of ablation error ÷ headline error at +5 yr, "
+           f"on the {len(common)} windows common to every predictor; >1 means the layer helps)", "", "| predictor | median ratio | per body |", "|---|---|---|"]
     for p in preds:
         if p == "de440_stack":
             continue

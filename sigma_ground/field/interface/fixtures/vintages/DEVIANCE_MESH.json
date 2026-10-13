@@ -649,182 +649,182 @@
  },
  "target_sampling_days": 30.4375,
  "comparison_with_ours": {
-  "label": "v2physics_r1",
+  "label": "v2physics_r2",
   "predictor": "de440_stack",
   "per_body_by_lead_year": {
    "Mercury": {
     "1": {
-     "ours_median_km": 0.2980173385509384,
+     "ours_median_km": 0.29764932566096924,
      "jpl_vintages_median_km": 1.3258333011014811
     },
     "2": {
-     "ours_median_km": 0.5403036714812984,
+     "ours_median_km": 0.5394530031154271,
      "jpl_vintages_median_km": 1.1311765281612849
     },
     "3": {
-     "ours_median_km": 0.7406022765949725,
+     "ours_median_km": 0.7393762743266141,
      "jpl_vintages_median_km": 1.2912499376505222
     },
     "4": {
-     "ours_median_km": 0.8960422552495293,
+     "ours_median_km": 0.8946470034182143,
      "jpl_vintages_median_km": 1.3258171751358474
     },
     "5": {
-     "ours_median_km": 1.3515203366431336,
+     "ours_median_km": 1.3499420759997893,
      "jpl_vintages_median_km": 1.1150564877565092
     }
    },
    "Venus": {
     "1": {
-     "ours_median_km": 0.03476389017691777,
+     "ours_median_km": 0.03476228761142058,
      "jpl_vintages_median_km": 0.6125938348281419
     },
     "2": {
-     "ours_median_km": 0.06829650095766676,
+     "ours_median_km": 0.06879453548904584,
      "jpl_vintages_median_km": 0.6229780811447043
     },
     "3": {
-     "ours_median_km": 0.10299532575248294,
+     "ours_median_km": 0.10241570027132935,
      "jpl_vintages_median_km": 0.6708636709526283
     },
     "4": {
-     "ours_median_km": 0.13901042714897147,
+     "ours_median_km": 0.13988052774412574,
      "jpl_vintages_median_km": 0.617715352850298
     },
     "5": {
-     "ours_median_km": 0.17572844105265928,
+     "ours_median_km": 0.17660918897292488,
      "jpl_vintages_median_km": 0.5940951764434464
     }
    },
    "Mars": {
     "1": {
-     "ours_median_km": 0.37020413302698607,
+     "ours_median_km": 0.3750586787411243,
      "jpl_vintages_median_km": 0.3136565281169033
     },
     "2": {
-     "ours_median_km": 0.6581276335027315,
+     "ours_median_km": 0.675241395865714,
      "jpl_vintages_median_km": 0.42643782013088094
     },
     "3": {
-     "ours_median_km": 1.0221666865681671,
+     "ours_median_km": 1.0254420198286145,
      "jpl_vintages_median_km": 0.34569038850983524
     },
     "4": {
-     "ours_median_km": 1.483959049623381,
+     "ours_median_km": 1.490769531268854,
      "jpl_vintages_median_km": 0.4358883559841313
     },
     "5": {
-     "ours_median_km": 1.256847164496776,
+     "ours_median_km": 1.2575495634950404,
      "jpl_vintages_median_km": 0.36999827612500125
     }
    },
    "Jupiter": {
     "1": {
-     "ours_median_km": 41.656375815508575,
+     "ours_median_km": 17.739362884740824,
      "jpl_vintages_median_km": 37.29702666041262
     },
     "2": {
-     "ours_median_km": 98.32599228224652,
+     "ours_median_km": 29.99603858964761,
      "jpl_vintages_median_km": 26.7834645501655
     },
     "3": {
-     "ours_median_km": 231.21047702699144,
+     "ours_median_km": 39.560215257499294,
      "jpl_vintages_median_km": 28.717307446836628
     },
     "4": {
-     "ours_median_km": 388.9134807966931,
+     "ours_median_km": 41.537640858578385,
      "jpl_vintages_median_km": 53.02961850332005
     },
     "5": {
-     "ours_median_km": 629.9747197102472,
+     "ours_median_km": 38.34336324643789,
      "jpl_vintages_median_km": 46.83697098361029
     }
    },
    "Saturn": {
     "1": {
-     "ours_median_km": 6.48414531010874,
+     "ours_median_km": 0.2809906612362159,
      "jpl_vintages_median_km": 204.7677118391081
     },
     "2": {
-     "ours_median_km": 22.55142453906737,
+     "ours_median_km": 0.7996144726866345,
      "jpl_vintages_median_km": 237.576887035869
     },
     "3": {
-     "ours_median_km": 49.39378046666562,
+     "ours_median_km": 1.088077474835915,
      "jpl_vintages_median_km": 259.83257294510776
     },
     "4": {
-     "ours_median_km": 87.95941222904548,
+     "ours_median_km": 1.6030929860022234,
      "jpl_vintages_median_km": 271.144111181153
     },
     "5": {
-     "ours_median_km": 140.43461084400192,
+     "ours_median_km": 1.5705575561798217,
      "jpl_vintages_median_km": 270.81511782682816
     }
    },
    "Uranus": {
     "1": {
-     "ours_median_km": 152.91963537029338,
+     "ours_median_km": 152.72934624293543,
      "jpl_vintages_median_km": 403.7420856842078
     },
     "2": {
-     "ours_median_km": 306.44156075894534,
+     "ours_median_km": 305.83354033890487,
      "jpl_vintages_median_km": 440.18077591315057
     },
     "3": {
-     "ours_median_km": 462.0918566131923,
+     "ours_median_km": 460.8015184989541,
      "jpl_vintages_median_km": 482.955983860383
     },
     "4": {
-     "ours_median_km": 620.9772095587131,
+     "ours_median_km": 618.866324375678,
      "jpl_vintages_median_km": 524.9403500107891
     },
     "5": {
-     "ours_median_km": 780.269111273012,
+     "ours_median_km": 777.8606603022549,
      "jpl_vintages_median_km": 576.4697068475969
     }
    },
    "Neptune": {
     "1": {
-     "ours_median_km": 88.12706766278527,
+     "ours_median_km": 88.1569548074254,
      "jpl_vintages_median_km": 1856.2499564257935
     },
     "2": {
-     "ours_median_km": 176.5837987897262,
+     "ours_median_km": 176.53252872793632,
      "jpl_vintages_median_km": 1986.9039504960201
     },
     "3": {
-     "ours_median_km": 265.0895580708076,
+     "ours_median_km": 264.9827954600448,
      "jpl_vintages_median_km": 2116.5368591098595
     },
     "4": {
-     "ours_median_km": 353.4364448021181,
+     "ours_median_km": 353.22747956397814,
      "jpl_vintages_median_km": 2250.8078620390206
     },
     "5": {
-     "ours_median_km": 441.0713488492863,
+     "ours_median_km": 440.7666429933478,
      "jpl_vintages_median_km": 2390.181190080615
     }
    },
    "Earth": {
     "1": {
-     "ours_median_km": 0.44398338582456753,
+     "ours_median_km": 0.07654184268928971,
      "jpl_vintages_median_km": 0.31932837582036355
     },
     "2": {
-     "ours_median_km": 0.7626359230200663,
+     "ours_median_km": 0.18298008743158659,
      "jpl_vintages_median_km": 0.33115019326505807
     },
     "3": {
-     "ours_median_km": 1.1027239291682382,
+     "ours_median_km": 0.2965028401872713,
      "jpl_vintages_median_km": 0.33572912655259307
     },
     "4": {
-     "ours_median_km": 1.495695612437991,
+     "ours_median_km": 0.38428119954658785,
      "jpl_vintages_median_km": 0.3421584019731776
     },
     "5": {
-     "ours_median_km": 1.8478007304603101,
+     "ours_median_km": 0.4505867337327282,
      "jpl_vintages_median_km": 0.34710510602699635
     }
    }

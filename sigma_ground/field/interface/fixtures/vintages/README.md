@@ -24,3 +24,9 @@ integration error alone, while a JPL vintage also carried the orbit-determinatio
 conditions), not the dynamics; for the inner planets our integration error and JPL's vintage offsets are both about a kilometre. A fair contest needs one of:
 (a) both start from the SAME initial state (propagate each vintage's own state at its release with our engine and compare with that vintage and with DE440), or
 (b) our own orbit fit from the data available at the issue date.
+
+## Update 2026-10-12: comparison with the corrected (r2) forecasts
+Median error (km) at 1 to 5 years of lead, JPL vintages | ours (r2, zonal-fixed), same like-for-unlike caveat as above:
+Mercury 1.1-1.3 | 0.3-1.3; Venus 0.6-0.7 | 0.0-0.2; Mars 0.3-0.4 | 0.4-1.5; Earth 0.3 | 0.1-0.5; Jupiter 27-53 | 18-42; Saturn 205-271 | 0.3-1.6; Uranus 404-577 | 153-778; Neptune 1856-2390 | 88-441.
+With the zonal defect fixed, Jupiter now sits inside the vintages' band (it was 630 km at 5 yr in r1). Saturn's 0.3-1.6 km against the vintages' ~240 km says the vintages' Saturn orbit was uncertain by hundreds of km at their
+release, an initial-condition (data) limit, not a dynamics limit. Mars and Earth at the longest lead are where our integration is slightly worse than a vintage's standing offset.
