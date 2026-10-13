@@ -561,6 +561,37 @@ The same two facts probably break the per-player WAKE NAMES file (`wakenames.lua
 **Only a person can verify:** how the voice sounds with capitals, stretched vowels and pauses (the Windows voice was used here; ElevenLabs was not reachable), whether the pace of remarks feels right over a real afternoon, whether the jokes land, the 3D position of the clips by ear, a second human client, and the real model route (no Anthropic key on this machine: the local model qwen3:8b was probed offline, 6 of 6 sample lines passed the validators, but it is not wired live).
 
 
+## Skippy's delivery (voice lab, 2026-10-13)
+
+Goal: make Skippy's voice more forward, snappy and expressive **without changing whose voice it is**. Only delivery and character are tuned; nothing is cloned, no
+recording is uploaded or trained on, and the voice stays the one Aaron set up (through SkippyTel's `/tts/stream`, model `eleven_v3`, max 500 characters, text only).
+
+* **`skippy_delivery.py`, `deliver(text, mood, level, max_chars)`** turns plain words into the TTS text. Moods: `boast`, `roast`, `helpful`, `musing`, `exclaim`, `opera`,
+  `whisper` (alias `whisper-aside`). Levels: `standard`, `bold`. It adds a documented v3 audio tag (`[mischievously]`, `[sarcastic]`, `[exhales]`/`[sighs]`, `[curious]`, `[excited]`,
+  `[sings]`, `[whispers]`; bold may add a trailing `[snorts]`/`[laughs]`), capitalises one or two emphasis words (v3 reads capitals as stress), and sets the beat with ellipses
+  between sentences or at the turn of the joke. It never changes the words (checked word for word, else it falls back), never recases a name (`PROTECTED`, mid-sentence capitals), removes
+  tags a writer typed in (only the layer adds tags), leaves the opera's stretched capitals alone, and drops tags and tricks in order until the result fits `max_chars`.
+  Documented tags checked against ElevenLabs' best-practices page: voice `[laughs] [laughs harder] [starts laughing] [wheezing] [whispers] [sighs] [exhales] [sarcastic] [curious] [excited] [crying] [snorts] [mischievously]`;
+  sound `[gunshot] [applause] [clapping] [explosion] [swallows] [gulps]`; special/experimental `[strong X accent] [sings] [woo] [fart]` (experimental ones are less consistent per voice).
+  v3 has no SSML `<break>`: pauses come from ellipses, punctuation and structure.
+* **Adding a mood:** one entry in `MOODS` (`{level: (lead tag, trailing tag, emphasis words, pace style)}`), using only tags in `DOCUMENTED_TAGS`; the test `test_documented_tag_set...` fails otherwise. Pace styles: `tight`, `beat`, `turn`.
+* **Finish chains** (`finish_filter(preset)`, `finish(src, dst, preset)`, ffmpeg): `none`; `subtle` (high-pass 90 Hz, compressor 2.2:1, +2.5 dB at 3 kHz, loudnorm); `forward` (high-pass 140 Hz, compressor 3.2:1, +4 dB at 2.8 kHz,
+  narrow +2.5 dB ring at 1.4 kHz, a 6 ms echo for a hint of metal, loudnorm). Tests cap boosts at 5 dB, ratios at 4, echo at 10 ms so speech stays natural.
+* **The lab** (`python stage/gmod/holodeck/voice_lab.py`, plan only; `--go` to spend): 7 original lines x 3 delivery variants (A plain, B delivery layer, C bold) = 21 requests, 1,441 characters (budget 1,500, kept in a ledger);
+  the finishes are made from the same mp3s with ffmpeg (free). Output in `data/voice_lab/` (gitignored): `index.html` (labelled players), `answer_sheet.txt`, `metrics.json`.
+  `voice_design_candidate.py` is an optional, un-run script for Aaron to design an ORIGINAL voice from a text description (`POST /v1/text-to-voice/design`); the key stays in his environment.
+* **Style metrics only.** The lab prints median pitch, pitch spread, loudness range, pause fraction, onsets/s and spectral centroid per clip next to a reference clip's numbers. They measure delivery, never identity, and on 3 to 5 second clips
+  they are noisy (the pitch tracker fails on some, pauses under 0.25 s do not register).
+* **What only ears can judge:** whether the tags sound like Skippy or like a narrator doing a voice, whether caps read as emphasis or shouting, whether `[sings]` is funny, and whether `forward` is beer-can or just harsh.
+
+### Where to apply it (proposed, not applied: A7a owns these files)
+
+1. `skippy_quips.py`, `import skippy_delivery as delivery` with the other imports, and in `Engine.quip` (around line 857) change
+   `clip, voice = self.synth(text)` to `clip, voice = self.synth(delivery.deliver(text, entry_mood))` where `entry_mood` is the bank entry's / model's mood already known there. Keep `store_clip(text, clip)` and the cache key on the plain `text` (cache by words, not by tags).
+2. `skippy_quips.py` `make_engine` `synth(text)` (around line 891) stays as is: it passes the already-delivered text to `bridge.speak`. The bridge's `/speak` route can take an optional `"mood"` field and call `deliver(text, mood, max_chars=MAX_SPEAK_CHARS)` just before `speak_elevenlabs`; tags must be added after the `clean_text` and the quota `GATE.charge_chars/charge_paid` should count the delivered length.
+3. `validate_line` must keep refusing brackets in a model's line: only the delivery layer adds tags.
+4. Roll-out switch: an env var `SKIPPY_DELIVERY=off|standard|bold` (default `off` until the ears say which).
+
 ## Faces: a player's picture is their head
 
 Every player can wear a picture as their head: a small rounded head (about 400 triangles, drawn with the render/mesh API, so no

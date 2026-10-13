@@ -85,3 +85,4 @@ stage/gmod/holodeck/data/faces_cache/
 
 # Skippy whim lines: his private history, clip cache, day budget and live bank (never commit)
 stage/gmod/holodeck/data/quips/
+stage/gmod/holodeck/data/voice_lab/
