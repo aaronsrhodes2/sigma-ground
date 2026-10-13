@@ -57,8 +57,8 @@ j2014, j2017, j2020). Carried over unchanged from r1 because the fix cannot touc
 | Iapetus | 8.62 | 41.8 | 163.9 | 6,351 | – |
 | Phoebe | 3.68 | 13.5 | 65.7 | 151.1 | – |
 
-## What changed from r1 (same windows, +1 yr, in the scoreboard's Table 4)
-Jupiter 231 -> 40 km, Saturn 49 -> 1.1 km (45x), Earth 1.1 -> 0.30, Callisto 249 -> 59, Phoebe 58 -> 7, Moon 4.0 -> 2.3; the inner planets, Uranus, Neptune, Pluto and the fast moons are unchanged (the defect acted on bodies with a
+## What changed from r1 (same windows, +3 yr, in the scoreboard's Table 4)
+Jupiter 231 -> 40 km, Saturn 49 -> 1.1 km (45x), Earth 1.1 -> 0.30, Callisto 249 -> 59, Phoebe 58 -> 7, Moon 4.0 -> 2.3 (all at +3 yr); the inner planets, Uranus, Neptune, Pluto and the fast moons are unchanged (the defect acted on bodies with a
 heavy, oblate parent and its moons).
 
 ## What each force layer buys (Table 3, +5 yr, the 6 windows common to every predictor; ratio of ablation error to headline error)
