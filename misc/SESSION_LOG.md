@@ -3845,3 +3845,46 @@ test `sigma_ground/mcp/test_server_first_call.py` (1.9 s).
 * Tests: 321 benchmark tests and 97 MCP server tests pass; `test_targets.py::test_qa_matches_wolfram_on_subset_wa_got_right`
   fails at 97 % against a 98 % target on `results/sigma_ground_scored.json`, unchanged since 2026-07-19 (not touched here).
 
+
+## Session 39 (continued) — 2026-10-13 — The v3 sweep ran; a 4B matches the 8B; the math failures are a whole-catalogue problem
+
+### The v3 sweep (started 00:00 as scheduled; finished 15:01; no failure, no retry, no skipped profile)
+Same data (33,387 train / 3,603 validation, 9,274 accepted teacher rewrites), same hyperparameters, three bases. Benchmark: 150
+questions, scored by `score.py` unchanged; `legacy` is the comparison of record (the cascade answers its 86, identical for every model).
+
+| | 1.7B | 4B | 8B | stock 8B | v2 8B |
+|---|---|---|---|---|---|
+| benchmark, legacy (model path of 64) | 137 (53) | **140 (56)** | **140 (56)** | 137 (53) | 134 (50) |
+| benchmark, trained profile | 137 | 140 | 140 | 137 | n/a |
+| benchmark, cascade off (model alone, of 150) | 98 | **109** | 106 | 97 | n/a |
+| hard set, 90 questions, exact plan (free) | 80.0 % | **94.4 %** | 88.9 % | n/a | 86.7 % |
+| validation, 3,603, exact plan (free) | 90.9 % | 92.9 % | 93.9 % | n/a | n/a |
+| training time | 72 min | 161 min | 277 min | | |
+| model file (Q4_K_M) | 1.3 GB | 2.5 GB | 5.0 GB | | |
+
+The stock 1.7B scores 88 and the stock 4B 91 (legacy), so training is what makes the small sizes usable. **The 4B equals the trained 8B on the
+benchmark (140 and 140, 56 of 64 on the model path) at half the size and 58 % of the training time, and is ahead on the hard set; the 1.7B is
+3 questions behind.** One training seed per size and 150 questions: a difference of 2-3 questions is within noise, so "equal", not "better".
+
+### What the cascade-off runs show (tools/tweak_ablation.py, all sizes)
+Only `conversion` and the semantic router can be retired at every size (and `new_tools` at the 4B). The four groups that compute physics in the
+harness are not yet replaceable (model alone, 8B: astro 4 of 10, classical_intro 3 of 5, modern 8 of 12, optics 1 of 4). `math` is 0 of 6 at
+every size.
+
+### The math failures (investigated; nothing in the harness changed yet)
+* The model picks the right tool with sensible arguments on all six math questions. Four fail because the router path cannot read a symbolic or
+  list result (`["-2","2"]`, `"cos(x)"`, `"1"`); two because `integrate_expr` was called with invented `bounds`/`limits`.
+* `tools/tool_census.py` (new) shows this is not six questions: across all 232 tools (one real call each) the router path cannot read any
+  symbolic-string, numeric-string, list or procedure result (14 + 3 + 7 + 5 tools): the whole non-numeric math family. 99 of 545 parameters
+  have under 10 training examples (98 none): `integrate_expr.lower/upper`, `compute_limit.point/direction`, `gradient/divergence/curl.variables`...
+  The training labels lint clean (41,224 calls). `router_results.py` reads those shapes with the cascade's own conversion (26 tests).
+* What-if, re-scored on copies of the run files: reading string/list results lifts the 4B cascade-off 109 to 115 and the 1.7B 98 to 100.
+* 12 % of the 4B's numeric arguments (19 of 162) are not traceable to the question: constants and conversions written from memory, one 100x off
+  (`modern_001`, 0.9c as 2,700,000 m/s).
+
+### Design (misc/DEFAULTS_AND_RANGES_DESIGN.md, the Captain's rule)
+Every parameter has bounds; what the prompt leaves out is derived from a mass and a material (quarksum's census + the materials tables + a
+geometry step that does not exist yet: V = m/rho, radius, area) or taken from a scenario prior table, relative to the experiment; the answer is
+given first with the assumptions stated; every plan number carries a provenance (user / table / step / model); quantities are quoted from the
+question and converted by Mentat. Not built beyond the census tools and `router_results.py`. Decisions listed in the doc.
+

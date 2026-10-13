@@ -87,3 +87,11 @@ SIZE=4b DOCKER_OLLAMA=skippytel-ollama tools/run_router_v3.sh
   harness from the question's wording; a plan field for it is the next format change.
 * Cascade-off runs depend on the model emitting exact parameter names; that is the point, and what
   `strict_params` makes visible.
+
+## Result (the sweep ran 2026-10-13, 00:00 to 15:01)
+
+See `misc/SESSION_LOG.md`, "Session 39 (continued)", for the table. In short: benchmark (legacy profile) 1.7B 137, 4B 140, 8B 140 against
+stock 8B 137 and v2 8B 134; cascade off 98 / 109 / 106; hard set 80.0 / 94.4 / 88.9 %. A 4B matches the 8B at half the size. Estimates in this plan
+against measured: the sweep took about 15 h not 10 (8B training 277 min against an estimated 200, 8B scoring 19 min, 8B smoke 40 min), and the
+teacher pass took 63 min against 70.
+
