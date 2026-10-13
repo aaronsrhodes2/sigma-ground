@@ -37,6 +37,7 @@ def synthetic_face() -> bytes:
     d.arc((140, 220, 260, 320), 20, 160, fill=(150, 40, 40), width=8)    # smile
     d.rectangle((0, 0, 60, 60), fill=(255, 0, 0))                        # corner marks: the picture's orientation must be readable
     d.rectangle((340, 340, 400, 400), fill=(0, 200, 0))
+    d.ellipse((100, 235, 140, 275), fill=(220, 30, 30))                 # a red cheek mark on the picture's LEFT: it must be on the viewer's left
     buf = BytesIO()
     im.save(buf, "PNG")
     return buf.getvalue()

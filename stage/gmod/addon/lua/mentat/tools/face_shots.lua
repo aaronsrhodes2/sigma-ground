@@ -28,9 +28,9 @@ return function(args, done, ply)
   local function floor_at(x, y)
     return util.TraceLine({ start = Vector(x, y, 3000), endpos = Vector(x, y, -30000), mask = MASK_SOLID_BRUSHONLY }).HitPos.z
   end
-  local function take(prefix, vs, P)
+  local function take(prefix, vs, P, base)
     for _, v in ipairs(vs) do
-      local ya, el = math.rad(v.yaw or 0), math.rad(v.elev or 6)
+      local ya, el = math.rad((v.yaw or 0) + (base or 0)), math.rad(v.elev or 6)
       local dir = Vector(math.cos(ya) * math.cos(el), math.sin(ya) * math.cos(el), math.sin(el))
       local aim = P + Vector(0, 0, v.aim_z or 66)
       local cam = aim + dir * (v.dist or 60)
@@ -76,12 +76,14 @@ return function(args, done, ply)
         .. " scale=" .. tostring(bone and b:GetManipulateBoneScale(bone)) .. " mode=" .. tostring(FC and FC.mode_of(b))) end
       if img and img.mat then print("[face-diag] mat_error=" .. tostring(img.mat:IsError()) .. " shader=" .. tostring(img.mat:GetShader()) .. " name=" .. tostring(img.mat:GetName())) end]])
     sleep(0.6)
-    take("face_", views, P)
+    local base = bot:EyeAngles().y                                -- the way he really faces now (a bot turns its own head)
+    out.bot_yaw = base
+    take("face_", views, P, base)
     diag(ply, [[print("[face-diag] after: drawn=" .. tostring(MentatFacesClient.stats.drawn) .. " builds=" .. tostring(MentatFacesClient.stats.mesh_builds) .. " draw_error=" .. tostring(MentatFacesClient.draw_error))]])
     -- hidden: the real head must come back at once
     F.rec[sid].hidden = true; F.sync()
     sleep(1.5)
-    take("face_hidden_", { views[1] }, P)
+    take("face_hidden_", { views[1] }, P, bot:EyeAngles().y)
     -- leave nothing behind
     F.rec[sid] = nil
     F.sweep(); F.save(); F.sync()

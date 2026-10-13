@@ -406,9 +406,7 @@ own choice; the portal route is your own consent in your own signed-in session. 
 address or name. Everyone can say `skippy face hide`, `off` or `remove`; admins can block. Retention: the bridge cache keeps a
 picture 30 days since last use; the server deletes a picture when nobody's record names it.
 
-**Not verified until the live check** (see the live section of the report in the commit message): that `Material("data/<file>.jpg")`
-accepts a jpg written at run time, and how the head looks. `FC.load_material` in `faces_client.lua` is the one small function to
-change; when the material is not valid the head is a plain neutral one.
+**Live check (2026-10-12, the real game, hands off: `python stage/gmod/holodeck/face_shots.py`, a bot wearing a synthetic picture, pictures in `holodeck/data/shots/face_*.jpg`).** Verified in the engine: `Material("data/mentat_faces/<crc>.jpg")` accepts a jpg written at run time (not an error material, shader UnlitGeneric after the `CreateMaterial` + `SetTexture` hop in `FC.load_material`); the picture lands un-mirrored on the front of the head (a mark on the picture's left appears on the viewer's left); the real head of a stock model (`kleiner`, bone 6) is scaled to zero while the face shows and is back the moment the face is hidden; the head turns with the player; no draw errors over ~5500 head draws and 3 mesh builds. Not verified: a real photograph, other player models, the floating fallback on a server without the game's content, and the offsets `mentat_face_up/fwd/scale` for models other than kleiner. Known look: the sides, back and neck take the picture's border colour, so a picture with a strongly coloured background gives a hood of that colour. The client keeps each received picture as `data/mentat_faces/<crc>.jpg` on the player's own PC (small, deletable at any time).
 
 ## Playing with your voice (one command)
 
