@@ -69,6 +69,34 @@ stop() {
   return 1
 }
 
+# The game renders on the same GPU as any training run. A window starved of GPU time stops pumping messages while it loads the map and Windows shows the
+# frozen "not responding" spinner (seen 2026-10-12 with the GPU at 100%). So a hands-off run WAITS until the GPU is calm; a played session only warns.
+# GMOD_GPU_MAX = the busiest GPU utilisation (percent) a hands-off start tolerates (default 70; 0 = do not check), GMOD_GPU_WAIT = seconds to wait (default 1200).
+gpu_util() {   # the GPU's utilisation in percent, averaged over three samples; empty when there is no NVIDIA GPU or nvidia-smi
+  command -v nvidia-smi >/dev/null 2>&1 || return 0
+  local i s sum=0 n=0
+  for i in 1 2 3; do
+    s=$(nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits 2>/dev/null | head -1 | tr -d ' %\r')
+    case "$s" in ''|*[!0-9]*) ;; *) sum=$((sum + s)); n=$((n + 1)) ;; esac
+    [ "$i" -lt 3 ] && sleep 1
+  done
+  [ "$n" -gt 0 ] && echo $((sum / n))
+}
+
+gpu_calm() {   # gpu_calm hands_off(1|0): 0 when the GPU is calm enough to start; 3 when a hands-off start gave up waiting
+  local max="${GMOD_GPU_MAX:-70}" wait_s="${GMOD_GPU_WAIT:-1200}" waited=0 u
+  [ "$max" -le 0 ] && return 0
+  while :; do
+    u=$(gpu_util)
+    [ -z "$u" ] && return 0
+    [ "$u" -le "$max" ] && return 0
+    if [ "$1" != "1" ]; then echo "gmod: warning: the GPU is $u% busy (a training run?); the game may stutter or freeze while it loads" >&2; return 0; fi
+    if [ "$waited" -ge "$wait_s" ]; then echo "gmod: the GPU stayed $u% busy for ${waited}s; not starting a hands-off run (GMOD_GPU_MAX=0 ignores this)" >&2; return 3; fi
+    [ "$waited" -eq 0 ] && echo "gmod: the GPU is $u% busy; waiting for it to calm down before starting (up to ${wait_s}s)" >&2
+    sleep 15; waited=$((waited + 15))
+  done
+}
+
 start() {
   # start [map] [--quiet]   --quiet: minimized, muted, no mouse or joystick capture (for automated runs)
   local map="gm_construct" quiet=0 a
@@ -79,6 +107,8 @@ start() {
     echo "gmod: already running (one instance only). Run '$0 stop' first." >&2
     return 1
   fi
+  # hands-off = a quiet run or a test run (GMOD_MOUSE unset/0): wait for a calm GPU; a played session only gets a warning
+  if [ "$quiet" -eq 1 ] || [ "${GMOD_MOUSE:-0}" = "0" ]; then gpu_calm 1 || return $?; else gpu_calm 0; fi
   if [ -e "$LOG" ] && ! rm -f "$LOG" 2>/dev/null; then
     echo "gmod: console.log is locked by something; refusing to start (a stale instance?)" >&2
     return 1
