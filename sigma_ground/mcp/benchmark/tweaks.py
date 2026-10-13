@@ -41,7 +41,7 @@ HERE = Path(__file__).parent
 @dataclass(frozen=True)
 class Tweak:
     name: str
-    kind: str                     # cascade | surface | args | check | loop
+    kind: str                     # cascade | surface | args | check | capability | loop
     what: str                     # what it does for a model that cannot do it alone
     covers: tuple[str, ...] = ()  # tools the training data must teach before it may go (more are scanned)
     default: bool = True          # True: working unless switched off; False: opt-in check
@@ -107,6 +107,11 @@ _add(Tweak("body_name_chain", "args",
            covers=("solar_system_body", "named_star")))
 _add(Tweak("strict_params", "check",
            "a call with a parameter the tool does not have is an error (pydantic would drop it and use the default)",
+           default=False))
+_add(Tweak("structured_results", "capability",
+           "router path reads a symbolic-string or list result (roots, derivatives, integrals, matrices) as the answer, "
+           "as the cascade's math executor does, and names a rejected call by its cause. Off = 'returned no value' "
+           "(every earlier run). A prerequisite for retiring cascade.math, not a help for the model",
            default=False))
 _add(Tweak("pattern_hints", "loop",
            "_PATTERN_HINTS: question phrases mapped to a domain at the top of the chain-mode prompt",

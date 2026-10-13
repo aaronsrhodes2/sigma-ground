@@ -837,6 +837,14 @@ async def _route_once(session, http, ollama_url: str, model: str, question: str,
                       **({"unknown_params": unknown} if unknown else {})})
         step = {"name": name, "args": args, "result_text": tool_text}
         got = _tool_call_value(step, question)
+        if got is None and _tw.on("structured_results"):
+            # a symbolic string or a list is an answer (the cascade reads it the same way), and a
+            # rejected call is named by its cause instead of "returned no value"
+            from sigma_ground.mcp.benchmark import router_results as _rr
+            got = _rr.present(tool_text)
+            if got is None:
+                why = _rr.tool_error(name, tool_text) or f"{name} returned no value"
+                return {**record(f"<router: {why}>", router_error=why), "tool_calls": calls}
         if got is None:
             return {**record(f"<router: {name} returned no value>",
                              router_error=f"{name} returned no value"),

@@ -79,3 +79,76 @@ def test_a_rejected_call_is_named_by_its_cause(text, expected):
 def test_a_good_result_is_not_an_error():
     assert RR.tool_error("t", result(1.0)) is None
     assert RR.tool_error("t", "not json") is None
+
+
+# ── the harness switch: structured_results ──────────────────────────────────────────────
+
+import asyncio
+from types import SimpleNamespace
+
+from sigma_ground.mcp.benchmark import run_sigma_ground as H
+from sigma_ground.mcp.benchmark import tweaks as T
+
+
+@pytest.fixture
+def tweaks_reset():
+    T.reset()
+    yield
+    T.reset()
+
+
+class _Http:
+    def __init__(self, plan):
+        self.plan = plan
+
+    async def post(self, url, json=None, **kw):
+        return SimpleNamespace(status_code=200, raise_for_status=lambda: None,
+                               json=lambda: {"message": {"content": self.plan}})
+
+
+class _Session:
+    def __init__(self, text):
+        self.text, self.called = text, []
+
+    async def call_tool(self, name, args):
+        self.called.append((name, dict(args)))
+        return SimpleNamespace(content=[SimpleNamespace(text=self.text)])
+
+
+def route(tool, args, tool_result, real_params):
+    tools = [{"type": "function", "function": {"name": tool, "description": "", "parameters": {}}}]
+    session = _Session(tool_result)
+    plan = json.dumps({"tool": tool, "tool_args": args})
+    rec = asyncio.run(H._route_once(session, _Http(plan), "http://x", "m", "q?", "sys", tools,
+                                    {tool: set(real_params)}, 0.0, "free", "v3"))
+    return rec
+
+
+def test_without_the_switch_a_list_result_is_still_no_value_as_in_every_earlier_run(tweaks_reset):
+    rec = route("solve_equation", {"equation": "x**2 - 4", "variable": "x"}, result(["-2", "2"]), {"equation", "variable"})
+    assert rec["router_error"] == "solve_equation returned no value" and rec["extracted_value"] is None
+
+
+def test_with_the_switch_a_list_result_is_the_answer(tweaks_reset):
+    T.configure(on=["structured_results"])
+    rec = route("solve_equation", {"equation": "x**2 - 4", "variable": "x"}, result(["-2", "2"]), {"equation", "variable"})
+    assert "router_error" not in rec and rec["extracted_value"] == [-2.0, 2.0]
+    rec = route("differentiate_expr", {"expression": "sin(x)", "variable": "x"}, result("cos(x)"), {"expression", "variable"})
+    assert rec["extracted_value"] == "cos(x)" and rec["finalized_from_tool"] == "differentiate_expr"
+
+
+def test_with_the_switch_a_rejected_call_says_why(tweaks_reset):
+    T.configure(on=["structured_results"])
+    rejected = ("Error executing tool critical_angle_for_tir: 1 validation error for critical_angle_for_tirArguments"
+                + chr(10) + "n_rare" + chr(10) + "  Field required [type=missing]")
+    rec = route("critical_angle_for_tir", {"n_dense": 1.333}, rejected, {"n_dense", "n_rare"})
+    assert rec["router_error"] == "critical_angle_for_tir: missing required parameter n_rare"
+
+
+def test_the_switch_is_off_in_every_profile_so_earlier_comparisons_stand(tweaks_reset):
+    for profile in T.PROFILES:
+        T.configure(profile)
+        assert not T.on("structured_results")
+    T.configure("model-only", on=["structured_results"])
+    assert T.snapshot()["on"] == ["strict_params", "structured_results"]
+
