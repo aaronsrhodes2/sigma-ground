@@ -13,7 +13,18 @@ B.MAX_SWING = 35        -- degrees: the pointing hand never swings farther from 
 B.MAX_NOD = 12          -- degrees: the hat's lean with his voice
 B.MAX_HEAD_YAW = 25     -- degrees: the head turns toward the one he talks to
 B.MAX_MANIFEST = 64 * 1024
-B.DIMGREEN = { 0, 51, 34 }      -- #003322: the kit's black mouth is transparent on the glasses; tinted instead of left pure black
+B.DIMGREEN = { 0, 51, 34 }      -- #003322: the old tint of the kit's black mouth (kept for reference; it read teal in the game)
+-- The printer's filament colours, as the figure looks in the photo (the filament navy is a bright royal blue; the real paint is a deep
+-- navy, the silver a cool metallic grey, the yellow a warm gold). The converter darkens faces in pockets and folds by 0.8 or 0.6 (cavity
+-- occlusion), so a colour is matched as a filament times a level; the display colour is scaled by the same level. The red tongue stays
+-- as it is (it glows), and so does anything else that is not one of these.
+B.FILAMENTS = {
+  { { 192, 192, 192 }, { 178, 182, 192 } },     -- silver
+  { { 0, 0, 160 }, { 14, 24, 100 } },           -- navy
+  { { 252, 239, 3 }, { 240, 190, 24 } },        -- yellow -> gold
+  { { 255, 255, 255 }, { 238, 238, 240 } },     -- white (the teeth)
+}
+B.MOUTH = { 12, 9, 14 }         -- the kit's black mouth: near-black, never pure black (pure black is transparent on the glasses)
 
 local function finite(v) return type(v) == "number" and v == v and v > -1e9 and v < 1e9 end
 local function vec3(t)
@@ -70,15 +81,24 @@ end
 --- The kit's red (the tongue) is the one colour that glows with his voice.
 function B.is_glow(r, g, b) return r >= 200 and g <= 60 and b <= 60 end
 
---- The colour a kit triangle is drawn in before shading: pure black (the mouth) becomes DimGreen.
+--- The colour a kit triangle is drawn in before shading: pure black (the mouth) becomes a near-black.
 function B.base_colour(r, g, b)
-  if r == 0 and g == 0 and b == 0 then return B.DIMGREEN[1], B.DIMGREEN[2], B.DIMGREEN[3] end
+  if r == 0 and g == 0 and b == 0 then return B.MOUTH[1], B.MOUTH[2], B.MOUTH[3] end
+  local top = math.max(r, g, b)
+  for _, f in ipairs(B.FILAMENTS) do
+    local raw, disp = f[1], f[2]
+    local L = top / math.max(raw[1], raw[2], raw[3])
+    if L >= 0.45 and L <= 1.004 and math.abs(r - raw[1] * L) <= 2 and math.abs(g - raw[2] * L) <= 2 and math.abs(b - raw[3] * L) <= 2 then
+      return math.floor(disp[1] * L + 0.5), math.floor(disp[2] * L + 0.5), math.floor(disp[3] * L + 0.5)
+    end
+  end
   return r, g, b
 end
 
 --- Walk a decoded SVM2 part and hand every vertex of every triangle to `fn(glow, x, y, z, nx, ny, nz, r, g, b)` in HU, in the order
 --- the engine wants (the kit's counter-clockwise faces are turned clockwise, Source's front). Returns the plain and glow triangle counts.
-function B.emit(dec, fn)
+--- `lit` true: the colours are left unshaded (the engine's lights, set in body_client.lua, do the shading); else B.shade is baked in.
+function B.emit(dec, fn, lit)
   local k = B.HU_PER_M
   local plain, glow = 0, 0
   for t = 1, dec.nt do
@@ -90,7 +110,7 @@ function B.emit(dec, fn)
     for i = 1, 3 do
       local v = order[i]
       local nx, ny, nz = dec.nx[v], dec.ny[v], dec.nz[v]
-      local s = is_glow and 1 or B.shade(nx, ny, nz)
+      local s = (is_glow or lit) and 1 or B.shade(nx, ny, nz)
       fn(is_glow, dec.x[v] * k, dec.y[v] * k, dec.z[v] * k, nx, ny, nz,
         math.min(255, math.floor(r * s + 0.5)), math.min(255, math.floor(g * s + 0.5)), math.min(255, math.floor(b * s + 0.5)))
     end

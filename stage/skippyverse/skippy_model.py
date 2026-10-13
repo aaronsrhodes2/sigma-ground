@@ -42,13 +42,19 @@ from skippyverse import meshpack  # noqa: E402
 
 MAGIC2 = b"SVM2"
 PARTS = {  # role -> (STL stem in `Individual Parts`, triangle budget)
-    "can": ("Skippy_can", 700),
-    "jacket": ("Skippy_jacket", 3000),
-    "head": ("Skippy_head_keyed", 4200),
-    "hat": ("Skippy_hat", 1600),
-    "hand_a": ("Skippy_hand_left", 1000),
-    "hand_b": ("Skippy_hand_right", 600),
+    "can": ("Skippy_can", 500),
+    "jacket": ("Skippy_jacket", 2200),
+    "head": ("Skippy_head_keyed", 14000),
+    "hat": ("Skippy_hat", 3500),
+    "hand_a": ("Skippy_hand_left", 1400),
+    "hand_b": ("Skippy_hand_right", 700),
 }
+
+
+AO_RADIUS = {'head': (0.03, 0.09)}         # cavity radius as a fraction of the part's diagonal (the face's pockets are small)
+AO_STEPS_ROLE = {'head': (0.04, 0.12)}   # the face is darkened more readily (furrows, sockets)
+AO_PARTS = ('head', 'jacket', 'hat', 'hand_a', 'hand_b')   # parts darkened in their pockets and folds (baked into the face colours)
+RESAMPLE = ('jacket', 'head')      # parts whose colours are re-read from the original paint after decimation (crisp buttons, tongue, brows)
 
 
 class ModelError(ValueError):
@@ -245,8 +251,17 @@ def cluster(verts, faces, cols, h):
     mn = [min(v[i] for v in verts) for i in range(3)]
     cell, pos_acc, new = {}, [], []
     cid = [0] * len(verts)
+    touch = [None] * len(verts)                                  # the colours each vertex touches
+    for (fa, fb, fc), col in zip(faces, cols):
+        for v in (fa, fb, fc):
+            if touch[v] is None:
+                touch[v] = {col}
+            else:
+                touch[v].add(col)
     for i, v in enumerate(verts):
-        k = (int((v[0] - mn[0]) / h), int((v[1] - mn[1]) / h), int((v[2] - mn[2]) / h))
+        # a vertex on a colour border merges only with border vertices of the same colour pair: the borders (trim, tongue, buttons) survive
+        border = frozenset(touch[i]) if touch[i] and len(touch[i]) > 1 else None
+        k = (int((v[0] - mn[0]) / h), int((v[1] - mn[1]) / h), int((v[2] - mn[2]) / h), border)
         j = cell.get(k)
         if j is None:
             j = cell[k] = len(pos_acc)
@@ -427,9 +442,9 @@ def qem(verts, faces, cols, target, border_weight=250.0, flip_dot=0.2):
     return nv, nf, nc
 
 
-def decimate(flat, cols, target):
-    """STL triangles + per-triangle colour -> (verts, faces, cols) of about `target` faces."""
-    verts, faces, fc = weld(flat, cols)
+def decimate_geometry(flat, target):
+    """Geometry only: weld, cluster, quadric collapse to about `target` faces. Returns (verts, faces) (orientation kept)."""
+    verts, faces, fc = weld(flat, [0] * (len(flat) // 9))
     pre = target * 6
     if len(faces) > pre * 1.5:
         h = math.sqrt(surface_area(verts, faces) * 1.9 / pre)
@@ -438,7 +453,163 @@ def decimate(flat, cols, target):
         verts, faces, fc = qem(verts, faces, fc, target, flip_dot=flip)
         if len(faces) <= target * 1.03:
             break
+    return verts, faces
+
+
+def _numpy():
+    try:
+        import numpy as np
+        from scipy.spatial import cKDTree
+        return np, cKDTree
+    except ImportError:
+        return None, None
+
+
+class ColourField:
+    """The original (full-resolution) triangles' colours, queried by position: the colour of the nearest original face whose normal agrees
+    with the query's (a thin shell has two skins a millimetre apart; the normal picks the right one)."""
+
+    def __init__(self, flat, cols, k=6):
+        np, KD = _numpy()
+        if np is None:
+            raise ModelError("ColourField needs numpy and scipy")
+        self.np = np
+        a = np.asarray(flat, dtype=np.float64).reshape(-1, 3, 3)
+        n = np.cross(a[:, 1] - a[:, 0], a[:, 2] - a[:, 0])
+        ln = np.linalg.norm(n, axis=1)
+        keep = ln > 0
+        self.n = n[keep] / ln[keep][:, None]
+        self.c = a[keep].mean(axis=1)
+        self.col = np.asarray(cols, dtype=np.uint8)[keep]
+        self.tree = KD(self.c)
+        self.k = min(k, len(self.c))
+
+    def sample(self, pts, nrm):
+        """Colours (M, 3 uint8) for points (M, 3) with unit normals (M, 3)."""
+        np = self.np
+        _, idx = self.tree.query(pts, k=self.k)
+        idx = idx.reshape(len(pts), -1)
+        dots = np.einsum("mkj,mj->mk", self.n[idx], nrm)
+        ok = dots > 0.3
+        pick = np.where(ok.any(axis=1), ok.argmax(axis=1), dots.argmax(axis=1))
+        return self.col[idx[np.arange(len(pts)), pick]]
+
+
+def recolour(verts, faces, field, depth=2):
+    """Colour every face from the original mesh, and cut the faces that straddle a colour border into quarters (up to `depth` times), so a
+    border runs along the original paint instead of along whatever edges the decimator left. Returns (verts, faces, cols[(r, g, b)])."""
+    np = field.np
+    V = np.asarray(verts, dtype=np.float64)
+    F = np.asarray(faces, dtype=np.int64)
+    new_v = [tuple(p) for p in verts]
+    mid = {}
+
+    def mid_of(a, b):
+        key = (a, b) if a < b else (b, a)
+        m = mid.get(key)
+        if m is None:
+            m = mid[key] = len(new_v)
+            new_v.append(tuple((np.asarray(new_v[a]) + np.asarray(new_v[b])) / 2))
+        return m
+
+    def probes(F):
+        P = np.asarray(new_v, dtype=np.float64)
+        a, b, c = P[F[:, 0]], P[F[:, 1]], P[F[:, 2]]
+        n = np.cross(b - a, c - a)
+        ln = np.linalg.norm(n, axis=1)
+        ln[ln == 0] = 1.0
+        n = n / ln[:, None]
+        g = (a + b + c) / 3
+        pts = [g, 0.7 * a + 0.3 * g, 0.7 * b + 0.3 * g, 0.7 * c + 0.3 * g]
+        cols = [field.sample(p, n) for p in pts]
+        mixed = np.zeros(len(F), dtype=bool)
+        for q in cols[1:]:
+            mixed |= (q != cols[0]).any(axis=1)
+        return cols[0], mixed
+
+    cur = F
+    done_f, done_c = [], []
+    for level in range(depth + 1):
+        col, mixed = probes(cur)
+        if level == depth or not mixed.any():
+            done_f.append(cur)
+            done_c.append(col)
+            break
+        done_f.append(cur[~mixed])
+        done_c.append(col[~mixed])
+        kids = []
+        for a, b, c in cur[mixed].tolist():
+            ab, bc, ca = mid_of(a, b), mid_of(b, c), mid_of(c, a)
+            kids += [(a, ab, ca), (ab, b, bc), (ca, bc, c), (ab, bc, ca)]
+        cur = np.asarray(kids, dtype=np.int64)
+    out_f = np.concatenate(done_f)
+    out_c = np.concatenate(done_c)
+    return new_v, [tuple(int(x) for x in f) for f in out_f], [tuple(int(x) for x in c) for c in out_c]
+
+
+def decimate(flat, cols, target, resample=False, pre_factor=8, border_weight=100.0):
+    """STL triangles + per-triangle colour -> (verts, faces, cols) of about `target` faces. With numpy and scipy (and more than one colour)
+    the geometry is decimated on its own and the colours are re-read from the original paint, with border faces cut finer, so the trim,
+    buttons and tongue stay crisp; without them the colours ride along the collapses (coarser, borders held by penalty planes)."""
+    verts, faces, fc = weld(flat, cols)
+    pre = target * pre_factor
+    if len(faces) > pre * 1.5:
+        h = math.sqrt(surface_area(verts, faces) * 1.9 / pre)
+        verts, faces, fc = cluster(verts, faces, fc, h)
+    for flip in (0.2, -0.1, -0.5):
+        verts, faces, fc = qem(verts, faces, fc, target, border_weight=border_weight, flip_dot=flip)
+        if len(faces) <= target * 1.03:
+            break
+    if resample and _numpy()[0] is not None and len(set(cols)) > 1:
+        return recolour(verts, faces, ColourField(flat, cols), depth=resample if isinstance(resample, int) and resample is not True else 1)
     return verts, faces, fc
+
+
+AO_LEVELS = (1.0, 0.8, 0.6)       # colour multipliers: open surface, a crease or fold, a deep pocket (eye socket, under the brow, mouth corner)
+AO_STEPS = (0.10, 0.22)           # the mean height of the neighbourhood above a face (in radii) where the first and second step begin
+
+
+def cavity_levels(verts, faces, flat, radius_frac=0.04, steps=None):
+    """Cheap ambient occlusion by a cavity measure. For each output face: the original surface points within a radius R of its centre, and
+    how far above the face's tangent plane they lie on average (a pit's walls rise around it, a bump's fall away). Returns a multiplier per
+    face from AO_LEVELS (three steps, so the palette stays small). Needs numpy and scipy; returns all 1.0 without them."""
+    np, KD = _numpy()
+    if np is None or not faces:
+        return [AO_LEVELS[0]] * len(faces)
+    if isinstance(radius_frac, (tuple, list)):                    # several radii: the darkest verdict wins (fine furrows and broad sockets)
+        per = [cavity_levels(verts, faces, flat, r, steps) for r in radius_frac]
+        return [min(x) for x in zip(*per)]
+    a = np.asarray(flat, dtype=np.float64).reshape(-1, 3, 3)
+    pts = a.mean(axis=1)
+    tree = KD(pts)
+    diag = float(np.linalg.norm(a.reshape(-1, 3).max(axis=0) - a.reshape(-1, 3).min(axis=0)))
+    R = radius_frac * diag
+    V = np.asarray(verts, dtype=np.float64)
+    F = np.asarray(faces, dtype=np.int64)
+    P0, P1, P2 = V[F[:, 0]], V[F[:, 1]], V[F[:, 2]]
+    n = np.cross(P1 - P0, P2 - P0)
+    ln = np.linalg.norm(n, axis=1)
+    ln[ln == 0] = 1.0
+    n = n / ln[:, None]
+    g = (P0 + P1 + P2) / 3
+    st = steps or AO_STEPS
+    out = []
+    lists = tree.query_ball_point(g, R)
+    for i, idx in enumerate(lists):
+        if len(idx) < 4:
+            out.append(AO_LEVELS[0])
+            continue
+        d = ((pts[idx] - g[i]) @ n[i]).mean() / R
+        out.append(AO_LEVELS[2] if d > st[1] else AO_LEVELS[1] if d > st[0] else AO_LEVELS[0])
+    return out
+
+
+def apply_ao(cols, levels, skip=((255, 0, 0), (0, 0, 0))):
+    """Scale each face colour by its level; the tongue (glows) and the black are left alone."""
+    out = []
+    for c, lv in zip(cols, levels):
+        out.append(c if lv >= 1.0 or c in skip else tuple(int(round(x * lv)) for x in c))
+    return out
 
 
 def shade(verts, faces, crease_deg=40.0):
@@ -660,7 +831,9 @@ def build(kit_dir, out_dir=None, height_m=0.6, budgets=None, codec="lzma", progr
     for role, (stem, budget) in PARTS.items():
         budget = (budgets or {}).get(role, budget)
         flat, cols, _ = raw[role]
-        v, f, c = decimate(flat, cols, budget)
+        v, f, c = decimate(flat, cols, budget, resample=role in RESAMPLE)
+        if role in AO_PARTS:
+            c = apply_ao(c, cavity_levels(v, f, flat, radius_frac=AO_RADIUS.get(role, 0.05), steps=AO_STEPS_ROLE.get(role)))
         v = [to_world(p) for p in v]
         v, nrm, f2 = shade(v, f)
         fcols = c

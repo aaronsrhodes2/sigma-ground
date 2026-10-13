@@ -8,8 +8,9 @@
 local SVM1 = {}
 
 SVM1.MAX_TRIS = 4000          -- more than meshpack's target ever makes (1500); a client builds at most this
-SVM1.MAX_TRIS2 = 8000         -- the body's parts (SVM2) are finer: the head is 4200
+SVM1.MAX_TRIS2 = 24000        -- the body parts (SVM2) are finer: the jacket is about 10000, the head 16500
 SVM1.MAX_VERTS = 12000        -- and never more than 3 per triangle
+SVM1.MAX_VERTS2 = 30000       -- (SVM2: the vertices are duplicated along creases)
 SVM1.MAX_EXTENT_M = 1000      -- no coordinate beyond this (a bad float is not a model)
 SVM1.HEADER = 32
 
@@ -39,7 +40,7 @@ function SVM1.decode(raw, allow2)
   local nv = byte(raw, 5) + byte(raw, 6) * 256
   local nt = byte(raw, 7) + byte(raw, 8) * 256
   if nt < 1 or nt > (two and SVM1.MAX_TRIS2 or SVM1.MAX_TRIS) then return nil, "triangle count " .. nt .. " out of range" end
-  if nv < 3 or nv > SVM1.MAX_VERTS or nv > 3 * nt then return nil, "vertex count " .. nv .. " out of range" end
+  if nv < 3 or nv > (two and SVM1.MAX_VERTS2 or SVM1.MAX_VERTS) or nv > 3 * nt then return nil, "vertex count " .. nv .. " out of range" end
   if n ~= SVM1.HEADER + 6 * nv + 6 * nt + 3 * nt + (two and 3 * nv or 0) then return nil, "length " .. n .. " does not match the counts" end
   local mn, mx = {}, {}
   for k = 0, 2 do

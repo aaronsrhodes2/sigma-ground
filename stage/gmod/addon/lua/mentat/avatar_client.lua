@@ -25,7 +25,7 @@ local cv_light = CreateClientConVar("mentat_avatar_light", "1", true, false, "1 
 local cv_hide = CreateClientConVar("mentat_avatar_hide", "", false, false, "debugging: part names to leave out (can, face, label, mouth, hat), comma separated")
 local cv_scale = CreateClientConVar("mentat_avatar_scale", "1", true, false, "size of the avatar (1 = a 0.5 m can; the real body is mentat_avatar_body_m tall at 1)")
 local cv_real = CreateClientConVar("mentat_avatar_real", "1", true, false, "1 = draw the real Skippy when his files arrived; 0 = always the procedural can in a bicorn")
-local cv_body_m = CreateClientConVar("mentat_avatar_body_m", "0.6", true, false, "total height in metres of the real body at scale 1")
+local cv_body_m = CreateClientConVar("mentat_avatar_body_m", "0.8", true, false, "total height in metres of the real body at scale 1")
 local cv_point = CreateClientConVar("mentat_avatar_point", "0", true, false, "1 = his hand points at what his owner looks at; 0 = only when told (hook SkippyAvatarPoint)")
 
 --- The bot, when the server says he is in the world.

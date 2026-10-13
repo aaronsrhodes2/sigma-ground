@@ -207,6 +207,88 @@ def test_decimate_hits_budget_and_keeps_shape_and_colour():
     assert outward > 0.95 * len(df)
 
 
+def _cap_cols(v, f, x0=0.5):
+    return [(255, 0, 0) if sum(v[i][0] for i in t) / 3 > x0 else (0, 0, 255) for t in f]
+
+
+def test_cluster_never_merges_a_colour_border_into_a_field():
+    """A vertex touching two colours clusters only with vertices of the same colour pair: a thin trim (here a red band) survives a coarse grid."""
+    v, f = sphere(n=40, m=80)
+    cols = [(255, 0, 0) if abs(sum(v[i][0] for i in t) / 3) < 0.06 else (0, 0, 255) for t in f]       # a band 0.12 wide round the equator-x
+    cv, cf, cc = sm.cluster(v, f, cols, 0.25)                       # cells twice as wide as the band
+    assert sum(1 for c in cc if c == (255, 0, 0)) >= 20
+    sv, sf, sc = sm.cluster(v, f, [(0, 0, 255)] * len(f), 0.25)
+    assert len(cf) > len(sf), "the borders keep vertices a plain grid would merge"
+
+
+def test_recolour_reads_the_original_paint_and_cuts_border_faces():
+    pytest.importorskip("scipy")
+    v, f = sphere(n=40, m=80)
+    cols = _cap_cols(v, f)
+    flat = flat_of(v, f)
+    dv, df = sm.decimate_geometry(flat, 120)
+    nv, nf, nc = sm.recolour(dv, df, sm.ColourField(flat, cols), depth=2)
+    assert len(nf) > len(df), "faces across the border were cut"
+    assert len(nv) > len(dv)
+    cen = [sum(nv[i][0] for i in t) / 3 for t in nf]
+    red = [x for x, c in zip(cen, nc) if c == (255, 0, 0)]
+    blue = [x for x, c in zip(cen, nc) if c == (0, 0, 255)]
+    assert red and blue
+    assert min(red) > 0.5 - 0.15 and max(blue) < 0.5 + 0.15, "the border sits where the paint was (within a cut face)"
+    # outward orientation survives the cutting
+    outward = sum(1 for t in nf if sm._dot(sm._area_normal(*[nv[i] for i in t]), [sum(nv[i][k] for i in t) for k in range(3)]) > 0)
+    assert outward > 0.95 * len(nf)
+
+
+def _pitted_plate(n=40):
+    """A flat square plate (z up) with a Gaussian pit in the middle: (verts, faces)."""
+    h = lambda x, y: -0.5 * math.exp(-(x * x + y * y) / 0.08)  # noqa: E731
+    verts = [(-1 + 2 * i / n, -1 + 2 * j / n, h(-1 + 2 * i / n, -1 + 2 * j / n)) for j in range(n + 1) for i in range(n + 1)]
+    faces = []
+    for j in range(n):
+        for i in range(n):
+            a = j * (n + 1) + i
+            faces += [(a, a + 1, a + n + 2), (a, a + n + 2, a + n + 1)]
+    return verts, faces
+
+
+def test_cavity_levels_darken_a_pit_and_leave_a_flat_alone():
+    pytest.importorskip("scipy")
+    v, f = _pitted_plate()
+    lv = sm.cavity_levels(v, f, flat_of(v, f), radius_frac=0.1)
+    assert set(lv) <= set(sm.AO_LEVELS)
+    mid = [lv[k] for k, t in enumerate(f) if math.hypot(*[sum(v[i][a] for i in t) / 3 for a in (0, 1)]) < 0.25]
+    far = [lv[k] for k, t in enumerate(f) if math.hypot(*[sum(v[i][a] for i in t) / 3 for a in (0, 1)]) > 0.9]
+    assert mid and far
+    assert sum(mid) / len(mid) < 0.9, "the pit is darkened"
+    assert all(x == 1.0 for x in far), "the open plate is not"
+
+
+def test_cavity_levels_with_several_radii_take_the_darkest():
+    pytest.importorskip("scipy")
+    v, f = _pitted_plate()
+    flat = flat_of(v, f)
+    a = sm.cavity_levels(v, f, flat, radius_frac=0.1)
+    b = sm.cavity_levels(v, f, flat, radius_frac=0.2)
+    both = sm.cavity_levels(v, f, flat, radius_frac=(0.1, 0.2))
+    assert both == [min(x, y) for x, y in zip(a, b)]
+
+
+def test_apply_ao_scales_colours_but_not_the_tongue_or_black():
+    cols = [(192, 192, 192), (255, 0, 0), (0, 0, 0), (0, 0, 160)]
+    out = sm.apply_ao(cols, [0.8, 0.6, 0.6, 0.6])
+    assert out == [(154, 154, 154), (255, 0, 0), (0, 0, 0), (0, 0, 96)]
+    assert sm.apply_ao(cols, [1.0] * 4) == cols
+
+
+def test_decimate_with_resample_matches_without_for_one_colour():
+    pytest.importorskip("scipy")
+    v, f = sphere()
+    flat = flat_of(v, f)
+    a = sm.decimate(flat, [(1, 2, 3)] * len(f), 200, resample=True)
+    assert len(set(a[2])) == 1 and len(a[1]) <= 220
+
+
 def test_decimate_small_mesh_is_untouched():
     v, f = box(0, 1, 0, 1, 0, 1)
     dv, df, _ = sm.decimate(flat_of(v, f), [(1, 2, 3)] * 12, 100)
@@ -333,7 +415,7 @@ def _real_kit():
 @pytest.mark.skipif(_real_kit() is None, reason="private Skippy kit not present")
 def test_real_kit_budget_and_colours(tmp_path):
     man, blobs, geo = sm.build(_real_kit(), tmp_path, progress=lambda *_: None)
-    assert 8000 <= sum(p["tris"] for p in man["parts"]) <= 12500
+    assert 18000 <= sum(p["tris"] for p in man["parts"]) <= 32000
     assert all(p["verts"] <= 65535 and p["bytes"] < 256 * 1024 for p in man["parts"])
     assert {tuple(c) for c in geo["head"][2]} >= {(255, 0, 0), (192, 192, 192)}
     assert 0.55 < man["figure_height_m"] < 0.65

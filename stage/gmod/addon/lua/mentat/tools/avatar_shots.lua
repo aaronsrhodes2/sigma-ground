@@ -79,6 +79,7 @@ return function(args, done, ply)
       ply:SetVelocity(-ply:GetVelocity())
       ply:SetEyeAngles((aim - cam):Angle())
       ply:ConCommand("mentat_avatar_hide " .. (v.hide or ""))
+      for k, val in pairs(v.cvars or {}) do ply:ConCommand(k .. " " .. tostring(val)) end   -- look tuning: a sweep of client convars, one picture each
       if v.point and not prop then
         -- a red ball hung in the air up and ahead of his raised hand; he is told to point at it through the hook the server relays to the clients
         prop = ents.Create("prop_physics")

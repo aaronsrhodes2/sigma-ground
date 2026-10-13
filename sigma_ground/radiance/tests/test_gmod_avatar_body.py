@@ -526,7 +526,7 @@ def lua_pure(w, code, *args):
     return w.rt.eval(f"function(...) local B = dofile(MOCK.ROOT .. '/mentat/avatar/body.lua'); {code} end")(*args)
 
 
-def test_shading_stays_in_range_and_lights_from_above_and_the_black_mouth_is_dimgreen_and_only_red_glows():
+def test_shading_stays_in_range_and_lights_from_above_and_the_black_mouth_is_near_black_and_only_red_glows():
     w = World(server=False, load=())
     f = w.rt.eval("function(nx, ny, nz) local B = dofile(MOCK.ROOT .. '/mentat/avatar/body.lua'); return B.shade(nx, ny, nz) end")
     vals = [f(*n) for n in ((0, 0, 1), (0, 0, -1), (1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0.5, 0.3, 0.81))]
@@ -534,8 +534,12 @@ def test_shading_stays_in_range_and_lights_from_above_and_the_black_mouth_is_dim
     assert f(0, 0, 1) > f(0, 0, -1) + 0.2, "the top is brighter than the underside"
     assert f(-1, 0, 0) > 0.5, "his back is not black"
     bc = w.rt.eval("function(r, g, b) local B = dofile(MOCK.ROOT .. '/mentat/avatar/body.lua'); return B.base_colour(r, g, b) end")
-    assert tuple(bc(0, 0, 0)) == (0, 51, 34)
-    assert tuple(bc(0, 0, 160)) == (0, 0, 160)
+    assert tuple(bc(0, 0, 0)) == (12, 9, 14), "near-black, never pure black and not teal"
+    assert tuple(bc(0, 0, 160)) == (14, 24, 100), "the filament navy is shown as the deep navy of the paint"
+    assert tuple(bc(10, 20, 30)) == (10, 20, 30), "a colour that is not in the table is untouched"
+    assert tuple(bc(154, 154, 154)) == (143, 146, 154), "a silver darkened to 0.8 by the converter keeps its display tint, scaled"
+    assert tuple(bc(0, 0, 96)) == (8, 14, 60), "navy at 0.6"
+    assert tuple(bc(255, 0, 0)) == (255, 0, 0)
     gl = w.rt.eval("function(r, g, b) local B = dofile(MOCK.ROOT .. '/mentat/avatar/body.lua'); return B.is_glow(r, g, b) end")
     assert gl(255, 0, 0) and not gl(252, 239, 3) and not gl(0, 0, 160) and not gl(192, 192, 192)
 
@@ -592,7 +596,8 @@ def test_the_pointing_hand_swings_so_its_fingertip_direction_hits_the_target_or_
     s, c, msgs = full_pipeline(synthetic_set())
     c.rt.eval("function(h) GetConVar('mentat_avatar_hide'):SetValue(h) end")("can,jacket,head,hat,hand_b")
     # the world point he is told to aim at: along (dx, dy, dz) from his wrist, 3 m away
-    height_m = 0.6
+    c.rt.execute("Mentat.Avatar.BodyC.BOB_M = 0")                           # (the bob would move the wrist this test computes by hand)
+    height_m = c.rt.eval("function() return GetConVar('mentat_avatar_body_m'):GetFloat() end")()
     s_scale = height_m / MANIFEST["figure_height_m"]
     wr = [x * HU_PER_M for x in MANIFEST["pivots"]["hand_point"]["wrist"]]
     zoff = -0.5 * MANIFEST["figure_height_m"] * HU_PER_M
@@ -752,7 +757,7 @@ def test_the_real_kit_goes_from_the_server_to_a_client_that_draws_all_six_parts_
     assert ok is True, why
     s.advance(10)
     msgs = exported(s)
-    assert len(msgs) >= 7 and sum(len(bytes.fromhex(m["seq"][6][1])) for m in msgs) < 200 * 1024
+    assert len(msgs) >= 7 and sum(len(bytes.fromhex(m["seq"][6][1])) for m in msgs) < 400 * 1024
     c = client()
     register_client(c, parts)
     feed(c, msgs)

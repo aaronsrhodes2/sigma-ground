@@ -158,3 +158,27 @@ he floats behind the right shoulder, outside the 90 degree view).
 - The label, mouth and hat lean while he speaks and while someone talks into voice chat next to him; the dynamic light in the dark.
 - The scoreboard row for Skippy; `PostDrawTranslucentRenderables` order against glass; the hidden body's shadow and target-ID name tag.
 - Speech end to end through `holodeck_bridge` with the avatar out (no bridge was running): the position and gain plumbing was exercised, the real mp3 path was not.
+
+## Look pass 1 (2026-10-12): lighting, face, trim, presence
+
+What changed (all verified in the real client with `holodeck/avatar_shots.py`; sheet `holodeck/data/shots/skippy_look_before_after.jpg`, gitignored):
+- **Lit at draw time.** The parts now wear VertexLit materials (`body_client.lua`): the engine shades them from the vertex normals with the map's
+  own ambient (six `render.ComputeLighting` samples, a few times a second), a key light (the sun's height, turned toward the viewer so a back-lit
+  figure is not a silhouette), a rim light from behind and a soft fill, plus a Phong gloss (silver and gold glossier than the painted navy).
+  Findings: a lit mesh **ignores vertex colours** here, so each colour is its own mesh with its own material (`$color`); a mesh holds at most 30000
+  vertices, so big parts are split. The tongue stays an unlit flat colour (it glows with his voice). Tuning convars: `mentat_avatar_amb|key|rim|spec`.
+  Without the lighting calls (old client, offline mock) the old baked shading is used.
+- **Palette** (`body.lua` `B.FILAMENTS`): filament navy shows as the deep navy of the paint, silver as a cool metal grey, yellow as gold; the black
+  mouth is near-black (12,9,14), no longer DimGreen (it read teal).
+- **Converter** (`skippyverse/skippy_model.py`): colour-aware clustering (a vertex on a colour border merges only with the same border), border
+  penalty planes, then (jacket, head) colours re-read from the original paint with border faces cut in quarters (`recolour`), so buttons, cuffs and
+  trim are crisp. Cavity ambient occlusion (`cavity_levels`) darkens pockets and folds in three steps baked into the face colours. Budgets: head
+  14000 (16.5k out, the furrows and lip survive), hat ~6.2k (the thin yellow rim needs it), jacket ~10k; about 36k triangles, 323 KB.
+  Viewer limits raised: `SVM1.MAX_TRIS2` 24000, `MAX_VERTS2` 30000.
+- **Presence**: 0.8 m tall (`mentat_avatar_body_m`), a slow 1.2 cm bob, and a soft blob shadow on the ground below him (fades with height).
+- Cost: the draw call is 0.24 ms CPU (was 0.17 ms at 29k triangles; the procedural can 0.05 ms). Whole-frame ms could not be measured hands-off:
+  the unfocused test window is throttled to 20 fps.
+
+Still weak: the angry brow furrows are only a faint grey smudge at 1 m; the coat's yellow lapel piping and epaulettes of the photo are thin and
+patchy; the hat reads as a tall dark crown with a yellow rim rather than the photo's wide upswept bicorn (the kit's hat is what it is; it is
+1.5x the head's width, not 1.8x); the chest can shows faceted. The speech nod/head-yaw animation was not re-photographed this pass.
