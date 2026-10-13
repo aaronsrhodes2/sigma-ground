@@ -30,3 +30,18 @@ Median error (km) at 1 to 5 years of lead, JPL vintages | ours (r2, zonal-fixed)
 Mercury 1.1-1.3 | 0.3-1.3; Venus 0.6-0.7 | 0.0-0.2; Mars 0.3-0.4 | 0.4-1.5; Earth 0.3 | 0.1-0.5; Jupiter 27-53 | 18-42; Saturn 205-271 | 0.3-1.6; Uranus 404-577 | 153-778; Neptune 1856-2390 | 88-441.
 With the zonal defect fixed, Jupiter now sits inside the vintages' band (it was 630 km at 5 yr in r1). Saturn's 0.3-1.6 km against the vintages' ~240 km says the vintages' Saturn orbit was uncertain by hundreds of km at their
 release, an initial-condition (data) limit, not a dynamics limit. Mars and Earth at the longest lead are where our integration is slightly worse than a vintage's standing offset.
+
+## The fair contest (2026-10-12): same initial state, different dynamics
+`scripts/fair_jpl_contest.py`, report `FAIR_CONTEST.md/json`, scatter `FAIR_CONTEST_scatter.png`, raw per-run results `fair_contest_runs.jsonl`.
+67 propagations (7 JPL vintages x every start year from 2000 to 2015 at or after the release; the 4 DE403 starts after 2011 are impossible, that kernel ends in 2011).
+Each starts from the vintage's OWN state, runs 5 years with our engine (headline stack, 0.05 d, reduced model validated against the full shoot-out to ~20 % on
+Mercury, Venus, Earth, Moon), and is compared with the vintage's own continuation and with DE440. Median km at +5 yr (ours vs DE440 | JPL's old forecast vs DE440 | the gap between the two dynamics):
+Mercury 1.97|1.52|1.20, Venus 1.14|0.75|0.52, Earth 0.76|0.40|0.90, Moon 3.61|0.38|3.40, Mars 2.33|0.67|2.11, Jupiter 53.4|52.3|3.8, Saturn 276|277|1.9, Uranus 956|956|1.5, Neptune 3707|3707|1.5, Pluto 7950|7951|1.5.
+
+**What it supports.** (1) Given the same initial state, our engine reproduces JPL's own old forecasts to **no worse than 4 km over 5 years for every body** (the gap column: 0.2-4 km),
+and for Jupiter through Pluto our error and JPL's are indistinguishable (sign test mostly p > 0.05): what separated those old forecasts from the truth was the initial state, the data of the day, not the physics.
+(2) For the inner solar system and the Moon the two dynamics are NOT at parity at the 1 km level: JPL's old continuation stays flat at its initial offset (about 0.4-1.5 km from lead 1 to 5 yr), so JPL's old dynamics
+were already close to DE440's, while ours drifts away: Moon 0.9 -> 3.6 km (about +0.7 km/yr), Mars 0.9 -> 2.3, Earth 0.3 -> 0.8, Mercury 1.6 -> 2.0 (JPL better in nearly every run: sign test p ~ 0).
+So our remaining model error over 5 years is of order 1-4 km for those bodies, and it is physics we lack (the candidates: asteroid perturbations, especially for Mars; lunar figure and Earth-Moon tides; solar oblateness and mass loss), not initial conditions.
+**Wording to use:** "km-level dynamics parity with JPL's historical model over 5 years (gap <= 4 km), with a known, quantified deficit of 1-3 km on the Moon, Mars, Earth and Mercury." Not "mathematical parity".
+Caveats: DE440 is the truth reference and is itself a fit (data end about 2020); our model has no asteroids; the reduced model carries the giants as system barycentres.
