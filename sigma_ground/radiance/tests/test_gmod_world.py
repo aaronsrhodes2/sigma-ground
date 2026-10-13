@@ -497,3 +497,27 @@ def test_engine_drag_switch_leaves_the_engines_own_drag_on():
     e = prop(w)
     w.advance(0.01)
     assert L(w, "function(e) return e.phys.drag end")(e) is True
+
+
+def test_world_drop_measure_finds_the_first_impact_of_a_bouncing_ball():
+    """A ball is kicked back up before it ever comes near its final resting height; the drop measurement must still find the first impact."""
+    import world_drop
+    dt, g, hu = 0.015, 514.78, 157.0
+    z0, zr = 0.0, -hu
+    s, v, z = [], 0.0, z0
+    n = 0
+    while True:
+        n += 1
+        v -= g * dt
+        z += v * dt
+        if z <= zr + 1.0:                       # touches down between ticks (inside the skin the tolerance misses), bounces
+            s.append([n, zr + 0.9, 0.2 * -v])
+            break
+        s.append([n, z, v])
+    for k in range(40):                          # the bounce and the slow settle
+        n += 1
+        s.append([n, zr + 1.0 + 3 * k * 0.1, 0.0])
+    s[-1][1] = zr
+    t, vi, h = world_drop.measure({"samples": s, "dt": dt, "z_start": z0, "z_rest": zr})
+    assert t == pytest.approx(math.sqrt(2 * hu / g), rel=0.03)
+    assert vi == pytest.approx(math.sqrt(2 * g * hu) * world_drop.HU_M, rel=0.03)

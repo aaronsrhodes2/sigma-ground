@@ -73,19 +73,36 @@ def area_down(tr, obb_hu):
 
 
 def measure(row):
-    """Fall time (s) and impact speed (m/s) the engine produced, from the per-tick samples."""
+    """Fall time (s), impact speed (m/s) and fall distance (m) the engine produced, from the per-tick samples.
+
+    The impact is the first tick whose velocity jumps UP (a bounce) or whose height reaches the resting height. A height test alone
+    misses a bouncing ball: it touches the floor between two ticks, is already kicked back up on the next sample, and never
+    comes within a fixed tolerance of the final resting height before it rises again (it then looked like a 1.16 s fall).
+    The last tick before the impact gives speed and acceleration; the rest of the distance to the resting height is crossed at those.
+    """
     s = row["samples"]
     dt = row["dt"]
     z0, zr = row["z_start"], row["z_rest"]
     tol = 0.5                                              # HU above the resting height: the collision skin is about 0.4
-    for i, (n, z, vz) in enumerate(s):
-        if z <= zr + tol:
-            if i == 0:
-                return None
+    for i in range(1, len(s)):
+        n, z, vz = s[i]
+        bounced = vz > s[i - 1][2] + 1.0
+        if bounced or z <= zr + tol:
+            j = i - 1 if bounced else i - 1
+            n_j, z_j, v_j = s[j]
+            if bounced:
+                a = (v_j - s[j - 1][2]) / dt if j > 0 else (v_j / dt)     # HU/s^2, negative
+                rem = max(0.0, z_j - zr)
+                sp = -v_j
+                acc = -a
+                # solve rem = sp*t + acc*t^2/2
+                t_rem = rem / sp if acc <= 0 or sp <= 0 else (-sp + math.sqrt(sp * sp + 2 * acc * rem)) / acc
+                t = (n_j - 1) * dt + t_rem
+                v = (sp + acc * t_rem) * HU_M
+                return t, v, (z0 - zr) * HU_M
             n0, z_a, v_a = s[i - 1]
             frac = (z_a - (zr + tol)) / (z_a - z) if z_a != z else 1.0
             t = (n0 - 1 + frac) * dt                       # sample 1 is the first tick after the release
-            v = -(v_a + frac * (vz - v_a)) * HU_M
             return t, -s[i - 1][2] * HU_M, (z0 - zr) * HU_M
     return None
 
