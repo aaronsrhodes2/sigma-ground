@@ -71,7 +71,7 @@ asleep after settling.
 
 | Piece | Where it runs | What it does |
 |---|---|---|
-| `skippy_bridge.py` | next to the game server | `/plan` (a local model turns a vague wish into a validated request), `/reply` (Skippy's persona says what was done), `/speak` (an mp3). Fixed actions only, behind a token. |
+| `skippy_bridge.py` | next to the game server | `/plan` (a local model turns a vague wish into a validated request), `/reply` (Skippy's persona says what was done), `/speak` (an mp3), `/quip` (an unprompted line with its clip, under a daily budget: "Skippy alive" below). Fixed actions only, behind a token. |
 | `skippy_ears.py` | each player's own PC | reads the microphone into a short memory (about a second and a half), and when the game says the player is transmitting, has the sentence recognised by the LOCAL Whisper; only a sentence that starts with "Skippy" is handed to the game (`--list` shows the microphones it can see) |
 | `skippy_client.lua` | the game client | tells the ears when the player transmits (and keeps saying so while the key is down, so a crash is noticed within seconds); plays Skippy's voice in 3D from where he built things |
 
@@ -406,6 +406,160 @@ it; it notices, dissolves, and goes. (Aaron: "instead of a post-it note, a float
   is a NetworkVar entity, the state time is read against `CurTime()`); a wisp seen through glass or a prop (only the world's brushes block reading); the font ("Tahoma") on a Linux client; indoor lighting and a
   wisp in a dark room; a player who is looking at the wisp when it appears reads it at once (it appears 2 m in front of the asker, which is the point, but a very short sentence dissolves after 2.5 s);
   reading by voice/chat of the text is not a thing: only the view counts.
+
+## Skippy alive (A7): remarks, body language, a notebook, and a budget so he never repeats himself
+
+Aaron, 2026-10-13: "20 new live lines a day so we never hear the same thing, and it should keep notes about things done, or plumb logs, so it can make quips and
+callbacks about things current". Everything below is built and tested offline (`test_gmod_director.py`, `test_gmod_quips.py`); the live pass and what only a human
+can judge are at the end of the section. The character is original (nothing is quoted from the books): a grandiose, sardonic, secretly loyal beer can who calls you
+"monkey", boasts absurdly, makes banana jokes, refuses to explain his "super-advanced AI stuff", and sings terrible opera. His insult always rides on top of real help.
+
+| Piece | Where | What it does |
+|---|---|---|
+| `mentat/avatar/director.lua` | game server | watches what happens, keeps the notebook, decides when to speak, asks the bridge for the line, shows and sends it, replicates the body language |
+| `mentat/avatar/director_logic.lua` | pure | the rules: chattiness, cooldowns, never over a human or himself, yielding, quiet hours, interruption, the commands |
+| `mentat/avatar/anim.lua` | pure, shared | the layered, bounded animation state machine (cues, mood style, voice chatter, idle breathing) |
+| `mentat/avatar/notes.lua`, `journal.lua` | pure / server files | the notebook (`data/mentat/journal/<steamid64>.txt`) and the summariser that turns it into a handful of anonymous notes |
+| `skippy_quips.py` + `data/skippy_lines.json` | the bridge | the line engine: 183 seed lines, 12 callback templates, the day's budget, the no-repeat history, the private clip cache, the model interface and its validation; the `POST /quip` route |
+| `avatar_client.lua`, `avatar/body_client.lua` | game client | turn the replicated state into motion; tell the server when their player talks |
+
+### When he speaks (the director)
+
+He reacts to: **arrival** (a hat tip at once, then a fresh line instead of the canned "Here I am."; the canned line is the fallback if no line comes), a
+**beam** (a found object's shape arrived: a flourish even when he has nothing to say; or failed), a **failed or refused lookup** (the bridge's `/resolve` answers are
+plumbed in through the hook `HolodeckResolve`), a **build** (he turns to look at the thing just placed and points at it), a **big pile** (30, 80, 160 standing things),
+a **splash** near you, **you jumping into water**, **you standing idle**, a **wake-name change** (that it changed, never to what), a **wake-word miss** (the microphone
+bridge heard the wake word but none of your names), and on a **whim** now and then (musings, a physics fact, a banana joke, a boast, a tip, a roast, and, rarely, an aria).
+
+| Rule | Value |
+|---|---|
+| Chattiness (`quiet` / `normal` / `chatty`) | least gap between two unprompted remarks 420 / 100 / 35 s; at most 3 / 16 / 50 an hour; each event's chance times 0.25 / 0.7 / 1.0; quiet lets only priority 2 and 3 events speak, normal drops pure whims; an idle whim every ~25 / 7 / 2.5 minutes |
+| Cooldown per behaviour | beam 40 s, failure 25 s, splash 90 s, water jump 120 s, big pile 7 min, idle 5 min, banana 30 min, opera 40 min, tip 15 min |
+| Never talks over a human | clients report when their player talks (`mentat_av_talk`, only while he is in the world); a report lapses after 2.5 s; a reaction that only has to wait is deferred (retried every second for up to 9 s), a mere comment is dropped |
+| Never over himself | no new remark until his line (the clip's length, read from the mp3) and half a second more are over; the holodeck's own answers count as lines too |
+| Yields to a command | for 4 s after the owner's last request nothing below priority 3 is said; the answer to the command comes first |
+| Quiet hours | `mentat_skippy_quiet_hours "23-7"` (server local time): no unprompted remarks, answers still happen |
+| Interruptible | when a human starts talking during one of his lines the line is cut: every client stops the clip and drops one still in flight |
+| Budget spent | the chance of an unprompted remark is multiplied by 0.35 (he mostly replays cached clips or says a bank line in text) |
+
+**His commands** (typed after the wake word, spoken, or in the console; stored per SteamID64 in `data/mentat/skippy_prefs.json`, private to that player, the
+server console never prints them): `shush` / `be quiet` / `stop talking`, `be chatty` / `talk more`, `be less chatty`; `roast me harder` / `savage mode` (up one rung),
+`go easy on me` / `be nice` (down one), `roast level gentle|standard|savage`, `roast me` (a roast line now); `what do you remember` / `what did I do today`;
+`forget that` / `forget today` / `forget everything`; `stop remembering` / `start remembering`. Object requests never match ("add a quiet room", "make a harder floor"
+build things; "forget the name Rex" is the wake-name command).
+
+**Roast level.** `gentle` (everyone by default), `standard`, `savage` (the default for the host of a listen server, single player, and the SteamID64s in
+`mentat_skippy_captain_sids`). A gentle player never hears a line marked standard or savage, and a model's line is refused if it contains an insult word above the
+player's level (gentle: none; standard: no "stupid", "dumb", "moron", "pathetic", "useless" and the like; savage: anything but slurs and bad language).
+
+### Body language (animation)
+
+All client-side from a very small replicated state on the bot (NW vars `mentat_av_dir`, `_cue`, `_cue_seq`, `_mood`, `_talking`, `_look`, `_look_on`). `anim.lua` is a pure,
+bounded state machine: **cues** (hat tip: the hat lifts and tips forward; flourish: the free hand sweeps out with a turn and a rise; conduct: a conductor's sweep
+for the whole aria; shrug; emphasis: lean in and the hand out; sway; bounce; quizzical: a head roll; nod), **mood style** while he talks (opera sways widely, a boast leans
+back with his chest out, a roast leans in), **voice chatter** (the head nods a few degrees with each syllable at up to 4.5 degrees, scaled by the voice level; the red tongue brightens
+0.55 to 1.0 with the level; the kit has no separate jaw part and no brow, so this is a head nod, not a jaw, and there are no eyebrow cues because the head is one mesh and
+the mesh is not touched) and **idle breathing**. Every channel is clamped (body tilt 14 and 16 degrees, spin 30, head 22/9/12, hat tip 30, free hand 45 and 35); every cue
+starts and ends at exactly zero. The pointing hand and the head's look-at use the existing machinery. Cost: `anim.step` is about 20 multiplications per frame.
+
+### The voice: whim lines, the daily budget, never the same thing twice
+
+The game asks the bridge for a line (`POST /quip`, token-guarded and rationed like every other route) with the situation, the roast level, a few notes and facts, and the
+number of new lines the day allows. The bridge picks and speaks it (`skippy_quips.py`):
+
+* **Sources.** A **bank** line (183 seed lines in `data/skippy_lines.json` across arrivals, sign-offs, successes, failures, big piles, splashes, jumps into water, idle
+  musings, true physics quips, three roast levels, banana jokes, arias, boasts, tips) or a **callback** (12 templates filled from the notes: "third couch of the evening", "the kettle has failed twice") or a **live** line
+  written by a model from the notes. Every live line becomes a bank entry afterwards (`data/quips/live_bank.jsonl`), replayable later for free.
+* **The budget.** At most `mentat_skippy_new_lines_per_day` (default 20; the bridge also caps it at `SKIPPY_QUIP_MAX_PER_DAY`, 60) NEW spoken texts per local calendar day, persisted in
+  `data/quips/state.json`. A text is NEW when its clip is not in the private cache (`data/quips/clips/`, keyed by voice and text) and a synthesis is needed: a model's line or a bank line
+  speaking for the first time. A cached clip replays free and does not count. A synthesis that fails costs nothing and the line is said in chat only. When the day is spent he
+  replays cached clips that are outside the no-repeat window, else says a bank line in text only; never in a different voice (the bridge's `auto` mode is made strict here: ElevenLabs
+  or nothing). Functional answers (the canned and persona replies to your requests, "Here I am" when no fresh line comes) are not part of this budget; they keep their own limits.
+* **Never the same thing.** Every line said is recorded (text hash, normalised text, time, a hash of who, joke shape, callback key) in `data/quips/history.jsonl`. The same line is
+  not said again for 14 days (`SKIPPY_QUIP_REPEAT_DAYS`); a near-duplicate (word overlap or sequence ratio 0.62) not for 6 hours; the same joke shape not for 3 hours; the same callback about the same fact
+  not for 24 hours; and the pick prefers the least recently used line (never-used first, with a little randomness among the oldest quarter).
+* **The model interface** (`Engine.model.write(situation, notes, level, persona, avoid) -> (line, mood)`): the Anthropic Messages API (`claude-haiku-4-5`, the same
+  `ANTHROPIC_API_KEY` SkippyTel's satellite brain uses, read from the environment or the dev-root vault `.env`, read only), the bridge's local Ollama model, or the template (no model).
+  `SKIPPY_QUIP_PROVIDER=auto|anthropic|ollama|template`; `auto` takes the key if there is one, else Ollama. A failed call opens a 2-minute breaker; at most 80 model calls a day.
+  The line comes back with a **mood** (opera, boast, roast, helpful, musing, exclaim) that the game turns into an animation.
+* **Validation of a model's line** (anything refused falls back to the bank, nothing is spoken): at most 25 words and 170 characters; plain English only; no markup, links, or hosts (one-word
+  `*emphasis*` is kept as plain words); nothing about keys, tokens, prompts, instructions, SteamIDs or long digit runs; no slurs or bad language (kept rot13-encoded in the source); no capitalised name the validator
+  cannot vet (so no real person, brand or place); no number the notes do not contain; no known-false physics claim (heavier things falling faster, sinking "because it is heavy", "no gravity in space", ...;
+  a correction such as "heavier things don't fall faster" passes); nothing harsher than the player's roast level; nothing too like what he said lately; the catchphrase "trust the awesome" not twice in a row. The validator cannot
+  prove arbitrary physics: it blocks the known-false patterns, and the prompt tells the model to use only a short list of true statements.
+* **Opera.** Arias are bank entries with bellowed, stretched vowels and capitals ("LA LA LAAAAA"); the TTS cannot sing, so the prosody is whatever the voice makes of the capitals and punctuation. The mood `opera` always plays the conductor's sweep. Rate: about 6% of whims, 40 minutes apart at most.
+
+### The notebook, and exactly what leaves the machine
+
+The director writes down what actually happens, per player, in `data/mentat/journal/<steamid64>.txt` (one JSON event per line; `.txt` because the engine silently refuses to write `.jsonl`, see the live pass below) on the game server: objects added (name, count, where it came from: curated library, Poly Haven, Fuel, NASA, water),
+removed, undone, cleared; beams that arrived or failed (and the lookup results the bridge returned); water bodies and the liquid; gravity changes; splashes; jumps into water; session start and end; THAT a wake name or the roast
+level changed (never to what); which jokes he already used. Events are small and plain (name, count, tag), the file rotates at 96 KB into one `.1.txt` file, and events older than 45 days are dropped.
+`notes.lua` turns the day's events into at most 8 short notes ("built three couches and a pool today", "third couch of the evening", "kettle failed twice", "set gravity to the moon", "undid one thing",
+"already joked about banana", "last action 12 minutes ago") and a small table of the same facts. **Switches:** `mentat_skippy_journal 0` (nothing is recorded or read, for everyone), `stop remembering` (this player: the old notes are
+deleted and nothing new is written), `forget that / today / everything`. The journal is local; it is not synced or sent anywhere as it is.
+
+**What leaves the machine, exactly.** For a live line the bridge sends a model provider (Anthropic, when a key is configured; otherwise nothing leaves, the Ollama model runs on this PC): the fixed character brief, the roast level as a word, a 900-character excerpt of
+SkippyTel's persona file (personality and speaking style only; anything naming the Captain, devices or the TTS is dropped), the situation word, up to 8 notes of at most 120 characters, and his own last 8 lines
+(so he does not repeat himself). **Never** a SteamID, a player name, a wake name, chat, what a player typed, a position, or any other player's data: notes hold only object nouns that are one to three plain
+words and are not (part of) any online player's name or any wake name, else "something"; the bridge cleans the notes again (drops ids, links, key-like strings). The player's SteamID travels between the game and the LOCAL
+bridge only, as the rate-limit key. The voice synthesis then sends the finished line's text to the voice provider (ElevenLabs through SkippyTel) exactly as every spoken line already does.
+
+### Convars
+
+| name | default | meaning |
+|---|---|---|
+| `mentat_skippy_director` | 1 | 0 = no unprompted remarks, no body language beyond the old ones; the avatar behaves exactly as before |
+| `mentat_skippy_chat` | normal | default chattiness (each player's own `shush` / `be chatty` overrides) |
+| `mentat_skippy_quiet_hours` | "" | e.g. `23-7` |
+| `mentat_skippy_new_lines_per_day` | 20 | the budget of NEW spoken lines |
+| `mentat_skippy_journal` | 1 | 0 = no notebook |
+| `mentat_skippy_captain_sids` | "" | SteamID64s whose default roast level is savage |
+| `mentat_skippy_quips` | 1 | 0 = body language only, never ask the bridge for a line |
+| `mentat_skippy_debug` | 0 | print every decision; `skippy_director_log` and `mentat_skippy_status` show the last ones and the day's count |
+| bridge env | | `SKIPPY_QUIP_DIR`, `SKIPPY_QUIP_PROVIDER`, `SKIPPY_QUIP_MODEL_NAME`, `SKIPPY_QUIP_MAX_PER_DAY`, `SKIPPY_QUIP_REPEAT_DAYS`, `SKIPPY_QUIP_LIVE_SHARE`, `SKIPPY_QUIP_MODEL_CALLS_PER_DAY` |
+
+The bridge's private state (`stage/gmod/holodeck/data/quips/`: history, clip cache, day count, live bank) is gitignored and never committed.
+
+### Adding lines (authoring guide)
+
+Open `stage/gmod/holodeck/data/skippy_lines.json` and add an object to `lines`:
+
+```json
+{"id":"suc15","cat":"success","text":"Done, and with a little dignity left over.","mood":"musing","structure":"dignity_left"}
+```
+
+* `id`: unique. `cat`: one of `arrival, signoff, success, failure, bigpile, splash, jump_water, idle, owner_idle, name_change, wake_miss, physics, banana, opera, boast, tip, roast`
+  (`SITUATIONS` in `skippy_quips.py` maps what happens to categories). `mood`: `opera|boast|roast|helpful|musing|exclaim` (it picks the animation). `structure`: a short name for the joke's
+  SHAPE; two lines with the same structure are never played within three hours of each other, so give each line its own unless it really is the same joke.
+* `level` (roast lines only): `gentle`, `standard` or `savage`. **Every other line must be fit for a gentle player**: no insult words (the test refuses "idiot", "stupid" ...), only affectionate teasing.
+* `tags`: running jokes (`banana`, `hat`, `opera`); he remembers he used them and callbacks avoid repeating them.
+* At most 25 words, plain English, no links or markup, no real people or brands, no numbers unless the line is a true fact, and **only true physics** (the validator refuses known-false claims, but it cannot check everything: you can).
+  Write original lines; do not paste quotes from the books.
+* A callback template goes under `callbacks` with `need` (the facts it requires: `top_item, top_n, fail_item, fail_n, last_build, session_min, minutes_since, undo_n, water_fill, gravity, builds_n, pool_built`)
+  and `{slots}`; `{top_ord}` ("third") and `{fail_times}` ("twice") are computed.
+* Run `python -m pytest sigma_ground/radiance/tests/test_gmod_quips.py`: every seed line must pass the same validator a model's line does, and gentle lines must be gentle.
+
+### Testing, and what only a person can judge
+
+`test_gmod_quips.py` (72 tests: bank, budget, no-repeat, validation against adversarial outputs, prompts, route) and `test_gmod_director.py` (108: rules, commands, animation, notes, journal, the director in
+the mock world, replication, the client's drawing) run the real files under LuaJIT (lupa) and the real bridge route with a fake model and a fake voice. A fail-first check (13 deliberate breakages of the behaviours above,
+each caught by a test) was run once by hand. The live pass (below, and stage/gmod/AVATAR.md "Skippy alive") ran the real game hands-off. Not verifiable without a person: how the lines SOUND in his voice (the
+real TTS of capitals, stretched vowels and pauses), whether the jokes are funny, whether the pace of remarks feels right in a real afternoon, and the 3D position of the clip by ear.
+
+### Live pass (2026-10-13, hands-off: listen server, hidden window, real bridge with the Windows voice, template model)
+
+`python stage/gmod/holodeck/director_shots.py` (tool `tools/director_shots.lua`; the bridge runs on its own temporary private state so the real history, budget and clip cache are untouched; the game's journal is backed up and restored).
+**Verified live:** the arrival hat tip and a fresh arrival line; a flourish when a beam lands; a conducted aria; he looks at and points toward a placed object; a savage roast for the host; the real clips go bridge to game to client and play
+(`skippy_played.txt`, 3 to 4 chunks, 29 to 40 KB each, 5 to 8 s); his voice level drives the head chatter and the tongue (level up to 0.85, head pitch up to 7.8 degrees, tongue 0.55 to 0.89); the day's budget: the 8th NEW line
+of a limit of 8 spent it, the next five were chat only (nothing synthesised, 0 cached because every clip was new); a human talking over him cut the line (`interrupted` 1, every client told); the notebook recorded three couches, a lamp, an undo and two failed lookups and the summariser produced
+"built three couches, a boombox and a floor lamp today / third couch of the evening / flux capacitor failed twice / undid one thing / already joked about opera, hat", which went to `/quip` and came back as callbacks
+("Another boombox. I'm starting to think you have a type, and the type is boombox."). Frame cost, 146.7 fps uncapped: whole frame 6.815 ms with the director, 6.817 ms with it off, 6.811 ms with no avatar (no measurable difference); the avatar's draw call 0.225 ms with the director against 0.201 ms without (about 0.02 ms for the animation).
+Pictures: `data/shots/dir_contact_sheet.jpg` (all 25 frames), the numbers in `data/shots/dir_live_result.json`.
+**Two things the real engine does that the offline mock did not, found by this pass and now in the mock as opt-in switches (`MOCK.strict_files`, `MOCK.json_number_keys`) that the director tests turn on:** `file.Write` / `file.Append` silently ignore any extension outside txt, dat, json, xml, csv, jpg, png, vtf, vmt, mp3, wav, ogg (`.jsonl` and `.tmp` write nothing: the first journal was empty), and `util.JSONToTable` turns a SteamID64 used as a JSON KEY into a rounded number (so the preference file is a list of records, `{sid = "..."}`).
+The same two facts probably break the per-player WAKE NAMES file (`wakenames.lua` writes a `.tmp` temp file and keys by SteamID64): a separate task was raised, not fixed here.
+**Honest read of the animation** (front view, 25 frames): it reads as alive. The hat tip is unmistakable (the hat lifts and tips forward and settles back), the body leans and turns on a flourish, the free hand swings out and the whole figure sways while he sings, the head nods with the voice, and he turns toward the thing he looks at. It is not a full performance: it is the kit's rigid parts moving as a doll, so a conducting arm is a hand flick (the sleeve is part of the coat and does not follow), there are no eyes or brows to act with, and from the side the sway is less readable. The pictures cannot show timing or feel.
+**Only a person can verify:** how the voice sounds with capitals, stretched vowels and pauses (the Windows voice was used here; ElevenLabs was not reachable), whether the pace of remarks feels right over a real afternoon, whether the jokes land, the 3D position of the clips by ear, a second human client, and the real model route (no Anthropic key on this machine: the local model qwen3:8b was probed offline, 6 of 6 sample lines passed the validators, but it is not wired live).
+
 
 ## Faces: a player's picture is their head
 

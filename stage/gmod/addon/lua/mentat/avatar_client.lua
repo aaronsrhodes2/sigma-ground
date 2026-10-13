@@ -12,6 +12,7 @@ if not CLIENT then return end
 local Logic = include("mentat/avatar/logic.lua")
 local Geo = include("mentat/avatar/geometry.lua")
 local BodyC = include("mentat/avatar/body_client.lua")        -- the real Skippy (the print kit), when its private files were sent
+local Anim = include("mentat/avatar/anim.lua")           -- the director's body language (layered, bounded)
 local FX = include("mentat/fx/transporter.lua")           -- the transporter beam: his body waits for the arrival beam (FX.avatar_hidden)
 local Core = Logic.Core
 
@@ -81,6 +82,7 @@ end
 -- a clip just started (skippy_client.lua): while he is in the world it becomes HIS voice
 hook.Add("SkippySpoke", "Mentat.AvatarVoice", function(chan)
   if not Av.Get() then return end
+  if CurTime() < (Av.hushed_until or 0) then if IsValid(chan) then chan:Stop() end return end       -- someone talked over him: the clip that was on its way is dropped
   local cv = GetConVar("skippy_volume")
   tracked[chan] = { base = math.Clamp(cv and cv:GetFloat() or 1, 0, 1) }
   -- the engine's own distance fade is made flat: the fade is Core.gain's job, so it matches proximity voice exactly
@@ -163,6 +165,72 @@ local function channel_level()
   return best
 end
 
+-- ------------------------------------------------------------------------------------------------ the director's body language
+-- The server replicates a small state on the bot (NetworkVars: mentat_av_dir, _cue, _cue_seq, _mood, _talking, _look, _look_on); anim.lua turns it into a
+-- bounded pose every frame (cheap: about twenty multiplications). Without mentat_av_dir (the director is off) nothing changes in how he is drawn.
+Av.anim = Anim.new()
+Av.anim_seen = false
+function Av.UpdateAnim(bot, dt, voiced)
+  if not bot:GetNWBool("mentat_av_dir", false) then Av.anim_seen = false; return nil end
+  local st = Av.anim
+  local seq = bot:GetNWInt("mentat_av_cue_seq", 0)
+  if not Av.anim_seen then Av.anim_seen, st.cue_seq = true, seq end                       -- a client that joins late does not replay an old cue
+  local pose = Anim.step(st, { now = CurTime(), dt = dt, cue = bot:GetNWInt("mentat_av_cue", 0), cue_seq = seq,
+    mood = bot:GetNWString("mentat_av_mood", "musing"), talking = voiced or bot:GetNWBool("mentat_av_talking", false), level = Av.level })
+  return pose, st.tongue
+end
+
+-- Measure the animation while it runs (a debugging aid for the live pass): `mentat_avatar_dir_sample <seconds> <tag>` writes data/mentat/dirsample_<tag>.json with
+-- the extremes of the voice level, the head chatter, the tongue glow and the pose, the cues seen, the draw call's CPU time and the mean frame time.
+concommand.Add("mentat_avatar_dir_sample", function(_, _, args)
+  local secs, tag = math.Clamp(tonumber(args[1]) or 4, 0.5, 60), tostring(args[2] or "x"):gsub("[^%w_]", "")
+  local s = { n = 0, level_max = 0, jaw_max = 0, tongue_min = 9, tongue_max = 0, tilt_r_max = 0, head_pitch_max = 0, hat_tip_max = 0, hand_max = 0, bounce_max = 0, cues = {}, frame = 0, cost = 0, real = Av.drew_real }
+  local t_end, seen = SysTime() + secs, {}
+  hook.Add("Think", "Mentat.AvatarDirSample", function()
+    local st = Av.anim
+    s.n = s.n + 1
+    s.frame = s.frame + RealFrameTime()
+    s.cost = s.cost + (Av.cost_ms or 0)
+    s.level_max = math.max(s.level_max, Av.level or 0)
+    s.jaw_max = math.max(s.jaw_max, st.jaw or 0)
+    s.tongue_min, s.tongue_max = math.min(s.tongue_min, st.tongue or 1), math.max(s.tongue_max, st.tongue or 0)
+    local p = st.pose
+    s.tilt_r_max, s.head_pitch_max = math.max(s.tilt_r_max, math.abs(p.tilt_r)), math.max(s.head_pitch_max, math.abs(p.head_pitch))
+    s.hat_tip_max, s.hand_max, s.bounce_max = math.max(s.hat_tip_max, p.hat_tip), math.max(s.hand_max, p.hand), math.max(s.bounce_max, math.abs(p.bounce))
+    if st.cue and not seen[st.cue] then seen[st.cue] = true; s.cues[#s.cues + 1] = st.cue end
+    if SysTime() >= t_end then
+      hook.Remove("Think", "Mentat.AvatarDirSample")
+      s.frame_ms, s.draw_ms = 1000 * s.frame / math.max(s.n, 1), s.cost / math.max(s.n, 1)
+      file.CreateDir("mentat")
+      file.Write("mentat/dirsample_" .. tag .. ".json", util.TableToJSON(s))
+    end
+  end)
+end, nil, "Measure Skippy's animation for N seconds (debugging)")
+
+-- someone talked over him: the playing clip is cut
+net.Receive("mentat_av_hush", function()
+  Av.hushed_until = CurTime() + 1.5
+  for chan in pairs(tracked) do
+    if IsValid(chan) then chan:SetVolume(0); chan:Stop() end
+    tracked[chan] = nil
+  end
+end)
+
+-- tell the server when THIS player is speaking (so he never talks over a human and stops when one starts); only while he is in the world
+local talk_sent, talk_t = false, 0
+timer.Create("Mentat.AvatarTalk", 0.25, 0, function()
+  local me = LocalPlayer()
+  if not IsValid(me) or not GetGlobalBool("mentat_avatar_on", false) then talk_sent = false; return end
+  local on = (me.IsSpeaking and me:IsSpeaking()) and true or false
+  local now = CurTime()
+  if on ~= talk_sent or (on and now - talk_t > 1.0) then
+    talk_sent, talk_t = on, now
+    net.Start("mentat_av_talk")
+    net.WriteBool(on)
+    net.SendToServer()
+  end
+end)
+
 -- ------------------------------------------------------------------------------------------------ drawing
 local meshes, light_id
 
@@ -234,10 +302,10 @@ local function aim_point(bot)
 end
 
 --- The real body: the print kit's six parts, animated. Drawn with the same depth-writing rule as the procedural body.
-local function draw_real(bot, dt, target, yaw)
+local function draw_real(bot, dt, target, yaw, pose, tongue)
   local lx, ly
   if target then
-    local d = target:EyePos() - bot:GetPos()
+    local d = (target.EyePos and target:EyePos() or target) - bot:GetPos()
     local rad = math.rad(-yaw)
     lx, ly = d.x * math.cos(rad) - d.y * math.sin(rad), d.x * math.sin(rad) + d.y * math.cos(rad)
   end
@@ -246,7 +314,7 @@ local function draw_real(bot, dt, target, yaw)
   render.CullMode(MATERIAL_CULLMODE_NONE)
   if render.OverrideDepthEnable then render.OverrideDepthEnable(true, true) end
   BodyC.draw(bot, { level = Av.level, lx = lx, ly = ly, aim = aim_point(bot), dt = dt, height_m = cv_body_m:GetFloat(),
-    scale = math.Clamp(cv_scale:GetFloat(), 0.25, 4), hat_tilt = Logic.hat_tilt,
+    scale = math.Clamp(cv_scale:GetFloat(), 0.25, 4), hat_tilt = Logic.hat_tilt, pose = pose, tongue = tongue,
     hide = function(name) return hide:find("," .. name .. ",", 1, true) ~= nil end })
   if render.OverrideDepthEnable then render.OverrideDepthEnable(false, false) end
   render.CullMode(MATERIAL_CULLMODE_CCW)
@@ -272,8 +340,10 @@ local function draw()
   local yaw = ang.y
   local target = who_is_talking(bot)
   local pos = bot:GetPos()
+  local pose, tongue = Av.UpdateAnim(bot, dt, lvl ~= nil)
+  if pose and not target and bot:GetNWBool("mentat_av_look_on", false) then target = bot:GetNWVector("mentat_av_look", pos) end     -- the head follows what he looks at
   if real then
-    draw_real(bot, dt, target, yaw)
+    draw_real(bot, dt, target, yaw, pose, tongue)
     Av.drew_real = true
   else
     Av.drew_real = false
@@ -285,9 +355,11 @@ local function draw()
       tp, tr = Logic.hat_tilt(lx, ly, 0.35 + 0.65 * Av.level)
     end
     pitch, roll = Logic.approach(pitch, tp, 6, dt), Logic.approach(roll, tr, 6, dt)
+  if pose then pitch, roll = pitch + pose.hat_p, roll + pose.hat_r end
   local base = Matrix()
   base:Translate(pos)
   base:Rotate(Angle(0, yaw, 0))
+  if pose then base:Translate(Vector(0, 0, pose.bounce * 52.5)); base:Rotate(Angle(pose.tilt_p, pose.spin, pose.tilt_r)) end
   base:Scale(Vector(1, 1, 1) * math.Clamp(cv_scale:GetFloat(), 0.25, 4))
 
   local hide = "," .. cv_hide:GetString():gsub("%s", "") .. ","

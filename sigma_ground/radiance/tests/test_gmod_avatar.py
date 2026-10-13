@@ -79,6 +79,7 @@ hook.Add("SkippyAvatarLeave", "T", function(bot, from) AT.log[#AT.log + 1] = { "
 
 def avatar_world(cv=None, *, holodeck=True, bridge=False):
     cvars = dict(cv or {})
+    cvars.setdefault("mentat_skippy_director", "0")       # these tests are about the body and the follow: the director's wander and remarks have test_gmod_director.py
     if bridge:
         cvars.update({"holodeck_bridge": "http://127.0.0.1:9", "holodeck_agent": "0", "holodeck_persona": "0", "holodeck_voice_out": "1",
                       "mentat_avatar_ack_voice": "0"})

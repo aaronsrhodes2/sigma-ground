@@ -131,6 +131,7 @@ end
 local function fail(m, why)
   m.state, m.why, m.t = "failed", tostring(why), now()
   Mesh.last_error = m.why
+  pcall(hook.Run, "HolodeckBeam", "failed", m, m.why)         -- (the skippy director's notebook and reactions)
   FP.fail(m, why)                                         -- the beam collapses, the placeholder goes, Skippy says why
 end
 Mesh.fail = fail
@@ -152,6 +153,7 @@ local function on_answer(m, body)
   m.data, m.crc, m.total, m.tris, m.verts = data, info.crc, info.total, info.tris, info.verts
   m.chunks = math.ceil(m.total / Mesh.CHUNK)
   m.state, m.why = "ready", nil
+  pcall(hook.Run, "HolodeckBeam", "ready", m)
   FP.watch[m] = nil
   FP.stage(m, "sending", 0)
   tell_entities(m)
@@ -178,6 +180,7 @@ local function request(m, ply)
   if not d.allow("mesh", ply) then return false end
   m.tries = m.tries + 1
   m.state, m.t = "pending", now()
+  m.asker = ply
   local sent = ask(m, ply)
   if not sent then m.state = "wanted"; m.tries = m.tries - 1; return false end
   if m.state == "pending" then FP.begin(m) end              -- (a synchronous failure has already settled it)

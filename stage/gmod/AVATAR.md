@@ -98,7 +98,7 @@ A jump (called elsewhere, or a snap) fires Leave then Arrive.
 Both hooks drive the transporter beam (`mentat/fx/beam_net.lua`, `mentat/fx/transporter.lua`; stage/gmod/holodeck/README.md, "The transporter effect"): a 1 s beam-in with his body
 hidden until it completes, a 0.8 s beam-out at the old place. `holodeck_fx 0` (client) switches it off.
 
-## How it hooks in (nothing in holodeck.lua changed)
+## How it hooks in (the holodeck itself is almost untouched)
 
 `avatar.lua` wraps `Holodeck.Handle` (puts the two commands in front of every path words take), `Holodeck.Say` and
 `Holodeck.Speak` (position) after `holodeck.lua` has loaded; a 2-second timer re-wraps if a Lua refresh brings the plain functions
@@ -106,6 +106,34 @@ back. Files: `mentat/avatar.lua` (server), `mentat/avatar_client.lua` (client), 
 `mentat/avatar/geometry.lua` (shared, pure, unit-tested); loaded from `autorun/mentat_stage.lua`, which also lists them for
 `AddCSLuaFile`. `package_addon.sh` copies the whole `lua/` tree, so it needs no change. Tests:
 `sigma_ground/radiance/tests/test_gmod_avatar.py`.
+"Skippy alive" (below) adds a few small, named seams, nothing else: in `holodeck.lua` the hooks `HolodeckResult(ply, req, res)` (after every request that ran), `HolodeckResolve(ply, noun, result)` (the bridge's /resolve answered),
+`HolodeckWakeMiss(ply)` and the exports `Holodeck.SendAudio` and `Holodeck.BridgeAllow`; in `holodeck/meshnet.lua` the hook `HolodeckBeam("ready"|"failed", m, why)` and `m.asker`; in `avatar.lua` four calls into the director
+(`TryCommand`, `Arrival`, `Drift`, `LookYaw`); in `body_client.lua` and `avatar_client.lua` the director's pose is applied only when the bot carries `mentat_av_dir`.
+
+## Skippy alive (A7a, 2026-10-13): remarks, body language, a notebook, a budget
+
+Built and tested offline, and run live once hands-off. The design, the rules, the commands, the budget and no-repeat mechanics, the notebook and **exactly what leaves the machine** are in `holodeck/README.md`, "Skippy alive".
+What it adds to the avatar:
+
+* **Director** (`avatar/director.lua`, pure rules in `avatar/director_logic.lua`): he reacts to arrival, beams, failed lookups, builds (he looks at and points toward the new thing), big piles, splashes, a jump into water, an idle owner,
+  a wake-name change and a wake-word miss, and he has whims; per-behaviour cooldowns, a chattiness setting (`quiet|normal|chatty`, `shush` / `be chatty`), never over a speaking human (clients report their talking) or over himself, yielding while the owner is mid-command, quiet hours,
+  and interruptible (a human starting to talk cuts the line on every client). He also drifts a little around his hover point and turns to look at what you just placed.
+* **Body language** (`avatar/anim.lua`, applied in `body_client.lua`): cues (hat tip, flourish, conductor, shrug, emphasis, sway, bounce, quizzical, nod) as bounded keyframes, a mood style while he talks, head chatter and tongue brightness driven by the voice
+  level, idle breathing; replicated as NW vars on the bot (`mentat_av_dir`, `_cue`, `_cue_seq`, `_mood`, `_talking`, `_look`, `_look_on`). Part transforms only, the mesh is untouched. Tests: `test_gmod_director.py`.
+* **Voice** (bridge `POST /quip`, `skippy_quips.py`): 183 seed lines + callbacks + model-written lines, at most 20 NEW spoken lines a day, a persisted no-repeat history and a clip cache, a validated model interface. The cached clips replay free.
+* **Notebook** (`avatar/journal.lua`, `avatar/notes.lua`): what the player did, summarised into a few anonymous notes for callbacks; `what do you remember`, `forget that/today/everything`, `stop remembering`, `mentat_skippy_journal 0`.
+* Switch it all off with `mentat_skippy_director 0`: the avatar then behaves exactly as before.
+
+### Live pass (2026-10-13) in short
+`python stage/gmod/holodeck/director_shots.py` (tool `tools/director_shots.lua`; hands-off, no mouse, one game, nothing left running). Verified: the arrival hat tip and line, a flourish, a conducted aria, looking at and pointing toward a placed object, a savage roast
+for the host, the clip path from the bridge to the client (played, level 0.85 drives head pitch up to 7.8 degrees and the tongue 0.55 to 0.89), the budget (8 of 8 spent, then chat only), an interruption, the notebook and a callback from its notes,
+and the frame cost: 146.7 fps uncapped, whole frame 6.815 ms with the director / 6.817 ms off / 6.811 ms with no avatar, the avatar's draw call 0.225 ms against 0.201 ms (the animation adds about 0.02 ms).
+Pictures: `holodeck/data/shots/dir_contact_sheet.jpg` (25 frames: `arrive`, `flourish`, `opera`, `point`, `roast`), numbers in `dir_live_result.json`.
+**Findings:** (1) the engine silently refuses to write files with the extensions `.jsonl` and `.tmp` (only txt, dat, json, xml, csv and the media types), so the first journal was empty and the notes with it: the journal is now `.txt`; (2) `util.JSONToTable` turns a SteamID64 key into a rounded number, so the preference file is a list of records
+(the same two facts very probably break the per-player wake-names file; a task was raised); (3) the bridge's per-minute allowance for `/quip` (10, 4 per caller) refused the scripted scenes, which ask faster than a real afternoon; the live driver widens it for the run;
+(4) the hat tip first lifted the hat a full hat-height off his head and the free hand's swing was too small to read: both retuned (lift 0.025 m; the hand now swings up to 60 degrees roll and 45 yaw) and photographed again.
+**Honest read:** it reads as alive from the front: the hat tip is unmistakable, he leans and turns on a flourish, the free hand swings and the figure sways while he sings, the head nods with the voice. It is a rigid doll, not a performance: the sleeve does not follow the conducting hand, there are no eyes or brows (the head is one mesh), and from the side the sway is less readable.
+**Only a person can verify:** the voice's prosody for capitals, stretched vowels and pauses (the Windows voice ran; ElevenLabs was unreachable), the pacing of remarks over a real afternoon, whether it is funny, the clip's 3D position by ear, a second human client, and the live model route (no Anthropic key on this machine; the local qwen3:8b passed the validators on 6 of 6 offline samples).
 
 ## Live pass (2026-10-11): what the real game showed
 

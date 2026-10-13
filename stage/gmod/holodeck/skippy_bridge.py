@@ -15,6 +15,9 @@ It runs on the machine that hosts the game server (or the game, for single playe
     POST /reply  {"user": "...", "did": "three couches in a U shape", "notes": [], "who": "..."}
                  -> {"ok": true, "say": "<one or two short in-character sentences>"}
     POST /speak  {"text": "...", "who": "..."}  -> audio/mpeg bytes (header X-Skippy-Voice says which voice made it)
+    POST /quip   {"situation": "beam_fail", "roast": "gentle", "notes": [...], "facts": {...}, "daily_limit": 20}
+                 -> a line he says unprompted: audio/mpeg (metadata in X-Skippy-Quip) or JSON text-only; at most daily_limit NEW lines a
+                 day, never a repeat, a model's line validated (all of it in skippy_quips.py; stage/gmod/holodeck/README.md "Skippy alive")
     POST /resolve {"noun": "fire hydrant", "audience": "game", "who": "..."}
                  -> {"ok": true, "place": bool, "status": "exact|alias|synonym|closest|not_found|too_big|needs_size|...",
                      "say": "<Skippy's honest sentence>", "kind": <a planner kind (Hammer units) or null>, "card": <summary or null>}
@@ -1682,6 +1685,9 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(200, mesh_payload(body.get("card"), body.get("key"), _ctx.cancel, _ctx.deadline))
             except ValueError as e:
                 return self._json(400, {"ok": False, "error": str(e)[:200]})
+        if self.path == "/quip":                              # Skippy's whim lines: daily budget, no repeats, journal notes (skippy_quips.py)
+            import skippy_quips
+            return skippy_quips.route(self, body, who, sys.modules[__name__])
         if self.path == "/face":                              # a player's picture as a head (skippy_faces.py)
             import skippy_faces
             return skippy_faces.route(self, body, who, sys.modules[__name__])

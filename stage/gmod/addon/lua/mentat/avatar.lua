@@ -185,12 +185,14 @@ local function tick()
   local fr = frame(owner)
   st.t = st.t + dt
   local want = Logic.follow_target(fr.pos, fr.yaw, fr.eye, st.t)
+  if Av.Director and Av.Director.Drift then want = Av.Director.Drift(want, fr.yaw, st.t) end        -- (director: he drifts, he is not rigid)
   local target = safe_point(owner, want)
   local before = fromv(bot:GetPos())
   local snapped = Logic.step(st, target, fr.pos, dt)
   -- face the person he is talking to; the rest of the time, the way they are looking
   local talking = (Av.speaking_until or 0) > now
   local goal = talking and Logic.yaw_to(st.pos, fr.pos) or fr.yaw
+  if not talking and Av.Director and Av.Director.LookYaw then goal = Av.Director.LookYaw(st.pos) or goal end     -- (director: he looks at what you just built)
   st.yaw = Logic.turn(st.yaw, goal, Logic.DEFAULTS.turn_rate * dt)
   if snapped then hook.Run("SkippyAvatarLeave", bot, tov(before)) end
   place(bot, st.pos, st.yaw)
@@ -315,7 +317,10 @@ function Av.Command(ply, cmd, name)
     local mine = name and name ~= "skippy" and H and H.Wake and H.Wake.Wake and H.Wake.Wake.display(name)
     if ok and mine then
       if H.Tell then H.Tell(ply, "Here I am, " .. mine .. ".", true) end
-    elseif ok then say("Here I am.", cv_ack:GetBool()) elseif H and H.Tell then H.Tell(ply, why or "I cannot come right now.") end
+    elseif ok then
+      local function canned() say("Here I am.", cv_ack:GetBool()) end
+      if not (Av.Director and Av.Director.Arrival and Av.Director.Arrival(ply, canned)) then canned() end      -- (director: a fresh arrival line instead)
+    elseif H and H.Tell then H.Tell(ply, why or "I cannot come right now.") end
   elseif cmd == "dismiss" then
     if Av.IsActive() then
       local mine = name and name ~= "skippy" and H and H.Wake and H.Wake.Wake and H.Wake.Wake.display(name)
@@ -360,6 +365,7 @@ local function install()
           local woke, rest, who = H.Wake.strip(ply, text)
           if woke then said, name = rest, who end
         end
+        if Av.Director and Av.Director.TryCommand and Av.Director.TryCommand(ply, said) then return nil end        -- (director: shush, roast me harder, what do you remember, forget that ...)
         local cmd = Logic.match_command(said)
         if cmd then Av.Command(ply, cmd, name); return nil end
       end
@@ -390,6 +396,8 @@ Av.Install = install
 install()
 timer.Simple(0, install)
 timer.Create("Mentat.AvatarWrap", 2, 0, install)           -- a later Lua refresh of holodeck.lua brings back the plain functions
+
+Av.Director = include("mentat/avatar/director.lua")      -- Skippy alive: remarks, body language, the notebook (see director.lua)
 
 concommand.Add("skippy_come", function(ply) if is_player(ply) then Av.Command(ply, "summon") end end, nil, "Call Skippy to you")
 concommand.Add("skippy_go", function(ply) if is_player(ply) then Av.Command(ply, "dismiss") end end, nil, "Send Skippy away")

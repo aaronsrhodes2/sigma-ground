@@ -280,7 +280,8 @@ local function hand_goal(bot, yaw, s, zoff, aim)
 end
 
 --- Draw the whole figure. ctx = { level (0..1 voice), lx, ly (the one he talks to, in his frame, or nil), aim (world Vector or nil),
---- dt, height_m, scale, hide = function(name) -> bool, hat_tilt = function(lx, ly, strength, max) }.
+--- dt, height_m, scale, hide = function(name) -> bool, hat_tilt = function(lx, ly, strength, max),
+--- pose = the director's body language (avatar/anim.lua: tilt, spin, bounce, hat tip, head pitch/yaw/roll, free hand) or nil, tongue = glow 0..1 or nil }.
 function BC.draw(bot, ctx)
   local dt = ctx.dt
   local yaw = bot:EyeAngles().y
@@ -289,6 +290,7 @@ function BC.draw(bot, ctx)
   local zoff = -0.5 * BC.height_hu + bob                                -- his middle hovers where the can's middle did
   local A = BC.anim
   local level = ctx.level
+  local P = ctx.pose                                                   -- the director's body language, or nil (then he is drawn exactly as before)
 
   -- the head turns toward the one he talks to (small angles); the hat leans with his voice; the hand swings to what he is told to aim at
   local hy_goal = ctx.lx and B.head_yaw(ctx.lx, ctx.ly, 0.6) or 0
@@ -308,7 +310,13 @@ function BC.draw(bot, ctx)
   base:Rotate(Angle(0, yaw, 0))
   base:Scale(Vector(s, s, s))
   base:Translate(Vector(0, 0, zoff))
-  local glow = 0.75 + 0.25 * level
+  if P then                                                              -- the director's body language: a bounce, then a tilt and turn about his middle
+    local mid = 0.5 * BC.height_hu
+    base:Translate(Vector(0, 0, P.bounce * B.HU_PER_M + mid))
+    base:Rotate(Angle(P.tilt_p, P.spin, P.tilt_r))
+    base:Translate(Vector(0, 0, -mid))
+  end
+  local glow = ctx.tongue or (0.75 + 0.25 * level)
   local function shown(name) return not ctx.hide(name) end
 
   if LIT then
@@ -321,17 +329,35 @@ function BC.draw(bot, ctx)
   if shown("can") then draw_part("can", glow) end
   if shown("jacket") then draw_part("jacket", glow) end
   if shown("hand_b") then draw_part("hand_b", glow) end
-  -- the pointing hand about the wrist
+  -- the pointing hand about the wrist (the director's free-hand swing, for emphasis and conducting, is turned about the same wrist first)
+  if P and (P.hand > 0.01) then
+    local w = BC.pv.wrist
+    local wm = Matrix()
+    wm:Translate(Vector(w.x, w.y, w.z))
+    wm:Rotate(Angle(0, 45 * P.hand_side * P.hand, 60 * P.hand))
+    wm:Translate(Vector(-w.x, -w.y, -w.z))
+    cam.PushModelMatrix(wm, true)
+  end
   cam.PushModelMatrix(mat4(B.about(rot, BC.pv.wrist)), true)
   if shown("hand_a") then draw_part("hand_a", glow) end
   cam.PopModelMatrix()
+  if P and (P.hand > 0.01) then cam.PopModelMatrix() end
   -- the head about the neck; the hat sits on the head, so it turns with it and then tips about its own pivot
   local hp, tp3 = BC.pv.head, BC.pv.hat
-  cam.PushModelMatrix(mat4(B.about(B.rodrigues({ x = 0, y = 0, z = 1 }, A.head), hp)), true)
+  if P then
+    local hmx = Matrix()                                                -- the head: nods with the voice (the jaw), turns, tips
+    hmx:Translate(Vector(hp.x, hp.y, hp.z))
+    hmx:Rotate(Angle(P.head_pitch, A.head + P.head_yaw, P.head_roll))
+    hmx:Translate(Vector(-hp.x, -hp.y, -hp.z))
+    cam.PushModelMatrix(hmx, true)
+  else
+    cam.PushModelMatrix(mat4(B.about(B.rodrigues({ x = 0, y = 0, z = 1 }, A.head), hp)), true)
+  end
   if shown("head") then draw_part("head", glow) end
   local hm = Matrix()
+  if P and P.hat_tip > 0.001 then hm:Translate(Vector(0, 0, P.hat_tip * 0.025 * B.HU_PER_M)) end      -- a hat tip lifts the hat first
   hm:Translate(Vector(tp3.x, tp3.y, tp3.z))
-  hm:Rotate(Angle(A.hat_p, 0, A.hat_r))
+  hm:Rotate(Angle(A.hat_p + (P and P.hat_p or 0), 0, A.hat_r + (P and P.hat_r or 0)))
   hm:Translate(Vector(-tp3.x, -tp3.y, -tp3.z))
   cam.PushModelMatrix(hm, true)
   if shown("hat") then draw_part("hat", glow) end

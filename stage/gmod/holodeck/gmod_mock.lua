@@ -189,7 +189,23 @@ M.lzma = {}
 function util.Decompress(blob) return M.lzma[blob] end
 function util.Compress(raw) for c, r in pairs(M.lzma) do if r == raw then return c end end return nil end
 function util.TableToJSON(t) return M.json_encode(t) end
-function util.JSONToTable(s) return M.json_decode(s) end
+-- Two engine behaviours the real game has and a test may switch on (found live; off by default so older tests keep their meaning):
+--   MOCK.json_number_keys: util.JSONToTable turns a string key that looks like a number into a NUMBER (a SteamID64 key loses its low digits)
+--   MOCK.strict_files: file.Write / file.Append silently ignore an extension outside the engine's short list (txt, dat, json, xml, csv, jpg, jpeg, png, vtf, vmt, mp3, wav, ogg)
+local function convert_keys(t)
+  local move = {}
+  for k, v in pairs(t) do
+    if type(v) == 'table' then convert_keys(v) end
+    if type(k) == 'string' and k:match('^%d+$') then move[#move + 1] = k end
+  end
+  for _, k in ipairs(move) do t[tonumber(k)] = t[k]; t[k] = nil end
+end
+function util.JSONToTable(s)
+  local t = M.json_decode(s)
+  if M.json_number_keys and type(t) == 'table' then convert_keys(t) end
+  return t
+end
+
 function util.FilterText(s) return M.filter and M.filter(s) or s end
 
 function M.json_encode(v)
@@ -301,6 +317,7 @@ engine = { ActiveGamemode = function() return "sandbox" end }
 function HTTP(t) M.https[#M.https + 1] = t; return M.http_refuse and false or true end
 function M.respond(i, code, body, headers)
   local t = M.https[i]
+  t.done = true                                                                      -- (a test can tell which requests are still waiting)
   if code == "fail" then t.failed(body or "timeout") else t.success(code, body or "", headers or {}) end
 end
 
@@ -506,6 +523,11 @@ function Ply:IsSpeaking() return self.speaking == true end
 function Ply:IsTyping() return self.typing == true end
 function Ply:SetNWFloat(k, v) self.nw = self.nw or {}; self.nw[k] = v end
 function Ply:GetNWFloat(k, d) return self.nw and self.nw[k] or d end
+-- the other NetworkVar flavours the skippy director replicates its animation state with (per-entity bags, like the engine's NW vars)
+for _, kind in ipairs({ 'Int', 'String', 'Bool', 'Vector', 'Entity' }) do
+  Ply['SetNW' .. kind] = function(self, k, v) self.nw = self.nw or {}; self.nw[k] = v end
+  Ply['GetNW' .. kind] = function(self, k, d) local v = self.nw and self.nw[k]; if v == nil then return d end return v end
+end
 function Ply:SetVoiceVolumeScale(s) self.vscale = s end
 function Ply:EyePos() return self:GetShootPos() end
 function M.newplayer(sid, o)
@@ -535,10 +557,19 @@ function LocalPlayer() return M.me end
 -- client side: files, sounds
 file = {}
 function file.CreateDir() end
-function file.Write(path, data) M.files[path] = data; M.write_count = M.write_count or {}; M.write_count[path] = (M.write_count[path] or 0) + 1 end
+M.ALLOWED_EXT = { txt = true, dat = true, json = true, xml = true, csv = true, jpg = true, jpeg = true, png = true, vtf = true, vmt = true, mp3 = true, wav = true, ogg = true }
+local function writable(path)
+  if not M.strict_files then return true end
+  local ext = path:match('%.(%w+)$')
+  return ext ~= nil and M.ALLOWED_EXT[ext:lower()] == true
+end
+function file.Write(path, data) if not writable(path) then return end; M.files[path] = data; M.write_count = M.write_count or {}; M.write_count[path] = (M.write_count[path] or 0) + 1 end
 function file.Read(path) return M.files[path] end
 function file.Exists(path) return M.files[path] ~= nil end
 function file.Delete(path) M.files[path] = nil end
+function file.Append(path, data) if not writable(path) then return end; M.files[path] = (M.files[path] or '') .. data; M.write_count = M.write_count or {}; M.write_count[path] = (M.write_count[path] or 0) + 1 end
+function file.Size(path) if M.files[path] == nil then return -1 end return #M.files[path] end
+function file.Rename(from, to) if M.files[from] == nil then return false end M.files[to] = M.files[from]; M.files[from] = nil; return true end
 function file.Find(pattern)
   local dir = pattern:match("^(.*)/") or ""
   local prefix = pattern:match("^(.-)%*") or pattern

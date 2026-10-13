@@ -1,0 +1,656 @@
+{
+ "summoned": true,
+ "talking_after_interrupt": false,
+ "budget": {
+  "day": "2026-10-12",
+  "limit": 8,
+  "left": 0,
+  "used": 8
+ },
+ "notes": [
+  "A arrival: cue at once, line after the bridge answers",
+  "C opera line arrived: true"
+ ],
+ "interrupted": 1,
+ "samples": {
+  "flourish": false,
+  "roast": {
+   "real": true,
+   "jaw_max": 0.6664702809299266,
+   "frame_ms": 6.944480115606953,
+   "n": 865,
+   "tilt_r_max": 2.935971985349843,
+   "level_max": 0.8311930103740273,
+   "draw_ms": 0.2687526860739684,
+   "hat_tip_max": 0,
+   "tongue_max": 0.8876032431843883,
+   "bounce_max": 0.014999488486102115,
+   "tongue_min": 0.6013792564899716,
+   "frame": 6.006975300000015,
+   "cues": [
+    "emphasis"
+   ],
+   "head_pitch_max": 7.812804466517396,
+   "hand_max": 0.9999658990734744,
+   "cost": 232.47107345398263
+  },
+  "point": {
+   "real": true,
+   "jaw_max": 0.7335278085866563,
+   "frame_ms": 7.017076998597378,
+   "n": 713,
+   "tilt_r_max": 10.900680104934798,
+   "level_max": 0.8362747797817246,
+   "draw_ms": 0.2794230516941635,
+   "hat_tip_max": 0,
+   "tongue_max": 0.8896410958994909,
+   "bounce_max": 0.05180298296643589,
+   "tongue_min": 0.5564618146231078,
+   "frame": 5.003175899999931,
+   "cues": [
+    "emphasis",
+    "flourish"
+   ],
+   "head_pitch_max": 6.280198324605596,
+   "hand_max": 0.9999656900736086,
+   "cost": 199.22863585793857
+  },
+  "arrival": {
+   "real": true,
+   "jaw_max": 0.6313635124400044,
+   "frame_ms": 6.972333964143496,
+   "n": 1004,
+   "tilt_r_max": 3.517240550600036,
+   "level_max": 0.812647156745717,
+   "draw_ms": 0.25655012344462486,
+   "hat_tip_max": 1,
+   "tongue_max": 0.8735139023689868,
+   "bounce_max": 0,
+   "tongue_min": 0.5500000697537465,
+   "frame": 7.000223300000069,
+   "cues": [
+    "hat_tip"
+   ],
+   "head_pitch_max": 5.159310850362217,
+   "hand_max": 0,
+   "cost": 257.57632393840333
+  },
+  "opera": false
+ },
+ "shots": [
+  "dir_arrive_1",
+  "dir_arrive_2",
+  "dir_arrive_3",
+  "dir_arrive_4",
+  "dir_arrive_5",
+  "dir_flourish_1",
+  "dir_flourish_2",
+  "dir_flourish_3",
+  "dir_flourish_4",
+  "dir_flourish_5",
+  "dir_flourish_6",
+  "dir_opera_1",
+  "dir_opera_2",
+  "dir_opera_3",
+  "dir_opera_4",
+  "dir_opera_5",
+  "dir_opera_6",
+  "dir_opera_7",
+  "dir_point_1",
+  "dir_point_2",
+  "dir_point_3",
+  "dir_point_4",
+  "dir_roast_1",
+  "dir_roast_2",
+  "dir_roast_3"
+ ],
+ "roast_level": "savage",
+ "journal_notes": [
+  "built three couches, a boombox and a floor lamp today",
+  "third couch of the evening",
+  "flux capacitor failed twice",
+  "undid one thing",
+  "already joked about opera, banana, hat"
+ ],
+ "ring": [
+  {
+   "say": true,
+   "ev": "arrive",
+   "why": "an arrival line"
+  },
+  {
+   "say": true,
+   "ev": "arrive",
+   "why": "an arrival line"
+  },
+  {
+   "say": true,
+   "ev": "beam_ok",
+   "why": "situation beam_ok"
+  },
+  {
+   "say": true,
+   "ev": "opera",
+   "why": "situation opera"
+  },
+  {
+   "say": true,
+   "ev": "build",
+   "why": "situation build"
+  },
+  {
+   "say": true,
+   "ev": "opera",
+   "why": "situation opera"
+  },
+  {
+   "say": false,
+   "ev": "interrupt",
+   "why": "a human started talking over him"
+  },
+  {
+   "say": false,
+   "ev": "build",
+   "why": "the owner is mid-command"
+  },
+  {
+   "say": false,
+   "ev": "build",
+   "why": "he is still speaking"
+  },
+  {
+   "say": true,
+   "ev": "recall",
+   "why": "answered in character"
+  },
+  {
+   "say": true,
+   "ev": "musing",
+   "why": "situation musing"
+  },
+  {
+   "say": true,
+   "ev": "tip",
+   "why": "situation tip"
+  },
+  {
+   "say": true,
+   "ev": "boast",
+   "why": "situation boast"
+  },
+  {
+   "say": true,
+   "ev": "musing",
+   "why": "situation musing"
+  },
+  {
+   "say": true,
+   "ev": "physics",
+   "why": "situation physics"
+  },
+  {
+   "say": false,
+   "ev": "musing",
+   "why": "the director is off"
+  }
+ ],
+ "perf": {
+  "director_on": {
+   "frames": 706,
+   "avg_ms": 6.815173087818248,
+   "draw_ms": 0.22499244783835243,
+   "fps": 146.7314163726004
+  },
+  "director_off": {
+   "frames": 706,
+   "avg_ms": 6.81694305948999,
+   "draw_ms": 0.20062698646400584,
+   "fps": 146.69331858476974
+  },
+  "no_avatar": {
+   "frames": 707,
+   "avg_ms": 6.811254738330884,
+   "draw_ms": 0.002749524298233258,
+   "fps": 146.81582739409515
+  }
+ },
+ "notes_sent": {
+  "notes": [
+   "built three couches, a boombox and a floor lamp today",
+   "third couch of the evening",
+   "flux capacitor failed twice",
+   "undid one thing",
+   "already joked about opera, hat"
+  ],
+  "facts": {
+   "builds_n": 3,
+   "top_n": 3,
+   "minutes_since": 0,
+   "undo_n": 1,
+   "fail_item": "flux capacitor",
+   "session_min": 1,
+   "fail_n": 2,
+   "top_item": "couch",
+   "last_build": "floor lamp"
+  }
+ },
+ "voice": "sapi",
+ "sample_tags": [
+  "arrival",
+  "flourish",
+  "opera",
+  "point",
+  "roast"
+ ],
+ "journal_file": "(read as .jsonl by the first version of the tool: see AVATAR.md; the notes above prove the journal worked)",
+ "counts": {
+  "interrupted": 1,
+  "spoken": 8,
+  "events": 12,
+  "new": 8,
+  "silent": 0,
+  "text_only": 5,
+  "errors": 0,
+  "cached": 0
+ },
+ "lines": [
+  {
+   "line": {
+    "ev": "arrive",
+    "cue": "hat_tip",
+    "source": "bank",
+    "new": true,
+    "mood": "boast",
+    "dur": 6.74,
+    "cached": false,
+    "text": "Behold! The most magnificent beer can in the known universe has arrived. You may applaud. Silently is fine."
+   },
+   "counts": {
+    "interrupted": 0,
+    "spoken": 1,
+    "events": 0,
+    "new": 1,
+    "silent": 0,
+    "text_only": 0,
+    "errors": 0,
+    "cached": 0
+   },
+   "label": "summon (arrival line)",
+   "budget": {
+    "limit": 8,
+    "left": 7,
+    "used": 1
+   }
+  },
+  {
+   "line": {
+    "ev": "arrive",
+    "cue": "hat_tip",
+    "source": "bank",
+    "new": true,
+    "mood": "boast",
+    "dur": 6.05,
+    "cached": false,
+    "text": "I'm here. Try to look less surprised, monkey, I'm never late. Everyone else is simply early."
+   },
+   "counts": {
+    "interrupted": 0,
+    "spoken": 2,
+    "events": 0,
+    "new": 2,
+    "silent": 0,
+    "text_only": 0,
+    "errors": 0,
+    "cached": 0
+   },
+   "label": "A arrival",
+   "budget": {
+    "limit": 8,
+    "left": 6,
+    "used": 2
+   }
+  },
+  {
+   "line": {
+    "ev": "beam_ok",
+    "cue": "flourish",
+    "source": "callback",
+    "new": true,
+    "mood": "roast",
+    "dur": 4.6,
+    "cached": false,
+    "text": "Another boombox. I'm starting to think you have a type, and the type is boombox."
+   },
+   "counts": {
+    "interrupted": 0,
+    "spoken": 3,
+    "events": 1,
+    "new": 3,
+    "silent": 0,
+    "text_only": 0,
+    "errors": 0,
+    "cached": 0
+   },
+   "label": "B beam ready",
+   "budget": {
+    "limit": 8,
+    "left": 5,
+    "used": 3
+   }
+  },
+  {
+   "line": {
+    "ev": "opera",
+    "cue": "conduct",
+    "source": "bank",
+    "new": true,
+    "mood": "opera",
+    "dur": 6.11,
+    "cached": false,
+    "text": "OOOH, sing, sing, sing for the beer can, for he is large and he is hat-ted! LAAAAAA!"
+   },
+   "counts": {
+    "interrupted": 0,
+    "spoken": 4,
+    "events": 2,
+    "new": 4,
+    "silent": 0,
+    "text_only": 0,
+    "errors": 0,
+    "cached": 0
+   },
+   "label": "C opera",
+   "budget": {
+    "limit": 8,
+    "left": 4,
+    "used": 4
+   }
+  },
+  {
+   "line": {
+    "ev": "build",
+    "cue": "flourish",
+    "source": "bank",
+    "new": true,
+    "mood": "exclaim",
+    "dur": 5.14,
+    "cached": false,
+    "text": "Ta-daaa! Another flawless creation. I'd take a bow, but my hat might fall off."
+   },
+   "counts": {
+    "interrupted": 0,
+    "spoken": 5,
+    "events": 3,
+    "new": 5,
+    "silent": 0,
+    "text_only": 0,
+    "errors": 0,
+    "cached": 0
+   },
+   "label": "D look/point (build)",
+   "budget": {
+    "limit": 8,
+    "left": 3,
+    "used": 5
+   }
+  },
+  {
+   "line": {
+    "ev": "roast_now",
+    "cue": "emphasis",
+    "source": "bank",
+    "new": true,
+    "mood": "roast",
+    "dur": 4.5,
+    "cached": false,
+    "text": "The only thing you've built successfully today is my disappointment, and it's a magnificent structure."
+   },
+   "counts": {
+    "interrupted": 0,
+    "spoken": 6,
+    "events": 3,
+    "new": 6,
+    "silent": 0,
+    "text_only": 0,
+    "errors": 0,
+    "cached": 0
+   },
+   "label": "E roast (savage)",
+   "budget": {
+    "limit": 8,
+    "left": 2,
+    "used": 6
+   }
+  },
+  {
+   "line": {
+    "ev": "opera",
+    "cue": "conduct",
+    "source": "bank",
+    "new": true,
+    "mood": "opera",
+    "dur": 6.39,
+    "cached": false,
+    "text": "Behold the aria of the aluminium! LA LA LA, la la LAAAAA, bravo, bravo, me!"
+   },
+   "counts": {
+    "interrupted": 1,
+    "spoken": 7,
+    "events": 4,
+    "new": 7,
+    "silent": 0,
+    "text_only": 0,
+    "errors": 0,
+    "cached": 0
+   },
+   "label": "F interrupted",
+   "budget": {
+    "limit": 8,
+    "left": 1,
+    "used": 7
+   }
+  },
+  {
+   "line": {
+    "ev": "recall",
+    "cue": "emphasis",
+    "source": "callback",
+    "new": true,
+    "mood": "musing",
+    "dur": 4.15,
+    "cached": false,
+    "text": "3 builds so far. I'm keeping count, in case the court asks."
+   },
+   "counts": {
+    "interrupted": 1,
+    "spoken": 8,
+    "events": 6,
+    "new": 8,
+    "silent": 0,
+    "text_only": 0,
+    "errors": 0,
+    "cached": 0
+   },
+   "label": "I recall",
+   "budget": {
+    "limit": 8,
+    "left": 0,
+    "used": 8
+   }
+  },
+  {
+   "line": {
+    "ev": "musing",
+    "cue": "sway",
+    "source": "bank",
+    "new": false,
+    "mood": "musing",
+    "dur": 1,
+    "cached": false,
+    "text": "Monkey, if you build me a banana, I'll believe in you slightly more. Slightly."
+   },
+   "counts": {
+    "interrupted": 1,
+    "spoken": 8,
+    "events": 7,
+    "new": 8,
+    "silent": 0,
+    "text_only": 1,
+    "errors": 0,
+    "cached": 0
+   },
+   "label": "G musing #1",
+   "budget": {
+    "limit": 8,
+    "left": 0,
+    "used": 8
+   }
+  },
+  {
+   "line": {
+    "ev": "tip",
+    "cue": "emphasis",
+    "source": "bank",
+    "new": false,
+    "mood": "helpful",
+    "dur": 1,
+    "cached": false,
+    "text": "Ask what floats, and I'll tell you what bobs and what sinks. It's a game with actual physics. Enjoy it."
+   },
+   "counts": {
+    "interrupted": 1,
+    "spoken": 8,
+    "events": 8,
+    "new": 8,
+    "silent": 0,
+    "text_only": 2,
+    "errors": 0,
+    "cached": 0
+   },
+   "label": "G tip #2",
+   "budget": {
+    "limit": 8,
+    "left": 0,
+    "used": 8
+   }
+  },
+  {
+   "line": {
+    "ev": "boast",
+    "cue": "flourish",
+    "source": "bank",
+    "new": false,
+    "mood": "boast",
+    "dur": 1,
+    "cached": false,
+    "text": "If intellect were water, I'd be the ocean and you'd be a damp sponge in a cupboard."
+   },
+   "counts": {
+    "interrupted": 1,
+    "spoken": 8,
+    "events": 9,
+    "new": 8,
+    "silent": 0,
+    "text_only": 3,
+    "errors": 0,
+    "cached": 0
+   },
+   "label": "G boast #3",
+   "budget": {
+    "limit": 8,
+    "left": 0,
+    "used": 8
+   }
+  },
+  {
+   "line": {
+    "ev": "musing",
+    "cue": "sway",
+    "source": "bank",
+    "new": false,
+    "mood": "musing",
+    "dur": 1,
+    "cached": false,
+    "text": "I was thinking about the heat death of the universe. It's mostly a scheduling issue."
+   },
+   "counts": {
+    "interrupted": 1,
+    "spoken": 8,
+    "events": 10,
+    "new": 8,
+    "silent": 0,
+    "text_only": 4,
+    "errors": 0,
+    "cached": 0
+   },
+   "label": "G musing #4",
+   "budget": {
+    "limit": 8,
+    "left": 0,
+    "used": 8
+   }
+  },
+  {
+   "line": {
+    "ev": "physics",
+    "cue": "emphasis",
+    "source": "bank",
+    "new": false,
+    "mood": "helpful",
+    "dur": 1,
+    "cached": false,
+    "text": "Drag grows with the square of your speed, so doubling the speed quadruples the argument with the air."
+   },
+   "counts": {
+    "interrupted": 1,
+    "spoken": 8,
+    "events": 11,
+    "new": 8,
+    "silent": 0,
+    "text_only": 5,
+    "errors": 0,
+    "cached": 0
+   },
+   "label": "G physics #5",
+   "budget": {
+    "limit": 8,
+    "left": 0,
+    "used": 8
+   }
+  }
+ ],
+ "audio": {
+  "to": 2,
+  "chunks": 3,
+  "bytes": 29092,
+  "id": 11
+ },
+ "played": "11 5.72",
+ "pictures": [
+  "dir_arrive_1.jpg",
+  "dir_arrive_2.jpg",
+  "dir_arrive_3.jpg",
+  "dir_arrive_4.jpg",
+  "dir_arrive_5.jpg",
+  "dir_flourish_1.jpg",
+  "dir_flourish_2.jpg",
+  "dir_flourish_3.jpg",
+  "dir_flourish_4.jpg",
+  "dir_flourish_5.jpg",
+  "dir_flourish_6.jpg",
+  "dir_opera_1.jpg",
+  "dir_opera_2.jpg",
+  "dir_opera_3.jpg",
+  "dir_opera_4.jpg",
+  "dir_opera_5.jpg",
+  "dir_opera_6.jpg",
+  "dir_opera_7.jpg",
+  "dir_point_1.jpg",
+  "dir_point_2.jpg",
+  "dir_point_3.jpg",
+  "dir_point_4.jpg",
+  "dir_roast_1.jpg",
+  "dir_roast_2.jpg",
+  "dir_roast_3.jpg"
+ ]
+}

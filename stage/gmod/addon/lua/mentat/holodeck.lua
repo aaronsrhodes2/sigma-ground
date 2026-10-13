@@ -294,6 +294,9 @@ local function send_audio(bytes, pos, ply)
   if not timer.Exists("holodeck_audio_pump") then timer.Create("holodeck_audio_pump", 0.12, 0, audio_pump) end
 end
 
+H.SendAudio = send_audio             -- (the skippy director: a clip the bridge's /quip route made goes out the way a spoken answer does)
+H.BridgeAllow = bridge_allow
+
 local function looks_like_mp3(b)
   if b:sub(1, 3) == "ID3" then return true end
   local b1, b2 = b:byte(1, 2)
@@ -1264,11 +1267,18 @@ local function finish(ply, text, res, opts)
   if opts and opts.done then opts.done(res) end
 end
 
+--- run_one, then tell whoever listens (the skippy director keeps its notebook from this): hook HolodeckResult(ply, req, res)
+local function run_hooked(ply, req, opts)
+  local res = run_one(ply, req, opts)
+  if istable(res) then pcall(hook.Run, "HolodeckResult", ply, req, res) end
+  return res
+end
+
 --- Run a parsed (or agent-made) request. Returns the planner's result table.
 function H.Execute(ply, req, opts, text)
   opts = opts or {}
   if opts.was_player and not IsValidPlayer(ply) then return nil end     -- the player left while the agent was thinking: do nothing
-  local ok, res = pcall(run_one, ply, req, opts)
+  local ok, res = pcall(run_hooked, ply, req, opts)
   if not ok then
     ErrorNoHalt("[holodeck] request error: " .. tostring(res) .. "\n")
     res = { action = "error", say = "I tripped over that one. The error is in the server console.", fixed = true, quiet = true }
@@ -1498,7 +1508,7 @@ function F.ask(ply, noun, cb)
   if old and CurTime() - old.t < F.REFUSED_FOR then return cb({ say = old.say, class = old.class, cached = true }) end
   if not bridge_allow("resolve", ply) then return cb({}) end
   local done = false
-  local function once(r) if not done then done = true; cb(r) end end
+  local function once(r) if not done then done = true; pcall(hook.Run, "HolodeckResolve", ply, noun, r); cb(r) end end
   local sent = bridge_post("/resolve", { noun = noun, audience = "game", who = player_key(ply) }, function(body)
     local obj = util.JSONToTable(body or "")
     if not (istable(obj) and obj.ok) then return once({}) end
@@ -1707,7 +1717,7 @@ function H.Handle(ply, text, opts)
         H.prev_req[key] = r                                                -- only what really ran is remembered (not the clauses cut off)
         local part = setmetatable({ budget = time_left, max_total = things_left }, { __index = opts })
         local t0 = SysTime()
-        local ok, res = pcall(run_one, ply, r, part)
+        local ok, res = pcall(run_hooked, ply, r, part)
         time_left = time_left - (SysTime() - t0)
         if not ok then
           ErrorNoHalt("[holodeck] request error: " .. tostring(res) .. "\n")
@@ -1769,6 +1779,7 @@ net.Receive("holodeck_voice", function(_, ply)
   if last_spoken[ply] and CurTime() - last_spoken[ply] < 1.0 then return end
   last_spoken[ply] = CurTime()
   local woke, rest, name = H.Wake.strip(ply, text)                    -- (the speaker's own names)
+  if not woke then pcall(hook.Run, "HolodeckWakeMiss", ply) end        -- the microphone bridge heard a wake word, but none of this player's names came through
   H.Handle(ply, woke and rest or text, (woke and name ~= "skippy") and { wake_name = name } or nil)
 end)
 
