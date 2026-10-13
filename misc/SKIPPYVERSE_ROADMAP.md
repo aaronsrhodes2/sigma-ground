@@ -4,7 +4,7 @@ The rule for every phase: **the game only claims the physics it really implement
 buoyancy-by-our-code; it knows nothing about thermodynamics, so we do not pretend. Every physical number comes from Mentat/sigma-ground
 (PLATINUM section 21) with its source; the game is the stage, not the calculator.
 
-## Phase A: "Bring the toys" (NOW): form and functionality
+## Phase A: "Bring the toys" (NOW): form and functionality, Skippy, solid LLM turns
 
 Goal: **a holodeck.** Say what you want and it appears, looks right, behaves believably, and the world around it feels alive. Any playground
 the voice can summon. No new physics domains; as much of the construct's own physics as is realistic.
@@ -21,6 +21,11 @@ the voice can summon. No new physics domains; as much of the construct's own phy
 | A8 | **Faces** | Google profile picture becomes the player's head (link code between the portal and the game account). | to build |
 | A9 | **Look** | Skippy (done, hat still to check), objects (running), beam / wisp / labels, the stage. | running |
 
+### Solid LLM turns (part of A7)
+Skippy decides whether a line was aimed at him (wake word, gaze and proximity, the turn before), helps when asked, comes when called and goes when shooed.
+Model output is validated and falls back to the deterministic parser when unsure; resolved objects, packed payloads and common replies are cached;
+a corpus of real turns measures reliability.
+
 ### Skippy alive (A7)
 - **Behaviour director:** hover, drift near the player, look at what you build, react to events (a beam finishing, a failure, a jump, a big pile),
   with cooldowns and a chattiness setting; "shush" and "be chatty" commands.
@@ -30,11 +35,21 @@ the voice can summon. No new physics domains; as much of the construct's own phy
   Spoken lines come from a pre-rendered bank (cheap, instant, quota-free) plus live lines for conversation; budgeted so the voice quota is never burned.
 - **Natural conversation:** the live-Skippy presence pass (speed, awareness of what was just built, interruption).
 
-## Phase B: "Adding in physics" (AFTER the toys)
+## Phase B: "Give the toys properties" (AFTER Phase A)
 
-Real domains run by sigma-ground/Mentat and shown in the game: thermodynamics (heat, fire, phase change), fluid simulation, electromagnetism
-(the railgun: offline verb and recorder already built, in-game player shelved), chemistry, quantum emulation. Each gets a trust label.
-Needs: coupled solvers, a richer game read-back (colour, glow, events, readouts), and a live game-to-Mentat path (see `SKIPPYVERSE_PHYSICS_REUSE_MAP.md`).
+Aaron, 2026-10-12: "we will need to scrutinize each object and give it properties that the game can use." Each object gets a property sheet: material and
+makeup, density and mass, conductivity, melting point, hardness and so on, each labelled measured / sourced / estimated / guessed. This is the lazy repair
+design (`SKIPPYVERSE_LAZY_REPAIR_DESIGN.md`): real materials make mass derivable. **The property sheet is the contract between Phase B and Phase C**:
+decide its fields first (a short design pass), so Phase C can grow without redoing the objects. Packaging and quantifying come from sigma-ground
+(quarksum was folded into it).
+
+## Phase C: "Add the physics" (AFTER Phase B)
+
+The game gains systems that READ the properties objects already carry and infer behaviour from them, run by sigma-ground/Mentat and shown in the game:
+thermodynamics (heat, fire, phase change), fluid simulation, electromagnetism and electronics with simulated current (the railgun: ablating sabot,
+plasma, a steel impact surface; the offline verb and recorder are built, the in-game player is shelved), chemistry, quantum emulation. Each gets a trust label.
+The game claims nothing about a domain until it implements it. Needs: coupled solvers, a richer game read-back (colour, glow, events, readouts), and a
+live game-to-Mentat path (see `SKIPPYVERSE_PHYSICS_REUSE_MAP.md`).
 
 ## Future (explicitly parked)
 
