@@ -672,6 +672,21 @@ Drawn with the mesh and render APIs only (`water/render.lua`; a server or client
 Cost: the drawing is capped by the 48 x 48 grid and the per-body budget; the CPU work of the vertex loop measured offline is about 0.9 ms a
 frame for a pool (LuaJIT, mock engine calls); the engine figures are in the live status.
 
+### Live status (real game, 2026-10-12, dedicated server and a hidden game window)
+
+`water_live.py` (headless): floating 500 mm blocks: 600 kg/m3 draft 0.303 m against 0.3005 (+0.8 percent), asleep after 11 s; 300 kg/m3 0.1509 against
+0.1503, asleep after 3.2 s; on the Moon (g = 1.623 from the library) the 600 block rides at 0.2987 against 0.3005, asleep after 17 s (the draft does not depend on g);
+steel on mercury 0.1732 against 0.174; a 0.2 m steel cube sinks at 4.85 m/s against 5.06 (-4 percent; Moon 1.91 against 2.06, -7.5 percent: the
+engine's own damping is a hair stronger than the formula); splash energy from a 2 m drop 390 J against m g h = 392 J (the 0.3 m drop read 3.6 m/s against 2.4: the test box
+started overlapping the rim, not explained further); a bot floats with its feet 1.339 m under against 1.353 predicted by Archimedes
+and swims at 0.562 m/s against 0.585 from thrust and drag. `AddAngleVelocity` and `GetAngleVelocity` were MEASURED to use the body's own (local)
+axes: that is now the default. Cost on the server: 40 bodies in motion cost 1.56 ms per 15 ms tick (about 39 us a body), 0.46 ms once they settle; with no water, nothing.
+`water_shots.py perf` (client, 145 fps): the frame is 6.88 ms with the pool in view against 6.79 ms looking away: about 0.1 ms; the render module's own CPU
+timer reads 1.2 to 1.6 ms (an EMA that does not fall when nothing is drawn). Pictures: `data/shots/water_*.jpg`, sheet `water_sheet.jpg`.
+
+**Weak, honestly.** The surface is a flat-shaded sheet: waves are visible on the sea but barely on a small pool; the rings of an impact are faint; walls look like
+glass, tile is a plain checker; the pond screenshots did not come out; two groups of tests (bot hoisting at an edge, client-predicted swimming) were not run in the live game.
+
 ### Checking it
 
 `python stage/gmod/holodeck/water_live.py` runs the headless job `mentat/tools/water_live.lua` on the dedicated server and grades the

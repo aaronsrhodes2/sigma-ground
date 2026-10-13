@@ -91,7 +91,8 @@ def grade(res: dict) -> dict:
         V = s["side"] ** 3
         exp = terminal(7850.0, V, water["density_kg_m3"], g_pool, s["side"] ** 2, water["viscosity_pa_s"])
         row("steel block terminal speed (Earth)", plateau(s["rows"], s["floor_m"]), exp, 0.08, "m/s")
-    ms = res.get("moon", {})
+    ms = res.get("moon") or {}
+    ms = ms if isinstance(ms, dict) else {}
     if ms.get("draft"):
         d = ms["draft"]
         row("draft on the Moon (same as Earth)", d["draft_m"], subfrac(d["rho"], water["density_kg_m3"]) * d["side"], 0.05, "m",
@@ -102,7 +103,7 @@ def grade(res: dict) -> dict:
         exp = terminal(7850.0, V, water["density_kg_m3"], s["g"], s["side"] ** 2, water["viscosity_pa_s"])
         row("steel block terminal speed (Moon)", plateau(s["rows"], s["floor_m"]), exp, 0.10, "m/s", f"g={s['g']:.4f}")
     mc = res.get("mercury")
-    if mc and mc.get("draft_m") is not None:
+    if isinstance(mc, dict) and mc.get("draft_m") is not None:
         row("steel on mercury: draft", mc["draft_m"], subfrac(mc["rho"], merc["density_kg_m3"]) * mc["side"], 0.05, "m", f"asleep={mc['asleep']}")
     for sp in res.get("splashes", []):
         ev = [e for e in sp["events"] if e["kind"] == 1]
@@ -112,7 +113,8 @@ def grade(res: dict) -> dict:
         e = ev[0]
         row(f"entry speed, drop of {sp['h_m']} m", e["speed"], math.sqrt(2 * g_pool * sp["h_m"]), 0.12, "m/s")
         row(f"entry energy, drop of {sp['h_m']} m", 0.5 * e["mass"] * e["speed"] ** 2, e["mass"] * g_pool * sp["h_m"], 0.2, "J")
-    sw = res.get("swim", {})
+    sw = res.get("swim") or {}
+    sw = sw if isinstance(sw, dict) else {}
     if sw.get("rest"):
         r = sw["rest"]
         hull = 72 * HU_M

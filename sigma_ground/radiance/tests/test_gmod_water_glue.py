@@ -151,6 +151,7 @@ def build(g=None):
     w.rt.execute(PRELUDE)
     w.rt.execute('dofile(MOCK.ROOT .. "/mentat/world.lua")')
     w.rt.execute('dofile(MOCK.ROOT .. "/mentat/water.lua")')
+    w.rt.execute('MentatWater.ang_frame = "world"')               # (the mock's bodies read angular velocity in world axes; the real engine's are local, measured live)
     w.advance(0.01)
     if g is not None:
         w.rt.execute(f"SetGlobalFloat('mentat_world_g_m_s2', {g}); physenv.g = Vector(0, 0, -{g / HU_M})")

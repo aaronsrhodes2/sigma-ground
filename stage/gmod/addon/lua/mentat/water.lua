@@ -41,7 +41,7 @@ util.AddNetworkString("mentat_water_splash")
 W.log = W.log or {}
 W.recs = W.recs or setmetatable({}, { __mode = "k" })      -- ent -> { dims, class, cd, shape, wet, calm, ... }
 W.counters = W.counters or { processed = 0, ticks = 0, us = 0, splashes = 0, woken = 0, slept = 0 }
-W.ang_frame = W.ang_frame or "world"                        -- how AddAngleVelocity reads its vector (measured live, see tools/water_live.lua)
+W.ang_frame = W.ang_frame or "local"                        -- how AddAngleVelocity and GetAngleVelocity read their vector: MEASURED in the real engine (tools/water_live.lua): the body's own axes
 W.cursor = W.cursor or 0
 Move.cd = WC.CD.box.value
 
@@ -181,7 +181,7 @@ function W.step_object(ent, rec, body, dt)
   if vsub <= 0 then
     if rec.wet then
       rec.wet = false
-      if vz > 0.2 then send_splash(body, 2, centre.x, centre.y, mass, vz) end
+      if vz > 0.2 then W.send_splash(body, 2, centre.x, centre.y, mass, vz) end
     end
     return nil
   end
@@ -189,7 +189,7 @@ function W.step_object(ent, rec, body, dt)
   if not rec.wet then
     rec.wet = true
     rec.calm = 0
-    if vz < -0.05 then send_splash(body, 1, centre.x, centre.y, mass, -vz) end
+    if vz < -0.05 then W.send_splash(body, 1, centre.x, centre.y, mass, -vz) end
   end
   -- buoyancy: a velocity step.  The engine applies gravity itself right after this hook, so the drag below is taken on the velocity the
   -- body will have AFTER that step (v + (a_buoy - g) dt): then a body whose buoyancy equals its weight has exactly zero net acceleration
@@ -262,7 +262,7 @@ function W.step_object(ent, rec, body, dt)
     local now = CurTime()
     if now - (rec.bob_t or 0) > 0.6 then
       rec.bob_t = now
-      send_splash(body, 3, centre.x, centre.y, mass, abs(v2z))
+      W.send_splash(body, 3, centre.x, centre.y, mass, abs(v2z))
     end
   end
   -- settled: floating at its draft and not moving, or resting on the bottom -> sleep (the engine sleeps what rests; a floater needs this)

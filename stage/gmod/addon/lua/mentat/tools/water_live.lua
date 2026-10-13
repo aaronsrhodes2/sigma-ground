@@ -18,7 +18,7 @@ return function(args, done)
   local function sleep(t)
     timer.Simple(t, function()
       local ok, e = coroutine.resume(co)
-      if not ok then done(nil, "script: " .. tostring(e)) end
+      if not ok then print("[water_live] ERROR " .. tostring(e)); done(nil, "script: " .. tostring(e)) end
     end)
     coroutine.yield()
   end
@@ -76,9 +76,12 @@ return function(args, done)
     return rows
   end
 
+  local function step(msg) print("[water_live] " .. msg) end
+  step("start")
   co = coroutine.create(function()
     -- ------------------------------------------------------------------ the angular-velocity frame probe
     if want.frame then
+      step('frame')
       local e = box({ 0.5, 0.5, 0.5 }, 20, 2000, 2000, fz0 + 2000)
       sleep(0.3)
       local po = e:GetPhysicsObject()
@@ -102,6 +105,7 @@ return function(args, done)
 
     -- ------------------------------------------------------------------ floating drafts (Earth)
     if want.float then
+      step('float')
       local b = make_pool("add a pool " .. depth_m .. " metres deep")
       if b then
         local surf = b.surf * HU_M
@@ -121,6 +125,7 @@ return function(args, done)
 
     -- ------------------------------------------------------------------ a sinking steel block
     if want.sink then
+      step('sink')
       local b = body_of() or make_pool("add a pool " .. depth_m .. " metres deep")
       if b then
         local side = 0.2
@@ -134,6 +139,7 @@ return function(args, done)
 
     -- ------------------------------------------------------------------ splash energies
     if want.splash then
+      step('splash')
       local b = body_of()
       if b then
         local log = {}
@@ -153,6 +159,7 @@ return function(args, done)
 
     -- ------------------------------------------------------------------ the Moon
     if want.moon then
+      step('moon')
       local b = body_of()
       if b then
         local WW = MentatWorld
@@ -179,6 +186,7 @@ return function(args, done)
 
     -- ------------------------------------------------------------------ mercury
     if want.mercury then
+      step('mercury')
       local b = make_pool("add a pool of mercury 3 metres deep")
       if b then
         local surf = b.surf * HU_M
@@ -193,6 +201,7 @@ return function(args, done)
 
     -- ------------------------------------------------------------------ cost: many bodies in the water
     if want.cost then
+      step('cost')
       local b = make_pool("add a pool 6 metres deep")
       if b then
         local n = 40
@@ -218,6 +227,7 @@ return function(args, done)
 
     -- ------------------------------------------------------------------ a bot swims
     if want.swim then
+      step('swim')
       local b = make_pool("add a pool 3 metres deep")
       if b then
         RunConsoleCommand("bot")
@@ -254,7 +264,7 @@ return function(args, done)
             while not fin do sleep(0.2) end
             return rows
           end
-          local rest = sample(6)                                       -- dropped in, nobody pressing anything
+          local rest = sample(30)                                       -- dropped in, nobody pressing anything
           out.swim.rest = { feet_z_start = rest[1][3], feet_z_end = rest[#rest][3], vz_end = rest[#rest][5], surf_m = b.surf * HU_M, floor_m = b.floor * HU_M }
           keys.forward = true
           bot:SetPos(Vector(b.x - 200, b.y, b.floor + 10))
