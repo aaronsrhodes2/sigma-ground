@@ -5,6 +5,8 @@
 --     it goes to that player only (Holodeck.Tell: not broadcast, not spoken aloud). The default list is { "skippy" }.
 --   * Persisted by SteamID64 in data/mentat/wake_words.json (written through a temp file and read back before it replaces the real one,
 --     size-capped, tolerant of corruption: anything unreadable means the default list). At most 8 names a player.
+--   * The server console never shows a name or a name command: every reply about the list is a private Tell (not printed), and the
+--     only line printed is "wake list changed for <steamid64>". Names may be in any script (see wakewords.lua).
 --   * Nothing is refused for being rude. A name is refused only when it would make ORDINARY talk wake him: a command word, an object
 --     noun, a pronoun, a number (see Wake.check_name), and then the reason is told.
 --   * Commands (typed, spoken or in the console, with ANY current name as the wake word, the console needing none):
@@ -34,7 +36,7 @@ local deps = {}
 function N.init(d) deps = d or {} end
 
 local function tell(ply, text)
-  if deps.tell then deps.tell(ply, text) elseif Holodeck and Holodeck.Tell then Holodeck.Tell(ply, text) end
+  if deps.tell then deps.tell(ply, text) elseif Holodeck and Holodeck.Tell then Holodeck.Tell(ply, text, true) end
 end
 
 local function valid(ply) return ply ~= nil and ply ~= NULL and IsValid(ply) and ply.SteamID64 ~= nil and ply:IsPlayer() end
@@ -112,6 +114,8 @@ local function set_names(ply, list)
   local sid = key_of(ply)
   if not sid then return end
   if is_default(list) then store[sid] = nil else store[sid] = list end
+  -- the server console is read by admins: it records THAT a list changed, never which names (they are the player's own business)
+  print("[holodeck] wake list changed for " .. sid)
   N.save()
   N.send(ply)
 end

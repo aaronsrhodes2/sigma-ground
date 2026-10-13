@@ -3,12 +3,12 @@
 return {
   cd = {
     box = {
-      source = "Hoerner, Fluid-Dynamic Drag (1965) ch. 3 (cube, face on, Re > 1e4); used for every boxy object",
+      source = "Hoerner, Fluid-Dynamic Drag (1965) ch. 3 (cube, FACE-ON, Re > 1e4) as remembered; NOT verified: Hoerner was not fetched and the fetched secondary tables (Wikipedia, NASA Glenn) have no cube row; a corner-on cube differs. Used for every boxy object",
       status = "estimated, owner-should-confirm",
       value = 1.05,
     },
     cylinder = {
-      source = "White, Fluid Mechanics, Table 7.2 (circular cylinder across the flow, L/D 5-20, Re 1e4-1e5); Hoerner ch. 3. Projected area is the bounding box's, which overstates a cylinder's by 4/pi",
+      source = "White, Fluid Mechanics, Table 7.2 / Hoerner ch. 3 (circular cylinder CROSS-FLOW, subcritical Re) as remembered; NOT verified: neither was fetched, the fetched tables have no solid-cylinder row, and the aerodyn.org table gives 1.20 to a hollow semi-cylinder instead. End-on cylinders are not modelled. Projected area is the bounding box's (a known simplification: see the README 'The construct's physics')",
       status = "estimated, owner-should-confirm",
       value = 1.2,
     },
@@ -18,7 +18,7 @@ return {
       value = 1.28,
     },
     sphere = {
-      source = "White, Fluid Mechanics, Table 7.2 / Fig. 7.16 (smooth sphere, Re 1e3-2e5); Hoerner, Fluid-Dynamic Drag (1965) ch. 3",
+      source = "textbook smooth sphere, turbulent/high-Re plateau; fetched: Wikipedia 'Drag coefficient' (0.47 for turbulent flow, 'rough sphere' row at Re 1e6; its smooth-sphere row says 0.1) and NASA Glenn 'Shape Effects on Drag' (0.07-0.5 by Reynolds number): consistent, not an exact primary match. Not fetched: White Table 7.2, Hoerner ch. 3",
       status = "estimated, owner-should-confirm",
       value = 0.47,
     },

@@ -112,6 +112,17 @@ rude. Only the **start** of a sentence counts, so a name later in a sentence doe
 only wakes him before an order. Spoken forms are tolerated by a conservative edit-distance rule scaled by the name's length (none under
 5 letters, one slip from 5, two from 10; the first letter must match), and `ass hole` is the same as `asshole`.
 
+**Other scripts.** A name may be written in Cyrillic, Greek, Armenian, Georgian, Hebrew, Arabic, Devanagari/Bengali/Tamil, Thai, Hangul, kana or Han
+(the `LETTERS` table in `wakewords.lua`, mirrored in `wakewords.py`; any other script is refused with the reason, and so are emoji). The 2 to 24
+limit counts characters, not bytes (the Lua side decodes UTF-8 by hand and refuses invalid UTF-8). Such a name is matched **exactly** after
+case-folding (Greek final sigma included) and NFC (Cyrillic/Greek accents, Hangul jamo, kana dakuten); there is no fuzzy matching outside Latin,
+and a homoglyph is never a "slip" of a Latin name. Known limits: the name must end at a space or punctuation (Chinese or Japanese text with no
+space after the name is one unbroken word and does not wake him: `小明，加沙发` works, `小明加沙发` does not), the parser's collision list is English,
+and a display name is shown as typed (only Latin names are capitalised).
+
+**Privacy in the log.** The server console never shows a name or a name command: replies about the list are private `Tell`s that are not
+printed, and the only line is `wake list changed for <steamid64>`.
+
 How it is wired (three places, one list per player):
 
 1. **The server** (`addon/lua/mentat/holodeck/wakenames.lua`, `wakewords.lua`): `Holodeck.Wake.strip(ply, text)` replaces the old
@@ -344,8 +355,11 @@ it; it notices, dissolves, and goes. (Aaron: "instead of a post-it note, a float
 ## Faces: a player's picture is their head
 
 Every player can wear a picture as their head: a small rounded head (about 400 triangles, drawn with the render/mesh API, so no
-HL2/CS:S content is needed) at the player's head, with the picture on the front and the picture's border colour on the sides, back
-and neck. Code: bridge `holodeck/skippy_faces.py` (route `POST /face`), server `addon/lua/mentat/faces_server.lua`, client
+HL2/CS:S content is needed) at the player's head, with the picture on the front (the middle 62% of it: the face, not the background) and a SKIN TONE on the sides, back
+and neck. The bridge estimates the tone from the face (`skin_colour` in `skippy_faces.py`: the median of the middle of the found face box, or of the
+central 30% square, after dropping the darkest and lightest 15% of the pixels; a neutral warm beige `205,170,150` when that is not plausible as skin:
+blue, green, violet, grey, white, black) and sends it as 3 bytes with the face record (`skin`, replacing the old `border` field; records saved before
+the change are fetched again). The bridge still reports `border` (the outer-ring colour) for diagnostics only; nothing draws it. Code: bridge `holodeck/skippy_faces.py` (route `POST /face`), server `addon/lua/mentat/faces_server.lua`, client
 `faces_client.lua`, shared geometry and model policy `faces_head.lua`, loader `addon/lua/autorun/mentat_faces.lua` (its own, the
 stage loader is untouched). Tests: `test_gmod_faces.py` (Lua) and `test_gmod_faces_bridge.py` (Python, synthetic pictures only).
 
@@ -406,7 +420,7 @@ own choice; the portal route is your own consent in your own signed-in session. 
 address or name. Everyone can say `skippy face hide`, `off` or `remove`; admins can block. Retention: the bridge cache keeps a
 picture 30 days since last use; the server deletes a picture when nobody's record names it.
 
-**Live check (2026-10-12, the real game, hands off: `python stage/gmod/holodeck/face_shots.py`, a bot wearing a synthetic picture, pictures in `holodeck/data/shots/face_*.jpg`).** Verified in the engine: `Material("data/mentat_faces/<crc>.jpg")` accepts a jpg written at run time (not an error material, shader UnlitGeneric after the `CreateMaterial` + `SetTexture` hop in `FC.load_material`); the picture lands un-mirrored on the front of the head (a mark on the picture's left appears on the viewer's left); the real head of a stock model (`kleiner`, bone 6) is scaled to zero while the face shows and is back the moment the face is hidden; the head turns with the player; no draw errors over ~5500 head draws and 3 mesh builds. Not verified: a real photograph, other player models, the floating fallback on a server without the game's content, and the offsets `mentat_face_up/fwd/scale` for models other than kleiner. Known look: the sides, back and neck take the picture's border colour, so a picture with a strongly coloured background gives a hood of that colour. The client keeps each received picture as `data/mentat_faces/<crc>.jpg` on the player's own PC (small, deletable at any time).
+**Live check (2026-10-12, the real game, hands off: `python stage/gmod/holodeck/face_shots.py`, a bot wearing a synthetic picture, pictures in `holodeck/data/shots/face_*.jpg`).** Verified in the engine: `Material("data/mentat_faces/<crc>.jpg")` accepts a jpg written at run time (not an error material, shader UnlitGeneric after the `CreateMaterial` + `SetTexture` hop in `FC.load_material`); the picture lands un-mirrored on the front of the head (a mark on the picture's left appears on the viewer's left); the real head of a stock model (`kleiner`, bone 6) is scaled to zero while the face shows and is back the moment the face is hidden; the head turns with the player; no draw errors over ~5500 head draws and 3 mesh builds. Not verified: a real photograph, other player models, the floating fallback on a server without the game's content, and the offsets `mentat_face_up/fwd/scale` for models other than kleiner. (Known look at that time: the sides, back and neck took the picture's border colour, a coloured hood for a busy background; since replaced by the skin tone above, with `CAP_DEG` 78 -> 62 and `PICTURE_FRAC` 0.62 in `faces_head.lua`, not yet photographed live: tune those two constants and `skin_colour` from the first real picture.) The client keeps each received picture as `data/mentat_faces/<crc>.jpg` on the player's own PC (small, deletable at any time).
 
 ## The construct's physics
 
@@ -424,7 +438,7 @@ entry with `value`, `units`, `source` and `status`. `world_constants.py --check`
 | Length unit | 1 HU = 0.01905 m | the stage scale (`mentat/units.lua`); a test pins the two equal |
 | Air density | 1.225 kg/m3 | `atmosphere.air_density(288.15 K, 101325 Pa)`, ISA sea level; library |
 | Air drag | F = 1/2 rho Cd A v2, opposing v | `projectile.drag_force`; library |
-| Cd | sphere 0.47, box 1.05, cylinder 1.20 | textbook (White, Hoerner): **estimated, owner-should-confirm** |
+| Cd | sphere 0.47, box 1.05 (cube face-on), cylinder 1.20 (cross-flow) | textbook (White, Hoerner), **estimated, owner-should-confirm**; citation check below |
 | Cd flat plate | 1.28 | `wind.C_N_FLAT_PLATE`; library (flagged there as a standard value) |
 | Friction, restitution | engine surface properties | engine default: Lua can only assign an existing surface and `AddSurfaceData` honours one new surface a session, so none is set |
 | Players (walk, jump) | engine | game feel, not physics: left alone; only gravity follows `sv_gravity` |
@@ -442,6 +456,10 @@ from the kind or model name and the box. Source's own air drag (`PhysObj:EnableD
 force is the only air drag; `mentat_world_engine_drag 1` leaves the engine's on (a measurement switch). **Sleeping bodies are never
 touched or woken**, frozen ones (materialising) are skipped, and below 0.05 m/s nothing is applied, so piles still settle and sleep.
 Angular drag is not modelled (the engine's own angular damping stays).
+
+**Drag coefficients: what was checked (2026-10-12, by web fetch).** The library has no Cd table, so the three values stay *estimated*. Fetched: Wikipedia "Drag coefficient" (sphere 0.47 for turbulent flow and as the "rough sphere" row at Re 1e6, while its "smooth sphere" row says 0.1; flat plate 1.28; no cube or cylinder row); NASA Glenn "Shape Effects on Drag" (flat plate 1.28, which agrees with the library; sphere 0.07 to 0.5 by Reynolds number; no cube or cylinder); Hoerner's figure as redrawn on Wikimedia Commons (its numeric labels include 0.47, 1.05 and 1.20 but nothing says which shape owns which); the aerodyn.org table Wikipedia cites, via the Wayback Machine (rough sphere 0.40, smooth sphere 0.10, and 1.20 for a *hollow semi-cylinder* opposite the stream, a different shape). Not reachable: Hoerner's book and White's Table 7.2. So: sphere 0.47 is consistent with the secondary sources; **box 1.05 and cylinder 1.20 are not confirmed by any fetched source**, and the one fetched table that contains 1.20 gives it to another shape. Orientation convention: the box is a cube *face-on* (corner-on is different), the cylinder *cross-flow* (axis across the flow; end-on is not modelled). Nothing was changed numerically.
+
+**Known simplification, projected area.** `A` is the bounding box's projection for a box and a cylinder, and a circle of the mean diameter for a sphere. For a cylinder that is exact broadside (D x L) but overstates an end-on or diagonal view (up to 4/pi at D x D versus pi D^2/4). A shape-aware area (cylinder broadside versus end-on from the velocity direction against its axis, sphere pi r^2 from its true radius) is a known improvement for when shape classes are known rather than guessed from names and boxes.
 
 **Gravity.** `physenv.SetGravity` for the objects and `sv_gravity` for the players, both from the same number. Changing gravity wakes the
 loose things once so they notice it. The engine's default is about 1.17 times stronger than real (the table's ratio is computed from the library's Earth value), so a stock

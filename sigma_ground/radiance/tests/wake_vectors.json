@@ -39,5 +39,17 @@
   {"names": ["captain obvious"], "text": "captain obvious: add a lamp", "woke": true, "rest": "add a lamp"},
   {"names": ["captain obvious"], "text": "captain add a lamp", "woke": false, "rest": "captain add a lamp"},
   {"names": ["jarvis", "friday"], "text": "Friday, put a plant here", "woke": true, "rest": "put a plant here"},
-  {"names": ["jarvis", "friday"], "text": "on friday put a plant here", "woke": false, "rest": "on friday put a plant here"}
+  {"names": ["jarvis", "friday"], "text": "on friday put a plant here", "woke": false, "rest": "on friday put a plant here"},
+  {"names": ["алекс"], "text": "Алекс, добавь диван", "woke": true, "rest": "добавь диван"},
+  {"names": ["алекс"], "text": "АЛЕКС! Добавь диван", "woke": true, "rest": "Добавь диван"},
+  {"names": ["алекс"], "text": "алеке добавь диван", "woke": false, "rest": "алеке добавь диван"},
+  {"names": ["алекс"], "text": "я видел Алекс вчера", "woke": false, "rest": "я видел Алекс вчера"},
+  {"names": ["ёжик"], "text": "Ёжик добавь лампу", "woke": true, "rest": "добавь лампу"},
+  {"names": ["αλέξησ"], "text": "Αλέξης, πρόσθεσε μια λάμπα", "woke": true, "rest": "πρόσθεσε μια λάμπα"},
+  {"names": ["小明"], "text": "小明，加一个沙发", "woke": true, "rest": "加一个沙发"},
+  {"names": ["小明"], "text": "小明加一个沙发", "woke": false, "rest": "小明加一个沙发"},
+  {"names": ["محمد"], "text": "محمد، أضف أريكة", "woke": true, "rest": "أضف أريكة"},
+  {"names": ["rex", "алекс"], "text": "hey, Алекс: add a lamp", "woke": true, "rest": "add a lamp"},
+  {"names": ["alexander"], "text": "alexandеr add a lamp", "woke": false, "rest": "alexandеr add a lamp"},
+  {"names": ["alexander"], "text": "alexandr add a lamp", "woke": true, "rest": "add a lamp"}
 ]

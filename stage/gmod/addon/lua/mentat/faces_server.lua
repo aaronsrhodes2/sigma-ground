@@ -11,7 +11,7 @@
 --
 -- Wire (server -> client):
 --   "mentat_face_map"  UInt8 n | n x { String steamid64, UInt8 slot, Bool optin }      the whole current list of visible heads
---   "mentat_face_img"  UInt8 slot | UInt32 crc | UInt8 chunk (1-based) | UInt8 chunks | UInt16 total bytes | UInt8 r,g,b (border colour)
+--   "mentat_face_img"  UInt8 slot | UInt32 crc | UInt8 chunk (1-based) | UInt8 chunks | UInt16 total bytes | UInt8 r,g,b (skin tone: the head's sides, back and neck)
 --                      | UInt16 bytes in this chunk | Data      one 128x128 JPEG in 8 KB chunks, one chunk per 0.1 s, once per image per player
 -- Wire (client -> server): "mentat_face_want" UInt8 slot (0 = everything the server has) -- late joiners and lost chunks; rate limited.
 local SVM1 = include("mentat/holodeck/svm1.lua")        -- only for b64decode (the bridge answers in base64)
@@ -30,9 +30,9 @@ Faces.MAX_URL = 400
 Faces.REFRESH_AFTER = 24 * 3600           -- an automatic Steam picture older than this is fetched again when its owner joins
 Faces.TRY_AGAIN = 600                     -- seconds before a failed automatic lookup is repeated for the same player
 Faces.WANT_PER_MIN = 12
-Faces.rec = Faces.rec or {}               -- steamid64 -> { source, hash, crc, border, hidden, off, optin, t }
+Faces.rec = Faces.rec or {}               -- steamid64 -> { source, hash, crc, skin, hidden, off, optin, t }
 Faces.blocked = Faces.blocked or {}       -- steamid64 -> true (an admin's decision)
-Faces.images = Faces.images or {}         -- hash -> { data, crc, border }
+Faces.images = Faces.images or {}         -- hash -> { data, crc, skin }
 Faces.slot_hash = Faces.slot_hash or {}   -- slot -> hash
 Faces.hash_slot = Faces.hash_slot or {}
 Faces.sent = Faces.sent or {}             -- steamid64 of the viewer -> { hash = true }
@@ -104,9 +104,9 @@ local function clean_rec(r)
   if (r.source == "set" or r.source == "steam") and valid_hash(r.hash) then
     out.source, out.hash = r.source, r.hash
     out.crc = tonumber(r.crc)
-    local b = r.border
-    if type(b) == "table" and #b == 3 then out.border = { math.Clamp(tonumber(b[1]) or 128, 0, 255), math.Clamp(tonumber(b[2]) or 128, 0, 255), math.Clamp(tonumber(b[3]) or 128, 0, 255) } end
-    if not (out.crc and out.border) then out.source, out.hash, out.crc, out.border = nil, nil, nil, nil end
+    local b = r.skin
+    if type(b) == "table" and #b == 3 then out.skin = { math.Clamp(tonumber(b[1]) or 128, 0, 255), math.Clamp(tonumber(b[2]) or 128, 0, 255), math.Clamp(tonumber(b[3]) or 128, 0, 255) } end
+    if not (out.crc and out.skin) then out.source, out.hash, out.crc, out.skin = nil, nil, nil, nil end
   end
   if not (out.source or out.hidden or out.off or out.optin) then return nil end
   return out
@@ -142,9 +142,9 @@ function Faces.load()
     if r.hash then
       local data = file.Read(Faces.DIR .. "/" .. r.hash .. ".jpg", "DATA")
       if data and #data <= Faces.MAX_IMAGE and #data > 4 and tonumber(util.CRC(data)) == r.crc and data:sub(1, 3) == "\255\216\255" then
-        Faces.images[r.hash] = { data = data, crc = r.crc, border = r.border }
+        Faces.images[r.hash] = { data = data, crc = r.crc, skin = r.skin }
       else
-        r.source, r.hash, r.crc, r.border = nil, nil, nil, nil
+        r.source, r.hash, r.crc, r.skin = nil, nil, nil, nil
       end
     end
   end
@@ -170,7 +170,7 @@ end
 local function store_image(ans)
   file.CreateDir(Faces.DIR)
   file.Write(Faces.DIR .. "/" .. ans.hash .. ".jpg", ans.data)
-  Faces.images[ans.hash] = { data = ans.data, crc = ans.crc, border = ans.border }
+  Faces.images[ans.hash] = { data = ans.data, crc = ans.crc, skin = ans.skin }
 end
 
 --- Delete picture files nobody's record names any more (retention: a picture lives only as long as someone wears it).
@@ -188,7 +188,7 @@ function Faces.sweep()
 end
 
 -- ------------------------------------------------------------------------------------------------ what the bridge sends back
---- Check the bridge's answer; returns { hash, data, crc, border } or nil and why. Nothing from the bridge is believed unchecked.
+--- Check the bridge's answer; returns { hash, data, crc, skin } or nil and why. Nothing from the bridge is believed unchecked.
 function Faces.check_answer(body)
   local obj = util.JSONToTable(body or "")
   if type(obj) ~= "table" then return nil, "the bridge's answer was not understood" end
@@ -196,16 +196,16 @@ function Faces.check_answer(body)
     return nil, tostring(obj.kind or "unavailable"), tostring(obj.error or ""):sub(1, 120)
   end
   if not (valid_hash(obj.hash) and isstring(obj.b64) and #obj.b64 <= math.ceil(Faces.MAX_IMAGE * 4 / 3) + 8) then return nil, "bad_image", "the picture was not usable" end
-  local b = obj.border
-  if not (type(b) == "table" and #b == 3) then return nil, "bad_image", "no border colour" end
+  local b = obj.skin
+  if not (type(b) == "table" and #b == 3) then return nil, "bad_image", "no skin colour" end
   local data = SVM1.b64decode(obj.b64)
   if not data or #data < 16 or #data > Faces.MAX_IMAGE then return nil, "bad_image", "the picture was not usable" end
   if data:sub(1, 3) ~= "\255\216\255" then return nil, "bad_image", "not a jpeg" end
   local crc = tonumber(util.CRC(data))
   if not crc or (obj.crc32 ~= nil and tonumber(obj.crc32) ~= crc) then return nil, "bad_image", "checksum mismatch" end
-  local border = {}
-  for i = 1, 3 do border[i] = math.floor(math.Clamp(tonumber(b[i]) or 128, 0, 255)) end
-  return { hash = obj.hash, data = data, crc = crc, border = border, source = obj.source }
+  local skin = {}
+  for i = 1, 3 do skin[i] = math.floor(math.Clamp(tonumber(b[i]) or 128, 0, 255)) end
+  return { hash = obj.hash, data = data, crc = crc, skin = skin, source = obj.source }
 end
 
 -- ------------------------------------------------------------------------------------------------ rationing
@@ -259,7 +259,7 @@ local function pump()
   net.WriteUInt(job.i, 8)
   net.WriteUInt(job.chunks, 8)
   net.WriteUInt(#img.data, 16)
-  net.WriteUInt(img.border[1], 8); net.WriteUInt(img.border[2], 8); net.WriteUInt(img.border[3], 8)
+  net.WriteUInt(img.skin[1], 8); net.WriteUInt(img.skin[2], 8); net.WriteUInt(img.skin[3], 8)
   net.WriteUInt(#piece, 16)
   net.WriteData(piece, #piece)
   net.Send(alive)
@@ -350,7 +350,7 @@ local function adopt(sid, ans, source)
   local r = rec_of(sid, true)
   if source == "set" then r.hidden = false end                  -- choosing a picture means wanting it seen
   store_image(ans)
-  r.source, r.hash, r.crc, r.border, r.t = source, ans.hash, ans.crc, ans.border, os.time()
+  r.source, r.hash, r.crc, r.skin, r.t = source, ans.hash, ans.crc, ans.skin, os.time()
   Faces.sweep()
   changed(sid)
   return true
@@ -449,7 +449,7 @@ function verbs.remove(ply, sid)
   if not (r and r.source == "set" and r.hash) then
     return tell(ply, "You have not set a picture of your own. Use `skippy face off` to stop using your Steam picture.")
   end
-  r.source, r.hash, r.crc, r.border = nil, nil, nil, nil
+  r.source, r.hash, r.crc, r.skin = nil, nil, nil, nil
   Faces.sweep()
   changed(sid)
   if not r.off then Faces.default_for(ply, true) end                        -- back to the default only if they never said off
@@ -458,7 +458,7 @@ end
 function verbs.off(ply, sid)
   local r = rec_of(sid, true)
   r.off, r.optin = true, false
-  if r.source == "steam" then r.source, r.hash, r.crc, r.border = nil, nil, nil, nil end
+  if r.source == "steam" then r.source, r.hash, r.crc, r.skin = nil, nil, nil, nil end
   Faces.sweep()
   changed(sid)
   return tell(ply, "Off. I will not use your Steam picture. A picture you set yourself is still yours to show or remove.")

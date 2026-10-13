@@ -1,7 +1,8 @@
 -- faces_head.lua -- the pure half of "a player's picture as their head" (shared by the server's tests and the client's drawing):
---   * the head's geometry: a rounded egg whose FRONT cap carries a planar projection of the picture (UVs in 0..1), whose back and
---     underside are drawn flat in the picture's border colour, plus a short neck so it sits on the shoulders. A few hundred triangles,
---     built once and shared by every head (the back is cached per tint).
+--   * the head's geometry: a rounded egg whose FRONT cap carries a planar projection of the middle of the picture (UVs inside 0..1), whose
+--     sides, back and underside are drawn flat in the player's SKIN TONE (the bridge estimates it from the face in the picture; it used
+--     to be the picture's border colour, which made a coloured "hood" for a busy background), plus a short neck so it sits on the
+--     shoulders. A few hundred triangles, built once and shared by every head (the back is cached per tint).
 --   * the policy for WHICH models get their head replaced (conservative: see Head.mode).
 -- No engine calls here: it runs under plain LuaJIT in the offline tests. Frame: +x forward, +y left, +z up, origin at the head's centre,
 -- Hammer units. Triangles are returned as { {x,y,z, nx,ny,nz, u,v} x 3 } with the winding Source calls front-facing (clockwise from
@@ -10,7 +11,9 @@ local Head = {}
 
 Head.DEPTH, Head.WIDTH, Head.HEIGHT = 5.2, 4.6, 6.4      -- ellipsoid radii (HU): a head about 13 HU tall, 9 wide
 Head.SEGS, Head.FRONT_RINGS, Head.BACK_RINGS = 16, 6, 6
-Head.CAP_DEG = 78                                        -- the front cap's half-angle: the picture is projected inside this circle
+Head.CAP_DEG = 62                                        -- the front cap's half-angle: the picture is projected inside this circle
+Head.PICTURE_FRAC = 0.62                                 -- ...and only the middle PICTURE_FRAC of the (square) picture lands on it: the face, not the
+                                                         -- background around it (the bridge crops the face to about 45% of the width); the rest is skin
 Head.NECK_RADIUS, Head.NECK_TOP, Head.NECK_BOTTOM = 0.42, -0.75, -2.0   -- fractions of the width / of the height
 Head.LIGHT = { 0.45, 0.30, 0.84 }                        -- the key light in the head's own frame (above, in front, a little to the left)
 Head.AMBIENT = 0.55
@@ -56,7 +59,7 @@ local function band(o, theta0, theta1, rings, with_uv)
     local x, y, z, nx, ny, nz = point(theta, phi, o)
     local u, v = 0, 0
     if with_uv then
-      u, v = 0.5 + 0.5 * (sin(theta) * cos(phi)) / sc, 0.5 - 0.5 * (sin(theta) * sin(phi)) / sc
+      u, v = 0.5 + 0.5 * o.picture_frac * (sin(theta) * cos(phi)) / sc, 0.5 - 0.5 * o.picture_frac * (sin(theta) * sin(phi)) / sc
       if u < 0 then u = 0 elseif u > 1 then u = 1 end
       if v < 0 then v = 0 elseif v > 1 then v = 1 end
     end
@@ -101,7 +104,7 @@ function Head.geometry(opts)
   local o = opts or {}
   local g = {
     depth = o.depth or Head.DEPTH, width = o.width or Head.WIDTH, height = o.height or Head.HEIGHT,
-    segs = o.segs or Head.SEGS, cap_deg = o.cap_deg or Head.CAP_DEG,
+    segs = o.segs or Head.SEGS, cap_deg = o.cap_deg or Head.CAP_DEG, picture_frac = o.picture_frac or Head.PICTURE_FRAC,
     neck_radius = o.neck_radius or Head.NECK_RADIUS, neck_top = o.neck_top or Head.NECK_TOP, neck_bottom = o.neck_bottom or Head.NECK_BOTTOM,
   }
   local cap = rad(g.cap_deg)
@@ -127,7 +130,7 @@ function Head.stats(lists)
   return n, lo, hi
 end
 
---- A vertex's colour: white (front: it multiplies the picture) or the tint, times the key/ambient light. r, g, b in 0..255.
+--- A vertex's colour: white (front: it multiplies the picture) or the tint (the skin tone), times the key/ambient light. r, g, b in 0..255.
 function Head.vertex_colour(p, tint)
   local k = Head.light(p[4], p[5], p[6])
   local t = tint or { 255, 255, 255 }

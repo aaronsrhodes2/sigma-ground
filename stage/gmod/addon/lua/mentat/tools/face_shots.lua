@@ -1,5 +1,5 @@
 -- face_shots.lua -- photograph a picture head in the real game client (stage/gmod/holodeck/README.md, section Faces, live check).
--- args: { b64 = <a 128x128 jpeg, base64>, hash = <24 hex>, border = {r,g,b}, views = { {name, dist, yaw, elev, aim_z}, ... } }
+-- args: { b64 = <a 128x128 jpeg, base64>, hash = <24 hex>, skin = {r,g,b}, views = { {name, dist, yaw, elev, aim_z}, ... } }
 -- A bot wears the synthetic picture (set on the server directly, as if the bridge had answered); the local player is the camera. Nothing of
 -- the player's own is written: the bot's record is removed again at the end. yaw is relative to the way the bot faces (0 = his face).
 local function diag(ply, code) ply:SendLua(code) end
@@ -63,7 +63,7 @@ return function(args, done, ply)
     sleep(0.5)
     local data = SVM1.b64decode(args.b64 or "")
     if not data then return done(nil, "the picture did not decode") end
-    local ans = { hash = args.hash, data = data, crc = tonumber(util.CRC(data)), border = args.border or { 128, 128, 128 } }
+    local ans = { hash = args.hash, data = data, crc = tonumber(util.CRC(data)), skin = args.skin or { 128, 128, 128 } }
     out.adopted = F.adopt(sid, ans, "set")
     out.visible_on_server = F.visible(sid)
     sleep(2.5)                                                   -- the picture crosses the (loopback) network in chunks

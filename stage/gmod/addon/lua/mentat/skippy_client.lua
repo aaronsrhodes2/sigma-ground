@@ -111,7 +111,7 @@ net.Receive("holodeck_wake_names", function()
   local count = math.min(net.ReadUInt(4), 8)
   local names = {}
   for _ = 1, count do
-    local s = string.sub((tostring(net.ReadString() or ""):gsub("[%cW]", " ")), 1, 40)
+    local s = string.sub((tostring(net.ReadString() or ""):gsub("%c", " ")), 1, 100)     -- (a name is up to 24 characters: 96 bytes)
     if s:find("%S") then names[#names + 1] = s end
   end
   if #names == 0 then names[1] = "skippy" end

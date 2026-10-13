@@ -81,13 +81,143 @@ def test_names_are_normalised(lw, raw, expect):
 
 @pytest.mark.parametrize("raw,code", [
     ("", "empty"), ("x", "short"), ("a" * 25, "long"), ("one two three four", "words"), ("rex<script>", "chars"),
-    ("中文", "chars"), ("\U0001F600 rex", "chars"), ("   ", "empty"), ("--", "empty"),
+    ("\U0001F600 rex", "chars"), ("   ", "empty"), ("--", "empty"), ("中", "short"), ("rex\u200b", "chars"), ("\u0e01\u0e01 \u2603", "chars"),
 ])
 def test_unusable_names_are_refused_with_a_code(lw, raw, code):
     _rt, W = lw
     name, got, why = W.normalise_name(raw)
     assert name is None and got == code and why
     assert PW.normalise_name(raw) is None
+
+
+# ---- names in other scripts (Aaron, 2026-10-12): any Unicode letters, exact match after case-folding + NFC, characters not bytes
+NON_LATIN = [
+    ("Алекс", "алекс"), ("АЛЕКС", "алекс"), ("Владимир Путин", "владимир путин"), ("Ёжик", "ёжик"), ("Йуля", "йуля"),
+    ("йё", "йё"),                           # decomposed i-breve, e-diaeresis -> precomposed
+    ("ΑΛΈΞΗΣ", "αλέξησ"), ("Οδυσσεύς", "οδυσσεύσ"), ("ΟΔΥΣΣΕΎΣ", "οδυσσεύσ"), ("Ελένη", "ελένη"),
+    ("άλφα", "άλφα"),
+    ("小明", "小明"), ("田中さん", "田中さん"), ("ピカチュウ", "ピカチュウ"), ("がん", "がん"), ("ぱん", "ぱん"),
+    ("한국", "한국"), ("한국", "한국"), ("محمد", "محمد"), ("אלון", "אלון"), ("आरव", "आरव"),
+    ("สมชาย", "สมชาย"), ("Արամ", "արամ"), ("გიორგი", "გიორგი"), ("Саша-Маша", "саша-маша"), ("Rex Алекс", "rex алекс"), ("Zoë", "zoe"),
+]
+
+
+@pytest.mark.parametrize("raw,expect", NON_LATIN)
+def test_names_in_any_script_are_accepted_case_folded_and_composed(lw, raw, expect):
+    _rt, W = lw
+    assert W.normalise_name(raw) == expect
+    assert PW.normalise_name(raw) == expect
+
+
+def test_the_length_limit_counts_characters_never_bytes(lw):
+    _rt, W = lw
+    assert W.normalise_name("ж" * 24) == "ж" * 24                    # 48 bytes, 24 characters
+    assert W.normalise_name("中" * 24) == "中" * 24                    # 72 bytes
+    assert W.normalise_name("ж" * 25)[1] == "long"
+    assert W.normalise_name("中" * 25)[1] == "long"
+    assert W.normalise_name("中")[1] == "short"                       # 3 bytes but ONE character: below the 2-character minimum
+    assert W.normalise_name("中文") == "中文"                         # 6 bytes, 2 characters: fine
+    assert PW.normalise_name("ж" * 24) and not PW.normalise_name("ж" * 25) and not PW.normalise_name("中")
+    assert W.length("жж中") == 3
+
+
+@pytest.mark.parametrize("bad", [b"\xff\xfe", b"rex\xc0\xaf", b"\xed\xa0\x80xx", b"\xd0", b"ab\xe4\xb8", b"\xf4\x90\x80\x80xx", b"\x80\x80",
+                                 b"\xf8\x88\x80\x80\x80"])
+def test_invalid_utf8_is_refused_with_its_own_code(lw, bad):
+    """Overlong forms, surrogates, past U+10FFFF, a missing or stray continuation byte: never a name, never a crash."""
+    rt, W = lw
+    got = W.normalise_name(bad)
+    assert got[0] is None and got[1] == "utf8", bad
+    assert W.valid_utf8(bad) is False
+    # in a SENTENCE bad bytes are only a separator (like punctuation): it must not crash, and a name is never taken from them
+    got = rt.eval("function(W, s, n) return (W.strip(s, n)) end")(W, b"\xff " + bad + b" add a lamp", lua_list(rt, ["zed"]))
+    assert got is False
+
+
+def test_python_refuses_what_cannot_be_utf8_too():
+    assert PW.normalise_name("rex\ud800") is None and PW.normalise_name("\udc80\udc80") is None
+
+
+def test_valid_utf8_is_accepted_at_every_length(lw):
+    _rt, W = lw
+    for ch in ("a", "é", "中", "\U00020000", "\U0010FFFF"):
+        assert W.valid_utf8(ch.encode("utf-8")) is True
+    assert W.valid_utf8("") is True
+
+
+def test_nonlatin_folding_is_the_same_in_lua_and_python_over_whole_blocks(lw):
+    _rt, W = lw
+    import unicodedata
+    blocks = list(range(0x300, 0x600)) + list(range(0x900, 0xA00)) + list(range(0x1100, 0x1200)) + list(range(0x3040, 0x3100))
+    for cp in blocks + [0x4E2D, 0x20000, 0xAC00, 0xD7A3, 0x1F600, 0xFFFF]:
+        ch = chr(cp)
+        assert W.fold(ch) == PW.fold(ch), hex(cp)
+    # decomposed and precomposed spellings, and a base with an unrelated mark, agree
+    for text in ["й", "ёё", "ά", "éx", "я́", "각", "ガ",
+                 "x́́y", "́a"]:
+        assert W.fold(text) == PW.fold(text), text
+    # and the lower-casing / composition equals Unicode's own for Cyrillic and Greek (a check that the tables are right)
+    for cp in list(range(0x400, 0x460)) + list(range(0x3B1, 0x3CA)) + list(range(0x391, 0x3AA)):
+        if cp == 0x3A2:
+            continue
+        expect = unicodedata.normalize("NFC", chr(cp).lower()).replace("ς", "σ")
+        assert PW.fold(chr(cp)) == expect, hex(cp)
+    for text in ["Йё", "ЁЖИК", "Άλφα", "ΈΛΕΝΗ", "ΊΩΝ", "Ό"]:
+        assert PW.fold(text) == unicodedata.normalize("NFC", text.lower()).replace("ς", "σ"), text
+
+
+@pytest.mark.parametrize("names,text,woke,rest", [
+    (["алекс"], "Алекс, добавь диван", True, "добавь диван"),
+    (["алекс"], "алекс добавь диван", True, "добавь диван"),
+    (["алекс"], "АЛЕКС! Добавь диван", True, "Добавь диван"),
+    (["алекс"], "Привет, Алекс, поставь лампу", False, "Привет, Алекс, поставь лампу"),    # only the START counts (and "privet" is not a lead word)
+    (["алекс"], "я видел Алекс вчера", False, "я видел Алекс вчера"),
+    (["алекс"], "алеке добавь диван", False, "алеке добавь диван"),                         # one slip: NO fuzzy matching outside Latin
+    (["алекс"], "алексей добавь диван", False, "алексей добавь диван"),
+    (["алекс"], "Алексея добавь диван", False, "Алексея добавь диван"),
+    (["алекс"], "алек с добавь диван", True, "добавь диван"),                               # speech recognition splits a name: spaces ignored, as for Latin
+    (["юля"], "Юля добавь лампу", True, "добавь лампу"),
+    (["ёжик"], "Ежик добавь лампу", False, "Ежик добавь лампу"),                            # e and yo are different letters
+    (["ёжик"], "ёжик, добавь лампу", True, "добавь лампу"),
+    (["ёжик"], "Ёжик добавь лампу", True, "добавь лампу"),                       # decomposed on the way in
+    (["αλέξησ"], "Αλέξης, πρόσθεσε μια λάμπα", True, "πρόσθεσε μια λάμπα"),
+    (["οδυσσεύσ"], "Οδυσσεύς πρόσθεσε", True, "πρόσθεσε"),
+    (["小明"], "小明, 加一个沙发", True, "加一个沙发"),
+    (["小明"], "小明，加一个沙发", True, "加一个沙发"),
+    (["小明"], "小明 加一个沙发", True, "加一个沙发"),
+    (["小明"], "小明加一个沙发", False, "小明加一个沙发"),                                      # no space or mark after it: one unbroken word, not the name
+    (["小明"], "小红 加一个沙发", False, "小红 加一个沙发"),
+    (["محمد"], "محمد، أضف أريكة", True, "أضف أريكة"),
+    (["محمد"], "أحمد أضف أريكة", False, "أحمد أضف أريكة"),
+    (["rex", "алекс"], "Алекс, add a lamp", True, "add a lamp"),
+    (["rex", "алекс"], "rex add a lamp", True, "add a lamp"),
+    (["rex", "алекс"], "hey, Алекс: add a lamp", True, "add a lamp"),
+    (["rex", "алекс"], "Skippy add a lamp", False, "Skippy add a lamp"),
+    (["rex"], "Rех add a lamp", False, "Rех add a lamp"),                                    # a Cyrillic x in a Latin sentence: another word
+    (["alexander"], "alexandеr add a lamp", False, "alexandеr add a lamp"),                 # a homoglyph is never a "slip" of a Latin name
+    (["alexander"], "alexandr add a lamp", True, "add a lamp"),                             # the Latin fuzzy rule is unchanged
+    (["skippy", "алекс"], "Skippy add a lamp", True, "add a lamp"),
+    (["rex"], "rex́ add a lamp", True, "add a lamp"),                                  # a combining accent on a Latin name is dropped like the letter's own
+    (["rex"], "Rex 😀 add a lamp", True, "add a lamp"),
+])
+def test_non_latin_names_wake_him_exactly_and_only_at_the_start(lw, names, text, woke, rest):
+    rt, W = lw
+    got = W.strip(text, lua_list(rt, names))
+    assert (got[0], got[1]) == (woke, rest), "Lua"
+    pw, prest, _ = PW.strip(text, names)
+    assert (pw, prest) == (woke, rest), "Python"
+
+
+def test_the_shared_vectors_include_the_other_scripts():
+    assert any(any(ord(c) > 0x400 for c in "".join(v["names"])) for v in VECTORS)
+
+
+def test_the_bridge_reads_the_non_latin_names_the_game_wrote(tmp_path):
+    f = tmp_path / "wake_names.json"
+    f.write_text(json.dumps({"names": ["skippy", "алекс", "小明"]}, ensure_ascii=False), encoding="utf-8")
+    assert PW.load_names(f) == ["skippy", "алекс", "小明"]
+    f.write_bytes(b'{"names": ["skippy", "\xff\xfe"]}')                 # not UTF-8: the whole file is untrusted
+    assert PW.load_names(f) == ["skippy"]
 
 
 @pytest.mark.parametrize("name", ["add", "remove", "couch", "come", "here", "go away", "come here", "two", "the", "undo", "skipping",
@@ -370,7 +500,8 @@ def test_typos_and_junk_never_corrupt_the_state():
     ask(w, p, "answer to    ")
     ask(w, p, "answer to " + "x" * 40)
     ask(w, p, "answer to a b c d")
-    ask(w, p, "answer to 中文")
+    ask(w, p, "answer to 😀😀")
+    ask(w, p, "answer to ☃")
     ask(w, p, "answer to my question")
     ask(w, p, "answer to rex<script>")
     ask(w, p, "stop answering to")
@@ -475,6 +606,85 @@ def test_a_name_command_is_not_spoken_or_logged_for_others():
     posts = [h for h in w.rt.eval("function() return MOCK.https end")().values()]
     for h in posts:
         assert "asshole" not in str(h.body).lower() if hasattr(h, "body") and h.body else True
+
+
+def console_text(w):
+    return w.rt.eval("function() return table.concat(MOCK.printed, '\\n') end")()
+
+
+@pytest.mark.parametrize("secret", ["Asshole", "Big Tony", "Алекс", "小明"])
+def test_the_server_console_never_shows_a_private_name_or_a_name_command(secret):
+    """Admins read the server console: it records THAT a list changed (and whose), never which names, never the replies about them."""
+    w = make_world(holodeck_bridge="")
+    p = w.player(A)
+    ask(w, p, f"answer to {secret}")
+    say(w, p, f"Skippy, call yourself {secret}")
+    ask(w, p, "what are your names")
+    ask(w, p, "stop answering to skippy")
+    ask(w, p, f"{secret}, only answer to {secret}")
+    ask(w, p, "answer to couch")                                         # a refusal repeats the name in its reason
+    ask(w, p, "reset your names")
+    log = console_text(w).lower()
+    for word in secret.lower().split():
+        assert word not in log, log
+    assert "i will answer to" not in log and "your names" not in log and "no longer answer" not in log
+    assert f"wake list changed for {A}" in console_text(w)
+    assert "couch" not in log
+    assert last_to(w, A) is not None                                      # ...yet the player was told (privately)
+
+
+def test_the_avatars_custom_name_replies_are_not_in_the_server_console_either():
+    w = make_world(load_avatar=True)
+    p = w.player(A)
+    ask(w, p, "answer to Zorblax")
+    ask(w, p, "Zorblax, come here")
+    ask(w, p, "Zorblax, go away")
+    assert "zorblax" not in console_text(w).lower()
+    texts = [" ".join(x for x in writes(m) if isinstance(x, str)) for m in says(w)]
+    assert any("Zorblax" in t for t in texts), "the owner still hears it"
+
+
+def test_ordinary_replies_are_still_logged():
+    w = make_world()
+    p = w.player(A)
+    w.rt.eval("function(p) Holodeck.Tell(p, 'something ordinary') end")(p)
+    assert "something ordinary" in console_text(w)
+
+
+def test_a_non_latin_name_is_added_persisted_sent_and_wakes_him_by_chat():
+    w = make_world()
+    p = w.player(A)
+    ask(w, p, "answer to Алекс")
+    assert names_of(w, p) == ["skippy", "алекс"]
+    say(w, p, "АЛЕКС, add two lamps")
+    assert lamps(w, A) == 2
+    say(w, p, "алеке, add a lamp")                                        # a slip: no fuzzy matching outside Latin
+    assert lamps(w, A) == 2
+    assert json.loads(stored(w))["players"][A] == ["skippy", "алекс"]
+    w2 = make_world(files={FILE: stored(w)})
+    p2 = w2.player(A)
+    assert names_of(w2, p2) == ["skippy", "алекс"]
+    ask(w, p, "stop answering to АЛЕКС")
+    assert names_of(w, p) == ["skippy"]
+
+
+def test_a_chinese_name_and_the_dedupe_of_case_and_decomposition():
+    w = make_world()
+    p = w.player(A)
+    ask(w, p, "answer to 小明")
+    ask(w, p, "answer to Ёжик")
+    ask(w, p, "answer to Ёжик")                                     # the same name, decomposed
+    ask(w, p, "answer to ЁЖИК")
+    assert names_of(w, p) == ["skippy", "小明", "ёжик"]
+
+
+def test_invalid_utf8_is_refused_through_the_game_and_changes_nothing():
+    w = make_world()
+    p = w.player(A)
+    for bad in (b"\xff\xfe", b"rex\xc0\xaf", b"\xed\xa0\x80"):
+        w.rt.eval("function(p, t) Holodeck.Handle(p, t) end")(p, b"answer to " + bad)
+        w.advance(1.0)
+    assert names_of(w, p) == ["skippy"]
 
 
 # ------------------------------------------------------------------------------------------------ persistence

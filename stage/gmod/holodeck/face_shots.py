@@ -52,7 +52,7 @@ def main(argv=None) -> int:
     os.environ["GMOD_MOUSE"] = "0"
     res = skippy_faces.process(synthetic_face(), use_detector=False)
     jpeg = res["jpeg"]
-    args = {"b64": base64.b64encode(jpeg).decode(), "hash": hashlib.sha256(jpeg).hexdigest()[:24], "border": res["border"]}
+    args = {"b64": base64.b64encode(jpeg).decode(), "hash": hashlib.sha256(jpeg).hexdigest()[:24], "skin": res["skin"]}
     for old in exp_run.DATA.glob("shot_face_*.jpg"):
         old.unlink()
     result = run_tool.run_tool("face_shots", args, client=True, visible=True, map_name=a.map, timeout=240)

@@ -25,7 +25,7 @@ local cv_content = CreateConVar("holodeck_content", "all", FCVAR_ARCHIVE, "all =
 H.parse_mod, H.plan_mod, H.layout, H.library = Parse, Plan, Layout, Library
 -- the names Skippy answers to, one private list per player (wakenames.lua); Parse.strip_wake stays the matcher for the default "Skippy"
 H.Wake = include("mentat/holodeck/wakenames.lua")
-H.Wake.init({ tell = function(ply, text) return H.Tell(ply, text) end,
+H.Wake.init({ tell = function(ply, text) return H.Tell(ply, text, true) end,
               default_strip = function(text) return Parse.strip_wake(text) end,
               is_noun = function(w) local pr = H.parser; return (pr and pr.noun and pr.noun[w] ~= nil) or false end })
 
@@ -336,11 +336,12 @@ local function audience(ply, pos)
 end
 
 --- A line only the requester sees (refusals, what was not understood): never broadcast, never spoken.
-function H.Tell(ply, text)
+--- `private` (a line that may carry a wake name, which is the player's own business): not written to the server console either.
+function H.Tell(ply, text, private)
   text = clean_text(text, 240)
   if text == "" then return end
   H.last_tell = text
-  print("[holodeck] (to " .. name_of(ply) .. ") " .. text)
+  if not private then print("[holodeck] (to " .. name_of(ply) .. ") " .. text) end
   if IsValidPlayer(ply) then
     net.Start("holodeck_say")
     net.WriteString(text)

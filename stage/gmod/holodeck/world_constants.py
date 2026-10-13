@@ -52,18 +52,40 @@ def _cd_table() -> dict:
     # The library has no Cd table (only C_N_FLAT_PLATE in dynamics.mechanisms.wind), so the handful of standard textbook values are
     # listed here, labelled for the owner to confirm.  Each depends on Reynolds number; these are the usual values for hand-to-table
     # sized objects moving through air at walking to falling speeds.
+    #
+    # Citation check (2026-10-12, by web fetch). WHAT WAS ACTUALLY FETCHED, and what it gave:
+    #   * Wikipedia "Drag coefficient" (wikitext): table row "0.47 Rough sphere (Re = 1e6)" and "0.1 Smooth sphere (Re = 1e6)", text "a smooth
+    #     sphere ... varies from high values for laminar flow to 0.47 for turbulent flow" (so the page itself is inconsistent about which
+    #     sphere is 0.47); "1.28 Flat plate perpendicular to flow (3D)". NO cube and NO cylinder row. Secondary source.
+    #   * NASA Glenn "Shape Effects on Drag" (grc.nasa.gov/www/k-12/VirtualAero/BottleRocket/airplane/shaped.html): flat plate Cd = 1.28
+    #     (agrees with the library's C_N_FLAT_PLATE); sphere "varies from .07 to .5" with Reynolds number. NO cube, NO cylinder.
+    #   * Hoerner's figure as redrawn on Wikimedia Commons (Hoerner_fluid_dynamic_drag_coefficients.svg): its numeric labels include
+    #     0.47, 1.05 and 1.20, but the file carries no text saying which shape each belongs to, and the description page lists none
+    #     for cube or cylinder -> not usable as a citation for a specific shape.
+    #   * aerodyn.org "Drag Coefficients for bluff bodies" (Wayback copy, the table Wikipedia cites): "Rough Sphere 0.40", "Smooth Sphere
+    #     0.10", and "1.20" is the HOLLOW SEMI-CYLINDER opposite the stream (a different shape from a solid cylinder).
+    #   * NOT fetched (no access): Hoerner, Fluid-Dynamic Drag ch. 3 itself; White, Fluid Mechanics Table 7.2.
+    # So no primary source with the exact shape and orientation was verified: every status stays "estimated". Sphere 0.47 is consistent
+    # with Wikipedia's (rough sphere / turbulent) figure and inside NASA's range; box 1.05 and cylinder 1.20 are unverified (the cylinder
+    # value is NOT supported by the one fetched table, which gives 1.20 to another shape). Orientation convention used by the construct:
+    # the box is a cube FACE-ON (not corner-on); the cylinder is CROSS-FLOW (axis perpendicular to the flow), not end-on.
     from sigma_ground.dynamics.mechanisms.wind import C_N_FLAT_PLATE
     return {
         "sphere": {"value": 0.47, "status": CD_ESTIMATED,
-                   "source": "White, Fluid Mechanics, Table 7.2 / Fig. 7.16 (smooth sphere, Re 1e3-2e5); Hoerner, Fluid-Dynamic Drag (1965) ch. 3"},
+                   "source": "textbook smooth sphere, turbulent/high-Re plateau; fetched: Wikipedia 'Drag coefficient' (0.47 for turbulent flow, "
+                             "'rough sphere' row at Re 1e6; its smooth-sphere row says 0.1) and NASA Glenn 'Shape Effects on Drag' (0.07-0.5 by "
+                             "Reynolds number): consistent, not an exact primary match. Not fetched: White Table 7.2, Hoerner ch. 3"},
         "box": {"value": 1.05, "status": CD_ESTIMATED,
-                "source": "Hoerner, Fluid-Dynamic Drag (1965) ch. 3 (cube, face on, Re > 1e4); used for every boxy object"},
+                "source": "Hoerner, Fluid-Dynamic Drag (1965) ch. 3 (cube, FACE-ON, Re > 1e4) as remembered; NOT verified: Hoerner was not fetched "
+                          "and the fetched secondary tables (Wikipedia, NASA Glenn) have no cube row; a corner-on cube differs. Used for every boxy object"},
         "flat_plate": {"value": C_N_FLAT_PLATE, "status": "library (flagged in the library as a standard value)",
                        "source": "sigma_ground.dynamics.mechanisms.wind.C_N_FLAT_PLATE (flat plate normal to the flow); used when the thinnest "
                                  "side is under a tenth of the next"},
         "cylinder": {"value": 1.20, "status": CD_ESTIMATED,
-                     "source": "White, Fluid Mechanics, Table 7.2 (circular cylinder across the flow, L/D 5-20, Re 1e4-1e5); Hoerner ch. 3. "
-                               "Projected area is the bounding box's, which overstates a cylinder's by 4/pi"},
+                     "source": "White, Fluid Mechanics, Table 7.2 / Hoerner ch. 3 (circular cylinder CROSS-FLOW, subcritical Re) as remembered; NOT "
+                               "verified: neither was fetched, the fetched tables have no solid-cylinder row, and the aerodyn.org table gives 1.20 to a "
+                               "hollow semi-cylinder instead. End-on cylinders are not modelled. Projected area is the bounding box's "
+                               "(a known simplification: see the README 'The construct's physics')"},
     }
 
 

@@ -314,12 +314,12 @@ function Av.Command(ply, cmd, name)
     local ok, why = Av.Summon(ply)
     local mine = name and name ~= "skippy" and H and H.Wake and H.Wake.Wake and H.Wake.Wake.display(name)
     if ok and mine then
-      if H.Tell then H.Tell(ply, "Here I am, " .. mine .. ".") end
+      if H.Tell then H.Tell(ply, "Here I am, " .. mine .. ".", true) end
     elseif ok then say("Here I am.", cv_ack:GetBool()) elseif H and H.Tell then H.Tell(ply, why or "I cannot come right now.") end
   elseif cmd == "dismiss" then
     if Av.IsActive() then
       local mine = name and name ~= "skippy" and H and H.Wake and H.Wake.Wake and H.Wake.Wake.display(name)
-      if mine and H.Tell then H.Tell(ply, "Fine, " .. mine .. ". Call me if you need me.")
+      if mine and H.Tell then H.Tell(ply, "Fine, " .. mine .. ". Call me if you need me.", true)
       else say("Fine. Call me if you need me.", cv_ack:GetBool()) end
       Av.Dismiss()
     end

@@ -10,7 +10,7 @@ Sources (the game server picks; the bridge never sees a client's word for who so
   action "redeem"  {code}        OPTIONAL portal link code -> the portal's picture URL (STUB until the portal side exists; see
                                  stage/gmod/FACE_PORTAL_HANDOFF.md) -> fetched like "url".
 
-Answer: {"ok": true, "hash", "crc32", "bytes", "b64", "border": [r,g,b], "detector", "source"} or
+Answer: {"ok": true, "hash", "crc32", "bytes", "b64", "skin": [r,g,b], "border": [r,g,b], "detector", "source"} or
         {"ok": false, "kind": "no_picture" | "refused" | "bad_image" | "unavailable", "error": "..."} (HTTP 200: it is an answer, not a fault).
 
 Safety, in order: allow-listed host (https, port 443, no user info, no IP literals) -> DNS answer must be public (no private, loopback,
@@ -225,6 +225,12 @@ def _face_box(im):
 
 def crop_square(im, use_detector: bool = True):
     """(square image, detector name). Centred on the face when one is found, else the middle."""
+    sq, how, _ = _crop(im, use_detector)
+    return sq, how
+
+
+def _crop(im, use_detector: bool = True):
+    """(square image, detector name, the face box (x, y, w, h) in the crop's own pixels or None)."""
     w, h = im.size
     side = min(w, h)
     cx, cy, how = w / 2, h / 2, "centre"
@@ -235,7 +241,8 @@ def crop_square(im, use_detector: bool = True):
         cx, cy, how = x + fw / 2, y + fh / 2 + fh * 0.1, "haar"
     left = int(round(min(max(cx - side / 2, 0), w - side)))
     top = int(round(min(max(cy - side / 2, 0), h - side)))
-    return im.crop((left, top, left + side, top + side)), how
+    face = (box[0] - left, box[1] - top, box[2], box[3]) if box else None
+    return im.crop((left, top, left + side, top + side)), how, face
 
 
 def border_colour(im) -> list[int]:
@@ -257,8 +264,52 @@ def border_colour(im) -> list[int]:
     return [int(t / n) for t in tot]
 
 
+# ---- the head's skin tone. The head's sides, back and neck take ONE colour; the picture's border colour gave a coloured "hood" for a busy
+# background, so the colour is an estimate of the SKIN in the picture instead (the median of the middle of the face), and a neutral
+# warm beige when that does not look like skin at all (a logo, a cartoon, a landscape, a pet).
+NEUTRAL_SKIN = (205, 170, 150)           # the same colour as Head.NEUTRAL in faces_head.lua
+SKIN_CENTRE = 0.30                       # no face box: the central square of this fraction of the side
+SKIN_TRIM = 0.15                         # darkest and lightest share of the sampled pixels dropped (hair, shadow, shine)
+
+
+def _plausible_skin(rgb) -> bool:
+    """A colour that a human skin tone could have (any complexion, lit or in shade): warm hue, some but not much colour, not near-black."""
+    import colorsys
+    r, g, b = (c / 255.0 for c in rgb)
+    h, s, v = colorsys.rgb_to_hsv(r, g, b)
+    h *= 360.0
+    return (h <= 50.0 or h >= 345.0) and 0.10 <= s <= 0.75 and 0.20 <= v <= 1.0 and rgb[0] >= rgb[1] >= rgb[2] - 6
+
+
+def skin_colour(im, face=None) -> list[int]:
+    """[r, g, b] skin tone of a square picture: the median colour of the middle of the face (the found face box's central half, or the
+    middle SKIN_CENTRE of the picture) after dropping the darkest and lightest SKIN_TRIM of the pixels; NEUTRAL_SKIN when the
+    result is not plausible as skin."""
+    px = im.convert("RGB")
+    w, h = px.size
+    if face and face[2] >= 8 and face[3] >= 8:
+        fx, fy, fw, fh = face
+        x0, x1 = fx + fw * 0.25, fx + fw * 0.75
+        y0, y1 = fy + fh * 0.25, fy + fh * 0.75
+    else:
+        x0, x1 = w * (0.5 - SKIN_CENTRE / 2), w * (0.5 + SKIN_CENTRE / 2)
+        y0, y1 = h * (0.5 - SKIN_CENTRE / 2), h * (0.5 + SKIN_CENTRE / 2)
+    box = (max(0, int(x0)), max(0, int(y0)), min(w, max(int(x1), int(x0) + 1)), min(h, max(int(y1), int(y0) + 1)))
+    if box[2] <= box[0] or box[3] <= box[1]:
+        return list(NEUTRAL_SKIN)
+    raw = px.crop(box).tobytes()
+    pix = [(raw[i], raw[i + 1], raw[i + 2]) for i in range(0, len(raw), 3)]
+    if not pix:
+        return list(NEUTRAL_SKIN)
+    pix.sort(key=lambda p: 0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2])
+    cut = int(len(pix) * SKIN_TRIM)
+    keep = pix[cut:len(pix) - cut] or pix
+    med = [sorted(p[i] for p in keep)[len(keep) // 2] for i in range(3)]
+    return med if _plausible_skin(med) else list(NEUTRAL_SKIN)
+
+
 def process(data: bytes, use_detector: bool = True) -> dict:
-    """Raw picture bytes -> {"jpeg", "border", "detector"}; FaceError("bad_image") for anything that is not a modest picture."""
+    """Raw picture bytes -> {"jpeg", "skin", "border", "detector"}; FaceError("bad_image") for anything that is not a modest picture."""
     sniff(data)
     from PIL import Image
     Image.MAX_IMAGE_PIXELS = MAX_PIXELS
@@ -282,7 +333,10 @@ def process(data: bytes, use_detector: bool = True) -> dict:
         bg.paste(im, mask=im.split()[3])
         im = bg
     im = im.convert("RGB")
-    sq, how = crop_square(im, use_detector)
+    sq, how, face = _crop(im, use_detector)
+    if face:
+        k = OUT_SIZE / float(sq.width)
+        face = tuple(v * k for v in face)
     sq = sq.resize((OUT_SIZE, OUT_SIZE), Image.LANCZOS)
     out = b""
     for q in (85, 78, 70, 60, 50, 40):
@@ -293,7 +347,7 @@ def process(data: bytes, use_detector: bool = True) -> dict:
             break
     if len(out) > MAX_OUT_BYTES:
         raise FaceError("bad_image", "that picture does not shrink small enough")
-    return {"jpeg": out, "border": border_colour(sq), "detector": how}
+    return {"jpeg": out, "skin": skin_colour(sq, face), "border": border_colour(sq), "detector": how}
 
 
 # ---------------------------------------------------------------------------------------------------------------- the cache
@@ -310,7 +364,7 @@ def cache_put(res: dict) -> str:
                 tmp = p.with_suffix(".tmp")
                 tmp.write_bytes(res["jpeg"])
                 tmp.replace(p)
-            (CACHE_DIR / (h + ".json")).write_text(json.dumps({"border": res["border"], "detector": res["detector"]}), encoding="utf-8")
+            (CACHE_DIR / (h + ".json")).write_text(json.dumps({"skin": res["skin"], "border": res["border"], "detector": res["detector"]}), encoding="utf-8")
         except OSError:
             pass                                                   # the cache is a convenience; the answer does not depend on it
     return h
@@ -322,7 +376,11 @@ def cache_get(h: str):
     try:
         jpeg = (CACHE_DIR / (h + ".jpg")).read_bytes()
         meta = json.loads((CACHE_DIR / (h + ".json")).read_text(encoding="utf-8"))
-        return {"jpeg": jpeg, "border": meta["border"], "detector": meta["detector"]}
+        skin = meta.get("skin")
+        if not (isinstance(skin, list) and len(skin) == 3):            # an entry cached before skin tones existed: work it out again
+            from PIL import Image
+            skin = skin_colour(Image.open(BytesIO(jpeg)))
+        return {"jpeg": jpeg, "skin": skin, "border": meta["border"], "detector": meta["detector"]}
     except (OSError, ValueError, KeyError):
         return None
 
@@ -345,7 +403,7 @@ def _answer(res: dict, source: str) -> dict:
     h = cache_put(res)
     jpeg = res["jpeg"]
     return {"ok": True, "hash": h, "crc32": zlib.crc32(jpeg) & 0xFFFFFFFF, "bytes": len(jpeg), "b64": base64.b64encode(jpeg).decode(),
-            "border": res["border"], "detector": res["detector"], "source": source}
+            "skin": res["skin"], "border": res["border"], "detector": res["detector"], "source": source}
 
 
 # ---------------------------------------------------------------------------------------------------------------- sources

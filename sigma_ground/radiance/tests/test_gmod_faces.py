@@ -97,7 +97,7 @@ def jpeg(n=20000, seed=1):
 def answer(data=None, source="steam", **over):
     data = data or jpeg()
     a = {"ok": True, "hash": hashlib.sha256(data).hexdigest()[:24], "crc32": zlib.crc32(data) & 0xFFFFFFFF, "bytes": len(data),
-         "b64": base64.b64encode(data).decode(), "border": [30, 90, 160], "detector": "centre", "source": source}
+         "b64": base64.b64encode(data).decode(), "skin": [200, 150, 120], "border": [30, 90, 160], "detector": "centre", "source": source}
     a.update(over)
     return a
 
@@ -475,7 +475,7 @@ def test_a_late_joiner_asking_for_everything_gets_the_list_and_the_pictures_and_
 
 @pytest.mark.parametrize("make", [
     lambda d: answer(d, crc32=123), lambda d: answer(b"not a jpeg at all, plainly" * 20), lambda d: answer(jpeg(30000)),
-    lambda d: answer(d, b64="@@@@"), lambda d: answer(d, border=[1, 2]), lambda d: answer(d, hash="zz"), lambda d: {"ok": True}])
+    lambda d: answer(d, b64="@@@@"), lambda d: answer(d, skin=[1, 2]), lambda d: answer(d, hash="zz"), lambda d: {"ok": True}])
 def test_nothing_the_bridge_says_is_believed_unchecked(w, make):
     p = w.player(A)
     w.rt.eval("function(p) hook.Run('PlayerInitialSpawn', p) end")(p)
@@ -502,7 +502,7 @@ def test_the_store_survives_a_restart_and_a_damaged_file_falls_back_then_starts_
 
 def test_hand_edited_junk_in_the_store_is_dropped_record_by_record(w):
     w.rt.execute("""MOCK.files['mentat/faces.json'] = [[{"version":1,"rec":{"123":{"hidden":true},
-      "76561190000000001":{"source":"set","hash":"../../etc/x","crc":5,"border":[1,2,3]},
+      "76561190000000001":{"source":"set","hash":"../../etc/x","crc":5,"skin":[1,2,3]},
       "76561190000000002":{"hidden":true,"off":true,"optin":true,"junk":[1,2,3]}},"blocked":{"76561190000000003":true,"x":true}}]]""")
     w.rt.execute('dofile(MOCK.ROOT .. "/mentat/faces_server.lua")')
     rec = w.rt.eval("MentatFaces.rec")
@@ -567,7 +567,7 @@ def test_the_picture_arrives_in_chunks_is_checked_and_becomes_a_material_of_the_
     give_default(sw, other_p)
     receive_everything(sw, cw)
     img = cw.rt.eval("MentatFacesClient.images[1]")
-    assert img.state == "ready" and img.crc == zlib.crc32(jpeg()) & 0xFFFFFFFF and list(img.border.values()) == [30, 90, 160]
+    assert img.state == "ready" and img.crc == zlib.crc32(jpeg()) & 0xFFFFFFFF and list(img.skin.values()) == [200, 150, 120]
     assert cw.rt.eval("MOCK.material_path") == "data/mentat_faces/" + f"{img.crc:08x}.jpg"
     assert cw.rt.eval(f"#MOCK.files['mentat_faces/{img.crc:08x}.jpg']") == len(jpeg())
 
@@ -731,6 +731,21 @@ def test_meshes_are_built_once_and_shared_by_every_head():
     assert cw.rt.eval("MentatFacesClient.stats.drawn") == 9
 
 
+def test_the_sides_back_and_neck_are_the_skin_tone_the_bridge_sent_never_the_pictures_border():
+    sw, cw = server(), client()
+    wearing(sw, cw)
+    cw.rt.eval("function() MentatFacesClient.refresh() end")()
+    img = cw.rt.eval("MentatFacesClient.images[1]")
+    assert list(img.skin.values()) == [200, 150, 120] and img.border is None, "the client carries the skin tone, not the border"
+    front, set_ = cw.rt.eval("function() return MentatFacesClient.get_meshes(MentatFacesClient.images[1].skin) end")()
+    assert cw.rt.eval("MentatFacesClient.meshes['200,150,120']") is not None
+    cols = [list(v.col.values()) for v in set_.back.verts.values()]
+    assert cols and all(abs(c[0] / max(c[1], 1) - 200 / 150) < 0.03 and abs(c[1] / max(c[2], 1) - 150 / 120) < 0.03 for c in cols),         "every back / neck vertex is the skin tone times the light"
+    # the front carries the picture: white vertices that multiply it
+    fc = [list(v.col.values()) for v in front.verts.values()]
+    assert fc and all(abs(c[0] - c[1]) <= 1 and abs(c[1] - c[2]) <= 1 for c in fc)
+
+
 def test_the_loader_is_one_small_function_and_falls_back_when_the_api_is_missing():
     cw = client()
     assert cw.rt.eval("function() return MentatFacesClient.load_material('mentat_faces/00000001.jpg', 1) end")() is not None
@@ -772,7 +787,9 @@ def test_front_uvs_cover_the_picture_inside_0_to_1_and_the_face_looks_forward():
     us = [v[6] for t in front for v in t]
     vs = [v[7] for t in front for v in t]
     assert min(us) >= 0 and max(us) <= 1 and min(vs) >= 0 and max(vs) <= 1
-    assert min(us) < 0.05 and max(us) > 0.95 and min(vs) < 0.05 and max(vs) > 0.95, "the picture fills the cap"
+    lo, hi = 0.5 - 0.5 * Head.PICTURE_FRAC, 0.5 + 0.5 * Head.PICTURE_FRAC
+    assert abs(min(us) - lo) < 0.01 and abs(max(us) - hi) < 0.01 and abs(min(vs) - lo) < 0.01 and abs(max(vs) - hi) < 0.01, \
+        "the middle of the picture (its face) fills the cap; the background around it is never mapped, the sides are skin"
     nose = [v for t in front for v in t if v[0] > 0.99 * Head.DEPTH]
     assert nose and all(abs(v[6] - 0.5) < 0.01 and abs(v[7] - 0.5) < 0.01 for v in nose), "the middle of the picture is the front pole"
     assert all(v[0] > 0 for t in front for v in t), "the cap is the front half"

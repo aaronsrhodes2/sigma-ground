@@ -7,7 +7,7 @@
 --     the head bone to zero and restored the moment the face goes (removed, hidden, blocked, switched off, model changed).
 --   * With no player model at all (a server without the game's content) the head floats at the player's eyes.
 --   * Never drawn in first person; the local player sees their own head in third person and in mirrors.
---   * Cost: two cached IMeshes shared by all heads (+ one back mesh per border tint), a matrix push and 2-3 mesh draws per visible head.
+--   * Cost: two cached IMeshes shared by all heads (+ one back mesh per skin tint), a matrix push and 2-3 mesh draws per visible head.
 --   * THE UNVERIFIED PART is Material() from a file written to data/ (FC.load_material is the one small function that does it); when
 --     the material is not valid the head is a plain neutral one.
 if not CLIENT then return end
@@ -23,7 +23,7 @@ FC.PARTIAL_TIMEOUT = 20
 FC.WANT_EVERY = 8
 FC.HEAD_BONE = "ValveBiped.Bip01_Head1"
 FC.map = FC.map or {}              -- steamid64 -> { slot, optin }
-FC.images = FC.images or {}        -- slot -> { crc, border, mat (or nil), state = "ready" | "plain" }
+FC.images = FC.images or {}        -- slot -> { crc, skin, mat (or nil), state = "ready" | "plain" }
 FC.partial = FC.partial or {}
 FC.asked = FC.asked or {}
 FC.hidden = FC.hidden or setmetatable({}, { __mode = "k" })     -- player -> { bone, model }: heads we scaled to zero
@@ -84,11 +84,11 @@ local function finish(slot, p)
   file.CreateDir(FC.DIR)
   file.Write(path, data)
   local mat = FC.load_material(path, p.crc)
-  FC.images[slot] = { crc = p.crc, border = p.border, mat = mat, state = mat and "ready" or "plain", path = path }
+  FC.images[slot] = { crc = p.crc, skin = p.skin, mat = mat, state = mat and "ready" or "plain", path = path }
   return true
 end
 
-function FC.on_chunk(slot, crc, i, count, total, border, piece)
+function FC.on_chunk(slot, crc, i, count, total, skin, piece)
   if slot < 1 or slot > 64 or count < 1 or i < 1 or i > count or total < 1 or total > FC.CAP_BYTES or #piece == 0 then
     FC.stats.rejected = FC.stats.rejected + 1
     return false
@@ -96,7 +96,7 @@ function FC.on_chunk(slot, crc, i, count, total, border, piece)
   FC.stats.chunks = FC.stats.chunks + 1
   local p = FC.partial[slot]
   if not p or p.crc ~= crc or p.count ~= count or p.total ~= total or now() - p.t > FC.PARTIAL_TIMEOUT then
-    p = { crc = crc, count = count, total = total, border = border, parts = {}, got = 0, t = now() }
+    p = { crc = crc, count = count, total = total, skin = skin, parts = {}, got = 0, t = now() }
     FC.partial[slot] = p
   end
   if i ~= p.got + 1 then FC.partial[slot] = nil; return false end          -- chunks come in order on a reliable channel; anything else starts over
@@ -107,10 +107,10 @@ end
 
 net.Receive("mentat_face_img", function()
   local slot, crc, i, count, total = net.ReadUInt(8), net.ReadUInt(32), net.ReadUInt(8), net.ReadUInt(8), net.ReadUInt(16)
-  local border = { net.ReadUInt(8), net.ReadUInt(8), net.ReadUInt(8) }
+  local skin = { net.ReadUInt(8), net.ReadUInt(8), net.ReadUInt(8) }
   local n = net.ReadUInt(16)
   if n < 1 or n > 16384 then return end
-  FC.on_chunk(slot, crc, i, count, total, border, net.ReadData(n))
+  FC.on_chunk(slot, crc, i, count, total, skin, net.ReadData(n))
 end)
 
 function FC.want(slot)
@@ -260,7 +260,7 @@ function FC.draw(ply, mode)
   if not img then FC.want(entry.slot) end
   local plain = FC.plain_material()
   local textured = img and img.state == "ready" and img.mat
-  local front, set = FC.get_meshes(textured and img.border or nil)
+  local front, set = FC.get_meshes(textured and img.skin or nil)
   if not set then return false end
   cam.PushModelMatrix(FC.head_matrix(ply, mode))
   if textured and front and plain then

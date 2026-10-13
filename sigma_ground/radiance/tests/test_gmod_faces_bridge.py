@@ -2,6 +2,7 @@
 the pictures are synthetic (drawn with Pillow), nothing real is fetched and no real person's photo is used."""
 from __future__ import annotations
 
+import json
 import sys
 import time
 from io import BytesIO
@@ -306,3 +307,86 @@ def test_the_bridge_routes_face_through_its_gate_and_rations_it(net, monkeypatch
         F.route(H(), {"action": "steam", "steamid64": STEAM_ID}, "7656", B)
     src = (HOLO / "skippy_bridge.py").read_text(encoding="utf-8")
     assert 'self.path == "/face"' in src
+
+
+# ------------------------------------------------------------------------------------------------------------ the skin tone (synthetic pictures only)
+def face_on(background, skin=(230, 190, 160), size=200, hair=None, shine=None, box=None):
+    """A flat 'face' (an ellipse of one skin colour) on a busy background; optional hair band and a bright highlight across the middle."""
+    im = Image.new("RGB", (size, size), background)
+    d = ImageDraw.Draw(im)
+    for i in range(0, size, 20):
+        d.rectangle((i, 0, i + 9, size), fill=(255 - background[0], 255 - background[1], 255 - background[2]))
+    x0, y0, x1, y1 = box or (size * .25, size * .1, size * .75, size * .9)
+    d.ellipse((x0, y0, x1, y1), fill=skin)
+    if hair:
+        d.rectangle((x0, y0 + (y1 - y0) * .40, x1, y0 + (y1 - y0) * .47), fill=hair)
+    if shine:
+        d.rectangle((x0 + (x1 - x0) * .45, y0, x0 + (x1 - x0) * .55, y1), fill=shine)
+    return im
+
+
+def png(im):
+    buf = BytesIO()
+    im.save(buf, "PNG")
+    return buf.getvalue()
+
+
+@pytest.mark.parametrize("skin", [(255, 224, 189), (230, 190, 160), (198, 134, 66), (141, 85, 36), (90, 60, 45), (245, 215, 200)])
+@pytest.mark.parametrize("background", [(30, 90, 160), (20, 160, 40), (200, 30, 160), (240, 240, 20)])
+def test_the_skin_tone_is_the_face_not_the_background(skin, background):
+    out = F.process(png(face_on(background, skin)), use_detector=False)
+    assert max(abs(a - b) for a, b in zip(out["skin"], skin)) <= 12, (out["skin"], skin)
+    assert max(abs(a - b) for a, b in zip(out["skin"], out["border"])) > 20, "...and it is not the border colour that used to be used"
+
+
+def test_hair_and_shine_across_the_middle_do_not_move_the_median():
+    out = F.process(png(face_on((30, 90, 160), (230, 190, 160), hair=(40, 25, 15), shine=(255, 255, 255))), use_detector=False)
+    assert max(abs(a - b) for a, b in zip(out["skin"], (230, 190, 160))) <= 12, out["skin"]
+
+
+@pytest.mark.parametrize("centre", [(30, 90, 220), (20, 200, 40), (140, 140, 140), (250, 250, 250), (5, 5, 5), (160, 20, 220), (20, 220, 220)])
+def test_a_centre_that_is_not_skin_gets_the_neutral_warm_beige(centre):
+    """A logo, a cartoon, a landscape, a pet: anything very blue, green, violet, grey, white or black is not skin."""
+    out = F.process(png(face_on((200, 200, 60), centre)), use_detector=False)
+    assert out["skin"] == list(F.NEUTRAL_SKIN)
+
+
+def test_a_transparent_picture_has_a_neutral_skin_and_the_neutral_is_the_heads_plain_colour():
+    im = Image.new("RGBA", (100, 100), (255, 0, 0, 0))
+    out = F.process(png(im), use_detector=False)
+    assert out["skin"] == list(F.NEUTRAL_SKIN) == [205, 170, 150], "the grey the transparent pixels land on is not skin"
+    head = (Path(F.__file__).resolve().parents[1] / "addon" / "lua" / "mentat" / "faces_head.lua").read_text(encoding="utf-8")
+    assert "Head.NEUTRAL = { 205, 170, 150 }" in head
+
+
+def test_with_a_found_face_the_box_is_sampled_not_the_middle(monkeypatch):
+    im = Image.new("RGB", (400, 200), (30, 90, 160))
+    d = ImageDraw.Draw(im)
+    d.rectangle((0, 0, 99, 200), fill=(20, 200, 40))                       # the middle of the picture is NOT where the face is
+    d.rectangle((250, 40, 370, 160), fill=(198, 134, 66))
+    d.rectangle((280, 70, 340, 130), fill=(198, 134, 66))
+    monkeypatch.setattr(F, "_face_box", lambda i: (250, 40, 120, 120))
+    out = F.process(png(im), use_detector=True)
+    assert out["detector"] == "haar" and max(abs(a - b) for a, b in zip(out["skin"], (198, 134, 66))) <= 10, out["skin"]
+    monkeypatch.setattr(F, "_face_box", lambda i: None)
+    out = F.process(png(im), use_detector=True)
+    assert out["detector"] == "centre"                                         # no box: the middle of the picture, which here is not skin
+    assert out["skin"] != [198, 134, 66]
+
+
+def test_skin_colour_is_three_bytes_and_survives_tiny_and_odd_inputs():
+    for size in (1, 2, 7, 16):
+        s = F.skin_colour(Image.new("RGB", (size, size), (230, 190, 160)))
+        assert len(s) == 3 and all(isinstance(c, int) and 0 <= c <= 255 for c in s)
+    assert F.skin_colour(Image.new("RGB", (64, 64), (230, 190, 160)), face=(0, 0, 2, 2)) == [230, 190, 160]    # a tiny box is ignored
+    assert F.skin_colour(Image.new("RGB", (64, 64), (230, 190, 160)), face=(500, 500, 60, 60)) == list(F.NEUTRAL_SKIN)     # a box outside the picture: neutral
+
+
+def test_the_answer_and_the_cache_carry_the_skin_and_an_old_cache_entry_is_worked_out_again(net):
+    a = F._answer(F.process(synthetic_face(), False), "url")
+    assert len(a["skin"]) == 3 and all(0 <= c <= 255 for c in a["skin"]) and len(a["border"]) == 3
+    assert F.cache_get(a["hash"])["skin"] == a["skin"]
+    meta = F.CACHE_DIR / (a["hash"] + ".json")
+    meta.write_text(json.dumps({"border": a["border"], "detector": "centre"}), encoding="utf-8")        # as written before skin tones existed
+    got = F.cache_get(a["hash"])
+    assert got and len(got["skin"]) == 3 and max(abs(x - y) for x, y in zip(got["skin"], a["skin"])) <= 8
