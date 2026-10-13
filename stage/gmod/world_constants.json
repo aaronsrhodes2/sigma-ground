@@ -1,0 +1,153 @@
+{
+ "cd": {
+  "box": {
+   "source": "Hoerner, Fluid-Dynamic Drag (1965) ch. 3 (cube, face on, Re > 1e4); used for every boxy object",
+   "status": "estimated, owner-should-confirm",
+   "value": 1.05
+  },
+  "cylinder": {
+   "source": "White, Fluid Mechanics, Table 7.2 (circular cylinder across the flow, L/D 5-20, Re 1e4-1e5); Hoerner ch. 3. Projected area is the bounding box's, which overstates a cylinder's by 4/pi",
+   "status": "estimated, owner-should-confirm",
+   "value": 1.2
+  },
+  "flat_plate": {
+   "source": "sigma_ground.dynamics.mechanisms.wind.C_N_FLAT_PLATE (flat plate normal to the flow); used when the thinnest side is under a tenth of the next",
+   "status": "library (flagged in the library as a standard value)",
+   "value": 1.28
+  },
+  "sphere": {
+   "source": "White, Fluid Mechanics, Table 7.2 / Fig. 7.16 (smooth sphere, Re 1e3-2e5); Hoerner, Fluid-Dynamic Drag (1965) ch. 3",
+   "status": "estimated, owner-should-confirm",
+   "value": 0.47
+  }
+ },
+ "default_preset": "earth",
+ "engine": {
+  "air_density": {
+   "source": "physenv.GetAirDensity() default; not changed",
+   "status": "engine default",
+   "units": "engine units",
+   "value": 2.0
+  },
+  "gravity_hu_s2": {
+   "source": "Garry's Mod sv_gravity default (read back live by the world_drop tool)",
+   "status": "engine default",
+   "units": "HU/s^2",
+   "value": 600.0
+  },
+  "gravity_m_s2": {
+   "source": "engine gravity * hu_m; 1.166 times the library's Earth value (G_EARTH): the engine's default is stronger than real",
+   "status": "derived",
+   "units": "m/s^2",
+   "value": 11.43
+  },
+  "hu_m": {
+   "source": "1 HU = 0.75 in = 0.01905 m (Source); the stage scale; same constant as mentat/units.lua HU_PER_M",
+   "status": "engine default",
+   "units": "m per HU",
+   "value": 0.01905
+  },
+  "players": {
+   "source": "walking speed and jump are game-feel tuning, not physics: left as the engine has them; only gravity follows sv_gravity",
+   "status": "engine default",
+   "units": "",
+   "value": "engine"
+  },
+  "surfaces": {
+   "source": "friction and restitution come from the engine's surface properties (util.GetSurfaceData); Lua can only assign an existing surface, and physenv.AddSurfaceData honours one new surface a session, so none is set",
+   "status": "engine default",
+   "units": "",
+   "value": "engine"
+  }
+ },
+ "engine_gravity_hu_s2": 600.0,
+ "entries": {
+  "air_density": {
+   "source": "sigma_ground.field.interface.atmosphere.air_density(T=288.15 K, P=101325 Pa): ISA sea level, ideal gas (the library's own standard-atmosphere constants); cross-check projectile.RHO_AIR = 1.225",
+   "status": "library",
+   "units": "kg/m^3",
+   "value": 1.2251533856844192
+  },
+  "drag_coefficient": {
+   "source": "the cd table (sphere, box, flat plate, cylinder); there is no universal damping number",
+   "status": "estimated, owner-should-confirm",
+   "units": "",
+   "value": "by shape class"
+  },
+  "drag_law": {
+   "source": "sigma_ground.field.interface.projectile.drag_force (Prandtl 1904); applied to every free object each physics tick, A = projected area of the object's real bounding box along its velocity, mass = the object's real mass",
+   "status": "library",
+   "units": "",
+   "value": "F = 1/2 rho Cd A v^2, opposing the velocity"
+  },
+  "engine_air_drag": {
+   "source": "Source's own air drag (PhysObj:EnableDrag, physenv air density) is switched off on these objects so the real force above is the only air drag; measured against it in the README 'The construct's physics'",
+   "status": "construct decision",
+   "units": "bool",
+   "value": false
+  },
+  "time_scale": {
+   "source": "phys_timescale default; not changed unless the server owner sets mentat_world_time_scale",
+   "status": "engine default",
+   "units": "x real time",
+   "value": 1.0
+  }
+ },
+ "hu_m": 0.01905,
+ "limits": {
+  "time_scale": [
+   0.25,
+   2.0
+  ]
+ },
+ "not_modelled": [
+  "thermodynamics",
+  "weather",
+  "fluids",
+  "electromagnetism",
+  "chemistry"
+ ],
+ "presets": {
+  "earth": {
+   "gravity_hu_s2": 514.7847769028871,
+   "gravity_m_s2": 9.80665,
+   "gravity_mult": 0.8579746281714785,
+   "label": "Earth",
+   "source": "sigma_ground.field.interface.projectile.G_EARTH = 9.80665 m/s^2, standard gravity (NIST); this is the default",
+   "status": "library"
+  },
+  "jupiter": {
+   "gravity_hu_s2": 1360.647626305975,
+   "gravity_m_s2": 25.920337281128827,
+   "gravity_mult": 2.267746043843292,
+   "label": "Jupiter",
+   "source": "sigma_ground.materia.bodies.resolve_body('jupiter').surface_gravity_m_s2 = G*M/R^2 (G from sigma_ground.field.constants; M and R are the library's IAU reference values)",
+   "status": "library"
+  },
+  "mars": {
+   "gravity_hu_s2": 195.69434422568915,
+   "gravity_m_s2": 3.7279772574993784,
+   "gravity_mult": 0.32615724037614857,
+   "label": "Mars",
+   "source": "sigma_ground.materia.bodies.resolve_body('mars').surface_gravity_m_s2 = G*M/R^2 (G from sigma_ground.field.constants; M and R are the library's IAU reference values)",
+   "status": "library"
+  },
+  "moon": {
+   "gravity_hu_s2": 85.21685250891717,
+   "gravity_m_s2": 1.623381040294872,
+   "gravity_mult": 0.14202808751486196,
+   "label": "the Moon",
+   "source": "sigma_ground.materia.bodies.resolve_body('moon').surface_gravity_m_s2 = G*M/R^2 (G from sigma_ground.field.constants; M and R are the library's IAU reference values)",
+   "status": "library"
+  },
+  "zero": {
+   "gravity_hu_s2": 0.0,
+   "gravity_m_s2": 0.0,
+   "gravity_mult": 0.0,
+   "label": "zero gravity",
+   "source": "free fall: zero by definition",
+   "status": "definition"
+  }
+ },
+ "version": 2
+}
