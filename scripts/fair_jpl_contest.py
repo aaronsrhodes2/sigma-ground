@@ -122,7 +122,13 @@ def run_one(args):
     if toggle_names is not None:
         import dataclasses
         toggles = type(pred.toggles)(**{f.name: (f.name in toggle_names) for f in dataclasses.fields(pred.toggles) if isinstance(getattr(pred.toggles, f.name), bool)})
-    system = NBodySystem(bodies, toggles=toggles, solar_luminosity_W=rs._L_SUN_W if toggles.srp else 0.0, parent_attractor_indices=None)
+    c22 = args[11] if len(args) > 11 else None
+    if c22:                                                      # candidate C3a: the Moon's triaxial figure (sectoral C22), long axis locked to the Earth
+        from sigma_ground.field.interface.lunar_figure import LockedMoonSystem
+        system = LockedMoonSystem(bodies, toggles=toggles, solar_luminosity_W=rs._L_SUN_W if toggles.srp else 0.0, parent_attractor_indices=None,
+                                  moon_index=ORDER.index("Moon"), earth_index=ORDER.index("Earth"), c22=float(c22))
+    else:
+        system = NBodySystem(bodies, toggles=toggles, solar_luminosity_W=rs._L_SUN_W if toggles.srp else 0.0, parent_attractor_indices=None)
     out = {n: {} for n in ORDER if n != "Sun"}
     pole_days = args[9] if len(args) > 9 else None
     rtn_wanted = bool(args[10]) if len(args) > 10 else False
@@ -183,6 +189,7 @@ def main() -> int:
     ap.add_argument("--asteroids", type=Path, default=None, help="asteroid_perturber_states_v2physics.json: add the heavy asteroids as massive bodies")
     ap.add_argument("--pole-update-days", type=float, default=None, help="candidate C2: refresh the IAU spin axes of the zonal bodies every this many days")
     ap.add_argument("--sample-days", type=float, default=None, help="sample every this many days (residual atlas) instead of yearly; also records the Moon gap as R/T/N")
+    ap.add_argument("--lunar-c22", type=float, default=None, help="candidate C3a: add the Moon's C22 figure term with this coefficient (e.g. 2.2382e-5)")
     ap.add_argument("--cases", nargs="*", default=None, help="explicit VINTAGE:start cases, e.g. DE405:j2001 DE421:j2009 (overrides --only-vintage/--starts)")
     ap.add_argument("--only-vintage", nargs="*", default=None)
     ap.add_argument("--starts", nargs="*", default=None, help="restrict start snapshots, e.g. j2005 j2010")
@@ -206,7 +213,7 @@ def main() -> int:
     jobs = []
     if a.validate:
         for k in keys:
-            jobs.append(("DE440(control)", None, k, de["snapshots"][k]["epoch"]["jd_tdb"], a.dt_days, leads, None, de["snapshots"][k], ast_for(k), a.pole_update_days, bool(a.sample_days)))
+            jobs.append(("DE440(control)", None, k, de["snapshots"][k]["epoch"]["jd_tdb"], a.dt_days, leads, None, de["snapshots"][k], ast_for(k), a.pole_update_days, bool(a.sample_days), a.lunar_c22))
     else:
         import datetime as dt
         wanted = {tuple(c.split(":")) for c in a.cases} if a.cases else None
@@ -218,7 +225,7 @@ def main() -> int:
                     continue
                 jd = de["snapshots"][k]["epoch"]["jd_tdb"]
                 if jd >= rel.toordinal() + 1721424.5:
-                    jobs.append((name, f, k, jd, a.dt_days, leads, None, de["snapshots"][k], ast_for(k), a.pole_update_days, bool(a.sample_days)))
+                    jobs.append((name, f, k, jd, a.dt_days, leads, None, de["snapshots"][k], ast_for(k), a.pole_update_days, bool(a.sample_days), a.lunar_c22))
     tag = "validate" if a.validate else "contest"
     a.out.mkdir(parents=True, exist_ok=True)
     part = a.out / f"fair_contest_{tag}.jsonl"                  # one finished propagation per line: a killed run resumes where it stopped
