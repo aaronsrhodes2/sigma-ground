@@ -1,0 +1,55 @@
+{
+ "note": "Nouns the game's own library lacks, each pinned to the one card the resolver gives for it (checked 2026-10-13). approx_mb is read from the source's own file listing (prewarm.py --refresh-sizes). The whole list stays under 150 MB. A couch, a lamp, a table, a chair and a mug come from the game's library and need no cache.",
+ "items": [
+  {
+   "noun": "sofa",
+   "card": "found.poly-haven.sofa-02",
+   "approx_mb": 0.5
+  },
+  {
+   "noun": "dining table",
+   "card": "found.poly-haven.dining-table",
+   "approx_mb": 2.4
+  },
+  {
+   "noun": "potted plant",
+   "card": "found.poly-haven.potted-plant-04",
+   "approx_mb": 2.2
+  },
+  {
+   "noun": "kettle",
+   "card": "found.poly-haven.vintage-electric-kettle",
+   "approx_mb": 2.5
+  },
+  {
+   "noun": "boombox",
+   "card": "found.poly-haven.boombox",
+   "approx_mb": 3.2
+  },
+  {
+   "noun": "television",
+   "card": "found.poly-haven.television-01",
+   "approx_mb": 0.6
+  },
+  {
+   "noun": "fire hydrant",
+   "card": "found.poly-haven.fire-hydrant",
+   "approx_mb": 5.6
+  },
+  {
+   "noun": "lantern",
+   "card": "found.poly-haven.lantern-01",
+   "approx_mb": 1.5
+  },
+  {
+   "noun": "pillow",
+   "card": "found.poly-haven.throw-pillows-01",
+   "approx_mb": 1.3
+  },
+  {
+   "noun": "mailbox",
+   "card": "found.gazebo-fuel.openrobotics-mailbox",
+   "approx_mb": 1.0
+  }
+ ]
+}

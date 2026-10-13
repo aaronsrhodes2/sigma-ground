@@ -16,6 +16,7 @@ return function(args, done, ply)
   RunConsoleCommand("holodeck_persona", "0")
   RunConsoleCommand("holodeck_voice_out", "0")
   RunConsoleCommand("holodeck_found_timeout", tostring(args.timeout or 90))
+  if args.client_cache ~= nil then diag(ply, 'RunConsoleCommand("holodeck_mesh_cache", "' .. tostring(args.client_cache) .. '")') end
   if args.chunk and H.Mesh then H.Mesh.CHUNK = args.chunk end       -- the one live-test knob (as in transporter_shots): a slower SEND, so progress inside it can be photographed
   if args.pump and H.Mesh then H.Mesh.PUMP = args.pump end
   local co
@@ -139,6 +140,10 @@ return function(args, done, ply)
     end
     sleep(2.2)                                                     -- the reveal and the fade finish
     shot("c_arrived", e)
+    -- the object caches (README "Object caches"): what crossed the net to this client and what the handshake did, server side and client side
+    if H.Mesh then out.cache = { chunks_sent = H.Mesh.sent_chunks, offers = H.Mesh.offers_sent, hits = H.Mesh.cache_hits, wants = H.Mesh.cache_wants } end
+    diag(ply, 'local C = Holodeck and Holodeck.MeshClient if C then print(string.format("[fl-cache] chunks=%d offers=%d hits=%d misses=%d saved=%d files=%d bytes=%d", C.stats.chunks, C.stats.offers, C.stats.cache_hits, C.stats.cache_misses, C.stats.cache_saved, C.Cache.count(), C.Cache.total_bytes())) end')
+    sleep(0.6)
     -- what stands: the pose and the size the ENGINE has (the entity's own box, which the card sets), and the floor
     local p, a = e:GetPos(), e:GetAngles()
     local fz = floor_at(p.x, p.y)

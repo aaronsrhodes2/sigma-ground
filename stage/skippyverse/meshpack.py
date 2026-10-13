@@ -30,6 +30,8 @@ from skippyverse import surface as S  # noqa: E402
 
 MAGIC = b"SVM1"
 MAGIC3 = b"SVM3"
+PACK_VERSION = "1"          # bump when the packer, the surface pass (surface.py) or the SVM layout changes what a model packs to: it is part of the pack cache key
+                            # (packcache.py) and of every cache entry, so old entries are never read again. (The binary header stays SVM1/SVM3: the game client reads it.)
 _IDX = {5121: ("B", 1), 5123: ("H", 2), 5125: ("I", 4)}
 
 
@@ -964,7 +966,7 @@ def _pack3(tris, target_tris, codec):
         body += struct.pack("<3b", *[max(-127, min(127, int(round(127 * c)))) for c in n])
     blob = _compress(bytes(body), codec)
     info = {"tris_in": len(tris), "tris_out": len(faces), "verts": len(vpos), "palette": len(pal),
-            "bbox_m": [round(mx[i] - mn[i], 4) for i in range(3)], "raw_bytes": len(body), "bytes": len(blob), "codec": codec, "format": "svm3"}
+            "bbox_m": [round(mx[i] - mn[i], 4) for i in range(3)], "raw_bytes": len(body), "bytes": len(blob), "codec": codec, "format": "svm3", "pack_version": PACK_VERSION}
     return blob, info
 
 

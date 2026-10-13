@@ -5,6 +5,8 @@ AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("mentat/holodeck/svm1.lua")             -- the client's decoder and mesh builder (the server sends them with this entity)
 AddCSLuaFile("mentat/lit.lua")                        -- the lighting kit shared with the avatar
 AddCSLuaFile("mentat/holodeck/meshclient.lua")
+AddCSLuaFile("mentat/holodeck/meshcache.lua")          -- the client's copy between sessions
+AddCSLuaFile("mentat/persist.lua")                     -- (its index is written through the shared safe writer)
 AddCSLuaFile("mentat/fx/transporter_model.lua")      -- the transporter effect: stages and the pure coherence function
 AddCSLuaFile("mentat/fx/transporter.lua")
 include("shared.lua")

@@ -81,6 +81,9 @@ def main(argv=None) -> int:
     ap.add_argument("request")
     ap.add_argument("--purge", nargs="*", default=[])
     ap.add_argument("--timeout", type=int, default=90)
+    ap.add_argument("--purge-packed", action="store_true", help="also delete the --purge cards' entries from the PC packed-payload cache (a truly cold run)")
+    ap.add_argument("--clear-client-cache", action="store_true", help="delete the game client's own payload cache (data/mentat/meshcache) before the run")
+    ap.add_argument("--no-client-cache", action="store_true", help="run with holodeck_mesh_cache 0 (the client keeps nothing and is always streamed to)")
     ap.add_argument("--slow-send", action="store_true", help="send the chunks 500 bytes per 0.4 s (the ONLY non-production knob) so the sending stage lasts long enough to photograph")
     ap.add_argument("--out", default=str(HERE / "data" / "shots"))
     ap.add_argument("--map", default="gm_flatgrass")
@@ -93,6 +96,16 @@ def main(argv=None) -> int:
         if d.is_dir():
             shutil.rmtree(d)
             print("purged", d)
+    if a.purge_packed:
+        pc = B.pack_cache()
+        for cid in a.purge:
+            p = pc.path(B.packcache_key(cid))
+            if p.exists():
+                p.unlink()
+                print("purged", p)
+    if a.clear_client_cache:
+        shutil.rmtree(exp_run.DATA / "meshcache", ignore_errors=True)
+        print("cleared the client cache", exp_run.DATA / "meshcache")
     B.TOKEN = secrets.token_hex(8)
     B.warm = lambda: None
     B.found_index()
@@ -105,6 +118,8 @@ def main(argv=None) -> int:
         old.unlink()
     T0[0] = time.monotonic()
     targs = {"request": a.request, "bridge": f"http://{host}:8777", "token": B.TOKEN, "tag": a.tag, "timeout": a.timeout}
+    if a.no_client_cache:
+        targs["client_cache"] = 0
     if a.slow_send:
         targs.update(chunk=500, pump=0.4)
     try:
@@ -114,14 +129,16 @@ def main(argv=None) -> int:
         srv.server_close()
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    perf, lines = [], []
+    perf, lines, cache_lines = [], [], []
     if log.exists():
         for ln in log.read_text(encoding="utf-8", errors="replace").splitlines():
+            if "[fl-cache]" in ln:
+                cache_lines.append(ln.split("[fl-cache]", 1)[1].strip())
             if "[fl-perf]" in ln:
                 perf.append(ln.split("[fl-perf]", 1)[1].strip())
             if re.search(r"holodeck_mesh|\[holodeck\].*(mesh|found)|decode", ln, re.I) and "fl-perf" not in ln:
                 lines.append(ln.strip()[:200])
-    report = {"request": a.request, "result": res, "bridge_events": EVENTS, "perf": perf, "log_mesh_lines": lines[-25:]}
+    report = {"request": a.request, "result": res, "bridge_events": EVENTS, "perf": perf, "client_cache": cache_lines[-1:], "client_cache_files": sorted(p.name for p in (exp_run.DATA / "meshcache").glob("*")) if (exp_run.DATA / "meshcache").is_dir() else [], "log_mesh_lines": lines[-25:]}
     (out / f"{a.tag}_report.json").write_text(json.dumps(report, indent=1), encoding="utf-8")
     tiles = []
     for f in res.get("frames", []):

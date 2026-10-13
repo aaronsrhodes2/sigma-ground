@@ -292,6 +292,7 @@ def test_the_mesh_http_endpoint_is_guarded_rationed_and_exclusive(ix, fetch, mon
         codes = [h.post("/mesh", body)[0] for _ in range(4)]
         assert codes[-1] == 429, f"one caller may ask {skippy_bridge.PER_CALLER_PER_MINUTE['mesh']} a minute: {codes}"
         monkeypatch.setattr(skippy_bridge, "MESH_PACKED", {})
+        monkeypatch.setattr(skippy_bridge, "PACK_CACHE", "off")          # (a pack-cache hit needs no download slot: see test_gmod_object_cache.py)
         with skippy_bridge.GATE.slot("fetch"):
             assert h.post("/mesh", {**body, "who": "bob"})[0] == 503, "one download at a time"
     finally:
@@ -916,6 +917,7 @@ def test_an_engine_that_cannot_inflate_it_fails_to_the_box():
 def test_a_client_that_lacks_the_mesh_asks_the_server_once_in_a_while_and_a_new_client_asks_for_everything():
     raw, blob = box_blob()
     w = mesh_client()
+    w.rt.execute("GetConVar('holodeck_mesh_cache'):SetValue(0)")          # the cache off: asks at once, and a new client asks for everything (cache on: test_gmod_object_cache.py)
     e = client_entity(w)
     for _ in range(5):
         e.Draw(e)

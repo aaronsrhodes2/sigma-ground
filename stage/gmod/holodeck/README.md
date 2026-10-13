@@ -71,7 +71,7 @@ asleep after settling.
 
 | Piece | Where it runs | What it does |
 |---|---|---|
-| `skippy_bridge.py` | next to the game server | `/plan` (a local model turns a vague wish into a validated request), `/reply` (Skippy's persona says what was done), `/speak` (an mp3), `/quip` (an unprompted line with its clip, under a daily budget: "Skippy alive" below). Fixed actions only, behind a token. |
+| `skippy_bridge.py` | next to the game server | `/plan` (a local model turns a vague wish into a validated request), `/reply` (Skippy's persona says what was done), `/speak` (an mp3), `/quip` (an unprompted line with its clip, under a daily budget: "Skippy alive" below), `/turn` (a chat line or question answered by the frontier model with a local fallback: "Solid turns" below). Fixed actions only, behind a token. |
 | `skippy_ears.py` | each player's own PC | reads the microphone into a short memory (about a second and a half), and when the game says the player is transmitting, has the sentence recognised by the LOCAL Whisper; only a sentence that starts with "Skippy" is handed to the game (`--list` shows the microphones it can see) |
 | `skippy_client.lua` | the game client | tells the ears when the player transmits (and keeps saying so while the key is down, so a crash is noticed within seconds); plays Skippy's voice in 3D from where he built things |
 
@@ -235,7 +235,7 @@ box, at the same pose, with no re-plan**. No model file is installed on any clie
   mesh; only the optional outline is). Defects: the baked light is crude (some faces look dark), the 1,500-triangle clustering rounds off thin parts
   (the antenna is a thin line), and the fade-in (`render.SetBlend` with the entity's colour alpha) was not looked at separately.
 - **Not done / not verified.** (Textures: done since, as colours, see the look pass below.) A collision hull; levels of detail; models over 4,000 triangles; NASA and Fuel models; client-side caching
-  between sessions (a reconnect asks again; the server keeps the bytes for the session only); scene lighting and shadows. Offline tests only
+  between sessions (done since: see "Object caches" below); scene lighting and shadows. Offline tests only
   (`sigma_ground/radiance/tests/test_gmod_found_mesh.py`, 63): chunk reassembly out of order and twice, a late joiner, rationing, hostile and malformed
   answers, the Lua decoder against Python's unpacker on the real chair. **Not tried in the real game:** a dedicated server with a remote client (the
   live net path was the listen server's own loopback, so a late joiner's `holodeck_mesh_want` and a payload of several chunks have only run in the
@@ -303,6 +303,63 @@ colour; a fixed light baked into the vertex colours). It now arrives as **SVM3**
   small features turns to mush (a real decimator would fix it). One flat colour per triangle: no texture detail. No environment reflections, so polished metal
   shows only its highlight. The blob shadow is a blob, not the object's shadow, and no cast shadows. Glass is translucent but unsorted. The lighting
   follows the viewer, so highlights move as you walk around (as Skippy's do).
+
+### Object caches (2026-10-13): a model is packed once and downloaded once per player
+
+Two caches, so a model that anyone has asked for before is cheap for everyone after.
+
+**1. The packed-payload cache (PC, `stage/skippyverse/packcache.py`, wired into `POST /mesh`).** A first request costs download + measure + pack (about 3 s
+for a small Poly Haven model, up to 33 s for a big one, pure Python); the finished SVM payload and the measured facts (size, triangles, vertices, palette,
+source, licence, size basis) are kept, so every later request, from any player in any session, is a file read.
+- *Where:* `stage/skippyverse/cache/packed/<key>.svmc` (gitignored; with a scratch `MESH_CACHE_DIR`, a test or a tool, it sits beside that directory instead).
+  One file: `SVMC1` magic, a JSON header, the payload bytes. The header holds the key, `PACK_VERSION`, the format, the triangle target, a fingerprint of
+  the source files, the payload length and its SHA-256, and the facts.
+- *Key:* `sha256(card id | format | triangle target | meshpack.PACK_VERSION)`, 32 hex. **Bump `meshpack.PACK_VERSION` whenever the packer, `surface.py` or the SVM layout
+  changes what a model packs to**: it is a new key, so old entries are never read again and age out. (The binary header inside the payload stays `SVM1`/`SVM3`: the
+  game client reads it, so the version lives in the key and the entry header, not in the wire format.)
+- *Source check:* a read compares the entry's fingerprint (SHA-256 of the downloaded files the packer reads; for NASA cards also the verified-size table) with the files
+  on disk now; a mismatch deletes the entry and packs again. When the download was pruned there is nothing to compare and the entry is trusted (an asset id names an
+  immutable upload).
+- *Safety:* written atomically (temp file in the same folder, fsync, `os.replace`; stale temp files are swept); every read re-hashes the payload, and a damaged,
+  truncated, wrong-key or wrong-version file is deleted and counted as a miss. Two simultaneous first requests for one model take a per-key lock: one downloads and
+  packs, the other reads its entry.
+- *Cap and eviction:* 500 MB (`SKIPPY_PACK_CACHE_MB`, `0` switches the cache off), least recently used first (a read touches the file); the entry just written is never the one evicted.
+- *The beam stays truthful:* a hit reports the stage `cached` and then `done` (the `/progress` answer says `"cached": true`, bytes 0); it never pretends to have downloaded.
+- *Look, clear:* `python stage/skippyverse/packcache.py` lists entries and size; `--clear` deletes them all (or delete the folder).
+
+**2. The client cache between sessions (game client, `addon/lua/mentat/holodeck/meshcache.lua`).** A payload a client receives is kept in its own data folder; on the
+next join the server offers instead of sending, and a client that has the bytes says so.
+- *Where:* `data/mentat/meshcache/<first 32 hex of the payload's SHA-256>.dat` (the LZMA bytes exactly as received) and `index.json` (`{v, tick, entries:[{sha, bytes, crc, u}]}`, `u` = a use counter,
+  no clock, no SteamID anywhere). Only `.dat` and `.json` are ever written; the folder is made first; a write is read back and compared; the index keeps its previous copy as `index.bak.txt`
+  (the engine rules above; `mentat/persist.lua`). Orphan `.dat` files that the index does not list are ignored and never read.
+- *Handshake (new net messages, backwards compatible):* a client says `holodeck_mesh_hello` once on joining. From then on the server, for each model, sends `holodeck_mesh_offer`
+  (mesh number, CRC-32, size, SHA-256) instead of the chunks; the client answers `holodeck_mesh_have` (number, CRC-32, have/want). **have**: nothing is sent. **want** (or no answer in 3 s): the chunks are
+  streamed to that client alone. A hello also asks for everything the server already has (late joiners get offers, not chunks). The server accepts an answer only for an offer outstanding for that player.
+  A client that never says hello (an older one) is streamed to exactly as before; a new client on an older server cannot send the hello (the engine refuses an unpooled name), so it asks for everything outright, as before.
+  Entities wait 1.5 s for the offer before the client asks for a download itself, and 10 s after answering "want" before asking again.
+- *Verification:* a cached file is accepted only if its length, CRC-32 and SHA-256 equal what the server announced; otherwise it is deleted from the folder and the index, and the client answers want.
+- *Cap and eviction:* 120 MB and 512 entries by default, least recently used first (`Cache.CAP_BYTES`). `holodeck_mesh_cache 0` keeps nothing and always asks for the stream; `holodeck_mesh_cache_clear` empties it; `holodeck_mesh_info` prints what it holds and its counters.
+- *The 200 MB per-player budget (Aaron's decision):* the cache is part of it, so its own cap (120 MB) is below it by design; a payload is at most 256 KB. No code enforces a session-wide
+  figure yet: the two caps (cache folder 120 MB, one payload 256 KB) are what is enforced.
+
+**3. Prewarm.** `python stage/gmod/holodeck/prewarm.py` prints the plan (noun, card, MB, cached or not) and does nothing else; `--go` downloads and packs what is missing through the same code a player's
+request uses (official hosts only, licence gate, 40 MB per asset, one at a time) and skips what is cached; `--refresh-sizes` re-reads the sources' own file listings (about 10 KB each, no model)
+and rewrites `approx_mb`. The list is `prewarm_list.json` (tracked): nouns the game's own library lacks (sofa, dining table, potted plant, kettle, boombox, television, fire hydrant, lantern, pillow,
+mailbox), about 21 MB as an upper bound, refused over 150 MB. A couch, lamp, table, chair or mug come from the game's library and need no cache. The list has not been run with `--go` for real (plan only).
+
+**Measured live (2026-10-13, real game, listen server with a hidden window, no mouse; Poly Haven boombox, 2.6 MB download, 24.7 KB payload; `found_live.py` with `--purge-packed` / `--clear-client-cache`):**
+
+| case | `/mesh` | request to `done` | bytes streamed to the client | handshake |
+|---|---|---|---|---|
+| cold (no asset, no PC entry, no client file) | 3.03 s (download 1.59 + measure/pack 1.37) | 4.65 s | 2 chunks, 24,696 B | offer + want |
+| warm PC cache (client file cleared) | 0.02 s | 1.59 s | 2 chunks | offer + want |
+| client cache (game restarted) | 0.12 s | 1.48 s | **0** | offer + have: 2 messages |
+
+About 1.2 s of the warm figures is the beam's fixed "decoding" to "done" finish, not the pipeline. The cold run's measure/pack was 1.4 s for 10,168 triangles; a big model takes longer and is where the cache pays most.
+
+**Not verified:** a remote (second machine) client, a dedicated server with a human client, a full disk or a data folder the engine refuses (the code reads back and falls back to "streamed"), the client cache at
+its 120 MB cap in the real game (tested in the mock only), eviction at 500 MB on the PC beyond the mock-sized tests, and any case where the entity appears on a client long before its offer (the 1.5 s grace held once). `/resolve` itself is not cached: a
+Fuel or NASA card with no size still downloads once to be sized (that download is kept in `cache/assets/`).
 
 ### The transporter effect: a materialise whose coherence is the pipeline's progress
 
@@ -448,8 +505,8 @@ server console never prints them): `shush` / `be quiet` / `stop talking`, `be ch
 `forget that` / `forget today` / `forget everything`; `stop remembering` / `start remembering`. Object requests never match ("add a quiet room", "make a harder floor"
 build things; "forget the name Rex" is the wake-name command).
 
-**Roast level.** `gentle` (everyone by default), `standard`, `savage` (the default for the host of a listen server, single player, and the SteamID64s in
-`mentat_skippy_captain_sids`). A gentle player never hears a line marked standard or savage, and a model's line is refused if it contains an insult word above the
+**Roast level.** `gentle` (everyone by default), `standard`, `savage` (the default for the host of a listen server, single player, the SteamID64s in
+`mentat_skippy_captain_sids`, and the lines of `data/mentat/captain_sids.txt`, re-read every 30 s). A gentle player never hears a line marked standard or savage, and a model's line is refused if it contains an insult word above the
 player's level (gentle: none; standard: no "stupid", "dumb", "moron", "pathetic", "useless" and the like; savage: anything but slurs and bad language).
 
 ### Body language (animation)
@@ -516,7 +573,8 @@ bridge only, as the rate-limit key. The voice synthesis then sends the finished 
 | `mentat_skippy_captain_sids` | "" | SteamID64s whose default roast level is savage |
 | `mentat_skippy_quips` | 1 | 0 = body language only, never ask the bridge for a line |
 | `mentat_skippy_debug` | 0 | print every decision; `skippy_director_log` and `mentat_skippy_status` show the last ones and the day's count |
-| bridge env | | `SKIPPY_QUIP_DIR`, `SKIPPY_QUIP_PROVIDER`, `SKIPPY_QUIP_MODEL_NAME`, `SKIPPY_QUIP_MAX_PER_DAY`, `SKIPPY_QUIP_REPEAT_DAYS`, `SKIPPY_QUIP_LIVE_SHARE`, `SKIPPY_QUIP_MODEL_CALLS_PER_DAY` |
+| bridge env | | `SKIPPY_QUIP_DIR`, `SKIPPY_QUIP_PROVIDER`, `SKIPPY_QUIP_MODEL_NAME`, `SKIPPY_QUIP_MAX_PER_DAY`, `SKIPPY_QUIP_REPEAT_DAYS`, `SKIPPY_QUIP_LIVE_SHARE`, `SKIPPY_QUIP_MODEL_CALLS_PER_DAY` (the solid-turns ones are in "Solid turns") |
+| `data/mentat/captain_sids.txt` | | one SteamID64 per line (`#` comments allowed), a plain text file in the game's or the dedicated server's data folder, never committed: those players' default roast level is savage, like the listen-server host and the ids in `mentat_skippy_captain_sids` |
 
 The bridge's private state (`stage/gmod/holodeck/data/quips/`: history, clip cache, day count, live bank) is gitignored and never committed.
 
@@ -936,6 +994,7 @@ The shared code is `addon/lua/mentat/persist.lua` (`write` = direct write + read
 
 | file under `data/` | written by | format | backup |
 |---|---|---|---|
+| `mentat/captain_sids.txt` | by hand (read by `avatar/director.lua`) | one SteamID64 per line, `#` comments; a missing file is fine | `captain_sids.bak.txt` (read if the file is unreadable) |
 | `mentat/wake_words.json` | `holodeck/wakenames.lua` | v2 `players = [{ sid, names }]` | `wake_words.bak.txt` |
 | `mentat/faces.json` | `faces_server.lua` | v2 `rec = [{ sid, ... }]`, `blocked = ["sid"]` | `faces.bak.txt` |
 | `mentat/faces/<hash>.jpg` | `faces_server.lua` | JPEG, named by hash | none (re-fetched) |

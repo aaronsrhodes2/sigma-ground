@@ -1315,6 +1315,44 @@ MESH_CACHE_MAX = 32
 MESH_CACHE_DIR = None                              # tests point acquire at a temporary directory; None = the real cache
 MESH_PACKED: dict = {}                             # key -> the answer (insertion ordered), so one model is packed once
 _mesh_lock = threading.Lock()                      # packing is CPU work in pure Python: one at a time
+PACK_CACHE = None                                  # tests inject a packcache.PackCache here; None = the real one (below), "off" = disabled
+PACK_CACHE_CAP = int(os.environ.get("SKIPPY_PACK_CACHE_MB", "500")) * 1024 * 1024
+_pack_caches: dict = {}
+
+
+def pack_cache():
+    """The packed-payload cache: a model measured and packed once is a file read afterwards, for any player and any session
+    (README "Object caches"). SKIPPY_PACK_CACHE_MB=0 switches it off. Where the downloads live elsewhere (MESH_CACHE_DIR set by a test or a
+    tool) the packed cache sits beside them, so a scratch download directory never reads the real cache."""
+    if PACK_CACHE == "off" or PACK_CACHE_CAP <= 0:
+        return None
+    if PACK_CACHE is not None:
+        return PACK_CACHE
+    _skippyverse()
+    from skippyverse import packcache
+    d = Path(MESH_CACHE_DIR).with_name(Path(MESH_CACHE_DIR).name + "_packed") if MESH_CACHE_DIR else packcache.DEFAULT_DIR
+    if d not in _pack_caches:
+        _pack_caches[d] = packcache.PackCache(d, cap_bytes=PACK_CACHE_CAP)
+    return _pack_caches[d]
+
+
+def _pack_fingerprint(acquire, card: dict) -> str | None:
+    """A hash of the downloaded files the packer reads (None when they are not on disk: a pruned download does not stop a cache hit)."""
+    from skippyverse import packcache
+    try:
+        extra = b""
+        if (card.get("provenance") or {}).get("source") == "NASA 3D Resources":          # the verified-length table scales the file
+            extra = Path(acquire.__file__).with_name("data").joinpath("nasa_real_sizes.json").read_bytes()
+        return packcache.fingerprint(acquire._safe_dir(MESH_CACHE_DIR or acquire.DEFAULT_CACHE, card["id"]), extra)
+    except OSError:
+        return None
+
+
+def _pack_facts(card: dict, info: dict) -> dict:
+    """The measured facts kept beside a payload: what /mesh reports, and the card's own source, licence and size basis."""
+    prov = card.get("provenance") or {}
+    return {"tris": info["tris_out"], "verts": info["verts"], "bbox_m": info["bbox_m"], "palette": info.get("palette"),
+            "source": prov.get("source"), "licence": prov.get("license"), "size_basis": (card.get("size_m") or {}).get("basis")}
 
 
 def mesh_key(card_id: str) -> str:
@@ -1337,6 +1375,15 @@ def _asset_drawable(card: dict) -> bool:
         return False
 
 
+class _CacheHit(Exception):
+    """Internal: the payload came from the pack cache, skip the download and the pack."""
+
+
+def packcache_key(card_id: str) -> str:
+    from skippyverse import meshpack, packcache
+    return packcache.make_key(card_id, MESH_FORMAT, MESH_TRIS, meshpack.PACK_VERSION)
+
+
 def mesh_offer(card: dict) -> dict | None:
     """The mesh the game may ask for on this card, or None (the box is all there will be)."""
     src = (card.get("provenance") or {}).get("source") if card else None
@@ -1357,6 +1404,7 @@ class MeshProgress:
         self.stage, self.bytes, self.total, self.error = "queued", 0, 0, None
         self.t_stage = time.monotonic()
         self.fetching = 0                      # bytes of the file in flight (the chunk callback); `bytes` holds the finished files
+        self.cached = False                    # True when the payload came out of the pack cache (the stage string then says "cached")
 
     def set(self, stage: str, error: str | None = None) -> None:
         self.stage, self.error, self.t_stage = stage, error, time.monotonic()
@@ -1365,6 +1413,8 @@ class MeshProgress:
         out = {"stage": self.stage, "bytes": self.bytes + self.fetching, "total": self.total, "age_s": round(time.monotonic() - self.t_stage, 1)}
         if self.error:
             out["error"] = self.error[:160]
+        if self.cached:
+            out["cached"] = True
         return out
 
     def wrap(self, fetch):
@@ -1421,7 +1471,29 @@ def mesh_payload(card_id: str, key: str, cancel: Cancel | None = None, deadline:
     MESH_PROGRESS[key] = prog
     while len(MESH_PROGRESS) > MESH_CACHE_MAX * 2:
         MESH_PROGRESS.pop(next(iter(MESH_PROGRESS)))
+    pc = pack_cache()
+    ck = fp = None
+    entry = None
+    if pc is not None:
+        ck = packcache_key(card_id)
+        fp = _pack_fingerprint(acquire, card)
+        pc_lock = pc.key_lock(ck)
+        pc_lock.acquire()                                                   # two first requests for one model: one packs, the other reads its entry
     try:
+        if pc is not None:
+            entry = pc.get(ck, fp, meshpack.PACK_VERSION)
+        if entry is not None and not {"tris", "verts", "bbox_m"} <= set(entry.facts):
+            entry = None                                                    # (an entry without its facts is no use: pack again)
+        if entry is not None:                                               # a hit: no download, no measure, no pack; the stages are passed through at once
+            prog.cached = True
+            prog.set("cached")
+            blob, info = entry.payload, {"tris_out": entry.facts["tris"], "verts": entry.facts["verts"], "bbox_m": entry.facts["bbox_m"]}
+    except BaseException:
+        pc_lock.release()
+        raise
+    try:
+        if entry is not None:
+            raise _CacheHit()
         fetch = prog.wrap(FOUND_FETCHER or bounded_fetch(deadline, cancel, on_bytes=lambda n: setattr(prog, "fetching", prog.fetching + n)))
         with GATE.slot("fetch", cancel):                                       # a second download waits a second, then gets 503
             prog.set("fetching")
@@ -1442,12 +1514,23 @@ def mesh_payload(card_id: str, key: str, cancel: Cancel | None = None, deadline:
             blob, info = meshpack.pack(path, MESH_TRIS, "lzma", scale=scale, fmt="svm1" if MESH_LEGACY else "svm3")
         if len(blob) > MESH_MAX_BYTES:
             raise ValueError(f"the payload is {len(blob)} bytes, over the {MESH_MAX_BYTES} byte cap")
+        if pc is not None:
+            pc.put(ck, blob, _pack_facts(card, info), fmt=MESH_FORMAT, tris=MESH_TRIS, pack_version=meshpack.PACK_VERSION, card_id=card_id,
+                   fp=_pack_fingerprint(acquire, card))
+            pc.stats["builds"] += 1
+    except _CacheHit:
+        pass
     except BaseException as e:
         prog.set("failed", f"{type(e).__name__}: {e}")
         raise
+    finally:
+        if pc is not None:
+            pc_lock.release()
     out = {"ok": True, "key": key, "card": card_id, "format": MESH_FORMAT, "bytes": len(blob), "crc32": zlib.crc32(blob) & 0xFFFFFFFF,
            "tris": info["tris_out"], "verts": info["verts"], "bbox_m": info["bbox_m"], "b64": base64.b64encode(blob).decode("ascii")}
     prog.set("done")
+    if prog.cached:
+        out["cached"] = True
     MESH_PACKED[key] = out
     while len(MESH_PACKED) > MESH_CACHE_MAX:
         MESH_PACKED.pop(next(iter(MESH_PACKED)))

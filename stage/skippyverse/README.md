@@ -77,6 +77,7 @@ python -m pytest sigma_ground/radiance/tests/test_skippyverse_acquire.py      # 
 | File | What it does |
 |---|---|
 | `acquire.py` | One of two modules allowed network imports. `acquire(card, fetch, cache_dir, force)` downloads ONE asset: NASA `.glb` from `raw.githubusercontent.com/nasa/NASA-3D-Resources/master/<quoted path>`, Fuel `https://fuel.gazebosim.org/1.0/<owner>/models/<name>.zip` (images are not kept), Poly Haven `api.polyhaven.com/files/<id>` then the 1k glTF + `.bin` only. Licence gate first; 40 MB per file unless `force=True`; cache in `cache/assets/<card id>/` (gitignored), marker written last. `acquire_and_measure` returns `{card, pose, asset, measurement, bytes}`. |
+| `packcache.py` | The packed-payload cache: key `sha256(card, format, triangle target, meshpack.PACK_VERSION)`, atomic checksummed files in `cache/packed/`, source-file fingerprint, 500 MB LRU cap, one build per key under concurrency. The bridge's `/mesh` uses it; bump `PACK_VERSION` when the packer changes. Details: `stage/gmod/holodeck/README.md` "Object caches". |
 | `measure.py` | Pure-stdlib bounding boxes: GLB/glTF (node matrix/TRS, vertices read when not axis-aligned), OBJ, STL (binary+ascii), Collada (`<unit>`, `up_axis`, node transforms), SDF (`<scale>`, poses, box/sphere/cylinder; nested models and includes are refused). Everything is reported +Z up; unit-less formats say `unit_known=False`. |
 | `data/nasa_real_sizes.json` | Published real sizes for NASA models; empty on purpose (see its `about`). |
 

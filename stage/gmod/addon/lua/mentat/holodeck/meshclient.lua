@@ -4,6 +4,7 @@
 -- server cannot reach net.Receive on a client; sizes, counts and order are checked anyway; any failure leaves the box.
 local SVM1 = include("mentat/holodeck/svm1.lua")
 local Lit = include("mentat/lit.lua")                          -- the lighting and materials Skippy's body uses too
+local Cache = include("mentat/holodeck/meshcache.lua")         -- the copy kept between sessions (offered by the server, see meshnet.lua)
 
 local CM = {}
 CM.CAP_BYTES = 256 * 1024            -- the same cap as the server's
@@ -19,7 +20,14 @@ CM.AMBIENT = 0.55
 CM.store = {}                        -- mesh number -> { state = "ready" | "failed", imesh =, tris =, why = }
 CM.partial = {}                      -- mesh number -> { n =, got =, count =, total =, crc =, t = }
 CM.asked = {}                        -- mesh number -> time of the last ask
-CM.stats = { chunks = 0, rejected = 0 }
+CM.stats = { chunks = 0, rejected = 0, cache_hits = 0, cache_misses = 0, cache_saved = 0, offers = 0 }
+CM.offered = {}                      -- mesh number -> time of the last offer from the server
+CM.seen = {}                         -- mesh number -> time an entity first needed it
+CM.WANT_GRACE = 1.5                  -- seconds a needed mesh waits for the server's offer before the client asks for it outright
+CM.OFFER_PATIENCE = 10               -- seconds after answering an offer "want" that the client waits for the stream before asking
+CM.cv_cache = CreateClientConVar and CreateClientConVar("holodeck_mesh_cache", "1", true, false, "1 = keep the found objects' shapes this machine receives and tell the server what it already has (nothing is downloaded twice); 0 = always streamed") or nil
+local function cache_on() return CM.cv_cache == nil or CM.cv_cache:GetBool() end
+CM.cache_on = cache_on
 CM.cv_lit = CreateClientConVar and CreateClientConVar("holodeck_found_lit", "1", true, false, "1 = a found object's real shape is drawn lit (key, rim, fill, gloss, its own colours and materials); 0 = the old flat shading") or nil
 local function lit_enabled() return Lit.LIT and (CM.cv_lit == nil or CM.cv_lit:GetBool()) end
 
@@ -167,6 +175,7 @@ local function accept(id, blob, box)
   return true
 end
 CM.accept = accept
+CM.Cache = Cache
 
 --- The box the pose is relative to: the first holodeck_found entity of this mesh number that has one (a model's boxes are all alike).
 CM.box_for = function(id)
@@ -206,7 +215,55 @@ function CM.receive()
     CM.store[id] = { state = "failed", why = "length or checksum mismatch" }
     return bad()
   end
-  accept(id, blob, CM.box_for(id))
+  if accept(id, blob, CM.box_for(id)) then
+    CM.store[id].crc = crc
+    if cache_on() and Cache.store(util.SHA256(blob), blob, crc) then CM.stats.cache_saved = CM.stats.cache_saved + 1 end
+  end
+end
+
+--- The server offers a model it has (see meshnet.lua): answer "have" when this client already holds exactly those bytes, in this session or in
+--- its cache folder, "want" otherwise. Nothing is read from the network here.
+function CM.receive_offer()
+  local id = net.ReadUInt(8)
+  local crc = net.ReadUInt(32)
+  local total = net.ReadUInt(20)
+  local sha = net.ReadString()
+  if id < 1 or id > CM.MAX_MESHES or total < 1 or total > CM.CAP_BYTES or type(sha) ~= "string" or #sha ~= 64 or not sha:match("^%x+$") then
+    CM.stats.rejected = CM.stats.rejected + 1
+    return
+  end
+  CM.stats.offers = CM.stats.offers + 1
+  local have = false
+  local s = CM.store[id]
+  if s and s.state == "ready" and s.crc == crc then
+    have = true
+  elseif cache_on() then
+    local blob = Cache.lookup(sha, total, crc)
+    if blob and accept(id, blob, CM.box_for(id)) then
+      CM.store[id].crc = crc
+      have = true
+      CM.stats.cache_hits = CM.stats.cache_hits + 1
+    elseif blob then
+      Cache.drop(sha)                                                 -- it checksummed but would not build: not worth keeping
+      CM.store[id] = nil
+    end
+  end
+  if not have then CM.stats.cache_misses = CM.stats.cache_misses + 1 end
+  CM.offered[id] = now()
+  net.Start("holodeck_mesh_have")
+  net.WriteUInt(id, 8)
+  net.WriteUInt(crc, 32)
+  net.WriteBool(have)
+  net.SendToServer()
+end
+
+--- Tell the server this client keeps a cache (it is then offered models instead of streamed to). False when the server does not know the message
+--- (an older server): the caller then asks for everything outright.
+function CM.hello()
+  local ok, started = pcall(net.Start, "holodeck_mesh_hello")
+  if not ok or started == false then return false end
+  net.SendToServer()
+  return true
 end
 
 --- Ask the server for a mesh (0 = all), at most once every few seconds per number.
@@ -233,7 +290,18 @@ function CM.get(id)
   if not id or id < 1 then return nil end
   local s = CM.store[id]
   if s and s.state == "ready" then return s end
-  if not s then CM.want(id) end
+  if not s then
+    if cache_on() then                                    -- the server's offer may be on its way: let the cache answer it before asking for a download
+      local t = now()
+      CM.seen[id] = CM.seen[id] or t
+      if CM.offered[id] then
+        if t - CM.offered[id] < CM.OFFER_PATIENCE then return nil end
+      elseif t - CM.seen[id] < CM.WANT_GRACE then
+        return nil
+      end
+    end
+    CM.want(id)
+  end
   return nil
 end
 
@@ -302,6 +370,7 @@ function CM.draw(ent, s, alpha)
 end
 
 net.Receive("holodeck_mesh", CM.receive)
+net.Receive("holodeck_mesh_offer", CM.receive_offer)
 Holodeck = Holodeck or {}
 Holodeck.MeshClient = CM                                  -- (so a console command or a test can look at what this client holds)
 
@@ -313,7 +382,11 @@ concommand.Add("holodeck_mesh_info", function()
     print(string.format("[holodeck] mesh %d: %s%s%s%s", id, st.state, st.tris and (", " .. st.tris .. " triangles") or "", st.parts and (", " .. #st.parts .. " colour regions, " .. (st.lit and "lit" or "flat")) or "", st.why and (", " .. tostring(st.why)) or ""))
   end
   print(string.format("[holodeck] meshes held: %d; chunks received %d, rejected %d; FLIP=%s", n, CM.stats.chunks, CM.stats.rejected, tostring(CM.FLIP)))
+  print(string.format("[holodeck] mesh cache: %s; %d files, %.1f KB of %.0f MB; offers %d, served from cache %d, downloaded %d, saved %d",
+    cache_on() and "on" or "off", Cache.count(), Cache.total_bytes() / 1024, Cache.CAP_BYTES / 1048576, CM.stats.offers, CM.stats.cache_hits, CM.stats.cache_misses, CM.stats.cache_saved))
 end)
+
+concommand.Add("holodeck_mesh_cache_clear", function() print("[holodeck] mesh cache: " .. Cache.clear() .. " files deleted") end)
 
 --- `holodeck_mesh_bench [tag]`: how long drawing the first found object takes the CPU (200 draws per frame inside the translucent pass,
 --- timed with SysTime, averaged over about 1.5 s); prints "[fl-perf] tag draw_ms=... parts=... tris=...". The look pass reads it from console.log.
@@ -339,6 +412,8 @@ concommand.Add("holodeck_mesh_bench", function(_, _, args)
 end, nil, "Time the CPU cost of drawing the first found object")
 
 --- A client that has just loaded asks for everything the server already has.
-hook.Add("InitPostEntity", "holodeck_mesh_hello", function() CM.want(0) end)
+hook.Add("InitPostEntity", "holodeck_mesh_hello", function()
+  if not (cache_on() and CM.hello()) then CM.want(0) end          -- with the cache: hello (the server offers what it has); without it, or on an older server: everything outright
+end)
 
 return CM
