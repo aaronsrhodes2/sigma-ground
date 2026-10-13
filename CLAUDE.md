@@ -69,6 +69,9 @@ logs exit codes, and with `scripts/jobwatch.py` attached as a tracked background
 dies, a worker logs a traceback, no progress is made for the stall limit, or the job finishes. Silent deaths have cost hours three times. Presets:
 `--preset shootout` and `--preset fair`; state and event log in `<state-dir>/<name>.status.json` / `.jsonl`.
 
+**Shell and scripting (the Captain, 2026-10-12).** Read `.claude/skills/windows-shell/SKILL.md` before running commands or writing scripts on this machine. When a scripting
+problem has a fixable CAUSE (tool, environment, convention), fix the cause and record it there, not just the script; propose config changes to the Captain.
+
 **What counts as physics here (the Captain, 2026-10-11): data alone.**
 - A claim stays in the model only if it can be disproved and has survived the test. A disproved claim is not part of the model; at most it is
   speculation about ourselves.

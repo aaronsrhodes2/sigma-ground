@@ -4,5 +4,9 @@
       "command": "sigma-ground-mcp",
       "args": []
     }
+  },
+  "env": {
+    "PYTHONUTF8": "1",
+    "PYTHONIOENCODING": "utf-8"
   }
 }

@@ -1,2 +1,8 @@
+# One line-ending rule for the repo (2026-10-12): LF in the index AND the working tree. The root cause of the 'LF will be replaced by CRLF' warnings on every
+# commit was the machine-wide core.autocrlf=true; this overrides it for this repo. Windows-only batch files keep CRLF.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
 # shell scripts must keep LF line endings or bash on the games VM and in Git Bash cannot run them
 *.sh text eol=lf
