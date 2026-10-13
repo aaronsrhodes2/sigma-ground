@@ -322,6 +322,8 @@ def main(argv=None) -> int:
                "args": {"bridge": bridge_url, "token": token, "key": a.key, "debug": a.selftest_voice is not None}}
         (DATA / "tool.txt").write_text(json.dumps(arm), encoding="utf-8")
         os.environ["GMOD_EXTRA_ARGS"] = f"+maxplayers {max(2, a.players)}"
+        # a person plays this session, so the engine owns the mouse; the hands-off self-test must not take it (gmod_ctl.sh, gmod_behind.ps1)
+        os.environ["GMOD_MOUSE"] = "0" if a.selftest_voice is not None else "1"
         say(f"starting Garry's Mod on {a.map} (a window will open; you will spawn in a few seconds)")
         started = exp_run.ctl("start", a.map)
         if started.returncode != 0:

@@ -2150,3 +2150,19 @@ def test_a_scene_and_an_explicit_item_of_the_rooms_own_kind_keeps_its_adjectives
     # without an adjective it is still the room's own and is dropped, as before
     req, notes = B.validate_request({"action": "add", "scene": "living room", "items": [{"kind": "couch", "count": 1}]})
     assert not [i for i in req["items"] if i["kind"] == "couch"] and any("couch" in n for n in notes)
+
+
+def test_a_visible_test_run_never_takes_the_mouse_but_an_interactive_session_does():
+    """A screenshot run needs a rendering window but must not capture the mouse or the focus of the person at the PC; a played session must.
+    Static checks of the launch branches in gmod_ctl.sh and of the opt-in in play.py."""
+    text = (GMOD / "gmod_ctl.sh").read_text(encoding="utf-8")
+    start = text.index('if [ "$quiet" -eq 1 ]; then\n    # `start /min`')
+    branches = text[start:text.index('local s=0', start)]
+    test_branch = branches.split('else\n    # a visible TEST run')[1].split('\n  fi')[0]
+    play_branch = branches.split('elif [ "${GMOD_MOUSE:-0}" = "1" ]; then')[1].split('else')[0]
+    assert "-nomouse" in test_branch and "-nojoy" in test_branch                      # the engine does not read or recentre the mouse
+    assert "-nomouse" not in play_branch                                               # a person plays: the engine owns the mouse
+    assert "gmod_behind.ps1" in branches and 'GMOD_MOUSE:-0}" != "1"' in branches      # the window is kept behind, unfocused, for test runs only
+    assert (GMOD / "gmod_behind.ps1").exists()
+    play = (GMOD / "holodeck" / "play.py").read_text(encoding="utf-8")
+    assert 'os.environ["GMOD_MOUSE"] = "0" if a.selftest_voice is not None else "1"' in play
