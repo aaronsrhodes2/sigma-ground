@@ -110,6 +110,13 @@ def run_one(args):
                                j4=base.j4, pole_axis_unit=base.pole_axis_unit)
         bodies.append(cb)
         e0[n] = float(np.linalg.norm(p - pos(kt, n, e_jd)))
+    asteroid_states = args[8] if len(args) > 8 else None
+    if asteroid_states:                                         # heavy asteroids as massive bodies (states from scripts/make_asteroid_states.py)
+        for nm, d in asteroid_states.items():
+            sx = d["state"]
+            bodies.append(CelestialBody(mass_kg=d["gm_km3_s2"] * 1e9 / G, position_m=np.array(sx[:3]) * KM, velocity_m_s=np.array(sx[3:]) * KM / DAY,
+                                        radius_m=d["radius_km"] * KM, love_number_k2=0.0, area_m2=0.0, reflectivity=0.0, j2=0.0, j3=0.0, j4=0.0,
+                                        pole_axis_unit=np.array([0.0, 0.0, 1.0])))
     sun_i = ORDER.index("Sun")
     toggles = pred.toggles
     if toggle_names is not None:
@@ -148,6 +155,7 @@ def main() -> int:
     ap.add_argument("--validate", action="store_true", help="control: start from DE440 itself")
     ap.add_argument("--shootout", type=Path, default=None, help="r2 rolling shoot-out json for the validation comparison")
     ap.add_argument("--worker", nargs=2, metavar=("JOB", "RESULT"), help=argparse.SUPPRESS)
+    ap.add_argument("--asteroids", type=Path, default=None, help="asteroid_perturber_states_v2physics.json: add the heavy asteroids as massive bodies")
     ap.add_argument("--only-vintage", nargs="*", default=None)
     ap.add_argument("--starts", nargs="*", default=None, help="restrict start snapshots, e.g. j2005 j2010")
     a = ap.parse_args()
@@ -163,10 +171,13 @@ def main() -> int:
     keys = sorted(k for k in de["snapshots"] if k.startswith("j") and 2000 <= int(k[1:]) <= 2015)
     if a.starts:
         keys = [k for k in keys if k in a.starts]
+    ast = json.loads(a.asteroids.read_text()) if a.asteroids else None
+    def ast_for(key):
+        return {n: {"gm_km3_s2": d["gm_km3_s2"], "radius_km": d["radius_km"], "state": d["states"][key]} for n, d in ast["asteroids"].items()} if ast else None
     jobs = []
     if a.validate:
         for k in keys:
-            jobs.append(("DE440(control)", None, k, de["snapshots"][k]["epoch"]["jd_tdb"], a.dt_days, [1, 2, 3, 4, 5], None, de["snapshots"][k]))
+            jobs.append(("DE440(control)", None, k, de["snapshots"][k]["epoch"]["jd_tdb"], a.dt_days, [1, 2, 3, 4, 5], None, de["snapshots"][k], ast_for(k)))
     else:
         import datetime as dt
         for name, f, rel in VINTAGES:
@@ -175,7 +186,7 @@ def main() -> int:
             for k in keys:
                 jd = de["snapshots"][k]["epoch"]["jd_tdb"]
                 if jd >= rel.toordinal() + 1721424.5:
-                    jobs.append((name, f, k, jd, a.dt_days, [1, 2, 3, 4, 5], None, de["snapshots"][k]))
+                    jobs.append((name, f, k, jd, a.dt_days, [1, 2, 3, 4, 5], None, de["snapshots"][k], ast_for(k)))
     tag = "validate" if a.validate else "contest"
     a.out.mkdir(parents=True, exist_ok=True)
     part = a.out / f"fair_contest_{tag}.jsonl"                  # one finished propagation per line: a killed run resumes where it stopped
