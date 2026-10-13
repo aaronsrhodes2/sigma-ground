@@ -95,6 +95,38 @@ class TestJobWatch(unittest.TestCase):
         self.assertEqual(r.returncode, 3, r.stdout)
         self.assertIn('"kind": "WARN"', (self.tmp / "state" / "t.jsonl").read_text())
 
+    def test_an_idle_stalled_job_is_reported_as_idle(self):
+        job = start_job(self.tmp, ["import time", log_line("step 0 done"), "time.sleep(60)"])
+        try:
+            r = subprocess.run(watch_cmd(self.tmp, job.pid, "--stall-minutes", "0.05"), capture_output=True, text=True, timeout=40)
+        finally:
+            job.kill()
+        self.assertEqual(r.returncode, 2, r.stdout)
+        self.assertIn("IDLE", r.stdout)
+
+    def test_a_busy_job_without_progress_gets_a_grace_period_then_an_alert(self):
+        # a stand-in that burns CPU but writes nothing: a long computation or a loop. The limit (3 s) is extended once, then it alerts as BUSY.
+        job = start_job(self.tmp, [log_line("step 0 done"), "while True:", "    pass"])
+        t0 = time.time()
+        try:
+            r = subprocess.run(watch_cmd(self.tmp, job.pid, "--stall-minutes", "0.05", "--busy-grace", "1"), capture_output=True, text=True, timeout=60)
+        finally:
+            job.kill()
+        self.assertEqual(r.returncode, 2, r.stdout)
+        self.assertIn("BUSY", r.stdout)
+        self.assertGreaterEqual(time.time() - t0, 5.5)                       # alerted after the extended (2 x 3 s) limit, not at the first
+        self.assertIn("limit extended", (self.tmp / "state" / "t.jsonl").read_text())
+
+    def test_expected_job_minutes_raises_the_stall_limit(self):
+        job = start_job(self.tmp, ["import time", log_line("step 0 done"), "time.sleep(60)"])
+        t0 = time.time()
+        try:
+            r = subprocess.run(watch_cmd(self.tmp, job.pid, "--stall-minutes", "0.01", "--expected-job-minutes", "0.05"), capture_output=True, text=True, timeout=60)
+        finally:
+            job.kill()
+        self.assertEqual(r.returncode, 2, r.stdout)
+        self.assertGreaterEqual(time.time() - t0, 6.5)                       # limit = 2.5 x 0.05 min = 7.5 s, not 0.6 s
+
     def test_a_pid_that_is_not_running_is_an_alert_at_once(self):
         r = subprocess.run(watch_cmd(self.tmp, 4000000), capture_output=True, text=True, timeout=30)
         self.assertEqual(r.returncode, 2)

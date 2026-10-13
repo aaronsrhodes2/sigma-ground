@@ -7,6 +7,7 @@ kill with no event-log trace). It never touches the job; it only watches and log
 Each check (every ``--interval`` seconds) it looks at:
   * the job's driver process(es) (by PID, immune to PID reuse): alive or gone;
   * the driver's python children (workers): a driver with zero children for two checks is stuck or wedged;
+  * the CPU used by the driver and its workers between checks (busy or idle): it tells a long computation from a hang when the stall limit hits, and a BUSY job gets one grace period;
   * progress signals: a growing line count in a log or results file, a newer mtime in a checkpoint folder, more files matching a glob. If NONE changes for
     ``--stall-minutes`` the job is stalled (or in an infinite loop): ALERT;
   * new lines in the job's logs and stderr files matching an error pattern (new lines only, from the moment the watch starts unless ``--from-start``):
@@ -73,6 +74,24 @@ def children_python(keys) -> int:
     return n
 
 
+def cpu_seconds(keys) -> float:
+    """CPU seconds (user + system) used so far by the driver and all its descendants: the difference between checks says busy or idle."""
+    total = 0.0
+    for k in keys:
+        if alive(k):
+            try:
+                p = psutil.Process(k[0])
+                for q in [p] + p.children(recursive=True):
+                    try:
+                        t = q.cpu_times()
+                        total += t.user + t.system
+                    except psutil.Error:
+                        pass
+            except psutil.Error:
+                pass
+    return total
+
+
 def signal_value(spec: str):
     """A progress signal: 'lines:PATH[::REGEX]' count of matching lines, 'mtime:PATH' newest mtime under a file or folder, 'count:GLOB' number of files."""
     kind, _, rest = spec.partition(":")
@@ -137,6 +156,10 @@ def main(argv=None) -> int:
     ap.add_argument("--fatal-regex", default=FATAL)
     ap.add_argument("--warn-regex", default=WARN)
     ap.add_argument("--stall-minutes", type=float, default=45.0)
+    ap.add_argument("--expected-job-minutes", type=float, default=0.0,
+                    help="longest single job in minutes; the stall limit becomes at least 2.5x this (a limit shorter than one job is a false alarm by construction)")
+    ap.add_argument("--busy-grace", type=int, default=1,
+                    help="when the stall limit hits while the job is still burning CPU, extend it this many times before alerting; an IDLE stalled job alerts at once")
     ap.add_argument("--interval", type=float, default=60.0)
     ap.add_argument("--mem-warn-gb", type=float, default=1.0)
     ap.add_argument("--min-children", type=int, default=1, help="alert if the driver is alive with fewer python children than this for two checks (0 disables)")
@@ -161,6 +184,8 @@ def main(argv=None) -> int:
         a.success_file.append(str(a.outdir / "fair_contest_contest.json"))
         a.err_glob.append(str(a.outdir / "jobs" / "*.err"))
 
+    if a.expected_job_minutes:
+        a.stall_minutes = max(a.stall_minutes, 2.5 * a.expected_job_minutes)
     keys = [proc_key(p) for p in a.pid]
     if not any(keys):
         print(f"JOBWATCH ALERT {a.name}: none of the PIDs {a.pid} is running at start", flush=True)
@@ -175,6 +200,8 @@ def main(argv=None) -> int:
     t_start = time.time()
     low_children = 0
     low_mem = 0
+    last_cpu = cpu_seconds(keys)
+    graces_used = 0
     ok_re, fatal_re, warn_re = re.compile(a.success_regex), re.compile(a.fatal_regex), re.compile(a.warn_regex)
     success_seen = False
 
@@ -225,12 +252,16 @@ def main(argv=None) -> int:
         last_vals = vals
         stalled_min = (time.time() - last_progress) / 60.0
         children = children_python(keys)
+        cpu_now = cpu_seconds(keys)
+        cpu_delta = cpu_now - last_cpu
+        last_cpu = cpu_now
+        busy = cpu_delta > 0.5 * a.interval                              # at least half a core's worth of work since the last check
         mem_gb = psutil.virtual_memory().available / 1e9
         st = {"name": a.name, "time": now(), "driver_alive": driver_up, "python_children": children, "available_ram_gb": round(mem_gb, 2),
               "minutes_since_progress": round(stalled_min, 1), "progress": {k: (v if not isinstance(v, float) else round(v, 1)) for k, v in vals.items()},
-              "elapsed_h": round((time.time() - t_start) / 3600, 2)}
+              "elapsed_h": round((time.time() - t_start) / 3600, 2), "cpu_seconds_last_interval": round(cpu_delta, 1), "cpu_busy": busy}
         status.write_text(json.dumps(st, indent=1))
-        log("CHECK", "", **{k: st[k] for k in ("driver_alive", "python_children", "available_ram_gb", "minutes_since_progress")})
+        log("CHECK", "", **{k: st[k] for k in ("driver_alive", "python_children", "available_ram_gb", "minutes_since_progress", "cpu_seconds_last_interval")})
         # --- verdicts
         for f in a.success_file:
             if Path(f).exists():
@@ -246,8 +277,14 @@ def main(argv=None) -> int:
                 return finish(2, f"JOBWATCH ALERT {a.name} {now()}: driver alive but only {children} python children (expected >= {a.min_children}) for two checks")
         else:
             low_children = 0
-        if stalled_min >= a.stall_minutes:
-            return finish(2, f"JOBWATCH ALERT {a.name} {now()}: no progress signal changed for {stalled_min:.0f} min (limit {a.stall_minutes:g}): stalled or looping")
+        if stalled_min >= a.stall_minutes * (1 + graces_used):
+            if busy and graces_used < a.busy_grace:
+                graces_used += 1
+                log("WARN", f"no progress for {stalled_min:.0f} min but the job is busy ({cpu_delta:.0f} CPU-s in the last check): limit extended (grace {graces_used}/{a.busy_grace}). "
+                            "If one job really takes longer than this, raise --expected-job-minutes")
+            else:
+                state = f"BUSY ({cpu_delta:.0f} CPU-s in the last check: looping, or one job is longer than the limit)" if busy else f"IDLE ({cpu_delta:.0f} CPU-s in the last check: hung)"
+                return finish(2, f"JOBWATCH ALERT {a.name} {now()}: no progress signal changed for {stalled_min:.0f} min (limit {a.stall_minutes:g}); workers are {state}")
         if mem_gb < a.mem_warn_gb:
             low_mem += 1
             if low_mem in (1, 5):
