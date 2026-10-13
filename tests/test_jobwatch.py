@@ -127,6 +127,18 @@ class TestJobWatch(unittest.TestCase):
         self.assertEqual(r.returncode, 2, r.stdout)
         self.assertGreaterEqual(time.time() - t0, 6.5)                       # limit = 2.5 x 0.05 min = 7.5 s, not 0.6 s
 
+    def test_fair_preset_recognises_the_validate_mode_success_file(self):
+        # regression: a --validate run writes fair_contest_validate.json; the preset once looked only for fair_contest_contest.json and cried wolf at a clean finish
+        out = self.tmp / "run"
+        (out / "jobs").mkdir(parents=True)
+        job = start_job(self.tmp, ["import time", "time.sleep(2)"])
+        (out / "fair_contest_validate.json").write_text("{}")
+        r = subprocess.run([sys.executable, str(JOBWATCH), "--name", "t", "--pid", str(job.pid), "--interval", "1", "--state-dir", str(self.tmp / "state"),
+                            "--preset", "fair", "--outdir", str(out), "--min-children", "0", "--stall-minutes", "5"], capture_output=True, text=True, timeout=40)
+        job.wait()
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIn("JOBWATCH DONE", r.stdout)
+
     def test_a_pid_that_is_not_running_is_an_alert_at_once(self):
         r = subprocess.run(watch_cmd(self.tmp, 4000000), capture_output=True, text=True, timeout=30)
         self.assertEqual(r.returncode, 2)

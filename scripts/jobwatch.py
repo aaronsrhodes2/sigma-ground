@@ -179,9 +179,10 @@ def main(argv=None) -> int:
         a.progress.append(f"mtime:{a.outdir / 'ckpt'}")
         a.err_glob += [str(a.outdir / "*" / "*.log"), str(a.outdir / "*_run.err")]
     if a.preset == "fair" and a.outdir:
-        a.progress.append(f"lines:{a.outdir / 'fair_contest_contest.jsonl'}")
+        for tag in ("contest", "validate"):                              # the runner names its outputs by mode (--validate writes ..._validate...)
+            a.progress.append(f"lines:{a.outdir / f'fair_contest_{tag}.jsonl'}")
+            a.success_file.append(str(a.outdir / f"fair_contest_{tag}.json"))
         a.progress.append(f"mtime:{a.outdir / 'jobs'}")
-        a.success_file.append(str(a.outdir / "fair_contest_contest.json"))
         a.err_glob.append(str(a.outdir / "jobs" / "*.err"))
 
     if a.expected_job_minutes:
