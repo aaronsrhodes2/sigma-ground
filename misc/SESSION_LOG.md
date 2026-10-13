@@ -3888,3 +3888,18 @@ geometry step that does not exist yet: V = m/rho, radius, area) or taken from a 
 given first with the assumptions stated; every plan number carries a provenance (user / table / step / model); quantities are quoted from the
 question and converted by Mentat. Not built beyond the census tools and `router_results.py`. Decisions listed in the doc.
 
+### structured_results measured (2026-10-13, 15:03 to 15:10; cascade off, same models, switch on)
+`--tweaks model-only --tweaks-on structured_results` (label `model-only[-17 +2]`), compared with the same runs without it:
+
+| | 1.7B | 4B | 8B |
+|---|---|---|---|
+| cascade off, before | 98 | 109 | 106 |
+| cascade off, `structured_results` on | 100 | **115** | 111 |
+
+The 4B's math group goes from 0 of 6 to 4 of 6 (roots, derivative, cubic, simplify); the two left are `integrate_expr` called with invented
+`bounds`/`limits` (the training gap: no training example uses `lower`/`upper`). The what-if on copies of the records had predicted +6 for the 4B and
++2 for the 1.7B, and the real runs gave +6 and +2. Remaining 26 cascade-right questions the 4B still misses: 9 wrong value, 8 invented parameter name,
+3 missing a required parameter (`optics_002`, `gr_009`, `cosmo_006`), 2 unknown tool, 2 bad `$n` reference, 1 tool-side invalid input, 1 procedure result.
+The switch is opt-in and in no profile, so the legacy, trained and earlier model-only runs stand as they were. Commits 923bff5 and earlier on
+`claude/router-v2`; run files stay out of git.
+
