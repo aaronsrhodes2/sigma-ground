@@ -53,11 +53,11 @@ Open hypotheses, each testable: (a) constants (Earth+Moon GM, mass ratio) differ
 with DE440 itself it is our model, if it vanishes it is the vintages' constants. Control running (3 cases).
 
 ### C3 update (2026-10-13): the DE440-start control: the deficit is OUR model
-Starting from DE440 itself (identical constants and initial state; , 3 cases, converged step): the Moon still drifts along-track by -0.29 to -0.44 km/yr (linear, quadratic term <= 0.003 km/yr^2)
+Starting from DE440 itself (identical constants and initial state; data in `fixtures/vintages/moon_atlas_control_de440start.json`, 3 cases, converged step): the Moon still drifts along-track by -0.29 to -0.44 km/yr (linear, quadratic term <= 0.003 km/yr^2)
 and the 27.55-day term grows from 14-22 m in year 1 to 156-201 m in year 5, the same pattern and size as against the vintages. So the vintage constants are NOT the cause; a lunar-model term is missing from the engine.
 The growth of the once-per-orbit term is linear in time: a mismatch of ~0.4 arcsec/yr (~3 ppm) in the rate of the Moon's perigee advance, with a mean-motion offset of ~1e-8. The Sun-phase terms (synodic 29.53 d, variation 14.77 d) explain only 0-3 % of the variance: not a solar-geometry effect.
 
 ## C3a. The Moon's triaxial figure, sectoral C22 with the long axis locked to the Earth (2026-10-13): coarse test SUPPORTIVE, converged test running
- (MacCullagh quadrupole force; 9 tests: engine J2 limit, spherical-harmonic derivative on both axes, Newton III, zero-C22 identity). C22 = 2.2382e-5 [LIT, GRAIL, reference radius 1738 km].
+`sigma_ground/field/interface/lunar_figure.py` (MacCullagh quadrupole force; 9 tests: engine J2 limit, spherical-harmonic derivative on both axes, Newton III, zero-C22 identity). C22 = 2.2382e-5 [LIT, GRAIL, reference radius 1738 km].
 Coarse check (same step with and without, so only the difference counts; DE440 start J2010): the Moon moves forward by +0.291 km at +1 yr and +0.882 km at +3 yr, a steady +0.29 km/yr, against a deficit of -0.29 to -0.44 km/yr.
 Next: the converged control with C22 (3 cases, 5-day sampling) and then vintage cases; success = the drift and the growing 27.55-day term shrink without harming other bodies.
