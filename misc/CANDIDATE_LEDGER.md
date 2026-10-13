@@ -67,3 +67,19 @@ The growth of the once-per-orbit term is linear in time: a mismatch of ~0.4 arcs
 `sigma_ground/field/interface/lunar_figure.py` (MacCullagh quadrupole force; 9 tests: engine J2 limit, spherical-harmonic derivative on both axes, Newton III, zero-C22 identity). C22 = 2.2382e-5 [LIT, GRAIL, reference radius 1738 km].
 Coarse check (same step with and without, so only the difference counts; DE440 start J2010): the Moon moves forward by +0.291 km at +1 yr and +0.882 km at +3 yr, a steady +0.29 km/yr, against a deficit of -0.29 to -0.44 km/yr.
 Next: the converged control with C22 (3 cases, 5-day sampling) and then vintage cases; success = the drift and the growing 27.55-day term shrink without harming other bodies.
+
+### C3a result (2026-10-13): SUPPORTED. The Moon's gap at +5 yr falls from 2.15 to 0.44 km
+The DE440-start control, 3 cases, converged step (0.025 d), Moon vs DE440's own continuation, medians; data files `moon_atlas_control_*.json` in `fixtures/vintages/`:
+
+| variant | along-track drift (km/yr) | along-track acceleration (km/yr^2) | 27.55-d amplitude, yr 1/3/5 (m) | gap at +5 yr (km) |
+|---|---|---|---|---|
+| no C22 | -0.416 | +0.0019 | 22 / 108 / 194 | 2.15 |
+| C22, long axis locked to the Earth | -0.121 | +0.0017 | 23 / 107 / 192 | 0.73 |
+| C22, IAU rotation model, engine clock frozen inside a step | -0.102 | +0.0662 | 3 / 28 / 84 | 1.25 |
+| **C22, IAU rotation model, sub-step clock (`_t_eval`)** | **-0.101** | **+0.0022** | **2 / 5 / 11** | **0.44** |
+
+How it was found: the locked-axis version removed the mean-motion error (a bulge that never averages away) but not the growing once-per-orbit term, which pointed at the bulge orientation: the real bulge follows the uniform rotation while the Earth direction librates by 2e = 6.3 deg.
+The IAU rotation model (prime meridian validated against the DE440 Earth direction: mean libration +0.017 deg, 27.55-d amplitude 6.30 deg) cut that term by 94 %, and exposed an ENGINE BUG: the engine advanced its clock only at the end of a Forest-Ruth step, so
+time-dependent forces were evaluated up to a step late (0.17 deg lag, a constant tangential force, a spurious +0.066 km/yr^2). Fixed in `nbody.py` (`_t_eval`, 8 lines, bit-identical trajectory, test `test_nbody_substep_time.py`).
+Other bodies unchanged (Mercury, Venus, Mars, Jupiter, Saturn < 0.001 km; Earth +0.011 km). Remaining: a steady along-track lag of about -0.10 km/yr (a mean-motion offset of ~3e-9; linear, so not tidal dissipation).
+Candidates for the remainder, not yet tested: the C22 coefficient and the reference radius convention, the tesseral and degree-3 lunar harmonics, the Earth's tidal response, and the Moon's J2 value.
