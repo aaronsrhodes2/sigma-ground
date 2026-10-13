@@ -333,6 +333,10 @@ end
 local function wrap(H, name, make)
   local cur = H[name]
   if type(cur) ~= "function" then return end
+  -- Another module (the water, H.wrappers.water) may have wrapped H[name] on top of ours since: `cur` is then not one of our wrappers, and
+  -- wrapping THAT would overwrite H.AvatarOrig[name] with it, so our first wrapper would call (through the module's `inner`) straight back into
+  -- itself: Holodeck.Handle then recursed without end and froze the game on the first request (found 2026-10-12). Leave such a chain alone.
+  if not Av.wrapped[cur] and H.AvatarOrig and H.AvatarOrig[name] and H.wrappers and next(H.wrappers) ~= nil then return end
   if not Av.wrapped[cur] then
     H.AvatarOrig = H.AvatarOrig or {}
     H.AvatarOrig[name] = cur

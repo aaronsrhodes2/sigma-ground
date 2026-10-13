@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import io
 import math
+import os
 
 GAMMA = 2.2
 IMAGE_SUFFIXES = (".png", ".jpg", ".jpeg", ".tga", ".bmp", ".webp")
@@ -75,8 +76,9 @@ class Texture:
 
 
 def load_texture(data):
-    """A Texture, or None when there is no data, no Pillow, or the image cannot be decoded (never raises)."""
-    if not data:
+    """A Texture, or None when there is no data, no Pillow, or the image cannot be decoded (never raises). SKIPPY_MESH_LEGACY=1 (the original
+    flat-colour payload, used for the "before" pictures) reads no textures at all."""
+    if not data or os.environ.get("SKIPPY_MESH_LEGACY") == "1":
         return None
     try:
         return Texture(bytes(data))

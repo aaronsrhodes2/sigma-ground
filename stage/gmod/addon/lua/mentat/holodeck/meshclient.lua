@@ -257,7 +257,7 @@ local function draw3(ent, s, alpha, m)
     local mn, mx = ent:GetBoxMins(), ent:GetBoxMaxs()
     local foot = ent:LocalToWorld(Vector((mn.x + mx.x) / 2, (mn.y + mx.y) / 2, mn.z))
     render.OverrideDepthEnable(true, false)                                  -- the shadow tests depth but never writes it
-    Lit.draw_shadow(foot + Vector(0, 0, 6), math.max(s.footprint[1] * 1.5, s.footprint[1] + 5), math.max(s.footprint[2] * 1.5, s.footprint[2] + 5), ent:GetAngles().y, alpha or 1)
+    Lit.draw_shadow(foot + Vector(0, 0, 6), math.max(s.footprint[1] * 1.8, s.footprint[1] + 6), math.max(s.footprint[2] * 1.8, s.footprint[2] + 6), ent:GetAngles().y, alpha or 1)
     render.OverrideDepthEnable(false, false)
   end
   local lights = lit and Lit.setup(pos + ent:GetUp() * ((ent:GetBoxMaxs().z + ent:GetBoxMins().z) / 2), ent:EntIndex())

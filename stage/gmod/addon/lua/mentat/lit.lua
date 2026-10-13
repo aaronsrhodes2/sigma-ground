@@ -175,7 +175,7 @@ local function shadow_mesh()
   local mat = CreateMaterial("mentat_skippy_blob_1", "UnlitGeneric", { ["$basetexture"] = "color/white", ["$vertexcolor"] = 1, ["$vertexalpha"] = 1,
     ["$translucent"] = 1, ["$nocull"] = 1 })
   local m = Mesh()
-  local rings = { { 0, 120 }, { 0.45, 85 }, { 0.75, 38 }, { 1, 0 } }
+  local rings = { { 0, 205 }, { 0.5, 170 }, { 0.8, 85 }, { 1, 0 } }          -- (look pass: the first profile, 120/85/38, vanished under the thing it sat beneath)
   local n = 24
   mesh.Begin(m, MATERIAL_TRIANGLES, n * (1 + 2 * (#rings - 2)))
   local function vert(r, a, alpha)

@@ -978,3 +978,23 @@ def test_the_client_draws_with_depth_writing_on_and_restores_it():
     real_draw = src.index("BodyC.draw(")
     real_off = src.index("render.OverrideDepthEnable(false, false)")
     assert real_on < real_draw < real_off
+
+
+def test_a_module_wrapping_handle_on_top_does_not_make_the_avatars_wrapper_call_itself():
+    """FAIL FIRST (2026-10-12): the water module wraps Holodeck.Handle on top of the avatar's wrapper (and registers H.wrappers.water); the avatar's
+    install then ran again, took the water's function for 'the original' and stored it as H.AvatarOrig.Handle, which its first wrapper calls: the
+    chain looped (avatar -> water -> avatar -> ...) and the real game froze on the first request."""
+    w = avatar_world()
+    p = w.player(A)
+    w.rt.execute("""
+      local H = Holodeck
+      H.wrappers = H.wrappers or {}
+      H.wrappers.water = true
+      local inner = H.Handle
+      H.Handle = function(ply, text, opts) return inner(ply, text, opts) end
+      Mentat.Avatar.Install()
+      Mentat.Avatar.Install()
+    """)
+    w.ask(p, "come here")
+    assert L(w, "return #MOCK.bots") == 1, "the avatar's own command still works through the other module's wrapper"
+    w.ask(p, "add a chair")                                                           # an ordinary request reaches the holodeck (no endless recursion)
