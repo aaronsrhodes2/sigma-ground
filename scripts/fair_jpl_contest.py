@@ -124,6 +124,15 @@ def run_one(args):
         toggles = type(pred.toggles)(**{f.name: (f.name in toggle_names) for f in dataclasses.fields(pred.toggles) if isinstance(getattr(pred.toggles, f.name), bool)})
     system = NBodySystem(bodies, toggles=toggles, solar_luminosity_W=rs._L_SUN_W if toggles.srp else 0.0, parent_attractor_indices=None)
     out = {n: {} for n in ORDER if n != "Sun"}
+    pole_days = args[9] if len(args) > 9 else None
+    pole_idx = [(i, n) for i, n in enumerate(ORDER) if pole_days and n in rs._IAU_POLE_MODELS and bodies[i].j2 != 0.0]   # bodies whose zonal axis matters
+    pole_every = max(1, int(round(pole_days / dt_days))) if pole_days else 0
+    steps_done = 0
+
+    def refresh_poles(jd):
+        for i, n in pole_idx:
+            system.bodies[i] = system.bodies[i].replace(pole_axis_unit=rs._iau_pole_unit(n, jd))
+
     t_now = e_jd
     kend = min(kv[0, 3].end_jd, kt[0, 3].end_jd)                 # a vintage kernel can end before the lead does (DE403s ends in 2011)
     for k in leads:
@@ -132,8 +141,13 @@ def run_one(args):
             break
         n_steps = max(1, int(round((target - t_now) / dt_days)))
         dts = (target - t_now) * DAY / n_steps
+        jd_cur = t_now
         for _ in range(n_steps):
+            if pole_every and steps_done % pole_every == 0:          # candidate C2: spin axes follow the IAU models instead of staying fixed at the start epoch
+                refresh_poles(jd_cur)
             system.forest_ruth_step(dts)
+            steps_done += 1
+            jd_cur += dts / DAY
         t_now = target
         sun_p = system.bodies[sun_i].position_m / KM
         for i, n in enumerate(ORDER):
@@ -156,6 +170,8 @@ def main() -> int:
     ap.add_argument("--shootout", type=Path, default=None, help="r2 rolling shoot-out json for the validation comparison")
     ap.add_argument("--worker", nargs=2, metavar=("JOB", "RESULT"), help=argparse.SUPPRESS)
     ap.add_argument("--asteroids", type=Path, default=None, help="asteroid_perturber_states_v2physics.json: add the heavy asteroids as massive bodies")
+    ap.add_argument("--pole-update-days", type=float, default=None, help="candidate C2: refresh the IAU spin axes of the zonal bodies every this many days")
+    ap.add_argument("--cases", nargs="*", default=None, help="explicit VINTAGE:start cases, e.g. DE405:j2001 DE421:j2009 (overrides --only-vintage/--starts)")
     ap.add_argument("--only-vintage", nargs="*", default=None)
     ap.add_argument("--starts", nargs="*", default=None, help="restrict start snapshots, e.g. j2005 j2010")
     a = ap.parse_args()
@@ -177,16 +193,19 @@ def main() -> int:
     jobs = []
     if a.validate:
         for k in keys:
-            jobs.append(("DE440(control)", None, k, de["snapshots"][k]["epoch"]["jd_tdb"], a.dt_days, [1, 2, 3, 4, 5], None, de["snapshots"][k], ast_for(k)))
+            jobs.append(("DE440(control)", None, k, de["snapshots"][k]["epoch"]["jd_tdb"], a.dt_days, [1, 2, 3, 4, 5], None, de["snapshots"][k], ast_for(k), a.pole_update_days))
     else:
         import datetime as dt
+        wanted = {tuple(c.split(":")) for c in a.cases} if a.cases else None
         for name, f, rel in VINTAGES:
-            if a.only_vintage and name not in a.only_vintage:
+            if wanted is None and a.only_vintage and name not in a.only_vintage:
                 continue
-            for k in keys:
+            for k in (sorted({kk for v, kk in wanted if v == name}) if wanted else keys):
+                if wanted and (name, k) not in wanted:
+                    continue
                 jd = de["snapshots"][k]["epoch"]["jd_tdb"]
                 if jd >= rel.toordinal() + 1721424.5:
-                    jobs.append((name, f, k, jd, a.dt_days, [1, 2, 3, 4, 5], None, de["snapshots"][k], ast_for(k)))
+                    jobs.append((name, f, k, jd, a.dt_days, [1, 2, 3, 4, 5], None, de["snapshots"][k], ast_for(k), a.pole_update_days))
     tag = "validate" if a.validate else "contest"
     a.out.mkdir(parents=True, exist_ok=True)
     part = a.out / f"fair_contest_{tag}.jsonl"                  # one finished propagation per line: a killed run resumes where it stopped
