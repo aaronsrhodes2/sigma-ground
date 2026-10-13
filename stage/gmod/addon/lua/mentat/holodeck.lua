@@ -607,7 +607,7 @@ local function create_entity(entry)
     if not IsValid(ent) then return nil end
     local f = v.found or {}
     local ok = ent.SetFound and ent:SetFound({ mins = v.mins, maxs = v.maxs, name = f.name, source = f.source, licence = f.licence,
-                                                basis = f.basis, mass = cv_real_mass:GetBool() and v.mass or 0 })
+                                                basis = f.basis, mass = cv_real_mass:GetBool() and v.mass or 0, water = v.water })
     if not ok then ent:Remove(); return nil end
     return ent
   end
@@ -663,7 +663,7 @@ local function spawn_prop(entry, fade)
     end
     ent:SetCollisionGroup(COLLISION_GROUP_NONE)
     local p2 = ent:GetPhysicsObject()
-    if IsValid(p2) then p2:EnableMotion(true); p2:Wake() end
+    if IsValid(p2) and not ent.HolodeckStatic then p2:EnableMotion(true); p2:Wake() end   -- (a water basin stays put)
     timer.Simple(3.9, function()                                         -- a settled prop sleeps instead of jittering
       if IsValid(ent) then
         local p3 = ent:GetPhysicsObject()
